@@ -24,7 +24,6 @@ import {
   isFunction,
   isNil,
   isNumber,
-  isObject,
   isArray,
   keys,
   map,
@@ -40,7 +39,6 @@ import {
   subtract,
   times,
   toNumber,
-  union,
   uniq,
   values,
 } from "lodash-es";

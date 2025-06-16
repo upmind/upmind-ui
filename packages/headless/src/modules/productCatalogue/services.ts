@@ -1,5 +1,5 @@
 // --- internal
-import { QueryListParams, useQuery } from "../..";
+import { QueryParams, useQuery } from "../..";
 
 // --- utils
 import { isNil, map } from "lodash-es";
@@ -16,11 +16,12 @@ import type { IProduct } from "@upmind-automation/types";
 
 const queryKey: QueryKey = ["product", "catalogue"];
 
-function loadList(params?: QueryListParams) {
-  const { query, useUrl } = useQuery();
+function loadList(params?: QueryParams) {
+  const { list, useUrl } = useQuery();
 
-  return query<IProduct[], Product[]>({
-    queryKey: [...queryKey, params],
+  return list<IProduct[], Product[]>({
+    ...(params as any),
+    queryKey,
     url: useUrl(`basket/products`, {
       with: [
         "image",
@@ -30,7 +31,29 @@ function loadList(params?: QueryListParams) {
         "products_options.prices",
         `category${".top_category".repeat(4)}`,
       ].join(),
-      limit: 0,
+    }),
+    withAccessToken: true,
+    // --- options
+    staleTime: useTime().HOUR,
+    select: data => map(data ?? [], parseProduct),
+  });
+}
+
+function loadInfinite(params?: QueryParams) {
+  const { listInfinite, useUrl } = useQuery();
+
+  return listInfinite<IProduct[], Product[]>({
+    ...(params as any),
+    queryKey,
+    url: useUrl(`basket/products`, {
+      with: [
+        "image",
+        "prices",
+        "products_attributes",
+        "products_options",
+        "products_options.prices",
+        `category${".top_category".repeat(4)}`,
+      ].join(),
     }),
     withAccessToken: true,
     // --- options
@@ -53,5 +76,6 @@ export default {
   queryKey,
   //--- queries
   loadList,
+  loadInfinite,
   loadCached,
 };

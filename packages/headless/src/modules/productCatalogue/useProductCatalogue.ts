@@ -1,5 +1,5 @@
 // --- external
-import { ref, unref, computed } from "vue";
+import { computed, ref } from "vue";
 
 // --- internal
 import service from "./services";
@@ -8,31 +8,24 @@ import { invalidateQueryByKey } from "../query";
 // --- utils
 import {
   get,
-  add,
   find,
   every,
   filter,
   isEmpty,
   includes,
   isString,
-  isNumber,
-  subtract,
+  set,
 } from "lodash-es";
 
 // --- types
-import type {
-  IAPIPagination,
-  QueryListParams,
-  QueryListParamsRaw,
-} from "../query";
+import type { QueryParams, RequestFilters } from "../query";
 import type { Product } from "../product";
+import { ICurrency } from "@upmind-automation/types";
 
-export const useProductCatalogue = (initial?: QueryListParamsRaw) => {
+export const useProductCatalogue = (initial?: QueryParams) => {
   // --- state
 
-  const queryParams = ref<QueryListParams>(unref(initial ?? {}));
-
-  const query = service.loadList(queryParams);
+  const query = service.loadList(initial);
 
   const meta = computed(() => ({
     isLoading: query?.isFetching.value,
@@ -87,6 +80,22 @@ export const useProductCatalogue = (initial?: QueryListParamsRaw) => {
     );
   }
 
+  // --- filters
+
+  const filters = ref<
+    RequestFilters & {
+      currency: string;
+      "filter[products_category_id]": string;
+      id: string[];
+      promotions: string[];
+    }
+  >({
+    currency: "",
+    "filter[products_category_id]": "",
+    id: [],
+    promotions: [],
+  });
+
   function filterAll(param: string) {
     return filter(
       service.loadCached(),
@@ -106,36 +115,37 @@ export const useProductCatalogue = (initial?: QueryListParamsRaw) => {
     );
   }
 
-  function nextPage() {
-    const limit = queryParams.value?.pagination?.limit;
-    const offset = queryParams.value?.pagination?.offset ?? 0;
+  const filterCurrency = computed({
+    get: () => get(filters.value, "currency", ""),
+    set: (currencyCode?: ICurrency["code"]) => {
+      set(filters.value, "currency", currencyCode || "");
+      query.filter(filters.value);
+    },
+  });
 
-    if (isNumber(limit)) {
-      queryParams.value.pagination = {
-        ...(queryParams.value?.pagination ?? {}),
-        offset: add(offset, limit),
-      };
-    }
-  }
+  const filterProductCategory = computed({
+    get: () => get(filters.value, "filter[products_category_id]", ""),
+    set: (categoryId?: string) => {
+      set(filters.value, "filter[products_category_id]", categoryId ?? "");
+      query.filter(filters.value);
+    },
+  });
 
-  function prevPage() {
-    const limit = queryParams.value?.pagination?.limit;
-    const offset = queryParams.value?.pagination?.offset ?? 0;
+  const filterIds = computed({
+    get: () => get(filters.value, "id", ""),
+    set: (ids?: string[]) => {
+      set(filters.value, "id", ids || []);
+      query.filter(filters.value);
+    },
+  });
 
-    if (isNumber(limit) && offset >= limit) {
-      queryParams.value.pagination = {
-        ...(queryParams.value?.pagination ?? {}),
-        offset: subtract(offset, limit),
-      };
-    }
-  }
-
-  function setPagination(value: IAPIPagination) {
-    queryParams.value.pagination = {
-      ...(queryParams.value?.pagination ?? {}),
-      ...value,
-    };
-  }
+  const filterCoupons = computed({
+    get: () => get(filters.value, "promotions", ""),
+    set: (coupons?: string[]) => {
+      set(filters.value, "promotions", coupons || []);
+      query.filter(filters.value);
+    },
+  });
 
   // ---------------------------------------------------------------------------
 
@@ -176,11 +186,9 @@ export const useProductCatalogue = (initial?: QueryListParamsRaw) => {
      * Indicates if pagination is available
      * If pagination is not set, it defaults to false.
      * Otherwise, it returns the pagination object from the query parameters.
-     * @return {boolean|IAPIPagination} The pagination object if available, otherwise false.
+     * @return {boolean|RequestPagination} The pagination object if available, otherwise false.
      */
-    pagination: computed(
-      (): boolean | IAPIPagination => queryParams.value?.pagination ?? false
-    ),
+    pagination: query.pagination,
 
     // --- methods
 
@@ -225,7 +233,7 @@ export const useProductCatalogue = (initial?: QueryListParamsRaw) => {
      * @param value The new pagination parameters to set.
      * @return {void}
      */
-    nextPage,
+    nextPage: query.fetchNextPage,
 
     /**
      * Go to the previous page of items.
@@ -234,15 +242,7 @@ export const useProductCatalogue = (initial?: QueryListParamsRaw) => {
      * @param value The new pagination parameters to set.
      * @return {void}
      */
-    prevPage,
-
-    /**
-     * Set the pagination parameters.
-     * This updates the current pagination state with the provided values.
-     * @param value The new pagination parameters to set.
-     * @return {void}
-     */
-    setPagination,
+    prevPage: query.fetchPrevPage,
 
     /**
      * Invalidate the query cache for client items.
@@ -251,6 +251,22 @@ export const useProductCatalogue = (initial?: QueryListParamsRaw) => {
      * @return {void}
      */
     invalidate: invalidateQueryByKey(service.queryKey, { exact: false }),
+
+    /**
+     * Filters for the query.
+     * These filters can be used to modify the query parameters before fetching the data.
+     * @typedef {Object} ProductCatalogueFilters
+     * @property {RequestFilter} currency - Filter for the currency code.
+     * @property {RequestFilter} productCategory - Filter for the product category id.
+     * @property {RequestFilter} ids - Filter for the product ids.
+     * @property {RequestFilter} coupons - Filter for the coupons.
+     */
+    filters: {
+      currency: filterCurrency,
+      productCategory: filterProductCategory,
+      ids: filterIds,
+      coupons: filterCoupons,
+    },
   };
 };
 

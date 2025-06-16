@@ -20,6 +20,8 @@ import {
   isEmpty,
   isInteger,
   toNumber,
+  isObject,
+  forEach,
 } from "lodash-es";
 import { parseData, canRetryAuthorization, PAGINATION } from "./utils";
 
@@ -35,7 +37,7 @@ import { Methods } from "@upmind-automation/types";
 import type { DefaultError } from "@tanstack/vue-query";
 import { computed, ref } from "vue";
 import { useLocale } from "../system";
-import { isArray } from "xstate/lib/utils";
+import { isArray, isFunction } from "xstate/lib/utils";
 
 // -----------------------------------------------------------------------------
 
@@ -98,8 +100,24 @@ export const useQuery = () => {
       url.searchParams.set("offset", `${pagination.offset}`);
 
     // set the filters, if any
-    if (!isEmpty(filters) && isArray(filters)) {
-      filters.reduce((result, filter) => filter(result), url);
+    if (!isEmpty(filters) && isObject(filters)) {
+      forEach(filters, (value: any, key: string) => {
+        debugger;
+        if (!isEmpty(value)) {
+          // if the value is an array, we need to set it as a comma-separated list
+          if (isArray(value)) value = value.join(",");
+
+          // if the value is an object, we need to stringify it
+          if (isObject(value)) value = JSON.stringify(value);
+
+          // if the value is a function, we need to call it with the current URL
+          if (isFunction(value)) value = value(url);
+
+          url.searchParams.set(key, value);
+        }
+
+        debugger;
+      });
     }
 
     // set "lang" parameter
@@ -206,21 +224,24 @@ export const useQuery = () => {
     guard,
     queryKey,
     withAccessToken,
-    sort,
-    filters,
-    pagination,
     ...options
   }: QueryParams<TQueryFnData, TData>) {
     // --- state
-    const limit = pagination?.limit ?? PAGINATION.pageSize;
+    const limit = options?.pagination?.limit ?? PAGINATION.pageSize;
+    const sort = ref(options?.sort);
     const total = ref(0);
     const pageTotal = computed(() => {
       if (!limit) return 1; // Can only be 1 page if limit=0
       return Math.max(Math.ceil(total.value / limit), 1);
     });
     const pageIndex = ref(
-      pagination?.offset ? Math.ceil(pagination.offset / limit) + 1 : 1
+      options?.pagination?.offset
+        ? Math.ceil(options?.pagination.offset / limit) + 1
+        : 1
     );
+    const filters = ref<QueryParams["filters"]>({
+      ...(options?.filters ?? {}),
+    });
 
     // --- query
 
@@ -228,10 +249,11 @@ export const useQuery = () => {
       {
         queryKey: [
           ...queryKey,
-          `sort=${sort?.join("")}`,
           `limit=${limit}`,
           `lang=${locale.value}`,
+          { sort }, // Important for sorting to work
           { pageIndex }, // Important for pagination to work
+          { filters }, // Important for filters to work
         ],
         queryFn: async ({ signal }) => {
           if (signal != init?.signal) debugger;
@@ -241,8 +263,8 @@ export const useQuery = () => {
           return safeguard.then(() =>
             request<TQueryFnData>({
               url,
-              sort,
-              filters,
+              sort: sort.value,
+              filters: filters.value,
               pagination: { limit, offset: (pageIndex.value - 1) * limit },
               init: {
                 ...init,
@@ -333,8 +355,12 @@ export const useQuery = () => {
         }
       },
 
-      // filter: (filters: Record<string, any>) => {
-      // })
+      filter: (values: QueryParams["filters"]) => {
+        // Ensure values is not a Ref, but a plain object
+        // If values is a Ref, unwrap it; otherwise, use as is
+        // @ts-ignore
+        filters.value = unref(values) ?? {};
+      },
     };
   }
 
@@ -344,22 +370,26 @@ export const useQuery = () => {
     guard,
     queryKey,
     withAccessToken,
-    sort,
-    filters,
-    pagination,
+
     ...options
   }: QueryParams<TQueryFnData, TData>) {
     // --- state
 
-    const limit = pagination?.limit ?? PAGINATION.pageSize;
+    const limit = options?.pagination?.limit ?? PAGINATION.pageSize;
+    const sort = ref(options?.sort);
     const total = ref(0);
     const pageTotal = computed(() => {
       if (!limit) return 1; // Can only be 1 page if limit=0
       return Math.max(Math.ceil(total.value / limit), 1);
     });
     const pageIndex = ref(
-      pagination?.offset ? Math.ceil(pagination.offset / limit) + 1 : 1
+      options?.pagination?.offset
+        ? Math.ceil(options?.pagination.offset / limit) + 1
+        : 1
     );
+    const filters = ref<QueryParams["filters"]>({
+      ...(options?.filters ?? {}),
+    });
 
     // --- query
 
@@ -367,21 +397,22 @@ export const useQuery = () => {
       {
         queryKey: [
           ...queryKey,
-          `sort=${sort?.join("")}`,
           `limit=${limit}`,
           `lang=${locale.value}`,
+          { sort }, // Important for sorting to work
+          { filters }, // Important for filters to work
         ],
         queryFn: async ({ pageParam, signal }) => {
           if (signal != init?.signal) debugger;
-
+          debugger;
           const offset = toNumber(pageParam) || (pageIndex.value - 1) * limit;
           const hasGuard = isPromise(guard);
           const safeguard = hasGuard ? guard() : Promise.resolve();
           return safeguard.then(() =>
             request<TQueryFnData>({
               url,
-              sort,
-              filters,
+              sort: sort.value,
+              filters: filters.value,
               pagination: { limit, offset },
               init: {
                 ...init,
@@ -443,6 +474,13 @@ export const useQuery = () => {
         hasNextPage: pageIndex.value < pageTotal.value,
         hasPrevPage: pageIndex.value > 1,
       })),
+
+      filter: (values: QueryParams["filters"]) => {
+        // Ensure values is not a Ref, but a plain object
+        // If values is a Ref, unwrap it; otherwise, use as is
+        // @ts-ignore
+        filters.value = unref(values) ?? {};
+      },
     };
   }
 
