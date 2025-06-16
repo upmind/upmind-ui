@@ -116,37 +116,25 @@ export const useProductCatalogue = (initial?: QueryProps) => {
     );
   }
 
-  const filterCurrency = computed({
-    get: () => get(filters.value, "currency", ""),
-    set: (currencyCode?: ICurrency["code"]) => {
-      set(filters.value, "currency", currencyCode || "");
-      query.filter(filters.value);
-    },
-  });
+  const filterCurrency = (currencyCode?: ICurrency["code"]) => {
+    set(filters.value, "currency", currencyCode || "");
+    query.filter(filters.value);
+  };
 
-  const filterProductCategory = computed({
-    get: () => get(filters.value, "filter[products_category_id]", ""),
-    set: (categoryId?: string) => {
-      set(filters.value, "filter[products_category_id]", categoryId ?? "");
-      query.filter(filters.value);
-    },
-  });
+  const filterProductCategory = (categoryId?: string) => {
+    set(filters.value, "filter[products_category_id]", categoryId ?? "");
+    query.filter(filters.value);
+  };
 
-  const filterIds = computed({
-    get: () => get(filters.value, "id", ""),
-    set: (ids?: string[]) => {
-      set(filters.value, "id", ids || []);
-      query.filter(filters.value);
-    },
-  });
+  const filterIds = (ids?: string[]) => {
+    set(filters.value, "id", ids || []);
+    query.filter(filters.value);
+  };
 
-  const filterCoupons = computed({
-    get: () => get(filters.value, "promotions", ""),
-    set: (coupons?: string[]) => {
-      set(filters.value, "promotions", coupons || []);
-      query.filter(filters.value);
-    },
-  });
+  const filterCoupons = (coupons?: string[]) => {
+    set(filters.value, "promotions", coupons || []);
+    query.filter(filters.value);
+  };
 
   // ---------------------------------------------------------------------------
 

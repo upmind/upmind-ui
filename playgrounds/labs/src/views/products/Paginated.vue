@@ -3,32 +3,32 @@
     class="mx-auto flex max-w-7xl flex-col items-center gap-y-6"
     :class="props.class"
   >
-    <div
-      class="grid w-full grid-cols-[repeat(auto-fill,_minmax(18rem,_1fr))] gap-6"
-    >
-      <template
-        v-if="meta.isLoading || meta.hasError"
-        v-for="i in skeletonCount"
+    <Loading :active="meta.isLoading" class="w-full">
+      <div
+        class="grid w-full grid-cols-[repeat(auto-fill,_minmax(18rem,_1fr))] gap-6"
       >
-        <UpmCard>
-          <Loading />
-        </UpmCard>
-      </template>
-
-      <template v-else v-for="product in products" :key="product.id">
-        <UpmCard>
-          <img
-            v-if="product.productDetails.imgUrl"
-            :src="product.productDetails.imgUrl"
-            :alt="product.productDetails.title"
-            class="mb-4 h-48 w-full object-cover"
-          />
-          <h3>{{ product.productDetails.title }}</h3>
-          <p>{{ product.productDetails.description }}</p>
-          <p>Price: {{ product.price.currentPrice }}</p>
-        </UpmCard>
-      </template>
-    </div>
+        <template
+          v-for="product in products ?? Array(skeletonCount)"
+          :key="product?.id ?? product"
+        >
+          <UpmCard>
+            <template v-if="product?.productDetails">
+              <img
+                v-if="product?.productDetails.imgUrl"
+                :src="product.productDetails.imgUrl"
+                :alt="product.productDetails.title"
+                class="mb-4 h-48 w-full object-cover"
+              />
+              <h3>{{ product.productDetails?.title }}</h3>
+              <p>{{ product.productDetails?.description }}</p>
+              <p v-if="product.price">
+                Price: {{ product.price.currentPrice }}
+              </p>
+            </template>
+          </UpmCard>
+        </template>
+      </div>
+    </Loading>
 
     <template v-if="meta.hasPrevPage || meta.hasNextPage">
       <div class="flex w-full items-center justify-between">
@@ -86,8 +86,9 @@ const props = withDefaults(
     categoryId?: IProductCategory["id"];
     currencyCode?: ISO_4217_CURRENCY_CODE;
     skeletonCount?: number;
+    limit?: number;
   }>(),
-  { skeletonCount: 4 }
+  { skeletonCount: 4, limit: 6 }
 );
 
 const {
@@ -99,14 +100,14 @@ const {
   prevPage,
 } = useProductCatalogue({
   pagination: {
-    limit: 6,
+    limit: props.limit,
   },
 });
 
 watch(
   () => props.categoryId,
   categoryId => {
-    filters.productCategory.value = categoryId;
+    filters.productCategory(categoryId);
   },
   { immediate: true }
 );
