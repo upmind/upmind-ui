@@ -1,5 +1,8 @@
 // --- utils
-import { filter, get, map, uniq } from "lodash-es";
+import { map } from "lodash-es";
+
+// --- internal
+import { useClientAddresses } from "../address";
 
 // --- types
 import type { CompanyContext } from "./types";
@@ -127,6 +130,7 @@ export const useUischema = ({ addresses }: CompanyContext) => {
               item: item,
             };
           }),
+          use: useClientAddresses,
           selectOnly: true,
         },
       },
