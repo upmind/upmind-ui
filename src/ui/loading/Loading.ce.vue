@@ -1,5 +1,5 @@
 <template>
-  <div class="relative">
+  <div class="relative w-full">
     <slot></slot>
     <Transition
       enter-active-class="transition-opacity duration-300 ease-in-out"
