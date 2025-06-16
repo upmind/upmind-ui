@@ -1,13 +1,12 @@
 // --- internal
-
-// --- utils
-import { isEmpty, remove } from "lodash-es";
+import { useClientAddress } from "../../client/address";
+import { useClientAddresses } from "../../client/address";
+import { useClientCompany } from "../../client/company";
+import { useClientCompanies } from "../../client/company";
 
 // --- types
 import type { BillingContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
-import { useClientAddresses } from "../../client/address";
-import { useClientCompanies } from "../../client/company";
 
 // -----------------------------------------------------------------------------
 
@@ -15,6 +14,16 @@ export const useSchema = ({ model }: BillingContext) => {
   const schema: JsonSchema = {
     type: "object",
     required: [] as string[],
+    properties: {
+      addressId: {
+        type: ["string", "null"],
+        default: model?.addressId || null,
+      },
+      companyId: {
+        type: ["string", "null"],
+        default: model?.companyId || null,
+      },
+    },
     oneOf: [
       {
         type: "object",
@@ -27,16 +36,6 @@ export const useSchema = ({ model }: BillingContext) => {
         required: ["companyId"],
       },
     ],
-    properties: {
-      addressId: {
-        type: ["string", "null"],
-        default: model?.addressId || null,
-      },
-      companyId: {
-        type: ["string", "null"],
-        default: model?.companyId || null,
-      },
-    },
   };
 
   return schema as unknown as JsonSchema;
@@ -46,23 +45,26 @@ export const useUischema = ({ model }: BillingContext) => {
   const oneOfUiSchemas = [
     {
       type: "ModelList",
-      scope: "#/addressId",
+      scope: "#/properties/addressId",
       i18n: "basket.billing.addressId",
       options: {
+        label: "Address",
         autoFocus: true,
         autocomplete: "off",
         use: useClientAddresses,
+        modify: useClientAddress,
       },
     },
-
     {
       type: "ModelList",
-      scope: "#/companyId",
+      scope: "#/properties/companyId",
       i18n: "basket.billing.companyId",
       options: {
+        label: "Business",
         autoFocus: true,
         autocomplete: "off",
         use: useClientCompanies,
+        modify: useClientCompany,
       },
     },
   ];

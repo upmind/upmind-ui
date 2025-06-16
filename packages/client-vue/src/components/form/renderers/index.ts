@@ -8,7 +8,6 @@ import AddressRenderer, { tester as addressTest } from "./AddressRenderer.vue";
 import ModelListRenderer, {
   tester as modelListTest,
 } from "./ModelRenderer/ModelListRenderer.vue";
-import { ModelRenderer, modelTest } from "./ModelRenderer";
 // -----------------------------------------------------------------------------
 
 export const formRenderers = [
@@ -16,5 +15,4 @@ export const formRenderers = [
   registerEntry(SLDRenderer, sldTest),
   registerEntry(AddressRenderer, addressTest),
   registerEntry(ModelListRenderer, modelListTest),
-  registerEntry(ModelRenderer, modelTest),
 ];

@@ -1,29 +1,94 @@
 <template>
-  <ModelRendererContent v-if="formFieldProps.visible" v-bind="props" />
+  <Dialog
+    v-model:open="open"
+    size="3xl"
+    :title="`${id ? 'Edit' : 'New'} ${label}`"
+  >
+    <template v-if="isLoading">
+      <ModelRendererSkeleton />
+    </template>
+    <UpmForm
+      v-else
+      :model-value="model"
+      :schema="schema"
+      :uischema="uischema"
+      :additional-renderers="formRenderers"
+      color="secondary"
+      @update:modelValue="doInput"
+      @resolve="doResolve"
+      @reject="close"
+      :processing="isProcessing"
+    >
+      <template #actions="{ doReject, doResolve }">
+        <ModelRendererActions
+          :disabled="isProcessing || !isTouched"
+          :loading="isProcessing || isLoading"
+          @save="doResolve"
+          @cancel="doReject"
+        />
+      </template>
+    </UpmForm>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
 // --- external
-import { useJsonFormsControl } from "@jsonforms/vue";
+import { ref, onMounted } from "vue";
 
 // --- components
-import ModelRendererContent from "./ModelRendererContent.vue";
-import { useUpmindUIRenderer, FormField } from "@upmind-automation/upmind-ui";
+import { UpmForm, formRenderers } from "../../../form";
+import { Dialog } from "@upmind-automation/upmind-ui";
+import ModelRendererSkeleton from "./ModelRendererSkeleton.vue";
+import ModelRendererActions from "./ModelRendererActions.vue";
+import { utils } from "@upmind-automation/headless";
 
-// --- types
-import type { RendererProps } from "@jsonforms/vue";
-import type { ControlElement } from "@jsonforms/core";
+const props = defineProps<{
+  id?: string;
+  composable: any;
+  label: string;
+}>();
 
-const props = defineProps<RendererProps<ControlElement>>();
+const open = ref(true);
+const isLoading = ref(true);
+const isProcessing = ref(false);
+const isTouched = ref(false);
 
-const { formFieldProps } = useUpmindUIRenderer(useJsonFormsControl(props));
-</script>
+const { DEBOUNCE_DELAY } = utils;
 
-<script lang="ts">
-import { uiTypeIs, and } from "@jsonforms/core";
+const { model, isReady, update, clear, input, schema, uischema } =
+  props.composable(props.id);
 
-export const tester = {
-  rank: 4,
-  controlType: and(uiTypeIs("Model")),
+onMounted(async () => {
+  const startTime = Date.now();
+  await isReady();
+
+  // Ensure skeleton shows for at least 1 second
+  const elapsedTime = Date.now() - startTime;
+  const remainingTime = Math.max(0, 1000 - elapsedTime);
+
+  if (remainingTime > 0) {
+    await new Promise(resolve => setTimeout(resolve, remainingTime));
+  }
+
+  isLoading.value = false;
+});
+
+const doResolve = async () => {
+  isProcessing.value = true;
+  await update();
+  close();
+};
+
+const doInput = (value: any) => {
+  isTouched.value = true;
+  input(value);
+};
+
+const close = () => {
+  open.value = false;
+  setTimeout(() => {
+    clear();
+    isProcessing.value = false;
+  }, DEBOUNCE_DELAY);
 };
 </script>
