@@ -25,7 +25,7 @@ import { ICurrency } from "@upmind-automation/types";
 export const useProductCatalogue = (initial?: QueryProps) => {
   // --- state
 
-  const query = service.loadInfinite(initial);
+  const query = service.loadList(initial);
 
   const meta = computed(() => ({
     isLoading: query?.isFetching.value,

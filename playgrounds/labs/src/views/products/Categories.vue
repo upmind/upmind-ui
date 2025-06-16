@@ -1,10 +1,6 @@
 <template>
-  <div
-    data-foo
-    class="flex flex-col items-center gap-y-12"
-    :class="props.class"
-  >
-    <ul class="flex max-h-full flex-col overflow-auto">
+  <div data-foo :class="props.class">
+    <ul class="m-0 flex max-h-full flex-col overflow-auto p-0">
       <Loading :active="meta.isLoading" class="w-full">
         <UpmCard
           as="li"
