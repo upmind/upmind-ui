@@ -86,8 +86,9 @@ const props = withDefaults(
     categoryId?: IProductCategory["id"];
     currencyCode?: ISO_4217_CURRENCY_CODE;
     skeletonCount?: number;
+    limit?: number;
   }>(),
-  { skeletonCount: 4 }
+  { skeletonCount: 4, limit: 6 }
 );
 
 const {
@@ -99,14 +100,14 @@ const {
   prevPage,
 } = useProductCatalogue({
   pagination: {
-    limit: 6,
+    limit: props.limit,
   },
 });
 
 watch(
   () => props.categoryId,
   categoryId => {
-    filters.productCategory.value = categoryId;
+    filters.productCategory(categoryId);
   },
   { immediate: true }
 );
