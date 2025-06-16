@@ -1,1 +1,2 @@
-export * from "./useProductCatalogue";
+export * from "./useInfiniteProductCatalogue";
+export * from "./usePaginatedProductCatalogue";

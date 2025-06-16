@@ -18,14 +18,14 @@ import {
 } from "lodash-es";
 
 // --- types
-import type { QueryParams, QueryProps, RequestFilters } from "../query";
 import type { Product } from "../product";
-import { ICurrency } from "@upmind-automation/types";
+import type { ICurrency } from "@upmind-automation/types";
+import type { QueryProps, RequestFilters } from "../query";
 
-export const useProductCatalogue = (initial?: QueryProps) => {
+export const useInfiniteProductCatalogue = (initial?: QueryProps) => {
   // --- state
 
-  const query = service.loadList(initial);
+  const query = service.loadInfinite(initial);
 
   const meta = computed(() => ({
     isLoading: query?.isFetching.value,
@@ -231,7 +231,7 @@ export const useProductCatalogue = (initial?: QueryProps) => {
      * @param value The new pagination parameters to set.
      * @return {void}
      */
-    prevPage: query.fetchPrevPage,
+    prevPage: query.fetchPreviousPage,
 
     /**
      * Invalidate the query cache for client items.
@@ -259,4 +259,6 @@ export const useProductCatalogue = (initial?: QueryProps) => {
   };
 };
 
-export type UseProductCatalogue = ReturnType<typeof useProductCatalogue>;
+export type UseInfiniteProductCatalogue = ReturnType<
+  typeof useInfiniteProductCatalogue
+>;
