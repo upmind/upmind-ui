@@ -3,14 +3,17 @@ import { useClientAddress } from "../../client/address";
 import { useClientAddresses } from "../../client/address";
 import { useClientCompany } from "../../client/company";
 import { useClientCompanies } from "../../client/company";
+import { useClientPhones } from "../../client/phone";
+import { useClientPhone } from "../../client/phone";
 
 // --- types
 import type { BillingContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
+import { remove, unset } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
-export const useSchema = ({ model }: BillingContext) => {
+export const useSchema = ({ model, config }: BillingContext) => {
   const schema: JsonSchema = {
     type: "object",
     required: [] as string[],
@@ -22,6 +25,10 @@ export const useSchema = ({ model }: BillingContext) => {
       companyId: {
         type: ["string", "null"],
         default: model?.companyId || null,
+      },
+      phoneId: {
+        type: ["string", "null"],
+        default: model?.phoneId || null,
       },
     },
     oneOf: [
@@ -38,17 +45,30 @@ export const useSchema = ({ model }: BillingContext) => {
     ],
   };
 
+  if (!config?.requiresPhone) {
+    unset(schema, "properties.phoneId");
+  }
+
+  if (config?.requiresCompany) {
+    unset(schema, "properties.addressId");
+  }
+
+  if (!config?.requiresAddress && !config?.requiresCompany) {
+    unset(schema, "properties.companyId");
+  }
+
   return schema as unknown as JsonSchema;
 };
 
-export const useUischema = () => {
+export const useUischema = ({ config }: BillingContext) => {
   const oneOfUiSchemas = [
     {
       type: "ModelList",
       scope: "#/properties/addressId",
       i18n: "basket.billing.addressId",
+      label: "",
       options: {
-        label: "Address",
+        type: "Address",
         use: useClientAddresses,
         modify: useClientAddress,
       },
@@ -57,8 +77,9 @@ export const useUischema = () => {
       type: "ModelList",
       scope: "#/properties/companyId",
       i18n: "basket.billing.companyId",
+      label: "",
       options: {
-        label: "Business",
+        type: "Business",
         use: useClientCompanies,
         modify: useClientCompany,
       },
@@ -76,12 +97,31 @@ export const useUischema = () => {
           oneOfUiSchema: oneOfUiSchemas,
         },
       },
+      {
+        type: "ModelList",
+        scope: "#/properties/phoneId",
+        i18n: "basket.billing.phoneId",
+        label: "Phone Number",
+        options: {
+          type: "Phone",
+          use: useClientPhones,
+          modify: useClientPhone,
+        },
+      },
     ],
   };
 
-  // if (!config?.requiresPhone) {
-  //   remove(schema.elements, ["scope", "#/properties/phone"]);
-  // }
+  if (!config?.requiresPhone) {
+    remove(schema.elements, ["scope", "#/properties/phoneId"]);
+  }
+
+  if (config?.requiresCompany) {
+    remove(schema.elements, ["scope", "#/properties/addressId"]);
+  }
+
+  if (!config?.requiresAddress && !config?.requiresCompany) {
+    remove(schema.elements, ["scope", "#/properties/companyId"]);
+  }
 
   return schema as UISchemaElement;
 };
