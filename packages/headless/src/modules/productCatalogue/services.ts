@@ -42,6 +42,7 @@ function loadList(params?: Partial<QueryParams>) {
 function loadInfinite(params?: Partial<QueryParams>) {
   const { listInfinite, useUrl } = useQuery();
 
+  debugger;
   return listInfinite<IProduct[], Product[]>({
     ...(params as any),
     queryKey,

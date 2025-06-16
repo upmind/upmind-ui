@@ -189,7 +189,9 @@ export const useQuery = () => {
         queryKey,
         queryFn: async ({ signal }) => {
           const hasGuard = isPromise(guard);
-          const safeguard = hasGuard ? guard() : Promise.resolve();
+          const safeguard: Promise<void | boolean> = hasGuard
+            ? guard()
+            : Promise.resolve();
           return safeguard.then(() =>
             request<TQueryFnData>({
               url,
@@ -260,7 +262,9 @@ export const useQuery = () => {
         ],
         queryFn: async ({ signal }) => {
           const hasGuard = isPromise(guard);
-          const safeguard = hasGuard ? guard() : Promise.resolve();
+          const safeguard: Promise<void | boolean> = hasGuard
+            ? guard()
+            : Promise.resolve();
           return safeguard.then(() =>
             request<TQueryFnData>({
               url,
@@ -330,7 +334,7 @@ export const useQuery = () => {
        * @returns {void}
        * @throws {Error} Throws an error if there is no previous page.
        */
-      fetchPrevPage: () => {
+      fetchPrevPage: (): void => {
         if (!response.isPlaceholderData.value && pageIndex.value <= 1) {
           throw new Error("No previous page available");
         }
@@ -344,7 +348,7 @@ export const useQuery = () => {
        * @throws {Error} Throws an error if there is no next page.
        *
        */
-      fetchNextPage: () => {
+      fetchNextPage: (): void => {
         if (
           !response.isPlaceholderData.value &&
           pageIndex.value >= pageTotal.value
@@ -406,7 +410,9 @@ export const useQuery = () => {
         queryFn: async ({ pageParam, signal }) => {
           const offset = toNumber(pageParam) || (pageIndex.value - 1) * limit;
           const hasGuard = isPromise(guard);
-          const safeguard = hasGuard ? guard() : Promise.resolve();
+          const safeguard: Promise<void | boolean> = hasGuard
+            ? guard()
+            : Promise.resolve();
           return safeguard.then(() =>
             request<TQueryFnData>({
               url,
