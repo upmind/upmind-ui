@@ -41,7 +41,7 @@ export const useSchema = ({ model }: BillingContext) => {
   return schema as unknown as JsonSchema;
 };
 
-export const useUischema = ({ model }: BillingContext) => {
+export const useUischema = () => {
   const oneOfUiSchemas = [
     {
       type: "ModelList",
@@ -49,8 +49,6 @@ export const useUischema = ({ model }: BillingContext) => {
       i18n: "basket.billing.addressId",
       options: {
         label: "Address",
-        autoFocus: true,
-        autocomplete: "off",
         use: useClientAddresses,
         modify: useClientAddress,
       },
@@ -61,8 +59,6 @@ export const useUischema = ({ model }: BillingContext) => {
       i18n: "basket.billing.companyId",
       options: {
         label: "Business",
-        autoFocus: true,
-        autocomplete: "off",
         use: useClientCompanies,
         modify: useClientCompany,
       },

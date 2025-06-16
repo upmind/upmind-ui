@@ -3,7 +3,7 @@
     <header class="flex w-full items-start justify-between">
       <h3 class="m-0 flex items-center gap-x-2 text-sm font-semibold">
         {{ title }}
-        <Badge v-if="isSelected" variant="flat" size="xs" label="Default" />
+        <Badge v-if="isDefault" variant="flat" size="xs" label="Default" />
       </h3>
 
       <Link

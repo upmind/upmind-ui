@@ -1,5 +1,5 @@
 <template>
-  <Loading :active="!model || meta.isLoading || meta.isProcessing">
+  <Loading :active="meta.isLoading" skrim="full">
     <UpmForm
       :model-value="model"
       class="min-h-40"
@@ -19,8 +19,7 @@ import { useBasketBilling } from "@upmind-automation/headless";
 
 // --- components
 import { UpmForm, formRenderers } from "../../../components/form";
-import { Button, Loading } from "@upmind-automation/upmind-ui";
-
+import { Loading } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
 const { isReady, input, model, schema, uischema, meta } = useBasketBilling();
