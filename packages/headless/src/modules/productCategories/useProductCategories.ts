@@ -18,11 +18,11 @@ import {
 } from "lodash-es";
 
 // --- types
-import type { QueryParams, RequestFilters } from "../query";
+import type { QueryParams, QueryProps, RequestFilters } from "../query";
 import type { ProductCategory } from "./types";
 import { ICurrency } from "@upmind-automation/types";
 
-export const useProductCategories = (initial?: QueryParams) => {
+export const useProductCategories = (initial?: QueryProps) => {
   // --- state
 
   const query = service.loadList(initial);

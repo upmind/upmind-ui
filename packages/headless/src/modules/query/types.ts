@@ -27,16 +27,19 @@ export interface QueryResponse<TData = unknown> {
   messages: string[] | null;
 }
 
-export interface RequestParams {
+export type QueryProps = {
+  sort?: [direction: RequestSortDirection, property: string];
+  filters?: RequestFilters;
+  pagination?: RequestPagination;
+};
+
+export type RequestParams = QueryProps & {
   guard?: () => Promise<boolean>;
   url: URL;
   data?: unknown;
   init?: RequestInit;
   withAccessToken?: boolean | string | null;
-  sort?: [direction: RequestSortDirection, property: string];
-  filters?: RequestFilters;
-  pagination?: RequestPagination;
-}
+};
 
 export type QueryParams<
   TQueryFnData = unknown,

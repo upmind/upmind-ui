@@ -1,71 +1,20 @@
 <template>
-  <UpmContentSection class="mx-auto max-w-app" title="Product Catalogue">
-    <div class="flex gap-2 pb-6" v-show="meta.isAvailable">
-      <Button
-        @click="refresh"
-        size="sm"
-        variant="tonal"
-        :disabled="meta.isLoading"
-      >
-        Refetch Products
-      </Button>
-    </div>
-
-    <Alert v-if="meta.isLoading" color="info" title="Loading..." />
-
-    <Alert
-      v-else-if="meta.hasError"
-      color="error"
-      title="Error loading products"
-      :message="error?.message"
+  <div class="flex gap-2">
+    <ProductCategories class="w-1/3" v-model="modelValue" />
+    <PaginatedProducts
+      :limit="6"
+      class="w-2/3"
+      :categoryId="modelValue"
+      :skeletonCount="6"
     />
-
-    <Alert
-      v-else-if="meta.isEmpty"
-      color="info"
-      title="No products found"
-      message="Please add an product to get started."
-    />
-
-    <section
-      v-else
-      class="pb-3 md:pb-3"
-      v-for="product in data"
-      :key="product.id"
-    >
-      <UpmCard v-if="product?.productDetails">
-        <h3>{{ product.productDetails.title }}</h3>
-        <p>{{ product.productDetails.description }}</p>
-        <Button
-          @click="goToProductDetail(product.productDetails.id)"
-          size="sm"
-          variant="primary"
-        >
-          View Details
-        </Button>
-      </UpmCard>
-    </section>
-  </UpmContentSection>
+  </div>
 </template>
 
-<script lang="ts" setup>
-// --- external
-// --- internal
-import { useRouter } from "vue-router";
+<script setup lang="ts">
+import { ref } from "vue";
 
-import { useProductCatalogue } from "@upmind-automation/headless";
+import PaginatedProducts from "./Paginated.vue";
+import ProductCategories from "./Categories.vue";
 
-// --- components
-import { Button, Alert } from "@upmind-automation/upmind-ui";
-import { UpmCard, UpmContentSection } from "@upmind-automation/client-vue";
-
-// -----------------------------------------------------------------------------
-
-const router = useRouter();
-
-function goToProductDetail(productId: string) {
-  router.push({ name: "products.catalogue.detail", params: { id: productId } });
-}
-
-const { data, meta, error, refresh } = useProductCatalogue();
+const modelValue = ref("");
 </script>
