@@ -35,6 +35,14 @@
         />
       </template>
     </RadioCardsCollapsible>
+
+    <ModelRenderer
+      v-if="openModel"
+      :id="editId"
+      :label="formFieldProps.label"
+      :composable="get(control.uischema, 'options.modify')"
+      @resolve="openModel = false"
+    />
   </FormField>
 </template>
 
@@ -50,6 +58,7 @@ import {
   Link,
 } from "@upmind-automation/upmind-ui";
 import Item from "./ModelListRendererItem.vue";
+import ModelRenderer from "./ModelRenderer.vue";
 
 // --- utils
 import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
@@ -65,10 +74,12 @@ import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
 const props = defineProps<RendererProps<ControlElement>>();
 
 const jsonFormsControl = useJsonFormsControl(props);
-const { control, formFieldProps, onInput, handleChange } =
+const { control, formFieldProps, onInput } =
   useUpmindUIRenderer(jsonFormsControl);
 
 const open = ref(false);
+const openModel = ref(false);
+const editId = ref<string>("");
 const selectedItem = ref<string>("");
 
 const { data, default: defaultItem } = get(
@@ -103,6 +114,7 @@ const selectItem = async (value: string) => {
 };
 
 const addNewItem = () => {
+  openModel.value = true;
   // const schemaProperty = getSchemaProperty(control.value.path);
   // const create = get(schemaProperty, "create");
   // if (create) {
@@ -113,6 +125,8 @@ const addNewItem = () => {
 };
 
 const editItem = (id: string) => {
+  editId.value = id;
+  openModel.value = true;
   // const schemaProperty = getSchemaProperty(control.value.path);
   // const update = get(schemaProperty, "update");
   // handleChange(update, id);
@@ -123,6 +137,11 @@ watch(parsedValues, () => {
 });
 
 const selectedDefaultItem = () => {
-  selectedItem.value = defaultItem.value?.id ?? "";
+  selectedItem.value = control.value.data;
+  if (!selectedItem.value) {
+    // We don't have a default from the schema, let the composable set the default
+    selectedItem.value = defaultItem.value?.id;
+    onInput(selectedItem.value, false);
+  }
 };
 </script>
