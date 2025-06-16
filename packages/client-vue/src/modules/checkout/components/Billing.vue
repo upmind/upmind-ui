@@ -2,7 +2,7 @@
   <Loading :active="meta.isLoading" skrim="full">
     <UpmForm
       :model-value="model"
-      class="min-h-40"
+      class="min-h-32"
       :schema="schema"
       :uischema="uischema"
       :additional-renderers="formRenderers"
