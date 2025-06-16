@@ -1,16 +1,22 @@
 <template>
-  <FormField v-bind="formFieldProps" required label="">
+  <FormField v-bind="formFieldProps" required>
     <RadioCardsCollapsible
       v-if="!meta.isLoading && !isEmpty(parsedValues)"
       v-model:open="open"
       v-model="selectedItem"
       :items="parsedValues"
       @update:model-value="selectItem"
-      list
+      :list="false"
+      :minimal="type === 'Phone'"
       required
     >
       <template #item="{ item }">
+        <ModelListRendererPhoneItem
+          v-if="type === 'Phone'"
+          v-bind="item.phone"
+        />
         <Item
+          v-else
           v-bind="item"
           :is-default="item?.meta?.isDefault || false"
           :allow-edit="!selectOnly"
@@ -29,7 +35,7 @@
 
         <Link
           v-else-if="!selectOnly"
-          :label="'Add new ' + lowerCase(formFieldProps.label)"
+          :label="'Add new ' + lowerCase(type)"
           size="xs"
           variant="muted"
           @click="addNewItem"
@@ -64,6 +70,7 @@ import {
 } from "@upmind-automation/upmind-ui";
 import Item from "./ModelListRendererItem.vue";
 import ModelRenderer from "./ModelRenderer.vue";
+import ModelListRendererPhoneItem from "./ModelListRendererPhoneItem.vue";
 
 // --- utils
 import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
@@ -92,6 +99,10 @@ const {
   default: defaultItem,
   meta,
 } = get(control.value.uischema, "options.use")();
+
+const type = computed(() => {
+  return get(control.value.uischema, "options.type");
+});
 
 const hasModifyComposable = computed(() => {
   return isFunction(get(control.value.uischema, "options.modify"));
