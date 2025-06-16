@@ -6,103 +6,84 @@ import { isEmpty, remove } from "lodash-es";
 // --- types
 import type { BillingContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
-import { useUnifiedAddress } from "./unifiedAddress/useUnifiedAddress";
+import { useClientAddresses } from "../../client/address";
+import { useClientCompanies } from "../../client/company";
 
 // -----------------------------------------------------------------------------
 
-export const useSchema = ({ config }: BillingContext) => {
+export const useSchema = ({ model }: BillingContext) => {
   const schema: JsonSchema = {
     type: "object",
-    title: "BillingDetails",
     required: [] as string[],
-    properties: {
-      phoneId: {
-        type: ["string", "null"],
+    oneOf: [
+      {
+        type: "object",
+        title: "Personal",
+        required: ["addressId"],
       },
+      {
+        type: "object",
+        title: "Business",
+        required: ["companyId"],
+      },
+    ],
+    properties: {
       addressId: {
         type: ["string", "null"],
+        default: model?.addressId || null,
       },
       companyId: {
         type: ["string", "null"],
+        default: model?.companyId || null,
       },
     },
   };
 
-  const anyOfSchemas = [];
-
-  if (config?.requiresAddress && !config.requiresCompany) {
-    anyOfSchemas.push({
-      type: "object",
-      required: ["addressId"],
-      properties: {
-        addressId: {
-          type: ["string", "null"],
-        },
-      },
-    });
-  }
-
-  if (config?.requiresCompany) {
-    anyOfSchemas.push({
-      type: "object",
-      required: ["companyId"],
-      properties: {
-        companyId: {
-          type: ["string", "null"],
-        },
-      },
-    });
-  }
-
-  if (!isEmpty(anyOfSchemas)) {
-    schema.anyOf = anyOfSchemas;
-  }
-
-  if (config?.requiresPhone) {
-    schema.required?.push("phoneId");
-  }
-
   return schema as unknown as JsonSchema;
 };
 
-export const useUischema = ({ config }: BillingContext) => {
+export const useUischema = ({ model }: BillingContext) => {
+  const oneOfUiSchemas = [
+    {
+      type: "ModelList",
+      scope: "#/addressId",
+      i18n: "basket.billing.addressId",
+      options: {
+        autoFocus: true,
+        autocomplete: "off",
+        use: useClientAddresses,
+      },
+    },
+
+    {
+      type: "ModelList",
+      scope: "#/companyId",
+      i18n: "basket.billing.companyId",
+      options: {
+        autoFocus: true,
+        autocomplete: "off",
+        use: useClientCompanies,
+      },
+    },
+  ];
+
   const schema = {
-    type: "ComposableLayout",
-    use: useUnifiedAddress,
+    type: "VerticalLayout",
     elements: [
       {
-        type: "ModelList",
-        scope: "#/properties/addressId",
-        i18n: "basket.billing.addressId",
+        type: "Control",
+        scope: "#",
         options: {
-          autoFocus: true,
-          autocomplete: "off",
-        },
-      },
-      {
-        type: "ModelList",
-        scope: "#/properties/companyId",
-        i18n: "basket.billing.companyId",
-        options: {
-          autoFocus: true,
-          autocomplete: "off",
-        },
-      },
-      {
-        type: "ModelList",
-        scope: "#/properties/phoneId",
-        i18n: "client.unified.form.fields.phone",
-        options: {
-          autoFocus: true,
-          autocomplete: "off",
+          toggle: true,
+          oneOfUiSchema: oneOfUiSchemas,
         },
       },
     ],
   };
 
-  if (!config?.requiresPhone) {
-    remove(schema.elements, ["scope", "#/properties/phone"]);
-  }
+  // if (!config?.requiresPhone) {
+  //   remove(schema.elements, ["scope", "#/properties/phone"]);
+  // }
 
   return schema as UISchemaElement;
 };
