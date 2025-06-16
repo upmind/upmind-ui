@@ -27,12 +27,13 @@ const { isReady, input, model, schema, uischema, meta } = useBasketBilling();
 
 const onInput = (value: any) => {
   // TODO: The oneOfRenderer should handle this, was a pain but come back to this
-  if (model.value?.addressId && value?.companyId) {
-    value.addressId = null;
-  } else if (value?.companyId && !model.value?.addressId) {
-    value.companyId = null;
+  const updatedValue = { ...value };
+  if (model.value?.addressId && updatedValue.companyId) {
+    updatedValue.addressId = null;
+  } else if (model.value?.companyId && updatedValue.addressId) {
+    updatedValue.companyId = null;
   }
-  input(value);
+  input(updatedValue);
 };
 
 await isReady();
