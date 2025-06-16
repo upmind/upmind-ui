@@ -7,7 +7,7 @@ import SLDRenderer, { tester as sldTest } from "./SLDRenderer.vue";
 import AddressRenderer, { tester as addressTest } from "./AddressRenderer.vue";
 import ModelListRenderer, {
   tester as modelListTest,
-} from "./ModelListRenderer.vue";
+} from "./ModelRenderer/ModelListRenderer.vue";
 import { ModelRenderer, modelTest } from "./ModelRenderer";
 // -----------------------------------------------------------------------------
 

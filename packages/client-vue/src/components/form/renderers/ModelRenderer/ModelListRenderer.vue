@@ -71,7 +71,10 @@ const { control, formFieldProps, onInput, handleChange } =
 const open = ref(false);
 const selectedItem = ref<string>("");
 
-const useComposable = get(control.value, "schema.use");
+const { schema, uischema, update, inputs } = get(
+  control.appliedOptions.value,
+  "use"
+);
 
 onMounted(() => {
   selectedDefaultItem();
@@ -174,9 +177,6 @@ import { uiTypeIs, and, schemaMatches } from "@jsonforms/core";
 
 export const tester = {
   rank: 4,
-  controlType: and(
-    uiTypeIs("ModelList"),
-    schemaMatches(schema => has(schema, "use"))
-  ),
+  controlType: and(uiTypeIs("ModelList")),
 };
 </script>

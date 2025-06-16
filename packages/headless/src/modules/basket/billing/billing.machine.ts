@@ -8,7 +8,7 @@ import { useFeedback } from "../../feedback";
 const { addError } = useFeedback();
 
 // --- utils
-import { useSchema, useUischema } from "./utils";
+import { useSchema, useUischema } from "./schema";
 import { useTime, useValidationParser, useModelParser } from "../../../utils";
 
 // --- types

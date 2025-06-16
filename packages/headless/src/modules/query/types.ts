@@ -8,7 +8,6 @@ import type {
   MutationObserverOptions,
   QueryKey,
 } from "@tanstack/vue-query";
-import { MaybeRef } from "vue";
 
 // -----------------------------------------------------------------------------
 
@@ -34,6 +33,9 @@ export interface RequestParams {
   data?: unknown;
   init?: RequestInit;
   withAccessToken?: boolean | string | null;
+  sort?: [direction: RequestSortDirection, property: string];
+  filters?: RequestFilter[];
+  pagination?: RequestPagination;
 }
 
 export type QueryParams<
@@ -56,26 +58,18 @@ export type MutationParams<
     "mutationFn"
   >;
 
-export interface QueryListParamsRaw {
-  sort?: [direction: ApiSortDirection, property: string];
-  filters?: IApiFilter[] | undefined;
-  pagination?: IAPIPagination | undefined;
-}
-
-export type QueryListParams = MaybeRef<QueryListParamsRaw>;
-
 // ---  ENUMS
 
-export enum ApiSortDirection {
+export enum RequestSortDirection {
   ASC = "",
   DESC = "-",
 }
 
-export interface IApiFilter {
+export interface RequestFilter {
   (url: URL): URL;
 }
 
-export interface IAPIPagination {
+export interface RequestPagination {
   limit?: number;
   offset?: number;
 }

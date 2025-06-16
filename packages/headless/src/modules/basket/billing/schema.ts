@@ -6,6 +6,7 @@ import { isEmpty, remove } from "lodash-es";
 // --- types
 import type { BillingContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
+import { useUnifiedAddress } from "./unifiedAddress/useUnifiedAddress";
 
 // -----------------------------------------------------------------------------
 
@@ -66,10 +67,11 @@ export const useSchema = ({ config }: BillingContext) => {
 
 export const useUischema = ({ config }: BillingContext) => {
   const schema = {
-    type: "VerticalLayout",
+    type: "ComposableLayout",
+    use: useUnifiedAddress,
     elements: [
       {
-        type: "Control",
+        type: "ModelList",
         scope: "#/properties/addressId",
         i18n: "basket.billing.addressId",
         options: {
@@ -78,7 +80,7 @@ export const useUischema = ({ config }: BillingContext) => {
         },
       },
       {
-        type: "Control",
+        type: "ModelList",
         scope: "#/properties/companyId",
         i18n: "basket.billing.companyId",
         options: {
@@ -87,7 +89,7 @@ export const useUischema = ({ config }: BillingContext) => {
         },
       },
       {
-        type: "Control",
+        type: "ModelList",
         scope: "#/properties/phoneId",
         i18n: "client.unified.form.fields.phone",
         options: {
