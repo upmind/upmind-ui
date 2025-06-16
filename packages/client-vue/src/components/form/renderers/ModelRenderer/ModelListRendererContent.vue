@@ -115,21 +115,11 @@ const selectItem = async (value: string) => {
 
 const addNewItem = () => {
   openModel.value = true;
-  // const schemaProperty = getSchemaProperty(control.value.path);
-  // const create = get(schemaProperty, "create");
-  // if (create) {
-  //   handleChange(create, true);
-  // } else {
-  //   onInput(null, false);
-  // }
 };
 
 const editItem = (id: string) => {
   editId.value = id;
   openModel.value = true;
-  // const schemaProperty = getSchemaProperty(control.value.path);
-  // const update = get(schemaProperty, "update");
-  // handleChange(update, id);
 };
 
 watch(parsedValues, () => {

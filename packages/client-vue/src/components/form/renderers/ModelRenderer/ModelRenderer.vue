@@ -42,11 +42,10 @@ import ModelRendererSkeleton from "./ModelRendererSkeleton.vue";
 import ModelRendererActions from "./ModelRendererActions.vue";
 import { utils } from "@upmind-automation/headless";
 
-const props = defineProps<{
-  id?: string;
-  composable: any;
-  label: string;
-}>();
+// --- types
+import type { ModelRendererProps } from "./types";
+
+const props = defineProps<ModelRendererProps>();
 
 const open = ref(true);
 const isLoading = ref(true);
