@@ -1,4 +1,5 @@
 // --- external
+import { unref } from "vue";
 import {
   useMutation,
   QueryClient,
@@ -102,7 +103,6 @@ export const useQuery = () => {
     // set the filters, if any
     if (!isEmpty(filters) && isObject(filters)) {
       forEach(filters, (value: any, key: string) => {
-        debugger;
         if (!isEmpty(value)) {
           // if the value is an array, we need to set it as a comma-separated list
           if (isArray(value)) value = value.join(",");
@@ -115,8 +115,6 @@ export const useQuery = () => {
 
           url.searchParams.set(key, value);
         }
-
-        debugger;
       });
     }
 
@@ -189,13 +187,18 @@ export const useQuery = () => {
     return vueUseQuery<TQueryFnData, DefaultError, TData>(
       {
         queryKey,
-        queryFn: async () => {
+        queryFn: async ({ signal }) => {
           const hasGuard = isPromise(guard);
           const safeguard = hasGuard ? guard() : Promise.resolve();
           return safeguard.then(() =>
-            request<TQueryFnData>({ url, init, withAccessToken }).then(
-              response => response.data as TQueryFnData
-            )
+            request<TQueryFnData>({
+              url,
+              init: {
+                ...init,
+                signal, // Pass the new signal to the request to allow cancellation
+              },
+              withAccessToken,
+            }).then(response => response.data as TQueryFnData)
           );
         },
         ...(options as any),
@@ -256,8 +259,6 @@ export const useQuery = () => {
           { filters }, // Important for filters to work
         ],
         queryFn: async ({ signal }) => {
-          if (signal != init?.signal) debugger;
-
           const hasGuard = isPromise(guard);
           const safeguard = hasGuard ? guard() : Promise.resolve();
           return safeguard.then(() =>
@@ -403,8 +404,6 @@ export const useQuery = () => {
           { filters }, // Important for filters to work
         ],
         queryFn: async ({ pageParam, signal }) => {
-          if (signal != init?.signal) debugger;
-          debugger;
           const offset = toNumber(pageParam) || (pageIndex.value - 1) * limit;
           const hasGuard = isPromise(guard);
           const safeguard = hasGuard ? guard() : Promise.resolve();
@@ -546,12 +545,17 @@ export const useQuery = () => {
 
     return queryClient.fetchQuery<TQueryFnData, DefaultError, TData>({
       queryKey,
-      queryFn: async () => {
-        return request<TQueryFnData>({ url, init, withAccessToken }).then(
-          response => {
-            return response.data as TQueryFnData;
-          }
-        );
+      queryFn: async ({ signal }) => {
+        return request<TQueryFnData>({
+          url,
+          init: {
+            ...init,
+            signal, // Pass the new signal to the request to allow cancellation
+          },
+          withAccessToken,
+        }).then(response => {
+          return response.data as TQueryFnData;
+        });
       },
       ...(options as any),
     });

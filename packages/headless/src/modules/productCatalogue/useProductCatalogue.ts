@@ -18,11 +18,11 @@ import {
 } from "lodash-es";
 
 // --- types
-import type { QueryParams, RequestFilters } from "../query";
+import type { QueryParams, QueryProps, RequestFilters } from "../query";
 import type { Product } from "../product";
 import { ICurrency } from "@upmind-automation/types";
 
-export const useProductCatalogue = (initial?: QueryParams) => {
+export const useProductCatalogue = (initial?: QueryProps) => {
   // --- state
 
   const query = service.loadList(initial);
@@ -30,8 +30,9 @@ export const useProductCatalogue = (initial?: QueryParams) => {
   const meta = computed(() => ({
     isLoading: query?.isFetching.value,
     hasError: !isEmpty(query.error.value),
-    isEmpty: isEmpty(query?.data?.value),
+    isEmpty: isEmpty(query?.data?.value) || query.pagination.value.total == 0,
     isAvailable: true,
+    ...query?.meta.value,
   }));
 
   async function isReady(): Promise<boolean> {

@@ -16,7 +16,7 @@ import type { IProduct } from "@upmind-automation/types";
 
 const queryKey: QueryKey = ["product", "catalogue"];
 
-function loadList(params?: QueryParams) {
+function loadList(params?: Partial<QueryParams>) {
   const { list, useUrl } = useQuery();
 
   return list<IProduct[], Product[]>({
@@ -39,7 +39,7 @@ function loadList(params?: QueryParams) {
   });
 }
 
-function loadInfinite(params?: QueryParams) {
+function loadInfinite(params?: Partial<QueryParams>) {
   const { listInfinite, useUrl } = useQuery();
 
   return listInfinite<IProduct[], Product[]>({

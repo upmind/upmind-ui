@@ -102,8 +102,6 @@ async function loadLookups({
     getCompanies(),
   ]);
 
-  debugger;
-
   const country = getCountry(model?.address?.countryId);
   const regions = await fetchRegions(model?.address?.countryId || country?.id);
 
