@@ -9,32 +9,8 @@
       color="primary"
       @update:modelValue="doInput"
       @resolve="doUpdate"
-      :no-actions
-    >
-      <!-- <template #actions>
-        <footer class="flex gap-x-6">
-          <Button
-            :loading="meta.isLoading"
-            :disabled="!meta.isValid"
-            type="submit"
-            size="md"
-            color="secondary"
-            @click="doUpdate"
-          >
-            Save details
-          </Button>
-          <Link
-            v-if="!isEmpty(model)"
-            as="Button"
-            size="sm"
-            variant="muted"
-            @click="cancel"
-          >
-            Cancel
-          </Link>
-        </footer>
-      </template> -->
-    </UpmForm>
+      no-actions
+    />
   </Loading>
 </template>
 
@@ -56,11 +32,6 @@ import { isEmpty } from "lodash-es";
 
 const { isReady, update, input, model, schema, uischema, clear, meta } =
   useBasketBilling();
-
-const noActions = computed(
-  (): boolean =>
-    !!model.value?.addressId || !!model.value?.companyId || meta.value.isLoading
-);
 
 await isReady();
 
