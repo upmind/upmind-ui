@@ -36,7 +36,11 @@ async function loadLookups(
     BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS,
     BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS,
   ]).then(config => {
-    return { config };
+    return {
+      requiresPhone: config?.invoices?.common?.require_phone_for_orders,
+      requiresCompany: config?.invoices?.common?.require_company_for_orders,
+      requiresAddress: config?.invoices?.common?.require_address_for_orders,
+    };
   });
 
   // // We should ALWAYS have an address set  ( if we have addresses )

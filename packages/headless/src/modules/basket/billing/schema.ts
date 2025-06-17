@@ -69,8 +69,8 @@ export const useUischema = ({ config }: BillingContext) => {
       label: "",
       options: {
         type: "Address",
-        use: useClientAddresses,
-        modify: useClientAddress,
+        list: useClientAddress,
+        mutate: useClientAddress,
       },
     },
     {
@@ -80,8 +80,8 @@ export const useUischema = ({ config }: BillingContext) => {
       label: "",
       options: {
         type: "Business",
-        use: useClientCompanies,
-        modify: useClientCompany,
+        list: useClientCompanies,
+        mutate: useClientCompany,
       },
     },
   ];
@@ -104,8 +104,8 @@ export const useUischema = ({ config }: BillingContext) => {
         label: "Phone Number",
         options: {
           type: "Phone",
-          use: useClientPhones,
-          modify: useClientPhone,
+          list: useClientPhones,
+          mutate: useClientPhone,
         },
       },
     ],
