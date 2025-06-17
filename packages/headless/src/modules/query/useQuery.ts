@@ -189,7 +189,10 @@ export const useQuery = () => {
     guard,
     select,
     ...options
-  }: QueryParams<TQueryFnData, TData>) {
+  }: QueryParams<
+    TQueryFnData,
+    TData
+  >) /* TODO: MAYBE omit the pagination/sort and filter query params */ {
     return vueUseQuery<TQueryFnData, DefaultError, TData>(
       {
         queryKey: cleanQueryKey([...queryKey]),
@@ -343,7 +346,7 @@ export const useQuery = () => {
        * @returns {void}
        * @throws {Error} Throws an error if there is no previous page.
        */
-      fetchPrevPage: (): void => {
+      fetchPreviousPage: (): void => {
         if (!response.isPlaceholderData.value && pageIndex.value <= 1) {
           throw new Error("No previous page available");
         }
