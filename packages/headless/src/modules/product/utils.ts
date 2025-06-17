@@ -561,7 +561,8 @@ export const parseMeta = (
   return reduce(
     all,
     (result, value) => {
-      return merge(result, value);
+      result = merge({}, result, value);
+      return result;
     },
     meta || {}
   );
@@ -1133,8 +1134,9 @@ export function parseBundledProducts(
   bundle?: ProductConfigContext["bundle"]
 ): ProductProps[] {
   // safe check : dont include recommendations for products that are not single products
+  debugger;
   if (raw?.product_type !== ProductTypes.SINGLE_PRODUCT) return [];
-
+  debugger;
   let bundles: ProductBundles =
     raw?.meta?.bundle ??
     first(
@@ -1147,7 +1149,7 @@ export function parseBundledProducts(
         })
       )
     );
-
+  debugger;
   if (!isArray(bundles)) {
     if (!bundle) bundles = [];
     else bundles = get(bundles, bundle, []) as ProductBundle[];
