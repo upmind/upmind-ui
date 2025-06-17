@@ -7,6 +7,7 @@ import type {
   QueryObserverOptions,
   MutationObserverOptions,
   QueryKey,
+  InfiniteData,
 } from "@tanstack/vue-query";
 
 // -----------------------------------------------------------------------------
@@ -19,6 +20,26 @@ export interface QueryResponseError {
   data: any | null;
   status: responseCodes | number;
 }
+
+/**
+ * Represents the structure of a single page returned from an infinite query's queryFn.
+ * @template TData The type of the data array for the page.
+ */
+export type InfiniteQueryPage<TData> = {
+  pageData: TData;
+  nextOffset: number | undefined;
+};
+
+/**
+ * The raw data structure provided by TanStack's `useInfiniteQuery`
+ * to the `select` function before transformation.
+ *
+ * @template TPageData The type of the data within each page (e.g., IProduct[]).
+ */
+export type RawInfiniteQueryData<TPageData> = InfiniteData<
+  InfiniteQueryPage<TPageData>
+>;
+
 export interface QueryResponse<TData = unknown> {
   status: number;
   data: TData | null;
