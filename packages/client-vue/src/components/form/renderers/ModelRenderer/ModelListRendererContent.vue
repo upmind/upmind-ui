@@ -46,7 +46,7 @@
         />
       </template>
     </RadioCardsCollapsible>
-    <!--
+
     <ModelRenderer
       v-if="
         (!meta.isLoading && isEmpty(parsedValues) && hasMutateComposable) ||
@@ -56,9 +56,9 @@
       :is="isEmpty(parsedValues) ? 'section' : 'Dialog'"
       :id="editId"
       :label="formFieldProps.label"
-      :composable="get(control.uischema, 'options.mutate')"
+      :composable="get(control.uischema, 'options.composable')"
       @resolve="openModel = false"
-    /> -->
+    />
   </FormField>
 </template>
 
