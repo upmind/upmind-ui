@@ -6,8 +6,8 @@
     "apps/*",
     "playgrounds/*"
   ],
-  "version": "0.0.1",
-  "description": "This monorepo serves as the central hub for Upmind's second-generation UI components and business logic. It provides reusable packages for core Vue.js functionalities (Headless), along with playgrounds demonstrating UI integration using",
+  "version": "0.2.0",
+  "description": "This monorepo serves as the central hub for Upmind's second-generation UI components and business logic. It provides reusable packages for core functionalities (Headless) and Vue.js implementations (Headless-vue), along with playgrounds demonstrating UI integration using",
   "keywords": [
     "upmind",
     "billing",
@@ -46,6 +46,7 @@
     "lint-staged": "lint-staged"
   },
   "devDependencies": {
+    "@faker-js/faker": "^9.8.0",
     "@playwright/test": "^1.50.1",
     "@rushstack/eslint-patch": "^1.10.5",
     "@tsconfig/node22": "^22.0.0",

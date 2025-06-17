@@ -4,30 +4,40 @@ import { defineConfig, devices } from "@playwright/test";
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
+  /* Timeouts */
+  timeout: 60000,
+  expect: {
+    timeout: 60000,
+  },
+
   /*Filepaths*/
-  testDir: "./e2e/e2e-tests",
-  outputDir: "./e2e/e2e-tests/test-results",
+  testDir: "./tests/Playwright/e2e/e2e-tests",
+  outputDir: "./tests/Playwright/e2e/test-output/test-results",
   testMatch: "**/*.spec.ts",
-  snapshotPathTemplate: "./e2e/snapshots/{testFileDir}/{arg}-{projectName}.png",
+  snapshotPathTemplate:
+    "./tests/Playwright/e2e/snapshots/{arg}-{projectName}.png",
+
   /*Set number of retries on a failed test*/
   //retries: 2,
+
   /* Run tests in files in parallel */
-  fullyParallel: true,
+  fullyParallel: false,
+
   /* Reporter to use for test results. See https://playwright.dev/docs/test-reporters */
-  reporter: [["html", { outputFolder: "./e2e/e2e-tests/playwright-report" }]],
+  reporter: [["html", { outputFolder: "./tests/Playwright/e2e/reports/html" }]],
 
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: "http://collabstudio.local:5173/",
+    baseURL: "http://qa-automation.local:5173/",
+
+    /* Setting headless to false will cuse the test runner to open a real browser window for each test (headless:true is the default setting)*/
+    headless: true,
+
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
     //video: 'retain-on-failure',
   },
 
-  /* Timeouts */
-  expect: {
-    timeout: 10_000,
-  },
   /* Configure projects for major browsers */
   projects: [
     {
