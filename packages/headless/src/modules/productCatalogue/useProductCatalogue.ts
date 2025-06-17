@@ -22,10 +22,16 @@ import type { Product } from "../product";
 import type { ICurrency } from "@upmind-automation/types";
 import type { QueryProps, RequestFilters } from "../query";
 
-export const useInfiniteProductCatalogue = (initial?: QueryProps) => {
+export const usePaginatedProductCatalogue = (
+  initial?: QueryProps & {
+    infinite?: boolean;
+  }
+) => {
   // --- state
-
-  const query = service.loadInfinite(initial);
+  const { infinite, ...params } = initial || {};
+  const query = infinite
+    ? service.loadInfinite(params)
+    : service.loadList(params);
 
   const meta = computed(() => ({
     isLoading: query?.isFetching.value,
@@ -85,54 +91,42 @@ export const useInfiniteProductCatalogue = (initial?: QueryProps) => {
 
   const filters = ref<
     RequestFilters & {
+      query: string;
       currency: string;
       "filter[products_category_id]": string;
       id: string[];
       promotions: string[];
     }
   >({
+    query: "",
     currency: "",
     "filter[products_category_id]": "",
     id: [],
     promotions: [],
   });
 
-  function filterAll(param: string) {
-    return filter(
-      service.loadCached(),
-      item =>
-        includes(
-          item.productDetails.title.toLowerCase(),
-          param.toLowerCase()
-        ) ||
-        includes(
-          item.productDetails?.description?.toLowerCase(),
-          param.toLowerCase()
-        ) ||
-        includes(
-          item.productDetails?.excerpt?.toLowerCase(),
-          param.toLowerCase()
-        )
-    );
-  }
-
-  const filterCurrency = (currencyCode?: ICurrency["code"]) => {
-    set(filters.value, "currency", currencyCode || "");
+  const filterQuery = (value?: string) => {
+    set(filters.value, "query", value || "");
     query.filter(filters.value);
   };
 
-  const filterProductCategory = (categoryId?: string) => {
-    set(filters.value, "filter[products_category_id]", categoryId ?? "");
+  const filterCurrency = (value?: ICurrency["code"]) => {
+    set(filters.value, "currency", value || "");
     query.filter(filters.value);
   };
 
-  const filterIds = (ids?: string[]) => {
-    set(filters.value, "id", ids || []);
+  const filterProductCategory = (value?: string) => {
+    set(filters.value, "filter[products_category_id]", value ?? "");
     query.filter(filters.value);
   };
 
-  const filterCoupons = (coupons?: string[]) => {
-    set(filters.value, "promotions", coupons || []);
+  const filterIds = (value?: string[]) => {
+    set(filters.value, "id", value || []);
+    query.filter(filters.value);
+  };
+
+  const filterCoupons = (value?: string[]) => {
+    set(filters.value, "promotions", value || []);
     query.filter(filters.value);
   };
 
@@ -202,13 +196,6 @@ export const useInfiniteProductCatalogue = (initial?: QueryProps) => {
     findOne,
 
     /**
-     * Filters the items by name or description.
-     * @param param The filter string to filter the items with.
-     * @returns An array of items that match the filter.
-     */
-    filter: filterAll,
-
-    /**
      * Refresh the query to get the latest data.
      * This will refetch the data from the server and update the query state.
      * @returns {void}
@@ -245,12 +232,14 @@ export const useInfiniteProductCatalogue = (initial?: QueryProps) => {
      * Filters for the query.
      * These filters can be used to modify the query parameters before fetching the data.
      * @typedef {Object} ProductCatalogueFilters
+     * @property {RequestFilter} query - Filter for the query. ie, name/descriptn/excerpt
      * @property {RequestFilter} currency - Filter for the currency code.
      * @property {RequestFilter} productCategory - Filter for the product category id.
      * @property {RequestFilter} ids - Filter for the product ids.
      * @property {RequestFilter} coupons - Filter for the coupons.
      */
     filters: {
+      query: filterQuery,
       currency: filterCurrency,
       productCategory: filterProductCategory,
       ids: filterIds,
@@ -259,6 +248,6 @@ export const useInfiniteProductCatalogue = (initial?: QueryProps) => {
   };
 };
 
-export type UseInfiniteProductCatalogue = ReturnType<
-  typeof useInfiniteProductCatalogue
+export type UsePaginatedProductCatalogue = ReturnType<
+  typeof usePaginatedProductCatalogue
 >;
