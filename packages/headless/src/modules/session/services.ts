@@ -8,7 +8,7 @@ import { getTokenFromStorage, persistTokenToStorage } from "./utils";
 import { isEmpty } from "lodash-es";
 
 // --- types
-import { GrantTypes } from "@upmind-automation/types";
+import { GrantTypes, IToken } from "@upmind-automation/types";
 import type { SessionContext } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -41,14 +41,14 @@ async function transferFrom({ transfer }: SessionContext) {
       new DetailedError("No code", responseCodes.Unprocessable_Entity, transfer)
     );
 
-  return post({
+  return post<IToken>({
     url: useUrl("access_token", {}, { context: "oauth" }),
     data: {
       grant_type: GrantTypes.AUTH_CODE,
       code: transfer.code,
       lang: "en", // ensure we dont init i18n to get the locale
     },
-  }).then((data: any) => {
+  }).then(data => {
     persistTokenToStorage(data);
     return data;
   });

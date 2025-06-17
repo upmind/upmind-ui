@@ -133,7 +133,7 @@ async function update(
       phone_id: model?.phoneId || null,
     },
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  });
 }
 // -----------------------------------------------------------------------------
 
