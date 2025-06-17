@@ -206,7 +206,7 @@ export const useBrand = () => {
     const languages = get(state.value, "context.languages", []);
 
     // if we dont have any languages, then just return the given currency
-    if (isEmpty(languages)) return undefined;
+    if (isEmpty(languages)) return model as ILanguage | undefined;
 
     // otherwise we need to validate the given currency
     // and possibly fallback to the default/first available currency

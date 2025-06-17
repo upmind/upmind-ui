@@ -25,6 +25,7 @@ import {
   toNumber,
   isObject,
   forEach,
+  compact,
 } from "lodash-es";
 import { parseData, canRetryAuthorization, PAGINATION } from "./utils";
 
@@ -250,14 +251,14 @@ export const useQuery = () => {
 
     const response = vueUseQuery<TQueryFnData, DefaultError, TData>(
       {
-        queryKey: [
+        queryKey: compact([
           ...queryKey,
           `limit=${limit}`,
           `lang=${locale.value}`,
           { sort }, // Important for sorting to work
           { pageIndex }, // Important for pagination to work
           { filters }, // Important for filters to work
-        ],
+        ]),
         queryFn: async ({ signal }) => {
           const hasGuard = isPromise(guard);
           const safeguard: Promise<void | boolean> = hasGuard
@@ -553,10 +554,16 @@ export const useQuery = () => {
     // Remove initialData from options before spreading, as it's not part of FetchQueryOptions
 
     return queryClient.fetchQuery<TQueryFnData, DefaultError, TData>({
-      queryKey,
+      queryKey: [
+        ...(queryKey || []), // Ensure queryKey is an array
+        `lang=${locale.value}`, // Add locale to the query key
+      ],
       queryFn: async ({ signal }) => {
         return request<TQueryFnData>({
           url,
+          sort: options?.sort,
+          filters: options?.filters,
+          pagination: options?.pagination,
           init: {
             ...init,
             signal, // Pass the new signal to the request to allow cancellation
