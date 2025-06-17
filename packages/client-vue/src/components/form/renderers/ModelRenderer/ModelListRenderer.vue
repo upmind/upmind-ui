@@ -28,7 +28,7 @@ const { formFieldProps, control } = useUpmindUIRenderer(
 );
 
 const hasComposable = computed(() => {
-  return isFunction(get(control.value.uischema, "options.use"));
+  return isFunction(get(control.value.uischema, "options.list"));
 });
 
 const selectOnly = computed(() => {

@@ -3,6 +3,7 @@ import { map } from "lodash-es";
 
 // --- internal
 import { useClientAddresses } from "../address";
+import { useClientAddress } from "../address";
 
 // --- types
 import type { CompanyContext } from "./types";
@@ -121,17 +122,9 @@ export const useUischema = ({ addresses }: CompanyContext) => {
         type: "ModelList",
         scope: "#/properties/addressId",
         options: {
-          label: "Address",
-          oneOf: map(addresses || [], (item: Address) => {
-            return {
-              id: item.id,
-              title: item.title || item.name,
-              description: item.description,
-              item: item,
-            };
-          }),
+          label: "",
           use: useClientAddresses,
-          selectOnly: true,
+          modify: useClientAddress,
         },
       },
     ],
