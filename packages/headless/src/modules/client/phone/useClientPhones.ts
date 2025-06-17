@@ -20,7 +20,13 @@ import {
 // --- types
 import type { Phone } from "./types";
 
-export const useClientPhones = (initial?: QueryProps) => {
+export const useClientPhones = (
+  initial: QueryProps = {
+    pagination: {
+      limit: 0,
+    },
+  }
+) => {
   // --- state
 
   const { isAuthenticated, meta: sessionMeta } = useSession();

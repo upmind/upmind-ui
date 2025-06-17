@@ -20,7 +20,13 @@ import {
 // --- types
 import type { Email } from "./types";
 
-export const useClientEmails = (initial?: QueryProps) => {
+export const useClientEmails = (
+  initial: QueryProps = {
+    pagination: {
+      limit: 0,
+    },
+  }
+) => {
   // --- state
 
   const { isAuthenticated, meta: sessionMeta } = useSession();
