@@ -22,6 +22,7 @@
           :width="props.width"
           :value="selectedItem.value"
           :list="props.list"
+          :minimal="props.minimal"
           data-testid="radio-card-item"
           :uiConfig="selectedItemUiConfig"
         >
@@ -66,6 +67,7 @@
               :value="option.value"
               :class="props.radioClass"
               :list="props.list"
+              :minimal="props.minimal"
               data-testid="radio-card-item"
               :uiConfig="props.uiConfig"
               @keydown.enter="onSelectionChange(option.value)"
@@ -140,6 +142,7 @@ const open = useVModel(props, "open", emits, {
 
 const meta = computed(() => ({
   isList: props.list,
+  isMinimal: props.minimal,
   width: props.width,
 }));
 
