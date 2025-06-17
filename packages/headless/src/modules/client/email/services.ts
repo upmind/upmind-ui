@@ -1,8 +1,5 @@
-// --- external
-import { ref } from "vue";
-
 // --- internal
-import { useQuery, useSession, useFeedback } from "../..";
+import { useQuery, useSession, useFeedback, type QueryParams } from "../..";
 
 // --- utils
 import {
@@ -21,7 +18,6 @@ import { EmailTypes } from "./types";
 import type { IEmail } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { AnyEventObject } from "xstate";
-import type { QueryListParams } from "../..";
 import type { EmailContext, Email, EmailModel } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -30,12 +26,15 @@ import type { EmailContext, Email, EmailModel } from "./types";
 const queryKey: QueryKey = ["client", "emails"];
 const { addError, addSuccess } = useFeedback();
 
-function loadList(params?: QueryListParams) {
-  const { query, useUrl } = useQuery();
+function loadList(params?: Partial<QueryParams>) {
   const { meta, user } = useSession();
+  const { list, useUrl } = useQuery();
 
-  return query<IEmail[], Email[]>({
-    queryKey: [...queryKey, params],
+  return list<IEmail[], Email[]>({
+    ...(params as any),
+    queryKey,
+    url: useUrl(`clients/${user.value?.id}/emails`),
+    withAccessToken: true,
     guard: async () =>
       new Promise((resolve, reject) => {
         if (meta.value.isAuthenticated && !!user.value?.id) {
@@ -44,10 +43,6 @@ function loadList(params?: QueryListParams) {
           reject(new NotAuthenticatedError());
         }
       }),
-    url: useUrl(`clients/${user.value?.id}/emails`, {
-      ...(params || ref({ pagination: { limit: 0, offset: 0 } })),
-    }),
-    withAccessToken: true,
     // --- options
     select: mapEmails,
     staleTime: useTime().DAY,

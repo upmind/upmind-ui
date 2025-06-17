@@ -35,8 +35,8 @@ function loadList(params?: Partial<QueryParams>) {
     }),
     withAccessToken: true,
     // --- options
-    staleTime: useTime().HOUR,
     select: data => map(data ?? [], parseProduct),
+    staleTime: useTime().HOUR,
   });
 }
 
