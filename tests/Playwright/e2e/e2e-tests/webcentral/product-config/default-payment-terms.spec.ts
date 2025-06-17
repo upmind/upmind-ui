@@ -1,12 +1,12 @@
 import { test, expect, Page } from "@playwright/test";
 import { URLs } from "../../../support/constants/urls";
-import { Checkout } from "../../../support/page-objects/templates/Checkout";
+import { ProductConfig } from "../../../support/page-objects/templates/ProductConfig";
 import {
   DefaultPaymentTerms,
   DefaultPaymentTermsWithPromo,
 } from "../../../support/constants/DefaultPaymentTerms";
 
-let checkout: Checkout;
+let productConfig: ProductConfig;
 let terms = DefaultPaymentTerms;
 let termsWithPromo = DefaultPaymentTermsWithPromo;
 
@@ -34,7 +34,7 @@ async function setBillingTerm(
 }
 
 test.beforeEach(async ({ page }) => {
-  checkout = new Checkout(page);
+  productConfig = new ProductConfig(page);
 });
 
 test.describe("Assert correct billing term is selected based on default_payment_period value @default-terms", async () => {
@@ -44,7 +44,7 @@ test.describe("Assert correct billing term is selected based on default_payment_
       await page.goto(URLs.starterHosting);
       await page.waitForLoadState("networkidle");
 
-      const radioCardItem = checkout.radioButtons.getRadioButton(
+      const radioCardItem = productConfig.radioButtons.getRadioButton(
         radioGroup,
         radioOption
       );
@@ -61,7 +61,7 @@ test.describe("Assert that billing term functionality accounts for promotional d
       await page.goto(URLs.billingTermsPromo);
       await page.waitForLoadState("networkidle");
 
-      const radioCardItem = checkout.radioButtons.getRadioButton(
+      const radioCardItem = productConfig.radioButtons.getRadioButton(
         radioGroup,
         radioOption
       );

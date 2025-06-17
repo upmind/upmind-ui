@@ -1,14 +1,14 @@
 import { test, expect } from "@playwright/test";
 import { URLs } from "../../../../support/constants/urls";
-import { Checkout } from "../../../../support/page-objects/templates/Checkout";
+import { ProductConfig } from "../../../../support/page-objects/templates/ProductConfig";
 import { ConsultingBlock } from "../../../../support/constants/checkout/test-cases/webcentral/ConsultingBlock";
-let checkout: Checkout;
+let productConfig: ProductConfig;
 let testCases = ConsultingBlock;
 
 test.beforeEach(async ({ page }) => {
-  checkout = new Checkout(page);
+  productConfig = new ProductConfig(page);
   await page.goto(URLs.consultingBlock);
-  await checkout.optionsContainer.waitFor();
+  await productConfig.optionsContainer.waitFor();
 });
 
 test.describe("Product Config - Happy Paths - Consulting Block", async () => {
@@ -26,7 +26,7 @@ test.describe("Product Config - Happy Paths - Consulting Block", async () => {
       /* PRODUCT OPTIONS */
       /* Make product selections */
       for (const [radioGroupIndex, radioOptionIndex] of radioSelection) {
-        await checkout.radioButtons.clickRadioButton(
+        await productConfig.radioButtons.clickRadioButton(
           radioGroupIndex,
           radioOptionIndex
         );
@@ -35,7 +35,7 @@ test.describe("Product Config - Happy Paths - Consulting Block", async () => {
         checkboxGroupIndex,
         checkboxOptionIndex,
       ] of checkboxSelection) {
-        await checkout.checkboxes.clickCheckbox(
+        await productConfig.checkboxes.clickCheckbox(
           checkboxGroupIndex,
           checkboxOptionIndex
         );
@@ -43,11 +43,13 @@ test.describe("Product Config - Happy Paths - Consulting Block", async () => {
 
       /* SUMMARY FIELDS */
       /* Verify that all summary fields contain the expected data */
-      await expect(checkout.totalValue).toContainText(total);
-      await expect(checkout.billingCycle).toContainText(billingCycle);
-      await expect(checkout.consulting).toContainText(consulting);
-      await expect(checkout.engagementTypes).toContainText(engagementTypes);
-      await expect(checkout.outcomes).toContainText(outcomes);
+      await expect(productConfig.totalValue).toContainText(total);
+      await expect(productConfig.billingCycle).toContainText(billingCycle);
+      await expect(productConfig.consulting).toContainText(consulting);
+      await expect(productConfig.engagementTypes).toContainText(
+        engagementTypes
+      );
+      await expect(productConfig.outcomes).toContainText(outcomes);
       //await expect(page).toHaveScreenshot(name);
     });
   }
