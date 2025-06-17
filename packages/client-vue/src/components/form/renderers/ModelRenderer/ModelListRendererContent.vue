@@ -48,6 +48,7 @@
         (!meta.isLoading && isEmpty(parsedValues) && hasMutateComposable) ||
         openModel
       "
+      v-model:open="openModel"
       :is="isEmpty(parsedValues) ? 'section' : 'Dialog'"
       :id="editId"
       :label="formFieldProps.label"
