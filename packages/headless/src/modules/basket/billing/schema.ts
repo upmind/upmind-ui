@@ -83,7 +83,7 @@ export const useUischema = ({ config }: BillingContext) => {
         type: "ModelList",
         scope: "#/properties/phoneId",
         i18n: "basket.billing.phoneId",
-        label: "Phone Number",
+        label: "",
         options: {
           type: "Phone",
           list: useClientPhones,

@@ -1,5 +1,9 @@
 <template>
-  <FormField v-bind="formFieldProps" required>
+  <FormField
+    v-bind="formFieldProps"
+    required
+    :label="!isEmpty(parsedValues) ? formFieldProps.label : ''"
+  >
     <RadioCardsCollapsible
       v-if="!meta.isLoading && !isEmpty(parsedValues)"
       v-model:open="open"

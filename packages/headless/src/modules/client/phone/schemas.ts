@@ -23,7 +23,7 @@ export const useSchema = ({ country }: { country?: ICountry }) => {
 
       phone: {
         type: "object",
-        title: "Phone number",
+        title: "Phone Number",
         phone_country_code: country?.code,
         properties: {
           number: {
@@ -93,17 +93,16 @@ export const useUischema = () => {
         options: {
           autoFocus: true,
           autocomplete: "phone",
-          placeholder: "My phone number",
         },
       },
-      {
-        type: "Control",
-        scope: "#/properties/type",
-        options: {
-          autocomplete: "off",
-          placeholder: "Select Type",
-        },
-      },
+      // {
+      //   type: "Control",
+      //   scope: "#/properties/type",
+      //   options: {
+      //     autocomplete: "off",
+      //     placeholder: "Select Type",
+      //   },
+      // },
 
       // ---
       // We don't ever show this field as it is set by an action
