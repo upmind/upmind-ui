@@ -69,7 +69,7 @@ export const useUischema = ({ config }: BillingContext) => {
       label: "",
       options: {
         type: "Address",
-        list: useClientAddress,
+        list: useClientAddresses,
         mutate: useClientAddress,
       },
     },
