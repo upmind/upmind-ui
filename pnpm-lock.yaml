@@ -12,6 +12,9 @@ importers:
         specifier: ^0.6.11
         version: 0.6.11(prettier@3.5.3)
     devDependencies:
+      '@faker-js/faker':
+        specifier: ^9.8.0
+        version: 9.8.0
       '@playwright/test':
         specifier: ^1.50.1
         version: 1.50.1

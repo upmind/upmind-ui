@@ -1,5 +1,5 @@
 // --- internal
-import { useQuery } from "../..";
+import { RequestSortDirection, useQuery } from "../..";
 
 // --- utils
 import { useTime } from "../../utils";
@@ -50,6 +50,7 @@ async function fetchCountries(_context: SystemContext, _event: AnyEventObject) {
   return get({
     url: useUrl("countries", { limit: 0 }),
     queryKey: ["system", "countries"],
+    sort: [RequestSortDirection.ASC, "name"],
     staleTime: useTime()?.DAY,
   });
 }

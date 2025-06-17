@@ -1,13 +1,15 @@
 // --- external
-import { unref } from "vue";
 import {
   useMutation,
   QueryClient,
   useQuery as vueUseQuery,
   useInfiniteQuery as vueUseInfiniteQuery,
 } from "@tanstack/vue-query";
+import { isArray, isFunction } from "xstate/lib/utils";
+import { ref, unref, computed } from "vue";
 
 // --- internal
+import { useLocale } from "../system";
 import { doFetch, refreshToken } from "./services";
 
 // --- utils
@@ -23,27 +25,26 @@ import {
   toNumber,
   isObject,
   forEach,
+  compact,
 } from "lodash-es";
 import { parseData, canRetryAuthorization, PAGINATION } from "./utils";
 
 // --- types
-import type {
+import {
   QueryParams,
   QueryResponse,
   RequestParams,
   MutationParams,
+  InfiniteQueryPage,
   QueryResponseError,
 } from "./types";
 import { Methods } from "@upmind-automation/types";
 import type { DefaultError } from "@tanstack/vue-query";
-import { computed, ref } from "vue";
-import { useLocale } from "../system";
-import { isArray, isFunction } from "xstate/lib/utils";
 
 // -----------------------------------------------------------------------------
 
-// NB we need to create our query client here so that it can be used in the `useQuery` hook
-// and this will then be used in the `useUpmind` composable, which initializes the Upmind instance
+// NB we need to create our query client here so that it can be used in the `useQuery` hook.
+// This will then be used in the `useUpmind` composable, which initializes the Upmind instance
 // BEFORE vue has an injectable for the query client
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -219,8 +220,6 @@ export const useQuery = () => {
    * @param queryKey The query key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
    * @param sort An array of strings representing the sorting order for the query. Each string should be in the format "field:direction", where "field" is the field to sort by and "direction" is either "asc" or "desc".
-   * @param filters An object containing key-value pairs to filter the query results. Each key represents a field to filter by, and the value is the value to filter for.
-   * @param pagination An object containing pagination options. It should have a `limit` property to specify the number of items per page.
    * @param options Additional options to pass to TanStack query.
    */
   function list<TQueryFnData = unknown, TData = TQueryFnData>({
@@ -252,14 +251,14 @@ export const useQuery = () => {
 
     const response = vueUseQuery<TQueryFnData, DefaultError, TData>(
       {
-        queryKey: [
+        queryKey: compact([
           ...queryKey,
           `limit=${limit}`,
           `lang=${locale.value}`,
           { sort }, // Important for sorting to work
           { pageIndex }, // Important for pagination to work
           { filters }, // Important for filters to work
-        ],
+        ]),
         queryFn: async ({ signal }) => {
           const hasGuard = isPromise(guard);
           const safeguard: Promise<void | boolean> = hasGuard
@@ -277,7 +276,7 @@ export const useQuery = () => {
               },
               withAccessToken,
             }).then(response => {
-              total.value = response.total || 0; // Set total items count
+              total.value = response.total || 0; // Set the total items count
               return response.data as TQueryFnData;
             })
           );
@@ -316,7 +315,7 @@ export const useQuery = () => {
       })),
 
       /**
-       * Meta information about the current query, such as whether there are next or previous pages.
+       * Meta-information about the current query, such as whether there are next or previous pages.
        * @type {Object}
        * @property {boolean} hasNextPage - Whether there is a next page.
        * @property {boolean} hasPrevPage - Whether there is a previous page.
@@ -375,7 +374,6 @@ export const useQuery = () => {
     guard,
     queryKey,
     withAccessToken,
-
     ...options
   }: QueryParams<TQueryFnData, TData>) {
     // --- state
@@ -387,11 +385,6 @@ export const useQuery = () => {
       if (!limit) return 1; // Can only be 1 page if limit=0
       return Math.max(Math.ceil(total.value / limit), 1);
     });
-    const pageIndex = ref(
-      options?.pagination?.offset
-        ? Math.ceil(options?.pagination.offset / limit) + 1
-        : 1
-    );
     const filters = ref<QueryParams["filters"]>({
       ...(options?.filters ?? {}),
     });
@@ -407,8 +400,8 @@ export const useQuery = () => {
           { sort }, // Important for sorting to work
           { filters }, // Important for filters to work
         ],
-        queryFn: async ({ pageParam, signal }) => {
-          const offset = toNumber(pageParam) || (pageIndex.value - 1) * limit;
+        queryFn: async ({ pageParam = 0, signal }) => {
+          const offset = toNumber(pageParam);
           const hasGuard = isPromise(guard);
           const safeguard: Promise<void | boolean> = hasGuard
             ? guard()
@@ -425,17 +418,20 @@ export const useQuery = () => {
               },
               withAccessToken,
             }).then(response => {
-              total.value = response.total || 0; // Set total items count
+              total.value = response.total || 0; // Set the total items count
+
               return {
                 nextOffset:
                   !limit || offset + limit >= total.value
                     ? undefined
                     : offset + limit,
-                pageData: response.data as TQueryFnData,
+                pageData: response.data,
               };
             })
           );
         },
+        getNextPageParam: (lastPage: InfiniteQueryPage<TQueryFnData>) =>
+          lastPage.nextOffset,
         ...(options as any),
       },
       queryClient
@@ -458,26 +454,34 @@ export const useQuery = () => {
        * @property {number} from - The starting item index for the current page.
        * @property {number} to - The ending item index for the current page.
        */
-      pagination: computed(() => ({
-        limit,
-        total: total.value,
-        page: pageIndex.value,
-        pages: pageTotal.value,
-        from: !total.value ? 0 : limit * (pageIndex.value - 1) + 1,
-        to: !limit
-          ? total.value
-          : Math.min(limit * pageIndex.value, total.value),
-      })),
+      pagination: computed(() => {
+        // We use the length of the final, selected data array.
+        // The `as any[]` is a safe type assertion here because we know
+        // our `select` function returns an array.
+        const itemsFetched = (response.data.value as any[])?.length ?? 0;
+
+        // Calculate pages fetched based on items and limit
+        const pagesFetched = limit > 0 ? Math.ceil(itemsFetched / limit) : 1;
+
+        return {
+          limit,
+          total: total.value,
+          page: pagesFetched,
+          pages: pageTotal.value,
+          from: 1, // For "load more", we always show from item 1
+          to: itemsFetched, // The last item is simply the total number fetched
+        };
+      }),
 
       /**
-       * Meta information about the current query, such as whether there are next or previous pages.
+       * Meta-information about the current query, such as whether there are next or previous pages.
        * @type {Object}
        * @property {boolean} hasNextPage - Whether there is a next page.
        * @property {boolean} hasPrevPage - Whether there is a previous page.
        */
       meta: computed(() => ({
-        hasNextPage: pageIndex.value < pageTotal.value,
-        hasPrevPage: pageIndex.value > 1,
+        hasNextPage: response.hasNextPage.value,
+        hasPrevPage: response.hasPreviousPage.value,
       })),
 
       filter: (values: QueryParams["filters"]) => {
@@ -550,10 +554,16 @@ export const useQuery = () => {
     // Remove initialData from options before spreading, as it's not part of FetchQueryOptions
 
     return queryClient.fetchQuery<TQueryFnData, DefaultError, TData>({
-      queryKey,
+      queryKey: [
+        ...(queryKey || []), // Ensure queryKey is an array
+        `lang=${locale.value}`, // Add locale to the query key
+      ],
       queryFn: async ({ signal }) => {
         return request<TQueryFnData>({
           url,
+          sort: options?.sort,
+          filters: options?.filters,
+          pagination: options?.pagination,
           init: {
             ...init,
             signal, // Pass the new signal to the request to allow cancellation
@@ -727,7 +737,7 @@ export const useQuery = () => {
     // safeguard
     init ??= {};
 
-    // Enforce method & header
+    // Enforce method and header
     set(init, "method", Methods.GET.toUpperCase());
     set(init, "mode", "no-cors");
 

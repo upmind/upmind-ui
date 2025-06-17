@@ -48,7 +48,7 @@ export const useSessionFlows = () => {
       name: ROUTE.SESSION,
       guard: async (_route: Route) => {
         const valid = await isAuthenticated()
-          .then(() => false)
+          .then(valid => !valid)
           .catch(() => true);
         return valid;
       },
