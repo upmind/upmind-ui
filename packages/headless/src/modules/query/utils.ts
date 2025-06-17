@@ -18,10 +18,16 @@ import {
   camelCase,
   includes,
   toNumber,
+  reject,
+  isEmpty,
+  omitBy,
+  compact,
+  isNil,
 } from "lodash-es";
 
 // ---types
 import { QueryResponse, QueryResponseError } from "./types";
+import { unref } from "vue";
 
 // --- constants
 export const PAGINATION = {
@@ -99,4 +105,20 @@ export function canRetryAuthorization(
   //   canAuthorize: value
   // });
   return value;
+}
+
+/**
+ *
+ * @param queryKey The query key to clean
+ * @description Cleans the query key by removing empty values, objects, and arrays.
+ * This is useful to avoid sending unnecessary data in the query key.
+ * @returns The cleaned query key
+ */
+export function cleanQueryKey(queryKey: any[]): any[] {
+  return reject(queryKey, (value: any) => {
+    value = unref(value);
+    if (isObject(value)) return isEmpty(omitBy(value, isEmpty));
+    if (isArray(value)) return isEmpty(compact(value));
+    return isEmpty(value) || isNil(value);
+  });
 }

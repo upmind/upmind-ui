@@ -25,12 +25,13 @@ import {
   toNumber,
   isObject,
   forEach,
-  compact,
-  reject,
-  isNil,
-  omitBy,
 } from "lodash-es";
-import { parseData, canRetryAuthorization, PAGINATION } from "./utils";
+import {
+  parseData,
+  canRetryAuthorization,
+  PAGINATION,
+  cleanQueryKey,
+} from "./utils";
 
 // --- types
 import {
@@ -62,15 +63,6 @@ const queryClient = new QueryClient({
 
 export const useQuery = () => {
   const { locale } = useLocale();
-
-  function cleanQueryKey(queryKey: any[]): any[] {
-    return reject(queryKey, (value: any) => {
-      value = unref(value);
-      if (isObject(value)) return isEmpty(omitBy(value, isEmpty));
-      if (isArray(value)) return isEmpty(compact(value));
-      return isEmpty(value) || isNil(value);
-    });
-  }
 
   /**
    * Sends a request with the given URL and options.
