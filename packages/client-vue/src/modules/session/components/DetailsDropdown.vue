@@ -9,7 +9,7 @@
       <div class="flex flex-col items-start break-all px-3 py-2">
         <div>{{ user.fullname }}</div>
         <div class="text-sm font-normal opacity-60">
-          {{ user.email }}
+          {{ user.username }}
         </div>
       </div>
     </template>
