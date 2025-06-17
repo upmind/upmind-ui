@@ -1,15 +1,13 @@
-// --- external
-import { ref } from "vue";
-
 // --- internal
 import {
   useQuery,
-  useSession,
   useSystem,
+  useSession,
   useFeedback,
   useClientPhones,
   useClientEmails,
   useClientAddresses,
+  type QueryParams,
 } from "../..";
 
 // --- utils
@@ -28,7 +26,6 @@ import { get, isEmpty, isNil, isString } from "lodash-es";
 import type { ICompany } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { AnyEventObject } from "xstate";
-import type { QueryListParams } from "../..";
 import type { CompanyContext, Company, CompanyModel } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -37,12 +34,17 @@ import type { CompanyContext, Company, CompanyModel } from "./types";
 const queryKey: QueryKey = ["client", "companies"];
 const { addError, addSuccess } = useFeedback();
 
-function loadList(params?: QueryListParams) {
-  const { query, useUrl } = useQuery();
+function loadList(params?: Partial<QueryParams>) {
   const { meta, user } = useSession();
+  const { list, useUrl } = useQuery();
 
-  return query<ICompany[], Company[]>({
-    queryKey: [...queryKey, params],
+  return list<ICompany[], Company[]>({
+    ...(params as any),
+    queryKey,
+    url: useUrl(`clients/${user.value?.id}/companies`, {
+      with: ["address", "address.country", "address.region"].join(),
+    }),
+    withAccessToken: true,
     guard: async () =>
       new Promise((resolve, reject) => {
         if (meta.value.isAuthenticated || !user.value?.id) {
@@ -51,11 +53,6 @@ function loadList(params?: QueryListParams) {
           reject(new NotAuthenticatedError());
         }
       }),
-    url: useUrl(`clients/${user.value?.id}/companies`, {
-      with: ["address", "address.country", "address.region"].join(),
-      ...(params || ref({ pagination: { limit: 0, offset: 0 } })),
-    }),
-    withAccessToken: true,
     // --- options
     select: mapCompanies,
     staleTime: useTime().DAY,
