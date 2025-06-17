@@ -45,13 +45,13 @@
 
     <ModelRenderer
       v-if="
-        (!meta.isLoading && isEmpty(parsedValues) && hasModifyComposable) ||
+        (!meta.isLoading && isEmpty(parsedValues) && hasMutateComposable) ||
         openModel
       "
       :is="isEmpty(parsedValues) ? 'section' : 'Dialog'"
       :id="editId"
-      :label="formFieldProps.label"
-      :composable="get(control.uischema, 'options.modify')"
+      :label="`${formFieldProps.label} ${type}`"
+      :composable="get(control.uischema, 'options.mutate')"
       @resolve="openModel = false"
     />
   </FormField>
@@ -98,14 +98,14 @@ const {
   data,
   default: defaultItem,
   meta,
-} = get(control.value.uischema, "options.use")();
+} = get(control.value.uischema, "options.list")();
 
 const type = computed(() => {
   return get(control.value.uischema, "options.type");
 });
 
-const hasModifyComposable = computed(() => {
-  return isFunction(get(control.value.uischema, "options.modify"));
+const hasMutateComposable = computed(() => {
+  return isFunction(get(control.value.uischema, "options.mutate"));
 });
 
 onMounted(() => {
