@@ -70,7 +70,7 @@
 
 <script setup lang="ts">
 import { watch } from "vue";
-import { usePaginatedProductCatalogue } from "@upmind-automation/headless";
+import { useProductCatalogue } from "@upmind-automation/headless";
 import {
   IProductCategory,
   type ISO_4217_CURRENCY_CODE,
@@ -93,12 +93,12 @@ const props = withDefaults(
 
 const {
   data: products,
-  filters,
   meta,
-  pagination,
+  filters,
   nextPage,
   prevPage,
-} = usePaginatedProductCatalogue({
+  pagination,
+} = useProductCatalogue({
   pagination: {
     limit: props.limit,
   },
