@@ -191,7 +191,7 @@ export const useQuery = () => {
   }: QueryParams<TQueryFnData, TData>) {
     return vueUseQuery<TQueryFnData, DefaultError, TData>(
       {
-        queryKey,
+        queryKey: cleanQueryKey([...queryKey]),
         queryFn: async ({ signal }) => {
           const hasGuard = isPromise(guard);
           const safeguard: Promise<void | boolean> = hasGuard
