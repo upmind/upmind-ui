@@ -6,7 +6,7 @@ import {
   useInfiniteQuery as vueUseInfiniteQuery,
 } from "@tanstack/vue-query";
 import { isArray, isFunction } from "xstate/lib/utils";
-import { ref, unref, computed } from "vue";
+import { ref, unref, computed, MaybeRef } from "vue";
 
 // --- internal
 import { useLocale } from "../system";
@@ -26,6 +26,9 @@ import {
   isObject,
   forEach,
   compact,
+  reject,
+  isNil,
+  omitBy,
 } from "lodash-es";
 import { parseData, canRetryAuthorization, PAGINATION } from "./utils";
 
@@ -59,6 +62,15 @@ const queryClient = new QueryClient({
 
 export const useQuery = () => {
   const { locale } = useLocale();
+
+  function cleanQueryKey(queryKey: any[]): any[] {
+    return reject(queryKey, (value: any) => {
+      value = unref(value);
+      if (isObject(value)) return isEmpty(omitBy(value, isEmpty));
+      if (isArray(value)) return isEmpty(compact(value));
+      return isEmpty(value) || isNil(value);
+    });
+  }
 
   /**
    * Sends a request with the given URL and options.
@@ -251,13 +263,13 @@ export const useQuery = () => {
 
     const response = vueUseQuery<TQueryFnData, DefaultError, TData>(
       {
-        queryKey: compact([
+        queryKey: cleanQueryKey([
           ...queryKey,
-          `limit=${limit}`,
-          `lang=${locale.value}`,
-          { sort }, // Important for sorting to work
-          { pageIndex }, // Important for pagination to work
-          { filters }, // Important for filters to work
+          { limit },
+          { locale },
+          { sort },
+          { pageIndex },
+          { filters },
         ]),
         queryFn: async ({ signal }) => {
           const hasGuard = isPromise(guard);
@@ -393,13 +405,13 @@ export const useQuery = () => {
 
     const response = vueUseInfiniteQuery<TQueryFnData, DefaultError, TData>(
       {
-        queryKey: [
+        queryKey: cleanQueryKey([
           ...queryKey,
-          `limit=${limit}`,
-          `lang=${locale.value}`,
+          { limit },
+          { locale },
           { sort }, // Important for sorting to work
           { filters }, // Important for filters to work
-        ],
+        ]),
         queryFn: async ({ pageParam = 0, signal }) => {
           const offset = toNumber(pageParam);
           const hasGuard = isPromise(guard);
@@ -553,11 +565,24 @@ export const useQuery = () => {
   }: QueryParams<TQueryFnData, TData>): Promise<TData> {
     // Remove initialData from options before spreading, as it's not part of FetchQueryOptions
 
+    // --- state
+    const limit = options?.pagination?.limit ?? 0;
+    const sort = options?.sort;
+    const filters = options?.filters;
+
+    const pageIndex = options?.pagination?.offset
+      ? Math.ceil(options?.pagination.offset / limit) + 1
+      : undefined;
+
     return queryClient.fetchQuery<TQueryFnData, DefaultError, TData>({
-      queryKey: [
-        ...(queryKey || []), // Ensure queryKey is an array
-        `lang=${locale.value}`, // Add locale to the query key
-      ],
+      queryKey: cleanQueryKey([
+        ...queryKey,
+        { limit },
+        { locale },
+        { sort },
+        { pageIndex },
+        { filters },
+      ]),
       queryFn: async ({ signal }) => {
         return request<TQueryFnData>({
           url,
