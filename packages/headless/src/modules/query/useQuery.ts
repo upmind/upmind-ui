@@ -578,9 +578,9 @@ export const useQuery = () => {
       queryFn: async ({ signal }) => {
         return request<TQueryFnData>({
           url,
-          sort: options?.sort,
-          filters: options?.filters,
-          pagination: options?.pagination,
+          sort,
+          filters,
+          pagination: { limit, offset: (pageIndex ?? 0) * limit },
           init: {
             ...init,
             signal, // Pass the new signal to the request to allow cancellation
