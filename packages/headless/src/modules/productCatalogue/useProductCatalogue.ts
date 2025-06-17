@@ -6,23 +6,14 @@ import service from "./services";
 import { invalidateQueryByKey } from "../query";
 
 // --- utils
-import {
-  get,
-  find,
-  every,
-  filter,
-  isEmpty,
-  includes,
-  isString,
-  set,
-} from "lodash-es";
+import { get, set, find, every, isEmpty, includes, isString } from "lodash-es";
 
 // --- types
 import type { Product } from "../product";
 import type { ICurrency } from "@upmind-automation/types";
 import type { QueryProps, RequestFilters } from "../query";
 
-export const usePaginatedProductCatalogue = (
+export const useProductCatalogue = (
   initial?: QueryProps & {
     infinite?: boolean;
   }
@@ -248,6 +239,4 @@ export const usePaginatedProductCatalogue = (
   };
 };
 
-export type UsePaginatedProductCatalogue = ReturnType<
-  typeof usePaginatedProductCatalogue
->;
+export type UseProductCatalogue = ReturnType<typeof useProductCatalogue>;

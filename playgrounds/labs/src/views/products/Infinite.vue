@@ -3,32 +3,40 @@
     class="mx-auto flex max-w-7xl flex-col items-center gap-y-6"
     :class="props.class"
   >
-    <pre>
-      {{ JSON.stringify(meta, null, 2) }}
-    </pre>
     <Loading :active="meta.isLoading" class="w-full">
       <div
         class="grid w-full grid-cols-[repeat(auto-fill,_minmax(18rem,_1fr))] gap-6"
       >
-        <template
-          v-for="product in products ?? Array(skeletonCount)"
-          :key="product?.id ?? product"
-        >
-          <UpmCard>
-            <template v-if="product?.productDetails">
-              <img
-                v-if="product?.productDetails.imgUrl"
-                :src="product.productDetails.imgUrl"
-                :alt="product.productDetails.title"
-                class="mb-4 h-48 w-full object-cover"
-              />
-              <h3>{{ product.productDetails?.title }}</h3>
-              <p>{{ product.productDetails?.description }}</p>
-              <p v-if="product.price">
-                Price: {{ product.price.currentPrice }}
-              </p>
+        <template v-if="products && products.pages">
+          <template
+            v-for="(page, pageIndex) in products.pages"
+            :key="`page-${pageIndex}`"
+          >
+            <template
+              v-for="product in page.pageData"
+              :key="product?.id ?? product"
+            >
+              <UpmCard>
+                <template v-if="product?.productDetails">
+                  <img
+                    v-if="product?.productDetails.imgUrl"
+                    :src="product.productDetails.imgUrl"
+                    :alt="product.productDetails.title"
+                    class="mb-4 h-48 w-full object-cover"
+                  />
+                  <h3>{{ product.productDetails?.title }}</h3>
+                  <p>{{ product.productDetails?.description }}</p>
+                  <p v-if="product.price">
+                    Price: {{ product.price.currentPrice }}
+                  </p>
+                </template>
+              </UpmCard>
             </template>
-          </UpmCard>
+          </template>
+        </template>
+        <!-- Skeleton loading when no products or still loading initial page -->
+        <template v-else-if="meta.isLoading">
+          <UpmCard v-for="n in skeletonCount" :key="n"></UpmCard>
         </template>
       </div>
     </Loading>
@@ -51,7 +59,7 @@
 
 <script setup lang="ts">
 import { watch } from "vue";
-import { useInfiniteProductCatalogue } from "@upmind-automation/headless";
+import { useProductCatalogue } from "@upmind-automation/headless";
 import {
   IProductCategory,
   type ISO_4217_CURRENCY_CODE,
@@ -77,7 +85,7 @@ const {
   meta,
   filters,
   nextPage,
-} = useInfiniteProductCatalogue({ pagination: { limit: props.limit } });
+} = useProductCatalogue({ pagination: { limit: props.limit }, infinite: true });
 
 watch(
   () => props.categoryId,
