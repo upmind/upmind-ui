@@ -1,47 +1,38 @@
 // --- external
-import { ref, unref, computed } from "vue";
+import { computed } from "vue";
 
 // --- internal
 import service from "./services";
 import { useSession } from "../../session";
-import { invalidateQueryByKey } from "../../query";
+import { invalidateQueryByKey, type QueryProps } from "../../query";
 
 // --- utils
 import {
   get,
-  add,
   find,
   every,
   filter,
   isEmpty,
   includes,
   isString,
-  isNumber,
-  subtract,
 } from "lodash-es";
 
 // --- types
-import type {
-  IAPIPagination,
-  QueryListParams,
-  QueryListParamsRaw,
-} from "../../query";
 import type { Email } from "./types";
 
-export const useClientEmails = (initial?: QueryListParamsRaw) => {
+export const useClientEmails = (initial?: QueryProps) => {
   // --- state
-
-  const queryParams = ref<QueryListParams>(unref(initial ?? {}));
 
   const { isAuthenticated, meta: sessionMeta } = useSession();
 
-  const query = service.loadList(queryParams);
+  const query = service.loadList(initial);
 
   const meta = computed(() => ({
     isLoading: query?.isFetching.value,
     hasError: !isEmpty(query.error.value),
-    isEmpty: isEmpty(query?.data?.value),
+    isEmpty: isEmpty(query?.data?.value) || query.pagination.value.total == 0,
     isAvailable: sessionMeta.value.isAuthenticated,
+    ...query?.meta.value,
   }));
 
   async function isReady(): Promise<boolean> {
@@ -107,37 +98,6 @@ export const useClientEmails = (initial?: QueryListParamsRaw) => {
     return service.setDefault(id).mutate();
   }
 
-  function nextPage() {
-    const limit = queryParams.value?.pagination?.limit;
-    const offset = queryParams.value?.pagination?.offset ?? 0;
-
-    if (isNumber(limit)) {
-      queryParams.value.pagination = {
-        ...(queryParams.value?.pagination ?? {}),
-        offset: add(offset, limit),
-      };
-    }
-  }
-
-  function prevPage() {
-    const limit = queryParams.value?.pagination?.limit;
-    const offset = queryParams.value?.pagination?.offset ?? 0;
-
-    if (isNumber(limit) && offset >= limit) {
-      queryParams.value.pagination = {
-        ...(queryParams.value?.pagination ?? {}),
-        offset: subtract(offset, limit),
-      };
-    }
-  }
-
-  function setPagination(value: IAPIPagination) {
-    queryParams.value.pagination = {
-      ...(queryParams.value?.pagination ?? {}),
-      ...value,
-    };
-  }
-
   // ---------------------------------------------------------------------------
 
   return {
@@ -178,11 +138,9 @@ export const useClientEmails = (initial?: QueryListParamsRaw) => {
      * Indicates if pagination is available
      * If pagination is not set, it defaults to false.
      * Otherwise, it returns the pagination object from the query parameters.
-     * @return {boolean|IAPIPagination} The pagination object if available, otherwise false.
+     * @return {boolean|RequestPagination} The pagination object if available, otherwise false.
      */
-    pagination: computed(
-      (): boolean | IAPIPagination => queryParams.value?.pagination ?? false
-    ),
+    pagination: query.pagination,
 
     /**
      * The default item for the current client.
@@ -248,7 +206,7 @@ export const useClientEmails = (initial?: QueryListParamsRaw) => {
      * @param value The new pagination parameters to set.
      * @return {void}
      */
-    nextPage,
+    nextPage: query.fetchNextPage,
 
     /**
      * Go to the previous page of items.
@@ -257,15 +215,7 @@ export const useClientEmails = (initial?: QueryListParamsRaw) => {
      * @param value The new pagination parameters to set.
      * @return {void}
      */
-    prevPage,
-
-    /**
-     * Set the pagination parameters.
-     * This updates the current pagination state with the provided values.
-     * @param value The new pagination parameters to set.
-     * @return {void}
-     */
-    setPagination,
+    prevPage: query.fetchPrevPage,
 
     /**
      * Invalidate the query cache for client items.

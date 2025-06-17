@@ -1,9 +1,13 @@
-// --- external
-import { ref } from "vue";
 import parsePhoneNumber, { CountryCode } from "libphonenumber-js";
 
 // --- internal
-import { useQuery, useSystem, useSession, useFeedback } from "../..";
+import {
+  useQuery,
+  useSystem,
+  useSession,
+  useFeedback,
+  type QueryParams,
+} from "../..";
 
 // --- utils
 import {
@@ -22,7 +26,6 @@ import { PhoneTypes } from "./types";
 import type { IPhone } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { AnyEventObject } from "xstate";
-import type { QueryListParams } from "../..";
 import type { Phone, PhoneModel, PhoneContext } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -31,12 +34,15 @@ import type { Phone, PhoneModel, PhoneContext } from "./types";
 const queryKey: QueryKey = ["client", "phones"];
 const { addError, addSuccess } = useFeedback();
 
-function loadList(params?: QueryListParams) {
-  const { query, useUrl } = useQuery();
+function loadList(params?: Partial<QueryParams>) {
   const { meta, user } = useSession();
+  const { list, useUrl } = useQuery();
 
-  return query<IPhone[], Phone[]>({
-    queryKey: [...queryKey, params],
+  return list<IPhone[], Phone[]>({
+    ...(params as any),
+    queryKey,
+    url: useUrl(`clients/${user.value?.id}/phones`),
+    withAccessToken: true,
     guard: async () =>
       new Promise((resolve, reject) => {
         if (meta.value.isAuthenticated && !!user.value?.id) {
@@ -45,10 +51,6 @@ function loadList(params?: QueryListParams) {
           reject(new NotAuthenticatedError());
         }
       }),
-    url: useUrl(`clients/${user.value?.id}/phones`, {
-      ...(params || ref({ pagination: { limit: 0, offset: 0 } })),
-    }),
-    withAccessToken: true,
     // --- options
     select: mapPhones,
     staleTime: useTime().DAY,
