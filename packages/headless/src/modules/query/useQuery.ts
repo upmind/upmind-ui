@@ -189,7 +189,10 @@ export const useQuery = () => {
     guard,
     select,
     ...options
-  }: QueryParams<TQueryFnData, TData>) {
+  }: QueryParams<
+    TQueryFnData,
+    TData
+  >) /* TODO: MAYBE omit the pagination/sort and filter query params */ {
     return vueUseQuery<TQueryFnData, DefaultError, TData>(
       {
         queryKey: cleanQueryKey([...queryKey]),
