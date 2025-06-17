@@ -22,10 +22,16 @@ import type { Product } from "../product";
 import type { ICurrency } from "@upmind-automation/types";
 import type { QueryProps, RequestFilters } from "../query";
 
-export const useInfiniteProductCatalogue = (initial?: QueryProps) => {
+export const usePaginatedProductCatalogue = (
+  initial?: QueryProps & {
+    infinite?: boolean;
+  }
+) => {
   // --- state
-
-  const query = service.loadInfinite(initial);
+  const { infinite, ...params } = initial || {};
+  const query = infinite
+    ? service.loadInfinite(params)
+    : service.loadList(params);
 
   const meta = computed(() => ({
     isLoading: query?.isFetching.value,
@@ -259,6 +265,6 @@ export const useInfiniteProductCatalogue = (initial?: QueryProps) => {
   };
 };
 
-export type UseInfiniteProductCatalogue = ReturnType<
-  typeof useInfiniteProductCatalogue
+export type UsePaginatedProductCatalogue = ReturnType<
+  typeof usePaginatedProductCatalogue
 >;

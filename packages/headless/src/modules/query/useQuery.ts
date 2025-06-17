@@ -343,7 +343,7 @@ export const useQuery = () => {
        * @returns {void}
        * @throws {Error} Throws an error if there is no previous page.
        */
-      fetchPrevPage: (): void => {
+      fetchPreviousPage: (): void => {
         if (!response.isPlaceholderData.value && pageIndex.value <= 1) {
           throw new Error("No previous page available");
         }
