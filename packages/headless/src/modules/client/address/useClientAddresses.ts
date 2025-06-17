@@ -20,7 +20,13 @@ import {
 // --- types
 import type { Address } from "./types";
 
-export const useClientAddresses = (initial?: QueryProps) => {
+export const useClientAddresses = (
+  initial: QueryProps = {
+    pagination: {
+      limit: 0,
+    },
+  }
+) => {
   // --- state
 
   const { isAuthenticated, meta: sessionMeta } = useSession();

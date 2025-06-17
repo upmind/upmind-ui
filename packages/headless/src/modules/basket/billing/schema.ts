@@ -31,18 +31,6 @@ export const useSchema = ({ model, config }: BillingContext) => {
         default: model?.phoneId || null,
       },
     },
-    oneOf: [
-      {
-        type: "object",
-        title: "Personal",
-        required: ["addressId"],
-      },
-      {
-        type: "object",
-        title: "Business",
-        required: ["companyId"],
-      },
-    ],
   };
 
   if (!config?.requiresPhone) {
@@ -61,41 +49,35 @@ export const useSchema = ({ model, config }: BillingContext) => {
 };
 
 export const useUischema = ({ config }: BillingContext) => {
-  const oneOfUiSchemas = [
-    {
-      type: "ModelList",
-      scope: "#/properties/addressId",
-      i18n: "basket.billing.addressId",
-      label: "",
-      options: {
-        type: "Address",
-        list: useClientAddresses,
-        mutate: useClientAddress,
-      },
-    },
-    {
-      type: "ModelList",
-      scope: "#/properties/companyId",
-      i18n: "basket.billing.companyId",
-      label: "",
-      options: {
-        type: "Business",
-        list: useClientCompanies,
-        mutate: useClientCompany,
-      },
-    },
-  ];
-
   const schema = {
     type: "VerticalLayout",
     elements: [
       {
-        type: "Control",
-        scope: "#",
-        options: {
-          toggle: true,
-          oneOfUiSchema: oneOfUiSchemas,
-        },
+        type: "Tabs",
+        elements: [
+          {
+            type: "ModelList",
+            scope: "#/properties/addressId",
+            i18n: "basket.billing.addressId",
+            label: "Address",
+            options: {
+              type: "Address",
+              list: useClientAddresses,
+              mutate: useClientAddress,
+            },
+          },
+          {
+            type: "ModelList",
+            scope: "#/properties/companyId",
+            i18n: "basket.billing.companyId",
+            label: "Business",
+            options: {
+              type: "Business",
+              list: useClientCompanies,
+              mutate: useClientCompany,
+            },
+          },
+        ],
       },
       {
         type: "ModelList",

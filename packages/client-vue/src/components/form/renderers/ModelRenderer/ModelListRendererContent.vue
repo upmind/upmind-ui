@@ -50,7 +50,7 @@
       "
       :is="isEmpty(parsedValues) ? 'section' : 'Dialog'"
       :id="editId"
-      :label="`${formFieldProps.label} ${type}`"
+      :label="formFieldProps.label"
       :composable="get(control.uischema, 'options.mutate')"
       @resolve="openModel = false"
     />
