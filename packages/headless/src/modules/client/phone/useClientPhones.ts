@@ -111,7 +111,6 @@ export const useClientPhones = (initial?: QueryProps) => {
 
     /**
      * Meta information about the basket state.
-     * @typedef {Object} BasketMeta
      * @property {boolean} isError - Indicates if there was an error during the query.
      * @property {boolean} isEmpty - Indicates if the basket is empty.
      * @property {boolean} isLoading - Indicates if the query is currently loading.
