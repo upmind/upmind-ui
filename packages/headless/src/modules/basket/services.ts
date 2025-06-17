@@ -101,12 +101,12 @@ async function load(context: BasketContext, _event: AnyEventObject) {
     withAccessToken: true,
     //revalidateIfStale: true,
   })
-    .then((data: any) => {
+    .then(data => {
       // generate a new basket if we don't have one;
       if (isEmpty(data)) return generate(context, { type: "GENERATE" });
       return data;
     })
-    .then(getProvisioningFieldsValues);
+    .then(data => getProvisioningFieldsValues(data as IBasket));
 }
 
 // this generates an empty basket!
@@ -134,7 +134,7 @@ async function generate({ actors }: BasketContext, _event: AnyEventObject) {
 
   // ---
 
-  return post({
+  return post<IBasket>({
     url: useUrl("orders"),
     withAccessToken: true,
     data,
