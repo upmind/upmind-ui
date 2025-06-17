@@ -13,4 +13,5 @@ export type ModelRendererProps = {
   id: string;
   label: string;
   composable: any;
+  open: boolean;
 };

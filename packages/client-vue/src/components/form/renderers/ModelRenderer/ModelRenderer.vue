@@ -41,14 +41,18 @@ import { UpmForm, formRenderers } from "../../../form";
 import { Dialog } from "@upmind-automation/upmind-ui";
 import ModelRendererSkeleton from "./ModelRendererSkeleton.vue";
 import ModelRendererActions from "./ModelRendererActions.vue";
+
+// --- utils
 import { utils } from "@upmind-automation/headless";
+import { useVModel } from "@vueuse/core";
 
 // --- types
 import type { ModelRendererProps } from "./types";
 
 const props = defineProps<ModelRendererProps>();
 
-const open = ref(true);
+const open = useVModel(props, "open");
+
 const isLoading = ref(true);
 const isProcessing = ref(false);
 const isTouched = ref(false);
