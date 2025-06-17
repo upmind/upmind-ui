@@ -116,9 +116,7 @@ export const useBasket = () => {
   async function hasFields(): Promise<boolean> {
     const state = service.getSnapshot();
     const customFields = get(state, "context.actors.customFields");
-    debugger;
     if (!customFields) return false;
-    debugger;
     return waitFor(
       customFields as ActorRef<any>,
       actorState => ["complete", "error"].some(actorState.matches),
