@@ -22,6 +22,7 @@ import type { IApiPop } from "./utils/usePOP";
 import { useRouting } from "./modules/routing/useRouting";
 import type { I18n } from "vue-i18n";
 import type { Router } from "vue-router";
+import { unref } from "vue";
 
 // ---
 export enum UpmindStatus {
@@ -204,7 +205,8 @@ class Upmind {
   private async initI18n() {
     if (!this.i18n?.instance) return;
 
-    const locale = useLocale().locale.value ?? "en"; //TODO: use brand or user locale
+    const defaultLocale = unref(this.i18n.instance.global.locale);
+    const locale = useLocale(defaultLocale).locale.value; //TODO: use brand or user locale
 
     // then load our i18n messages from any provided files (globbed)
     const { loadLocaleMessages, setLocale } = useI18n(
