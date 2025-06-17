@@ -20,7 +20,13 @@ import {
 // --- types
 import type { Company } from "./types";
 
-export const useClientCompanies = (initial?: QueryProps) => {
+export const useClientCompanies = (
+  initial: QueryProps = {
+    pagination: {
+      limit: 0,
+    },
+  }
+) => {
   // --- state
 
   const { isAuthenticated, meta: sessionMeta } = useSession();
