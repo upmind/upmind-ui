@@ -182,11 +182,12 @@ export const useQuery = () => {
    * @param options Additional options to pass to TanStack query.
    */
   function query<TQueryFnData = unknown, TData = TQueryFnData>({
+    queryKey,
     url,
     init,
-    guard,
-    queryKey,
     withAccessToken,
+    guard,
+    select,
     ...options
   }: QueryParams<TQueryFnData, TData>) {
     return vueUseQuery<TQueryFnData, DefaultError, TData>(
@@ -205,7 +206,10 @@ export const useQuery = () => {
                 signal, // Pass the new signal to the request to allow cancellation
               },
               withAccessToken,
-            }).then(response => response.data as TQueryFnData)
+            }).then(response => {
+              if (isFunction(select)) return select(response.data!) as TData;
+              return response.data as TQueryFnData;
+            })
           );
         },
         ...(options as any),
@@ -229,9 +233,10 @@ export const useQuery = () => {
   function list<TQueryFnData = unknown, TData = TQueryFnData>({
     url,
     init,
-    guard,
     queryKey,
     withAccessToken,
+    guard,
+    select,
     ...options
   }: QueryParams<TQueryFnData, TData>) {
     // --- state
@@ -281,6 +286,7 @@ export const useQuery = () => {
               withAccessToken,
             }).then(response => {
               total.value = response.total || 0; // Set the total items count
+              if (isFunction(select)) return select(response.data!) as TData;
               return response.data as TQueryFnData;
             })
           );
@@ -375,9 +381,10 @@ export const useQuery = () => {
   function listInfinite<TQueryFnData = unknown, TData = TQueryFnData>({
     url,
     init,
-    guard,
     queryKey,
     withAccessToken,
+    guard,
+    select,
     ...options
   }: QueryParams<TQueryFnData, TData>) {
     // --- state
@@ -424,12 +431,16 @@ export const useQuery = () => {
             }).then(response => {
               total.value = response.total || 0; // Set the total items count
 
+              const data = isFunction(select)
+                ? select(response.data!)
+                : response.data;
+
               return {
                 nextOffset:
                   !limit || offset + limit >= total.value
                     ? undefined
                     : offset + limit,
-                pageData: response.data,
+                pageData: data,
               };
             })
           );
@@ -553,6 +564,8 @@ export const useQuery = () => {
     init,
     queryKey,
     withAccessToken,
+    guard,
+    select,
     ...options
   }: QueryParams<TQueryFnData, TData>): Promise<TData> {
     // Remove initialData from options before spreading, as it's not part of FetchQueryOptions
@@ -587,6 +600,7 @@ export const useQuery = () => {
           },
           withAccessToken,
         }).then(response => {
+          if (isFunction(select)) return select(response.data!) as TData;
           return response.data as TQueryFnData;
         });
       },
