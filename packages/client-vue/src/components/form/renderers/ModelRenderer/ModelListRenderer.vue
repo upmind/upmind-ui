@@ -19,7 +19,7 @@ import { get, isFunction } from "lodash-es";
 // --- types
 import type { RendererProps } from "@jsonforms/vue";
 import type { ControlElement } from "@jsonforms/core";
-import { computed } from "vue";
+import { computed, ref, onMounted } from "vue";
 
 const props = defineProps<RendererProps<ControlElement>>();
 
@@ -28,7 +28,12 @@ const { formFieldProps, control } = useUpmindUIRenderer(
 );
 
 const hasComposable = computed(() => {
-  return isFunction(get(control.value.uischema, "options.list"));
+  return isFunction(get(control.value.uischema, "options.composable"));
+});
+
+onMounted(async () => {
+  const composable = get(control.value.uischema, "options.composable");
+  await composable.isReady?.();
 });
 
 const selectOnly = computed(() => {

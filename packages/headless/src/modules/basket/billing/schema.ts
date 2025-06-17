@@ -1,10 +1,5 @@
 // --- internal
-import { useClientAddress } from "../../client/address";
-import { useClientAddresses } from "../../client/address";
-import { useClientCompany } from "../../client/company";
-import { useClientCompanies } from "../../client/company";
-import { useClientPhones } from "../../client/phone";
-import { useClientPhone } from "../../client/phone";
+import { useUnifiedAddress } from "./unifiedAddress/useUnifiedAddress";
 
 // --- types
 import type { BillingContext } from "./types";
@@ -62,8 +57,11 @@ export const useUischema = ({ config }: BillingContext) => {
             label: "Address",
             options: {
               type: "Address",
-              list: useClientAddresses,
-              mutate: useClientAddress,
+              composable: useUnifiedAddress,
+              actions: {
+                list: "addresses",
+                mutate: "address",
+              },
             },
           },
           {
@@ -73,8 +71,11 @@ export const useUischema = ({ config }: BillingContext) => {
             label: "Business",
             options: {
               type: "Business",
-              list: useClientCompanies,
-              mutate: useClientCompany,
+              composable: useUnifiedAddress,
+              actions: {
+                list: "companies",
+                mutate: "company",
+              },
             },
           },
         ],
@@ -86,8 +87,11 @@ export const useUischema = ({ config }: BillingContext) => {
         label: "",
         options: {
           type: "Phone",
-          list: useClientPhones,
-          mutate: useClientPhone,
+          composable: useUnifiedAddress,
+          actions: {
+            list: "phones",
+            mutate: "phone",
+          },
         },
       },
     ],

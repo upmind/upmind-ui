@@ -46,7 +46,7 @@
         />
       </template>
     </RadioCardsCollapsible>
-
+    <!--
     <ModelRenderer
       v-if="
         (!meta.isLoading && isEmpty(parsedValues) && hasMutateComposable) ||
@@ -58,7 +58,7 @@
       :label="formFieldProps.label"
       :composable="get(control.uischema, 'options.mutate')"
       @resolve="openModel = false"
-    />
+    /> -->
   </FormField>
 </template>
 
@@ -79,7 +79,7 @@ import ModelListRendererPhoneItem from "./ModelListRendererPhoneItem.vue";
 
 // --- utils
 import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
-import { lowerCase, map, get, isEmpty, isFunction } from "lodash-es";
+import { lowerCase, map, get, isEmpty, isFunction, first } from "lodash-es";
 
 // --- types
 import type { ControlElement } from "@jsonforms/core";
@@ -99,11 +99,10 @@ const openModel = ref(false);
 const editId = ref<string>("");
 const selectedItem = ref<string>("");
 
-const {
-  data,
-  default: defaultItem,
-  meta,
-} = get(control.value.uischema, "options.list")();
+const composable = get(control.value.uischema, "options.composable")();
+const listAction = get(control.value.uischema, "options.actions.list");
+
+const { meta } = composable;
 
 const type = computed(() => {
   return get(control.value.uischema, "options.type");
@@ -113,7 +112,7 @@ const hasMutateComposable = computed(() => {
   return isFunction(get(control.value.uischema, "options.mutate"));
 });
 
-onMounted(() => {
+onMounted(async () => {
   selectedDefaultItem();
 });
 
@@ -122,7 +121,7 @@ const selectOnly = computed(() => {
 });
 
 const parsedValues = computed(() => {
-  return map(data.value || [], (item: any, index: number) => {
+  return map(composable[listAction].value || [], (item: any, index: number) => {
     return {
       id: item.id,
       value: item.id,
@@ -132,6 +131,14 @@ const parsedValues = computed(() => {
       modelValue: selectedItem.value,
     };
   }) as RadioCardsItemProps[];
+});
+
+// Find the default item from the parsed values
+const defaultItem = computed(() => {
+  return (
+    parsedValues.value.find(item => item.item?.meta?.isDefault) ||
+    first(parsedValues.value)
+  );
 });
 
 const selectItem = async (value: string) => {
@@ -156,8 +163,11 @@ const selectedDefaultItem = () => {
   selectedItem.value = control.value.data;
   if (!selectedItem.value) {
     // We don't have a default from the schema, let the composable set the default
-    selectedItem.value = defaultItem.value?.id;
-    onInput(selectedItem.value, false);
+    const defaultId = defaultItem.value?.id;
+    if (defaultId) {
+      selectedItem.value = defaultId;
+      onInput(selectedItem.value, false);
+    }
   }
 };
 </script>
