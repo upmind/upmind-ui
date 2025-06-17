@@ -21,12 +21,12 @@ export const useSchema = ({
     type: "object",
     oneOf: [
       {
-        title: "Personal",
+        title: "",
         $ref: "#/definitions/personal",
         applyDefaults: ["address"],
       },
       {
-        title: "Business",
+        title: "",
         $ref: "#/definitions/business",
         applyDefaults: ["address"],
       } as any,
@@ -198,120 +198,87 @@ export const useUischema = ({
   companies,
   model,
 }: UnifiedAddressContext) => {
-  const addressUiSchema = {
-    type: "Control",
-    scope: "#/properties/address",
-    options: {
-      autoFocus: true,
-      autocomplete: "off",
-      detail: {
-        type: "VerticalLayout",
-        elements: [
-          {
-            type: "Control",
-            scope: "#/properties/countryId",
-          },
-          {
-            type: "address",
-            options: {
-              fields: ["address1", "address2"],
-              placeholder: "Start typing your address",
-            },
+  const personalUiSchema = {
+    type: "VerticalLayout",
+    elements: [
+      {
+        type: "Control",
+        scope: "#/properties/address",
+        options: {
+          autoFocus: true,
+          autocomplete: "off",
+          detail: {
+            type: "VerticalLayout",
             elements: [
               {
-                type: "Group",
-                options: {
-                  border: false,
-                },
-                elements: [
-                  {
-                    type: "Control",
-                    scope: "#/properties/address1",
-                    options: {
-                      placeholder: "House name, apartment number etc.",
-                      autocomplete: "address-line1",
-                    },
-                  },
-                  {
-                    type: "Control",
-                    scope: "#/properties/address2",
-                    options: {
-                      placeholder: "Road, street name etc.",
-                      autocomplete: "address-line2",
-                    },
-                  },
-                ],
-              },
-              {
                 type: "Control",
-                scope: "#/properties/city",
-                options: {
-                  placeholder: "City, town etc.",
-                  autocomplete: "address-level2",
-                },
+                scope: "#/properties/countryId",
               },
               {
-                type: "HorizontalLayout",
+                type: "address",
+                options: {
+                  fields: ["address1", "address2"],
+                  placeholder: "Start typing your address",
+                },
                 elements: [
                   {
-                    type: "Control",
-                    scope: "#/properties/regionId",
+                    type: "Group",
                     options: {
-                      placeholder: "Select region",
-                      autocomplete: "address-level1",
+                      border: false,
                     },
+                    elements: [
+                      {
+                        type: "Control",
+                        scope: "#/properties/address1",
+                        options: {
+                          placeholder: "House name, apartment number etc.",
+                          autocomplete: "address-line1",
+                        },
+                      },
+                      {
+                        type: "Control",
+                        scope: "#/properties/address2",
+                        options: {
+                          placeholder: "Road, street name etc.",
+                          autocomplete: "address-line2",
+                        },
+                      },
+                    ],
                   },
                   {
                     type: "Control",
-                    scope: "#/properties/postcode",
+                    scope: "#/properties/city",
                     options: {
-                      placeholder: "eg. 10011",
-                      autocomplete: "postal-code",
+                      placeholder: "City, town etc.",
+                      autocomplete: "address-level2",
                     },
+                  },
+                  {
+                    type: "HorizontalLayout",
+                    elements: [
+                      {
+                        type: "Control",
+                        scope: "#/properties/regionId",
+                        options: {
+                          placeholder: "Select region",
+                          autocomplete: "address-level1",
+                        },
+                      },
+                      {
+                        type: "Control",
+                        scope: "#/properties/postcode",
+                        options: {
+                          placeholder: "eg. 10011",
+                          autocomplete: "postal-code",
+                        },
+                      },
+                    ],
                   },
                 ],
               },
             ],
           },
-        ],
-      },
-    },
-    rule: {
-      effect: "HIDE",
-      condition: {
-        scope: "#/properties/address/properties/addressId",
-        schema: { not: { const: null } },
-      },
-    },
-  };
-
-  const personalUiSchema = {
-    type: "VerticalLayout",
-    elements: [
-      {
-        type: "ModelList",
-        scope: "#/properties/address/properties/addressId",
-        label: "Address",
-        options: {
-          oneOf: map(addresses || [], item => ({
-            id: item.id,
-            title: item.title,
-            description: item.description,
-            item: item,
-          })),
         },
-        rule: {
-          effect: "SHOW",
-          condition: {
-            scope: "#/properties/address/properties/addressId",
-            schema: {
-              not: { const: null },
-            },
-          },
-        },
-      },
-      {
-        ...addressUiSchema,
       },
     ],
   };
@@ -319,26 +286,6 @@ export const useUischema = ({
   const businessUiSchema = {
     type: "VerticalLayout",
     elements: [
-      {
-        type: "ModelList",
-        scope: "#/properties/company/properties/companyId",
-        label: "Company",
-        options: {
-          oneOf: map(companies || [], item => ({
-            id: item.id,
-            title: item.title,
-            description: item.description,
-            item: item,
-          })),
-        },
-        rule: {
-          effect: "HIDE",
-          condition: {
-            scope: "#/properties/company/properties/companyId",
-            schema: { const: null },
-          },
-        },
-      },
       {
         type: "Control",
         scope: "#/properties/company",
@@ -373,43 +320,9 @@ export const useUischema = ({
                   },
                 ],
               },
-              {
-                type: "ModelList",
-                scope: "#/properties/addressId",
-                label: "Address",
-                options: {
-                  oneOf: map(addresses || [], item => ({
-                    id: item.id,
-                    title: item.title,
-                    description: item.description,
-                    item: item,
-                  })),
-                },
-                rule: {
-                  effect: "HIDE",
-                  condition: {
-                    scope: "#",
-                    schema: {
-                      properties: {
-                        addressId: { const: null },
-                      },
-                    },
-                  },
-                },
-              },
             ],
           },
         },
-        rule: {
-          effect: "HIDE",
-          condition: {
-            scope: "#/properties/company/properties/companyId",
-            schema: { not: { const: null } },
-          },
-        },
-      },
-      {
-        ...addressUiSchema,
       },
     ],
   };
