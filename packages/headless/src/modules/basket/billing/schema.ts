@@ -60,7 +60,6 @@ export const useUischema = ({ config }: BillingContext) => {
               composable: useUnifiedAddress,
               actions: {
                 list: "addresses",
-                mutate: "address",
               },
             },
           },
@@ -74,7 +73,6 @@ export const useUischema = ({ config }: BillingContext) => {
               composable: useUnifiedAddress,
               actions: {
                 list: "companies",
-                mutate: "company",
               },
             },
           },
@@ -90,7 +88,6 @@ export const useUischema = ({ config }: BillingContext) => {
           composable: useUnifiedAddress,
           actions: {
             list: "phones",
-            mutate: "phone",
           },
         },
       },
