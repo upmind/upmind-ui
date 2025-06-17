@@ -1,14 +1,14 @@
 import { test, expect } from "@playwright/test";
 import { URLs } from "../../../../../support/constants/urls";
-import { Checkout } from "../../../../../support/page-objects/templates/Checkout";
+import { ProductConfig } from "../../../../../support/page-objects/templates/ProductConfig";
 import { ukDomain } from "../../../../../support/constants/checkout/test-cases/webcentral/domains/Uk";
-let checkout: Checkout;
+let productConfig: ProductConfig;
 let testCases = ukDomain;
 
 test.beforeEach(async ({ page }) => {
-  checkout = new Checkout(page);
+  productConfig = new ProductConfig(page);
   await page.goto(URLs.ukDomain);
-  await checkout.optionsContainer.waitFor();
+  await productConfig.optionsContainer.waitFor();
 });
 
 test.describe("Product Config - Happy Paths - Domain (.uk)", async () => {
@@ -34,7 +34,7 @@ test.describe("Product Config - Happy Paths - Domain (.uk)", async () => {
       /* PRODUCT OPTIONS */
       /* Make product selections */
       for (const [radioGroupIndex, radioOptionIndex] of radioSelection) {
-        await checkout.radioButtons.clickRadioButton(
+        await productConfig.radioButtons.clickRadioButton(
           radioGroupIndex,
           radioOptionIndex
         );
@@ -43,39 +43,49 @@ test.describe("Product Config - Happy Paths - Domain (.uk)", async () => {
         checkboxGroupIndex,
         checkboxOptionIndex,
       ] of checkboxSelection) {
-        await checkout.checkboxes.clickCheckbox(
+        await productConfig.checkboxes.clickCheckbox(
           checkboxGroupIndex,
           checkboxOptionIndex
         );
       }
-      await checkout.enterSld(sldValue);
-      await checkout.registrantNameInput.fill(registrantName);
-      await checkout.registrantOrgInput.fill(registrantOrg);
-      await checkout.registrantEmailInput.fill(registrantEmail);
-      await checkout.registrantPhoneInput.fill(registrantPhone);
-      await checkout.registrantAddr1Input.fill(registrantAddr1);
-      await checkout.registrantCityInput.fill(registrantCity);
-      await checkout.registrantStateInput.fill(registrantState);
-      await checkout.registrantPostcodeInput.fill(registrantPostcode);
-      await checkout.registrantCountryInput.click();
-      await checkout.select.getSelectOption(registrantCountry);
+      await productConfig.enterSld(sldValue);
+      await productConfig.registrantNameInput.fill(registrantName);
+      await productConfig.registrantOrgInput.fill(registrantOrg);
+      await productConfig.registrantEmailInput.fill(registrantEmail);
+      await productConfig.registrantPhoneInput.fill(registrantPhone);
+      await productConfig.registrantAddr1Input.fill(registrantAddr1);
+      await productConfig.registrantCityInput.fill(registrantCity);
+      await productConfig.registrantStateInput.fill(registrantState);
+      await productConfig.registrantPostcodeInput.fill(registrantPostcode);
+      await productConfig.registrantCountryInput.click();
+      await productConfig.select.getSelectOption(registrantCountry);
 
       /* SUMMARY FIELDS */
       /* Verify that all summary fields contain the expected data */
-      await expect(checkout.totalValue).toContainText(total);
-      await expect(checkout.billingCycle).toContainText(billingCycle);
-      await expect(checkout.registrantName).toContainText(registrantName);
-      await expect(checkout.registrantOrg).toContainText(registrantOrg);
-      await expect(checkout.registrantEmail).toContainText(registrantEmail);
-      await expect(checkout.registrantPhone).toContainText(registrantPhone);
-      await expect(checkout.registrantAddr1).toContainText(registrantAddr1);
-      await expect(checkout.registrantCity).toContainText(registrantCity);
-      await expect(checkout.registrantState).toContainText(registrantState);
-      await expect(checkout.registrantPostcode).toContainText(
+      await expect(productConfig.totalValue).toContainText(total);
+      await expect(productConfig.billingCycle).toContainText(billingCycle);
+      await expect(productConfig.registrantName).toContainText(registrantName);
+      await expect(productConfig.registrantOrg).toContainText(registrantOrg);
+      await expect(productConfig.registrantEmail).toContainText(
+        registrantEmail
+      );
+      await expect(productConfig.registrantPhone).toContainText(
+        registrantPhone
+      );
+      await expect(productConfig.registrantAddr1).toContainText(
+        registrantAddr1
+      );
+      await expect(productConfig.registrantCity).toContainText(registrantCity);
+      await expect(productConfig.registrantState).toContainText(
+        registrantState
+      );
+      await expect(productConfig.registrantPostcode).toContainText(
         registrantPostcode
       );
-      await expect(checkout.registrantCountry).toContainText(registrantCountry);
-      await expect(checkout.tldValue).toContainText(tldValue);
+      await expect(productConfig.registrantCountry).toContainText(
+        registrantCountry
+      );
+      await expect(productConfig.tldValue).toContainText(tldValue);
       //await expect(page).toHaveScreenshot(name);
     });
   }

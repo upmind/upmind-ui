@@ -1,11 +1,10 @@
 // --- internal
 import { DetailedError, responseCodes } from "../../../utils";
 import { useBrand } from "../../brand";
-import type { SupportedLocaleCodes } from "./locales";
+import { SupportedLocaleCodes } from "./locales";
 
 // --- utils
 import { useLocalStorage } from "../../../utils";
-
 import {
   uniq,
   map,
@@ -16,40 +15,37 @@ import {
   some,
   isNil,
 } from "lodash-es";
-import { computed, ref } from "vue";
+import { computed, readonly, ref } from "vue";
 
 // --- types
 import { QUERY_PARAMS } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
-export const useLocale = () => {
+export const useLocale = (defaultLocale: string = "en") => {
   const {
     validateLanguage,
-    languages: supportedLocales,
+    // languages: supportedLocales,
     isReady: brandIsReady,
   } = useBrand();
   const { get, set } = useLocalStorage();
 
   // --- state
   const loading = ref<boolean>(true);
-  const locale = ref<string | undefined>(undefined);
-
+  const locale = ref<string>(defaultLocale);
   // immediately check if the brand is ready and set the locale
-  brandIsReady().then(() => {
-    locale.value = getLocale();
-    loading.value = false;
-  });
 
   async function isReady(): Promise<boolean> {
     return brandIsReady().then(() => {
-      return !isNil(getLocale());
+      loading.value = false;
+      const hasLocale = !isNil(locale.value);
+      return hasLocale;
     });
   }
 
   const meta = computed(() => ({
     isLoading: loading.value,
-    isAvailable: !isEmpty(supportedLocales.value),
+    isAvailable: !isEmpty(SupportedLocaleCodes),
     hasLocale: !isEmpty(locale.value),
   }));
 
@@ -57,10 +53,7 @@ export const useLocale = () => {
 
   // --- methods
 
-  function getLocale(): string | undefined {
-    //  if we don't have a brand languages, we can't get the locale
-    if (isEmpty(supportedLocales.value)) return get("i18n/locale");
-
+  function getLocale(): string {
     // to set locale we do a few things:
     // 2. if not, check if we have any url params and use that if it is valid/supported by the brand
     // 2. if not, check if we have a stored locale
@@ -86,21 +79,25 @@ export const useLocale = () => {
      * when comparing the designator part (ISO 639-1) of the locale code (eg.
      * 'es' from 'es-MX') */
 
+    //  if we don't have a brand languages, we can't get the locale
+    if (isEmpty(SupportedLocaleCodes)) {
+      return first(preferredLocales) ?? defaultLocale;
+    }
+
     const localeIntersection = reduce(
       preferredLocales,
       (result: string[], code: SupportedLocaleCodes) => {
         const exactMatch = some(
-          supportedLocales.value,
-          language =>
-            language.code.toLocaleLowerCase() == code.toLocaleLowerCase()
+          SupportedLocaleCodes,
+          language => language.toLocaleLowerCase() == code.toLocaleLowerCase()
         );
         if (exactMatch) {
           result.push(code);
         } else {
           const designator = first(code.split("-"));
           const designatorMatch = some(
-            supportedLocales.value,
-            language => first(language.code.split("-")) === designator
+            SupportedLocaleCodes,
+            language => first(language.split("-")) === designator
           );
           if (designator && designatorMatch) result.push(designator);
         }
@@ -112,12 +109,10 @@ export const useLocale = () => {
     /**
      * @desc Here we get the final localeCode, fully checking for Upmind level
      * support (including principal subdivisions) */
-
-    return first(localeIntersection);
+    return first(localeIntersection) ?? defaultLocale;
   }
 
   async function setDefaultLocale(): Promise<string> {
-    await isReady();
     const currentLocale = getLocale();
 
     // /**
@@ -128,14 +123,6 @@ export const useLocale = () => {
     // cleanedUrl.searchParams.delete(QUERY_PARAMS.LOCALE);
     // cleanedUrl.searchParams.delete(QUERY_PARAMS.LANG);
     // window.history.replaceState("", "", cleanedUrl);
-
-    if (!currentLocale) {
-      return Promise.reject(
-        new DetailedError("No valid locale found", responseCodes.Not_Found, {
-          locale: currentLocale,
-        })
-      );
-    }
 
     return setLocale(currentLocale);
   }
@@ -184,12 +171,12 @@ export const useLocale = () => {
     /**
      * The current locale (reactive).
      */
-    locale: computed(() => locale.value),
+    locale: readonly(locale),
 
     /**
      * The supported locales (reactive).
      */
-    supportedLocales,
+    SupportedLocaleCodes,
 
     // --- methods
 
