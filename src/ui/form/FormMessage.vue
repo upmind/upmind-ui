@@ -8,6 +8,7 @@
         props.class
       )
     "
+    data-testid="form-message"
   >
     <template v-if="props.showAllErrors">
       <span v-for="(error, index) in safeErrors" :key="`error-${index}`">
