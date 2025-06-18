@@ -4,12 +4,12 @@ import { useBrand } from "../brand";
 
 // --- utils
 import {
-  useTranslateName,
-  useTranslateField,
   DetailedError,
   responseCodes,
-  useValidation,
   useLaravalSchemaParser,
+  useTranslateField,
+  useTranslateName,
+  useValidation,
 } from "../../utils";
 
 import {
@@ -20,11 +20,11 @@ import {
   forEach,
   get,
   has,
+  isArray,
   isEmpty,
   isFunction,
   isNil,
   isNumber,
-  isArray,
   keys,
   map,
   maxBy,
@@ -43,15 +43,6 @@ import {
   values,
 } from "lodash-es";
 
-// --- types
-
-import {
-  PromotionDisplayTypes,
-  BrandConfigKeys,
-  DefaultPaymentPeriod,
-  ProductTypes,
-} from "@upmind-automation/types";
-
 import type {
   IBasketProduct,
   IProduct,
@@ -59,6 +50,13 @@ import type {
   IProductCategory,
   IProductOption,
   IProductPrice,
+} from "@upmind-automation/types";
+// --- types
+import {
+  BrandConfigKeys,
+  DefaultPaymentPeriod,
+  ProductTypes,
+  PromotionDisplayTypes,
 } from "@upmind-automation/types";
 
 import type {
@@ -170,41 +168,29 @@ export function useProductName(
  * @param initialValue Optional initial value to merge with collected values
  * @returns Merged values from all levels of the hierarchy, with lower levels and then initial value taking priority
  */
-export function iterateParents<
-  ItemType,
-  ValueKey extends keyof ItemType = keyof ItemType,
-  ParentKey extends keyof ItemType = keyof ItemType,
-  ResultValueType = ValueKey extends keyof ItemType
-    ? ItemType[ValueKey]
-    : never,
->(
-  item: ItemType | undefined | null,
-  result: ResultValueType[],
+export function iterateParents(
+  item: any,
+  result: any[],
   {
     valueKey,
     parentKey,
     transform,
   }: {
-    valueKey: ValueKey;
-    parentKey: ParentKey;
-    transform?: (item: ItemType) => ResultValueType;
+    valueKey: string;
+    parentKey: string;
+    transform?: (value: any) => any;
   }
-): ResultValueType[] {
+): unknown[] {
   if (!item) return result;
-  const parsed = isFunction(transform)
-    ? transform(item)
-    : (get(item, valueKey) as ResultValueType);
+  const parsed = isFunction(transform) ? transform(item) : get(item, valueKey);
   result.push(parsed);
-  return iterateParents(
-    get(item, parentKey as string) as ItemType | undefined | null,
-    result,
-    {
-      valueKey,
-      parentKey,
-      transform,
-    }
-  );
+  return iterateParents(get(item, parentKey), result, {
+    valueKey,
+    parentKey,
+    transform,
+  });
 }
+
 export function checkPriceOverride(
   values: SubproductModel,
   lookups: SubproductDetails[]
@@ -233,7 +219,7 @@ export function checkTerm(
   { lookups }: ProductConfigContext,
   value?: number
 ): string | undefined {
-  let term: TermDetails | undefined = undefined;
+  let term: TermDetails | undefined;
 
   term = find(lookups?.terms, ["cycle", value]);
 
@@ -242,7 +228,7 @@ export function checkTerm(
 
 export function checkSubproducts(
   type: "attributes" | "options",
-  { lookups, model, subproducts: subproductIds }: ProductConfigContext,
+  { lookups }: ProductConfigContext,
   values?: ProductModel["attributes"] | ProductModel["options"]
 ): Record<string, string[]> | undefined {
   const errors: any = {};
@@ -259,7 +245,7 @@ export function checkSubproducts(
 
     let error = [];
 
-    // check if we are missing required subproduct, if we are (and its not multiple) then automaticaly select the first one
+    // check if we are missing the required subproduct, if we are (and its not multiple) then automatically select the first one
     // NB we only do this on the initial load, not when we are updating the values
     if (isEmpty(selected) && subproduct?.meta.required) {
       error.push(`${subproduct.name} is required`);
@@ -267,8 +253,8 @@ export function checkSubproducts(
 
     // if we have selected values, ensure they are valid and fully formed
 
-    // then parse each selected value, and ensure it has all its required and VALID values
-    forEach(selected, (value: SubproductModelValue, id: string) => {
+    // then parse each selected value and ensure it has all its required and VALID values
+    forEach(selected, (value: SubproductModelValue) => {
       const product = find(subproduct.values, ["id", value.productId]);
 
       // safety check, ensure we have a valid product otherwise bail
@@ -295,10 +281,9 @@ export function checkProvisioning(
   if (isEmpty(lookups?.provisionFields?.properties)) return [];
   const { validate } = useValidation();
 
-  const errors = lookups?.provisionFields
+  return lookups?.provisionFields
     ? validate(lookups.provisionFields, values)
     : [];
-  return errors;
 }
 
 export const calculateBillingTerm = (
@@ -1138,13 +1123,14 @@ const parseSubproductDetailsChoices = (values: IBasketProduct[]) => {
  *     if no key is provided, we will NOT include any bundles.
  *
  * @param {IProduct} raw - The raw product data to parse.
+ * @param {ProductConfigContext["bundle"]} bundle - Optional key to extract specific bundle configurations from the product's meta.
  * @returns {ProductProps[]} The parsed list of bundled products configurations.
  */
 export function parseBundledProducts(
   raw: IProduct,
   bundle?: ProductConfigContext["bundle"]
 ): ProductProps[] {
-  // safe check : dont include recommendations for products that are not single products
+  // safe check: don't include recommendations for products that are not single products
   if (raw?.product_type !== ProductTypes.SINGLE_PRODUCT) return [];
   let bundles: ProductBundles =
     raw?.meta?.bundle ??
@@ -1163,7 +1149,7 @@ export function parseBundledProducts(
     else bundles = get(bundles, bundle, []) as ProductBundle[];
   }
 
-  const bundledProducts = reduce(
+  return reduce(
     bundles,
     (result: ProductProps[], rawBundle) => {
       const model = parseBundleConfig(rawBundle);
@@ -1172,8 +1158,6 @@ export function parseBundledProducts(
     },
     []
   ) as ProductProps[];
-
-  return bundledProducts;
 }
 
 function parseBundleConfig(raw: ProductBundle): ProductProps | undefined {
