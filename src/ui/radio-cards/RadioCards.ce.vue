@@ -20,6 +20,7 @@
         :width="props.width"
         :value="option.value"
         :class="props.radioClass"
+        :list="props.list"
         data-testid="radio-card-item"
         :uiConfig="props.uiConfig"
         @keydown.enter="onChange(option.value)"
@@ -57,6 +58,7 @@ const props = withDefaults(defineProps<RadioCardsProps>(), {
   useInputGroup: true,
   // -- variants
   width: 12,
+  list: false,
   // --- styles
   class: "",
   radioClass: "",
@@ -69,11 +71,12 @@ const modelValue = useVModel(props, "modelValue", emits, {
 });
 
 const meta = computed(() => ({
+  isList: props.list,
   width: props.width,
 }));
 
 const styles = useStyles(
-  ["radioCards"],
+  "radioCards",
   meta,
   config,
   props.uiConfig ?? {}

@@ -1,7 +1,7 @@
 <template>
   <component
     :is="as"
-    :class="styles.form.root"
+    :class="cn(styles.form.root, props.class)"
     :disabled="meta.isProcessing"
     ref="form"
     @submit.prevent="doSubmit"
@@ -72,6 +72,7 @@ import {
   set,
   get,
 } from "lodash-es";
+import { cn } from "../../utils";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -104,8 +105,8 @@ const props = withDefaults(defineProps<FormProps>(), {
 const emits = defineEmits<{
   reject: [];
   resolve: [Object];
-  "update:modelValue": [Object];
-  "update:uischema": [Object];
+  "update:modelValue": [any];
+  "update:uischema": [any];
   "update:touched": [boolean];
   valid: [boolean];
   click: [{ model: object; meta: object }];
@@ -214,6 +215,10 @@ function onChange({ data, errors: newErrors }: JsonFormsChangeEvent) {
   errors.value = newErrors ?? [];
   data ??= {};
   model.value ??= {};
+
+  const isValid = isEmpty(errors.value);
+  emits("valid", isValid);
+
   // finally check if the data has actually changed and emit the update event
   // this json parse/stringify is a hack to do a deep compare and ignore functions/reactivity
   const rawData = JSON.parse(JSON.stringify(data));
@@ -223,11 +228,10 @@ function onChange({ data, errors: newErrors }: JsonFormsChangeEvent) {
     touched.value = true;
     model.value = data;
     emits("update:modelValue", model.value);
-  }
 
-  const isValid = isEmpty(errors.value);
-  emits("valid", isValid);
-  if (isValid && props.autosave) doSubmit();
+    // submit the form if it is valid and autosave is enabled
+    if (isValid && props.autosave) doSubmit();
+  }
 }
 
 function doAction(item: FormActionProps, $event: HTMLElementEventMap["click"]) {
@@ -301,6 +305,9 @@ function updateUischema(uischema: FormProps["uischema"]) {
       );
       merge(child.options, value);
     }
+
+    // TODO: map additional form props that need to be inherited by all children
+    // eg: form size, show.hide required or optional indicicators, etc
   });
 }
 

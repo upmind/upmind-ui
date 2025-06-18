@@ -4,7 +4,7 @@
     :data-state="isSelected ? 'checked' : ''"
   >
     <Label :for="`${props.name}-${index}`" :class="cn(styles.radioCards.label)">
-      <div :class="styles.radioCards.radio">
+      <div v-show="!props.minimal" :class="styles.radioCards.radio">
         <RadioGroupItem
           :id="`${props.name}-${index}`"
           :value="value"
@@ -22,6 +22,7 @@
         name="item"
         v-bind="{
           item: { ...props.item, value },
+          isSelected: isSelected,
         }"
       >
         <span v-if="props.label">{{ props.label }}</span>
@@ -45,11 +46,11 @@ import { RadioGroupItem } from "../radio-group";
 
 // --- types
 import type { ComputedRef } from "vue";
-import type { RadioCardsItemProps } from "./types";
+import type { RadioCardsCollapsibleItemProps } from "./types";
 
 // -----------------------------------------------------------------------------
 
-const props = withDefaults(defineProps<RadioCardsItemProps>(), {
+const props = withDefaults(defineProps<RadioCardsCollapsibleItemProps>(), {
   // -- variants
   width: 12,
   isList: false,
@@ -63,6 +64,7 @@ const isSelected = computed(() => {
 
 const meta = computed(() => ({
   isList: props.list,
+  isMinimal: props.minimal,
   width: props.width,
 }));
 

@@ -1,8 +1,9 @@
 <template>
   <FormField v-bind="formFieldProps">
     <Select
-      :model-value="control.data?.toString()"
+      :model-value="control.data"
       :items="control.options"
+      :placeholder="appliedOptions?.placeholder"
       @update:modelValue="onInput"
     />
   </FormField>
@@ -25,12 +26,11 @@ import type { RendererProps } from "@jsonforms/vue";
 
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, formFieldProps, onInput } = useUpmindUIRenderer(
-  useJsonFormsOneOfEnumControl(props)
-);
+const { control, formFieldProps, onInput, appliedOptions } =
+  useUpmindUIRenderer(useJsonFormsOneOfEnumControl(props));
 </script>
 
 <script lang="ts">
-import { isOneOfEnumControl } from "@jsonforms/core";
-export const tester = { rank: 2, controlType: isOneOfEnumControl };
+import { isOneOfControl } from "@jsonforms/core";
+export const tester = { rank: 2, controlType: isOneOfControl };
 </script>

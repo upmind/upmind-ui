@@ -24,14 +24,14 @@
         <slot name="header">
           <DialogTitle
             v-if="title || $slots.title"
-            class="text-lg font-semibold leading-none tracking-tight"
+            class="mb-2 text-2xl font-normal"
           >
             <slot name="title">{{ title }}</slot>
           </DialogTitle>
 
           <DialogDescription
             v-if="description || $slots.description"
-            class="mt-2 text-sm text-muted-foreground"
+            class="text-sm text-muted-foreground"
           >
             <slot name="description">{{ description }}</slot>
           </DialogDescription>

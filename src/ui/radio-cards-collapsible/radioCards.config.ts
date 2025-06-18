@@ -5,10 +5,9 @@ export const itemVariants = cva(
   `group rounded-lg bg-control text-control-foreground transition-all duration-200 ${ringClasses}`,
   {
     variants: {
-      isList: {
-        true: "hover:bg-control-active-focus my-0.5 border-0 shadow-none data-[state=checked]:ring-2 data-[state=checked]:ring-control-active",
-        false:
-          "hover:border-control-strong rounded-lg border border-control shadow-sm",
+      isMinimal: {
+        true: "",
+        false: "m-0 border px-1 shadow-sm",
       },
       width: {
         0: "",
@@ -27,8 +26,8 @@ export const itemVariants = cva(
       },
     },
     defaultVariants: {
-      isList: false,
       width: 12,
+      isMinimal: false,
     },
   }
 );
@@ -36,8 +35,8 @@ export const itemVariants = cva(
 export const rootVariants = cva(`w-full`, {
   variants: {
     isList: {
-      true: "flex flex-col gap-1",
-      false: "grid grid-cols-12 gap-2 [&>*:only-child]:col-span-12",
+      true: "flex flex-col",
+      false: "grid grid-cols-1",
     },
   },
   defaultVariants: {
@@ -50,7 +49,15 @@ export default {
     item: itemVariants,
     radio: cva("flex h-full items-start pr-2.5"),
     label: cva(
-      "m-0 flex h-full w-full min-w-0 cursor-pointer items-start rounded-lg py-3.5 pr-4 text-md font-medium leading-snug peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+      "m-0 flex h-full w-full min-w-0 cursor-pointer items-start rounded-lg text-md font-medium leading-snug peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+      {
+        variants: {
+          isMinimal: {
+            true: "py-0",
+            false: "py-3.5 pr-4",
+          },
+        },
+      }
     ),
     input: cva(
       `group-hover:border-control-strong ml-4 mt-[0.1rem] border-control leading-normal ring-offset-2 [transition:border-color_200ms_ease-in-out] ${ringClasses}`

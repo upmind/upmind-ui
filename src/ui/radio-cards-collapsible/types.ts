@@ -2,17 +2,17 @@
 import { type HTMLAttributes } from "vue";
 
 // --- types
-import type { ButtonProps } from "../button";
 import type { RadioGroupRootProps, RadioGroupItemProps } from "radix-vue";
 import type { CxOptions, VariantProps } from "class-variance-authority";
 import type { itemVariants } from "./radioCards.config";
 type RadioCardsItemVariantProps = VariantProps<typeof itemVariants>;
 
-export interface RadioCardsItemProps extends RadioGroupItemProps {
+export interface RadioCardsCollapsibleItemProps extends RadioGroupItemProps {
   item: any;
   index: number;
   name?: string;
   label?: string;
+  minimal?: boolean;
   sublabel?: string;
   required?: boolean;
   disabled?: boolean;
@@ -25,15 +25,19 @@ export interface RadioCardsItemProps extends RadioGroupItemProps {
   uiConfig?: { radioCards: CxOptions };
 }
 
-export interface RadioCardsProps extends RadioGroupRootProps {
+export interface RadioCardsCollapsibleProps extends RadioGroupRootProps {
   label?: string;
   placeholder?: string;
   noneText?: string;
   required?: boolean;
   overrideIndex?: number;
   useInputGroup?: boolean;
+  open?: boolean;
+  autoCollapse?: boolean;
+  minimal?: boolean;
+  changeButtonLabel?: string;
   // --- state
-  items: RadioCardsItemProps[];
+  items: RadioCardsCollapsibleItemProps[];
   loading?: boolean;
   // ---
   width?: RadioCardsItemVariantProps["width"] | string;
