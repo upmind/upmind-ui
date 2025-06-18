@@ -97,8 +97,9 @@
 
               <Icon v-if="item.icon" :icon="item.icon" :size="props.iconSize" />
 
-              <span class="flex w-full items-center justify-between"
-              :data-testid="(`combobox-item`)"
+              <span
+                class="flex w-full items-center justify-between"
+                :data-testid="`combobox-item`"
               >
                 <span
                   v-if="(item as Record<string, any>)?.[itemLabel]"
