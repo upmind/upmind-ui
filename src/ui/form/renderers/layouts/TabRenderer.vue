@@ -42,8 +42,7 @@ import type { Layout, UISchemaElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 import type { TabItem } from "../../../tabs";
 
-// ----------------------------------------------
-
+// -----------------------------------------------------------------------------
 interface TabElement {
   label: string;
   elements: UISchemaElement[];

@@ -31,8 +31,7 @@ import { find, isObject, endsWith, isEmpty } from "lodash-es";
 import type { ComputedRef } from "vue";
 import type { IconProps } from ".";
 
-// ----------------------------------------------
-
+// -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<IconProps>(), {
   //  --- styles
   size: "auto",

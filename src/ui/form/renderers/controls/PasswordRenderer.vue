@@ -53,8 +53,7 @@ import { isNil } from "lodash-es";
 import type { ComputedRef } from "vue";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
-// ----------------------------------------------
-
+// -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
 const { control, appliedOptions, formFieldProps, onInput } =

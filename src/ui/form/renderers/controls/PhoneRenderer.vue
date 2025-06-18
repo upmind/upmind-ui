@@ -74,8 +74,7 @@ import type { RendererProps } from "@jsonforms/vue";
 import type { PhoneNumber, CountryCode } from "libphonenumber-js";
 import type { ComboboxItemProps } from "../../../combobox";
 
-// ----------------------------------------------
-
+// -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
 const countryItems = computed(() => {
