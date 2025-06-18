@@ -21,141 +21,31 @@ export const useSchema = ({
     type: "object",
     oneOf: [
       {
-        title: "Personal",
+        title: "",
         $ref: "#/definitions/personal",
+        applyDefaults: ["address"],
       },
       {
-        title: "Business",
+        title: "",
         $ref: "#/definitions/business",
-      },
+        applyDefaults: ["address"],
+      } as any,
     ],
-    properties: {
-      addressId: {
-        type: ["string", "null"],
-        default: baseModel?.addressId || null,
-        use: useClientAddress,
-        update: "updateAddressId",
-        create: !isEmpty(addresses) ? "newAddressDialog" : null,
-      } as any,
-      companyId: {
-        type: ["string", "null"],
-        default: baseModel?.companyId || null,
-        use: useClientCompany,
-        update: "updateCompanyId",
-      } as any,
-      updateAddressId: {
-        type: ["string", "null"],
-        default: null,
-      },
-      newAddressDialog: {
-        type: "boolean",
-        default: false,
-      },
-      updateCompanyId: {
-        type: ["string", "null"],
-        default: null,
-      },
-    },
     definitions: {
-      requireAddressId: {
-        properties: {
-          addressId: {
-            type: "string",
-          },
-        },
-        required: ["addressId"],
-      },
-      requireAddressDetails: {
-        properties: {
-          addressId: {
-            type: ["null"],
-          },
-          address: {
-            $ref: "#/definitions/requiredAddressFields",
-          },
-        },
-        required: ["address"],
-      },
-      requireCompanyId: {
-        properties: {
-          companyId: {
-            type: "string",
-          },
-        },
-        required: ["companyId"],
-      },
-      requireCompanyDetails: {
-        properties: {
-          companyId: {
-            type: ["null"],
-          },
-          company: {
-            properties: {
-              companyName: { type: "string" },
-            },
-            required: ["companyName"],
-          },
-        },
-        required: ["company"],
-        anyOf: [
-          { $ref: "#/definitions/requireCompanyAddressId" },
-          { $ref: "#/definitions/requireCompanyAddressDetails" },
-        ],
-      },
-      requireCompanyAddressId: {
-        properties: {
-          company: {
-            properties: {
-              addressId: {
-                type: "string",
-              },
-            },
-            required: ["addressId"],
-          },
-        },
-      },
-      requireCompanyAddressDetails: {
-        properties: {
-          company: {
-            properties: {
-              addressId: {
-                type: ["null"],
-              },
-            },
-          },
-          address: { $ref: "#/definitions/requiredAddressFields" },
-        },
-        required: ["address"],
-      },
-      requiredAddressFields: {
-        type: "object",
-        properties: {
-          address1: { type: "string" },
-          countryId: { type: "string" },
-          city: { type: "string" },
-          postcode: { type: "string" },
-        },
-        required: ["address1", "countryId", "city", "postcode"],
-      },
       company: {
         type: "object",
         title: "Company",
         properties: {
           addressId: {
             type: ["string", "null"],
-            default: (model?.addressId || baseModel?.addressId) ?? null,
-            use: useClientAddress,
             update: "updateAddressId",
             create: !isEmpty(addresses) ? "newAddressDialog" : null,
           } as any,
-          updateAddressId: {
+          companyId: {
             type: ["string", "null"],
-            default: null,
-          },
-          newAddressDialog: {
-            type: "boolean",
-            default: false,
-          },
+            default: baseModel?.companyId || null,
+            update: "updateCompanyId",
+          } as any,
           companyName: {
             type: "string",
             title: "Company Name",
@@ -170,12 +60,22 @@ export const useSchema = ({
           },
         },
         required: ["companyName"],
+        default: {
+          addressId: model?.addressId || baseModel?.addressId || null,
+        },
       },
       address: {
         type: "object",
         title: "Address",
-        additionalProperties: true,
+        additionalProperties: false,
         properties: {
+          addressId: {
+            type: ["string", "null"],
+            default: baseModel?.addressId || null,
+            update: "updateAddressId",
+            create: !isEmpty(addresses) ? "newAddressDialog" : null,
+          } as any,
+
           showAddressFields: {
             type: "boolean",
             default: false,
@@ -218,45 +118,24 @@ export const useSchema = ({
               title: item.name,
             })),
           },
+
+          name: {
+            type: ["string", "null"],
+            title: "Address Name",
+          },
+
+          type: {
+            type: ["number", "null"],
+            title: "Address Type",
+          },
         },
         required: ["address1", "city", "postcode", "countryId"],
       },
-      phone: {
-        type: "object",
-        title: "Phone number",
-        phone_country_code: country?.code,
-        default: baseModel?.phone,
-        properties: {
-          number: {
-            type: ["string", "null"],
-            title: "Phone number ( with dialing code )",
-          },
-
-          nationalNumber: {
-            type: ["string", "null"],
-            title: "Phone number",
-          },
-
-          countryCallingCode: {
-            type: ["string", "null"],
-            title: "Country calling code",
-          },
-
-          country: {
-            type: ["string", "null"],
-            title: "Country",
-          },
-        },
-      } as any,
       personal: {
         type: "object",
-        additionalProperties: true,
         required: [],
+        additionalProperties: false,
         properties: {
-          type: {
-            type: "number",
-            default: 1,
-          },
           address: {
             $ref: "#/definitions/address",
             default: {
@@ -264,38 +143,16 @@ export const useSchema = ({
               countryId: baseModel?.address?.countryId,
             },
           },
-          phone: {
-            $ref: "#/definitions/phone",
-          },
         },
-        not: {
-          required: ["company"],
-        },
-        anyOf: [
-          { $ref: "#/definitions/requireAddressId" },
-          { $ref: "#/definitions/requireAddressDetails" },
-        ],
       },
       business: {
         type: "object",
-        additionalProperties: true,
+        required: ["company"],
         properties: {
-          type: {
-            type: "number",
-            default: 4,
-          },
           company: {
             $ref: "#/definitions/company",
           },
-          phone: {
-            $ref: "#/definitions/phone",
-          },
         },
-        required: ["company"],
-        anyOf: [
-          { $ref: "#/definitions/requireCompanyId" },
-          { $ref: "#/definitions/requireCompanyDetails" },
-        ],
         allOf: [
           {
             if: {
@@ -324,11 +181,6 @@ export const useSchema = ({
     },
   };
 
-  if (get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE)) {
-    schema.definitions!.personal.required!.push("phone");
-    schema.definitions!.business.required!.push("phone");
-  }
-
   if (get(config, BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS)) {
     schema.definitions!.address!.required!.push("regionId");
   }
@@ -346,148 +198,85 @@ export const useUischema = ({
   companies,
   model,
 }: UnifiedAddressContext) => {
-  const addressUiSchema = {
-    type: "Control",
-    scope: "#/properties/address",
-    options: {
-      autoFocus: true,
-      autocomplete: "off",
-      detail: {
-        type: "VerticalLayout",
-        elements: [
-          {
-            type: "Control",
-            scope: "#/properties/countryId",
-          },
-          {
-            type: "address",
-            options: {
-              fields: ["address1", "address2"],
-              placeholder: "Start typing your address",
-            },
-            elements: [
-              {
-                type: "Group",
-                options: {
-                  border: false,
-                },
-                elements: [
-                  {
-                    type: "Control",
-                    scope: "#/properties/address1",
-                    options: {
-                      placeholder: "House name, apartment number etc.",
-                      autocomplete: "address-line1",
-                    },
-                  },
-                  {
-                    type: "Control",
-                    scope: "#/properties/address2",
-                    options: {
-                      placeholder: "Road, street name etc.",
-                      autocomplete: "address-line2",
-                    },
-                  },
-                ],
-              },
-              {
-                type: "Control",
-                scope: "#/properties/city",
-                options: {
-                  placeholder: "City, town etc.",
-                  autocomplete: "address-level2",
-                },
-              },
-              {
-                type: "HorizontalLayout",
-                elements: [
-                  {
-                    type: "Control",
-                    scope: "#/properties/regionId",
-                    options: {
-                      placeholder: "Select region",
-                      autocomplete: "address-level1",
-                    },
-                  },
-                  {
-                    type: "Control",
-                    scope: "#/properties/postcode",
-                    options: {
-                      placeholder: "eg. 10011",
-                      autocomplete: "postal-code",
-                    },
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-    },
-  };
-
   const personalUiSchema = {
     type: "VerticalLayout",
     elements: [
       {
-        type: "Model",
-        scope: "#/properties/updateAddressId",
-        label: "Edit Address",
-        action: "Update",
-        rule: {
-          effect: "SHOW",
-          condition: {
-            scope: "#/properties/updateAddressId",
-            schema: { not: { const: null } },
-          },
-        },
-      },
-      {
-        type: "ModelList",
-        scope: "#/properties/addressId",
-        label: "Address",
+        type: "Control",
+        scope: "#/properties/address",
         options: {
-          oneOf: map(addresses || [], item => ({
-            id: item.id,
-            title: item.title,
-            description: item.description,
-            item: item,
-          })),
-        },
-        rule: {
-          effect: "SHOW",
-          condition: {
-            scope: "#/properties/addressId",
-            schema: {
-              not: { const: null },
-            },
-          },
-        },
-      },
-      {
-        type: "Model",
-        scope: "#/properties/newAddressDialog",
-        label: "New Address",
-        rule: {
-          effect: "SHOW",
-          condition: {
-            scope: "#/properties/newAddressDialog",
-            schema: { const: true },
-          },
-        },
-      },
-      {
-        ...addressUiSchema,
-        rule: {
-          effect: "HIDE",
-          condition: {
-            scope: "#",
-            schema: {
-              required: ["addressId"],
-              properties: {
-                addressId: { not: { const: null } },
+          autoFocus: true,
+          autocomplete: "off",
+          detail: {
+            type: "VerticalLayout",
+            elements: [
+              {
+                type: "Control",
+                scope: "#/properties/countryId",
               },
-            },
+              {
+                type: "address",
+                options: {
+                  fields: ["address1", "address2"],
+                  placeholder: "Start typing your address",
+                },
+                elements: [
+                  {
+                    type: "Group",
+                    options: {
+                      border: false,
+                    },
+                    elements: [
+                      {
+                        type: "Control",
+                        scope: "#/properties/address1",
+                        options: {
+                          placeholder: "House name, apartment number etc.",
+                          autocomplete: "address-line1",
+                        },
+                      },
+                      {
+                        type: "Control",
+                        scope: "#/properties/address2",
+                        options: {
+                          placeholder: "Road, street name etc.",
+                          autocomplete: "address-line2",
+                        },
+                      },
+                    ],
+                  },
+                  {
+                    type: "Control",
+                    scope: "#/properties/city",
+                    options: {
+                      placeholder: "City, town etc.",
+                      autocomplete: "address-level2",
+                    },
+                  },
+                  {
+                    type: "HorizontalLayout",
+                    elements: [
+                      {
+                        type: "Control",
+                        scope: "#/properties/regionId",
+                        options: {
+                          placeholder: "Select region",
+                          autocomplete: "address-level1",
+                        },
+                      },
+                      {
+                        type: "Control",
+                        scope: "#/properties/postcode",
+                        options: {
+                          placeholder: "eg. 10011",
+                          autocomplete: "postal-code",
+                        },
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
           },
         },
       },
@@ -497,67 +286,6 @@ export const useUischema = ({
   const businessUiSchema = {
     type: "VerticalLayout",
     elements: [
-      {
-        type: "Model",
-        scope: "#/properties/updateCompanyId",
-        label: "Edit Company",
-        rule: {
-          effect: "SHOW",
-          condition: {
-            scope: "#/properties/updateCompanyId",
-            schema: { not: { const: null } },
-          },
-        },
-      },
-      {
-        type: "Model",
-        scope: "#/properties/updateAddressId",
-        label: "Edit Address",
-        rule: {
-          effect: "SHOW",
-          condition: {
-            scope: "#/properties/updateAddressId",
-            schema: { not: { const: null } },
-          },
-        },
-      },
-      {
-        type: "Model",
-        scope: "#/properties/newAddressDialog",
-        label: "New Address",
-        rule: {
-          effect: "SHOW",
-          condition: {
-            scope: "#/properties/newAddressDialog",
-            schema: { const: true },
-          },
-        },
-      },
-      {
-        type: "ModelList",
-        scope: "#/properties/companyId",
-        label: "Company",
-        options: {
-          oneOf: map(companies || [], item => ({
-            id: item.id,
-            title: item.title,
-            description: item.description,
-            item: item,
-          })),
-        },
-        rule: {
-          effect: "SHOW",
-          condition: {
-            scope: "#",
-            schema: {
-              required: ["companyId"],
-              properties: {
-                companyId: { not: { const: null } },
-              },
-            },
-          },
-        },
-      },
       {
         type: "Control",
         scope: "#/properties/company",
@@ -570,6 +298,7 @@ export const useUischema = ({
                 scope: "#/properties/companyName",
                 options: {
                   placeholder: "Company Name",
+                  default: "test",
                 },
               },
               {
@@ -591,53 +320,7 @@ export const useUischema = ({
                   },
                 ],
               },
-              {
-                type: "ModelList",
-                scope: "#/properties/addressId",
-                label: "Address",
-                options: {
-                  oneOf: map(addresses || [], item => ({
-                    id: item.id,
-                    title: item.title,
-                    description: item.description,
-                    item: item,
-                  })),
-                },
-                rule: {
-                  effect: "HIDE",
-                  condition: {
-                    scope: "#",
-                    schema: {
-                      properties: {
-                        addressId: { const: null },
-                      },
-                    },
-                  },
-                },
-              },
             ],
-          },
-        },
-        rule: {
-          effect: "SHOW",
-          condition: {
-            scope: "#",
-            schema: {
-              required: ["companyId"],
-              properties: {
-                companyId: { const: null },
-              },
-            },
-          },
-        },
-      },
-      {
-        ...addressUiSchema,
-        rule: {
-          effect: "SHOW",
-          condition: {
-            scope: "#/properties/addressId",
-            schema: { const: null },
           },
         },
       },
@@ -648,15 +331,6 @@ export const useUischema = ({
 
   if (get(config, BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS)) {
     oneOfUiSchemas.shift();
-  }
-
-  if (get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE)) {
-    oneOfUiSchemas.forEach(schema => {
-      schema.elements.push({
-        type: "Control",
-        scope: "#/properties/phone",
-      } as any);
-    });
   }
 
   const uiSchema = {

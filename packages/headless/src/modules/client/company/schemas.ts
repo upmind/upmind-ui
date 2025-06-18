@@ -123,8 +123,8 @@ export const useUischema = ({ addresses }: CompanyContext) => {
         scope: "#/properties/addressId",
         options: {
           label: "",
-          use: useClientAddresses,
-          modify: useClientAddress,
+          list: useClientAddresses,
+          mutate: useClientAddress,
         },
       },
     ],
