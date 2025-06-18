@@ -10,6 +10,7 @@
     :data-disabled="disabled"
     @click="handleClick"
     @keydown.enter="handleClick"
+    data-testid="link"
   >
     <slot name="prepend"></slot>
     <slot

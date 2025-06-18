@@ -13,6 +13,7 @@
         :aria-expanded="open"
         :color="props.color"
         :variant="props.variant"
+        data-testid="popover-trigger"
       >
         <template v-if="!isEmpty(modelValue) || searchTerm">
           <slot name="selected" v-bind="{ item: modelValue }">
@@ -96,7 +97,9 @@
 
               <Icon v-if="item.icon" :icon="item.icon" :size="props.iconSize" />
 
-              <span class="flex w-full items-center justify-between">
+              <span class="flex w-full items-center justify-between"
+              :data-testid="(`combobox-item`)"
+              >
                 <span
                   v-if="(item as Record<string, any>)?.[itemLabel]"
                   class="leading-none"
