@@ -2,9 +2,9 @@
 import { QueryParams, useQuery } from "../..";
 
 // --- utils
-import { isNil, map } from "lodash-es";
+import { map } from "lodash-es";
+import { useTime } from "../../utils";
 import { parseProductCategory } from "./mappers";
-import { CacheIsStaleError, useTime } from "../../utils";
 
 // --- types
 import { ProductCategory } from "./types";
@@ -28,7 +28,7 @@ function loadList(params?: Partial<QueryParams>) {
         "subcategories.subcategories.image",
         "subcategories.subcategories.subcategories.image",
         "subcategories.subcategories.subcategories.subcategories.image",
-      ].join(),
+      ].join(","),
       with_count: [
         "products,subcategories.products",
         "subcategories.subcategories.products",
@@ -39,16 +39,9 @@ function loadList(params?: Partial<QueryParams>) {
     limit: 0,
     withAccessToken: true,
     // --- options
-    staleTime: useTime().HOUR,
     select: data => map(data ?? [], parseProductCategory),
+    staleTime: useTime().HOUR,
   });
-}
-
-function loadCached() {
-  const { queryClient } = useQuery();
-  const cached = queryClient.getQueryData<ProductCategory[]>(queryKey);
-  if (isNil(cached)) throw new CacheIsStaleError();
-  return cached;
 }
 
 // -----------------------------------------------------------------------------
@@ -58,5 +51,4 @@ export default {
   queryKey,
   //--- queries
   loadList,
-  loadCached,
 };

@@ -9,4 +9,6 @@ export type ProductCategory = {
   excerpt?: IProductCategory["short_description"];
   count: IProductCategory["products_count"];
   uiMeta: Record<string, any>;
+  imageUrl?: string;
+  categories?: ProductCategory[];
 };
