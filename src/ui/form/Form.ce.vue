@@ -89,8 +89,7 @@ import type {
   FormFooterProps,
 } from "./types";
 import type { ErrorObject } from "ajv";
-// ----------------------------------------------
-
+// -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<FormProps>(), {
   as: "form",
   // ---

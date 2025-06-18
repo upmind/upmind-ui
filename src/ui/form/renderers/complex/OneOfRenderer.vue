@@ -44,8 +44,7 @@ import type {
 import type { RendererProps } from "@jsonforms/vue";
 import type { TabItem } from "../../../tabs";
 
-// ----------------------------------------------
-
+// -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
 const { control, formFieldProps, onInput } = useUpmindUIRenderer(

@@ -23,8 +23,7 @@ import { useUpmindUIRenderer } from "../utils";
 // --- types
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
-// ----------------------------------------------
-
+// -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
 const { control, onInput, formFieldProps } = useUpmindUIRenderer(

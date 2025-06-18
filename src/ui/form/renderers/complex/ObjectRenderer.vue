@@ -33,8 +33,7 @@ import type {
 } from "@jsonforms/core";
 import type { ComputedRef } from "vue";
 
-// ----------------------------------------------
-
+// -----------------------------------------------------------------------------
 const props = defineProps({
   ...rendererProps<ControlElement>(),
 });

@@ -45,8 +45,7 @@ import type { RendererProps } from "@jsonforms/vue";
 //   minLength?: number;
 // }
 
-// ----------------------------------------------
-
+// -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
 const { control, appliedOptions, onInput, formFieldProps } =
