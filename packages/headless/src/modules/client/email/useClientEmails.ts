@@ -1,24 +1,17 @@
 // --- external
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
 // --- internal
 import service from "./services";
 import { useSession } from "../../session";
-import { invalidateQueryByKey, type QueryProps } from "../../query";
+import { invalidateQueryByKey } from "../../query";
 
 // --- utils
-import {
-  get,
-  find,
-  every,
-  filter,
-  isEmpty,
-  includes,
-  isString,
-} from "lodash-es";
+import { get, set, find, every, isEmpty, includes, isString } from "lodash-es";
 
 // --- types
 import type { Email } from "./types";
+import type { QueryProps, RequestFilters } from "../../query";
 
 export const useClientEmails = (
   initial: QueryProps = {
@@ -83,15 +76,6 @@ export const useClientEmails = (
     );
   }
 
-  function filterAll(param: string) {
-    return filter(
-      service.loadCached(),
-      item =>
-        includes(item.title.toLowerCase(), param.toLowerCase()) ||
-        includes(item.description.toLowerCase(), param.toLowerCase())
-    );
-  }
-
   function remove(id: Email["id"]) {
     return service.remove(id).mutate();
   }
@@ -103,6 +87,21 @@ export const useClientEmails = (
   function setDefault(id: Email["id"]) {
     return service.setDefault(id).mutate();
   }
+
+  // --- filters
+
+  const filters = ref<
+    RequestFilters & {
+      query?: string;
+    }
+  >({
+    query: "",
+  });
+
+  const filterQuery = (value?: string) => {
+    set(filters.value, "query", value || "");
+    query.filter(filters.value);
+  };
 
   // ---------------------------------------------------------------------------
 
@@ -117,8 +116,8 @@ export const useClientEmails = (
     isReady,
 
     /**
-     * Meta information about the basket state.
-     * @typedef {Object} BasketMeta
+     * Meta-information about the basket state.
+     * @type {Object} BasketMeta
      * @property {boolean} isError - Indicates if there was an error during the query.
      * @property {boolean} isEmpty - Indicates if the basket is empty.
      * @property {boolean} isLoading - Indicates if the query is currently loading.
@@ -178,13 +177,6 @@ export const useClientEmails = (
     findOne,
 
     /**
-     * Filters the items by name or description.
-     * @param param The filter string to filter the items with.
-     * @returns An array of items that match the filter.
-     */
-    filter: filterAll,
-
-    /**
      * Remove an email by id.
      * @param id The id of the email to remove.
      * @returns A promise that resolves when the email is removed.
@@ -221,7 +213,7 @@ export const useClientEmails = (
      * @param value The new pagination parameters to set.
      * @return {void}
      */
-    prevPage: query.fetchPrevPage,
+    prevPage: query.fetchPreviousPage,
 
     /**
      * Invalidate the query cache for client items.
@@ -230,6 +222,16 @@ export const useClientEmails = (
      * @return {void}
      */
     invalidate: invalidateQueryByKey(service.queryKey, { exact: false }),
+
+    /**
+     * Filters for the query.
+     * These filters can be used to modify the query parameters before fetching the data.
+     * @type {RequestFilters & { query?: string }}
+     * @property query - The search query to filter the client emails by title or description.
+     */
+    filters: {
+      query: filterQuery,
+    },
   };
 };
 

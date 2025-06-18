@@ -89,11 +89,11 @@ export const useProductCatalogue = (
       promotions: string[];
     }
   >({
+    id: [],
     query: "",
     currency: "",
-    "filter[products_category_id]": "",
-    id: [],
     promotions: [],
+    "filter[products_category_id]": "",
   });
 
   const filterQuery = (value?: string) => {
@@ -134,8 +134,8 @@ export const useProductCatalogue = (
     isReady,
 
     /**
-     * Meta information about the basket state.
-     * @typedef {Object} BasketMeta
+     * Meta-information about the basket state.
+     * @type {Object} BasketMeta
      * @property {boolean} isError - Indicates if there was an error during the query.
      * @property {boolean} isEmpty - Indicates if the basket is empty.
      * @property {boolean} isLoading - Indicates if the query is currently loading.
@@ -222,19 +222,19 @@ export const useProductCatalogue = (
     /**
      * Filters for the query.
      * These filters can be used to modify the query parameters before fetching the data.
-     * @typedef {Object} ProductCatalogueFilters
-     * @property {RequestFilter} query - Filter for the query. ie, name/descriptn/excerpt
-     * @property {RequestFilter} currency - Filter for the currency code.
-     * @property {RequestFilter} productCategory - Filter for the product category id.
-     * @property {RequestFilter} ids - Filter for the product ids.
-     * @property {RequestFilter} coupons - Filter for the coupons.
+     * @type {RequestFilters & { query?: string, currency?: string, "filter[products_category_id]"?: string}}
+     * @property ids - Filter for the product ids.
+     * @property query - Filter for the query. i.e., name/description/excerpt
+     * @property coupons - Filter for the coupons.
+     * @property currency - Filter for the currency code.
+     * @property productCategory - Filter for the product category id.
      */
     filters: {
+      ids: filterIds,
       query: filterQuery,
+      coupons: filterCoupons,
       currency: filterCurrency,
       productCategory: filterProductCategory,
-      ids: filterIds,
-      coupons: filterCoupons,
     },
   };
 };
