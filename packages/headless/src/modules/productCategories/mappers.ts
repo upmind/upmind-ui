@@ -1,10 +1,13 @@
-// -----------------------------------------------------------------------------
-
-import { IProductCategory } from "@upmind-automation/types";
-import { ProductCategory } from "./types";
+// --- utils
+import { map, reverse } from "lodash-es";
+import { iterateParents, parseMeta, parseSubproducts } from "../product/utils";
 import { useTranslateField, useTranslateName } from "../../utils";
-import { iterateParents, parseMeta } from "../product/utils";
-import { reverse } from "lodash-es";
+
+// --- types
+import type { IProductCategory } from "@upmind-automation/types";
+import type { ProductCategory } from "./types";
+
+// -----------------------------------------------------------------------------
 
 /**
  * Parses the raw category data and transforms it into a structured `ProductCategory` object.
@@ -23,16 +26,11 @@ export function parseProductCategory(raw: IProductCategory): ProductCategory {
     excerpt: useTranslateField(raw, "short_description"),
     uiMeta: parseMeta(raw?.meta ?? {}, raw),
     count: raw.products_count,
+    imageUrl: raw.image?.image_url,
 
     // TODO: map our parents
     // TODO : map our children
 
-    // categories: reverse(
-    //   iterateParents(raw, [], {
-    //     valueKey: "name",
-    //     parentKey: "top_category",
-    //     transform: useTranslateName,
-    //   })
-    // ) as string[],
+    categories: map(raw.subcategories, parseProductCategory),
   } as ProductCategory;
 }

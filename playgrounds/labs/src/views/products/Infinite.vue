@@ -3,6 +3,14 @@
     class="mx-auto flex max-w-7xl flex-col items-center gap-y-6"
     :class="props.class"
   >
+    <input
+      type="search"
+      v-model="searchQuery"
+      @input="debouncedFilterQuery"
+      placeholder="Search products..."
+      class="w-full rounded-md border border-gray-300 p-2"
+    />
+
     <Loading :active="meta.isLoading" class="w-full">
       <div
         class="grid w-full grid-cols-[repeat(auto-fill,_minmax(18rem,_1fr))] gap-6"
@@ -58,7 +66,8 @@
 </template>
 
 <script setup lang="ts">
-import { watch } from "vue";
+import { watch, ref } from "vue";
+import { debounce } from "lodash-es";
 import { useProductCatalogue } from "@upmind-automation/headless";
 import {
   IProductCategory,
@@ -86,6 +95,12 @@ const {
   filters,
   nextPage,
 } = useProductCatalogue({ pagination: { limit: props.limit }, infinite: true });
+
+const searchQuery = ref("");
+
+const debouncedFilterQuery = debounce(() => {
+  filters.query(searchQuery.value);
+}, 500);
 
 watch(
   () => props.categoryId,

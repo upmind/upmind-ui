@@ -4,12 +4,12 @@ import { useBrand } from "../brand";
 
 // --- utils
 import {
-  useTranslateName,
-  useTranslateField,
   DetailedError,
   responseCodes,
-  useValidation,
   useLaravalSchemaParser,
+  useTranslateField,
+  useTranslateName,
+  useValidation,
 } from "../../utils";
 
 import {
@@ -20,11 +20,11 @@ import {
   forEach,
   get,
   has,
+  isArray,
   isEmpty,
   isFunction,
   isNil,
   isNumber,
-  isArray,
   keys,
   map,
   maxBy,
@@ -43,15 +43,6 @@ import {
   values,
 } from "lodash-es";
 
-// --- types
-
-import {
-  PromotionDisplayTypes,
-  BrandConfigKeys,
-  DefaultPaymentPeriod,
-  ProductTypes,
-} from "@upmind-automation/types";
-
 import type {
   IBasketProduct,
   IProduct,
@@ -59,6 +50,13 @@ import type {
   IProductCategory,
   IProductOption,
   IProductPrice,
+} from "@upmind-automation/types";
+// --- types
+import {
+  BrandConfigKeys,
+  DefaultPaymentPeriod,
+  ProductTypes,
+  PromotionDisplayTypes,
 } from "@upmind-automation/types";
 
 import type {
@@ -152,7 +150,7 @@ export function useProductName(
 ): string {
   const name = useTranslateName(product);
 
-  // TODO: check prodct type based on if (product.provision_blueprint?.code == "domain-names" | ProvisionCategoryCodes.DOMAINS) {}
+  // TODO: check product type based on if (product.provision_blueprint?.code == "domain-names" | ProvisionCategoryCodes.DOMAINS) {}
   // for now...we will just append the service identifier if it exists
   if (basketProduct?.service_identifier) {
     return `${name} (${basketProduct.service_identifier})`;
@@ -164,6 +162,7 @@ export function useProductName(
 /**
  * Recursively merges values from a property in a nested object hierarchy
  * @param item The current object in the hierarchy
+ * @param result The array to collect values into
  * @param valueKey The key to extract values from at each level
  * @param parentKey The key to navigate to the parent object
  * @param initialValue Optional initial value to merge with collected values
@@ -220,7 +219,7 @@ export function checkTerm(
   { lookups }: ProductConfigContext,
   value?: number
 ): string | undefined {
-  let term: TermDetails | undefined = undefined;
+  let term: TermDetails | undefined;
 
   term = find(lookups?.terms, ["cycle", value]);
 
@@ -229,7 +228,7 @@ export function checkTerm(
 
 export function checkSubproducts(
   type: "attributes" | "options",
-  { lookups, model, subproducts: subproductIds }: ProductConfigContext,
+  { lookups }: ProductConfigContext,
   values?: ProductModel["attributes"] | ProductModel["options"]
 ): Record<string, string[]> | undefined {
   const errors: any = {};
@@ -246,7 +245,7 @@ export function checkSubproducts(
 
     let error = [];
 
-    // check if we are missing required subproduct, if we are (and its not multiple) then automaticaly select the first one
+    // check if we are missing the required subproduct, if we are (and its not multiple) then automatically select the first one
     // NB we only do this on the initial load, not when we are updating the values
     if (isEmpty(selected) && subproduct?.meta.required) {
       error.push(`${subproduct.name} is required`);
@@ -254,8 +253,8 @@ export function checkSubproducts(
 
     // if we have selected values, ensure they are valid and fully formed
 
-    // then parse each selected value, and ensure it has all its required and VALID values
-    forEach(selected, (value: SubproductModelValue, id: string) => {
+    // then parse each selected value and ensure it has all its required and VALID values
+    forEach(selected, (value: SubproductModelValue) => {
       const product = find(subproduct.values, ["id", value.productId]);
 
       // safety check, ensure we have a valid product otherwise bail
@@ -282,10 +281,9 @@ export function checkProvisioning(
   if (isEmpty(lookups?.provisionFields?.properties)) return [];
   const { validate } = useValidation();
 
-  const errors = lookups?.provisionFields
+  return lookups?.provisionFields
     ? validate(lookups.provisionFields, values)
     : [];
-  return errors;
 }
 
 export const calculateBillingTerm = (
@@ -1125,13 +1123,14 @@ const parseSubproductDetailsChoices = (values: IBasketProduct[]) => {
  *     if no key is provided, we will NOT include any bundles.
  *
  * @param {IProduct} raw - The raw product data to parse.
+ * @param {ProductConfigContext["bundle"]} bundle - Optional key to extract specific bundle configurations from the product's meta.
  * @returns {ProductProps[]} The parsed list of bundled products configurations.
  */
 export function parseBundledProducts(
   raw: IProduct,
   bundle?: ProductConfigContext["bundle"]
 ): ProductProps[] {
-  // safe check : dont include recommendations for products that are not single products
+  // safe check: don't include recommendations for products that are not single products
   if (raw?.product_type !== ProductTypes.SINGLE_PRODUCT) return [];
   let bundles: ProductBundles =
     raw?.meta?.bundle ??
@@ -1150,7 +1149,7 @@ export function parseBundledProducts(
     else bundles = get(bundles, bundle, []) as ProductBundle[];
   }
 
-  const bundledProducts = reduce(
+  return reduce(
     bundles,
     (result: ProductProps[], rawBundle) => {
       const model = parseBundleConfig(rawBundle);
@@ -1159,8 +1158,6 @@ export function parseBundledProducts(
     },
     []
   ) as ProductProps[];
-
-  return bundledProducts;
 }
 
 function parseBundleConfig(raw: ProductBundle): ProductProps | undefined {

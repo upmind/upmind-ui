@@ -1,5 +1,5 @@
 // --- external
-import { computed, ref } from "vue";
+import { computed } from "vue";
 
 // --- internal
 import service from "./services";
@@ -14,13 +14,11 @@ import {
   isEmpty,
   includes,
   isString,
-  set,
 } from "lodash-es";
 
 // --- types
-import type { QueryParams, QueryProps, RequestFilters } from "../query";
+import type { QueryProps } from "../query";
 import type { ProductCategory } from "./types";
-import { ICurrency } from "@upmind-automation/types";
 
 export const useProductCategories = (initial?: QueryProps) => {
   // --- state
@@ -45,11 +43,11 @@ export const useProductCategories = (initial?: QueryProps) => {
   // --- methods
 
   function getOne(id: ProductCategory["id"]) {
-    return find(service.loadCached(), ["id", id]);
+    return find(query.data.value, ["id", id]);
   }
 
   function findOne(mapping: string | Partial<ProductCategory>) {
-    const items = service.loadCached();
+    const items = query.data.value;
     if (isString(mapping)) {
       return find(
         items,
@@ -73,7 +71,7 @@ export const useProductCategories = (initial?: QueryProps) => {
 
   function filterAll(param: string) {
     return filter(
-      service.loadCached(),
+      query.data.value,
       item =>
         includes(item.title.toLowerCase(), param.toLowerCase()) ||
         includes(item?.description?.toLowerCase(), param.toLowerCase()) ||
@@ -93,8 +91,8 @@ export const useProductCategories = (initial?: QueryProps) => {
     isReady,
 
     /**
-     * Meta information about the basket state.
-     * @typedef {Object} BasketMeta
+     * Meta-information about the basket state.
+     * @type {Object} BasketMeta
      * @property {boolean} isError - Indicates if there was an error during the query.
      * @property {boolean} isEmpty - Indicates if the basket is empty.
      * @property {boolean} isLoading - Indicates if the query is currently loading.
@@ -123,12 +121,6 @@ export const useProductCategories = (initial?: QueryProps) => {
      * @returns The address object if found, is otherwise undefined.
      */
     getOne,
-
-    /**
-     * Get all the items from the cache.
-     * @returns An array of parsed items if found, otherwise an empty array.
-     */
-    getCached: service.loadCached,
 
     /**
      * Find a single address based on the given param. The param is matched against the title and description.
