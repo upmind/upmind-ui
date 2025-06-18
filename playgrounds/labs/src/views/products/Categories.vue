@@ -1,6 +1,28 @@
 <template>
   <div data-foo :class="props.class">
-    <ul class="m-0 flex max-h-full flex-col overflow-auto p-0">
+    <input
+      type="search"
+      v-model="searchQuery"
+      @input="debouncedFilterQuery"
+      placeholder="Filter categories..."
+      class="w-full rounded-md border border-gray-300 p-2"
+    />
+    <ul
+      v-if="!!searchQuery"
+      class="m-0 flex max-h-full flex-col overflow-auto p-0"
+    >
+      <Loading :active="meta.isLoading" class="w-full">
+        <CategoryItem
+          v-for="category in filteredCategories"
+          v-model="modelValue"
+          :key="`filtered-${category.id}`"
+          :category="category"
+          :depth="0"
+        />
+      </Loading>
+    </ul>
+
+    <ul v-else class="m-0 flex max-h-full flex-col overflow-auto p-0">
       <Loading :active="meta.isLoading" class="w-full">
         <CategoryItem
           v-for="category in categories"
@@ -15,11 +37,11 @@
 </template>
 
 <script setup lang="ts">
-import { isEmpty } from "lodash-es";
 import { Loading } from "@upmind-automation/upmind-ui";
 import { useVModel } from "@vueuse/core";
+import { debounce, isEmpty } from "lodash-es";
 import { useProductCategories } from "@upmind-automation/headless";
-import { HTMLAttributes, watch } from "vue";
+import { HTMLAttributes, ref, watch } from "vue";
 
 import CategoryItem from "./CategoryItem.vue";
 
@@ -41,7 +63,14 @@ const modelValue = useVModel(props, "modelValue", emits, {
   defaultValue: "",
 });
 
-const { data: categories, meta } = useProductCategories();
+const { data: categories, meta, filter } = useProductCategories();
+
+const searchQuery = ref("");
+const filteredCategories = ref(categories.value);
+
+const debouncedFilterQuery = debounce(() => {
+  filteredCategories.value = filter(searchQuery.value);
+}, 500);
 
 watch(
   () => categories.value,
