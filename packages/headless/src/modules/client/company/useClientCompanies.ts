@@ -1,24 +1,17 @@
 // --- external
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
 // --- internal
 import service from "./services";
 import { useSession } from "../../session";
-import { invalidateQueryByKey, type QueryProps } from "../../query";
+import { invalidateQueryByKey } from "../../query";
 
 // --- utils
-import {
-  get,
-  find,
-  every,
-  filter,
-  isEmpty,
-  includes,
-  isString,
-} from "lodash-es";
+import { get, set, find, every, isEmpty, includes, isString } from "lodash-es";
 
 // --- types
 import type { Company } from "./types";
+import type { QueryProps, RequestFilters } from "../../query";
 
 export const useClientCompanies = (
   initial: QueryProps = {
@@ -83,15 +76,6 @@ export const useClientCompanies = (
     );
   }
 
-  function filterAll(param: string) {
-    return filter(
-      service.loadCached(),
-      item =>
-        includes(item.title.toLowerCase(), param.toLowerCase()) ||
-        includes(item.description.toLowerCase(), param.toLowerCase())
-    );
-  }
-
   function remove(id: Company["id"]) {
     return service.remove(id).mutate();
   }
@@ -106,6 +90,21 @@ export const useClientCompanies = (
     return service.setDefault(id).mutate();
   }
 
+  // --- filters
+
+  const filters = ref<
+    RequestFilters & {
+      query?: string;
+    }
+  >({
+    query: "",
+  });
+
+  const filterQuery = (value?: string) => {
+    set(filters.value, "query", value || "");
+    query.filter(filters.value);
+  };
+
   // ---------------------------------------------------------------------------
 
   return {
@@ -119,10 +118,10 @@ export const useClientCompanies = (
     isReady,
 
     /**
-     * Meta information about the basket state.
-     * @typedef {Object} BasketMeta
+     * Meta-information about the basket state.
+     * @type {Object} BasketMeta
      * @property {boolean} isError - Indicates if there was an error during the query.
-     * @property {boolean} isEmpty - Indicates if the basket is empty.
+     * @property {boolean} isEmpty - Indicates if the company's list is empty.
      * @property {boolean} isLoading - Indicates if the query is currently loading.
      * @property {boolean} isAuthenticated - Indicates if the user is authenticated.
      */
@@ -180,21 +179,14 @@ export const useClientCompanies = (
     findOne,
 
     /**
-     * Filters the items by name or description.
-     * @param param The filter string to filter the items with.
-     * @returns An array of items that match the filter.
-     */
-    filter: filterAll,
-
-    /**
-     * Remove an company by id.
+     * Remove a company by id.
      * @param id The id of the company to remove.
      * @returns A promise that resolves when the company is removed.
      */
     remove,
 
     /**
-     * Set an company as default.
+     * Set a company as default.
      * @param id The id of the company to set as default.
      * @returns A promise that resolves when the company is set as default.
      */
@@ -223,7 +215,7 @@ export const useClientCompanies = (
      * @param value The new pagination parameters to set.
      * @return {void}
      */
-    prevPage: query.fetchPrevPage,
+    prevPage: query.fetchPreviousPage,
 
     /**
      * Invalidate the query cache for client items.
@@ -232,6 +224,16 @@ export const useClientCompanies = (
      * @return {void}
      */
     invalidate: invalidateQueryByKey(service.queryKey, { exact: false }),
+
+    /**
+     * Filters for the query.
+     * These filters can be used to modify the query parameters before fetching the data.
+     * @type {RequestFilters & { query?: string }}
+     * @property query - The search query to filter the client companies by title or description.
+     */
+    filters: {
+      query: filterQuery,
+    },
   };
 };
 
