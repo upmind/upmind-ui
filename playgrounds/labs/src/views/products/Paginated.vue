@@ -38,41 +38,39 @@
       </div>
     </Loading>
 
-    <template v-if="meta.hasPrevPage || meta.hasNextPage">
-      <div class="flex w-full items-center justify-between">
-        <Button
-          class="is-primary px-6 py-3"
-          @click="prevPage"
-          :disabled="!meta.hasPrevPage || meta.hasError"
-          :is-processing="meta.isLoading"
-          >Previous</Button
-        >
+    <div class="flex w-full items-center justify-between">
+      <Button
+        class="is-primary px-6 py-3"
+        @click="prevPage"
+        :disabled="!meta.hasPrevPage || meta.hasError"
+        :is-processing="meta.isLoading"
+        >Previous</Button
+      >
 
-        <div class="text-center">
-          <p class="text-sm">
-            Showing
-            {{
-              pagination.from === pagination.to
-                ? `${pagination.from}`
-                : `${pagination.from}-${pagination.to}`
-            }}
-            of {{ pagination.total.toString() }} items
-          </p>
-          <p class="text-xs text-gray-400">
-            Page {{ pagination.page.toString() }} of
-            {{ pagination.pages.toString() }}
-          </p>
-        </div>
-
-        <Button
-          class="is-primary px-6 py-3"
-          @click="nextPage"
-          :disabled="!meta.hasNextPage || meta.hasError"
-          :is-processing="meta.isLoading"
-          >Next</Button
-        >
+      <div class="text-center">
+        <p class="text-sm">
+          Showing
+          {{
+            pagination.from === pagination.to
+              ? `${pagination.from}`
+              : `${pagination.from}-${pagination.to}`
+          }}
+          of {{ pagination.total.toString() }} items
+        </p>
+        <p class="text-xs text-gray-400">
+          Page {{ pagination.page.toString() }} of
+          {{ pagination.pages.toString() }}
+        </p>
       </div>
-    </template>
+
+      <Button
+        class="is-primary px-6 py-3"
+        @click="nextPage"
+        :disabled="!meta.hasNextPage || meta.hasError"
+        :is-processing="meta.isLoading"
+        >Next</Button
+      >
+    </div>
   </div>
 </template>
 
