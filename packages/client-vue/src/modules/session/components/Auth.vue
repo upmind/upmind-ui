@@ -206,3 +206,9 @@ watch(meta, ({ canShowForms, isAuthenticated }) => {
   }
 });
 </script>
+
+<style>
+.grecaptcha-badge {
+  visibility: hidden;
+}
+</style>
