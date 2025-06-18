@@ -36,8 +36,7 @@ import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 import type { ComputedRef } from "vue";
 
-// ----------------------------------------------
-
+// -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
 const { control, appliedOptions, formFieldProps, onInput } =

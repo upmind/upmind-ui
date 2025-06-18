@@ -5,6 +5,7 @@ import { useUnifiedAddress } from "./unifiedAddress/useUnifiedAddress";
 import type { BillingContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import { remove, unset } from "lodash-es";
+import { useClientAddress, useClientAddresses } from "src/modules/client";
 
 // -----------------------------------------------------------------------------
 
@@ -48,48 +49,11 @@ export const useUischema = ({ config }: BillingContext) => {
     type: "VerticalLayout",
     elements: [
       {
-        type: "Tabs",
-        elements: [
-          {
-            type: "ModelList",
-            scope: "#/properties/addressId",
-            i18n: "basket.billing.addressId",
-            label: "Address",
-            options: {
-              type: "Address",
-              composable: useUnifiedAddress,
-              actions: {
-                list: "addresses",
-              },
-            },
-          },
-          {
-            type: "ModelList",
-            scope: "#/properties/companyId",
-            i18n: "basket.billing.companyId",
-            label: "Business",
-            options: {
-              type: "Business",
-              composable: useUnifiedAddress,
-              actions: {
-                list: "companies",
-              },
-            },
-          },
-        ],
-      },
-      {
-        type: "ModelList",
-        scope: "#/properties/phoneId",
-        i18n: "basket.billing.phoneId",
+        type: "ControlBilling",
+        scope: "#/properties",
+        i18n: "basket.billing",
         label: "",
-        options: {
-          type: "Phone",
-          composable: useUnifiedAddress,
-          actions: {
-            list: "phones",
-          },
-        },
+        options: {},
       },
     ],
   };

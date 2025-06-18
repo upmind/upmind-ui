@@ -5,7 +5,6 @@
       class="min-h-40"
       :schema="schema"
       :uischema="uischema"
-      :additional-renderers="formRenderers"
       color="primary"
       @update:modelValue="onInput"
       no-actions
@@ -24,7 +23,7 @@ import {
 } from "@upmind-automation/headless";
 
 // --- components
-import { UpmForm, formRenderers } from "../../../components/form";
+import { UpmForm } from "../../../components/form";
 import { Loading } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 

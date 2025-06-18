@@ -86,8 +86,7 @@ import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
 
-// ----------------------------------------------
-
+// -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
 const jsonFormsControl = useJsonFormsControl(props);

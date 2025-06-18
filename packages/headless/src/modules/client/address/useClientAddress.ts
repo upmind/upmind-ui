@@ -79,7 +79,7 @@ export const useClientAddress = (
     isValid: stateMatches(state, "available.valid"),
     isLoading: stateMatches(state, "loading"),
     hasErrors: stateMatches(state, "available.error"),
-    canRemove: !contextValue(state, "canDelete"),
+    canRemove: !contextValue(state, "model.canDelete"),
     isDefault: stateMatches(state, "model.default"),
     isVerified: stateMatches(state, "model.verified"),
     isComplete: state.value.done || stateMatches(state, "complete"),
@@ -129,7 +129,7 @@ export const useClientAddress = (
       });
   };
 
-  const update = async () => {
+  const update = async (): Promise<AddressModel> => {
     // we have to ensure we are able to update the address, i.e., it's available and valid
     return waitFor(service, state => stateMatches(state, "available.valid"))
       .then(async () => {
@@ -143,9 +143,12 @@ export const useClientAddress = (
             if (stateMatches(state, ["error", "available.error"])) {
               return Promise.reject(errors.value);
             }
-            return Promise.resolve();
+            return Promise.resolve(state.context.model);
           })
-          .then(() => useClientAddressServices().refresh());
+          .then(model => {
+            useClientAddressServices().refresh();
+            return model as AddressModel;
+          });
       })
       .catch(() => {
         return Promise.reject(
@@ -161,7 +164,7 @@ export const useClientAddress = (
     // --- state
 
     /**
-     * Resolves when the address is ready for input or update.
+     * Resolves when the service is ready to accept input or perform actions.
      * Returns true if ready, false if an error occurred.
      * @returns {Promise<boolean>} A promise resolving to true if ready, false if error.
      */

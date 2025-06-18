@@ -60,8 +60,7 @@ import { usePlaces } from "@upmind-automation/headless";
 import type { SearchItem } from "@upmind-automation/upmind-ui";
 import type { Address } from "@upmind-automation/headless";
 
-// ----------------------------------------------
-
+// -----------------------------------------------------------------------------
 const props = defineProps({
   ...rendererProps<ControlElement>(),
 });
