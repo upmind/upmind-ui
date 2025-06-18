@@ -152,7 +152,7 @@ export function useProductName(
 ): string {
   const name = useTranslateName(product);
 
-  // TODO: check prodct type based on if (product.provision_blueprint?.code == "domain-names" | ProvisionCategoryCodes.DOMAINS) {}
+  // TODO: check product type based on if (product.provision_blueprint?.code == "domain-names" | ProvisionCategoryCodes.DOMAINS) {}
   // for now...we will just append the service identifier if it exists
   if (basketProduct?.service_identifier) {
     return `${name} (${basketProduct.service_identifier})`;
@@ -164,34 +164,47 @@ export function useProductName(
 /**
  * Recursively merges values from a property in a nested object hierarchy
  * @param item The current object in the hierarchy
+ * @param result The array to collect values into
  * @param valueKey The key to extract values from at each level
  * @param parentKey The key to navigate to the parent object
  * @param initialValue Optional initial value to merge with collected values
  * @returns Merged values from all levels of the hierarchy, with lower levels and then initial value taking priority
  */
-export function iterateParents(
-  item: any,
-  result: any[],
+export function iterateParents<
+  ItemType,
+  ValueKey extends keyof ItemType = keyof ItemType,
+  ParentKey extends keyof ItemType = keyof ItemType,
+  ResultValueType = ValueKey extends keyof ItemType
+    ? ItemType[ValueKey]
+    : never,
+>(
+  item: ItemType | undefined | null,
+  result: ResultValueType[],
   {
     valueKey,
     parentKey,
     transform,
   }: {
-    valueKey: string;
-    parentKey: string;
-    transform?: (value: any) => any;
+    valueKey: ValueKey;
+    parentKey: ParentKey;
+    transform?: (item: ItemType) => ResultValueType;
   }
-): unknown[] {
+): ResultValueType[] {
   if (!item) return result;
-  const parsed = isFunction(transform) ? transform(item) : get(item, valueKey);
+  const parsed = isFunction(transform)
+    ? transform(item)
+    : (get(item, valueKey) as ResultValueType);
   result.push(parsed);
-  return iterateParents(get(item, parentKey), result, {
-    valueKey,
-    parentKey,
-    transform,
-  });
+  return iterateParents(
+    get(item, parentKey as string) as ItemType | undefined | null,
+    result,
+    {
+      valueKey,
+      parentKey,
+      transform,
+    }
+  );
 }
-
 export function checkPriceOverride(
   values: SubproductModel,
   lookups: SubproductDetails[]
