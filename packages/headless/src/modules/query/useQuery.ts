@@ -267,11 +267,11 @@ export const useQuery = () => {
       {
         queryKey: cleanQueryKey([
           ...queryKey,
+          { sort },
           { limit },
           { locale },
-          { sort },
-          { pageIndex },
           { filters },
+          { pageIndex },
         ]),
         queryFn: async ({ signal }) => {
           const hasGuard = isPromise(guard);
@@ -380,6 +380,20 @@ export const useQuery = () => {
         // @ts-ignore
         filters.value = unref(values) ?? {};
       },
+
+      resetQuery: () =>
+        queryClient
+          .resetQueries({
+            queryKey: cleanQueryKey([
+              ...queryKey,
+              { sort },
+              { limit },
+              { locale },
+              { filters },
+              { pageIndex },
+            ]),
+          })
+          .then(() => (pageIndex.value = 1)),
     };
   }
 
@@ -424,9 +438,9 @@ export const useQuery = () => {
       {
         queryKey: cleanQueryKey([
           ...queryKey,
+          { sort }, // Important for sorting to work
           { limit },
           { locale },
-          { sort }, // Important for sorting to work
           { filters }, // Important for filters to work
         ]),
         queryFn: async ({ pageParam = 0, signal }) => {
@@ -523,6 +537,17 @@ export const useQuery = () => {
         // @ts-ignore
         filters.value = unref(values) ?? {};
       },
+
+      resetQuery: () =>
+        queryClient.resetQueries({
+          queryKey: cleanQueryKey([
+            ...queryKey,
+            { sort },
+            { limit },
+            { locale },
+            { filters },
+          ]),
+        }),
     };
   }
 
