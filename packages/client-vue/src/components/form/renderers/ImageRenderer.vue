@@ -25,7 +25,7 @@ import { onBeforeUnmount, computed } from "vue";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 import { useJsonFormsControl } from "@jsonforms/vue";
-import { useUpload } from "@upmind-automation/headless-vue";
+import { useUpload } from "@upmind-automation/headless";
 import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import "filepond/dist/filepond.min.css";

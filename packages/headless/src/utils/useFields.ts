@@ -155,9 +155,8 @@ export const useFieldsSchemaParser = (data: any, i18nPrefix?: string) => {
 };
 
 export const useFieldsUischemaParser = (data: any, i18nKey = "fields") => {
-  if (!data?.length) {
-    return [];
-  }
+  if (isEmpty(data)) return [];
+
   const schema = reduce(
     data,
     (result: any[], field) => {
@@ -204,8 +203,16 @@ export const useFieldsUischemaParser = (data: any, i18nKey = "fields") => {
             break;
 
           case "input_file":
-          case "image":
             type = "file";
+            options.field = {
+              field_id: field?.id,
+              field_type: "client_custom_field",
+              field_is_default: false,
+            };
+            break;
+
+          case "image":
+            type = "image";
             options.field = {
               field_id: field?.id,
               field_type: "client_custom_field",
