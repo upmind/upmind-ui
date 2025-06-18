@@ -238,10 +238,10 @@ export const useQuery = () => {
   function list<TQueryFnData = unknown, TData = TQueryFnData>({
     url,
     init,
-    queryKey,
-    withAccessToken,
     guard,
     select,
+    queryKey,
+    withAccessToken,
     ...options
   }: QueryParams<TQueryFnData, TData>) {
     // --- state

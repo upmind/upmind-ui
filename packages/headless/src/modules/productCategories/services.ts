@@ -2,9 +2,9 @@
 import { QueryParams, useQuery } from "../..";
 
 // --- utils
-import { isNil, map } from "lodash-es";
+import { map } from "lodash-es";
+import { useTime } from "../../utils";
 import { parseProductCategory } from "./mappers";
-import { CacheIsStaleError, useTime } from "../../utils";
 
 // --- types
 import { ProductCategory } from "./types";
@@ -44,13 +44,6 @@ function loadList(params?: Partial<QueryParams>) {
   });
 }
 
-function loadCached() {
-  const { queryClient } = useQuery();
-  const cached = queryClient.getQueryData<ProductCategory[]>(queryKey);
-  if (isNil(cached)) throw new CacheIsStaleError();
-  return cached;
-}
-
 // -----------------------------------------------------------------------------
 // EXPORTS
 
@@ -58,5 +51,4 @@ export default {
   queryKey,
   //--- queries
   loadList,
-  loadCached,
 };
