@@ -490,7 +490,7 @@ export default createMachine(
                 "provisionFields" in errorExternal)
             ) {
               remove((errorExternal as any)?.provisionFields, [
-                "schemaPath",
+                "propertyName",
                 key,
               ]);
             }
