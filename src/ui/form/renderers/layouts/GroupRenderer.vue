@@ -57,6 +57,7 @@ const props = defineProps({
 const meta = computed(() => ({
   isVisible: layout.value.visible,
   isDisabled: !layout.value.enabled,
+  hasBorder: appliedOptions.value?.border ?? true,
 }));
 
 const styles = useStyles(
@@ -71,7 +72,9 @@ const styles = useStyles(
     item: string;
   };
 }>;
-const { layout } = useUpmindUILayoutRenderer(useJsonFormsLayout(props));
+const { layout, appliedOptions } = useUpmindUILayoutRenderer(
+  useJsonFormsLayout(props)
+);
 </script>
 
 <script lang="ts">

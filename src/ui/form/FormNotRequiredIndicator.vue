@@ -1,10 +1,11 @@
 <template>
-  <Label
-    :class="cn('w-full text-xs text-inherit', props.class)"
+  <span
+    :class="cn('text-emphasis-medium', props.class)"
     :for="props.formItemId"
+    :invalid="false"
   >
-    <slot />
-  </Label>
+    <slot>Optional</slot>
+  </span>
 </template>
 
 <script lang="ts" setup>
@@ -12,7 +13,6 @@ import type { HTMLAttributes } from "vue";
 import { cn } from "../../utils";
 
 import type { LabelProps } from "radix-vue";
-import { Label } from "../label";
 
 const props = defineProps<
   LabelProps & {

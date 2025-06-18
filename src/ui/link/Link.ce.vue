@@ -4,7 +4,7 @@
     :is="to ? 'router-link' : 'a'"
     :to="to"
     :href="href"
-    tabindex="0"
+    :tabindex="props.focusable ? 0 : -1"
     :class="cn(styles.link.root, props.class)"
     :aria-disabled="disabled"
     :data-disabled="disabled"
@@ -35,6 +35,7 @@ const props = withDefaults(defineProps<LinkProps>(), {
   // --- states
   disabled: false,
   loading: false,
+  focusable: true,
   // --- styles
   size: "inherit",
   color: "base",

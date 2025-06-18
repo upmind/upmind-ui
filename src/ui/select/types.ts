@@ -25,6 +25,7 @@ export interface SelectProps
   // --- variants
   size?: SelectVariants["size"];
   width?: SelectVariants["width"];
+  placeholder?: string;
   // --- styles
   uiConfig?: { select: CxOptions };
   class?: HTMLAttributes["class"];

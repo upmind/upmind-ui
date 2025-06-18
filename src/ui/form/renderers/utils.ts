@@ -1,6 +1,6 @@
 import { computed, ref, inject, watch } from "vue";
 import { merge, cloneDeep, defaults, set, isEqual } from "lodash-es";
-import {} from "@jsonforms/vue";
+import { createCombinatorRenderInfos } from "@jsonforms/core";
 
 import {
   composePaths,
@@ -10,7 +10,11 @@ import {
   getErrorAt,
 } from "@jsonforms/core";
 
-import type { JsonFormsSubStates, Tester } from "@jsonforms/core";
+import type {
+  JsonFormsSubStates,
+  Tester,
+  CombinatorSubSchemaRenderInfo,
+} from "@jsonforms/core";
 import { rankWith } from "@jsonforms/core";
 import { map, isFunction } from "lodash-es";
 import type { FormControlProps } from "../types";
@@ -214,6 +218,39 @@ export const useUpmindUIArrayRenderer = <
     childLabelForIndex,
     onInput,
   };
+};
+
+/**
+ * Creates indexed render information for oneOf schemas
+ */
+export const createIndexedOneOfRenderInfos = (
+  control: any
+): (CombinatorSubSchemaRenderInfo & {
+  index: number;
+})[] => {
+  const oneOfUiSchemas = control.uischema.options?.oneOfUiSchema;
+
+  const result = createCombinatorRenderInfos(
+    control.schema.oneOf!,
+    control.rootSchema,
+    "oneOf",
+    control.uischema,
+    control.path,
+    control.uischemas
+  );
+
+  return result
+    .filter(info => info.uischema)
+    .map((info, index) => {
+      if (oneOfUiSchemas && oneOfUiSchemas[index]) {
+        return {
+          ...info,
+          uischema: oneOfUiSchemas[index],
+          index: index,
+        };
+      }
+      return { ...info, index: index };
+    });
 };
 
 // -----------------------------------------------------------------------------
