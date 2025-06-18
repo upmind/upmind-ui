@@ -30,8 +30,8 @@
 
 <script setup lang="ts">
 import { useVModel } from "@vueuse/core";
-
 import { HTMLAttributes } from "vue";
+
 import { UpmCard } from "@upmind-automation/client-vue";
 import { Loading } from "@upmind-automation/upmind-ui";
 import CategoryItem from "./CategoryItem.vue";

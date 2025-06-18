@@ -31,7 +31,7 @@ function loadList(params?: Partial<QueryParams>) {
         "products_options",
         "products_options.prices",
         `category${".top_category".repeat(4)}`,
-      ].join(),
+      ].join(","),
     }),
     withAccessToken: true,
     // --- options
@@ -54,7 +54,7 @@ function loadInfinite(params?: Partial<QueryParams>) {
         "products_options",
         "products_options.prices",
         `category${".top_category".repeat(4)}`,
-      ].join(),
+      ].join(","),
     }),
     withAccessToken: true,
     // --- options
