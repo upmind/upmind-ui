@@ -95,7 +95,6 @@ const translations = computed(() => {
 const actions = computed((): InterstitialActionProps[] => {
   let href = "window.location.href";
 
-  debugger;
   switch (props.status) {
     // for service errors, we want to reload the page as its likely a temporary issue
     case 500:
