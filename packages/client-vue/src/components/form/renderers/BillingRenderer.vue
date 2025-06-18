@@ -1,6 +1,6 @@
 <template>
   <FormField v-bind="formFieldProps">
-    <Domain
+    <Billing
       :model-value="control.data"
       :touched="formFieldProps.touched"
       @update:modelValue="onInput"
@@ -15,7 +15,7 @@ import { useJsonFormsControl } from "@jsonforms/vue";
 
 // --- components
 import { FormField } from "@upmind-automation/upmind-ui";
-import Domain from "../../../modules/domain/Domain.vue";
+import Billing from "../../../modules/billing/Billing.vue";
 
 // --- utils
 import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
@@ -37,10 +37,10 @@ const resetInput = (value: string) => {
 </script>
 
 <script lang="ts">
-import { uiTypeIs, formatIs, and } from "@jsonforms/core";
+import { uiTypeIs, and } from "@jsonforms/core";
 
 export const tester = {
   rank: 3,
-  controlType: and(uiTypeIs("Control"), formatIs("domain_name")),
+  controlType: and(uiTypeIs("ControlBilling")),
 };
 </script>

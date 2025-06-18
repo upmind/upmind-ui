@@ -13,20 +13,20 @@ import { useClientCompanyServices } from "./services";
 // --- utils
 import {
   useContext,
+  contextValue,
   stateMatches,
   DetailedError,
   responseCodes,
-  contextValue,
   UnavailableError,
 } from "../../../utils";
 import { get } from "lodash-es";
 
 // --- types
-import type { AddressModel } from "../address";
 import type { ClientItemContext } from "../types";
+import type { AddressModel } from "../address";
 import type { Company, CompanyModel } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
-import type { QueryResponseError } from "../../query";
+import { QueryResponseError } from "../../query";
 
 // -----------------------------------------------------------------------------
 
@@ -34,6 +34,8 @@ export const useClientCompany = (
   id?: Company["id"],
   { allowMultipleEdits }: { allowMultipleEdits?: boolean } = {}
 ) => {
+  // --- state
+
   const service = interpret(
     itemMachine
       .withConfig({
@@ -44,7 +46,7 @@ export const useClientCompany = (
         if (!id) return { model: undefined };
         const { getOne } = useClientCompanies();
         return {
-          id: id,
+          id,
           model: getOne(id),
           allowMultipleEdits,
         };
@@ -57,8 +59,8 @@ export const useClientCompany = (
 
   const { state, send } = useActor(service);
 
-  const isReady = async () => {
-    return waitFor(service, state => stateMatches(state, "available"), {
+  const isReady = async (): Promise<boolean> =>
+    waitFor(service, state => stateMatches(state, "available"), {
       timeout: Infinity,
     }).then(state => {
       if (stateMatches(state, "error")) {
@@ -72,19 +74,20 @@ export const useClientCompany = (
       }
       return true;
     });
-  };
 
   const meta = computed(() => ({
-    isNew: !stateMatches(state, "mode.id"),
+    isNew: !stateMatches(state, "model.id"),
     isValid: stateMatches(state, "available.valid"),
     isLoading: stateMatches(state, "loading"),
     hasErrors: stateMatches(state, "available.error"),
-    canRemove: !stateMatches(state, "mode.canDelete"),
+    canRemove: !stateMatches(state, "model.canDelete"),
     isDefault: !contextValue(state, "model.default"),
     isVerified: stateMatches(state, "model.verified"),
     isComplete: state.value.done || stateMatches(state, "complete"),
     isProcessing: stateMatches(state, "processing"),
   }));
+
+  // --- context
 
   const title = useContext<string | undefined>(state, "title");
 
@@ -127,7 +130,7 @@ export const useClientCompany = (
       });
   };
 
-  const update = async () => {
+  const update = async (): Promise<CompanyModel> => {
     // we have to ensure we are able to update the address, i.e., it's available and valid
     return waitFor(service, state => stateMatches(state, "available.valid"))
       .then(async () => {
@@ -139,11 +142,14 @@ export const useClientCompany = (
         )
           .then(state => {
             if (stateMatches(state, ["error", "available.error"])) {
-              return Promise.reject(state.context.error);
+              return Promise.reject(errors.value);
             }
-            return Promise.resolve();
+            return Promise.resolve(state.context.model);
           })
-          .then(() => useClientCompanyServices().refresh());
+          .then(model => {
+            useClientCompanyServices().refresh();
+            return model as AddressModel;
+          });
       })
       .catch(() => {
         return Promise.reject(
@@ -169,6 +175,8 @@ export const useClientCompany = (
      * Computed meta-information about the company state.
      */
     meta,
+
+    // --- context
 
     /**
      * Title of the company.
@@ -230,7 +238,7 @@ export const useClientCompany = (
     input,
 
     /**
-     * Updates the company model, resolving when the update is processed.
+     * Updates the company, resolving when the update is processed.
      * @returns {Promise<void>} Resolves when the update is complete.
      */
     update,

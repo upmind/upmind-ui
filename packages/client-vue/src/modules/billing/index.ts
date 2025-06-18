@@ -4,8 +4,7 @@
 // NB: for views that are used in routes, we need to use defineAsyncComponent
 // to avoid circular dependencies. and to be able to lazy load them.
 
-export { default as UpmBasketBilling } from "./components/Billing.vue";
-export const UpmCheckoutView = import("./Checkout.vue");
+export { default as UpmBillingDetails } from "./Billing.vue";
 
 // --- Export Components
 

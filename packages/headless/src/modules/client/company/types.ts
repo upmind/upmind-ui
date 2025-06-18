@@ -12,6 +12,7 @@ import type { Email, Phone, Address, PhoneModel } from "..";
 // -----------------------------------------------------------------------------
 
 export interface CompanyModel {
+  id?: ICompany["id"];
   addressId?: ICompany["address_id"];
   default?: ICompany["default"];
   emailId?: ICompany["email_id"];

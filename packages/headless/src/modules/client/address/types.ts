@@ -26,6 +26,7 @@ export const ADDRESS_TYPE_KEYS = {
 } as const;
 
 export interface AddressModel {
+  id?: IAddress["id"];
   address1: IAddress["address_1"];
   address2?: IAddress["address_2"];
   city: IAddress["city"];
