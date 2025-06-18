@@ -2,15 +2,15 @@
 import { useQuery } from "../..";
 
 // --- utils
-import { isNil, map, flatMap } from "lodash-es";
+import { isNil, map } from "lodash-es";
 import { parseProduct } from "./mappers";
 import { CacheIsStaleError, useTime } from "../../utils";
 
 // --- types
 import type { Product } from "../product";
-import type { QueryKey } from "@tanstack/vue-query";
 import type { IProduct } from "@upmind-automation/types";
-import type { QueryParams, RawInfiniteQueryData } from "../..";
+import type { QueryParams } from "../..";
+import type { InfiniteData, QueryKey } from "@tanstack/vue-query";
 
 // -----------------------------------------------------------------------------
 // QUERIES
@@ -43,7 +43,7 @@ function loadList(params?: Partial<QueryParams>) {
 function loadInfinite(params?: Partial<QueryParams>) {
   const { listInfinite, useUrl } = useQuery();
 
-  return listInfinite<RawInfiniteQueryData<IProduct[]>, Product[]>({
+  return listInfinite<IProduct[], InfiniteData<Product[]>>({
     ...(params as any),
     queryKey,
     url: useUrl(`basket/products`, {
@@ -58,13 +58,8 @@ function loadInfinite(params?: Partial<QueryParams>) {
     }),
     withAccessToken: true,
     // --- options
+    select: data => map(data ?? [], parseProduct),
     staleTime: useTime().HOUR,
-    select: data => {
-      // Flatten the array of pages into a single array of products
-      const products = flatMap(data.pages, page => page.pageData ?? []);
-      // Now map over the flattened array
-      return map(products, parseProduct);
-    },
   });
 }
 
