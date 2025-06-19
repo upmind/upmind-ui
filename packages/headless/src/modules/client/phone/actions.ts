@@ -42,3 +42,10 @@ export const useClientPhoneActions = () => {
     }),
   };
 };
+
+export const useClientPhoneGuards = () => {
+  return {
+    hasSubscription: ({ clientId }: PhoneContext, _event: AnyEventObject) =>
+      !!clientId,
+  };
+};

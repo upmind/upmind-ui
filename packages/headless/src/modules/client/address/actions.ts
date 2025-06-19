@@ -12,6 +12,7 @@ import { useModelParser } from "../../../utils";
 import { AddressModel, type AddressContext } from "./types";
 import type { AnyEventObject } from "xstate";
 import { AddressMode } from "@stripe/stripe-js";
+import { Client } from "@googlemaps/google-maps-services-js";
 
 // -----------------------------------------------------------------------------
 
@@ -44,5 +45,12 @@ export const useClientAddressActions = () => {
         { data }: AnyEventObject
       ) => useModelParser<AddressModel>(schema, data, baseModel),
     }),
+  };
+};
+
+export const useClientAddressGuards = () => {
+  return {
+    hasSubscription: ({ clientId }: AddressContext, _event: AnyEventObject) =>
+      !!clientId,
   };
 };
