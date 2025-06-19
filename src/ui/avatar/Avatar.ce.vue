@@ -83,6 +83,7 @@ const meta = computed(() => ({
   size: props.size,
   variant: props.variant,
   focusable: props.focusable,
+  overflow: props.overflow,
   // ---
   hasIcon: !isEmpty(props.icon),
   hasImage: !isEmpty(props.src),

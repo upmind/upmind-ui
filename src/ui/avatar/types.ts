@@ -16,6 +16,7 @@ export interface AvatarProps {
   // ---
   focusable?: boolean;
   // ---
+  overflow?: AvatarVariantProps["overflow"] | string;
   color?: AvatarVariantProps["color"] | string;
   fit?: AvatarVariantProps["fit"] | string;
   size?: AvatarVariantProps["size"] | string;

@@ -5,7 +5,7 @@ import { ringClasses } from "../../assets/styles";
 
 // --- for out Typescript type
 export const avatarVariants = cva(
-  "relative inline-flex aspect-square shrink-0 select-none items-center justify-center overflow-hidden font-normal",
+  "relative inline-flex aspect-square shrink-0 select-none items-center justify-center font-normal",
   {
     variants: {
       color: {
@@ -50,12 +50,17 @@ export const avatarVariants = cva(
       focusable: {
         true: `${ringClasses}`,
       },
+      overflow: {
+        visible: "overflow-visible",
+        hidden: "overflow-hidden",
+      },
     },
     defaultVariants: {
       fit: "cover",
       size: "md",
       shape: "circle",
       variant: "flat",
+      overflow: "hidden",
     },
     compoundVariants: [
       {

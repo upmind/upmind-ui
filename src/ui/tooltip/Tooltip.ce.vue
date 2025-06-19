@@ -2,10 +2,7 @@
   <!--<link rel="stylesheet" :href="stylesheet" />-->
   <TooltipProvider v-bind="forwarded">
     <Tooltip v-bind="forwarded">
-      <TooltipTrigger
-        :color="color"
-        tabindex="-1"
-        :class="styles.tooltip.trigger"
+      <TooltipTrigger tabindex="-1" :class="styles.tooltip.trigger"
         ><slot
       /></TooltipTrigger>
       <TooltipContent

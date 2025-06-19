@@ -4,7 +4,7 @@ import { invalidRingClasses, ringClasses } from "../../assets/styles";
 // -----------------------------------------------------------------------------
 
 export const buttonVariants = cva(
-  `relative inline-flex items-center justify-center whitespace-nowrap rounded-lg border border-transparent bg-clip-padding font-medium no-underline ring-offset-background transition-all duration-300 disabled:pointer-events-none disabled:cursor-not-allowed disabled:!opacity-50`,
+  `relative inline-flex items-center justify-center whitespace-nowrap rounded-lg border border-transparent font-medium no-underline ring-offset-background transition-all duration-300 disabled:pointer-events-none disabled:cursor-not-allowed disabled:!opacity-50`,
   {
     variants: {
       variant: {
@@ -22,7 +22,7 @@ export const buttonVariants = cva(
         false: "outline-none focus:outline-none focus:ring-0",
       },
       color: {
-        base: "",
+        base: "!ring-base",
         primary: "!ring-primary",
         secondary: "!ring-secondary",
         accent: "!ring-accent",
@@ -60,8 +60,7 @@ export const buttonVariants = cva(
       {
         color: "primary",
         variant: "flat",
-        class:
-          "hover:bg-primary-background-hover bg-primary text-primary-foreground [transition:background-image_0.3s] hover:[background-image:none]",
+        class: "bg-primary text-secondary-foreground",
       },
       {
         color: "secondary",
@@ -105,7 +104,7 @@ export const buttonVariants = cva(
         color: "base",
         variant: "outline",
         class:
-          "hover:bg-base-muted border-base-foreground text-foreground !ring-base",
+          "hover:bg-base-muted border-base-muted text-foreground !ring-base",
       },
       {
         color: "primary",
