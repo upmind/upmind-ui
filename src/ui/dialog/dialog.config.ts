@@ -25,7 +25,7 @@ export const contentVariant = cva(
       },
       fit: {
         cover: "border-none p-0",
-        contain: "p-6",
+        contain: "p-6 md:p-10",
       },
     },
     defaultVariants: {

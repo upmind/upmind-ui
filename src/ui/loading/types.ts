@@ -7,4 +7,5 @@ export interface LoadingProps {
   active?: boolean;
   size?: SpinnerVariantProps["size"] | string;
   class?: HTMLAttributes["class"];
+  skrim?: "light" | "full";
 }

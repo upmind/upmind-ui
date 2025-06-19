@@ -21,6 +21,7 @@ export interface LinkProps {
   // ---
   disabled?: boolean;
   loading?: boolean;
+  focusable?: boolean;
   // ---
   size?: LinkVariantProps["size"] | string;
   variant?: LinkVariantProps["variant"] | string;

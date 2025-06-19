@@ -26,8 +26,7 @@ import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 import type { RadioCardsItemProps } from "../../../radio-cards";
 
-// ----------------------------------------------
-
+// -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
 const { control, formFieldProps, onInput } = useUpmindUIRenderer(

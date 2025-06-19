@@ -30,8 +30,7 @@ import { has, get } from "lodash-es";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 import type { AutocompleteSearchFunction } from "../../../autocomplete";
-// ----------------------------------------------
-
+// -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
 const { control, appliedOptions, onInput, formFieldProps } =
