@@ -43,3 +43,10 @@ export const useClientCompanyActions = () => {
     }),
   };
 };
+
+export const useClientCompanyGuards = () => {
+  return {
+    hasSubscription: ({ clientId }: CompanyContext, _event: AnyEventObject) =>
+      !!clientId,
+  };
+};

@@ -30,3 +30,10 @@ export const useClientEmailActions = () => {
     }),
   };
 };
+
+export const useClientEmailGuards = () => {
+  return {
+    hasSubscription: ({ clientId }: EmailContext, _event: AnyEventObject) =>
+      !!clientId,
+  };
+};
