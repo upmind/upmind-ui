@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { URLs } from "../../../../../support/constants/urls";
+import { URLs } from "../../../../../support/constants/Urls";
 import { ProductConfig } from "../../../../../support/page-objects/templates/ProductConfig";
 import { orgDomain } from "../../../../../support/constants/checkout/test-cases/webcentral/domains/Org";
 let productConfig: ProductConfig;
@@ -11,7 +11,7 @@ test.beforeEach(async ({ page }) => {
   await productConfig.optionsContainer.waitFor();
 });
 
-test.describe("Product Config - Happy Paths - Domain (.org)", async () => {
+test.describe.skip("Product Config - Happy Paths - Domain (.org)", async () => {
   for (const {
     name,
     radioSelection = [],

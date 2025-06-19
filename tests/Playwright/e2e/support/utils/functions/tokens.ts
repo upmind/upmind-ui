@@ -1,10 +1,4 @@
-import {
-  BrowserContext,
-  Page,
-  test as base,
-  request,
-  expect,
-} from "@playwright/test";
+import { BrowserContext, Page, request } from "@playwright/test";
 import { URLs } from "../../constants/Urls";
 
 /* Extracts the upm_client_session token from the browser context's cookies. */
@@ -13,7 +7,6 @@ export async function getSessionToken(
   tokenType: string | null
 ): Promise<string> {
   const cookies = await context.cookies();
-
   let sessionCookie;
   if (tokenType === "client") {
     sessionCookie = cookies.find(
@@ -31,7 +24,7 @@ export async function getSessionToken(
     Buffer.from(rawToken, "base64url").toString("utf-8")
   );
   const accessToken = decodedToken.access_token;
-
+  console.log("DECODED TOKEN:", decodedToken);
   return accessToken;
 }
 
@@ -52,28 +45,26 @@ export async function getClientToken(
   password: string
 ) {
   const apiContext = await request.newContext();
-
   const response = await apiContext.post(
     "https://api.staging.upmind.io/oauth/access_token",
     {
       headers: {
-        accept: "application/json",
+        accept: "*/*",
         "content-type": "application/json",
         origin: `${URLs.baseUrl}`,
         referer: `${URLs.baseUrl}`,
       },
       data: {
-        username: `${username}`,
-        password: `${password}`,
-        grant_type: "password",
         currency_id: "3825d96e-763e-d091-3dc4-174825283406",
+        grant_type: "password",
+        password: `${password}`,
+        username: `${username}`,
       },
     }
   );
-  console.log(JSON.stringify(response));
+
   const json = await response.json();
   const encodedToken = base64urlEncode(json);
-
   await page.context().addCookies([
     {
       name: "upm_client_session",
