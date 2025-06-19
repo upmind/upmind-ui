@@ -6,10 +6,10 @@ import { useSchema as useAddressSchema } from "../address/schemas";
 
 // --- types
 import type { CompanyContext } from "./types";
-import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
+import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 
-export const useSchema = ({ baseModel }: CompanyContext) => {
-  const schema: JsonSchema = {
+export const useSchema = ({ baseModel }: CompanyContext): JsonSchema7 => {
+  const schema: JsonSchema7 = {
     type: "object",
     title: "Company",
     required: ["name"],
@@ -50,10 +50,10 @@ export const useSchema = ({ baseModel }: CompanyContext) => {
     },
   };
 
-  return schema as JsonSchema;
+  return schema;
 };
 
-export const useUischema = (_context: CompanyContext) => {
+export const useUischema = (_context?: CompanyContext) => {
   const uiSchema = {
     type: "VerticalLayout",
     elements: [

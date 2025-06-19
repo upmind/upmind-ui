@@ -1,4 +1,5 @@
 <template>
+  <pre>{{ { type, model } }}</pre>
   <component
     v-if="modal || (!modal && meta.isOpen)"
     :is="modal ? Dialog : 'section'"
@@ -40,8 +41,10 @@ import { useVModel } from "@vueuse/core";
 
 // --- internal
 import {
+  UnifiedAddressType,
   useClientAddress,
   useClientCompany,
+  useUnifiedAddress,
   utils,
   type AddressModel,
   type BillingModel,
@@ -59,12 +62,12 @@ import Actions from "./Actions.vue";
 const { DEBOUNCE_DELAY } = utils;
 
 // --- types
-import { BillingType } from "../types";
 
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
-  type: BillingType;
+  clientId: string;
+  type: UnifiedAddressType;
   id?: string;
   readonly?: boolean;
   open?: boolean;
@@ -88,7 +91,7 @@ const processing = ref(false);
 const touched = ref(false);
 
 const { model, isReady, update, clear, input, schema, uischema } =
-  props.type === BillingType.BUSINESS ? useClientCompany() : useClientAddress();
+  useUnifiedAddress(props.clientId, props.type);
 
 const meta = computed(() => ({
   isProcessing: processing.value,
@@ -115,23 +118,9 @@ onMounted(async () => {
 const doResolve = async () => {
   processing.value = true;
   update()
-    .then((value: AddressModel | CompanyModel | PhoneModel) => {
-      emits("resolve", {
-        addressId:
-          props.type === BillingType.BUSINESS
-            ? (value as CompanyModel)?.addressId
-            : (value as AddressModel)?.id,
-        companyId:
-          props.type === BillingType.BUSINESS
-            ? (value as CompanyModel).id
-            : undefined,
-        phoneId:
-          props.type === BillingType.BUSINESS
-            ? (value as CompanyModel).phoneId
-            : undefined,
-      });
+    .then(value => {
+      emits("resolve", value);
       touched.value = false;
-
       doReject();
     })
     .catch(() => {

@@ -16,13 +16,14 @@ import {
   useModelParser,
   CacheIsStaleError,
   NotAuthenticatedError,
+  DetailedError,
+  responseCodes,
 } from "../../../utils";
 import { mapIPhone, mapPhones } from "./mapper";
 import { invalidateQueryByKey } from "../../query";
-import { get, isNil, isString, first } from "lodash-es";
+import { get, isNil, isString, first, isEmpty } from "lodash-es";
 
 // --- types
-import { PhoneTypes } from "./types";
 import type { IPhone } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { AnyEventObject } from "xstate";
@@ -78,18 +79,15 @@ async function loadLookups({
   // these could/should be cached in the system machine, so there's no worry about performance
   await isReady().catch(error => Promise.reject(error));
   const countries = await fetchCountries();
-  const country = getCountry(model?.phone?.country);
+  const country = getCountry(model?.country);
   if (!countries) {
     return Promise.reject("Failed to load countries");
   }
   const baseModel: PhoneModel = {
-    phone: {
-      number: "",
-      nationalNumber: "",
-      countryCallingCode: "",
-      country: country.code,
-    },
-    type: first(PhoneTypes)?.key || 1,
+    number: "",
+    nationalNumber: "",
+    countryCallingCode: "",
+    country: country.code,
   };
 
   const safeModel = useModelParser<PhoneModel>(schema, model, baseModel, {
@@ -97,7 +95,6 @@ async function loadLookups({
   });
 
   return Promise.resolve({
-    types: PhoneTypes,
     country,
     model: safeModel,
     baseModel: safeModel,
@@ -114,7 +111,6 @@ async function add(data: PhoneModel) {
   if (!meta.value.isAuthenticated || !user.value?.id) {
     return Promise.reject(new NotAuthenticatedError());
   }
-
   return post<IPhone>({
     url: useUrl(`clients/${user.value?.id}/phones`),
     data: mapIPhone(data),
@@ -216,31 +212,33 @@ async function parse(
   );
 
   // ---
-  if (!safeModel?.phone) return Promise.resolve({ model: safeModel, country });
+  if (!safeModel) return Promise.resolve({ model: safeModel, country });
 
-  const phoneNumber = isString(safeModel.phone)
-    ? safeModel?.phone
-    : ((safeModel?.phone?.number || safeModel?.phone?.nationalNumber) ?? "");
+  const phoneNumber = (safeModel?.number || safeModel?.nationalNumber) ?? "";
 
-  const countryCode: CountryCode = (safeModel?.phone?.country ||
+  const countryCode: CountryCode = (safeModel?.country ||
     data?.country?.code ||
     country?.code ||
     "") as CountryCode;
-  const phone = parsePhoneNumber(phoneNumber, countryCode) || safeModel.phone;
+
+  const phone = parsePhoneNumber(phoneNumber, countryCode);
 
   // now map the phone number to the model in the correct format with fallbacks
-  safeModel.phone = {
-    number: phone?.number || safeModel.phone?.number,
-    nationalNumber: phone?.nationalNumber || safeModel.phone?.nationalNumber,
-    countryCallingCode:
-      phone?.countryCallingCode || safeModel.phone?.countryCallingCode,
-    country: phone?.country || safeModel.phone?.country || country?.code || "",
-  };
 
-  if (!!safeModel.phone?.country && safeModel.phone.country !== country?.code) {
+  safeModel.number = phone?.number || safeModel?.number;
+
+  safeModel.nationalNumber = phone?.nationalNumber || safeModel?.nationalNumber;
+
+  safeModel.countryCallingCode =
+    phone?.countryCallingCode || safeModel?.countryCallingCode;
+
+  safeModel.country =
+    phone?.country || safeModel?.country || country?.code || "";
+
+  if (!!safeModel?.country && safeModel.country !== country?.code) {
     const { getCountry } = useSystem();
     // we have change countries in the form, so we need to get our new country
-    country = getCountry(safeModel.phone.country);
+    country = getCountry(safeModel.country);
   }
 
   return Promise.resolve({ model: safeModel, country });
@@ -279,17 +277,29 @@ export default {
 export const useClientPhoneServices = () => {
   return {
     loadLookups,
-    add: async (context: PhoneContext) => {
-      if (!context.model?.phone)
-        return Promise.reject("No phone model provided");
-      return add(context.model);
-    },
-    update: async (context: PhoneContext) => {
-      if (!context.id) return Promise.reject("No phone id provided");
-      if (!context.model?.phone)
-        return Promise.reject("No phone model provided");
 
-      return update(context.id, context.model);
+    add: async ({ model }: Partial<PhoneContext>) => {
+      if (isEmpty(model))
+        return Promise.reject(
+          new DetailedError(
+            "[headless] Add Phone failed: model provided",
+            responseCodes.Unprocessable_Entity,
+            { model }
+          )
+        );
+      return add(model);
+    },
+    update: async ({ id, model }: Partial<PhoneContext>) => {
+      if (!id || isEmpty(model))
+        return Promise.reject(
+          new DetailedError(
+            "[headless] Update Phone failed: No id or model provided",
+            responseCodes.Unprocessable_Entity,
+            { id, model }
+          )
+        );
+
+      return update(id, model);
     },
     parse,
     validate,

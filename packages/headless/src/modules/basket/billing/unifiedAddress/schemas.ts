@@ -2,14 +2,26 @@
 import { isEmpty, get, map } from "lodash-es";
 
 // --- types
-import type { UnifiedAddressContext } from "./types";
-import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
+import { UnifiedAddressType, type UnifiedAddressContext } from "./types";
+import type { JsonSchema7, Layout, UISchemaElement } from "@jsonforms/core";
 import { BrandConfigKeys } from "@upmind-automation/types";
-import { useClientAddress } from "../../../client/address";
-import { useClientCompany } from "../../../client/company";
+import {
+  useSchema as useAddressSchema,
+  useUischema as useAddressUischema,
+} from "../../../client/address/schemas";
+
+import {
+  useSchema as useCompanySchema,
+  useUischema as useCompanyUischema,
+} from "../../../client/company/schemas";
+
+import {
+  useSchema as usePhoneSchema,
+  useUischema as usePhoneUischema,
+} from "../../../client/phone/schemas";
 
 export const useSchema = ({
-  model,
+  clientId,
   country,
   regions,
   addresses,
@@ -17,335 +29,99 @@ export const useSchema = ({
   countries,
   config,
 }: UnifiedAddressContext) => {
-  const schema: JsonSchema = {
+  const schema: JsonSchema7 = {
     type: "object",
-    oneOf: [
-      {
-        title: "",
-        $ref: "#/definitions/personal",
-        applyDefaults: ["address"],
-      },
-      {
-        title: "",
-        $ref: "#/definitions/business",
-        applyDefaults: ["address"],
-      } as any,
-    ],
-    definitions: {
-      company: {
-        type: "object",
-        title: "Company",
-        properties: {
-          addressId: {
-            type: ["string", "null"],
-            update: "updateAddressId",
-            create: !isEmpty(addresses) ? "newAddressDialog" : null,
-          } as any,
-          companyId: {
-            type: ["string", "null"],
-            default: baseModel?.companyId || null,
-            update: "updateCompanyId",
-          } as any,
-          companyName: {
-            type: "string",
-            title: "Company Name",
-          },
-          regNumber: {
-            type: ["string", "null"],
-            title: "Company Number",
-          },
-          vatNumber: {
-            type: ["string", "null"],
-            title: "Registered Tax ID",
-          },
+    title: "Unified Address",
+    required: [],
+    properties: {
+      address: useAddressSchema({
+        clientId,
+        regions,
+        baseModel,
+        countries,
+        config,
+      }),
+      company: useCompanySchema({
+        baseModel: {
+          addressId: baseModel?.addressId,
+          emailId: baseModel?.emailId,
+          phoneId: baseModel?.phoneId,
         },
-        required: ["companyName"],
-        default: {
-          addressId: model?.addressId || baseModel?.addressId || null,
-        },
-      },
-      address: {
-        type: "object",
-        title: "Address",
-        additionalProperties: false,
-        properties: {
-          addressId: {
-            type: ["string", "null"],
-            default: baseModel?.addressId || null,
-            update: "updateAddressId",
-            create: !isEmpty(addresses) ? "newAddressDialog" : null,
-          } as any,
-
-          showAddressFields: {
-            type: "boolean",
-            default: false,
-          },
-
-          address1: {
-            type: ["string"],
-            title: "Address",
-          },
-
-          address2: {
-            type: ["string", "null"],
-            title: "",
-          },
-
-          city: {
-            type: ["string"],
-            title: "City",
-          },
-
-          postcode: {
-            type: ["string"],
-            title: "Postal / Zip Code",
-          },
-
-          regionId: {
-            type: ["string", "null"],
-            title: "Region",
-            oneOf: map(regions || [], item => ({
-              const: item.id,
-              title: item.name,
-            })),
-          },
-
-          countryId: {
-            type: "string",
-            title: "Country",
-            oneOf: map(countries || [], item => ({
-              const: item.id,
-              title: item.name,
-            })),
-          },
-
-          name: {
-            type: ["string", "null"],
-            title: "Address Name",
-          },
-
-          type: {
-            type: ["number", "null"],
-            title: "Address Type",
-          },
-        },
-        required: ["address1", "city", "postcode", "countryId"],
-      },
-      personal: {
-        type: "object",
-        required: [],
-        additionalProperties: false,
-        properties: {
-          address: {
-            $ref: "#/definitions/address",
-            default: {
-              regionId: baseModel?.address?.regionId,
-              countryId: baseModel?.address?.countryId,
-            },
-          },
-        },
-      },
-      business: {
-        type: "object",
-        required: ["company"],
-        properties: {
-          company: {
-            $ref: "#/definitions/company",
-          },
-        },
-        allOf: [
-          {
-            if: {
-              properties: {
-                company: {
-                  properties: {
-                    addressId: { const: null },
-                  },
-                },
-              },
-            },
-            then: {
-              properties: {
-                address: {
-                  $ref: "#/definitions/address",
-                  default: {
-                    regionId: baseModel?.address?.regionId,
-                    countryId: baseModel?.address?.countryId,
-                  },
-                },
-              },
-            },
-          },
-        ],
-      },
+        addresses: addresses ?? [],
+        emails: baseModel?.emails ?? [],
+        phones: baseModel?.phones ?? [],
+        clientId: baseModel?.clientId ?? "",
+      }),
+      phone: usePhoneSchema({
+        country,
+      }),
     },
   };
 
-  if (get(config, BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS)) {
-    schema.definitions!.address!.required!.push("regionId");
-  }
+  if (get(config, BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS))
+    schema.required!.push("address");
 
-  if (get(config, BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS)) {
-    schema.oneOf?.shift();
-  }
+  if (get(config, BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS))
+    schema.required!.push("company");
 
-  return schema as JsonSchema;
+  if (get(config, BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS))
+    schema.required!.push("phone");
+
+  return schema;
 };
 
-export const useUischema = ({
-  config,
-  addresses,
-  companies,
-  model,
-}: UnifiedAddressContext) => {
-  const personalUiSchema = {
+export const useUischema = ({ type, config }: UnifiedAddressContext) => {
+  const uiSchema: Layout = {
     type: "VerticalLayout",
-    elements: [
-      {
-        type: "Control",
-        scope: "#/properties/address",
-        options: {
-          autoFocus: true,
-          autocomplete: "off",
-          detail: {
-            type: "VerticalLayout",
-            elements: [
-              {
-                type: "Control",
-                scope: "#/properties/countryId",
-              },
-              {
-                type: "address",
-                options: {
-                  fields: ["address1", "address2"],
-                  placeholder: "Start typing your address",
-                },
-                elements: [
-                  {
-                    type: "Group",
-                    options: {
-                      border: false,
-                    },
-                    elements: [
-                      {
-                        type: "Control",
-                        scope: "#/properties/address1",
-                        options: {
-                          placeholder: "House name, apartment number etc.",
-                          autocomplete: "address-line1",
-                        },
-                      },
-                      {
-                        type: "Control",
-                        scope: "#/properties/address2",
-                        options: {
-                          placeholder: "Road, street name etc.",
-                          autocomplete: "address-line2",
-                        },
-                      },
-                    ],
-                  },
-                  {
-                    type: "Control",
-                    scope: "#/properties/city",
-                    options: {
-                      placeholder: "City, town etc.",
-                      autocomplete: "address-level2",
-                    },
-                  },
-                  {
-                    type: "HorizontalLayout",
-                    elements: [
-                      {
-                        type: "Control",
-                        scope: "#/properties/regionId",
-                        options: {
-                          placeholder: "Select region",
-                          autocomplete: "address-level1",
-                        },
-                      },
-                      {
-                        type: "Control",
-                        scope: "#/properties/postcode",
-                        options: {
-                          placeholder: "eg. 10011",
-                          autocomplete: "postal-code",
-                        },
-                      },
-                    ],
-                  },
-                ],
-              },
-            ],
-          },
-        },
-      },
-    ],
+    elements: [],
   };
 
-  const businessUiSchema = {
-    type: "VerticalLayout",
-    elements: [
-      {
-        type: "Control",
-        scope: "#/properties/company",
-        options: {
-          detail: {
-            type: "VerticalLayout",
-            elements: [
-              {
-                type: "Control",
-                scope: "#/properties/companyName",
-                options: {
-                  placeholder: "Company Name",
-                  default: "test",
-                },
-              },
-              {
-                type: "HorizontalLayout",
-                elements: [
-                  {
-                    type: "Control",
-                    scope: "#/properties/regNumber",
-                    options: {
-                      placeholder: "Registered tax or GST",
-                    },
-                  },
-                  {
-                    type: "Control",
-                    scope: "#/properties/vatNumber",
-                    options: {
-                      placeholder: "VAT Number",
-                    },
-                  },
-                ],
-              },
-            ],
+  if (type == UnifiedAddressType.PERSONAL) {
+    uiSchema.elements.push({
+      type: "VerticalLayout",
+      elements: [
+        {
+          type: "Control",
+          scope: "#/properties/address",
+          options: {
+            autoFocus: true,
+            autocomplete: "off",
+            detail: useAddressUischema(),
           },
         },
-      },
-    ],
-  };
-
-  const oneOfUiSchemas = [personalUiSchema, businessUiSchema];
-
-  if (get(config, BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS)) {
-    oneOfUiSchemas.shift();
+      ],
+    } as any);
+  } else if (type == UnifiedAddressType.BUSINESS) {
+    uiSchema.elements.push({
+      type: "VerticalLayout",
+      elements: [
+        {
+          type: "Control",
+          scope: "#/properties/company",
+          options: {
+            autoFocus: true,
+            autocomplete: "off",
+            detail: useCompanyUischema(),
+          },
+        },
+      ],
+    } as any);
   }
 
-  const uiSchema = {
-    type: "VerticalLayout",
-    elements: [
-      {
-        type: "Control",
-        scope: "#",
-        options: {
-          toggle: true,
-          oneOfUiSchema: oneOfUiSchemas,
+  if (get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE)) {
+    uiSchema.elements.push({
+      type: "VerticalLayout",
+      elements: [
+        {
+          type: "Control",
+          scope: "#/properties/phone",
+          options: {
+            detail: usePhoneUischema(),
+          },
         },
-      },
-    ],
-  };
+      ],
+    } as any);
+  }
 
   return uiSchema as UISchemaElement;
 };

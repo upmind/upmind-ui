@@ -1,12 +1,12 @@
 <template>
   <UpmContentSection class="mx-auto max-w-app" title="Addresses">
     <Alert
-      v-if="!meta.isAvailable"
+      v-if="!meta.isAvailable && !meta.isLoading"
       color="error"
       title="Please log in to use billing"
     />
 
-    <UpmBillingDetails v-else />
+    <UpmBillingDetails />
   </UpmContentSection>
 </template>
 

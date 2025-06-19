@@ -35,7 +35,7 @@ export type RouteQueryParams = typeof useRouteQueryParams;
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-const service = interpret(routingEngine, { devTools: true });
+const service = interpret(routingEngine, { devTools: false });
 let router: Router;
 // -----------------------------------------------------------------------------
 

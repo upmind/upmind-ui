@@ -220,6 +220,13 @@ export default createMachine<ClientItemContext>(
         //  should be provided withConfig
       }),
 
+      setParsed: assign(
+        (context: ClientItemContext, { data }: AnyEventObject) => ({
+          ...context,
+          ...(data ?? {}),
+        })
+      ),
+
       clearModel: assign({
         model: undefined,
       }),
@@ -240,7 +247,6 @@ export default createMachine<ClientItemContext>(
             // this is to generate valid json schema validation errors
             error = useValidationParser(error);
           }
-
           return error || data;
         },
       }),

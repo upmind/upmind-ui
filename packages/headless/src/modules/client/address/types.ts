@@ -35,7 +35,7 @@ export interface AddressModel {
   postcode: IAddress["postcode"];
   regionId?: IAddress["region_id"];
   state?: IAddress["state"];
-  type: IAddress["type"];
+  // type: IAddress["type"]; // deprecated
 }
 
 export interface Address extends AddressModel {
@@ -45,6 +45,7 @@ export interface Address extends AddressModel {
   // --- context
   title: string;
   description: string;
+  type: IAddress["type"];
   // --- meta info
   meta: {
     canDelete: boolean;
@@ -53,9 +54,7 @@ export interface Address extends AddressModel {
   };
 }
 
-export interface AddressContext
-  extends ClientItemContext<AddressModel, Address> {
-  types?: typeof AddressTypes;
+export interface AddressContext extends ClientItemContext<AddressModel> {
   country?: ICountry;
   regions?: IRegion[];
   countries: ICountry[];

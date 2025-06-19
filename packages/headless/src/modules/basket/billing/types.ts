@@ -3,6 +3,7 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import { QueryResponseError } from "../../query";
 import { BrandConfigKeys, IBasket } from "@upmind-automation/types";
 
+export { UnifiedAddressType } from "./unifiedAddress/types";
 // --- internal
 
 // -----------------------------------------------------------------------------

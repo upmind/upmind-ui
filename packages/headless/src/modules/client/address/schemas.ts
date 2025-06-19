@@ -1,21 +1,21 @@
 import { compact, get, map, reduce } from "lodash-es";
 
+import { AddressTypes } from "./types";
 import type { Address, AddressContext } from "./types";
-import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
+import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 import { BrandConfigKeys } from "@upmind-automation/types";
 
 export function useSchema({
   id,
-  types,
   regions,
   baseModel,
   countries,
   config,
-}: AddressContext): JsonSchema {
-  const schema = {
+}: AddressContext): JsonSchema7 {
+  const schema: JsonSchema7 = {
     type: "object",
     title: "Address",
-    required: ["address1", "city", "countryId", "postcode", "type"],
+    required: ["address1", "city", "countryId", "postcode"],
     properties: {
       id: {
         type: ["string", "null"],
@@ -78,9 +78,9 @@ export function useSchema({
         type: "number",
         title: "Address Type",
         default: baseModel?.type,
-        oneOf: !types?.length
+        oneOf: !AddressTypes?.length
           ? undefined
-          : map(types, item => ({
+          : map(AddressTypes, item => ({
               const: item.key,
               title: item.value,
             })),
@@ -90,18 +90,20 @@ export function useSchema({
 
   // ensure that id we are editing an existing address, that we require the name
   if (id) {
-    schema.required.push("name");
+    schema.required!.push("name");
   }
 
   // ensure we honor the brand config
   if (get(config, BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS)) {
-    schema.required.push("regionId");
+    schema.required!.push("regionId");
   }
 
-  return schema as JsonSchema;
+  return schema;
 }
 
-export function useUischema({ id }: AddressContext): UISchemaElement {
+export function useUischema({
+  id,
+}: Partial<AddressContext> = {}): UISchemaElement {
   const schema = {
     type: "VerticalLayout",
     elements: [

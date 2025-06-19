@@ -43,15 +43,14 @@ export const useProductCatalogue = (
   // --- methods
 
   function getOne(id: Product["id"]) {
-    return find(service.loadCached(), ["id", id]);
+    return find(query.data.value || [], ["id", id]);
   }
 
   function findOne(mapping: string | Partial<Product>) {
-    const items = service.loadCached();
     if (isString(mapping)) {
       return find(
-        items,
-        item =>
+        query.data.value || [],
+        (item: Product) =>
           includes(
             item.productDetails.title.toLowerCase(),
             mapping.toLowerCase()
@@ -67,7 +66,7 @@ export const useProductCatalogue = (
       );
     }
 
-    return find(items, item =>
+    return find(query.data.value || [], (item: Product) =>
       every(mapping, (value, key) => {
         if (key == "id") {
           return item.id == value;

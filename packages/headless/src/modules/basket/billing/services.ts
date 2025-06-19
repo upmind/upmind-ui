@@ -60,9 +60,7 @@ async function loadLookups(
     phoneId: undefined,
   };
 
-  const safeModel = useModelParser<BillingModel>(schema, model, baseModel, {
-    allowExtraProps: false,
-  });
+  const safeModel = useModelParser<BillingModel>(schema, model, baseModel);
 
   return Promise.resolve({
     config,
@@ -80,8 +78,7 @@ async function parse(
   const safeModel = useModelParser<BillingModel, BillingModel>(
     schema,
     get(data, "model", data),
-    baseModel,
-    { allowExtraProps: false }
+    baseModel
   );
 
   // ---
