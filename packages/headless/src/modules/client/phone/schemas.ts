@@ -2,15 +2,16 @@
 import { map } from "lodash-es";
 
 // --- types
-import { PhoneTypes } from "./types";
 import type { ICountry } from "@upmind-automation/types";
-import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
+import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 
-export const useSchema = ({ country }: { country?: ICountry }) => {
-  const schema = {
+export const useSchema = ({ country }: { country?: ICountry }): JsonSchema7 => {
+  const schema: JsonSchema7 = {
     type: "object",
-    title: "Address Fields",
-    required: ["phone", "type"],
+    title: "Phone Number",
+    required: ["number", "nationalNumber", "countryCallingCode", "country"],
+    // @ts-expect-error: 'phone_country_code' is a custom AJV keyword
+    phone_country_code: country?.code,
     properties: {
       id: {
         type: ["string", "null"],
@@ -19,54 +20,38 @@ export const useSchema = ({ country }: { country?: ICountry }) => {
         readOnly: true,
       },
 
-      // ---
-
-      phone: {
-        type: "object",
-        title: "Phone Number",
-        phone_country_code: country?.code,
-        properties: {
-          number: {
-            type: ["string", "null"],
-            title: "Phone number ( with dialing code )",
-          },
-
-          nationalNumber: {
-            type: ["string", "null"],
-            title: "Phone number",
-          },
-
-          countryCallingCode: {
-            type: ["string", "null"],
-            title: "Country calling code",
-          },
-
-          country: {
-            type: ["string", "null"],
-            title: "Country",
-          },
-        },
+      number: {
+        type: ["string", "null"],
+        title: "Phone number ( with dialing code )",
       },
 
-      type: {
-        type: ["number", "null"],
-        title: "Type",
-        oneOf: !PhoneTypes?.length
-          ? undefined
-          : map(PhoneTypes, ({ value, key }) => {
-              return {
-                const: key,
-                title: value,
-              };
-            }),
+      nationalNumber: {
+        type: ["string", "null"],
+        title: "Phone number",
       },
 
-      // ---
-
-      default: {
-        type: ["boolean", "null"],
-        title: "Make this the default phone?",
+      countryCallingCode: {
+        type: ["string", "null"],
+        title: "Country calling code",
       },
+
+      country: {
+        type: ["string", "null"],
+        title: "Country",
+      },
+
+      //  --- deprecated
+
+      // type: {
+      //   type: "number",
+      //   const: 1,
+      //   readOnly: true,
+      // },
+
+      // default: {
+      //   type: ["boolean", "null"],
+      //   title: "Make this the default phone?",
+      // },
     },
     // errorMessage: {
     //   properties: {
@@ -75,12 +60,7 @@ export const useSchema = ({ country }: { country?: ICountry }) => {
     // }
   };
 
-  // if (id) {
-  //   schema.required.push("name");
-  //   schema.required.push("type");
-  // }
-
-  return schema as JsonSchema;
+  return schema;
 };
 
 export const useUischema = () => {
@@ -89,30 +69,12 @@ export const useUischema = () => {
     elements: [
       {
         type: "Control",
-        scope: "#/properties/phone",
+        scope: "#/",
         options: {
           autoFocus: true,
           autocomplete: "phone",
         },
       },
-      // {
-      //   type: "Control",
-      //   scope: "#/properties/type",
-      //   options: {
-      //     autocomplete: "off",
-      //     placeholder: "Select Type",
-      //   },
-      // },
-
-      // ---
-      // We don't ever show this field as it is set by an action
-      // {
-      //   type: "Control",
-      //   scope: "#/properties/default",
-      //   options: {
-      //     // toggle: true
-      //   }
-      // }
     ],
   };
 

@@ -1,5 +1,5 @@
 // --- external
-import { assign } from "xstate";
+import { AnyEventObject, assign } from "xstate";
 
 // --- internal
 import { useSchema, useUischema } from "./schemas";
@@ -17,7 +17,7 @@ export const useUnifiedAddressActions = () => {
   return {
     setMeta: assign({
       title: ({ model }: UnifiedAddressContext) =>
-        model?.company?.companyName ||
+        model?.company?.name ||
         model?.address?.name ||
         model?.address?.address1 ||
         "Address",
@@ -56,5 +56,16 @@ export const useUnifiedAddressActions = () => {
         { data }: { type: string; data: Partial<UnifiedAddressModel> }
       ) => useModelParser<UnifiedAddressModel>(schema, data, baseModel),
     }),
+
+    setSubscription: assign({}),
+  };
+};
+
+export const useUnifiedAddressGuards = () => {
+  return {
+    hasSubscription: (
+      { clientId }: UnifiedAddressContext,
+      _event: AnyEventObject
+    ) => !!clientId,
   };
 };

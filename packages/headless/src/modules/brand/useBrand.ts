@@ -43,7 +43,7 @@ import { CurrencyModel } from "../basket/currency/types";
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-const service = interpret(brandMachine, { devTools: true });
+const service = interpret(brandMachine, { devTools: false });
 
 // -----------------------------------------------------------------------------
 

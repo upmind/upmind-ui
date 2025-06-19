@@ -17,6 +17,8 @@ import {
   useModelParser,
   CacheIsStaleError,
   NotAuthenticatedError,
+  DetailedError,
+  responseCodes,
 } from "../../../utils";
 import { invalidateQueryByKey } from "../../query";
 import { mapCompanies, mapICompany } from "./mappers";
@@ -262,17 +264,28 @@ export default {
 export const useClientCompanyServices = () => {
   return {
     loadLookups,
-    add: async (context: Partial<CompanyContext>) => {
-      if (isEmpty(context.model))
-        return Promise.reject("No company model provided");
-      return add(context.model);
+    add: async ({ model }: Partial<CompanyContext>) => {
+      if (isEmpty(model))
+        return Promise.reject(
+          new DetailedError(
+            "[headless] Add Company failed: model provided",
+            responseCodes.Unprocessable_Entity,
+            { model }
+          )
+        );
+      return add(model);
     },
-    update: async (context: Partial<CompanyContext>) => {
-      if (!context.id) return Promise.reject("No company id provided");
-      if (isEmpty(context.model))
-        return Promise.reject("No company model provided");
+    update: async ({ id, model }: Partial<CompanyContext>) => {
+      if (!id || isEmpty(model))
+        return Promise.reject(
+          new DetailedError(
+            "[headless] Update Company failed: No id or model provided",
+            responseCodes.Unprocessable_Entity,
+            { id, model }
+          )
+        );
 
-      return update(context.id, context.model);
+      return update(id, model);
     },
     parse,
     validate,

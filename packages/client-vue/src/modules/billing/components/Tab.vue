@@ -1,6 +1,6 @@
 <template>
   <div>
-    <pre>{{ { type, selected, open, modelValue } }}</pre>
+    <!-- <pre>{{ { meta, type, selected, open, modelValue } }}</pre> -->
 
     <RadioCardsCollapsible
       v-if="!meta.isLoading && !meta.isEmpty"
@@ -8,7 +8,6 @@
       v-model="selected"
       :items="parsedValues"
       :list="false"
-      :minimal="type === BillingType.PHONE"
       required
     >
       <template #item="{ item }">
@@ -31,7 +30,7 @@
 
         <Link
           v-else-if="!readonly"
-          :label="t('billing.actions.add', { type: lowerCase(type) })"
+          :label="t('billing.actions.add', { type })"
           size="xs"
           variant="muted"
           @click="openModel = true"
@@ -40,8 +39,9 @@
     </RadioCardsCollapsible>
 
     <Form
-      v-if="(!meta.isLoading && meta.isEmpty) || editId"
+      v-if="(!meta.isLoading && meta.isEmpty) || editId || true"
       v-model:open="openModel"
+      :client-id="props.clientId"
       :model="!meta.isEmpty"
       :id="editId"
       :type="props.type"
@@ -60,7 +60,8 @@ import { useI18n } from "vue-i18n";
 import {
   useClientAddresses,
   useClientCompanies,
-  type BillingModel,
+  useClientPhones,
+  UnifiedAddressType,
 } from "@upmind-automation/headless";
 
 // --- components
@@ -71,18 +72,19 @@ import AddressItem from "./Address.vue";
 import CompanyItem from "./Company.vue";
 
 // --- utils
-import { lowerCase, map } from "lodash-es";
+import { first, lowerCase, map } from "lodash-es";
 
 // --- types
-import type { Company } from "@upmind-automation/headless";
+
+import type { BillingModel } from "@upmind-automation/headless";
 import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
-import { BillingType } from "../types";
 import { useVModel } from "@vueuse/core";
 
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
-  type: BillingType;
+  clientId: string;
+  type: UnifiedAddressType;
   modelValue?: BillingModel;
   readonly?: boolean;
 }>();
@@ -93,34 +95,16 @@ const emits = defineEmits<{
 
 const { t } = useI18n();
 // -----------------------------------------------------------------------------
-
-const initialised = ref(false);
-
 const {
-  isReady,
-  meta,
   data,
+  meta,
   default: defaultItem,
-} = props.type === BillingType.BUSINESS
-  ? useClientCompanies()
-  : useClientAddresses();
-
-initialised.value = await isReady();
+} = props.type == UnifiedAddressType.PERSONAL
+  ? useClientAddresses()
+  : useClientCompanies();
 
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
-  defaultValue: {
-    addressId:
-      props.type == BillingType.BUSINESS
-        ? (defaultItem.value as Company)?.addressId
-        : defaultItem.value?.id,
-    companyId:
-      props.type == BillingType.BUSINESS ? defaultItem.value?.id : undefined,
-    phoneId:
-      props.type == BillingType.BUSINESS
-        ? (defaultItem.value as Company)?.phoneId
-        : undefined,
-  },
 });
 
 // -----------------------------------------------------------------------------
@@ -128,23 +112,19 @@ const open = ref(false);
 const openModel = ref(meta.value.isEmpty);
 const editId = ref<string>("");
 
-const selected = computed<string>({
+const selected = computed<string | undefined>({
   get() {
     return (
       modelValue.value?.companyId ||
       modelValue.value?.addressId ||
       modelValue.value?.phoneId ||
-      ""
+      defaultItem.value?.id
     );
   },
   set(val: string) {
-    if (props.type === BillingType.BUSINESS) {
+    if (props.type === UnifiedAddressType.BUSINESS) {
       modelValue.value = {
         companyId: val,
-      };
-    } else if (props.type === BillingType.PHONE) {
-      modelValue.value = {
-        phoneId: val,
       };
     } else {
       modelValue.value = {
@@ -169,9 +149,7 @@ const parsedValues = computed(() => {
 
 const Item = computed(() => {
   switch (props.type) {
-    case BillingType.PHONE:
-      return PhoneItem;
-    case BillingType.BUSINESS:
+    case UnifiedAddressType.BUSINESS:
       return CompanyItem;
     default:
       return AddressItem;

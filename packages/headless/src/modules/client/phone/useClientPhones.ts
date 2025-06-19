@@ -50,21 +50,20 @@ export const useClientPhones = (
 
   function getOne(id?: Phone["id"]) {
     if (isEmpty(id)) return undefined;
-    return find(service.loadCached(), ["id", id]);
+    return find(query.data.value || [], ["id", id]);
   }
 
   function findOne(mapping: string | Partial<Phone>) {
-    const items = service.loadCached();
     if (isString(mapping)) {
       return find(
-        items,
+        query.data.value || [],
         item =>
           includes(item.title.toLowerCase(), mapping.toLowerCase()) ||
           includes(item?.description?.toLowerCase(), mapping.toLowerCase())
       );
     }
 
-    return find(items, item =>
+    return find(query.data.value || [], item =>
       every(mapping, (value, key) => {
         if (key == "id") {
           return item.id == value;
