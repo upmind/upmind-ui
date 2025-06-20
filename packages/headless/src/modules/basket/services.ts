@@ -171,7 +171,7 @@ async function convert(
       )
     );
 
-  const data = paymentDetails;
+  const data: Record<string, any> = { ...paymentDetails };
 
   try {
     // add referral cookie if available
