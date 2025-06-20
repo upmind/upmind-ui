@@ -22,7 +22,7 @@ import {
   spawnPromotions,
 } from "./utils";
 import { parseBasketProduct } from "../basketProduct/utils";
-import { responseCodes, useTime } from "../../utils";
+import { responseCodes, stopActor, useTime } from "../../utils";
 
 import {
   forEach,
@@ -331,7 +331,7 @@ export default createMachine(
           ],
           onError: {
             target: "#shopping",
-            actions: ["setError"],
+            actions: ["setError", "refreshActors"],
           },
         },
       },
@@ -459,9 +459,9 @@ export default createMachine(
           // only spawn if we have not already spawned
           actors ??= {
             billingDetails: spawnBillingDetails(basket),
+            paymentDetails: spawnPaymentDetails(basket),
             currency: spawnCurrency(basket),
             customFields: spawnCustomFields(basket),
-            paymentDetails: spawnPaymentDetails(basket),
             promotions: spawnPromotions(basket),
           };
 
@@ -471,18 +471,14 @@ export default createMachine(
 
       refreshActors: ({ basket, actors }: BasketContext) => {
         forEach(actors, actor => {
-          if (actor?.send && !actor.getSnapshot()?.done) {
-            actor.send({ type: "REFRESH", data: basket });
-          }
+          const state = actor?.getSnapshot();
+          if (actor?.send) actor.send({ type: "REFRESH", data: basket });
         });
       },
 
       clearActors: assign({
         actors: ({ actors }: BasketContext) => {
-          forEach(actors, (actor: ActorRef<any>) => {
-            if (actor.getSnapshot().status == InterpreterStatus.Running)
-              actor?.stop && actor.stop();
-          });
+          forEach(actors, actor => stopActor(actor));
           return undefined;
         },
       }),
@@ -546,7 +542,7 @@ export default createMachine(
 
       setError: assign({
         error: (_context: BasketContext, { data }: AnyEventObject) => {
-          return data?.error ?? data;
+          return data?.error ?? data?.message ?? data;
         },
       }),
 
