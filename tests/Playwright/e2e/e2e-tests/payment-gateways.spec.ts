@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { fakerEN_GB } from "@faker-js/faker";
-import { URLs } from "../support/constants/urls";
+import { URLs } from "../support/constants/Urls";
 import {
   getCurrentOrderId,
   addProductToOrder,
@@ -18,7 +18,7 @@ import { ErrorCards } from "../support/constants/checkout/payment-cards/InvalidD
 
 let checkout: Checkout;
 
-test.describe("Checkout - Happy paths", async () => {
+test.describe("Checkout - Happy paths", () => {
   test.beforeEach(async ({ page }) => {
     checkout = new Checkout(page);
     await page.goto(URLs.login);
@@ -166,7 +166,7 @@ test.describe("Checkout - Happy paths", async () => {
   });
 });
 
-test.describe("Checkout - Declined Payments", async () => {
+test.describe("Checkout - Declined Payments", () => {
   test.beforeEach(async ({ page }) => {
     checkout = new Checkout(page);
     await page.goto(URLs.login);
@@ -265,7 +265,7 @@ test.describe("Checkout - Fraud Checks", async () => {
     });
   }
 });
-test.describe("Checkout - Invalid Data", async () => {
+test.describe("Checkout - Invalid Data", () => {
   test.beforeEach(async ({ page }) => {
     checkout = new Checkout(page);
     await page.goto(URLs.login);

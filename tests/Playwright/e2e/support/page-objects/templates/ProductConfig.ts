@@ -1,5 +1,5 @@
-import { Locator, Page } from "@playwright/test";
-import { URLs } from "../../constants/urls";
+import { Locator, Page, expect } from "@playwright/test";
+import { URLs } from "../../constants/Urls";
 import { TextInput } from "../components/TextInput";
 import { Checkboxes } from "../components/Checkboxes";
 import { RadioButtons } from "../components/RadioButtons";
@@ -31,6 +31,7 @@ export class ProductConfig {
   readonly registrantStateInput: Locator;
   readonly registrantPostcodeInput: Locator;
   readonly registrantCountryInput: Locator;
+  readonly promoBadge: Locator;
 
   /* Domain Drawer */
   readonly drawer: Locator;
@@ -83,7 +84,7 @@ export class ProductConfig {
     /* Product Options */
     this.textInput = new TextInput(page);
     this.options = page.getByTestId("options-container-options");
-    this.domainInput = page.getByTestId("text-input");
+    this.domainInput = page.getByTestId("form-field-domain-sld");
     this.registrantNameInput = this.getFormField(
       page.getByTestId("form-field-registrant-name")
     );
@@ -111,7 +112,7 @@ export class ProductConfig {
     this.registrantCountryInput = page.getByTestId(
       "form-field-registrant-country"
     );
-    //this.registrantCountryOption = this.getDropdownOption(this.registrantCountryInput)
+    this.promoBadge = page.getByTestId("badge");
 
     /* Domain Drawer */ // TODO: Needs to be it's own page object along with the associated functions
     this.drawer = page.getByTestId("drawer-overlay");
@@ -134,7 +135,7 @@ export class ProductConfig {
     this.meetingTypes = page.getByTestId("summary-value-meeting-types");
     this.addons = page.getByTestId("summary-value-addons");
     this.tracking = page.getByTestId("summary-value-tracking");
-    this.tldValue = page.getByTestId("summary-value-domain-names");
+    this.tldValue = page.getByTestId("summary-value-domains");
     this.domainName = page.getByTestId("summary-value-account-domain-name");
     this.domainSetup = page.getByTestId("summary-value-domain-setup-(free)");
     this.domainLocking = page.getByTestId("summary-value-domain-locking");
@@ -180,8 +181,8 @@ export class ProductConfig {
   }
 
   async enterSld(sld: string) {
-    const sldInputExtended = this.page.getByTestId("input-extended");
-    const sldInput = sldInputExtended.getByTestId("text-input");
+    const sldFormField = this.page.getByTestId("form-field-domain-sld");
+    const sldInput = sldFormField.getByTestId("text-input");
     await sldInput.fill(sld);
   }
 
@@ -199,5 +200,23 @@ export class ProductConfig {
   getFormField(container: Locator) {
     const formField = this.textInput.getTextInputField(container);
     return formField;
+  }
+
+  getPromoBadge(radioButton: Locator) {
+    const container = radioButton;
+    const badge = container.locator(this.promoBadge);
+    return badge;
+  }
+
+  async promoBadgeDoesNotExist() {
+    await expect(
+      this.getPromoBadge(this.radioButtons.getRadioButton(0, 0))
+    ).toBeUndefined();
+  }
+
+  async promoBadgeExists() {
+    await expect(
+      this.getPromoBadge(this.radioButtons.getRadioButton(0, 0))
+    ).toBeDefined();
   }
 }

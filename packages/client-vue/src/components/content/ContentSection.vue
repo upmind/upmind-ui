@@ -1,7 +1,7 @@
 <template>
   <section
     :class="cn(styles.section.root, props.class)"
-    data-testid="card-container"
+    :data-testid="`card-container-${kebabCase(props.title)}`"
   >
     <header
       :class="styles.section.header"
@@ -35,6 +35,7 @@
 // --- internal
 import { cn, useStyles } from "@upmind-automation/upmind-ui";
 import config from "./content.config";
+import { kebabCase } from "lodash-es";
 
 // --- types
 import type { HTMLAttributes, ComputedRef } from "vue";
