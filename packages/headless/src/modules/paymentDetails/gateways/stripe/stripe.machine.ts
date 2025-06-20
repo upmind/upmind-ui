@@ -182,7 +182,6 @@ export default createMachine(
 
       complete: {
         id: "complete",
-        type: "final",
         data: ({ paymentDetails }: StripeContext, _event: AnyEventObject) =>
           paymentDetails,
       },
