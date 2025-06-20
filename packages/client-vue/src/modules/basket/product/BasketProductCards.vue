@@ -11,6 +11,7 @@
         @update:open="trackOpen(product.id, $event)"
         @remove="remove(product.id)"
         @update:quantity="updateQuantity(product.id, $event)"
+        data-testid="basket-product"
       >
         <template #default="slotProps">
           <slot v-bind="slotProps" />
