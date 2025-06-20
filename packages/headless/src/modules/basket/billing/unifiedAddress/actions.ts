@@ -54,7 +54,9 @@ export const useUnifiedAddressActions = () => {
       model: (
         { schema, baseModel }: UnifiedAddressContext,
         { data }: { type: string; data: Partial<UnifiedAddressModel> }
-      ) => useModelParser<UnifiedAddressModel>(schema, data, baseModel),
+      ) => {
+        return useModelParser<UnifiedAddressModel>(schema, data, baseModel);
+      },
     }),
 
     setSubscription: assign({}),
