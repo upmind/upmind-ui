@@ -182,11 +182,11 @@ async function register({ model }: GuestContext<RegisterModel>) {
     url: useUrl("clients/register"),
     data,
   })
-    .then(({ data }: any) => {
+    .then(({ data }: any) => data)
+    .then(loadUser)
+    .finally(() => {
       recaptcha.clear(); // clear our recaptcha token that has been used
-      return data;
-    })
-    .then(loadUser);
+    });
 }
 
 async function recover({ model }: GuestContext<RecoverModel>) {
@@ -206,10 +206,11 @@ async function recover({ model }: GuestContext<RecoverModel>) {
   return post({
     url: useUrl("clients/password_reset"),
     data,
-  }).then(({ data }: any) => {
-    recaptcha.clear(); // clear our recaptcha token that has been used
-    return data;
-  });
+  })
+    .then(({ data }: any) => data)
+    .finally(() => {
+      recaptcha.clear(); // clear our recaptcha token that has been used
+    });
 }
 
 // -----------------------------------------------------------------------------
