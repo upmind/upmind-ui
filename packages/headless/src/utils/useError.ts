@@ -1,8 +1,20 @@
 // --- utils
-import { map, reduce, set, trimStart, isArray } from "lodash-es";
+import {
+  map,
+  reduce,
+  set,
+  trimStart,
+  isArray,
+  isObject,
+  isNil,
+  isString,
+  isNumber,
+  toNumber,
+} from "lodash-es";
 
 // --- types
 import type { ErrorObject } from "ajv";
+import type { QueryResponseError } from "../modules";
 
 // -----------------------------------------------------------------------------
 
@@ -28,7 +40,7 @@ export enum responseCodes {
 export class UnavailableError extends Error {
   code: responseCodes;
   constructor() {
-    super("The service is temprarily unavailable.");
+    super("The service is temporarily unavailable.");
     this.code = responseCodes.Service_Unavailable;
   }
 }
@@ -106,4 +118,73 @@ export function parseError(
       external: !!external,
     } as ErrorObject;
   });
+}
+
+/**
+ * Maps various error types to a standardized QueryResponseError format.
+ *
+ * This function handles:
+ * - Standard JavaScript `Error` objects
+ * - Your custom error classes (`UnavailableError`, `DetailedError`, etc.)
+ * - Raw string errors
+ * - Plain objects that conform to a partial `ResponseError` structure
+ *
+ * @see {@link QueryResponseError}
+ * @param {unknown} error The error to map. Can be an Error object, a string, or an object with error/message details.
+ * @param {number | responseCodes} fallbackCode A fallback response code to use if the error doesn't provide one.
+ * @returns {QueryResponseError} The mapped error object.
+ */
+export function mapToResponseError(
+  error: unknown,
+  fallbackCode: number | responseCodes = responseCodes.Internal_Server_Error
+): QueryResponseError {
+  let code: string | number | responseCodes = fallbackCode;
+  let data: any | null = null;
+  let status: number | responseCodes = fallbackCode;
+  let message: string = "An unknown error occurred.";
+
+  if (error instanceof DetailedError) {
+    code = error.code;
+    status = error.code; // DetailedError code is a number, likely an HTTP status
+    message = error.message;
+    data = error.data !== undefined ? error.data : null;
+  } else if (
+    error instanceof UnavailableError ||
+    error instanceof CacheIsStaleError ||
+    error instanceof NotAuthenticatedError ||
+    error instanceof CacheIsNotAvailableError
+  ) {
+    code = error.code;
+    status = error.code;
+  } else if (error instanceof Error) {
+    // Generic Error object, use fallback code/status
+    message = error.message;
+  } else if (isString(error)) {
+    // Raw string error
+    message = error;
+  } else if (!isNil(error) && isObject(error)) {
+    // Try to parse it as a partial ResponseError or an API error object
+    const detailedError = error as Partial<QueryResponseError> & {
+      code?: unknown;
+      data?: unknown;
+    };
+
+    if (detailedError.code) {
+      code = detailedError.code;
+    }
+    if (detailedError.message) {
+      message = detailedError.message;
+    }
+    if (detailedError.status) {
+      status = detailedError.status;
+    } else if (isNumber(code) || isString(code)) {
+      status = toNumber(code);
+    }
+    data = !isNil(detailedError.data) ? detailedError.data : null;
+  }
+
+  // Ensure code is a string or a valid response code
+  const type = code;
+
+  return { id: null, code, type, data, status, message };
 }
