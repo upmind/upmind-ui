@@ -39,7 +39,7 @@ import { SystemContext } from "./types";
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-const service = interpret(systemMachine, { devTools: false });
+const service = interpret(systemMachine, { devTools: true });
 
 // -----------------------------------------------------------------------------
 
@@ -115,13 +115,21 @@ export const useSystem = () => {
 
   const context = useContext<SystemContext>(state);
   const errors = useContext<QueryResponseError>(state, "error");
-  const billingCycles = useContext<IBillingCycle[]>(state, "billingCycles", []);
-  const currencies = useContext<ICurrency[]>(state, "currencies", []);
-  const countries = useContext<ICountry[]>(state, "countries", []);
+  const billingCycles = useContext<IBillingCycle[]>(
+    state,
+    "billingCycles",
+    undefined
+  );
+  const currencies = useContext<ICurrency[]>(state, "currencies", undefined);
+  const countries = useContext<ICountry[]>(state, "countries", undefined);
   const regions = useContext<IRegion[]>(state, "regions", {});
-  const languages = useContext<ILanguage[]>(state, "languages", []);
-  const statuses = useContext<IStatus[]>(state, "statuses", []);
-  const departments = useContext<ITicketDepartment[]>(state, "departments", []);
+  const languages = useContext<ILanguage[]>(state, "languages", undefined);
+  const statuses = useContext<IStatus[]>(state, "statuses", undefined);
+  const departments = useContext<ITicketDepartment[]>(
+    state,
+    "departments",
+    undefined
+  );
 
   // --- helpers
 
@@ -138,10 +146,12 @@ export const useSystem = () => {
   ): Promise<any> => {
     const values = getValues(data);
     if (values) return Promise.resolve(values);
+
     if (state.value.matches(`${node}.loading`)) {
       await waitFor(
         service,
-        newstate => [`${node}.idle`, `${node}.complete`].some(newstate.matches),
+        newstate =>
+          [`${node}.processed`, `${node}.complete`].some(newstate.matches),
         { timeout: Infinity }
       ).catch(() => {
         throw new DetailedError(
@@ -334,7 +344,10 @@ export const useSystem = () => {
      * Fetches the list of countries from the API or returns cached countries if available.
      * @returns A promise resolving to the list of countries.
      */
-    fetchCountries: async () => fetch("countries", () => countries.value),
+    fetchCountries: async () =>
+      fetch("countries", () => {
+        return countries.value;
+      }),
 
     /**
      * Returns the country object for a given country code or id.

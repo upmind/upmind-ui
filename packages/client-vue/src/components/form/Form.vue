@@ -1,5 +1,10 @@
 <template>
-  <Form v-bind="forwarded" :i18n="i18n" :ajv="ajv">
+  <Form
+    v-bind="forwarded"
+    :i18n="i18n"
+    :ajv="ajv"
+    :additional-renderers="formRenderers"
+  >
     <template #footer="{ meta }">
       <slot name="footer" v-bind="{ meta }"></slot>
     </template>
@@ -15,8 +20,10 @@
 // --- internal
 import { utils } from "@upmind-automation/headless";
 const { useValidation } = utils;
+
 // --- components
 import { Form, useForwardPropsEmits } from "@upmind-automation/upmind-ui";
+import { formRenderers } from "./renderers";
 
 // --- local
 import { useFormI18n } from ".";
@@ -29,8 +36,7 @@ import type {
   FormFooterProps,
   FormActionsProps,
 } from "@upmind-automation/upmind-ui";
-// ----------------------------------------------
-
+// -----------------------------------------------------------------------------
 const props = defineProps<Omit<FormProps, "ajv">>();
 
 // B: Always ensure we use our internal ajv instance

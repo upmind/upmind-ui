@@ -42,14 +42,12 @@ const props = withDefaults(
     {
       status?: number;
       i18nKey?: string;
-      action: "refresh" | "store";
     } & InterstitialProps
   >(),
   {
     open: true,
     modal: true,
     skrim: "light",
-    action: "refresh",
     animatedIcon: () => ({
       icon: "error",
       trigger: "loop",
@@ -97,12 +95,15 @@ const translations = computed(() => {
 const actions = computed((): InterstitialActionProps[] => {
   let href = "window.location.href";
 
-  switch (props.action) {
-    case "refresh":
-    default:
+  switch (props.status) {
+    // for service errors, we want to reload the page as its likely a temporary issue
+    case 500:
+    case 503:
       href = window.location.href;
       break;
-    case "store":
+
+    // for al lother errors, we want to redirect back to the storefront
+    default:
       href = storefrontUrl;
       break;
   }

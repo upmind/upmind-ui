@@ -3,6 +3,14 @@
     class="mx-auto flex max-w-7xl flex-col items-center gap-y-6"
     :class="props.class"
   >
+    <input
+      type="search"
+      v-model="searchQuery"
+      @input="debouncedFilterQuery"
+      placeholder="Search products..."
+      class="w-full rounded-md border border-gray-300 p-2"
+    />
+
     <Loading :active="meta.isLoading" class="w-full">
       <div
         class="grid w-full grid-cols-[repeat(auto-fill,_minmax(18rem,_1fr))] gap-6"
@@ -30,47 +38,46 @@
       </div>
     </Loading>
 
-    <template v-if="meta.hasPrevPage || meta.hasNextPage">
-      <div class="flex w-full items-center justify-between">
-        <Button
-          class="is-primary px-6 py-3"
-          @click="prevPage"
-          :disabled="!meta.hasPrevPage || meta.hasError"
-          :is-processing="meta.isLoading"
-          >Previous</Button
-        >
+    <div class="flex w-full items-center justify-between">
+      <Button
+        class="is-primary px-6 py-3"
+        @click="prevPage"
+        :disabled="!meta.hasPrevPage || meta.hasError"
+        :is-processing="meta.isLoading"
+        >Previous</Button
+      >
 
-        <div class="text-center">
-          <p class="text-sm">
-            Showing
-            {{
-              pagination.from === pagination.to
-                ? `${pagination.from}`
-                : `${pagination.from}-${pagination.to}`
-            }}
-            of {{ pagination.total.toString() }} items
-          </p>
-          <p class="text-xs text-gray-400">
-            Page {{ pagination.page.toString() }} of
-            {{ pagination.pages.toString() }}
-          </p>
-        </div>
-
-        <Button
-          class="is-primary px-6 py-3"
-          @click="nextPage"
-          :disabled="!meta.hasNextPage || meta.hasError"
-          :is-processing="meta.isLoading"
-          >Next</Button
-        >
+      <div class="text-center">
+        <p class="text-sm">
+          Showing
+          {{
+            pagination.from === pagination.to
+              ? `${pagination.from}`
+              : `${pagination.from}-${pagination.to}`
+          }}
+          of {{ pagination.total.toString() }} items
+        </p>
+        <p class="text-xs text-gray-400">
+          Page {{ pagination.page.toString() }} of
+          {{ pagination.pages.toString() }}
+        </p>
       </div>
-    </template>
+
+      <Button
+        class="is-primary px-6 py-3"
+        @click="nextPage"
+        :disabled="!meta.hasNextPage || meta.hasError"
+        :is-processing="meta.isLoading"
+        >Next</Button
+      >
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { watch } from "vue";
-import { usePaginatedProductCatalogue } from "@upmind-automation/headless";
+import { watch, ref } from "vue";
+import { debounce } from "lodash-es";
+import { useProductCatalogue } from "@upmind-automation/headless";
 import {
   IProductCategory,
   type ISO_4217_CURRENCY_CODE,
@@ -93,16 +100,22 @@ const props = withDefaults(
 
 const {
   data: products,
-  filters,
   meta,
-  pagination,
+  filters,
   nextPage,
   prevPage,
-} = usePaginatedProductCatalogue({
+  pagination,
+} = useProductCatalogue({
   pagination: {
     limit: props.limit,
   },
 });
+
+const searchQuery = ref("");
+
+const debouncedFilterQuery = debounce(() => {
+  filters.query(searchQuery.value);
+}, 500);
 
 watch(
   () => props.categoryId,

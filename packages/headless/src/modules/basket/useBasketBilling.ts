@@ -50,7 +50,7 @@ export const useBasketBilling = () => {
   }
 
   const meta = computed(() => ({
-    isAvailable: !!actor.value,
+    isAvailable: stateMatches(actor, ["available"]),
     isLoading: !actor.value || stateMatches(actor, ["loading"]),
     hasErrors: stateMatches(actor, ["error"]),
     isProcessing: stateMatches(actor, ["processing"]),

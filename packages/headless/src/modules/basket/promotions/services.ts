@@ -10,6 +10,7 @@ import { get, isEmpty, some, trim } from "lodash-es";
 // --- types
 import type { PromotionsContext } from "./types";
 import type { AnyEventObject } from "xstate";
+import { IBasketPromotion } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -31,7 +32,7 @@ async function add(
   if (some(promotions, { promocode: model?.promocode }))
     return Promise.reject(new Error("Promocode already exists in basketId"));
 
-  return post({
+  return post<IBasketPromotion[]>({
     url: useUrl(`/orders/${basketId}/promotions`),
     data: { promocode: trim(model?.promocode) },
     withAccessToken: true,

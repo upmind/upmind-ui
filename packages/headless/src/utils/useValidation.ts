@@ -478,7 +478,11 @@ export const useModelParser = <
     allowExtraProps?: boolean;
   } = { allowExtraProps: true }
 ): TModel => {
-  if (!schema?.properties) return (values ?? baseModel ?? {}) as TModel;
+  values = omitBy(values, isEmpty) as Partial<TModel>;
+  baseModel = omitBy(baseModel, isEmpty) as Partial<TBaseModel>;
+
+  if (!schema?.properties)
+    return (isEmpty(values) ? baseModel : values) as TModel;
 
   const model = reduce(
     schema.properties,

@@ -15,6 +15,8 @@ import {
   useModelParser,
   CacheIsStaleError,
   NotAuthenticatedError,
+  DetailedError,
+  responseCodes,
 } from "../../../utils";
 import { invalidateQueryByKey } from "../../query";
 import { mapAddresses, mapIAddress } from "./mappers";
@@ -105,7 +107,6 @@ async function loadLookups({
   });
 
   return Promise.resolve({
-    types: AddressTypes,
     regions,
     country,
     countries,
@@ -289,17 +290,28 @@ export default {
 export const useClientAddressServices = () => {
   return {
     loadLookups,
-    add: async (context: Partial<AddressContext>) => {
-      if (isEmpty(context.model))
-        return Promise.reject("No address model provided");
-      return add(context.model);
+    add: async ({ model }: Partial<AddressContext>) => {
+      if (isEmpty(model))
+        return Promise.reject(
+          new DetailedError(
+            "[headless] Add Address failed: model provided",
+            responseCodes.Unprocessable_Entity,
+            { model }
+          )
+        );
+      return add(model);
     },
-    update: async (context: Partial<AddressContext>) => {
-      if (!context.id) return Promise.reject("No address id provided");
-      if (isEmpty(context.model))
-        return Promise.reject("No address model provided");
+    update: async ({ id, model }: Partial<AddressContext>) => {
+      if (!id || isEmpty(model))
+        return Promise.reject(
+          new DetailedError(
+            "[headless] Update Address failed: No id or model provided",
+            responseCodes.Unprocessable_Entity,
+            { id, model }
+          )
+        );
 
-      return update(context.id, context.model);
+      return update(id, model);
     },
     parse,
     validate,

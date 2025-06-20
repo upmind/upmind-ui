@@ -22,10 +22,7 @@
       v-for="error in system"
       :key="error.id"
       :i18nKey="error?.message.value.i18nKey"
-      :status="error?.message.value?.data?.type"
-      :action="
-        (error?.message.value?.data?.type ?? 0) >= 500 ? 'refresh' : 'store'
-      "
+      :status="error?.message.value?.data?.status"
       :open="error.meta.value.isActive"
       modal
     />
@@ -89,7 +86,7 @@ watch(toasts, toasts => {
   });
 
   forEach(activeToasts.value, id => {
-    if (!some(toasts.value, ["id", id])) dismissToast(id.toString());
+    if (!some(toasts, ["id", id])) dismissToast(id.toString());
   });
 });
 </script>

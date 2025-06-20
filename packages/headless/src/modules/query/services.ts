@@ -35,13 +35,23 @@ function handleError(
   status: QueryResponse["status"],
   error: QueryResponse["error"]
 ): Promise<never> {
-  // of we have a server error (5xx), we want to display a system message
-  if (status >= 500 && status < 600) {
+  // of we have a system error, we want to add some feedback for the ui
+  if (
+    includes(
+      [
+        responseCodes.Forbidden,
+        responseCodes.Too_Many_Requests,
+        responseCodes.Not_Found,
+      ],
+      status
+    ) ||
+    status >= 500
+  ) {
     add({
       type: messageTypes.ERROR,
       title: "Service temporarily unavailable",
       copy: "Service temporarily down for maintenance",
-      data: error,
+      data: { ...error, status },
       i18nKey: `errors.${status ?? responseCodes.Service_Unavailable}`,
       display: messageDisplays.SYSTEM,
       delay: 0,

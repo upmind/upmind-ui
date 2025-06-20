@@ -4,6 +4,7 @@ import { useRecaptcha, useTracking } from "../../system/";
 import {
   BrandConfigKeys,
   GrantTypes,
+  IToken,
   TwofaProviders,
 } from "@upmind-automation/types";
 
@@ -32,10 +33,10 @@ async function load(_context: GuestContext, _event: AnyEventObject) {
 
   const { post, useUrl } = useQuery();
 
-  return post({
+  return post<IToken>({
     url: useUrl("access_token", {}, { context: "oauth" }),
     data: { grant_type: GrantTypes.GUEST },
-  }).then((data: any) => {
+  }).then(data => {
     persistTokenToStorage(data);
     return data;
   });
@@ -78,24 +79,24 @@ async function authenticate({ model }: GuestContext<LoginModel>) {
   // without it, the basket will revert to the default currency
   if (currency.value) data.currency_id = currency.value.id;
 
-  return post({
+  return post<IToken>({
     url: useUrl("access_token", {}, { context: "oauth" }),
     data,
   })
-    .then((data: any) => {
+    .then(data => {
       // we record the history of the token to be able to reference the originating guest token
-      if (data.actor_type != GrantTypes.TWOFA) persistTokenToStorage(data);
+      if (data.token_type != GrantTypes.TWOFA) persistTokenToStorage(data);
       return data;
     })
     .then(data => {
-      if (data?.actor_type === GrantTypes.TWOFA) return data;
+      if (data?.token_type === GrantTypes.TWOFA) return data;
       return loadUser();
     });
 }
 
 async function verify2fa({ token }: GuestContext, { data }: AnyEventObject) {
   const { post, useUrl } = useQuery();
-  return post({
+  return post<IToken>({
     url: useUrl("access_token", {}, { context: "oauth" }),
     withAccessToken: token.access_token,
     data: {
@@ -104,7 +105,7 @@ async function verify2fa({ token }: GuestContext, { data }: AnyEventObject) {
       twofa_code: data,
     },
   })
-    .then((data: any) => {
+    .then(data => {
       persistTokenToStorage(data);
       return data;
     })
@@ -185,9 +186,6 @@ async function register({ model }: GuestContext<RegisterModel>) {
     url: useUrl("clients/register"),
     data,
   })
-    .then(({ data }: any) => {
-      return data;
-    })
     .then(loadUser)
     .finally(() => {
       recaptcha.clear(); // clear our recaptcha token that has been used, even if the registration fails
@@ -211,13 +209,9 @@ async function recover({ model }: GuestContext<RecoverModel>) {
   return post({
     url: useUrl("clients/password_reset"),
     data,
-  })
-    .then(({ data }: any) => {
-      return data;
-    })
-    .finally(() => {
-      recaptcha.clear(); // clear our recaptcha token that has been used, even if the registration fails
-    });
+  }).finally(() => {
+    recaptcha.clear(); // clear our recaptcha token that has been used, even if the registration fails
+  });
 }
 
 // -----------------------------------------------------------------------------

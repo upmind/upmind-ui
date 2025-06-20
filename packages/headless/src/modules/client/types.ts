@@ -11,6 +11,7 @@ import { ErrorObject } from "ajv";
 // Contexts
 
 export interface ClientItemContext<TModel = any, TBaseModel = any> {
+  clientId: IClient["id"]; // required
   id?: string;
 
   title?: string;

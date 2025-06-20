@@ -1,4 +1,5 @@
 export * from "./basket";
+export * from "./billing";
 export * from "./checkout";
 export * from "./order";
 export * from "./product";

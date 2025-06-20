@@ -1,11 +1,10 @@
 <template>
-  <Loading :active="meta.isLoading || addressMeta.isLoading" skrim="full">
+  <Loading :active="showLoading || meta.isLoading" skrim="full">
     <UpmForm
       :model-value="model"
-      class="min-h-32"
+      class="min-h-40"
       :schema="schema"
       :uischema="uischema"
-      :additional-renderers="formRenderers"
       color="primary"
       @update:modelValue="onInput"
       no-actions
@@ -14,19 +13,28 @@
 </template>
 
 <script setup lang="ts">
+// --- external
+import { ref, onMounted } from "vue";
+
 // --- internal
 import {
   useBasketBilling,
-  useClientAddresses,
+  useUnifiedAddress,
 } from "@upmind-automation/headless";
 
 // --- components
-import { UpmForm, formRenderers } from "../../../components/form";
+import { UpmForm } from "../../../components/form";
 import { Loading } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
 const { isReady, input, model, schema, uischema, meta } = useBasketBilling();
-const { meta: addressMeta } = useClientAddresses();
+
+const showLoading = ref(true);
+onMounted(() => {
+  setTimeout(() => {
+    showLoading.value = false;
+  }, 1000);
+});
 
 const onInput = (value: any) => {
   // TODO: The oneOfRenderer should handle this, was a pain but come back to this

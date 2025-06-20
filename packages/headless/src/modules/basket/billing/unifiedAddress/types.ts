@@ -20,43 +20,21 @@ import type {
 
 // -----------------------------------------------------------------------------
 
-export type UnifiedAddress = UnifiedAddressModel & {
-  id: string;
-  // --- context
-  title: string;
-  description: string;
-  // --- meta info
-  meta: {
-    canDelete: boolean;
-    isDefault: boolean;
-    isVerified: boolean;
-  };
-};
+export enum UnifiedAddressType {
+  PERSONAL = "personal",
+  BUSINESS = "business",
+}
 
 export type UnifiedAddressModel = {
-  addressId?: IAddress["id"];
-  companyId?: ICompany["id"];
-  phoneId?: IPhone["id"];
   address?: AddressModel;
-  company?: CompanyDetailsModel;
-  phone?: PhoneModel["phone"];
-  type: number;
-};
-
-export type CompanyDetailsModel = Omit<
-  CompanyModel,
-  "vatNumber" | "regNumber"
-> & {
-  addressId?: IAddress["id"];
-  companyId?: ICompany["id"];
-  companyName?: ICompany["name"];
-  regNumber?: ICompany["reg_number"];
-  vatNumber?: ICompany["vat_number"];
-  email?: EmailModel["email"];
+  company?: CompanyModel;
+  phone?: PhoneModel;
 };
 
 export interface UnifiedAddressContext
-  extends ClientItemContext<UnifiedAddressModel, UnifiedAddress> {
+  extends ClientItemContext<UnifiedAddressModel> {
+  type: UnifiedAddressType;
+  // --- lookups
   country?: ICountry;
   regions?: IRegion[];
   countries: ICountry[];

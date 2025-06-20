@@ -8,6 +8,8 @@ import {
   useModelParser,
   CacheIsStaleError,
   NotAuthenticatedError,
+  DetailedError,
+  responseCodes,
 } from "../../../utils";
 import { invalidateQueryByKey } from "../../query";
 import { mapEmails, mapIEmail } from "./mappers";
@@ -68,7 +70,6 @@ async function loadLookups({
   // we don't have any lookups for emails, so return null
   const baseModel: EmailModel = {
     email: "",
-    type: first(EmailTypes)?.key || 1,
   };
 
   const safeModel = useModelParser<EmailModel>(schema, model, baseModel, {
@@ -230,17 +231,28 @@ export default {
 export const useClientEmailServices = () => {
   return {
     loadLookups,
-    add: async (context: EmailContext) => {
-      if (isEmpty(context.model))
-        return Promise.reject("No email model provided");
-      return add(context.model);
+    add: async ({ model }: Partial<EmailContext>) => {
+      if (isEmpty(model))
+        return Promise.reject(
+          new DetailedError(
+            "[headless] Add Email failed: model provided",
+            responseCodes.Unprocessable_Entity,
+            { model }
+          )
+        );
+      return add(model);
     },
-    update: async (context: EmailContext) => {
-      if (!context.id) return Promise.reject("No email id provided");
-      if (isEmpty(context.model))
-        return Promise.reject("No email model provided");
+    update: async ({ id, model }: Partial<EmailContext>) => {
+      if (!id || isEmpty(model))
+        return Promise.reject(
+          new DetailedError(
+            "[headless] Update Email failed: No id or model provided",
+            responseCodes.Unprocessable_Entity,
+            { id, model }
+          )
+        );
 
-      return update(context.id, context.model);
+      return update(id, model);
     },
     parse,
     validate,

@@ -1,24 +1,26 @@
 // --- external
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
 // --- internal
 import service from "./services";
 import { useSession } from "../../session";
-import { invalidateQueryByKey, type QueryProps } from "../../query";
+import { invalidateQueryByKey } from "../../query";
 
 // --- utils
 import {
   get,
+  set,
   find,
   every,
-  filter,
   isEmpty,
   includes,
   isString,
+  isEqual,
 } from "lodash-es";
 
 // --- types
 import type { Phone } from "./types";
+import type { QueryProps, RequestFilters } from "../../query";
 
 export const useClientPhones = (
   initial: QueryProps = {
@@ -57,37 +59,27 @@ export const useClientPhones = (
 
   function getOne(id?: Phone["id"]) {
     if (isEmpty(id)) return undefined;
-    return find(service.loadCached(), ["id", id]);
+    return find(query.data.value || [], ["id", id]);
   }
 
   function findOne(mapping: string | Partial<Phone>) {
-    const items = service.loadCached();
     if (isString(mapping)) {
       return find(
-        items,
+        query.data.value || [],
         item =>
           includes(item.title.toLowerCase(), mapping.toLowerCase()) ||
           includes(item?.description?.toLowerCase(), mapping.toLowerCase())
       );
     }
 
-    return find(items, item =>
+    return find(query.data.value || [], item =>
       every(mapping, (value, key) => {
         if (key == "id") {
           return item.id == value;
         }
         const modelValue = get(item, key);
-        return modelValue == value;
+        return isEqual(modelValue, value);
       })
-    );
-  }
-
-  function filterAll(param: string) {
-    return filter(
-      service.loadCached(),
-      item =>
-        includes(item.title.toLowerCase(), param.toLowerCase()) ||
-        includes(item?.description?.toLowerCase(), param.toLowerCase())
     );
   }
 
@@ -103,6 +95,21 @@ export const useClientPhones = (
     return service.setDefault(id).mutate();
   }
 
+  // --- filters
+
+  const filters = ref<
+    RequestFilters & {
+      query?: string;
+    }
+  >({
+    query: "",
+  });
+
+  const filterQuery = (value?: string) => {
+    set(filters.value, "query", value || "");
+    query.filter(filters.value);
+  };
+
   // ---------------------------------------------------------------------------
 
   return {
@@ -116,7 +123,7 @@ export const useClientPhones = (
     isReady,
 
     /**
-     * Meta information about the basket state.
+     * Meta-information about the basket state.
      * @property {boolean} isError - Indicates if there was an error during the query.
      * @property {boolean} isEmpty - Indicates if the basket is empty.
      * @property {boolean} isLoading - Indicates if the query is currently loading.
@@ -177,21 +184,14 @@ export const useClientPhones = (
     findOne,
 
     /**
-     * Filters the items by name or description.
-     * @param param The filter string to filter the items with.
-     * @returns An array of items that match the filter.
-     */
-    filter: filterAll,
-
-    /**
-     * Remove an phone by id.
+     * Remove a phone by id.
      * @param id The id of the phone to remove.
      * @returns A promise that resolves when the phone is removed.
      */
     remove,
 
     /**
-     * Set an phone as default.
+     * Set a phone as default.
      * @param id The id of the phone to set as default.
      * @returns A promise that resolves when the phone is set as default.
      */
@@ -220,7 +220,7 @@ export const useClientPhones = (
      * @param value The new pagination parameters to set.
      * @return {void}
      */
-    prevPage: query.fetchPrevPage,
+    prevPage: query.fetchPreviousPage,
 
     /**
      * Invalidate the query cache for client items.
@@ -229,6 +229,16 @@ export const useClientPhones = (
      * @return {void}
      */
     invalidate: invalidateQueryByKey(service.queryKey, { exact: false }),
+
+    /**
+     * Filters for the query.
+     * These filters can be used to modify the query parameters before fetching the data.
+     * @type {RequestFilters & { query?: string }}
+     * @property query - The search query to filter the client phones by title or description.
+     */
+    filters: {
+      query: filterQuery,
+    },
   };
 };
 

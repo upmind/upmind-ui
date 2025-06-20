@@ -16,10 +16,30 @@ export default createMachine<ClientItemContext>(
     //tsTypes: {} as import("./item.machine.typegen").Typegen0,
     id: "clientManager",
     predictableActionArguments: true,
-    initial: "loading",
+    initial: "subscribing",
     context: {} as ClientItemContext,
     states: {
+      // Subscribe to basket changes and listen for a valid basket client,
+      subscribing: {
+        entry: ["clearContext", "setSubscription"],
+        always: { target: "loading", cond: "hasSubscription" },
+        on: {
+          REFRESH: {
+            actions: ["refreshContext"],
+            cond: "hasChanged",
+          },
+          SET: {
+            actions: ["setModel", "setAutoUpdate"],
+          },
+
+          CLEAR: {
+            actions: ["clearModel"],
+          },
+        },
+      },
+
       loading: {
+        id: "loading",
         entry: ["clearError"],
         invoke: {
           src: "loadLookups",
@@ -47,7 +67,7 @@ export default createMachine<ClientItemContext>(
                   src: "parse",
                   onDone: {
                     target: "validating",
-                    actions: ["setContext", "setSchemas", "setMeta"],
+                    actions: ["setParsed", "setSchemas", "setMeta"],
                   },
                 },
               },
@@ -65,13 +85,10 @@ export default createMachine<ClientItemContext>(
               },
             },
           },
+
           valid: {
             id: "valid",
-            // TODO: allow auto update (we should create a new condition)
-            // always: [
-            //   { target: "#processing.adding", cond: "isNew" },
-            //   { target: "#processing.updating", cond: "shouldUpdate" },
-            // ],
+            always: { target: "#processing", cond: "shouldUpdate" },
             on: {
               SET: {
                 target: "checking",
@@ -88,6 +105,7 @@ export default createMachine<ClientItemContext>(
               ],
             },
           },
+
           invalid: {
             id: "invalid",
             on: {
@@ -97,6 +115,7 @@ export default createMachine<ClientItemContext>(
               },
             },
           },
+
           error: {
             id: "error",
             on: {
@@ -160,6 +179,7 @@ export default createMachine<ClientItemContext>(
       },
 
       complete: {
+        id: "complete",
         type: "final",
       },
     },
@@ -179,6 +199,14 @@ export default createMachine<ClientItemContext>(
         (_context: ClientItemContext, { data }: AnyEventObject) => data
       ),
 
+      clearContext: assign(
+        (_context: ClientItemContext, { data }: AnyEventObject) => ({})
+      ),
+
+      setSubscription: assign({
+        //  should be provided withConfig
+      }),
+
       setSchemas: assign({
         //  should be provided withConfig
       }),
@@ -190,6 +218,13 @@ export default createMachine<ClientItemContext>(
       setModel: assign({
         //  should be provided withConfig
       }),
+
+      setParsed: assign(
+        (context: ClientItemContext, { data }: AnyEventObject) => ({
+          ...context,
+          ...(data ?? {}),
+        })
+      ),
 
       clearModel: assign({
         model: undefined,
@@ -211,7 +246,6 @@ export default createMachine<ClientItemContext>(
             // this is to generate valid json schema validation errors
             error = useValidationParser(error);
           }
-
           return error || data;
         },
       }),
@@ -219,6 +253,9 @@ export default createMachine<ClientItemContext>(
       clearError: assign({ error: undefined }),
     },
     guards: {
+      hasSubscription: (_context: ClientItemContext, _event: AnyEventObject) =>
+        true,
+      hasChanged: (_context: ClientItemContext, _event: AnyEventObject) => true,
       isNew: ({ id }: ClientItemContext, _event: AnyEventObject) => !id,
       continueEditing: ({ allowMultipleEdits }) => !!allowMultipleEdits,
       shouldUpdate: ({ autoupdate }, _event) => {
