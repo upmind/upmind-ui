@@ -7,7 +7,12 @@ import { useSession } from "../session";
 import { useTracking } from "../system";
 
 // --- utils
-import { unflattenErrors, useCookies } from "../../utils";
+import {
+  DetailedError,
+  responseCodes,
+  unflattenErrors,
+  useCookies,
+} from "../../utils";
 import { parseBasketProductError } from "../basketProduct/utils";
 import { getTokenFromStorage, dumpTokenFromStorage } from "../session/utils";
 
@@ -17,6 +22,7 @@ import {
   forEach,
   isEmpty,
   isNil,
+  isObject,
   map,
   omitBy,
   reduce,
@@ -149,17 +155,35 @@ async function convert(
   const { get: getCookie } = useCookies();
   const { get: getTracking } = useTracking();
 
-  if (!basket?.id) return Promise.reject(new Error("No basket to convert"));
-  if (!paymentDetails) return Promise.reject(new Error("No data to convert"));
+  if (!basket?.id)
+    return Promise.reject(
+      new DetailedError(
+        "[headless] Convert basket failed: no basket id provided",
+        responseCodes.Unprocessable_Entity
+      )
+    );
+
+  if (isEmpty(paymentDetails) || !isObject(paymentDetails))
+    return Promise.reject(
+      new DetailedError(
+        "[headless] Convert basket failed: no payment details provided",
+        responseCodes.Unprocessable_Entity
+      )
+    );
 
   const data = paymentDetails;
 
-  // add referral cookie if available
-  const referralCookie = getCookie("upm_aff");
-  if (referralCookie) data.referral_cookie = referralCookie;
+  try {
+    // add referral cookie if available
+    const referralCookie = getCookie("upm_aff");
+    if (referralCookie) data.referral_cookie = referralCookie;
 
-  // add tracking if available
-  data.tracking = await getTracking().catch(() => undefined);
+    // add tracking if available
+    data.tracking = await getTracking().catch(() => undefined);
+  } catch (error) {
+    // TEMPORARY: we need to log this error, as it may be useful for debugging in sentry
+    console.error("[headless] Error converting basket", error);
+  }
 
   // ---
   // this will return an array of the users baskets, ordered by most recent
