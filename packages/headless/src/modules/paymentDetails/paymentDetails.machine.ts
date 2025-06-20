@@ -16,7 +16,7 @@ const { addError } = useFeedback();
 
 // --- utils
 import { spawnGateway, parsePaymentDetails } from "./utils";
-import { useModelParser } from "../../utils";
+import { stopActor, useModelParser } from "../../utils";
 import { useTime, useValidationParser } from "../../utils";
 import { useSchema, useUischema } from "./utils";
 import { set, unset, forEach } from "lodash-es";
@@ -187,8 +187,13 @@ export default createMachine(
       complete: {
         entry: ["providePaymentDetails"],
         id: "complete",
-        type: "final",
         data: ({ paymentDetails }, _event) => paymentDetails,
+        on: {
+          REFRESH: {
+            target: "available",
+            actions: "refresh",
+          },
+        },
       },
     },
     on: {
@@ -268,11 +273,7 @@ export default createMachine(
 
           // stop any existing gateways if they are different and not done/complete
           if (actors?.gateway?.id != gateway?.id) {
-            if (
-              actors.gateway?.getSnapshot()?.status == InterpreterStatus.Running
-            )
-              actors.gateway.stop();
-
+            stopActor(actors?.gateway);
             unset(actors, "gateway");
           }
 
