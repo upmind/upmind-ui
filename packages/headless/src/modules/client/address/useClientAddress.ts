@@ -1,50 +1,52 @@
 // --- external
-import { waitFor } from "xstate/lib/waitFor";
 import { computed } from "vue";
-import { useActor } from "@xstate/vue";
 import { interpret } from "xstate";
+import { waitFor } from "xstate/lib/waitFor";
+import { useActor } from "@xstate/vue";
 
 // --- internal
 import itemMachine from "../item.machine";
-import { useClientAddresses } from "./useClientAddresses";
-import { useClientAddressActions } from "./actions";
+import { useClientAddressActions, useClientAddressGuards } from "./actions";
 import { useClientAddressServices } from "./services";
+import { useClientAddresses } from "./useClientAddresses";
 
 // --- utils
 import {
-  useContext,
-  contextValue,
-  stateMatches,
   DetailedError,
+  contextValue,
   responseCodes,
+  stateMatches,
+  stateValue,
+  useContext,
   UnavailableError,
 } from "../../../utils";
-import { get } from "lodash-es";
+import { get, isEqual } from "lodash-es";
 
 // --- types
+import { IClient } from "@upmind-automation/types";
 import type { ClientItemContext } from "../types";
 import type { Address, AddressModel } from "./types";
-import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import { QueryResponseError } from "../../query";
 
 // -----------------------------------------------------------------------------
 
 export const useClientAddress = (
+  clientId: IClient["id"],
   id?: Address["id"],
   { allowMultipleEdits }: { allowMultipleEdits?: boolean } = {}
 ) => {
   // --- state
-
   const service = interpret(
     itemMachine
       .withConfig({
         actions: useClientAddressActions() as any,
+        guards: useClientAddressGuards() as any,
         services: useClientAddressServices() as any,
       })
       .withContext(() => {
-        if (!id) return { model: undefined };
         const { getOne } = useClientAddresses();
         return {
+          clientId,
           id,
           model: getOne(id),
           allowMultipleEdits,
@@ -54,12 +56,12 @@ export const useClientAddress = (
       id: id ?? "new-address",
       devTools: false,
     }
-  ).start();
+  );
 
-  const { state, send } = useActor(service);
+  const { state, send } = useActor(service.start());
 
-  const isReady = async (): Promise<boolean> =>
-    waitFor(service, state => stateMatches(state, "available"), {
+  async function isReady(): Promise<boolean> {
+    return waitFor(service, state => stateMatches(state, "available"), {
       timeout: Infinity,
     }).then(state => {
       if (stateMatches(state, "error")) {
@@ -73,172 +75,167 @@ export const useClientAddress = (
       }
       return true;
     });
+  }
 
   const meta = computed(() => ({
-    isNew: !stateMatches(state, "model.id"),
-    isValid: stateMatches(state, "available.valid"),
-    isLoading: stateMatches(state, "loading"),
+    isAvailable: stateMatches(state, "available"),
+    isLoading: stateMatches(state, ["subscribing", "loading"]),
     hasErrors: stateMatches(state, "available.error"),
-    canRemove: !contextValue(state, "canDelete"),
-    isDefault: stateMatches(state, "model.default"),
-    isVerified: stateMatches(state, "model.verified"),
-    isComplete: state.value.done || stateMatches(state, "complete"),
+    isValid: stateMatches(state, "available.valid"),
+    isNew: !stateMatches(state, "model.id"),
     isProcessing: stateMatches(state, "processing"),
+    isComplete:
+      stateValue(state, "done", false) ||
+      stateMatches(state, ["processed", "complete"]),
   }));
 
   // --- context
+  const context = useContext<ClientItemContext>(state);
 
   const title = useContext<string | undefined>(state, "title");
 
-  const model = useContext<AddressModel>(state, "model");
+  const description = useContext<string | undefined>(state, "description");
 
   const errors = useContext<ClientItemContext["error"]>(state, "error");
 
-  const schema = useContext<JsonSchema>(state, "schema");
+  const model = useContext<ClientItemContext["model"]>(state, "model");
 
-  const context = useContext<ClientItemContext>(state);
+  const schema = useContext<ClientItemContext["schema"]>(state, "schema");
 
-  const uischema = useContext<UISchemaElement>(state, "uischema");
-
-  const addressId = useContext<string | undefined>(state, "id");
-
-  const description = useContext<string | undefined>(state, "description");
+  const uischema = useContext<ClientItemContext["uischema"]>(state, "uischema");
 
   // --- methods
 
-  const stop = () => service.stop();
-
-  const clear = () => send({ type: "CLEAR" });
-
-  const input = async (model: AddressModel): Promise<AddressModel> => {
-    // we have to ensure we are able to input data
+  async function input(model: AddressModel): Promise<AddressModel> {
+    send({ type: "SET", data: model });
+    // then we wait until the module has been checked and is valid/invalid
     return waitFor(service, state =>
       stateMatches(state, ["available.valid", "available.invalid"])
     )
-      .then(async () => {
-        send({ type: "SET", data: model });
-        // then we wait until the module has been checked and is valid/invalid
-        return waitFor(service, state =>
-          stateMatches(state, ["available.valid", "available.invalid"])
-        ).then(state => get(state, "context.model") as AddressModel);
-      })
+      .then(state => get(state, "context.model") as AddressModel)
       .catch(() => {
         return Promise.reject(
           new DetailedError("Input not available", responseCodes.Forbidden)
         );
       });
-  };
+  }
 
-  const update = async () => {
-    // we have to ensure we are able to update the address, i.e., it's available and valid
-    return waitFor(service, state => stateMatches(state, "available.valid"))
-      .then(async () => {
-        send({ type: "UPDATE" });
-        return waitFor(
-          service,
-          state => stateMatches(state, ["processed", "available.error"]),
-          { timeout: Infinity }
-        )
-          .then(state => {
-            if (stateMatches(state, ["error", "available.error"])) {
-              return Promise.reject(errors.value);
-            }
-            return Promise.resolve();
-          })
-          .then(() => useClientAddressServices().refresh());
+  async function update(value?: AddressModel): Promise<AddressModel> {
+    // first check if our model has changed, if it has we need to send it
+
+    const model = contextValue<AddressModel>(state, "model");
+
+    if (!isEqual(value, model)) {
+      send({ type: "SET", data: value, update: true });
+    } else {
+      send({ type: "UPDATE" });
+    }
+
+    // we have to ensure the update is processed and the state is either processed or available.error
+    return waitFor(
+      service,
+      state => stateMatches(state, ["processed", "available.error"]),
+      { timeout: 60_000 }
+    )
+      .then(state => {
+        if (stateMatches(state, "available.error")) throw state.context.error;
+        return Promise.resolve(state.context.model);
       })
-      .catch(() => {
+      .then(model => {
+        useClientAddressServices().refresh();
+        return model as AddressModel;
+      })
+      .catch(error => {
         return Promise.reject(
           new DetailedError(
-            "Update only available if model is valid",
-            responseCodes.Forbidden
+            "[headless] update Address failed",
+            error?.status ?? responseCodes.Timeout,
+            {
+              error,
+              state: state.value,
+            }
           )
         );
       });
-  };
+  }
 
+  function clear(): void {
+    service.send({ type: "CLEAR" });
+  }
+  // ---------------------------------------------------------------------------
   return {
     // --- state
 
     /**
-     * Resolves when the address is ready for input or update.
-     * Returns true if ready, false if an error occurred.
-     * @returns {Promise<boolean>} A promise resolving to true if ready, false if error.
+     * Resolves when the service is ready to accept input or perform actions.
+     * @returns {Promise<boolean>} Resolves true if ready, false if error.
      */
     isReady,
 
     /**
-     * Computed meta-information about the address state.
+     * Meta information about the state.
+     * @typedef {Object} UnifiedAddressMeta
+     * @property {boolean} isAvailable - Indicates if the actor is available.
+     * @property {boolean} isLoading - Indicates if the actor is loading.
+     * @property {boolean} hasErrors - Indicates if there are errors.
+     * @property {boolean} isValid - Indicates if the is valid.
+     * @property {boolean} isNew - Indicates if the is new (not yet saved).
+     * @property {boolean} isProcessing - Indicates if the is processing.
+     * @property {boolean} isComplete - Indicates if the is complete.
      */
     meta,
 
     // --- context
 
-    /**
-     * Title of the address.
-     */
-    title,
-
-    /**
-     * The current address model.
-     */
-    model,
-
-    /**
-     * Any error object from the address context.
-     */
-    errors,
-
-    /**
-     * The JSON schema for the address.
-     */
-    schema,
-
-    /**
-     * The full address context from the XState machine.
-     */
+    /** The full context object. */
     context,
 
-    /**
-     * The UI schema for the address.
-     */
-    uischema,
+    /** Title of the address */
+    title,
 
-    /**
-     * The current address ID.
-     */
-    addressId,
-
-    /**
-     * Description of the address.
-     */
+    /** Description of the.address */
     description,
+
+    /** The ID of the address */
+    id: useContext<string | undefined>(state, "id"),
+
+    /** Any error object from the context. */
+    errors,
+
+    /** The current model.*/
+    model,
+
+    /** The JSON schema for the form*/
+    schema,
+
+    /** The UI schema for the form */
+    uischema,
 
     // --- methods
 
     /**
-     * Stops the address service.
+     * Stops the service.
      */
     stop,
 
-    /**
-     * Clears the address context.
-     */
+    /** Clears the context.*/
     clear,
 
     /**
-     * Inputs a new address model, resolving to the updated model.
-     * @param {AddressModel} model - The address model to input.
-     * @returns {Promise<AddressModel>} The updated address model.
+     * Inputs a new model, resolving to the updated model.
+     * @param {AddressModel} value - The model to input.
+     * @returns {Promise<AddressModel>} The updated model.
      */
     input,
 
     /**
-     * Updates the address, resolving when the update is processed.
-     * @returns {Promise<void>} Resolves when the update is complete.
+     * Sends the current model to the service for processing.
+     * @param {AddressModel} value The optional new model to set. uses the current model if not provided.
+     * @returns {Promise<AddressModel>} Resolves when updated model from the service, rejects on error.
      */
     update,
   };
 };
 
+/** The return type of the composable.*/
 export type UseClientAddress = ReturnType<typeof useClientAddress>;

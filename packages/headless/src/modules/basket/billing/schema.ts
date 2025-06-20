@@ -1,15 +1,11 @@
 // --- internal
-import { useClientAddress } from "../../client/address";
-import { useClientAddresses } from "../../client/address";
-import { useClientCompany } from "../../client/company";
-import { useClientCompanies } from "../../client/company";
-import { useClientPhones } from "../../client/phone";
-import { useClientPhone } from "../../client/phone";
+import { useUnifiedAddress } from "./unifiedAddress/useUnifiedAddress";
 
 // --- types
 import type { BillingContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import { remove, unset } from "lodash-es";
+import { useClientAddress, useClientAddresses } from "src/modules/client";
 
 // -----------------------------------------------------------------------------
 
@@ -53,42 +49,11 @@ export const useUischema = ({ config }: BillingContext) => {
     type: "VerticalLayout",
     elements: [
       {
-        type: "Tabs",
-        elements: [
-          {
-            type: "ModelList",
-            scope: "#/properties/addressId",
-            i18n: "basket.billing.addressId",
-            label: "Address",
-            options: {
-              type: "Address",
-              list: useClientAddresses,
-              mutate: useClientAddress,
-            },
-          },
-          {
-            type: "ModelList",
-            scope: "#/properties/companyId",
-            i18n: "basket.billing.companyId",
-            label: "Business",
-            options: {
-              type: "Business",
-              list: useClientCompanies,
-              mutate: useClientCompany,
-            },
-          },
-        ],
-      },
-      {
-        type: "ModelList",
-        scope: "#/properties/phoneId",
-        i18n: "basket.billing.phoneId",
+        type: "ControlBilling",
+        scope: "#/properties",
+        i18n: "basket.billing",
         label: "",
-        options: {
-          type: "Phone",
-          list: useClientPhones,
-          mutate: useClientPhone,
-        },
+        options: {},
       },
     ],
   };

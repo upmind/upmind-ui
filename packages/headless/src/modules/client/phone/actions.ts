@@ -22,12 +22,8 @@ export const useClientPhoneActions = () => {
         if (isObject(phone)) return get(model, "phone.number");
         return get(model, "international_phone");
       },
-      description: ({ model, country, types }: PhoneContext) => {
-        let typeKey = get(model, "type");
-        // Convert type to string before using it as a path
-        const typeStr = toString(typeKey);
-        const typeObj = types ? get(types, typeStr) : undefined;
-        return compact([get(country, "name"), typeObj?.value]).join(" | ");
+      description: ({ model, country }: PhoneContext) => {
+        return compact([get(country, "name")]).join(" | ");
       },
     }),
 
@@ -40,5 +36,12 @@ export const useClientPhoneActions = () => {
       model: ({ schema, baseModel }: PhoneContext, { data }: AnyEventObject) =>
         useModelParser<PhoneModel, Phone>(schema, data, baseModel),
     }),
+  };
+};
+
+export const useClientPhoneGuards = () => {
+  return {
+    hasSubscription: ({ clientId }: PhoneContext, _event: AnyEventObject) =>
+      !!clientId,
   };
 };

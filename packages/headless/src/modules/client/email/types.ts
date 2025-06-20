@@ -8,8 +8,9 @@ import type { ClientItemContext } from "../types";
 export const EmailTypes = [{ key: 1, value: "Account" }];
 
 export interface EmailModel {
-  type: IEmail["type"];
+  id?: IEmail["id"];
   email: IEmail["email"];
+  // type: IEmail["type"]; // deprecated
 }
 
 export interface Email extends EmailModel {
@@ -18,6 +19,7 @@ export interface Email extends EmailModel {
   //--- computed details
   title: string;
   description: string;
+  type: IEmail["type"];
   // --- meta info
   meta: {
     isDefault: boolean;
@@ -26,4 +28,4 @@ export interface Email extends EmailModel {
   };
 }
 
-export interface EmailContext extends ClientItemContext<EmailModel, Email> {}
+export interface EmailContext extends ClientItemContext<EmailModel> {}

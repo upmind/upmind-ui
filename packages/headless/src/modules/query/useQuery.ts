@@ -6,7 +6,7 @@ import {
   useInfiniteQuery as vueUseInfiniteQuery,
 } from "@tanstack/vue-query";
 import { isArray, isFunction } from "xstate/lib/utils";
-import { ref, unref, computed, MaybeRef } from "vue";
+import { ref, unref, computed } from "vue";
 
 // --- internal
 import { useLocale } from "../system";
@@ -177,17 +177,18 @@ export const useQuery = () => {
    * @param url The URL to send the request to.
    * @param init The request options.
    * @param guard A function that returns a promise to be resolved before the request is sent. This can be used to ensure that certain conditions are met before the request is sent, such as checking if the user is authenticated.
+   * @param select A function that is used to transform the response data before it is returned. This can be used to extract specific fields from the response or to transform the data into a different format.
    * @param queryKey The query key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
    * @param options Additional options to pass to TanStack query.
    */
   function query<TQueryFnData = unknown, TData = TQueryFnData>({
-    queryKey,
     url,
     init,
-    withAccessToken,
     guard,
     select,
+    queryKey,
+    withAccessToken,
     ...options
   }: QueryParams<
     TQueryFnData,
@@ -224,22 +225,23 @@ export const useQuery = () => {
   /**
    * Syntax sugar for sending a GET request to the server with the given URL and options.
    * This method is specifically designed for listing resources with pagination, sorting, and filtering capabilities.
+   *
    * @see {@link QueryParams}
    * @param url The URL to send the request to.
    * @param init The request options.
+   * @param sort An array of strings representing the sorting order for the query. Each string should be in the format "field:direction", where "field" is the field to sort by and "direction" is either "asc" or "desc".
    * @param guard A function that returns a promise to be resolved before the request is sent. This can be used to ensure that certain conditions are met before the request is sent, such as checking if the user is authenticated.
    * @param queryKey The query key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
-   * @param sort An array of strings representing the sorting order for the query. Each string should be in the format "field:direction", where "field" is the field to sort by and "direction" is either "asc" or "desc".
    * @param options Additional options to pass to TanStack query.
    */
   function list<TQueryFnData = unknown, TData = TQueryFnData>({
     url,
     init,
-    queryKey,
-    withAccessToken,
     guard,
     select,
+    queryKey,
+    withAccessToken,
     ...options
   }: QueryParams<TQueryFnData, TData>) {
     // --- state
@@ -265,11 +267,11 @@ export const useQuery = () => {
       {
         queryKey: cleanQueryKey([
           ...queryKey,
+          { sort },
           { limit },
           { locale },
-          { sort },
-          { pageIndex },
           { filters },
+          { pageIndex },
         ]),
         queryFn: async ({ signal }) => {
           const hasGuard = isPromise(guard);
@@ -378,16 +380,43 @@ export const useQuery = () => {
         // @ts-ignore
         filters.value = unref(values) ?? {};
       },
+
+      resetQuery: () =>
+        queryClient
+          .resetQueries({
+            queryKey: cleanQueryKey([
+              ...queryKey,
+              { sort },
+              { limit },
+              { locale },
+              { filters },
+              { pageIndex },
+            ]),
+          })
+          .then(() => (pageIndex.value = 1)),
     };
   }
 
+  /**
+   * Syntax sugar for sending a GET request to the server with the given URL and options.
+   * This method is specifically designed for listing resources with infinite scrolling capabilities.
+   *
+   * @see {@link QueryParams}
+   * @param url The URL to send the request to.
+   * @param init The request options.
+   * @param sort An array of strings representing the sorting order for the query. Each string should be in the format "field:direction", where "field" is the field to sort by and "direction" is either "asc" or "desc".
+   * @param guard A function that returns a promise to be resolved before the request is sent. This can be used to ensure that certain conditions are met before the request is sent, such as checking if the user is authenticated.
+   * @param queryKey The query key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
+   * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
+   * @param options Additional options to pass to TanStack query.
+   */
   function listInfinite<TQueryFnData = unknown, TData = TQueryFnData>({
     url,
     init,
-    queryKey,
-    withAccessToken,
     guard,
     select,
+    queryKey,
+    withAccessToken,
     ...options
   }: QueryParams<TQueryFnData, TData>) {
     // --- state
@@ -409,9 +438,9 @@ export const useQuery = () => {
       {
         queryKey: cleanQueryKey([
           ...queryKey,
+          { sort }, // Important for sorting to work
           { limit },
           { locale },
-          { sort }, // Important for sorting to work
           { filters }, // Important for filters to work
         ]),
         queryFn: async ({ pageParam = 0, signal }) => {
@@ -508,6 +537,17 @@ export const useQuery = () => {
         // @ts-ignore
         filters.value = unref(values) ?? {};
       },
+
+      resetQuery: () =>
+        queryClient.resetQueries({
+          queryKey: cleanQueryKey([
+            ...queryKey,
+            { sort },
+            { limit },
+            { locale },
+            { filters },
+          ]),
+        }),
     };
   }
 
@@ -558,6 +598,8 @@ export const useQuery = () => {
    * @see {@link QueryParams}
    * @param url The URL to send the request to.
    * @param init The request options.
+   * @param guard A function that returns a promise to be resolved before the request is sent. This can be used to ensure that certain conditions are met before the request is sent, such as checking if the user is authenticated.
+   * @param select A function to select a subset of the data returned by the request. This can be used to transform the data before it is returned.
    * @param queryKey The query key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
    * @param options Additional options to pass to TanStack query.
@@ -565,10 +607,10 @@ export const useQuery = () => {
   async function getRequest<TQueryFnData = unknown, TData = TQueryFnData>({
     url,
     init,
-    queryKey,
-    withAccessToken,
     guard,
     select,
+    queryKey,
+    withAccessToken,
     ...options
   }: QueryParams<TQueryFnData, TData>): Promise<TData> {
     // Remove initialData from options before spreading, as it's not part of FetchQueryOptions

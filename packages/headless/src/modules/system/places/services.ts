@@ -1,6 +1,6 @@
 // --- external
 import { Loader } from "@googlemaps/js-api-loader";
-import { compact, isArray, isEmpty, map } from "lodash-es";
+import { compact, isArray, isEmpty, isNil, map } from "lodash-es";
 
 // --- internal
 import { useQuery } from "../../query";
@@ -19,8 +19,6 @@ let service: PlaceService | undefined;
  * Initialize the Google Places API and return the service
  */
 async function load(): Promise<PlaceService> {
-  await useSystem().isReady();
-
   // If we already have a service, return it
   if (service) return service;
 
@@ -33,10 +31,26 @@ async function load(): Promise<PlaceService> {
   return loader
     .importLibrary("places")
     .then(parsePlaces)
-    .then(s => {
+    .then(async s => {
       service = s;
-      return s;
+      await useSystem().isReady();
+      return service;
     });
+}
+
+/**
+ * Check if the Places service is ready
+ * This is useful to ensure the service is loaded before using it
+ * @returns Promise that resolves to the PlaceService instance
+ */
+async function isReady(): Promise<PlaceService> {
+  return new Promise(resolve =>
+    setTimeout(() => {
+      if (!isNil(service)) {
+        resolve(service);
+      }
+    }, 100)
+  );
 }
 
 /**
@@ -163,5 +177,6 @@ async function parse(placeId: string): Promise<Place | null> {
 
 export default {
   load,
+  isReady,
   search,
 };

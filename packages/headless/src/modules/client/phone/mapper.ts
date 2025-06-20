@@ -5,7 +5,6 @@ import parsePhoneNumber, { CountryCode } from "libphonenumber-js";
 import { map, get, compact, isArray } from "lodash-es";
 
 // --- types
-import { PhoneTypes } from "./types";
 import type { IPhone } from "@upmind-automation/types";
 import type { Phone, PhoneModel } from "./types";
 
@@ -15,9 +14,6 @@ export function mapPhones(raw: IPhone | IPhone[]): Phone[] {
 }
 
 export function mapPhone(raw: IPhone): Phone {
-  let rawType = get(raw, "type");
-  const type = rawType ? get(PhoneTypes, rawType) : undefined;
-
   const phone = parsePhoneNumber(
     raw.phone || "",
     raw.phone_country_code as CountryCode
@@ -26,9 +22,7 @@ export function mapPhone(raw: IPhone): Phone {
   return {
     id: raw.id,
     title: get(raw, "international_phone"),
-    description: compact([get(raw, "phone_country_code"), type?.value]).join(
-      " | "
-    ),
+    description: compact([get(raw, "phone_country_code")]).join(" | "),
     phone: {
       number: phone?.number ?? "",
       country: phone?.country ?? "",
@@ -47,9 +41,8 @@ export function mapPhone(raw: IPhone): Phone {
 
 export function mapIPhone(data: PhoneModel): IPhone {
   return {
-    type: data.type,
-    phone: data.phone.nationalNumber, // without the country code
-    phone_code: `+${data.phone.countryCallingCode}`,
-    phone_country_code: data.phone.country,
+    phone: data.nationalNumber, // without the country code
+    phone_code: `+${data.countryCallingCode}`,
+    phone_country_code: data.country,
   } as IPhone;
 }

@@ -202,13 +202,14 @@ export default createMachine(
           },
           processed: {
             after: {
-              wait: [
-                { target: "complete", cond: "allRegionsLoaded" },
-                { target: "idle" },
-              ],
+              wait: { target: "complete" },
             },
           },
-          complete: { type: "final" },
+          complete: {
+            on: {
+              "REGIONS.GET": "loading",
+            },
+          },
           error: {
             on: {
               RETRY: {

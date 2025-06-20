@@ -10,7 +10,7 @@
       color="error"
       icon="alert-triangle"
       :title="t(`session.${currentForm}.error`)"
-      :description="errors?.message"
+      :description="errors"
     />
 
     <Form
@@ -206,3 +206,9 @@ watch(meta, ({ canShowForms, isAuthenticated }) => {
   }
 });
 </script>
+
+<style>
+.grecaptcha-badge {
+  visibility: hidden;
+}
+</style>

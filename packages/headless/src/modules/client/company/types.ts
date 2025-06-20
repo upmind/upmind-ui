@@ -12,11 +12,12 @@ import type { Email, Phone, Address, PhoneModel } from "..";
 // -----------------------------------------------------------------------------
 
 export interface CompanyModel {
+  id?: ICompany["id"];
   addressId?: ICompany["address_id"];
   default?: ICompany["default"];
   emailId?: ICompany["email_id"];
-  phone?: PhoneModel["phone"];
-  name: ICompany["name"];
+  phone?: PhoneModel;
+  name?: ICompany["name"];
   phoneId?: ICompany["phone_id"];
   regNumber?: ICompany["reg_number"];
   vatNumber?: ICompany["vat_number"];
@@ -45,8 +46,7 @@ export interface Company {
   };
 }
 
-export interface CompanyContext
-  extends ClientItemContext<CompanyModel, Company> {
+export interface CompanyContext extends ClientItemContext<CompanyModel> {
   addresses: Address[];
   emails: Email[];
   phones: Phone[];

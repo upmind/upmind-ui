@@ -60,8 +60,7 @@ import { usePlaces } from "@upmind-automation/headless";
 import type { SearchItem } from "@upmind-automation/upmind-ui";
 import type { Address } from "@upmind-automation/headless";
 
-// ----------------------------------------------
-
+// -----------------------------------------------------------------------------
 const props = defineProps({
   ...rendererProps<ControlElement>(),
 });
@@ -90,18 +89,17 @@ const detailUiSchema: ComputedRef<UISchemaElement> = computed(() => {
   };
 });
 
+// TODO : remove the debounc ein favour of signal abortion
 const searchAddresses = debounce(async (query: string) => {
-  if (!query || query.length < 3) {
-    addresses.value = null;
-    return;
-  }
-
-  const results = await places.search(
+  // Deprecated to prevent lag...
+  // if (!query || query.length < 3) {
+  //   addresses.value = null;
+  //   return;
+  // }
+  addresses.value = await places.search(
     query,
     get(control.value.data, "countryId")
   );
-
-  addresses.value = results;
 }, DEBOUNCE_DELAY);
 
 const searchResults = computed(() => {

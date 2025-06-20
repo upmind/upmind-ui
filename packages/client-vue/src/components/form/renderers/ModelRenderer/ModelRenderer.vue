@@ -13,7 +13,6 @@
       :model-value="model"
       :schema="schema"
       :uischema="uischema"
-      :additional-renderers="formRenderers"
       color="secondary"
       @update:modelValue="doInput"
       @resolve="doResolve"
@@ -37,7 +36,7 @@
 import { ref, onMounted } from "vue";
 
 // --- components
-import { UpmForm, formRenderers } from "../../../form";
+import { UpmForm } from "../../../form";
 import { Dialog } from "@upmind-automation/upmind-ui";
 import ModelRendererSkeleton from "./ModelRendererSkeleton.vue";
 import ModelRendererActions from "./ModelRendererActions.vue";

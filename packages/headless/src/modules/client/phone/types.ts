@@ -14,28 +14,20 @@ export interface IPhoneData {
   country: string;
 }
 
-export const PhoneTypes = [
-  { key: 1, value: "Mobile" },
-  { key: 2, value: "Home" },
-  { key: 3, value: "Office" },
-  { key: 4, value: "Company" },
-];
-
 export interface PhoneModel {
-  phone: {
-    number: string;
-    nationalNumber: string;
-    countryCallingCode: string;
-    country: string;
-  };
-  type: number;
+  id?: IPhone["id"];
+  number: string;
+  nationalNumber: string;
+  countryCallingCode: string;
+  country: string;
+  // type?: number; // deprecated
 }
 
 export interface Phone {
   id: IPhone["id"];
   title: string;
   description?: string;
-  phone: PhoneModel["phone"];
+  phone: PhoneModel;
   type: IPhone["type"];
   meta: {
     canDelete: boolean;
@@ -44,7 +36,6 @@ export interface Phone {
   };
 }
 
-export interface PhoneContext extends ClientItemContext<PhoneModel, Phone> {
+export interface PhoneContext extends ClientItemContext<PhoneModel> {
   country?: ICountry;
-  types?: typeof PhoneTypes;
 }

@@ -1,48 +1,49 @@
 <template>
   <div data-foo :class="props.class">
-    <ul class="m-0 flex max-h-full flex-col overflow-auto p-0">
+    <input
+      type="search"
+      v-model="searchQuery"
+      @input="debouncedFilterQuery"
+      placeholder="Filter categories..."
+      class="w-full rounded-md border border-gray-300 p-2"
+    />
+    <ul
+      v-if="!!searchQuery"
+      class="m-0 flex max-h-full flex-col overflow-auto p-0"
+    >
       <Loading :active="meta.isLoading" class="w-full">
-        <UpmCard
-          as="li"
-          @click="() => selectCategory('')"
-          class="flex items-end rounded-none border-b border-primary bg-gradient-to-r from-primary to-primary bg-[length:0%_4px] bg-left-bottom bg-no-repeat px-6 py-5 text-xl transition-all duration-300 ease-in-out"
-          :class="{
-            'text-auto hover:text-dm/25 dark:hover:text-dm-contrast/50':
-              modelValue !== '',
-            'border-b-primary bg-[length:100%_4px] text-primary':
-              modelValue === '',
-          }"
-        >
-          <span class="font-bold md:text-2xl">All</span>
-        </UpmCard>
+        <CategoryItem
+          v-for="category in filteredCategories"
+          v-model="modelValue"
+          :key="`filtered-${category.id}`"
+          :category="category"
+          :depth="0"
+        />
+      </Loading>
+    </ul>
 
-        <template v-for="category in categories" :key="category.id">
-          <UpmCard
-            as="li"
-            @click="() => selectCategory(category.id)"
-            class="flex items-end rounded-none border-b border-primary bg-gradient-to-r from-primary to-primary bg-[length:0%_4px] bg-left-bottom bg-no-repeat px-6 py-5 text-xl transition-all duration-300 ease-in-out"
-            :class="{
-              'text-auto hover:text-dm/25 dark:hover:text-dm-contrast/50':
-                modelValue !== category.id,
-              'border-b-primary bg-[length:100%_4px] text-primary':
-                modelValue === category.id,
-            }"
-          >
-            <span class="font-bold md:text-2xl">{{ category.name }}</span>
-          </UpmCard>
-        </template>
+    <ul v-else class="m-0 flex max-h-full flex-col overflow-auto p-0">
+      <Loading :active="meta.isLoading" class="w-full">
+        <CategoryItem
+          v-for="category in categories"
+          v-model="modelValue"
+          :key="category.id"
+          :category="category"
+          :depth="0"
+        />
       </Loading>
     </ul>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useVModel } from "@vueuse/core";
-
-import { useProductCategories } from "@upmind-automation/headless";
-import { UpmCard } from "@upmind-automation/client-vue";
 import { Loading } from "@upmind-automation/upmind-ui";
-import { HTMLAttributes } from "vue";
+import { useVModel } from "@vueuse/core";
+import { debounce, isEmpty } from "lodash-es";
+import { useProductCategories } from "@upmind-automation/headless";
+import { HTMLAttributes, ref, watch } from "vue";
+
+import CategoryItem from "./CategoryItem.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -62,9 +63,22 @@ const modelValue = useVModel(props, "modelValue", emits, {
   defaultValue: "",
 });
 
-const { data: categories, meta } = useProductCategories();
+const { data: categories, meta, filter } = useProductCategories();
 
-function selectCategory(value: string) {
-  modelValue.value = value;
-}
+const searchQuery = ref("");
+const filteredCategories = ref(categories.value);
+
+const debouncedFilterQuery = debounce(() => {
+  filteredCategories.value = filter(searchQuery.value);
+}, 500);
+
+watch(
+  () => categories.value,
+  categories => {
+    if (!isEmpty(categories) && !modelValue.value) {
+      modelValue.value = categories[0].id;
+    }
+  },
+  { immediate: true }
+);
 </script>
