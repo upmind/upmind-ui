@@ -198,15 +198,13 @@ async function add(type: UnifiedAddressType, data: UnifiedAddressModel) {
 
   return Promise.all(promises)
     .then(([phone, address, company]) => {
-      debugger;
       return {
-        phone,
+        phone: phone?.phone, // NB the returned Phone object has a phone property
         address,
         company,
       };
     })
     .catch(error => {
-      debugger;
       return Promise.reject(
         new DetailedError(
           "[headless] Add Unified Address Failed",
@@ -262,11 +260,12 @@ async function parse(
     const countryCode = safeModel?.phone?.country || country.code;
     const phone =
       parsePhoneNumber(phoneNumber, countryCode as CountryCode) || undefined;
+
     safeModel.phone = {
       number: phone?.number || "",
       nationalNumber: phone?.nationalNumber || "",
       countryCallingCode: phone?.countryCallingCode || "",
-      country: country.code,
+      country: phone?.country || countryCode,
     };
   }
 
@@ -302,16 +301,17 @@ async function ensureEmail(model: UnifiedAddressModel): Promise<Email> {
 
   const data = pick(model, ["email"]) as EmailModel;
 
-  return new Promise<Email>((resolve, reject) => {
-    const found = findOne(data);
-    if (found) return resolve(found);
+  const found = findOne(data);
+  if (found) return Promise.resolve(found);
 
-    return add({ model: data }).then(item => {
-      if (!item) return reject();
-      // NB: Remember to refresh our machines so we have the new data
-      refresh();
-      return mapEmail(item);
-    });
+  return add({ model: data }).then(item => {
+    if (!item)
+      throw new DetailedError(
+        "[headless] Failed to ensure (add) address",
+        responseCodes.Unprocessable_Entity
+      ); // NB: Remember to refresh our machines so we have the new data
+    refresh();
+    return mapEmail(item);
   });
 }
 
@@ -319,19 +319,21 @@ async function ensurePhone(model: UnifiedAddressModel): Promise<Phone> {
   const { findOne } = useClientPhones();
   const { add, refresh } = useClientPhoneServices();
 
-  const data = get(model, "phone") as PhoneModel;
+  const phone = get(model, "phone") as PhoneModel;
 
-  return new Promise<Phone>((resolve, reject) => {
-    const found = findOne(data);
-    if (found) return resolve(found);
-    return add({ model: data }).then(item => {
-      if (!item) return reject();
-      // NB: Remember to refresh our machines so we have the new data
-      refresh();
-      const phone = mapPhone(item);
-      debugger;
-      return phone;
-    });
+  const found = findOne({ phone });
+
+  if (found) return Promise.resolve(found);
+
+  return add({ model: phone }).then(item => {
+    if (!item)
+      throw new DetailedError(
+        "[headless] Failed to ensure (add) address",
+        responseCodes.Unprocessable_Entity
+      ); // NB: Remember to refresh our machines so we have the new data
+    refresh();
+    const phone = mapPhone(item);
+    return phone;
   });
 }
 
@@ -342,18 +344,20 @@ async function ensureAddress(model: UnifiedAddressModel): Promise<Address> {
   // Include type field and set to company type if this is for a company
   const data = get(model, "address") as AddressModel;
 
-  return new Promise<Address>((resolve, reject) => {
-    const found = getOne(model.company?.addressId) || findOne(data);
-    if (found) return resolve(found);
+  const found = getOne(model.company?.addressId) || findOne(data);
+  if (found) return Promise.resolve(found);
 
-    return add({
-      model: { ...data, name: model?.address?.name },
-    }).then(item => {
-      if (!item) return reject();
-      // NB: Remember to refresh our machines so we have the new data
-      refresh();
-      return mapAddress(item);
-    });
+  return add({
+    model: { ...data, name: model?.address?.name },
+  }).then(item => {
+    if (!item)
+      throw new DetailedError(
+        "[headless] Failed to ensure (add) address",
+        responseCodes.Unprocessable_Entity
+      );
+    // NB: Remember to refresh our machines so we have the new data
+    refresh();
+    return mapAddress(item);
   });
 }
 

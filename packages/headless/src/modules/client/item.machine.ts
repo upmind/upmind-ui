@@ -1,5 +1,5 @@
 // --- external
-import { createMachine, assign, sendParent } from "xstate";
+import { createMachine, assign } from "xstate";
 
 // --- utils
 import { responseCodes } from "../../utils";
@@ -165,7 +165,6 @@ export default createMachine<ClientItemContext>(
 
       processed: {
         id: "processed",
-        entry: sendParent({ type: "REFRESH" }),
         after: {
           wait: [
             {

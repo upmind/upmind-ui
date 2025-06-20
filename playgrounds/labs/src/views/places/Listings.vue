@@ -129,7 +129,7 @@ onMounted(async () => {
 
     isLoading.value = true;
     apiStatus.value = "Initializing...";
-    await places.load();
+    await places.isReady();
     apiStatus.value = "Ready";
   } catch (err) {
     error.value = "Failed to initialize Places API. Check your API key.";

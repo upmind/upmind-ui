@@ -7,7 +7,16 @@ import { useSession } from "../../session";
 import { invalidateQueryByKey } from "../../query";
 
 // --- utils
-import { get, set, find, every, isEmpty, includes, isString } from "lodash-es";
+import {
+  get,
+  set,
+  find,
+  every,
+  isEmpty,
+  includes,
+  isString,
+  isEqual,
+} from "lodash-es";
 
 // --- types
 import type { Email } from "./types";
@@ -70,7 +79,7 @@ export const useClientEmails = (
           return item.id == value;
         }
         const modelValue = get(item, key);
-        return modelValue == value;
+        return isEqual(modelValue, value);
       })
     );
   }
