@@ -33,6 +33,7 @@
       @update:modelValue="input"
       :actions="actions"
       :ui-config="formConfig"
+      data-testid="promotions-form"
     />
 
     <footer
