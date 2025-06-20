@@ -119,7 +119,6 @@ export default createMachine(
 
       complete: {
         id: "complete",
-        type: "final",
         data: ({ paymentDetails }: GatewayContext, _event: AnyEventObject) =>
           paymentDetails,
       },
