@@ -17,16 +17,10 @@ export interface GatewayContentProps {
     isReadyForCheckout: boolean;
     isProcessingDetails: boolean;
   };
-  model: {
-    gateway_id: string;
-  };
-  gateway: {
-    id: string;
-    gateway_provider: {
-      code: string;
-    };
-    type: number;
-  };
+
+  modelValue?: string;
+  gatewayId?: string;
+
   // ---
   color?: ButtonProps["color"];
 }

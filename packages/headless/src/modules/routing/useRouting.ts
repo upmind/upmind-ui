@@ -23,7 +23,10 @@ import { type Route, type Flow } from "../";
  * The routing engine can then resolve the route and return the target route when navigating.
  */
 
-export const useRouting = (router: Router, flows?: Flow[]): void => {
+export const useRouting = (
+  router: Router,
+  flows?: Flow[] | (() => Flow[])
+): void => {
   const { register } = useRoutingFlows();
   const { init, guard } = useRoutingEngine();
   const { dataLayer } = useDataLayer();

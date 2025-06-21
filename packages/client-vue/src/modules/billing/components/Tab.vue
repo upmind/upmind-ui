@@ -112,7 +112,7 @@ const open = ref(false);
 const openModel = ref(meta.value.isEmpty);
 const editId = ref<string>("");
 
-const selected = computed<string | undefined>({
+const selected = computed({
   get() {
     return (
       modelValue.value?.companyId ||

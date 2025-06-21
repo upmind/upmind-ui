@@ -2,7 +2,7 @@
 import { isActor } from "xstate/lib/Actor";
 import { waitFor } from "xstate/lib/waitFor";
 import { computed } from "vue";
-import { InterpreterStatus } from "xstate";
+import { InterpreterStatus, t } from "xstate";
 
 // --- internal
 import { useBasket } from "../basket";
@@ -74,12 +74,15 @@ export const useBasketProductsPending = () => {
     model: ProductProps,
     force: boolean = false
   ): Promise<UseBasketProductPending> {
+    debugger;
     const product = find(
       productsPending,
       ({ model }) => model.value?.productId === pid
     );
 
+    debugger;
     if (isEmpty(product) || force) {
+      debugger;
       return add(model)
         .then(async instance => {
           set(productsPending, instance.id, instance);
@@ -106,16 +109,17 @@ export const useBasketProductsPending = () => {
           return Promise.reject(error);
         });
     } else {
-      if (!product.meta.value?.hasErrors) {
-        return Promise.resolve(product);
-      } else {
-        const error = product.errors.value;
-        unsetProduct(pid);
-        return Promise.reject({
-          message: error,
-          code: responseCodes.Unprocessable_Entity,
-        });
-      }
+      debugger;
+      // if (!product.meta.value?.hasErrors) {
+      return Promise.resolve(product);
+      // } else {
+      //   const error = product.errors.value;
+      //   unsetProduct(pid);
+      //   return Promise.reject({
+      //     message: error,
+      //     code: responseCodes.Unprocessable_Entity,
+      //   });
+      // }
     }
   }
 
@@ -150,10 +154,22 @@ export const useBasketProductsPending = () => {
       });
     }
     const model = get(productConfigs, productId, { productId, quantity: 1 });
-    return ensure(productId, model).then(instance => {
-      if (sync) subscribe(productId, instance.service);
-      return instance;
-    });
+    debugger;
+    return ensure(productId, model)
+      .then(instance => {
+        debugger;
+        if (sync) subscribe(productId, instance.service);
+        debugger;
+        return instance;
+      })
+      .catch(error => {
+        debugger;
+        throw new DetailedError(
+          "[headless] getProduct in useBasketProductsPending has an error",
+          responseCodes.No_Content,
+          { error, productId }
+        );
+      });
   }
 
   function setProduct(productId: string, value?: ProductModel | State<any>) {

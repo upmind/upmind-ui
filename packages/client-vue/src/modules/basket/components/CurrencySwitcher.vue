@@ -37,6 +37,7 @@ import { get, map } from "lodash-es";
 // --- types
 import type { HTMLAttributes } from "vue";
 import type { ComboboxItemProps } from "@upmind-automation/upmind-ui";
+import type { ICurrency } from "../../../../../types/src";
 // -----------------------------------------------------------------------------
 
 // props: {
@@ -54,7 +55,7 @@ const props = withDefaults(
 
 const { meta, model, currencies, update } = useBasketCurrency();
 
-function updateCurrency(value: string) {
+function updateCurrency(value: ICurrency["code"]) {
   update({ code: value });
 }
 

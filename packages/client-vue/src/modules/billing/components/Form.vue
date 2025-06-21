@@ -119,7 +119,11 @@ const doResolve = async () => {
   processing.value = true;
   update()
     .then(value => {
-      emits("resolve", value);
+      emits("resolve", {
+        addressId: value.address?.id,
+        companyId: value.company?.id,
+        phoneId: value.phone?.id,
+      });
       touched.value = false;
       doReject();
     })

@@ -95,7 +95,6 @@ async function loadLookups({
   }
 
   const baseModel: AddressModel = {
-    type: first(AddressTypes)?.key || 1,
     countryId: country?.id,
     address1: "",
     city: "",

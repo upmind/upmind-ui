@@ -31,7 +31,7 @@ export interface RegisterModel {
   firstname?: string;
   lastname?: string;
   password?: string;
-  phone?: PhoneModel["phone"];
+  phone?: PhoneModel;
   customFields?: Record<string, any>;
 }
 

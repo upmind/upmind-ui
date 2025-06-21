@@ -14,6 +14,8 @@ import { uniqBy, concat } from "lodash-es";
 
 // --- types
 import type { Flow } from "./types";
+import { isPromise } from "util/types";
+import { isFunction } from "xstate/lib/utils";
 export * from "./types";
 
 // -----------------------------------------------------------------------------
@@ -35,11 +37,16 @@ export const useRoutingFlows = () => {
     checkout: checkoutFlows,
     order: orderFlows,
     // ---
-    register: (customFlows?: Flow[]) => {
+    register: (customFlows?: Flow[] | (() => Flow[])) => {
+      // if customFlows is a function, we need to call it to get the flows
+      const safeFlows = isFunction(customFlows)
+        ? (customFlows() ?? [])
+        : (customFlows ?? []);
+
       // register our default flows
       const flows = uniqBy(
         concat(
-          customFlows ?? [],
+          safeFlows,
           basketFlows.getFlows(),
           productFlows.getFlows(),
           recommendationsFlows.getFlows(),

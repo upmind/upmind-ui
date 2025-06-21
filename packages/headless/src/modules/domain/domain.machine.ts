@@ -41,7 +41,7 @@ import { DomainTypes } from "./types";
 import type { DomainModel, DomainContext, DomainProduct } from "./types";
 import type { ProductModel, ProductProps } from "../product";
 import { parseBasketProduct } from "../basketProduct/utils";
-import { QueryResponseError } from "../query";
+import { PAGINATION, QueryResponseError } from "../query";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -381,8 +381,8 @@ export default createMachine(
           // ---
           search: {
             query: undefined,
-            limit: 10,
-            offset: 0,
+            limit: PAGINATION.pageSize,
+            offset: PAGINATION.offset,
             total: 0,
           },
 
@@ -699,8 +699,8 @@ export default createMachine(
         search: ({ search }: DomainContext, { data }: AnyEventObject) => {
           return {
             query: data ?? undefined,
-            offset: 0,
-            limit: search?.limit ?? 10,
+            offset: PAGINATION.offset,
+            limit: search?.limit ?? PAGINATION.pageSize,
             total: 0,
           };
         },
@@ -709,11 +709,11 @@ export default createMachine(
       setSearchOffset: assign({
         search: ({ search }: DomainContext, _event: AnyEventObject) => {
           search ??= {
-            offset: 0,
-            limit: 10,
+            offset: PAGINATION.offset,
+            limit: PAGINATION.pageSize,
             total: 0,
           };
-          search.offset += search?.limit ?? 10;
+          search.offset += search?.limit ?? PAGINATION.pageSize;
           return search;
         },
       }),
@@ -721,8 +721,8 @@ export default createMachine(
       clearSearch: assign({
         search: ({ search }: DomainContext, _event: AnyEventObject) => ({
           query: undefined,
-          offset: 0,
-          limit: search?.limit ?? 10,
+          offset: PAGINATION.offset,
+          limit: search?.limit ?? PAGINATION.pageSize,
           total: 0,
         }),
         lookups: ({ lookups }) => {
@@ -772,7 +772,7 @@ export default createMachine(
           return {
             query: search?.query ?? undefined,
             offset: search?.offset ?? 0,
-            limit: search?.limit ?? 10,
+            limit: search?.limit ?? PAGINATION.pageSize,
             total: data?.total || 0,
           };
         },

@@ -15,7 +15,7 @@ const { addError } = useFeedback();
 import {
   parseBasket,
   parseSummary,
-  spawnBillingDetails,
+  spawnBilling,
   spawnCurrency,
   spawnCustomFields,
   spawnPaymentDetails,
@@ -228,7 +228,7 @@ export default createMachine(
               configuring: {
                 always: {
                   target: "complete",
-                  actions: ["pushBillingDetails"],
+                  actions: ["pushShippingInfo"],
                   cond: "billingComplete",
                 },
               },
@@ -457,7 +457,7 @@ export default createMachine(
         actors: ({ actors, basket }: BasketContext) => {
           // only spawn if we have not already spawned
           actors ??= {
-            billing: spawnBillingDetails(basket),
+            billing: spawnBilling(basket),
             paymentDetails: spawnPaymentDetails(basket),
             currency: spawnCurrency(basket),
             customFields: spawnCustomFields(basket),
@@ -502,7 +502,7 @@ export default createMachine(
       // when a new product is added for configuration, but has not been saved/added to the basket
 
       // when the user enter a billing address
-      pushBillingDetails: (_context: BasketContext, _event: AnyEventObject) => {
+      pushShippingInfo: (_context: BasketContext, _event: AnyEventObject) => {
         dataLayer({ event: "add_shipping_info" }).withEcommerce().push();
       },
 

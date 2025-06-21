@@ -6,7 +6,7 @@
       title="Please log in to use billing"
     />
 
-    <UpmBillingDetails />
+    <UpmBilling />
   </UpmContentSection>
 </template>
 
@@ -18,10 +18,7 @@ import { useBasketBilling } from "@upmind-automation/headless";
 
 // --- components
 import { Alert } from "@upmind-automation/upmind-ui";
-import {
-  UpmBillingDetails,
-  UpmContentSection,
-} from "@upmind-automation/client-vue";
+import { UpmBilling, UpmContentSection } from "@upmind-automation/client-vue";
 
 // -----------------------------------------------------------------------------
 
