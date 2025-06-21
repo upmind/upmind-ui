@@ -23,7 +23,7 @@ type FormVariantProps = VariantProps<typeof formVariants>;
 // --- types
 import type { InputProps, InputVariantProps } from "../input";
 
-export interface FormProps {
+export interface FormProps<T = Record<string, any>> {
   as?: string;
   // --- JSOn Forms props
   i18n?: JsonFormsI18nState;
@@ -34,7 +34,7 @@ export interface FormProps {
   additionalErrors?: ErrorObject<string, Record<string, any>, unknown>[];
   middleware?: Middleware;
   // ---  props
-  modelValue?: any;
+  modelValue?: T;
   additionalRenderers?: any[];
   // ---
   actions?: Record<string, FormActionProps>;

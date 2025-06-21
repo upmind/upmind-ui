@@ -81,6 +81,7 @@ import type {
   JsonFormsI18nState,
   ValidationMode,
   UISchemaElement,
+  JsonSchema,
 } from "@jsonforms/core";
 import type {
   FormProps,
@@ -103,13 +104,15 @@ const props = withDefaults(defineProps<FormProps>(), {
 
 const emits = defineEmits<{
   reject: [];
-  resolve: [Object];
-  "update:modelValue": [any];
-  "update:uischema": [any];
+  resolve: [Record<string, any>];
+  "update:modelValue": [Record<string, any>];
+  "update:uischema": [JsonSchema];
   "update:touched": [boolean];
   valid: [boolean];
-  click: [{ model: object; meta: object }];
-  action: [{ name: string; model: object; meta: object }];
+  click: [{ model: Record<string, any>; meta: Record<string, any> }];
+  action: [
+    { name: string; model: Record<string, any>; meta: Record<string, any> },
+  ];
 }>();
 
 const slots = defineSlots<{
