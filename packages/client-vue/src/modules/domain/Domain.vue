@@ -51,9 +51,9 @@
                 :loading="meta.isSearching"
                 :model-value="selected"
                 :more="meta.hasMoreSearchResults"
-                :offset="searchOffset"
+                :offset="pagination.offset"
                 :processing="meta.isSyncing"
-                :values="model"
+                :values="domains"
                 @search="search"
                 @search:more="searchMore"
                 @update:selected="toggle"
@@ -137,8 +137,8 @@ import type { DomainProps } from "./types";
 
 // -----------------------------------------------------------------------------
 const emit = defineEmits<{
-  (e: "update:modelValue", value: string | string[]): void;
-  (e: "update:type", value: string): void;
+  (e: "update:modelValue", value?: string | string[]): void;
+  (e: "update:type", value?: string): void;
 }>();
 
 const props = withDefaults(defineProps<DomainProps>(), {
@@ -153,15 +153,15 @@ const {
   type,
   selected,
   model,
+  domains,
   query,
   available,
   owned,
   basket,
   errors,
   // ---
-  state,
   meta,
-  searchOffset,
+  pagination,
   // ---
   choose,
   search,
@@ -173,10 +173,7 @@ const {
   addToBasket,
   select,
   remove,
-} = useDomain({
-  model: props.modelValue,
-  type: props.type,
-});
+} = useDomain(props.modelValue, { type: props.type });
 
 const styles = useStyles(
   ["domain", "domain.form", "domain.form.trigger", "domain.form.content"],

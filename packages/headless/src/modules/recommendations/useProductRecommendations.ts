@@ -1,18 +1,16 @@
-// ---
 // --- external
 import { computed } from "vue";
-import { useActor } from "@xstate/vue";
-import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import { useRecommendationsEngine as useUpmindRecommendationsEngine } from "./";
+import { useRecommendations } from "./";
 
 // --- utils
-import { some } from "lodash-es";
-import { useContext } from "../../utils";
+import { filter, get, some } from "lodash-es";
+import { contextMatches, stateMatches, useContext } from "../../utils";
 
 // --- types
 import type { ProductModel } from "../product";
+import { RecommendationsEngineContext } from "./types";
 // -----------------------------------------------------------------------------
 
 /**
@@ -26,71 +24,111 @@ import type { ProductModel } from "../product";
  */
 export const useProductRecommendations = (pid: ProductModel["productId"]) => {
   const {
-    service,
+    state,
+    context,
+    errors,
+    basketItem,
     add,
     remove,
     seen,
     fetchRecommendation,
-    filterByProduct,
     reset,
     cancel,
     stop,
     isReady,
-  } = useUpmindRecommendationsEngine();
+  } = useRecommendations();
 
-  const { state } = useActor(service);
+  const recommendations = computed(
+    (): RecommendationsEngineContext["recommendations"] => {
+      const related = filter(get(context.value, "raw.related"), [
+        "product_id",
+        pid,
+      ]);
+      return filter(recommendations.value, ({ id }) =>
+        some(related, ["id", id])
+      );
+    }
+  );
+
+  const meta = computed(() => ({
+    hasErrors: stateMatches(state, ["error"]),
+    hasRecommendations:
+      contextMatches(state, "recommendations") &&
+      some(recommendations.value, ({ meta }) => !meta?.added && !meta?.seen),
+    hasUnseenRecommendations: some(
+      recommendations.value,
+      ({ meta }) => !meta?.seen
+    ),
+    isConfiguring: stateMatches(state, ["configuring"]),
+    isLoading: stateMatches(state, ["subscribing"]),
+    isProcessing: stateMatches(state, ["processing"]),
+    isRefreshing: stateMatches(state, ["refreshing"]),
+  }));
 
   // ---------------------------------------------------------------------------
   return {
-    isReady: async () => {
-      return isReady().then(() =>
-        waitFor(
-          service,
-          state => !["subscribing", "loading"].some(state.matches),
-          { timeout: Infinity }
-        )
-      );
-    },
+    // --- state
 
-    state: computed(() => state.value.value),
-    // ---
-    // TODO filter by pid
-    recommendations: computed(() => {
-      const filtered = filterByProduct(
-        pid,
-        state.value.context.recommendations
-      );
-      return filtered;
-    }),
+    state, // rare export of state to allow for us eto be able to re-use this compsable in the useProductRecommendations
+    /**
+     * Waits for the recommendations engine to be ready (available, unavailable, or error state).
+     * @returns {Promise<boolean>} Resolves true if ready, false if error.
+     */
+    isReady,
 
-    // ---
-    errors: computed(() => state.value.context?.error),
-    //messages: computed(() => state.value.context?.messages),
-    // ---
-    meta: computed(() => ({
-      isLoading: ["subscribing"].some(state.value.matches),
-      isRefreshing: ["refreshing"].some(state.value.matches),
-      isProcessing: ["processing"].some(state.value.matches),
-      hasErrors: ["error"].some(state.value.matches),
-      // ---
-      isConfiguring: ["configuring"].some(state.value.matches),
-      hasRecommendations: some(
-        filterByProduct(pid, state.value.context.recommendations),
-        ({ meta }) => !meta?.added && !meta?.seen
-      ),
-      hasUnseenRecommendations: some(
-        filterByProduct(pid, state.value.context.recommendations),
-        ({ meta }) => !meta?.seen
-      ),
-    })),
-    // ---
+    /**
+     * Meta information about the recommendations engine state.
+     * @typedef {Object} RecommendationsMeta
+     * @property {boolean} hasErrors - True if the engine is in an error state.
+     * @property {boolean} hasRecommendations - True if there are recommendations.
+     * @property {boolean} hasUnseenRecommendations - True if there are unseen recommendations.
+     * @property {boolean} isConfiguring - True if the engine is configuring.
+     * @property {boolean} isLoading - True if the engine is loading.
+     * @property {boolean} isProcessing - True if the engine is processing.
+     * @property {boolean} isRefreshing - True if the engine is refreshing.
+     */
+    meta,
+
+    // --- context
+
+    /**
+     * The current context
+     */
+    context,
+
+    /** The current basket item context. */
+    basketItem,
+
+    /** Any error returned by the engine. */
+    errors,
+
+    /** The recommendations list. */
+    recommendations,
+
+    // --- methods
+
+    /**
+     * Adds a product to the recommendations engine.
+     * @param {string} id - The id of the product to add.
+     */
     add,
-    remove,
-    reset,
+
+    /** Cancels the current recommendations process. */
     cancel,
-    stop,
-    seen,
+
+    /** Fetches a recommendation by value. */
     fetchRecommendation,
-    basketItem: useContext(state, "basketItem"),
+
+    /** Removes a recommendation by value. */
+    remove,
+
+    /** Resets the recommendations engine. */
+    reset,
+
+    /** Marks recommendations as seen. */
+    seen,
+
+    /** Stops the recommendations engine  */
+    stop,
   };
 };

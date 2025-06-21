@@ -76,7 +76,9 @@ export const useBasketFields = () => {
     actor.value?.send({ type: "SET", data: toRaw(unref(value)) });
   }
 
-  async function update(value: FieldsModel): Promise<void> {
+  async function update(
+    value: FieldsModel | Record<string, any>
+  ): Promise<void> {
     // first check if our fields have change, ie: model.code has changed
     value = toRaw(unref(value));
     const model = contextValue<FieldsModel>(actor, "model");

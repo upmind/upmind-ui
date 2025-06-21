@@ -21,6 +21,8 @@ import { isNil, isEqual } from "lodash-es";
 import type { ActorRef } from "xstate";
 import { GatewayContext } from "../paymentDetails";
 import { isFunction } from "xstate/lib/utils";
+import { QueryResponseError } from "../query";
+import { ErrorObject } from "ajv";
 
 // -----------------------------------------------------------------------------
 // We allow an actor to be passed in, but if not, we will use the basket service and wait for the 'actor'' machine to be ready
@@ -76,7 +78,13 @@ export const useBasketPaymentGateway = () => {
   // --- context
 
   const context = useContext<GatewayContext>(actor);
-  const errors = useContext<GatewayContext["error"]>(actor, "error");
+
+  const errors = useContext<QueryResponseError["message"]>(
+    actor,
+    "error.message"
+  );
+  const validationErrors = useContext<ErrorObject[]>(actor, "error.data");
+
   const model = useContext<GatewayContext["model"]>(actor, "model");
   const schema = useContext<GatewayContext["schema"]>(actor, "schema");
   const uischema = useContext<GatewayContext["uischema"]>(actor, "uischema");
@@ -179,8 +187,18 @@ export const useBasketPaymentGateway = () => {
     /** The full payment gateway context object. */
     context,
 
-    /** Any error returned by the payment gateway actor. */
+    /**
+     * Any errors message(s) encountered during payment gateway operations.
+     */
     errors,
+
+    /**
+     * Validation errors encountered during payment gateway operations.
+     * Typically contains an array of error objects with details about the validation issues.
+     * @type {ErrorObject[]}
+     * @see https://ajv.js.org/guide/validation-errors.html#validation-error-object
+     */
+    validationErrors,
 
     /** The payment gateway instructions. */
     instructions,

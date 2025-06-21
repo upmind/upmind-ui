@@ -5,7 +5,7 @@ import { useQuery, useSystem } from "../..";
 import { useBrand } from "../brand";
 
 // --- utils
-import { useTime } from "../../utils";
+import { DetailedError, responseCodes, useTime } from "../../utils";
 
 import {
   parseQuantity,
@@ -223,7 +223,13 @@ async function validate(context: ProductConfigContext, _event: AnyEventObject) {
 
   return new Promise((resolve, reject) => {
     if (!isEmpty(errors)) {
-      reject({ error: { data: errors } });
+      reject(
+        new DetailedError(
+          "[headless] Validate Product Config failed",
+          responseCodes.Conflict,
+          { error: { data: errors } }
+        )
+      );
     } else {
       resolve(context.model);
     }

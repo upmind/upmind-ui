@@ -4,7 +4,6 @@ import type {
   DialogProps,
   AvatarProps,
 } from "@upmind-automation/upmind-ui";
-// ---
 // -----------------------------------------------------------------------------
 export interface ActionProps extends ButtonProps {
   type?: HTMLButtonElement["type"];

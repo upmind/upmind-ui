@@ -18,6 +18,7 @@ import { isNil } from "lodash-es";
 // --- types
 import type { ActorRef } from "xstate";
 import { PromotionsContext, PromotionModel } from "./promotions/types";
+import { IBasketPromotion } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 // We allow an actor to be passed in, but if not, we will use the basket actorRef and wait for the 'actor'' machine to be ready
@@ -122,8 +123,8 @@ export const useBasketPromotions = () => {
       });
   }
 
-  async function remove(value: PromotionModel) {
-    actor.value?.send({ type: "REMOVE", data: toRaw(unref(value)) });
+  async function remove(value: IBasketPromotion["id"]) {
+    actor.value?.send({ type: "REMOVE", data: { id: toRaw(unref(value)) } });
     return waitFor(
       actor.value!.service,
       state => {

@@ -123,7 +123,7 @@ export const useBasket = () => {
 
       hasPromotions: machineMatches(actors.promotions, ["complete"]),
 
-      hasBillingDetails: machineMatches(actors.billing, ["complete"]),
+      hasBilling: machineMatches(actors.billing, ["complete"]),
 
       hasCurrency: machineMatches(actors.currency, ["complete"]),
 
@@ -204,8 +204,10 @@ export const useBasket = () => {
   const currency = useContext<ICurrency>(state, "basket.currency");
   const errors = useContext<QueryResponseError>(state, "error");
   const invoice = useContext<IInvoice>(state, "invoice");
-  const products = useContext<IBasketProduct[]>(state, "products", []);
-  // productsInvalid: computed(() => filter( products.value, product => !isEmpty(product?.errors))),
+  const products = useContext<BasketProduct[]>(state, "products", []);
+  const productsInvalid = computed(() =>
+    filter(products.value, product => !isEmpty(product?.errors))
+  );
   const summary = useContext<BasketContext["summary"]>(state, "summary");
   const promotions = useContext<IPromotion[]>(state, "basket.promotions", []);
   const promotionCodes = computed(
@@ -441,7 +443,7 @@ export const useBasket = () => {
      * @property {boolean} hasInvalidProducts - Indicates if the basket has invalid products.
      * @property {boolean} hasTaxes - Indicates if the basket has taxes.
      * @property {boolean} hasPromotions - Indicates if the basket has promotions applied.
-     * @property {boolean} hasBillingDetails - Indicates if the basket has billing details.
+     * @property {boolean} hasBilling - Indicates if the basket has billing details.
      * @property {boolean} hasCurrency - Indicates if the basket has a currency set.
      * @property {boolean} hasPaymentDetails - Indicates if the basket has payment details.
      * @property {boolean} hasFields - Indicates if the basket has custom fields.
@@ -496,6 +498,11 @@ export const useBasket = () => {
      * The list of products in the basket.
      */
     products,
+
+    /**
+     * The list of invalid products in the basket (with errors).
+     */
+    productsInvalid,
 
     /**
      * The list of promotions applied to the basket.

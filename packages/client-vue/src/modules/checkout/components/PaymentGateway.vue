@@ -48,7 +48,7 @@
         v-if="schema && uischema && !meta.isRenderless"
         v-show="!meta.isLoading"
         class="w-full"
-        :additional-errors="errors?.data"
+        :additional-errors="validationErrors"
         :model-value="model"
         :processing="meta.isProcessing"
         :schema="schema"
@@ -66,12 +66,8 @@
         :title="t('payment.failed')"
       >
         <div class="mt-2 text-sm">
-          <li
-            v-for="error in errors"
-            :key="error.message || error.title"
-            class="my-0 py-0"
-          >
-            {{ error.message || error.title }}
+          <li class="my-0 py-0">
+            {{ errors }}
           </li>
         </div>
       </Alert>
@@ -101,6 +97,7 @@ const props = defineProps<PaymentGatewayProps>();
 const {
   meta,
   errors,
+  validationErrors,
   model,
   schema,
   uischema,
