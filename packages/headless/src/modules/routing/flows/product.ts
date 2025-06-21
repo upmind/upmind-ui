@@ -124,7 +124,6 @@ export const useProductFlows = () => {
       resolve: async (route: Route) => {
         const { productId } = useRouteQueryParams(route);
         const pendingProduct = await getPendingProduct(productId, true);
-        debugger;
         const pid = contextValue<ProductProps["productId"]>(
           pendingProduct.state,
           "model.productId",

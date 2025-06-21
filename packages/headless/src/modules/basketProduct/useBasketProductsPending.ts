@@ -74,15 +74,12 @@ export const useBasketProductsPending = () => {
     model: ProductProps,
     force: boolean = false
   ): Promise<UseBasketProductPending> {
-    debugger;
     const product = find(
       productsPending,
       ({ model }) => model.value?.productId === pid
     );
 
-    debugger;
     if (isEmpty(product) || force) {
-      debugger;
       return add(model)
         .then(async instance => {
           set(productsPending, instance.id, instance);
@@ -109,7 +106,6 @@ export const useBasketProductsPending = () => {
           return Promise.reject(error);
         });
     } else {
-      debugger;
       // if (!product.meta.value?.hasErrors) {
       return Promise.resolve(product);
       // } else {
@@ -154,16 +150,12 @@ export const useBasketProductsPending = () => {
       });
     }
     const model = get(productConfigs, productId, { productId, quantity: 1 });
-    debugger;
     return ensure(productId, model)
       .then(instance => {
-        debugger;
         if (sync) subscribe(productId, instance.service);
-        debugger;
         return instance;
       })
       .catch(error => {
-        debugger;
         throw new DetailedError(
           "[headless] getProduct in useBasketProductsPending has an error",
           responseCodes.No_Content,
