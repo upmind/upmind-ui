@@ -21,6 +21,7 @@
     >
       <template #actions="{ doReject, doResolve }">
         <Actions
+          :type="type === UnifiedAddressType.PERSONAL ? 'address' : 'company'"
           :disabled="meta.isProcessing || !meta.isValid"
           :processing="meta.isProcessing"
           :loading="meta.isLoading"

@@ -1,5 +1,4 @@
 <template>
-  <pre>{{ { modelValue, model } }}</pre>
   <component
     v-if="modal || (!modal && open)"
     :is="modal ? Dialog : 'section'"
@@ -9,27 +8,39 @@
   >
     <Skeleton v-if="meta.isLoading" />
 
-    <UpmForm
-      v-else
-      :model-value="model"
-      :schema="schema"
-      :uischema="uischema"
-      color="secondary"
-      @update:modelValue="doInput"
-      @resolve="doResolve"
-      @reject="doReject"
-      :processing="meta.isProcessing"
-    >
-      <template #actions="{ doReject, doResolve }">
-        <Actions
-          :disabled="meta.isProcessing || !meta.isValid"
-          :processing="meta.isProcessing"
-          :loading="meta.isLoading"
-          @save="doResolve"
-          @cancel="doReject"
-        />
-      </template>
-    </UpmForm>
+    <template v-else>
+      <Alert
+        v-if="meta.hasErrors"
+        :description="errors"
+        :message="errors"
+        :title="t('client.address.form.error', { isNew: !props.modelValue })"
+        color="error"
+        icon="alert-triangle"
+      />
+
+      <UpmForm
+        :model-value="model"
+        :schema="schema"
+        :uischema="uischema"
+        color="secondary"
+        @update:modelValue="doInput"
+        @resolve="doResolve"
+        @reject="doReject"
+        :additional-errors="validationErrors"
+        :processing="meta.isProcessing"
+      >
+        <template #actions="{ doReject, doResolve }">
+          <Actions
+            type="address"
+            :disabled="meta.isProcessing || !meta.isValid"
+            :processing="meta.isProcessing"
+            :loading="meta.isLoading"
+            @save="doResolve"
+            @cancel="doReject"
+          />
+        </template>
+      </UpmForm>
+    </template>
   </component>
 </template>
 
@@ -46,7 +57,7 @@ import {
 
 // --- components
 import { UpmForm } from "../../../components/form";
-import { Dialog } from "@upmind-automation/upmind-ui";
+import { Dialog, Alert } from "@upmind-automation/upmind-ui";
 import Skeleton from "../components/Skeleton.vue";
 import Actions from "../components/Actions.vue";
 
@@ -77,14 +88,28 @@ const { t } = useI18n();
 // --- state
 const open = useVModel(props, "open", emits);
 
-const { meta, model, update, clear, input, schema, uischema, stop } =
-  useClientAddress(props.clientId, props.modelValue);
+const {
+  meta,
+  model,
+  update,
+  clear,
+  input,
+  schema,
+  uischema,
+  stop,
+  errors,
+  validationErrors,
+} = useClientAddress(props.clientId, props.modelValue);
 
 const doResolve = async () => {
-  update().then(value => {
-    emits("resolve", value.id);
-    doClose();
-  });
+  update()
+    .then(value => {
+      emits("resolve", value.id);
+      doClose();
+    })
+    .catch(error => {
+      //  do nothing, error is handled in the form
+    });
 };
 
 const doInput = (value: any) => {

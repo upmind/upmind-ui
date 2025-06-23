@@ -7,16 +7,8 @@ import { useSession } from "../../session";
 import { invalidateQueryByKey } from "../../query";
 
 // --- utils
-import {
-  get,
-  set,
-  find,
-  every,
-  isEmpty,
-  includes,
-  isString,
-  isEqual,
-} from "lodash-es";
+import { useCollection } from "../../../utils";
+import { set, find, isEmpty } from "lodash-es";
 
 // --- types
 import type { Email } from "./types";
@@ -43,6 +35,8 @@ export const useClientEmails = (
     ...query?.meta.value,
   }));
 
+  const { findOne, getOne, getDefault } = useCollection<Email>(query.data);
+
   async function isReady(): Promise<boolean> {
     return isAuthenticated()
       .then(() =>
@@ -56,40 +50,10 @@ export const useClientEmails = (
 
   // --- context
 
-  // --- methods
-
-  function getOne(id?: Email["id"]) {
-    if (isEmpty(id)) return undefined;
-    return find(query.data.value || [], ["id", id]);
-  }
-
-  function findOne(mapping: string | Partial<Email>) {
-    if (isString(mapping)) {
-      return find(
-        query.data.value || [],
-        item =>
-          includes(item.title.toLowerCase(), mapping.toLowerCase()) ||
-          includes(item.description.toLowerCase(), mapping.toLowerCase())
-      );
-    }
-
-    return find(query.data.value || [], item =>
-      every(mapping, (value, key) => {
-        if (key == "id") {
-          return item.id == value;
-        }
-        const modelValue = get(item, key);
-        return isEqual(modelValue, value);
-      })
-    );
-  }
+  // --- mutations
 
   function remove(id: Email["id"]) {
     return service.remove(id).mutate();
-  }
-
-  function getDefault() {
-    return find(query.data.value || [], "meta.isDefault") as Email | undefined;
   }
 
   function setDefault(id: Email["id"]) {
@@ -125,7 +89,7 @@ export const useClientEmails = (
 
     /**
      * Meta-information about the basket state.
-     * @type {Object} BasketMeta
+     * @typedef {Object} ClientEmailMeta
      * @property {boolean} isError - Indicates if there was an error during the query.
      * @property {boolean} isEmpty - Indicates if the basket is empty.
      * @property {boolean} isLoading - Indicates if the query is currently loading.
@@ -155,6 +119,8 @@ export const useClientEmails = (
      */
     pagination: query.pagination,
 
+    // --- methods
+
     /**
      * The default item for the current client.
      * This is the email that is set as default for the current client.
@@ -170,12 +136,6 @@ export const useClientEmails = (
      * @returns The email object if found, is otherwise undefined.
      */
     getOne,
-
-    /**
-     * Get all the items from the cache.
-     * @returns An array of parsed items if found, otherwise an empty array.
-     */
-    getCached: service.loadCached,
 
     /**
      * Find a single email based on the given param. The param is matched against the title and description.

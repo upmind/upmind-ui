@@ -77,6 +77,7 @@ function doReject() {
 function doResolve(value: PhoneModel["id"]) {
   modelValue.value = value;
   openModel.value = false;
+  open.value = false;
   editId.value = "";
 }
 

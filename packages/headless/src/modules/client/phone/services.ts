@@ -18,10 +18,11 @@ import {
   NotAuthenticatedError,
   DetailedError,
   responseCodes,
+  useCollection,
 } from "../../../utils";
-import { mapIPhone, mapPhones } from "./mapper";
+import { mapIPhone, mapPhone, mapPhones } from "./mapper";
 import { invalidateQueryByKey } from "../../query";
-import { get, isNil, isString, first, isEmpty } from "lodash-es";
+import { get, isString, isEmpty, omitBy } from "lodash-es";
 
 // --- types
 import type { IPhone } from "@upmind-automation/types";
@@ -34,6 +35,28 @@ import type { Phone, PhoneModel, PhoneContext } from "./types";
 
 const queryKey: QueryKey = ["client", "phones"];
 const { addError, addSuccess } = useFeedback();
+
+async function load() {
+  const { meta, user } = useSession();
+  const { get, useUrl } = useQuery();
+
+  return get<IPhone[], Phone[]>({
+    queryKey,
+    url: useUrl(`clients/${user.value?.id}/phones`),
+    withAccessToken: true,
+    guard: async () =>
+      new Promise((resolve, reject) => {
+        if (meta.value.isAuthenticated && !!user.value?.id) {
+          resolve(true);
+        } else {
+          reject(new NotAuthenticatedError());
+        }
+      }),
+    // --- options
+    select: mapPhones,
+    staleTime: useTime().DAY,
+  });
+}
 
 function loadList(params?: Partial<QueryParams>) {
   const { meta, user } = useSession();
@@ -58,18 +81,6 @@ function loadList(params?: Partial<QueryParams>) {
   });
 }
 
-function loadCached() {
-  const { queryClient } = useQuery();
-  const cached = queryClient.getQueryData<Phone[]>(queryKey);
-  if (isNil(cached)) throw new CacheIsStaleError();
-  return cached;
-}
-
-/**
- * Load the lookups for the phone form
- * @param {PhoneContext} _context
- * @returns {Promise<{PhoneContext}>}
- */
 async function loadLookups({
   model,
   schema,
@@ -79,15 +90,17 @@ async function loadLookups({
   // these could/should be cached in the system machine, so there's no worry about performance
   await isReady().catch(error => Promise.reject(error));
   const countries = await fetchCountries();
-  const country = getCountry(model?.country);
+  const country = getCountry(model?.phone?.country);
   if (!countries) {
     return Promise.reject("Failed to load countries");
   }
   const baseModel: PhoneModel = {
-    number: "",
-    nationalNumber: "",
-    countryCallingCode: "",
-    country: country.code,
+    phone: {
+      number: "",
+      nationalNumber: "",
+      countryCallingCode: "",
+      country: country.code,
+    },
   };
 
   const safeModel = useModelParser<PhoneModel>(schema, model, baseModel, {
@@ -131,6 +144,25 @@ async function update(id: Phone["id"], data: PhoneModel) {
     data: mapIPhone(data),
     withAccessToken: true,
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
+}
+
+async function ensure(model: PhoneModel): Promise<PhoneModel> {
+  const mapping = omitBy(model, isEmpty);
+  const phones = await load();
+  const { findOne } = useCollection<Phone>(phones);
+  const found = findOne(mapping);
+  if (found) return Promise.resolve(found);
+
+  return add(model).then(raw => {
+    if (isEmpty(raw))
+      throw new DetailedError(
+        "[headless] Failed to ensure (add) phone",
+        responseCodes.Unprocessable_Entity
+      );
+    // NB: Remember to refresh our machines so we have the new data
+    // refresh();
+    return mapPhone(raw);
+  });
 }
 
 function remove(phoneId: Phone["id"]) {
@@ -214,9 +246,10 @@ async function parse(
   // ---
   if (!safeModel) return Promise.resolve({ model: safeModel, country });
 
-  const phoneNumber = (safeModel?.number || safeModel?.nationalNumber) ?? "";
+  const phoneNumber =
+    (safeModel?.phone?.number || safeModel?.phone?.nationalNumber) ?? "";
 
-  const countryCode: CountryCode = (safeModel?.country ||
+  const countryCode: CountryCode = (safeModel?.phone?.country ||
     data?.country?.code ||
     country?.code ||
     "") as CountryCode;
@@ -225,20 +258,24 @@ async function parse(
 
   // now map the phone number to the model in the correct format with fallbacks
 
-  safeModel.number = phone?.number || safeModel?.number;
+  safeModel.phone.number = phone?.number || safeModel?.phone?.number;
 
-  safeModel.nationalNumber = phone?.nationalNumber || safeModel?.nationalNumber;
+  safeModel.phone.nationalNumber =
+    phone?.nationalNumber || safeModel?.phone?.nationalNumber;
 
-  safeModel.countryCallingCode =
-    phone?.countryCallingCode || safeModel?.countryCallingCode;
+  safeModel.phone.countryCallingCode =
+    phone?.countryCallingCode || safeModel?.phone?.countryCallingCode;
 
-  safeModel.country =
-    phone?.country || safeModel?.country || country?.code || "";
+  safeModel.phone.country =
+    phone?.country || safeModel?.phone?.country || country?.code || "";
 
-  if (!!safeModel?.country && safeModel.country !== country?.code) {
+  if (
+    !!safeModel?.phone?.country &&
+    safeModel.phone.country !== country?.code
+  ) {
     const { getCountry } = useSystem();
     // we have change countries in the form, so we need to get our new country
-    country = getCountry(safeModel.country);
+    country = getCountry(safeModel.phone.country);
   }
 
   return Promise.resolve({ model: safeModel, country });
@@ -264,20 +301,44 @@ async function validate({ schema, model }: Partial<PhoneContext>) {
 // EXPORTS
 
 export default {
+  /**
+   * The query key used for caching and identifying phone-related queries.
+   * @type {QueryKey}
+   */
   queryKey,
+
   //--- queries
+  /**
+   * Loads the phone list.
+   * @returns {Promise<Phone[]>} A promise that resolves to the list of phones
+   */
   loadList,
-  loadCached,
 
   //--- mutations
+  /**
+   * Removes a phone by its ID.
+   * @param {Phone["id"]} phoneId - The ID of the phone to remove.
+   * @returns {Promise<null>} A promise that resolves when the phone is removed
+   */
   remove,
+
+  /**
+   * Sets a phone as the default phone.
+   * @param {Phone["id"]} phoneId - The ID of the phone to set as default.
+   * @returns {Promise<IPhone>} A promise that resolves to the updated phone
+   */
   setDefault,
 };
 
 export const useClientPhoneServices = () => {
   return {
-    loadLookups,
+    // --- methods
 
+    /**
+     * Adds a phone.
+     * @param {Partial<PhoneContext>} param0 - The phone context containing the model to add.
+     * @returns {Promise<any>} The result of the add operation.
+     */
     add: async ({ model }: Partial<PhoneContext>) => {
       if (isEmpty(model))
         return Promise.reject(
@@ -287,8 +348,54 @@ export const useClientPhoneServices = () => {
             { model }
           )
         );
-      return add(model);
+      // return add(model);
+      return ensure(model);
     },
+
+    /**
+     * Ensures a phone exists.
+     * @param {Partial<PhoneContext>} param0 - The phone context containing the model to ensure.
+     * @returns {Promise<any>} The ensured phone model, which will either be the existing phone or a new one created.
+     */
+    ensure: async ({ model }: Partial<PhoneContext>) => {
+      if (isEmpty(model))
+        return Promise.reject(
+          new DetailedError(
+            "[headless] Ensure Phone failed: model provided",
+            responseCodes.Unprocessable_Entity,
+            { model }
+          )
+        );
+      return ensure(model);
+    },
+
+    /**
+     * Loads lookups for the phone form.
+     * @param {PhoneContext} context - The phone context.
+     * @returns {Promise<PhoneContext>} The loaded lookups.
+     */
+    loadLookups,
+
+    /**
+     * Parses a phone context.
+     * @param {PhoneContext} context - The phone context.
+     * @param {AnyEventObject} event - The event object.
+     * @returns {Promise<any>} The parsed phone context.
+     */
+    parse,
+
+    /**
+     * Refreshes the phone list.
+     * @param {Partial<QueryParams>} params - Optional query params.
+     * @returns {Promise<any>} The refreshed phone list.
+     */
+    refresh: loadList,
+
+    /**
+     * Updates a phone.
+     * @param {Partial<PhoneContext>} param0 - The phone context containing id and model.
+     * @returns {Promise<any>} The result of the update operation.
+     */
     update: async ({ id, model }: Partial<PhoneContext>) => {
       if (!id || isEmpty(model))
         return Promise.reject(
@@ -298,11 +405,14 @@ export const useClientPhoneServices = () => {
             { id, model }
           )
         );
-
       return update(id, model);
     },
-    parse,
+
+    /**
+     * Validates a phone model.
+     * @param {Partial<PhoneContext>} param0 - The phone context containing schema and model.
+     * @returns {Promise<any>} The validated model.
+     */
     validate,
-    refresh: loadList,
   };
 };

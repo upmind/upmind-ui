@@ -18,15 +18,15 @@ import {
   stateMatches,
   stateValue,
   useContext,
-  UnavailableError,
 } from "../../../utils";
-import { get, isEqual } from "lodash-es";
+import { get, isEmpty, isEqual } from "lodash-es";
 
 // --- types
 import { IClient } from "@upmind-automation/types";
 import type { ClientItemContext } from "../types";
 import type { Phone, PhoneModel } from "./types";
 import { QueryResponseError } from "../../query";
+import { ErrorObject } from "ajv";
 
 // -----------------------------------------------------------------------------
 
@@ -54,7 +54,7 @@ export const useClientPhone = (
       }),
     {
       id: id ?? "new-phone",
-      devTools: false,
+      devTools: true,
     }
   );
 
@@ -64,15 +64,8 @@ export const useClientPhone = (
     return waitFor(service, state => stateMatches(state, "available"), {
       timeout: Infinity,
     }).then(state => {
-      if (stateMatches(state, "error")) {
-        if (
-          (errors.value as QueryResponseError)?.status ==
-          responseCodes.Service_Unavailable
-        ) {
-          return Promise.reject(new UnavailableError());
-        }
-        return false;
-      }
+      if (stateMatches(state, "error")) return false;
+
       return true;
     });
   }
@@ -96,7 +89,11 @@ export const useClientPhone = (
 
   const description = useContext<string | undefined>(state, "description");
 
-  const errors = useContext<ClientItemContext["error"]>(state, "error");
+  const errors = useContext<QueryResponseError["message"]>(
+    state,
+    "error.message"
+  );
+  const validationErrors = useContext<ErrorObject[]>(state, "error.data");
 
   const model = useContext<ClientItemContext["model"]>(state, "model");
 
@@ -125,7 +122,7 @@ export const useClientPhone = (
 
     const model = contextValue<PhoneModel>(state, "model");
 
-    if (!isEqual(value, model)) {
+    if (!isEmpty(value) && !isEqual(value, model)) {
       send({ type: "SET", data: value, update: true });
     } else {
       send({ type: "UPDATE" });
@@ -201,6 +198,9 @@ export const useClientPhone = (
 
     /** Any error object from the context. */
     errors,
+
+    /** Any validation errors from the context. */
+    validationErrors,
 
     /** The current model.*/
     model,
