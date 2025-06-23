@@ -9,7 +9,7 @@ export const avatarVariants = cva(
   {
     variants: {
       color: {
-        base: "bg-base-muted text-base-muted-foreground",
+        base: "bg-base-muted text-base-foreground",
         primary: "bg-primary text-primary-foreground",
         secondary: "bg-secondary text-secondary-foreground",
         accent: "bg-accent text-accent-foreground",
