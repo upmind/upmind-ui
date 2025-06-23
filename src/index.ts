@@ -22,6 +22,7 @@ export * from "./ui/input";
 export * from "./ui/input-extended";
 export * from "./ui/interstitial";
 export * from "./ui/label";
+export * from "./ui/layout";
 export * from "./ui/lineclamp";
 export * from "./ui/link";
 export * from "./ui/list";
