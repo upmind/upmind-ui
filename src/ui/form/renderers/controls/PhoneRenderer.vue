@@ -47,7 +47,6 @@ import { computed, ref } from "vue";
 import { useJsonFormsControl } from "@jsonforms/vue";
 import examples from "libphonenumber-js/mobile/examples";
 import {
-  parsePhoneNumber,
   getExampleNumber,
   validatePhoneNumberLength,
   parsePhoneNumberWithError,
@@ -101,12 +100,8 @@ const initialPhoneData = () => {
   // Parsing E.164 string format
   if (isString(data) && data.startsWith("+")) {
     try {
-      const parsedNumber = parsePhoneNumber(data);
-      return {
-        country: parsedNumber.country,
-        nationalNumber: parsedNumber.nationalNumber,
-        number: parsedNumber.number,
-      };
+      const parsed = parsePhone(data);
+      return parsed;
     } catch (error) {
       console.warn("Failed to parse E.164 format phone number:", error);
       return {};
@@ -124,16 +119,26 @@ const exampleNumber = computed(() => {
   return getExampleNumber(countryCode, examples)?.formatNational();
 });
 
-function parsePhone(value: string | PhoneNumber, countryCode?: CountryCode) {
+function parsePhone(
+  value: string | PhoneNumber,
+  countryCode?: CountryCode
+): {
+  country: CountryCode;
+  number: string;
+  nationalNumber?: string;
+  countryCallingCode?: string;
+} {
   const phonenumber = isString(value)
     ? value
     : value?.nationalNumber || value?.number || "";
 
   const code = countryCode || phone.value?.country || defaultCountryCode;
-
-  if (phonenumber) {
+  const parsed = parsePhoneNumberWithError(phonenumber, code);
+  if (parsed) {
     return {
-      ...parsePhoneNumber(phonenumber, code),
+      number: parsed.number,
+      nationalNumber: parsed.nationalNumber,
+      countryCallingCode: parsed.countryCallingCode,
       country: code,
     };
   }
@@ -193,7 +198,7 @@ const errorsMapped = computed(() => {
     case "INVALID_COUNTRY":
       return "Invalid country";
     default:
-      return "Not a phone number";
+      return control?.value?.errors || "Not a phone number";
   }
 });
 </script>
