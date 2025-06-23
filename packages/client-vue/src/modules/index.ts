@@ -1,5 +1,6 @@
 export * from "./basket";
 export * from "./billing";
+export * from "./client";
 export * from "./checkout";
 export * from "./order";
 export * from "./product";

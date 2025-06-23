@@ -1,7 +1,8 @@
 <template>
   <div>
-    <!-- <pre>{{ { meta, type, selected, open, modelValue } }}</pre> -->
+    <pre>{{ { selected, open, modelValue } }}</pre>
 
+    <!-- address vs company -->
     <RadioCardsCollapsible
       v-if="!meta.isLoading && !meta.isEmpty"
       v-model:open="open"
@@ -11,12 +12,7 @@
       required
     >
       <template #item="{ item }">
-        <component
-          :is="Item"
-          v-bind="item"
-          :readonly="props.readonly"
-          @edit="editItem"
-        />
+        <AddressItem v-bind="item" :readonly="props.readonly" />
       </template>
 
       <template #actions>
@@ -30,7 +26,9 @@
 
         <Link
           v-else-if="!readonly"
-          :label="t('billing.actions.add', { type })"
+          :label="
+            t('billing.actions.add', { type: UnifiedAddressType.PERSONAL })
+          "
           size="xs"
           variant="muted"
           @click="openModel = true"
@@ -38,13 +36,45 @@
       </template>
     </RadioCardsCollapsible>
 
-    <Form
-      v-if="(!meta.isLoading && meta.isEmpty) || editId || true"
+    <!-- phone  -->
+    <RadioCardsCollapsible
+      v-if="!phoneMeta.isLoading && !phoneMeta.isEmpty"
+      v-model:open="open"
+      v-model="selectedPhone"
+      :items="parsedPhones"
+      :list="false"
+      minimal
+      required
+    >
+      <template #item="{ item }">
+        <PhoneItem v-bind="item.phone" :readonly="props.readonly" />
+      </template>
+
+      <template #actions>
+        <Link
+          v-if="!open && parsedValues.length > 1"
+          :label="t('client.phone.actions.change')"
+          size="xs"
+          variant="muted"
+          @click="open = true"
+        />
+
+        <Link
+          v-else-if="!readonly"
+          :label="t('client.phone.actions.add')"
+          size="xs"
+          variant="muted"
+          @click="openModel = true"
+        />
+      </template>
+    </RadioCardsCollapsible>
+
+    <Add
+      v-if="(!meta.isLoading && meta.isEmpty) || openModel"
       v-model:open="openModel"
       :client-id="props.clientId"
-      :model="!meta.isEmpty"
-      :id="editId"
-      :type="props.type"
+      :modal="!meta.isEmpty"
+      :type="UnifiedAddressType.PERSONAL"
       @resolve="doResolve"
       @reject="doReject"
     />
@@ -66,17 +96,17 @@ import {
 
 // --- components
 import { RadioCardsCollapsible, Link } from "@upmind-automation/upmind-ui";
-import Form from "./Form.vue";
-import PhoneItem from "./Phone.vue";
-import AddressItem from "./Address.vue";
-import CompanyItem from "./Company.vue";
+import Add from "./Add.vue";
+import PhoneItem from "../client/phone/Item.vue";
+import AddressItem from "../client/address/Item.vue";
+import CompanyItem from "../client/company/Item.vue";
 
 // --- utils
-import { first, lowerCase, map } from "lodash-es";
+import { first, lowerCase, map, set, find } from "lodash-es";
 
 // --- types
 
-import type { BillingModel } from "@upmind-automation/headless";
+import type { BillingModel, Company } from "@upmind-automation/headless";
 import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
 import { useVModel } from "@vueuse/core";
 
@@ -84,7 +114,6 @@ import { useVModel } from "@vueuse/core";
 
 const props = defineProps<{
   clientId: string;
-  type: UnifiedAddressType;
   modelValue?: BillingModel;
   readonly?: boolean;
 }>();
@@ -95,13 +124,13 @@ const emits = defineEmits<{
 
 const { t } = useI18n();
 // -----------------------------------------------------------------------------
+const { data, meta, default: defaultItem } = useClientCompanies();
+
 const {
-  data,
-  meta,
-  default: defaultItem,
-} = props.type == UnifiedAddressType.PERSONAL
-  ? useClientAddresses()
-  : useClientCompanies();
+  data: phones,
+  meta: phoneMeta,
+  default: defaultPhone,
+} = useClientPhones();
 
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
@@ -122,15 +151,21 @@ const selected = computed({
     );
   },
   set(val: string) {
-    if (props.type === UnifiedAddressType.BUSINESS) {
-      modelValue.value = {
-        companyId: val,
-      };
-    } else {
-      modelValue.value = {
-        addressId: val,
-      };
-    }
+    modelValue.value = {
+      addressId: val,
+    };
+  },
+});
+
+const selectedPhone = computed({
+  get() {
+    return modelValue.value?.phoneId || defaultPhone.value?.id;
+  },
+  set(val: string) {
+    debugger;
+    modelValue.value ??= {};
+    debugger;
+    set(modelValue.value, "phoneId", val);
   },
 });
 
@@ -147,19 +182,18 @@ const parsedValues = computed(() => {
   }) as RadioCardsItemProps[];
 });
 
-const Item = computed(() => {
-  switch (props.type) {
-    case UnifiedAddressType.BUSINESS:
-      return CompanyItem;
-    default:
-      return AddressItem;
-  }
+const parsedPhones = computed(() => {
+  return map(phones.value || [], (item: any, index: number) => {
+    return {
+      id: item.id,
+      value: item.id,
+      label: item.title,
+      item: item,
+      index: index,
+      // modelValue: modelValue.value,
+    };
+  }) as RadioCardsItemProps[];
 });
-
-const editItem = (id: string) => {
-  editId.value = id;
-  openModel.value = true;
-};
 
 function doReject() {
   openModel.value = false;

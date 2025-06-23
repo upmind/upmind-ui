@@ -1,14 +1,14 @@
 <template>
   <footer class="flex flex-col gap-2 md:flex-row md:justify-start">
     <Button
-      :label="t('billing.actions.resolve')"
+      :label="t(`client.${type}.actions.resolve`)"
       color="secondary"
       :disabled="props.disabled || props.loading"
       :loading="props.processing"
       @click="emits('save')"
     />
     <Button
-      :label="t('billing.actions.reject')"
+      :label="t(`client.${type}.actions.reject`)"
       color="secondary"
       variant="ghost"
       :disabled="props.loading"
@@ -28,6 +28,7 @@ import { Button } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
+  type: "address" | "company" | "phone" | "email";
   disabled?: boolean;
   processing?: boolean;
   loading?: boolean;
