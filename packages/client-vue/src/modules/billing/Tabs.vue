@@ -27,7 +27,7 @@ import { UnifiedAddressType, useSession } from "@upmind-automation/headless";
 
 // --- components
 import { Tabs, Loading } from "@upmind-automation/upmind-ui";
-import Tab from "./components/Tab.vue";
+import Tab from "./TabBusiness.vue";
 
 // --- utils
 

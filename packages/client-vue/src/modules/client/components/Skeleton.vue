@@ -26,11 +26,11 @@
       <Skeleton class="mt-2 h-10 w-full" />
     </div>
 
-    <ModelRendererActions disabled loading />
+    <Actions disabled loading />
   </section>
 </template>
 
 <script setup lang="ts">
 import { Skeleton } from "@upmind-automation/upmind-ui";
-import ModelRendererActions from "./Actions.vue";
+import Actions from "./Actions.vue";
 </script>

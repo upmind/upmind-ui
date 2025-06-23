@@ -7,13 +7,13 @@
           v-if="meta.isDefault"
           variant="flat"
           size="xs"
-          :label="t('billing.item.default')"
+          :label="t('client.company.default')"
         />
       </h3>
 
       <Link
         v-if="!props.readonly"
-        :label="t('billing.actions.edit')"
+        :label="t('client.company.actions.edit')"
         size="xs"
         variant="muted"
         tabindex="-1"
@@ -29,7 +29,7 @@
 
     <!-- TODO make this dynamic/templatate/schema driven -->
     <p class="text-emphasis-medium m-0 inline-flex flex-wrap gap-x-1 text-sm">
-      {{ t("billing.item.type.company") }}
+      {{ t("client.company.name") }}
       <span v-if="regNumber">{{ regNumber }}</span>
       <span v-if="vatNumber">{{ vatNumber }}</span>
     </p>

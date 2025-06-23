@@ -7,19 +7,19 @@
           v-if="meta?.isDefault"
           variant="flat"
           size="xs"
-          :label="t('billing.item.default')"
+          :label="t('client.address.default')"
         />
       </h3>
 
       <Link
         v-if="!props.readonly"
-        :label="t('billing.actions.edit')"
+        :label="t('client.address.actions.edit')"
         size="xs"
         variant="muted"
         tabindex="-1"
         @mousedown.stop.prevent
         class="h-4"
-        @click.stop.prevent="edit"
+        @click.stop.prevent="doEdit"
       />
     </header>
 
@@ -55,7 +55,7 @@ const emits = defineEmits<{
 
 const { t } = useI18n();
 
-const edit = () => {
+const doEdit = () => {
   if (!props?.id) return;
   emits("edit", props.id);
 };
