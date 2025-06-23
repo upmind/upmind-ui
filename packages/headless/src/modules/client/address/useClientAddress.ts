@@ -19,6 +19,7 @@ import {
   stateValue,
   useContext,
   UnavailableError,
+  ErrorOrigin,
 } from "../../../utils";
 import { get, isEqual } from "lodash-es";
 
@@ -115,7 +116,11 @@ export const useClientAddress = (
       .then(state => get(state, "context.model") as AddressModel)
       .catch(() => {
         return Promise.reject(
-          new DetailedError("Input not available", responseCodes.Forbidden)
+          new DetailedError(
+            "[headless] Input not available",
+            responseCodes.Forbidden,
+            ErrorOrigin.Headless
+          )
         );
       });
   }
@@ -150,6 +155,7 @@ export const useClientAddress = (
           new DetailedError(
             "[headless] update Address failed",
             error?.status ?? responseCodes.Timeout,
+            ErrorOrigin.Headless,
             {
               error,
               state: state.value,

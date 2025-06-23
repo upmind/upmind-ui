@@ -8,14 +8,15 @@ import { useBasketPaymentDetails } from "./useBasketPaymentDetails";
 // --- utils
 import {
   contextMatches,
+  contextValue,
+  DetailedError,
+  ErrorOrigin,
+  responseCodes,
   stateMatches,
   stateValue,
-  contextValue,
   useContext,
-  DetailedError,
-  responseCodes,
 } from "../../utils";
-import { isNil, isEqual } from "lodash-es";
+import { isEqual, isNil } from "lodash-es";
 
 // --- types
 import type { ActorRef } from "xstate";
@@ -23,7 +24,7 @@ import { GatewayContext } from "../paymentDetails";
 import { isFunction } from "xstate/lib/utils";
 
 // -----------------------------------------------------------------------------
-// We allow an actor to be passed in, but if not, we will use the basket service and wait for the 'actor'' machine to be ready
+// We allow an actor to be passed in, but if not, we will use the basket service and wait for the 'actor' machine to be ready
 
 export const useBasketPaymentGateway = () => {
   const { gateway: actor } = useBasketPaymentDetails();
@@ -47,10 +48,7 @@ export const useBasketPaymentGateway = () => {
         service as ActorRef<any>,
         state => !stateMatches(state, ["loading", "error"]),
         { timeout: Infinity }
-      ).then(state => {
-        if (stateMatches(state, ["error"])) return false;
-        return true;
-      });
+      ).then(state => !stateMatches(state, ["error"]));
     });
   }
 
@@ -120,6 +118,7 @@ export const useBasketPaymentGateway = () => {
           new DetailedError(
             "[headless] update PaymentGateway on basket failed",
             error?.status ?? responseCodes.Timeout,
+            ErrorOrigin.Headless,
             {
               error,
               state: actor.value?.getSnapshot()?.value,
@@ -133,14 +132,26 @@ export const useBasketPaymentGateway = () => {
     const rendererFn = contextValue(actor, "renderer");
     return new Promise((resolve, reject) => {
       if (!container) {
-        return reject();
+        return reject(
+          new DetailedError(
+            "[headless] render on useBasketPaymentGateway does not have container",
+            responseCodes.Not_Found,
+            ErrorOrigin.Headless
+          )
+        );
       }
       if (isFunction(rendererFn)) {
         rendererFn(container);
         return resolve(true);
       } else {
         container.innerHTML = "";
-        return reject();
+        return reject(
+          new DetailedError(
+            "[headless] render on useBasketPaymentGateway thrown an error",
+            responseCodes.Unprocessable_Entity,
+            ErrorOrigin.Headless
+          )
+        );
       }
     });
   }
@@ -156,8 +167,8 @@ export const useBasketPaymentGateway = () => {
     isReady,
 
     /**
-     * Meta information about the basket payment gateway state.
-     * @typedef {Object} BasketPaymentGatewayMeta
+     * Meta-information about the basket payment gateway state.
+     * @type {Object} BasketPaymentGatewayMeta
      * @property {boolean} isAvailable - Indicates if the payment gateway actor is available.
      * @property {boolean} isLoading - Indicates if the payment gateway actor is loading.
      * @property {boolean} hasErrors - Indicates if there are errors.

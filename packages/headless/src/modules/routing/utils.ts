@@ -8,6 +8,7 @@ import { useBasketProductsPending } from "../basketProduct";
 // --- utils
 import {
   DetailedError,
+  ErrorOrigin,
   responseCodes,
   stateMatches,
   useSafeParse,
@@ -49,7 +50,8 @@ export async function awaitResolved(service: ActorRef<any>) {
     .catch(() => {
       throw new DetailedError(
         "[headless] awaitResolved on routing/utils timed out",
-        responseCodes.Timeout
+        responseCodes.Timeout,
+        ErrorOrigin.Headless
       );
     });
 }

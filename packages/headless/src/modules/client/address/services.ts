@@ -17,6 +17,7 @@ import {
   NotAuthenticatedError,
   DetailedError,
   responseCodes,
+  ErrorOrigin,
 } from "../../../utils";
 import { invalidateQueryByKey } from "../../query";
 import { mapAddresses, mapIAddress } from "./mappers";
@@ -80,7 +81,16 @@ async function loadLookups({
 
   // we have to do this synchronously as we need the values to be available for the model
   // these could/should be cached in the system machine, so there's no worry about performance
-  await isReady().catch(error => Promise.reject(error));
+  await isReady().catch(error =>
+    Promise.reject(
+      new DetailedError(
+        "[headless] System not ready",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless,
+        { error }
+      )
+    )
+  );
   const countries = await fetchCountries();
   const country = getCountry(model?.countryId);
   const regions = await fetchRegions(model?.countryId || country?.id);
@@ -91,11 +101,18 @@ async function loadLookups({
   ]);
 
   if (!countries || !regions) {
-    return Promise.reject("Failed to load countries and regions");
+    return Promise.reject(
+      new DetailedError(
+        "[headless] Failed to load address lookups",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless,
+        { countries, regions }
+      )
+    );
   }
 
   const baseModel: AddressModel = {
-    type: first(AddressTypes)?.key || 1,
+    // type: first(AddressTypes)?.key || 1, // deprecated
     countryId: country?.id,
     address1: "",
     city: "",
@@ -267,7 +284,14 @@ async function validate({ schema, model }: Partial<AddressContext>) {
   return new Promise((resolve, reject) => {
     const errors = validate(schema, model);
     if (errors?.length) {
-      reject({ error: errors });
+      reject(
+        new DetailedError(
+          "[headless] Invalid Address Model",
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.Headless,
+          { model, schema, errors }
+        )
+      );
     } else {
       resolve(model);
     }
@@ -296,6 +320,7 @@ export const useClientAddressServices = () => {
           new DetailedError(
             "[headless] Add Address failed: model provided",
             responseCodes.Unprocessable_Entity,
+            ErrorOrigin.Headless,
             { model }
           )
         );
@@ -307,6 +332,7 @@ export const useClientAddressServices = () => {
           new DetailedError(
             "[headless] Update Address failed: No id or model provided",
             responseCodes.Unprocessable_Entity,
+            ErrorOrigin.Headless,
             { id, model }
           )
         );

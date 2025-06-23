@@ -57,6 +57,6 @@ export function mapIAddress(data: AddressModel): IAddress {
     postcode: data.postcode,
     region_id: data.regionId,
     country_id: data.countryId,
-    type: data.type,
+    // type: data.type, // deprecated
   } as IAddress;
 }

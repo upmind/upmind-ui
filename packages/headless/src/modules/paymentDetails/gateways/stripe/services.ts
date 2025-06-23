@@ -6,7 +6,13 @@ import { useQuery, useSession } from "../../..";
 import sharedServices from "../services";
 
 // --- utils
-import { NotAuthenticatedError, useValidation } from "../../../../utils";
+import {
+  DetailedError,
+  ErrorOrigin,
+  NotAuthenticatedError,
+  responseCodes,
+  useValidation,
+} from "../../../../utils";
 import { getSupportedPaymentMethods, getPublicKey } from "./utils";
 import { reject, set } from "lodash-es";
 
@@ -20,13 +26,28 @@ async function load({ gateway }: StripeContext, _event: AnyEventObject) {
   const options = await sharedServices.load({ gateway }, _event);
 
   const key = getPublicKey(gateway);
-  if (!key) return Promise.reject(new Error("Stripe public key not found."));
+  if (!key)
+    return Promise.reject(
+      new DetailedError(
+        "[headless] Stripe public key not found.",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless,
+        { gatewayId: gateway?.id, serviceOptions: options }
+      )
+    );
 
   const stripe = await loadStripe(key);
 
   return new Promise(resolve => {
     if (!stripe) {
-      reject(new Error("Stripe not found."));
+      reject(
+        new DetailedError(
+          "[headless] Stripe not found.",
+          responseCodes.Not_Found,
+          ErrorOrigin.Headless,
+          { gatewayId: gateway?.id, serviceOptions: options }
+        )
+      );
     } else {
       resolve({ stripe, ...(options || {}) });
     }
@@ -40,7 +61,15 @@ async function validate(
   // ---
 
   // Get any errors from the Stripe Element
-  if (!element) return Promise.reject(new Error("Stripe elements not found."));
+  if (!element)
+    return Promise.reject(
+      new DetailedError(
+        "[headless] Stripe element not found.",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless,
+        { data, model, element, elementStatus }
+      )
+    );
 
   // Now validate the model as per normal
   const { validate } = useValidation();
@@ -64,7 +93,14 @@ async function validate(
     }
 
     if (errors?.length) {
-      reject({ error: errors });
+      reject(
+        new DetailedError(
+          "[headless] Stripe validation failed.",
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.Headless,
+          { data, model, errors, element, elementStatus }
+        )
+      );
     } else {
       resolve(model);
     }
@@ -113,12 +149,28 @@ async function createPaymentElement(
  */
 async function update({ elements, stripe, model }: StripeContext) {
   if (!elements || !stripe)
-    return Promise.reject(new Error("Gateway elements not found."));
+    return Promise.reject(
+      new DetailedError(
+        "[headless] Stripe elements or stripe not found.",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless,
+        { elements, stripe, model }
+      )
+    );
 
   // Submit form to validate fields
   const { error: submitError } = await elements
     .submit()
-    .catch((error: any) => Promise.reject(error));
+    .catch((error: any) =>
+      Promise.reject(
+        new DetailedError(
+          "[headless] Stripe element submission failed.",
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.Headless,
+          { error }
+        )
+      )
+    );
 
   if (submitError) return Promise.reject(submitError);
 
@@ -131,7 +183,14 @@ async function update({ elements, stripe, model }: StripeContext) {
 
   return new Promise((resolve, reject) => {
     if (error) {
-      reject(error);
+      reject(
+        new DetailedError(
+          "[headless] Stripe create payment method failed.",
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.Headless,
+          { error, model }
+        )
+      );
     } else {
       // add the payment details to the model
       set(
@@ -164,8 +223,8 @@ async function createAddElement(
 
   const { meta, user } = useSession();
 
-  if (meta.value.isAuthenticated === false || !user.value?.id)
-    Promise.reject(new NotAuthenticatedError());
+  if (!meta.value.isAuthenticated || !user.value?.id)
+    await Promise.reject(new NotAuthenticatedError());
 
   const clientId = user.value!.id;
 

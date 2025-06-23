@@ -18,6 +18,7 @@ import {
   NotAuthenticatedError,
   DetailedError,
   responseCodes,
+  ErrorOrigin,
 } from "../../../utils";
 import { mapIPhone, mapPhones } from "./mapper";
 import { invalidateQueryByKey } from "../../query";
@@ -77,11 +78,27 @@ async function loadLookups({
   const { isReady, fetchCountries, getCountry } = useSystem();
   // we have to do this synchronously as we need the values to be available for the model
   // these could/should be cached in the system machine, so there's no worry about performance
-  await isReady().catch(error => Promise.reject(error));
+  await isReady().catch(error =>
+    Promise.reject(
+      new DetailedError(
+        "[headless] System not ready",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless,
+        { error }
+      )
+    )
+  );
   const countries = await fetchCountries();
   const country = getCountry(model?.country);
   if (!countries) {
-    return Promise.reject("Failed to load countries");
+    return Promise.reject(
+      new DetailedError(
+        "[headless] Failed to load countries",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless,
+        { model }
+      )
+    );
   }
   const baseModel: PhoneModel = {
     number: "",
@@ -253,7 +270,14 @@ async function validate({ schema, model }: Partial<PhoneContext>) {
   return new Promise((resolve, reject) => {
     const errors = validate(schema, model);
     if (errors?.length) {
-      reject({ error: errors });
+      reject(
+        new DetailedError(
+          "[headless] Invalid Phone Model",
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.Headless,
+          { model, schema, errors }
+        )
+      );
     } else {
       resolve(model);
     }
@@ -284,6 +308,7 @@ export const useClientPhoneServices = () => {
           new DetailedError(
             "[headless] Add Phone failed: model provided",
             responseCodes.Unprocessable_Entity,
+            ErrorOrigin.Headless,
             { model }
           )
         );
@@ -295,6 +320,7 @@ export const useClientPhoneServices = () => {
           new DetailedError(
             "[headless] Update Phone failed: No id or model provided",
             responseCodes.Unprocessable_Entity,
+            ErrorOrigin.Headless,
             { id, model }
           )
         );

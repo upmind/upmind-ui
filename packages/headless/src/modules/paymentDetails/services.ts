@@ -1,36 +1,37 @@
 // --- external
 import { unref } from "vue";
+import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import { useQuery, useSession, useBrand } from "..";
+import { useBrand, useQuery, useSession } from "..";
 
 // --- utils
 import {
+  get,
+  map,
+  find,
+  pick,
+  first,
+  unset,
+  filter,
+  sortBy,
+  forEach,
+  includes,
+  defaultsDeep,
+} from "lodash-es";
+import {
+  ErrorOrigin,
   DetailedError,
   responseCodes,
-  NotAuthenticatedError,
   useValidation,
+  NotAuthenticatedError,
 } from "../../utils";
-import {
-  unset,
-  get,
-  sortBy,
-  find,
-  map,
-  forEach,
-  filter,
-  includes,
-  first,
-  defaultsDeep,
-  pick,
-} from "lodash-es";
 
 // --- types
-import { BrandConfigKeys, PaymentType } from "@upmind-automation/types";
 import { GatewayTypes } from "./gateways/types";
-import type { PaymentDetailsContext } from "./types";
-import { waitFor } from "xstate/lib/waitFor";
 import type { AnyEventObject } from "xstate";
+import type { PaymentDetailsContext } from "./types";
+import { BrandConfigKeys, PaymentType } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -172,18 +173,18 @@ async function parse(
   // HACK: TEMP: FORCE payment type to PAY_IN_FULL
   safeModel.type ??= PaymentType.PAY_IN_FULL;
   // ---
-  // Gateway vs Stored Payment Logic...
+  // Gateway vs. Stored Payment Logic...
 
   // 1) Make sure if a gateway is selected that we use that
   if (safeModel?.gateway_id) {
     gateway = find(gateways, {
       gateway_id: safeModel.gateway_id,
     })?.gateway;
-    // if we dont have a matching/valid gateway, then we should remove the gateway_id
+    // if we don't have a matching/valid gateway, then we should remove the gateway_id
     if (!gateway) unset(safeModel, "gateway_id");
   }
 
-  // 2) finally If we dont have any selected gateways then we should use the first available
+  // 2) finally If we don't have any selected gateways, then we should use the first available
   if (!safeModel.gateway_id) {
     gateway = first(gateways)?.gateway;
     safeModel.gateway_id = gateway?.id;
@@ -221,7 +222,8 @@ async function validate(
     ).catch(() => {
       throw new DetailedError(
         "[headless] validate on paymentDetails timed out",
-        responseCodes.Timeout
+        responseCodes.Timeout,
+        ErrorOrigin.Headless
       );
     });
   });
@@ -240,7 +242,14 @@ async function validate(
 
   return new Promise((resolve, reject) => {
     if (errors?.length) {
-      reject({ error: errors, model });
+      reject(
+        new DetailedError(
+          "[headless] validate on paymentDetails failed.",
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.Headless,
+          { errors, model }
+        )
+      );
     } else {
       resolve(model);
     }

@@ -4,7 +4,12 @@
 import { useQuery } from "../../..";
 
 // --- utils
-import { useValidation } from "../../../utils";
+import {
+  DetailedError,
+  ErrorOrigin,
+  responseCodes,
+  useValidation,
+} from "../../../utils";
 import { get, isEmpty, some, trim } from "lodash-es";
 
 // --- types
@@ -27,10 +32,20 @@ async function add(
 
   if (!model?.promocode)
     return Promise.reject(
-      new Error("No Promocode provided to add to basketId")
+      new DetailedError(
+        "[headless] No Promocode provided to add to basketId",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      )
     );
   if (some(promotions, { promocode: model?.promocode }))
-    return Promise.reject(new Error("Promocode already exists in basketId"));
+    return Promise.reject(
+      new DetailedError(
+        "[headless] Promocode already exists in basketId",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      )
+    );
 
   return post<IBasketPromotion[]>({
     url: useUrl(`/orders/${basketId}/promotions`),
@@ -47,7 +62,11 @@ async function remove(
 
   if (!id)
     return Promise.reject(
-      new Error("No Promotion provided to remove from basketId")
+      new DetailedError(
+        "[headless] No Promotion provided to remove from basketId",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      )
     );
 
   const { del, useUrl } = useQuery();
@@ -60,7 +79,7 @@ async function remove(
 
 async function parse({ model }: PromotionsContext, _event: AnyEventObject) {
   // ---
-  // we dont have any parsing checks or transforms so we can pass through the model
+  // we don't have any parsing checks or transforms so we can pass through the model
   return Promise.resolve({ model });
 }
 
@@ -80,7 +99,14 @@ async function validate(
 
     // HACK: we want promocode to be invalid if empty, but not necessarily have an error
     if (errors?.length || isEmpty(model?.promocode)) {
-      reject({ error: errors });
+      reject(
+        new DetailedError(
+          "[headless] Invalid Promotion",
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.Headless,
+          { model, errors }
+        )
+      );
     } else {
       resolve(model);
     }

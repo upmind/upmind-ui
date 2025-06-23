@@ -3,32 +3,31 @@
 // --- internal
 import { useQuery } from ".";
 import { useSession } from "../session";
-import { useFeedback } from "../feedback";
+import { messageDisplays, messageTypes, useFeedback } from "../feedback";
 import { useLocale } from "../system";
-const { add } = useFeedback();
-
 // --- utils
 import {
   get,
+  includes,
+  isEmpty,
   map,
   set,
-  isEmpty,
-  includes,
-  upperCase,
   startsWith,
+  upperCase,
 } from "lodash-es";
 import {
-  getTokenFromStorage,
   dumpTokenFromStorage,
+  getTokenFromStorage,
   persistTokenToStorage,
 } from "../session/utils";
-import { responseCodes } from "../../utils";
-import { messageDisplays, messageTypes } from "../feedback";
+import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 
 // --- types
 import type { Token } from "../session/types";
 import { GrantTypes, Methods } from "@upmind-automation/types";
-import type { RequestParams, QueryResponse } from "./types";
+import type { QueryResponse, RequestParams } from "./types";
+
+const { add } = useFeedback();
 
 // -----------------------------------------------------------------------------
 function handleError(
@@ -67,8 +66,9 @@ function handleError(
       id: error?.id ?? null,
       type: error?.type ?? responseCodes.Service_Unavailable,
       code: error?.code ?? null,
-      message: error?.message || "Service temporarily unavailable",
       data: error?.data || null,
+      message: error?.message || "Service temporarily unavailable",
+      origin: ErrorOrigin.Upmind,
     },
     messages: null,
   });
@@ -81,13 +81,31 @@ async function doFetch<T extends any = any>({
   init ??= {};
 
   if (!includes(map(Methods, upperCase), init?.method)) {
-    return Promise.reject(new Error(`Invalid method: ${init?.method}`));
+    return Promise.reject(
+      new DetailedError(
+        `[headless] Invalid method: ${init?.method}`,
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless,
+        {
+          url: url?.toString(),
+          method: init?.method,
+        }
+      )
+    );
   }
 
-  if (!url) Promise.reject(new Error("Invalid URL"));
+  if (!url)
+    await Promise.reject(
+      new DetailedError(
+        "[headless] Invalid URL",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless,
+        { url }
+      )
+    );
 
   if (!url.searchParams.has("lang") && !startsWith(url.pathname, "/oauth/")) {
-    const { locale, isReady } = useLocale();
+    const { locale } = useLocale();
     if (!isEmpty(locale.value))
       url.searchParams.set("lang", locale.value as string);
   }
@@ -135,7 +153,14 @@ async function refreshToken() {
       if (token) dumpTokenFromStorage(token.actor_type);
       reauth();
 
-      return Promise.reject(error);
+      return Promise.reject(
+        new DetailedError(
+          "[headless] Failed to refresh token",
+          responseCodes.Unauthorized,
+          ErrorOrigin.Upmind,
+          { error }
+        )
+      );
     });
 }
 

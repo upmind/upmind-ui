@@ -1,12 +1,22 @@
 // --- external
 import parsePhoneNumber, { CountryCode } from "libphonenumber-js";
 
+// --- types
+import type {
+  Address,
+  AddressModel,
+  CompanyModel,
+  Email,
+  EmailModel,
+  Phone,
+  PhoneModel,
+} from "../../../client";
 // --- internal
 import {
-  useClientEmails,
-  useClientPhones,
   useClientAddresses,
   useClientCompanies,
+  useClientEmails,
+  useClientPhones,
 } from "../../../client";
 import { useBrand } from "../../../brand";
 import { useSystem } from "../../../system";
@@ -17,30 +27,19 @@ import { useClientAddressServices } from "../../../client/address/services";
 
 // --- utils
 import {
-  useValidation,
   DetailedError,
+  ErrorOrigin,
   responseCodes,
   useModelParser,
+  useValidation,
 } from "../../../../utils";
 import { mapPhone } from "../../../client/phone/mapper";
 import { mapEmail } from "../../../client/email/mappers";
 import { mapAddress } from "../../../client/address/mappers";
 import { find, get, isEmpty, isEqual, isString, pick, some } from "lodash-es";
-
-// --- types
-import type {
-  Email,
-  Phone,
-  Address,
-  EmailModel,
-  PhoneModel,
-  AddressModel,
-  Company,
-  CompanyModel,
-} from "../../../client";
 import type { AnyEventObject } from "xstate";
-import { UnifiedAddressType } from "./types";
 import type { UnifiedAddressContext, UnifiedAddressModel } from "./types";
+import { UnifiedAddressType } from "./types";
 import { BrandConfigKeys } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -179,7 +178,8 @@ async function add(type: UnifiedAddressType, data: UnifiedAddressModel) {
               return Promise.reject(
                 new DetailedError(
                   "No address found or created",
-                  responseCodes.Unprocessable_Entity
+                  responseCodes.Unprocessable_Entity,
+                  ErrorOrigin.Headless
                 )
               );
             return addCompany({
@@ -209,6 +209,7 @@ async function add(type: UnifiedAddressType, data: UnifiedAddressModel) {
         new DetailedError(
           "[headless] Add Unified Address Failed",
           responseCodes.Unprocessable_Entity,
+          ErrorOrigin.Headless,
           { error }
         )
       );
@@ -288,7 +289,14 @@ async function validate({ schema, model }: Partial<UnifiedAddressContext>) {
     const errors = validate(schema, model);
 
     if (errors?.length) {
-      reject({ error: errors });
+      reject(
+        new DetailedError(
+          "[headless] validate on UnifiedAddress failed.",
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.Headless,
+          { errors }
+        )
+      );
     } else {
       resolve(model);
     }
@@ -308,7 +316,8 @@ async function ensureEmail(model: UnifiedAddressModel): Promise<Email> {
     if (!item)
       throw new DetailedError(
         "[headless] Failed to ensure (add) address",
-        responseCodes.Unprocessable_Entity
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
       ); // NB: Remember to refresh our machines so we have the new data
     refresh();
     return mapEmail(item);
@@ -329,11 +338,11 @@ async function ensurePhone(model: UnifiedAddressModel): Promise<Phone> {
     if (!item)
       throw new DetailedError(
         "[headless] Failed to ensure (add) address",
-        responseCodes.Unprocessable_Entity
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
       ); // NB: Remember to refresh our machines so we have the new data
     refresh();
-    const phone = mapPhone(item);
-    return phone;
+    return mapPhone(item);
   });
 }
 
@@ -353,7 +362,8 @@ async function ensureAddress(model: UnifiedAddressModel): Promise<Address> {
     if (!item)
       throw new DetailedError(
         "[headless] Failed to ensure (add) address",
-        responseCodes.Unprocessable_Entity
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
       );
     // NB: Remember to refresh our machines so we have the new data
     refresh();
@@ -371,8 +381,9 @@ async function ensureDependencies({
   if (!model)
     return Promise.reject(
       new DetailedError(
-        "No address model provided",
-        responseCodes.Unprocessable_Entity
+        "[headless] No address model provided",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
       )
     );
 

@@ -14,6 +14,7 @@ import { useBrand } from "../brand";
 
 import {
   DetailedError,
+  ErrorOrigin,
   responseCodes,
   stateMatches,
   useContext,
@@ -156,7 +157,8 @@ export const useSystem = () => {
       ).catch(() => {
         throw new DetailedError(
           `[headless] fetch on useSystem timed out while fetching "${node}"`,
-          responseCodes.Timeout
+          responseCodes.Timeout,
+          ErrorOrigin.Headless
         );
       });
       return fetch(node, getValues, data);

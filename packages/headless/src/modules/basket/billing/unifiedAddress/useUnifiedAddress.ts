@@ -18,6 +18,7 @@ import {
   stateValue,
   useContext,
   UnavailableError,
+  ErrorOrigin,
 } from "../../../../utils";
 import { get, isEmpty, isEqual } from "lodash-es";
 
@@ -125,7 +126,11 @@ export const useUnifiedAddress = (
       .then(state => get(state, "context.model") as UnifiedAddressModel)
       .catch(() => {
         return Promise.reject(
-          new DetailedError("Input not available", responseCodes.Forbidden)
+          new DetailedError(
+            "[headless] Input not available",
+            responseCodes.Forbidden,
+            ErrorOrigin.Headless
+          )
         );
       });
   }
@@ -157,6 +162,7 @@ export const useUnifiedAddress = (
           new DetailedError(
             "[headless] update Unified Address failed",
             error?.status ?? responseCodes.Timeout,
+            ErrorOrigin.Headless,
             {
               error,
               state: state.value,

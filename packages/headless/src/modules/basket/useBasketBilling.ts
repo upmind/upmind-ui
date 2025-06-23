@@ -15,6 +15,7 @@ import {
   stateMatches,
   stateValue,
   contextValue,
+  ErrorOrigin,
 } from "../../utils";
 import { isEqual, isNil } from "lodash-es";
 
@@ -113,6 +114,7 @@ export const useBasketBilling = () => {
           new DetailedError(
             "[headless] update Billing Details on basket failed",
             error?.status ?? responseCodes.Timeout,
+            ErrorOrigin.Headless,
             {
               error,
               state: actor.value?.state.value,

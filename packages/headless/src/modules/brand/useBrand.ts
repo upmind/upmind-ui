@@ -19,6 +19,7 @@ import {
   contextValue,
   contextMatches,
   stateMatches,
+  ErrorOrigin,
 } from "../../utils";
 import { get, pick, isArray, find, some, first, isEmpty } from "lodash-es";
 
@@ -159,7 +160,8 @@ export const useBrand = () => {
     ).catch(() => {
       throw new DetailedError(
         `[headless] getConfig on brand timed out for ${keys.join(", ")}`,
-        responseCodes.Timeout
+        responseCodes.Timeout,
+        ErrorOrigin.Headless
       );
     });
     return pick(state.value.context, keys);

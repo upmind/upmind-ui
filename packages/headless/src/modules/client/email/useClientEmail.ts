@@ -19,6 +19,7 @@ import {
   stateValue,
   useContext,
   UnavailableError,
+  ErrorOrigin,
 } from "../../../utils";
 import { get, isEqual } from "lodash-es";
 
@@ -115,7 +116,11 @@ export const useClientEmail = (
       .then(state => get(state, "context.model") as EmailModel)
       .catch(() => {
         return Promise.reject(
-          new DetailedError("Input not available", responseCodes.Forbidden)
+          new DetailedError(
+            "[headless] Input not available",
+            responseCodes.Forbidden,
+            ErrorOrigin.Headless
+          )
         );
       });
   }
@@ -150,6 +155,7 @@ export const useClientEmail = (
           new DetailedError(
             "[headless] update Email failed",
             error?.status ?? responseCodes.Timeout,
+            ErrorOrigin.Headless,
             {
               error,
               state: state.value,
@@ -173,8 +179,8 @@ export const useClientEmail = (
     isReady,
 
     /**
-     * Meta information about the state.
-     * @typedef {Object} UnifiedEmailMeta
+     * Meta-information about the state.
+     * @type {Object} UnifiedEmailMeta
      * @property {boolean} isAvailable - Indicates if the actor is available.
      * @property {boolean} isLoading - Indicates if the actor is loading.
      * @property {boolean} hasErrors - Indicates if there are errors.

@@ -13,7 +13,12 @@ import {
   reduce,
   pick,
 } from "lodash-es";
-import { useCookies } from "../../../utils";
+import {
+  DetailedError,
+  ErrorOrigin,
+  responseCodes,
+  useCookies,
+} from "../../../utils";
 
 // --- Types
 const UPM_TRACK_KEYS = ["source", "medium", "campaign", "content", "term"];
@@ -52,7 +57,12 @@ export const useTracking = () => {
           if (tracking) {
             cleanParams();
             return tracking;
-          } else throw new Error("No tracking cookie found");
+          } else
+            throw new DetailedError(
+              "[headless] No tracking cookie found",
+              responseCodes.Unprocessable_Entity,
+              ErrorOrigin.Headless
+            );
         })
         // Otherwise generate a new tracking cookie from the Current query
         .catch(
@@ -117,7 +127,14 @@ export const useTracking = () => {
   function getTracking() {
     return new Promise((resolve, reject) => {
       const cookie = getCookie(UPM_TRACK_COOKIE);
-      if (!cookie) return reject(new Error("No tracking cookie found"));
+      if (!cookie)
+        return reject(
+          new DetailedError(
+            "[headless] No tracking cookie found",
+            responseCodes.Unprocessable_Entity,
+            ErrorOrigin.Headless
+          )
+        );
 
       const trackAtob = atob(`${cookie}`);
       const values = Object.freeze(

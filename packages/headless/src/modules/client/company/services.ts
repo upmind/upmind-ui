@@ -19,6 +19,7 @@ import {
   NotAuthenticatedError,
   DetailedError,
   responseCodes,
+  ErrorOrigin,
 } from "../../../utils";
 import { invalidateQueryByKey } from "../../query";
 import { mapCompanies, mapICompany } from "./mappers";
@@ -241,7 +242,14 @@ async function validate({ schema, model }: Partial<CompanyContext>) {
   return new Promise((resolve, reject) => {
     const errors = validate(schema, model);
     if (errors?.length) {
-      reject({ error: errors });
+      reject(
+        new DetailedError(
+          "[headless] Invalid Company Model",
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.Headless,
+          { model, errors }
+        )
+      );
     } else {
       resolve(model);
     }
@@ -270,6 +278,7 @@ export const useClientCompanyServices = () => {
           new DetailedError(
             "[headless] Add Company failed: model provided",
             responseCodes.Unprocessable_Entity,
+            ErrorOrigin.Headless,
             { model }
           )
         );
@@ -281,6 +290,7 @@ export const useClientCompanyServices = () => {
           new DetailedError(
             "[headless] Update Company failed: No id or model provided",
             responseCodes.Unprocessable_Entity,
+            ErrorOrigin.Headless,
             { id, model }
           )
         );
