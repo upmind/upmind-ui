@@ -5,6 +5,7 @@
     v-model="modelValue"
     :items="parsedValues"
     :list="false"
+    minimal
     required
   >
     <template #item="{ item }">

@@ -16,7 +16,7 @@ export interface CompanyModel {
   addressId?: ICompany["address_id"];
   default?: ICompany["default"];
   emailId?: ICompany["email_id"];
-  phone?: PhoneModel;
+  phone?: PhoneModel["phone"];
   name?: ICompany["name"];
   phoneId?: ICompany["phone_id"];
   regNumber?: ICompany["reg_number"];

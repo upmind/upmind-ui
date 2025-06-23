@@ -3,11 +3,13 @@
     <span
       class="border-control flex w-28 items-center justify-center space-x-2 rounded-l-lg border border-r-0 text-sm"
     >
-      <Avatar :icon="lowerCase(country)" size="3xs" />
-      <span class="text-emphasis-medium">+{{ countryCallingCode }}</span>
+      <Avatar :icon="lowerCase(props.phone.country)" size="3xs" />
+      <span class="text-emphasis-medium"
+        >+{{ props.phone.countryCallingCode }}</span
+      >
     </span>
     <Input
-      :model-value="nationalNumber"
+      :model-value="props.phone.nationalNumber"
       type="tel"
       class="border-control !cursor-pointer rounded-l-none focus:outline-none disabled:opacity-100"
       disabled
@@ -30,7 +32,7 @@ import type { Phone } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
-const props = defineProps<Phone["phone"]>();
+const props = defineProps<Phone>();
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();

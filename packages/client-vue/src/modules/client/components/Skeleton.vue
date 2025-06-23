@@ -26,7 +26,7 @@
       <Skeleton class="mt-2 h-10 w-full" />
     </div>
 
-    <Actions disabled loading />
+    <Actions disabled loading type="address" />
   </section>
 </template>
 
