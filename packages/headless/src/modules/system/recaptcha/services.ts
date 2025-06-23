@@ -6,6 +6,7 @@ import { isEmpty } from "lodash-es";
 // --- types
 import { AnyEventObject } from "xstate";
 import type { RecaptchaContext } from "./types";
+import { DetailedError, ErrorOrigin, responseCodes } from "../../../utils";
 
 // -----------------------------------------------------------------------------
 
@@ -24,7 +25,13 @@ declare global {
 async function load({ siteKey }: RecaptchaContext, _event: AnyEventObject) {
   // check if the site key is set
   if (isEmpty(siteKey))
-    return Promise.reject(new Error("Recaptcha site key not set"));
+    return Promise.reject(
+      new DetailedError(
+        "[headless] Recaptcha site key not set",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      )
+    );
 
   // prevent loading the script multiple times
   if (window["grecaptcha"]) {
@@ -40,7 +47,13 @@ async function load({ siteKey }: RecaptchaContext, _event: AnyEventObject) {
     script.setAttribute("async", "true");
 
     script.addEventListener("error", async () => {
-      return reject(new Error("Recaptcha failed to load"));
+      return reject(
+        new DetailedError(
+          "[headless] Recaptcha failed to load",
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.Headless
+        )
+      );
     });
 
     script.addEventListener("load", async () => {
@@ -58,7 +71,14 @@ async function generateToken(
   { data }: AnyEventObject
 ) {
   if (!grecaptcha || !siteKey)
-    return Promise.reject(new Error("Recaptcha not loaded"));
+    return Promise.reject(
+      new DetailedError(
+        "[headless] Recaptcha not loaded",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless,
+        { data }
+      )
+    );
 
   return grecaptcha.execute(siteKey, { action: data.action });
 }

@@ -15,6 +15,7 @@ import {
   useContext,
   stateMatches,
   contextMatches,
+  ErrorOrigin,
 } from "../../../utils";
 
 // --- types
@@ -87,7 +88,8 @@ export const useRecaptcha = () => {
               new DetailedError(
                 "Recaptcha token not set",
                 responseCodes.Not_Found,
-                errors.value
+                ErrorOrigin.Headless,
+                { errors: errors.value }
               )
             );
           }
@@ -99,7 +101,8 @@ export const useRecaptcha = () => {
           new DetailedError(
             "Recaptcha not available",
             responseCodes.Service_Unavailable,
-            errors.value
+            ErrorOrigin.Headless,
+            { errors: errors.value }
           )
         );
       });

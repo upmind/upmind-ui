@@ -22,6 +22,7 @@ import {
   useChildActor,
   useContext,
   Actor,
+  ErrorOrigin,
 } from "../../utils";
 
 import {
@@ -237,10 +238,17 @@ export const useBasket = () => {
   async function setCurrency(currency: string) {
     return waitFor(service, state => stateMatches(state, ["shopping"]), {
       timeout: 60_000,
-    }).then(() => {
+    }).then(async () => {
       const actor = actors.currency;
       if (!actor.value)
-        return Promise.reject(new Error("Currency service not available"));
+        return Promise.reject(
+          new DetailedError(
+            "[headless] setCurrency on basket failed",
+            responseCodes.Unprocessable_Entity,
+            ErrorOrigin.Headless,
+            { state: state.value.value }
+          )
+        );
 
       const code = currency?.toUpperCase();
       // Use contextValue or a similar utility to get the model from the actor's state
@@ -274,6 +282,7 @@ export const useBasket = () => {
           throw new DetailedError(
             "[headless] setCurrency on basket timed out",
             responseCodes.Timeout,
+            ErrorOrigin.Headless,
             {
               state: state.value.value,
             }
@@ -289,7 +298,14 @@ export const useBasket = () => {
       const actor = actors.promotions;
 
       if (!actor.value)
-        return Promise.reject(new Error("Promotions service not available"));
+        return Promise.reject(
+          new DetailedError(
+            "[headless] addPromotion on basket failed",
+            responseCodes.Unprocessable_Entity,
+            ErrorOrigin.Headless,
+            { state: state.value.value }
+          )
+        );
 
       if (coupon) {
         actor.value?.send({ type: "SET", data: { promocode: coupon } });
@@ -305,6 +321,7 @@ export const useBasket = () => {
               new DetailedError(
                 "[headless] addPromotion on basket failed",
                 responseCodes.Timeout,
+                ErrorOrigin.Headless,
                 {
                   error,
                   state: state.value.value,
@@ -329,6 +346,7 @@ export const useBasket = () => {
             new DetailedError(
               "[headless] addPromotion on basket failed",
               responseCodes.Timeout,
+              ErrorOrigin.Headless,
               contextValue(state, "error")
             )
           );
@@ -397,7 +415,11 @@ export const useBasket = () => {
         resolve(basketProduct);
       } else {
         reject(
-          new DetailedError("Basket item not found", responseCodes.Not_Found)
+          new DetailedError(
+            "[headless] Basket item not found",
+            responseCodes.Not_Found,
+            ErrorOrigin.Headless
+          )
         );
       }
     });

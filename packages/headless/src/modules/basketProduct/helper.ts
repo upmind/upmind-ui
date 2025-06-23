@@ -11,7 +11,7 @@ import { useDataLayer } from "../system";
 const { dataLayer } = useDataLayer();
 
 // --- utils
-import { DetailedError, responseCodes } from "../../utils";
+import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 import {
   concat,
   defaults,
@@ -81,7 +81,11 @@ export function basketSubscription(callback: any, onReceive: any) {
     if (!rawBasket) {
       callback({
         type: "ERROR",
-        data: new DetailedError("Basket not found", responseCodes.Not_Found),
+        data: new DetailedError(
+          "Basket not found",
+          responseCodes.Not_Found,
+          ErrorOrigin.Headless
+        ),
       });
       return;
     }
@@ -200,6 +204,7 @@ export function basketSubscription(callback: any, onReceive: any) {
                 throw new DetailedError(
                   "[headless] ADD_UPDATE on basketProduct timed out",
                   responseCodes.Timeout,
+                  ErrorOrigin.Headless,
                   instance
                 );
               });
@@ -208,7 +213,13 @@ export function basketSubscription(callback: any, onReceive: any) {
             const model = instance.model;
             const actor = instance.service;
             const product = instance.product;
-            if (!product) throw new Error("Product not found");
+            if (!product)
+              throw new DetailedError(
+                "[headless] Product not found",
+                responseCodes.Not_Found,
+                ErrorOrigin.Headless,
+                { instance }
+              );
             // tell the subscriber we are processing as well as the actor we spawned
             actor.send({ type: "PROCESSING" });
             callback({ type: "PROCESSING" });
@@ -385,7 +396,8 @@ export function basketSubscription(callback: any, onReceive: any) {
             type: "ERROR",
             data: new DetailedError(
               "Basket Product not found",
-              responseCodes.Not_Found
+              responseCodes.Not_Found,
+              ErrorOrigin.Headless
             ),
           });
           break;

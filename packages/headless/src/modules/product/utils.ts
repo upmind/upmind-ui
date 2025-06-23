@@ -5,6 +5,7 @@ import { useBrand } from "../brand";
 // --- utils
 import {
   DetailedError,
+  ErrorOrigin,
   responseCodes,
   useLaravalSchemaParser,
   useTranslateField,
@@ -295,7 +296,8 @@ export const calculateBillingTerm = (
   if (isEmpty(available))
     throw new DetailedError(
       "[headless] getBillingTerms on product not found",
-      responseCodes.Not_Found
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
     );
 
   const { defaultPaymentPeriod } = useBrand();
@@ -324,7 +326,8 @@ export const calculateBillingTerm = (
   if (isEmpty(term))
     throw new DetailedError(
       "[headless] getBillingTerm on product not found",
-      responseCodes.Not_Found
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
     );
 
   return term;

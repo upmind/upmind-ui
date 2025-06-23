@@ -6,7 +6,12 @@ import { waitFor } from "xstate/lib/waitFor";
 import { useBasket } from "./";
 
 // --- utils
-import { DetailedError, responseCodes, useContext } from "../../utils";
+import {
+  DetailedError,
+  ErrorOrigin,
+  responseCodes,
+  useContext,
+} from "../../utils";
 import {
   contextMatches,
   stateMatches,
@@ -40,10 +45,7 @@ export const useBasketCurrency = () => {
         service as ActorRef<any>,
         state => !stateMatches(state, "loading"),
         { timeout: Infinity }
-      ).then(state => {
-        if (stateMatches(state, ["error"])) return false;
-        return true;
-      })
+      ).then(state => !stateMatches(state, ["error"]))
     );
   }
 
@@ -74,7 +76,7 @@ export const useBasketCurrency = () => {
 
   // --- methods
 
-  function input(value: CurrencyModel) {
+  async function input(value: CurrencyModel) {
     actor.value!.send({ type: "SET", data: toRaw(unref(value)) });
     return waitFor(actor.value!.service, state =>
       ["available.valid", "available.invalid"].some(state.matches)
@@ -83,18 +85,22 @@ export const useBasketCurrency = () => {
 
       .catch(() => {
         return Promise.reject(
-          new DetailedError("Input not available", responseCodes.Forbidden)
+          new DetailedError(
+            "[headless] Input not available",
+            responseCodes.Forbidden,
+            ErrorOrigin.Headless
+          )
         );
       });
   }
 
   async function update(value: CurrencyModel): Promise<void> {
-    // first check if our currency has change, ie: model.code has changed
+    // first check if our currency has changed, i.e.: model.code has changed
 
     const code = toRaw(unref(value))?.code?.toUpperCase();
     const model = contextValue<CurrencyModel>(actor, "model");
 
-    // if it has not then bail
+    // if it has not, then bail
     if (!code || code == model?.code) return Promise.resolve();
 
     actor.value?.send({ type: "SET", data: { code }, update: true });
@@ -108,7 +114,13 @@ export const useBasketCurrency = () => {
       { timeout: 60_000 }
     )
       .then(state => {
-        if (stateMatches(state, "error")) throw state.context.error;
+        if (stateMatches(state, "error"))
+          throw new DetailedError(
+            "[headless] Input not available",
+            responseCodes.Forbidden,
+            ErrorOrigin.Headless,
+            { error: state.context.error }
+          );
 
         return Promise.resolve();
       })
@@ -117,6 +129,7 @@ export const useBasketCurrency = () => {
           new DetailedError(
             "[headless] update Currency on basket failed",
             error?.status ?? responseCodes.Timeout,
+            ErrorOrigin.Headless,
             {
               error,
               state: actor.value?.state.value,
@@ -140,8 +153,8 @@ export const useBasketCurrency = () => {
     isReady,
 
     /**
-     * Meta information about the basket currency state.
-     * @typedef {Object} BasketCurrencyMeta
+     * Meta-information about the basket currency state.
+     * @type {Object} BasketCurrencyMeta
      * @property {boolean} isAvailable - Indicates if the currency actor is available.
      * @property {boolean} isLoading - Indicates if the currency actor is loading.
      * @property {boolean} hasCurrency - Indicates if a currency is set.

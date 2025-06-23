@@ -3,7 +3,12 @@ import { useQuery } from "../..";
 import { useBrand } from "../../brand";
 
 // --- utils
-import { useTime } from "../../../utils";
+import {
+  DetailedError,
+  ErrorOrigin,
+  responseCodes,
+  useTime,
+} from "../../../utils";
 import { compact, includes, isEmpty, get } from "lodash-es";
 
 // --- types
@@ -66,7 +71,17 @@ async function getImage({ field }: UploadContext, { data }: AnyEventObject) {
   }
 
   if (!field?.field_type && !data.hash)
-    return Promise.reject(new Error("No field type or hash provided"));
+    return Promise.reject(
+      new DetailedError(
+        "[headless] No field type or hash provided",
+        responseCodes.No_Content,
+        ErrorOrigin.Headless,
+        {
+          data,
+          field,
+        }
+      )
+    );
 
   const { get, useUrl } = useQuery();
 

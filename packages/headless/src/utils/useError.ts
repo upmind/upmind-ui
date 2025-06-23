@@ -14,13 +14,14 @@ import {
 
 // --- types
 import type { ErrorObject } from "ajv";
-import type { QueryResponseError } from "../modules";
+import { QueryResponseError } from "../modules";
 
 // -----------------------------------------------------------------------------
 
 export enum responseCodes {
   "OK" = 200,
   "No_Content" = 204,
+  "Bad_Request" = 400,
   "Unauthorized" = 401,
   "Forbidden" = 403,
   "Not_Found" = 404,
@@ -36,6 +37,12 @@ export enum responseCodes {
   // ---
 }
 
+export enum ErrorOrigin {
+  "Upmind" = "upmind",
+  "External" = "external",
+  "Headless" = "headless",
+}
+
 // -----------------------------------------------------------------------------
 export class UnavailableError extends Error {
   code: responseCodes;
@@ -48,10 +55,13 @@ export class UnavailableError extends Error {
 export class DetailedError extends Error {
   code: number;
   data?: any;
-  constructor(message: string, code: number, data?: any) {
+  origin: ErrorOrigin;
+
+  constructor(message: string, code: number, origin: ErrorOrigin, data?: any) {
     super(message);
     this.code = code;
     this.data = data;
+    this.origin = origin;
   }
 }
 
@@ -134,7 +144,7 @@ export function parseError(
  * @param {number | responseCodes} fallbackCode A fallback response code to use if the error doesn't provide one.
  * @returns {QueryResponseError} The mapped error object.
  */
-export function mapToResponseError(
+export function mapToHeadlessError(
   error: unknown,
   fallbackCode: number | responseCodes = responseCodes.Internal_Server_Error
 ): QueryResponseError {
@@ -183,7 +193,7 @@ export function mapToResponseError(
     data = !isNil(detailedError.data) ? detailedError.data : null;
   }
 
-  // Ensure code is a string or a valid response code
+  // Ensure the code is a string or a valid response code
   const type = code;
 
   return { id: null, code, type, data, status, message };

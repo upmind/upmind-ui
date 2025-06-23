@@ -9,6 +9,7 @@ import { useTracking } from "../system";
 // --- utils
 import {
   DetailedError,
+  ErrorOrigin,
   responseCodes,
   unflattenErrors,
   useCookies,
@@ -63,7 +64,16 @@ async function load(context: BasketContext, _event: AnyEventObject) {
 
   // We depend on the brand being ready, so we need to wait for it
   const { isReady } = useBrand();
-  await isReady().catch(error => Promise.reject(error));
+  await isReady().catch(error =>
+    Promise.reject(
+      new DetailedError(
+        "[headless] Brand not ready",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless,
+        { error }
+      )
+    )
+  );
 
   // finally return a basket with all the relevant data, include the provisioning fields
   // NB  we DON'T cache the current basket as it can change frequently, and it is the source of truth
@@ -159,7 +169,8 @@ async function convert(
     return Promise.reject(
       new DetailedError(
         "[headless] Convert basket failed: no basket id provided",
-        responseCodes.Unprocessable_Entity
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
       )
     );
 
@@ -167,7 +178,8 @@ async function convert(
     return Promise.reject(
       new DetailedError(
         "[headless] Convert basket failed: no payment details provided",
-        responseCodes.Unprocessable_Entity
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
       )
     );
 

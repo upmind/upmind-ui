@@ -13,7 +13,14 @@ import { useLocale } from "../system";
 import { doFetch, refreshToken } from "./services";
 
 // --- utils
-import { isPromise, useTime, useUrl } from "../../utils";
+import {
+  DetailedError,
+  ErrorOrigin,
+  isPromise,
+  responseCodes,
+  useTime,
+  useUrl,
+} from "../../utils";
 import { getTokenFromStorage } from "../session/utils";
 import {
   get,
@@ -165,7 +172,19 @@ export const useQuery = () => {
           return doFetch<T>({ url, init });
         });
       }
-      return Promise.reject(requestError);
+      return Promise.reject(
+        new DetailedError(
+          "[headless] Failed to fetch",
+          responseCodes.Service_Unavailable,
+          ErrorOrigin.Headless,
+          {
+            error: requestError,
+            url: url.toString(),
+            method: init?.method,
+            attempts,
+          }
+        )
+      );
     });
   }
 
@@ -350,7 +369,21 @@ export const useQuery = () => {
        */
       fetchPreviousPage: (): void => {
         if (!response.isPlaceholderData.value && pageIndex.value <= 1) {
-          throw new Error("No previous page available");
+          throw new DetailedError(
+            "[headless] No previous page available",
+            responseCodes.No_Content,
+            ErrorOrigin.Headless,
+            {
+              limit,
+              page: pageIndex.value,
+              from: !total.value ? 0 : limit * (pageIndex.value - 1) + 1,
+              total: total.value,
+              pages: pageTotal.value,
+              to: !limit
+                ? total.value
+                : Math.min(limit * pageIndex.value, total.value),
+            }
+          );
         }
         pageIndex.value = Math.max(pageIndex.value - 1, 1);
       },
@@ -367,7 +400,21 @@ export const useQuery = () => {
           !response.isPlaceholderData.value &&
           pageIndex.value >= pageTotal.value
         ) {
-          throw new Error("No next page available");
+          throw new DetailedError(
+            "[headless] No next page available",
+            responseCodes.No_Content,
+            ErrorOrigin.Headless,
+            {
+              limit,
+              page: pageIndex.value,
+              from: !total.value ? 0 : limit * (pageIndex.value - 1) + 1,
+              total: total.value,
+              pages: pageTotal.value,
+              to: !limit
+                ? total.value
+                : Math.min(limit * pageIndex.value, total.value),
+            }
+          );
         }
         if (!response.isPlaceholderData.value) {
           pageIndex.value = Math.min(pageIndex.value + 1, pageTotal.value);

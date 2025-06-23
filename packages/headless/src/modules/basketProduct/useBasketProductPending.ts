@@ -16,6 +16,7 @@ import { parseQuantity } from "../product/utils";
 import { isEmpty, get, omit, add, subtract } from "lodash-es";
 import {
   DetailedError,
+  ErrorOrigin,
   responseCodes,
   stopService,
   useContext,
@@ -58,13 +59,15 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
   if (!rawBasket.value)
     throw new DetailedError(
       "[headless] getBasket on useBasketProductPending not found",
-      responseCodes.Not_Found
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
     );
 
   if (isEmpty(data) || (isEmpty(actor) && isEmpty(productProps?.productId)))
     throw new DetailedError(
       "[headless] getProduct on useBasketProductPending not found",
-      responseCodes.Not_Found
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
     );
 
   const id = actor?.id || btoa(JSON.stringify(data)); // use the model as the basis for the id
@@ -120,7 +123,11 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
       const product = get(service.getSnapshot(), "context.product") as Product;
       if (!product)
         return reject(
-          new DetailedError("Product not found", responseCodes.Not_Found)
+          new DetailedError(
+            "[headless] Product not found",
+            responseCodes.Not_Found,
+            ErrorOrigin.Headless
+          )
         );
       return resolve(product);
     });
@@ -140,14 +147,23 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
         if (
           ["error", "available.invalid", "available.error"].some(state.matches)
         ) {
-          return Promise.reject(state.context.error);
+          return Promise.reject(
+            new DetailedError(
+              "[headless] update in useBasketProductPending failed",
+              responseCodes.Unprocessable_Entity,
+              ErrorOrigin.Headless,
+              { state }
+            )
+          );
         }
         return Promise.resolve();
       })
       .catch(() => {
         return Promise.reject(
-          new Error(
-            "[headless] update in useBasketProductPending not in a valid state"
+          new DetailedError(
+            "[headless] update in useBasketProductPending not in a valid state",
+            responseCodes.Unprocessable_Entity,
+            ErrorOrigin.Headless
           )
         );
       });
@@ -180,8 +196,9 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
         if (!product?.productDetails.quantifiable)
           return Promise.reject(
             new DetailedError(
-              "Product not quantifiable",
-              responseCodes.Unprocessable_Entity
+              "[headless] Product not quantifiable",
+              responseCodes.Unprocessable_Entity,
+              ErrorOrigin.Headless
             )
           );
 
@@ -200,7 +217,8 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
           return Promise.reject(
             new DetailedError(
               "Product not quantifiable",
-              responseCodes.Unprocessable_Entity
+              responseCodes.Unprocessable_Entity,
+              ErrorOrigin.Headless
             )
           );
 
@@ -223,7 +241,8 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
           return Promise.reject(
             new DetailedError(
               "Product not quantifiable",
-              responseCodes.Unprocessable_Entity
+              responseCodes.Unprocessable_Entity,
+              ErrorOrigin.Headless
             )
           );
 

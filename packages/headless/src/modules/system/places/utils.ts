@@ -87,7 +87,7 @@ export async function usePlaceParser(
     address: {
       name,
       city,
-      type: 1,
+      // type: 1, // deprecated
       postcode,
       address1: address_1.length ? address_1.join(" ") : "",
       address2: address_2.length ? address_2.join(" ") : undefined,

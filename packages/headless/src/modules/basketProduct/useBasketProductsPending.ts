@@ -24,7 +24,7 @@ import {
   defaults,
   isString,
 } from "lodash-es";
-import { DetailedError, useSessionStorage } from "../../utils";
+import { DetailedError, ErrorOrigin, useSessionStorage } from "../../utils";
 
 // --- types
 import { responseCodes, compactDeep } from "../../utils";
@@ -53,7 +53,13 @@ export const useBasketProductsPending = () => {
 
   async function add(model: ProductProps): Promise<UseBasketProductPending> {
     if (isEmpty(model))
-      return Promise.reject(new Error("No product model found"));
+      return Promise.reject(
+        new DetailedError(
+          "[headless] No product model found",
+          responseCodes.Not_Found,
+          ErrorOrigin.Headless
+        )
+      );
 
     const id = btoa(JSON.stringify(model)); // use the model as the basis for the id
 
@@ -91,11 +97,11 @@ export const useBasketProductsPending = () => {
               ),
             { timeout: Infinity }
           ).then(state => {
-            if (state.matches("error")) throw new Error(state.context.error);
             if (state.matches("error"))
               throw new DetailedError(
                 "[headless] add in useBasketProductsPending has an error",
                 responseCodes.Unprocessable_Entity,
+                ErrorOrigin.Headless,
                 { state: state.value, errors: state.context.error }
               );
             return instance;
@@ -103,7 +109,14 @@ export const useBasketProductsPending = () => {
         })
         .catch(error => {
           unsetProduct(pid);
-          return Promise.reject(error);
+          return Promise.reject(
+            new DetailedError(
+              "[headless] add in useBasketProductsPending caught an error",
+              responseCodes.Unprocessable_Entity,
+              ErrorOrigin.Headless,
+              { error, pid, model }
+            )
+          );
         });
     } else {
       if (!product.meta.value?.hasErrors) {
@@ -111,10 +124,14 @@ export const useBasketProductsPending = () => {
       } else {
         const error = product.errors.value;
         unsetProduct(pid);
-        return Promise.reject({
-          message: error,
-          code: responseCodes.Unprocessable_Entity,
-        });
+        return Promise.reject(
+          new DetailedError(
+            "[headless] Product already exists but has errors",
+            responseCodes.Unprocessable_Entity,
+            ErrorOrigin.Headless,
+            { error, pid, model }
+          )
+        );
       }
     }
   }
@@ -144,11 +161,16 @@ export const useBasketProductsPending = () => {
   ): Promise<UseBasketProductPending> {
     const productId = pid || first(keys(productConfigs));
     if (!productId) {
-      return Promise.reject({
-        message: "No product id found",
-        code: responseCodes.Not_Found,
-      });
+      return Promise.reject(
+        new DetailedError(
+          "[headless] No productId provided to getProduct",
+          responseCodes.Not_Found,
+          ErrorOrigin.Headless,
+          { pid, sync }
+        )
+      );
     }
+
     const model = get(productConfigs, productId, { productId, quantity: 1 });
     return ensure(productId, model).then(instance => {
       if (sync) subscribe(productId, instance.service);
@@ -225,7 +247,15 @@ export const useBasketProductsPending = () => {
         ? useBasketProductPending(pid as ActorRef<any>)
         : await getProduct(pid as string, sync);
 
-      if (isEmpty(instance)) return Promise.reject(new Error("Not found"));
+      if (isEmpty(instance))
+        return Promise.reject(
+          new DetailedError(
+            "[headless] No product instance found",
+            responseCodes.Not_Found,
+            ErrorOrigin.Headless,
+            { pid, sync, instance }
+          )
+        );
 
       return Promise.resolve(instance);
     },

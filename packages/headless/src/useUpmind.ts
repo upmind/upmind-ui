@@ -1,28 +1,37 @@
 // --- external
+import { unref } from "vue";
 import { inspect } from "@xstate/inspect";
 import { type QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
-import { first } from "lodash-es";
 
 // --- internal
-import { Flow, useQuery } from "./modules";
-import { useBrand, useSystem, useDataLayer, useTracking } from "./modules";
 import {
-  GlobbedFiles,
   useI18n,
+  useBrand,
   useLocale,
+  useSystem,
+  useSession,
+  useTracking,
   useRecaptcha,
-} from "./modules/system";
-import { useSession } from "./modules/session";
+  useDataLayer,
+  type GlobbedFiles,
+} from "./modules";
+import { first } from "lodash-es";
+import { useRouting } from "./modules/routing/useRouting";
+import { Flow, useQuery } from "./modules";
 
 // --- utils
-import { usePOP, useSessionStorage } from "./utils";
+import {
+  usePOP,
+  DetailedError,
+  responseCodes,
+  useSessionStorage,
+  ErrorOrigin,
+} from "./utils";
 
 // --- types
-import type { IApiPop } from "./utils/usePOP";
-import { useRouting } from "./modules/routing/useRouting";
+import type { IApiPop } from "./utils";
 import type { I18n } from "vue-i18n";
 import type { Router } from "vue-router";
-import { unref } from "vue";
 
 // ---
 export enum UpmindStatus {
@@ -81,8 +90,10 @@ class Upmind {
     debug,
   }: UpmindProps): Promise<void> {
     if (this.status != UpmindStatus.notInitialised)
-      throw new Error(
-        `[headless] Upmind has already been initialised, please use the isReady() method to check if Upmind is ready`
+      throw new DetailedError(
+        `[headless] Upmind has already been initialised, please use the isReady() method to check if Upmind is ready`,
+        responseCodes.Conflict,
+        ErrorOrigin.Headless
       );
     this.status = UpmindStatus.initialising;
     this.debug = debug;

@@ -2,7 +2,12 @@
 import { RequestSortDirection, useQuery } from "../..";
 
 // --- utils
-import { useTime } from "../../utils";
+import {
+  DetailedError,
+  ErrorOrigin,
+  responseCodes,
+  useTime,
+} from "../../utils";
 
 // --- types
 import type { IRegion } from "@upmind-automation/types";
@@ -61,7 +66,14 @@ async function fetchRegions(
 ) {
   const { get, useUrl } = useQuery();
 
-  if (!code || !id) return Promise.reject(new Error("No code or id provided"));
+  if (!code || !id)
+    return Promise.reject(
+      new DetailedError(
+        "[headless] No code or id provided",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      )
+    );
   return get<any>({
     url: useUrl(`countries/${id}/regions`, { limit: 0 }),
     queryKey: ["system", "regions", code],

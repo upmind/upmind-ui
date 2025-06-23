@@ -6,7 +6,12 @@ import { waitFor } from "xstate/lib/waitFor";
 import { useBasket } from "./";
 
 // --- utils
-import { DetailedError, responseCodes, useContext } from "../../utils";
+import {
+  DetailedError,
+  ErrorOrigin,
+  responseCodes,
+  useContext,
+} from "../../utils";
 import {
   contextMatches,
   stateMatches,
@@ -103,6 +108,7 @@ export const useBasketFields = () => {
           new DetailedError(
             "[headless] update Fields on basket failed",
             error?.status ?? responseCodes.Timeout,
+            ErrorOrigin.Headless,
             {
               error,
               state: actor.value?.state.value,

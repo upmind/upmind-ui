@@ -8,6 +8,7 @@ import { useBasket } from "./";
 // --- utils
 import {
   DetailedError,
+  ErrorOrigin,
   responseCodes,
   useContext,
   useContextActor,
@@ -97,7 +98,14 @@ export const useBasketPaymentDetails = () => {
 
   function update(value: PaymentDetailModel): Promise<void> {
     value = toRaw(unref(value));
-    if (!value) return Promise.reject(new Error("No value provided"));
+    if (!value)
+      return Promise.reject(
+        new DetailedError(
+          "[headless] No value provided",
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.Headless
+        )
+      );
 
     const model = contextValue(actor, "model");
     if (!isEqual(model, value)) {
@@ -123,6 +131,7 @@ export const useBasketPaymentDetails = () => {
           new DetailedError(
             "[headless] update Payment Details on basket failed",
             error?.status ?? responseCodes.Timeout,
+            ErrorOrigin.Headless,
             {
               error,
               state: actor.value?.state?.value,

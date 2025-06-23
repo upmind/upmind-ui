@@ -19,6 +19,7 @@ import {
   stateValue,
   useContext,
   UnavailableError,
+  ErrorOrigin,
 } from "../../../utils";
 import { get, isEqual } from "lodash-es";
 
@@ -115,7 +116,11 @@ export const useClientPhone = (
       .then(state => get(state, "context.model") as PhoneModel)
       .catch(() => {
         return Promise.reject(
-          new DetailedError("Input not available", responseCodes.Forbidden)
+          new DetailedError(
+            "[headless] Input not available",
+            responseCodes.Forbidden,
+            ErrorOrigin.Headless
+          )
         );
       });
   }
@@ -150,6 +155,7 @@ export const useClientPhone = (
           new DetailedError(
             "[headless] update Phone failed",
             error?.status ?? responseCodes.Timeout,
+            ErrorOrigin.Headless,
             {
               error,
               state: state.value,
@@ -173,8 +179,8 @@ export const useClientPhone = (
     isReady,
 
     /**
-     * Meta information about the state.
-     * @typedef {Object} UnifiedPhoneMeta
+     * Meta-information about the state.
+     * @type {Object} UnifiedPhoneMeta
      * @property {boolean} isAvailable - Indicates if the actor is available.
      * @property {boolean} isLoading - Indicates if the actor is loading.
      * @property {boolean} hasErrors - Indicates if there are errors.

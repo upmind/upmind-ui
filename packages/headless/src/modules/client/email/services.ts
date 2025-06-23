@@ -10,6 +10,7 @@ import {
   NotAuthenticatedError,
   DetailedError,
   responseCodes,
+  ErrorOrigin,
 } from "../../../utils";
 import { invalidateQueryByKey } from "../../query";
 import { mapEmails, mapIEmail } from "./mappers";
@@ -207,7 +208,14 @@ async function validate({ schema, model }: EmailContext) {
   return new Promise((resolve, reject) => {
     const errors = validate(schema, model);
     if (errors?.length) {
-      reject({ error: errors });
+      reject(
+        new DetailedError(
+          "[headless] Invalid Email Model",
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.Headless,
+          { model, schema, errors }
+        )
+      );
     } else {
       resolve(model);
     }
@@ -237,6 +245,7 @@ export const useClientEmailServices = () => {
           new DetailedError(
             "[headless] Add Email failed: model provided",
             responseCodes.Unprocessable_Entity,
+            ErrorOrigin.Headless,
             { model }
           )
         );
@@ -248,6 +257,7 @@ export const useClientEmailServices = () => {
           new DetailedError(
             "[headless] Update Email failed: No id or model provided",
             responseCodes.Unprocessable_Entity,
+            ErrorOrigin.Headless,
             { id, model }
           )
         );

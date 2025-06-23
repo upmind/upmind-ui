@@ -4,21 +4,21 @@
 
 // --- utils
 import {
+  compact,
   find,
   findIndex,
-  isEmpty,
-  map,
   get,
-  isObject,
+  isEmpty,
   isFunction,
-  compact,
+  isObject,
+  map,
   merge,
 } from "lodash-es";
 
 // --- types
 import type { AnyEventObject } from "xstate";
-import type { ROUTE } from "./types";
-import type { Route, Target, Flow, RoutingEngineContext } from "./types";
+import type { Flow, Route, ROUTE, RoutingEngineContext, Target } from "./types";
+import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 
 // -----------------------------------------------------------------------------
 
@@ -27,7 +27,14 @@ async function matchTargets(
   route: Route,
   event?: any
 ): Promise<Flow> {
-  if (isEmpty(targets)) return Promise.reject();
+  if (isEmpty(targets))
+    return Promise.reject(
+      new DetailedError(
+        "[headless] No routing targets found",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      )
+    );
   // NB cant use lodash her as we are async
   const guards = map(targets, flow => guardTarget(flow, route, event));
   const match = await Promise.all(guards)

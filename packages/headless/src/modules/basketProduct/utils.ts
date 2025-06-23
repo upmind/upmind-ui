@@ -9,6 +9,7 @@ import {
   DetailedError,
   responseCodes,
   parseError,
+  ErrorOrigin,
 } from "../../utils";
 import {
   useUischemaTitle,
@@ -344,8 +345,9 @@ export function getBasketProduct(id: string, basket: IBasket) {
   const value = find(basket?.products, { id });
   if (!value) {
     throw new DetailedError(
-      "Product not found in basket",
-      responseCodes.Not_Found
+      "[headless] Product not found in basket",
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
     );
   }
 
