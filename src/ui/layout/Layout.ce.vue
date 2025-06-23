@@ -12,6 +12,8 @@
       <template #content>
         <slot name="content" />
       </template>
+
+      <slot />
     </component>
   </section>
 </template>
