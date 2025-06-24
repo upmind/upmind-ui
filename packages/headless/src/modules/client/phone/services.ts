@@ -84,7 +84,7 @@ async function loadLookups({
         "[headless] System not ready",
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless,
-        { error }
+        error
       )
     )
   );
@@ -95,8 +95,7 @@ async function loadLookups({
       new DetailedError(
         "[headless] Failed to load countries",
         responseCodes.Unprocessable_Entity,
-        ErrorOrigin.Headless,
-        { model }
+        ErrorOrigin.Headless
       )
     );
   }
@@ -275,7 +274,7 @@ async function validate({ schema, model }: Partial<PhoneContext>) {
           "[headless] Invalid Phone Model",
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
-          { model, schema, errors }
+          { error: errors }
         )
       );
     } else {

@@ -70,8 +70,7 @@ async function fetch(
       new DetailedError(
         "[headless] No Product ID provided",
         responseCodes.Not_Found,
-        ErrorOrigin.Headless,
-        { productId, bpid, basketId, currencyId, promotions }
+        ErrorOrigin.Headless
       )
     );
 
@@ -152,8 +151,7 @@ async function fetchSelected(
       new DetailedError(
         "[headless] No Product ID provided",
         responseCodes.Not_Found,
-        ErrorOrigin.Headless,
-        { productIds, basketId, currencyId, promotions }
+        ErrorOrigin.Headless
       )
     );
 
@@ -238,8 +236,7 @@ async function fetchRelated(
       new DetailedError(
         "[headless] No Product ID provided",
         responseCodes.Not_Found,
-        ErrorOrigin.Headless,
-        { productId, basketId, currencyId, promotions }
+        ErrorOrigin.Headless
       )
     );
 
@@ -318,8 +315,7 @@ async function updateQuantity(
       new DetailedError(
         "[headless] No basket provided/available",
         responseCodes.Not_Found,
-        ErrorOrigin.Headless,
-        { basketId, basketProduct, data }
+        ErrorOrigin.Headless
       )
     );
   if (!basketProduct.productDetails)
@@ -327,8 +323,7 @@ async function updateQuantity(
       new DetailedError(
         "[headless] No product details provided",
         responseCodes.Not_Found,
-        ErrorOrigin.Headless,
-        { basketId, basketProduct, data }
+        ErrorOrigin.Headless
       )
     );
   if (!basketProduct.productDetails?.quantifiable)
@@ -336,8 +331,7 @@ async function updateQuantity(
       new DetailedError(
         "[headless] Product is not quantifiable",
         responseCodes.Unprocessable_Entity,
-        ErrorOrigin.Headless,
-        { basketId, basketProduct, data }
+        ErrorOrigin.Headless
       )
     );
   // ---
@@ -357,8 +351,7 @@ async function updateQuantity(
         throw new DetailedError(
           "[headless] No data returned from the server",
           responseCodes.Internal_Server_Error,
-          ErrorOrigin.Headless,
-          { basketId, basketProduct, data }
+          ErrorOrigin.Headless
         );
       return data;
     })
@@ -395,8 +388,7 @@ async function update(
       new DetailedError(
         "[headless] No basket provided/available",
         responseCodes.Not_Found,
-        ErrorOrigin.Headless,
-        { basketId, data, currencyId, promotions }
+        ErrorOrigin.Headless
       )
     );
   if (isEmpty(data))

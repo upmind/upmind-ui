@@ -24,7 +24,7 @@ async function check(_context: SessionContext) {
           "[headless] token is not available",
           responseCodes.Not_Found,
           ErrorOrigin.Headless,
-          { context: _context }
+          null
         )
       );
     }
@@ -46,10 +46,10 @@ async function transferFrom({ transfer }: SessionContext) {
   if (!transfer?.code)
     return Promise.reject(
       new DetailedError(
-        "No code",
+        "[headless] No code",
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless,
-        { transfer }
+        transfer
       )
     );
 

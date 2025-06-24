@@ -180,8 +180,7 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
       new DetailedError(
         "[headless] No Product ID provided",
         responseCodes.Unprocessable_Entity,
-        ErrorOrigin.Headless,
-        { model: baseModel }
+        ErrorOrigin.Headless
       )
     );
   }
@@ -254,7 +253,7 @@ async function validate(context: ProductConfigContext, _event: AnyEventObject) {
           "[headless] No Product ID provided",
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
-          { errors }
+          { error: { data: errors } }
         )
       );
     } else {

@@ -114,7 +114,7 @@ export const useBasketProductsPending = () => {
               "[headless] add in useBasketProductsPending caught an error",
               responseCodes.Unprocessable_Entity,
               ErrorOrigin.Headless,
-              { error, pid, model }
+              error
             )
           );
         });
@@ -129,7 +129,10 @@ export const useBasketProductsPending = () => {
             "[headless] Product already exists but has errors",
             responseCodes.Unprocessable_Entity,
             ErrorOrigin.Headless,
-            { error, pid, model }
+            {
+              message: error,
+              code: responseCodes.Unprocessable_Entity,
+            }
           )
         );
       }
@@ -166,7 +169,10 @@ export const useBasketProductsPending = () => {
           "[headless] No productId provided to getProduct",
           responseCodes.Not_Found,
           ErrorOrigin.Headless,
-          { pid, sync }
+          {
+            message: "No product id found",
+            code: responseCodes.Not_Found,
+          }
         )
       );
     }
@@ -252,8 +258,7 @@ export const useBasketProductsPending = () => {
           new DetailedError(
             "[headless] No product instance found",
             responseCodes.Not_Found,
-            ErrorOrigin.Headless,
-            { pid, sync, instance }
+            ErrorOrigin.Headless
           )
         );
 

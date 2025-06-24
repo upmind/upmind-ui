@@ -93,7 +93,7 @@ async function validate(
           "[headless] validate on gateway payment details failed",
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
-          { model, schema }
+          { error: errors }
         )
       );
     } else {

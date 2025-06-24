@@ -2,8 +2,7 @@
 import { createMachine, assign } from "xstate";
 
 // --- utils
-import { responseCodes } from "../../utils";
-import { useTime, useValidationParser } from "../../utils";
+import { useTime, mapToHeadlessError } from "../../utils";
 
 // --- types
 import type { AnyEventObject } from "xstate";
@@ -200,7 +199,7 @@ export default createMachine<ClientItemContext>(
       ),
 
       clearContext: assign(
-        (_context: ClientItemContext, { data }: AnyEventObject) => ({})
+        (_context: ClientItemContext, _: AnyEventObject) => ({})
       ),
 
       setSubscription: assign({
@@ -240,12 +239,12 @@ export default createMachine<ClientItemContext>(
 
       setError: assign({
         error: (_context: ClientItemContext, { data }: AnyEventObject) => {
-          let error = data?.error;
-          if (data?.status == responseCodes.Unprocessable_Entity) {
-            // lets parse/override our error message and data
-            // this is to generate valid json schema validation errors
-            error = useValidationParser(error);
-          }
+          let error = mapToHeadlessError(data);
+          // if (data?.status == responseCodes.Unprocessable_Entity) {
+          //   // lets parse/override our error message and data
+          //   // this is to generate valid json schema validation errors
+          //   error = useValidationParser(error);
+          // }
           return error || data;
         },
       }),

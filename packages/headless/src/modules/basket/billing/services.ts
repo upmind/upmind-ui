@@ -108,7 +108,7 @@ async function validate(
           "[headless] Invalid Billing Model",
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
-          { model, errors }
+          { error: errors }
         )
       );
     } else {

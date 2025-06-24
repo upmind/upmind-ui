@@ -75,11 +75,7 @@ async function getImage({ field }: UploadContext, { data }: AnyEventObject) {
       new DetailedError(
         "[headless] No field type or hash provided",
         responseCodes.No_Content,
-        ErrorOrigin.Headless,
-        {
-          data,
-          field,
-        }
+        ErrorOrigin.Headless
       )
     );
 

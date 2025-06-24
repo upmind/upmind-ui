@@ -88,7 +88,7 @@ export function persistTokenToStorage(token: Token) {
       "[headless] persistTokenToStorage token is invalid or missing the access_token property.",
       responseCodes.Unprocessable_Entity,
       ErrorOrigin.Headless,
-      { token }
+      token
     );
 
   if (!localStorage)
