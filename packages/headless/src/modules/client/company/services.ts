@@ -8,6 +8,9 @@ import {
   useClientEmails,
   useClientAddresses,
   type QueryParams,
+  useBrand,
+  Address,
+  AddressModel,
 } from "../..";
 
 // --- utils
@@ -15,7 +18,6 @@ import {
   useTime,
   useValidation,
   useModelParser,
-  CacheIsStaleError,
   NotAuthenticatedError,
   DetailedError,
   responseCodes,
@@ -23,13 +25,14 @@ import {
 } from "../../../utils";
 import { mapCompanies, mapCompany, mapICompany } from "./mappers";
 import { invalidateQueryByKey } from "../../query";
-import { get, isString, isEmpty, omitBy } from "lodash-es";
+import { get, isString, isEmpty, omitBy, some, find, isEqual } from "lodash-es";
 
 // --- types
-import type { ICompany } from "@upmind-automation/types";
+import { BrandConfigKeys, type ICompany } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { AnyEventObject } from "xstate";
 import type { Company, CompanyModel, CompanyContext } from "./types";
+import { useClientAddressServices } from "../address/services";
 
 // -----------------------------------------------------------------------------
 // QUERIES
@@ -90,39 +93,74 @@ async function loadLookups({
   model,
   schema,
 }: CompanyContext): Promise<CompanyContext> {
-  const phones = useClientPhones();
-  const emails = useClientEmails();
-  const addresses = useClientAddresses();
+  const {
+    isReady: getPhones,
+    default: defaultPhone,
+    data: phones,
+  } = useClientPhones();
 
-  const { getCountry } = useSystem();
-  const defaultCountry = getCountry();
+  const {
+    isReady: getEmails,
+    default: defaultEmail,
+    data: emails,
+  } = useClientEmails();
 
-  await Promise.allSettled([
-    phones.isReady(),
-    emails.isReady(),
-    addresses.isReady(),
+  const {
+    isReady: getAddresses,
+    default: defaultAddress,
+    data: addresses,
+  } = useClientAddresses();
+
+  const { isReady, fetchCountries, fetchRegions, getCountry } = useSystem();
+
+  const { ensureConfig } = useBrand();
+
+  await isReady().catch(error => Promise.reject(error));
+
+  // we have to do this synchronously as we need the values to be available for the model
+  // these could/should be cached in the system machine, so there's no worry about performance
+  const [countries, config] = await Promise.all([
+    fetchCountries(),
+    ensureConfig([
+      BrandConfigKeys.CHECKOUT_REQUIRE_PHONE,
+      BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS,
+      BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS,
+      BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS,
+    ]),
+    getPhones(),
+    getEmails(),
+    getAddresses(),
   ]);
 
+  const country = getCountry(model?.address?.countryId);
+  const regions = await fetchRegions(model?.address?.countryId || country?.id);
+
+  if (isEmpty(countries) || isEmpty(regions)) {
+    return Promise.reject("Failed to load countries and regions");
+  }
+
   const baseModel: CompanyModel = {
-    emailId: model?.emailId || emails.default.value?.id,
-    addressId: model?.addressId || addresses.default.value?.id,
-    phoneId: model?.phoneId || phones.default.value?.id,
-    phone: model?.phone ?? phones.default.value?.phone ?? undefined,
-    default: model?.default ?? false,
-    name: model?.name ?? "",
-    regNumber: model?.regNumber ?? "",
-    vatNumber: model?.vatNumber ?? "",
+    // --- one of
+    addressId: defaultAddress.value?.id,
+    address: defaultAddress.value?.id
+      ? ({ countryId: country?.id } as CompanyModel["address"])
+      : undefined,
+    // ---
+    emailId: defaultEmail.value?.id,
+    phoneId: defaultPhone.value?.id,
+    phone: defaultPhone.value?.phone,
   };
 
-  const safeModel = useModelParser<CompanyModel>(schema, model, baseModel, {
-    allowExtraProps: false,
-  });
+  const safeModel = useModelParser<CompanyModel>(schema, model, baseModel);
 
   return Promise.resolve({
-    emails: emails.data.value || [],
-    phones: phones.data.value || [],
-    addresses: addresses.data.value || [],
-    country: defaultCountry,
+    addresses: addresses.value || [],
+    emails: emails.value || [],
+    phones: phones.value || [],
+    country,
+    countries,
+    regions,
+    config,
     // ---
     model: safeModel,
     baseModel: safeModel,
@@ -134,16 +172,43 @@ async function loadLookups({
 
 async function add(data: CompanyModel) {
   const { meta, user } = useSession();
+  const { ensure: ensureAddress } = useClientAddressServices();
+
   const { post, useUrl } = useQuery();
 
   if (!meta.value.isAuthenticated || !user.value?.id) {
     return Promise.reject(new NotAuthenticatedError());
   }
-  return post<ICompany>({
-    url: useUrl(`clients/${user.value?.id}/companies`),
-    data: mapICompany(data),
-    withAccessToken: true,
-  }).then(invalidateQueryByKey(queryKey, { exact: false }));
+
+  const ensured: Promise<any>[] = [];
+
+  // TODO: MAYBE allow phone & email to work the same way as address?
+  //       NOT needed right now, but could be useful in the future
+  ensured.push(
+    data?.address ? ensureAddress(data.address) : Promise.resolve(undefined)
+  );
+
+  return Promise.all(ensured).then(async ([address /* email, phone */]) => {
+    if (!address?.id)
+      return Promise.reject(
+        new DetailedError(
+          "No address found or created",
+          responseCodes.Unprocessable_Entity
+        )
+      );
+    return post<ICompany>({
+      url: useUrl(`clients/${user.value?.id}/companies`),
+      data: mapICompany({
+        ...data,
+        addressId: address.id,
+        /*
+        emailId: email?.id,
+        phoneId: phone?.id,
+        */
+      }),
+      withAccessToken: true,
+    }).then(invalidateQueryByKey(queryKey, { exact: false }));
+  });
 }
 
 async function update(id: Company["id"], data: CompanyModel) {
@@ -248,19 +313,49 @@ function setDefault(companyId: Company["id"]) {
 //  SIDE EFFECTS
 
 async function parse(
-  { baseModel, schema }: CompanyContext,
+  { schema, regions, country, autoupdate }: CompanyContext,
   { data }: AnyEventObject
 ) {
+  // We need to check and potentially update the regions list based on the selected country ( if its changed )
+  const { fetchRegions, getCountry } = useSystem();
+
+  // sometimes the machine can return the full context as data, so we check to see if we have a model
+  // if not, then we assume the data is the model
   const safeModel = useModelParser<CompanyModel>(
     schema,
-    get(data, "model", data),
-    baseModel,
-    { allowExtraProps: false }
+    get(data, "model", data)
   );
+
+  // IF we have a new address, we need to ensure it has a country and its regions
+  if (safeModel.address) {
+    // first let's check we have a valid country,
+    // fallback to the default country if not set or invalid
+    country = getCountry(safeModel.address.countryId);
+    safeModel.address!.countryId = country.id;
+
+    // let's check if the country has changed, i.e.: the regions don't match
+    // if so, then we need to fetch the regions for the new country
+    // AND update our 'default' country to match the country from the address
+    // this will in turn update the phone schema to match the country
+    if (!some(regions, ["countryId", safeModel.address?.countryId])) {
+      regions = await fetchRegions(safeModel.address!.countryId);
+    }
+
+    // now let's check our region list to see if we have a match
+    // if so, then we need to update the safeModel with the new region id
+    // otherwise the regionId is reset to null
+    const region = find(regions, ["id", safeModel.address?.regionId]);
+    safeModel.address!.regionId = get(region, "id");
+  }
 
   // ---
 
-  return Promise.resolve({ model: safeModel });
+  return Promise.resolve({
+    model: safeModel,
+    regions,
+    country,
+    autoupdate,
+  });
 }
 
 async function validate({ schema, model }: Partial<CompanyContext>) {
@@ -271,6 +366,7 @@ async function validate({ schema, model }: Partial<CompanyContext>) {
 
   return new Promise((resolve, reject) => {
     const errors = validate(schema, model);
+
     if (errors?.length) {
       reject({ error: errors });
     } else {

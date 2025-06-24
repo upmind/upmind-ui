@@ -82,9 +82,7 @@ async function loadLookups({
     email: "",
   };
 
-  const safeModel = useModelParser<EmailModel>(schema, model, baseModel, {
-    allowExtraProps: false,
-  });
+  const safeModel = useModelParser<EmailModel>(schema, model, baseModel);
 
   return Promise.resolve({
     model: safeModel,
@@ -210,15 +208,10 @@ function setDefault(emailId: Email["id"]) {
 // -----------------------------------------------------------------------------
 //  SIDE EFFECTS
 
-async function parse(
-  { baseModel, schema }: EmailContext,
-  { data }: AnyEventObject
-) {
+async function parse({ schema }: EmailContext, { data }: AnyEventObject) {
   const safeModel = useModelParser<EmailModel>(
     schema,
-    get(data, "model", data),
-    baseModel,
-    { allowExtraProps: false }
+    get(data, "model", data)
   );
 
   // ---
