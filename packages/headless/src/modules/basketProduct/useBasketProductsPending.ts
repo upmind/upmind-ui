@@ -187,6 +187,7 @@ export const useBasketProductsPending = () => {
         throw new DetailedError(
           "[headless] getProduct in useBasketProductsPending has an error",
           responseCodes.No_Content,
+          ErrorOrigin.Headless,
           { error, productId }
         );
       });

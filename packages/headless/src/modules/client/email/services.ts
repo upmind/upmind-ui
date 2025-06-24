@@ -4,17 +4,16 @@ import { useQuery, useSession, useFeedback, type QueryParams } from "../..";
 // --- utils
 import {
   useTime,
+  ErrorOrigin,
   useValidation,
-  useModelParser,
-  CacheIsStaleError,
-  NotAuthenticatedError,
   DetailedError,
   responseCodes,
   useCollection,
-  ErrorOrigin,
+  useModelParser,
+  NotAuthenticatedError,
 } from "../../../utils";
-import { mapEmail, mapEmails, mapIEmail } from "./mappers";
 import { invalidateQueryByKey } from "../../query";
+import { mapEmail, mapEmails, mapIEmail } from "./mappers";
 import { get, isString, isEmpty, omitBy } from "lodash-es";
 
 // --- types
@@ -136,7 +135,8 @@ async function ensure(model: EmailModel): Promise<EmailModel> {
     if (isEmpty(raw))
       throw new DetailedError(
         "[headless] Failed to ensure (add) email",
-        responseCodes.Unprocessable_Entity
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
       );
     // NB: Remember to refresh our machines so we have the new data
     // refresh();
@@ -316,6 +316,7 @@ export const useClientEmailServices = () => {
           new DetailedError(
             "[headless] Ensure Email failed: model provided",
             responseCodes.Unprocessable_Entity,
+            ErrorOrigin.Headless,
             { model }
           )
         );

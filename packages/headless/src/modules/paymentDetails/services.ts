@@ -247,7 +247,7 @@ async function validate(
           "[headless] validate on paymentDetails failed.",
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
-          { errors, model }
+          { error: errors, model }
         )
       );
     } else {

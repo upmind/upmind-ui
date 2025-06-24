@@ -186,7 +186,8 @@ async function ensure(model: AddressModel): Promise<AddressModel> {
     if (isEmpty(raw))
       throw new DetailedError(
         "[headless] Failed to ensure (add) company",
-        responseCodes.Unprocessable_Entity
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
       );
     // NB: Remember to refresh our machines so we have the new data
     // refresh();
@@ -391,6 +392,7 @@ export const useClientAddressServices = () => {
           new DetailedError(
             "[headless] Ensure Address failed: model provided",
             responseCodes.Unprocessable_Entity,
+            ErrorOrigin.Headless,
             { model }
           )
         );
