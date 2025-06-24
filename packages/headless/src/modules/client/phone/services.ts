@@ -12,26 +12,16 @@ import {
 // --- utils
 import {
   useTime,
+  ErrorOrigin,
   useValidation,
-  useModelParser,
-  CacheIsStaleError,
-  NotAuthenticatedError,
   DetailedError,
   responseCodes,
-  ErrorOrigin,
+  useModelParser,
+  NotAuthenticatedError,
 } from "../../../utils";
-import { mapIPhone, mapPhone, mapPhones } from "./mapper";
 import { invalidateQueryByKey } from "../../query";
-import {
-  get,
-  isNil,
-  isString,
-  first,
-  isEmpty,
-  every,
-  find,
-  isEqual,
-} from "lodash-es";
+import { mapIPhone, mapPhone, mapPhones } from "./mapper";
+import { get, find, every, isEmpty, isEqual, isString } from "lodash-es";
 
 // --- types
 import type { IPhone } from "@upmind-automation/types";
@@ -192,7 +182,8 @@ async function ensure(model: PhoneModel): Promise<PhoneModel> {
     if (isEmpty(raw))
       throw new DetailedError(
         "[headless] Failed to ensure (add) phone",
-        responseCodes.Unprocessable_Entity
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
       );
     // NB: Remember to refresh our machines so we have the new data
     // refresh();
@@ -362,6 +353,7 @@ export const useClientPhoneServices = () => {
           new DetailedError(
             "[headless] Ensure Phone failed: model provided",
             responseCodes.Unprocessable_Entity,
+            ErrorOrigin.Headless,
             { model }
           )
         );
