@@ -2,11 +2,18 @@
 import { createMachine, assign } from "xstate";
 
 // --- utils
-import { useTime, mapToHeadlessError } from "../../utils";
+import {
+  useTime,
+  responseCodes,
+  mapToHeadlessError,
+  useValidationParser,
+  ResponseError,
+} from "../../utils";
 
 // --- types
 import type { AnyEventObject } from "xstate";
 import type { ClientItemContext } from "./types";
+import { ErrorObject } from "ajv";
 
 // -----------------------------------------------------------------------------
 
@@ -239,14 +246,13 @@ export default createMachine<ClientItemContext>(
 
       setError: assign({
         error: (_context: ClientItemContext, { data }: AnyEventObject) => {
-          debugger;
-          let error = mapToHeadlessError(data);
-          // if (data?.status == responseCodes.Unprocessable_Entity) {
-          //   // lets parse/override our error message and data
-          //   // this is to generate valid json schema validation errors
-          //   error = useValidationParser(error);
-          // }
-          return error || data;
+          let error: ErrorObject[] | ResponseError = mapToHeadlessError(data);
+          if (error?.status == responseCodes.Unprocessable_Entity) {
+            // lets parse/override our error message and data
+            // this is to generate valid json schema validation errors
+            error = useValidationParser(error.data);
+          }
+          return error;
         },
       }),
 
