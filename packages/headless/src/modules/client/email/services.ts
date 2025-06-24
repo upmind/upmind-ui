@@ -135,7 +135,7 @@ async function ensure(model: EmailModel): Promise<EmailModel> {
     if (isEmpty(raw))
       throw new DetailedError(
         "[headless] Failed to ensure (add) email",
-        responseCodes.Unprocessable_Entity,
+        responseCodes.No_Content,
         ErrorOrigin.Headless
       );
     // NB: Remember to refresh our machines so we have the new data
@@ -291,12 +291,12 @@ export const useClientEmailServices = () => {
      * @param {Partial<EmailContext>} param0 - The email context containing the model to add.
      * @returns {Promise<any>} The result of the add operation.
      */
-    add: async ({ model }: Partial<EmailContext>) => {
+    add: async ({ model }: Partial<EmailContext>): Promise<any> => {
       if (isEmpty(model))
         return Promise.reject(
           new DetailedError(
             "[headless] Add Email failed: model provided",
-            responseCodes.Unprocessable_Entity,
+            responseCodes.No_Content,
             ErrorOrigin.Headless,
             { model }
           )
@@ -310,12 +310,12 @@ export const useClientEmailServices = () => {
      * @param {Partial<EmailContext>} param0 - The email context containing the model to ensure.
      * @returns {Promise<any>} The ensured email model, which will either be the existing email or a new one created.
      */
-    ensure: async ({ model }: Partial<EmailContext>) => {
+    ensure: async ({ model }: Partial<EmailContext>): Promise<any> => {
       if (isEmpty(model))
         return Promise.reject(
           new DetailedError(
             "[headless] Ensure Email failed: model provided",
-            responseCodes.Unprocessable_Entity,
+            responseCodes.No_Content,
             ErrorOrigin.Headless,
             { model }
           )
@@ -350,12 +350,12 @@ export const useClientEmailServices = () => {
      * @param {Partial<EmailContext>} param0 - The email context containing id and model.
      * @returns {Promise<any>} The result of the update operation.
      */
-    update: async ({ id, model }: Partial<EmailContext>) => {
+    update: async ({ id, model }: Partial<EmailContext>): Promise<any> => {
       if (!id || isEmpty(model))
         return Promise.reject(
           new DetailedError(
             "[headless] Update Email failed: No id or model provided",
-            responseCodes.Unprocessable_Entity,
+            responseCodes.No_Content,
             ErrorOrigin.Headless,
             { id, model }
           )
