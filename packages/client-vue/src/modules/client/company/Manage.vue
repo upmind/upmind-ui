@@ -1,5 +1,4 @@
 <template>
-  <pre>{{ { open, openModel, modelValue, editId } }}</pre>
   <Loading :active="meta.isLoading" class="w-full">
     <List
       v-model:open="open"

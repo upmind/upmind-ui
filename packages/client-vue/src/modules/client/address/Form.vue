@@ -99,7 +99,9 @@ const {
   stop,
   errors,
   validationErrors,
-} = useClientAddress(props.clientId, props.modelValue);
+} = useClientAddress(props.modelValue, {
+  clientId: props.clientId,
+});
 
 const doResolve = async () => {
   update()

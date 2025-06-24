@@ -14,6 +14,7 @@ import { useSession } from "../../session";
 // --- utils
 import {
   DetailedError,
+  contextMatches,
   contextValue,
   responseCodes,
   stateMatches,
@@ -65,8 +66,8 @@ export const useClientEmail = (
   // the clientId is required to bring the machine into the available state
   const { isAuthenticated } = useSession();
   isAuthenticated().then(user => {
-    if (user?.id && !contextValue<string | undefined>(state, "clientId")) {
-      service.send({ type: "REFRESH", data: { clientId: user.id } });
+    if (user?.id && !contextMatches(state, "clientId")) {
+      send({ type: "REFRESH", data: { clientId: user.id } });
     }
   });
 

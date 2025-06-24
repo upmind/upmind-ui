@@ -72,6 +72,7 @@ export function stopService(machine: InterpreterFrom<any>): boolean {
 
   return machine.status == InterpreterStatus.Stopped;
 }
+
 export function stopActor(actor: ActorRef<any>): void {
   if (!actor) return;
 
