@@ -34,7 +34,7 @@ test.describe("Google Tag Manager", () => {
       await page.goto(URLs.starterHosting);
       await page.waitForLoadState("networkidle");
       const dataLayer = await getDataLayer(page);
-      console.log(dataLayer);
+      //console.log(dataLayer);
       const gtmStart = await dataLayer.find(
         (entry: any) => entry.event === "gtm.js"
       );

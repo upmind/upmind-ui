@@ -26,7 +26,7 @@ test.describe("Error Code Handling", () => {
   }
   test("Display 404 error message", async ({ page }) => {
     await page.goto(
-      "http://qa-automation.local:5173/product/add/3de78642-de53-9714-76df-21208469530dzzz"
+      "http://qa-automation.local:5173/product/add/20403869-6e54-721d-264c-518d9305e7d2zzz"
     );
     const errorDialog = page.getByRole("dialog");
     await expect(errorDialog).toBeVisible();
@@ -41,9 +41,11 @@ test.describe("Error Code Handling", () => {
     );
     const errorDialog = page.getByRole("dialog");
     await expect(errorDialog).toBeVisible();
-    await expect(errorDialog).toContainText("Product not found");
+    await expect(errorDialog).toContainText(
+      "Sorry, your IP address is not allowed"
+    );
     await expect(
-      errorDialog.getByTestId("button-continue-shopping")
+      errorDialog.getByTestId("button-back-to-shopping")
     ).toBeVisible();
   });
 });
