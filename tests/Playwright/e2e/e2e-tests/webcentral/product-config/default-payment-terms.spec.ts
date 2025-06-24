@@ -1,5 +1,4 @@
 import { test, expect, Page } from "@playwright/test";
-import { URLs } from "../../../support/constants/Urls";
 import { ProductConfig } from "../../../support/page-objects/templates/ProductConfig";
 import {
   DefaultPaymentTerms,
@@ -38,10 +37,10 @@ test.beforeEach(async ({ page }) => {
 });
 
 test.describe("Assert correct billing term is selected based on default_payment_period value @default-terms", async () => {
-  for (const { name, termSetting, radioGroup, radioOption } of terms) {
+  for (const { name, termSetting, radioGroup, radioOption, url } of terms) {
     test(name, async ({ page }) => {
-      setBillingTerm(page, termSetting, "5d085e69-d562-3719-7d6f-218e940d4237");
-      await page.goto(URLs.starterHosting);
+      setBillingTerm(page, termSetting, "20403869-6e54-721d-2d7c-518d9305e7d2");
+      await page.goto(url);
       await page.waitForLoadState("networkidle");
 
       const radioCardItem = productConfig.radioButtons.getRadioButton(
@@ -55,10 +54,16 @@ test.describe("Assert correct billing term is selected based on default_payment_
 });
 
 test.describe("Assert that billing term functionality accounts for promotional discounts @default-terms @promotions", async () => {
-  for (const { name, termSetting, radioGroup, radioOption } of termsWithPromo) {
+  for (const {
+    name,
+    termSetting,
+    radioGroup,
+    radioOption,
+    url,
+  } of termsWithPromo) {
     test(name, async ({ page }) => {
-      setBillingTerm(page, termSetting, "20403869-6e54-721d-254a-518d9305e7d2");
-      await page.goto(URLs.billingTermsPromo);
+      setBillingTerm(page, termSetting, "3de78642-de53-9714-745c-21208469530d");
+      await page.goto(url);
       await page.waitForLoadState("networkidle");
 
       const radioCardItem = productConfig.radioButtons.getRadioButton(

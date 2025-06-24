@@ -17,7 +17,7 @@ export async function getCurrentOrder(token: string) {
     );
   }
   const data = await response.json();
-  console.log(`Current Basket: ${JSON.stringify(data)}`);
+  //console.log(`Current Basket: ${JSON.stringify(data)}`);
   return data;
 }
 
@@ -41,7 +41,7 @@ export async function getCurrentOrderId(token: string): Promise<string | null> {
   );
 
   const body = await response.json();
-  console.log("ORDER ID:", body?.data?.id);
+  //console.log("ORDER ID:", body?.data?.id);
   return body?.data?.id ?? null;
 }
 
@@ -86,6 +86,6 @@ export async function addProductToOrder(
   );
 
   const body = await response.json();
-  console.log(`Add to basket - complete! ${JSON.stringify(body)}`);
+  //console.log(`Add to basket - complete! ${JSON.stringify(body)}`);
   return body;
 }
