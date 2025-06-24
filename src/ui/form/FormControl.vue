@@ -1,6 +1,6 @@
 <template>
   <Slot
-    ref="slotElement"
+    ref="target"
     :id="props.formItemId"
     :aria-describedby="
       !props.invalid
@@ -16,12 +16,18 @@
 </template>
 
 <script lang="ts" setup>
+// --- external
 import { ref, computed, watch } from "vue";
 import { useIntersectionObserver } from "@vueuse/core"; // or '@vueuse/integrations' in some setups
 import { Slot } from "radix-vue";
 
+// --- utils
+import { first, isEmpty, isFunction } from "lodash-es";
+
+// --- types
 import type { ComponentPublicInstance } from "vue";
-const hasFocused = ref(false);
+
+// -----------------------------------------------------------------------------
 
 const props = defineProps<{
   formItemId: string;
@@ -32,6 +38,8 @@ const props = defineProps<{
   animationDelay?: number;
 }>();
 
+// -----------------------------------------------------------------------------
+
 // NB its important to remove some attributes that we use, but that ALSO have HTML attributes that dont correspond
 // eg: autofocus >  as we are controlling it via the intersection observer
 //                  and we DONT want the normal browser behaviour of scrolling to the element
@@ -40,48 +48,61 @@ const attributesToRemove = {
   autofocus: undefined,
   size: undefined,
 };
+
 // --- state
+
+let observer: ReturnType<typeof useIntersectionObserver>;
+
+const target = ref<ComponentPublicInstance | null>(null);
+
+let animationCompleted = ref(false);
+
+if (props.animationDelay) {
+  new Promise(resolve => setTimeout(resolve, props.animationDelay! + 10)).then(
+    () => {
+      animationCompleted.value = true;
+    }
+  );
+} else {
+  animationCompleted.value = true;
+}
+
+// --- context
+
+const focussable = ["input", "textarea", "select", "button"];
 
 // --- computed
 
 const meta = computed(() => ({
   isInvalid: !!props.invalid,
-  shouldFocus: !!props.autoFocus && !hasFocused.value,
+  shouldFocus: !!props.autoFocus && animationCompleted.value,
+  isAnimationCompleted: animationCompleted.value,
 }));
 
-const slotElement = ref<ComponentPublicInstance | null>(null);
+// --- methods
 
-function maybeFocus(entries: IntersectionObserverEntry[]) {
-  const section = entries[0];
+function isSelectable(element: HTMLElement) {
+  const tag = element?.tagName?.toUpperCase();
+  const isFocusableTag = focussable.includes(tag);
+  const hasFocusableChildren =
+    isFunction(element?.querySelector) &&
+    element?.querySelector(focussable.join(", ")) !== null;
+
+  return isFocusableTag || hasFocusableChildren;
+}
+
+function maybeFocus([section]: IntersectionObserverEntry[]) {
+  // const section = entries[0];
   if (meta.value.shouldFocus && section.isIntersecting) {
     let el = section.target as HTMLInputElement;
 
-    // First check if the element itself is a focusable element
-    if (
-      !["input", "textarea", "select", "button"].includes(
-        el.tagName.toLowerCase()
-      )
-    ) {
-      // If not, try to find any focusable element inside
-      const focusableElements = el.querySelectorAll(
-        "input, textarea, select, button"
-      );
-
-      // Use the first focusable element found
-      if (focusableElements.length > 0) {
-        el = focusableElements[0] as HTMLInputElement;
-      }
+    // ensure the element itself is focusable, or try to find the first focusable child element
+    if (!focussable.includes(el.tagName.toLowerCase())) {
+      const children = el.querySelectorAll(focussable.join(", "));
+      el = first(children) as HTMLInputElement;
     }
 
-    if (el?.getAttribute("tabindex")) {
-      el.setAttribute("tabindex", "-1");
-    }
-
-    // only focus if we have not already focused
-    if (el) {
-      el.focus();
-      hasFocused.value = true;
-    }
+    if (el?.getAttribute("tabindex")) el.setAttribute("tabindex", "-1");
 
     // Prevents focusing on hidden elements
     if (!el?.closest('[aria-hidden="true"]')) {
@@ -104,37 +125,19 @@ function maybeFocus(entries: IntersectionObserverEntry[]) {
         }
       }
     }
+
+    // Finally...if we have an element we can focus it and stop observing
+    if (el) {
+      el.focus();
+      observer.stop();
+    }
   }
 }
 
-if (meta.value.shouldFocus) {
-  watch(
-    () => slotElement.value,
-    async el => {
-      if (el?.$el && isSelectable(el.$el)) {
-        if (props.animationDelay) {
-          await new Promise(resolve =>
-            setTimeout(resolve, props.animationDelay! + 10)
-          );
-        }
-
-        useIntersectionObserver(el, entries => maybeFocus(entries));
-      }
-    }
-  );
-}
-
-const isSelectable = (element: HTMLElement) => {
-  const selectableTypes = new Set(["INPUT", "TEXTAREA", "SELECT", "BUTTON"]);
-
-  const tag = element?.tagName?.toUpperCase();
-  const isFocusableTag = selectableTypes.has(tag);
-
-  const hasFocusableChildren =
-    element &&
-    typeof element?.querySelector === "function" &&
-    element?.querySelector("input, textarea, select, button") !== null;
-
-  return isFocusableTag || hasFocusableChildren;
-};
+const stop = watch(target, async el => {
+  if (el?.$el && isSelectable(el.$el)) {
+    observer = useIntersectionObserver(el, entries => maybeFocus(entries));
+    stop();
+  }
+});
 </script>
