@@ -13,6 +13,7 @@ import { useSession } from "../../session";
 
 // --- utils
 import {
+  DEBOUNCE_DELAY,
   DetailedError,
   contextMatches,
   contextValue,
@@ -21,7 +22,7 @@ import {
   stateValue,
   useContext,
 } from "../../../utils";
-import { get, isEmpty, isEqual } from "lodash-es";
+import { debounce, get, isEmpty, isEqual } from "lodash-es";
 
 // --- types
 import { IClient } from "@upmind-automation/types";
@@ -234,11 +235,11 @@ export const useClientCompany = (
     clear,
 
     /**
-     * Inputs a new model, resolving to the updated model.
+     * Inputs a new model, resolving to the updated model., this is debounced to avoid excessive calls.
      * @param {CompanyModel} model - The model to input.
      * @returns {Promise<CompanyModel>} The updated model.
      */
-    input,
+    input: debounce(input, DEBOUNCE_DELAY),
 
     /**
      * Sends the current model to the service for processing.
