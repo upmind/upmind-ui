@@ -1,5 +1,5 @@
 <template>
-  <div :class="styles.enclosed.controlsRoot">
+  <div v-if="$slots.controls" :class="styles.enclosed.controlsRoot">
     <div :class="styles.enclosed.controls">
       <slot name="controls" />
     </div>

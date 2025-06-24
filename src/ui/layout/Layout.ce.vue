@@ -1,7 +1,7 @@
 <template>
   <section>
     <component :is="layoutComponent">
-      <template #controls>
+      <template v-if="$slots.controls" #controls>
         <slot name="controls" />
       </template>
 
