@@ -18,11 +18,19 @@ import {
   NotAuthenticatedError,
   DetailedError,
   responseCodes,
-  useCollection,
 } from "../../../utils";
 import { mapIPhone, mapPhone, mapPhones } from "./mapper";
 import { invalidateQueryByKey } from "../../query";
-import { get, isString, isEmpty, omitBy } from "lodash-es";
+import {
+  get,
+  isNil,
+  isString,
+  first,
+  isEmpty,
+  every,
+  find,
+  isEqual,
+} from "lodash-es";
 
 // --- types
 import type { IPhone } from "@upmind-automation/types";
@@ -81,6 +89,11 @@ function loadList(params?: Partial<QueryParams>) {
   });
 }
 
+/**
+ * Load the lookups for the phone form
+ * @param {PhoneContext} _context
+ * @returns {Promise<{PhoneContext}>}
+ */
 async function loadLookups({
   model,
   schema,
@@ -147,10 +160,16 @@ async function update(id: Phone["id"], data: PhoneModel) {
 }
 
 async function ensure(model: PhoneModel): Promise<PhoneModel> {
-  const mapping = omitBy(model, isEmpty);
+  const mapping = get(model, "phone") as PhoneModel["phone"];
   const phones = await load();
-  const { findOne } = useCollection<Phone>(phones);
-  const found = findOne(mapping);
+
+  const found = find(phones, item =>
+    every(mapping, (value, key) => {
+      const modelValue = get(item, key);
+      return isEqual(modelValue, value);
+    })
+  );
+
   if (found) return Promise.resolve(found);
 
   return add(model).then(raw => {
@@ -301,62 +320,19 @@ async function validate({ schema, model }: Partial<PhoneContext>) {
 // EXPORTS
 
 export default {
-  /**
-   * The query key used for caching and identifying phone-related queries.
-   * @type {QueryKey}
-   */
   queryKey,
-
   //--- queries
-  /**
-   * Loads the phone list.
-   * @returns {Promise<Phone[]>} A promise that resolves to the list of phones
-   */
   loadList,
 
   //--- mutations
-  /**
-   * Removes a phone by its ID.
-   * @param {Phone["id"]} phoneId - The ID of the phone to remove.
-   * @returns {Promise<null>} A promise that resolves when the phone is removed
-   */
   remove,
-
-  /**
-   * Sets a phone as the default phone.
-   * @param {Phone["id"]} phoneId - The ID of the phone to set as default.
-   * @returns {Promise<IPhone>} A promise that resolves to the updated phone
-   */
   setDefault,
 };
 
 export const useClientPhoneServices = () => {
   return {
-    // --- methods
+    loadLookups,
 
-    /**
-     * Adds a phone.
-     * @param {Partial<PhoneContext>} param0 - The phone context containing the model to add.
-     * @returns {Promise<any>} The result of the add operation.
-     */
-    add: async ({ model }: Partial<PhoneContext>) => {
-      if (isEmpty(model))
-        return Promise.reject(
-          new DetailedError(
-            "[headless] Add Phone failed: model provided",
-            responseCodes.Unprocessable_Entity,
-            { model }
-          )
-        );
-      // return add(model);
-      return ensure(model);
-    },
-
-    /**
-     * Ensures a phone exists.
-     * @param {Partial<PhoneContext>} param0 - The phone context containing the model to ensure.
-     * @returns {Promise<any>} The ensured phone model, which will either be the existing phone or a new one created.
-     */
     ensure: async ({ model }: Partial<PhoneContext>) => {
       if (isEmpty(model))
         return Promise.reject(
@@ -369,33 +345,17 @@ export const useClientPhoneServices = () => {
       return ensure(model);
     },
 
-    /**
-     * Loads lookups for the phone form.
-     * @param {PhoneContext} context - The phone context.
-     * @returns {Promise<PhoneContext>} The loaded lookups.
-     */
-    loadLookups,
-
-    /**
-     * Parses a phone context.
-     * @param {PhoneContext} context - The phone context.
-     * @param {AnyEventObject} event - The event object.
-     * @returns {Promise<any>} The parsed phone context.
-     */
-    parse,
-
-    /**
-     * Refreshes the phone list.
-     * @param {Partial<QueryParams>} params - Optional query params.
-     * @returns {Promise<any>} The refreshed phone list.
-     */
-    refresh: loadList,
-
-    /**
-     * Updates a phone.
-     * @param {Partial<PhoneContext>} param0 - The phone context containing id and model.
-     * @returns {Promise<any>} The result of the update operation.
-     */
+    add: async ({ model }: Partial<PhoneContext>) => {
+      if (isEmpty(model))
+        return Promise.reject(
+          new DetailedError(
+            "[headless] Add Phone failed: model provided",
+            responseCodes.Unprocessable_Entity,
+            { model }
+          )
+        );
+      return add(model);
+    },
     update: async ({ id, model }: Partial<PhoneContext>) => {
       if (!id || isEmpty(model))
         return Promise.reject(
@@ -405,14 +365,11 @@ export const useClientPhoneServices = () => {
             { id, model }
           )
         );
+
       return update(id, model);
     },
-
-    /**
-     * Validates a phone model.
-     * @param {Partial<PhoneContext>} param0 - The phone context containing schema and model.
-     * @returns {Promise<any>} The validated model.
-     */
+    parse,
     validate,
+    refresh: loadList,
   };
 };

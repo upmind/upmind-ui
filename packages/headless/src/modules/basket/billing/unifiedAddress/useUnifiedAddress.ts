@@ -31,9 +31,9 @@ import { QueryResponseError } from "../../../query";
 // -----------------------------------------------------------------------------
 
 export const useUnifiedAddress = (
-  clientId: IClient["id"],
   values: BillingModel = {},
-  type: UnifiedAddressContext["type"] = UnifiedAddressType.PERSONAL
+  type: UnifiedAddressContext["type"] = UnifiedAddressType.PERSONAL,
+  { clientId }: { clientId?: IClient["id"] } = {}
 ) => {
   // --- state
   const service = interpret(

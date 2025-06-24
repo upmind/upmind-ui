@@ -11,6 +11,7 @@ import type {
 } from "@tanstack/vue-query";
 
 // -----------------------------------------------------------------------------
+export type { ErrorObject as ValidationErrorObject } from "ajv";
 
 export interface QueryResponseError {
   id: null;
