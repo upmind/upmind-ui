@@ -22,7 +22,7 @@ import { useIntersectionObserver } from "@vueuse/core"; // or '@vueuse/integrati
 import { Slot } from "radix-vue";
 
 // --- utils
-import { first, isEmpty, isFunction } from "lodash-es";
+import { first, isFunction } from "lodash-es";
 
 // --- types
 import type { ComponentPublicInstance } from "vue";
