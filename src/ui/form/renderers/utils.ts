@@ -1,24 +1,34 @@
+// --- external
 import { computed, ref, inject, watch } from "vue";
-import { merge, cloneDeep, defaults, set, isEqual, uniqueId } from "lodash-es";
-import { createCombinatorRenderInfos } from "@jsonforms/core";
-
 import {
-  composePaths,
-  findUISchema,
-  getFirstPrimitiveProp,
   Resolve,
+  composePaths,
+  createCombinatorRenderInfos,
+  findUISchema,
   getErrorAt,
+  getFirstPrimitiveProp,
+  rankWith,
 } from "@jsonforms/core";
 
+// --- utils
+import {
+  merge,
+  cloneDeep,
+  defaults,
+  set,
+  isEqual,
+  map,
+  isFunction,
+} from "lodash-es";
+
+// --- types
+import type { ComputedRef, Ref } from "vue";
 import type {
   JsonFormsSubStates,
   Tester,
   CombinatorSubSchemaRenderInfo,
 } from "@jsonforms/core";
-import { rankWith } from "@jsonforms/core";
-import { map, isFunction } from "lodash-es";
 import type { FormControlProps } from "../types";
-import type { ComputedRef, Ref } from "vue";
 // -----------------------------------------------------------------------------
 
 export const useUpmindUIRenderer = <
@@ -74,7 +84,7 @@ export const useUpmindUIRenderer = <
       visible: input.control.value.visible,
     });
 
-    set(props, "id", input.control.value?.id ?? uniqueId("form-field"));
+    set(props, "id", input.control.value?.id);
     set(props, "name", input.control.value.path);
     set(props, "errors", map(errors.value, "message"));
     // set(props, "errors", input.control.value.errors);
