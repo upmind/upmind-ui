@@ -36,10 +36,12 @@ test.describe("Manipulating elements/behaviour with URL query strings", () => {
       );
       await page.waitForLoadState("networkidle");
       await page.getByTestId("button-confirm-and-proceed").click();
-      await expect(basket.basketProduct.nth(0)).toContainText(
+      await expect(basket.basketProductSummary.nth(0)).toContainText(
         "Startup Planning"
       );
-      await expect(basket.basketProduct.nth(1)).toContainText("Coaching");
+      await expect(basket.basketProductSummary.nth(1)).toContainText(
+        "Coaching"
+      );
     });
     test("Invalid Bundle", async ({ page }) => {
       await page.goto(

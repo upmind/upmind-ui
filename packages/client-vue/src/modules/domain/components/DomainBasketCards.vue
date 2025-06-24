@@ -54,7 +54,7 @@ const props = withDefaults(
   defineProps<{
     i18nKey?: string;
     modelValue?: string;
-    items: DomainProduct[];
+    items?: DomainProduct[];
     loading?: boolean;
     processing?: boolean;
     disabled?: boolean;

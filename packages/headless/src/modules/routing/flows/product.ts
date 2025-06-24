@@ -9,10 +9,10 @@ import {
 import { useBasketProductsPending } from "../../basketProduct";
 
 import { useBasket } from "../../basket";
-import { useRecommendationsEngine } from "../../recommendations";
+import { useProductRecommendations } from "../../recommendations";
 
 // --- utils
-import { uniqBy, get, set, isEmpty, find } from "lodash-es";
+import { uniqBy, set, isEmpty } from "lodash-es";
 
 // --- types
 import { ROUTE } from "../types";
@@ -37,9 +37,6 @@ export const useProductFlows = () => {
     remove: removePendingProduct,
     isInBasket,
   } = useBasketProductsPending();
-
-  const { hasRecommendations, isReady: isRecommendationsReady } =
-    useRecommendationsEngine();
 
   let flows: Flow[] = [
     {
@@ -87,13 +84,19 @@ export const useProductFlows = () => {
         next: [
           ROUTE.PRODUCT_REQUIRES_ACTION,
           {
-            name: ROUTE.RECOMMENDATIONS,
-            guard: async (_route: Route) => {
-              const { hasUnseenRecommendations, isReady } =
-                useRecommendationsEngine();
-              await isReady();
-              const valid = hasUnseenRecommendations();
-              return valid;
+            name: ROUTE.PRODUCT_RECOMMENDATIONS,
+            guard: async (route: Route) => {
+              const { productId: pid } = useRouteQueryParams(route);
+              if (!pid) return false;
+              const { meta, isReady } = useProductRecommendations(pid);
+              return isReady().then(() => meta.value.hasRecommendations);
+            },
+            resolve: async (route: Route) => {
+              const { productId: pid } = useRouteQueryParams(route);
+              return {
+                name: ROUTE.PRODUCT_RECOMMENDATIONS,
+                params: { pid },
+              };
             },
           },
           ROUTE.CHECKOUT,
@@ -126,7 +129,6 @@ export const useProductFlows = () => {
           "model.productId",
           productId
         );
-
         return {
           name: ROUTE.PRODUCT_ADD,
           params: { pid: pid ?? "" },
@@ -139,10 +141,9 @@ export const useProductFlows = () => {
             name: ROUTE.PRODUCT_RECOMMENDATIONS,
             guard: async (route: Route) => {
               const { productId: pid } = useRouteQueryParams(route);
-              return (
-                !!pid &&
-                isRecommendationsReady().then(() => hasRecommendations(pid))
-              );
+              if (!pid) return false;
+              const { meta, isReady } = useProductRecommendations(pid);
+              return isReady().then(() => meta.value.hasRecommendations);
             },
             resolve: async (route: Route) => {
               const { productId: pid } = useRouteQueryParams(route);
@@ -280,9 +281,9 @@ export const useProductFlows = () => {
       name: ROUTE.PRODUCT_RECOMMENDATIONS,
       guard: async (route: Route) => {
         const { productId: pid } = useRouteQueryParams(route);
-        return (
-          !!pid && isRecommendationsReady().then(() => hasRecommendations(pid))
-        );
+        if (!pid) return false;
+        const { meta, isReady } = useProductRecommendations(pid);
+        return isReady().then(() => meta.value.hasRecommendations);
       },
       targets: {
         next: [ROUTE.CHECKOUT, ROUTE.SESSION_REGISTER, ROUTE.BASKET],

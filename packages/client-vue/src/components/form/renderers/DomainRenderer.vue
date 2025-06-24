@@ -31,7 +31,7 @@ const { control, formFieldProps, onInput } = useUpmindUIRenderer(
   useJsonFormsControl(props)
 );
 
-const resetInput = (value: string) => {
+const resetInput = (value?: string) => {
   onInput(value, false);
 };
 </script>

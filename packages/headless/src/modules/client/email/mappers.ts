@@ -28,7 +28,6 @@ export const mapEmail = (raw: IEmail): Email => {
 
 export const mapIEmail = (data: EmailModel): IEmail => {
   return {
-    // type: data.type, // deprecated
     email: data.email,
   } as IEmail;
 };

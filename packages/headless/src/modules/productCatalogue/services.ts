@@ -63,13 +63,6 @@ function loadInfinite(params?: Partial<QueryParams>) {
   });
 }
 
-function loadCached() {
-  const { queryClient } = useQuery();
-  const cached = queryClient.getQueryData<Product[]>(queryKey);
-  if (isNil(cached)) throw new CacheIsStaleError();
-  return cached;
-}
-
 // -----------------------------------------------------------------------------
 // EXPORTS
 
@@ -78,5 +71,4 @@ export default {
   //--- queries
   loadList,
   loadInfinite,
-  loadCached,
 };

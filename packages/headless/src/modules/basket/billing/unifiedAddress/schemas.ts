@@ -34,6 +34,9 @@ export const useSchema = ({
     title: "Unified Address",
     required: [],
     properties: {
+      phone: usePhoneSchema({
+        country,
+      }),
       address: useAddressSchema({
         clientId,
         regions,
@@ -51,9 +54,6 @@ export const useSchema = ({
         emails: baseModel?.emails ?? [],
         phones: baseModel?.phones ?? [],
         clientId: baseModel?.clientId ?? "",
-      }),
-      phone: usePhoneSchema({
-        country,
       }),
     },
   };
@@ -120,6 +120,13 @@ export const useUischema = ({ type, config }: UnifiedAddressContext) => {
           },
         },
       ],
+      rule: {
+        effect: "SHOW",
+        condition: {
+          scope: "#/properties/company",
+          schema: { type: "null" },
+        },
+      },
     } as any);
   }
 

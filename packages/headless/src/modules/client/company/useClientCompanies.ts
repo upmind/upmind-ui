@@ -7,16 +7,8 @@ import { useSession } from "../../session";
 import { invalidateQueryByKey } from "../../query";
 
 // --- utils
-import {
-  get,
-  set,
-  find,
-  every,
-  isEmpty,
-  includes,
-  isString,
-  isEqual,
-} from "lodash-es";
+import { useCollection } from "../../../utils";
+import { set, find, isEmpty } from "lodash-es";
 
 // --- types
 import type { Company } from "./types";
@@ -43,6 +35,8 @@ export const useClientCompanies = (
     ...query?.meta.value,
   }));
 
+  const { findOne, getOne, getDefault } = useCollection<Company>(query.data);
+
   async function isReady(): Promise<boolean> {
     return isAuthenticated()
       .then(() =>
@@ -56,42 +50,10 @@ export const useClientCompanies = (
 
   // --- context
 
-  // --- methods
-
-  function getOne(id?: Company["id"]) {
-    if (isEmpty(id)) return undefined;
-    return find(query.data.value || [], ["id", id]);
-  }
-
-  function findOne(mapping: string | Partial<Company>) {
-    if (isString(mapping)) {
-      return find(
-        query.data.value || [],
-        item =>
-          includes(item.title.toLowerCase(), mapping.toLowerCase()) ||
-          includes(item.description.toLowerCase(), mapping.toLowerCase())
-      );
-    }
-
-    return find(query.data.value || [], item =>
-      every(mapping, (value, key) => {
-        if (key == "id") {
-          return item.id == value;
-        }
-        const modelValue = get(item, key);
-        return isEqual(modelValue, value);
-      })
-    );
-  }
+  // --- mutations
 
   function remove(id: Company["id"]) {
     return service.remove(id).mutate();
-  }
-
-  function getDefault() {
-    return find(query.data.value || [], "meta.isDefault") as
-      | Company
-      | undefined;
   }
 
   function setDefault(id: Company["id"]) {
@@ -127,7 +89,7 @@ export const useClientCompanies = (
 
     /**
      * Meta-information about the basket state.
-     * @type {Object} BasketMeta
+     * @typedef {Object} ClientCompanylMeta
      * @property {boolean} isError - Indicates if there was an error during the query.
      * @property {boolean} isEmpty - Indicates if the company's list is empty.
      * @property {boolean} isLoading - Indicates if the query is currently loading.
@@ -157,6 +119,8 @@ export const useClientCompanies = (
      */
     pagination: query.pagination,
 
+    // --- methods
+
     /**
      * The default item for the current client.
      * This is the company that is set as default for the current client.
@@ -172,12 +136,6 @@ export const useClientCompanies = (
      * @returns The company object if found, is otherwise undefined.
      */
     getOne,
-
-    /**
-     * Get all the items from the cache.
-     * @returns An array of parsed items if found, otherwise an empty array.
-     */
-    getCached: service.loadCached,
 
     /**
      * Find a single company based on the given param. The param is matched against the title and description.

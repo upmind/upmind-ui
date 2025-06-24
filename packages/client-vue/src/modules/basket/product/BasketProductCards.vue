@@ -22,7 +22,7 @@
 
   <div v-else class="flex flex-col space-y-4" v-auto-animate>
     <template
-      v-for="index in Math.max(1, products.length)"
+      v-for="index in Math.max(1, products?.length ?? 0)"
       :key="`skeleton-cart-item-${index}`"
     >
       <BasketProductSkeleton>

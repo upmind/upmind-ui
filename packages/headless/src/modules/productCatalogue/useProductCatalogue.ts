@@ -176,12 +176,6 @@ export const useProductCatalogue = (
     getOne,
 
     /**
-     * Get all the items from the cache.
-     * @returns An array of parsed items if found, otherwise an empty array.
-     */
-    getCached: service.loadCached,
-
-    /**
      * Find a single address based on the given param. The param is matched against the title and description.
      * @param mapping The filter to match against the address title and description.
      * @returns The address object if found, is otherwise undefined.

@@ -24,7 +24,7 @@ import { PaymentDetailsContext } from "../paymentDetails";
 
 // --- SPAWN ACTORS
 
-export function spawnBillingDetails(basket?: IBasket) {
+export function spawnBilling(basket?: IBasket) {
   return spawn(
     billingMachine.withContext({
       basketId: basket?.id,

@@ -45,6 +45,12 @@ export const useClientAddressActions = () => {
         { data }: AnyEventObject
       ) => useModelParser<AddressModel>(schema, data, baseModel),
     }),
+
+    refreshContext: assign({
+      clientId: ({ clientId }: AddressContext, { data }: AnyEventObject) => {
+        return clientId || data?.clientId;
+      },
+    }),
   };
 };
 

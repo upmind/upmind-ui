@@ -86,12 +86,14 @@ export const useUischema = (_context?: CompanyContext) => {
         ],
       },
       {
-        type: "ModelList",
+        type: "Manager",
         scope: "#/properties/addressId",
         options: {
-          label: "",
-          list: useClientAddresses,
-          mutate: useClientAddress,
+          manage: {
+            list: useClientAddresses,
+            mutate: useClientAddress,
+          },
+          clientId: "todo-123456",
         },
       },
     ],

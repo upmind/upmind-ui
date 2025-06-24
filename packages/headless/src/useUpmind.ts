@@ -53,7 +53,7 @@ export interface UpmindProps {
   };
   router?: {
     instance: Router;
-    flows?: Flow[];
+    flows?: Flow[] | (() => Flow[]);
   };
   i18n?: {
     instance: I18n;

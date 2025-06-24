@@ -20,22 +20,47 @@ import {
   DetailedError,
   responseCodes,
   ErrorOrigin,
+  useCollection,
 } from "../../../utils";
+import { mapCompanies, mapCompany, mapICompany } from "./mappers";
 import { invalidateQueryByKey } from "../../query";
-import { mapCompanies, mapICompany } from "./mappers";
-import { get, isEmpty, isNil, isString } from "lodash-es";
+import { get, isString, isEmpty, omitBy } from "lodash-es";
 
 // --- types
 import type { ICompany } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { AnyEventObject } from "xstate";
-import type { CompanyContext, Company, CompanyModel } from "./types";
+import type { Company, CompanyModel, CompanyContext } from "./types";
 
 // -----------------------------------------------------------------------------
 // QUERIES
 
 const queryKey: QueryKey = ["client", "companies"];
 const { addError, addSuccess } = useFeedback();
+
+async function load() {
+  const { meta, user } = useSession();
+  const { get, useUrl } = useQuery();
+
+  return get<ICompany[], Company[]>({
+    queryKey,
+    url: useUrl(`clients/${user.value?.id}/companies`, {
+      with: ["address", "address.country", "address.region"].join(),
+    }),
+    withAccessToken: true,
+    guard: async () =>
+      new Promise((resolve, reject) => {
+        if (meta.value.isAuthenticated && !!user.value?.id) {
+          resolve(true);
+        } else {
+          reject(new NotAuthenticatedError());
+        }
+      }),
+    // --- options
+    select: mapCompanies,
+    staleTime: useTime().DAY,
+  });
+}
 
 function loadList(params?: Partial<QueryParams>) {
   const { meta, user } = useSession();
@@ -50,7 +75,7 @@ function loadList(params?: Partial<QueryParams>) {
     withAccessToken: true,
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (meta.value.isAuthenticated || !user.value?.id) {
+        if (meta.value.isAuthenticated && !!user.value?.id) {
           resolve(true);
         } else {
           reject(new NotAuthenticatedError());
@@ -62,18 +87,6 @@ function loadList(params?: Partial<QueryParams>) {
   });
 }
 
-function loadCached() {
-  const { queryClient } = useQuery();
-  const cached = queryClient.getQueryData<Company[]>(queryKey);
-  if (isNil(cached)) throw new CacheIsStaleError();
-  return cached;
-}
-
-/**
- * Load the lookups for the company form
- * @param {CompanyContext} context
- * @returns {Promise<CompanyContext>}
- */
 async function loadLookups({
   model,
   schema,
@@ -127,7 +140,6 @@ async function add(data: CompanyModel) {
   if (!meta.value.isAuthenticated || !user.value?.id) {
     return Promise.reject(new NotAuthenticatedError());
   }
-
   return post<ICompany>({
     url: useUrl(`clients/${user.value?.id}/companies`),
     data: mapICompany(data),
@@ -148,6 +160,25 @@ async function update(id: Company["id"], data: CompanyModel) {
     data: mapICompany(data),
     withAccessToken: true,
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
+}
+
+async function ensure(model: CompanyModel): Promise<CompanyModel> {
+  const mapping = omitBy(model, isEmpty);
+  const companies = await load();
+  const { findOne } = useCollection<Company>(companies);
+  const found = findOne(mapping);
+
+  if (found) return Promise.resolve(found);
+  return add(model).then(raw => {
+    if (isEmpty(raw))
+      throw new DetailedError(
+        "[headless] Failed to ensure (add) company",
+        responseCodes.Unprocessable_Entity
+      );
+    // NB: Remember to refresh our machines so we have the new data
+    // refresh();
+    return mapCompany(raw);
+  });
 }
 
 function remove(companyId: Company["id"]) {
@@ -259,19 +290,44 @@ async function validate({ schema, model }: Partial<CompanyContext>) {
 // -----------------------------------------------------------------------------
 
 export default {
+  /**
+   * The query key used for caching and identifying company-related queries.
+   * @type {QueryKey}
+   */
   queryKey,
+
   //--- queries
+  /**
+   * Loads the company list.
+   * @returns {Promise<Company[]>} A promise that resolves to the list of companys
+   */
   loadList,
-  loadCached,
 
   //--- mutations
+  /**
+   * Removes a company by its ID.
+   * @param {Company["id"]} companyId - The ID of the company to remove.
+   * @returns {Promise<null>} A promise that resolves when the company is removed
+   */
   remove,
+
+  /**
+   * Sets a company as the default company.
+   * @param {Company["id"]} companyId - The ID of the company to set as default.
+   * @returns {Promise<ICompany>} A promise that resolves to the updated company
+   */
   setDefault,
 };
 
 export const useClientCompanyServices = () => {
   return {
-    loadLookups,
+    // --- methods
+
+    /**
+     * Adds a company.
+     * @param {Partial<CompanyContext>} param0 - The company context containing the model to add.
+     * @returns {Promise<any>} The result of the add operation.
+     */
     add: async ({ model }: Partial<CompanyContext>) => {
       if (isEmpty(model))
         return Promise.reject(
@@ -282,8 +338,54 @@ export const useClientCompanyServices = () => {
             { model }
           )
         );
-      return add(model);
+      // return add(model);
+      return ensure(model);
     },
+
+    /**
+     * Ensures a company exists.
+     * @param {Partial<CompanyContext>} param0 - The company context containing the model to ensure.
+     * @returns {Promise<any>} The ensured company model, which will either be the existing company or a new one created.
+     */
+    ensure: async ({ model }: Partial<CompanyContext>) => {
+      if (isEmpty(model))
+        return Promise.reject(
+          new DetailedError(
+            "[headless] Ensure Company failed: model provided",
+            responseCodes.Unprocessable_Entity,
+            { model }
+          )
+        );
+      return ensure(model);
+    },
+
+    /**
+     * Loads lookups for the company form.
+     * @param {CompanyContext} context - The company context.
+     * @returns {Promise<CompanyContext>} The loaded lookups.
+     */
+    loadLookups,
+
+    /**
+     * Parses a company context.
+     * @param {CompanyContext} context - The company context.
+     * @param {AnyEventObject} event - The event object.
+     * @returns {Promise<any>} The parsed company context.
+     */
+    parse,
+
+    /**
+     * Refreshes the company list.
+     * @param {Partial<QueryParams>} params - Optional query params.
+     * @returns {Promise<any>} The refreshed company list.
+     */
+    refresh: loadList,
+
+    /**
+     * Updates a company.
+     * @param {Partial<CompanyContext>} param0 - The company context containing id and model.
+     * @returns {Promise<any>} The result of the update operation.
+     */
     update: async ({ id, model }: Partial<CompanyContext>) => {
       if (!id || isEmpty(model))
         return Promise.reject(
@@ -294,11 +396,14 @@ export const useClientCompanyServices = () => {
             { id, model }
           )
         );
-
       return update(id, model);
     },
-    parse,
+
+    /**
+     * Validates a company model.
+     * @param {Partial<CompanyContext>} param0 - The company context containing schema and model.
+     * @returns {Promise<any>} The validated model.
+     */
     validate,
-    refresh: loadList,
   };
 };

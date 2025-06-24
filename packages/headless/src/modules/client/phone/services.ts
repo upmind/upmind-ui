@@ -20,9 +20,18 @@ import {
   responseCodes,
   ErrorOrigin,
 } from "../../../utils";
-import { mapIPhone, mapPhones } from "./mapper";
+import { mapIPhone, mapPhone, mapPhones } from "./mapper";
 import { invalidateQueryByKey } from "../../query";
-import { get, isNil, isString, first, isEmpty } from "lodash-es";
+import {
+  get,
+  isNil,
+  isString,
+  first,
+  isEmpty,
+  every,
+  find,
+  isEqual,
+} from "lodash-es";
 
 // --- types
 import type { IPhone } from "@upmind-automation/types";
@@ -35,6 +44,28 @@ import type { Phone, PhoneModel, PhoneContext } from "./types";
 
 const queryKey: QueryKey = ["client", "phones"];
 const { addError, addSuccess } = useFeedback();
+
+async function load() {
+  const { meta, user } = useSession();
+  const { get, useUrl } = useQuery();
+
+  return get<IPhone[], Phone[]>({
+    queryKey,
+    url: useUrl(`clients/${user.value?.id}/phones`),
+    withAccessToken: true,
+    guard: async () =>
+      new Promise((resolve, reject) => {
+        if (meta.value.isAuthenticated && !!user.value?.id) {
+          resolve(true);
+        } else {
+          reject(new NotAuthenticatedError());
+        }
+      }),
+    // --- options
+    select: mapPhones,
+    staleTime: useTime().DAY,
+  });
+}
 
 function loadList(params?: Partial<QueryParams>) {
   const { meta, user } = useSession();
@@ -57,13 +88,6 @@ function loadList(params?: Partial<QueryParams>) {
     select: mapPhones,
     staleTime: useTime().DAY,
   });
-}
-
-function loadCached() {
-  const { queryClient } = useQuery();
-  const cached = queryClient.getQueryData<Phone[]>(queryKey);
-  if (isNil(cached)) throw new CacheIsStaleError();
-  return cached;
 }
 
 /**
@@ -89,7 +113,7 @@ async function loadLookups({
     )
   );
   const countries = await fetchCountries();
-  const country = getCountry(model?.country);
+  const country = getCountry(model?.phone?.country);
   if (!countries) {
     return Promise.reject(
       new DetailedError(
@@ -100,10 +124,12 @@ async function loadLookups({
     );
   }
   const baseModel: PhoneModel = {
-    number: "",
-    nationalNumber: "",
-    countryCallingCode: "",
-    country: country.code,
+    phone: {
+      number: "",
+      nationalNumber: "",
+      countryCallingCode: "",
+      country: country.code,
+    },
   };
 
   const safeModel = useModelParser<PhoneModel>(schema, model, baseModel, {
@@ -147,6 +173,31 @@ async function update(id: Phone["id"], data: PhoneModel) {
     data: mapIPhone(data),
     withAccessToken: true,
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
+}
+
+async function ensure(model: PhoneModel): Promise<PhoneModel> {
+  const mapping = get(model, "phone") as PhoneModel["phone"];
+  const phones = await load();
+
+  const found = find(phones, item =>
+    every(mapping, (value, key) => {
+      const modelValue = get(item, key);
+      return isEqual(modelValue, value);
+    })
+  );
+
+  if (found) return Promise.resolve(found);
+
+  return add(model).then(raw => {
+    if (isEmpty(raw))
+      throw new DetailedError(
+        "[headless] Failed to ensure (add) phone",
+        responseCodes.Unprocessable_Entity
+      );
+    // NB: Remember to refresh our machines so we have the new data
+    // refresh();
+    return mapPhone(raw);
+  });
 }
 
 function remove(phoneId: Phone["id"]) {
@@ -230,9 +281,10 @@ async function parse(
   // ---
   if (!safeModel) return Promise.resolve({ model: safeModel, country });
 
-  const phoneNumber = (safeModel?.number || safeModel?.nationalNumber) ?? "";
+  const phoneNumber =
+    (safeModel?.phone?.number || safeModel?.phone?.nationalNumber) ?? "";
 
-  const countryCode: CountryCode = (safeModel?.country ||
+  const countryCode: CountryCode = (safeModel?.phone?.country ||
     data?.country?.code ||
     country?.code ||
     "") as CountryCode;
@@ -241,20 +293,24 @@ async function parse(
 
   // now map the phone number to the model in the correct format with fallbacks
 
-  safeModel.number = phone?.number || safeModel?.number;
+  safeModel.phone.number = phone?.number || safeModel?.phone?.number;
 
-  safeModel.nationalNumber = phone?.nationalNumber || safeModel?.nationalNumber;
+  safeModel.phone.nationalNumber =
+    phone?.nationalNumber || safeModel?.phone?.nationalNumber;
 
-  safeModel.countryCallingCode =
-    phone?.countryCallingCode || safeModel?.countryCallingCode;
+  safeModel.phone.countryCallingCode =
+    phone?.countryCallingCode || safeModel?.phone?.countryCallingCode;
 
-  safeModel.country =
-    phone?.country || safeModel?.country || country?.code || "";
+  safeModel.phone.country =
+    phone?.country || safeModel?.phone?.country || country?.code || "";
 
-  if (!!safeModel?.country && safeModel.country !== country?.code) {
+  if (
+    !!safeModel?.phone?.country &&
+    safeModel.phone.country !== country?.code
+  ) {
     const { getCountry } = useSystem();
     // we have change countries in the form, so we need to get our new country
-    country = getCountry(safeModel.country);
+    country = getCountry(safeModel.phone.country);
   }
 
   return Promise.resolve({ model: safeModel, country });
@@ -290,7 +346,6 @@ export default {
   queryKey,
   //--- queries
   loadList,
-  loadCached,
 
   //--- mutations
   remove,
@@ -300,6 +355,18 @@ export default {
 export const useClientPhoneServices = () => {
   return {
     loadLookups,
+
+    ensure: async ({ model }: Partial<PhoneContext>) => {
+      if (isEmpty(model))
+        return Promise.reject(
+          new DetailedError(
+            "[headless] Ensure Phone failed: model provided",
+            responseCodes.Unprocessable_Entity,
+            { model }
+          )
+        );
+      return ensure(model);
+    },
 
     add: async ({ model }: Partial<PhoneContext>) => {
       if (isEmpty(model))
