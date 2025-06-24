@@ -14,7 +14,7 @@ export const coukDomain = [
     registrantState: "",
     registrantPostcode: "SW1A",
     registrantCountry: "United Kingdom",
-    total: "£1.76",
+    total: "£2.00",
     billingCycle: "1 month",
     tldValue: ".co.uk",
   },
