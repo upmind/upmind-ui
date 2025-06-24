@@ -481,7 +481,7 @@ export const useSession = () => {
               "Transfer not available",
               responseCodes.Conflict,
               ErrorOrigin.Headless,
-              { error }
+              error
             )
           );
         }

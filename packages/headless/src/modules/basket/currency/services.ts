@@ -27,7 +27,7 @@ async function load(_context: CurrencyContext, _event: AnyEventObject) {
         "[headless] Brand not ready",
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless,
-        { error }
+        error
       )
     )
   );

@@ -70,7 +70,7 @@ async function load(context: BasketContext, _event: AnyEventObject) {
         "[headless] Brand not ready",
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless,
-        { error }
+        error
       )
     )
   );
