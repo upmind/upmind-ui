@@ -116,9 +116,7 @@ async function loadLookups({
     },
   };
 
-  const safeModel = useModelParser<PhoneModel>(schema, model, baseModel, {
-    allowExtraProps: false,
-  });
+  const safeModel = useModelParser<PhoneModel>(schema, model, baseModel);
 
   return Promise.resolve({
     country,
@@ -252,14 +250,12 @@ function setDefault(phoneId: Phone["id"]) {
 //  SIDE EFFECTS
 
 async function parse(
-  { baseModel, schema, country }: PhoneContext,
+  { schema, country }: PhoneContext,
   { data }: AnyEventObject
 ) {
   const safeModel = useModelParser<PhoneModel, Phone>(
     schema,
-    get(data, "model", data),
-    baseModel,
-    { allowExtraProps: false }
+    get(data, "model", data)
   );
 
   // ---

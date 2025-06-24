@@ -22,11 +22,11 @@ import {
 
 export const useSchema = ({
   clientId,
+  countries,
   country,
   regions,
   addresses,
   baseModel,
-  countries,
   config,
 }: UnifiedAddressContext) => {
   const schema: JsonSchema7 = {

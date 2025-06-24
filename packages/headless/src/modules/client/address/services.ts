@@ -113,9 +113,7 @@ async function loadLookups({
     postcode: "",
   };
 
-  const safeModel = useModelParser<AddressModel>(schema, model, baseModel, {
-    allowExtraProps: false,
-  });
+  const safeModel = useModelParser<AddressModel>(schema, model, baseModel);
 
   return Promise.resolve({
     regions,
@@ -247,7 +245,7 @@ function setDefault(addressId: Address["id"]) {
 //  SIDE EFFECTS
 
 async function parse(
-  { regions, country, baseModel, schema }: AddressContext,
+  { regions, country, schema }: AddressContext,
   { data }: AnyEventObject
 ) {
   // We need to check and potentially update the region list based on the selected country (if it's changed)
@@ -257,16 +255,14 @@ async function parse(
   // if not, then we assume the data is the model
   const safeModel = useModelParser<AddressModel>(
     schema,
-    get(data, "model", data),
-    baseModel,
-    { allowExtraProps: false }
+    get(data, "model", data)
   );
 
   // ---
 
   // first let's check we have a valid country,
   // fallback to the default country if not set or invalid
-  country = getCountry(safeModel?.countryId ?? baseModel?.countryId);
+  country = getCountry(safeModel?.countryId);
   safeModel.countryId = country.id;
 
   // let's check if the country has changed, i.e.: the regions don't match
