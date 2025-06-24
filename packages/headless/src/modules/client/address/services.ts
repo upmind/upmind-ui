@@ -11,30 +11,53 @@ import {
 // --- utils
 import {
   useTime,
-  useValidation,
-  useModelParser,
-  CacheIsStaleError,
-  NotAuthenticatedError,
+  ErrorOrigin,
   DetailedError,
   responseCodes,
-  ErrorOrigin,
+  useValidation,
+  useCollection,
+  useModelParser,
+  NotAuthenticatedError,
 } from "../../../utils";
+import { mapAddress, mapAddresses, mapIAddress } from "./mappers";
 import { invalidateQueryByKey } from "../../query";
-import { mapAddresses, mapIAddress } from "./mappers";
-import { find, first, get, isEmpty, isNil, isString, some } from "lodash-es";
+import { get, isString, isEmpty, omitBy, find, some } from "lodash-es";
 
 // --- types
-import { AddressTypes } from "./types";
+import { BrandConfigKeys, type IAddress } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { AnyEventObject } from "xstate";
-import { BrandConfigKeys, type IAddress } from "@upmind-automation/types";
-import type { Address, AddressContext, AddressModel } from "./types";
+import type { Address, AddressModel, AddressContext } from "./types";
 
 // -----------------------------------------------------------------------------
 // QUERIES
 
 const queryKey: QueryKey = ["client", "addresses"];
 const { addError, addSuccess } = useFeedback();
+
+async function load() {
+  const { meta, user } = useSession();
+  const { get, useUrl } = useQuery();
+
+  return get<IAddress[], Address[]>({
+    queryKey,
+    url: useUrl(`clients/${user.value?.id}/addresses`, {
+      with: ["region", "country"].join(),
+    }),
+    withAccessToken: true,
+    guard: async () =>
+      new Promise((resolve, reject) => {
+        if (meta.value.isAuthenticated && !!user.value?.id) {
+          resolve(true);
+        } else {
+          reject(new NotAuthenticatedError());
+        }
+      }),
+    // --- options
+    select: mapAddresses,
+    staleTime: useTime().DAY,
+  });
+}
 
 function loadList(params?: Partial<QueryParams>) {
   const { meta, user } = useSession();
@@ -61,18 +84,6 @@ function loadList(params?: Partial<QueryParams>) {
   });
 }
 
-function loadCached() {
-  const { queryClient } = useQuery();
-  const cached = queryClient.getQueryData<Address[]>(queryKey);
-  if (isNil(cached)) throw new CacheIsStaleError();
-  return cached;
-}
-
-/**
- * Load the lookups for the address form
- * @param {AddressContext} context
- * @returns {Promise<AddressContext>}
- */
 async function loadLookups({
   model,
   schema,
@@ -111,7 +122,6 @@ async function loadLookups({
   }
 
   const baseModel: AddressModel = {
-    // type: first(AddressTypes)?.key || 1, // deprecated
     countryId: country?.id,
     address1: "",
     city: "",
@@ -143,7 +153,6 @@ async function add(data: AddressModel) {
   if (!meta.value.isAuthenticated || !user.value?.id) {
     return Promise.reject(new NotAuthenticatedError());
   }
-
   return post<IAddress>({
     url: useUrl(`clients/${user.value?.id}/addresses`),
     data: mapIAddress(data),
@@ -164,6 +173,25 @@ async function update(id: Address["id"], data: AddressModel) {
     data: mapIAddress(data),
     withAccessToken: true,
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
+}
+
+async function ensure(model: AddressModel): Promise<AddressModel> {
+  const mapping = omitBy(model, isEmpty);
+  const addresses = await load();
+  const { findOne } = useCollection<Address>(addresses);
+  const found = findOne(mapping);
+  if (found) return Promise.resolve(found);
+
+  return add(model).then(raw => {
+    if (isEmpty(raw))
+      throw new DetailedError(
+        "[headless] Failed to ensure (add) company",
+        responseCodes.Unprocessable_Entity
+      );
+    // NB: Remember to refresh our machines so we have the new data
+    // refresh();
+    return mapAddress(raw);
+  });
 }
 
 function remove(addressId: Address["id"]) {
@@ -300,19 +328,44 @@ async function validate({ schema, model }: Partial<AddressContext>) {
 // -----------------------------------------------------------------------------
 
 export default {
+  /**
+   * The query key used for caching and identifying address-related queries.
+   * @type {QueryKey}
+   */
   queryKey,
+
   //--- queries
+  /**
+   * Loads the address list.
+   * @returns {Promise<Address[]>} A promise that resolves to the list of addresses
+   */
   loadList,
-  loadCached,
 
   //--- mutations
+  /**
+   * Removes a address by its ID.
+   * @param {Address["id"]} addressId - The ID of the address to remove.
+   * @returns {Promise<null>} A promise that resolves when the address is removed
+   */
   remove,
+
+  /**
+   * Sets a address as the default address.
+   * @param {Address["id"]} addressId - The ID of the address to set as default.
+   * @returns {Promise<IAddress>} A promise that resolves to the updated address
+   */
   setDefault,
 };
 
 export const useClientAddressServices = () => {
   return {
-    loadLookups,
+    // --- methods
+
+    /**
+     * Adds a address.
+     * @param {Partial<AddressContext>} param0 - The address context containing the model to add.
+     * @returns {Promise<any>} The result of the add operation.
+     */
     add: async ({ model }: Partial<AddressContext>) => {
       if (isEmpty(model))
         return Promise.reject(
@@ -323,8 +376,54 @@ export const useClientAddressServices = () => {
             { model }
           )
         );
-      return add(model);
+      // return add(model);
+      return ensure(model);
     },
+
+    /**
+     * Ensures a address exists.
+     * @param {Partial<AddressContext>} param0 - The address context containing the model to ensure.
+     * @returns {Promise<any>} The ensured address model, which will either be the existing address or a new one created.
+     */
+    ensure: async ({ model }: Partial<AddressContext>) => {
+      if (isEmpty(model))
+        return Promise.reject(
+          new DetailedError(
+            "[headless] Ensure Address failed: model provided",
+            responseCodes.Unprocessable_Entity,
+            { model }
+          )
+        );
+      return ensure(model);
+    },
+
+    /**
+     * Loads lookups for the address form.
+     * @param {AddressContext} context - The address context.
+     * @returns {Promise<AddressContext>} The loaded lookups.
+     */
+    loadLookups,
+
+    /**
+     * Parses a address context.
+     * @param {AddressContext} context - The address context.
+     * @param {AnyEventObject} event - The event object.
+     * @returns {Promise<any>} The parsed address context.
+     */
+    parse,
+
+    /**
+     * Refreshes the address list.
+     * @param {Partial<QueryParams>} params - Optional query params.
+     * @returns {Promise<any>} The refreshed address list.
+     */
+    refresh: loadList,
+
+    /**
+     * Updates a address.
+     * @param {Partial<AddressContext>} param0 - The address context containing id and model.
+     * @returns {Promise<any>} The result of the update operation.
+     */
     update: async ({ id, model }: Partial<AddressContext>) => {
       if (!id || isEmpty(model))
         return Promise.reject(
@@ -335,11 +434,14 @@ export const useClientAddressServices = () => {
             { id, model }
           )
         );
-
       return update(id, model);
     },
-    parse,
+
+    /**
+     * Validates a address model.
+     * @param {Partial<AddressContext>} param0 - The address context containing schema and model.
+     * @returns {Promise<any>} The validated model.
+     */
     validate,
-    refresh: loadList,
   };
 };

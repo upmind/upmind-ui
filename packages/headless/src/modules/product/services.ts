@@ -6,10 +6,10 @@ import { useBrand } from "../brand";
 
 // --- utils
 import {
-  DetailedError,
+  useTime,
   ErrorOrigin,
   responseCodes,
-  useTime,
+  DetailedError,
 } from "../../utils";
 
 import {
@@ -250,8 +250,8 @@ async function validate(context: ProductConfigContext, _event: AnyEventObject) {
     if (!isEmpty(errors)) {
       reject(
         new DetailedError(
-          "[headless] No Product ID provided",
-          responseCodes.Unprocessable_Entity,
+          "[headless] Validate Product Config failed",
+          responseCodes.Conflict,
           ErrorOrigin.Headless,
           { error: { data: errors } }
         )

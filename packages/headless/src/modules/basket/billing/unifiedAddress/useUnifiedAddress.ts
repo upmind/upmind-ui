@@ -32,8 +32,9 @@ import { QueryResponseError } from "../../../query";
 // -----------------------------------------------------------------------------
 
 export const useUnifiedAddress = (
-  clientId: IClient["id"],
-  type: UnifiedAddressContext["type"] = UnifiedAddressType.PERSONAL
+  values: BillingModel = {},
+  type: UnifiedAddressContext["type"] = UnifiedAddressType.PERSONAL,
+  { clientId }: { clientId?: IClient["id"] } = {}
 ) => {
   // --- state
   const service = interpret(
@@ -47,7 +48,7 @@ export const useUnifiedAddress = (
         return {
           clientId,
           type,
-          model: {},
+          model: values,
         };
       }),
     {

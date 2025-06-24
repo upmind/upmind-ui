@@ -624,6 +624,10 @@ export const useSession = () => {
      */
     user,
 
+    userId: computed((): User["id"] | undefined => {
+      return user.value?.id;
+    }),
+
     // --- methods
 
     // /**

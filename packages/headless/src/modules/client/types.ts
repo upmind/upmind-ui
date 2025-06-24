@@ -11,7 +11,7 @@ import { ErrorObject } from "ajv";
 // Contexts
 
 export interface ClientItemContext<TModel = any, TBaseModel = any> {
-  clientId: IClient["id"]; // required
+  clientId?: IClient["id"]; // allow for an override of the current client
   id?: string;
 
   title?: string;

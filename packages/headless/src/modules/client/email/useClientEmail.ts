@@ -9,33 +9,39 @@ import itemMachine from "../item.machine";
 import { useClientEmailActions, useClientEmailGuards } from "./actions";
 import { useClientEmailServices } from "./services";
 import { useClientEmails } from "./useClientEmails";
+import { useSession } from "../../session";
 
 // --- utils
 import {
   DetailedError,
+  contextMatches,
   contextValue,
   responseCodes,
   stateMatches,
   stateValue,
   useContext,
-  UnavailableError,
   ErrorOrigin,
 } from "../../../utils";
-import { get, isEqual } from "lodash-es";
+import { get, isEmpty, isEqual } from "lodash-es";
 
 // --- types
 import { IClient } from "@upmind-automation/types";
 import type { ClientItemContext } from "../types";
 import type { Email, EmailModel } from "./types";
 import { QueryResponseError } from "../../query";
+import { ErrorObject } from "ajv";
 
 // -----------------------------------------------------------------------------
 
 export const useClientEmail = (
-  clientId: IClient["id"],
   id?: Email["id"],
-  { allowMultipleEdits }: { allowMultipleEdits?: boolean } = {}
+  {
+    allowMultipleEdits,
+    clientId,
+  }: { allowMultipleEdits?: boolean; clientId?: IClient["id"] } = {}
 ) => {
+  const { getOne } = useClientEmails();
+
   // --- state
   const service = interpret(
     itemMachine
@@ -44,14 +50,11 @@ export const useClientEmail = (
         guards: useClientEmailGuards() as any,
         services: useClientEmailServices() as any,
       })
-      .withContext(() => {
-        const { getOne } = useClientEmails();
-        return {
-          clientId,
-          id,
-          model: getOne(id),
-          allowMultipleEdits,
-        };
+      .withContext({
+        clientId,
+        id,
+        model: getOne(id),
+        allowMultipleEdits,
       }),
     {
       id: id ?? "new-email",
@@ -61,19 +64,20 @@ export const useClientEmail = (
 
   const { state, send } = useActor(service.start());
 
+  // the clientId is required to bring the machine into the available state
+  const { isAuthenticated } = useSession();
+  isAuthenticated().then(user => {
+    if (user?.id && !contextMatches(state, "clientId")) {
+      send({ type: "REFRESH", data: { clientId: user.id } });
+    }
+  });
+
   async function isReady(): Promise<boolean> {
     return waitFor(service, state => stateMatches(state, "available"), {
       timeout: Infinity,
     }).then(state => {
-      if (stateMatches(state, "error")) {
-        if (
-          (errors.value as QueryResponseError)?.status ==
-          responseCodes.Service_Unavailable
-        ) {
-          return Promise.reject(new UnavailableError());
-        }
-        return false;
-      }
+      if (stateMatches(state, "error")) return false;
+
       return true;
     });
   }
@@ -97,7 +101,11 @@ export const useClientEmail = (
 
   const description = useContext<string | undefined>(state, "description");
 
-  const errors = useContext<ClientItemContext["error"]>(state, "error");
+  const errors = useContext<QueryResponseError["message"]>(
+    state,
+    "error.message"
+  );
+  const validationErrors = useContext<ErrorObject[]>(state, "error.data");
 
   const model = useContext<ClientItemContext["model"]>(state, "model");
 
@@ -130,7 +138,7 @@ export const useClientEmail = (
 
     const model = contextValue<EmailModel>(state, "model");
 
-    if (!isEqual(value, model)) {
+    if (!isEmpty(value) && !isEqual(value, model)) {
       send({ type: "SET", data: value, update: true });
     } else {
       send({ type: "UPDATE" });
@@ -207,6 +215,9 @@ export const useClientEmail = (
 
     /** Any error object from the context. */
     errors,
+
+    /** Any validation errors from the context. */
+    validationErrors,
 
     /** The current model.*/
     model,

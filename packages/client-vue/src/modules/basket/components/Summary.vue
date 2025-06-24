@@ -41,7 +41,9 @@
         >
           <span
             class="text-emphasis-medium m-0 inline-flex items-end gap-2 text-left text-sm font-normal leading-normal"
-            >{{ t("basket.summary.discount.title", products.length) }}</span
+            >{{
+              t("basket.summary.discount.title", products?.length ?? 0)
+            }}</span
           >
         </dt>
 
@@ -58,7 +60,9 @@
         >
           <span
             class="text-emphasis-medium m-0 inline-flex items-end gap-2 text-left text-sm font-normal leading-normal"
-            >{{ t("basket.summary.subtotal.title", products.length) }}</span
+            >{{
+              t("basket.summary.subtotal.title", products?.length ?? 0)
+            }}</span
           >
         </dt>
 
@@ -135,5 +139,5 @@ const props = withDefaults(
 const emits = defineEmits(["edit"]);
 
 const { t } = useI18n();
-const { meta, removeItem, products, summary } = useBasket();
+const { meta, products, summary } = useBasket();
 </script>

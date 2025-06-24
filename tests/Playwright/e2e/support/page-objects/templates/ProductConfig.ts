@@ -77,14 +77,14 @@ export class ProductConfig {
     this.radioButtons = new RadioButtons(page);
     this.accordion = new Accordion(page);
     this.select = new Select(page);
-    this.optionsContainer = page.getByTestId("card-container");
+    this.optionsContainer = page.getByTestId("content-section").first();
     this.checkoutMarkdown = page.getByTestId("markdown"); //TODO: Find a way to move to shared component page object
     this.markdownLineclamp = page.getByTestId("lineclamp"); //TODO: as above
 
     /* Product Options */
     this.textInput = new TextInput(page);
     this.options = page.getByTestId("options-container-options");
-    this.domainInput = page.getByTestId("form-field-domain-sld");
+    this.domainInput = page.getByTestId("text-input");
     this.registrantNameInput = this.getFormField(
       page.getByTestId("form-field-registrant-name")
     );
@@ -127,7 +127,7 @@ export class ProductConfig {
 
     // refactor all of this to better fit the dynamic naming of the sumamry fields
     this.product = page.getByTestId("summary-value-product");
-    this.development = page.getByTestId("summary-value-development");
+    this.development = page.getByTestId("summary-value-dev-work");
     this.webHosting = page.getByTestId("summary-value-web-hosting");
     this.designServices = page.getByTestId("summary-value-design-services");
     this.consulting = page.getByTestId("summary-value-consulting");
@@ -211,12 +211,12 @@ export class ProductConfig {
   async promoBadgeDoesNotExist() {
     await expect(
       this.getPromoBadge(this.radioButtons.getRadioButton(0, 0))
-    ).toBeUndefined();
+    ).toBeHidden();
   }
 
   async promoBadgeExists() {
     await expect(
       this.getPromoBadge(this.radioButtons.getRadioButton(0, 0))
-    ).toBeDefined();
+    ).toBeVisible();
   }
 }

@@ -28,7 +28,7 @@ export enum UnifiedAddressType {
 export type UnifiedAddressModel = {
   address?: AddressModel;
   company?: CompanyModel;
-  phone?: PhoneModel;
+  phone?: PhoneModel["phone"];
 };
 
 export interface UnifiedAddressContext

@@ -28,6 +28,12 @@ export const useClientEmailActions = () => {
       model: ({ schema, baseModel }: EmailContext, { data }: AnyEventObject) =>
         useModelParser<EmailModel>(schema, data, baseModel),
     }),
+
+    refreshContext: assign({
+      clientId: ({ clientId }: EmailContext, { data }: AnyEventObject) => {
+        return clientId || data?.clientId;
+      },
+    }),
   };
 };
 

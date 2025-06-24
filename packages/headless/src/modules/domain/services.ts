@@ -22,6 +22,7 @@ async function search({
   preferredCycle,
 }: DomainContext) {
   const { get, useUrl } = useQuery();
+
   if (!search?.query?.length)
     return Promise.reject(
       new DetailedError(
@@ -43,10 +44,6 @@ async function search({
       currency_code: currency,
       // tld,
       promotions: promocodes,
-      pagination: {
-        limit: search?.limit,
-        offset: search.offset,
-      },
     },
     isEmpty
   );
@@ -57,7 +54,11 @@ async function search({
     queryKey: [
       "domain",
       "search",
-      { sld, params, limit: search?.limit, offset: search.offset },
+      { params },
+      {
+        limit: search?.limit,
+        offset: search.offset,
+      },
     ],
     staleTime: 0,
     gcTime: 0,

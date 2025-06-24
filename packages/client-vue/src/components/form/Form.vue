@@ -44,12 +44,14 @@ const { ajv } = useValidation();
 
 const emits = defineEmits<{
   reject: [];
-  resolve: [Object];
+  resolve: [Record<string, any>];
   "update:modelValue": [any];
   "update:uischema": [any];
   valid: [boolean];
-  click: [{ model: object; meta: object }];
-  action: [{ name: string; model: object; meta: object }];
+  click: [{ model: Record<string, any>; meta: Record<string, any> }];
+  action: [
+    { name: string; model: Record<string, any>; meta: Record<string, any> },
+  ];
 }>();
 
 const slots = defineSlots<{

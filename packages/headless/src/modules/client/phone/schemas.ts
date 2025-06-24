@@ -9,9 +9,7 @@ export const useSchema = ({ country }: { country?: ICountry }): JsonSchema7 => {
   const schema: JsonSchema7 = {
     type: "object",
     title: "Phone Number",
-    required: ["number", "nationalNumber", "countryCallingCode", "country"],
-    // @ts-expect-error: 'phone_country_code' is a custom AJV keyword
-    phone_country_code: country?.code,
+    required: ["phone"],
     properties: {
       id: {
         type: ["string", "null"],
@@ -20,24 +18,32 @@ export const useSchema = ({ country }: { country?: ICountry }): JsonSchema7 => {
         readOnly: true,
       },
 
-      number: {
-        type: ["string", "null"],
-        title: "Phone number ( with dialing code )",
-      },
+      phone: {
+        type: "object",
+        // @ts-expect-error: 'phone_country_code' is a custom AJV keyword
+        phone_country_code: country?.code,
+        required: ["number", "nationalNumber", "countryCallingCode", "country"],
+        properties: {
+          number: {
+            type: ["string", "null"],
+            title: "Phone number ( with dialing code )",
+          },
 
-      nationalNumber: {
-        type: ["string", "null"],
-        title: "Phone number",
-      },
+          nationalNumber: {
+            type: ["string", "null"],
+            title: "Phone number",
+          },
 
-      countryCallingCode: {
-        type: ["string", "null"],
-        title: "Country calling code",
-      },
+          countryCallingCode: {
+            type: ["string", "null"],
+            title: "Country calling code",
+          },
 
-      country: {
-        type: ["string", "null"],
-        title: "Country",
+          country: {
+            type: ["string", "null"],
+            title: "Country",
+          },
+        },
       },
 
       //  --- deprecated
@@ -69,7 +75,7 @@ export const useUischema = () => {
     elements: [
       {
         type: "Control",
-        scope: "#/",
+        scope: "#/properties/phone",
         options: {
           autoFocus: true,
           autocomplete: "phone",

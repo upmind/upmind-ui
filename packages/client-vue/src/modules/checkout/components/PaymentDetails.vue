@@ -16,8 +16,8 @@
         <AccordionItem
           :value="item.gateway_id"
           :class="styles.checkout.accordion.item"
-          :open="item.gateway_id === model.gateway_id"
-          :disabled="item.gateway_id === model.gateway_id"
+          :open="item.gateway_id === model?.gateway_id"
+          :disabled="item.gateway_id === model?.gateway_id"
           asChild
         >
           <AccordionTrigger
@@ -32,7 +32,7 @@
                 :class="[
                   styles.checkout.accordion.trigger.icon,
                   {
-                    'rotate-180': item.gateway_id === model.gateway_id,
+                    'rotate-180': item.gateway_id === model?.gateway_id,
                   },
                 ]"
               />
@@ -41,15 +41,16 @@
 
           <Loading
             :active="
-              item.gateway_id === model.gateway_id && basketMeta.isProcessing
+              !model ||
+              (item.gateway_id === model.gateway_id && basketMeta.isProcessing)
             "
             :class="styles.checkout.accordion.loading"
           >
             <AccordionContent :class="styles.checkout.accordion.content">
               <GatewayContent
                 :item="item"
-                :gateway="gateway"
-                :model="model"
+                :gatewayId="gateway?.id"
+                :modelValue="model?.gateway_id"
                 :meta="meta"
                 :basket-meta="basketMeta"
                 :color="color"
@@ -76,6 +77,7 @@
 import {
   useBasketPaymentDetails,
   useBasket,
+  type PaymentDetailModel,
 } from "@upmind-automation/headless";
 import config from "../checkout.config";
 import { useStyles } from "@upmind-automation/upmind-ui";
@@ -137,8 +139,11 @@ const handleCheckout = () => {
 };
 
 const selectGateway = (id: string) => {
-  const value = model.value;
-  set(value, "gateway_id", id);
-  input(value);
+  if (!model.value) return;
+
+  input({
+    ...model.value,
+    gateway_id: id,
+  });
 };
 </script>

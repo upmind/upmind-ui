@@ -2,7 +2,7 @@
 import { isActor } from "xstate/lib/Actor";
 import { waitFor } from "xstate/lib/waitFor";
 import { computed } from "vue";
-import { InterpreterStatus } from "xstate";
+import { InterpreterStatus, t } from "xstate";
 
 // --- internal
 import { useBasket } from "../basket";
@@ -119,23 +119,23 @@ export const useBasketProductsPending = () => {
           );
         });
     } else {
-      if (!product.meta.value?.hasErrors) {
-        return Promise.resolve(product);
-      } else {
-        const error = product.errors.value;
-        unsetProduct(pid);
-        return Promise.reject(
-          new DetailedError(
-            "[headless] Product already exists but has errors",
-            responseCodes.Unprocessable_Entity,
-            ErrorOrigin.Headless,
-            {
-              message: error,
-              code: responseCodes.Unprocessable_Entity,
-            }
-          )
-        );
-      }
+      // if (!product.meta.value?.hasErrors) {
+      return Promise.resolve(product);
+      // } else {
+      //   const error = product.errors.value;
+      //   unsetProduct(pid);
+      //   return Promise.reject(
+      //     new DetailedError(
+      //       "[headless] Product already exists but has errors",
+      //       responseCodes.Unprocessable_Entity,
+      //       ErrorOrigin.Headless,
+      //       {
+      //         message: error,
+      //         code: responseCodes.Unprocessable_Entity,
+      //       }
+      //     )
+      //   );
+      // }
     }
   }
 
@@ -178,10 +178,18 @@ export const useBasketProductsPending = () => {
     }
 
     const model = get(productConfigs, productId, { productId, quantity: 1 });
-    return ensure(productId, model).then(instance => {
-      if (sync) subscribe(productId, instance.service);
-      return instance;
-    });
+    return ensure(productId, model)
+      .then(instance => {
+        if (sync) subscribe(productId, instance.service);
+        return instance;
+      })
+      .catch(error => {
+        throw new DetailedError(
+          "[headless] getProduct in useBasketProductsPending has an error",
+          responseCodes.No_Content,
+          { error, productId }
+        );
+      });
   }
 
   function setProduct(productId: string, value?: ProductModel | State<any>) {

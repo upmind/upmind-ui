@@ -32,4 +32,15 @@ export const ErrorCodes = {
   //       data: null,
   //     },
   //   },
+  //   generic500: {
+  //     errorCode: 500,
+  //     status: "error",
+  //     responseError: {
+  //       id: null,
+  //       type: 0,
+  //       code: 500,
+  //       message: "Sorry, we are experiencing technical issues",
+  //       data: null,
+  //     },
+  //   },
 };

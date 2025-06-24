@@ -26,6 +26,8 @@ export const useClientCompanyActions = () => {
         return compact([
           // get(address, "state.context.title"),
           get(address, "state.context.description"),
+          model?.regNumber,
+          model?.vatNumber,
         ]).join(" | ");
       },
     }),
@@ -40,6 +42,12 @@ export const useClientCompanyActions = () => {
         { schema, baseModel }: CompanyContext,
         { data }: AnyEventObject
       ) => useModelParser<CompanyModel>(schema, data, baseModel),
+    }),
+
+    refreshContext: assign({
+      clientId: ({ clientId }: CompanyContext, { data }: AnyEventObject) => {
+        return clientId || data?.clientId;
+      },
     }),
   };
 };

@@ -36,6 +36,12 @@ export const useClientPhoneActions = () => {
       model: ({ schema, baseModel }: PhoneContext, { data }: AnyEventObject) =>
         useModelParser<PhoneModel, Phone>(schema, data, baseModel),
     }),
+
+    refreshContext: assign({
+      clientId: ({ clientId }: PhoneContext, { data }: AnyEventObject) => {
+        return clientId || data?.clientId;
+      },
+    }),
   };
 };
 

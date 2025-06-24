@@ -16,10 +16,12 @@ export interface IPhoneData {
 
 export interface PhoneModel {
   id?: IPhone["id"];
-  number: string;
-  nationalNumber: string;
-  countryCallingCode: string;
-  country: string;
+  phone: {
+    number: string;
+    nationalNumber: string;
+    countryCallingCode: string;
+    country: string;
+  };
   // type?: number; // deprecated
 }
 
@@ -27,7 +29,7 @@ export interface Phone {
   id: IPhone["id"];
   title: string;
   description?: string;
-  phone: PhoneModel;
+  phone: PhoneModel["phone"];
   type: IPhone["type"];
   meta: {
     canDelete: boolean;

@@ -16,6 +16,8 @@ import {
 import type { ErrorObject } from "ajv";
 import { QueryResponseError } from "../modules";
 
+export type { ErrorObject } from "ajv";
+
 // -----------------------------------------------------------------------------
 
 export enum responseCodes {
