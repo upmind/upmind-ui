@@ -89,7 +89,6 @@ const {
   meta,
   model,
   update,
-  clear,
   input,
   schema,
   uischema,
@@ -116,7 +115,6 @@ const doInput = (value: any) => {
 };
 
 const doReject = () => {
-  clear();
   emits("reject");
   doClose();
 };

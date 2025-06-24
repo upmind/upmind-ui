@@ -3,20 +3,22 @@
     v-bind="formFieldProps"
     :label="showAddressFields ? '' : appliedOptions?.label"
     required
+    :id="formFieldProps?.id ?? 'address-search'"
   >
     <Search
       v-if="!showAddressFields"
-      :results="searchResults"
-      @update:search="searchAddresses"
-      @select="selectAddress"
+      :autoFocus="formFieldProps?.autoFocus"
       :placeholder="appliedOptions?.placeholder"
+      :results="searchResults"
       additional-option="Enter address manually"
       class="mb-6"
+      @select="selectAddress"
+      @update:search="searchAddresses"
     />
 
     <section>
       <DispatchRenderer
-        v-show="showAddressFields"
+        v-if="showAddressFields"
         :visible="control.visible"
         :enabled="control.enabled"
         :schema="control.schema"
