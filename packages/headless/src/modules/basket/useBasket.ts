@@ -245,8 +245,7 @@ export const useBasket = () => {
           new DetailedError(
             "[headless] setCurrency on basket failed",
             responseCodes.Unprocessable_Entity,
-            ErrorOrigin.Headless,
-            { state: state.value.value }
+            ErrorOrigin.Headless
           )
         );
 
@@ -302,8 +301,7 @@ export const useBasket = () => {
           new DetailedError(
             "[headless] addPromotion on basket failed",
             responseCodes.Unprocessable_Entity,
-            ErrorOrigin.Headless,
-            { state: state.value.value }
+            ErrorOrigin.Headless
           )
         );
 

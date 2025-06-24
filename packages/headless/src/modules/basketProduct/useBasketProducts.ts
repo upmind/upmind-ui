@@ -262,8 +262,7 @@ export const useBasketProducts = () => {
           new DetailedError(
             "[headless] Already processing",
             responseCodes.Conflict,
-            ErrorOrigin.Headless,
-            { ...args }
+            ErrorOrigin.Headless
           )
         );
       }
@@ -295,8 +294,7 @@ export const useBasketProducts = () => {
           new DetailedError(
             "[headless] Basket product not found.",
             responseCodes.Not_Found,
-            ErrorOrigin.Headless,
-            { bpid }
+            ErrorOrigin.Headless
           )
         );
       return Promise.resolve(useBasketProduct(basketProduct.id));

@@ -64,8 +64,7 @@ async function validate(
       new DetailedError(
         "[headless] Stripe element not found.",
         responseCodes.Not_Found,
-        ErrorOrigin.Headless,
-        { data, model, element, elementStatus }
+        ErrorOrigin.Headless
       )
     );
 
@@ -96,7 +95,7 @@ async function validate(
           "[headless] Stripe validation failed.",
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
-          { data, model, errors, element, elementStatus }
+          { error: errors }
         )
       );
     } else {
@@ -151,8 +150,7 @@ async function update({ elements, stripe, model }: StripeContext) {
       new DetailedError(
         "[headless] Stripe elements or stripe not found.",
         responseCodes.Not_Found,
-        ErrorOrigin.Headless,
-        { elements, stripe, model }
+        ErrorOrigin.Headless
       )
     );
 
@@ -165,7 +163,7 @@ async function update({ elements, stripe, model }: StripeContext) {
           "[headless] Stripe element submission failed.",
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
-          { error }
+          error
         )
       )
     );
@@ -186,7 +184,7 @@ async function update({ elements, stripe, model }: StripeContext) {
           "[headless] Stripe create payment method failed.",
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
-          { error, model }
+          error
         )
       );
     } else {

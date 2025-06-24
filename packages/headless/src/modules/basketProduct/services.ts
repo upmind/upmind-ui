@@ -396,8 +396,7 @@ async function update(
       new DetailedError(
         "[headless] No product data provided",
         responseCodes.Not_Found,
-        ErrorOrigin.Headless,
-        { basketId, data, currencyId, promotions }
+        ErrorOrigin.Headless
       )
     );
 
@@ -418,8 +417,7 @@ async function update(
         throw new DetailedError(
           "[headless] No data returned from the server",
           responseCodes.Internal_Server_Error,
-          ErrorOrigin.Headless,
-          { basketId, data, currencyId, promotions }
+          ErrorOrigin.Headless
         );
       return data;
     })
@@ -449,8 +447,7 @@ async function updateMany(
       new DetailedError(
         "[headless] No basket provided/available",
         responseCodes.Not_Found,
-        ErrorOrigin.Headless,
-        { basketId, basketProducts, promotions, data }
+        ErrorOrigin.Headless
       )
     );
 
@@ -475,8 +472,7 @@ async function updateMany(
         new DetailedError(
           "[headless] No model found for the product",
           responseCodes.Not_Found,
-          ErrorOrigin.Headless,
-          { item, basketId, basketProducts, promotions, data }
+          ErrorOrigin.Headless
         )
       );
     // ---
@@ -525,8 +521,7 @@ async function updateMany(
         throw new DetailedError(
           "[headless] No data returned from the server",
           responseCodes.Internal_Server_Error,
-          ErrorOrigin.Headless,
-          { basketId, basketProducts, promotions, data }
+          ErrorOrigin.Headless
         );
       return data;
     })
@@ -536,8 +531,7 @@ async function updateMany(
         new DetailedError(
           "[headless] Error updating many products in the basket",
           responseCodes.Internal_Server_Error,
-          ErrorOrigin.Headless,
-          { basketId, basketProducts, promotions, data, error }
+          ErrorOrigin.Headless
         )
       );
     });
@@ -565,8 +559,7 @@ async function remove({
       new DetailedError(
         "[headless] No Basket Product ID provided",
         responseCodes.Not_Found,
-        ErrorOrigin.Headless,
-        { basketId, bpid }
+        ErrorOrigin.Headless
       )
     ); // we don't need to make a request as there is no id, must be a new product
   if (!basketId)
@@ -574,8 +567,7 @@ async function remove({
       new DetailedError(
         "[headless] No basket provided/available",
         responseCodes.Not_Found,
-        ErrorOrigin.Headless,
-        { basketId, bpid }
+        ErrorOrigin.Headless
       )
     );
   // ---
@@ -587,8 +579,7 @@ async function remove({
       throw new DetailedError(
         "[headless] No data returned from the server",
         responseCodes.Internal_Server_Error,
-        ErrorOrigin.Headless,
-        { basketId, bpid, data }
+        ErrorOrigin.Headless
       );
     return data;
   });

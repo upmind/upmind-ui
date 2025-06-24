@@ -89,7 +89,7 @@ export const useRecaptcha = () => {
                 "Recaptcha token not set",
                 responseCodes.Not_Found,
                 ErrorOrigin.Headless,
-                { errors: errors.value }
+                errors.value
               )
             );
           }
@@ -102,7 +102,7 @@ export const useRecaptcha = () => {
             "Recaptcha not available",
             responseCodes.Service_Unavailable,
             ErrorOrigin.Headless,
-            { errors: errors.value }
+            errors.value
           )
         );
       });

@@ -177,7 +177,7 @@ async function add(type: UnifiedAddressType, data: UnifiedAddressModel) {
             if (!address?.id)
               return Promise.reject(
                 new DetailedError(
-                  "No address found or created",
+                  "[headless] No address found or created",
                   responseCodes.Unprocessable_Entity,
                   ErrorOrigin.Headless
                 )
@@ -294,7 +294,7 @@ async function validate({ schema, model }: Partial<UnifiedAddressContext>) {
           "[headless] validate on UnifiedAddress failed.",
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
-          { errors }
+          { error: errors }
         )
       );
     } else {

@@ -99,8 +99,7 @@ async function doFetch<T extends any = any>({
       new DetailedError(
         "[headless] Invalid URL",
         responseCodes.Unprocessable_Entity,
-        ErrorOrigin.Headless,
-        { url }
+        ErrorOrigin.Headless
       )
     );
 

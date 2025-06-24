@@ -119,7 +119,7 @@ export const useBasketCurrency = () => {
             "[headless] Input not available",
             responseCodes.Forbidden,
             ErrorOrigin.Headless,
-            { error: state.context.error }
+            state.context.error
           );
 
         return Promise.resolve();
