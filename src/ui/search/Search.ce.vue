@@ -80,7 +80,7 @@ import { uniqueId } from "lodash-es";
 
 const props = withDefaults(
   defineProps<{
-    id: string;
+    id?: string;
     disabled?: boolean;
     autoFocus?: boolean;
     results: SearchItem[] | null;
