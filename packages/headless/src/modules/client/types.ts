@@ -3,10 +3,9 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import { BrandConfigKeys, IClient } from "@upmind-automation/types";
 
 // --- internal
-import type { ActorRef } from "xstate";
-import type { QueryKey } from "@tanstack/vue-query";
-import { QueryResponseError } from "../query";
-import { ErrorObject } from "ajv";
+import type { ErrorObject } from "ajv";
+import type { ResponseError } from "../../utils";
+
 // -----------------------------------------------------------------------------
 // Contexts
 
@@ -21,7 +20,7 @@ export interface ClientItemContext<TModel = any, TBaseModel = any> {
   uischema?: UISchemaElement;
   baseModel?: TBaseModel;
   model?: TModel;
-  error?: QueryResponseError | ErrorObject[];
+  error?: ResponseError | ErrorObject[];
   // ---
   autoupdate?: boolean;
   allowMultipleEdits?: boolean;

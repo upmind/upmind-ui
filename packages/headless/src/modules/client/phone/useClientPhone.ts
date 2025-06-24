@@ -21,15 +21,15 @@ import {
   stateValue,
   useContext,
   ErrorOrigin,
+  ResponseError,
 } from "../../../utils";
 import { get, isEmpty, isEqual } from "lodash-es";
 
 // --- types
-import { IClient } from "@upmind-automation/types";
+import type { IClient } from "@upmind-automation/types";
+import type { ErrorObject } from "ajv";
 import type { ClientItemContext } from "../types";
 import type { Phone, PhoneModel } from "./types";
-import { QueryResponseError } from "../../query";
-import { ErrorObject } from "ajv";
 
 // -----------------------------------------------------------------------------
 
@@ -76,11 +76,7 @@ export const useClientPhone = (
   async function isReady(): Promise<boolean> {
     return waitFor(service, state => stateMatches(state, "available"), {
       timeout: Infinity,
-    }).then(state => {
-      if (stateMatches(state, "error")) return false;
-
-      return true;
-    });
+    }).then(state => !stateMatches(state, "error"));
   }
 
   const meta = computed(() => ({
@@ -102,10 +98,7 @@ export const useClientPhone = (
 
   const description = useContext<string | undefined>(state, "description");
 
-  const errors = useContext<QueryResponseError["message"]>(
-    state,
-    "error.message"
-  );
+  const errors = useContext<ResponseError["message"]>(state, "error.message");
   const validationErrors = useContext<ErrorObject[]>(state, "error.data");
 
   const model = useContext<ClientItemContext["model"]>(state, "model");

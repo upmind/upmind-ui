@@ -14,7 +14,6 @@ import {
 
 // --- types
 import type { ErrorObject } from "ajv";
-import { QueryResponseError } from "../modules";
 
 export type { ErrorObject } from "ajv";
 
@@ -44,6 +43,14 @@ export enum ErrorOrigin {
   "External" = "external",
   "Headless" = "headless",
 }
+
+export type ResponseError = {
+  data: any | null;
+  code: string | responseCodes | number;
+  origin: ErrorOrigin;
+  status: responseCodes | number;
+  message: string;
+};
 
 // -----------------------------------------------------------------------------
 export class UnavailableError extends Error {
@@ -133,7 +140,7 @@ export function parseError(
 }
 
 /**
- * Maps various error types to a standardized QueryResponseError format.
+ * Maps various error types to a standardized ResponseError format.
  *
  * This function handles:
  * - Standard JavaScript `Error` objects
@@ -141,62 +148,98 @@ export function parseError(
  * - Raw string errors
  * - Plain objects that conform to a partial `ResponseError` structure
  *
- * @see {@link QueryResponseError}
+ * @see {@link ResponseError}
  * @param {unknown} error The error to map. Can be an Error object, a string, or an object with error/message details.
  * @param {number | responseCodes} fallbackCode A fallback response code to use if the error doesn't provide one.
- * @returns {QueryResponseError} The mapped error object.
+ * @returns {ResponseError} The mapped error object.
  */
 export function mapToHeadlessError(
   error: unknown,
   fallbackCode: number | responseCodes = responseCodes.Internal_Server_Error
-): QueryResponseError {
+): ResponseError {
   let code: string | number | responseCodes = fallbackCode;
   let data: any | null = null;
   let status: number | responseCodes = fallbackCode;
   let message: string = "An unknown error occurred.";
+  let origin: ErrorOrigin = ErrorOrigin.Headless; // Default origin to 'Headless' or 'Unknown'
 
   if (error instanceof DetailedError) {
     code = error.code;
-    status = error.code; // DetailedError code is a number, likely an HTTP status
+    status = error.code;
     message = error.message;
     data = error.data !== undefined ? error.data : null;
-  } else if (
-    error instanceof UnavailableError ||
-    error instanceof CacheIsStaleError ||
-    error instanceof NotAuthenticatedError ||
-    error instanceof CacheIsNotAvailableError
-  ) {
+    origin = error.origin; // Use the origin from DetailedError
+  } else if (error instanceof UnavailableError) {
     code = error.code;
     status = error.code;
-  } else if (error instanceof Error) {
-    // Generic Error object, use fallback code/status
     message = error.message;
+    origin = ErrorOrigin.Upmind;
+  } else if (error instanceof CacheIsStaleError) {
+    code = error.code;
+    status = error.code;
+    message = error.message;
+    origin = ErrorOrigin.Headless;
+  } else if (error instanceof NotAuthenticatedError) {
+    code = error.code;
+    status = error.code;
+    message = error.message;
+    origin = ErrorOrigin.Headless;
+  } else if (error instanceof CacheIsNotAvailableError) {
+    code = error.code;
+    status = error.code;
+    message = error.message;
+    origin = ErrorOrigin.Headless;
+  } else if (error instanceof Error) {
+    // Generic Error object
+    message = error.message;
+    // For generic Error, we can't infer much, default to Headless
+    origin = ErrorOrigin.Headless;
   } else if (isString(error)) {
     // Raw string error
     message = error;
+    origin = ErrorOrigin.Headless; // Assume it's an internal string error
   } else if (!isNil(error) && isObject(error)) {
     // Try to parse it as a partial ResponseError or an API error object
-    const detailedError = error as Partial<QueryResponseError> & {
-      code?: unknown;
-      data?: unknown;
-    };
+    const detailedError = error as Partial<ResponseError>;
 
-    if (detailedError.code) {
+    if (detailedError.code !== undefined) {
       code = detailedError.code;
     }
-    if (detailedError.message) {
+    if (detailedError.message !== undefined) {
       message = detailedError.message;
     }
-    if (detailedError.status) {
+    if (detailedError.status !== undefined) {
       status = detailedError.status;
-    } else if (isNumber(code) || isString(code)) {
+    } else if (isNumber(code) || (isString(code) && !isNaN(toNumber(code)))) {
+      // Only set status from code if code is a number or a string representation of a number
       status = toNumber(code);
     }
-    data = !isNil(detailedError.data) ? detailedError.data : null;
+
+    if (detailedError.data !== undefined) {
+      data = detailedError.data;
+    } else {
+      data = null;
+    }
+
+    if (detailedError.origin !== undefined) {
+      origin = detailedError.origin;
+    } else {
+      // Attempt to infer origin for generic objects, e.g., if status is 5xx -> External/Upmind, 4xx -> Headless
+      if (isNumber(status) && status >= 500 && status < 600) {
+        origin = ErrorOrigin.External; // Assuming 5xx are external/backend issues
+      } else if (isNumber(status) && status >= 400 && status < 500) {
+        origin = ErrorOrigin.Headless; // Assuming 4xx originate from how Headless used an API or bad request from client
+      } else {
+        origin = ErrorOrigin.Headless; // Default for unidentifiable status
+      }
+    }
   }
 
-  // Ensure the code is a string or a valid response code
-  const type = code;
+  // Final check to ensure status is a number (or responseCodes enum member)
+  if (!isNumber(status)) {
+    // If status ended up not being a number, fall back
+    status = fallbackCode;
+  }
 
-  return { id: null, code, type, data, status, message };
+  return { code, data, origin, status, message };
 }

@@ -240,7 +240,6 @@ export default createMachine<ClientItemContext>(
       setError: assign({
         error: (_context: ClientItemContext, { data }: AnyEventObject) => {
           debugger;
-          console.log("here", data);
           let error = mapToHeadlessError(data);
           // if (data?.status == responseCodes.Unprocessable_Entity) {
           //   // lets parse/override our error message and data
