@@ -24,7 +24,7 @@ export async function getSessionToken(
     Buffer.from(rawToken, "base64url").toString("utf-8")
   );
   const accessToken = decodedToken.access_token;
-  console.log("DECODED TOKEN:", decodedToken);
+  //console.log("DECODED TOKEN:", decodedToken);
   return accessToken;
 }
 

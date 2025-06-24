@@ -14,7 +14,7 @@ test.describe("Basket Tests", () => {
     await page.waitForLoadState("networkidle");
     const token = await getSessionToken(context, "guest");
     const orderId = await getCurrentOrderId(token);
-    console.log(orderId);
+    //console.log(orderId);
     await addProductToOrder(
       token,
       orderId,
@@ -28,7 +28,10 @@ test.describe("Basket Tests", () => {
     );
     await page.goto(URLs.basket);
     await expect(page.getByTestId("basket-product-summary")).toContainText(
-      `Starter Plan (${domain})`
+      "Shared Hosting"
+    );
+    await expect(page.getByTestId("basket-product-summary")).toContainText(
+      `${domain}`
     );
   });
   test("Empty basket", async ({ page, context }) => {

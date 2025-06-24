@@ -1,7 +1,7 @@
 <template>
   <section
     :class="cn(styles.section.root, props.class)"
-    :data-testid="`card-container-${kebabCase(props.title)}`"
+    data-testid="content-section"
   >
     <header
       :class="styles.section.header"

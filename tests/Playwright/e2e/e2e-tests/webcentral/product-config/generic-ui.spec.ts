@@ -6,6 +6,7 @@ let productConfig: ProductConfig;
 test.beforeEach(async ({ page }) => {
   productConfig = new ProductConfig(page);
   await page.goto(URLs.starterHosting);
+  await page.waitForLoadState("networkidle");
   await productConfig.optionsContainer.waitFor();
 });
 

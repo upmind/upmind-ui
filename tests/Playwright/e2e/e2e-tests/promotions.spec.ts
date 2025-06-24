@@ -53,8 +53,6 @@ test.describe("Promotions", () => {
           page,
         }) => {
           await page.goto(URLs.usdPromo);
-          await page.getByTestId("popover-trigger").click();
-          await page.getByTestId("combobox-item").nth(1).click();
           await page.waitForLoadState();
           await productConfig.promoBadgeExists();
         });
@@ -69,7 +67,7 @@ test.describe("Promotions", () => {
             productConfig.getPromoBadge(
               productConfig.radioButtons.getRadioButton(0, 1)
             )
-          ).toBeDefined();
+          ).toBeVisible();
         });
       });
       test.describe("Application per price list", () => {
@@ -103,14 +101,14 @@ test.describe("Promotions", () => {
     });
     test.describe("Use for new clients", () => {
       test("Exclusively for new clients", async ({ page }) => {
-        page.goto(URLs.newClientPromo);
+        await page.goto(URLs.newClientPromo);
         await productConfig.promoBadgeExists();
         await getClientToken(
           page,
           Logins.priceListUser.username,
           Logins.priceListUser.password
         );
-        page.reload();
+        await page.goto(URLs.newClientPromo);
         await productConfig.promoBadgeDoesNotExist();
       });
     });
@@ -122,7 +120,7 @@ test.describe("Promotions", () => {
           Logins.checkoutUser.username,
           Logins.checkoutUser.password
         );
-        page.goto(URLs.existingClientPromo);
+        await page.goto(URLs.existingClientPromo);
         await page.waitForLoadState();
         await productConfig.promoBadgeExists();
         await page.goto(URLs.logout);
@@ -136,7 +134,7 @@ test.describe("Promotions", () => {
   });
   test.describe("Promotions - Added at basket", () => {
     test.describe("Use with other promotions", () => {
-      test.beforeAll(async ({ page, context }) => {
+      test.beforeEach(async ({ page, context }) => {
         await getClientToken(
           page,
           Logins.checkoutUser.username,
@@ -164,9 +162,10 @@ test.describe("Promotions", () => {
         await basket.applyPromo.click();
         await basket.enterPromoCode("otherpromotionsyes");
         await basket.applyPromo.click();
-        await expect(basket.promoBadge.getByText("genericpromo")).toBeDefined;
-        await expect(basket.promoBadge.getByText("otherpromotionsno"))
-          .toBeDefined;
+        await expect(basket.promoBadge.getByText("genericpromo")).toBeVisible();
+        await expect(
+          basket.promoBadge.getByText("otherpromotionsno")
+        ).toBeVisible();
       });
       test("Use with other promotions - No", async ({ page }) => {
         await page.goto(URLs.basket);
@@ -177,15 +176,16 @@ test.describe("Promotions", () => {
         await expect(basket.promoMessage).toContainText(
           "Unable to combine promotion otherpromotionsno with other promotions"
         );
-        await expect(basket.promoBadge.getByText("genericpromo")).toBeDefined;
-        await expect(basket.promoBadge.getByText("otherpromotionsno"))
-          .toBeUndefined;
+        await expect(basket.promoBadge.getByText("genericpromo")).toBeVisible();
+        await expect(
+          basket.promoBadge.getByText("otherpromotionsno")
+        ).toBeHidden();
       });
     });
   });
   test.describe("Custom conditions per product", () => {});
   test.describe("Single Use Promotions", () => {
-    test.beforeAll(async ({ page, context }) => {
+    test.beforeEach(async ({ page, context }) => {
       await getClientToken(
         page,
         Logins.checkoutUser.username,
@@ -214,7 +214,7 @@ test.describe("Promotions", () => {
       await expect(basket.promoMessage).toContainText(
         "Promotion exceeds max uses!"
       );
-      await expect(basket.promoBadge).toBeUndefined;
+      await expect(basket.promoBadge).toBeHidden();
     });
   });
 });

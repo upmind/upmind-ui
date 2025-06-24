@@ -3,6 +3,7 @@ import { Page, Locator } from "@playwright/test";
 export class Basket {
   readonly page: Page;
   readonly basketProduct: Locator;
+  readonly basketProductSummary: Locator;
   readonly subtotalSummary: Locator;
   readonly promotionForm: Locator;
   readonly addPromo: Locator;
@@ -14,6 +15,7 @@ export class Basket {
   constructor(page: Page) {
     this.page = page;
     this.basketProduct = page.getByTestId("basket-product");
+    this.basketProductSummary = page.getByTestId("basket-product-summary");
     this.subtotalSummary = page.getByTestId("card-container-summary");
     this.promotionForm = page.getByTestId("promotions-form");
     this.addPromo = this.subtotalSummary.getByTestId("link");

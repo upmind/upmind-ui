@@ -43,7 +43,10 @@
     "format": "pnpm -r format",
     "test": "pnpm -r test",
     "prepare": "husky",
-    "lint-staged": "lint-staged"
+    "lint-staged": "lint-staged",
+    "test:chromium": "pnpm playwright test --project=chromium",
+    "test:all-browsers": "pnpm playwright test",
+    "test:ui": "pnpm playwright test --ui"
   },
   "devDependencies": {
     "@faker-js/faker": "^9.8.0",
