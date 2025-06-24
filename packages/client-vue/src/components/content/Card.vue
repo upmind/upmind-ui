@@ -1,5 +1,5 @@
 <template>
-  <div :class="cn(styles.card, props.class)">
+  <div :class="cn(styles.card, props.class)" data-testid="content-card">
     <slot />
   </div>
 </template>
