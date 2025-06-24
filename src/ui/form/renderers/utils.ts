@@ -1,5 +1,5 @@
 import { computed, ref, inject, watch } from "vue";
-import { merge, cloneDeep, defaults, set, isEqual } from "lodash-es";
+import { merge, cloneDeep, defaults, set, isEqual, uniqueId } from "lodash-es";
 import { createCombinatorRenderInfos } from "@jsonforms/core";
 
 import {
@@ -74,7 +74,7 @@ export const useUpmindUIRenderer = <
       visible: input.control.value.visible,
     });
 
-    set(props, "id", input.control.value.id);
+    set(props, "id", input.control.value?.id ?? uniqueId("form-field"));
     set(props, "name", input.control.value.path);
     set(props, "errors", map(errors.value, "message"));
     // set(props, "errors", input.control.value.errors);
@@ -91,6 +91,7 @@ export const useUpmindUIRenderer = <
       "touched",
       input.control.value.uischema.options?.touched || touched.value
     );
+
     return props;
   });
 
