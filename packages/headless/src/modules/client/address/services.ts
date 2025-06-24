@@ -96,7 +96,7 @@ async function loadLookups({
     Promise.reject(
       new DetailedError(
         "[headless] System not ready",
-        responseCodes.Unprocessable_Entity,
+        responseCodes.Unauthorized,
         ErrorOrigin.Headless,
         error
       )
@@ -115,7 +115,7 @@ async function loadLookups({
     return Promise.reject(
       new DetailedError(
         "[headless] Failed to load address lookups",
-        responseCodes.Unprocessable_Entity,
+        responseCodes.No_Content,
         ErrorOrigin.Headless
       )
     );
@@ -186,7 +186,7 @@ async function ensure(model: AddressModel): Promise<AddressModel> {
     if (isEmpty(raw))
       throw new DetailedError(
         "[headless] Failed to ensure (add) company",
-        responseCodes.Unprocessable_Entity,
+        responseCodes.No_Content,
         ErrorOrigin.Headless
       );
     // NB: Remember to refresh our machines so we have the new data
@@ -372,7 +372,7 @@ export const useClientAddressServices = () => {
         return Promise.reject(
           new DetailedError(
             "[headless] Add Address failed: model provided",
-            responseCodes.Unprocessable_Entity,
+            responseCodes.No_Content,
             ErrorOrigin.Headless,
             { model }
           )
@@ -391,7 +391,7 @@ export const useClientAddressServices = () => {
         return Promise.reject(
           new DetailedError(
             "[headless] Ensure Address failed: model provided",
-            responseCodes.Unprocessable_Entity,
+            responseCodes.No_Content,
             ErrorOrigin.Headless,
             { model }
           )
@@ -431,7 +431,7 @@ export const useClientAddressServices = () => {
         return Promise.reject(
           new DetailedError(
             "[headless] Update Address failed: No id or model provided",
-            responseCodes.Unprocessable_Entity,
+            responseCodes.No_Content,
             ErrorOrigin.Headless,
             { id, model }
           )

@@ -173,7 +173,7 @@ async function ensure(model: CompanyModel): Promise<CompanyModel> {
     if (isEmpty(raw))
       throw new DetailedError(
         "[headless] Failed to ensure (add) company",
-        responseCodes.Unprocessable_Entity,
+        responseCodes.No_Content,
         ErrorOrigin.Headless
       );
     // NB: Remember to refresh our machines so we have the new data
@@ -334,7 +334,7 @@ export const useClientCompanyServices = () => {
         return Promise.reject(
           new DetailedError(
             "[headless] Add Company failed: model provided",
-            responseCodes.Unprocessable_Entity,
+            responseCodes.No_Content,
             ErrorOrigin.Headless,
             { model }
           )
@@ -353,7 +353,7 @@ export const useClientCompanyServices = () => {
         return Promise.reject(
           new DetailedError(
             "[headless] Ensure Company failed: model provided",
-            responseCodes.Unprocessable_Entity,
+            responseCodes.No_Content,
             ErrorOrigin.Headless,
             { model }
           )
@@ -393,7 +393,7 @@ export const useClientCompanyServices = () => {
         return Promise.reject(
           new DetailedError(
             "[headless] Update Company failed: No id or model provided",
-            responseCodes.Unprocessable_Entity,
+            responseCodes.No_Content,
             ErrorOrigin.Headless,
             { id, model }
           )

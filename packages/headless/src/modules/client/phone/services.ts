@@ -96,7 +96,7 @@ async function loadLookups({
     Promise.reject(
       new DetailedError(
         "[headless] System not ready",
-        responseCodes.Unprocessable_Entity,
+        responseCodes.Unauthorized,
         ErrorOrigin.Headless,
         error
       )
@@ -108,7 +108,7 @@ async function loadLookups({
     return Promise.reject(
       new DetailedError(
         "[headless] Failed to load countries",
-        responseCodes.Unprocessable_Entity,
+        responseCodes.No_Content,
         ErrorOrigin.Headless
       )
     );
@@ -182,7 +182,7 @@ async function ensure(model: PhoneModel): Promise<PhoneModel> {
     if (isEmpty(raw))
       throw new DetailedError(
         "[headless] Failed to ensure (add) phone",
-        responseCodes.Unprocessable_Entity,
+        responseCodes.No_Content,
         ErrorOrigin.Headless
       );
     // NB: Remember to refresh our machines so we have the new data
@@ -352,7 +352,7 @@ export const useClientPhoneServices = () => {
         return Promise.reject(
           new DetailedError(
             "[headless] Ensure Phone failed: model provided",
-            responseCodes.Unprocessable_Entity,
+            responseCodes.No_Content,
             ErrorOrigin.Headless,
             { model }
           )
@@ -365,7 +365,7 @@ export const useClientPhoneServices = () => {
         return Promise.reject(
           new DetailedError(
             "[headless] Add Phone failed: model provided",
-            responseCodes.Unprocessable_Entity,
+            responseCodes.No_Content,
             ErrorOrigin.Headless,
             { model }
           )
@@ -377,7 +377,7 @@ export const useClientPhoneServices = () => {
         return Promise.reject(
           new DetailedError(
             "[headless] Update Phone failed: No id or model provided",
-            responseCodes.Unprocessable_Entity,
+            responseCodes.No_Content,
             ErrorOrigin.Headless,
             { id, model }
           )
