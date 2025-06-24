@@ -166,8 +166,8 @@ async function ensure(model: CompanyModel): Promise<CompanyModel> {
   const companies = await load();
   const { findOne } = useCollection<Company>(companies);
   const found = findOne(mapping);
-  if (found) return Promise.resolve(found);
 
+  if (found) return Promise.resolve(found);
   return add(model).then(raw => {
     if (isEmpty(raw))
       throw new DetailedError(

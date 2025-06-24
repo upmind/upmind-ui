@@ -96,7 +96,9 @@ const {
   stop,
   errors,
   validationErrors,
-} = useClientPhone(props.clientId, props.modelValue);
+} = useClientPhone(props.modelValue, {
+  clientId: props.clientId,
+});
 
 const doResolve = async () => {
   update()

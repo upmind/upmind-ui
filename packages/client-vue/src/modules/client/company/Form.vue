@@ -99,7 +99,9 @@ const {
   stop,
   errors,
   validationErrors,
-} = useClientCompany(props.clientId, props.modelValue);
+} = useClientCompany(props.modelValue, {
+  clientId: props.clientId,
+});
 
 const doResolve = async () => {
   update()

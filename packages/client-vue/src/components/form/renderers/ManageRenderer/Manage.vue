@@ -1,6 +1,5 @@
 <template>
   <FormField v-bind="formFieldProps">
-    <pre>{{ { open, openModel, modelValue: control.data, editId } }}</pre>
     <Loading :active="meta.isLoading" class="w-full">
       <List
         v-bind="appliedOptions"
@@ -51,15 +50,12 @@ const props = defineProps<RendererProps<ControlElement>>();
 const { control, appliedOptions, onInput, formFieldProps } =
   useUpmindUIRenderer(useJsonFormsControlWithDetail(props));
 
-debugger;
-
 const { list: useList, mutate: useMutate }: ManageRendererProps = get(
   appliedOptions.value,
   "manage",
   {}
 ) as ManageRendererProps;
 
-debugger;
 // -----------------------------------------------------------------------------
 const { meta, isReady } = useList();
 

@@ -38,11 +38,7 @@ function handleError(
   // of we have a system error, we want to add some feedback for the ui
   if (
     includes(
-      [
-        responseCodes.Forbidden,
-        responseCodes.Too_Many_Requests,
-        responseCodes.Not_Found,
-      ],
+      [responseCodes.Forbidden, responseCodes.Too_Many_Requests],
       status
     ) ||
     status >= 500
