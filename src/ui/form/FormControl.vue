@@ -82,7 +82,7 @@ const meta = computed(() => ({
 // --- methods
 
 function isSelectable(element: HTMLElement) {
-  const tag = element?.tagName?.toUpperCase();
+  const tag = element?.tagName?.toLowerCase();
   const isFocusableTag = focussable.includes(tag);
   const hasFocusableChildren =
     isFunction(element?.querySelector) &&
@@ -136,7 +136,7 @@ function maybeFocus([section]: IntersectionObserverEntry[]) {
 
 const stop = watch(target, async el => {
   if (el?.$el && isSelectable(el.$el)) {
-    observer = useIntersectionObserver(el, entries => maybeFocus(entries));
+    observer ??= useIntersectionObserver(el, entries => maybeFocus(entries));
     stop();
   }
 });
