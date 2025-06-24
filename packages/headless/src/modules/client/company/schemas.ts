@@ -93,7 +93,7 @@ export const useSchema = ({
   return schema;
 };
 
-export const useUischema = ({ model }: CompanyContext) => {
+export const useUischema = ({ baseModel }: CompanyContext) => {
   const uiSchema = {
     type: "VerticalLayout",
     elements: [
@@ -129,8 +129,7 @@ export const useUischema = ({ model }: CompanyContext) => {
   };
 
   // this is where we conditionally render either an existing addressId or a new address uiSchema
-  if (!model?.addressId) {
-    debugger;
+  if (!baseModel?.addressId) {
     uiSchema.elements.push({
       type: "VerticalLayout",
       elements: [
@@ -146,7 +145,6 @@ export const useUischema = ({ model }: CompanyContext) => {
       ],
     } as any);
   } else {
-    debugger;
     uiSchema.elements.push({
       type: "Manager",
       scope: "#/properties/addressId",
