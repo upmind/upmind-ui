@@ -476,7 +476,7 @@ export const useModelParser = <
     allowExtraProps,
   }: {
     allowExtraProps?: boolean;
-  } = { allowExtraProps: false }
+  } = { allowExtraProps: true }
 ): TModel => {
   values = omitBy(values, isEmpty) as Partial<TModel>;
   baseModel = omitBy(baseModel, isEmpty) as Partial<TBaseModel>;

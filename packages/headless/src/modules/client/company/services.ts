@@ -142,7 +142,7 @@ async function loadLookups({
   const baseModel: CompanyModel = {
     // --- one of
     addressId: defaultAddress.value?.id,
-    address: defaultAddress.value?.id
+    address: !defaultAddress.value?.id
       ? ({ countryId: country?.id } as CompanyModel["address"])
       : undefined,
     // ---
@@ -185,7 +185,9 @@ async function add(data: CompanyModel) {
   // TODO: MAYBE allow phone & email to work the same way as address?
   //       NOT needed right now, but could be useful in the future
   ensured.push(
-    data?.address ? ensureAddress(data.address) : Promise.resolve(undefined)
+    ensureAddress({
+      model: (data?.address ?? { id: data?.addressId }) as AddressModel,
+    })
   );
 
   return Promise.all(ensured).then(async ([address /* email, phone */]) => {
@@ -349,7 +351,6 @@ async function parse(
   }
 
   // ---
-
   return Promise.resolve({
     model: safeModel,
     regions,
