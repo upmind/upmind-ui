@@ -1,10 +1,59 @@
-export const paginationVariants = {
-  list: "flex flex-row items-center gap-1",
-  button: "h-10 w-10 p-0",
-  prevNext: "gap-1 pl-2.5 pr-2.5",
-  active: "text-primary-foreground",
-  inactive: "text-muted-foreground",
-  ellipsis: "flex h-9 w-9 items-center justify-center",
-  icon: "h-4 w-4",
-  info: "flex items-center justify-center pt-4",
-} as const;
+import { cva } from "class-variance-authority";
+
+const rootVariants = cva("flex w-full items-center gap-2", {
+  variants: {
+    size: {
+      sm: "gap-1",
+      md: "gap-2",
+      lg: "gap-3",
+    },
+    alignment: {
+      left: "justify-start",
+      center: "justify-center",
+      between: "md:justify-between",
+    },
+  },
+  defaultVariants: {
+    size: "md",
+    alignment: "between",
+  },
+});
+
+const buttonVariants = cva("w-full flex-1", {
+  variants: {
+    size: {
+      sm: "md:w-48 md:flex-none",
+      md: "md:w-56 md:flex-none",
+      lg: "md:w-64 md:flex-none",
+    },
+  },
+  defaultVariants: {
+    size: "md",
+  },
+});
+
+const infoVariants = cva(
+  "text-emphasis-medium hidden text-sm md:inline-block",
+  {
+    variants: {
+      size: {
+        sm: "text-xs",
+        md: "text-sm",
+        lg: "text-base",
+      },
+    },
+    defaultVariants: {
+      size: "md",
+    },
+  }
+);
+
+export default {
+  pagination: {
+    root: rootVariants,
+    button: buttonVariants,
+    info: infoVariants,
+  },
+};
+
+export { rootVariants, buttonVariants, infoVariants };

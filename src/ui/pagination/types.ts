@@ -1,4 +1,14 @@
 import type { HTMLAttributes } from "vue";
+import type { CxOptions, VariantProps } from "class-variance-authority";
+
+// --- internal
+import {
+  rootVariants,
+  buttonVariants,
+  infoVariants,
+} from "./pagination.config";
+
+type PaginationRootVariantProps = VariantProps<typeof rootVariants>;
 
 /**
  * @property {number} total - Total number of items in the query.
@@ -15,5 +25,10 @@ export interface PaginationProps {
   limit: number;
   from?: number;
   to?: number;
+  // --- variants
+  size?: PaginationRootVariantProps["size"] | string;
+  alignment?: PaginationRootVariantProps["alignment"] | string;
+  // --- styles
+  uiConfig?: { pagination?: CxOptions };
   class?: HTMLAttributes["class"];
 }

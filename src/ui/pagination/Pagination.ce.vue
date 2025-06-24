@@ -4,16 +4,12 @@
     :total="total"
     :page="props.page"
   >
-    <PaginationList
-      :class="
-        cn('flex w-full items-center gap-2 md:justify-between', props.class)
-      "
-    >
+    <PaginationList :class="cn(styles.pagination.root, props.class)">
       <PaginationPrev as-child>
         <Button
           variant="outline"
           size="md"
-          class="w-full flex-1 md:w-56 md:flex-none"
+          :class="styles.pagination.button"
           :disabled="page <= 1"
           @click="emit('prev')"
         >
@@ -22,16 +18,13 @@
       </PaginationPrev>
 
       <!-- TODO: Current pagination doesn't support direct page change so we should static text for now-->
-
-      <p class="text-emphasis-medium hidden text-sm md:inline-block">
-        Page {{ page }} of {{ pages }}
-      </p>
+      <p :class="styles.pagination.info">Page {{ page }} of {{ pages }}</p>
 
       <PaginationNext as-child>
         <Button
           variant="outline"
           size="md"
-          class="w-full flex-1 md:w-56 md:flex-none"
+          :class="styles.pagination.button"
           :disabled="page >= pageCount"
           @click="emit('next')"
         >
@@ -43,28 +36,55 @@
 </template>
 
 <script setup lang="ts">
+// --- external
+import { computed, type ComputedRef } from "vue";
+
+// --- internal
+import { cn, useStyles } from "../../utils";
+import config from "./pagination.config";
+
 // --- components
 import { Icon } from "../icon";
 import { Button } from "../button";
 import {
-  PaginationEllipsis,
   PaginationList,
-  PaginationListItem,
   PaginationNext,
   PaginationPrev,
   PaginationRoot,
 } from "radix-vue";
 
-// --- utils
-import { cn } from "../../utils";
-
 // --- types
 import type { PaginationProps } from "./types";
 
-const props = defineProps<PaginationProps>();
+const props = withDefaults(defineProps<PaginationProps>(), {
+  // --- variants
+  size: "md",
+  alignment: "between",
+  // --- styles
+  uiConfig: () => ({}),
+  class: "",
+});
 
 const emit = defineEmits<{
   next: [];
   prev: [];
 }>();
+
+const meta = computed(() => ({
+  size: props.size,
+  alignment: props.alignment,
+}));
+
+const styles = useStyles(
+  ["pagination"],
+  meta,
+  config,
+  props.uiConfig ?? {}
+) as ComputedRef<{
+  pagination: {
+    root?: string;
+    button?: string;
+    info?: string;
+  };
+}>;
 </script>
