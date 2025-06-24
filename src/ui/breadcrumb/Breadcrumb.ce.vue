@@ -21,7 +21,9 @@
           </BreadcrumbLink>
         </BreadcrumbItem>
 
-        <BreadcrumbSeparator v-if="index < props.items.length - 1" />
+        <BreadcrumbSeparator v-if="index < props.items.length - 1">
+          /
+        </BreadcrumbSeparator>
       </template>
     </BreadcrumbList>
   </Breadcrumb>
