@@ -104,7 +104,7 @@ async function validate(
           "[headless] Invalid Promotion",
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
-          { model, errors }
+          { error: errors }
         )
       );
     } else {

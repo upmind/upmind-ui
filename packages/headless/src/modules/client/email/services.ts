@@ -213,7 +213,7 @@ async function validate({ schema, model }: EmailContext) {
           "[headless] Invalid Email Model",
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
-          { model, schema, errors }
+          { error: errors }
         )
       );
     } else {

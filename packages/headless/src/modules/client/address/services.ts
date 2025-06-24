@@ -87,7 +87,7 @@ async function loadLookups({
         "[headless] System not ready",
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless,
-        { error }
+        error
       )
     )
   );
@@ -105,8 +105,7 @@ async function loadLookups({
       new DetailedError(
         "[headless] Failed to load address lookups",
         responseCodes.Unprocessable_Entity,
-        ErrorOrigin.Headless,
-        { countries, regions }
+        ErrorOrigin.Headless
       )
     );
   }
@@ -289,7 +288,7 @@ async function validate({ schema, model }: Partial<AddressContext>) {
           "[headless] Invalid Address Model",
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
-          { model, schema, errors }
+          { error: errors }
         )
       );
     } else {

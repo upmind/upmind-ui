@@ -72,7 +72,7 @@ async function validate(
           "[headless] Invalid Fields Model",
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
-          { model, schema, errors }
+          { error: errors }
         )
       );
     } else {

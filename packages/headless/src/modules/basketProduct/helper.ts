@@ -217,8 +217,7 @@ export function basketSubscription(callback: any, onReceive: any) {
               throw new DetailedError(
                 "[headless] Product not found",
                 responseCodes.Not_Found,
-                ErrorOrigin.Headless,
-                { instance }
+                ErrorOrigin.Headless
               );
             // tell the subscriber we are processing as well as the actor we spawned
             actor.send({ type: "PROCESSING" });

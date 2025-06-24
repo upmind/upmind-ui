@@ -247,7 +247,7 @@ async function validate({ schema, model }: Partial<CompanyContext>) {
           "[headless] Invalid Company Model",
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
-          { model, errors }
+          { error: errors }
         )
       );
     } else {

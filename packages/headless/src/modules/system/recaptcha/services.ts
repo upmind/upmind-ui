@@ -75,8 +75,7 @@ async function generateToken(
       new DetailedError(
         "[headless] Recaptcha not loaded",
         responseCodes.Unprocessable_Entity,
-        ErrorOrigin.Headless,
-        { data }
+        ErrorOrigin.Headless
       )
     );
 

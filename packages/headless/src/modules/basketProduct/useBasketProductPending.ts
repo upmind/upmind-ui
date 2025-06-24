@@ -152,7 +152,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
               "[headless] update in useBasketProductPending failed",
               responseCodes.Unprocessable_Entity,
               ErrorOrigin.Headless,
-              { state }
+              state.context.error
             )
           );
         }

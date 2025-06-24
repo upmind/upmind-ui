@@ -96,11 +96,7 @@ export const useBasketProduct = (bpid: string) => {
               "[headless] update in useBasketProduct not in a valid state.",
               responseCodes.Unprocessable_Entity,
               ErrorOrigin.Headless,
-              {
-                state: state.value,
-                errors: get(state.context, "error", []),
-                service: service.getSnapshot(),
-              }
+              state.context.error
             )
           );
         }
@@ -111,11 +107,7 @@ export const useBasketProduct = (bpid: string) => {
           new DetailedError(
             "[headless] update in useBasketProductPending not in a valid state.",
             responseCodes.Unprocessable_Entity,
-            ErrorOrigin.Headless,
-            {
-              error,
-              service: service.getSnapshot(),
-            }
+            ErrorOrigin.Headless
           )
         );
       });

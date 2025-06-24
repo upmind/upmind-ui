@@ -31,8 +31,7 @@ async function load({ gateway }: StripeContext, _event: AnyEventObject) {
       new DetailedError(
         "[headless] Stripe public key not found.",
         responseCodes.Not_Found,
-        ErrorOrigin.Headless,
-        { gatewayId: gateway?.id, serviceOptions: options }
+        ErrorOrigin.Headless
       )
     );
 
@@ -44,8 +43,7 @@ async function load({ gateway }: StripeContext, _event: AnyEventObject) {
         new DetailedError(
           "[headless] Stripe not found.",
           responseCodes.Not_Found,
-          ErrorOrigin.Headless,
-          { gatewayId: gateway?.id, serviceOptions: options }
+          ErrorOrigin.Headless
         )
       );
     } else {
