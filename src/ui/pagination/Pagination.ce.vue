@@ -1,6 +1,5 @@
 <template>
   <PaginationRoot
-    v-if="total > 1"
     v-slot="{ page, pageCount }"
     :total="total"
     :page="props.page"
