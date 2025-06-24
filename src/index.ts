@@ -30,6 +30,7 @@ export * from "./ui/list";
 export * from "./ui/loading";
 export * from "./ui/markdown";
 export * from "./ui/number-field";
+export * from "./ui/pagination";
 export * from "./ui/popover";
 export * from "./ui/radio-cards";
 export * from "./ui/radio-cards-collapsible";
