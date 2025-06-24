@@ -4,6 +4,8 @@ import { map, reduce, set, trimStart, isArray } from "lodash-es";
 // --- types
 import type { ErrorObject } from "ajv";
 
+export type { ErrorObject } from "ajv";
+
 // -----------------------------------------------------------------------------
 
 export enum responseCodes {

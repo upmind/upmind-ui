@@ -9,6 +9,7 @@ import itemMachine from "../item.machine";
 import { useClientEmailActions, useClientEmailGuards } from "./actions";
 import { useClientEmailServices } from "./services";
 import { useClientEmails } from "./useClientEmails";
+import { useSession } from "../../session";
 
 // --- utils
 import {
@@ -18,7 +19,6 @@ import {
   stateMatches,
   stateValue,
   useContext,
-  UnavailableError,
 } from "../../../utils";
 import { get, isEmpty, isEqual } from "lodash-es";
 
@@ -32,10 +32,14 @@ import { ErrorObject } from "ajv";
 // -----------------------------------------------------------------------------
 
 export const useClientEmail = (
-  clientId: IClient["id"],
   id?: Email["id"],
-  { allowMultipleEdits }: { allowMultipleEdits?: boolean } = {}
+  {
+    allowMultipleEdits,
+    clientId,
+  }: { allowMultipleEdits?: boolean; clientId?: IClient["id"] } = {}
 ) => {
+  const { getOne } = useClientEmails();
+
   // --- state
   const service = interpret(
     itemMachine
@@ -44,14 +48,11 @@ export const useClientEmail = (
         guards: useClientEmailGuards() as any,
         services: useClientEmailServices() as any,
       })
-      .withContext(() => {
-        const { getOne } = useClientEmails();
-        return {
-          clientId,
-          id,
-          model: getOne(id),
-          allowMultipleEdits,
-        };
+      .withContext({
+        clientId,
+        id,
+        model: getOne(id),
+        allowMultipleEdits,
       }),
     {
       id: id ?? "new-email",
@@ -60,6 +61,14 @@ export const useClientEmail = (
   );
 
   const { state, send } = useActor(service.start());
+
+  // the clientId is required to bring the machine into the available state
+  const { isAuthenticated } = useSession();
+  isAuthenticated().then(user => {
+    if (user?.id && !contextValue<string | undefined>(state, "clientId")) {
+      service.send({ type: "REFRESH", data: { clientId: user.id } });
+    }
+  });
 
   async function isReady(): Promise<boolean> {
     return waitFor(service, state => stateMatches(state, "available"), {

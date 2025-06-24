@@ -9,6 +9,7 @@ import itemMachine from "../item.machine";
 import { useClientPhoneActions, useClientPhoneGuards } from "./actions";
 import { useClientPhoneServices } from "./services";
 import { useClientPhones } from "./useClientPhones";
+import { useSession } from "../../session";
 
 // --- utils
 import {
@@ -31,11 +32,14 @@ import { ErrorObject } from "ajv";
 // -----------------------------------------------------------------------------
 
 export const useClientPhone = (
-  clientId: IClient["id"],
   id?: Phone["id"],
-  { allowMultipleEdits }: { allowMultipleEdits?: boolean } = {}
+  {
+    allowMultipleEdits,
+    clientId,
+  }: { allowMultipleEdits?: boolean; clientId?: IClient["id"] } = {}
 ) => {
-  // --- state
+  const { getOne } = useClientPhones();
+
   const service = interpret(
     itemMachine
       .withConfig({
@@ -43,14 +47,11 @@ export const useClientPhone = (
         guards: useClientPhoneGuards() as any,
         services: useClientPhoneServices() as any,
       })
-      .withContext(() => {
-        const { getOne } = useClientPhones();
-        return {
-          clientId,
-          id,
-          model: getOne(id),
-          allowMultipleEdits,
-        };
+      .withContext({
+        clientId,
+        id,
+        model: getOne(id),
+        allowMultipleEdits,
       }),
     {
       id: id ?? "new-phone",
@@ -59,6 +60,16 @@ export const useClientPhone = (
   );
 
   const { state, send } = useActor(service.start());
+
+  // --- state
+
+  // the clientId is required to bring the machine into the available state
+  const { isAuthenticated } = useSession();
+  isAuthenticated().then(user => {
+    if (user?.id && !contextValue<string | undefined>(state, "clientId")) {
+      service.send({ type: "REFRESH", data: { clientId: user.id } });
+    }
+  });
 
   async function isReady(): Promise<boolean> {
     return waitFor(service, state => stateMatches(state, "available"), {

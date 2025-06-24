@@ -9,6 +9,7 @@ import itemMachine from "../item.machine";
 import { useClientCompanyActions, useClientCompanyGuards } from "./actions";
 import { useClientCompanyServices } from "./services";
 import { useClientCompanies } from "./useClientCompanies";
+import { useSession } from "../../session";
 
 // --- utils
 import {
@@ -18,7 +19,6 @@ import {
   stateMatches,
   stateValue,
   useContext,
-  UnavailableError,
 } from "../../../utils";
 import { get, isEmpty, isEqual } from "lodash-es";
 
@@ -32,11 +32,14 @@ import { ErrorObject } from "ajv";
 // -----------------------------------------------------------------------------
 
 export const useClientCompany = (
-  clientId: IClient["id"],
   id?: Company["id"],
-  { allowMultipleEdits }: { allowMultipleEdits?: boolean } = {}
+  {
+    allowMultipleEdits,
+    clientId,
+  }: { allowMultipleEdits?: boolean; clientId?: IClient["id"] } = {}
 ) => {
-  // --- state
+  const { getOne } = useClientCompanies();
+
   const service = interpret(
     itemMachine
       .withConfig({
@@ -44,22 +47,29 @@ export const useClientCompany = (
         guards: useClientCompanyGuards() as any,
         services: useClientCompanyServices() as any,
       })
-      .withContext(() => {
-        const { getOne } = useClientCompanies();
-        return {
-          clientId,
-          id,
-          model: getOne(id),
-          allowMultipleEdits,
-        };
+      .withContext({
+        clientId: clientId,
+        id,
+        model: getOne(id),
+        allowMultipleEdits,
       }),
     {
       id: id ?? "new-company",
-      devTools: false,
+      devTools: true,
     }
   );
 
   const { state, send } = useActor(service.start());
+
+  // --- state
+
+  // the clientId is required to bring the machine into the available state
+  const { isAuthenticated } = useSession();
+  isAuthenticated().then(user => {
+    if (user?.id && !contextValue<string | undefined>(state, "clientId")) {
+      send({ type: "REFRESH", data: { clientId: user.id } });
+    }
+  });
 
   async function isReady(): Promise<boolean> {
     return waitFor(service, state => stateMatches(state, "available"), {
