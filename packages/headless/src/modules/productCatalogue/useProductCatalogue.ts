@@ -3,7 +3,12 @@ import { computed, ref } from "vue";
 
 // --- internal
 import service from "./services";
-import { invalidateQueryByKey } from "../query";
+import {
+  invalidateQueryByKey,
+  QueryProps,
+  RequestFilters,
+  RequestSortDirection,
+} from "../query";
 
 // --- utils
 import { get, set, find, every, isEmpty, includes, isString } from "lodash-es";
@@ -11,7 +16,6 @@ import { get, set, find, every, isEmpty, includes, isString } from "lodash-es";
 // --- types
 import type { Product } from "../product";
 import type { ICurrency } from "@upmind-automation/types";
-import type { QueryProps, RequestFilters } from "../query";
 
 export const useProductCatalogue = (
   initial?: QueryProps & {
@@ -76,6 +80,18 @@ export const useProductCatalogue = (
       })
     );
   }
+
+  // --- sort
+
+  const sortBy = (property: string, direction: RequestSortDirection) => {
+    query.sort([direction, property]);
+    query.resetQuery();
+  };
+
+  const clearSort = () => {
+    query.sort();
+    query.resetQuery();
+  };
 
   // --- filters
 
@@ -212,6 +228,17 @@ export const useProductCatalogue = (
      * @return {void}
      */
     invalidate: invalidateQueryByKey(service.queryKey, { exact: false }),
+
+    /**
+     * Sorts the query by the given property and direction.
+     * This will update the query parameters and reset the query to fetch the sorted data.
+     * @property {function} set - Sets the sort property and direction.
+     * @property {function} clear - Clears the current sort and resets the query.
+     */
+    sort: {
+      set: sortBy,
+      clear: clearSort,
+    },
 
     /**
      * Filters for the query.
