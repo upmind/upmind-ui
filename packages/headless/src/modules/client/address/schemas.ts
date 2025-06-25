@@ -124,6 +124,7 @@ export function useUischema({
             options: {
               fields: ["address1", "address2"],
               placeholder: "Start typing your address",
+              autoFocus: true,
             },
             elements: [
               {
@@ -138,6 +139,7 @@ export function useUischema({
                     options: {
                       placeholder: "House name, apartment number etc.",
                       autocomplete: "address-line1",
+                      autoFocus: true,
                     },
                   },
                   {

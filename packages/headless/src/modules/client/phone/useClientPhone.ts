@@ -13,6 +13,7 @@ import { useSession } from "../../session";
 
 // --- utils
 import {
+  DEBOUNCE_DELAY,
   DetailedError,
   contextMatches,
   contextValue,
@@ -23,7 +24,7 @@ import {
   ErrorOrigin,
   ResponseError,
 } from "../../../utils";
-import { get, isEmpty, isEqual } from "lodash-es";
+import { debounce, get, isEmpty, isEqual } from "lodash-es";
 
 // --- types
 import type { IClient } from "@upmind-automation/types";
@@ -233,11 +234,11 @@ export const useClientPhone = (
     clear,
 
     /**
-     * Inputs a new model, resolving to the updated model.
+     * Inputs a new model, resolving to the updated model., this is debounced to avoid excessive calls.
      * @param {PhoneModel} model - The model to input.
      * @returns {Promise<PhoneModel>} The updated model.
      */
-    input,
+    input: debounce(input, DEBOUNCE_DELAY),
 
     /**
      * Sends the current model to the service for processing.

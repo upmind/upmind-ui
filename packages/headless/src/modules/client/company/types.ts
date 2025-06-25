@@ -6,14 +6,18 @@ import type {
   ICountry,
   ICompany,
   BrandConfigKeys,
+  IRegion,
 } from "@upmind-automation/types";
-import type { Email, Phone, Address, PhoneModel } from "..";
+import type { Email, Phone, Address, PhoneModel, AddressModel } from "..";
 
 // -----------------------------------------------------------------------------
 
 export interface CompanyModel {
   id?: ICompany["id"];
+  // --- One of
   addressId?: ICompany["address_id"];
+  address?: AddressModel;
+  // ---
   default?: ICompany["default"];
   emailId?: ICompany["email_id"];
   phone?: PhoneModel["phone"];
@@ -51,4 +55,6 @@ export interface CompanyContext extends ClientItemContext<CompanyModel> {
   emails: Email[];
   phones: Phone[];
   country?: ICountry;
+  regions?: IRegion[];
+  countries: ICountry[];
 }
