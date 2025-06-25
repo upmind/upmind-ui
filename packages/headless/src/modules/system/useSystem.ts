@@ -16,6 +16,7 @@ import {
   DetailedError,
   ErrorOrigin,
   responseCodes,
+  ResponseError,
   stateMatches,
   useContext,
 } from "../../utils";
@@ -31,7 +32,6 @@ import {
   type ICurrency,
   type IRegion,
 } from "@upmind-automation/types";
-import { QueryResponseError } from "../query";
 import { SystemContext } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -115,7 +115,7 @@ export const useSystem = () => {
   // --- context
 
   const context = useContext<SystemContext>(state);
-  const errors = useContext<QueryResponseError>(state, "error");
+  const errors = useContext<ResponseError>(state, "error");
   const billingCycles = useContext<IBillingCycle[]>(
     state,
     "billingCycles",

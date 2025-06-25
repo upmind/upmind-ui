@@ -20,6 +20,7 @@ import {
   contextMatches,
   stateMatches,
   ErrorOrigin,
+  type ResponseError,
 } from "../../utils";
 import { get, pick, isArray, find, some, first, isEmpty } from "lodash-es";
 
@@ -35,7 +36,6 @@ import {
   IBrand,
 } from "@upmind-automation/types";
 import { BrandContext } from "./types";
-import { QueryResponseError } from "../query";
 import { CurrencyModel } from "../basket/currency/types";
 
 // -----------------------------------------------------------------------------
@@ -124,7 +124,7 @@ export const useBrand = () => {
     0
   );
 
-  const errors = useContext<QueryResponseError>(state, "error");
+  const errors = useContext<ResponseError>(state, "error");
 
   const includesTax = computed(
     (): boolean =>

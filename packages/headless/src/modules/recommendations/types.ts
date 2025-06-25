@@ -14,7 +14,7 @@ import type {
   IProductConfig,
   Product,
 } from "../product";
-import { QueryResponseError } from "../query";
+import type { ResponseError } from "../../utils";
 
 // -----------------------------------------------------------------------------
 
@@ -78,7 +78,7 @@ export interface RecommendationsEngineContext {
     added: IBasketProduct[];
   };
   // ---
-  error?: QueryResponseError;
+  error?: ResponseError;
   basketItem?: ActorRef<any>;
   // ---
   currency?: ICurrency;

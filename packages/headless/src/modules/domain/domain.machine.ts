@@ -7,7 +7,14 @@ import { basketSubscription } from "../basketProduct/helper";
 import { authSubscription } from "../session/helper";
 
 // --- utils
-import { responseCodes, useTime } from "../../utils";
+import {
+  ErrorOrigin,
+  mapToHeadlessError,
+  responseCodes,
+  ResponseError,
+  useTime,
+  useValidationParser,
+} from "../../utils";
 import { parseDomain, parseValue, parseSld } from "./utils";
 import {
   cloneDeep,
@@ -35,13 +42,13 @@ import {
 } from "lodash-es";
 
 // --- types
-import type { AnyEventObject, EventObject } from "xstate";
+import type { AnyEventObject } from "xstate";
 import type { IBasket, IBasketProduct } from "@upmind-automation/types";
 import { DomainTypes } from "./types";
 import type { DomainModel, DomainContext, DomainProduct } from "./types";
-import type { ProductModel, ProductProps } from "../product";
+import type { ProductModel } from "../product";
 import { parseBasketProduct } from "../basketProduct/utils";
-import { PAGINATION, QueryResponseError } from "../query";
+import { PAGINATION } from "../query";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -841,25 +848,19 @@ export default createMachine(
 
       setError: assign({
         error: (_context, { data }: AnyEventObject) => {
-          // addError({
-          //   title: data?.title || "We experienced an error getting domains",
-          //   copy: data?.message,
-          //   data: data?.data,
-          // });
-
-          return data;
+          return mapToHeadlessError(data);
         },
       }),
 
       setErrorInvalidDomain: assign({
         error: (_context: DomainContext, { data }: AnyEventObject) => {
           return {
-            id: null,
             code: "invalid_domain",
-            type: responseCodes.Unprocessable_Entity,
-            message: "Invalid domain",
             data: null,
-          } as QueryResponseError;
+            status: responseCodes.Unprocessable_Entity,
+            message: "Invalid domain",
+            origin: ErrorOrigin.Headless,
+          } as ResponseError;
         },
       }),
 

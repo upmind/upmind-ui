@@ -46,7 +46,7 @@ export enum ErrorOrigin {
 
 export type ResponseError = {
   data: any | null;
-  code: string | responseCodes | number;
+  code: string | number;
   origin: ErrorOrigin;
   status: responseCodes | number;
   message: string;

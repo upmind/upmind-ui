@@ -246,11 +246,11 @@ export default createMachine<ClientItemContext>(
 
       setError: assign({
         error: (_context: ClientItemContext, { data }: AnyEventObject) => {
-          let error: ErrorObject[] | ResponseError = mapToHeadlessError(data);
+          let error = mapToHeadlessError(data);
           if (error?.status == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
-            error = useValidationParser(error.data);
+            error.data = useValidationParser(error.data);
           }
           return error;
         },

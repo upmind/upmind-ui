@@ -9,7 +9,12 @@ const { addError } = useFeedback();
 
 // --- utils
 
-import { useTime, useValidationParser, useModelParser } from "../../../utils";
+import {
+  useTime,
+  useValidationParser,
+  useModelParser,
+  mapToHeadlessError,
+} from "../../../utils";
 import { useSchema, useUischema } from "./utils";
 import { remove, xorBy, get, includes, isEmpty } from "lodash-es";
 
@@ -276,7 +281,8 @@ export default createMachine(
 
       setError: assign({
         error: (_context: PromotionsContext, { data }: AnyEventObject) => {
-          let error = data?.error;
+          let error = mapToHeadlessError(data);
+
           if (
             includes(
               [responseCodes.Unprocessable_Entity, responseCodes.Conflict],
@@ -289,10 +295,10 @@ export default createMachine(
             }
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
-            error = useValidationParser(error);
+            error.data = useValidationParser(error.data);
           }
 
-          return error || data;
+          return error;
         },
       }),
 

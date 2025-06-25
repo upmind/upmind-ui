@@ -6,7 +6,7 @@ import services from "./services";
 import { basketSubscription } from "../basketProduct/helper";
 
 // --- utils
-import { useTime } from "../../utils";
+import { mapToHeadlessError, useTime } from "../../utils";
 import { defaultsDeep, find, get, isEmpty, uniqBy } from "lodash-es";
 
 // --- types
@@ -220,8 +220,7 @@ export default createMachine(
       // ---
       setError: assign({
         error: (_context: RoutingEngineContext, { data }: AnyEventObject) => {
-          const error = get(data, "error", data);
-          return error;
+          return mapToHeadlessError(data);
         },
       }),
       clearError: assign({

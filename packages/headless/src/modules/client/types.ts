@@ -3,7 +3,6 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import { BrandConfigKeys, IClient } from "@upmind-automation/types";
 
 // --- internal
-import type { ErrorObject } from "ajv";
 import type { ResponseError } from "../../utils";
 
 // -----------------------------------------------------------------------------
@@ -20,7 +19,7 @@ export interface ClientItemContext<TModel = any, TBaseModel = any> {
   uischema?: UISchemaElement;
   baseModel?: TBaseModel;
   model?: TModel;
-  error?: ResponseError | ErrorObject[];
+  error?: ResponseError;
   // ---
   autoupdate?: boolean;
   allowMultipleEdits?: boolean;

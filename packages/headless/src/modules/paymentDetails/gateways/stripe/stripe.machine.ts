@@ -14,6 +14,7 @@ import {
   useTime,
   useValidationParser,
   useModelParser,
+  mapToHeadlessError,
 } from "../../../../utils";
 import { useSchema, useUischema } from "./utils";
 import { isFunction } from "lodash-es";
@@ -355,23 +356,16 @@ export default createMachine(
 
       setError: assign({
         error: (_context: StripeContext, { data }: AnyEventObject) => {
-          let error = data?.error;
-          if (data?.status == responseCodes.Unprocessable_Entity) {
+          let error = mapToHeadlessError(data);
+          if (error?.status == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
-            error = useValidationParser(error);
+            error.data = useValidationParser(error.data);
           } else {
-            error = error || data;
-
-            if (error.message) {
-              return [error];
-            } else {
-              return filter(
-                error,
-                e =>
-                  isString(e.title) && !includes(lowerCase(e.title), "element")
-              );
-            }
+            error.data = filter(
+              error.data,
+              e => isString(e.title) && !includes(lowerCase(e.title), "element")
+            );
           }
           return error;
         },

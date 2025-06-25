@@ -20,6 +20,7 @@ import {
   useContext,
   useChildActor,
   ErrorOrigin,
+  ResponseError,
 } from "../../utils";
 
 // ---types
@@ -32,7 +33,6 @@ import type {
 import { GuestContext } from "./guest/types";
 import { ClientContext } from "./client/types";
 import { ErrorObject } from "ajv";
-import { QueryResponseError } from "../query";
 export type { User, SessionTransfer, IAuthTransfer } from "./types";
 // -----------------------------------------------------------------------------
 
@@ -210,10 +210,7 @@ export const useSession = () => {
   /**
    * Any errors encountered during session management operations, such as login or registration failures.
    */
-  const errors = useContext<QueryResponseError["message"]>(
-    guest,
-    "error.message"
-  );
+  const errors = useContext<ResponseError["message"]>(guest, "error.message");
   const validationErrors = useContext<ErrorObject[]>(guest, "error.data");
 
   // --- methods

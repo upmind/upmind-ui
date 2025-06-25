@@ -1,11 +1,11 @@
 // --- external
-import { createMachine, assign, spawn, InterpreterStatus } from "xstate";
+import { createMachine, assign, spawn } from "xstate";
 
 // --- internal
 import services from "./services";
 import paymentMachine from "../payment/payment.machine";
-import { authSubscription } from "../session/helper";
 import { useDataLayer } from "../system";
+import { authSubscription } from "../session/helper";
 const { dataLayer } = useDataLayer();
 
 import { useFeedback } from "../feedback";
@@ -22,12 +22,20 @@ import {
   spawnPromotions,
 } from "./utils";
 import { parseBasketProduct } from "../basketProduct/utils";
-import { responseCodes, stopActor, useTime } from "../../utils";
+import {
+  mapToHeadlessError,
+  responseCodes,
+  ResponseError,
+  stopActor,
+  useTime,
+  useValidationParser,
+} from "../../utils";
 
 import {
   forEach,
   get,
   includes,
+  isArray,
   isEmpty,
   isEqual,
   isNil,
@@ -36,10 +44,11 @@ import {
 } from "lodash-es";
 
 // --- types
-import type { AnyEventObject, ActorRef } from "xstate";
+import type { ErrorObject } from "ajv";
 import type { BasketContext } from "./types";
+import type { AnyEventObject } from "xstate";
+import type { PaymentContext } from "../payment";
 import { PaymentType, GatewayTypes } from "@upmind-automation/types";
-import { PaymentContext } from "../payment";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -526,6 +535,7 @@ export default createMachine(
       setFeedbackError: ({ error }: BasketContext, _event: AnyEventObject) => {
         if (
           !error ||
+          isArray(error) || // we know this is going to be a validation error
           error?.status == responseCodes.Unprocessable_Entity ||
           error?.status == responseCodes.Unauthorized
         ) {
@@ -541,7 +551,13 @@ export default createMachine(
 
       setError: assign({
         error: (_context: BasketContext, { data }: AnyEventObject) => {
-          return data?.error ?? data?.message ?? data;
+          let error = mapToHeadlessError(data);
+          if (error?.status == responseCodes.Unprocessable_Entity) {
+            // lets parse/override our error message and data
+            // this is to generate valid json schema validation errors
+            error.data = useValidationParser(error.data);
+          }
+          return error;
         },
       }),
 

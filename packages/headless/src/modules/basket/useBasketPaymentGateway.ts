@@ -7,23 +7,23 @@ import { useBasketPaymentDetails } from "./useBasketPaymentDetails";
 
 // --- utils
 import {
-  contextMatches,
-  contextValue,
-  DetailedError,
-  ErrorOrigin,
-  responseCodes,
-  stateMatches,
   stateValue,
   useContext,
+  ErrorOrigin,
+  contextValue,
+  stateMatches,
+  DetailedError,
+  responseCodes,
+  contextMatches,
+  ResponseError,
 } from "../../utils";
+import { isFunction } from "xstate/lib/utils";
 import { isEqual, isNil } from "lodash-es";
 
 // --- types
 import type { ActorRef } from "xstate";
-import { GatewayContext } from "../paymentDetails";
-import { isFunction } from "xstate/lib/utils";
-import { QueryResponseError } from "../query";
-import { ErrorObject } from "ajv";
+import type { ErrorObject } from "ajv";
+import type { GatewayContext } from "../paymentDetails";
 
 // -----------------------------------------------------------------------------
 // We allow an actor to be passed in, but if not, we will use the basket service and wait for the 'actor' machine to be ready
@@ -77,10 +77,7 @@ export const useBasketPaymentGateway = () => {
 
   const context = useContext<GatewayContext>(actor);
 
-  const errors = useContext<QueryResponseError["message"]>(
-    actor,
-    "error.message"
-  );
+  const errors = useContext<ResponseError["message"]>(actor, "error.message");
   const validationErrors = useContext<ErrorObject[]>(actor, "error.data");
 
   const model = useContext<GatewayContext["model"]>(actor, "model");
