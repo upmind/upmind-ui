@@ -294,7 +294,6 @@ export const useQuery = () => {
           { sort, limit, locale, filters, pageIndex },
         ]),
         queryFn: async ({ signal }) => {
-          debugger;
           const hasGuard = isPromise(guard);
           const safeguard: Promise<void | boolean> = hasGuard
             ? guard()
