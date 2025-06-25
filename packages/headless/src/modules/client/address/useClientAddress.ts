@@ -13,6 +13,7 @@ import { useClientAddressActions, useClientAddressGuards } from "./actions";
 
 // --- utils
 import {
+  DEBOUNCE_DELAY,
   stateValue,
   useContext,
   ErrorOrigin,
@@ -23,7 +24,7 @@ import {
   contextMatches,
   ResponseError,
 } from "../../../utils";
-import { get, isEmpty, isEqual } from "lodash-es";
+import { debounce, get, isEmpty, isEqual } from "lodash-es";
 
 // --- types
 import type { IClient } from "@upmind-automation/types";
@@ -233,11 +234,11 @@ export const useClientAddress = (
     clear,
 
     /**
-     * Inputs a new model, resolving to the updated model.
+     * Inputs a new model, resolving to the updated model., this is debounced to avoid excessive calls.
      * @param {AddressModel} value - The model to input.
      * @returns {Promise<AddressModel>} The updated model.
      */
-    input,
+    input: debounce(input, DEBOUNCE_DELAY),
 
     /**
      * Sends the current model to the service for processing.

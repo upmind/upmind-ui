@@ -20,8 +20,9 @@ import {
   responseCodes,
   UnavailableError,
   ResponseError,
+  DEBOUNCE_DELAY,
 } from "../../../../utils";
-import { get, isEmpty, isEqual } from "lodash-es";
+import { debounce, get, isEmpty, isEqual } from "lodash-es";
 
 // --- types
 import type { IClient } from "@upmind-automation/types";
@@ -244,11 +245,11 @@ export const useUnifiedAddress = (
     clear,
 
     /**
-     * Inputs a new model, resolving to the updated model.
+     * Inputs a new model, resolving to the updated model., this is debounced to avoid excessive calls.
      * @param {UnifiedAddressModel} value The model to input.
      * @returns {Promise<UnifiedAddressModel>} The updated model.
      */
-    input,
+    input: debounce(input, DEBOUNCE_DELAY),
 
     /**
      * Sends the current model to the service for processing.

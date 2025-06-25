@@ -2,13 +2,24 @@
 
 // --- internal
 import { useClientAddresses, useClientAddress } from "../address";
-import { useSchema as useAddressSchema } from "../address/schemas";
+import {
+  useSchema as useAddressSchema,
+  useUischema as useAddressUischema,
+} from "../address/schemas";
 
 // --- types
+import { BrandConfigKeys } from "@upmind-automation/types";
 import type { CompanyContext } from "./types";
-import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
+import type { JsonSchema7, Layout, UISchemaElement } from "@jsonforms/core";
 
-export const useSchema = ({ baseModel }: CompanyContext): JsonSchema7 => {
+export const useSchema = ({
+  clientId,
+  countries,
+  country,
+  regions,
+  baseModel,
+  config,
+}: CompanyContext): JsonSchema7 => {
   const schema: JsonSchema7 = {
     type: "object",
     title: "Company",
@@ -32,11 +43,7 @@ export const useSchema = ({ baseModel }: CompanyContext): JsonSchema7 => {
         type: ["string", "null"],
         title: "Registered Tax ID",
       },
-      addressId: {
-        type: ["string", "null"],
-        title: "Address",
-        default: baseModel?.addressId,
-      },
+
       emailId: {
         type: ["string", "null"],
         title: "Email",
@@ -48,12 +55,45 @@ export const useSchema = ({ baseModel }: CompanyContext): JsonSchema7 => {
         default: baseModel?.phoneId,
       },
     },
+    // this is where we conditionally allow either an existing addressId or a new address object
+    oneOf: [
+      {
+        type: "object",
+        title: "Existing Address",
+        description: "Select an existing address for this company.",
+        required: ["addressId"],
+        properties: {
+          addressId: {
+            type: ["string", "null"],
+            title: "Address",
+            default: baseModel?.addressId,
+          },
+        },
+      },
+      {
+        type: "object",
+        title: "New Address",
+        description: "Create a new address for this company.",
+        required: ["address"],
+        properties: {
+          address: useAddressSchema({
+            clientId,
+            regions,
+            baseModel: {
+              countryId: country?.id,
+            },
+            countries,
+            config,
+          }),
+        },
+      },
+    ],
   };
 
   return schema;
 };
 
-export const useUischema = (_context?: CompanyContext) => {
+export const useUischema = ({ baseModel }: CompanyContext) => {
   const uiSchema = {
     type: "VerticalLayout",
     elements: [
@@ -85,19 +125,38 @@ export const useUischema = (_context?: CompanyContext) => {
           },
         ],
       },
-      {
-        type: "Manager",
-        scope: "#/properties/addressId",
-        options: {
-          manage: {
-            list: useClientAddresses,
-            mutate: useClientAddress,
-          },
-          clientId: "todo-123456",
-        },
-      },
     ],
   };
+
+  // this is where we conditionally render either an existing addressId or a new address uiSchema
+  if (!baseModel?.addressId) {
+    uiSchema.elements.push({
+      type: "VerticalLayout",
+      elements: [
+        {
+          type: "Control",
+          scope: "#/properties/address",
+          options: {
+            autoFocus: true,
+            autocomplete: "off",
+            detail: useAddressUischema(),
+          },
+        },
+      ],
+    } as any);
+  } else {
+    uiSchema.elements.push({
+      type: "Manager",
+      scope: "#/properties/addressId",
+      options: {
+        manage: {
+          list: useClientAddresses,
+          mutate: useClientAddress,
+        },
+        clientId: "todo-123456",
+      },
+    } as any);
+  }
 
   return uiSchema as UISchemaElement;
 };
