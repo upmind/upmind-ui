@@ -9,7 +9,7 @@ import { useDataLayer } from "../system";
 const { dataLayer } = useDataLayer();
 
 // --- utils
-import { useTime } from "../../utils";
+import { mapToHeadlessError, useTime } from "../../utils";
 import {
   parseRelatedProducts,
   parseRecommendation,
@@ -537,15 +537,8 @@ export default createMachine(
             const recommendation = find(recommendations, ["id", context?.id]);
             if (recommendation) set(recommendation, "meta.error", true);
           }
-          // addError({
-          //   title:
-          //     data?.title ||
-          //     "We experienced an error adding the product to your basket",
-          //   copy: data?.message,
-          //   data: data?.data,
-          // });
 
-          return data;
+          return mapToHeadlessError(data);
         },
       }),
 

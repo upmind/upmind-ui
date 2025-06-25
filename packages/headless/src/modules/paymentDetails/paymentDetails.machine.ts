@@ -16,7 +16,7 @@ const { addError } = useFeedback();
 
 // --- utils
 import { spawnGateway, parsePaymentDetails } from "./utils";
-import { stopActor, useModelParser } from "../../utils";
+import { mapToHeadlessError, stopActor, useModelParser } from "../../utils";
 import { useTime, useValidationParser } from "../../utils";
 import { useSchema, useUischema } from "./utils";
 import { set, unset, forEach } from "lodash-es";
@@ -369,14 +369,13 @@ export default createMachine(
 
       setError: assign({
         error: (_context, { data }: AnyEventObject) => {
-          let error = data?.error;
-          if (data?.status == responseCodes.Unprocessable_Entity) {
+          let error = mapToHeadlessError(data);
+          if (error?.status == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
-            error = useValidationParser(error);
+            error.data = useValidationParser(error.data);
           }
-
-          return error || data;
+          return error;
         },
       }),
 

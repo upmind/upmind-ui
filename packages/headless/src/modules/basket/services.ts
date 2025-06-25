@@ -68,7 +68,7 @@ async function load(context: BasketContext, _event: AnyEventObject) {
     Promise.reject(
       new DetailedError(
         "[headless] Brand not ready",
-        responseCodes.Unprocessable_Entity,
+        responseCodes.Unauthorized,
         ErrorOrigin.Headless,
         error
       )

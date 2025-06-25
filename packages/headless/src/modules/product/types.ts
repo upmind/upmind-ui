@@ -12,7 +12,7 @@ import type {
 } from "@upmind-automation/types";
 export { PromotionDisplayTypes } from "@upmind-automation/types";
 import { PromotionDisplayTypes } from "@upmind-automation/types";
-import type { Recommendation } from "../recommendations/types";
+import type { Recommendation } from "../recommendations";
 import type { BasketProduct } from "../basketProduct";
 import { QueryResponseError } from "../query";
 
@@ -385,6 +385,7 @@ export interface ProductConfigContext {
   meta?: UIMeta;
   // ---
   calculateCallback?: ActorRef<any>;
+  // TODO: @DC implement the new response errors types from the API
   error?: QueryResponseError | ExternalError;
   errorExternal?: QueryResponseError | ExternalError;
   attempts?: number;

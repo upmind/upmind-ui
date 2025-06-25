@@ -628,6 +628,7 @@ export default createMachine(
       }),
       // ---
 
+      // TODO: @DC implement the new response errors from the API
       setExternalError: assign({
         errorExternal: (
           { errorExternal }: ProductConfigContext,
@@ -642,6 +643,7 @@ export default createMachine(
         },
       }),
 
+      // TODO: @DC implement the new response errors from the API
       setError: assign({
         error: ({ error }: ProductConfigContext, { data }: AnyEventObject) => {
           let errors = data?.error?.data;

@@ -9,7 +9,7 @@ import { useFeedback } from "../feedback";
 
 // --- utils
 import { useApprovalParser } from "./utils";
-import { useTime, useValidationParser } from "../../utils";
+import { mapToHeadlessError, useTime, useValidationParser } from "../../utils";
 import { isEmpty } from "lodash-es";
 
 // --- types
@@ -167,13 +167,12 @@ export default createMachine(
 
       setError: assign({
         error: (_context, { data }: AnyEventObject) => {
-          let error = data?.error?.data ?? data?.error ?? data;
-          if (data?.status == responseCodes.Unprocessable_Entity) {
+          let error = mapToHeadlessError(data);
+          if (error?.status == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
-            error = useValidationParser(error);
+            error.data = useValidationParser(error.data);
           }
-
           return error;
         },
       }),

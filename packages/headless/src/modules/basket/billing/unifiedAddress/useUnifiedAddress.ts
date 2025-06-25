@@ -11,23 +11,23 @@ import { useUnifiedAddressServices } from "./services";
 
 // --- utils
 import {
-  DetailedError,
-  contextValue,
-  responseCodes,
-  stateMatches,
   stateValue,
   useContext,
-  UnavailableError,
   ErrorOrigin,
+  contextValue,
+  stateMatches,
+  DetailedError,
+  responseCodes,
+  UnavailableError,
+  ResponseError,
 } from "../../../../utils";
 import { get, isEmpty, isEqual } from "lodash-es";
 
 // --- types
-import { IClient } from "@upmind-automation/types";
+import type { IClient } from "@upmind-automation/types";
+import type { BillingModel } from "../types";
 import { UnifiedAddressType } from "./types";
 import type { UnifiedAddressModel, UnifiedAddressContext } from "./types";
-import { BillingModel } from "../types";
-import { QueryResponseError } from "../../../query";
 
 // -----------------------------------------------------------------------------
 
@@ -65,7 +65,7 @@ export const useUnifiedAddress = (
     }).then(state => {
       if (stateMatches(state, "error")) {
         if (
-          (errors.value as QueryResponseError)?.status ==
+          (errors.value as ResponseError)?.status ==
           responseCodes.Service_Unavailable
         ) {
           return Promise.reject(new UnavailableError());
@@ -103,7 +103,7 @@ export const useUnifiedAddress = (
 
   const phones = useContext<UnifiedAddressContext["phones"]>(state, "phones");
 
-  const errors = useContext<QueryResponseError>(state, "error");
+  const errors = useContext<ResponseError>(state, "error");
 
   const model = useContext<UnifiedAddressContext["model"]>(state, "model");
 
@@ -187,8 +187,8 @@ export const useUnifiedAddress = (
     isReady,
 
     /**
-     * Meta information about the state.
-     * @typedef {Object} UnifiedAddressMeta
+     * Meta-information about the state.
+     * @type {Object} UnifiedAddressMeta
      * @property {boolean} isAvailable - Indicates if the actor is available.
      * @property {boolean} isLoading - Indicates if the actor is loading.
      * @property {boolean} hasErrors - Indicates if there are errors.
