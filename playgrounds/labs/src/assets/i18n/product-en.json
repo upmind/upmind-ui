@@ -1,0 +1,110 @@
+{
+  "product": {
+    "actions": {
+      "more": "Show more | Show less",
+      "remove": "Remove",
+      "configure": "Configure",
+      "resolve": "Confirm and proceed",
+      "reject": "Cancel",
+      "invalid": "Add missing details"
+    },
+    "incomplete": {
+      "title": "Required fields are incomplete",
+      "description": "Please check and complete all required fields to proceed."
+    },
+    "domain": "Domain",
+    "cycle": "{value}/mo",
+    "free": "FREE",
+    "adds": "Adds to price",
+    "overrides": "Overrides price",
+    "adds_overrides": "Overrides price | Adds to price",
+    "promotion_save": "Save {value}",
+    "promotion": "On promotion",
+    "promotionSave": "Save {0}",
+    "quantity": "Quantity",
+    "required": "Required",
+    "summary": {
+      "title": "Summary",
+      "billingCycle": "Billing cycle",
+      "totalDue": "Total due"
+    },
+    "select": {
+      "placeholder": "Select an option",
+      "none": "None"
+    },
+    "smallprint": [],
+    "taxes": {
+      "included": "including taxes",
+      "excluded": "excluding taxes"
+    },
+    "term": "billed {name}",
+    "terms": {
+      "label": "Billing Term",
+      "taxes": "Price includes taxes",
+      "taxesExcluded": "Price excludes taxes",
+      "billing": {
+        "0": "One-time payment",
+        "1": "Renews every month",
+        "3": "Renews every 3 months",
+        "6": "Renews every 6 months",
+        "12": "Renews every year",
+        "24": "Renews every 2 years",
+        "36": "Renews every 3 years",
+        "48": "Renews every 4 years",
+        "60": "Renews every 5 years",
+        "72": "Renews every 6 years",
+        "84": "Renews every 7 years",
+        "96": "Renews every 8 years",
+        "108": "Renews every 9 years",
+        "120": "Renews every 10 years"
+      },
+      "renews": "Usually {0}",
+      "cycle": {
+        "0": "One-time",
+        "1": "1 month",
+        "3": "3 month",
+        "6": "6 month",
+        "12": "1 year",
+        "24": "2 year",
+        "36": "3 year",
+        "48": "4 year",
+        "60": "5 year",
+        "72": "6 year",
+        "84": "7 year",
+        "96": "8 year",
+        "108": "9 year",
+        "120": "10 year"
+      },
+      "term": {
+        "0": "one time",
+        "1": "mo",
+        "3": "/ 3 mo",
+        "6": "/ 6 mo",
+        "12": "year",
+        "24": "/ 2 years",
+        "36": "/ 3 years",
+        "48": "/ 4 years",
+        "60": "/ 5 years",
+        "72": "/ 6 years",
+        "84": "/ 7 years",
+        "96": "/ 8 years",
+        "108": "/ 9 years",
+        "120": "/ 10 years"
+      }
+    },
+    "title": {
+      "text": "Product {0}",
+      "strong": "configuration"
+    },
+    "configuration": "configuration",
+    "total": "Total Due",
+    "trail": "Free trial",
+    "configureNow": "Configure now",
+    "configurationQuantity": "x",
+    "showDetails": "Show details",
+    "hideDetails": "Hide details",
+    "overridden": "This option overrides the main product price for the initial order",
+    "edit": "Edit",
+    "remove": "Remove"
+  }
+}

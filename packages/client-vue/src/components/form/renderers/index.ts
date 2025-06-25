@@ -7,9 +7,7 @@ import SLDRenderer, { tester as sldTest } from "./SLDRenderer.vue";
 import AddressRenderer, { tester as addressTest } from "./AddressRenderer.vue";
 import BillingRenderer, { tester as billingTest } from "./BillingRenderer.vue";
 import ImageRenderer, { tester as imageTest } from "./ImageRenderer.vue";
-import ManageRenderer, {
-  tester as manageTest,
-} from "./ManageRenderer/Manage.vue";
+import ManageRenderer, { tester as manageTest } from "./ManageRenderer.vue";
 
 // -----------------------------------------------------------------------------
 

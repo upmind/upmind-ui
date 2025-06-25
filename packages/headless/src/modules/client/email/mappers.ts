@@ -16,7 +16,7 @@ export const mapEmail = (raw: IEmail): Email => {
     type: raw.type,
     email: raw.email,
     title: raw.email,
-    description: raw.verified ? "Verified" : "Unverified",
+    description: "",
     // ---
     meta: {
       isDefault: !!raw.default,

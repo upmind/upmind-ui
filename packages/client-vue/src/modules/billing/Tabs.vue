@@ -5,13 +5,12 @@
       :value="UnifiedAddressType.PERSONAL"
       :tabs="tabs"
     >
-      <template v-for="tab in tabs" v-slot:[`content.${tab.value}`]>
-        <Tab
-          :clientId="user!.id"
-          :key="tab.value"
-          :type="castType(tab)"
-          v-model="modelValue"
-        />
+      <template v-slot:[`content.personal`]>
+        <TabPersonal v-model="modelValue" />
+      </template>
+
+      <template v-slot:[`content.business`]>
+        <TabBusiness v-model="modelValue" />
       </template>
     </Tabs>
   </Loading>
@@ -27,7 +26,8 @@ import { UnifiedAddressType, useSession } from "@upmind-automation/headless";
 
 // --- components
 import { Tabs, Loading } from "@upmind-automation/upmind-ui";
-import Tab from "./TabBusiness.vue";
+import TabBusiness from "./TabBusiness.vue";
+import TabPersonal from "./TabPersonal.vue";
 
 // --- utils
 

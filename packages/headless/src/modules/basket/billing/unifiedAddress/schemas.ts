@@ -1,5 +1,5 @@
 // --- utils
-import { isEmpty, get, map } from "lodash-es";
+import { get } from "lodash-es";
 
 // --- types
 import { UnifiedAddressType, type UnifiedAddressContext } from "./types";
@@ -50,10 +50,10 @@ export const useSchema = ({
           emailId: baseModel?.emailId,
           phoneId: baseModel?.phoneId,
         },
-        addresses: addresses ?? [],
-        emails: baseModel?.emails ?? [],
-        phones: baseModel?.phones ?? [],
-        clientId: baseModel?.clientId ?? "",
+        countries,
+        country,
+        regions,
+        config,
       }),
     },
   };
@@ -70,7 +70,11 @@ export const useSchema = ({
   return schema;
 };
 
-export const useUischema = ({ type, config }: UnifiedAddressContext) => {
+export const useUischema = ({
+  baseModel,
+  type,
+  config,
+}: UnifiedAddressContext) => {
   const uiSchema: Layout = {
     type: "VerticalLayout",
     elements: [],
@@ -101,7 +105,10 @@ export const useUischema = ({ type, config }: UnifiedAddressContext) => {
           options: {
             autoFocus: true,
             autocomplete: "off",
-            detail: useCompanyUischema(),
+            detail: useCompanyUischema({
+              minimal: true,
+              baseModel: { addressId: baseModel?.addressId },
+            }),
           },
         },
       ],

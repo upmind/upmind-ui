@@ -7,19 +7,29 @@ import {
   useUischema as useAddressUischema,
 } from "../address/schemas";
 
+import { useClientEmails, useClientEmail } from "../email";
+import {
+  useSchema as useEmailSchema,
+  useUischema as useEmailUischema,
+} from "../email/schemas";
+
+import { useClientPhones, useClientPhone } from "../phone";
+import {
+  useSchema as usePhoneSchema,
+  useUischema as usePhoneUischema,
+} from "../phone/schemas";
+
 // --- types
-import { BrandConfigKeys } from "@upmind-automation/types";
 import type { CompanyContext } from "./types";
-import type { JsonSchema7, Layout, UISchemaElement } from "@jsonforms/core";
+import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 
 export const useSchema = ({
-  clientId,
   countries,
   country,
   regions,
   baseModel,
   config,
-}: CompanyContext): JsonSchema7 => {
+}: Partial<CompanyContext>): JsonSchema7 => {
   const schema: JsonSchema7 = {
     type: "object",
     title: "Company",
@@ -56,36 +66,93 @@ export const useSchema = ({
       },
     },
     // this is where we conditionally allow either an existing addressId or a new address object
-    oneOf: [
+    allOf: [
       {
-        type: "object",
-        title: "Existing Address",
-        description: "Select an existing address for this company.",
-        required: ["addressId"],
-        properties: {
-          addressId: {
-            type: ["string", "null"],
-            title: "Address",
-            default: baseModel?.addressId,
+        oneOf: [
+          {
+            type: "object",
+            title: "Existing Address",
+            description: "Select an existing address for this company.",
+            required: ["addressId"],
+            properties: {
+              addressId: {
+                type: ["string", "null"],
+                title: "Address",
+                default: baseModel?.addressId,
+              },
+            },
           },
-        },
+          {
+            type: "object",
+            title: "New Address",
+            description: "Create a new address for this company.",
+            required: ["address"],
+            properties: {
+              address: useAddressSchema({
+                regions,
+                baseModel: {
+                  countryId: country?.id,
+                },
+                countries: countries || [],
+                config,
+              }),
+            },
+          },
+        ],
       },
       {
-        type: "object",
-        title: "New Address",
-        description: "Create a new address for this company.",
-        required: ["address"],
-        properties: {
-          address: useAddressSchema({
-            clientId,
-            regions,
-            baseModel: {
-              countryId: country?.id,
+        oneOf: [
+          {
+            type: "object",
+            title: "Existing Phone",
+            description: "Select an existing phone for this company.",
+            required: ["phoneId"],
+            properties: {
+              phoneId: {
+                type: ["string", "null"],
+                title: "Phone",
+                default: baseModel?.phoneId,
+              },
             },
-            countries,
-            config,
-          }),
-        },
+          },
+          {
+            type: "object",
+            title: "New Phone",
+            description: "Create a new phone for this company.",
+            required: ["phone"],
+            properties: {
+              phone: usePhoneSchema({
+                country,
+              }),
+            },
+          },
+        ],
+      },
+      {
+        oneOf: [
+          {
+            type: "object",
+            title: "Existing Email",
+            description: "Select an existing email for this company.",
+            required: ["emailId"],
+            properties: {
+              emailId: {
+                type: ["string", "null"],
+                title: "Email",
+                default: baseModel?.emailId,
+              },
+            },
+          },
+          {
+            type: "object",
+            title: "New Email",
+            description: "Create a new email for this company.",
+            required: ["email"],
+            properties: {
+              email: useEmailSchema(),
+            },
+          },
+        ],
       },
     ],
   };
@@ -93,7 +160,10 @@ export const useSchema = ({
   return schema;
 };
 
-export const useUischema = ({ baseModel }: CompanyContext) => {
+export const useUischema = ({
+  baseModel,
+  minimal,
+}: Partial<CompanyContext>) => {
   const uiSchema = {
     type: "VerticalLayout",
     elements: [
@@ -149,13 +219,74 @@ export const useUischema = ({ baseModel }: CompanyContext) => {
       type: "Manager",
       scope: "#/properties/addressId",
       options: {
+        i18nKey: "client.address",
         manage: {
-          list: useClientAddresses,
-          mutate: useClientAddress,
+          useList: useClientAddresses,
+          useMutate: useClientAddress,
         },
-        clientId: "todo-123456",
       },
     } as any);
+  }
+
+  if (!minimal) {
+    // this is where we conditionally render either an existing phoneId or a new phone uiSchema
+    if (!baseModel?.phoneId) {
+      uiSchema.elements.push({
+        type: "VerticalLayout",
+        elements: [
+          {
+            type: "Control",
+            scope: "#/properties/phone",
+            options: {
+              autoFocus: true,
+              autocomplete: "off",
+              detail: usePhoneUischema(),
+            },
+          },
+        ],
+      } as any);
+    } else {
+      uiSchema.elements.push({
+        type: "Manager",
+        scope: "#/properties/phoneId",
+        options: {
+          i18nKey: "client.phone",
+          manage: {
+            useList: useClientPhones,
+            useMutate: useClientPhone,
+          },
+        },
+      } as any);
+    }
+    // this is where we conditionally render either an existing emailId or a new email uiSchema
+    if (!baseModel?.emailId) {
+      uiSchema.elements.push({
+        type: "VerticalLayout",
+        elements: [
+          {
+            type: "Control",
+            scope: "#/properties/email",
+            options: {
+              autoFocus: true,
+              autocomplete: "off",
+              detail: useEmailUischema(),
+            },
+          },
+        ],
+      } as any);
+    } else {
+      uiSchema.elements.push({
+        type: "Manager",
+        scope: "#/properties/emailId",
+        options: {
+          i18nKey: "client.email",
+          manage: {
+            useList: useClientEmails,
+            useMutate: useClientEmail,
+          },
+        },
+      } as any);
+    }
   }
 
   return uiSchema as UISchemaElement;

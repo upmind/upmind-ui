@@ -17,6 +17,7 @@ export const useClientEmailActions = () => {
   return {
     setMeta: assign({
       title: ({ model }: EmailContext) => model?.email || "New Email",
+      description: ({ model }: EmailContext) => "",
     }),
 
     setSchemas: assign({

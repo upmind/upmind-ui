@@ -2,12 +2,11 @@
   <div>
     <pre>{{ { selected, open, modelValue } }}</pre>
 
-    <!-- address vs company -->
     <RadioCardsCollapsible
       v-if="!meta.isLoading && !meta.isEmpty"
       v-model:open="open"
       v-model="selected"
-      :items="parsedValues"
+      :items="parsedAddresses"
       :list="false"
       required
     >
@@ -17,7 +16,7 @@
 
       <template #actions>
         <Link
-          v-if="!open && parsedValues.length > 1"
+          v-if="!open && parsedAddresses.length > 1"
           :label="t('billing.actions.change')"
           size="xs"
           variant="muted"
@@ -52,7 +51,7 @@
 
       <template #actions>
         <Link
-          v-if="!open && parsedValues.length > 1"
+          v-if="!open && parsedAddresses.length > 1"
           :label="t('client.phone.actions.change')"
           size="xs"
           variant="muted"
@@ -72,7 +71,6 @@
     <Add
       v-if="(!meta.isLoading && meta.isEmpty) || openModel"
       v-model:open="openModel"
-      :client-id="props.clientId"
       :modal="!meta.isEmpty"
       :type="UnifiedAddressType.PERSONAL"
       @resolve="doResolve"
@@ -89,7 +87,6 @@ import { useI18n } from "vue-i18n";
 // --- internal
 import {
   useClientAddresses,
-  useClientCompanies,
   useClientPhones,
   UnifiedAddressType,
 } from "@upmind-automation/headless";
@@ -97,23 +94,21 @@ import {
 // --- components
 import { RadioCardsCollapsible, Link } from "@upmind-automation/upmind-ui";
 import Add from "./Add.vue";
-import PhoneItem from "../client/phone/Item.vue";
-import AddressItem from "../client/address/Item.vue";
-import CompanyItem from "../client/company/Item.vue";
+import PhoneItem from "./components/PhoneItem.vue";
+import AddressItem from "./components/AddressItem.vue";
 
 // --- utils
-import { first, lowerCase, map, set, find } from "lodash-es";
+import { find, map, set } from "lodash-es";
 
 // --- types
 
-import type { BillingModel, Company } from "@upmind-automation/headless";
+import type { BillingModel } from "@upmind-automation/headless";
 import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
 import { useVModel } from "@vueuse/core";
 
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
-  clientId: string;
   modelValue?: BillingModel;
   readonly?: boolean;
 }>();
@@ -123,17 +118,38 @@ const emits = defineEmits<{
 }>();
 
 const { t } = useI18n();
+
 // -----------------------------------------------------------------------------
-const { data, meta, default: defaultItem } = useClientCompanies();
+
+const {
+  data: addresses,
+  meta,
+  default: defaultAddress,
+  isReady: isAddressesReady,
+} = useClientAddresses();
 
 const {
   data: phones,
   meta: phoneMeta,
   default: defaultPhone,
+  isReady: isPhonesReady,
 } = useClientPhones();
 
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
+  deep: true,
+  defaultValue: {
+    addressId: defaultAddress.value?.id,
+    phoneId: defaultPhone.value?.id,
+  },
+});
+
+await Promise.all([isAddressesReady, isPhonesReady]).then(() => {
+  // Ensure modelValue is initialized with default values
+  modelValue.value ??= {
+    addressId: defaultAddress.value?.id,
+    phoneId: defaultPhone.value?.id,
+  };
 });
 
 // -----------------------------------------------------------------------------
@@ -143,34 +159,40 @@ const editId = ref<string>("");
 
 const selected = computed({
   get() {
-    return (
-      modelValue.value?.companyId ||
-      modelValue.value?.addressId ||
-      modelValue.value?.phoneId ||
-      defaultItem.value?.id
-    );
-  },
-  set(val: string) {
-    modelValue.value = {
-      addressId: val,
-    };
-  },
-});
-
-const selectedPhone = computed({
-  get() {
-    return modelValue.value?.phoneId || defaultPhone.value?.id;
+    return modelValue.value?.addressId ?? undefined;
   },
   set(val: string) {
     debugger;
     modelValue.value ??= {};
     debugger;
-    set(modelValue.value, "phoneId", val);
+    const found = find(addresses.value, { id: val });
+    if (found) {
+      set(modelValue.value, "addressId", found.id);
+    } else {
+      console.warn("Company not found for id:", val);
+    }
   },
 });
 
-const parsedValues = computed(() => {
-  return map(data.value || [], (item: any, index: number) => {
+const selectedPhone = computed({
+  get() {
+    return modelValue.value?.phoneId ?? undefined;
+  },
+  set(val: string) {
+    debugger;
+    modelValue.value ??= {};
+    debugger;
+    const found = find(phones.value, { id: val });
+    if (found) {
+      set(modelValue.value, "phoneId", found.id);
+    } else {
+      console.warn("Phone not found for id:", val);
+    }
+  },
+});
+
+const parsedAddresses = computed(() => {
+  return map(addresses.value || [], (item: any, index: number) => {
     return {
       id: item.id,
       value: item.id,

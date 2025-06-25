@@ -18,13 +18,16 @@ export interface CompanyModel {
   addressId?: ICompany["address_id"];
   address?: AddressModel;
   // ---
-  default?: ICompany["default"];
   emailId?: ICompany["email_id"];
+  email?: Email["email"];
+  // ---
   phone?: PhoneModel["phone"];
-  name?: ICompany["name"];
   phoneId?: ICompany["phone_id"];
+  // ---
+  name?: ICompany["name"];
   regNumber?: ICompany["reg_number"];
   vatNumber?: ICompany["vat_number"];
+  default?: ICompany["default"];
 }
 
 export interface Company {
@@ -57,4 +60,5 @@ export interface CompanyContext extends ClientItemContext<CompanyModel> {
   country?: ICountry;
   regions?: IRegion[];
   countries: ICountry[];
+  minimal: boolean;
 }

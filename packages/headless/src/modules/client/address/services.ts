@@ -158,7 +158,7 @@ async function update(id: Address["id"], data: AddressModel) {
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
-async function ensure(model: AddressModel): Promise<AddressModel> {
+async function ensure(model: AddressModel): Promise<Address> {
   const mapping = omitBy(model, isEmpty);
   const addresses = await load();
   const { findOne } = useCollection<Address>(addresses);
@@ -168,8 +168,9 @@ async function ensure(model: AddressModel): Promise<AddressModel> {
   return add(model).then(raw => {
     if (isEmpty(raw))
       throw new DetailedError(
-        "[headless] Failed to ensure (add) company",
-        responseCodes.Unprocessable_Entity
+        "[headless] Failed to ensure address",
+        responseCodes.Unprocessable_Entity,
+        { model }
       );
     // NB: Remember to refresh our machines so we have the new data
     // refresh();

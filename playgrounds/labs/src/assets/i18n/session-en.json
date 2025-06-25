@@ -29,9 +29,9 @@
     },
     "login": {
       "email": {
-        "label": "Your email address",
+        "label": "Your username or email address",
         "placeholder": "name@email.com",
-        "error": "A valid email address is required",
+        "error": "A username or email address is required",
         "description": null
       },
       "password": {
@@ -45,7 +45,14 @@
         "login": "Log into my account",
         "continue": "Continue",
         "logout": "Log out",
-        "forgot": "Forgot password"
+        "recover": "Forgotten password"
+      }
+    },
+    "recover": {
+      "email": {
+        "label": "Your username or email address",
+        "placeholder": "name@email.com",
+        "error": "A username or email address is required"
       }
     },
     "actions": {
@@ -57,50 +64,50 @@
       "login": "Log into my account",
       "continue": "Continue",
       "logout": "Log out",
-      "forgot": "Forgot password"
+      "recover": "Send reset"
     },
-    "privacy_policy": "Privacy policy",
-    "terms_of_service": "Terms of service",
-    "google_recaptcha_terms": "This form is protected by reCAPTCHA and Google's {privacyPolicy} and {termsOfService} apply.",
-    "brand_terms": "By clicking '{label}' I agree to {brand}'s {object}.",
-    "terms_and_conditions": "Terms & Conditions"
+    "google_recaptcha": {
+      "terms": "This form is protected by reCAPTCHA and Google's {privacyPolicy} and {termsOfService} apply.",
+      "privacy_policy": "Privacy policy",
+      "terms_of_service": "Terms of service"
+    }
   },
   "session": {
-    "popover": {
-      "register": {
-        "title": "New here?",
-        "description": "No problem, signing up is quick and easy. See you on the other side!",
-        "action": "Create an account"
+    "recover": {
+      "title": {
+        "text": "Forgotten your {0}",
+        "strong": "password"
       },
-      "login": {
-        "title": "Already have an account?",
-        "description": "Sign in for a faster checkout.",
-        "action": "Sign in"
-      }
+      "tagline": "Forgot your password? Not to worry – just enter your username below and we'll send you reset instructions right away.",
+
+      "actions": {
+        "text": "Forgotten your password?"
+      },
+      "error": "We experienced an error while trying to send you a password reset email."
     },
-    "unauthenticated": {
-      "register": {
-        "title": {
-          "text": "Create an {0}",
-          "mask": "account"
-        },
-        "account": "account",
-        "actions": {
-          "text": "Have a Labs account?",
-          "action": "Login"
-        }
+    "register": {
+      "title": {
+        "text": "Create an {0}",
+        "strong": "account"
       },
-      "login": {
-        "title": {
-          "text": "Login to your {0}",
-          "mask": "account"
-        },
-        "account": "account",
-        "actions": {
-          "text": "Don't have an account?",
-          "action": "Register"
-        }
-      }
+      "account": "account",
+      "actions": {
+        "text": "Already have an account?",
+        "action": "Log in here"
+      },
+      "error": "We experienced an error while trying to create your account."
+    },
+    "login": {
+      "title": {
+        "text": "Log in to your {0}",
+        "strong": "account"
+      },
+      "account": "account",
+      "actions": {
+        "text": "Don't have an account?",
+        "action": "Create one here"
+      },
+      "error": "We experienced an error while trying to log you in."
     },
     "authenticated": {
       "header": {
@@ -119,21 +126,15 @@
         "continue": "Restart checkout"
       }
     },
-    "logged_out": {
+    "end": {
       "title": {
         "text": "You're {0} out",
-        "mask": "logged"
+        "strong": "logged"
       },
-      "text": "No worries, you can continue shopping.",
+      "text": "You can continue shopping without being logged in.",
       "actions": {
         "continue": "Continue shopping"
       }
-    },
-    "account_dropdown": {
-      "my_account": "My Account",
-      "not_logged_in": "Not logged in",
-      "basket": "Basket",
-      "log_out": "Log out"
     }
   }
 }

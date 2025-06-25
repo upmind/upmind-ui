@@ -9,9 +9,14 @@ import {
   useClientAddresses,
   type QueryParams,
   useBrand,
-  Address,
   AddressModel,
+  EmailModel,
+  PhoneModel,
 } from "../..";
+
+import { useClientAddressServices } from "../address/services";
+import { useClientPhoneServices } from "../phone/services";
+import { useClientEmailServices } from "../email/services";
 
 // --- utils
 import {
@@ -25,14 +30,13 @@ import {
 } from "../../../utils";
 import { mapCompanies, mapCompany, mapICompany } from "./mappers";
 import { invalidateQueryByKey } from "../../query";
-import { get, isString, isEmpty, omitBy, some, find, isEqual } from "lodash-es";
+import { get, isString, isEmpty, omitBy, some, find } from "lodash-es";
 
 // --- types
 import { BrandConfigKeys, type ICompany } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { AnyEventObject } from "xstate";
 import type { Company, CompanyModel, CompanyContext } from "./types";
-import { useClientAddressServices } from "../address/services";
 
 // -----------------------------------------------------------------------------
 // QUERIES
@@ -121,12 +125,7 @@ async function loadLookups({
   // these could/should be cached in the system machine, so there's no worry about performance
   const [countries, config] = await Promise.all([
     fetchCountries(),
-    ensureConfig([
-      BrandConfigKeys.CHECKOUT_REQUIRE_PHONE,
-      BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS,
-      BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS,
-      BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS,
-    ]),
+    ensureConfig([BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS]),
     getPhones(),
     getEmails(),
     getAddresses(),
@@ -172,7 +171,6 @@ async function loadLookups({
 
 async function add(data: CompanyModel) {
   const { meta, user } = useSession();
-  const { ensure: ensureAddress } = useClientAddressServices();
 
   const { post, useUrl } = useQuery();
 
@@ -180,34 +178,10 @@ async function add(data: CompanyModel) {
     return Promise.reject(new NotAuthenticatedError());
   }
 
-  const ensured: Promise<any>[] = [];
-
-  // TODO: MAYBE allow phone & email to work the same way as address?
-  //       NOT needed right now, but could be useful in the future
-  ensured.push(
-    ensureAddress({
-      model: (data?.address ?? { id: data?.addressId }) as AddressModel,
-    })
-  );
-
-  return Promise.all(ensured).then(async ([address /* email, phone */]) => {
-    if (!address?.id)
-      return Promise.reject(
-        new DetailedError(
-          "No address found or created",
-          responseCodes.Unprocessable_Entity
-        )
-      );
+  return ensureDependencies(data).then(ensuredData => {
     return post<ICompany>({
       url: useUrl(`clients/${user.value?.id}/companies`),
-      data: mapICompany({
-        ...data,
-        addressId: address.id,
-        /*
-        emailId: email?.id,
-        phoneId: phone?.id,
-        */
-      }),
+      data: mapICompany(ensuredData),
       withAccessToken: true,
     }).then(invalidateQueryByKey(queryKey, { exact: false }));
   });
@@ -221,15 +195,18 @@ async function update(id: Company["id"], data: CompanyModel) {
     return Promise.reject(new NotAuthenticatedError());
   }
 
-  return put<ICompany>({
-    url: useUrl(`clients/${user.value?.id}/companies/${id}`),
-    data: mapICompany(data),
-    withAccessToken: true,
-  }).then(invalidateQueryByKey(queryKey, { exact: false }));
+  return ensureDependencies(data).then(ensuredData => {
+    return put<ICompany>({
+      url: useUrl(`clients/${user.value?.id}/companies/${id}`),
+      data: mapICompany(ensuredData),
+      withAccessToken: true,
+    }).then(invalidateQueryByKey(queryKey, { exact: false }));
+  });
 }
 
-async function ensure(model: CompanyModel): Promise<CompanyModel> {
+async function ensure(model: CompanyModel): Promise<Company> {
   const mapping = omitBy(model, isEmpty);
+
   const companies = await load();
   const { findOne } = useCollection<Company>(companies);
   const found = findOne(mapping);
@@ -238,8 +215,9 @@ async function ensure(model: CompanyModel): Promise<CompanyModel> {
   return add(model).then(raw => {
     if (isEmpty(raw))
       throw new DetailedError(
-        "[headless] Failed to ensure (add) company",
-        responseCodes.Unprocessable_Entity
+        "[headless] Failed to ensure company",
+        responseCodes.Unprocessable_Entity,
+        { model }
       );
     // NB: Remember to refresh our machines so we have the new data
     // refresh();
@@ -313,6 +291,65 @@ function setDefault(companyId: Company["id"]) {
 
 // -----------------------------------------------------------------------------
 //  SIDE EFFECTS
+
+async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
+  if (isEmpty(data))
+    return Promise.reject(
+      new DetailedError(
+        "[headless] Ensure Company dependencies faile: No data provided",
+        responseCodes.Not_Found
+      )
+    );
+
+  const { ensure: ensureEmail } = useClientEmailServices();
+  const { ensure: ensurePhone } = useClientPhoneServices();
+  const { ensure: ensureAddress } = useClientAddressServices();
+
+  // for our dependencies we need to check if they already exists by finding them in their respective stores
+  // if they do then we can just return the id
+  // if they don't then we return a promise of the add method
+  // NB: for each new dependency we force type to be 4 = company
+  return Promise.all([
+    ensureEmail({
+      model: (data?.email
+        ? { email: data.email }
+        : { id: data?.emailId }) as EmailModel,
+    }),
+
+    ensurePhone({
+      model: (data?.phone
+        ? { phone: data.phone }
+        : { id: data?.addressId }) as PhoneModel,
+    }),
+
+    ensureAddress({
+      model: (data?.address
+        ? data.address
+        : { id: data?.addressId }) as AddressModel,
+    }),
+  ])
+    .then(([email, phone, address]) => {
+      return {
+        id: data.id,
+        addressId: address.id,
+        phoneId: phone.id,
+        emailId: email.id,
+        name: data.name,
+        regNumber: data.regNumber,
+        vatNumber: data.vatNumber,
+        default: data.default,
+      };
+    })
+    .catch(error => {
+      return Promise.reject(
+        new DetailedError(
+          "[headless] Ensure Company dependencies failed",
+          responseCodes.Unprocessable_Entity,
+          { error }
+        )
+      );
+    });
+}
 
 async function parse(
   { schema, regions, country, autoupdate }: CompanyContext,

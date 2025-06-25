@@ -10,13 +10,7 @@ import type {
   Company,
 } from "../../../client";
 import type { ClientItemContext } from "../../../client/types";
-import type {
-  IAddress,
-  ICompany,
-  ICountry,
-  IPhone,
-  IRegion,
-} from "@upmind-automation/types";
+import type { ICountry, IRegion } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -28,7 +22,7 @@ export enum UnifiedAddressType {
 export type UnifiedAddressModel = {
   address?: AddressModel;
   company?: CompanyModel;
-  phone?: PhoneModel["phone"];
+  phone?: PhoneModel;
 };
 
 export interface UnifiedAddressContext
