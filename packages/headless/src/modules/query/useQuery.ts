@@ -1,7 +1,7 @@
 // --- external
 import {
-  useMutation,
   QueryClient,
+  useMutation,
   useQuery as vueUseQuery,
   useInfiniteQuery as vueUseInfiniteQuery,
 } from "@tanstack/vue-query";
@@ -14,31 +14,31 @@ import { doFetch, refreshToken } from "./services";
 
 // --- utils
 import {
-  DetailedError,
-  ErrorOrigin,
-  isPromise,
-  responseCodes,
-  useTime,
-  useUrl,
-} from "../../utils";
-import { getTokenFromStorage } from "../session/utils";
-import {
   get,
   set,
   unset,
-  isString,
-  isEmpty,
-  isInteger,
-  toNumber,
-  isObject,
   forEach,
+  isEmpty,
+  isObject,
+  isString,
+  toNumber,
+  isInteger,
 } from "lodash-es";
 import {
   parseData,
-  canRetryAuthorization,
   PAGINATION,
   cleanQueryKey,
+  canRetryAuthorization,
 } from "./utils";
+import {
+  useUrl,
+  useTime,
+  isPromise,
+  ErrorOrigin,
+  DetailedError,
+  responseCodes,
+} from "../../utils";
+import { getTokenFromStorage } from "../session/utils";
 
 // --- types
 import {
@@ -422,11 +422,12 @@ export const useQuery = () => {
         }
       },
 
+      sort: (values?: QueryParams["sort"]) => {
+        sort.value = unref(values);
+      },
+
       filter: (values: QueryParams["filters"]) => {
-        // Ensure values is not a Ref, but a plain object
-        // If values is a Ref, unwrap it; otherwise, use as is
-        // @ts-ignore
-        filters.value = unref(values) ?? {};
+        filters.value = unref(values);
       },
 
       resetQuery: () => {
@@ -572,11 +573,12 @@ export const useQuery = () => {
         hasPrevPage: response.hasPreviousPage.value,
       })),
 
+      sort: (values?: QueryParams["sort"]) => {
+        sort.value = unref(values);
+      },
+
       filter: (values: QueryParams["filters"]) => {
-        // Ensure values is not a Ref, but a plain object
-        // If values is a Ref, unwrap it; otherwise, use as is
-        // @ts-ignore
-        filters.value = unref(values) ?? {};
+        filters.value = unref(values);
       },
 
       resetQuery: () =>
