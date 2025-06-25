@@ -8,5 +8,15 @@
       "text": "Almost there! Getting things ready for you.",
       "actions": {}
     }
+  },
+  "billing": {
+    "address": "Personal",
+    "company": "Business",
+    "actions": {
+      "add": "Add",
+      "edit": "Edit",
+      "delete": "Delete",
+      "confirm": "Confirm"
+    }
   }
 }
