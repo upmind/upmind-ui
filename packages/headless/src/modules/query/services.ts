@@ -102,9 +102,17 @@ async function doFetch<T extends any = any>({
       return data as QueryResponse<T>;
     })
     .catch(response => {
+      // Aborted requests are handled differently and do not throw an error
+      if (
+        response.status == responseCodes.Aborted ||
+        response.code == responseCodes.Aborted ||
+        response.name == "AbortError"
+      )
+        return Promise.reject();
+
       // DC: change this as when we get service cors errors, we dont get a response object with status
       // so we need to handle it differently, and that  genrally means the API is down
-      // if (!response?.status) return Promise.reject();
+
       return handleError(
         response.status ?? responseCodes.Service_Unavailable,
         response?.error

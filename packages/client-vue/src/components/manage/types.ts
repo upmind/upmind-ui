@@ -19,12 +19,14 @@ export type MinimalListComposable = (...args: any) => {
 };
 
 export type MinimalMutateComposable = (
-  id?: string,
+  id?: string | any, // its very generic, usually a string but can be any other type
   ...args: any
 ) => {
   isReady: () => Promise<boolean>;
   meta: ComputedRef<Record<string, boolean>>;
-  model: ComputedRef<Record<string, any>> | Ref<Record<string, any>>;
+  model:
+    | ComputedRef<Record<string, any>>
+    | Ref<Record<string, any> | undefined>;
   schema: ComputedRef<JsonSchema | undefined>;
   uischema: ComputedRef<UISchemaElement | undefined>;
   errors: ComputedRef<QueryResponseError["message"] | undefined>;

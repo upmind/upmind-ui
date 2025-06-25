@@ -1,111 +1,89 @@
 <template>
-  <div>
-    <pre>{{ { selected, open, modelValue } }}</pre>
-
-    <RadioCardsCollapsible
-      v-if="!meta.isLoading && !meta.isEmpty"
-      v-model:open="open"
-      v-model="selected"
-      :items="parsedCompanies"
-      :list="false"
-      required
+  <Loading :active="meta.isLoading" class="w-full">
+    <List
+      i18nKey="client.address"
+      :useList="useClientCompanies"
+      v-model="selectedCompany"
+      :readonly="props.readonly"
+      @add="doAdd(EditingType.Company)"
+      @edit="doEdit($event, EditingType.Company)"
     >
       <template #item="{ item }">
-        <CompanyItem v-bind="item" :readonly="props.readonly" />
-      </template>
-
-      <template #actions>
-        <Link
-          v-if="!open && parsedCompanies.length > 1"
-          :label="t('billing.actions.change')"
-          size="xs"
-          variant="muted"
-          @click="open = true"
-        />
-
-        <Link
-          v-else-if="!readonly"
-          :label="
-            t('billing.actions.add', { type: UnifiedAddressType.BUSINESS })
-          "
-          size="xs"
-          variant="muted"
-          @click="openModel = true"
+        <CompanyItem
+          v-bind="item"
+          :readonly="props.readonly"
+          @edit="doEdit(item.id, EditingType.Company)"
         />
       </template>
-    </RadioCardsCollapsible>
+    </List>
 
-    <!-- phone  -->
-    <RadioCardsCollapsible
-      v-if="!phoneMeta.isLoading && !phoneMeta.isEmpty"
-      v-model:open="open"
+    <List
+      i18nKey="client.phone"
+      :useList="useClientPhones"
       v-model="selectedPhone"
-      :items="parsedPhones"
-      :list="false"
+      :readonly="props.readonly"
+      @add="doAdd(EditingType.Phone)"
+      @edit="doEdit($event, EditingType.Phone)"
       minimal
-      required
     >
       <template #item="{ item }">
-        <PhoneItem v-bind="item.phone" :readonly="props.readonly" />
-      </template>
-
-      <template #actions>
-        <Link
-          v-if="!open && parsedCompanies.length > 1"
-          :label="t('client.phone.actions.change')"
-          size="xs"
-          variant="muted"
-          @click="open = true"
-        />
-
-        <Link
-          v-else-if="!readonly"
-          :label="t('client.phone.actions.add')"
-          size="xs"
-          variant="muted"
-          @click="openModel = true"
+        <PhoneItem
+          v-bind="item"
+          :readonly="props.readonly"
+          @edit="doEdit(item.id, EditingType.Phone)"
         />
       </template>
-    </RadioCardsCollapsible>
+    </List>
 
-    <Add
-      v-if="(!meta.isLoading && meta.isEmpty) || openModel"
-      v-model:open="openModel"
+    <Form
+      v-if="openForm && editing && useMutate"
+      :i18nKey="i18nKey"
+      :useMutate="useMutate"
+      v-model:open="openForm"
+      :model-value="editId"
       :modal="!meta.isEmpty"
-      :type="UnifiedAddressType.BUSINESS"
       @resolve="doResolve"
       @reject="doReject"
     />
-  </div>
+  </Loading>
 </template>
 
 <script setup lang="ts">
 // --- external
 import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { useVModel } from "@vueuse/core";
 
 // --- internal
 import {
   useClientCompanies,
+  useClientCompany,
   useClientPhones,
+  useClientPhone,
+  useUnifiedAddress,
   UnifiedAddressType,
 } from "@upmind-automation/headless";
 
 // --- components
-import { RadioCardsCollapsible, Link } from "@upmind-automation/upmind-ui";
-import Add from "./Add.vue";
-import PhoneItem from "./components/PhoneItem.vue";
-import CompanyItem from "./components/CompanyItem.vue";
+import List from "../../components/manage/List.vue";
+import Form from "../../components/manage/Form.vue";
+import { Loading } from "@upmind-automation/upmind-ui";
 
 // --- utils
-import { map, set, find } from "lodash-es";
+import { find, isString, set } from "lodash-es";
 
 // --- types
 
 import type { BillingModel } from "@upmind-automation/headless";
-import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
-import { useVModel } from "@vueuse/core";
+import type { MinimalMutateComposable } from "../../components/manage/types";
+import CompanyItem from "./components/CompanyItem.vue";
+import PhoneItem from "./components/PhoneItem.vue";
 
+enum EditingType {
+  Company = "company",
+  Phone = "phone",
+  Unified = "unified",
+}
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
@@ -123,7 +101,7 @@ const { t } = useI18n();
 
 const {
   data: companies,
-  meta,
+  meta: companyMeta,
   default: defaultCompany,
   isReady: isCompaniesReady,
 } = useClientCompanies();
@@ -135,43 +113,39 @@ const {
   isReady: isPhonesReady,
 } = useClientPhones();
 
+const meta = computed(() => ({
+  isEmpty: companyMeta.value.isEmpty,
+  isLoading: companyMeta.value.isLoading || phoneMeta.value.isLoading,
+}));
+
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
   deep: true,
   defaultValue: {
     companyId: defaultCompany.value?.id,
-    phoneId: defaultPhone.value?.id,
-  },
-});
-
-await Promise.all([isCompaniesReady, isPhonesReady]).then(() => {
-  // Ensure modelValue is initialized with default values
-  modelValue.value ??= {
-    companyId: defaultCompany.value?.id,
     addressId: defaultCompany.value?.addressId,
     phoneId: defaultPhone.value?.id,
-  };
+  },
 });
 
 // -----------------------------------------------------------------------------
-const open = ref(false);
-const openModel = ref(meta.value.isEmpty);
-const editId = ref<string>("");
+// const open = ref(false);
+const openForm = ref(meta.value.isEmpty);
+const editing = ref<EditingType | undefined>();
+const editId = ref<string | undefined>();
 
-const selected = computed({
+// --- context
+
+const selectedCompany = computed<string | undefined>({
   get() {
     return modelValue.value?.companyId ?? undefined;
   },
-  set(val: string) {
-    debugger;
+  set(val: string | undefined) {
     modelValue.value ??= {};
-    debugger;
     const found = find(companies.value, { id: val });
     if (found) {
       set(modelValue.value, "companyId", found.id);
       set(modelValue.value, "addressId", found.addressId);
-    } else {
-      console.warn("Company not found for id:", val);
     }
   },
 });
@@ -180,53 +154,93 @@ const selectedPhone = computed({
   get() {
     return modelValue.value?.phoneId ?? undefined;
   },
-  set(val: string) {
-    debugger;
+  set(val: string | undefined) {
     modelValue.value ??= {};
-    debugger;
     const found = find(phones.value, { id: val });
     if (found) {
       set(modelValue.value, "phoneId", found.id);
-    } else {
-      console.warn("Phone not found for id:", val);
     }
   },
 });
 
-const parsedCompanies = computed(() => {
-  return map(companies.value || [], (item: any, index: number) => {
-    return {
-      id: item.id,
-      value: item.id,
-      label: item.title,
-      item: item,
-      index: index,
-      // modelValue: modelValue.value,
-    };
-  }) as RadioCardsItemProps[];
+const i18nKey = computed(() => {
+  if (editing.value === EditingType.Unified) return "billing";
+  return `client.${editing.value}`;
 });
 
-const parsedPhones = computed(() => {
-  return map(phones.value || [], (item: any, index: number) => {
-    return {
-      id: item.id,
-      value: item.id,
-      label: item.title,
-      item: item,
-      index: index,
-      // modelValue: modelValue.value,
-    };
-  }) as RadioCardsItemProps[];
+const useMutate = computed((): MinimalMutateComposable => {
+  if (editing.value === EditingType.Company) return useClientCompany;
+  if (editing.value === EditingType.Phone) return useClientPhone;
+  if (editing.value === EditingType.Unified) return useUnifiedAddress;
+
+  throw new Error(`Unknown editing type: ${editing.value}`);
 });
+
+// --- methods
+
+function doAdd(type: EditingType) {
+  editing.value = type;
+  openForm.value = true;
+  editId.value =
+    type == EditingType.Unified ? UnifiedAddressType.BUSINESS : undefined;
+}
+
+function doEdit(id: string, type: EditingType) {
+  editing.value = type;
+  openForm.value = true;
+  editId.value = id;
+}
 
 function doReject() {
-  openModel.value = false;
-  editId.value = "";
+  openForm.value = false;
+  editId.value = undefined;
+  editing.value = undefined;
 }
 
-function doResolve(value: BillingModel) {
-  modelValue.value = value;
-  openModel.value = false;
-  editId.value = "";
+function doResolve(value: BillingModel | string) {
+  switch (editing.value) {
+    case EditingType.Company:
+      selectedCompany.value = isString(value)
+        ? value
+        : (value?.companyId ?? defaultCompany.value?.id ?? undefined);
+      break;
+
+    case EditingType.Phone:
+      selectedPhone.value = isString(value)
+        ? value
+        : (value?.phoneId ?? defaultPhone.value?.id ?? undefined);
+      break;
+
+    case EditingType.Unified:
+      selectedPhone.value = isString(value)
+        ? value
+        : (value?.phoneId ?? defaultPhone.value?.id ?? undefined);
+
+      selectedCompany.value = isString(value)
+        ? value
+        : (value?.companyId ?? defaultCompany.value?.id ?? undefined);
+      break;
+    default:
+      throw new Error(`Unknown editing type: ${editing.value}`);
+  }
+
+  openForm.value = false;
+  editId.value = undefined;
+  editing.value = undefined;
 }
+
+// --- side effects
+
+await Promise.all([isCompaniesReady(), isPhonesReady()]).then(() => {
+  // Ensure modelValue is initialized with default values
+  modelValue.value = {
+    companyId: modelValue.value?.companyId ?? defaultCompany.value?.id,
+    addressId: modelValue.value?.addressId ?? defaultCompany.value?.addressId,
+    phoneId: modelValue.value?.phoneId ?? defaultPhone.value?.id,
+  };
+
+  if (!modelValue.value.companyId) {
+    doAdd(EditingType.Unified);
+  }
+});
 </script>

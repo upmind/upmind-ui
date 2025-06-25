@@ -1,6 +1,6 @@
 // --- external
 import { computed } from "vue";
-import { interpret } from "xstate";
+import { interpret, InterpreterFrom } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 import { useActor } from "@xstate/vue";
 
@@ -20,6 +20,7 @@ import {
   responseCodes,
   stateMatches,
   stateValue,
+  stopService,
   useContext,
 } from "../../../utils";
 import { debounce, get, isEmpty, isEqual } from "lodash-es";
@@ -174,6 +175,10 @@ export const useClientEmail = (
 
   function clear(): void {
     service.send({ type: "CLEAR" });
+  }
+
+  function stop(): void {
+    stopService(service as InterpreterFrom<any>);
   }
   // ---------------------------------------------------------------------------
   return {

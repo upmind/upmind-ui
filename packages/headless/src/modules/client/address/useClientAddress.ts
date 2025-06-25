@@ -1,6 +1,6 @@
 // --- external
 import { computed } from "vue";
-import { interpret } from "xstate";
+import { interpret, InterpreterFrom } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 import { useActor } from "@xstate/vue";
 
@@ -13,7 +13,6 @@ import { useSession } from "../../session";
 
 // --- utils
 import {
-  DEBOUNCE_DELAY,
   DetailedError,
   contextMatches,
   contextValue,
@@ -21,6 +20,8 @@ import {
   stateMatches,
   stateValue,
   useContext,
+  DEBOUNCE_DELAY,
+  stopService,
 } from "../../../utils";
 import { debounce, get, isEmpty, isEqual } from "lodash-es";
 
@@ -50,7 +51,7 @@ export const useClientAddress = (
         services: useClientAddressServices() as any,
       })
       .withContext({
-        clientId: clientId,
+        clientId,
         id,
         model: getOne(id),
         allowMultipleEdits,
@@ -87,8 +88,8 @@ export const useClientAddress = (
     isAvailable: stateMatches(state, "available"),
     isLoading: stateMatches(state, ["subscribing", "loading"]),
     hasErrors: stateMatches(state, "available.error"),
-    isValid: stateMatches(state, "available.valid"),
     isNew: !stateMatches(state, "model.id"),
+    isValid: stateMatches(state, "available.valid"),
     isProcessing: stateMatches(state, "processing"),
     isComplete:
       stateValue(state, "done", false) ||
@@ -146,35 +147,41 @@ export const useClientAddress = (
     }
 
     // we have to ensure the update is processed and the state is either processed or available.error
-    return waitFor(
-      service,
-      state => stateMatches(state, ["processed", "available.error"]),
-      { timeout: 60_000 }
-    )
-      .then(state => {
-        if (stateMatches(state, "available.error")) throw state.context.error;
-        return Promise.resolve(state.context.model);
-      })
-      .then(model => {
-        useClientAddressServices().refresh();
-        return model as AddressModel;
-      })
-      .catch(error => {
-        return Promise.reject(
-          new DetailedError(
-            "[headless] update Address failed",
-            error?.status ?? responseCodes.Timeout,
-            {
-              error,
-              state: state.value,
-            }
-          )
-        );
-      });
+    return (
+      waitFor(
+        service,
+        state => stateMatches(state, ["processed", "available.error"]),
+        { timeout: 60_000 }
+      )
+        .then(state => {
+          if (stateMatches(state, "available.error")) throw state.context.error;
+          return Promise.resolve(state.context.model);
+        })
+        // .then(model => {
+        //   useClientAddressServices().refresh();
+        //   return model as AddressModel;
+        // })
+        .catch(error => {
+          return Promise.reject(
+            new DetailedError(
+              "[headless] update Address failed",
+              error?.status ?? responseCodes.Timeout,
+              {
+                error,
+                state: state.value,
+              }
+            )
+          );
+        })
+    );
   }
 
   function clear(): void {
     service.send({ type: "CLEAR" });
+  }
+
+  function stop(): void {
+    stopService(service as InterpreterFrom<any>);
   }
   // ---------------------------------------------------------------------------
   return {

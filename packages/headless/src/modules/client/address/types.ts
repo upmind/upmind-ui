@@ -1,13 +1,6 @@
-// --- internal
-
 // --- types
 import type { ClientItemContext } from "../types";
-import type {
-  ICountry,
-  IRegion,
-  IAddress,
-  BrandConfigKeys,
-} from "@upmind-automation/types";
+import type { ICountry, IRegion, IAddress } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 

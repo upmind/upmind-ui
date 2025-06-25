@@ -80,18 +80,16 @@
 import { useRouter } from "vue-router";
 
 // --- internal
+import { useSession } from "@upmind-automation/headless";
 
 // --- components
 import {
   UpmLoading,
   UpmContent,
   UpmContentSection,
-  useSession,
 } from "@upmind-automation/client-vue";
 
 import { Button, Alert } from "@upmind-automation/upmind-ui";
-
-// --- types
 
 // -----------------------------------------------------------------------------
 

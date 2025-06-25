@@ -39,15 +39,9 @@ export const useClientEmails = (
 
   async function isReady(): Promise<boolean> {
     return isAuthenticated()
-      .then(() =>
-        query
-          .refetch()
-          .then(() => true)
-          .catch(() => false)
-      )
+      .then(() => query.refetch().then(() => true))
       .catch(() => false);
   }
-
   // --- context
 
   // --- mutations

@@ -100,60 +100,59 @@ export const useSchema = ({
           },
         ],
       },
-      {
-        oneOf: [
-          {
-            type: "object",
-            title: "Existing Phone",
-            description: "Select an existing phone for this company.",
-            required: ["phoneId"],
-            properties: {
-              phoneId: {
-                type: ["string", "null"],
-                title: "Phone",
-                default: baseModel?.phoneId,
-              },
-            },
-          },
-          {
-            type: "object",
-            title: "New Phone",
-            description: "Create a new phone for this company.",
-            required: ["phone"],
-            properties: {
-              phone: usePhoneSchema({
-                country,
-              }),
-            },
-          },
-        ],
-      },
-      {
-        oneOf: [
-          {
-            type: "object",
-            title: "Existing Email",
-            description: "Select an existing email for this company.",
-            required: ["emailId"],
-            properties: {
-              emailId: {
-                type: ["string", "null"],
-                title: "Email",
-                default: baseModel?.emailId,
-              },
-            },
-          },
-          {
-            type: "object",
-            title: "New Email",
-            description: "Create a new email for this company.",
-            required: ["email"],
-            properties: {
-              email: useEmailSchema(),
-            },
-          },
-        ],
-      },
+      // TODO: the allOF/anyOf schema needs to be handled for emails and phones
+      // {
+      //   anyOf: [
+      //     {
+      //       type: "object",
+      //       title: "Existing Phone",
+      //       description: "Select an existing phone for this company.",
+      //       properties: {
+      //         phoneId: {
+      //           type: ["string", "null"],
+      //           title: "Phone",
+      //           default: baseModel?.phoneId,
+      //         },
+      //       },
+      //     },
+      //     {
+      //       type: "object",
+      //       title: "New Phone",
+      //       description: "Create a new phone for this company.",
+      //       required: ["phone"],
+      //       properties: {
+      //         phone: usePhoneSchema({
+      //           country,
+      //         }),
+      //       },
+      //     },
+      //   ],
+      // },
+      // {
+      //   anyOf: [
+      //     {
+      //       type: "object",
+      //       title: "Existing Email",
+      //       description: "Select an existing email for this company.",
+      //       properties: {
+      //         emailId: {
+      //           type: ["string", "null"],
+      //           title: "Email",
+      //           default: baseModel?.emailId,
+      //         },
+      //       },
+      //     },
+      //     {
+      //       type: "object",
+      //       title: "New Email",
+      //       description: "Create a new email for this company.",
+      //       required: ["email"],
+      //       properties: {
+      //         email: useEmailSchema(),
+      //       },
+      //     },
+      //   ],
+      // },
     ],
   };
 
@@ -228,65 +227,66 @@ export const useUischema = ({
     } as any);
   }
 
+  // TODO: the allOF/anyOf schema needs to be handled in the uischema as well
   if (!minimal) {
     // this is where we conditionally render either an existing phoneId or a new phone uiSchema
-    if (!baseModel?.phoneId) {
-      uiSchema.elements.push({
-        type: "VerticalLayout",
-        elements: [
-          {
-            type: "Control",
-            scope: "#/properties/phone",
-            options: {
-              autoFocus: true,
-              autocomplete: "off",
-              detail: usePhoneUischema(),
-            },
-          },
-        ],
-      } as any);
-    } else {
-      uiSchema.elements.push({
-        type: "Manager",
-        scope: "#/properties/phoneId",
-        options: {
-          i18nKey: "client.phone",
-          manage: {
-            useList: useClientPhones,
-            useMutate: useClientPhone,
-          },
-        },
-      } as any);
-    }
-    // this is where we conditionally render either an existing emailId or a new email uiSchema
-    if (!baseModel?.emailId) {
-      uiSchema.elements.push({
-        type: "VerticalLayout",
-        elements: [
-          {
-            type: "Control",
-            scope: "#/properties/email",
-            options: {
-              autoFocus: true,
-              autocomplete: "off",
-              detail: useEmailUischema(),
-            },
-          },
-        ],
-      } as any);
-    } else {
-      uiSchema.elements.push({
-        type: "Manager",
-        scope: "#/properties/emailId",
-        options: {
-          i18nKey: "client.email",
-          manage: {
-            useList: useClientEmails,
-            useMutate: useClientEmail,
-          },
-        },
-      } as any);
-    }
+    // if (!baseModel?.phoneId) {
+    //   uiSchema.elements.push({
+    //     type: "VerticalLayout",
+    //     elements: [
+    //       {
+    //         type: "Control",
+    //         scope: "#/properties/phone",
+    //         options: {
+    //           autoFocus: true,
+    //           autocomplete: "off",
+    //           detail: usePhoneUischema(),
+    //         },
+    //       },
+    //     ],
+    //   } as any);
+    // } else {
+    //   uiSchema.elements.push({
+    //     type: "Manager",
+    //     scope: "#/properties/phoneId",
+    //     options: {
+    //       i18nKey: "client.phone",
+    //       manage: {
+    //         useList: useClientPhones,
+    //         useMutate: useClientPhone,
+    //       },
+    //     },
+    //   } as any);
+    // }
+    // // this is where we conditionally render either an existing emailId or a new email uiSchema
+    // if (!baseModel?.emailId) {
+    //   uiSchema.elements.push({
+    //     type: "VerticalLayout",
+    //     elements: [
+    //       {
+    //         type: "Control",
+    //         scope: "#/properties/email",
+    //         options: {
+    //           autoFocus: true,
+    //           autocomplete: "off",
+    //           detail: useEmailUischema(),
+    //         },
+    //       },
+    //     ],
+    //   } as any);
+    // } else {
+    //   uiSchema.elements.push({
+    //     type: "Manager",
+    //     scope: "#/properties/emailId",
+    //     options: {
+    //       i18nKey: "client.email",
+    //       manage: {
+    //         useList: useClientEmails,
+    //         useMutate: useClientEmail,
+    //       },
+    //     },
+    //   } as any);
+    // }
   }
 
   return uiSchema as UISchemaElement;

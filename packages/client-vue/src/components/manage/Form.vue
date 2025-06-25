@@ -65,6 +65,7 @@ import Actions from "./Actions.vue";
 
 // --- types
 import type { ManageRendererProps } from "./types";
+import { onUnmounted } from "vue";
 
 // -----------------------------------------------------------------------------
 
@@ -126,4 +127,8 @@ const doClose = () => {
   stop();
   open.value = false;
 };
+
+onUnmounted(() => {
+  stop();
+});
 </script>

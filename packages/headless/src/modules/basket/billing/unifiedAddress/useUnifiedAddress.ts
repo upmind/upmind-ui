@@ -1,6 +1,6 @@
 // --- external
 import { computed } from "vue";
-import { interpret } from "xstate";
+import { interpret, InterpreterFrom } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 import { useActor } from "@xstate/vue";
 
@@ -8,17 +8,19 @@ import { useActor } from "@xstate/vue";
 import itemMachine from "../../../client/item.machine";
 import { useUnifiedAddressActions, useUnifiedAddressGuards } from "./actions";
 import { useUnifiedAddressServices } from "./services";
+import { useSession } from "../../../session";
 
 // --- utils
 import {
   DetailedError,
+  contextMatches,
   contextValue,
   responseCodes,
   stateMatches,
   stateValue,
   useContext,
-  UnavailableError,
   DEBOUNCE_DELAY,
+  stopService,
 } from "../../../../utils";
 import { debounce, get, isEmpty, isEqual } from "lodash-es";
 
@@ -26,17 +28,15 @@ import { debounce, get, isEmpty, isEqual } from "lodash-es";
 import { IClient } from "@upmind-automation/types";
 import { UnifiedAddressType } from "./types";
 import type { UnifiedAddressModel, UnifiedAddressContext } from "./types";
-import { BillingModel } from "../types";
 import { QueryResponseError } from "../../../query";
+import { ErrorObject } from "ajv";
 
 // -----------------------------------------------------------------------------
 
 export const useUnifiedAddress = (
-  values: BillingModel = {},
   type: UnifiedAddressContext["type"] = UnifiedAddressType.PERSONAL,
   { clientId }: { clientId?: IClient["id"] } = {}
 ) => {
-  // --- state
   const service = interpret(
     itemMachine
       .withConfig({
@@ -47,8 +47,9 @@ export const useUnifiedAddress = (
       .withContext(() => {
         return {
           clientId,
+
           type,
-          model: values,
+          allowMultipleEdits: false,
         };
       }),
     {
@@ -59,19 +60,22 @@ export const useUnifiedAddress = (
 
   const { state, send } = useActor(service.start());
 
+  // --- state
+
+  // the clientId is required to bring the machine into the available state
+  const { isAuthenticated } = useSession();
+  isAuthenticated().then(user => {
+    if (user?.id && !contextMatches(state, "clientId")) {
+      send({ type: "REFRESH", data: { clientId: user.id } });
+    }
+  });
+
   async function isReady(): Promise<boolean> {
     return waitFor(service, state => stateMatches(state, "available"), {
       timeout: Infinity,
     }).then(state => {
-      if (stateMatches(state, "error")) {
-        if (
-          (errors.value as QueryResponseError)?.status ==
-          responseCodes.Service_Unavailable
-        ) {
-          return Promise.reject(new UnavailableError());
-        }
-        return false;
-      }
+      if (stateMatches(state, "error")) return false;
+
       return true;
     });
   }
@@ -80,7 +84,6 @@ export const useUnifiedAddress = (
     isAvailable: stateMatches(state, "available"),
     isLoading: stateMatches(state, ["subscribing", "loading"]),
     hasErrors: stateMatches(state, "available.error"),
-    // isValid: stateMatches(state, "available.valid")
     isValid: stateMatches(state, "available.valid"),
     isProcessing: stateMatches(state, "processing"),
     isComplete:
@@ -103,7 +106,15 @@ export const useUnifiedAddress = (
 
   const phones = useContext<UnifiedAddressContext["phones"]>(state, "phones");
 
-  const errors = useContext<QueryResponseError>(state, "error");
+  const title = useContext<string | undefined>(state, "title");
+
+  const description = useContext<string | undefined>(state, "description");
+
+  const errors = useContext<QueryResponseError["message"]>(
+    state,
+    "error.message"
+  );
+  const validationErrors = useContext<ErrorObject[]>(state, "error.data");
 
   const model = useContext<UnifiedAddressContext["model"]>(state, "model");
 
@@ -135,7 +146,7 @@ export const useUnifiedAddress = (
   async function update(
     value?: UnifiedAddressModel
   ): Promise<UnifiedAddressModel> {
-    // we check if our unified address has changed, ie: model.code has changed
+    // first check if our model has changed, if it has we need to send it
 
     const model = contextValue<UnifiedAddressModel>(state, "model");
 
@@ -144,6 +155,7 @@ export const useUnifiedAddress = (
     } else {
       send({ type: "UPDATE" });
     }
+
     // we have to ensure the update is processed and the state is either processed or available.error
     return waitFor(
       service,
@@ -170,6 +182,10 @@ export const useUnifiedAddress = (
 
   function clear(): void {
     service.send({ type: "CLEAR" });
+  }
+
+  function stop(): void {
+    stopService(service as InterpreterFrom<any>);
   }
   // ---------------------------------------------------------------------------
   return {
@@ -198,11 +214,11 @@ export const useUnifiedAddress = (
     /** The full context object. */
     context,
 
-    // /** Title of the address */
-    // title,
+    /** Title of the address */
+    title,
 
-    // /** Description of the.address */
-    // description,
+    /** Description of the.address */
+    description,
 
     /** The ID of the address */
     id: useContext<string | undefined>(state, "id"),
@@ -218,6 +234,9 @@ export const useUnifiedAddress = (
 
     /** Any error object from the context. */
     errors,
+
+    /** Any validation errors from the context. */
+    validationErrors,
 
     /** The current model.*/
     model,

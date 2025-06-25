@@ -86,7 +86,6 @@ async function parse(
   return Promise.resolve({
     model: safeModel,
     autoupdate,
-    dirty: !isEqual(safeModel, baseModel),
   });
 }
 

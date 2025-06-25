@@ -11,8 +11,6 @@ import { useModelParser } from "../../../utils";
 // --- types
 import { AddressModel, type AddressContext } from "./types";
 import type { AnyEventObject } from "xstate";
-import { AddressMode } from "@stripe/stripe-js";
-import { Client } from "@googlemaps/google-maps-services-js";
 
 // -----------------------------------------------------------------------------
 
