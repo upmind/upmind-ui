@@ -8,31 +8,35 @@
     required
   >
     <template #item="{ item }">
-      <Item
-        v-bind="item"
-        :i18nKey="i18nKey"
-        :readonly="props.readonly"
-        @edit="doEdit"
-        @remove="doRemove"
-      />
+      <slot name="item" :item="item">
+        <Item
+          v-bind="item"
+          :i18nKey="i18nKey"
+          :readonly="props.readonly"
+          @edit="doEdit"
+          @remove="doRemove"
+        />
+      </slot>
     </template>
 
     <template #actions>
-      <Link
-        v-if="!open && parsedValues.length > 1"
-        :label="t(`${i18nKey ?? 'manage'}.actions.change`)"
-        size="xs"
-        variant="muted"
-        @click="open = true"
-      />
+      <slot name="actions" v-bind="{ open, meta, doAdd }">
+        <Link
+          v-if="!open && parsedValues.length > 1"
+          :label="t(`${i18nKey ?? 'manage'}.actions.change`)"
+          size="xs"
+          variant="muted"
+          @click="open = true"
+        />
 
-      <Link
-        v-else-if="!readonly"
-        :label="t(`${i18nKey ?? 'manage'}.actions.add`)"
-        size="xs"
-        variant="muted"
-        @click="doAdd"
-      />
+        <Link
+          v-else-if="!readonly"
+          :label="t(`${i18nKey ?? 'manage'}.actions.add`)"
+          size="xs"
+          variant="muted"
+          @click="doAdd"
+        />
+      </slot>
     </template>
   </RadioCardsCollapsible>
 </template>

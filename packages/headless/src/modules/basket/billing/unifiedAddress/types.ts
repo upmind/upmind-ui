@@ -6,7 +6,6 @@ import type {
   AddressModel,
   CompanyModel,
   PhoneModel,
-  EmailModel,
   Company,
 } from "../../../client";
 import type { ClientItemContext } from "../../../client/types";

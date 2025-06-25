@@ -1,5 +1,5 @@
 // --- external
-import { AnyEventObject, assign } from "xstate";
+import { assign } from "xstate";
 
 // --- internal
 import { useSchema, useUischema } from "./schemas";
@@ -10,6 +10,7 @@ import { useModelParser } from "../../../../utils";
 
 // --- types
 import type { UnifiedAddressContext, UnifiedAddressModel } from "./types";
+import type { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------
 
@@ -53,13 +54,18 @@ export const useUnifiedAddressActions = () => {
     setModel: assign({
       model: (
         { schema, baseModel }: UnifiedAddressContext,
-        { data }: { type: string; data: Partial<UnifiedAddressModel> }
-      ) => {
-        return useModelParser<UnifiedAddressModel>(schema, data, baseModel);
-      },
+        { data }: AnyEventObject
+      ) => useModelParser<UnifiedAddressModel>(schema, data, baseModel),
     }),
 
-    setSubscription: assign({}),
+    refreshContext: assign({
+      clientId: (
+        { clientId }: UnifiedAddressContext,
+        { data }: AnyEventObject
+      ) => {
+        return clientId || data?.clientId;
+      },
+    }),
   };
 };
 

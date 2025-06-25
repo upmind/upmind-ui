@@ -27,12 +27,11 @@
       {{ description }}
     </p>
 
-    <!-- TODO make this dynamic/templatate/schema driven -->
-    <!-- <p class="text-emphasis-medium m-0 inline-flex flex-wrap gap-x-1 text-sm">
+    <p class="text-emphasis-medium m-0 inline-flex flex-wrap gap-x-1 text-sm">
       {{ t("client.company.name") }}
       <span v-if="regNumber">{{ regNumber }}</span>
       <span v-if="vatNumber">{{ vatNumber }}</span>
-    </p> -->
+    </p>
   </div>
 </template>
 

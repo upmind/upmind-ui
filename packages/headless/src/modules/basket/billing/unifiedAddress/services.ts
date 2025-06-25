@@ -23,7 +23,7 @@ import {
   useModelParser,
 } from "../../../../utils";
 
-import { find, get, isEmpty, isEqual, isString, some } from "lodash-es";
+import { find, get, isEmpty, isString, some } from "lodash-es";
 
 // --- types
 import type { PhoneModel, AddressModel, CompanyModel } from "../../../client";
@@ -31,6 +31,7 @@ import type { AnyEventObject } from "xstate";
 import { UnifiedAddressType } from "./types";
 import type { UnifiedAddressContext, UnifiedAddressModel } from "./types";
 import { BrandConfigKeys } from "@upmind-automation/types";
+import { Address } from "cluster";
 
 // -----------------------------------------------------------------------------
 // QUERIES
@@ -215,24 +216,57 @@ async function parse(
 
   // first let's check we have a valid country,
   // fallback to the default country if not set or invalid
-  country = getCountry(
-    safeModel.address?.countryId ?? baseModel.address?.countryId
-  );
-  safeModel.address!.countryId = country.id;
 
-  // let's check if the country has changed, i.e.: the regions don't match
-  // if so, then we need to fetch the regions for the new country
-  // AND update our 'default' country to match the country from the address
-  // this will in turn update the phone schema to match the country
-  if (!some(regions, ["countryId", safeModel.address?.countryId])) {
-    regions = await fetchRegions(safeModel.address!.countryId);
+  if (safeModel?.address) {
+    country = getCountry(
+      safeModel?.address?.countryId ?? baseModel.address?.countryId
+    );
+
+    safeModel.address!.countryId = country.id;
+
+    // let's check if the country has changed, i.e.: the regions don't match
+    // if so, then we need to fetch the regions for the new country
+    // AND update our 'default' country to match the country from the address
+    // this will in turn update the phone schema to match the country
+    if (!some(regions, ["countryId", safeModel.address?.countryId])) {
+      regions = await fetchRegions(safeModel.address!.countryId);
+    }
+
+    // now let's check our region list to see if we have a match
+    // if so, then we need to update the safeModel with the new region id
+    // otherwise the regionId is reset to null
+    const region = find(regions, ["id", safeModel.address?.regionId]);
+    safeModel.address!.regionId = get(region, "id");
   }
 
-  // now let's check our region list to see if we have a match
-  // if so, then we need to update the safeModel with the new region id
-  // otherwise the regionId is reset to null
-  const region = find(regions, ["id", safeModel.address?.regionId]);
-  safeModel.address!.regionId = get(region, "id");
+  if (safeModel?.company) {
+    safeModel.company.address ??= {
+      address1: "",
+      city: "",
+      postcode: "",
+      countryId: baseModel.address?.countryId,
+    } as AddressModel;
+
+    country = getCountry(
+      safeModel.company?.address?.countryId ?? baseModel.address?.countryId
+    );
+
+    safeModel.company.address!.countryId = country.id;
+
+    // let's check if the country has changed, i.e.: the regions don't match
+    // if so, then we need to fetch the regions for the new country
+    // AND update our 'default' country to match the country from the address
+    // this will in turn update the phone schema to match the country
+    if (!some(regions, ["countryId", safeModel.company.address?.countryId])) {
+      regions = await fetchRegions(safeModel.company.address!.countryId);
+    }
+
+    // now let's check our region list to see if we have a match
+    // if so, then we need to update the safeModel with the new region id
+    // otherwise the regionId is reset to null
+    const region = find(regions, ["id", safeModel.company.address?.regionId]);
+    safeModel.company.address!.regionId = get(region, "id");
+  }
 
   // now lets check our phone number
   if (safeModel?.phone?.phone) {
@@ -242,7 +276,7 @@ async function parse(
         safeModel?.phone?.phone?.nationalNumber ||
         "";
 
-    const countryCode = safeModel?.phone?.phone?.country || country.code;
+    const countryCode = safeModel?.phone?.phone?.country || country?.code;
     const phone =
       parsePhoneNumber(phoneNumber, countryCode as CountryCode) || undefined;
 
@@ -251,7 +285,7 @@ async function parse(
         number: phone?.number || "",
         nationalNumber: phone?.nationalNumber || "",
         countryCallingCode: phone?.countryCallingCode || "",
-        country: phone?.country || countryCode,
+        country: phone?.country || countryCode || "",
       },
     };
   }
@@ -261,7 +295,6 @@ async function parse(
     regions,
     country,
     autoupdate,
-    dirty: !isEqual(safeModel, baseModel),
   });
 }
 

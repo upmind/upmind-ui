@@ -11,6 +11,7 @@ import { parsePlaces, usePlaceParser } from "./utils";
 
 // --- types
 import type { Place, PlaceService } from "./types";
+import { useTime } from "src/utils";
 
 // Private service instance
 let service: PlaceService | undefined;
@@ -112,18 +113,18 @@ async function search(query: string, countryId?: string): Promise<Place[]> {
 
               return await parse(placeId);
             } catch (error) {
-              console.error(`Failed to parse address from prediction:`, error);
+              // console.error(`Failed to parse address from prediction:`, error);
               return null;
             }
           })
         ).then(compact);
       } catch (error) {
-        console.error("Error fetching autocomplete suggestions:", error);
+        // console.error("Error fetching autocomplete suggestions:", error);
         return [];
       }
     },
     // Cache search results for 5 minutes
-    staleTime: 5 * 60 * 1000,
+    staleTime: useTime().MINUTE * 5,
   });
 }
 
@@ -163,7 +164,7 @@ async function parse(placeId: string): Promise<Place | null> {
         // Parse the place data into our format
         return await usePlaceParser(place);
       } catch (error) {
-        console.error(`Error fetching place details for ID ${placeId}:`, error);
+        // console.error(`Error fetching place details for ID ${placeId}:`, error);
         return null;
       }
     },

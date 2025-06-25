@@ -9,6 +9,7 @@ export type { ErrorObject } from "ajv";
 // -----------------------------------------------------------------------------
 
 export enum responseCodes {
+  "Aborted" = 20,
   "OK" = 200,
   "No_Content" = 204,
   "Unauthorized" = 401,

@@ -28,6 +28,7 @@ export const useSchema = ({
   addresses,
   baseModel,
   config,
+  type,
 }: UnifiedAddressContext) => {
   const schema: JsonSchema7 = {
     type: "object",
@@ -58,12 +59,22 @@ export const useSchema = ({
     },
   };
 
-  if (get(config, BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS))
-    schema.required!.push("address");
-
-  if (get(config, BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS))
+  // NB: IF Company is required OR Address is Required then we need to enforce the company field when adding a bisiness address
+  if (
+    (type == UnifiedAddressType.BUSINESS &&
+      get(config, BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS)) ||
+    get(config, BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS)
+  )
     schema.required!.push("company");
 
+  // NB: IF the Address is Required then we need to enforce the address field when adding a personal address
+  if (
+    type == UnifiedAddressType.PERSONAL &&
+    get(config, BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS)
+  )
+    schema.required!.push("address");
+
+  // NB: IF the Phone is Required then we need to enforce the phone field when adding either a personal address or a business address
   if (get(config, BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS))
     schema.required!.push("phone");
 
@@ -127,13 +138,6 @@ export const useUischema = ({
           },
         },
       ],
-      rule: {
-        effect: "SHOW",
-        condition: {
-          scope: "#/properties/company",
-          schema: { type: "null" },
-        },
-      },
     } as any);
   }
 
