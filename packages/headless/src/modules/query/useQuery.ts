@@ -103,14 +103,17 @@ export const useQuery = () => {
     // Set 'order' (sort) parameter
     if (!isEmpty(sort) && isArray(sort))
       url.searchParams.set("order", sort.join(""));
+    else url.searchParams.delete("order");
 
     // Set 'limit' parameter
     if (!isEmpty(pagination) && isInteger(pagination?.limit))
       url.searchParams.set("limit", `${pagination.limit}`);
+    else url.searchParams.delete("limit");
 
     // Set 'offset' parameter
     if (!isEmpty(pagination) && isInteger(pagination?.offset))
       url.searchParams.set("offset", `${pagination.offset}`);
+    else url.searchParams.delete("offset");
 
     // set the filters, if any
     if (!isEmpty(filters) && isObject(filters)) {
@@ -126,6 +129,8 @@ export const useQuery = () => {
           if (isFunction(value)) value = value(url);
 
           url.searchParams.set(key, value);
+        } else {
+          url.searchParams.delete(key);
         }
       });
     }
@@ -286,13 +291,10 @@ export const useQuery = () => {
       {
         queryKey: cleanQueryKey([
           ...queryKey,
-          { sort },
-          { limit },
-          { locale },
-          { filters },
-          { pageIndex },
+          { sort, limit, locale, filters, pageIndex },
         ]),
         queryFn: async ({ signal }) => {
+          debugger;
           const hasGuard = isPromise(guard);
           const safeguard: Promise<void | boolean> = hasGuard
             ? guard()
@@ -428,19 +430,15 @@ export const useQuery = () => {
         filters.value = unref(values) ?? {};
       },
 
-      resetQuery: () =>
-        queryClient
-          .resetQueries({
-            queryKey: cleanQueryKey([
-              ...queryKey,
-              { sort },
-              { limit },
-              { locale },
-              { filters },
-              { pageIndex },
-            ]),
-          })
-          .then(() => (pageIndex.value = 1)),
+      resetQuery: () => {
+        pageIndex.value = 1;
+        return queryClient.resetQueries({
+          queryKey: cleanQueryKey([
+            ...queryKey,
+            { sort, limit, locale, filters, pageIndex },
+          ]),
+        });
+      },
     };
   }
 
@@ -485,10 +483,7 @@ export const useQuery = () => {
       {
         queryKey: cleanQueryKey([
           ...queryKey,
-          { sort }, // Important for sorting to work
-          { limit },
-          { locale },
-          { filters }, // Important for filters to work
+          { sort, limit, locale, filters },
         ]),
         queryFn: async ({ pageParam = 0, signal }) => {
           const offset = toNumber(pageParam);
@@ -589,10 +584,7 @@ export const useQuery = () => {
         queryClient.resetQueries({
           queryKey: cleanQueryKey([
             ...queryKey,
-            { sort },
-            { limit },
-            { locale },
-            { filters },
+            { sort, limit, locale, filters },
           ]),
         }),
     };
@@ -674,11 +666,7 @@ export const useQuery = () => {
     return queryClient.fetchQuery<TQueryFnData, DefaultError, TData>({
       queryKey: cleanQueryKey([
         ...queryKey,
-        { limit },
-        { locale },
-        { sort },
-        { pageIndex },
-        { filters },
+        { sort, limit, locale, filters, pageIndex },
       ]),
       queryFn: async ({ signal }) => {
         return request<TQueryFnData>({

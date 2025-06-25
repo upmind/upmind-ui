@@ -30,6 +30,7 @@ export const useProductCategories = (initial?: QueryProps) => {
     hasError: !isEmpty(query.error.value),
     isEmpty: isEmpty(query?.data?.value),
     isAvailable: true,
+    count: query?.pagination.value.total,
   }));
 
   async function isReady(): Promise<boolean> {
