@@ -116,7 +116,9 @@ export const useClientCompany = (
 
   // --- methods
 
-  async function input(model: CompanyModel): Promise<CompanyModel> {
+  async function input(
+    model: CompanyModel | Record<string, any>
+  ): Promise<CompanyModel> {
     send({ type: "SET", data: model });
     // then we wait until the module has been checked and is valid/invalid
     return waitFor(service, state =>
@@ -130,7 +132,9 @@ export const useClientCompany = (
       });
   }
 
-  async function update(value?: CompanyModel): Promise<CompanyModel> {
+  async function update(
+    value?: CompanyModel | Record<string, any>
+  ): Promise<CompanyModel> {
     // first check if our model has changed, if it has we need to send it
 
     const model = contextValue<CompanyModel>(state, "model");

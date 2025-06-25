@@ -22,22 +22,11 @@ import {
   responseCodes,
   useModelParser,
 } from "../../../../utils";
-import { mapPhone } from "../../../client/phone/mapper";
-import { mapEmail } from "../../../client/email/mappers";
-import { mapAddress } from "../../../client/address/mappers";
-import { find, get, isEmpty, isEqual, isString, pick, some } from "lodash-es";
+
+import { find, get, isEmpty, isEqual, isString, some } from "lodash-es";
 
 // --- types
-import type {
-  Email,
-  Phone,
-  Address,
-  EmailModel,
-  PhoneModel,
-  AddressModel,
-  Company,
-  CompanyModel,
-} from "../../../client";
+import type { PhoneModel, AddressModel, CompanyModel } from "../../../client";
 import type { AnyEventObject } from "xstate";
 import { UnifiedAddressType } from "./types";
 import type { UnifiedAddressContext, UnifiedAddressModel } from "./types";
@@ -126,10 +115,12 @@ async function loadLookups({
         : undefined,
     phone: get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE)
       ? ((defaultPhone.value?.phone ?? {
-          number: "",
-          nationalNumber: "",
-          countryCallingCode: "",
-          country: country?.code,
+          phone: {
+            number: "",
+            nationalNumber: "",
+            countryCallingCode: "",
+            country: country?.code,
+          },
         }) as PhoneModel)
       : undefined,
   };
@@ -159,40 +150,32 @@ async function loadLookups({
 // MUTATIONS
 
 async function add(type: UnifiedAddressType, data: UnifiedAddressModel) {
-  const { add: addCompany } = useClientCompanyServices();
+  const { ensure: ensureAddress } = useClientAddressServices();
+  const { ensure: ensurePhone } = useClientPhoneServices();
+  const { ensure: ensureCompany } = useClientCompanyServices();
 
   const promises: Promise<any>[] = [];
 
-  promises.push(data?.phone ? ensurePhone(data) : Promise.resolve(undefined));
+  promises.push(
+    data?.phone
+      ? ensurePhone({ model: data.phone })
+      : Promise.resolve(undefined)
+  );
 
   promises.push(
     data?.address && type == UnifiedAddressType.PERSONAL
-      ? ensureAddress(data)
+      ? ensureAddress({ model: data.address })
       : Promise.resolve(undefined)
   );
 
   promises.push(
     data?.company && type == UnifiedAddressType.BUSINESS
-      ? ensureDependencies({ model: data }).then(
-          async ({ address, email, phone }) => {
-            if (!address?.id)
-              return Promise.reject(
-                new DetailedError(
-                  "No address found or created",
-                  responseCodes.Unprocessable_Entity
-                )
-              );
-            return addCompany({
-              model: {
-                ...data.company,
-                name: data.company!.name,
-                addressId: address.id,
-                emailId: email?.id,
-                phoneId: phone?.id,
-              },
-            });
-          }
-        )
+      ? ensureCompany({
+          model: {
+            ...data.company,
+            phone: data.phone?.phone,
+          },
+        })
       : Promise.resolve(undefined)
   );
 
@@ -252,20 +235,24 @@ async function parse(
   safeModel.address!.regionId = get(region, "id");
 
   // now lets check our phone number
-  if (safeModel?.phone) {
-    const phoneNumber = isString(safeModel?.phone)
-      ? safeModel?.phone
-      : safeModel?.phone?.number || safeModel?.phone?.nationalNumber || "";
+  if (safeModel?.phone?.phone) {
+    const phoneNumber = isString(safeModel?.phone?.phone)
+      ? safeModel?.phone?.phone
+      : safeModel?.phone?.phone?.number ||
+        safeModel?.phone?.phone?.nationalNumber ||
+        "";
 
-    const countryCode = safeModel?.phone?.country || country.code;
+    const countryCode = safeModel?.phone?.phone?.country || country.code;
     const phone =
       parsePhoneNumber(phoneNumber, countryCode as CountryCode) || undefined;
 
     safeModel.phone = {
-      number: phone?.number || "",
-      nationalNumber: phone?.nationalNumber || "",
-      countryCallingCode: phone?.countryCallingCode || "",
-      country: phone?.country || countryCode,
+      phone: {
+        number: phone?.number || "",
+        nationalNumber: phone?.nationalNumber || "",
+        countryCallingCode: phone?.countryCallingCode || "",
+        country: phone?.country || countryCode,
+      },
     };
   }
 
@@ -292,100 +279,6 @@ async function validate({ schema, model }: Partial<UnifiedAddressContext>) {
     } else {
       resolve(model);
     }
-  });
-}
-
-async function ensureEmail(model: UnifiedAddressModel): Promise<Email> {
-  const { findOne } = useClientEmails();
-  const { add, refresh } = useClientEmailServices();
-
-  const data = pick(model, ["email"]) as EmailModel;
-
-  const found = findOne(data);
-  if (found) return Promise.resolve(found);
-
-  return add({ model: data }).then(item => {
-    if (!item)
-      throw new DetailedError(
-        "[headless] Failed to ensure (add) address",
-        responseCodes.Unprocessable_Entity
-      ); // NB: Remember to refresh our machines so we have the new data
-    refresh();
-    return mapEmail(item);
-  });
-}
-
-async function ensurePhone(model: UnifiedAddressModel): Promise<Phone> {
-  const { findOne } = useClientPhones();
-  const { add, refresh } = useClientPhoneServices();
-
-  const phone = get(model, "phone") as PhoneModel;
-
-  const found = findOne({ phone });
-
-  if (found) return Promise.resolve(found);
-
-  return add({ model: phone }).then(item => {
-    if (!item)
-      throw new DetailedError(
-        "[headless] Failed to ensure (add) address",
-        responseCodes.Unprocessable_Entity
-      ); // NB: Remember to refresh our machines so we have the new data
-    refresh();
-    const phone = mapPhone(item);
-    return phone;
-  });
-}
-
-async function ensureAddress(model: UnifiedAddressModel): Promise<Address> {
-  const { getOne, findOne } = useClientAddresses();
-  const { add, refresh } = useClientAddressServices();
-
-  // Include type field and set to company type if this is for a company
-  const data = get(model, "address") as AddressModel;
-
-  const found = getOne(model.company?.addressId) || findOne(data);
-  if (found) return Promise.resolve(found);
-
-  return add({
-    model: { ...data, name: model?.address?.name },
-  }).then(item => {
-    if (!item)
-      throw new DetailedError(
-        "[headless] Failed to ensure (add) address",
-        responseCodes.Unprocessable_Entity
-      );
-    // NB: Remember to refresh our machines so we have the new data
-    refresh();
-    return mapAddress(item);
-  });
-}
-
-async function ensureDependencies({
-  model,
-}: Partial<UnifiedAddressContext>): Promise<{
-  email: Email;
-  phone: Phone;
-  address: Address;
-}> {
-  if (!model)
-    return Promise.reject(
-      new DetailedError(
-        "No address model provided",
-        responseCodes.Unprocessable_Entity
-      )
-    );
-
-  // for our dependencies we need to check if they already exists by finding them in their respective stores
-  // if they do then we can just return the id
-  // if they don't then we return a promise of the add method
-  // NB: for each new dependency we force type to be 4 = company
-  return Promise.all([
-    ensureEmail(model),
-    ensurePhone(model),
-    ensureAddress(model),
-  ]).then(([email, phone, address]) => {
-    return { email, phone, address };
   });
 }
 

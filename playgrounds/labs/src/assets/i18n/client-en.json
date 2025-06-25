@@ -1,7 +1,7 @@
 {
   "client": {
     "title": "Your address",
-    "unavailable": "Please login to access your client area.",
+    "unavailable": "Please log in to access your client area.",
     "empty": {
       "title": "Cant see your details..",
       "description": "Add your details to get started"

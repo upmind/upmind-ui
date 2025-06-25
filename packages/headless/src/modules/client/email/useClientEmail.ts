@@ -115,7 +115,9 @@ export const useClientEmail = (
 
   // --- methods
 
-  async function input(model: EmailModel): Promise<EmailModel> {
+  async function input(
+    model: EmailModel | Record<string, any>
+  ): Promise<EmailModel> {
     send({ type: "SET", data: model });
     // then we wait until the module has been checked and is valid/invalid
     return waitFor(service, state =>
@@ -129,7 +131,9 @@ export const useClientEmail = (
       });
   }
 
-  async function update(value?: EmailModel): Promise<EmailModel> {
+  async function update(
+    value?: EmailModel | Record<string, any>
+  ): Promise<EmailModel> {
     // first check if our model has changed, if it has we need to send it
 
     const model = contextValue<EmailModel>(state, "model");

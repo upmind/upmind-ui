@@ -157,7 +157,7 @@ async function update(id: Phone["id"], data: PhoneModel) {
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
-async function ensure(model: PhoneModel): Promise<PhoneModel> {
+async function ensure(model: PhoneModel): Promise<Phone> {
   const mapping = get(model, "phone") as PhoneModel["phone"];
   const phones = await load();
 
@@ -173,8 +173,9 @@ async function ensure(model: PhoneModel): Promise<PhoneModel> {
   return add(model).then(raw => {
     if (isEmpty(raw))
       throw new DetailedError(
-        "[headless] Failed to ensure (add) phone",
-        responseCodes.Unprocessable_Entity
+        "[headless] Failed to ensure phone",
+        responseCodes.Unprocessable_Entity,
+        { model }
       );
     // NB: Remember to refresh our machines so we have the new data
     // refresh();

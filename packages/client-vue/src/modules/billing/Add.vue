@@ -48,17 +48,16 @@ import {
 // --- components
 import { Dialog } from "@upmind-automation/upmind-ui";
 import { UpmForm } from "../../components/form";
-import Skeleton from "../client/components/Skeleton.vue";
-import Actions from "../client/components/Actions.vue";
+import Skeleton from "./components/Skeleton.vue";
+import Actions from "./components/Actions.vue";
 
 // --- utils
 
 // --- types
 
-// -----------------------------------------------------------------------------
+// ------------------------./components/Actions.vue---------------------
 
 const props = defineProps<{
-  clientId: string;
   modelValue?: BillingModel;
   type: UnifiedAddressType;
   readonly?: boolean;
@@ -79,7 +78,7 @@ const { t } = useI18n();
 // --- state
 
 const { meta, model, isReady, update, clear, input, schema, uischema, stop } =
-  useUnifiedAddress(props.clientId, props.modelValue ?? {}, props.type);
+  useUnifiedAddress(props.modelValue ?? {}, props.type);
 
 await isReady();
 

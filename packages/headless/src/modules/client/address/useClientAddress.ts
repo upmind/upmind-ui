@@ -116,7 +116,9 @@ export const useClientAddress = (
 
   // --- methods
 
-  async function input(model: AddressModel): Promise<AddressModel> {
+  async function input(
+    model: AddressModel | Record<string, any>
+  ): Promise<AddressModel> {
     send({ type: "SET", data: model });
     // then we wait until the module has been checked and is valid/invalid
     return waitFor(service, state =>
@@ -130,7 +132,9 @@ export const useClientAddress = (
       });
   }
 
-  async function update(value?: AddressModel): Promise<AddressModel> {
+  async function update(
+    value?: AddressModel | Record<string, any>
+  ): Promise<AddressModel> {
     // first check if our model has changed, if it has we need to send it
 
     const model = contextValue<AddressModel>(state, "model");

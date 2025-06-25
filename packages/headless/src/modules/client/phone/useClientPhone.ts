@@ -116,7 +116,9 @@ export const useClientPhone = (
 
   // --- methods
 
-  async function input(model: PhoneModel): Promise<PhoneModel> {
+  async function input(
+    model: PhoneModel | Record<string, any>
+  ): Promise<PhoneModel> {
     send({ type: "SET", data: model });
     // then we wait until the module has been checked and is valid/invalid
     return waitFor(service, state =>
@@ -130,7 +132,9 @@ export const useClientPhone = (
       });
   }
 
-  async function update(value?: PhoneModel): Promise<PhoneModel> {
+  async function update(
+    value?: PhoneModel | Record<string, any>
+  ): Promise<PhoneModel> {
     // first check if our model has changed, if it has we need to send it
 
     const model = contextValue<PhoneModel>(state, "model");

@@ -122,7 +122,7 @@ async function update(id: Email["id"], data: EmailModel) {
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
-async function ensure(model: EmailModel): Promise<EmailModel> {
+async function ensure(model: EmailModel): Promise<Email> {
   const mapping = omitBy(model, isEmpty);
   const emails = await load();
   const { findOne } = useCollection<Email>(emails);
@@ -132,8 +132,9 @@ async function ensure(model: EmailModel): Promise<EmailModel> {
   return add(model).then(raw => {
     if (isEmpty(raw))
       throw new DetailedError(
-        "[headless] Failed to ensure (add) email",
-        responseCodes.Unprocessable_Entity
+        "[headless] Failed to ensure email",
+        responseCodes.Unprocessable_Entity,
+        { model }
       );
     // NB: Remember to refresh our machines so we have the new data
     // refresh();

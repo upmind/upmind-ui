@@ -6,9 +6,9 @@
       "line3": "Germany"
     },
     "sales": "Sales",
-    "salesEmail": "sales{'@'}labs.net",
+    "salesEmail": "sales{'@'}hosting.net",
     "accounting": "Accounting",
-    "accountingEmail": "billing{'@'}labs.net",
+    "accountingEmail": "billing{'@'}hosting.net",
     "followUs": "Follow us",
     "dedicatedServer": "Dedicated Server",
     "discoverAllServers": "Discover all servers",
@@ -33,6 +33,6 @@
     "dataProtection": "Data Protection",
     "legalNotice": "Legal Notice",
     "commercialCustomersNote": "* Our products are intended solely to commercial customers and therefore do not include VAT.",
-    "copyright": "© 2025 labs.net All rights reserved"
+    "copyright": "© 2025 hosting.net All rights reserved"
   }
 }
