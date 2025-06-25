@@ -52,11 +52,17 @@ import { ref } from "vue";
 import { useVModel } from "@vueuse/core";
 import { ProductCategory } from "@upmind-automation/headless";
 
-const props = defineProps<{
-  depth: number;
-  category: ProductCategory;
-  modelValue?: string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    depth?: number;
+    category: ProductCategory;
+    modelValue?: string;
+  }>(),
+  {
+    depth: 0,
+    modelValue: "",
+  }
+);
 
 const emits = defineEmits(["update:modelValue"]);
 

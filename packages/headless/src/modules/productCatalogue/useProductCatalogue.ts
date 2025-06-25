@@ -108,9 +108,7 @@ export const useProductCatalogue = (
   const filterProductCategory = (value?: string) => {
     set(filters.value, "filter[products_category_id]", value ?? "");
     query.filter(filters.value);
-    query.resetQuery().then(() => {
-      query.refetch();
-    });
+    query.resetQuery();
   };
 
   const filterIds = (value?: string[]) => {
