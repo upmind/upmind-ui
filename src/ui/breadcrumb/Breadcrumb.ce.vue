@@ -13,8 +13,9 @@
           </BreadcrumbPage>
           <BreadcrumbLink
             v-else
+            is="button"
             :href="item.href"
-            :as="item.onClick ? 'button' : 'a'"
+            :as="Link"
             @click="item.onClick?.()"
           >
             {{ item.label }}
@@ -44,6 +45,7 @@ import BreadcrumbItem from "./BreadcrumbItem.vue";
 import BreadcrumbLink from "./BreadcrumbLink.vue";
 import BreadcrumbPage from "./BreadcrumbPage.vue";
 import BreadcrumbSeparator from "./BreadcrumbSeparator.vue";
+import Link from "../link/Link.ce.vue";
 
 // --- types
 import type { BreadcrumbConsolidateProps } from "./types";
