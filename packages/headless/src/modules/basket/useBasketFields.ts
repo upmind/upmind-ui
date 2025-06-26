@@ -30,13 +30,14 @@ export const useBasketFields = () => {
   // --- state
 
   async function isReady(): Promise<boolean> {
-    return new Promise(resolve =>
-      setTimeout(() => {
+    return new Promise(resolve => {
+      const interval = setInterval(() => {
         if (!isNil(actor.value?.service)) {
+          clearInterval(interval);
           resolve(actor.value.service);
         }
-      }, 100)
-    ).then(service =>
+      }, 100);
+    }).then(service =>
       waitFor(
         service as ActorRef<any>,
         state => !stateMatches(state, "loading"),

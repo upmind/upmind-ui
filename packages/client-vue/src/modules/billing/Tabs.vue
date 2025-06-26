@@ -1,11 +1,7 @@
 <template>
-  <pre>{{ modelValue }}</pre>
-  <Loading :active="meta.isLoading" class="w-full">
-    <Tabs
-      :defaultValue="UnifiedAddressType.PERSONAL"
-      :value="UnifiedAddressType.PERSONAL"
-      :tabs="tabs"
-    >
+  <pre>{{ { modelValue, meta, activeTab } }}</pre>
+  <Loading :active="!meta.isAvailable" class="w-full">
+    <Tabs v-model="activeTab" :tabs="tabs">
       <template v-slot:[`content.personal`]>
         <TabPersonal v-model="modelValue" />
       </template>
@@ -19,11 +15,15 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { UnifiedAddressType, useSession } from "@upmind-automation/headless";
+import {
+  UnifiedAddressType,
+  useSession,
+  useBasketBilling,
+} from "@upmind-automation/headless";
 
 // --- components
 import { Tabs, Loading } from "@upmind-automation/upmind-ui";
@@ -55,22 +55,40 @@ const modelValue = useVModel(props, "modelValue", emits, {
 
 const { t } = useI18n();
 
-const { meta, user } = useSession();
+const { user } = useSession();
+const { isReady, meta, config } = useBasketBilling();
+
+const activeTab = ref<UnifiedAddressType>();
+
+await isReady().then(() => {
+  if (config.value?.requiresCompany)
+    activeTab.value = UnifiedAddressType.BUSINESS;
+  else activeTab.value = UnifiedAddressType.PERSONAL;
+});
 
 const tabs = computed((): TabItem[] => {
-  if (!user.value?.id) return [];
+  const tabItems: TabItem[] = [];
 
-  return [
-    {
+  if (!user.value?.id) return tabItems;
+
+  if (!config.value?.requiresCompany) {
+    tabItems.push({
       label: t("billing.address"),
       value: UnifiedAddressType.PERSONAL,
-      eager: true,
-    },
-    {
-      label: t("billing.company"),
-      value: UnifiedAddressType.BUSINESS,
-      eager: true,
-    },
-  ];
+      eager: false,
+    });
+  }
+  tabItems.push({
+    label: t("billing.company"),
+    value: UnifiedAddressType.BUSINESS,
+    eager: !!config.value?.requiresCompany,
+  });
+
+  return tabItems;
+});
+
+const defaultTab = computed((): UnifiedAddressType => {
+  if (config.value?.requiresCompany) return UnifiedAddressType.BUSINESS;
+  return UnifiedAddressType.PERSONAL;
 });
 </script>

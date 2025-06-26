@@ -219,13 +219,14 @@ class Upmind {
   // ---------------------------------------------------------------------------
 
   isReady(): Promise<void> {
-    return new Promise(resolve =>
-      setTimeout(() => {
+    return new Promise(resolve => {
+      const interval = setInterval(() => {
         if (this.status !== UpmindStatus.notInitialised) {
+          clearInterval(interval);
           resolve();
         }
-      }, 100)
-    );
+      }, 100);
+    });
   }
 }
 

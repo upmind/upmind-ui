@@ -114,7 +114,7 @@ const {
 } = useClientPhones();
 
 const meta = computed(() => ({
-  isEmpty: addressMeta.value.isEmpty,
+  isEmpty: addressMeta.value.isEmpty || phoneMeta.value.isEmpty,
   isLoading: addressMeta.value.isLoading || phoneMeta.value.isLoading,
 }));
 
@@ -238,6 +238,9 @@ await Promise.all([isAddressesReady(), isPhonesReady()]).then(() => {
 
   if (!modelValue.value.addressId) {
     doAdd(EditingType.Unified);
+  }
+  if (!modelValue.value.phoneId) {
+    doAdd(EditingType.Phone);
   }
 });
 </script>
