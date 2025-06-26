@@ -69,8 +69,7 @@ await isReady().then(() => {
 
   if (config.value?.requiresCompany || model.value?.companyId)
     activeTab.value = UnifiedAddressType.BUSINESS;
-
-  activeTab.value = UnifiedAddressType.PERSONAL;
+  else activeTab.value = UnifiedAddressType.PERSONAL;
 });
 
 const tabs = computed((): TabItem[] => {
