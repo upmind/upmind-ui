@@ -19,11 +19,7 @@ export interface TabItem {
   eager?: boolean;
 }
 
-export interface TabsProps
-  extends TabsRootProps,
-    TabsContentProps,
-    TabsTriggerProps,
-    TabsListProps {
+export interface TabsProps extends TabsRootProps, TabsListProps {
   tabs: TabItem[];
   defaultValue?: string;
   // ---
