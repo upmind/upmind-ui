@@ -8,7 +8,7 @@
           class="relative -top-4 mb-6 md:-top-6 md:mb-0"
           size="sm"
           variant="tonal"
-          :label="t('navigation.navigateBack')"
+          :label="t('navigation.back')"
           @click.prevent="doReject"
         >
           <template #prepend><Icon icon="arrow-left" size="2xs" /></template>
