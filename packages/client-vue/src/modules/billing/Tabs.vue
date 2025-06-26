@@ -1,4 +1,5 @@
 <template>
+  <pre>{{ modelValue }}</pre>
   <Loading :active="meta.isLoading" class="w-full">
     <Tabs
       :defaultValue="UnifiedAddressType.PERSONAL"
@@ -63,15 +64,13 @@ const tabs = computed((): TabItem[] => {
     {
       label: t("billing.address"),
       value: UnifiedAddressType.PERSONAL,
+      eager: true,
     },
     {
       label: t("billing.company"),
       value: UnifiedAddressType.BUSINESS,
+      eager: true,
     },
   ];
 });
-
-function castType(tab: TabItem): UnifiedAddressType {
-  return tab.value as UnifiedAddressType;
-}
 </script>

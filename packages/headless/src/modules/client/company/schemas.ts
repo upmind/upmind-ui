@@ -53,17 +53,6 @@ export const useSchema = ({
         type: ["string", "null"],
         title: "Registered Tax ID",
       },
-
-      emailId: {
-        type: ["string", "null"],
-        title: "Email",
-        default: baseModel?.emailId,
-      },
-      phoneId: {
-        type: ["string", "null"],
-        title: "Phone",
-        default: baseModel?.phoneId,
-      },
     },
     // this is where we conditionally allow either an existing addressId or a new address object
     allOf: [
