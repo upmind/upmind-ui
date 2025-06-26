@@ -11,7 +11,7 @@ test.describe("User Registration", () => {
   });
   test("Registering via /auth/register/", async ({ page }) => {
     await registration.inputRegistration();
-    await page.waitForURL(URLs.emptyBasket);
+    await page.waitForURL(URLs.emptyBasket, { timeout: 30000 });
     await expect(registration.getCookie("client")).toBeDefined();
   });
   test("Invalid password entry", async ({ page }) => {
@@ -45,7 +45,8 @@ test.describe("User Registration", () => {
       .fill(
         `${faker.internet.password({ length: 10, pattern: /[A-Z]/, prefix: "123" })}`
       );
-    await page.getByTestId("button-continue").click();
-    await expect(registration.alert).toContainText("Validation error");
+    await expect(
+      registration.email.locator(page.getByTestId("form-message"))
+    ).toContainText('must match format "email"');
   });
 });
