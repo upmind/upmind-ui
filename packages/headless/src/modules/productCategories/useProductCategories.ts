@@ -26,7 +26,7 @@ export const useProductCategories = (initial?: QueryProps) => {
   const query = service.loadList(initial);
 
   const meta = computed(() => ({
-    isLoading: query?.isFetching.value,
+    isLoading: query?.isLoading.value || !query.isFetched.value,
     hasError: !isEmpty(query.error.value),
     isEmpty: isEmpty(query?.data?.value),
     isAvailable: true,

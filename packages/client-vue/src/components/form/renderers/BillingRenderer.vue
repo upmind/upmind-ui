@@ -15,7 +15,7 @@ import { useJsonFormsControl } from "@jsonforms/vue";
 
 // --- components
 import { FormField } from "@upmind-automation/upmind-ui";
-import Billing from "../../../modules/billing/Tabs.vue";
+import Billing from "../../../modules/billing/Billing.vue";
 
 // --- utils
 import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";

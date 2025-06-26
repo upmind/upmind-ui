@@ -46,11 +46,7 @@ export const useSchema = ({
         config,
       }),
       company: useCompanySchema({
-        baseModel: {
-          addressId: baseModel?.addressId,
-          emailId: baseModel?.emailId,
-          phoneId: baseModel?.phoneId,
-        },
+        baseModel: baseModel?.company,
         countries,
         country,
         regions,
@@ -118,7 +114,7 @@ export const useUischema = ({
             autocomplete: "off",
             detail: useCompanyUischema({
               minimal: true,
-              baseModel: { addressId: baseModel?.addressId },
+              baseModel: baseModel?.company,
             }),
           },
         },

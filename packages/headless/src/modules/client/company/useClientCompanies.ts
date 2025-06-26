@@ -8,7 +8,7 @@ import { invalidateQueryByKey } from "../../query";
 
 // --- utils
 import { useCollection } from "../../../utils";
-import { set, find, isEmpty } from "lodash-es";
+import { set, isEmpty } from "lodash-es";
 
 // --- types
 import type { Company } from "./types";
@@ -28,7 +28,7 @@ export const useClientCompanies = (
   const query = service.loadList(initial);
 
   const meta = computed(() => ({
-    isLoading: query?.isFetching.value,
+    isLoading: query?.isLoading.value || !query.isFetched.value,
     hasError: !isEmpty(query.error.value),
     isEmpty: isEmpty(query?.data?.value) || query.pagination.value.total == 0,
     isAvailable: sessionMeta.value.isAuthenticated,
@@ -113,8 +113,6 @@ export const useClientCompanies = (
      * @return {boolean|RequestPagination} The pagination object if available, otherwise false.
      */
     pagination: query.pagination,
-
-    // --- methods
 
     /**
      * The default item for the current client.

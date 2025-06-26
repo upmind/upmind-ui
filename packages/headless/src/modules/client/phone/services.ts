@@ -18,6 +18,7 @@ import {
   NotAuthenticatedError,
   DetailedError,
   responseCodes,
+  useCollection,
 } from "../../../utils";
 import { mapIPhone, mapPhone, mapPhones } from "./mapper";
 import { invalidateQueryByKey } from "../../query";
@@ -30,6 +31,7 @@ import {
   every,
   find,
   isEqual,
+  omitBy,
 } from "lodash-es";
 
 // --- types
@@ -158,18 +160,11 @@ async function update(id: Phone["id"], data: PhoneModel) {
 }
 
 async function ensure(model: PhoneModel): Promise<Phone> {
-  const mapping = get(model, "phone") as PhoneModel["phone"];
+  const mapping = omitBy(model, isEmpty);
   const phones = await load();
-
-  const found = find(phones, item =>
-    every(mapping, (value, key) => {
-      const modelValue = get(item, key);
-      return isEqual(modelValue, value);
-    })
-  );
-
+  const { findOne } = useCollection<Phone>(phones);
+  const found = findOne(mapping);
   if (found) return Promise.resolve(found);
-
   return add(model).then(raw => {
     if (isEmpty(raw))
       throw new DetailedError(

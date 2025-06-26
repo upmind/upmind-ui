@@ -115,7 +115,7 @@ async function loadLookups({
           } as CompanyModel)
         : undefined,
     phone: get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE)
-      ? ((defaultPhone.value?.phone ?? {
+      ? ((defaultPhone.value ?? {
           phone: {
             number: "",
             nationalNumber: "",
@@ -239,7 +239,7 @@ async function parse(
     safeModel.address!.regionId = get(region, "id");
   }
 
-  if (safeModel?.company) {
+  if (safeModel?.company && !safeModel?.company?.addressId) {
     safeModel.company.address ??= {
       address1: "",
       city: "",

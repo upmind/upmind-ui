@@ -14,6 +14,8 @@ import { useTime, useValidationParser, useModelParser } from "../../../utils";
 // --- types
 import type { BillingContext } from "./types";
 import { responseCodes } from "../../../utils";
+import { add, isEqual, pick } from "lodash-es";
+import { IBasket } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -33,11 +35,11 @@ export default createMachine(
             cond: "hasChanged",
           },
           SET: {
-            actions: ["setModel", "setDirty", "setAutoUpdate"],
+            actions: ["setModel", "setAutoUpdate"],
           },
 
           CLEAR: {
-            actions: ["clearModel", "clearDirty"],
+            actions: ["clearModel"],
           },
         },
       },
@@ -142,7 +144,7 @@ export default createMachine(
           src: "update",
           onDone: {
             target: "processed",
-            actions: ["setModel", "clearDirty", "clearAutoUpdate"],
+            actions: ["persistModel", "clearDirty", "clearAutoUpdate"],
           },
           onError: {
             target: "#error",
@@ -163,6 +165,12 @@ export default createMachine(
 
       complete: {
         id: "complete",
+        on: {
+          SET: {
+            target: "available",
+            actions: ["setAutoUpdate"],
+          },
+        },
       },
     },
     on: {
@@ -188,6 +196,11 @@ export default createMachine(
           return {
             basketId: data?.id,
             clientId: data?.client_id,
+            model: {
+              addressId: data?.address_id,
+              companyId: data?.company_id,
+              phoneId: data?.phone_id,
+            },
           };
         }
       ),
@@ -195,7 +208,6 @@ export default createMachine(
       setParsed: assign({
         model: (_context, { data }: AnyEventObject) => data.model,
         autoupdate: (_context, { data }: AnyEventObject) => data.autoupdate,
-        dirty: (_context, { data }: AnyEventObject) => data.dirty,
       }),
 
       setSchemas: assign({
@@ -217,16 +229,22 @@ export default createMachine(
         },
       }),
 
+      // persist the model as the new base model
+      persistModel: assign({
+        model: (_context: BillingContext, { data }: AnyEventObject) => ({
+          addressId: data?.address_id,
+          companyId: data?.company_id,
+          phoneId: data?.phone_id,
+        }),
+        baseModel: (_context: BillingContext, { data }: AnyEventObject) => ({
+          addressId: data?.address_id,
+          companyId: data?.company_id,
+          phoneId: data?.phone_id,
+        }),
+      }),
+
       clearModel: assign({
         model: undefined,
-      }),
-
-      setDirty: assign({
-        dirty: true,
-      }),
-
-      clearDirty: assign({
-        dirty: false,
       }),
 
       setAutoUpdate: assign({
@@ -272,7 +290,7 @@ export default createMachine(
     },
 
     guards: {
-      isDirty: ({ dirty }, _event) => !!dirty,
+      isDirty: ({ baseModel, model }, _event) => !isEqual(baseModel, model),
       hasBasket: ({ basketId }, _event) => !!basketId,
       hasClient: ({ clientId }, _event) => !!clientId,
       hasChanged: ({ clientId, basketId }, { data }: AnyEventObject) => {

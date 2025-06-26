@@ -1,15 +1,19 @@
 <template>
-  <Loading :active="!meta.isAvailable" class="w-full">
-    <Tabs v-model="activeTab" :tabs="tabs">
-      <template v-slot:[`content.personal`]>
-        <TabPersonal v-model="modelValue" />
-      </template>
+  <pre>{{ modelValue }}</pre>
+  <Tabs
+    v-model="activeTab"
+    :tabs="tabs"
+    v-if="meta.isAvailable"
+    :default-tab="defaultTab"
+  >
+    <template v-slot:[`content.personal`]>
+      <TabPersonal v-model="modelValue" @resolve="update" />
+    </template>
 
-      <template v-slot:[`content.business`]>
-        <TabBusiness v-model="modelValue" />
-      </template>
-    </Tabs>
-  </Loading>
+    <template v-slot:[`content.business`]>
+      <TabBusiness v-model="modelValue" @resolve="update" />
+    </template>
+  </Tabs>
 </template>
 
 <script lang="ts" setup>
@@ -25,9 +29,9 @@ import {
 } from "@upmind-automation/headless";
 
 // --- components
-import { Tabs, Loading } from "@upmind-automation/upmind-ui";
-import TabBusiness from "./TabBusiness.vue";
-import TabPersonal from "./TabPersonal.vue";
+import { Tabs } from "@upmind-automation/upmind-ui";
+import TabBusiness from "./components/TabBusiness.vue";
+import TabPersonal from "./components/TabPersonal.vue";
 
 // --- utils
 
@@ -55,14 +59,18 @@ const modelValue = useVModel(props, "modelValue", emits, {
 const { t } = useI18n();
 
 const { user } = useSession();
-const { isReady, meta, config } = useBasketBilling();
+const { isReady, meta, config, update, model } = useBasketBilling();
 
 const activeTab = ref<UnifiedAddressType>();
 
 await isReady().then(() => {
-  if (config.value?.requiresCompany)
+  // set initial value from the basket billing model
+  modelValue.value ??= model.value;
+
+  if (config.value?.requiresCompany || model.value?.companyId)
     activeTab.value = UnifiedAddressType.BUSINESS;
-  else activeTab.value = UnifiedAddressType.PERSONAL;
+
+  activeTab.value = UnifiedAddressType.PERSONAL;
 });
 
 const tabs = computed((): TabItem[] => {

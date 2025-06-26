@@ -77,8 +77,7 @@ async function parse(
   // if not, then we assume the data is the model
   const safeModel = useModelParser<BillingModel, BillingModel>(
     schema,
-    get(data, "model", data),
-    baseModel
+    get(data, "model", data)
   );
 
   // ---
@@ -98,9 +97,7 @@ async function validate(
 
   return new Promise((resolve, reject) => {
     if (!schema) return resolve(model);
-
     const errors = validate(schema, model);
-
     if (errors?.length) {
       reject({ error: errors });
     } else {
