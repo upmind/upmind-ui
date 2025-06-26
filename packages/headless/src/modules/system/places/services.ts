@@ -11,7 +11,7 @@ import { parsePlaces, usePlaceParser } from "./utils";
 
 // --- types
 import type { Place, PlaceService } from "./types";
-import { useTime } from "src/utils";
+import { useTime } from "../../../utils";
 
 // Private service instance
 let service: PlaceService | undefined;
