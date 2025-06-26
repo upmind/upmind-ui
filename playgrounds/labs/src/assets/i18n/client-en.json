@@ -208,6 +208,36 @@
           }
         }
       }
+    },
+    "address": {
+      "actions": {
+        "add": "Add address",
+        "edit": "Edit",
+        "delete": "Delete",
+        "confirm": "Confirm",
+        "select": "Set as default"
+      },
+      "default": "Default"
+    },
+    "company": {
+      "actions": {
+        "add": "Add company",
+        "edit": "Edit",
+        "delete": "Delete",
+        "confirm": "Confirm",
+        "select": "Set as default"
+      },
+      "default": "Default"
+    },
+    "phone": {
+      "actions": {
+        "add": "Add phone number",
+        "edit": "Edit",
+        "delete": "Delete",
+        "confirm": "Confirm",
+        "select": "Set as default"
+      },
+      "default": "Default"
     }
   }
 }
