@@ -381,7 +381,7 @@ export default createMachine(
           // ---
           search: {
             query: undefined,
-            limit: PAGINATION.pageSize,
+            limit: PAGINATION.limit,
             offset: PAGINATION.offset,
             total: 0,
           },
@@ -700,7 +700,7 @@ export default createMachine(
           return {
             query: data ?? undefined,
             offset: PAGINATION.offset,
-            limit: search?.limit ?? PAGINATION.pageSize,
+            limit: search?.limit ?? PAGINATION.limit,
             total: 0,
           };
         },
@@ -710,10 +710,10 @@ export default createMachine(
         search: ({ search }: DomainContext, _event: AnyEventObject) => {
           search ??= {
             offset: PAGINATION.offset,
-            limit: PAGINATION.pageSize,
+            limit: PAGINATION.limit,
             total: 0,
           };
-          search.offset += search?.limit ?? PAGINATION.pageSize;
+          search.offset += search?.limit ?? PAGINATION.limit;
           return search;
         },
       }),
@@ -722,7 +722,7 @@ export default createMachine(
         search: ({ search }: DomainContext, _event: AnyEventObject) => ({
           query: undefined,
           offset: PAGINATION.offset,
-          limit: search?.limit ?? PAGINATION.pageSize,
+          limit: search?.limit ?? PAGINATION.limit,
           total: 0,
         }),
         lookups: ({ lookups }) => {
@@ -735,12 +735,12 @@ export default createMachine(
       setSearchResults: assign({
         lookups: (
           { lookups, model, search }: DomainContext,
-          { data }: AnyEventObject
+          { data: response }: AnyEventObject
         ) => {
           const previous = (search?.offset ?? 0 > 0) ? lookups.searched : [];
 
           const available: DomainProduct[] = map(
-            data?.available,
+            response?.data,
             (item: DomainProduct) => {
               item.meta.owned = some(lookups.owned, ["domain", item.domain]);
               item.meta.added = some(lookups.basket, ["domain", item.domain]);
@@ -768,12 +768,15 @@ export default createMachine(
 
           return lookups;
         },
-        search: ({ search }: DomainContext, { data }: AnyEventObject) => {
+        search: (
+          { search }: DomainContext,
+          { data: response }: AnyEventObject
+        ) => {
           return {
             query: search?.query ?? undefined,
             offset: search?.offset ?? 0,
-            limit: search?.limit ?? PAGINATION.pageSize,
-            total: data?.total || 0,
+            limit: search?.limit ?? PAGINATION.limit,
+            total: response?.total || 0,
           };
         },
         controller: undefined,

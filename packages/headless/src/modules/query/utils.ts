@@ -32,8 +32,7 @@ import { unref } from "vue";
 // --- constants
 export const PAGINATION = {
   offset: 0,
-  pageSize: 10,
-  pageIndex: 1,
+  limit: 10,
 };
 
 // -----------------------------------------------------------------------------

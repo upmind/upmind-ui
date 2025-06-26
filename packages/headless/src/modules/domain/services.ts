@@ -1,7 +1,7 @@
 // --- external
 
 // --- internal
-import { DomainModel, DomainProduct, useQuery } from "../..";
+import { DomainModel, DomainProduct, PAGINATION, useQuery } from "../..";
 
 // --- utils
 import { isEmpty, map, omitBy } from "lodash-es";
@@ -20,7 +20,7 @@ async function search({
   promotions,
   preferredCycle,
 }: DomainContext) {
-  const { get, useUrl } = useQuery();
+  const { getList, useUrl } = useQuery();
 
   if (!search?.query?.length)
     return Promise.reject(new Error("No query provided"));
@@ -41,18 +41,14 @@ async function search({
     isEmpty
   );
 
-  return get<IProduct[], Promise<DomainProduct[]>>({
+  return getList<IProduct[], DomainProduct[]>({
     url: useUrl("modules/web_hosting/domains/search", params),
     init: { signal: controller?.signal },
-    queryKey: [
-      "domain",
-      "search",
-      { params },
-      {
-        limit: search?.limit,
-        offset: search.offset,
-      },
-    ],
+    queryKey: ["domain", "search", { ...params }],
+    pagination: {
+      limit: search?.limit ?? PAGINATION.limit,
+      offset: search?.offset ?? PAGINATION.offset,
+    },
     staleTime: 0,
     gcTime: 0,
     select(data) {

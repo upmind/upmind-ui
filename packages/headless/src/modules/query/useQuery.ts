@@ -173,6 +173,7 @@ export const useQuery = () => {
 
   /**
    * Syntax sugar for sending a GET request to the server with the given URL and options.
+   * NOTE: this does not deal with pagination, it is a simple GET request.
    * @see {@link QueryParams}
    * @param url The URL to send the request to.
    * @param init The request options.
@@ -190,9 +191,9 @@ export const useQuery = () => {
     queryKey,
     withAccessToken,
     ...options
-  }: QueryParams<
-    TQueryFnData,
-    TData
+  }: Omit<
+    QueryParams<TQueryFnData, TData>,
+    "pagination"
   >) /* TODO: MAYBE omit the pagination/sort and filter query params */ {
     return vueUseQuery<TQueryFnData, DefaultError, TData>(
       {
@@ -245,18 +246,15 @@ export const useQuery = () => {
     ...options
   }: QueryParams<TQueryFnData, TData>) {
     // --- state
-    const limit = options?.pagination?.limit ?? PAGINATION.pageSize;
+    const limit = options?.pagination?.limit ?? PAGINATION.limit;
+    const offset = options?.pagination?.offset ?? PAGINATION.offset;
     const sort = ref(options?.sort);
     const total = ref(0);
     const pageTotal = computed(() => {
       if (!limit) return 1; // Can only be 1 page if limit=0
       return Math.max(Math.ceil(total.value / limit), 1);
     });
-    const pageIndex = ref(
-      options?.pagination?.offset
-        ? Math.ceil(options?.pagination.offset / limit) + 1
-        : 1
-    );
+    const pageIndex = ref(Math.ceil(offset / limit) + 1);
     const filters = ref<QueryParams["filters"]>({
       ...(options?.filters ?? {}),
     });
@@ -421,7 +419,7 @@ export const useQuery = () => {
   }: QueryParams<TQueryFnData, TData>) {
     // --- state
 
-    const limit = options?.pagination?.limit ?? PAGINATION.pageSize;
+    const limit = options?.pagination?.limit ?? PAGINATION.limit;
     const sort = ref(options?.sort);
     const total = ref(0);
     const pageTotal = computed(() => {
@@ -595,6 +593,7 @@ export const useQuery = () => {
   // --- Async methods
   /**
    * Syntax sugar for sending a GET request to the server with the given URL and options.
+   * NOTE: this does not deal with pagination, it is a simple GET request.
    * @see {@link QueryParams}
    * @param url The URL to send the request to.
    * @param init The request options.
@@ -612,33 +611,20 @@ export const useQuery = () => {
     queryKey,
     withAccessToken,
     ...options
-  }: QueryParams<TQueryFnData, TData>): Promise<TData> {
+  }: Omit<QueryParams<TQueryFnData, TData>, "pagination">): Promise<TData> {
     // Remove initialData from options before spreading, as it's not part of FetchQueryOptions
 
     // --- state
-    const limit = options?.pagination?.limit ?? 0;
     const sort = options?.sort;
     const filters = options?.filters;
 
-    const pageIndex = options?.pagination?.offset
-      ? Math.ceil(options?.pagination.offset / limit) + 1
-      : undefined;
-
     return queryClient.fetchQuery<TQueryFnData, DefaultError, TData>({
-      queryKey: cleanQueryKey([
-        ...queryKey,
-        { limit },
-        { locale },
-        { sort },
-        { pageIndex },
-        { filters },
-      ]),
+      queryKey: cleanQueryKey([...queryKey, { locale }, { sort }, { filters }]),
       queryFn: async ({ signal }) => {
         return request<TQueryFnData>({
           url,
           sort,
           filters,
-          pagination: { limit, offset: (pageIndex ?? 0) * limit },
           init: {
             ...init,
             signal, // Pass the new signal to the request to allow cancellation
@@ -647,6 +633,72 @@ export const useQuery = () => {
         }).then(response => {
           if (isFunction(select)) return select(response.data!) as TData;
           return response.data as TQueryFnData;
+        });
+      },
+      ...(options as any),
+    });
+  }
+
+  /**
+   * Syntax sugar for sending a GET request with pagination, filters and sorting to the server with the given URL and options.
+   * @see {@link QueryParams}
+   * @param url The URL to send the request to.
+   * @param init The request options.
+   * @param guard A function that returns a promise to be resolved before the request is sent. This can be used to ensure that certain conditions are met before the request is sent, such as checking if the user is authenticated.
+   * @param select A function to select a subset of the data returned by the request. This can be used to transform the data before it is returned.
+   * @param queryKey The query key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
+   * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
+   * @param options Additional options to pass to TanStack query.
+   */
+  async function listRequest<TQueryFnData = unknown, TData = TQueryFnData>({
+    url,
+    init,
+    guard,
+    select,
+    queryKey,
+    withAccessToken,
+    ...options
+  }: QueryParams<TQueryFnData, TData>): Promise<QueryResponse<TData>> {
+    // --- state
+    const limit = options?.pagination?.limit ?? PAGINATION.limit;
+    const offset = options?.pagination?.offset ?? PAGINATION.offset;
+    const sort = options?.sort;
+    const filters = options?.filters;
+
+    const pageIndex = Math.ceil(offset / limit) + 1;
+
+    return queryClient.fetchQuery<
+      TQueryFnData,
+      DefaultError,
+      QueryResponse<TData>
+    >({
+      queryKey: cleanQueryKey([
+        ...queryKey,
+        { locale },
+        { sort },
+        { filters },
+        { limit },
+        { pageIndex },
+      ]),
+      queryFn: async ({ signal }) => {
+        return request<TQueryFnData>({
+          url,
+          sort,
+          filters,
+          pagination: { limit, offset },
+          init: {
+            ...init,
+            signal, // Pass the new signal to the request to allow cancellation
+          },
+          withAccessToken,
+        }).then(response => {
+          if (isFunction(select)) {
+            return {
+              ...response,
+              data: select(response.data!),
+            };
+          }
+          return response;
         });
       },
       ...(options as any),
@@ -834,6 +886,7 @@ export const useQuery = () => {
     mutate,
     // --- async methods
     get: getRequest,
+    getList: listRequest,
     del: deleteRequest,
     put: putRequest,
     post: postRequest,
