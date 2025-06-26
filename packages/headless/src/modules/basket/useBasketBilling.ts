@@ -16,7 +16,7 @@ import {
   stateValue,
   contextValue,
 } from "../../utils";
-import { isEqual, isNil } from "lodash-es";
+import { isEmpty, isEqual, isNil, omitBy } from "lodash-es";
 
 // --- types
 import type { ActorRef } from "xstate";
@@ -91,15 +91,16 @@ export const useBasketBilling = () => {
 
   async function update(value: BillingModel): Promise<void> {
     // first check if our fields have change, ie: model.code has changed
-    value = toRaw(unref(value));
-    const model = contextValue<BillingModel>(actor, "model");
+    value = omitBy(toRaw(unref(value)), isEmpty);
+    const model = omitBy(contextValue<BillingModel>(actor, "model"), isEmpty);
 
     // if it has not then bail
-    if (!value || isEqual(model, value)) {
+    if (!isEmpty(value) && !isEqual(value, model)) {
       actor.value?.send({ type: "SET", data: value, update: true });
     } else {
       actor.value?.send({ type: "UPDATE" });
     }
+
     // then wait for the paymentGateway actor to be updated
     return waitFor(
       actor.value!.service,

@@ -32,6 +32,7 @@ export function spawnBilling(basket?: IBasket) {
       model: {
         addressId: basket?.address_id || undefined,
         companyId: basket?.company_id || undefined,
+        phoneId: basket?.phone_id || undefined,
       },
     }),
     { name: "billing", sync: true }

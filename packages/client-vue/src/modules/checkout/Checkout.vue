@@ -145,7 +145,7 @@ import { useStyles, Interstitial, Alert } from "@upmind-automation/upmind-ui";
 
 // -- components
 import Session from "../session/Session.vue";
-import Billing from "../billing/Tabs.vue";
+import Billing from "../billing/Billing.vue";
 import PaymentDetails from "./components/PaymentDetails.vue";
 import Summary from "../basket/components/Summary.vue";
 import Card from "../../components/content/Card.vue";

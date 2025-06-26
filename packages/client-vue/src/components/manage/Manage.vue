@@ -1,5 +1,5 @@
 <template>
-  <Loading :active="meta.isLoading" class="w-full">
+  <div v-if="!meta.isLoading" class="w-full">
     <List
       :i18nKey="i18nKey"
       :useList="manage.useList"
@@ -20,7 +20,7 @@
       @resolve="doResolve"
       @reject="doReject"
     />
-  </Loading>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -51,11 +51,10 @@ const props = defineProps<{
 const emits = defineEmits<{
   (e: "update:modelValue", value: string): void;
 }>();
+
 // -----------------------------------------------------------------------------
 const { meta, isReady } = props.manage.useList();
-
 await isReady();
-
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
 });

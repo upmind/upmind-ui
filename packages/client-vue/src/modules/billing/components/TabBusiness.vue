@@ -2,17 +2,17 @@
   <Loading :active="meta.isLoading" class="w-full">
     <List
       i18nKey="client.address"
-      :useList="useClientAddresses"
-      v-model="selectedAddress"
+      :useList="useClientCompanies"
+      v-model="selectedCompany"
       :readonly="props.readonly"
-      @add="doAdd(EditingType.Address)"
-      @edit="doEdit($event, EditingType.Address)"
+      @add="doAdd(EditingType.Company)"
+      @edit="doEdit($event, EditingType.Company)"
     >
       <template #item="{ item }">
-        <AddressItem
+        <CompanyItem
           v-bind="item"
           :readonly="props.readonly"
-          @edit="doEdit(item.id, EditingType.Address)"
+          @edit="doEdit(item.id, EditingType.Company)"
         />
       </template>
     </List>
@@ -57,8 +57,8 @@ import { useVModel } from "@vueuse/core";
 
 // --- internal
 import {
-  useClientAddresses,
-  useClientAddress,
+  useClientCompanies,
+  useClientCompany,
   useClientPhones,
   useClientPhone,
   useUnifiedAddress,
@@ -66,8 +66,8 @@ import {
 } from "@upmind-automation/headless";
 
 // --- components
-import List from "../../components/manage/List.vue";
-import Form from "../../components/manage/Form.vue";
+import List from "../../../components/manage/List.vue";
+import Form from "../../../components/manage/Form.vue";
 import { Loading } from "@upmind-automation/upmind-ui";
 
 // --- utils
@@ -76,12 +76,12 @@ import { find, isString, set } from "lodash-es";
 // --- types
 
 import type { BillingModel } from "@upmind-automation/headless";
-import type { MinimalMutateComposable } from "../../components/manage/types";
-import AddressItem from "./components/AddressItem.vue";
-import PhoneItem from "./components/PhoneItem.vue";
+import type { MinimalMutateComposable } from "../../../components/manage/types";
+import CompanyItem from "./CompanyItem.vue";
+import PhoneItem from "./PhoneItem.vue";
 
 enum EditingType {
-  Address = "address",
+  Company = "company",
   Phone = "phone",
   Unified = "unified",
 }
@@ -93,6 +93,7 @@ const props = defineProps<{
 }>();
 
 const emits = defineEmits<{
+  (e: "resolve", value: BillingModel): void;
   (e: "update:modelValue", value: BillingModel): void;
 }>();
 
@@ -101,11 +102,11 @@ const { t } = useI18n();
 // -----------------------------------------------------------------------------
 
 const {
-  data: addresses,
-  meta: addressMeta,
-  default: defaultAddress,
-  isReady: isAddressesReady,
-} = useClientAddresses();
+  data: companies,
+  meta: companyMeta,
+  default: defaultCompany,
+  isReady: isCompaniesReady,
+} = useClientCompanies();
 
 const {
   data: phones,
@@ -115,15 +116,16 @@ const {
 } = useClientPhones();
 
 const meta = computed(() => ({
-  isEmpty: addressMeta.value.isEmpty || phoneMeta.value.isEmpty,
-  isLoading: addressMeta.value.isLoading || phoneMeta.value.isLoading,
+  isEmpty: companyMeta.value.isEmpty || phoneMeta.value.isEmpty,
+  isLoading: companyMeta.value.isLoading || phoneMeta.value.isLoading,
 }));
 
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
   deep: true,
   defaultValue: {
-    addressId: defaultAddress.value?.id,
+    companyId: defaultCompany.value?.id,
+    addressId: defaultCompany.value?.addressId,
     phoneId: defaultPhone.value?.id,
   },
 });
@@ -136,15 +138,16 @@ const editId = ref<string | undefined>();
 
 // --- context
 
-const selectedAddress = computed({
+const selectedCompany = computed<string | undefined>({
   get() {
-    return modelValue.value?.addressId ?? undefined;
+    return modelValue.value?.companyId ?? undefined;
   },
   set(val: string | undefined) {
     modelValue.value ??= {};
-    const found = find(addresses.value, { id: val });
+    const found = find(companies.value, { id: val });
     if (found) {
-      set(modelValue.value, "addressId", found.id);
+      set(modelValue.value, "companyId", found.id);
+      set(modelValue.value, "addressId", found.addressId);
     }
   },
 });
@@ -163,12 +166,12 @@ const selectedPhone = computed({
 });
 
 const i18nKey = computed(() => {
-  if (editing.value === EditingType.Unified) return "client.address";
+  if (editing.value === EditingType.Unified) return "client.company";
   return `client.${editing.value}`;
 });
 
 const useMutate = computed((): MinimalMutateComposable => {
-  if (editing.value === EditingType.Address) return useClientAddress;
+  if (editing.value === EditingType.Company) return useClientCompany;
   if (editing.value === EditingType.Phone) return useClientPhone;
   if (editing.value === EditingType.Unified) return useUnifiedAddress;
 
@@ -177,7 +180,7 @@ const useMutate = computed((): MinimalMutateComposable => {
 
 const modal = computed<boolean>(() => {
   switch (editing.value) {
-    case EditingType.Address:
+    case EditingType.Company:
       return !!editId.value;
 
     case EditingType.Phone:
@@ -196,7 +199,7 @@ const modal = computed<boolean>(() => {
 function doAdd(type: EditingType) {
   editing.value = type;
   editId.value =
-    type == EditingType.Unified ? UnifiedAddressType.PERSONAL : undefined;
+    type == EditingType.Unified ? UnifiedAddressType.BUSINESS : undefined;
   openForm.value = true;
 }
 
@@ -207,11 +210,9 @@ function doEdit(id: string, type: EditingType) {
 }
 
 function doReset() {
-  if (!modelValue.value?.addressId) {
-    debugger;
+  if (!modelValue.value?.companyId) {
     doAdd(EditingType.Unified);
   } else if (!modelValue.value?.phoneId) {
-    debugger;
     doAdd(EditingType.Phone);
   } else {
     openForm.value = false;
@@ -222,10 +223,10 @@ function doReset() {
 
 function doResolve(value: BillingModel | string) {
   switch (editing.value) {
-    case EditingType.Address:
-      selectedAddress.value = isString(value)
+    case EditingType.Company:
+      selectedCompany.value = isString(value)
         ? value
-        : (value?.addressId ?? defaultAddress.value?.id ?? undefined);
+        : (value?.companyId ?? defaultCompany.value?.id ?? undefined);
       break;
 
     case EditingType.Phone:
@@ -239,13 +240,14 @@ function doResolve(value: BillingModel | string) {
         ? value
         : (value?.phoneId ?? defaultPhone.value?.id ?? undefined);
 
-      selectedAddress.value = isString(value)
+      selectedCompany.value = isString(value)
         ? value
-        : (value?.addressId ?? defaultAddress.value?.id ?? undefined);
+        : (value?.companyId ?? defaultCompany.value?.id ?? undefined);
       break;
     default:
-      throw new Error(`Unknown editing type: ${editing.value}`);
   }
+
+  if (modelValue.value) emits("resolve", modelValue.value as BillingModel);
 
   // reset our state
   doReset();
@@ -253,18 +255,20 @@ function doResolve(value: BillingModel | string) {
 
 // --- side effects
 
-await Promise.all([isAddressesReady(), isPhonesReady()]).then(() => {
+await Promise.all([isCompaniesReady(), isPhonesReady()]).then(() => {
   // Ensure modelValue is initialized with default values
   modelValue.value = {
-    addressId: modelValue.value?.addressId ?? defaultAddress.value?.id,
+    companyId: modelValue.value?.companyId ?? defaultCompany.value?.id,
+    addressId: modelValue.value?.addressId ?? defaultCompany.value?.addressId,
     phoneId: modelValue.value?.phoneId ?? defaultPhone.value?.id,
   };
 
-  if (!modelValue.value.addressId) {
+  if (!modelValue.value.companyId) {
     doAdd(EditingType.Unified);
-  }
-  if (!modelValue.value.phoneId) {
+  } else if (!modelValue.value.phoneId) {
     doAdd(EditingType.Phone);
+  } else {
+    doResolve(modelValue.value);
   }
 });
 </script>
