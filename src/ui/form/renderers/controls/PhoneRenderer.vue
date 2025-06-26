@@ -133,7 +133,13 @@ function parsePhone(
     : value?.nationalNumber || value?.number || "";
 
   const code = countryCode || phone.value?.country || defaultCountryCode;
-  const parsed = parsePhoneNumberWithError(phonenumber, code);
+  let parsed;
+  try {
+    parsed = parsePhoneNumberWithError(phonenumber, code);
+  } catch (error) {
+    // do nothing, we will return the original value
+  }
+
   if (parsed) {
     return {
       number: parsed.number,

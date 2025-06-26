@@ -16,6 +16,7 @@ type TabsListVariantProps = VariantProps<typeof tabsListVariants>;
 export interface TabItem {
   label: string;
   value: string;
+  eager?: boolean;
 }
 
 export interface TabsProps
