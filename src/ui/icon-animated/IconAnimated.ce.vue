@@ -54,7 +54,7 @@ const loadIcon = async () => {
   if (path) {
     iconData.value = (await icons[path]()) as string;
   } else {
-    console.error(`Animated icon not found: ${props.icon}`);
+    // console.error(`Animated icon not found: ${props.icon}`);
   }
 };
 
