@@ -104,15 +104,5 @@
         "back": "Back to basket"
       }
     }
-  },
-  "billing": {
-    "address": "Personal",
-    "company": "Business",
-    "actions": {
-      "add": "Add",
-      "edit": "Edit",
-      "delete": "Delete",
-      "confirm": "Confirm"
-    }
   }
 }

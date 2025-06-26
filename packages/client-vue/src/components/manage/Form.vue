@@ -4,9 +4,7 @@
     :is="modal ? Dialog : 'section'"
     v-model:open="open"
     size="3xl"
-    :title="
-      t(`${i18nKey ?? 'manage'}.form.title`, { isNew: !props.modelValue })
-    "
+    :title="t(`${i18nKey ?? 'manage'}.title`, { isNew: !props.modelValue })"
   >
     <Skeleton v-if="meta.isLoading" :i18nKey="i18nKey" />
 
@@ -15,9 +13,7 @@
         v-if="meta.hasErrors"
         :description="errors"
         :message="errors"
-        :title="
-          t(`${i18nKey ?? 'manage'}.form.error`, { isNew: !props.modelValue })
-        "
+        :title="t(`${i18nKey ?? 'manage'}.error`, { isNew: !props.modelValue })"
         color="error"
         icon="alert-triangle"
       />
