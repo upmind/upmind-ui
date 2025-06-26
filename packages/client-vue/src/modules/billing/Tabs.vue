@@ -72,13 +72,13 @@ const tabs = computed((): TabItem[] => {
 
   if (!config.value?.requiresCompany) {
     tabItems.push({
-      label: t("billing.address"),
+      label: t("billing.personal"),
       value: UnifiedAddressType.PERSONAL,
       eager: false,
     });
   }
   tabItems.push({
-    label: t("billing.company"),
+    label: t("billing.business"),
     value: UnifiedAddressType.BUSINESS,
     eager: !!config.value?.requiresCompany,
   });

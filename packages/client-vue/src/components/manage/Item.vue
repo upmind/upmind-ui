@@ -7,13 +7,13 @@
           v-if="meta?.isDefault"
           variant="flat"
           size="xs"
-          :label="t(`${i18nKey ?? 'manage'}.item.default`)"
+          :label="t(`${i18nKey ?? 'manage'}.default`)"
         />
       </h3>
 
       <Link
         v-if="!props.readonly"
-        :label="t(`${i18nKey ?? 'manage'}.item.actions.edit`)"
+        :label="t(`${i18nKey ?? 'manage'}.actions.edit`)"
         size="xs"
         variant="muted"
         tabindex="-1"

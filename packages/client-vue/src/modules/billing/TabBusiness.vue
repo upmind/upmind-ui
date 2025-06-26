@@ -37,13 +37,14 @@
 
     <Form
       v-if="openForm && editing && useMutate"
+      :key="editing"
       :i18nKey="i18nKey"
       :useMutate="useMutate"
-      v-model:open="openForm"
+      :open="openForm"
       :model-value="editId"
-      :modal="!meta.isEmpty"
+      :modal="modal"
       @resolve="doResolve"
-      @reject="doReject"
+      @reject="doReset"
     />
   </Loading>
 </template>
@@ -164,7 +165,7 @@ const selectedPhone = computed({
 });
 
 const i18nKey = computed(() => {
-  if (editing.value === EditingType.Unified) return "billing";
+  if (editing.value === EditingType.Unified) return "client.company";
   return `client.${editing.value}`;
 });
 
@@ -176,13 +177,29 @@ const useMutate = computed((): MinimalMutateComposable => {
   throw new Error(`Unknown editing type: ${editing.value}`);
 });
 
+const modal = computed<boolean>(() => {
+  switch (editing.value) {
+    case EditingType.Company:
+      return !!editId.value;
+
+    case EditingType.Phone:
+      return !!editId.value;
+
+    case EditingType.Unified:
+      return false;
+
+    default:
+      return true;
+  }
+});
+
 // --- methods
 
 function doAdd(type: EditingType) {
   editing.value = type;
-  openForm.value = true;
   editId.value =
     type == EditingType.Unified ? UnifiedAddressType.BUSINESS : undefined;
+  openForm.value = true;
 }
 
 function doEdit(id: string, type: EditingType) {
@@ -191,10 +208,18 @@ function doEdit(id: string, type: EditingType) {
   editId.value = id;
 }
 
-function doReject() {
-  openForm.value = false;
-  editId.value = undefined;
-  editing.value = undefined;
+function doReset() {
+  if (!modelValue.value?.companyId) {
+    debugger;
+    doAdd(EditingType.Unified);
+  } else if (!modelValue.value?.phoneId) {
+    debugger;
+    doAdd(EditingType.Phone);
+  } else {
+    openForm.value = false;
+    editId.value = undefined;
+    editing.value = undefined;
+  }
 }
 
 function doResolve(value: BillingModel | string) {
@@ -224,9 +249,8 @@ function doResolve(value: BillingModel | string) {
       throw new Error(`Unknown editing type: ${editing.value}`);
   }
 
-  openForm.value = false;
-  editId.value = undefined;
-  editing.value = undefined;
+  // reset our state
+  doReset();
 }
 
 // --- side effects
