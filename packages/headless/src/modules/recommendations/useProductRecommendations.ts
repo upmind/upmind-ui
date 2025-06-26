@@ -5,8 +5,8 @@ import { computed } from "vue";
 import { useRecommendations } from "./";
 
 // --- utils
-import { filter, get, some } from "lodash-es";
-import { contextMatches, stateMatches, useContext } from "../../utils";
+import { reduce, some } from "lodash-es";
+import { contextMatches, contextValue, stateMatches } from "../../utils";
 
 // --- types
 import type { ProductModel } from "../product";
@@ -28,6 +28,7 @@ export const useProductRecommendations = (pid: ProductModel["productId"]) => {
     context,
     errors,
     basketItem,
+    recommendations,
     add,
     remove,
     seen,
@@ -38,14 +39,21 @@ export const useProductRecommendations = (pid: ProductModel["productId"]) => {
     isReady,
   } = useRecommendations();
 
-  const recommendations = computed(
+  const productRecommendations = computed(
     (): RecommendationsEngineContext["recommendations"] => {
-      const related = filter(get(context.value, "raw.related"), [
-        "product_id",
-        pid,
-      ]);
-      return filter(recommendations.value, ({ id }) =>
-        some(related, ["id", id])
+      const related = contextValue(state, "raw.related", []);
+      return reduce(
+        recommendations.value,
+        (
+          result: RecommendationsEngineContext["recommendations"],
+          recomendation
+        ) => {
+          if (some(related, { id: recomendation.id, product_id: pid })) {
+            result.push(recomendation);
+          }
+          return result;
+        },
+        []
       );
     }
   );
@@ -54,9 +62,12 @@ export const useProductRecommendations = (pid: ProductModel["productId"]) => {
     hasErrors: stateMatches(state, ["error"]),
     hasRecommendations:
       contextMatches(state, "recommendations") &&
-      some(recommendations.value, ({ meta }) => !meta?.added && !meta?.seen),
+      some(
+        productRecommendations.value,
+        ({ meta }) => !meta?.added && !meta?.seen
+      ),
     hasUnseenRecommendations: some(
-      recommendations.value,
+      productRecommendations.value,
       ({ meta }) => !meta?.seen
     ),
     isConfiguring: stateMatches(state, ["configuring"]),
@@ -103,7 +114,7 @@ export const useProductRecommendations = (pid: ProductModel["productId"]) => {
     errors,
 
     /** The recommendations list. */
-    recommendations,
+    recommendations: productRecommendations,
 
     // --- methods
 

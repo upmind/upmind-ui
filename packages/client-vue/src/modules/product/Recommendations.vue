@@ -81,7 +81,7 @@ const { t } = useI18n();
 const { navigateNext, isResolved } = useRoutingEngine();
 const { productId } = useQueryParams();
 
-await isResolved(ROUTE.RECOMMENDATIONS);
+await isResolved(ROUTE.PRODUCT_RECOMMENDATIONS);
 
 const { products } = useBasket();
 const {
