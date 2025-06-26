@@ -1,5 +1,4 @@
 <template>
-  <pre>{{ { modelValue, meta, activeTab } }}</pre>
   <Loading :active="!meta.isAvailable" class="w-full">
     <Tabs v-model="activeTab" :tabs="tabs">
       <template v-slot:[`content.personal`]>
