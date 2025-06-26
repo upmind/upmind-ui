@@ -45,13 +45,14 @@ async function load(): Promise<PlaceService> {
  * @returns Promise that resolves to the PlaceService instance
  */
 async function isReady(): Promise<PlaceService> {
-  return new Promise(resolve =>
-    setTimeout(() => {
+  return new Promise(resolve => {
+    const interval = setInterval(() => {
       if (!isNil(service)) {
+        clearInterval(interval);
         resolve(service);
       }
-    }, 100)
-  );
+    }, 100);
+  });
 }
 
 /**

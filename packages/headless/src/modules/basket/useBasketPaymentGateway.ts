@@ -37,13 +37,14 @@ export const useBasketPaymentGateway = () => {
    * @returns {Promise<boolean>} Resolves true if ready, false if error.
    */
   async function isReady(): Promise<boolean> {
-    return new Promise(resolve =>
-      setTimeout(() => {
+    return new Promise(resolve => {
+      const interval = setInterval(() => {
         if (!isNil(actor.value)) {
+          clearInterval(interval);
           resolve(actor.value);
         }
-      }, 100)
-    ).then(service => {
+      }, 100);
+    }).then(service => {
       if (!service) return false;
       return waitFor(
         service as ActorRef<any>,

@@ -31,13 +31,14 @@ export const useBasketBilling = () => {
   // --- state
 
   async function isReady(): Promise<boolean> {
-    return new Promise(resolve =>
-      setTimeout(() => {
+    return new Promise(resolve => {
+      const interval = setInterval(() => {
         if (!isNil(actor.value?.service)) {
+          clearInterval(interval);
           resolve(actor.value.service);
         }
-      }, 100)
-    ).then(service =>
+      }, 100);
+    }).then(service =>
       waitFor(
         service as ActorRef<any>,
         state => !stateMatches(state, "loading"),
@@ -50,7 +51,8 @@ export const useBasketBilling = () => {
   }
 
   const meta = computed(() => ({
-    isAvailable: stateMatches(actor, ["available"]),
+    isAvailable:
+      !!actor.value && stateMatches(actor, ["available", "complete"]),
     isLoading: !actor.value || stateMatches(actor, ["loading"]),
     hasErrors: stateMatches(actor, ["error"]),
     isProcessing: stateMatches(actor, ["processing"]),
@@ -79,6 +81,7 @@ export const useBasketBilling = () => {
   const model = useContext<BillingContext["model"]>(actor, "model");
   const schema = useContext<BillingContext["schema"]>(actor, "schema");
   const uischema = useContext<BillingContext["uischema"]>(actor, "uischema");
+  const config = useContext<BillingContext["config"]>(actor, "config");
 
   // --- methods
 
@@ -174,6 +177,14 @@ export const useBasketBilling = () => {
     /** The billing UI schema. */
     uischema,
 
+    /**
+     * The configuration requirements for billing .. ie doe we require a company, phone, etc.
+     * @typedef {Object} BillingConfig
+     * @property {boolean} company - Indicates if a company is required.
+     * @property {boolean} phone - Indicates if a phone number is required.
+     * @property {boolean} address - Indicates if an address is required.
+     */
+    config,
     // --- methods
 
     /** Clears the billing state. */

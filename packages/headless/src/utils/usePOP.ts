@@ -86,10 +86,13 @@ export const usePOP = (value?: IApiPop) => {
     getApiUrl: () => get(POP, "apiUrl", defaults.apiUrl),
     getPOP: () => POP,
     isReady: () =>
-      new Promise(resolve =>
-        setTimeout(() => {
-          if (!isEmpty(POP)) resolve(true);
-        }, 100)
-      ),
+      new Promise(resolve => {
+        const interval = setInterval(() => {
+          if (!isEmpty(POP)) {
+            clearInterval(interval);
+            resolve(true);
+          }
+        }, 100);
+      }),
   };
 };

@@ -37,13 +37,14 @@ export const useBasketPaymentDetails = () => {
   // --- state
 
   async function isReady(): Promise<boolean> {
-    return new Promise(resolve =>
-      setTimeout(() => {
+    return new Promise(resolve => {
+      const interval = setInterval(() => {
         if (!isNil(actor.value?.service)) {
+          clearInterval(interval);
           resolve(actor.value.service);
         }
-      }, 100)
-    ).then(service =>
+      }, 100);
+    }).then(service =>
       waitFor(
         service as ActorRef<any>,
         state => !stateMatches(state, "loading"),
@@ -58,7 +59,7 @@ export const useBasketPaymentDetails = () => {
   const meta = computed(() => ({
     isAvailable:
       !!actor.value &&
-      stateMatches(actor, ["available"]) &&
+      stateMatches(actor, ["available", "complete"]) &&
       !stateMatches(actor, ["available.loading"]),
     isLoading: !actor.value || stateMatches(actor, ["loading"]),
     hasGateway: contextMatches(actor, ["actors.gateway"]),
