@@ -1,5 +1,4 @@
 <template>
-  <pre>{{ modelValue }}</pre>
   <Tabs
     v-model="activeTab"
     :tabs="tabs"
