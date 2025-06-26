@@ -62,58 +62,54 @@ export function parseSld(raw: string): string {
   return sld?.replace(/[^a-zA-Z0-9-]/g, "");
 }
 
-export async function parseAvailable(
+export function parseAvailable(
   sld: string,
   results: IProduct[] = [],
   preferredCycle?: number // If we have chosen a term then we need to try use that term
 ) {
   const { defaultPaymentPeriod } = useBrand();
   const paymentPeriod = preferredCycle ?? defaultPaymentPeriod.value;
+  const available = map(results, (raw: IProduct) => {
+    // This is where we map our domain search result raw to a format that we can use in our basket
+    // The mapping is pretty simple, except for the term, which we need to calculate the billing cycle years
+    // The CRITICAL part is actually the  subproduct choices:
+    // We only include the sub_product_id given to us by the API, and we only include the choices that match that sub_product_id
+    // This is how the TRANSFER domain works, we have a sub_product_id for the domain transfer option.
+    // To be 100% safe we check for the sub_product_id in our OPTIONS and ATTRIBUTES, and only include the choices that match that sub_product_id
+    // ---
+    const domain = `${sld}${raw.tld}`;
+    const parsedDomain = parseDomain(domain);
+    const productDetails = parseProductDetails(raw);
+    const terms = parseTermDetails(raw.prices);
+    const termDetails = calculateBillingTerm(
+      paymentPeriod || raw.default_payment_period,
+      terms
+    );
 
-  const available = await Promise.all(
-    map(results, (raw: IProduct) => {
-      // This is where we map our domain search result raw to a format that we can use in our basket
-      // The mapping is pretty simple, except for the term, which we need to calculate the billing cycle years
-      // The CRITICAL part is actually the  subproduct choices:
-      // We only include the sub_product_id given to us by the API, and we only include the choices that match that sub_product_id
-      // This is how the TRANSFER domain works, we have a sub_product_id for the domain transfer option.
-      // To be 100% safe we check for the sub_product_id in our OPTIONS and ATTRIBUTES, and only include the choices that match that sub_product_id
+    return {
       // ---
-
-      const domain = `${sld}${raw.tld}`;
-      const parsedDomain = parseDomain(domain);
-      const productDetails = parseProductDetails(raw);
-      const terms = parseTermDetails(raw.prices);
-      const termDetails = calculateBillingTerm(
-        paymentPeriod || raw.default_payment_period,
-        terms
-      );
-
-      return {
-        // ---
-        configuration: {
-          productId: raw.id, //raw.product_id,
-          quantity: raw.unit_quantity ?? 1,
-        },
-        // ---
-        domain: parsedDomain?.domain ?? domain,
-        sld: parsedDomain?.sld ?? sld,
-        tld: parsedDomain?.tld ?? raw.tld,
-        // ---
-        meta: {
-          ...(termDetails.meta ?? {}),
-          available: raw?.domain_available,
-        },
-        productDetails: {
-          ...productDetails,
-          title: domain,
-        },
-        price: termDetails.price,
-        pricing: [],
-        details: [],
-      } as DomainProduct;
-    })
-  );
+      configuration: {
+        productId: raw.id, //raw.product_id,
+        quantity: raw.unit_quantity ?? 1,
+      },
+      // ---
+      domain: parsedDomain?.domain ?? domain,
+      sld: parsedDomain?.sld ?? sld,
+      tld: parsedDomain?.tld ?? raw.tld,
+      // ---
+      meta: {
+        ...(termDetails.meta ?? {}),
+        available: raw?.domain_available,
+      },
+      productDetails: {
+        ...productDetails,
+        title: domain,
+      },
+      price: termDetails.price,
+      pricing: [],
+      details: [],
+    } as DomainProduct;
+  });
 
   // and ensure we don't have any duplicates or falsy
   return compact(uniqBy(available, "domain"));

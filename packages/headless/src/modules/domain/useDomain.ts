@@ -151,7 +151,7 @@ export const useDomain = (
 
   const pagination = computed(() => ({
     offset: search.value?.offset ?? PAGINATION.offset,
-    limit: search.value?.limit ?? PAGINATION.pageSize,
+    limit: search.value?.limit ?? PAGINATION.limit,
     total: search.value?.total ?? 0,
   }));
 
