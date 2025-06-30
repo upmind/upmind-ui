@@ -7,7 +7,6 @@
         :accepted-file-types="fileTypes"
         :max-files="1"
         :label-idle="labelText"
-        :credits="false"
         :class="styles.form.file"
         max-file-size="5MB"
         stylePanelAspectRatio="0.2"

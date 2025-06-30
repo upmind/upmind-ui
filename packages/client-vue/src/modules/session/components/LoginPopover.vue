@@ -1,5 +1,5 @@
 <template>
-  <Popover>
+  <Popover v-if="!isAuthRoute">
     <PopoverTrigger data-testid="popover-trigger">
       <slot></slot>
     </PopoverTrigger>
@@ -19,6 +19,9 @@
 
 <script lang="ts" setup>
 // --- external
+import { computed } from "vue";
+import { useRoute } from "vue-router";
+import { includes } from "lodash-es";
 
 // --- components
 import Session from "../Session.vue";
@@ -28,4 +31,21 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@upmind-automation/upmind-ui";
+import { ROUTE } from "@upmind-automation/headless";
+
+const route = useRoute();
+
+const isAuthRoute = computed(() =>
+  includes(
+    [
+      ROUTE.SESSION,
+      ROUTE.SESSION_END,
+      ROUTE.SESSION_LOGIN,
+      ROUTE.SESSION_REGISTER,
+      ROUTE.SESSION_RECOVER_PASSWORD,
+      ROUTE.SESSION_TRANSFER,
+    ],
+    route.name
+  )
+);
 </script>
