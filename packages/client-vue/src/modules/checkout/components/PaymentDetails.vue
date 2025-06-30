@@ -49,7 +49,7 @@
             <AccordionContent :class="styles.checkout.accordion.content">
               <GatewayContent
                 :item="item"
-                :gatewayId="gateway?.id"
+                :gatewayId="gateway?.id?.toString()"
                 :modelValue="model?.gateway_id"
                 :meta="meta"
                 :basket-meta="basketMeta"
@@ -76,8 +76,7 @@
 // --- internal
 import {
   useBasketPaymentDetails,
-  useBasket,
-  type PaymentDetailModel
+  useBasket
 } from "@upmind-automation/headless";
 import config from "../checkout.config";
 import { useStyles } from "@upmind-automation/upmind-ui";
