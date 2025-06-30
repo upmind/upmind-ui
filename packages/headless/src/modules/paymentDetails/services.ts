@@ -17,14 +17,14 @@ import {
   sortBy,
   forEach,
   includes,
-  defaultsDeep,
+  defaultsDeep
 } from "lodash-es";
 import {
   ErrorOrigin,
   DetailedError,
   responseCodes,
   useValidation,
-  NotAuthenticatedError,
+  NotAuthenticatedError
 } from "../../utils";
 
 // --- types
@@ -49,15 +49,8 @@ async function load(
     return Promise.reject(new NotAuthenticatedError());
   }
 
-  const {
-    brandId,
-    currencyId: defaultCurrencyId,
-    isReady,
-    ensureConfig,
-  } = useBrand();
+  const { brandId, currencyId: defaultCurrencyId, ensureConfig } = useBrand();
   const { get: getRequest, useUrl } = useQuery();
-
-  await isReady().catch(error => Promise.reject(error));
 
   // ---
 
@@ -68,7 +61,7 @@ async function load(
     BrandConfigKeys.PARTIAL_PAYMENTS_ENABLED,
     BrandConfigKeys.PAY_LATER_ENABLED,
     BrandConfigKeys.BILLING_GATEWAY_FORCE_CARD_STORAGE,
-    BrandConfigKeys.BILLING_GATEWAY_FORCE_AUTO_PAYMENT,
+    BrandConfigKeys.BILLING_GATEWAY_FORCE_AUTO_PAYMENT
   ]).then(data => {
     if (!get(data, BrandConfigKeys.PARTIAL_PAYMENTS_ENABLED))
       unset(PaymentType, "PARTIAL_PAYMENT");
@@ -88,14 +81,14 @@ async function load(
       // "filter[active]": 1,
 
       order: ["-default", "id"].join(),
-      with: ["gateway", "client"].join(),
+      with: ["gateway", "client"].join()
       // with_staged_imports: 1
     }),
     queryKey: [
       "payment-details",
-      { clientId, brandId: unref(brandId), currencyId },
+      { clientId, brandId: unref(brandId), currencyId }
     ],
-    withAccessToken: true,
+    withAccessToken: true
   });
 
   // ---
@@ -106,14 +99,14 @@ async function load(
       order: "order",
       "filter[gateway.currencies.id]": currencyId,
       "filter[active]": 1,
-      with: ["gateway.gateway_provider", "gateway.card_types"].join(),
+      with: ["gateway.gateway_provider", "gateway.card_types"].join()
     }),
     queryKey: [
       "payment-details",
       "gateways",
-      { brandId: unref(brandId), clientId, currencyId },
+      { brandId: unref(brandId), clientId, currencyId }
     ],
-    withAccessToken: true,
+    withAccessToken: true
   }).then(data => {
     // Allowlist payment gateways if provided
     if (whitelistGatewayProviders.length) {
@@ -140,8 +133,8 @@ async function load(
           gateway: {
             id: "stored",
             name: "Pay with an existing method",
-            type: GatewayTypes.STORED,
-          },
+            type: GatewayTypes.STORED
+          }
         });
       }
 
@@ -149,14 +142,14 @@ async function load(
         stored_payment_methods,
         gateways,
         payment_types: PaymentType,
-        address,
+        address
       };
     }
   );
 }
 
 async function parse(
-  { model, gateways }: PaymentDetailsContext,
+  { amount, model, gateways }: PaymentDetailsContext,
   { data }: AnyEventObject
 ) {
   // ---
@@ -164,10 +157,7 @@ async function parse(
 
   // ---
   // Create a safe model to work with
-  const safeModel = defaultsDeep(
-    pick(data, ["amount", "type", "gateway_id"]),
-    model
-  );
+  const safeModel = defaultsDeep(pick(data, ["type", "gateway_id"]), model);
 
   // ---
   // HACK: TEMP: FORCE payment type to PAY_IN_FULL
@@ -178,7 +168,7 @@ async function parse(
   // 1) Make sure if a gateway is selected that we use that
   if (safeModel?.gateway_id) {
     gateway = find(gateways, {
-      gateway_id: safeModel.gateway_id,
+      gateway_id: safeModel.gateway_id
     })?.gateway;
     // if we don't have a matching/valid gateway, then we should remove the gateway_id
     if (!gateway) unset(safeModel, "gateway_id");
@@ -191,7 +181,7 @@ async function parse(
   }
 
   // 3) Safety Check...if the payment type is pay later or Free, clear the gateway_id
-  if (safeModel?.type == PaymentType.PAY_LATER || safeModel?.amount <= 0) {
+  if (safeModel?.type == PaymentType.PAY_LATER || amount <= 0) {
     unset(safeModel, "gateway_id");
     gateway = null;
   }
@@ -263,5 +253,5 @@ export default {
   parse,
   validate,
   // ---
-  isAuthenticated: () => useSession().isAuthenticated(),
+  isAuthenticated: () => useSession().isAuthenticated()
 };

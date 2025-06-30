@@ -119,7 +119,7 @@ const styles = useStyles(
     "recommendation.skeleton.content.price.intro",
     "recommendation.skeleton.content.price.current",
     "recommendation.skeleton.content.price.summary",
-    "recommendation.skeleton.content.button",
+    "recommendation.skeleton.content.button"
   ],
   {},
   config

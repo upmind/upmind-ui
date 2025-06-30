@@ -32,7 +32,7 @@ const { t, te } = useI18n();
 
 const priceMeta = computed(() => ({
   canShowCycle: props.showCycle && props.cycle,
-  isFree: props.meta?.free,
+  isFree: props.meta?.free
 }));
 
 const styles = useStyles(

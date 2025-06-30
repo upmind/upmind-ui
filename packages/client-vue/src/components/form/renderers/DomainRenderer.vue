@@ -41,6 +41,6 @@ import { uiTypeIs, formatIs, and } from "@jsonforms/core";
 
 export const tester = {
   rank: 3,
-  controlType: and(uiTypeIs("Control"), formatIs("domain_name")),
+  controlType: and(uiTypeIs("Control"), formatIs("domain_name"))
 };
 </script>

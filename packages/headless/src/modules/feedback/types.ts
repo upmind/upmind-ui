@@ -10,7 +10,7 @@ export enum messageDisplays {
   SNACKBAR = "snackbar",
   MODAL = "modal",
   SYSTEM = "system",
-  AUTH = "auth",
+  AUTH = "auth"
 
   // CONSOLE = "console"
 }
@@ -20,7 +20,7 @@ export enum messageTypes {
   ERROR = "error",
   INFO = "info",
   SUCCESS = "success",
-  WARNING = "warning",
+  WARNING = "warning"
 }
 
 export interface Message {

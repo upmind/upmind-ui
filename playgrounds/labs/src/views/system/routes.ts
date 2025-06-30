@@ -1,7 +1,7 @@
 import {
   ROUTE,
   UpmEmptyView,
-  UpmLoadingView,
+  UpmLoadingView
 } from "@upmind-automation/client-vue";
 
 export default {
@@ -11,13 +11,13 @@ export default {
     {
       path: "/loading",
       name: ROUTE.ERROR,
-      component: () => UpmLoadingView,
+      component: () => UpmLoadingView
     },
 
     {
       path: "/empty",
       name: ROUTE.EMPTY,
-      component: () => UpmEmptyView,
-    },
-  ],
+      component: () => UpmEmptyView
+    }
+  ]
 };

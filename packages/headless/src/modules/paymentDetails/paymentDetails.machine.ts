@@ -5,14 +5,12 @@ import {
   actions,
   spawn,
   sendParent,
-  InterpreterStatus,
+  InterpreterStatus
 } from "xstate";
 
 // --- internal
 import services from "./services";
 import { authSubscription } from "../session/helper";
-import { useFeedback } from "../feedback";
-const { addError } = useFeedback();
 
 // --- utils
 import { spawnGateway, parsePaymentDetails } from "./utils";
@@ -41,8 +39,8 @@ export default createMachine(
         entry: ["setAuthHelper"],
         on: {
           AUTHENTICATED: { target: "checking" },
-          REFRESH: { actions: "refresh" },
-        },
+          REFRESH: { actions: "refresh" }
+        }
       },
 
       checking: {
@@ -51,18 +49,18 @@ export default createMachine(
           onDone: [
             {
               target: "available.checking",
-              cond: "hasLookups",
+              cond: "hasLookups"
             },
-            { target: "available" },
+            { target: "available" }
           ],
-          onError: { target: "unavailable" },
-        },
+          onError: { target: "unavailable" }
+        }
       },
 
       unavailable: {
         on: {
-          AUTHENTICATED: { target: "checking" },
-        },
+          AUTHENTICATED: { target: "checking" }
+        }
       },
 
       available: {
@@ -75,13 +73,13 @@ export default createMachine(
               src: "load",
               onDone: {
                 target: "checking",
-                actions: ["setLookups"],
+                actions: ["setLookups"]
               },
               onError: {
                 target: "#error",
-                actions: ["setError"],
-              },
-            },
+                actions: ["setError"]
+              }
+            }
           },
           // ---
 
@@ -94,9 +92,9 @@ export default createMachine(
                   src: "parse",
                   onDone: {
                     target: "validating",
-                    actions: ["setParsed", "setGateway", "setSchemas"],
-                  },
-                },
+                    actions: ["setParsed", "setGateway", "setSchemas"]
+                  }
+                }
               },
               validating: {
                 invoke: {
@@ -105,16 +103,16 @@ export default createMachine(
                   onError: [
                     {
                       target: "#valid",
-                      cond: "isFree",
+                      cond: "isFree"
                     },
                     {
                       target: "#invalid",
-                      actions: ["setError"],
-                    },
-                  ],
-                },
-              },
-            },
+                      actions: ["setError"]
+                    }
+                  ]
+                }
+              }
+            }
           },
 
           valid: {
@@ -125,23 +123,23 @@ export default createMachine(
                 {
                   target: "#complete",
                   actions: ["setPaymentDetails"],
-                  cond: "isFree",
+                  cond: "isFree"
                 },
-                { target: "processing", cond: "hasBasket" },
+                { target: "processing", cond: "hasBasket" }
               ],
               "xstate.update": {
-                target: "checking",
-              },
-            },
+                target: "checking"
+              }
+            }
           },
 
           invalid: {
             id: "invalid",
             on: {
               "xstate.update": {
-                target: "checking",
-              },
-            },
+                target: "checking"
+              }
+            }
           },
 
           processing: {
@@ -149,37 +147,37 @@ export default createMachine(
             on: {
               CANCEL: {
                 target: "#invalid", // no need to set the error, it will be set by the gateway
-                actions: ["cancelPaymentDetails", "clearAutoUpdate"],
+                actions: ["cancelPaymentDetails", "clearAutoUpdate"]
               },
               // ths is the response from the gateway
               PAYMENT_DETAILS: {
                 target: "#complete",
-                actions: ["setPaymentDetails", "clearAutoUpdate"],
-              },
-            },
-          },
+                actions: ["setPaymentDetails", "clearAutoUpdate"]
+              }
+            }
+          }
         },
         on: {
           CLEAR: {
             target: "available.checking",
-            actions: ["clearModel", "setDirty"],
+            actions: ["clearModel", "setDirty"]
           },
           SET: {
             target: "available.checking",
-            actions: ["setDirty", "setAutoUpdate"],
+            actions: ["setDirty", "setAutoUpdate"]
           },
           REFRESH: [
             {
               target: "available.loading",
               actions: "refresh",
-              cond: "hasChanged",
+              cond: "hasChanged"
             },
             {
               target: "available.checking",
-              actions: "refresh",
-            },
-          ],
-        },
+              actions: "refresh"
+            }
+          ]
+        }
       },
 
       // ---
@@ -191,17 +189,17 @@ export default createMachine(
         on: {
           REFRESH: {
             target: "available",
-            actions: "refresh",
-          },
-        },
-      },
+            actions: "refresh"
+          }
+        }
+      }
     },
     on: {
       UNAUTHENTICATED: {
         target: "subscribing",
-        actions: ["clearError", "clearModel", "clearSchemas"],
-      },
-    },
+        actions: ["clearError", "clearModel", "clearSchemas"]
+      }
+    }
   },
   {
     actions: {
@@ -209,12 +207,12 @@ export default createMachine(
         authHelper: (
           { authHelper }: PaymentDetailsContext,
           _event: AnyEventObject
-        ) => authHelper ?? spawn(authSubscription),
+        ) => authHelper ?? spawn(authSubscription)
       }),
 
       setParsed: assign({
         model: (_context, { data }: AnyEventObject) => data.model,
-        gateway: (_context, { data }: AnyEventObject) => data.gateway,
+        gateway: (_context, { data }: AnyEventObject) => data.gateway
       }),
 
       setLookups: assign({
@@ -222,7 +220,7 @@ export default createMachine(
           data.stored_payment_methods,
         gateways: (_context, { data }) => data.gateways,
         payment_types: (_context, { data }) => data.payment_types,
-        address: (_context, { data }) => data.address,
+        address: (_context, { data }) => data.address
       }),
 
       setSchemas: assign({
@@ -231,28 +229,28 @@ export default createMachine(
         model: ({ schema, model }: PaymentDetailsContext) => {
           if (!schema) return model;
           return useModelParser(schema, model);
-        },
+        }
       }),
 
       clearSchemas: assign({
         schema: undefined,
-        uischema: undefined,
+        uischema: undefined
       }),
 
       clearModel: assign({
-        model: undefined,
+        model: undefined
       }),
 
       setDirty: assign({
-        dirty: true,
+        dirty: true
       }),
 
       setAutoUpdate: assign({
-        autoupdate: (_context, { update }: AnyEventObject) => !!update,
+        autoupdate: (_context, { update }: AnyEventObject) => !!update
       }),
 
       clearAutoUpdate: assign({
-        autoupdate: false,
+        autoupdate: false
       }),
 
       setGateway: assign({
@@ -262,10 +260,10 @@ export default createMachine(
             address,
             orderId,
             currency,
-            model,
+            amount,
             gateway,
             actors,
-            stored_payment_methods,
+            stored_payment_methods
           },
           _event
         ) => {
@@ -280,18 +278,18 @@ export default createMachine(
           // if we are provided a gateway AND dont have one spawned yet,
           if (!actors?.gateway && gateway) {
             const actor = spawnGateway({
+              amount,
               orderId,
               currency,
-              amount: model?.amount,
-              gateway: model?.amount ? gateway : null, // use the free gateway if amount is 0
+              gateway: amount ? gateway : null, // use the free gateway if amount is 0
               stored_payment_methods,
-              address,
+              address
             });
             set(actors, "gateway", actor);
           }
 
           return actors;
-        },
+        }
       }),
 
       refresh: assign({
@@ -299,12 +297,8 @@ export default createMachine(
         clientId: (_context, { data }: AnyEventObject) => data?.client_id,
         currency: (_context, { data }: AnyEventObject) => data?.currency,
         address: (_context, { data }: AnyEventObject) => data?.address,
-        model: ({ model }, { data }: AnyEventObject) => {
-          return {
-            ...model,
-            amount: data?.unpaid_amount_converted || 0.0, // NB: we always force use the outstanding amount
-          };
-        },
+        amount: (_context, { data }: AnyEventObject) =>
+          data?.unpaid_amount_converted || 0.0, // NB: we always force use the outstanding amount
         actors: (
           { actors }: PaymentDetailsContext,
           { data }: AnyEventObject
@@ -317,23 +311,22 @@ export default createMachine(
                   orderId: data?.id,
                   currency: data?.currency,
                   amount: data?.unpaid_amount_converted || 0.0,
-                  address: data?.address,
-                },
+                  address: data?.address
+                }
               });
             }
           });
           return actors;
-        },
+        }
       }),
 
       // ---
 
       setPaymentDetails: assign({
         paymentDetails: (
-          { model, orderId, currency, address }: PaymentDetailsContext,
+          { amount, model, orderId, currency, address }: PaymentDetailsContext,
           { data }: AnyEventObject
         ) => {
-          const amount = model?.amount || 0;
           return parsePaymentDetails({
             ...model,
             ...data,
@@ -341,18 +334,18 @@ export default createMachine(
             orderId,
             currency,
             amount,
-            address,
+            address
           });
-        },
+        }
       }),
 
       providePaymentDetails: sendParent(({ paymentDetails }) => ({
         type: "PAYMENT_DETAILS",
-        data: paymentDetails,
+        data: paymentDetails
       })),
 
       cancelPaymentDetails: sendParent(() => ({
-        type: "CANCEL",
+        type: "CANCEL"
       })),
 
       // ---
@@ -371,15 +364,13 @@ export default createMachine(
         error: (_context, { data }: AnyEventObject) => {
           let error = mapToHeadlessError(data);
           if (error?.status == responseCodes.Unprocessable_Entity) {
-            // lets parse/override our error message and data
-            // this is to generate valid json schema validation errors
             error.data = useValidationParser(error.data);
           }
           return error;
-        },
+        }
       }),
 
-      clearError: assign({ error: undefined }),
+      clearError: assign({ error: undefined })
     },
 
     guards: {
@@ -389,19 +380,18 @@ export default createMachine(
         { stored_payment_methods, gateways, payment_types },
         _event
       ) => !!stored_payment_methods && !!gateways && !!payment_types,
-      isFree: ({ model }, _event) => !model?.amount,
-      shouldUpdate: ({ autoupdate, orderId, model }, _event) =>
-        !!autoupdate && !!orderId && model?.amount !== 0,
+      isFree: ({ amount }, _event) => !amount,
+      shouldUpdate: ({ autoupdate, orderId, amount }, _event) =>
+        !!autoupdate && !!orderId && amount !== 0,
 
       hasChanged: (
-        { orderId, currency, clientId, model, address }: PaymentDetailsContext,
+        { orderId, currency, clientId, amount, address }: PaymentDetailsContext,
         { data }: AnyEventObject
       ) => {
         const orderChanged = orderId != data?.id;
         const currencyChanged = currency?.id != data?.currency_id;
         const clientChanged = clientId != data?.client_id;
-        const amountChanged =
-          model?.amount == (data?.unpaid_amount_converted || 0.0);
+        const amountChanged = amount == (data?.unpaid_amount_converted || 0.0);
         const addressChanged = address?.id != data?.address?.id;
 
         return (
@@ -411,14 +401,14 @@ export default createMachine(
           amountChanged ||
           addressChanged
         );
-      },
+      }
     },
 
     delays: {
       error: () => useTime().ERROR,
-      wait: () => useTime().WAIT,
+      wait: () => useTime().WAIT
     },
 
-    services,
+    services
   }
 );

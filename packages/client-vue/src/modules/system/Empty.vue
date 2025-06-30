@@ -12,10 +12,10 @@
             href: storefrontUrl,
             appendIcon: {
               icon: 'arrow-right',
-              size: '2xs',
+              size: '2xs'
             },
-            label: t('basket.empty.actions.continue'),
-          },
+            label: t('basket.empty.actions.continue')
+          }
         ]"
       >
         <template #title>
@@ -58,11 +58,11 @@ const props = withDefaults(defineProps<InterstitialProps>(), {
     trigger: "loop",
     primaryColor: "base-foreground",
     secondaryColor: "tertiary",
-    size: "4xl",
-  }),
+    size: "4xl"
+  })
 });
 
 const meta = computed(() => ({
-  useModal: routeMeta.modal !== false,
+  useModal: routeMeta.modal !== false
 }));
 </script>

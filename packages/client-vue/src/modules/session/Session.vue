@@ -93,7 +93,7 @@ import type { AuthProps } from "./components/types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<AuthProps>(), {
-  modelValue: "register",
+  modelValue: "register"
 });
 
 const { t } = useI18n();

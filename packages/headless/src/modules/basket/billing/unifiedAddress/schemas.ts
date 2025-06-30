@@ -1,5 +1,5 @@
 // --- utils
-import { isEmpty, get, map } from "lodash-es";
+import { get } from "lodash-es";
 
 // --- types
 import { UnifiedAddressType, type UnifiedAddressContext } from "./types";
@@ -7,17 +7,17 @@ import type { JsonSchema7, Layout, UISchemaElement } from "@jsonforms/core";
 import { BrandConfigKeys } from "@upmind-automation/types";
 import {
   useSchema as useAddressSchema,
-  useUischema as useAddressUischema,
+  useUischema as useAddressUischema
 } from "../../../client/address/schemas";
 
 import {
   useSchema as useCompanySchema,
-  useUischema as useCompanyUischema,
+  useUischema as useCompanyUischema
 } from "../../../client/company/schemas";
 
 import {
   useSchema as usePhoneSchema,
-  useUischema as usePhoneUischema,
+  useUischema as usePhoneUischema
 } from "../../../client/phone/schemas";
 
 export const useSchema = ({
@@ -28,6 +28,7 @@ export const useSchema = ({
   addresses,
   baseModel,
   config,
+  type
 }: UnifiedAddressContext) => {
   const schema: JsonSchema7 = {
     type: "object",
@@ -35,45 +36,55 @@ export const useSchema = ({
     required: [],
     properties: {
       phone: usePhoneSchema({
-        country,
+        country
       }),
       address: useAddressSchema({
         clientId,
         regions,
         baseModel,
         countries,
-        config,
+        config
       }),
       company: useCompanySchema({
-        baseModel: {
-          addressId: baseModel?.addressId,
-          emailId: baseModel?.emailId,
-          phoneId: baseModel?.phoneId,
-        },
-        addresses: addresses ?? [],
-        emails: baseModel?.emails ?? [],
-        phones: baseModel?.phones ?? [],
-        clientId: baseModel?.clientId ?? "",
-      }),
-    },
+        baseModel: baseModel?.company,
+        countries,
+        country,
+        regions,
+        config
+      })
+    }
   };
 
-  if (get(config, BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS))
-    schema.required!.push("address");
-
-  if (get(config, BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS))
+  // NB: IF Company is required OR Address is Required then we need to enforce the company field when adding a bisiness address
+  if (
+    (type == UnifiedAddressType.BUSINESS &&
+      get(config, BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS)) ||
+    get(config, BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS)
+  )
     schema.required!.push("company");
 
+  // NB: IF the Address is Required then we need to enforce the address field when adding a personal address
+  if (
+    type == UnifiedAddressType.PERSONAL &&
+    get(config, BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS)
+  )
+    schema.required!.push("address");
+
+  // NB: IF the Phone is Required then we need to enforce the phone field when adding either a personal address or a business address
   if (get(config, BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS))
     schema.required!.push("phone");
 
   return schema;
 };
 
-export const useUischema = ({ type, config }: UnifiedAddressContext) => {
+export const useUischema = ({
+  baseModel,
+  type,
+  config
+}: UnifiedAddressContext) => {
   const uiSchema: Layout = {
     type: "VerticalLayout",
-    elements: [],
+    elements: []
   };
 
   if (type == UnifiedAddressType.PERSONAL) {
@@ -86,10 +97,10 @@ export const useUischema = ({ type, config }: UnifiedAddressContext) => {
           options: {
             autoFocus: true,
             autocomplete: "off",
-            detail: useAddressUischema(),
-          },
-        },
-      ],
+            detail: useAddressUischema()
+          }
+        }
+      ]
     } as any);
   } else if (type == UnifiedAddressType.BUSINESS) {
     uiSchema.elements.push({
@@ -101,10 +112,13 @@ export const useUischema = ({ type, config }: UnifiedAddressContext) => {
           options: {
             autoFocus: true,
             autocomplete: "off",
-            detail: useCompanyUischema(),
-          },
-        },
-      ],
+            detail: useCompanyUischema({
+              minimal: true,
+              baseModel: baseModel?.company
+            })
+          }
+        }
+      ]
     } as any);
   }
 
@@ -116,17 +130,10 @@ export const useUischema = ({ type, config }: UnifiedAddressContext) => {
           type: "Control",
           scope: "#/properties/phone",
           options: {
-            detail: usePhoneUischema(),
-          },
-        },
-      ],
-      rule: {
-        effect: "SHOW",
-        condition: {
-          scope: "#/properties/company",
-          schema: { type: "null" },
-        },
-      },
+            detail: usePhoneUischema()
+          }
+        }
+      ]
     } as any);
   }
 

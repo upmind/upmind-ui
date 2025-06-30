@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   useFieldsSchemaParser,
   useFieldsUischemaParser,
-  useFieldsModelParser,
+  useFieldsModelParser
 } from "../../utils/useFields";
 // import { useTranslateField } from '@/utils/useTranslation';
 // import { forEach, get, set } from 'lodash-es';
@@ -21,7 +21,7 @@ const mockFields = [
     required: true,
     show_on_order_form: true,
     hidden: false,
-    value: "VisibleValue1",
+    value: "VisibleValue1"
   },
   {
     code: "testField2",
@@ -31,7 +31,7 @@ const mockFields = [
     required: false,
     show_on_order_form: true,
     hidden: false,
-    value: "VisibleValue2",
+    value: "VisibleValue2"
   },
   {
     code: "testField3",
@@ -40,8 +40,8 @@ const mockFields = [
     description: "Test Field 3 Description",
     show_on_order_form: false,
     hidden: true,
-    value: "HiddenValue",
-  },
+    value: "HiddenValue"
+  }
   // TODO:
   // Add the remaining input types.
   // Maybe we can even create a loop to generate all these automatically,
@@ -62,7 +62,7 @@ let expectedSchema: Schema = {
   title: "Fields",
   i18n: "fields",
   required: [],
-  properties: {},
+  properties: {}
 };
 
 const expectedProperties = {
@@ -70,14 +70,14 @@ const expectedProperties = {
     type: ["number"],
     title: "Test Field 1",
     description: "Test Field 1 Description",
-    i18n: "fields.testField1",
+    i18n: "fields.testField1"
   },
   testField2: {
     type: ["boolean", "null"],
     title: "Test Field 2",
     description: "Test Field 2 Description",
-    i18n: "fields.testField2",
-  },
+    i18n: "fields.testField2"
+  }
 };
 
 const expectedUISchema = [
@@ -90,8 +90,8 @@ const expectedUISchema = [
       multi: false,
       description: "Test Field 1 Description",
       placeholder: "Test Field 1 Placeholder",
-      type: "number",
-    },
+      type: "number"
+    }
   },
   {
     type: "Control",
@@ -102,9 +102,9 @@ const expectedUISchema = [
       multi: false,
       description: "Test Field 2 Description",
       placeholder: undefined, // TODO? Should this be undefined ?
-      type: null, // TODO? Should this be null ?
-    },
-  },
+      type: null // TODO? Should this be null ?
+    }
+  }
 ];
 
 describe("useFields.ts", () => {
@@ -113,7 +113,7 @@ describe("useFields.ts", () => {
       expectedSchema = {
         ...expectedSchema,
         required: [],
-        properties: {},
+        properties: {}
       };
     });
 
@@ -164,12 +164,12 @@ describe("useFields.ts", () => {
     const mockData = [
       {
         code: "testField1",
-        value: "Test Field 1",
+        value: "Test Field 1"
       },
       {
         code: "testField2",
-        value: 123,
-      },
+        value: 123
+      }
     ];
 
     it("should handle empty data gracefully", () => {
@@ -181,7 +181,7 @@ describe("useFields.ts", () => {
       const model = useFieldsModelParser(mockData);
       expect(model).toEqual({
         testField1: "Test Field 1",
-        testField2: 123,
+        testField2: 123
       });
     });
 
@@ -189,8 +189,8 @@ describe("useFields.ts", () => {
       const mockDataWithNoValues = [
         {
           code: "testField1",
-          default: "Test Field 1 Default Value",
-        },
+          default: "Test Field 1 Default Value"
+        }
       ];
       const mockValues = { testField1: "Test Field 1" };
 

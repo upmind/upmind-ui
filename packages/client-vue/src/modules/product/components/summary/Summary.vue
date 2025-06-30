@@ -80,7 +80,7 @@ import {
   NumberField,
   Icon,
   Button,
-  Alert,
+  Alert
 } from "@upmind-automation/upmind-ui";
 
 // --- utils

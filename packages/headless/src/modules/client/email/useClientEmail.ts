@@ -1,6 +1,6 @@
 // --- external
 import { computed } from "vue";
-import { interpret } from "xstate";
+import { interpret, InterpreterFrom } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 import { useActor } from "@xstate/vue";
 
@@ -23,6 +23,7 @@ import {
   responseCodes,
   contextMatches,
   ResponseError,
+  stopService
 } from "../../../utils";
 import { debounce, get, isEmpty, isEqual } from "lodash-es";
 
@@ -38,7 +39,7 @@ export const useClientEmail = (
   id?: Email["id"],
   {
     allowMultipleEdits,
-    clientId,
+    clientId
   }: { allowMultipleEdits?: boolean; clientId?: IClient["id"] } = {}
 ) => {
   const { getOne } = useClientEmails();
@@ -49,17 +50,17 @@ export const useClientEmail = (
       .withConfig({
         actions: useClientEmailActions() as any,
         guards: useClientEmailGuards() as any,
-        services: useClientEmailServices() as any,
+        services: useClientEmailServices() as any
       })
       .withContext({
         clientId,
         id,
         model: getOne(id),
-        allowMultipleEdits,
+        allowMultipleEdits
       }),
     {
       id: id ?? "new-email",
-      devTools: false,
+      devTools: false
     }
   );
 
@@ -75,7 +76,7 @@ export const useClientEmail = (
 
   async function isReady(): Promise<boolean> {
     return waitFor(service, state => stateMatches(state, "available"), {
-      timeout: Infinity,
+      timeout: Infinity
     }).then(state => !stateMatches(state, "error"));
   }
 
@@ -88,7 +89,7 @@ export const useClientEmail = (
     isProcessing: stateMatches(state, "processing"),
     isComplete:
       stateValue(state, "done", false) ||
-      stateMatches(state, ["processed", "complete"]),
+      stateMatches(state, ["processed", "complete"])
   }));
 
   // --- context
@@ -109,7 +110,9 @@ export const useClientEmail = (
 
   // --- methods
 
-  async function input(model: EmailModel): Promise<EmailModel> {
+  async function input(
+    model: EmailModel | Record<string, any>
+  ): Promise<EmailModel> {
     send({ type: "SET", data: model });
     // then we wait until the module has been checked and is valid/invalid
     return waitFor(service, state =>
@@ -127,7 +130,9 @@ export const useClientEmail = (
       });
   }
 
-  async function update(value?: EmailModel): Promise<EmailModel> {
+  async function update(
+    value?: EmailModel | Record<string, any>
+  ): Promise<EmailModel> {
     // first check if our model has changed, if it has we need to send it
 
     const model = contextValue<EmailModel>(state, "model");
@@ -160,7 +165,7 @@ export const useClientEmail = (
             ErrorOrigin.Headless,
             {
               error,
-              state: state.value,
+              state: state.value
             }
           )
         );
@@ -169,6 +174,10 @@ export const useClientEmail = (
 
   function clear(): void {
     service.send({ type: "CLEAR" });
+  }
+
+  function stop(): void {
+    stopService(service as InterpreterFrom<any>);
   }
   // ---------------------------------------------------------------------------
   return {
@@ -244,7 +253,7 @@ export const useClientEmail = (
      * @param {EmailModel} value The optional new model to set. uses the current model if not provided.
      * @returns {Promise<EmailModel>} Resolves when updated model from the service, rejects on error.
      */
-    update,
+    update
   };
 };
 

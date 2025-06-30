@@ -13,7 +13,7 @@ import {
   first,
   reduce,
   some,
-  isNil,
+  isNil
 } from "lodash-es";
 import { computed, readonly, ref } from "vue";
 
@@ -26,7 +26,7 @@ export const useLocale = (defaultLocale: string = "en") => {
   const {
     validateLanguage,
     // languages: supportedLocales,
-    isReady: brandIsReady,
+    isReady: brandIsReady
   } = useBrand();
   const { get, set } = useLocalStorage();
 
@@ -46,7 +46,7 @@ export const useLocale = (defaultLocale: string = "en") => {
   const meta = computed(() => ({
     isLoading: loading.value,
     isAvailable: !isEmpty(SupportedLocaleCodes),
-    hasLocale: !isEmpty(locale.value),
+    hasLocale: !isEmpty(locale.value)
   }));
 
   // --- context
@@ -67,7 +67,7 @@ export const useLocale = (defaultLocale: string = "en") => {
           searchParams.get(QUERY_PARAMS.LOCALE),
           searchParams.get(QUERY_PARAMS.LANG),
           get("i18n/locale"),
-          window.navigator.language,
+          window.navigator.language
         ]),
         code => code.replace("_", "-") as SupportedLocaleCodes
       )
@@ -194,7 +194,7 @@ export const useLocale = (defaultLocale: string = "en") => {
      * Sets the default locale based on all fallback logic.
      * @return {Promise<string>} Resolves with the default locale.
      */
-    setDefaultLocale,
+    setDefaultLocale
   };
 };
 

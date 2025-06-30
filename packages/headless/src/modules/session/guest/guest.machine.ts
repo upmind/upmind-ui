@@ -10,7 +10,7 @@ import type {
   LoginModel,
   RecoverModel,
   RegisterModel,
-  TWOFAModel,
+  TWOFAModel
 } from "./types";
 
 import { useDataLayer } from "../../system";
@@ -24,7 +24,7 @@ import {
   useValidationParser,
   useCookies,
   ResponseError,
-  mapToHeadlessError,
+  mapToHeadlessError
 } from "../../../utils";
 const { setTopLevel: setCookie } = useCookies();
 
@@ -40,7 +40,7 @@ import {
   useRecoverUischemaParser,
   useRegisterModelParser,
   useRegisterSchemaParser,
-  useRegisterUischemaParser,
+  useRegisterUischemaParser
 } from "./utils";
 
 import { omit } from "lodash-es";
@@ -68,9 +68,9 @@ export default createMachine(
             actions: escalate(
               (_context: GuestContext, { data }: AnyEventObject) =>
                 data?.error || data
-            ),
-          },
-        },
+            )
+          }
+        }
       },
 
       available: {
@@ -86,8 +86,8 @@ export default createMachine(
               loading: {
                 always: {
                   target: "available",
-                  actions: ["clearError", "setLoginSchemas"],
-                },
+                  actions: ["clearError", "setLoginSchemas"]
+                }
                 // after: {
                 //   wait: {
                 //     target: "available",
@@ -100,9 +100,9 @@ export default createMachine(
                 on: {
                   AUTHENTICATE: {
                     target: "authenticating",
-                    actions: ["setModel"],
-                  },
-                },
+                    actions: ["setModel"]
+                  }
+                }
               },
               authenticating: {
                 invoke: {
@@ -111,48 +111,48 @@ export default createMachine(
                     {
                       target: "challenging",
                       actions: ["set2faToken", "set2faSchemas"],
-                      cond: "requires2fa",
+                      cond: "requires2fa"
                     },
                     {
                       target: "#complete",
-                      actions: ["setActor", "pushLogin"],
-                    },
+                      actions: ["setActor", "pushLogin"]
+                    }
                   ],
                   onError: {
                     target: "error",
-                    actions: ["setError", "setFeedbackError"],
-                  },
-                },
+                    actions: ["setError", "setFeedbackError"]
+                  }
+                }
               },
               challenging: {
                 on: {
                   VERIFY: { target: "verifying" },
-                  CANCEL: { target: "available" },
-                },
+                  CANCEL: { target: "available" }
+                }
               },
               verifying: {
                 invoke: {
                   src: "verify2fa",
                   onDone: {
                     target: "#complete",
-                    actions: ["setActor", "pushLogin"],
+                    actions: ["setActor", "pushLogin"]
                   },
                   onError: {
                     target: "challenging",
-                    actions: ["setError", "setFeedbackError"],
-                  },
-                },
+                    actions: ["setError", "setFeedbackError"]
+                  }
+                }
               },
               error: {
                 on: {
                   SET: { target: "available", actions: ["setModel"] },
                   AUTHENTICATE: {
                     target: "authenticating",
-                    actions: ["setModel"],
-                  },
-                },
-              },
-            },
+                    actions: ["setModel"]
+                  }
+                }
+              }
+            }
           },
 
           // --- Start the creation flow,
@@ -166,82 +166,82 @@ export default createMachine(
                   src: "getCustomFields",
                   onDone: {
                     target: "available",
-                    actions: ["setCustomFields", "setRegisterSchemas"],
+                    actions: ["setCustomFields", "setRegisterSchemas"]
                   },
                   onError: {
                     target: "error",
-                    actions: ["setError", "setFeedbackError"],
-                  },
-                },
+                    actions: ["setError", "setFeedbackError"]
+                  }
+                }
               },
               available: {
                 on: {
-                  REGISTER: { target: "checking", actions: ["setModel"] },
-                },
+                  REGISTER: { target: "checking", actions: ["setModel"] }
+                }
               },
               checking: {
                 invoke: {
                   src: "checkForReCaptcha",
                   onDone: [
                     { target: "challenging", cond: "requiresReCaptcha" },
-                    { target: "registering" },
+                    { target: "registering" }
                   ],
                   onError: {
                     target: "available",
-                    actions: ["setError", "setFeedbackError"],
-                  },
-                },
+                    actions: ["setError", "setFeedbackError"]
+                  }
+                }
               },
               challenging: {
                 on: {
-                  VERIFY: { target: "verifying" },
-                },
+                  VERIFY: { target: "verifying" }
+                }
               },
               verifying: {
                 invoke: {
                   src: "verifyReCaptcha",
                   onDone: {
                     target: "registering",
-                    actions: [],
+                    actions: []
                   },
                   onError: {
                     target: "challenging",
-                    actions: ["setError", "setFeedbackError"],
-                  },
-                },
+                    actions: ["setError", "setFeedbackError"]
+                  }
+                }
               },
               registering: {
                 invoke: {
                   src: "register",
                   onDone: {
-                    target: "authenticating",
+                    target: "authenticating"
                   },
                   onError: {
                     target: "error",
-                    actions: ["setError", "setFeedbackError"],
-                  },
-                },
+                    actions: ["setError", "setFeedbackError"]
+                  }
+                }
               },
               authenticating: {
                 invoke: {
                   src: "authenticate",
                   onDone: {
                     target: "#complete",
-                    actions: ["setActor", "pushRegister"],
+                    actions: ["setActor", "pushRegister"]
                   },
                   onError: {
                     target: "error",
-                    actions: ["setError", "setFeedbackError"],
-                  },
-                },
+                    actions: ["setError", "setFeedbackError"]
+                  }
+                }
               },
               error: {
                 on: {
                   SET: { target: "available", actions: ["setModel"] },
-                  REGISTER: { target: "checking", actions: ["setModel"] },
-                },
-              },
-            },
+                  REGISTER: { target: "checking", actions: ["setModel"] }
+                }
+              }
+            }
           },
 
           // --- potential alternate/future form flows
@@ -257,63 +257,62 @@ export default createMachine(
               loading: {
                 always: {
                   target: "available",
-                  actions: ["clearError", "setRecoverSchemas"],
-                },
+                  actions: ["clearError", "setRecoverSchemas"]
+                }
               },
               available: {
                 on: {
-                  RECOVER: { target: "recovering", actions: ["setModel"] },
-                },
+                  RECOVER: { target: "recovering", actions: ["setModel"] }
+                }
               },
               recovering: {
                 invoke: {
                   src: "recover",
                   onDone: {
                     target: "complete",
-                    actions: ["setFeedbackSuccess"],
+                    actions: ["setFeedbackSuccess"]
                   },
                   onError: {
                     target: "error",
-                    actions: ["setError", "setFeedbackError"],
-                  },
-                },
+                    actions: ["setError", "setFeedbackError"]
+                  }
+                }
               },
               error: {
                 on: {
                   SET: { target: "available", actions: ["setModel"] },
-                  RECOVER: { target: "recovering", actions: ["setModel"] },
-                },
+                  RECOVER: { target: "recovering", actions: ["setModel"] }
+                }
               },
-              complete: {},
-            },
-          },
+              complete: {}
+            }
+          }
         },
         on: {
           LOGIN: { target: "available.login" },
           RECOVER: { target: "available.recover" },
           REGISTER: { target: "available.register" },
-          SET: { actions: ["setModel"] },
-        },
+          SET: { actions: ["setModel"] }
+        }
       },
 
       // Handle errors
       error: {
         id: "error",
-        type: "final",
+        type: "final"
       },
 
       // Handle completion, stop the machine and prevent further requests
       complete: {
         id: "complete",
-        type: "final",
-      },
-    },
+        type: "final"
+      }
+    }
   },
   {
     actions: {
       setCustomFields: assign({
-        customFields: (_context: GuestContext, { data }: AnyEventObject) =>
-          data,
+        customFields: (_context: GuestContext, { data }: AnyEventObject) => data
       }),
 
       setRegisterSchemas: assign({
@@ -324,7 +323,7 @@ export default createMachine(
           useRegisterUischemaParser(customFields),
 
         model: ({ customFields, model }: GuestContext) =>
-          useRegisterModelParser(model as RegisterModel, customFields),
+          useRegisterModelParser(model as RegisterModel, customFields)
       }),
 
       setLoginSchemas: assign({
@@ -333,7 +332,7 @@ export default createMachine(
         uischema: (_context: GuestContext, { data }: AnyEventObject) =>
           useLoginUischemaParser(),
         model: ({ model }: GuestContext) =>
-          useLoginModelParser(model as LoginModel),
+          useLoginModelParser(model as LoginModel)
       }),
 
       set2faSchemas: assign({
@@ -342,7 +341,7 @@ export default createMachine(
         uischema: (_context: GuestContext, { data }: AnyEventObject) =>
           use2faUischemaParser(),
         model: ({ model }: GuestContext) =>
-          use2faModelParser(model as TWOFAModel),
+          use2faModelParser(model as TWOFAModel)
       }),
 
       setRecoverSchemas: assign({
@@ -351,14 +350,14 @@ export default createMachine(
         uischema: (_context: GuestContext, { data }: AnyEventObject) =>
           useRecoverUischemaParser(),
         model: ({ model }: GuestContext) =>
-          useRecoverModelParser(model as RecoverModel),
+          useRecoverModelParser(model as RecoverModel)
       }),
 
       setModel: assign({
-        model: (_context: GuestContext, { data }: AnyEventObject) => data,
+        model: (_context: GuestContext, { data }: AnyEventObject) => data
       }),
       set2faToken: assign({
-        token: (_context: GuestContext, { data }: AnyEventObject) => data,
+        token: (_context: GuestContext, { data }: AnyEventObject) => data
       }),
 
       setFeedbackSuccess: (_context: GuestContext, _event: AnyEventObject) => {
@@ -389,7 +388,7 @@ export default createMachine(
           "upm_actor",
           omit(data?.analytics, ["environment", "language", "version"]),
           {
-            expires: "8h",
+            expires: "8h"
           }
         );
       },
@@ -405,16 +404,14 @@ export default createMachine(
           }
 
           if (error?.status == responseCodes.Unprocessable_Entity) {
-            // lets parse/override our error message and data
-            // this is to generate valid json schema validation errors
             error.data = useValidationParser(error.data);
           }
 
           return error;
-        },
+        }
       }),
 
-      clearError: assign({ error: undefined }),
+      clearError: assign({ error: undefined })
     },
     guards: {
       requires2fa: (_context: GuestContext, { data }: AnyEventObject) => {
@@ -423,10 +420,10 @@ export default createMachine(
         );
       },
       requiresReCaptcha: (_context: GuestContext, { data }: AnyEventObject) =>
-        !!data?.recaptcha_required,
+        !!data?.recaptcha_required
     },
 
     delays: {},
-    services,
+    services
   }
 );

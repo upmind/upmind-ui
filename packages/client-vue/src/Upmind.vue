@@ -58,7 +58,7 @@
 export default {
   name: "ind",
   inheritAttrs: false,
-  customOptions: {},
+  customOptions: {}
 };
 </script>
 
@@ -103,7 +103,7 @@ const route = computed(() =>
 
 const styles = useStyles(["page"], {
   route,
-  loading,
+  loading
 }) as ComputedRef<{
   page: string;
 }>;

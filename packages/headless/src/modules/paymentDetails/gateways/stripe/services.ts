@@ -11,7 +11,7 @@ import {
   ErrorOrigin,
   NotAuthenticatedError,
   responseCodes,
-  useValidation,
+  useValidation
 } from "../../../../utils";
 import { getSupportedPaymentMethods, getPublicKey } from "./utils";
 import { reject, set } from "lodash-es";
@@ -83,9 +83,9 @@ async function validate(
         schemaPath: "#/properties/payment_method_addition",
         keyword: "required",
         params: {
-          missingProperty: "payment_method_addition",
+          missingProperty: "payment_method_addition"
         },
-        message: "Stripe element is incomplete.",
+        message: "Stripe element is incomplete."
       });
     }
 
@@ -116,23 +116,23 @@ async function createPaymentElement(
     mode: "payment",
     paymentMethodCreation: "manual",
     paymentMethodTypes: getSupportedPaymentMethods(gateway),
-    setupFutureUsage: "off_session",
+    setupFutureUsage: "off_session"
   });
   const element = elements?.create("payment", {
     defaultValues: {
       billingDetails: {
         address: {
           postal_code: address?.postcode,
-          country: address?.country?.code,
-        },
-      },
-    },
+          country: address?.country?.code
+        }
+      }
+    }
   });
 
   return new Promise(resolve => {
     resolve({
       elements,
-      element,
+      element
     });
   });
 }
@@ -173,7 +173,7 @@ async function update({ elements, stripe, model }: StripeContext) {
   // Create PaymentMethod using details collected via Payment Element
   const { error, paymentMethod } = await stripe
     .createPaymentMethod({
-      elements,
+      elements
     })
     .catch((error: any) => Promise.reject(error));
 
@@ -228,8 +228,8 @@ async function createAddElement(
     url: useUrl(`gateway/frontend/tokenize-begin/${gateway?.id}`),
     withAccessToken: true,
     data: {
-      client_id: clientId,
-    },
+      client_id: clientId
+    }
   }).then(data => {
     // Flow ref: https://stripe.com/docs/payments/save-and-reuse?platform=web&ui=elements#enable-payment-methods
     const clientPaymentDetailsId = data?.client_payment_details?.id;
@@ -238,7 +238,7 @@ async function createAddElement(
     // --- create stripe elements
     const elements = stripe.elements({
       clientSecret,
-      locale: "auto", // TODO: add i18n local
+      locale: "auto" // TODO: add i18n local
     });
 
     const element = elements?.create("payment", {
@@ -246,10 +246,10 @@ async function createAddElement(
         billingDetails: {
           address: {
             postal_code: address?.postcode,
-            country: address?.country?.code,
-          },
-        },
-      },
+            country: address?.country?.code
+          }
+        }
+      }
     });
     // ---
 
@@ -257,7 +257,7 @@ async function createAddElement(
       elements,
       element,
       clientSecret,
-      clientPaymentDetailsId,
+      clientPaymentDetailsId
     };
   });
 }
@@ -290,5 +290,5 @@ export default {
   // ---
   confirmSetup,
   endSetup,
-  update,
+  update
 };

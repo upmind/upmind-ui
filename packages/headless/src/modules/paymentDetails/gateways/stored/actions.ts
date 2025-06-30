@@ -13,11 +13,11 @@ import { useSchema, useUischema } from "./utils";
 export default {
   setSchemas: assign({
     schema: context => useSchema(context),
-    uischema: context => useUischema(context),
+    uischema: context => useUischema(context)
   }),
 
   setModel: assign({
     model: ({ schema, model }: any, { data }: any) =>
-      useModelParser(schema, data || model),
-  }),
+      useModelParser(schema, data || model)
+  })
 };

@@ -41,7 +41,7 @@ import { useVModel } from "@vueuse/core";
 import { debounce } from "lodash-es";
 import {
   ProductCategory,
-  useProductCategories,
+  useProductCategories
 } from "@upmind-automation/headless";
 import { HTMLAttributes, ref } from "vue";
 
@@ -54,7 +54,7 @@ const props = withDefaults(
     class?: HTMLAttributes["class"];
   }>(),
   {
-    skeletonCount: 4,
+    skeletonCount: 4
   }
 );
 
@@ -62,7 +62,7 @@ const emits = defineEmits(["update:modelValue"]);
 
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
-  defaultValue: "",
+  defaultValue: ""
 });
 
 const { data: categories, meta, filter } = useProductCategories();
@@ -73,9 +73,9 @@ const all: ProductCategory = {
   title: "All Categories",
   uiMeta: {
     uischema: {
-      icon: "all-categories",
-    },
-  },
+      icon: "all-categories"
+    }
+  }
 };
 
 const searchQuery = ref("");

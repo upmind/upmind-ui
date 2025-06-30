@@ -9,7 +9,7 @@ import {
   isNil,
   isString,
   isNumber,
-  toNumber,
+  toNumber
 } from "lodash-es";
 
 // --- types
@@ -20,6 +20,7 @@ export type { ErrorObject } from "ajv";
 // -----------------------------------------------------------------------------
 
 export enum responseCodes {
+  "Aborted" = 20,
   "OK" = 200,
   "No_Content" = 204,
   "Bad_Request" = 400,
@@ -34,14 +35,14 @@ export enum responseCodes {
   "Internal_Server_Error" = 500,
   "Bad_Gateway" = 502,
   "Service_Unavailable" = 503,
-  "Gateway_Timeout" = 504,
+  "Gateway_Timeout" = 504
   // ---
 }
 
 export enum ErrorOrigin {
   "Upmind" = "upmind",
   "External" = "external",
-  "Headless" = "headless",
+  "Headless" = "headless"
 }
 
 export type ResponseError = {
@@ -134,7 +135,7 @@ export function parseError(
       schemaPath: `#/properties/${propertyName}`,
       keyword: "",
       params: {},
-      external: !!external,
+      external: !!external
     } as ErrorObject;
   });
 }

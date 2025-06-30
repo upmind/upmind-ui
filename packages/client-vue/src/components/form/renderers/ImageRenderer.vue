@@ -7,7 +7,6 @@
         :accepted-file-types="fileTypes"
         :max-files="1"
         :label-idle="labelText"
-        :credits="false"
         :class="styles.form.file"
         max-file-size="5MB"
         stylePanelAspectRatio="0.2"
@@ -87,7 +86,7 @@ export const tester = {
   controlType: and(
     uiTypeIs("Control"),
     or(formatIs("file"), optionIs("type", "image"))
-  ),
+  )
 };
 </script>
 

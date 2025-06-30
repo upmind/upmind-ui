@@ -45,7 +45,7 @@
 
     <div :class="styles.domain.root">
       <DomainCards
-        :model-value="values"
+        :model-value="selected"
         :items="items"
         :offset="offset"
         :loading="meta.isLoading"
@@ -83,7 +83,7 @@
         :loading="meta.isProcessing"
         :disabled="meta.isEmpty || meta.isDisabled || meta.isProcessing"
         @click="onResolve"
-        :label="t('domain.dac.actions.continue', values?.length)"
+        :label="t('domain.dac.actions.continue', selected?.length)"
         prependIcon="plus"
         :color="color"
       />
@@ -106,7 +106,7 @@ import {
   Button,
   Drawer,
   FormControl,
-  Input,
+  Input
 } from "@upmind-automation/upmind-ui";
 import DomainCards from "./DomainCards.vue";
 import DomainSearch from "./DomainSearch.vue";
@@ -126,10 +126,10 @@ const emit = defineEmits<{
 
 const props = withDefaults(defineProps<DacProps>(), {
   offset: 0,
-  values: () => [],
+  selected: () => [],
   items: () => [],
   dialog: true,
-  color: "base",
+  color: "base"
 });
 
 const { t } = useI18n();
@@ -148,7 +148,7 @@ watch(open, value => {
 
 const meta = computed(() => ({
   hasDomain: !!props.modelValue,
-  isEmpty: !props.values?.length,
+  isEmpty: !props.selected?.length,
   hasItems: !!props.items?.length,
   hasMore: props.more,
   isLoading: props.loading,
@@ -157,7 +157,7 @@ const meta = computed(() => ({
   showComplete: props.complete,
 
   // ---
-  showDialog: props.dialog && open.value,
+  showDialog: props.dialog && open.value
 }));
 
 const styles = useStyles(

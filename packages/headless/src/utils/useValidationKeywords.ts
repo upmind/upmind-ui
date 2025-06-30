@@ -1,7 +1,7 @@
 // --- external
 import {
   isValidPhoneNumber,
-  parsePhoneNumberWithError,
+  parsePhoneNumberWithError
 } from "libphonenumber-js";
 
 // --- utils
@@ -12,7 +12,7 @@ import {
   isEqual,
   isEmpty,
   startsWith,
-  isFunction,
+  isFunction
 } from "lodash-es";
 
 // --- types
@@ -23,7 +23,7 @@ import type { KeywordDefinition } from "ajv";
 export const useManageKeyword: KeywordDefinition = {
   keyword: "manage",
   schemaType: "object",
-  errors: false,
+  errors: false
 };
 
 export const phoneCountryCodeKeyword: KeywordDefinition = {
@@ -31,6 +31,7 @@ export const phoneCountryCodeKeyword: KeywordDefinition = {
   type: ["string", "object", "null"],
   schemaType: "string",
   validate: (schema, data, parentSchema, dataCxt) => {
+    if (isEmpty(data)) return true;
     if (isString(data) && startsWith(data, "+")) {
       return isValidPhoneNumber(data);
     } else if (isObject(data)) {
@@ -71,8 +72,8 @@ export const phoneCountryCodeKeyword: KeywordDefinition = {
       // });
 
       return "Invalid phone number format";
-    },
-  },
+    }
+  }
 };
 
 export const requiredIfKeyword: KeywordDefinition = {
@@ -89,8 +90,8 @@ export const requiredIfKeyword: KeywordDefinition = {
   error: {
     message: cxt => {
       return `is required if ${cxt.schema.field} is ${cxt.schema.value}`;
-    },
-  },
+    }
+  }
 };
 
 export const requiredUnlessKeyword: KeywordDefinition = {
@@ -107,8 +108,8 @@ export const requiredUnlessKeyword: KeywordDefinition = {
   error: {
     message: cxt => {
       return `is required unless ${cxt.schema.field} is ${cxt.schema.value}`;
-    },
-  },
+    }
+  }
 };
 
 export const requiredWithKeyword: KeywordDefinition = {
@@ -129,8 +130,8 @@ export const requiredWithKeyword: KeywordDefinition = {
         ? get(schemaObj.properties, cxt.schema)
         : undefined;
       return `is required with ${dependent?.title ?? cxt.schema}`;
-    },
-  },
+    }
+  }
 };
 
 export const requiredWithoutKeyword: KeywordDefinition = {
@@ -151,8 +152,8 @@ export const requiredWithoutKeyword: KeywordDefinition = {
         ? get(schemaObj.properties, cxt.schema)
         : undefined;
       return `is required without ${dependent?.title ?? cxt.schema}`;
-    },
-  },
+    }
+  }
 };
 
 export const sameKeyword: KeywordDefinition = {
@@ -167,8 +168,8 @@ export const sameKeyword: KeywordDefinition = {
   error: {
     message: cxt => {
       return "Field must be the same as " + cxt.data + " is " + cxt.schema;
-    },
-  },
+    }
+  }
 };
 
 export const differentKeyword: KeywordDefinition = {
@@ -183,6 +184,6 @@ export const differentKeyword: KeywordDefinition = {
   error: {
     message: cxt => {
       return "Field must be different from " + cxt.data + " is " + cxt.schema;
-    },
-  },
+    }
+  }
 };

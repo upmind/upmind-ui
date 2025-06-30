@@ -14,7 +14,7 @@ import {
   stateMatches,
   useContext,
   contextMatches,
-  contextValue,
+  contextValue
 } from "../../utils";
 import { parseDomain } from "./utils";
 
@@ -48,17 +48,16 @@ export const useDomain = (
 
   const safeModel = map(isArray(value) ? value : [value], parseDomain);
 
-  const context = {
-    type: safeType,
-    choices: safeType ? null : DomainTypes,
-    model: safeModel,
-  };
+  const service = interpret(
+    domainMachine.withContext({
+      type: safeType,
+      choices: safeType ? null : DomainTypes,
+      model: safeModel
+    } as any),
+    { devTools: false }
+  );
 
-  const service = interpret(domainMachine.withContext(context as any), {
-    devTools: false,
-  });
-
-  const { state, send }: any = useActor(service.start());
+  const { state, send } = useActor(service.start());
 
   // --- state
 
@@ -77,14 +76,14 @@ export const useDomain = (
       isLoading: stateMatches(state, ["subscribing", "loading"]),
       isSyncing: stateMatches(state, [
         "dac.processingBasket",
-        "basket.processing",
+        "basket.processing"
       ]),
       isSearching: stateMatches(state, [
         "dac.loading",
         "dac.processing",
         "existing.loading",
         "existing.processing",
-        "basket.loading",
+        "basket.loading"
       ]),
       isSearchingMore:
         stateMatches(state, ["dac.loading", "dac.processing"]) &&
@@ -97,7 +96,7 @@ export const useDomain = (
         "error",
         "dac.error",
         "existing.error",
-        "basket.error",
+        "basket.error"
       ]),
       showChoices: contextMatches(state, "choices"),
       showDac: stateMatches(state, ["dac"]),
@@ -111,12 +110,14 @@ export const useDomain = (
         stateMatches(state, [
           "dac.complete",
           "existing.complete",
-          "basket.complete",
-        ]) && contextMatches(state, "model"),
+          "basket.complete"
+        ]) && contextMatches(state, "model")
     };
   });
 
   // --- context
+
+  const context = useContext<DomainContext>(state);
 
   const choices = computed(() =>
     map(
@@ -127,10 +128,8 @@ export const useDomain = (
 
   const query = useContext<string>(state, "search.query");
 
-  const model = useContext<DomainContext["model"]>(state, "model");
-  // model: computed(() => map(state.value.context.model, "domain")),
-
-  const domains = computed(() => map(model.value, "domain"));
+  // const model = useContext<DomainContext["model"]>(state, "model");
+  const model = computed(() => map(state.value.context.model, "domain"));
 
   const type = useContext<DomainContext["type"]>(state, "type");
 
@@ -143,7 +142,9 @@ export const useDomain = (
   const errors = useContext<DomainContext["error"]>(state, "error");
 
   const selected = computed(() => {
-    const selected = find(model.value, "selected") || first(model.value);
+    const selected =
+      find(state.value.context?.model, "selected") ||
+      first(state.value.context?.model);
     return get(selected, "domain");
   });
 
@@ -151,8 +152,8 @@ export const useDomain = (
 
   const pagination = computed(() => ({
     offset: search.value?.offset ?? PAGINATION.offset,
-    limit: search.value?.limit ?? PAGINATION.pageSize,
-    total: search.value?.total ?? 0,
+    limit: search.value?.limit ?? PAGINATION.limit,
+    total: search.value?.total ?? 0
   }));
 
   // --- methods
@@ -160,7 +161,7 @@ export const useDomain = (
   function choose(value: string): void {
     send({
       type: "CHOOSE",
-      data: value,
+      data: value
     });
   }
 
@@ -179,47 +180,47 @@ export const useDomain = (
         : "ADD";
     send({
       type,
-      data: value,
+      data: value
     });
   }
 
   function update(model: string | Array<string>): void {
     send({
       type: "UPDATE",
-      data: isArray(model) ? model : [model],
+      data: isArray(model) ? model : [model]
     });
   }
 
   function reset(): void {
     send({
-      type: "RESET",
+      type: "RESET"
     });
   }
 
   function add(value: string): void {
     send({
       type: "ADD",
-      data: value,
+      data: value
     });
   }
 
   function remove(value: string): void {
     send({
       type: "REMOVE",
-      data: value,
+      data: value
     });
   }
 
   function select(value: string): void {
     send({
       type: "SELECT",
-      data: value,
+      data: value
     });
   }
 
   function addToBasket(): void {
     send({
-      type: "ADD_UPDATE_MANY",
+      type: "ADD_UPDATE_MANY"
     });
   }
 
@@ -258,6 +259,8 @@ export const useDomain = (
 
     // --- context
 
+    context,
+
     /**
      * List of available choices.
      */
@@ -272,12 +275,6 @@ export const useDomain = (
      * The current model (selected domains).
      */
     model,
-
-    /**
-     * List of domain values in the model.
-     * @typedef {Array<string>} DomainValues
-     */
-    domains,
 
     /**
      * The current domain type.
@@ -389,7 +386,7 @@ export const useDomain = (
     /** Stop the domain service.
      * @returns {void}
      */
-    stop: () => stopService(service as InterpreterFrom<any>),
+    stop: () => stopService(service as InterpreterFrom<any>)
   };
 };
 

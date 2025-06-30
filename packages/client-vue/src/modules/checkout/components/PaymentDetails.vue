@@ -10,7 +10,7 @@
         :is="props.cardComponent"
         :class="[
           !props.cardComponent && styles.checkout.accordion.card,
-          props.class,
+          props.class
         ]"
       >
         <AccordionItem
@@ -32,8 +32,8 @@
                 :class="[
                   styles.checkout.accordion.trigger.icon,
                   {
-                    'rotate-180': item.gateway_id === model?.gateway_id,
-                  },
+                    'rotate-180': item.gateway_id === model?.gateway_id
+                  }
                 ]"
               />
             </template>
@@ -49,7 +49,7 @@
             <AccordionContent :class="styles.checkout.accordion.content">
               <GatewayContent
                 :item="item"
-                :gatewayId="gateway?.id"
+                :gatewayId="gateway?.id?.toString()"
                 :modelValue="model?.gateway_id"
                 :meta="meta"
                 :basket-meta="basketMeta"
@@ -76,8 +76,7 @@
 // --- internal
 import {
   useBasketPaymentDetails,
-  useBasket,
-  type PaymentDetailModel,
+  useBasket
 } from "@upmind-automation/headless";
 import config from "../checkout.config";
 import { useStyles } from "@upmind-automation/upmind-ui";
@@ -89,7 +88,7 @@ import {
   AccordionItem,
   AccordionTrigger,
   AccordionContent,
-  Icon,
+  Icon
 } from "@upmind-automation/upmind-ui";
 import GatewayTrigger from "./gateway/Trigger.vue";
 import GatewayContent from "./gateway/Content.vue";
@@ -106,7 +105,7 @@ import { set } from "lodash-es";
 const props = withDefaults(defineProps<PaymentDetailsProps>(), {
   color: "secondary",
   cardComponent: "div",
-  class: "bg-base shadow-sm",
+  class: "bg-base shadow-sm"
 });
 
 const { meta, model, gateway, input, gateways } = useBasketPaymentDetails();
@@ -143,7 +142,7 @@ const selectGateway = (id: string) => {
 
   input({
     ...model.value,
-    gateway_id: id,
+    gateway_id: id
   });
 };
 </script>

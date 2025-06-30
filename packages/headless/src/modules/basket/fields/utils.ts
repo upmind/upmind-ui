@@ -4,7 +4,7 @@
 import {
   useFieldsSchemaParser,
   useFieldsUischemaParser,
-  useFieldsModelParser,
+  useFieldsModelParser
 } from "../../../utils";
 
 // --- utils
@@ -24,10 +24,10 @@ export const useSchema = ({ fields }: FieldsContext) => {
     properties: {
       notes: {
         type: ["string", "null"],
-        title: "Order Notes",
+        title: "Order Notes"
       },
-      customFields: useFieldsSchemaParser(fields),
-    },
+      customFields: useFieldsSchemaParser(fields)
+    }
   };
 
   return schema as JsonSchema;
@@ -44,11 +44,11 @@ export const useUischema = ({ fields }: FieldsContext) => {
         options: {
           multi: true,
           autosize: true,
-          autocomplete: "off",
-        },
+          autocomplete: "off"
+        }
       },
-      ...useFieldsUischemaParser(fields, "basket.fields"),
-    ],
+      ...useFieldsUischemaParser(fields, "basket.fields")
+    ]
   };
 
   return schema as UISchemaElement;
@@ -60,7 +60,7 @@ export const useModelParser = (
 ) => {
   const model = {
     notes: values?.notes,
-    customFields: useFieldsModelParser(fields, get(values, "customFields", {})),
+    customFields: useFieldsModelParser(fields, get(values, "customFields", {}))
   };
   return model as FieldsModel;
 };

@@ -5,7 +5,7 @@ import {
   BrandConfigKeys,
   GrantTypes,
   IToken,
-  TwofaProviders,
+  TwofaProviders
 } from "@upmind-automation/types";
 
 // --- utils
@@ -25,7 +25,7 @@ async function load(_context: GuestContext, _event: AnyEventObject) {
 
   await Promise.allSettled([
     fetchCountries(),
-    ensureConfig([BrandConfigKeys.REQUIRE_PHONE_ON_REGISTRATION]),
+    ensureConfig([BrandConfigKeys.REQUIRE_PHONE_ON_REGISTRATION])
   ]);
 
   const token = getTokenFromStorage("guest");
@@ -35,7 +35,7 @@ async function load(_context: GuestContext, _event: AnyEventObject) {
 
   return post<IToken>({
     url: useUrl("access_token", {}, { context: "oauth" }),
-    data: { grant_type: GrantTypes.GUEST },
+    data: { grant_type: GrantTypes.GUEST }
   }).then(data => {
     persistTokenToStorage(data);
     return data;
@@ -49,18 +49,18 @@ async function loadUser() {
     url: useUrl("self", {
       with: [
         "actor",
-        "accounts",
+        "accounts"
         // client specific only
         // "actor.account", // Relation required for determining `topup_enabled` value
         // "actor.brand", // Relation required for determining `topup_enabled` value
         // "delegated_ids",
         // "enabled_modules"
-      ].join(),
+      ].join()
     }),
     queryKey: ["session", "self"],
     withAccessToken: true,
     staleTime: 0,
-    gcTime: 0,
+    gcTime: 0
   });
 }
 
@@ -71,7 +71,7 @@ async function authenticate({ model }: GuestContext<LoginModel>) {
   const data: any = {
     username: model.username,
     password: model.password,
-    grant_type: GrantTypes.PASSWORD,
+    grant_type: GrantTypes.PASSWORD
   };
 
   // Add.match the basket currency (if available)
@@ -81,7 +81,7 @@ async function authenticate({ model }: GuestContext<LoginModel>) {
 
   return post<IToken>({
     url: useUrl("access_token", {}, { context: "oauth" }),
-    data,
+    data
   })
     .then(data => {
       // we record the history of the token to be able to reference the originating guest token
@@ -102,8 +102,8 @@ async function verify2fa({ token }: GuestContext, { data }: AnyEventObject) {
     data: {
       grant_type: GrantTypes.TWOFA,
       twofa_provider: TwofaProviders.GOOGLE,
-      twofa_code: data,
-    },
+      twofa_code: data
+    }
   })
     .then(data => {
       persistTokenToStorage(data);
@@ -118,7 +118,7 @@ async function getCustomFields(_context: GuestContext, _event: AnyEventObject) {
   return get({
     // url: useUrl("clients_fields", { brand_id: null }),
     url: useUrl("clients_fields"),
-    queryKey: ["session", "guest", "custom-fields"],
+    queryKey: ["session", "guest", "custom-fields"]
   });
 }
 
@@ -154,7 +154,7 @@ async function register({ model }: GuestContext<RegisterModel>) {
     password: model?.password,
     phone: model.phone?.nationalNumber,
     phone_code: model.phone?.countryCallingCode,
-    phone_country_code: model.phone?.country,
+    phone_country_code: model.phone?.country
   };
 
   // ---
@@ -184,7 +184,7 @@ async function register({ model }: GuestContext<RegisterModel>) {
 
   return post({
     url: useUrl("clients/register"),
-    data,
+    data
   })
     .then(loadUser)
     .finally(() => {
@@ -197,7 +197,7 @@ async function recover({ model }: GuestContext<RecoverModel>) {
   const { post, useUrl } = useQuery();
 
   const data: any = {
-    username: model?.username,
+    username: model?.username
   };
 
   // add recaptcha token if available
@@ -208,7 +208,7 @@ async function recover({ model }: GuestContext<RecoverModel>) {
 
   return post({
     url: useUrl("clients/password_reset"),
-    data,
+    data
   }).finally(() => {
     recaptcha.clear(); // clear our recaptcha token that has been used, even if the registration fails
   });
@@ -226,5 +226,5 @@ export default {
   checkForReCaptcha,
   verifyReCaptcha,
   recover,
-  register,
+  register
 };

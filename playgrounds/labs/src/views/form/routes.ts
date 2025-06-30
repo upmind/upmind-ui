@@ -12,19 +12,19 @@ const routes: RouteRecordRaw[] = [
     name: "form.address",
     component: Address,
     meta: {
-      title: "Address Renderer",
-    },
+      title: "Address Renderer"
+    }
   },
   {
     path: "/form/domain",
     name: "form.domain",
     component: Domain,
     meta: {
-      title: "Domain Renderer",
-    },
-  },
+      title: "Domain Renderer"
+    }
+  }
 ];
 
 export default {
-  routes,
+  routes
 };

@@ -1,6 +1,6 @@
 // --- external
 import { computed } from "vue";
-import { interpret } from "xstate";
+import { interpret, InterpreterFrom } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 import { useActor } from "@xstate/vue";
 
@@ -21,8 +21,9 @@ import {
   stateMatches,
   stateValue,
   useContext,
+  stopService,
   ErrorOrigin,
-  ResponseError,
+  ResponseError
 } from "../../../utils";
 import { debounce, get, isEmpty, isEqual } from "lodash-es";
 
@@ -38,7 +39,7 @@ export const useClientPhone = (
   id?: Phone["id"],
   {
     allowMultipleEdits,
-    clientId,
+    clientId
   }: { allowMultipleEdits?: boolean; clientId?: IClient["id"] } = {}
 ) => {
   const { getOne } = useClientPhones();
@@ -48,17 +49,17 @@ export const useClientPhone = (
       .withConfig({
         actions: useClientPhoneActions() as any,
         guards: useClientPhoneGuards() as any,
-        services: useClientPhoneServices() as any,
+        services: useClientPhoneServices() as any
       })
       .withContext({
         clientId,
         id,
         model: getOne(id),
-        allowMultipleEdits,
+        allowMultipleEdits
       }),
     {
       id: id ?? "new-phone",
-      devTools: true,
+      devTools: true
     }
   );
 
@@ -76,7 +77,7 @@ export const useClientPhone = (
 
   async function isReady(): Promise<boolean> {
     return waitFor(service, state => stateMatches(state, "available"), {
-      timeout: Infinity,
+      timeout: Infinity
     }).then(state => !stateMatches(state, "error"));
   }
 
@@ -89,7 +90,7 @@ export const useClientPhone = (
     isProcessing: stateMatches(state, "processing"),
     isComplete:
       stateValue(state, "done", false) ||
-      stateMatches(state, ["processed", "complete"]),
+      stateMatches(state, ["processed", "complete"])
   }));
 
   // --- context
@@ -110,7 +111,9 @@ export const useClientPhone = (
 
   // --- methods
 
-  async function input(model: PhoneModel): Promise<PhoneModel> {
+  async function input(
+    model: PhoneModel | Record<string, any>
+  ): Promise<PhoneModel> {
     send({ type: "SET", data: model });
     // then we wait until the module has been checked and is valid/invalid
     return waitFor(service, state =>
@@ -128,7 +131,9 @@ export const useClientPhone = (
       });
   }
 
-  async function update(value?: PhoneModel): Promise<PhoneModel> {
+  async function update(
+    value?: PhoneModel | Record<string, any>
+  ): Promise<PhoneModel> {
     // first check if our model has changed, if it has we need to send it
 
     const model = contextValue<PhoneModel>(state, "model");
@@ -161,7 +166,7 @@ export const useClientPhone = (
             ErrorOrigin.Headless,
             {
               error,
-              state: state.value,
+              state: state.value
             }
           )
         );
@@ -170,6 +175,9 @@ export const useClientPhone = (
 
   function clear(): void {
     service.send({ type: "CLEAR" });
+  }
+  function stop(): void {
+    stopService(service as InterpreterFrom<any>);
   }
   // ---------------------------------------------------------------------------
   return {
@@ -245,7 +253,7 @@ export const useClientPhone = (
      * @param {PhoneModel} value The optional new model to set. uses the current model if not provided.
      * @returns {Promise<PhoneModel>} Resolves when updated model from the service, rejects on error.
      */
-    update,
+    update
   };
 };
 

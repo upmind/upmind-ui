@@ -14,13 +14,13 @@ import {
   useValidationParser,
   useModelParser,
   ResponseError,
-  mapToHeadlessError,
+  mapToHeadlessError
 } from "../../../utils";
+import { isEqual } from "lodash-es";
 
 // --- types
 import type { BillingContext } from "./types";
 import { responseCodes } from "../../../utils";
-import { ErrorObject } from "ajv";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -37,16 +37,16 @@ export default createMachine(
         on: {
           REFRESH: {
             actions: ["refreshContext"],
-            cond: "hasChanged",
+            cond: "hasChanged"
           },
           SET: {
-            actions: ["setModel", "setDirty", "setAutoUpdate"],
+            actions: ["setModel", "setAutoUpdate"]
           },
 
           CLEAR: {
-            actions: ["clearModel", "clearDirty"],
-          },
-        },
+            actions: ["clearModel"]
+          }
+        }
       },
 
       loading: {
@@ -56,13 +56,13 @@ export default createMachine(
           src: "loadLookups",
           onDone: {
             target: "available",
-            actions: ["setContext", "setSchemas"],
+            actions: ["setContext", "setSchemas"]
           },
           onError: {
             target: "unavailable",
-            actions: ["setError", "setFeedbackError"],
-          },
-        },
+            actions: ["setError", "setFeedbackError"]
+          }
+        }
       },
 
       available: {
@@ -77,9 +77,9 @@ export default createMachine(
                   src: "parse",
                   onDone: {
                     target: "validating",
-                    actions: ["setParsed", "setSchemas"],
-                  },
-                },
+                    actions: ["setParsed", "setSchemas"]
+                  }
+                }
               },
               validating: {
                 invoke: {
@@ -87,19 +87,19 @@ export default createMachine(
                   onDone: [
                     {
                       target: "#valid",
-                      cond: "isDirty",
+                      cond: "isDirty"
                     },
                     {
-                      target: "#complete",
-                    },
+                      target: "#complete"
+                    }
                   ],
                   onError: {
                     target: "#invalid",
-                    actions: ["setError"],
-                  },
-                },
-              },
-            },
+                    actions: ["setError"]
+                  }
+                }
+              }
+            }
           },
 
           valid: {
@@ -108,13 +108,13 @@ export default createMachine(
             on: {
               SET: {
                 target: "checking",
-                actions: ["setAutoUpdate"],
+                actions: ["setAutoUpdate"]
               },
               UPDATE: {
                 target: "#processing",
-                cond: "hasBasket",
-              },
-            },
+                cond: "hasBasket"
+              }
+            }
           },
 
           invalid: {
@@ -122,9 +122,9 @@ export default createMachine(
             on: {
               SET: {
                 target: "checking",
-                actions: ["setAutoUpdate"],
-              },
-            },
+                actions: ["setAutoUpdate"]
+              }
+            }
           },
 
           error: {
@@ -132,11 +132,11 @@ export default createMachine(
             on: {
               SET: {
                 target: "checking",
-                actions: ["setAutoUpdate"],
-              },
-            },
-          },
-        },
+                actions: ["setAutoUpdate"]
+              }
+            }
+          }
+        }
       },
 
       unavailable: {},
@@ -149,13 +149,13 @@ export default createMachine(
           src: "update",
           onDone: {
             target: "processed",
-            actions: ["setModel", "clearDirty", "clearAutoUpdate"],
+            actions: ["persistModel", "clearDirty", "clearAutoUpdate"]
           },
           onError: {
             target: "#error",
-            actions: ["setError", "setFeedbackError"],
-          },
-        },
+            actions: ["setError", "setFeedbackError"]
+          }
+        }
       },
 
       processed: {
@@ -163,26 +163,32 @@ export default createMachine(
         entry: sendParent({ type: "REFRESH" }),
         after: {
           wait: {
-            target: "complete",
-          },
-        },
+            target: "complete"
+          }
+        }
       },
 
       complete: {
         id: "complete",
-      },
+        on: {
+          SET: {
+            target: "available",
+            actions: ["setAutoUpdate"]
+          }
+        }
+      }
     },
     on: {
       CLEAR: {
         target: "available.checking",
-        actions: ["clearModel", "setDirty"],
+        actions: ["clearModel", "setDirty"]
       },
       REFRESH: {
         target: "available.checking",
         actions: ["refreshContext", "setSchemas"],
-        cond: "hasChanged",
-      },
-    },
+        cond: "hasChanged"
+      }
+    }
   },
   {
     actions: {
@@ -195,14 +201,18 @@ export default createMachine(
           return {
             basketId: data?.id,
             clientId: data?.client_id,
+            model: {
+              addressId: data?.address_id,
+              companyId: data?.company_id,
+              phoneId: data?.phone_id
+            }
           };
         }
       ),
 
       setParsed: assign({
         model: (_context, { data }: AnyEventObject) => data.model,
-        autoupdate: (_context, { data }: AnyEventObject) => data.autoupdate,
-        dirty: (_context, { data }: AnyEventObject) => data.dirty,
+        autoupdate: (_context, { data }: AnyEventObject) => data.autoupdate
       }),
 
       setSchemas: assign({
@@ -211,7 +221,7 @@ export default createMachine(
         model: ({ schema, model }: BillingContext) => {
           if (!schema) return model;
           return useModelParser(schema, model);
-        },
+        }
       }),
 
       setModel: assign({
@@ -221,27 +231,33 @@ export default createMachine(
         ) => {
           if (!schema) return data ?? model;
           return useModelParser(schema, data ?? model);
-        },
+        }
+      }),
+
+      // persist the model as the new base model
+      persistModel: assign({
+        model: (_context: BillingContext, { data }: AnyEventObject) => ({
+          addressId: data?.address_id,
+          companyId: data?.company_id,
+          phoneId: data?.phone_id
+        }),
+        baseModel: (_context: BillingContext, { data }: AnyEventObject) => ({
+          addressId: data?.address_id,
+          companyId: data?.company_id,
+          phoneId: data?.phone_id
+        })
       }),
 
       clearModel: assign({
-        model: undefined,
-      }),
-
-      setDirty: assign({
-        dirty: true,
-      }),
-
-      clearDirty: assign({
-        dirty: false,
+        model: undefined
       }),
 
       setAutoUpdate: assign({
-        autoupdate: (_context, { update }: AnyEventObject) => !!update,
+        autoupdate: (_context, { update }: AnyEventObject) => !!update
       }),
 
       clearAutoUpdate: assign({
-        autoupdate: false,
+        autoupdate: false
       }),
 
       // ---
@@ -259,7 +275,7 @@ export default createMachine(
         addError({
           title: "We experienced an error updating billing details",
           copy: error?.message,
-          data: error?.data,
+          data: error?.data
         });
       },
 
@@ -267,19 +283,17 @@ export default createMachine(
         error: (_context, { data }: AnyEventObject) => {
           let error = mapToHeadlessError(data);
           if (error?.status == responseCodes.Unprocessable_Entity) {
-            // lets parse/override our error message and data
-            // this is to generate valid json schema validation errors
             error.data = useValidationParser(error.data);
           }
           return error;
-        },
+        }
       }),
 
-      clearError: assign({ error: undefined }),
+      clearError: assign({ error: undefined })
     },
 
     guards: {
-      isDirty: ({ dirty }, _event) => !!dirty,
+      isDirty: ({ baseModel, model }, _event) => !isEqual(baseModel, model),
       hasBasket: ({ basketId }, _event) => !!basketId,
       hasClient: ({ clientId }, _event) => !!clientId,
       hasChanged: ({ clientId, basketId }, { data }: AnyEventObject) => {
@@ -288,14 +302,14 @@ export default createMachine(
       },
       shouldUpdate: ({ autoupdate, clientId, basketId, model }, _event) => {
         return !!autoupdate && !!basketId && !!clientId && !!model?.addressId;
-      },
+      }
     },
 
     delays: {
       // error: () => useTime().ERROR,
-      wait: () => useTime().WAIT,
+      wait: () => useTime().WAIT
     },
 
-    services: services as any,
+    services: services as any
   }
 );

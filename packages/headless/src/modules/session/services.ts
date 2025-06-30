@@ -36,7 +36,7 @@ async function transferTo(_context: SessionContext) {
 
   return post({
     url: useUrl("auth_code"),
-    withAccessToken: true,
+    withAccessToken: true
   });
 }
 
@@ -58,8 +58,8 @@ async function transferFrom({ transfer }: SessionContext) {
     data: {
       grant_type: GrantTypes.AUTH_CODE,
       code: transfer.code,
-      lang: "en", // ensure we dont init i18n to get the locale
-    },
+      lang: "en" // ensure we dont init i18n to get the locale
+    }
   }).then(data => {
     persistTokenToStorage(data);
     return data;
@@ -71,5 +71,5 @@ async function transferFrom({ transfer }: SessionContext) {
 export default {
   check,
   transferTo,
-  transferFrom,
+  transferFrom
 };

@@ -6,7 +6,7 @@
         class="relative -top-4 md:-top-6"
         size="sm"
         variant="tonal"
-        :label="t('navigation.navigateBack')"
+        :label="t('navigation.back')"
         @click.prevent="doReject"
       >
         <template #prepend>
@@ -77,7 +77,7 @@ import { watch } from "vue";
 import {
   useRoutingEngine,
   useSession,
-  ROUTE,
+  ROUTE
 } from "@upmind-automation/headless";
 
 // --- components

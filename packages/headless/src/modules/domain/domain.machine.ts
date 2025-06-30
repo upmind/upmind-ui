@@ -13,7 +13,7 @@ import {
   responseCodes,
   ResponseError,
   useTime,
-  useValidationParser,
+  useValidationParser
 } from "../../utils";
 import { parseDomain, parseValue, parseSld } from "./utils";
 import {
@@ -38,7 +38,7 @@ import {
   set,
   some,
   uniqBy,
-  values,
+  values
 } from "lodash-es";
 
 // --- types
@@ -63,8 +63,8 @@ export default createMachine(
         entry: ["setContext", "clearLookups"],
         always: {
           target: "loading",
-          actions: ["setBasketHelper", "setAuthHelper"],
-        },
+          actions: ["setBasketHelper", "setAuthHelper"]
+        }
       },
 
       loading: {
@@ -78,13 +78,13 @@ export default createMachine(
                   src: "getClientDomains",
                   onDone: {
                     target: "complete",
-                    actions: ["setOwned"],
+                    actions: ["setOwned"]
                   },
-                  onError: { target: "complete" },
-                },
+                  onError: { target: "complete" }
+                }
               },
-              complete: { type: "final" },
-            },
+              complete: { type: "final" }
+            }
           },
           basket: {
             initial: "processing",
@@ -97,20 +97,20 @@ export default createMachine(
                     actions: [
                       "setBasketProducts",
                       "setCurrency",
-                      "setPromotions",
-                    ],
+                      "setPromotions"
+                    ]
                   },
                   ERROR: {
-                    target: "complete",
-                  },
-                },
+                    target: "complete"
+                  }
+                }
               },
-              complete: { type: "final" },
-            },
-          },
+              complete: { type: "final" }
+            }
+          }
         },
         onDone: "idle",
-        exit: ["checkModel", "ensureSelected", "persistModel"],
+        exit: ["checkModel", "ensureSelected", "persistModel"]
       },
 
       // our initial state depends on if the machine has been forced to a type,
@@ -122,17 +122,17 @@ export default createMachine(
           {
             target: "dac",
             cond: ({ type }) =>
-              includes([DomainTypes.register, DomainTypes.transfer], type),
+              includes([DomainTypes.register, DomainTypes.transfer], type)
           },
           {
             target: "existing",
-            cond: ({ type }) => type === DomainTypes.existing,
+            cond: ({ type }) => type === DomainTypes.existing
           },
           {
             target: "basket",
-            cond: ({ type }) => type === DomainTypes.basket,
-          },
-        ],
+            cond: ({ type }) => type === DomainTypes.basket
+          }
+        ]
       },
 
       dac: {
@@ -144,8 +144,8 @@ export default createMachine(
             entry: ["cancelController", "clearError"],
             always: [
               { target: "processing", cond: "hasSearchQuery" },
-              { target: "invalid" },
-            ],
+              { target: "invalid" }
+            ]
           },
           // cancel any existing search via the controller then wait before starting a new search & controller
           processing: {
@@ -155,43 +155,43 @@ export default createMachine(
               src: "search",
               onDone: {
                 target: "invalid",
-                actions: ["setSearchResults"],
+                actions: ["setSearchResults"]
               },
               onError: [
                 {
                   target: "error",
                   actions: ["setError"],
-                  cond: "isNotCancelled",
+                  cond: "isNotCancelled"
                 },
                 {
-                  actions: ["setError"],
-                },
-              ],
-            },
+                  actions: ["setError"]
+                }
+              ]
+            }
           },
           valid: {
             type: "final",
             always: [
               {
                 target: "invalid",
-                cond: "isInvalid",
-              },
+                cond: "isInvalid"
+              }
             ],
             on: {
               ADD_UPDATE_MANY: {
                 target: "processingBasket",
-                actions: ["addToBasket"],
-              },
-            },
+                actions: ["addToBasket"]
+              }
+            }
           },
           invalid: {
-            always: [{ target: "valid", cond: "isValid" }],
+            always: [{ target: "valid", cond: "isValid" }]
           },
           processingBasket: {
             on: {
               REFRESH: {
                 // Do nothing > wait for the updated event
-                actions: ["setBasketProducts", "setCurrency", "setPromotions"],
+                actions: ["setBasketProducts", "setCurrency", "setPromotions"]
               },
               UPDATED: {
                 target: "#basket",
@@ -200,55 +200,55 @@ export default createMachine(
                   "setModelFromBasket",
                   "ensureSelected",
                   "checkChoices",
-                  "persistModel",
-                ],
+                  "persistModel"
+                ]
               },
 
-              ERROR: { actions: ["setError"] },
-            },
+              ERROR: { actions: ["setError"] }
+            }
           },
           error: {},
-          complete: {},
+          complete: {}
         },
         on: {
           ADD: [
             {
               target: ".valid",
               actions: ["add", "ensureSelected"],
-              cond: "isValidDomain",
-            },
+              cond: "isValidDomain"
+            }
           ],
           REMOVE: {
             target: ".valid",
             actions: ["remove", "ensureSelected"],
-            cond: "isValid",
+            cond: "isValid"
           },
           UPDATE: {
             target: ".valid",
-            actions: ["setModel", "ensureSelected"],
+            actions: ["setModel", "ensureSelected"]
           },
           SEARCH: [
             {
               target: ".loading",
               actions: ["setSearchQuery"],
-              cond: "validSearchQuery",
+              cond: "validSearchQuery"
             },
             {
-              actions: ["setSearchQuery"],
-            },
+              actions: ["setSearchQuery"]
+            }
           ],
           "SEARCH.OFFSET": {
             target: ".loading",
             actions: ["setSearchOffset"],
-            cond: "validSearchOffset",
+            cond: "validSearchOffset"
           },
           RESET: {
             target: ".invalid",
-            actions: ["resetModel", "resetLookups", "clearSearch"],
+            actions: ["resetModel", "resetLookups", "clearSearch"]
           },
 
-          ERROR: { actions: ["setError"] },
-        },
+          ERROR: { actions: ["setError"] }
+        }
         // exit: ["clearModel"],
       },
 
@@ -259,22 +259,22 @@ export default createMachine(
         states: {
           valid: {},
           invalid: {},
-          error: {},
+          error: {}
         },
         on: {
           UPDATE: [
             {
               target: ".valid",
               actions: ["clearError", "setExisting", "persistModel"],
-              cond: "isValid",
+              cond: "isValid"
             },
             {
               target: ".invalid",
-              actions: ["setErrorInvalidDomain", "setExisting", "persistModel"],
-            },
-          ],
+              actions: ["setErrorInvalidDomain", "setExisting", "persistModel"]
+            }
+          ]
         },
-        exit: ["clearModel", "persistModel"],
+        exit: ["clearModel", "persistModel"]
       },
 
       basket: {
@@ -284,45 +284,45 @@ export default createMachine(
         states: {
           loading: {
             after: {
-              wait: "invalid",
-            },
+              wait: "invalid"
+            }
           },
           processing: {
             after: {
-              wait: "invalid",
-            },
+              wait: "invalid"
+            }
           },
           valid: {
             always: {
               target: "invalid",
-              cond: "isInvalid",
-            },
+              cond: "isInvalid"
+            }
           },
           invalid: {
             always: {
               target: "valid",
-              cond: "isValid",
-            },
+              cond: "isValid"
+            }
           },
 
           error: {},
-          complete: {},
+          complete: {}
         },
         on: {
           SELECT: [
             {
               target: ".processing",
               actions: ["select", "persistModel"],
-              cond: "isSelectable",
-            },
-          ],
+              cond: "isSelectable"
+            }
+          ]
         },
-        exit: ["clearModel", "persistModel"],
+        exit: ["clearModel", "persistModel"]
       },
 
       complete: {
-        type: "final",
-      },
+        type: "final"
+      }
     },
     on: {
       REFRESH: {
@@ -330,44 +330,44 @@ export default createMachine(
           "setBasketProducts",
           "setCurrency",
           "setPromotions",
-          "checkChoices",
-        ],
+          "checkChoices"
+        ]
       },
 
       CHOOSE: [
         {
           // do nothing
-          cond: "isInvalidType",
+          cond: "isInvalidType"
         },
         {
           target: "dac",
           actions: ["setType"],
-          cond: "isDomainRegister",
+          cond: "isDomainRegister"
         },
         {
           target: "dac",
           actions: ["setType"],
-          cond: "isDomainTransfer",
+          cond: "isDomainTransfer"
         },
         {
           target: "existing",
           actions: ["setType"],
-          cond: "isExistingDomain",
+          cond: "isExistingDomain"
         },
         {
           target: "basket",
           actions: ["setType"],
-          cond: "isBasket",
-        },
+          cond: "isBasket"
+        }
       ],
 
       STOP: {
-        target: "complete",
+        target: "complete"
       },
 
       AUTHENTICATED: { target: "loading", actions: ["clearLookups"] },
-      UNAUTHENTICATED: { target: "loading", actions: ["clearLookups"] },
-    },
+      UNAUTHENTICATED: { target: "loading", actions: ["clearLookups"] }
+    }
   },
   {
     actions: {
@@ -380,7 +380,7 @@ export default createMachine(
             searched: [],
             history: [],
             owned: [],
-            basket: [],
+            basket: []
           },
           // ---
           currency: undefined,
@@ -388,9 +388,9 @@ export default createMachine(
           // ---
           search: {
             query: undefined,
-            limit: PAGINATION.pageSize,
+            limit: PAGINATION.limit,
             offset: PAGINATION.offset,
-            total: 0,
+            total: 0
           },
 
           controller: undefined,
@@ -400,17 +400,19 @@ export default createMachine(
           authHelper: undefined,
           basketHelper: undefined,
           parseBasketProduct: undefined,
-          parseProductModel: undefined,
+          parseProductModel: undefined
         })
       ),
 
       persistModel: assign({
-        baseModel: ({ model }: DomainContext) => cloneDeep(model), // we use spread to ensure its a new array
+        baseModel: ({ model }: DomainContext) => compact(cloneDeep(model)) // we use spread to ensure its a new array
       }),
 
       checkModel: assign({
         model: ({ model, lookups }: DomainContext) => {
-          const values = map(model, item => parseDomain(item)) as DomainModel[];
+          const values = compact(
+            map(model, item => parseDomain(item))
+          ) as DomainModel[];
           if (isEmpty(values) && !isEmpty(lookups.basket)) {
             return map(lookups.basket, item => {
               return {
@@ -418,12 +420,12 @@ export default createMachine(
                 tld: item.tld,
                 sld: item.sld,
                 typee: DomainTypes.basket,
-                selected: item.meta.selected,
+                selected: item.meta.selected
               } as DomainModel;
             }) as DomainModel[];
           }
           return values;
-        },
+        }
       }),
 
       ensureSelected: assign({
@@ -433,7 +435,7 @@ export default createMachine(
             if (primaryDomain) set(primaryDomain, "selected", true);
           }
           return model;
-        },
+        }
       }),
 
       checkChoices: assign({
@@ -451,33 +453,33 @@ export default createMachine(
             return DomainTypes.existing;
           }
           return undefined;
-        },
+        }
       }),
 
       setType: assign({
         type: (_context, { data }: AnyEventObject) => data,
-        error: undefined,
+        error: undefined
       }),
 
       setCurrency: assign({
         currency: (_context, { data }: AnyEventObject) => {
           return get(data, "currency.code");
-        },
+        }
       }),
 
       setPromotions: assign({
         promotions: (_context, { data }: AnyEventObject) =>
-          data?.promotions ?? [],
+          data?.promotions ?? []
       }),
 
       setAuthHelper: assign(({ authHelper }: DomainContext) => ({
-        authHelper: authHelper || spawn(authSubscription),
+        authHelper: authHelper || spawn(authSubscription)
       })),
 
       loadBasket: pure(({ basketHelper }: DomainContext, _event) => {
         if (!basketHelper) return;
         return sendTo(basketHelper, {
-          type: "INIT",
+          type: "INIT"
         });
       }),
 
@@ -519,10 +521,10 @@ export default createMachine(
               options: item.configuration.options,
               attributes: item.configuration.attributes,
               provisionFields: {
-                sld: item.sld,
-              },
+                sld: item.sld
+              }
             } as ProductModel;
-          },
+          }
         };
       }),
 
@@ -545,7 +547,7 @@ export default createMachine(
           );
           set(lookups, "basket", available);
           return lookups;
-        },
+        }
       }),
 
       addToBasket: pure((context: DomainContext, _event) => {
@@ -556,7 +558,7 @@ export default createMachine(
           (result: ProductModel[], item: DomainModel) => {
             const product = find(context.lookups.searched, [
               "domain",
-              item.domain,
+              item.domain
             ]);
 
             if (product?.configuration?.productId) {
@@ -576,7 +578,7 @@ export default createMachine(
         return sendTo(context.basketHelper, {
           type: "ADD_UPDATE_MANY",
           target: products,
-          context,
+          context
         });
       }),
 
@@ -606,7 +608,7 @@ export default createMachine(
           model ??= [];
           if (domain) model.push(domain);
           return model;
-        },
+        }
       }),
 
       setExisting: assign({
@@ -618,15 +620,15 @@ export default createMachine(
             domain: value,
             tld: parsed?.tld ?? "",
             sld: parsed?.sld ?? "",
-            selected: true,
+            selected: true
           };
           return [domain];
-        },
+        }
       }),
 
       remove: assign({
         model: ({ model }: DomainContext, { data }: AnyEventObject) =>
-          reject(model, ["domain", data]),
+          reject(model, ["domain", data])
       }),
 
       setModel: assign({
@@ -660,7 +662,7 @@ export default createMachine(
             },
             []
           );
-        },
+        }
       }),
 
       setModelFromBasket: assign({
@@ -672,19 +674,18 @@ export default createMachine(
               tld: item.tld,
               sld: item.sld,
               typee: DomainTypes.basket,
-              selected: item.meta.selected,
+              selected: item.meta.selected
             } as DomainModel;
-          }) as DomainModel[],
+          }) as DomainModel[]
       }),
 
       clearModel: assign({
-        model: () => [],
+        model: () => []
       }),
 
       resetModel: assign({
-        model: ({ baseModel }, _event: AnyEventObject) => {
-          return cloneDeep(baseModel);
-        },
+        model: ({ baseModel }, _event: AnyEventObject) =>
+          compact(cloneDeep(baseModel))
       }),
 
       cancelController: assign({
@@ -693,13 +694,13 @@ export default createMachine(
             controller?.abort();
           }
           return undefined;
-        },
+        }
       }),
 
       newController: assign({
         controller: () => {
           return new AbortController();
-        },
+        }
       }),
 
       setSearchQuery: assign({
@@ -707,47 +708,47 @@ export default createMachine(
           return {
             query: data ?? undefined,
             offset: PAGINATION.offset,
-            limit: search?.limit ?? PAGINATION.pageSize,
-            total: 0,
+            limit: search?.limit ?? PAGINATION.limit,
+            total: 0
           };
-        },
+        }
       }),
 
       setSearchOffset: assign({
         search: ({ search }: DomainContext, _event: AnyEventObject) => {
           search ??= {
             offset: PAGINATION.offset,
-            limit: PAGINATION.pageSize,
-            total: 0,
+            limit: PAGINATION.limit,
+            total: 0
           };
-          search.offset += search?.limit ?? PAGINATION.pageSize;
+          search.offset += search?.limit ?? PAGINATION.limit;
           return search;
-        },
+        }
       }),
 
       clearSearch: assign({
         search: ({ search }: DomainContext, _event: AnyEventObject) => ({
           query: undefined,
           offset: PAGINATION.offset,
-          limit: search?.limit ?? PAGINATION.pageSize,
-          total: 0,
+          limit: search?.limit ?? PAGINATION.limit,
+          total: 0
         }),
         lookups: ({ lookups }) => {
           // lookups.history = [];
           lookups.searched = [];
           return lookups;
-        },
+        }
       }),
 
       setSearchResults: assign({
         lookups: (
           { lookups, model, search }: DomainContext,
-          { data }: AnyEventObject
+          { data: response }: AnyEventObject
         ) => {
           const previous = (search?.offset ?? 0 > 0) ? lookups.searched : [];
 
           const available: DomainProduct[] = map(
-            data?.available,
+            response?.data,
             (item: DomainProduct) => {
               item.meta.owned = some(lookups.owned, ["domain", item.domain]);
               item.meta.added = some(lookups.basket, ["domain", item.domain]);
@@ -775,15 +776,18 @@ export default createMachine(
 
           return lookups;
         },
-        search: ({ search }: DomainContext, { data }: AnyEventObject) => {
+        search: (
+          { search }: DomainContext,
+          { data: response }: AnyEventObject
+        ) => {
           return {
             query: search?.query ?? undefined,
             offset: search?.offset ?? 0,
-            limit: search?.limit ?? PAGINATION.pageSize,
-            total: data?.total || 0,
+            limit: search?.limit ?? PAGINATION.limit,
+            total: response?.total || 0
           };
         },
-        controller: undefined,
+        controller: undefined
       }),
 
       setOwned: assign({
@@ -794,17 +798,17 @@ export default createMachine(
               tld: item.tld,
               sld: item.sld,
               productDetails: {
-                title: item.domain,
+                title: item.domain
               },
               meta: {
                 owned: true,
-                persisted: true,
-              },
+                persisted: true
+              }
             } as DomainProduct;
           });
           set(lookups, "owned", available);
           return lookups;
-        },
+        }
       }),
 
       clearLookups: assign({
@@ -813,9 +817,9 @@ export default createMachine(
             searched: [],
             history: [],
             owned: [],
-            basket: [],
+            basket: []
           };
-        },
+        }
       }),
 
       resetLookups: assign({
@@ -824,9 +828,9 @@ export default createMachine(
             searched: [],
             history: [],
             owned: lookups.owned,
-            basket: lookups.basket,
+            basket: lookups.basket
           };
-        },
+        }
       }),
 
       select: assign({
@@ -840,16 +844,16 @@ export default createMachine(
               tld: value.tld,
               sld: value.sld,
               typee: DomainTypes.basket,
-              selected: value.domain === selected?.domain,
+              selected: value.domain === selected?.domain
             } as DomainModel;
           });
-        },
+        }
       }),
 
       setError: assign({
         error: (_context, { data }: AnyEventObject) => {
           return mapToHeadlessError(data);
-        },
+        }
       }),
 
       setErrorInvalidDomain: assign({
@@ -859,12 +863,12 @@ export default createMachine(
             data: null,
             status: responseCodes.Unprocessable_Entity,
             message: "Invalid domain",
-            origin: ErrorOrigin.Headless,
+            origin: ErrorOrigin.Headless
           } as ResponseError;
-        },
+        }
       }),
 
-      clearError: assign({ error: undefined }),
+      clearError: assign({ error: undefined })
     },
 
     guards: {
@@ -927,14 +931,14 @@ export default createMachine(
       ) => !isEmpty(choices) && data === DomainTypes.register,
 
       isBasket: ({ choices }: DomainContext, { data }: AnyEventObject) =>
-        !isEmpty(choices) && data === DomainTypes.basket,
+        !isEmpty(choices) && data === DomainTypes.basket
     },
 
     delays: {
       error: () => useTime().ERROR,
-      wait: () => useTime().WAIT,
+      wait: () => useTime().WAIT
     },
 
-    services,
+    services
   }
 );

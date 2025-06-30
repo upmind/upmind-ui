@@ -44,8 +44,8 @@ const editLink = computed(() => {
   return {
     name: "product.edit",
     params: {
-      bpid: props.id,
-    },
+      bpid: props.id
+    }
   };
 });
 </script>

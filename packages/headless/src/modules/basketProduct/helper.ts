@@ -21,7 +21,7 @@ import {
   map,
   pick,
   uniq,
-  compact,
+  compact
 } from "lodash-es";
 
 // --- types
@@ -61,14 +61,14 @@ export function basketSubscription(callback: any, onReceive: any) {
         .then(() => {
           callback({
             type: "REFRESH",
-            data: basket.basket.value,
+            data: basket.basket.value
           });
         })
         .catch(() => {
           // console.error("basketHelper", "REFRESH", error);
           callback({
             type: "ERROR",
-            data: basket.errors?.value,
+            data: basket.errors?.value
           });
         });
       return;
@@ -85,7 +85,7 @@ export function basketSubscription(callback: any, onReceive: any) {
           "Basket not found",
           responseCodes.Not_Found,
           ErrorOrigin.Headless
-        ),
+        )
       });
       return;
     }
@@ -102,7 +102,7 @@ export function basketSubscription(callback: any, onReceive: any) {
               currencyId: rawBasket.currency_id,
               promotions: uniq(
                 concat(rawBasket?.promotions, event.context?.promotions)
-              ),
+              )
             },
             { data }
           )
@@ -125,7 +125,7 @@ export function basketSubscription(callback: any, onReceive: any) {
             {
               basketId: rawBasket?.id,
               currencyId: rawBasket?.currency_id,
-              promotions: map(rawBasket?.promotions, "promotion.code"),
+              promotions: map(rawBasket?.promotions, "promotion.code")
               // promotions: uniq(concat(rawBasket?.promotions, context?.promotions)),
             },
             { data: { productIds: event.target } }
@@ -146,14 +146,14 @@ export function basketSubscription(callback: any, onReceive: any) {
             {
               basketId: rawBasket?.id,
               currencyId: rawBasket?.currency_id,
-              promotions: map(rawBasket?.promotions, "promotion.code"),
+              promotions: map(rawBasket?.promotions, "promotion.code")
             },
             {
               data: defaults(pick(event.context, ["limit", "offset"]), {
                 productId: event.target,
                 limit: 10, // default limit
-                offset: 0, // default/initial offset
-              }),
+                offset: 0 // default/initial offset
+              })
             }
           )
 
@@ -174,8 +174,8 @@ export function basketSubscription(callback: any, onReceive: any) {
               data: {
                 actor: instance.service,
                 basket: basket.basket.value,
-                context: event.context,
-              },
+                context: event.context
+              }
             });
           })
           .catch(error => {
@@ -183,7 +183,7 @@ export function basketSubscription(callback: any, onReceive: any) {
             callback({ type: "ERROR", data: error });
             callback({
               type: "ADDED",
-              data: { basket: basket.basket.value, context: event.context },
+              data: { basket: basket.basket.value, context: event.context }
             });
           });
         break;
@@ -230,7 +230,7 @@ export function basketSubscription(callback: any, onReceive: any) {
                   promotions: uniq(
                     concat(rawBasket?.promotions, event.context?.promotions)
                   ),
-                  currencyId: rawBasket?.currency_id,
+                  currencyId: rawBasket?.currency_id
                 },
                 { data: model.value! }
               )
@@ -245,7 +245,7 @@ export function basketSubscription(callback: any, onReceive: any) {
                 basket.refresh(rawBasket).then(() =>
                   callback({
                     type: "ADDED",
-                    data: { actor, basket: rawBasket, context: event.context },
+                    data: { actor, basket: rawBasket, context: event.context }
                   })
                 );
               })
@@ -257,7 +257,7 @@ export function basketSubscription(callback: any, onReceive: any) {
 
                 callback({
                   type: "ERROR",
-                  data: { ...error, basketItem: actor },
+                  data: { ...error, basketItem: actor }
                 });
 
                 return actor;
@@ -270,8 +270,8 @@ export function basketSubscription(callback: any, onReceive: any) {
                 data: {
                   // title:"",
                   // message:"",
-                  basketItem: actor,
-                },
+                  basketItem: actor
+                }
               });
             }
             callback({ type: "CANCEL" });
@@ -310,7 +310,7 @@ export function basketSubscription(callback: any, onReceive: any) {
                 {
                   basketId: basket.basketId.value,
                   basketProducts: basket.products.value,
-                  promotions: event.context?.promotions,
+                  promotions: event.context?.promotions
                 },
                 { data: compact(instances) }
               )
@@ -360,7 +360,7 @@ export function basketSubscription(callback: any, onReceive: any) {
               promotions: uniq(
                 concat(rawBasket?.promotions, event.context?.promotions)
               ),
-              currencyId: rawBasket?.currency_id,
+              currencyId: rawBasket?.currency_id
             },
             { data: event.target }
           )
@@ -397,7 +397,7 @@ export function basketSubscription(callback: any, onReceive: any) {
               "Basket Product not found",
               responseCodes.Not_Found,
               ErrorOrigin.Headless
-            ),
+            )
           });
           break;
         }
@@ -407,7 +407,7 @@ export function basketSubscription(callback: any, onReceive: any) {
         productServices
           .remove({
             basketId: rawBasket?.id,
-            bpid: event.target.id,
+            bpid: event.target.id
           })
           .then((_rawBasket: IBasket) => {
             if (basketProduct)

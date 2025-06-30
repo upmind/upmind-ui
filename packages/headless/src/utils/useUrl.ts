@@ -21,7 +21,7 @@ export function useUrl(
   // ensure our instance has the correct defaults
   instance = defaultsDeep(instance, {
     base: getApiUrl(),
-    context: "api",
+    context: "api"
   });
 
   // clean up path
@@ -60,6 +60,6 @@ export function useUrlParams() {
 
   return {
     getParamFromUrl,
-    syncParamToUrl,
+    syncParamToUrl
   };
 }

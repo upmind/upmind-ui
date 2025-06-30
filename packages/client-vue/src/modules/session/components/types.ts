@@ -2,7 +2,7 @@ import { type HTMLAttributes } from "vue";
 import type {
   ButtonProps,
   DialogProps,
-  AvatarProps,
+  AvatarProps
 } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 export interface ActionProps extends ButtonProps {

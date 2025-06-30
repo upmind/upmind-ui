@@ -27,20 +27,20 @@ function loadList(params?: Partial<QueryParams>) {
         "subcategories.image",
         "subcategories.subcategories.image",
         "subcategories.subcategories.subcategories.image",
-        "subcategories.subcategories.subcategories.subcategories.image",
+        "subcategories.subcategories.subcategories.subcategories.image"
       ].join(","),
       with_count: [
         "products,subcategories.products",
         "subcategories.subcategories.products",
         "subcategories.subcategories.subcategories.products",
-        "subcategories.subcategories.subcategories.subcategories.products",
-      ].join(","),
+        "subcategories.subcategories.subcategories.subcategories.products"
+      ].join(",")
     }),
     limit: 0,
     withAccessToken: true,
     // --- options
     select: data => map(data ?? [], parseProductCategory),
-    staleTime: useTime().HOUR,
+    staleTime: useTime().HOUR
   });
 }
 
@@ -50,5 +50,5 @@ function loadList(params?: Partial<QueryParams>) {
 export default {
   queryKey,
   //--- queries
-  loadList,
+  loadList
 };

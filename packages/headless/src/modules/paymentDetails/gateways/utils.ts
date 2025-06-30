@@ -61,7 +61,7 @@ export function generateResponseUrls(
   return {
     cancel: cancelUrl.toString(),
     success: successUrl.toString(),
-    fail: failUrl.toString(),
+    fail: failUrl.toString()
   };
 }
 
@@ -79,53 +79,53 @@ export const useSchema = (context: GatewayContext) => {
         type: "string",
         title: "Gateway ID",
         const: context?.gateway?.id,
-        readOnly: true,
+        readOnly: true
       },
       // a helper for the ui to not show the checkboxes if the gateway does not support storing
       // ---
       can_store: {
         type: "boolean",
         const: context.can_store,
-        readOnly: true,
+        readOnly: true
       },
       must_store: {
         type: "boolean",
         const: context.must_store,
-        readOnly: true,
+        readOnly: true
       },
       must_auto_pay: {
         type: "boolean",
         const: context.must_auto_pay,
-        readOnly: true,
+        readOnly: true
       },
       //  ---
       store_on_payment: {
         type: "boolean",
         default: context.can_store,
-        readOnly: context.can_store == false,
+        readOnly: context.can_store == false
       },
       store_on_payment_auto_payment: {
         type: "boolean",
         title: "",
         description: "",
         default: context.can_store,
-        readOnly: context.can_store == false,
+        readOnly: context.can_store == false
       },
       return_url: {
         type: "string",
         title: "Return URL",
         format: "uri-reference",
         readOnly: true,
-        const: `?${QUERY_PARAMS.SUCCESS}=${encodeURIComponent(success)}&${QUERY_PARAMS.FAILED}=${encodeURIComponent(fail)}`,
+        const: `?${QUERY_PARAMS.SUCCESS}=${encodeURIComponent(success)}&${QUERY_PARAMS.FAILED}=${encodeURIComponent(fail)}`
       },
       cancel_url: {
         type: "string",
         title: "Cancel URL",
         format: "uri",
         readOnly: true,
-        const: cancel,
-      },
-    },
+        const: cancel
+      }
+    }
   };
 
   return schema;
@@ -140,7 +140,7 @@ export const useUischema = () => {
         scope: "#/properties/store_on_payment",
         i18n: "payment.store_on_payment",
         options: {
-          autocomplete: "off",
+          autocomplete: "off"
         },
         // only show this field if we have the store_on_payment flag
         rule: {
@@ -151,18 +151,18 @@ export const useUischema = () => {
               required: ["can_store"],
               properties: {
                 can_store: { const: true },
-                must_store: { not: { const: true } },
-              },
-            },
-          },
-        },
+                must_store: { not: { const: true } }
+              }
+            }
+          }
+        }
       },
       {
         type: "Control",
         scope: "#/properties/store_on_payment_auto_payment",
         i18n: "payment.store_on_payment_auto_payment",
         options: {
-          autocomplete: "off",
+          autocomplete: "off"
         },
         // only show this field if we have the store_on_payment flag
         rule: {
@@ -173,13 +173,13 @@ export const useUischema = () => {
               required: ["store_on_payment"],
               properties: {
                 store_on_payment: { const: true },
-                must_auto_pay: { not: { const: true } },
-              },
-            },
-          },
-        },
-      },
-    ],
+                must_auto_pay: { not: { const: true } }
+              }
+            }
+          }
+        }
+      }
+    ]
   };
 
   return uischema as Layout;
@@ -192,7 +192,7 @@ export function canBeStored(gateway?: IGateway) {
     is_stored,
     gateway_provider,
     store_on_payment,
-    store_outside_payment,
+    store_outside_payment
   } = gateway;
   const { store_type } = gateway_provider;
   if (!is_stored) return false;

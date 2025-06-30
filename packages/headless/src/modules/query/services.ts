@@ -13,12 +13,12 @@ import {
   map,
   set,
   startsWith,
-  upperCase,
+  upperCase
 } from "lodash-es";
 import {
   dumpTokenFromStorage,
   getTokenFromStorage,
-  persistTokenToStorage,
+  persistTokenToStorage
 } from "../session/utils";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 
@@ -50,7 +50,7 @@ function handleError(
       i18nKey: `errors.${status ?? responseCodes.Service_Unavailable}`,
       display: messageDisplays.SYSTEM,
       delay: 0,
-      maxAge: 0,
+      maxAge: 0
     });
   }
 
@@ -64,15 +64,15 @@ function handleError(
       code: error?.code ?? null,
       data: error?.data || null,
       message: error?.message || "Service temporarily unavailable",
-      origin: ErrorOrigin.Upmind,
+      origin: ErrorOrigin.Upmind
     },
-    messages: null,
+    messages: null
   });
 }
 
 async function doFetch<T extends any = any>({
   url,
-  init,
+  init
 }: RequestParams): Promise<QueryResponse<T>> {
   init ??= {};
 
@@ -84,7 +84,7 @@ async function doFetch<T extends any = any>({
         ErrorOrigin.Headless,
         {
           url: url?.toString(),
-          method: init?.method,
+          method: init?.method
         }
       )
     );
@@ -119,8 +119,21 @@ async function doFetch<T extends any = any>({
       return data as QueryResponse<T>;
     })
     .catch(response => {
-      if (!response?.status) return Promise.reject();
-      return handleError(response.status, response?.error);
+      // Aborted requests are handled differently and do not throw an error
+      if (
+        response.status == responseCodes.Aborted ||
+        response.code == responseCodes.Aborted ||
+        response.name == "AbortError"
+      )
+        return Promise.reject();
+
+      // DC: change this as when we get service cors errors, we dont get a response object with status
+      // so we need to handle it differently, and that  genrally means the API is down
+
+      return handleError(
+        response.status ?? responseCodes.Service_Unavailable,
+        response?.error
+      );
     });
 }
 
@@ -135,8 +148,8 @@ async function refreshToken() {
     url: useUrl("access_token", {}, { context: "oauth" }),
     data: {
       grant_type: GrantTypes.REFRESH_TOKEN,
-      refresh_token,
-    },
+      refresh_token
+    }
   })
     .then(data => {
       persistTokenToStorage(data as unknown as Token);
@@ -150,9 +163,9 @@ async function refreshToken() {
 
       return Promise.reject(
         new DetailedError(
-          "[headless] Failed to refresh token",
-          responseCodes.Unauthorized,
-          ErrorOrigin.Upmind,
+          error?.message ?? "[headless] Failed to refresh token",
+          error?.code ?? error?.statusCode ?? responseCodes.Unauthorized,
+          error?.origin ?? ErrorOrigin.Upmind,
           { error }
         )
       );

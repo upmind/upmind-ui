@@ -14,7 +14,7 @@ import {
   DetailedError,
   ErrorOrigin,
   responseCodes,
-  stopService,
+  stopService
 } from "../../utils";
 import { isEmpty, get, add, subtract } from "lodash-es";
 
@@ -51,11 +51,11 @@ export const useBasketProduct = (bpid: string) => {
       coupons: [],
       // ---
       rawBasketProduct,
-      errorExternal: get(errors.value, bpid),
+      errorExternal: get(errors.value, bpid)
     }),
     {
       id: bpid,
-      devTools: true,
+      devTools: true
     }
   ).start();
 
@@ -63,7 +63,7 @@ export const useBasketProduct = (bpid: string) => {
 
   async function isReady(): Promise<void> {
     return waitFor(service, state => state.matches("available"), {
-      timeout: Infinity,
+      timeout: Infinity
     }).then(() => {});
   }
 
@@ -85,7 +85,7 @@ export const useBasketProduct = (bpid: string) => {
   async function update(): Promise<void> {
     service.send({ type: "UPDATE" });
     return waitFor(service, state => !state.matches("processing"), {
-      timeout: 60_000,
+      timeout: 60_000
     })
       .then(state => {
         if (
@@ -134,8 +134,8 @@ export const useBasketProduct = (bpid: string) => {
         service.send({
           type: "SET.QUANTITY",
           data: {
-            quantity: parseQuantity(value, product.productDetails),
-          },
+            quantity: parseQuantity(value, product.productDetails)
+          }
         });
         return update();
       }),
@@ -158,8 +158,8 @@ export const useBasketProduct = (bpid: string) => {
         service.send({
           type: "SET.QUANTITY",
           data: {
-            quantity: parseQuantity(qty, product.productDetails),
-          },
+            quantity: parseQuantity(qty, product.productDetails)
+          }
         });
         return update();
       }),
@@ -182,13 +182,13 @@ export const useBasketProduct = (bpid: string) => {
         service.send({
           type: "SET.QUANTITY",
           data: {
-            quantity: parseQuantity(qty, product.productDetails),
-          },
+            quantity: parseQuantity(qty, product.productDetails)
+          }
         });
         return update();
       }),
 
-    update,
+    update
   };
 };
 

@@ -5,7 +5,7 @@ import {
   useSystem,
   useSession,
   useFeedback,
-  type QueryParams,
+  type QueryParams
 } from "../..";
 
 // --- utils
@@ -17,7 +17,7 @@ import {
   useValidation,
   useCollection,
   useModelParser,
-  NotAuthenticatedError,
+  NotAuthenticatedError
 } from "../../../utils";
 import { mapAddress, mapAddresses, mapIAddress } from "./mappers";
 import { invalidateQueryByKey } from "../../query";
@@ -42,7 +42,7 @@ async function load() {
   return get<IAddress[], Address[]>({
     queryKey,
     url: useUrl(`clients/${user.value?.id}/addresses`, {
-      with: ["region", "country"].join(),
+      with: ["region", "country"].join()
     }),
     withAccessToken: true,
     guard: async () =>
@@ -55,7 +55,7 @@ async function load() {
       }),
     // --- options
     select: mapAddresses,
-    staleTime: useTime().DAY,
+    staleTime: useTime().DAY
   });
 }
 
@@ -67,7 +67,7 @@ function loadList(params?: Partial<QueryParams>) {
     ...(params as any),
     queryKey,
     url: useUrl(`clients/${user.value?.id}/addresses`, {
-      with: ["region", "country"].join(),
+      with: ["region", "country"].join()
     }),
     withAccessToken: true,
     guard: async () =>
@@ -80,13 +80,13 @@ function loadList(params?: Partial<QueryParams>) {
       }),
     // --- options
     select: mapAddresses,
-    staleTime: useTime().DAY,
+    staleTime: useTime().DAY
   });
 }
 
 async function loadLookups({
   model,
-  schema,
+  schema
 }: AddressContext): Promise<AddressContext> {
   const { isReady, fetchCountries, fetchRegions, getCountry } = useSystem();
 
@@ -108,7 +108,7 @@ async function loadLookups({
 
   const { ensureConfig } = useBrand();
   const config = await ensureConfig([
-    BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS,
+    BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS
   ]);
 
   if (!countries || !regions) {
@@ -125,7 +125,7 @@ async function loadLookups({
     countryId: country?.id,
     address1: "",
     city: "",
-    postcode: "",
+    postcode: ""
   };
 
   const safeModel = useModelParser<AddressModel>(schema, model, baseModel);
@@ -137,7 +137,7 @@ async function loadLookups({
     config,
     // ---
     model: safeModel,
-    baseModel: safeModel,
+    baseModel: safeModel
   } as AddressContext);
 }
 
@@ -154,7 +154,7 @@ async function add(data: AddressModel) {
   return post<IAddress>({
     url: useUrl(`clients/${user.value?.id}/addresses`),
     data: mapIAddress(data),
-    withAccessToken: true,
+    withAccessToken: true
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
@@ -169,11 +169,11 @@ async function update(id: Address["id"], data: AddressModel) {
   return put<IAddress>({
     url: useUrl(`clients/${user.value?.id}/addresses/${id}`),
     data: mapIAddress(data),
-    withAccessToken: true,
+    withAccessToken: true
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
-async function ensure(model: AddressModel): Promise<AddressModel> {
+async function ensure(model: AddressModel): Promise<Address> {
   const mapping = omitBy(model, isEmpty);
   const addresses = await load();
   const { findOne } = useCollection<Address>(addresses);
@@ -183,9 +183,10 @@ async function ensure(model: AddressModel): Promise<AddressModel> {
   return add(model).then(raw => {
     if (isEmpty(raw))
       throw new DetailedError(
-        "[headless] Failed to ensure (add) company",
-        responseCodes.No_Content,
-        ErrorOrigin.Headless
+        "[headless] Failed to ensure address",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless,
+        { model }
       );
     // NB: Remember to refresh our machines so we have the new data
     // refresh();
@@ -213,14 +214,14 @@ function remove(addressId: Address["id"]) {
           ? error
           : error?.title || "We experienced an error removing this address",
         copy: error?.message,
-        data: error?.data,
+        data: error?.data
       });
     },
     onSuccess(data) {
       invalidateQueryByKey(queryKey, { exact: false })(data);
       addSuccess("Successfully removed address");
     },
-    withAccessToken: true,
+    withAccessToken: true
   });
 }
 
@@ -246,14 +247,14 @@ function setDefault(addressId: Address["id"]) {
           : error?.title ||
             "We experienced an error setting this address as default",
         copy: error?.message,
-        data: error?.data,
+        data: error?.data
       });
     },
     onSuccess(data) {
       invalidateQueryByKey(queryKey, { exact: false })(data);
       addSuccess("Successfully set address as default");
     },
-    withAccessToken: true,
+    withAccessToken: true
   });
 }
 
@@ -351,7 +352,7 @@ export default {
    * @param {Address["id"]} addressId - The ID of the address to set as default.
    * @returns {Promise<IAddress>} A promise that resolves to the updated address
    */
-  setDefault,
+  setDefault
 };
 
 export const useClientAddressServices = () => {
@@ -440,6 +441,6 @@ export const useClientAddressServices = () => {
      * @param {Partial<AddressContext>} param0 - The address context containing schema and model.
      * @returns {Promise<any>} The validated model.
      */
-    validate,
+    validate
   };
 };

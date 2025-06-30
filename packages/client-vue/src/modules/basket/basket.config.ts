@@ -35,7 +35,7 @@ export default {
       footer: cva(
         "flex w-full flex-wrap justify-center gap-4 text-center font-light"
       ),
-      actions: cva("flex w-full justify-end gap-2"),
+      actions: cva("flex w-full justify-end gap-2")
     },
 
     promotions: {
@@ -47,31 +47,31 @@ export default {
       footer: cva("flex flex-wrap items-center gap-1"),
       form: {
         root: cva("flex-row items-start gap-1 space-x-2"),
-        actions: cva("w-auto items-start"),
+        actions: cva("w-auto items-start")
       },
-      input: cva("w-20"),
+      input: cva("w-20")
     },
 
     details: {
       root: cva("!gap-16", {
         variants: {
           isDisabled: {
-            true: "pointer-events-none",
+            true: "pointer-events-none"
           },
           isAvailable: {
             false: "",
-            true: "",
-          },
+            true: ""
+          }
         },
         defaultVariants: {
-          isDisabled: false,
+          isDisabled: false
         },
         compoundVariants: [
           {
             isAvailable: false,
-            class: "pointer-events-none",
-          },
-        ],
+            class: "pointer-events-none"
+          }
+        ]
       }),
       header: cva("flex w-full flex-col gap-2"),
       title: cva(
@@ -79,16 +79,16 @@ export default {
       ),
       text: cva("text-base-700 m-0 text-lg font-light leading-7"),
       content: cva("flex w-full flex-1 flex-col gap-6"),
-      footer: cva("order-last w-full max-w-xs items-start sm:sticky sm:top-40"),
+      footer: cva("order-last w-full max-w-xs items-start sm:sticky sm:top-40")
     },
 
     items: {
       root: cva("!gap-16", {
         variants: {
           isDisabled: {
-            true: "pointer-events-none",
-          },
-        },
+            true: "pointer-events-none"
+          }
+        }
       }),
       header: cva("flex w-full flex-col gap-2"),
       content: cva("flex w-full flex-col gap-4"),
@@ -97,16 +97,16 @@ export default {
       title: cva(
         "m-0 flex items-center justify-between gap-4 text-5xl font-light leading-tight text-inherit"
       ),
-      text: cva("text-base-700 m-0 text-lg font-light leading-7"),
+      text: cva("text-base-700 m-0 text-lg font-light leading-7")
     },
 
     item: {
-      root: cva(""),
+      root: cva("")
     },
 
     paymentDetails: {
       root: cva(""),
-      render: cva(""),
+      render: cva("")
     },
 
     paymentGateway: {
@@ -115,12 +115,12 @@ export default {
         variants: {
           variant: {
             outline: "rounded-lg border p-6",
-            flat: "",
+            flat: ""
           },
           hasErrors: {
             true: "",
-            false: "",
-          },
+            false: ""
+          }
         },
         compoundVariants: [
           // {
@@ -133,12 +133,12 @@ export default {
             variant: "outline",
             hasErrors: true,
             class:
-              "border-control-error focus-within:ring-control-error focus-within:ring-4 focus-within:ring-opacity-20",
-          },
+              "border-control-error focus-within:ring-control-error focus-within:ring-4 focus-within:ring-opacity-20"
+          }
         ],
         defaultVariants: {
-          variant: "flat",
-        },
+          variant: "flat"
+        }
       }),
       render: cva("w-full empty:hidden"),
       form: cva("w-full"),
@@ -147,15 +147,15 @@ export default {
         enter: {
           active: cva("m-0 transition duration-300 ease-out"),
           from: cva("-translate-y-10 transform opacity-0"),
-          to: cva("translate-y-0 transform opacity-100"),
+          to: cva("translate-y-0 transform opacity-100")
         },
 
         leave: {
           active: cva("absolute transition duration-100 ease-in"),
           from: cva("translate-y-0 transform opacity-100"),
-          to: cva("-translate-y-1 transform opacity-0"),
-        },
-      },
+          to: cva("-translate-y-1 transform opacity-0")
+        }
+      }
     },
 
     loading: {
@@ -165,7 +165,7 @@ export default {
       title: cva("m-0 mt-3 text-center text-3xl text-inherit md:text-4xl"),
       text: cva(
         "text-emphasis-medium m-0 mb-8 max-w-md text-center text-lg leading-normal"
-      ),
+      )
     },
 
     processing: {
@@ -177,7 +177,7 @@ export default {
         "text-emphasis-medium m-0 mb-8 max-w-md text-center text-lg leading-normal"
       ),
       avatar: cva("bg-primary text-primary-foreground size-20 p-2"),
-      actions: cva("flex w-full justify-center"),
+      actions: cva("flex w-full justify-center")
     },
 
     empty: {
@@ -187,7 +187,7 @@ export default {
       title: cva("m-0 mt-3 text-center text-3xl text-inherit md:text-4xl"),
       text: cva(
         "text-emphasis-medium m-0 mb-8 max-w-md text-center text-lg leading-normal"
-      ),
-    },
-  },
+      )
+    }
+  }
 };

@@ -32,7 +32,7 @@ export const useBasketProducts = () => {
     isReady,
     refresh,
     basketId,
-    meta: basketMeta,
+    meta: basketMeta
   } = useBasket();
 
   // --- state
@@ -127,7 +127,7 @@ export const useBasketProducts = () => {
         .updateQuantity(
           {
             basketId: basketId.value,
-            basketProduct,
+            basketProduct
           },
           { data: add(qty, basketProduct.productDetails.step || 1) }
         )
@@ -172,7 +172,7 @@ export const useBasketProducts = () => {
         .updateQuantity(
           {
             basketId: basketId.value,
-            basketProduct,
+            basketProduct
           },
           { data: subtract(qty, basketProduct.productDetails?.step || 1) }
         )
@@ -284,7 +284,7 @@ export const useBasketProducts = () => {
       hasProducts: !isEmpty(products.value),
       isLoading: basketMeta.value.isLoading,
       isProcessing: (bpid?: string) =>
-        bpid ? includes(processing.value, bpid) : !isEmpty(processing.value),
+        bpid ? includes(processing.value, bpid) : !isEmpty(processing.value)
     })),
 
     configure: async (bpid: string): Promise<UseBasketProduct> => {
@@ -316,6 +316,6 @@ export const useBasketProducts = () => {
 
     incrementQuantity: action((bpid: string) => incrementQuantity(bpid)),
 
-    decrementQuantity: action((bpid: string) => decrementQuantity(bpid)),
+    decrementQuantity: action((bpid: string) => decrementQuantity(bpid))
   };
 };

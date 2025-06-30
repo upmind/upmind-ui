@@ -13,7 +13,7 @@ import type { PaymentContext } from "./types";
 export const usePaymentParser: any = ({
   paymentDetail,
   orderId,
-  clientId,
+  clientId
   // accountId,
 }: PaymentContext) => {
   // TODO pick only the fields that are allowed by the endpoint
@@ -44,6 +44,6 @@ export const useApprovalParser = (payment: PaymentContext["payment"]) => {
   return {
     url: [url.origin, url.pathname].join(""), // only the url without query params
     method: approval_url.method,
-    fields,
+    fields
   };
 };

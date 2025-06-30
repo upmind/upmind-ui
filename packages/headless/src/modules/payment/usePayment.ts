@@ -18,7 +18,7 @@ import { PaymentArgs, PaymentContext } from "./types";
 
 export const usePayment = (initial: PaymentArgs) => {
   const service = interpret(paymentMachine.withContext(initial), {
-    devTools: false,
+    devTools: false
   });
   const { state, send } = useActor(service.start());
 
@@ -43,7 +43,7 @@ export const usePayment = (initial: PaymentArgs) => {
     isProcessing: stateMatches(state, ["processing"]),
     needsApproval: stateMatches(state, ["approving"]),
     hasPaid: stateMatches(state, ["complete"]),
-    hasFailed: stateMatches(state, ["error"]),
+    hasFailed: stateMatches(state, ["error"])
   }));
 
   // --- context
@@ -118,7 +118,7 @@ export const usePayment = (initial: PaymentArgs) => {
      * @param {PaymentArgs} [context] - Optional new context to update the payment machine.
      * @returns void
      */
-    refresh,
+    refresh
   };
 };
 

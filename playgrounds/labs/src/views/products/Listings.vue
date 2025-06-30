@@ -27,7 +27,7 @@
         :categoryId="modelValue"
         :sort="{
           property: 'name',
-          direction: selectedSortDirection,
+          direction: selectedSortDirection
         }"
       />
 
@@ -38,7 +38,7 @@
         :categoryId="modelValue"
         :sort="{
           property: 'name',
-          direction: selectedSortDirection,
+          direction: selectedSortDirection
         }"
       />
     </div>

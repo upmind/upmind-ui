@@ -5,7 +5,7 @@ import { assign } from "xstate";
 import { useSchema, useUischema } from "./schemas";
 
 // --- utils
-import { get, compact } from "lodash-es";
+import { get, compact, find } from "lodash-es";
 import { useModelParser } from "../../../utils";
 
 // --- types
@@ -19,42 +19,40 @@ export const useClientCompanyActions = () => {
     setMeta: assign({
       title: ({ model }: CompanyContext) => model?.name || "New Company",
       description: ({ model, addresses }: CompanyContext) => {
-        let address = null;
-        if (addresses && model?.addressId) {
-          address = addresses?.find(address => address.id === model.addressId);
-        }
-        return compact([
-          // get(address, "state.context.title"),
-          get(address, "state.context.description"),
-          model?.regNumber,
-          model?.vatNumber,
-        ]).join(" | ");
-      },
+        const address = find(addresses, ["id", model?.addressId]);
+        const addressDetails = get(address, "description");
+        const companyDetails = compact([
+          model?.regNumber ? `Reg #: ${get(model, "company.regNumber")}` : null,
+          model?.vatNumber ? `Tax #: ${get(model, "company.vatNumber")}` : null
+        ]).join(";");
+
+        return compact([addressDetails, companyDetails]).join(";");
+      }
     }),
 
     setSchemas: assign({
       schema: (context: CompanyContext) => useSchema(context),
-      uischema: (context: CompanyContext) => useUischema(context),
+      uischema: (context: CompanyContext) => useUischema(context)
     }),
 
     setModel: assign({
       model: (
         { schema, baseModel }: CompanyContext,
         { data }: AnyEventObject
-      ) => useModelParser<CompanyModel>(schema, data, baseModel),
+      ) => useModelParser<CompanyModel>(schema, data, baseModel)
     }),
 
     refreshContext: assign({
       clientId: ({ clientId }: CompanyContext, { data }: AnyEventObject) => {
         return clientId || data?.clientId;
-      },
-    }),
+      }
+    })
   };
 };
 
 export const useClientCompanyGuards = () => {
   return {
     hasSubscription: ({ clientId }: CompanyContext, _event: AnyEventObject) =>
-      !!clientId,
+      !!clientId
   };
 };

@@ -12,11 +12,11 @@ const routes: RouteRecordRaw[] = [
     name: "places",
     component: Listings,
     meta: {
-      title: "Address Search",
-    },
-  },
+      title: "Address Search"
+    }
+  }
 ];
 
 export default {
-  routes,
+  routes
 };

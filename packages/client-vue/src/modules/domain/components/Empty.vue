@@ -67,8 +67,8 @@ const props = withDefaults(
       shape: "circle",
       color: "primary",
       icon: "basket",
-      fit: "contain",
-    }),
+      fit: "contain"
+    })
   }
 );
 

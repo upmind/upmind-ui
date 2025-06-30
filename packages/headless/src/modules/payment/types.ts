@@ -8,7 +8,7 @@ import type {
   Methods,
   IClient,
   ICurrency,
-  IAddress,
+  IAddress
 } from "@upmind-automation/types";
 import { ResponseError } from "../../utils";
 

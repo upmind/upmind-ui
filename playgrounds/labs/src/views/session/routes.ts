@@ -2,7 +2,7 @@
 import {
   UpmSessionLoginView,
   UpmSessionRegisterView,
-  UpmSessionLogoutView,
+  UpmSessionLogoutView
 } from "@upmind-automation/client-vue";
 
 // --- utils
@@ -18,24 +18,24 @@ export default {
     {
       path: "/auth",
       name: ROUTE.SESSION,
-      component: () => UpmSessionRegisterView,
+      component: () => UpmSessionRegisterView
     },
     {
       path: "/auth/login",
       name: ROUTE.SESSION_LOGIN,
-      component: () => UpmSessionLoginView,
+      component: () => UpmSessionLoginView
     },
     {
       path: "/auth/register",
       name: ROUTE.SESSION_REGISTER,
       alias: ["/auth/signup"],
-      component: () => UpmSessionRegisterView,
+      component: () => UpmSessionRegisterView
     },
     {
       path: "/auth/logout",
       alias: ["/auth/signout"],
       name: ROUTE.SESSION_END,
-      component: () => UpmSessionLogoutView,
-    },
-  ],
+      component: () => UpmSessionLogoutView
+    }
+  ]
 };

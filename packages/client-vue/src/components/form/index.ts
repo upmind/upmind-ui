@@ -31,7 +31,7 @@ export const useFormI18n = () => {
     const safeLocale: string = locale.value;
     return {
       locale: safeLocale,
-      translate: createTranslator(safeLocale),
+      translate: createTranslator(safeLocale)
     } as JsonFormsI18nState;
   });
 

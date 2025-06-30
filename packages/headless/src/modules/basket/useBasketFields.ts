@@ -10,16 +10,16 @@ import {
   DetailedError,
   ErrorOrigin,
   responseCodes,
-  useContext,
+  useContext
 } from "../../utils";
 import {
   contextMatches,
   stateMatches,
   stateValue,
   contextValue,
-  DEBOUNCE_DELAY,
+  DEBOUNCE_DELAY
 } from "../../utils";
-import { isNil, debounce, isEqual } from "lodash-es";
+import { isNil, debounce, isEqual, isEmpty } from "lodash-es";
 
 // --- types
 import type { ActorRef } from "xstate";
@@ -35,13 +35,14 @@ export const useBasketFields = () => {
   // --- state
 
   async function isReady(): Promise<boolean> {
-    return new Promise(resolve =>
-      setTimeout(() => {
+    return new Promise(resolve => {
+      const interval = setInterval(() => {
         if (!isNil(actor.value?.service)) {
+          clearInterval(interval);
           resolve(actor.value.service);
         }
-      }, 100)
-    ).then(service =>
+      }, 100);
+    }).then(service =>
       waitFor(
         service as ActorRef<any>,
         state => !stateMatches(state, "loading"),
@@ -63,7 +64,7 @@ export const useBasketFields = () => {
     isDirty: contextMatches(actor, ["dirty"]),
     isComplete:
       stateValue(actor, "done", false) ||
-      stateMatches(actor, ["processed", "complete"]),
+      stateMatches(actor, ["processed", "complete"])
   }));
 
   // --- context
@@ -88,8 +89,7 @@ export const useBasketFields = () => {
     value = toRaw(unref(value));
     const model = contextValue<FieldsModel>(actor, "model");
 
-    // if it has not then bail
-    if (!isEqual(model, value)) {
+    if (!isEmpty(value) && !isEqual(model, value)) {
       actor.value?.send({ type: "SET", data: value, update: true });
     } else {
       actor.value?.send({ type: "UPDATE" });
@@ -113,7 +113,7 @@ export const useBasketFields = () => {
             ErrorOrigin.Headless,
             {
               error,
-              state: actor.value?.state.value,
+              state: actor.value?.state.value
             }
           )
         );
@@ -184,7 +184,7 @@ export const useBasketFields = () => {
      * @param {FieldsModel} value The new fields model to set.
      * @returns {Promise<void>} Resolves when updated, rejects on error.
      */
-    update: debounce(update, DEBOUNCE_DELAY),
+    update: debounce(update, DEBOUNCE_DELAY)
   };
 };
 

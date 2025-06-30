@@ -49,7 +49,7 @@ const props = withDefaults(
     popoverClass?: HTMLAttributes["class"];
   }>(),
   {
-    popoverClass: "mt-0",
+    popoverClass: "mt-0"
   }
 );
 
@@ -66,12 +66,12 @@ const items = computed(() => {
         icon: get(
           rawCurrencies,
           currency.code?.toUpperCase()
-        )?.country_code?.toLowerCase(),
+        )?.country_code?.toLowerCase()
       },
       label: currency.code,
       selectedLabel: currency.code,
       value: currency.code,
-      selected: currency.code === model.value?.code,
+      selected: currency.code === model.value?.code
     };
   }) as ComboboxItemProps[];
 });

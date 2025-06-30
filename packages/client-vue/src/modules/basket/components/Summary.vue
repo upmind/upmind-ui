@@ -132,7 +132,7 @@ const props = withDefaults(
     showProducts?: boolean;
   }>(),
   {
-    showProducts: false,
+    showProducts: false
   }
 );
 

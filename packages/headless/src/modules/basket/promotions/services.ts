@@ -8,7 +8,7 @@ import {
   DetailedError,
   ErrorOrigin,
   responseCodes,
-  useValidation,
+  useValidation
 } from "../../../utils";
 import { get, isEmpty, some, trim } from "lodash-es";
 
@@ -50,7 +50,7 @@ async function add(
   return post<IBasketPromotion[]>({
     url: useUrl(`/orders/${basketId}/promotions`),
     data: { promocode: trim(model?.promocode) },
-    withAccessToken: true,
+    withAccessToken: true
   });
 }
 
@@ -73,7 +73,7 @@ async function remove(
 
   return del({
     url: useUrl(`/orders/${basketId}/promotions/${id}`),
-    withAccessToken: true,
+    withAccessToken: true
   });
 }
 
@@ -120,5 +120,5 @@ export default {
   parse,
   validate,
   add,
-  remove,
+  remove
 };

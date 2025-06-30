@@ -23,13 +23,13 @@ export default {
             "bottom-center":
               "bottom-0 end-1/2 start-1/2 -translate-x-1/2 translate-y-0 items-center rtl:translate-x-1/2",
             "bottom-end":
-              "bottom-0 end-0 start-auto translate-x-0 translate-y-0 items-end",
-          },
+              "bottom-0 end-0 start-auto translate-x-0 translate-y-0 items-end"
+          }
         },
         defaultVariants: {
-          position: "bottom-center",
-        },
+          position: "bottom-center"
+        }
       }
-    ),
-  },
+    )
+  }
 };

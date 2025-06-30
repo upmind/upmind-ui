@@ -9,7 +9,7 @@ import {
   responseCodes,
   useCookies,
   usePOP,
-  useTime,
+  useTime
 } from "../../../utils";
 import {
   isEmpty,
@@ -19,7 +19,7 @@ import {
   map,
   isArray,
   sumBy,
-  some,
+  some
 } from "lodash-es";
 
 // --- types
@@ -32,7 +32,7 @@ import {
   DataLayerEcommerceItems,
   DataLayerEcommerceItem,
   DataLayerPage,
-  DataLayerUser,
+  DataLayerUser
 } from "./types";
 import { PageRoute } from "../../routing";
 
@@ -98,7 +98,7 @@ class TrackingEvent {
         version,
         language: locale.value?.toLocaleUpperCase(),
         current_url,
-        previous_url,
+        previous_url
       },
       isNil
     );
@@ -119,7 +119,7 @@ class TrackingEvent {
       payload = storedActor;
     } else {
       payload = {
-        logged_in: false,
+        logged_in: false
       };
     }
 
@@ -153,7 +153,7 @@ class TrackingEvent {
       items: map(
         safeBasket.products,
         mapIBasketProduct
-      ) as DataLayerEcommerceItem[],
+      ) as DataLayerEcommerceItem[]
     };
 
     set(this.args, "ecommerce", omitBy(payload, isNil));
@@ -197,7 +197,7 @@ class TrackingEvent {
       ),
       // Dont have the current values to be able to calculate this
       // gross_value: sumBy(safeItems, "price.configuration.total"),
-      items: map(safeItems, mapBasketProduct) as DataLayerEcommerceItem[],
+      items: map(safeItems, mapBasketProduct) as DataLayerEcommerceItem[]
     };
 
     set(this.args, "ecommerce", omitBy(payload, isNil));
@@ -246,13 +246,13 @@ export const useDataLayer = (dataLayer: string = "dataLayer") => {
         functionality_storage: "denied",
         personalization_storage: "denied",
         security_storage: "denied",
-        wait_for_update: 500,
-      },
+        wait_for_update: 500
+      }
     ]);
 
     UETQ.push("consent", "default", {
       ad_storage: "denied",
-      wait_for_update: 500,
+      wait_for_update: 500
     });
     DATA_LAYER.push(["set", "ads_data_redaction", true]);
     DATA_LAYER.push(["set", "url_passthrough", false]);
@@ -299,7 +299,7 @@ export const useDataLayer = (dataLayer: string = "dataLayer") => {
      * @param {Record<string, any>} args - Arguments for the tracking event.
      * @returns {TrackingEvent} The tracking event instance.
      */
-    dataLayer: dataLayerEvent,
+    dataLayer: dataLayerEvent
   };
 };
 

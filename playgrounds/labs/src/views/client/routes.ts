@@ -1,88 +1,30 @@
 export default {
   routes: [
     {
-      path: "/client/phones",
+      path: "/client",
       component: () => import("./Client.vue"),
       children: [
         {
-          path: "",
-          name: "client.phones",
-          component: () => import("./phone/Listings.vue"),
-        },
-        {
-          path: "new",
-          name: "client.phones.add",
-          component: () => import("./phone/Add.vue"),
-        },
-        {
-          path: ":id",
-          name: "client.phones.edit",
-          component: () => import("./phone/Edit.vue"),
-        },
-      ],
-    },
-    {
-      path: "/client/companies",
-      component: () => import("./Client.vue"),
-      children: [
-        {
-          path: "",
-          name: "client.companies",
-          component: () => import("./company/Listings.vue"),
-        },
-        {
-          path: "new",
-          name: "client.companies.add",
-          component: () => import("./company/Add.vue"),
-        },
-        {
-          path: ":id",
-          name: "client.companies.edit",
-          component: () => import("./company/Edit.vue"),
-        },
-      ],
-    },
-    {
-      path: "/client/addresses",
-      component: () => import("./Client.vue"),
-      children: [
-        {
-          path: "",
+          path: "addresses",
           name: "client.addresses",
-          component: () => import("./address/Listings.vue"),
+          component: () => import("./Addresses.vue")
         },
         {
-          path: "new",
-          name: "client.addresses.add",
-          component: () => import("./address/Add.vue"),
+          path: "companies",
+          name: "client.companies",
+          component: () => import("./Companies.vue")
         },
         {
-          path: ":id",
-          name: "client.addresses.edit",
-          component: () => import("./address/Edit.vue"),
+          path: "phones",
+          name: "client.phones",
+          component: () => import("./Phones.vue")
         },
-      ],
-    },
-    {
-      path: "/client/emails",
-      component: () => import("./Client.vue"),
-      children: [
         {
-          path: "",
+          path: "emails",
           name: "client.emails",
-          component: () => import("./email/Listings.vue"),
-        },
-        {
-          path: "new",
-          name: "client.emails.add",
-          component: () => import("./email/Add.vue"),
-        },
-        {
-          path: ":id",
-          name: "client.emails.edit",
-          component: () => import("./email/Edit.vue"),
-        },
-      ],
-    },
-  ],
+          component: () => import("./Emails.vue")
+        }
+      ]
+    }
+  ]
 };

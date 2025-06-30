@@ -35,8 +35,8 @@
         :cycle="props.cycle"
         :ui-config="{
           pricing: {
-            current: styles.product.config.grid.item.total,
-          },
+            current: styles.product.config.grid.item.total
+          }
         }"
         show-cycle
       />
@@ -79,7 +79,7 @@ const { t, te } = useI18n();
 
 const meta = computed(() => ({
   hasPromotions: !isEmpty(props.promotions) || props.meta?.mixed,
-  isSelected: props.select,
+  isSelected: props.select
 }));
 
 const styles = useStyles(

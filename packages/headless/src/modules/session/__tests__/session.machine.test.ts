@@ -4,13 +4,13 @@ import { vi, describe, it, expect, beforeEach } from "vitest";
 
 const mockServices = {
   check: vi.fn(() => Promise.resolve(true)),
-  transfer: vi.fn(() => Promise.resolve(true)),
+  transfer: vi.fn(() => Promise.resolve(true))
 };
 
 const mockActions = {
   clear: vi.fn(),
   setError: vi.fn(),
-  clearError: vi.fn(),
+  clearError: vi.fn()
 };
 
 describe("Session Machine", () => {

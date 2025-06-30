@@ -35,7 +35,7 @@ const props = withDefaults(
     block?: boolean;
   }>(),
   {
-    variant: "inline",
+    variant: "inline"
   }
 );
 
