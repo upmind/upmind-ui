@@ -1,7 +1,8 @@
 <template>
   <!-- Router link -->
+
   <component
-    :is="to ? 'router-link' : 'a'"
+    :is="props.is ? props.is : to ? 'router-link' : 'a'"
     :to="to"
     :href="href"
     :tabindex="props.focusable ? 0 : -1"
