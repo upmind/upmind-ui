@@ -1,6 +1,11 @@
 <!-- eslint-disable vue/no-unused-components -->
 <template>
-  <DropdownMenu :items="items" itemClass="!px-5 !py-4" popoverClass="mt-8">
+  <DropdownMenu
+    :items="items"
+    itemClass="!px-5 !py-4"
+    popoverClass="mt-8"
+    v-if="meta.isAuthenticated"
+  >
     <template #trigger>
       <slot></slot>
     </template>
@@ -30,7 +35,7 @@ import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
 
-const { user, logout } = useSession();
+const { user, logout, meta } = useSession();
 const items: DropdownMenuItemProps[] = [
   {
     label: t("auth.actions.logout"),
