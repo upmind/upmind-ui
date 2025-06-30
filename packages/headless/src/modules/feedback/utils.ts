@@ -29,7 +29,7 @@ export const useMessageParser = (data?: object) => {
     delay: 0,
     maxAge: 0,
     created: Date.now(),
-    i18nKey: null,
+    i18nKey: null
   };
   // TODO: pars einto a message format
   const message = defaultsDeep(data, defaultMessage);

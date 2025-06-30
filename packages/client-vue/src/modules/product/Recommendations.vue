@@ -63,7 +63,7 @@ import {
   useProductRecommendations,
   useQueryParams,
   useRoutingEngine,
-  ROUTE,
+  ROUTE
 } from "@upmind-automation/headless";
 
 // --- components
@@ -91,7 +91,7 @@ const {
   meta,
   recommendations,
   add,
-  fetchRecommendation,
+  fetchRecommendation
 } = useProductRecommendations(productId);
 
 await isReady();

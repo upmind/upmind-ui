@@ -8,7 +8,7 @@ export default {
     variants: {
       loading: {
         false: "",
-        true: "bg-white",
+        true: "bg-white"
       },
       route: {
         "client.addresses": "",
@@ -16,12 +16,12 @@ export default {
         "client.addresses.edit": "",
         "client.emails": "",
         "client.emails.add": "",
-        "client.emails.edit": "",
-      },
+        "client.emails.edit": ""
+      }
     },
 
     defaultVariants: {
-      loading: false,
+      loading: false
     },
 
     compoundVariants: [
@@ -29,16 +29,16 @@ export default {
         route: [
           "client.addresses",
           "client.addresses.add",
-          "client.addresses.edit",
+          "client.addresses.edit"
         ],
         loading: false,
-        class: "bg-background",
+        class: "bg-background"
       },
       {
         route: ["client.emails", "client.emails.add", "client.emails.edit"],
         loading: false,
-        class: "bg-background",
-      },
-    ],
-  }),
+        class: "bg-background"
+      }
+    ]
+  })
 };

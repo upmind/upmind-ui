@@ -30,13 +30,13 @@ function loadList(params?: Partial<QueryParams>) {
         "products_attributes",
         "products_options",
         "products_options.prices",
-        `category${".top_category".repeat(4)}`,
-      ].join(","),
+        `category${".top_category".repeat(4)}`
+      ].join(",")
     }),
     withAccessToken: true,
     // --- options
     select: data => map(data ?? [], parseProduct),
-    staleTime: useTime().HOUR,
+    staleTime: useTime().HOUR
   });
 }
 
@@ -53,13 +53,13 @@ function loadInfinite(params?: Partial<QueryParams>) {
         "products_attributes",
         "products_options",
         "products_options.prices",
-        `category${".top_category".repeat(4)}`,
-      ].join(","),
+        `category${".top_category".repeat(4)}`
+      ].join(",")
     }),
     withAccessToken: true,
     // --- options
     select: data => map(data ?? [], parseProduct),
-    staleTime: useTime().HOUR,
+    staleTime: useTime().HOUR
   });
 }
 
@@ -70,5 +70,5 @@ export default {
   queryKey,
   //--- queries
   loadList,
-  loadInfinite,
+  loadInfinite
 };

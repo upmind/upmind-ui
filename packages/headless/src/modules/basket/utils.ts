@@ -32,8 +32,8 @@ export function spawnBilling(basket?: IBasket) {
       model: {
         addressId: basket?.address_id || undefined,
         companyId: basket?.company_id || undefined,
-        phoneId: basket?.phone_id || undefined,
-      },
+        phoneId: basket?.phone_id || undefined
+      }
     }),
     { name: "billing", sync: true }
   );
@@ -43,7 +43,7 @@ export function spawnCurrency(basket?: IBasket) {
   return spawn(
     currencyMachine.withContext({
       basketId: basket?.id,
-      model: basket?.currency,
+      model: basket?.currency
     }),
     { name: "currency", sync: true }
   );
@@ -53,7 +53,7 @@ export function spawnCustomFields(basket?: IBasket) {
   return spawn(
     customFieldsMachine.withContext({
       basketId: basket?.id,
-      model: parseBasketFieldsModel(basket),
+      model: parseBasketFieldsModel(basket)
     }),
     { name: "customFields", sync: true }
   );
@@ -69,8 +69,8 @@ export function spawnPaymentDetails(basket?: IBasket) {
       clientId: basket?.client_id,
       amount: basket?.unpaid_amount_converted || 0.0,
       model: {
-        amount: basket?.unpaid_amount_converted || 0.0,
-      },
+        amount: basket?.unpaid_amount_converted || 0.0
+      }
     } as PaymentDetailsContext),
     { name: "paymentDetails", sync: true }
   );
@@ -80,7 +80,7 @@ export function spawnPromotions(basket?: IBasket) {
   return spawn(
     promotionsMachine.withContext({
       basketId: basket?.id,
-      promotions: basket?.promotions,
+      promotions: basket?.promotions
     }),
     { name: "promotions", sync: true }
   );
@@ -108,7 +108,7 @@ export const parseSummary = (data?: any, errors?: any) => {
       : null, // only include the discount if there is one
     subtotal: data?.net_amount_formatted || "",
     taxes: parseTaxes(data?.taxes),
-    total: data?.total_amount_formatted || "",
+    total: data?.total_amount_formatted || ""
     // ---
   };
   return summary;
@@ -152,7 +152,7 @@ export const parseTaxTagName = (tag: any) => {
       ? tag.tax_tag_company_type === TaxTagTypes.PERCENT &&
         `(${tag.tax_tag_company_amount}%)`
       : // Append percentage (if DEFAULT % rate)
-        tag?.tax_tag_type === TaxTagTypes.PERCENT && `(${tag.tax_tag_amount}%)`,
+        tag?.tax_tag_type === TaxTagTypes.PERCENT && `(${tag.tax_tag_amount}%)`
   ]).join(" ");
 };
 
@@ -170,6 +170,6 @@ export const parseBasketFieldsModel = (basket: any, data = {}) => {
   );
   return {
     notes,
-    customFields,
+    customFields
   };
 };

@@ -96,7 +96,7 @@ const {
   uischema,
   stop,
   errors,
-  validationErrors,
+  validationErrors
 } = props.useMutate(props.modelValue);
 
 const doResolve = async () => {

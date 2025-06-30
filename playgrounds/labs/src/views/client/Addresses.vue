@@ -5,7 +5,7 @@
       i18n-key="client.address"
       :manage="{
         useList: useClientAddresses,
-        useMutate: useClientAddress,
+        useMutate: useClientAddress
       }"
     />
   </UpmContentSection>
@@ -18,7 +18,7 @@
 import {
   useSession,
   useClientAddresses,
-  useClientAddress,
+  useClientAddress
 } from "@upmind-automation/headless";
 
 // --- components

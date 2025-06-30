@@ -62,7 +62,7 @@ import {
   useClientPhones,
   useClientPhone,
   useUnifiedAddress,
-  UnifiedAddressType,
+  UnifiedAddressType
 } from "@upmind-automation/headless";
 
 // --- components
@@ -83,7 +83,7 @@ import PhoneItem from "./PhoneItem.vue";
 enum EditingType {
   Company = "company",
   Phone = "phone",
-  Unified = "unified",
+  Unified = "unified"
 }
 // -----------------------------------------------------------------------------
 
@@ -105,19 +105,19 @@ const {
   data: companies,
   meta: companyMeta,
   default: defaultCompany,
-  isReady: isCompaniesReady,
+  isReady: isCompaniesReady
 } = useClientCompanies();
 
 const {
   data: phones,
   meta: phoneMeta,
   default: defaultPhone,
-  isReady: isPhonesReady,
+  isReady: isPhonesReady
 } = useClientPhones();
 
 const meta = computed(() => ({
   isEmpty: companyMeta.value.isEmpty || phoneMeta.value.isEmpty,
-  isLoading: companyMeta.value.isLoading || phoneMeta.value.isLoading,
+  isLoading: companyMeta.value.isLoading || phoneMeta.value.isLoading
 }));
 
 const modelValue = useVModel(props, "modelValue", emits, {
@@ -126,8 +126,8 @@ const modelValue = useVModel(props, "modelValue", emits, {
   defaultValue: {
     companyId: defaultCompany.value?.id,
     addressId: defaultCompany.value?.addressId,
-    phoneId: defaultPhone.value?.id,
-  },
+    phoneId: defaultPhone.value?.id
+  }
 });
 
 // -----------------------------------------------------------------------------
@@ -149,7 +149,7 @@ const selectedCompany = computed<string | undefined>({
       set(modelValue.value, "companyId", found.id);
       set(modelValue.value, "addressId", found.addressId);
     }
-  },
+  }
 });
 
 const selectedPhone = computed({
@@ -162,7 +162,7 @@ const selectedPhone = computed({
     if (found) {
       set(modelValue.value, "phoneId", found.id);
     }
-  },
+  }
 });
 
 const i18nKey = computed(() => {
@@ -260,7 +260,7 @@ await Promise.all([isCompaniesReady(), isPhonesReady()]).then(() => {
   modelValue.value = {
     companyId: modelValue.value?.companyId ?? defaultCompany.value?.id,
     addressId: modelValue.value?.addressId ?? defaultCompany.value?.addressId,
-    phoneId: modelValue.value?.phoneId ?? defaultPhone.value?.id,
+    phoneId: modelValue.value?.phoneId ?? defaultPhone.value?.id
   };
 
   if (!modelValue.value.companyId) {

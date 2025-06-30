@@ -19,7 +19,7 @@
           trigger: 'loop',
           primaryColor: 'base-foreground',
           secondaryColor: 'tertiary',
-          size: '4xl',
+          size: '4xl'
         }"
       >
         <template #title>
@@ -60,7 +60,7 @@ import {
   useBasket,
   useRoutingEngine,
   utils,
-  ROUTE,
+  ROUTE
 } from "@upmind-automation/headless";
 
 // -- components
@@ -167,7 +167,7 @@ function doAction() {
             transferAuth,
             {
               code: transfer.code,
-              redirect: transferRedirect,
+              redirect: transferRedirect
             },
             { base: transferBase ?? transfer.redirect_url, context: "" }
           )

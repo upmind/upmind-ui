@@ -46,7 +46,7 @@ const props = withDefaults(defineProps<InterstitialProps>(), {
     delay: 250,
     primaryColor: "base-foreground",
     secondaryColor: "secondary",
-    size: "4xl",
-  }),
+    size: "4xl"
+  })
 });
 </script>

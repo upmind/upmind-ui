@@ -10,7 +10,7 @@ import {
   contextValue,
   DetailedError,
   responseCodes,
-  useContext,
+  useContext
 } from "../../utils";
 import { contextMatches, stateMatches, stateValue } from "../../utils";
 import { isNil } from "lodash-es";
@@ -59,7 +59,7 @@ export const useBasketPromotions = () => {
     isDirty: contextMatches(actor, ["dirty"]),
     isComplete:
       stateValue(actor, "done", false) ||
-      stateMatches(actor, ["processed", "complete"]),
+      stateMatches(actor, ["processed", "complete"])
   }));
 
   // --- context
@@ -91,7 +91,7 @@ export const useBasketPromotions = () => {
       actor.value?.send({
         type: "SET",
         data: { promocode: value },
-        update: true,
+        update: true
       });
     } else {
       actor.value?.send({ type: "ADD" });
@@ -117,7 +117,7 @@ export const useBasketPromotions = () => {
             error?.status ?? responseCodes.Timeout,
             {
               error,
-              state: actor.value?.state.value,
+              state: actor.value?.state.value
             }
           )
         );
@@ -145,7 +145,7 @@ export const useBasketPromotions = () => {
             responseCodes.Timeout,
             {
               error,
-              state: actor.value?.state.value,
+              state: actor.value?.state.value
             }
           )
         );
@@ -222,7 +222,7 @@ export const useBasketPromotions = () => {
      * @param {PromotionModel} value The promotion model to remove.
      * @returns {Promise<void>} Resolves when removed, rejects on error.
      */
-    remove,
+    remove
   };
 };
 

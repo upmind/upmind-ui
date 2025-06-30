@@ -6,7 +6,7 @@
     :opts="{
       loop: false,
       align: 'center',
-      dragFree: true,
+      dragFree: true
     }"
   >
     <div v-if="active" :class="styles.recommendation.carousel.navigation">
@@ -56,7 +56,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-  Button,
+  Button
 } from "@upmind-automation/upmind-ui";
 
 import RecommendationCard from "./Card.vue";

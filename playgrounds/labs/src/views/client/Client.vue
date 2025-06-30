@@ -86,7 +86,7 @@ import { useSession } from "@upmind-automation/headless";
 import {
   UpmLoading,
   UpmContent,
-  UpmContentSection,
+  UpmContentSection
 } from "@upmind-automation/client-vue";
 
 import { Button, Alert } from "@upmind-automation/upmind-ui";

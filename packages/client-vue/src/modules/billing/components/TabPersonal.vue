@@ -62,7 +62,7 @@ import {
   useClientPhones,
   useClientPhone,
   useUnifiedAddress,
-  UnifiedAddressType,
+  UnifiedAddressType
 } from "@upmind-automation/headless";
 
 // --- components
@@ -83,7 +83,7 @@ import PhoneItem from "./PhoneItem.vue";
 enum EditingType {
   Address = "address",
   Phone = "phone",
-  Unified = "unified",
+  Unified = "unified"
 }
 // -----------------------------------------------------------------------------
 
@@ -105,19 +105,19 @@ const {
   data: addresses,
   meta: addressMeta,
   default: defaultAddress,
-  isReady: isAddressesReady,
+  isReady: isAddressesReady
 } = useClientAddresses();
 
 const {
   data: phones,
   meta: phoneMeta,
   default: defaultPhone,
-  isReady: isPhonesReady,
+  isReady: isPhonesReady
 } = useClientPhones();
 
 const meta = computed(() => ({
   isEmpty: addressMeta.value.isEmpty || phoneMeta.value.isEmpty,
-  isLoading: addressMeta.value.isLoading || phoneMeta.value.isLoading,
+  isLoading: addressMeta.value.isLoading || phoneMeta.value.isLoading
 }));
 
 const modelValue = useVModel(props, "modelValue", emits, {
@@ -125,8 +125,8 @@ const modelValue = useVModel(props, "modelValue", emits, {
   deep: true,
   defaultValue: {
     addressId: defaultAddress.value?.id,
-    phoneId: defaultPhone.value?.id,
-  },
+    phoneId: defaultPhone.value?.id
+  }
 });
 
 // -----------------------------------------------------------------------------
@@ -147,7 +147,7 @@ const selectedAddress = computed({
     if (found) {
       set(modelValue.value, "addressId", found.id);
     }
-  },
+  }
 });
 
 const selectedPhone = computed({
@@ -160,7 +160,7 @@ const selectedPhone = computed({
     if (found) {
       set(modelValue.value, "phoneId", found.id);
     }
-  },
+  }
 });
 
 const i18nKey = computed(() => {
@@ -257,7 +257,7 @@ await Promise.all([isAddressesReady(), isPhonesReady()]).then(() => {
   // Ensure modelValue is initialized with default values
   modelValue.value = {
     addressId: modelValue.value?.addressId ?? defaultAddress.value?.id,
-    phoneId: modelValue.value?.phoneId ?? defaultPhone.value?.id,
+    phoneId: modelValue.value?.phoneId ?? defaultPhone.value?.id
   };
 
   if (!modelValue.value.addressId) {

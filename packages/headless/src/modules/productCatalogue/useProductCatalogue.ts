@@ -29,7 +29,7 @@ export const useProductCatalogue = (
     hasError: !isEmpty(query.error.value),
     isEmpty: isEmpty(query?.data?.value) || query.pagination.value.total == 0,
     isAvailable: true,
-    ...query?.meta.value,
+    ...query?.meta.value
   }));
 
   async function isReady(): Promise<boolean> {
@@ -92,7 +92,7 @@ export const useProductCatalogue = (
     query: "",
     currency: "",
     promotions: [],
-    "filter[products_category_id]": "",
+    "filter[products_category_id]": ""
   });
 
   const filterQuery = (value?: string) => {
@@ -230,8 +230,8 @@ export const useProductCatalogue = (
       query: filterQuery,
       coupons: filterCoupons,
       currency: filterCurrency,
-      productCategory: filterProductCategory,
-    },
+      productCategory: filterProductCategory
+    }
   };
 };
 

@@ -85,7 +85,7 @@ const props = withDefaults(
     disabled: false,
     loading: false,
     processing: false,
-    visible: true,
+    visible: true
   }
 );
 
@@ -114,7 +114,7 @@ const parsedValues = computed<RadioCardsItemProps[]>(() => {
       label: item.title,
       item: item, // Ensure the `item` property is included
       index: index, // Add the `index` property
-      modelValue: props.modelValue?.toString(), // Add the `modelValue` property
+      modelValue: props.modelValue?.toString() // Add the `modelValue` property
     } as RadioCardsItemProps;
   });
 });

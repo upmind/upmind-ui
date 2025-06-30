@@ -13,17 +13,17 @@
             handler: navigateBack,
             prependIcon: {
               icon: 'arrow-left',
-              size: '2xs',
+              size: '2xs'
             },
-            label: t('basket.notFound.actions.continue'),
-          },
+            label: t('basket.notFound.actions.continue')
+          }
         ]"
         :animatedIcon="{
           icon: 'basket',
           delay: 5000,
           primaryColor: 'primary',
           secondaryColor: 'accent',
-          size: '4xl',
+          size: '4xl'
         }"
       >
         <template #title>

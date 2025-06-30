@@ -10,7 +10,7 @@ import {
   GlobbedFiles,
   useI18n,
   useLocale,
-  useRecaptcha,
+  useRecaptcha
 } from "./modules/system";
 import { useSession } from "./modules/session";
 
@@ -28,7 +28,7 @@ import { unref } from "vue";
 export enum UpmindStatus {
   notInitialised = "",
   initialised = "initialised",
-  initialising = "initialising",
+  initialising = "initialising"
 }
 
 export interface UpmindProps {
@@ -78,7 +78,7 @@ class Upmind {
     recaptcha,
     router,
     i18n,
-    debug,
+    debug
   }: UpmindProps): Promise<void> {
     if (this.status != UpmindStatus.notInitialised)
       throw new Error(
@@ -118,8 +118,8 @@ class Upmind {
       plugin: VueQueryPlugin,
       options: {
         queryClient: this.queryClient,
-        enableDevtoolsV6Plugin: true,
-      },
+        enableDevtoolsV6Plugin: true
+      }
     };
   }
 
@@ -144,7 +144,7 @@ class Upmind {
         // url: "https://stately.ai/registry/editor/inspect",
         // url: "https://statecharts.io/inspect",
         // url: "https://stately.ai/viz?inspect", // (default)
-        iframe: false,
+        iframe: false
       });
   }
 

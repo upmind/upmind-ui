@@ -46,8 +46,8 @@ const items = computed((): DropdownMenuItemProps[] => {
       label: t("auth.actions.logout"),
       icon: "logout",
       value: "logout",
-      handler: logout,
-    },
+      handler: logout
+    }
   ];
 });
 </script>

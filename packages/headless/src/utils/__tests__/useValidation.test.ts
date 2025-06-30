@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import {
   useValidation,
   useValidationParser,
-  useModelParser,
+  useModelParser
 } from "../../utils/useValidation";
 import { createAjv } from "@jsonforms/core";
 import ajvErrors from "ajv-errors";
@@ -11,12 +11,12 @@ vi.mock("@jsonforms/core", () => ({
   createAjv: vi.fn().mockReturnValue({
     addFormat: vi.fn(),
     addKeyword: vi.fn(),
-    compile: vi.fn(),
-  }),
+    compile: vi.fn()
+  })
 }));
 
 vi.mock("ajv-errors", () => ({
-  default: vi.fn(),
+  default: vi.fn()
 }));
 
 // vi.mock('libphonenumber-js', () => ({
@@ -27,9 +27,9 @@ const mockSchema = {
   type: "object",
   properties: {
     testField1: {
-      type: "string",
-    },
-  },
+      type: "string"
+    }
+  }
 };
 
 const mockErrors = [{ message: "Error 1" }];
@@ -57,8 +57,8 @@ describe("useValidation.ts", () => {
         schemaType: "string",
         validate: expect.any(Function),
         error: {
-          message: expect.any(Function),
-        },
+          message: expect.any(Function)
+        }
       });
       expect(typeof validate).toBe("function");
     });
@@ -101,8 +101,8 @@ describe("useValidation.ts", () => {
       const mockErrorWithData = {
         data: {
           field1: "Field 1 Error",
-          field2: "Field 2 Error",
-        },
+          field2: "Field 2 Error"
+        }
       };
 
       const parsedError = useValidationParser(mockErrorWithData);
@@ -114,15 +114,15 @@ describe("useValidation.ts", () => {
           message: "Field 1 Error",
           schemaPath: "field1",
           keyword: "",
-          params: {},
+          params: {}
         },
         {
           instancePath: "/field2",
           message: "Field 2 Error",
           schemaPath: "field2",
           keyword: "",
-          params: {},
-        },
+          params: {}
+        }
       ]);
     });
   });
@@ -131,8 +131,8 @@ describe("useValidation.ts", () => {
     const mockSchema = {
       properties: {
         field1: { type: "string", default: "Field 1" },
-        field2: { type: "number" },
-      },
+        field2: { type: "number" }
+      }
     };
 
     it("should handle empty arguments", () => {

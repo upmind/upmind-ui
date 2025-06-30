@@ -106,7 +106,7 @@ import {
   Button,
   Drawer,
   FormControl,
-  Input,
+  Input
 } from "@upmind-automation/upmind-ui";
 import DomainCards from "./DomainCards.vue";
 import DomainSearch from "./DomainSearch.vue";
@@ -129,7 +129,7 @@ const props = withDefaults(defineProps<DacProps>(), {
   selected: () => [],
   items: () => [],
   dialog: true,
-  color: "base",
+  color: "base"
 });
 
 const { t } = useI18n();
@@ -157,7 +157,7 @@ const meta = computed(() => ({
   showComplete: props.complete,
 
   // ---
-  showDialog: props.dialog && open.value,
+  showDialog: props.dialog && open.value
 }));
 
 const styles = useStyles(

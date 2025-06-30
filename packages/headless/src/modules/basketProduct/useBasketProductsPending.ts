@@ -22,7 +22,7 @@ import {
   isEmpty,
   isEqual,
   defaults,
-  isString,
+  isString
 } from "lodash-es";
 import { DetailedError, useSessionStorage } from "../../utils";
 
@@ -146,7 +146,7 @@ export const useBasketProductsPending = () => {
     if (!productId) {
       return Promise.reject({
         message: "No product id found",
-        code: responseCodes.Not_Found,
+        code: responseCodes.Not_Found
       });
     }
     const model = get(productConfigs, productId, { productId, quantity: 1 });
@@ -222,7 +222,7 @@ export const useBasketProductsPending = () => {
     isReady: () => new Promise(resolve => resolve(!isNil(productConfigs))),
 
     meta: computed(() => ({
-      hasProducts: !isEmpty(products.value),
+      hasProducts: !isEmpty(products.value)
     })),
 
     configure: async (
@@ -258,6 +258,6 @@ export const useBasketProductsPending = () => {
 
     add: ensure,
     get: getProduct,
-    remove: unsetProduct,
+    remove: unsetProduct
   };
 };

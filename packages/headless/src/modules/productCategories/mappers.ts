@@ -31,6 +31,6 @@ export function parseProductCategory(raw: IProductCategory): ProductCategory {
     // TODO: map our parents
     // TODO : map our children
 
-    categories: map(raw.subcategories, parseProductCategory),
+    categories: map(raw.subcategories, parseProductCategory)
   } as ProductCategory;
 }

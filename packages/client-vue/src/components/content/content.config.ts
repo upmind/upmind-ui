@@ -9,19 +9,19 @@ export const titleVariants = cva("m-0", {
       lg: "text-lg",
       xl: "text-xl md:text-2xl",
       "2xl": "text-2xl md:text-3xl",
-      "3xl": "text-3xl md:text-4xl",
+      "3xl": "text-3xl md:text-4xl"
     },
     align: {
       inherit: "text-inherit",
       left: "text-left",
       center: "text-center",
-      right: "text-right",
+      right: "text-right"
     },
     defaultVariants: {
       align: "inherit",
-      size: "inherit",
-    },
-  },
+      size: "inherit"
+    }
+  }
 });
 
 export default {
@@ -30,17 +30,17 @@ export default {
     {
       variants: {
         isDisabled: {
-          true: "pointer-events-none opacity-50",
-        },
+          true: "pointer-events-none opacity-50"
+        }
       },
       defaultVariants: {
-        isDisabled: false,
-      },
+        isDisabled: false
+      }
     }
   ),
 
   page: {
-    root: cva("bg-background text-foreground w-full transition-colors"),
+    root: cva("bg-background text-foreground w-full transition-colors")
   },
   section: {
     root: cva("w-full"),
@@ -52,11 +52,11 @@ export default {
     content: cva("w-full"),
     footer: cva(
       "text-base-700 mt-6 flex flex-col space-y-2 text-xs md:space-y-0"
-    ),
+    )
   },
   content: cva(
     "prose max-w-app z-10 mx-auto w-full flex-wrap items-start justify-start pb-16 pt-10 md:pb-32 md:pt-16"
   ),
   title: titleVariants,
-  description: cva("text-emphasis-medium my-0 text-sm italic leading-5"),
+  description: cva("text-emphasis-medium my-0 text-sm italic leading-5")
 };

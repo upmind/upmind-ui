@@ -53,6 +53,6 @@ export const tester = {
     // optionIs("list", true),
     // optionIs("mutate", true),
     // schemaMatches(schema => !isEmpty((schema as any).manage))
-  ),
+  )
 };
 </script>

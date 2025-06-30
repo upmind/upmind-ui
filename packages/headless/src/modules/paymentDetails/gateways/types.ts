@@ -11,7 +11,7 @@ import type {
   GatewayAuthType,
   GatewayStoreType,
   IPayment,
-  IPaymentDetail,
+  IPaymentDetail
 } from "@upmind-automation/types";
 import { ErrorObject } from "ajv";
 import { QueryResponseError } from "../../query";
@@ -28,12 +28,12 @@ export enum GatewayTypes {
   SEPA = GatewayTypesEnum.SEPA,
   OFFLINE = GatewayTypesEnum.OFFLINE,
   MOBILE = GatewayTypesEnum.MOBILE,
-  WALLET = GatewayTypesEnum.WALLET,
+  WALLET = GatewayTypesEnum.WALLET
 }
 
 export enum GatewayCtx {
   PAY = "pay", // PAY = Gateways are shown in the context of making a payment (invoice, topup etc)
-  ADD = "add", // ADD = Gateways are shown in the context of adding a stored payment detail
+  ADD = "add" // ADD = Gateways are shown in the context of adding a stored payment detail
 }
 
 // TODO:

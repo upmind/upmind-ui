@@ -10,13 +10,13 @@ import {
   DetailedError,
   responseCodes,
   useContext,
-  useContextActor,
+  useContextActor
 } from "../../utils";
 import {
   contextMatches,
   stateMatches,
   stateValue,
-  contextValue,
+  contextValue
 } from "../../utils";
 import { isEqual, isNil } from "lodash-es";
 
@@ -24,7 +24,7 @@ import { isEqual, isNil } from "lodash-es";
 import type { ActorRef } from "xstate";
 import {
   PaymentDetailsContext,
-  PaymentDetailModel,
+  PaymentDetailModel
 } from "../paymentDetails/types";
 
 // -----------------------------------------------------------------------------
@@ -71,7 +71,7 @@ export const useBasketPaymentDetails = () => {
     isComplete:
       !contextValue(actor, "model.amount") ||
       stateValue(actor, "done", false) ||
-      stateMatches(actor, ["processed", "complete"]),
+      stateMatches(actor, ["processed", "complete"])
   }));
 
   // --- context
@@ -126,7 +126,7 @@ export const useBasketPaymentDetails = () => {
             error?.status ?? responseCodes.Timeout,
             {
               error,
-              state: actor.value?.state?.value,
+              state: actor.value?.state?.value
             }
           )
         );
@@ -201,7 +201,7 @@ export const useBasketPaymentDetails = () => {
      * @param {PaymentDetailModel} value The new payment details model to set.
      * @returns {Promise<void>} Resolves when updated, rejects on error.
      */
-    update,
+    update
   };
 };
 

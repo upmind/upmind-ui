@@ -22,7 +22,7 @@ import {
   UpmContentSection,
   UpmCard,
   UpmForm,
-  formRenderers,
+  formRenderers
 } from "@upmind-automation/client-vue";
 import { ref } from "vue";
 
@@ -34,28 +34,28 @@ const schema = {
     address: {
       type: "string",
       title: "Address",
-      format: "address",
+      format: "address"
     },
     address1: {
       type: "string",
-      title: "Address Line 1",
+      title: "Address Line 1"
     },
 
     address2: {
       type: ["string", "null"],
-      title: "Address Line 2",
+      title: "Address Line 2"
     },
 
     city: {
       type: "string",
-      title: "City",
+      title: "City"
     },
 
     postcode: {
       type: "string",
-      title: "Postcode",
-    },
-  },
+      title: "Postcode"
+    }
+  }
 };
 
 const uischema = {
@@ -67,25 +67,25 @@ const uischema = {
       options: {
         autoFocus: true,
         autocomplete: "off",
-        placeholder: "Search for an address...",
-      },
+        placeholder: "Search for an address..."
+      }
     },
     {
       type: "Control",
-      scope: "#/properties/address1",
+      scope: "#/properties/address1"
     },
     {
       type: "Control",
-      scope: "#/properties/address2",
+      scope: "#/properties/address2"
     },
     {
       type: "Control",
-      scope: "#/properties/city",
+      scope: "#/properties/city"
     },
     {
       type: "Control",
-      scope: "#/properties/postcode",
-    },
-  ],
+      scope: "#/properties/postcode"
+    }
+  ]
 };
 </script>

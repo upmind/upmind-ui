@@ -12,10 +12,10 @@
             href: storefrontUrl,
             prependIcon: {
               icon: 'arrow-left',
-              size: '2xs',
+              size: '2xs'
             },
-            label: t('errors.404.action'),
-          },
+            label: t('errors.404.action')
+          }
         ]"
       >
         <template #avatar>
@@ -60,7 +60,7 @@ const storefrontUrl = import.meta.env.VITE_APP_STOREFRONT;
 const props = withDefaults(defineProps<InterstitialProps>(), {
   open: true,
   modal: true,
-  skrim: "light",
+  skrim: "light"
 });
 
 const createRepeatSequence = (
@@ -76,21 +76,21 @@ const icons = [
     sequence: createRepeatSequence(
       "delay:0,state:in-reveal,play,delay:2000,state:out-reveal,play,delay:0",
       50
-    ),
+    )
   },
   {
     icon: "zero",
     sequence: createRepeatSequence(
       "delay:300,state:in-reveal,play,delay:1700,state:out-reveal,play,delay:0",
       50
-    ),
+    )
   },
   {
     icon: "four",
     sequence: createRepeatSequence(
       "delay:600,state:in-reveal,play,delay:1400,state:out-reveal,play,delay:0",
       50
-    ),
-  },
+    )
+  }
 ];
 </script>

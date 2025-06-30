@@ -67,5 +67,5 @@ async function generateToken(
 
 export default {
   load,
-  generateToken,
+  generateToken
 };

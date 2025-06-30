@@ -9,7 +9,7 @@ const i18n = createI18n({
   missingWarn: false,
   fallbackWarn: false,
   silentTranslationWarn: true,
-  silentFallbackWarn: true,
+  silentFallbackWarn: true
 });
 
 export default i18n;

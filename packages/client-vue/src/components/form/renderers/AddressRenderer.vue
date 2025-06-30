@@ -46,7 +46,7 @@ import { computed, ref, onMounted } from "vue";
 import {
   DispatchRenderer,
   rendererProps,
-  useJsonFormsControlWithDetail,
+  useJsonFormsControlWithDetail
 } from "@jsonforms/vue";
 
 // --- components
@@ -64,7 +64,7 @@ import type { Address } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 const props = defineProps({
-  ...rendererProps<ControlElement>(),
+  ...rendererProps<ControlElement>()
 });
 
 const { control, appliedOptions, formFieldProps, onInput } =
@@ -87,7 +87,7 @@ onMounted(async () => {
 const detailUiSchema: ComputedRef<UISchemaElement> = computed(() => {
   return {
     ...control.value.uischema,
-    type: "VerticalLayout",
+    type: "VerticalLayout"
   };
 });
 
@@ -111,7 +111,7 @@ const searchResults = computed(() => {
     (result: any) =>
       ({
         id: result.id,
-        label: result.description,
+        label: result.description
       }) as SearchItem
   );
 });
@@ -135,7 +135,7 @@ const setAddress = async (address: Address) => {
   onInput(
     {
       ...control.value.data,
-      ...address,
+      ...address
     },
     false
   );
@@ -146,7 +146,7 @@ const setShowAddressFields = (value: boolean) => {
   onInput(
     {
       ...control.value.data,
-      showAddressFields: value,
+      showAddressFields: value
     },
     false
   );
@@ -160,6 +160,6 @@ const { DEBOUNCE_DELAY } = utils;
 
 export const tester = {
   rank: 2,
-  controlType: and(isLayout, uiTypeIs("address")),
+  controlType: and(isLayout, uiTypeIs("address"))
 };
 </script>

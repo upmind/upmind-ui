@@ -6,7 +6,7 @@ import type {
   ICountry,
   ICompany,
   BrandConfigKeys,
-  IRegion,
+  IRegion
 } from "@upmind-automation/types";
 import type { Email, Phone, Address, PhoneModel, AddressModel } from "..";
 

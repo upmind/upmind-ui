@@ -19,7 +19,7 @@ async function load(_context: FieldsContext, _event: AnyEventObject) {
 
   return get({
     url: useUrl("basket_fields"),
-    queryKey: ["basket", "fields"],
+    queryKey: ["basket", "fields"]
   }).then(data => ({ fields: data }));
 }
 
@@ -31,14 +31,14 @@ async function update(
   // rebuild the model with ALL custom fields present, including nullish values
   const data = {
     notes: model?.notes,
-    custom_fields: get(model, "customFields"),
+    custom_fields: get(model, "customFields")
   };
   // get returns a promise so we can pass it directly back to the machine
   return put<IBasket>({
     url: useUrl(`/orders/${basketId}`),
     init: { signal: controller?.signal },
     data,
-    withAccessToken: true,
+    withAccessToken: true
   });
 }
 
@@ -75,5 +75,5 @@ export default {
   load,
   parse,
   validate,
-  update,
+  update
 };

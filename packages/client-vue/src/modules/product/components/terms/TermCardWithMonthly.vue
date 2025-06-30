@@ -25,7 +25,7 @@
       >
         {{
           t("product.cycle", {
-            value: props.price.monthlyFromCurrentPrice,
+            value: props.price.monthlyFromCurrentPrice
           })
         }}
       </span>
@@ -41,8 +41,8 @@
         :cycle="props.cycle"
         :ui-config="{
           pricing: {
-            current: styles.product.config.grid.item.total,
-          },
+            current: styles.product.config.grid.item.total
+          }
         }"
       />
     </div>
@@ -78,7 +78,7 @@ const props = defineProps<TermDetails>();
 const { t, te } = useI18n();
 
 const meta = computed(() => ({
-  hasPromotions: !isEmpty(props.promotions) || props.meta?.mixed,
+  hasPromotions: !isEmpty(props.promotions) || props.meta?.mixed
 }));
 
 const styles = useStyles(

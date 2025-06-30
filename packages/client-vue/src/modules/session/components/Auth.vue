@@ -66,7 +66,7 @@ import config from "../sesssion.config";
 import {
   ROUTE,
   useSession,
-  useRoutingEngine,
+  useRoutingEngine
 } from "@upmind-automation/headless";
 import { useStyles, cn } from "@upmind-automation/upmind-ui";
 
@@ -81,7 +81,7 @@ import type { AuthProps } from "./types";
 const emit = defineEmits(["update:modelValue", "resolve", "reject"]);
 const props = withDefaults(defineProps<AuthProps>(), {
   modelValue: "login",
-  color: "secondary",
+  color: "secondary"
 });
 
 const { t } = useI18n();
@@ -100,7 +100,7 @@ const {
   resolve,
   reject,
   logout,
-  setModel,
+  setModel
 } = useSession();
 
 await isReady();
@@ -131,16 +131,16 @@ const buttons = computed(() => {
   return {
     register: {
       label: t("session.register.actions.text"),
-      action: t("session.register.actions.action"),
+      action: t("session.register.actions.action")
     },
     login: {
       label: t("session.login.actions.text"),
-      action: t("session.login.actions.action"),
+      action: t("session.login.actions.action")
     },
     recover: {
       label: t("session.recover.actions.text"),
-      action: t("session.recover.actions.action"),
-    },
+      action: t("session.recover.actions.action")
+    }
   };
 });
 
@@ -156,8 +156,8 @@ const authActions = computed(() => {
             ? t("auth.actions.recover")
             : t("auth.actions.continue"),
       block: true,
-      needsValid: true,
-    },
+      needsValid: true
+    }
   };
 });
 

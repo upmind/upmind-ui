@@ -30,5 +30,5 @@ async function update({ model }: GatewayContext) {
 export default {
   ...sharedServices,
   // ---
-  update,
+  update
 };

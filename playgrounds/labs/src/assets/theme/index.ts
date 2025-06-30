@@ -5,5 +5,5 @@ export default {
   name: "labs",
   id: "labs",
   extend: theme,
-  uiConfig,
+  uiConfig
 };

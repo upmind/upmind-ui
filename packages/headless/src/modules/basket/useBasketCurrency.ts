@@ -11,7 +11,7 @@ import {
   contextMatches,
   stateMatches,
   stateValue,
-  contextValue,
+  contextValue
 } from "../../utils";
 import { get, isNil } from "lodash-es";
 
@@ -58,7 +58,7 @@ export const useBasketCurrency = () => {
     isDirty: contextMatches(actor, ["dirty"]),
     isComplete:
       stateValue(actor, "done", false) ||
-      stateMatches(actor, ["processed", "complete"]),
+      stateMatches(actor, ["processed", "complete"])
   }));
 
   // --- context
@@ -120,7 +120,7 @@ export const useBasketCurrency = () => {
             error?.status ?? responseCodes.Timeout,
             {
               error,
-              state: actor.value?.state.value,
+              state: actor.value?.state.value
             }
           )
         );
@@ -191,7 +191,7 @@ export const useBasketCurrency = () => {
      * @param {CurrencyModel} value The new currency model to set.
      * @returns {Promise<void>} Resolves when updated, rejects on error.
      */
-    update,
+    update
   };
 };
 

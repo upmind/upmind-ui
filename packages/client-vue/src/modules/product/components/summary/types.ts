@@ -1,6 +1,6 @@
 import type {
   Product,
-  ProductSummaryDetail,
+  ProductSummaryDetail
 } from "@upmind-automation/headless";
 
 export interface SummaryItemProps extends ProductSummaryDetail {

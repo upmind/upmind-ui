@@ -31,7 +31,7 @@ const { t } = useI18n();
 const storefrontUrl: string = import.meta.env.VITE_APP_STOREFRONT;
 defineProps({
   logo: {
-    type: String,
-  },
+    type: String
+  }
 });
 </script>

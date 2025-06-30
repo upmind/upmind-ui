@@ -50,5 +50,5 @@ export default {
   ...sharedServices,
   // ---
   update,
-  parse,
+  parse
 };

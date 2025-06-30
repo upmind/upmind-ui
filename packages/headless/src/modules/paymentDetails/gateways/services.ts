@@ -28,7 +28,7 @@ async function load({ gateway }: GatewayContext, _event: AnyEventObject) {
 
   return ensureConfig([
     BrandConfigKeys.BILLING_GATEWAY_FORCE_CARD_STORAGE,
-    BrandConfigKeys.BILLING_GATEWAY_FORCE_AUTO_PAYMENT,
+    BrandConfigKeys.BILLING_GATEWAY_FORCE_AUTO_PAYMENT
   ]).then(data => {
     return {
       can_store: canBeStored(gateway),
@@ -41,7 +41,7 @@ async function load({ gateway }: GatewayContext, _event: AnyEventObject) {
         data,
         BrandConfigKeys.BILLING_GATEWAY_FORCE_AUTO_PAYMENT,
         false
-      ),
+      )
     };
   });
 }
@@ -112,5 +112,5 @@ export default {
   parse,
   validate,
   // ---
-  update,
+  update
 };

@@ -28,9 +28,9 @@ export const useRecommendationsFlows = () => {
       targets: {
         next: [ROUTE.CHECKOUT, ROUTE.SESSION_REGISTER, ROUTE.BASKET],
         back: [ROUTE.BASKET, ROUTE.EMPTY],
-        fallback: [ROUTE.BASKET, ROUTE.EMPTY],
-      },
-    },
+        fallback: [ROUTE.BASKET, ROUTE.EMPTY]
+      }
+    }
   ];
 
   return {
@@ -38,6 +38,6 @@ export const useRecommendationsFlows = () => {
     register: (data?: Flow[]) => {
       flows = uniqBy([...(data ?? []), ...flows], "name");
       routing.register(flows);
-    },
+    }
   };
 };

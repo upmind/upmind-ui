@@ -18,7 +18,7 @@ import {
   contextValue,
   stateMatches,
   useContext,
-  useChildActor,
+  useChildActor
 } from "../../utils";
 
 // ---types
@@ -26,7 +26,7 @@ import type {
   IAuthTransfer,
   SessionContext,
   SessionTransfer,
-  User,
+  User
 } from "./types";
 import { GuestContext } from "./guest/types";
 import { ClientContext } from "./client/types";
@@ -70,7 +70,7 @@ export const useSession = () => {
         });
       },
       {
-        timeout: 60_000,
+        timeout: 60_000
       }
     )
       .then(state => {
@@ -91,7 +91,7 @@ export const useSession = () => {
           client.value.service,
           state => stateMatches(state, "available"),
           {
-            timeout: 60_000,
+            timeout: 60_000
           }
         ).then(() => {
           const user = contextValue<User>(client, "user");
@@ -118,7 +118,7 @@ export const useSession = () => {
         "loading",
         "available.login.loading",
         "available.register.loading",
-        "available.recover.loading",
+        "available.recover.loading"
       ]) ||
       stateMatches(client, "loading") ||
       false,
@@ -131,7 +131,7 @@ export const useSession = () => {
         "available.register.verifying",
         "available.register.registering",
         "available.register.authenticating",
-        "available.recover.recovering",
+        "available.recover.recovering"
       ]) || stateMatches(client, "processing"),
     isAuthenticated: stateMatches(state, "client"),
     isTransferring: stateMatches(client, "transferring"),
@@ -141,18 +141,18 @@ export const useSession = () => {
       stateMatches(guest, [
         "available.login.error",
         "available.register.error",
-        "available.recover.error",
+        "available.recover.error"
       ]) ||
       stateMatches(client, "error"),
     showReCaptcha: stateMatches(guest, "available.register.challenging"),
     showLoginForm: stateMatches(guest, "available.login"),
     show2fa: stateMatches(guest, [
       "available.login.challenging",
-      "available.login.verifying",
+      "available.login.verifying"
     ]),
     canShowForms: stateMatches(guest, "available"),
     showRegisterForm: stateMatches(guest, "available.register"),
-    showRecoverPasswordForm: stateMatches(guest, "available.recover"),
+    showRecoverPasswordForm: stateMatches(guest, "available.recover")
   }));
 
   // --- context
@@ -221,7 +221,7 @@ export const useSession = () => {
       client.value.service,
       state => !stateMatches(state, "loading"),
       {
-        timeout: 60_000,
+        timeout: 60_000
       }
     )
       .then(state => {
@@ -253,7 +253,7 @@ export const useSession = () => {
     if (!guest.value) return true; // already logged in
 
     service.send({
-      type: "LOGIN",
+      type: "LOGIN"
     });
 
     return await waitFor(
@@ -269,7 +269,7 @@ export const useSession = () => {
     if (!guest.value) return true; // already logged in
 
     service.send({
-      type: "REGISTER",
+      type: "REGISTER"
     });
 
     return await waitFor(
@@ -285,7 +285,7 @@ export const useSession = () => {
     if (!guest.value) return true; // already logged in
 
     service.send({
-      type: "RECOVER",
+      type: "RECOVER"
     });
 
     return await waitFor(
@@ -304,14 +304,14 @@ export const useSession = () => {
 
     service.send({
       type: "AUTHENTICATE",
-      data: get(model, "value", model), // ensure we dont have any reactive refs
+      data: get(model, "value", model) // ensure we dont have any reactive refs
     });
 
     return await waitFor(
       guest.value.service,
       state => stateMatches(state, ["complete", "available.login.error"]),
       {
-        timeout: 60000,
+        timeout: 60000
       }
     )
       .then(state => {
@@ -328,14 +328,14 @@ export const useSession = () => {
 
     service.send({
       type: "VERIFY",
-      data: get(token, "value", token), // ensure we dont have any reactive refs
+      data: get(token, "value", token) // ensure we dont have any reactive refs
     });
 
     return await waitFor(
       guest.value.service,
       state => stateMatches(state, ["complete", "available.login.error"]),
       {
-        timeout: 60000,
+        timeout: 60000
       }
     )
       .then(state => {
@@ -352,14 +352,14 @@ export const useSession = () => {
 
     service.send({
       type: "REGISTER",
-      data: get(model, "value", model), // ensure we dont have any reactive refs
+      data: get(model, "value", model) // ensure we dont have any reactive refs
     });
 
     return await waitFor(
       guest.value.service,
       state => stateMatches(state, ["complete", "available.register.error"]),
       {
-        timeout: 60000,
+        timeout: 60000
       }
     )
       .then(state => {
@@ -376,7 +376,7 @@ export const useSession = () => {
 
     service.send({
       type: "RECOVER",
-      data: get(model, "value", model), // ensure we don't have any reactive refs
+      data: get(model, "value", model) // ensure we don't have any reactive refs
     });
 
     return await waitFor(
@@ -384,7 +384,7 @@ export const useSession = () => {
       state =>
         stateMatches(state, [
           "available.recover.complete",
-          "available.recover.error",
+          "available.recover.error"
         ]),
       { timeout: 60_000 }
     )
@@ -399,7 +399,7 @@ export const useSession = () => {
 
   async function logout(): Promise<boolean> {
     service.send({
-      type: "LOGOUT",
+      type: "LOGOUT"
     });
 
     if (!client.value?.service) return true; // were already logged out
@@ -408,7 +408,7 @@ export const useSession = () => {
       client.value.service,
       state => stateMatches(state, "complete"),
       {
-        timeout: 60000,
+        timeout: 60000
       }
     )
       .then(() => true)
@@ -423,7 +423,7 @@ export const useSession = () => {
     }
 
     service.send({
-      type: "TRANSFER_TO",
+      type: "TRANSFER_TO"
     });
 
     return waitFor(
@@ -458,8 +458,8 @@ export const useSession = () => {
       type: "TRANSFER_FROM",
       data: {
         code,
-        redirect,
-      },
+        redirect
+      }
     });
 
     return waitFor(
@@ -516,11 +516,11 @@ export const useSession = () => {
    */
   function reject(): Promise<any> {
     send({
-      type: "CANCEL",
+      type: "CANCEL"
     });
     const guest = state.value?.children?.guest;
     return waitFor(guest, state => stateMatches(state, "available"), {
-      timeout: 60_000,
+      timeout: 60_000
     });
   }
 
@@ -723,7 +723,7 @@ export const useSession = () => {
     setModel: (data: any) => {
       send({
         type: "SET",
-        data,
+        data
       });
     },
 
@@ -733,7 +733,7 @@ export const useSession = () => {
 
     // ---
 
-    reauth: () => service.send({ type: "EXPIRED" }),
+    reauth: () => service.send({ type: "EXPIRED" })
   };
 };
 

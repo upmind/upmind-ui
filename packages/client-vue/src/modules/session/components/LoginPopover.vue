@@ -29,7 +29,7 @@ import Session from "../Session.vue";
 import {
   Popover,
   PopoverContent,
-  PopoverTrigger,
+  PopoverTrigger
 } from "@upmind-automation/upmind-ui";
 import { ROUTE } from "@upmind-automation/headless";
 
@@ -43,7 +43,7 @@ const isAuthRoute = computed(() =>
       ROUTE.SESSION_LOGIN,
       ROUTE.SESSION_REGISTER,
       ROUTE.SESSION_RECOVER_PASSWORD,
-      ROUTE.SESSION_TRANSFER,
+      ROUTE.SESSION_TRANSFER
     ],
     route.name
   )

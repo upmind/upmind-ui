@@ -1,7 +1,7 @@
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import type {
   ValidationErrorObject,
-  QueryResponseError,
+  QueryResponseError
 } from "@upmind-automation/headless";
 import type { ComputedRef, Ref } from "vue";
 

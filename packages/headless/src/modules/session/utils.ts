@@ -9,7 +9,7 @@ import {
   slice,
   isEmpty,
   includes,
-  isString,
+  isString
 } from "lodash-es";
 
 // --- types
@@ -31,7 +31,7 @@ function convertToCookie() {
       "Converting Client token to cookies. This is a one-time operation to migrate from localStorage to cookies."
     );
     setCookie("upm_client_session", useTokenParser(clientToken), {
-      expires: "8h", //default : refresh token and access token are valid for 8 hours
+      expires: "8h" //default : refresh token and access token are valid for 8 hours
     });
     localStorage.removeItem(`client/auth/token`);
   }
@@ -41,7 +41,7 @@ function convertToCookie() {
       "Converting Guest token to cookies. This is a one-time operation to migrate from localStorage to cookies."
     );
     setCookie("upm_guest_session", useTokenParser(guestToken), {
-      expires: "8h", //default : refresh token and access token are valid for 8 hours
+      expires: "8h" //default : refresh token and access token are valid for 8 hours
     });
     localStorage.removeItem(`guest/auth/token`);
   }
@@ -92,7 +92,7 @@ export function persistTokenToStorage(token: Token) {
 
   // finally, persist the new token
   setCookie(`upm_${type}_session`, token, {
-    expires: "8h", //default : refresh token and access token are valid for 8 hours
+    expires: "8h" //default : refresh token and access token are valid for 8 hours
   });
 
   return Promise.resolve(token);
@@ -119,7 +119,7 @@ export function useTokenParser(data: string | Token): Token | undefined {
       : tokenData.second_factor_required === "true",
     actor_type: toString(tokenData.actor_type),
     actor_id: toString(tokenData.actor_id),
-    guest_token: toString(tokenData.guest_token),
+    guest_token: toString(tokenData.guest_token)
   } as Token;
 }
 
@@ -139,14 +139,14 @@ export function useUserParser(data: IUser): User | undefined {
     "fullname",
     "firstname",
     "lastname",
-    "image_url",
+    "image_url"
   ]);
 
   user.display = data?.firstname || data?.public_name || data?.email;
   user.avatar = {
     caption: useInitialsParser(user),
     src: user.image_url,
-    forceCaption: includes(user?.image_url, "gravatar"),
+    forceCaption: includes(user?.image_url, "gravatar")
   };
   user.locale = data?.interface_language_code;
 

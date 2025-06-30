@@ -35,7 +35,7 @@ export default createMachine(
       uischema: undefined,
       model: undefined,
       // ---
-      error: undefined,
+      error: undefined
     } as GatewayContext,
     states: {
       loading: {
@@ -44,9 +44,9 @@ export default createMachine(
           onDone: { target: "checking", actions: ["setContext"] },
           onError: {
             target: "#error",
-            actions: ["setError", "setFeedbackError"],
-          },
-        },
+            actions: ["setError", "setFeedbackError"]
+          }
+        }
       },
 
       // ---
@@ -59,9 +59,9 @@ export default createMachine(
               src: "parse",
               onDone: {
                 target: "validating",
-                actions: ["setSchemas", "setModel"],
-              },
-            },
+                actions: ["setSchemas", "setModel"]
+              }
+            }
           },
           validating: {
             invoke: {
@@ -69,11 +69,11 @@ export default createMachine(
               onDone: { target: "#valid" },
               onError: {
                 target: "#invalid",
-                actions: ["setError"],
-              },
-            },
-          },
-        },
+                actions: ["setError"]
+              }
+            }
+          }
+        }
       },
 
       invalid: { id: "invalid" },
@@ -82,8 +82,8 @@ export default createMachine(
         id: "valid",
         on: {
           CHECKOUT: "processing",
-          PAY: "processing",
-        },
+          PAY: "processing"
+        }
       },
 
       processing: {
@@ -92,7 +92,7 @@ export default createMachine(
           src: "update",
           onDone: {
             target: "#processed",
-            actions: ["setPaymentDetails", "providePaymentDetails"],
+            actions: ["setPaymentDetails", "providePaymentDetails"]
           },
           onError: {
             target: "#error",
@@ -100,10 +100,10 @@ export default createMachine(
               "setError",
               "setFeedbackError",
               "escalateError",
-              "cancelPaymentDetails",
-            ],
-          },
-        },
+              "cancelPaymentDetails"
+            ]
+          }
+        }
       },
 
       processed: {
@@ -111,44 +111,44 @@ export default createMachine(
         after: {
           wait: {
             target: "complete",
-            cond: "hasNoOutstandingBalance",
-          },
-        },
+            cond: "hasNoOutstandingBalance"
+          }
+        }
       },
 
       complete: {
         id: "complete",
         data: ({ paymentDetails }: GatewayContext, _event: AnyEventObject) =>
-          paymentDetails,
+          paymentDetails
       },
 
       error: {
         id: "error",
         on: {
           RETRY: {
-            target: "processing",
-          },
-        },
-      },
+            target: "processing"
+          }
+        }
+      }
     },
     on: {
       CLEAR: {
         target: "checking",
-        actions: ["clearModel"],
+        actions: ["clearModel"]
       },
       SET: {
         target: "checking",
-        actions: ["setModel"],
+        actions: ["setModel"]
       },
       REFRESH: {
         target: "checking",
-        actions: ["setContext"],
+        actions: ["setContext"]
       },
       UNAUTHENTICATED: {
         target: "loading",
-        actions: ["clearError", "clearModel", "clearSchemas"],
-      },
-    },
+        actions: ["clearError", "clearModel", "clearSchemas"]
+      }
+    }
   },
   {
     actions: {
@@ -161,12 +161,12 @@ export default createMachine(
       setSchemas: assign({
         schema: context => useSchema(context),
         // TODO: uischema: context => useUischema(context),
-        uischema: () => useUischema(),
+        uischema: () => useUischema()
       }),
 
       clearSchemas: assign({
         schema: undefined,
-        uischema: undefined,
+        uischema: undefined
       }),
 
       setModel: assign({
@@ -176,11 +176,11 @@ export default createMachine(
         ) => {
           if (!schema) return data ?? model;
           return useModelParser(schema, data ?? model);
-        },
+        }
       }),
 
       clearModel: assign({
-        model: undefined,
+        model: undefined
       }),
 
       // ---
@@ -190,16 +190,16 @@ export default createMachine(
           { data }: AnyEventObject
         ) => {
           return { gateway, ...data };
-        },
+        }
       }),
 
       providePaymentDetails: sendParent(({ paymentDetails }) => ({
         type: "PAYMENT_DETAILS",
-        data: paymentDetails,
+        data: paymentDetails
       })),
 
       cancelPaymentDetails: sendParent(() => ({
-        type: "CANCEL",
+        type: "CANCEL"
       })),
 
       escalateError: (_context, { data }: AnyEventObject) => {
@@ -218,7 +218,7 @@ export default createMachine(
         addError({
           title: "We experienced an error processing your payment",
           copy: error?.message,
-          data: error?.data,
+          data: error?.data
         });
       },
 
@@ -232,10 +232,10 @@ export default createMachine(
           }
 
           return error || data;
-        },
+        }
       }),
 
-      clearError: assign({ error: undefined }),
+      clearError: assign({ error: undefined })
     },
 
     guards: {
@@ -245,14 +245,14 @@ export default createMachine(
       ) => {
         // TODO: check if there is an outstanding balance
         return true;
-      },
+      }
     },
 
     delays: {
       error: () => useTime().ERROR,
-      wait: () => useTime().WAIT,
+      wait: () => useTime().WAIT
     },
 
-    services,
+    services
   }
 );

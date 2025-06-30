@@ -33,13 +33,13 @@ export enum ROUTE {
   EXPRESS_CHECKOUT = "express.checkout",
   // --- redirect routes
   REDIRECT_EXTERNAL = "redirect.external",
-  REDIRECT_INTERNAL = "redirect.internal",
+  REDIRECT_INTERNAL = "redirect.internal"
 }
 
 export enum REQUIRES_ACTION {
   PENDING = "pending",
   INVALID = "invalid",
-  RELATED = "related",
+  RELATED = "related"
 }
 
 export interface PageRoute {

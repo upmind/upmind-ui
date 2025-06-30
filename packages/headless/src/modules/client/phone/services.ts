@@ -6,7 +6,7 @@ import {
   useSystem,
   useSession,
   useFeedback,
-  type QueryParams,
+  type QueryParams
 } from "../..";
 
 // --- utils
@@ -18,7 +18,7 @@ import {
   NotAuthenticatedError,
   DetailedError,
   responseCodes,
-  useCollection,
+  useCollection
 } from "../../../utils";
 import { mapIPhone, mapPhone, mapPhones } from "./mapper";
 import { invalidateQueryByKey } from "../../query";
@@ -31,7 +31,7 @@ import {
   every,
   find,
   isEqual,
-  omitBy,
+  omitBy
 } from "lodash-es";
 
 // --- types
@@ -64,7 +64,7 @@ async function load() {
       }),
     // --- options
     select: mapPhones,
-    staleTime: useTime().DAY,
+    staleTime: useTime().DAY
   });
 }
 
@@ -87,7 +87,7 @@ function loadList(params?: Partial<QueryParams>) {
       }),
     // --- options
     select: mapPhones,
-    staleTime: useTime().DAY,
+    staleTime: useTime().DAY
   });
 }
 
@@ -98,7 +98,7 @@ function loadList(params?: Partial<QueryParams>) {
  */
 async function loadLookups({
   model,
-  schema,
+  schema
 }: PhoneContext): Promise<PhoneContext> {
   const { isReady, fetchCountries, getCountry } = useSystem();
   // we have to do this synchronously as we need the values to be available for the model
@@ -114,8 +114,8 @@ async function loadLookups({
       number: "",
       nationalNumber: "",
       countryCallingCode: "",
-      country: country.code,
-    },
+      country: country.code
+    }
   };
 
   const safeModel = useModelParser<PhoneModel>(schema, model, baseModel);
@@ -123,7 +123,7 @@ async function loadLookups({
   return Promise.resolve({
     country,
     model: safeModel,
-    baseModel: safeModel,
+    baseModel: safeModel
   } as PhoneContext);
 }
 
@@ -140,7 +140,7 @@ async function add(data: PhoneModel) {
   return post<IPhone>({
     url: useUrl(`clients/${user.value?.id}/phones`),
     data: mapIPhone(data),
-    withAccessToken: true,
+    withAccessToken: true
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
@@ -155,7 +155,7 @@ async function update(id: Phone["id"], data: PhoneModel) {
   return put<IPhone>({
     url: useUrl(`clients/${user.value?.id}/phones/${id}`),
     data: mapIPhone(data),
-    withAccessToken: true,
+    withAccessToken: true
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
@@ -198,14 +198,14 @@ function remove(phoneId: Phone["id"]) {
           ? error
           : error?.title || "We experienced an error removing this phone",
         copy: error?.message,
-        data: error?.data,
+        data: error?.data
       });
     },
     onSuccess(data) {
       invalidateQueryByKey(queryKey, { exact: false })(data);
       addSuccess("Successfully removed phone");
     },
-    withAccessToken: true,
+    withAccessToken: true
   });
 }
 
@@ -231,14 +231,14 @@ function setDefault(phoneId: Phone["id"]) {
           : error?.title ||
             "We experienced an error setting this phone as default",
         copy: error?.message,
-        data: error?.data,
+        data: error?.data
       });
     },
     onSuccess(data) {
       invalidateQueryByKey(queryKey, { exact: false })(data);
       addSuccess("Successfully set phone as default");
     },
-    withAccessToken: true,
+    withAccessToken: true
   });
 }
 
@@ -318,7 +318,7 @@ export default {
 
   //--- mutations
   remove,
-  setDefault,
+  setDefault
 };
 
 export const useClientPhoneServices = () => {
@@ -362,6 +362,6 @@ export const useClientPhoneServices = () => {
     },
     parse,
     validate,
-    refresh: loadList,
+    refresh: loadList
   };
 };

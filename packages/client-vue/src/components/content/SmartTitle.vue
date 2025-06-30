@@ -41,7 +41,7 @@ import type { ComputedRef } from "vue";
 const props = withDefaults(defineProps<SmartTitleProps>(), {
   align: "left",
   plural: 0,
-  tag: "h3",
+  tag: "h3"
 });
 
 const { t, tm } = useI18n();
@@ -55,7 +55,7 @@ const meta = computed(() => {
   return {
     hasKeywords: !isEmpty(keywords.value),
     align: props.align,
-    size: props.size,
+    size: props.size
   };
 });
 
@@ -79,7 +79,7 @@ function getComponent(keyword: string) {
       "abbr",
       "acronym",
       "sub",
-      "sup",
+      "sup"
     ],
     keyword
   )

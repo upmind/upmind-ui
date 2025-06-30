@@ -118,7 +118,7 @@
                   class="text-inherit"
                   :to="{
                     name: 'product.edit',
-                    params: { bpid: basketItem.id },
+                    params: { bpid: basketItem.id }
                   }"
                 >
                   <span>{{ basketItem?.productDetails?.title }}</span>
@@ -142,7 +142,7 @@ import { useI18n } from "vue-i18n";
 import {
   useBasket,
   useBasketFields,
-  useDataLayer,
+  useDataLayer
 } from "@upmind-automation/headless";
 
 // --- components
@@ -151,7 +151,7 @@ import {
   Icon,
   Alert,
   Link,
-  Skeleton,
+  Skeleton
 } from "@upmind-automation/upmind-ui";
 import ContentSection from "../../components/content/ContentSection.vue";
 import Card from "../../components/content/Card.vue";
@@ -172,7 +172,7 @@ const {
   schema: fieldsSchema,
   uischema: fieldsUischema,
   clear: fieldsClear,
-  update: fieldsUpdate,
+  update: fieldsUpdate
 } = useBasketFields();
 
 const open = ref(false);

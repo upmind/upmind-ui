@@ -85,13 +85,13 @@ await isReady();
 
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
-  defaultValue: defaultItem.value?.id,
+  defaultValue: defaultItem.value?.id
 });
 
 // -----------------------------------------------------------------------------
 const open = useVModel(props, "open", emits, {
   passive: true,
-  defaultValue: false,
+  defaultValue: false
 });
 
 const parsedValues = computed(() => {
@@ -101,7 +101,7 @@ const parsedValues = computed(() => {
       value: item.id,
       label: item.title,
       item: item,
-      index: index,
+      index: index
     };
   }) as RadioCardsItemProps[];
 });

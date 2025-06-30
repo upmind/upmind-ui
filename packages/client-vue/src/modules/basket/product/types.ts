@@ -1,6 +1,6 @@
 import type {
   BasketProduct,
-  ProductSummaryDetailWithPrice,
+  ProductSummaryDetailWithPrice
 } from "@upmind-automation/headless";
 import type { ButtonProps } from "@upmind-automation/upmind-ui";
 

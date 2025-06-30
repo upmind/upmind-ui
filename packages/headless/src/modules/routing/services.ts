@@ -12,7 +12,7 @@ import {
   isObject,
   isFunction,
   compact,
-  merge,
+  merge
 } from "lodash-es";
 
 // --- types
@@ -80,15 +80,15 @@ async function calculateNextRoute(
     return resolve(
       {
         flows,
-        currentFlow,
+        currentFlow
       },
       {
         type: "RESOLVE",
         data: {
           flow,
           route,
-          event,
-        },
+          event
+        }
       }
     );
   });
@@ -112,15 +112,15 @@ async function calculateBackRoute(
     return resolve(
       {
         flows,
-        currentFlow,
+        currentFlow
       },
       {
         type: "RESOLVE",
         data: {
           flow,
           route,
-          event,
-        },
+          event
+        }
       }
     );
   });
@@ -180,7 +180,7 @@ async function resolveRoute(
     ? flow.resolve(route, event).then(resolved => {
         return {
           ...resolved,
-          meta: merge({}, flow?.meta, resolved?.meta),
+          meta: merge({}, flow?.meta, resolved?.meta)
         };
       })
     : Promise.resolve({ name: flow.name, meta: flow?.meta ?? {} });
@@ -191,5 +191,5 @@ async function resolveRoute(
 export default {
   calculateNextRoute,
   calculateBackRoute,
-  resolve,
+  resolve
 };

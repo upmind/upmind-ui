@@ -14,7 +14,7 @@ import {
   contextMatches,
   stateMatches,
   stateValue,
-  contextValue,
+  contextValue
 } from "../../utils";
 import { isEmpty, isEqual, isNil, omitBy } from "lodash-es";
 
@@ -60,7 +60,7 @@ export const useBasketBilling = () => {
     isDirty: contextMatches(actor, ["dirty"]),
     isComplete:
       stateValue(actor, "done", false) ||
-      stateMatches(actor, ["processed", "complete"]),
+      stateMatches(actor, ["processed", "complete"])
   }));
 
   // --- context
@@ -119,7 +119,7 @@ export const useBasketBilling = () => {
             error?.status ?? responseCodes.Timeout,
             {
               error,
-              state: actor.value?.state.value,
+              state: actor.value?.state.value
             }
           )
         );
@@ -210,7 +210,7 @@ export const useBasketBilling = () => {
      * @returns {ReturnType<typeof useUnifiedAddress>} The unified address composable.
      *
      */
-    useBillingDetail: useUnifiedAddress,
+    useBillingDetail: useUnifiedAddress
   };
 };
 

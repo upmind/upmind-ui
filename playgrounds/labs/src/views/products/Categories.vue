@@ -52,7 +52,7 @@ const props = withDefaults(
     class?: HTMLAttributes["class"];
   }>(),
   {
-    skeletonCount: 4,
+    skeletonCount: 4
   }
 );
 
@@ -60,7 +60,7 @@ const emits = defineEmits(["update:modelValue"]);
 
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
-  defaultValue: "",
+  defaultValue: ""
 });
 
 const { data: categories, meta, filter } = useProductCategories();

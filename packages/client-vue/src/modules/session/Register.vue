@@ -77,7 +77,7 @@ import { watch } from "vue";
 import {
   useRoutingEngine,
   useSession,
-  ROUTE,
+  ROUTE
 } from "@upmind-automation/headless";
 
 // --- components

@@ -9,7 +9,7 @@ import {
   contextMatches,
   stateMatches,
   stateValue,
-  contextValue,
+  contextValue
 } from "../../utils";
 
 import { every, isEqual, isFunction } from "lodash-es";
@@ -41,7 +41,7 @@ export const usePaymentGateway = (paymentGateway: ActorRef<any>) => {
     meta: computed(() => ({
       isLoading: !paymentGateway || stateMatches(paymentGateway, ["loading"]),
       hasErrors: stateMatches(paymentGateway, [
-        "error",
+        "error"
         // "invalid",
       ]),
       isProcessing: stateMatches(paymentGateway, ["checking", "processing"]),
@@ -60,7 +60,7 @@ export const usePaymentGateway = (paymentGateway: ActorRef<any>) => {
       hasInstructions: !!contextValue(
         paymentGateway,
         "gateway.payment_instructions"
-      ),
+      )
 
       // !contextMatches(paymentGateway, [
       //   "schema.properties",
@@ -119,6 +119,6 @@ export const usePaymentGateway = (paymentGateway: ActorRef<any>) => {
           return reject(false);
         }
       });
-    },
+    }
   };
 };

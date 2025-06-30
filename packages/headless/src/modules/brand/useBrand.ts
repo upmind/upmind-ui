@@ -18,7 +18,7 @@ import {
   useContext,
   contextValue,
   contextMatches,
-  stateMatches,
+  stateMatches
 } from "../../utils";
 import { get, pick, isArray, find, some, first, isEmpty } from "lodash-es";
 
@@ -31,7 +31,7 @@ import {
   ICurrency,
   DefaultPaymentPeriod,
   ICountry,
-  IBrand,
+  IBrand
 } from "@upmind-automation/types";
 import { BrandContext } from "./types";
 import { QueryResponseError } from "../query";
@@ -58,7 +58,7 @@ export const useBrand = () => {
       service,
       state => ["complete", "error"].some(state.matches),
       {
-        timeout: Infinity,
+        timeout: Infinity
       }
     ).then(state => {
       if (["error"].some(state.matches)) {
@@ -81,7 +81,7 @@ export const useBrand = () => {
       "config.error",
       "settings.error",
       "modules.error",
-      "currencies.error",
+      "currencies.error"
     ]),
     isComplete: stateMatches(state, "complete"),
     isLoading: stateMatches(state, "processing"),
@@ -95,8 +95,8 @@ export const useBrand = () => {
       "processing.config.complete",
       "processing.settings.complete",
       "processing.modules.complete",
-      "processing.currencies.complete",
-    ]),
+      "processing.currencies.complete"
+    ])
   }));
 
   // --- context
@@ -154,7 +154,7 @@ export const useBrand = () => {
       [
         "processing.config.complete",
         "processing.config.error",
-        "complete",
+        "complete"
       ].some(newstate.matches)
     ).catch(() => {
       throw new DetailedError(
@@ -169,7 +169,7 @@ export const useBrand = () => {
     isReady().then(() =>
       ensureConfig([
         BrandConfigKeys.ANALYTICS_GA_MEASUREMENT_ID,
-        BrandConfigKeys.ANALYTICS_GTM_CONTAINER_ID,
+        BrandConfigKeys.ANALYTICS_GTM_CONTAINER_ID
       ]).then((data: any) => data?.analytics || {})
     );
 
@@ -365,7 +365,7 @@ export const useBrand = () => {
      * @returns {  Promise<ILanguage | undefined>} A promise resolving to a valid language object or undefined.
      * @throws {DetailedError} If the languages are not available in the context.
      */
-    validateLanguage,
+    validateLanguage
   };
 };
 

@@ -26,25 +26,25 @@ export const useSchema = ({ country }: { country?: ICountry }): JsonSchema7 => {
         properties: {
           number: {
             type: ["string", "null"],
-            title: "Phone number ( with dialing code )",
+            title: "Phone number ( with dialing code )"
           },
 
           nationalNumber: {
             type: ["string", "null"],
-            title: "Phone number",
+            title: "Phone number"
           },
 
           countryCallingCode: {
             type: ["string", "null"],
-            title: "Country calling code",
+            title: "Country calling code"
           },
 
           country: {
             type: ["string", "null"],
-            title: "Country",
-          },
-        },
-      },
+            title: "Country"
+          }
+        }
+      }
 
       //  --- deprecated
 
@@ -58,7 +58,7 @@ export const useSchema = ({ country }: { country?: ICountry }): JsonSchema7 => {
       //   type: ["boolean", "null"],
       //   title: "Make this the default phone?",
       // },
-    },
+    }
     // errorMessage: {
     //   properties: {
     //     phone: "must be a valid phone number"
@@ -87,10 +87,10 @@ export const useUischema = () => {
         scope: "#/properties/phone",
         options: {
           autoFocus: true,
-          autocomplete: "phone",
-        },
-      },
-    ],
+          autocomplete: "phone"
+        }
+      }
+    ]
   };
 
   return schema as UISchemaElement;

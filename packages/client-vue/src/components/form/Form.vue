@@ -34,7 +34,7 @@ import { useFormI18n } from ".";
 import type {
   FormProps,
   FormFooterProps,
-  FormActionsProps,
+  FormActionsProps
 } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 const props = defineProps<Omit<FormProps, "ajv">>();
@@ -50,7 +50,7 @@ const emits = defineEmits<{
   valid: [boolean];
   click: [{ model: Record<string, any>; meta: Record<string, any> }];
   action: [
-    { name: string; model: Record<string, any>; meta: Record<string, any> },
+    { name: string; model: Record<string, any>; meta: Record<string, any> }
   ];
 }>();
 

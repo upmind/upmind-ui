@@ -17,8 +17,8 @@ import type { QueryProps, RequestFilters } from "../../query";
 export const useClientAddresses = (
   initial: QueryProps = {
     pagination: {
-      limit: 0,
-    },
+      limit: 0
+    }
   }
 ) => {
   // --- state
@@ -32,7 +32,7 @@ export const useClientAddresses = (
     hasError: !isEmpty(query.error.value),
     isEmpty: isEmpty(query?.data?.value) || query.pagination.value.total == 0,
     isAvailable: sessionMeta.value.isAuthenticated,
-    ...query?.meta.value,
+    ...query?.meta.value
   }));
 
   const { findOne, getOne, getDefault } = useCollection<Address>(query.data);
@@ -62,7 +62,7 @@ export const useClientAddresses = (
       query?: string;
     }
   >({
-    query: "",
+    query: ""
   });
 
   const filterQuery = (value?: string) => {
@@ -191,8 +191,8 @@ export const useClientAddresses = (
      * @property query - The search query to filter the client addresses by title or description.
      */
     filters: {
-      query: filterQuery,
-    },
+      query: filterQuery
+    }
   };
 };
 

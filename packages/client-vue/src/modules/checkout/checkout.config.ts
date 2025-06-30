@@ -26,14 +26,14 @@ export default {
           "text-emphasis-medium hover:text-primary flex items-center justify-between space-x-2 p-4 px-6 transition-all duration-300 hover:no-underline md:p-5 md:px-9"
         ),
         icon: cva("h-6 w-6 shrink-0 transition-transform duration-200"),
-        header: cva("flex w-full items-center justify-between space-x-2"),
+        header: cva("flex w-full items-center justify-between space-x-2")
       },
       item: cva("border-none"),
       card: cva("bg-base shadow-sm"),
       loading: cva("text-secondary"),
       content: cva(
         "border-base-muted flex flex-col border-t p-5 px-6 transition-all duration-300 md:p-8 md:px-9"
-      ),
+      )
     },
 
     title: cva("text-primary text-left text-sm leading-tight no-underline"),
@@ -47,10 +47,10 @@ export default {
       "bg-base-background text-primary flex items-center justify-center space-x-2 self-stretch px-4 py-2 md:py-0"
     ),
 
-    isFree: cva("bg-base shadow-sm"),
+    isFree: cva("bg-base shadow-sm")
   },
 
   client: {
-    title: cva("flex justify-between"),
-  },
+    title: cva("flex justify-between")
+  }
 };

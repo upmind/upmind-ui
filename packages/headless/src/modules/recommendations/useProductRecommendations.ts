@@ -36,7 +36,7 @@ export const useProductRecommendations = (pid: ProductModel["productId"]) => {
     reset,
     cancel,
     stop,
-    isReady,
+    isReady
   } = useRecommendations();
 
   const productRecommendations = computed(
@@ -73,7 +73,7 @@ export const useProductRecommendations = (pid: ProductModel["productId"]) => {
     isConfiguring: stateMatches(state, ["configuring"]),
     isLoading: stateMatches(state, ["subscribing"]),
     isProcessing: stateMatches(state, ["processing"]),
-    isRefreshing: stateMatches(state, ["refreshing"]),
+    isRefreshing: stateMatches(state, ["refreshing"])
   }));
 
   // ---------------------------------------------------------------------------
@@ -140,6 +140,6 @@ export const useProductRecommendations = (pid: ProductModel["productId"]) => {
     seen,
 
     /** Stops the recommendations engine  */
-    stop,
+    stop
   };
 };

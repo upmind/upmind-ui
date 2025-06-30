@@ -16,17 +16,17 @@ export const useSchema = ({ model, config }: BillingContext) => {
     properties: {
       addressId: {
         type: "string",
-        default: model?.addressId || null,
+        default: model?.addressId || null
       },
       companyId: {
         type: "string",
-        default: model?.companyId || null,
+        default: model?.companyId || null
       },
       phoneId: {
         type: "string",
-        default: model?.phoneId || null,
-      },
-    },
+        default: model?.phoneId || null
+      }
+    }
   };
 
   if (config?.requiresPhone) {
@@ -59,9 +59,9 @@ export const useUischema = ({ config }: BillingContext) => {
         scope: "#/properties",
         i18n: "basket.billing",
         label: "",
-        options: {},
-      },
-    ],
+        options: {}
+      }
+    ]
   };
 
   if (!config?.requiresPhone) {

@@ -3,7 +3,7 @@ import {
   useMutation,
   QueryClient,
   useQuery as vueUseQuery,
-  useInfiniteQuery as vueUseInfiniteQuery,
+  useInfiniteQuery as vueUseInfiniteQuery
 } from "@tanstack/vue-query";
 import { isArray, isFunction } from "xstate/lib/utils";
 import { ref, unref, computed } from "vue";
@@ -24,13 +24,13 @@ import {
   isInteger,
   toNumber,
   isObject,
-  forEach,
+  forEach
 } from "lodash-es";
 import {
   parseData,
   canRetryAuthorization,
   PAGINATION,
-  cleanQueryKey,
+  cleanQueryKey
 } from "./utils";
 
 // --- types
@@ -40,7 +40,7 @@ import {
   RequestParams,
   MutationParams,
   InfiniteQueryPage,
-  QueryResponseError,
+  QueryResponseError
 } from "./types";
 import { Methods } from "@upmind-automation/types";
 import type { DefaultError } from "@tanstack/vue-query";
@@ -56,9 +56,9 @@ const queryClient = new QueryClient({
       // Default time for inactive data to be garbage collected
       gcTime: useTime().MINUTE * 30,
       // Default cache time for data to be considered "fresh"
-      staleTime: useTime().MINUTE * 5,
-    },
-  },
+      staleTime: useTime().MINUTE * 5
+    }
+  }
 });
 
 export const useQuery = () => {
@@ -86,7 +86,7 @@ export const useQuery = () => {
     pagination,
     // ---
     init,
-    withAccessToken,
+    withAccessToken
   }: RequestParams): Promise<QueryResponse<T>> {
     // safeguard
     init ??= {};
@@ -208,16 +208,16 @@ export const useQuery = () => {
               url,
               init: {
                 ...init,
-                signal, // Pass the new signal to the request to allow cancellation
+                signal // Pass the new signal to the request to allow cancellation
               },
-              withAccessToken,
+              withAccessToken
             }).then(response => {
               if (isFunction(select)) return select(response.data!) as TData;
               return response.data as TQueryFnData;
             })
           );
         },
-        ...(options as any),
+        ...(options as any)
       },
       queryClient
     );
@@ -256,7 +256,7 @@ export const useQuery = () => {
     });
     const pageIndex = ref(Math.ceil(offset / limit) + 1);
     const filters = ref<QueryParams["filters"]>({
-      ...(options?.filters ?? {}),
+      ...(options?.filters ?? {})
     });
 
     // --- query
@@ -269,7 +269,7 @@ export const useQuery = () => {
           { limit },
           { locale },
           { filters },
-          { pageIndex },
+          { pageIndex }
         ]),
         queryFn: async ({ signal }) => {
           const hasGuard = isPromise(guard);
@@ -284,9 +284,9 @@ export const useQuery = () => {
               pagination: { limit, offset: (pageIndex.value - 1) * limit },
               init: {
                 ...init,
-                signal, // Pass the new signal to the request to allow cancellation
+                signal // Pass the new signal to the request to allow cancellation
               },
-              withAccessToken,
+              withAccessToken
             }).then(response => {
               total.value = response.total || 0; // Set the total items count
               if (isFunction(select)) return select(response.data!) as TData;
@@ -294,7 +294,7 @@ export const useQuery = () => {
             })
           );
         },
-        ...(options as any),
+        ...(options as any)
       },
       queryClient
     );
@@ -324,7 +324,7 @@ export const useQuery = () => {
         from: !total.value ? 0 : limit * (pageIndex.value - 1) + 1,
         to: !limit
           ? total.value
-          : Math.min(limit * pageIndex.value, total.value),
+          : Math.min(limit * pageIndex.value, total.value)
       })),
 
       /**
@@ -335,7 +335,7 @@ export const useQuery = () => {
        */
       meta: computed(() => ({
         hasNextPage: pageIndex.value < pageTotal.value,
-        hasPrevPage: pageIndex.value > 1,
+        hasPrevPage: pageIndex.value > 1
       })),
 
       // --- methods
@@ -388,10 +388,10 @@ export const useQuery = () => {
               { limit },
               { locale },
               { filters },
-              { pageIndex },
-            ]),
+              { pageIndex }
+            ])
           })
-          .then(() => (pageIndex.value = 1)),
+          .then(() => (pageIndex.value = 1))
     };
   }
 
@@ -427,7 +427,7 @@ export const useQuery = () => {
       return Math.max(Math.ceil(total.value / limit), 1);
     });
     const filters = ref<QueryParams["filters"]>({
-      ...(options?.filters ?? {}),
+      ...(options?.filters ?? {})
     });
 
     // --- query
@@ -439,7 +439,7 @@ export const useQuery = () => {
           { sort }, // Important for sorting to work
           { limit },
           { locale },
-          { filters }, // Important for filters to work
+          { filters } // Important for filters to work
         ]),
         queryFn: async ({ pageParam = 0, signal }) => {
           const offset = toNumber(pageParam);
@@ -455,9 +455,9 @@ export const useQuery = () => {
               pagination: { limit, offset },
               init: {
                 ...init,
-                signal, // Pass the new signal to the request to allow cancellation
+                signal // Pass the new signal to the request to allow cancellation
               },
-              withAccessToken,
+              withAccessToken
             }).then(response => {
               total.value = response.total || 0; // Set the total items count
 
@@ -470,14 +470,14 @@ export const useQuery = () => {
                   !limit || offset + limit >= total.value
                     ? undefined
                     : offset + limit,
-                pageData: data,
+                pageData: data
               };
             })
           );
         },
         getNextPageParam: (lastPage: InfiniteQueryPage<TQueryFnData>) =>
           lastPage.nextOffset,
-        ...(options as any),
+        ...(options as any)
       },
       queryClient
     );
@@ -514,7 +514,7 @@ export const useQuery = () => {
           page: pagesFetched,
           pages: pageTotal.value,
           from: 1, // For "load more", we always show from item 1
-          to: itemsFetched, // The last item is simply the total number fetched
+          to: itemsFetched // The last item is simply the total number fetched
         };
       }),
 
@@ -526,7 +526,7 @@ export const useQuery = () => {
        */
       meta: computed(() => ({
         hasNextPage: response.hasNextPage.value,
-        hasPrevPage: response.hasPreviousPage.value,
+        hasPrevPage: response.hasPreviousPage.value
       })),
 
       filter: (values: QueryParams["filters"]) => {
@@ -543,9 +543,9 @@ export const useQuery = () => {
             { sort },
             { limit },
             { locale },
-            { filters },
-          ]),
-        }),
+            { filters }
+          ])
+        })
     };
   }
 
@@ -563,7 +563,7 @@ export const useQuery = () => {
     TData = unknown,
     TError = DefaultError,
     TVariables = void,
-    TContext = unknown,
+    TContext = unknown
   >(
     method: Omit<Methods, "GET" | "HEAD">,
     {
@@ -584,7 +584,7 @@ export const useQuery = () => {
     return useMutation(
       {
         mutationFn: async () => request<TData>({ url, init, withAccessToken }),
-        ...options,
+        ...options
       },
       queryClient
     );
@@ -627,15 +627,15 @@ export const useQuery = () => {
           filters,
           init: {
             ...init,
-            signal, // Pass the new signal to the request to allow cancellation
+            signal // Pass the new signal to the request to allow cancellation
           },
-          withAccessToken,
+          withAccessToken
         }).then(response => {
           if (isFunction(select)) return select(response.data!) as TData;
           return response.data as TQueryFnData;
         });
       },
-      ...(options as any),
+      ...(options as any)
     });
   }
 
@@ -678,7 +678,7 @@ export const useQuery = () => {
         { sort },
         { filters },
         { limit },
-        { pageIndex },
+        { pageIndex }
       ]),
       queryFn: async ({ signal }) => {
         return request<TQueryFnData>({
@@ -688,20 +688,20 @@ export const useQuery = () => {
           pagination: { limit, offset },
           init: {
             ...init,
-            signal, // Pass the new signal to the request to allow cancellation
+            signal // Pass the new signal to the request to allow cancellation
           },
-          withAccessToken,
+          withAccessToken
         }).then(response => {
           if (isFunction(select)) {
             return {
               ...response,
-              data: select(response.data!),
+              data: select(response.data!)
             };
           }
           return response;
         });
       },
-      ...(options as any),
+      ...(options as any)
     });
   }
 
@@ -725,7 +725,7 @@ export const useQuery = () => {
     url,
     init,
     data,
-    withAccessToken,
+    withAccessToken
   }: RequestParams): Promise<T> {
     // safeguard
     init ??= {};
@@ -759,7 +759,7 @@ export const useQuery = () => {
     url,
     init,
     data,
-    withAccessToken,
+    withAccessToken
   }: RequestParams): Promise<T> {
     // safeguard
     init ??= {};
@@ -793,7 +793,7 @@ export const useQuery = () => {
     url,
     init,
     data,
-    withAccessToken,
+    withAccessToken
   }: RequestParams): Promise<T> {
     // safeguard
     init ??= {};
@@ -827,7 +827,7 @@ export const useQuery = () => {
     url,
     init,
     data,
-    withAccessToken,
+    withAccessToken
   }: RequestParams): Promise<T> {
     // safeguard
     init ??= {};
@@ -860,7 +860,7 @@ export const useQuery = () => {
   async function headRequest<T = object>({
     url,
     init,
-    withAccessToken,
+    withAccessToken
   }: RequestParams): Promise<QueryResponse<T>> {
     // safeguard
     init ??= {};
@@ -891,6 +891,6 @@ export const useQuery = () => {
     put: putRequest,
     post: postRequest,
     head: headRequest,
-    patch: patchRequest,
+    patch: patchRequest
   };
 };

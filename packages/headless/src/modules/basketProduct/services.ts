@@ -20,7 +20,7 @@ import {
   reduce,
   forEach,
   isEmpty,
-  isArray,
+  isArray
 } from "lodash-es";
 
 // --- types
@@ -50,7 +50,7 @@ async function fetch(
     bpid,
     basketId,
     currencyId,
-    promotions,
+    promotions
   }: {
     bpid?: string;
     basketId: string;
@@ -66,7 +66,7 @@ async function fetch(
   const { validateCurrency, ensureConfig } = useBrand();
   const [currency] = await Promise.all([
     validateCurrency({ id: currencyId }),
-    ensureConfig(BrandConfigKeys.SHOW_PROMOTION_AS),
+    ensureConfig(BrandConfigKeys.SHOW_PROMOTION_AS)
   ]);
 
   // ---
@@ -83,8 +83,8 @@ async function fetch(
       "products_attributes",
       "products_options",
       "products_options.prices",
-      `category${".top_category".repeat(4)}`,
-    ].join(),
+      `category${".top_category".repeat(4)}`
+    ].join()
   };
   // conditionally add the basket_id / basket_product_id if we have them,
   // this is important to get the correct prices once added to the basket
@@ -100,11 +100,11 @@ async function fetch(
       productId,
       {
         currency: currency?.id,
-        promotions: promocodes,
-      },
+        promotions: promocodes
+      }
     ],
     staleTime: useTime()?.DAY, // product data is not updated often, so we can cache for a day
-    withAccessToken: true,
+    withAccessToken: true
   });
 }
 
@@ -125,7 +125,7 @@ async function fetchSelected(
   {
     basketId,
     currencyId,
-    promotions,
+    promotions
   }: {
     basketId: string;
     currencyId?: string;
@@ -151,8 +151,8 @@ async function fetchSelected(
       "prices",
       "products_attributes",
       "products_options",
-      "products_options.prices",
-    ].join(),
+      "products_options.prices"
+    ].join()
   };
   // conditionally add the basket_id / basket_product_id if we have them,
   // this is important to get the correct prices once added to the basket
@@ -170,10 +170,10 @@ async function fetchSelected(
       productIds,
       {
         currency: currency?.id,
-        promotions: promocodes,
-      },
+        promotions: promocodes
+      }
     ],
-    withAccessToken: true,
+    withAccessToken: true
   });
 }
 
@@ -196,14 +196,14 @@ async function fetchRelated(
   {
     basketId,
     currencyId,
-    promotions,
+    promotions
   }: {
     basketId: string;
     currencyId?: string;
     promotions?: string[];
   },
   {
-    data: { productId, limit = 4, offset = 0 },
+    data: { productId, limit = 4, offset = 0 }
   }: {
     data: {
       productId: string;
@@ -232,8 +232,8 @@ async function fetchRelated(
       "prices",
       "products_attributes",
       "products_options",
-      "products_options.prices",
-    ].join(),
+      "products_options.prices"
+    ].join()
   };
   // conditionally add the basket_id / basket_product_id if we have them,
   // this is important to get the correct prices once added to the basket
@@ -253,11 +253,11 @@ async function fetchRelated(
         limit,
         offset,
         currency: currency?.id,
-        promotions: promocodes,
-      },
+        promotions: promocodes
+      }
     ],
     staleTime: useTime()?.DAY, // product data is not updated often, so we can cache for a day
-    withAccessToken: true,
+    withAccessToken: true
   });
 }
 
@@ -276,7 +276,7 @@ async function fetchRelated(
 async function updateQuantity(
   {
     basketId,
-    basketProduct,
+    basketProduct
   }: {
     basketId: string;
     basketProduct: BasketProduct;
@@ -300,7 +300,7 @@ async function updateQuantity(
   return put<IBasket>({
     url: useUrl(`/orders/${basketId}/products/${basketProduct.id}`),
     data: product,
-    withAccessToken: true,
+    withAccessToken: true
   })
     .then(data => {
       if (isNil(data)) throw new Error("No data returned from the server");
@@ -325,7 +325,7 @@ async function update(
   {
     basketId,
     currencyId,
-    promotions,
+    promotions
   }: {
     basketId: string;
     currencyId?: string;
@@ -349,7 +349,7 @@ async function update(
   return action<IBasket>({
     url: useUrl(`/orders/${basketId}/products${suffix}`),
     data: product,
-    withAccessToken: true,
+    withAccessToken: true
   })
     .then(data => {
       if (isNil(data)) throw new Error("No data returned from the server");
@@ -433,7 +433,7 @@ async function updateMany(
   return put<IBasket>({
     url: useUrl(`/orders/${basketId}`),
     data: { products: concat(existingProducts, products) },
-    withAccessToken: true,
+    withAccessToken: true
   })
     .then(data => {
       forEach(validItems, item => item.send({ type: "UPDATED" }));
@@ -458,7 +458,7 @@ async function updateMany(
  */
 async function remove({
   basketId,
-  bpid,
+  bpid
 }: {
   basketId: string;
   bpid: string;
@@ -470,7 +470,7 @@ async function remove({
   // ---
   return del<IBasket>({
     url: useUrl(`/orders/${basketId}/products/${bpid}`),
-    withAccessToken: true,
+    withAccessToken: true
   }).then(data => {
     if (isNil(data)) throw new Error("No data returned from the server");
     return data;
@@ -501,5 +501,5 @@ export default {
   updateQuantity,
   update,
   updateMany,
-  remove,
+  remove
 };

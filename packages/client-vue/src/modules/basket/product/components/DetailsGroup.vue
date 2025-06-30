@@ -50,7 +50,7 @@ const { t } = useI18n();
 
 const editLink = computed(() => ({
   name: "product.edit",
-  params: { bpid: props.id },
+  params: { bpid: props.id }
 }));
 
 const invalid = computed(() => some(props.items, "meta.invalid"));

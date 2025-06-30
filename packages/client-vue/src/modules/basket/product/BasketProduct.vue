@@ -74,7 +74,7 @@ const props = withDefaults(
     }
   >(),
   {
-    open: false,
+    open: false
   }
 );
 
@@ -93,7 +93,7 @@ const meta = computed(() => ({
   hasTerms: !!props?.configuration?.term,
   hasOptions: !!props?.configuration?.options,
   hasAttributes: !!props?.configuration?.attributes,
-  hasProvisioning: !!props?.configuration?.provisionFields,
+  hasProvisioning: !!props?.configuration?.provisionFields
 }));
 
 // error: computed(() => get(props, "error")),
@@ -115,8 +115,8 @@ const editLink = computed(() => {
   return {
     name: "product.edit",
     params: {
-      bpid: props.id,
-    },
+      bpid: props.id
+    }
   };
 });
 

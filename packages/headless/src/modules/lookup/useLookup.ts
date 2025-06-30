@@ -29,7 +29,7 @@ export function useLookup(lookup: Function) {
       isProcessing: ["filtering", "processing"].some(state.value.matches),
       isFiltered: ["filtered"].some(state.value.matches),
       hasErrors: ["error"].some(state.value.matches),
-      isEditing: ["editing"].some(state.value.matches),
+      isEditing: ["editing"].some(state.value.matches)
     })),
     // ---
     items: computed(() =>
@@ -42,7 +42,7 @@ export function useLookup(lookup: Function) {
       if (state.value.context?.selected) {
         return {
           id: state.value.context?.selected.id,
-          ...useActor(state.value.context?.selected),
+          ...useActor(state.value.context?.selected)
         };
       }
       return null;
@@ -65,7 +65,7 @@ export function useLookup(lookup: Function) {
     select: async (id: any) => {
       if (state.value.matches("loading")) {
         await waitFor(service, newstate => !newstate.matches("loading"), {
-          timeout: 60_000,
+          timeout: 60_000
         }).catch(() => {
           throw new DetailedError(
             `[headless] fetch on useLookup timed out while waiting for loading state to complete`,
@@ -80,7 +80,7 @@ export function useLookup(lookup: Function) {
     add: () => send({ type: "ADD" }),
     refresh: () => send({ type: "REFRESH" }),
 
-    filter: debounce(data => send({ type: "FILTER", data }), DEBOUNCE_DELAY),
+    filter: debounce(data => send({ type: "FILTER", data }), DEBOUNCE_DELAY)
     // filter: data => send({ type: "FILTER", data })
   };
 }
@@ -108,7 +108,7 @@ export function useLookupItem({ item }: any, { emit }: any) {
       isDefault: !!state.value?.context?.model?.default,
       isVerified: !!state.value?.context?.model?.verified,
       isComplete:
-        state.value.done || ["processed", "complete"].some(state.value.matches),
+        state.value.done || ["processed", "complete"].some(state.value.matches)
     })),
 
     // ---
@@ -124,6 +124,6 @@ export function useLookupItem({ item }: any, { emit }: any) {
     // ---
     select: () => emit("select", item.id),
     edit: () => emit("edit", item.id),
-    cancel: () => emit("refresh"),
+    cancel: () => emit("refresh")
   };
 }

@@ -19,27 +19,27 @@ export default {
       enter: {
         active: cva("m-0 transition duration-300 ease-out"),
         from: cva("-translate-y-10 transform opacity-0"),
-        to: cva("translate-y-0 transform opacity-100"),
+        to: cva("translate-y-0 transform opacity-100")
       },
 
       leave: {
         active: cva("absolute transition duration-100 ease-in"),
         from: cva("translate-y-0 transform opacity-100"),
-        to: cva("-translate-y-1 transform opacity-0"),
-      },
+        to: cva("-translate-y-1 transform opacity-0")
+      }
     },
 
     auth: {
       root: cva("flex flex-col gap-8"),
       form: cva("place-items-start"),
-      actions: cva("my-4 flex items-center justify-center space-x-2"),
+      actions: cva("my-4 flex items-center justify-center space-x-2")
     },
 
     profile: {
       trigger: cva("rounded-full p-0"),
       loading: cva(""),
       label: cva("sr-only"),
-      avatar: cva("my-0 size-8"),
+      avatar: cva("my-0 size-8")
     },
 
     expired: {
@@ -51,7 +51,7 @@ export default {
       text: cva(
         "text-base-500 m-0 text-center text-sm leading-5 tracking-tight"
       ),
-      avatar: cva("bg-primary text-primary-foreground size-20 p-2"),
-    },
-  },
+      avatar: cva("bg-primary text-primary-foreground size-20 p-2")
+    }
+  }
 };

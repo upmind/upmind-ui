@@ -111,7 +111,7 @@
           icon: processingIcon,
           primaryColor: 'primary',
           secondaryColor: 'secondary',
-          size: '4xl',
+          size: '4xl'
         }"
         :title="t(processingTitleKey)"
         :text="t(processingTextKey)"
@@ -137,7 +137,7 @@ import {
   useBasketPaymentDetails,
   useRoutingEngine,
   ROUTE,
-  useDataLayer,
+  useDataLayer
 } from "@upmind-automation/headless";
 
 import config from "./checkout.config";
@@ -170,7 +170,7 @@ const { meta: paymentDetailsMeta } = useBasketPaymentDetails();
 const props = withDefaults(defineProps<CheckoutProps>(), {
   cardComponent: Card,
   contentSectionComponent: ContentSection,
-  color: "secondary",
+  color: "secondary"
 });
 
 const styles = useStyles(["checkout"], meta, config) as ComputedRef<{
@@ -273,7 +273,7 @@ watch(meta, (value, oldValue) => {
   if (!isEqual(value, oldValue)) {
     console.info("** Checkout State **", {
       state: state.value,
-      value,
+      value
     });
   }
 

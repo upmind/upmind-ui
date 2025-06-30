@@ -3,7 +3,7 @@
     ref="form"
     class="flex flex-col gap-6"
     :class="{
-      'mb-4': (schema && uischema && !meta.isRenderless) || instructions,
+      'mb-4': (schema && uischema && !meta.isRenderless) || instructions
     }"
   >
     <transition-group
@@ -14,8 +14,8 @@
           '': variant === 'outline' || meta.hasRenderer || meta.hasInstructions,
           'border-control-error focus-within:ring-control-error focus-within:ring-4 focus-within:ring-opacity-20':
             meta.hasErrors &&
-            (variant === 'outline' || meta.hasRenderer || meta.hasInstructions),
-        },
+            (variant === 'outline' || meta.hasRenderer || meta.hasInstructions)
+        }
       ]"
       enter-active-class="m-0 transition duration-300 ease-out"
       enter-from-class="-translate-y-10 transform opacity-0"
@@ -106,7 +106,7 @@ const {
   input,
   update,
   render,
-  instructions,
+  instructions
 } = useBasketPaymentGateway();
 
 const { t } = useI18n();

@@ -79,7 +79,7 @@ watch(toasts, toasts => {
         onAutoClose: t => dismissToast(t.id.toString()),
         // @ts-ignore -- we can actually pass this to the toast component
         type: message.value.type,
-        position: "top-right",
+        position: "top-right"
       });
       activeToasts.value.push(id);
     }

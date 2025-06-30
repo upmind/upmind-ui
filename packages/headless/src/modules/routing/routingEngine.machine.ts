@@ -26,11 +26,11 @@ export default createMachine(
           "setContext",
           "setBasketHelper",
           "loadBasket",
-          assign({ currentFlow: undefined, currentRoute: undefined }),
+          assign({ currentFlow: undefined, currentRoute: undefined })
         ],
         on: {
           REGISTER: {
-            actions: ["setFlows"],
+            actions: ["setFlows"]
           },
           // when we get our basket, then we can start and determine the first route (if any)
           // otherwise we are not available
@@ -38,15 +38,15 @@ export default createMachine(
             {
               target: "unavailable",
               actions: ["setBasket"],
-              cond: "hasNoFlows",
+              cond: "hasNoFlows"
             },
-            { target: "available", actions: ["setBasket"] },
+            { target: "available", actions: ["setBasket"] }
           ],
           ERROR: {
             target: "unavailable",
-            actions: ["setError"],
-          },
-        },
+            actions: ["setError"]
+          }
+        }
       },
 
       available: {
@@ -56,18 +56,18 @@ export default createMachine(
           idle: {
             on: {
               NEXT: {
-                target: "calculating.next",
+                target: "calculating.next"
               },
               BACK: {
-                target: "calculating.back",
+                target: "calculating.back"
               },
               RESOLVE: {
-                target: "resolving",
+                target: "resolving"
               },
               REGISTER: {
-                actions: ["setFlows"],
-              },
-            },
+                actions: ["setFlows"]
+              }
+            }
           },
           // This is where we calculate the next/back/fallback state and then RESOLVE to it
           calculating: {
@@ -79,28 +79,28 @@ export default createMachine(
                   src: "calculateNextRoute",
                   onDone: {
                     target: "#resolved",
-                    actions: "setResolved",
+                    actions: "setResolved"
                   },
                   onError: {
                     target: "#resolved",
-                    actions: "setResolved",
-                  },
-                },
+                    actions: "setResolved"
+                  }
+                }
               },
               back: {
                 invoke: {
                   src: "calculateBackRoute",
                   onDone: {
                     target: "#resolved",
-                    actions: "setResolved",
+                    actions: "setResolved"
                   },
                   onError: {
                     target: "#resolved",
-                    actions: "setResolved",
-                  },
-                },
-              },
-            },
+                    actions: "setResolved"
+                  }
+                }
+              }
+            }
           },
 
           resolving: {
@@ -109,30 +109,30 @@ export default createMachine(
               src: "resolve",
               onDone: {
                 target: "#resolved",
-                actions: "setResolved",
+                actions: "setResolved"
               },
               onError: {
                 target: "#resolved",
-                actions: "setResolved",
-              },
+                actions: "setResolved"
+              }
             },
             on: {
               NEXT: {
-                target: "calculating.next",
+                target: "calculating.next"
               },
               BACK: {
-                target: "calculating.back",
-              },
-            },
+                target: "calculating.back"
+              }
+            }
           },
 
           resolved: {
             id: "resolved",
             after: {
-              wait: "idle",
-            },
-          },
-        },
+              wait: "idle"
+            }
+          }
+        }
       },
 
       unavailable: {
@@ -141,27 +141,27 @@ export default createMachine(
         on: {
           REGISTER: {
             target: "available",
-            actions: ["setFlows"],
-          },
-        },
+            actions: ["setFlows"]
+          }
+        }
       },
 
       complete: {
-        type: "final",
-      },
+        type: "final"
+      }
     },
     on: {
       REFRESH: [
         {
           actions: ["setBasket"],
-          cond: "hasBasketChanged",
+          cond: "hasBasketChanged"
         },
-        { actions: ["setBasket"] },
+        { actions: ["setBasket"] }
       ],
       STOP: {
-        target: "complete",
-      },
-    },
+        target: "complete"
+      }
+    }
   },
   {
     actions: {
@@ -172,7 +172,7 @@ export default createMachine(
           error: undefined,
           // ---
           basketId: undefined,
-          basketHelper: undefined,
+          basketHelper: undefined
         })
       ),
 
@@ -180,13 +180,13 @@ export default createMachine(
         basketId: (_context, { data }: AnyEventObject) => {
           const basket = get(data, "basket", data);
           return basket?.id;
-        },
+        }
       }),
 
       setFlows: assign({
         flows: ({ flows }, { data }: AnyEventObject) => {
           return uniqBy([...(data ?? []), ...flows], "name");
-        },
+        }
       }),
 
       setResolved: assign({
@@ -200,20 +200,20 @@ export default createMachine(
         currentRoute: (_context, { data }: AnyEventObject) => {
           const route = get(data, "route", data);
           return route;
-        },
+        }
       }),
 
       // ---
       setBasketHelper: assign({
         basketHelper: ({ basketHelper }) => {
           return basketHelper ?? spawn(basketSubscription);
-        },
+        }
       }),
 
       loadBasket: pure(({ basketHelper }: RoutingEngineContext, _event) => {
         if (!basketHelper) return;
         return sendTo(basketHelper, {
-          type: "INIT",
+          type: "INIT"
         });
       }),
 
@@ -222,11 +222,11 @@ export default createMachine(
         error: (_context: RoutingEngineContext, { data }: AnyEventObject) => {
           const error = get(data, "error", data);
           return error;
-        },
+        }
       }),
       clearError: assign({
-        error: (_context, _event) => undefined,
-      }),
+        error: (_context, _event) => undefined
+      })
     },
 
     guards: {
@@ -240,14 +240,14 @@ export default createMachine(
         return value;
       },
 
-      hasNoFlows: context => isEmpty(context.flows),
+      hasNoFlows: context => isEmpty(context.flows)
     },
 
     delays: {
       error: () => useTime().ERROR,
-      wait: () => useTime().WAIT,
+      wait: () => useTime().WAIT
     },
 
-    services,
+    services
   }
 );

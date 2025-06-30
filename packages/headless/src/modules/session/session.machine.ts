@@ -32,7 +32,7 @@ export default createMachine(
           onDone: [
             {
               target: "client",
-              cond: "isClientToken",
+              cond: "isClientToken"
             },
             // {
             //   target: "guest",
@@ -41,11 +41,11 @@ export default createMachine(
             {
               // if we have  no token, we need to clear any possible  user data
               target: "guest",
-              actions: "clear",
-            },
+              actions: "clear"
+            }
           ],
-          onError: { target: "#guest" },
-        },
+          onError: { target: "#guest" }
+        }
       },
 
       guest: {
@@ -55,8 +55,8 @@ export default createMachine(
           src: guestMachine,
           autoForward: true,
           onDone: { target: "#client" },
-          onError: { target: "error", actions: "setError" },
-        },
+          onError: { target: "error", actions: "setError" }
+        }
       },
 
       client: {
@@ -66,8 +66,8 @@ export default createMachine(
           src: clientMachine,
           autoForward: true,
           onDone: { target: "#guest" },
-          onError: { target: "error", actions: "setError" },
-        },
+          onError: { target: "error", actions: "setError" }
+        }
       },
 
       transferring: {
@@ -78,24 +78,24 @@ export default createMachine(
               src: "transferFrom",
               onDone: {
                 target: "processed",
-                actions: "setTransferToken",
+                actions: "setTransferToken"
               },
               onError: {
                 target: "processed",
-                actions: "setTransferToken",
-              },
-            },
+                actions: "setTransferToken"
+              }
+            }
           },
 
           processed: {
             on: {
               TRANSFERRED: {
                 target: "#checking",
-                actions: "clearTransfer",
-              },
-            },
-          },
-        },
+                actions: "clearTransfer"
+              }
+            }
+          }
+        }
       },
 
       expired: {},
@@ -106,18 +106,18 @@ export default createMachine(
 
       // Handle completion, stop the machine and prevent further requests
       complete: {
-        type: "final",
-      },
+        type: "final"
+      }
     },
     on: {
       EXPIRED: {
-        target: "checking",
+        target: "checking"
       },
       TRANSFER_FROM: {
         target: "transferring",
-        actions: "setTransfer",
-      },
-    },
+        actions: "setTransfer"
+      }
+    }
   },
   {
     actions: {
@@ -125,9 +125,9 @@ export default createMachine(
         transfer: (_context: SessionContext, { data }: AnyEventObject) => {
           return {
             redirect: data?.redirect,
-            code: data?.code,
+            code: data?.code
           } as SessionContext["transfer"];
-        },
+        }
       }),
 
       setTransferToken: assign({
@@ -136,19 +136,19 @@ export default createMachine(
           return {
             token,
             redirect: transfer?.redirect,
-            code: transfer?.code,
+            code: transfer?.code
           } as SessionContext["transfer"];
-        },
+        }
       }),
 
       clearTransfer: assign({ transfer: undefined }),
 
       setError: assign({
-        error: (_context: SessionContext, { data }: AnyEventObject) => data,
+        error: (_context: SessionContext, { data }: AnyEventObject) => data
       }),
 
       clearError: assign({
-        error: (_context: SessionContext) => undefined,
+        error: (_context: SessionContext) => undefined
       }),
 
       clear: () => {
@@ -159,7 +159,7 @@ export default createMachine(
           removeCookie("upm_actor");
           dataLayer().withUser().push(false);
         }
-      },
+      }
     },
 
     guards: {
@@ -167,14 +167,14 @@ export default createMachine(
         data?.actor_type === "client",
 
       isGuestToken: (_context: SessionContext, { data }: AnyEventObject) =>
-        data?.actor_type === "guest",
+        data?.actor_type === "guest"
     },
 
     delays: {
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
-      expired: () => useTime().MINUTE * 5,
+      expired: () => useTime().MINUTE * 5
     },
-    services,
+    services
   }
 );

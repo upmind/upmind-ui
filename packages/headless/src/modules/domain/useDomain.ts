@@ -14,7 +14,7 @@ import {
   stateMatches,
   useContext,
   contextMatches,
-  contextValue,
+  contextValue
 } from "../../utils";
 import { parseDomain } from "./utils";
 
@@ -52,7 +52,7 @@ export const useDomain = (
     domainMachine.withContext({
       type: safeType,
       choices: safeType ? null : DomainTypes,
-      model: safeModel,
+      model: safeModel
     } as any),
     { devTools: false }
   );
@@ -76,14 +76,14 @@ export const useDomain = (
       isLoading: stateMatches(state, ["subscribing", "loading"]),
       isSyncing: stateMatches(state, [
         "dac.processingBasket",
-        "basket.processing",
+        "basket.processing"
       ]),
       isSearching: stateMatches(state, [
         "dac.loading",
         "dac.processing",
         "existing.loading",
         "existing.processing",
-        "basket.loading",
+        "basket.loading"
       ]),
       isSearchingMore:
         stateMatches(state, ["dac.loading", "dac.processing"]) &&
@@ -96,7 +96,7 @@ export const useDomain = (
         "error",
         "dac.error",
         "existing.error",
-        "basket.error",
+        "basket.error"
       ]),
       showChoices: contextMatches(state, "choices"),
       showDac: stateMatches(state, ["dac"]),
@@ -110,8 +110,8 @@ export const useDomain = (
         stateMatches(state, [
           "dac.complete",
           "existing.complete",
-          "basket.complete",
-        ]) && contextMatches(state, "model"),
+          "basket.complete"
+        ]) && contextMatches(state, "model")
     };
   });
 
@@ -153,7 +153,7 @@ export const useDomain = (
   const pagination = computed(() => ({
     offset: search.value?.offset ?? PAGINATION.offset,
     limit: search.value?.limit ?? PAGINATION.limit,
-    total: search.value?.total ?? 0,
+    total: search.value?.total ?? 0
   }));
 
   // --- methods
@@ -161,7 +161,7 @@ export const useDomain = (
   function choose(value: string): void {
     send({
       type: "CHOOSE",
-      data: value,
+      data: value
     });
   }
 
@@ -180,47 +180,47 @@ export const useDomain = (
         : "ADD";
     send({
       type,
-      data: value,
+      data: value
     });
   }
 
   function update(model: string | Array<string>): void {
     send({
       type: "UPDATE",
-      data: isArray(model) ? model : [model],
+      data: isArray(model) ? model : [model]
     });
   }
 
   function reset(): void {
     send({
-      type: "RESET",
+      type: "RESET"
     });
   }
 
   function add(value: string): void {
     send({
       type: "ADD",
-      data: value,
+      data: value
     });
   }
 
   function remove(value: string): void {
     send({
       type: "REMOVE",
-      data: value,
+      data: value
     });
   }
 
   function select(value: string): void {
     send({
       type: "SELECT",
-      data: value,
+      data: value
     });
   }
 
   function addToBasket(): void {
     send({
-      type: "ADD_UPDATE_MANY",
+      type: "ADD_UPDATE_MANY"
     });
   }
 
@@ -386,7 +386,7 @@ export const useDomain = (
     /** Stop the domain service.
      * @returns {void}
      */
-    stop: () => stopService(service as InterpreterFrom<any>),
+    stop: () => stopService(service as InterpreterFrom<any>)
   };
 };
 

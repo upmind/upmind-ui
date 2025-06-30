@@ -17,7 +17,7 @@ let POP: IApiPop = {};
 const defaults = {
   name: import.meta.env.VITE_API_NAME ?? "upmind-production",
   apiUrl: import.meta.env.VITE_API_URL ?? "https://api.upmind.io",
-  region: import.meta.env.VITE_API_REGION ?? "euc1",
+  region: import.meta.env.VITE_API_REGION ?? "euc1"
 };
 
 const schema = {
@@ -29,22 +29,22 @@ const schema = {
       type: "string",
       default: defaults.name,
       title: "Name",
-      description: "Name of the POP",
+      description: "Name of the POP"
     },
     region: {
       type: "string",
       default: defaults.region,
       title: "Region",
-      description: "Region of the POP",
+      description: "Region of the POP"
     },
     apiUrl: {
       type: "string",
       default: defaults.apiUrl,
       title: "API URL",
       description: "API URL of the POP",
-      format: "uri", //  "hostname", "idn-hostname", "ipv4", "ipv6", "uri", "uri-reference", "uri-template", "url", "email", "idn-email",
-    },
-  },
+      format: "uri" //  "hostname", "idn-hostname", "ipv4", "ipv6", "uri", "uri-reference", "uri-template", "url", "email", "idn-email",
+    }
+  }
 };
 
 // -----------------------------------------------------------------------------
@@ -93,6 +93,6 @@ export const usePOP = (value?: IApiPop) => {
             resolve(true);
           }
         }, 100);
-      }),
+      })
   };
 };

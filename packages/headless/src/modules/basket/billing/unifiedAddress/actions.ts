@@ -30,7 +30,7 @@ export const useUnifiedAddressActions = () => {
           get(model, "address.city"),
           get(model, "address.postcode"),
           get(model, "address.region.name"),
-          get(model, "address.country.name"),
+          get(model, "address.country.name")
         ]).join(", ");
 
         const company = compact([
@@ -39,23 +39,23 @@ export const useUnifiedAddressActions = () => {
             : null,
           model?.company?.vatNumber
             ? `Tax #: ${get(model, "company.vatNumber")}`
-            : null,
+            : null
         ]).join(";");
 
         return compact([address, company]).join(";");
-      },
+      }
     }),
 
     setSchemas: assign({
       schema: (context: UnifiedAddressContext) => useSchema(context),
-      uischema: (context: UnifiedAddressContext) => useUischema(context),
+      uischema: (context: UnifiedAddressContext) => useUischema(context)
     }),
 
     setModel: assign({
       model: (
         { schema, baseModel }: UnifiedAddressContext,
         { data }: AnyEventObject
-      ) => useModelParser<UnifiedAddressModel>(schema, data, baseModel),
+      ) => useModelParser<UnifiedAddressModel>(schema, data, baseModel)
     }),
 
     refreshContext: assign({
@@ -64,8 +64,8 @@ export const useUnifiedAddressActions = () => {
         { data }: AnyEventObject
       ) => {
         return clientId || data?.clientId;
-      },
-    }),
+      }
+    })
   };
 };
 
@@ -74,6 +74,6 @@ export const useUnifiedAddressGuards = () => {
     hasSubscription: (
       { clientId }: UnifiedAddressContext,
       _event: AnyEventObject
-    ) => !!clientId,
+    ) => !!clientId
   };
 };
