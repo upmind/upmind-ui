@@ -18,7 +18,7 @@ import config from "./badge.config";
 
 import {
   useStyles,
-  cn,
+  cn
   //stylesheet
 } from "../../utils";
 
@@ -39,13 +39,13 @@ const props = withDefaults(defineProps<BadgeProps>(), {
   size: "md",
   // --- styles
   uiConfig: () => ({ badge: [] }),
-  class: "",
+  class: ""
 });
 
 const meta = computed(() => ({
   variant: props.variant,
   color: props.color,
-  size: props.size,
+  size: props.size
 }));
 
 const styles = useStyles(

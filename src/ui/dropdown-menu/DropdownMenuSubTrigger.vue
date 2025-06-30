@@ -3,7 +3,7 @@ import { type HTMLAttributes, computed } from "vue";
 import {
   DropdownMenuSubTrigger,
   type DropdownMenuSubTriggerProps,
-  useForwardProps,
+  useForwardProps
 } from "radix-vue";
 import { ChevronRight } from "lucide-vue-next";
 import { cn } from "../../utils";

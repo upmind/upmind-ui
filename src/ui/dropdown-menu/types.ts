@@ -4,7 +4,7 @@ import type { CxOptions, VariantProps } from "class-variance-authority";
 import type {
   DropdownMenuRootProps,
   DropdownMenuContentProps,
-  DropdownMenuTriggerProps,
+  DropdownMenuTriggerProps
 } from "radix-vue";
 
 // --- internal

@@ -21,7 +21,7 @@
       <slot
         name="item"
         v-bind="{
-          item: { ...props.item, value },
+          item: { ...props.item, value }
         }"
       >
         <span v-if="props.label">{{ props.label }}</span>
@@ -52,7 +52,7 @@ import type { RadioCardsItemProps } from "./types";
 const props = withDefaults(defineProps<RadioCardsItemProps>(), {
   // -- variants
   width: 12,
-  isList: false,
+  isList: false
 });
 
 const emits = defineEmits(["focus"]);
@@ -63,7 +63,7 @@ const isSelected = computed(() => {
 
 const meta = computed(() => ({
   isList: props.list,
-  width: props.width,
+  width: props.width
 }));
 
 const styles = useStyles(

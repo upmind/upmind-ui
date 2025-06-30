@@ -27,7 +27,7 @@ import { and, isLayout, uiTypeIs } from "@jsonforms/core";
 import {
   DispatchRenderer,
   rendererProps,
-  useJsonFormsLayout,
+  useJsonFormsLayout
 } from "@jsonforms/vue";
 
 // --- local
@@ -48,16 +48,16 @@ const props = defineProps({
   // ---  Additional Attributes
   size: {
     type: String as PropType<InputProps["size"]>,
-    default: null,
+    default: null
   },
   // --- Provide a way to add custom styles for a specific instance of the component
-  uiConfig: { type: [Object, Array], default: () => ({}) },
+  uiConfig: { type: [Object, Array], default: () => ({}) }
 });
 
 const meta = computed(() => ({
   isVisible: layout.value.visible,
   isDisabled: !layout.value.enabled,
-  hasBorder: appliedOptions.value?.border ?? true,
+  hasBorder: appliedOptions.value?.border ?? true
 }));
 
 const styles = useStyles(
@@ -80,6 +80,6 @@ const { layout, appliedOptions } = useUpmindUILayoutRenderer(
 <script lang="ts">
 export const tester = {
   rank: 2,
-  controlType: and(isLayout, uiTypeIs("Group")),
+  controlType: and(isLayout, uiTypeIs("Group"))
 };
 </script>

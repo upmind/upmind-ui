@@ -148,13 +148,13 @@ const props = withDefaults(defineProps<DropdownMenuProps>(), {
   uiConfig: () => ({ dropdownMenu: [] }),
   class: "",
   popoverClass: "",
-  itemClass: "",
+  itemClass: ""
 });
 
 const meta = computed(() => ({
   color: props.color,
   width: props.width,
-  size: props.size,
+  size: props.size
 }));
 
 const open = ref(false);

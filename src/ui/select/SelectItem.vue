@@ -5,7 +5,7 @@ import {
   SelectItemIndicator,
   type SelectItemProps,
   SelectItemText,
-  useForwardProps,
+  useForwardProps
 } from "radix-vue";
 import { Check } from "lucide-vue-next";
 import { cn } from "../../utils";

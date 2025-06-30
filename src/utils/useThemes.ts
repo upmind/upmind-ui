@@ -7,7 +7,7 @@ import {
   lowerCase,
   reduce,
   set,
-  values,
+  values
 } from "lodash-es";
 import type { Ref } from "vue";
 // -----------------------------------------------------------------------------
@@ -53,7 +53,7 @@ export const useThemes = (
         label: name,
         value: id,
         icon,
-        handler: () => updateTheme(id),
+        handler: () => updateTheme(id)
       });
       return result;
     },
@@ -79,7 +79,7 @@ export const useThemes = (
     activeTheme,
     config,
     themes: providedThemes,
-    updateTheme,
+    updateTheme
   });
   // ---
 
@@ -87,12 +87,12 @@ export const useThemes = (
     activeTheme,
     themes: providedThemes,
     config,
-    updateTheme,
+    updateTheme
   };
 };
 
 export default {
   activeTheme,
   config,
-  providedThemes,
+  providedThemes
 };

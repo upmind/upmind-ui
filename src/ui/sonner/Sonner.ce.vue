@@ -41,7 +41,7 @@
           styles.sonner.info.closeButton,
           styles.sonner.promotion.closeButton,
           styles.sonner.destructive.closeButton
-        ),
+        )
         // title: cn(
         //   styles.sonner.base.title,
         //   styles.sonner.primary.title,
@@ -78,7 +78,7 @@
         //   styles.sonner.promotion.cancelButton,
         //   styles.sonner.destructive.cancelButton
         // ),
-      },
+      }
     }"
   />
 </template>
@@ -90,7 +90,7 @@ import { Toaster as Sonner } from "vue-sonner";
 // --- internal
 import {
   useStyles,
-  cn,
+  cn
   //stylesheet
 } from "../../utils";
 import config from "./sonner.config";
@@ -115,7 +115,7 @@ const styles = useStyles(
     "sonner.info",
     "sonner.promotion",
     "sonner.destructive",
-    "sonner.warning",
+    "sonner.warning"
   ],
   {},
   config,

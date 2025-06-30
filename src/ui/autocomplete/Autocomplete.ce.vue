@@ -117,7 +117,7 @@ import {
   ComboboxItemIndicator,
   ComboboxRoot,
   ComboboxTrigger,
-  ComboboxViewport,
+  ComboboxViewport
 } from "radix-vue";
 
 // --- utils
@@ -133,7 +133,7 @@ import {
   reject,
   omit,
   isObject,
-  uniqBy,
+  uniqBy
 } from "lodash-es";
 
 // --- types
@@ -157,7 +157,7 @@ const props = withDefaults(defineProps<AutocompleteProps>(), {
   side: "bottom",
   // --- styles
   iconSize: "2xs",
-  uiConfig: () => ({ autocomplete: [] }),
+  uiConfig: () => ({ autocomplete: [] })
 });
 
 const emits = defineEmits<ComboboxContentEmits & ComboboxRootEmits>();
@@ -165,7 +165,7 @@ const emits = defineEmits<ComboboxContentEmits & ComboboxRootEmits>();
 const meta = computed(() => ({
   size: props.size,
   width: props.width,
-  popoverWidth: props.popoverWidth,
+  popoverWidth: props.popoverWidth
 }));
 
 const open = ref(false);
@@ -302,7 +302,7 @@ watch(
     if (newProps.modelValue) {
       const selected = find(results.value, [
         itemValue,
-        newProps.modelValue,
+        newProps.modelValue
       ]) as AutocompleteItemProps;
 
       if (selected) doSelect(selected);

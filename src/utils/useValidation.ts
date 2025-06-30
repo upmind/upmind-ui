@@ -56,7 +56,7 @@ export const useValidation = (ajv?: Ajv) => {
   if (initial) {
     ajvErrors(ajvInstance, {
       keepErrors: false,
-      singleError: true,
+      singleError: true
     });
   }
 
@@ -72,6 +72,6 @@ export const useValidation = (ajv?: Ajv) => {
         return validate.errors ?? [];
       }
       return [];
-    },
+    }
   };
 };

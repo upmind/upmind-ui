@@ -4,7 +4,7 @@ import type { CxOptions, VariantProps } from "class-variance-authority";
 import type {
   TooltipContentProps,
   TooltipProviderProps,
-  TooltipTriggerProps,
+  TooltipTriggerProps
 } from "radix-vue";
 import { type TooltipRootProps } from "radix-vue";
 

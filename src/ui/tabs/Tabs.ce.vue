@@ -30,7 +30,7 @@ import { useForwardPropsEmits } from "radix-vue";
 
 // ---internal
 import {
-  useStyles,
+  useStyles
   //stylesheet
 } from "../../utils";
 import config from "./tabs.config";
@@ -59,10 +59,10 @@ const props = withDefaults(defineProps<TabsProps>(), {
   uiConfig: () => ({
     tabs: {
       list: [],
-      trigger: [],
-    },
+      trigger: []
+    }
   }),
-  class: "",
+  class: ""
 });
 
 const emits = defineEmits<TabsRootEmits>();
@@ -76,7 +76,7 @@ const meta = computed(() => ({
   color: props.color,
   variant: props.variant,
   alignment: props.alignment,
-  width: props.width,
+  width: props.width
 }));
 
 const styles = useStyles(

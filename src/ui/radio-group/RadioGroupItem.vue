@@ -24,7 +24,7 @@ import {
   RadioGroupIndicator,
   RadioGroupItem,
   type RadioGroupItemProps,
-  useForwardProps,
+  useForwardProps
 } from "radix-vue";
 
 import { computed, type HTMLAttributes } from "vue";

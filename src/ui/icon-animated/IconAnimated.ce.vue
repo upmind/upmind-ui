@@ -31,11 +31,11 @@ const props = withDefaults(defineProps<AnimatedIconProps>(), {
   size: "md",
   // ---
   uiConfig: () => ({ iconAnimated: [] }),
-  class: "",
+  class: ""
 });
 
 const meta = computed(() => ({
-  size: props.size,
+  size: props.size
 }));
 
 const iconData = ref("");
@@ -43,7 +43,7 @@ const iconData = ref("");
 const icons = import.meta.glob("@animations/**/*.json", {
   query: "?url",
   eager: false,
-  import: "default",
+  import: "default"
 });
 
 const loadIcon = async () => {

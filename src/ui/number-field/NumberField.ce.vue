@@ -53,7 +53,7 @@ const props = withDefaults(defineProps<NumberFieldProps>(), {
   // --- styles
   uiConfig: () => ({ numberField: [] }),
   class: "",
-  classField: "",
+  classField: ""
 });
 
 const emits = defineEmits<{
@@ -66,14 +66,14 @@ const delegatedProps = computed(() =>
 
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
-  defaultValue: props.modelValue,
+  defaultValue: props.modelValue
 });
 
 const meta = computed(() => ({
   // size: props.size,
   width: props.width,
   variant: props.variant,
-  height: props.height,
+  height: props.height
 }));
 
 const styles = useStyles(

@@ -9,22 +9,22 @@ export const checkboxVariants = cva(
     variants: {
       width: {
         auto: "w-auto",
-        full: "w-full",
+        full: "w-full"
       },
       size: {
         sm: "!h-3 !w-3",
         md: "!h-4 !w-4",
-        lg: "!h-6 !w-6",
-      },
+        lg: "!h-6 !w-6"
+      }
     },
     defaultVariants: {
       size: "md",
-      width: "full",
-    },
+      width: "full"
+    }
   }
 );
 
 // -----------------------------------------------------------------------------
 export default {
-  checkbox: checkboxVariants,
+  checkbox: checkboxVariants
 };

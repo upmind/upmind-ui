@@ -30,6 +30,6 @@ const { label, appliedOptions } = renderer;
 import { uiTypeIs } from "@jsonforms/core";
 export const tester = {
   rank: 1,
-  controlType: uiTypeIs("Label"),
+  controlType: uiTypeIs("Label")
 };
 </script>

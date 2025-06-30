@@ -58,7 +58,7 @@ export {
   UpmTooltip,
   UpmTextarea,
   UpmLoading,
-  UpmLink,
+  UpmLink
 };
 
 // --- utility for registering all custom elements

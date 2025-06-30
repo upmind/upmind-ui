@@ -83,6 +83,6 @@ const min: ComputedRef<number | undefined> = computed(() => {
 import { isNumberControl, isIntegerControl, or } from "@jsonforms/core";
 export const tester = {
   rank: 1,
-  controlType: or(isNumberControl, isIntegerControl),
+  controlType: or(isNumberControl, isIntegerControl)
 };
 </script>

@@ -10,7 +10,7 @@ import type {
   JsonFormsRendererRegistryEntry,
   JsonFormsI18nState,
   ValidationMode,
-  Middleware,
+  Middleware
 } from "@jsonforms/core";
 import type { ErrorObject } from "ajv";
 import type Ajv from "ajv";

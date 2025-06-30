@@ -18,7 +18,7 @@ import { Generate, findUISchema } from "@jsonforms/core";
 import {
   DispatchRenderer,
   rendererProps,
-  useJsonFormsControlWithDetail,
+  useJsonFormsControlWithDetail
 } from "@jsonforms/vue";
 
 // --- utils
@@ -29,13 +29,13 @@ import { isEmpty } from "lodash-es";
 import type {
   ControlElement,
   GroupLayout,
-  UISchemaElement,
+  UISchemaElement
 } from "@jsonforms/core";
 import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 const props = defineProps({
-  ...rendererProps<ControlElement>(),
+  ...rendererProps<ControlElement>()
 });
 
 const { control } = useUpmindUIRenderer(useJsonFormsControlWithDetail(props));
@@ -74,6 +74,6 @@ const detailUiSchema: ComputedRef<UISchemaElement> = computed(() => {
 import { isObjectControl } from "@jsonforms/core";
 export const tester = {
   rank: 2,
-  controlType: isObjectControl,
+  controlType: isObjectControl
 };
 </script>

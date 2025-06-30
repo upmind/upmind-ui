@@ -4,7 +4,7 @@ import type { CxOptions, VariantProps } from "class-variance-authority";
 import type {
   ComboboxRootProps,
   ComboboxInputProps,
-  ComboboxItemProps,
+  ComboboxItemProps
 } from "radix-vue";
 
 // --- internal

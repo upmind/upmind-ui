@@ -4,7 +4,7 @@ import {
   SelectIcon,
   SelectTrigger,
   type SelectTriggerProps,
-  useForwardProps,
+  useForwardProps
 } from "radix-vue";
 import { ChevronDown } from "lucide-vue-next";
 import { cn } from "../../utils";

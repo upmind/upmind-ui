@@ -7,7 +7,7 @@ import type { DrawerDirection, DrawerPortalProps } from "vaul-vue";
 import type {
   overlayVariant,
   containerVariant,
-  innerVariant,
+  innerVariant
 } from "./drawer.config";
 import type { ButtonProps } from "../..";
 type DrawerOverlayVariantProps = VariantProps<typeof overlayVariant>;

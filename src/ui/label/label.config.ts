@@ -6,5 +6,5 @@ export const labelVariants = cva();
 
 // -----------------------------------------------------------------------------
 export default {
-  label: labelVariants,
+  label: labelVariants
 };

@@ -17,17 +17,17 @@ export const spinnerVariants = cva(
         md: "size-10",
         lg: "size-12 border-[0.2em]",
         xl: "size-14 border-[0.4em]",
-        "2xl": "size-16 border-[0.6em]",
-      },
+        "2xl": "size-16 border-[0.6em]"
+      }
     },
     defaultVariants: {
-      size: "md",
-    },
+      size: "md"
+    }
   }
 );
 
 // -----------------------------------------------------------------------------
 // --- for our useStyles helper
 export default {
-  spinner: spinnerVariants,
+  spinner: spinnerVariants
 };

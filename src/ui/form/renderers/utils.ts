@@ -7,7 +7,7 @@ import {
   findUISchema,
   getErrorAt,
   getFirstPrimitiveProp,
-  rankWith,
+  rankWith
 } from "@jsonforms/core";
 
 // --- utils
@@ -18,7 +18,7 @@ import {
   set,
   isEqual,
   map,
-  isFunction,
+  isFunction
 } from "lodash-es";
 
 // --- types
@@ -26,13 +26,13 @@ import type { ComputedRef, Ref } from "vue";
 import type {
   JsonFormsSubStates,
   Tester,
-  CombinatorSubSchemaRenderInfo,
+  CombinatorSubSchemaRenderInfo
 } from "@jsonforms/core";
 import type { FormControlProps } from "../types";
 // -----------------------------------------------------------------------------
 
 export const useUpmindUIRenderer = <
-  I extends { control: any; handleChange: Function },
+  I extends { control: any; handleChange: Function }
 >(
   input: I,
   adaptTarget: (target: any) => any = v => v?.value || v || null
@@ -81,7 +81,7 @@ export const useUpmindUIRenderer = <
       description: input.control.value.description,
       required: input.control.value.required,
       disabled: !input.control.value.enabled,
-      visible: input.control.value.visible,
+      visible: input.control.value.visible
     });
 
     set(props, "id", input.control.value?.id);
@@ -110,7 +110,7 @@ export const useUpmindUIRenderer = <
     errors,
     appliedOptions,
     formFieldProps,
-    onInput,
+    onInput
   };
 };
 
@@ -126,7 +126,7 @@ export const useUpmindUILayoutRenderer = <I extends { layout: any }>(
   );
   return {
     ...input,
-    appliedOptions,
+    appliedOptions
   };
 };
 
@@ -142,12 +142,12 @@ export const useUpmindUILabelRenderer = <I extends { label: any }>(
   );
   return {
     ...input,
-    appliedOptions,
+    appliedOptions
   };
 };
 
 export const useUpmindUIArrayRenderer = <
-  I extends { control: any; addItem?: Function; removeItem?: Function },
+  I extends { control: any; addItem?: Function; removeItem?: Function }
 >(
   input: I
 ) => {
@@ -166,7 +166,7 @@ export const useUpmindUIArrayRenderer = <
       required: input.control.value.required,
       disabled: !input.control.value.enabled,
       visible: input.control.value.visible,
-      dirty: !isEqual(input.control.value.data, input.control.value.initial),
+      dirty: !isEqual(input.control.value.data, input.control.value.initial)
     });
 
     set(props, "id", input.control.value.id);
@@ -227,7 +227,7 @@ export const useUpmindUIArrayRenderer = <
     formFieldProps,
     childUiSchema,
     childLabelForIndex,
-    onInput,
+    onInput
   };
 };
 
@@ -257,7 +257,7 @@ export const createIndexedOneOfRenderInfos = (
         return {
           ...info,
           uischema: oneOfUiSchemas[index],
-          index: index,
+          index: index
         };
       }
       return { ...info, index: index };
@@ -272,7 +272,7 @@ export function registerEntry(
 ) {
   const entry = {
     renderer,
-    tester: rankWith(rank, controlType),
+    tester: rankWith(rank, controlType)
   };
   return entry;
 }

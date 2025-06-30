@@ -1,7 +1,7 @@
 import type {
   UnwrapRefCarouselApi as CarouselApi,
   CarouselEmits,
-  CarouselProps,
+  CarouselProps
 } from "./interface";
 import { createInjectionState } from "@vueuse/core";
 import emblaCarouselVue from "embla-carousel-vue";
@@ -12,7 +12,7 @@ const [useProvideCarousel, useInjectCarousel] = createInjectionState(
     const [emblaNode, emblaApi] = emblaCarouselVue(
       {
         ...opts,
-        axis: orientation === "horizontal" ? "x" : "y",
+        axis: orientation === "horizontal" ? "x" : "y"
       },
       plugins
     );
@@ -49,7 +49,7 @@ const [useProvideCarousel, useInjectCarousel] = createInjectionState(
       canScrollNext,
       scrollPrev,
       scrollNext,
-      orientation,
+      orientation
     };
   }
 );

@@ -12,12 +12,12 @@ export const contentVariants = cva(
         xl: "w-dropdown-xl",
         "2xl": "w-dropdown-2xl",
         full: "w-full",
-        auto: "w-auto",
-      },
+        auto: "w-auto"
+      }
     },
     defaultVariants: {
-      width: "md",
-    },
+      width: "md"
+    }
   }
 );
 
@@ -35,12 +35,12 @@ export const itemVariants = cva(
         success: "data-[highlighted]:bg-success-muted",
         info: "data-[highlighted]:bg-info-muted",
         error: "data-[highlighted]:bg-error-muted",
-        warning: "data-[highlighted]:bg-warning-muted",
-      },
+        warning: "data-[highlighted]:bg-warning-muted"
+      }
     },
     defaultVariants: {
-      color: "base",
-    },
+      color: "base"
+    }
   }
 );
 
@@ -50,6 +50,6 @@ export default {
     item: itemVariants,
     label: cva("border-base-muted border-b px-4 py-3"),
     group: cva("p-1"),
-    icon: cva("text-base-muted-foreground"),
-  },
+    icon: cva("text-base-muted-foreground")
+  }
 };

@@ -3,7 +3,7 @@ import { type HTMLAttributes, computed } from "vue";
 import {
   DropdownMenuItem,
   type DropdownMenuItemProps,
-  useForwardProps,
+  useForwardProps
 } from "radix-vue";
 
 import { cn } from "../../utils";

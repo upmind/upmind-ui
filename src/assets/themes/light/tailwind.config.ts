@@ -27,7 +27,7 @@ const colors = {
     900: "#1e1e1e",
     950: "#000000",
     foreground: "#000000",
-    background: "#ffffff",
+    background: "#ffffff"
   },
 
   // ---
@@ -45,7 +45,7 @@ const colors = {
     900: "#0e5c9a",
     950: "#0e385d",
     foreground: "#ffffff",
-    background: "#018ffd",
+    background: "#018ffd"
   },
 
   secondary: {
@@ -62,7 +62,7 @@ const colors = {
     900: "#165063",
     950: "#083444",
     foreground: "#ffffff",
-    background: "#05c3de",
+    background: "#05c3de"
   },
 
   accent: {
@@ -79,7 +79,7 @@ const colors = {
     900: "#66099a",
     950: "#470074",
     foreground: "#ffffff",
-    background: "#8b04de",
+    background: "#8b04de"
   },
 
   // --- State Variants
@@ -97,7 +97,7 @@ const colors = {
     900: "#3d2092",
     950: "#231263",
     foreground: "#ffffff",
-    background: "#5E36E8",
+    background: "#5E36E8"
   },
 
   destructive: {
@@ -114,7 +114,7 @@ const colors = {
     900: "#881337",
     950: "#4c0519",
     foreground: "#ffffff",
-    background: "#ff4d6d",
+    background: "#ff4d6d"
   },
 
   info: {
@@ -131,7 +131,7 @@ const colors = {
     900: "#1e478a",
     950: "#172e54",
     foreground: "#ffffff",
-    background: "#3b82f6",
+    background: "#3b82f6"
   },
 
   success: {
@@ -148,7 +148,7 @@ const colors = {
     900: "#064e36",
     950: "#022c1e",
     foreground: "#ffffff",
-    background: "#10b981",
+    background: "#10b981"
   },
 
   warning: {
@@ -165,7 +165,7 @@ const colors = {
     900: "#7c4212",
     950: "#432207",
     foreground: "#fff3e0",
-    background: "#fb923c",
+    background: "#fb923c"
   },
 
   error: {
@@ -182,37 +182,37 @@ const colors = {
     900: "#7f1d1d",
     950: "#450a0a",
     foreground: "#ffebee",
-    background: "#ef4444",
+    background: "#ef4444"
   },
 
   disabled: {
     DEFAULT: "#9e9e9e",
-    foreground: "#eeeeee",
+    foreground: "#eeeeee"
   },
 
   muted: {
     DEFAULT: "#f1f5f9",
-    foreground: "#65758b",
+    foreground: "#65758b"
   },
 
   // --- Component Variants
 
   card: {
     DEFAULT: "#ffffff",
-    foreground: "#0f1729",
+    foreground: "#0f1729"
   },
 
   popover: {
     DEFAULT: "#ffffff",
-    foreground: "#0f1729",
+    foreground: "#0f1729"
   },
 
   control: {
     DEFAULT: "#ffffff",
     foreground: "#000000",
     active: "#5E36E8",
-    error: "#EF4444",
-  },
+    error: "#EF4444"
+  }
 };
 
 // -----------------------------------------------------------------------------
@@ -223,7 +223,7 @@ export default {
   fontFamily: {
     sans: ["Inter", ...defaultTheme.fontFamily.sans].toString(),
     serif: ["Inter", ...defaultTheme.fontFamily.serif].toString(),
-    mono: ["Inconsolata", ...defaultTheme.fontFamily.mono].toString(),
+    mono: ["Inconsolata", ...defaultTheme.fontFamily.mono].toString()
   },
 
   fontSize: {
@@ -236,7 +236,7 @@ export default {
     "2xl": "1.5rem", // 24px
     "3xl": "1.875rem", // 30px
     "4xl": "2.25rem", // 36px
-    "5xl": "3rem", // 48px
+    "5xl": "3rem" // 48px
   },
 
   width: {
@@ -247,22 +247,22 @@ export default {
     "dropdown-md": "14rem",
     "dropdown-lg": "16rem",
     "dropdown-xl": "18rem",
-    "dropdown-2xl": "20rem",
+    "dropdown-2xl": "20rem"
   },
   leading: {
     none: 1,
     tight: 1.25,
     normal: 1.5,
-    loose: 2,
+    loose: 2
   },
   tracking: {
     tight: "-0.05em",
     normal: "0",
-    wide: "0.05em",
+    wide: "0.05em"
   },
   borderColor: {
     DEFAULT: colors.base[300],
-    input: colors.base[300],
+    input: colors.base[300]
   },
   borderRadius: {
     DEFAULT: ".5rem",
@@ -275,7 +275,7 @@ export default {
     full: "9999px", // 9999px,
     pill: "10em", // 9999px,
     button: ".25rem", // 4px,
-    box: ".5rem", // 8px,
+    box: ".5rem" // 8px,
   },
   shadows: {
     default: "0 2px 4px 0 rgba(0,0,0,0.10)",
@@ -283,10 +283,10 @@ export default {
     lg: "0 15px 30px 0 rgba(0,0,0,0.11), 0 5px 15px 0 rgba(0,0,0,0.08)",
     inner: "inset 0 2px 4px 0 rgba(0,0,0,0.06)",
     outline: "0 0 0 3px rgba(52,144,220,0.5)",
-    none: "none",
+    none: "none"
   },
   ringColor: {
-    DEFAULT: colors.control.active,
+    DEFAULT: colors.control.active
   },
   typography: ({ theme }: PluginUtils) => ({
     DEFAULT: {
@@ -296,24 +296,24 @@ export default {
         h1: {
           fontFamily: theme("fontFamily.display"),
           fontWeight: theme("fontWeight.light"),
-          fontSize: theme("fontSize.5xl"),
+          fontSize: theme("fontSize.5xl")
         },
         h2: {
-          fontFamily: theme("fontFamily.display"),
+          fontFamily: theme("fontFamily.display")
         },
         h3: {
-          fontFamily: theme("fontFamily.display"),
+          fontFamily: theme("fontFamily.display")
         },
         h4: {
-          fontFamily: theme("fontFamily.display"),
+          fontFamily: theme("fontFamily.display")
         },
         h5: {
-          fontFamily: theme("fontFamily.display"),
+          fontFamily: theme("fontFamily.display")
         },
         h6: {
-          fontFamily: theme("fontFamily.display"),
-        },
-      },
-    },
-  }),
+          fontFamily: theme("fontFamily.display")
+        }
+      }
+    }
+  })
 } satisfies Config;

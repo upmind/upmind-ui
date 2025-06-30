@@ -40,7 +40,7 @@ const items = computed(() => {
       value: option.value,
       label: option.label,
       index,
-      modelValue: control.value.data,
+      modelValue: control.value.data
     };
   });
 });
@@ -50,6 +50,6 @@ const items = computed(() => {
 import { isOneOfEnumControl, and, optionIs } from "@jsonforms/core";
 export const tester = {
   rank: 3,
-  controlType: and(isOneOfEnumControl, optionIs("format", "radio")),
+  controlType: and(isOneOfEnumControl, optionIs("format", "radio"))
 };
 </script>

@@ -11,7 +11,7 @@ export default {
       ),
       closeButton: cva(
         "group-data-[type=base]:!bg-base-muted group-data-[type=base]:hover:!bg-base-muted !transition-all !duration-300 group-data-[type=base]:!text-base-foreground"
-      ),
+      )
     },
 
     primary: {
@@ -23,7 +23,7 @@ export default {
       ),
       closeButton: cva(
         "group-data-[type=primary]:!bg-primary-muted group-data-[type=primary]:hover:!bg-primary-muted !transition-all !duration-300 group-data-[type=primary]:!border-primary-200 group-data-[type=primary]:!text-primary group-data-[type=primary]:hover:!border-primary-200"
-      ),
+      )
     },
 
     secondary: {
@@ -35,7 +35,7 @@ export default {
       ),
       closeButton: cva(
         "group-data-[type=secondary]:!bg-secondary-muted group-data-[type=secondary]:hover:!bg-secondary-muted !transition-all !duration-300 group-data-[type=secondary]:!border-secondary-200 group-data-[type=secondary]:!text-secondary group-data-[type=secondary]:hover:!border-secondary-200"
-      ),
+      )
     },
 
     accent: {
@@ -47,7 +47,7 @@ export default {
       ),
       closeButton: cva(
         "group-data-[type=accent]:!bg-accent-muted group-data-[type=accent]:hover:!bg-accent-muted !transition-all !duration-300 group-data-[type=accent]:!border-accent-200 group-data-[type=accent]:!text-accent group-data-[type=accent]:hover:!border-accent-200"
-      ),
+      )
     },
 
     success: {
@@ -59,7 +59,7 @@ export default {
       ),
       closeButton: cva(
         "group-data-[type=success]:!bg-success-muted group-data-[type=success]:hover:!bg-success-muted !transition-all !duration-300 group-data-[type=success]:!border-success-200 group-data-[type=success]:!text-success group-data-[type=success]:hover:!border-success-200"
-      ),
+      )
     },
 
     error: {
@@ -71,7 +71,7 @@ export default {
       ),
       closeButton: cva(
         "group-data-[type=error]:!bg-error-muted group-data-[type=error]:hover:!bg-error-muted !transition-all !duration-300 group-data-[type=error]:!border-error-200 group-data-[type=error]:!text-error group-data-[type=error]:hover:!border-error-200"
-      ),
+      )
     },
 
     warning: {
@@ -83,7 +83,7 @@ export default {
       ),
       closeButton: cva(
         "group-data-[type=warning]:!bg-warning-muted group-data-[type=warning]:hover:!bg-warning-muted !transition-all !duration-300 group-data-[type=warning]:!border-warning-200 group-data-[type=warning]:!text-warning group-data-[type=warning]:hover:!border-warning-200"
-      ),
+      )
     },
 
     info: {
@@ -95,7 +95,7 @@ export default {
       ),
       closeButton: cva(
         "group-data-[type=info]:!bg-info-muted group-data-[type=info]:hover:!bg-info-muted !transition-all !duration-300 group-data-[type=info]:!border-info-200 group-data-[type=info]:!text-info group-data-[type=info]:hover:!border-info-200"
-      ),
+      )
     },
 
     promotion: {
@@ -107,7 +107,7 @@ export default {
       ),
       closeButton: cva(
         "group-data-[type=promotion]:!bg-promotion-muted group-data-[type=promotion]:hover:!bg-promotion-muted !transition-all !duration-300 group-data-[type=promotion]:!border-promotion-200 group-data-[type=promotion]:!text-promotion group-data-[type=promotion]:hover:!border-promotion-200"
-      ),
+      )
     },
 
     destructive: {
@@ -119,7 +119,7 @@ export default {
       ),
       closeButton: cva(
         "group-data-[type=destructive]:!bg-destructive-muted group-data-[type=destructive]:hover:!bg-destructive-muted !transition-all !duration-300 group-data-[type=destructive]:!border-destructive-200 group-data-[type=destructive]:!text-destructive group-data-[type=destructive]:hover:!border-destructive-200"
-      ),
-    },
-  },
+      )
+    }
+  }
 };

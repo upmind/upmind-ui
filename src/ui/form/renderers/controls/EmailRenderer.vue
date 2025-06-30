@@ -34,6 +34,6 @@ const { control, formFieldProps, onInput, appliedOptions } =
 import { and, or, isStringControl, formatIs } from "@jsonforms/core";
 export const tester = {
   rank: 2,
-  controlType: and(isStringControl, or(formatIs("email"))),
+  controlType: and(isStringControl, or(formatIs("email")))
 };
 </script>

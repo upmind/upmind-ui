@@ -64,7 +64,7 @@ import {
   DropdownMenuItem,
   DropdownMenuPortal,
   DropdownMenuRoot,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from "radix-vue";
 
 // --- types
@@ -78,13 +78,13 @@ const emits = defineEmits(["update:modelValue"]);
 const open = ref(false);
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
-  defaultValue: props.defaultValue,
+  defaultValue: props.defaultValue
 });
 
 const selected = computed(() => find(props.items, { value: modelValue.value }));
 
 const meta = computed(() => ({
-  width: props.width,
+  width: props.width
 }));
 
 const styles = useStyles(

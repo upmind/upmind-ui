@@ -15,12 +15,12 @@ export const triggerVariants = cva(
         "2xl": "w-dropdown-2xl",
         full: "w-full",
         auto: "w-auto",
-        app: "w-app",
-      },
+        app: "w-app"
+      }
     },
     defaultVariants: {
-      width: "full",
-    },
+      width: "full"
+    }
   }
 );
 
@@ -46,12 +46,12 @@ export const itemVariants = cva(
         error:
           "data-[highlighted]:bg-error-background data-[highlighted]:text-error-foreground",
         warning:
-          "data-[highlighted]:bg-warning-background data-[highlighted]:text-warning-foreground",
-      },
+          "data-[highlighted]:bg-warning-background data-[highlighted]:text-warning-foreground"
+      }
     },
     defaultVariants: {
-      color: "base",
-    },
+      color: "base"
+    }
   }
 );
 
@@ -69,7 +69,7 @@ export const contentVariants = cva(
         success: "focus-within:ring-success",
         info: "focus-within:ring-info",
         error: "focus-within:ring-error",
-        warning: "focus-within:ring-warning",
+        warning: "focus-within:ring-warning"
       },
       width: {
         "2xs": "w-dropdown-2xs",
@@ -81,9 +81,9 @@ export const contentVariants = cva(
         "2xl": "w-dropdown-2xl",
         full: "w-full",
         auto: "w-auto",
-        app: "w-app",
-      },
-    },
+        app: "w-app"
+      }
+    }
   }
 );
 
@@ -95,6 +95,6 @@ export default {
     item: itemVariants,
     input: cva(
       "!rounded-none !border-b !border-l-0 !border-r-0 !border-t-0 !shadow-none !ring-0"
-    ),
-  },
+    )
+  }
 };

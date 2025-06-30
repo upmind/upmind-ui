@@ -8,7 +8,7 @@ export const itemVariants = cva(
       isList: {
         true: "hover:bg-control-active-focus my-0.5 border-0 shadow-none data-[state=checked]:ring-2 data-[state=checked]:ring-control-active",
         false:
-          "hover:border-control-strong rounded-lg border border-control shadow-sm",
+          "hover:border-control-strong rounded-lg border border-control shadow-sm"
       },
       width: {
         0: "",
@@ -23,13 +23,13 @@ export const itemVariants = cva(
         9: "col-span-12 md:col-span-9",
         10: "col-span-12 md:col-span-10",
         11: "col-span-12 md:col-span-11",
-        12: "col-span-12 md:col-span-12",
-      },
+        12: "col-span-12 md:col-span-12"
+      }
     },
     defaultVariants: {
       isList: false,
-      width: 12,
-    },
+      width: 12
+    }
   }
 );
 
@@ -37,12 +37,12 @@ export const rootVariants = cva(`w-full`, {
   variants: {
     isList: {
       true: "flex flex-col gap-1",
-      false: "grid grid-cols-12 gap-2 [&>*:only-child]:col-span-12",
-    },
+      false: "grid grid-cols-12 gap-2 [&>*:only-child]:col-span-12"
+    }
   },
   defaultVariants: {
-    isList: false,
-  },
+    isList: false
+  }
 });
 export default {
   radioCards: {
@@ -54,6 +54,6 @@ export default {
     ),
     input: cva(
       `group-hover:border-control-strong ml-4 mt-[0.1rem] border-control leading-normal ring-offset-2 [transition:border-color_200ms_ease-in-out] ${ringClasses}`
-    ),
-  },
+    )
+  }
 };

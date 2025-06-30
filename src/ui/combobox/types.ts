@@ -4,7 +4,7 @@ import type { CxOptions, VariantProps } from "class-variance-authority";
 import type {
   PopoverRootProps,
   PopoverContentProps,
-  PopoverTriggerProps,
+  PopoverTriggerProps
 } from "radix-vue";
 
 // --- internal

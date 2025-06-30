@@ -15,24 +15,24 @@ export const contentVariant = cva(
         "3xl": "max-w-3xl",
         "4xl": "max-w-4xl",
         app: "max-w-app",
-        full: "max-w-none",
+        full: "max-w-none"
       },
       overflow: {
         auto: "overflow-auto",
         hidden: "overflow-hidden",
         visible: "overflow-visible",
-        scroll: "overflow-scroll",
+        scroll: "overflow-scroll"
       },
       fit: {
         cover: "border-none p-0",
-        contain: "p-6 md:p-10",
-      },
+        contain: "p-6 md:p-10"
+      }
     },
     defaultVariants: {
       size: "app",
       overflow: "auto",
-      fit: "contain",
-    },
+      fit: "contain"
+    }
   }
 );
 
@@ -40,12 +40,12 @@ export const containerVariant = cva("", {
   variants: {
     fit: {
       cover: "",
-      contain: "grid gap-4 overflow-y-auto px-1 py-4",
-    },
+      contain: "grid gap-4 overflow-y-auto px-1 py-4"
+    }
   },
   defaultVariants: {
-    fit: "contain",
-  },
+    fit: "contain"
+  }
 });
 
 export const overlayVariant = cva("", {
@@ -55,17 +55,17 @@ export const overlayVariant = cva("", {
       light: "bg-base-foreground/20",
       primary: "bg-primary-950/90",
       secondary: "bg-secondary-950/90",
-      accent: "bg-accent-950/90",
+      accent: "bg-accent-950/90"
     },
     defaultVariants: {
-      skrim: "dark",
-    },
-  },
+      skrim: "dark"
+    }
+  }
 });
 
 export default {
   dialog: {
     content: contentVariant,
-    overlay: overlayVariant,
-  },
+    overlay: overlayVariant
+  }
 };

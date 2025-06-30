@@ -33,7 +33,7 @@ import { Check } from "lucide-vue-next";
 import {
   ToggleGroupItem,
   useForwardProps,
-  type ToggleGroupItemProps,
+  type ToggleGroupItemProps
 } from "radix-vue";
 
 import { computed, type HTMLAttributes } from "vue";

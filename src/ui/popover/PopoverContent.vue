@@ -6,12 +6,12 @@ import {
   type PopoverContentProps,
   type PopoverPortalProps,
   PopoverPortal,
-  useForwardPropsEmits,
+  useForwardPropsEmits
 } from "radix-vue";
 import { cn } from "../../utils";
 
 defineOptions({
-  inheritAttrs: false,
+  inheritAttrs: false
 });
 
 const props = withDefaults(
@@ -21,7 +21,7 @@ const props = withDefaults(
   >(),
   {
     align: "center",
-    sideOffset: 4,
+    sideOffset: 4
   }
 );
 const emits = defineEmits<PopoverContentEmits>();

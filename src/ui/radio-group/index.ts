@@ -6,5 +6,5 @@ export { default as RadioGroupItem } from "./RadioGroupItem.vue";
 export type {
   RadioGroupRootProps,
   RadioGroupItemProps,
-  PopoverContentProps,
+  PopoverContentProps
 } from "radix-vue";

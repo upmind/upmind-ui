@@ -3,7 +3,7 @@ import { type HTMLAttributes, computed } from "vue";
 import {
   AccordionItem,
   type AccordionItemProps,
-  useForwardProps,
+  useForwardProps
 } from "radix-vue";
 import { cn } from "../../utils";
 

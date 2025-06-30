@@ -53,7 +53,7 @@ const props = withDefaults(defineProps<SelectProps>(), {
   width: "full",
   // --- styles
   uiConfig: () => ({ select: [] }),
-  class: "",
+  class: ""
 });
 
 const emits = defineEmits<SelectRootEmits & SelectContentEmits>();
@@ -61,7 +61,7 @@ const forwarded = useForwardPropsEmits(props, emits);
 
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
-  defaultValue: props.defaultValue,
+  defaultValue: props.defaultValue
 });
 
 // --- This is needed as if we have changed items AFTER model is set then ...
@@ -71,7 +71,7 @@ const uid = ref(timestamp());
 const meta = computed(() => ({
   size: props.size,
   width: props.width,
-  hasValue: !!props.modelValue,
+  hasValue: !!props.modelValue
 }));
 
 const styles = useStyles(

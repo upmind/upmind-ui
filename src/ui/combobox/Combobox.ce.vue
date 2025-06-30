@@ -151,7 +151,7 @@ import {
   CommandGroup,
   CommandItem,
   CommandList,
-  CommandInput,
+  CommandInput
 } from "../command";
 
 // --- utils
@@ -167,7 +167,7 @@ import {
   isFunction,
   isString,
   reject,
-  has,
+  has
 } from "lodash-es";
 
 // --- types
@@ -200,7 +200,7 @@ const props = withDefaults(defineProps<ComboboxProps>(), {
   // --- styles
   uiConfig: () => ({ combobox: [] }),
   class: "",
-  popoverClass: "",
+  popoverClass: ""
 });
 
 const emits = defineEmits(["update:modelValue"]);
@@ -210,7 +210,7 @@ const meta = computed(() => ({
   size: props.size,
   width: props.width,
   hasAvatar: props.avatar || has(modelValue.value, "avatar"),
-  hasIcon: props.icon || has(modelValue.value, "icon"),
+  hasIcon: props.icon || has(modelValue.value, "icon")
 }));
 
 const open = ref(false);
@@ -287,7 +287,7 @@ const results = ref(props.items ?? []) as Ref<ComboboxItemProps[]>;
 function doSelect(item: string) {
   const selected: ComboboxItemProps = find(props.items, [
     itemValue.value,
-    item,
+    item
   ]) as ComboboxItemProps;
 
   const value = get(selected, itemValue.value);

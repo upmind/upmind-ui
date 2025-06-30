@@ -5,7 +5,7 @@ import {
   DialogPortal,
   useForwardPropsEmits,
   type DialogContentEmits,
-  type DialogContentProps,
+  type DialogContentProps
 } from "radix-vue";
 
 import DialogClose from "./DialogClose.vue";

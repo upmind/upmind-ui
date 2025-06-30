@@ -3,7 +3,7 @@ import { type HTMLAttributes, computed } from "vue";
 import {
   DialogDescription,
   type DialogDescriptionProps,
-  useForwardProps,
+  useForwardProps
 } from "radix-vue";
 import { cn } from "../../utils";
 

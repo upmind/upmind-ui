@@ -8,9 +8,9 @@ export const formVariants = cva("", {
       sm: "",
       md: "",
       lg: "",
-      xl: "",
-    },
-  },
+      xl: ""
+    }
+  }
 });
 
 export default {
@@ -20,33 +20,33 @@ export default {
     content: cva("transition-opacity duration-300", {
       variants: {
         disabled: {
-          true: "cursor-not-allowed",
+          true: "cursor-not-allowed"
         },
         processing: {
-          true: "cursor-wait duration-0",
+          true: "cursor-wait duration-0"
         },
         loading: {
-          true: "invisible opacity-0 duration-0",
-        },
+          true: "invisible opacity-0 duration-0"
+        }
       },
       defaultVariants: {
         disabled: false,
         processing: false,
-        loading: false,
-      },
+        loading: false
+      }
     }),
     actions: cva("flex w-full flex-wrap gap-2 transition-all duration-300", {
       variants: {
         disabled: {
-          true: "cursor-not-allowed",
+          true: "cursor-not-allowed"
         },
         processing: {
-          true: "cursor-wait",
+          true: "cursor-wait"
         },
         loading: {
-          true: "invisible opacity-0 duration-0",
-        },
-      },
-    }),
-  },
+          true: "invisible opacity-0 duration-0"
+        }
+      }
+    })
+  }
 };

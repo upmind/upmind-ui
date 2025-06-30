@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 import {
   ringClasses,
   groupRingClasses,
-  invalidRingClasses,
+  invalidRingClasses
 } from "../../assets/styles";
 
 export const checkboxLabelVariants = cva(
@@ -11,13 +11,13 @@ export const checkboxLabelVariants = cva(
     variants: {
       isList: {
         true: "",
-        false: "pr-4",
+        false: "pr-4"
       },
       cursor: {
         pointer: "cursor-pointer",
-        default: "cursor-text select-text",
-      },
-    },
+        default: "cursor-text select-text"
+      }
+    }
   }
 );
 
@@ -30,9 +30,9 @@ export default {
         variants: {
           isList: {
             true: "border-b last:border-b-0",
-            false: `hover:border-control-strong rounded-md border border-control bg-control shadow-sm ${ringClasses} ${invalidRingClasses}`,
-          },
-        },
+            false: `hover:border-control-strong rounded-md border border-control bg-control shadow-sm ${ringClasses} ${invalidRingClasses}`
+          }
+        }
       }
     ),
     label: checkboxLabelVariants,
@@ -42,10 +42,10 @@ export default {
         variants: {
           isList: {
             true: "!pl-0",
-            false: "",
-          },
-        },
+            false: ""
+          }
+        }
       }
-    ),
-  },
+    )
+  }
 };

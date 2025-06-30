@@ -36,6 +36,6 @@ export const tester = {
       formatIs("hidden"),
       schemaMatches(schema => has(schema, "const"))
     )
-  ),
+  )
 };
 </script>

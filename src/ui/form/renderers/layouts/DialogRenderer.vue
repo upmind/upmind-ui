@@ -18,7 +18,7 @@
 import {
   DispatchRenderer,
   rendererProps,
-  useJsonFormsLayout,
+  useJsonFormsLayout
 } from "@jsonforms/vue";
 
 // --- components
@@ -30,7 +30,7 @@ import type { Layout } from "@jsonforms/core";
 // -------------------------------------------------------------------
 
 const props = defineProps({
-  ...rendererProps<Layout>(),
+  ...rendererProps<Layout>()
 });
 
 const { layout } = useJsonFormsLayout(props);
@@ -40,6 +40,6 @@ const { layout } = useJsonFormsLayout(props);
 import { uiTypeIs } from "@jsonforms/core";
 export const tester = {
   rank: 2,
-  controlType: uiTypeIs("Dialog"),
+  controlType: uiTypeIs("Dialog")
 };
 </script>

@@ -4,7 +4,7 @@ import {
   DropdownMenuSubContent,
   type DropdownMenuSubContentEmits,
   type DropdownMenuSubContentProps,
-  useForwardPropsEmits,
+  useForwardPropsEmits
 } from "radix-vue";
 import { cn } from "../../utils";
 

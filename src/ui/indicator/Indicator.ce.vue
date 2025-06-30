@@ -23,7 +23,7 @@ import { computed } from "vue";
 // --- internal
 import {
   useStyles,
-  cn,
+  cn
   //stylesheet
 } from "../../utils";
 import config from "./indicator.config";
@@ -49,7 +49,7 @@ const props = withDefaults(defineProps<IndicatorProps>(), {
   size: "full",
   // --- styles
   uiConfig: () => ({ indicator: [] }),
-  class: "",
+  class: ""
 });
 
 const meta = computed(() => ({
@@ -58,7 +58,7 @@ const meta = computed(() => ({
   size: props.size,
   // ---
   hasIcon: !isEmpty(props.icon),
-  hasValue: !isEmpty(props.modelValue),
+  hasValue: !isEmpty(props.modelValue)
 }));
 
 const styles = useStyles(

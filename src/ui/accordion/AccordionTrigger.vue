@@ -3,7 +3,7 @@ import { type HTMLAttributes, computed } from "vue";
 import {
   AccordionHeader,
   AccordionTrigger,
-  type AccordionTriggerProps,
+  type AccordionTriggerProps
 } from "radix-vue";
 import { ChevronDown } from "lucide-vue-next";
 import { cn } from "../../utils";

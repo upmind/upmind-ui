@@ -7,5 +7,5 @@ export default {
   selectors: ['[data-theme="light"]'],
   mediaQuery: "@media (prefers-color-scheme: light)",
   extend: theme,
-  uiConfig,
+  uiConfig
 };

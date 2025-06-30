@@ -58,7 +58,7 @@ const tabElements = computed((): TabElement[] => {
   return layout.value.uischema.elements.map((element: UISchemaElement) => {
     return {
       label: get(element, "label") ?? "",
-      elements: [element],
+      elements: [element]
     };
   });
 });
@@ -66,7 +66,7 @@ const tabElements = computed((): TabElement[] => {
 const tabItems = computed((): TabItem[] => {
   return tabElements.value.map((tab: TabElement, index: number) => ({
     value: String(index),
-    label: tab.label,
+    label: tab.label
   }));
 });
 
@@ -80,6 +80,6 @@ import { isLayout, uiTypeIs, and } from "@jsonforms/core";
 
 export const tester = {
   rank: 2,
-  controlType: and(isLayout, uiTypeIs("Tabs")),
+  controlType: and(isLayout, uiTypeIs("Tabs"))
 };
 </script>

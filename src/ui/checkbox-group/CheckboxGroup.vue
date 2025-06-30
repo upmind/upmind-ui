@@ -6,7 +6,7 @@ import {
   ListboxGroup,
   type ListboxRootEmits,
   type ListboxRootProps,
-  useForwardPropsEmits,
+  useForwardPropsEmits
 } from "radix-vue";
 
 import { computed, type HTMLAttributes } from "vue";

@@ -95,7 +95,7 @@ import {
   FormNotRequiredIndicator,
   FormControl,
   FormDescription,
-  FormMessage,
+  FormMessage
 } from ".";
 import { Tooltip } from "../tooltip";
 import { Icon } from "../icon";
@@ -128,9 +128,9 @@ const props = withDefaults(defineProps<FormControlProps>(), {
       root: [],
       loading: [],
       content: [],
-      actions: [],
-    },
-  }),
+      actions: []
+    }
+  })
 });
 
 const slots = useSlots();
@@ -172,7 +172,7 @@ const meta = computed(
     hasFeedback:
       (isEmpty(props.errors) && !isEmpty(props.description)) ||
       !isEmpty(props.errors),
-    shouldFocus: !!props.autoFocus,
+    shouldFocus: !!props.autoFocus
   })
 );
 

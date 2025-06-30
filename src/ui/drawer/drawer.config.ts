@@ -13,12 +13,12 @@ export const containerVariant = cva("mx-auto w-full", {
       "3xl": "max-w-3xl",
       "4xl": "max-w-4xl",
       app: "max-w-app",
-      full: "max-w-none",
-    },
+      full: "max-w-none"
+    }
   },
   defaultVariants: {
-    width: "app",
-  },
+    width: "app"
+  }
 });
 
 export const innerVariant = cva("mx-auto max-h-[75vh] w-full", {
@@ -33,24 +33,24 @@ export const innerVariant = cva("mx-auto max-h-[75vh] w-full", {
       "3xl": "",
       "4xl": "",
       app: "",
-      full: "",
+      full: ""
     },
     overflow: {
       auto: "overflow-auto",
       hidden: "overflow-hidden",
       visible: "overflow-visible",
-      scroll: "overflow-scroll",
+      scroll: "overflow-scroll"
     },
     fit: {
       cover: "p-0",
-      contain: "py-6",
-    },
+      contain: "py-6"
+    }
   },
   defaultVariants: {
     width: "app",
     overflow: "auto",
-    fit: "contain",
-  },
+    fit: "contain"
+  }
 });
 
 export const overlayVariant = cva("", {
@@ -60,12 +60,12 @@ export const overlayVariant = cva("", {
       light: "bg-base-foreground/20",
       primary: "bg-primary-950/90",
       secondary: "bg-secondary-950/90",
-      accent: "bg-accent-950/90",
+      accent: "bg-accent-950/90"
     },
     defaultVariants: {
-      skrim: "dark",
-    },
-  },
+      skrim: "dark"
+    }
+  }
 });
 
 export default {
@@ -75,6 +75,6 @@ export default {
     content: cva("w-full"),
     inner: innerVariant,
     header: "",
-    footer: "",
-  },
+    footer: ""
+  }
 };

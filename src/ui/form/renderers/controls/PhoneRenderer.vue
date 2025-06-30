@@ -50,7 +50,7 @@ import {
   getExampleNumber,
   validatePhoneNumberLength,
   parsePhoneNumberWithError,
-  ParseError,
+  ParseError
 } from "libphonenumber-js";
 
 // --- internal
@@ -85,7 +85,7 @@ const countryItems = computed(() => {
       selectedLabel: `+${country.phone.join(", +")}`,
       tag: `+${country.phone.join(", +")}`,
       value: countryCode?.toUpperCase(),
-      selected: countryCode === phone.value?.country,
+      selected: countryCode === phone.value?.country
     };
   }) as ComboboxItemProps[];
 });
@@ -145,7 +145,7 @@ function parsePhone(
       number: parsed.number,
       nationalNumber: parsed.nationalNumber,
       countryCallingCode: parsed.countryCallingCode,
-      country: code,
+      country: code
     };
   }
 
@@ -182,11 +182,11 @@ const errors = computed(() => {
   if (control?.value?.errors) {
     try {
       parsePhoneNumberWithError(phone.value.number, {
-        defaultCountry: phone?.value?.country,
+        defaultCountry: phone?.value?.country
       });
       return (
         validatePhoneNumberLength(phone.value.number, {
-          defaultCountry: phone.value.country,
+          defaultCountry: phone.value.country
         }) || "NOT_A_NUMBER"
       );
     } catch (error) {
@@ -215,7 +215,7 @@ import {
   isStringControl,
   isObjectControl,
   schemaMatches,
-  or,
+  or
 } from "@jsonforms/core";
 
 export const tester = {
@@ -226,6 +226,6 @@ export const tester = {
       schema =>
         "phone_country_code" in schema && !!(schema as any).phone_country_code
     )
-  ),
+  )
 };
 </script>

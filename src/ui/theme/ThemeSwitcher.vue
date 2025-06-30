@@ -27,7 +27,7 @@ const items = computed<DropdownMenuItemProps[]>(() =>
   map(themes.value, theme => ({
     label: theme.label,
     value: theme.value,
-    handler: theme.handler,
+    handler: theme.handler
   }))
 );
 </script>

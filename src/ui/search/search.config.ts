@@ -12,6 +12,6 @@ export default {
     divider: cva("mx-3 h-[1px] border-t"),
     item: cva(
       "text-emphasis-medium hover:text-emphasis-none cursor-pointer rounded-lg px-3 py-2 text-sm hover:bg-control-active hover:text-white"
-    ),
-  },
+    )
+  }
 };

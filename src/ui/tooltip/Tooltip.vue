@@ -3,7 +3,7 @@ import {
   TooltipRoot,
   type TooltipRootEmits,
   type TooltipRootProps,
-  useForwardPropsEmits,
+  useForwardPropsEmits
 } from "radix-vue";
 
 const props = defineProps<TooltipRootProps>();

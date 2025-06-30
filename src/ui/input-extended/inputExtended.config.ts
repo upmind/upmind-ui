@@ -14,23 +14,23 @@ export const inputContainerVariants = cva(
     variants: {
       width: {
         auto: "w-auto min-w-[3.75rem]",
-        full: "w-full",
+        full: "w-full"
       },
       inputSize: {
         sm: "px-3 py-2 text-sm",
         md: "px-3 py-2 text-md md:text-lg",
         lg: "px-4 py-3 text-md md:text-xl",
-        xl: "px-5 py-4 text-xl md:text-xl",
-      },
+        xl: "px-5 py-4 text-xl md:text-xl"
+      }
     },
     defaultVariants: {
       inputSize: "md",
-      width: "full",
-    },
+      width: "full"
+    }
   }
 );
 
 // -----------------------------------------------------------------------------
 export default {
-  container: inputContainerVariants,
+  container: inputContainerVariants
 };

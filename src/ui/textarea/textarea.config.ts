@@ -9,16 +9,16 @@ export const textareaVariants = cva(
       size: {
         sm: "min-h-16 px-3 py-2 text-sm",
         md: "min-h-20 px-3 py-2 text-md",
-        lg: "min-h-24 px-3 py-2 text-lg",
-      },
+        lg: "min-h-24 px-3 py-2 text-lg"
+      }
     },
     defaultVariants: {
-      size: "md",
-    },
+      size: "md"
+    }
   }
 );
 
 // -----------------------------------------------------------------------------
 export default {
-  textarea: textareaVariants,
+  textarea: textareaVariants
 };

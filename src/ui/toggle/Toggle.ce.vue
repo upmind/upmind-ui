@@ -31,7 +31,7 @@ import type { ToggleProps } from "./types";
 
 const props = withDefaults(defineProps<ToggleProps>(), {
   uiConfig: () => ({ input: [] }),
-  class: "",
+  class: ""
 });
 
 const emits = defineEmits<{
@@ -44,12 +44,12 @@ const delegatedProps = computed(() =>
 
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
-  defaultValue: props.defaultValue,
+  defaultValue: props.defaultValue
 });
 
 const meta = computed(() => ({
   variant: props.variant,
-  size: props.size,
+  size: props.size
 }));
 
 const styles = useStyles(

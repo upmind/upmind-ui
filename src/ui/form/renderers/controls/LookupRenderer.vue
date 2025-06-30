@@ -50,6 +50,6 @@ export const tester = {
     uiTypeIs("Control"),
     schemaMatches(schema => has(schema, "lookup"))
     // schemaMatches(schema => isFunction(get(schema, "lookup.search")))
-  ),
+  )
 };
 </script>

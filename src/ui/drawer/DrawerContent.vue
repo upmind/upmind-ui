@@ -3,7 +3,7 @@ import { DrawerContent, DrawerPortal } from "vaul-vue";
 import type {
   DialogContentEmits,
   DialogContentProps,
-  DialogPortalProps,
+  DialogPortalProps
 } from "radix-vue";
 import { useForwardPropsEmits } from "radix-vue";
 import type { HTMLAttributes } from "vue";
