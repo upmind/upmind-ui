@@ -91,7 +91,7 @@ const emit = defineEmits<{
 }>();
 
 const props = withDefaults(defineProps<DomainCardProps>(), {
-  color: "base",
+  color: "base"
 });
 
 // ---
@@ -105,7 +105,7 @@ const domain = computed<DomainProduct>(
 const meta = computed(() => ({
   isDisabled: props.meta.disabled,
   isProcessing: props.processing,
-  isAvailable: props.meta.available,
+  isAvailable: props.meta.available
 }));
 
 const styles = useStyles(
@@ -136,22 +136,22 @@ const getContent = computed(() => {
   if (props.meta.owned) {
     return {
       icon: "lock",
-      label: t("domain.card.owned.label"),
+      label: t("domain.card.owned.label")
     };
   } else if (props.meta.added) {
     return {
       icon: "check-circle-solid",
-      label: t("domain.card.basket.label"),
+      label: t("domain.card.basket.label")
     };
   } else if (props.meta.available) {
     return {
       icon: "check-circle",
-      label: t("domain.card.available.label"),
+      label: t("domain.card.available.label")
     };
   } else {
     return {
       icon: "transfer",
-      label: t("domain.card.transfer.label"),
+      label: t("domain.card.transfer.label")
     };
   }
 });

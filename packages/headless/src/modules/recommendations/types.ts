@@ -5,14 +5,14 @@ import type {
   IProduct,
   IBasketProduct,
   ICurrency,
-  IPromotion,
+  IPromotion
 } from "@upmind-automation/types";
 import type { BasketProduct } from "../basketProduct";
 import type {
   ProductModel,
   ProductProps,
   IProductConfig,
-  Product,
+  Product
 } from "../product";
 import type { ResponseError } from "../../utils";
 

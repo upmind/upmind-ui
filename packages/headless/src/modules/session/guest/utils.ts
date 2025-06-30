@@ -6,7 +6,7 @@ import { useSystem } from "../../system";
 import {
   useFieldsModelParser,
   useFieldsSchemaParser,
-  useFieldsUischemaParser,
+  useFieldsUischemaParser
 } from "../../../utils";
 import { get, remove } from "lodash-es";
 
@@ -16,7 +16,7 @@ import type {
   GuestContext,
   RecoverModel,
   RegisterModel,
-  TWOFAModel,
+  TWOFAModel
 } from "./types";
 import { BrandConfigKeys } from "@upmind-automation/types";
 
@@ -38,22 +38,22 @@ export const useRegisterSchemaParser = (data: any) => {
     properties: {
       firstname: {
         type: "string",
-        title: "Your first name",
+        title: "Your first name"
       },
       lastname: {
         type: "string",
-        title: "Your last name",
+        title: "Your last name"
       },
       username: {
         type: "string",
         title: "Your email address",
-        format: "email",
+        format: "email"
       },
       password: {
         type: "string",
         title: "Your password",
         minLength: 8,
-        format: "password",
+        format: "password"
       },
       phone: {
         type: ["object", "null"],
@@ -62,24 +62,24 @@ export const useRegisterSchemaParser = (data: any) => {
         properties: {
           number: {
             type: ["string", "null"],
-            title: "Phone number ( with dialing code )",
+            title: "Phone number ( with dialing code )"
           },
           country: {
             type: ["string", "null"],
-            title: "Country",
+            title: "Country"
           },
           nationalNumber: {
             type: ["string", "null"],
-            title: "Phone number",
+            title: "Phone number"
           },
           countryCallingCode: {
             type: ["string", "null"],
-            title: "Country calling code",
-          },
-        },
+            title: "Country calling code"
+          }
+        }
       },
-      customFields: useFieldsSchemaParser(data, "auth"),
-    },
+      customFields: useFieldsSchemaParser(data, "auth")
+    }
   };
 
   if (phoneRequired) {
@@ -106,8 +106,8 @@ export const useRegisterUischemaParser = (data: any) => {
         options: {
           autoFocus: true,
           autocomplete: "given-name",
-          placeholder: "Jay,Jane,John,... ",
-        },
+          placeholder: "Jay,Jane,John,... "
+        }
       },
       {
         type: "Control",
@@ -115,8 +115,8 @@ export const useRegisterUischemaParser = (data: any) => {
         i18n: "auth.register.lastname",
         options: {
           autocomplete: "family-name",
-          placeholder: "Doe, Smith, ...",
-        },
+          placeholder: "Doe, Smith, ..."
+        }
       },
       {
         type: "Control",
@@ -126,8 +126,8 @@ export const useRegisterUischemaParser = (data: any) => {
           type: "email",
           format: "email",
           autocomplete: "email",
-          placeholder: "name@email.com",
-        },
+          placeholder: "name@email.com"
+        }
       },
       {
         type: "Control",
@@ -136,8 +136,8 @@ export const useRegisterUischemaParser = (data: any) => {
         options: {
           type: "password",
           autocomplete: "current-password",
-          placeholder: "Use a strong password or passphrase",
-        },
+          placeholder: "Use a strong password or passphrase"
+        }
       },
       {
         type: "Control",
@@ -149,11 +149,11 @@ export const useRegisterUischemaParser = (data: any) => {
           itemLabel: "number",
           itemValue: "number",
           align: "start",
-          side: "bottom",
-        },
+          side: "bottom"
+        }
       },
-      ...useFieldsUischemaParser(data),
-    ],
+      ...useFieldsUischemaParser(data)
+    ]
   };
 
   if (!phoneRequired) {
@@ -173,7 +173,7 @@ export const useRegisterModelParser = (
     username: model?.username,
     password: model?.password,
     phone: model?.phone,
-    customFields: useFieldsModelParser(customfields),
+    customFields: useFieldsModelParser(customfields)
   };
 };
 
@@ -185,15 +185,15 @@ export const useLoginSchemaParser = () => {
     properties: {
       username: {
         type: "string",
-        title: "Your username or email address",
+        title: "Your username or email address"
         // format: "email", // DEPRECATED as we can log in with email OR username
       },
       password: {
         type: "string",
         format: "password",
-        title: "Your password",
-      },
-    },
+        title: "Your password"
+      }
+    }
   };
 };
 
@@ -208,8 +208,8 @@ export const useLoginUischemaParser = () => {
         options: {
           autoFocus: true,
           autocomplete: "email",
-          placeholder: "name@email.com",
-        },
+          placeholder: "name@email.com"
+        }
       },
       {
         type: "Control",
@@ -217,17 +217,17 @@ export const useLoginUischemaParser = () => {
         i18n: "auth.login.password",
         options: {
           autocomplete: "current-password",
-          placeholder: "password or passphrase",
-        },
-      },
-    ],
+          placeholder: "password or passphrase"
+        }
+      }
+    ]
   };
 };
 
 export const useLoginModelParser = (model: LoginModel): LoginModel => {
   return {
     username: model?.username,
-    password: model?.password,
+    password: model?.password
   };
 };
 
@@ -240,9 +240,9 @@ export const use2faSchemaParser = () => {
       token: {
         type: ["string", "null"],
         pattern: "\\d{6}",
-        title: "Your 2fa code",
-      },
-    },
+        title: "Your 2fa code"
+      }
+    }
   };
 };
 
@@ -256,17 +256,17 @@ export const use2faUischemaParser = () => {
         options: {
           autoFocus: true,
           autocomplete: "off",
-          placeholder: "123 456",
+          placeholder: "123 456"
           // mask: "### ###"
-        },
-      },
-    ],
+        }
+      }
+    ]
   };
 };
 
 export const use2faModelParser = (model: TWOFAModel): TWOFAModel => {
   return {
-    token: model?.token,
+    token: model?.token
   };
 };
 
@@ -278,9 +278,9 @@ export const useRecoverSchemaParser = () => {
     properties: {
       username: {
         type: "string",
-        title: "Your username or email address",
-      },
-    },
+        title: "Your username or email address"
+      }
+    }
   };
 };
 
@@ -295,15 +295,15 @@ export const useRecoverUischemaParser = () => {
         options: {
           autoFocus: true,
           autocomplete: "email",
-          placeholder: "name@email.com",
-        },
-      },
-    ],
+          placeholder: "name@email.com"
+        }
+      }
+    ]
   };
 };
 
 export const useRecoverModelParser = (model: RecoverModel): RecoverModel => {
   return {
-    username: model?.username,
+    username: model?.username
   };
 };

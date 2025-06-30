@@ -1,12 +1,13 @@
 <template>
   <Carousel
+    v-resize-observer="setActive"
     :key="`recommendations-active-${active}`"
     @init-api="setApi"
     class="embla relative"
     :opts="{
       loop: false,
       align: 'center',
-      dragFree: true,
+      dragFree: true
     }"
   >
     <div v-if="active" :class="styles.recommendation.carousel.navigation">
@@ -42,8 +43,9 @@
 
 <script lang="ts" setup>
 // --- external
-import { nextTick, ref, watch } from "vue";
+import { nextTick, ref, watch, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
+import { vResizeObserver } from "@vueuse/components";
 
 // --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
@@ -55,15 +57,14 @@ import {
   CarouselContent,
   CarouselItem,
   CarouselNext,
-  CarouselPrevious,
-  Button,
+  CarouselPrevious
 } from "@upmind-automation/upmind-ui";
 
 import RecommendationCard from "./Card.vue";
 import RecommendationCardSkeleton from "./CardSkeleton.vue";
 
 //--- utils
-import { forEach } from "lodash-es";
+import { forEach, set } from "lodash-es";
 
 // --- types
 import type { CarouselApi } from "@upmind-automation/upmind-ui";

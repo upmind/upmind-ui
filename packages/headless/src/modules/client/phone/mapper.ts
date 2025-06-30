@@ -27,15 +27,15 @@ export function mapPhone(raw: IPhone): Phone {
       number: phone?.number ?? "",
       country: phone?.country ?? "",
       nationalNumber: phone?.nationalNumber ?? "",
-      countryCallingCode: phone?.countryCallingCode ?? "",
+      countryCallingCode: phone?.countryCallingCode ?? ""
     },
     type: raw.type,
     // ---
     meta: {
       isDefault: !!raw.default,
       canDelete: raw.can_delete,
-      isVerified: !!raw.verified,
-    },
+      isVerified: !!raw.verified
+    }
   };
 }
 
@@ -43,6 +43,6 @@ export function mapIPhone(data: PhoneModel): IPhone {
   return {
     phone: data.phone.nationalNumber, // without the country code
     phone_code: `+${data.phone.countryCallingCode}`,
-    phone_country_code: data.phone.country,
+    phone_country_code: data.phone.country
   } as IPhone;
 }

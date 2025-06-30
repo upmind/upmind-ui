@@ -12,10 +12,10 @@
             href: storefrontUrl,
             appendIcon: {
               icon: 'arrow-right',
-              size: '2xs',
+              size: '2xs'
             },
-            label: t('session.end.actions.continue'),
-          },
+            label: t('session.end.actions.continue')
+          }
         ]"
       >
         <template #title>
@@ -36,7 +36,7 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 import {
   useRoutingEngine,
   useSession,
-  ROUTE,
+  ROUTE
 } from "@upmind-automation/headless";
 
 // -- components
@@ -68,7 +68,7 @@ const props = withDefaults(defineProps<InterstitialProps>(), {
     trigger: "loop",
     primaryColor: "base-foreground",
     secondaryColor: "tertiary",
-    size: "4xl",
-  }),
+    size: "4xl"
+  })
 });
 </script>

@@ -10,7 +10,7 @@ import {
   responseCodes,
   useCollection,
   useModelParser,
-  NotAuthenticatedError,
+  NotAuthenticatedError
 } from "../../../utils";
 import { invalidateQueryByKey } from "../../query";
 import { mapEmail, mapEmails, mapIEmail } from "./mappers";
@@ -46,7 +46,7 @@ async function load() {
       }),
     // --- options
     select: mapEmails,
-    staleTime: useTime().DAY,
+    staleTime: useTime().DAY
   });
 }
 
@@ -69,24 +69,24 @@ function loadList(params?: Partial<QueryParams>) {
       }),
     // --- options
     select: mapEmails,
-    staleTime: useTime().DAY,
+    staleTime: useTime().DAY
   });
 }
 
 async function loadLookups({
   model,
-  schema,
+  schema
 }: EmailContext): Promise<EmailContext> {
   // we don't have any lookups for emails, so return null
   const baseModel: EmailModel = {
-    email: "",
+    email: ""
   };
 
   const safeModel = useModelParser<EmailModel>(schema, model, baseModel);
 
   return Promise.resolve({
     model: safeModel,
-    baseModel: safeModel,
+    baseModel: safeModel
   } as EmailContext);
 }
 
@@ -103,7 +103,7 @@ async function add(data: EmailModel) {
   return post<IEmail>({
     url: useUrl(`clients/${user.value?.id}/emails`),
     data: mapIEmail(data),
-    withAccessToken: true,
+    withAccessToken: true
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
@@ -118,11 +118,11 @@ async function update(id: Email["id"], data: EmailModel) {
   return put<IEmail>({
     url: useUrl(`clients/${user.value?.id}/emails/${id}`),
     data: mapIEmail(data),
-    withAccessToken: true,
+    withAccessToken: true
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
-async function ensure(model: EmailModel): Promise<EmailModel> {
+async function ensure(model: EmailModel): Promise<Email> {
   const mapping = omitBy(model, isEmpty);
   const emails = await load();
   const { findOne } = useCollection<Email>(emails);
@@ -132,9 +132,10 @@ async function ensure(model: EmailModel): Promise<EmailModel> {
   return add(model).then(raw => {
     if (isEmpty(raw))
       throw new DetailedError(
-        "[headless] Failed to ensure (add) email",
-        responseCodes.No_Content,
-        ErrorOrigin.Headless
+        "[headless] Failed to ensure email",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless,
+        { model }
       );
     // NB: Remember to refresh our machines so we have the new data
     // refresh();
@@ -162,14 +163,14 @@ function remove(emailId: Email["id"]) {
           ? error
           : error?.title || "We experienced an error removing this email",
         copy: error?.message,
-        data: error?.data,
+        data: error?.data
       });
     },
     onSuccess(data) {
       invalidateQueryByKey(queryKey, { exact: false })(data);
       addSuccess("Successfully removed email");
     },
-    withAccessToken: true,
+    withAccessToken: true
   });
 }
 
@@ -195,14 +196,14 @@ function setDefault(emailId: Email["id"]) {
           : error?.title ||
             "We experienced an error setting this email as default",
         copy: error?.message,
-        data: error?.data,
+        data: error?.data
       });
     },
     onSuccess(data) {
       invalidateQueryByKey(queryKey, { exact: false })(data);
       addSuccess("Successfully set email as default");
     },
-    withAccessToken: true,
+    withAccessToken: true
   });
 }
 
@@ -272,7 +273,7 @@ export default {
    * @param {Email["id"]} emailId - The ID of the email to set as default.
    * @returns {Promise<IEmail>} A promise that resolves to the updated email
    */
-  setDefault,
+  setDefault
 };
 
 export const useClientEmailServices = () => {
@@ -361,6 +362,6 @@ export const useClientEmailServices = () => {
      * @param {Partial<EmailContext>} param0 - The email context containing schema and model.
      * @returns {Promise<any>} The validated model.
      */
-    validate,
+    validate
   };
 };

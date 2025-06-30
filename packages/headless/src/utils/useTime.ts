@@ -28,7 +28,7 @@ export function useTime() {
     },
     get YEAR() {
       return 365 * this.DAY;
-    },
+    }
   };
 }
 

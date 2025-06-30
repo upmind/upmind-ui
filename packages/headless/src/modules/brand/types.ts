@@ -2,7 +2,7 @@
 import type {
   BrandConfigKeys,
   OrgFeatureKeys,
-  IBrandSettings,
+  IBrandSettings
 } from "@upmind-automation/types";
 import type { ResponseError } from "../../utils";
 

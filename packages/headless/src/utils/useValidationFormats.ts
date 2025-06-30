@@ -15,7 +15,7 @@ export const domainNameFormat: NamedFormatDefinition<string> = {
     return /^(?!-)[A-Za-z0-9-]+([-.]{1}[a-z0-9]+)*\.[A-Za-z]{2,6}$/.test(data);
     // Original regex (slighly modified for use)
     // return /^(((?!-))(xn--|_)?[a-z0-9-]{0,61}[a-z0-9]{1,1}\.)*(xn--)?([a-z0-9][a-z0-9\-]{0,60}|[a-z0-9-]{1,30}\.[a-z]{2,})$/.test(data);
-  },
+  }
 };
 
 export const alphaFormat: NamedFormatDefinition<string> = {
@@ -25,7 +25,7 @@ export const alphaFormat: NamedFormatDefinition<string> = {
     if (isNil(data)) return true;
     if (!isString(data)) return false;
     return /^[a-zA-Z]+$/.test(data);
-  },
+  }
 };
 export const alphaDashFormat: NamedFormatDefinition<string> = {
   name: "alpha-dash",
@@ -34,7 +34,7 @@ export const alphaDashFormat: NamedFormatDefinition<string> = {
     if (isNil(data)) return true;
     if (!isString(data)) return false;
     return /^[a-zA-Z0-9_-]+$/.test(data);
-  },
+  }
 };
 
 export const alphaNumericFormat: NamedFormatDefinition<string> = {
@@ -44,5 +44,5 @@ export const alphaNumericFormat: NamedFormatDefinition<string> = {
     if (isNil(data)) return true;
     if (!isString(data)) return false;
     return /^[a-zA-Z0-9]+$/.test(data);
-  },
+  }
 };

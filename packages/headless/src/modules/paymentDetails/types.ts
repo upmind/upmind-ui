@@ -9,14 +9,13 @@ import type {
   ICurrency,
   IGateway,
   IWalletBalance,
-  PaymentType,
+  PaymentType
 } from "@upmind-automation/types";
 import type { ResponseError } from "../../utils";
 
 // -----------------------------------------------------------------------------
 
 export interface PaymentDetailModel {
-  amount: number;
   type?: PaymentType;
   gateway_id?: IGateway["id"];
 }

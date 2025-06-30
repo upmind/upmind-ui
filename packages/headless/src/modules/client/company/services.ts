@@ -9,9 +9,14 @@ import {
   useClientAddresses,
   type QueryParams,
   useBrand,
-  Address,
   AddressModel,
+  EmailModel,
+  PhoneModel
 } from "../..";
+
+import { useClientAddressServices } from "../address/services";
+import { useClientPhoneServices } from "../phone/services";
+import { useClientEmailServices } from "../email/services";
 
 // --- utils
 import {
@@ -22,18 +27,17 @@ import {
   DetailedError,
   responseCodes,
   ErrorOrigin,
-  useCollection,
+  useCollection
 } from "../../../utils";
 import { mapCompanies, mapCompany, mapICompany } from "./mappers";
 import { invalidateQueryByKey } from "../../query";
-import { get, isString, isEmpty, omitBy, some, find, isEqual } from "lodash-es";
+import { get, isString, isEmpty, omitBy, some, find } from "lodash-es";
 
 // --- types
 import { BrandConfigKeys, type ICompany } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { AnyEventObject } from "xstate";
 import type { Company, CompanyModel, CompanyContext } from "./types";
-import { useClientAddressServices } from "../address/services";
 
 // -----------------------------------------------------------------------------
 // QUERIES
@@ -48,7 +52,7 @@ async function load() {
   return get<ICompany[], Company[]>({
     queryKey,
     url: useUrl(`clients/${user.value?.id}/companies`, {
-      with: ["address", "address.country", "address.region"].join(),
+      with: ["address", "address.country", "address.region"].join()
     }),
     withAccessToken: true,
     guard: async () =>
@@ -61,7 +65,7 @@ async function load() {
       }),
     // --- options
     select: mapCompanies,
-    staleTime: useTime().DAY,
+    staleTime: useTime().DAY
   });
 }
 
@@ -73,7 +77,7 @@ function loadList(params?: Partial<QueryParams>) {
     ...(params as any),
     queryKey,
     url: useUrl(`clients/${user.value?.id}/companies`, {
-      with: ["address", "address.country", "address.region"].join(),
+      with: ["address", "address.country", "address.region"].join()
     }),
     withAccessToken: true,
     guard: async () =>
@@ -86,30 +90,30 @@ function loadList(params?: Partial<QueryParams>) {
       }),
     // --- options
     select: mapCompanies,
-    staleTime: useTime().DAY,
+    staleTime: useTime().DAY
   });
 }
 
 async function loadLookups({
   model,
-  schema,
+  schema
 }: CompanyContext): Promise<CompanyContext> {
   const {
     isReady: getPhones,
     default: defaultPhone,
-    data: phones,
+    data: phones
   } = useClientPhones();
 
   const {
     isReady: getEmails,
     default: defaultEmail,
-    data: emails,
+    data: emails
   } = useClientEmails();
 
   const {
     isReady: getAddresses,
     default: defaultAddress,
-    data: addresses,
+    data: addresses
   } = useClientAddresses();
 
   const { isReady, fetchCountries, fetchRegions, getCountry } = useSystem();
@@ -122,15 +126,10 @@ async function loadLookups({
   // these could/should be cached in the system machine, so there's no worry about performance
   const [countries, config] = await Promise.all([
     fetchCountries(),
-    ensureConfig([
-      BrandConfigKeys.CHECKOUT_REQUIRE_PHONE,
-      BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS,
-      BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS,
-      BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS,
-    ]),
+    ensureConfig([BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS]),
     getPhones(),
     getEmails(),
-    getAddresses(),
+    getAddresses()
   ]);
 
   const country = getCountry(model?.address?.countryId);
@@ -149,7 +148,7 @@ async function loadLookups({
     // ---
     emailId: defaultEmail.value?.id,
     phoneId: defaultPhone.value?.id,
-    phone: defaultPhone.value?.phone,
+    phone: defaultPhone.value?.phone
   };
 
   const safeModel = useModelParser<CompanyModel>(schema, model, baseModel);
@@ -164,7 +163,7 @@ async function loadLookups({
     config,
     // ---
     model: safeModel,
-    baseModel: safeModel,
+    baseModel: safeModel
   } as CompanyContext);
 }
 
@@ -173,7 +172,6 @@ async function loadLookups({
 
 async function add(data: CompanyModel) {
   const { meta, user } = useSession();
-  const { ensure: ensureAddress } = useClientAddressServices();
 
   const { post, useUrl } = useQuery();
 
@@ -181,35 +179,11 @@ async function add(data: CompanyModel) {
     return Promise.reject(new NotAuthenticatedError());
   }
 
-  const ensured: Promise<any>[] = [];
-
-  // TODO: MAYBE allow phone & email to work the same way as address?
-  //       NOT needed right now, but could be useful in the future
-  ensured.push(
-    ensureAddress({
-      model: (data?.address ?? { id: data?.addressId }) as AddressModel,
-    })
-  );
-
-  return Promise.all(ensured).then(async ([address /* email, phone */]) => {
-    if (!address?.id)
-      return Promise.reject(
-        new DetailedError(
-          "No address found or created",
-          responseCodes.Unprocessable_Entity
-        )
-      );
+  return ensureDependencies(data).then(ensuredData => {
     return post<ICompany>({
       url: useUrl(`clients/${user.value?.id}/companies`),
-      data: mapICompany({
-        ...data,
-        addressId: address.id,
-        /*
-        emailId: email?.id,
-        phoneId: phone?.id,
-        */
-      }),
-      withAccessToken: true,
+      data: mapICompany(ensuredData),
+      withAccessToken: true
     }).then(invalidateQueryByKey(queryKey, { exact: false }));
   });
 }
@@ -222,15 +196,18 @@ async function update(id: Company["id"], data: CompanyModel) {
     return Promise.reject(new NotAuthenticatedError());
   }
 
-  return put<ICompany>({
-    url: useUrl(`clients/${user.value?.id}/companies/${id}`),
-    data: mapICompany(data),
-    withAccessToken: true,
-  }).then(invalidateQueryByKey(queryKey, { exact: false }));
+  return ensureDependencies(data).then(ensuredData => {
+    return put<ICompany>({
+      url: useUrl(`clients/${user.value?.id}/companies/${id}`),
+      data: mapICompany(ensuredData),
+      withAccessToken: true
+    }).then(invalidateQueryByKey(queryKey, { exact: false }));
+  });
 }
 
-async function ensure(model: CompanyModel): Promise<CompanyModel> {
+async function ensure(model: CompanyModel): Promise<Company> {
   const mapping = omitBy(model, isEmpty);
+
   const companies = await load();
   const { findOne } = useCollection<Company>(companies);
   const found = findOne(mapping);
@@ -239,9 +216,10 @@ async function ensure(model: CompanyModel): Promise<CompanyModel> {
   return add(model).then(raw => {
     if (isEmpty(raw))
       throw new DetailedError(
-        "[headless] Failed to ensure (add) company",
-        responseCodes.No_Content,
-        ErrorOrigin.Headless
+        "[headless] Failed to ensure company",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless,
+        { model }
       );
     // NB: Remember to refresh our machines so we have the new data
     // refresh();
@@ -269,14 +247,14 @@ function remove(companyId: Company["id"]) {
           ? error
           : error?.title || "We experienced an error removing this company",
         copy: error?.message,
-        data: error?.data,
+        data: error?.data
       });
     },
     onSuccess(data) {
       invalidateQueryByKey(queryKey, { exact: false })(data);
       addSuccess("Successfully removed company");
     },
-    withAccessToken: true,
+    withAccessToken: true
   });
 }
 
@@ -302,19 +280,82 @@ function setDefault(companyId: Company["id"]) {
           : error?.title ||
             "We experienced an error setting this company as default",
         copy: error?.message,
-        data: error?.data,
+        data: error?.data
       });
     },
     onSuccess(data) {
       invalidateQueryByKey(queryKey, { exact: false })(data);
       addSuccess("Successfully set company as default");
     },
-    withAccessToken: true,
+    withAccessToken: true
   });
 }
 
 // -----------------------------------------------------------------------------
 //  SIDE EFFECTS
+
+async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
+  if (isEmpty(data))
+    return Promise.reject(
+      new DetailedError(
+        "[headless] Ensure Company dependencies faile: No data provided",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      )
+    );
+
+  const { ensure: ensureEmail } = useClientEmailServices();
+  const { ensure: ensurePhone } = useClientPhoneServices();
+  const { ensure: ensureAddress } = useClientAddressServices();
+
+  // for our dependencies we need to check if they already exists by finding them in their respective stores
+  // if they do then we can just return the id
+  // if they don't then we return a promise of the add method
+  // NB: for each new dependency we force type to be 4 = company
+  return Promise.all([
+    ensureEmail({
+      model: (data?.email
+        ? { email: data.email }
+        : { id: data?.emailId }) as EmailModel
+    }),
+
+    ensurePhone({
+      model: (data?.phone
+        ? { phone: data.phone }
+        : { id: data?.addressId }) as PhoneModel
+    }),
+
+    ensureAddress({
+      model: (data?.address
+        ? data.address
+        : { id: data?.addressId }) as AddressModel
+    })
+  ])
+    .then(([email, phone, address]) => {
+      return {
+        id: data.id,
+        addressId: address.id,
+        phoneId: phone.id,
+        emailId: email.id,
+        name: data.name,
+        regNumber: data.regNumber,
+        vatNumber: data.vatNumber,
+        default: data.default
+      };
+    })
+    .catch(error => {
+      return Promise.reject(
+        new DetailedError(
+          error?.message ?? "[headless] Ensure Company dependencies failed",
+          error?.code ??
+            error?.statusCode ??
+            responseCodes.Unprocessable_Entity,
+          error?.origin ?? ErrorOrigin.Headless,
+          { error }
+        )
+      );
+    });
+}
 
 async function parse(
   { schema, regions, country, autoupdate }: CompanyContext,
@@ -357,7 +398,7 @@ async function parse(
     model: safeModel,
     regions,
     country,
-    autoupdate,
+    autoupdate
   });
 }
 
@@ -414,7 +455,7 @@ export default {
    * @param {Company["id"]} companyId - The ID of the company to set as default.
    * @returns {Promise<ICompany>} A promise that resolves to the updated company
    */
-  setDefault,
+  setDefault
 };
 
 export const useClientCompanyServices = () => {
@@ -503,6 +544,6 @@ export const useClientCompanyServices = () => {
      * @param {Partial<CompanyContext>} param0 - The company context containing schema and model.
      * @returns {Promise<any>} The validated model.
      */
-    validate,
+    validate
   };
 };

@@ -62,7 +62,7 @@ import {
   useBasket,
   useRecommendations,
   useRoutingEngine,
-  ROUTE,
+  ROUTE
 } from "@upmind-automation/headless";
 
 // --- components
@@ -89,7 +89,7 @@ const {
   meta,
   recommendations,
   add,
-  fetchRecommendation,
+  fetchRecommendation
 } = useRecommendations();
 
 await isReady();

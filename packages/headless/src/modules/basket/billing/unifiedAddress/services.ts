@@ -1,22 +1,12 @@
 // --- external
 import parsePhoneNumber, { CountryCode } from "libphonenumber-js";
 
-// --- types
-import type {
-  Address,
-  AddressModel,
-  CompanyModel,
-  Email,
-  EmailModel,
-  Phone,
-  PhoneModel,
-} from "../../../client";
 // --- internal
 import {
   useClientAddresses,
   useClientCompanies,
   useClientEmails,
-  useClientPhones,
+  useClientPhones
 } from "../../../client";
 import { useBrand } from "../../../brand";
 import { useSystem } from "../../../system";
@@ -31,16 +21,16 @@ import {
   ErrorOrigin,
   responseCodes,
   useModelParser,
-  useValidation,
+  useValidation
 } from "../../../../utils";
-import { mapPhone } from "../../../client/phone/mapper";
-import { mapEmail } from "../../../client/email/mappers";
-import { mapAddress } from "../../../client/address/mappers";
-import { find, get, isEmpty, isEqual, isString, pick, some } from "lodash-es";
+import { find, get, isEmpty, isString, some } from "lodash-es";
+
+// --- types
 import type { AnyEventObject } from "xstate";
 import type { UnifiedAddressContext, UnifiedAddressModel } from "./types";
 import { UnifiedAddressType } from "./types";
 import { BrandConfigKeys } from "@upmind-automation/types";
+import type { AddressModel, CompanyModel, PhoneModel } from "../../../client";
 
 // -----------------------------------------------------------------------------
 // QUERIES
@@ -53,30 +43,30 @@ import { BrandConfigKeys } from "@upmind-automation/types";
 async function loadLookups({
   model,
   schema,
-  type,
+  type
 }: UnifiedAddressContext): Promise<UnifiedAddressContext> {
   const {
     isReady: getPhones,
     default: defaultPhone,
-    data: phones,
+    data: phones
   } = useClientPhones();
 
   const {
     isReady: getEmails,
     default: defaultEmail,
-    data: emails,
+    data: emails
   } = useClientEmails();
 
   const {
     isReady: getAddresses,
     default: defaultAddress,
-    data: addresses,
+    data: addresses
   } = useClientAddresses();
 
   const {
     isReady: getCompanies,
     default: defaultCompany,
-    data: companies,
+    data: companies
   } = useClientCompanies();
 
   const { isReady, fetchCountries, fetchRegions, getCountry } = useSystem();
@@ -93,12 +83,12 @@ async function loadLookups({
       BrandConfigKeys.CHECKOUT_REQUIRE_PHONE,
       BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS,
       BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS,
-      BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS,
+      BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS
     ]),
     getPhones(),
     getEmails(),
     getAddresses(),
-    getCompanies(),
+    getCompanies()
   ]);
 
   const country = getCountry(model?.address?.countryId);
@@ -112,7 +102,7 @@ async function loadLookups({
     address:
       type == UnifiedAddressType.PERSONAL
         ? ({
-            countryId: country?.id,
+            countryId: country?.id
           } as AddressModel)
         : undefined,
     company:
@@ -120,17 +110,19 @@ async function loadLookups({
         ? ({
             addressId: defaultAddress.value?.id,
             emailId: defaultEmail.value?.id,
-            phoneId: defaultPhone.value?.id,
+            phoneId: defaultPhone.value?.id
           } as CompanyModel)
         : undefined,
     phone: get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE)
-      ? ((defaultPhone.value?.phone ?? {
-          number: "",
-          nationalNumber: "",
-          countryCallingCode: "",
-          country: country?.code,
+      ? ((defaultPhone.value ?? {
+          phone: {
+            number: "",
+            nationalNumber: "",
+            countryCallingCode: "",
+            country: country?.code
+          }
         }) as PhoneModel)
-      : undefined,
+      : undefined
   };
 
   const safeModel = useModelParser<UnifiedAddressModel>(
@@ -150,7 +142,7 @@ async function loadLookups({
     config,
     // ---
     model: safeModel,
-    baseModel: safeModel,
+    baseModel: safeModel
   } as UnifiedAddressContext);
 }
 
@@ -158,41 +150,32 @@ async function loadLookups({
 // MUTATIONS
 
 async function add(type: UnifiedAddressType, data: UnifiedAddressModel) {
-  const { add: addCompany } = useClientCompanyServices();
+  const { ensure: ensureAddress } = useClientAddressServices();
+  const { ensure: ensurePhone } = useClientPhoneServices();
+  const { ensure: ensureCompany } = useClientCompanyServices();
 
   const promises: Promise<any>[] = [];
 
-  promises.push(data?.phone ? ensurePhone(data) : Promise.resolve(undefined));
+  promises.push(
+    data?.phone
+      ? ensurePhone({ model: data.phone })
+      : Promise.resolve(undefined)
+  );
 
   promises.push(
     data?.address && type == UnifiedAddressType.PERSONAL
-      ? ensureAddress(data)
+      ? ensureAddress({ model: data.address })
       : Promise.resolve(undefined)
   );
 
   promises.push(
     data?.company && type == UnifiedAddressType.BUSINESS
-      ? ensureDependencies({ model: data }).then(
-          async ({ address, email, phone }) => {
-            if (!address?.id)
-              return Promise.reject(
-                new DetailedError(
-                  "[headless] No address found or created",
-                  responseCodes.Unprocessable_Entity,
-                  ErrorOrigin.Headless
-                )
-              );
-            return addCompany({
-              model: {
-                ...data.company,
-                name: data.company!.name,
-                addressId: address.id,
-                emailId: email?.id,
-                phoneId: phone?.id,
-              },
-            });
+      ? ensureCompany({
+          model: {
+            ...data.company,
+            phone: data.phone?.phone
           }
-        )
+        })
       : Promise.resolve(undefined)
   );
 
@@ -201,15 +184,17 @@ async function add(type: UnifiedAddressType, data: UnifiedAddressModel) {
       return {
         phone: phone?.phone, // NB the returned Phone object has a phone property
         address,
-        company,
+        company
       };
     })
     .catch(error => {
       return Promise.reject(
         new DetailedError(
-          "[headless] Add Unified Address Failed",
-          responseCodes.Unprocessable_Entity,
-          ErrorOrigin.Headless,
+          error?.message ?? "[headless] Add Unified Address Failed",
+          error?.code ??
+            error?.statusCode ??
+            responseCodes.Unprocessable_Entity,
+          error?.origin ?? ErrorOrigin.Headless,
           { error }
         )
       );
@@ -233,40 +218,77 @@ async function parse(
 
   // first let's check we have a valid country,
   // fallback to the default country if not set or invalid
-  country = getCountry(
-    safeModel.address?.countryId ?? baseModel.address?.countryId
-  );
-  safeModel.address!.countryId = country.id;
 
-  // let's check if the country has changed, i.e.: the regions don't match
-  // if so, then we need to fetch the regions for the new country
-  // AND update our 'default' country to match the country from the address
-  // this will in turn update the phone schema to match the country
-  if (!some(regions, ["countryId", safeModel.address?.countryId])) {
-    regions = await fetchRegions(safeModel.address!.countryId);
+  if (safeModel?.address) {
+    country = getCountry(
+      safeModel?.address?.countryId ?? baseModel.address?.countryId
+    );
+
+    safeModel.address!.countryId = country.id;
+
+    // let's check if the country has changed, i.e.: the regions don't match
+    // if so, then we need to fetch the regions for the new country
+    // AND update our 'default' country to match the country from the address
+    // this will in turn update the phone schema to match the country
+    if (!some(regions, ["countryId", safeModel.address?.countryId])) {
+      regions = await fetchRegions(safeModel.address!.countryId);
+    }
+
+    // now let's check our region list to see if we have a match
+    // if so, then we need to update the safeModel with the new region id
+    // otherwise the regionId is reset to null
+    const region = find(regions, ["id", safeModel.address?.regionId]);
+    safeModel.address!.regionId = get(region, "id");
   }
 
-  // now let's check our region list to see if we have a match
-  // if so, then we need to update the safeModel with the new region id
-  // otherwise the regionId is reset to null
-  const region = find(regions, ["id", safeModel.address?.regionId]);
-  safeModel.address!.regionId = get(region, "id");
+  if (safeModel?.company && !safeModel?.company?.addressId) {
+    safeModel.company.address ??= {
+      address1: "",
+      city: "",
+      postcode: "",
+      countryId: baseModel.address?.countryId
+    } as AddressModel;
+
+    country = getCountry(
+      safeModel.company?.address?.countryId ?? baseModel.address?.countryId
+    );
+
+    safeModel.company.address!.countryId = country.id;
+
+    // let's check if the country has changed, i.e.: the regions don't match
+    // if so, then we need to fetch the regions for the new country
+    // AND update our 'default' country to match the country from the address
+    // this will in turn update the phone schema to match the country
+    if (!some(regions, ["countryId", safeModel.company.address?.countryId])) {
+      regions = await fetchRegions(safeModel.company.address!.countryId);
+    }
+
+    // now let's check our region list to see if we have a match
+    // if so, then we need to update the safeModel with the new region id
+    // otherwise the regionId is reset to null
+    const region = find(regions, ["id", safeModel.company.address?.regionId]);
+    safeModel.company.address!.regionId = get(region, "id");
+  }
 
   // now lets check our phone number
-  if (safeModel?.phone) {
-    const phoneNumber = isString(safeModel?.phone)
-      ? safeModel?.phone
-      : safeModel?.phone?.number || safeModel?.phone?.nationalNumber || "";
+  if (safeModel?.phone?.phone) {
+    const phoneNumber = isString(safeModel?.phone?.phone)
+      ? safeModel?.phone?.phone
+      : safeModel?.phone?.phone?.number ||
+        safeModel?.phone?.phone?.nationalNumber ||
+        "";
 
-    const countryCode = safeModel?.phone?.country || country.code;
+    const countryCode = safeModel?.phone?.phone?.country || country?.code;
     const phone =
       parsePhoneNumber(phoneNumber, countryCode as CountryCode) || undefined;
 
     safeModel.phone = {
-      number: phone?.number || "",
-      nationalNumber: phone?.nationalNumber || "",
-      countryCallingCode: phone?.countryCallingCode || "",
-      country: phone?.country || countryCode,
+      phone: {
+        number: phone?.number || "",
+        nationalNumber: phone?.nationalNumber || "",
+        countryCallingCode: phone?.countryCallingCode || "",
+        country: phone?.country || countryCode || ""
+      }
     };
   }
 
@@ -274,8 +296,7 @@ async function parse(
     model: safeModel,
     regions,
     country,
-    autoupdate,
-    dirty: !isEqual(safeModel, baseModel),
+    autoupdate
   });
 }
 
@@ -303,103 +324,6 @@ async function validate({ schema, model }: Partial<UnifiedAddressContext>) {
   });
 }
 
-async function ensureEmail(model: UnifiedAddressModel): Promise<Email> {
-  const { findOne } = useClientEmails();
-  const { add, refresh } = useClientEmailServices();
-
-  const data = pick(model, ["email"]) as EmailModel;
-
-  const found = findOne(data);
-  if (found) return Promise.resolve(found);
-
-  return add({ model: data }).then(item => {
-    if (!item)
-      throw new DetailedError(
-        "[headless] Failed to ensure (add) address",
-        responseCodes.Unprocessable_Entity,
-        ErrorOrigin.Headless
-      ); // NB: Remember to refresh our machines so we have the new data
-    refresh();
-    return mapEmail(item);
-  });
-}
-
-async function ensurePhone(model: UnifiedAddressModel): Promise<Phone> {
-  const { findOne } = useClientPhones();
-  const { add, refresh } = useClientPhoneServices();
-
-  const phone = get(model, "phone") as PhoneModel;
-
-  const found = findOne({ phone });
-
-  if (found) return Promise.resolve(found);
-
-  return add({ model: phone }).then(item => {
-    if (!item)
-      throw new DetailedError(
-        "[headless] Failed to ensure (add) address",
-        responseCodes.Unprocessable_Entity,
-        ErrorOrigin.Headless
-      ); // NB: Remember to refresh our machines so we have the new data
-    refresh();
-    return mapPhone(item);
-  });
-}
-
-async function ensureAddress(model: UnifiedAddressModel): Promise<Address> {
-  const { getOne, findOne } = useClientAddresses();
-  const { add, refresh } = useClientAddressServices();
-
-  // Include type field and set to company type if this is for a company
-  const data = get(model, "address") as AddressModel;
-
-  const found = getOne(model.company?.addressId) || findOne(data);
-  if (found) return Promise.resolve(found);
-
-  return add({
-    model: { ...data, name: model?.address?.name },
-  }).then(item => {
-    if (!item)
-      throw new DetailedError(
-        "[headless] Failed to ensure (add) address",
-        responseCodes.Unprocessable_Entity,
-        ErrorOrigin.Headless
-      );
-    // NB: Remember to refresh our machines so we have the new data
-    refresh();
-    return mapAddress(item);
-  });
-}
-
-async function ensureDependencies({
-  model,
-}: Partial<UnifiedAddressContext>): Promise<{
-  email: Email;
-  phone: Phone;
-  address: Address;
-}> {
-  if (!model)
-    return Promise.reject(
-      new DetailedError(
-        "[headless] No address model provided",
-        responseCodes.Unprocessable_Entity,
-        ErrorOrigin.Headless
-      )
-    );
-
-  // for our dependencies we need to check if they already exists by finding them in their respective stores
-  // if they do then we can just return the id
-  // if they don't then we return a promise of the add method
-  // NB: for each new dependency we force type to be 4 = company
-  return Promise.all([
-    ensureEmail(model),
-    ensurePhone(model),
-    ensureAddress(model),
-  ]).then(([email, phone, address]) => {
-    return { email, phone, address };
-  });
-}
-
 // -----------------------------------------------------------------------------
 
 export const useUnifiedAddressServices = () => {
@@ -417,6 +341,6 @@ export const useUnifiedAddressServices = () => {
       const { invalidate: invalidateAddresses } = useClientAddresses();
       const { invalidate: invalidateCompanies } = useClientCompanies();
       await Promise.all([invalidateAddresses(null), invalidateCompanies(null)]);
-    },
+    }
   };
 };

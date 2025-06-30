@@ -10,15 +10,15 @@ import {
   DetailedError,
   ErrorOrigin,
   responseCodes,
-  useContext,
+  useContext
 } from "../../utils";
 import {
   contextMatches,
   stateMatches,
   stateValue,
-  contextValue,
+  contextValue
 } from "../../utils";
-import { get, isNil } from "lodash-es";
+import { get, isEmpty, isEqual, isNil } from "lodash-es";
 
 // --- types
 import type { ActorRef } from "xstate";
@@ -34,13 +34,14 @@ export const useBasketCurrency = () => {
   // --- state
 
   async function isReady(): Promise<boolean> {
-    return new Promise(resolve =>
-      setTimeout(() => {
+    return new Promise(resolve => {
+      const interval = setInterval(() => {
         if (!isNil(actor.value?.service)) {
+          clearInterval(interval);
           resolve(actor.value.service);
         }
-      }, 100)
-    ).then(service =>
+      }, 100);
+    }).then(service =>
       waitFor(
         service as ActorRef<any>,
         state => !stateMatches(state, "loading"),
@@ -59,7 +60,7 @@ export const useBasketCurrency = () => {
     isDirty: contextMatches(actor, ["dirty"]),
     isComplete:
       stateValue(actor, "done", false) ||
-      stateMatches(actor, ["processed", "complete"]),
+      stateMatches(actor, ["processed", "complete"])
   }));
 
   // --- context
@@ -94,16 +95,19 @@ export const useBasketCurrency = () => {
       });
   }
 
-  async function update(value: CurrencyModel): Promise<void> {
-    // first check if our currency has changed, i.e.: model.code has changed
+  async function update(value?: CurrencyModel): Promise<void> {
+    // first check if our currency has change, ie: model.code has changed
 
     const code = toRaw(unref(value))?.code?.toUpperCase();
     const model = contextValue<CurrencyModel>(actor, "model");
 
-    // if it has not, then bail
-    if (!code || code == model?.code) return Promise.resolve();
+    if (code == model?.code) return Promise.resolve();
 
-    actor.value?.send({ type: "SET", data: { code }, update: true });
+    if (!isEmpty(value) && !isEqual(value, model)) {
+      actor.value?.send({ type: "SET", data: { code }, update: true });
+    } else {
+      actor.value?.send({ type: "UPDATE" });
+    }
 
     // then wait for the paymentGateway actor to be updated
     return waitFor(
@@ -132,7 +136,7 @@ export const useBasketCurrency = () => {
             ErrorOrigin.Headless,
             {
               error,
-              state: actor.value?.state.value,
+              state: actor.value?.state.value
             }
           )
         );
@@ -203,7 +207,7 @@ export const useBasketCurrency = () => {
      * @param {CurrencyModel} value The new currency model to set.
      * @returns {Promise<void>} Resolves when updated, rejects on error.
      */
-    update,
+    update
   };
 };
 

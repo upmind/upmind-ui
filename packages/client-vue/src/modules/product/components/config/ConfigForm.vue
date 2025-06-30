@@ -62,7 +62,7 @@ const props = withDefaults(
     processing: false,
     touched: false,
     additionalErrors: () => [],
-    label: "",
+    label: ""
   }
 );
 

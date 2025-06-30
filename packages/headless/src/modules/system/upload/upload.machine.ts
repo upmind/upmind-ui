@@ -10,7 +10,7 @@ import {
   useTime,
   useValidationParser,
   responseCodes,
-  mapToHeadlessError,
+  mapToHeadlessError
 } from "../../../utils";
 import { useFileParser, useFileSrcParser } from "./utils";
 
@@ -26,8 +26,8 @@ export default createMachine(
     states: {
       idle: {
         on: {
-          LOAD: { target: "loading" },
-        },
+          LOAD: { target: "loading" }
+        }
       },
 
       loading: {
@@ -36,13 +36,13 @@ export default createMachine(
           src: "getImage",
           onDone: {
             target: "processed",
-            actions: ["setResponse"],
+            actions: ["setResponse"]
           },
           onError: {
             target: "error",
-            actions: ["setError"],
-          },
-        },
+            actions: ["setError"]
+          }
+        }
       },
 
       checking: {
@@ -50,13 +50,13 @@ export default createMachine(
         invoke: {
           src: "check",
           onDone: {
-            target: "processing",
+            target: "processing"
           },
           onError: {
             target: "error",
-            actions: ["setError"],
-          },
-        },
+            actions: ["setError"]
+          }
+        }
       },
 
       processing: {
@@ -65,26 +65,26 @@ export default createMachine(
           src: "upload",
           onDone: {
             target: "processed",
-            actions: ["setResponse"],
+            actions: ["setResponse"]
           },
           onError: {
             target: "error",
-            actions: ["setError"],
-          },
+            actions: ["setError"]
+          }
         },
         on: {
           PROGRESS: {
-            actions: ["setProgress"],
-          },
-        },
+            actions: ["setProgress"]
+          }
+        }
       },
 
       processed: {
         after: {
           wait: {
-            target: "complete",
-          },
-        },
+            target: "complete"
+          }
+        }
       },
 
       complete: {
@@ -92,22 +92,22 @@ export default createMachine(
         on: {
           REMOVE: {
             target: "idle",
-            actions: ["clear"],
-          },
-        },
+            actions: ["clear"]
+          }
+        }
       },
 
       error: {
         on: {
           RETRY: {
-            target: "processing",
-          },
-        },
-      },
+            target: "processing"
+          }
+        }
+      }
     },
     on: {
-      ADD: { target: "checking", actions: ["setRequest"] },
-    },
+      ADD: { target: "checking", actions: ["setRequest"] }
+    }
   },
   {
     actions: {
@@ -117,7 +117,7 @@ export default createMachine(
         file: null,
         name: null,
         src: null,
-        progress: 0,
+        progress: 0
       }),
 
       setRequest: assign({
@@ -125,7 +125,7 @@ export default createMachine(
           useFileParser(data),
         name: (_context: UploadContext, { data }: AnyEventObject) => data?.name,
         src: (_context: UploadContext, { data }: AnyEventObject) =>
-          useFileSrcParser(data),
+          useFileSrcParser(data)
       }),
 
       setResponse: assign({
@@ -134,11 +134,11 @@ export default createMachine(
         name: ({ name }: UploadContext, { data }: AnyEventObject) =>
           data?.name || name,
         src: (_context: UploadContext, { data }: AnyEventObject) =>
-          `/api/images/${data.value}/download`,
+          `/api/images/${data.value}/download`
       }),
 
       setProgress: assign({
-        progress: (_context: UploadContext, { data }: AnyEventObject) => data,
+        progress: (_context: UploadContext, { data }: AnyEventObject) => data
       }),
 
       // ---
@@ -146,23 +146,21 @@ export default createMachine(
         error: (_context: UploadContext, { data }: AnyEventObject) => {
           let error = mapToHeadlessError(data);
           if (error?.status == responseCodes.Unprocessable_Entity) {
-            // lets parse/override our error message and data
-            // this is to generate valid json schema validation errors
             error.data = useValidationParser(error.data);
           }
           return error;
-        },
+        }
       }),
 
-      clearError: assign({ error: undefined }),
+      clearError: assign({ error: undefined })
     },
     guards: {},
     delays: {
       // @
       error: () => useTime().ERROR,
-      wait: () => useTime().WAIT,
+      wait: () => useTime().WAIT
     },
     // @
-    services,
+    services
   }
 );

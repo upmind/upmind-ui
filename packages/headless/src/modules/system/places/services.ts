@@ -11,6 +11,7 @@ import { parsePlaces, usePlaceParser } from "./utils";
 
 // --- types
 import type { Place, PlaceService } from "./types";
+import { useTime } from "../../../utils";
 
 // Private service instance
 let service: PlaceService | undefined;
@@ -25,7 +26,7 @@ async function load(): Promise<PlaceService> {
   // Otherwise create a new service
   const loader = new Loader({
     apiKey: import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY,
-    version: "weekly",
+    version: "weekly"
   });
 
   return loader
@@ -44,13 +45,14 @@ async function load(): Promise<PlaceService> {
  * @returns Promise that resolves to the PlaceService instance
  */
 async function isReady(): Promise<PlaceService> {
-  return new Promise(resolve =>
-    setTimeout(() => {
+  return new Promise(resolve => {
+    const interval = setInterval(() => {
       if (!isNil(service)) {
+        clearInterval(interval);
         resolve(service);
       }
-    }, 100)
-  );
+    }, 100);
+  });
 }
 
 /**
@@ -84,7 +86,7 @@ async function search(query: string, countryId?: string): Promise<Place[]> {
       const request: google.maps.places.AutocompleteRequest = {
         input: query,
         sessionToken,
-        ...(countryCode && { includedRegionCodes: [countryCode] }),
+        ...(countryCode && { includedRegionCodes: [countryCode] })
       };
 
       try {
@@ -112,18 +114,18 @@ async function search(query: string, countryId?: string): Promise<Place[]> {
 
               return await parse(placeId);
             } catch (error) {
-              console.error(`Failed to parse address from prediction:`, error);
+              // console.error(`Failed to parse address from prediction:`, error);
               return null;
             }
           })
         ).then(compact);
       } catch (error) {
-        console.error("Error fetching autocomplete suggestions:", error);
+        // console.error("Error fetching autocomplete suggestions:", error);
         return [];
       }
     },
     // Cache search results for 5 minutes
-    staleTime: 5 * 60 * 1000,
+    staleTime: useTime().MINUTE * 5
   });
 }
 
@@ -156,19 +158,19 @@ async function parse(placeId: string): Promise<Place | null> {
             "displayName",
             "addressComponents",
             "formattedAddress",
-            "location",
-          ],
+            "location"
+          ]
         });
 
         // Parse the place data into our format
         return await usePlaceParser(place);
       } catch (error) {
-        console.error(`Error fetching place details for ID ${placeId}:`, error);
+        // console.error(`Error fetching place details for ID ${placeId}:`, error);
         return null;
       }
     },
     // Cache place details for 1 hour
-    staleTime: 60 * 60 * 1000,
+    staleTime: 60 * 60 * 1000
   });
 }
 
@@ -178,5 +180,5 @@ async function parse(placeId: string): Promise<Place | null> {
 export default {
   load,
   isReady,
-  search,
+  search
 };

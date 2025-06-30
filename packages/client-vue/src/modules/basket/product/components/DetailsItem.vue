@@ -50,7 +50,7 @@ import { Icon, Tooltip } from "@upmind-automation/upmind-ui";
 // --- types
 import type {
   ProductSummaryDetailWithPrice,
-  ProductSummaryDetail,
+  ProductSummaryDetail
 } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------

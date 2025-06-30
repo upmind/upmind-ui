@@ -1,7 +1,7 @@
 <template>
   <UpmContentSection class="mx-auto max-w-app" title="Addresses">
     <Alert
-      v-if="!meta.isAvailable && !meta.isLoading"
+      v-if="!meta.isAuthenticated && !meta.isLoading"
       color="error"
       title="Please log in to use billing"
     />
@@ -14,13 +14,13 @@
 // --- external
 
 // --- internal
-import { useBasketBilling } from "@upmind-automation/headless";
+import { useSession } from "@upmind-automation/headless";
 
 // --- components
-import { Alert } from "@upmind-automation/upmind-ui";
 import { UpmBilling, UpmContentSection } from "@upmind-automation/client-vue";
+import { Alert } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 
-const { meta } = useBasketBilling();
+const { meta, userId } = useSession();
 </script>

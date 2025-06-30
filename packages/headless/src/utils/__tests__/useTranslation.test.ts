@@ -28,7 +28,7 @@ describe("useTranslation.ts", () => {
     });
     it("should handle fields nested in an object correctly", () => {
       const mockNestedField = {
-        details: { test_translated: "PT_Test", test: "Test" },
+        details: { test_translated: "PT_Test", test: "Test" }
       };
       expect(useTranslateField(mockNestedField, "details.test")).toBe(
         "PT_Test"

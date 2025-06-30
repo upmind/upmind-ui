@@ -8,7 +8,7 @@ import { invalidateQueryByKey } from "../../query";
 
 // --- utils
 import { useCollection } from "../../../utils";
-import { set, find, isEmpty } from "lodash-es";
+import { set, isEmpty } from "lodash-es";
 
 // --- types
 import type { Company } from "./types";
@@ -17,8 +17,8 @@ import type { QueryProps, RequestFilters } from "../../query";
 export const useClientCompanies = (
   initial: QueryProps = {
     pagination: {
-      limit: 0,
-    },
+      limit: 0
+    }
   }
 ) => {
   // --- state
@@ -28,23 +28,18 @@ export const useClientCompanies = (
   const query = service.loadList(initial);
 
   const meta = computed(() => ({
-    isLoading: query?.isFetching.value,
+    isLoading: query?.isLoading.value || !query.isFetched.value,
     hasError: !isEmpty(query.error.value),
     isEmpty: isEmpty(query?.data?.value) || query.pagination.value.total == 0,
     isAvailable: sessionMeta.value.isAuthenticated,
-    ...query?.meta.value,
+    ...query?.meta.value
   }));
 
   const { findOne, getOne, getDefault } = useCollection<Company>(query.data);
 
   async function isReady(): Promise<boolean> {
     return isAuthenticated()
-      .then(() =>
-        query
-          .refetch()
-          .then(() => true)
-          .catch(() => false)
-      )
+      .then(() => query.refetch().then(() => true))
       .catch(() => false);
   }
 
@@ -67,7 +62,7 @@ export const useClientCompanies = (
       query?: string;
     }
   >({
-    query: "",
+    query: ""
   });
 
   const filterQuery = (value?: string) => {
@@ -118,8 +113,6 @@ export const useClientCompanies = (
      * @return {boolean|RequestPagination} The pagination object if available, otherwise false.
      */
     pagination: query.pagination,
-
-    // --- methods
 
     /**
      * The default item for the current client.
@@ -198,8 +191,8 @@ export const useClientCompanies = (
      * @property query - The search query to filter the client companies by title or description.
      */
     filters: {
-      query: filterQuery,
-    },
+      query: filterQuery
+    }
   };
 };
 

@@ -69,7 +69,7 @@ export const useRouting = (
     dataLayer({ event: "page_view" })
       .withPage({
         to,
-        from,
+        from
       })
       .push(false);
   });

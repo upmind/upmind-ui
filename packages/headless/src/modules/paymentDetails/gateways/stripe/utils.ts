@@ -5,7 +5,7 @@
 // --- utils
 import {
   useSchema as useDefaultSchema,
-  useUischema as useDefaultUischema,
+  useUischema as useDefaultUischema
 } from "../utils";
 
 import { reduce, includes, find } from "lodash-es";
@@ -25,12 +25,12 @@ export const useSchema = (context: StripeContext) => {
     type: "object",
     title: "Payment Gateway Options",
     required: [
-      ...(defaultSchema?.required || []), // NB Always include the default schema required fields
+      ...(defaultSchema?.required || []) // NB Always include the default schema required fields
     ],
 
     properties: {
-      ...(defaultSchema?.properties || {}), // NB Always include the default schema properties
-    },
+      ...(defaultSchema?.properties || {}) // NB Always include the default schema properties
+    }
   };
 
   return schema;
@@ -42,8 +42,8 @@ export const useUischema = (_context: StripeContext) => {
   const uischema = {
     type: "VerticalLayout",
     elements: [
-      ...(defaultUischema?.elements || []), // NB Always append the default uischema elements
-    ],
+      ...(defaultUischema?.elements || []) // NB Always append the default uischema elements
+    ]
   };
 
   return uischema as UISchemaElement;

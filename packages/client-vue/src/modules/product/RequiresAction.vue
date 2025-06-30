@@ -9,7 +9,7 @@
           delay: 5000,
           primaryColor: 'primary',
           secondaryColor: 'promotion',
-          size: '4xl',
+          size: '4xl'
         }"
         :actions="[
           {
@@ -17,14 +17,14 @@
             variant: 'ghost',
             handler: navigateBack,
             prependIcon: { icon: 'arrow-left', size: '2xs' },
-            label: t('basket.requiresAction.actions.navigateBack'),
+            label: t('basket.requiresAction.actions.back')
           },
           {
             color: 'secondary',
             handler: navigateNext,
             appendIcon: { icon: 'arrow-right', size: '2xs' },
-            label: t('basket.requiresAction.actions.continue'),
-          },
+            label: t('basket.requiresAction.actions.continue')
+          }
         ]"
         modal
       >
@@ -56,7 +56,7 @@ import { useI18n } from "vue-i18n";
 import {
   useProductsRequiringAction,
   useRoutingEngine,
-  ROUTE,
+  ROUTE
 } from "@upmind-automation/headless";
 
 // --- components

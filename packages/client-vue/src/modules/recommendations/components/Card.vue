@@ -60,7 +60,7 @@
                     t("recommendations.card.was_price", {
                       price: !!props.configuration.term
                         ? props.price.monthlyFromRegularPrice
-                        : props.price.regularPrice,
+                        : props.price.regularPrice
                     })
                   }}</del>
                 </template>
@@ -115,7 +115,7 @@
                         `recommendations.terms.descriptive.${props.configuration.term}`
                       ).toLocaleLowerCase(),
                       currentPrice: props.price.currentPrice,
-                      regularPrice: props.price.regularPrice,
+                      regularPrice: props.price.regularPrice
                     }
                   )
                 }}
@@ -180,7 +180,7 @@ const configMeta = computed(() => {
     isDisabled: props.disabled,
     hasImage,
     hasBadge,
-    hasImageAndBadge: hasImage && hasBadge,
+    hasImageAndBadge: hasImage && hasBadge
   };
 });
 
@@ -193,7 +193,7 @@ const styles = useStyles(
     "recommendation.content.price.intro",
     "recommendation.content.price.current",
     "recommendation.content.details",
-    "recommendation.content.list",
+    "recommendation.content.list"
   ],
   configMeta,
   config

@@ -63,6 +63,6 @@ const styles = useStyles(["form.sld.description"], {}, config) as ComputedRef<{
 import { isStringControl, formatIs, and } from "@jsonforms/core";
 export const tester = {
   rank: 3,
-  controlType: and(isStringControl, formatIs("sld")),
+  controlType: and(isStringControl, formatIs("sld"))
 };
 </script>

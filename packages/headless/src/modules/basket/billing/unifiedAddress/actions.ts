@@ -1,5 +1,5 @@
 // --- external
-import { AnyEventObject, assign } from "xstate";
+import { assign } from "xstate";
 
 // --- internal
 import { useSchema, useUischema } from "./schemas";
@@ -10,6 +10,7 @@ import { useModelParser } from "../../../../utils";
 
 // --- types
 import type { UnifiedAddressContext, UnifiedAddressModel } from "./types";
+import type { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------
 
@@ -29,7 +30,7 @@ export const useUnifiedAddressActions = () => {
           get(model, "address.city"),
           get(model, "address.postcode"),
           get(model, "address.region.name"),
-          get(model, "address.country.name"),
+          get(model, "address.country.name")
         ]).join(", ");
 
         const company = compact([
@@ -38,28 +39,33 @@ export const useUnifiedAddressActions = () => {
             : null,
           model?.company?.vatNumber
             ? `Tax #: ${get(model, "company.vatNumber")}`
-            : null,
+            : null
         ]).join(";");
 
         return compact([address, company]).join(";");
-      },
+      }
     }),
 
     setSchemas: assign({
       schema: (context: UnifiedAddressContext) => useSchema(context),
-      uischema: (context: UnifiedAddressContext) => useUischema(context),
+      uischema: (context: UnifiedAddressContext) => useUischema(context)
     }),
 
     setModel: assign({
       model: (
         { schema, baseModel }: UnifiedAddressContext,
-        { data }: { type: string; data: Partial<UnifiedAddressModel> }
-      ) => {
-        return useModelParser<UnifiedAddressModel>(schema, data, baseModel);
-      },
+        { data }: AnyEventObject
+      ) => useModelParser<UnifiedAddressModel>(schema, data, baseModel)
     }),
 
-    setSubscription: assign({}),
+    refreshContext: assign({
+      clientId: (
+        { clientId }: UnifiedAddressContext,
+        { data }: AnyEventObject
+      ) => {
+        return clientId || data?.clientId;
+      }
+    })
   };
 };
 
@@ -68,6 +74,6 @@ export const useUnifiedAddressGuards = () => {
     hasSubscription: (
       { clientId }: UnifiedAddressContext,
       _event: AnyEventObject
-    ) => !!clientId,
+    ) => !!clientId
   };
 };

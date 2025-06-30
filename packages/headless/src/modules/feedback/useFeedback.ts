@@ -36,7 +36,7 @@ export const useFeedback = () => {
     isEmpty: ["empty"].some(state.value.matches),
     hasNotifications: !isEmpty(notifications.value),
     hasToasts: !isEmpty(toasts.value),
-    hasSystem: !isEmpty(system.value),
+    hasSystem: !isEmpty(system.value)
   }));
 
   // --- context
@@ -44,7 +44,7 @@ export const useFeedback = () => {
   const messages = computed(() =>
     map(state.value.context.messages, (item: ActorRef<any>) => ({
       id: item.id,
-      ...useActor(item),
+      ...useActor(item)
     }))
   );
 
@@ -58,7 +58,7 @@ export const useFeedback = () => {
           ) {
             result.push({
               id: item.id,
-              ...useActor(item),
+              ...useActor(item)
             });
           }
           return result;
@@ -77,7 +77,7 @@ export const useFeedback = () => {
           if (item.getSnapshot().context.display === messageDisplays.TOAST) {
             result.push({
               id: item.id,
-              ...useActor(item),
+              ...useActor(item)
             });
           }
           return result;
@@ -98,7 +98,7 @@ export const useFeedback = () => {
             result.push(
               useMessage({
                 id: item.id,
-                ...useActor(item),
+                ...useActor(item)
               })
             );
           }
@@ -139,7 +139,7 @@ export const useFeedback = () => {
       data: message?.data,
       display,
       delay,
-      maxAge,
+      maxAge
     } as Message);
   }
 
@@ -160,7 +160,7 @@ export const useFeedback = () => {
       data: message?.data,
       display,
       delay,
-      maxAge,
+      maxAge
     } as Message);
   }
 
@@ -193,7 +193,7 @@ export const useFeedback = () => {
     addSuccess,
     dismiss,
     // ---
-    getMessage: (id: string) => get(messages.value, id),
+    getMessage: (id: string) => get(messages.value, id)
   };
 };
 
@@ -206,9 +206,9 @@ export const useMessage = (item: any /** ACTOR*/) => {
     message: computed(() => state.value.context),
     meta: computed(() => ({
       isActive: state.value.matches("active"),
-      isScheduled: state.value.matches("pending"),
+      isScheduled: state.value.matches("pending")
     })),
     // ---
-    dismiss: () => send({ type: "DISMISS" }),
+    dismiss: () => send({ type: "DISMISS" })
   };
 };

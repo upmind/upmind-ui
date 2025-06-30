@@ -32,16 +32,16 @@ async function load(_context: ClientContext, _event: any) {
     url: useUrl("self", {
       with: [
         "actor",
-        "accounts",
+        "accounts"
         // client specific only
         // "actor.account", // Relation required for determining `topup_enabled` value
         // "actor.brand", // Relation required for determining `topup_enabled` value
         // "delegated_ids",
         // "enabled_modules"
-      ].join(),
+      ].join()
     }),
     queryKey: ["session", "self"],
-    withAccessToken: true,
+    withAccessToken: true
   });
 }
 
@@ -49,5 +49,5 @@ async function load(_context: ClientContext, _event: any) {
 
 export default {
   load,
-  transferTo: services.transferTo,
+  transferTo: services.transferTo
 };

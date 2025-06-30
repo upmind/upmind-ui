@@ -9,13 +9,13 @@ import {
   DetailedError,
   responseCodes,
   parseError,
-  ErrorOrigin,
+  ErrorOrigin
 } from "../../utils";
 import {
   useUischemaTitle,
   useProductName,
   parseProductDetails,
-  parseBasketProductModel,
+  parseBasketProductModel
 } from "../product/utils";
 
 import {
@@ -33,7 +33,7 @@ import {
   omitBy,
   reduce,
   set,
-  values,
+  values
 } from "lodash-es";
 
 // --- types
@@ -42,17 +42,17 @@ import type { ErrorObject } from "ajv";
 import type {
   IBasket,
   IBasketProduct,
-  IBasketPromotion,
+  IBasketPromotion
 } from "@upmind-automation/types";
 import {
   ProductOrderTypes,
-  PromotionDisplayTypes,
+  PromotionDisplayTypes
 } from "@upmind-automation/types";
 
 import type {
   BasketProduct,
   IBasketProductModel,
-  IBasketSubproductModel,
+  IBasketSubproductModel
 } from "./types";
 
 import type {
@@ -62,7 +62,7 @@ import type {
   ProductSummaryDetailWithPrice,
   ProductSummaryDetail,
   PriceDetail,
-  ExternalError,
+  ExternalError
 } from "../product/types";
 
 // -----------------------------------------------------------------------------
@@ -94,7 +94,7 @@ export const parseBasketProduct = (
 
     // --- errors
     // TODO: check the errors provided and map correctly
-    errors: omitBy(errors, isEmpty),
+    errors: omitBy(errors, isEmpty)
   };
 
   // --- because we are a full basket product, we may have a service identifier
@@ -102,7 +102,7 @@ export const parseBasketProduct = (
   basketProduct.productDetails.title = useUischemaTitle(raw.product, {
     basketProduct: raw,
     valueKey: "meta.uischema.title",
-    fallback: useProductName(raw.product, raw),
+    fallback: useProductName(raw.product, raw)
   });
 
   // --- Now build up our details
@@ -150,12 +150,12 @@ export function parseSummary(subproduct: IBasketProduct): ProductSummaryDetail {
     title: useUischemaTitle(subproduct.product, {
       basketProduct: subproduct,
       valueKey: "meta.uischema.title",
-      fallback: useProductName(subproduct.product, subproduct),
+      fallback: useProductName(subproduct.product, subproduct)
     }),
     category: useTranslateName(subproduct.product.category),
     cycle: subproduct.billing_cycle_months,
     quantity: subproduct.quantity,
-    meta: {},
+    meta: {}
   };
 }
 
@@ -172,7 +172,7 @@ export function parsSummaryWithPrice(
     free: raw.configuration_net_amount_discounted_converted == 0,
     overrides: raw?.product?.category?.price_override,
     mixed: raw?.product?.mixed_promotions, //TODO: check if this is correct
-    includesTax: includesTax.value,
+    includesTax: includesTax.value
   };
 
   summary.promotions = parsePromotionDetails(raw);
@@ -218,7 +218,7 @@ export function parsPrice(raw: IBasketProduct): PriceDetail {
     currentPrice,
     savingAmount,
     savingPrice,
-    savingPercent,
+    savingPercent
   } as PriceDetail;
 }
 
@@ -242,14 +242,14 @@ export const parsePromotionDetails = (
       meta: {
         display: PromotionDisplayTypes.PERCENTAGE,
         mixed: raw.product.mixed_promotions,
-        discounted: !!price.savingAmount || raw.product.mixed_promotions,
+        discounted: !!price.savingAmount || raw.product.mixed_promotions
       },
       price: {
         savingAmount: price.savingAmount,
         savingPrice: price.savingPrice,
-        savingPercent: price.savingPercent,
-      },
-    } as PromotionDetails,
+        savingPercent: price.savingPercent
+      }
+    } as PromotionDetails
   ];
 };
 
@@ -285,8 +285,8 @@ export function parseProvisionFieldSummary(
     category: key,
     title,
     meta: {
-      invalid: !!error,
-    },
+      invalid: !!error
+    }
   };
 }
 
@@ -311,7 +311,7 @@ export function parseBasketProductData(
           : basketPromotion;
 
       return { promocode };
-    }),
+    })
   } as IBasketProductModel;
 }
 
@@ -327,7 +327,7 @@ function parseBasketSubproductConfig(
             return {
               product_id: choice.productId,
               unit_quantity: choice.quantity,
-              billing_cycle_months: choice.cycle,
+              billing_cycle_months: choice.cycle
             };
           })
         );
@@ -389,7 +389,7 @@ export function parseBasketProductError(
         return concat(result, parsed);
       },
       []
-    ),
+    )
   };
   return omitBy(error, isEmpty) as Record<string, ErrorObject[]>;
 }

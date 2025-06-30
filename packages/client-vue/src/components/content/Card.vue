@@ -23,12 +23,12 @@ const props = withDefaults(
     disabled?: boolean;
   }>(),
   {
-    as: "div",
+    as: "div"
   }
 );
 
 const meta = computed(() => ({
-  isDisabled: props.disabled,
+  isDisabled: props.disabled
 }));
 
 const styles = useStyles(["card"], meta, config) as ComputedRef<{

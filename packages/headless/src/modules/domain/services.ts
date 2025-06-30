@@ -1,7 +1,7 @@
 // --- external
 
 // --- internal
-import { DomainModel, DomainProduct, useQuery } from "../..";
+import { DomainModel, DomainProduct, PAGINATION, useQuery } from "../..";
 
 // --- utils
 import { isEmpty, map, omitBy } from "lodash-es";
@@ -19,9 +19,9 @@ async function search({
   currency,
   controller,
   promotions,
-  preferredCycle,
+  preferredCycle
 }: DomainContext) {
-  const { get, useUrl } = useQuery();
+  const { getList, useUrl } = useQuery();
 
   if (!search?.query?.length)
     return Promise.reject(
@@ -43,28 +43,24 @@ async function search({
       with: ["prices", "options", "options.prices", "attributes"].join(),
       currency_code: currency,
       // tld,
-      promotions: promocodes,
+      promotions: promocodes
     },
     isEmpty
   );
 
-  return get<IProduct[], Promise<DomainProduct[]>>({
+  return getList<IProduct[], DomainProduct[]>({
     url: useUrl("modules/web_hosting/domains/search", params),
     init: { signal: controller?.signal },
-    queryKey: [
-      "domain",
-      "search",
-      { params },
-      {
-        limit: search?.limit,
-        offset: search.offset,
-      },
-    ],
+    queryKey: ["domain", "search", { ...params }],
+    pagination: {
+      limit: search?.limit ?? PAGINATION.limit,
+      offset: search?.offset ?? PAGINATION.offset
+    },
     staleTime: 0,
     gcTime: 0,
     select(data) {
       return parseAvailable(sld, data ?? [], preferredCycle);
-    },
+    }
   });
 }
 
@@ -78,7 +74,7 @@ async function getClientDomains({ controller }: DomainContext) {
     select: data => map(data, ({ domain_name }) => parseDomain(domain_name)),
     withAccessToken: true,
     staleTime: 0,
-    gcTime: 0,
+    gcTime: 0
   });
 }
 // ---
@@ -105,5 +101,5 @@ async function getClientDomains({ controller }: DomainContext) {
 
 export default {
   search,
-  getClientDomains,
+  getClientDomains
 };

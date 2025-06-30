@@ -64,7 +64,7 @@ const props = withDefaults(
     modelValue: "",
     loading: false,
     processing: false,
-    disabled: false,
+    disabled: false
   }
 );
 
@@ -74,7 +74,7 @@ const meta = computed(() => ({
   isLoading: props.loading,
   isEmpty: isEmpty(props.items),
   isDisabled: props.disabled,
-  isProcessing: props.processing,
+  isProcessing: props.processing
 }));
 
 const styles = useStyles(
@@ -98,7 +98,7 @@ const items = computed((): SelectCardsItemProps[] => {
     item: item,
     modelValue: modelValue.value,
     value: item.domain,
-    label: item.domain,
+    label: item.domain
   }));
 });
 </script>

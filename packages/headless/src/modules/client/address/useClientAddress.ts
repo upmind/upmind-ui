@@ -1,6 +1,6 @@
 // --- external
 import { computed } from "vue";
-import { interpret } from "xstate";
+import { interpret, InterpreterFrom } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 import { useActor } from "@xstate/vue";
 
@@ -23,6 +23,7 @@ import {
   responseCodes,
   contextMatches,
   ResponseError,
+  stopService
 } from "../../../utils";
 import { debounce, get, isEmpty, isEqual } from "lodash-es";
 
@@ -38,7 +39,7 @@ export const useClientAddress = (
   id?: Address["id"],
   {
     allowMultipleEdits,
-    clientId,
+    clientId
   }: { allowMultipleEdits?: boolean; clientId?: IClient["id"] } = {}
 ) => {
   const { getOne } = useClientAddresses();
@@ -48,17 +49,17 @@ export const useClientAddress = (
       .withConfig({
         actions: useClientAddressActions() as any,
         guards: useClientAddressGuards() as any,
-        services: useClientAddressServices() as any,
+        services: useClientAddressServices() as any
       })
       .withContext({
-        clientId: clientId,
+        clientId,
         id,
         model: getOne(id),
-        allowMultipleEdits,
+        allowMultipleEdits
       }),
     {
       id: id ?? "new-address",
-      devTools: true,
+      devTools: true
     }
   );
 
@@ -76,7 +77,7 @@ export const useClientAddress = (
 
   async function isReady(): Promise<boolean> {
     return waitFor(service, state => stateMatches(state, "available"), {
-      timeout: Infinity,
+      timeout: Infinity
     }).then(state => !stateMatches(state, "error"));
   }
 
@@ -84,12 +85,12 @@ export const useClientAddress = (
     isAvailable: stateMatches(state, "available"),
     isLoading: stateMatches(state, ["subscribing", "loading"]),
     hasErrors: stateMatches(state, "available.error"),
-    isValid: stateMatches(state, "available.valid"),
     isNew: !stateMatches(state, "model.id"),
+    isValid: stateMatches(state, "available.valid"),
     isProcessing: stateMatches(state, "processing"),
     isComplete:
       stateValue(state, "done", false) ||
-      stateMatches(state, ["processed", "complete"]),
+      stateMatches(state, ["processed", "complete"])
   }));
 
   // --- context
@@ -110,7 +111,9 @@ export const useClientAddress = (
 
   // --- methods
 
-  async function input(model: AddressModel): Promise<AddressModel> {
+  async function input(
+    model: AddressModel | Record<string, any>
+  ): Promise<AddressModel> {
     send({ type: "SET", data: model });
     // then we wait until the module has been checked and is valid/invalid
     return waitFor(service, state =>
@@ -128,7 +131,9 @@ export const useClientAddress = (
       });
   }
 
-  async function update(value?: AddressModel): Promise<AddressModel> {
+  async function update(
+    value?: AddressModel | Record<string, any>
+  ): Promise<AddressModel> {
     // first check if our model has changed, if it has we need to send it
 
     const model = contextValue<AddressModel>(state, "model");
@@ -140,36 +145,42 @@ export const useClientAddress = (
     }
 
     // we have to ensure the update is processed and the state is either processed or available.error
-    return waitFor(
-      service,
-      state => stateMatches(state, ["processed", "available.error"]),
-      { timeout: 60_000 }
-    )
-      .then(state => {
-        if (stateMatches(state, "available.error")) throw state.context.error;
-        return Promise.resolve(state.context.model);
-      })
-      .then(model => {
-        useClientAddressServices().refresh();
-        return model as AddressModel;
-      })
-      .catch(error => {
-        return Promise.reject(
-          new DetailedError(
-            "[headless] update Address failed",
-            error?.status ?? responseCodes.Timeout,
-            ErrorOrigin.Headless,
-            {
-              error,
-              state: state.value,
-            }
-          )
-        );
-      });
+    return (
+      waitFor(
+        service,
+        state => stateMatches(state, ["processed", "available.error"]),
+        { timeout: 60_000 }
+      )
+        .then(state => {
+          if (stateMatches(state, "available.error")) throw state.context.error;
+          return Promise.resolve(state.context.model);
+        })
+        // .then(model => {
+        //   useClientAddressServices().refresh();
+        //   return model as AddressModel;
+        // })
+        .catch(error => {
+          return Promise.reject(
+            new DetailedError(
+              "[headless] update Address failed",
+              error?.status ?? responseCodes.Timeout,
+              ErrorOrigin.Headless,
+              {
+                error,
+                state: state.value
+              }
+            )
+          );
+        })
+    );
   }
 
   function clear(): void {
     service.send({ type: "CLEAR" });
+  }
+
+  function stop(): void {
+    stopService(service as InterpreterFrom<any>);
   }
   // ---------------------------------------------------------------------------
   return {
@@ -245,7 +256,7 @@ export const useClientAddress = (
      * @param {AddressModel} value The optional new model to set. uses the current model if not provided.
      * @returns {Promise<AddressModel>} Resolves when updated model from the service, rejects on error.
      */
-    update,
+    update
   };
 };
 

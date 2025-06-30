@@ -7,6 +7,6 @@ export const exVariants = cva("text-emphasis-disabled text-xs leading-none");
 export default {
   pricing: {
     ex: exVariants,
-    current: currentVariants,
-  },
+    current: currentVariants
+  }
 };

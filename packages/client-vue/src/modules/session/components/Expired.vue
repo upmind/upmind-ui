@@ -66,14 +66,14 @@ const props = withDefaults(defineProps<SessionExpiredProps>(), {
     shape: "circle",
     color: "primary",
     icon: "basket",
-    fit: "contain",
+    fit: "contain"
   }),
   action: () => ({
     label: "Reload",
     color: "primary",
     handler: () => window.location.reload(),
-    auto: true,
-  }),
+    auto: true
+  })
 });
 
 const { meta } = useSession();

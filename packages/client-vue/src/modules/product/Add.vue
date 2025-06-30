@@ -8,7 +8,7 @@
           class="relative -top-4 mb-6 md:-top-6 md:mb-0"
           size="sm"
           variant="tonal"
-          :label="t('navigation.navigateBack')"
+          :label="t('navigation.back')"
           @click.prevent="doReject"
         >
           <template #prepend><Icon icon="arrow-left" size="2xs" /></template>
@@ -82,7 +82,7 @@ import {
   useRoutingEngine,
   useBasketProductsPending,
   useQueryParams,
-  ROUTE,
+  ROUTE
 } from "@upmind-automation/headless";
 
 // --- components
@@ -112,7 +112,7 @@ const {
   meta,
   stop,
   update,
-  service: pendingProduct,
+  service: pendingProduct
 } = await configure(productId);
 
 async function doResolve() {
@@ -134,7 +134,7 @@ async function doResolve() {
           }
         },
         {
-          immediate: true,
+          immediate: true
         }
       );
     });

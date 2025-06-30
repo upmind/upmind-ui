@@ -34,7 +34,7 @@ export default createMachine(
       user: undefined,
       transfer: undefined,
       // ---
-      error: undefined,
+      error: undefined
     } as ClientContext,
     states: {
       loading: {
@@ -44,17 +44,17 @@ export default createMachine(
           src: "load",
           onDone: {
             target: "available",
-            actions: ["setActor", "setUser", "setLocale"],
+            actions: ["setActor", "setUser", "setLocale"]
           },
-          onError: { target: "complete", actions: ["setError"] },
-        },
+          onError: { target: "complete", actions: ["setError"] }
+        }
       },
 
       processed: {
         id: "processed",
         after: {
-          wait: "available",
-        },
+          wait: "available"
+        }
       },
 
       available: {
@@ -62,12 +62,12 @@ export default createMachine(
         on: {
           LOGOUT: {
             target: "complete",
-            actions: "clear",
+            actions: "clear"
           },
           TRANSFER_TO: {
-            target: "transferring",
-          },
-        },
+            target: "transferring"
+          }
+        }
       },
 
       transferring: {
@@ -78,36 +78,36 @@ export default createMachine(
               src: "transferTo",
               onDone: {
                 target: "available",
-                actions: "setTransfer",
+                actions: "setTransfer"
               },
               onError: {
                 target: "unavailable",
-                actions: ["setError", "setFeedbackError"],
-              },
-            },
+                actions: ["setError", "setFeedbackError"]
+              }
+            }
           },
 
           available: {
             after: {
               expired: {
                 target: "unavailable",
-                actions: "clearTransfer",
-              },
-            },
+                actions: "clearTransfer"
+              }
+            }
           },
 
           unavailable: {
-            after: { error: "#available" },
-          },
-        },
+            after: { error: "#available" }
+          }
+        }
       },
 
       // Handle completion, stop the machine and prevent further requests
       complete: {
         id: "complete",
-        type: "final",
-      },
-    },
+        type: "final"
+      }
+    }
   },
   {
     actions: {
@@ -127,13 +127,13 @@ export default createMachine(
           "upm_actor",
           omit(data?.analytics, ["environment", "language", "version"]),
           {
-            expires: "8h",
+            expires: "8h"
           }
         );
       },
 
       setUser: assign({
-        user: (_context, { data }: AnyEventObject) => useUserParser(data.actor),
+        user: (_context, { data }: AnyEventObject) => useUserParser(data.actor)
       }),
       setLocale: ({ user }) => {
         if (!user) return;
@@ -142,12 +142,12 @@ export default createMachine(
       },
 
       setTransfer: assign({
-        transfer: (_context, { data }: AnyEventObject) => data,
+        transfer: (_context, { data }: AnyEventObject) => data
       }),
       clearTransfer: assign({ transfer: undefined }),
       // ---
       setError: assign({
-        error: (context, { data }: AnyEventObject) => mapToHeadlessError(data),
+        error: (context, { data }: AnyEventObject) => mapToHeadlessError(data)
       }),
 
       setFeedbackError: ({ error }, _event) => {
@@ -157,19 +157,19 @@ export default createMachine(
         addError({
           title: "We experienced an error processing your request",
           copy: error?.message,
-          data: error?.data,
+          data: error?.data
         });
       },
 
-      clearError: assign({ error: undefined }),
+      clearError: assign({ error: undefined })
     },
     guards: {},
 
     delays: {
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
-      expired: () => useTime().MINUTE * 5,
+      expired: () => useTime().MINUTE * 5
     },
-    services: services as any,
+    services: services as any
   }
 );

@@ -45,11 +45,11 @@ export const useCheckoutFlows = () => {
                 name: ROUTE.ORDER,
                 params: { orderId: invoice.value?.id },
                 query: {
-                  payment_success: basketMeta.value.hasPaid.toString(),
-                },
+                  payment_success: basketMeta.value.hasPaid.toString()
+                }
               } as Route;
-            },
-          },
+            }
+          }
         ],
         back: [ROUTE.BASKET, ROUTE.EMPTY],
         fallback: [
@@ -61,31 +61,31 @@ export const useCheckoutFlows = () => {
               return {
                 name: ROUTE.ORDER,
                 params: { orderId: invoice.value?.id },
-                query: { payment_success: basketMeta.value.hasPaid.toString() },
+                query: { payment_success: basketMeta.value.hasPaid.toString() }
               } as Route;
-            },
+            }
           },
 
           {
             name: ROUTE.EMPTY,
             guard: async (_route: Route) =>
-              isReady().then(() => !basketMeta.value.hasProducts),
+              isReady().then(() => !basketMeta.value.hasProducts)
           },
           {
             name: ROUTE.BASKET,
             guard: async (_route: Route) =>
-              isReady().then(() => basketMeta.value.hasInvalidProducts),
+              isReady().then(() => basketMeta.value.hasInvalidProducts)
           },
           {
             name: ROUTE.SESSION_REGISTER,
             guard: async (_route: Route) => {
               const validAuth = sessionMeta.value.isAuthenticated;
               return !validAuth;
-            },
-          },
-        ],
-      },
-    },
+            }
+          }
+        ]
+      }
+    }
   ];
 
   return {
@@ -93,6 +93,6 @@ export const useCheckoutFlows = () => {
     register: (data?: Flow[]) => {
       flows = uniqBy([...(data ?? []), ...flows], "name");
       routing.register(flows);
-    },
+    }
   };
 };

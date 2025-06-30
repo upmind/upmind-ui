@@ -14,7 +14,7 @@ import {
   parseRelatedProducts,
   parseRecommendation,
   parseRelationships,
-  checkInBasket,
+  checkInBasket
 } from "./utils";
 import {
   concat,
@@ -37,7 +37,7 @@ import {
   uniq,
   uniqBy,
   unset,
-  xorBy,
+  xorBy
 } from "lodash-es";
 
 // --- types
@@ -61,42 +61,42 @@ export default createMachine(
         on: {
           REFRESH: {
             target: "available",
-            actions: ["setBasket", "setLookups", "setRecommendations"],
+            actions: ["setBasket", "setLookups", "setRecommendations"]
           },
           ERROR: {
-            actions: ["setError"],
+            actions: ["setError"]
             // target: "unavailable",
-          },
-        },
+          }
+        }
       },
 
       refreshing: {
         after: {
-          wait: "available",
-        },
+          wait: "available"
+        }
       },
 
       available: {
         always: {
           target: "unavailable",
-          cond: "hasNoRecommendations",
-        },
+          cond: "hasNoRecommendations"
+        }
       },
 
       unavailable: {
         always: {
           target: "available",
-          cond: "hasRecommendations",
-        },
+          cond: "hasRecommendations"
+        }
       },
 
       configuring: {
         on: {
           CANCEL: {
             target: "available",
-            actions: ["clearItem"],
-          },
-        },
+            actions: ["clearItem"]
+          }
+        }
       },
 
       processing: {
@@ -104,76 +104,76 @@ export default createMachine(
         on: {
           REFRESH: {
             actions: ["setBasket", "setLookups", "setRecommendations"],
-            cond: "hasBasketProductsChanged",
+            cond: "hasBasketProductsChanged"
           },
 
           ADDED: {
             actions: ["setBasket", "setLookups", "setRecommendations"],
-            target: "available",
+            target: "available"
           },
           CANCEL: {
             target: "available",
-            actions: ["clearItem", "setRecommendations"],
+            actions: ["clearItem", "setRecommendations"]
           },
           ERROR: [
             {
               target: "configuring",
               actions: ["setError", "setItem"],
-              cond: "hasBasketItem",
+              cond: "hasBasketItem"
             },
             {
               target: "error",
-              actions: ["setError"],
-            },
-          ],
-        },
+              actions: ["setError"]
+            }
+          ]
+        }
       },
 
       error: {},
       // ---
       complete: {
-        type: "final",
-      },
+        type: "final"
+      }
     },
     on: {
       REFRESH: [
         {
           target: "refreshing",
           actions: ["setBasket", "setLookups", "setRecommendations"],
-          cond: "hasBasketChanged",
+          cond: "hasBasketChanged"
         },
         {
           actions: ["setBasket", "setLookups", "setRecommendations"],
-          cond: "hasBasketProductsChanged",
-        },
+          cond: "hasBasketProductsChanged"
+        }
       ],
       FETCH: {
         actions: ["fetchProduct"],
-        cond: "canFetch",
+        cond: "canFetch"
       },
       FETCHED: {
         actions: ["setRecommendation"],
-        cond: "hasData",
+        cond: "hasData"
       },
       ERROR: {
         actions: ["setError", "removeRelated", "setRecommendations"],
-        cond: "hasDataWithContext",
+        cond: "hasDataWithContext"
       },
       SEEN: {
-        actions: ["setSeen"],
+        actions: ["setSeen"]
       },
       ADD: {
         target: "processing",
         actions: ["addToBasket", "setProcessing"],
-        cond: "exists",
+        cond: "exists"
       },
       // PROCESSING: {
       //   target: "processing",
       // },
       STOP: {
-        target: "complete",
-      },
-    },
+        target: "complete"
+      }
+    }
   },
   {
     actions: {
@@ -185,7 +185,7 @@ export default createMachine(
             related: [],
             relationships: {},
             seen: [],
-            added: [],
+            added: []
           },
           recommendations: [],
           // ---
@@ -196,7 +196,7 @@ export default createMachine(
           promotions: [],
           // ---
           basketHelper: undefined,
-          parseBasketProductComparison: undefined,
+          parseBasketProductComparison: undefined
         })
       ),
 
@@ -212,7 +212,7 @@ export default createMachine(
         promotions: (_context, { data }: AnyEventObject) => {
           const basket = get(data, "basket", data);
           return basket?.promotions;
-        },
+        }
       }),
       // ---
 
@@ -230,8 +230,8 @@ export default createMachine(
             ),
 
           parseBasketProductComparison: (item: BasketProduct) => ({
-            productId: item.configuration.productId,
-          }),
+            productId: item.configuration.productId
+          })
         };
       }),
 
@@ -239,7 +239,7 @@ export default createMachine(
         ({ basketHelper }: RecommendationsEngineContext, _event) => {
           if (!basketHelper) return;
           return sendTo(basketHelper, {
-            type: "INIT",
+            type: "INIT"
           });
         }
       ),
@@ -257,7 +257,7 @@ export default createMachine(
             context,
             "promotions",
             map(context.configuration.coupons, coupon => ({
-              promotion: { code: coupon },
+              promotion: { code: coupon }
             }))
           );
 
@@ -267,7 +267,7 @@ export default createMachine(
           return sendTo(basketHelper, {
             type: "FETCH",
             target: context.configuration.productId,
-            context,
+            context
           });
         }
       ),
@@ -282,7 +282,7 @@ export default createMachine(
           return sendTo(context.basketHelper, {
             type: "FETCH_SELECTED",
             target: productIds,
-            context,
+            context
           });
         }
       ),
@@ -318,8 +318,8 @@ export default createMachine(
             target: model,
             context: {
               ...context,
-              recommendation,
-            },
+              recommendation
+            }
           });
         }
       ),
@@ -332,7 +332,7 @@ export default createMachine(
           const recommendation = find(recommendations, ["id", data]);
           if (recommendation) set(recommendation, "meta.processing", true);
           return recommendations;
-        },
+        }
       }),
 
       // ---
@@ -340,7 +340,7 @@ export default createMachine(
       setItem: assign({
         basketItem: (_context, { data }: AnyEventObject) => {
           return data?.basketItem;
-        },
+        }
       }),
 
       clearItem: assign({ basketItem: undefined }),
@@ -357,9 +357,9 @@ export default createMachine(
             related: [],
             relationships: {},
             seen: [],
-            added: raw.added,
+            added: raw.added
           };
-        },
+        }
       }),
 
       setLookups: assign({
@@ -377,10 +377,10 @@ export default createMachine(
             related,
             relationships,
             seen: raw?.seen ?? [], // TODO: retrieve from local storage
-            added,
+            added
             // added: uniq(concat(raw.added, added)),
           };
-        },
+        }
       }),
 
       setSeen: assign({
@@ -399,7 +399,7 @@ export default createMachine(
             related: raw.related,
             relationships: raw.relationships,
             seen: map(seen, "id"),
-            added: raw.added,
+            added: raw.added
           };
         },
         recommendations: (
@@ -415,7 +415,7 @@ export default createMachine(
 
             return recommendation;
           });
-        },
+        }
       }),
 
       // resetSeen: assign({
@@ -450,7 +450,7 @@ export default createMachine(
                 added,
                 seen,
                 processing,
-                loading,
+                loading
               });
               result.push(parsed);
               return result;
@@ -458,7 +458,7 @@ export default createMachine(
             []
           );
           return parsed;
-        },
+        }
       }),
 
       setRecommendation: assign({
@@ -489,7 +489,7 @@ export default createMachine(
                 added,
                 seen,
                 processing,
-                loading,
+                loading
               });
               result.push(parsed);
               return result;
@@ -497,7 +497,7 @@ export default createMachine(
             []
           );
           return augmentedRecommendations;
-        },
+        }
       }),
 
       removeRelated: assign({
@@ -507,7 +507,7 @@ export default createMachine(
         ) => {
           raw.related = reject(raw.related, ["id", context.id]);
           return raw;
-        },
+        }
       }),
 
       // --- Datalayer
@@ -522,7 +522,7 @@ export default createMachine(
           currency: currency?.code,
           item_list_id: "recommendations",
           // item_list_name: "Recommendations",
-          items: raw.related,
+          items: raw.related
         }).push();
       },
 
@@ -539,10 +539,10 @@ export default createMachine(
           }
 
           return mapToHeadlessError(data);
-        },
+        }
       }),
 
-      clearError: assign({ error: undefined }),
+      clearError: assign({ error: undefined })
     },
 
     guards: {
@@ -606,14 +606,14 @@ export default createMachine(
       hasBasketItem: (
         _context: RecommendationsEngineContext,
         { data }: AnyEventObject
-      ) => isObject(data?.basketItem),
+      ) => isObject(data?.basketItem)
     },
 
     delays: {
       error: () => useTime().ERROR,
-      wait: () => useTime().WAIT,
+      wait: () => useTime().WAIT
     },
 
-    services,
+    services
   }
 );

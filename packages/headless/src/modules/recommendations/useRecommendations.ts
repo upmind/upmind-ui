@@ -14,7 +14,7 @@ import {
   stopService,
   contextValue,
   stateMatches,
-  contextMatches,
+  contextMatches
 } from "../../utils";
 
 // --- types
@@ -63,7 +63,7 @@ export const useRecommendations = () => {
     isConfiguring: stateMatches(state, ["configuring"]),
     isLoading: stateMatches(state, ["subscribing"]),
     isProcessing: stateMatches(state, ["processing"]),
-    isRefreshing: stateMatches(state, ["refreshing"]),
+    isRefreshing: stateMatches(state, ["refreshing"])
   }));
 
   // --- context
@@ -89,7 +89,7 @@ export const useRecommendations = () => {
   function add(id: string) {
     send({ type: "ADD", data: id });
     return waitFor(service, s => !stateMatches(s, ["processing"]), {
-      timeout: Infinity,
+      timeout: Infinity
     }).then(s => {
       if (stateMatches(s, ["error", "configuring"])) {
         return Promise.reject(contextValue(s, "error"));
@@ -186,7 +186,7 @@ export const useRecommendations = () => {
     seen,
 
     /** Stops the recommendations engine  */
-    stop,
+    stop
   };
 };
 

@@ -37,9 +37,19 @@
         @click.prevent="router.push({ name: 'client.companies' })"
       >
       </Button>
+
+      <Alert
+        v-if="!meta.isAuthenticated && !meta.isLoading"
+        color="error"
+        title="Please log in to use client companies"
+      />
     </UpmContentSection>
 
-    <RouterView v-slot="{ Component }" :key="$route.fullPath">
+    <RouterView
+      v-slot="{ Component }"
+      :key="$route.fullPath"
+      v-if="meta.isAuthenticated && !!userId"
+    >
       <template v-if="Component">
         <UpmContent>
           <Transition mode="out-in">
@@ -70,18 +80,20 @@
 import { useRouter } from "vue-router";
 
 // --- internal
+import { useSession } from "@upmind-automation/headless";
 
 // --- components
 import {
   UpmLoading,
   UpmContent,
-  UpmContentSection,
+  UpmContentSection
 } from "@upmind-automation/client-vue";
-import { Button } from "@upmind-automation/upmind-ui";
 
-// --- types
+import { Button, Alert } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 
 const router = useRouter();
+
+const { meta, userId } = useSession();
 </script>

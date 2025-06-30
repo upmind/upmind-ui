@@ -19,7 +19,7 @@ import {
   ErrorOrigin,
   responseCodes,
   stopService,
-  useContext,
+  useContext
 } from "../../utils";
 
 // --- types
@@ -47,7 +47,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
         "coupons",
         "subproducts",
         "silent",
-        "bundle",
+        "bundle"
       ]) as ProductModel)
     : undefined;
 
@@ -86,11 +86,11 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
         silent,
         bundle,
         // ---
-        model: productProps,
+        model: productProps
       }),
       {
         id,
-        devTools: true,
+        devTools: true
       }
     ).start();
 
@@ -103,7 +103,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
 
   async function isReady(): Promise<void> {
     return waitFor(service, state => state.matches("available"), {
-      timeout: Infinity,
+      timeout: Infinity
     }).then(() => {});
   }
 
@@ -139,7 +139,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
       service,
       state =>
         !state.matches("processing", {
-          timeout: 60_000,
+          timeout: 60_000
         }),
       {}
     )
@@ -205,8 +205,8 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
         service.send({
           type: "SET.QUANTITY",
           data: {
-            quantity: parseQuantity(value, product.productDetails),
-          },
+            quantity: parseQuantity(value, product.productDetails)
+          }
         });
         return update();
       }),
@@ -229,8 +229,8 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
         service.send({
           type: "SET.QUANTITY",
           data: {
-            quantity: parseQuantity(qty, product.productDetails),
-          },
+            quantity: parseQuantity(qty, product.productDetails)
+          }
         });
         return update();
       }),
@@ -253,13 +253,13 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
         service.send({
           type: "SET.QUANTITY",
           data: {
-            quantity: parseQuantity(qty, product.productDetails),
-          },
+            quantity: parseQuantity(qty, product.productDetails)
+          }
         });
         return update();
       }),
 
-    update,
+    update
   };
 };
 

@@ -26,20 +26,14 @@ export const parsePaymentDetails = (raw: any): Record<string, any> => {
 
 export const useSchema = ({
   payment_types,
-  gateways,
+  gateways
 }: PaymentDetailsContext): JsonSchema => {
   const schema = {
     type: "object",
     title: "Payment details",
-    required: ["amount", "type"],
+    required: ["type"],
 
     properties: {
-      amount: {
-        type: "number",
-        title: "Amount",
-        readOnly: true,
-        exclusiveMinimum: 0,
-      },
       type: {
         type: "string",
         title: "Payment type",
@@ -48,8 +42,8 @@ export const useSchema = ({
           ? undefined
           : map(payment_types, (value, key) => ({
               const: value,
-              title: key,
-            })),
+              title: key
+            }))
       },
       gateway_id: {
         type: ["string", "null"],
@@ -58,22 +52,22 @@ export const useSchema = ({
           ? undefined
           : map(gateways, ({ gateway_id, gateway }) => ({
               const: gateway_id,
-              title: useTranslateName(gateway),
-            })),
-      },
+              title: useTranslateName(gateway)
+            }))
+      }
     },
 
     if: {
       properties: {
-        type: { const: PaymentType.PAY_IN_FULL },
-      },
+        type: { const: PaymentType.PAY_IN_FULL }
+      }
     },
     then: {
       oneOf: [
         { required: ["gateway_id"] },
-        { required: ["payment_details_id"] },
-      ],
-    },
+        { required: ["payment_details_id"] }
+      ]
+    }
   };
 
   return schema as JsonSchema;
@@ -114,22 +108,22 @@ export const useUischema = () => {
         options: {
           format: "radio",
           stretch: true,
-          layout: "grid",
-        },
-        rule: {
-          effect: "SHOW",
-          condition: {
-            scope: "#",
-            schema: {
-              required: ["type", "amount"],
-              properties: {
-                amount: { not: { const: 0 } },
-              },
-            },
-          },
-        },
-      },
-    ],
+          layout: "grid"
+        }
+        // rule: {
+        //   effect: "SHOW",
+        //   condition: {
+        //     scope: "#",
+        //     schema: {
+        //       required: ["type", "amount"],
+        //       properties: {
+        //         amount: { not: { const: 0 } }
+        //       }
+        //     }
+        //   }
+        // }
+      }
+    ]
   };
 
   return uischema as UISchemaElement;
@@ -141,7 +135,7 @@ export function spawnGateway({
   amount,
   currency,
   stored_payment_methods,
-  address,
+  address
 }: any) {
   // lets spawn and return the appropriate machine based on the gateway
   // the order her eis important and matches the original order in the legacy app
@@ -151,7 +145,7 @@ export function spawnGateway({
       gateway,
       amount,
       currency,
-      renderless: true,
+      renderless: true
     });
   }
   if (isStored(gateway)) {
@@ -159,7 +153,7 @@ export function spawnGateway({
       orderId,
       amount,
       currency,
-      stored_payment_methods,
+      stored_payment_methods
     });
   }
   if (isStripe(gateway))
@@ -170,7 +164,7 @@ export function spawnGateway({
       gateway,
       amount,
       currency,
-      renderless: true,
+      renderless: true
     });
   if (isDirectDebit(gateway))
     return spawnGenericGateway(GatewayTypes.DIRECT_DEBIT, {
@@ -178,7 +172,7 @@ export function spawnGateway({
       gateway,
       amount,
       currency,
-      renderless: true,
+      renderless: true
     });
   if (isSEPA(gateway))
     return spawnGenericGateway(GatewayTypes.SEPA, {
@@ -187,7 +181,7 @@ export function spawnGateway({
       amount,
       currency,
       renderless: true,
-      address,
+      address
     });
   if (isMobile(gateway))
     return spawnGenericGateway(GatewayTypes.MOBILE, {
@@ -196,7 +190,7 @@ export function spawnGateway({
       amount,
       currency,
       renderless: true,
-      address,
+      address
     });
   if (isOffline(gateway))
     return spawnGenericGateway(GatewayTypes.OFFLINE, {
@@ -204,14 +198,14 @@ export function spawnGateway({
       gateway,
       amount,
       currency,
-      renderless: true,
+      renderless: true
     });
   if (isExternal(gateway))
     return spawnExternal({
       orderId,
       gateway,
       amount,
-      currency,
+      currency
     });
   if (isCard(gateway)) return spawnCard({ orderId, gateway, amount, currency });
 
@@ -222,7 +216,7 @@ export function spawnStored({
   orderId,
   amount,
   currency,
-  stored_payment_methods,
+  stored_payment_methods
 }: any) {
   return spawn(
     gatewayMachine.withConfig(storedConfig as any).withContext({
@@ -230,7 +224,7 @@ export function spawnStored({
       orderId,
       amount,
       currency,
-      type: GatewayTypes.STORED,
+      type: GatewayTypes.STORED
     }),
     { name: "stored", sync: true }
   );
@@ -244,7 +238,7 @@ export function spawnCard({ orderId, gateway, amount, currency }: any) {
       amount,
       currency,
       type: GatewayTypes.CARD,
-      code: gateway?.gateway_provider.code,
+      code: gateway?.gateway_provider?.code
     }),
     { name: gateway?.id, sync: true }
   );
@@ -255,7 +249,7 @@ export function spawnStripe({
   gateway,
   amount,
   currency,
-  address,
+  address
 }: PaymentDetailsContext) {
   return spawn(
     stripeMachine.withContext({
@@ -265,8 +259,8 @@ export function spawnStripe({
       amount,
       currency,
       type: GatewayTypes.CARD,
-      code: gateway?.gateway_provider.code,
-      address,
+      code: gateway?.gateway_provider?.code,
+      address
     } as any),
     { name: gateway?.id, sync: true }
   );
@@ -283,8 +277,8 @@ export function spawnGenericGateway(
       amount: amount || 0,
       currency,
       type,
-      code: gateway?.gateway_provider.code,
-      renderless,
+      code: gateway?.gateway_provider?.code,
+      renderless
     }),
     { name: gateway?.id, sync: true }
   );
@@ -298,7 +292,7 @@ export function spawnExternal({ orderId, gateway, amount, currency }: any) {
       amount,
       currency,
       type: GatewayTypes.CARD,
-      code: gateway?.gateway_provider.code,
+      code: gateway?.gateway_provider?.code
       // external: gateway?.gateway_provider.external_payment,
     }),
     { name: gateway?.id, sync: true }

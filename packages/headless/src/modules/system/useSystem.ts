@@ -18,7 +18,7 @@ import {
   responseCodes,
   ResponseError,
   stateMatches,
-  useContext,
+  useContext
 } from "../../utils";
 import { find, isString, get, isEmpty, some, isArray, omit } from "lodash-es";
 
@@ -30,7 +30,7 @@ import {
   ITicketDepartment,
   type ICountry,
   type ICurrency,
-  type IRegion,
+  type IRegion
 } from "@upmind-automation/types";
 import { SystemContext } from "./types";
 
@@ -74,7 +74,7 @@ export const useSystem = () => {
           "regions.complete",
           "languages.complete",
           "statuses.complete",
-          "departments.complete",
+          "departments.complete"
         ].some(state.value.matches)
     );
 
@@ -89,7 +89,7 @@ export const useSystem = () => {
       "regions.error",
       "languages.error",
       "statuses.error",
-      "departments.error",
+      "departments.error"
     ]),
     isComplete: [
       "currencies.complete",
@@ -98,7 +98,7 @@ export const useSystem = () => {
       "regions.complete",
       "languages.complete",
       "statuses.complete",
-      "departments.complete",
+      "departments.complete"
     ].every(state.value.matches),
     isLoading: stateMatches(state, [
       "currencies.loading",
@@ -107,9 +107,9 @@ export const useSystem = () => {
       "regions.loading",
       "languages.loading",
       "statuses.loading",
-      "departments.loading",
+      "departments.loading"
     ]),
-    isReady: isReady(),
+    isReady: isReady()
   }));
 
   // --- context
@@ -165,7 +165,7 @@ export const useSystem = () => {
     }
     service.send({
       type: `${node.toUpperCase()}.GET`,
-      data,
+      data
     });
     return new Promise((resolve, reject) => {
       waitFor(
@@ -417,7 +417,7 @@ export const useSystem = () => {
      * @param value - The department code.
      * @returns The matching department object, or undefined if not found.
      */
-    getDepartment,
+    getDepartment
   };
 };
 

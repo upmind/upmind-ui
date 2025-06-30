@@ -19,6 +19,6 @@ export function useMoney() {
 
   return {
     parsePrice,
-    removeTrailingZeroes,
+    removeTrailingZeroes
   };
 }

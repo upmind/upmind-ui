@@ -3,7 +3,7 @@ import {
   QueryClient,
   useMutation,
   useQuery as vueUseQuery,
-  useInfiniteQuery as vueUseInfiniteQuery,
+  useInfiniteQuery as vueUseInfiniteQuery
 } from "@tanstack/vue-query";
 import { isArray, isFunction } from "xstate/lib/utils";
 import { ref, unref, computed } from "vue";
@@ -14,21 +14,21 @@ import { doFetch, refreshToken } from "./services";
 
 // --- utils
 import {
-  get,
-  set,
-  unset,
   forEach,
+  get,
   isEmpty,
+  isInteger,
   isObject,
   isString,
+  set,
   toNumber,
-  isInteger,
+  unset
 } from "lodash-es";
 import {
   parseData,
   PAGINATION,
   cleanQueryKey,
-  canRetryAuthorization,
+  canRetryAuthorization
 } from "./utils";
 import {
   useUrl,
@@ -36,7 +36,7 @@ import {
   isPromise,
   ErrorOrigin,
   DetailedError,
-  responseCodes,
+  responseCodes
 } from "../../utils";
 import { getTokenFromStorage } from "../session/utils";
 
@@ -47,7 +47,7 @@ import {
   RequestParams,
   MutationParams,
   InfiniteQueryPage,
-  QueryResponseError,
+  QueryResponseError
 } from "./types";
 import { Methods } from "@upmind-automation/types";
 import type { DefaultError } from "@tanstack/vue-query";
@@ -63,9 +63,9 @@ const queryClient = new QueryClient({
       // Default time for inactive data to be garbage collected
       gcTime: useTime().MINUTE * 30,
       // Default cache time for data to be considered "fresh"
-      staleTime: useTime().MINUTE * 5,
-    },
-  },
+      staleTime: useTime().MINUTE * 5
+    }
+  }
 });
 
 export const useQuery = () => {
@@ -93,7 +93,7 @@ export const useQuery = () => {
     pagination,
     // ---
     init,
-    withAccessToken,
+    withAccessToken
   }: RequestParams): Promise<QueryResponse<T>> {
     // safeguard
     init ??= {};
@@ -186,7 +186,7 @@ export const useQuery = () => {
             error: requestError,
             url: url.toString(),
             method: init?.method,
-            attempts,
+            attempts
           }
         )
       );
@@ -197,6 +197,7 @@ export const useQuery = () => {
 
   /**
    * Syntax sugar for sending a GET request to the server with the given URL and options.
+   * NOTE: this does not deal with pagination, it is a simple GET request.
    * @see {@link QueryParams}
    * @param url The URL to send the request to.
    * @param init The request options.
@@ -214,9 +215,9 @@ export const useQuery = () => {
     queryKey,
     withAccessToken,
     ...options
-  }: QueryParams<
-    TQueryFnData,
-    TData
+  }: Omit<
+    QueryParams<TQueryFnData, TData>,
+    "pagination"
   >) /* TODO: MAYBE omit the pagination/sort and filter query params */ {
     return vueUseQuery<TQueryFnData, DefaultError, TData>(
       {
@@ -231,16 +232,16 @@ export const useQuery = () => {
               url,
               init: {
                 ...init,
-                signal, // Pass the new signal to the request to allow cancellation
+                signal // Pass the new signal to the request to allow cancellation
               },
-              withAccessToken,
+              withAccessToken
             }).then(response => {
               if (isFunction(select)) return select(response.data!) as TData;
               return response.data as TQueryFnData;
             })
           );
         },
-        ...(options as any),
+        ...(options as any)
       },
       queryClient
     );
@@ -269,20 +270,17 @@ export const useQuery = () => {
     ...options
   }: QueryParams<TQueryFnData, TData>) {
     // --- state
-    const limit = options?.pagination?.limit ?? PAGINATION.pageSize;
+    const limit = options?.pagination?.limit ?? PAGINATION.limit;
+    const offset = options?.pagination?.offset ?? PAGINATION.offset;
     const sort = ref(options?.sort);
     const total = ref(0);
     const pageTotal = computed(() => {
       if (!limit) return 1; // Can only be 1 page if limit=0
       return Math.max(Math.ceil(total.value / limit), 1);
     });
-    const pageIndex = ref(
-      options?.pagination?.offset
-        ? Math.ceil(options?.pagination.offset / limit) + 1
-        : 1
-    );
+    const pageIndex = ref(Math.ceil(offset / limit) + 1);
     const filters = ref<QueryParams["filters"]>({
-      ...(options?.filters ?? {}),
+      ...(options?.filters ?? {})
     });
 
     // --- query
@@ -291,7 +289,7 @@ export const useQuery = () => {
       {
         queryKey: cleanQueryKey([
           ...queryKey,
-          { sort, limit, locale, filters, pageIndex },
+          { sort, limit, locale, filters, pageIndex }
         ]),
         queryFn: async ({ signal }) => {
           const hasGuard = isPromise(guard);
@@ -306,9 +304,9 @@ export const useQuery = () => {
               pagination: { limit, offset: (pageIndex.value - 1) * limit },
               init: {
                 ...init,
-                signal, // Pass the new signal to the request to allow cancellation
+                signal // Pass the new signal to the request to allow cancellation
               },
-              withAccessToken,
+              withAccessToken
             }).then(response => {
               total.value = response.total || 0; // Set the total items count
               if (isFunction(select)) return select(response.data!) as TData;
@@ -316,7 +314,7 @@ export const useQuery = () => {
             })
           );
         },
-        ...(options as any),
+        ...(options as any)
       },
       queryClient
     );
@@ -346,7 +344,7 @@ export const useQuery = () => {
         from: !total.value ? 0 : limit * (pageIndex.value - 1) + 1,
         to: !limit
           ? total.value
-          : Math.min(limit * pageIndex.value, total.value),
+          : Math.min(limit * pageIndex.value, total.value)
       })),
 
       /**
@@ -357,7 +355,7 @@ export const useQuery = () => {
        */
       meta: computed(() => ({
         hasNextPage: pageIndex.value < pageTotal.value,
-        hasPrevPage: pageIndex.value > 1,
+        hasPrevPage: pageIndex.value > 1
       })),
 
       // --- methods
@@ -382,7 +380,7 @@ export const useQuery = () => {
               pages: pageTotal.value,
               to: !limit
                 ? total.value
-                : Math.min(limit * pageIndex.value, total.value),
+                : Math.min(limit * pageIndex.value, total.value)
             }
           );
         }
@@ -413,7 +411,7 @@ export const useQuery = () => {
               pages: pageTotal.value,
               to: !limit
                 ? total.value
-                : Math.min(limit * pageIndex.value, total.value),
+                : Math.min(limit * pageIndex.value, total.value)
             }
           );
         }
@@ -429,16 +427,15 @@ export const useQuery = () => {
       filter: (values: QueryParams["filters"]) => {
         filters.value = unref(values);
       },
-
-      resetQuery: () => {
-        pageIndex.value = 1;
-        return queryClient.resetQueries({
-          queryKey: cleanQueryKey([
-            ...queryKey,
-            { sort, limit, locale, filters, pageIndex },
-          ]),
-        });
-      },
+      resetQuery: () =>
+        queryClient
+          .resetQueries({
+            queryKey: cleanQueryKey([
+              ...queryKey,
+              { sort, limit, locale, filters, pageIndex }
+            ])
+          })
+          .then(() => (pageIndex.value = 1))
     };
   }
 
@@ -466,7 +463,7 @@ export const useQuery = () => {
   }: QueryParams<TQueryFnData, TData>) {
     // --- state
 
-    const limit = options?.pagination?.limit ?? PAGINATION.pageSize;
+    const limit = options?.pagination?.limit ?? PAGINATION.limit;
     const sort = ref(options?.sort);
     const total = ref(0);
     const pageTotal = computed(() => {
@@ -474,7 +471,7 @@ export const useQuery = () => {
       return Math.max(Math.ceil(total.value / limit), 1);
     });
     const filters = ref<QueryParams["filters"]>({
-      ...(options?.filters ?? {}),
+      ...(options?.filters ?? {})
     });
 
     // --- query
@@ -483,7 +480,7 @@ export const useQuery = () => {
       {
         queryKey: cleanQueryKey([
           ...queryKey,
-          { sort, limit, locale, filters },
+          { sort, limit, locale, filters }
         ]),
         queryFn: async ({ pageParam = 0, signal }) => {
           const offset = toNumber(pageParam);
@@ -499,9 +496,9 @@ export const useQuery = () => {
               pagination: { limit, offset },
               init: {
                 ...init,
-                signal, // Pass the new signal to the request to allow cancellation
+                signal // Pass the new signal to the request to allow cancellation
               },
-              withAccessToken,
+              withAccessToken
             }).then(response => {
               total.value = response.total || 0; // Set the total items count
 
@@ -514,14 +511,14 @@ export const useQuery = () => {
                   !limit || offset + limit >= total.value
                     ? undefined
                     : offset + limit,
-                pageData: data,
+                pageData: data
               };
             })
           );
         },
         getNextPageParam: (lastPage: InfiniteQueryPage<TQueryFnData>) =>
           lastPage.nextOffset,
-        ...(options as any),
+        ...(options as any)
       },
       queryClient
     );
@@ -558,7 +555,7 @@ export const useQuery = () => {
           page: pagesFetched,
           pages: pageTotal.value,
           from: 1, // For "load more", we always show from item 1
-          to: itemsFetched, // The last item is simply the total number fetched
+          to: itemsFetched // The last item is simply the total number fetched
         };
       }),
 
@@ -570,7 +567,7 @@ export const useQuery = () => {
        */
       meta: computed(() => ({
         hasNextPage: response.hasNextPage.value,
-        hasPrevPage: response.hasPreviousPage.value,
+        hasPrevPage: response.hasPreviousPage.value
       })),
 
       sort: (values?: QueryParams["sort"]) => {
@@ -585,9 +582,9 @@ export const useQuery = () => {
         queryClient.resetQueries({
           queryKey: cleanQueryKey([
             ...queryKey,
-            { sort, limit, locale, filters },
-          ]),
-        }),
+            { sort, limit, locale, filters }
+          ])
+        })
     };
   }
 
@@ -605,7 +602,7 @@ export const useQuery = () => {
     TData = unknown,
     TError = DefaultError,
     TVariables = void,
-    TContext = unknown,
+    TContext = unknown
   >(
     method: Omit<Methods, "GET" | "HEAD">,
     {
@@ -626,7 +623,7 @@ export const useQuery = () => {
     return useMutation(
       {
         mutationFn: async () => request<TData>({ url, init, withAccessToken }),
-        ...options,
+        ...options
       },
       queryClient
     );
@@ -635,6 +632,7 @@ export const useQuery = () => {
   // --- Async methods
   /**
    * Syntax sugar for sending a GET request to the server with the given URL and options.
+   * NOTE: this does not deal with pagination, it is a simple GET request.
    * @see {@link QueryParams}
    * @param url The URL to send the request to.
    * @param init The request options.
@@ -652,40 +650,93 @@ export const useQuery = () => {
     queryKey,
     withAccessToken,
     ...options
-  }: QueryParams<TQueryFnData, TData>): Promise<TData> {
+  }: Omit<QueryParams<TQueryFnData, TData>, "pagination">): Promise<TData> {
     // Remove initialData from options before spreading, as it's not part of FetchQueryOptions
 
     // --- state
-    const limit = options?.pagination?.limit ?? 0;
     const sort = options?.sort;
     const filters = options?.filters;
 
-    const pageIndex = options?.pagination?.offset
-      ? Math.ceil(options?.pagination.offset / limit) + 1
-      : undefined;
-
     return queryClient.fetchQuery<TQueryFnData, DefaultError, TData>({
+      queryKey: cleanQueryKey([...queryKey, { locale, sort, filters }]),
+      queryFn: async ({ signal }) => {
+        return request<TQueryFnData>({
+          url,
+          sort,
+          filters,
+          init: {
+            ...init,
+            signal // Pass the new signal to the request to allow cancellation
+          },
+          withAccessToken
+        }).then(response => {
+          if (isFunction(select)) return select(response.data!) as TData;
+          return response.data as TQueryFnData;
+        });
+      },
+      ...(options as any)
+    });
+  }
+
+  /**
+   * Syntax sugar for sending a GET request with pagination, filters and sorting to the server with the given URL and options.
+   * @see {@link QueryParams}
+   * @param url The URL to send the request to.
+   * @param init The request options.
+   * @param guard A function that returns a promise to be resolved before the request is sent. This can be used to ensure that certain conditions are met before the request is sent, such as checking if the user is authenticated.
+   * @param select A function to select a subset of the data returned by the request. This can be used to transform the data before it is returned.
+   * @param queryKey The query key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
+   * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
+   * @param options Additional options to pass to TanStack query.
+   */
+  async function listRequest<TQueryFnData = unknown, TData = TQueryFnData>({
+    url,
+    init,
+    guard,
+    select,
+    queryKey,
+    withAccessToken,
+    ...options
+  }: QueryParams<TQueryFnData, TData>): Promise<QueryResponse<TData>> {
+    // --- state
+    const limit = options?.pagination?.limit ?? PAGINATION.limit;
+    const offset = options?.pagination?.offset ?? PAGINATION.offset;
+    const sort = options?.sort;
+    const filters = options?.filters;
+
+    const pageIndex = Math.ceil(offset / limit) + 1;
+
+    return queryClient.fetchQuery<
+      TQueryFnData,
+      DefaultError,
+      QueryResponse<TData>
+    >({
       queryKey: cleanQueryKey([
         ...queryKey,
-        { sort, limit, locale, filters, pageIndex },
+        { locale, sort, filters, limit, pageIndex }
       ]),
       queryFn: async ({ signal }) => {
         return request<TQueryFnData>({
           url,
           sort,
           filters,
-          pagination: { limit, offset: (pageIndex ?? 0) * limit },
+          pagination: { limit, offset },
           init: {
             ...init,
-            signal, // Pass the new signal to the request to allow cancellation
+            signal // Pass the new signal to the request to allow cancellation
           },
-          withAccessToken,
+          withAccessToken
         }).then(response => {
-          if (isFunction(select)) return select(response.data!) as TData;
-          return response.data as TQueryFnData;
+          if (isFunction(select)) {
+            return {
+              ...response,
+              data: select(response.data!)
+            };
+          }
+          return response;
         });
       },
-      ...(options as any),
+      ...(options as any)
     });
   }
 
@@ -709,7 +760,7 @@ export const useQuery = () => {
     url,
     init,
     data,
-    withAccessToken,
+    withAccessToken
   }: RequestParams): Promise<T> {
     // safeguard
     init ??= {};
@@ -743,7 +794,7 @@ export const useQuery = () => {
     url,
     init,
     data,
-    withAccessToken,
+    withAccessToken
   }: RequestParams): Promise<T> {
     // safeguard
     init ??= {};
@@ -777,7 +828,7 @@ export const useQuery = () => {
     url,
     init,
     data,
-    withAccessToken,
+    withAccessToken
   }: RequestParams): Promise<T> {
     // safeguard
     init ??= {};
@@ -811,7 +862,7 @@ export const useQuery = () => {
     url,
     init,
     data,
-    withAccessToken,
+    withAccessToken
   }: RequestParams): Promise<T> {
     // safeguard
     init ??= {};
@@ -844,7 +895,7 @@ export const useQuery = () => {
   async function headRequest<T = object>({
     url,
     init,
-    withAccessToken,
+    withAccessToken
   }: RequestParams): Promise<QueryResponse<T>> {
     // safeguard
     init ??= {};
@@ -870,10 +921,11 @@ export const useQuery = () => {
     mutate,
     // --- async methods
     get: getRequest,
+    getList: listRequest,
     del: deleteRequest,
     put: putRequest,
     post: postRequest,
     head: headRequest,
-    patch: patchRequest,
+    patch: patchRequest
   };
 };

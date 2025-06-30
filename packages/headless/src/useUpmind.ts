@@ -13,7 +13,7 @@ import {
   useTracking,
   useRecaptcha,
   useDataLayer,
-  type GlobbedFiles,
+  type GlobbedFiles
 } from "./modules";
 import { first } from "lodash-es";
 import { useRouting } from "./modules/routing/useRouting";
@@ -25,7 +25,7 @@ import {
   DetailedError,
   responseCodes,
   useSessionStorage,
-  ErrorOrigin,
+  ErrorOrigin
 } from "./utils";
 
 // --- types
@@ -37,7 +37,7 @@ import type { Router } from "vue-router";
 export enum UpmindStatus {
   notInitialised = "",
   initialised = "initialised",
-  initialising = "initialising",
+  initialising = "initialising"
 }
 
 export interface UpmindProps {
@@ -87,7 +87,7 @@ class Upmind {
     recaptcha,
     router,
     i18n,
-    debug,
+    debug
   }: UpmindProps): Promise<void> {
     if (this.status != UpmindStatus.notInitialised)
       throw new DetailedError(
@@ -129,8 +129,8 @@ class Upmind {
       plugin: VueQueryPlugin,
       options: {
         queryClient: this.queryClient,
-        enableDevtoolsV6Plugin: true,
-      },
+        enableDevtoolsV6Plugin: true
+      }
     };
   }
 
@@ -155,7 +155,7 @@ class Upmind {
         // url: "https://stately.ai/registry/editor/inspect",
         // url: "https://statecharts.io/inspect",
         // url: "https://stately.ai/viz?inspect", // (default)
-        iframe: false,
+        iframe: false
       });
   }
 
@@ -230,13 +230,14 @@ class Upmind {
   // ---------------------------------------------------------------------------
 
   isReady(): Promise<void> {
-    return new Promise(resolve =>
-      setTimeout(() => {
+    return new Promise(resolve => {
+      const interval = setInterval(() => {
         if (this.status !== UpmindStatus.notInitialised) {
+          clearInterval(interval);
           resolve();
         }
-      }, 100)
-    );
+      }, 100);
+    });
   }
 }
 

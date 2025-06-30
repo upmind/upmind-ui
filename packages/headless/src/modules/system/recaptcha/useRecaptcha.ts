@@ -16,7 +16,7 @@ import {
   stateMatches,
   contextMatches,
   ErrorOrigin,
-  ResponseError,
+  ResponseError
 } from "../../../utils";
 
 // --- types
@@ -47,7 +47,7 @@ export const useRecaptcha = () => {
 
   async function isReady(): Promise<boolean> {
     return waitFor(service, state => state.matches("available"), {
-      timeout: 60_000,
+      timeout: 60_000
     })
       .then(() => true)
       .catch(() => false);
@@ -61,7 +61,7 @@ export const useRecaptcha = () => {
     hasErrors: stateMatches(state, "available.error"),
     hasToken:
       stateMatches(state, "available.processed") &&
-      contextMatches(state, "token"),
+      contextMatches(state, "token")
   }));
 
   // --- context
@@ -179,7 +179,7 @@ export const useRecaptcha = () => {
     /**
      * Stops the recaptcha service.
      */
-    stop: () => stopService(service as InterpreterFrom<any>),
+    stop: () => stopService(service as InterpreterFrom<any>)
   };
 };
 

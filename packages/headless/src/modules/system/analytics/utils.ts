@@ -32,7 +32,7 @@ export function mapIBasketProduct(
       // --- pricing
       discount: product.configuration_total_discount_amount_converted, //product.configuration_net_amount_discount_converted,
       price: product.configuration_net_amount_discounted_converted, //  product.configuration_total_amount_converted, //TODO: check the correct value is used
-      gross_price: product.configuration_total_discounted_amount_converted, //product.configuration_net_amount_converted, //TODO: check the correct value is used
+      gross_price: product.configuration_total_discounted_amount_converted //product.configuration_net_amount_converted, //TODO: check the correct value is used
     },
     isNil
   );
@@ -60,7 +60,7 @@ export function mapBasketProduct(
       // --- pricing
       discount: product.price.configuration?.discount,
       price: product.price?.unit?.subtotal ?? product.price?.currentAmount ?? 0,
-      gross_price: product.price?.unit?.total ?? undefined, // TODO: currently will always return undefined
+      gross_price: product.price?.unit?.total ?? undefined // TODO: currently will always return undefined
     },
     isNil
   );

@@ -85,7 +85,7 @@ export const useTransfer = () => {
      * Transfers the session and handles redirect logic.
      * @returns {Promise<boolean>} A promise that resolves when the transfer is complete.
      */
-    transferFrom: transfer,
+    transferFrom: transfer
   };
 };
 

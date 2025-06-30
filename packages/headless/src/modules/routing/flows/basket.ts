@@ -51,13 +51,13 @@ export const useBasketFlows = () => {
               const valid =
                 !!productConfig && (await isInBasket(productConfig));
               return valid;
-            },
+            }
           },
           ROUTE.PRODUCT_NOT_FOUND,
           ROUTE.BASKET,
-          ROUTE.EMPTY,
-        ],
-      },
+          ROUTE.EMPTY
+        ]
+      }
     },
     {
       name: ROUTE.EMPTY,
@@ -66,8 +66,8 @@ export const useBasketFlows = () => {
       targets: {
         next: [],
         back: [],
-        fallback: [ROUTE.BASKET],
-      },
+        fallback: [ROUTE.BASKET]
+      }
     },
     {
       name: ROUTE.BASKET,
@@ -88,9 +88,9 @@ export const useBasketFlows = () => {
       targets: {
         next: [ROUTE.CHECKOUT],
         back: [],
-        fallback: [ROUTE.EMPTY],
-      },
-    },
+        fallback: [ROUTE.EMPTY]
+      }
+    }
   ];
 
   return {
@@ -98,6 +98,6 @@ export const useBasketFlows = () => {
     register: (data?: Flow[]) => {
       flows = uniqBy([...(data ?? []), ...flows], "name");
       routing.register(flows);
-    },
+    }
   };
 };

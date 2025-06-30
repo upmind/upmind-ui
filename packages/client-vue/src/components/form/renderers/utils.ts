@@ -28,7 +28,7 @@ export const useSchemaComposable = (control: any) => {
     context: () => null,
     errors: () => null,
     schema: () => null,
-    uischema: () => null,
+    uischema: () => null
   };
 };
 

@@ -7,7 +7,7 @@ import {
   DetailedError,
   ErrorOrigin,
   responseCodes,
-  useTime,
+  useTime
 } from "../../../utils";
 import { compact, includes, isEmpty, get } from "lodash-es";
 
@@ -17,7 +17,7 @@ import {
   ImageObjectTypes,
   ImageUploadTypes,
   BrandConfigKeys,
-  IImage,
+  IImage
 } from "@upmind-automation/types";
 import { AnyEventObject } from "xstate";
 
@@ -88,7 +88,7 @@ async function getImage({ field }: UploadContext, { data }: AnyEventObject) {
     url: useUrl(path),
     queryKey: ["images", data.hash],
     staleTime: useTime()?.DAY,
-    withAccessToken: true,
+    withAccessToken: true
   });
 }
 
@@ -150,7 +150,7 @@ async function upload(
   return post({
     url: useUrl(path),
     data: request,
-    withAccessToken: true,
+    withAccessToken: true
   });
 }
 
@@ -159,5 +159,5 @@ async function upload(
 export default {
   getImage,
   check,
-  upload,
+  upload
 };

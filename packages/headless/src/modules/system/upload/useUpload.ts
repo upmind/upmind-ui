@@ -15,7 +15,7 @@ import {
   stateMatches,
   contextMatches,
   DetailedError,
-  responseCodes,
+  responseCodes
 } from "../../../utils";
 import { get, isEmpty } from "lodash-es";
 
@@ -30,11 +30,11 @@ import type { InterpreterFrom } from "xstate";
 
 export const useUpload = (field?: object) => {
   const context = {
-    field,
+    field
   };
 
   const service = interpret(uploadMachine.withContext(context as any), {
-    devTools: false,
+    devTools: false
   }).start();
 
   const { state, send } = useActor(service);
@@ -46,7 +46,7 @@ export const useUpload = (field?: object) => {
     isProcessing: stateMatches(state, ["checking", "processing"]),
     isComplete: stateMatches(state, ["processed", "complete"]),
     hasErrors: stateMatches(state, "error"),
-    hasFile: contextMatches(state, "file"),
+    hasFile: contextMatches(state, "file")
   }));
   // --- context
   const file = useContext(state, "file");
@@ -61,7 +61,7 @@ export const useUpload = (field?: object) => {
   const add = async (value: string) => {
     send({
       type: "ADD",
-      data: value,
+      data: value
     });
     return waitFor(
       service,
@@ -89,7 +89,7 @@ export const useUpload = (field?: object) => {
 
   const remove = () => {
     send({
-      type: "REMOVE",
+      type: "REMOVE"
     });
   };
 
@@ -99,8 +99,8 @@ export const useUpload = (field?: object) => {
       data: {
         type,
         typeId,
-        isDefault,
-      },
+        isDefault
+      }
     });
 
   const getImageByHash = (hash: any) => {
@@ -189,7 +189,7 @@ export const useUpload = (field?: object) => {
      * Stop the upload service.
      * @returns {void}
      */
-    stop: () => stopService(service as InterpreterFrom<any>),
+    stop: () => stopService(service as InterpreterFrom<any>)
   };
 };
 

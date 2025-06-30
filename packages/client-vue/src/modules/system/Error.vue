@@ -23,7 +23,7 @@ import { useI18n } from "vue-i18n";
 // -- components
 import {
   Interstitial,
-  type InterstitialActionProps,
+  type InterstitialActionProps
 } from "@upmind-automation/upmind-ui";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
@@ -53,8 +53,8 @@ const props = withDefaults(
       trigger: "loop",
       primaryColor: "base-foreground",
       secondaryColor: "tertiary",
-      size: "4xl",
-    }),
+      size: "4xl"
+    })
   }
 );
 
@@ -81,14 +81,14 @@ const animatedIcon = computed(() => ({
   trigger: props.animatedIcon.trigger,
   primaryColor: props.animatedIcon.primaryColor,
   secondaryColor: props.animatedIcon.secondaryColor,
-  size: props.animatedIcon.size,
+  size: props.animatedIcon.size
 }));
 
 const translations = computed(() => {
   return {
     title: t(`${safeKey.value}.title`),
     text: t(`${safeKey.value}.text`),
-    action: t(`${safeKey.value}.action`),
+    action: t(`${safeKey.value}.action`)
   };
 });
 
@@ -114,9 +114,9 @@ const actions = computed((): InterstitialActionProps[] => {
     href,
     prependIcon: {
       icon: t(`${safeKey.value}.icon`),
-      size: "2xs",
+      size: "2xs"
     },
-    label: translations.value.action,
+    label: translations.value.action
   };
   return isNil(props.actions) ? [defaultAction] : props.actions;
 });

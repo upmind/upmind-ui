@@ -11,8 +11,6 @@ import { useModelParser } from "../../../utils";
 // --- types
 import { AddressModel, type AddressContext } from "./types";
 import type { AnyEventObject } from "xstate";
-import { AddressMode } from "@stripe/stripe-js";
-import { Client } from "@googlemaps/google-maps-services-js";
 
 // -----------------------------------------------------------------------------
 
@@ -29,34 +27,34 @@ export const useClientAddressActions = () => {
           get(model, "city"),
           get(model, "postcode"),
           get(model, "region.name"),
-          get(model, "country.name"),
+          get(model, "country.name")
         ]).join(", ");
-      },
+      }
     }),
 
     setSchemas: assign({
       schema: (context: AddressContext) => useSchema(context),
-      uischema: (context: AddressContext) => useUischema(context),
+      uischema: (context: AddressContext) => useUischema(context)
     }),
 
     setModel: assign({
       model: (
         { schema, baseModel }: AddressContext,
         { data }: AnyEventObject
-      ) => useModelParser<AddressModel>(schema, data, baseModel),
+      ) => useModelParser<AddressModel>(schema, data, baseModel)
     }),
 
     refreshContext: assign({
       clientId: ({ clientId }: AddressContext, { data }: AnyEventObject) => {
         return clientId || data?.clientId;
-      },
-    }),
+      }
+    })
   };
 };
 
 export const useClientAddressGuards = () => {
   return {
     hasSubscription: ({ clientId }: AddressContext, _event: AnyEventObject) =>
-      !!clientId,
+      !!clientId
   };
 };

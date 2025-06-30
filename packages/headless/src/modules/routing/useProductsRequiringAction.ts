@@ -18,7 +18,7 @@ export const useProductsRequiringAction = () => {
     getNextPending,
     getNextInvalid,
     getNextRelated,
-    getProducts,
+    getProducts
   } = useRouteRequiresAction();
 
   // ---
@@ -29,6 +29,6 @@ export const useProductsRequiringAction = () => {
     getNextPending,
     getNextInvalid,
     getNextRelated,
-    products: computed(() => getProducts()),
+    products: computed(() => getProducts())
   };
 };

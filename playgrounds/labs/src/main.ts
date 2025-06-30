@@ -20,25 +20,25 @@ UpmindClient.init({
   pop: {
     name: import.meta.env.VITE_API_NAME,
     apiUrl: import.meta.env.VITE_API_URL,
-    region: import.meta.env.VITE_API_REGION,
+    region: import.meta.env.VITE_API_REGION
   },
   i18n: {
     instance: i18n as any,
     files: import.meta.env.DEV
       ? import.meta.glob(`@/**/i18n/*-en.json`, { eager: true }) // 'en' only source messages
-      : import.meta.glob("@/assets/locales/**/*.json", { eager: true }), // compiled messages
+      : import.meta.glob("@/assets/locales/**/*.json", { eager: true }) // compiled messages
   },
   router: {
     instance: router,
-    flows: [],
+    flows: []
   },
   recaptcha: {
     siteKey: import.meta.env.VITE_APP_GOOGLE_RECAPTCHA_V3_SITE_KEY,
-    enabled: true,
+    enabled: true
   },
   analytics: {
-    enabled: false,
-  },
+    enabled: false
+  }
 });
 
 // ---

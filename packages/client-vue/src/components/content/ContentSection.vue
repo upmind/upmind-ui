@@ -45,7 +45,7 @@ import type { ContentSectionProps } from "./types";
 const props = defineProps<ContentSectionProps>();
 
 const styles = useStyles(["section"], {}, config, {
-  section: props.uiConfig,
+  section: props.uiConfig
 }) as ComputedRef<{
   section: {
     root: string;

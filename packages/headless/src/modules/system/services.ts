@@ -6,7 +6,7 @@ import {
   DetailedError,
   ErrorOrigin,
   responseCodes,
-  useTime,
+  useTime
 } from "../../utils";
 
 // --- types
@@ -32,7 +32,7 @@ async function fetchCurrencies(
   return get({
     url: useUrl("currencies", { limit: 0 }),
     queryKey: ["system", "currencies"],
-    staleTime: useTime()?.DAY,
+    staleTime: useTime()?.DAY
   });
 }
 
@@ -45,7 +45,7 @@ async function fetchBillingCycles(
   return get({
     url: useUrl("billing_cycles", { limit: 0 }),
     queryKey: ["system", "billing-cycles"],
-    staleTime: useTime()?.DAY,
+    staleTime: useTime()?.DAY
   });
 }
 
@@ -56,7 +56,7 @@ async function fetchCountries(_context: SystemContext, _event: AnyEventObject) {
     url: useUrl("countries", { limit: 0 }),
     queryKey: ["system", "countries"],
     sort: [RequestSortDirection.ASC, "name"],
-    staleTime: useTime()?.DAY,
+    staleTime: useTime()?.DAY
   });
 }
 
@@ -77,7 +77,7 @@ async function fetchRegions(
   return get<any>({
     url: useUrl(`countries/${id}/regions`, { limit: 0 }),
     queryKey: ["system", "regions", code],
-    staleTime: useTime()?.DAY,
+    staleTime: useTime()?.DAY
   }).then(data => ({ key: code, values: data }) as Record<string, IRegion>);
 }
 
@@ -88,7 +88,7 @@ async function fetchLanguages(_context: SystemContext, _event: AnyEventObject) {
     url: useUrl("languages", { limit: 0 }),
     queryKey: ["system", "languages"],
     staleTime: useTime()?.DAY,
-    withAccessToken: true,
+    withAccessToken: true
   });
 }
 
@@ -98,7 +98,7 @@ async function fetchStatuses(_context: SystemContext, _event: AnyEventObject) {
   return get({
     url: useUrl("statuses", { limit: 0 }),
     queryKey: ["system", "statuses"],
-    staleTime: useTime()?.DAY,
+    staleTime: useTime()?.DAY
   });
 }
 
@@ -111,7 +111,7 @@ async function fetchDepartments(
   return get<any>({
     url: useUrl("tickets/departments", { limit: 0 }),
     queryKey: ["system", "departments"],
-    staleTime: useTime()?.DAY,
+    staleTime: useTime()?.DAY
   });
 }
 
@@ -124,5 +124,5 @@ export default {
   fetchRegions,
   fetchLanguages,
   fetchStatuses,
-  fetchDepartments,
+  fetchDepartments
 };

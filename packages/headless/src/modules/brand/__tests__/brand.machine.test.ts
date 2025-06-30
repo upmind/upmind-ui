@@ -8,8 +8,8 @@ vi.mock("../index", () => {
     createBrandService: vi.fn(() => ({
       start: vi.fn(),
       send: vi.fn(),
-      stop: vi.fn(),
-    })),
+      stop: vi.fn()
+    }))
   };
 });
 
@@ -17,7 +17,7 @@ const mockServices = {
   fetchOrganisationConfig: vi.fn(() => Promise.resolve(true)),
   fetchBrandConfig: vi.fn(() => Promise.resolve(true)),
   fetchBrandSettings: vi.fn(() => Promise.resolve(true)),
-  fetchModules: vi.fn(() => Promise.resolve(true)),
+  fetchModules: vi.fn(() => Promise.resolve(true))
 };
 
 const mockActions = {
@@ -27,12 +27,12 @@ const mockActions = {
   setSettings: vi.fn(),
   setModules: vi.fn(),
   setDefaultLocale: vi.fn(),
-  setInitialised: vi.fn(),
+  setInitialised: vi.fn()
 };
 
 const mockDelays = {
   error: vi.fn(() => 0),
-  wait: vi.fn(() => 0),
+  wait: vi.fn(() => 0)
 };
 
 describe("Brand Machine", async () => {
@@ -43,7 +43,7 @@ describe("Brand Machine", async () => {
     mockbrandMachine = brandMachine.withConfig({
       services: mockServices,
       actions: mockActions,
-      delays: mockDelays,
+      delays: mockDelays
     });
     brandService = interpret(mockbrandMachine);
   });
@@ -62,8 +62,8 @@ describe("Brand Machine", async () => {
               organisation: "loading",
               config: "loading",
               settings: "loading",
-              modules: "loading",
-            },
+              modules: "loading"
+            }
           })
         ).toBeTruthy();
         expect(mockServices.fetchOrganisationConfig).toHaveBeenCalledOnce();

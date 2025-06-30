@@ -3,7 +3,7 @@ import {
   isServer,
   QueryKey,
   QueryClient,
-  InvalidateQueryFilters,
+  InvalidateQueryFilters
 } from "@tanstack/vue-query";
 
 // --- utils
@@ -22,7 +22,7 @@ import {
   isEmpty,
   omitBy,
   compact,
-  isNil,
+  isNil
 } from "lodash-es";
 
 // ---types
@@ -32,8 +32,7 @@ import { unref } from "vue";
 // --- constants
 export const PAGINATION = {
   offset: 0,
-  pageSize: 10,
-  pageIndex: 1,
+  limit: 10
 };
 
 // -----------------------------------------------------------------------------
@@ -68,7 +67,7 @@ export const invalidateQueryByKey =
     return queryClient
       .invalidateQueries({
         queryKey,
-        ...filters,
+        ...filters
       })
       .then(() => data);
   };
@@ -86,7 +85,7 @@ export function canRetryAuthorization(
   error: QueryResponseError,
   {
     attempts,
-    max,
+    max
   }: {
     attempts: number;
     max: number;

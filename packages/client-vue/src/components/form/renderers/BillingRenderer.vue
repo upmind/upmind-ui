@@ -15,7 +15,7 @@ import { useJsonFormsControl } from "@jsonforms/vue";
 
 // --- components
 import { FormField } from "@upmind-automation/upmind-ui";
-import Billing from "../../../modules/billing/Tabs.vue";
+import Billing from "../../../modules/billing/Billing.vue";
 
 // --- utils
 import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
@@ -41,6 +41,6 @@ import { uiTypeIs, and } from "@jsonforms/core";
 
 export const tester = {
   rank: 3,
-  controlType: and(uiTypeIs("ControlBilling")),
+  controlType: and(uiTypeIs("ControlBilling"))
 };
 </script>

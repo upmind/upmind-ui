@@ -15,30 +15,36 @@ export const useSchema = ({ model, config }: BillingContext) => {
     required: [] as string[],
     properties: {
       addressId: {
-        type: ["string", "null"],
-        default: model?.addressId || null,
+        type: "string",
+        default: model?.addressId || null
       },
       companyId: {
-        type: ["string", "null"],
-        default: model?.companyId || null,
+        type: "string",
+        default: model?.companyId || null
       },
       phoneId: {
-        type: ["string", "null"],
-        default: model?.phoneId || null,
-      },
-    },
+        type: "string",
+        default: model?.phoneId || null
+      }
+    }
   };
 
-  if (!config?.requiresPhone) {
-    unset(schema, "properties.phoneId");
+  if (config?.requiresPhone) {
+    schema.required!.push("phoneId");
+  } else {
+    schema.properties!.phoneId.type = ["string", "null"];
   }
 
   if (config?.requiresCompany) {
-    unset(schema, "properties.addressId");
+    schema.required!.push("companyId", "addressId");
+  } else {
+    schema.properties!.companyId.type = ["string", "null"];
   }
 
-  if (!config?.requiresAddress && !config?.requiresCompany) {
-    unset(schema, "properties.companyId");
+  if (config?.requiresAddress && !config?.requiresCompany) {
+    schema.required!.push("addressId");
+  } else {
+    schema.properties!.addressId.type = ["string", "null"];
   }
 
   return schema as unknown as JsonSchema;
@@ -53,9 +59,9 @@ export const useUischema = ({ config }: BillingContext) => {
         scope: "#/properties",
         i18n: "basket.billing",
         label: "",
-        options: {},
-      },
-    ],
+        options: {}
+      }
+    ]
   };
 
   if (!config?.requiresPhone) {

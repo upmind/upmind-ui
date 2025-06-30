@@ -13,7 +13,7 @@ import {
   useTime,
   useValidationParser,
   useModelParser,
-  mapToHeadlessError,
+  mapToHeadlessError
 } from "../../../utils";
 import { useSchema, useUischema } from "./utils";
 import { remove, xorBy, get, includes, isEmpty } from "lodash-es";
@@ -37,13 +37,13 @@ export default createMachine(
           src: "load",
           onDone: {
             target: "complete",
-            actions: ["setContext", "setSchemas"],
+            actions: ["setContext", "setSchemas"]
           },
           onError: {
             target: "error",
-            actions: ["setError", "setFeedbackError"],
-          },
-        },
+            actions: ["setError", "setFeedbackError"]
+          }
+        }
       },
       // ---
 
@@ -56,9 +56,9 @@ export default createMachine(
               src: "parse",
               onDone: {
                 target: "validating",
-                actions: ["setContext", "setSchemas"],
-              },
-            },
+                actions: ["setContext", "setSchemas"]
+              }
+            }
           },
           validating: {
             invoke: {
@@ -66,19 +66,19 @@ export default createMachine(
               onDone: [
                 {
                   target: "#valid",
-                  cond: "isDirty",
+                  cond: "isDirty"
                 },
                 {
-                  target: "#complete",
-                },
+                  target: "#complete"
+                }
               ],
               onError: {
                 target: "#invalid",
-                actions: ["setError"],
-              },
-            },
-          },
-        },
+                actions: ["setError"]
+              }
+            }
+          }
+        }
       },
 
       valid: {
@@ -87,17 +87,17 @@ export default createMachine(
 
         on: {
           ADD: {
-            target: "processing",
+            target: "processing"
           },
           UPDATE: {
             target: "processing",
-            cond: "hasBasket",
-          },
-        },
+            cond: "hasBasket"
+          }
+        }
       },
 
       invalid: {
-        id: "invalid",
+        id: "invalid"
       },
 
       processing: {
@@ -109,28 +109,28 @@ export default createMachine(
               src: "add",
               onDone: {
                 target: "#processed",
-                actions: ["setModel", "clearDirty", "clearAutoUpdate"],
+                actions: ["setModel", "clearDirty", "clearAutoUpdate"]
               },
               onError: {
                 target: "#error",
-                actions: ["setError", "setFeedbackError"],
-              },
-            },
+                actions: ["setError", "setFeedbackError"]
+              }
+            }
           },
           remove: {
             invoke: {
               src: "remove",
               onDone: {
                 target: "#processed",
-                actions: ["setModel", "clearDirty"],
+                actions: ["setModel", "clearDirty"]
               },
               onError: {
                 target: "#error",
-                actions: ["setError", "setFeedbackError"],
-              },
-            },
-          },
-        },
+                actions: ["setError", "setFeedbackError"]
+              }
+            }
+          }
+        }
       },
 
       processed: {
@@ -138,13 +138,13 @@ export default createMachine(
         entry: "refreshBasket",
         after: {
           wait: {
-            target: "complete",
-          },
-        },
+            target: "complete"
+          }
+        }
       },
 
       complete: {
-        id: "complete",
+        id: "complete"
         // type: "final"
       },
 
@@ -152,35 +152,35 @@ export default createMachine(
         id: "error",
         on: {
           RETRY: {
-            target: "processing",
-          },
-        },
-      },
+            target: "processing"
+          }
+        }
+      }
     },
     on: {
       REMOVE: {
         target: "processing.remove",
-        actions: ["removePromo"],
+        actions: ["removePromo"]
       },
       CLEAR: {
         target: "checking",
-        actions: ["clearModel", "setDirty"],
+        actions: ["clearModel", "setDirty"]
       },
       SET: {
         target: "checking",
-        actions: ["setModel", "setDirty", "setAutoUpdate"],
+        actions: ["setModel", "setDirty", "setAutoUpdate"]
       },
 
       UNAUTHENTICATED: {
         target: "loading",
-        actions: ["clearError", "clearModel", "clearSchemas"],
+        actions: ["clearError", "clearModel", "clearSchemas"]
       },
       REFRESH: {
         target: "checking",
         actions: ["refreshContext", "setSchemas"],
-        cond: "hasChanged",
-      },
-    },
+        cond: "hasChanged"
+      }
+    }
   },
   {
     actions: {
@@ -188,7 +188,7 @@ export default createMachine(
         (_context: PromotionsContext, { data: basket }: AnyEventObject) => {
           return {
             basketId: basket?.id,
-            promotions: basket?.promotions,
+            promotions: basket?.promotions
           };
         }
       ),
@@ -198,7 +198,7 @@ export default createMachine(
         (_context: PromotionsContext, { data }: AnyEventObject) => {
           return {
             type: "REFRESH",
-            data,
+            data
           };
         }
       ),
@@ -213,12 +213,12 @@ export default createMachine(
         model: ({ schema, model }) => {
           if (!schema) return model;
           return useModelParser<PromotionModel>(schema, model);
-        },
+        }
       }),
 
       clearSchemas: assign({
         schema: undefined,
-        uischema: undefined,
+        uischema: undefined
       }),
 
       setModel: assign({
@@ -228,11 +228,11 @@ export default createMachine(
         ) => {
           if (!schema) return data ?? model;
           return useModelParser<PromotionModel>(schema, data ?? model);
-        },
+        }
       }),
 
       clearModel: assign({
-        model: undefined,
+        model: undefined
       }),
 
       removePromo: assign({
@@ -245,23 +245,23 @@ export default createMachine(
             remove(promotions, ["id", id]);
           }
           return promotions;
-        },
+        }
       }),
 
       setDirty: assign({
-        dirty: true,
+        dirty: true
       }),
 
       clearDirty: assign({
-        dirty: false,
+        dirty: false
       }),
 
       setAutoUpdate: assign({
         autoupdate: (_context: PromotionsContext, { update }: AnyEventObject) =>
-          !!update,
+          !!update
       }),
       clearAutoUpdate: assign({
-        autoupdate: false,
+        autoupdate: false
       }),
 
       // ---
@@ -275,7 +275,7 @@ export default createMachine(
         addError({
           title: "We experienced an error updating the basket promotions",
           copy: error?.message,
-          data: error?.data,
+          data: error?.data
         });
       },
 
@@ -293,16 +293,15 @@ export default createMachine(
               // ensure we have a valid error object
               error.data = { promocode: [error?.message] };
             }
-            // lets parse/override our error message and data
-            // this is to generate valid json schema validation errors
+
             error.data = useValidationParser(error.data);
           }
 
           return error;
-        },
+        }
       }),
 
-      clearError: assign({ error: undefined }),
+      clearError: assign({ error: undefined })
     },
 
     guards: {
@@ -313,14 +312,14 @@ export default createMachine(
         !!xorBy(promotions, data?.promotions, "id")?.length ||
         basketId !== data?.id,
       shouldUpdate: ({ autoupdate, basketId }, _event) =>
-        !!autoupdate && !!basketId,
+        !!autoupdate && !!basketId
     },
 
     delays: {
       error: () => useTime().ERROR,
-      wait: () => useTime().WAIT,
+      wait: () => useTime().WAIT
     },
 
-    services,
+    services
   }
 );

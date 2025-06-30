@@ -44,9 +44,9 @@ export const useOrderFlows = () => {
       targets: {
         next: [],
         back: [ROUTE.BASKET, ROUTE.EMPTY],
-        fallback: [ROUTE.BASKET, ROUTE.EMPTY],
-      },
-    },
+        fallback: [ROUTE.BASKET, ROUTE.EMPTY]
+      }
+    }
   ];
 
   return {
@@ -54,6 +54,6 @@ export const useOrderFlows = () => {
     register: (data?: Flow[]) => {
       flows = uniqBy([...(data ?? []), ...flows], "name");
       routing.register(flows);
-    },
+    }
   };
 };

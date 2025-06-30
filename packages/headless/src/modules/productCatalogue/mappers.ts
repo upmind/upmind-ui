@@ -49,7 +49,7 @@ export function parseProduct(raw: IProduct): Product {
       term: term?.cycle ?? 0,
       coupons: [],
       subproducts: [],
-      provisionFields: {},
-    },
+      provisionFields: {}
+    }
   } as Product;
 }

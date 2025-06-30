@@ -17,7 +17,7 @@ import {
   isEqual,
   PropertyPath,
   compact,
-  pick,
+  pick
 } from "lodash-es";
 
 // --- types
@@ -66,7 +66,7 @@ export function stopService(machine: InterpreterFrom<any>): boolean {
     console.info("** MACHINE State **", "Machine is already stopped", {
       name: machine.id,
       status: machine.status,
-      done: machine.getSnapshot().done,
+      done: machine.getSnapshot().done
     });
   }
 
@@ -207,7 +207,9 @@ export const contextValue = <T = unknown>(
 ): T | undefined => {
   const context = stateValue<T>(stateLike, "context");
 
-  if (isEmpty(props) || isNil(context)) return fallback;
+  if (isNil(context)) return fallback;
+
+  if (isEmpty(props)) return context as T;
 
   if (isArray(props)) return pick(context, props) as T;
 
@@ -280,7 +282,7 @@ export const createActor = (service: ActorRef<any>): Actor | undefined => {
   return {
     id: service.id,
     service,
-    ...actor,
+    ...actor
   } as Actor;
 };
 // --- context helpers
@@ -306,7 +308,7 @@ export const useChildActor = (
   computed(() => childActor(stateLike, prop));
 
 export const useContextActor = (
-  stateLike: StateLike,
+  stateLike: StateLike | MachineLike,
   prop?: string | number
 ): ComputedRef<Actor | undefined> =>
   computed(() => contextActor(stateLike, prop));

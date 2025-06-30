@@ -9,7 +9,7 @@ import {
   useTime,
   ErrorOrigin,
   responseCodes,
-  DetailedError,
+  DetailedError
 } from "../../utils";
 
 import {
@@ -20,7 +20,7 @@ import {
   checkQuantity,
   checkTerm,
   checkSubproducts,
-  checkProvisioning,
+  checkProvisioning
 } from "./utils";
 
 import {
@@ -32,7 +32,7 @@ import {
   map,
   omitBy,
   set,
-  sum,
+  sum
 } from "lodash-es";
 
 // --- types
@@ -42,7 +42,7 @@ import type {
   ProductConfigContext,
   Price,
   PriceCalculations,
-  ProductModel,
+  ProductModel
 } from "./types";
 
 import { AnyEventObject } from "xstate";
@@ -55,7 +55,7 @@ async function load(
     currencyId,
     promotions,
     basketId,
-    rawBasketProduct,
+    rawBasketProduct
   }: ProductConfigContext,
   _event: AnyEventObject
 ) {
@@ -76,7 +76,7 @@ async function load(
 
   const [currency] = await Promise.all([
     validateCurrency({ id: currencyId }),
-    ensureConfig(BrandConfigKeys.SHOW_PROMOTION_AS),
+    ensureConfig(BrandConfigKeys.SHOW_PROMOTION_AS)
   ]);
 
   // lets ensure we parse our promotions correctly
@@ -94,8 +94,8 @@ async function load(
       "products_attributes",
       "products_options",
       "products_options.prices",
-      `category${".top_category".repeat(4)}`,
-    ].join(),
+      `category${".top_category".repeat(4)}`
+    ].join()
   };
   // conditionally agd the basket_id / basket_product_id if we have them,
   // this is important to get the correct prices once added to the basket
@@ -110,11 +110,11 @@ async function load(
       productId,
       {
         currency_id: currency?.id,
-        promotions: promocodes,
-      },
+        promotions: promocodes
+      }
     ],
     staleTime: useTime()?.DAY, // product data is not updated often, so we can cache for a day
-    withAccessToken: true,
+    withAccessToken: true
   });
 
   // lets get our provisioning fields early, so we can make them lookups
@@ -125,7 +125,7 @@ async function load(
   return Promise.all([
     productPromise,
     provisioningPromise,
-    countriesPromise,
+    countriesPromise
   ]).then(([product, provisioning]) => {
     return { product, provisioning, currency };
   });
@@ -145,7 +145,7 @@ async function loadProvisioningFields(productId: string) {
   return get({
     url: useUrl(`basket/products/${productId}/provision_fields`),
     queryKey: ["product", productId, "provision-fields"],
-    withAccessToken: true,
+    withAccessToken: true
   });
 }
 
@@ -158,7 +158,7 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
     term: 0,
     options: {},
     attributes: {},
-    provisionFields: {},
+    provisionFields: {}
   });
 
   let values: ProductModel = defaultsDeep(
@@ -168,7 +168,7 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
       term: data?.term,
       options: data?.options,
       attributes: data?.attributes,
-      provisionFields: data?.provisionFields,
+      provisionFields: data?.provisionFields
     },
 
     baseModel
@@ -241,7 +241,7 @@ async function validate(context: ProductConfigContext, _event: AnyEventObject) {
       provisionFields: checkProvisioning(
         context,
         context.model?.provisionFields
-      ),
+      )
     },
     isEmpty
   );
@@ -253,7 +253,7 @@ async function validate(context: ProductConfigContext, _event: AnyEventObject) {
           "[headless] Validate Product Config failed",
           responseCodes.Conflict,
           ErrorOrigin.Headless,
-          { error: { data: errors } }
+          { errors }
         )
       );
     } else {
@@ -298,12 +298,12 @@ async function formatCalculation(
     withAccessToken: true,
     data: {
       currency_id: currencyId,
-      prices: values,
-    },
+      prices: values
+    }
   }).then(data => {
     return {
       total: get(data, "total", 0),
-      totalFormatted: get(data, "total_formatted", ""),
+      totalFormatted: get(data, "total_formatted", "")
       // TODO: get the API to return these values
       // subtotal: get(data, "subtotal", 0),
       // subtotalFormatted: get(data, "subtotal_formatted", ""),
@@ -396,5 +396,5 @@ export default {
   refresh: load, // alias
   // ---
   parse,
-  validate,
+  validate
 };
