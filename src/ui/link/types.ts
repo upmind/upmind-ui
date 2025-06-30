@@ -14,6 +14,7 @@ import type {
 } from "vue-router";
 export interface LinkProps {
   label?: string;
+  is?: "router-link" | "a" | "button";
   to?: string | RouteLocationAsRelativeGeneric | RouteLocationAsPathGeneric;
   href?: string;
   as?: HTMLAttributes["class"];
