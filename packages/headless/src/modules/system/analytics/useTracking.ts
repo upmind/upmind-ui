@@ -11,7 +11,7 @@ import {
   keyBy,
   set,
   reduce,
-  pick,
+  pick
 } from "lodash-es";
 import { useCookies } from "../../../utils";
 
@@ -77,7 +77,7 @@ export const useTracking = () => {
               if (!isEmpty(trackObj)) {
                 // Set track cookie
                 setCookie(UPM_TRACK_COOKIE, defaultsDeep(trackObj, base), {
-                  expires: "90d",
+                  expires: "90d"
                 });
 
                 // clean track query params
@@ -156,7 +156,7 @@ export const useTracking = () => {
      * Removes the tracking cookie.
      * @returns {void}
      */
-    remove,
+    remove
   };
 };
 

@@ -6,7 +6,7 @@ import type {
   AddressModel,
   CompanyModel,
   PhoneModel,
-  Company,
+  Company
 } from "../../../client";
 import type { ClientItemContext } from "../../../client/types";
 import type { ICountry, IRegion } from "@upmind-automation/types";
@@ -15,7 +15,7 @@ import type { ICountry, IRegion } from "@upmind-automation/types";
 
 export enum UnifiedAddressType {
   PERSONAL = "personal",
-  BUSINESS = "business",
+  BUSINESS = "business"
 }
 
 export type UnifiedAddressModel = {

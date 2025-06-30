@@ -5,7 +5,7 @@
       i18n-key="client.email"
       :manage="{
         useList: useClientEmails,
-        useMutate: useClientEmail,
+        useMutate: useClientEmail
       }"
     />
   </UpmContentSection>
@@ -18,7 +18,7 @@
 import {
   useSession,
   useClientEmail,
-  useClientEmails,
+  useClientEmails
 } from "@upmind-automation/client-vue";
 
 // --- components

@@ -10,7 +10,7 @@ import {
   DetailedError,
   responseCodes,
   stateMatches,
-  useSafeParse,
+  useSafeParse
 } from "../../utils";
 import {
   compact,
@@ -27,7 +27,7 @@ import {
   set,
   toNumber,
   uniq,
-  values,
+  values
 } from "lodash-es";
 
 // --- types
@@ -41,7 +41,7 @@ import { REQUIRES_ACTION, type Route } from "./types";
 
 export async function awaitResolved(service: ActorRef<any>) {
   return waitFor(service, state => stateMatches(state, "available.resolved"), {
-    timeout: 60_000,
+    timeout: 60_000
   })
     .then(state => {
       return get(state, "context.currentRoute");
@@ -129,8 +129,8 @@ export const useRouteQueryParams = (route: Route) => {
         subproducts,
         provisionFields,
         coupons,
-        bundle,
-      },
+        bundle
+      }
     ];
 
     return model;
@@ -152,7 +152,7 @@ export const useRouteQueryParams = (route: Route) => {
       getParam(QUERY_PARAMS.CURRENCY_CODE)
     ),
     coupon: getParam(QUERY_PARAMS.COUPONS),
-    bundle: getParam("bundle"),
+    bundle: getParam("bundle")
   };
 };
 
@@ -198,7 +198,7 @@ export const useRouteRequiresAction = () => {
     types: REQUIRES_ACTION[] = [
       REQUIRES_ACTION.PENDING,
       REQUIRES_ACTION.INVALID,
-      REQUIRES_ACTION.RELATED,
+      REQUIRES_ACTION.RELATED
     ]
   ) {
     // if we are passed a current item we want to check for any related items
@@ -223,6 +223,6 @@ export const useRouteRequiresAction = () => {
     getNextInvalid,
     getNextRelated,
     getProducts: () => getInvalidProducts(),
-    hasProducts: () => !isEmpty(getInvalidProducts()),
+    hasProducts: () => !isEmpty(getInvalidProducts())
   };
 };

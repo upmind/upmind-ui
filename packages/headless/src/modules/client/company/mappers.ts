@@ -24,7 +24,7 @@ export function mapCompany(raw: ICompany): Company {
       get(raw, "address.city"),
       get(raw, "address.postcode"),
       get(raw, "address.region.name"),
-      get(raw, "address.country.name"),
+      get(raw, "address.country.name")
     ]).join(", "),
     name: raw.name,
     default: raw.default,
@@ -35,8 +35,8 @@ export function mapCompany(raw: ICompany): Company {
     meta: {
       isDefault: raw.default,
       canDelete: raw.can_delete,
-      isVerified: !!raw.verified,
-    },
+      isVerified: !!raw.verified
+    }
   };
 }
 
@@ -47,6 +47,6 @@ export function mapICompany(data: CompanyModel): ICompany {
     phone_id: data.phoneId,
     email_id: data.emailId,
     reg_number: data.regNumber,
-    vat_number: data.vatNumber,
+    vat_number: data.vatNumber
   } as ICompany;
 }

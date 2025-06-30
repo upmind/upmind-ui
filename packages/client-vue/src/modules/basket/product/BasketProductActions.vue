@@ -63,13 +63,13 @@ const actions = computed(() => [
     icon: "pencil",
     color: props.color,
     tooltip: t("product.edit"),
-    onClick: () => router.push(props.editLink),
+    onClick: () => router.push(props.editLink)
   },
   {
     icon: "bin",
     color: props.color,
     tooltip: t("product.remove"),
-    onClick: () => emits("remove"),
-  },
+    onClick: () => emits("remove")
+  }
 ]);
 </script>

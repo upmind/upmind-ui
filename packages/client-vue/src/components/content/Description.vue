@@ -22,7 +22,7 @@ withDefaults(
     as?: "span" | "p";
   }>(),
   {
-    as: "p",
+    as: "p"
   }
 );
 </script>

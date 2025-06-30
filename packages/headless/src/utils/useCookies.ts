@@ -73,6 +73,6 @@ export function useCookies() {
       set(options, "domain", domain);
       removeCookie(key, options);
     },
-    isEnabled,
+    isEnabled
   };
 }

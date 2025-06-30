@@ -7,17 +7,17 @@ import type { JsonSchema7, Layout, UISchemaElement } from "@jsonforms/core";
 import { BrandConfigKeys } from "@upmind-automation/types";
 import {
   useSchema as useAddressSchema,
-  useUischema as useAddressUischema,
+  useUischema as useAddressUischema
 } from "../../../client/address/schemas";
 
 import {
   useSchema as useCompanySchema,
-  useUischema as useCompanyUischema,
+  useUischema as useCompanyUischema
 } from "../../../client/company/schemas";
 
 import {
   useSchema as usePhoneSchema,
-  useUischema as usePhoneUischema,
+  useUischema as usePhoneUischema
 } from "../../../client/phone/schemas";
 
 export const useSchema = ({
@@ -28,7 +28,7 @@ export const useSchema = ({
   addresses,
   baseModel,
   config,
-  type,
+  type
 }: UnifiedAddressContext) => {
   const schema: JsonSchema7 = {
     type: "object",
@@ -36,23 +36,23 @@ export const useSchema = ({
     required: [],
     properties: {
       phone: usePhoneSchema({
-        country,
+        country
       }),
       address: useAddressSchema({
         clientId,
         regions,
         baseModel,
         countries,
-        config,
+        config
       }),
       company: useCompanySchema({
         baseModel: baseModel?.company,
         countries,
         country,
         regions,
-        config,
-      }),
-    },
+        config
+      })
+    }
   };
 
   // NB: IF Company is required OR Address is Required then we need to enforce the company field when adding a bisiness address
@@ -80,11 +80,11 @@ export const useSchema = ({
 export const useUischema = ({
   baseModel,
   type,
-  config,
+  config
 }: UnifiedAddressContext) => {
   const uiSchema: Layout = {
     type: "VerticalLayout",
-    elements: [],
+    elements: []
   };
 
   if (type == UnifiedAddressType.PERSONAL) {
@@ -97,10 +97,10 @@ export const useUischema = ({
           options: {
             autoFocus: true,
             autocomplete: "off",
-            detail: useAddressUischema(),
-          },
-        },
-      ],
+            detail: useAddressUischema()
+          }
+        }
+      ]
     } as any);
   } else if (type == UnifiedAddressType.BUSINESS) {
     uiSchema.elements.push({
@@ -114,11 +114,11 @@ export const useUischema = ({
             autocomplete: "off",
             detail: useCompanyUischema({
               minimal: true,
-              baseModel: baseModel?.company,
-            }),
-          },
-        },
-      ],
+              baseModel: baseModel?.company
+            })
+          }
+        }
+      ]
     } as any);
   }
 
@@ -130,10 +130,10 @@ export const useUischema = ({
           type: "Control",
           scope: "#/properties/phone",
           options: {
-            detail: usePhoneUischema(),
-          },
-        },
-      ],
+            detail: usePhoneUischema()
+          }
+        }
+      ]
     } as any);
   }
 

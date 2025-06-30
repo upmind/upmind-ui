@@ -6,7 +6,7 @@ import type {
   IRegion,
   IStatus,
   ITicketDepartment,
-  ITaxBusinessType,
+  ITaxBusinessType
 } from "@upmind-automation/types";
 import { QueryResponseError } from "../query";
 // ---  Contexts

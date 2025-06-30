@@ -21,13 +21,13 @@ export const mapEmail = (raw: IEmail): Email => {
     meta: {
       isDefault: !!raw.default,
       isVerified: !!raw.verified,
-      canDelete: raw.can_delete,
-    },
+      canDelete: raw.can_delete
+    }
   };
 };
 
 export const mapIEmail = (data: EmailModel): IEmail => {
   return {
-    email: data.email,
+    email: data.email
   } as IEmail;
 };

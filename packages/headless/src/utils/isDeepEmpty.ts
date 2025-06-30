@@ -5,7 +5,7 @@ import {
   isNil,
   reduce,
   isObjectLike,
-  compact,
+  compact
 } from "lodash-es";
 
 // -----------------------------------------------------------------------------

@@ -35,7 +35,7 @@ export default createMachine(
           OrgFeatureKeys.REMOVE_UPMIND_BRANDING_ENABLED,
           OrgFeatureKeys.UNLIMITED_PAYMENT_GATEWAYS,
           OrgFeatureKeys.UNLIMITED_PROVISION_CONFIGURATIONS,
-          OrgFeatureKeys.WEBHOOKS,
+          OrgFeatureKeys.WEBHOOKS
         ],
         config: [
           BrandConfigKeys.ANALYTICS_GA_MEASUREMENT_ID,
@@ -61,10 +61,10 @@ export default createMachine(
           BrandConfigKeys.UI_CLIENT_APP_DISABLE_SUPPORT_SYSTEM,
           BrandConfigKeys.UI_CLIENT_APP_PAGE_AFTER_LOGIN,
           BrandConfigKeys.UI_ENTER_KEY_ACTION,
-          BrandConfigKeys.UI_PRICE_BEFORE_DISCOUNT_POSITION,
-        ],
+          BrandConfigKeys.UI_PRICE_BEFORE_DISCOUNT_POSITION
+        ]
       },
-      error: undefined,
+      error: undefined
     } as BrandContext,
 
     states: {
@@ -73,13 +73,13 @@ export default createMachine(
           src: "load",
           onDone: {
             target: "complete",
-            actions: ["setContext"],
+            actions: ["setContext"]
           },
           onError: {
             target: "error",
-            actions: ["setError"],
-          },
-        },
+            actions: ["setError"]
+          }
+        }
       },
       processing: {
         entry: ["clearError"],
@@ -87,13 +87,13 @@ export default createMachine(
           src: "fetchBrandConfig",
           onDone: {
             target: "complete",
-            actions: ["setContext"],
+            actions: ["setContext"]
           },
           onError: {
             target: "error",
-            actions: "setError",
-          },
-        },
+            actions: "setError"
+          }
+        }
       },
       error: { id: "error" },
       complete: {
@@ -101,11 +101,11 @@ export default createMachine(
         on: {
           "CONFIG.GET": {
             target: "processing",
-            actions: ["setConfigKeys"],
-          },
-        },
-      },
-    },
+            actions: ["setConfigKeys"]
+          }
+        }
+      }
+    }
   },
   {
     actions: {
@@ -117,7 +117,7 @@ export default createMachine(
         keys: ({ keys }: BrandContext, { data }: AnyEventObject) => {
           keys.config.push(...data);
           return keys;
-        },
+        }
       }),
 
       setDefaultLocale: (
@@ -128,24 +128,24 @@ export default createMachine(
       },
 
       setInitialised: assign({
-        initialised: true,
+        initialised: true
       }),
 
       setError: assign({
         error: (_context: BrandContext, { data }: AnyEventObject) => {
           return data?.error ?? data;
-        },
+        }
       }),
 
-      clearError: assign({ error: undefined }),
+      clearError: assign({ error: undefined })
 
       // ---
     },
     guards: {},
     delays: {
       error: () => useTime().ERROR,
-      wait: () => useTime().WAIT,
+      wait: () => useTime().WAIT
     },
-    services,
+    services
   }
 );

@@ -22,7 +22,7 @@ withDefaults(
     }
   >(),
   {
-    size: "xs",
+    size: "xs"
   }
 );
 

@@ -5,5 +5,5 @@ import actions from "./actions";
 
 export default {
   services,
-  actions,
+  actions
 };

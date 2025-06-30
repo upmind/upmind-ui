@@ -31,13 +31,13 @@ export default createMachine(
           src: "load",
           onDone: {
             target: "checking",
-            actions: ["setContext", "setSchemas"],
+            actions: ["setContext", "setSchemas"]
           },
           onError: {
             target: "error",
-            actions: ["setError", "setFeedbackError"],
-          },
-        },
+            actions: ["setError", "setFeedbackError"]
+          }
+        }
       },
       // ---
 
@@ -50,9 +50,9 @@ export default createMachine(
               src: "parse",
               onDone: {
                 target: "validating",
-                actions: ["setContext", "setSchemas"],
-              },
-            },
+                actions: ["setContext", "setSchemas"]
+              }
+            }
           },
           validating: {
             invoke: {
@@ -60,19 +60,19 @@ export default createMachine(
               onDone: [
                 {
                   target: "#valid",
-                  cond: "isDirty",
+                  cond: "isDirty"
                 },
                 {
-                  target: "#complete",
-                },
+                  target: "#complete"
+                }
               ],
               onError: {
                 target: "#invalid",
-                actions: ["setError"],
-              },
-            },
-          },
-        },
+                actions: ["setError"]
+              }
+            }
+          }
+        }
       },
 
       valid: {
@@ -82,13 +82,13 @@ export default createMachine(
         on: {
           UPDATE: {
             target: "processing",
-            cond: "hasBasket",
-          },
-        },
+            cond: "hasBasket"
+          }
+        }
       },
 
       invalid: {
-        id: "invalid",
+        id: "invalid"
       },
 
       processing: {
@@ -97,53 +97,53 @@ export default createMachine(
           src: "update",
           onDone: {
             target: "processed",
-            actions: ["clearDirty", "clearAutoUpdate"],
+            actions: ["clearDirty", "clearAutoUpdate"]
           },
           onError: {
             target: "error",
-            actions: ["setError", "setFeedbackError"],
-          },
-        },
+            actions: ["setError", "setFeedbackError"]
+          }
+        }
       },
 
       processed: {
         id: "processed",
         after: {
           wait: {
-            target: "complete",
-          },
-        },
+            target: "complete"
+          }
+        }
       },
 
       complete: {
-        id: "complete",
+        id: "complete"
         // type: "final"
       },
 
       error: {
-        id: "error",
-      },
+        id: "error"
+      }
     },
     on: {
       CLEAR: {
         target: "checking",
-        actions: ["clearModel", "setDirty"],
+        actions: ["clearModel", "setDirty"]
       },
       SET: {
         target: "checking",
-        actions: ["setModel", "setDirty", "setAutoUpdate"],
+        actions: ["setModel", "setDirty", "setAutoUpdate"]
       },
 
       UNAUTHENTICATED: {
         target: "loading",
-        actions: ["clearError", "clearModel", "clearSchemas"],
+        actions: ["clearError", "clearModel", "clearSchemas"]
       },
       REFRESH: {
         target: "checking",
         actions: ["refreshContext", "setSchemas"],
-        cond: "hasChanged",
-      },
-    },
+        cond: "hasChanged"
+      }
+    }
   },
   {
     actions: {
@@ -151,7 +151,7 @@ export default createMachine(
         (_context: FieldsContext, { data }: AnyEventObject) => {
           return {
             basketId: data?.id,
-            model: parseBasketFieldsModel(data),
+            model: parseBasketFieldsModel(data)
           };
         }
       ),
@@ -162,38 +162,38 @@ export default createMachine(
 
       setSchemas: assign({
         schema: context => useSchema(context),
-        uischema: context => useUischema(context),
+        uischema: context => useUischema(context)
       }),
 
       clearSchemas: assign({
         schema: undefined,
-        uischema: undefined,
+        uischema: undefined
       }),
 
       setModel: assign({
         model: ({ schema, model }: FieldsContext, { data }: AnyEventObject) => {
           if (!schema) return data ?? model;
           return useModelParser<FieldsModel>(schema, data ?? model);
-        },
+        }
       }),
 
       clearModel: assign({
-        model: undefined,
+        model: undefined
       }),
 
       setDirty: assign({
-        dirty: true,
+        dirty: true
       }),
 
       clearDirty: assign({
-        dirty: false,
+        dirty: false
       }),
 
       setAutoUpdate: assign({
-        autoupdate: (_context, { update }: AnyEventObject) => !!update,
+        autoupdate: (_context, { update }: AnyEventObject) => !!update
       }),
       clearAutoUpdate: assign({
-        autoupdate: false,
+        autoupdate: false
       }),
 
       cancelController: assign({
@@ -202,13 +202,13 @@ export default createMachine(
             controller?.abort();
           }
           return undefined;
-        },
+        }
       }),
 
       newController: assign({
         controller: () => {
           return new AbortController();
-        },
+        }
       }),
 
       // ---
@@ -223,7 +223,7 @@ export default createMachine(
         addError({
           title: "We experienced an error updating the basket fields",
           copy: error?.message,
-          data: error?.data,
+          data: error?.data
         });
       },
 
@@ -237,10 +237,10 @@ export default createMachine(
           }
 
           return error || data;
-        },
+        }
       }),
 
-      clearError: assign({ error: undefined }),
+      clearError: assign({ error: undefined })
     },
 
     guards: {
@@ -255,14 +255,14 @@ export default createMachine(
         basketId !== data?.id,
 
       shouldUpdate: ({ autoupdate, basketId }: FieldsContext) =>
-        !!autoupdate && !!basketId,
+        !!autoupdate && !!basketId
     },
 
     delays: {
       error: () => useTime().ERROR,
-      wait: () => useTime().WAIT,
+      wait: () => useTime().WAIT
     },
 
-    services,
+    services
   }
 );

@@ -49,7 +49,7 @@ import BasketProductSkeleton from "./BasketProductSkeleton.vue";
 import { type BasketProductCardsProps } from "./types";
 
 const props = withDefaults(defineProps<BasketProductCardsProps>(), {
-  color: "primary",
+  color: "primary"
 });
 
 const emits = defineEmits(["update:open"]);

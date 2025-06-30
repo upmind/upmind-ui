@@ -11,7 +11,7 @@ import {
   DetailedError,
   responseCodes,
   unflattenErrors,
-  useCookies,
+  useCookies
 } from "../../utils";
 import { parseBasketProductError } from "../basketProduct/utils";
 import { getTokenFromStorage, dumpTokenFromStorage } from "../session/utils";
@@ -26,7 +26,7 @@ import {
   map,
   omitBy,
   reduce,
-  set,
+  set
 } from "lodash-es";
 
 // --- types
@@ -52,8 +52,8 @@ async function load(context: BasketContext, _event: AnyEventObject) {
       url: useUrl("orders/claim"),
       withAccessToken: true,
       data: {
-        guest_token: guest_token.access_token,
-      },
+        guest_token: guest_token.access_token
+      }
     }).then(() => {
       // because we have successfully claimed the basket, we can dump the guest token
       // we only do it here, as we may need to claim the basket again if something went wrong
@@ -97,14 +97,14 @@ async function load(context: BasketContext, _event: AnyEventObject) {
         "products.product.related",
         "products.product.category",
         // "status",
-        `products.product.category${".top_category".repeat(4)}`,
-      ].join(),
+        `products.product.category${".top_category".repeat(4)}`
+      ].join()
     }),
     init: { signal: context.controller?.signal },
     queryKey: ["basket", "current"],
     staleTime: 0, // disable cache, this may still return stale data while the request is in flight
     gcTime: 0, // force cache to be cleared immediately, to prevent stale data
-    withAccessToken: true,
+    withAccessToken: true
     //revalidateIfStale: true,
   })
     .then(data => {
@@ -121,7 +121,7 @@ async function generate({ actors }: BasketContext, _event: AnyEventObject) {
   const { get: getTracking } = useTracking();
 
   const data: Record<string, any> = {
-    category_slug: "new_contract",
+    category_slug: "new_contract"
   };
   // ---
   // Conditional data
@@ -143,7 +143,7 @@ async function generate({ actors }: BasketContext, _event: AnyEventObject) {
   return post<IBasket>({
     url: useUrl("orders"),
     withAccessToken: true,
-    data,
+    data
   });
 }
 
@@ -192,7 +192,7 @@ async function convert(
   return patch({
     url: useUrl(`/orders/${basket?.id}/convert`),
     withAccessToken: true,
-    data: omitBy(data, isNil), // NB we need to remove any null values
+    data: omitBy(data, isNil) // NB we need to remove any null values
   });
 }
 
@@ -207,7 +207,7 @@ async function getProvisioningFieldsValues(basket: IBasket) {
   // Start with a promise to check the baskets provisioning fields for errors
   const checkPromise = patch({
     url: useUrl(`orders/${basket.id}/provision_fields/values/check`),
-    withAccessToken: true,
+    withAccessToken: true
   }).catch(({ error }) => error);
 
   provisioningPromises.push(checkPromise);
@@ -227,7 +227,7 @@ async function getProvisioningFieldsValues(basket: IBasket) {
       url: useUrl(
         `orders/${basket.id}/products/${id}/provision_fields/values`,
         {
-          sub_product_ids: subProducts,
+          sub_product_ids: subProducts
         }
       ),
       queryKey: [
@@ -236,11 +236,11 @@ async function getProvisioningFieldsValues(basket: IBasket) {
         "products",
         id,
         "provision_fields",
-        "values",
+        "values"
       ],
       withAccessToken: true,
       staleTime: 0, // disable cache, this may still return stale data while the request is in flight
-      gcTime: 0, // force cache to be cleared immediately, to prevent stale data
+      gcTime: 0 // force cache to be cleared immediately, to prevent stale data
     }).then(data => {
       // update the product with the provisioning fields
       set(rawProduct, "provision_fields", data);
@@ -270,13 +270,13 @@ async function getProvisioningFieldsValues(basket: IBasket) {
 
       return {
         basket,
-        errors,
+        errors
       };
     })
     .catch(error => {
       return {
         basket,
-        errors: error,
+        errors: error
       };
     });
 }
@@ -286,5 +286,5 @@ export default {
   load,
   refresh: load,
   convert,
-  isAuthenticated: () => useSession().isAuthenticated(),
+  isAuthenticated: () => useSession().isAuthenticated()
 };

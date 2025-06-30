@@ -11,7 +11,7 @@ import {
   useBrand,
   AddressModel,
   EmailModel,
-  PhoneModel,
+  PhoneModel
 } from "../..";
 
 import { useClientAddressServices } from "../address/services";
@@ -26,7 +26,7 @@ import {
   NotAuthenticatedError,
   DetailedError,
   responseCodes,
-  useCollection,
+  useCollection
 } from "../../../utils";
 import { mapCompanies, mapCompany, mapICompany } from "./mappers";
 import { invalidateQueryByKey } from "../../query";
@@ -51,7 +51,7 @@ async function load() {
   return get<ICompany[], Company[]>({
     queryKey,
     url: useUrl(`clients/${user.value?.id}/companies`, {
-      with: ["address", "address.country", "address.region"].join(),
+      with: ["address", "address.country", "address.region"].join()
     }),
     withAccessToken: true,
     guard: async () =>
@@ -64,7 +64,7 @@ async function load() {
       }),
     // --- options
     select: mapCompanies,
-    staleTime: useTime().DAY,
+    staleTime: useTime().DAY
   });
 }
 
@@ -76,7 +76,7 @@ function loadList(params?: Partial<QueryParams>) {
     ...(params as any),
     queryKey,
     url: useUrl(`clients/${user.value?.id}/companies`, {
-      with: ["address", "address.country", "address.region"].join(),
+      with: ["address", "address.country", "address.region"].join()
     }),
     withAccessToken: true,
     guard: async () =>
@@ -89,30 +89,30 @@ function loadList(params?: Partial<QueryParams>) {
       }),
     // --- options
     select: mapCompanies,
-    staleTime: useTime().DAY,
+    staleTime: useTime().DAY
   });
 }
 
 async function loadLookups({
   model,
-  schema,
+  schema
 }: CompanyContext): Promise<CompanyContext> {
   const {
     isReady: getPhones,
     default: defaultPhone,
-    data: phones,
+    data: phones
   } = useClientPhones();
 
   const {
     isReady: getEmails,
     default: defaultEmail,
-    data: emails,
+    data: emails
   } = useClientEmails();
 
   const {
     isReady: getAddresses,
     default: defaultAddress,
-    data: addresses,
+    data: addresses
   } = useClientAddresses();
 
   const { isReady, fetchCountries, fetchRegions, getCountry } = useSystem();
@@ -128,7 +128,7 @@ async function loadLookups({
     ensureConfig([BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS]),
     getPhones(),
     getEmails(),
-    getAddresses(),
+    getAddresses()
   ]);
 
   const country = getCountry(model?.address?.countryId);
@@ -147,7 +147,7 @@ async function loadLookups({
     // ---
     emailId: defaultEmail.value?.id,
     phoneId: defaultPhone.value?.id,
-    phone: defaultPhone.value?.phone,
+    phone: defaultPhone.value?.phone
   };
 
   const safeModel = useModelParser<CompanyModel>(schema, model, baseModel);
@@ -162,7 +162,7 @@ async function loadLookups({
     config,
     // ---
     model: safeModel,
-    baseModel: safeModel,
+    baseModel: safeModel
   } as CompanyContext);
 }
 
@@ -182,7 +182,7 @@ async function add(data: CompanyModel) {
     return post<ICompany>({
       url: useUrl(`clients/${user.value?.id}/companies`),
       data: mapICompany(ensuredData),
-      withAccessToken: true,
+      withAccessToken: true
     }).then(invalidateQueryByKey(queryKey, { exact: false }));
   });
 }
@@ -199,7 +199,7 @@ async function update(id: Company["id"], data: CompanyModel) {
     return put<ICompany>({
       url: useUrl(`clients/${user.value?.id}/companies/${id}`),
       data: mapICompany(ensuredData),
-      withAccessToken: true,
+      withAccessToken: true
     }).then(invalidateQueryByKey(queryKey, { exact: false }));
   });
 }
@@ -245,14 +245,14 @@ function remove(companyId: Company["id"]) {
           ? error
           : error?.title || "We experienced an error removing this company",
         copy: error?.message,
-        data: error?.data,
+        data: error?.data
       });
     },
     onSuccess(data) {
       invalidateQueryByKey(queryKey, { exact: false })(data);
       addSuccess("Successfully removed company");
     },
-    withAccessToken: true,
+    withAccessToken: true
   });
 }
 
@@ -278,14 +278,14 @@ function setDefault(companyId: Company["id"]) {
           : error?.title ||
             "We experienced an error setting this company as default",
         copy: error?.message,
-        data: error?.data,
+        data: error?.data
       });
     },
     onSuccess(data) {
       invalidateQueryByKey(queryKey, { exact: false })(data);
       addSuccess("Successfully set company as default");
     },
-    withAccessToken: true,
+    withAccessToken: true
   });
 }
 
@@ -313,20 +313,20 @@ async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
     ensureEmail({
       model: (data?.email
         ? { email: data.email }
-        : { id: data?.emailId }) as EmailModel,
+        : { id: data?.emailId }) as EmailModel
     }),
 
     ensurePhone({
       model: (data?.phone
         ? { phone: data.phone }
-        : { id: data?.addressId }) as PhoneModel,
+        : { id: data?.addressId }) as PhoneModel
     }),
 
     ensureAddress({
       model: (data?.address
         ? data.address
-        : { id: data?.addressId }) as AddressModel,
-    }),
+        : { id: data?.addressId }) as AddressModel
+    })
   ])
     .then(([email, phone, address]) => {
       return {
@@ -337,7 +337,7 @@ async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
         name: data.name,
         regNumber: data.regNumber,
         vatNumber: data.vatNumber,
-        default: data.default,
+        default: data.default
       };
     })
     .catch(error => {
@@ -392,7 +392,7 @@ async function parse(
     model: safeModel,
     regions,
     country,
-    autoupdate,
+    autoupdate
   });
 }
 
@@ -442,7 +442,7 @@ export default {
    * @param {Company["id"]} companyId - The ID of the company to set as default.
    * @returns {Promise<ICompany>} A promise that resolves to the updated company
    */
-  setDefault,
+  setDefault
 };
 
 export const useClientCompanyServices = () => {
@@ -528,6 +528,6 @@ export const useClientCompanyServices = () => {
      * @param {Partial<CompanyContext>} param0 - The company context containing schema and model.
      * @returns {Promise<any>} The validated model.
      */
-    validate,
+    validate
   };
 };

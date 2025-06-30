@@ -21,7 +21,7 @@ import {
   stateMatches,
   useChildActor,
   useContext,
-  Actor,
+  Actor
 } from "../../utils";
 
 import {
@@ -33,7 +33,7 @@ import {
   isEmpty,
   map,
   isEqual,
-  some,
+  some
 } from "lodash-es";
 
 // --- types
@@ -46,7 +46,7 @@ import {
   ICurrency,
   IInvoice,
   IPromotion,
-  type IBasket,
+  type IBasket
 } from "@upmind-automation/types";
 import { QueryResponseError } from "../query";
 import { BasketContext } from "./types";
@@ -91,7 +91,7 @@ export const useBasket = () => {
         machineMatches(actors.customFields, ["processing"]) ||
         machineMatches(actors.billing, [
           "processing",
-          "available.processing",
+          "available.processing"
         ]) ||
         machineMatches(actors.promotions, ["processing"]),
 
@@ -106,7 +106,7 @@ export const useBasket = () => {
         stateMatches(state, [
           "shopping",
           "checkout.configuring",
-          "checkout.available",
+          "checkout.available"
         ]) && contextMatches(state, ["products"]),
 
       needsAuth: !sessionMeta.value?.isAuthenticated,
@@ -130,7 +130,7 @@ export const useBasket = () => {
       hasPaymentDetails: machineMatches(actors.paymentDetails, [
         "complete",
         "available.valid",
-        "available.processing",
+        "available.processing"
       ]),
 
       hasFields: machineMatches(actors.customFields, ["complete"]),
@@ -139,7 +139,7 @@ export const useBasket = () => {
         "shopping.account.complete",
         "checkout",
         "converting",
-        "paying",
+        "paying"
       ]),
 
       hasTaxIncluded: includesTax.value,
@@ -155,7 +155,7 @@ export const useBasket = () => {
           "shopping.currency.complete",
           "shopping.billing.complete",
           "shopping.customFields.complete",
-          "shopping.paymentDetails.available",
+          "shopping.paymentDetails.available"
         ],
         true
       ),
@@ -173,7 +173,7 @@ export const useBasket = () => {
       isComplete: stateMatches(state, ["complete", "failed"]),
       hasPaid: stateMatches(state, ["complete"]),
       hasFailed: stateMatches(state, ["failed"]),
-      hasError: contextMatches(state, ["error"]),
+      hasError: contextMatches(state, ["error"])
     };
   });
 
@@ -191,7 +191,7 @@ export const useBasket = () => {
     paymentDetails: useContextActor(state, "actors.paymentDetails"),
     billing: useContextActor(state, "actors.billing"),
     currency: useContextActor(state, "actors.currency"),
-    promotions: useContextActor(state, "actors.promotions"),
+    promotions: useContextActor(state, "actors.promotions")
   };
 
   const payment = useChildActor(state, "payment");
@@ -238,7 +238,7 @@ export const useBasket = () => {
 
   async function setCurrency(currency: string) {
     return waitFor(service, state => stateMatches(state, ["shopping"]), {
-      timeout: 60_000,
+      timeout: 60_000
     }).then(() => {
       const actor = actors.currency;
       if (!actor.value)
@@ -261,7 +261,7 @@ export const useBasket = () => {
             "processed",
             "complete",
             "error",
-            "invalid",
+            "invalid"
           ]);
         },
         { timeout: 60_000 }
@@ -277,7 +277,7 @@ export const useBasket = () => {
             "[headless] setCurrency on basket timed out",
             responseCodes.Timeout,
             {
-              state: state.value.value,
+              state: state.value.value
             }
           );
         });
@@ -286,7 +286,7 @@ export const useBasket = () => {
 
   async function addPromotion(coupon: string) {
     return waitFor(service, state => stateMatches(state, ["shopping"]), {
-      timeout: 60_000,
+      timeout: 60_000
     }).then(async () => {
       const actor = actors.promotions;
 
@@ -309,7 +309,7 @@ export const useBasket = () => {
                 responseCodes.Timeout,
                 {
                   error,
-                  state: state.value.value,
+                  state: state.value.value
                 }
               )
             );
@@ -594,7 +594,7 @@ export const useBasket = () => {
      * @param {string} bpid The basket product ID.
      * @returns {Promise<ActorRef<any>>} The product actor.
      */
-    getProduct,
+    getProduct
   };
 };
 

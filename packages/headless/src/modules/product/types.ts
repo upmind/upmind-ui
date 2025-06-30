@@ -8,7 +8,7 @@ import type {
   IClient,
   ICurrency,
   IBasketPromotion,
-  IRelatedObject,
+  IRelatedObject
 } from "@upmind-automation/types";
 export { PromotionDisplayTypes } from "@upmind-automation/types";
 import { PromotionDisplayTypes } from "@upmind-automation/types";

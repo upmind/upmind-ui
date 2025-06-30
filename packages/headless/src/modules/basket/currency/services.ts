@@ -36,9 +36,9 @@ async function update(
   return put<ICurrency>({
     url: useUrl(`/orders/${basketId}/currency`),
     data: {
-      currency_code: model?.code,
+      currency_code: model?.code
     },
-    withAccessToken: true,
+    withAccessToken: true
   });
 }
 
@@ -77,5 +77,5 @@ export default {
   load,
   parse,
   validate,
-  update,
+  update
 };

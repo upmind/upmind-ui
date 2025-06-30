@@ -17,7 +17,7 @@ export const useQueryParams = (route?: Route) => {
     name: undefined,
     path: undefined,
     query: undefined,
-    params: undefined,
+    params: undefined
   });
 
   return useUpmindRouteQueryParams(safeRoute);

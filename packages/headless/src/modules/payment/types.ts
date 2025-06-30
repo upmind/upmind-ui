@@ -9,7 +9,7 @@ import type {
   Methods,
   IClient,
   ICurrency,
-  IAddress,
+  IAddress
 } from "@upmind-automation/types";
 import { QueryResponseError } from "../query";
 import { ErrorObject } from "ajv";

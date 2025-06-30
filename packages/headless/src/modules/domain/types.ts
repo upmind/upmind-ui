@@ -20,7 +20,7 @@ export enum DomainTypes {
   register = "register",
   transfer = "transfer",
   existing = "existing",
-  basket = "basket",
+  basket = "basket"
 }
 
 export type DomainProduct = Product &

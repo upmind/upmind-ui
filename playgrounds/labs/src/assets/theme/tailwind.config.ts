@@ -33,8 +33,8 @@ const colors = {
     muted: {
       DEFAULT: "#dde3e8",
       foreground: "#65758b",
-      active: "#c7d1da",
-    },
+      active: "#c7d1da"
+    }
   },
 
   // dark blue
@@ -56,8 +56,8 @@ const colors = {
     muted: {
       DEFAULT: "#d0f3ff",
       foreground: "#31d1ff",
-      active: "#acedff",
-    },
+      active: "#acedff"
+    }
   },
 
   // light blue
@@ -79,8 +79,8 @@ const colors = {
     muted: {
       DEFAULT: "#e2f3fc",
       foreground: "#44bcec",
-      active: "#bee6f9",
-    },
+      active: "#bee6f9"
+    }
   },
 
   // pink
@@ -102,8 +102,8 @@ const colors = {
     muted: {
       DEFAULT: "#ffe7fb",
       foreground: "#fe74dd",
-      active: "#ffcef5",
-    },
+      active: "#ffcef5"
+    }
   },
 
   // yellow
@@ -126,8 +126,8 @@ const colors = {
     muted: {
       DEFAULT: "#f9ffc1",
       foreground: "#fff70d",
-      active: "#f8ff86",
-    },
+      active: "#f8ff86"
+    }
   },
 
   // green
@@ -149,8 +149,8 @@ const colors = {
     muted: {
       DEFAULT: "#e8ffc7",
       foreground: "#91f625",
-      active: "#d1ff95",
-    },
+      active: "#d1ff95"
+    }
   },
 
   // --- State Variants
@@ -172,8 +172,8 @@ const colors = {
     muted: {
       DEFAULT: "#ffe7fb",
       foreground: "#d920a7",
-      active: "#ffcef5",
-    },
+      active: "#ffcef5"
+    }
   },
 
   destructive: {
@@ -194,8 +194,8 @@ const colors = {
     muted: {
       DEFAULT: "#fff1f2",
       foreground: "#fb7185",
-      active: "#fecdd3",
-    },
+      active: "#fecdd3"
+    }
   },
 
   info: {
@@ -216,8 +216,8 @@ const colors = {
     muted: {
       DEFAULT: "#eff5ff",
       foreground: "#609afa",
-      active: "#dbe8fe",
-    },
+      active: "#dbe8fe"
+    }
   },
 
   success: {
@@ -238,8 +238,8 @@ const colors = {
     muted: {
       DEFAULT: "#ecfdf7",
       foreground: "#34d39e",
-      active: "#a7f3da",
-    },
+      active: "#a7f3da"
+    }
   },
 
   warning: {
@@ -260,8 +260,8 @@ const colors = {
     muted: {
       DEFAULT: "#fff5ed",
       foreground: "#fdb274",
-      active: "#ffe8d5",
-    },
+      active: "#ffe8d5"
+    }
   },
 
   error: {
@@ -282,25 +282,25 @@ const colors = {
     muted: {
       DEFAULT: "#fef2f2",
       foreground: "#f87171",
-      active: "#fee2e2",
-    },
+      active: "#fee2e2"
+    }
   },
 
   disabled: {
     DEFAULT: "#9e9e9e",
-    foreground: "#eeeeee",
+    foreground: "#eeeeee"
   },
 
   // --- Component Variants
 
   card: {
     DEFAULT: "#ffffff",
-    foreground: "#0f1729",
+    foreground: "#0f1729"
   },
 
   popover: {
     DEFAULT: "#ffffff",
-    foreground: "#0f1729",
+    foreground: "#0f1729"
   },
 
   control: {
@@ -313,20 +313,20 @@ const colors = {
       foreground: "#ffffff",
       background: "#4D9FFF10",
       hover: "#f9fafb",
-      focus: "#4D9FFF10",
+      focus: "#4D9FFF10"
     },
     error: {
       DEFAULT: "#EF4444",
       muted: "#EF444420",
       foreground: "#ffffff",
-      background: "#EF4444",
-    },
+      background: "#EF4444"
+    }
   },
 
   icon: {
     primary: "#021831",
-    secondary: "#ffa4ea",
-  },
+    secondary: "#ffa4ea"
+  }
 };
 
 // -----------------------------------------------------------------------------
@@ -337,7 +337,7 @@ export default {
   fontFamily: {
     sans: ["Inter Tight", ...defaultTheme.fontFamily.sans].toString(),
     serif: ["Inter Tight", ...defaultTheme.fontFamily.serif].toString(),
-    mono: ["Inconsolata", ...defaultTheme.fontFamily.mono].toString(),
+    mono: ["Inconsolata", ...defaultTheme.fontFamily.mono].toString()
   },
   fontSize: {
     "2xs": ".75rem", // 12px
@@ -349,7 +349,7 @@ export default {
     "2xl": "1.5rem", // 24px
     "3xl": "1.875rem", // 30px
     "4xl": "2.25rem", // 36px
-    "5xl": "3rem", // 48px
+    "5xl": "3rem" // 48px
   },
   width: {
     "dropdown-3xs": "6rem",
@@ -359,29 +359,29 @@ export default {
     "dropdown-md": "14rem",
     "dropdown-lg": "16rem",
     "dropdown-xl": "18rem",
-    "dropdown-2xl": "20rem",
+    "dropdown-2xl": "20rem"
   },
   maxWidth: {
-    app: "clamp(320px, 90%, 1280px)",
+    app: "clamp(320px, 90%, 1280px)"
   },
   leading: {
     none: 1,
     tight: 1.25,
     normal: 1.5,
-    loose: 2,
+    loose: 2
   },
   tracking: {
     tight: "-0.05em",
     normal: "0",
-    wide: "0.05em",
+    wide: "0.05em"
   },
   borderColor: {
     DEFAULT: "rgb(0 25 51 / 0.1)",
     input: "rgb(0 25 51 / 0.1)",
     control: {
       DEFAULT: "rgb(0 25 51 / 0.1)",
-      strong: "rgb(0 25 51 / 0.2)",
-    },
+      strong: "rgb(0 25 51 / 0.2)"
+    }
   },
   borderRadius: {
     DEFAULT: ".5rem",
@@ -394,7 +394,7 @@ export default {
     full: "9999px", // 9999px,
     pill: "10em", // 9999px,
     button: ".25rem", // 4px,
-    box: ".5rem", // 8px,
+    box: ".5rem" // 8px,
   },
   shadows: {
     default: "0 2px 4px 0 rgba(0,0,0,0.10)",
@@ -402,7 +402,7 @@ export default {
     lg: "0 15px 30px 0 rgba(0,0,0,0.11), 0 5px 15px 0 rgba(0,0,0,0.08)",
     inner: "inset 0 2px 4px 0 rgba(0,0,0,0.06)",
     outline: "0 0 0 3px rgba(52,144,220,0.5)",
-    none: "none",
+    none: "none"
   },
 
   // borderWidth: {
@@ -426,7 +426,7 @@ export default {
   ringColor: {
     DEFAULT: colors.control.active,
     ring: colors.control.active,
-    invalid: colors.control.error.muted,
+    invalid: colors.control.error.muted
   },
   typography: ({ theme }: PluginUtils) => ({
     DEFAULT: {
@@ -436,42 +436,42 @@ export default {
         h1: {
           fontFamily: theme("fontFamily.display"),
           fontWeight: 700,
-          lineHeight: 1.2,
+          lineHeight: 1.2
         },
         h2: {
           fontFamily: theme("fontFamily.display"),
           fontWeight: 700,
-          lineHeight: 1.2,
+          lineHeight: 1.2
         },
         h3: {
           fontFamily: theme("fontFamily.display"),
           fontWeight: 700,
-          lineHeight: 1.2,
+          lineHeight: 1.2
         },
         h4: {
           fontFamily: theme("fontFamily.display"),
           fontWeight: 500,
-          lineHeight: 1.2,
+          lineHeight: 1.2
         },
         h5: {
           fontFamily: theme("fontFamily.display"),
           fontWeight: 500,
-          lineHeight: 1.2,
+          lineHeight: 1.2
         },
         h6: {
           fontFamily: theme("fontFamily.display"),
           fontWeight: 500,
-          lineHeight: 1.2,
-        },
-      },
-    },
+          lineHeight: 1.2
+        }
+      }
+    }
   }),
   textColor: {
     emphasis: {
       disabled: "color-mix(in srgb, currentColor 38%, transparent)",
       medium: "color-mix(in srgb, currentColor 60%, transparent)",
       high: "color-mix(in srgb, currentColor 87%, transparent)",
-      none: "currentColor",
-    },
-  },
+      none: "currentColor"
+    }
+  }
 } satisfies Config;

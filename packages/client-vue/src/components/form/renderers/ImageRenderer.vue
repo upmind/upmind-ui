@@ -86,7 +86,7 @@ export const tester = {
   controlType: and(
     uiTypeIs("Control"),
     or(formatIs("file"), optionIs("type", "image"))
-  ),
+  )
 };
 </script>
 

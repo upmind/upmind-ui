@@ -24,7 +24,7 @@ import { useI18n } from "vue-i18n";
 import {
   UnifiedAddressType,
   useSession,
-  useBasketBilling,
+  useBasketBilling
 } from "@upmind-automation/headless";
 
 // --- components
@@ -51,7 +51,7 @@ const emits = defineEmits<{
 
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
-  deep: true,
+  deep: true
 });
 // -----------------------------------------------------------------------------
 
@@ -80,13 +80,13 @@ const tabs = computed((): TabItem[] => {
     tabItems.push({
       label: t("billing.personal"),
       value: UnifiedAddressType.PERSONAL,
-      eager: false,
+      eager: false
     });
   }
   tabItems.push({
     label: t("billing.business"),
     value: UnifiedAddressType.BUSINESS,
-    eager: !!config.value?.requiresCompany,
+    eager: !!config.value?.requiresCompany
   });
 
   return tabItems;

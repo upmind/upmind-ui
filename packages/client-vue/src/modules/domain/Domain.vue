@@ -125,7 +125,7 @@ import {
   FormControl,
   FormMessage,
   RadioGroup,
-  RadioGroupItem,
+  RadioGroupItem
 } from "@upmind-automation/upmind-ui";
 
 // --- utils
@@ -144,7 +144,7 @@ const emit = defineEmits<{
 const props = withDefaults(defineProps<DomainProps>(), {
   type: DomainTypes.register,
   modelValue: "",
-  color: "secondary",
+  color: "secondary"
 });
 const { t, tm, rt } = useI18n();
 
@@ -172,7 +172,7 @@ const {
   stop,
   addToBasket,
   select,
-  remove,
+  remove
 } = useDomain(props.modelValue, { type: props.type });
 
 const styles = useStyles(
@@ -215,7 +215,7 @@ const i18nChoices = computed(() => {
       label: rt(translations?.label) || choice.label,
       item: choice,
       index,
-      modelValue: choice.value,
+      modelValue: choice.value
     };
   });
 });
@@ -230,9 +230,9 @@ const ownedDomains = computed(() => {
     {
       as: "separator",
       persist: true,
-      domain: t("domain.existing.owned"),
+      domain: t("domain.existing.owned")
     },
-    ...owned.value,
+    ...owned.value
   ];
 });
 

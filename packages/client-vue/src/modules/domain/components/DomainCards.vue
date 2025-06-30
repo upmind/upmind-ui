@@ -71,7 +71,7 @@ import Empty from "./Empty.vue";
 import {
   IconAnimated,
   CheckboxCards,
-  Interstitial,
+  Interstitial
 } from "@upmind-automation/upmind-ui";
 import SmartTitle from "../../../components/content/SmartTitle.vue";
 import DomainCardSkeleton from "./DomainCardSkeleton.vue";
@@ -96,7 +96,7 @@ const props = withDefaults(defineProps<DomainCardsProps>(), {
   color: "base",
   loading: false,
   processing: false,
-  disabled: false,
+  disabled: false
 });
 
 const { t } = useI18n();
@@ -112,7 +112,7 @@ const meta = computed(() => ({
     (props.loading || isMinLoadingActive.value) && props.offset > 0,
   isEmpty: !props.items?.length,
   isDisabled: props.disabled,
-  isProcessing: props.processing,
+  isProcessing: props.processing
 }));
 
 const styles = useStyles(["domain.listings"], meta, config) as ComputedRef<{
@@ -142,7 +142,7 @@ const parsedValues = computed<CheckboxCardsItemProps[]>(() => {
     return {
       id: item.domain,
       value: item.domain,
-      label: item.domain,
+      label: item.domain
     };
   });
 });

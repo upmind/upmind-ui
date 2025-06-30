@@ -26,16 +26,16 @@ export default createMachine<ClientItemContext>(
         on: {
           REFRESH: {
             actions: ["refreshContext"],
-            cond: "hasChanged",
+            cond: "hasChanged"
           },
           SET: {
-            actions: ["setModel", "setAutoUpdate"],
+            actions: ["setModel", "setAutoUpdate"]
           },
 
           CLEAR: {
-            actions: ["clearModel"],
-          },
-        },
+            actions: ["clearModel"]
+          }
+        }
       },
 
       loading: {
@@ -45,13 +45,13 @@ export default createMachine<ClientItemContext>(
           src: "loadLookups",
           onDone: {
             target: "available",
-            actions: ["setContext", "setSchemas", "setMeta"],
+            actions: ["setContext", "setSchemas", "setMeta"]
           },
           onError: {
             target: "unavailable",
-            actions: ["setError", "setFeedbackError"],
-          },
-        },
+            actions: ["setError", "setFeedbackError"]
+          }
+        }
       },
 
       available: {
@@ -67,23 +67,23 @@ export default createMachine<ClientItemContext>(
                   src: "parse",
                   onDone: {
                     target: "validating",
-                    actions: ["setParsed", "setSchemas", "setMeta"],
-                  },
-                },
+                    actions: ["setParsed", "setSchemas", "setMeta"]
+                  }
+                }
               },
               validating: {
                 invoke: {
                   src: "validate",
                   onDone: {
-                    target: "#valid",
+                    target: "#valid"
                   },
                   onError: {
                     target: "#invalid",
-                    actions: ["setError"],
-                  },
-                },
-              },
-            },
+                    actions: ["setError"]
+                  }
+                }
+              }
+            }
           },
 
           valid: {
@@ -92,18 +92,18 @@ export default createMachine<ClientItemContext>(
             on: {
               SET: {
                 target: "checking",
-                actions: ["setAutoUpdate"],
+                actions: ["setAutoUpdate"]
               },
               UPDATE: [
                 {
                   target: "#processing.adding",
-                  cond: "isNew",
+                  cond: "isNew"
                 },
                 {
-                  target: "#processing.updating",
-                },
-              ],
-            },
+                  target: "#processing.updating"
+                }
+              ]
+            }
           },
 
           invalid: {
@@ -111,9 +111,9 @@ export default createMachine<ClientItemContext>(
             on: {
               SET: {
                 target: "checking",
-                actions: ["setAutoUpdate"],
-              },
-            },
+                actions: ["setAutoUpdate"]
+              }
+            }
           },
 
           error: {
@@ -121,11 +121,11 @@ export default createMachine<ClientItemContext>(
             on: {
               SET: {
                 target: "checking",
-                actions: ["setAutoUpdate"],
-              },
-            },
-          },
-        },
+                actions: ["setAutoUpdate"]
+              }
+            }
+          }
+        }
       },
 
       unavailable: {},
@@ -139,28 +139,28 @@ export default createMachine<ClientItemContext>(
               src: "add",
               onDone: {
                 target: "#processed",
-                actions: ["setModel", "clearAutoUpdate"],
+                actions: ["setModel", "clearAutoUpdate"]
               },
               onError: {
                 target: "#error",
-                actions: ["setError"],
-              },
-            },
+                actions: ["setError"]
+              }
+            }
           },
           updating: {
             invoke: {
               src: "update",
               onDone: {
                 target: "#processed",
-                actions: ["setModel", "clearAutoUpdate"],
+                actions: ["setModel", "clearAutoUpdate"]
               },
               onError: {
                 target: "#error",
-                actions: ["setError"],
-              },
-            },
-          },
-        },
+                actions: ["setError"]
+              }
+            }
+          }
+        }
       },
 
       processed: {
@@ -169,29 +169,29 @@ export default createMachine<ClientItemContext>(
           wait: [
             {
               target: "available",
-              cond: "continueEditing",
+              cond: "continueEditing"
             },
             {
-              target: "complete",
-            },
-          ],
-        },
+              target: "complete"
+            }
+          ]
+        }
       },
 
       complete: {
         id: "complete",
-        type: "final",
-      },
+        type: "final"
+      }
     },
     on: {
       CLEAR: {
         target: "available.checking",
-        actions: ["clearModel"],
+        actions: ["clearModel"]
       },
       REFRESH: {
-        target: "loading",
-      },
-    },
+        target: "loading"
+      }
+    }
   },
   {
     actions: {
@@ -222,20 +222,20 @@ export default createMachine<ClientItemContext>(
       setParsed: assign(
         (context: ClientItemContext, { data }: AnyEventObject) => ({
           ...context,
-          ...(data ?? {}),
+          ...(data ?? {})
         })
       ),
 
       clearModel: assign({
-        model: undefined,
+        model: undefined
       }),
 
       setAutoUpdate: assign({
-        autoupdate: (_context, { update }: AnyEventObject) => !!update,
+        autoupdate: (_context, { update }: AnyEventObject) => !!update
       }),
 
       clearAutoUpdate: assign({
-        autoupdate: false,
+        autoupdate: false
       }),
 
       setError: assign({
@@ -247,10 +247,10 @@ export default createMachine<ClientItemContext>(
             error = useValidationParser(error);
           }
           return error || data;
-        },
+        }
       }),
 
-      clearError: assign({ error: undefined }),
+      clearError: assign({ error: undefined })
     },
     guards: {
       hasSubscription: (_context: ClientItemContext, _event: AnyEventObject) =>
@@ -260,11 +260,11 @@ export default createMachine<ClientItemContext>(
       continueEditing: ({ allowMultipleEdits }) => !!allowMultipleEdits,
       shouldUpdate: ({ autoupdate }, _event) => {
         return !!autoupdate;
-      },
+      }
     },
     delays: {
       error: () => useTime().ERROR,
-      wait: () => useTime().WAIT,
-    },
+      wait: () => useTime().WAIT
+    }
   }
 );

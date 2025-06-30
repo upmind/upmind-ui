@@ -9,7 +9,7 @@ import {
   useLaravalSchemaParser,
   useTranslateField,
   useTranslateName,
-  useValidation,
+  useValidation
 } from "../../utils";
 
 import {
@@ -40,7 +40,7 @@ import {
   times,
   toNumber,
   uniq,
-  values,
+  values
 } from "lodash-es";
 
 import type {
@@ -49,14 +49,14 @@ import type {
   IProductAttribute,
   IProductCategory,
   IProductOption,
-  IProductPrice,
+  IProductPrice
 } from "@upmind-automation/types";
 // --- types
 import {
   BrandConfigKeys,
   DefaultPaymentPeriod,
   ProductTypes,
-  PromotionDisplayTypes,
+  PromotionDisplayTypes
 } from "@upmind-automation/types";
 
 import type {
@@ -80,7 +80,7 @@ import type {
   SubproductModelValue,
   SubproductValue,
   TermDetails,
-  UIMeta,
+  UIMeta
 } from "./types";
 import { ErrorObject } from "ajv";
 
@@ -103,7 +103,7 @@ export function useUischemaTitle(
   {
     basketProduct,
     valueKey,
-    fallback,
+    fallback
   }: {
     basketProduct?: IBasketProduct;
     valueKey: string;
@@ -114,7 +114,7 @@ export function useUischemaTitle(
     uniq(
       iterateParents(product.category, [get(product, valueKey)], {
         valueKey,
-        parentKey: "top_category",
+        parentKey: "top_category"
       })
     )
   ) as string[];
@@ -174,7 +174,7 @@ export function iterateParents(
   {
     valueKey,
     parentKey,
-    transform,
+    transform
   }: {
     valueKey: string;
     parentKey: string;
@@ -187,7 +187,7 @@ export function iterateParents(
   return iterateParents(get(item, parentKey), result, {
     valueKey,
     parentKey,
-    transform,
+    transform
   });
 }
 
@@ -436,7 +436,7 @@ export function parseSubproducts(
 
         if (defaultSubproduct) {
           set(selected, defaultSubproduct.id, {
-            productId: defaultSubproduct.id,
+            productId: defaultSubproduct.id
           });
         } else if (
           (subproduct?.meta.required && !subproduct.meta.multiple) ||
@@ -511,7 +511,7 @@ export const parseProductDetails = (
     title: useUischemaTitle(rawProduct, {
       basketProduct: rawBasketProduct,
       valueKey: "meta.uischema.title",
-      fallback: useProductName(rawProduct, rawBasketProduct),
+      fallback: useProductName(rawProduct, rawBasketProduct)
     }),
     brand: useTranslateName(rawProduct?.brand),
     categoryId: rawProduct?.category_id,
@@ -520,7 +520,7 @@ export const parseProductDetails = (
       iterateParents(rawProduct.category, [], {
         valueKey: "name",
         parentKey: "top_category",
-        transform: useTranslateName,
+        transform: useTranslateName
       })
     ) as string[],
     // ---
@@ -541,7 +541,7 @@ export const parseProductDetails = (
         : Infinity,
     // ---
     uiMeta: parseMeta(rawProduct?.meta ?? {}, rawProduct?.category),
-    uiCategoryMeta: rawProduct?.category?.meta || undefined,
+    uiCategoryMeta: rawProduct?.category?.meta || undefined
   };
 };
 
@@ -551,7 +551,7 @@ export const parseMeta = (
 ): Record<string, any> => {
   const all = iterateParents(category, [], {
     valueKey: "meta",
-    parentKey: "top_category",
+    parentKey: "top_category"
   });
 
   return reduce(
@@ -615,8 +615,8 @@ export const parseSubproductDetails = (
         meta: {
           multiple: rawSubproduct.category.multiple,
           required: rawSubproduct.category.required,
-          overrides: rawSubproduct.category.price_override,
-        },
+          overrides: rawSubproduct.category.price_override
+        }
       });
 
       // check EARLY if we have a price for one of the following:
@@ -663,9 +663,9 @@ export const parseSubproductDetails = (
           includesTax: includesTax.value,
           free: price?.price?.currentAmount == 0,
           overrides: rawSubproduct.category.price_override,
-          default: !!rawSubproduct?.pivot?.default,
+          default: !!rawSubproduct?.pivot?.default
         },
-        order: rawSubproduct.pivot.order,
+        order: rawSubproduct.pivot.order
       };
       // ---
       values.push(value as SubproductValue);
@@ -704,8 +704,8 @@ export const parseSummaryDetail = (
       discounted,
       includesTax: includesTax.value,
       free: (raw.price_discounted ?? raw.price) == 0,
-      overrides: !!overrides,
-    },
+      overrides: !!overrides
+    }
   } as ProductSummaryDetailWithPrice;
 };
 
@@ -729,7 +729,7 @@ export const parsePrice = (raw: IProductPrice): PriceDetail => {
     savingPrice: "", //TODO: missing formatted value
     savingPercent: discounted
       ? `${Math.round((savingAmount / raw.price) * 100)}%`
-      : "",
+      : ""
   };
 };
 
@@ -780,13 +780,13 @@ export const parsePromotionDetails = (
           meta: {
             display: promotionDisplayType,
             mixed: !!raw.mixed_promotions,
-            discounted: !isEmpty(rawPromo.amount),
+            discounted: !isEmpty(rawPromo.amount)
           },
           price: {
             savingAmount: toNumber(rawPromo.amount),
             savingPrice: rawPromo.amount_formatted,
-            savingPercent: "", //TODO: missing % value from response
-          },
+            savingPercent: "" //TODO: missing % value from response
+          }
         }) as PromotionDetails
     );
   } else {
@@ -802,7 +802,7 @@ export const parsePromotionDetails = (
         meta: {
           display: promotionDisplayType,
           mixed: !!raw.mixed_promotions,
-          discounted: !isNil(raw.price_discounted) && !raw.mixed_promotions,
+          discounted: !isNil(raw.price_discounted) && !raw.mixed_promotions
         },
         price: {
           savingAmount:
@@ -811,9 +811,9 @@ export const parsePromotionDetails = (
           savingPercent:
             isNil(raw.price_discounted) || raw.mixed_promotions
               ? ""
-              : saving_formatted,
-        },
-      } as PromotionDetails,
+              : saving_formatted
+        }
+      } as PromotionDetails
     ];
   }
 };
@@ -825,7 +825,7 @@ export const parseProvisioningSchema = (data: any, product: any) => {
 
   const schema = useLaravalSchemaParser(data, {
     defaultCountry,
-    product,
+    product
   });
 
   // TODO: Implement a proper solution for this where field type is input_sld
@@ -858,7 +858,7 @@ export const parseProduct = (
         regularPrice: "",
         savingAmount: 0,
         savingPrice: "",
-        savingPercent: "",
+        savingPercent: ""
       };
   // ---
   // TODO: Dont have the necessary data now to calculate this
@@ -882,11 +882,11 @@ export const parseProduct = (
       ...(term?.meta ?? {}),
       free: price.currentAmount == 0,
       discounted:
-        price.currentAmount != price.regularAmount && price.regularAmount > 0,
+        price.currentAmount != price.regularAmount && price.regularAmount > 0
     },
     promotions: term?.promotions,
     // ---
-    price,
+    price
   };
   // -------
   // this is an array of  key value pairs that can be used to display a summary of the configuration
@@ -898,13 +898,13 @@ export const parseProduct = (
       name: "product",
       title: lookups.product?.title,
       category: lookups.product?.category,
-      meta: {},
+      meta: {}
     },
     {
       name: "category",
       title: lookups.product.category,
-      meta: {},
-    },
+      meta: {}
+    }
   ];
 
   const termDetails = parseSummaryTerm(
@@ -951,7 +951,7 @@ export const parseProduct = (
         provisionFieldDetails
       )
     ),
-    errors: omitBy(error, isEmpty) as ExternalError,
+    errors: omitBy(error, isEmpty) as ExternalError
   };
 };
 
@@ -966,7 +966,7 @@ const parseSummaryTerm = (
     term.category = "Billing Cycle";
     term.meta = {
       ...term.meta,
-      invalid: has(error, "term"),
+      invalid: has(error, "term")
     };
     return term;
   }
@@ -988,11 +988,11 @@ const parseSummarySubproduct = (
           choices,
           (result, choice, id) => {
             const category = find(lookup, {
-              values: [{ id }],
+              values: [{ id }]
             }) as SubproductDetails;
 
             const subproduct = find(category?.values, {
-              id,
+              id
             }) as SubproductValue;
 
             if (subproduct) {
@@ -1007,10 +1007,10 @@ const parseSummarySubproduct = (
                 // ---
                 meta: {
                   ...subproduct.meta,
-                  invalid: has(error, `${key}.${id}`),
+                  invalid: has(error, `${key}.${id}`)
                 },
                 // ---
-                ...(subproduct.price ?? {}),
+                ...(subproduct.price ?? {})
               };
 
               result.push(summary);
@@ -1051,8 +1051,8 @@ const parseSummaryProvisionFields = (
         regularAmount: undefined,
         regularPrice: undefined,
         meta: {
-          invalid: some(error, ["data.schemaPath", key]),
-        },
+          invalid: some(error, ["data.schemaPath", key])
+        }
       });
       return result;
     },
@@ -1068,7 +1068,7 @@ export const parseModel = (data: ProductModel): ProductModel => {
     term: data.term,
     options: data.options,
     attributes: data.attributes,
-    provisionFields: data.provisionFields,
+    provisionFields: data.provisionFields
   };
 };
 
@@ -1081,7 +1081,7 @@ export const parseBasketProductModel = (raw: IBasketProduct): ProductModel => {
     term: raw.billing_cycle_months,
     options: parseSubproductDetailsChoices(raw.options),
     attributes: parseSubproductDetailsChoices(raw.attributes),
-    provisionFields: raw.provision_fields,
+    provisionFields: raw.provision_fields
   };
 };
 
@@ -1100,7 +1100,7 @@ const parseSubproductDetailsChoices = (values: IBasketProduct[]) => {
           value.unit_quantity,
           parseProductDetails(value.product)
         ),
-        cycle: value.billing_cycle_months,
+        cycle: value.billing_cycle_months
       });
       return result;
     },
@@ -1140,7 +1140,7 @@ export function parseBundledProducts(
           valueKey: "meta.bundle",
           parentKey: "top_category",
           transform: (category: IProductCategory) =>
-            get(category, "meta.bundle"),
+            get(category, "meta.bundle")
         })
       )
     );
@@ -1176,6 +1176,6 @@ function parseBundleConfig(raw: ProductBundle): ProductProps | undefined {
     provisionFields: config?.pfields ?? {},
     coupons: compact(config?.coupons?.toString()?.split(",") ?? []),
     // ---
-    silent: true, // always silent for bundled products
+    silent: true // always silent for bundled products
   } as ProductProps;
 }

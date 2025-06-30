@@ -6,7 +6,7 @@ import {
   useClientEmails,
   useClientPhones,
   useClientAddresses,
-  useClientCompanies,
+  useClientCompanies
 } from "../../../client";
 import { useBrand } from "../../../brand";
 import { useSystem } from "../../../system";
@@ -20,7 +20,7 @@ import {
   useValidation,
   DetailedError,
   responseCodes,
-  useModelParser,
+  useModelParser
 } from "../../../../utils";
 
 import { find, get, isEmpty, isString, some } from "lodash-es";
@@ -44,30 +44,30 @@ import { Address } from "cluster";
 async function loadLookups({
   model,
   schema,
-  type,
+  type
 }: UnifiedAddressContext): Promise<UnifiedAddressContext> {
   const {
     isReady: getPhones,
     default: defaultPhone,
-    data: phones,
+    data: phones
   } = useClientPhones();
 
   const {
     isReady: getEmails,
     default: defaultEmail,
-    data: emails,
+    data: emails
   } = useClientEmails();
 
   const {
     isReady: getAddresses,
     default: defaultAddress,
-    data: addresses,
+    data: addresses
   } = useClientAddresses();
 
   const {
     isReady: getCompanies,
     default: defaultCompany,
-    data: companies,
+    data: companies
   } = useClientCompanies();
 
   const { isReady, fetchCountries, fetchRegions, getCountry } = useSystem();
@@ -84,12 +84,12 @@ async function loadLookups({
       BrandConfigKeys.CHECKOUT_REQUIRE_PHONE,
       BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS,
       BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS,
-      BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS,
+      BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS
     ]),
     getPhones(),
     getEmails(),
     getAddresses(),
-    getCompanies(),
+    getCompanies()
   ]);
 
   const country = getCountry(model?.address?.countryId);
@@ -103,7 +103,7 @@ async function loadLookups({
     address:
       type == UnifiedAddressType.PERSONAL
         ? ({
-            countryId: country?.id,
+            countryId: country?.id
           } as AddressModel)
         : undefined,
     company:
@@ -111,7 +111,7 @@ async function loadLookups({
         ? ({
             addressId: defaultAddress.value?.id,
             emailId: defaultEmail.value?.id,
-            phoneId: defaultPhone.value?.id,
+            phoneId: defaultPhone.value?.id
           } as CompanyModel)
         : undefined,
     phone: get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE)
@@ -120,10 +120,10 @@ async function loadLookups({
             number: "",
             nationalNumber: "",
             countryCallingCode: "",
-            country: country?.code,
-          },
+            country: country?.code
+          }
         }) as PhoneModel)
-      : undefined,
+      : undefined
   };
 
   const safeModel = useModelParser<UnifiedAddressModel>(
@@ -143,7 +143,7 @@ async function loadLookups({
     config,
     // ---
     model: safeModel,
-    baseModel: safeModel,
+    baseModel: safeModel
   } as UnifiedAddressContext);
 }
 
@@ -174,8 +174,8 @@ async function add(type: UnifiedAddressType, data: UnifiedAddressModel) {
       ? ensureCompany({
           model: {
             ...data.company,
-            phone: data.phone?.phone,
-          },
+            phone: data.phone?.phone
+          }
         })
       : Promise.resolve(undefined)
   );
@@ -185,7 +185,7 @@ async function add(type: UnifiedAddressType, data: UnifiedAddressModel) {
       return {
         phone: phone?.phone, // NB the returned Phone object has a phone property
         address,
-        company,
+        company
       };
     })
     .catch(error => {
@@ -244,7 +244,7 @@ async function parse(
       address1: "",
       city: "",
       postcode: "",
-      countryId: baseModel.address?.countryId,
+      countryId: baseModel.address?.countryId
     } as AddressModel;
 
     country = getCountry(
@@ -285,8 +285,8 @@ async function parse(
         number: phone?.number || "",
         nationalNumber: phone?.nationalNumber || "",
         countryCallingCode: phone?.countryCallingCode || "",
-        country: phone?.country || countryCode || "",
-      },
+        country: phone?.country || countryCode || ""
+      }
     };
   }
 
@@ -294,7 +294,7 @@ async function parse(
     model: safeModel,
     regions,
     country,
-    autoupdate,
+    autoupdate
   });
 }
 
@@ -332,6 +332,6 @@ export const useUnifiedAddressServices = () => {
       const { invalidate: invalidateAddresses } = useClientAddresses();
       const { invalidate: invalidateCompanies } = useClientCompanies();
       await Promise.all([invalidateAddresses(null), invalidateCompanies(null)]);
-    },
+    }
   };
 };

@@ -17,7 +17,7 @@ import {
   isEqual,
   PropertyPath,
   compact,
-  pick,
+  pick
 } from "lodash-es";
 
 // --- types
@@ -66,7 +66,7 @@ export function stopService(machine: InterpreterFrom<any>): boolean {
     console.info("** MACHINE State **", "Machine is already stopped", {
       name: machine.id,
       status: machine.status,
-      done: machine.getSnapshot().done,
+      done: machine.getSnapshot().done
     });
   }
 
@@ -282,7 +282,7 @@ export const createActor = (service: ActorRef<any>): Actor | undefined => {
   return {
     id: service.id,
     service,
-    ...actor,
+    ...actor
   } as Actor;
 };
 // --- context helpers

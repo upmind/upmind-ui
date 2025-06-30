@@ -13,7 +13,7 @@ import {
   filter,
   isEmpty,
   includes,
-  isString,
+  isString
 } from "lodash-es";
 
 // --- types
@@ -29,7 +29,7 @@ export const useProductCategories = (initial?: QueryProps) => {
     isLoading: query?.isLoading.value || !query.isFetched.value,
     hasError: !isEmpty(query.error.value),
     isEmpty: isEmpty(query?.data?.value),
-    isAvailable: true,
+    isAvailable: true
   }));
 
   async function isReady(): Promise<boolean> {
@@ -149,7 +149,7 @@ export const useProductCategories = (initial?: QueryProps) => {
      * @param {boolean} [exact=false] If true, only the exact query key will be invalidated.
      * @return {void}
      */
-    invalidate: invalidateQueryByKey(service.queryKey, { exact: false }),
+    invalidate: invalidateQueryByKey(service.queryKey, { exact: false })
   };
 };
 

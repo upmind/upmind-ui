@@ -9,7 +9,7 @@ import { calculateBillingTerm } from "../product/utils";
 import {
   parseProductDetails,
   parseQuantity,
-  parseTermDetails,
+  parseTermDetails
 } from "../product/utils";
 import {
   compact,
@@ -25,14 +25,14 @@ import {
   orderBy,
   reduce,
   set,
-  uniqBy,
+  uniqBy
 } from "lodash-es";
 
 // --- types
 import {
   IBasketProduct,
   IProduct,
-  IProductPrice,
+  IProductPrice
 } from "@upmind-automation/types";
 import type { BasketProduct } from "../basketProduct";
 import type { DomainProduct, DomainModel } from "./types";
@@ -52,7 +52,7 @@ export function parseDomain(raw: any, force = false): DomainModel | undefined {
   return {
     tld: `.${parsed.tld}`, // need to ad dthe "." back in
     sld: parsed.sld ?? "",
-    domain: parsed.domain,
+    domain: parsed.domain
   };
 }
 
@@ -90,7 +90,7 @@ export function parseAvailable(
       // ---
       configuration: {
         productId: raw.id, //raw.product_id,
-        quantity: raw.unit_quantity ?? 1,
+        quantity: raw.unit_quantity ?? 1
       },
       // ---
       domain: parsedDomain?.domain ?? domain,
@@ -99,15 +99,15 @@ export function parseAvailable(
       // ---
       meta: {
         ...(termDetails.meta ?? {}),
-        available: raw?.domain_available,
+        available: raw?.domain_available
       },
       productDetails: {
         ...productDetails,
-        title: domain,
+        title: domain
       },
       price: termDetails.price,
       pricing: [],
-      details: [],
+      details: []
     } as DomainProduct;
   });
 

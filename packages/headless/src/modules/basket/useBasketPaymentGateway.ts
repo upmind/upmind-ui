@@ -13,7 +13,7 @@ import {
   contextValue,
   useContext,
   DetailedError,
-  responseCodes,
+  responseCodes
 } from "../../utils";
 import { isNil, isEqual } from "lodash-es";
 
@@ -73,7 +73,7 @@ export const useBasketPaymentGateway = () => {
       Object.values(contextValue(actor, "schema.properties") || {}).every(
         (property: any) => property.readOnly
       ),
-    isValid: stateMatches(actor, ["valid"]),
+    isValid: stateMatches(actor, ["valid"])
   }));
 
   // --- context
@@ -131,7 +131,7 @@ export const useBasketPaymentGateway = () => {
             error?.status ?? responseCodes.Timeout,
             {
               error,
-              state: actor.value?.getSnapshot()?.value,
+              state: actor.value?.getSnapshot()?.value
             }
           )
         );
@@ -242,7 +242,7 @@ export const useBasketPaymentGateway = () => {
      * @param {HTMLElement} [container] The container element to render into.
      * @returns {Promise<boolean>} Resolves true if rendered, rejects on error.
      */
-    render,
+    render
   };
 };
 

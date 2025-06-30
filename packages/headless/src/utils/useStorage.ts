@@ -30,7 +30,7 @@ export const useSessionStorage = () => {
     clear() {
       sessionStorage.clear();
       return null;
-    },
+    }
   };
 };
 
@@ -52,6 +52,6 @@ export const useLocalStorage = () => {
     clear() {
       localStorage.clear();
       return null;
-    },
+    }
   };
 };

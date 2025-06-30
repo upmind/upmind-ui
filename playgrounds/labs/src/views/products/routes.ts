@@ -12,19 +12,19 @@ const routes: RouteRecordRaw[] = [
     alias: "/products",
     component: Listings,
     meta: {
-      title: "Products Catalogue",
-    },
+      title: "Products Catalogue"
+    }
   },
   {
     path: "/products-catalogue/:id",
     name: "products.catalogue.detail",
     component: Detail,
     meta: {
-      title: "Product Detail",
-    },
-  },
+      title: "Product Detail"
+    }
+  }
 ];
 
 export default {
-  routes,
+  routes
 };

@@ -58,7 +58,7 @@ export const useRoutingFlows = () => {
       );
       // ---
       routing.register(flows);
-    },
+    }
   };
 };
 
@@ -68,5 +68,5 @@ export {
   useRecommendationsFlows,
   useSessionFlows,
   useCheckoutFlows,
-  useOrderFlows,
+  useOrderFlows
 };

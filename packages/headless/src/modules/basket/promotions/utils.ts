@@ -18,9 +18,9 @@ export const useSchema = (_context: PromotionsContext) => {
     properties: {
       promocode: {
         title: "Promo code",
-        type: ["string", "null"],
-      },
-    },
+        type: ["string", "null"]
+      }
+    }
   };
 
   return schema as JsonSchema;
@@ -38,10 +38,10 @@ export const useUischema = (_context: PromotionsContext) => {
           autoFocus: true,
           autocomplete: "off",
           placeholder: "Enter code here",
-          noLabel: true,
-        },
-      },
-    ],
+          noLabel: true
+        }
+      }
+    ]
   };
 
   return schema as UISchemaElement;

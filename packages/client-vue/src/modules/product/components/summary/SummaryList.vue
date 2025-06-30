@@ -36,7 +36,7 @@ import { find, omitBy, isEmpty } from "lodash-es";
 import type {
   Product,
   ProductSummaryDetail,
-  ProductSummaryDetailWithPrice,
+  ProductSummaryDetailWithPrice
 } from "@upmind-automation/headless";
 import type { ComputedRef } from "vue";
 

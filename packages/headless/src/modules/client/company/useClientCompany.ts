@@ -21,7 +21,7 @@ import {
   stateMatches,
   stateValue,
   stopService,
-  useContext,
+  useContext
 } from "../../../utils";
 import { debounce, get, isEmpty, isEqual } from "lodash-es";
 
@@ -38,7 +38,7 @@ export const useClientCompany = (
   id?: Company["id"],
   {
     allowMultipleEdits,
-    clientId,
+    clientId
   }: { allowMultipleEdits?: boolean; clientId?: IClient["id"] } = {}
 ) => {
   const { getOne } = useClientCompanies();
@@ -48,17 +48,17 @@ export const useClientCompany = (
       .withConfig({
         actions: useClientCompanyActions() as any,
         guards: useClientCompanyGuards() as any,
-        services: useClientCompanyServices() as any,
+        services: useClientCompanyServices() as any
       })
       .withContext({
         clientId: clientId,
         id,
         model: getOne(id),
-        allowMultipleEdits,
+        allowMultipleEdits
       }),
     {
       id: id ?? "new-company",
-      devTools: true,
+      devTools: true
     }
   );
 
@@ -76,7 +76,7 @@ export const useClientCompany = (
 
   async function isReady(): Promise<boolean> {
     return waitFor(service, state => stateMatches(state, "available"), {
-      timeout: Infinity,
+      timeout: Infinity
     }).then(state => {
       if (stateMatches(state, "error")) return false;
 
@@ -93,7 +93,7 @@ export const useClientCompany = (
     isProcessing: stateMatches(state, "processing"),
     isComplete:
       stateValue(state, "done", false) ||
-      stateMatches(state, ["processed", "complete"]),
+      stateMatches(state, ["processed", "complete"])
   }));
 
   // --- context
@@ -167,7 +167,7 @@ export const useClientCompany = (
             error?.status ?? responseCodes.Timeout,
             {
               error,
-              state: state.value,
+              state: state.value
             }
           )
         );
@@ -255,7 +255,7 @@ export const useClientCompany = (
      * @param {CompanyModel} value The optional new model to set. uses the current model if not provided.
      * @returns {Promise<CompanyModel>} Resolves when updated model from the service, rejects on error.
      */
-    update,
+    update
   };
 };
 

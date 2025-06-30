@@ -52,7 +52,7 @@ export async function usePlaceParser(
 
   const address_1 = compact([
     parseValue(address, ["street_number"]),
-    parseValue(address, ["route"]),
+    parseValue(address, ["route"])
   ]);
 
   const address_2 = compact([parseValue(address, ["sublocality"])]);
@@ -62,7 +62,7 @@ export async function usePlaceParser(
   const city = parseValue(address, [
     "postal_town",
     "locality",
-    "administrative_area_level_2",
+    "administrative_area_level_2"
   ]);
 
   const country = parseCountry(address);
@@ -76,7 +76,7 @@ export async function usePlaceParser(
   const fallbackTitle = compact([
     address_1.join(" "),
     city,
-    get(country, "name"),
+    get(country, "name")
   ]).join(", ");
   const title = name || fallbackTitle || "Address";
 
@@ -91,8 +91,8 @@ export async function usePlaceParser(
       address1: address_1.length ? address_1.join(" ") : "",
       address2: address_2.length ? address_2.join(" ") : undefined,
       regionId: get(region, "id"),
-      countryId: get(country, "id"),
-    },
+      countryId: get(country, "id")
+    }
   };
 }
 
@@ -100,6 +100,6 @@ export function parsePlaces(api: google.maps.PlacesLibrary): PlaceService {
   return {
     Place: api.Place,
     AutocompleteSuggestion: api.AutocompleteSuggestion,
-    AutocompleteSessionToken: api.AutocompleteSessionToken,
+    AutocompleteSessionToken: api.AutocompleteSessionToken
   };
 }

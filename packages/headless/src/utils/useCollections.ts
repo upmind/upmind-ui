@@ -11,7 +11,7 @@ import {
   includes,
   isString,
   isEqual,
-  some,
+  some
 } from "lodash-es";
 
 // -----------------------------------------------------------------------------
@@ -72,6 +72,6 @@ export function useCollection<T = unknown>(initial?: MaybeRef<T[]>) {
   return {
     getOne,
     findOne,
-    getDefault,
+    getDefault
   };
 }

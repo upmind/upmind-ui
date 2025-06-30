@@ -9,7 +9,7 @@ import type {
   IAddress,
   IPayment,
   IPaymentDetail,
-  IOrder,
+  IOrder
 } from "@upmind-automation/types";
 import { ErrorObject } from "ajv";
 import type { GatewayTypes } from "../types";
@@ -21,7 +21,7 @@ import { QueryResponseError } from "../../../query";
 export enum STRIPE_QUERY_PARAMS {
   STRIPE_REDIRECT_STATUS = "redirect_status",
   STRIPE_SETUP_INTENT = "setup_intent",
-  STRIPE_SETUP_INTENT_CLIENT_SECRET = "setup_intent_client_secret",
+  STRIPE_SETUP_INTENT_CLIENT_SECRET = "setup_intent_client_secret"
 }
 
 // NYS = "Not Yet Supported"
@@ -54,7 +54,7 @@ export enum STRIPE_PAYMENT_METHOD_TYPES {
   SEPA_DEBIT = "sepa_debit", // NYS
   SOFORT = "sofort", // NYS
   US_BANK_ACCOUNT = "us_bank_account", // NYS
-  WECHAT_PAY = "wechat_pay", // NYS
+  WECHAT_PAY = "wechat_pay" // NYS
 }
 
 export interface StripeContext extends GatewayContext {

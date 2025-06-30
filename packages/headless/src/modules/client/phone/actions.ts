@@ -24,30 +24,30 @@ export const useClientPhoneActions = () => {
       },
       description: ({ model, country }: PhoneContext) => {
         return compact([get(country, "name")]).join(" | ");
-      },
+      }
     }),
 
     setSchemas: assign({
       schema: (context: PhoneContext) => useSchema(context),
-      uischema: () => useUischema(),
+      uischema: () => useUischema()
     }),
 
     setModel: assign({
       model: ({ schema, baseModel }: PhoneContext, { data }: AnyEventObject) =>
-        useModelParser<PhoneModel, Phone>(schema, data, baseModel),
+        useModelParser<PhoneModel, Phone>(schema, data, baseModel)
     }),
 
     refreshContext: assign({
       clientId: ({ clientId }: PhoneContext, { data }: AnyEventObject) => {
         return clientId || data?.clientId;
-      },
-    }),
+      }
+    })
   };
 };
 
 export const useClientPhoneGuards = () => {
   return {
     hasSubscription: ({ clientId }: PhoneContext, _event: AnyEventObject) =>
-      !!clientId,
+      !!clientId
   };
 };

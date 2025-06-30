@@ -56,7 +56,7 @@ const emits = defineEmits<{
 const { meta, isReady } = props.manage.useList();
 await isReady();
 const modelValue = useVModel(props, "modelValue", emits, {
-  passive: true,
+  passive: true
 });
 
 // -----------------------------------------------------------------------------

@@ -23,7 +23,7 @@ import {
   reject,
   set,
   some,
-  subtract,
+  subtract
 } from "lodash-es";
 
 // --- types
@@ -33,7 +33,7 @@ import type {
   ProductDetails,
   ProductModel,
   TermDetails,
-  SubproductDetails,
+  SubproductDetails
 } from "./";
 
 // -----------------------------------------------------------------------------
@@ -101,7 +101,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
     isConfigurable: contextMatches(state, [
       "lookups.attributes",
       "lookups.options",
-      "lookups.provisionFields.properties",
+      "lookups.provisionFields.properties"
     ]),
     isInvalid: stateMatches(state, ["available.invalid"]),
     isCalculating: contextMatches(state, ["lookups.prices.calculating"]),
@@ -120,7 +120,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
       state.value.context?.lookups?.terms,
       ({ cycle }) => cycle > 0
     ),
-    hasTaxIncluded: includesTax.value,
+    hasTaxIncluded: includesTax.value
   }));
 
   // keep our model in sync with the machine,
@@ -158,7 +158,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
 
   const updateQuantity = debounce(async (value?: number): Promise<void> => {
     setValues("SET.QUANTITY", {
-      quantity: value,
+      quantity: value
     });
   }, DEBOUNCE_DELAY);
 
@@ -190,7 +190,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
 
   const updateTerm = async (value: number): Promise<void> =>
     setValues("SET.TERM", {
-      term: value,
+      term: value
     });
 
   // --- ATTRIBUTES
@@ -210,7 +210,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
 
     forEach(safeValues, value => {
       set(attributes, [attribute.id, value], {
-        productId: value,
+        productId: value
       });
     });
 
@@ -238,7 +238,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
       const quantity = get(previousStates, [value, "quantity"]);
 
       const optionValue: { productId: string; quantity?: number } = {
-        productId: value,
+        productId: value
       };
 
       if (quantity) {
@@ -355,6 +355,6 @@ export const useProductConfig = (service: ActorRef<any>) => {
     setProvisioningFields,
     getProvisioningField,
     // ---
-    reset: () => send({ type: "RESET" }),
+    reset: () => send({ type: "RESET" })
   };
 };

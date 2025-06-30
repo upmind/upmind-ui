@@ -12,7 +12,7 @@ import {
   stateMatches,
   stateValue,
   contextValue,
-  DEBOUNCE_DELAY,
+  DEBOUNCE_DELAY
 } from "../../utils";
 import { isNil, debounce, isEqual } from "lodash-es";
 
@@ -59,7 +59,7 @@ export const useBasketFields = () => {
     isDirty: contextMatches(actor, ["dirty"]),
     isComplete:
       stateValue(actor, "done", false) ||
-      stateMatches(actor, ["processed", "complete"]),
+      stateMatches(actor, ["processed", "complete"])
   }));
 
   // --- context
@@ -108,7 +108,7 @@ export const useBasketFields = () => {
             error?.status ?? responseCodes.Timeout,
             {
               error,
-              state: actor.value?.state.value,
+              state: actor.value?.state.value
             }
           )
         );
@@ -179,7 +179,7 @@ export const useBasketFields = () => {
      * @param {FieldsModel} value The new fields model to set.
      * @returns {Promise<void>} Resolves when updated, rejects on error.
      */
-    update: debounce(update, DEBOUNCE_DELAY),
+    update: debounce(update, DEBOUNCE_DELAY)
   };
 };
 

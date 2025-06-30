@@ -82,7 +82,7 @@ import {
   useRoutingEngine,
   useBasketProducts,
   useQueryParams,
-  ROUTE,
+  ROUTE
 } from "@upmind-automation/headless";
 
 // --- components
@@ -112,7 +112,7 @@ const {
   meta,
   stop,
   update,
-  service: basketProduct,
+  service: basketProduct
 } = await configure(basketProductId);
 
 async function doResolve() {
@@ -128,7 +128,7 @@ async function doResolve() {
           if (isDone) navigateNext(basketProduct);
         },
         {
-          immediate: true,
+          immediate: true
         }
       );
     });

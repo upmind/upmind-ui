@@ -10,7 +10,7 @@ import type {
   ICurrency,
   IGateway,
   IWalletBalance,
-  PaymentType,
+  PaymentType
 } from "@upmind-automation/types";
 import { QueryResponseError } from "../query";
 

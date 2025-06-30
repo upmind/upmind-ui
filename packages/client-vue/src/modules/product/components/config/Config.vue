@@ -221,7 +221,7 @@ const props = withDefaults(
     required: false,
     class: "",
     noHeader: false,
-    noFooter: false,
+    noFooter: false
   }
 );
 
@@ -242,7 +242,7 @@ const {
   setOptions,
   updateOptionQuantity,
   setProvisioningFields,
-  reset,
+  reset
 } = useProductConfig(props.item);
 
 const styles = useStyles(["product.config"], meta, config) as ComputedRef<{

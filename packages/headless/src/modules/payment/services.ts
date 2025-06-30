@@ -24,7 +24,7 @@ function submitViaForm({
   fields,
   method = Methods.GET,
   target = Targets.SELF,
-  url,
+  url
 }: {
   fields?: Record<string, any>;
   method?: Methods;
@@ -67,7 +67,7 @@ async function load({ orderId }: PaymentContext, { data }: AnyEventObject) {
 
   return get({
     url: useUrl(`order/${data.id}`),
-    queryKey: ["order", { id: data.id }],
+    queryKey: ["order", { id: data.id }]
   }).then(data => ({ fields: data }));
 }
 
@@ -79,7 +79,7 @@ async function update(context: PaymentContext, _event: AnyEventObject) {
   return post({
     url: useUrl(`/payments`),
     data,
-    withAccessToken: true,
+    withAccessToken: true
   });
 }
 
@@ -121,5 +121,5 @@ export default {
   load,
   update,
   validate,
-  redirect,
+  redirect
 };

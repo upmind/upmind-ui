@@ -15,12 +15,12 @@ import {
   isEmpty,
   includes,
   upperCase,
-  startsWith,
+  startsWith
 } from "lodash-es";
 import {
   getTokenFromStorage,
   dumpTokenFromStorage,
-  persistTokenToStorage,
+  persistTokenToStorage
 } from "../session/utils";
 import { responseCodes } from "../../utils";
 import { messageDisplays, messageTypes } from "../feedback";
@@ -51,7 +51,7 @@ function handleError(
       i18nKey: `errors.${status ?? responseCodes.Service_Unavailable}`,
       display: messageDisplays.SYSTEM,
       delay: 0,
-      maxAge: 0,
+      maxAge: 0
     });
   }
 
@@ -64,15 +64,15 @@ function handleError(
       type: error?.type ?? responseCodes.Service_Unavailable,
       code: error?.code ?? null,
       message: error?.message || "Service temporarily unavailable",
-      data: error?.data || null,
+      data: error?.data || null
     },
-    messages: null,
+    messages: null
   });
 }
 
 async function doFetch<T extends any = any>({
   url,
-  init,
+  init
 }: RequestParams): Promise<QueryResponse<T>> {
   init ??= {};
 
@@ -131,8 +131,8 @@ async function refreshToken() {
     url: useUrl("access_token", {}, { context: "oauth" }),
     data: {
       grant_type: GrantTypes.REFRESH_TOKEN,
-      refresh_token,
-    },
+      refresh_token
+    }
   })
     .then(data => {
       persistTokenToStorage(data as unknown as Token);

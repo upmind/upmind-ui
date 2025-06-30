@@ -28,6 +28,6 @@ export const usePlaces = () => {
      * @returns Parsed place object with formatted address and coordinates
      *
      */
-    isReady: services.isReady,
+    isReady: services.isReady
   };
 };

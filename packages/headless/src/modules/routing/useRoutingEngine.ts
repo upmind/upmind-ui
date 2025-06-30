@@ -16,7 +16,7 @@ import {
   responseCodes,
   stateMatches,
   stopService,
-  useContext,
+  useContext
 } from "../../utils";
 import { awaitResolved, useRouteQueryParams } from "./utils";
 export { useRouteRequiresAction, useRouteQueryParams } from "./utils";
@@ -65,7 +65,7 @@ export const useRoutingEngine = () => {
           responseCodes.Service_Unavailable,
           {
             state: state.value.value,
-            errors: error ?? state.value.context?.error,
+            errors: error ?? state.value.context?.error
           }
         );
       });
@@ -79,7 +79,7 @@ export const useRoutingEngine = () => {
       return resolve(route, {
         name: currentRoute?.name?.toString(),
         params: currentRoute.params,
-        query: currentRoute.query,
+        query: currentRoute.query
       })
         .then(() => true)
         .catch(() => false);
@@ -92,7 +92,7 @@ export const useRoutingEngine = () => {
     isUnavailable: stateMatches(state, "unavailable"),
     isAvailable: !stateMatches(state, ["subscribing", "unavailable"]),
     // ---
-    hasFlows: contextMatches(state, "flows"),
+    hasFlows: contextMatches(state, "flows")
   }));
 
   // --- context
@@ -129,7 +129,7 @@ export const useRoutingEngine = () => {
       const target = await resolve(routeName, {
         path: route.path,
         params: route.params,
-        query: route.query,
+        query: route.query
       }).catch(() => {
         return route;
       });
@@ -164,7 +164,7 @@ export const useRoutingEngine = () => {
     if (!route?.name) {
       console.warn("UseRouteingEngine", "Could not Navigate route", {
         route,
-        data,
+        data
       }); // do nothing, just return
       return;
     }
@@ -174,7 +174,7 @@ export const useRoutingEngine = () => {
       {
         name: route.name?.toString(),
         params: route.params,
-        query: route.query,
+        query: route.query
       },
       data
     )
@@ -191,7 +191,7 @@ export const useRoutingEngine = () => {
         console.warn("UseRouteingEngine", "Navigate route Failed", {
           route,
           data,
-          error,
+          error
         });
       });
   }
@@ -202,7 +202,7 @@ export const useRoutingEngine = () => {
       {
         name: route?.name?.toString(),
         params: route.params,
-        query: route.query,
+        query: route.query
       },
       event
     )
@@ -219,7 +219,7 @@ export const useRoutingEngine = () => {
         console.warn("UseRouteingEngine", "Next route Failed", {
           route,
           event,
-          error,
+          error
         });
       });
   }
@@ -230,7 +230,7 @@ export const useRoutingEngine = () => {
       {
         name: route?.name?.toString(),
         params: route.params,
-        query: route.query,
+        query: route.query
       },
       event
     )
@@ -247,7 +247,7 @@ export const useRoutingEngine = () => {
         console.warn("UseRouteingEngine", "Back route Failed", {
           route,
           event,
-          error,
+          error
         });
       });
   }
@@ -306,6 +306,6 @@ export const useRoutingEngine = () => {
     // --- navigation
     navigate,
     navigateNext,
-    navigateBack,
+    navigateBack
   };
 };

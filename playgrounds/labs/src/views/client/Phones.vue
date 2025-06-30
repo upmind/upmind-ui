@@ -5,7 +5,7 @@
       i18n-key="client.phone"
       :manage="{
         useList: useClientPhones,
-        useMutate: useClientPhone,
+        useMutate: useClientPhone
       }"
     />
   </UpmContentSection>
@@ -18,7 +18,7 @@
 import {
   useClientPhones,
   useClientPhone,
-  useSession,
+  useSession
 } from "@upmind-automation/headless";
 
 // --- components

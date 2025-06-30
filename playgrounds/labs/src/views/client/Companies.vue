@@ -5,7 +5,7 @@
       i18n-key="client.company"
       :manage="{
         useList: useClientCompanies,
-        useMutate: useClientCompany,
+        useMutate: useClientCompany
       }"
     />
   </UpmContentSection>
@@ -18,7 +18,7 @@
 import {
   useSession,
   useClientCompanies,
-  useClientCompany,
+  useClientCompany
 } from "@upmind-automation/headless";
 
 // --- components

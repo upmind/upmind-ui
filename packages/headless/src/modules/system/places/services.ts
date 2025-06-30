@@ -26,7 +26,7 @@ async function load(): Promise<PlaceService> {
   // Otherwise create a new service
   const loader = new Loader({
     apiKey: import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY,
-    version: "weekly",
+    version: "weekly"
   });
 
   return loader
@@ -86,7 +86,7 @@ async function search(query: string, countryId?: string): Promise<Place[]> {
       const request: google.maps.places.AutocompleteRequest = {
         input: query,
         sessionToken,
-        ...(countryCode && { includedRegionCodes: [countryCode] }),
+        ...(countryCode && { includedRegionCodes: [countryCode] })
       };
 
       try {
@@ -125,7 +125,7 @@ async function search(query: string, countryId?: string): Promise<Place[]> {
       }
     },
     // Cache search results for 5 minutes
-    staleTime: useTime().MINUTE * 5,
+    staleTime: useTime().MINUTE * 5
   });
 }
 
@@ -158,8 +158,8 @@ async function parse(placeId: string): Promise<Place | null> {
             "displayName",
             "addressComponents",
             "formattedAddress",
-            "location",
-          ],
+            "location"
+          ]
         });
 
         // Parse the place data into our format
@@ -170,7 +170,7 @@ async function parse(placeId: string): Promise<Place | null> {
       }
     },
     // Cache place details for 1 hour
-    staleTime: 60 * 60 * 1000,
+    staleTime: 60 * 60 * 1000
   });
 }
 
@@ -180,5 +180,5 @@ async function parse(placeId: string): Promise<Place | null> {
 export default {
   load,
   isReady,
-  search,
+  search
 };

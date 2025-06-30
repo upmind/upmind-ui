@@ -17,5 +17,5 @@ export const formRenderers = [
   registerEntry(AddressRenderer, addressTest),
   registerEntry(ImageRenderer, imageTest),
   registerEntry(BillingRenderer, billingTest),
-  registerEntry(ManageRenderer, manageTest),
+  registerEntry(ManageRenderer, manageTest)
 ];

@@ -16,14 +16,14 @@ import {
   stateValue,
   useContext,
   DetailedError,
-  responseCodes,
+  responseCodes
 } from "../../utils";
 
 // --- types
 import {
   PaymentDetailsArgs,
   PaymentDetailModel,
-  PaymentDetailsContext,
+  PaymentDetailsContext
 } from "./types";
 import { isEqual } from "lodash-es";
 
@@ -31,7 +31,7 @@ import { isEqual } from "lodash-es";
 
 export const usePaymentDetails = (initialContext: PaymentDetailsArgs) => {
   const service = interpret(paymentDetailsMachine.withContext(initialContext), {
-    devTools: false,
+    devTools: false
   });
 
   const { state, send } = useActor(service.start());
@@ -63,7 +63,7 @@ export const usePaymentDetails = (initialContext: PaymentDetailsArgs) => {
     isComplete:
       !contextValue(state, "model.amount") ||
       stateValue(state, "done", false) ||
-      stateMatches(state, ["processed", "complete"]),
+      stateMatches(state, ["processed", "complete"])
   }));
 
   // --- context
@@ -125,7 +125,7 @@ export const usePaymentDetails = (initialContext: PaymentDetailsArgs) => {
             error?.status ?? responseCodes.Timeout,
             {
               error,
-              state: state.value,
+              state: state.value
             }
           )
         );
@@ -215,7 +215,7 @@ export const usePaymentDetails = (initialContext: PaymentDetailsArgs) => {
     checkout,
 
     /** Refreshes the payment details context. */
-    refresh,
+    refresh
   };
 };
 

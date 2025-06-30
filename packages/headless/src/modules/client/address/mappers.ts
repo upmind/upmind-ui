@@ -26,7 +26,7 @@ export function mapAddress(raw: IAddress): Address {
       get(raw, "city"),
       get(raw, "postcode"),
       get(raw, "region.name"),
-      get(raw, "country.name"),
+      get(raw, "country.name")
     ]).join(", "),
     // ---
     name: raw.name,
@@ -42,8 +42,8 @@ export function mapAddress(raw: IAddress): Address {
     meta: {
       isDefault: raw.default,
       canDelete: raw.can_delete,
-      isVerified: !!raw.verified,
-    },
+      isVerified: !!raw.verified
+    }
   };
 }
 
@@ -56,6 +56,6 @@ export function mapIAddress(data: AddressModel): IAddress {
     state: data.state,
     postcode: data.postcode,
     region_id: data.regionId,
-    country_id: data.countryId,
+    country_id: data.countryId
   } as IAddress;
 }

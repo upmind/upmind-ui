@@ -97,7 +97,7 @@ import {
   Icon,
   Badge,
   Tooltip,
-  Link,
+  Link
 } from "@upmind-automation/upmind-ui";
 
 // --- internal
@@ -120,7 +120,7 @@ const {
   clear,
   input,
   add,
-  remove,
+  remove
 } = useBasketPromotions();
 
 // ---
@@ -156,8 +156,8 @@ const actions = computed((): Record<string, FormActionProps> => {
       size: "sm",
       variant: "ghost",
       color: "secondary",
-      needsValid: true,
-    },
+      needsValid: true
+    }
   };
 });
 
@@ -166,7 +166,7 @@ const tooltipLabel = computed(() => ({ promotion }: any) => {
     return t("basket.promotions.active.tooltip", {
       code: promotion.code,
       amount: promotion.amountFormatted,
-      description: promotion.excerpt ? `. (${promotion.excerpt})` : "",
+      description: promotion.excerpt ? `. (${promotion.excerpt})` : ""
     });
   }
   return promotion.name;

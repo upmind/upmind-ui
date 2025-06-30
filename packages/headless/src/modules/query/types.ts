@@ -7,7 +7,7 @@ import type {
   QueryObserverOptions,
   MutationObserverOptions,
   QueryKey,
-  InfiniteData,
+  InfiniteData
 } from "@tanstack/vue-query";
 
 // -----------------------------------------------------------------------------
@@ -65,7 +65,7 @@ export type RequestParams = QueryProps & {
 
 export type QueryParams<
   TQueryFnData = unknown,
-  TData = TQueryFnData,
+  TData = TQueryFnData
 > = RequestParams &
   Omit<
     QueryObserverOptions<TQueryFnData, DefaultError, TData>,
@@ -76,7 +76,7 @@ export type MutationParams<
   TData = unknown,
   TError = DefaultError,
   TVariables = void,
-  TContext = unknown,
+  TContext = unknown
 > = RequestParams &
   Omit<
     MutationObserverOptions<TData, TError, TVariables, TContext>,
@@ -87,7 +87,7 @@ export type MutationParams<
 
 export enum RequestSortDirection {
   ASC = "",
-  DESC = "-",
+  DESC = "-"
 }
 
 export interface RequestFilters extends Record<string, unknown> {}

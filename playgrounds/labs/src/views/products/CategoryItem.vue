@@ -5,7 +5,7 @@
       'text-auto hover:text-dm/25 dark:hover:text-dm-contrast/50':
         modelValue !== category.id,
       'border-b-primary bg-[length:100%_4px] text-primary':
-        modelValue === category.id,
+        modelValue === category.id
     }"
     :style="{ paddingLeft: `${0.5 + depth * 0.5}rem` }"
   >
@@ -62,7 +62,7 @@ const emits = defineEmits(["update:modelValue"]);
 
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
-  defaultValue: "",
+  defaultValue: ""
 });
 
 const isExpanded = ref(false);

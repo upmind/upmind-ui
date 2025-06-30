@@ -80,7 +80,7 @@ import { debounce } from "lodash-es";
 import { useProductCatalogue } from "@upmind-automation/headless";
 import {
   IProductCategory,
-  type ISO_4217_CURRENCY_CODE,
+  type ISO_4217_CURRENCY_CODE
 } from "@upmind-automation/types";
 import { UpmCard } from "@upmind-automation/client-vue";
 import { Button, Loading } from "@upmind-automation/upmind-ui";
@@ -104,11 +104,11 @@ const {
   filters,
   nextPage,
   prevPage,
-  pagination,
+  pagination
 } = useProductCatalogue({
   pagination: {
-    limit: props.limit,
-  },
+    limit: props.limit
+  }
 });
 
 const searchQuery = ref("");

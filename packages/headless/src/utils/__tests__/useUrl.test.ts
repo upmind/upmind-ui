@@ -9,7 +9,7 @@ vi.stubEnv("VITE_API_URL", "https://test.com");
 const { isReady, getApiUrl } = usePOP({
   name: "test",
   apiUrl: "https://test.com",
-  region: "test",
+  region: "test"
 });
 
 await isReady();
@@ -28,7 +28,7 @@ describe("useUrl.ts", () => {
     it("should use custom instance base URL and context", () => {
       const url = useUrl("/test", mockParams, {
         base: "https://custom.com",
-        context: "v1",
+        context: "v1"
       });
       expect(url.toString()).toBe("https://custom.com/v1/test?foo=bar");
     });
@@ -62,7 +62,7 @@ describe("useUrl.ts", () => {
         search: "",
         toString() {
           return this.href;
-        },
+        }
       };
 
       vi.spyOn(window.history, "replaceState");
