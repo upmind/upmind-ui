@@ -25,7 +25,7 @@ import {
   PaymentDetailModel,
   PaymentDetailsContext
 } from "./types";
-import { isEqual } from "lodash-es";
+import { isEmpty, isEqual } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -101,8 +101,7 @@ export const usePaymentDetails = (initialContext: PaymentDetailsArgs) => {
     value = toRaw(unref(value));
     const model = contextValue<PaymentDetailModel>(state, "model");
 
-    // if it has not then bail
-    if (!isEqual(model, value)) {
+    if (!isEmpty(value) && !isEqual(model, value)) {
       send({ type: "SET", data: value, update: true });
     } else {
       send({ type: "UPDATE" });

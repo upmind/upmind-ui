@@ -14,7 +14,7 @@ import {
   contextValue,
   DEBOUNCE_DELAY
 } from "../../utils";
-import { isNil, debounce, isEqual } from "lodash-es";
+import { isNil, debounce, isEqual, isEmpty } from "lodash-es";
 
 // --- types
 import type { ActorRef } from "xstate";
@@ -84,8 +84,7 @@ export const useBasketFields = () => {
     value = toRaw(unref(value));
     const model = contextValue<FieldsModel>(actor, "model");
 
-    // if it has not then bail
-    if (!isEqual(model, value)) {
+    if (!isEmpty(value) && !isEqual(model, value)) {
       actor.value?.send({ type: "SET", data: value, update: true });
     } else {
       actor.value?.send({ type: "UPDATE" });

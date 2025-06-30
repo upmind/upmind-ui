@@ -13,7 +13,7 @@ import {
   stateValue,
   contextValue
 } from "../../utils";
-import { get, isNil } from "lodash-es";
+import { get, isEmpty, isEqual, isNil } from "lodash-es";
 
 // --- types
 import type { ActorRef } from "xstate";
@@ -89,16 +89,19 @@ export const useBasketCurrency = () => {
       });
   }
 
-  async function update(value: CurrencyModel): Promise<void> {
+  async function update(value?: CurrencyModel): Promise<void> {
     // first check if our currency has change, ie: model.code has changed
 
     const code = toRaw(unref(value))?.code?.toUpperCase();
     const model = contextValue<CurrencyModel>(actor, "model");
 
-    // if it has not then bail
-    if (!code || code == model?.code) return Promise.resolve();
+    if (code == model?.code) return Promise.resolve();
 
-    actor.value?.send({ type: "SET", data: { code }, update: true });
+    if (!isEmpty(value) && !isEqual(value, model)) {
+      actor.value?.send({ type: "SET", data: { code }, update: true });
+    } else {
+      actor.value?.send({ type: "UPDATE" });
+    }
 
     // then wait for the paymentGateway actor to be updated
     return waitFor(

@@ -21,7 +21,7 @@
 
     <Form
       v-show="toggle"
-      :additional-errors="errors?.data"
+      :additional-errors="validationErrors"
       :loading="meta.isLoading"
       :model-value="model"
       :processing="meta.isProcessing"
@@ -112,7 +112,7 @@ const { t } = useI18n();
 
 const {
   meta,
-  errors,
+  validationErrors,
   model,
   schema,
   uischema,
