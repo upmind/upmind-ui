@@ -5,7 +5,7 @@ import type {
   TabsRootProps,
   TabsListProps,
   TabsTriggerProps,
-  TabsContentProps,
+  TabsContentProps
 } from "radix-vue";
 
 // --- internal

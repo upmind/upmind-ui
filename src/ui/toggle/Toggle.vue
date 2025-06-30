@@ -13,7 +13,7 @@ import {
   Toggle,
   type ToggleEmits,
   type ToggleProps,
-  useForwardPropsEmits,
+  useForwardPropsEmits
 } from "radix-vue";
 import { computed, type HTMLAttributes } from "vue";
 import { type ToggleVariantProps } from "./types";
@@ -30,7 +30,7 @@ const props = withDefaults(
   {
     variant: "default",
     size: "default",
-    disabled: false,
+    disabled: false
   }
 );
 

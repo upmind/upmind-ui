@@ -35,7 +35,7 @@ import {
   ListboxItem,
   ListboxItemIndicator,
   type ListboxItemProps,
-  useForwardProps,
+  useForwardProps
 } from "radix-vue";
 
 import { computed, type HTMLAttributes } from "vue";

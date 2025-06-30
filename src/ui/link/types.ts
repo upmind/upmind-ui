@@ -10,7 +10,7 @@ import type { HTMLAttributes } from "vue";
 
 import type {
   RouteLocationAsRelativeGeneric,
-  RouteLocationAsPathGeneric,
+  RouteLocationAsPathGeneric
 } from "vue-router";
 export interface LinkProps {
   label?: string;

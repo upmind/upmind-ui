@@ -29,7 +29,7 @@ const props = defineProps<RendererProps<ControlElement>>();
 
 const { control, formFieldProps, onInput } = useUpmindUIRenderer({
   ...useJsonFormsMultiEnumControl(props),
-  handleChange: () => {}, // Provide a default handleChange function
+  handleChange: () => {} // Provide a default handleChange function
 });
 </script>
 
@@ -39,7 +39,7 @@ import {
   and,
   schemaMatches,
   hasType,
-  schemaSubPathMatches,
+  schemaSubPathMatches
 } from "@jsonforms/core";
 
 const hasOneOfItems = (schema: JsonSchema) =>
@@ -67,6 +67,6 @@ export const tester = {
         return hasOneOfItems(schema) || hasEnumItems(schema);
       })
     )
-  ),
+  )
 };
 </script>

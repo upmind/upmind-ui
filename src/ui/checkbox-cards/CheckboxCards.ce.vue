@@ -57,7 +57,7 @@ import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<CheckboxCardsProps>(), {
-  cursor: "pointer",
+  cursor: "pointer"
   // --- styles
 });
 
@@ -73,14 +73,14 @@ defineSlots<{
 
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
-  defaultValue: props.defaultValue,
+  defaultValue: props.defaultValue
 });
 
 const meta = computed(() => ({
   // layout: props.layout,
   isList: props.list,
   noInput: props.noInput,
-  cursor: props.cursor,
+  cursor: props.cursor
 }));
 
 const styles = useStyles(

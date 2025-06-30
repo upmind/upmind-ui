@@ -18,6 +18,6 @@ const props = defineProps<IconProps>();
 const iconError = ref(false);
 
 const meta = computed(() => ({
-  hasIconError: props.fallback && iconError.value,
+  hasIconError: props.fallback && iconError.value
 }));
 </script>

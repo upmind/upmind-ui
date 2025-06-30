@@ -15,15 +15,15 @@ export const iconVariants = cva(
         md: "size-10",
         lg: "size-12",
         xl: "size-14",
-        "2xl": "size-16",
+        "2xl": "size-16"
       },
       defaultVariants: {
-        size: "none",
-      },
-    },
+        size: "none"
+      }
+    }
   }
 );
 
 export default {
-  icon: iconVariants,
+  icon: iconVariants
 };

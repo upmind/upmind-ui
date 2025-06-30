@@ -16,7 +16,7 @@ withDefaults(
     items: string[];
   }>(),
   {
-    icon: "chevron-right",
+    icon: "chevron-right"
   }
 );
 </script>

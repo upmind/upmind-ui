@@ -41,7 +41,7 @@
           @click="
             onSelect({
               id: 'additional',
-              label: additionalOption,
+              label: additionalOption
             } as SearchItem)
           "
         >
@@ -59,7 +59,7 @@ import {
   PopoverRoot,
   PopoverTrigger,
   PopoverContent,
-  PopoverPortal,
+  PopoverPortal
 } from "radix-vue";
 
 // --- components
@@ -93,7 +93,7 @@ const props = withDefaults(
     id: uniqueId("search-"),
     results: null,
     minQueryLength: 3,
-    additionalOption: "Enter manually",
+    additionalOption: "Enter manually"
   }
 );
 
@@ -103,7 +103,7 @@ const search = ref("");
 const open = ref(false);
 
 const meta = computed(() => ({
-  isOpen: open.value && isValid.value,
+  isOpen: open.value && isValid.value
 }));
 
 const styles = useStyles(["search"], meta, config, {}) as ComputedRef<{

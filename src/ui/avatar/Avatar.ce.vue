@@ -40,7 +40,7 @@ import { computed } from "vue";
 // --- internal
 import {
   useStyles,
-  cn,
+  cn
   //stylesheet
 } from "../../utils";
 import config from "./avatar.config";
@@ -73,7 +73,7 @@ const props = withDefaults(defineProps<AvatarProps>(), {
 
   // --- styles
   uiConfig: () => ({ avatar: [] }),
-  class: "",
+  class: ""
 });
 
 const meta = computed(() => ({
@@ -87,7 +87,7 @@ const meta = computed(() => ({
   hasIcon: !isEmpty(props.icon),
   hasImage: !isEmpty(props.src),
   hasCaption: !isEmpty(props.caption) || true,
-  hasAnimatedIcon: !isEmpty(props.animatedIcon),
+  hasAnimatedIcon: !isEmpty(props.animatedIcon)
 }));
 
 const mergedAnimatedIcon = computed(() => ({
@@ -102,7 +102,7 @@ const mergedAnimatedIcon = computed(() => ({
     : props.animatedIcon?.secondaryColor,
   delay: isString(props.animatedIcon) ? 250 : props.animatedIcon?.delay,
   size: isString(props.animatedIcon) ? "auto" : props.animatedIcon?.size,
-  trigger: isString(props.animatedIcon) ? "loop" : props.animatedIcon?.trigger,
+  trigger: isString(props.animatedIcon) ? "loop" : props.animatedIcon?.trigger
 }));
 
 const styles = useStyles(

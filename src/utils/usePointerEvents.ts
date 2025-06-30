@@ -33,6 +33,6 @@ export function usePointerEvents(
   });
 
   return {
-    handlePointerEvents,
+    handlePointerEvents
   };
 }

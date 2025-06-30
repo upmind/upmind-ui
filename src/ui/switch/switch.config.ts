@@ -8,5 +8,5 @@ export const switchVariants = cva(
 
 // -----------------------------------------------------------------------------
 export default {
-  switch: switchVariants,
+  switch: switchVariants
 };

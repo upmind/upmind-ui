@@ -19,7 +19,7 @@ import { computed, ref, watchEffect } from "vue";
 
 import {
   useStyles,
-  cn,
+  cn
   //stylesheet
 } from "../../utils";
 import config from "./icon.config";
@@ -37,7 +37,7 @@ const props = withDefaults(defineProps<IconProps>(), {
   size: "auto",
   // --- styles
   uiConfig: () => ({ icon: [] }),
-  class: "",
+  class: ""
 });
 
 // Add emit definition
@@ -48,7 +48,7 @@ const emit = defineEmits<{
 const meta = computed(() => ({
   size: props.size,
   // ---
-  hasIcon: !isEmpty(props.icon),
+  hasIcon: !isEmpty(props.icon)
 }));
 
 const styles = useStyles(
@@ -61,7 +61,7 @@ const styles = useStyles(
 const icons = import.meta.glob("@icons/**/*.svg", {
   query: "?raw",
   eager: false,
-  import: "default",
+  import: "default"
 });
 
 const svg = ref();
@@ -85,7 +85,7 @@ watchEffect(async () => {
   if (!asyncImport) {
     console.warn("icon", "import not found", {
       icon: props.icon,
-      icons,
+      icons
     });
     emit("error", new Error(`Icon not found: ${safeName}`));
     svg.value = null;

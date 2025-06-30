@@ -4,7 +4,7 @@ import {
   RadioGroupRoot,
   type RadioGroupRootEmits,
   type RadioGroupRootProps,
-  useForwardPropsEmits,
+  useForwardPropsEmits
 } from "radix-vue";
 import { computed, type HTMLAttributes } from "vue";
 

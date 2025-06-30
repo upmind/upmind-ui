@@ -11,7 +11,7 @@ export type {
   EmblaEventListType,
   EmblaEventType,
   EmblaOptionsType,
-  EmblaPluginsType,
+  EmblaPluginsType
 } from "embla-carousel"; // NB: needed for d.ts build
 
 export { useCarousel } from "./useCarousel";

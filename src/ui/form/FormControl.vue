@@ -46,7 +46,7 @@ const props = defineProps<{
 
 const attributesToRemove = {
   autofocus: undefined,
-  size: undefined,
+  size: undefined
 };
 
 // --- state
@@ -76,7 +76,7 @@ const focussable = ["input", "textarea", "select", "button"];
 const meta = computed(() => ({
   isInvalid: !!props.invalid,
   shouldFocus: !!props.autoFocus && animationCompleted.value,
-  isAnimationCompleted: animationCompleted.value,
+  isAnimationCompleted: animationCompleted.value
 }));
 
 // --- methods
@@ -114,7 +114,7 @@ function maybeFocus([section]: IntersectionObserverEntry[]) {
           "search",
           "url",
           "tel",
-          "password",
+          "password"
         ]);
 
         if (selectableInputTypes.has(el.type)) {

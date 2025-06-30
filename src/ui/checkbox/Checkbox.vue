@@ -4,7 +4,7 @@ import type { CheckboxRootEmits, CheckboxRootProps } from "radix-vue";
 import {
   CheckboxIndicator,
   CheckboxRoot,
-  useForwardPropsEmits,
+  useForwardPropsEmits
 } from "radix-vue";
 import { Check } from "lucide-vue-next";
 import { cn } from "../../utils";

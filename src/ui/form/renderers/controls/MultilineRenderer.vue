@@ -57,6 +57,6 @@ const safeMax: ComputedRef<number | undefined> = computed(() => {
 import { isStringControl, isMultiLineControl, and } from "@jsonforms/core";
 export const tester = {
   rank: 2,
-  controlType: and(isStringControl, isMultiLineControl),
+  controlType: and(isStringControl, isMultiLineControl)
 };
 </script>

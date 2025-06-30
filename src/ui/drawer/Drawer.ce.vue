@@ -101,13 +101,13 @@ const props = withDefaults(defineProps<DrawerProps>(), {
       content: [],
       inner: [],
       header: [],
-      footer: [],
-    },
+      footer: []
+    }
   }),
   class: "",
   classHeader: "",
   classContent: "",
-  classFooter: "",
+  classFooter: ""
 });
 
 const emits = defineEmits<{
@@ -128,7 +128,7 @@ const forwardedDrawer = useForwardPropsEmits(
     "open",
     "defaultOpen",
     "nested",
-    "direction",
+    "direction"
   ]),
   emits
 );
@@ -143,7 +143,7 @@ const meta = computed(() => ({
   width: props.width,
   overflow: props.overflow,
   fit: props.fit,
-  skrim: props.skrim,
+  skrim: props.skrim
 }));
 
 const styles = useStyles(

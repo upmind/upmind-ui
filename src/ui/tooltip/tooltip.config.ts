@@ -16,12 +16,12 @@ export const contentVariants = cva(
         success: "bg-success text-success-foreground",
         info: "bg-info text-info-foreground",
         error: "bg-error text-error-foreground",
-        warning: "bg-warning text-warning-foreground",
-      },
+        warning: "bg-warning text-warning-foreground"
+      }
     },
     defaultVariants: {
-      color: "base",
-    },
+      color: "base"
+    }
   }
 );
 
@@ -37,12 +37,12 @@ export const arrowVariants = cva("", {
       success: "text-success",
       info: "text-info",
       error: "text-error",
-      warning: "text-warning",
-    },
+      warning: "text-warning"
+    }
   },
   defaultVariants: {
-    color: "base",
-  },
+    color: "base"
+  }
 });
 
 // -----------------------------------------------------------------------------
@@ -51,6 +51,6 @@ export default {
   tooltip: {
     content: contentVariants,
     arrow: arrowVariants,
-    trigger: cva(""),
-  },
+    trigger: cva("")
+  }
 };

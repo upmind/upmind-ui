@@ -36,7 +36,7 @@
             <RadioCardItem
               :item="{
                 title: 'Loading...',
-                description: 'Loading...',
+                description: 'Loading...'
               }"
               :index="-1"
               :model-value="modelValue"
@@ -126,24 +126,24 @@ const props = withDefaults(defineProps<RadioCardsCollapsibleProps>(), {
   list: false,
   // --- styles
   class: "",
-  radioClass: "",
+  radioClass: ""
 });
 
 const emits = defineEmits(["update:modelValue"]);
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
-  defaultValue: props.defaultValue,
+  defaultValue: props.defaultValue
 });
 
 const open = useVModel(props, "open", emits, {
   passive: true,
-  defaultValue: props.open,
+  defaultValue: props.open
 });
 
 const meta = computed(() => ({
   isList: props.list,
   isMinimal: props.minimal,
-  width: props.width,
+  width: props.width
 }));
 
 const styles = useStyles(
@@ -174,8 +174,8 @@ const selectedItemUiConfig = {
   radioCards: {
     input:
       "!outline-none !ring-0 focus:!outline-none focus:!ring-0 active:!outline-none active:!ring-0 focus-visible:!outline-none focus-visible:ring-0 !ring-0",
-    item: "!outline-none !ring-0 focus:!outline-none focus:!ring-0 active:!outline-none active:!ring-0 focus-visible:!outline-none focus-visible:!ring-0 !ring-0",
-  } as any,
+    item: "!outline-none !ring-0 focus:!outline-none focus:!ring-0 active:!outline-none active:!ring-0 focus-visible:!outline-none focus-visible:!ring-0 !ring-0"
+  } as any
 };
 
 const toggleExpanded = () => {

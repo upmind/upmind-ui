@@ -36,7 +36,7 @@ import { computed } from "vue";
 import config from "./alert.config";
 import {
   useStyles,
-  cn,
+  cn
   //stylesheet
 } from "../../utils";
 
@@ -57,7 +57,7 @@ const props = withDefaults(defineProps<AlertProps>(), {
   color: "base",
   // --- styles
   uiConfig: () => ({ alert: [] }),
-  class: "",
+  class: ""
 });
 
 defineSlots<{
@@ -73,7 +73,7 @@ defineSlots<{
 
 const meta = computed(() => ({
   variant: props.variant,
-  color: props.color,
+  color: props.color
 }));
 
 const styles = useStyles(

@@ -8,5 +8,5 @@ export type {
   AccordionRootEmits,
   AccordionContentProps,
   AccordionItemProps,
-  AccordionTriggerProps,
+  AccordionTriggerProps
 } from "radix-vue"; // Re-export Radix types

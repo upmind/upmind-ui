@@ -70,7 +70,7 @@ import {
   mapValues,
   merge,
   set,
-  get,
+  get
 } from "lodash-es";
 import { cn } from "../../utils";
 
@@ -81,13 +81,13 @@ import type {
   JsonFormsI18nState,
   ValidationMode,
   UISchemaElement,
-  JsonSchema,
+  JsonSchema
 } from "@jsonforms/core";
 import type {
   FormProps,
   FormActionProps,
   FormActionsProps,
-  FormFooterProps,
+  FormFooterProps
 } from "./types";
 import type { ErrorObject } from "ajv";
 // -----------------------------------------------------------------------------
@@ -99,7 +99,7 @@ const props = withDefaults(defineProps<FormProps>(), {
   additionalErrors: () => [],
   // --- Provide a way to add custom styles for a specific instance of the component
   uiConfig: () => ({ form: [] }),
-  class: "",
+  class: ""
 });
 
 const emits = defineEmits<{
@@ -111,7 +111,7 @@ const emits = defineEmits<{
   valid: [boolean];
   click: [{ model: Record<string, any>; meta: Record<string, any> }];
   action: [
-    { name: string; model: Record<string, any>; meta: Record<string, any> },
+    { name: string; model: Record<string, any>; meta: Record<string, any> }
   ];
 }>();
 
@@ -122,7 +122,7 @@ const slots = defineSlots<{
 
 defineExpose({
   submit: doSubmit,
-  reset: doReject,
+  reset: doReject
 });
 
 // --- state
@@ -134,15 +134,15 @@ const jsonform = useTemplateRef("jsonform");
 const baseModel = props.modelValue;
 const model = useVModel(props, "modelValue", emits, {
   passive: true,
-  defaultValue: {},
+  defaultValue: {}
 });
 const uischema = useVModel(props, "uischema", emits, {
-  passive: true,
+  passive: true
 });
 const errors = ref<ErrorObject[]>([]);
 const touched = useVModel(props, "touched", emits, {
   passive: true,
-  defaultValue: false,
+  defaultValue: false
 });
 
 // ---
@@ -156,7 +156,7 @@ const meta = computed(() => {
     isDirty: baseModel !== model.value,
     isTouched: touched.value || !isEmpty(props.additionalErrors),
     isValid: isEmpty(errors.value),
-    isDisabled: props.disabled || props.processing,
+    isDisabled: props.disabled || props.processing
   };
 });
 
@@ -171,7 +171,7 @@ const styles = useStyles(
 
 const renderers = Object.freeze([
   ...upmindUIRenderers,
-  ...props.additionalRenderers,
+  ...props.additionalRenderers
 ]);
 
 // --- computed
@@ -182,14 +182,14 @@ const actions = computed<Record<string, FormActionProps>>(() => {
       label: "Save",
       disabled: meta.value.isProcessing,
       loading: meta.value.isProcessing,
-      handler: () => doSubmit(),
+      handler: () => doSubmit()
     } as FormActionProps,
     reset: {
       label: "Cancel",
       variant: "ghost",
       disabled: meta.value.isProcessing,
-      handler: () => doReject(),
-    } as FormActionProps,
+      handler: () => doReject()
+    } as FormActionProps
   };
 
   let actions = props.actions || defaultActions;
@@ -202,7 +202,7 @@ const actions = computed<Record<string, FormActionProps>>(() => {
       disabled:
         meta.value.isProcessing ||
         action?.disabled ||
-        (action.needsValid && !meta.value.isValid),
+        (action.needsValid && !meta.value.isValid)
     };
   }) as Record<string, FormActionProps>;
 });
@@ -253,7 +253,7 @@ function doAction(item: FormActionProps, $event: HTMLElementEventMap["click"]) {
     emits("action", {
       name: item.handler,
       model: model.value,
-      meta: meta.value,
+      meta: meta.value
     });
     return;
   }

@@ -4,13 +4,13 @@ import type { CxOptions, VariantProps } from "class-variance-authority";
 import type {
   NumberFieldRootProps,
   NumberFieldDecrementProps,
-  NumberFieldIncrementProps,
+  NumberFieldIncrementProps
 } from "radix-vue";
 
 // --- types
 import type {
   numberFieldVariants,
-  numberFieldRootVariants,
+  numberFieldRootVariants
 } from "./numberField.config";
 type NumberFieldRootVariants = VariantProps<typeof numberFieldRootVariants>;
 type NumberFieldVariants = VariantProps<typeof numberFieldVariants>;

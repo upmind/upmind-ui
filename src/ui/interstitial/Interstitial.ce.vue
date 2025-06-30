@@ -86,14 +86,14 @@ const props = withDefaults(defineProps<InterstitialProps>(), {
     delay: 5000,
     primaryColor: "primary",
     secondaryColor: "secondary",
-    size: "4xl",
-  }),
+    size: "4xl"
+  })
 });
 
 const processing = ref(false);
 const meta = computed(() => ({
   isProcessing: processing.value,
-  isOpen: props.open,
+  isOpen: props.open
 }));
 
 const styles = useStyles(

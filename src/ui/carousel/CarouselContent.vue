@@ -4,7 +4,7 @@ import { cn } from "../../utils";
 import { useCarousel } from "./useCarousel";
 
 defineOptions({
-  inheritAttrs: false,
+  inheritAttrs: false
 });
 
 const props = defineProps<

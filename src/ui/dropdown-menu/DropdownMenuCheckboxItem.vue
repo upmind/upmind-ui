@@ -5,7 +5,7 @@ import {
   type DropdownMenuCheckboxItemEmits,
   type DropdownMenuCheckboxItemProps,
   DropdownMenuItemIndicator,
-  useForwardPropsEmits,
+  useForwardPropsEmits
 } from "radix-vue";
 import { Check } from "lucide-vue-next";
 import { cn } from "../../utils";

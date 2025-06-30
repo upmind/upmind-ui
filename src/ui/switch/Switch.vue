@@ -5,7 +5,7 @@ import {
   type SwitchRootEmits,
   type SwitchRootProps,
   SwitchThumb,
-  useForwardPropsEmits,
+  useForwardPropsEmits
 } from "radix-vue";
 import { cn } from "../../utils";
 

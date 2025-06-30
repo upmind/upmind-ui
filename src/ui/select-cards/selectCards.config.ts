@@ -14,12 +14,12 @@ export const triggerVariants = cva(
         "2xl": "!w-dropdown-2xl",
         full: "w-full",
         auto: "w-auto",
-        app: "w-app",
-      },
+        app: "w-app"
+      }
     },
     defaultVariants: {
-      width: "full",
-    },
+      width: "full"
+    }
   }
 );
 
@@ -40,12 +40,12 @@ export const contentVariants = cva(
         "2xl": "w-dropdown-2xl",
         full: "w-full",
         auto: "w-auto",
-        app: "w-app",
-      },
+        app: "w-app"
+      }
     },
     defaultVariants: {
-      width: "full",
-    },
+      width: "full"
+    }
   }
 );
 
@@ -60,6 +60,6 @@ export default {
     item: itemVariants,
     items: cva("w-full gap-0"),
     group: groupVariants,
-    input: cva("my-3 ml-3 mr-1 bg-control leading-normal text-control-active"),
-  },
+    input: cva("my-3 ml-3 mr-1 bg-control leading-normal text-control-active")
+  }
 };

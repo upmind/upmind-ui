@@ -18,7 +18,7 @@ const props = withDefaults(
     modelValue: string;
   }>(),
   {
-    tag: "span",
+    tag: "span"
   }
 );
 

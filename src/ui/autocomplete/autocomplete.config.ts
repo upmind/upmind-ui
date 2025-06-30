@@ -9,12 +9,12 @@ export const rootVariants = cva("relative rounded-lg", {
     width: {
       full: "w-full",
       auto: "w-auto",
-      app: "w-app",
-    },
+      app: "w-app"
+    }
   },
   defaultVariants: {
-    width: "full",
-  },
+    width: "full"
+  }
 });
 
 export const anchorVariants = cva(
@@ -24,7 +24,7 @@ export const anchorVariants = cva(
       size: {
         sm: "h-8 px-3 py-2 !text-sm",
         md: "h-10 px-3 py-2 !text-md",
-        lg: "h-12 px-3 py-2 !text-lg",
+        lg: "h-12 px-3 py-2 !text-lg"
       },
       width: {
         "3xs": "w-dropdown-3xs md:w-dropdown-2xs",
@@ -36,13 +36,13 @@ export const anchorVariants = cva(
         xl: "w-dropdown-xl md:w-dropdown-2xl",
         "2xl": "w-dropdown-2xl md:w-dropdown-2xl",
         full: "w-full",
-        app: "w-app",
-      },
+        app: "w-app"
+      }
     },
     defaultVariants: {
       size: "md",
-      width: "full",
-    },
+      width: "full"
+    }
   }
 );
 
@@ -60,12 +60,12 @@ export const contentVariants = cva(
         xl: "w-dropdown-xl",
         "2xl": "w-dropdown-2xl",
         full: "w-full",
-        app: "w-app",
-      },
+        app: "w-app"
+      }
     },
     defaultVariants: {
-      popoverWidth: "full",
-    },
+      popoverWidth: "full"
+    }
   }
 );
 
@@ -84,6 +84,6 @@ export default {
     item: cva(
       "data-[disabled]:text-control-disabled data-[highlighted]:bg-control-active-hover relative flex !cursor-pointer select-none items-center justify-between rounded-lg px-3 py-2 text-sm text-control-foreground data-[disabled]:pointer-events-none data-[highlighted]:text-control-active data-[highlighted]:outline-none"
     ),
-    indicator: cva("pr-2"),
-  },
+    indicator: cva("pr-2")
+  }
 };

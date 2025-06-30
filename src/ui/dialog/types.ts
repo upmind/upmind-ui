@@ -13,7 +13,7 @@ import type {
   DialogDescriptionProps,
   DialogTitleProps,
   DialogTriggerProps,
-  DialogPortalProps,
+  DialogPortalProps
 } from "radix-vue";
 
 export interface DialogProps
