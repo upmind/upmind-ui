@@ -54,11 +54,11 @@ const props = withDefaults(defineProps<BreadcrumbConsolidateProps>(), {
   items: () => [],
   size: "md",
   uiConfig: () => ({}),
-  class: "",
+  class: ""
 });
 
 const meta = computed(() => ({
-  size: props.size,
+  size: props.size
 }));
 
 const styles = useStyles(

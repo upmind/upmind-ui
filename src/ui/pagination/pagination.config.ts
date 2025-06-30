@@ -5,18 +5,18 @@ const rootVariants = cva("flex w-full items-center gap-2", {
     size: {
       sm: "gap-1",
       md: "gap-2",
-      lg: "gap-3",
+      lg: "gap-3"
     },
     alignment: {
       left: "justify-start",
       center: "justify-center",
-      between: "md:justify-between",
-    },
+      between: "md:justify-between"
+    }
   },
   defaultVariants: {
     size: "md",
-    alignment: "between",
-  },
+    alignment: "between"
+  }
 });
 
 const buttonVariants = cva("w-full flex-1", {
@@ -24,12 +24,12 @@ const buttonVariants = cva("w-full flex-1", {
     size: {
       sm: "md:w-48 md:flex-none",
       md: "md:w-56 md:flex-none",
-      lg: "md:w-64 md:flex-none",
-    },
+      lg: "md:w-64 md:flex-none"
+    }
   },
   defaultVariants: {
-    size: "md",
-  },
+    size: "md"
+  }
 });
 
 const infoVariants = cva(
@@ -39,12 +39,12 @@ const infoVariants = cva(
       size: {
         sm: "text-xs",
         md: "text-sm",
-        lg: "text-base",
-      },
+        lg: "text-base"
+      }
     },
     defaultVariants: {
-      size: "md",
-    },
+      size: "md"
+    }
   }
 );
 
@@ -52,8 +52,8 @@ export default {
   pagination: {
     root: rootVariants,
     button: buttonVariants,
-    info: infoVariants,
-  },
+    info: infoVariants
+  }
 };
 
 export { rootVariants, buttonVariants, infoVariants };

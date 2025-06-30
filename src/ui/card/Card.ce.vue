@@ -27,13 +27,13 @@ const props = withDefaults(
   }>(),
   {
     as: "div",
-    width: "full",
+    width: "full"
   }
 );
 
 const meta = computed(() => ({
   isDisabled: props.disabled,
-  width: props.width,
+  width: props.width
 }));
 
 const styles = useStyles(["card"], meta, config) as ComputedRef<{

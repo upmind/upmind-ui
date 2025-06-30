@@ -10,7 +10,7 @@ import { computed } from "vue";
 const props = withDefaults(
   defineProps<PaginationLastProps & { class?: HTMLAttributes["class"] }>(),
   {
-    asChild: true,
+    asChild: true
   }
 );
 

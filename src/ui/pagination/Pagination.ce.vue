@@ -50,7 +50,7 @@ import {
   PaginationList,
   PaginationNext,
   PaginationPrev,
-  PaginationRoot,
+  PaginationRoot
 } from "radix-vue";
 
 // --- types
@@ -62,7 +62,7 @@ const props = withDefaults(defineProps<PaginationProps>(), {
   alignment: "between",
   // --- styles
   uiConfig: () => ({}),
-  class: "",
+  class: ""
 });
 
 const emit = defineEmits<{
@@ -72,7 +72,7 @@ const emit = defineEmits<{
 
 const meta = computed(() => ({
   size: props.size,
-  alignment: props.alignment,
+  alignment: props.alignment
 }));
 
 const styles = useStyles(
