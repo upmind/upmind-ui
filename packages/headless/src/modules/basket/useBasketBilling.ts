@@ -94,7 +94,6 @@ export const useBasketBilling = () => {
     value = omitBy(toRaw(unref(value)), isEmpty);
     const model = omitBy(contextValue<BillingModel>(actor, "model"), isEmpty);
 
-    // if it has not then bail
     if (!isEmpty(value) && !isEqual(value, model)) {
       actor.value?.send({ type: "SET", data: value, update: true });
     } else {

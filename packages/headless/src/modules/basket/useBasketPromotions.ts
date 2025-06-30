@@ -9,16 +9,18 @@ import { useBasket } from "./";
 import {
   contextValue,
   DetailedError,
+  ErrorObject,
   responseCodes,
   useContext
 } from "../../utils";
 import { contextMatches, stateMatches, stateValue } from "../../utils";
-import { isNil } from "lodash-es";
+import { isEmpty, isEqual, isNil } from "lodash-es";
 
 // --- types
 import type { ActorRef } from "xstate";
 import { PromotionsContext, PromotionModel } from "./promotions/types";
 import { IBasketPromotion } from "@upmind-automation/types";
+import { QueryResponseError } from "../query";
 
 // -----------------------------------------------------------------------------
 // We allow an actor to be passed in, but if not, we will use the basket actorRef and wait for the 'actor'' machine to be ready
@@ -69,7 +71,11 @@ export const useBasketPromotions = () => {
     actor,
     "promotions"
   );
-  const errors = useContext<PromotionsContext["error"]>(actor, "error");
+  const errors = useContext<QueryResponseError["message"]>(
+    actor,
+    "error.message"
+  );
+  const validationErrors = useContext<ErrorObject[]>(actor, "error.data");
   const model = useContext<PromotionsContext["model"]>(actor, "model");
   const schema = useContext<PromotionsContext["schema"]>(actor, "schema");
   const uischema = useContext<PromotionsContext["uischema"]>(actor, "uischema");
@@ -84,10 +90,7 @@ export const useBasketPromotions = () => {
     value = toRaw(unref(value));
     const model = contextValue<PromotionModel>(actor, "model");
 
-    // if it has not then bail
-    if (!value) return Promise.resolve();
-
-    if (value != model?.promocode) {
+    if (!isEmpty(value) && !isEqual(value, model?.promocode)) {
       actor.value?.send({
         type: "SET",
         data: { promocode: value },
@@ -189,6 +192,9 @@ export const useBasketPromotions = () => {
 
     /** Any error returned by the promotion actor. */
     errors,
+
+    /** Any validation errors returned by the promotion actor. */
+    validationErrors,
 
     /** The current promotion model. */
     model,

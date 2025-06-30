@@ -12,7 +12,7 @@ import {
   contextValue
 } from "../../utils";
 
-import { every, isEqual, isFunction } from "lodash-es";
+import { every, isEmpty, isEqual, isFunction } from "lodash-es";
 import type { ActorRef } from "xstate";
 // -----------------------------------------------------------------------------
 // We allow an actor to be passed in, but if not, we will use the basket service and wait for the 'actor'' machine to be ready
@@ -81,18 +81,16 @@ export const usePaymentGateway = (paymentGateway: ActorRef<any>) => {
 
     // ---
     clear: () => paymentGateway?.send({ type: "CLEAR" }),
-    input: (model: any) => paymentGateway?.send({ type: "SET", data: model }),
-    update(model: any) {
-      model = toRaw(unref(model));
-      if (!model) return;
+    input: (value: any) => paymentGateway?.send({ type: "SET", data: value }),
+    update(value: any) {
+      value = toRaw(unref(value));
 
-      // first check if our paymentGateway has change, ie: model.code has changed
-      const selected = contextValue(paymentGateway, "model");
+      // first check if our paymentGateway has change, ie: value.code has changed
+      const model = contextValue(paymentGateway, "model");
 
-      // if it has not then bail
-      if (!isEqual(selected, model)) {
+      if (!isEmpty(value) && !isEqual(model, value)) {
         // if it has then send the new model to the machine
-        paymentGateway?.send({ type: "SET", data: model });
+        paymentGateway?.send({ type: "SET", data: value });
       }
 
       // then wait for the paymentGateway actor to be valid
