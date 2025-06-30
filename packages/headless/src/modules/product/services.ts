@@ -227,7 +227,7 @@ async function validate(context: ProductConfigContext, _event: AnyEventObject) {
         new DetailedError(
           "[headless] Validate Product Config failed",
           responseCodes.Conflict,
-          { error: { data: errors } }
+          { errors }
         )
       );
     } else {

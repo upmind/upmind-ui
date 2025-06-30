@@ -31,6 +31,7 @@ export const phoneCountryCodeKeyword: KeywordDefinition = {
   type: ["string", "object", "null"],
   schemaType: "string",
   validate: (schema, data, parentSchema, dataCxt) => {
+    if (isEmpty(data)) return true;
     if (isString(data) && startsWith(data, "+")) {
       return isValidPhoneNumber(data);
     } else if (isObject(data)) {

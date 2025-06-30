@@ -643,7 +643,7 @@ export default createMachine(
 
       setError: assign({
         error: ({ error }: ProductConfigContext, { data }: AnyEventObject) => {
-          let errors = data?.error?.data;
+          let errors = data?.data?.errors;
           return merge({}, error, errors);
         }
       }),
