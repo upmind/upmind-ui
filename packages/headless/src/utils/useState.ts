@@ -207,7 +207,9 @@ export const contextValue = <T = unknown>(
 ): T | undefined => {
   const context = stateValue<T>(stateLike, "context");
 
-  if (isEmpty(props) || isNil(context)) return fallback;
+  if (isNil(context)) return fallback;
+
+  if (isEmpty(props)) return context as T;
 
   if (isArray(props)) return pick(context, props) as T;
 

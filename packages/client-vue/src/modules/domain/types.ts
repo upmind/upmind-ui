@@ -11,12 +11,12 @@ export interface DomainProps {
 
 export interface DacProps {
   id: string;
-  modelValue?: string;
+  modelValue?: string; // this is the primary domain
+  selected?: string[]; // these ar the selected domains
+  items?: DomainProduct[]; // this is the list of domains that can be selected
   query?: string;
   color?: ButtonProps["color"];
   offset?: number;
-  values?: string[];
-  items?: DomainProduct[];
   dialog?: boolean;
   loading?: boolean;
   processing?: boolean;
@@ -28,7 +28,7 @@ export interface DacProps {
 
 export interface DomainCardsProps {
   i18n?: string;
-  modelValue?: string | string[];
+  modelValue?: string[];
   items: DomainProduct[];
   offset?: number;
   // ---

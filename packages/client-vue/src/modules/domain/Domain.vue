@@ -47,13 +47,13 @@
                 :key="`dac-${type}`"
                 :complete="meta.showSelected"
                 :disabled="!meta.isValid"
-                :items="available"
                 :loading="meta.isSearching"
                 :model-value="selected"
+                :items="available"
+                :selected="model"
                 :more="meta.hasMoreSearchResults"
                 :offset="pagination.offset"
                 :processing="meta.isSyncing"
-                :values="domains"
                 @search="search"
                 @search:more="searchMore"
                 @update:selected="toggle"
@@ -149,11 +149,11 @@ const props = withDefaults(defineProps<DomainProps>(), {
 const { t, tm, rt } = useI18n();
 
 const {
+  context,
   choices,
   type,
   selected,
   model,
-  domains,
   query,
   available,
   owned,
