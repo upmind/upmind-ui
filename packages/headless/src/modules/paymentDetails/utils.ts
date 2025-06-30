@@ -31,15 +31,9 @@ export const useSchema = ({
   const schema = {
     type: "object",
     title: "Payment details",
-    required: ["amount", "type"],
+    required: ["type"],
 
     properties: {
-      amount: {
-        type: "number",
-        title: "Amount",
-        readOnly: true,
-        exclusiveMinimum: 0
-      },
       type: {
         type: "string",
         title: "Payment type",
@@ -115,19 +109,19 @@ export const useUischema = () => {
           format: "radio",
           stretch: true,
           layout: "grid"
-        },
-        rule: {
-          effect: "SHOW",
-          condition: {
-            scope: "#",
-            schema: {
-              required: ["type", "amount"],
-              properties: {
-                amount: { not: { const: 0 } }
-              }
-            }
-          }
         }
+        // rule: {
+        //   effect: "SHOW",
+        //   condition: {
+        //     scope: "#",
+        //     schema: {
+        //       required: ["type", "amount"],
+        //       properties: {
+        //         amount: { not: { const: 0 } }
+        //       }
+        //     }
+        //   }
+        // }
       }
     ]
   };
@@ -244,7 +238,7 @@ export function spawnCard({ orderId, gateway, amount, currency }: any) {
       amount,
       currency,
       type: GatewayTypes.CARD,
-      code: gateway?.gateway_provider.code
+      code: gateway?.gateway_provider?.code
     }),
     { name: gateway?.id, sync: true }
   );
@@ -265,7 +259,7 @@ export function spawnStripe({
       amount,
       currency,
       type: GatewayTypes.CARD,
-      code: gateway?.gateway_provider.code,
+      code: gateway?.gateway_provider?.code,
       address
     } as any),
     { name: gateway?.id, sync: true }
@@ -283,7 +277,7 @@ export function spawnGenericGateway(
       amount: amount || 0,
       currency,
       type,
-      code: gateway?.gateway_provider.code,
+      code: gateway?.gateway_provider?.code,
       renderless
     }),
     { name: gateway?.id, sync: true }
@@ -298,7 +292,7 @@ export function spawnExternal({ orderId, gateway, amount, currency }: any) {
       amount,
       currency,
       type: GatewayTypes.CARD,
-      code: gateway?.gateway_provider.code
+      code: gateway?.gateway_provider?.code
       // external: gateway?.gateway_provider.external_payment,
     }),
     { name: gateway?.id, sync: true }

@@ -48,15 +48,8 @@ async function load(
     return Promise.reject(new NotAuthenticatedError());
   }
 
-  const {
-    brandId,
-    currencyId: defaultCurrencyId,
-    isReady,
-    ensureConfig
-  } = useBrand();
+  const { brandId, currencyId: defaultCurrencyId, ensureConfig } = useBrand();
   const { get: getRequest, useUrl } = useQuery();
-
-  await isReady().catch(error => Promise.reject(error));
 
   // ---
 
@@ -155,7 +148,7 @@ async function load(
 }
 
 async function parse(
-  { model, gateways }: PaymentDetailsContext,
+  { amount, model, gateways }: PaymentDetailsContext,
   { data }: AnyEventObject
 ) {
   // ---
@@ -163,10 +156,7 @@ async function parse(
 
   // ---
   // Create a safe model to work with
-  const safeModel = defaultsDeep(
-    pick(data, ["amount", "type", "gateway_id"]),
-    model
-  );
+  const safeModel = defaultsDeep(pick(data, ["type", "gateway_id"]), model);
 
   // ---
   // HACK: TEMP: FORCE payment type to PAY_IN_FULL
@@ -190,7 +180,7 @@ async function parse(
   }
 
   // 3) Safety Check...if the payment type is pay later or Free, clear the gateway_id
-  if (safeModel?.type == PaymentType.PAY_LATER || safeModel?.amount <= 0) {
+  if (safeModel?.type == PaymentType.PAY_LATER || amount <= 0) {
     unset(safeModel, "gateway_id");
     gateway = null;
   }

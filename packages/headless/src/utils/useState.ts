@@ -308,7 +308,7 @@ export const useChildActor = (
   computed(() => childActor(stateLike, prop));
 
 export const useContextActor = (
-  stateLike: StateLike,
+  stateLike: StateLike | MachineLike,
   prop?: string | number
 ): ComputedRef<Actor | undefined> =>
   computed(() => contextActor(stateLike, prop));

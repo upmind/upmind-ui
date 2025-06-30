@@ -17,7 +17,6 @@ import { QueryResponseError } from "../query";
 // -----------------------------------------------------------------------------
 
 export interface PaymentDetailModel {
-  amount: number;
   type?: PaymentType;
   gateway_id?: IGateway["id"];
 }

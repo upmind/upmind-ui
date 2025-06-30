@@ -11,8 +11,6 @@ import {
 // --- internal
 import services from "./services";
 import { authSubscription } from "../session/helper";
-import { useFeedback } from "../feedback";
-const { addError } = useFeedback();
 
 // --- utils
 import { spawnGateway, parsePaymentDetails } from "./utils";
@@ -262,7 +260,7 @@ export default createMachine(
             address,
             orderId,
             currency,
-            model,
+            amount,
             gateway,
             actors,
             stored_payment_methods
@@ -280,10 +278,10 @@ export default createMachine(
           // if we are provided a gateway AND dont have one spawned yet,
           if (!actors?.gateway && gateway) {
             const actor = spawnGateway({
+              amount,
               orderId,
               currency,
-              amount: model?.amount,
-              gateway: model?.amount ? gateway : null, // use the free gateway if amount is 0
+              gateway: amount ? gateway : null, // use the free gateway if amount is 0
               stored_payment_methods,
               address
             });
@@ -299,12 +297,8 @@ export default createMachine(
         clientId: (_context, { data }: AnyEventObject) => data?.client_id,
         currency: (_context, { data }: AnyEventObject) => data?.currency,
         address: (_context, { data }: AnyEventObject) => data?.address,
-        model: ({ model }, { data }: AnyEventObject) => {
-          return {
-            ...model,
-            amount: data?.unpaid_amount_converted || 0.0 // NB: we always force use the outstanding amount
-          };
-        },
+        amount: (_context, { data }: AnyEventObject) =>
+          data?.unpaid_amount_converted || 0.0, // NB: we always force use the outstanding amount
         actors: (
           { actors }: PaymentDetailsContext,
           { data }: AnyEventObject
@@ -330,10 +324,9 @@ export default createMachine(
 
       setPaymentDetails: assign({
         paymentDetails: (
-          { model, orderId, currency, address }: PaymentDetailsContext,
+          { amount, model, orderId, currency, address }: PaymentDetailsContext,
           { data }: AnyEventObject
         ) => {
-          const amount = model?.amount || 0;
           return parsePaymentDetails({
             ...model,
             ...data,
@@ -390,19 +383,18 @@ export default createMachine(
         { stored_payment_methods, gateways, payment_types },
         _event
       ) => !!stored_payment_methods && !!gateways && !!payment_types,
-      isFree: ({ model }, _event) => !model?.amount,
-      shouldUpdate: ({ autoupdate, orderId, model }, _event) =>
-        !!autoupdate && !!orderId && model?.amount !== 0,
+      isFree: ({ amount }, _event) => !amount,
+      shouldUpdate: ({ autoupdate, orderId, amount }, _event) =>
+        !!autoupdate && !!orderId && amount !== 0,
 
       hasChanged: (
-        { orderId, currency, clientId, model, address }: PaymentDetailsContext,
+        { orderId, currency, clientId, amount, address }: PaymentDetailsContext,
         { data }: AnyEventObject
       ) => {
         const orderChanged = orderId != data?.id;
         const currencyChanged = currency?.id != data?.currency_id;
         const clientChanged = clientId != data?.client_id;
-        const amountChanged =
-          model?.amount == (data?.unpaid_amount_converted || 0.0);
+        const amountChanged = amount == (data?.unpaid_amount_converted || 0.0);
         const addressChanged = address?.id != data?.address?.id;
 
         return (
