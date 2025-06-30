@@ -17,7 +17,7 @@
             variant: 'ghost',
             handler: navigateBack,
             prependIcon: { icon: 'arrow-left', size: '2xs' },
-            label: t('basket.requiresAction.actions.navigateBack'),
+            label: t('basket.requiresAction.actions.back'),
           },
           {
             color: 'secondary',

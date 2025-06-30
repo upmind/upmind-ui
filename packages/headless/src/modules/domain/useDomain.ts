@@ -48,17 +48,16 @@ export const useDomain = (
 
   const safeModel = map(isArray(value) ? value : [value], parseDomain);
 
-  const context = {
-    type: safeType,
-    choices: safeType ? null : DomainTypes,
-    model: safeModel,
-  };
+  const service = interpret(
+    domainMachine.withContext({
+      type: safeType,
+      choices: safeType ? null : DomainTypes,
+      model: safeModel,
+    } as any),
+    { devTools: false }
+  );
 
-  const service = interpret(domainMachine.withContext(context as any), {
-    devTools: false,
-  });
-
-  const { state, send }: any = useActor(service.start());
+  const { state, send } = useActor(service.start());
 
   // --- state
 
@@ -118,6 +117,8 @@ export const useDomain = (
 
   // --- context
 
+  const context = useContext<DomainContext>(state);
+
   const choices = computed(() =>
     map(
       contextValue<DomainContext["choices"]>(state, "choices"),
@@ -127,10 +128,8 @@ export const useDomain = (
 
   const query = useContext<string>(state, "search.query");
 
-  const model = useContext<DomainContext["model"]>(state, "model");
-  // model: computed(() => map(state.value.context.model, "domain")),
-
-  const domains = computed(() => map(model.value, "domain"));
+  // const model = useContext<DomainContext["model"]>(state, "model");
+  const model = computed(() => map(state.value.context.model, "domain"));
 
   const type = useContext<DomainContext["type"]>(state, "type");
 
@@ -143,7 +142,9 @@ export const useDomain = (
   const errors = useContext<DomainContext["error"]>(state, "error");
 
   const selected = computed(() => {
-    const selected = find(model.value, "selected") || first(model.value);
+    const selected =
+      find(state.value.context?.model, "selected") ||
+      first(state.value.context?.model);
     return get(selected, "domain");
   });
 
@@ -258,6 +259,8 @@ export const useDomain = (
 
     // --- context
 
+    context,
+
     /**
      * List of available choices.
      */
@@ -272,12 +275,6 @@ export const useDomain = (
      * The current model (selected domains).
      */
     model,
-
-    /**
-     * List of domain values in the model.
-     * @typedef {Array<string>} DomainValues
-     */
-    domains,
 
     /**
      * The current domain type.

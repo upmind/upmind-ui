@@ -398,12 +398,14 @@ export default createMachine(
       ),
 
       persistModel: assign({
-        baseModel: ({ model }: DomainContext) => cloneDeep(model), // we use spread to ensure its a new array
+        baseModel: ({ model }: DomainContext) => compact(cloneDeep(model)), // we use spread to ensure its a new array
       }),
 
       checkModel: assign({
         model: ({ model, lookups }: DomainContext) => {
-          const values = map(model, item => parseDomain(item)) as DomainModel[];
+          const values = compact(
+            map(model, item => parseDomain(item))
+          ) as DomainModel[];
           if (isEmpty(values) && !isEmpty(lookups.basket)) {
             return map(lookups.basket, item => {
               return {
@@ -675,9 +677,8 @@ export default createMachine(
       }),
 
       resetModel: assign({
-        model: ({ baseModel }, _event: AnyEventObject) => {
-          return cloneDeep(baseModel);
-        },
+        model: ({ baseModel }, _event: AnyEventObject) =>
+          compact(cloneDeep(baseModel)),
       }),
 
       cancelController: assign({
