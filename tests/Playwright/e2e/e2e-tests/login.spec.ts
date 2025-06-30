@@ -16,12 +16,14 @@ test.describe("Login", () => {
         Logins.checkoutUser.password
       );
       await page.waitForLoadState("networkidle");
-      await expect(page.url()).toBe(URLs.emptyBasket);
+      await page.waitForURL(URLs.emptyBasket);
     });
     test("Invalid Username", async ({ page }) => {
       await login.inputLogin("invalid-username", Logins.checkoutUser.password);
       await page.waitForLoadState("networkidle");
-      await expect("error message").toContain("Invalid Username");
+      await expect(login.alert).toContainText(
+        "The user credentials were incorrect."
+      );
     });
     test("Invalid Password", async ({ page }) => {
       await login.inputLogin(
@@ -29,36 +31,42 @@ test.describe("Login", () => {
         Logins.stripeCard.password
       );
       await page.waitForLoadState("networkidle");
-      await expect("error message").toContain("Invalid Password");
+      await expect(login.alert).toContainText(
+        "The user credentials were incorrect."
+      );
     });
   });
   test.describe("Login via login popover", () => {
-    test.beforeEach(async ({ page }) => {
-      await page.goto(URLs.devBlocks);
-      await page.waitForLoadState("networkidle");
+    test.beforeEach(({ page }) => {
+      login = new Login(page);
+      page.goto(URLs.devBlocks);
     });
     test("Successful Login", async ({ page }) => {
       await login.loginFromPopover(
         Logins.checkoutUser.username,
         Logins.checkoutUser.password
       );
-      await expect(page.url()).toBe(URLs.emptyBasket);
+      await expect(page.url()).toBe(URLs.devBlocks);
     });
     test("Invalid Username", async ({ page }) => {
       await login.loginFromPopover(
-        Logins.checkoutUser.username,
+        "Logins.checkoutUser.username",
         Logins.checkoutUser.password
       );
       await expect(page.url()).toBe(URLs.devBlocks);
-      await expect(login.popoverContent.locator(login.alert)).toContainText("");
+      await expect(login.popoverContent.locator(login.alert)).toContainText(
+        "The user credentials were incorrect."
+      );
     });
     test("Invalid Password", async ({ page }) => {
       await login.loginFromPopover(
         Logins.checkoutUser.username,
-        Logins.checkoutUser.password
+        "Logins.checkoutUser.password"
       );
       await expect(page.url()).toBe(URLs.devBlocks);
-      await expect(login.popoverContent.locator(login.alert)).toContainText("");
+      await expect(login.popoverContent.locator(login.alert)).toContainText(
+        "The user credentials were incorrect."
+      );
     });
   });
 });
