@@ -2,7 +2,7 @@
 import {
   DropdownMenuTrigger,
   type DropdownMenuTriggerProps,
-  useForwardProps,
+  useForwardProps
 } from "radix-vue";
 
 const props = defineProps<DropdownMenuTriggerProps>();

@@ -31,7 +31,7 @@ import {
   onMounted,
   nextTick,
   watch,
-  onUnmounted,
+  onUnmounted
 } from "vue";
 
 // --- internal
@@ -61,7 +61,7 @@ const props = withDefaults(
     iconMore: "arrow-down",
     iconLess: "arrow-up",
     lines: 3,
-    forceOpen: false,
+    forceOpen: false
   }
 );
 
@@ -72,7 +72,7 @@ const wrapper = useTemplateRef("wrapper");
 const meta = computed(() => ({
   lines: props.lines,
   isOpen: open.value,
-  isTruncated: truncated.value,
+  isTruncated: truncated.value
 }));
 
 const styles = useStyles("lineclamp", meta, config) as ComputedRef<{
@@ -111,7 +111,7 @@ onMounted(() => {
       observer.value.observe(wrapper.value, {
         childList: true,
         subtree: true,
-        characterData: true,
+        characterData: true
       });
     }
   });

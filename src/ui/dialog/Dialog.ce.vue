@@ -109,13 +109,13 @@ const props = withDefaults(defineProps<DialogProps>(), {
       overlay: [],
       content: [],
       header: [],
-      footer: [],
-    },
+      footer: []
+    }
   }),
   class: "",
   classHeader: "",
   classContent: "",
-  classFooter: "",
+  classFooter: ""
 });
 
 const emits = defineEmits<DialogRootEmits & DialogContentEmits>();
@@ -131,7 +131,7 @@ const forwardedContent = useForwardPropsEmits(
     "trapFocus",
     "disableOutsidePointerEvents",
     "asChild",
-    "as",
+    "as"
   ]),
   emits
 );
@@ -142,7 +142,7 @@ const meta = computed(() => ({
   size: props.size,
   overflow: props.overflow,
   fit: props.fit,
-  skrim: props.skrim,
+  skrim: props.skrim
 }));
 
 const styles = useStyles(

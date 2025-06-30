@@ -32,7 +32,7 @@ const props = withDefaults(defineProps<CheckboxProps>(), {
   uiConfig: () => ({ checkbox: [] }),
   size: "md",
   width: "full",
-  class: "",
+  class: ""
 });
 
 const emits = defineEmits<{
@@ -45,11 +45,11 @@ const delegatedProps = computed(() =>
 
 const checked = useVModel(props, "checked", emits, {
   passive: true,
-  defaultValue: props.defaultChecked,
+  defaultValue: props.defaultChecked
 });
 
 const meta = computed(() => ({
-  size: props.size,
+  size: props.size
 }));
 
 const styles = useStyles(

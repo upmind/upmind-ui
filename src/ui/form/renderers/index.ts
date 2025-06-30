@@ -18,5 +18,5 @@ export const upmindUIRenderers = [
   ...layoutRenderers,
   ...arrayRenderers,
   ...complexRenderers,
-  ...labelRenderers,
+  ...labelRenderers
 ];

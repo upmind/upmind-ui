@@ -12,17 +12,12 @@
       <div class="w-full flex-col">
         <FormLabel v-if="meta.hasLabel" :formItemId="id">
           <slot name="label" :label="label">
-            <span
-              class="inline-flex w-full items-center justify-between gap-x-0.5"
-            >
+            <span class="inline-flex w-full items-center gap-x-0.5">
               <slot name="icon" />
 
               <span>{{ label }}</span>
 
-              <FormNotRequiredIndicator
-                v-if="!meta.isRequired"
-                :formItemId="id"
-              />
+              <FormRequiredIndicator v-if="meta.isRequired" :formItemId="id" />
 
               <Tooltip
                 v-if="tooltip"
@@ -37,6 +32,12 @@
                   class="opacity-50 transition-all duration-300 hover:opacity-100"
                 />
               </Tooltip>
+
+              <FormNotRequiredIndicator
+                v-if="!meta.isRequired"
+                :formItemId="id"
+                class="ml-auto"
+              />
             </span>
           </slot>
         </FormLabel>
@@ -90,10 +91,11 @@ import config from "./form.config";
 import {
   FormItem,
   FormLabel,
+  FormRequiredIndicator,
   FormNotRequiredIndicator,
   FormControl,
   FormDescription,
-  FormMessage,
+  FormMessage
 } from ".";
 import { Tooltip } from "../tooltip";
 import { Icon } from "../icon";
@@ -126,9 +128,9 @@ const props = withDefaults(defineProps<FormControlProps>(), {
       root: [],
       loading: [],
       content: [],
-      actions: [],
-    },
-  }),
+      actions: []
+    }
+  })
 });
 
 const slots = useSlots();
@@ -170,7 +172,7 @@ const meta = computed(
     hasFeedback:
       (isEmpty(props.errors) && !isEmpty(props.description)) ||
       !isEmpty(props.errors),
-    shouldFocus: !!props.autoFocus,
+    shouldFocus: !!props.autoFocus
   })
 );
 

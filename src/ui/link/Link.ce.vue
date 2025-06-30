@@ -44,7 +44,7 @@ const props = withDefaults(defineProps<LinkProps>(), {
   variant: "flat",
   as: "strong",
   // --- styles
-  uiConfig: () => ({ link: [] }),
+  uiConfig: () => ({ link: [] })
 });
 
 const meta = computed(() => ({
@@ -53,7 +53,7 @@ const meta = computed(() => ({
   size: props.size,
   offset: props.offset,
   disabled: props.disabled,
-  loading: props.loading,
+  loading: props.loading
 }));
 
 const styles = useStyles(

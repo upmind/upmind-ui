@@ -88,6 +88,6 @@ const { control, formFieldProps, onInput } = useUpmindUIRenderer(
 import { isBooleanControl, and, optionIs } from "@jsonforms/core";
 export const tester = {
   rank: 2,
-  controlType: and(isBooleanControl, optionIs("format", "toggle")),
+  controlType: and(isBooleanControl, optionIs("format", "toggle"))
 };
 </script>

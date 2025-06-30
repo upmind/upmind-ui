@@ -39,7 +39,7 @@ import { forEach } from "lodash-es";
 // --- types
 import type {
   ControlElement,
-  CombinatorSubSchemaRenderInfo,
+  CombinatorSubSchemaRenderInfo
 } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 import type { TabItem } from "../../../tabs";
@@ -66,7 +66,7 @@ const oneOfItems = computed((): TabItem[] => {
   return (
     control.value.schema?.oneOf?.map((item: any, index: number) => ({
       value: String(index),
-      label: String(item.title),
+      label: String(item.title)
     })) || []
   );
 });
@@ -103,6 +103,6 @@ const setDefaults = () => {
 import { isOneOfControl, optionIs, and } from "@jsonforms/core";
 export const tester = {
   rank: 2,
-  controlType: and(isOneOfControl, optionIs("toggle", true)),
+  controlType: and(isOneOfControl, optionIs("toggle", true))
 };
 </script>

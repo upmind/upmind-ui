@@ -3,7 +3,7 @@ import { type HTMLAttributes, computed } from "vue";
 import {
   SelectScrollDownButton,
   type SelectScrollDownButtonProps,
-  useForwardProps,
+  useForwardProps
 } from "radix-vue";
 import { ChevronDown } from "lucide-vue-next";
 import { cn } from "../../utils";

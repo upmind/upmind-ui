@@ -9,7 +9,7 @@ export const rootVariants = cva(
       variant: {
         flat: "data-[disabled=true]:opacity-50 data-[disabled=false]:hover:opacity-75",
         muted:
-          "opacity-50 data-[disabled=true]:opacity-50 hover:data-[disabled=false]:opacity-100 focus:data-[disabled=false]:opacity-100",
+          "opacity-50 data-[disabled=true]:opacity-50 hover:data-[disabled=false]:opacity-100 focus:data-[disabled=false]:opacity-100"
       },
       size: {
         inherit: "",
@@ -18,13 +18,13 @@ export const rootVariants = cva(
         sm: "text-sm",
         md: "text-base",
         lg: "text-lg",
-        xl: "text-xl",
+        xl: "text-xl"
       },
       offset: {
         none: "underline-offset-0",
         "2": "underline-offset-2",
         "4": "underline-offset-4",
-        "6": "underline-offset-6",
+        "6": "underline-offset-6"
       },
       color: {
         inherit: "text-inherit",
@@ -37,21 +37,21 @@ export const rootVariants = cva(
         success: "text-success",
         info: "text-info",
         error: "text-error",
-        warning: "text-warning",
-      },
+        warning: "text-warning"
+      }
     },
     defaultVariants: {
       variant: "flat",
       color: "inherit",
       size: "inherit",
-      offset: "4",
-    },
+      offset: "4"
+    }
   }
 );
 
 // -----------------------------------------------------------------------------
 export default {
   link: {
-    root: rootVariants,
-  },
+    root: rootVariants
+  }
 };

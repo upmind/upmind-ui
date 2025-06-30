@@ -25,7 +25,7 @@ import { isLayout } from "@jsonforms/core";
 import {
   DispatchRenderer,
   rendererProps,
-  useJsonFormsLayout,
+  useJsonFormsLayout
 } from "@jsonforms/vue";
 
 // --- local
@@ -47,21 +47,21 @@ const props = defineProps({
   // ---  Additional Attributes
   size: {
     type: String as PropType<InputProps["size"]>,
-    default: null,
+    default: null
   },
   pristine: {
     type: Boolean,
-    default: false,
+    default: false
   },
   // --- Provide a way to add custom styles for a specific instance of the component
-  uiConfig: { type: [Object, Array], default: () => ({}) },
+  uiConfig: { type: [Object, Array], default: () => ({}) }
 });
 
 const meta = computed(() => ({
   isVisible: layout.value.visible,
   isDisabled: !layout.value.enabled,
   isHorizontal: layout.value.direction === "row",
-  isPristine: props.pristine,
+  isPristine: props.pristine
 }));
 
 const styles = useStyles(

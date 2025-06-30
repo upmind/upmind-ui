@@ -27,7 +27,7 @@ import { useForwardPropsEmits, TooltipArrow } from "radix-vue";
 // --- internal
 import {
   cn,
-  useStyles,
+  useStyles
   //stylesheet
 } from "../../utils";
 import config from "./tooltip.config";
@@ -53,7 +53,7 @@ const props = withDefaults(defineProps<TooltipProps>(), {
   // --- styles
   color: "base",
   // --- styles
-  class: "",
+  class: ""
 });
 
 const emits = defineEmits<TooltipContentEmits & TooltipRootEmits>();
@@ -63,11 +63,11 @@ const meta = computed(() => ({
   color: props.color,
   // ---
   isOpen: !!props.open,
-  hasLabel: !isEmpty(props.label),
+  hasLabel: !isEmpty(props.label)
 }));
 
 const styles = useStyles(["tooltip"], meta, config, {
-  tooltip: props.uiConfig,
+  tooltip: props.uiConfig
 }) as ComputedRef<{
   tooltip: {
     content: string;

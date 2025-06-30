@@ -12,7 +12,7 @@
         :class="[
           styles.loading.root,
           !hasSlotContent ? 'fixed inset-0' : 'absolute inset-0',
-          props.class,
+          props.class
         ]"
       >
         <Spinner :size="size" />
@@ -44,11 +44,11 @@ const hasSlotContent = computed(() => !!slots.default);
 const props = withDefaults(defineProps<LoadingProps>(), {
   active: true,
   size: "lg",
-  skrim: "light",
+  skrim: "light"
 });
 
 const meta = computed(() => ({
-  skrim: props.skrim,
+  skrim: props.skrim
 }));
 
 const styles = useStyles("loading", meta, config) as ComputedRef<{

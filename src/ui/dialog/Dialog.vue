@@ -3,7 +3,7 @@ import {
   DialogRoot,
   type DialogRootEmits,
   type DialogRootProps,
-  useForwardPropsEmits,
+  useForwardPropsEmits
 } from "radix-vue";
 
 const props = defineProps<DialogRootProps>();

@@ -6,20 +6,20 @@ import {
   type SelectContentProps,
   SelectPortal,
   SelectViewport,
-  useForwardPropsEmits,
+  useForwardPropsEmits
 } from "radix-vue";
 import SelectScrollDownButton from "./SelectScrollDownButton.vue";
 import SelectScrollUpButton from "./SelectScrollUpButton.vue";
 import { cn } from "../../utils";
 
 defineOptions({
-  inheritAttrs: false,
+  inheritAttrs: false
 });
 
 const props = withDefaults(
   defineProps<SelectContentProps & { class?: HTMLAttributes["class"] }>(),
   {
-    position: "popper",
+    position: "popper"
   }
 );
 const emits = defineEmits<SelectContentEmits>();

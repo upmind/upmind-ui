@@ -1,28 +1,38 @@
+// --- external
 import { computed, ref, inject, watch } from "vue";
-import { merge, cloneDeep, defaults, set, isEqual } from "lodash-es";
-import { createCombinatorRenderInfos } from "@jsonforms/core";
-
 import {
-  composePaths,
-  findUISchema,
-  getFirstPrimitiveProp,
   Resolve,
+  composePaths,
+  createCombinatorRenderInfos,
+  findUISchema,
   getErrorAt,
+  getFirstPrimitiveProp,
+  rankWith
 } from "@jsonforms/core";
 
+// --- utils
+import {
+  merge,
+  cloneDeep,
+  defaults,
+  set,
+  isEqual,
+  map,
+  isFunction
+} from "lodash-es";
+
+// --- types
+import type { ComputedRef, Ref } from "vue";
 import type {
   JsonFormsSubStates,
   Tester,
-  CombinatorSubSchemaRenderInfo,
+  CombinatorSubSchemaRenderInfo
 } from "@jsonforms/core";
-import { rankWith } from "@jsonforms/core";
-import { map, isFunction } from "lodash-es";
 import type { FormControlProps } from "../types";
-import type { ComputedRef, Ref } from "vue";
 // -----------------------------------------------------------------------------
 
 export const useUpmindUIRenderer = <
-  I extends { control: any; handleChange: Function },
+  I extends { control: any; handleChange: Function }
 >(
   input: I,
   adaptTarget: (target: any) => any = v => v?.value || v || null
@@ -71,10 +81,10 @@ export const useUpmindUIRenderer = <
       description: input.control.value.description,
       required: input.control.value.required,
       disabled: !input.control.value.enabled,
-      visible: input.control.value.visible,
+      visible: input.control.value.visible
     });
 
-    set(props, "id", input.control.value.id);
+    set(props, "id", input.control.value?.id);
     set(props, "name", input.control.value.path);
     set(props, "errors", map(errors.value, "message"));
     // set(props, "errors", input.control.value.errors);
@@ -91,6 +101,7 @@ export const useUpmindUIRenderer = <
       "touched",
       input.control.value.uischema.options?.touched || touched.value
     );
+
     return props;
   });
 
@@ -99,7 +110,7 @@ export const useUpmindUIRenderer = <
     errors,
     appliedOptions,
     formFieldProps,
-    onInput,
+    onInput
   };
 };
 
@@ -115,7 +126,7 @@ export const useUpmindUILayoutRenderer = <I extends { layout: any }>(
   );
   return {
     ...input,
-    appliedOptions,
+    appliedOptions
   };
 };
 
@@ -131,12 +142,12 @@ export const useUpmindUILabelRenderer = <I extends { label: any }>(
   );
   return {
     ...input,
-    appliedOptions,
+    appliedOptions
   };
 };
 
 export const useUpmindUIArrayRenderer = <
-  I extends { control: any; addItem?: Function; removeItem?: Function },
+  I extends { control: any; addItem?: Function; removeItem?: Function }
 >(
   input: I
 ) => {
@@ -155,7 +166,7 @@ export const useUpmindUIArrayRenderer = <
       required: input.control.value.required,
       disabled: !input.control.value.enabled,
       visible: input.control.value.visible,
-      dirty: !isEqual(input.control.value.data, input.control.value.initial),
+      dirty: !isEqual(input.control.value.data, input.control.value.initial)
     });
 
     set(props, "id", input.control.value.id);
@@ -216,7 +227,7 @@ export const useUpmindUIArrayRenderer = <
     formFieldProps,
     childUiSchema,
     childLabelForIndex,
-    onInput,
+    onInput
   };
 };
 
@@ -246,7 +257,7 @@ export const createIndexedOneOfRenderInfos = (
         return {
           ...info,
           uischema: oneOfUiSchemas[index],
-          index: index,
+          index: index
         };
       }
       return { ...info, index: index };
@@ -261,7 +272,7 @@ export function registerEntry(
 ) {
   const entry = {
     renderer,
-    tester: rankWith(rank, controlType),
+    tester: rankWith(rank, controlType)
   };
   return entry;
 }

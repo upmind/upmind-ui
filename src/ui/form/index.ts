@@ -10,6 +10,7 @@ export { default as FormLabel } from "./FormLabel.vue";
 export { default as FormControl } from "./FormControl.vue";
 export { default as FormMessage } from "./FormMessage.vue";
 export { default as FormDescription } from "./FormDescription.vue";
+export { default as FormRequiredIndicator } from "./FormRequiredIndicator.vue";
 export { default as FormNotRequiredIndicator } from "./FormNotRequiredIndicator.vue";
 export { default as FormLabelGroup } from "./FormLabelGroup.vue";
 

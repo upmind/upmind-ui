@@ -5,7 +5,7 @@ import type {
   SelectRootProps,
   SelectContentProps,
   SelectItemProps,
-  SelectValueProps,
+  SelectValueProps
 } from "radix-vue";
 
 // --- types

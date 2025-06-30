@@ -4,12 +4,12 @@ import { Search } from "lucide-vue-next";
 import {
   ComboboxInput,
   type ComboboxInputProps,
-  useForwardProps,
+  useForwardProps
 } from "radix-vue";
 import { cn } from "../../utils";
 
 defineOptions({
-  inheritAttrs: false,
+  inheritAttrs: false
 });
 
 const props = defineProps<

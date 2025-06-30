@@ -8,31 +8,31 @@ export const selectVariants = cva(
     variants: {
       width: {
         auto: "w-auto min-w-[3.75rem]",
-        full: "w-full",
+        full: "w-full"
       },
       size: {
         sm: "h-8 px-3 py-2 text-sm",
         md: "h-10 px-3 py-2 text-md",
-        lg: "h-12 px-3 py-2 text-lg",
-      },
+        lg: "h-12 px-3 py-2 text-lg"
+      }
     },
     defaultVariants: {
       size: "md",
-      width: "full",
-    },
+      width: "full"
+    }
   }
 );
 
 export const valueVariants = cva("", {
   variants: {
     hasValue: {
-      false: "text-base-500",
-    },
-  },
+      false: "text-base-500"
+    }
+  }
 });
 
 // -----------------------------------------------------------------------------
 export default {
   select: selectVariants,
-  value: valueVariants,
+  value: valueVariants
 };

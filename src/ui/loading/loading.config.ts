@@ -11,9 +11,9 @@ export default {
       variants: {
         skrim: {
           light: "bg-white/75",
-          full: "bg-white",
-        },
-      },
-    }),
-  },
+          full: "bg-white"
+        }
+      }
+    })
+  }
 };

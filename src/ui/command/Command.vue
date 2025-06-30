@@ -8,7 +8,7 @@ const props = withDefaults(
   defineProps<ComboboxRootProps & { class?: HTMLAttributes["class"] }>(),
   {
     open: true,
-    modelValue: "",
+    modelValue: ""
   }
 );
 

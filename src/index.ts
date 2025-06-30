@@ -58,5 +58,5 @@ export {
   useThemes,
   useStyleSheet,
   usePointerEvents,
-  useForwardPropsEmits,
+  useForwardPropsEmits
 } from "./utils";

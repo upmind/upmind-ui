@@ -31,7 +31,7 @@ const props = withDefaults(defineProps<InputProps>(), {
   width: "full",
   // ---
   uiConfig: () => ({ input: [] }),
-  class: "",
+  class: ""
 });
 
 const emits = defineEmits<{
@@ -44,12 +44,12 @@ const delegatedProps = computed(() =>
 
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
-  defaultValue: props.defaultValue,
+  defaultValue: props.defaultValue
 });
 
 const meta = computed(() => ({
   size: props.size,
-  width: props.width,
+  width: props.width
 }));
 
 const styles = useStyles(

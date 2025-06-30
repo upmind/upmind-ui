@@ -22,7 +22,7 @@
         name="item"
         v-bind="{
           item: { ...props.item, value },
-          isSelected: isSelected,
+          isSelected: isSelected
         }"
       >
         <span v-if="props.label">{{ props.label }}</span>
@@ -53,7 +53,7 @@ import type { RadioCardsCollapsibleItemProps } from "./types";
 const props = withDefaults(defineProps<RadioCardsCollapsibleItemProps>(), {
   // -- variants
   width: 12,
-  isList: false,
+  isList: false
 });
 
 const emits = defineEmits(["focus"]);
@@ -65,7 +65,7 @@ const isSelected = computed(() => {
 const meta = computed(() => ({
   isList: props.list,
   isMinimal: props.minimal,
-  width: props.width,
+  width: props.width
 }));
 
 const styles = useStyles(

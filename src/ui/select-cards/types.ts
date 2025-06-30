@@ -6,7 +6,7 @@ import type { ButtonProps } from "../button";
 import type {
   RadioGroupRootProps,
   RadioGroupItemProps,
-  PopoverContentProps,
+  PopoverContentProps
 } from "radix-vue";
 import type { CxOptions, VariantProps } from "class-variance-authority";
 

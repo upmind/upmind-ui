@@ -7,7 +7,7 @@ export const itemVariants = cva(
     variants: {
       isMinimal: {
         true: "",
-        false: "m-0 border px-1 shadow-sm",
+        false: "m-0 border px-1 shadow-sm"
       },
       width: {
         0: "",
@@ -22,13 +22,13 @@ export const itemVariants = cva(
         9: "col-span-12 md:col-span-9",
         10: "col-span-12 md:col-span-10",
         11: "col-span-12 md:col-span-11",
-        12: "col-span-12 md:col-span-12",
-      },
+        12: "col-span-12 md:col-span-12"
+      }
     },
     defaultVariants: {
       width: 12,
-      isMinimal: false,
-    },
+      isMinimal: false
+    }
   }
 );
 
@@ -36,12 +36,12 @@ export const rootVariants = cva(`w-full`, {
   variants: {
     isList: {
       true: "flex flex-col",
-      false: "grid grid-cols-1",
-    },
+      false: "grid grid-cols-1"
+    }
   },
   defaultVariants: {
-    isList: false,
-  },
+    isList: false
+  }
 });
 export default {
   radioCards: {
@@ -54,13 +54,13 @@ export default {
         variants: {
           isMinimal: {
             true: "py-0",
-            false: "py-3.5 pr-4",
-          },
-        },
+            false: "py-3.5 pr-4"
+          }
+        }
       }
     ),
     input: cva(
       `group-hover:border-control-strong ml-4 mt-[0.1rem] border-control leading-normal ring-offset-2 [transition:border-color_200ms_ease-in-out] ${ringClasses}`
-    ),
-  },
+    )
+  }
 };

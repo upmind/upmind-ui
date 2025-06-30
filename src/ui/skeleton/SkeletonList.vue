@@ -28,7 +28,7 @@ import config from "./skeleton.config";
 import type { SkeletonListProps } from "./types";
 import type { ComputedRef } from "vue";
 const props = withDefaults(defineProps<SkeletonListProps>(), {
-  rows: 5,
+  rows: 5
 });
 
 const meta = computed(() => ({

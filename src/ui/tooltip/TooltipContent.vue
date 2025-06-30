@@ -5,18 +5,18 @@ import {
   type TooltipContentEmits,
   type TooltipContentProps,
   TooltipPortal,
-  useForwardPropsEmits,
+  useForwardPropsEmits
 } from "radix-vue";
 import { cn } from "../../utils";
 
 defineOptions({
-  inheritAttrs: false,
+  inheritAttrs: false
 });
 
 const props = withDefaults(
   defineProps<TooltipContentProps & { class?: HTMLAttributes["class"] }>(),
   {
-    sideOffset: 4,
+    sideOffset: 4
   }
 );
 

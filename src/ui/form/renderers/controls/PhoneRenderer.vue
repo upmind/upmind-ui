@@ -47,11 +47,10 @@ import { computed, ref } from "vue";
 import { useJsonFormsControl } from "@jsonforms/vue";
 import examples from "libphonenumber-js/mobile/examples";
 import {
-  parsePhoneNumber,
   getExampleNumber,
   validatePhoneNumberLength,
   parsePhoneNumberWithError,
-  ParseError,
+  ParseError
 } from "libphonenumber-js";
 
 // --- internal
@@ -86,7 +85,7 @@ const countryItems = computed(() => {
       selectedLabel: `+${country.phone.join(", +")}`,
       tag: `+${country.phone.join(", +")}`,
       value: countryCode?.toUpperCase(),
-      selected: countryCode === phone.value?.country,
+      selected: countryCode === phone.value?.country
     };
   }) as ComboboxItemProps[];
 });
@@ -101,12 +100,8 @@ const initialPhoneData = () => {
   // Parsing E.164 string format
   if (isString(data) && data.startsWith("+")) {
     try {
-      const parsedNumber = parsePhoneNumber(data);
-      return {
-        country: parsedNumber.country,
-        nationalNumber: parsedNumber.nationalNumber,
-        number: parsedNumber.number,
-      };
+      const parsed = parsePhone(data);
+      return parsed;
     } catch (error) {
       console.warn("Failed to parse E.164 format phone number:", error);
       return {};
@@ -124,17 +119,33 @@ const exampleNumber = computed(() => {
   return getExampleNumber(countryCode, examples)?.formatNational();
 });
 
-function parsePhone(value: string | PhoneNumber, countryCode?: CountryCode) {
+function parsePhone(
+  value: string | PhoneNumber,
+  countryCode?: CountryCode
+): {
+  country: CountryCode;
+  number: string;
+  nationalNumber?: string;
+  countryCallingCode?: string;
+} {
   const phonenumber = isString(value)
     ? value
     : value?.nationalNumber || value?.number || "";
 
   const code = countryCode || phone.value?.country || defaultCountryCode;
+  let parsed;
+  try {
+    parsed = parsePhoneNumberWithError(phonenumber, code);
+  } catch (error) {
+    // do nothing, we will return the original value
+  }
 
-  if (phonenumber) {
+  if (parsed) {
     return {
-      ...parsePhoneNumber(phonenumber, code),
-      country: code,
+      number: parsed.number,
+      nationalNumber: parsed.nationalNumber,
+      countryCallingCode: parsed.countryCallingCode,
+      country: code
     };
   }
 
@@ -171,11 +182,11 @@ const errors = computed(() => {
   if (control?.value?.errors) {
     try {
       parsePhoneNumberWithError(phone.value.number, {
-        defaultCountry: phone?.value?.country,
+        defaultCountry: phone?.value?.country
       });
       return (
         validatePhoneNumberLength(phone.value.number, {
-          defaultCountry: phone.value.country,
+          defaultCountry: phone.value.country
         }) || "NOT_A_NUMBER"
       );
     } catch (error) {
@@ -193,7 +204,7 @@ const errorsMapped = computed(() => {
     case "INVALID_COUNTRY":
       return "Invalid country";
     default:
-      return "Not a phone number";
+      return control?.value?.errors || "Not a phone number";
   }
 });
 </script>
@@ -204,7 +215,7 @@ import {
   isStringControl,
   isObjectControl,
   schemaMatches,
-  or,
+  or
 } from "@jsonforms/core";
 
 export const tester = {
@@ -215,6 +226,6 @@ export const tester = {
       schema =>
         "phone_country_code" in schema && !!(schema as any).phone_country_code
     )
-  ),
+  )
 };
 </script>

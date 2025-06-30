@@ -17,26 +17,26 @@ export const indicatorVariants = cva(
         success: "bg-success text-success-foreground",
         info: "bg-info text-info-foreground",
         error: "bg-error text-error-foreground",
-        warning: "bg-warning text-warning-foreground",
+        warning: "bg-warning text-warning-foreground"
       },
       size: {
         full: "size-4",
-        dot: "h-1 w-1",
+        dot: "h-1 w-1"
       },
       shape: {
         circle: "rounded-full",
-        square: "rounded-md",
-      },
+        square: "rounded-md"
+      }
     },
     defaultVariants: {
       color: "base",
       size: "full",
-      shape: "circle",
-    },
+      shape: "circle"
+    }
   }
 );
 
 // -----------------------------------------------------------------------------
 export default {
-  indicator: indicatorVariants,
+  indicator: indicatorVariants
 };

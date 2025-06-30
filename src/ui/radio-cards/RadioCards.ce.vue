@@ -61,18 +61,18 @@ const props = withDefaults(defineProps<RadioCardsProps>(), {
   list: false,
   // --- styles
   class: "",
-  radioClass: "",
+  radioClass: ""
 });
 
 const emits = defineEmits(["update:modelValue"]);
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
-  defaultValue: props.defaultValue,
+  defaultValue: props.defaultValue
 });
 
 const meta = computed(() => ({
   isList: props.list,
-  width: props.width,
+  width: props.width
 }));
 
 const styles = useStyles(

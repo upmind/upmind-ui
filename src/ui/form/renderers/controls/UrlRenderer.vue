@@ -43,6 +43,6 @@ export const tester = {
       formatIs("iri"),
       formatIs("iri-reference")
     )
-  ),
+  )
 };
 </script>

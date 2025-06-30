@@ -15,7 +15,7 @@ export enum responseCodes {
   "Timeout" = 408,
   "Conflict" = 409,
   "Too_Many_Requests" = 429,
-  "Unprocessable_Entity" = 422,
+  "Unprocessable_Entity" = 422
 }
 
 // -----------------------------------------------------------------------------
@@ -83,7 +83,7 @@ export function parseError(
       schemaPath: `#/properties/${propertyName}`,
       keyword: "",
       params: {},
-      external: !!external,
+      external: !!external
     } as ErrorObject;
   });
 }

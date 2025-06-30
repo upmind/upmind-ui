@@ -90,6 +90,6 @@ export const tester = {
   controlType: and(
     isStringControl,
     or(formatIs("password"), optionIs("type", "password"))
-  ),
+  )
 };
 </script>
