@@ -25,7 +25,7 @@ import { get, pick, isArray, find, some, first, isEmpty } from "lodash-es";
 // --- types
 
 import {
-  BrandTaxType,
+  BrandTaxTypes,
   BrandConfigKeys,
   ILanguage,
   ICurrency,
@@ -127,7 +127,7 @@ export const useBrand = () => {
 
   const includesTax = computed(
     (): boolean =>
-      !contextMatches(state, ["includes_tax"], BrandTaxType.EXCLUDE_TAX)
+      !contextMatches(state, ["includes_tax"], BrandTaxTypes.EXCLUDE_TAX)
   );
 
   const languages = useContext<ILanguage[]>(state, "languages", []);
@@ -141,7 +141,7 @@ export const useBrand = () => {
       first(languages.value)) as ILanguage | undefined;
   });
 
-  const taxType = useContext<BrandTaxType>(state, "tax_type");
+  const taxType = useContext<BrandTaxTypes>(state, "tax_type");
 
   // --- methods
 
