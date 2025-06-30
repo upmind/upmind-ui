@@ -1,5 +1,5 @@
 <template>
-  <Popover v-if="!isAuthRoute">
+  <Popover v-if="!isAuthRoute && meta.canShowForms" class="w-full md:w-auto">
     <PopoverTrigger data-testid="popover-trigger">
       <slot></slot>
     </PopoverTrigger>
@@ -23,6 +23,9 @@ import { computed } from "vue";
 import { useRoute } from "vue-router";
 import { includes } from "lodash-es";
 
+// --- internal
+import { useSession } from "@upmind-automation/headless";
+
 // --- components
 import Session from "../Session.vue";
 
@@ -33,7 +36,10 @@ import {
 } from "@upmind-automation/upmind-ui";
 import { ROUTE } from "@upmind-automation/headless";
 
+// -----------------------------------------------------------------------------
+
 const route = useRoute();
+const { meta } = useSession();
 
 const isAuthRoute = computed(() =>
   includes(
