@@ -7,23 +7,23 @@ export default {
       {
         variants: {
           isDisabled: {
-            true: "pointer-events-none opacity-50",
+            true: "pointer-events-none opacity-50"
           },
           width: {
-            full: "w-full",
-          },
+            full: "w-full"
+          }
         },
         defaultVariants: {
-          isDisabled: false,
-        },
+          isDisabled: false
+        }
       }
     ),
     container: cva("", {
       variants: {
         width: {
-          app: "w-app",
-        },
-      },
-    }),
-  },
+          app: "w-app"
+        }
+      }
+    })
+  }
 };

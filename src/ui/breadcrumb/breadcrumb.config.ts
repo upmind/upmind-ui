@@ -5,14 +5,14 @@ export const breadcrumbVariants = cva("", {
     size: {
       sm: "text-xs",
       md: "text-sm",
-      lg: "text-base",
-    },
+      lg: "text-base"
+    }
   },
   defaultVariants: {
-    size: "md",
-  },
+    size: "md"
+  }
 });
 
 export default {
-  breadcrumb: breadcrumbVariants,
+  breadcrumb: breadcrumbVariants
 };

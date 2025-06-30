@@ -5,7 +5,7 @@ import type { CxOptions, VariantProps } from "class-variance-authority";
 import {
   rootVariants,
   buttonVariants,
-  infoVariants,
+  infoVariants
 } from "./pagination.config";
 
 type PaginationRootVariantProps = VariantProps<typeof rootVariants>;
