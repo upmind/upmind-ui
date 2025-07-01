@@ -1,0 +1,79 @@
+{
+  "domains": {
+    "header": {
+      "title": "Please choose your domain... | Congratulations on choosing your domain | Congratulations on choosing your domains!",
+      "text": "Register, transfer or use your existing domains with us | Your domain has been added to the basket. | Your domains have been added to the basket."
+    }
+  },
+  "domain": {
+    "empty": {},
+    "choices": {
+      "register": {
+        "label": "Register new domain",
+        "tooltip": "Don't already have a domain? Register a new one with us"
+      },
+      "transfer": {
+        "label": "Transfer domain",
+        "tooltip": "Already own a domain? You can transfer it to us"
+      },
+      "existing": {
+        "label": "Use existing domain",
+        "tooltip": "You can use an existing domain by updating  the nameservers"
+      },
+      "basket": {
+        "label": "Use domain in basket",
+        "tooltip": "These domains are already in your basket"
+      }
+    },
+    "dac": {
+      "search": "Search for a domain...",
+      "actions": {
+        "continue": "Add domain to basket | Add domains to basket",
+        "cancel": "Cancel",
+        "more": "Load more"
+      },
+      "loading": {
+        "title": {
+          "text": "Finding your {0} domain",
+          "strong": "perfect"
+        },
+        "text": "This should only take a moment."
+      }
+    },
+    "existing": {
+      "search": "Enter your domain...",
+      "owned": "Domains that you currently own"
+    },
+    "search": "Search",
+    "listings": {
+      "title": "Choose your domain from the list below "
+    },
+    "card": {
+      "owned": {
+        "label": "In use",
+        "description": "You already own this domain.",
+        "action": "Owned"
+      },
+      "basket": {
+        "label": "In basket",
+        "description": "This domain is already in your basket.",
+        "action": "Added"
+      },
+      "available": {
+        "label": "Available",
+        "description": {
+          "discounted": "Was {0}, now {1} for the first year.",
+          "regular": "Renews annually for {0}."
+        },
+        "action": "Register | Added"
+      },
+      "transfer": {
+        "label": "Taken",
+        "ownership": "Do you own this domain?",
+        "transfer": "Transfer it to us by ",
+        "action": "clicking here",
+        "renew": "Our {0} renewal prices start from only {1}."
+      }
+    }
+  }
+}

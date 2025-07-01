@@ -3,16 +3,16 @@
     class="flex flex-col items-center justify-between p-5 px-6 md:flex-row md:p-8 md:px-9"
   >
     <div class="w-full">
-      <div class="text-primary font-medium">
+      <div class="text-foreground font-medium">
         {{ t("payment.noPayment.title") }}
       </div>
-      <div class="text-primary">
+      <div class="text-base-foreground">
         {{ t("payment.noPayment.text") }}
       </div>
       <Button
         class="mt-4"
         :label="t('payment.noPayment.action')"
-        color="secondary"
+        color="primary"
         @click="checkout"
       />
     </div>

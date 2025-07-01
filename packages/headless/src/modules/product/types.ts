@@ -270,6 +270,7 @@ export type TermDetails = ProductSummaryDetail & {
     monthlyFromRegularAmount?: number;
     monthlyFromRegularPrice?: string;
   };
+  showTaxes?: boolean;
 };
 
 export type SubproductDetails = {

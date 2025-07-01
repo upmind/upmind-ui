@@ -4,7 +4,7 @@
     title="Address Renderer"
     subtitle="Search for addresses using the Places API"
   >
-    <UpmCard class="space-y-8">
+    <Card class="space-y-8">
       <UpmForm
         :schema="schema"
         :uischema="uischema"
@@ -13,17 +13,17 @@
         no-actions
         as="fieldset"
       />
-    </UpmCard>
+    </Card>
   </UpmContentSection>
 </template>
 
 <script setup lang="ts">
 import {
   UpmContentSection,
-  UpmCard,
   UpmForm,
   formRenderers
 } from "@upmind-automation/client-vue";
+import { Card } from "@upmind-automation/upmind-ui";
 import { ref } from "vue";
 
 const modelValue = ref({});
