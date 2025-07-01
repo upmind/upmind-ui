@@ -1,21 +1,19 @@
 <template>
-  <section>
-    <component :is="layoutComponent">
-      <template v-if="$slots.controls" #controls>
-        <slot name="controls" />
-      </template>
+  <component :is="layoutComponent">
+    <template v-if="$slots.controls" #controls>
+      <slot name="controls" />
+    </template>
 
-      <template #header>
-        <slot name="header" />
-      </template>
+    <template #header>
+      <slot name="header" />
+    </template>
 
-      <template #content>
-        <slot name="content" />
-      </template>
+    <template #content>
+      <slot name="content" />
+    </template>
 
-      <slot />
-    </component>
-  </section>
+    <slot />
+  </component>
 </template>
 
 <script lang="ts" setup>
