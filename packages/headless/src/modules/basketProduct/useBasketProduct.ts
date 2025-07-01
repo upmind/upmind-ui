@@ -10,7 +10,12 @@ import { useProductConfig } from "../product";
 // --- utils
 import { getBasketProduct } from "./utils";
 import { parseQuantity } from "../product/utils";
-import { DetailedError, responseCodes, stopService } from "../../utils";
+import {
+  DetailedError,
+  ErrorOrigin,
+  responseCodes,
+  stopService
+} from "../../utils";
 import { isEmpty, get, add, subtract } from "lodash-es";
 
 // --- types
@@ -21,12 +26,20 @@ import type { Product } from "../product";
 export const useBasketProduct = (bpid: string) => {
   const { basket: rawBasket, errors } = useBasket();
   if (!rawBasket.value)
-    throw new DetailedError("No Basket found", responseCodes.Not_Found);
+    throw new DetailedError(
+      "No Basket found",
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
+    );
 
   let rawBasketProduct = getBasketProduct(bpid, rawBasket.value);
 
   if (isEmpty(rawBasketProduct))
-    throw new DetailedError("No Basket Product found", responseCodes.Not_Found);
+    throw new DetailedError(
+      "No Basket Product found",
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
+    );
 
   let service = interpret(
     productMachine.withContext({
@@ -59,7 +72,11 @@ export const useBasketProduct = (bpid: string) => {
       const product = get(service.getSnapshot(), "context.product") as Product;
       if (!product)
         return reject(
-          new DetailedError("Product not found", responseCodes.Not_Found)
+          new DetailedError(
+            "[headless] Product not found",
+            responseCodes.Not_Found,
+            ErrorOrigin.Headless
+          )
         );
       return resolve(product);
     });
@@ -74,14 +91,23 @@ export const useBasketProduct = (bpid: string) => {
         if (
           ["error", "available.invalid", "available.error"].some(state.matches)
         ) {
-          return Promise.reject(state.context.error);
+          return Promise.reject(
+            new DetailedError(
+              "[headless] update in useBasketProduct not in a valid state.",
+              responseCodes.Unprocessable_Entity,
+              ErrorOrigin.Headless,
+              state.context.error
+            )
+          );
         }
         return Promise.resolve();
       })
-      .catch(() => {
+      .catch(error => {
         return Promise.reject(
-          new Error(
-            "[headless] update in useBasketProductPending not in a valid state"
+          new DetailedError(
+            "[headless] update in useBasketProductPending not in a valid state.",
+            responseCodes.Unprocessable_Entity,
+            ErrorOrigin.Headless
           )
         );
       });
@@ -99,8 +125,9 @@ export const useBasketProduct = (bpid: string) => {
         if (!product?.productDetails.quantifiable)
           return Promise.reject(
             new DetailedError(
-              "Product not quantifiable",
-              responseCodes.Unprocessable_Entity
+              "[headless] Product not quantifiable",
+              responseCodes.Unprocessable_Entity,
+              ErrorOrigin.Headless
             )
           );
 
@@ -118,8 +145,9 @@ export const useBasketProduct = (bpid: string) => {
         if (!product?.productDetails.quantifiable)
           return Promise.reject(
             new DetailedError(
-              "Product not quantifiable",
-              responseCodes.Unprocessable_Entity
+              "[headless] Product not quantifiable",
+              responseCodes.Unprocessable_Entity,
+              ErrorOrigin.Headless
             )
           );
 
@@ -142,7 +170,8 @@ export const useBasketProduct = (bpid: string) => {
           return Promise.reject(
             new DetailedError(
               "Product not quantifiable",
-              responseCodes.Unprocessable_Entity
+              responseCodes.Unprocessable_Entity,
+              ErrorOrigin.Headless
             )
           );
 

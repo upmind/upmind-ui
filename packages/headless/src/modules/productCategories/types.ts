@@ -7,7 +7,7 @@ export type ProductCategory = {
   name: IProductCategory["name"]; // untranslated name for reporting purposes
   description?: IProductCategory["description"];
   excerpt?: IProductCategory["short_description"];
-  count: IProductCategory["products_count"];
+  count?: IProductCategory["products_count"];
   uiMeta: Record<string, any>;
   imageUrl?: string;
   categories?: ProductCategory[];

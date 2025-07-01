@@ -3,7 +3,6 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import type { ActorRef } from "xstate";
 import type {
   IAddress,
-  IBasket,
   IBrandGateway,
   IClient,
   IOrder,
@@ -12,7 +11,7 @@ import type {
   IWalletBalance,
   PaymentType
 } from "@upmind-automation/types";
-import { QueryResponseError } from "../query";
+import type { ResponseError } from "../../utils";
 
 // -----------------------------------------------------------------------------
 
@@ -53,5 +52,5 @@ export interface PaymentDetailsContext extends PaymentDetailsArgs {
   // ---
   autoupdate?: boolean;
   dirty?: boolean;
-  error?: QueryResponseError;
+  error?: ResponseError;
 }

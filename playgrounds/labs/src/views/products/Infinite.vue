@@ -68,7 +68,10 @@
 <script setup lang="ts">
 import { watch, ref } from "vue";
 import { debounce } from "lodash-es";
-import { useProductCatalogue } from "@upmind-automation/headless";
+import {
+  RequestSortDirection,
+  useProductCatalogue
+} from "@upmind-automation/headless";
 import {
   IProductCategory,
   type ISO_4217_CURRENCY_CODE
@@ -80,11 +83,15 @@ import { Button, Loading } from "@upmind-automation/upmind-ui";
 const props = withDefaults(
   defineProps<{
     class?: HtmlHTMLAttributes["class"];
+    sort: {
+      property: string;
+      direction: RequestSortDirection;
+    };
+    limit?: number;
     coupons?: string[];
     categoryId?: IProductCategory["id"];
     currencyCode?: ISO_4217_CURRENCY_CODE;
     skeletonCount?: number;
-    limit?: number;
   }>(),
   { skeletonCount: 4, limit: 6 }
 );
@@ -92,6 +99,7 @@ const props = withDefaults(
 const {
   data: products,
   meta,
+  sort,
   filters,
   nextPage
 } = useProductCatalogue({ pagination: { limit: props.limit }, infinite: true });
@@ -106,6 +114,18 @@ watch(
   () => props.categoryId,
   categoryId => {
     filters.productCategory(categoryId);
+  },
+  { immediate: true }
+);
+
+watch(
+  () => props.sort,
+  (newSort: {
+    property: string;
+    direction: RequestSortDirection | "default";
+  }) => {
+    if (newSort.direction === "default") sort.clear();
+    else sort.set(newSort.property, newSort.direction);
   },
   { immediate: true }
 );

@@ -2,7 +2,7 @@
 import { useQuery } from "../..";
 
 // --- utils
-import { DetailedError, responseCodes } from "../../utils";
+import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 import { getTokenFromStorage, persistTokenToStorage } from "./utils";
 
 import { isEmpty } from "lodash-es";
@@ -19,7 +19,14 @@ async function check(_context: SessionContext) {
     if (!isEmpty(token)) {
       resolve(token);
     } else {
-      reject(null);
+      reject(
+        new DetailedError(
+          "[headless] token is not available",
+          responseCodes.Not_Found,
+          ErrorOrigin.Headless,
+          null
+        )
+      );
     }
   });
 }
@@ -38,7 +45,12 @@ async function transferFrom({ transfer }: SessionContext) {
 
   if (!transfer?.code)
     return Promise.reject(
-      new DetailedError("No code", responseCodes.Unprocessable_Entity, transfer)
+      new DetailedError(
+        "[headless] No code",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless,
+        transfer
+      )
     );
 
   return post<IToken>({

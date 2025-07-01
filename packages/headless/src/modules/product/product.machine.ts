@@ -1,20 +1,12 @@
 // --- external
-import {
-  createMachine,
-  assign,
-  actions,
-  spawn,
-  sendTo,
-  pure,
-  raise
-} from "xstate";
+import { createMachine, assign, spawn, sendTo, pure, raise } from "xstate";
 
 // --- internal
 import services from "./services";
 import { basketSubscription } from "../basketProduct/helper";
 
 // --utils
-import { useTime } from "../../utils";
+import { mapToHeadlessError, useTime } from "../../utils";
 import {
   parseSubproductDetails,
   parseProvisioningSchema,
@@ -459,21 +451,7 @@ export default createMachine(
 
           return lookups;
         },
-        error: ({ error }: ProductConfigContext, { data }: AnyEventObject) => {
-          // lets parse/override our error message and data, specifically external errors.
-          // For any dirty/hydrated field, remove any external error to allow for normal validation
-          // Once the external error is removed, we dont ever want to show it again, unless we refresh the product
-          forEach(data.model.provisionFields, (field, key) => {
-            if (
-              !isEmpty(field) ||
-              (!isNil(field) && isObject(error) && "provisionFields" in error)
-            ) {
-              remove((error as any)?.provisionFields, ["schemaPath", key]);
-            }
-          });
 
-          return omitBy(error, isEmpty) as ExternalError;
-        },
         errorExternal: (
           { errorExternal }: ProductConfigContext,
           { data }: AnyEventObject
@@ -488,13 +466,14 @@ export default createMachine(
                 isObject(errorExternal) &&
                 "provisionFields" in errorExternal)
             ) {
-              remove((errorExternal as any)?.provisionFields, [
-                "propertyName",
-                key
-              ]);
+              if (isObject(errorExternal) && "data" in errorExternal) {
+                remove(errorExternal?.data?.provisionFields, [
+                  "propertyName",
+                  key
+                ]);
+              }
             }
           });
-
           return omitBy(errorExternal, isEmpty) as ExternalError;
         }
       }),
@@ -629,23 +608,17 @@ export default createMachine(
 
       setExternalError: assign({
         errorExternal: (
-          { errorExternal }: ProductConfigContext,
+          _context: ProductConfigContext,
           { data }: AnyEventObject
-        ) => {
-          let errors = data?.error?.data;
-          return merge({}, errorExternal, errors);
-        },
-        error: ({ error }: ProductConfigContext, { data }: AnyEventObject) => {
-          let errors = data?.error?.data;
-          return merge({}, error, errors);
-        }
+        ) => mapToHeadlessError(data),
+        error: (_context: ProductConfigContext, { data }: AnyEventObject) =>
+          mapToHeadlessError(data)
       }),
 
+      // TODO: @DC implement the new response errors from the API
       setError: assign({
-        error: ({ error }: ProductConfigContext, { data }: AnyEventObject) => {
-          let errors = data?.data?.errors;
-          return merge({}, error, errors);
-        }
+        error: (_context: ProductConfigContext, { data }: AnyEventObject) =>
+          mapToHeadlessError(data)
       }),
 
       clearError: assign({

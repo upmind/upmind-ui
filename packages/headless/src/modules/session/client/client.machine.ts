@@ -15,7 +15,7 @@ import { useFeedback } from "../../feedback";
 const { addError } = useFeedback();
 
 // --- utils
-import { useTime, useCookies } from "../../../utils";
+import { useTime, useCookies, mapToHeadlessError } from "../../../utils";
 const { removeTopLevel: removeCookie, setTopLevel: setCookie } = useCookies();
 import { useUserParser } from "../utils";
 import { omit, remove } from "lodash-es";
@@ -147,7 +147,7 @@ export default createMachine(
       clearTransfer: assign({ transfer: undefined }),
       // ---
       setError: assign({
-        error: (context, { data }: AnyEventObject) => data
+        error: (context, { data }: AnyEventObject) => mapToHeadlessError(data)
       }),
 
       setFeedbackError: ({ error }, _event) => {

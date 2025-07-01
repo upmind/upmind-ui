@@ -7,7 +7,12 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --- utils
 import { map, get, pick, debounce } from "lodash-es";
-import { DEBOUNCE_DELAY, DetailedError, responseCodes } from "../../utils";
+import {
+  DEBOUNCE_DELAY,
+  DetailedError,
+  ErrorOrigin,
+  responseCodes
+} from "../../utils";
 
 // ----------------------------------------------------------------------------
 
@@ -69,7 +74,8 @@ export function useLookup(lookup: Function) {
         }).catch(() => {
           throw new DetailedError(
             `[headless] fetch on useLookup timed out while waiting for loading state to complete`,
-            responseCodes.Timeout
+            responseCodes.Timeout,
+            ErrorOrigin.Headless
           );
         });
       }

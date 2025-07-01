@@ -18,7 +18,9 @@ import {
   useContext,
   contextValue,
   contextMatches,
-  stateMatches
+  stateMatches,
+  ErrorOrigin,
+  type ResponseError
 } from "../../utils";
 import { get, pick, isArray, find, some, first, isEmpty } from "lodash-es";
 
@@ -34,7 +36,6 @@ import {
   IBrand
 } from "@upmind-automation/types";
 import { BrandContext } from "./types";
-import { QueryResponseError } from "../query";
 import { CurrencyModel } from "../basket/currency/types";
 
 // -----------------------------------------------------------------------------
@@ -123,7 +124,7 @@ export const useBrand = () => {
     0
   );
 
-  const errors = useContext<QueryResponseError>(state, "error");
+  const errors = useContext<ResponseError>(state, "error");
 
   const includesTax = computed(
     (): boolean =>
@@ -159,7 +160,8 @@ export const useBrand = () => {
     ).catch(() => {
       throw new DetailedError(
         `[headless] getConfig on brand timed out for ${keys.join(", ")}`,
-        responseCodes.Timeout
+        responseCodes.Timeout,
+        ErrorOrigin.Headless
       );
     });
     return pick(state.value.context, keys);

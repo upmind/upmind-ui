@@ -26,6 +26,7 @@ import {
   NotAuthenticatedError,
   DetailedError,
   responseCodes,
+  ErrorOrigin,
   useCollection
 } from "../../../utils";
 import { mapCompanies, mapCompany, mapICompany } from "./mappers";
@@ -217,6 +218,7 @@ async function ensure(model: CompanyModel): Promise<Company> {
       throw new DetailedError(
         "[headless] Failed to ensure company",
         responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless,
         { model }
       );
     // NB: Remember to refresh our machines so we have the new data
@@ -297,7 +299,8 @@ async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
     return Promise.reject(
       new DetailedError(
         "[headless] Ensure Company dependencies faile: No data provided",
-        responseCodes.Not_Found
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
       )
     );
 
@@ -343,8 +346,11 @@ async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
     .catch(error => {
       return Promise.reject(
         new DetailedError(
-          "[headless] Ensure Company dependencies failed",
-          responseCodes.Unprocessable_Entity,
+          error?.message ?? "[headless] Ensure Company dependencies failed",
+          error?.code ??
+            error?.statusCode ??
+            responseCodes.Unprocessable_Entity,
+          error?.origin ?? ErrorOrigin.Headless,
           { error }
         )
       );
@@ -406,7 +412,14 @@ async function validate({ schema, model }: Partial<CompanyContext>) {
     const errors = validate(schema, model);
 
     if (errors?.length) {
-      reject({ error: errors });
+      reject(
+        new DetailedError(
+          "[headless] Invalid Company Model",
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.Headless,
+          { error: errors }
+        )
+      );
     } else {
       resolve(model);
     }
@@ -459,7 +472,8 @@ export const useClientCompanyServices = () => {
         return Promise.reject(
           new DetailedError(
             "[headless] Add Company failed: model provided",
-            responseCodes.Unprocessable_Entity,
+            responseCodes.No_Content,
+            ErrorOrigin.Headless,
             { model }
           )
         );
@@ -477,7 +491,8 @@ export const useClientCompanyServices = () => {
         return Promise.reject(
           new DetailedError(
             "[headless] Ensure Company failed: model provided",
-            responseCodes.Unprocessable_Entity,
+            responseCodes.No_Content,
+            ErrorOrigin.Headless,
             { model }
           )
         );
@@ -516,7 +531,8 @@ export const useClientCompanyServices = () => {
         return Promise.reject(
           new DetailedError(
             "[headless] Update Company failed: No id or model provided",
-            responseCodes.Unprocessable_Entity,
+            responseCodes.No_Content,
+            ErrorOrigin.Headless,
             { id, model }
           )
         );

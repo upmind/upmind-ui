@@ -5,7 +5,12 @@ import { useQuery } from "../../..";
 
 // --- utils
 import { get } from "lodash-es";
-import { useValidation } from "../../../utils";
+import {
+  DetailedError,
+  ErrorOrigin,
+  responseCodes,
+  useValidation
+} from "../../../utils";
 
 // --- types
 import type { FieldsContext } from "./types";
@@ -62,7 +67,14 @@ async function validate(
 
     const errors = validate(schema, model);
     if (errors?.length) {
-      reject({ error: errors });
+      reject(
+        new DetailedError(
+          "[headless] Invalid Fields Model",
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.Headless,
+          { error: errors }
+        )
+      );
     } else {
       resolve(model);
     }

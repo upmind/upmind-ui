@@ -4,16 +4,16 @@ import { useQuery, useSession, useFeedback, type QueryParams } from "../..";
 // --- utils
 import {
   useTime,
+  ErrorOrigin,
   useValidation,
-  useModelParser,
-  CacheIsStaleError,
-  NotAuthenticatedError,
   DetailedError,
   responseCodes,
-  useCollection
+  useCollection,
+  useModelParser,
+  NotAuthenticatedError
 } from "../../../utils";
-import { mapEmail, mapEmails, mapIEmail } from "./mappers";
 import { invalidateQueryByKey } from "../../query";
+import { mapEmail, mapEmails, mapIEmail } from "./mappers";
 import { get, isString, isEmpty, omitBy } from "lodash-es";
 
 // --- types
@@ -134,6 +134,7 @@ async function ensure(model: EmailModel): Promise<Email> {
       throw new DetailedError(
         "[headless] Failed to ensure email",
         responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless,
         { model }
       );
     // NB: Remember to refresh our machines so we have the new data
@@ -229,7 +230,14 @@ async function validate({ schema, model }: EmailContext) {
   return new Promise((resolve, reject) => {
     const errors = validate(schema, model);
     if (errors?.length) {
-      reject({ error: errors });
+      reject(
+        new DetailedError(
+          "[headless] Invalid Email Model",
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.Headless,
+          { error: errors }
+        )
+      );
     } else {
       resolve(model);
     }
@@ -277,12 +285,13 @@ export const useClientEmailServices = () => {
      * @param {Partial<EmailContext>} param0 - The email context containing the model to add.
      * @returns {Promise<any>} The result of the add operation.
      */
-    add: async ({ model }: Partial<EmailContext>) => {
+    add: async ({ model }: Partial<EmailContext>): Promise<any> => {
       if (isEmpty(model))
         return Promise.reject(
           new DetailedError(
             "[headless] Add Email failed: model provided",
-            responseCodes.Unprocessable_Entity,
+            responseCodes.No_Content,
+            ErrorOrigin.Headless,
             { model }
           )
         );
@@ -295,12 +304,13 @@ export const useClientEmailServices = () => {
      * @param {Partial<EmailContext>} param0 - The email context containing the model to ensure.
      * @returns {Promise<any>} The ensured email model, which will either be the existing email or a new one created.
      */
-    ensure: async ({ model }: Partial<EmailContext>) => {
+    ensure: async ({ model }: Partial<EmailContext>): Promise<any> => {
       if (isEmpty(model))
         return Promise.reject(
           new DetailedError(
             "[headless] Ensure Email failed: model provided",
-            responseCodes.Unprocessable_Entity,
+            responseCodes.No_Content,
+            ErrorOrigin.Headless,
             { model }
           )
         );
@@ -334,12 +344,13 @@ export const useClientEmailServices = () => {
      * @param {Partial<EmailContext>} param0 - The email context containing id and model.
      * @returns {Promise<any>} The result of the update operation.
      */
-    update: async ({ id, model }: Partial<EmailContext>) => {
+    update: async ({ id, model }: Partial<EmailContext>): Promise<any> => {
       if (!id || isEmpty(model))
         return Promise.reject(
           new DetailedError(
             "[headless] Update Email failed: No id or model provided",
-            responseCodes.Unprocessable_Entity,
+            responseCodes.No_Content,
+            ErrorOrigin.Headless,
             { id, model }
           )
         );

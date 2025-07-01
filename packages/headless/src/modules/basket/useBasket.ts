@@ -11,46 +11,44 @@ import basketMachine from "./basket.machine";
 
 // --- utils
 import {
-  DetailedError,
-  compactDeep,
-  useContextActor,
-  contextMatches,
-  contextValue,
-  machineMatches,
-  responseCodes,
-  stateMatches,
-  useChildActor,
   useContext,
-  Actor
+  compactDeep,
+  ErrorOrigin,
+  contextValue,
+  stateMatches,
+  DetailedError,
+  responseCodes,
+  useChildActor,
+  contextMatches,
+  machineMatches,
+  useContextActor,
+  Actor,
+  ResponseError
 } from "../../utils";
-
 import {
+  get,
+  map,
+  find,
+  some,
   every,
   filter,
-  find,
-  findLast,
-  get,
   isEmpty,
-  map,
   isEqual,
-  some
+  findLast
 } from "lodash-es";
 
 // --- types
+import type {
+  IBasket,
+  IInvoice,
+  ICurrency,
+  IPromotion
+} from "@upmind-automation/types";
 export * from "./billing";
 export * from "./types";
 import type { ActorRef } from "xstate";
+import type { BasketContext } from "./types";
 import type { BasketProduct } from "../basketProduct";
-import {
-  IBasketProduct,
-  ICurrency,
-  IInvoice,
-  IPromotion,
-  type IBasket
-} from "@upmind-automation/types";
-import { QueryResponseError } from "../query";
-import { BasketContext } from "./types";
-import { Product } from "../product";
 
 // -----------------------------------------------------------------------------
 // create a global instance of the basket machine
@@ -75,10 +73,7 @@ export const useBasket = () => {
       service,
       state => stateMatches(state, ["shopping", "error"]),
       { timeout: Infinity }
-    ).then(state => {
-      if (stateMatches(state, ["error"])) return false;
-      return true;
-    });
+    ).then(state => !stateMatches(state, ["error"]));
   }
 
   const meta = computed(() => {
@@ -116,7 +111,7 @@ export const useBasket = () => {
 
       hasInvalidProducts: some(
         contextValue<BasketProduct[]>(state, "products", []),
-        "product.meta.invalid"
+        "errors"
       ),
 
       hasTaxes: contextMatches(state, ["basket.taxes"]),
@@ -202,7 +197,7 @@ export const useBasket = () => {
   const basketId = useContext<IBasket["id"]>(state, "basket.id");
   const context = useContext<BasketContext>(state);
   const currency = useContext<ICurrency>(state, "basket.currency");
-  const errors = useContext<QueryResponseError>(state, "error");
+  const errors = useContext<ResponseError>(state, "error");
   const invoice = useContext<IInvoice>(state, "invoice");
   const products = useContext<BasketProduct[]>(state, "products", []);
   const productsInvalid = computed(() =>
@@ -242,7 +237,13 @@ export const useBasket = () => {
     }).then(() => {
       const actor = actors.currency;
       if (!actor.value)
-        return Promise.reject(new Error("Currency service not available"));
+        return Promise.reject(
+          new DetailedError(
+            "[headless] setCurrency on basket failed",
+            responseCodes.Unprocessable_Entity,
+            ErrorOrigin.Headless
+          )
+        );
 
       const code = currency?.toUpperCase();
       // Use contextValue or a similar utility to get the model from the actor's state
@@ -276,6 +277,7 @@ export const useBasket = () => {
           throw new DetailedError(
             "[headless] setCurrency on basket timed out",
             responseCodes.Timeout,
+            ErrorOrigin.Headless,
             {
               state: state.value.value
             }
@@ -291,7 +293,13 @@ export const useBasket = () => {
       const actor = actors.promotions;
 
       if (!actor.value)
-        return Promise.reject(new Error("Promotions service not available"));
+        return Promise.reject(
+          new DetailedError(
+            "[headless] addPromotion on basket failed",
+            responseCodes.Unprocessable_Entity,
+            ErrorOrigin.Headless
+          )
+        );
 
       if (coupon) {
         actor.value?.send({ type: "SET", data: { promocode: coupon } });
@@ -307,6 +315,7 @@ export const useBasket = () => {
               new DetailedError(
                 "[headless] addPromotion on basket failed",
                 responseCodes.Timeout,
+                ErrorOrigin.Headless,
                 {
                   error,
                   state: state.value.value
@@ -331,6 +340,7 @@ export const useBasket = () => {
             new DetailedError(
               "[headless] addPromotion on basket failed",
               responseCodes.Timeout,
+              ErrorOrigin.Headless,
               contextValue(state, "error")
             )
           );
@@ -399,7 +409,11 @@ export const useBasket = () => {
         resolve(basketProduct);
       } else {
         reject(
-          new DetailedError("Basket item not found", responseCodes.Not_Found)
+          new DetailedError(
+            "[headless] Basket item not found",
+            responseCodes.Not_Found,
+            ErrorOrigin.Headless
+          )
         );
       }
     });
@@ -432,8 +446,8 @@ export const useBasket = () => {
     context,
 
     /**
-     * Meta information about the basket state.
-     * @typedef {Object} BasketMeta
+     * Meta-information about the basket state.
+     * @type {Object} BasketMeta
      * @property {boolean} isLoading - Indicates if the basket is currently loading.
      * @property {boolean} isProcessing - Indicates if the basket or any submodule is processing.
      * @property {boolean} isDirty - Indicates  that one of the submodules has been changed and the basket needs to be saved.

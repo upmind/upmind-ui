@@ -1,6 +1,6 @@
 // --- external
 import type { AnyEventObject } from "xstate";
-import { createMachine, assign, actions, sendParent } from "xstate";
+import { assign, sendParent, createMachine } from "xstate";
 
 // --- internal
 import services from "./services";
@@ -9,13 +9,18 @@ const { addError } = useFeedback();
 
 // --- utils
 import { useSchema, useUischema } from "./schema";
-import { useTime, useValidationParser, useModelParser } from "../../../utils";
+import {
+  useTime,
+  useValidationParser,
+  useModelParser,
+  ResponseError,
+  mapToHeadlessError
+} from "../../../utils";
+import { isEqual } from "lodash-es";
 
 // --- types
 import type { BillingContext } from "./types";
 import { responseCodes } from "../../../utils";
-import { add, isEqual, pick } from "lodash-es";
-import { IBasket } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -257,7 +262,8 @@ export default createMachine(
 
       // ---
 
-      setFeedbackError: ({ error }: BillingContext, _event) => {
+      setFeedbackError: (context: BillingContext, _event) => {
+        const error = context.error as ResponseError;
         // dont show any unauthorized errors
         if (
           !error ||
@@ -275,14 +281,11 @@ export default createMachine(
 
       setError: assign({
         error: (_context, { data }: AnyEventObject) => {
-          let error = data?.error;
-          if (data?.status == responseCodes.Unprocessable_Entity) {
-            // lets parse/override our error message and data
-            // this is to generate valid json schema validation errors
-            error = useValidationParser(error);
+          let error = mapToHeadlessError(data);
+          if (error?.status == responseCodes.Unprocessable_Entity) {
+            error.data = useValidationParser(error.data);
           }
-
-          return error || data;
+          return error;
         }
       }),
 

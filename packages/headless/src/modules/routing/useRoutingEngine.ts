@@ -13,6 +13,7 @@ import routingEngine from "./routingEngine.machine";
 import {
   contextMatches,
   DetailedError,
+  ErrorOrigin,
   responseCodes,
   stateMatches,
   stopService,
@@ -63,6 +64,7 @@ export const useRoutingEngine = () => {
         throw new DetailedError(
           "Routing Engine is unavailable",
           responseCodes.Service_Unavailable,
+          ErrorOrigin.Headless,
           {
             state: state.value.value,
             errors: error ?? state.value.context?.error

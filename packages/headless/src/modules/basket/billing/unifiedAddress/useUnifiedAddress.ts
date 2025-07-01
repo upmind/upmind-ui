@@ -12,24 +12,27 @@ import { useSession } from "../../../session";
 
 // --- utils
 import {
-  DetailedError,
-  contextMatches,
-  contextValue,
-  responseCodes,
-  stateMatches,
   stateValue,
   useContext,
+  ErrorOrigin,
+  contextValue,
+  stateMatches,
+  DetailedError,
+  responseCodes,
+  UnavailableError,
+  ResponseError,
+  contextMatches,
   DEBOUNCE_DELAY,
-  stopService
+  stopService,
+  ErrorObject
 } from "../../../../utils";
 import { debounce, get, isEmpty, isEqual } from "lodash-es";
 
 // --- types
-import { IClient } from "@upmind-automation/types";
+import type { IClient } from "@upmind-automation/types";
+import type { BillingModel } from "../types";
 import { UnifiedAddressType } from "./types";
 import type { UnifiedAddressModel, UnifiedAddressContext } from "./types";
-import { QueryResponseError } from "../../../query";
-import { ErrorObject } from "ajv";
 
 // -----------------------------------------------------------------------------
 
@@ -74,9 +77,7 @@ export const useUnifiedAddress = (
     return waitFor(service, state => stateMatches(state, "available"), {
       timeout: Infinity
     }).then(state => {
-      if (stateMatches(state, "error")) return false;
-
-      return true;
+      return !stateMatches(state, "error");
     });
   }
 
@@ -110,10 +111,8 @@ export const useUnifiedAddress = (
 
   const description = useContext<string | undefined>(state, "description");
 
-  const errors = useContext<QueryResponseError["message"]>(
-    state,
-    "error.message"
-  );
+  const errors = useContext<ResponseError["message"]>(state, "error.message");
+
   const validationErrors = useContext<ErrorObject[]>(state, "error.data");
 
   const model = useContext<UnifiedAddressContext["model"]>(state, "model");
@@ -138,7 +137,11 @@ export const useUnifiedAddress = (
       .then(state => get(state, "context.model") as UnifiedAddressModel)
       .catch(() => {
         return Promise.reject(
-          new DetailedError("Input not available", responseCodes.Forbidden)
+          new DetailedError(
+            "[headless] Input not available",
+            responseCodes.Forbidden,
+            ErrorOrigin.Headless
+          )
         );
       });
   }
@@ -171,6 +174,7 @@ export const useUnifiedAddress = (
           new DetailedError(
             "[headless] update Unified Address failed",
             error?.status ?? responseCodes.Timeout,
+            ErrorOrigin.Headless,
             {
               error,
               state: state.value
@@ -198,8 +202,8 @@ export const useUnifiedAddress = (
     isReady,
 
     /**
-     * Meta information about the state.
-     * @typedef {Object} UnifiedAddressMeta
+     * Meta-information about the state.
+     * @type {Object} UnifiedAddressMeta
      * @property {boolean} isAvailable - Indicates if the actor is available.
      * @property {boolean} isLoading - Indicates if the actor is loading.
      * @property {boolean} hasErrors - Indicates if there are errors.
