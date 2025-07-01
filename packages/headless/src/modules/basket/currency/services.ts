@@ -5,7 +5,12 @@ import type { AnyEventObject } from "xstate";
 import { useQuery, useBrand } from "../../..";
 
 // --- utils
-import { useValidation } from "../../../utils";
+import {
+  DetailedError,
+  ErrorOrigin,
+  responseCodes,
+  useValidation
+} from "../../../utils";
 
 // --- types
 import type { CurrencyContext } from "./types";
@@ -16,7 +21,16 @@ import { ICurrency } from "@upmind-automation/types";
 async function load(_context: CurrencyContext, _event: AnyEventObject) {
   const { currencies, currency, isReady } = useBrand();
 
-  await isReady().catch(error => Promise.reject(error));
+  await isReady().catch(error =>
+    Promise.reject(
+      new DetailedError(
+        "[headless] Brand not ready",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless,
+        error
+      )
+    )
+  );
 
   // set our base model to match the default brand currency
   const baseModel = currency.value;
@@ -64,7 +78,14 @@ async function validate(
 
     const errors = validate(schema, model);
     if (errors?.length) {
-      reject({ error: errors });
+      reject(
+        new DetailedError(
+          "[headless] Invalid Currency Model",
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.Headless,
+          { error: errors }
+        )
+      );
     } else {
       resolve(model);
     }

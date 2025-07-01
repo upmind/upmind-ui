@@ -1,7 +1,10 @@
 // --- external
+import { BrandConfigKeys } from "@upmind-automation/types";
+
+// --- types
+import type { IBasket } from "@upmind-automation/types";
+import type { ResponseError } from "../../../utils";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
-import { QueryResponseError } from "../../query";
-import { BrandConfigKeys, IBasket } from "@upmind-automation/types";
 
 export { UnifiedAddressType } from "./unifiedAddress/types";
 // --- internal
@@ -31,5 +34,5 @@ export interface BillingContext {
   // ---
   autoupdate?: boolean;
   dirty?: boolean;
-  error?: QueryResponseError;
+  error?: ResponseError;
 }

@@ -4,17 +4,9 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 // --- types
 // TODO:
 import { GatewayTypes as GatewayTypesEnum } from "@upmind-automation/types";
-import type {
-  ICurrency,
-  IGateway,
-  IOrder,
-  GatewayAuthType,
-  GatewayStoreType,
-  IPayment,
-  IPaymentDetail
-} from "@upmind-automation/types";
-import { ErrorObject } from "ajv";
-import { QueryResponseError } from "../../query";
+import type { ICurrency, IGateway, IOrder } from "@upmind-automation/types";
+
+import type { ResponseError } from "../../../utils";
 
 // -----------------------------------------------------------------------------
 
@@ -68,5 +60,5 @@ export interface GatewayContext {
   // --- Output
   paymentDetails?: any; // will contain the response from Card, as wel las any model data
   // ---
-  error?: QueryResponseError | ErrorObject[];
+  error?: ResponseError;
 }

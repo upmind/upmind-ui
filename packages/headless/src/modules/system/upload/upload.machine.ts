@@ -6,9 +6,13 @@ import services from "./services";
 import type { UploadContext } from "./types";
 
 // --- utils
-import { useTime, useValidationParser, responseCodes } from "../../../utils";
+import {
+  useTime,
+  useValidationParser,
+  responseCodes,
+  mapToHeadlessError
+} from "../../../utils";
 import { useFileParser, useFileSrcParser } from "./utils";
-import { QueryResponseError } from "../../query";
 
 // ---
 export default createMachine(
@@ -140,14 +144,10 @@ export default createMachine(
       // ---
       setError: assign({
         error: (_context: UploadContext, { data }: AnyEventObject) => {
-          let error = data?.error;
-
-          if (data?.status == responseCodes.Unprocessable_Entity) {
-            // lets parse/override our error message and data
-            // this is to generate valid json schema validation errors
-            error = useValidationParser(error);
+          let error = mapToHeadlessError(data);
+          if (error?.status == responseCodes.Unprocessable_Entity) {
+            error.data = useValidationParser(error.data);
           }
-
           return error;
         }
       }),

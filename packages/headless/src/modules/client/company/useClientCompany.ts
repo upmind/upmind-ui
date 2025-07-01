@@ -14,23 +14,24 @@ import { useSession } from "../../session";
 // --- utils
 import {
   DEBOUNCE_DELAY,
-  DetailedError,
-  contextMatches,
-  contextValue,
-  responseCodes,
-  stateMatches,
   stateValue,
-  stopService,
-  useContext
+  useContext,
+  ErrorOrigin,
+  contextValue,
+  stateMatches,
+  DetailedError,
+  responseCodes,
+  contextMatches,
+  ResponseError,
+  stopService
 } from "../../../utils";
 import { debounce, get, isEmpty, isEqual } from "lodash-es";
 
 // --- types
-import { IClient } from "@upmind-automation/types";
+import type { IClient } from "@upmind-automation/types";
+import type { ErrorObject } from "ajv";
 import type { ClientItemContext } from "../types";
 import type { Company, CompanyModel } from "./types";
-import { QueryResponseError } from "../../query";
-import { ErrorObject } from "ajv";
 
 // -----------------------------------------------------------------------------
 
@@ -77,11 +78,7 @@ export const useClientCompany = (
   async function isReady(): Promise<boolean> {
     return waitFor(service, state => stateMatches(state, "available"), {
       timeout: Infinity
-    }).then(state => {
-      if (stateMatches(state, "error")) return false;
-
-      return true;
-    });
+    }).then(state => !stateMatches(state, "error"));
   }
 
   const meta = computed(() => ({
@@ -103,10 +100,7 @@ export const useClientCompany = (
 
   const description = useContext<string | undefined>(state, "description");
 
-  const errors = useContext<QueryResponseError["message"]>(
-    state,
-    "error.message"
-  );
+  const errors = useContext<ResponseError["message"]>(state, "error.message");
   const validationErrors = useContext<ErrorObject[]>(state, "error.data");
 
   const model = useContext<ClientItemContext["model"]>(state, "model");
@@ -128,7 +122,11 @@ export const useClientCompany = (
       .then(state => get(state, "context.model") as CompanyModel)
       .catch(() => {
         return Promise.reject(
-          new DetailedError("Input not available", responseCodes.Forbidden)
+          new DetailedError(
+            "[headless] Input not available",
+            responseCodes.Forbidden,
+            ErrorOrigin.Headless
+          )
         );
       });
   }
@@ -165,6 +163,7 @@ export const useClientCompany = (
           new DetailedError(
             "[headless] update Company failed",
             error?.status ?? responseCodes.Timeout,
+            ErrorOrigin.Headless,
             {
               error,
               state: state.value
@@ -192,8 +191,8 @@ export const useClientCompany = (
     isReady,
 
     /**
-     * Meta information about the state.
-     * @typedef {Object} UnifiedCompanyMeta
+     * Meta-information about the state.
+     * @type {Object} UnifiedCompanyMeta
      * @property {boolean} isAvailable - Indicates if the actor is available.
      * @property {boolean} isLoading - Indicates if the actor is loading.
      * @property {boolean} hasErrors - Indicates if there are errors.

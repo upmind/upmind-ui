@@ -10,6 +10,7 @@ import {
   contextValue,
   DetailedError,
   ErrorObject,
+  ErrorOrigin,
   responseCodes,
   useContext
 } from "../../utils";
@@ -118,6 +119,7 @@ export const useBasketPromotions = () => {
           new DetailedError(
             "[headless] add Promotion on basket failed",
             error?.status ?? responseCodes.Timeout,
+            ErrorOrigin.Headless,
             {
               error,
               state: actor.value?.state.value
@@ -146,6 +148,7 @@ export const useBasketPromotions = () => {
           new DetailedError(
             "[headless] addPromotion on basket failed",
             responseCodes.Timeout,
+            ErrorOrigin.Headless,
             {
               error,
               state: actor.value?.state.value

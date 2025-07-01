@@ -12,27 +12,18 @@ import {
 // --- utils
 import {
   useTime,
+  ErrorOrigin,
   useValidation,
-  useModelParser,
-  CacheIsStaleError,
-  NotAuthenticatedError,
   DetailedError,
   responseCodes,
+  useModelParser,
+  NotAuthenticatedError,
   useCollection
 } from "../../../utils";
-import { mapIPhone, mapPhone, mapPhones } from "./mapper";
 import { invalidateQueryByKey } from "../../query";
-import {
-  get,
-  isNil,
-  isString,
-  first,
-  isEmpty,
-  every,
-  find,
-  isEqual,
-  omitBy
-} from "lodash-es";
+import { mapIPhone, mapPhone, mapPhones } from "./mapper";
+import { get, isEmpty, isString, omitBy } from "lodash-es";
+// ---
 
 // --- types
 import type { IPhone } from "@upmind-automation/types";
@@ -103,11 +94,26 @@ async function loadLookups({
   const { isReady, fetchCountries, getCountry } = useSystem();
   // we have to do this synchronously as we need the values to be available for the model
   // these could/should be cached in the system machine, so there's no worry about performance
-  await isReady().catch(error => Promise.reject(error));
+  await isReady().catch(error =>
+    Promise.reject(
+      new DetailedError(
+        "[headless] System not ready",
+        responseCodes.Unauthorized,
+        ErrorOrigin.Headless,
+        error
+      )
+    )
+  );
   const countries = await fetchCountries();
   const country = getCountry(model?.phone?.country);
   if (!countries) {
-    return Promise.reject("Failed to load countries");
+    return Promise.reject(
+      new DetailedError(
+        "[headless] Failed to load countries",
+        responseCodes.No_Content,
+        ErrorOrigin.Headless
+      )
+    );
   }
   const baseModel: PhoneModel = {
     phone: {
@@ -170,6 +176,7 @@ async function ensure(model: PhoneModel): Promise<Phone> {
       throw new DetailedError(
         "[headless] Failed to ensure phone",
         responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless,
         { model }
       );
     // NB: Remember to refresh our machines so we have the new data
@@ -301,7 +308,14 @@ async function validate({ schema, model }: Partial<PhoneContext>) {
   return new Promise((resolve, reject) => {
     const errors = validate(schema, model);
     if (errors?.length) {
-      reject({ error: errors });
+      reject(
+        new DetailedError(
+          "[headless] Invalid Phone Model",
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.Headless,
+          { error: errors }
+        )
+      );
     } else {
       resolve(model);
     }
@@ -330,7 +344,8 @@ export const useClientPhoneServices = () => {
         return Promise.reject(
           new DetailedError(
             "[headless] Ensure Phone failed: model provided",
-            responseCodes.Unprocessable_Entity,
+            responseCodes.No_Content,
+            ErrorOrigin.Headless,
             { model }
           )
         );
@@ -342,7 +357,8 @@ export const useClientPhoneServices = () => {
         return Promise.reject(
           new DetailedError(
             "[headless] Add Phone failed: model provided",
-            responseCodes.Unprocessable_Entity,
+            responseCodes.No_Content,
+            ErrorOrigin.Headless,
             { model }
           )
         );
@@ -353,7 +369,8 @@ export const useClientPhoneServices = () => {
         return Promise.reject(
           new DetailedError(
             "[headless] Update Phone failed: No id or model provided",
-            responseCodes.Unprocessable_Entity,
+            responseCodes.No_Content,
+            ErrorOrigin.Headless,
             { id, model }
           )
         );

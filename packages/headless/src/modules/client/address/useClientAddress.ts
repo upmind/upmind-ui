@@ -6,31 +6,32 @@ import { useActor } from "@xstate/vue";
 
 // --- internal
 import itemMachine from "../item.machine";
-import { useClientAddressActions, useClientAddressGuards } from "./actions";
-import { useClientAddressServices } from "./services";
-import { useClientAddresses } from "./useClientAddresses";
 import { useSession } from "../../session";
+import { useClientAddresses } from "./useClientAddresses";
+import { useClientAddressServices } from "./services";
+import { useClientAddressActions, useClientAddressGuards } from "./actions";
 
 // --- utils
 import {
-  DetailedError,
-  contextMatches,
-  contextValue,
-  responseCodes,
-  stateMatches,
+  DEBOUNCE_DELAY,
   stateValue,
   useContext,
-  DEBOUNCE_DELAY,
+  ErrorOrigin,
+  contextValue,
+  stateMatches,
+  DetailedError,
+  responseCodes,
+  contextMatches,
+  ResponseError,
   stopService
 } from "../../../utils";
 import { debounce, get, isEmpty, isEqual } from "lodash-es";
 
 // --- types
-import { IClient } from "@upmind-automation/types";
+import type { IClient } from "@upmind-automation/types";
+import type { ErrorObject } from "ajv";
 import type { ClientItemContext } from "../types";
 import type { Address, AddressModel } from "./types";
-import { QueryResponseError } from "../../query";
-import { ErrorObject } from "ajv";
 
 // -----------------------------------------------------------------------------
 
@@ -77,11 +78,7 @@ export const useClientAddress = (
   async function isReady(): Promise<boolean> {
     return waitFor(service, state => stateMatches(state, "available"), {
       timeout: Infinity
-    }).then(state => {
-      if (stateMatches(state, "error")) return false;
-
-      return true;
-    });
+    }).then(state => !stateMatches(state, "error"));
   }
 
   const meta = computed(() => ({
@@ -103,10 +100,7 @@ export const useClientAddress = (
 
   const description = useContext<string | undefined>(state, "description");
 
-  const errors = useContext<QueryResponseError["message"]>(
-    state,
-    "error.message"
-  );
+  const errors = useContext<ResponseError["message"]>(state, "error.message");
   const validationErrors = useContext<ErrorObject[]>(state, "error.data");
 
   const model = useContext<ClientItemContext["model"]>(state, "model");
@@ -128,7 +122,11 @@ export const useClientAddress = (
       .then(state => get(state, "context.model") as AddressModel)
       .catch(() => {
         return Promise.reject(
-          new DetailedError("Input not available", responseCodes.Forbidden)
+          new DetailedError(
+            "[headless] Input not available",
+            responseCodes.Forbidden,
+            ErrorOrigin.Headless
+          )
         );
       });
   }
@@ -166,6 +164,7 @@ export const useClientAddress = (
             new DetailedError(
               "[headless] update Address failed",
               error?.status ?? responseCodes.Timeout,
+              ErrorOrigin.Headless,
               {
                 error,
                 state: state.value
@@ -194,8 +193,8 @@ export const useClientAddress = (
     isReady,
 
     /**
-     * Meta information about the state.
-     * @typedef {Object} UnifiedAddressMeta
+     * Meta-information about the state.
+     * @type {Object} UnifiedAddressMeta
      * @property {boolean} isAvailable - Indicates if the actor is available.
      * @property {boolean} isLoading - Indicates if the actor is loading.
      * @property {boolean} hasErrors - Indicates if there are errors.

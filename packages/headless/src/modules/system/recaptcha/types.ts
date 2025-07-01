@@ -1,8 +1,8 @@
 // --- internal
 
-import { QueryResponseError } from "../../query";
-
 // -----------------------------------------------------------------------------
+
+import type { ResponseError } from "../../../utils";
 
 export interface RecaptchaContext {
   siteKey: string;
@@ -10,5 +10,5 @@ export interface RecaptchaContext {
   token?: string;
   created?: Date;
   // ---
-  error?: QueryResponseError;
+  error?: ResponseError;
 }

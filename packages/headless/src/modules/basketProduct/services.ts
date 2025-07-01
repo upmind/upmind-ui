@@ -6,7 +6,14 @@ import { QueryResponse, useQuery } from "../..";
 
 // --- utils
 import { parseQuantity } from "../product/utils";
-import { unflattenErrors, useTime } from "../../utils";
+import {
+  DetailedError,
+  ErrorOrigin,
+  responseCodes,
+  ResponseError,
+  unflattenErrors,
+  useTime
+} from "../../utils";
 import { parseBasketProductData, parseBasketProductError } from "./utils";
 
 import {
@@ -59,7 +66,14 @@ async function fetch(
   },
   { data: { productId } }: { data: { productId: string } }
 ) {
-  if (!productId) return Promise.reject(new Error("No Product ID provided"));
+  if (!productId)
+    return Promise.reject(
+      new DetailedError(
+        "[headless] No Product ID provided",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      )
+    );
 
   // lets ensure we have a valid currency > fallback to default
   // as well as ensuring our promo display type is available
@@ -134,7 +148,13 @@ async function fetchSelected(
   { data: { productIds } }: { data: { productIds: string[] } }
 ): Promise<any> {
   if (isEmpty(productIds))
-    return Promise.reject(new Error("No Product ID provided"));
+    return Promise.reject(
+      new DetailedError(
+        "[headless] No Product ID provided",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      )
+    );
 
   // let's ensure we have a valid currency > fallback to default
   const currency = await useBrand().validateCurrency({ id: currencyId });
@@ -212,7 +232,14 @@ async function fetchRelated(
     };
   }
 ) {
-  if (!productId) return Promise.reject(new Error("No Product ID provided"));
+  if (!productId)
+    return Promise.reject(
+      new DetailedError(
+        "[headless] No Product ID provided",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      )
+    );
 
   // lets ensure we have a valid currency > fallback to default
   const currency = await useBrand().validateCurrency({ id: currencyId });
@@ -285,11 +312,29 @@ async function updateQuantity(
 ): Promise<IBasket> {
   // sanity check
   if (!basketId)
-    return Promise.reject(new Error("No basket provided/available"));
+    return Promise.reject(
+      new DetailedError(
+        "[headless] No basket provided/available",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      )
+    );
   if (!basketProduct.productDetails)
-    return Promise.reject(new Error("Product not found"));
+    return Promise.reject(
+      new DetailedError(
+        "[headless] No product details provided",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      )
+    );
   if (!basketProduct.productDetails?.quantifiable)
-    return Promise.reject(new Error("Product not quantifiable"));
+    return Promise.reject(
+      new DetailedError(
+        "[headless] Product is not quantifiable",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      )
+    );
   // ---
   const { put, useUrl } = useQuery();
   basketProduct.configuration.quantity = parseQuantity(
@@ -303,7 +348,12 @@ async function updateQuantity(
     withAccessToken: true
   })
     .then(data => {
-      if (isNil(data)) throw new Error("No data returned from the server");
+      if (isNil(data))
+        throw new DetailedError(
+          "[headless] No data returned from the server",
+          responseCodes.Internal_Server_Error,
+          ErrorOrigin.Headless
+        );
       return data;
     })
     .catch(parseApiErrors);
@@ -335,9 +385,21 @@ async function update(
 ): Promise<IBasket> {
   const { put, post, useUrl } = useQuery();
   if (!basketId)
-    return Promise.reject(new Error("No basket provided/available"));
+    return Promise.reject(
+      new DetailedError(
+        "[headless] No basket provided/available",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      )
+    );
   if (isEmpty(data))
-    return Promise.reject(new Error("No product data provided"));
+    return Promise.reject(
+      new DetailedError(
+        "[headless] No product data provided",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      )
+    );
 
   const product = parseBasketProductData(data, promotions);
   // ---
@@ -352,14 +414,19 @@ async function update(
     withAccessToken: true
   })
     .then(data => {
-      if (isNil(data)) throw new Error("No data returned from the server");
+      if (isNil(data))
+        throw new DetailedError(
+          "[headless] No data returned from the server",
+          responseCodes.Internal_Server_Error,
+          ErrorOrigin.Headless
+        );
       return data;
     })
     .catch(parseApiErrors);
 }
 
 /**
- * Add/Update Many basket withnew valid products and existing products.
+ * Add/Update Many basket with new valid products and existing products.
  *
  * @param {Object} context - The parameters for the sync function.
  * @param {string} context.basketId - The ID of the basket to be updated.
@@ -377,7 +444,13 @@ async function updateMany(
   { data }: { data: ActorRef<any>[] }
 ): Promise<IBasket> {
   if (!basketId)
-    return Promise.reject(new Error("No basket provided/available"));
+    return Promise.reject(
+      new DetailedError(
+        "[headless] No basket provided/available",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      )
+    );
 
   // When updating the basket we need to provide :
   //   * ALL products that are valid and ready to be saved
@@ -395,7 +468,14 @@ async function updateMany(
     item.send({ type: "PROCESSING" });
     // ---
     const model = get(item, "state.context.model");
-    if (!model) return Promise.reject(new Error("No model found"));
+    if (!model)
+      return Promise.reject(
+        new DetailedError(
+          "[headless] No model found for the product",
+          responseCodes.Not_Found,
+          ErrorOrigin.Headless
+        )
+      );
     // ---
     const product = parseBasketProductData(model, promotions);
     // Add a flag to the product to indicate that the field values should NOT be validated.
@@ -438,12 +518,23 @@ async function updateMany(
     .then(data => {
       forEach(validItems, item => item.send({ type: "UPDATED" }));
 
-      if (isNil(data)) throw new Error("No data returned from the server");
+      if (isNil(data))
+        throw new DetailedError(
+          "[headless] No data returned from the server",
+          responseCodes.Internal_Server_Error,
+          ErrorOrigin.Headless
+        );
       return data;
     })
     .catch(error => {
       forEach(validItems, item => item.send({ type: "CANCEL" }));
-      return Promise.reject(error);
+      return Promise.reject(
+        new DetailedError(
+          "[headless] Error updating many products in the basket",
+          responseCodes.Internal_Server_Error,
+          ErrorOrigin.Headless
+        )
+      );
     });
 }
 
@@ -464,30 +555,48 @@ async function remove({
   bpid: string;
 }): Promise<IBasket> {
   const { del, useUrl } = useQuery();
-  if (!bpid) return Promise.reject(new Error("No product provided")); // we don't need to make a request as there is no id, must be a new product
+  if (!bpid)
+    return Promise.reject(
+      new DetailedError(
+        "[headless] No Basket Product ID provided",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      )
+    ); // we don't need to make a request as there is no id, must be a new product
   if (!basketId)
-    return Promise.reject(new Error("No basket provided/available"));
+    return Promise.reject(
+      new DetailedError(
+        "[headless] No basket provided/available",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      )
+    );
   // ---
   return del<IBasket>({
     url: useUrl(`/orders/${basketId}/products/${bpid}`),
     withAccessToken: true
   }).then(data => {
-    if (isNil(data)) throw new Error("No data returned from the server");
+    if (isNil(data))
+      throw new DetailedError(
+        "[headless] No data returned from the server",
+        responseCodes.Internal_Server_Error,
+        ErrorOrigin.Headless
+      );
     return data;
   });
 }
 
-function parseApiErrors(response: QueryResponse) {
-  if (!response?.error) return Promise.reject(response);
+function parseApiErrors(response: ResponseError) {
+  if (!response?.data) return Promise.reject(response);
   // rawErrors will return a flattened object path in dot notation, so we need to convert back it to an object
-  const rawErrors = unflattenErrors(response.error.data);
+  const rawErrors = unflattenErrors(response.data);
   // Currently we receive errors in 2 ways,
   // 1) Options or Attributes returns an collection of products with errors, we only look at the first ( and usually only )
   // 2) Provision fields returns an object
   if (isArray(rawErrors?.products)) {
-    response.error.data = parseBasketProductError(first(rawErrors?.products));
+    response.data = parseBasketProductError(first(rawErrors?.products));
   } else {
-    response.error.data = parseBasketProductError(rawErrors);
+    response.data = parseBasketProductError(rawErrors);
   }
 
   return Promise.reject(response);

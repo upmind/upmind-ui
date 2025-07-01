@@ -3,7 +3,14 @@ import { useBasket, useLocale } from "../..";
 import packageJson from "../../../../package.json";
 
 // --- utils
-import { useCookies, usePOP, useTime } from "../../../utils";
+import {
+  DetailedError,
+  ErrorOrigin,
+  responseCodes,
+  useCookies,
+  usePOP,
+  useTime
+} from "../../../utils";
 import {
   isEmpty,
   isNil,
@@ -125,7 +132,11 @@ class TrackingEvent {
     const safeBasket = invoice ?? basket.value;
 
     if (isEmpty(safeBasket)) {
-      throw new Error("No Basket available");
+      throw new DetailedError(
+        "[headless] No Basket available",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      );
     }
     // When a user submits their billing address
     const payload: DataLayerEcommerce = {
@@ -161,11 +172,20 @@ class TrackingEvent {
     const safeItems = isArray(items) ? items : [items];
 
     if (isEmpty(safeItems)) {
-      throw new Error("No Products available");
+      throw new DetailedError(
+        "[headless] No Products available",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      );
     }
 
     const { basket } = useBasket();
-    if (isEmpty(basket)) throw new Error("No Basket available");
+    if (isEmpty(basket))
+      throw new DetailedError(
+        "[headless] No Basket available",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      );
 
     // When a user submits their billing address
     const payload: DataLayerEcommerceItems = {
