@@ -5,7 +5,12 @@ import { useQuery, useSystem } from "../..";
 import { useBrand } from "../brand";
 
 // --- utils
-import { DetailedError, responseCodes, useTime } from "../../utils";
+import {
+  useTime,
+  ErrorOrigin,
+  responseCodes,
+  DetailedError
+} from "../../utils";
 
 import {
   parseQuantity,
@@ -55,7 +60,14 @@ async function load(
   _event: AnyEventObject
 ) {
   const productId = get(model, "productId");
-  if (!productId) return Promise.reject(new Error("No Product ID provided"));
+  if (!productId)
+    return Promise.reject(
+      new DetailedError(
+        "[headless] No Product ID provided",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      )
+    );
 
   // lets ensure we have a valid currency > fallback to default
   // as well as ensuring our promo display type is available
@@ -121,8 +133,15 @@ async function load(
 
 async function loadProvisioningFields(productId: string) {
   const { get, useUrl } = useQuery();
-  if (!productId) return Promise.reject(new Error("No Product ID provided"));
-  // we dont cache provisioning fields, as they can change with different options/attributes being selected
+  if (!productId)
+    return Promise.reject(
+      new DetailedError(
+        "[headless] No Product ID provided",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      )
+    );
+  // we don't cache provisioning fields, as they can change with different options/attributes being selected
   return get({
     url: useUrl(`basket/products/${productId}/provision_fields`),
     queryKey: ["product", productId, "provision-fields"],
@@ -157,7 +176,13 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
 
   // safety check, ensure we have a valid product
   if (!values?.productId) {
-    return Promise.reject(new Error("No Product ID provided"));
+    return Promise.reject(
+      new DetailedError(
+        "[headless] No Product ID provided",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      )
+    );
   }
 
   let prices: PriceCalculations = context.lookups?.prices || {};
@@ -195,7 +220,7 @@ async function validate(context: ProductConfigContext, _event: AnyEventObject) {
   // ---
 
   // We may opt to skip validation to allow the backend to do the validation
-  //  especially usefull when adding bulk products, recommendations etc.
+  //  especially usefully when adding bulk products, recommendations etc.
   if (context.silent) return Promise.resolve(context.model);
 
   // TODO: validate the model as per normal using the schema
@@ -226,8 +251,9 @@ async function validate(context: ProductConfigContext, _event: AnyEventObject) {
       reject(
         new DetailedError(
           "[headless] Validate Product Config failed",
-          responseCodes.Conflict,
-          { errors }
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.Headless,
+          errors
         )
       );
     } else {

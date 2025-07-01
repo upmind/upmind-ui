@@ -8,7 +8,8 @@ import {
   useTranslateName,
   DetailedError,
   responseCodes,
-  parseError
+  parseError,
+  ErrorOrigin
 } from "../../utils";
 import {
   useUischemaTitle,
@@ -32,6 +33,7 @@ import {
   omitBy,
   reduce,
   set,
+  some,
   values
 } from "lodash-es";
 
@@ -133,8 +135,8 @@ export const parseBasketProduct = (
 
   // ---
   forEach(raw?.provision_fields, (value, key) => {
-    const hasError = get(errors, [raw?.id, key]);
-    const field = parseProvisionFieldSummary(key.toString(), value, hasError);
+    const fieldError = find(errors?.provisionFields, ["propertyName", key]);
+    const field = parseProvisionFieldSummary(key.toString(), value, fieldError);
     if (field) basketProduct.details.push(field);
   });
 
@@ -278,11 +280,11 @@ export function parseProvisionFieldSummary(
   error?: ExternalError["provisionFields"]
 ): ProductSummaryDetail {
   const title = get(data, key, data); // just in case its an object > unti lwe have types
-
   return {
     name: `provision_field.${key}`,
     category: key,
     title,
+    error,
     meta: {
       invalid: !!error
     }
@@ -344,8 +346,9 @@ export function getBasketProduct(id: string, basket: IBasket) {
   const value = find(basket?.products, { id });
   if (!value) {
     throw new DetailedError(
-      "Product not found in basket",
-      responseCodes.Not_Found
+      "[headless] Product not found in basket",
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
     );
   }
 

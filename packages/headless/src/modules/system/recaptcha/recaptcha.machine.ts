@@ -9,7 +9,7 @@ import { isString } from "xstate/lib/utils";
 import { isEmpty, set } from "lodash-es";
 
 // --utils
-import { useTime } from "../../../utils";
+import { mapToHeadlessError, useTime } from "../../../utils";
 // -----------------------------------------------------------------------------
 export default createMachine(
   {
@@ -115,7 +115,7 @@ export default createMachine(
       }),
 
       setError: assign({
-        error: (_context, { data }: AnyEventObject) => data
+        error: (_context, { data }: AnyEventObject) => mapToHeadlessError(data)
       }),
       clearError: assign({
         error: _context => undefined

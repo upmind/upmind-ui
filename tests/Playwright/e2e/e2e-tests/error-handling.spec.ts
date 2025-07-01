@@ -8,14 +8,14 @@ test.describe("Error Code Handling", () => {
     errorCode,
     status,
     responseError,
-    button,
+    button
   } of Object.values(ErrorCodes)) {
     test(`Display ${errorCode} error message`, async ({ page }) => {
       await page.route(route, async route => {
         await route.fulfill({
           status: errorCode,
           contentType: "application/json",
-          body: JSON.stringify(responseError),
+          body: JSON.stringify(responseError)
         });
       });
 

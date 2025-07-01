@@ -1,12 +1,17 @@
 // --- external
 
 // --- internal
-import { useSession, useBrand } from "../../..";
+import { useBrand, useSession } from "../../..";
 import { BrandConfigKeys } from "@upmind-automation/types";
 // --- utils
 import { canBeStored } from "./utils";
-import { useValidation } from "../../../utils";
-import { isNil, get } from "lodash-es";
+import {
+  DetailedError,
+  ErrorOrigin,
+  responseCodes,
+  useValidation
+} from "../../../utils";
+import { get, isNil } from "lodash-es";
 
 // --- types
 import type { GatewayContext } from "./types";
@@ -83,7 +88,14 @@ async function validate(
     const errors = validate(schema, model);
 
     if (errors?.length) {
-      reject({ error: errors });
+      reject(
+        new DetailedError(
+          "[headless] validate on gateway payment details failed",
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.Headless,
+          { error: errors }
+        )
+      );
     } else {
       resolve(model);
     }

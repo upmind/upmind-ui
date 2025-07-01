@@ -5,6 +5,7 @@ import { useQuery } from "../..";
 // --- utils
 import { isEmpty } from "lodash-es";
 import { getTokenFromStorage } from "../utils";
+import { DetailedError, ErrorOrigin, responseCodes } from "../../../utils";
 
 // ---types
 import type { ClientContext } from "./types";
@@ -16,7 +17,14 @@ async function load(_context: ClientContext, _event: any) {
   // and we need to check the token/get the user
 
   const token = getTokenFromStorage("client");
-  if (isEmpty(token)) return Promise.reject(new Error("No token found"));
+  if (isEmpty(token))
+    return Promise.reject(
+      new DetailedError(
+        "[headless] No token found",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      )
+    );
 
   const { get, useUrl } = useQuery();
 

@@ -5,6 +5,7 @@ import { useBrand } from "../brand";
 // --- utils
 import {
   DetailedError,
+  ErrorOrigin,
   responseCodes,
   useLaravalSchemaParser,
   useTranslateField,
@@ -295,7 +296,8 @@ export const calculateBillingTerm = (
   if (isEmpty(available))
     throw new DetailedError(
       "[headless] getBillingTerms on product not found",
-      responseCodes.Not_Found
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
     );
 
   const { defaultPaymentPeriod } = useBrand();
@@ -324,7 +326,8 @@ export const calculateBillingTerm = (
   if (isEmpty(term))
     throw new DetailedError(
       "[headless] getBillingTerm on product not found",
-      responseCodes.Not_Found
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
     );
 
   return term;
@@ -1068,7 +1071,7 @@ export const parseModel = (data: ProductModel): ProductModel => {
     term: data.term,
     options: data.options,
     attributes: data.attributes,
-    provisionFields: omitBy(data.provisionFields, isEmpty)
+    provisionFields: data.provisionFields
   };
 };
 
@@ -1081,7 +1084,7 @@ export const parseBasketProductModel = (raw: IBasketProduct): ProductModel => {
     term: raw.billing_cycle_months,
     options: parseSubproductDetailsChoices(raw.options),
     attributes: parseSubproductDetailsChoices(raw.attributes),
-    provisionFields: omitBy(raw.provision_fields, isEmpty)
+    provisionFields: raw.provision_fields
   };
 };
 

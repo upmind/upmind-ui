@@ -1,5 +1,10 @@
 // --- utils
-import { DetailedError, responseCodes, useCookies } from "../../utils";
+import {
+  DetailedError,
+  ErrorOrigin,
+  responseCodes,
+  useCookies
+} from "../../utils";
 import {
   toNumber,
   isBoolean,
@@ -82,11 +87,18 @@ export function persistTokenToStorage(token: Token) {
     throw new DetailedError(
       "[headless] persistTokenToStorage token is invalid or missing the access_token property.",
       responseCodes.Unprocessable_Entity,
+      ErrorOrigin.Headless,
       token
     );
 
   if (!localStorage)
-    return Promise.reject(new Error("No localStorage available"));
+    return Promise.reject(
+      new DetailedError(
+        "[headless] No localStorage available",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      )
+    );
 
   const type = token?.actor_type || "guest";
 

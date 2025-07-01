@@ -1,40 +1,48 @@
 // --- external
 import {
-  useMutation,
   QueryClient,
+  useMutation,
   useQuery as vueUseQuery,
   useInfiniteQuery as vueUseInfiniteQuery
 } from "@tanstack/vue-query";
 import { isArray, isFunction } from "xstate/lib/utils";
-import { ref, unref, computed } from "vue";
+import { ref, unref, watch, computed } from "vue";
 
 // --- internal
 import { useLocale } from "../system";
+import { useBasketCurrency } from "../basket";
 import { doFetch, refreshToken } from "./services";
 
 // --- utils
-import { isPromise, useTime, useUrl } from "../../utils";
-import { getTokenFromStorage } from "../session/utils";
 import {
+  forEach,
   get,
-  set,
-  unset,
-  isString,
   isEmpty,
   isInteger,
-  toNumber,
   isObject,
-  forEach
+  isString,
+  set,
+  toNumber,
+  unset
 } from "lodash-es";
 import {
   parseData,
-  canRetryAuthorization,
   PAGINATION,
-  cleanQueryKey
+  cleanQueryKey,
+  canRetryAuthorization
 } from "./utils";
+import {
+  useUrl,
+  useTime,
+  isPromise,
+  ErrorOrigin,
+  DetailedError,
+  responseCodes
+} from "../../utils";
+import { getTokenFromStorage } from "../session/utils";
 
 // --- types
-import {
+import type {
   QueryParams,
   QueryResponse,
   RequestParams,
@@ -96,14 +104,17 @@ export const useQuery = () => {
     // Set 'order' (sort) parameter
     if (!isEmpty(sort) && isArray(sort))
       url.searchParams.set("order", sort.join(""));
+    else url.searchParams.delete("order");
 
     // Set 'limit' parameter
     if (!isEmpty(pagination) && isInteger(pagination?.limit))
       url.searchParams.set("limit", `${pagination.limit}`);
+    // NB NEVER remove limits from the url as we may include limit=0
 
     // Set 'offset' parameter
     if (!isEmpty(pagination) && isInteger(pagination?.offset))
       url.searchParams.set("offset", `${pagination.offset}`);
+    else url.searchParams.delete("offset");
 
     // set the filters, if any
     if (!isEmpty(filters) && isObject(filters)) {
@@ -119,6 +130,8 @@ export const useQuery = () => {
           if (isFunction(value)) value = value(url);
 
           url.searchParams.set(key, value);
+        } else {
+          url.searchParams.delete(key);
         }
       });
     }
@@ -150,7 +163,6 @@ export const useQuery = () => {
     // -------------------------------------------------------------------------
 
     return doFetch<T>({ url, init }).catch(async error => {
-      const requestError = error as QueryResponseError;
       attempts++;
 
       // allow us to retry the request if we have a 401 error, but only once (we don't want an infinite loop)
@@ -165,7 +177,9 @@ export const useQuery = () => {
           return doFetch<T>({ url, init });
         });
       }
-      return Promise.reject(requestError);
+
+      // let the original error propagate
+      throw error;
     });
   }
 
@@ -180,6 +194,7 @@ export const useQuery = () => {
    * @param guard A function that returns a promise to be resolved before the request is sent. This can be used to ensure that certain conditions are met before the request is sent, such as checking if the user is authenticated.
    * @param select A function that is used to transform the response data before it is returned. This can be used to extract specific fields from the response or to transform the data into a different format.
    * @param queryKey The query key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
+   * @param withCurrency Whether to automagically add the currency filter to the request based on the `useBasketCurrency` composable.
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
    * @param options Additional options to pass to TanStack query.
    */
@@ -189,38 +204,69 @@ export const useQuery = () => {
     guard,
     select,
     queryKey,
+    withCurrency = false,
     withAccessToken,
     ...options
-  }: Omit<
-    QueryParams<TQueryFnData, TData>,
-    "pagination"
-  >) /* TODO: MAYBE omit the pagination/sort and filter query params */ {
-    return vueUseQuery<TQueryFnData, DefaultError, TData>(
-      {
-        queryKey: cleanQueryKey([...queryKey]),
-        queryFn: async ({ signal }) => {
-          const hasGuard = isPromise(guard);
-          const safeguard: Promise<void | boolean> = hasGuard
-            ? guard()
-            : Promise.resolve();
-          return safeguard.then(() =>
-            request<TQueryFnData>({
-              url,
-              init: {
-                ...init,
-                signal // Pass the new signal to the request to allow cancellation
-              },
-              withAccessToken
-            }).then(response => {
-              if (isFunction(select)) return select(response.data!) as TData;
-              return response.data as TQueryFnData;
-            })
-          );
+  }: Omit<QueryParams<TQueryFnData, TData>, "pagination">) {
+    /* TODO: MAYBE omit the pagination/sort and filter query params */ {
+      // --- state
+      const { currentCurrency: currency } = useBasketCurrency();
+
+      const filters = ref<QueryParams["filters"]>({
+        ...(options?.filters ?? {})
+      });
+
+      // --- watchers
+
+      watch(currency, newCurrency => {
+        // Update the filters when the currency changes
+        filters.value = {
+          ...filters.value,
+          currency: newCurrency
+        };
+      });
+
+      // --- query
+      return vueUseQuery<TQueryFnData, DefaultError, TData>(
+        {
+          queryKey: cleanQueryKey([
+            ...queryKey,
+            {
+              /**
+               * @see {@link list}
+               * since we are not exporting sorting functionality, just the `useQuery` composable, we can just pass the
+               * sort as is for now, if we want to export sorting functionality, we can use `list` instead.
+               */
+              sort: options?.sort,
+              locale,
+              filters,
+              currency
+            }
+          ]),
+          queryFn: async ({ signal }) => {
+            const hasGuard = isPromise(guard);
+            const safeguard: Promise<void | boolean> = hasGuard
+              ? guard()
+              : Promise.resolve();
+            return safeguard.then(() =>
+              request<TQueryFnData>({
+                url,
+                init: {
+                  ...init,
+                  signal // Pass the new signal to the request to allow cancellation
+                },
+                withAccessToken
+              }).then(response => {
+                if (isFunction(select)) return select(response.data!) as TData;
+                return response.data as TQueryFnData;
+              })
+            );
+          },
+          ...(options as any)
         },
-        ...(options as any)
-      },
-      queryClient
-    );
+        queryClient
+      );
+    }
   }
 
   /**
@@ -233,6 +279,7 @@ export const useQuery = () => {
    * @param sort An array of strings representing the sorting order for the query. Each string should be in the format "field:direction", where "field" is the field to sort by and "direction" is either "asc" or "desc".
    * @param guard A function that returns a promise to be resolved before the request is sent. This can be used to ensure that certain conditions are met before the request is sent, such as checking if the user is authenticated.
    * @param queryKey The query key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
+   * @param withCurrency Whether to automagically add the currency filter to the request based on the `useBasketCurrency` composable.
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
    * @param options Additional options to pass to TanStack query.
    */
@@ -242,10 +289,13 @@ export const useQuery = () => {
     guard,
     select,
     queryKey,
+    withCurrency = false,
     withAccessToken,
     ...options
   }: QueryParams<TQueryFnData, TData>) {
     // --- state
+    const { currentCurrency: currency } = useBasketCurrency();
+
     const limit = options?.pagination?.limit ?? PAGINATION.limit;
     const offset = options?.pagination?.offset ?? PAGINATION.offset;
     const sort = ref(options?.sort);
@@ -259,17 +309,30 @@ export const useQuery = () => {
       ...(options?.filters ?? {})
     });
 
+    // --- watchers
+
+    watch(currency, newCurrency => {
+      // Update the filters when the currency changes
+      filters.value = {
+        ...filters.value,
+        currency: newCurrency
+      };
+    });
+
     // --- query
 
     const response = vueUseQuery<TQueryFnData, DefaultError, TData>(
       {
         queryKey: cleanQueryKey([
           ...queryKey,
-          { sort },
-          { limit },
-          { locale },
-          { filters },
-          { pageIndex }
+          {
+            sort,
+            limit,
+            locale,
+            filters,
+            pageIndex,
+            currency
+          }
         ]),
         queryFn: async ({ signal }) => {
           const hasGuard = isPromise(guard);
@@ -348,7 +411,21 @@ export const useQuery = () => {
        */
       fetchPreviousPage: (): void => {
         if (!response.isPlaceholderData.value && pageIndex.value <= 1) {
-          throw new Error("No previous page available");
+          throw new DetailedError(
+            "[headless] No previous page available",
+            responseCodes.No_Content,
+            ErrorOrigin.Headless,
+            {
+              limit,
+              page: pageIndex.value,
+              from: !total.value ? 0 : limit * (pageIndex.value - 1) + 1,
+              total: total.value,
+              pages: pageTotal.value,
+              to: !limit
+                ? total.value
+                : Math.min(limit * pageIndex.value, total.value)
+            }
+          );
         }
         pageIndex.value = Math.max(pageIndex.value - 1, 1);
       },
@@ -365,33 +442,51 @@ export const useQuery = () => {
           !response.isPlaceholderData.value &&
           pageIndex.value >= pageTotal.value
         ) {
-          throw new Error("No next page available");
+          throw new DetailedError(
+            "[headless] No next page available",
+            responseCodes.No_Content,
+            ErrorOrigin.Headless,
+            {
+              limit,
+              page: pageIndex.value,
+              from: !total.value ? 0 : limit * (pageIndex.value - 1) + 1,
+              total: total.value,
+              pages: pageTotal.value,
+              to: !limit
+                ? total.value
+                : Math.min(limit * pageIndex.value, total.value)
+            }
+          );
         }
         if (!response.isPlaceholderData.value) {
           pageIndex.value = Math.min(pageIndex.value + 1, pageTotal.value);
         }
       },
 
-      filter: (values: QueryParams["filters"]) => {
-        // Ensure values is not a Ref, but a plain object
-        // If values is a Ref, unwrap it; otherwise, use as is
-        // @ts-ignore
-        filters.value = unref(values) ?? {};
+      sort: (values?: QueryParams["sort"]) => {
+        sort.value = unref(values);
       },
 
-      resetQuery: () =>
-        queryClient
-          .resetQueries({
-            queryKey: cleanQueryKey([
-              ...queryKey,
-              { sort },
-              { limit },
-              { locale },
-              { filters },
-              { pageIndex }
-            ])
-          })
-          .then(() => (pageIndex.value = 1))
+      filter: (values: QueryParams["filters"]) => {
+        filters.value = unref(values);
+      },
+
+      resetQuery: () => {
+        pageIndex.value = 1;
+        return queryClient.resetQueries({
+          queryKey: cleanQueryKey([
+            ...queryKey,
+            {
+              sort,
+              limit,
+              locale,
+              filters,
+              pageIndex,
+              currency
+            }
+          ])
+        });
+      }
     };
   }
 
@@ -414,10 +509,12 @@ export const useQuery = () => {
     guard,
     select,
     queryKey,
+    withCurrency = false,
     withAccessToken,
     ...options
   }: QueryParams<TQueryFnData, TData>) {
     // --- state
+    const { currentCurrency: currency } = useBasketCurrency();
 
     const limit = options?.pagination?.limit ?? PAGINATION.limit;
     const sort = ref(options?.sort);
@@ -430,16 +527,23 @@ export const useQuery = () => {
       ...(options?.filters ?? {})
     });
 
+    // --- watchers
+
+    watch(currency, newCurrency => {
+      // Update the filters when the currency changes
+      filters.value = {
+        ...filters.value,
+        currency: newCurrency
+      };
+    });
+
     // --- query
 
     const response = vueUseInfiniteQuery<TQueryFnData, DefaultError, TData>(
       {
         queryKey: cleanQueryKey([
           ...queryKey,
-          { sort }, // Important for sorting to work
-          { limit },
-          { locale },
-          { filters } // Important for filters to work
+          { sort, limit, locale, filters, currency }
         ]),
         queryFn: async ({ pageParam = 0, signal }) => {
           const offset = toNumber(pageParam);
@@ -529,21 +633,19 @@ export const useQuery = () => {
         hasPrevPage: response.hasPreviousPage.value
       })),
 
+      sort: (values?: QueryParams["sort"]) => {
+        sort.value = unref(values);
+      },
+
       filter: (values: QueryParams["filters"]) => {
-        // Ensure values is not a Ref, but a plain object
-        // If values is a Ref, unwrap it; otherwise, use as is
-        // @ts-ignore
-        filters.value = unref(values) ?? {};
+        filters.value = unref(values);
       },
 
       resetQuery: () =>
         queryClient.resetQueries({
           queryKey: cleanQueryKey([
             ...queryKey,
-            { sort },
-            { limit },
-            { locale },
-            { filters }
+            { sort, limit, locale, filters, currency }
           ])
         })
     };
@@ -619,7 +721,7 @@ export const useQuery = () => {
     const filters = options?.filters;
 
     return queryClient.fetchQuery<TQueryFnData, DefaultError, TData>({
-      queryKey: cleanQueryKey([...queryKey, { locale }, { sort }, { filters }]),
+      queryKey: cleanQueryKey([...queryKey, { locale, sort, filters }]),
       queryFn: async ({ signal }) => {
         return request<TQueryFnData>({
           url,
@@ -674,11 +776,7 @@ export const useQuery = () => {
     >({
       queryKey: cleanQueryKey([
         ...queryKey,
-        { locale },
-        { sort },
-        { filters },
-        { limit },
-        { pageIndex }
+        { locale, sort, filters, limit, pageIndex }
       ]),
       queryFn: async ({ signal }) => {
         return request<TQueryFnData>({

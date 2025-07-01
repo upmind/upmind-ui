@@ -8,7 +8,8 @@ import type {
   ITicketDepartment,
   ITaxBusinessType
 } from "@upmind-automation/types";
-import { QueryResponseError } from "../query";
+import { ResponseError } from "../../utils";
+
 // ---  Contexts
 
 export interface SystemContext {
@@ -22,14 +23,14 @@ export interface SystemContext {
   systemIPAddresses?: string[];
   taxBusinessTypes?: ITaxBusinessType[];
   error?:
-    | QueryResponseError
+    | ResponseError
     | {
-        currencies?: QueryResponseError;
-        billingCycles?: QueryResponseError;
-        countries?: QueryResponseError;
-        regions?: QueryResponseError;
-        languages?: QueryResponseError;
-        statuses?: QueryResponseError;
-        departments?: QueryResponseError;
+        currencies?: ResponseError;
+        billingCycles?: ResponseError;
+        countries?: ResponseError;
+        regions?: ResponseError;
+        languages?: ResponseError;
+        statuses?: ResponseError;
+        departments?: ResponseError;
       };
 }

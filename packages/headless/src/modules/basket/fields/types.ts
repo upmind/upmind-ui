@@ -1,9 +1,9 @@
 // --- external
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
-import { QueryResponseError } from "../../query";
 
 // --- internal
 import type { ICustomField } from "@upmind-automation/types";
+import type { ResponseError } from "../../../utils";
 // -----------------------------------------------------------------------------
 
 export interface FieldsModel {
@@ -21,6 +21,6 @@ export interface FieldsContext {
   autoupdate?: boolean;
   // ---
   dirty?: boolean;
-  error?: QueryResponseError;
+  error?: ResponseError;
   controller?: AbortController;
 }
