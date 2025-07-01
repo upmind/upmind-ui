@@ -66,14 +66,18 @@ export const useBasketCurrency = () => {
   // --- context
 
   const context = useContext<CurrencyContext>(actor);
+  const model = useContext<CurrencyContext["model"]>(actor, "model");
+  const errors = useContext<CurrencyContext["error"]>(actor, "error");
+  const schema = useContext<CurrencyContext["schema"]>(actor, "schema");
+  const uischema = useContext<CurrencyContext["uischema"]>(actor, "uischema");
   const currencies = useContext<CurrencyContext["currencies"]>(
     actor,
     "currencies"
   );
-  const errors = useContext<CurrencyContext["error"]>(actor, "error");
-  const model = useContext<CurrencyContext["model"]>(actor, "model");
-  const schema = useContext<CurrencyContext["schema"]>(actor, "schema");
-  const uischema = useContext<CurrencyContext["uischema"]>(actor, "uischema");
+  const currentCurrency = useContext<CurrencyModel["code"]>(
+    actor,
+    "model.code"
+  );
 
   // --- methods
 
@@ -169,6 +173,12 @@ export const useBasketCurrency = () => {
      * @property {boolean} isComplete - Indicates if the currency is complete.
      */
     meta,
+
+    /**
+     * The current currency code.
+     * @type {string | undefined} The current currency code or undefined if not set.
+     */
+    currentCurrency,
 
     // --- context
 

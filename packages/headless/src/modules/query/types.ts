@@ -60,6 +60,7 @@ export type RequestParams = QueryProps & {
   url: URL;
   data?: unknown;
   init?: RequestInit;
+  withCurrency?: boolean;
   withAccessToken?: boolean | string | null;
 };
 
