@@ -111,7 +111,7 @@ export const useBasket = () => {
 
       hasInvalidProducts: some(
         contextValue<BasketProduct[]>(state, "products", []),
-        "product.meta.invalid"
+        "errors"
       ),
 
       hasTaxes: contextMatches(state, ["basket.taxes"]),
