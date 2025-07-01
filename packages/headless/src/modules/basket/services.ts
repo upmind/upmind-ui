@@ -220,7 +220,23 @@ async function getProvisioningFieldsValues(basket: IBasket) {
   const checkPromise = patch({
     url: useUrl(`orders/${basket.id}/provision_fields/values/check`),
     withAccessToken: true
-  }).catch(({ error }) => error);
+  }).catch(error => {
+    // rawErrors will return a flattened object path in dot notation, so we need to convert back it to an object
+    // and then we 'pick' the products out of the object
+    const { products: rawErrors } = unflattenErrors(error?.data);
+    // then we parse the errors into a more usable format, replacing their indexes with the product ids
+    // this will allow us to easily access the provisioning fields for each product
+    const errors = reduce(
+      rawErrors,
+      (result, value, key: number) => {
+        const bpid = basket.products[key]?.id;
+        if (!bpid) return result;
+        return set(result, bpid, parseBasketProductError(value));
+      },
+      {}
+    );
+    return errors;
+  });
 
   provisioningPromises.push(checkPromise);
 
@@ -264,27 +280,10 @@ async function getProvisioningFieldsValues(basket: IBasket) {
 
   // return the 'updated' basket once all the provisioning fields have been fetched
   return Promise.all(provisioningPromises)
-    .then(([data]) => {
-      // rawErrors will return a flattened object path in dot notation, so we need to convert back it to an object
-      // and then we 'pick' the products out of the object
-      const { products: rawErrors } = unflattenErrors(data?.data);
-      // then we parse the errors into a more usable format, replacing their indexes with the product ids
-      // this will allow us to easily access the provisioning fields for each product
-      const errors = reduce(
-        rawErrors,
-        (result, value, key: number) => {
-          const bpid = basket.products[key]?.id;
-          if (!bpid) return result;
-          return set(result, bpid, parseBasketProductError(value));
-        },
-        {}
-      );
-
-      return {
-        basket,
-        errors
-      };
-    })
+    .then(([errors]) => ({
+      basket,
+      errors
+    }))
     .catch(error => {
       return {
         basket,
