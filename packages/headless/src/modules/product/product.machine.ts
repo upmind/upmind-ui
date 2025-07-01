@@ -451,21 +451,7 @@ export default createMachine(
 
           return lookups;
         },
-        error: ({ error }: ProductConfigContext, { data }: AnyEventObject) => {
-          // lets parse/override our error message and data, specifically external errors.
-          // For any dirty/hydrated field, remove any external error to allow for normal validation
-          // Once the external error is removed, we dont ever want to show it again, unless we refresh the product
-          forEach(data.model.provisionFields, (field, key) => {
-            if (
-              !isEmpty(field) ||
-              (!isNil(field) && isObject(error) && "provisionFields" in error)
-            ) {
-              remove((error as any)?.provisionFields, ["schemaPath", key]);
-            }
-          });
 
-          return omitBy(error, isEmpty) as ExternalError;
-        },
         errorExternal: (
           { errorExternal }: ProductConfigContext,
           { data }: AnyEventObject
@@ -480,13 +466,14 @@ export default createMachine(
                 isObject(errorExternal) &&
                 "provisionFields" in errorExternal)
             ) {
-              remove((errorExternal as any)?.provisionFields, [
-                "propertyName",
-                key
-              ]);
+              if (isObject(errorExternal) && "data" in errorExternal) {
+                remove(errorExternal?.data?.provisionFields, [
+                  "propertyName",
+                  key
+                ]);
+              }
             }
           });
-
           return omitBy(errorExternal, isEmpty) as ExternalError;
         }
       }),
