@@ -28,6 +28,7 @@ export enum ROUTE {
   BASKET = "basket",
   CHECKOUT = "checkout",
   ORDER = "order",
+  SHOP = "order.shop",
   // --- express routes
   EXPRESS_PRODUCT_ADD = "express.product.add",
   EXPRESS_CHECKOUT = "express.checkout",

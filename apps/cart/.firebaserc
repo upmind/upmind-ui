@@ -1,0 +1,19 @@
+{
+  "projects": {
+    "default": "upmind-labs"
+  },
+  "targets": {
+    "upmind-labs": {
+      "hosting": {
+        "staging": [
+          "stg-upm-checkout"
+        ],
+        "hosting": [
+          "upmind-checkout-dev"
+        ]
+      }
+    }
+  },
+  "etags": {},
+  "dataconnectEmulatorConfig": {}
+}

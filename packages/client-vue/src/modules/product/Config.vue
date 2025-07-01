@@ -77,10 +77,9 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 
 // --- components
-import { Button, Icon } from "@upmind-automation/upmind-ui";
+import { Card, Button, Icon } from "@upmind-automation/upmind-ui";
 import Summary from "./components/summary/Summary.vue";
 import ProductConfig from "./components/config/Config.vue";
-import Card from "../../components/content/Card.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 // -----------------------------------------------------------------------------

@@ -22,11 +22,9 @@ export default {
       text: cva(
         "text-base-700 m-0 inline-flex items-end gap-2 text-left text-sm font-normal leading-normal"
       ),
-      bold: cva("text-base-foreground font-medium"),
+      bold: cva("text-foreground font-medium"),
       discount: cva("text-base-500 block text-xs font-light line-through"),
-      value: cva(
-        "flex-0 text-base-foreground m-0 block text-right font-medium"
-      ),
+      value: cva("flex-0 text-foreground m-0 block text-right font-medium"),
       total: cva("font-medium"),
       icon: cva("flex-0 size-5 leading-normal"),
       tooltipIcon: cva("flex-0 size-4 leading-6"),

@@ -60,7 +60,7 @@ import {
   CarouselPrevious
 } from "@upmind-automation/upmind-ui";
 
-import RecommendationCard from "./Card.vue";
+import RecommendationCard from "./RecommendationCard.vue";
 import RecommendationCardSkeleton from "./CardSkeleton.vue";
 
 //--- utils
