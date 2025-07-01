@@ -108,7 +108,7 @@ export const useQuery = () => {
     // Set 'limit' parameter
     if (!isEmpty(pagination) && isInteger(pagination?.limit))
       url.searchParams.set("limit", `${pagination.limit}`);
-    else url.searchParams.delete("limit");
+    // NB NEVER remove limits from the url as we may include limit=0
 
     // Set 'offset' parameter
     if (!isEmpty(pagination) && isInteger(pagination?.offset))
@@ -204,10 +204,7 @@ export const useQuery = () => {
     queryKey,
     withAccessToken,
     ...options
-  }: Omit<
-    QueryParams<TQueryFnData, TData>,
-    "pagination"
-  >) /* TODO: MAYBE omit the pagination/sort and filter query params */ {
+  }: Omit<QueryParams<TQueryFnData, TData>, "pagination">) {
     return vueUseQuery<TQueryFnData, DefaultError, TData>(
       {
         queryKey: cleanQueryKey([...queryKey]),
