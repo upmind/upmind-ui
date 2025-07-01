@@ -1,20 +1,12 @@
 // --- external
-import {
-  createMachine,
-  assign,
-  actions,
-  spawn,
-  sendTo,
-  pure,
-  raise
-} from "xstate";
+import { createMachine, assign, spawn, sendTo, pure, raise } from "xstate";
 
 // --- internal
 import services from "./services";
 import { basketSubscription } from "../basketProduct/helper";
 
 // --utils
-import { useTime } from "../../utils";
+import { mapToHeadlessError, useTime } from "../../utils";
 import {
   parseSubproductDetails,
   parseProvisioningSchema,
@@ -627,27 +619,19 @@ export default createMachine(
       }),
       // ---
 
-      // TODO: @DC implement the new response errors from the API
       setExternalError: assign({
         errorExternal: (
-          { errorExternal }: ProductConfigContext,
+          _context: ProductConfigContext,
           { data }: AnyEventObject
-        ) => {
-          let errors = data?.error?.data;
-          return merge({}, errorExternal, errors);
-        },
-        error: ({ error }: ProductConfigContext, { data }: AnyEventObject) => {
-          let errors = data?.error?.data;
-          return merge({}, error, errors);
-        }
+        ) => mapToHeadlessError(data),
+        error: (_context: ProductConfigContext, { data }: AnyEventObject) =>
+          mapToHeadlessError(data)
       }),
 
       // TODO: @DC implement the new response errors from the API
       setError: assign({
-        error: ({ error }: ProductConfigContext, { data }: AnyEventObject) => {
-          let errors = data?.data?.errors;
-          return merge({}, error, errors);
-        }
+        error: (_context: ProductConfigContext, { data }: AnyEventObject) =>
+          mapToHeadlessError(data)
       }),
 
       clearError: assign({

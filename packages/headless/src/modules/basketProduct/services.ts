@@ -10,6 +10,7 @@ import {
   DetailedError,
   ErrorOrigin,
   responseCodes,
+  ResponseError,
   unflattenErrors,
   useTime
 } from "../../utils";
@@ -585,17 +586,17 @@ async function remove({
   });
 }
 
-function parseApiErrors(response: QueryResponse) {
-  if (!response?.error) return Promise.reject(response);
+function parseApiErrors(response: ResponseError) {
+  if (!response?.data) return Promise.reject(response);
   // rawErrors will return a flattened object path in dot notation, so we need to convert back it to an object
-  const rawErrors = unflattenErrors(response.error.data);
+  const rawErrors = unflattenErrors(response.data);
   // Currently we receive errors in 2 ways,
   // 1) Options or Attributes returns an collection of products with errors, we only look at the first ( and usually only )
   // 2) Provision fields returns an object
   if (isArray(rawErrors?.products)) {
-    response.error.data = parseBasketProductError(first(rawErrors?.products));
+    response.data = parseBasketProductError(first(rawErrors?.products));
   } else {
-    response.error.data = parseBasketProductError(rawErrors);
+    response.data = parseBasketProductError(rawErrors);
   }
 
   return Promise.reject(response);

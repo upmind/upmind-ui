@@ -14,7 +14,7 @@ export { PromotionDisplayTypes } from "@upmind-automation/types";
 import { PromotionDisplayTypes } from "@upmind-automation/types";
 import type { Recommendation } from "../recommendations";
 import type { BasketProduct } from "../basketProduct";
-import { QueryResponseError } from "../query";
+import { ResponseError } from "../../utils";
 
 // -----------------------------------------------------------------------------
 /**
@@ -386,8 +386,8 @@ export interface ProductConfigContext {
   // ---
   calculateCallback?: ActorRef<any>;
   // TODO: @DC implement the new response errors types from the API
-  error?: QueryResponseError | ExternalError;
-  errorExternal?: QueryResponseError | ExternalError;
+  error?: ResponseError | ExternalError;
+  errorExternal?: ResponseError | ExternalError;
   attempts?: number;
   // ---
   rawProduct?: IProduct;

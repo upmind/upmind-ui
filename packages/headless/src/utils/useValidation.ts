@@ -27,7 +27,7 @@ import {
   trimEnd,
   trimStart
 } from "lodash-es";
-import { parseError } from "./useError";
+import { parseError, ResponseError } from "./useError";
 import Ajv, { type ErrorObject } from "ajv";
 
 // --- types
@@ -448,21 +448,17 @@ export function useLaravalSchemaParser(
   ) as JsonSchema7;
 }
 
-export const useValidationParser = (error: any): ErrorObject[] => {
-  if (error?.data) {
-    error.message = "Validation error";
-    error.data = compact(
-      reduce(
-        error?.data,
-        (result: ErrorObject[], value, key) => {
-          const parsed = parseError(value, key);
-          return concat(result, parsed);
-        },
-        []
-      )
-    );
-  }
-  return error;
+export const useValidationParser = (error: ResponseError): ErrorObject[] => {
+  return compact(
+    reduce(
+      error?.data,
+      (result: ErrorObject[], value, key) => {
+        const parsed = parseError(value, key);
+        return concat(result, parsed);
+      },
+      []
+    )
+  );
 };
 
 export const useModelParser = <

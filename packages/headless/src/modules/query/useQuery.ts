@@ -162,7 +162,6 @@ export const useQuery = () => {
     // -------------------------------------------------------------------------
 
     return doFetch<T>({ url, init }).catch(async error => {
-      const requestError = error as QueryResponseError;
       attempts++;
 
       // allow us to retry the request if we have a 401 error, but only once (we don't want an infinite loop)
@@ -177,19 +176,9 @@ export const useQuery = () => {
           return doFetch<T>({ url, init });
         });
       }
-      return Promise.reject(
-        new DetailedError(
-          "[headless] Failed to fetch",
-          responseCodes.Service_Unavailable,
-          ErrorOrigin.Headless,
-          {
-            error: requestError,
-            url: url.toString(),
-            method: init?.method,
-            attempts
-          }
-        )
-      );
+
+      // let the original error propagate
+      throw error;
     });
   }
 
