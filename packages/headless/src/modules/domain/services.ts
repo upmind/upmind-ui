@@ -10,6 +10,7 @@ import { parseAvailable, parseDomain, parseSld } from "./utils";
 // --- types
 import type { IProduct } from "@upmind-automation/types";
 import type { DomainContext } from "./types";
+import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 
 // -----------------------------------------------------------------------------
 
@@ -23,13 +24,19 @@ async function search({
   const { getList, useUrl } = useQuery();
 
   if (!search?.query?.length)
-    return Promise.reject(new Error("No query provided"));
+    return Promise.reject(
+      new DetailedError(
+        "[headless] No query provided",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      )
+    );
   const sld = parseSld(search.query);
 
   // lets ensure we parse our promotions correctly
   const promocodes = map(promotions, "promotion.code").join();
 
-  // --- Build the request, and Fetch the search results
+  // --- Build the request and Fetch the search results
   const params = omitBy(
     {
       sld,

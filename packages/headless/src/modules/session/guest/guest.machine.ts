@@ -20,7 +20,12 @@ import { useFeedback } from "../../feedback";
 const { addSuccess } = useFeedback();
 
 // --- utils
-import { useValidationParser, useCookies } from "../../../utils";
+import {
+  useValidationParser,
+  useCookies,
+  ResponseError,
+  mapToHeadlessError
+} from "../../../utils";
 const { setTopLevel: setCookie } = useCookies();
 
 import {
@@ -42,7 +47,6 @@ import { omit } from "lodash-es";
 // --- types
 import { responseCodes } from "../../../utils";
 import { GrantTypes } from "@upmind-automation/types";
-import { QueryResponseError } from "../../query";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -393,22 +397,17 @@ export default createMachine(
 
       setError: assign({
         error: (_context: GuestContext, { data }: AnyEventObject) => {
-          // console.error("session", "client", "error", { event, state });
+          let error = mapToHeadlessError(data);
 
-          if (data?.status == responseCodes.Unauthorized) {
-            // Usually because the refresh token has expired.
-            return {
-              type: responseCodes.Unauthorized,
-              message: data?.error?.message || "Unauthorized"
-            } as QueryResponseError;
-          }
-          if (data?.status == responseCodes.Unprocessable_Entity) {
-            // lets parse/override our error message and data
-            // this is to generate valid json schema validation errors
-            return useValidationParser(data?.error);
+          if (error?.status == responseCodes.Unauthorized) {
+            error.message ??= "Unauthorised";
           }
 
-          return data?.error ?? data;
+          if (error?.status == responseCodes.Unprocessable_Entity) {
+            error.data = useValidationParser(error.data);
+          }
+
+          return error;
         }
       }),
 

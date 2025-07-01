@@ -18,7 +18,9 @@ import {
   contextValue,
   stateMatches,
   useContext,
-  useChildActor
+  useChildActor,
+  ErrorOrigin,
+  ResponseError
 } from "../../utils";
 
 // ---types
@@ -31,7 +33,6 @@ import type {
 import { GuestContext } from "./guest/types";
 import { ClientContext } from "./client/types";
 import { ErrorObject } from "ajv";
-import { QueryResponseError } from "../query";
 export type { User, SessionTransfer, IAuthTransfer } from "./types";
 // -----------------------------------------------------------------------------
 
@@ -48,7 +49,7 @@ const service = interpret(sessionMachine, { devTools: false });
  * Composable function to manage session-related logic using Vue.
  * It provides state, context and helpers for session, login and registration processes.
  *
- * @returns {object} Session management API (see below for details)
+ * @returns Session management API (see below for details)
  */
 export const useSession = () => {
   if (service.status == InterpreterStatus.NotStarted) service.start();
@@ -63,7 +64,7 @@ export const useSession = () => {
       state => {
         const spawned = state?.children;
         if (stateMatches(state, "error")) return false;
-        return values(spawned).some(machine => {
+        return values(spawned).some(async machine => {
           return waitFor(machine, state => stateMatches(state, "available"))
             .then(() => true)
             .catch(() => false);
@@ -84,8 +85,13 @@ export const useSession = () => {
 
   async function isAuthenticated(): Promise<User> {
     return isReady()
-      .then(() => {
-        if (!client.value) throw new Error("Not authenticated");
+      .then(async () => {
+        if (!client.value)
+          throw new DetailedError(
+            "[headless] isAuthenticated on useSession failed",
+            responseCodes.Unauthorized,
+            ErrorOrigin.Headless
+          );
 
         return waitFor(
           client.value.service,
@@ -98,7 +104,8 @@ export const useSession = () => {
           if (!user) {
             throw new DetailedError(
               "[headless] isAuthenticated on useSession failed",
-              responseCodes.Unauthorized
+              responseCodes.Unauthorized,
+              ErrorOrigin.Headless
             );
           }
           return user;
@@ -106,7 +113,11 @@ export const useSession = () => {
       })
       .catch(() =>
         Promise.reject(
-          new DetailedError("Unauthorized", responseCodes.Unauthorized)
+          new DetailedError(
+            "[headless] Unauthorized",
+            responseCodes.Unauthorized,
+            ErrorOrigin.Headless
+          )
         )
       );
   }
@@ -199,13 +210,10 @@ export const useSession = () => {
   /**
    * Any errors encountered during session management operations, such as login or registration failures.
    */
-  const errors = useContext<QueryResponseError["message"]>(
-    guest,
-    "error.message"
-  );
+  const errors = useContext<ResponseError["message"]>(guest, "error.message");
   const validationErrors = useContext<ErrorObject[]>(guest, "error.data");
 
-  // --- methdos
+  // --- methods
 
   // ---  methods
 
@@ -213,7 +221,8 @@ export const useSession = () => {
     if (!client.value) {
       throw new DetailedError(
         "[headless] getUser on useSession failed",
-        responseCodes.Unauthorized
+        responseCodes.Unauthorized,
+        ErrorOrigin.Headless
       );
     }
 
@@ -229,14 +238,16 @@ export const useSession = () => {
         if (!user)
           throw new DetailedError(
             "[headless] getUser on useSession failed",
-            responseCodes.Unauthorized
+            responseCodes.Unauthorized,
+            ErrorOrigin.Headless
           );
         return user;
       })
       .catch(() => {
         throw new DetailedError(
           "[headless] getUser on useSession failed",
-          responseCodes.Timeout
+          responseCodes.Timeout,
+          ErrorOrigin.Headless
         );
       });
   }
@@ -314,12 +325,7 @@ export const useSession = () => {
         timeout: 60000
       }
     )
-      .then(state => {
-        if (stateMatches(state, "available.login.error")) {
-          return false;
-        }
-        return true;
-      })
+      .then(state => !stateMatches(state, "available.login.error"))
       .catch(() => false);
   }
 
@@ -338,12 +344,7 @@ export const useSession = () => {
         timeout: 60000
       }
     )
-      .then(state => {
-        if (stateMatches(state, "available.login.error")) {
-          return false;
-        }
-        return true;
-      })
+      .then(state => !stateMatches(state, "available.login.error"))
       .catch(() => false);
   }
 
@@ -362,12 +363,7 @@ export const useSession = () => {
         timeout: 60000
       }
     )
-      .then(state => {
-        if (stateMatches(state, "available.register.error")) {
-          return false;
-        }
-        return true;
-      })
+      .then(state => !stateMatches(state, "available.register.error"))
       .catch(() => false);
   }
 
@@ -388,12 +384,7 @@ export const useSession = () => {
         ]),
       { timeout: 60_000 }
     )
-      .then(state => {
-        if (stateMatches(state, "available.recover.error")) {
-          return false;
-        }
-        return true;
-      })
+      .then(state => !stateMatches(state, "available.recover.error"))
       .catch(() => false);
   }
 
@@ -419,7 +410,13 @@ export const useSession = () => {
     if (!client.value) {
       const { addError } = useFeedback();
       addError({ title: "Transfer not available" });
-      return Promise.reject(new Error("Transfer not available"));
+      return Promise.reject(
+        new DetailedError(
+          "[headless] Transfer on useSession not available",
+          responseCodes.No_Content,
+          ErrorOrigin.Headless
+        )
+      );
     }
 
     service.send({
@@ -434,7 +431,11 @@ export const useSession = () => {
       .then(newState => {
         const transfer = newState.context.transfer;
         if (!transfer) {
-          throw new Error("Transfer not available");
+          throw new DetailedError(
+            "[headless] Transfer on useSession not available",
+            responseCodes.No_Content,
+            ErrorOrigin.Headless
+          );
         }
         return transfer;
       })
@@ -444,7 +445,8 @@ export const useSession = () => {
         return Promise.reject(
           new DetailedError(
             "[headless] TransferTo on useSession not available",
-            responseCodes.No_Content
+            responseCodes.No_Content,
+            ErrorOrigin.Headless
           )
         );
       });
@@ -475,6 +477,7 @@ export const useSession = () => {
             new DetailedError(
               "Transfer not available",
               responseCodes.Conflict,
+              ErrorOrigin.Headless,
               error
             )
           );
@@ -484,7 +487,8 @@ export const useSession = () => {
       .catch(() => {
         throw new DetailedError(
           "[headless] TransferFrom on useSession failed",
-          responseCodes.Timeout
+          responseCodes.Timeout,
+          ErrorOrigin.Headless
         );
       });
   }
@@ -504,8 +508,10 @@ export const useSession = () => {
     if (meta.value.showRegisterForm) return register(model);
     if (meta.value.showRecoverPasswordForm) return recover(model);
     return Promise.reject(
-      new Error(
-        `[headless] useSession: resolve() called but no form is available`
+      new DetailedError(
+        "[headless] useSession: resolve() called but no form is available",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
       )
     );
   }
@@ -547,7 +553,7 @@ export const useSession = () => {
 
     /**
      * Computed metadata related to the session's state, including loading, ready, and error flags.
-     * @typedef {Object} meta
+     * @type {Object} meta
      * @property {boolean} isLoading - Indicates whether any part of the session is currently in a loading state.
      * @property {boolean} isAvailable - Indicates whether the session is ready to be used.
      * @property {boolean} isProcessing - Indicates whether the session is currently processing an action.

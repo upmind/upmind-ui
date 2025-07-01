@@ -9,7 +9,7 @@ import clientMachine from "./client/client.machine";
 import guestMachine from "./guest/guest.machine";
 
 // --- utils
-import { useTime, useCookies } from "../../utils";
+import { useTime, useCookies, mapToHeadlessError } from "../../utils";
 const { removeTopLevel: removeCookie, get: getCookie } = useCookies();
 
 import { useDataLayer } from "../system";
@@ -144,7 +144,8 @@ export default createMachine(
       clearTransfer: assign({ transfer: undefined }),
 
       setError: assign({
-        error: (_context: SessionContext, { data }: AnyEventObject) => data
+        error: (_context: SessionContext, { data }: AnyEventObject) =>
+          mapToHeadlessError(data)
       }),
 
       clearError: assign({

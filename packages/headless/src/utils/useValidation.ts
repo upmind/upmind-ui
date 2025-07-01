@@ -27,7 +27,7 @@ import {
   trimEnd,
   trimStart
 } from "lodash-es";
-import { parseError } from "./useError";
+import { parseError, ResponseError } from "./useError";
 import Ajv, { type ErrorObject } from "ajv";
 
 // --- types
@@ -448,21 +448,17 @@ export function useLaravalSchemaParser(
   ) as JsonSchema7;
 }
 
-export const useValidationParser = (error: any): ErrorObject[] => {
-  if (error?.data) {
-    error.message = "Validation error";
-    error.data = compact(
-      reduce(
-        error?.data,
-        (result: ErrorObject[], value, key) => {
-          const parsed = parseError(value, key);
-          return concat(result, parsed);
-        },
-        []
-      )
-    );
-  }
-  return error;
+export const useValidationParser = (error: ResponseError): ErrorObject[] => {
+  return compact(
+    reduce(
+      error?.data,
+      (result: ErrorObject[], value, key) => {
+        const parsed = parseError(value, key);
+        return concat(result, parsed);
+      },
+      []
+    )
+  );
 };
 
 export const useModelParser = <
@@ -478,17 +474,17 @@ export const useModelParser = <
     allowExtraProps?: boolean;
   } = { allowExtraProps: true }
 ): TModel => {
-  values = omitBy(values, isEmpty) as Partial<TModel>;
-  baseModel = omitBy(baseModel, isEmpty) as Partial<TBaseModel>;
+  // values = omitBy(values, isEmpty) as Partial<TModel>;
+  // baseModel = omitBy(baseModel, isEmpty) as Partial<TBaseModel>;
 
-  if (!schema?.properties)
-    return (isEmpty(values) ? baseModel : values) as TModel;
+  values = defaultsDeep(values, baseModel) as Partial<TModel>;
+
+  if (!schema?.properties) return values as TModel;
 
   const model = reduce(
     schema.properties,
     (result, field, key) => {
-      const value =
-        field?.const || get(values, key, field?.default || get(baseModel, key));
+      const value = field?.const || get(values, key, field?.default) || null;
       set(result, key, value);
       return result;
     },
@@ -496,7 +492,11 @@ export const useModelParser = <
   );
   if (!allowExtraProps) return model as TModel;
 
-  return defaultsDeep(model, values) as TModel;
+  const parsed = (
+    !allowExtraProps ? model : defaultsDeep(model, values)
+  ) as TModel;
+
+  return parsed;
 };
 
 // -----------------------------------------------------------------------------

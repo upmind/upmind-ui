@@ -11,13 +11,13 @@ import {
 // --- utils
 import {
   useTime,
-  useValidation,
-  useModelParser,
-  CacheIsStaleError,
-  NotAuthenticatedError,
+  ErrorOrigin,
   DetailedError,
   responseCodes,
-  useCollection
+  useValidation,
+  useCollection,
+  useModelParser,
+  NotAuthenticatedError
 } from "../../../utils";
 import { mapAddress, mapAddresses, mapIAddress } from "./mappers";
 import { invalidateQueryByKey } from "../../query";
@@ -92,7 +92,16 @@ async function loadLookups({
 
   // we have to do this synchronously as we need the values to be available for the model
   // these could/should be cached in the system machine, so there's no worry about performance
-  await isReady().catch(error => Promise.reject(error));
+  await isReady().catch(error =>
+    Promise.reject(
+      new DetailedError(
+        "[headless] System not ready",
+        responseCodes.Unauthorized,
+        ErrorOrigin.Headless,
+        error
+      )
+    )
+  );
   const countries = await fetchCountries();
   const country = getCountry(model?.countryId);
   const regions = await fetchRegions(model?.countryId || country?.id);
@@ -103,7 +112,13 @@ async function loadLookups({
   ]);
 
   if (!countries || !regions) {
-    return Promise.reject("Failed to load countries and regions");
+    return Promise.reject(
+      new DetailedError(
+        "[headless] Failed to load address lookups",
+        responseCodes.No_Content,
+        ErrorOrigin.Headless
+      )
+    );
   }
 
   const baseModel: AddressModel = {
@@ -170,6 +185,7 @@ async function ensure(model: AddressModel): Promise<Address> {
       throw new DetailedError(
         "[headless] Failed to ensure address",
         responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless,
         { model }
       );
     // NB: Remember to refresh our machines so we have the new data
@@ -293,7 +309,14 @@ async function validate({ schema, model }: Partial<AddressContext>) {
   return new Promise((resolve, reject) => {
     const errors = validate(schema, model);
     if (errors?.length) {
-      reject({ error: errors });
+      reject(
+        new DetailedError(
+          "[headless] Invalid Address Model",
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.Headless,
+          { error: errors }
+        )
+      );
     } else {
       resolve(model);
     }
@@ -346,7 +369,8 @@ export const useClientAddressServices = () => {
         return Promise.reject(
           new DetailedError(
             "[headless] Add Address failed: model provided",
-            responseCodes.Unprocessable_Entity,
+            responseCodes.No_Content,
+            ErrorOrigin.Headless,
             { model }
           )
         );
@@ -364,7 +388,8 @@ export const useClientAddressServices = () => {
         return Promise.reject(
           new DetailedError(
             "[headless] Ensure Address failed: model provided",
-            responseCodes.Unprocessable_Entity,
+            responseCodes.No_Content,
+            ErrorOrigin.Headless,
             { model }
           )
         );
@@ -403,7 +428,8 @@ export const useClientAddressServices = () => {
         return Promise.reject(
           new DetailedError(
             "[headless] Update Address failed: No id or model provided",
-            responseCodes.Unprocessable_Entity,
+            responseCodes.No_Content,
+            ErrorOrigin.Headless,
             { id, model }
           )
         );

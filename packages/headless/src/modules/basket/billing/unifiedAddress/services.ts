@@ -3,10 +3,10 @@ import parsePhoneNumber, { CountryCode } from "libphonenumber-js";
 
 // --- internal
 import {
-  useClientEmails,
-  useClientPhones,
   useClientAddresses,
-  useClientCompanies
+  useClientCompanies,
+  useClientEmails,
+  useClientPhones
 } from "../../../client";
 import { useBrand } from "../../../brand";
 import { useSystem } from "../../../system";
@@ -17,21 +17,20 @@ import { useClientAddressServices } from "../../../client/address/services";
 
 // --- utils
 import {
-  useValidation,
   DetailedError,
+  ErrorOrigin,
   responseCodes,
-  useModelParser
+  useModelParser,
+  useValidation
 } from "../../../../utils";
-
 import { find, get, isEmpty, isString, some } from "lodash-es";
 
 // --- types
-import type { PhoneModel, AddressModel, CompanyModel } from "../../../client";
 import type { AnyEventObject } from "xstate";
-import { UnifiedAddressType } from "./types";
 import type { UnifiedAddressContext, UnifiedAddressModel } from "./types";
+import { UnifiedAddressType } from "./types";
 import { BrandConfigKeys } from "@upmind-automation/types";
-import { Address } from "cluster";
+import type { AddressModel, CompanyModel, PhoneModel } from "../../../client";
 
 // -----------------------------------------------------------------------------
 // QUERIES
@@ -191,8 +190,11 @@ async function add(type: UnifiedAddressType, data: UnifiedAddressModel) {
     .catch(error => {
       return Promise.reject(
         new DetailedError(
-          "[headless] Add Unified Address Failed",
-          responseCodes.Unprocessable_Entity,
+          error?.message ?? "[headless] Add Unified Address Failed",
+          error?.code ??
+            error?.statusCode ??
+            responseCodes.Unprocessable_Entity,
+          error?.origin ?? ErrorOrigin.Headless,
           { error }
         )
       );
@@ -308,7 +310,14 @@ async function validate({ schema, model }: Partial<UnifiedAddressContext>) {
     const errors = validate(schema, model);
 
     if (errors?.length) {
-      reject({ error: errors });
+      reject(
+        new DetailedError(
+          "[headless] validate on UnifiedAddress failed.",
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.Headless,
+          { error: errors }
+        )
+      );
     } else {
       resolve(model);
     }

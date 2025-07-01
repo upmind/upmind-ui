@@ -20,17 +20,18 @@ import {
   responseCodes,
   stateMatches,
   stateValue,
+  useContext,
   stopService,
-  useContext
+  ErrorOrigin,
+  ResponseError
 } from "../../../utils";
 import { debounce, get, isEmpty, isEqual } from "lodash-es";
 
 // --- types
-import { IClient } from "@upmind-automation/types";
+import type { IClient } from "@upmind-automation/types";
+import type { ErrorObject } from "ajv";
 import type { ClientItemContext } from "../types";
 import type { Phone, PhoneModel } from "./types";
-import { QueryResponseError } from "../../query";
-import { ErrorObject } from "ajv";
 
 // -----------------------------------------------------------------------------
 
@@ -77,11 +78,7 @@ export const useClientPhone = (
   async function isReady(): Promise<boolean> {
     return waitFor(service, state => stateMatches(state, "available"), {
       timeout: Infinity
-    }).then(state => {
-      if (stateMatches(state, "error")) return false;
-
-      return true;
-    });
+    }).then(state => !stateMatches(state, "error"));
   }
 
   const meta = computed(() => ({
@@ -103,10 +100,7 @@ export const useClientPhone = (
 
   const description = useContext<string | undefined>(state, "description");
 
-  const errors = useContext<QueryResponseError["message"]>(
-    state,
-    "error.message"
-  );
+  const errors = useContext<ResponseError["message"]>(state, "error.message");
   const validationErrors = useContext<ErrorObject[]>(state, "error.data");
 
   const model = useContext<ClientItemContext["model"]>(state, "model");
@@ -128,7 +122,11 @@ export const useClientPhone = (
       .then(state => get(state, "context.model") as PhoneModel)
       .catch(() => {
         return Promise.reject(
-          new DetailedError("Input not available", responseCodes.Forbidden)
+          new DetailedError(
+            "[headless] Input not available",
+            responseCodes.Forbidden,
+            ErrorOrigin.Headless
+          )
         );
       });
   }
@@ -165,6 +163,7 @@ export const useClientPhone = (
           new DetailedError(
             "[headless] update Phone failed",
             error?.status ?? responseCodes.Timeout,
+            ErrorOrigin.Headless,
             {
               error,
               state: state.value
@@ -191,8 +190,8 @@ export const useClientPhone = (
     isReady,
 
     /**
-     * Meta information about the state.
-     * @typedef {Object} UnifiedPhoneMeta
+     * Meta-information about the state.
+     * @type {Object} UnifiedPhoneMeta
      * @property {boolean} isAvailable - Indicates if the actor is available.
      * @property {boolean} isLoading - Indicates if the actor is loading.
      * @property {boolean} hasErrors - Indicates if there are errors.

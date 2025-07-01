@@ -6,18 +6,18 @@ import { useBrand, useQuery, useSession } from "../../..";
 // --- utils
 import {
   DetailedError,
+  ErrorOrigin,
+  NotAuthenticatedError,
   responseCodes,
-  useValidation,
   useModelParser,
-  NotAuthenticatedError
+  useValidation
 } from "../../../utils";
-import { get, isEqual } from "lodash-es";
+import { get } from "lodash-es";
 
 // --- types
 import { BrandConfigKeys } from "@upmind-automation/types";
 import type { AnyEventObject } from "xstate";
 import type { BillingContext, BillingModel } from "./types";
-import { dir } from "console";
 
 // -----------------------------------------------------------------------------
 
@@ -99,7 +99,14 @@ async function validate(
     if (!schema) return resolve(model);
     const errors = validate(schema, model);
     if (errors?.length) {
-      reject({ error: errors });
+      reject(
+        new DetailedError(
+          "[headless] Invalid Billing Model",
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.Headless,
+          { error: errors }
+        )
+      );
     } else {
       resolve(model);
     }
@@ -114,7 +121,11 @@ async function update(
 
   if (!model?.addressId)
     return Promise.reject(
-      new DetailedError("No addressId", responseCodes.Unprocessable_Entity)
+      new DetailedError(
+        "[headless] No addressId provided to update billing",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      )
     );
 
   // get returns a promise so we can pass it directly back to the machine

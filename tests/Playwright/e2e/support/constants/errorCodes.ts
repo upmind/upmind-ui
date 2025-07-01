@@ -9,9 +9,9 @@ export const ErrorCodes = {
       type: 503,
       code: "planned_maintenance",
       message: "Service temporarily unavailable",
-      data: null,
+      data: null
     },
-    button: "reload-page",
+    button: "reload-page"
   },
 
   unauthorizedAccess: {
@@ -24,9 +24,9 @@ export const ErrorCodes = {
       type: 0,
       code: 403,
       message: "Sorry, your IP address is not allowed",
-      data: null,
+      data: null
     },
-    button: "back-to-shopping",
+    button: "back-to-shopping"
   },
 
   productNotFound: {
@@ -39,9 +39,9 @@ export const ErrorCodes = {
       type: 0,
       code: 404,
       message: "Product not found",
-      data: null,
+      data: null
     },
-    button: "continue-shopping",
+    button: "continue-shopping"
   },
   generic500: {
     route: "**/api/*",
@@ -53,8 +53,8 @@ export const ErrorCodes = {
       type: 0,
       code: 500,
       message: "Sorry, we are experiencing technical issues",
-      data: null,
+      data: null
     },
-    button: "reload-page",
-  },
+    button: "reload-page"
+  }
 };

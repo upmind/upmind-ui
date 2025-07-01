@@ -13,7 +13,8 @@ import {
   useContext,
   DetailedError,
   responseCodes,
-  Actor
+  Actor,
+  ErrorOrigin
 } from "../../utils";
 import { isNil, isEqual, every } from "lodash-es";
 
@@ -129,8 +130,11 @@ export const usePaymentGateway = (actor: ComputedRef<Actor | undefined>) => {
       .catch(error => {
         return Promise.reject(
           new DetailedError(
-            "[headless] update PaymentGateway failed",
-            error?.status ?? responseCodes.Timeout,
+            error?.message ?? "[headless] update PaymentGateway failed",
+            error?.code ??
+              error?.statusCode ??
+              responseCodes.Unprocessable_Entity,
+            error?.origin ?? ErrorOrigin.Headless,
             { error }
           )
         );

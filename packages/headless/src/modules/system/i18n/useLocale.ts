@@ -1,5 +1,5 @@
 // --- internal
-import { DetailedError, responseCodes } from "../../../utils";
+import { DetailedError, ErrorOrigin, responseCodes } from "../../../utils";
 import { useBrand } from "../../brand";
 import { SupportedLocaleCodes } from "./locales";
 
@@ -139,9 +139,12 @@ export const useLocale = (defaultLocale: string = "en") => {
         return resolve(validatedLocale.code);
       }
       return reject(
-        new DetailedError("No valid locale found", responseCodes.Not_Found, {
-          code
-        })
+        new DetailedError(
+          "[headless] No valid locale found",
+          responseCodes.Not_Found,
+          ErrorOrigin.Headless,
+          { code }
+        )
       );
     });
   }

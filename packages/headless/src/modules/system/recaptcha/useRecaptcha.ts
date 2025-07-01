@@ -14,13 +14,14 @@ import {
   stopService,
   useContext,
   stateMatches,
-  contextMatches
+  contextMatches,
+  ErrorOrigin,
+  ResponseError
 } from "../../../utils";
 
 // --- types
 import type { InterpreterFrom } from "xstate";
-import { QueryResponseError } from "../../query";
-import { RecaptchaContext } from "./types";
+import type { RecaptchaContext } from "./types";
 
 // -----------------------------------------------------------------------------
 
@@ -71,7 +72,7 @@ export const useRecaptcha = () => {
 
   const created = useContext<string | undefined>(state, "created");
 
-  const errors = useContext<QueryResponseError>(state, "error");
+  const errors = useContext<ResponseError>(state, "error");
 
   // --- methods
 
@@ -87,6 +88,7 @@ export const useRecaptcha = () => {
               new DetailedError(
                 "Recaptcha token not set",
                 responseCodes.Not_Found,
+                ErrorOrigin.Headless,
                 errors.value
               )
             );
@@ -99,6 +101,7 @@ export const useRecaptcha = () => {
           new DetailedError(
             "Recaptcha not available",
             responseCodes.Service_Unavailable,
+            ErrorOrigin.Headless,
             errors.value
           )
         );

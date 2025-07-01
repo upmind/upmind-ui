@@ -1,6 +1,6 @@
 // --- types
 import type { ActorRef } from "xstate";
-import { QueryResponseError } from "../query";
+import type { ResponseError } from "../../utils";
 
 // -----------------------------------------------------------------------------
 
@@ -91,7 +91,7 @@ export interface RoutingEngineContext {
   currentFlow?: Flow;
   currentRoute?: Route;
   // ---
-  error?: QueryResponseError;
+  error?: ResponseError;
   // ---
   basketId?: string;
   basketHelper?: ActorRef<any>;

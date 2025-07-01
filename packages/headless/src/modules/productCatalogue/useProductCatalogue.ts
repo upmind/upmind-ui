@@ -3,7 +3,7 @@ import { computed, ref } from "vue";
 
 // --- internal
 import service from "./services";
-import { invalidateQueryByKey } from "../query";
+import { invalidateQueryByKey, RequestSortDirection } from "../query";
 
 // --- utils
 import { get, set, find, every, isEmpty, includes, isString } from "lodash-es";
@@ -20,9 +20,9 @@ export const useProductCatalogue = (
 ) => {
   // --- state
   const { infinite, ...params } = initial || {};
-  const query = infinite
-    ? service.loadInfinite(params)
-    : service.loadList(params);
+  const query = !infinite
+    ? service.loadList({ ...params, withCurrency: true })
+    : service.loadInfinite({ ...params, withCurrency: true });
 
   const meta = computed(() => ({
     isLoading: query?.isLoading.value || !query.isFetched.value,
@@ -77,6 +77,18 @@ export const useProductCatalogue = (
     );
   }
 
+  // --- sort
+
+  const sortBy = (property: string, direction: RequestSortDirection) => {
+    query.sort([direction, property]);
+    query.resetQuery();
+  };
+
+  const clearSort = () => {
+    query.sort();
+    query.resetQuery();
+  };
+
   // --- filters
 
   const filters = ref<
@@ -98,29 +110,40 @@ export const useProductCatalogue = (
   const filterQuery = (value?: string) => {
     set(filters.value, "query", value || "");
     query.filter(filters.value);
+    // when we filter by query, we must reset pagination to the first page
+    // because the number of results might not be enough to fill the current page.
+    query.resetQuery();
   };
 
   const filterCurrency = (value?: ICurrency["code"]) => {
     set(filters.value, "currency", value || "");
     query.filter(filters.value);
+    // when we filter by currency, we don't need to reset pagination because the
+    // number of results should not change, only the prices will be updated.
   };
 
   const filterProductCategory = (value?: string) => {
     set(filters.value, "filter[products_category_id]", value ?? "");
     query.filter(filters.value);
-    query.resetQuery().then(() => {
-      query.refetch();
-    });
+    // when we filter by product category, we must reset pagination to the first
+    // page because the number of results might not be enough to fill the current page.
+    query.resetQuery();
   };
 
   const filterIds = (value?: string[]) => {
     set(filters.value, "id", value || []);
     query.filter(filters.value);
+    // when we filter by ids, we must reset pagination to the first page because
+    // the number of results might not be enough to fill the current page.
+    query.resetQuery();
   };
 
   const filterCoupons = (value?: string[]) => {
     set(filters.value, "promotions", value || []);
     query.filter(filters.value);
+    // when we filter by coupons, we must reset pagination to the first page because
+    // the number of results might not be enough to fill the current page.
+    query.resetQuery();
   };
 
   // ---------------------------------------------------------------------------
@@ -214,6 +237,17 @@ export const useProductCatalogue = (
      * @return {void}
      */
     invalidate: invalidateQueryByKey(service.queryKey, { exact: false }),
+
+    /**
+     * Sorts the query by the given property and direction.
+     * This will update the query parameters and reset the query to fetch the sorted data.
+     * @property {function} set - Sets the sort property and direction.
+     * @property {function} clear - Clears the current sort and resets the query.
+     */
+    sort: {
+      set: sortBy,
+      clear: clearSort
+    },
 
     /**
      * Filters for the query.

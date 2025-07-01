@@ -14,7 +14,8 @@ import {
   DetailedError,
   responseCodes,
   useContextActor,
-  Actor
+  Actor,
+  ErrorOrigin
 } from "../../utils";
 import { isEmpty, isEqual, isNil } from "lodash-es";
 
@@ -120,8 +121,10 @@ export const usePaymentDetails = (actor: ComputedRef<Actor | undefined>) => {
       .catch(error => {
         return Promise.reject(
           new DetailedError(
-            "[headless] update Payment Details on basket failed",
+            error.message ??
+              "[headless] update Payment Details on basket failed",
             error?.status ?? responseCodes.Timeout,
+            error.origin ?? ErrorOrigin.Headless,
             {
               error,
               state: actor.value?.state?.value

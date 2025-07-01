@@ -7,7 +7,12 @@ import { useLocale } from "../system";
 
 // --- utils
 import { defaultsDeep, startsWith } from "lodash-es";
-import { useTime } from "../../utils";
+import {
+  mapToHeadlessError,
+  responseCodes,
+  useTime,
+  useValidationParser
+} from "../../utils";
 import { BrandConfigKeys, OrgFeatureKeys } from "@upmind-automation/types";
 import { useBrandParser } from "./utils";
 
@@ -132,9 +137,8 @@ export default createMachine(
       }),
 
       setError: assign({
-        error: (_context: BrandContext, { data }: AnyEventObject) => {
-          return data?.error ?? data;
-        }
+        error: (_context: BrandContext, { data }: AnyEventObject) =>
+          mapToHeadlessError(data)
       }),
 
       clearError: assign({ error: undefined })
