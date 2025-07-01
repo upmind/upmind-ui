@@ -43,20 +43,21 @@ export const useThemes = (value?: Theme | Theme[], defaultTheme?: string) => {
   defaultTheme ??= first(themes.value)?.id || "default";
 
   // ---
-  const providedThemes = computed(() =>
-    reduce(
-      themes.value,
-      (result, { id, name, icon }: Theme) => {
-        set(result, lowerCase(id), {
-          label: name,
-          value: id,
-          icon,
-          handler: () => setTheme(id)
-        });
-        return result;
-      },
-      {}
-    )
+  const providedThemes = computed(
+    (): Record<string, ITheme> =>
+      reduce(
+        themes.value,
+        (result, { id, name, icon }: Theme) => {
+          set(result, lowerCase(id), {
+            label: name,
+            value: id,
+            icon,
+            handler: () => setTheme(id)
+          });
+          return result;
+        },
+        {}
+      )
   );
 
   setTheme(defaultTheme);
