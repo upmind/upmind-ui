@@ -256,6 +256,7 @@ export type ProductSummaryDetail = {
   quantity?: number;
   promotions?: PromotionDetails[];
   meta: ProductSummaryMeta;
+  error?: ErrorObject[];
 };
 
 export type ProductSummaryDetailWithPrice = ProductSummaryDetail & {
