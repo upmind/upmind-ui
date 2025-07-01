@@ -64,6 +64,5 @@
 </template>
 
 <script lang="ts" setup>
-import Card from "../../../components/content/Card.vue";
-import { Skeleton } from "@upmind-automation/upmind-ui";
+import { Card, Skeleton } from "@upmind-automation/upmind-ui";
 </script>

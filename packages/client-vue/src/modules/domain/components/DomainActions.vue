@@ -6,7 +6,7 @@
     :loading="processing && selected"
     :variant="selected || meta.added ? 'flat' : 'outline'"
     :truncate="false"
-    color="secondary"
+    color="primary"
     @click="selected ? onRemove(props.domain) : onUpdate(props.domain)"
     size="md"
   >

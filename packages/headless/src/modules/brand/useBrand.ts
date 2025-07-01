@@ -35,7 +35,7 @@ import {
   ICountry,
   IBrand
 } from "@upmind-automation/types";
-import { BrandContext } from "./types";
+import { BrandContext, IBrandMeta } from "./types";
 import { CurrencyModel } from "../basket/currency/types";
 
 // -----------------------------------------------------------------------------
@@ -104,6 +104,8 @@ export const useBrand = () => {
 
   const brandId = useContext<IBrand["id"]>(state, "id");
 
+  const name = useContext<IBrand["name"]>(state, "name");
+
   const context = useContext<BrandContext>(state);
 
   const countryId = useContext<ICountry["id"]>(state, "country_id");
@@ -111,6 +113,14 @@ export const useBrand = () => {
   const currencyId = useContext<ICurrency["id"]>(state, "currency_id");
 
   const currencies = useContext<ICurrency[]>(state, "currencies", []);
+
+  const image = useContext<IBrand["image"]>(state, "image");
+
+  const styles = useContext<IBrand["style"]>(state, "style");
+
+  const favicon = useContext<IBrand["favicon"]>(state, "favicon");
+
+  const uiMeta = useContext<IBrandMeta>(state, "meta");
 
   const currency = computed(
     (): ICurrency | undefined =>
@@ -271,6 +281,11 @@ export const useBrand = () => {
     brandId,
 
     /**
+     * The current brand name.
+     */
+    name,
+
+    /**
      * The full brand context from the XState machine.
      */
     context,
@@ -314,6 +329,26 @@ export const useBrand = () => {
      * The list of all supported currencies for the brand.
      */
     currencies,
+
+    /**
+     * The current image object for the brand.
+     */
+    image,
+
+    /**
+     * The current styles object for the brand.
+     */
+    styles,
+
+    /**
+     * The current favicon object for the brand.
+     */
+    favicon,
+
+    /**
+     * The current meta object for the brand.
+     */
+    uiMeta,
 
     /**
      * The current language object for the brand.

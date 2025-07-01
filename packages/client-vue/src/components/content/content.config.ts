@@ -25,20 +25,6 @@ export const titleVariants = cva("m-0", {
 });
 
 export default {
-  card: cva(
-    "bg-base-background text-base-foreground rounded-lg p-5 px-6 shadow-sm md:p-8 md:px-9",
-    {
-      variants: {
-        isDisabled: {
-          true: "pointer-events-none opacity-50"
-        }
-      },
-      defaultVariants: {
-        isDisabled: false
-      }
-    }
-  ),
-
   page: {
     root: cva("bg-background text-foreground w-full transition-colors")
   },
@@ -47,16 +33,13 @@ export default {
     header: cva(
       "mb-4 ml-[1px] flex flex-wrap items-end justify-between gap-4 md:mb-4 md:mt-4"
     ),
-    title: cva("text-base-foreground m-0 !text-3xl"),
+    title: cva("text-foreground m-0 !text-3xl"),
     tagline: cva("text-base-700 text-sm"),
     content: cva("w-full"),
     footer: cva(
       "text-base-700 mt-6 flex flex-col space-y-2 text-xs md:space-y-0"
     )
   },
-  content: cva(
-    "prose max-w-app z-10 mx-auto w-full flex-wrap items-start justify-start pb-16 pt-10 md:pb-32 md:pt-16"
-  ),
   title: titleVariants,
   description: cva("text-emphasis-medium my-0 text-sm italic leading-5")
 };

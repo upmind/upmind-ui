@@ -82,6 +82,157 @@ importers:
         specifier: ^2.2.2
         version: 2.2.8(typescript@5.7.3)
 
+  apps/cart:
+    dependencies:
+      '@formkit/auto-animate':
+        specifier: ^0.8.2
+        version: 0.8.2
+      '@sentry/vue':
+        specifier: ^9.1.0
+        version: 9.3.0(vue@3.5.13(typescript@5.7.3))
+      '@tailwindcss/typography':
+        specifier: ^0.5.16
+        version: 0.5.16(tailwindcss@3.4.17)
+      '@tanstack/vue-query':
+        specifier: ^5.67.1
+        version: 5.79.0(vue@3.5.13(typescript@5.7.3))
+      '@upmind-automation/client-vue':
+        specifier: workspace:*
+        version: link:../../packages/client-vue
+      '@upmind-automation/upmind-ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      '@vueuse/components':
+        specifier: ^12.7.0
+        version: 12.7.0(typescript@5.7.3)
+      '@vueuse/core':
+        specifier: ^12.7.0
+        version: 12.7.0(typescript@5.7.3)
+      class-variance-authority:
+        specifier: ^0.7.1
+        version: 0.7.1
+      lodash-es:
+        specifier: ^4.17.21
+        version: 4.17.21
+      tailwind-merge:
+        specifier: ^3.0.1
+        version: 3.0.2
+      tailwindcss:
+        specifier: ^3.4.17
+        version: 3.4.17
+      tailwindcss-animate:
+        specifier: ^1.0.7
+        version: 1.0.7(tailwindcss@3.4.17)
+      tailwindcss-aria-attributes:
+        specifier: ^2.0.1
+        version: 2.0.1(tailwindcss@3.4.17)
+      tailwindcss-themer:
+        specifier: ^4.1.1
+        version: 4.1.1(tailwindcss@3.4.17)
+      vue:
+        specifier: ^3.5.13
+        version: 3.5.13(typescript@5.7.3)
+      vue-i18n:
+        specifier: ^11.1.1
+        version: 11.1.5(vue@3.5.13(typescript@5.7.3))
+      vue-router:
+        specifier: ^4.5.0
+        version: 4.5.0(vue@3.5.13(typescript@5.7.3))
+      webfontloader:
+        specifier: ^1.6.28
+        version: 1.6.28
+    devDependencies:
+      '@localazy/cli':
+        specifier: ^1.7.15
+        version: 1.7.16(encoding@0.1.13)
+      '@playwright/test':
+        specifier: ^1.50.1
+        version: 1.50.1
+      '@sentry/vite-plugin':
+        specifier: ^3.2.1
+        version: 3.2.1(encoding@0.1.13)
+      '@tsconfig/node22':
+        specifier: ^22.0.0
+        version: 22.0.0
+      '@types/jsdom':
+        specifier: ^21.1.7
+        version: 21.1.7
+      '@types/lodash-es':
+        specifier: ^4.17.12
+        version: 4.17.12
+      '@types/webfontloader':
+        specifier: ^1.6.38
+        version: 1.6.38
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^8.24.0
+        version: 8.26.0(@typescript-eslint/parser@8.26.0(eslint@9.21.0(jiti@1.21.7))(typescript@5.7.3))(eslint@9.21.0(jiti@1.21.7))(typescript@5.7.3)
+      '@vitejs/plugin-vue':
+        specifier: ^5.2.1
+        version: 5.2.1(vite@6.3.3(@types/node@22.15.3)(jiti@1.21.7)(sass@1.85.1)(terser@5.39.2)(yaml@2.7.0))(vue@3.5.13(typescript@5.7.3))
+      '@vitest/coverage-istanbul':
+        specifier: ^3.0.5
+        version: 3.0.7(vitest@3.0.7(@types/debug@4.1.12)(@types/node@22.15.3)(jiti@1.21.7)(jsdom@26.0.0)(sass@1.85.1)(terser@5.39.2)(yaml@2.7.0))
+      '@vitest/eslint-plugin':
+        specifier: ^1.1.31
+        version: 1.1.36(@typescript-eslint/utils@8.26.0(eslint@9.21.0(jiti@1.21.7))(typescript@5.7.3))(eslint@9.21.0(jiti@1.21.7))(typescript@5.7.3)(vitest@3.0.7(@types/debug@4.1.12)(@types/node@22.15.3)(jiti@1.21.7)(jsdom@26.0.0)(sass@1.85.1)(terser@5.39.2)(yaml@2.7.0))
+      '@vue/eslint-config-prettier':
+        specifier: ^10.2.0
+        version: 10.2.0(eslint@9.21.0(jiti@1.21.7))(prettier@3.5.3)
+      '@vue/eslint-config-typescript':
+        specifier: ^14.4.0
+        version: 14.4.0(eslint-plugin-vue@9.32.0(eslint@9.21.0(jiti@1.21.7)))(eslint@9.21.0(jiti@1.21.7))(typescript@5.7.3)
+      '@vue/test-utils':
+        specifier: ^2.4.6
+        version: 2.4.6
+      '@vue/tsconfig':
+        specifier: ^0.7.0
+        version: 0.7.0(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3))
+      autoprefixer:
+        specifier: ^10.4.20
+        version: 10.4.20(postcss@8.5.3)
+      eslint:
+        specifier: ^9.20.1
+        version: 9.21.0(jiti@1.21.7)
+      eslint-plugin-playwright:
+        specifier: ^2.2.0
+        version: 2.2.0(eslint@9.21.0(jiti@1.21.7))
+      eslint-plugin-vue:
+        specifier: ^9.32.0
+        version: 9.32.0(eslint@9.21.0(jiti@1.21.7))
+      jsdom:
+        specifier: ^26.0.0
+        version: 26.0.0
+      postcss:
+        specifier: ^8.5.2
+        version: 8.5.3
+      postcss-import:
+        specifier: ^16.1.0
+        version: 16.1.0(postcss@8.5.3)
+      prettier:
+        specifier: ^3.5.0
+        version: 3.5.3
+      prettier-plugin-tailwindcss:
+        specifier: ^0.6.11
+        version: 0.6.11(prettier@3.5.3)
+      sass:
+        specifier: ^1.84.0
+        version: 1.85.1
+      typescript:
+        specifier: ^5.7.3
+        version: 5.7.3
+      vite:
+        specifier: ^6.1.1
+        version: 6.3.3(@types/node@22.15.3)(jiti@1.21.7)(sass@1.85.1)(terser@5.39.2)(yaml@2.7.0)
+      vite-plugin-dts:
+        specifier: ^4.5.0
+        version: 4.5.3(@types/node@22.15.3)(rollup@4.34.9)(typescript@5.7.3)(vite@6.3.3(@types/node@22.15.3)(jiti@1.21.7)(sass@1.85.1)(terser@5.39.2)(yaml@2.7.0))
+      vitest:
+        specifier: ^3.0.5
+        version: 3.0.7(@types/debug@4.1.12)(@types/node@22.15.3)(jiti@1.21.7)(jsdom@26.0.0)(sass@1.85.1)(terser@5.39.2)(yaml@2.7.0)
+      vue-tsc:
+        specifier: ^2.2.0
+        version: 2.2.8(typescript@5.7.3)
+
   apps/doteasy:
     dependencies:
       '@formkit/auto-animate':
@@ -736,6 +887,9 @@ importers:
       vue-router:
         specifier: ^4.5.0
         version: 4.5.0(vue@3.5.13(typescript@5.7.3))
+      webfontloader:
+        specifier: ^1.6.28
+        version: 1.6.28
       xstate:
         specifier: ^4.38.3
         version: 4.38.3
@@ -749,6 +903,9 @@ importers:
       '@types/lodash-es':
         specifier: ^4.17.12
         version: 4.17.12
+      '@types/webfontloader':
+        specifier: ^1.6.38
+        version: 1.6.38
       '@typescript-eslint/eslint-plugin':
         specifier: ^8.24.1
         version: 8.26.0(@typescript-eslint/parser@8.26.0(eslint@9.21.0(jiti@1.21.7))(typescript@5.7.3))(eslint@9.21.0(jiti@1.21.7))(typescript@5.7.3)
@@ -3232,6 +3389,9 @@ packages:
 
   '@types/web-bluetooth@0.0.21':
     resolution: {integrity: sha512-oIQLCGWtcFZy2JW77j9k8nHzAOpqMHLQejDA48XXMWH6tjCQHz5RCFz1bzsmROyL6PUm+LLnUiI4BCn221inxA==}
+
+  '@types/webfontloader@1.6.38':
+    resolution: {integrity: sha512-kUaF72Fv202suFx6yBrwXqeVRMx7hGtJTesyESZgn9sEPCUeDXm2p0SiyS1MTqW74nQP4p7JyrOCwZ7pNFns4w==}
 
   '@typescript-eslint/eslint-plugin@8.26.0':
     resolution: {integrity: sha512-cLr1J6pe56zjKYajK6SSSre6nl1Gj6xDp1TY0trpgPzjVbgDwd09v2Ws37LABxzkicmUjhEeg/fAUjPJJB1v5Q==}
@@ -8249,6 +8409,9 @@ packages:
   wcwidth@1.0.1:
     resolution: {integrity: sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==}
 
+  webfontloader@1.6.28:
+    resolution: {integrity: sha512-Egb0oFEga6f+nSgasH3E0M405Pzn6y3/9tOVanv/DLfa1YBIgcv90L18YyWnvXkRbIM17v5Kv6IT2N6g1x5tvQ==}
+
   webidl-conversions@3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
 
@@ -10284,6 +10447,8 @@ snapshots:
   '@types/web-bluetooth@0.0.20': {}
 
   '@types/web-bluetooth@0.0.21': {}
+
+  '@types/webfontloader@1.6.38': {}
 
   '@typescript-eslint/eslint-plugin@8.26.0(@typescript-eslint/parser@8.26.0(eslint@9.21.0(jiti@1.21.7))(typescript@5.7.3))(eslint@9.21.0(jiti@1.21.7))(typescript@5.7.3)':
     dependencies:
@@ -16213,6 +16378,8 @@ snapshots:
   wcwidth@1.0.1:
     dependencies:
       defaults: 1.0.4
+
+  webfontloader@1.6.28: {}
 
   webidl-conversions@3.0.1: {}
 

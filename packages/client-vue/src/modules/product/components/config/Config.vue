@@ -163,7 +163,7 @@
           :label="t('product.actions.resolve')"
           :loading="meta.isProcessing"
           :disabled="meta.isLoading"
-          color="secondary"
+          color="primary"
           @click="doResolve"
         />
       </slot>

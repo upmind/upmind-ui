@@ -20,3 +20,56 @@ export interface BrandContext extends IBrandSettings {
   initialised?: boolean;
   error?: ResponseError;
 }
+
+export interface IBrandMeta {
+  layout?: string;
+  tagline?: string;
+  description?: string;
+  catalog?: {
+    facet?: boolean;
+  };
+  variants?: {
+    [key: string]: IVariant;
+  };
+}
+
+export interface IVariant {
+  border: string;
+  foreground: string;
+  background: {
+    canvas: string;
+    surface: string;
+  };
+  primary: {
+    DEFAULT: string;
+    foreground: string;
+    background: string;
+  };
+  secondary: {
+    DEFAULT: string;
+    foreground: string;
+    background: string;
+  };
+  control: {
+    DEFAULT: string;
+    background: string;
+    popover: string;
+    foreground: string;
+    border: string;
+    active: {
+      DEFAULT: string;
+      muted: string;
+      foreground: string;
+      background: string;
+      hover: string;
+      focus: string;
+    };
+    hover?: {
+      border: string;
+    };
+  };
+  icon: {
+    primary: string;
+    secondary: string;
+  };
+}

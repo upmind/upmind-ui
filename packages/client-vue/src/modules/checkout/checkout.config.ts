@@ -23,7 +23,7 @@ export default {
       root: cva("flex flex-col gap-4"),
       trigger: {
         root: cva(
-          "text-emphasis-medium hover:text-primary flex items-center justify-between space-x-2 p-4 px-6 transition-all duration-300 hover:no-underline md:p-5 md:px-9"
+          "text-emphasis-medium hover:text-foreground flex items-center justify-between space-x-2 p-4 px-6 transition-all duration-300 hover:no-underline md:p-5 md:px-9"
         ),
         icon: cva("h-6 w-6 shrink-0 transition-transform duration-200"),
         header: cva("flex w-full items-center justify-between space-x-2")
@@ -36,7 +36,7 @@ export default {
       )
     },
 
-    title: cva("text-primary text-left text-sm leading-tight no-underline"),
+    title: cva("text-foreground text-left text-sm leading-tight no-underline"),
     image: cva("m-0 h-6 md:h-7"),
     gateway: cva("w-full"),
     footer: cva(
@@ -44,7 +44,7 @@ export default {
     ),
     action: cva("block w-full self-center md:inline-block md:w-auto"),
     additional: cva(
-      "bg-base-background text-primary flex items-center justify-center space-x-2 self-stretch px-4 py-2 md:py-0"
+      "bg-base-background text-base-foreground flex items-center justify-center space-x-2 self-stretch px-4 py-2 md:py-0"
     ),
 
     isFree: cva("bg-base shadow-sm")
