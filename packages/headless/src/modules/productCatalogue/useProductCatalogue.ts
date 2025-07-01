@@ -3,12 +3,7 @@ import { computed, ref } from "vue";
 
 // --- internal
 import service from "./services";
-import {
-  invalidateQueryByKey,
-  QueryProps,
-  RequestFilters,
-  RequestSortDirection
-} from "../query";
+import { invalidateQueryByKey, RequestSortDirection } from "../query";
 
 // --- utils
 import { get, set, find, every, isEmpty, includes, isString } from "lodash-es";
@@ -16,6 +11,7 @@ import { get, set, find, every, isEmpty, includes, isString } from "lodash-es";
 // --- types
 import type { Product } from "../product";
 import type { ICurrency } from "@upmind-automation/types";
+import type { QueryProps, RequestFilters } from "../query";
 
 export const useProductCatalogue = (
   initial?: QueryProps & {
@@ -24,9 +20,9 @@ export const useProductCatalogue = (
 ) => {
   // --- state
   const { infinite, ...params } = initial || {};
-  const query = infinite
-    ? service.loadInfinite(params)
-    : service.loadList(params);
+  const query = !infinite
+    ? service.loadList({ ...params, withCurrency: true })
+    : service.loadInfinite({ ...params, withCurrency: true });
 
   const meta = computed(() => ({
     isLoading: query?.isLoading.value || !query.isFetched.value,
@@ -114,27 +110,40 @@ export const useProductCatalogue = (
   const filterQuery = (value?: string) => {
     set(filters.value, "query", value || "");
     query.filter(filters.value);
+    // when we filter by query, we must reset pagination to the first page
+    // because the number of results might not be enough to fill the current page.
+    query.resetQuery();
   };
 
   const filterCurrency = (value?: ICurrency["code"]) => {
     set(filters.value, "currency", value || "");
     query.filter(filters.value);
+    // when we filter by currency, we don't need to reset pagination because the
+    // number of results should not change, only the prices will be updated.
   };
 
   const filterProductCategory = (value?: string) => {
     set(filters.value, "filter[products_category_id]", value ?? "");
     query.filter(filters.value);
+    // when we filter by product category, we must reset pagination to the first
+    // page because the number of results might not be enough to fill the current page.
     query.resetQuery();
   };
 
   const filterIds = (value?: string[]) => {
     set(filters.value, "id", value || []);
     query.filter(filters.value);
+    // when we filter by ids, we must reset pagination to the first page because
+    // the number of results might not be enough to fill the current page.
+    query.resetQuery();
   };
 
   const filterCoupons = (value?: string[]) => {
     set(filters.value, "promotions", value || []);
     query.filter(filters.value);
+    // when we filter by coupons, we must reset pagination to the first page because
+    // the number of results might not be enough to fill the current page.
+    query.resetQuery();
   };
 
   // ---------------------------------------------------------------------------
