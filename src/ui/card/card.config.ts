@@ -18,12 +18,6 @@ export default {
         }
       }
     ),
-    container: cva("", {
-      variants: {
-        width: {
-          app: "w-app"
-        }
-      }
-    })
+    container: cva("w-full")
   }
 };

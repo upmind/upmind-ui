@@ -1,8 +1,8 @@
 <template>
   <section :class="cn(styles.card.root, props.class)">
-    <div :class="styles.card.container">
+    <component :is="as" :class="styles.card.container">
       <slot />
-    </div>
+    </component>
   </section>
 </template>
 
