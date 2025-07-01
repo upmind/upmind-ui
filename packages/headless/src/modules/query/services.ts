@@ -54,20 +54,12 @@ function handleError(
     });
   }
 
-  return Promise.reject({
-    status: status || responseCodes.Service_Unavailable,
-    data: null,
-    total: null,
-    error: {
-      id: error?.id ?? null,
-      type: error?.type ?? responseCodes.Service_Unavailable,
-      code: error?.code ?? null,
-      data: error?.data || null,
-      message: error?.message || "Service temporarily unavailable",
-      origin: ErrorOrigin.Upmind
-    },
-    messages: null
-  });
+  throw new DetailedError(
+    error?.message ?? "Service temporarily unavailable",
+    status || responseCodes.Service_Unavailable,
+    ErrorOrigin.Upmind,
+    error?.data
+  );
 }
 
 async function doFetch<T extends any = any>({

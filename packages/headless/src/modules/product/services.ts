@@ -251,9 +251,9 @@ async function validate(context: ProductConfigContext, _event: AnyEventObject) {
       reject(
         new DetailedError(
           "[headless] Validate Product Config failed",
-          responseCodes.Conflict,
+          responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
-          { errors }
+          errors
         )
       );
     } else {
