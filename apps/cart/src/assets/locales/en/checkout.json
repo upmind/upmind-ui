@@ -1,0 +1,232 @@
+{
+  "session": {
+    "create": {
+      "title": "First, let’s create you an account"
+    }
+  },
+  "extraItems": {
+    "title": "Add extra services",
+    "tagline": "Optional",
+    "from": "From"
+  },
+  "customFields": {
+    "title": {
+      "text": "{0} details",
+      "strong": "Additional"
+    }
+  },
+  "billingDetails": {
+    "title": "Your billing address"
+  },
+
+  "checkout": {
+    "summary": {
+      "title": "Summary"
+    },
+    "0": {
+      "actions": {
+        "submit": "Place order and pay"
+      },
+      "footer": {
+        "title": "Encrypted and secure payments",
+        "icon": "lock"
+      }
+    },
+    "1": {
+      "actions": {
+        "submit": "Place order and pay"
+      },
+      "footer": {
+        "title": "Encrypted and secure payments",
+        "icon": "lock"
+      }
+    },
+    "2": {
+      "actions": {
+        "submit": "Place order"
+      }
+    },
+    "3": {
+      "actions": {
+        "submit": "Place order"
+      }
+    },
+    "4": {
+      "actions": {
+        "submit": "Place order"
+      }
+    },
+    "5": {
+      "actions": {
+        "submit": "Place order"
+      }
+    },
+    "6": {
+      "actions": {
+        "submit": "Place order"
+      }
+    },
+    "7": {
+      "actions": {
+        "submit": "Place order"
+      }
+    },
+    "Stripe_PaymentIntents": {
+      "actions": {
+        "submit": "Place order and pay"
+      },
+      "footer": {
+        "title": "Encrypted and secure payments",
+        "icon": "lock"
+      }
+    },
+    "processing": {
+      "invalid": {
+        "title": {
+          "text": "{0} to complete your order",
+          "strong": "Unable"
+        },
+        "text": "Please check your payment details to complete the purchase."
+      },
+      "default": {
+        "title": {
+          "text": "{0} your payment details...",
+          "strong": "Checking"
+        },
+        "text": "We're verifying your payment information. This should only take a moment."
+      },
+      "paying": {
+        "title": {
+          "text": "{0} your payment",
+          "strong": "Processing"
+        },
+        "text": "We're processing your payment. This should only take a moment."
+      },
+      "noCharge": {
+        "title": {
+          "text": "{0} your order",
+          "strong": "Processing"
+        },
+        "text": "We're processing your order. This should only take a moment."
+      },
+      "converting": {
+        "title": {
+          "text": "{0} your order",
+          "strong": "Converting"
+        },
+        "text": "We're converting your order. This should only take a moment."
+      },
+      "approval": {
+        "title": {
+          "text": "{0} for approval",
+          "strong": "Waiting"
+        },
+        "text": "We're waiting for approval. This should only take a moment."
+      }
+    },
+    "billing_details": {
+      "title": {
+        "text": "{0} details",
+        "strong": "Billing"
+      }
+    },
+    "payment_details": {
+      "title": {
+        "text": "{0} method",
+        "strong": "Payment"
+      }
+    },
+    "errors": {
+      "title": "Checkout error"
+    }
+  },
+  "payment": {
+    "payment_details_id": {
+      "label": "",
+      "description": ""
+    },
+    "store_on_payment": {
+      "label": "Save payment details",
+      "description": ""
+    },
+    "store_on_payment_auto_payment": {
+      "label": "Allow auto payment",
+      "description": "Allow this payment method to be used for making automated offline payments – such as paying a renewal invoice."
+    },
+    "return_url": {
+      "label": "Return URL",
+      "description": "The URL to redirect to after the payment is completed.",
+      "placeholder": "Enter URL"
+    },
+    "cancel_url": {
+      "label": "Cancel URL",
+      "description": "The URL to redirect to after the payment is cancelled.",
+      "placeholder": "Enter URL"
+    },
+    "cardholder_name": {
+      "label": "Cardholder name",
+      "placeholder": "Enter cardholder name"
+    },
+    "card_num": {
+      "label": "Card number",
+      "description": "The 16 digit number on the front of your card.",
+      "placeholder": "1234 1234 1234 1234"
+    },
+    "card_expiry": {
+      "label": "Expiry date",
+      "description": "Expiry Date of the card. Date Format: MM/YY",
+      "placeholder": "MM/YY"
+    },
+    "card_cvv": {
+      "label": "CVV",
+      "description": "card security code found on the back of your card that provides an additional measure of credit card security.",
+      "placeholder": "CVC"
+    },
+    "external": {
+      "label": "Use external payment gateway"
+    },
+    "noPayment": {
+      "title": "Great news – there's nothing to pay!",
+      "text": "Just click the 'Place order' button to complete your purchase.",
+      "action": "Place order"
+    },
+    "failed": "Payment failed"
+  },
+  "order": {
+    "confirmation": {
+      "success": {
+        "actions": {
+          "continue": {
+            "appendIcon": "arrow-right",
+            "label": "Go to my account"
+          }
+        },
+        "avatar": "paying",
+        "title": "Order complete!",
+        "text": "Thanks for your order – your purchase is now complete. You will receive an email confirmation shortly."
+      },
+      "failed": {
+        "actions": {
+          "continue": {
+            "appendIcon": "arrow-right",
+            "label": "Go to invoice"
+          }
+        },
+        "avatar": "paying",
+        "title": "Unable to process payment",
+        "text": "We were unable to process your payment for this order – this could be for a number of reasons. Please click below to go to your invoice where you can retry your payment."
+      },
+      "invalid": {
+        "actions": {
+          "continue": {
+            "prependIcon": "arrow-left",
+            "label": "Return to shop"
+          }
+        },
+        "avatar": "paying",
+        "title": "Your session has expired",
+        "text": "We're unable to retrieve your past order as your session has expired. To start a new purchase, please click the button below to return to our store."
+      }
+    }
+  }
+}

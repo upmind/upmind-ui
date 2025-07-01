@@ -28,7 +28,7 @@
 
         <template #actions>
           <Button
-            color="secondary"
+            color="primary"
             :label="t(action)"
             :loading="processing"
             @click.stop="doAction"

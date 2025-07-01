@@ -52,7 +52,7 @@ export default {
     badge: cva("absolute left-4 -translate-y-1/2 !text-sm ring-1 ring-white"),
 
     benefit: {
-      root: cva("text-base-foreground flex items-start gap-2 leading-tight"),
+      root: cva("text-foreground flex items-start gap-2 leading-tight"),
       icon: cva("text-secondary size-5 flex-shrink-0"),
       label: cva("m-0")
     },
@@ -72,7 +72,7 @@ export default {
       image: {
         root: cva("aspect-video shrink-0 overflow-hidden"),
         skeleton: cva(
-          "text-primary h-full w-full !rounded-b-none rounded-t-lg pt-2 text-lg font-medium"
+          "text-foreground h-full w-full !rounded-b-none rounded-t-lg pt-2 text-lg font-medium"
         )
       },
       content: {

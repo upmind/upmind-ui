@@ -5,13 +5,13 @@
     v-auto-animate
   >
     <Skeleton
-      class="text-primary group m-0 inline-flex w-28 flex-1 items-end gap-2 text-left text-sm leading-normal"
+      class="text-foreground group m-0 inline-flex w-28 flex-1 items-end gap-2 text-left text-sm leading-normal"
     >
       Product
     </Skeleton>
 
     <dd
-      class="flex-0 text-base-foreground m-0 flex w-full justify-end gap-2 text-right font-medium"
+      class="flex-0 text-foreground m-0 flex w-full justify-end gap-2 text-right font-medium"
     >
       <slot name="actions">
         <Skeleton class="text-primary">00.000000</Skeleton>
@@ -19,13 +19,13 @@
     </dd>
 
     <Skeleton
-      class="text-primary group m-0 inline-flex w-36 flex-1 items-end gap-2 text-left text-sm leading-normal"
+      class="text-foreground group m-0 inline-flex w-36 flex-1 items-end gap-2 text-left text-sm leading-normal"
     >
       Products
     </Skeleton>
 
     <dd
-      class="flex-0 text-base-foreground m-0 flex w-full justify-end gap-2 text-right font-medium"
+      class="flex-0 text-foreground m-0 flex w-full justify-end gap-2 text-right font-medium"
     >
       <slot name="actions">
         <Skeleton class="text-primary">00.000000000</Skeleton>
@@ -73,11 +73,11 @@
   <div class="flex flex-col gap-4 border-t">
     <dl class="m-0 flex justify-between pt-4 text-lg">
       <Skeleton
-        class="text-primary group m-0 w-16 items-center gap-2 font-bold"
+        class="text-foreground group m-0 w-16 items-center gap-2 font-bold"
       >
         Total
       </Skeleton>
-      <Skeleton class="text-primary m-0 w-32 text-right font-bold">
+      <Skeleton class="text-foreground m-0 w-32 text-right font-bold">
         Total
       </Skeleton>
     </dl>

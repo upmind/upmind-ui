@@ -148,6 +148,7 @@ export const useRouteQueryParams = (route: Route) => {
     productConfigs: getProductConfigs(),
     productConfig: first(getProductConfigs()),
     basketProductId: getParam(QUERY_PARAMS.BASKET_PRODUCT_ID),
+    categoryId: getParam(QUERY_PARAMS.CATEGORY_ID),
 
     currency: getParam(
       QUERY_PARAMS.CURRENCY,

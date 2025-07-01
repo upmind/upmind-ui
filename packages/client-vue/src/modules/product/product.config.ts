@@ -102,7 +102,7 @@ export default {
 
     config: {
       root: cva(
-        "bg-base text-base-foreground w-full overflow-hidden rounded-lg shadow-sm",
+        "bg-base text-foreground w-full overflow-hidden rounded-lg shadow-sm",
         {
           variants: {
             isDisabled: {
@@ -229,7 +229,7 @@ export default {
         ),
         item: {
           root: cva(
-            "text-base-foreground m-0 flex h-full w-full cursor-pointer flex-col flex-wrap items-start gap-2 gap-y-3 rounded-md sm:flex-row sm:gap-y-4",
+            "text-foreground m-0 flex h-full w-full cursor-pointer flex-col flex-wrap items-start gap-2 gap-y-3 rounded-md sm:flex-row sm:gap-y-4",
             {
               variants: {
                 isSelected: {
@@ -311,7 +311,7 @@ export default {
       text: cva(
         "m-0 mb-8 max-w-md text-center text-lg leading-normal opacity-50"
       ),
-      avatar: cva("bg-primary text-primary-foreground size-20 p-2"),
+      avatar: cva("bg-primary text-base-foreground size-20 p-2"),
       actions: cva("flex w-full justify-center")
     },
 
