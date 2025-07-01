@@ -109,10 +109,7 @@ export const useBasket = () => {
       // ---
       hasProducts: contextMatches(state, ["products"]),
 
-      hasInvalidProducts: some(
-        contextValue<BasketProduct[]>(state, "products", []),
-        "errors"
-      ),
+      hasInvalidProducts: !isEmpty(productsInvalid.value),
 
       hasTaxes: contextMatches(state, ["basket.taxes"]),
 

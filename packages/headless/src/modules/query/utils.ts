@@ -8,7 +8,7 @@ import {
 
 // --- utils
 import { useQuery } from "./useQuery";
-import { responseCodes } from "../../utils";
+import { DetailedError, responseCodes } from "../../utils";
 import {
   map,
   set,
@@ -82,7 +82,7 @@ export const resetQueryByKey =
 
 export function canRetryAuthorization(
   url: URL,
-  error: QueryResponseError,
+  error: DetailedError,
   {
     attempts,
     max
@@ -92,7 +92,9 @@ export function canRetryAuthorization(
   }
 ): boolean {
   const isAuth = includes(url?.pathname, "oauth");
-  const isUnauthorized = error?.status == responseCodes.Unauthorized;
+  // NB: the API returns a DetailedError the status code in the `.code` property of the error object,
+
+  const isUnauthorized = error.code == responseCodes.Unauthorized;
   const value =
     !isAuth &&
     isUnauthorized &&
@@ -103,6 +105,7 @@ export function canRetryAuthorization(
   //   attempts: context?.attempts,
   //   canAuthorize: value
   // });
+
   return value;
 }
 

@@ -24,7 +24,7 @@
               v-for="product in page.pageData"
               :key="product?.id ?? product"
             >
-              <UpmCard>
+              <Card>
                 <template v-if="product?.productDetails">
                   <img
                     v-if="product?.productDetails.imgUrl"
@@ -38,13 +38,13 @@
                     Price: {{ product.price.currentPrice }}
                   </p>
                 </template>
-              </UpmCard>
+              </Card>
             </template>
           </template>
         </template>
         <!-- Skeleton loading when no products or still loading initial page -->
         <template v-else-if="meta.isLoading">
-          <UpmCard v-for="n in skeletonCount" :key="n"></UpmCard>
+          <Card v-for="n in skeletonCount" :key="n"></Card>
         </template>
       </div>
     </Loading>
@@ -77,8 +77,7 @@ import {
   type ISO_4217_CURRENCY_CODE
 } from "@upmind-automation/types";
 import { HtmlHTMLAttributes } from "vue";
-import { UpmCard } from "@upmind-automation/client-vue";
-import { Button, Loading } from "@upmind-automation/upmind-ui";
+import { Button, Loading, Card } from "@upmind-automation/upmind-ui";
 
 const props = withDefaults(
   defineProps<{

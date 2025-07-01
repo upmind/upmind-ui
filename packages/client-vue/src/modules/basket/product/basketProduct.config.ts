@@ -5,7 +5,7 @@ export default {
   product: {
     root: {
       card: cva(
-        "relative flex flex-col gap-y-3 p-6 text-inherit md:gap-y-4 md:p-8",
+        "text-foreground relative flex flex-col gap-y-3 p-6 md:gap-y-4 md:p-8",
         {
           variants: {
             isDisabled: {
@@ -42,7 +42,7 @@ export default {
     },
     configDetails: {
       container: cva(
-        "flex flex-col divide-y divide-solid rounded-lg border bg-gray-50/50 p-4 px-5 text-sm font-medium leading-3"
+        "bg-base-muted flex flex-col divide-y divide-solid rounded-lg border p-4 px-5 text-sm font-medium leading-3"
       )
     },
 

@@ -16,7 +16,7 @@
       </template>
     </Link>
 
-    <div class="text-primary flex items-end space-x-2">
+    <div class="text-foreground flex items-end space-x-2">
       <Tooltip
         v-for="action in actions"
         :key="action.icon"

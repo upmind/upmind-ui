@@ -10,7 +10,7 @@
     >
       <div class="flex h-full flex-col md:flex-row">
         <div class="w-screen p-8 md:w-[26rem]">
-          <Session no-header no-tabs model-value="login" color="secondary" />
+          <Session no-header no-tabs model-value="login" color="primary" />
         </div>
       </div>
     </PopoverContent>

@@ -1,0 +1,68 @@
+{
+  "errors": {
+    "generic": {
+      "title": {
+        "text": "Sorry, we have experienced an {0}",
+        "strong": "error"
+      },
+      "error": "error",
+      "text": "Let's get you back on track",
+      "action": "Back to shopping",
+      "icon": "arrow-left"
+    },
+    "404": {
+      "title": {
+        "text": "Sorry, this {0} was not found",
+        "strong": "page"
+      },
+      "text": "Let's get you back on track",
+      "action": "Back to shopping",
+      "icon": "arrow-left"
+    },
+    "403": {
+      "title": {
+        "text": "Sorry, your {0} is not allowed",
+        "strong": "IP address"
+      },
+      "text": "Let's get you back on track",
+      "action": "Back to shopping",
+      "icon": "arrow-left"
+    },
+    "429": {
+      "title": {
+        "text": "Sorry, you have made too many {0}",
+        "strong": "requests"
+      },
+      "text": "Please wait a moment before trying again.",
+      "action": "Back to shopping",
+      "icon": "arrow-left"
+    },
+    "500": {
+      "title": {
+        "text": "Sorry, we are experiencing {0}",
+        "strong": "technical issues"
+      },
+      "text": "We are currently experiencing technical issues. Please try again later.",
+      "action": "Reload page",
+      "icon": "network-refresh"
+    },
+    "503": {
+      "title": {
+        "text": "Service {0} unavailable",
+        "strong": "temporarily"
+      },
+      "text": "Sorry, but our service is temporarily unavailable whilst we carry out some scheduled maintenance. Please bear with us during this upgrade – things should be back to normal in no time! 👷",
+      "action": "Reload page",
+      "icon": "network-refresh"
+    },
+    "network": {
+      "title": {
+        "text": "Sorry, we have encountered a {0}",
+        "strong": "network error"
+      },
+      "text": "Please check your internet connection and try again.",
+      "action": "Reload page",
+      "icon": "network-refresh"
+    }
+  }
+}

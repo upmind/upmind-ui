@@ -1,0 +1,213 @@
+{
+  "client": {
+    "title": "Your address",
+    "unavailable": "Please login to access your client area.",
+    "empty": {
+      "title": "Cant see your details..",
+      "description": "Add your details to get started"
+    },
+    "actions": {
+      "add": "Add details",
+      "convert": "Add business details",
+      "edit": "Change address details",
+      "change": "Change"
+    },
+    "nav": {
+      "basket": "Basket (Unified Address)",
+      "addresses": "Addresses",
+      "emails": "Emails",
+      "phones": "Phones",
+      "companies": "Companies"
+    },
+    "emails": {
+      "title": "My email addresses",
+      "empty": {
+        "title": "Cant see your email addresses..",
+        "description": "Add an email address to get started"
+      },
+      "badge": "Default",
+      "actions": {
+        "cancel": "Cancel",
+        "submit": "Confirm email address",
+        "add": "Add email address",
+        "filter": "Filter by email address",
+        "edit": "Edit",
+        "delete": "Delete",
+        "select": "Set as default",
+        "copy": "Copy to clipboard | Copied!"
+      },
+      "form": {
+        "title": "New Email Address | Edit Email Address"
+      }
+    },
+    "phones": {
+      "title": "My phone numbers",
+      "empty": {
+        "title": "Cant see your phone numbers..",
+        "text": "Add a phone number to get started"
+      },
+      "badge": "Default",
+      "actions": {
+        "cancel": "Cancel",
+        "submit": "Confirm phone number",
+        "add": "Add phone number",
+        "filter": "Filter by phone number or country code",
+        "edit": "Edit",
+        "delete": "Delete",
+        "select": "Set as default",
+        "copy": "Copy to clipboard | Copied!"
+      },
+      "form": {
+        "title": "New Phone Number | Edit Phone Number"
+      }
+    },
+    "addresses": {
+      "title": "My addresses",
+      "empty": {
+        "title": "Cant see your addresses..",
+        "text": "Add an address to get started"
+      },
+      "badge": "Default",
+      "actions": {
+        "cancel": "Cancel",
+        "submit": "Confirm address",
+        "add": "Add new address",
+        "filter": "Filter by address",
+        "edit": "Edit",
+        "delete": "Delete",
+        "select": "Set as default",
+        "copy": "Copy to clipboard | Copied!"
+      },
+      "form": {
+        "title": "New Address | Edit Address"
+      }
+    },
+    "companies": {
+      "title": "My companies",
+      "empty": {
+        "title": "Cant see your companies..",
+        "text": "Add a company to get started"
+      },
+      "badge": "Default",
+      "actions": {
+        "cancel": "Cancel",
+        "submit": "Confirm business details",
+        "add": "Add company",
+        "filter": "Filter by company name or VAT number",
+        "edit": "Edit",
+        "delete": "Delete",
+        "select": "Set as default",
+        "copy": "Copy to clipboard | Copied!"
+      },
+      "form": {
+        "title": "New Company | Edit Company"
+      }
+    },
+    "unified": {
+      "title": "My addresses",
+      "empty": {
+        "title": "Cant see your addresses..",
+        "text": "Add an address to get started"
+      },
+      "badges": {
+        "address": "Address",
+        "company": " Business",
+        "default": "Default {type}"
+      },
+      "actions": {
+        "cancel": "Cancel",
+        "submit": "Confirm address | Confirm business details",
+        "add": "Add new address",
+        "filter": "Filter by address or business name",
+        "edit": "Edit",
+        "delete": "Delete",
+        "confirm": "Confirm",
+        "select": "Set as default",
+        "copy": "Copy to clipboard | Copied!"
+      },
+      "form": {
+        "title": {
+          "address": "New Address | Edit Address",
+          "company": "New Company | Edit Company"
+        },
+        "fields": {
+          "place": {
+            "label": "Search for an address",
+            "placeholder": "Start typing..."
+          },
+          "manual": "Enter address manually",
+          "saved": "Saved addresses",
+          "manualPlace": {
+            "label": "Can't see your address?"
+          },
+          "address1": {
+            "label": "Address",
+            "placeholder": "Street, house number, etc..."
+          },
+          "address2": {
+            "label": "",
+            "placeholder": "Apartment, floor, etc..."
+          },
+          "city": {
+            "label": "City",
+            "placeholder": "City, town, etc..."
+          },
+          "postcode": {
+            "label": "Postcode",
+            "placeholder": "12345"
+          },
+          "regionId": {
+            "label": "Region",
+            "placeholder": "Select region"
+          },
+          "name": {
+            "label": "Name",
+            "placeholder": "My home address, etc... "
+          },
+          "state": {
+            "label": "State",
+            "placeholder": "State, province, etc..."
+          },
+          "countryId": {
+            "label": "Country",
+            "placeholder": "Select country"
+          },
+          "companyDetails": {
+            "label": "Add business details"
+          },
+          "namr": {
+            "label": "Name",
+            "placeholder": "My company, etc..."
+          },
+          "email": {
+            "label": "Email",
+            "placeholder": "name@email.com"
+          },
+          "phone": {
+            "label": "Phone",
+            "placeholder": "+1234567890"
+          },
+          "regNumber": {
+            "label": "Registration number",
+            "placeholder": "12345678"
+          },
+          "vatNumber": {
+            "label": "Registered tax/VAT id",
+            "placeholder": "GB123456789"
+          },
+          "vatPercentage": {
+            "label": "VAT percentage",
+            "placeholder": "20"
+          },
+          "default": {
+            "label": "Make this the default address?"
+          },
+          "type": {
+            "label": "Address Type",
+            "placeholder": "Select type"
+          }
+        }
+      }
+    }
+  }
+}

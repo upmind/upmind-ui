@@ -41,7 +41,7 @@
       <Button
         @click="doClose"
         :label="t('recommendations.toolbar.actions.continue')"
-        color="secondary"
+        color="primary"
         class="w-full md:w-auto"
       >
         <template #append>
@@ -67,10 +67,9 @@ import {
 } from "@upmind-automation/headless";
 
 // --- components
-import { Button, Icon } from "@upmind-automation/upmind-ui";
+import { Button, Icon, Card } from "@upmind-automation/upmind-ui";
 import Configure from "../recommendations/components/Configure.vue";
 import CardsCarousel from "../recommendations/components/CardsCarousel.vue";
-import Card from "../../components/content/Card.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 
 // -----------------------------------------------------------------------------
