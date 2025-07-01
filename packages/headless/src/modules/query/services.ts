@@ -124,7 +124,7 @@ async function doFetch<T extends any = any>({
 
       return handleError(
         response.status ?? responseCodes.Service_Unavailable,
-        response?.error
+        response?.error ?? response
       );
     });
 }

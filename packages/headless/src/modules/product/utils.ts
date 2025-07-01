@@ -1071,7 +1071,7 @@ export const parseModel = (data: ProductModel): ProductModel => {
     term: data.term,
     options: data.options,
     attributes: data.attributes,
-    provisionFields: omitBy(data.provisionFields, isEmpty)
+    provisionFields: data.provisionFields
   };
 };
 
@@ -1084,7 +1084,7 @@ export const parseBasketProductModel = (raw: IBasketProduct): ProductModel => {
     term: raw.billing_cycle_months,
     options: parseSubproductDetailsChoices(raw.options),
     attributes: parseSubproductDetailsChoices(raw.attributes),
-    provisionFields: omitBy(raw.provision_fields, isEmpty)
+    provisionFields: raw.provision_fields
   };
 };
 
