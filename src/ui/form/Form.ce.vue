@@ -314,6 +314,7 @@ function updateUischema(uischema: FormProps["uischema"]) {
 }
 
 function forceTouched() {
+  touched.value = true;
   if (!uischema?.value) return;
   iterateSchema(uischema.value, (child: UISchemaElement) => {
     if (!child) return; //safety check
