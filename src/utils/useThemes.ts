@@ -1,4 +1,7 @@
-import { ref, provide } from "vue";
+// --- external
+import { ref, provide, computed, readonly } from "vue";
+
+// --- utils
 import {
   compact,
   find,
@@ -6,16 +9,14 @@ import {
   isArray,
   lowerCase,
   reduce,
-  set,
-  values
+  set
 } from "lodash-es";
-import type { Ref } from "vue";
-// -----------------------------------------------------------------------------
-const activeTheme = ref(<string>"");
-const config = ref({});
-const providedThemes = ref(<Record<string, ITheme>>{});
 
-type Theme = {
+// ---
+
+// --- types
+
+export type Theme = {
   id: string;
   name: string;
   icon?: string;
@@ -29,49 +30,52 @@ export interface ITheme {
   handler: () => void;
 }
 
-export const useThemes = (
-  themes?: Theme | Theme[],
-  defaultTheme?: string
-): {
-  activeTheme: Ref<string>;
-  themes: Ref<Record<string, ITheme>>;
-  config: Ref<any>;
-  updateTheme: (theme: string) => void;
-} => {
+// -----------------------------------------------------------------------------
+const activeTheme = ref(<string>"");
+const config = ref({});
+const themes = ref<Theme[]>([]);
+
+export const useThemes = (value?: Theme | Theme[], defaultTheme?: string) => {
   // safety checks
 
-  const safeThemes: Theme[] =
-    compact(isArray(themes) ? themes : [themes]) || [];
+  themes.value = compact(isArray(value) ? value : [value]) || [];
 
-  defaultTheme ??= first(safeThemes)?.id || "default";
+  defaultTheme ??= first(themes.value)?.id || "default";
 
   // ---
-  providedThemes.value = reduce(
-    safeThemes,
-    (result, { id, name, icon }: Theme) => {
-      set(result, lowerCase(id), {
-        label: name,
-        value: id,
-        icon,
-        handler: () => updateTheme(id)
-      });
-      return result;
-    },
-    {}
+  const providedThemes = computed(() =>
+    reduce(
+      themes.value,
+      (result, { id, name, icon }: Theme) => {
+        set(result, lowerCase(id), {
+          label: name,
+          value: id,
+          icon,
+          handler: () => setTheme(id)
+        });
+        return result;
+      },
+      {}
+    )
   );
 
-  updateTheme(defaultTheme);
+  setTheme(defaultTheme);
 
-  function updateTheme(theme: string) {
+  function setTheme(theme: string) {
     if (theme == activeTheme.value) return;
 
     activeTheme.value = theme || activeTheme.value || defaultTheme || "default";
-    if (safeThemes) {
+    if (themes.value) {
       const themeConfig =
-        find(safeThemes, ["id", activeTheme.value]) ||
-        (first(values(safeThemes)) as Theme);
+        find(themes.value, ["id", activeTheme.value]) || first(themes.value);
       if (themeConfig) config.value = themeConfig.uiConfig || {};
     }
+  }
+
+  function add(theme: Theme, setActive = true) {
+    if (!theme || !theme.id || find(themes.value, ["id", theme.id])) return;
+    themes.value.push(theme);
+    if (setActive) setTheme(theme.id);
   }
 
   // make our theme available to the app
@@ -79,20 +83,21 @@ export const useThemes = (
     activeTheme,
     config,
     themes: providedThemes,
-    updateTheme
+    setTheme
   });
   // ---
 
   return {
-    activeTheme,
+    activeTheme: readonly(activeTheme),
     themes: providedThemes,
-    config,
-    updateTheme
+    config: readonly(config),
+    set,
+    add
   };
 };
 
 export default {
   activeTheme,
   config,
-  providedThemes
+  themes
 };
