@@ -51,8 +51,7 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./basketProduct.config";
 
 // --- components
-import { Loading } from "@upmind-automation/upmind-ui";
-import Card from "../../../components/content/Card.vue";
+import { Card, Loading } from "@upmind-automation/upmind-ui";
 import BasketConfigurationDetails from "./BasketProductConfigurationDetails.vue";
 import BasketProductSummary from "./BasketProductSummary.vue";
 import BasketProductActions from "./BasketProductActions.vue";

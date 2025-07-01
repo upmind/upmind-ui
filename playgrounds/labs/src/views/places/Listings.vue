@@ -4,7 +4,7 @@
     title="Address Search"
     subtitle="Search for addresses using the Places API"
   >
-    <UpmCard class="space-y-8">
+    <Card class="space-y-8">
       <!-- Debug Info -->
       <div class="border-b pb-2 text-xs">
         <div>
@@ -76,7 +76,7 @@
       >
         No results found
       </div>
-    </UpmCard>
+    </Card>
   </UpmContentSection>
 
   <!-- JSON Data Dialog -->
@@ -98,7 +98,8 @@ import { debounce } from "lodash-es";
 import { usePlaces } from "@upmind-automation/headless";
 import { ref, onMounted, watch } from "vue";
 import { Input, Button, Dialog } from "@upmind-automation/upmind-ui";
-import { UpmContentSection, UpmCard } from "@upmind-automation/client-vue";
+import { UpmContentSection } from "@upmind-automation/client-vue";
+import { Card } from "@upmind-automation/upmind-ui";
 
 // State
 const searchQuery = ref("");

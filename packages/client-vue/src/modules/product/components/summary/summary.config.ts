@@ -10,7 +10,7 @@ export default {
 
     pricing: {
       root: cva(
-        "text-primary flex items-end justify-between text-lg font-medium leading-none"
+        "text-foreground flex items-end justify-between text-lg font-medium leading-none"
       ),
       regularPrice: cva(
         "text-emphasis-medium mb-1 mt-1 block text-right text-xs line-through"
@@ -23,11 +23,11 @@ export default {
 
       item: {
         root: cva(
-          "text-base-foreground m-0 flex flex-wrap items-start gap-x-1.5 p-0"
+          "text-foreground m-0 flex flex-wrap items-start gap-x-1.5 p-0"
         ),
         icon: cva("text-icon mr-1 flex w-8 items-center justify-center"),
         category: cva("text-emphasis-medium basis-full text-xs leading-none"),
-        title: cva("text-base-foreground font-medium"),
+        title: cva("text-foreground font-medium"),
         quantity: cva("text-emphasis-high text-xs")
       }
     },
