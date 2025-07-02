@@ -10,13 +10,13 @@ const colors = {
   transparent: "transparent",
   black: "#021831",
   white: "#ffffff",
-  background: "var(--background-canvas)",
-  foreground: "var(--foreground)",
+  background: "var(--background-canvas,#F8F8FB)",
+  foreground: "var(--foreground,#121217)",
 
   // --- Theme Variants
 
   base: {
-    DEFAULT: "var(--background-surface)",
+    DEFAULT: "var(--background-surface,#FFFFFF)",
     50: "#fbfcfd",
     100: "#f9fafb",
     200: "#dde3e8",
@@ -28,17 +28,17 @@ const colors = {
     800: "#5d6476",
     900: "#4f5560",
     950: "#2e3138",
-    foreground: "var(--foreground)",
-    background: "var(--background-surface)",
+    foreground: "var(--foreground,#121217)",
+    background: "var(--background-surface,#FFFFFF)",
     muted: {
       DEFAULT: "#F6F6F6",
-      foreground: "var(--muted-foreground)",
-      active: "#F0F0F0",
-    },
+      foreground: "var(--muted-foreground,#F6F6F6)",
+      active: "#F0F0F0"
+    }
   },
 
   primary: {
-    DEFAULT: "var(--primary)",
+    DEFAULT: "var(--primary,#FA2F62)",
     200: "#AFFFDC",
     300: "#70FFC3",
     400: "#46FDAE",
@@ -48,17 +48,17 @@ const colors = {
     800: "#067547",
     900: "#0D493D",
     950: "#003720",
-    foreground: "var(--primary-foreground)",
-    background: "var(--primary-background)",
+    foreground: "var(--primary-foreground,#FFFFFF)",
+    background: "var(--primary-background,#FA2F62)",
     muted: {
-      DEFAULT: "var(--primary-muted)",
-      foreground: "var(--primary-muted-foreground)",
-      active: "#D5FFEE",
-    },
+      DEFAULT: "var(--primary-muted,#EAEAF1)",
+      foreground: "var(--primary-muted-foreground,#EAEAF1)",
+      active: "#D5FFEE"
+    }
   },
 
   secondary: {
-    DEFAULT: "var(--secondary)",
+    DEFAULT: "var(--secondary,#794DFF)",
     200: "#AFFFDC",
     300: "#70FFC3",
     400: "#46FDAE",
@@ -68,13 +68,13 @@ const colors = {
     800: "#067547",
     900: "#0D493D",
     950: "#003720",
-    foreground: "var(--secondary-foreground)",
-    background: "var(--secondary-background)",
+    foreground: "var(--secondary-foreground,#FFFFFF)",
+    background: "var(--secondary-background,#794DFF)",
     muted: {
-      DEFAULT: "var(--secondary-muted)",
-      foreground: "var(--secondary-muted-foreground)",
-      active: "#D5FFEE",
-    },
+      DEFAULT: "var(--secondary-muted,#EAEAF1)",
+      foreground: "var(--secondary-muted-foreground,#EAEAF1)",
+      active: "#D5FFEE"
+    }
   },
 
   // pink
@@ -96,8 +96,8 @@ const colors = {
     muted: {
       DEFAULT: "#ffe7fb",
       foreground: "#fe74dd",
-      active: "#ffcef5",
-    },
+      active: "#ffcef5"
+    }
   },
 
   // yellow
@@ -120,8 +120,8 @@ const colors = {
     muted: {
       DEFAULT: "#f9ffc1",
       foreground: "#fff70d",
-      active: "#f8ff86",
-    },
+      active: "#f8ff86"
+    }
   },
 
   // green
@@ -143,8 +143,8 @@ const colors = {
     muted: {
       DEFAULT: "#e8ffc7",
       foreground: "#91f625",
-      active: "#d1ff95",
-    },
+      active: "#d1ff95"
+    }
   },
 
   // --- State Variants
@@ -166,8 +166,8 @@ const colors = {
     muted: {
       DEFAULT: "#f540c7",
       foreground: "#ffe7fb",
-      active: "#f540c7",
-    },
+      active: "#f540c7"
+    }
   },
 
   destructive: {
@@ -188,8 +188,8 @@ const colors = {
     muted: {
       DEFAULT: "#fff1f2",
       foreground: "#fb7185",
-      active: "#fecdd3",
-    },
+      active: "#fecdd3"
+    }
   },
 
   info: {
@@ -210,8 +210,8 @@ const colors = {
     muted: {
       DEFAULT: "#eff5ff",
       foreground: "#609afa",
-      active: "#dbe8fe",
-    },
+      active: "#dbe8fe"
+    }
   },
 
   success: {
@@ -232,8 +232,8 @@ const colors = {
     muted: {
       DEFAULT: "#ecfdf7",
       foreground: "#34d39e",
-      active: "#a7f3da",
-    },
+      active: "#a7f3da"
+    }
   },
 
   warning: {
@@ -254,8 +254,8 @@ const colors = {
     muted: {
       DEFAULT: "#fff5ed",
       foreground: "#fdb274",
-      active: "#ffe8d5",
-    },
+      active: "#ffe8d5"
+    }
   },
 
   error: {
@@ -276,51 +276,51 @@ const colors = {
     muted: {
       DEFAULT: "#fef2f2",
       foreground: "#f87171",
-      active: "#fee2e2",
-    },
+      active: "#fee2e2"
+    }
   },
 
   disabled: {
     DEFAULT: "#9e9e9e",
-    foreground: "#eeeeee",
+    foreground: "#eeeeee"
   },
 
   // --- Component Variants
 
   card: {
     DEFAULT: "#ffffff",
-    foreground: "#0f1729",
+    foreground: "#0f1729"
   },
 
   popover: {
-    DEFAULT: "var(--control-popover)",
-    foreground: "var(--control-foreground)",
+    DEFAULT: "var(--control-popover,#FFFFFF)",
+    foreground: "var(--control-foreground,#121217)"
   },
 
   control: {
-    DEFAULT: "var(--control)",
-    background: "var(--control-background)",
-    foreground: "var(--control-foreground)",
+    DEFAULT: "var(--control,#FFFFFF)",
+    background: "var(--control-background,#FFFFFF)",
+    foreground: "var(--control-foreground,#121217)",
     active: {
-      DEFAULT: "var(--control-active)",
-      muted: "var(--control-active-muted)",
-      foreground: "var(--control-active-foreground)",
-      background: "var(--control-active-background)",
-      hover: "var(--control-active-hover)",
-      focus: "var(--control-active-focus)",
+      DEFAULT: "var(--control-active,#FA2F62)",
+      muted: "var(--control-active-muted,#F8F8FB)",
+      foreground: "var(--control-active-foreground,#FFFFFF)",
+      background: "var(--control-active-background,#FA2F62)",
+      hover: "var(--control-active-hover,#FA2F62)",
+      focus: "var(--control-active-focus,#FA2F62)"
     },
     error: {
       DEFAULT: "#EF4444",
       muted: "#EF444420",
       foreground: "#ffffff",
-      background: "#EF4444",
-    },
+      background: "#EF4444"
+    }
   },
 
   icon: {
-    primary: "var(--icon-primary)",
-    secondary: "var(--icon-secondary)",
-  },
+    primary: "var(--icon-primary,#121217)",
+    secondary: "var(--icon-secondary,#FA2F62)"
+  }
 };
 
 // -----------------------------------------------------------------------------
@@ -331,7 +331,7 @@ export default {
   fontFamily: {
     sans: "var(--fontFamily, ui-sans-serif, system-ui, sans-serif)",
     body: "var(--fontFamily, ui-sans-serif, system-ui, sans-serif)",
-    display: "var(--fontFamily, ui-sans-serif, system-ui, sans-serif)",
+    display: "var(--fontFamily, ui-sans-serif, system-ui, sans-serif)"
   },
   fontSize: {
     "2xs": ".75rem", // 12px
@@ -343,7 +343,7 @@ export default {
     "2xl": "1.5rem", // 24px
     "3xl": "1.875rem", // 30px
     "4xl": "2.25rem", // 36px
-    "5xl": "3rem", // 48px
+    "5xl": "3rem" // 48px
   },
   width: {
     "dropdown-3xs": "6rem",
@@ -353,29 +353,29 @@ export default {
     "dropdown-md": "14rem",
     "dropdown-lg": "16rem",
     "dropdown-xl": "18rem",
-    "dropdown-2xl": "20rem",
+    "dropdown-2xl": "20rem"
   },
   maxWidth: {
-    app: "clamp(320px, 90%, 1280px)",
+    app: "clamp(320px, 90%, 1280px)"
   },
   leading: {
     none: 1,
     tight: 1.25,
     normal: 1.5,
-    loose: 2,
+    loose: 2
   },
   tracking: {
     tight: "-0.05em",
     normal: "0",
-    wide: "0.05em",
+    wide: "0.05em"
   },
   borderColor: {
     DEFAULT: "rgb(0 25 51 / 0.1)",
     input: "rgb(0 25 51 / 0.1)",
     control: {
       DEFAULT: "rgb(0 25 51 / 0.1)",
-      strong: "rgb(0 25 51 / 0.2)",
-    },
+      strong: "rgb(0 25 51 / 0.2)"
+    }
   },
   borderRadius: {
     DEFAULT: ".5rem",
@@ -387,7 +387,7 @@ export default {
     full: "99999px",
     pill: "10em",
     button: ".25rem",
-    box: ".5rem",
+    box: ".5rem"
   },
   shadows: {
     default: "0 2px 4px 0 rgba(0,0,0,0.10)",
@@ -395,7 +395,7 @@ export default {
     lg: "0 15px 30px 0 rgba(0,0,0,0.11), 0 5px 15px 0 rgba(0,0,0,0.08)",
     inner: "inset 0 2px 4px 0 rgba(0,0,0,0.06)",
     outline: "0 0 0 3px rgba(52,144,220,0.5)",
-    none: "none",
+    none: "none"
   },
 
   // borderWidth: {
@@ -419,7 +419,7 @@ export default {
   ringColor: {
     DEFAULT: colors.control.active,
     ring: colors.control.active,
-    invalid: colors.control.error.muted,
+    invalid: colors.control.error.muted
   },
   typography: ({ theme }: PluginUtils) => ({
     DEFAULT: {
@@ -429,42 +429,42 @@ export default {
         h1: {
           fontFamily: theme("fontFamily.display"),
           fontWeight: 700,
-          lineHeight: 1.2,
+          lineHeight: 1.2
         },
         h2: {
           fontFamily: theme("fontFamily.display"),
           fontWeight: 700,
-          lineHeight: 1.2,
+          lineHeight: 1.2
         },
         h3: {
           fontFamily: theme("fontFamily.display"),
           fontWeight: 700,
-          lineHeight: 1.2,
+          lineHeight: 1.2
         },
         h4: {
           fontFamily: theme("fontFamily.display"),
           fontWeight: 500,
-          lineHeight: 1.2,
+          lineHeight: 1.2
         },
         h5: {
           fontFamily: theme("fontFamily.display"),
           fontWeight: 500,
-          lineHeight: 1.2,
+          lineHeight: 1.2
         },
         h6: {
           fontFamily: theme("fontFamily.display"),
           fontWeight: 500,
-          lineHeight: 1.2,
-        },
-      },
-    },
+          lineHeight: 1.2
+        }
+      }
+    }
   }),
   textColor: {
     emphasis: {
       disabled: "color-mix(in srgb, currentColor 38%, transparent)",
       medium: "color-mix(in srgb, currentColor 60%, transparent)",
       high: "color-mix(in srgb, currentColor 75%, transparent)",
-      none: "currentColor",
-    },
-  },
+      none: "currentColor"
+    }
+  }
 } satisfies Config;

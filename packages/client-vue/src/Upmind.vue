@@ -1,4 +1,10 @@
 <template>
+  <PreLoading
+    v-if="!themeMeta.isAvailable"
+    active
+    class="h-screen w-full !text-gray-400"
+  />
+
   <Suspense
     @pending="setLoading(true)"
     @resolve="setLoading(false)"
@@ -35,11 +41,7 @@
 
                       <!-- fallback / loading state -->
                       <template #fallback>
-                        <Loading v-bind="loadingProps">
-                          <template #background>
-                            <slot name="loading-background"></slot>
-                          </template>
-                        </Loading>
+                        <Loading v-bind="loadingProps" />
                       </template>
                     </Suspense>
                   </KeepAlive>
@@ -82,6 +84,7 @@ import Header from "./components/header/Header.vue";
 import Feedback from "./modules/feedback/Feedback.vue";
 import Page from "./components/content/Page.vue";
 import Loading from "./modules/system/Loading.vue";
+import { Loading as PreLoading } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { get } from "lodash-es";
@@ -100,7 +103,7 @@ const loading = ref(true);
 
 // -----------------------------------------------------------------------------
 
-const { theme, isReady } = useBrandTheme(props.theme);
+const { theme, isReady, meta: themeMeta } = useBrandTheme(props.theme);
 isReady().then(() => {
   debugger;
   if (!theme.value) {

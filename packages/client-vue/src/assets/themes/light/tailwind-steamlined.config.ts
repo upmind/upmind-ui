@@ -8,76 +8,58 @@ import defaultTheme from "tailwindcss/defaultTheme";
 
 const colors = {
   transparent: "transparent",
-  black: "#021831",
-  white: "#ffffff",
+  black: "#121212",
+  white: "#FFFFFF",
   background: "var(--background-canvas)",
   foreground: "var(--foreground)",
-
-  // --- Theme Variants
+  border: "var(--border)",
 
   base: {
     DEFAULT: "var(--background-surface)",
-    50: "#fbfcfd",
-    100: "#f9fafb",
-    200: "#dde3e8",
-    300: "#c7d1da",
-    400: "#b0bbc9",
-    500: "#919eb2",
-    600: "#858fa6",
-    700: "#727b90",
-    800: "#5d6476",
-    900: "#4f5560",
-    950: "#2e3138",
     foreground: "var(--foreground)",
     background: "var(--background-surface)",
+    ring: "var(--ring)",
     muted: {
-      DEFAULT: "#F6F6F6",
-      foreground: "var(--muted-foreground)",
-      active: "#F0F0F0"
+      foreground: "var(--muted-foreground)"
     }
   },
 
   primary: {
     DEFAULT: "var(--primary)",
-    200: "#AFFFDC",
-    300: "#70FFC3",
-    400: "#46FDAE",
-    500: "#00E784",
-    600: "#00C069",
-    700: "#009656",
-    800: "#067547",
-    900: "#0D493D",
-    950: "#003720",
     foreground: "var(--primary-foreground)",
-    background: "var(--primary-background)",
+    background: {
+      DEFAULT: "var(--primary-background)",
+      hover: "var(--primary-background-hover)"
+    },
     muted: {
       DEFAULT: "var(--primary-muted)",
-      foreground: "var(--primary-muted-foreground)",
-      active: "#D5FFEE"
-    }
+      hover: {
+        DEFAULT: "var(--primary-muted-hover)",
+        foreground: "var(--primary-muted-hover-foreground)"
+      },
+      foreground: "var(--primary-muted-foreground)"
+    },
+    ring: "var(--ring-primary-ring, var(--primary))"
   },
 
   secondary: {
     DEFAULT: "var(--secondary)",
-    200: "#AFFFDC",
-    300: "#70FFC3",
-    400: "#46FDAE",
-    500: "#00E784",
-    600: "#00C069",
-    700: "#009656",
-    800: "#067547",
-    900: "#0D493D",
-    950: "#003720",
     foreground: "var(--secondary-foreground)",
-    background: "var(--secondary-background)",
+    background: {
+      DEFAULT: "var(--secondary-background)",
+      hover: "var(--secondary-background-hover)"
+    },
     muted: {
       DEFAULT: "var(--secondary-muted)",
-      foreground: "var(--secondary-muted-foreground)",
-      active: "#D5FFEE"
-    }
+      hover: {
+        DEFAULT: "var(--secondary-muted-hover)",
+        foreground: "var(--secondary-muted-hover-foreground)"
+      },
+      foreground: "var(--primary-muted-foreground)"
+    },
+    ring: "var(--ring-secondary-ring, var(--secondary))"
   },
 
-  // pink
   tertiary: {
     DEFAULT: "#ffa4ea",
     50: "#fff4fd",
@@ -100,7 +82,6 @@ const colors = {
     }
   },
 
-  // yellow
   quarternary: {
     DEFAULT: "#ffe900",
     50: "#fdffe7",
@@ -124,49 +105,47 @@ const colors = {
     }
   },
 
-  // green
   accent: {
-    DEFAULT: "#bbff6f",
-    50: "#f5ffe5",
-    100: "#e8ffc7",
-    200: "#d1ff95",
-    300: "#bbff6f",
-    400: "#91f625",
-    500: "#94D80A",
-    600: "#54b100",
-    700: "#408605",
-    800: "#36690b",
-    900: "#2e590e",
-    950: "#153201",
-    foreground: "#153201",
-    background: "#bbff6f",
+    DEFAULT: "#24eda0",
+    50: "#CEFBEA",
+    100: "#BBF9E1",
+    200: "#95F6D1",
+    300: "#6FF3C1",
+    400: "#4AF0B0",
+    500: "#24EDA0",
+    600: "#10C882",
+    700: "#0C9560",
+    800: "#08613F",
+    900: "#042D1D",
+    950: "#02130C",
+    foreground: "#16272d",
+    background: "#24eda0",
     muted: {
-      DEFAULT: "#e8ffc7",
-      foreground: "#91f625",
-      active: "#d1ff95"
+      DEFAULT: "#24eda0",
+      foreground: "#16272d",
+      active: "#24eda0"
     }
   },
 
-  // --- State Variants
   promotion: {
-    DEFAULT: "#f540c7",
-    50: "#fff4fd",
-    100: "#ffe7fb",
-    200: "#ffcef5",
-    300: "#ffa4ea",
-    400: "#fe74dd",
-    500: "#f540c7",
-    600: "#d920a7",
-    700: "#b41787",
-    800: "#93156c",
-    900: "#781758",
-    950: "#510138",
-    foreground: "#021831",
-    background: "#f540c7",
+    DEFAULT: "#24eda0",
+    50: "#CEFBEA",
+    100: "#BBF9E1",
+    200: "#95F6D1",
+    300: "#6FF3C1",
+    400: "#4AF0B0",
+    500: "#24EDA0",
+    600: "#10C882",
+    700: "#0C9560",
+    800: "#08613F",
+    900: "#042D1D",
+    950: "#02130C",
+    foreground: "#16272d",
+    background: "#24eda0",
     muted: {
-      DEFAULT: "#f540c7",
-      foreground: "#ffe7fb",
-      active: "#f540c7"
+      DEFAULT: "#24eda0",
+      foreground: "#16272d",
+      active: "#24eda0"
     }
   },
 
@@ -280,13 +259,6 @@ const colors = {
     }
   },
 
-  disabled: {
-    DEFAULT: "#9e9e9e",
-    foreground: "#eeeeee"
-  },
-
-  // --- Component Variants
-
   card: {
     DEFAULT: "#ffffff",
     foreground: "#0f1729"
@@ -301,6 +273,10 @@ const colors = {
     DEFAULT: "var(--control)",
     background: "var(--control-background)",
     foreground: "var(--control-foreground)",
+    border: "var(--control-border)",
+    hover: {
+      border: "var(--control-hover-border)"
+    },
     active: {
       DEFAULT: "var(--control-active)",
       muted: "var(--control-active-muted)",
@@ -329,10 +305,15 @@ export default {
   content: [],
   colors,
   fontFamily: {
-    sans: "var(--fontFamily, ui-sans-serif, system-ui, sans-serif)",
-    body: "var(--fontFamily, ui-sans-serif, system-ui, sans-serif)",
-    display: "var(--fontFamily, ui-sans-serif, system-ui, sans-serif)"
+    sans: ["Inter Tight", ...defaultTheme.fontFamily.sans].toString(),
+    serif: ["Inter Tight", ...defaultTheme.fontFamily.serif].toString(),
+    mono: ["Inconsolata", ...defaultTheme.fontFamily.mono].toString()
   },
+  // Allows us to use gradients
+  // backgroundImage: {
+  //   primary: "var(--primary)",
+  //   secondary: "var(--secondary)",
+  // },
   fontSize: {
     "2xs": ".75rem", // 12px
     xs: ".875rem", // 14px
@@ -346,6 +327,7 @@ export default {
     "5xl": "3rem" // 48px
   },
   width: {
+    app: "1280px",
     "dropdown-3xs": "6rem",
     "dropdown-2xs": "8rem",
     "dropdown-xs": "10rem",
@@ -356,7 +338,10 @@ export default {
     "dropdown-2xl": "20rem"
   },
   maxWidth: {
-    app: "clamp(320px, 90%, 1280px)"
+    app: "1280px"
+  },
+  minWidth: {
+    app: "1280px"
   },
   leading: {
     none: 1,
@@ -370,24 +355,20 @@ export default {
     wide: "0.05em"
   },
   borderColor: {
-    DEFAULT: "rgb(0 25 51 / 0.1)",
-    input: "rgb(0 25 51 / 0.1)",
-    control: {
-      DEFAULT: "rgb(0 25 51 / 0.1)",
-      strong: "rgb(0 25 51 / 0.2)"
-    }
+    DEFAULT: "var(--border)"
   },
   borderRadius: {
     DEFAULT: ".5rem",
     none: "0",
-    xl: "12px",
-    lg: "8px",
-    md: "6px",
-    sm: "4px",
-    full: "99999px",
-    pill: "10em",
-    button: ".25rem",
-    box: ".5rem"
+    xs: ".0625rem", // 1px
+    sm: ".125rem", // 2px
+    md: ".25rem", // 4px
+    lg: ".5rem", // 8px
+    xl: "58px", // 16px
+    full: "9999px", // 9999px,
+    pill: "10em", // 9999px,
+    button: ".25rem", // 4px,
+    box: ".5rem" // 8px,
   },
   shadows: {
     default: "0 2px 4px 0 rgba(0,0,0,0.10)",
@@ -429,32 +410,38 @@ export default {
         h1: {
           fontFamily: theme("fontFamily.display"),
           fontWeight: 700,
-          lineHeight: 1.2
+          lineHeight: 1.2,
+          color: "var(--foreground)"
         },
         h2: {
           fontFamily: theme("fontFamily.display"),
           fontWeight: 700,
-          lineHeight: 1.2
+          lineHeight: 1.2,
+          color: "var(--foreground)"
         },
         h3: {
           fontFamily: theme("fontFamily.display"),
           fontWeight: 700,
-          lineHeight: 1.2
+          lineHeight: 1.2,
+          color: "var(--foreground)"
         },
         h4: {
           fontFamily: theme("fontFamily.display"),
           fontWeight: 500,
-          lineHeight: 1.2
+          lineHeight: 1.2,
+          color: "var(--foreground)"
         },
         h5: {
           fontFamily: theme("fontFamily.display"),
           fontWeight: 500,
-          lineHeight: 1.2
+          lineHeight: 1.2,
+          color: "var(--foreground)"
         },
         h6: {
           fontFamily: theme("fontFamily.display"),
           fontWeight: 500,
-          lineHeight: 1.2
+          lineHeight: 1.2,
+          color: "var(--foreground)"
         }
       }
     }
@@ -463,7 +450,7 @@ export default {
     emphasis: {
       disabled: "color-mix(in srgb, currentColor 38%, transparent)",
       medium: "color-mix(in srgb, currentColor 60%, transparent)",
-      high: "color-mix(in srgb, currentColor 75%, transparent)",
+      high: "color-mix(in srgb, currentColor 87%, transparent)",
       none: "currentColor"
     }
   }

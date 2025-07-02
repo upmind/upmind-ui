@@ -2,10 +2,10 @@ import theme from "./tailwind.config";
 import uiConfig from "./ui.config";
 
 const defaultTheme = {
-  name: "upmind",
+  name: "Upmind",
   id: "upmind",
   extend: theme,
-  uiConfig,
+  uiConfig
 };
 
 export default defaultTheme;

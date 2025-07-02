@@ -4,8 +4,9 @@ import animate from "tailwindcss-animate";
 import aria from "tailwindcss-aria-attributes";
 
 // --- Themes
-import theme from "./src/assets/theme";
+import themes from "../../packages/client-vue/src/assets/themes";
 
+// console.log("tailwind", { themes });
 // -----------------------------------------------------------------------------
 
 /** @type {import('tailwindcss').Config} */
@@ -76,13 +77,5 @@ export default {
     },
   },
 
-  plugins: [
-    animate,
-    typography,
-    aria,
-    themer({
-      defaultTheme: theme,
-      themes: [theme],
-    }),
-  ],
+  plugins: [animate, typography, aria, themer(themes)],
 };
