@@ -1,35 +1,32 @@
 <template>
-  <PreLoading
-    v-if="!themeMeta.isAvailable"
-    active
+  <Loading
+    :active="!themeMeta.isAvailable"
     class="h-screen w-full !text-gray-400"
-  />
-
-  <Suspense
-    @pending="setLoading(true)"
-    @resolve="setLoading(false)"
-    @fallback="setLoading(true)"
   >
-    <div
-      class="bg-background text-foreground relative flex min-h-screen flex-col items-start antialiased"
-      :data-theme="activeTheme"
-      id="vue-app"
+    <Suspense
+      @pending="setLoading(true)"
+      @resolve="setLoading(false)"
+      @fallback="setLoading(true)"
     >
-      <slot name="header">
-        <Header :logo="logo">
-          <template #actions>
-            <slot name="actions" />
-          </template>
-          <template #logo><slot name="logo" :logo="logo"></slot></template>
-        </Header>
-      </slot>
+      <div
+        class="bg-background text-foreground relative flex min-h-screen flex-col items-start antialiased"
+        :data-theme="activeTheme"
+        id="vue-app"
+      >
+        <slot name="header">
+          <Header :logo="logo">
+            <template #actions>
+              <slot name="actions" />
+            </template>
+            <template #logo><slot name="logo" :logo="logo"></slot></template>
+          </Header>
+        </slot>
 
-      <main class="w-full flex-1">
-        <RouterView v-slot="routerViewProps" :key="$route.fullPath">
-          <slot v-bind="routerViewProps">
-            <template v-if="routerViewProps.Component">
-              <Page :class="styles.page" :key="$route.fullPath">
-                <Transition mode="out-in">
+        <main class="w-full flex-1">
+          <RouterView v-slot="routerViewProps" :key="$route.fullPath">
+            <slot v-bind="routerViewProps">
+              <template v-if="routerViewProps.Component">
+                <Page :class="styles.page" :key="$route.fullPath">
                   <KeepAlive>
                     <Suspense
                       @pending="setLoading(true)"
@@ -41,23 +38,22 @@
 
                       <!-- fallback / loading state -->
                       <template #fallback>
-                        <Loading v-bind="loadingProps" />
+                        <AsyncLoading v-bind="loadingProps" />
                       </template>
                     </Suspense>
                   </KeepAlive>
-                </Transition>
-              </Page>
-            </template>
-          </slot>
-        </RouterView>
-      </main>
+                </Page>
+              </template>
+            </slot>
+          </RouterView>
+        </main>
 
-      <slot name="footer">
-        <Footer />
-      </slot>
-    </div>
-  </Suspense>
-
+        <slot name="footer">
+          <Footer />
+        </slot>
+      </div>
+    </Suspense>
+  </Loading>
   <Feedback />
 </template>
 
@@ -83,8 +79,8 @@ import Footer from "./components/footer/Footer.vue";
 import Header from "./components/header/Header.vue";
 import Feedback from "./modules/feedback/Feedback.vue";
 import Page from "./components/content/Page.vue";
-import Loading from "./modules/system/Loading.vue";
-import { Loading as PreLoading } from "@upmind-automation/upmind-ui";
+import AsyncLoading from "./modules/system/Loading.vue";
+import { Loading } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { get } from "lodash-es";
