@@ -76,7 +76,7 @@
         "text": "Your {0} is empty",
         "strong": "basket"
       },
-      "text": "Looks like you haven't added anything to your basket.",
+      "text": "Looks like you haven't added anything to your basket yet.",
       "actions": {
         "continue": "Continue shopping"
       }
