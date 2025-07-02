@@ -2,8 +2,8 @@ import theme from "./tailwind.config";
 import uiConfig from "./ui.config";
 
 const defaultTheme = {
-  name: "upmind",
-  id: "upmind",
+  name: "Upmind (Dark mode)",
+  id: "upmind-dark",
   extend: theme,
   uiConfig
 };

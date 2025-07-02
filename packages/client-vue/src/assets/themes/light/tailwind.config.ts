@@ -8,58 +8,76 @@ import defaultTheme from "tailwindcss/defaultTheme";
 
 const colors = {
   transparent: "transparent",
-  black: "#121212",
-  white: "#FFFFFF",
-  background: "var(--background-canvas)",
-  foreground: "var(--foreground)",
-  border: "var(--border)",
+  black: "#021831",
+  white: "#ffffff",
+  background: "var(--background-canvas,#F8F8FB)",
+  foreground: "var(--foreground,#121217)",
+
+  // --- Theme Variants
 
   base: {
-    DEFAULT: "var(--background-surface)",
-    foreground: "var(--foreground)",
-    background: "var(--background-surface)",
-    ring: "var(--ring)",
+    DEFAULT: "var(--background-surface,#FFFFFF)",
+    50: "#fbfcfd",
+    100: "#f9fafb",
+    200: "#dde3e8",
+    300: "#c7d1da",
+    400: "#b0bbc9",
+    500: "#919eb2",
+    600: "#858fa6",
+    700: "#727b90",
+    800: "#5d6476",
+    900: "#4f5560",
+    950: "#2e3138",
+    foreground: "var(--foreground,#121217)",
+    background: "var(--background-surface,#FFFFFF)",
     muted: {
-      foreground: "var(--muted-foreground)",
-    },
+      DEFAULT: "#F6F6F6",
+      foreground: "var(--muted-foreground,#F6F6F6)",
+      active: "#F0F0F0"
+    }
   },
 
   primary: {
-    DEFAULT: "var(--primary)",
-    foreground: "var(--primary-foreground)",
-    background: {
-      DEFAULT: "var(--primary-background)",
-      hover: "var(--primary-background-hover)",
-    },
+    DEFAULT: "var(--primary,#FA2F62)",
+    200: "#AFFFDC",
+    300: "#70FFC3",
+    400: "#46FDAE",
+    500: "#00E784",
+    600: "#00C069",
+    700: "#009656",
+    800: "#067547",
+    900: "#0D493D",
+    950: "#003720",
+    foreground: "var(--primary-foreground,#FFFFFF)",
+    background: "var(--primary-background,#FA2F62)",
     muted: {
-      DEFAULT: "var(--primary-muted)",
-      hover: {
-        DEFAULT: "var(--primary-muted-hover)",
-        foreground: "var(--primary-muted-hover-foreground)",
-      },
-      foreground: "var(--primary-muted-foreground)",
-    },
-    ring: "var(--ring-primary-ring, var(--primary))",
+      DEFAULT: "var(--primary-muted,#EAEAF1)",
+      foreground: "var(--primary-muted-foreground,#EAEAF1)",
+      active: "#D5FFEE"
+    }
   },
 
   secondary: {
-    DEFAULT: "var(--secondary)",
-    foreground: "var(--secondary-foreground)",
-    background: {
-      DEFAULT: "var(--secondary-background)",
-      hover: "var(--secondary-background-hover)",
-    },
+    DEFAULT: "var(--secondary,#794DFF)",
+    200: "#AFFFDC",
+    300: "#70FFC3",
+    400: "#46FDAE",
+    500: "#00E784",
+    600: "#00C069",
+    700: "#009656",
+    800: "#067547",
+    900: "#0D493D",
+    950: "#003720",
+    foreground: "var(--secondary-foreground,#FFFFFF)",
+    background: "var(--secondary-background,#794DFF)",
     muted: {
-      DEFAULT: "var(--secondary-muted)",
-      hover: {
-        DEFAULT: "var(--secondary-muted-hover)",
-        foreground: "var(--secondary-muted-hover-foreground)",
-      },
-      foreground: "var(--primary-muted-foreground)",
-    },
-    ring: "var(--ring-secondary-ring, var(--secondary))",
+      DEFAULT: "var(--secondary-muted,#EAEAF1)",
+      foreground: "var(--secondary-muted-foreground,#EAEAF1)",
+      active: "#D5FFEE"
+    }
   },
 
+  // pink
   tertiary: {
     DEFAULT: "#ffa4ea",
     50: "#fff4fd",
@@ -78,10 +96,11 @@ const colors = {
     muted: {
       DEFAULT: "#ffe7fb",
       foreground: "#fe74dd",
-      active: "#ffcef5",
-    },
+      active: "#ffcef5"
+    }
   },
 
+  // yellow
   quarternary: {
     DEFAULT: "#ffe900",
     50: "#fdffe7",
@@ -101,52 +120,54 @@ const colors = {
     muted: {
       DEFAULT: "#f9ffc1",
       foreground: "#fff70d",
-      active: "#f8ff86",
-    },
+      active: "#f8ff86"
+    }
   },
 
+  // green
   accent: {
-    DEFAULT: "#24eda0",
-    50: "#CEFBEA",
-    100: "#BBF9E1",
-    200: "#95F6D1",
-    300: "#6FF3C1",
-    400: "#4AF0B0",
-    500: "#24EDA0",
-    600: "#10C882",
-    700: "#0C9560",
-    800: "#08613F",
-    900: "#042D1D",
-    950: "#02130C",
-    foreground: "#16272d",
-    background: "#24eda0",
+    DEFAULT: "#bbff6f",
+    50: "#f5ffe5",
+    100: "#e8ffc7",
+    200: "#d1ff95",
+    300: "#bbff6f",
+    400: "#91f625",
+    500: "#94D80A",
+    600: "#54b100",
+    700: "#408605",
+    800: "#36690b",
+    900: "#2e590e",
+    950: "#153201",
+    foreground: "#153201",
+    background: "#bbff6f",
     muted: {
-      DEFAULT: "#24eda0",
-      foreground: "#16272d",
-      active: "#24eda0",
-    },
+      DEFAULT: "#e8ffc7",
+      foreground: "#91f625",
+      active: "#d1ff95"
+    }
   },
 
+  // --- State Variants
   promotion: {
-    DEFAULT: "#24eda0",
-    50: "#CEFBEA",
-    100: "#BBF9E1",
-    200: "#95F6D1",
-    300: "#6FF3C1",
-    400: "#4AF0B0",
-    500: "#24EDA0",
-    600: "#10C882",
-    700: "#0C9560",
-    800: "#08613F",
-    900: "#042D1D",
-    950: "#02130C",
-    foreground: "#16272d",
-    background: "#24eda0",
+    DEFAULT: "#f540c7",
+    50: "#fff4fd",
+    100: "#ffe7fb",
+    200: "#ffcef5",
+    300: "#ffa4ea",
+    400: "#fe74dd",
+    500: "#f540c7",
+    600: "#d920a7",
+    700: "#b41787",
+    800: "#93156c",
+    900: "#781758",
+    950: "#510138",
+    foreground: "#021831",
+    background: "#f540c7",
     muted: {
-      DEFAULT: "#24eda0",
-      foreground: "#16272d",
-      active: "#24eda0",
-    },
+      DEFAULT: "#f540c7",
+      foreground: "#ffe7fb",
+      active: "#f540c7"
+    }
   },
 
   destructive: {
@@ -167,8 +188,8 @@ const colors = {
     muted: {
       DEFAULT: "#fff1f2",
       foreground: "#fb7185",
-      active: "#fecdd3",
-    },
+      active: "#fecdd3"
+    }
   },
 
   info: {
@@ -189,8 +210,8 @@ const colors = {
     muted: {
       DEFAULT: "#eff5ff",
       foreground: "#609afa",
-      active: "#dbe8fe",
-    },
+      active: "#dbe8fe"
+    }
   },
 
   success: {
@@ -211,8 +232,8 @@ const colors = {
     muted: {
       DEFAULT: "#ecfdf7",
       foreground: "#34d39e",
-      active: "#a7f3da",
-    },
+      active: "#a7f3da"
+    }
   },
 
   warning: {
@@ -233,8 +254,8 @@ const colors = {
     muted: {
       DEFAULT: "#fff5ed",
       foreground: "#fdb274",
-      active: "#ffe8d5",
-    },
+      active: "#ffe8d5"
+    }
   },
 
   error: {
@@ -255,48 +276,51 @@ const colors = {
     muted: {
       DEFAULT: "#fef2f2",
       foreground: "#f87171",
-      active: "#fee2e2",
-    },
+      active: "#fee2e2"
+    }
   },
+
+  disabled: {
+    DEFAULT: "#9e9e9e",
+    foreground: "#eeeeee"
+  },
+
+  // --- Component Variants
 
   card: {
     DEFAULT: "#ffffff",
-    foreground: "#0f1729",
+    foreground: "#0f1729"
   },
 
   popover: {
-    DEFAULT: "var(--control-popover)",
-    foreground: "var(--control-foreground)",
+    DEFAULT: "var(--control-popover,#FFFFFF)",
+    foreground: "var(--control-foreground,#121217)"
   },
 
   control: {
-    DEFAULT: "var(--control)",
-    background: "var(--control-background)",
-    foreground: "var(--control-foreground)",
-    border: "var(--control-border)",
-    hover: {
-      border: "var(--control-hover-border)",
-    },
+    DEFAULT: "var(--control,#FFFFFF)",
+    background: "var(--control-background,#FFFFFF)",
+    foreground: "var(--control-foreground,#121217)",
     active: {
-      DEFAULT: "var(--control-active)",
-      muted: "var(--control-active-muted)",
-      foreground: "var(--control-active-foreground)",
-      background: "var(--control-active-background)",
-      hover: "var(--control-active-hover)",
-      focus: "var(--control-active-focus)",
+      DEFAULT: "var(--control-active,#FA2F62)",
+      muted: "var(--control-active-muted,#F8F8FB)",
+      foreground: "var(--control-active-foreground,#FFFFFF)",
+      background: "var(--control-active-background,#FA2F62)",
+      hover: "var(--control-active-hover,#FA2F62)",
+      focus: "var(--control-active-focus,#FA2F62)"
     },
     error: {
       DEFAULT: "#EF4444",
       muted: "#EF444420",
       foreground: "#ffffff",
-      background: "#EF4444",
-    },
+      background: "#EF4444"
+    }
   },
 
   icon: {
-    primary: "var(--icon-primary)",
-    secondary: "var(--icon-secondary)",
-  },
+    primary: "var(--icon-primary,#121217)",
+    secondary: "var(--icon-secondary,#FA2F62)"
+  }
 };
 
 // -----------------------------------------------------------------------------
@@ -305,15 +329,10 @@ export default {
   content: [],
   colors,
   fontFamily: {
-    sans: ["Inter Tight", ...defaultTheme.fontFamily.sans].toString(),
-    serif: ["Inter Tight", ...defaultTheme.fontFamily.serif].toString(),
-    mono: ["Inconsolata", ...defaultTheme.fontFamily.mono].toString(),
+    sans: "var(--fontFamily, ui-sans-serif, system-ui, sans-serif)",
+    body: "var(--fontFamily, ui-sans-serif, system-ui, sans-serif)",
+    display: "var(--fontFamily, ui-sans-serif, system-ui, sans-serif)"
   },
-  // Allows us to use gradients
-  // backgroundImage: {
-  //   primary: "var(--primary)",
-  //   secondary: "var(--secondary)",
-  // },
   fontSize: {
     "2xs": ".75rem", // 12px
     xs: ".875rem", // 14px
@@ -324,10 +343,9 @@ export default {
     "2xl": "1.5rem", // 24px
     "3xl": "1.875rem", // 30px
     "4xl": "2.25rem", // 36px
-    "5xl": "3rem", // 48px
+    "5xl": "3rem" // 48px
   },
   width: {
-    app: "1280px",
     "dropdown-3xs": "6rem",
     "dropdown-2xs": "8rem",
     "dropdown-xs": "10rem",
@@ -335,40 +353,41 @@ export default {
     "dropdown-md": "14rem",
     "dropdown-lg": "16rem",
     "dropdown-xl": "18rem",
-    "dropdown-2xl": "20rem",
+    "dropdown-2xl": "20rem"
   },
   maxWidth: {
-    app: "1280px",
-  },
-  minWidth: {
-    app: "1280px",
+    app: "clamp(320px, 90%, 1280px)"
   },
   leading: {
     none: 1,
     tight: 1.25,
     normal: 1.5,
-    loose: 2,
+    loose: 2
   },
   tracking: {
     tight: "-0.05em",
     normal: "0",
-    wide: "0.05em",
+    wide: "0.05em"
   },
   borderColor: {
-    DEFAULT: "var(--border)",
+    DEFAULT: "rgb(0 25 51 / 0.1)",
+    input: "rgb(0 25 51 / 0.1)",
+    control: {
+      DEFAULT: "rgb(0 25 51 / 0.1)",
+      strong: "rgb(0 25 51 / 0.2)"
+    }
   },
   borderRadius: {
     DEFAULT: ".5rem",
     none: "0",
-    xs: ".0625rem", // 1px
-    sm: ".125rem", // 2px
-    md: ".25rem", // 4px
-    lg: ".5rem", // 8px
-    xl: "58px", // 16px
-    full: "9999px", // 9999px,
-    pill: "10em", // 9999px,
-    button: ".25rem", // 4px,
-    box: ".5rem", // 8px,
+    xl: "12px",
+    lg: "8px",
+    md: "6px",
+    sm: "4px",
+    full: "99999px",
+    pill: "10em",
+    button: ".25rem",
+    box: ".5rem"
   },
   shadows: {
     default: "0 2px 4px 0 rgba(0,0,0,0.10)",
@@ -376,7 +395,7 @@ export default {
     lg: "0 15px 30px 0 rgba(0,0,0,0.11), 0 5px 15px 0 rgba(0,0,0,0.08)",
     inner: "inset 0 2px 4px 0 rgba(0,0,0,0.06)",
     outline: "0 0 0 3px rgba(52,144,220,0.5)",
-    none: "none",
+    none: "none"
   },
 
   // borderWidth: {
@@ -400,7 +419,7 @@ export default {
   ringColor: {
     DEFAULT: colors.control.active,
     ring: colors.control.active,
-    invalid: colors.control.error.muted,
+    invalid: colors.control.error.muted
   },
   typography: ({ theme }: PluginUtils) => ({
     DEFAULT: {
@@ -410,48 +429,42 @@ export default {
         h1: {
           fontFamily: theme("fontFamily.display"),
           fontWeight: 700,
-          lineHeight: 1.2,
-          color: "var(--foreground)",
+          lineHeight: 1.2
         },
         h2: {
           fontFamily: theme("fontFamily.display"),
           fontWeight: 700,
-          lineHeight: 1.2,
-          color: "var(--foreground)",
+          lineHeight: 1.2
         },
         h3: {
           fontFamily: theme("fontFamily.display"),
           fontWeight: 700,
-          lineHeight: 1.2,
-          color: "var(--foreground)",
+          lineHeight: 1.2
         },
         h4: {
           fontFamily: theme("fontFamily.display"),
           fontWeight: 500,
-          lineHeight: 1.2,
-          color: "var(--foreground)",
+          lineHeight: 1.2
         },
         h5: {
           fontFamily: theme("fontFamily.display"),
           fontWeight: 500,
-          lineHeight: 1.2,
-          color: "var(--foreground)",
+          lineHeight: 1.2
         },
         h6: {
           fontFamily: theme("fontFamily.display"),
           fontWeight: 500,
-          lineHeight: 1.2,
-          color: "var(--foreground)",
-        },
-      },
-    },
+          lineHeight: 1.2
+        }
+      }
+    }
   }),
   textColor: {
     emphasis: {
       disabled: "color-mix(in srgb, currentColor 38%, transparent)",
       medium: "color-mix(in srgb, currentColor 60%, transparent)",
-      high: "color-mix(in srgb, currentColor 87%, transparent)",
-      none: "currentColor",
-    },
-  },
+      high: "color-mix(in srgb, currentColor 75%, transparent)",
+      none: "currentColor"
+    }
+  }
 } satisfies Config;

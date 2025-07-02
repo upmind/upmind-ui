@@ -2,8 +2,8 @@
 import WebFontLoader from "webfontloader";
 
 // --- internal
-import theme from "../../assets/theme/tailwind.config";
-import uiConfig from "../../assets/theme/ui.config";
+import theme from "../../assets/themes/light/tailwind.config";
+import uiConfig from "../../assets/themes/light/ui.config";
 
 // --- utils
 import {
