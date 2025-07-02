@@ -25,10 +25,13 @@ import {
  * @template T The type of items in the collection.
  * @returns
  */
-export function useCollection<T = unknown>(initial?: MaybeRef<T[]>) {
+export function useCollection<T = unknown>(initial?: MaybeRef<T[] | null>) {
   // --- methods
 
-  function getOne(id?: string | number, data: MaybeRef<T[]> = initial ?? []) {
+  function getOne(
+    id?: string | number,
+    data: MaybeRef<T[] | null> = initial ?? []
+  ) {
     data = unref(toRaw(data)) as T[];
     if (isEmpty(id)) return undefined;
     return find(data || [], ["id", id]);
@@ -36,7 +39,7 @@ export function useCollection<T = unknown>(initial?: MaybeRef<T[]>) {
 
   function findOne(
     mapping: string | Partial<T>,
-    data: MaybeRef<T[]> = initial ?? [],
+    data: MaybeRef<T[] | null> = initial ?? [],
     searchableProps: string[] = []
   ) {
     data = unref(toRaw(data)) as T[];
@@ -62,7 +65,7 @@ export function useCollection<T = unknown>(initial?: MaybeRef<T[]>) {
     );
   }
 
-  function getDefault(data: MaybeRef<T[]> = initial ?? []) {
+  function getDefault(data: MaybeRef<T[] | null> = initial ?? []) {
     data = unref(toRaw(data)) as T[];
     return find(data || [], "meta.isDefault") as T | undefined;
   }
