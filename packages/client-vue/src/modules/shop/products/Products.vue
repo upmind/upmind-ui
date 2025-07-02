@@ -1,13 +1,11 @@
 <template>
   <div :class="styles.products.root">
-    <ProductFacet
-      v-if="uiMeta?.catalog?.facet"
-      class="mb-4 w-full md:mb-0 md:w-1/4"
-      :category-id="categoryId"
-      :selected-category-id="facetCategoryId"
-      @category-selected="handleFacetCategorySelect"
-    />
-
+    <nav :class="styles.products.facets.root" v-if="uiMeta?.catalog?.facet">
+      <CategoriesFacet
+        v-model="categoryId"
+        @category-selected="doSelectCategory"
+      />
+    </nav>
     <main
       :class="styles.products.main.root"
       role="main"
@@ -21,14 +19,14 @@
         ]"
       >
         <InputExtended
-          v-model="searchQuery"
+          v-model="query"
           :class="[styles.products.main.searchInput, 'flex-1']"
           :placeholder="t('product.search.placeholder')"
           :auto-focus="false"
           input-size="sm"
           aria-label="Search products"
           data-testid="product-search"
-          @input="handleSearch"
+          @input="doSearch"
         >
           <template #prepend>
             <Icon
@@ -41,8 +39,10 @@
 
         <div class="w-full flex-shrink-0 md:w-auto">
           <ProductSort
-            :model-value="currentSort"
-            @update:model-value="handleSortChange"
+            items="Sortable"
+            :v-model="sorting"
+            @update:property="doSort($event)"
+            @update:direction="doSort(sorting?.property, $event)"
           />
         </div>
       </div>
@@ -65,7 +65,7 @@
 
           <ProductItemSkeleton
             v-else
-            v-for="n in skeletonCount"
+            v-for="n in lastProductCount"
             :key="`skeleton-${n}`"
           />
         </div>
@@ -105,16 +105,17 @@
 
 <script setup lang="ts">
 // --- external
-import { computed, watch, ref } from "vue";
+import { watch, ref } from "vue";
 import { useI18n } from "vue-i18n";
+
+// --- internal
 import {
   useBrand,
   useProductCatalogue,
-  RequestSortDirection
+  RequestSortDirection,
+  ProductSortableProperties
 } from "@upmind-automation/headless";
-
-// --- utils
-import { debounce } from "lodash-es";
+import config from "../shop.config";
 
 // --- components
 import {
@@ -123,118 +124,55 @@ import {
   Pagination,
   useStyles
 } from "@upmind-automation/upmind-ui";
-
-// --- config
-import config from "../shop.config";
 import ProductItem from "./ProductItem.vue";
 import ProductItemSkeleton from "./ProductItemSkeleton.vue";
-import ProductFacet from "./ProductFacet.vue";
 import ProductSort from "./ProductSort.vue";
+import CategoriesFacet from "../categories/CategoriesFacet.vue";
+
+// --- utils
+import { isArray, isEmpty } from "lodash-es";
 
 // --- types
 import type { Product } from "@upmind-automation/headless";
-import type { ProductsProps } from "./types";
-import { ProductSortType } from "./types";
+import type { ProductSortProps, ProductsProps } from "./types";
 import type { ComputedRef } from "vue";
 
-const DEBOUNCE_DELAY = 300;
 const DEFAULT_SKELETON_COUNT = 9;
 const PRODUCTS_PER_PAGE = 9;
+// -----------------------------------------------------------------------------
 
-const props = defineProps<ProductsProps>();
+const categoryId = defineModel<ProductsProps["categoryId"]>("categoryId");
 
-const emit = defineEmits<{
-  "facet-category-select": [id: string | null];
-  "sort-change": [sort: string];
-  "search-change": [search: string];
-}>();
+const query = defineModel<ProductsProps["query"]>("query");
+
+const sorting = defineModel<ProductsProps["sort"]>("sort", {
+  default: {
+    property: ProductSortableProperties.DEFAULT,
+    direction: RequestSortDirection.ASC
+  }
+});
+
+// ---------------------------------------------------------------------------
 
 const { t } = useI18n();
-
-const searchQuery = computed({
-  get: () => props.searchQuery || "",
-  set: (value: string) => emit("search-change", value)
-});
-const currentSort = computed(() => props.sortValue || ProductSortType.DEFAULT);
 
 const { uiMeta } = useBrand();
 
 const { data, meta, pagination, filters, sort, nextPage, prevPage } =
   useProductCatalogue({
+    // infinite: !!uiMeta.value?.catalog?.infinite, // TODO
     pagination: {
       limit: PRODUCTS_PER_PAGE
     }
   });
 
+// --- context
 const lastProductCount = ref(DEFAULT_SKELETON_COUNT);
-
-const skeletonCount = computed(() => {
-  return lastProductCount.value;
-});
-
-watch(
-  data,
-  newData => {
-    if (newData && Array.isArray(newData) && newData.length > 0) {
-      lastProductCount.value = newData.length;
-    }
-  },
-  { immediate: true }
-);
-
-const handleFacetCategorySelect = (id: string | null) => {
-  emit("facet-category-select", id);
-  const effectiveCategory = id || props.categoryId;
-  filters.productCategory(effectiveCategory || undefined);
-};
-
-const debouncedSearch = debounce((value: string) => {
-  filters.query(value);
-  emit("search-change", value);
-}, DEBOUNCE_DELAY);
-
-const handleSearch = () => {
-  debouncedSearch(searchQuery.value);
-};
-
-const handleSortChange = (sortValue: string) => {
-  emit("sort-change", sortValue);
-};
-
-watch(
-  [() => props.categoryId, () => props.facetCategoryId],
-  () => {
-    const effectiveCategory = props.facetCategoryId || props.categoryId;
-    filters.productCategory(effectiveCategory || undefined);
-  },
-  { immediate: true }
-);
-
-watch(
-  () => props.searchQuery,
-  newSearchQuery => {
-    if (newSearchQuery !== searchQuery.value) {
-      filters.query(newSearchQuery || "");
-    }
-  },
-  { immediate: true }
-);
-
-watch(
-  () => props.sortValue,
-  newSortValue => {
-    if (!newSortValue || newSortValue === ProductSortType.DEFAULT) {
-      sort.clear();
-    } else {
-      sort.set(newSortValue, RequestSortDirection.ASC);
-    }
-  },
-  { immediate: true }
-);
 
 const styles = useStyles(
   [
     "products",
+    "products.facets",
     "products.main",
     "products.main.grid",
     "products.main.emptyState"
@@ -244,6 +182,9 @@ const styles = useStyles(
 ) as ComputedRef<{
   products: {
     root: string;
+    facets: {
+      root: string;
+    };
     main: {
       root: string;
       controls: string;
@@ -262,4 +203,50 @@ const styles = useStyles(
     };
   };
 }>;
+
+// --- methods
+
+const doSelectCategory = (value: string) => {
+  filters.productCategory(value);
+};
+
+const doSearch = (value: string) => {
+  filters.query(value);
+};
+
+const doSort = (
+  property?: ProductSortProps["property"],
+  direction?: RequestSortDirection
+) => {
+  sorting.value = {
+    property:
+      property ?? sorting.value?.property ?? ProductSortableProperties.DEFAULT,
+    direction: direction ?? sorting.value?.direction ?? RequestSortDirection.ASC
+  };
+  sort(sorting.value?.property, sorting.value?.direction);
+};
+
+//  --- side effects
+
+watch(
+  data,
+  newData => {
+    if (isArray(newData) && !isEmpty(newData)) {
+      lastProductCount.value = newData.length;
+    } else {
+      lastProductCount.value = DEFAULT_SKELETON_COUNT;
+    }
+  },
+  { immediate: true }
+);
+
+// watch our props and update filters accordingly
+
+watch(categoryId, filters.productCategory, { immediate: true });
+
+watch(query, filters.query, { immediate: true });
+
+watch(sorting, value => sort(value?.property, value?.direction), {
+  immediate: true
+});
 </script>

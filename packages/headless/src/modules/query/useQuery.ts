@@ -216,6 +216,8 @@ export const useQuery = () => {
         ...(options?.filters ?? {})
       });
 
+      const sort = ref(options?.sort);
+
       // --- watchers
 
       watch(currency, newCurrency => {
@@ -229,20 +231,15 @@ export const useQuery = () => {
       // --- query
       return vueUseQuery<TQueryFnData, DefaultError, TData>(
         {
-          queryKey: cleanQueryKey([
+          queryKey: [
             ...queryKey,
             {
-              /**
-               * @see {@link list}
-               * since we are not exporting sorting functionality, just the `useQuery` composable, we can just pass the
-               * sort as is for now, if we want to export sorting functionality, we can use `list` instead.
-               */
-              sort: options?.sort,
+              sort,
               locale,
               filters,
               currency
             }
-          ]),
+          ],
           queryFn: async ({ signal }) => {
             const hasGuard = isPromise(guard);
             const safeguard: Promise<void | boolean> = hasGuard
@@ -299,11 +296,6 @@ export const useQuery = () => {
     const limit = options?.pagination?.limit ?? PAGINATION.limit;
     const offset = options?.pagination?.offset ?? PAGINATION.offset;
     const sort = ref(options?.sort);
-    const total = ref(0);
-    const pageTotal = computed(() => {
-      if (!limit) return 1; // Can only be 1 page if limit=0
-      return Math.max(Math.ceil(total.value / limit), 1);
-    });
     const pageIndex = ref(Math.ceil(offset / limit) + 1);
     const filters = ref<QueryParams["filters"]>({
       ...(options?.filters ?? {})
@@ -321,9 +313,13 @@ export const useQuery = () => {
 
     // --- query
 
-    const response = vueUseQuery<TQueryFnData, DefaultError, TData>(
+    const response = vueUseQuery<
+      TQueryFnData,
+      DefaultError,
+      QueryResponse<TData>
+    >(
       {
-        queryKey: cleanQueryKey([
+        queryKey: [
           ...queryKey,
           {
             sort,
@@ -333,14 +329,14 @@ export const useQuery = () => {
             pageIndex,
             currency
           }
-        ]),
+        ],
         queryFn: async ({ signal }) => {
           const hasGuard = isPromise(guard);
           const safeguard: Promise<void | boolean> = hasGuard
             ? guard()
             : Promise.resolve();
-          return safeguard.then(() =>
-            request<TQueryFnData>({
+          return safeguard.then(() => {
+            return request<TQueryFnData>({
               url,
               sort: sort.value,
               filters: filters.value,
@@ -351,11 +347,19 @@ export const useQuery = () => {
               },
               withAccessToken
             }).then(response => {
-              total.value = response.total || 0; // Set the total items count
-              if (isFunction(select)) return select(response.data!) as TData;
-              return response.data as TQueryFnData;
-            })
-          );
+              // total.value = response.total || 0; // Set the total items count
+              // if (isFunction(select)) return select(response.data!) as TData;
+              // return response.data as TQueryFnData;
+
+              if (isFunction(select)) {
+                return {
+                  ...response,
+                  data: select(response.data!)
+                };
+              }
+              return response;
+            });
+          });
         },
         ...(options as any)
       },
@@ -366,6 +370,10 @@ export const useQuery = () => {
 
     return {
       ...response,
+
+      data: computed((): TData | null => response.data.value?.data),
+
+      total: computed((): number => response.data.value?.total ?? 0),
 
       // ---state
 
@@ -379,16 +387,18 @@ export const useQuery = () => {
        * @property {number} from - The starting item index for the current page.
        * @property {number} to - The ending item index for the current page.
        */
-      pagination: computed(() => ({
-        limit,
-        total: total.value,
-        page: pageIndex.value,
-        pages: pageTotal.value,
-        from: !total.value ? 0 : limit * (pageIndex.value - 1) + 1,
-        to: !limit
-          ? total.value
-          : Math.min(limit * pageIndex.value, total.value)
-      })),
+      pagination: computed(() => {
+        const total = response.data?.value?.total ?? 0;
+        const pageTotal = !limit ? 1 : Math.max(Math.ceil(total / limit), 1);
+        return {
+          limit,
+          total,
+          page: pageIndex.value,
+          pages: pageTotal,
+          from: !total ? 0 : limit * (pageIndex.value - 1) + 1,
+          to: !limit ? total : Math.min(limit * pageIndex.value, total)
+        };
+      }),
 
       /**
        * Meta-information about the current query, such as whether there are next or previous pages.
@@ -396,10 +406,14 @@ export const useQuery = () => {
        * @property {boolean} hasNextPage - Whether there is a next page.
        * @property {boolean} hasPrevPage - Whether there is a previous page.
        */
-      meta: computed(() => ({
-        hasNextPage: pageIndex.value < pageTotal.value,
-        hasPrevPage: pageIndex.value > 1
-      })),
+      meta: computed(() => {
+        const total = response.data?.value?.total ?? 0;
+        const pageTotal = !limit ? 1 : Math.max(Math.ceil(total / limit), 1);
+        return {
+          hasNextPage: pageIndex.value < pageTotal,
+          hasPrevPage: pageIndex.value > 1
+        };
+      }),
 
       // --- methods
 
@@ -410,6 +424,9 @@ export const useQuery = () => {
        * @throws {Error} Throws an error if there is no previous page.
        */
       fetchPreviousPage: (): void => {
+        const total = response.data?.value?.total ?? 0;
+        const pageTotal = !limit ? 1 : Math.max(Math.ceil(total / limit), 1);
+
         if (!response.isPlaceholderData.value && pageIndex.value <= 1) {
           throw new DetailedError(
             "[headless] No previous page available",
@@ -418,12 +435,10 @@ export const useQuery = () => {
             {
               limit,
               page: pageIndex.value,
-              from: !total.value ? 0 : limit * (pageIndex.value - 1) + 1,
-              total: total.value,
-              pages: pageTotal.value,
-              to: !limit
-                ? total.value
-                : Math.min(limit * pageIndex.value, total.value)
+              from: !total ? 0 : limit * (pageIndex.value - 1) + 1,
+              total: total,
+              pages: pageTotal,
+              to: !limit ? total : Math.min(limit * pageIndex.value, total)
             }
           );
         }
@@ -438,10 +453,10 @@ export const useQuery = () => {
        *
        */
       fetchNextPage: (): void => {
-        if (
-          !response.isPlaceholderData.value &&
-          pageIndex.value >= pageTotal.value
-        ) {
+        const total = response.data?.value?.total ?? 0;
+        const pageTotal = !limit ? 1 : Math.max(Math.ceil(total / limit), 1);
+
+        if (!response.isPlaceholderData.value && pageIndex.value >= pageTotal) {
           throw new DetailedError(
             "[headless] No next page available",
             responseCodes.No_Content,
@@ -449,17 +464,15 @@ export const useQuery = () => {
             {
               limit,
               page: pageIndex.value,
-              from: !total.value ? 0 : limit * (pageIndex.value - 1) + 1,
-              total: total.value,
-              pages: pageTotal.value,
-              to: !limit
-                ? total.value
-                : Math.min(limit * pageIndex.value, total.value)
+              from: !total ? 0 : limit * (pageIndex.value - 1) + 1,
+              total,
+              pages: pageTotal,
+              to: !limit ? total : Math.min(limit * pageIndex.value, total)
             }
           );
         }
         if (!response.isPlaceholderData.value) {
-          pageIndex.value = Math.min(pageIndex.value + 1, pageTotal.value);
+          pageIndex.value = Math.min(pageIndex.value + 1, pageTotal);
         }
       },
 
@@ -469,12 +482,13 @@ export const useQuery = () => {
 
       filter: (values: QueryParams["filters"]) => {
         filters.value = unref(values);
+        pageIndex.value = 1;
       },
 
       resetQuery: () => {
         pageIndex.value = 1;
         return queryClient.resetQueries({
-          queryKey: cleanQueryKey([
+          queryKey: [
             ...queryKey,
             {
               sort,
@@ -484,7 +498,7 @@ export const useQuery = () => {
               pageIndex,
               currency
             }
-          ])
+          ]
         });
       }
     };
@@ -541,10 +555,7 @@ export const useQuery = () => {
 
     const response = vueUseInfiniteQuery<TQueryFnData, DefaultError, TData>(
       {
-        queryKey: cleanQueryKey([
-          ...queryKey,
-          { sort, limit, locale, filters, currency }
-        ]),
+        queryKey: [...queryKey, { sort, limit, locale, filters, currency }],
         queryFn: async ({ pageParam = 0, signal }) => {
           const offset = toNumber(pageParam);
           const hasGuard = isPromise(guard);
@@ -643,10 +654,7 @@ export const useQuery = () => {
 
       resetQuery: () =>
         queryClient.resetQueries({
-          queryKey: cleanQueryKey([
-            ...queryKey,
-            { sort, limit, locale, filters, currency }
-          ])
+          queryKey: [...queryKey, { sort, limit, locale, filters, currency }]
         })
     };
   }

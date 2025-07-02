@@ -6,13 +6,36 @@ import service from "./services";
 import { invalidateQueryByKey, RequestSortDirection } from "../query";
 
 // --- utils
-import { get, set, find, every, isEmpty, includes, isString } from "lodash-es";
+import {
+  get,
+  set,
+  find,
+  every,
+  isEmpty,
+  includes,
+  isString,
+  debounce
+} from "lodash-es";
 
 // --- types
 import type { Product } from "../product";
 import type { ICurrency } from "@upmind-automation/types";
 import type { QueryProps, RequestFilters } from "../query";
+import { DEBOUNCE_DELAY } from "../../utils";
 
+export enum ProductSortableProperties {
+  DEFAULT = "",
+  NAME = "name",
+  PRICE = "price"
+}
+
+// -----------------------------------------------------------------------------
+/**
+ * Composable to manage the product catalogue.
+ * It provides methods to filter, sort, and retrieve products from the catalogue.
+ * @param {QueryProps} initial - Initial query parameters for the product catalogue.
+ * @returns {UseProductCatalogue} The composable methods and state for the product catalogue.
+ */
 export const useProductCatalogue = (
   initial?: QueryProps & {
     infinite?: boolean;
@@ -77,16 +100,15 @@ export const useProductCatalogue = (
     );
   }
 
-  // --- sort
-
-  const sortBy = (property: string, direction: RequestSortDirection) => {
-    query.sort([direction, property]);
-    query.resetQuery();
-  };
-
-  const clearSort = () => {
-    query.sort();
-    query.resetQuery();
+  const sort = (
+    property?: ProductSortableProperties,
+    direction?: RequestSortDirection
+  ) => {
+    if (!property || isEmpty(property)) {
+      query.sort();
+    } else {
+      query.sort([direction ?? RequestSortDirection.ASC, property]);
+    }
   };
 
   // --- filters
@@ -107,43 +129,29 @@ export const useProductCatalogue = (
     "filter[products_category_id]": ""
   });
 
-  const filterQuery = (value?: string) => {
+  const filterQuery = debounce((value?: string) => {
     set(filters.value, "query", value || "");
     query.filter(filters.value);
-    // when we filter by query, we must reset pagination to the first page
-    // because the number of results might not be enough to fill the current page.
-    query.resetQuery();
-  };
+  }, DEBOUNCE_DELAY);
 
   const filterCurrency = (value?: ICurrency["code"]) => {
     set(filters.value, "currency", value || "");
     query.filter(filters.value);
-    // when we filter by currency, we don't need to reset pagination because the
-    // number of results should not change, only the prices will be updated.
   };
 
-  const filterProductCategory = (value?: string) => {
+  const filterCategory = (value?: string) => {
     set(filters.value, "filter[products_category_id]", value ?? "");
     query.filter(filters.value);
-    // when we filter by product category, we must reset pagination to the first
-    // page because the number of results might not be enough to fill the current page.
-    query.resetQuery();
   };
 
   const filterIds = (value?: string[]) => {
     set(filters.value, "id", value || []);
     query.filter(filters.value);
-    // when we filter by ids, we must reset pagination to the first page because
-    // the number of results might not be enough to fill the current page.
-    query.resetQuery();
   };
 
   const filterCoupons = (value?: string[]) => {
     set(filters.value, "promotions", value || []);
     query.filter(filters.value);
-    // when we filter by coupons, we must reset pagination to the first page because
-    // the number of results might not be enough to fill the current page.
-    query.resetQuery();
   };
 
   // ---------------------------------------------------------------------------
@@ -240,14 +248,12 @@ export const useProductCatalogue = (
 
     /**
      * Sorts the query by the given property and direction.
-     * This will update the query parameters and reset the query to fetch the sorted data.
-     * @property {function} set - Sets the sort property and direction.
-     * @property {function} clear - Clears the current sort and resets the query.
+     * If no property is provided, it clears the sort.
+     * @param {string} [property] The property to sort by.
+     * @param {RequestSortDirection} [direction=RequestSortDirection.ASC] The direction to sort by.
+     * @return {void}
      */
-    sort: {
-      set: sortBy,
-      clear: clearSort
-    },
+    sort,
 
     /**
      * Filters for the query.
@@ -264,7 +270,7 @@ export const useProductCatalogue = (
       query: filterQuery,
       coupons: filterCoupons,
       currency: filterCurrency,
-      productCategory: filterProductCategory
+      productCategory: filterCategory
     }
   };
 };

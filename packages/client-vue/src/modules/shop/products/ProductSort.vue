@@ -1,22 +1,33 @@
 <template>
   <div :class="styles.products.filters.root">
-    <DropdownMenu :items="items" width="full" class="md:w-auto">
+    <Button
+      size="sm"
+      variant="outline"
+      color="base"
+      class="w-full"
+      @click="toggleDirection"
+      :disabled="property == ProductSortableProperties.DEFAULT"
+    >
+      <template #prepend>
+        <Icon
+          :icon="
+            direction == RequestSortDirection.ASC ? 'sort-asc' : 'sort-desc'
+          "
+          size="2xs"
+          :class="styles.products.filters.trigger"
+        />
+      </template>
+    </Button>
+
+    <DropdownMenu :items="items" class="flex-1">
       <template #trigger>
         <Button
           size="sm"
           variant="outline"
           color="base"
-          :label="currentFilter?.label"
+          :label="currentSort?.label"
           class="w-full"
-        >
-          <template #prepend>
-            <Icon
-              :icon="currentFilter?.icon ?? 'sort'"
-              size="2xs"
-              :class="styles.products.filters.trigger"
-            />
-          </template>
-        </Button>
+        />
       </template>
     </DropdownMenu>
   </div>
@@ -26,6 +37,12 @@
 // --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+
+// --- internal
+import {
+  ProductSortableProperties,
+  RequestSortDirection
+} from "@upmind-automation/headless";
 
 // --- components
 import {
@@ -40,45 +57,54 @@ import config from "../shop.config";
 
 // --- types
 import type { DropdownMenuItemProps } from "@upmind-automation/upmind-ui";
-import { ProductSortType, type ProductSortProps } from "./types";
+import type { ProductSortProps } from "./types";
 import type { ComputedRef } from "vue";
+import { find } from "lodash-es";
 
-const props = withDefaults(defineProps<ProductSortProps>(), {
-  modelValue: ProductSortType.DEFAULT
+// -----------------------------------------------------------------------------
+
+const property = defineModel<ProductSortProps["property"]>("property", {
+  default: ProductSortableProperties.DEFAULT
 });
 
-const emit = defineEmits<{
-  "update:modelValue": [value: string];
-}>();
+const direction = defineModel<ProductSortProps["direction"]>("direction", {
+  default: RequestSortDirection.ASC
+});
+// -----------------------------------------------------------------------------
 
 const { t } = useI18n();
 
-const currentFilter = computed(() => {
-  return items.value.find(item => item.value === props.modelValue);
+const currentSort = computed(() => {
+  return find(items.value, { value: property.value });
 });
 
-const handleFilterSelect = (value: string) => {
-  emit("update:modelValue", value);
-};
-
+function toggleDirection() {
+  direction.value =
+    direction.value == RequestSortDirection.ASC
+      ? RequestSortDirection.DESC
+      : RequestSortDirection.ASC;
+}
 const items = computed((): DropdownMenuItemProps[] => [
   {
     label: t("product.sort.default"),
-    value: ProductSortType.DEFAULT,
-    icon: "sort",
-    handler: () => handleFilterSelect(ProductSortType.DEFAULT)
+    value: ProductSortableProperties.DEFAULT,
+    handler: () => {
+      property.value = ProductSortableProperties.DEFAULT;
+    }
   },
   {
     label: t("product.sort.name"),
-    value: ProductSortType.NAME,
-    icon: "sort-letters",
-    handler: () => handleFilterSelect(ProductSortType.NAME)
+    value: ProductSortableProperties.NAME,
+    handler: () => {
+      property.value = ProductSortableProperties.NAME;
+    }
   },
   {
     label: t("product.sort.price"),
-    value: ProductSortType.PRICE,
-    icon: "sort-numbers",
-    handler: () => handleFilterSelect(ProductSortType.PRICE)
+    value: ProductSortableProperties.PRICE,
+    handler: () => {
+      property.value = ProductSortableProperties.PRICE;
+    }
   }
 ]);
 

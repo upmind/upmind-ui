@@ -1,9 +1,9 @@
 <template>
   <div :class="styles.categories.root" v-auto-animate>
-    <CategoriesHeader :category-id="categoryId" :category="currentCategory" />
+    <CategoriesHeader v-model="modelValue" v-bind="category" />
 
-    <section
-      v-if="hasCategories"
+    <nav
+      v-if="hasCategories && !uiMeta?.catalog?.facet"
       :class="styles.categories.grid"
       role="region"
       aria-label="Product categories"
@@ -13,58 +13,64 @@
         v-for="category in displayCategories"
         :key="category.id"
         v-bind="category"
-        :is-selected="category.id === categoryId"
-        @category-selected="handleCategorySelect"
+        v-model="modelValue"
       />
-    </section>
+    </nav>
   </div>
 </template>
 
 <script setup lang="ts">
+// --- external
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
-import { useProductCategories } from "@upmind-automation/headless";
+
+// --- internal
+import {
+  useBrand,
+  useProductCategories,
+  type ProductCategory
+} from "@upmind-automation/headless";
 import { isEmpty } from "lodash-es";
 import { useStyles } from "@upmind-automation/upmind-ui";
-
-// --- config
 import config from "../shop.config";
 
-// --- types
+// --- components
 import CategoriesHeader from "./CategoriesHeader.vue";
 import CategoryItem from "./CategoryItem.vue";
+
+// --- types
 import type { CategoriesProps } from "./types";
 import type { ComputedRef } from "vue";
 
-const props = defineProps<CategoriesProps>();
-const emit = defineEmits<{
-  select: [categoryId: string];
-}>();
+// -----------------------------------------------------------------------------
 
+const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
+// -----------------------------------------------------------------------------
+
+const { t } = useI18n();
+const { uiMeta } = useBrand();
 const { data, meta, getOne } = useProductCategories();
 
 const displayCategories = computed(() => {
   if (!data.value) return [];
 
-  if (!props.categoryId) {
+  if (!modelValue.value) {
     return data.value;
   }
 
-  const parentCategory = getOne(props.categoryId);
+  const parentCategory = getOne(modelValue.value);
   return parentCategory?.categories || [];
 });
 
-const currentCategory = computed(() => {
-  return props.categoryId ? getOne(props.categoryId) : undefined;
+const category = computed((): ProductCategory => {
+  const category = modelValue.value ? getOne(modelValue.value) : undefined;
+  return category || { id: "", name: "", title: t("product.category.all") };
 });
 
 const hasCategories = computed(() => {
   return !isEmpty(displayCategories.value) && !meta.value.isLoading;
 });
-
-const handleCategorySelect = (categoryId: string) => {
-  emit("select", categoryId);
-};
 
 const styles = useStyles(["categories"], {}, config) as ComputedRef<{
   categories: {

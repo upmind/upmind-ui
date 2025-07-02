@@ -8,7 +8,7 @@ export type ProductCategory = {
   description?: IProductCategory["description"];
   excerpt?: IProductCategory["short_description"];
   count?: IProductCategory["products_count"];
-  uiMeta: Record<string, any>;
+  uiMeta?: Record<string, any>;
   imageUrl?: string;
   categories?: ProductCategory[];
 };

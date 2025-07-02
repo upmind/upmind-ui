@@ -101,7 +101,6 @@ const loading = ref(true);
 
 const { theme, isReady, meta: themeMeta } = useBrandTheme(props.theme);
 isReady().then(() => {
-  debugger;
   if (!theme.value) {
     console.warn("No theme found, using default theme.");
     return;
