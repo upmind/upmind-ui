@@ -16,13 +16,19 @@
 </template>
 
 <script setup lang="ts">
+// --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useClipboard } from "@vueuse/core";
+
+// --- internal
 import {
   useProductCategories,
   type ProductCategory
 } from "@upmind-automation/headless";
+import config from "../shop.config";
+
+// --- components
 import {
   Link,
   Icon,
@@ -30,15 +36,15 @@ import {
   useStyles
 } from "@upmind-automation/upmind-ui";
 
-// --- config
-import config from "../shop.config";
-import type { ControlsProps } from "./types";
+// --- types
+import type { CategoriesProps } from "./types";
 import type { ComputedRef } from "vue";
 
-const props = defineProps<ControlsProps>();
-const emit = defineEmits<{
-  navigate: [categoryId?: string];
-}>();
+// -----------------------------------------------------------------------------
+
+const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
+
+// -----------------------------------------------------------------------------
 
 const { t } = useI18n();
 
@@ -47,19 +53,19 @@ const { data } = useProductCategories();
 const { copy, copied, isSupported } = useClipboard({ legacy: true });
 
 const categoryPath = computed(() => {
-  if (!props.categoryId || !data.value) return [];
-  return findCategoryPath(props.categoryId);
+  if (!modelValue.value || !data.value) return [];
+  return findCategoryPath(modelValue.value);
 });
 
 const breadcrumbItems = computed(() => {
   const items = [
     {
       label: t("product.shop.title"),
-      current: !props.categoryId,
+      current: !modelValue.value,
       href: "/shop",
       onClick: (event?: Event) => {
         event?.preventDefault();
-        handleNavigation(undefined);
+        doSelect(undefined);
       }
     }
   ];
@@ -71,7 +77,7 @@ const breadcrumbItems = computed(() => {
       href: `/shop/${category.id}`,
       onClick: (event?: Event) => {
         event?.preventDefault();
-        handleNavigation(category.id);
+        doSelect(category.id);
       }
     });
   });
@@ -105,8 +111,8 @@ const findCategoryPath = (
   return [];
 };
 
-const handleNavigation = (categoryId?: string) => {
-  emit("navigate", categoryId);
+const doSelect = (value?: string) => {
+  modelValue.value = value;
 };
 
 const handleShare = () => {

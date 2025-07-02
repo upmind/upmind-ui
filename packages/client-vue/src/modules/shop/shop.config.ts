@@ -3,18 +3,23 @@ import { cva } from "class-variance-authority";
 export default {
   products: {
     root: cva("flex flex-col space-y-4 md:flex-row md:space-x-8 md:space-y-0"),
+    facets: {
+      root: cva("mb-4 flex w-full flex-col md:mb-0 md:w-1/4")
+    },
     facet: {
-      root: cva("flex flex-col gap-y-4 md:gap-y-12"),
-      searchInput: cva("max-w-xl"),
-      searchIcon: cva("text-control-foreground mr-1.5"),
-      categoryList: cva("flex flex-col space-y-2"),
-      categoryButton: cva("justify-start"),
-      categoryIcon: cva(
-        "text-foreground h-5 w-5 transition-opacity duration-300"
-      )
+      root: cva("flex w-full flex-col gap-y-4 md:gap-y-12"),
+      search: {
+        input: cva("max-w-xl"),
+        icon: cva("text-control-foreground mr-1.5")
+      },
+      list: {
+        root: cva("flex flex-col space-y-2"),
+        button: cva("justify-start"),
+        icon: cva("text-foreground h-5 w-5 transition-opacity duration-300")
+      }
     },
     filters: {
-      root: cva("w-full md:w-auto"),
+      root: cva("inline-flex w-full items-center md:w-auto"),
       trigger: cva("-ml-1")
     },
     item: {

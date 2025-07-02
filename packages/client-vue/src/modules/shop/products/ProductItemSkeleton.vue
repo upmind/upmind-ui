@@ -41,13 +41,16 @@
 </template>
 
 <script setup lang="ts">
+// --- components
 import { Skeleton, useStyles } from "@upmind-automation/upmind-ui";
 
-// --- config
+// --- internal
 import config from "../shop.config";
 
 // --- types
 import type { ComputedRef } from "vue";
+
+// -----------------------------------------------------------------------------
 
 const styles = useStyles(
   ["products", "products.skeleton"],

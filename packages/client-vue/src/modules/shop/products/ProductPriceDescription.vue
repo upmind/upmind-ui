@@ -13,9 +13,12 @@ import { useI18n } from "vue-i18n";
 
 // --- types
 import type { TermDetails } from "@upmind-automation/headless";
+
+// -----------------------------------------------------------------------------
+
+const props = defineProps<TermDetails & {}>();
+
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-
-const props = defineProps<TermDetails & {}>();
 </script>

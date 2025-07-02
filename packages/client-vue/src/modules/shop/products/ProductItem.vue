@@ -83,9 +83,13 @@ import Promotion from "../../basket/product/components/Promotion.vue";
 import config from "../shop.config";
 import ProductPriceDescription from "./ProductPriceDescription.vue";
 
+// -----------------------------------------------------------------------------
+
 const props = defineProps<Product>();
 
 const { t } = useI18n();
+
+// -----------------------------------------------------------------------------
 
 let imageError = ref(false);
 

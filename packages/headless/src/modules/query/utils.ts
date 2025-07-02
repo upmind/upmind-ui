@@ -8,7 +8,7 @@ import {
 
 // --- utils
 import { useQuery } from "./useQuery";
-import { DetailedError, responseCodes } from "../../utils";
+import { compactDeep, DetailedError, responseCodes } from "../../utils";
 import {
   map,
   set,
@@ -22,7 +22,8 @@ import {
   isEmpty,
   omitBy,
   compact,
-  isNil
+  isNil,
+  values
 } from "lodash-es";
 
 // ---types
@@ -117,10 +118,18 @@ export function canRetryAuthorization(
  * @returns The cleaned query key
  */
 export function cleanQueryKey(queryKey: any[]): any[] {
-  return reject(queryKey, (value: any) => {
-    value = unref(value);
-    if (isObject(value)) return isEmpty(omitBy(value, isEmpty));
-    if (isArray(value)) return isEmpty(compact(value));
-    return isEmpty(value) || isNil(value);
-  });
+  const cleaned = values(compactDeep(queryKey));
+  console.log("cleanQueryKey", { queryKey, cleaned });
+  return cleaned;
 }
+// export function cleanQueryKey(queryKey: any[]): any[] {
+//   const cleaned = reject(queryKey, (value: any) => {
+//     value = unref(value);
+//     if (isObject(value)) return isEmpty(omitBy(value, isEmpty));
+//     if (isArray(value)) return isEmpty(compact(value));
+//     return isEmpty(value) || isNil(value);
+//   });
+
+//   console.log("cleanQueryKey", { queryKey, cleaned });
+//   return cleaned;
+// }

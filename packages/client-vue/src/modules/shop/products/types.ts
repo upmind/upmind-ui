@@ -1,21 +1,15 @@
+import type {
+  ProductSortableProperties,
+  RequestSortDirection
+} from "@upmind-automation/headless";
+
 export interface ProductsProps {
   categoryId?: string;
-  facetCategoryId?: string | null;
-  sortValue?: string;
-  searchQuery?: string;
-}
-
-export interface FacetProps {
-  categoryId?: string;
-  selectedCategoryId?: string | null;
+  sort?: ProductSortProps;
+  query?: string;
 }
 
 export interface ProductSortProps {
-  modelValue?: string;
+  property?: ProductSortableProperties;
+  direction?: RequestSortDirection;
 }
-
-export const ProductSortType = {
-  DEFAULT: "default",
-  NAME: "name",
-  PRICE: "price"
-} as const;
