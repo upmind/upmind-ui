@@ -1,5 +1,9 @@
 <template>
-  <Popover v-if="!isAuthRoute && meta.canShowForms" class="w-full md:w-auto">
+  <Popover
+    v-if="!isAuthRoute && meta.canShowForms"
+    class="w-full md:w-auto"
+    @update:open="doReset"
+  >
     <PopoverTrigger data-testid="popover-trigger">
       <slot></slot>
     </PopoverTrigger>
@@ -10,7 +14,7 @@
     >
       <div class="flex h-full flex-col md:flex-row">
         <div class="w-screen p-8 md:w-[26rem]">
-          <Session no-header no-tabs model-value="login" color="primary" />
+          <Session no-header no-tabs v-model="tab" color="primary" />
         </div>
       </div>
     </PopoverContent>
@@ -35,11 +39,12 @@ import {
   PopoverTrigger
 } from "@upmind-automation/upmind-ui";
 import { ROUTE } from "@upmind-automation/headless";
+import type { AuthProps } from "./types";
 
 // -----------------------------------------------------------------------------
 
 const route = useRoute();
-const { meta } = useSession();
+const { meta, showLogin } = useSession();
 
 const isAuthRoute = computed(() =>
   includes(
@@ -54,4 +59,25 @@ const isAuthRoute = computed(() =>
     route.name
   )
 );
+
+// ensure we only show login related forms
+const tab = computed({
+  get: (): AuthProps["modelValue"] => {
+    if (meta.value.showRecoverPasswordForm) {
+      return "recover";
+    } else {
+      return "login";
+    }
+  },
+  set: value => {
+    route.query.tab = includes(["login", "2fa", "recover"], value)
+      ? value
+      : "login";
+  }
+});
+
+// ensure we always open with the login form
+function doReset(value: boolean) {
+  if (value) showLogin();
+}
 </script>
