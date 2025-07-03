@@ -69,7 +69,7 @@ async function fetchRegions(
   if (!code || !id)
     return Promise.reject(
       new DetailedError(
-        "[headless] No code or id provided",
+        "No code or id provided",
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )

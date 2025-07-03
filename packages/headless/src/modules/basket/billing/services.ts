@@ -101,10 +101,10 @@ async function validate(
     if (errors?.length) {
       reject(
         new DetailedError(
-          "[headless] Invalid Billing Model",
+          "Billing validation failed",
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
-          { error: errors }
+          errors
         )
       );
     } else {
@@ -122,7 +122,7 @@ async function update(
   if (!model?.addressId)
     return Promise.reject(
       new DetailedError(
-        "[headless] No addressId provided to update billing",
+        "No addressId provided to update billing",
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )

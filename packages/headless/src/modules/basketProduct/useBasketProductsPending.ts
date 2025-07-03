@@ -55,7 +55,7 @@ export const useBasketProductsPending = () => {
     if (isEmpty(model))
       return Promise.reject(
         new DetailedError(
-          "[headless] No product model found",
+          "No product model found",
           responseCodes.Not_Found,
           ErrorOrigin.Headless
         )
@@ -99,7 +99,7 @@ export const useBasketProductsPending = () => {
           ).then(state => {
             if (state.matches("error"))
               throw new DetailedError(
-                "[headless] add in useBasketProductsPending has an error",
+                "Add Pending Product failed",
                 responseCodes.Unprocessable_Entity,
                 ErrorOrigin.Headless,
                 { state: state.value, errors: state.context.error }
@@ -111,7 +111,7 @@ export const useBasketProductsPending = () => {
           unsetProduct(pid);
           return Promise.reject(
             new DetailedError(
-              "[headless] add in useBasketProductsPending caught an error",
+              "Pending Product validation failed",
               responseCodes.Unprocessable_Entity,
               ErrorOrigin.Headless,
               error
@@ -126,7 +126,7 @@ export const useBasketProductsPending = () => {
       //   unsetProduct(pid);
       //   return Promise.reject(
       //     new DetailedError(
-      //       "[headless] Product already exists but has errors",
+      //       "Product already exists but has errors",
       //       responseCodes.Unprocessable_Entity,
       //       ErrorOrigin.Headless,
       //       {
@@ -166,7 +166,7 @@ export const useBasketProductsPending = () => {
     if (!productId) {
       return Promise.reject(
         new DetailedError(
-          "[headless] No productId provided to getProduct",
+          "No productId provided to getProduct",
           responseCodes.Not_Found,
           ErrorOrigin.Headless,
           {
@@ -185,7 +185,7 @@ export const useBasketProductsPending = () => {
       })
       .catch(error => {
         throw new DetailedError(
-          "[headless] getProduct in useBasketProductsPending has an error",
+          "Ensure Pending product failed",
           responseCodes.No_Content,
           ErrorOrigin.Headless,
           { error, productId }
@@ -265,7 +265,7 @@ export const useBasketProductsPending = () => {
       if (isEmpty(instance))
         return Promise.reject(
           new DetailedError(
-            "[headless] No product instance found",
+            "No product instance found",
             responseCodes.Not_Found,
             ErrorOrigin.Headless
           )

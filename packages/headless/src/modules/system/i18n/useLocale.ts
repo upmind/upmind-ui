@@ -140,7 +140,7 @@ export const useLocale = (defaultLocale: string = "en") => {
       }
       return reject(
         new DetailedError(
-          "[headless] No valid locale found",
+          "No valid locale found",
           responseCodes.Not_Found,
           ErrorOrigin.Headless,
           { code }

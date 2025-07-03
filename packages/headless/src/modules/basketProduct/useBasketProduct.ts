@@ -73,7 +73,7 @@ export const useBasketProduct = (bpid: string) => {
       if (!product)
         return reject(
           new DetailedError(
-            "[headless] Product not found",
+            "Product not found",
             responseCodes.Not_Found,
             ErrorOrigin.Headless
           )
@@ -93,7 +93,7 @@ export const useBasketProduct = (bpid: string) => {
         ) {
           return Promise.reject(
             new DetailedError(
-              "[headless] update in useBasketProduct not in a valid state.",
+              "Update in useBasketProduct not in a valid state.",
               responseCodes.Unprocessable_Entity,
               ErrorOrigin.Headless,
               state.context.error
@@ -105,7 +105,7 @@ export const useBasketProduct = (bpid: string) => {
       .catch(error => {
         return Promise.reject(
           new DetailedError(
-            "[headless] update in useBasketProductPending not in a valid state.",
+            "Update in useBasketProductPending not in a valid state.",
             responseCodes.Unprocessable_Entity,
             ErrorOrigin.Headless
           )
@@ -125,7 +125,7 @@ export const useBasketProduct = (bpid: string) => {
         if (!product?.productDetails.quantifiable)
           return Promise.reject(
             new DetailedError(
-              "[headless] Product not quantifiable",
+              "Product not quantifiable",
               responseCodes.Unprocessable_Entity,
               ErrorOrigin.Headless
             )
@@ -145,7 +145,7 @@ export const useBasketProduct = (bpid: string) => {
         if (!product?.productDetails.quantifiable)
           return Promise.reject(
             new DetailedError(
-              "[headless] Product not quantifiable",
+              "Product not quantifiable",
               responseCodes.Unprocessable_Entity,
               ErrorOrigin.Headless
             )

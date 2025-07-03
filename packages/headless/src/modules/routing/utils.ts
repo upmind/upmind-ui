@@ -49,7 +49,7 @@ export async function awaitResolved(service: ActorRef<any>) {
     })
     .catch(() => {
       throw new DetailedError(
-        "[headless] awaitResolved on routing/utils timed out",
+        "await Resolved Route failed",
         responseCodes.Timeout,
         ErrorOrigin.Headless
       );

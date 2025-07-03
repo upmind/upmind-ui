@@ -132,7 +132,7 @@ async function ensure(model: EmailModel): Promise<Email> {
   return add(model).then(raw => {
     if (isEmpty(raw))
       throw new DetailedError(
-        "[headless] Failed to ensure email",
+        "Failed to ensure email",
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless,
         { model }
@@ -232,10 +232,10 @@ async function validate({ schema, model }: EmailContext) {
     if (errors?.length) {
       reject(
         new DetailedError(
-          "[headless] Invalid Email Model",
+          "Email validation failed",
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
-          { error: errors }
+          errors
         )
       );
     } else {
@@ -289,7 +289,7 @@ export const useClientEmailServices = () => {
       if (isEmpty(model))
         return Promise.reject(
           new DetailedError(
-            "[headless] Add Email failed: model provided",
+            "Add Email failed: model provided",
             responseCodes.No_Content,
             ErrorOrigin.Headless,
             { model }
@@ -308,7 +308,7 @@ export const useClientEmailServices = () => {
       if (isEmpty(model))
         return Promise.reject(
           new DetailedError(
-            "[headless] Ensure Email failed: model provided",
+            "Ensure Email failed: model provided",
             responseCodes.No_Content,
             ErrorOrigin.Headless,
             { model }
@@ -348,7 +348,7 @@ export const useClientEmailServices = () => {
       if (!id || isEmpty(model))
         return Promise.reject(
           new DetailedError(
-            "[headless] Update Email failed: No id or model provided",
+            "Update Email failed: No id or model provided",
             responseCodes.No_Content,
             ErrorOrigin.Headless,
             { id, model }

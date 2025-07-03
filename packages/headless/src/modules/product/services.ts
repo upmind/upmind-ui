@@ -63,7 +63,7 @@ async function load(
   if (!productId)
     return Promise.reject(
       new DetailedError(
-        "[headless] No Product ID provided",
+        "No Product ID provided",
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )
@@ -136,7 +136,7 @@ async function loadProvisioningFields(productId: string) {
   if (!productId)
     return Promise.reject(
       new DetailedError(
-        "[headless] No Product ID provided",
+        "No Product ID provided",
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )
@@ -178,7 +178,7 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
   if (!values?.productId) {
     return Promise.reject(
       new DetailedError(
-        "[headless] No Product ID provided",
+        "No Product ID provided",
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )
@@ -250,7 +250,7 @@ async function validate(context: ProductConfigContext, _event: AnyEventObject) {
     if (!isEmpty(errors)) {
       reject(
         new DetailedError(
-          "[headless] Validate Product Config failed",
+          "Product configuration validation failed",
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
           errors

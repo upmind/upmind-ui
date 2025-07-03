@@ -60,7 +60,7 @@
       />
 
       <Alert
-        v-if="!isEmpty(errors)"
+        v-if="meta.hasErrors"
         color="error"
         icon="alert-triangle"
         :title="t('payment.failed')"

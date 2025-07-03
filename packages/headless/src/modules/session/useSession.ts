@@ -88,7 +88,7 @@ export const useSession = () => {
       .then(async () => {
         if (!client.value)
           throw new DetailedError(
-            "[headless] isAuthenticated on useSession failed",
+            "User is not authenticated",
             responseCodes.Unauthorized,
             ErrorOrigin.Headless
           );
@@ -103,7 +103,7 @@ export const useSession = () => {
           const user = contextValue<User>(client, "user");
           if (!user) {
             throw new DetailedError(
-              "[headless] isAuthenticated on useSession failed",
+              "User is not authenticated",
               responseCodes.Unauthorized,
               ErrorOrigin.Headless
             );
@@ -114,7 +114,7 @@ export const useSession = () => {
       .catch(() =>
         Promise.reject(
           new DetailedError(
-            "[headless] Unauthorized",
+            "Unauthorized",
             responseCodes.Unauthorized,
             ErrorOrigin.Headless
           )
@@ -220,7 +220,7 @@ export const useSession = () => {
   async function getUser(): Promise<User> {
     if (!client.value) {
       throw new DetailedError(
-        "[headless] getUser on useSession failed",
+        "Get User failed",
         responseCodes.Unauthorized,
         ErrorOrigin.Headless
       );
@@ -237,7 +237,7 @@ export const useSession = () => {
         const user = get(state, "user");
         if (!user)
           throw new DetailedError(
-            "[headless] getUser on useSession failed",
+            "Get User failed",
             responseCodes.Unauthorized,
             ErrorOrigin.Headless
           );
@@ -245,7 +245,7 @@ export const useSession = () => {
       })
       .catch(() => {
         throw new DetailedError(
-          "[headless] getUser on useSession failed",
+          "Get User failed",
           responseCodes.Timeout,
           ErrorOrigin.Headless
         );
@@ -412,7 +412,7 @@ export const useSession = () => {
       addError({ title: "Transfer not available" });
       return Promise.reject(
         new DetailedError(
-          "[headless] Transfer on useSession not available",
+          "Transfer on useSession not available",
           responseCodes.No_Content,
           ErrorOrigin.Headless
         )
@@ -432,7 +432,7 @@ export const useSession = () => {
         const transfer = newState.context.transfer;
         if (!transfer) {
           throw new DetailedError(
-            "[headless] Transfer on useSession not available",
+            "Transfer on useSession not available",
             responseCodes.No_Content,
             ErrorOrigin.Headless
           );
@@ -444,7 +444,7 @@ export const useSession = () => {
         addError({ title: "Transfer not available" });
         return Promise.reject(
           new DetailedError(
-            "[headless] TransferTo on useSession not available",
+            "TransferTo on useSession not available",
             responseCodes.No_Content,
             ErrorOrigin.Headless
           )
@@ -486,7 +486,7 @@ export const useSession = () => {
       })
       .catch(() => {
         throw new DetailedError(
-          "[headless] TransferFrom on useSession failed",
+          "TransferFrom on useSession failed",
           responseCodes.Timeout,
           ErrorOrigin.Headless
         );
@@ -509,7 +509,7 @@ export const useSession = () => {
     if (meta.value.showRecoverPasswordForm) return recover(model);
     return Promise.reject(
       new DetailedError(
-        "[headless] useSession: resolve() called but no form is available",
+        "No Form to resolve",
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )

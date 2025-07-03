@@ -190,7 +190,7 @@ async function add(type: UnifiedAddressType, data: UnifiedAddressModel) {
     .catch(error => {
       return Promise.reject(
         new DetailedError(
-          error?.message ?? "[headless] Add Unified Address Failed",
+          error?.message ?? "Add Unified Address Failed",
           error?.code ??
             error?.statusCode ??
             responseCodes.Unprocessable_Entity,
@@ -312,10 +312,10 @@ async function validate({ schema, model }: Partial<UnifiedAddressContext>) {
     if (errors?.length) {
       reject(
         new DetailedError(
-          "[headless] validate on UnifiedAddress failed.",
+          "Unified address validation failed",
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
-          { error: errors }
+          errors
         )
       );
     } else {

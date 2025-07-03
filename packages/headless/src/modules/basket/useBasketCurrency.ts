@@ -91,7 +91,7 @@ export const useBasketCurrency = () => {
       .catch(() => {
         return Promise.reject(
           new DetailedError(
-            "[headless] Input not available",
+            "Input not available",
             responseCodes.Forbidden,
             ErrorOrigin.Headless
           )
@@ -124,7 +124,7 @@ export const useBasketCurrency = () => {
       .then(state => {
         if (stateMatches(state, "error"))
           throw new DetailedError(
-            "[headless] Input not available",
+            "Input not available",
             responseCodes.Forbidden,
             ErrorOrigin.Headless,
             state.context.error
@@ -135,7 +135,7 @@ export const useBasketCurrency = () => {
       .catch(error => {
         return Promise.reject(
           new DetailedError(
-            "[headless] update Currency on basket failed",
+            "Update Currency failed",
             error?.status ?? responseCodes.Timeout,
             ErrorOrigin.Headless,
             {

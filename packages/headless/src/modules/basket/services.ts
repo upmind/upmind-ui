@@ -64,16 +64,7 @@ async function load(context: BasketContext, _event: AnyEventObject) {
 
   // We depend on the brand being ready, so we need to wait for it
   const { isReady } = useBrand();
-  await isReady().catch(error =>
-    Promise.reject(
-      new DetailedError(
-        "[headless] Brand not ready",
-        responseCodes.Unauthorized,
-        ErrorOrigin.Headless,
-        error
-      )
-    )
-  );
+  await isReady();
 
   // finally return a basket with all the relevant data, include the provisioning fields
   // NB  we DON'T cache the current basket as it can change frequently, and it is the source of truth
@@ -168,7 +159,7 @@ async function convert(
   if (!basket?.id)
     return Promise.reject(
       new DetailedError(
-        "[headless] Convert basket failed: no basket id provided",
+        "Convert basket failed: no basket id provided",
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )
@@ -177,7 +168,7 @@ async function convert(
   if (isEmpty(paymentDetails) || !isObject(paymentDetails))
     return Promise.reject(
       new DetailedError(
-        "[headless] Convert basket failed: no payment details provided",
+        "Convert basket failed: no payment details provided",
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )
@@ -194,7 +185,7 @@ async function convert(
     data.tracking = await getTracking().catch(() => undefined);
   } catch (error) {
     // TEMPORARY: we need to log this error, as it may be useful for debugging in sentry
-    console.error("[headless] Error converting basket", error);
+    console.error(" Error converting basket", error);
   }
 
   // ---
@@ -220,23 +211,29 @@ async function getProvisioningFieldsValues(basket: IBasket) {
   const checkPromise = patch({
     url: useUrl(`orders/${basket.id}/provision_fields/values/check`),
     withAccessToken: true
-  }).catch(error => {
-    // rawErrors will return a flattened object path in dot notation, so we need to convert back it to an object
-    // and then we 'pick' the products out of the object
-    const { products: rawErrors } = unflattenErrors(error?.data);
-    // then we parse the errors into a more usable format, replacing their indexes with the product ids
-    // this will allow us to easily access the provisioning fields for each product
-    const errors = reduce(
-      rawErrors,
-      (result, value, key: number) => {
-        const bpid = basket.products[key]?.id;
-        if (!bpid) return result;
-        return set(result, bpid, parseBasketProductError(value));
-      },
-      {}
-    );
-    return errors;
-  });
+  })
+    .then(() => {
+      // if we hit this point then we know we have no issues/errors
+      // so we can return undefined
+      return undefined;
+    })
+    .catch(error => {
+      // rawErrors will return a flattened object path in dot notation, so we need to convert back it to an object
+      // and then we 'pick' the products out of the object
+      const { products: rawErrors } = unflattenErrors(error?.data);
+      // then we parse the errors into a more usable format, replacing their indexes with the product ids
+      // this will allow us to easily access the provisioning fields for each product
+      const errors = reduce(
+        rawErrors,
+        (result, value, key: number) => {
+          const bpid = basket.products[key]?.id;
+          if (!bpid) return result;
+          return set(result, bpid, parseBasketProductError(value));
+        },
+        {}
+      );
+      return errors;
+    });
 
   provisioningPromises.push(checkPromise);
 

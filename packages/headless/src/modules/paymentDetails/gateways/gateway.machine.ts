@@ -1,7 +1,6 @@
 // --- external
 import type { AnyEventObject } from "xstate";
 import { createMachine, assign, actions, sendParent } from "xstate";
-const { escalate } = actions;
 
 // --- internal
 import services from "./card/services";
@@ -29,24 +28,12 @@ export default createMachine(
     id: "gatewayPaymentManager",
     predictableActionArguments: true,
     initial: "loading",
-    context: {
-      orderId: undefined,
-      currency: undefined,
-      gateway: undefined,
-      amount: undefined,
-      renderless: undefined,
-      // ---
-      schema: undefined,
-      uischema: undefined,
-      model: undefined,
-      // ---
-      error: undefined
-    } as GatewayContext,
+    context: {} as GatewayContext,
     states: {
       loading: {
         invoke: {
           src: "load",
-          onDone: { target: "checking", actions: ["setContext"] },
+          onDone: { target: "checking", actions: ["setContext", "setSchemas"] },
           onError: {
             target: "#error",
             actions: ["setError", "setFeedbackError"]
@@ -101,12 +88,7 @@ export default createMachine(
           },
           onError: {
             target: "#error",
-            actions: [
-              "setError",
-              "setFeedbackError",
-              "escalateError",
-              "cancelPaymentDetails"
-            ]
+            actions: ["setError", "setFeedbackError", "cancelPaymentDetails"]
           }
         }
       },
@@ -128,12 +110,7 @@ export default createMachine(
       },
 
       error: {
-        id: "error",
-        on: {
-          RETRY: {
-            target: "processing"
-          }
-        }
+        id: "error"
       }
     },
     on: {
@@ -206,10 +183,6 @@ export default createMachine(
       cancelPaymentDetails: sendParent(() => ({
         type: "CANCEL"
       })),
-
-      escalateError: (_context, { data }: AnyEventObject) => {
-        escalate({ data });
-      },
 
       // ---
 

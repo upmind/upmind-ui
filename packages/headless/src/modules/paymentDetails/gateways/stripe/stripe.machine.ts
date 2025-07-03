@@ -1,7 +1,6 @@
 // --- external
 import type { AnyEventObject } from "xstate";
-import { createMachine, assign, actions, spawn, sendParent } from "xstate";
-const { escalate } = actions;
+import { createMachine, assign, spawn, sendParent } from "xstate";
 import { filter, isString, includes, lowerCase } from "lodash-es";
 
 // --- internal
@@ -44,18 +43,18 @@ export default createMachine(
               onDone: [
                 {
                   target: "addElement",
-                  actions: ["setContext"],
+                  actions: ["setContext", "setSchemas"],
                   cond: "isAdding"
                 },
                 {
                   target: "paymentElement",
-                  actions: ["setContext"]
+                  actions: ["setContext", "setSchemas"]
                   // cond: "isPaying"
                 }
               ],
               onError: {
                 target: "#error",
-                actions: ["setError", "setFeedbackError"]
+                actions: ["setError", "setFeedbackError", "setSchemas"]
               }
             }
           },
@@ -153,7 +152,6 @@ export default createMachine(
                 actions: [
                   "setError",
                   "setFeedbackError",
-                  "escalateError",
                   "cancelPaymentDetails"
                 ]
               }
@@ -328,10 +326,6 @@ export default createMachine(
         data: paymentDetails
       })),
 
-      escalateError: (_context, { data }: AnyEventObject) => {
-        escalate({ data });
-      },
-
       cancelPaymentDetails: sendParent(() => ({
         type: "CANCEL"
       })),
@@ -357,9 +351,10 @@ export default createMachine(
       setError: assign({
         error: (_context: StripeContext, { data }: AnyEventObject) => {
           let error = mapToHeadlessError(data);
+
           if (error?.status == responseCodes.Unprocessable_Entity) {
             error.data = useValidationParser(error.data);
-          } else {
+          } else if (error?.data) {
             error.data = filter(
               error.data,
               e => isString(e.title) && !includes(lowerCase(e.title), "element")

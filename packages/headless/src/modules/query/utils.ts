@@ -118,18 +118,5 @@ export function canRetryAuthorization(
  * @returns The cleaned query key
  */
 export function cleanQueryKey(queryKey: any[]): any[] {
-  const cleaned = values(compactDeep(queryKey));
-  console.log("cleanQueryKey", { queryKey, cleaned });
-  return cleaned;
+  return values(compactDeep(queryKey));
 }
-// export function cleanQueryKey(queryKey: any[]): any[] {
-//   const cleaned = reject(queryKey, (value: any) => {
-//     value = unref(value);
-//     if (isObject(value)) return isEmpty(omitBy(value, isEmpty));
-//     if (isArray(value)) return isEmpty(compact(value));
-//     return isEmpty(value) || isNil(value);
-//   });
-
-//   console.log("cleanQueryKey", { queryKey, cleaned });
-//   return cleaned;
-// }

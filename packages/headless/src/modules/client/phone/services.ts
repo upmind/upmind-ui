@@ -97,7 +97,7 @@ async function loadLookups({
   await isReady().catch(error =>
     Promise.reject(
       new DetailedError(
-        "[headless] System not ready",
+        "System not ready",
         responseCodes.Unauthorized,
         ErrorOrigin.Headless,
         error
@@ -109,7 +109,7 @@ async function loadLookups({
   if (!countries) {
     return Promise.reject(
       new DetailedError(
-        "[headless] Failed to load countries",
+        "Failed to load countries",
         responseCodes.No_Content,
         ErrorOrigin.Headless
       )
@@ -174,7 +174,7 @@ async function ensure(model: PhoneModel): Promise<Phone> {
   return add(model).then(raw => {
     if (isEmpty(raw))
       throw new DetailedError(
-        "[headless] Failed to ensure phone",
+        "Failed to ensure phone",
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless,
         { model }
@@ -310,10 +310,10 @@ async function validate({ schema, model }: Partial<PhoneContext>) {
     if (errors?.length) {
       reject(
         new DetailedError(
-          "[headless] Invalid Phone Model",
+          "Phone validation failed",
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
-          { error: errors }
+          errors
         )
       );
     } else {
@@ -343,7 +343,7 @@ export const useClientPhoneServices = () => {
       if (isEmpty(model))
         return Promise.reject(
           new DetailedError(
-            "[headless] Ensure Phone failed: model provided",
+            "Ensure Phone failed: model provided",
             responseCodes.No_Content,
             ErrorOrigin.Headless,
             { model }
@@ -356,7 +356,7 @@ export const useClientPhoneServices = () => {
       if (isEmpty(model))
         return Promise.reject(
           new DetailedError(
-            "[headless] Add Phone failed: model provided",
+            "Add Phone failed: model provided",
             responseCodes.No_Content,
             ErrorOrigin.Headless,
             { model }
@@ -368,7 +368,7 @@ export const useClientPhoneServices = () => {
       if (!id || isEmpty(model))
         return Promise.reject(
           new DetailedError(
-            "[headless] Update Phone failed: No id or model provided",
+            "Update Phone failed: No id or model provided",
             responseCodes.No_Content,
             ErrorOrigin.Headless,
             { id, model }

@@ -108,7 +108,7 @@ export const useBasketFields = () => {
       .catch(error => {
         return Promise.reject(
           new DetailedError(
-            "[headless] update Fields on basket failed",
+            "Update Fields failed",
             error?.status ?? responseCodes.Timeout,
             ErrorOrigin.Headless,
             {

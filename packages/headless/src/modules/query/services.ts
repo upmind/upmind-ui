@@ -71,7 +71,7 @@ async function doFetch<T extends any = any>({
   if (!includes(map(Methods, upperCase), init?.method)) {
     return Promise.reject(
       new DetailedError(
-        `[headless] Invalid method: ${init?.method}`,
+        `Invalid method: ${init?.method}`,
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless,
         {
@@ -85,7 +85,7 @@ async function doFetch<T extends any = any>({
   if (!url)
     await Promise.reject(
       new DetailedError(
-        "[headless] Invalid URL",
+        "Invalid URL",
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )
@@ -155,7 +155,7 @@ async function refreshToken() {
 
       return Promise.reject(
         new DetailedError(
-          error?.message ?? "[headless] Failed to refresh token",
+          error?.message ?? "Failed to refresh token",
           error?.code ?? error?.statusCode ?? responseCodes.Unauthorized,
           error?.origin ?? ErrorOrigin.Upmind,
           { error }

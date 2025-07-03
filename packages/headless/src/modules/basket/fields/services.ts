@@ -9,6 +9,7 @@ import {
   DetailedError,
   ErrorOrigin,
   responseCodes,
+  useModelParser,
   useValidation
 } from "../../../utils";
 
@@ -47,8 +48,10 @@ async function update(
   });
 }
 
-async function parse({ model }: FieldsContext, _event: AnyEventObject) {
+async function parse({ model, schema }: FieldsContext, _event: AnyEventObject) {
   // ---
+  model = useModelParser(schema, model);
+
   // we dont have any parsing checks or transforms so we can pass through the model
   return Promise.resolve({ model });
 }
@@ -69,10 +72,10 @@ async function validate(
     if (errors?.length) {
       reject(
         new DetailedError(
-          "[headless] Invalid Fields Model",
+          "Fields validation failed",
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
-          { error: errors }
+          errors
         )
       );
     } else {

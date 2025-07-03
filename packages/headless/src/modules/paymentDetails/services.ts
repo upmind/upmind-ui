@@ -24,7 +24,9 @@ import {
   DetailedError,
   responseCodes,
   useValidation,
-  NotAuthenticatedError
+  NotAuthenticatedError,
+  useModelParser,
+  stateMatches
 } from "../../utils";
 
 // --- types
@@ -149,7 +151,7 @@ async function load(
 }
 
 async function parse(
-  { amount, model, gateways }: PaymentDetailsContext,
+  { amount, model, schema, gateways }: PaymentDetailsContext,
   { data }: AnyEventObject
 ) {
   // ---
@@ -157,7 +159,11 @@ async function parse(
 
   // ---
   // Create a safe model to work with
-  const safeModel = defaultsDeep(pick(data, ["type", "gateway_id"]), model);
+  const safeModel = useModelParser(
+    schema,
+    pick(data, ["type", "gateway_id"]),
+    model
+  );
 
   // ---
   // HACK: TEMP: FORCE payment type to PAY_IN_FULL
@@ -204,40 +210,33 @@ async function validate(
   // ALSO check if any of our actors are in an invalid state
   // NB, wait for them to finish loading/checking before we proceed
   const promises = map(actors, actor => {
-    if (!actor) return;
+    if (!actor) return Promise.resolve();
     return waitFor(
       actor,
-      state => !["loading", "checking", "error"].some(state.matches),
+      state => !["loading", "checking"].some(state.matches),
       { timeout: 60_000 }
-    ).catch(() => {
-      throw new DetailedError(
-        "[headless] validate on paymentDetails timed out",
-        responseCodes.Timeout,
-        ErrorOrigin.Headless
-      );
+    ).then(state => {
+      if (stateMatches(state, ["error", "invalid"]))
+        errors.push({
+          instancePath: actor.id,
+          schemaPath: `actors/${actor.id}`,
+          keyword: "actorState",
+          params: {},
+          message: `${actor.id} is ${state.value}`
+        });
     });
   });
 
-  await Promise.all(promises)
-    .then(responses => {
-      forEach(responses, state => {
-        if (["error", "invalid"].some(state.matches)) {
-          errors.push(state.context.error);
-        }
-      });
-    })
-    .catch(errors => {
-      errors.push(...errors);
-    });
+  await Promise.all(promises);
 
   return new Promise((resolve, reject) => {
     if (errors?.length) {
       reject(
         new DetailedError(
-          "[headless] validate on paymentDetails failed.",
+          "Payment details validation failed",
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
-          { error: errors, model }
+          errors
         )
       );
     } else {

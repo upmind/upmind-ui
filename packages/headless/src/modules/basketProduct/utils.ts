@@ -346,7 +346,7 @@ export function getBasketProduct(id: string, basket: IBasket) {
   const value = find(basket?.products, { id });
   if (!value) {
     throw new DetailedError(
-      "[headless] Product not found in basket",
+      "Product not found in basket",
       responseCodes.Not_Found,
       ErrorOrigin.Headless
     );

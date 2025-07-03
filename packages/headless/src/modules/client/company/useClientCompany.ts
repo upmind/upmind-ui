@@ -123,7 +123,7 @@ export const useClientCompany = (
       .catch(() => {
         return Promise.reject(
           new DetailedError(
-            "[headless] Input not available",
+            "Input not available",
             responseCodes.Forbidden,
             ErrorOrigin.Headless
           )
@@ -161,7 +161,7 @@ export const useClientCompany = (
       .catch(error => {
         return Promise.reject(
           new DetailedError(
-            "[headless] update Company failed",
+            "Update Company failed",
             error?.status ?? responseCodes.Timeout,
             ErrorOrigin.Headless,
             {

@@ -26,7 +26,7 @@ async function search({
   if (!search?.query?.length)
     return Promise.reject(
       new DetailedError(
-        "[headless] No query provided",
+        "No query provided",
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )

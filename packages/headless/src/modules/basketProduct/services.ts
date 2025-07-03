@@ -69,7 +69,7 @@ async function fetch(
   if (!productId)
     return Promise.reject(
       new DetailedError(
-        "[headless] No Product ID provided",
+        "No Product ID provided",
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )
@@ -150,7 +150,7 @@ async function fetchSelected(
   if (isEmpty(productIds))
     return Promise.reject(
       new DetailedError(
-        "[headless] No Product ID provided",
+        "No Product ID provided",
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )
@@ -235,7 +235,7 @@ async function fetchRelated(
   if (!productId)
     return Promise.reject(
       new DetailedError(
-        "[headless] No Product ID provided",
+        "No Product ID provided",
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )
@@ -314,7 +314,7 @@ async function updateQuantity(
   if (!basketId)
     return Promise.reject(
       new DetailedError(
-        "[headless] No basket provided/available",
+        "No basket provided/available",
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )
@@ -322,7 +322,7 @@ async function updateQuantity(
   if (!basketProduct.productDetails)
     return Promise.reject(
       new DetailedError(
-        "[headless] No product details provided",
+        "No product details provided",
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )
@@ -330,7 +330,7 @@ async function updateQuantity(
   if (!basketProduct.productDetails?.quantifiable)
     return Promise.reject(
       new DetailedError(
-        "[headless] Product is not quantifiable",
+        "Product is not quantifiable",
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )
@@ -350,7 +350,7 @@ async function updateQuantity(
     .then(data => {
       if (isNil(data))
         throw new DetailedError(
-          "[headless] No data returned from the server",
+          "No data returned from the server",
           responseCodes.Internal_Server_Error,
           ErrorOrigin.Headless
         );
@@ -387,7 +387,7 @@ async function update(
   if (!basketId)
     return Promise.reject(
       new DetailedError(
-        "[headless] No basket provided/available",
+        "No basket provided/available",
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )
@@ -395,7 +395,7 @@ async function update(
   if (isEmpty(data))
     return Promise.reject(
       new DetailedError(
-        "[headless] No product data provided",
+        "No product data provided",
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )
@@ -416,7 +416,7 @@ async function update(
     .then(data => {
       if (isNil(data))
         throw new DetailedError(
-          "[headless] No data returned from the server",
+          "No data returned from the server",
           responseCodes.Internal_Server_Error,
           ErrorOrigin.Headless
         );
@@ -446,7 +446,7 @@ async function updateMany(
   if (!basketId)
     return Promise.reject(
       new DetailedError(
-        "[headless] No basket provided/available",
+        "No basket provided/available",
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )
@@ -471,7 +471,7 @@ async function updateMany(
     if (!model)
       return Promise.reject(
         new DetailedError(
-          "[headless] No model found for the product",
+          "No model found for the product",
           responseCodes.Not_Found,
           ErrorOrigin.Headless
         )
@@ -520,7 +520,7 @@ async function updateMany(
 
       if (isNil(data))
         throw new DetailedError(
-          "[headless] No data returned from the server",
+          "No data returned from the server",
           responseCodes.Internal_Server_Error,
           ErrorOrigin.Headless
         );
@@ -530,7 +530,7 @@ async function updateMany(
       forEach(validItems, item => item.send({ type: "CANCEL" }));
       return Promise.reject(
         new DetailedError(
-          "[headless] Error updating many products in the basket",
+          "Error updating many products in the basket",
           responseCodes.Internal_Server_Error,
           ErrorOrigin.Headless
         )
@@ -558,7 +558,7 @@ async function remove({
   if (!bpid)
     return Promise.reject(
       new DetailedError(
-        "[headless] No Basket Product ID provided",
+        "No Basket Product ID provided",
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )
@@ -566,7 +566,7 @@ async function remove({
   if (!basketId)
     return Promise.reject(
       new DetailedError(
-        "[headless] No basket provided/available",
+        "No basket provided/available",
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )
@@ -578,7 +578,7 @@ async function remove({
   }).then(data => {
     if (isNil(data))
       throw new DetailedError(
-        "[headless] No data returned from the server",
+        "No data returned from the server",
         responseCodes.Internal_Server_Error,
         ErrorOrigin.Headless
       );

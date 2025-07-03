@@ -122,7 +122,7 @@ export const useClientEmail = (
       .catch(() => {
         return Promise.reject(
           new DetailedError(
-            "[headless] Input not available",
+            "Input not available",
             responseCodes.Forbidden,
             ErrorOrigin.Headless
           )
@@ -160,7 +160,7 @@ export const useClientEmail = (
       .catch(error => {
         return Promise.reject(
           new DetailedError(
-            "[headless] update Email failed",
+            "Update Email failed",
             error?.status ?? responseCodes.Timeout,
             ErrorOrigin.Headless,
             {

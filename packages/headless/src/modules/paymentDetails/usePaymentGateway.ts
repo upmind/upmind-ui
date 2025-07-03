@@ -130,7 +130,7 @@ export const usePaymentGateway = (actor: ComputedRef<Actor | undefined>) => {
       .catch(error => {
         return Promise.reject(
           new DetailedError(
-            error?.message ?? "[headless] update PaymentGateway failed",
+            error?.message ?? "Update Payment Gateway failed",
             error?.code ??
               error?.statusCode ??
               responseCodes.Unprocessable_Entity,

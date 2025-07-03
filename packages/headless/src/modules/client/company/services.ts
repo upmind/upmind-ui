@@ -216,7 +216,7 @@ async function ensure(model: CompanyModel): Promise<Company> {
   return add(model).then(raw => {
     if (isEmpty(raw))
       throw new DetailedError(
-        "[headless] Failed to ensure company",
+        "Ensure company failed",
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless,
         { model }
@@ -298,7 +298,7 @@ async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
   if (isEmpty(data))
     return Promise.reject(
       new DetailedError(
-        "[headless] Ensure Company dependencies faile: No data provided",
+        "Ensure Company dependencies faile: No data provided",
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )
@@ -346,7 +346,7 @@ async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
     .catch(error => {
       return Promise.reject(
         new DetailedError(
-          error?.message ?? "[headless] Ensure Company dependencies failed",
+          error?.message ?? "Ensure Company dependencies failed",
           error?.code ??
             error?.statusCode ??
             responseCodes.Unprocessable_Entity,
@@ -414,10 +414,10 @@ async function validate({ schema, model }: Partial<CompanyContext>) {
     if (errors?.length) {
       reject(
         new DetailedError(
-          "[headless] Invalid Company Model",
+          "Company validation failed",
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
-          { error: errors }
+          errors
         )
       );
     } else {
@@ -471,7 +471,7 @@ export const useClientCompanyServices = () => {
       if (isEmpty(model))
         return Promise.reject(
           new DetailedError(
-            "[headless] Add Company failed: model provided",
+            "Add Company failed: model provided",
             responseCodes.No_Content,
             ErrorOrigin.Headless,
             { model }
@@ -490,7 +490,7 @@ export const useClientCompanyServices = () => {
       if (isEmpty(model))
         return Promise.reject(
           new DetailedError(
-            "[headless] Ensure Company failed: model provided",
+            "Ensure Company failed: model provided",
             responseCodes.No_Content,
             ErrorOrigin.Headless,
             { model }
@@ -530,7 +530,7 @@ export const useClientCompanyServices = () => {
       if (!id || isEmpty(model))
         return Promise.reject(
           new DetailedError(
-            "[headless] Update Company failed: No id or model provided",
+            "Update Company failed: No id or model provided",
             responseCodes.No_Content,
             ErrorOrigin.Headless,
             { id, model }

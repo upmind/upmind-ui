@@ -85,7 +85,7 @@ export function persistTokenToStorage(token: Token) {
 
   if (!token || !token.access_token)
     throw new DetailedError(
-      "[headless] persistTokenToStorage token is invalid or missing the access_token property.",
+      "Token is invalid or missing the access_token property.",
       responseCodes.Unprocessable_Entity,
       ErrorOrigin.Headless,
       token
@@ -94,7 +94,7 @@ export function persistTokenToStorage(token: Token) {
   if (!localStorage)
     return Promise.reject(
       new DetailedError(
-        "[headless] No localStorage available",
+        "No Local Storage available",
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )

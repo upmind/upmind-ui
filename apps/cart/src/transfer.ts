@@ -8,6 +8,6 @@ Upmind.init({
   pop: {
     name: import.meta.env.VITE_API_NAME,
     apiUrl: import.meta.env.VITE_API_URL,
-    region: import.meta.env.VITE_API_REGION,
-  },
+    region: import.meta.env.VITE_API_REGION
+  }
 }).then(async () => await useTransfer().transferFrom());

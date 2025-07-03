@@ -9,6 +9,7 @@ import {
   DetailedError,
   ErrorOrigin,
   responseCodes,
+  useModelParser,
   useValidation
 } from "../../../utils";
 import { get, isNil } from "lodash-es";
@@ -35,7 +36,7 @@ async function load({ gateway }: GatewayContext, _event: AnyEventObject) {
     BrandConfigKeys.BILLING_GATEWAY_FORCE_CARD_STORAGE,
     BrandConfigKeys.BILLING_GATEWAY_FORCE_AUTO_PAYMENT
   ]).then(data => {
-    return {
+    const config = {
       can_store: canBeStored(gateway),
       must_store: get(
         data,
@@ -48,14 +49,15 @@ async function load({ gateway }: GatewayContext, _event: AnyEventObject) {
         false
       )
     };
+    return config;
   });
 }
 
 async function parse(
-  { model, can_store, must_store, must_auto_pay }: GatewayContext,
+  { schema, model, can_store, must_store, must_auto_pay }: GatewayContext,
   _event: AnyEventObject
 ) {
-  model ??= {}; // safeguard
+  model = useModelParser(schema, model);
 
   // Honour the brand settings storage and auto payment
   if (!can_store) {
@@ -86,14 +88,13 @@ async function validate(
   return new Promise((resolve, reject) => {
     if (!schema) return resolve(model);
     const errors = validate(schema, model);
-
     if (errors?.length) {
       reject(
         new DetailedError(
-          "[headless] validate on gateway payment details failed",
+          "Payment gateway validation failed",
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
-          { error: errors }
+          errors
         )
       );
     } else {

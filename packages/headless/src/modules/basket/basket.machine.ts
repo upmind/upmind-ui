@@ -93,7 +93,7 @@ export default createMachine(
                 },
                 {
                   target: "#error",
-                  actions: ["setError"]
+                  actions: ["updateBasket"]
                 }
               ]
             }
@@ -418,9 +418,8 @@ export default createMachine(
       updateBasket: assign({
         basket: (_context: BasketContext, { data }: AnyEventObject) =>
           parseBasket(data),
-        error: ({ error }: BasketContext, { data }: AnyEventObject) => {
-          return get(data, "errors", error);
-        },
+        error: ({ error }: BasketContext, { data }: AnyEventObject) =>
+          mapToHeadlessError(data?.errors),
         products: (context: BasketContext, { data }: AnyEventObject) => {
           const basket = parseBasket(data);
           const products = get(basket, "products", []);
@@ -550,15 +549,9 @@ export default createMachine(
       },
 
       setError: assign({
-        error: (_context: BasketContext, { data }: AnyEventObject) => {
-          let error = mapToHeadlessError(data);
-          if (error?.status == responseCodes.Unprocessable_Entity) {
-            error.data = useValidationParser(error.data);
-          }
-          return error;
-        }
+        error: (_context: BasketContext, { data }: AnyEventObject) =>
+          mapToHeadlessError(data)
       }),
-
       clearError: assign({ error: undefined })
     },
 

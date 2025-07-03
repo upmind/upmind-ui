@@ -59,7 +59,7 @@ export const useTracking = () => {
             return tracking;
           } else
             throw new DetailedError(
-              "[headless] No tracking cookie found",
+              "No tracking cookie found",
               responseCodes.Unprocessable_Entity,
               ErrorOrigin.Headless
             );
@@ -130,7 +130,7 @@ export const useTracking = () => {
       if (!cookie)
         return reject(
           new DetailedError(
-            "[headless] No tracking cookie found",
+            "No tracking cookie found",
             responseCodes.Unprocessable_Entity,
             ErrorOrigin.Headless
           )

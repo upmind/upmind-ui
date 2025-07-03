@@ -71,11 +71,12 @@ export function useLookup(lookup: Function) {
       if (state.value.matches("loading")) {
         await waitFor(service, newstate => !newstate.matches("loading"), {
           timeout: 60_000
-        }).catch(() => {
+        }).catch(error => {
           throw new DetailedError(
-            `[headless] fetch on useLookup timed out while waiting for loading state to complete`,
+            `Fetch Lookup failed`,
             responseCodes.Timeout,
-            ErrorOrigin.Headless
+            ErrorOrigin.Headless,
+            error
           );
         });
       }

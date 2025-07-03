@@ -149,7 +149,7 @@ export default createMachine(
           src: "update",
           onDone: {
             target: "processed",
-            actions: ["persistModel", "clearDirty", "clearAutoUpdate"]
+            actions: ["persistModel", "clearAutoUpdate"]
           },
           onError: {
             target: "#error",
@@ -181,7 +181,7 @@ export default createMachine(
     on: {
       CLEAR: {
         target: "available.checking",
-        actions: ["clearModel", "setDirty"]
+        actions: ["clearModel"]
       },
       REFRESH: {
         target: "available.checking",

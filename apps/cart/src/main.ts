@@ -18,28 +18,29 @@ const app = createApp(App);
 // ---
 
 UpmindClient.init({
+  debug: import.meta.env.DEV,
   pop: {
     name: import.meta.env.VITE_API_NAME,
     apiUrl: import.meta.env.VITE_API_URL,
-    region: import.meta.env.VITE_API_REGION,
+    region: import.meta.env.VITE_API_REGION
   },
   i18n: {
     instance: i18n as any,
     files: import.meta.env.DEV
       ? import.meta.glob(`@/**/i18n/*-en.json`, { eager: true }) // 'en' only source messages
-      : import.meta.glob("@/assets/locales/**/*.json", { eager: true }), // compiled messages
+      : import.meta.glob("@/assets/locales/**/*.json", { eager: true }) // compiled messages
   },
   router: {
     instance: router,
-    flows: useCustomFlows(),
+    flows: useCustomFlows
   },
   recaptcha: {
     siteKey: import.meta.env.VITE_APP_GOOGLE_RECAPTCHA_V3_SITE_KEY,
-    enabled: true,
+    enabled: true
   },
   analytics: {
-    enabled: true,
-  },
+    enabled: true
+  }
 });
 
 Sentry.init({
@@ -52,7 +53,7 @@ Sentry.init({
       maskAllInputs: true,
       maskAllText: false,
       blockAllMedia: false,
-      networkDetailAllowUrls: [/^https:\/\/api\.upmind\.io/],
+      networkDetailAllowUrls: [/^https:\/\/api\.upmind\.io/]
     }),
     Sentry.thirdPartyErrorFilterIntegration({
       // Specify the application keys that you specified in the Sentry bundler plugin
@@ -64,8 +65,8 @@ Sentry.init({
       // - 'drop-error-if-exclusively-contains-third-party-frames'
       // - 'apply-tag-if-contains-third-party-frames'
       // - 'apply-tag-if-exclusively-contains-third-party-frames'
-      behaviour: "drop-error-if-contains-third-party-frames",
-    }),
+      behaviour: "drop-error-if-contains-third-party-frames"
+    })
   ],
 
   enabled: import.meta.env.MODE === "production",
@@ -78,18 +79,18 @@ Sentry.init({
   // Set `tracePropagationTargets` to control for which URLs trace propagation should be enabled
   tracePropagationTargets: [
     /^https:\/\/checkout-upmind\.web\.app\.io/,
-    /^https:\/\/checkout\.upmind\.com/,
+    /^https:\/\/checkout\.upmind\.com/
   ],
 
   allowUrls: [
     /^https:\/\/checkout-upmind\.web\.app\.io/,
-    /^https:\/\/checkout\.upmind\.com/,
+    /^https:\/\/checkout\.upmind\.com/
   ],
 
   // Capture Replay for 10% of all sessions,
   // plus for 100% of sessions with an error
   replaysSessionSampleRate: 0.1,
-  replaysOnErrorSampleRate: 1.0,
+  replaysOnErrorSampleRate: 1.0
 });
 
 // ---

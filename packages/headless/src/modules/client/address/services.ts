@@ -95,7 +95,7 @@ async function loadLookups({
   await isReady().catch(error =>
     Promise.reject(
       new DetailedError(
-        "[headless] System not ready",
+        "System not ready",
         responseCodes.Unauthorized,
         ErrorOrigin.Headless,
         error
@@ -114,7 +114,7 @@ async function loadLookups({
   if (!countries || !regions) {
     return Promise.reject(
       new DetailedError(
-        "[headless] Failed to load address lookups",
+        "Failed to load address lookups",
         responseCodes.No_Content,
         ErrorOrigin.Headless
       )
@@ -183,7 +183,7 @@ async function ensure(model: AddressModel): Promise<Address> {
   return add(model).then(raw => {
     if (isEmpty(raw))
       throw new DetailedError(
-        "[headless] Failed to ensure address",
+        "Failed to ensure address",
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless,
         { model }
@@ -311,10 +311,10 @@ async function validate({ schema, model }: Partial<AddressContext>) {
     if (errors?.length) {
       reject(
         new DetailedError(
-          "[headless] Invalid Address Model",
+          "Address validation failed",
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
-          { error: errors }
+          errors
         )
       );
     } else {
@@ -368,7 +368,7 @@ export const useClientAddressServices = () => {
       if (isEmpty(model))
         return Promise.reject(
           new DetailedError(
-            "[headless] Add Address failed: model provided",
+            "Add Address failed: model provided",
             responseCodes.No_Content,
             ErrorOrigin.Headless,
             { model }
@@ -387,7 +387,7 @@ export const useClientAddressServices = () => {
       if (isEmpty(model))
         return Promise.reject(
           new DetailedError(
-            "[headless] Ensure Address failed: model provided",
+            "Ensure Address failed: model provided",
             responseCodes.No_Content,
             ErrorOrigin.Headless,
             { model }
@@ -427,7 +427,7 @@ export const useClientAddressServices = () => {
       if (!id || isEmpty(model))
         return Promise.reject(
           new DetailedError(
-            "[headless] Update Address failed: No id or model provided",
+            "Update Address failed: No id or model provided",
             responseCodes.No_Content,
             ErrorOrigin.Headless,
             { id, model }
