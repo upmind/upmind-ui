@@ -121,8 +121,7 @@ export const usePaymentDetails = (actor: ComputedRef<Actor | undefined>) => {
       .catch(error => {
         return Promise.reject(
           new DetailedError(
-            error.message ??
-              "[headless] update Payment Details on basket failed",
+            error.message ?? "Update Payment Details failed",
             error?.status ?? responseCodes.Timeout,
             error.origin ?? ErrorOrigin.Headless,
             {

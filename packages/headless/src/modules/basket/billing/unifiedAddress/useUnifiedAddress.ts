@@ -19,7 +19,6 @@ import {
   stateMatches,
   DetailedError,
   responseCodes,
-  UnavailableError,
   ResponseError,
   contextMatches,
   DEBOUNCE_DELAY,
@@ -138,7 +137,7 @@ export const useUnifiedAddress = (
       .catch(() => {
         return Promise.reject(
           new DetailedError(
-            "[headless] Input not available",
+            "Input not available",
             responseCodes.Forbidden,
             ErrorOrigin.Headless
           )
@@ -172,7 +171,7 @@ export const useUnifiedAddress = (
       .catch(error => {
         return Promise.reject(
           new DetailedError(
-            "[headless] update Unified Address failed",
+            "Update Unified Address failed",
             error?.status ?? responseCodes.Timeout,
             ErrorOrigin.Headless,
             {

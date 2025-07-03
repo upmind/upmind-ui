@@ -429,7 +429,7 @@ export const useQuery = () => {
 
         if (!response.isPlaceholderData.value && pageIndex.value <= 1) {
           throw new DetailedError(
-            "[headless] No previous page available",
+            "No previous page available",
             responseCodes.No_Content,
             ErrorOrigin.Headless,
             {
@@ -458,7 +458,7 @@ export const useQuery = () => {
 
         if (!response.isPlaceholderData.value && pageIndex.value >= pageTotal) {
           throw new DetailedError(
-            "[headless] No next page available",
+            "No next page available",
             responseCodes.No_Content,
             ErrorOrigin.Headless,
             {

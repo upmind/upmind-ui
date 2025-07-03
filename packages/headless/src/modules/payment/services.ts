@@ -67,10 +67,9 @@ async function load({ orderId }: PaymentContext, { data }: AnyEventObject) {
   if (!data?.id)
     return Promise.reject(
       new DetailedError(
-        "[headless] Invalid order",
-        responseCodes.Not_Found,
-        ErrorOrigin.Upmind,
-        { title: "Invalid order", code: 400 }
+        "Invalid order",
+        responseCodes.Bad_Request,
+        ErrorOrigin.Upmind
       )
     );
 
@@ -119,7 +118,7 @@ async function validate(
     if (isEmpty(paymentDetail)) {
       reject(
         new DetailedError(
-          "[headless] validate on payment failed.",
+          "Payment validation failed.",
           responseCodes.Not_Found,
           ErrorOrigin.Headless
         )

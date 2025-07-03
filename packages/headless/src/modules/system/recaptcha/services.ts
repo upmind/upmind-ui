@@ -27,7 +27,7 @@ async function load({ siteKey }: RecaptchaContext, _event: AnyEventObject) {
   if (isEmpty(siteKey))
     return Promise.reject(
       new DetailedError(
-        "[headless] Recaptcha site key not set",
+        "Recaptcha site key not set",
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )
@@ -49,7 +49,7 @@ async function load({ siteKey }: RecaptchaContext, _event: AnyEventObject) {
     script.addEventListener("error", async () => {
       return reject(
         new DetailedError(
-          "[headless] Recaptcha failed to load",
+          "Recaptcha failed to load",
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless
         )
@@ -73,7 +73,7 @@ async function generateToken(
   if (!grecaptcha || !siteKey)
     return Promise.reject(
       new DetailedError(
-        "[headless] Recaptcha not loaded",
+        "Recaptcha not loaded",
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )

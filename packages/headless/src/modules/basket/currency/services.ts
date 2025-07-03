@@ -24,7 +24,7 @@ async function load(_context: CurrencyContext, _event: AnyEventObject) {
   await isReady().catch(error =>
     Promise.reject(
       new DetailedError(
-        "[headless] Brand not ready",
+        "Brand not ready",
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless,
         error
@@ -80,10 +80,10 @@ async function validate(
     if (errors?.length) {
       reject(
         new DetailedError(
-          "[headless] Invalid Currency Model",
+          "Currency validation failed",
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
-          { error: errors }
+          errors
         )
       );
     } else {

@@ -295,7 +295,7 @@ export const calculateBillingTerm = (
 
   if (isEmpty(available))
     throw new DetailedError(
-      "[headless] getBillingTerms on product not found",
+      "Get BillingTerms failed",
       responseCodes.Not_Found,
       ErrorOrigin.Headless
     );
@@ -325,7 +325,7 @@ export const calculateBillingTerm = (
 
   if (isEmpty(term))
     throw new DetailedError(
-      "[headless] getBillingTerm on product not found",
+      "Get Billing Terms failed",
       responseCodes.Not_Found,
       ErrorOrigin.Headless
     );

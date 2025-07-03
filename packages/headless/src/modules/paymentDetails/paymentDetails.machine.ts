@@ -1,12 +1,5 @@
 // --- external
-import {
-  createMachine,
-  assign,
-  actions,
-  spawn,
-  sendParent,
-  InterpreterStatus
-} from "xstate";
+import { createMachine, assign, spawn, sendParent } from "xstate";
 
 // --- internal
 import services from "./services";
@@ -127,6 +120,7 @@ export default createMachine(
                 },
                 { target: "processing", cond: "hasBasket" }
               ],
+              // NB we need to re check our payment details if the gateway changes
               "xstate.update": {
                 target: "checking"
               }
@@ -136,6 +130,7 @@ export default createMachine(
           invalid: {
             id: "invalid",
             on: {
+              // NB we need to re check our payment details if the gateway changes
               "xstate.update": {
                 target: "checking"
               }

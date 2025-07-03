@@ -91,7 +91,7 @@ class Upmind {
   }: UpmindProps): Promise<void> {
     if (this.status != UpmindStatus.notInitialised)
       throw new DetailedError(
-        `[headless] Upmind has already been initialised, please use the isReady() method to check if Upmind is ready`,
+        `Upmind has already been initialised, please use the isReady() method to check if Upmind is ready`,
         responseCodes.Conflict,
         ErrorOrigin.Headless
       );

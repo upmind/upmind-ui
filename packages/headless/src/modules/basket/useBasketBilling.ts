@@ -115,7 +115,7 @@ export const useBasketBilling = () => {
       .catch(error => {
         return Promise.reject(
           new DetailedError(
-            "[headless] update Billing Details on basket failed",
+            "Update Billing Details failed",
             error?.status ?? responseCodes.Timeout,
             ErrorOrigin.Headless,
             {

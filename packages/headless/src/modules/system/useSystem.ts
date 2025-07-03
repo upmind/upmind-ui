@@ -156,9 +156,10 @@ export const useSystem = () => {
         { timeout: Infinity }
       ).catch(() => {
         throw new DetailedError(
-          `[headless] fetch on useSystem timed out while fetching "${node}"`,
+          `Fetch failed`,
           responseCodes.Timeout,
-          ErrorOrigin.Headless
+          ErrorOrigin.Headless,
+          { node }
         );
       });
       return fetch(node, getValues, data);

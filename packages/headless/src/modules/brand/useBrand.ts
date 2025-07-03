@@ -13,7 +13,6 @@ import brandMachine from "./brand.machine";
 
 import {
   DetailedError,
-  UnavailableError,
   responseCodes,
   useContext,
   contextValue,
@@ -58,18 +57,8 @@ export const useBrand = () => {
     return waitFor(
       service,
       state => ["complete", "error"].some(state.matches),
-      {
-        timeout: Infinity
-      }
-    ).then(state => {
-      if (["error"].some(state.matches)) {
-        if (state.context.error?.status == responseCodes.Service_Unavailable) {
-          return Promise.reject(new UnavailableError());
-        }
-        return false;
-      }
-      return true;
-    });
+      { timeout: Infinity }
+    ).then(state => !stateMatches(state, "error"));
   }
 
   function hasModuleEnabled(code: string): boolean {
@@ -169,9 +158,10 @@ export const useBrand = () => {
       ].some(newstate.matches)
     ).catch(() => {
       throw new DetailedError(
-        `[headless] getConfig on brand timed out for ${keys.join(", ")}`,
+        `Get Brand Config failed`,
         responseCodes.Timeout,
-        ErrorOrigin.Headless
+        ErrorOrigin.Headless,
+        { keys }
       );
     });
     return pick(state.value.context, keys);

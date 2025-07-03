@@ -123,7 +123,7 @@ export const useClientAddress = (
       .catch(() => {
         return Promise.reject(
           new DetailedError(
-            "[headless] Input not available",
+            "Input not available",
             responseCodes.Forbidden,
             ErrorOrigin.Headless
           )
@@ -162,7 +162,7 @@ export const useClientAddress = (
         .catch(error => {
           return Promise.reject(
             new DetailedError(
-              "[headless] update Address failed",
+              "Update Address failed",
               error?.status ?? responseCodes.Timeout,
               ErrorOrigin.Headless,
               {

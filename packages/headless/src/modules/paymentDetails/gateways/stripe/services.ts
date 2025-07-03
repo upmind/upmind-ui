@@ -11,6 +11,7 @@ import {
   ErrorOrigin,
   NotAuthenticatedError,
   responseCodes,
+  useModelParser,
   useValidation
 } from "../../../../utils";
 import { getSupportedPaymentMethods, getPublicKey } from "./utils";
@@ -29,7 +30,7 @@ async function load({ gateway }: StripeContext, _event: AnyEventObject) {
   if (!key)
     return Promise.reject(
       new DetailedError(
-        "[headless] Stripe public key not found.",
+        "Stripe public key not found.",
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )
@@ -41,7 +42,7 @@ async function load({ gateway }: StripeContext, _event: AnyEventObject) {
     if (!stripe) {
       reject(
         new DetailedError(
-          "[headless] Stripe not found.",
+          "Stripe not found.",
           responseCodes.Not_Found,
           ErrorOrigin.Headless
         )
@@ -62,7 +63,7 @@ async function validate(
   if (!element)
     return Promise.reject(
       new DetailedError(
-        "[headless] Stripe element not found.",
+        "Stripe element not found.",
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )
@@ -89,13 +90,15 @@ async function validate(
       });
     }
 
+    debugger;
+
     if (errors?.length) {
       reject(
         new DetailedError(
-          "[headless] Stripe validation failed.",
+          "Stripe validation failed",
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
-          { error: errors }
+          errors
         )
       );
     } else {
@@ -148,7 +151,7 @@ async function update({ elements, stripe, model }: StripeContext) {
   if (!elements || !stripe)
     return Promise.reject(
       new DetailedError(
-        "[headless] Stripe elements or stripe not found.",
+        "Stripe elements or stripe not found.",
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )
@@ -160,7 +163,7 @@ async function update({ elements, stripe, model }: StripeContext) {
     .catch((error: any) =>
       Promise.reject(
         new DetailedError(
-          "[headless] Stripe element submission failed.",
+          "Stripe element submission failed.",
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
           error
@@ -181,7 +184,7 @@ async function update({ elements, stripe, model }: StripeContext) {
     if (error) {
       reject(
         new DetailedError(
-          "[headless] Stripe create payment method failed.",
+          "Stripe create payment method failed.",
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
           error

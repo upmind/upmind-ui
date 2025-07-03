@@ -21,7 +21,7 @@ async function check(_context: SessionContext) {
     } else {
       reject(
         new DetailedError(
-          "[headless] token is not available",
+          "Token is not available",
           responseCodes.Not_Found,
           ErrorOrigin.Headless,
           null
@@ -46,7 +46,7 @@ async function transferFrom({ transfer }: SessionContext) {
   if (!transfer?.code)
     return Promise.reject(
       new DetailedError(
-        "[headless] No code",
+        "No code",
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless,
         transfer

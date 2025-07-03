@@ -73,7 +73,7 @@ async function getImage({ field }: UploadContext, { data }: AnyEventObject) {
   if (!field?.field_type && !data.hash)
     return Promise.reject(
       new DetailedError(
-        "[headless] No field type or hash provided",
+        "No field type or hash provided",
         responseCodes.No_Content,
         ErrorOrigin.Headless
       )

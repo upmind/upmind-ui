@@ -78,8 +78,7 @@ export const useUpload = (field?: object) => {
       .catch(error => {
         return Promise.reject(
           new DetailedError(
-            error?.message ??
-              `[headless] fetch on useUpload timed out while waiting for upload to complete`,
+            error?.message ?? `Fetch Upload failed`,
             error?.type ?? responseCodes.Timeout,
             error
           )

@@ -20,7 +20,7 @@ async function load(_context: ClientContext, _event: any) {
   if (isEmpty(token))
     return Promise.reject(
       new DetailedError(
-        "[headless] No token found",
+        "No token found",
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )

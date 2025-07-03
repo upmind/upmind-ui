@@ -133,7 +133,7 @@ class TrackingEvent {
 
     if (isEmpty(safeBasket)) {
       throw new DetailedError(
-        "[headless] No Basket available",
+        "No Basket available",
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       );
@@ -173,7 +173,7 @@ class TrackingEvent {
 
     if (isEmpty(safeItems)) {
       throw new DetailedError(
-        "[headless] No Products available",
+        "No Products available",
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       );
@@ -182,7 +182,7 @@ class TrackingEvent {
     const { basket } = useBasket();
     if (isEmpty(basket))
       throw new DetailedError(
-        "[headless] No Basket available",
+        "No Basket available",
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       );

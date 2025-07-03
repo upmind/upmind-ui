@@ -236,7 +236,7 @@ export const useBasket = () => {
       if (!actor.value)
         return Promise.reject(
           new DetailedError(
-            "[headless] setCurrency on basket failed",
+            "setCurrency on basket failed",
             responseCodes.Unprocessable_Entity,
             ErrorOrigin.Headless
           )
@@ -272,7 +272,7 @@ export const useBasket = () => {
         })
         .catch(() => {
           throw new DetailedError(
-            "[headless] setCurrency on basket timed out",
+            "setCurrency on basket timed out",
             responseCodes.Timeout,
             ErrorOrigin.Headless,
             {
@@ -292,7 +292,7 @@ export const useBasket = () => {
       if (!actor.value)
         return Promise.reject(
           new DetailedError(
-            "[headless] addPromotion on basket failed",
+            "addPromotion on basket failed",
             responseCodes.Unprocessable_Entity,
             ErrorOrigin.Headless
           )
@@ -310,7 +310,7 @@ export const useBasket = () => {
           .catch(error => {
             return Promise.reject(
               new DetailedError(
-                "[headless] addPromotion on basket failed",
+                "addPromotion on basket failed",
                 responseCodes.Timeout,
                 ErrorOrigin.Headless,
                 {
@@ -335,7 +335,7 @@ export const useBasket = () => {
         if (stateMatches(state, ["error"])) {
           return Promise.reject(
             new DetailedError(
-              "[headless] addPromotion on basket failed",
+              "addPromotion on basket failed",
               responseCodes.Timeout,
               ErrorOrigin.Headless,
               contextValue(state, "error")
@@ -407,7 +407,7 @@ export const useBasket = () => {
       } else {
         reject(
           new DetailedError(
-            "[headless] Basket item not found",
+            "Basket item not found",
             responseCodes.Not_Found,
             ErrorOrigin.Headless
           )

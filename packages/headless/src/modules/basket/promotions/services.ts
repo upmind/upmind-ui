@@ -8,6 +8,7 @@ import {
   DetailedError,
   ErrorOrigin,
   responseCodes,
+  useModelParser,
   useValidation
 } from "../../../utils";
 import { get, isEmpty, some, trim } from "lodash-es";
@@ -33,7 +34,7 @@ async function add(
   if (!model?.promocode)
     return Promise.reject(
       new DetailedError(
-        "[headless] No Promocode provided to add to basketId",
+        "No Promocode provided to add to basketId",
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )
@@ -41,7 +42,7 @@ async function add(
   if (some(promotions, { promocode: model?.promocode }))
     return Promise.reject(
       new DetailedError(
-        "[headless] Promocode already exists in basketId",
+        "Promocode already exists in basketId",
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )
@@ -63,7 +64,7 @@ async function remove(
   if (!id)
     return Promise.reject(
       new DetailedError(
-        "[headless] No Promotion provided to remove from basketId",
+        "No Promotion provided to remove from basketId",
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )
@@ -77,8 +78,13 @@ async function remove(
   });
 }
 
-async function parse({ model }: PromotionsContext, _event: AnyEventObject) {
+async function parse(
+  { model, schema }: PromotionsContext,
+  _event: AnyEventObject
+) {
   // ---
+  model = useModelParser(schema, model);
+
   // we don't have any parsing checks or transforms so we can pass through the model
   return Promise.resolve({ model });
 }
@@ -101,10 +107,10 @@ async function validate(
     if (errors?.length || isEmpty(model?.promocode)) {
       reject(
         new DetailedError(
-          "[headless] Invalid Promotion",
+          "Promotion validation failed",
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
-          { error: errors }
+          errors
         )
       );
     } else {

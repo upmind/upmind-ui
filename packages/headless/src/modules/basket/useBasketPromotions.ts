@@ -117,7 +117,7 @@ export const useBasketPromotions = () => {
       .catch(error => {
         return Promise.reject(
           new DetailedError(
-            "[headless] add Promotion on basket failed",
+            "Add Promotion failed",
             error?.status ?? responseCodes.Timeout,
             ErrorOrigin.Headless,
             {
@@ -146,7 +146,7 @@ export const useBasketPromotions = () => {
       .catch(error => {
         return Promise.reject(
           new DetailedError(
-            "[headless] addPromotion on basket failed",
+            "Add Promotion failed",
             responseCodes.Timeout,
             ErrorOrigin.Headless,
             {

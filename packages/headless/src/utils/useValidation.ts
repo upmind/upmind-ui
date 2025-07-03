@@ -19,6 +19,7 @@ import {
   isArray,
   isEmpty,
   isNil,
+  isObject,
   map,
   omitBy,
   reduce,
@@ -448,7 +449,19 @@ export function useLaravalSchemaParser(
   ) as JsonSchema7;
 }
 
+function isErrorObject(error: any): error is ErrorObject {
+  if (isArray(error)) return every(error, isErrorObject);
+
+  return (
+    error && isObject(error) && "instancePath" in error && "schemaPath" in error
+  );
+}
+
 export const useValidationParser = (error: ResponseError): ErrorObject[] => {
+  //NB we may be given an error that is already an ErrorObject[] or a single ErrorObject
+  if (isErrorObject(error))
+    return isArray(error) ? error : ([error] as ErrorObject[]);
+
   return compact(
     reduce(
       error?.data,
@@ -481,10 +494,38 @@ export const useModelParser = <
 
   if (!schema?.properties) return values as TModel;
 
+  /**
+   * Recursively retrieves a value from the schema based on the field type.
+   * If the field is an object or has properties, it recursively processes its properties.
+   * If the field has a const value, it returns that; otherwise, it checks the
+   * values object for the key, or falls back to the field's default value.
+   * If no value is found, it returns null.
+   *
+   * @param field
+   * @param values
+   * @param key
+   * @returns
+   */
+  function safeValue(field: JsonSchema, values: any, key: string): any {
+    if (field.type === "object" || field.properties) {
+      return reduce(
+        field.properties,
+        (result, subField, subKey) => {
+          const subValue = safeValue(subField, values[key], subKey);
+          set(result, subKey, subValue);
+          return result;
+        },
+        {} as Record<string, any>
+      );
+    }
+
+    return field?.const ?? get(values, key, field?.default) ?? null;
+  }
+
   const model = reduce(
     schema.properties,
     (result, field, key) => {
-      const value = field?.const || get(values, key, field?.default) || null;
+      const value = safeValue(field, values, key);
       set(result, key, value);
       return result;
     },

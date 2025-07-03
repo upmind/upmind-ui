@@ -58,14 +58,14 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
   const { basket: rawBasket } = useBasket();
   if (!rawBasket.value)
     throw new DetailedError(
-      "[headless] getBasket on useBasketProductPending not found",
+      "Basket not found",
       responseCodes.Not_Found,
       ErrorOrigin.Headless
     );
 
   if (isEmpty(data) || (isEmpty(actor) && isEmpty(productProps?.productId)))
     throw new DetailedError(
-      "[headless] getProduct on useBasketProductPending not found",
+      "Product not found",
       responseCodes.Not_Found,
       ErrorOrigin.Headless
     );
@@ -124,7 +124,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
       if (!product)
         return reject(
           new DetailedError(
-            "[headless] Product not found",
+            "Product not found",
             responseCodes.Not_Found,
             ErrorOrigin.Headless
           )
@@ -149,7 +149,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
         ) {
           return Promise.reject(
             new DetailedError(
-              "[headless] update in useBasketProductPending failed",
+              "Update of Pending Products failed",
               responseCodes.Unprocessable_Entity,
               ErrorOrigin.Headless,
               state.context.error
@@ -161,7 +161,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
       .catch(() => {
         return Promise.reject(
           new DetailedError(
-            "[headless] update in useBasketProductPending not in a valid state",
+            "Pending Products validation failed",
             responseCodes.Unprocessable_Entity,
             ErrorOrigin.Headless
           )
@@ -196,7 +196,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
         if (!product?.productDetails.quantifiable)
           return Promise.reject(
             new DetailedError(
-              "[headless] Product not quantifiable",
+              "Product not quantifiable",
               responseCodes.Unprocessable_Entity,
               ErrorOrigin.Headless
             )

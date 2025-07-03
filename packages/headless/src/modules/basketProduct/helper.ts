@@ -202,7 +202,7 @@ export function basketSubscription(callback: any, onReceive: any) {
               })
               .catch(() => {
                 throw new DetailedError(
-                  "[headless] ADD_UPDATE on basketProduct timed out",
+                  "ADD_UPDATE on basketProduct timed out",
                   responseCodes.Timeout,
                   ErrorOrigin.Headless,
                   instance
@@ -215,7 +215,7 @@ export function basketSubscription(callback: any, onReceive: any) {
             const product = instance.product;
             if (!product)
               throw new DetailedError(
-                "[headless] Product not found",
+                "Product not found",
                 responseCodes.Not_Found,
                 ErrorOrigin.Headless
               );

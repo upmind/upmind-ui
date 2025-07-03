@@ -30,7 +30,7 @@ async function matchTargets(
   if (isEmpty(targets))
     return Promise.reject(
       new DetailedError(
-        "[headless] No routing targets found",
+        "No routing targets found",
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )
