@@ -34,7 +34,6 @@
         </InputExtended>
 
         <div class="w-full flex-shrink-0 md:w-auto">
-          <pre>{{ { sortBy, direction } }}</pre>
           <ProductSort
             items="Sortable"
             v-model:property="sortBy"
