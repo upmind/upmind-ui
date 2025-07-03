@@ -49,7 +49,7 @@ export const useBrandTheme = (initial?: Theme) => {
   const available = computed(() => uiMeta.value?.variants);
 
   const meta = computed(() => ({
-    isAvailable: !isEmpty(available.value),
+    isAvailable: brandMeta.value.isAvailable,
     hasSettings: !isEmpty(theme.value)
   }));
 
