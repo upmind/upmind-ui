@@ -1,4 +1,5 @@
 // --- utils
+import { MaybeRef, Ref } from "vue";
 import { responseCodes } from "../../utils";
 
 // --- types
@@ -72,6 +73,15 @@ export type QueryParams<
     QueryObserverOptions<TQueryFnData, DefaultError, TData>,
     "queryFn" | "initialData"
   >;
+
+export type ReactiveQueryKeys = {
+  locale: MaybeRef<string>;
+  sort?: MaybeRef<undefined | string[] | [RequestSortDirection, string]>;
+  filters?: MaybeRef<undefined | RequestFilters>;
+  currencyCode?: MaybeRef<undefined | string>;
+  limit?: MaybeRef<undefined | number>;
+  pageIndex?: MaybeRef<undefined | number>;
+};
 
 export type MutationParams<
   TData = unknown,
