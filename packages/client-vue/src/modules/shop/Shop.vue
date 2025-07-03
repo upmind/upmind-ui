@@ -11,7 +11,6 @@
     </template>
 
     <template #content>
-      <pre>{{ sorting }}</pre>
       <Products
         v-model:category-id="categoryId"
         v-model:sort="sorting.property"
