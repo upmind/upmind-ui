@@ -11,12 +11,15 @@
     </template>
 
     <template #content>
+      <pre>{{ sorting }}</pre>
       <Products
         v-model:category-id="categoryId"
-        v-model:sort="sort"
+        v-model:sort="sorting.property"
+        v-model:direction="sorting.direction"
         v-model:query="query"
         @update:category-id="doCategory"
         @update:sort="doSort"
+        @update:direction="doSort"
         @update:query="doSearch"
       />
     </template>
@@ -45,7 +48,9 @@ import type { ProductSortProps } from "./products/types";
 const { isReady, isResolved } = useRoutingEngine();
 
 const params = useUrlSearchParams("history", {
-  writeMode: "push"
+  writeMode: "push",
+  removeFalsyValues: true,
+  removeNullishValues: true
 });
 
 await isReady();
@@ -55,7 +60,7 @@ await isResolved(ROUTE.PRODUCT_ADD);
 
 const categoryId = ref<string | undefined>(params.catid as string);
 
-const sort = ref<ProductSortProps | undefined>({
+const sorting = ref<ProductSortProps>({
   property:
     (params.sort as ProductSortableProperties) ??
     ProductSortableProperties.DEFAULT,
@@ -67,27 +72,24 @@ const query = ref<string | undefined>(params.search as string);
 
 // ---
 
-const doCategory = (value?: string) => {
-  categoryId.value = value;
-  params.catid = value ?? "";
+const doCategory = () => {
+  params.catid = categoryId.value ?? "";
   query.value = "";
   params.search = "";
 };
 
-const doSort = (value?: ProductSortProps) => {
-  sort.value = value;
-  params.sort = value?.property ?? ProductSortableProperties.DEFAULT;
-  params.direction = value?.direction ?? RequestSortDirection.ASC;
+const doSort = () => {
+  params.sort = sorting.value.property ?? "";
+  params.direction = sorting.value.direction ?? "";
 };
 
-const doSearch = (value?: string) => {
-  query.value = value;
-  params.search = value ?? "";
+const doSearch = () => {
+  params.search = query.value ?? "";
 };
 
 window.onpopstate = function () {
   categoryId.value = params.catid as string;
-  sort.value = {
+  sorting.value = {
     property:
       (params.sort as ProductSortableProperties) ??
       ProductSortableProperties.DEFAULT,

@@ -24,7 +24,7 @@ import type { QueryProps, RequestFilters } from "../query";
 import { DEBOUNCE_DELAY } from "../../utils";
 
 export enum ProductSortableProperties {
-  DEFAULT = "",
+  DEFAULT = "order",
   NAME = "name",
   PRICE = "price"
 }

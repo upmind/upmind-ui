@@ -226,9 +226,7 @@ export const useQuery = () => {
     const sort = ref(options?.sort);
 
     // --- query
-    const reactiveKeys: ReactiveQueryKeys = { locale };
-    if (sort.value) reactiveKeys.sort = sort;
-    if (filters.value) reactiveKeys.filters = filters;
+    const reactiveKeys: ReactiveQueryKeys = { locale, sort, filters };
     if (withCurrency) reactiveKeys.currencyCode = currencyCode;
 
     return vueUseQuery<TQueryFnData, DefaultError, TData>(
@@ -299,11 +297,9 @@ export const useQuery = () => {
     });
 
     // --- query
-    const reactiveKeys: ReactiveQueryKeys = { locale };
-    if (sort.value) reactiveKeys.sort = sort;
+    const reactiveKeys: ReactiveQueryKeys = { locale, filters, sort };
     if (limit) reactiveKeys.limit = limit;
     if (limit) reactiveKeys.pageIndex = pageIndex;
-    if (filters.value) reactiveKeys.filters = filters;
     if (withCurrency) reactiveKeys.currencyCode = currencyCode;
 
     const response = vueUseQuery<
@@ -517,10 +513,8 @@ export const useQuery = () => {
     });
 
     // --- query
-    const reactiveKeys: ReactiveQueryKeys = { locale };
-    if (sort.value) reactiveKeys.sort = sort;
+    const reactiveKeys: ReactiveQueryKeys = { locale, sort, filters };
     if (limit) reactiveKeys.limit = limit;
-    if (filters.value) reactiveKeys.filters = filters;
     if (withCurrency) reactiveKeys.currencyCode = currencyCode;
 
     const response = vueUseInfiniteQuery<TQueryFnData, DefaultError, TData>(
