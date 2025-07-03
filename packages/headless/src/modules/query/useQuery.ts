@@ -48,7 +48,6 @@ import type {
   RequestParams,
   MutationParams,
   InfiniteQueryPage,
-  QueryResponseError,
   ReactiveQueryKeys
 } from "./types";
 import { Methods } from "@upmind-automation/types";
@@ -72,7 +71,6 @@ const queryClient = new QueryClient({
 
 export const useQuery = () => {
   const { locale } = useLocale();
-  const { currencyCode } = useBasketCurrency();
 
   /**
    * Sends a request with the given URL and options.
@@ -144,7 +142,8 @@ export const useQuery = () => {
       url.searchParams.set("lang", locale.value as string);
 
     // set "currency" parameter
-    if (withCurrency && !isEmpty(currencyCode.value)) {
+    if (withCurrency) {
+      const { currencyCode } = useBasketCurrency();
       url.searchParams.set("currency_code", currencyCode.value as string);
     }
 
@@ -216,51 +215,51 @@ export const useQuery = () => {
     withAccessToken,
     ...options
   }: Omit<QueryParams<TQueryFnData, TData>, "pagination">) {
-    /* TODO: MAYBE omit the pagination/sort and filter query params */ {
-      // --- state
+    const { currencyCode } = useBasketCurrency();
 
-      const filters = ref<QueryParams["filters"]>({
-        ...(options?.filters ?? {})
-      });
+    // --- state
 
-      const sort = ref(options?.sort);
+    const filters = ref<QueryParams["filters"]>({
+      ...(options?.filters ?? {})
+    });
 
-      // --- query
-      const reactiveKeys: ReactiveQueryKeys = { locale };
-      if (sort.value) reactiveKeys.sort = sort;
-      if (filters.value) reactiveKeys.filters = filters;
-      if (withCurrency) reactiveKeys.currencyCode = currencyCode;
+    const sort = ref(options?.sort);
 
-      return vueUseQuery<TQueryFnData, DefaultError, TData>(
-        {
-          queryKey: [...queryKey, reactiveKeys],
-          queryFn: async ({ signal }) => {
-            const hasGuard = isPromise(guard);
-            const safeguard: Promise<void | boolean> = hasGuard
-              ? guard()
-              : Promise.resolve();
-            return safeguard.then(() =>
-              request<TQueryFnData>({
-                url,
-                sort: sort.value,
-                filters: filters.value,
-                withCurrency,
-                init: {
-                  ...init,
-                  signal // Pass the new signal to the request to allow cancellation
-                },
-                withAccessToken
-              }).then(response => {
-                if (isFunction(select)) return select(response.data!) as TData;
-                return response.data as TQueryFnData;
-              })
-            );
-          },
-          ...(options as any)
+    // --- query
+    const reactiveKeys: ReactiveQueryKeys = { locale };
+    if (sort.value) reactiveKeys.sort = sort;
+    if (filters.value) reactiveKeys.filters = filters;
+    if (withCurrency) reactiveKeys.currencyCode = currencyCode;
+
+    return vueUseQuery<TQueryFnData, DefaultError, TData>(
+      {
+        queryKey: [...queryKey, reactiveKeys],
+        queryFn: async ({ signal }) => {
+          const hasGuard = isPromise(guard);
+          const safeguard: Promise<void | boolean> = hasGuard
+            ? guard()
+            : Promise.resolve();
+          return safeguard.then(() =>
+            request<TQueryFnData>({
+              url,
+              sort: sort.value,
+              filters: filters.value,
+              withCurrency,
+              init: {
+                ...init,
+                signal // Pass the new signal to the request to allow cancellation
+              },
+              withAccessToken
+            }).then(response => {
+              if (isFunction(select)) return select(response.data!) as TData;
+              return response.data as TQueryFnData;
+            })
+          );
         },
-        queryClient
-      );
-    }
+        ...(options as any)
+      },
+      queryClient
+    );
   }
 
   /**
@@ -287,6 +286,8 @@ export const useQuery = () => {
     withAccessToken,
     ...options
   }: QueryParams<TQueryFnData, TData>) {
+    const { currencyCode } = useBasketCurrency();
+
     // --- state
 
     const limit = options?.pagination?.limit ?? PAGINATION.limit;
@@ -500,6 +501,8 @@ export const useQuery = () => {
     withAccessToken,
     ...options
   }: QueryParams<TQueryFnData, TData>) {
+    const { currencyCode } = useBasketCurrency();
+
     // --- state
 
     const limit = options?.pagination?.limit ?? PAGINATION.limit;
