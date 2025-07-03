@@ -7,43 +7,9 @@ import ajvErrors from "ajv-errors";
 // --- internal
 
 // --- utils
-import { compact, concat, defaultsDeep, get, reduce, set } from "lodash-es";
-import { parseError } from "./useError";
 
 // --- types
 import type { ErrorObject } from "ajv";
-
-// -----------------------------------------------------------------------------
-
-export const useValidationParser = (error: any): ErrorObject[] => {
-  if (error?.data) {
-    error.message = "Validation error";
-    error.data = compact(
-      reduce(
-        error?.data,
-        (result: ErrorObject[], value, key) => {
-          const parsed = parseError(value, key);
-          return concat(result, parsed);
-        },
-        []
-      )
-    );
-  }
-  return error;
-};
-
-export const useModelParser = (schema: JsonSchema, values: any) => {
-  const model = reduce(
-    schema?.properties,
-    (result, field, key) => {
-      const value = field?.const || get(values, key, field?.default);
-      set(result, key, value);
-      return result;
-    },
-    {}
-  );
-  return defaultsDeep(model, values);
-};
 
 // -----------------------------------------------------------------------------
 
