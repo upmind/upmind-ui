@@ -1,10 +1,7 @@
 <template>
   <div :class="styles.products.root">
     <nav :class="styles.products.facets.root" v-if="uiMeta?.catalog?.facet">
-      <CategoriesFacet
-        v-model="categoryId"
-        @category-selected="doSelectCategory"
-      />
+      <CategoriesFacet v-model="categoryId" />
     </nav>
     <main
       :class="styles.products.main.root"
@@ -26,7 +23,6 @@
           input-size="sm"
           aria-label="Search products"
           data-testid="product-search"
-          @input="doSearch"
         >
           <template #prepend>
             <Icon
@@ -38,11 +34,11 @@
         </InputExtended>
 
         <div class="w-full flex-shrink-0 md:w-auto">
+          <pre>{{ { sortBy, direction } }}</pre>
           <ProductSort
             items="Sortable"
-            :v-model="sorting"
-            @update:property="doSort($event)"
-            @update:direction="doSort(sorting?.property, $event)"
+            v-model:property="sortBy"
+            v-model:direction="direction"
           />
         </div>
       </div>
@@ -145,11 +141,12 @@ const categoryId = defineModel<ProductsProps["categoryId"]>("categoryId");
 
 const query = defineModel<ProductsProps["query"]>("query");
 
-const sorting = defineModel<ProductsProps["sort"]>("sort", {
-  default: {
-    property: ProductSortableProperties.DEFAULT,
-    direction: RequestSortDirection.ASC
-  }
+const sortBy = defineModel<ProductSortProps["property"]>("sort", {
+  default: ProductSortableProperties.DEFAULT
+});
+
+const direction = defineModel<ProductSortProps["direction"]>("direction", {
+  default: RequestSortDirection.ASC
 });
 
 // ---------------------------------------------------------------------------
@@ -204,28 +201,6 @@ const styles = useStyles(
   };
 }>;
 
-// --- methods
-
-const doSelectCategory = (value: string) => {
-  filters.productCategory(value);
-};
-
-const doSearch = (value: string) => {
-  filters.query(value);
-};
-
-const doSort = (
-  property?: ProductSortProps["property"],
-  direction?: RequestSortDirection
-) => {
-  sorting.value = {
-    property:
-      property ?? sorting.value?.property ?? ProductSortableProperties.DEFAULT,
-    direction: direction ?? sorting.value?.direction ?? RequestSortDirection.ASC
-  };
-  sort(sorting.value?.property, sorting.value?.direction);
-};
-
 //  --- side effects
 
 watch(
@@ -246,7 +221,7 @@ watch(categoryId, filters.productCategory, { immediate: true });
 
 watch(query, filters.query, { immediate: true });
 
-watch(sorting, value => sort(value?.property, value?.direction), {
-  immediate: true
-});
+watch(sortBy, value => sort(value, direction.value), { immediate: true });
+
+watch(direction, value => sort(sortBy.value, value), { immediate: true });
 </script>

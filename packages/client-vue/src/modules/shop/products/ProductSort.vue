@@ -6,7 +6,7 @@
       color="base"
       class="w-full"
       @click="toggleDirection"
-      :disabled="property == ProductSortableProperties.DEFAULT"
+      :disabled="isEmpty(property)"
     >
       <template #prepend>
         <Icon
@@ -43,6 +43,7 @@ import {
   ProductSortableProperties,
   RequestSortDirection
 } from "@upmind-automation/headless";
+import config from "../shop.config";
 
 // --- components
 import {
@@ -52,14 +53,13 @@ import {
   useStyles
 } from "@upmind-automation/upmind-ui";
 
-// --- config
-import config from "../shop.config";
+// --- utils
+import { find, isEmpty } from "lodash-es";
 
 // --- types
 import type { DropdownMenuItemProps } from "@upmind-automation/upmind-ui";
 import type { ProductSortProps } from "./types";
 import type { ComputedRef } from "vue";
-import { find } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
