@@ -85,7 +85,8 @@ export const useBrand = () => {
       "processing.config.complete",
       "processing.settings.complete",
       "processing.modules.complete",
-      "processing.currencies.complete"
+      "processing.currencies.complete",
+      "complete"
     ])
   }));
 
