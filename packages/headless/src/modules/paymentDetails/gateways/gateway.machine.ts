@@ -204,7 +204,7 @@ export default createMachine(
         error: (_context: GatewayContext, { data }: AnyEventObject) => {
           let error = mapToHeadlessError(data);
           if (error?.status == responseCodes.Unprocessable_Entity) {
-            error.data = useValidationParser(error.data);
+            error.data = useValidationParser(error);
           }
           return error;
         }

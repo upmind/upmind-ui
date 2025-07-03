@@ -13,7 +13,8 @@ import {
   useTime,
   useValidationParser,
   useModelParser,
-  mapToHeadlessError
+  mapToHeadlessError,
+  parseError
 } from "../../../utils";
 import { useSchema, useUischema } from "./utils";
 import { remove, xorBy, get, includes, isEmpty } from "lodash-es";
@@ -282,22 +283,14 @@ export default createMachine(
       setError: assign({
         error: (_context: PromotionsContext, { data }: AnyEventObject) => {
           let error = mapToHeadlessError(data);
-
-          if (
-            error &&
-            includes(
-              [responseCodes.Unprocessable_Entity, responseCodes.Conflict],
-              error?.code
-            )
-          ) {
+          if (error?.status == responseCodes.Unprocessable_Entity) {
             if (isEmpty(error?.data)) {
               // ensure we have a valid error object
-              error.data = { promocode: [error?.message] };
+              error.data = parseError(error?.message, "promocode");
+            } else {
+              error.data = useValidationParser(error);
             }
-
-            error.data = useValidationParser(error.data);
           }
-
           return error;
         }
       }),

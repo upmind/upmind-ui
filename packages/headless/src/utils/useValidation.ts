@@ -459,8 +459,8 @@ function isErrorObject(error: any): error is ErrorObject {
 
 export const useValidationParser = (error: ResponseError): ErrorObject[] => {
   //NB we may be given an error that is already an ErrorObject[] or a single ErrorObject
-  if (isErrorObject(error))
-    return isArray(error) ? error : ([error] as ErrorObject[]);
+  if (isErrorObject(error.data))
+    return isArray(error.data) ? error.data : ([error.data] as ErrorObject[]);
 
   return compact(
     reduce(
