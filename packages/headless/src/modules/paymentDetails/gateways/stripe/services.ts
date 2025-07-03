@@ -90,8 +90,6 @@ async function validate(
       });
     }
 
-    debugger;
-
     if (errors?.length) {
       reject(
         new DetailedError(

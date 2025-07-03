@@ -2,9 +2,9 @@
 import { useQuery } from "../..";
 
 // --- utils
-import { isNil, map } from "lodash-es";
+import { map } from "lodash-es";
 import { parseProduct } from "./mappers";
-import { CacheIsStaleError, useTime } from "../../utils";
+import { useTime } from "../../utils";
 
 // --- types
 import type { Product } from "../product";

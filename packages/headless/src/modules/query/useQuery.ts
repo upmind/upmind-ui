@@ -48,7 +48,8 @@ import type {
   RequestParams,
   MutationParams,
   InfiniteQueryPage,
-  QueryResponseError
+  QueryResponseError,
+  ReactiveQueryKeys
 } from "./types";
 import { Methods } from "@upmind-automation/types";
 import type { DefaultError } from "@tanstack/vue-query";
@@ -71,6 +72,7 @@ const queryClient = new QueryClient({
 
 export const useQuery = () => {
   const { locale } = useLocale();
+  const { currencyCode } = useBasketCurrency();
 
   /**
    * Sends a request with the given URL and options.
@@ -92,6 +94,7 @@ export const useQuery = () => {
     sort,
     filters,
     pagination,
+    withCurrency,
     // ---
     init,
     withAccessToken
@@ -139,6 +142,11 @@ export const useQuery = () => {
     // set "lang" parameter
     if (!isEmpty(locale.value))
       url.searchParams.set("lang", locale.value as string);
+
+    // set "currency" parameter
+    if (withCurrency && !isEmpty(currencyCode.value)) {
+      url.searchParams.set("currency_code", currencyCode.value as string);
+    }
 
     // Enforce Method (default to GET)
     set(init, "method", get(init, "method", Methods.GET).toUpperCase());
@@ -210,7 +218,6 @@ export const useQuery = () => {
   }: Omit<QueryParams<TQueryFnData, TData>, "pagination">) {
     /* TODO: MAYBE omit the pagination/sort and filter query params */ {
       // --- state
-      const { currentCurrency: currency } = useBasketCurrency();
 
       const filters = ref<QueryParams["filters"]>({
         ...(options?.filters ?? {})
@@ -218,28 +225,15 @@ export const useQuery = () => {
 
       const sort = ref(options?.sort);
 
-      // --- watchers
-
-      watch(currency, newCurrency => {
-        // Update the filters when the currency changes
-        filters.value = {
-          ...filters.value,
-          currency: newCurrency
-        };
-      });
-
       // --- query
+      const reactiveKeys: ReactiveQueryKeys = { locale };
+      if (sort.value) reactiveKeys.sort = sort;
+      if (filters.value) reactiveKeys.filters = filters;
+      if (withCurrency) reactiveKeys.currencyCode = currencyCode;
+
       return vueUseQuery<TQueryFnData, DefaultError, TData>(
         {
-          queryKey: [
-            ...queryKey,
-            {
-              sort,
-              locale,
-              filters,
-              currency
-            }
-          ],
+          queryKey: [...queryKey, reactiveKeys],
           queryFn: async ({ signal }) => {
             const hasGuard = isPromise(guard);
             const safeguard: Promise<void | boolean> = hasGuard
@@ -248,6 +242,9 @@ export const useQuery = () => {
             return safeguard.then(() =>
               request<TQueryFnData>({
                 url,
+                sort: sort.value,
+                filters: filters.value,
+                withCurrency,
                 init: {
                   ...init,
                   signal // Pass the new signal to the request to allow cancellation
@@ -291,7 +288,6 @@ export const useQuery = () => {
     ...options
   }: QueryParams<TQueryFnData, TData>) {
     // --- state
-    const { currentCurrency: currency } = useBasketCurrency();
 
     const limit = options?.pagination?.limit ?? PAGINATION.limit;
     const offset = options?.pagination?.offset ?? PAGINATION.offset;
@@ -301,17 +297,13 @@ export const useQuery = () => {
       ...(options?.filters ?? {})
     });
 
-    // --- watchers
-
-    watch(currency, newCurrency => {
-      // Update the filters when the currency changes
-      filters.value = {
-        ...filters.value,
-        currency: newCurrency
-      };
-    });
-
     // --- query
+    const reactiveKeys: ReactiveQueryKeys = { locale };
+    if (sort.value) reactiveKeys.sort = sort;
+    if (limit) reactiveKeys.limit = limit;
+    if (limit) reactiveKeys.pageIndex = pageIndex;
+    if (filters.value) reactiveKeys.filters = filters;
+    if (withCurrency) reactiveKeys.currencyCode = currencyCode;
 
     const response = vueUseQuery<
       TQueryFnData,
@@ -319,17 +311,7 @@ export const useQuery = () => {
       QueryResponse<TData>
     >(
       {
-        queryKey: [
-          ...queryKey,
-          {
-            sort,
-            limit,
-            locale,
-            filters,
-            pageIndex,
-            currency
-          }
-        ],
+        queryKey: [...queryKey, reactiveKeys],
         queryFn: async ({ signal }) => {
           const hasGuard = isPromise(guard);
           const safeguard: Promise<void | boolean> = hasGuard
@@ -341,6 +323,7 @@ export const useQuery = () => {
               sort: sort.value,
               filters: filters.value,
               pagination: { limit, offset: (pageIndex.value - 1) * limit },
+              withCurrency,
               init: {
                 ...init,
                 signal // Pass the new signal to the request to allow cancellation
@@ -488,17 +471,7 @@ export const useQuery = () => {
       resetQuery: () => {
         pageIndex.value = 1;
         return queryClient.resetQueries({
-          queryKey: [
-            ...queryKey,
-            {
-              sort,
-              limit,
-              locale,
-              filters,
-              pageIndex,
-              currency
-            }
-          ]
+          queryKey: [...queryKey, reactiveKeys]
         });
       }
     };
@@ -528,7 +501,6 @@ export const useQuery = () => {
     ...options
   }: QueryParams<TQueryFnData, TData>) {
     // --- state
-    const { currentCurrency: currency } = useBasketCurrency();
 
     const limit = options?.pagination?.limit ?? PAGINATION.limit;
     const sort = ref(options?.sort);
@@ -541,21 +513,16 @@ export const useQuery = () => {
       ...(options?.filters ?? {})
     });
 
-    // --- watchers
-
-    watch(currency, newCurrency => {
-      // Update the filters when the currency changes
-      filters.value = {
-        ...filters.value,
-        currency: newCurrency
-      };
-    });
-
     // --- query
+    const reactiveKeys: ReactiveQueryKeys = { locale };
+    if (sort.value) reactiveKeys.sort = sort;
+    if (limit) reactiveKeys.limit = limit;
+    if (filters.value) reactiveKeys.filters = filters;
+    if (withCurrency) reactiveKeys.currencyCode = currencyCode;
 
     const response = vueUseInfiniteQuery<TQueryFnData, DefaultError, TData>(
       {
-        queryKey: [...queryKey, { sort, limit, locale, filters, currency }],
+        queryKey: [...queryKey, reactiveKeys],
         queryFn: async ({ pageParam = 0, signal }) => {
           const offset = toNumber(pageParam);
           const hasGuard = isPromise(guard);
@@ -568,6 +535,7 @@ export const useQuery = () => {
               sort: sort.value,
               filters: filters.value,
               pagination: { limit, offset },
+              withCurrency,
               init: {
                 ...init,
                 signal // Pass the new signal to the request to allow cancellation
@@ -654,7 +622,7 @@ export const useQuery = () => {
 
       resetQuery: () =>
         queryClient.resetQueries({
-          queryKey: [...queryKey, { sort, limit, locale, filters, currency }]
+          queryKey: [...queryKey, reactiveKeys]
         })
     };
   }
@@ -720,6 +688,7 @@ export const useQuery = () => {
     select,
     queryKey,
     withAccessToken,
+    withCurrency,
     ...options
   }: Omit<QueryParams<TQueryFnData, TData>, "pagination">): Promise<TData> {
     // Remove initialData from options before spreading, as it's not part of FetchQueryOptions
@@ -728,6 +697,7 @@ export const useQuery = () => {
     const sort = options?.sort;
     const filters = options?.filters;
 
+    // --- query
     return queryClient.fetchQuery<TQueryFnData, DefaultError, TData>({
       queryKey: cleanQueryKey([...queryKey, { locale, sort, filters }]),
       queryFn: async ({ signal }) => {

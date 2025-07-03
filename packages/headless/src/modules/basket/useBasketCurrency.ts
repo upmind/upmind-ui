@@ -74,10 +74,8 @@ export const useBasketCurrency = () => {
     actor,
     "currencies"
   );
-  const currentCurrency = useContext<CurrencyModel["code"]>(
-    actor,
-    "model.code"
-  );
+  const currencyCode = useContext<CurrencyModel["code"]>(actor, "model.code");
+  const currencyId = useContext<CurrencyModel["id"]>(actor, "model.id");
 
   // --- methods
 
@@ -178,7 +176,9 @@ export const useBasketCurrency = () => {
      * The current currency code.
      * @type {string | undefined} The current currency code or undefined if not set.
      */
-    currentCurrency,
+    currencyCode,
+
+    currencyId,
 
     // --- context
 

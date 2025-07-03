@@ -115,18 +115,18 @@ export const useProductCatalogue = (
 
   const filters = ref<
     RequestFilters & {
-      query: string;
-      currency: string;
       "filter[products_category_id]": string;
+      currency_code: string;
       id: string[];
       promotions: string[];
+      query: string;
     }
   >({
+    "filter[products_category_id]": "",
+    currency_code: "",
     id: [],
-    query: "",
-    currency: "",
     promotions: [],
-    "filter[products_category_id]": ""
+    query: ""
   });
 
   const filterQuery = debounce((value?: string) => {
@@ -135,7 +135,7 @@ export const useProductCatalogue = (
   }, DEBOUNCE_DELAY);
 
   const filterCurrency = (value?: ICurrency["code"]) => {
-    set(filters.value, "currency", value || "");
+    set(filters.value, "currency_code", value || "");
     query.filter(filters.value);
   };
 

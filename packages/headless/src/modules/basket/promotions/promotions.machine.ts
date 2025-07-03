@@ -284,6 +284,7 @@ export default createMachine(
           let error = mapToHeadlessError(data);
 
           if (
+            error &&
             includes(
               [responseCodes.Unprocessable_Entity, responseCodes.Conflict],
               error?.code
