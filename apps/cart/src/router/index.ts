@@ -33,10 +33,7 @@ const router = createRouter({
       path: "/",
       name: ROUTE.LOADING,
       alias: ["/loading"],
-      component: () => UpmLoadingView,
-      props: {
-        modal: true
-      }
+      component: () => UpmLoadingView
     },
 
     {
@@ -101,10 +98,7 @@ const router = createRouter({
     {
       path: "/auth/transfer",
       name: ROUTE.SESSION_TRANSFER,
-      component: () => UpmLoadingView,
-      props: {
-        modal: true
-      }
+      component: () => UpmLoadingView
     },
     {
       path: "/auth/recover",
