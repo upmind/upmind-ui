@@ -9,22 +9,19 @@ import { useClientAddress, useClientAddresses } from "src/modules/client";
 
 // -----------------------------------------------------------------------------
 
-export const useSchema = ({ model, config }: BillingContext) => {
+export const useSchema = ({ config }: BillingContext) => {
   const schema: JsonSchema = {
     type: "object",
     required: [] as string[],
     properties: {
       addressId: {
-        type: "string",
-        default: model?.addressId || null
+        type: "string"
       },
       companyId: {
-        type: "string",
-        default: model?.companyId || null
+        type: "string"
       },
       phoneId: {
-        type: "string",
-        default: model?.phoneId || null
+        type: "string"
       }
     }
   };

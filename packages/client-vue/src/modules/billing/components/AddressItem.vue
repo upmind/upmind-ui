@@ -1,6 +1,8 @@
 <template>
   <div class="flex w-full flex-col gap-y-1">
-    <header class="flex w-full items-start justify-between">
+    <header
+      class="pointer-events-none flex w-full !cursor-pointer items-start justify-between"
+    >
       <h3 class="m-0 flex items-center gap-x-2 text-sm font-semibold">
         {{ title }}
         <Badge
@@ -18,7 +20,7 @@
         variant="muted"
         tabindex="-1"
         @mousedown.stop.prevent
-        class="h-4"
+        class="pointer-events-auto h-4"
         @click.stop.prevent="doEdit"
       />
     </header>

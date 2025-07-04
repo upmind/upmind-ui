@@ -75,19 +75,7 @@ export const useBrand = () => {
     ]),
     isComplete: stateMatches(state, "complete"),
     isLoading: stateMatches(state, "processing"),
-    isAvailable: stateMatches(state, [
-      "processing.organisation.idle",
-      "processing.config.idle",
-      "processing.settings.idle",
-      "processing.modules.idle",
-      "processing.currencies.idle",
-      "processing.organisation.complete",
-      "processing.config.complete",
-      "processing.settings.complete",
-      "processing.modules.complete",
-      "processing.currencies.complete",
-      "complete"
-    ])
+    isAvailable: contextMatches(state, ["name"]) // we are available if we have a name in the context
   }));
 
   // --- context

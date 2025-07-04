@@ -4,11 +4,12 @@
     v-model:open="open"
     v-model="modelValue"
     :items="parsedValues"
+    :minimal="props.minimal"
     :list="false"
     required
   >
     <template #item="{ item }">
-      <slot name="item" :item="item">
+      <slot name="item" v-bind="{ item, readonly, doEdit, doRemove }">
         <Item
           v-bind="item"
           :i18nKey="i18nKey"
@@ -68,6 +69,7 @@ const props = defineProps<{
   modelValue?: string;
   readonly?: boolean;
   open?: boolean;
+  minimal?: boolean; // if true, the component will not show the actions and will not be collapsible
 }>();
 
 const emits = defineEmits<{

@@ -6,11 +6,12 @@
       v-model:open="open"
       v-model="modelValue"
       :readonly="props.readonly"
+      :minimal="props.minimal"
       @add="doAdd"
       @edit="doEdit"
     >
-      <template #item="{ item }">
-        <slot name="item" :item="item"> </slot>
+      <template name="item" #item="{ item, readonly, doEdit, doRemove }">
+        <slot name="item" v-bind="{ item, readonly, doEdit, doRemove }"></slot>
       </template>
 
       <template #actions="{ open, meta, doAdd }">
@@ -54,10 +55,11 @@ const props = defineProps<{
   i18nKey?: string; // the i18n key to use for the actions
   modelValue?: string;
   readonly?: boolean;
+  minimal?: boolean;
 }>();
 
 const emits = defineEmits<{
-  (e: "update:modelValue", value: string): void;
+  (e: "update:modelValue", value: any): void; // return the full <T> of the Mutate composable
 }>();
 
 // -----------------------------------------------------------------------------
