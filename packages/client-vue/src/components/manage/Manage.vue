@@ -47,16 +47,27 @@ import { Loading } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { ManageRendererProps } from "./types";
+import { get } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
-const props = defineProps<{
-  manage: ManageRendererProps; // the manage composable that contains the list and mutate composables
-  i18nKey?: string; // the i18n key to use for the actions
-  modelValue?: string;
-  readonly?: boolean;
-  minimal?: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    manage: ManageRendererProps; // the manage composable that contains the list and mutate composables
+    i18nKey?: string; // the i18n key to use for the actions
+    modelValue?: string;
+    readonly?: boolean;
+    minimal?: boolean;
+    identifier?: string; // optional property to use for the list/model to  identify the item, defaults to "id"
+  }>(),
+  {
+    i18nKey: "manage",
+    modelValue: "",
+    readonly: false,
+    minimal: false,
+    identifier: "id"
+  }
+);
 
 const emits = defineEmits<{
   (e: "update:modelValue", value: any): void; // return the full <T> of the Mutate composable
@@ -81,8 +92,8 @@ function doReject() {
   editId.value = "";
 }
 
-function doResolve(value?: string) {
-  modelValue.value = value;
+function doResolve(value?: any) {
+  modelValue.value = get(value, props.identifier, value);
   openModel.value = false;
   open.value = false;
   editId.value = "";
