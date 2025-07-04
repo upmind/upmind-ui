@@ -7,6 +7,7 @@
       open
       :modal="false"
       @resolve="doResolve"
+      :modelValue="UnifiedType.BUSINESS"
     />
 
     <template v-else>
@@ -75,7 +76,7 @@ import Form from "../../../components/manage/Form.vue";
 import { find, set } from "lodash-es";
 
 // --- types
-
+import { UnifiedType } from "@upmind-automation/headless";
 import type { BillingModel, Phone } from "@upmind-automation/headless";
 import CompanyItem from "./CompanyItem.vue";
 import PhoneItem from "./PhoneItem.vue";
