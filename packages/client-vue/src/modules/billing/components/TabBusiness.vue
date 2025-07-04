@@ -2,7 +2,7 @@
   <Loading :active="meta.isLoading" class="w-full">
     <Form
       v-if="meta.isEmpty"
-      i18nKey="client.address"
+      i18nKey="client.company"
       :useMutate="useUnifiedBillingDetail"
       open
       :modal="false"
@@ -11,7 +11,7 @@
 
     <template v-else>
       <Manage
-        i18n-key="client.address"
+        i18n-key="client.company"
         v-model="selectedCompany"
         :manage="{
           useList: useClientCompanies,
