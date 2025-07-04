@@ -19,7 +19,7 @@
           v-for="product in products ?? Array(skeletonCount)"
           :key="product?.id ?? product"
         >
-          <UpmCard>
+          <Card>
             <template v-if="product?.productDetails">
               <img
                 v-if="product?.productDetails.imgUrl"
@@ -33,7 +33,7 @@
                 Price: {{ product.price.currentPrice }}
               </p>
             </template>
-          </UpmCard>
+          </Card>
         </template>
       </div>
     </Loading>
@@ -85,8 +85,7 @@ import {
   IProductCategory,
   type ISO_4217_CURRENCY_CODE
 } from "@upmind-automation/types";
-import { UpmCard } from "@upmind-automation/client-vue";
-import { Button, Loading } from "@upmind-automation/upmind-ui";
+import { Button, Loading, Card } from "@upmind-automation/upmind-ui";
 
 const props = withDefaults(
   defineProps<{

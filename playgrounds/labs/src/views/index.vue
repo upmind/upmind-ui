@@ -16,9 +16,11 @@
                 Test the Google Places API for address search
               </p>
             </div>
-            <Button @click="router.push({ name: 'places' })" color="primary">
-              <Icon icon="arrow-right" size="xs" />
-            </Button>
+            <RouterLink :to="{ name: 'places' }">
+              <Button color="primary">
+                <Icon icon="arrow-right" size="xs" />
+              </Button>
+            </RouterLink>
           </div>
         </div>
 
@@ -32,9 +34,11 @@
                 <h5 class="font-medium">Client Addresses</h5>
                 <p class="mt-1 text-gray-600">Manage client address data</p>
               </div>
-              <Button @click="router.push({ name: 'client.addresses' })">
-                <Icon icon="arrow-right" size="xs" />
-              </Button>
+              <RouterLink :to="{ name: 'client.addresses' }">
+                <Button>
+                  <Icon icon="arrow-right" size="xs" />
+                </Button>
+              </RouterLink>
             </div>
 
             <div class="flex items-center justify-between border-b">
@@ -42,9 +46,11 @@
                 <h5 class="font-medium">Client Phone Numbers</h5>
                 <p class="mt-1 text-gray-600">Manage client phone numbers</p>
               </div>
-              <Button @click="router.push({ name: 'client.phones' })">
-                <Icon icon="arrow-right" size="xs" />
-              </Button>
+              <RouterLink :to="{ name: 'client.phones' }">
+                <Button>
+                  <Icon icon="arrow-right" size="xs" />
+                </Button>
+              </RouterLink>
             </div>
 
             <div class="flex items-center justify-between border-b">
@@ -52,9 +58,11 @@
                 <h5 class="font-medium">Client Emails</h5>
                 <p class="mt-1 text-gray-600">Manage client email addresses</p>
               </div>
-              <Button @click="router.push({ name: 'client.emails' })">
-                <Icon icon="arrow-right" size="xs" />
-              </Button>
+              <RouterLink :to="{ name: 'client.emails' }">
+                <Button>
+                  <Icon icon="arrow-right" size="xs" />
+                </Button>
+              </RouterLink>
             </div>
 
             <div class="flex items-center justify-between border-b">
@@ -62,9 +70,11 @@
                 <h5 class="font-medium">Client Companies</h5>
                 <p class="mt-1 text-gray-600">Manage client company data</p>
               </div>
-              <Button @click="router.push({ name: 'client.companies' })">
-                <Icon icon="arrow-right" size="xs" />
-              </Button>
+              <RouterLink :to="{ name: 'client.companies' }">
+                <Button>
+                  <Icon icon="arrow-right" size="xs" />
+                </Button>
+              </RouterLink>
             </div>
           </div>
         </div>
@@ -75,12 +85,14 @@
 
           <div class="flex items-center justify-between border-b">
             <div>
-              <h5 class="font-medium">Basket Billing</h5>
-              <p class="mt-1 text-gray-600">Manage basket billing details</p>
+              <h5 class="font-medium">Checkout Billing</h5>
+              <p class="mt-1 text-gray-600">Manage checkout billing details</p>
             </div>
-            <Button @click="router.push({ name: 'basket.billing' })">
-              <Icon icon="arrow-right" size="xs" />
-            </Button>
+            <RouterLink :to="{ name: 'billing' }">
+              <Button color="primary">
+                <Icon icon="arrow-right" size="xs" />
+              </Button>
+            </RouterLink>
           </div>
         </div>
 
@@ -95,9 +107,11 @@
                 Browse and test the products catalogue API
               </p>
             </div>
-            <Button @click="router.push({ name: 'products.catalogue' })">
-              <Icon icon="arrow-right" size="xs" />
-            </Button>
+            <RouterLink :to="{ name: 'products.catalogue' }">
+              <Button>
+                <Icon icon="arrow-right" size="xs" />
+              </Button>
+            </RouterLink>
           </div>
         </div>
       </div>
@@ -106,13 +120,7 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
-import { useRouter } from "vue-router";
-
 // --- components
 import { Button, Icon } from "@upmind-automation/upmind-ui";
 import { UpmContentSection } from "@upmind-automation/client-vue";
-
-const router = useRouter();
-// -----------------------------------------------------------------------------
 </script>

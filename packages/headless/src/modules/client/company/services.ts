@@ -330,31 +330,18 @@ async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
         ? data.address
         : { id: data?.addressId }) as AddressModel
     })
-  ])
-    .then(([email, phone, address]) => {
-      return {
-        id: data.id,
-        addressId: address.id,
-        phoneId: phone.id,
-        emailId: email.id,
-        name: data.name,
-        regNumber: data.regNumber,
-        vatNumber: data.vatNumber,
-        default: data.default
-      };
-    })
-    .catch(error => {
-      return Promise.reject(
-        new DetailedError(
-          error?.message ?? "Ensure Company dependencies failed",
-          error?.code ??
-            error?.statusCode ??
-            responseCodes.Unprocessable_Entity,
-          error?.origin ?? ErrorOrigin.Headless,
-          { error }
-        )
-      );
-    });
+  ]).then(([email, phone, address]) => {
+    return {
+      id: data.id,
+      addressId: address.id,
+      phoneId: phone.id,
+      emailId: email.id,
+      name: data.name,
+      regNumber: data.regNumber,
+      vatNumber: data.vatNumber,
+      default: data.default
+    };
+  });
 }
 
 async function parse(

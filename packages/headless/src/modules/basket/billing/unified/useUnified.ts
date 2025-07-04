@@ -6,8 +6,8 @@ import { useActor } from "@xstate/vue";
 
 // --- internal
 import itemMachine from "../../../client/item.machine";
-import { useUnifiedAddressActions, useUnifiedAddressGuards } from "./actions";
-import { useUnifiedAddressServices } from "./services";
+import { useUnifiedActions, useUnifiedGuards } from "./actions";
+import { useUnifiedServices } from "./services";
 import { useSession } from "../../../session";
 
 // --- utils
@@ -30,21 +30,30 @@ import { debounce, get, isEmpty, isEqual } from "lodash-es";
 // --- types
 import type { IClient } from "@upmind-automation/types";
 import type { BillingModel } from "../types";
-import { UnifiedAddressType } from "./types";
-import type { UnifiedAddressModel, UnifiedAddressContext } from "./types";
+import { UnifiedType } from "./types";
+import type { UnifiedModel, UnifiedContext } from "./types";
 
 // -----------------------------------------------------------------------------
 
-export const useUnifiedAddress = (
-  type: UnifiedAddressContext["type"] = UnifiedAddressType.PERSONAL,
+/**
+ * A composable that provides a unified interface for managing billing details.
+ * It allows for the creation of personal or company billing details, including phones and addresses.
+ * It uses a state machine to manage the state and actions related to billing details.
+ * @param {UnifiedContext["type"]} type - The type of billing detail to create, either personal or company.
+ * @param {Object} options - Optional parameters.
+ * @param {IClient["id"]} options.clientId - The ID of the client for which the billing detail is being created.
+ * @returns {UseUnified} An object containing methods
+ */
+export const useUnified = (
+  type: UnifiedContext["type"] = UnifiedType.PERSONAL,
   { clientId }: { clientId?: IClient["id"] } = {}
 ) => {
   const service = interpret(
     itemMachine
       .withConfig({
-        actions: useUnifiedAddressActions() as any,
-        guards: useUnifiedAddressGuards() as any,
-        services: useUnifiedAddressServices() as any
+        actions: useUnifiedActions() as any,
+        guards: useUnifiedGuards() as any,
+        services: useUnifiedServices() as any
       })
       .withContext(() => {
         return {
@@ -92,19 +101,13 @@ export const useUnifiedAddress = (
   }));
 
   // --- context
-  const context = useContext<UnifiedAddressContext>(state);
+  const context = useContext<UnifiedContext>(state);
 
-  const addresses = useContext<UnifiedAddressContext["addresses"]>(
-    state,
-    "addresses"
-  );
+  const addresses = useContext<UnifiedContext["addresses"]>(state, "addresses");
 
-  const companies = useContext<UnifiedAddressContext["companies"]>(
-    state,
-    "companies"
-  );
+  const companies = useContext<UnifiedContext["companies"]>(state, "companies");
 
-  const phones = useContext<UnifiedAddressContext["phones"]>(state, "phones");
+  const phones = useContext<UnifiedContext["phones"]>(state, "phones");
 
   const title = useContext<string | undefined>(state, "title");
 
@@ -114,26 +117,21 @@ export const useUnifiedAddress = (
 
   const validationErrors = useContext<ErrorObject[]>(state, "error.data");
 
-  const model = useContext<UnifiedAddressContext["model"]>(state, "model");
+  const model = useContext<UnifiedContext["model"]>(state, "model");
 
-  const schema = useContext<UnifiedAddressContext["schema"]>(state, "schema");
+  const schema = useContext<UnifiedContext["schema"]>(state, "schema");
 
-  const uischema = useContext<UnifiedAddressContext["uischema"]>(
-    state,
-    "uischema"
-  );
+  const uischema = useContext<UnifiedContext["uischema"]>(state, "uischema");
 
   // --- methods
 
-  async function input(
-    model: UnifiedAddressModel
-  ): Promise<UnifiedAddressModel> {
+  async function input(model: UnifiedModel): Promise<UnifiedModel> {
     send({ type: "SET", data: model });
     // then we wait until the module has been checked and is valid/invalid
     return waitFor(service, state =>
       stateMatches(state, ["available.valid", "available.invalid"])
     )
-      .then(state => get(state, "context.model") as UnifiedAddressModel)
+      .then(state => get(state, "context.model") as UnifiedModel)
       .catch(() => {
         return Promise.reject(
           new DetailedError(
@@ -145,12 +143,10 @@ export const useUnifiedAddress = (
       });
   }
 
-  async function update(
-    value?: UnifiedAddressModel
-  ): Promise<UnifiedAddressModel> {
+  async function update(value?: UnifiedModel): Promise<UnifiedModel> {
     // first check if our model has changed, if it has we need to send it
 
-    const model = contextValue<UnifiedAddressModel>(state, "model");
+    const model = contextValue<UnifiedModel>(state, "model");
 
     if (!isEmpty(value) && !isEqual(value, model)) {
       send({ type: "SET", data: value, update: true });
@@ -202,7 +198,7 @@ export const useUnifiedAddress = (
 
     /**
      * Meta-information about the state.
-     * @type {Object} UnifiedAddressMeta
+     * @type {Object} UnifiedMeta
      * @property {boolean} isAvailable - Indicates if the actor is available.
      * @property {boolean} isLoading - Indicates if the actor is loading.
      * @property {boolean} hasErrors - Indicates if there are errors.
@@ -262,19 +258,19 @@ export const useUnifiedAddress = (
 
     /**
      * Inputs a new model, resolving to the updated model., this is debounced to avoid excessive calls.
-     * @param {UnifiedAddressModel} value The model to input.
-     * @returns {Promise<UnifiedAddressModel>} The updated model.
+     * @param {UnifiedModel} value The model to input.
+     * @returns {Promise<UnifiedModel>} The updated model.
      */
     input: debounce(input, DEBOUNCE_DELAY),
 
     /**
      * Sends the current model to the service for processing.
-     * @param {UnifiedAddressModel} value The optional new model to set. uses the current model if not provided.
-     * @returns {Promise<UnifiedAddressModel>} Resolves when updated model from the service, rejects on error.
+     * @param {UnifiedModel} value The optional new model to set. uses the current model if not provided.
+     * @returns {Promise<UnifiedModel>} Resolves when updated model from the service, rejects on error.
      */
     update
   };
 };
 
 /** The return type of the composable.*/
-export type UseUnifiedAddress = ReturnType<typeof useUnifiedAddress>;
+export type UseUnified = ReturnType<typeof useUnified>;

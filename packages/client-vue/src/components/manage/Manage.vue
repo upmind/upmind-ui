@@ -8,7 +8,15 @@
       :readonly="props.readonly"
       @add="doAdd"
       @edit="doEdit"
-    />
+    >
+      <template #item="{ item }">
+        <slot name="item" :item="item"> </slot>
+      </template>
+
+      <template #actions="{ open, meta, doAdd }">
+        <slot name="actions" v-bind="{ open, meta, doAdd }"></slot>
+      </template>
+    </List>
 
     <Form
       v-if="openModel"

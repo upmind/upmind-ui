@@ -22,7 +22,7 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import {
-  UnifiedAddressType,
+  UnifiedType,
   useSession,
   useBasketBilling
 } from "@upmind-automation/headless";
@@ -60,15 +60,15 @@ const { t } = useI18n();
 const { user } = useSession();
 const { isReady, meta, config, update, model } = useBasketBilling();
 
-const activeTab = ref<UnifiedAddressType>();
+const activeTab = ref<UnifiedType>();
 
 await isReady().then(() => {
   // set initial value from the basket billing model
   modelValue.value ??= model.value;
 
   if (config.value?.requiresCompany || model.value?.companyId)
-    activeTab.value = UnifiedAddressType.BUSINESS;
-  else activeTab.value = UnifiedAddressType.PERSONAL;
+    activeTab.value = UnifiedType.BUSINESS;
+  else activeTab.value = UnifiedType.PERSONAL;
 });
 
 const tabs = computed((): TabItem[] => {
@@ -79,21 +79,21 @@ const tabs = computed((): TabItem[] => {
   if (!config.value?.requiresCompany) {
     tabItems.push({
       label: t("billing.personal"),
-      value: UnifiedAddressType.PERSONAL,
+      value: UnifiedType.PERSONAL,
       eager: false
     });
   }
   tabItems.push({
     label: t("billing.business"),
-    value: UnifiedAddressType.BUSINESS,
+    value: UnifiedType.BUSINESS,
     eager: !!config.value?.requiresCompany
   });
 
   return tabItems;
 });
 
-const defaultTab = computed((): UnifiedAddressType => {
-  if (config.value?.requiresCompany) return UnifiedAddressType.BUSINESS;
-  return UnifiedAddressType.PERSONAL;
+const defaultTab = computed((): UnifiedType => {
+  if (config.value?.requiresCompany) return UnifiedType.BUSINESS;
+  return UnifiedType.PERSONAL;
 });
 </script>

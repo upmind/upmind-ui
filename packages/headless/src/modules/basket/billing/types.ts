@@ -6,7 +6,7 @@ import type { IBasket } from "@upmind-automation/types";
 import type { ResponseError } from "../../../utils";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
-export { UnifiedAddressType } from "./unifiedAddress/types";
+export { UnifiedType } from "./unified/types";
 // --- internal
 
 // -----------------------------------------------------------------------------

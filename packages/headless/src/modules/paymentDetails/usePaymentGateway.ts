@@ -135,7 +135,7 @@ export const usePaymentGateway = (actor: ComputedRef<Actor | undefined>) => {
               error?.statusCode ??
               responseCodes.Unprocessable_Entity,
             error?.origin ?? ErrorOrigin.Headless,
-            { error }
+            error?.data ?? error
           )
         );
       });

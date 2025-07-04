@@ -194,7 +194,7 @@ export const useClientAddress = (
 
     /**
      * Meta-information about the state.
-     * @type {Object} UnifiedAddressMeta
+     * @type {Object} UnifiedMeta
      * @property {boolean} isAvailable - Indicates if the actor is available.
      * @property {boolean} isLoading - Indicates if the actor is loading.
      * @property {boolean} hasErrors - Indicates if there are errors.

@@ -13,20 +13,19 @@ import type { ICountry, IRegion } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
-export enum UnifiedAddressType {
+export enum UnifiedType {
   PERSONAL = "personal",
   BUSINESS = "business"
 }
 
-export type UnifiedAddressModel = {
+export type UnifiedModel = {
   address?: AddressModel;
   company?: CompanyModel;
   phone?: PhoneModel;
 };
 
-export interface UnifiedAddressContext
-  extends ClientItemContext<UnifiedAddressModel> {
-  type: UnifiedAddressType;
+export interface UnifiedContext extends ClientItemContext<UnifiedModel> {
+  type: UnifiedType;
   // --- lookups
   country?: ICountry;
   regions?: IRegion[];
