@@ -72,6 +72,7 @@ const props = defineProps<{
   readonly?: boolean;
   open?: boolean;
   modal?: boolean;
+  options?: Record<string, any>; // additional options for the mutation composable
 }>();
 
 const emits = defineEmits<{
@@ -97,7 +98,7 @@ const {
   stop,
   errors,
   validationErrors
-} = props.useMutate(props.modelValue);
+} = props.useMutate(props.modelValue, props.options);
 
 const doResolve = async () => {
   update()
