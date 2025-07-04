@@ -38,6 +38,7 @@ export const useClientAddresses = (
   const { findOne, getOne, getDefault } = useCollection<Address>(query.data);
 
   async function isReady(): Promise<boolean> {
+    if (sessionMeta.value.isAuthenticated) return Promise.resolve(true);
     return isAuthenticated()
       .then(() => query.refetch().then(() => true))
       .catch(() => false);

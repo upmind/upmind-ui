@@ -54,8 +54,8 @@ async function load() {
         }
       }),
     // --- options
-    select: mapAddresses,
-    staleTime: useTime().DAY
+    select: mapAddresses
+    // staleTime: useTime().DAY
   });
 }
 

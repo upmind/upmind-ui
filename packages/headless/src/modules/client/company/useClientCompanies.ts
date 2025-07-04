@@ -38,6 +38,7 @@ export const useClientCompanies = (
   const { findOne, getOne, getDefault } = useCollection<Company>(query.data);
 
   async function isReady(): Promise<boolean> {
+    if (sessionMeta.value.isAuthenticated) return Promise.resolve(true);
     return isAuthenticated()
       .then(() => query.refetch().then(() => true))
       .catch(() => false);

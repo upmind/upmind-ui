@@ -19,7 +19,7 @@
     </List>
 
     <Form
-      v-if="openModel"
+      v-if="openModel || meta.isEmpty"
       :i18nKey="i18nKey"
       :useMutate="manage.useMutate"
       v-model:open="openModel"
@@ -69,8 +69,10 @@ const modelValue = useVModel(props, "modelValue", emits, {
 
 // -----------------------------------------------------------------------------
 const open = ref(false);
-const openModel = ref(meta.value.isEmpty);
+const openModel = ref(false);
 const editId = ref<string | undefined>();
+
+// --- methods
 
 function doReject() {
   openModel.value = false;
@@ -93,4 +95,6 @@ function doEdit(id: string) {
   openModel.value = true;
   editId.value = id;
 }
+
+// --- side effects
 </script>
