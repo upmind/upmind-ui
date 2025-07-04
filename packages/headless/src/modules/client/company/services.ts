@@ -195,7 +195,6 @@ async function update(id: Company["id"], data: CompanyModel) {
   if (!meta.value.isAuthenticated || !user.value?.id) {
     return Promise.reject(new NotAuthenticatedError());
   }
-
   return ensureDependencies(data).then(ensuredData => {
     return put<ICompany>({
       url: useUrl(`clients/${user.value?.id}/companies/${id}`),
@@ -322,7 +321,7 @@ async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
     ensurePhone({
       model: (data?.phone
         ? { phone: data.phone }
-        : { id: data?.addressId }) as PhoneModel
+        : { id: data?.phoneId }) as PhoneModel
     }),
 
     ensureAddress({
@@ -330,18 +329,27 @@ async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
         ? data.address
         : { id: data?.addressId }) as AddressModel
     })
-  ]).then(([email, phone, address]) => {
-    return {
-      id: data.id,
-      addressId: address.id,
-      phoneId: phone.id,
-      emailId: email.id,
-      name: data.name,
-      regNumber: data.regNumber,
-      vatNumber: data.vatNumber,
-      default: data.default
-    };
-  });
+  ])
+    .then(([email, phone, address]) => {
+      return {
+        id: data.id,
+        addressId: address.id,
+        phoneId: phone.id,
+        emailId: email.id,
+        name: data.name,
+        regNumber: data.regNumber,
+        vatNumber: data.vatNumber,
+        default: data.default
+      };
+    })
+    .catch(errors => {
+      throw new DetailedError(
+        "Ensure Company dependencies failed",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless,
+        errors
+      );
+    });
 }
 
 async function parse(
