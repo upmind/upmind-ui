@@ -129,7 +129,11 @@ const props = withDefaults(defineProps<RadioCardsCollapsibleProps>(), {
   radioClass: ""
 });
 
-const emits = defineEmits(["update:modelValue"]);
+const emits = defineEmits<{
+  (e: "update:modelValue", value: string): void;
+  (e: "update:open"): void;
+}>();
+
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
   defaultValue: props.defaultValue
