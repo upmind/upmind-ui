@@ -6,17 +6,10 @@ export default {
   page: cva("bg-background text-foreground w-full transition-colors", {
     variants: {
       route: {
-        recommendations: "",
-        "product.recommendations": ""
+        recommendations: "overflow-hidden",
+        "product.recommendations": "overflow-hidden"
       }
-    },
-
-    compoundVariants: [
-      {
-        route: ["recommendations", "product.recommendations"],
-        class: "overflow-hidden"
-      }
-    ]
+    }
   }),
   header: {
     avatar: {

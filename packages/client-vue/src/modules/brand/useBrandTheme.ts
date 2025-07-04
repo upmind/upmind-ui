@@ -82,9 +82,15 @@ export const useBrandTheme = (initial?: Theme) => {
     // if we've already set a theme, don't set it again
     if (!isEmpty(theme.value)) return;
 
-    // Otherwsie get the available brands variants
-    const firstAvailable = first(keys(available.value)) || "default";
-    set(firstAvailable);
+    // otherwise honour the preferred variant from the UI meta
+    // if no variant is set, use the first available one
+    // if no variants are available, use the default `upmind` variant
+
+    const variant =
+      uiMeta.value?.variant ?? first(keys(available.value)) ?? "upmind";
+
+    // Otherwis get the available brands variants
+    set(variant);
   });
 
   // ---------------------------------------------------------------------------

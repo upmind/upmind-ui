@@ -28,6 +28,7 @@ export interface IBrandMeta {
   catalog?: {
     facet?: boolean;
   };
+  variant?: string; // the preferred variant to be used
   variants?: {
     [key: string]: IVariant;
   };
