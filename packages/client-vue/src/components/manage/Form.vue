@@ -76,7 +76,7 @@ const props = defineProps<{
 
 const emits = defineEmits<{
   (e: "update:open", value: boolean): void;
-  (e: "resolve", value: string): void;
+  (e: "resolve", value: any): void; // return the full <T> of the Mutate composable
   (e: "reject"): void;
 }>();
 
@@ -102,7 +102,7 @@ const {
 const doResolve = async () => {
   update()
     .then(value => {
-      emits("resolve", value.id);
+      emits("resolve", value);
       doClose();
     })
     .catch(error => {

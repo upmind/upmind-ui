@@ -1,7 +1,7 @@
 <template>
   <div class="flex w-full flex-col gap-y-1">
     <header
-      class="!cursor-pointe pointer-events-none flex w-full items-stretch justify-between"
+      class="pointer-events-none flex w-full !cursor-pointer items-stretch justify-between"
     >
       <!-- <div class="pointer-events-none !cursor-pointer"> -->
       <span
@@ -27,7 +27,7 @@
             tabindex="-1"
             @mousedown.stop.prevent
             class="pointer-events-auto h-4"
-            @click.stop.prevent="edit"
+            @click.stop.prevent="doEdit"
           />
         </template>
       </InputExtended>
@@ -64,7 +64,7 @@ const emits = defineEmits<{
 
 const { t } = useI18n();
 
-const edit = () => {
+const doEdit = () => {
   if (!props?.id) return;
   emits("edit", props.id);
 };

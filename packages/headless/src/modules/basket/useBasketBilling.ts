@@ -11,11 +11,11 @@ import {
   DetailedError,
   responseCodes,
   useContext,
-  contextMatches,
   stateMatches,
   stateValue,
   contextValue,
-  ErrorOrigin
+  ErrorOrigin,
+  contextMatches
 } from "../../utils";
 import { isEmpty, isEqual, isNil, omitBy } from "lodash-es";
 
@@ -52,16 +52,22 @@ export const useBasketBilling = () => {
   }
 
   const meta = computed(() => ({
+    isLoading: !actor.value || stateMatches(actor, ["loading"]),
     isAvailable:
       !!actor.value && stateMatches(actor, ["available", "complete"]),
-    isLoading: !actor.value || stateMatches(actor, ["loading"]),
-    hasErrors: stateMatches(actor, ["error"]),
-    isProcessing: stateMatches(actor, ["processing"]),
-    isValid: stateMatches(actor, ["valid"]),
-    isDirty: contextMatches(actor, ["dirty"]),
+    hasErrors: stateMatches(actor, ["available.error"]),
+    isProcessing: stateMatches(actor, ["available.processing"]),
+    isValid: stateMatches(actor, ["available.valid"]),
     isComplete:
       stateValue(actor, "done", false) ||
-      stateMatches(actor, ["processed", "complete"])
+      stateMatches(actor, ["available.processed", "complete"]),
+    isDirty: !isEqual(
+      contextValue<BillingContext["model"]>(actor, "model"),
+      contextValue<BillingContext["baseModel"]>(actor, "model")
+    ),
+    needsAddress: config.value?.requiresAddress ?? false,
+    needsCompany: config.value?.requiresCompany ?? false,
+    needsPhone: config.value?.requiresPhone ?? false
   }));
 
   // --- context
@@ -100,11 +106,15 @@ export const useBasketBilling = () => {
     } else {
       actor.value?.send({ type: "UPDATE" });
     }
-
     // then wait for the paymentGateway actor to be updated
     return waitFor(
       actor.value!.service,
-      state => stateMatches(state, ["processed", "complete", "error"]),
+      state =>
+        stateMatches(state, [
+          "available.processed",
+          "available.error",
+          "complete"
+        ]),
       { timeout: 60_000 }
     )
       .then(state => {

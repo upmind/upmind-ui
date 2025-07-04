@@ -1,23 +1,25 @@
 <template>
-  <Tabs
-    v-model="activeTab"
-    :tabs="tabs"
-    v-if="meta.isAvailable"
-    :default-tab="defaultTab"
-  >
-    <template v-slot:[`content.personal`]>
-      <TabPersonal v-model="modelValue" @resolve="update" />
-    </template>
+  <Loading :active="meta.isLoading || meta.isProcessing" class="w-full">
+    <Tabs
+      v-if="meta.isAvailable"
+      v-model="activeTab"
+      :tabs="tabs"
+      :default-tab="defaultTab"
+    >
+      <template v-slot:[`content.personal`]>
+        <TabPersonal v-model="modelValue" />
+      </template>
 
-    <template v-slot:[`content.business`]>
-      <TabBusiness v-model="modelValue" @resolve="update" />
-    </template>
-  </Tabs>
+      <template v-slot:[`content.business`]>
+        <TabBusiness v-model="modelValue" />
+      </template>
+    </Tabs>
+  </Loading>
 </template>
 
 <script lang="ts" setup>
 // --- external
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -28,7 +30,7 @@ import {
 } from "@upmind-automation/headless";
 
 // --- components
-import { Tabs } from "@upmind-automation/upmind-ui";
+import { Tabs, Loading } from "@upmind-automation/upmind-ui";
 import TabBusiness from "./components/TabBusiness.vue";
 import TabPersonal from "./components/TabPersonal.vue";
 
@@ -96,4 +98,21 @@ const defaultTab = computed((): UnifiedType => {
   if (config.value?.requiresCompany) return UnifiedType.BUSINESS;
   return UnifiedType.PERSONAL;
 });
+
+// --- side effects
+
+watch(
+  modelValue,
+  value => {
+    if (value) {
+      update(value).catch(error => {
+        console.error("Error updating billing model:", error);
+      });
+    }
+  },
+  {
+    immediate: true,
+    deep: true
+  }
+);
 </script>

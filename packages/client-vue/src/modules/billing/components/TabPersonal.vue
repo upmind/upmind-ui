@@ -1,5 +1,5 @@
 <template>
-  <Loading :active="meta.isLoading" class="w-full">
+  <div v-if="!meta.isLoading" class="w-full">
     <Form
       v-if="meta.isEmpty"
       i18nKey="client.address"
@@ -17,24 +17,45 @@
           useList: useClientAddresses,
           useMutate: useClientAddress
         }"
-      />
+      >
+        <template #item="{ item, readonly, doEdit, doRemove }">
+          <AddressItem
+            v-bind="item"
+            :i18nKey="'client.address'"
+            :readonly="readonly"
+            @edit="doEdit"
+            @remove="doRemove"
+          />
+        </template>
+      </Manage>
 
       <Manage
+        v-if="billingMeta.needsPhone"
         i18n-key="client.phone"
         v-model="selectedPhone"
+        minimal
         :manage="{
           useList: useClientPhones,
           useMutate: useClientPhone
         }"
-      />
+      >
+        <template #item="{ item, readonly, doEdit, doRemove }">
+          <PhoneItem
+            v-bind="item"
+            :i18nKey="'client.phone'"
+            :readonly="readonly"
+            @edit="doEdit"
+            @remove="doRemove"
+          />
+        </template>
+      </Manage>
     </template>
-  </Loading>
+  </div>
 </template>
 
 <script setup lang="ts">
 // --- external
 import { computed } from "vue";
-import { useI18n } from "vue-i18n";
 import { useVModel } from "@vueuse/core";
 
 // --- internal
@@ -49,14 +70,13 @@ import {
 // --- components
 import Manage from "../../../components/manage/Manage.vue";
 import Form from "../../../components/manage/Form.vue";
-import { Loading } from "@upmind-automation/upmind-ui";
 
 // --- utils
-import { find, isString, set } from "lodash-es";
+import { find, set } from "lodash-es";
 
 // --- types
 
-import type { BillingModel } from "@upmind-automation/headless";
+import type { BillingModel, Phone } from "@upmind-automation/headless";
 import AddressItem from "./AddressItem.vue";
 import PhoneItem from "./PhoneItem.vue";
 
@@ -68,13 +88,12 @@ const props = defineProps<{
 }>();
 
 const emits = defineEmits<{
-  (e: "resolve", value: BillingModel): void;
   (e: "update:modelValue", value: BillingModel): void;
 }>();
 
 // -----------------------------------------------------------------------------
 
-const { useUnifiedBillingDetail } = useBasketBilling();
+const { useUnifiedBillingDetail, meta: billingMeta } = useBasketBilling();
 
 const {
   data: addresses,
@@ -99,8 +118,9 @@ const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
   deep: true,
   defaultValue: {
+    companyId: undefined,
     addressId: defaultAddress.value?.id,
-    phoneId: defaultPhone.value?.id
+    phoneId: billingMeta.value.needsPhone ? defaultPhone.value?.id : undefined
   }
 });
 
@@ -114,38 +134,35 @@ const selectedAddress = computed({
   },
   set(val: string | undefined) {
     modelValue.value ??= {};
+
+    // nb ensure we  clear out
+    set(modelValue.value, "companyId", undefined);
+
     const found = find(addresses.value, { id: val });
-    if (found) {
-      set(modelValue.value, "addressId", found.id);
-    }
+
+    set(modelValue.value, "addressId", found?.id);
   }
 });
 
-const selectedPhone = computed({
+const selectedPhone = computed<string | undefined>({
   get() {
     return modelValue.value?.phoneId ?? undefined;
   },
-  set(val: string | undefined) {
+  set(val?: string) {
     modelValue.value ??= {};
-    const found = find(phones.value, { id: val });
-    if (found) {
-      set(modelValue.value, "phoneId", found.id);
-    }
+    const found = find(phones.value, { id: val }) as Phone | undefined;
+    set(modelValue.value, "phoneId", found?.id ?? undefined);
   }
 });
 
 // --- methods
 
-function doResolve(value: BillingModel | string) {
-  selectedPhone.value = isString(value)
-    ? value
-    : (value?.phoneId ?? defaultPhone.value?.id ?? undefined);
-
-  selectedAddress.value = isString(value)
-    ? value
-    : (value?.addressId ?? defaultAddress.value?.id ?? undefined);
-
-  if (modelValue.value) emits("resolve", modelValue.value as BillingModel);
+function doResolve(value: BillingModel) {
+  selectedPhone.value = billingMeta.value.needsPhone
+    ? (value?.phoneId ?? defaultPhone.value?.id ?? undefined)
+    : undefined;
+  selectedAddress.value =
+    value?.addressId ?? defaultAddress.value?.id ?? undefined;
 }
 
 // --- side effects
@@ -153,12 +170,11 @@ function doResolve(value: BillingModel | string) {
 await Promise.all([isAddressesReady(), isPhonesReady()]).then(() => {
   // Ensure modelValue is initialized with default values
   modelValue.value = {
+    companyId: undefined,
     addressId: modelValue.value?.addressId ?? defaultAddress.value?.id,
-    phoneId: modelValue.value?.phoneId ?? defaultPhone.value?.id
+    phoneId: billingMeta.value.needsPhone
+      ? (modelValue.value?.phoneId ?? defaultPhone.value?.id)
+      : undefined
   };
-
-  if (!modelValue.value.addressId && !modelValue.value.phoneId) {
-    doResolve(modelValue.value);
-  }
 });
 </script>

@@ -127,6 +127,32 @@ export default createMachine(
             }
           },
 
+          processing: {
+            id: "processing",
+            entry: ["clearError"],
+
+            invoke: {
+              src: "update",
+              onDone: {
+                target: "processed",
+                actions: ["persistModel", "clearAutoUpdate"]
+              },
+              onError: {
+                target: "#error",
+                actions: ["setError", "setFeedbackError"]
+              }
+            }
+          },
+
+          processed: {
+            id: "processed",
+            entry: sendParent({ type: "REFRESH" }),
+            after: {
+              wait: {
+                target: "#complete"
+              }
+            }
+          },
           error: {
             id: "error",
             on: {
@@ -140,33 +166,6 @@ export default createMachine(
       },
 
       unavailable: {},
-
-      processing: {
-        id: "processing",
-        entry: ["clearError"],
-
-        invoke: {
-          src: "update",
-          onDone: {
-            target: "processed",
-            actions: ["persistModel", "clearAutoUpdate"]
-          },
-          onError: {
-            target: "#error",
-            actions: ["setError", "setFeedbackError"]
-          }
-        }
-      },
-
-      processed: {
-        id: "processed",
-        entry: sendParent({ type: "REFRESH" }),
-        after: {
-          wait: {
-            target: "complete"
-          }
-        }
-      },
 
       complete: {
         id: "complete",
