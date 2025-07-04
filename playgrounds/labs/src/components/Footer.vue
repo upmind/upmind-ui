@@ -19,7 +19,7 @@
                     alt=""
                     loading="lazy" /></picture
               ></a>
-              <div class="text-xsFooter font-body text-footerContent">
+              <div class="text-xsFooter text-footerContent font-body">
                 <p>
                   Australia’s largest and most experienced domain name
                   registrar, with accreditation for Australian and international
@@ -107,7 +107,7 @@
               We use cookies
             </h3>
             <div
-              class="prose-strong:text-content prose-headings:text-heading dark:prose-headings:text-headingDark prose-headings:font-display prose-p:text-content dark:prose-p:text-contentDark prose-p:text-xxs prose-p:font-body prose-a:text-link prose-a:hover:text-linkHover marker:text-content prose prose-a:cursor-pointer prose-a:underline md:prose-p:text-xs"
+              class="prose-strong:text-content prose-headings:text-heading dark:prose-headings:text-headingDark prose-p:text-content dark:prose-p:text-contentDark prose-p:text-xxs prose-a:text-link prose-a:hover:text-linkHover marker:text-content prose prose-headings:font-display prose-p:font-body prose-a:cursor-pointer prose-a:underline md:prose-p:text-xs"
             >
               <p>
                 Our website uses cookies for essential functions, analytics, and
