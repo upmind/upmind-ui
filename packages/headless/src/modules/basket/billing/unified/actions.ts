@@ -9,20 +9,20 @@ import { get, compact } from "lodash-es";
 import { useModelParser } from "../../../../utils";
 
 // --- types
-import type { UnifiedAddressContext, UnifiedAddressModel } from "./types";
+import type { UnifiedContext, UnifiedModel } from "./types";
 import type { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------
 
-export const useUnifiedAddressActions = () => {
+export const useUnifiedActions = () => {
   return {
     setMeta: assign({
-      title: ({ model }: UnifiedAddressContext) =>
+      title: ({ model }: UnifiedContext) =>
         model?.company?.name ||
         model?.address?.name ||
         model?.address?.address1 ||
         "Address",
-      description: ({ model }: UnifiedAddressContext) => {
+      description: ({ model }: UnifiedContext) => {
         const address = compact([
           get(model, "address.address1"),
           get(model, "address.address2"),
@@ -47,33 +47,28 @@ export const useUnifiedAddressActions = () => {
     }),
 
     setSchemas: assign({
-      schema: (context: UnifiedAddressContext) => useSchema(context),
-      uischema: (context: UnifiedAddressContext) => useUischema(context)
+      schema: (context: UnifiedContext) => useSchema(context),
+      uischema: (context: UnifiedContext) => useUischema(context)
     }),
 
     setModel: assign({
       model: (
-        { schema, baseModel }: UnifiedAddressContext,
+        { schema, baseModel }: UnifiedContext,
         { data }: AnyEventObject
-      ) => useModelParser<UnifiedAddressModel>(schema, data, baseModel)
+      ) => useModelParser<UnifiedModel>(schema, data, baseModel)
     }),
 
     refreshContext: assign({
-      clientId: (
-        { clientId }: UnifiedAddressContext,
-        { data }: AnyEventObject
-      ) => {
+      clientId: ({ clientId }: UnifiedContext, { data }: AnyEventObject) => {
         return clientId || data?.clientId;
       }
     })
   };
 };
 
-export const useUnifiedAddressGuards = () => {
+export const useUnifiedGuards = () => {
   return {
-    hasSubscription: (
-      { clientId }: UnifiedAddressContext,
-      _event: AnyEventObject
-    ) => !!clientId
+    hasSubscription: ({ clientId }: UnifiedContext, _event: AnyEventObject) =>
+      !!clientId
   };
 };

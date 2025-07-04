@@ -101,54 +101,57 @@ export const useQuery = () => {
     init ??= {};
     let attempts = 0;
 
-    // -- lets add our pagination, sorting, and filtering parameters
-    // Set 'order' (sort) parameter
-    if (!isEmpty(sort) && isArray(sort))
-      url.searchParams.set("order", sort.join(""));
-    else url.searchParams.delete("order");
-
-    // Set 'limit' parameter
-    if (!isEmpty(pagination) && isInteger(pagination?.limit))
-      url.searchParams.set("limit", `${pagination.limit}`);
-    // NB NEVER remove limits from the url as we may include limit=0
-
-    // Set 'offset' parameter
-    if (!isEmpty(pagination) && isInteger(pagination?.offset))
-      url.searchParams.set("offset", `${pagination.offset}`);
-    else url.searchParams.delete("offset");
-
-    // set the filters, if any
-    if (!isEmpty(filters) && isObject(filters)) {
-      forEach(filters, (value: any, key: string) => {
-        if (!isEmpty(value)) {
-          // if the value is an array, we need to set it as a comma-separated list
-          if (isArray(value)) value = value.join(",");
-
-          // if the value is an object, we need to stringify it
-          if (isObject(value)) value = JSON.stringify(value);
-
-          // if the value is a function, we need to call it with the current URL
-          if (isFunction(value)) value = value(url);
-
-          url.searchParams.set(key, value);
-        } else {
-          url.searchParams.delete(key);
-        }
-      });
-    }
-
-    // set "lang" parameter
-    if (!isEmpty(locale.value))
-      url.searchParams.set("lang", locale.value as string);
-
-    // set "currency" parameter
-    if (withCurrency) {
-      const { currencyCode } = useBasketCurrency();
-      url.searchParams.set("currency_code", currencyCode.value as string);
-    }
-
     // Enforce Method (default to GET)
     set(init, "method", get(init, "method", Methods.GET).toUpperCase());
+
+    // NB only add the url params for GET requests
+    if (init.method === Methods.GET.toUpperCase()) {
+      // -- lets add our pagination, sorting, and filtering parameters
+      // Set 'order' (sort) parameter
+      if (!isEmpty(sort) && isArray(sort))
+        url.searchParams.set("order", sort.join(""));
+      else url.searchParams.delete("order");
+
+      // Set 'limit' parameter
+      if (!isEmpty(pagination) && isInteger(pagination?.limit))
+        url.searchParams.set("limit", `${pagination.limit}`);
+      // NB NEVER remove limits from the url as we may include limit=0
+
+      // Set 'offset' parameter
+      if (!isEmpty(pagination) && isInteger(pagination?.offset))
+        url.searchParams.set("offset", `${pagination.offset}`);
+      else url.searchParams.delete("offset");
+
+      // set the filters, if any
+      if (!isEmpty(filters) && isObject(filters)) {
+        forEach(filters, (value: any, key: string) => {
+          if (!isEmpty(value)) {
+            // if the value is an array, we need to set it as a comma-separated list
+            if (isArray(value)) value = value.join(",");
+
+            // if the value is an object, we need to stringify it
+            if (isObject(value)) value = JSON.stringify(value);
+
+            // if the value is a function, we need to call it with the current URL
+            if (isFunction(value)) value = value(url);
+
+            url.searchParams.set(key, value);
+          } else {
+            url.searchParams.delete(key);
+          }
+        });
+      }
+
+      // set "lang" parameter
+      if (!isEmpty(locale.value))
+        url.searchParams.set("lang", locale.value as string);
+
+      // set "currency" parameter
+      if (withCurrency) {
+        const { currencyCode } = useBasketCurrency();
+        url.searchParams.set("currency_code", currencyCode.value as string);
+      }
+    }
 
     // Enforce Content Type header
     if (init.body instanceof FormData) {

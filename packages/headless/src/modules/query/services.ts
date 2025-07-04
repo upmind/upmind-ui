@@ -91,7 +91,11 @@ async function doFetch<T extends any = any>({
       )
     );
 
-  if (!url.searchParams.has("lang") && !startsWith(url.pathname, "/oauth/")) {
+  if (
+    init.method == Methods.GET.toUpperCase() &&
+    !url.searchParams.has("lang") &&
+    !startsWith(url.pathname, "/oauth/")
+  ) {
     const { locale } = useLocale();
     if (!isEmpty(locale.value))
       url.searchParams.set("lang", locale.value as string);
@@ -153,14 +157,8 @@ async function refreshToken() {
       if (token) dumpTokenFromStorage(token.actor_type);
       reauth();
 
-      return Promise.reject(
-        new DetailedError(
-          error?.message ?? "Failed to refresh token",
-          error?.code ?? error?.statusCode ?? responseCodes.Unauthorized,
-          error?.origin ?? ErrorOrigin.Upmind,
-          { error }
-        )
-      );
+      //  propagate the error
+      throw error;
     });
 }
 

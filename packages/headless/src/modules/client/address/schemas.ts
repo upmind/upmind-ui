@@ -72,19 +72,20 @@ export function useSchema({
         type: ["string", "null"],
         title: "Name",
         default: baseModel?.name
-      },
-
-      type: {
-        type: "number",
-        title: "Address Type",
-        default: baseModel?.type,
-        oneOf: !AddressTypes?.length
-          ? undefined
-          : map(AddressTypes, item => ({
-              const: item.key,
-              title: item.value
-            }))
       }
+
+      // --- DEPRECATED
+      // type: {
+      //   type: "number",
+      //   title: "Address Type",
+      //   default: baseModel?.type,
+      //   oneOf: !AddressTypes?.length
+      //     ? undefined
+      //     : map(AddressTypes, item => ({
+      //         const: item.key,
+      //         title: item.value
+      //       }))
+      // }
     }
   };
 

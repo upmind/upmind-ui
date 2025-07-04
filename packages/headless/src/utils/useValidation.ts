@@ -511,7 +511,7 @@ export const useModelParser = <
       return reduce(
         field.properties,
         (result, subField, subKey) => {
-          const subValue = safeValue(subField, values[key], subKey);
+          const subValue = safeValue(subField, values?.[key], subKey);
           set(result, subKey, subValue);
           return result;
         },

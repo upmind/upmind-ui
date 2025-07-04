@@ -4,7 +4,7 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import { useBasket } from ".";
-import { useUnifiedAddress } from "./billing/unifiedAddress/useUnifiedAddress";
+import { useUnified } from "./billing/unified/useUnified";
 
 // --- utils
 import {
@@ -116,7 +116,7 @@ export const useBasketBilling = () => {
         return Promise.reject(
           new DetailedError(
             "Update Billing Details failed",
-            error?.status ?? responseCodes.Timeout,
+            responseCodes.Timeout,
             ErrorOrigin.Headless,
             {
               error,
@@ -208,10 +208,10 @@ export const useBasketBilling = () => {
 
     /**
      * Returns the unified address composable for billing details.
-     * @returns {ReturnType<typeof useUnifiedAddress>} The unified address composable.
+     * @returns {ReturnType<typeof useUnified>} The unified address composable.
      *
      */
-    useBillingDetail: useUnifiedAddress
+    useUnifiedBillingDetail: useUnified
   };
 };
 

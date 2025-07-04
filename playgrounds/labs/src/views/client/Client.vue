@@ -51,7 +51,7 @@
       v-if="meta.isAuthenticated && !!userId"
     >
       <template v-if="Component">
-        <UpmContent>
+        <UpmLayout>
           <Transition mode="out-in">
             <KeepAlive>
               <Suspense>
@@ -69,7 +69,7 @@
               </Suspense>
             </KeepAlive>
           </Transition>
-        </UpmContent>
+        </UpmLayout>
       </template>
     </RouterView>
   </article>
@@ -85,7 +85,7 @@ import { useSession } from "@upmind-automation/headless";
 // --- components
 import {
   UpmLoading,
-  UpmContent,
+  UpmLayout,
   UpmContentSection
 } from "@upmind-automation/client-vue";
 

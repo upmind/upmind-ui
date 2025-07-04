@@ -1,5 +1,5 @@
 // --- internal
-import { useUnifiedAddress } from "./unifiedAddress/useUnifiedAddress";
+import { useUnified } from "./unified/useUnified";
 
 // --- types
 import type { BillingContext } from "./types";

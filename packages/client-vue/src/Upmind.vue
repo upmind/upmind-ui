@@ -1,7 +1,7 @@
 <template>
   <Loading
     :active="!themeMeta.isAvailable"
-    class="h-screen w-full !text-gray-400"
+    class="h-full min-h-screen w-full !text-gray-400"
   >
     <Suspense
       @pending="setLoading(true)"

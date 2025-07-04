@@ -27,8 +27,8 @@ import { find, get, isEmpty, isString, some } from "lodash-es";
 
 // --- types
 import type { AnyEventObject } from "xstate";
-import type { UnifiedAddressContext, UnifiedAddressModel } from "./types";
-import { UnifiedAddressType } from "./types";
+import type { UnifiedContext, UnifiedModel } from "./types";
+import { UnifiedType } from "./types";
 import { BrandConfigKeys } from "@upmind-automation/types";
 import type { AddressModel, CompanyModel, PhoneModel } from "../../../client";
 
@@ -37,14 +37,14 @@ import type { AddressModel, CompanyModel, PhoneModel } from "../../../client";
 
 /**
  * Load the lookups for the address form
- * @param {UnifiedAddressContext} context
- * @returns {Promise<UnifiedAddressContext>}
+ * @param {UnifiedContext} context
+ * @returns {Promise<UnifiedContext>}
  */
 async function loadLookups({
   model,
   schema,
   type
-}: UnifiedAddressContext): Promise<UnifiedAddressContext> {
+}: UnifiedContext): Promise<UnifiedContext> {
   const {
     isReady: getPhones,
     default: defaultPhone,
@@ -98,15 +98,15 @@ async function loadLookups({
     return Promise.reject("Failed to load countries and regions");
   }
 
-  const baseModel: UnifiedAddressModel = {
+  const baseModel: UnifiedModel = {
     address:
-      type == UnifiedAddressType.PERSONAL
+      type == UnifiedType.PERSONAL
         ? ({
             countryId: country?.id
           } as AddressModel)
         : undefined,
     company:
-      type == UnifiedAddressType.BUSINESS
+      type == UnifiedType.BUSINESS
         ? ({
             addressId: defaultAddress.value?.id,
             emailId: defaultEmail.value?.id,
@@ -125,11 +125,7 @@ async function loadLookups({
       : undefined
   };
 
-  const safeModel = useModelParser<UnifiedAddressModel>(
-    schema,
-    model,
-    baseModel
-  );
+  const safeModel = useModelParser<UnifiedModel>(schema, model, baseModel);
 
   return Promise.resolve({
     regions,
@@ -143,13 +139,13 @@ async function loadLookups({
     // ---
     model: safeModel,
     baseModel: safeModel
-  } as UnifiedAddressContext);
+  } as UnifiedContext);
 }
 
 // -----------------------------------------------------------------------------
 // MUTATIONS
 
-async function add(type: UnifiedAddressType, data: UnifiedAddressModel) {
+async function add(type: UnifiedType, data: UnifiedModel) {
   const { ensure: ensureAddress } = useClientAddressServices();
   const { ensure: ensurePhone } = useClientPhoneServices();
   const { ensure: ensureCompany } = useClientCompanyServices();
@@ -163,13 +159,13 @@ async function add(type: UnifiedAddressType, data: UnifiedAddressModel) {
   );
 
   promises.push(
-    data?.address && type == UnifiedAddressType.PERSONAL
+    data?.address && type == UnifiedType.PERSONAL
       ? ensureAddress({ model: data.address })
       : Promise.resolve(undefined)
   );
 
   promises.push(
-    data?.company && type == UnifiedAddressType.BUSINESS
+    data?.company && type == UnifiedType.BUSINESS
       ? ensureCompany({
           model: {
             ...data.company,
@@ -179,33 +175,20 @@ async function add(type: UnifiedAddressType, data: UnifiedAddressModel) {
       : Promise.resolve(undefined)
   );
 
-  return Promise.all(promises)
-    .then(([phone, address, company]) => {
-      return {
-        phone: phone?.phone, // NB the returned Phone object has a phone property
-        address,
-        company
-      };
-    })
-    .catch(error => {
-      return Promise.reject(
-        new DetailedError(
-          error?.message ?? "Add Unified Address Failed",
-          error?.code ??
-            error?.statusCode ??
-            responseCodes.Unprocessable_Entity,
-          error?.origin ?? ErrorOrigin.Headless,
-          { error }
-        )
-      );
-    });
+  return Promise.all(promises).then(([phone, address, company]) => {
+    return {
+      phone: phone?.phone, // NB the returned Phone object has a phone property
+      address,
+      company
+    };
+  });
 }
 
 // -----------------------------------------------------------------------------
 //  SIDE EFFECTS
 
 async function parse(
-  { baseModel, schema, regions, country, autoupdate }: UnifiedAddressContext,
+  { baseModel, schema, regions, country, autoupdate }: UnifiedContext,
   { data }: AnyEventObject
 ) {
   // We need to check and potentially update the regions list based on the selected country ( if its changed )
@@ -213,11 +196,8 @@ async function parse(
 
   // sometimes the machine can return the full context as data, so we check to see if we have a model
   // if not, then we assume the data is the model
-  const safeModel: UnifiedAddressModel =
+  const safeModel: UnifiedModel =
     useModelParser(schema, get(data, "model", data), baseModel) ?? {};
-
-  // first let's check we have a valid country,
-  // fallback to the default country if not set or invalid
 
   if (safeModel?.address) {
     country = getCountry(
@@ -229,7 +209,6 @@ async function parse(
     // let's check if the country has changed, i.e.: the regions don't match
     // if so, then we need to fetch the regions for the new country
     // AND update our 'default' country to match the country from the address
-    // this will in turn update the phone schema to match the country
     if (!some(regions, ["countryId", safeModel.address?.countryId])) {
       regions = await fetchRegions(safeModel.address!.countryId);
     }
@@ -258,7 +237,6 @@ async function parse(
     // let's check if the country has changed, i.e.: the regions don't match
     // if so, then we need to fetch the regions for the new country
     // AND update our 'default' country to match the country from the address
-    // this will in turn update the phone schema to match the country
     if (!some(regions, ["countryId", safeModel.company.address?.countryId])) {
       regions = await fetchRegions(safeModel.company.address!.countryId);
     }
@@ -270,7 +248,6 @@ async function parse(
     safeModel.company.address!.regionId = get(region, "id");
   }
 
-  // now lets check our phone number
   if (safeModel?.phone?.phone) {
     const phoneNumber = isString(safeModel?.phone?.phone)
       ? safeModel?.phone?.phone
@@ -300,7 +277,7 @@ async function parse(
   });
 }
 
-async function validate({ schema, model }: Partial<UnifiedAddressContext>) {
+async function validate({ schema, model }: Partial<UnifiedContext>) {
   if (!schema) return Promise.resolve(model);
 
   // Now validate the model as per normal
@@ -326,10 +303,10 @@ async function validate({ schema, model }: Partial<UnifiedAddressContext>) {
 
 // -----------------------------------------------------------------------------
 
-export const useUnifiedAddressServices = () => {
+export const useUnifiedServices = () => {
   return {
     loadLookups,
-    add: async ({ type, model }: UnifiedAddressContext) => {
+    add: async ({ type, model }: UnifiedContext) => {
       if (isEmpty(model)) return Promise.reject("No address model provided");
       return add(type, model);
     },
