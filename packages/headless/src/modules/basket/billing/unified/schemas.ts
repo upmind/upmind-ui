@@ -37,13 +37,7 @@ export const useSchema = ({
     properties: {}
   };
 
-  // NB: IF Company is required OR Address is Required then we need to enforce the company field when adding a bisiness address
-  if (
-    (type == UnifiedType.BUSINESS &&
-      get(config, BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS)) ||
-    get(config, BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS)
-  ) {
-    schema.required!.push("company");
+  if (type == UnifiedType.BUSINESS) {
     schema.properties!.company = useCompanySchema({
       baseModel: baseModel?.company,
       countries,
@@ -53,12 +47,16 @@ export const useSchema = ({
     });
   }
 
-  // NB: IF the Address is Required then we need to enforce the address field when adding a personal address
+  // NB: IF Company is required OR Address is Required then we need to enforce the company field when adding a bisiness address
   if (
-    type == UnifiedType.PERSONAL &&
-    get(config, BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS)
-  ) {
-    schema.required!.push("address");
+    (type == UnifiedType.BUSINESS &&
+      get(config, BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS)) ||
+    get(config, BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS)
+  )
+    schema.required!.push("company");
+
+  // ---
+  if (type == UnifiedType.PERSONAL) {
     schema.properties!.address = useAddressSchema({
       clientId,
       regions,
@@ -66,6 +64,13 @@ export const useSchema = ({
       countries,
       config
     });
+  }
+  // NB: IF the Address is Required then we need to enforce the address field when adding a personal address
+  if (
+    type == UnifiedType.PERSONAL &&
+    get(config, BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS)
+  ) {
+    schema.required!.push("address");
   }
 
   // NB: IF the Phone is Required then we need to enforce the phone field when adding either a personal address or a business address

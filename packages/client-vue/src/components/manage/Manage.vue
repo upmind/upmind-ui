@@ -82,7 +82,7 @@ const modelValue = useVModel(props, "modelValue", emits, {
 
 // -----------------------------------------------------------------------------
 const open = ref(false);
-const openModel = ref(false);
+const openModel = ref(meta.value.isEmpty);
 const editId = ref<string | undefined>();
 
 // --- methods

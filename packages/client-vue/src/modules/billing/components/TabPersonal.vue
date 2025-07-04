@@ -4,6 +4,7 @@
       v-if="meta.isEmpty"
       i18nKey="client.address"
       :useMutate="useUnifiedBillingDetail"
+      :modelValue="UnifiedType.PERSONAL"
       open
       :modal="false"
       @resolve="doResolve"
@@ -75,7 +76,7 @@ import Form from "../../../components/manage/Form.vue";
 import { find, set } from "lodash-es";
 
 // --- types
-
+import { UnifiedType } from "@upmind-automation/headless";
 import type { BillingModel, Phone } from "@upmind-automation/headless";
 import AddressItem from "./AddressItem.vue";
 import PhoneItem from "./PhoneItem.vue";
