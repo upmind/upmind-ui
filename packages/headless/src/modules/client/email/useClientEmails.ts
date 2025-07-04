@@ -38,6 +38,7 @@ export const useClientEmails = (
   const { findOne, getOne, getDefault } = useCollection<Email>(query.data);
 
   async function isReady(): Promise<boolean> {
+    if (sessionMeta.value.isAuthenticated) return Promise.resolve(true);
     return isAuthenticated()
       .then(() => query.refetch().then(() => true))
       .catch(() => false);
