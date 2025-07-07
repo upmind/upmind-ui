@@ -20,10 +20,10 @@
     </List>
 
     <Form
-      v-if="openModel || meta.isEmpty"
+      v-if="openForm || meta.isEmpty"
       :i18nKey="i18nKey"
       :useMutate="manage.useMutate"
-      v-model:open="openModel"
+      v-model:open="openForm"
       :model-value="editId"
       :modal="!meta.isEmpty"
       @resolve="doResolve"
@@ -75,39 +75,43 @@ const emits = defineEmits<{
 
 // -----------------------------------------------------------------------------
 const { meta, isReady } = props.manage.useList();
-await isReady();
+
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true
 });
 
 // -----------------------------------------------------------------------------
 const open = ref(false);
-const openModel = ref(meta.value.isEmpty);
+const openForm = ref(false);
 const editId = ref<string | undefined>();
 
 // --- methods
 
 function doReject() {
-  openModel.value = false;
+  openForm.value = false;
   editId.value = "";
 }
 
 function doResolve(value?: any) {
   modelValue.value = get(value, props.identifier, value);
-  openModel.value = false;
+  openForm.value = false;
   open.value = false;
   editId.value = "";
 }
 
 function doAdd() {
-  openModel.value = true;
+  openForm.value = true;
   editId.value = undefined;
 }
 
 function doEdit(id: string) {
-  openModel.value = true;
+  openForm.value = true;
   editId.value = id;
 }
 
 // --- side effects
+
+await isReady().then(() => {
+  openForm.value = meta.value.isEmpty;
+});
 </script>

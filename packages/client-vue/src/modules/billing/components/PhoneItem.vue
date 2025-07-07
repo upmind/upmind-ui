@@ -7,13 +7,13 @@
       <span
         class="border-control flex w-24 items-center justify-center space-x-2 rounded-l-lg border border-r-0 text-sm"
       >
-        <Avatar :icon="lowerCase(props.phone.country)" size="3xs" />
+        <Avatar :icon="lowerCase(props.phone?.country)" size="3xs" />
         <span class="text-emphasis-medium"
-          >+{{ props.phone.countryCallingCode }}</span
+          >+{{ props.phone?.countryCallingCode }}</span
         >
       </span>
       <InputExtended
-        :model-value="props.phone.nationalNumber"
+        :model-value="props.phone?.nationalNumber"
         type="tel"
         class="border-control !cursor-pointer rounded-l-none focus:outline-none disabled:opacity-100"
         disabled
