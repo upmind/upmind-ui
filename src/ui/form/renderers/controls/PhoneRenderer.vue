@@ -1,5 +1,5 @@
 <template>
-  <FormField v-bind="formFieldProps" no-errors :touched="touched">
+  <FormField v-bind="formFieldProps" no-errors>
     <InputGroup class="flex">
       <Combobox
         :model-value="
@@ -146,7 +146,9 @@ const errorsMapped = computed(() => {
     case "INVALID_COUNTRY":
       return "Invalid country";
     default:
-      return first(formFieldProps.value.errors) || "Not a phone number";
+      return (
+        (first(formFieldProps.value.errors) as string) || "Not a phone number"
+      );
   }
 });
 
