@@ -36,6 +36,8 @@ export const phoneCountryCodeKeyword: KeywordDefinition = {
       return isValidPhoneNumber(data);
     } else if (isObject(data)) {
       const { number, nationalNumber, country } = data as PhoneNumber;
+      if (!number && !nationalNumber) return true; // No phone number provided yet so cant validate
+
       const value = number || nationalNumber || "";
       const countryCode = country || schema;
 
