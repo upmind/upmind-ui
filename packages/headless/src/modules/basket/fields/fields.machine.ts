@@ -217,9 +217,6 @@ export default createMachine(
       }),
 
       // ---
-      // setFeedbackSuccess: (_context: any, _event: any) => {
-      //   addSuccess("Successfully updated the basket fields");
-      // },
 
       setFeedbackError: ({ error }: FieldsContext, _event) => {
         if (!error || error?.status == responseCodes.Unprocessable_Entity)

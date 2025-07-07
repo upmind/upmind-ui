@@ -37,28 +37,6 @@ import type { Phone, PhoneModel, PhoneContext } from "./types";
 const queryKey: QueryKey = ["client", "phones"];
 const { addError, addSuccess } = useFeedback();
 
-async function load() {
-  const { meta, user } = useSession();
-  const { get, useUrl } = useQuery();
-
-  return get<IPhone[], Phone[]>({
-    queryKey,
-    url: useUrl(`clients/${user.value?.id}/phones`),
-    withAccessToken: true,
-    guard: async () =>
-      new Promise((resolve, reject) => {
-        if (meta.value.isAuthenticated && !!user.value?.id) {
-          resolve(true);
-        } else {
-          reject(new NotAuthenticatedError());
-        }
-      }),
-    // --- options
-    select: mapPhones,
-    staleTime: useTime().DAY
-  });
-}
-
 function loadList(params?: Partial<QueryParams>) {
   const { meta, user } = useSession();
   const { list, useUrl } = useQuery();
@@ -167,8 +145,10 @@ async function update(id: Phone["id"], data: PhoneModel) {
 
 async function ensure(model: PhoneModel): Promise<Phone> {
   const mapping = omitBy(model, isEmpty);
-  const phones = await load();
-  const { findOne } = useCollection<Phone>(phones);
+  const existing = await loadList().promise.value.then(
+    ({ data }) => data || []
+  );
+  const { findOne } = useCollection<Phone>(existing);
   const found = findOne(mapping);
   if (found) return Promise.resolve(found);
   return add(model).then(raw => {

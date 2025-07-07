@@ -173,27 +173,6 @@ async function update(id: Address["id"], data: AddressModel) {
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
-async function ensure(model: AddressModel): Promise<Address> {
-  const mapping = omitBy(model, isEmpty);
-  const addresses = await load();
-  const { findOne } = useCollection<Address>(addresses);
-  const found = findOne(mapping);
-  if (found) return Promise.resolve(found);
-
-  return add(model).then(raw => {
-    if (isEmpty(raw))
-      throw new DetailedError(
-        "Failed to ensure address",
-        responseCodes.Unprocessable_Entity,
-        ErrorOrigin.Headless,
-        { model }
-      );
-    // NB: Remember to refresh our machines so we have the new data
-    // refresh();
-    return mapAddress(raw);
-  });
-}
-
 function remove(addressId: Address["id"]) {
   const { meta, user } = useSession();
   const { mutate, useUrl } = useQuery();
@@ -375,25 +354,7 @@ export const useClientAddressServices = () => {
           )
         );
       // return add(model);
-      return ensure(model);
-    },
-
-    /**
-     * Ensures a address exists.
-     * @param {Partial<AddressContext>} param0 - The address context containing the model to ensure.
-     * @returns {Promise<any>} The ensured address model, which will either be the existing address or a new one created.
-     */
-    ensure: async ({ model }: Partial<AddressContext>) => {
-      if (isEmpty(model))
-        return Promise.reject(
-          new DetailedError(
-            "Ensure Address failed: model provided",
-            responseCodes.No_Content,
-            ErrorOrigin.Headless,
-            { model }
-          )
-        );
-      return ensure(model);
+      return add(model);
     },
 
     /**
