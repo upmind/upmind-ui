@@ -14,19 +14,28 @@ import {
 } from "../../../utils";
 
 // --- types
-import type { FieldsContext } from "./types";
+import type { FieldsContext, FieldsModel } from "./types";
 import type { AnyEventObject } from "xstate";
 import { IBasket } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
-async function load(_context: FieldsContext, _event: AnyEventObject) {
+async function load(
+  { schema, model, baseModel }: FieldsContext,
+  _event: AnyEventObject
+) {
   const { get, useUrl } = useQuery();
+
+  const safeModel = useModelParser<FieldsModel>(schema, model, baseModel);
 
   return get({
     url: useUrl("basket_fields"),
     queryKey: ["basket", "fields"]
-  }).then(data => ({ fields: data }));
+  }).then(data => ({
+    fields: data,
+    model: safeModel,
+    baseModel: safeModel
+  }));
 }
 
 async function update(
@@ -50,7 +59,7 @@ async function update(
 
 async function parse({ model, schema }: FieldsContext, _event: AnyEventObject) {
   // ---
-  model = useModelParser(schema, model);
+  model = useModelParser<FieldsModel>(schema, model);
 
   // we dont have any parsing checks or transforms so we can pass through the model
   return Promise.resolve({ model });

@@ -5,7 +5,12 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import { useBrand } from "../brand";
-import { stateMatches, contextMatches, DEBOUNCE_DELAY } from "../../utils";
+import {
+  stateMatches,
+  contextMatches,
+  DEBOUNCE_DELAY,
+  contextValue
+} from "../../utils";
 
 // --- utils
 import {
@@ -30,7 +35,8 @@ import type {
   ProductDetails,
   ProductModel,
   TermDetails,
-  SubproductDetails
+  SubproductDetails,
+  ProductConfigContext
 } from "./";
 
 // -----------------------------------------------------------------------------
@@ -89,7 +95,10 @@ export const useProductConfig = (service: ActorRef<any>) => {
   const meta = computed(() => ({
     isLoading: stateMatches(state, ["subscribing", "loading"]),
     isNew: !contextMatches(state, ["basketProduct"]),
-    isDirty: stateMatches(state, ["available.valid"]),
+    isDirty: !isEqual(
+      contextValue<ProductConfigContext["model"]>(state, "model"),
+      contextValue<ProductConfigContext["baseModel"]>(state, "baseModel")
+    ),
     isTouched: touched.value,
     showErrors:
       contextMatches(state, ["error"]) && contextMatches(state, ["attempts"]),

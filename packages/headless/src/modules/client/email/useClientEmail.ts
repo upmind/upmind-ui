@@ -85,6 +85,10 @@ export const useClientEmail = (
     isLoading: stateMatches(state, ["subscribing", "loading"]),
     hasErrors: stateMatches(state, "available.error"),
     isValid: stateMatches(state, "available.valid"),
+    isDirty: !isEqual(
+      contextValue<ClientItemContext["model"]>(state, "model"),
+      contextValue<ClientItemContext["baseModel"]>(state, "baseModel")
+    ),
     isNew: !stateMatches(state, "model.id"),
     isProcessing: stateMatches(state, "processing"),
     isComplete:

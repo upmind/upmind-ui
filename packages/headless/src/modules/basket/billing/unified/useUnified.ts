@@ -94,6 +94,11 @@ export const useUnified = (
     isLoading: stateMatches(state, ["subscribing", "loading"]),
     hasErrors: stateMatches(state, "available.error"),
     isValid: stateMatches(state, "available.valid"),
+    isNew: true, // always true for new billing details
+    isDirty: !isEqual(
+      contextValue<UnifiedContext["model"]>(state, "model"),
+      contextValue<UnifiedContext["baseModel"]>(state, "baseModel")
+    ),
     isProcessing: stateMatches(state, "processing"),
     isComplete:
       stateValue(state, "done", false) ||

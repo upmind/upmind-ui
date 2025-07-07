@@ -67,7 +67,9 @@ export const usePaymentDetails = (actor: ComputedRef<Actor | undefined>) => {
     hasErrors: stateMatches(actor, ["error"]),
     isProcessing: stateMatches(actor, ["checking", "processing"]),
     isValid: stateMatches(actor, ["valid"]),
-    isDirty: contextMatches(actor, ["dirty"]),
+    isDirty: !isEmpty(
+      contextValue<PaymentDetailsContext["model"]>(actor, "model")
+    ),
     isFree: !contextValue(actor, "amount"),
     isComplete:
       !contextValue(actor, "amount") ||
