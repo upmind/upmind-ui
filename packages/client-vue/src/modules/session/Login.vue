@@ -32,7 +32,7 @@
           </Link>
         </p>
 
-        <Card class="pb-3 md:pb-3">
+        <Card class="mt-4 pb-3 md:pb-3">
           <Auth
             class="rounded-box w-full max-w-5xl items-start"
             no-tabs
