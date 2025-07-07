@@ -177,7 +177,7 @@ const { meta: paymentDetailsMeta } = useBasketPaymentDetails();
 const props = withDefaults(defineProps<CheckoutProps>(), {
   cardComponent: Card,
   contentSectionComponent: ContentSection,
-  color: "secondary"
+  color: "primary"
 });
 
 const styles = useStyles(["checkout"], meta, config) as ComputedRef<{
