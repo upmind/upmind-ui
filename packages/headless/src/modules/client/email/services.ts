@@ -28,28 +28,6 @@ import type { Email, EmailModel, EmailContext } from "./types";
 const queryKey: QueryKey = ["client", "emails"];
 const { addError, addSuccess } = useFeedback();
 
-async function load() {
-  const { meta, user } = useSession();
-  const { get, useUrl } = useQuery();
-
-  return get<IEmail[], Email[]>({
-    queryKey,
-    url: useUrl(`clients/${user.value?.id}/emails`),
-    withAccessToken: true,
-    guard: async () =>
-      new Promise((resolve, reject) => {
-        if (meta.value.isAuthenticated && !!user.value?.id) {
-          resolve(true);
-        } else {
-          reject(new NotAuthenticatedError());
-        }
-      }),
-    // --- options
-    select: mapEmails,
-    staleTime: useTime().DAY
-  });
-}
-
 function loadList(params?: Partial<QueryParams>) {
   const { meta, user } = useSession();
   const { list, useUrl } = useQuery();
@@ -124,8 +102,10 @@ async function update(id: Email["id"], data: EmailModel) {
 
 async function ensure(model: EmailModel): Promise<Email> {
   const mapping = omitBy(model, isEmpty);
-  const emails = await load();
-  const { findOne } = useCollection<Email>(emails);
+  const existing = await loadList().promise.value.then(
+    ({ data }) => data || []
+  );
+  const { findOne } = useCollection<Email>(existing);
   const found = findOne(mapping);
   if (found) return Promise.resolve(found);
 

@@ -10,6 +10,16 @@ export type Place = {
   description: string;
 };
 
+export type AutocompleteSuggestions =
+  google.maps.places.AutocompleteSuggestion[];
+
+export type PlacePredictions = google.maps.places.PlacePrediction[];
+
+export type PlacePrediction = {
+  id: string;
+  label: string;
+};
+
 export type PlaceService = {
   Place: typeof google.maps.places.Place;
   AutocompleteSuggestion: typeof google.maps.places.AutocompleteSuggestion;
