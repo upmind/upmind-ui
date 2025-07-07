@@ -1,9 +1,7 @@
 <template>
-  <section :class="cn(styles.card.root, props.class)">
-    <component :is="as" :class="styles.card.container">
-      <slot />
-    </component>
-  </section>
+  <component :is="as" :class="cn(styles.card.root, props.class)">
+    <slot />
+  </component>
 </template>
 
 <script lang="ts" setup>
