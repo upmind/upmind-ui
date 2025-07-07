@@ -104,7 +104,7 @@ export const buttonVariants = cva(
         color: "base",
         variant: "outline",
         class:
-          "hover:bg-base-muted border-base-control text-base-foreground !ring-base"
+          "border-base-control text-base-foreground !ring-base hover:text-base-foreground/75"
       },
       {
         color: "primary",
@@ -218,7 +218,8 @@ export const buttonVariants = cva(
       {
         color: "base",
         variant: "ghost",
-        class: "hover:bg-base-muted ring-base-muted-active text-base-foreground"
+        class:
+          "ring-base-muted-active text-base-foreground hover:text-base-foreground/75"
       },
       {
         color: "primary",
