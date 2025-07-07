@@ -77,8 +77,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { onMounted, watch, ref } from "vue";
-import { isEmpty } from "lodash-es";
+import { onMounted, watch, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -90,6 +89,7 @@ import Form from "../../../components/form/Form.vue";
 
 // --- types
 import type { PaymentGatewayProps } from "../types";
+import { isFunction } from "xstate/lib/utils";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<PaymentGatewayProps>();
@@ -111,17 +111,29 @@ const {
 
 const { t } = useI18n();
 
-const container = ref();
+const container = useTemplateRef("container");
+
 // wait till we mount then try to render the gateway if it's provided
 // otherwise watch in case it's provided later
 onMounted(() => {
-  watch(renderer, () => {
-    // only render if we have a renderer and we've not already rendered
-    if (container.value?.innerHTML) return;
-
-    render(container.value).catch(err => {
+  if (isFunction(renderer.value) && container.value) {
+    renderer.value(container.value).catch((err: any) => {
       if (err) console.error(err);
     });
-  });
+  } else {
+    const stop = watch(renderer, () => {
+      // only render if we have a renderer and we've not already rendered
+      if (!container.value || container.value?.innerHTML) return;
+
+      render(container.value)
+        .then(() => {
+          // stop watching once rendered
+          stop();
+        })
+        .catch((err: any) => {
+          if (err) console.error(err);
+        });
+    });
+  }
 });
 </script>
