@@ -36,9 +36,7 @@
         v-if="!meta.isAuthenticated && meta.showLoginForm"
         @click="toggleForm('recover')"
       >
-        <span class="font-normal">
-          {{ buttons.recover.label }}
-        </span>
+        {{ buttons.recover.label }}
       </Link>
     </slot>
     <Button
@@ -81,7 +79,7 @@ import type { AuthProps } from "./types";
 const emit = defineEmits(["update:modelValue", "resolve", "reject"]);
 const props = withDefaults(defineProps<AuthProps>(), {
   modelValue: "login",
-  color: "secondary"
+  color: "primary"
 });
 
 const { t } = useI18n();
