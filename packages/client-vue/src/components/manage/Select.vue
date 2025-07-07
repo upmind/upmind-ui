@@ -1,9 +1,10 @@
 <template>
-  <RadioCardsCollapsible
+  <SelectCards
     v-if="!meta.isLoading && !meta.isEmpty"
     v-model:open="open"
     v-model="modelValue"
     :items="parsedValues"
+    :class="props.class"
     minimal
     :list="false"
     required
@@ -39,7 +40,7 @@
         />
       </slot>
     </template>
-  </RadioCardsCollapsible>
+  </SelectCards>
 </template>
 
 <script setup lang="ts">
@@ -51,14 +52,14 @@ import { useVModel } from "@vueuse/core";
 // --- internal
 
 // --- components
-import { RadioCardsCollapsible, Link } from "@upmind-automation/upmind-ui";
+import { SelectCards, Link } from "@upmind-automation/upmind-ui";
 import Item from "./Item.vue";
 
 // --- utils
 import { map } from "lodash-es";
 
 // --- types
-import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
+import type { SelectCardsItemProps } from "@upmind-automation/upmind-ui";
 import type { ManageRendererProps } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -70,6 +71,7 @@ const props = defineProps<{
   readonly?: boolean;
   open?: boolean;
   minimal?: boolean; // if true, the component will not show the actions and will not be collapsible
+  class?: string;
 }>();
 
 const emits = defineEmits<{
@@ -105,7 +107,7 @@ const parsedValues = computed(() => {
       item: item,
       index: index
     };
-  }) as RadioCardsItemProps[];
+  }) as SelectCardsItemProps[];
 });
 
 function doAdd() {
