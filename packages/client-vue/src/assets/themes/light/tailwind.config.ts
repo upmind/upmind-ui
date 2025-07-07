@@ -31,9 +31,9 @@ const colors = {
     foreground: "var(--foreground,#121217)",
     background: "var(--background-surface,#FFFFFF)",
     muted: {
-      DEFAULT: "#F6F6F6",
-      foreground: "var(--muted-foreground,#F6F6F6)",
-      active: "#F0F0F0"
+      DEFAULT: "#ffffff",
+      foreground: "var(--muted-foreground,#121217)",
+      active: "var(--primary,#FA2F62)"
     }
   },
 
