@@ -1,5 +1,5 @@
 <template>
-  <FormField v-bind="formFieldProps" no-errors>
+  <FormField v-bind="formFieldProps" no-errors :touched="touched">
     <InputGroup class="flex">
       <Combobox
         :model-value="
@@ -65,7 +65,15 @@ import { Combobox } from "../../../combobox";
 
 // --- utils
 import { useUpmindUIRenderer } from "../utils";
-import { get, map, includes, filter, isString } from "lodash-es";
+import {
+  get,
+  map,
+  includes,
+  filter,
+  isString,
+  first,
+  isEmpty
+} from "lodash-es";
 
 // --- types
 import type { ControlElement } from "@jsonforms/core";
@@ -76,23 +84,11 @@ import type { ComboboxItemProps } from "../../../combobox";
 // -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
-const countryItems = computed(() => {
-  return map(countries, country => {
-    const countryCode = getCountryCode(country.name) as string;
-    return {
-      avatar: { icon: countryCode?.toLowerCase() },
-      label: country.name,
-      selectedLabel: `+${country.phone.join(", +")}`,
-      tag: `+${country.phone.join(", +")}`,
-      value: countryCode?.toUpperCase(),
-      selected: countryCode === phone.value?.country
-    };
-  }) as ComboboxItemProps[];
-});
-
 const { control, formFieldProps, onInput } = useUpmindUIRenderer(
   useJsonFormsControl(props)
 );
+
+// --- utils
 
 const initialPhoneData = () => {
   const data = control.value.data;
@@ -111,13 +107,64 @@ const initialPhoneData = () => {
   return data;
 };
 
+// --- state
+
 const defaultCountryCode = get(control.value.schema, "phone_country_code");
 const requiresString = includes(control.value.schema.type, "string");
 const phone = ref(initialPhoneData());
+
+// --- context
+
 const exampleNumber = computed(() => {
   const countryCode = phone.value?.country || defaultCountryCode;
   return getExampleNumber(countryCode, examples)?.formatNational();
 });
+
+const errors = computed(() => {
+  if (control?.value?.errors) {
+    try {
+      parsePhoneNumberWithError(phone.value.number, {
+        defaultCountry: phone?.value?.country
+      });
+      return (
+        validatePhoneNumberLength(phone.value.number, {
+          defaultCountry: phone.value.country
+        }) || "NOT_A_NUMBER"
+      );
+    } catch (error) {
+      return (error as ParseError).message;
+    }
+  }
+});
+
+const errorsMapped = computed(() => {
+  switch (errors.value) {
+    case "TOO_LONG":
+      return "Phone number is too long";
+    case "TOO_SHORT":
+      return "Phone number is too short";
+    case "INVALID_COUNTRY":
+      return "Invalid country";
+    default:
+      return first(formFieldProps.value.errors) || "Not a phone number";
+  }
+});
+
+const countryItems = computed(() => {
+  return map(countries, country => {
+    const countryCode = getCountryCode(country.name) as string;
+    return {
+      avatar: { icon: countryCode?.toLowerCase() },
+      label: country.name,
+      selectedLabel: `+${country.phone.join(", +")}`,
+      tag: `+${country.phone.join(", +")}`,
+      value: countryCode?.toUpperCase(),
+      selected: countryCode === phone.value?.country
+    };
+  }) as ComboboxItemProps[];
+});
+
+// --- methods
 
 function parsePhone(
   value: string | PhoneNumber,
@@ -154,13 +201,19 @@ function parsePhone(
 
 function onCountyInput(value: any) {
   phone.value = parsePhone(phone.value?.nationalNumber, value as CountryCode);
-  onInput(requiresString ? phone.value.number : phone.value);
+  onInput(
+    requiresString ? phone.value.number : phone.value,
+    !isEmpty(phone.value) // NB only set touched IF we also have a phone number
+  );
 }
 
 function onPhoneInput(value: string | number) {
   try {
     phone.value = parsePhone(value as string);
-    onInput(requiresString ? phone.value.number : phone.value);
+    onInput(
+      requiresString ? phone.value.number : phone.value,
+      !isEmpty(phone.value) // NB only set touched IF we also have a phone number
+    );
   } catch (error) {
     // We don't want to spam the console with errors
   }
@@ -177,36 +230,6 @@ function onSearch(value: string): ComboboxItemProps[] {
       )
   );
 }
-
-const errors = computed(() => {
-  if (control?.value?.errors) {
-    try {
-      parsePhoneNumberWithError(phone.value.number, {
-        defaultCountry: phone?.value?.country
-      });
-      return (
-        validatePhoneNumberLength(phone.value.number, {
-          defaultCountry: phone.value.country
-        }) || "NOT_A_NUMBER"
-      );
-    } catch (error) {
-      return (error as ParseError).message;
-    }
-  }
-});
-
-const errorsMapped = computed(() => {
-  switch (errors.value) {
-    case "TOO_LONG":
-      return "Phone number is too long";
-    case "TOO_SHORT":
-      return "Phone number is too short";
-    case "INVALID_COUNTRY":
-      return "Invalid country";
-    default:
-      return control?.value?.errors || "Not a phone number";
-  }
-});
 </script>
 
 <script lang="ts">
