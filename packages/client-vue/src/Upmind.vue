@@ -38,7 +38,10 @@
 
                       <!-- fallback / loading state -->
                       <template #fallback>
-                        <AsyncLoading v-bind="loadingProps" />
+                        <AsyncLoading
+                          v-bind="loadingProps"
+                          class="py-16 md:my-28"
+                        />
                       </template>
                     </Suspense>
                   </KeepAlive>

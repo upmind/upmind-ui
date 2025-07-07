@@ -9,7 +9,6 @@
             class="relative -top-4 mb-6 md:-top-6 md:mb-0"
             size="sm"
             variant="tonal"
-            color="primary"
             :label="t('navigation.back')"
             @click.prevent="doReject"
           >
