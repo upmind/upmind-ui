@@ -27,8 +27,9 @@ async function parseRegion(
   country: string
 ) {
   const { fetchRegions, getRegion } = useSystem();
-  await fetchRegions(country);
-  return getRegion([regionLevel1, regionLevel2], country);
+  return fetchRegions(country).then(() =>
+    getRegion([regionLevel1, regionLevel2], country)
+  );
 }
 
 function parseValue(
@@ -47,6 +48,7 @@ export async function usePlaceParser(
   place: google.maps.places.Place
 ): Promise<Place> {
   // Extract data from place object
+  const id = place.id;
   const name = place.displayName;
   const address = place.addressComponents || [];
 
@@ -81,7 +83,7 @@ export async function usePlaceParser(
   const title = name || fallbackTitle || "Address";
 
   return {
-    id: place.id,
+    id,
     title,
     description: place.formattedAddress || fallbackTitle,
     address: {
