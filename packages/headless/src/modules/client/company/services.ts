@@ -45,30 +45,6 @@ import type { Company, CompanyModel, CompanyContext } from "./types";
 const queryKey: QueryKey = ["client", "companies"];
 const { addError, addSuccess } = useFeedback();
 
-async function load() {
-  const { meta, user } = useSession();
-  const { get, useUrl } = useQuery();
-
-  return get<ICompany[], Company[]>({
-    queryKey,
-    url: useUrl(`clients/${user.value?.id}/companies`, {
-      with: ["address", "address.country", "address.region"].join()
-    }),
-    withAccessToken: true,
-    guard: async () =>
-      new Promise((resolve, reject) => {
-        if (meta.value.isAuthenticated && !!user.value?.id) {
-          resolve(true);
-        } else {
-          reject(new NotAuthenticatedError());
-        }
-      }),
-    // --- options
-    select: mapCompanies,
-    staleTime: useTime().DAY
-  });
-}
-
 function loadList(params?: Partial<QueryParams>) {
   const { meta, user } = useSession();
   const { list, useUrl } = useQuery();
@@ -207,8 +183,10 @@ async function update(id: Company["id"], data: CompanyModel) {
 async function ensure(model: CompanyModel): Promise<Company> {
   const mapping = omitBy(model, isEmpty);
 
-  const companies = await load();
-  const { findOne } = useCollection<Company>(companies);
+  const existing = await loadList().promise.value.then(
+    ({ data }) => data || []
+  );
+  const { findOne } = useCollection<Company>(existing);
   const found = findOne(mapping);
 
   if (found) return Promise.resolve(found);
@@ -305,7 +283,7 @@ async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
 
   const { ensure: ensureEmail } = useClientEmailServices();
   const { ensure: ensurePhone } = useClientPhoneServices();
-  const { ensure: ensureAddress } = useClientAddressServices();
+  const { add: ensureAddress } = useClientAddressServices();
 
   // for our dependencies we need to check if they already exists by finding them in their respective stores
   // if they do then we can just return the id
@@ -333,7 +311,7 @@ async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
     .then(([email, phone, address]) => {
       return {
         id: data.id,
-        addressId: address.id,
+        addressId: address?.id,
         phoneId: phone.id,
         emailId: email.id,
         name: data.name,

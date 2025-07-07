@@ -9,11 +9,12 @@
       v-if="!showAddressFields"
       :autoFocus="formFieldProps?.autoFocus"
       :placeholder="appliedOptions?.placeholder"
-      :results="searchResults"
+      :results="predictions"
       additional-option="Enter address manually"
       class="mb-6"
       @select="selectAddress"
-      @update:search="searchAddresses"
+      @update:search="getSuggestions"
+      :minQueryLength="1"
     />
 
     <section>
@@ -60,7 +61,7 @@ import type { ControlElement, UISchemaElement } from "@jsonforms/core";
 import type { ComputedRef } from "vue";
 import { usePlaces } from "@upmind-automation/headless";
 import type { SearchItem } from "@upmind-automation/upmind-ui";
-import type { Address } from "@upmind-automation/headless";
+import type { Address, Place } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 const props = defineProps({
@@ -72,16 +73,13 @@ const { control, appliedOptions, formFieldProps, onInput } =
 
 const showAddressFields = ref(false);
 
-const places = usePlaces();
-const addresses = ref<any[] | null>(null);
+const { search, predictions, getPlaceDetails } = usePlaces();
 
 onMounted(async () => {
   const showAddressFields = get(control.value.data, "showAddressFields");
   if (showAddressFields) {
     setShowAddressFields(true);
   }
-
-  await places.load();
 });
 
 const detailUiSchema: ComputedRef<UISchemaElement> = computed(() => {
@@ -92,42 +90,23 @@ const detailUiSchema: ComputedRef<UISchemaElement> = computed(() => {
 });
 
 // TODO : remove the debounc ein favour of signal abortion
-const searchAddresses = debounce(async (query: string) => {
-  // Deprecated to prevent lag...
-  // if (!query || query.length < 3) {
-  //   addresses.value = null;
-  //   return;
-  // }
-  addresses.value = await places.search(
-    query,
-    get(control.value.data, "countryId")
-  );
+const getSuggestions = debounce(async (query: string) => {
+  search(query, get(control.value.data, "countryId"));
 }, DEBOUNCE_DELAY);
 
-const searchResults = computed(() => {
-  if (!addresses.value) return null;
-
-  return addresses.value.map(
-    (result: any) =>
-      ({
-        id: result.id,
-        label: result.description
-      }) as SearchItem
-  );
-});
-
 const selectAddress = (data: SearchItem) => {
-  if (!addresses.value) return;
-
-  // Dropdown option to enter address manually (they haven't selected an address)
   if (data.id === "additional") {
     setShowAddressFields(true);
     return;
   }
 
-  const address = find(addresses.value, a => a.id === data.id)
-    .address as Address;
-  setAddress(address);
+  getPlaceDetails(data.id).then((place: Place | undefined) => {
+    if (!place) {
+      setShowAddressFields(true);
+      return;
+    }
+    setAddress(place.address as Address);
+  });
 };
 
 const setAddress = async (address: Address) => {

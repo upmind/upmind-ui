@@ -205,7 +205,7 @@ export const useSystem = () => {
     return find(billingCycles.value, ["months", value]);
   }
 
-  function getCountry(value?: string): ICountry {
+  function getCountry(value?: string | null): ICountry {
     // if we are not passed a country, then we need to get the default country
     value ??= countryId.value;
 
