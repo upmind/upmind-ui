@@ -15,7 +15,7 @@
       @click="navigate(ROUTE.BASKET)"
     >
       <template #prepend>
-        <Avatar icon="cart" size="3xs" overflow="visible" />
+        <Icon icon="cart" size="3xs" />
       </template>
     </Button>
 
@@ -59,7 +59,7 @@ import { cn, useStyles } from "@upmind-automation/upmind-ui";
 import config from "./header.config";
 
 // --- components
-import { Avatar, Button } from "@upmind-automation/upmind-ui";
+import { Icon, Button } from "@upmind-automation/upmind-ui";
 import SessionLoginPopover from "../../modules/session/components/LoginPopover.vue";
 import SessionDetailsDropdown from "../../modules/session/components/DetailsDropdown.vue";
 
