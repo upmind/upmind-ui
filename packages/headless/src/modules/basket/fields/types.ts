@@ -18,6 +18,7 @@ export interface FieldsContext {
   schema?: JsonSchema;
   uischema?: UISchemaElement;
   model?: FieldsModel;
+  baseModel?: FieldsModel;
   autoupdate?: boolean;
   // ---
   dirty?: boolean;

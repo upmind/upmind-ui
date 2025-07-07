@@ -87,6 +87,10 @@ export const useClientCompany = (
     hasErrors: stateMatches(state, "available.error"),
     isValid: stateMatches(state, "available.valid"),
     isNew: !stateMatches(state, "model.id"),
+    isDirty: !isEqual(
+      contextValue<ClientItemContext["model"]>(state, "model"),
+      contextValue<ClientItemContext["baseModel"]>(state, "baseModel")
+    ),
     isProcessing: stateMatches(state, "processing"),
     isComplete:
       stateValue(state, "done", false) ||

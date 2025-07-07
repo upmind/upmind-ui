@@ -23,7 +23,18 @@ export type MinimalMutateComposable = (
   ...args: any
 ) => {
   isReady: () => Promise<boolean>;
-  meta: ComputedRef<Record<string, boolean>>;
+  meta: ComputedRef<
+    {
+      isAvailable: boolean;
+      isLoading: boolean;
+      isValid: boolean;
+      isDirty: boolean;
+      isProcessing: boolean;
+      hasErrors: boolean;
+      isNew: boolean;
+      isComplete: boolean;
+    } & Record<string, boolean>
+  >;
   model:
     | ComputedRef<Record<string, any>>
     | Ref<Record<string, any> | undefined>;

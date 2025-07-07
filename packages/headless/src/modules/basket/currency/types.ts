@@ -24,7 +24,7 @@ export interface CurrencyContext {
   // model?: ICurrency;
   // baseModel?: ICurrency;
   model?: CurrencyModel;
-  baseModel?: any;
+  baseModel?: CurrencyModel;
   autoupdate?: boolean;
   // ---
   dirty?: boolean;

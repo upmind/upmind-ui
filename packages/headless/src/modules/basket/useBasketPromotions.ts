@@ -59,7 +59,7 @@ export const useBasketPromotions = () => {
     hasErrors: stateMatches(actor, ["error"]),
     isProcessing: stateMatches(actor, ["processing"]),
     isValid: stateMatches(actor, ["valid"]),
-    isDirty: contextMatches(actor, ["dirty"]),
+    isDirty: !isEmpty(contextValue<PromotionsContext["model"]>(actor, "model")),
     isComplete:
       stateValue(actor, "done", false) ||
       stateMatches(actor, ["processed", "complete"])

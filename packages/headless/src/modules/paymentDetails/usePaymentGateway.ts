@@ -16,7 +16,7 @@ import {
   Actor,
   ErrorOrigin
 } from "../../utils";
-import { isNil, isEqual, every } from "lodash-es";
+import { isNil, isEqual, every, isEmpty } from "lodash-es";
 
 // --- types
 import type { ActorRef } from "xstate";
@@ -65,7 +65,7 @@ export const usePaymentGateway = (actor: ComputedRef<Actor | undefined>) => {
     hasErrors: stateMatches(actor, ["error"]),
     isProcessing: stateMatches(actor, ["checking", "processing"]),
     isValid: stateMatches(actor, ["valid"]),
-    isDirty: contextMatches(actor, ["dirty"]),
+    isDirty: !isEmpty(contextValue<GatewayContext["model"]>(actor, "model")),
     isComplete:
       stateValue(actor, "done", false) ||
       stateMatches(actor, ["processed", "complete"]),

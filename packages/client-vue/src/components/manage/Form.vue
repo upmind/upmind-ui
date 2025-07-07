@@ -31,6 +31,7 @@
       >
         <template #actions="{ doReject, doResolve }">
           <Actions
+            v-show="modal || meta.isDirty"
             :i18nKey="i18nKey"
             :disabled="meta.isProcessing || !meta.isValid"
             :processing="meta.isProcessing"

@@ -87,6 +87,10 @@ export const useClientAddress = (
     hasErrors: stateMatches(state, "available.error"),
     isNew: !stateMatches(state, "model.id"),
     isValid: stateMatches(state, "available.valid"),
+    isDirty: !isEqual(
+      contextValue<ClientItemContext["model"]>(state, "model"),
+      contextValue<ClientItemContext["baseModel"]>(state, "baseModel")
+    ),
     isProcessing: stateMatches(state, "processing"),
     isComplete:
       stateValue(state, "done", false) ||
