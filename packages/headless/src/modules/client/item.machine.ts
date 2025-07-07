@@ -185,8 +185,8 @@ export default createMachine<ClientItemContext>(
       },
 
       complete: {
-        id: "complete",
-        type: "final"
+        id: "complete"
+        // type: "final"
       }
     },
     on: {

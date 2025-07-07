@@ -1,13 +1,13 @@
 <template>
   <div v-if="!meta.isLoading" class="w-full">
     <Form
-      v-if="meta.isEmpty"
+      v-if="showForm"
       i18nKey="client.company"
       :useMutate="useUnifiedBillingDetail"
+      :modelValue="UnifiedType.BUSINESS"
       open
       :modal="false"
       @resolve="doResolve"
-      :modelValue="UnifiedType.BUSINESS"
     />
 
     <template v-else>
@@ -56,7 +56,7 @@
 
 <script setup lang="ts">
 // --- external
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useVModel } from "@vueuse/core";
 
 // --- internal
@@ -92,6 +92,7 @@ const emits = defineEmits<{
   (e: "update:modelValue", value: BillingModel): void;
 }>();
 
+const showForm = ref(false);
 // -----------------------------------------------------------------------------
 
 const { useUnifiedBillingDetail, meta: billingMeta } = useBasketBilling();
@@ -158,8 +159,11 @@ function doResolve(value: BillingModel) {
   selectedPhone.value = billingMeta.value.needsPhone
     ? (value?.phoneId ?? defaultPhone.value?.id ?? undefined)
     : undefined;
+
   selectedCompany.value =
     value?.companyId ?? defaultCompany.value?.id ?? undefined;
+
+  showForm.value = false;
 }
 
 // --- side effects
@@ -173,5 +177,7 @@ await Promise.all([isCompaniesReady(), isPhonesReady()]).then(() => {
       ? (modelValue.value?.phoneId ?? defaultPhone.value?.id)
       : undefined
   };
+
+  showForm.value = companyMeta.value.isEmpty && phoneMeta.value.isEmpty;
 });
 </script>

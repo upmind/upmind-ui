@@ -58,7 +58,6 @@ export const useUnified = (
       .withContext(() => {
         return {
           clientId,
-
           type,
           allowMultipleEdits: false
         };
@@ -162,12 +161,15 @@ export const useUnified = (
     // we have to ensure the update is processed and the state is either processed or available.error
     return waitFor(
       service,
-      state => stateMatches(state, ["processed", "available.error"]),
+      state =>
+        stateMatches(state, ["complete", "processed", "available.error"]),
       { timeout: 60_000 }
     )
       .then(state => {
-        if (stateMatches(state, "available.error")) throw state.context.error;
-        return Promise.resolve(state.context.model);
+        const model = contextValue<UnifiedModel>(state, "model");
+        if (!model || stateMatches(state, "available.error"))
+          throw state.context.error;
+        return model;
       })
       .catch(error => {
         return Promise.reject(
