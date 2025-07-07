@@ -1,12 +1,13 @@
 <template>
   <div v-if="!meta.isLoading" class="w-full">
-    <List
+    <component
+      :is="component"
       :i18nKey="i18nKey"
       :useList="manage.useList"
       v-model:open="open"
       v-model="modelValue"
       :readonly="props.readonly"
-      :minimal="props.minimal"
+      :class="props.class"
       @add="doAdd"
       @edit="doEdit"
     >
@@ -17,7 +18,7 @@
       <template #actions="{ open, meta, doAdd }">
         <slot name="actions" v-bind="{ open, meta, doAdd }"></slot>
       </template>
-    </List>
+    </component>
 
     <Form
       v-if="openForm || meta.isEmpty"
@@ -34,14 +35,14 @@
 
 <script setup lang="ts">
 // --- external
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { useVModel } from "@vueuse/core";
 // --- internal
 
 // --- components
 import Form from "./Form.vue";
 import List from "./List.vue";
-import { Loading } from "@upmind-automation/upmind-ui";
+import Select from "./Select.vue";
 
 // --- utils
 
@@ -57,14 +58,15 @@ const props = withDefaults(
     i18nKey?: string; // the i18n key to use for the actions
     modelValue?: string;
     readonly?: boolean;
-    minimal?: boolean;
+    as?: "list" | "select";
     identifier?: string; // optional property to use for the list/model to  identify the item, defaults to "id"
+    class?: string;
   }>(),
   {
     i18nKey: "manage",
     modelValue: "",
     readonly: false,
-    minimal: false,
+    as: "list",
     identifier: "id"
   }
 );
@@ -84,6 +86,10 @@ const modelValue = useVModel(props, "modelValue", emits, {
 const open = ref(false);
 const openForm = ref(false);
 const editId = ref<string | undefined>();
+
+const component = computed(() => {
+  return props.as === "list" ? List : Select;
+});
 
 // --- methods
 
