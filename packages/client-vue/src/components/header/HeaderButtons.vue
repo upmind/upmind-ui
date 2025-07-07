@@ -59,7 +59,7 @@ import { cn, useStyles } from "@upmind-automation/upmind-ui";
 import config from "./header.config";
 
 // --- components
-import { Icon, Button } from "@upmind-automation/upmind-ui";
+import { Icon, Button, Avatar } from "@upmind-automation/upmind-ui";
 import SessionLoginPopover from "../../modules/session/components/LoginPopover.vue";
 import SessionDetailsDropdown from "../../modules/session/components/DetailsDropdown.vue";
 
