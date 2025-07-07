@@ -8,6 +8,7 @@
       @click="emits('save')"
     />
     <Button
+      v-if="!props.noCancel"
       :label="t(`${i18nKey ?? 'manage'}.actions.reject`)"
       color="secondary"
       variant="ghost"
@@ -32,6 +33,7 @@ const props = defineProps<{
   disabled?: boolean;
   processing?: boolean;
   loading?: boolean;
+  noCancel?: boolean; // if true, the cancel button will not be displayed
 }>();
 
 const emits = defineEmits<{
