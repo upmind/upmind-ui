@@ -42,7 +42,7 @@ export default {
     },
     configDetails: {
       container: cva(
-        "bg-base-muted flex flex-col divide-y divide-solid rounded-lg border p-4 px-5 text-sm font-medium leading-3"
+        "flex flex-col divide-y divide-solid rounded-lg border p-4 px-5 text-sm font-medium leading-3"
       )
     },
 
