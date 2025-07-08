@@ -63,7 +63,7 @@
         @click="onSearchOffset"
         block
         variant="ghost"
-        :color="color"
+        color="base"
       />
     </div>
 
@@ -72,7 +72,7 @@
         @click="onReject"
         :label="t('domain.dac.actions.cancel')"
         variant="link"
-        :color="color"
+        color="base"
       />
     </template>
 
@@ -129,7 +129,7 @@ const props = withDefaults(defineProps<DacProps>(), {
   selected: () => [],
   items: () => [],
   dialog: true,
-  color: "base"
+  color: "primary"
 });
 
 const { t } = useI18n();

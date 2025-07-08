@@ -6,7 +6,7 @@
           <Button
             v-if="basketMeta.hasProducts && basketMeta.isAvailable"
             type="reset"
-            class="relative -top-4 mb-6 md:-top-6 md:mb-0"
+            class="bg-base-background relative -top-4 mb-6 md:-top-6 md:mb-0"
             size="sm"
             variant="tonal"
             :label="t('navigation.back')"
