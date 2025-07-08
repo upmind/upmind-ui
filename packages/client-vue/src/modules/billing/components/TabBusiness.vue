@@ -23,7 +23,7 @@
       >
         <template #item="{ item, readonly, doEdit, doRemove }">
           <PhoneItem
-            v-bind="getPhone(item.id!)!"
+            v-bind="item"
             :i18nKey="'client.phone'"
             :readonly="readonly"
             @edit="doEdit"
@@ -42,7 +42,7 @@
       >
         <template #item="{ item, readonly, doEdit, doRemove }">
           <CompanyItem
-            v-bind="getCompany(item.id!)!"
+            v-bind="item"
             :i18nKey="'client.company'"
             :readonly="readonly"
             @edit="doEdit"
@@ -154,14 +154,6 @@ const selectedPhone = computed({
 });
 
 // --- methods
-
-function getCompany(id: string) {
-  return find(companies.value, { id });
-}
-
-function getPhone(id: string) {
-  return find(phones.value, { id });
-}
 
 function doResolve(value: BillingModel) {
   selectedPhone.value = billingMeta.value.needsPhone
