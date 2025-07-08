@@ -1,6 +1,6 @@
 <template>
-  <article v-auto-animate>
-    <ContentSection v-auto-animate>
+  <article class="flex flex-grow">
+    <ContentSection v-auto-animate class="flex flex-grow items-center">
       <Interstitial
         open
         modal

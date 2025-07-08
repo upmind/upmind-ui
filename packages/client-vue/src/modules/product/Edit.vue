@@ -1,7 +1,7 @@
 <template>
   <Layout>
-    <article v-auto-animate>
-      <ContentSection v-auto-animate>
+    <article class="flex flex-grow">
+      <ContentSection v-auto-animate class="flex flex-grow items-center">
         <form v-auto-animate @submit.prevent @reset.prevent>
           <Button
             v-if="basketMeta.hasProducts && basketMeta.isAvailable"
