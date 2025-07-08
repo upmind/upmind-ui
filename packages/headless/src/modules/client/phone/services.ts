@@ -145,10 +145,10 @@ async function update(id: Phone["id"], data: PhoneModel) {
 
 async function ensure(model: PhoneModel): Promise<Phone> {
   const mapping = omitBy(model, isEmpty);
-  const existing = await loadList().promise.value.then(
-    ({ data }) => data || []
-  );
-  const { findOne } = useCollection<Phone>(existing);
+  const { data, promise } = loadList();
+  await promise.value.finally(); // wait for the query to resolve
+
+  const { findOne } = useCollection<Phone>(data.value || []);
   const found = findOne(mapping);
   if (found) return Promise.resolve(found);
   return add(model).then(raw => {

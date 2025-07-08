@@ -182,11 +182,10 @@ async function update(id: Company["id"], data: CompanyModel) {
 
 async function ensure(model: CompanyModel): Promise<Company> {
   const mapping = omitBy(model, isEmpty);
+  const { data, promise } = loadList();
+  await promise.value.finally(); // wait for the query to resolve
 
-  const existing = await loadList().promise.value.then(
-    ({ data }) => data || []
-  );
-  const { findOne } = useCollection<Company>(existing);
+  const { findOne } = useCollection<Company>(data.value ?? []);
   const found = findOne(mapping);
 
   if (found) return Promise.resolve(found);
