@@ -39,6 +39,7 @@
           useList: useClientAddresses,
           useMutate: useClientAddress
         }"
+        show-label
       >
         <template #item="{ item, readonly, doEdit, doRemove }">
           <AddressItem

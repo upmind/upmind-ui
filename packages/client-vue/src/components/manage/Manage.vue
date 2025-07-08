@@ -1,5 +1,9 @@
 <template>
   <div v-if="!meta.isLoading" class="w-full">
+    <FormLabel v-if="showLabel" :formItemId="i18nKey">{{
+      t(`${i18nKey ?? "manage"}.label`)
+    }}</FormLabel>
+
     <component
       :is="component"
       :i18nKey="i18nKey"
@@ -62,13 +66,15 @@ const props = withDefaults(
     identifier?: string; // optional property to use for the list/model to  identify the item, defaults to "id"
     class?: string;
     minimal?: boolean; // if true, the list will be rendered as a minimal list
+    showLabel?: boolean;
   }>(),
   {
     i18nKey: "manage",
     modelValue: "",
     readonly: false,
     as: "list",
-    identifier: "id"
+    identifier: "id",
+    showLabel: false
   }
 );
 
