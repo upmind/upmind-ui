@@ -5,7 +5,7 @@
     <div
       class="max-w-app mx-auto flex h-14 w-full items-center justify-between"
     >
-      <a id="logo" class="relative z-20" :href="storefront">
+      <a id="logo" class="relative z-20" :href="storefrontUrl">
         <picture class="h-full w-full">
           <slot name="logo" :logo="logo">
             <img v-if="logo" :src="logo" class="h-8 w-auto" alt="logo" />
@@ -34,18 +34,14 @@ import { useBrand } from "@upmind-automation/headless";
 import VHeaderButtons from "./HeaderButtons.vue";
 import { computed } from "vue";
 
-const { image, isReady } = useBrand();
+const { image, isReady, storefrontUrl } = useBrand();
 
 await isReady();
 const imageUrl = image.value?.full_url;
 
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
-const props = defineProps<{ logo?: string; storefront?: string }>();
+const props = defineProps<{ logo?: string }>();
 
 const logo = computed(() => props.logo ?? imageUrl ?? upmindLogo);
-
-const storefront = computed(
-  () => props.storefront ?? import.meta.env.VITE_APP_STOREFRONT
-);
 </script>

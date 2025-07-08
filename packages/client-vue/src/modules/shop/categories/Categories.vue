@@ -3,7 +3,7 @@
     <CategoriesHeader v-model="modelValue" v-bind="category" />
 
     <nav
-      v-if="hasCategories && !uiCart?.catalog?.facet"
+      v-if="hasCategories && !uiCart?.catalogue?.facet"
       :class="styles.categories.grid"
       role="region"
       aria-label="Product categories"

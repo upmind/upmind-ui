@@ -28,7 +28,6 @@
 
 <script lang="ts" setup>
 // --- external
-import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
@@ -36,11 +35,11 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 import {
   useRoutingEngine,
   useSession,
-  ROUTE
+  ROUTE,
+  useBrand
 } from "@upmind-automation/headless";
 
 // -- components
-import Internet from "../../assets/animations/internet.json?url";
 import { Interstitial } from "@upmind-automation/upmind-ui";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
@@ -52,11 +51,10 @@ import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 const { t } = useI18n();
 const { isResolved } = useRoutingEngine();
 const { logout } = useSession();
+const { storefrontUrl } = useBrand();
 
 // if we are not logged out, we should log out
 await isResolved(ROUTE.SESSION_END).catch(() => logout());
-
-const storefrontUrl = import.meta.env.VITE_APP_STOREFRONT;
 
 const props = withDefaults(defineProps<InterstitialProps>(), {
   open: true,
