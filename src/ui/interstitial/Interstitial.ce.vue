@@ -93,7 +93,8 @@ const props = withDefaults(defineProps<InterstitialProps>(), {
 const processing = ref(false);
 const meta = computed(() => ({
   isProcessing: processing.value,
-  isOpen: props.open
+  isOpen: props.open,
+  isModal: props.modal
 }));
 
 const styles = useStyles(
