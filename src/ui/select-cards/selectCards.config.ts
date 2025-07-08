@@ -24,11 +24,11 @@ export const triggerVariants = cva(
 );
 
 export const itemVariants = cva(
-  "hover:bg-control-active-focus m-0 flex h-full w-full cursor-pointer items-start space-x-2 rounded-none border-b border-b-control px-4 py-3 text-md font-medium leading-none first:rounded-t-md last:rounded-b-md last:border-b-0 focus:outline-none"
+  "hover:bg-control-active-focus m-0 flex h-full w-full cursor-pointer items-start space-x-2 rounded-lg px-3 py-2 text-md font-medium leading-none first:rounded-t-md last:rounded-b-md last:border-b-0 focus:outline-none"
 );
 
 export const contentVariants = cva(
-  `bg-control-background ${ringClasses} ${invalidRingClasses} mt-2 flex max-h-72 !w-[--radix-dropdown-menu-trigger-width] flex-col overflow-hidden overflow-y-scroll rounded-lg border border-control shadow-sm`,
+  `bg-control-background ${ringClasses} ${invalidRingClasses} mt-2 flex max-h-72 !w-[--radix-dropdown-menu-trigger-width] flex-col overflow-hidden overflow-y-scroll rounded-lg border border-control p-1 shadow-sm`,
   {
     variants: {
       width: {
