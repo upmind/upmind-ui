@@ -45,16 +45,15 @@
         <Item v-bind="getItem(item.id!)" :i18nKey="i18nKey" />
       </slot>
     </template>
+
+    <template v-if="!readonly" #additional-item>
+      <slot name="additional-item">
+        <p @click="doAdd" class="p-3 px-4 text-sm">
+          {{ t(`${i18nKey ?? "manage"}.actions.add`) }}
+        </p>
+      </slot>
+    </template>
   </SelectCards>
-  <slot name="actions" v-bind="{ open, meta, doAdd }">
-    <Link
-      v-if="parsedValues.length > 1 && !readonly"
-      :label="t(`${i18nKey ?? 'manage'}.actions.add`)"
-      size="xs"
-      variant="muted"
-      @click="doAdd"
-    />
-  </slot>
 </template>
 
 <script setup lang="ts">
