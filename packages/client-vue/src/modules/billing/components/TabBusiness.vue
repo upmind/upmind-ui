@@ -146,7 +146,7 @@ const selectedPhone = computed({
   get() {
     return modelValue.value?.phoneId ?? undefined;
   },
-  set(val: string | undefined) {
+  set(val?: string) {
     modelValue.value ??= {};
     const found = find(phones.value, { id: val }) as Phone | undefined;
     set(modelValue.value, "phoneId", found?.id ?? undefined);
