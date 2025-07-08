@@ -12,25 +12,6 @@
 
     <template v-else>
       <Manage
-        i18n-key="client.address"
-        v-model="selectedAddress"
-        :manage="{
-          useList: useClientAddresses,
-          useMutate: useClientAddress
-        }"
-      >
-        <template #item="{ item, readonly, doEdit, doRemove }">
-          <AddressItem
-            v-bind="item"
-            :i18nKey="'client.address'"
-            :readonly="readonly"
-            @edit="doEdit"
-            @remove="doRemove"
-          />
-        </template>
-      </Manage>
-
-      <Manage
         v-if="billingMeta.needsPhone"
         i18n-key="client.phone"
         v-model="selectedPhone"
@@ -44,6 +25,25 @@
           <PhoneItem
             v-bind="item"
             :i18nKey="'client.phone'"
+            :readonly="readonly"
+            @edit="doEdit"
+            @remove="doRemove"
+          />
+        </template>
+      </Manage>
+
+      <Manage
+        i18n-key="client.address"
+        v-model="selectedAddress"
+        :manage="{
+          useList: useClientAddresses,
+          useMutate: useClientAddress
+        }"
+      >
+        <template #item="{ item, readonly, doEdit, doRemove }">
+          <AddressItem
+            v-bind="item"
+            :i18nKey="'client.address'"
             :readonly="readonly"
             @edit="doEdit"
             @remove="doRemove"
