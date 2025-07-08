@@ -21,7 +21,7 @@
       <slot
         name="item"
         v-bind="{
-          item,
+          item: getItem(item.id!),
           readonly,
           doEdit,
           doRemove
@@ -38,7 +38,10 @@
     </template>
 
     <template #dropdown-item="{ item }">
-      <slot name="item" v-bind="{ item, readonly, doEdit, doRemove }">
+      <slot
+        name="item"
+        v-bind="{ item: getItem(item.id!), readonly, doEdit, doRemove }"
+      >
         <Item v-bind="getItem(item.id!)" :i18nKey="i18nKey" />
       </slot>
     </template>
