@@ -22,11 +22,14 @@ export interface BrandContext extends IBrandSettings {
 }
 
 export interface IBrandMeta {
-  layout?: string;
-  tagline?: string;
-  description?: string;
-  catalog?: {
-    facet?: boolean;
+  cart: {
+    layout?: string;
+    tagline?: string;
+    description?: string;
+    catalog?: {
+      enabled?: boolean;
+      facet?: boolean;
+    };
   };
   variant?: string; // the preferred variant to be used
   variants?: {
