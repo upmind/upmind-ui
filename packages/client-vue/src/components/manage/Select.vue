@@ -20,27 +20,14 @@
         />
       </slot>
     </template>
-
-    <template #actions>
-      <slot name="actions" v-bind="{ open, meta, doAdd }">
-        <Link
-          v-if="!open && parsedValues.length > 1"
-          :label="t(`${i18nKey ?? 'manage'}.actions.change`)"
-          size="xs"
-          variant="muted"
-          @click="open = true"
-        />
-
-        <Link
-          v-else-if="!readonly"
-          :label="t(`${i18nKey ?? 'manage'}.actions.add`)"
-          size="xs"
-          variant="muted"
-          @click="doAdd"
-        />
-      </slot>
-    </template>
   </SelectCards>
+  <Link
+    v-if="parsedValues.length > 1 && !readonly"
+    :label="t(`${i18nKey ?? 'manage'}.actions.add`)"
+    size="xs"
+    variant="muted"
+    @click="doAdd"
+  />
 </template>
 
 <script setup lang="ts">

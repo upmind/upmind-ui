@@ -11,6 +11,7 @@
     :model-value="props.phone?.nationalNumber"
     type="tel"
     class="border-none"
+    input-size="sm"
     disabled
   />
 </template>
