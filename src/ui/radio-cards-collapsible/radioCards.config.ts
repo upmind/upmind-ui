@@ -2,9 +2,13 @@ import { cva } from "class-variance-authority";
 import { ringClasses } from "../../assets/styles";
 
 export const itemVariants = cva(
-  `group rounded-lg border bg-control p-4 pl-0 text-control-foreground transition-all duration-200 ${ringClasses}`,
+  `group rounded-lg bg-control text-control-foreground transition-all duration-200 ${ringClasses}`,
   {
     variants: {
+      isMinimal: {
+        true: "",
+        false: "m-0 border px-1 shadow-sm"
+      },
       width: {
         0: "",
         1: "col-span-12 md:col-span-1",
@@ -22,7 +26,8 @@ export const itemVariants = cva(
       }
     },
     defaultVariants: {
-      width: 12
+      width: 12,
+      isMinimal: false
     }
   }
 );
@@ -44,7 +49,15 @@ export default {
     item: itemVariants,
     radio: cva("flex h-full items-start pr-2.5"),
     label: cva(
-      "m-0 flex h-full w-full min-w-0 cursor-pointer items-start rounded-lg text-md font-medium leading-snug peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+      "m-0 flex h-full w-full min-w-0 cursor-pointer items-start rounded-lg text-md font-medium leading-snug peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+      {
+        variants: {
+          isMinimal: {
+            true: "py-0",
+            false: "py-3.5 pr-4"
+          }
+        }
+      }
     ),
     input: cva(
       `group-hover:border-control-strong ml-4 mt-[0.1rem] border-control leading-normal ring-offset-2 [transition:border-color_200ms_ease-in-out] ${ringClasses}`

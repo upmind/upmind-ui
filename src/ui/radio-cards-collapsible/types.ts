@@ -12,6 +12,7 @@ export interface RadioCardsCollapsibleItemProps extends RadioGroupItemProps {
   index: number;
   name?: string;
   label?: string;
+  minimal?: boolean;
   sublabel?: string;
   required?: boolean;
   disabled?: boolean;
@@ -33,6 +34,7 @@ export interface RadioCardsCollapsibleProps extends RadioGroupRootProps {
   useInputGroup?: boolean;
   open?: boolean;
   autoCollapse?: boolean;
+  minimal?: boolean;
   changeButtonLabel?: string;
   // --- state
   items: RadioCardsCollapsibleItemProps[];
