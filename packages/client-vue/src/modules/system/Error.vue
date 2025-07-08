@@ -19,6 +19,7 @@
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // -- components
@@ -33,10 +34,11 @@ import ContentSection from "../../components/content/ContentSection.vue";
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 import { computed } from "vue";
 import { isEmpty, isNil } from "lodash-es";
-import { useBrand } from "@upmind-automation/headless";
+import { ROUTE, useBrand } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 const { t, tm } = useI18n();
-const { storefrontUrl } = useBrand();
+const router = useRouter();
+const { storefrontUrl, uiCart } = useBrand();
 
 const props = withDefaults(
   defineProps<
@@ -121,4 +123,8 @@ const actions = computed((): InterstitialActionProps[] => {
   };
   return isNil(props.actions) ? [defaultAction] : props.actions;
 });
+
+const resolvedRoute = uiCart.value?.catalogue?.enabled
+  ? router.resolve({ name: ROUTE.CATALOGUE })?.fullPath
+  : (storefrontUrl.value ?? "/");
 </script>

@@ -9,7 +9,7 @@
           {
             as: 'a',
             color: 'secondary',
-            href: storefrontUrl,
+            href: resolvedRoute,
             appendIcon: {
               icon: 'arrow-right',
               size: '2xs'
@@ -30,6 +30,7 @@
 // --- external
 import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
+import { useRouter } from "vue-router";
 
 // --- internal
 import {
@@ -48,10 +49,11 @@ import ContentSection from "../../components/content/ContentSection.vue";
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
+const router = useRouter();
 const { t } = useI18n();
 const { isResolved } = useRoutingEngine();
 const { logout } = useSession();
-const { storefrontUrl } = useBrand();
+const { storefrontUrl, uiCart } = useBrand();
 
 // if we are not logged out, we should log out
 await isResolved(ROUTE.SESSION_END).catch(() => logout());
@@ -69,4 +71,8 @@ const props = withDefaults(defineProps<InterstitialProps>(), {
     size: "4xl"
   })
 });
+
+const resolvedRoute = uiCart.value?.catalogue?.enabled
+  ? router.resolve({ name: ROUTE.CATALOGUE })?.fullPath
+  : (storefrontUrl.value ?? "/");
 </script>
