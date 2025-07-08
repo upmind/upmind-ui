@@ -25,7 +25,7 @@ export const useCatalogueFlows = () => {
       name: ROUTE.CATALOGUE,
       guard: async (route: Route) => {
         // currency,coupons, lang
-        const { currency, coupon, productConfigs } = useRouteQueryParams(route);
+        const { currency, coupon } = useRouteQueryParams(route);
         if (currency) setCurrency(currency);
         if (coupon) addPromotion(coupon);
 
