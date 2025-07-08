@@ -106,7 +106,7 @@
 // --- external
 import { computed, watch, onBeforeUnmount, type ComputedRef } from "vue";
 import { useI18n } from "vue-i18n";
-import { vAutoAnimate } from "@formkit/auto-animate";
+
 // --- internal
 import { useDomain } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
