@@ -1,86 +1,82 @@
 <template>
   <FormField
     v-bind="formFieldProps"
-    :label="showAddressFields ? '' : appliedOptions?.label"
+    :label="open ? '' : appliedOptions?.label"
     required
     :id="formFieldProps?.id ?? 'address-search'"
   >
-    <Search
-      v-if="!showAddressFields"
-      :autoFocus="formFieldProps?.autoFocus"
-      :placeholder="appliedOptions?.placeholder"
-      :results="predictions"
-      additional-option="Enter address manually"
-      class="mb-6"
-      @select="selectAddress"
-      @update:search="getSuggestions"
-      :minQueryLength="1"
-    />
-
-    <section>
-      <DispatchRenderer
-        v-if="showAddressFields"
-        :visible="control.visible"
-        :enabled="control.enabled"
-        :schema="control.schema"
-        :uischema="detailUiSchema"
-        :path="control.path"
-        :renderers="control.renderers"
-        :cells="control.cells"
+    <template v-if="!open">
+      <Search
+        :autoFocus="formFieldProps?.autoFocus"
+        :placeholder="appliedOptions?.placeholder"
+        :results="predictions"
+        additional-option="Enter address manually"
+        class="mb-6"
+        @select="selectAddress"
+        @update:search="getSuggestions"
+        :minQueryLength="1"
       />
-
       <Link
-        v-if="!showAddressFields"
         class="mt-2"
         label="Enter address manually"
         size="sm"
         variant="muted"
         @click="setShowAddressFields(true)"
       />
-    </section>
+    </template>
+
+    <DispatchRenderer
+      v-else
+      :visible="control.visible"
+      :enabled="control.enabled"
+      :schema="control.schema"
+      :uischema="detailUiSchema"
+      :path="control.path"
+      :renderers="control.renderers"
+      :cells="control.cells"
+    />
   </FormField>
 </template>
 
 <script setup lang="ts">
 // --- external
-import { computed, ref, onMounted } from "vue";
+import { computed, ref } from "vue";
 import {
   DispatchRenderer,
   rendererProps,
   useJsonFormsControlWithDetail
 } from "@jsonforms/vue";
 
+// --- internal
+import { usePlaces } from "@upmind-automation/headless";
+
 // --- components
 import { FormField, Search, Link } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
-import { debounce, find, get } from "lodash-es";
+import { get } from "lodash-es";
+
 // --- types
-import type { ControlElement, UISchemaElement } from "@jsonforms/core";
 import type { ComputedRef } from "vue";
-import { usePlaces } from "@upmind-automation/headless";
+import type { ControlElement, UISchemaElement } from "@jsonforms/core";
 import type { SearchItem } from "@upmind-automation/upmind-ui";
-import type { Address, Place } from "@upmind-automation/headless";
+import type { Place } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 const props = defineProps({
   ...rendererProps<ControlElement>()
 });
 
-const { control, appliedOptions, formFieldProps, onInput } =
-  useUpmindUIRenderer(useJsonFormsControlWithDetail(props));
-
-const showAddressFields = ref(false);
+// -----------------------------------------------------------------------------
 
 const { search, predictions, getPlaceDetails } = usePlaces();
 
-onMounted(async () => {
-  const showAddressFields = get(control.value.data, "showAddressFields");
-  if (showAddressFields) {
-    setShowAddressFields(true);
-  }
-});
+const { control, appliedOptions, formFieldProps, onInput } =
+  useUpmindUIRenderer(useJsonFormsControlWithDetail(props));
+
+// --- state
+const open = ref(false);
 
 const detailUiSchema: ComputedRef<UISchemaElement> = computed(() => {
   return {
@@ -89,53 +85,37 @@ const detailUiSchema: ComputedRef<UISchemaElement> = computed(() => {
   };
 });
 
-// TODO : remove the debounc ein favour of signal abortion
-const getSuggestions = debounce(async (query: string) => {
-  search(query, get(control.value.data, "countryId"));
-}, DEBOUNCE_DELAY);
+//  --- methods
 
-const selectAddress = (data: SearchItem) => {
-  if (data.id === "additional") {
-    setShowAddressFields(true);
-    return;
-  }
+function getSuggestions(query: string) {
+  search(query, get(control.value.data, "countryId"));
+}
+
+function selectAddress(data: SearchItem) {
+  setShowAddressFields(true);
+
+  if (data.id === "additional") return;
 
   getPlaceDetails(data.id).then((place: Place | undefined) => {
-    if (!place) {
-      setShowAddressFields(true);
-      return;
+    if (place) {
+      onInput(
+        {
+          ...control.value.data,
+          ...place.address
+        },
+        false
+      );
     }
-    setAddress(place.address as Address);
   });
-};
+}
 
-const setAddress = async (address: Address) => {
-  setShowAddressFields(true);
-  onInput(
-    {
-      ...control.value.data,
-      ...address
-    },
-    false
-  );
-};
-
-const setShowAddressFields = (value: boolean) => {
-  showAddressFields.value = value;
-  onInput(
-    {
-      ...control.value.data,
-      showAddressFields: value
-    },
-    false
-  );
-};
+function setShowAddressFields(value: boolean = true) {
+  open.value = value;
+}
 </script>
 
 <script lang="ts">
 import { and, isLayout, uiTypeIs } from "@jsonforms/core";
-import { utils } from "@upmind-automation/headless";
-const { DEBOUNCE_DELAY } = utils;
 
 export const tester = {
   rank: 2,

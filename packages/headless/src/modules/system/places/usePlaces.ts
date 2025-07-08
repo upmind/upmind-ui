@@ -1,9 +1,16 @@
 // --- external
 import { Loader } from "@googlemaps/js-api-loader";
-import { compact, find, isEmpty, isNil, map, reduce } from "lodash-es";
+import {
+  compact,
+  debounce,
+  find,
+  isEmpty,
+  isNil,
+  map,
+  reduce
+} from "lodash-es";
 
 // --- internal
-import { useQuery } from "../../query";
 import { useSystem } from "..";
 
 // --- utils
@@ -11,19 +18,13 @@ import { parsePlaces, usePlaceParser } from "./utils";
 
 // --- types
 import type {
-  AutocompleteSuggestions,
   Place,
   PlacePrediction,
   PlacePredictions,
   PlaceService
 } from "./types";
-import {
-  DetailedError,
-  ErrorOrigin,
-  responseCodes,
-  useTime
-} from "../../../utils";
-import { computed, ref } from "vue";
+import { DEBOUNCE_DELAY } from "../../../utils";
+import { ref } from "vue";
 
 // Private places instance
 let places: PlaceService | undefined;
@@ -121,16 +122,12 @@ export const usePlaces = () => {
   }
 
   async function getPlaceDetails(
-    id: google.maps.places.Place["placeId"]
+    id: google.maps.places.PlacePrediction["placeId"]
   ): Promise<Place | undefined> {
-    if (!places)
-      throw new DetailedError(
-        "Places service not available",
-        responseCodes.Not_Found,
-        ErrorOrigin.External
-      );
+    if (!places) return Promise.resolve(undefined);
 
     const prediction = find(placePredictions.value, ["placeId", id]);
+
     if (!prediction) return Promise.resolve(undefined);
 
     // Fetch the prediction details using the new API
@@ -157,7 +154,7 @@ export const usePlaces = () => {
      * @param countryCode Optional country id to restrict results
      * @returns Promise with array of address placePredictions
      */
-    search,
+    search: debounce(search, DEBOUNCE_DELAY),
 
     /**
      * Get details for a specific place from the placePredictions

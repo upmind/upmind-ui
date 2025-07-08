@@ -196,8 +196,10 @@ async function parse(
 
   // sometimes the machine can return the full context as data, so we check to see if we have a model
   // if not, then we assume the data is the model
-  const safeModel: UnifiedModel =
-    useModelParser(schema, get(data, "model", data), baseModel) ?? {};
+  const safeModel: UnifiedModel = useModelParser(
+    schema,
+    get(data, "model", data)
+  );
 
   if (safeModel?.address) {
     country = getCountry(
