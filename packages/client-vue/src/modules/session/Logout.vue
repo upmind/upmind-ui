@@ -53,7 +53,7 @@ const router = useRouter();
 const { t } = useI18n();
 const { isResolved } = useRoutingEngine();
 const { logout } = useSession();
-const { storefrontUrl, uiCart } = useBrand();
+const { storefrontUrl, uiCart, isReady } = useBrand();
 
 // if we are not logged out, we should log out
 await isResolved(ROUTE.SESSION_END).catch(() => logout());
@@ -72,7 +72,9 @@ const props = withDefaults(defineProps<InterstitialProps>(), {
   })
 });
 
-const resolvedRoute = uiCart.value?.catalogue?.enabled
-  ? router.resolve({ name: ROUTE.CATALOGUE })?.fullPath
-  : (storefrontUrl.value ?? "/");
+await isReady();
+const resolvedRoute =
+  uiCart.value?.catalogue?.enabled && router.hasRoute(ROUTE.CATALOGUE)
+    ? router.resolve({ name: ROUTE.CATALOGUE })?.fullPath
+    : (storefrontUrl.value ?? "/");
 </script>
