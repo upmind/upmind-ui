@@ -38,18 +38,17 @@
 // --- external
 import { computed, ref } from "vue";
 import { useVModel } from "@vueuse/core";
-// --- internal
+import { useI18n } from "vue-i18n";
 
 // --- components
 import Form from "./Form.vue";
 import List from "./List.vue";
 import Select from "./Select.vue";
-
-// --- utils
+import { FormLabel } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { ManageRendererProps } from "./types";
-import { get, mixin } from "lodash-es";
+import { get } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -79,6 +78,8 @@ const emits = defineEmits<{
 
 // -----------------------------------------------------------------------------
 const { meta, isReady } = props.manage.useList();
+
+const { t } = useI18n();
 
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true
