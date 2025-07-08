@@ -28,6 +28,7 @@
         @reject="doReject"
         :additional-errors="validationErrors"
         :processing="meta.isProcessing"
+        :no-actions="noActions"
       >
         <template #actions="{ doReject, doResolve }">
           <Actions
@@ -75,6 +76,7 @@ const props = defineProps<{
   open?: boolean;
   modal?: boolean;
   options?: Record<string, any>; // additional options for the mutation composable
+  noActions?: boolean;
 }>();
 
 const emits = defineEmits<{

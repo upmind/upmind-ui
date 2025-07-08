@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!meta.isLoading" class="flex w-full flex-col gap-6 pt-2">
+  <div v-if="!meta.isLoading" class="flex w-full flex-col gap-4 pt-2">
     <Form
       v-if="showForm"
       i18nKey="client.address"
