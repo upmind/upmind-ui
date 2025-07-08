@@ -10,9 +10,18 @@
     required
   >
     <template #item="{ item }">
-      <slot name="item" v-bind="{ item, readonly, doEdit, doRemove }">
+      <slot
+        name="item"
+        v-bind="{
+          item: getItem(item.id!),
+
+          readonly,
+          doEdit,
+          doRemove
+        }"
+      >
         <Item
-          v-bind="item"
+          v-bind="getItem(item.id!)"
           :i18nKey="i18nKey"
           :readonly="props.readonly"
           @edit="doEdit"
@@ -21,18 +30,20 @@
       </slot>
     </template>
   </SelectCards>
-  <Link
-    v-if="parsedValues.length > 1 && !readonly"
-    :label="t(`${i18nKey ?? 'manage'}.actions.add`)"
-    size="xs"
-    variant="muted"
-    @click="doAdd"
-  />
+  <slot name="actions" v-bind="{ open, meta, doAdd }">
+    <Link
+      v-if="parsedValues.length > 1 && !readonly"
+      :label="t(`${i18nKey ?? 'manage'}.actions.add`)"
+      size="xs"
+      variant="muted"
+      @click="doAdd"
+    />
+  </slot>
 </template>
 
 <script setup lang="ts">
 // --- external
-import { computed } from "vue";
+import { computed, type HtmlHTMLAttributes } from "vue";
 import { useI18n } from "vue-i18n";
 import { useVModel } from "@vueuse/core";
 
@@ -43,7 +54,7 @@ import { SelectCards, Link } from "@upmind-automation/upmind-ui";
 import Item from "./Item.vue";
 
 // --- utils
-import { map } from "lodash-es";
+import { find, map } from "lodash-es";
 
 // --- types
 import type { SelectCardsItemProps } from "@upmind-automation/upmind-ui";
@@ -58,7 +69,7 @@ const props = defineProps<{
   readonly?: boolean;
   open?: boolean;
   minimal?: boolean; // if true, the component will not show the actions and will not be collapsible
-  class?: string;
+  class?: HtmlHTMLAttributes["class"];
 }>();
 
 const emits = defineEmits<{
@@ -96,6 +107,11 @@ const parsedValues = computed(() => {
     };
   }) as SelectCardsItemProps[];
 });
+
+// --- methods
+function getItem(id: string) {
+  return find(data.value, ["id", id]);
+}
 
 function doAdd() {
   emits("add");
