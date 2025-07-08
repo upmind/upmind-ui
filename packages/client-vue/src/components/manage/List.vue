@@ -14,7 +14,7 @@
         name="item"
         v-bind="{
           item: getItem(item.id!),
-          readonly: readonly || !open || parsedValues.length === 1,
+          readonly: readonly || (!open && parsedValues.length > 1),
           doEdit,
           doRemove
         }"
