@@ -5,16 +5,23 @@
     v-model="modelValue"
     :items="parsedValues"
     :class="props.class"
-    minimal
+    :minimal="props.minimal"
     :list="false"
     required
+    :ui-config="
+      {
+        select: {
+          item: 'p-0',
+          trigger: 'p-0'
+        }
+      } as any
+    "
   >
     <template #item="{ item }">
       <slot
         name="item"
         v-bind="{
-          item: getItem(item.id!),
-
+          item,
           readonly,
           doEdit,
           doRemove
@@ -27,6 +34,12 @@
           @edit="doEdit"
           @remove="doRemove"
         />
+      </slot>
+    </template>
+
+    <template #dropdown-item="{ item }">
+      <slot name="item" v-bind="{ item, readonly, doEdit, doRemove }">
+        <Item v-bind="getItem(item.id!)" :i18nKey="i18nKey" />
       </slot>
     </template>
   </SelectCards>

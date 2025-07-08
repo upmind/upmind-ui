@@ -2,7 +2,7 @@
   <footer class="flex flex-col gap-2 md:flex-row md:justify-start">
     <Button
       :label="t(`${i18nKey ?? 'manage'}.actions.resolve`)"
-      color="secondary"
+      color="primary"
       :disabled="props.disabled || props.loading"
       :loading="props.processing"
       @click="emits('save')"
@@ -10,7 +10,7 @@
     <Button
       v-if="!props.noCancel"
       :label="t(`${i18nKey ?? 'manage'}.actions.reject`)"
-      color="secondary"
+      color="base"
       variant="ghost"
       :disabled="props.loading"
       :loading="props.processing"

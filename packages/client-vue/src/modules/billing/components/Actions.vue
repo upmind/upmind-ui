@@ -2,14 +2,14 @@
   <footer class="flex flex-col gap-2 md:flex-row md:justify-start">
     <Button
       :label="t(`client.${type}.actions.resolve`)"
-      color="secondary"
+      color="primary"
       :disabled="props.disabled || props.loading"
       :loading="props.processing"
       @click="emits('save')"
     />
     <Button
       :label="t(`client.${type}.actions.reject`)"
-      color="secondary"
+      color="primary"
       variant="ghost"
       :disabled="props.loading"
       :loading="props.processing"
