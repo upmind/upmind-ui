@@ -102,10 +102,10 @@ async function update(id: Email["id"], data: EmailModel) {
 
 async function ensure(model: EmailModel): Promise<Email> {
   const mapping = omitBy(model, isEmpty);
-  const existing = await loadList().promise.value.then(
-    ({ data }) => data || []
-  );
-  const { findOne } = useCollection<Email>(existing);
+  const { data, promise } = loadList();
+  await promise.value.finally(); // wait for the query to resolve
+
+  const { findOne } = useCollection<Email>(data.value ?? []);
   const found = findOne(mapping);
   if (found) return Promise.resolve(found);
 

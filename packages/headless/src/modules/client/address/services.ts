@@ -35,30 +35,6 @@ import type { Address, AddressModel, AddressContext } from "./types";
 const queryKey: QueryKey = ["client", "addresses"];
 const { addError, addSuccess } = useFeedback();
 
-async function load() {
-  const { meta, user } = useSession();
-  const { get, useUrl } = useQuery();
-
-  return get<IAddress[], Address[]>({
-    queryKey,
-    url: useUrl(`clients/${user.value?.id}/addresses`, {
-      with: ["region", "country"].join()
-    }),
-    withAccessToken: true,
-    guard: async () =>
-      new Promise((resolve, reject) => {
-        if (meta.value.isAuthenticated && !!user.value?.id) {
-          resolve(true);
-        } else {
-          reject(new NotAuthenticatedError());
-        }
-      }),
-    // --- options
-    select: mapAddresses
-    // staleTime: useTime().DAY
-  });
-}
-
 function loadList(params?: Partial<QueryParams>) {
   const { meta, user } = useSession();
   const { list, useUrl } = useQuery();

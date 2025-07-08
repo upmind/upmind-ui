@@ -76,10 +76,13 @@ import type { ComputedRef } from "vue";
 import type { AuthProps } from "./types";
 // -----------------------------------------------------------------------------
 
-const emit = defineEmits(["update:modelValue", "resolve", "reject"]);
-const props = withDefaults(defineProps<AuthProps>(), {
-  modelValue: "login",
+const emit = defineEmits(["resolve", "reject"]);
+const props = withDefaults(defineProps<Omit<AuthProps, "modelValue">>(), {
   color: "primary"
+});
+
+const modelValue = defineModel<AuthProps["modelValue"]>("modelValue", {
+  default: "login"
 });
 
 const { t } = useI18n();
@@ -167,17 +170,17 @@ function toggleForm(type: AuthProps["modelValue"]) {
   switch (type) {
     case "login":
       if (!meta.value.showLoginForm) {
-        showLogin().then(() => emit("update:modelValue", "login"));
+        showLogin().then(() => (modelValue.value = "login"));
       }
       break;
     case "register":
       if (!meta.value.showRegisterForm) {
-        showRegister().then(() => emit("update:modelValue", "register"));
+        showRegister().then(() => (modelValue.value = "register"));
       }
       break;
     case "recover":
       if (!meta.value.showRecoverPasswordForm) {
-        showRecoverPassword().then(() => emit("update:modelValue", "recover"));
+        showRecoverPassword().then(() => (modelValue.value = "recover"));
       }
       break;
   }
@@ -194,14 +197,18 @@ function doReject() {
 }
 
 onMounted(() => {
-  toggleForm(props.modelValue);
+  toggleForm(modelValue.value);
 });
 
 watch(meta, ({ canShowForms, isAuthenticated }) => {
-  if (canShowForms) toggleForm(props.modelValue);
+  if (canShowForms) toggleForm(modelValue.value);
   if (isAuthenticated) {
     emit("resolve", model.value);
   }
+});
+
+watch(modelValue, newValue => {
+  toggleForm(newValue);
 });
 </script>
 

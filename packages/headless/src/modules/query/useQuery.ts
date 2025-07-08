@@ -64,7 +64,10 @@ const queryClient = new QueryClient({
       // Default time for inactive data to be garbage collected
       gcTime: useTime().MINUTE * 30,
       // Default cache time for data to be considered "fresh"
-      staleTime: useTime().MINUTE * 5
+      staleTime: useTime().MINUTE * 5,
+
+      // allow prefetching in the render phase, we need this for services and machine queries
+      experimental_prefetchInRender: true
     }
   }
 });

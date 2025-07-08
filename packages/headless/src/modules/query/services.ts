@@ -91,11 +91,7 @@ async function doFetch<T extends any = any>({
       )
     );
 
-  if (
-    init.method == Methods.GET.toUpperCase() &&
-    !url.searchParams.has("lang") &&
-    !startsWith(url.pathname, "/oauth/")
-  ) {
+  if (!url.searchParams.has("lang") && !startsWith(url.pathname, "/oauth/")) {
     const { locale } = useLocale();
     if (!isEmpty(locale.value))
       url.searchParams.set("lang", locale.value as string);
