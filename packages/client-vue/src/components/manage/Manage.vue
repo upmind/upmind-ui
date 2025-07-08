@@ -61,6 +61,7 @@ const props = withDefaults(
     readonly?: boolean;
     as?: "list" | "select";
     identifier?: string; // optional property to use for the list/model to  identify the item, defaults to "id"
+    minimal?: boolean;
     class?: string;
     minimal?: boolean; // if true, the list will be rendered as a minimal list
   }>(),
