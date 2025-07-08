@@ -25,7 +25,7 @@ export interface SelectCardsProps extends RadioGroupRootProps {
   // --- state
   items: SelectCardsItemProps[];
   loading?: boolean;
-  disabled: boolean;
+  disabled?: boolean;
   // ---
   color?: ButtonProps["color"];
   side?: PopoverContentProps["side"];
