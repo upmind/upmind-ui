@@ -71,8 +71,8 @@ export const useUpmindUIRenderer = <
   );
 
   const onInput = (value: any, isTouched: boolean = true) => {
-    touched.value = isTouched;
     input.handleChange(input.control.value.path, adaptTarget(value));
+    touched.value = isTouched;
   };
 
   const formFieldProps = computed(() => {
