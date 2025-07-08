@@ -52,7 +52,7 @@
       "default": "Default",
       "actions": {
         "change": "Change",
-        "add": "Add new phone number",
+        "add": "Add new phone",
         "close": "Close",
         "edit": "Edit",
         "resolve": "Save details",
