@@ -22,7 +22,7 @@
         :model-value="model"
         :schema="schema"
         :uischema="uischema"
-        color="secondary"
+        color="primary"
         @update:modelValue="doInput"
         @resolve="doResolve"
         @reject="doReject"

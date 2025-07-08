@@ -15,7 +15,7 @@
       @click="navigate(ROUTE.BASKET)"
     >
       <template #prepend>
-        <Icon icon="cart" size="3xs" />
+        <Icon icon="cart" size="2xs" />
       </template>
     </Button>
 
@@ -41,7 +41,7 @@
       <Avatar
         v-bind="user.avatar"
         size="xs"
-        class="cursor-pointer"
+        class="h-10 w-10 cursor-pointer"
         focusable
         :class="styles.header.avatar.session"
       />

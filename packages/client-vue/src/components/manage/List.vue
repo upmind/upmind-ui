@@ -5,8 +5,8 @@
     v-model="modelValue"
     :items="parsedValues"
     :class="props.class"
-    :minimal="props.minimal"
     :list="false"
+    :minimal="props.minimal"
     required
   >
     <template #item="{ item }">
