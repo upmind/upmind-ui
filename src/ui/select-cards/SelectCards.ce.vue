@@ -41,6 +41,13 @@
             {{ item.label }}
           </slot>
         </DropdownMenuItem>
+
+        <DropdownMenuItem
+          v-if="slots['additional-item']"
+          :class="styles.select.item"
+        >
+          <slot name="additional-item" />
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenuPortal>
   </DropdownMenuRoot>
@@ -50,7 +57,7 @@
 // --- external
 import { first, find } from "lodash-es";
 import { useVModel } from "@vueuse/core";
-import { ref, computed } from "vue";
+import { ref, computed, useSlots } from "vue";
 import { vIntersectionObserver } from "@vueuse/components";
 
 // --- internal
@@ -72,6 +79,7 @@ import type { SelectCardsProps, SelectCardsItemProps } from "./types";
 import type { ComputedRef } from "vue";
 
 const props = defineProps<SelectCardsProps>();
+const slots = useSlots();
 
 const emits = defineEmits(["update:modelValue"]);
 
