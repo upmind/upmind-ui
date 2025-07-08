@@ -1,8 +1,5 @@
 <template>
   <div v-if="!meta.isLoading" class="w-full">
-    <FormLabel :formItemId="i18nKey">{{
-      t(`${i18nKey ?? "manage"}.label`)
-    }}</FormLabel>
     <component
       :is="component"
       :i18nKey="i18nKey"
