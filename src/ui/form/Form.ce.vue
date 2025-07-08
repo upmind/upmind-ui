@@ -142,7 +142,7 @@ const uischema = useVModel(props, "uischema", emits, {
 const errors = ref<ErrorObject[]>([]);
 const touched = useVModel(props, "touched", emits, {
   passive: true,
-  defaultValue: false
+  defaultValue: !isEmpty(props.additionalErrors)
 });
 
 // ---
@@ -154,7 +154,7 @@ const meta = computed(() => {
     isProcessing: props.processing,
     isPristine: isDeepEmpty(model.value),
     isDirty: baseModel !== model.value,
-    isTouched: touched.value || !isEmpty(props.additionalErrors),
+    isTouched: touched.value,
     isValid: isEmpty(errors.value),
     isDisabled: props.disabled || props.processing
   };
@@ -345,9 +345,7 @@ watch(
   ({ uischema, additionalErrors, touched }) => {
     syncUischema();
     updateUischema(uischema);
-    if (!isEmpty(additionalErrors) || touched) {
-      forceTouched();
-    }
+    if (touched) forceTouched();
   },
   { deep: true }
 );
