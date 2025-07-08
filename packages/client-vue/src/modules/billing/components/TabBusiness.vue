@@ -20,6 +20,7 @@
           useList: useClientPhones,
           useMutate: useClientPhone
         }"
+        show-label
       >
         <template #item="{ item, readonly, doEdit, doRemove }">
           <PhoneItem
@@ -39,6 +40,7 @@
           useList: useClientCompanies,
           useMutate: useClientCompany
         }"
+        :show-label="!!selectedCompany"
       >
         <template #item="{ item, readonly, doEdit, doRemove }">
           <CompanyItem
