@@ -27,7 +27,12 @@
         :label="t('header.login')"
       >
         <template #prepend>
-          <Avatar icon="account" size="3xs" class="-ml-1.5" />
+          <Avatar
+            icon="account"
+            size="3xs"
+            class="-ml-1"
+            :class="styles.header.avatar.login"
+          />
         </template>
       </Button>
     </SessionLoginPopover>
@@ -55,7 +60,7 @@ import {
   ROUTE,
   useRoutingEngine
 } from "@upmind-automation/headless";
-import { cn, useStyles } from "@upmind-automation/upmind-ui";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./header.config";
 
 // --- components

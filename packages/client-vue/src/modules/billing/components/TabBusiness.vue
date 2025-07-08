@@ -34,7 +34,8 @@
         v-if="billingMeta.needsPhone"
         i18n-key="client.phone"
         v-model="selectedPhone"
-        minimal
+        as="select"
+        class="p-0"
         :manage="{
           useList: useClientPhones,
           useMutate: useClientPhone
