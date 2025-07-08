@@ -5,7 +5,7 @@
     v-model="modelValue"
     :items="parsedValues"
     :class="props.class"
-    minimal
+    :minimal="props.minimal"
     :list="false"
     required
   >

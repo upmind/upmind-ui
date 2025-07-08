@@ -8,6 +8,7 @@
       v-model="modelValue"
       :readonly="props.readonly"
       :class="props.class"
+      :minimal="props.minimal"
       @add="doAdd"
       @edit="doEdit"
     >
@@ -48,7 +49,7 @@ import Select from "./Select.vue";
 
 // --- types
 import type { ManageRendererProps } from "./types";
-import { get } from "lodash-es";
+import { get, mixin } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -61,6 +62,7 @@ const props = withDefaults(
     as?: "list" | "select";
     identifier?: string; // optional property to use for the list/model to  identify the item, defaults to "id"
     class?: string;
+    minimal?: boolean; // if true, the list will be rendered as a minimal list
   }>(),
   {
     i18nKey: "manage",
