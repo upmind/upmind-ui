@@ -42,11 +42,6 @@ import ContentSection from "../../components/content/ContentSection.vue";
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 import { ROUTE, useBrand } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
-const { t } = useI18n();
-const router = useRouter();
-const { storefrontUrl, uiCart } = useBrand();
-const route = useRoute();
-const routeMeta = route.meta;
 
 const props = withDefaults(defineProps<InterstitialProps>(), {
   open: true,
@@ -61,12 +56,20 @@ const props = withDefaults(defineProps<InterstitialProps>(), {
     size: "4xl"
   })
 });
+// -----------------------------------------------------------------------------
+const { t } = useI18n();
+const router = useRouter();
+const { storefrontUrl, uiCart, isReady } = useBrand();
+const route = useRoute();
+const routeMeta = route.meta;
 
 const meta = computed(() => ({
   useModal: routeMeta.modal !== false
 }));
 
-const resolvedRoute = uiCart.value?.catalogue?.enabled
-  ? router.resolve({ name: ROUTE.CATALOGUE })?.fullPath
-  : (storefrontUrl.value ?? "/");
+await isReady();
+const resolvedRoute =
+  uiCart.value?.catalogue?.enabled && router.hasRoute(ROUTE.CATALOGUE)
+    ? router.resolve({ name: ROUTE.CATALOGUE })?.fullPath
+    : (storefrontUrl.value ?? "/");
 </script>

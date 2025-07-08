@@ -38,7 +38,7 @@ import { ROUTE, useBrand } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 const { t, tm } = useI18n();
 const router = useRouter();
-const { storefrontUrl, uiCart } = useBrand();
+const { storefrontUrl, uiCart, isReady } = useBrand();
 
 const props = withDefaults(
   defineProps<
@@ -124,7 +124,9 @@ const actions = computed((): InterstitialActionProps[] => {
   return isNil(props.actions) ? [defaultAction] : props.actions;
 });
 
-const resolvedRoute = uiCart.value?.catalogue?.enabled
-  ? router.resolve({ name: ROUTE.CATALOGUE })?.fullPath
-  : (storefrontUrl.value ?? "/");
+await isReady();
+const resolvedRoute =
+  uiCart.value?.catalogue?.enabled && router.hasRoute(ROUTE.CATALOGUE)
+    ? router.resolve({ name: ROUTE.CATALOGUE })?.fullPath
+    : (storefrontUrl.value ?? "/");
 </script>

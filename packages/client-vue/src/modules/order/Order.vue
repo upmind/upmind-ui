@@ -153,9 +153,10 @@ const processing = ref(false);
 
 function doAction() {
   if (!meta.value.isAuthenticated) {
-    const resolvedRoute = uiCart.value?.catalogue?.enabled
-      ? router.resolve({ name: ROUTE.CATALOGUE })?.fullPath
-      : (storefrontUrl.value ?? "/");
+    const resolvedRoute =
+      uiCart.value?.catalogue?.enabled && router.hasRoute(ROUTE.CATALOGUE)
+        ? router.resolve({ name: ROUTE.CATALOGUE })?.fullPath
+        : (storefrontUrl.value ?? "/");
 
     window.location.href = resolvedRoute;
     processing.value = false;
