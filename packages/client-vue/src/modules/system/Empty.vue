@@ -9,7 +9,7 @@
           {
             as: 'a',
             color: 'secondary',
-            href: storefrontUrl,
+            href: resolvedRoute,
             appendIcon: {
               icon: 'arrow-right',
               size: '2xs'
@@ -30,7 +30,7 @@
 // --- external
 import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { computed } from "vue";
 
 // -- components
@@ -40,10 +40,11 @@ import ContentSection from "../../components/content/ContentSection.vue";
 
 // -- types
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
-import { useBrand } from "@upmind-automation/headless";
+import { ROUTE, useBrand } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
-const { storefrontUrl } = useBrand();
+const router = useRouter();
+const { storefrontUrl, uiCart } = useBrand();
 const route = useRoute();
 const routeMeta = route.meta;
 
@@ -64,4 +65,8 @@ const props = withDefaults(defineProps<InterstitialProps>(), {
 const meta = computed(() => ({
   useModal: routeMeta.modal !== false
 }));
+
+const resolvedRoute = uiCart.value?.catalogue?.enabled
+  ? router.resolve({ name: ROUTE.CATALOGUE })?.fullPath
+  : (storefrontUrl.value ?? "/");
 </script>

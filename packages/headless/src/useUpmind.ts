@@ -80,7 +80,10 @@ class Upmind {
   storefrontUrl?: string;
 
   constructor() {
-    this.queryClient = useQuery().queryClient;
+    debugger;
+    const { queryClient } = useQuery();
+    debugger;
+    this.queryClient = queryClient;
   }
 
   init({
