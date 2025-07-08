@@ -116,8 +116,9 @@ const container = useTemplateRef("container");
 // wait till we mount then try to render the gateway if it's provided
 // otherwise watch in case it's provided later
 onMounted(() => {
-  if (isFunction(renderer.value) && container.value) {
-    renderer.value(container.value).catch((err: any) => {
+  if (isFunction(renderer.value)) {
+    if (!container.value || container.value?.innerHTML) return;
+    renderer.value(container.value)?.catch((err: any) => {
       if (err) console.error(err);
     });
   } else {
@@ -126,11 +127,11 @@ onMounted(() => {
       if (!container.value || container.value?.innerHTML) return;
 
       render(container.value)
-        .then(() => {
+        ?.then(() => {
           // stop watching once rendered
           stop();
         })
-        .catch((err: any) => {
+        ?.catch((err: any) => {
           if (err) console.error(err);
         });
     });
