@@ -43,7 +43,7 @@
         </DropdownMenuItem>
 
         <DropdownMenuItem
-          v-if="slots['additional-item']"
+          v-if="$slots['additional-item']"
           :class="styles.select.item"
         >
           <slot name="additional-item" />
@@ -79,7 +79,6 @@ import type { SelectCardsProps, SelectCardsItemProps } from "./types";
 import type { ComputedRef } from "vue";
 
 const props = defineProps<SelectCardsProps>();
-const slots = useSlots();
 
 const emits = defineEmits(["update:modelValue"]);
 
