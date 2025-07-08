@@ -12,7 +12,12 @@
     <template #item="{ item }">
       <slot
         name="item"
-        v-bind="{ item: getItem(item.id!), readonly, doEdit, doRemove }"
+        v-bind="{
+          item: getItem(item.id!),
+          readonly: readonly || !open || parsedValues.length === 1,
+          doEdit,
+          doRemove
+        }"
       >
         <Item
           v-bind="getItem(item.id!)"
@@ -26,21 +31,31 @@
 
     <template #actions>
       <slot name="actions" v-bind="{ open, meta, doAdd }">
-        <Link
-          v-if="!open && parsedValues.length > 1"
-          :label="t(`${i18nKey ?? 'manage'}.actions.change`)"
-          size="xs"
-          variant="muted"
-          @click="open = true"
-        />
+        <footer class="mt-1 flex space-x-2">
+          <Link
+            v-if="!open && parsedValues.length > 1"
+            :label="t(`${i18nKey ?? 'manage'}.actions.change`)"
+            size="xs"
+            variant="muted"
+            @click="open = true"
+          />
 
-        <Link
-          v-else-if="!readonly"
-          :label="t(`${i18nKey ?? 'manage'}.actions.add`)"
-          size="xs"
-          variant="muted"
-          @click="doAdd"
-        />
+          <Link
+            v-else-if="!readonly"
+            :label="t(`${i18nKey ?? 'manage'}.actions.add`)"
+            size="xs"
+            variant="muted"
+            @click="doAdd"
+          />
+
+          <Link
+            v-if="open"
+            :label="t(`${i18nKey ?? 'manage'}.actions.close`)"
+            size="xs"
+            variant="muted"
+            @click="open = false"
+          />
+        </footer>
       </slot>
     </template>
   </RadioCardsCollapsible>
