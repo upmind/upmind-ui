@@ -1,6 +1,6 @@
 <template>
   <div :class="styles.products.root">
-    <nav :class="styles.products.facets.root" v-if="uiMeta?.catalog?.facet">
+    <nav :class="styles.products.facets.root" v-if="uiCart?.catalog?.facet">
       <CategoriesFacet v-model="categoryId" />
     </nav>
     <main
@@ -152,11 +152,11 @@ const direction = defineModel<ProductSortProps["direction"]>("direction", {
 
 const { t } = useI18n();
 
-const { uiMeta } = useBrand();
+const { uiCart } = useBrand();
 
 const { data, meta, pagination, filters, sort, nextPage, prevPage } =
   useProductCatalogue({
-    // infinite: !!uiMeta.value?.catalog?.infinite, // TODO
+    // infinite: !!uiCart.value?.catalog?.infinite, // TODO
     pagination: {
       limit: PRODUCTS_PER_PAGE
     }

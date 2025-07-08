@@ -8,6 +8,8 @@ export enum ROUTE {
   LOADING = "loading",
   ERROR = "error",
   UNAVAILABLE = "unavailable",
+  // --- shop routes
+  CATALOGUE = "catalogue",
   // --- product routes
   PRODUCT_ADD = "product.add",
   PRODUCT_EDIT = "product.edit",
@@ -28,7 +30,6 @@ export enum ROUTE {
   BASKET = "basket",
   CHECKOUT = "checkout",
   ORDER = "order",
-  SHOP = "order.shop",
   // --- express routes
   EXPRESS_PRODUCT_ADD = "express.product.add",
   EXPRESS_CHECKOUT = "express.checkout",

@@ -21,7 +21,7 @@ import type { Theme } from "@upmind-automation/upmind-ui";
 export const useBrandTheme = (initial?: Theme) => {
   const {
     meta: brandMeta,
-    uiMeta,
+    uiTheme,
     favicon,
     name,
     styles,
@@ -46,7 +46,7 @@ export const useBrandTheme = (initial?: Theme) => {
   // the theme definition
   const theme = ref<Theme | undefined>(initial);
 
-  const available = computed(() => uiMeta.value?.variants);
+  const available = computed(() => uiTheme.value?.variants);
 
   const meta = computed(() => ({
     isAvailable: brandMeta.value.isAvailable,
@@ -57,7 +57,7 @@ export const useBrandTheme = (initial?: Theme) => {
   const set = (value: string) => {
     if (isEqual(theme.value?.id, value)) return;
 
-    const config = get(uiMeta.value, ["variants", value]);
+    const config = get(uiTheme.value, ["variants", value]);
     if (config) {
       theme.value = createTheme(value, config);
       apply();
@@ -87,7 +87,7 @@ export const useBrandTheme = (initial?: Theme) => {
     // if no variants are available, use the default `upmind` variant
 
     const variant =
-      uiMeta.value?.variant ?? first(keys(available.value)) ?? "upmind";
+      uiTheme.value?.variant ?? first(keys(available.value)) ?? "upmind";
 
     // Otherwis get the available brands variants
     set(variant);

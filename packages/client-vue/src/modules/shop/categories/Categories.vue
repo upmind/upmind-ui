@@ -3,7 +3,7 @@
     <CategoriesHeader v-model="modelValue" v-bind="category" />
 
     <nav
-      v-if="hasCategories && !uiMeta?.catalog?.facet"
+      v-if="hasCategories && !uiCart?.catalog?.facet"
       :class="styles.categories.grid"
       role="region"
       aria-label="Product categories"
@@ -49,7 +49,7 @@ const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { uiMeta } = useBrand();
+const { uiCart } = useBrand();
 const { data, meta, getOne } = useProductCategories();
 
 const displayCategories = computed(() => {

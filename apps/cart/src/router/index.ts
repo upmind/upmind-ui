@@ -60,13 +60,13 @@ const router = createRouter({
     },
     {
       path: "/shop",
-      name: ROUTE.SHOP,
+      name: ROUTE.CATALOGUE,
       component: () => UpmShopView
     },
     {
       path: "/product",
       alias: ["/products", "/order/shop"],
-      redirect: { name: ROUTE.SHOP } // Redirect to shop if /product is accessed
+      redirect: { name: ROUTE.CATALOGUE } // Redirect to shop if /product is accessed
     },
     {
       path: "/recommendations",
