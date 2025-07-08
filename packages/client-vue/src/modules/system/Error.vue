@@ -19,6 +19,7 @@
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // -- components
@@ -33,10 +34,11 @@ import ContentSection from "../../components/content/ContentSection.vue";
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 import { computed } from "vue";
 import { isEmpty, isNil } from "lodash-es";
+import { ROUTE, useBrand } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 const { t, tm } = useI18n();
-
-const storefrontUrl = import.meta.env.VITE_APP_STOREFRONT;
+const router = useRouter();
+const { storefrontUrl, uiCart, isReady } = useBrand();
 
 const props = withDefaults(
   defineProps<
@@ -105,7 +107,7 @@ const actions = computed((): InterstitialActionProps[] => {
 
     // for al lother errors, we want to redirect back to the storefront
     default:
-      href = storefrontUrl;
+      href = storefrontUrl.value ?? "/";
       break;
   }
 
@@ -121,4 +123,10 @@ const actions = computed((): InterstitialActionProps[] => {
   };
   return isNil(props.actions) ? [defaultAction] : props.actions;
 });
+
+await isReady();
+const resolvedRoute =
+  uiCart.value?.catalogue?.enabled && router.hasRoute(ROUTE.CATALOGUE)
+    ? router.resolve({ name: ROUTE.CATALOGUE })?.fullPath
+    : (storefrontUrl.value ?? "/");
 </script>

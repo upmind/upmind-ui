@@ -44,6 +44,8 @@ export interface UpmindProps {
   mode?: "default" | "express";
   pop?: IApiPop;
   debug?: boolean;
+  storefrontUrl?: string; // URL of the storefront, used in the app
+  // plugins are registered by the Upmind instance, so we can use them in the app
   plugins?: Record<string, { plugin: any; options?: any }>;
   recaptcha?: { siteKey?: string; enabled?: boolean };
   analytics?: {
@@ -66,28 +68,31 @@ export interface UpmindProps {
 
 class Upmind {
   private status: UpmindStatus = UpmindStatus.notInitialised;
-  debug: UpmindProps["debug"];
-  mode: UpmindProps["mode"] = "default";
-  pop: UpmindProps["pop"];
-  plugins: UpmindProps["plugins"] = {};
   analytics: UpmindProps["analytics"];
-  recaptcha: UpmindProps["recaptcha"];
+  debug: UpmindProps["debug"];
   i18n: UpmindProps["i18n"];
-  router: UpmindProps["router"];
+  mode: UpmindProps["mode"] = "default";
+  plugins: UpmindProps["plugins"] = {};
+  pop: UpmindProps["pop"];
   queryClient: QueryClient;
+  recaptcha: UpmindProps["recaptcha"];
+  router: UpmindProps["router"];
+  storefrontUrl?: string;
 
   constructor() {
-    this.queryClient = useQuery().queryClient;
+    const { queryClient } = useQuery();
+    this.queryClient = queryClient;
   }
 
   init({
+    analytics,
+    debug,
+    i18n,
     mode,
     pop,
-    analytics,
     recaptcha,
     router,
-    i18n,
-    debug
+    storefrontUrl
   }: UpmindProps): Promise<void> {
     if (this.status != UpmindStatus.notInitialised)
       throw new DetailedError(
@@ -103,6 +108,7 @@ class Upmind {
     this.recaptcha = recaptcha;
     this.router = router;
     this.i18n = i18n;
+    this.storefrontUrl = storefrontUrl;
 
     this.initPlugins();
     this.initDebugging();

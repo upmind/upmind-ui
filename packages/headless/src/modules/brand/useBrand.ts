@@ -6,7 +6,7 @@ import { waitFor } from "xstate/lib/waitFor";
 import { useActor } from "@xstate/vue";
 
 // --- internal
-
+import useUpmind from "../../";
 import brandMachine from "./brand.machine";
 
 // --- utils
@@ -357,6 +357,14 @@ export const useBrand = () => {
      * The current cart meta object for the brand.
      */
     uiCart,
+
+    /**
+     * The URL of the storefront for the brand.
+     * This is derived from the cart meta or environment variable.
+     */
+    storefrontUrl: computed(
+      () => useUpmind.storefrontUrl ?? uiCart.value?.storefront_url
+    ),
 
     /**
      * The current language object for the brand.
