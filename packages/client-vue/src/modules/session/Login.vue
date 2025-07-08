@@ -4,7 +4,7 @@
       <ContentSection class="mx-auto max-w-2xl">
         <Button
           type="reset"
-          class="relative -top-4 md:-top-6"
+          class="bg-base-background relative -top-4 md:-top-6"
           size="sm"
           variant="tonal"
           color="base"

@@ -34,6 +34,7 @@
           :disabled="isEmpty(inputValue)"
           :loading="isLoading"
           size="md"
+          color="secondary"
           :class="styles.domain.search.action"
           @click="emit('search', inputValue)"
         >

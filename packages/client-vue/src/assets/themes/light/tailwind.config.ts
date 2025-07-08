@@ -31,7 +31,7 @@ const colors = {
     foreground: "var(--foreground,#121217)",
     background: "var(--background-surface,#FFFFFF)",
     muted: {
-      DEFAULT: "#ffffff",
+      DEFAULT: "#F8F8FB",
       foreground: "var(--muted-foreground,#121217)",
       active: "var(--primary,#FA2F62)"
     }
@@ -47,7 +47,7 @@ const colors = {
     700: "#009656",
     800: "#067547",
     900: "#0D493D",
-    950: "#003720",
+    950: "#02183180",
     foreground: "var(--primary-foreground,#FFFFFF)",
     background: "var(--primary-background,#FA2F62)",
     muted: {

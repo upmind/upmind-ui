@@ -144,7 +144,7 @@ const emit = defineEmits<{
 const props = withDefaults(defineProps<DomainProps>(), {
   type: DomainTypes.register,
   modelValue: "",
-  color: "secondary"
+  color: "primary"
 });
 const { t, tm, rt } = useI18n();
 
