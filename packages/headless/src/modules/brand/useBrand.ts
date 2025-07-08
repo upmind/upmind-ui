@@ -98,7 +98,31 @@ export const useBrand = () => {
 
   const favicon = useContext<IBrand["favicon"]>(state, "favicon");
 
-  const uiMeta = useContext<IBrandMeta>(state, "meta");
+  // const uiMeta = useContext<IBrandMeta>(state, "meta");
+
+  const uiTheme = computed(
+    (): {
+      variants: IBrandMeta["variants"];
+      variant: IBrandMeta["variant"];
+    } => {
+      const variants = contextValue<IBrandMeta["variants"]>(
+        state,
+        "meta.variants",
+        {}
+      );
+      const variant = contextValue<IBrandMeta["variant"]>(
+        state,
+        "meta.variant"
+      );
+
+      return {
+        variant,
+        variants
+      };
+    }
+  );
+
+  const uiCart = useContext<IBrandMeta["cart"]>(state, "meta.cart");
 
   const currency = computed(
     (): ICurrency | undefined =>
@@ -325,9 +349,14 @@ export const useBrand = () => {
     favicon,
 
     /**
-     * The current meta object for the brand.
+     * The current theming object for the brand.
      */
-    uiMeta,
+    uiTheme,
+
+    /**
+     * The current cart meta object for the brand.
+     */
+    uiCart,
 
     /**
      * The current language object for the brand.

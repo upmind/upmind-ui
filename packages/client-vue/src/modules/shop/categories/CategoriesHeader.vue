@@ -40,7 +40,7 @@ const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
 
 // -----------------------------------------------------------------------------
 
-const { name, uiMeta } = useBrand();
+const { name, uiCart } = useBrand();
 
 const meta = computed(() => {
   return {
@@ -52,7 +52,7 @@ const meta = computed(() => {
 const title = computed(() => {
   return (
     props.name ||
-    (isEmpty(props.id) && uiMeta.value?.tagline) ||
+    (isEmpty(props.id) && uiCart.value?.tagline) ||
     name.value ||
     ""
   );
@@ -60,7 +60,7 @@ const title = computed(() => {
 
 const description = computed(() => {
   return (
-    props.description || (isEmpty(props.id) && uiMeta.value?.description) || ""
+    props.description || (isEmpty(props.id) && uiCart.value?.description) || ""
   );
 });
 

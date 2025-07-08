@@ -2,6 +2,7 @@
 
 // --- internal
 import { useRoutingEngine } from ".";
+import { useCatalogueFlows } from "./flows/catalogue";
 import { useBasketFlows } from "./flows/basket";
 import { useProductFlows } from "./flows/product";
 import { useRecommendationsFlows } from "./flows/recomendations";
@@ -22,6 +23,7 @@ export * from "./types";
 
 export const useRoutingFlows = () => {
   const routing = useRoutingEngine();
+  const catalogueFlows = useCatalogueFlows();
   const basketFlows = useBasketFlows();
   const productFlows = useProductFlows();
   const recommendationsFlows = useRecommendationsFlows();
@@ -30,6 +32,7 @@ export const useRoutingFlows = () => {
   const orderFlows = useOrderFlows();
 
   return {
+    catalogue: catalogueFlows,
     basket: basketFlows,
     product: productFlows,
     recommendations: recommendationsFlows,
@@ -47,6 +50,7 @@ export const useRoutingFlows = () => {
       const flows = uniqBy(
         concat(
           safeFlows,
+          catalogueFlows.getFlows(),
           basketFlows.getFlows(),
           productFlows.getFlows(),
           recommendationsFlows.getFlows(),
