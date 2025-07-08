@@ -4,7 +4,7 @@
     :data-state="isSelected ? 'checked' : ''"
   >
     <Label :for="`${props.name}-${index}`" :class="cn(styles.radioCards.label)">
-      <div v-show="!props.minimal" :class="styles.radioCards.radio">
+      <div :class="styles.radioCards.radio">
         <RadioGroupItem
           :id="`${props.name}-${index}`"
           :value="value"
@@ -64,7 +64,6 @@ const isSelected = computed(() => {
 
 const meta = computed(() => ({
   isList: props.list,
-  isMinimal: props.minimal,
   width: props.width
 }));
 
