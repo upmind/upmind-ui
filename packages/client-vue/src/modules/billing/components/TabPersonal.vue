@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!meta.isLoading" class="w-full">
+  <div v-if="!meta.isLoading" class="flex w-full flex-col gap-6 pt-2">
     <Form
       v-if="showForm"
       i18nKey="client.address"
@@ -15,7 +15,7 @@
         v-if="billingMeta.needsPhone"
         i18n-key="client.phone"
         v-model="selectedPhone"
-        minimal
+        as="select"
         :manage="{
           useList: useClientPhones,
           useMutate: useClientPhone
@@ -23,7 +23,7 @@
       >
         <template #item="{ item, readonly, doEdit, doRemove }">
           <PhoneItem
-            v-bind="item"
+            v-bind="getPhone(item.id!)!"
             :i18nKey="'client.phone'"
             :readonly="readonly"
             @edit="doEdit"
@@ -42,7 +42,7 @@
       >
         <template #item="{ item, readonly, doEdit, doRemove }">
           <AddressItem
-            v-bind="item"
+            v-bind="getAddress(item.id!)!"
             :i18nKey="'client.address'"
             :readonly="readonly"
             @edit="doEdit"
@@ -158,6 +158,14 @@ const selectedPhone = computed<string | undefined>({
 });
 
 // --- methods
+
+function getAddress(id: string) {
+  return find(addresses.value, { id });
+}
+
+function getPhone(id: string) {
+  return find(phones.value, { id });
+}
 
 function doResolve(value: BillingModel) {
   selectedPhone.value = billingMeta.value.needsPhone
