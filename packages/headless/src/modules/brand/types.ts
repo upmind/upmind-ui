@@ -23,10 +23,11 @@ export interface BrandContext extends IBrandSettings {
 
 export interface IBrandMeta {
   cart: {
+    storefront_url?: string; // URL of the storefront
     layout?: string;
     tagline?: string;
     description?: string;
-    catalog?: {
+    catalogue?: {
       enabled?: boolean;
       facet?: boolean;
     };

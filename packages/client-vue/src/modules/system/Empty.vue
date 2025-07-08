@@ -40,13 +40,12 @@ import ContentSection from "../../components/content/ContentSection.vue";
 
 // -- types
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
+import { useBrand } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
-
+const { storefrontUrl } = useBrand();
 const route = useRoute();
 const routeMeta = route.meta;
-
-const storefrontUrl = import.meta.env.VITE_APP_STOREFRONT;
 
 const props = withDefaults(defineProps<InterstitialProps>(), {
   open: true,

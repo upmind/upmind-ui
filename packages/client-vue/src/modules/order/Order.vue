@@ -60,7 +60,8 @@ import {
   useBasket,
   useRoutingEngine,
   utils,
-  ROUTE
+  ROUTE,
+  useBrand
 } from "@upmind-automation/headless";
 
 // -- components
@@ -73,6 +74,7 @@ const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 
+const { storefrontUrl } = useBrand();
 const { errors } = useBasket();
 const { isResolved } = useRoutingEngine();
 
@@ -152,8 +154,7 @@ const processing = ref(false);
 function doAction() {
   if (!meta.value.isAuthenticated) {
     processing.value = false;
-    const storefrontUrl: string = import.meta.env.VITE_APP_STOREFRONT;
-    window.location.href = storefrontUrl;
+    window.location.href = storefrontUrl.value ?? "/";
     return;
   }
 

@@ -33,10 +33,10 @@ import ContentSection from "../../components/content/ContentSection.vue";
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 import { computed } from "vue";
 import { isEmpty, isNil } from "lodash-es";
+import { useBrand } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 const { t, tm } = useI18n();
-
-const storefrontUrl = import.meta.env.VITE_APP_STOREFRONT;
+const { storefrontUrl } = useBrand();
 
 const props = withDefaults(
   defineProps<
@@ -105,7 +105,7 @@ const actions = computed((): InterstitialActionProps[] => {
 
     // for al lother errors, we want to redirect back to the storefront
     default:
-      href = storefrontUrl;
+      href = storefrontUrl.value ?? "/";
       break;
   }
 

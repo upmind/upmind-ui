@@ -6,7 +6,7 @@ import { waitFor } from "xstate/lib/waitFor";
 import { useActor } from "@xstate/vue";
 
 // --- internal
-
+import Upmind from "../../useUpmind";
 import brandMachine from "./brand.machine";
 
 // --- utils
@@ -36,6 +36,7 @@ import {
 } from "@upmind-automation/types";
 import { BrandContext, IBrandMeta } from "./types";
 import { CurrencyModel } from "../basket/currency/types";
+import useUpmind from "src";
 
 // -----------------------------------------------------------------------------
 // create a global instance of the brand machine
@@ -357,6 +358,14 @@ export const useBrand = () => {
      * The current cart meta object for the brand.
      */
     uiCart,
+
+    /**
+     * The URL of the storefront for the brand.
+     * This is derived from the cart meta or environment variable.
+     */
+    storefrontUrl: computed(
+      () => Upmind.storefrontUrl ?? uiCart.value?.storefront_url
+    ),
 
     /**
      * The current language object for the brand.
