@@ -49,7 +49,7 @@
       "default": "Default",
       "actions": {
         "change": "Change",
-        "add": "Add new",
+        "add": "Add new phone number",
         "edit": "Edit",
         "resolve": "Save details",
         "reject": "Cancel"
