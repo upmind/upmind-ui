@@ -34,8 +34,7 @@
         v-if="billingMeta.needsPhone"
         i18n-key="client.phone"
         v-model="selectedPhone"
-        class="p-0"
-        as="select"
+        minimal
         :manage="{
           useList: useClientPhones,
           useMutate: useClientPhone
@@ -43,7 +42,7 @@
       >
         <template #item="{ item, readonly, doEdit, doRemove }">
           <PhoneItem
-            v-bind="item.item"
+            v-bind="item"
             :i18nKey="'client.phone'"
             :readonly="readonly"
             @edit="doEdit"
