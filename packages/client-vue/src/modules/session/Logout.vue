@@ -9,7 +9,7 @@
           {
             as: 'a',
             color: 'secondary',
-            href: storefrontUrl,
+            href: resolvedRoute,
             appendIcon: {
               icon: 'arrow-right',
               size: '2xs'
@@ -28,19 +28,19 @@
 
 <script lang="ts" setup>
 // --- external
-import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
+import { useRouter } from "vue-router";
 
 // --- internal
 import {
   useRoutingEngine,
   useSession,
-  ROUTE
+  ROUTE,
+  useBrand
 } from "@upmind-automation/headless";
 
 // -- components
-import Internet from "../../assets/animations/internet.json?url";
 import { Interstitial } from "@upmind-automation/upmind-ui";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
@@ -49,14 +49,14 @@ import ContentSection from "../../components/content/ContentSection.vue";
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
+const router = useRouter();
 const { t } = useI18n();
 const { isResolved } = useRoutingEngine();
 const { logout } = useSession();
+const { storefrontUrl, uiCart, isReady } = useBrand();
 
 // if we are not logged out, we should log out
 await isResolved(ROUTE.SESSION_END).catch(() => logout());
-
-const storefrontUrl = import.meta.env.VITE_APP_STOREFRONT;
 
 const props = withDefaults(defineProps<InterstitialProps>(), {
   open: true,
@@ -71,4 +71,10 @@ const props = withDefaults(defineProps<InterstitialProps>(), {
     size: "4xl"
   })
 });
+
+await isReady();
+const resolvedRoute =
+  uiCart.value?.catalogue?.enabled && router.hasRoute(ROUTE.CATALOGUE)
+    ? router.resolve({ name: ROUTE.CATALOGUE })?.fullPath
+    : (storefrontUrl.value ?? "/");
 </script>
