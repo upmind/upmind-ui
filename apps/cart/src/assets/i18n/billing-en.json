@@ -17,18 +17,21 @@
   },
   "client": {
     "address": {
+      "label": "Address",
       "title": "Add New Address | Update Address",
       "error": "An error occurred Adding the Address | an error occurred Updating the Address",
       "default": "Default",
       "actions": {
         "change": "Change",
         "add": "Add new",
+        "close": "Close",
         "edit": "Edit",
         "resolve": "Save details",
         "reject": "Cancel"
       }
     },
     "company": {
+      "label": "Company",
       "details": "Company: {regNumber} {vatNumber}",
       "title": "Add Company Details | Update Company Details",
       "error": "An error occurred Adding the Company Details | an error occurred Updating the Company Details",
@@ -36,30 +39,35 @@
       "actions": {
         "change": "Change",
         "add": "Add new",
+        "close": "Close",
         "edit": "Edit",
         "resolve": "Save details",
         "reject": "Cancel"
       }
     },
     "phone": {
+      "label": "Phone",
       "title": "Add New Phone Number | Update Phone Number",
       "error": "An error occurred Adding the Phone Number | an error occurred Updating the Phone Number",
       "default": "Default",
       "actions": {
         "change": "Change",
         "add": "Add new",
+        "close": "Close",
         "edit": "Edit",
         "resolve": "Save details",
         "reject": "Cancel"
       }
     },
     "email": {
+      "label": "Email",
       "title": "Add New Email | Update Email",
       "error": "An error occurred Adding the Email | an error occurred Updating the Email",
       "default": "Default",
       "actions": {
         "change": "Change",
         "add": "Add new",
+        "close": "Close",
         "edit": "Edit",
         "resolve": "Save details",
         "reject": "Cancel"
