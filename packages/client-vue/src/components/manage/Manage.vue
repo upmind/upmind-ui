@@ -34,7 +34,7 @@
       :modal="!meta.isEmpty"
       @resolve="doResolve"
       @reject="doReject"
-      no-actions
+      :no-actions="!openForm"
     />
   </div>
 </template>
