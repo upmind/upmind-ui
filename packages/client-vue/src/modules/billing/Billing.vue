@@ -1,34 +1,25 @@
 <template>
   <Loading :active="meta.isLoading || meta.isProcessing" class="w-full">
-    <div
-      ref="containerRef"
-      class="overflow-hidden transition-[height] duration-300 ease-in-out"
+    <Tabs
+      v-if="meta.isAvailable"
+      v-model="activeTab"
+      :tabs="tabs"
+      :default-tab="defaultTab"
     >
-      <Tabs
-        v-if="meta.isAvailable"
-        v-model="activeTab"
-        :tabs="tabs"
-        :default-tab="defaultTab"
-      >
-        <template v-slot:[`content.personal`]>
-          <div class="transition-opacity duration-200 ease-in-out">
-            <TabPersonal v-model="modelValue" />
-          </div>
-        </template>
+      <template v-slot:[`content.personal`]>
+        <TabPersonal v-model="modelValue" />
+      </template>
 
-        <template v-slot:[`content.business`]>
-          <div class="transition-opacity duration-200 ease-in-out">
-            <TabBusiness v-model="modelValue" />
-          </div>
-        </template>
-      </Tabs>
-    </div>
+      <template v-slot:[`content.business`]>
+        <TabBusiness v-model="modelValue" />
+      </template>
+    </Tabs>
   </Loading>
 </template>
 
 <script lang="ts" setup>
 // --- external
-import { computed, ref, watch, nextTick } from "vue";
+import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -42,6 +33,8 @@ import {
 import { Tabs, Loading } from "@upmind-automation/upmind-ui";
 import TabBusiness from "./components/TabBusiness.vue";
 import TabPersonal from "./components/TabPersonal.vue";
+
+// --- utils
 
 // --- types
 import type { TabItem } from "@upmind-automation/upmind-ui";
@@ -70,8 +63,6 @@ const { user } = useSession();
 const { isReady, meta, config, update, model } = useBasketBilling();
 
 const activeTab = ref<UnifiedType>();
-const containerRef = ref<HTMLElement>();
-const previousHeight = ref<number>(0);
 
 await isReady().then(() => {
   // set initial value from the basket billing model
@@ -122,20 +113,6 @@ watch(
   {
     immediate: true,
     deep: true
-  }
-);
-
-watch(activeTab, async () => {
-  if (!containerRef.value) return;
-  containerRef.value.style.height = `${containerRef.value.scrollHeight}px`;
-});
-
-watch(
-  () => meta.value.isLoading,
-  async isLoading => {
-    if (!isLoading && containerRef.value) {
-      containerRef.value.style.height = "";
-    }
   }
 );
 </script>
