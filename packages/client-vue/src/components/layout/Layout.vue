@@ -27,7 +27,7 @@ import { Layout } from "@upmind-automation/upmind-ui";
 // --- types
 import type { LayoutProps } from "@upmind-automation/upmind-ui";
 
-const { uiMeta } = useBrand();
+const { uiCart } = useBrand();
 
 const slots = defineSlots<{
   default: () => any;
@@ -38,7 +38,7 @@ const slots = defineSlots<{
 
 const layout = computed((): LayoutProps["variant"] => {
   return (
-    hasSlots.value ? uiMeta.value?.layout : "default"
+    hasSlots.value ? uiCart.value?.layout : "default"
   ) as LayoutProps["variant"];
 });
 
