@@ -1,6 +1,6 @@
 <template>
-  <article>
-    <ContentSection>
+  <article class="flex flex-grow">
+    <ContentSection v-auto-animate class="flex flex-grow items-center">
       <Interstitial
         v-bind="props"
         :animatedIcon="animatedIcon"

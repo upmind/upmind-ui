@@ -22,7 +22,7 @@
           </Header>
         </slot>
 
-        <div class="w-full flex-1">
+        <div class="flex w-full flex-1 flex-col">
           <RouterView v-slot="routerViewProps" :key="$route.fullPath">
             <slot v-bind="routerViewProps">
               <template v-if="routerViewProps.Component">
