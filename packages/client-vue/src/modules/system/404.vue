@@ -8,7 +8,7 @@
         :actions="[
           {
             as: 'a',
-            color: 'secondary',
+            color: 'primary',
             href: resolvedRoute,
             prependIcon: {
               icon: 'arrow-left',
