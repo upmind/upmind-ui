@@ -34,6 +34,7 @@
       :modal="!meta.isEmpty"
       @resolve="doResolve"
       @reject="doReject"
+      no-actions
     />
   </div>
 </template>
