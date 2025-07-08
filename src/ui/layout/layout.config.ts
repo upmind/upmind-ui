@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 export default {
   default: {
-    root: cva("max-w-app mx-auto pb-16 pt-10 md:pb-32 md:pt-16")
+    root: cva("max-w-app mx-auto w-full pb-16 pt-10 md:pb-32 md:pt-16")
   },
 
   enclosed: {
