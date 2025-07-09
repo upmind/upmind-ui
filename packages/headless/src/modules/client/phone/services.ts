@@ -16,14 +16,13 @@ import {
   useValidation,
   DetailedError,
   responseCodes,
+  useCollection,
   useModelParser,
-  NotAuthenticatedError,
-  useCollection
+  NotAuthenticatedError
 } from "../../../utils";
 import { invalidateQueryByKey } from "../../query";
 import { mapIPhone, mapPhone, mapPhones } from "./mapper";
-import { get, isEmpty, isString, omitBy } from "lodash-es";
-// ---
+import { get, isString, isEmpty, pick } from "lodash-es";
 
 // --- types
 import type { IPhone } from "@upmind-automation/types";
@@ -144,13 +143,15 @@ async function update(id: Phone["id"], data: PhoneModel) {
 }
 
 async function ensure(model: PhoneModel): Promise<Phone> {
-  const mapping = omitBy(model, isEmpty);
   const { data, promise } = loadList();
   await promise.value.finally(); // wait for the query to resolve
+  const { findOne } = useCollection<Phone>(data.value ?? []);
 
-  const { findOne } = useCollection<Phone>(data.value || []);
-  const found = findOne(mapping);
+  // We only need to check if we have an phone with the matching id
+  const mapping = pick(model, "id");
+  const found = isEmpty(mapping) ? undefined : findOne(mapping);
   if (found) return Promise.resolve(found);
+
   return add(model).then(raw => {
     if (isEmpty(raw))
       throw new DetailedError(
