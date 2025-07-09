@@ -3,8 +3,7 @@ import { isEmpty } from "lodash-es";
 import { useSlots } from "vue";
 import type { RendererElement, RendererNode, VNode } from "vue";
 
-export function isEmptySlot(slot: string): boolean {
-  const slots = useSlots();
+export function isEmptySlot(slot: string, slots: any): boolean {
   return (
     !slots?.[slot] ||
     slots[slot]().every(

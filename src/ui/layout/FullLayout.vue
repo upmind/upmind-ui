@@ -27,7 +27,7 @@ import config from "./layout.config";
 import { isEmptySlot } from "./utils";
 
 // --- types
-import { type HTMLAttributes, type ComputedRef, computed } from "vue";
+import { type HTMLAttributes, type ComputedRef, computed, useSlots } from "vue";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<{
@@ -37,14 +37,15 @@ const props = defineProps<{
 
 // -----------------------------------------------------------------------------
 
+const slots = useSlots();
+
 const meta = computed(() => {
   return {
-    hasControls: !isEmptySlot("controls"),
-    hasHeader: !isEmptySlot("header"),
-    hasContent: !isEmptySlot("default")
+    hasControls: !isEmptySlot("controls", slots),
+    hasHeader: !isEmptySlot("header", slots),
+    hasContent: !isEmptySlot("default", slots)
   };
 });
-
 const styles = useStyles(
   ["full"],
   {},
