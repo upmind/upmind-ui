@@ -195,8 +195,8 @@ const styles = useStyles(
 
 // --- methods
 
-const doQuery = debounce((value: string | undefined) => {
-  query.value = value?.trim() || undefined;
+const doQuery = debounce((value: string | number | undefined) => {
+  query.value = value?.toString().trim() || undefined;
 }, DEBOUNCE_DELAY);
 
 //  --- side effects
