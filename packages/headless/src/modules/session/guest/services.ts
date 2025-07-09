@@ -82,16 +82,13 @@ async function authenticate({ model }: GuestContext<LoginModel>) {
   return post<IToken>({
     url: useUrl("access_token", {}, { context: "oauth" }),
     data
-  })
-    .then(data => {
-      // we record the history of the token to be able to reference the originating guest token
-      if (data.token_type != GrantTypes.TWOFA) persistTokenToStorage(data);
-      return data;
-    })
-    .then(data => {
-      if (data?.token_type === GrantTypes.TWOFA) return data;
-      return loadUser();
-    });
+  }).then(data => {
+    // we record the history of the token to be able to reference the originating guest token
+    if (data.actor_type === GrantTypes.TWOFA) return data;
+
+    persistTokenToStorage(data);
+    return loadUser();
+  });
 }
 
 async function verify2fa({ token }: GuestContext, { data }: AnyEventObject) {
