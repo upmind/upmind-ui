@@ -28,7 +28,7 @@ export interface IBrandMeta {
     tagline?: string;
     description?: string;
     catalogue?: {
-      enabled?: boolean;
+      disabled?: boolean;
       facet?: boolean;
     };
   };

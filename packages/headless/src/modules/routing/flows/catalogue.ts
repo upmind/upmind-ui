@@ -30,7 +30,7 @@ export const useCatalogueFlows = () => {
         if (coupon) addPromotion(coupon);
 
         // some query params that we ALWAYS look out for and resolve for the UI:
-        return await isReady().then(() => !!uiCart.value?.catalogue?.enabled);
+        return await isReady().then(() => !uiCart.value?.catalogue?.disabled);
       },
       targets: {
         next: [],
