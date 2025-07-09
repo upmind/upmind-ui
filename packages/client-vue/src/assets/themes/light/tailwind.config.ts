@@ -306,8 +306,8 @@ const colors = {
       muted: "var(--control-active-muted,#F8F8FB)",
       foreground: "var(--control-active-foreground,#FFFFFF)",
       background: "var(--control-active-background,#FA2F62)",
-      hover: "var(--control-active-hover,#FA2F62)",
-      focus: "var(--control-active-focus,#FA2F62)"
+      hover: "var(--control-active-hover,#FA2F6215)",
+      focus: "var(--control-active-focus,#FA2F6215)"
     },
     error: {
       DEFAULT: "#EF4444",
