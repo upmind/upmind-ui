@@ -9,7 +9,7 @@
           {
             as: 'a',
             color: 'primary',
-            href: resolvedRoute,
+            href: storefrontUrl,
             prependIcon: {
               icon: 'arrow-left',
               size: '2xs'
@@ -60,7 +60,7 @@ import { ROUTE, useBrand } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { storefrontUrl, uiCart, isReady } = useBrand();
+const { storefrontUrl } = useBrand();
 const router = useRouter();
 
 const props = withDefaults(defineProps<InterstitialProps>(), {
@@ -99,10 +99,4 @@ const icons = [
     )
   }
 ];
-
-await isReady();
-const resolvedRoute =
-  !uiCart.value?.catalogue?.disabled && router.hasRoute(ROUTE.CATALOGUE)
-    ? router.resolve({ name: ROUTE.CATALOGUE })?.fullPath
-    : (storefrontUrl.value ?? "/");
 </script>

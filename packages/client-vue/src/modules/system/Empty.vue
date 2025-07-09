@@ -9,7 +9,7 @@
           {
             as: 'a',
             color: 'primary',
-            href: resolvedRoute,
+            href: storefrontUrl,
             appendIcon: {
               icon: 'arrow-right',
               size: '2xs'
@@ -60,17 +60,11 @@ const props = withDefaults(defineProps<InterstitialProps>(), {
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
 const router = useRouter();
-const { storefrontUrl, uiCart, isReady } = useBrand();
+const { storefrontUrl } = useBrand();
 const route = useRoute();
 const routeMeta = route.meta;
 
 const meta = computed(() => ({
   useModal: routeMeta.modal !== false
 }));
-
-await isReady();
-const resolvedRoute =
-  !uiCart.value?.catalogue?.disabled && router.hasRoute(ROUTE.CATALOGUE)
-    ? router.resolve({ name: ROUTE.CATALOGUE })?.fullPath
-    : (storefrontUrl.value ?? "/");
 </script>
