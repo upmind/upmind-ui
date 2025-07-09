@@ -30,12 +30,15 @@ const props = defineProps<LayoutProps>();
 
 const layoutComponent = computed(() => {
   switch (props.variant) {
+    case "default":
+      return DefaultLayout;
+
     case "enclosed":
       return EnclosedLayout;
+
     case "full":
-      return FullLayout;
     default:
-      return props.noDefault ? FullLayout : DefaultLayout;
+      return FullLayout;
   }
 });
 </script>
