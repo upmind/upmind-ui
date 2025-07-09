@@ -9,7 +9,7 @@ variables:
   rules:
     - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+$/
 
-(apps/cart) build production:
+(apps/cart) build:
   extends: .pnpm
   stage: build
   interruptible: true
@@ -18,6 +18,12 @@ variables:
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
     - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+$/
+    - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+-rc\d+$/
+    - if: $CI_COMMIT_TAG =~ /^cart-staging-v\d+(\.\d+)+$/
+      variables:
+        VITE_API_NAME: staging
+        VITE_API_URL: api.staging.upmind.io
+        VITE_API_REGION: fra1
     - if: $CI_FORCE_CART == "true"
   cache:
     - key:
@@ -32,10 +38,6 @@ variables:
     expire_in: "1 day"
     paths:
       - apps/cart/dist
-  environment:
-    name: apps/cart/production
-    action: start
-    url: https://cart.cdn.upmind.io/
   script:
     - pnpm --dir apps/cart install
     - pnpm --dir apps/cart run build
@@ -46,13 +48,9 @@ variables:
   interruptible: true
   needs:
     - dependencies
-    - (docs) build
+    - (apps/cart) build
   rules:
     - if: $CI_COMMIT_TAG =~ /^cart-staging-v\d+(\.\d+)+$/
-  variables:
-    VITE_API_NAME: staging
-    VITE_API_URL: api.staging.upmind.io
-    VITE_API_REGION: fra1
   environment:
     name: apps/cart/staging
     action: start
@@ -72,7 +70,7 @@ variables:
   interruptible: true
   needs:
     - dependencies
-    - (docs) build
+    - (apps/cart) build
   rules:
     - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+-rc\d+$/
   environment:
