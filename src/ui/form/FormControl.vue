@@ -35,7 +35,6 @@ const props = defineProps<{
   formMessageId?: string;
   invalid?: boolean;
   autoFocus?: boolean;
-  animationDelay?: number;
 }>();
 
 // -----------------------------------------------------------------------------
@@ -55,18 +54,6 @@ let observer: ReturnType<typeof useIntersectionObserver>;
 
 const target = ref<ComponentPublicInstance | null>(null);
 
-let animationCompleted = ref(false);
-
-if (props.animationDelay) {
-  new Promise(resolve => setTimeout(resolve, props.animationDelay! + 10)).then(
-    () => {
-      animationCompleted.value = true;
-    }
-  );
-} else {
-  animationCompleted.value = true;
-}
-
 // --- context
 
 const focussable = ["input", "textarea", "select", "button"];
@@ -75,8 +62,7 @@ const focussable = ["input", "textarea", "select", "button"];
 
 const meta = computed(() => ({
   isInvalid: !!props.invalid,
-  shouldFocus: !!props.autoFocus && animationCompleted.value,
-  isAnimationCompleted: animationCompleted.value
+  shouldFocus: !!props.autoFocus
 }));
 
 // --- methods
