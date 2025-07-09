@@ -76,7 +76,7 @@ const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 
-const { storefrontUrl, uiCart } = useBrand();
+const { storefrontUrl } = useBrand();
 const { errors } = useBasket();
 const { isResolved } = useRoutingEngine();
 
@@ -155,12 +155,7 @@ const processing = ref(false);
 
 function doAction() {
   if (!meta.value.isAuthenticated) {
-    const resolvedRoute =
-      !uiCart.value?.catalogue?.disabled && router.hasRoute(ROUTE.CATALOGUE)
-        ? router.resolve({ name: ROUTE.CATALOGUE })?.fullPath
-        : (storefrontUrl.value ?? "/");
-
-    window.location.href = resolvedRoute;
+    window.location.href = storefrontUrl.value;
     processing.value = false;
     return;
   }

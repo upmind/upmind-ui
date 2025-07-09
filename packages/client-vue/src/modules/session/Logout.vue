@@ -9,7 +9,7 @@
           {
             as: 'a',
             color: 'secondary',
-            href: resolvedRoute,
+            href: storefrontUrl,
             appendIcon: {
               icon: 'arrow-right',
               size: '2xs'
@@ -54,7 +54,7 @@ const router = useRouter();
 const { t } = useI18n();
 const { isResolved } = useRoutingEngine();
 const { logout } = useSession();
-const { storefrontUrl, uiCart, isReady } = useBrand();
+const { storefrontUrl } = useBrand();
 
 // if we are not logged out, we should log out
 await isResolved(ROUTE.SESSION_END).catch(() => logout());
@@ -72,10 +72,4 @@ const props = withDefaults(defineProps<InterstitialProps>(), {
     size: "4xl"
   })
 });
-
-await isReady();
-const resolvedRoute =
-  !uiCart.value?.catalogue?.disabled && router.hasRoute(ROUTE.CATALOGUE)
-    ? router.resolve({ name: ROUTE.CATALOGUE })?.fullPath
-    : (storefrontUrl.value ?? "/");
 </script>

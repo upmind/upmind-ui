@@ -5,7 +5,7 @@
     <div
       class="max-w-app mx-auto flex h-14 w-full items-center justify-between"
     >
-      <a id="logo" class="relative z-20" :href="storefrontUrl ?? '/'">
+      <a id="logo" class="relative z-20" :href="storefrontUrl">
         <picture class="h-full w-full">
           <slot name="logo" :logo="logo">
             <img v-if="logo" :src="logo" class="h-8 w-auto" alt="logo" />
@@ -25,6 +25,7 @@
 
 <script lang="ts" setup>
 import upmindLogo from "../../assets/logo.svg";
+import { useRouter } from "vue-router";
 
 // --- external
 import { useI18n } from "vue-i18n";
@@ -40,6 +41,7 @@ await isReady();
 const imageUrl = image.value?.full_url;
 
 // -----------------------------------------------------------------------------
+const router = useRouter();
 const { t } = useI18n();
 const props = defineProps<{ logo?: string }>();
 
