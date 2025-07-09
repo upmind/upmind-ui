@@ -373,7 +373,9 @@ export const useBrand = () => {
           ? router.resolve({ name: ROUTE.CATALOGUE })?.fullPath
           : "/";
 
-      return "/";
+      return router.hasRoute(ROUTE.BASKET)
+        ? router.resolve({ name: ROUTE.BASKET })?.fullPath
+        : "/";
     }),
 
     /**
