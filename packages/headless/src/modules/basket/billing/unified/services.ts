@@ -146,7 +146,7 @@ async function loadLookups({
 // MUTATIONS
 
 async function add(type: UnifiedType, data: UnifiedModel) {
-  const { add: ensureAddress } = useClientAddressServices();
+  const { ensure: ensureAddress } = useClientAddressServices();
   const { ensure: ensurePhone } = useClientPhoneServices();
   const { ensure: ensureCompany } = useClientCompanyServices();
 
