@@ -22,7 +22,7 @@ import {
 } from "../../../utils";
 import { invalidateQueryByKey } from "../../query";
 import { mapIPhone, mapPhone, mapPhones } from "./mapper";
-import { get, isString, isEmpty, pick } from "lodash-es";
+import { get, isString, isEmpty, pick, omitBy } from "lodash-es";
 
 // --- types
 import type { IPhone } from "@upmind-automation/types";
@@ -145,11 +145,11 @@ async function update(id: Phone["id"], data: PhoneModel) {
 async function ensure(model: PhoneModel): Promise<Phone> {
   const { data, promise } = loadList();
   await promise.value.finally(); // wait for the query to resolve
-  const { findOne } = useCollection<Phone>(data.value ?? []);
+  const { findOne } = useCollection<Phone>(data.value || []);
 
-  // We only need to check if we have an phone with the matching id
-  const mapping = pick(model, "id");
-  const found = isEmpty(mapping) ? undefined : findOne(mapping);
+  // foe phones we map agains id or the actual phone number
+  const mapping = omitBy(model, isEmpty);
+  const found = findOne(mapping);
   if (found) return Promise.resolve(found);
 
   return add(model).then(raw => {
