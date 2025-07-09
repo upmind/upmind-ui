@@ -24,6 +24,7 @@
       "actions": {
         "change": "Change",
         "add": "Add new",
+        "close": "Close",
         "edit": "Edit",
         "resolve": "Save details",
         "reject": "Cancel"
@@ -50,6 +51,7 @@
       "actions": {
         "change": "Change",
         "add": "Add new phone",
+        "close": "Close",
         "edit": "Edit",
         "resolve": "Save details",
         "reject": "Cancel"
