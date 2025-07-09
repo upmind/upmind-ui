@@ -43,7 +43,7 @@ import {
   ProductSortableProperties,
   RequestSortDirection
 } from "@upmind-automation/headless";
-import config from "../shop.config";
+import config from "../../catalogue.config";
 
 // --- components
 import {
@@ -58,7 +58,7 @@ import { find, isEmpty } from "lodash-es";
 
 // --- types
 import type { DropdownMenuItemProps } from "@upmind-automation/upmind-ui";
-import type { ProductSortProps } from "./types";
+import type { ProductSortProps } from "../types";
 import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------

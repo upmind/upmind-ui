@@ -1,5 +1,5 @@
 <template>
-  <article class="flex flex-grow">
+  <Layout>
     <ContentSection v-auto-animate class="flex flex-grow items-center">
       <Interstitial
         open
@@ -44,7 +44,7 @@
         </template>
       </Interstitial>
     </ContentSection>
-  </article>
+  </Layout>
 </template>
 
 <script lang="ts" setup>
@@ -68,6 +68,8 @@ import {
 import { Interstitial, Button, Icon } from "@upmind-automation/upmind-ui";
 import ContentSection from "../../components/content/ContentSection.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
+import Layout from "../../components/layout/Layout.vue";
+
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();

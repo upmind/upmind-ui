@@ -45,7 +45,7 @@
 import { Skeleton, useStyles } from "@upmind-automation/upmind-ui";
 
 // --- internal
-import config from "../shop.config";
+import config from "../../catalogue.config";
 
 // --- types
 import type { ComputedRef } from "vue";

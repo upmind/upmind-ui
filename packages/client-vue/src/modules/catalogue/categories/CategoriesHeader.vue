@@ -23,7 +23,7 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 // --- internal
 import { useBrand, type ProductCategory } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "../shop.config";
+import config from "../catalogue.config";
 
 // --- utils
 import { isEmpty } from "lodash-es";

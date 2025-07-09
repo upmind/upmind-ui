@@ -1,5 +1,5 @@
 <template>
-  <article class="flex flex-grow">
+  <Layout>
     <ContentSection v-auto-animate class="flex flex-grow items-center">
       <Interstitial
         v-bind="props"
@@ -13,7 +13,7 @@
         </template>
       </Interstitial>
     </ContentSection>
-  </article>
+  </Layout>
 </template>
 
 <script lang="ts" setup>
@@ -29,6 +29,7 @@ import {
 } from "@upmind-automation/upmind-ui";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
+import Layout from "../../components/layout/Layout.vue";
 
 // -- types
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";

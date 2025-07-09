@@ -43,7 +43,7 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import config from "../shop.config";
+import config from "../catalogue.config";
 
 // --- components
 import { Icon, Button, useStyles } from "@upmind-automation/upmind-ui";

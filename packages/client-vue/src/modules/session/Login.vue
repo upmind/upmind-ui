@@ -1,50 +1,48 @@
 <template>
   <Layout>
-    <article>
-      <ContentSection class="mx-auto max-w-2xl">
-        <Button
-          type="reset"
-          class="bg-base-background relative -top-4 md:-top-6"
-          size="sm"
-          variant="tonal"
-          color="base"
-          :label="t('navigation.back')"
-          @click.prevent="doReject"
-        >
-          <template #prepend>
-            <Icon icon="arrow-left" size="2xs" />
-          </template>
-        </Button>
-      </ContentSection>
-
-      <ContentSection class="mx-auto max-w-2xl">
-        <template #title>
-          <SmartTitle i18n-key="session.login.title" size="2xl" />
+    <ContentSection class="mx-auto max-w-2xl">
+      <Button
+        type="reset"
+        class="bg-base-background relative -top-4 md:-top-6"
+        size="sm"
+        variant="tonal"
+        color="base"
+        :label="t('navigation.back')"
+        @click.prevent="doReject"
+      >
+        <template #prepend>
+          <Icon icon="arrow-left" size="2xs" />
         </template>
+      </Button>
+    </ContentSection>
 
-        <p class="mt-0">
-          <span class="font-normal"
-            >{{ t("session.login.actions.text") }}&nbsp;</span
-          >
+    <ContentSection class="mx-auto max-w-2xl">
+      <template #title>
+        <SmartTitle i18n-key="session.login.title" size="2xl" />
+      </template>
 
-          <Link :to="{ name: ROUTE.SESSION_REGISTER }">
-            {{ t("session.login.actions.action") }}
-          </Link>
-        </p>
+      <p class="mt-0">
+        <span class="font-normal"
+          >{{ t("session.login.actions.text") }}&nbsp;</span
+        >
 
-        <Card class="mt-4 pb-3 md:pb-3">
-          <Auth
-            class="rounded-box w-full max-w-5xl items-start"
-            no-tabs
-            no-header
-            model-value="login"
-            @update:model-value="doUpdate"
-            @resolve="doResolve"
-          >
-          </Auth>
-        </Card>
-      </ContentSection>
-    </article>
+        <Link :to="{ name: ROUTE.SESSION_REGISTER }">
+          {{ t("session.login.actions.action") }}
+        </Link>
+      </p>
+
+      <Card class="mt-4 pb-3 md:pb-3">
+        <Auth
+          class="rounded-box w-full max-w-5xl items-start"
+          no-tabs
+          no-header
+          model-value="login"
+          @update:model-value="doUpdate"
+          @resolve="doResolve"
+        >
+        </Auth>
+      </Card>
+    </ContentSection>
   </Layout>
 </template>
 

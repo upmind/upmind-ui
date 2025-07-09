@@ -1,5 +1,5 @@
 <template>
-  <article>
+  <Layout>
     <ContentSection>
       <Interstitial
         :title="t('basket.requiresAction.title')"
@@ -45,7 +45,7 @@
         </template>
       </Interstitial>
     </ContentSection>
-  </article>
+  </Layout>
 </template>
 
 <script lang="ts" setup>
@@ -60,10 +60,10 @@ import {
 } from "@upmind-automation/headless";
 
 // --- components
-import Basket from "../../assets/animations/basket.json?url";
 import { Interstitial } from "@upmind-automation/upmind-ui";
 import ContentSection from "../../components/content/ContentSection.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
+import Layout from "../../components/layout/Layout.vue";
 
 // --- utils
 

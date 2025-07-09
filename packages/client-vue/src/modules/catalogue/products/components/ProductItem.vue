@@ -77,10 +77,10 @@ import type { ComputedRef } from "vue";
 
 // --- components
 import { Button, Icon, useStyles } from "@upmind-automation/upmind-ui";
-import Promotion from "../../basket/product/components/Promotion.vue";
+import Promotion from "../../../basket/product/components/Promotion.vue";
 
 // --- config
-import config from "../shop.config";
+import config from "../../catalogue.config";
 import ProductPriceDescription from "./ProductPriceDescription.vue";
 
 // -----------------------------------------------------------------------------

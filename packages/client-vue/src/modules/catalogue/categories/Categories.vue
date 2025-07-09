@@ -33,7 +33,7 @@ import {
 } from "@upmind-automation/headless";
 import { isEmpty } from "lodash-es";
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "../shop.config";
+import config from "../catalogue.config";
 
 // --- components
 import CategoriesHeader from "./CategoriesHeader.vue";

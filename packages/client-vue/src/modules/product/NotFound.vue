@@ -1,5 +1,5 @@
 <template>
-  <article>
+  <Layout>
     <ContentSection>
       <Interstitial
         open
@@ -31,7 +31,7 @@
         </template>
       </Interstitial>
     </ContentSection>
-  </article>
+  </Layout>
 </template>
 
 <script lang="ts" setup>
@@ -45,6 +45,7 @@ import { useRoutingEngine } from "@upmind-automation/headless";
 import { Interstitial } from "@upmind-automation/upmind-ui";
 import ContentSection from "../../components/content/ContentSection.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
+import Layout from "../../components/layout/Layout.vue";
 
 // -----------------------------------------------------------------------------
 const { navigateBack } = useRoutingEngine();
