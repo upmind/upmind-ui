@@ -40,7 +40,7 @@ variables:
       - apps/cart/dist
   script:
     - pnpm --dir apps/cart install
-    - pnpm --dir apps/cart run build
+    - pnpm run build
 
 (apps/cart) deploy staging:
   extends: .pnpm
