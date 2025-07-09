@@ -112,7 +112,7 @@ const open = useVModel(props, "open", emits, {
 });
 
 const parsedValues = computed(() => {
-  return map(data.value || [], (item: any, index: number) => {
+  return map(data.value ?? [], (item: any, index: number) => {
     return {
       id: item.id,
       value: item.id,

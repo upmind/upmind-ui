@@ -3,17 +3,14 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export default {
-  page: cva(
-    "bg-background text-foreground flex w-full flex-grow transition-colors",
-    {
-      variants: {
-        route: {
-          recommendations: "overflow-hidden",
-          "product.recommendations": "overflow-hidden"
-        }
+  page: cva("", {
+    variants: {
+      route: {
+        recommendations: "overflow-hidden",
+        "product.recommendations": "overflow-hidden"
       }
     }
-  ),
+  }),
   header: {
     avatar: {
       login: cva("bg-transparent font-bold"),
