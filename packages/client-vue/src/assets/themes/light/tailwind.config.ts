@@ -319,7 +319,7 @@ const colors = {
 
   icon: {
     primary: "var(--icon-primary,#121217)",
-    secondary: "var(--icon-secondary,#FA2F62)"
+    secondary: "var(--icon-secondary,#121217)"
   }
 };
 
