@@ -1,14 +1,14 @@
 // --- internal
 import {
   useQuery,
+  useBrand,
   useSystem,
   useSession,
   useFeedback,
+  type QueryParams,
   useClientPhones,
   useClientEmails,
   useClientAddresses,
-  type QueryParams,
-  useBrand,
   AddressModel,
   EmailModel,
   PhoneModel
@@ -21,17 +21,17 @@ import { useClientEmailServices } from "../email/services";
 // --- utils
 import {
   useTime,
+  ErrorOrigin,
   useValidation,
-  useModelParser,
-  NotAuthenticatedError,
   DetailedError,
   responseCodes,
-  ErrorOrigin,
-  useCollection
+  useCollection,
+  useModelParser,
+  NotAuthenticatedError
 } from "../../../utils";
-import { mapCompanies, mapCompany, mapICompany } from "./mappers";
 import { invalidateQueryByKey } from "../../query";
-import { get, isString, isEmpty, omitBy, some, find } from "lodash-es";
+import { mapCompanies, mapCompany, mapICompany } from "./mappers";
+import { get, isString, isEmpty, find, some, pick } from "lodash-es";
 
 // --- types
 import { BrandConfigKeys, type ICompany } from "@upmind-automation/types";
@@ -148,13 +148,11 @@ async function loadLookups({
 
 async function add(data: CompanyModel) {
   const { meta, user } = useSession();
-
   const { post, useUrl } = useQuery();
 
   if (!meta.value.isAuthenticated || !user.value?.id) {
     return Promise.reject(new NotAuthenticatedError());
   }
-
   return ensureDependencies(data).then(ensuredData => {
     return post<ICompany>({
       url: useUrl(`clients/${user.value?.id}/companies`),
@@ -181,14 +179,15 @@ async function update(id: Company["id"], data: CompanyModel) {
 }
 
 async function ensure(model: CompanyModel): Promise<Company> {
-  const mapping = omitBy(model, isEmpty);
   const { data, promise } = loadList();
   await promise.value.finally(); // wait for the query to resolve
-
   const { findOne } = useCollection<Company>(data.value ?? []);
-  const found = findOne(mapping);
 
+  // We only need to check if we have an company with the matching id
+  const mapping = pick(model, "id");
+  const found = isEmpty(mapping) ? undefined : findOne(mapping);
   if (found) return Promise.resolve(found);
+
   return add(model).then(raw => {
     if (isEmpty(raw))
       throw new DetailedError(
@@ -271,6 +270,7 @@ function setDefault(companyId: Company["id"]) {
 //  SIDE EFFECTS
 
 async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
+  debugger;
   if (isEmpty(data))
     return Promise.reject(
       new DetailedError(
@@ -282,12 +282,13 @@ async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
 
   const { ensure: ensureEmail } = useClientEmailServices();
   const { ensure: ensurePhone } = useClientPhoneServices();
-  const { add: ensureAddress } = useClientAddressServices();
+  const { ensure: ensureAddress } = useClientAddressServices();
 
   // for our dependencies we need to check if they already exists by finding them in their respective stores
   // if they do then we can just return the id
   // if they don't then we return a promise of the add method
   // NB: for each new dependency we force type to be 4 = company
+  debugger;
   return Promise.all([
     ensureEmail({
       model: (data?.email
