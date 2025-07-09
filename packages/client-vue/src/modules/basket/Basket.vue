@@ -1,132 +1,130 @@
 <template>
   <Layout>
-    <article v-auto-animate>
-      <div class="flex items-center justify-center">
-        <section
-          class="relative mx-auto flex w-full flex-wrap items-start justify-between gap-8"
-        >
-          <div class="flex min-w-0 flex-1 flex-col gap-8">
-            <ContentSection>
-              <template #title>
-                <SmartTitle i18n-key="basket.title" size="2xl" />
-              </template>
-              <template #option>
-                <div class="flex items-center gap-6">
-                  <Link
-                    :label="t('basket.expand', open ? 0 : 1)"
-                    :disabled="meta.isLoading || !meta.isAvailable"
-                    @click="open = !open"
-                    variant="muted"
-                    size="sm"
-                    class="space-x-2"
-                  >
-                    <template v-slot:prepend>
-                      <Icon icon="configuration" class="size-3" />
-                    </template>
-                  </Link>
-                </div>
-              </template>
-
-              <ProductCards :open="open" @update:open="open = $event" />
-            </ContentSection>
-
-            <!-- Custom Fields  -->
-            <ContentSection>
-              <template #title>
-                <SmartTitle i18n-key="customFields.title" size="2xl" />
-              </template>
-              <Card>
-                <Form
-                  v-if="!fieldsMeta.isLoading"
-                  :additional-errors="fieldsErrors?.data"
-                  :model-value="fieldsModel"
-                  :schema="fieldsSchema"
-                  :uischema="fieldsUischema"
-                  @reject="fieldsClear"
-                  @resolve="fieldsUpdate"
-                  @update:modelValue="fieldsUpdate"
-                  no-actions
-                  autosave
-                />
-
-                <template v-else>
-                  <Skeleton class="-mt-1 w-24 text-sm leading-normal"
-                    >Title</Skeleton
-                  >
-                  <Skeleton class="mt-1 h-20 w-full" />
-                </template>
-              </Card>
-            </ContentSection>
-          </div>
-
-          <aside
-            class="flex w-full flex-col items-start gap-4 sm:sticky sm:top-1 xl:max-w-md"
-          >
-            <ContentSection :title="t('basket.summary.title')">
-              <Card>
-                <Summary />
-              </Card>
-            </ContentSection>
-
-            <footer class="w-full">
-              <router-link to="/checkout" custom v-slot="{ navigate }">
-                <Button
-                  :disabled="
-                    !fieldsMeta.isComplete ||
-                    meta.isProcessing ||
-                    meta.isLoading ||
-                    !meta.hasProducts ||
-                    meta.hasInvalidProducts
-                  "
-                  block
-                  color="primary"
-                  :loading="meta.isProcessing || meta.isLoading"
-                  @click="navigate()"
-                  :label="t('basket.summary.proceed')"
+    <div class="flex items-center justify-center" v-auto-animate>
+      <section
+        class="relative mx-auto flex w-full flex-wrap items-start justify-between gap-8"
+      >
+        <div class="flex min-w-0 flex-1 flex-col gap-8">
+          <ContentSection>
+            <template #title>
+              <SmartTitle i18n-key="basket.title" size="2xl" />
+            </template>
+            <template #option>
+              <div class="flex items-center gap-6">
+                <Link
+                  :label="t('basket.expand', open ? 0 : 1)"
+                  :disabled="meta.isLoading || !meta.isAvailable"
+                  @click="open = !open"
+                  variant="muted"
+                  size="sm"
+                  class="space-x-2"
                 >
-                  <template #prepend>
-                    <Icon icon="cart" size="2xs" class="-mt-0.5 mr-2" />
+                  <template v-slot:prepend>
+                    <Icon icon="configuration" class="size-3" />
                   </template>
-                </Button>
-              </router-link>
-            </footer>
+                </Link>
+              </div>
+            </template>
 
-            <Alert
-              v-if="meta.hasInvalidProducts"
-              color="error"
-              icon="alert-triangle"
-              :description="t('basket.requiresAction.summary.description')"
-            >
-              <template #title>
-                <i18n-t
-                  keypath="basket.requiresAction.summary.title"
-                  tag="span"
-                  :plural="productsInvalid.length"
-                  scope="global"
-                />
-              </template>
-              <ol class="list-disc text-left">
-                <li
-                  v-for="basketItem in productsInvalid"
-                  :key="basketItem.id"
-                  class="marker:text-inherit"
+            <ProductCards :open="open" @update:open="open = $event" />
+          </ContentSection>
+
+          <!-- Custom Fields  -->
+          <ContentSection>
+            <template #title>
+              <SmartTitle i18n-key="customFields.title" size="2xl" />
+            </template>
+            <Card>
+              <Form
+                v-if="!fieldsMeta.isLoading"
+                :additional-errors="fieldsErrors?.data"
+                :model-value="fieldsModel"
+                :schema="fieldsSchema"
+                :uischema="fieldsUischema"
+                @reject="fieldsClear"
+                @resolve="fieldsUpdate"
+                @update:modelValue="fieldsUpdate"
+                no-actions
+                autosave
+              />
+
+              <template v-else>
+                <Skeleton class="-mt-1 w-24 text-sm leading-normal"
+                  >Title</Skeleton
                 >
-                  <router-link
-                    class="text-inherit"
-                    :to="{
-                      name: 'product.edit',
-                      params: { bpid: basketItem.id }
-                    }"
-                  >
-                    <span>{{ basketItem?.productDetails?.title }}</span>
-                  </router-link>
-                </li>
-              </ol>
-            </Alert>
-          </aside>
-        </section>
-      </div>
-    </article>
+                <Skeleton class="mt-1 h-20 w-full" />
+              </template>
+            </Card>
+          </ContentSection>
+        </div>
+
+        <aside
+          class="flex w-full flex-col items-start gap-4 sm:sticky sm:top-1 xl:max-w-md"
+        >
+          <ContentSection :title="t('basket.summary.title')">
+            <Card>
+              <Summary />
+            </Card>
+          </ContentSection>
+
+          <footer class="w-full">
+            <router-link to="/checkout" custom v-slot="{ navigate }">
+              <Button
+                :disabled="
+                  !fieldsMeta.isComplete ||
+                  meta.isProcessing ||
+                  meta.isLoading ||
+                  !meta.hasProducts ||
+                  meta.hasInvalidProducts
+                "
+                block
+                color="primary"
+                :loading="meta.isProcessing || meta.isLoading"
+                @click="navigate()"
+                :label="t('basket.summary.proceed')"
+              >
+                <template #prepend>
+                  <Icon icon="cart" size="2xs" class="-mt-0.5 mr-2" />
+                </template>
+              </Button>
+            </router-link>
+          </footer>
+
+          <Alert
+            v-if="meta.hasInvalidProducts"
+            color="error"
+            icon="alert-triangle"
+            :description="t('basket.requiresAction.summary.description')"
+          >
+            <template #title>
+              <i18n-t
+                keypath="basket.requiresAction.summary.title"
+                tag="span"
+                :plural="productsInvalid.length"
+                scope="global"
+              />
+            </template>
+            <ol class="list-disc text-left">
+              <li
+                v-for="basketItem in productsInvalid"
+                :key="basketItem.id"
+                class="marker:text-inherit"
+              >
+                <router-link
+                  class="text-inherit"
+                  :to="{
+                    name: 'product.edit',
+                    params: { bpid: basketItem.id }
+                  }"
+                >
+                  <span>{{ basketItem?.productDetails?.title }}</span>
+                </router-link>
+              </li>
+            </ol>
+          </Alert>
+        </aside>
+      </section>
+    </div>
   </Layout>
 </template>
 

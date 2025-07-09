@@ -6,7 +6,7 @@
 
 <script lang="ts" setup>
 // components
-import Description from "../../../components/content/Description.vue";
+import Description from "../../../../components/content/Description.vue";
 
 // --- external
 import { useI18n } from "vue-i18n";

@@ -38,6 +38,13 @@
           "strong": "perfect"
         },
         "text": "This should only take a moment."
+      },
+      "empty": {
+        "title": {
+          "text": "It all starts with a {0}",
+          "strong": "domain name"
+        },
+        "text": "Begin your search using the box above."
       }
     },
     "existing": {

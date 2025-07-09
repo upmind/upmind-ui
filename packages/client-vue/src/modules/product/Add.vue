@@ -1,74 +1,72 @@
 <template>
   <Layout>
-    <article class="flex flex-grow">
-      <ContentSection v-auto-animate class="flex flex-grow items-center">
-        <form v-auto-animate @submit.prevent @reset.prevent>
-          <Button
-            v-if="basketMeta.hasProducts && basketMeta.isAvailable"
-            type="reset"
-            class="bg-base-background relative -top-4 mb-6 md:-top-6 md:mb-0"
-            size="sm"
-            variant="tonal"
-            :label="t('navigation.back')"
-            @click.prevent="doReject"
-          >
-            <template #prepend><Icon icon="arrow-left" size="2xs" /></template>
-          </Button>
+    <ContentSection v-auto-animate class="flex flex-grow items-center">
+      <form v-auto-animate @submit.prevent @reset.prevent>
+        <Button
+          v-if="basketMeta.hasProducts && basketMeta.isAvailable"
+          type="reset"
+          class="bg-base-background relative -top-4 mb-6 md:-top-6 md:mb-0"
+          size="sm"
+          variant="tonal"
+          :label="t('navigation.back')"
+          @click.prevent="doReject"
+        >
+          <template #prepend><Icon icon="arrow-left" size="2xs" /></template>
+        </Button>
 
-          <div
-            class="relative mx-auto flex w-full flex-wrap items-start justify-between gap-8"
-          >
-            <section class="flex min-w-0 flex-1 flex-col gap-16">
-              <ContentSection>
-                <template #title>
-                  <SmartTitle i18n-key="product.title" size="2xl" />
-                </template>
+        <div
+          class="relative mx-auto flex w-full flex-wrap items-start justify-between gap-8"
+        >
+          <section class="flex min-w-0 flex-1 flex-col gap-16">
+            <ContentSection>
+              <template #title>
+                <SmartTitle i18n-key="product.title" size="2xl" />
+              </template>
 
-                <!-- TODO: add skeleton loader when meta.isLoading -->
-                <Card class="!p-0">
-                  <ProductConfig
-                    v-if="pendingProduct && !meta?.isLoading"
-                    :item="pendingProduct"
-                    :model-value="pendingProduct?.id"
-                    :no-footer="true"
-                    as="div"
-                    @resolve="doResolve"
-                    @reject="doReject"
-                  />
-
-                  <ConfigSkeleton v-else />
-                </Card>
-              </ContentSection>
-            </section>
-
-            <header
-              class="flex w-full flex-col items-start gap-4 sm:sticky sm:top-1 xl:max-w-md"
-            >
-              <ContentSection :title="t('product.summary.title')">
-                <Summary
-                  v-if="pendingProduct"
+              <!-- TODO: add skeleton loader when meta.isLoading -->
+              <Card class="!p-0">
+                <ProductConfig
+                  v-if="pendingProduct && !meta?.isLoading"
                   :item="pendingProduct"
+                  :model-value="pendingProduct?.id"
+                  :no-footer="true"
+                  as="div"
                   @resolve="doResolve"
+                  @reject="doReject"
                 />
-              </ContentSection>
-            </header>
-          </div>
 
-          <!-- small print -->
-          <footer
-            class="text-emphasis-medium mt-6 flex flex-col space-y-2 px-6 text-xs md:space-y-0 md:px-0"
+                <ConfigSkeleton v-else />
+              </Card>
+            </ContentSection>
+          </section>
+
+          <header
+            class="flex w-full flex-col items-start gap-4 sm:sticky sm:top-1 xl:max-w-md"
           >
-            <div
-              v-for="(term, index) in tm('product.smallprint')"
-              :key="index"
-              class="leading-snug"
-            >
-              {{ term }}
-            </div>
-          </footer>
-        </form>
-      </ContentSection>
-    </article>
+            <ContentSection :title="t('product.summary.title')">
+              <Summary
+                v-if="pendingProduct"
+                :item="pendingProduct"
+                @resolve="doResolve"
+              />
+            </ContentSection>
+          </header>
+        </div>
+
+        <!-- small print -->
+        <footer
+          class="text-emphasis-medium mt-6 flex flex-col space-y-2 px-6 text-xs md:space-y-0 md:px-0"
+        >
+          <div
+            v-for="(term, index) in tm('product.smallprint')"
+            :key="index"
+            class="leading-snug"
+          >
+            {{ term }}
+          </div>
+        </footer>
+      </form>
+    </ContentSection>
   </Layout>
 </template>
 

@@ -1,78 +1,76 @@
 <template>
-  <article>
-    <UpmContentSection class="mx-auto max-w-app" class-content="gap-2 flex">
-      <Button
-        type="reset"
-        class="relative -top-4 md:-top-6"
-        size="sm"
-        variant="tonal"
-        label="Addresses"
-        @click.prevent="router.push({ name: 'client.addresses' })"
-      >
-      </Button>
-      <Button
-        type="reset"
-        class="relative -top-4 md:-top-6"
-        size="sm"
-        variant="tonal"
-        label="Emails"
-        @click.prevent="router.push({ name: 'client.emails' })"
-      >
-      </Button>
-      <Button
-        type="reset"
-        class="relative -top-4 md:-top-6"
-        size="sm"
-        variant="tonal"
-        label="Phones"
-        @click.prevent="router.push({ name: 'client.phones' })"
-      >
-      </Button>
-      <Button
-        type="reset"
-        class="relative -top-4 md:-top-6"
-        size="sm"
-        variant="tonal"
-        label="Companies"
-        @click.prevent="router.push({ name: 'client.companies' })"
-      >
-      </Button>
-
-      <Alert
-        v-if="!meta.isAuthenticated && !meta.isLoading"
-        color="error"
-        title="Please log in to use client companies"
-      />
-    </UpmContentSection>
-
-    <RouterView
-      v-slot="{ Component }"
-      :key="$route.fullPath"
-      v-if="meta.isAuthenticated && !!userId"
+  <UpmContentSection class="mx-auto max-w-app" class-content="gap-2 flex">
+    <Button
+      type="reset"
+      class="relative -top-4 md:-top-6"
+      size="sm"
+      variant="tonal"
+      label="Addresses"
+      @click.prevent="router.push({ name: 'client.addresses' })"
     >
-      <template v-if="Component">
-        <UpmLayout>
-          <Transition mode="out-in">
-            <KeepAlive>
-              <Suspense>
-                <!-- main content -->
-                <component :is="Component" view-prop="value" />
+    </Button>
+    <Button
+      type="reset"
+      class="relative -top-4 md:-top-6"
+      size="sm"
+      variant="tonal"
+      label="Emails"
+      @click.prevent="router.push({ name: 'client.emails' })"
+    >
+    </Button>
+    <Button
+      type="reset"
+      class="relative -top-4 md:-top-6"
+      size="sm"
+      variant="tonal"
+      label="Phones"
+      @click.prevent="router.push({ name: 'client.phones' })"
+    >
+    </Button>
+    <Button
+      type="reset"
+      class="relative -top-4 md:-top-6"
+      size="sm"
+      variant="tonal"
+      label="Companies"
+      @click.prevent="router.push({ name: 'client.companies' })"
+    >
+    </Button>
 
-                <!-- fallback / loading state -->
-                <template #fallback>
-                  <UpmLoading>
-                    <template #background>
-                      <slot name="loading-background"></slot>
-                    </template>
-                  </UpmLoading>
-                </template>
-              </Suspense>
-            </KeepAlive>
-          </Transition>
-        </UpmLayout>
-      </template>
-    </RouterView>
-  </article>
+    <Alert
+      v-if="!meta.isAuthenticated && !meta.isLoading"
+      color="error"
+      title="Please log in to use client companies"
+    />
+  </UpmContentSection>
+
+  <RouterView
+    v-slot="{ Component }"
+    :key="$route.fullPath"
+    v-if="meta.isAuthenticated && !!userId"
+  >
+    <template v-if="Component">
+      <UpmLayout>
+        <Transition mode="out-in">
+          <KeepAlive>
+            <Suspense>
+              <!-- main content -->
+              <component :is="Component" view-prop="value" />
+
+              <!-- fallback / loading state -->
+              <template #fallback>
+                <UpmLoading>
+                  <template #background>
+                    <slot name="loading-background"></slot>
+                  </template>
+                </UpmLoading>
+              </template>
+            </Suspense>
+          </KeepAlive>
+        </Transition>
+      </UpmLayout>
+    </template>
+  </RouterView>
 </template>
 
 <script lang="ts" setup>

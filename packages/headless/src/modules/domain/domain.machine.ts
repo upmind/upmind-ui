@@ -12,8 +12,7 @@ import {
   mapToHeadlessError,
   responseCodes,
   ResponseError,
-  useTime,
-  useValidationParser
+  useTime
 } from "../../utils";
 import { parseDomain, parseValue, parseSld } from "./utils";
 import {
@@ -31,6 +30,8 @@ import {
   isArray,
   isEmpty,
   isFunction,
+  isNull,
+  isString,
   map,
   omit,
   reduce,
@@ -116,13 +117,17 @@ export default createMachine(
       // our initial state depends on if the machine has been forced to a type,
       // if we do then go to that types state, otherwise stay idle
       idle: {
-        entry: ["checkChoices"],
+        entry: ["checkChoices", "checkType"],
         id: "idle",
         always: [
           {
             target: "dac",
-            cond: ({ type }) =>
-              includes([DomainTypes.register, DomainTypes.transfer], type)
+            cond: ({ type }) => {
+              return includes(
+                [DomainTypes.register, DomainTypes.transfer],
+                type
+              );
+            }
           },
           {
             target: "existing",
@@ -200,11 +205,12 @@ export default createMachine(
                   "setModelFromBasket",
                   "ensureSelected",
                   "checkChoices",
+                  "checkType",
                   "persistModel"
                 ]
               },
 
-              ERROR: { actions: ["setError"] }
+              ERROR: { target: "error", actions: ["setError"] }
             }
           },
           error: {},
@@ -330,7 +336,8 @@ export default createMachine(
           "setBasketProducts",
           "setCurrency",
           "setPromotions",
-          "checkChoices"
+          "checkChoices",
+          "checkType"
         ]
       },
 
@@ -373,7 +380,7 @@ export default createMachine(
     actions: {
       setContext: assign((context: DomainContext, _event: AnyEventObject) =>
         defaultsDeep(context, {
-          choices: DomainTypes,
+          choices: values(DomainTypes),
           type: undefined,
           model: [],
           lookups: {
@@ -439,20 +446,36 @@ export default createMachine(
       }),
 
       checkChoices: assign({
-        choices: ({ lookups }: DomainContext) => {
+        choices: ({ lookups, choices }: DomainContext) => {
+          choices ??= [];
+
+          if (isString(choices)) choices = [choices as DomainTypes];
+
+          // ensure we DONT have the basket type in the choices if we dont have any basket products
           if (isEmpty(lookups.basket))
-            return values(omit(DomainTypes, DomainTypes.basket));
-          return values(DomainTypes);
-        },
-        type: ({ lookups, model }: DomainContext) => {
+            return reject(choices, DomainTypes.basket);
+          // nb only add the basket choice if we are not restricting choices
+          else if (choices.length > 1) choices.push(DomainTypes.basket);
+
+          return choices;
+        }
+      }),
+
+      checkType: assign({
+        type: ({ type, choices, model, lookups }: DomainContext) => {
           const selected = find(model, "selected") || first(model);
           const domain = get(selected, "domain");
-          if (domain) {
+          // NB only force the type if we have a domain AND we are not limiting the choices
+          if (
+            domain &&
+            includes(choices, DomainTypes.basket) &&
+            includes(choices, DomainTypes.existing)
+          ) {
             const added = some(lookups.basket, ["domain", domain]);
             if (added) return DomainTypes.basket;
             return DomainTypes.existing;
           }
-          return undefined;
+          return type;
         }
       }),
 

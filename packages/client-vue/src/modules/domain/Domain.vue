@@ -113,7 +113,7 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./domain.config";
 
 // --- components
-import Dac from "./components/Dac.vue";
+import Dac from "./components/DacDrawer.vue";
 import DomainBasketCards from "./components/DomainBasketCards.vue";
 import {
   Accordion,

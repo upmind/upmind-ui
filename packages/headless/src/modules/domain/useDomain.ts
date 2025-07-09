@@ -7,14 +7,29 @@ import { useActor } from "@xstate/vue";
 import domainMachine from "./domain.machine";
 
 // --- utils
-import { map, find, first, debounce, has, isArray, some, get } from "lodash-es";
+import {
+  map,
+  find,
+  first,
+  debounce,
+  has,
+  isArray,
+  some,
+  get,
+  values,
+  pick,
+  isEmpty
+} from "lodash-es";
 import {
   stopService,
   DEBOUNCE_DELAY,
   stateMatches,
   useContext,
   contextMatches,
-  contextValue
+  contextValue,
+  DetailedError,
+  responseCodes,
+  ErrorOrigin
 } from "../../utils";
 import { parseDomain } from "./utils";
 
@@ -51,10 +66,10 @@ export const useDomain = (
   const service = interpret(
     domainMachine.withContext({
       type: safeType,
-      choices: safeType ? null : DomainTypes,
+      choices: safeType ? safeType : DomainTypes,
       model: safeModel
     } as any),
-    { devTools: false }
+    { devTools: true }
   );
 
   const { state, send } = useActor(service.start());
@@ -218,10 +233,37 @@ export const useDomain = (
     });
   }
 
-  function addToBasket(): void {
-    send({
-      type: "ADD_UPDATE_MANY"
-    });
+  async function addToBasket(): Promise<void> {
+    // first check if our fields have change, ie: model.code has changed
+
+    if (!isEmpty(selected.value)) {
+      send({
+        type: "ADD_UPDATE_MANY"
+      });
+    }
+    // then wait for the paymentGateway actor to be updated
+    return waitFor(
+      service,
+      state => stateMatches(state, ["basket", "dac.error"]),
+      { timeout: Infinity }
+    )
+      .then(state => {
+        if (stateMatches(state, "dac.error")) throw state.context.error;
+        return Promise.resolve();
+      })
+      .catch(error => {
+        return Promise.reject(
+          new DetailedError(
+            error.message ?? "Add to Basket failed",
+            error.code ?? responseCodes.Timeout,
+            error.origin ?? ErrorOrigin.Headless,
+            error?.data ?? {
+              error,
+              state: state.value
+            }
+          )
+        );
+      });
   }
 
   function isSelected(value: string): boolean {

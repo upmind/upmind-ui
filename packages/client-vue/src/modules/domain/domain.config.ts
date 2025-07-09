@@ -4,12 +4,14 @@ import { cva } from "class-variance-authority";
 export default {
   domain: {
     root: cva("flex w-full flex-col gap-6"),
+    actions: cva("flex w-full flex-row items-center justify-end gap-x-4"),
+
     // ---
 
     listings: {
       root: cva("list-none"),
       loading: cva(
-        "flex min-h-[68vh] flex-col items-center justify-center space-y-8 pb-24"
+        "flex min-h-[68vh] flex-col items-center justify-center pb-24"
       )
     },
 
@@ -73,6 +75,7 @@ export default {
         cycle: cva("text-emphasis-disabled text-xs font-normal")
       }
     },
+
     empty: {
       root: cva(
         "bg-base-muted flex flex-col items-center justify-center gap-4 rounded-lg p-4"
@@ -81,6 +84,7 @@ export default {
       text: cva("text-emphasis-medium m-0 text-center"),
       icon: cva("text-emphasis-medium size-8")
     },
+
     drawer: {
       root: cva(""),
       header: cva(""),

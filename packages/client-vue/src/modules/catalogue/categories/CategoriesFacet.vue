@@ -60,7 +60,7 @@ import {
   useProductCategories,
   type ProductCategory
 } from "@upmind-automation/headless";
-import config from "../shop.config";
+import config from "../catalogue.config";
 
 // --- components
 import {

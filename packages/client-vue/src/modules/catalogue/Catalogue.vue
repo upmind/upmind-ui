@@ -11,40 +11,65 @@
     </template>
 
     <template #content>
-      <Products
-        v-model:category-id="categoryId"
-        v-model:sort="sorting.property"
-        v-model:direction="sorting.direction"
-        v-model:query="query"
-        @update:category-id="doCategory"
-        @update:sort="doSort"
-        @update:direction="doSort"
-        @update:query="doSearch"
-      />
+      <div :class="styles.products.root">
+        <nav
+          :class="styles.products.facets.root"
+          v-if="uiCart?.catalogue?.facet"
+        >
+          <CategoriesFacet
+            v-model="categoryId"
+            @update:model-value="doCategory"
+          />
+        </nav>
+
+        <component
+          :is="widget"
+          v-model:category-id="categoryId"
+          v-model:sort="sorting.property"
+          v-model:direction="sorting.direction"
+          v-model:query="query"
+          @update:category-id="doCategory"
+          @update:sort="doSort"
+          @update:direction="doSort"
+          @update:query="doSearch"
+        />
+      </div>
     </template>
   </Layout>
 </template>
 
 <script setup lang="ts">
 // --- external
-import { ref } from "vue";
+import { computed, ref, type ComputedRef } from "vue";
+import { useUrlSearchParams } from "@vueuse/core";
+
+// --- internal
 import {
+  useProductCategories,
+  useBrand,
   useRoutingEngine,
   ROUTE,
   ProductSortableProperties,
   RequestSortDirection
 } from "@upmind-automation/headless";
-import { useUrlSearchParams } from "@vueuse/core";
+import config from "./catalogue.config";
 
 // --- components
+import { useStyles } from "@upmind-automation/upmind-ui";
 import CategoriesControls from "./categories/CategoriesControls.vue";
+import CategoriesFacet from "./categories/CategoriesFacet.vue";
 import Categories from "./categories/Categories.vue";
-import Products from "./products/Products.vue";
 import Layout from "../../components/layout/Layout.vue";
+import WidgetGrid from "./products/WidgetGrid.vue";
+import WidgetDAC from "./products/WidgetDAC.vue";
+
+// --- types
 import type { ProductSortProps } from "./products/types";
 
 // -----------------------------------------------------------------------------
 const { isReady, isResolved } = useRoutingEngine();
+const { uiCart } = useBrand();
+const { findOne } = useProductCategories();
 
 const params = useUrlSearchParams("history", {
   writeMode: "push",
@@ -69,22 +94,50 @@ const sorting = ref<ProductSortProps>({
 
 const query = ref<string | undefined>(params.search as string);
 
-// ---
+// --- context
 
-const doCategory = () => {
+const widget = computed(() => {
+  //  if we have a category, we need to check its uiMeta to determine the widget to use
+  if (categoryId.value) {
+    const category = findOne({ id: categoryId.value });
+    if (category?.uiMeta?.widgets?.dac) return WidgetDAC;
+  }
+
+  // our default widget
+  return WidgetGrid;
+});
+
+const styles = useStyles(
+  ["products", "products.facets"],
+  {},
+  config
+) as ComputedRef<{
+  products: {
+    root: string;
+    facets: {
+      root: string;
+    };
+  };
+}>;
+
+// --- methods
+
+function doCategory() {
   params.catid = categoryId.value ?? "";
   query.value = "";
   params.search = "";
-};
+}
 
-const doSort = () => {
+function doSort() {
   params.sort = sorting.value.property ?? "";
   params.direction = sorting.value.direction ?? "";
-};
+}
 
-const doSearch = () => {
+function doSearch() {
   params.search = query.value ?? "";
-};
+}
+
+// --- side effects
 
 window.onpopstate = function () {
   categoryId.value = params.catid as string;

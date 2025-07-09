@@ -1,11 +1,5 @@
 <template>
   <section :class="styles.domain.listings.root" v-auto-animate>
-    <Empty
-      :title="t('domain.empty.title')"
-      :text="t('domain.empty.text')"
-      v-if="!meta.isLoading && meta.isEmpty"
-    />
-
     <CheckboxCards
       v-if="(!meta.isLoading && !meta.isEmpty) || meta.isLoadingMore"
       no-input
@@ -33,25 +27,42 @@
     </CheckboxCards>
 
     <template v-if="meta.isLoading">
-      <section v-if="!results" :class="styles.domain.listings.loading">
-        <Interstitial
-          v-bind="props"
-          :text="t('domain.dac.loading.text')"
-          :modal="false"
-          open
-        >
-          <template #avatar>
-            <IconAnimated icon="internet" size="4xl" secondary-color="accent" />
-          </template>
-          <template #title>
-            <SmartTitle i18n-key="domain.dac.loading.title" align="center" />
-          </template>
-        </Interstitial>
-      </section>
+      <Interstitial
+        v-bind="props"
+        :text="t('domain.dac.loading.text')"
+        :modal="false"
+        open
+        v-if="!results"
+        :class="styles.domain.listings.loading"
+      >
+        <template #avatar>
+          <IconAnimated icon="internet" size="4xl" secondary-color="accent" />
+        </template>
+        <template #title>
+          <SmartTitle i18n-key="domain.dac.loading.title" align="center" />
+        </template>
+      </Interstitial>
+
       <template v-else>
         <DomainCardSkeleton v-for="i in results" :key="i" />
       </template>
     </template>
+
+    <Interstitial
+      v-bind="props"
+      :text="t('domain.dac.empty.text')"
+      :modal="false"
+      open
+      v-else-if="meta.isEmpty"
+      :class="styles.domain.listings.loading"
+    >
+      <template #avatar>
+        <IconAnimated icon="internet" size="4xl" secondary-color="accent" />
+      </template>
+      <template #title>
+        <SmartTitle i18n-key="domain.dac.empty.title" align="center" />
+      </template>
+    </Interstitial>
   </section>
 </template>
 
@@ -67,7 +78,6 @@ import config from "../domain.config";
 
 // --- components
 import DomainCard from "./DomainCard.vue";
-import Empty from "./Empty.vue";
 import {
   IconAnimated,
   CheckboxCards,
