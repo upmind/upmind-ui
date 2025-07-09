@@ -1,17 +1,17 @@
 <template>
-  <div v-if="$slots.controls" :class="styles.enclosed.controlsRoot">
+  <div :class="styles.enclosed.controlsRoot" v-if="meta.hasControls">
     <nav :class="styles.enclosed.controls">
       <slot name="controls" />
     </nav>
   </div>
 
   <article :class="cn(styles.enclosed.root, props.class)">
-    <Card>
+    <Card v-if="meta.hasHeader">
       <slot name="header" />
     </Card>
 
     <Card>
-      <slot name="content" />
+      <slot name="default" />
     </Card>
   </article>
 </template>
@@ -24,14 +24,27 @@ import Card from "../card/Card.ce.vue";
 import { cn, useStyles } from "../../utils";
 import config from "./layout.config";
 
+// --- utils
+import { isEmptySlot } from "./utils";
+
 // --- types
-import type { HTMLAttributes, ComputedRef } from "vue";
+import { type HTMLAttributes, type ComputedRef, computed } from "vue";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<{
   class?: HTMLAttributes["class"];
   uiConfig?: Record<string, any>;
 }>();
+
+// -----------------------------------------------------------------------------
+
+const meta = computed(() => {
+  return {
+    hasControls: !isEmptySlot("controls"),
+    hasHeader: !isEmptySlot("header"),
+    hasContent: !isEmptySlot("default")
+  };
+});
 
 const styles = useStyles(
   ["enclosed"],

@@ -1,21 +1,21 @@
 <template>
-  <div v-if="$slots.controls" :class="styles.full.controlsRoot">
+  <div :class="styles.full.controlsRoot" v-if="meta.hasControls">
     <div :class="styles.full.controls">
       <slot name="controls" />
     </div>
   </div>
 
-  <section :class="cn(styles.full.root, props.class)">
-    <section :class="styles.full.header">
+  <article :class="cn(styles.full.root, props.class)">
+    <section :class="styles.full.header" v-if="meta.hasHeader">
       <slot name="header" />
     </section>
 
     <section :class="styles.full.contentRoot">
       <div :class="styles.full.content">
-        <slot name="content" />
+        <slot name="default" />
       </div>
     </section>
-  </section>
+  </article>
 </template>
 
 <script lang="ts" setup>
@@ -23,14 +23,27 @@
 import { cn, useStyles } from "../../utils";
 import config from "./layout.config";
 
+// --- utils
+import { isEmptySlot } from "./utils";
+
 // --- types
-import type { HTMLAttributes, ComputedRef } from "vue";
+import { type HTMLAttributes, type ComputedRef, computed } from "vue";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<{
   class?: HTMLAttributes["class"];
   uiConfig?: Record<string, any>;
 }>();
+
+// -----------------------------------------------------------------------------
+
+const meta = computed(() => {
+  return {
+    hasControls: !isEmptySlot("controls"),
+    hasHeader: !isEmptySlot("header"),
+    hasContent: !isEmptySlot("default")
+  };
+});
 
 const styles = useStyles(
   ["full"],
