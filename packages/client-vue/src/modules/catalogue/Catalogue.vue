@@ -1,5 +1,5 @@
 <template>
-  <Layout no-default>
+  <Layout>
     <template v-if="categoryId" #controls>
       <CategoriesControls
         v-model="categoryId"
