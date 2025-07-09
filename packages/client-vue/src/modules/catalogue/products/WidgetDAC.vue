@@ -35,7 +35,6 @@
 // --- internal
 import {
   useDomain,
-  RequestSortDirection,
   DomainTypes,
   useRoutingEngine,
   ROUTE
@@ -50,19 +49,10 @@ import Dac from "../../domain/components/Dac.vue";
 // --- utils
 
 // --- types
-import type { ProductSortProps } from "./types";
 import type { ComputedRef } from "vue";
 import { isEmpty } from "lodash-es";
 
 // -----------------------------------------------------------------------------
-
-// const categoryId = defineModel<ProductsProps["categoryId"]>("categoryId");
-
-// const query = defineModel<ProductsProps["query"]>("query");
-
-const direction = defineModel<ProductSortProps["direction"]>("direction", {
-  default: RequestSortDirection.ASC
-});
 
 const { navigate } = useRoutingEngine();
 
@@ -126,8 +116,6 @@ const styles = useStyles(
 //  --- side effects
 
 // watch our props and update filters accordingly
-
-// watch(query, filters.query, { immediate: true });
 
 function doResolve() {
   if (!isEmpty(selected.value)) {

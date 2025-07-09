@@ -1,5 +1,5 @@
 <template>
-  <Layout v-auto-animate>
+  <Layout>
     <slot v-if="!meta.isCheckout && !meta.isComplete" name="back-button">
       <Back :class="styles.checkout.backButton" />
     </slot>
