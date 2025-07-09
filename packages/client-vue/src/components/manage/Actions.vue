@@ -12,8 +12,7 @@
       :label="t(`${i18nKey ?? 'manage'}.actions.reject`)"
       color="base"
       variant="ghost"
-      :disabled="props.loading"
-      :loading="props.processing"
+      :disabled="props.loading || props.processing"
       @click="emits('cancel')"
     />
   </footer>
