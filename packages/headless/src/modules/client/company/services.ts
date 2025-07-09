@@ -270,7 +270,6 @@ function setDefault(companyId: Company["id"]) {
 //  SIDE EFFECTS
 
 async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
-  debugger;
   if (isEmpty(data))
     return Promise.reject(
       new DetailedError(
@@ -288,7 +287,6 @@ async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
   // if they do then we can just return the id
   // if they don't then we return a promise of the add method
   // NB: for each new dependency we force type to be 4 = company
-  debugger;
   return Promise.all([
     ensureEmail({
       model: (data?.email
