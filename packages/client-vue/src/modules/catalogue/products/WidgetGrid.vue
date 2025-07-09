@@ -12,13 +12,14 @@
       ]"
     >
       <InputExtended
-        v-model="query"
+        :model-value="query"
         :class="[styles.products.main.searchInput, 'flex-1']"
         :placeholder="t('product.search.placeholder')"
         :auto-focus="false"
         input-size="sm"
         aria-label="Search products"
         data-testid="product-search"
+        @update:model-value="doQuery"
       >
         <template #prepend>
           <Icon
@@ -102,7 +103,8 @@ import { useI18n } from "vue-i18n";
 import {
   useProductCatalogue,
   RequestSortDirection,
-  ProductSortableProperties
+  ProductSortableProperties,
+  utils
 } from "@upmind-automation/headless";
 import config from "../catalogue.config";
 
@@ -118,22 +120,25 @@ import ProductItemSkeleton from "./components/ProductItemSkeleton.vue";
 import ProductSort from "./components/ProductSort.vue";
 
 // --- utils
-import { isArray, isEmpty } from "lodash-es";
+import { debounce, isArray, isEmpty } from "lodash-es";
 
 // --- types
 import type { Product } from "@upmind-automation/headless";
 import type { ProductSortProps, ProductsProps } from "./types";
 import type { ComputedRef } from "vue";
+const { DEBOUNCE_DELAY } = utils;
 
 const DEFAULT_SKELETON_COUNT = 9;
 const PRODUCTS_PER_PAGE = 9;
 // -----------------------------------------------------------------------------
 
-const categoryId = defineModel<ProductsProps["categoryId"]>("categoryId");
+const categoryId = defineModel<ProductsProps["categoryId"] | undefined>(
+  "categoryId"
+);
 
-const query = defineModel<ProductsProps["query"]>("query");
+const query = defineModel<ProductsProps["query"] | undefined>("query");
 
-const sortBy = defineModel<ProductSortProps["property"]>("sort", {
+const sortBy = defineModel<ProductSortProps["property"] | undefined>("sort", {
   default: ProductSortableProperties.DEFAULT
 });
 
@@ -187,6 +192,12 @@ const styles = useStyles(
     };
   };
 }>;
+
+// --- methods
+
+const doQuery = debounce((value: string | undefined) => {
+  query.value = value?.trim() || undefined;
+}, DEBOUNCE_DELAY);
 
 //  --- side effects
 

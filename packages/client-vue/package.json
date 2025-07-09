@@ -29,6 +29,7 @@
     "@upmind-automation/upmind-ui": "workspace:*",
     "@vueuse/components": "^12.7.0",
     "@vueuse/core": "^12.7.0",
+    "@vueuse/router": "^13.5.0",
     "class-variance-authority": "^0.7.1",
     "filepond": "^4.32.7",
     "filepond-plugin-file-validate-type": "^1.2.9",
