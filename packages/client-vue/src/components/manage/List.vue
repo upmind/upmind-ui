@@ -3,6 +3,7 @@
     v-if="!meta.isLoading && !meta.isEmpty"
     v-model:open="open"
     v-model="modelValue"
+    :name="`${i18nKey}-radio-cards`"
     :items="parsedValues"
     :class="props.class"
     :list="false"
