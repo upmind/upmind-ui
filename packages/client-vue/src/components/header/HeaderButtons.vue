@@ -41,7 +41,7 @@
       <Avatar
         v-bind="user.avatar"
         size="xs"
-        class="h-10 w-10 cursor-pointer"
+        class="h-9 w-9 cursor-pointer"
         focusable
         :class="styles.header.avatar.session"
       />
