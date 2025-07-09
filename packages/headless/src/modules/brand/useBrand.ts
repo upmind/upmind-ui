@@ -368,10 +368,11 @@ export const useBrand = () => {
       const url = useUpmind.storefrontUrl ?? uiCart.value?.storefront_url;
       if (url) return url;
 
-      if (!uiCart.value?.catalogue?.disabled)
-        return router.hasRoute(ROUTE.CATALOGUE)
-          ? router.resolve({ name: ROUTE.CATALOGUE })?.fullPath
-          : "/";
+      if (
+        !uiCart.value?.catalogue?.disabled &&
+        router.hasRoute(ROUTE.CATALOGUE)
+      )
+        return router.resolve({ name: ROUTE.CATALOGUE })?.fullPath;
 
       return router.hasRoute(ROUTE.BASKET)
         ? router.resolve({ name: ROUTE.BASKET })?.fullPath
