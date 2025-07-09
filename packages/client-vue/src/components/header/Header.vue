@@ -5,7 +5,7 @@
     <div
       class="max-w-app mx-auto flex h-14 w-full items-center justify-between"
     >
-      <a id="logo" class="relative z-20" :href="storefrontUrl">
+      <a id="logo" class="relative z-20" :href="storefrontUrl ?? '/'">
         <picture class="h-full w-full">
           <slot name="logo" :logo="logo">
             <img v-if="logo" :src="logo" class="h-8 w-auto" alt="logo" />
