@@ -297,6 +297,7 @@ export const useRoutingEngine = () => {
     init: (instance: Router) => {
       router ??= instance;
     },
+
     register,
     guard,
     exists,

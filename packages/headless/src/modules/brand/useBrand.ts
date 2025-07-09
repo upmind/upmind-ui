@@ -1,13 +1,13 @@
 // --- external
 
 import { computed } from "vue";
-import { useRouter } from "vue-router";
 import { interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 import { useActor } from "@xstate/vue";
 
 // --- internal
 import useUpmind, { ROUTE } from "../../";
+import { useRoutingEngine } from "../routing";
 import brandMachine from "./brand.machine";
 
 // --- utils
@@ -52,7 +52,6 @@ export const useBrand = () => {
   // --- state
   // if (service.status == InterpreterStatus.NotStarted) service.start();
 
-  const router = useRouter();
   const { state, send } = useActor(service.start());
 
   async function isReady(): Promise<boolean> {
@@ -365,6 +364,8 @@ export const useBrand = () => {
      * This is derived from the cart meta or environment variable.
      */
     storefrontUrl: computed((): string => {
+      const { router } = useRoutingEngine();
+
       const url = useUpmind.storefrontUrl ?? uiCart.value?.storefront_url;
       if (url) return url;
 
