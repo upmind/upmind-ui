@@ -471,9 +471,9 @@
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 6,
+                    "k": 12,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-1643-key-holder').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-1643-key-holder').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -606,9 +606,9 @@
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 6,
+                    "k": 12,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-1643-key-holder').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-1643-key-holder').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -732,9 +732,9 @@
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 7.5,
+                    "k": 15,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-1643-key-holder').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-1643-key-holder').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -904,9 +904,9 @@
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 6,
+                    "k": 12,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-1643-key-holder').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-1643-key-holder').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -1270,9 +1270,9 @@
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 6,
+                    "k": 12,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-1643-key-holder').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-1643-key-holder').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -1343,9 +1343,9 @@
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 7.5,
+                    "k": 15,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-1643-key-holder').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-1643-key-holder').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -1481,9 +1481,9 @@
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 6,
+                    "k": 12,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-1643-key-holder').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-1643-key-holder').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -1609,9 +1609,9 @@
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 6,
+                    "k": 12,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-1643-key-holder').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-1643-key-holder').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -2006,7 +2006,7 @@
               "nm": "Menu",
               "mn": "Pseudo/@@uizp4BhCSBGw1Jw3Rz9YKA-0001",
               "ix": 1,
-              "v": { "a": 0, "k": 1, "ix": 1 }
+              "v": { "a": 0, "k": 2, "ix": 1 }
             }
           ]
         },
