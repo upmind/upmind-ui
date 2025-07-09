@@ -14,7 +14,7 @@ import {
 } from "../../../utils";
 import { invalidateQueryByKey } from "../../query";
 import { mapEmail, mapEmails, mapIEmail } from "./mappers";
-import { get, isString, isEmpty, pick } from "lodash-es";
+import { get, isString, isEmpty, omitBy } from "lodash-es";
 
 // --- types
 import type { IEmail } from "@upmind-automation/types";
@@ -105,9 +105,9 @@ async function ensure(model: EmailModel): Promise<Email> {
   await promise.value.finally(); // wait for the query to resolve
   const { findOne } = useCollection<Email>(data.value ?? []);
 
-  // We only need to check if we have an email with the matching id
-  const mapping = pick(model, "id");
-  const found = isEmpty(mapping) ? undefined : findOne(mapping);
+  // foe emails we map agains id or the actual email address
+  const mapping = omitBy(model, isEmpty);
+  const found = findOne(mapping);
   if (found) return Promise.resolve(found);
 
   return add(model).then(raw => {
