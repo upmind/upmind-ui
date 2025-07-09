@@ -49,13 +49,14 @@
           />
 
           <!-- TODO: Decide on the designs for the list close -->
-          <!-- <Link
+          <Link
             v-if="open"
+            class="sr-only"
             :label="t(`${i18nKey ?? 'manage'}.actions.close`)"
             size="xs"
             variant="muted"
             @click="open = false"
-          /> -->
+          />
         </footer>
       </slot>
     </template>
