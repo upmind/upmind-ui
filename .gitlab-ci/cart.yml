@@ -104,7 +104,7 @@ variables:
       curl --request DELETE \
           --url https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects/${CLOUDFLARE_PAGES_PROJECT_CART}/deployments/${CI_COMMIT_REF_SLUG}  \
           --header 'Content-Type: application/json' \
-          --header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN_CART}"
+          --header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}"
 
 (apps/cart) deploy production:
   extends: .pnpm
