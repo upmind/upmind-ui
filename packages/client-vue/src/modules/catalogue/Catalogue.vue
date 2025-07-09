@@ -10,31 +10,26 @@
       <Categories v-model="categoryId" @update:model-value="doCategory" />
     </template>
 
-    <template #content>
-      <div :class="styles.products.root">
-        <nav
-          :class="styles.products.facets.root"
-          v-if="uiCart?.catalogue?.facet"
-        >
-          <CategoriesFacet
-            v-model="categoryId"
-            @update:model-value="doCategory"
-          />
-        </nav>
-
-        <component
-          :is="widget"
-          v-model:category-id="categoryId"
-          v-model:sort="sorting.property"
-          v-model:direction="sorting.direction"
-          v-model:query="query"
-          @update:category-id="doCategory"
-          @update:sort="doSort"
-          @update:direction="doSort"
-          @update:query="doSearch"
+    <div :class="styles.products.root">
+      <nav :class="styles.products.facets.root" v-if="uiCart?.catalogue?.facet">
+        <CategoriesFacet
+          v-model="categoryId"
+          @update:model-value="doCategory"
         />
-      </div>
-    </template>
+      </nav>
+
+      <component
+        :is="widget"
+        v-model:category-id="categoryId"
+        v-model:sort="sorting.property"
+        v-model:direction="sorting.direction"
+        v-model:query="query"
+        @update:category-id="doCategory"
+        @update:sort="doSort"
+        @update:direction="doSort"
+        @update:query="doSearch"
+      />
+    </div>
   </Layout>
 </template>
 

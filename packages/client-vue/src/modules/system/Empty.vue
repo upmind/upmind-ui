@@ -70,7 +70,7 @@ const meta = computed(() => ({
 
 await isReady();
 const resolvedRoute =
-  uiCart.value?.catalogue?.enabled && router.hasRoute(ROUTE.CATALOGUE)
+  !uiCart.value?.catalogue?.disabled && router.hasRoute(ROUTE.CATALOGUE)
     ? router.resolve({ name: ROUTE.CATALOGUE })?.fullPath
     : (storefrontUrl.value ?? "/");
 </script>
