@@ -12,16 +12,16 @@ import {
 import {
   useTime,
   ErrorOrigin,
+  useValidation,
   DetailedError,
   responseCodes,
-  useValidation,
   useCollection,
   useModelParser,
   NotAuthenticatedError
 } from "../../../utils";
-import { mapAddress, mapAddresses, mapIAddress } from "./mappers";
 import { invalidateQueryByKey } from "../../query";
-import { get, isString, isEmpty, omitBy, find, some } from "lodash-es";
+import { mapAddress, mapAddresses, mapIAddress } from "./mappers";
+import { get, isString, isEmpty, find, some, pick } from "lodash-es";
 
 // --- types
 import { BrandConfigKeys, type IAddress } from "@upmind-automation/types";
@@ -149,6 +149,30 @@ async function update(id: Address["id"], data: AddressModel) {
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
+async function ensure(model: AddressModel): Promise<Address> {
+  const { data, promise } = loadList();
+  await promise.value.finally(); // wait for the query to resolve
+  const { findOne } = useCollection<Address>(data.value ?? []);
+
+  // We only need to check if we have an address with the matching id
+  const mapping = pick(model, "id");
+  const found = isEmpty(mapping) ? undefined : findOne(mapping);
+  if (found) return Promise.resolve(found);
+
+  return add(model).then(raw => {
+    if (isEmpty(raw))
+      throw new DetailedError(
+        "Failed to ensure Address",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless,
+        { model }
+      );
+    // NB: Remember to refresh our machines so we have the new data
+    // refresh();
+    return mapAddress(raw);
+  });
+}
+
 function remove(addressId: Address["id"]) {
   const { meta, user } = useSession();
   const { mutate, useUrl } = useQuery();
@@ -229,8 +253,6 @@ async function parse(
     schema,
     get(data, "model", data)
   );
-
-  // ---
 
   // first let's check we have a valid country,
   // fallback to the default country if not set or invalid
@@ -331,6 +353,24 @@ export const useClientAddressServices = () => {
         );
       // return add(model);
       return add(model);
+    },
+
+    /**
+     * Ensures a address exists.
+     * @param {Partial<AddressContext>} param0 - The address context containing the model to ensure.
+     * @returns {Promise<any>} The ensured address model, which will either be the existing address or a new one created.
+     */
+    ensure: async ({ model }: Partial<AddressContext>): Promise<any> => {
+      if (isEmpty(model))
+        return Promise.reject(
+          new DetailedError(
+            "Ensure Address failed: model provided",
+            responseCodes.No_Content,
+            ErrorOrigin.Headless,
+            { model }
+          )
+        );
+      return ensure(model);
     },
 
     /**

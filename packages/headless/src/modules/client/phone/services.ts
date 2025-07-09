@@ -16,14 +16,13 @@ import {
   useValidation,
   DetailedError,
   responseCodes,
+  useCollection,
   useModelParser,
-  NotAuthenticatedError,
-  useCollection
+  NotAuthenticatedError
 } from "../../../utils";
 import { invalidateQueryByKey } from "../../query";
 import { mapIPhone, mapPhone, mapPhones } from "./mapper";
-import { get, isEmpty, isString, omitBy } from "lodash-es";
-// ---
+import { get, isString, isEmpty, pick, omitBy } from "lodash-es";
 
 // --- types
 import type { IPhone } from "@upmind-automation/types";
@@ -144,13 +143,15 @@ async function update(id: Phone["id"], data: PhoneModel) {
 }
 
 async function ensure(model: PhoneModel): Promise<Phone> {
-  const mapping = omitBy(model, isEmpty);
   const { data, promise } = loadList();
   await promise.value.finally(); // wait for the query to resolve
-
   const { findOne } = useCollection<Phone>(data.value || []);
+
+  // foe phones we map agains id or the actual phone number
+  const mapping = omitBy(model, isEmpty);
   const found = findOne(mapping);
   if (found) return Promise.resolve(found);
+
   return add(model).then(raw => {
     if (isEmpty(raw))
       throw new DetailedError(

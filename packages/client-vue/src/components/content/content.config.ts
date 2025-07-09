@@ -25,11 +25,9 @@ export const titleVariants = cva("m-0", {
 });
 
 export default {
-  page: {
-    root: cva(
-      "bg-background text-foreground flex w-full flex-grow transition-colors"
-    )
-  },
+  page: cva(
+    "bg-background text-foreground flex w-full flex-grow flex-wrap transition-colors"
+  ),
   section: {
     root: cva("w-full"),
     header: cva(

@@ -87,7 +87,7 @@ const breadcrumbItems = computed(() => {
 
 const findCategoryPath = (
   targetId: string,
-  categories: ProductCategory[] = data.value || [],
+  categories: ProductCategory[] = data.value ?? [],
   path: ProductCategory[] = []
 ): ProductCategory[] => {
   for (const category of categories) {
