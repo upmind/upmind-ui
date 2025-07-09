@@ -9,8 +9,8 @@ import type {
 } from "radix-vue";
 
 // --- types
-import type { selectVariants } from "./select.config";
-type SelectVariants = VariantProps<typeof selectVariants>;
+import type { rootVariants } from "./select.config";
+type RootVariants = VariantProps<typeof rootVariants>;
 
 export interface SelectProps
   extends SelectRootProps,
@@ -23,8 +23,8 @@ export interface SelectProps
     const?: string;
   } & SelectItemProps)[];
   // --- variants
-  size?: SelectVariants["size"];
-  width?: SelectVariants["width"];
+  size?: RootVariants["size"];
+  width?: RootVariants["width"];
   placeholder?: string;
   // --- styles
   uiConfig?: { select: CxOptions };
