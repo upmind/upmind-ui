@@ -1,11 +1,11 @@
 <template>
   <div v-if="$slots.controls" :class="styles.enclosed.controlsRoot">
-    <div :class="styles.enclosed.controls">
+    <nav :class="styles.enclosed.controls">
       <slot name="controls" />
-    </div>
+    </nav>
   </div>
 
-  <section :class="cn(styles.enclosed.root, props.class)">
+  <article :class="cn(styles.enclosed.root, props.class)">
     <Card>
       <slot name="header" />
     </Card>
@@ -13,7 +13,7 @@
     <Card>
       <slot name="content" />
     </Card>
-  </section>
+  </article>
 </template>
 
 <script lang="ts" setup>

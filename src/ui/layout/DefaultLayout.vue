@@ -1,7 +1,7 @@
 <template>
-  <div :class="cn(styles.default.root, props.class)">
+  <article :class="cn(styles.default.root, props.class)">
     <slot />
-  </div>
+  </article>
 </template>
 
 <script lang="ts" setup>
