@@ -11,4 +11,5 @@ export type ProductCategory = {
   uiMeta?: Record<string, any>;
   imageUrl?: string;
   categories?: ProductCategory[];
+  children?: ProductCategory[];
 };
