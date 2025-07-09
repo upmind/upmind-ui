@@ -8,11 +8,9 @@
       <slot name="header" />
     </template>
 
-    <template #content>
-      <slot name="content" />
+    <template #default>
+      <slot name="default" />
     </template>
-
-    <slot />
   </component>
 </template>
 
