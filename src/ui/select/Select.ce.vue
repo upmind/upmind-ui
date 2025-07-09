@@ -1,7 +1,7 @@
 <template>
   <Select v-bind="forwarded" :key="uid" :model-value="modelValue">
-    <SelectTrigger :class="cn(styles.select, props.class)">
-      <SelectValue :placeholder="placeholder" :class="styles.value" />
+    <SelectTrigger :class="cn(styles.select.root, props.class)">
+      <SelectValue :placeholder="placeholder" :class="styles.select.value" />
     </SelectTrigger>
 
     <SelectContent>
@@ -10,10 +10,11 @@
           v-for="item in items"
           :key="item.value"
           :value="item.const || item.value"
+          :class="styles.select.item"
         >
           <span class="flex items-center space-x-1">
             <span>{{ item?.title || item?.textValue }}</span>
-            <span v-if="item?.label" class="opacity-60">{{ item?.label }}</span>
+            <span v-if="item?.label">{{ item?.label }}</span>
           </span>
         </SelectItem>
       </SelectGroup>
@@ -75,13 +76,16 @@ const meta = computed(() => ({
 }));
 
 const styles = useStyles(
-  ["select", "value"],
+  ["select"],
   meta,
   config,
   props.uiConfig ?? {}
 ) as ComputedRef<{
-  select: string;
-  value: string;
+  select: {
+    root: string;
+    value: string;
+    item: string;
+  };
 }>;
 
 // NB: set the new timestamp when items change to force a re-render
