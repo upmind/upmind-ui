@@ -59,14 +59,14 @@ export const useDomain = (
 ) => {
   // safetycheck to ensure forcedType is valid
   const safeType =
-    options?.type && has(DomainTypes, options.type) ? options.type : null;
+    options?.type && has(DomainTypes, options.type) ? options.type : undefined;
 
   const safeModel = map(isArray(value) ? value : [value], parseDomain);
 
   const service = interpret(
     domainMachine.withContext({
       type: safeType,
-      choices: safeType ? safeType : DomainTypes,
+      choices: safeType,
       model: safeModel
     } as any),
     { devTools: true }

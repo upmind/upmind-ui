@@ -71,7 +71,6 @@
                 v-else-if="meta.showExisting"
                 autoFocus
                 :formItemId="`dac-${type}`"
-                :animation-delay="300"
               >
                 <Input
                   :class="styles.domain.existing"
@@ -149,7 +148,6 @@ const props = withDefaults(defineProps<DomainProps>(), {
 const { t, tm, rt } = useI18n();
 
 const {
-  context,
   choices,
   type,
   selected,
@@ -158,7 +156,6 @@ const {
   available,
   owned,
   basket,
-  errors,
   // ---
   meta,
   pagination,
@@ -173,7 +170,7 @@ const {
   addToBasket,
   select,
   remove
-} = useDomain(props.modelValue, { type: props.type });
+} = useDomain(props.modelValue);
 
 const styles = useStyles(
   ["domain", "domain.form", "domain.form.trigger", "domain.form.content"],
