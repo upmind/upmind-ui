@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "@formkit/auto-animate": "^0.8.2",
-    "@sentry/vue": "^9.1.0",
+    "@sentry/vue": "^9.3.0",
     "@tailwindcss/typography": "^0.5.16",
     "@tanstack/vue-query": "^5.67.1",
     "@upmind-automation/client-vue": "workspace:*",

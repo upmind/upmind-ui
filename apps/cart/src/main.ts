@@ -57,7 +57,7 @@ Sentry.init({
     }),
     Sentry.thirdPartyErrorFilterIntegration({
       // Specify the application keys that you specified in the Sentry bundler plugin
-      filterKeys: ["checkout-upmind"],
+      filterKeys: ["cart"],
 
       // Defines how to handle errors that contain third party stack frames.
       // Possible values are:

@@ -13,15 +13,15 @@ export default defineConfig({
     vue({
       template: {
         compilerOptions: {
-          isCustomElement: tag => tag.startsWith("lord-"),
-        },
-      },
+          isCustomElement: tag => tag.startsWith("lord-")
+        }
+      }
     }),
     sentryVitePlugin({
       org: "upmind",
-      project: "checkout-upmind",
-      applicationKey: "checkout-upmind",
-    }),
+      project: "cart",
+      applicationKey: "cart"
+    })
   ],
   resolve: {
     alias: {
@@ -43,24 +43,24 @@ export default defineConfig({
       "@upmind-automation/client-vue": resolve(
         __dirname,
         "../../packages/client-vue/src/index.ts"
-      ),
+      )
     },
-    dedupe: ["vue-router"],
+    dedupe: ["vue-router"]
   },
   server: {
     allowedHosts: true,
     fs: {
-      strict: false,
-    },
+      strict: false
+    }
     // Remove custom middleware here
   },
   build: {
     rollupOptions: {
       input: {
         main: resolve(__dirname, "index.html"),
-        transfer: resolve(__dirname, "transfer.html"),
-      },
+        transfer: resolve(__dirname, "transfer.html")
+      }
     },
-    sourcemap: true,
-  },
+    sourcemap: true
+  }
 });

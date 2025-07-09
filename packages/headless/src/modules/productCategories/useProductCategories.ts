@@ -38,7 +38,26 @@ export const useProductCategories = (initial?: QueryProps) => {
     });
   }
 
+  // --- utils
+
+  /** generate a utlility walker to tak all categories( data) and take their children  iterativel and add them to a flattend lit of categoris */
+  function flattenCategories(categories: ProductCategory[]): ProductCategory[] {
+    const flattened: ProductCategory[] = [];
+    const walk = (category: ProductCategory) => {
+      flattened.push(category);
+      if (category?.children) {
+        category?.children.forEach(child => walk(child));
+      }
+    };
+    categories.forEach(category => walk(category));
+    return flattened ?? [];
+  }
+
   // --- context
+
+  const dataFlattened = computed(() => {
+    return flattenCategories(query.data.value ?? []);
+  });
 
   // --- methods
 
@@ -47,10 +66,9 @@ export const useProductCategories = (initial?: QueryProps) => {
   }
 
   function findOne(mapping: string | Partial<ProductCategory>) {
-    const items = query.data.value;
     if (isString(mapping)) {
       return find(
-        items,
+        dataFlattened.value,
         item =>
           includes(item.title.toLowerCase(), mapping.toLowerCase()) ||
           includes(item?.description?.toLowerCase(), mapping.toLowerCase()) ||
@@ -58,7 +76,7 @@ export const useProductCategories = (initial?: QueryProps) => {
       );
     }
 
-    return find(items, item =>
+    return find(dataFlattened.value, item =>
       every(mapping, (value, key) => {
         if (key == "id") {
           return item.id == value;
