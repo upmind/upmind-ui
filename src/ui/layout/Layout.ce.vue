@@ -35,7 +35,7 @@ const layoutComponent = computed(() => {
     case "full":
       return FullLayout;
     default:
-      return DefaultLayout;
+      return props.noDefault ? FullLayout : DefaultLayout;
   }
 });
 </script>
