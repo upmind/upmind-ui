@@ -1,10 +1,5 @@
 <template>
-  <FormControl
-    :invalid="false"
-    autoFocus
-    :formItemId="id"
-    :animation-delay="300"
-  >
+  <FormControl :invalid="false" autoFocus :formItemId="id">
     <Input
       :class="styles.domain.search"
       @update:modelValue="onSearch"

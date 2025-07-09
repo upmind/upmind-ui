@@ -36,8 +36,10 @@ import {
   omit,
   reduce,
   reject,
+  remove,
   set,
   some,
+  uniq,
   uniqBy,
   values
 } from "lodash-es";
@@ -448,14 +450,14 @@ export default createMachine(
       checkChoices: assign({
         choices: ({ lookups, choices }: DomainContext) => {
           choices ??= [];
-
           if (isString(choices)) choices = [choices as DomainTypes];
-
           // ensure we DONT have the basket type in the choices if we dont have any basket products
-          if (isEmpty(lookups.basket))
-            return reject(choices, DomainTypes.basket);
+          if (isEmpty(lookups.basket)) {
+            remove(choices, value => value === DomainTypes.basket);
+          }
           // nb only add the basket choice if we are not restricting choices
-          else if (choices.length > 1) choices.push(DomainTypes.basket);
+          else if (choices.length > 1 && !includes(choices, DomainTypes.basket))
+            choices.push(DomainTypes.basket);
 
           return choices;
         }
