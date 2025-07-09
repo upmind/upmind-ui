@@ -24,6 +24,7 @@
       "actions": {
         "change": "Change",
         "add": "Add new",
+        "close": "Close",
         "edit": "Edit",
         "resolve": "Save details",
         "reject": "Cancel"
