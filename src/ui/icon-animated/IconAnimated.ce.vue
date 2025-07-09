@@ -76,14 +76,19 @@ const styles = useStyles(
   props.uiConfig ?? {}
 ) as ComputedRef<{ iconAnimated: string }>;
 
-// ---
+const primaryHex = computed(() => {
+  const _ = styles.value;
+  return getComputedColor("icon-primary");
+});
 
-const primaryHex = computed(() => getComputedColor("icon-primary"));
-const secondaryHex = computed(() => getComputedColor("icon-secondary"));
+const secondaryHex = computed(() => {
+  const _ = styles.value;
+  return getComputedColor("icon-secondary");
+});
 
-function getComputedColor(className: string) {
+function getComputedColor(className: string): string {
   const cssVar = getComputedStyle(document.documentElement)
-    .getPropertyValue(`--color-${className}`)
+    .getPropertyValue(`--${className}`)
     .trim();
 
   if (cssVar) {
@@ -104,6 +109,6 @@ function getComputedColor(className: string) {
     return `#${parseInt(rgb[0]).toString(16).padStart(2, "0")}${parseInt(rgb[1]).toString(16).padStart(2, "0")}${parseInt(rgb[2]).toString(16).padStart(2, "0")}`;
   }
 
-  return "#ffffff";
+  return "#121217";
 }
 </script>
