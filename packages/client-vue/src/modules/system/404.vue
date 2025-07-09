@@ -44,8 +44,10 @@
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
-import { useRouter } from "vue-router";
 import { vAutoAnimate } from "@formkit/auto-animate";
+
+// --- internal
+import { useBrand } from "@upmind-automation/headless";
 
 // -- components
 import { Interstitial, IconAnimated } from "@upmind-automation/upmind-ui";
@@ -55,13 +57,11 @@ import Layout from "../../components/layout/Layout.vue";
 
 // -- types
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
-import { ROUTE, useBrand } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
 const { storefrontUrl } = useBrand();
-const router = useRouter();
 
 const props = withDefaults(defineProps<InterstitialProps>(), {
   open: true,

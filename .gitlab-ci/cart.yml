@@ -2,13 +2,6 @@ variables:
   CLOUDFLARE_ACCOUNT_ID: bbea1ad205044fc70dc376a24f7c41c4
   CLOUDFLARE_PAGES_PROJECT_CART: upmind-cart
 
-(apps/cart) check version:
-  extends: .check version
-  variables:
-    ROOT_DIR: apps/cart
-  rules:
-    - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+$/
-
 (apps/cart) build:
   extends: .pnpm
   stage: build
@@ -40,7 +33,7 @@ variables:
       - apps/cart/dist
   script:
     - pnpm --dir apps/cart install
-    - pnpm --dir apps/cart run build
+    - pnpm run build
 
 (apps/cart) deploy staging:
   extends: .pnpm
