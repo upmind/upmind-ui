@@ -56,9 +56,7 @@ variables:
   environment:
     name: apps/cart/staging
     action: start
-    auto_stop_in: 7 days
     url: https://staging.cart.cdn.upmind.io
-    on_stop: (apps/cart) stop production preview
   script:
     - cd apps/cart
     - |
