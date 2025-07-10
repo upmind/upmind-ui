@@ -470,8 +470,8 @@ export default createMachine(
           // NB only force the type if we have a domain AND we are not limiting the choices
           if (
             domain &&
-            includes(choices, DomainTypes.basket) &&
-            includes(choices, DomainTypes.existing)
+            (includes(choices, DomainTypes.basket) ||
+              includes(choices, DomainTypes.existing))
           ) {
             const added = some(lookups.basket, ["domain", domain]);
             if (added) return DomainTypes.basket;
