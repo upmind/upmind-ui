@@ -30,7 +30,8 @@ function loadList(params?: Partial<QueryParams>) {
         "subcategories.subcategories.subcategories.subcategories.image"
       ].join(","),
       with_count: [
-        "products,subcategories.products",
+        "products",
+        "subcategories.products",
         "subcategories.subcategories.products",
         "subcategories.subcategories.subcategories.products",
         "subcategories.subcategories.subcategories.subcategories.products"
