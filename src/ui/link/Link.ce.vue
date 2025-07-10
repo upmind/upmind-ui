@@ -9,8 +9,8 @@
     :class="cn(styles.link.root, props.class)"
     :aria-disabled="disabled"
     :data-disabled="disabled"
-    @click="handleClick"
-    @keydown.enter="handleClick"
+    @click="doAction"
+    @keydown.enter="doAction"
     data-testid="link"
   >
     <slot name="prepend"></slot>
@@ -32,6 +32,7 @@ import { useStyles, cn } from "../../utils";
 // --- types
 import type { ComputedRef } from "vue";
 import type { LinkProps } from "./types";
+import { isFunction, isString } from "lodash-es";
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<LinkProps>(), {
   // --- states
@@ -69,13 +70,28 @@ const styles = useStyles(
 
 const emit = defineEmits<{
   (e: "click", event: Event): void;
+  (e: "action", event: { name: string; event: Event }): void;
 }>();
 
-const handleClick = (event: Event) => {
+function doAction(event: Event) {
   if (props.disabled || props.loading) {
     event.preventDefault();
-  } else {
-    emit("click", event);
+    return;
   }
-};
+
+  if (isFunction(props.handler)) {
+    props.handler();
+    return;
+  }
+
+  if (isString(props.handler)) {
+    emit("action", {
+      name: props.handler as string,
+      event
+    });
+    return;
+  }
+
+  emit("click", event);
+}
 </script>

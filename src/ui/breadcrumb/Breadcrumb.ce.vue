@@ -11,13 +11,7 @@
           >
             {{ item.label }}
           </BreadcrumbPage>
-          <BreadcrumbLink
-            v-else
-            is="button"
-            :href="item.href"
-            :as="Link"
-            @click="item.onClick?.()"
-          >
+          <BreadcrumbLink v-else v-bind="item" :as="Link">
             {{ item.label }}
           </BreadcrumbLink>
         </BreadcrumbItem>
