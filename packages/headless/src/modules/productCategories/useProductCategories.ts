@@ -108,9 +108,13 @@ export const useProductCategories = (initial?: QueryProps) => {
     );
   }
 
-  function filterAll(param: string) {
+  function filterAll(param?: string, parent?: ProductCategory["parent"]) {
+    const categories = parent ? getChildren(parent, true) : dataFlattened.value;
+
+    if (!param) return categories;
+
     return filter(
-      query.data.value,
+      categories,
       item =>
         includes(item.title.toLowerCase(), param.toLowerCase()) ||
         includes(item?.description?.toLowerCase(), param.toLowerCase()) ||
@@ -118,8 +122,15 @@ export const useProductCategories = (initial?: QueryProps) => {
     );
   }
 
-  function getChildren(parent: ProductCategory["parent"]): ProductCategory[] {
-    return filter(dataFlattened.value, ["parent", parent]);
+  function getChildren(
+    parent: ProductCategory["parent"],
+    flattened?: boolean
+  ): ProductCategory[] {
+    const children = filter(dataFlattened.value, ["parent", parent]);
+
+    if (flattened) return flattenCategories(children);
+
+    return children;
   }
 
   // ---------------------------------------------------------------------------

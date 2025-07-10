@@ -85,7 +85,7 @@ const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { data, getChildren, getPath } = useProductCategories();
+const { filter, getChildren, getPath } = useProductCategories();
 
 const query = ref("");
 
@@ -126,7 +126,7 @@ const items = computed(() => {
       }
     })),
     // include current category and its children
-    ...map(displayCategories.value, (category: ProductCategory) => ({
+    ...map(filteredCategories.value, (category: ProductCategory) => ({
       id: category.id,
       label: category.title,
       current: category.id === modelValue.value,
@@ -148,8 +148,7 @@ const items = computed(() => {
 const filteredCategories = computed((): ProductCategory[] => {
   if (!query.value) return displayCategories.value;
 
-  // return filterAll({});
-  return displayCategories.value;
+  return filter(query.value, modelValue.value);
 });
 
 const styles = useStyles(
