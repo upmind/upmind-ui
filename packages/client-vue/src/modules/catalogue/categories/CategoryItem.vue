@@ -2,7 +2,7 @@
   <Button
     as="router-link"
     :to="{
-      name: 'product.category',
+      name: ROUTE.CATALOGUE,
       params: {
         catid: id
       }
@@ -49,7 +49,7 @@ import config from "../catalogue.config";
 import { Icon, Button, useStyles } from "@upmind-automation/upmind-ui";
 
 // --- types
-import type { ProductCategory } from "@upmind-automation/headless";
+import { ROUTE, type ProductCategory } from "@upmind-automation/headless";
 import type { ComputedRef } from "vue";
 import type { CategoriesProps } from "./types";
 

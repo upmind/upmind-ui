@@ -1,6 +1,6 @@
 <template>
   <Layout>
-    <template v-if="categoryId" #controls>
+    <template #controls>
       <CategoriesControls v-model="categoryId" />
     </template>
     <template #header>
@@ -52,7 +52,7 @@ import WidgetDAC from "./products/WidgetDAC.vue";
 // -----------------------------------------------------------------------------
 const { isReady, isResolved } = useRoutingEngine();
 const { uiCart } = useBrand();
-const { findOne } = useProductCategories();
+const { findOne, dataFlattened } = useProductCategories();
 
 await isReady();
 await isResolved(ROUTE.PRODUCT_ADD);

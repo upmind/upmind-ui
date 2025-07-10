@@ -8,8 +8,9 @@ export type ProductCategory = {
   description?: IProductCategory["description"];
   excerpt?: IProductCategory["short_description"];
   count?: IProductCategory["products_count"];
+  countDeep?: IProductCategory["products_count"]; // includes sum of subcategories' products_count
   uiMeta?: Record<string, any>;
   imageUrl?: string;
-  categories?: ProductCategory[];
   children?: ProductCategory[];
+  parent?: IProductCategory["parent_id"];
 };

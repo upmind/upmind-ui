@@ -13,7 +13,9 @@ import {
   filter,
   isEmpty,
   includes,
-  isString
+  isString,
+  reduce,
+  concat
 } from "lodash-es";
 
 // --- types
@@ -61,8 +63,27 @@ export const useProductCategories = (initial?: QueryProps) => {
 
   // --- methods
 
+  function walkPath(
+    targetId: string,
+    categories: ProductCategory[]
+  ): ProductCategory[] {
+    return reduce(
+      categories,
+      (result: ProductCategory[], category: ProductCategory) => {
+        if (result.length) return result;
+        if (category.id === targetId) return [category];
+        if (category.children?.length) {
+          const childPath = walkPath(targetId, category.children);
+          if (childPath.length) return concat([category], childPath);
+        }
+        return result;
+      },
+      []
+    );
+  }
+
   function getOne(id: ProductCategory["id"]) {
-    return find(query.data.value, ["id", id]);
+    return find(dataFlattened.value, ["id", id]);
   }
 
   function findOne(mapping: string | Partial<ProductCategory>) {
@@ -96,6 +117,11 @@ export const useProductCategories = (initial?: QueryProps) => {
         includes(item?.excerpt?.toLowerCase(), param.toLowerCase())
     );
   }
+
+  function getChildren(parent: ProductCategory["parent"]): ProductCategory[] {
+    return filter(dataFlattened.value, ["parent", parent]);
+  }
+
   // ---------------------------------------------------------------------------
 
   return {
@@ -125,6 +151,8 @@ export const useProductCategories = (initial?: QueryProps) => {
      */
     data: query.data,
 
+    dataFlattened,
+
     /**
      * The current error state of the query.
      * This will be populated if the query fails to fetch data.
@@ -132,6 +160,9 @@ export const useProductCategories = (initial?: QueryProps) => {
     error: query.error,
 
     // --- methods
+
+    getPath: (categoryId?: ProductCategory["id"]) =>
+      !categoryId ? [] : walkPath(categoryId, query.data.value ?? []),
 
     /**
      * Get a single address by id.
@@ -153,6 +184,13 @@ export const useProductCategories = (initial?: QueryProps) => {
      * @returns An array of items that match the filter.
      */
     filter: filterAll,
+
+    /**
+     * Get the children of a parent category.
+     * @param parent The parent category id to get the children for.
+     * @returns An array of child categories.
+     */
+    getChildren,
 
     /**
      * Refresh the query to get the latest data.

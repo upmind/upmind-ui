@@ -50,17 +50,10 @@ const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
 
 const { t } = useI18n();
 const { uiCart } = useBrand();
-const { data, meta, getOne } = useProductCategories();
+const { getChildren, meta, getOne } = useProductCategories();
 
 const displayCategories = computed(() => {
-  if (!data.value) return [];
-
-  if (!modelValue.value) {
-    return data.value;
-  }
-
-  const parentCategory = getOne(modelValue.value);
-  return parentCategory?.categories || [];
+  return getChildren(modelValue.value);
 });
 
 const category = computed((): ProductCategory => {

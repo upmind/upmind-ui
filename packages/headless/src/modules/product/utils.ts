@@ -18,6 +18,7 @@ import {
   concat,
   find,
   first,
+  flatMap,
   forEach,
   get,
   has,
@@ -185,11 +186,22 @@ export function iterateParents(
   if (!item) return result;
   const parsed = isFunction(transform) ? transform(item) : get(item, valueKey);
   result.push(parsed);
-  return iterateParents(get(item, parentKey), result, {
-    valueKey,
-    parentKey,
-    transform
-  });
+
+  let parents = get(item, parentKey);
+  if (isEmpty(parents)) return result;
+
+  if (!isArray(parents)) parents = [parents];
+
+  const nested = flatMap(parents, parent =>
+    iterateParents(parent, [], {
+      valueKey,
+      parentKey,
+      transform
+    })
+  );
+  result.push(...nested);
+
+  return result;
 }
 
 export function checkPriceOverride(

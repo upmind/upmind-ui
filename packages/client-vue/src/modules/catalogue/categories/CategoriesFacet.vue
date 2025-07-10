@@ -18,18 +18,18 @@
 
     <div :class="styles.products.facet.list">
       <Button
-        v-for="category in categoriesWithAll"
-        :key="category.id || 'all'"
+        v-for="(category, index) in items"
+        :key="`category-${index}`"
         variant="ghost"
         size="sm"
         :class="
           cn([
             styles.products.facet.list.button,
-            modelValue === category.id && 'text-control-active'
+            category.current && 'text-control-active'
           ])
         "
-        @click="selectCategory(category.id)"
-        :label="category.title"
+        @click="category.handler"
+        :label="category.label"
       >
         <template #prepend>
           <Icon
@@ -37,12 +37,13 @@
             :class="
               cn([
                 styles.products.facet.list.icon,
-                modelValue === category.id ? 'opacity-100' : 'opacity-0'
+                category.current || category.open ? 'opacity-100' : 'opacity-0',
+                category.open ? '-rotate-90' : ''
               ])
             "
           />
         </template>
-        <template #append v-if="category.name != 'all'">
+        <template #append v-if="category.count">
           ({{ category.count }})
         </template>
       </Button>
@@ -57,6 +58,7 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import {
+  ROUTE,
   useProductCategories,
   type ProductCategory
 } from "@upmind-automation/headless";
@@ -74,6 +76,7 @@ import {
 // --- types
 import type { CategoriesProps } from "./types";
 import type { ComputedRef } from "vue";
+import { map } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -82,35 +85,71 @@ const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { data, getOne } = useProductCategories();
+const { data, getChildren, getPath } = useProductCategories();
 
 const query = ref("");
 
-const categories = computed((): ProductCategory[] => {
-  if (!data.value) return [];
+const displayCategories = computed(() => {
+  return getChildren(modelValue.value);
+});
 
-  if (!modelValue.value) {
-    return data.value;
-  }
+const items = computed(() => {
+  const paths = getPath(modelValue.value);
 
-  return getOne(modelValue.value)?.categories || [];
+  const items = [
+    // include "All" option
+    {
+      id: 0,
+      label: t("product.category.all"),
+      current: !modelValue.value,
+      open: false,
+      count: 0,
+      handler: () => {
+        modelValue.value = undefined;
+      },
+      to: {
+        name: ROUTE.CATALOGUE
+      }
+    },
+    // include parent categories
+    ...map(paths, (parentCategory: ProductCategory) => ({
+      label: parentCategory.title,
+      current: parentCategory.id === modelValue.value,
+      open: parentCategory.id !== modelValue.value,
+      count: parentCategory.countDeep,
+      to: {
+        name: ROUTE.CATALOGUE,
+        query: { catId: parentCategory.id }
+      },
+      handler: () => {
+        modelValue.value = parentCategory.id;
+      }
+    })),
+    // include current category and its children
+    ...map(displayCategories.value, (category: ProductCategory) => ({
+      id: category.id,
+      label: category.title,
+      current: category.id === modelValue.value,
+      open: false,
+      count: category.countDeep,
+      to: {
+        name: ROUTE.CATALOGUE,
+        query: { catId: category.id }
+      },
+      handler: () => {
+        modelValue.value = category.id;
+      }
+    }))
+  ];
+
+  return items;
 });
 
 const filteredCategories = computed((): ProductCategory[] => {
-  if (!categories.value) return [];
+  if (!query.value) return displayCategories.value;
 
-  if (!query.value) return categories.value;
-
-  return categories.value.filter(category =>
-    category.title.toLowerCase().includes(query.value.toLowerCase())
-  );
-});
-
-const categoriesWithAll = computed((): ProductCategory[] => {
-  return [
-    { id: "", name: "all", title: t("product.category.all") },
-    ...filteredCategories.value
-  ];
+  // return filterAll({});
+  return displayCategories.value;
 });
 
 const styles = useStyles(

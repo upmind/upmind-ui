@@ -1,5 +1,5 @@
 // --- utils
-import { map, reverse } from "lodash-es";
+import { concat, isEmpty, map, reduce, reverse, sum, sumBy } from "lodash-es";
 import { iterateParents, parseMeta, parseSubproducts } from "../product/utils";
 import { useTranslateField, useTranslateName } from "../../utils";
 
@@ -25,12 +25,18 @@ export function parseProductCategory(raw: IProductCategory): ProductCategory {
     description: useTranslateField(raw, "description"),
     excerpt: useTranslateField(raw, "short_description"),
     uiMeta: parseMeta(raw?.meta ?? {}, raw),
-    count: raw.products_count,
+    count: raw.products_count ?? 0,
+
+    countDeep: sum(
+      iterateParents(raw, [], {
+        valueKey: "products_count",
+        parentKey: "subcategories",
+        transform: (category: IProductCategory) => category?.products_count ?? 0
+      })
+    ),
+
     imageUrl: raw.image?.image_url,
-
-    // TODO: map our parents
-    // TODO : map our children
-
-    categories: map(raw.subcategories, parseProductCategory)
+    parent: raw.parent_id ?? undefined,
+    children: map(raw.subcategories, parseProductCategory)
   } as ProductCategory;
 }
