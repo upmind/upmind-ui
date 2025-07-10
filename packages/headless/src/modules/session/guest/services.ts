@@ -181,7 +181,8 @@ async function register({ model }: GuestContext<RegisterModel>) {
 
   return post({
     url: useUrl("clients/register"),
-    data
+    data,
+    withAccessToken: true
   })
     .then(loadUser)
     .finally(() => {
