@@ -19,6 +19,7 @@ export interface LinkProps {
   href?: string;
   as?: HTMLAttributes["class"];
   class?: HTMLAttributes["class"];
+  handler?: Function;
   // ---
   disabled?: boolean;
   loading?: boolean;

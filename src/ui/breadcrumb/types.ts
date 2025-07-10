@@ -4,16 +4,17 @@ import type { CxOptions, VariantProps } from "class-variance-authority";
 
 // --- internal
 import type { breadcrumbVariants } from "./breadcrumb.config";
+import type { RouterLinkProps } from "vue-router";
 
 type BreadcrumbConsolidateVariantProps = VariantProps<
   typeof breadcrumbVariants
 >;
 
-export interface BreadcrumbItem {
+export interface BreadcrumbItem extends RouterLinkProps {
   label: string;
-  href?: string;
   current?: boolean;
-  onClick?: () => void;
+  value?: string | number;
+  handler?: Function;
 }
 
 export interface BreadcrumbConsolidateProps {
