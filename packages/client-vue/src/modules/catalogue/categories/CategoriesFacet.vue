@@ -89,10 +89,6 @@ const { filter, getChildren, getPath } = useProductCategories();
 
 const query = ref("");
 
-const displayCategories = computed(() => {
-  return getChildren(modelValue.value);
-});
-
 const items = computed(() => {
   const paths = getPath(modelValue.value);
 
@@ -146,7 +142,7 @@ const items = computed(() => {
 });
 
 const filteredCategories = computed((): ProductCategory[] => {
-  if (!query.value) return displayCategories.value;
+  if (!query.value) return getChildren(modelValue.value);
 
   return filter(query.value, modelValue.value);
 });
