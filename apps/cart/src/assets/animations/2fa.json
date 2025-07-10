@@ -75,16 +75,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.031, 0.659, 0.541, 1],
+                    "k": [0.443, 0.4, 0.933, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-2604-2-factor-authentication').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 7.5,
+                    "k": 15,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-2604-2-factor-authentication').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-2604-2-factor-authentication').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -183,16 +183,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.031, 0.659, 0.541, 1],
+                    "k": [0.443, 0.4, 0.933, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-2604-2-factor-authentication').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 7.5,
+                    "k": 15,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-2604-2-factor-authentication').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-2604-2-factor-authentication').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -291,16 +291,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.031, 0.659, 0.541, 1],
+                    "k": [0.443, 0.4, 0.933, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-2604-2-factor-authentication').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 7.5,
+                    "k": 15,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-2604-2-factor-authentication').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-2604-2-factor-authentication').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -399,16 +399,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.031, 0.659, 0.541, 1],
+                    "k": [0.443, 0.4, 0.933, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-2604-2-factor-authentication').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 7.5,
+                    "k": 15,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-2604-2-factor-authentication').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-2604-2-factor-authentication').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -515,16 +515,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.031, 0.659, 0.541, 1],
+                    "k": [0.443, 0.4, 0.933, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-2604-2-factor-authentication').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 6,
+                    "k": 12,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-2604-2-factor-authentication').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-2604-2-factor-authentication').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 1,
                   "lj": 2,
@@ -807,9 +807,9 @@
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 8,
+                    "k": 16,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-2604-2-factor-authentication').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-2604-2-factor-authentication').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -989,9 +989,9 @@
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 6,
+                    "k": 12,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-2604-2-factor-authentication').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-2604-2-factor-authentication').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -1112,16 +1112,16 @@
                       "ty": "st",
                       "c": {
                         "a": 0,
-                        "k": [0.031, 0.659, 0.541, 1],
+                        "k": [0.443, 0.4, 0.933, 1],
                         "ix": 3,
                         "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-2604-2-factor-authentication').layer('control').effect('secondary')('Color');"
                       },
                       "o": { "a": 0, "k": 100, "ix": 4 },
                       "w": {
                         "a": 0,
-                        "k": 7.5,
+                        "k": 15,
                         "ix": 5,
-                        "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-2604-2-factor-authentication').layer('control').effect('stroke')('Menu'));"
+                        "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-2604-2-factor-authentication').layer('control').effect('stroke')('Menu'));"
                       },
                       "lc": 2,
                       "lj": 2,
@@ -1210,7 +1210,7 @@
               "nm": "Menu",
               "mn": "Pseudo/@@/PnaaRs8SdGHGfqVm4Hd7w-0001",
               "ix": 1,
-              "v": { "a": 0, "k": 1, "ix": 1 }
+              "v": { "a": 0, "k": 2, "ix": 1 }
             }
           ]
         },
@@ -1244,7 +1244,7 @@
               "nm": "Color",
               "mn": "ADBE Color Control-0001",
               "ix": 1,
-              "v": { "a": 0, "k": [0.031, 0.659, 0.541], "ix": 1 }
+              "v": { "a": 0, "k": [0.443, 0.4, 0.933], "ix": 1 }
             }
           ]
         }
