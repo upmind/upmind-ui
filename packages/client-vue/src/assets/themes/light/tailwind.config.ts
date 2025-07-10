@@ -331,7 +331,7 @@ export default {
   fontFamily: {
     sans: "var(--fontFamily, ui-sans-serif, system-ui, sans-serif)",
     body: "var(--fontFamily, ui-sans-serif, system-ui, sans-serif)",
-    display: "var(--fontFamily, ui-sans-serif, system-ui, sans-serif)"
+    display: "Inter, ui-sans-serif, system-ui, sans-serif"
   },
   fontSize: {
     "2xs": ".75rem", // 12px
