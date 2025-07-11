@@ -1,6 +1,6 @@
 // --- external
 import type { CxOptions } from "class-variance-authority";
-import { type HTMLAttributes } from "vue";
+import { type Component, type HTMLAttributes } from "vue";
 import type { VariantProps } from "class-variance-authority";
 
 // --- internal
@@ -9,7 +9,7 @@ type ButtonVariantProps = VariantProps<typeof buttonVariants>;
 
 export interface ButtonProps {
   label?: string;
-  as?: string;
+  as?: string | Component;
   type?: "button" | "submit" | "reset"; //  type?: HTMLButtonElement["type"];
   // ---
   disabled?: boolean;
