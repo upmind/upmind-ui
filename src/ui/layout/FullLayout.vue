@@ -1,14 +1,15 @@
 <template>
   <div :class="styles.control.root">
     <nav :class="styles.control.content">
-      <div>
-        <slot name="controls" />
-        <slot name="navigation" />
-      </div>
+      <slot name="controls">
+        <div>
+          <slot name="navigation" />
+        </div>
 
-      <div>
-        <slot name="actions" />
-      </div>
+        <div>
+          <slot name="actions" />
+        </div>
+      </slot>
     </nav>
   </div>
 
@@ -54,7 +55,7 @@ const meta = computed(() => {
 });
 const styles = useStyles(
   ["full", "control"],
-  {},
+  meta,
   config,
   props.uiConfig ?? {}
 ) as ComputedRef<{

@@ -56,7 +56,7 @@ const meta = computed(() => {
 
 const styles = useStyles(
   ["enclosed", "control"],
-  {},
+  meta,
   config,
   props.uiConfig ?? {}
 ) as ComputedRef<{
