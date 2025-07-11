@@ -182,7 +182,10 @@ function parsePhone(
     ? value
     : value?.nationalNumber || value?.number || "";
 
-  const code = countryCode || phone.value?.country || defaultCountryCode;
+  const code = !isString(value)
+    ? (value?.country ?? countryCode ?? defaultCountryCode)
+    : (countryCode ?? defaultCountryCode);
+
   let parsed;
   try {
     parsed = parsePhoneNumberWithError(phonenumber, code);
@@ -195,11 +198,11 @@ function parsePhone(
       number: parsed.number,
       nationalNumber: parsed.nationalNumber,
       countryCallingCode: parsed.countryCallingCode,
-      country: code
+      country: code!
     };
   }
 
-  return { country: code, number: phonenumber };
+  return { country: code!, number: phonenumber };
 }
 
 function onCountyInput(value: any) {
