@@ -1,7 +1,20 @@
 <template>
-  <Select v-bind="forwarded" :key="uid" :model-value="modelValue">
+  <Select
+    v-bind="forwarded"
+    v-model:open="open"
+    :key="uid"
+    :model-value="modelValue"
+  >
     <SelectTrigger :class="cn(styles.select.root, props.class)">
       <SelectValue :placeholder="placeholder" :class="styles.select.value" />
+      <template #icon>
+        <Icon
+          class="ml-auto opacity-75 transition-all duration-200"
+          :class="open ? 'rotate-180' : ''"
+          icon="arrow-down"
+          size="xs"
+        />
+      </template>
     </SelectTrigger>
 
     <SelectContent>
@@ -39,6 +52,7 @@ import SelectContent from "./SelectContent.vue";
 import SelectGroup from "./SelectGroup.vue";
 import SelectItem from "./SelectItem.vue";
 import SelectValue from "./SelectValue.vue";
+import Icon from "../icon/Icon.vue";
 
 // --- types
 import type { SelectRootEmits, SelectContentEmits } from "radix-vue";
@@ -64,6 +78,8 @@ const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
   defaultValue: props.defaultValue
 });
+
+const open = ref(false);
 
 // --- This is needed as if we have changed items AFTER model is set then ...
 //     the component does not re-render with the correct selected value
