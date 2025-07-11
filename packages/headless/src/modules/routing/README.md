@@ -84,7 +84,7 @@ const { service } = useRoutingEngine({
               // do logic to determine if we can transition to this node
               const valid = true || false;
               return valid;
-            },
+            }
           },
           {
             target: "product/requiresAction.related",
@@ -92,7 +92,7 @@ const { service } = useRoutingEngine({
               // do logic to determine if we can transition to this node
               const valid = true || false;
               return valid;
-            },
+            }
           },
           {
             target: "product.requiresAction.invalid",
@@ -100,7 +100,7 @@ const { service } = useRoutingEngine({
               // do logic to determine if we can transition to this node
               const valid = true || false;
               return valid;
-            },
+            }
           },
           {
             target: "product/recommendations",
@@ -108,7 +108,7 @@ const { service } = useRoutingEngine({
               // do logic to determine if we can transition to this node
               const valid = true || false;
               return valid;
-            },
+            }
           },
           {
             target: "checkout",
@@ -116,7 +116,7 @@ const { service } = useRoutingEngine({
               // do logic to determine if we can transition to this node
               const valid = true || false;
               return valid;
-            },
+            }
           },
           {
             target: "cart",
@@ -124,12 +124,12 @@ const { service } = useRoutingEngine({
               // do logic to determine if we can transition to this node
               const valid = true || false;
               return valid;
-            },
-          },
+            }
+          }
         ],
         back: [{ target: "cart" }],
-        fallback: [{ target: "cart" }],
-      },
+        fallback: [{ target: "cart" }]
+      }
     },
     edit: {
       handler: (context, event) => {
@@ -150,7 +150,7 @@ const { service } = useRoutingEngine({
               // do logic to determine if we can transition to this node
               const valid = true || false;
               return valid;
-            },
+            }
           },
           {
             target: "product/requiresAction.related",
@@ -158,7 +158,7 @@ const { service } = useRoutingEngine({
               // do logic to determine if we can transition to this node
               const valid = true || false;
               return valid;
-            },
+            }
           },
           {
             target: "product.requiresAction.invalid",
@@ -166,7 +166,7 @@ const { service } = useRoutingEngine({
               // do logic to determine if we can transition to this node
               const valid = true || false;
               return valid;
-            },
+            }
           },
           {
             target: "product/recommendations",
@@ -174,7 +174,7 @@ const { service } = useRoutingEngine({
               // do logic to determine if we can transition to this node
               const valid = true || false;
               return valid;
-            },
+            }
           },
           {
             target: "checkout",
@@ -182,7 +182,7 @@ const { service } = useRoutingEngine({
               // do logic to determine if we can transition to this node
               const valid = true || false;
               return valid;
-            },
+            }
           },
           {
             target: "cart",
@@ -190,12 +190,12 @@ const { service } = useRoutingEngine({
               // do logic to determine if we can transition to this node
               const valid = true || false;
               return valid;
-            },
-          },
+            }
+          }
         ],
         back: [{ target: "cart" }],
-        fallback: [{ target: "cart" }],
-      },
+        fallback: [{ target: "cart" }]
+      }
     },
     recommendations: {
       handler: context => {
@@ -216,7 +216,7 @@ const { service } = useRoutingEngine({
             // do logic to determine if we can transition to this node
             const valid = true || false;
             return valid;
-          },
+          }
         },
         {
           target: "cart",
@@ -224,10 +224,10 @@ const { service } = useRoutingEngine({
             // do logic to determine if we can transition to this node
             const valid = true || false;
             return valid;
-          },
-        },
-      ],
-    },
+          }
+        }
+      ]
+    }
   },
   cart: {
     handler: context => {
@@ -246,12 +246,12 @@ const { service } = useRoutingEngine({
             // do logic to determine if we can transition to this node
             const valid = true || false;
             return valid;
-          },
-        },
+          }
+        }
       ],
       back: [], // dont go anywhere
-      fallback: [], // dont go anywhere
-    },
+      fallback: [] // dont go anywhere
+    }
   },
   session: {
     handler: context => {
@@ -270,12 +270,12 @@ const { service } = useRoutingEngine({
             // do logic to determine if we can transition to this node
             const valid = true || false;
             return valid;
-          },
-        },
+          }
+        }
       ],
       back: [{ target: "cart" }],
-      fallback: [{ target: "cart" }],
-    },
+      fallback: [{ target: "cart" }]
+    }
   },
   checkout: {
     handler: context => {
@@ -294,7 +294,7 @@ const { service } = useRoutingEngine({
             // do logic to determine if we can transition to this node
             const valid = true || false;
             return valid;
-          },
+          }
         },
         {
           target: "order.failed",
@@ -302,13 +302,13 @@ const { service } = useRoutingEngine({
             // do logic to determine if we can transition to this node
             const valid = true || false;
             return valid;
-          },
-        },
+          }
+        }
       ],
       back: [{ target: "cart" }],
-      fallback: [{ target: "cart" }],
-    },
-  },
+      fallback: [{ target: "cart" }]
+    }
+  }
   // ... other nodes ...
 });
 const { state, send } = useActor(service);

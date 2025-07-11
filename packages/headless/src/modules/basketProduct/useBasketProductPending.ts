@@ -1,18 +1,26 @@
 // --- external
-import { waitFor } from "xstate/lib/waitFor";
 import { interpret } from "xstate";
+import { useActor } from "@xstate/vue";
+import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import productMachine from "../product/product.machine";
 import { useBasket } from "../basket";
 import { useDataLayer } from "../system";
+import { useProductConfig } from "../product";
 const { dataLayer } = useDataLayer();
 
 // --- utils
 import { isActor } from "xstate/lib/utils";
 import { parseQuantity } from "../product/utils";
 import { isEmpty, get, omit, add, subtract } from "lodash-es";
-import { DetailedError, responseCodes, stopService } from "../../utils";
+import {
+  DetailedError,
+  ErrorOrigin,
+  responseCodes,
+  stopService,
+  useContext
+} from "../../utils";
 
 // --- types
 import type { ActorRef, InterpreterFrom } from "xstate";
@@ -31,7 +39,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
     ? (data as ActorRef<any>)
     : undefined;
 
-  const model: ProductProps | undefined = isProductProps(data)
+  const productProps: ProductProps | undefined = isProductProps(data)
     ? (omit(data, [
         "currencyId",
         "clientId",
@@ -39,7 +47,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
         "coupons",
         "subproducts",
         "silent",
-        "bundle",
+        "bundle"
       ]) as ProductModel)
     : undefined;
 
@@ -47,43 +55,46 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
   const subproducts = isProductProps(data) ? (data?.subproducts ?? []) : [];
   const silent = isProductProps(data) ? (data?.silent ?? false) : false;
   const bundle = isProductProps(data) ? data?.bundle : undefined;
-  const { getBasket } = useBasket();
-  const rawBasket = getBasket();
-  if (!rawBasket)
+  const { basket: rawBasket } = useBasket();
+  if (!rawBasket.value)
     throw new DetailedError(
-      "[headless] getBasket on useBasketProductPending not found",
-      responseCodes.Not_Found
+      "Basket not found",
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
     );
 
-  if (isEmpty(data) || (isEmpty(actor) && isEmpty(model?.productId)))
+  if (isEmpty(data) || (isEmpty(actor) && isEmpty(productProps?.productId)))
     throw new DetailedError(
-      "[headless] getProduct on useBasketProductPending not found",
-      responseCodes.Not_Found
+      "Product not found",
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
     );
 
   const id = actor?.id || btoa(JSON.stringify(data)); // use the model as the basis for the id
 
-  let service =
+  const service: ActorRef<any> =
     actor ||
     interpret(
       productMachine.withContext({
         id,
-        basketId: rawBasket.id,
-        clientId: rawBasket.client_id,
-        currencyId: rawBasket.currency_id,
-        promotions: rawBasket.promotions,
+        basketId: rawBasket.value.id,
+        clientId: rawBasket.value.client_id,
+        currencyId: rawBasket.value.currency_id,
+        promotions: rawBasket.value.promotions,
         subproducts,
         coupons,
         silent,
         bundle,
         // ---
-        model,
+        model: productProps
       }),
       {
         id,
-        devTools: true,
+        devTools: true
       }
     ).start();
+
+  const { state, send } = useActor(service);
 
   // now that we have a product configuration, we can push it to the datalayer
   pushSelectItem();
@@ -92,7 +103,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
 
   async function isReady(): Promise<void> {
     return waitFor(service, state => state.matches("available"), {
-      timeout: Infinity, // infinity = no timeout
+      timeout: Infinity
     }).then(() => {});
   }
 
@@ -101,12 +112,22 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
   //   return waitFor(service, state => state.matches("available"));
   // },
 
+  // --- context
+
+  const model = useContext<ProductModel>(state, "model", {});
+  const product = useContext<Product>(state, "product", {});
+  // --- methods
+
   async function getProduct(): Promise<Product> {
     return new Promise<Product>((resolve, reject) => {
       const product = get(service.getSnapshot(), "context.product") as Product;
       if (!product)
         return reject(
-          new DetailedError("Product not found", responseCodes.Not_Found)
+          new DetailedError(
+            "Product not found",
+            responseCodes.Not_Found,
+            ErrorOrigin.Headless
+          )
         );
       return resolve(product);
     });
@@ -118,7 +139,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
       service,
       state =>
         !state.matches("processing", {
-          timeout: 60_000,
+          timeout: 60_000
         }),
       {}
     )
@@ -126,14 +147,23 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
         if (
           ["error", "available.invalid", "available.error"].some(state.matches)
         ) {
-          return Promise.reject(state.context.error);
+          return Promise.reject(
+            new DetailedError(
+              "Update of Pending Products failed",
+              responseCodes.Unprocessable_Entity,
+              ErrorOrigin.Headless,
+              state.context.error
+            )
+          );
         }
         return Promise.resolve();
       })
       .catch(() => {
         return Promise.reject(
-          new Error(
-            "[headless-vue] update in useBasketProductPending not in a valid state"
+          new DetailedError(
+            "Pending Products validation failed",
+            responseCodes.Unprocessable_Entity,
+            ErrorOrigin.Headless
           )
         );
       });
@@ -153,11 +183,10 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
 
   // ---------------------------------------------------------------------------
   return {
+    ...useProductConfig(service),
     id,
-    service,
-    getSnapshot: () => service?.getSnapshot(),
-    getProduct: () => service.getSnapshot().context.product,
-    getModel: () => service.getSnapshot().context.model,
+    product,
+    model,
     stop: () => stopService(service as InterpreterFrom<any>),
     // ---
     isReady,
@@ -168,15 +197,16 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
           return Promise.reject(
             new DetailedError(
               "Product not quantifiable",
-              responseCodes.Unprocessable_Entity
+              responseCodes.Unprocessable_Entity,
+              ErrorOrigin.Headless
             )
           );
 
         service.send({
           type: "SET.QUANTITY",
           data: {
-            quantity: parseQuantity(value, product.productDetails),
-          },
+            quantity: parseQuantity(value, product.productDetails)
+          }
         });
         return update();
       }),
@@ -187,7 +217,8 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
           return Promise.reject(
             new DetailedError(
               "Product not quantifiable",
-              responseCodes.Unprocessable_Entity
+              responseCodes.Unprocessable_Entity,
+              ErrorOrigin.Headless
             )
           );
 
@@ -198,8 +229,8 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
         service.send({
           type: "SET.QUANTITY",
           data: {
-            quantity: parseQuantity(qty, product.productDetails),
-          },
+            quantity: parseQuantity(qty, product.productDetails)
+          }
         });
         return update();
       }),
@@ -210,7 +241,8 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
           return Promise.reject(
             new DetailedError(
               "Product not quantifiable",
-              responseCodes.Unprocessable_Entity
+              responseCodes.Unprocessable_Entity,
+              ErrorOrigin.Headless
             )
           );
 
@@ -221,12 +253,14 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
         service.send({
           type: "SET.QUANTITY",
           data: {
-            quantity: parseQuantity(qty, product.productDetails),
-          },
+            quantity: parseQuantity(qty, product.productDetails)
+          }
         });
         return update();
       }),
 
-    update,
+    update
   };
 };
+
+type UsePendingProduct = ReturnType<typeof useBasketProductPending>;

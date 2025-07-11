@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+TODO: Temporariy fix, the tailwind themer plugin is not correctly applying the var.
+*/
+
+.bg-base-muted-active,
+.hover\:bg-base-muted-active:hover {
+  background-color: var(--primary, #fa2f62) !important;
+}
+
+.\!ring-base-muted-active {
+  --tw-ring-color: var(--primary, #fa2f62) !important;
+}

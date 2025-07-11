@@ -26,8 +26,8 @@
         :cycle="props.cycle"
         :ui-config="{
           pricing: {
-            current: styles.product.config.grid.item.total,
-          },
+            current: styles.product.config.grid.item.total
+          }
         }"
       />
     </div>
@@ -53,7 +53,7 @@ import { isEmpty } from "lodash-es";
 // --- types
 import type { ComputedRef } from "vue";
 import { type BadgeProps } from "@upmind-automation/upmind-ui";
-import type { TermDetails } from "@upmind-automation/headless-vue";
+import type { TermDetails } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(
@@ -67,8 +67,8 @@ const props = withDefaults(
     badge: () => ({
       color: "promotion",
       variant: "tonal",
-      size: "sm",
-    }),
+      size: "sm"
+    })
   }
 );
 
@@ -78,7 +78,7 @@ const { t, te } = useI18n();
 
 const meta = computed(() => ({
   hasPromotions: !isEmpty(props.promotions) || props.meta?.mixed,
-  isSelected: !!props.select,
+  isSelected: !!props.select
 }));
 
 const styles = useStyles(

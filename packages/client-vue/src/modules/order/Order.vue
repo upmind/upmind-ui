@@ -1,6 +1,6 @@
 <template>
-  <article v-auto-animate>
-    <ContentSection v-auto-animate>
+  <Layout>
+    <ContentSection v-auto-animate class="flex flex-grow items-center">
       <Interstitial
         open
         modal
@@ -19,7 +19,7 @@
           trigger: 'loop',
           primaryColor: 'base-foreground',
           secondaryColor: 'tertiary',
-          size: '4xl',
+          size: '4xl'
         }"
       >
         <template #title>
@@ -28,7 +28,7 @@
 
         <template #actions>
           <Button
-            color="secondary"
+            color="primary"
             :label="t(action)"
             :loading="processing"
             @click.stop="doAction"
@@ -44,7 +44,7 @@
         </template>
       </Interstitial>
     </ContentSection>
-  </article>
+  </Layout>
 </template>
 
 <script lang="ts" setup>
@@ -61,18 +61,22 @@ import {
   useRoutingEngine,
   utils,
   ROUTE,
-} from "@upmind-automation/headless-vue";
+  useBrand
+} from "@upmind-automation/headless";
 
 // -- components
 import { Interstitial, Button, Icon } from "@upmind-automation/upmind-ui";
 import ContentSection from "../../components/content/ContentSection.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
+import Layout from "../../components/layout/Layout.vue";
+
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 
+const { storefrontUrl } = useBrand();
 const { errors } = useBasket();
 const { isResolved } = useRoutingEngine();
 
@@ -151,9 +155,8 @@ const processing = ref(false);
 
 function doAction() {
   if (!meta.value.isAuthenticated) {
+    window.location.href = storefrontUrl.value;
     processing.value = false;
-    const storefrontUrl: string = import.meta.env.VITE_APP_STOREFRONT;
-    window.location.href = storefrontUrl;
     return;
   }
 
@@ -167,7 +170,7 @@ function doAction() {
             transferAuth,
             {
               code: transfer.code,
-              redirect: transferRedirect,
+              redirect: transferRedirect
             },
             { base: transferBase ?? transfer.redirect_url, context: "" }
           )

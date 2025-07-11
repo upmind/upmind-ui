@@ -50,8 +50,8 @@ import { useI18n } from "vue-i18n";
 // --- internal
 import {
   useRecommendations,
-  useBasketProductsPending,
-} from "@upmind-automation/headless-vue";
+  useBasketProductsPending
+} from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../recommendations.config";
 
@@ -83,7 +83,7 @@ const {
   stop,
   update,
   isReady,
-  service: pendingProduct,
+  service: pendingProduct
 } = await configure(props.modelValue);
 await isReady();
 
@@ -120,7 +120,7 @@ async function doResolve() {
           }
         },
         {
-          immediate: true,
+          immediate: true
         }
       );
     });

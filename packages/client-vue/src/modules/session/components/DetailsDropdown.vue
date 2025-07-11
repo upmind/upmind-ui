@@ -1,15 +1,20 @@
 <!-- eslint-disable vue/no-unused-components -->
 <template>
-  <DropdownMenu :items="items" itemClass="!px-5 !py-4" popoverClass="mt-8">
+  <DropdownMenu
+    :items="items"
+    itemClass="!px-5 !py-4"
+    popoverClass="mt-8"
+    v-if="meta.isAuthenticated"
+  >
     <template #trigger>
-      <slot />
+      <slot></slot>
     </template>
 
     <template #label>
-      <div class="flex flex-col items-start break-all px-3 py-2">
+      <div class="flex flex-col items-start break-all px-3 py-2" v-if="user">
         <div>{{ user.fullname }}</div>
         <div class="text-sm font-normal opacity-60">
-          {{ user.email }}
+          {{ user.username }}
         </div>
       </div>
     </template>
@@ -18,7 +23,7 @@
 
 <script setup lang="ts">
 // --- internal
-import { useSession } from "@upmind-automation/headless-vue";
+import { useSession } from "@upmind-automation/headless";
 
 // --- components
 import { DropdownMenu } from "@upmind-automation/upmind-ui";
@@ -30,13 +35,13 @@ import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
 
-const { user, logout } = useSession();
+const { user, logout, meta } = useSession();
 const items: DropdownMenuItemProps[] = [
   {
     label: t("auth.actions.logout"),
     icon: "logout",
     value: "logout",
-    handler: logout,
-  },
+    handler: logout
+  }
 ];
 </script>

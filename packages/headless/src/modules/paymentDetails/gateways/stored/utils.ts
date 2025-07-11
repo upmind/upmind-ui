@@ -31,22 +31,22 @@ export const useSchema = (context: GatewayContext) => {
           ? undefined
           : map(context.stored_payment_methods, ({ id, name }) => ({
               const: id,
-              title: name,
-            })),
+              title: name
+            }))
       },
       return_url: {
         type: "string",
         title: "Return URL",
         format: "uri-reference",
-        const: `?${QUERY_PARAMS.SUCCESS}=${encodeURIComponent(success)}&${QUERY_PARAMS.FAILED}=${encodeURIComponent(fail)}`,
+        const: `?${QUERY_PARAMS.SUCCESS}=${encodeURIComponent(success)}&${QUERY_PARAMS.FAILED}=${encodeURIComponent(fail)}`
       },
       cancel_url: {
         type: "string",
         title: "Cancel URL",
         format: "uri",
-        const: cancel,
-      },
-    },
+        const: cancel
+      }
+    }
   };
 
   return schema as JsonSchema;
@@ -73,13 +73,13 @@ export const useUischema = ({ stored_payment_methods }: GatewayContext) => {
                 value: id,
                 label: name,
                 text: card_expire_date,
-                appendIcon: { name: card_type, path: "payment-providers" },
+                appendIcon: { name: card_type, path: "payment-providers" }
               };
             }
-          ),
-        },
-      },
-    ],
+          )
+        }
+      }
+    ]
   };
 
   return uischema as UISchemaElement;

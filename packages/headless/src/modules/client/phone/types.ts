@@ -1,16 +1,12 @@
-// --- external
-
 // --- internal
-import type { ICountry } from "@upmind-automation/types";
-import type { ClientItemContext, ClientListingsContext } from "../types";
+import { useClientPhone } from "./useClientPhone";
+import { useClientPhones } from "./useClientPhones";
+
+// --- types
+import type { IPhone, ICountry } from "@upmind-automation/types";
+import type { ClientItemContext } from "../types";
 
 // -----------------------------------------------------------------------------
-export const PhoneTypes: any[] = [
-  { key: 1, value: "Mobile" },
-  { key: 2, value: "Home" },
-  { key: 3, value: "Office" },
-  { key: 4, value: "Company" },
-];
 
 export interface IPhoneData {
   nationalNumber: string;
@@ -18,9 +14,30 @@ export interface IPhoneData {
   country: string;
 }
 
-export interface PhoneContext extends ClientItemContext {
-  country: ICountry;
-  types: typeof PhoneTypes;
+export interface PhoneModel {
+  id?: IPhone["id"];
+  phone: {
+    number: string;
+    nationalNumber: string;
+    countryCallingCode: string;
+    country: string;
+  };
+  // type?: number; // deprecated
 }
 
-export interface PhonesContext extends ClientListingsContext {}
+export interface Phone {
+  id: IPhone["id"];
+  title: string;
+  description?: string;
+  phone: PhoneModel["phone"];
+  type: IPhone["type"];
+  meta: {
+    canDelete: boolean;
+    isVerified: boolean;
+    isDefault: boolean;
+  };
+}
+
+export interface PhoneContext extends ClientItemContext<PhoneModel> {
+  country?: ICountry;
+}

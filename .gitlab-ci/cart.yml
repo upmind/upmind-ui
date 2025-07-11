@@ -1,0 +1,122 @@
+variables:
+  CLOUDFLARE_ACCOUNT_ID: bbea1ad205044fc70dc376a24f7c41c4
+  CLOUDFLARE_PAGES_PROJECT_CART: upmind-cart
+
+(apps/cart) build:
+  extends: .pnpm
+  stage: build
+  interruptible: true
+  needs:
+    - dependencies
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+$/
+    - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+-rc\d+$/
+    - if: $CI_COMMIT_TAG =~ /^cart-staging-v\d+(\.\d+)+$/
+      variables:
+        VITE_API_NAME: staging
+        VITE_API_URL: api.staging.upmind.io
+        VITE_API_REGION: fra1
+    - if: $CI_FORCE_CART == "true"
+  cache:
+    - key:
+        files:
+          - docs/package.json
+          - docs/package-lock.json
+      paths:
+        - docs/node_modules
+  artifacts:
+    when: on_success
+    access: all
+    expire_in: "1 day"
+    paths:
+      - apps/cart/dist
+  script:
+    - pnpm --dir apps/cart install
+    - pnpm run build
+
+(apps/cart) deploy staging:
+  extends: .pnpm
+  stage: deploy
+  interruptible: true
+  needs:
+    - dependencies
+    - (apps/cart) build
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^cart-staging-v\d+(\.\d+)+$/
+  environment:
+    name: apps/cart/staging
+    action: start
+    url: https://staging.cart.cdn.upmind.io
+  script:
+    - cd apps/cart
+    - |
+      pnpm npx wrangler pages deploy \
+        --branch "staging" \
+        --commit-dirty=true \
+        --project-name "${CLOUDFLARE_PAGES_PROJECT_CART}" \
+        dist
+
+(apps/cart) deploy production preview:
+  extends: .pnpm
+  stage: deploy
+  interruptible: true
+  needs:
+    - dependencies
+    - (apps/cart) build
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+-rc\d+$/
+  environment:
+    name: apps/cart/preview/${CI_COMMIT_REF_SLUG}
+    action: start
+    auto_stop_in: 7 days
+    url: https://${CI_COMMIR_REF_SLUG}.${CLOUDFLARE_PAGES_PROJECT_CART}.pages.dev
+    on_stop: (apps/cart) stop production preview
+  script:
+    - cd apps/cart
+    - |
+      pnpm npx wrangler pages deploy \
+        --branch "${CI_COMMIT_REF_SLUG}" \
+        --commit-dirty=true \
+        --project-name "${CLOUDFLARE_PAGES_PROJECT_CART}" \
+        dist
+
+(apps/cart) stop production preview:
+  extends: .pnpm
+  stage: stop
+  needs:
+    - dependencies
+  environment:
+    name: apps/cart/preview/${CI_COMMIT_REF_SLUG}
+    action: stop
+  rules:
+    - when: manual
+  script:
+    - apk add curl
+    - |
+      curl --request DELETE \
+          --url https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects/${CLOUDFLARE_PAGES_PROJECT_CART}/deployments/${CI_COMMIT_REF_SLUG}  \
+          --header 'Content-Type: application/json' \
+          --header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}"
+
+(apps/cart) deploy production:
+  extends: .pnpm
+  stage: deploy
+  needs:
+    - dependencies
+    - (apps/cart) build
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+$/
+    - if: $CI_FORCE_DOCS == "true"
+  environment:
+    name: apps/cart/main
+    action: start
+    url: https://cart.my.upmind.com/
+  script:
+    - cd apps/cart
+    - |
+      pnpm npx wrangler pages deploy \
+        --branch "main" \
+        --commit-dirty=true \
+        --project-name "${CLOUDFLARE_PAGES_PROJECT_CART}" \
+        dist

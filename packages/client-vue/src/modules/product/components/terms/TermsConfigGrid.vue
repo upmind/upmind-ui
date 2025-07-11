@@ -60,7 +60,7 @@ import { isNil, map, toNumber, find } from "lodash-es";
 // --- types
 import type { ComputedRef } from "vue";
 import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
-import type { TermDetails } from "@upmind-automation/headless-vue";
+import type { TermDetails } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 const emits = defineEmits(["update:modelValue"]);
@@ -85,7 +85,7 @@ const props = withDefaults(
     disabled: false,
     loading: false,
     processing: false,
-    visible: true,
+    visible: true
   }
 );
 
@@ -114,7 +114,7 @@ const parsedValues = computed<RadioCardsItemProps[]>(() => {
       label: item.title,
       item: item, // Ensure the `item` property is included
       index: index, // Add the `index` property
-      modelValue: props.modelValue?.toString(), // Add the `modelValue` property
+      modelValue: props.modelValue?.toString() // Add the `modelValue` property
     } as RadioCardsItemProps;
   });
 });

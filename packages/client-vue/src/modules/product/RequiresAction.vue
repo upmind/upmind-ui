@@ -1,5 +1,5 @@
 <template>
-  <article>
+  <Layout>
     <ContentSection>
       <Interstitial
         :title="t('basket.requiresAction.title')"
@@ -9,22 +9,22 @@
           delay: 5000,
           primaryColor: 'primary',
           secondaryColor: 'promotion',
-          size: '4xl',
+          size: '4xl'
         }"
         :actions="[
           {
             color: 'primary',
             variant: 'ghost',
-            handler: back,
+            handler: navigateBack,
             prependIcon: { icon: 'arrow-left', size: '2xs' },
-            label: t('basket.requiresAction.actions.back'),
+            label: t('basket.requiresAction.actions.back')
           },
           {
             color: 'secondary',
-            handler: next,
+            handler: navigateNext,
             appendIcon: { icon: 'arrow-right', size: '2xs' },
-            label: t('basket.requiresAction.actions.continue'),
-          },
+            label: t('basket.requiresAction.actions.continue')
+          }
         ]"
         modal
       >
@@ -45,7 +45,7 @@
         </template>
       </Interstitial>
     </ContentSection>
-  </article>
+  </Layout>
 </template>
 
 <script lang="ts" setup>
@@ -56,21 +56,21 @@ import { useI18n } from "vue-i18n";
 import {
   useProductsRequiringAction,
   useRoutingEngine,
-  ROUTE,
-} from "@upmind-automation/headless-vue";
+  ROUTE
+} from "@upmind-automation/headless";
 
 // --- components
-import Basket from "../../assets/animations/basket.json?url";
 import { Interstitial } from "@upmind-automation/upmind-ui";
 import ContentSection from "../../components/content/ContentSection.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
+import Layout from "../../components/layout/Layout.vue";
 
 // --- utils
 
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
 
-const { next, back, isResolved } = useRoutingEngine();
+const { navigateNext, navigateBack, isResolved } = useRoutingEngine();
 const { products, isReady } = useProductsRequiringAction();
 
 await isResolved(ROUTE.PRODUCT_REQUIRES_ACTION);

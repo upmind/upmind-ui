@@ -6,9 +6,10 @@ import type {
   IRegion,
   IStatus,
   ITicketDepartment,
-  ITaxBusinessType,
+  ITaxBusinessType
 } from "@upmind-automation/types";
-import { ResponseError } from "../query";
+import { ResponseError } from "../../utils";
+
 // ---  Contexts
 
 export interface SystemContext {

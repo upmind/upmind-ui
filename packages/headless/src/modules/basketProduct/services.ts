@@ -1,34 +1,41 @@
 // --- external
 
 // --- internal
-import { useQuery } from "../..";
 import { useBrand } from "../brand";
+import { QueryResponse, useQuery } from "../..";
 
 // --- utils
-import { unflattenErrors, useTime } from "../../utils";
-import { parseBasketProductData, parseBasketProductError } from "./utils";
 import { parseQuantity } from "../product/utils";
+import {
+  DetailedError,
+  ErrorOrigin,
+  responseCodes,
+  ResponseError,
+  unflattenErrors,
+  useTime
+} from "../../utils";
+import { parseBasketProductData, parseBasketProductError } from "./utils";
 
 import {
+  get,
+  map,
+  set,
+  first,
+  isNil,
   concat,
   filter,
-  first,
-  forEach,
-  get,
-  isEmpty,
-  map,
   reduce,
-  set,
-  isArray,
+  forEach,
+  isEmpty,
+  isArray
 } from "lodash-es";
-import { ActorRef } from "xstate";
-import type { IBasket } from "@upmind-automation/types";
-import { BrandConfigKeys } from "@upmind-automation/types";
 
 // --- types
+import type { IBasket } from "@upmind-automation/types";
+import type { ActorRef } from "xstate";
+import { BrandConfigKeys } from "@upmind-automation/types";
 import type { ProductDetails, ProductModel } from "../product";
-import type { BasketProduct, IBasketProductModel } from "../basketProduct";
-import { ErrorObject } from "ajv";
+import type { BasketProduct, IBasketProductModel } from "./types";
 
 // -----------------------------------------------------------------------------
 
@@ -50,7 +57,7 @@ async function fetch(
     bpid,
     basketId,
     currencyId,
-    promotions,
+    promotions
   }: {
     bpid?: string;
     basketId: string;
@@ -59,18 +66,25 @@ async function fetch(
   },
   { data: { productId } }: { data: { productId: string } }
 ) {
-  if (!productId) return Promise.reject(new Error("No Product ID provided"));
+  if (!productId)
+    return Promise.reject(
+      new DetailedError(
+        "No Product ID provided",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      )
+    );
 
   // lets ensure we have a valid currency > fallback to default
   // as well as ensuring our promo display type is available
   const { validateCurrency, ensureConfig } = useBrand();
   const [currency] = await Promise.all([
     validateCurrency({ id: currencyId }),
-    ensureConfig(BrandConfigKeys.SHOW_PROMOTION_AS),
+    ensureConfig(BrandConfigKeys.SHOW_PROMOTION_AS)
   ]);
 
   // ---
-  const { get: getRequest, useUrl } = useQuery();
+  const { get, useUrl } = useQuery();
   // lets ensure we parse our promotions correctly
   const promocodes = map(promotions, "promotion.code").join();
 
@@ -83,14 +97,15 @@ async function fetch(
       "products_attributes",
       "products_options",
       "products_options.prices",
-    ].join(),
+      `category${".top_category".repeat(4)}`
+    ].join()
   };
   // conditionally add the basket_id / basket_product_id if we have them,
   // this is important to get the correct prices once added to the basket
   if (basketId) set(params, "basket_id", basketId);
   if (bpid) set(params, "basket_product_id", bpid);
 
-  return getRequest({
+  return get({
     url: useUrl(`basket/products/${productId}`, params),
     queryKey: [
       "basket",
@@ -99,12 +114,12 @@ async function fetch(
       productId,
       {
         currency: currency?.id,
-        promotions: promocodes,
-      },
+        promotions: promocodes
+      }
     ],
     staleTime: useTime()?.DAY, // product data is not updated often, so we can cache for a day
-    withAccessToken: true,
-  }).then(({ data }: any) => data);
+    withAccessToken: true
+  });
 }
 
 /**
@@ -116,7 +131,7 @@ async function fetch(
  * @param {string[]} [context.promotions] - An array of promotion IDs (optional).
  * @param {Object} event - The event containing product IDs.
  * @param {Object} event.data - The data object containing product IDs.
- * @param {string[]} context.data.productIds - An array of product IDs to fetch.
+ * @param {string[]} event.data.productIds - An array of product IDs to fetch.
  * @returns {Promise<any>} A promise that resolves with the fetched product data or rejects with an error message.
  * @throws Will reject with "No Product ID provided" if no product IDs are given.
  */
@@ -124,21 +139,27 @@ async function fetchSelected(
   {
     basketId,
     currencyId,
-    promotions,
+    promotions
   }: {
     basketId: string;
     currencyId?: string;
     promotions?: string[];
   },
   { data: { productIds } }: { data: { productIds: string[] } }
-) {
+): Promise<any> {
   if (isEmpty(productIds))
-    return Promise.reject(new Error("No Product ID provided"));
+    return Promise.reject(
+      new DetailedError(
+        "No Product ID provided",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      )
+    );
 
   // let's ensure we have a valid currency > fallback to default
   const currency = await useBrand().validateCurrency({ id: currencyId });
   // ---
-  const { get: getRequest, useUrl } = useQuery();
+  const { get, useUrl } = useQuery();
 
   const params = {
     currency_id: currency?.id,
@@ -150,8 +171,8 @@ async function fetchSelected(
       "prices",
       "products_attributes",
       "products_options",
-      "products_options.prices",
-    ].join(),
+      "products_options.prices"
+    ].join()
   };
   // conditionally add the basket_id / basket_product_id if we have them,
   // this is important to get the correct prices once added to the basket
@@ -160,7 +181,7 @@ async function fetchSelected(
   // lets ensure we parse our promotions correctly
   const promocodes = map(promotions, "promotion.code").join();
 
-  return getRequest({
+  return get({
     url: useUrl(`basket/products/`, params),
     queryKey: [
       "basket",
@@ -169,11 +190,11 @@ async function fetchSelected(
       productIds,
       {
         currency: currency?.id,
-        promotions: promocodes,
-      },
+        promotions: promocodes
+      }
     ],
-    withAccessToken: true,
-  }).then(({ data }: any) => data);
+    withAccessToken: true
+  });
 }
 
 /**
@@ -184,10 +205,10 @@ async function fetchSelected(
  * @param context.currencyId - The ID of the currency (optional).
  * @param context.promotions - An array of promotion IDs (optional).
  * @param options - Additional options for fetching related products.
- * @param event.data - The data for fetching related products.
- * @param event.data.productId - The ID of the product.
- * @param event.data.limit - The maximum number of related products to fetch (default is 4).
- * @param event.data.offset - The offset for pagination (default is 0).
+ * @param options.data - The data object containing the product ID and pagination options.
+ * @param options.data.productId - The ID of the product.
+ * @param options.data.limit - The maximum number of related products to fetch (default is 4).
+ * @param options.data.offset - The offset for pagination (default is 0).
  * @returns A promise that resolves to the related products data.
  * @throws Will reject the promise if no product ID is provided.
  */
@@ -195,14 +216,14 @@ async function fetchRelated(
   {
     basketId,
     currencyId,
-    promotions,
+    promotions
   }: {
     basketId: string;
     currencyId?: string;
     promotions?: string[];
   },
   {
-    data: { productId, limit = 4, offset = 0 },
+    data: { productId, limit = 4, offset = 0 }
   }: {
     data: {
       productId: string;
@@ -211,12 +232,19 @@ async function fetchRelated(
     };
   }
 ) {
-  if (!productId) return Promise.reject(new Error("No Product ID provided"));
+  if (!productId)
+    return Promise.reject(
+      new DetailedError(
+        "No Product ID provided",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      )
+    );
 
   // lets ensure we have a valid currency > fallback to default
   const currency = await useBrand().validateCurrency({ id: currencyId });
   // ---
-  const { get: getRequest, useUrl } = useQuery();
+  const { get, useUrl } = useQuery();
 
   const params = {
     currency_id: currency?.id,
@@ -231,8 +259,8 @@ async function fetchRelated(
       "prices",
       "products_attributes",
       "products_options",
-      "products_options.prices",
-    ].join(),
+      "products_options.prices"
+    ].join()
   };
   // conditionally add the basket_id / basket_product_id if we have them,
   // this is important to get the correct prices once added to the basket
@@ -241,7 +269,7 @@ async function fetchRelated(
   // lets ensure we parse our promotions correctly
   const promocodes = map(promotions, "promotion.code").join();
 
-  return getRequest({
+  return get({
     url: useUrl(`basket/products/${productId}/related`, params),
     queryKey: [
       "basket",
@@ -252,12 +280,12 @@ async function fetchRelated(
         limit,
         offset,
         currency: currency?.id,
-        promotions: promocodes,
-      },
+        promotions: promocodes
+      }
     ],
     staleTime: useTime()?.DAY, // product data is not updated often, so we can cache for a day
-    withAccessToken: true,
-  }).then(({ data }: any) => data);
+    withAccessToken: true
+  });
 }
 
 /**
@@ -275,7 +303,7 @@ async function fetchRelated(
 async function updateQuantity(
   {
     basketId,
-    basketProduct,
+    basketProduct
   }: {
     basketId: string;
     basketProduct: BasketProduct;
@@ -284,11 +312,29 @@ async function updateQuantity(
 ): Promise<IBasket> {
   // sanity check
   if (!basketId)
-    return Promise.reject(new Error("No basket provided/available"));
+    return Promise.reject(
+      new DetailedError(
+        "No basket provided/available",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      )
+    );
   if (!basketProduct.productDetails)
-    return Promise.reject(new Error("Product not found"));
+    return Promise.reject(
+      new DetailedError(
+        "No product details provided",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      )
+    );
   if (!basketProduct.productDetails?.quantifiable)
-    return Promise.reject(new Error("Product not quantifiable"));
+    return Promise.reject(
+      new DetailedError(
+        "Product is not quantifiable",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      )
+    );
   // ---
   const { put, useUrl } = useQuery();
   basketProduct.configuration.quantity = parseQuantity(
@@ -296,12 +342,20 @@ async function updateQuantity(
     basketProduct.productDetails as ProductDetails
   );
   const product = parseBasketProductData(basketProduct.configuration);
-  return put({
+  return put<IBasket>({
     url: useUrl(`/orders/${basketId}/products/${basketProduct.id}`),
     data: product,
-    withAccessToken: true,
+    withAccessToken: true
   })
-    .then(({ data }: any) => data)
+    .then(data => {
+      if (isNil(data))
+        throw new DetailedError(
+          "No data returned from the server",
+          responseCodes.Internal_Server_Error,
+          ErrorOrigin.Headless
+        );
+      return data;
+    })
     .catch(parseApiErrors);
 }
 
@@ -321,7 +375,7 @@ async function update(
   {
     basketId,
     currencyId,
-    promotions,
+    promotions
   }: {
     basketId: string;
     currencyId?: string;
@@ -331,9 +385,21 @@ async function update(
 ): Promise<IBasket> {
   const { put, post, useUrl } = useQuery();
   if (!basketId)
-    return Promise.reject(new Error("No basket provided/available"));
+    return Promise.reject(
+      new DetailedError(
+        "No basket provided/available",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      )
+    );
   if (isEmpty(data))
-    return Promise.reject(new Error("No product data provided"));
+    return Promise.reject(
+      new DetailedError(
+        "No product data provided",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      )
+    );
 
   const product = parseBasketProductData(data, promotions);
   // ---
@@ -342,17 +408,25 @@ async function update(
   const action = isNew ? post : put;
   const suffix = isNew ? "" : `/${data.id}`;
   // ---
-  return action({
+  return action<IBasket>({
     url: useUrl(`/orders/${basketId}/products${suffix}`),
     data: product,
-    withAccessToken: true,
+    withAccessToken: true
   })
-    .then(({ data }: any) => data)
+    .then(data => {
+      if (isNil(data))
+        throw new DetailedError(
+          "No data returned from the server",
+          responseCodes.Internal_Server_Error,
+          ErrorOrigin.Headless
+        );
+      return data;
+    })
     .catch(parseApiErrors);
 }
 
 /**
- * Add/Update Many basket withnew valid products and existing products.
+ * Add/Update Many basket with new valid products and existing products.
  *
  * @param {Object} context - The parameters for the sync function.
  * @param {string} context.basketId - The ID of the basket to be updated.
@@ -370,7 +444,13 @@ async function updateMany(
   { data }: { data: ActorRef<any>[] }
 ): Promise<IBasket> {
   if (!basketId)
-    return Promise.reject(new Error("No basket provided/available"));
+    return Promise.reject(
+      new DetailedError(
+        "No basket provided/available",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      )
+    );
 
   // When updating the basket we need to provide :
   //   * ALL products that are valid and ready to be saved
@@ -388,7 +468,14 @@ async function updateMany(
     item.send({ type: "PROCESSING" });
     // ---
     const model = get(item, "state.context.model");
-    if (!model) return Promise.reject(new Error("No model found"));
+    if (!model)
+      return Promise.reject(
+        new DetailedError(
+          "No model found for the product",
+          responseCodes.Not_Found,
+          ErrorOrigin.Headless
+        )
+      );
     // ---
     const product = parseBasketProductData(model, promotions);
     // Add a flag to the product to indicate that the field values should NOT be validated.
@@ -423,18 +510,31 @@ async function updateMany(
 
   // ---
   const { put, useUrl } = useQuery();
-  return put({
+  return put<IBasket>({
     url: useUrl(`/orders/${basketId}`),
     data: { products: concat(existingProducts, products) },
-    withAccessToken: true,
+    withAccessToken: true
   })
-    .then(({ data }: any) => {
+    .then(data => {
       forEach(validItems, item => item.send({ type: "UPDATED" }));
+
+      if (isNil(data))
+        throw new DetailedError(
+          "No data returned from the server",
+          responseCodes.Internal_Server_Error,
+          ErrorOrigin.Headless
+        );
       return data;
     })
     .catch(error => {
       forEach(validItems, item => item.send({ type: "CANCEL" }));
-      return Promise.reject(error);
+      return Promise.reject(
+        new DetailedError(
+          "Error updating many products in the basket",
+          responseCodes.Internal_Server_Error,
+          ErrorOrigin.Headless
+        )
+      );
     });
 }
 
@@ -449,33 +549,54 @@ async function updateMany(
  */
 async function remove({
   basketId,
-  bpid,
+  bpid
 }: {
   basketId: string;
   bpid: string;
 }): Promise<IBasket> {
   const { del, useUrl } = useQuery();
-  if (!bpid) return Promise.reject(new Error("No product provided")); // we don't need to make a request as there is no id, must be a new product
+  if (!bpid)
+    return Promise.reject(
+      new DetailedError(
+        "No Basket Product ID provided",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      )
+    ); // we don't need to make a request as there is no id, must be a new product
   if (!basketId)
-    return Promise.reject(new Error("No basket provided/available"));
+    return Promise.reject(
+      new DetailedError(
+        "No basket provided/available",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      )
+    );
   // ---
-  return del({
+  return del<IBasket>({
     url: useUrl(`/orders/${basketId}/products/${bpid}`),
-    withAccessToken: true,
-  }).then(({ data }: any) => data);
+    withAccessToken: true
+  }).then(data => {
+    if (isNil(data))
+      throw new DetailedError(
+        "No data returned from the server",
+        responseCodes.Internal_Server_Error,
+        ErrorOrigin.Headless
+      );
+    return data;
+  });
 }
 
-function parseApiErrors(response: any): Promise<void> {
-  if (!response?.error) return Promise.resolve();
+function parseApiErrors(response: ResponseError) {
+  if (!response?.data) return Promise.reject(response);
   // rawErrors will return a flattened object path in dot notation, so we need to convert back it to an object
-  const rawErrors = unflattenErrors(response.error.data);
+  const rawErrors = unflattenErrors(response.data);
   // Currently we receive errors in 2 ways,
   // 1) Options or Attributes returns an collection of products with errors, we only look at the first ( and usually only )
   // 2) Provision fields returns an object
   if (isArray(rawErrors?.products)) {
-    response.error.data = parseBasketProductError(first(rawErrors?.products));
+    response.data = parseBasketProductError(first(rawErrors?.products));
   } else {
-    response.error.data = parseBasketProductError(rawErrors);
+    response.data = parseBasketProductError(rawErrors);
   }
 
   return Promise.reject(response);
@@ -489,5 +610,5 @@ export default {
   updateQuantity,
   update,
   updateMany,
-  remove,
+  remove
 };

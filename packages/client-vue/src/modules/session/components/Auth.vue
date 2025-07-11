@@ -10,7 +10,7 @@
       color="error"
       icon="alert-triangle"
       :title="t(`session.${currentForm}.error`)"
-      :description="errors?.message"
+      :description="errors"
     />
 
     <Form
@@ -20,7 +20,7 @@
       :model-value="model"
       :schema="schema"
       :uischema="uischema"
-      :additional-errors="errors?.data"
+      :additional-errors="validationErrors"
       :color="color"
       @reject="doReject"
       @resolve="doResolve"
@@ -36,9 +36,7 @@
         v-if="!meta.isAuthenticated && meta.showLoginForm"
         @click="toggleForm('recover')"
       >
-        <span class="font-normal">
-          {{ buttons.recover.label }}
-        </span>
+        {{ buttons.recover.label }}
       </Link>
     </slot>
     <Button
@@ -66,8 +64,8 @@ import config from "../sesssion.config";
 import {
   ROUTE,
   useSession,
-  useRoutingEngine,
-} from "@upmind-automation/headless-vue";
+  useRoutingEngine
+} from "@upmind-automation/headless";
 import { useStyles, cn } from "@upmind-automation/upmind-ui";
 
 // --- custom elements
@@ -78,10 +76,13 @@ import type { ComputedRef } from "vue";
 import type { AuthProps } from "./types";
 // -----------------------------------------------------------------------------
 
-const emit = defineEmits(["update:modelValue", "resolve", "reject"]);
-const props = withDefaults(defineProps<AuthProps>(), {
-  modelValue: "login",
-  color: "secondary",
+const emit = defineEmits(["resolve", "reject"]);
+const props = withDefaults(defineProps<Omit<AuthProps, "modelValue">>(), {
+  color: "primary"
+});
+
+const modelValue = defineModel<AuthProps["modelValue"]>("modelValue", {
+  default: "login"
 });
 
 const { t } = useI18n();
@@ -90,6 +91,7 @@ const {
   isReady,
   meta,
   errors,
+  validationErrors,
   showLogin,
   showRegister,
   showRecoverPassword,
@@ -99,7 +101,7 @@ const {
   resolve,
   reject,
   logout,
-  setModel,
+  setModel
 } = useSession();
 
 await isReady();
@@ -130,16 +132,16 @@ const buttons = computed(() => {
   return {
     register: {
       label: t("session.register.actions.text"),
-      action: t("session.register.actions.action"),
+      action: t("session.register.actions.action")
     },
     login: {
       label: t("session.login.actions.text"),
-      action: t("session.login.actions.action"),
+      action: t("session.login.actions.action")
     },
     recover: {
       label: t("session.recover.actions.text"),
-      action: t("session.recover.actions.action"),
-    },
+      action: t("session.recover.actions.action")
+    }
   };
 });
 
@@ -155,28 +157,30 @@ const authActions = computed(() => {
             ? t("auth.actions.recover")
             : t("auth.actions.continue"),
       block: true,
-      needsValid: true,
-    },
+      needsValid: true
+    }
   };
 });
 
 function toggleForm(type: AuthProps["modelValue"]) {
   // if (meta.value.isAuthenticated) return;
 
+  if (!meta.value.canShowForms) return;
+
   switch (type) {
     case "login":
       if (!meta.value.showLoginForm) {
-        showLogin().then(() => emit("update:modelValue", "login"));
+        showLogin().then(() => (modelValue.value = "login"));
       }
       break;
     case "register":
       if (!meta.value.showRegisterForm) {
-        showRegister().then(() => emit("update:modelValue", "register"));
+        showRegister().then(() => (modelValue.value = "register"));
       }
       break;
     case "recover":
       if (!meta.value.showRecoverPasswordForm) {
-        showRecoverPassword().then(() => emit("update:modelValue", "recover"));
+        showRecoverPassword().then(() => (modelValue.value = "recover"));
       }
       break;
   }
@@ -193,13 +197,23 @@ function doReject() {
 }
 
 onMounted(() => {
-  toggleForm(props.modelValue);
+  toggleForm(modelValue.value);
 });
 
 watch(meta, ({ canShowForms, isAuthenticated }) => {
-  if (canShowForms) toggleForm(props.modelValue);
+  if (canShowForms) toggleForm(modelValue.value);
   if (isAuthenticated) {
     emit("resolve", model.value);
   }
 });
+
+watch(modelValue, newValue => {
+  toggleForm(newValue);
+});
 </script>
+
+<style>
+.grecaptcha-badge {
+  visibility: hidden;
+}
+</style>

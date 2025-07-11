@@ -1,5 +1,5 @@
 <template>
-  <Card :class="styles.summary.card" as="aside" class="">
+  <Card :class="styles.summary.card" as="aside">
     <header :class="styles.summary.header">
       <SummaryPricing
         v-if="product?.pricing"
@@ -10,7 +10,7 @@
       />
     </header>
 
-    <footer :class="styles.summary.footer">
+    <footer :class="styles.summary.footer" v-if="product?.productDetails">
       <NumberField
         v-if="product?.productDetails?.quantifiable"
         :min="product.productDetails.min"
@@ -27,7 +27,7 @@
       <Button
         block
         type="submit"
-        color="secondary"
+        color="primary"
         :loading="meta.isProcessing"
         :disabled="meta.isLoading"
         :label="t('product.actions.resolve')"
@@ -55,8 +55,8 @@
     v-if="product?.productDetails"
     data-testid="slots:summary-append"
     :model-value="
-      product.productDetails.uiMeta?.uischema?.config?.summary?.append ??
-      product.productDetails.uiMeta?.uischema?.productConfig?.summary?.append
+      product?.productDetails?.uiMeta?.uischema?.config?.summary?.append ??
+      product?.productDetails?.uiMeta?.uischema?.productConfig?.summary?.append
     "
   />
 </template>
@@ -64,7 +64,7 @@
 <script setup lang="ts">
 // --- external
 import { computed, ref, watch } from "vue";
-import { useProductConfig } from "@upmind-automation/headless-vue";
+import { useProductConfig } from "@upmind-automation/headless";
 import { useI18n } from "vue-i18n";
 import { useStyles } from "@upmind-automation/upmind-ui";
 
@@ -72,7 +72,6 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./summary.config";
 
 // --- components
-import Card from "../../../../components/content/Card.vue";
 import SummaryPricing from "./SummaryPricing.vue";
 import SummaryList from "./SummaryList.vue";
 import {
@@ -80,7 +79,8 @@ import {
   NumberField,
   Icon,
   Button,
-  Alert,
+  Card,
+  Alert
 } from "@upmind-automation/upmind-ui";
 
 // --- utils
@@ -88,7 +88,6 @@ import {
 // --- types
 import type { ComputedRef } from "vue";
 import type { ActorRef } from "xstate";
-import { debounce } from "lodash-es";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{

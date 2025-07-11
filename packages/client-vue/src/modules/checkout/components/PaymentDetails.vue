@@ -10,14 +10,14 @@
         :is="props.cardComponent"
         :class="[
           !props.cardComponent && styles.checkout.accordion.card,
-          props.class,
+          props.class
         ]"
       >
         <AccordionItem
           :value="item.gateway_id"
           :class="styles.checkout.accordion.item"
-          :open="item.gateway_id === model.gateway_id"
-          :disabled="item.gateway_id === model.gateway_id"
+          :open="item.gateway_id === model?.gateway_id"
+          :disabled="item.gateway_id === model?.gateway_id"
           asChild
         >
           <AccordionTrigger
@@ -32,8 +32,8 @@
                 :class="[
                   styles.checkout.accordion.trigger.icon,
                   {
-                    'rotate-180': item.gateway_id === model.gateway_id,
-                  },
+                    'rotate-180': item.gateway_id === model?.gateway_id
+                  }
                 ]"
               />
             </template>
@@ -41,15 +41,16 @@
 
           <Loading
             :active="
-              item.gateway_id === model.gateway_id && basketMeta.isProcessing
+              !model ||
+              (item.gateway_id === model.gateway_id && basketMeta.isProcessing)
             "
             :class="styles.checkout.accordion.loading"
           >
             <AccordionContent :class="styles.checkout.accordion.content">
               <GatewayContent
                 :item="item"
-                :gateway="gateway"
-                :model="model"
+                :gatewayId="gateway?.id?.toString()"
+                :modelValue="model?.gateway_id"
                 :meta="meta"
                 :basket-meta="basketMeta"
                 :color="color"
@@ -75,8 +76,8 @@
 // --- internal
 import {
   useBasketPaymentDetails,
-  useBasket,
-} from "@upmind-automation/headless-vue";
+  useBasket
+} from "@upmind-automation/headless";
 import config from "../checkout.config";
 import { useStyles } from "@upmind-automation/upmind-ui";
 
@@ -87,7 +88,7 @@ import {
   AccordionItem,
   AccordionTrigger,
   AccordionContent,
-  Icon,
+  Icon
 } from "@upmind-automation/upmind-ui";
 import GatewayTrigger from "./gateway/Trigger.vue";
 import GatewayContent from "./gateway/Content.vue";
@@ -104,7 +105,7 @@ import { set } from "lodash-es";
 const props = withDefaults(defineProps<PaymentDetailsProps>(), {
   color: "secondary",
   cardComponent: "div",
-  class: "bg-base shadow-sm",
+  class: "bg-base shadow-sm"
 });
 
 const { meta, model, gateway, input, gateways } = useBasketPaymentDetails();
@@ -137,8 +138,11 @@ const handleCheckout = () => {
 };
 
 const selectGateway = (id: string) => {
-  const value = model.value;
-  set(value, "gateway_id", id);
-  input(value);
+  if (!model.value) return;
+
+  input({
+    ...model.value,
+    gateway_id: id
+  });
 };
 </script>

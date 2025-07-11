@@ -22,10 +22,7 @@
       v-for="error in system"
       :key="error.id"
       :i18nKey="error?.message.value.i18nKey"
-      :status="error?.message.value?.data?.type"
-      :action="
-        (error?.message.value?.data?.type ?? 0) >= 500 ? 'refresh' : 'store'
-      "
+      :status="error?.message.value?.data?.status"
       :open="error.meta.value.isActive"
       modal
     />
@@ -38,7 +35,7 @@ import { watch, ref, type ComputedRef } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
-import { useFeedback, useMessage } from "@upmind-automation/headless-vue";
+import { useFeedback, useMessage } from "@upmind-automation/headless";
 import { useStyles, toast } from "@upmind-automation/upmind-ui";
 import config from "./feedback.config";
 
@@ -82,14 +79,14 @@ watch(toasts, toasts => {
         onAutoClose: t => dismissToast(t.id.toString()),
         // @ts-ignore -- we can actually pass this to the toast component
         type: message.value.type,
-        position: "top-right",
+        position: "top-right"
       });
       activeToasts.value.push(id);
     }
   });
 
   forEach(activeToasts.value, id => {
-    if (!some(toasts.value, ["id", id])) dismissToast(id.toString());
+    if (!some(toasts, ["id", id])) dismissToast(id.toString());
   });
 });
 </script>

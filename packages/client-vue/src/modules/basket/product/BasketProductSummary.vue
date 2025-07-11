@@ -56,7 +56,7 @@
                   :meta="summary.meta"
                   :cycle="summary.cycle"
                   :ui-config="{
-                    pricing: { current: styles.product.pricing.current },
+                    pricing: { current: styles.product.pricing.current }
                   }"
                 />
               </div>
@@ -74,7 +74,7 @@
               :meta="summary.meta"
               :cycle="summary.cycle"
               :ui-config="{
-                pricing: { current: styles.product.pricing.current },
+                pricing: { current: styles.product.pricing.current }
               }"
             />
             <ExPrice

@@ -1,7 +1,4 @@
-import type {
-  DomainProduct,
-  DomainTypes,
-} from "@upmind-automation/headless-vue";
+import type { DomainProduct, DomainTypes } from "@upmind-automation/headless";
 import type { ButtonProps } from "@upmind-automation/upmind-ui";
 
 export interface DomainProps {
@@ -14,12 +11,12 @@ export interface DomainProps {
 
 export interface DacProps {
   id: string;
-  modelValue?: string;
+  modelValue?: string; // this is the primary domain
+  selected?: string[]; // these ar the selected domains
+  items?: DomainProduct[]; // this is the list of domains that can be selected
   query?: string;
   color?: ButtonProps["color"];
   offset?: number;
-  values?: string[];
-  items?: DomainProduct[];
   dialog?: boolean;
   loading?: boolean;
   processing?: boolean;
@@ -31,7 +28,7 @@ export interface DacProps {
 
 export interface DomainCardsProps {
   i18n?: string;
-  modelValue?: string | string[];
+  modelValue?: string[];
   items: DomainProduct[];
   offset?: number;
   // ---

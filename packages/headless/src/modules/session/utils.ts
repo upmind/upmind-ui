@@ -1,5 +1,10 @@
 // --- utils
-import { useCookies } from "../../utils";
+import {
+  DetailedError,
+  ErrorOrigin,
+  responseCodes,
+  useCookies
+} from "../../utils";
 import {
   toNumber,
   isBoolean,
@@ -9,12 +14,13 @@ import {
   slice,
   isEmpty,
   includes,
-  isString,
+  isString
 } from "lodash-es";
 
 // --- types
 import type { Token, User } from "./types";
 import type { IUser } from "@upmind-automation/types";
+import { t } from "xstate";
 
 // -----------------------------------------------------------------------------
 function convertToCookie() {
@@ -30,7 +36,7 @@ function convertToCookie() {
       "Converting Client token to cookies. This is a one-time operation to migrate from localStorage to cookies."
     );
     setCookie("upm_client_session", useTokenParser(clientToken), {
-      expires: "8h", //default : refresh token and access token are valid for 8 hours
+      expires: "8h" //default : refresh token and access token are valid for 8 hours
     });
     localStorage.removeItem(`client/auth/token`);
   }
@@ -40,7 +46,7 @@ function convertToCookie() {
       "Converting Guest token to cookies. This is a one-time operation to migrate from localStorage to cookies."
     );
     setCookie("upm_guest_session", useTokenParser(guestToken), {
-      expires: "8h", //default : refresh token and access token are valid for 8 hours
+      expires: "8h" //default : refresh token and access token are valid for 8 hours
     });
     localStorage.removeItem(`guest/auth/token`);
   }
@@ -48,19 +54,18 @@ function convertToCookie() {
 
 export function getTokenFromStorage(actor_type?: Token["actor_type"]) {
   const { get: getCookie } = useCookies();
-
   // convert localStorage tokens to cookies if they exist
   // this is a one-time operation to migrate from localStorage to cookies
   convertToCookie();
 
-  const clientCookie = getCookie("upm_client_session", value => atob(value)) as
-    | string
-    | undefined;
+  const clientCookie = getCookie("upm_client_session", value => {
+    return atob(value);
+  }) as string | undefined;
 
   // const guestToken = localStorage.getItem(`guest/auth/token`);
-  const guestCookie = getCookie("upm_guest_session", value => atob(value)) as
-    | string
-    | undefined;
+  const guestCookie = getCookie("upm_guest_session", value => {
+    return atob(value);
+  }) as string | undefined;
 
   let token: string | Token;
 
@@ -78,14 +83,28 @@ export function getTokenFromStorage(actor_type?: Token["actor_type"]) {
 export function persistTokenToStorage(token: Token) {
   const { setTopLevel: setCookie } = useCookies();
 
+  if (!token || !token.access_token)
+    throw new DetailedError(
+      "Token is invalid or missing the access_token property.",
+      responseCodes.Unprocessable_Entity,
+      ErrorOrigin.Headless,
+      token
+    );
+
   if (!localStorage)
-    return Promise.reject(new Error("No localStorage available"));
+    return Promise.reject(
+      new DetailedError(
+        "No Local Storage available",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      )
+    );
 
   const type = token?.actor_type || "guest";
 
   // finally, persist the new token
   setCookie(`upm_${type}_session`, token, {
-    expires: "8h", //default : refresh token and access token are valid for 8 hours
+    expires: "8h" //default : refresh token and access token are valid for 8 hours
   });
 
   return Promise.resolve(token);
@@ -112,7 +131,7 @@ export function useTokenParser(data: string | Token): Token | undefined {
       : tokenData.second_factor_required === "true",
     actor_type: toString(tokenData.actor_type),
     actor_id: toString(tokenData.actor_id),
-    guest_token: toString(tokenData.guest_token),
+    guest_token: toString(tokenData.guest_token)
   } as Token;
 }
 
@@ -132,14 +151,14 @@ export function useUserParser(data: IUser): User | undefined {
     "fullname",
     "firstname",
     "lastname",
-    "image_url",
+    "image_url"
   ]);
 
   user.display = data?.firstname || data?.public_name || data?.email;
   user.avatar = {
     caption: useInitialsParser(user),
     src: user.image_url,
-    forceCaption: includes(user?.image_url, "gravatar"),
+    forceCaption: includes(user?.image_url, "gravatar")
   };
   user.locale = data?.interface_language_code;
 

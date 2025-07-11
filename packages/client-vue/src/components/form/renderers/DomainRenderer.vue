@@ -24,15 +24,14 @@ import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 
-// ----------------------------------------------
-
+// -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
 const { control, formFieldProps, onInput } = useUpmindUIRenderer(
   useJsonFormsControl(props)
 );
 
-const resetInput = (value: string) => {
+const resetInput = (value?: string) => {
   onInput(value, false);
 };
 </script>
@@ -42,6 +41,6 @@ import { uiTypeIs, formatIs, and } from "@jsonforms/core";
 
 export const tester = {
   rank: 3,
-  controlType: and(uiTypeIs("Control"), formatIs("domain_name")),
+  controlType: and(uiTypeIs("Control"), formatIs("domain_name"))
 };
 </script>

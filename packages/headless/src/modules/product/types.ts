@@ -8,13 +8,13 @@ import type {
   IClient,
   ICurrency,
   IBasketPromotion,
-  IRelatedObject,
+  IRelatedObject
 } from "@upmind-automation/types";
 export { PromotionDisplayTypes } from "@upmind-automation/types";
 import { PromotionDisplayTypes } from "@upmind-automation/types";
-import type { Recommendation } from "../recommendations/types";
+import type { Recommendation } from "../recommendations";
 import type { BasketProduct } from "../basketProduct";
-import { ResponseError } from "../query";
+import { ResponseError } from "../../utils";
 
 // -----------------------------------------------------------------------------
 /**
@@ -256,6 +256,7 @@ export type ProductSummaryDetail = {
   quantity?: number;
   promotions?: PromotionDetails[];
   meta: ProductSummaryMeta;
+  error?: ErrorObject[];
 };
 
 export type ProductSummaryDetailWithPrice = ProductSummaryDetail & {
@@ -269,6 +270,7 @@ export type TermDetails = ProductSummaryDetail & {
     monthlyFromRegularAmount?: number;
     monthlyFromRegularPrice?: string;
   };
+  showTaxes?: boolean;
 };
 
 export type SubproductDetails = {
@@ -385,6 +387,7 @@ export interface ProductConfigContext {
   meta?: UIMeta;
   // ---
   calculateCallback?: ActorRef<any>;
+  // TODO: @DC implement the new response errors types from the API
   error?: ResponseError | ExternalError;
   errorExternal?: ResponseError | ExternalError;
   attempts?: number;

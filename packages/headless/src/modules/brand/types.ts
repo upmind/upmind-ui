@@ -2,9 +2,9 @@
 import type {
   BrandConfigKeys,
   OrgFeatureKeys,
-  IBrandSettings,
+  IBrandSettings
 } from "@upmind-automation/types";
-import { ResponseError } from "../query";
+import type { ResponseError } from "../../utils";
 
 // -----------------------------------------------------------------------------
 
@@ -19,5 +19,62 @@ export interface BrandContext extends IBrandSettings {
   organisation?: OrgFeatureKeys;
   initialised?: boolean;
   error?: ResponseError;
-  queryHelper?: any; //TODO set the cotrect observable ype
+}
+
+export interface IBrandMeta {
+  cart: {
+    storefront_url?: string; // URL of the storefront
+    layout?: string;
+    tagline?: string;
+    description?: string;
+    catalogue?: {
+      disabled?: boolean;
+      facet?: boolean;
+    };
+  };
+  variant?: string; // the preferred variant to be used
+  variants?: {
+    [key: string]: IVariant;
+  };
+}
+
+export interface IVariant {
+  border: string;
+  foreground: string;
+  background: {
+    canvas: string;
+    surface: string;
+  };
+  primary: {
+    DEFAULT: string;
+    foreground: string;
+    background: string;
+  };
+  secondary: {
+    DEFAULT: string;
+    foreground: string;
+    background: string;
+  };
+  control: {
+    DEFAULT: string;
+    background: string;
+    popover: string;
+    foreground: string;
+    border: string;
+    active: {
+      DEFAULT: string;
+      muted: string;
+      foreground: string;
+      background: string;
+      hover: string;
+      focus: string;
+    };
+    hover?: {
+      border: string;
+    };
+  };
+  icon: {
+    primary: string;
+    secondary: string;
+  };
 }

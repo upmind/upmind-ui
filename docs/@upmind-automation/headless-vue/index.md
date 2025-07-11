@@ -1,10 +1,8 @@
-[Upmind](../packages.md) / @upmind-automation/headless-vue
+[Upmind](../packages.md) / @upmind-automation/headless
 
 # Getting Started
 
 ## Prerequisites
-
-`headless-vue` is a collection of Vue 3 composables.
 
 - If you don't have a Vue 3 app, have a look at Vue [Quick Start](https://vuejs.org/guide/quick-start.html) guide.
 
@@ -13,16 +11,16 @@
 ## Installation
 
 ```
-npm i @upmind-automation/headless-vue
+npm i @upmind-automation/headless
 ```
 
 ## Usage simple example
 
-Simply importing the composables (functions) you need from `@upmind-automation/headless-vue`.
+Simply importing the composables (functions) you need from `@upmind-automation/headless`.
 
 ```vue
 <script setup>
-import { useSession } from "@upmind-automation/headless-vue";
+import { useSession } from "@upmind-automation/headless";
 
 const { meta, errors, showLogin, verify2fa, resolve, reject } = useSession();
 

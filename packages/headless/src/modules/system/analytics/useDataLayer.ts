@@ -1,9 +1,16 @@
 // --- internal
-import { useBasket, useSystemI18n } from "../..";
+import { useBasket, useLocale } from "../..";
 import packageJson from "../../../../package.json";
 
 // --- utils
-import { useCookies, usePOP, useTime } from "../../../utils";
+import {
+  DetailedError,
+  ErrorOrigin,
+  responseCodes,
+  useCookies,
+  usePOP,
+  useTime
+} from "../../../utils";
 import {
   isEmpty,
   isNil,
@@ -12,7 +19,7 @@ import {
   map,
   isArray,
   sumBy,
-  some,
+  some
 } from "lodash-es";
 
 // --- types
@@ -25,7 +32,7 @@ import {
   DataLayerEcommerceItems,
   DataLayerEcommerceItem,
   DataLayerPage,
-  DataLayerUser,
+  DataLayerUser
 } from "./types";
 import { PageRoute } from "../../routing";
 
@@ -68,10 +75,9 @@ class TrackingEvent {
   }
 
   withPage(router?: PageRoute): TrackingEvent {
-    const { getLocale } = useSystemI18n();
+    const { locale } = useLocale();
     const { getPOP } = usePOP();
 
-    const locale = getLocale();
     const POP = getPOP();
     const version = packageJson?.version; // TODO: Come up with a relevant version number: which Pkg should provide this?
 
@@ -90,9 +96,9 @@ class TrackingEvent {
         page_type: router?.to?.name,
         environment: POP.name,
         version,
-        language: locale?.toLocaleUpperCase(),
+        language: locale.value?.toLocaleUpperCase(),
         current_url,
-        previous_url,
+        previous_url
       },
       isNil
     );
@@ -113,7 +119,7 @@ class TrackingEvent {
       payload = storedActor;
     } else {
       payload = {
-        logged_in: false,
+        logged_in: false
       };
     }
 
@@ -122,11 +128,15 @@ class TrackingEvent {
   }
 
   withEcommerce(invoice?: IInvoice): TrackingEvent {
-    const { getBasket } = useBasket();
-    const safeBasket = invoice ?? (getBasket() as IBasket);
+    const { basket } = useBasket();
+    const safeBasket = invoice ?? basket.value;
 
     if (isEmpty(safeBasket)) {
-      throw new Error("No Basket available");
+      throw new DetailedError(
+        "No Basket available",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      );
     }
     // When a user submits their billing address
     const payload: DataLayerEcommerce = {
@@ -143,7 +153,7 @@ class TrackingEvent {
       items: map(
         safeBasket.products,
         mapIBasketProduct
-      ) as DataLayerEcommerceItem[],
+      ) as DataLayerEcommerceItem[]
     };
 
     set(this.args, "ecommerce", omitBy(payload, isNil));
@@ -162,16 +172,24 @@ class TrackingEvent {
     const safeItems = isArray(items) ? items : [items];
 
     if (isEmpty(safeItems)) {
-      throw new Error("No Products available");
+      throw new DetailedError(
+        "No Products available",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      );
     }
 
-    const { getBasket } = useBasket();
-    const basket = getBasket() as IBasket;
-    if (isEmpty(basket)) throw new Error("No Basket available");
+    const { basket } = useBasket();
+    if (isEmpty(basket))
+      throw new DetailedError(
+        "No Basket available",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      );
 
     // When a user submits their billing address
     const payload: DataLayerEcommerceItems = {
-      currency: basket.currency.code,
+      currency: basket.value!.currency.code,
       value: sumBy(
         safeItems,
         ({ price }) =>
@@ -179,7 +197,7 @@ class TrackingEvent {
       ),
       // Dont have the current values to be able to calculate this
       // gross_value: sumBy(safeItems, "price.configuration.total"),
-      items: map(safeItems, mapBasketProduct) as DataLayerEcommerceItem[],
+      items: map(safeItems, mapBasketProduct) as DataLayerEcommerceItem[]
     };
 
     set(this.args, "ecommerce", omitBy(payload, isNil));
@@ -201,22 +219,22 @@ class TrackingEvent {
 // -----------------------------------------------------------------------------
 
 /**
- * Hook to manage the data layer for tracking and analytics.
+ * Composable for managing the data layer for tracking and analytics.
  *
  * @param {string} dataLayer - The name of the data layer to be used.
- * @returns {Object} An object containing the name of the data layer, an initialise function, and a track function.
- *
- * @property {string} name - The name of the data layer.
- * @property {Function} initialise - Function to initialise the data layer with default consent settings and initial push.
- * @property {Function} track - Function to create a new tracking event.
+ * @returns {object} Grouped and documented returns for data layer management.
  */
 export const useDataLayer = (dataLayer: string = "dataLayer") => {
   DATA_LAYER = (window.dataLayer =
     window.dataLayer || []) as Window["dataLayer"];
   UETQ = window["uetq"] = window["uetq"] || [];
 
+  // --- state
+
+  const id = dataLayer;
+
   function init(): Promise<void> {
-    // ---  Init the contsent manager
+    // ---  Init the consent manager
     DATA_LAYER.push([
       "consent",
       "default",
@@ -228,13 +246,13 @@ export const useDataLayer = (dataLayer: string = "dataLayer") => {
         functionality_storage: "denied",
         personalization_storage: "denied",
         security_storage: "denied",
-        wait_for_update: 500,
-      },
+        wait_for_update: 500
+      }
     ]);
 
     UETQ.push("consent", "default", {
       ad_storage: "denied",
-      wait_for_update: 500,
+      wait_for_update: 500
     });
     DATA_LAYER.push(["set", "ads_data_redaction", true]);
     DATA_LAYER.push(["set", "url_passthrough", false]);
@@ -242,31 +260,50 @@ export const useDataLayer = (dataLayer: string = "dataLayer") => {
     return Promise.resolve();
   }
 
-  // ---
+  function dataLayerEvent(args: Record<string, any> = {}) {
+    let event: TrackingEvent | null = new TrackingEvent(args);
+    setTimeout(() => {
+      if (event && !event?.complete) {
+        console.warn(
+          "Tracking event not pushed after 3 seconds. Pushing now...",
+          event.args
+        );
+        event.push();
+      }
+      event = null;
+    }, useTime().SECOND * 3);
+    return event;
+  }
+
+  // ---------------------------------------------------------------------------
 
   return {
-    id: dataLayer,
+    // --- state
+    /**
+     * Initializes the data layer with default consent settings and initial push.
+     * @returns {Promise<void>} Resolves when initialization is complete.
+     */
     init,
-    dataLayer: (args: Record<string, any> = {}) => {
-      let event: TrackingEvent | null = new TrackingEvent(args);
 
-      // let's be sensible and add some synthetic sugar and housekeeping.
-      // a track event should not be long-lived, so we will push it to the data layer after a short delay to allow the user to push manually,
-      // and after pushing/complete we will destroy the event to avoid memory leaks.
-      setTimeout(() => {
-        if (event && !event?.complete) {
-          console.warn(
-            "Tracking event not pushed after 3 seconds. Pushing now...",
-            event.args
-          );
-          event.push();
-        }
+    // --- context
 
-        // clean up
-        event = null;
-      }, useTime().SECOND * 3);
+    /**
+     * The name/id of the data layer.
+     */
+    id,
 
-      return event;
-    },
+    // --- methods
+
+    /**
+     * Creates a new tracking event for the data layer.
+     * @param {Record<string, any>} args - Arguments for the tracking event.
+     * @returns {TrackingEvent} The tracking event instance.
+     */
+    dataLayer: dataLayerEvent
   };
 };
+
+/**
+ * The return type of useBrand composable.
+ */
+export type UseDataLayer = ReturnType<typeof useDataLayer>;

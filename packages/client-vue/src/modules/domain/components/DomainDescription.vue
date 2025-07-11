@@ -14,7 +14,7 @@
           {{
             t("domain.card.available.description.discounted", [
               price.regularPrice,
-              price.currentPrice,
+              price.currentPrice
             ])
           }}
         </template>

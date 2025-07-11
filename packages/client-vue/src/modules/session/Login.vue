@@ -1,11 +1,12 @@
 <template>
-  <article>
+  <Layout>
     <ContentSection class="mx-auto max-w-2xl">
       <Button
         type="reset"
-        class="relative -top-4 md:-top-6"
+        class="bg-base-background relative -top-4 md:-top-6"
         size="sm"
         variant="tonal"
+        color="base"
         :label="t('navigation.back')"
         @click.prevent="doReject"
       >
@@ -30,7 +31,7 @@
         </Link>
       </p>
 
-      <Card class="pb-3 md:pb-3">
+      <Card class="mt-4 pb-3 md:pb-3">
         <Auth
           class="rounded-box w-full max-w-5xl items-start"
           no-tabs
@@ -42,7 +43,7 @@
         </Auth>
       </Card>
     </ContentSection>
-  </article>
+  </Layout>
 </template>
 
 <script lang="ts" setup>
@@ -50,21 +51,22 @@
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useRoutingEngine, ROUTE } from "@upmind-automation/headless-vue";
+import { useRoutingEngine, ROUTE } from "@upmind-automation/headless";
 
 // --- components
-import Card from "../../components/content/Card.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
 import Auth from "./components/Auth.vue";
-import { Button, Icon, Link } from "@upmind-automation/upmind-ui";
+import { Card, Button, Icon, Link } from "@upmind-automation/upmind-ui";
 import SmartTitle from "../../components/content/SmartTitle.vue";
+import Layout from "../../components/layout/Layout.vue";
+
 // --- types
 import type { AuthProps } from "./components/types";
 
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { next, back, navigate, isResolved } = useRoutingEngine();
+const { navigateNext, navigateBack, navigate, isResolved } = useRoutingEngine();
 
 await isResolved(ROUTE.SESSION_LOGIN);
 
@@ -79,12 +81,12 @@ function doUpdate(value: AuthProps["modelValue"]) {
 }
 
 function doReject() {
-  back();
+  navigateBack();
 }
 
 function doResolve() {
   // const redirectPath = route.query.redirect || "/";
   // router.push(redirectPath);
-  next();
+  navigateNext();
 }
 </script>

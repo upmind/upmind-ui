@@ -1,5 +1,5 @@
 <template>
-  <article v-auto-animate>
+  <Layout>
     <slot v-if="!meta.isCheckout && !meta.isComplete" name="back-button">
       <Back :class="styles.checkout.backButton" />
     </slot>
@@ -40,11 +40,7 @@
             </template>
             <component :is="props.cardComponent">
               <slot name="billing-details">
-                <BillingDetails
-                  :model-value="billingDetailsModel"
-                  @update:modelValue="billingDetailsUpdate"
-                  :color="color"
-                />
+                <Billing />
               </slot>
             </component>
           </component>
@@ -98,7 +94,7 @@
             color="error"
             icon="alert-triangle"
             :title="t('checkout.errors.title')"
-            :description="errors.message"
+            :description="errors?.message"
           >
           </Alert>
         </aside>
@@ -115,7 +111,7 @@
           icon: processingIcon,
           primaryColor: 'primary',
           secondaryColor: 'secondary',
-          size: '4xl',
+          size: '4xl'
         }"
         :title="t(processingTitleKey)"
         :text="t(processingTextKey)"
@@ -125,7 +121,7 @@
         </template>
       </Interstitial>
     </slot>
-  </article>
+  </Layout>
 </template>
 
 <script lang="ts" setup>
@@ -138,25 +134,29 @@ import { useI18n } from "vue-i18n";
 import {
   useSession,
   useBasket,
-  useBasketBillingDetails,
   useBasketPaymentDetails,
   useRoutingEngine,
   ROUTE,
-  useDataLayer,
-} from "@upmind-automation/headless-vue";
+  useDataLayer
+} from "@upmind-automation/headless";
 
 import config from "./checkout.config";
-import { useStyles, Interstitial, Alert } from "@upmind-automation/upmind-ui";
 
 // -- components
+import {
+  useStyles,
+  Interstitial,
+  Alert,
+  Card
+} from "@upmind-automation/upmind-ui";
 import Session from "../session/Session.vue";
-import BillingDetails from "./components/BillingDetails.vue";
+import Billing from "../billing/Billing.vue";
 import PaymentDetails from "./components/PaymentDetails.vue";
 import Summary from "../basket/components/Summary.vue";
-import Card from "../../components/content/Card.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
 import Back from "../../components/navigation/Back.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
+import Layout from "../../components/layout/Layout.vue";
 
 // --- types
 import type { CheckoutProps } from "./types";
@@ -169,13 +169,13 @@ const { t } = useI18n();
 
 const { meta: account, isAuthenticated } = useSession();
 const { state, meta, errors, isReady } = useBasket();
-const { next, back, isResolved } = useRoutingEngine();
+const { navigateNext, navigateBack, isResolved } = useRoutingEngine();
 const { meta: paymentDetailsMeta } = useBasketPaymentDetails();
 
 const props = withDefaults(defineProps<CheckoutProps>(), {
   cardComponent: Card,
   contentSectionComponent: ContentSection,
-  color: "secondary",
+  color: "primary"
 });
 
 const styles = useStyles(["checkout"], meta, config) as ComputedRef<{
@@ -191,11 +191,9 @@ const styles = useStyles(["checkout"], meta, config) as ComputedRef<{
   };
 }>;
 
-const { model: billingDetailsModel, update: billingDetailsUpdate } =
-  useBasketBillingDetails();
 // -----------------------------------------------------------------------------
 await isResolved(ROUTE.CHECKOUT);
-await isReady().then(() => isAuthenticated().catch(back));
+await isReady().then(() => isAuthenticated().catch(navigateBack));
 
 const { dataLayer } = useDataLayer();
 dataLayer({ event: "begin_checkout" }).withEcommerce().push();
@@ -280,12 +278,12 @@ watch(meta, (value, oldValue) => {
   if (!isEqual(value, oldValue)) {
     console.info("** Checkout State **", {
       state: state.value,
-      value,
+      value
     });
   }
 
   if (value.isComplete) {
-    next();
+    navigateNext();
     return;
   }
 });

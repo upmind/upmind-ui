@@ -13,7 +13,7 @@ export interface CheckoutProps {
   color?: ButtonProps["color"];
 }
 
-export interface BillingDetailsProps {
+export interface BillingProps {
   i18nKey?: string;
   modelValue: any;
   color?: ButtonProps["color"];

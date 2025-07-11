@@ -1,7 +1,7 @@
 // --- external
 import {
   isValidPhoneNumber,
-  parsePhoneNumberWithError,
+  parsePhoneNumberWithError
 } from "libphonenumber-js";
 
 // --- utils
@@ -12,6 +12,7 @@ import {
   isEqual,
   isEmpty,
   startsWith,
+  isFunction
 } from "lodash-es";
 
 // --- types
@@ -19,15 +20,24 @@ import type { CountryCode, PhoneNumber } from "libphonenumber-js";
 import type { KeywordDefinition } from "ajv";
 // -----------------------------------------------------------------------------
 
+export const useManageKeyword: KeywordDefinition = {
+  keyword: "manage",
+  schemaType: "object",
+  errors: false
+};
+
 export const phoneCountryCodeKeyword: KeywordDefinition = {
   keyword: "phone_country_code",
   type: ["string", "object", "null"],
   schemaType: "string",
   validate: (schema, data, parentSchema, dataCxt) => {
+    if (isEmpty(data)) return true;
     if (isString(data) && startsWith(data, "+")) {
       return isValidPhoneNumber(data);
     } else if (isObject(data)) {
       const { number, nationalNumber, country } = data as PhoneNumber;
+      if (!number && !nationalNumber) return true; // No phone number provided yet so cant validate
+
       const value = number || nationalNumber || "";
       const countryCode = country || schema;
 
@@ -64,13 +74,12 @@ export const phoneCountryCodeKeyword: KeywordDefinition = {
       // });
 
       return "Invalid phone number format";
-    },
-  },
+    }
+  }
 };
 
 export const requiredIfKeyword: KeywordDefinition = {
   keyword: "required_if",
-  type: ["string", "number", "boolean", "null", "object", "array"],
   schemaType: "object",
   validate: (schema, data, parentSchema, dataCxt) => {
     const field = get(schema, "field");
@@ -82,13 +91,12 @@ export const requiredIfKeyword: KeywordDefinition = {
   error: {
     message: cxt => {
       return `is required if ${cxt.schema.field} is ${cxt.schema.value}`;
-    },
-  },
+    }
+  }
 };
 
 export const requiredUnlessKeyword: KeywordDefinition = {
   keyword: "required_unless",
-  type: ["string", "number", "boolean", "null", "object", "array"],
   schemaType: "object",
   validate: (schema, data, parentSchema, dataCxt) => {
     const field = get(schema, "field");
@@ -100,18 +108,17 @@ export const requiredUnlessKeyword: KeywordDefinition = {
   error: {
     message: cxt => {
       return `is required unless ${cxt.schema.field} is ${cxt.schema.value}`;
-    },
-  },
+    }
+  }
 };
 
 export const requiredWithKeyword: KeywordDefinition = {
   keyword: "required_with",
-  type: ["string", "number", "boolean", "null", "object", "array"],
   schemaType: "string",
   validate: (schema, data, parentSchema, dataCxt) => {
-    if (!schema) return false;
+    if (!schema) return true;
     const dependentValue = get(dataCxt?.parentData, schema);
-    return !isEmpty(data) || isEmpty(dependentValue);
+    return !isEmpty(data) && !isEmpty(dependentValue);
   },
   error: {
     message: cxt => {
@@ -122,16 +129,15 @@ export const requiredWithKeyword: KeywordDefinition = {
         ? get(schemaObj.properties, cxt.schema)
         : undefined;
       return `is required with ${dependent?.title ?? cxt.schema}`;
-    },
-  },
+    }
+  }
 };
 
 export const requiredWithoutKeyword: KeywordDefinition = {
   keyword: "required_without",
-  type: ["string", "number", "boolean", "null", "object", "array"],
   schemaType: "string",
   validate: (schema, data, parentSchema, dataCxt) => {
-    if (!schema) return false;
+    if (!schema) return true;
     const dependentValue = get(dataCxt?.parentData, schema);
     return !isEmpty(data) || !isEmpty(dependentValue);
   },
@@ -144,38 +150,36 @@ export const requiredWithoutKeyword: KeywordDefinition = {
         ? get(schemaObj.properties, cxt.schema)
         : undefined;
       return `is required without ${dependent?.title ?? cxt.schema}`;
-    },
-  },
+    }
+  }
 };
 
 export const sameKeyword: KeywordDefinition = {
   keyword: "same",
-  type: ["string", "number", "boolean", "null", "object", "array"],
   schemaType: "string",
   validate: (schema, data, parentSchema, dataCxt) => {
-    if (!schema) return false;
+    if (!schema) return true;
     const dependentValue = get(data, schema);
     return isEqual(dependentValue, data);
   },
   error: {
     message: cxt => {
-      return "Field must be the same as " + cxt.data + " is " + cxt.schema;
-    },
-  },
+      return "must be the same as " + cxt.data + " is " + cxt.schema;
+    }
+  }
 };
 
 export const differentKeyword: KeywordDefinition = {
   keyword: "different",
-  type: ["string", "number", "boolean", "null", "object", "array"],
   schemaType: "string",
   validate: (schema, data, parentSchema, dataCxt) => {
-    if (!schema) return false;
+    if (!schema) return true;
     const dependentValue = get(data, schema);
     return !isEqual(dependentValue, data);
   },
   error: {
     message: cxt => {
-      return "Field must be different from " + cxt.data + " is " + cxt.schema;
-    },
-  },
+      return "must be different from " + cxt.data + " is " + cxt.schema;
+    }
+  }
 };

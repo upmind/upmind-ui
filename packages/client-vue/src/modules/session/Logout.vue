@@ -1,6 +1,6 @@
 <template>
-  <article>
-    <ContentSection v-auto-animate>
+  <Layout>
+    <ContentSection v-auto-animate class="flex flex-grow items-center">
       <Interstitial
         v-bind="props"
         :title="t('session.end.title')"
@@ -12,10 +12,10 @@
             href: storefrontUrl,
             appendIcon: {
               icon: 'arrow-right',
-              size: '2xs',
+              size: '2xs'
             },
-            label: t('session.end.actions.continue'),
-          },
+            label: t('session.end.actions.continue')
+          }
         ]"
       >
         <template #title>
@@ -23,40 +23,41 @@
         </template>
       </Interstitial>
     </ContentSection>
-  </article>
+  </Layout>
 </template>
 
 <script lang="ts" setup>
 // --- external
-import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
+import { useRouter } from "vue-router";
 
 // --- internal
 import {
   useRoutingEngine,
   useSession,
   ROUTE,
-} from "@upmind-automation/headless-vue";
+  useBrand
+} from "@upmind-automation/headless";
 
 // -- components
-import Internet from "../../assets/animations/internet.json?url";
 import { Interstitial } from "@upmind-automation/upmind-ui";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
+import Layout from "../../components/layout/Layout.vue";
 
 // -- types
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
+const router = useRouter();
 const { t } = useI18n();
 const { isResolved } = useRoutingEngine();
 const { logout } = useSession();
+const { storefrontUrl } = useBrand();
 
 // if we are not logged out, we should log out
 await isResolved(ROUTE.SESSION_END).catch(() => logout());
-
-const storefrontUrl = import.meta.env.VITE_APP_STOREFRONT;
 
 const props = withDefaults(defineProps<InterstitialProps>(), {
   open: true,
@@ -68,7 +69,7 @@ const props = withDefaults(defineProps<InterstitialProps>(), {
     trigger: "loop",
     primaryColor: "base-foreground",
     secondaryColor: "tertiary",
-    size: "4xl",
-  }),
+    size: "4xl"
+  })
 });
 </script>

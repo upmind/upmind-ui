@@ -163,7 +163,7 @@
           :label="t('product.actions.resolve')"
           :loading="meta.isProcessing"
           :disabled="meta.isLoading"
-          color="secondary"
+          color="primary"
           @click="doResolve"
         />
       </slot>
@@ -177,7 +177,7 @@ import { useI18n } from "vue-i18n";
 import { computed } from "vue";
 
 // --- internal
-import { useProductConfig } from "@upmind-automation/headless-vue";
+import { useProductConfig } from "@upmind-automation/headless";
 import { useStyles, cn } from "@upmind-automation/upmind-ui";
 import config from "../../product.config";
 
@@ -221,7 +221,7 @@ const props = withDefaults(
     required: false,
     class: "",
     noHeader: false,
-    noFooter: false,
+    noFooter: false
   }
 );
 
@@ -242,7 +242,7 @@ const {
   setOptions,
   updateOptionQuantity,
   setProvisioningFields,
-  reset,
+  reset
 } = useProductConfig(props.item);
 
 const styles = useStyles(["product.config"], meta, config) as ComputedRef<{

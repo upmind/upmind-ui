@@ -12,8 +12,8 @@
           <CurrentPrice
             :class="[
               {
-                'text-emphasis-disabled': props.loading || props.processing,
-              },
+                'text-emphasis-disabled': props.loading || props.processing
+              }
             ]"
             :current-price="item.price.currentPrice"
             :meta="item.meta"

@@ -1,12 +1,18 @@
 // --- external
 
 // --- internal
-import { useSession, useBrand } from "../../..";
+import { useBrand, useSession } from "../../..";
 import { BrandConfigKeys } from "@upmind-automation/types";
 // --- utils
 import { canBeStored } from "./utils";
-import { useValidation } from "../../../utils";
-import { isNil, get } from "lodash-es";
+import {
+  DetailedError,
+  ErrorOrigin,
+  responseCodes,
+  useModelParser,
+  useValidation
+} from "../../../utils";
+import { get, isNil } from "lodash-es";
 
 // --- types
 import type { GatewayContext } from "./types";
@@ -28,9 +34,9 @@ async function load({ gateway }: GatewayContext, _event: AnyEventObject) {
 
   return ensureConfig([
     BrandConfigKeys.BILLING_GATEWAY_FORCE_CARD_STORAGE,
-    BrandConfigKeys.BILLING_GATEWAY_FORCE_AUTO_PAYMENT,
+    BrandConfigKeys.BILLING_GATEWAY_FORCE_AUTO_PAYMENT
   ]).then(data => {
-    return {
+    const config = {
       can_store: canBeStored(gateway),
       must_store: get(
         data,
@@ -41,16 +47,17 @@ async function load({ gateway }: GatewayContext, _event: AnyEventObject) {
         data,
         BrandConfigKeys.BILLING_GATEWAY_FORCE_AUTO_PAYMENT,
         false
-      ),
+      )
     };
+    return config;
   });
 }
 
 async function parse(
-  { model, can_store, must_store, must_auto_pay }: GatewayContext,
+  { schema, model, can_store, must_store, must_auto_pay }: GatewayContext,
   _event: AnyEventObject
 ) {
-  model ??= {}; // safeguard
+  model = useModelParser(schema, model);
 
   // Honour the brand settings storage and auto payment
   if (!can_store) {
@@ -81,9 +88,15 @@ async function validate(
   return new Promise((resolve, reject) => {
     if (!schema) return resolve(model);
     const errors = validate(schema, model);
-
     if (errors?.length) {
-      reject({ error: errors });
+      reject(
+        new DetailedError(
+          "Payment gateway validation failed",
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.Headless,
+          errors
+        )
+      );
     } else {
       resolve(model);
     }
@@ -112,5 +125,5 @@ export default {
   parse,
   validate,
   // ---
-  update,
+  update
 };

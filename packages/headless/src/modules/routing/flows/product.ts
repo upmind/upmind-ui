@@ -4,21 +4,22 @@
 import {
   useRoutingEngine,
   useRouteQueryParams,
-  useRouteRequiresAction,
+  useRouteRequiresAction
 } from "..";
 import { useBasketProductsPending } from "../../basketProduct";
 
 import { useBasket } from "../../basket";
-import { useRecommendationsEngine } from "../../recommendations";
+import { useProductRecommendations } from "../../recommendations";
 
 // --- utils
-import { uniqBy, get, set, isEmpty, find } from "lodash-es";
+import { uniqBy, set, isEmpty } from "lodash-es";
 
 // --- types
 import { ROUTE } from "../types";
 import type { Flow, Route } from "../types";
 import { ActorRef } from "xstate";
-import { ProductProps } from "src/modules/product";
+import { ProductProps } from "../../product";
+import { contextValue, stateMatches } from "../../../utils";
 
 // -----------------------------------------------------------------------------
 
@@ -28,17 +29,14 @@ export const useProductFlows = () => {
     findProduct,
     productExists,
     getProduct,
-    isReady: isBasketReady,
+    isReady: isBasketReady
   } = useBasket();
 
   const {
     get: getPendingProduct,
     remove: removePendingProduct,
-    isInBasket,
+    isInBasket
   } = useBasketProductsPending();
-
-  const { hasRecommendations, isReady: isRecommendationsReady } =
-    useRecommendationsEngine();
 
   let flows: Flow[] = [
     {
@@ -50,7 +48,7 @@ export const useProductFlows = () => {
           (await getPendingProduct(productId)
             .then(
               basketItem =>
-                !["error", "complete"].some(basketItem.getSnapshot().matches)
+                !stateMatches(basketItem.state, ["error", "complete"])
             )
             .catch(() => false));
         return valid;
@@ -72,13 +70,13 @@ export const useProductFlows = () => {
             .catch(() => {
               return {
                 name: ROUTE.PRODUCT_ADD,
-                params: { pid: productId },
+                params: { pid: productId }
               };
             });
         } else {
           return {
             name: ROUTE.PRODUCT_NOT_FOUND,
-            query: { pid: productId },
+            query: { pid: productId }
           };
         }
       },
@@ -86,22 +84,28 @@ export const useProductFlows = () => {
         next: [
           ROUTE.PRODUCT_REQUIRES_ACTION,
           {
-            name: ROUTE.RECOMMENDATIONS,
-            guard: async (_route: Route) => {
-              const { hasUnseenRecommendations, isReady } =
-                useRecommendationsEngine();
-              await isReady();
-              const valid = hasUnseenRecommendations();
-              return valid;
+            name: ROUTE.PRODUCT_RECOMMENDATIONS,
+            guard: async (route: Route) => {
+              const { productId: pid } = useRouteQueryParams(route);
+              if (!pid) return false;
+              const { meta, isReady } = useProductRecommendations(pid);
+              return isReady().then(() => meta.value.hasRecommendations);
             },
+            resolve: async (route: Route) => {
+              const { productId: pid } = useRouteQueryParams(route);
+              return {
+                name: ROUTE.PRODUCT_RECOMMENDATIONS,
+                params: { pid }
+              };
+            }
           },
           ROUTE.CHECKOUT,
           ROUTE.SESSION_REGISTER,
-          ROUTE.BASKET,
+          ROUTE.BASKET
         ],
         back: [ROUTE.BASKET, ROUTE.EMPTY],
-        fallback: [ROUTE.PRODUCT_NOT_FOUND],
-      },
+        fallback: [ROUTE.PRODUCT_NOT_FOUND]
+      }
     },
     {
       name: ROUTE.PRODUCT_ADD,
@@ -112,8 +116,7 @@ export const useProductFlows = () => {
 
         const valid = await getPendingProduct(productId, true)
           .then(
-            basketItem =>
-              !["error", "complete"].some(basketItem.getSnapshot().matches)
+            basketItem => !stateMatches(basketItem.state, ["error", "complete"])
           )
           .catch(() => false);
         return valid;
@@ -121,14 +124,14 @@ export const useProductFlows = () => {
       resolve: async (route: Route) => {
         const { productId } = useRouteQueryParams(route);
         const pendingProduct = await getPendingProduct(productId, true);
-        const pid = get(
-          pendingProduct?.getSnapshot(),
-          "context.model.productId",
+        const pid = contextValue<ProductProps["productId"]>(
+          pendingProduct.state,
+          "model.productId",
           productId
         );
         return {
           name: ROUTE.PRODUCT_ADD,
-          params: { pid },
+          params: { pid: pid ?? "" }
         };
       },
       targets: {
@@ -138,22 +141,21 @@ export const useProductFlows = () => {
             name: ROUTE.PRODUCT_RECOMMENDATIONS,
             guard: async (route: Route) => {
               const { productId: pid } = useRouteQueryParams(route);
-              return (
-                !!pid &&
-                isRecommendationsReady().then(() => hasRecommendations(pid))
-              );
+              if (!pid) return false;
+              const { meta, isReady } = useProductRecommendations(pid);
+              return isReady().then(() => meta.value.hasRecommendations);
             },
             resolve: async (route: Route) => {
               const { productId: pid } = useRouteQueryParams(route);
               return {
                 name: ROUTE.PRODUCT_RECOMMENDATIONS,
-                params: { pid },
+                params: { pid }
               };
-            },
+            }
           },
           ROUTE.CHECKOUT,
           ROUTE.SESSION_REGISTER,
-          ROUTE.BASKET,
+          ROUTE.BASKET
         ],
         back: [ROUTE.BASKET, ROUTE.EMPTY],
         fallback: [
@@ -171,18 +173,18 @@ export const useProductFlows = () => {
               if (!basketItem?.id)
                 return {
                   name: ROUTE.PRODUCT_NOT_FOUND,
-                  query: { pid: productId },
+                  query: { pid: productId }
                 };
               else
                 return {
                   name: ROUTE.PRODUCT_EDIT,
-                  params: { bpid: basketItem?.id },
+                  params: { bpid: basketItem?.id }
                 };
-            },
+            }
           },
-          ROUTE.PRODUCT_NOT_FOUND,
-        ],
-      },
+          ROUTE.PRODUCT_NOT_FOUND
+        ]
+      }
     },
     {
       name: ROUTE.PRODUCT_EDIT,
@@ -197,11 +199,11 @@ export const useProductFlows = () => {
           ROUTE.PRODUCT_REQUIRES_ACTION,
           ROUTE.CHECKOUT,
           ROUTE.SESSION_REGISTER,
-          ROUTE.BASKET,
+          ROUTE.BASKET
         ],
         back: [ROUTE.BASKET, ROUTE.EMPTY],
-        fallback: [ROUTE.PRODUCT_NOT_FOUND],
-      },
+        fallback: [ROUTE.PRODUCT_NOT_FOUND]
+      }
     },
     {
       name: ROUTE.PRODUCT_REQUIRES_ACTION,
@@ -218,12 +220,12 @@ export const useProductFlows = () => {
         if (basketProduct) {
           return {
             name: ROUTE.PRODUCT_EDIT,
-            params: { bpid: basketProduct?.id },
+            params: { bpid: basketProduct?.id }
           };
         }
 
         return {
-          name: ROUTE.PRODUCT_REQUIRES_ACTION,
+          name: ROUTE.PRODUCT_REQUIRES_ACTION
         };
       },
       targets: {
@@ -243,14 +245,14 @@ export const useProductFlows = () => {
               if (!basketProduct) return route;
               return {
                 name: ROUTE.PRODUCT_EDIT,
-                params: { bpid: basketProduct?.id },
+                params: { bpid: basketProduct?.id }
               };
-            },
-          },
+            }
+          }
         ],
         back: [ROUTE.BASKET],
-        fallback: [ROUTE.BASKET, ROUTE.EMPTY],
-      },
+        fallback: [ROUTE.BASKET, ROUTE.EMPTY]
+      }
     },
     {
       name: ROUTE.PRODUCT_NOT_FOUND,
@@ -266,29 +268,29 @@ export const useProductFlows = () => {
         if (basketProductId) set(query, "bpid", basketProductId);
         return {
           name: ROUTE.PRODUCT_NOT_FOUND,
-          query,
+          query
         };
       },
       targets: {
         next: [],
         back: [ROUTE.BASKET, ROUTE.EMPTY],
-        fallback: [ROUTE.BASKET, ROUTE.EMPTY],
-      },
+        fallback: [ROUTE.BASKET, ROUTE.EMPTY]
+      }
     },
     {
       name: ROUTE.PRODUCT_RECOMMENDATIONS,
       guard: async (route: Route) => {
         const { productId: pid } = useRouteQueryParams(route);
-        return (
-          !!pid && isRecommendationsReady().then(() => hasRecommendations(pid))
-        );
+        if (!pid) return false;
+        const { meta, isReady } = useProductRecommendations(pid);
+        return isReady().then(() => meta.value.hasRecommendations);
       },
       targets: {
         next: [ROUTE.CHECKOUT, ROUTE.SESSION_REGISTER, ROUTE.BASKET],
         back: [ROUTE.BASKET, ROUTE.EMPTY],
-        fallback: [ROUTE.BASKET, ROUTE.EMPTY],
-      },
-    },
+        fallback: [ROUTE.BASKET, ROUTE.EMPTY]
+      }
+    }
   ];
 
   return {
@@ -296,6 +298,6 @@ export const useProductFlows = () => {
     register: (data?: Flow[]) => {
       flows = uniqBy([...(data ?? []), ...flows], "name");
       routing.register(flows);
-    },
+    }
   };
 };

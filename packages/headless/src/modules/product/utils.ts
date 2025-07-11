@@ -4,12 +4,13 @@ import { useBrand } from "../brand";
 
 // --- utils
 import {
-  useTranslateName,
-  useTranslateField,
   DetailedError,
+  ErrorOrigin,
   responseCodes,
-  useValidation,
   useLaravalSchemaParser,
+  useTranslateField,
+  useTranslateName,
+  useValidation
 } from "../../utils";
 
 import {
@@ -20,12 +21,11 @@ import {
   forEach,
   get,
   has,
+  isArray,
   isEmpty,
   isFunction,
   isNil,
   isNumber,
-  isObject,
-  isArray,
   keys,
   map,
   maxBy,
@@ -40,19 +40,9 @@ import {
   subtract,
   times,
   toNumber,
-  union,
   uniq,
-  values,
+  values
 } from "lodash-es";
-
-// --- types
-
-import {
-  PromotionDisplayTypes,
-  BrandConfigKeys,
-  DefaultPaymentPeriod,
-  ProductTypes,
-} from "@upmind-automation/types";
 
 import type {
   IBasketProduct,
@@ -60,7 +50,14 @@ import type {
   IProductAttribute,
   IProductCategory,
   IProductOption,
-  IProductPrice,
+  IProductPrice
+} from "@upmind-automation/types";
+// --- types
+import {
+  BrandConfigKeys,
+  DefaultPaymentPeriod,
+  ProductTypes,
+  PromotionDisplayTypes
 } from "@upmind-automation/types";
 
 import type {
@@ -84,7 +81,7 @@ import type {
   SubproductModelValue,
   SubproductValue,
   TermDetails,
-  UIMeta,
+  UIMeta
 } from "./types";
 import { ErrorObject } from "ajv";
 
@@ -107,7 +104,7 @@ export function useUischemaTitle(
   {
     basketProduct,
     valueKey,
-    fallback,
+    fallback
   }: {
     basketProduct?: IBasketProduct;
     valueKey: string;
@@ -118,7 +115,7 @@ export function useUischemaTitle(
     uniq(
       iterateParents(product.category, [get(product, valueKey)], {
         valueKey,
-        parentKey: "top_category",
+        parentKey: "top_category"
       })
     )
   ) as string[];
@@ -154,7 +151,7 @@ export function useProductName(
 ): string {
   const name = useTranslateName(product);
 
-  // TODO: check prodct type based on if (product.provision_blueprint?.code == "domain-names" | ProvisionCategoryCodes.DOMAINS) {}
+  // TODO: check product type based on if (product.provision_blueprint?.code == "domain-names" | ProvisionCategoryCodes.DOMAINS) {}
   // for now...we will just append the service identifier if it exists
   if (basketProduct?.service_identifier) {
     return `${name} (${basketProduct.service_identifier})`;
@@ -166,6 +163,7 @@ export function useProductName(
 /**
  * Recursively merges values from a property in a nested object hierarchy
  * @param item The current object in the hierarchy
+ * @param result The array to collect values into
  * @param valueKey The key to extract values from at each level
  * @param parentKey The key to navigate to the parent object
  * @param initialValue Optional initial value to merge with collected values
@@ -177,7 +175,7 @@ export function iterateParents(
   {
     valueKey,
     parentKey,
-    transform,
+    transform
   }: {
     valueKey: string;
     parentKey: string;
@@ -190,7 +188,7 @@ export function iterateParents(
   return iterateParents(get(item, parentKey), result, {
     valueKey,
     parentKey,
-    transform,
+    transform
   });
 }
 
@@ -222,7 +220,7 @@ export function checkTerm(
   { lookups }: ProductConfigContext,
   value?: number
 ): string | undefined {
-  let term: TermDetails | undefined = undefined;
+  let term: TermDetails | undefined;
 
   term = find(lookups?.terms, ["cycle", value]);
 
@@ -231,7 +229,7 @@ export function checkTerm(
 
 export function checkSubproducts(
   type: "attributes" | "options",
-  { lookups, model, subproducts: subproductIds }: ProductConfigContext,
+  { lookups }: ProductConfigContext,
   values?: ProductModel["attributes"] | ProductModel["options"]
 ): Record<string, string[]> | undefined {
   const errors: any = {};
@@ -248,7 +246,7 @@ export function checkSubproducts(
 
     let error = [];
 
-    // check if we are missing required subproduct, if we are (and its not multiple) then automaticaly select the first one
+    // check if we are missing the required subproduct, if we are (and its not multiple) then automatically select the first one
     // NB we only do this on the initial load, not when we are updating the values
     if (isEmpty(selected) && subproduct?.meta.required) {
       error.push(`${subproduct.name} is required`);
@@ -256,8 +254,8 @@ export function checkSubproducts(
 
     // if we have selected values, ensure they are valid and fully formed
 
-    // then parse each selected value, and ensure it has all its required and VALID values
-    forEach(selected, (value: SubproductModelValue, id: string) => {
+    // then parse each selected value and ensure it has all its required and VALID values
+    forEach(selected, (value: SubproductModelValue) => {
       const product = find(subproduct.values, ["id", value.productId]);
 
       // safety check, ensure we have a valid product otherwise bail
@@ -284,10 +282,9 @@ export function checkProvisioning(
   if (isEmpty(lookups?.provisionFields?.properties)) return [];
   const { validate } = useValidation();
 
-  const errors = lookups?.provisionFields
+  return lookups?.provisionFields
     ? validate(lookups.provisionFields, values)
     : [];
-  return errors;
 }
 
 export const calculateBillingTerm = (
@@ -298,11 +295,12 @@ export const calculateBillingTerm = (
 
   if (isEmpty(available))
     throw new DetailedError(
-      "[headless] getBillingTerms on product not found",
-      responseCodes.Not_Found
+      "Get BillingTerms failed",
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
     );
 
-  const { getDefaultPaymentPeriod } = useBrand();
+  const { defaultPaymentPeriod } = useBrand();
 
   let term;
 
@@ -317,7 +315,7 @@ export const calculateBillingTerm = (
       term = minBy(available, "price.monthlyFromCurrentAmount");
       break;
     case DefaultPaymentPeriod.INHERIT_FROM_BRAND:
-      term = calculateBillingTerm(getDefaultPaymentPeriod(), available);
+      term = calculateBillingTerm(defaultPaymentPeriod.value, available);
       break;
 
     default:
@@ -327,8 +325,9 @@ export const calculateBillingTerm = (
 
   if (isEmpty(term))
     throw new DetailedError(
-      "[headless] getBillingTerm on product not found",
-      responseCodes.Not_Found
+      "Get Billing Terms failed",
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
     );
 
   return term;
@@ -440,7 +439,7 @@ export function parseSubproducts(
 
         if (defaultSubproduct) {
           set(selected, defaultSubproduct.id, {
-            productId: defaultSubproduct.id,
+            productId: defaultSubproduct.id
           });
         } else if (
           (subproduct?.meta.required && !subproduct.meta.multiple) ||
@@ -515,7 +514,7 @@ export const parseProductDetails = (
     title: useUischemaTitle(rawProduct, {
       basketProduct: rawBasketProduct,
       valueKey: "meta.uischema.title",
-      fallback: useProductName(rawProduct, rawBasketProduct),
+      fallback: useProductName(rawProduct, rawBasketProduct)
     }),
     brand: useTranslateName(rawProduct?.brand),
     categoryId: rawProduct?.category_id,
@@ -524,7 +523,7 @@ export const parseProductDetails = (
       iterateParents(rawProduct.category, [], {
         valueKey: "name",
         parentKey: "top_category",
-        transform: useTranslateName,
+        transform: useTranslateName
       })
     ) as string[],
     // ---
@@ -545,7 +544,7 @@ export const parseProductDetails = (
         : Infinity,
     // ---
     uiMeta: parseMeta(rawProduct?.meta ?? {}, rawProduct?.category),
-    uiCategoryMeta: rawProduct?.category?.meta || undefined,
+    uiCategoryMeta: rawProduct?.category?.meta || undefined
   };
 };
 
@@ -555,7 +554,7 @@ export const parseMeta = (
 ): Record<string, any> => {
   const all = iterateParents(category, [], {
     valueKey: "meta",
-    parentKey: "top_category",
+    parentKey: "top_category"
   });
 
   return reduce(
@@ -589,7 +588,7 @@ export const parseSubproductDetails = (
   data?: (IProductAttribute | IProductOption)[],
   cycle?: number
 ): SubproductDetails[] => {
-  const { checkIncludesTax } = useBrand();
+  const { includesTax } = useBrand();
 
   // safety check, bail if we have no data
   if (isEmpty(data)) return [];
@@ -619,8 +618,8 @@ export const parseSubproductDetails = (
         meta: {
           multiple: rawSubproduct.category.multiple,
           required: rawSubproduct.category.required,
-          overrides: rawSubproduct.category.price_override,
-        },
+          overrides: rawSubproduct.category.price_override
+        }
       });
 
       // check EARLY if we have a price for one of the following:
@@ -664,12 +663,12 @@ export const parseSubproductDetails = (
           // NB: only show term pricing if recurring!
           oneoff: rawSubproduct.billing_cycle_months == 0,
           discounted: !!price?.meta?.discounted,
-          includesTax: checkIncludesTax(),
+          includesTax: includesTax.value,
           free: price?.price?.currentAmount == 0,
           overrides: rawSubproduct.category.price_override,
-          default: !!rawSubproduct?.pivot?.default,
+          default: !!rawSubproduct?.pivot?.default
         },
-        order: rawSubproduct.pivot.order,
+        order: rawSubproduct.pivot.order
       };
       // ---
       values.push(value as SubproductValue);
@@ -691,7 +690,7 @@ export const parseSummaryDetail = (
   overrides?: boolean
 ): ProductSummaryDetailWithPrice => {
   const { getBillingCycle } = useSystem();
-  const { checkIncludesTax } = useBrand();
+  const { includesTax } = useBrand();
   const cycle = getBillingCycle(raw.billing_cycle_months);
 
   const discounted =
@@ -706,10 +705,10 @@ export const parseSummaryDetail = (
       oneoff: raw.billing_cycle_months == 0,
       mixed: raw.mixed_promotions,
       discounted,
-      includesTax: checkIncludesTax(),
+      includesTax: includesTax.value,
       free: (raw.price_discounted ?? raw.price) == 0,
-      overrides: !!overrides,
-    },
+      overrides: !!overrides
+    }
   } as ProductSummaryDetailWithPrice;
 };
 
@@ -733,7 +732,7 @@ export const parsePrice = (raw: IProductPrice): PriceDetail => {
     savingPrice: "", //TODO: missing formatted value
     savingPercent: discounted
       ? `${Math.round((savingAmount / raw.price) * 100)}%`
-      : "",
+      : ""
   };
 };
 
@@ -784,13 +783,13 @@ export const parsePromotionDetails = (
           meta: {
             display: promotionDisplayType,
             mixed: !!raw.mixed_promotions,
-            discounted: !isEmpty(rawPromo.amount),
+            discounted: !isEmpty(rawPromo.amount)
           },
           price: {
             savingAmount: toNumber(rawPromo.amount),
             savingPrice: rawPromo.amount_formatted,
-            savingPercent: "", //TODO: missing % value from response
-          },
+            savingPercent: "" //TODO: missing % value from response
+          }
         }) as PromotionDetails
     );
   } else {
@@ -806,7 +805,7 @@ export const parsePromotionDetails = (
         meta: {
           display: promotionDisplayType,
           mixed: !!raw.mixed_promotions,
-          discounted: !isNil(raw.price_discounted) && !raw.mixed_promotions,
+          discounted: !isNil(raw.price_discounted) && !raw.mixed_promotions
         },
         price: {
           savingAmount:
@@ -815,9 +814,9 @@ export const parsePromotionDetails = (
           savingPercent:
             isNil(raw.price_discounted) || raw.mixed_promotions
               ? ""
-              : saving_formatted,
-        },
-      } as PromotionDetails,
+              : saving_formatted
+        }
+      } as PromotionDetails
     ];
   }
 };
@@ -829,7 +828,7 @@ export const parseProvisioningSchema = (data: any, product: any) => {
 
   const schema = useLaravalSchemaParser(data, {
     defaultCountry,
-    product,
+    product
   });
 
   // TODO: Implement a proper solution for this where field type is input_sld
@@ -862,7 +861,7 @@ export const parseProduct = (
         regularPrice: "",
         savingAmount: 0,
         savingPrice: "",
-        savingPercent: "",
+        savingPercent: ""
       };
   // ---
   // TODO: Dont have the necessary data now to calculate this
@@ -886,11 +885,11 @@ export const parseProduct = (
       ...(term?.meta ?? {}),
       free: price.currentAmount == 0,
       discounted:
-        price.currentAmount != price.regularAmount && price.regularAmount > 0,
+        price.currentAmount != price.regularAmount && price.regularAmount > 0
     },
     promotions: term?.promotions,
     // ---
-    price,
+    price
   };
   // -------
   // this is an array of  key value pairs that can be used to display a summary of the configuration
@@ -902,13 +901,13 @@ export const parseProduct = (
       name: "product",
       title: lookups.product?.title,
       category: lookups.product?.category,
-      meta: {},
+      meta: {}
     },
     {
       name: "category",
       title: lookups.product.category,
-      meta: {},
-    },
+      meta: {}
+    }
   ];
 
   const termDetails = parseSummaryTerm(
@@ -955,7 +954,7 @@ export const parseProduct = (
         provisionFieldDetails
       )
     ),
-    errors: omitBy(error, isEmpty) as ExternalError,
+    errors: omitBy(error, isEmpty) as ExternalError
   };
 };
 
@@ -970,7 +969,7 @@ const parseSummaryTerm = (
     term.category = "Billing Cycle";
     term.meta = {
       ...term.meta,
-      invalid: has(error, "term"),
+      invalid: has(error, "term")
     };
     return term;
   }
@@ -992,11 +991,11 @@ const parseSummarySubproduct = (
           choices,
           (result, choice, id) => {
             const category = find(lookup, {
-              values: [{ id }],
+              values: [{ id }]
             }) as SubproductDetails;
 
             const subproduct = find(category?.values, {
-              id,
+              id
             }) as SubproductValue;
 
             if (subproduct) {
@@ -1011,10 +1010,10 @@ const parseSummarySubproduct = (
                 // ---
                 meta: {
                   ...subproduct.meta,
-                  invalid: has(error, `${key}.${id}`),
+                  invalid: has(error, `${key}.${id}`)
                 },
                 // ---
-                ...(subproduct.price ?? {}),
+                ...(subproduct.price ?? {})
               };
 
               result.push(summary);
@@ -1055,8 +1054,8 @@ const parseSummaryProvisionFields = (
         regularAmount: undefined,
         regularPrice: undefined,
         meta: {
-          invalid: some(error, ["data.schemaPath", key]),
-        },
+          invalid: some(error, ["data.schemaPath", key])
+        }
       });
       return result;
     },
@@ -1072,7 +1071,7 @@ export const parseModel = (data: ProductModel): ProductModel => {
     term: data.term,
     options: data.options,
     attributes: data.attributes,
-    provisionFields: data.provisionFields,
+    provisionFields: data.provisionFields
   };
 };
 
@@ -1085,7 +1084,7 @@ export const parseBasketProductModel = (raw: IBasketProduct): ProductModel => {
     term: raw.billing_cycle_months,
     options: parseSubproductDetailsChoices(raw.options),
     attributes: parseSubproductDetailsChoices(raw.attributes),
-    provisionFields: raw.provision_fields,
+    provisionFields: raw.provision_fields
   };
 };
 
@@ -1104,7 +1103,7 @@ const parseSubproductDetailsChoices = (values: IBasketProduct[]) => {
           value.unit_quantity,
           parseProductDetails(value.product)
         ),
-        cycle: value.billing_cycle_months,
+        cycle: value.billing_cycle_months
       });
       return result;
     },
@@ -1127,13 +1126,14 @@ const parseSubproductDetailsChoices = (values: IBasketProduct[]) => {
  *     if no key is provided, we will NOT include any bundles.
  *
  * @param {IProduct} raw - The raw product data to parse.
+ * @param {ProductConfigContext["bundle"]} bundle - Optional key to extract specific bundle configurations from the product's meta.
  * @returns {ProductProps[]} The parsed list of bundled products configurations.
  */
 export function parseBundledProducts(
   raw: IProduct,
   bundle?: ProductConfigContext["bundle"]
 ): ProductProps[] {
-  // safe check : dont include recommendations for products that are not single products
+  // safe check: don't include recommendations for products that are not single products
   if (raw?.product_type !== ProductTypes.SINGLE_PRODUCT) return [];
   let bundles: ProductBundles =
     raw?.meta?.bundle ??
@@ -1143,7 +1143,7 @@ export function parseBundledProducts(
           valueKey: "meta.bundle",
           parentKey: "top_category",
           transform: (category: IProductCategory) =>
-            get(category, "meta.bundle"),
+            get(category, "meta.bundle")
         })
       )
     );
@@ -1152,7 +1152,7 @@ export function parseBundledProducts(
     else bundles = get(bundles, bundle, []) as ProductBundle[];
   }
 
-  const bundledProducts = reduce(
+  return reduce(
     bundles,
     (result: ProductProps[], rawBundle) => {
       const model = parseBundleConfig(rawBundle);
@@ -1161,8 +1161,6 @@ export function parseBundledProducts(
     },
     []
   ) as ProductProps[];
-
-  return bundledProducts;
 }
 
 function parseBundleConfig(raw: ProductBundle): ProductProps | undefined {
@@ -1181,6 +1179,6 @@ function parseBundleConfig(raw: ProductBundle): ProductProps | undefined {
     provisionFields: config?.pfields ?? {},
     coupons: compact(config?.coupons?.toString()?.split(",") ?? []),
     // ---
-    silent: true, // always silent for bundled products
+    silent: true // always silent for bundled products
   } as ProductProps;
 }

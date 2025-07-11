@@ -1,6 +1,6 @@
 import type {
   IBasketProduct,
-  IBasketPromotion,
+  IBasketPromotion
 } from "@upmind-automation/types";
 import type { ProductProps, Product } from "../product";
 // -----------------------------------------------------------------------------

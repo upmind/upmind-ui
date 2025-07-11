@@ -18,7 +18,7 @@ export enum WIPLocaleCodes {
   ES_CO = "es-CO", // Spanish (Colombia)
   ES_MX = "es-MX", // Spanish (Mexico)
   ZU = "zu", // Zulu
-  ZU_ZA = "zu-ZA", // Zulu (South Africa)
+  ZU_ZA = "zu-ZA" // Zulu (South Africa)
 }
 
 export enum SupportedLocaleCodes {
@@ -50,7 +50,7 @@ export enum SupportedLocaleCodes {
   TR = "tr", // Turkish
   UK = "uk", // Ukrainian
   UR = "ur", // Urdu
-  ZH_TW = "zh-TW", // Chinese (Taiwan, Traditional)
+  ZH_TW = "zh-TW" // Chinese (Taiwan, Traditional)
 }
 
 /**

@@ -21,7 +21,7 @@ import { useI18n } from "vue-i18n";
 import { DropdownMenu } from "@upmind-automation/upmind-ui";
 
 // --- internal
-import { useSession } from "@upmind-automation/headless-vue";
+import { useSession } from "@upmind-automation/headless";
 
 // --- types
 import type { DropdownMenuItemProps } from "@upmind-automation/upmind-ui";
@@ -46,8 +46,8 @@ const items = computed((): DropdownMenuItemProps[] => {
       label: t("auth.actions.logout"),
       icon: "logout",
       value: "logout",
-      handler: logout,
-    },
+      handler: logout
+    }
   ];
 });
 </script>

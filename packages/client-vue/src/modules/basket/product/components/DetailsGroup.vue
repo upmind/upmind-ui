@@ -38,7 +38,7 @@ import { some } from "lodash-es";
 import DetailsItem from "./DetailsItem.vue";
 
 // --- types
-import type { Product } from "@upmind-automation/headless-vue";
+import type { Product } from "@upmind-automation/headless";
 
 const props = defineProps<{
   id: string;
@@ -50,7 +50,7 @@ const { t } = useI18n();
 
 const editLink = computed(() => ({
   name: "product.edit",
-  params: { bpid: props.id },
+  params: { bpid: props.id }
 }));
 
 const invalid = computed(() => some(props.items, "meta.invalid"));

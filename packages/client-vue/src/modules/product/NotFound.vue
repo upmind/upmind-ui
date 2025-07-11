@@ -1,6 +1,6 @@
 <template>
-  <article>
-    <ContentSection>
+  <Layout>
+    <ContentSection v-auto-animate class="flex flex-grow items-center">
       <Interstitial
         open
         modal
@@ -9,44 +9,55 @@
         :text="t('basket.notFound.text')"
         :actions="[
           {
-            color: 'secondary',
-            handler: back,
+            as: 'a',
+            color: 'primary',
+            href: storefrontUrl,
             prependIcon: {
               icon: 'arrow-left',
-              size: '2xs',
+              size: '2xs'
             },
-            label: t('basket.notFound.actions.continue'),
-          },
+            label: t('basket.notFound.actions.continue')
+          }
         ]"
         :animatedIcon="{
           icon: 'basket',
           delay: 5000,
           primaryColor: 'primary',
           secondaryColor: 'accent',
-          size: '4xl',
+          size: '4xl'
         }"
       >
         <template #title>
-          <SmartTitle i18n-key="basket.notFound.title" align="center" />
+          <SmartTitle
+            i18n-key="basket.notFound.title"
+            class="mt-6"
+            align="center"
+          />
         </template>
       </Interstitial>
     </ContentSection>
-  </article>
+  </Layout>
 </template>
 
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
+import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
-import { useRoutingEngine } from "@upmind-automation/headless-vue";
+import { useBrand } from "@upmind-automation/headless";
 
 // -- components
 import { Interstitial } from "@upmind-automation/upmind-ui";
-import ContentSection from "../../components/content/ContentSection.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
+import ContentSection from "../../components/content/ContentSection.vue";
+import Layout from "../../components/layout/Layout.vue";
+
+// -- types
+import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
-const { back } = useRoutingEngine();
+
 const { t } = useI18n();
+const { storefrontUrl } = useBrand();
 </script>

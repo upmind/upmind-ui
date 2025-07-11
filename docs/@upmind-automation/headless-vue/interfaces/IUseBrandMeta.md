@@ -1,4 +1,4 @@
-[Upmind](../../packages.md) / [@upmind-automation/headless-vue](../index.md) / IUseBrandMeta
+[Upmind](../../packages.md) / [@upmind-automation/headless](../index.md) / IUseBrandMeta
 
 # IUseBrandMeta
 
@@ -15,7 +15,7 @@ hasErrors: boolean;
 
 Indicates if any errors have occurred during the brand state machine's process.
 
-***
+---
 
 ### isComplete
 
@@ -25,7 +25,7 @@ isComplete: boolean;
 
 Indicates whether the brand state machine has completed its operations.
 
-***
+---
 
 ### isLoading
 
@@ -35,7 +35,7 @@ isLoading: boolean;
 
 Indicates whether the brand state machine is currently in a loading state.
 
-***
+---
 
 ### isReady
 

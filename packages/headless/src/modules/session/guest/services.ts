@@ -1,10 +1,11 @@
 // --- internal
 import { useBasket, useBrand, useQuery, useSystem } from "../..";
-import { useSystemRecaptcha, useTracking } from "../../system/";
+import { useRecaptcha, useTracking } from "../../system/";
 import {
   BrandConfigKeys,
   GrantTypes,
-  TwofaProviders,
+  IToken,
+  TwofaProviders
 } from "@upmind-automation/types";
 
 // --- utils
@@ -14,16 +15,17 @@ import { getTokenFromStorage, persistTokenToStorage } from "../utils";
 
 // ---types
 import { GuestContext, LoginModel, RecoverModel, RegisterModel } from "./types";
+import { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------
 
-async function load(_context: GuestContext, _event: any) {
+async function load(_context: GuestContext, _event: AnyEventObject) {
   const { ensureConfig } = useBrand();
   const { fetchCountries } = useSystem();
 
   await Promise.allSettled([
     fetchCountries(),
-    ensureConfig([BrandConfigKeys.REQUIRE_PHONE_ON_REGISTRATION]),
+    ensureConfig([BrandConfigKeys.REQUIRE_PHONE_ON_REGISTRATION])
   ]);
 
   const token = getTokenFromStorage("guest");
@@ -31,10 +33,10 @@ async function load(_context: GuestContext, _event: any) {
 
   const { post, useUrl } = useQuery();
 
-  return post({
+  return post<IToken>({
     url: useUrl("access_token", {}, { context: "oauth" }),
-    data: { grant_type: GrantTypes.GUEST },
-  }).then((data: any) => {
+    data: { grant_type: GrantTypes.GUEST }
+  }).then(data => {
     persistTokenToStorage(data);
     return data;
   });
@@ -47,96 +49,96 @@ async function loadUser() {
     url: useUrl("self", {
       with: [
         "actor",
-        "accounts",
+        "accounts"
         // client specific only
         // "actor.account", // Relation required for determining `topup_enabled` value
         // "actor.brand", // Relation required for determining `topup_enabled` value
         // "delegated_ids",
         // "enabled_modules"
-      ].join(),
+      ].join()
     }),
     queryKey: ["session", "self"],
     withAccessToken: true,
     staleTime: 0,
-    gcTime: 0,
-  }).then(({ data }: any) => {
-    return data;
+    gcTime: 0
   });
 }
 
 async function authenticate({ model }: GuestContext<LoginModel>) {
   const { post, useUrl } = useQuery();
-  const { getCurrency } = useBasket();
+  const { currency } = useBasket();
 
   const data: any = {
     username: model.username,
     password: model.password,
-    grant_type: GrantTypes.PASSWORD,
+    grant_type: GrantTypes.PASSWORD
   };
 
   // Add.match the basket currency (if available)
   // to persist the currency when a client logs in and claims a basket
   // without it, the basket will revert to the default currency
-  const currency = getCurrency();
-  if (currency) data.currency_id = currency.id;
+  if (currency.value) data.currency_id = currency.value.id;
 
-  return post({
+  return post<IToken>({
     url: useUrl("access_token", {}, { context: "oauth" }),
-    data,
-  })
-    .then((data: any) => {
-      // we record the history of the token to be able to reference the originating guest token
-      if (data.actor_type != GrantTypes.TWOFA) persistTokenToStorage(data);
-      return data;
-    })
-    .then(data => {
-      if (data?.actor_type === GrantTypes.TWOFA) return data;
-      return loadUser();
-    });
+    data
+  }).then(data => {
+    // we record the history of the token to be able to reference the originating guest token
+    if (data.actor_type === GrantTypes.TWOFA) return data;
+
+    persistTokenToStorage(data);
+    return loadUser();
+  });
 }
 
-async function verify2fa({ token }: GuestContext, { data }: any) {
+async function verify2fa({ token }: GuestContext, { data }: AnyEventObject) {
   const { post, useUrl } = useQuery();
-  return post({
+  return post<IToken>({
     url: useUrl("access_token", {}, { context: "oauth" }),
     withAccessToken: token.access_token,
     data: {
       grant_type: GrantTypes.TWOFA,
       twofa_provider: TwofaProviders.GOOGLE,
-      twofa_code: data,
-    },
+      twofa_code: data
+    }
   })
-    .then((data: any) => {
+    .then(data => {
       persistTokenToStorage(data);
       return data;
     })
     .then(loadUser);
 }
 
-async function getCustomFields(_context: GuestContext, _event: any) {
+async function getCustomFields(_context: GuestContext, _event: AnyEventObject) {
   const { get, useUrl } = useQuery();
 
   return get({
     // url: useUrl("clients_fields", { brand_id: null }),
     url: useUrl("clients_fields"),
-    queryKey: ["session", "guest", "custom-fields"],
-  }).then(({ data }: any) => data);
+    queryKey: ["session", "guest", "custom-fields"]
+  });
 }
 
-async function checkForReCaptcha(_context: GuestContext, { data }: any) {
+async function checkForReCaptcha(
+  _context: GuestContext,
+  { data }: AnyEventObject
+) {
   // not implemented so pass through
   return Promise.resolve(data);
 }
 
-async function verifyReCaptcha(_context: GuestContext, { data }: any) {
+async function verifyReCaptcha(
+  _context: GuestContext,
+  { data }: AnyEventObject
+) {
   // not implemented so pass through
   return Promise.resolve(data);
 }
 
 async function register({ model }: GuestContext<RegisterModel>) {
-  const { getCurrency } = useBasket();
+  const { currency } = useBasket();
   const { post, useUrl } = useQuery();
-  const recaptcha = useSystemRecaptcha();
+  const recaptcha = useRecaptcha();
   const { get: getCookie } = useCookies();
   const { get: getTracking } = useTracking();
 
@@ -149,7 +151,7 @@ async function register({ model }: GuestContext<RegisterModel>) {
     password: model?.password,
     phone: model.phone?.nationalNumber,
     phone_code: model.phone?.countryCallingCode,
-    phone_country_code: model.phone?.country,
+    phone_country_code: model.phone?.country
   };
 
   // ---
@@ -158,8 +160,7 @@ async function register({ model }: GuestContext<RegisterModel>) {
   // Add.match the basket currency (if available)
   // to persist the currency when a client registers and claims a basket
   // without it, the basket will revert to the default currency
-  const currency = getCurrency();
-  if (currency) data.currency_id = currency.id;
+  if (currency.value) data.currency_id = currency.value.id;
 
   // add recaptcha token if available
   await recaptcha
@@ -180,21 +181,20 @@ async function register({ model }: GuestContext<RegisterModel>) {
 
   return post({
     url: useUrl("clients/register"),
-    data,
+    data
   })
-    .then(({ data }: any) => data)
     .then(loadUser)
     .finally(() => {
-      recaptcha.clear(); // clear our recaptcha token that has been used
+      recaptcha.clear(); // clear our recaptcha token that has been used, even if the registration fails
     });
 }
 
 async function recover({ model }: GuestContext<RecoverModel>) {
-  const recaptcha = useSystemRecaptcha();
+  const recaptcha = useRecaptcha();
   const { post, useUrl } = useQuery();
 
   const data: any = {
-    username: model?.username,
+    username: model?.username
   };
 
   // add recaptcha token if available
@@ -205,12 +205,10 @@ async function recover({ model }: GuestContext<RecoverModel>) {
 
   return post({
     url: useUrl("clients/password_reset"),
-    data,
-  })
-    .then(({ data }: any) => data)
-    .finally(() => {
-      recaptcha.clear(); // clear our recaptcha token that has been used
-    });
+    data
+  }).finally(() => {
+    recaptcha.clear(); // clear our recaptcha token that has been used, even if the registration fails
+  });
 }
 
 // -----------------------------------------------------------------------------
@@ -225,5 +223,5 @@ export default {
   checkForReCaptcha,
   verifyReCaptcha,
   recover,
-  register,
+  register
 };

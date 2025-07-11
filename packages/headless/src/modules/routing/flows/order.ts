@@ -1,7 +1,8 @@
 // --- external
 
 // --- internal
-import { useBasket } from "../../basket";
+// import { useBasket } from "../../basket";
+// import { useSession } from "../../session";
 import { useRoutingEngine } from "..";
 
 // --- utils
@@ -11,14 +12,12 @@ import { uniqBy, isEmpty } from "lodash-es";
 // --- types
 import type { Flow, Route } from "../types";
 import { ROUTE } from "../types";
-// import { useSession } from "../../session";
 
 // -----------------------------------------------------------------------------
 
 export const useOrderFlows = () => {
   const routing = useRoutingEngine();
-  const { hasOrder, isReady, hasProducts } = useBasket();
-  // const { isAuthenticated, hasExpired } = useSession();
+  // const { isReady, meta } = useBasket();
 
   let flows: Flow[] = [
     {
@@ -45,9 +44,9 @@ export const useOrderFlows = () => {
       targets: {
         next: [],
         back: [ROUTE.BASKET, ROUTE.EMPTY],
-        fallback: [ROUTE.BASKET, ROUTE.EMPTY],
-      },
-    },
+        fallback: [ROUTE.BASKET, ROUTE.EMPTY]
+      }
+    }
   ];
 
   return {
@@ -55,6 +54,6 @@ export const useOrderFlows = () => {
     register: (data?: Flow[]) => {
       flows = uniqBy([...(data ?? []), ...flows], "name");
       routing.register(flows);
-    },
+    }
   };
 };

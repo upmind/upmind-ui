@@ -1,11 +1,12 @@
 <template>
-  <article>
+  <Layout>
     <ContentSection class="mx-auto max-w-2xl">
       <Button
         type="reset"
-        class="relative -top-4 md:-top-6"
+        class="bg-base-background relative -top-4 md:-top-6"
         size="sm"
         variant="tonal"
+        color="base"
         :label="t('navigation.back')"
         @click.prevent="doReject"
       >
@@ -30,7 +31,7 @@
         </Link>
       </p>
 
-      <Card class="pb-3 md:pb-3">
+      <Card class="mt-4 pb-3 md:pb-3">
         <Auth
           class="rounded-box w-full max-w-5xl items-start"
           no-tabs
@@ -66,7 +67,7 @@
         </i18n-t>
       </template>
     </ContentSection>
-  </article>
+  </Layout>
 </template>
 
 <script lang="ts" setup>
@@ -77,34 +78,32 @@ import { watch } from "vue";
 import {
   useRoutingEngine,
   useSession,
-  ROUTE,
-} from "@upmind-automation/headless-vue";
+  ROUTE
+} from "@upmind-automation/headless";
 
 // --- components
-import { Button, Icon, Link } from "@upmind-automation/upmind-ui";
+import { Card, Button, Icon, Link } from "@upmind-automation/upmind-ui";
 import Auth from "./components/Auth.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
-import Card from "../../components/content/Card.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
-
-// --- types
+import Layout from "../../components/layout/Layout.vue";
 
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { next, back, navigate, isResolved } = useRoutingEngine();
+const { navigateNext, navigateBack, navigate, isResolved } = useRoutingEngine();
 const { meta } = useSession();
 
 await isResolved(ROUTE.SESSION_REGISTER);
 
 function doReject() {
-  back();
+  navigateBack();
 }
 
 function doResolve() {
   // const redirectPath = route.query.redirect || "/";
   // router.push(redirectPath);
-  next();
+  navigateNext();
 }
 
 watch(meta, (newVal, oldVal) => {

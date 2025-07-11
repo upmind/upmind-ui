@@ -1,4 +1,4 @@
-[Upmind](../../packages.md) / [@upmind-automation/headless-vue](../index.md) / Recommendation
+[Upmind](../../packages.md) / [@upmind-automation/headless](../index.md) / Recommendation
 
 # Recommendation
 
@@ -10,7 +10,7 @@
 optional category: string;
 ```
 
-***
+---
 
 ### categoryId?
 
@@ -18,7 +18,7 @@ optional category: string;
 optional categoryId: string;
 ```
 
-***
+---
 
 ### config?
 
@@ -46,7 +46,7 @@ optional provisionFields: object;
 
 ##### Index Signature
 
- \[`key`: `string`\]: `string` \| `number`
+\[`key`: `string`\]: `string` \| `number`
 
 #### quantity?
 
@@ -66,7 +66,7 @@ optional subproducts: string[];
 optional term: number;
 ```
 
-***
+---
 
 ### currentAmount?
 
@@ -74,7 +74,7 @@ optional term: number;
 optional currentAmount: number;
 ```
 
-***
+---
 
 ### currentPrice?
 
@@ -82,7 +82,7 @@ optional currentAmount: number;
 optional currentPrice: string;
 ```
 
-***
+---
 
 ### cycle?
 
@@ -90,7 +90,7 @@ optional currentPrice: string;
 optional cycle: number;
 ```
 
-***
+---
 
 ### defaultPaymentPeriod?
 
@@ -98,7 +98,7 @@ optional cycle: number;
 optional defaultPaymentPeriod: number;
 ```
 
-***
+---
 
 ### description?
 
@@ -106,7 +106,7 @@ optional defaultPaymentPeriod: number;
 optional description: any;
 ```
 
-***
+---
 
 ### excerpt?
 
@@ -114,7 +114,7 @@ optional description: any;
 optional excerpt: any;
 ```
 
-***
+---
 
 ### id
 
@@ -122,7 +122,7 @@ optional excerpt: any;
 id: string;
 ```
 
-***
+---
 
 ### imgUrl?
 
@@ -130,7 +130,7 @@ id: string;
 optional imgUrl: string;
 ```
 
-***
+---
 
 ### label?
 
@@ -138,7 +138,7 @@ optional imgUrl: string;
 optional label: any;
 ```
 
-***
+---
 
 ### max?
 
@@ -146,7 +146,7 @@ optional label: any;
 optional max: number;
 ```
 
-***
+---
 
 ### meta?
 
@@ -184,7 +184,7 @@ optional processing: boolean;
 optional seen: boolean;
 ```
 
-***
+---
 
 ### min?
 
@@ -192,7 +192,7 @@ optional seen: boolean;
 optional min: number;
 ```
 
-***
+---
 
 ### mixedPromotions?
 
@@ -200,7 +200,7 @@ optional min: number;
 optional mixedPromotions: boolean;
 ```
 
-***
+---
 
 ### monthlyFromCurrentAmount?
 
@@ -208,7 +208,7 @@ optional mixedPromotions: boolean;
 optional monthlyFromCurrentAmount: number;
 ```
 
-***
+---
 
 ### monthlyFromCurrentPrice?
 
@@ -216,7 +216,7 @@ optional monthlyFromCurrentAmount: number;
 optional monthlyFromCurrentPrice: string;
 ```
 
-***
+---
 
 ### monthlyFromRegularAmount?
 
@@ -224,7 +224,7 @@ optional monthlyFromCurrentPrice: string;
 optional monthlyFromRegularAmount: number;
 ```
 
-***
+---
 
 ### monthlyFromRegularPrice?
 
@@ -232,7 +232,7 @@ optional monthlyFromRegularAmount: number;
 optional monthlyFromRegularPrice: string;
 ```
 
-***
+---
 
 ### name?
 
@@ -240,7 +240,7 @@ optional monthlyFromRegularPrice: string;
 optional name: any;
 ```
 
-***
+---
 
 ### productId
 
@@ -248,7 +248,7 @@ optional name: any;
 productId: string;
 ```
 
-***
+---
 
 ### promotions?
 
@@ -256,7 +256,7 @@ productId: string;
 optional promotions: string[];
 ```
 
-***
+---
 
 ### quantifiable?
 
@@ -264,7 +264,7 @@ optional promotions: string[];
 optional quantifiable: boolean;
 ```
 
-***
+---
 
 ### quantity?
 
@@ -272,7 +272,7 @@ optional quantifiable: boolean;
 optional quantity: number;
 ```
 
-***
+---
 
 ### regularAmount?
 
@@ -280,7 +280,7 @@ optional quantity: number;
 optional regularAmount: number;
 ```
 
-***
+---
 
 ### regularPrice?
 
@@ -288,7 +288,7 @@ optional regularAmount: number;
 optional regularPrice: string;
 ```
 
-***
+---
 
 ### serviceIdentifier?
 
@@ -296,7 +296,7 @@ optional regularPrice: string;
 optional serviceIdentifier: string;
 ```
 
-***
+---
 
 ### step?
 

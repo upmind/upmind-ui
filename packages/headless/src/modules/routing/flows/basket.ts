@@ -20,8 +20,7 @@ import { compactDeep } from "../../../utils";
 
 export const useBasketFlows = () => {
   const routing = useRoutingEngine();
-  const { hasProducts, setCurrency, addPromotion, isReady, productExists } =
-    useBasket();
+  const { meta, setCurrency, addPromotion, isReady } = useBasket();
   const { addMany, isInBasket } = useBasketProductsPending();
 
   let flows: Flow[] = [
@@ -52,26 +51,28 @@ export const useBasketFlows = () => {
               const valid =
                 !!productConfig && (await isInBasket(productConfig));
               return valid;
-            },
+            }
           },
           ROUTE.PRODUCT_NOT_FOUND,
           ROUTE.BASKET,
-          ROUTE.EMPTY,
-        ],
-      },
+          ROUTE.EMPTY
+        ]
+      }
     },
     {
       name: ROUTE.EMPTY,
-      guard: async (_route: Route) => isReady().then(() => !hasProducts()),
+      guard: async (_route: Route) =>
+        isReady().then(() => !meta.value.hasProducts),
       targets: {
         next: [],
         back: [],
-        fallback: [ROUTE.BASKET],
-      },
+        fallback: [ROUTE.BASKET]
+      }
     },
     {
       name: ROUTE.BASKET,
-      guard: async (_route: Route) => isReady().then(() => hasProducts()),
+      guard: async (_route: Route) =>
+        isReady().then(() => meta.value.hasProducts),
       resolve: async (_route: Route) => {
         return { name: ROUTE.BASKET };
       },
@@ -87,9 +88,9 @@ export const useBasketFlows = () => {
       targets: {
         next: [ROUTE.CHECKOUT],
         back: [],
-        fallback: [ROUTE.EMPTY],
-      },
-    },
+        fallback: [ROUTE.EMPTY]
+      }
+    }
   ];
 
   return {
@@ -97,6 +98,6 @@ export const useBasketFlows = () => {
     register: (data?: Flow[]) => {
       flows = uniqBy([...(data ?? []), ...flows], "name");
       routing.register(flows);
-    },
+    }
   };
 };

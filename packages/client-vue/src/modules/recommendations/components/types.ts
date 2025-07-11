@@ -1,13 +1,9 @@
-import type {
-  Recommendation,
-  Benefit,
-  ProductModel,
-} from "@upmind-automation/headless-vue";
+import type { Recommendation, Benefit } from "@upmind-automation/headless";
 import type { IconProps } from "@upmind-automation/upmind-ui";
 import type { ActorRef } from "xstate";
 
 export interface RecommendationsProps {
-  items: Recommendation[];
+  items?: Recommendation[];
   disabled?: boolean;
   loading?: boolean;
   refreshing?: boolean;

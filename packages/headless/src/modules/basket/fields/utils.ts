@@ -4,14 +4,14 @@
 import {
   useFieldsSchemaParser,
   useFieldsUischemaParser,
-  useFieldsModelParser,
+  useFieldsModelParser
 } from "../../../utils";
 
 // --- utils
 import { get, map } from "lodash-es";
 
 // --- types
-import type { Field, FieldsContext } from "./types";
+import type { FieldsModel, FieldsContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // -----------------------------------------------------------------------------
@@ -24,10 +24,10 @@ export const useSchema = ({ fields }: FieldsContext) => {
     properties: {
       notes: {
         type: ["string", "null"],
-        title: "Order Notes",
+        title: "Order Notes"
       },
-      customFields: useFieldsSchemaParser(fields),
-    },
+      customFields: useFieldsSchemaParser(fields)
+    }
   };
 
   return schema as JsonSchema;
@@ -44,24 +44,11 @@ export const useUischema = ({ fields }: FieldsContext) => {
         options: {
           multi: true,
           autosize: true,
-          autocomplete: "off",
-        },
+          autocomplete: "off"
+        }
       },
-      ...useFieldsUischemaParser(
-        map(fields, field => {
-          if (["input_file", "image"].includes(field.type_code)) {
-            field.options ??= {};
-            field.options.field = {
-              field_id: field?.id,
-              field_type: "client_custom_field",
-              field_is_default: false,
-            };
-          }
-          return field;
-        }),
-        "basket.fields"
-      ),
-    ],
+      ...useFieldsUischemaParser(fields, "basket.fields")
+    ]
   };
 
   return schema as UISchemaElement;
@@ -69,11 +56,11 @@ export const useUischema = ({ fields }: FieldsContext) => {
 
 export const useModelParser = (
   fields: FieldsContext["fields"],
-  values: Field
+  values: FieldsModel
 ) => {
   const model = {
     notes: values?.notes,
-    customFields: useFieldsModelParser(fields, get(values, "customFields", {})),
+    customFields: useFieldsModelParser(fields, get(values, "customFields", {}))
   };
-  return model as Field;
+  return model as FieldsModel;
 };

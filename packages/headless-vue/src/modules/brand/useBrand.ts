@@ -87,7 +87,7 @@ export const useBrand = () => {
         "processing.config.complete",
         "processing.settings.complete",
         "processing.modules.complete",
-        "processing.currencies.complete",
+        "processing.currencies.complete"
       ].some(state.value.matches),
 
       /**
@@ -103,8 +103,8 @@ export const useBrand = () => {
         "config.error",
         "settings.error",
         "modules.error",
-        "currencies.error",
-      ].some(state.value.matches),
+        "currencies.error"
+      ].some(state.value.matches)
     })),
 
     /**
@@ -131,5 +131,37 @@ export const useBrand = () => {
      * @returns {Promise<any>} A promise that resolves to the analytics configuration data.
      */
     getAnayltics: brand.getAnayltics,
+
+    /**
+     * Get the brand name from the context.
+     * @returns {string} The brand name.
+     */
+    getBrandName: brand.getBrandName,
+
+    /**
+     * Get the brand image from the context.
+     * @returns {object} The brand image object.
+     */
+    getImage: brand.getImage,
+
+    /**
+     * Get the brand styles from the context.
+     * @returns {object} The brand styles object.
+     */
+    getStyles: brand.getStyles,
+
+    /**
+     * Get the brand favicon from the context.
+     * @returns {object} The brand favicon object.
+     */
+    getFavicon: brand.getFavicon,
+
+    /**
+     * Get the brand meta from the context.
+     * @returns {object} The brand meta object.
+     */
+    getMeta: computed(() => {
+      return state.value.context.meta;
+    })
   };
 };

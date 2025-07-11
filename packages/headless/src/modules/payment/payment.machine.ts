@@ -9,7 +9,7 @@ import { useFeedback } from "../feedback";
 
 // --- utils
 import { useApprovalParser } from "./utils";
-import { useTime, useValidationParser } from "../../utils";
+import { mapToHeadlessError, useTime, useValidationParser } from "../../utils";
 import { isEmpty } from "lodash-es";
 
 // --- types
@@ -30,13 +30,13 @@ export default createMachine(
           src: "load",
           onDone: {
             target: "checking",
-            actions: ["setContext"],
+            actions: ["setContext"]
           },
           onError: {
             target: "#error",
-            actions: ["setError"],
-          },
-        },
+            actions: ["setError"]
+          }
+        }
       },
 
       // ---
@@ -47,18 +47,18 @@ export default createMachine(
           onDone: { target: "#valid" },
           onError: {
             target: "#invalid",
-            actions: ["setError"],
-          },
-        },
+            actions: ["setError"]
+          }
+        }
       },
 
       invalid: {
         id: "invalid",
         on: {
           "xstate.update": {
-            target: "checking",
-          },
-        },
+            target: "checking"
+          }
+        }
       },
 
       valid: {
@@ -66,15 +66,15 @@ export default createMachine(
         always: [
           {
             target: "processing",
-            cond: "hasPaymentDetails",
-          },
+            cond: "hasPaymentDetails"
+          }
         ],
         on: {
           PAY: { target: "processing" },
           "xstate.update": {
-            target: "checking",
-          },
-        },
+            target: "checking"
+          }
+        }
       },
 
       processing: {
@@ -82,13 +82,13 @@ export default createMachine(
           src: "update",
           onDone: {
             target: "processed",
-            actions: ["setPayment", "providePayment"],
+            actions: ["setPayment", "providePayment"]
           },
           onError: {
             target: "error",
-            actions: ["setError"],
-          },
-        },
+            actions: ["setError"]
+          }
+        }
       },
 
       processed: {
@@ -98,13 +98,13 @@ export default createMachine(
             {
               target: "approving",
               cond: "needsApproval",
-              actions: ["setApproval"],
+              actions: ["setApproval"]
             },
             {
-              target: "complete",
-            },
-          ],
-        },
+              target: "complete"
+            }
+          ]
+        }
       },
 
       approving: {
@@ -114,36 +114,36 @@ export default createMachine(
             invoke: {
               src: "redirect",
               onDone: {
-                target: "offsite",
+                target: "offsite"
               },
               onError: {
                 target: "#error",
-                actions: ["setError"],
-              },
-            },
+                actions: ["setError"]
+              }
+            }
           },
           offsite: {
             on: {
               APPROVED: {
-                target: "#complete",
-              },
-            },
-          },
-        },
+                target: "#complete"
+              }
+            }
+          }
+        }
       },
 
       complete: {
         id: "complete",
         type: "final",
-        data: ({ payment }: PaymentContext, _event: AnyEventObject) => payment,
+        data: ({ payment }: PaymentContext, _event: AnyEventObject) => payment
       },
 
       error: {
         entry: escalate(({ error }, _event) => error),
-        id: "error",
+        id: "error"
         // type: "final",
-      },
-    },
+      }
+    }
   },
   {
     actions: {
@@ -153,32 +153,29 @@ export default createMachine(
       ),
 
       setPayment: assign({
-        payment: (_context, { data }: AnyEventObject) => data,
+        payment: (_context, { data }: AnyEventObject) => data
       }),
 
       setApproval: assign({
-        approval: ({ payment }: PaymentContext) => useApprovalParser(payment),
+        approval: ({ payment }: PaymentContext) => useApprovalParser(payment)
       }),
 
       providePayment: sendParent(({ payment }) => ({
         type: "PAYMENT",
-        data: payment,
+        data: payment
       })),
 
       setError: assign({
         error: (_context, { data }: AnyEventObject) => {
-          let error = data?.error?.data ?? data?.error ?? data;
-          if (data?.status == responseCodes.Unprocessable_Entity) {
-            // lets parse/override our error message and data
-            // this is to generate valid json schema validation errors
-            error = useValidationParser(error);
+          let error = mapToHeadlessError(data);
+          if (error?.status == responseCodes.Unprocessable_Entity) {
+            error.data = useValidationParser(error);
           }
-
           return error;
-        },
+        }
       }),
 
-      clearError: assign({ error: undefined }),
+      clearError: assign({ error: undefined })
     },
 
     guards: {
@@ -188,14 +185,14 @@ export default createMachine(
       ) => !isEmpty(paymentDetail),
 
       needsApproval: ({ payment }: PaymentContext, _event: AnyEventObject) =>
-        !isEmpty(payment?.approval_url),
+        !isEmpty(payment?.approval_url)
     },
 
     delays: {
       error: () => useTime().ERROR,
-      wait: () => useTime().WAIT,
+      wait: () => useTime().WAIT
     },
 
-    services,
+    services
   }
 );

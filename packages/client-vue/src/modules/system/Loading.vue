@@ -1,6 +1,6 @@
 <template>
-  <article>
-    <ContentSection v-auto-animate>
+  <Layout>
+    <ContentSection v-auto-animate class="flex flex-grow items-center">
       <Interstitial
         v-bind="props"
         :title="t('basket.loading.title')"
@@ -19,7 +19,7 @@
         </template>
       </Interstitial>
     </ContentSection>
-  </article>
+  </Layout>
 </template>
 
 <script lang="ts" setup>
@@ -31,6 +31,7 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 import { Interstitial } from "@upmind-automation/upmind-ui";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
+import Layout from "../../components/layout/Layout.vue";
 
 // -- types
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
@@ -46,7 +47,7 @@ const props = withDefaults(defineProps<InterstitialProps>(), {
     delay: 250,
     primaryColor: "base-foreground",
     secondaryColor: "secondary",
-    size: "4xl",
-  }),
+    size: "4xl"
+  })
 });
 </script>

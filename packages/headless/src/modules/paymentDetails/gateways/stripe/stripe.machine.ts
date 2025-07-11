@@ -1,7 +1,6 @@
 // --- external
 import type { AnyEventObject } from "xstate";
-import { createMachine, assign, actions, spawn, sendParent } from "xstate";
-const { escalate } = actions;
+import { createMachine, assign, spawn, sendParent } from "xstate";
 import { filter, isString, includes, lowerCase } from "lodash-es";
 
 // --- internal
@@ -14,6 +13,7 @@ import {
   useTime,
   useValidationParser,
   useModelParser,
+  mapToHeadlessError
 } from "../../../../utils";
 import { useSchema, useUischema } from "./utils";
 import { isFunction } from "lodash-es";
@@ -43,33 +43,33 @@ export default createMachine(
               onDone: [
                 {
                   target: "addElement",
-                  actions: ["setContext"],
-                  cond: "isAdding",
+                  actions: ["setContext", "setSchemas"],
+                  cond: "isAdding"
                 },
                 {
                   target: "paymentElement",
-                  actions: ["setContext"],
+                  actions: ["setContext", "setSchemas"]
                   // cond: "isPaying"
-                },
+                }
               ],
               onError: {
                 target: "#error",
-                actions: ["setError", "setFeedbackError"],
-              },
-            },
+                actions: ["setError", "setFeedbackError", "setSchemas"]
+              }
+            }
           },
           paymentElement: {
             invoke: {
               src: "createPaymentElement",
               onDone: {
                 target: "#checking",
-                actions: ["setElements"],
+                actions: ["setElements"]
               },
               onError: {
                 target: "#error",
-                actions: ["setError", "setFeedbackError"],
-              },
-            },
+                actions: ["setError", "setFeedbackError"]
+              }
+            }
           },
 
           addElement: {
@@ -77,15 +77,15 @@ export default createMachine(
               src: "createAddElement",
               onDone: {
                 target: "#checking",
-                actions: ["setElements", "setClientDetails"],
+                actions: ["setElements", "setClientDetails"]
               },
               onError: {
                 target: "#error",
-                actions: ["setError", "setFeedbackError"],
-              },
-            },
-          },
-        },
+                actions: ["setError", "setFeedbackError"]
+              }
+            }
+          }
+        }
       },
 
       // ---
@@ -99,13 +99,13 @@ export default createMachine(
               src: "parse",
               onDone: {
                 target: "validating",
-                actions: ["setContext", "setSchemas", "setModel"],
+                actions: ["setContext", "setSchemas", "setModel"]
               },
               onError: {
                 target: "#invalid",
-                actions: ["setError"],
-              },
-            },
+                actions: ["setError"]
+              }
+            }
           },
           validating: {
             invoke: {
@@ -114,16 +114,16 @@ export default createMachine(
               onError: [
                 {
                   target: "#loading",
-                  cond: "hasNoElements",
+                  cond: "hasNoElements"
                 },
                 {
                   target: "#invalid",
-                  actions: ["setError"],
-                },
-              ],
-            },
-          },
-        },
+                  actions: ["setError"]
+                }
+              ]
+            }
+          }
+        }
       },
 
       invalid: { id: "invalid" },
@@ -133,8 +133,8 @@ export default createMachine(
         on: {
           CHECKOUT: "processing.payment",
           PAY: "processing.payment",
-          ADD: "processing.adding",
-        },
+          ADD: "processing.adding"
+        }
       },
 
       processing: {
@@ -145,29 +145,28 @@ export default createMachine(
               src: "update",
               onDone: {
                 target: "#processed",
-                actions: ["setPaymentDetails", "providePaymentDetails"],
+                actions: ["setPaymentDetails", "providePaymentDetails"]
               },
               onError: {
                 target: "#error",
                 actions: [
                   "setError",
                   "setFeedbackError",
-                  "escalateError",
-                  "cancelPaymentDetails",
-                ],
-              },
-            },
+                  "cancelPaymentDetails"
+                ]
+              }
+            }
           },
           adding: {
             invoke: {
               src: "confirmSetup",
               onDone: {
                 target: "#processed",
-                actions: ["set"],
-              },
-            },
-          },
-        },
+                actions: ["set"]
+              }
+            }
+          }
+        }
       },
 
       processed: {
@@ -175,44 +174,44 @@ export default createMachine(
         after: {
           wait: {
             target: "complete",
-            cond: "hasNoOutstandingBalance",
-          },
-        },
+            cond: "hasNoOutstandingBalance"
+          }
+        }
       },
 
       complete: {
         id: "complete",
         data: ({ paymentDetails }: StripeContext, _event: AnyEventObject) =>
-          paymentDetails,
+          paymentDetails
       },
 
       error: {
-        id: "error",
-      },
+        id: "error"
+      }
     },
     on: {
       CLEAR: {
         target: "checking",
-        actions: ["clearModel"],
+        actions: ["clearModel"]
       },
       SET: {
         target: "checking",
-        actions: ["setModel"],
+        actions: ["setModel"]
       },
       VALIDATE: {
         target: "checking.validating",
-        actions: ["setElementStatus"],
+        actions: ["setElementStatus"]
       },
       REFRESH: {
         target: "checking",
         actions: ["setContext", "updateStripe"],
-        cond: "hasChanged",
+        cond: "hasChanged"
       },
       UNAUTHENTICATED: {
         target: "loading",
-        actions: ["clearError", "clearModel", "clearSchemas"],
-      },
-    },
+        actions: ["clearError", "clearModel", "clearSchemas"]
+      }
+    }
   },
   {
     actions: {
@@ -240,12 +239,12 @@ export default createMachine(
           };
 
           return spawn(stripeChangeEvent);
-        },
+        }
       }),
 
       setElementStatus: assign({
         elementStatus: (_context: StripeContext, { data }: AnyEventObject) =>
-          data,
+          data
       }),
 
       setClientDetails: assign({
@@ -254,7 +253,7 @@ export default createMachine(
           { data }: AnyEventObject
         ) => data?.clientPaymentDetailsId,
         clientSecret: (_context: StripeContext, { data }: AnyEventObject) =>
-          data?.clientSecret,
+          data?.clientSecret
       }),
 
       setContext: assign(
@@ -264,23 +263,23 @@ export default createMachine(
       // ---
       setSchemas: assign({
         schema: context => useSchema(context),
-        uischema: context => useUischema(context),
+        uischema: context => useUischema(context)
       }),
 
       clearSchemas: assign({
         schema: undefined,
-        uischema: undefined,
+        uischema: undefined
       }),
 
       setModel: assign({
         model: ({ schema, model }: StripeContext, { data }: AnyEventObject) => {
           if (!schema) return data ?? model;
           return useModelParser(schema, data ?? model);
-        },
+        }
       }),
 
       clearModel: assign({
-        model: undefined,
+        model: undefined
       }),
       // ---
 
@@ -295,7 +294,7 @@ export default createMachine(
 
         elements.update({
           amount,
-          currency: data?.currency.code.toLowerCase(), // NB: MUST be lowercase
+          currency: data?.currency.code.toLowerCase() // NB: MUST be lowercase
         });
 
         if (data.address) {
@@ -304,32 +303,31 @@ export default createMachine(
               billingDetails: {
                 address: {
                   postal_code: data.address?.postcode,
-                  country: data.address?.country?.code,
-                },
-              },
-            },
+                  country: data.address?.country?.code
+                }
+              }
+            }
           });
         }
       },
 
       // ---
       setPaymentDetails: assign({
-        paymentDetails: ({ gateway }: StripeContext, { data }: any) => {
+        paymentDetails: (
+          { gateway }: StripeContext,
+          { data }: AnyEventObject
+        ) => {
           return { gateway, ...data };
-        },
+        }
       }),
 
       providePaymentDetails: sendParent(({ paymentDetails }) => ({
         type: "PAYMENT_DETAILS",
-        data: paymentDetails,
+        data: paymentDetails
       })),
 
-      escalateError: (_context, { data }: AnyEventObject) => {
-        escalate({ data });
-      },
-
       cancelPaymentDetails: sendParent(() => ({
-        type: "CANCEL",
+        type: "CANCEL"
       })),
 
       // ---
@@ -344,7 +342,7 @@ export default createMachine(
         addError({
           title: "We experienced an error processing your payment details",
           copy: error?.message,
-          data: error?.data,
+          data: error?.data
         });
 
         // escalate({ data: error });
@@ -352,29 +350,21 @@ export default createMachine(
 
       setError: assign({
         error: (_context: StripeContext, { data }: AnyEventObject) => {
-          let error = data?.error;
-          if (data?.status == responseCodes.Unprocessable_Entity) {
-            // lets parse/override our error message and data
-            // this is to generate valid json schema validation errors
-            error = useValidationParser(error);
-          } else {
-            error = error || data;
+          let error = mapToHeadlessError(data);
 
-            if (error.message) {
-              return [error];
-            } else {
-              return filter(
-                error,
-                e =>
-                  isString(e.title) && !includes(lowerCase(e.title), "element")
-              );
-            }
+          if (error?.status == responseCodes.Unprocessable_Entity) {
+            error.data = useValidationParser(error);
+          } else if (error?.data) {
+            error.data = filter(
+              error.data,
+              e => isString(e.title) && !includes(lowerCase(e.title), "element")
+            );
           }
           return error;
-        },
+        }
       }),
 
-      clearError: assign({ error: undefined }),
+      clearError: assign({ error: undefined })
     },
 
     guards: {
@@ -406,14 +396,14 @@ export default createMachine(
       },
       isPaying: ({ ctx }: StripeContext, _event: AnyEventObject) => {
         return ctx !== undefined && ctx == GatewayCtx.PAY;
-      },
+      }
     },
 
     delays: {
       error: () => useTime().ERROR,
-      wait: () => useTime().WAIT,
+      wait: () => useTime().WAIT
     },
 
-    services,
+    services
   }
 );

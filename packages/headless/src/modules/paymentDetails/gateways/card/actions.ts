@@ -14,11 +14,11 @@ export default {
   setSchemas: assign({
     schema: context => useSchema(context),
     // TODO: uischema: context => useUischema(context),
-    uischema: () => useUischema(),
+    uischema: () => useUischema()
   }),
 
   setModel: assign({
     model: ({ schema, model }: any, { data }: any) =>
-      useModelParser(schema, data || model),
-  }),
+      useModelParser(schema, data || model)
+  })
 };

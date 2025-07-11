@@ -3,21 +3,19 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import type { ActorRef } from "xstate";
 import type {
   IAddress,
-  IBasket,
   IBrandGateway,
   IClient,
   IOrder,
   ICurrency,
   IGateway,
   IWalletBalance,
-  PaymentType,
+  PaymentType
 } from "@upmind-automation/types";
-import { ResponseError } from "../query";
+import type { ResponseError } from "../../utils";
 
 // -----------------------------------------------------------------------------
 
 export interface PaymentDetailModel {
-  amount: number;
   type?: PaymentType;
   gateway_id?: IGateway["id"];
 }

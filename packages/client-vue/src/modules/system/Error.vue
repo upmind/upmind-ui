@@ -1,6 +1,6 @@
 <template>
-  <article>
-    <ContentSection>
+  <Layout>
+    <ContentSection v-auto-animate class="flex flex-grow items-center">
       <Interstitial
         v-bind="props"
         :animatedIcon="animatedIcon"
@@ -13,50 +13,52 @@
         </template>
       </Interstitial>
     </ContentSection>
-  </article>
+  </Layout>
 </template>
 
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
+import { vAutoAnimate } from "@formkit/auto-animate";
 
 // -- components
 import {
   Interstitial,
-  type InterstitialActionProps,
+  type InterstitialActionProps
 } from "@upmind-automation/upmind-ui";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
+import Layout from "../../components/layout/Layout.vue";
 
 // -- types
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 import { computed } from "vue";
 import { isEmpty, isNil } from "lodash-es";
+import { ROUTE, useBrand } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 const { t, tm } = useI18n();
-
-const storefrontUrl = import.meta.env.VITE_APP_STOREFRONT;
+const router = useRouter();
+const { storefrontUrl } = useBrand();
 
 const props = withDefaults(
   defineProps<
     {
       status?: number;
       i18nKey?: string;
-      action: "refresh" | "store";
     } & InterstitialProps
   >(),
   {
     open: true,
     modal: true,
     skrim: "light",
-    action: "refresh",
     animatedIcon: () => ({
       icon: "error",
       trigger: "loop",
       primaryColor: "base-foreground",
       secondaryColor: "tertiary",
-      size: "4xl",
-    }),
+      size: "4xl"
+    })
   }
 );
 
@@ -83,27 +85,30 @@ const animatedIcon = computed(() => ({
   trigger: props.animatedIcon.trigger,
   primaryColor: props.animatedIcon.primaryColor,
   secondaryColor: props.animatedIcon.secondaryColor,
-  size: props.animatedIcon.size,
+  size: props.animatedIcon.size
 }));
 
 const translations = computed(() => {
   return {
     title: t(`${safeKey.value}.title`),
     text: t(`${safeKey.value}.text`),
-    action: t(`${safeKey.value}.action`),
+    action: t(`${safeKey.value}.action`)
   };
 });
 
 const actions = computed((): InterstitialActionProps[] => {
   let href = "window.location.href";
 
-  switch (props.action) {
-    case "refresh":
-    default:
+  switch (props.status) {
+    // for service errors, we want to reload the page as its likely a temporary issue
+    case 500:
+    case 503:
       href = window.location.href;
       break;
-    case "store":
-      href = storefrontUrl;
+
+    // for al lother errors, we want to redirect back to the storefront
+    default:
+      href = storefrontUrl.value;
       break;
   }
 
@@ -113,9 +118,9 @@ const actions = computed((): InterstitialActionProps[] => {
     href,
     prependIcon: {
       icon: t(`${safeKey.value}.icon`),
-      size: "2xs",
+      size: "2xs"
     },
-    label: translations.value.action,
+    label: translations.value.action
   };
   return isNil(props.actions) ? [defaultAction] : props.actions;
 });

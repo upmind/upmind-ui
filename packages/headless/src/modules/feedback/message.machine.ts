@@ -25,9 +25,9 @@ export default createMachine(
         after: [
           {
             delay: "delay",
-            target: "active",
-          },
-        ],
+            target: "active"
+          }
+        ]
       },
 
       active: {
@@ -35,12 +35,12 @@ export default createMachine(
           {
             delay: "maxAge",
             target: "#complete",
-            cond: "hasMaxAge",
-          },
+            cond: "hasMaxAge"
+          }
         ],
         on: {
-          DISMISS: { target: "complete" },
-        },
+          DISMISS: { target: "complete" }
+        }
       },
 
       // Handle completion, stop the machine and prevent further messages
@@ -48,18 +48,18 @@ export default createMachine(
       complete: {
         id: "complete",
         entry: ["sendClearMessage"],
-        type: "final",
-      },
-    },
+        type: "final"
+      }
+    }
   },
   {
     actions: {
       sendClearMessage: sendParent(({ hash }) => {
         return {
           type: "REMOVE",
-          data: { id: hash },
+          data: { id: hash }
         };
-      }),
+      })
     },
     guards: {
       isActive: ({ scheduled }) => {
@@ -67,13 +67,13 @@ export default createMachine(
         const isFuture = scheduled && scheduled > current;
         return !isFuture;
       },
-      hasMaxAge: ({ maxAge }) => !!maxAge,
+      hasMaxAge: ({ maxAge }) => !!maxAge
     },
     delays: {
       delay: ({ delay }) => delay ?? 0, // this allows us to override the max age in the context
       maxAge: ({ maxAge }) => maxAge ?? 0, // this allows us to override the max age in the context
       error: () => useTime().ERROR,
-      wait: () => useTime().WAIT,
-    },
+      wait: () => useTime().WAIT
+    }
   }
 );

@@ -1,87 +1,109 @@
+// --- utils
+import { MaybeRef, Ref } from "vue";
+import { responseCodes } from "../../utils";
+
 // --- types
-import type { EnsureQueryDataOptions } from "@tanstack/query-core";
-import { responseCodes } from "src/utils";
+import type {
+  DefaultError,
+  QueryObserverOptions,
+  MutationObserverOptions,
+  QueryKey,
+  InfiniteData
+} from "@tanstack/vue-query";
 
 // -----------------------------------------------------------------------------
+export type { ErrorObject as ValidationErrorObject } from "ajv";
 
-export interface ResponseError {
+export interface QueryResponseError {
   id: null;
   code: string | responseCodes | number;
   type: string | responseCodes | number;
   message: string;
-  data: null;
+  data: any | null;
   status: responseCodes | number;
 }
-export interface Response {
+
+/**
+ * Represents the structure of a single page returned from an infinite query's queryFn.
+ * @template TData The type of the data array for the page.
+ */
+export type InfiniteQueryPage<TData> = {
+  pageData: TData;
+  nextOffset: number | undefined;
+};
+
+/**
+ * The raw data structure provided by TanStack's `useInfiniteQuery`
+ * to the `select` function before transformation.
+ *
+ * @template TPageData The type of the data within each page (e.g., IProduct[]).
+ */
+export type RawInfiniteQueryData<TPageData> = InfiniteData<
+  InfiniteQueryPage<TPageData>
+>;
+
+export interface QueryResponse<TData = unknown> {
   status: number;
-  data: any | null;
+  data: TData | null;
   total: number | null;
-  error: ResponseError | null;
+  error: QueryResponseError | null;
   messages: string[] | null;
 }
 
-export interface PaginatedError {
-  id: null;
-  code: number;
-  data: null;
-  type: number;
-  message: string;
-}
+export type QueryProps = {
+  sort?: [direction: RequestSortDirection, property: string];
+  filters?: RequestFilters;
+  pagination?: RequestPagination;
+};
 
-export interface RequestParams {
+export type RequestParams = QueryProps & {
+  guard?: () => Promise<boolean>;
   url: URL;
   data?: unknown;
   init?: RequestInit;
+  withCurrency?: boolean;
   withAccessToken?: boolean | string | null;
-}
+};
 
-export interface QueryParams<T extends unknown>
-  extends RequestParams,
-    Omit<EnsureQueryDataOptions<T>, "queryFn"> {}
+export type QueryParams<
+  TQueryFnData = unknown,
+  TData = TQueryFnData
+> = RequestParams &
+  Omit<
+    QueryObserverOptions<TQueryFnData, DefaultError, TData>,
+    "queryFn" | "initialData"
+  >;
 
-export interface PaginatedParams {
-  sort?: [direction: ApiSortDirection, property: string];
-  filters?: IApiFilter[];
-  pagination?: IAPIPagination;
-}
+export type ReactiveQueryKeys = {
+  locale: MaybeRef<string>;
+  sort?: MaybeRef<undefined | string[] | [RequestSortDirection, string]>;
+  filters?: MaybeRef<undefined | RequestFilters>;
+  currencyCode?: MaybeRef<undefined | string>;
+  limit?: MaybeRef<undefined | number>;
+  pageIndex?: MaybeRef<undefined | number>;
+};
 
-export interface PaginatedResponse<T extends unknown> {
-  data: T;
-  total: number;
-  status: "ok" | "error"; // TODO: check if this is correct
-  errors: PaginatedError;
-  messages: string | string[];
-}
+export type MutationParams<
+  TData = unknown,
+  TError = DefaultError,
+  TVariables = void,
+  TContext = unknown
+> = RequestParams &
+  Omit<
+    MutationObserverOptions<TData, TError, TVariables, TContext>,
+    "mutationFn"
+  >;
 
-export interface PaginatedData<T extends unknown> {
-  // response related
-  data: T | undefined;
-  // item related
-  itemTo: number;
-  itemFrom: number;
-  itemTotal: number;
-  // page related
-  pageSize: number;
-  pageIndex: number;
-  pageTotal: number;
-  // pagination related
-  hasNextPage: boolean;
-  hasPrevPage: boolean;
-  // function related
-  nextPage: () => Promise<PaginatedData<T>>;
-  prevPage: () => Promise<PaginatedData<T>>;
-}
+// ---  ENUMS
 
-export enum ApiSortDirection {
+export enum RequestSortDirection {
   ASC = "",
-  DESC = "-",
+  DESC = "-"
 }
 
-export interface IApiFilter {
-  (url: URL): URL;
-}
+export interface RequestFilters extends Record<string, unknown> {}
 
-export interface IAPIPagination {
+export interface RequestPagination {
   limit?: number;
   offset?: number;
 }

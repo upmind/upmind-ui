@@ -1,4 +1,4 @@
-[Upmind](../../packages.md) / [@upmind-automation/headless-vue](../index.md) / IUseBrand
+[Upmind](../../packages.md) / [@upmind-automation/headless](../index.md) / IUseBrand
 
 # IUseBrand
 
@@ -16,7 +16,7 @@ context: ComputedRef<any>;
 
 Computed property to the brand's state machine context, containing configuration data and settings.
 
-***
+---
 
 ### errors
 
@@ -26,7 +26,7 @@ errors: ComputedRef<any>;
 
 Computed property to any errors encountered during the brand state machine's process.
 
-***
+---
 
 ### getAnayltics()
 
@@ -42,7 +42,7 @@ Fetch the analytics configuration keys (`ANALYTICS_GA_MEASUREMENT_ID` and `ANALY
 
 A promise that resolves to the analytics configuration data.
 
-***
+---
 
 ### getConfig
 
@@ -56,7 +56,7 @@ Get brand configuration.
 
 The configuration data for the brand.
 
-***
+---
 
 ### isReady
 
@@ -70,7 +70,7 @@ Method that checks if the brand data is fully ready.
 
 Returns true if the brand data is ready.
 
-***
+---
 
 ### meta
 
@@ -80,7 +80,7 @@ meta: ComputedRef<IUseBrandMeta>;
 
 Computed property to metadata flags about brand data.
 
-***
+---
 
 ### responses
 
@@ -90,7 +90,7 @@ responses: ComputedRef<any>;
 
 Computed property to the structured responses from the state machine context, excluding errors.
 
-***
+---
 
 ### send()
 
@@ -110,7 +110,7 @@ The event to send.
 
 `void`
 
-***
+---
 
 ### state
 

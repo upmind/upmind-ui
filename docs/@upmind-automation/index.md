@@ -7,9 +7,9 @@ hero:
   text: "Open-source"
   tagline: An awesome Developer Experience for simplifying Upmind's API logic and state management.
   actions:
-    - theme: brand
-      text: Headless-vue
-      link: /@upmind-automation/headless-vue
+    # - theme: brand
+    #   text: Headless-vue
+    #   link: /@upmind-automation/headless
     - theme: alt
       text: Headless
       link: /@upmind-automation/headless

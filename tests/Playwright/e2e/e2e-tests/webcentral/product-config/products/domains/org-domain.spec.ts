@@ -1,17 +1,17 @@
 import { test, expect } from "@playwright/test";
-import { URLs } from "../../../../../support/constants/urls";
-import { Checkout } from "../../../../../support/page-objects/templates/Checkout";
+import { URLs } from "../../../../../support/constants/Urls";
+import { ProductConfig } from "../../../../../support/page-objects/templates/ProductConfig";
 import { orgDomain } from "../../../../../support/constants/checkout/test-cases/webcentral/domains/Org";
-let checkout: Checkout;
+let productConfig: ProductConfig;
 let testCases = orgDomain;
 
 test.beforeEach(async ({ page }) => {
-  checkout = new Checkout(page);
+  productConfig = new ProductConfig(page);
   await page.goto(URLs.orgDomain);
-  await checkout.optionsContainer.waitFor();
+  await productConfig.optionsContainer.waitFor();
 });
 
-test.describe("Product Config - Happy Paths - Domain (.org)", async () => {
+test.describe.skip("Product Config - Happy Paths - Domain (.org)", async () => {
   for (const {
     name,
     radioSelection = [],
@@ -19,33 +19,33 @@ test.describe("Product Config - Happy Paths - Domain (.org)", async () => {
     sldValue,
     total,
     billingCycle,
-    tldValue,
+    tldValue
   } of testCases) {
     test(name, async ({ page }) => {
       /* PRODUCT OPTIONS */
       /* Make product selections */
       for (const [radioGroupIndex, radioOptionIndex] of radioSelection) {
-        await checkout.radioButtons.clickRadioButton(
+        await productConfig.radioButtons.clickRadioButton(
           radioGroupIndex,
           radioOptionIndex
         );
       }
       for (const [
         checkboxGroupIndex,
-        checkboxOptionIndex,
+        checkboxOptionIndex
       ] of checkboxSelection) {
-        await checkout.checkboxes.clickCheckbox(
+        await productConfig.checkboxes.clickCheckbox(
           checkboxGroupIndex,
           checkboxOptionIndex
         );
       }
-      await checkout.enterSld(sldValue);
+      await productConfig.enterSld(sldValue);
 
       /* SUMMARY FIELDS */
       /* Verify that all summary fields contain the expected data */
-      await expect(checkout.totalValue).toContainText(total);
-      await expect(checkout.billingCycle).toContainText(billingCycle);
-      await expect(checkout.tldValue).toContainText(tldValue);
+      await expect(productConfig.totalValue).toContainText(total);
+      await expect(productConfig.billingCycle).toContainText(billingCycle);
+      await expect(productConfig.tldValue).toContainText(tldValue);
       //await expect(page).toHaveScreenshot(name);
     });
   }

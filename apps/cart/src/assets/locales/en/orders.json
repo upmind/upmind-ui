@@ -1,0 +1,34 @@
+{
+  "order": {
+    "confirmation": {
+      "success": {
+        "action": "Go to my account",
+        "title": {
+          "text": "Order {0}!",
+          "strong": "complete"
+        },
+        "complete": "complete",
+        "text": "Thanks for your order, your purchase is now complete. You will receive an email confirmation shortly."
+      },
+      "failed": {
+        "action": "Go to invoice",
+        "title": {
+          "text": "Unable to {0} payment",
+          "strong": "process"
+        },
+        "process": "process",
+        "text": "We were unable to process your payment for this order, this could be for a number of reasons.",
+        "textRetry": "Please click below to go to your invoice where you can retry your payment."
+      },
+      "invalid": {
+        "action": "Return to shop",
+        "title": {
+          "text": "Your {0} has expired",
+          "strong": "session"
+        },
+        "session": "session",
+        "text": "We're unable to retrieve your past order as your session has expired. To start a new purchase, please click the button below to return to our store."
+      }
+    }
+  }
+}

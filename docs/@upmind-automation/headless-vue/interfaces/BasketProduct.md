@@ -1,4 +1,4 @@
-[Upmind](../../packages.md) / [@upmind-automation/headless-vue](../index.md) / BasketProduct
+[Upmind](../../packages.md) / [@upmind-automation/headless](../index.md) / BasketProduct
 
 # BasketProduct
 
@@ -10,7 +10,7 @@
 optional attributes: ISubProductChoices;
 ```
 
-***
+---
 
 ### error?
 
@@ -42,7 +42,7 @@ optional provisionFields: any;
 optional term: any;
 ```
 
-***
+---
 
 ### id
 
@@ -50,7 +50,7 @@ optional term: any;
 id: string;
 ```
 
-***
+---
 
 ### options?
 
@@ -58,7 +58,7 @@ id: string;
 optional options: ISubProductChoices;
 ```
 
-***
+---
 
 ### product
 
@@ -66,15 +66,15 @@ optional options: ISubProductChoices;
 product: BasketProductDetails;
 ```
 
-***
+---
 
-### product\_id?
+### product_id?
 
 ```ts
 optional product_id: any;
 ```
 
-***
+---
 
 ### productId
 
@@ -82,7 +82,7 @@ optional product_id: any;
 productId: string;
 ```
 
-***
+---
 
 ### provisionFields?
 
@@ -90,7 +90,7 @@ productId: string;
 optional provisionFields: Record<string, any>;
 ```
 
-***
+---
 
 ### quantity
 
@@ -98,7 +98,7 @@ optional provisionFields: Record<string, any>;
 quantity: number;
 ```
 
-***
+---
 
 ### summary
 
@@ -118,7 +118,7 @@ details: BasketProductSummaryDetail[];
 pricing: BasketProductSummaryPrice[];
 ```
 
-***
+---
 
 ### term
 

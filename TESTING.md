@@ -21,29 +21,12 @@
 //
 
 //
-// Headless-vue
-// Wraps hooks/composables exposed from Upmind-Headless into consumable Vue3 composables (making use mainly of `ref` and `computed`)
-//
-// ex: @/modules/domain/**tests**/index.test.ts
-//
-// - Unit tests - vue composables
-//
-// - Mock upmind-headless (and xstate by consequence)
-// - If we don't mock it, it's harder to prevent API calls (https://vitest.dev/guide/mocking#requests)
-//
-// - Expect upmind-headless to have been called correctly
-// - Making sure we don't miss expected xstate implementation when refactoring
-//
-// - These unit tests will need refactoring if upflow changes what it exposes from xstate
-//
-
-//
 // Client-Vue
-// As of right now, compacts Headless-vue, Upmind Ui and "standard"(?) Vue components
+// As of right now, compacts Headless, Upmind Ui and "standard"(?) Vue components
 // so it's the only lib client would need to import.
 // TODO: To discuss (not sure this is the way forward)
 //
-// - Not testing Headless-vue nor Upmind Ui (those are tested separately)
+// - Not testing Headless nor Upmind Ui (those are tested separately)
 // So the only remaining features left to test are the Vue components
 //
 // - Integration tests (for Vue components)

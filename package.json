@@ -6,7 +6,7 @@
     "apps/*",
     "playgrounds/*"
   ],
-  "version": "0.2.3",
+  "version": "0.3.0",
   "description": "This monorepo serves as the central hub for Upmind's second-generation UI components and business logic. It provides reusable packages for core functionalities (Headless) and Vue.js implementations (Headless-vue), along with playgrounds demonstrating UI integration using",
   "keywords": [
     "upmind",
@@ -43,9 +43,13 @@
     "format": "pnpm -r format",
     "test": "pnpm -r test",
     "prepare": "husky",
-    "lint-staged": "lint-staged"
+    "lint-staged": "lint-staged",
+    "test:chromium": "pnpm playwright test --project=chromium",
+    "test:all-browsers": "pnpm playwright test",
+    "test:ui": "pnpm playwright test --ui"
   },
   "devDependencies": {
+    "@faker-js/faker": "^9.8.0",
     "@playwright/test": "^1.50.1",
     "@rushstack/eslint-patch": "^1.10.5",
     "@tsconfig/node22": "^22.0.0",

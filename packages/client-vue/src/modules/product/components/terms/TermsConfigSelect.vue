@@ -82,7 +82,7 @@ import { isNil, map, toNumber, find } from "lodash-es";
 // --- types
 import type { ComputedRef, HTMLAttributes } from "vue";
 import type { SelectCardsItemProps } from "@upmind-automation/upmind-ui";
-import type { TermDetails } from "@upmind-automation/headless-vue";
+import type { TermDetails } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 const emits = defineEmits(["update:modelValue"]);
@@ -112,7 +112,7 @@ const props = withDefaults(
     disabled: false,
     loading: false,
     processing: false,
-    visible: true,
+    visible: true
   }
 );
 
@@ -141,7 +141,7 @@ const parsedValues = computed<SelectCardsItemProps[]>(() => {
       label: item.title,
       item: item, // Ensure the `item` property is included
       index: index, // Add the `index` property
-      modelValue: props.modelValue?.toString(), // Add the `modelValue` property
+      modelValue: props.modelValue?.toString() // Add the `modelValue` property
     } as SelectCardsItemProps;
   });
 });

@@ -26,6 +26,9 @@ stages:
     - pnpm --version
 
 include:
+  - local: .gitlab-ci/cart.yml
+  - local: .gitlab-ci/vitepress.yml
+  - local: .gitlab-ci/headless.yml
   - local: .gitlab-ci/storybook.yml
     rules:
       - changes:
@@ -33,10 +36,6 @@ include:
             - ./playgrounds/storybook/**
 
       - if: $CI_FORCE_STORYBOOK == "true"
-
-  - local: .gitlab-ci/vitepress.yml
-  - local: .gitlab-ci/headless.yml
-  - local: .gitlab-ci/headless-vue.yml
 
 workflow:
   auto_cancel:
@@ -71,7 +70,6 @@ dependencies:
         - apps/webcentral/node_modules
         - apps/hosting/node_modules
         - packages/headless/node_modules
-        - packages/headless-vue/node_modules
         - packages/client-vue/node_modules
         - docs/node_modules
 
@@ -82,12 +80,12 @@ dependencies:
     paths:
       - node_modules
       - playgrounds/storybook/node_modules
+      - apps/cart/node_modules
       - apps/doteasy/node_modules
       - apps/velia/node_modules
       - apps/webcentral/node_modules
       - apps/hosting/node_modules
       - packages/headless/node_modules
-      - packages/headless-vue/node_modules
       - packages/client-vue/node_modules
       - docs/node_modules
       - packages/types

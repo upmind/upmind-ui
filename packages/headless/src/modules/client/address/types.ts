@@ -1,48 +1,54 @@
-// --- external
-import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
-
-// --- internal
+// --- types
+import type { ClientItemContext } from "../types";
 import type { ICountry, IRegion, IAddress } from "@upmind-automation/types";
-import type { ClientItemContext, ClientListingsContext } from "../types";
+
 // -----------------------------------------------------------------------------
 
 export const AddressTypes = [
   { key: 1, value: "Home" },
   { key: 2, value: "Office" },
   { key: 3, value: "Holiday" },
-  { key: 4, value: "Company" },
+  { key: 4, value: "Company" }
 ];
 
-export interface IAddressData {
-  id?: string;
-  name?: string | null;
-  address1?: string;
-  address2?: string;
-  city?: string | null;
-  postcode?: string | null;
-  countryId?: ICountry["id"];
-  country?: ICountry; // Requires relation
-  regionId?: IRegion["id"];
-  state?: string | null;
+export const ADDRESS_TYPE_KEYS = {
+  HOME: AddressTypes[0].key,
+  OFFICE: AddressTypes[1].key,
+  HOLIDAY: AddressTypes[2].key,
+  COMPANY: AddressTypes[3].key
+} as const;
+
+export interface AddressModel {
+  id?: IAddress["id"];
+  address1: IAddress["address_1"];
+  address2?: IAddress["address_2"];
+  city: IAddress["city"];
+  countryId: IAddress["country_id"];
+  name?: IAddress["name"];
+  postcode: IAddress["postcode"];
+  regionId?: IAddress["region_id"];
+  state?: IAddress["state"];
+  // type: IAddress["type"]; // deprecated
 }
 
-export interface AddressContext extends ClientItemContext {
+export interface Address extends AddressModel {
+  // --- identifiers
+  id: IAddress["id"];
+  clientId: IAddress["client_id"];
+  // --- context
+  title: string;
+  description: string;
+  type: IAddress["type"];
+  // --- meta info
+  meta: {
+    canDelete: boolean;
+    isDefault: boolean;
+    isVerified: boolean;
+  };
+}
+
+export interface AddressContext extends ClientItemContext<AddressModel> {
   country?: ICountry;
   regions?: IRegion[];
-  addresses: any; // Cpmposable to the address context
-  types?: typeof AddressTypes;
-  baseModel?: IAddress;
-
-  autocomplete?: {
-    schema?: JsonSchema;
-    uischema?: UISchemaElement;
-    model?: {
-      search?: string;
-      address?: string;
-    };
-    results?: any[]; //AddressAutocompleteResult[];
-  };
-  model?: IAddressData;
+  countries: ICountry[];
 }
-
-export interface AddressesContext extends ClientListingsContext {}

@@ -15,6 +15,7 @@
           :processing="meta.isProcessing"
           :edit-link="editLink"
           @update:quantity="doUpdateQuantity"
+          data-testid="basket-product-summary"
         >
           <slot
             :productDetails="props.productDetails"
@@ -50,8 +51,7 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./basketProduct.config";
 
 // --- components
-import { Loading } from "@upmind-automation/upmind-ui";
-import Card from "../../../components/content/Card.vue";
+import { Card, Loading } from "@upmind-automation/upmind-ui";
 import BasketConfigurationDetails from "./BasketProductConfigurationDetails.vue";
 import BasketProductSummary from "./BasketProductSummary.vue";
 import BasketProductActions from "./BasketProductActions.vue";
@@ -73,7 +73,7 @@ const props = withDefaults(
     }
   >(),
   {
-    open: false,
+    open: false
   }
 );
 
@@ -92,7 +92,7 @@ const meta = computed(() => ({
   hasTerms: !!props?.configuration?.term,
   hasOptions: !!props?.configuration?.options,
   hasAttributes: !!props?.configuration?.attributes,
-  hasProvisioning: !!props?.configuration?.provisionFields,
+  hasProvisioning: !!props?.configuration?.provisionFields
 }));
 
 // error: computed(() => get(props, "error")),
@@ -114,8 +114,8 @@ const editLink = computed(() => {
   return {
     name: "product.edit",
     params: {
-      bpid: props.id,
-    },
+      bpid: props.id
+    }
   };
 });
 
