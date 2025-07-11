@@ -214,12 +214,8 @@ watch(
 );
 
 // watch our props and update filters accordingly
-
 watch(categoryId, filters.productCategory, { immediate: true });
-
 watch(query, filters.query, { immediate: true });
-
 watch(sortBy, value => sort(value, direction.value), { immediate: true });
-
 watch(direction, value => sort(sortBy.value, value), { immediate: true });
 </script>

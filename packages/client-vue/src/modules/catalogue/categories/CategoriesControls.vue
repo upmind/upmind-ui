@@ -1,6 +1,6 @@
 <template>
   <div :class="styles.categories.controls.root">
-    <Breadcrumb :items="breadcrumbItems" />
+    <Breadcrumb :items="items" />
 
     <div v-if="isSupported" :class="styles.categories.controls.shareContainer">
       <Icon
@@ -43,26 +43,32 @@ import type { ComputedRef } from "vue";
 import { map } from "lodash-es";
 
 // -----------------------------------------------------------------------------
-
+const props = defineProps<Omit<CategoriesProps, "modelValue">>();
 const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
 
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
 
-const { data, getPath } = useProductCategories();
+const { getPath } = useProductCategories();
 
 const { copy, copied, isSupported } = useClipboard({ legacy: true });
 
-const breadcrumbItems = computed(() => {
+const items = computed(() => {
   const paths = getPath(modelValue.value);
 
   const items = [
+    // include "root" option
     {
       label: t("product.shop.title"),
       current: !modelValue.value,
       to: {
-        name: ROUTE.CATALOGUE
+        name: ROUTE.CATALOGUE,
+        query: {
+          sort: props.sort,
+          direction: props.direction,
+          catid: undefined
+        }
       }
     },
     ...map(paths, (category: ProductCategory) => ({
@@ -70,7 +76,11 @@ const breadcrumbItems = computed(() => {
       current: category.id === modelValue.value,
       to: {
         name: ROUTE.CATALOGUE,
-        query: { catId: category.id }
+        query: {
+          sort: props.sort,
+          direction: props.direction,
+          catid: category.id
+        }
       },
       handler: () => {
         modelValue.value = category.id;
