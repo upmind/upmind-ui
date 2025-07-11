@@ -1,5 +1,12 @@
 <template>
-  <RouterLink
+  <Button
+    class="w-full"
+    :as="RouterLink"
+    variant="outlined"
+    color="secondary"
+    :class="styles.categories.item.root"
+    :aria-label="t('product.category.select', { name })"
+    @click="doSelect"
     :to="{
       name: ROUTE.CATALOGUE,
       query: {
@@ -9,36 +16,28 @@
       }
     }"
   >
-    <Button
-      variant="outlined"
-      color="secondary"
-      :class="styles.categories.item.root"
-      :aria-label="t('product.category.select', { name })"
-      @click="doSelect"
-    >
-      <Icon
-        v-if="categoryIcon"
-        :icon="categoryIcon"
-        size="xs"
-        :class="styles.categories.item.icon"
-      />
+    <Icon
+      v-if="categoryIcon"
+      :icon="categoryIcon"
+      size="xs"
+      :class="styles.categories.item.icon"
+    />
 
-      <div :class="styles.categories.item.content">
-        <h3 :class="styles.categories.item.titleContainer">
-          <span :class="styles.categories.item.title">{{ name }}</span>
-          <Icon
-            icon="arrow-right"
-            size="xs"
-            :class="styles.categories.item.arrowIcon"
-          />
-        </h3>
+    <div :class="styles.categories.item.content">
+      <h3 :class="styles.categories.item.titleContainer">
+        <span :class="styles.categories.item.title">{{ name }}</span>
+        <Icon
+          icon="arrow-right"
+          size="xs"
+          :class="styles.categories.item.arrowIcon"
+        />
+      </h3>
 
-        <p v-if="description" :class="styles.categories.item.description">
-          {{ description }}
-        </p>
-      </div>
-    </Button>
-  </RouterLink>
+      <p v-if="description" :class="styles.categories.item.description">
+        {{ description }}
+      </p>
+    </div>
+  </Button>
 </template>
 
 <script setup lang="ts">
