@@ -103,8 +103,7 @@ async function validate(
 
     const errors = validate(schema, model);
 
-    // HACK: we want promocode to be invalid if empty, but not necessarily have an error
-    if (errors?.length || isEmpty(model?.promocode)) {
+    if (errors?.length) {
       reject(
         new DetailedError(
           "Promotion validation failed",

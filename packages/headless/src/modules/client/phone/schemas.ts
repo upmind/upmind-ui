@@ -25,23 +25,24 @@ export const useSchema = ({ country }: { country?: ICountry }): JsonSchema7 => {
         required: ["number", "nationalNumber", "countryCallingCode", "country"],
         properties: {
           number: {
-            type: ["string", "null"],
+            type: "string",
             title: "Phone number ( with dialing code )"
           },
 
           nationalNumber: {
-            type: ["string", "null"],
+            type: "string",
             title: "Phone number"
           },
 
           countryCallingCode: {
-            type: ["string", "null"],
+            type: "string",
             title: "Country calling code"
           },
 
           country: {
-            type: ["string", "null"],
-            title: "Country"
+            type: "string",
+            title: "Country",
+            default: country?.code || ""
           }
         }
       }
