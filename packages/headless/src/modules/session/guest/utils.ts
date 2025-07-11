@@ -66,7 +66,8 @@ export const useRegisterSchemaParser = (data: any) => {
           },
           country: {
             type: ["string", "null"],
-            title: "Country"
+            title: "Country",
+            default: getCountry()?.code || ""
           },
           nationalNumber: {
             type: ["string", "null"],

@@ -34,7 +34,7 @@
           <Actions
             v-show="modal || meta.isDirty"
             :i18nKey="i18nKey"
-            :disabled="meta.isProcessing || !meta.isValid"
+            :disabled="meta.isProcessing"
             :processing="meta.isProcessing"
             :no-cancel="!modal"
             :loading="meta.isLoading"

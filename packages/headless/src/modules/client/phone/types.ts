@@ -17,10 +17,10 @@ export interface IPhoneData {
 export interface PhoneModel {
   id?: IPhone["id"];
   phone: {
-    number: string;
-    nationalNumber: string;
-    countryCallingCode: string;
-    country: string;
+    number: string | null;
+    nationalNumber: string | null;
+    countryCallingCode: string | null;
+    country: string | null;
   };
   // type?: number; // deprecated
 }

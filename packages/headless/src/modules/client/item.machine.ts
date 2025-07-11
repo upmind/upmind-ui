@@ -100,15 +100,9 @@ export default createMachine<ClientItemContext>(
                 target: "checking",
                 actions: ["setAutoUpdate"]
               },
-              UPDATE: [
-                {
-                  target: "#processing.adding",
-                  cond: "isNew"
-                },
-                {
-                  target: "#processing.updating"
-                }
-              ]
+              UPDATE: {
+                target: "#processing"
+              }
             }
           },
 
@@ -139,7 +133,26 @@ export default createMachine<ClientItemContext>(
       processing: {
         id: "processing",
         entry: ["clearError"],
+        initial: "validating",
         states: {
+          validating: {
+            invoke: {
+              src: "validate",
+              onDone: [
+                {
+                  target: "adding",
+                  cond: "isNew"
+                },
+                {
+                  target: "updating"
+                }
+              ],
+              onError: {
+                target: "#invalid",
+                actions: ["setError"]
+              }
+            }
+          },
           adding: {
             invoke: {
               src: "add",

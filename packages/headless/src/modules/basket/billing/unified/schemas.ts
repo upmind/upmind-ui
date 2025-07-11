@@ -90,51 +90,36 @@ export const useUischema = ({ baseModel, type, config }: UnifiedContext) => {
 
   if (type == UnifiedType.PERSONAL) {
     uiSchema.elements.push({
-      type: "VerticalLayout",
-      elements: [
-        {
-          type: "Control",
-          scope: "#/properties/address",
-          options: {
-            autoFocus: true,
-            autocomplete: "off",
-            detail: useAddressUischema()
-          }
-        }
-      ]
+      type: "Control",
+      scope: "#/properties/address",
+      options: {
+        autoFocus: true,
+        autocomplete: "off",
+        detail: useAddressUischema()
+      }
     } as any);
   } else if (type == UnifiedType.BUSINESS) {
     uiSchema.elements.push({
-      type: "VerticalLayout",
-      elements: [
-        {
-          type: "Control",
-          scope: "#/properties/company",
-          options: {
-            autoFocus: true,
-            autocomplete: "off",
-            detail: useCompanyUischema({
-              minimal: true,
-              baseModel: baseModel?.company
-            })
-          }
-        }
-      ]
+      type: "Control",
+      scope: "#/properties/company",
+      options: {
+        autoFocus: true,
+        autocomplete: "off",
+        detail: useCompanyUischema({
+          minimal: true,
+          baseModel: baseModel?.company
+        })
+      }
     } as any);
   }
 
   if (get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE)) {
     uiSchema.elements.push({
-      type: "VerticalLayout",
-      elements: [
-        {
-          type: "Control",
-          scope: "#/properties/phone",
-          options: {
-            detail: usePhoneUischema()
-          }
-        }
-      ]
+      type: "Control",
+      scope: "#/properties/phone",
+      options: {
+        detail: usePhoneUischema()
+      }
     } as any);
   }
 
