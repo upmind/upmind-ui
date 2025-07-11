@@ -32,7 +32,7 @@
 
     <template #messages>
       <FormMessage
-        v-if="formFieldProps.dirty && errors"
+        v-if="formFieldProps.touched && errors"
         :errors="[errorsMapped]"
         :formMessageId="`form-item-message-${control.id}`"
         :name="control.path"
@@ -72,7 +72,8 @@ import {
   filter,
   isString,
   first,
-  isEmpty
+  isEmpty,
+  has
 } from "lodash-es";
 
 // --- types
@@ -121,7 +122,7 @@ const exampleNumber = computed(() => {
 });
 
 const errors = computed(() => {
-  if (control?.value?.errors) {
+  if (!isEmpty(formFieldProps?.value?.errors)) {
     try {
       parsePhoneNumberWithError(phone.value.number, {
         defaultCountry: phone?.value?.country
@@ -240,16 +241,18 @@ import {
   isStringControl,
   isObjectControl,
   schemaMatches,
-  or
+  or,
+  formatIs
 } from "@jsonforms/core";
 
 export const tester = {
-  rank: 2,
+  rank: 10,
   controlType: and(
     or(isStringControl, isObjectControl),
-    schemaMatches(
-      schema =>
-        "phone_country_code" in schema && !!(schema as any).phone_country_code
+    or(
+      formatIs("phone"),
+      schemaMatches(schema => schema.format === "international_phone"),
+      schemaMatches(schema => has(schema, "phone_country_code"))
     )
   )
 };
