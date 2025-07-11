@@ -160,7 +160,7 @@ const meta = computed(
     // isInline: props.layout == "inline",
     // isPersisted: props.persistFeedback || !isEmpty(props.errors),
     // ---
-    isInvalid: !isEmpty(props.errors) && (props.dirty || props.touched),
+    isInvalid: !isEmpty(props.errors) && props.touched,
     isValid: isEmpty(props.errors),
     isDirty: props.dirty,
     isTouched: props.touched,
