@@ -6,6 +6,7 @@ import {
   createCombinatorRenderInfos,
   findUISchema,
   getErrorAt,
+  getSubErrorsAt,
   getFirstPrimitiveProp,
   rankWith
 } from "@jsonforms/core";
@@ -18,17 +19,19 @@ import {
   set,
   isEqual,
   map,
-  isFunction
+  isFunction,
+  isEmpty
 } from "lodash-es";
 
 // --- types
-import type { ComputedRef, Ref } from "vue";
 import type {
   JsonFormsSubStates,
   Tester,
-  CombinatorSubSchemaRenderInfo
+  CombinatorSubSchemaRenderInfo,
+  JsonSchema
 } from "@jsonforms/core";
 import type { FormControlProps } from "../types";
+import type { ErrorObject } from "ajv";
 // -----------------------------------------------------------------------------
 
 export const useUpmindUIRenderer = <
@@ -40,35 +43,68 @@ export const useUpmindUIRenderer = <
   const jsonforms = inject<JsonFormsSubStates>("jsonforms");
   if (!jsonforms) throw new Error("jsonforms not found");
 
-  const errors = ref(
-    getErrorAt(
+  // --- utils
+  function getErrors() {
+    if (!jsonforms) return [];
+
+    const errors = getErrorAt(
       input.control.value.path,
       input.control.value.rootSchema
-    )({ jsonforms })
-  );
+    )({ jsonforms });
 
-  const touched: Ref<boolean> = ref(false);
-
-  const appliedOptions: ComputedRef<Partial<FormControlProps> | any> = computed(
-    () => {
-      return merge(
-        {},
-        cloneDeep(input.control.value.config),
-        cloneDeep(input.control.value.uischema.options)
+    if (
+      input.control.value.schema.type == "object" ||
+      !isEmpty(input.control.value.schema?.properties)
+    ) {
+      const resolvedSchema = Resolve.schema(
+        input.control.value.schema,
+        "properties",
+        input.control.value.rootSchema
       );
+
+      const childErrors = getSubErrorsAt(
+        input.control.value.path,
+        resolvedSchema
+      )({ jsonforms });
+
+      if (!isEmpty(childErrors))
+        errors.push({
+          instancePath: input.control.value.path,
+          schema: resolvedSchema,
+          message: `${input.control.value.label} is required`,
+          keyword: "object",
+          schemaPath: input.control.value.path,
+          params: {},
+          dataPath: input.control.value.path
+        } as ErrorObject);
     }
+
+    return errors;
+  }
+
+  // --- state
+
+  const errors = ref(getErrors());
+
+  const touched = ref<boolean>(
+    jsonforms?.core?.validationMode == "ValidateAndShow"
   );
+
+  const appliedOptions = computed((): Partial<FormControlProps> | any => {
+    return merge(
+      {},
+      cloneDeep(input.control.value.config),
+      cloneDeep(input.control.value.uischema.options)
+    );
+  });
 
   // lets get our errors as full error objects
-  watch(
-    () => input.control.value.errors,
-    () => {
-      errors.value = getErrorAt(
-        input.control.value.path,
-        input.control.value.rootSchema
-      )({ jsonforms });
-    }
-  );
+  watch(input.control, control => {
+    touched.value =
+      touched.value || jsonforms?.core?.validationMode === "ValidateAndShow";
+
+    errors.value = getErrors();
+  });
 
   const onInput = (value: any, isTouched: boolean = true) => {
     input.handleChange(input.control.value.path, adaptTarget(value));
@@ -87,7 +123,6 @@ export const useUpmindUIRenderer = <
     set(props, "id", input.control.value?.id);
     set(props, "name", input.control.value.path);
     set(props, "errors", map(errors.value, "message"));
-    // set(props, "errors", input.control.value.errors);
     set(
       props,
       "dirty",
@@ -96,11 +131,8 @@ export const useUpmindUIRenderer = <
         input.control.value.initial || null
       )
     );
-    set(
-      props,
-      "touched",
-      input.control.value.uischema.options?.touched || touched.value
-    );
+
+    set(props, "touched", touched.value);
 
     return props;
   });

@@ -279,7 +279,7 @@ function doSubmit() {
   )
     return; // safety check
 
-  forceTouched();
+  touched.value = true;
   emits("resolve", model.value);
 }
 
@@ -313,16 +313,6 @@ function updateUischema(uischema: FormProps["uischema"]) {
   });
 }
 
-function forceTouched() {
-  touched.value = true;
-  if (!uischema?.value) return;
-  iterateSchema(uischema.value, (child: UISchemaElement) => {
-    if (!child) return; //safety check
-    child.options ??= {}; //safety check
-    set(child.options, "touched", touched.value);
-  });
-}
-
 function syncUischema() {
   // sync the uischema to the forms current uschema so that we ALWAYS have a uischema,
   // this is important for us to be able to manipulate the form
@@ -345,7 +335,6 @@ watch(
   ({ uischema, additionalErrors, touched }) => {
     syncUischema();
     updateUischema(uischema);
-    if (touched) forceTouched();
   },
   { deep: true }
 );
