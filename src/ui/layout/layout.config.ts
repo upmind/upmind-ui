@@ -1,10 +1,15 @@
 import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 export default {
+  control: {
+    root: cva(
+      "flex h-12 w-full items-center justify-center border-b bg-base-background"
+    ),
+    content: cva("max-w-app flex w-full items-center justify-between")
+  },
+
   default: {
     root: cva("mx-auto w-full flex-wrap items-start justify-start"),
-    controlsRoot: cva("w-full border-b bg-base-background py-4"),
-    controls: cva("max-w-app mx-auto"),
     header: cva("max-w-app mx-auto pb-10 pt-10 md:pb-20 md:pt-14"),
     contentRoot: cva("pb-10 pt-10 md:pb-16 md:pt-20"),
     content: cva("max-w-app mx-auto")
@@ -20,10 +25,6 @@ export default {
 
   full: {
     root: cva("mx-auto w-full flex-wrap items-start justify-start"),
-    controlsRoot: cva(
-      "flex h-12 w-full items-center justify-center border-b bg-base-background"
-    ),
-    controls: cva("max-w-app flex w-full items-center justify-between"),
     header: cva("max-w-app mx-auto pb-10 pt-10 md:pb-20 md:pt-14"),
     contentRoot: cva("pb-10 pt-10 md:pb-16 md:pt-20", {
       variants: {

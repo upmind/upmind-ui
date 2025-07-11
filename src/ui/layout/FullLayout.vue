@@ -1,8 +1,15 @@
 <template>
-  <div :class="styles.full.controlsRoot" v-if="meta.hasControls">
-    <div :class="styles.full.controls">
-      <slot name="controls" />
-    </div>
+  <div :class="styles.control.root">
+    <nav :class="styles.control.content">
+      <div>
+        <slot name="controls" />
+        <slot name="navigation" />
+      </div>
+
+      <div>
+        <slot name="actions" />
+      </div>
+    </nav>
   </div>
 
   <article :class="cn(styles.full.root, props.class)">
@@ -41,17 +48,20 @@ const slots = useSlots();
 
 const meta = computed(() => {
   return {
-    hasControls: !isEmptySlot("controls", slots),
     hasHeader: !isEmptySlot("header", slots),
     hasContent: !isEmptySlot("default", slots)
   };
 });
 const styles = useStyles(
-  ["full"],
+  ["full", "control"],
   {},
   config,
   props.uiConfig ?? {}
 ) as ComputedRef<{
+  control: {
+    root: string;
+    content: string;
+  };
   full: {
     root: string;
     controlsRoot: string;
