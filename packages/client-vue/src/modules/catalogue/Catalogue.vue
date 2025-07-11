@@ -1,23 +1,36 @@
 <template>
   <Layout>
     <template #controls>
-      <CategoriesControls v-model="categoryId" />
+      <CategoriesControls
+        v-model="categoryId"
+        :sort="params.sort"
+        :direction="params.direction"
+      />
     </template>
+
     <template #header>
-      <Categories v-model="categoryId" />
+      <Categories
+        v-model="categoryId"
+        :sort="params.sort"
+        :direction="params.direction"
+      />
     </template>
 
     <div :class="styles.products.root">
-      <nav :class="styles.products.facets.root" v-if="uiCart?.catalogue?.facet">
-        <CategoriesFacet v-model="categoryId" />
+      <nav :class="styles.products.facets.root" v-if="isFaceted">
+        <CategoriesFacet
+          v-model="categoryId"
+          :sort="params.sort"
+          :direction="params.direction"
+        />
       </nav>
 
       <component
         :is="widget"
-        v-model:category-id="categoryId"
-        v-model:sort="sortProperty"
-        v-model:direction="sortDirection"
-        v-model:query="query"
+        v-model:categoryId="categoryId"
+        v-model:sort="params.sort"
+        v-model:direction="params.direction"
+        v-model:query="params.query"
       />
     </div>
   </Layout>
@@ -25,8 +38,9 @@
 
 <script setup lang="ts">
 // --- external
-import { computed, type ComputedRef } from "vue";
+import { computed } from "vue";
 import { useRouteQuery } from "@vueuse/router";
+import { useUrlSearchParams } from "@vueuse/core";
 // --- internal
 import {
   useProductCategories,
@@ -48,35 +62,33 @@ import WidgetGrid from "./products/WidgetGrid.vue";
 import WidgetDAC from "./products/WidgetDAC.vue";
 
 // --- types
+import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 const { isReady, isResolved } = useRoutingEngine();
 const { uiCart } = useBrand();
-const { findOne, dataFlattened } = useProductCategories();
+const { findOne } = useProductCategories();
 
 await isReady();
 await isResolved(ROUTE.PRODUCT_ADD);
 
 // --- state
+const isFaceted = computed(() => {
+  return !!uiCart.value?.catalogue?.facet;
+});
 
 const categoryId = useRouteQuery<string | undefined>("catid", undefined, {
   mode: "push"
 });
 
-const sortProperty = useRouteQuery<ProductSortableProperties>(
-  "sort",
-  ProductSortableProperties.DEFAULT,
-  { mode: "push" }
-);
-const sortDirection = useRouteQuery<RequestSortDirection | undefined>(
-  "direction",
-  RequestSortDirection.ASC,
-  { mode: "push" }
-);
-
-const query = useRouteQuery<string | undefined>("search", undefined, {
-  mode: "push"
-});
+const params = useUrlSearchParams<{
+  sort?: ProductSortableProperties;
+  direction?: RequestSortDirection;
+  query?: string;
+}>("history");
+params.sort ??= ProductSortableProperties.DEFAULT;
+params.direction ??= RequestSortDirection.ASC;
+params.query ??= "";
 
 // --- context
 

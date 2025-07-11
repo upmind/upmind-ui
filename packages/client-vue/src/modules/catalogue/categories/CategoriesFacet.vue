@@ -17,36 +17,42 @@
     </InputExtended>
 
     <div :class="styles.products.facet.list">
-      <Button
+      <RouterLink
         v-for="(category, index) in items"
         :key="`category-${index}`"
-        variant="ghost"
-        size="sm"
-        :class="
-          cn([
-            styles.products.facet.list.button,
-            category.current && 'text-control-active'
-          ])
-        "
-        @click="category.handler"
-        :label="category.label"
+        :to="category.to"
       >
-        <template #prepend>
-          <Icon
-            icon="chevron-right"
-            :class="
-              cn([
-                styles.products.facet.list.icon,
-                category.current || category.open ? 'opacity-100' : 'opacity-0',
-                category.open ? '-rotate-90' : ''
-              ])
-            "
-          />
-        </template>
-        <template #append v-if="category.count">
-          ({{ category.count }})
-        </template>
-      </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          :class="
+            cn([
+              styles.products.facet.list.button,
+              category.current && 'text-control-active'
+            ])
+          "
+          @click="category.handler"
+          :label="category.label"
+        >
+          <template #prepend>
+            <Icon
+              icon="chevron-right"
+              :class="
+                cn([
+                  styles.products.facet.list.icon,
+                  category.current || category.open
+                    ? 'opacity-100'
+                    : 'opacity-0',
+                  category.open ? '-rotate-90' : ''
+                ])
+              "
+            />
+          </template>
+          <template #append v-if="category.count">
+            ({{ category.count }})
+          </template>
+        </Button>
+      </RouterLink>
     </div>
   </section>
 </template>
@@ -55,6 +61,7 @@
 // --- external
 import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { RouterLink } from "vue-router";
 
 // --- internal
 import {
@@ -79,7 +86,7 @@ import type { ComputedRef } from "vue";
 import { map } from "lodash-es";
 
 // -----------------------------------------------------------------------------
-
+const props = defineProps<Omit<CategoriesProps, "modelValue">>();
 const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
 
 // -----------------------------------------------------------------------------
@@ -93,7 +100,7 @@ const items = computed(() => {
   const paths = getPath(modelValue.value);
 
   const items = [
-    // include "All" option
+    // include "root" option
     {
       id: 0,
       label: t("product.category.all"),
@@ -104,7 +111,12 @@ const items = computed(() => {
         modelValue.value = undefined;
       },
       to: {
-        name: ROUTE.CATALOGUE
+        name: ROUTE.CATALOGUE,
+        query: {
+          sort: props.sort,
+          direction: props.direction,
+          catid: undefined
+        }
       }
     },
     // include parent categories
@@ -115,7 +127,11 @@ const items = computed(() => {
       count: parentCategory.countDeep,
       to: {
         name: ROUTE.CATALOGUE,
-        query: { catId: parentCategory.id }
+        query: {
+          sort: props.sort,
+          direction: props.direction,
+          catid: parentCategory.id
+        }
       },
       handler: () => {
         modelValue.value = parentCategory.id;
@@ -130,7 +146,11 @@ const items = computed(() => {
       count: category.countDeep,
       to: {
         name: ROUTE.CATALOGUE,
-        query: { catId: category.id }
+        query: {
+          sort: props.sort,
+          direction: props.direction,
+          catid: category.id
+        }
       },
       handler: () => {
         modelValue.value = category.id;
@@ -172,9 +192,4 @@ const styles = useStyles(
     };
   };
 }>;
-
-// --- methods
-function selectCategory(value: string) {
-  modelValue.value = value;
-}
 </script>

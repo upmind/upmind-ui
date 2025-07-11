@@ -14,6 +14,8 @@
         :key="category.id"
         v-bind="category"
         v-model="modelValue"
+        :sort="props.sort"
+        :direction="props.direction"
       />
     </nav>
   </div>
@@ -44,8 +46,9 @@ import type { CategoriesProps } from "./types";
 import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
-
+const props = defineProps<Omit<CategoriesProps, "modelValue">>();
 const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
+
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
