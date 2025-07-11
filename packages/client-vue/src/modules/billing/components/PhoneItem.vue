@@ -3,7 +3,8 @@
     <span
       class="border-control flex h-10 items-center justify-center space-x-2 pl-4 text-sm"
     >
-      <Avatar :icon="lowerCase(props.phone?.country)" size="3xs" />
+      <Avatar :icon="lowerCase(props.phone?.country ?? '')" size="3xs" />
+
       <span class="text-emphasis-medium"
         >+{{ props.phone?.countryCallingCode }}</span
       >

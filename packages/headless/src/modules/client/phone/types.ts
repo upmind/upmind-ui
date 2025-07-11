@@ -27,7 +27,7 @@ export interface PhoneModel {
 
 export interface Phone {
   id: IPhone["id"];
-  title: string;
+  title?: string;
   description?: string;
   phone: PhoneModel["phone"];
   type: IPhone["type"];
