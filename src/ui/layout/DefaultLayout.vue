@@ -1,6 +1,6 @@
 <template>
-  <div :class="styles.default.controlsRoot" v-if="meta.hasControls">
-    <div :class="styles.default.controls">
+  <div :class="styles.control.root" v-if="meta.hasControls">
+    <div :class="styles.control.content">
       <slot name="controls" />
     </div>
   </div>
@@ -47,15 +47,17 @@ const meta = computed(() => {
 });
 
 const styles = useStyles(
-  ["default"],
+  ["default", "control"],
   {},
   config,
   props.uiConfig ?? {}
 ) as ComputedRef<{
+  control: {
+    root: string;
+    content: string;
+  };
   default: {
     root: string;
-    controlsRoot: string;
-    controls: string;
     header: string;
     contentRoot: string;
     content: string;

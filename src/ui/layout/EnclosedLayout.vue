@@ -1,7 +1,14 @@
 <template>
-  <div :class="styles.enclosed.controlsRoot" v-if="meta.hasControls">
-    <nav :class="styles.enclosed.controls">
-      <slot name="controls" />
+  <div :class="styles.control.root">
+    <nav :class="styles.control.content">
+      <div>
+        <slot name="controls" />
+        <slot name="navigation" />
+      </div>
+
+      <div>
+        <slot name="actions" />
+      </div>
     </nav>
   </div>
 
@@ -48,15 +55,17 @@ const meta = computed(() => {
 });
 
 const styles = useStyles(
-  ["enclosed"],
+  ["enclosed", "control"],
   {},
   config,
   props.uiConfig ?? {}
 ) as ComputedRef<{
+  control: {
+    root: string;
+    content: string;
+  };
   enclosed: {
     root: string;
-    controlsRoot: string;
-    controls: string;
   };
 }>;
 </script>
