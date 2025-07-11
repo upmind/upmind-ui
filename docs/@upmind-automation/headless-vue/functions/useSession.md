@@ -1,9 +1,9 @@
-[Upmind](../../packages.md) / [@upmind-automation/headless-vue](../index.md) / useSession
+[Upmind](../../packages.md) / [@upmind-automation/headless](../index.md) / useSession
 
 # useSession()
 
 ```ts
-function useSession(inspector?): IUseSession
+function useSession(inspector?): IUseSession;
 ```
 
 Composable function to manage session-related logic using Vue.

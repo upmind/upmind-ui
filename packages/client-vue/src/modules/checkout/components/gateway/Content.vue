@@ -1,8 +1,8 @@
 <template>
   <PaymentGateway
-    v-if="!!gateway?.id"
-    v-show="meta.hasGateway && gateway.id == model.gateway_id"
-    :id="gateway.id"
+    v-if="!!gatewayId"
+    v-show="meta.hasGateway && gatewayId == modelValue"
+    :id="gatewayId"
     :class="styles.checkout.gateway"
     class="w-full"
   />

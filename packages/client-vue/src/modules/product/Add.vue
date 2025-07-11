@@ -1,11 +1,11 @@
 <template>
-  <article v-auto-animate>
-    <ContentSection v-auto-animate>
+  <Layout>
+    <ContentSection v-auto-animate class="flex flex-grow items-center">
       <form v-auto-animate @submit.prevent @reset.prevent>
         <Button
           v-if="basketMeta.hasProducts && basketMeta.isAvailable"
           type="reset"
-          class="relative -top-4 mb-6 md:-top-6 md:mb-0"
+          class="bg-base-background relative -top-4 mb-6 md:-top-6 md:mb-0"
           size="sm"
           variant="tonal"
           :label="t('navigation.back')"
@@ -67,7 +67,7 @@
         </footer>
       </form>
     </ContentSection>
-  </article>
+  </Layout>
 </template>
 
 <script lang="ts" setup>
@@ -82,17 +82,17 @@ import {
   useRoutingEngine,
   useBasketProductsPending,
   useQueryParams,
-  ROUTE,
-} from "@upmind-automation/headless-vue";
+  ROUTE
+} from "@upmind-automation/headless";
 
 // --- components
-import { Button, Icon } from "@upmind-automation/upmind-ui";
+import { Card, Button, Icon } from "@upmind-automation/upmind-ui";
 import ContentSection from "../../components/content/ContentSection.vue";
-import Card from "../../components/content/Card.vue";
 import ProductConfig from "./components/config/Config.vue";
 import Summary from "./components/summary/Summary.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 import ConfigSkeleton from "./components/ConfigSkeleton.vue";
+import Layout from "../../components/layout/Layout.vue";
 
 // --- utils
 
@@ -101,7 +101,7 @@ import ConfigSkeleton from "./components/ConfigSkeleton.vue";
 // -----------------------------------------------------------------------------
 const { t, tm } = useI18n();
 
-const { back, next, isResolved } = useRoutingEngine();
+const { navigateBack, navigateNext, isResolved } = useRoutingEngine();
 const { meta: basketMeta, isReady } = useBasket();
 const { productId } = useQueryParams();
 const { configure, resolve } = useBasketProductsPending();
@@ -112,14 +112,14 @@ const {
   meta,
   stop,
   update,
-  service: pendingProduct,
+  service: pendingProduct
 } = await configure(productId);
 
 async function doResolve() {
   update()
     .then(() => {
       resolve(pendingProduct);
-      next(pendingProduct);
+      navigateNext(pendingProduct);
     })
     .catch(() => {
       // if we take more than 60 seconds to resolve the product ( which is unlikely but possible),
@@ -130,11 +130,11 @@ async function doResolve() {
         ({ isDone }) => {
           if (isDone) {
             resolve(pendingProduct);
-            next(pendingProduct);
+            navigateNext(pendingProduct);
           }
         },
         {
-          immediate: true,
+          immediate: true
         }
       );
     });
@@ -142,6 +142,6 @@ async function doResolve() {
 
 function doReject() {
   stop();
-  back();
+  navigateBack();
 }
 </script>

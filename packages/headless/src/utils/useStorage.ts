@@ -1,6 +1,10 @@
 // -----------------------------------------------------------------------------
 
+import { isEmpty } from "lodash-es";
+
 export function useSafeParse(value: any) {
+  if (isEmpty(value)) return value;
+
   try {
     return JSON.parse(value);
   } catch (e) {
@@ -26,7 +30,7 @@ export const useSessionStorage = () => {
     clear() {
       sessionStorage.clear();
       return null;
-    },
+    }
   };
 };
 
@@ -48,6 +52,6 @@ export const useLocalStorage = () => {
     clear() {
       localStorage.clear();
       return null;
-    },
+    }
   };
 };

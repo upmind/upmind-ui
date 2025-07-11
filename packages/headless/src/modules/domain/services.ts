@@ -1,7 +1,7 @@
 // --- external
 
 // --- internal
-import { useQuery, useQueryPaginated } from "../..";
+import { DomainModel, DomainProduct, PAGINATION, useQuery } from "../..";
 
 // --- utils
 import { isEmpty, map, omitBy } from "lodash-es";
@@ -10,6 +10,7 @@ import { parseAvailable, parseDomain, parseSld } from "./utils";
 // --- types
 import type { IProduct } from "@upmind-automation/types";
 import type { DomainContext } from "./types";
+import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 
 // -----------------------------------------------------------------------------
 
@@ -18,63 +19,63 @@ async function search({
   currency,
   controller,
   promotions,
-  preferredCycle,
+  preferredCycle
 }: DomainContext) {
-  const { get, useUrl } = useQueryPaginated();
+  const { getList, useUrl } = useQuery();
+
   if (!search?.query?.length)
-    return Promise.reject(new Error("No query provided"));
+    return Promise.reject(
+      new DetailedError(
+        "No query provided",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      )
+    );
   const sld = parseSld(search.query);
 
   // lets ensure we parse our promotions correctly
   const promocodes = map(promotions, "promotion.code").join();
 
-  // --- Build the request, and Fetch the search results
+  // --- Build the request and Fetch the search results
   const params = omitBy(
     {
       sld,
       with: ["prices", "options", "options.prices", "attributes"].join(),
       currency_code: currency,
       // tld,
-      promotions: promocodes,
+      promotions: promocodes
     },
     isEmpty
   );
 
-  return get<IProduct[]>({
+  return getList<IProduct[], DomainProduct[]>({
     url: useUrl("modules/web_hosting/domains/search", params),
     init: { signal: controller?.signal },
-    queryKey: [
-      "domain",
-      "search",
-      { sld, params, limit: search?.limit, offset: search.offset },
-    ],
+    queryKey: ["domain", "search", { ...params }],
     pagination: {
-      limit: search?.limit,
-      offset: search.offset,
+      limit: search?.limit ?? PAGINATION.limit,
+      offset: search?.offset ?? PAGINATION.offset
     },
     staleTime: 0,
     gcTime: 0,
-  }).then(async response => {
-    return {
-      total: response.itemTotal,
-      available: await parseAvailable(sld, response.data ?? [], preferredCycle),
-    };
+    select(data) {
+      return parseAvailable(sld, data ?? [], preferredCycle);
+    }
   });
 }
 
-function getClientDomains({ controller }: DomainContext) {
+async function getClientDomains({ controller }: DomainContext) {
   const { get, useUrl } = useQuery();
 
-  return get({
+  return get<any, (DomainModel | undefined)[]>({
     url: useUrl("modules/web_hosting/domains/client_domains"),
     init: { signal: controller?.signal },
     queryKey: ["domain", "client-domains"],
+    select: data => map(data, ({ domain_name }) => parseDomain(domain_name)),
     withAccessToken: true,
     staleTime: 0,
-    gcTime: 0,
-  }).then(({ data }: any) =>
-    map(data, ({ domain_name }) => parseDomain(domain_name))
-  );
+    gcTime: 0
+  });
 }
 // ---
 // async function parse(_context, _event) {
@@ -100,5 +101,5 @@ function getClientDomains({ controller }: DomainContext) {
 
 export default {
   search,
-  getClientDomains,
+  getClientDomains
 };

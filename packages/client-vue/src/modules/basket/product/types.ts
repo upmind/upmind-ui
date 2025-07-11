@@ -1,7 +1,7 @@
 import type {
   BasketProduct,
-  ProductSummaryDetailWithPrice,
-} from "@upmind-automation/headless-vue";
+  ProductSummaryDetailWithPrice
+} from "@upmind-automation/headless";
 import type { ButtonProps } from "@upmind-automation/upmind-ui";
 
 import type { RouteLocationRaw } from "vue-router";

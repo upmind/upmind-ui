@@ -5,6 +5,7 @@
       size="sm"
       variant="tonal"
       :label="t('navigation.back')"
+      class="bg-base-background"
     >
       <template #prepend><Icon icon="arrow-left" size="2xs" /></template>
     </Button>

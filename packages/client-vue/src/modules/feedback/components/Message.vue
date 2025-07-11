@@ -18,7 +18,7 @@
 import { computed } from "vue";
 
 // --- internal
-import { useMessage } from "@upmind-automation/headless-vue";
+import { useMessage } from "@upmind-automation/headless";
 
 // custom elements
 import { Alert } from "@upmind-automation/upmind-ui";
@@ -35,7 +35,7 @@ const props = withDefaults(
     block?: boolean;
   }>(),
   {
-    variant: "inline",
+    variant: "inline"
   }
 );
 

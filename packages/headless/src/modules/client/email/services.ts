@@ -1,179 +1,224 @@
-// --- external
-
 // --- internal
-import { useQuery, useSession } from "../..";
+import { useQuery, useSession, useFeedback, type QueryParams } from "../..";
 
 // --- utils
-import { useValidation } from "../../../utils";
-import { includes, reduce, get, isEmpty, isEqual, find } from "lodash-es";
+import {
+  useTime,
+  ErrorOrigin,
+  useValidation,
+  DetailedError,
+  responseCodes,
+  useCollection,
+  useModelParser,
+  NotAuthenticatedError
+} from "../../../utils";
+import { invalidateQueryByKey } from "../../query";
+import { mapEmail, mapEmails, mapIEmail } from "./mappers";
+import { get, isString, isEmpty, omitBy } from "lodash-es";
 
 // --- types
+import type { IEmail } from "@upmind-automation/types";
+import type { QueryKey } from "@tanstack/vue-query";
 import type { AnyEventObject } from "xstate";
-import type { EmailContext, EmailsContext } from "./types";
+import type { Email, EmailModel, EmailContext } from "./types";
 
 // -----------------------------------------------------------------------------
-// SERVICE METHODS
-// Invoked by machines, providing context and event data
-export async function invalidateEmails(context: object) {
-  const { queryClient } = useQuery();
+// QUERIES
 
-  return queryClient
-    .resetQueries({ queryKey: ["clients", "emails"], exact: false }) // companies needs to invalidate ALL client libs
-    .then(() => context);
-}
+const queryKey: QueryKey = ["client", "emails"];
+const { addError, addSuccess } = useFeedback();
 
-async function load(_context: EmailsContext) {
-  const { get, useUrl } = useQuery();
-  const { isAuthenticated } = useSession();
-  const client = await isAuthenticated().catch(error => Promise.reject(error));
+function loadList(params?: Partial<QueryParams>) {
+  const { meta, user } = useSession();
+  const { list, useUrl } = useQuery();
 
-  return get({
-    url: useUrl(`clients/${client.id}/emails`, {
-      limit: 0,
-    }),
-    queryKey: ["clients", "emails", { limit: 0 }],
+  return list<IEmail[], Email[]>({
+    ...(params as any),
+    queryKey,
+    url: useUrl(`clients/${user.value?.id}/emails`),
     withAccessToken: true,
-    revalidateIfStale: true,
-  }).then(({ data }: any) => data);
+    guard: async () =>
+      new Promise((resolve, reject) => {
+        if (meta.value.isAuthenticated && !!user.value?.id) {
+          resolve(true);
+        } else {
+          reject(new NotAuthenticatedError());
+        }
+      }),
+    // --- options
+    select: mapEmails,
+    staleTime: useTime().DAY
+  });
 }
 
-async function filterItems({ raw }: EmailsContext, { data }: AnyEventObject) {
-  if (!data?.length)
-    return Promise.reject({ error: "No data provided for filtering" });
+async function loadLookups({
+  model,
+  schema
+}: EmailContext): Promise<EmailContext> {
+  // we don't have any lookups for emails, so return null
+  const baseModel: EmailModel = {
+    email: ""
+  };
 
-  const filteredItems = reduce(
-    raw,
-    (result: any[], item) => {
-      const matches =
-        includes(
-          item.getSnapshot().context?.title?.toLowerCase(),
-          data?.toLowerCase()
-        ) ||
-        includes(
-          item.getSnapshot().context?.description?.toLowerCase(),
-          data?.toLowerCase()
-        );
+  const safeModel = useModelParser<EmailModel>(schema, model, baseModel);
 
-      if (matches) {
-        const model = get(item.getSnapshot, "context.model");
-        result.push(model);
-      }
+  return Promise.resolve({
+    model: safeModel,
+    baseModel: safeModel
+  } as EmailContext);
+}
 
-      return result;
+// -----------------------------------------------------------------------------
+// MUTATIONS
+
+async function add(data: EmailModel) {
+  const { meta, user } = useSession();
+  const { post, useUrl } = useQuery();
+
+  if (!meta.value.isAuthenticated || !user.value?.id) {
+    return Promise.reject(new NotAuthenticatedError());
+  }
+  return post<IEmail>({
+    url: useUrl(`clients/${user.value?.id}/emails`),
+    data: mapIEmail(data),
+    withAccessToken: true
+  }).then(invalidateQueryByKey(queryKey, { exact: false }));
+}
+
+async function update(id: Email["id"], data: EmailModel) {
+  const { meta, user } = useSession();
+  const { put, useUrl } = useQuery();
+
+  if (!meta.value.isAuthenticated || !user.value?.id) {
+    return Promise.reject(new NotAuthenticatedError());
+  }
+
+  return put<IEmail>({
+    url: useUrl(`clients/${user.value?.id}/emails/${id}`),
+    data: mapIEmail(data),
+    withAccessToken: true
+  }).then(invalidateQueryByKey(queryKey, { exact: false }));
+}
+
+async function ensure(model: EmailModel): Promise<Email> {
+  const { data, promise } = loadList();
+  await promise.value.finally(); // wait for the query to resolve
+  const { findOne } = useCollection<Email>(data.value ?? []);
+
+  // foe emails we map agains id or the actual email address
+  const mapping = omitBy(model, isEmpty);
+  const found = findOne(mapping);
+  if (found) return Promise.resolve(found);
+
+  return add(model).then(raw => {
+    if (isEmpty(raw))
+      throw new DetailedError(
+        "Failed to ensure email",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless,
+        { model }
+      );
+    // NB: Remember to refresh our machines so we have the new data
+    // refresh();
+    return mapEmail(raw);
+  });
+}
+
+function remove(emailId: Email["id"]) {
+  const { meta, user } = useSession();
+  const { mutate, useUrl } = useQuery();
+
+  return mutate<null>("DELETE", {
+    url: useUrl(`clients/${user.value?.id}/emails/${emailId}`),
+    guard: async () =>
+      new Promise((resolve, reject) => {
+        if (meta.value.isAuthenticated || !user.value?.id) {
+          resolve(true);
+        } else {
+          reject(new NotAuthenticatedError());
+        }
+      }),
+    onError(error: any) {
+      addError({
+        title: isString(error)
+          ? error
+          : error?.title || "We experienced an error removing this email",
+        copy: error?.message,
+        data: error?.data
+      });
     },
-    []
-  );
-
-  return Promise.resolve(filteredItems);
+    onSuccess(data) {
+      invalidateQueryByKey(queryKey, { exact: false })(data);
+      addSuccess("Successfully removed email");
+    },
+    withAccessToken: true
+  });
 }
 
-async function findItem({ raw }: EmailsContext, { data }: AnyEventObject) {
-  if (isEmpty(data))
-    return Promise.reject({ error: "No data provided for filtering" });
+function setDefault(emailId: Email["id"]) {
+  const { meta, user } = useSession();
+  const { mutate, useUrl } = useQuery();
 
-  const found = find(
-    raw,
-    item =>
-      isEqual(item.getSnapshot().context.model.id, data) ||
-      isEqual(item.getSnapshot().context.model.email, data)
-  );
-
-  return new Promise((resolve, reject) => {
-    if (!found) reject();
-    resolve(found);
+  return mutate<IEmail>("PUT", {
+    url: useUrl(`clients/${user.value?.id}/emails/${emailId}`),
+    guard: async () =>
+      new Promise((resolve, reject) => {
+        if (meta.value.isAuthenticated || !user.value?.id) {
+          resolve(true);
+        } else {
+          reject(new NotAuthenticatedError());
+        }
+      }),
+    data: { default: true },
+    onError(error: any) {
+      addError({
+        title: isString(error)
+          ? error
+          : error?.title ||
+            "We experienced an error setting this email as default",
+        copy: error?.message,
+        data: error?.data
+      });
+    },
+    onSuccess(data) {
+      invalidateQueryByKey(queryKey, { exact: false })(data);
+      addSuccess("Successfully set email as default");
+    },
+    withAccessToken: true
   });
 }
 
 // -----------------------------------------------------------------------------
+//  SIDE EFFECTS
 
-async function add({ model }: EmailContext) {
-  const { post, useUrl } = useQuery();
-  const { getUserId } = useSession();
+async function parse({ schema }: EmailContext, { data }: AnyEventObject) {
+  const safeModel = useModelParser<EmailModel>(
+    schema,
+    get(data, "model", data)
+  );
 
-  const clientId = await getUserId();
-
-  return post({
-    url: useUrl(`clients/${clientId}/emails`),
-    data: {
-      email: model.email,
-      type: model.type,
-    },
-    withAccessToken: true,
-  })
-    .then(invalidateEmails)
-    .then(({ data }: any) => data);
-}
-
-async function update({ model }: EmailContext) {
-  const { put, useUrl } = useQuery();
-  const { getUserId } = useSession();
-
-  const clientId = await getUserId();
-
-  return put({
-    url: useUrl(`clients/${clientId}/emails/${model.id}`),
-    data: {
-      email: model.email,
-      type: model.type,
-    },
-    withAccessToken: true,
-  })
-    .then(invalidateEmails)
-    .then(({ data }: any) => data);
-}
-
-async function remove({ model }: EmailContext) {
-  const { del, useUrl } = useQuery();
-  const { getUserId } = useSession();
-
-  const clientId = await getUserId();
-
-  return del({
-    url: useUrl(`clients/${clientId}/emails/${model.id}`),
-    withAccessToken: true,
-  })
-    .then(invalidateEmails)
-    .then(({ data }: any) => data);
-}
-
-async function setDefault({ model }: EmailContext) {
-  const { put, useUrl } = useQuery();
-  const { getUserId } = useSession();
-
-  const clientId = await getUserId();
-
-  return put({
-    url: useUrl(`clients/${clientId}/emails/${model.id}`),
-    data: { default: true },
-    withAccessToken: true,
-  })
-    .then(invalidateEmails)
-    .then(({ data }: any) => data);
-}
-
-// -----------------------------------------------------------------------------
-
-async function loadLookups(_context: EmailContext) {
-  // we dont have any lookups for emails, so just return null
-  return Promise.resolve(null);
-}
-
-async function parse({ model }: EmailContext) {
   // ---
-  return Promise.resolve({ model });
+
+  return Promise.resolve({ model: safeModel });
 }
 
 async function validate({ schema, model }: EmailContext) {
-  // ---
+  if (!schema) return Promise.resolve(model);
 
   // Now validate the model as per normal
   const { validate } = useValidation();
 
   return new Promise((resolve, reject) => {
-    if (!schema) return resolve(model);
     const errors = validate(schema, model);
     if (errors?.length) {
-      reject({ error: errors });
+      reject(
+        new DetailedError(
+          "Email validation failed",
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.Headless,
+          errors
+        )
+      );
     } else {
       resolve(model);
     }
@@ -181,18 +226,123 @@ async function validate({ schema, model }: EmailContext) {
 }
 
 // -----------------------------------------------------------------------------
-// EXPORTS
 
 export default {
-  find: findItem,
-  load,
-  loadLookups,
-  parse,
-  validate,
-  setDefault,
-  add,
-  update,
+  /**
+   * The query key used for caching and identifying email-related queries.
+   * @type {QueryKey}
+   */
+  queryKey,
+
+  //--- queries
+  /**
+   * Loads the email list.
+   * @returns {Promise<Email[]>} A promise that resolves to the list of emails
+   */
+  loadList,
+
+  //--- mutations
+  /**
+   * Removes a email by its ID.
+   * @param {Email["id"]} emailId - The ID of the email to remove.
+   * @returns {Promise<null>} A promise that resolves when the email is removed
+   */
   remove,
-  filter: filterItems,
-  isAuthenticated: () => useSession().isAuthenticated(),
+
+  /**
+   * Sets a email as the default email.
+   * @param {Email["id"]} emailId - The ID of the email to set as default.
+   * @returns {Promise<IEmail>} A promise that resolves to the updated email
+   */
+  setDefault
+};
+
+export const useClientEmailServices = () => {
+  return {
+    // --- methods
+
+    /**
+     * Adds a email.
+     * @param {Partial<EmailContext>} param0 - The email context containing the model to add.
+     * @returns {Promise<any>} The result of the add operation.
+     */
+    add: async ({ model }: Partial<EmailContext>): Promise<any> => {
+      if (isEmpty(model))
+        return Promise.reject(
+          new DetailedError(
+            "Add Email failed: model provided",
+            responseCodes.No_Content,
+            ErrorOrigin.Headless,
+            { model }
+          )
+        );
+      // return add(model);
+      return ensure(model);
+    },
+
+    /**
+     * Ensures a email exists.
+     * @param {Partial<EmailContext>} param0 - The email context containing the model to ensure.
+     * @returns {Promise<any>} The ensured email model, which will either be the existing email or a new one created.
+     */
+    ensure: async ({ model }: Partial<EmailContext>): Promise<any> => {
+      if (isEmpty(model))
+        return Promise.reject(
+          new DetailedError(
+            "Ensure Email failed: model provided",
+            responseCodes.No_Content,
+            ErrorOrigin.Headless,
+            { model }
+          )
+        );
+      return ensure(model);
+    },
+
+    /**
+     * Loads lookups for the email form.
+     * @param {EmailContext} context - The email context.
+     * @returns {Promise<EmailContext>} The loaded lookups.
+     */
+    loadLookups,
+
+    /**
+     * Parses a email context.
+     * @param {EmailContext} context - The email context.
+     * @param {AnyEventObject} event - The event object.
+     * @returns {Promise<any>} The parsed email context.
+     */
+    parse,
+
+    /**
+     * Refreshes the email list.
+     * @param {Partial<QueryParams>} params - Optional query params.
+     * @returns {Promise<any>} The refreshed email list.
+     */
+    refresh: loadList,
+
+    /**
+     * Updates a email.
+     * @param {Partial<EmailContext>} param0 - The email context containing id and model.
+     * @returns {Promise<any>} The result of the update operation.
+     */
+    update: async ({ id, model }: Partial<EmailContext>): Promise<any> => {
+      if (!id || isEmpty(model))
+        return Promise.reject(
+          new DetailedError(
+            "Update Email failed: No id or model provided",
+            responseCodes.No_Content,
+            ErrorOrigin.Headless,
+            { id, model }
+          )
+        );
+      return update(id, model);
+    },
+
+    /**
+     * Validates a email model.
+     * @param {Partial<EmailContext>} param0 - The email context containing schema and model.
+     * @returns {Promise<any>} The validated model.
+     */
+    validate
+  };
 };

@@ -1,59 +1,131 @@
 // --- external
 
 // --- internal
-import {
-  useBrand,
-  useQuery,
-  useSystem,
-  useSession,
-  useClientUnifiedAddresses,
-} from "../../..";
-import { find, isEmpty } from "lodash-es";
+import { useBrand, useQuery, useSession } from "../../..";
 
 // --- utils
-import { DetailedError, responseCodes, useValidation } from "../../../utils";
+import {
+  DetailedError,
+  ErrorOrigin,
+  NotAuthenticatedError,
+  responseCodes,
+  useModelParser,
+  useValidation
+} from "../../../utils";
+import { get } from "lodash-es";
 
 // --- types
 import { BrandConfigKeys } from "@upmind-automation/types";
 import type { AnyEventObject } from "xstate";
-import type { BillingDetailsContext } from "./types";
+import type { BillingContext, BillingModel } from "./types";
 
 // -----------------------------------------------------------------------------
 
-async function load(_context: BillingDetailsContext, _event: AnyEventObject) {
+async function loadLookups(
+  { model, schema }: BillingContext,
+  _event: AnyEventObject
+) {
   const { ensureConfig } = useBrand();
-  const { fetchCountries } = useSystem();
-  const { isAuthenticated } = useSession();
+  const { meta } = useSession();
 
-  await Promise.allSettled([
-    fetchCountries(),
-    ensureConfig([
-      BrandConfigKeys.CHECKOUT_REQUIRE_PHONE,
-      BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS,
-      BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS,
-    ]),
-  ]);
+  if (!meta.value.isAuthenticated)
+    return Promise.reject(new NotAuthenticatedError());
 
-  await isAuthenticated().catch(error => Promise.reject(error));
+  const config = await ensureConfig([
+    BrandConfigKeys.CHECKOUT_REQUIRE_PHONE,
+    BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS,
+    BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS
+  ]).then(config => {
+    return {
+      requiresPhone: config?.invoices?.common?.require_phone_for_orders,
+      requiresCompany: config?.invoices?.common?.require_company_for_orders,
+      requiresAddress: config?.invoices?.common?.require_address_for_orders
+    };
+  });
 
-  const { isReady, getItems } = useClientUnifiedAddresses();
+  // // We should ALWAYS have an address set  ( if we have addresses )
+  // if (!isEmpty(defaultAddress)) {
+  //   baseModel = {
+  //     addressId: defaultAddress.id,
+  //     companyId: defaultAddress?.companyId,
+  //     phoneId: defaultPhone?.phoneId,
+  //   };
+  //   autoupdate = true;
+  //   dirty = true;
+  // }
 
-  return isReady().then(() => {
-    const addresses = getItems();
+  const baseModel: BillingModel = {
+    addressId: undefined,
+    companyId: undefined,
+    phoneId: undefined
+  };
 
-    return { addresses };
+  const safeModel = useModelParser<BillingModel>(schema, model, baseModel);
+
+  return Promise.resolve({
+    config,
+    model: safeModel,
+    baseModel: safeModel
+  });
+}
+
+async function parse(
+  { autoupdate, schema, baseModel }: BillingContext,
+  { data }: AnyEventObject
+) {
+  // sometimes the machine can return the full context as data, so we check to see if we have a model
+  // if not, then we assume the data is the model
+  const safeModel = useModelParser<BillingModel, BillingModel>(
+    schema,
+    get(data, "model", data)
+  );
+
+  // ---
+  // we dont have any parsing checks or transforms so we can pass through the model
+  return Promise.resolve({
+    model: safeModel,
+    autoupdate
+  });
+}
+
+async function validate(
+  { schema, model }: BillingContext,
+  _event: AnyEventObject
+) {
+  // Now validate the model as per normal
+  const { validate } = useValidation();
+
+  return new Promise((resolve, reject) => {
+    if (!schema) return resolve(model);
+    const errors = validate(schema, model);
+    if (errors?.length) {
+      reject(
+        new DetailedError(
+          "Billing validation failed",
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.Headless,
+          errors
+        )
+      );
+    } else {
+      resolve(model);
+    }
   });
 }
 
 async function update(
-  { basketId, model }: BillingDetailsContext,
+  { basketId, model }: BillingContext,
   _event: AnyEventObject
 ) {
   const { put, useUrl } = useQuery();
 
   if (!model?.addressId)
     return Promise.reject(
-      new DetailedError("No addressId", responseCodes.Unprocessable_Entity)
+      new DetailedError(
+        "No addressId provided to update billing",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      )
     );
 
   // get returns a promise so we can pass it directly back to the machine
@@ -62,58 +134,16 @@ async function update(
     data: {
       address_id: model?.addressId,
       company_id: model?.companyId || null,
+      phone_id: model?.phoneId || null
     },
-    withAccessToken: true,
-  }).then(({ data }: any) => data);
-}
-
-async function parse(
-  { model, autoupdate, dirty, addresses }: BillingDetailsContext,
-  _event: AnyEventObject
-) {
-  const defaultAddress = find(addresses, "default");
-
-  // We should ALWAYS have an address set  ( if we have addresses )
-  // if model is not set, set it to the default address
-  if (!model?.addressId && !isEmpty(defaultAddress)) {
-    model = {
-      addressId: defaultAddress.addressId,
-      companyId: defaultAddress.companyId,
-    };
-    autoupdate = true;
-    dirty = true;
-  }
-
-  // ---
-  // we dont have any parsing checks or transforms so we can pass through the model
-  return Promise.resolve({ model, autoupdate, dirty });
-}
-
-async function validate(
-  { schema, model }: BillingDetailsContext,
-  _event: AnyEventObject
-) {
-  // Now validate the model as per normal
-  const { validate } = useValidation();
-
-  return new Promise((resolve, reject) => {
-    if (!schema) return resolve(model);
-
-    const errors = validate(schema, model);
-
-    if (errors?.length) {
-      reject({ error: errors });
-    } else {
-      resolve(model);
-    }
+    withAccessToken: true
   });
 }
-
 // -----------------------------------------------------------------------------
 
 export default {
-  load,
+  loadLookups,
   parse,
-  validate,
   update,
+  validate
 };

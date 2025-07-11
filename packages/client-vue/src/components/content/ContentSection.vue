@@ -1,7 +1,7 @@
 <template>
   <section
     :class="cn(styles.section.root, props.class)"
-    data-testid="card-container"
+    data-testid="content-section"
   >
     <header
       :class="styles.section.header"
@@ -35,6 +35,7 @@
 // --- internal
 import { cn, useStyles } from "@upmind-automation/upmind-ui";
 import config from "./content.config";
+import { kebabCase } from "lodash-es";
 
 // --- types
 import type { HTMLAttributes, ComputedRef } from "vue";
@@ -44,7 +45,7 @@ import type { ContentSectionProps } from "./types";
 const props = defineProps<ContentSectionProps>();
 
 const styles = useStyles(["section"], {}, config, {
-  section: props.uiConfig,
+  section: props.uiConfig
 }) as ComputedRef<{
   section: {
     root: string;

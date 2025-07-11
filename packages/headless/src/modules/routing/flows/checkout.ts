@@ -16,27 +16,18 @@ import { useSession } from "../../session";
 
 export const useCheckoutFlows = () => {
   const routing = useRoutingEngine();
-  const {
-    hasProducts,
-    hasInvalidProducts,
-    hasFields,
-    hasOrder,
-    isOrderPaid,
-    getInvoice,
-    isReady,
-  } = useBasket();
-  const { isAuthenticated } = useSession();
+  const { meta: basketMeta, invoice, isReady } = useBasket();
+  const { meta: sessionMeta } = useSession();
 
   let flows: Flow[] = [
     {
       name: ROUTE.CHECKOUT,
       guard: async (_route: Route) => {
         await isReady();
-        const validProducts = hasProducts() && !hasInvalidProducts();
-        const validFields = await hasFields();
-        const validAuth = await isAuthenticated()
-          .then(() => true)
-          .catch(() => false);
+        const validProducts =
+          basketMeta.value.hasProducts && !basketMeta.value.hasInvalidProducts;
+        const validFields = basketMeta.value.hasFields;
+        const validAuth = sessionMeta.value.isAuthenticated;
 
         return validProducts && validFields && validAuth;
       },
@@ -48,55 +39,53 @@ export const useCheckoutFlows = () => {
           {
             name: ROUTE.ORDER,
             meta: { replace: true },
-            guard: async (_route: Route) => hasOrder(),
+            guard: async (_route: Route) => basketMeta.value.isComplete,
             resolve: async (_route: Route) => {
-              const invoice = getInvoice();
               return {
                 name: ROUTE.ORDER,
-                params: { orderId: invoice?.id },
-                query: { payment_success: isOrderPaid().toString() },
+                params: { orderId: invoice.value?.id },
+                query: {
+                  payment_success: basketMeta.value.hasPaid.toString()
+                }
               } as Route;
-            },
-          },
+            }
+          }
         ],
         back: [ROUTE.BASKET, ROUTE.EMPTY],
         fallback: [
           {
             name: ROUTE.ORDER,
             meta: { replace: true },
-            guard: async (_route: Route) => hasOrder(),
+            guard: async (_route: Route) => basketMeta.value.isComplete,
             resolve: async (_route: Route) => {
-              const invoice = getInvoice();
               return {
                 name: ROUTE.ORDER,
-                params: { orderId: invoice?.id },
-                query: { payment_success: isOrderPaid().toString() },
+                params: { orderId: invoice.value?.id },
+                query: { payment_success: basketMeta.value.hasPaid.toString() }
               } as Route;
-            },
+            }
           },
 
           {
             name: ROUTE.EMPTY,
             guard: async (_route: Route) =>
-              isReady().then(() => !hasProducts()),
+              isReady().then(() => !basketMeta.value.hasProducts)
           },
           {
             name: ROUTE.BASKET,
             guard: async (_route: Route) =>
-              isReady().then(() => hasInvalidProducts()),
+              isReady().then(() => basketMeta.value.hasInvalidProducts)
           },
           {
             name: ROUTE.SESSION_REGISTER,
             guard: async (_route: Route) => {
-              const validAuth = await isAuthenticated()
-                .then(() => true)
-                .catch(() => false);
+              const validAuth = sessionMeta.value.isAuthenticated;
               return !validAuth;
-            },
-          },
-        ],
-      },
-    },
+            }
+          }
+        ]
+      }
+    }
   ];
 
   return {
@@ -104,6 +93,6 @@ export const useCheckoutFlows = () => {
     register: (data?: Flow[]) => {
       flows = uniqBy([...(data ?? []), ...flows], "name");
       routing.register(flows);
-    },
+    }
   };
 };

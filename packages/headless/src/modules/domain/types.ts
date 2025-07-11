@@ -5,7 +5,7 @@ import type { ActorRef } from "xstate";
 import { IBasketPromotion } from "@upmind-automation/types";
 import type { Product, ProductSummaryDetail } from "../product";
 import type { BasketHelperContext } from "../basketProduct";
-import { ResponseError } from "../query";
+import type { ResponseError } from "../../utils";
 
 // -----------------------------------------------------------------------------
 
@@ -20,7 +20,7 @@ export enum DomainTypes {
   register = "register",
   transfer = "transfer",
   existing = "existing",
-  basket = "basket",
+  basket = "basket"
 }
 
 export type DomainProduct = Product &

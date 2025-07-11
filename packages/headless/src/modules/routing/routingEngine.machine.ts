@@ -6,7 +6,7 @@ import services from "./services";
 import { basketSubscription } from "../basketProduct/helper";
 
 // --- utils
-import { useTime } from "../../utils";
+import { mapToHeadlessError, useTime } from "../../utils";
 import { defaultsDeep, find, get, isEmpty, uniqBy } from "lodash-es";
 
 // --- types
@@ -26,11 +26,11 @@ export default createMachine(
           "setContext",
           "setBasketHelper",
           "loadBasket",
-          assign({ currentFlow: undefined, currentRoute: undefined }),
+          assign({ currentFlow: undefined, currentRoute: undefined })
         ],
         on: {
           REGISTER: {
-            actions: ["setFlows"],
+            actions: ["setFlows"]
           },
           // when we get our basket, then we can start and determine the first route (if any)
           // otherwise we are not available
@@ -38,35 +38,101 @@ export default createMachine(
             {
               target: "unavailable",
               actions: ["setBasket"],
-              cond: "hasNoFlows",
+              cond: "hasNoFlows"
             },
-            { target: "available", actions: ["setBasket"] },
+            { target: "available", actions: ["setBasket"] }
           ],
           ERROR: {
             target: "unavailable",
-            actions: ["setError"],
-          },
-        },
+            actions: ["setError"]
+          }
+        }
       },
 
-      // ---
       available: {
         entry: ["clearError"],
-        on: {
-          NEXT: {
-            target: "calculating.next",
+        initial: "idle",
+        states: {
+          idle: {
+            on: {
+              NEXT: {
+                target: "calculating.next"
+              },
+              BACK: {
+                target: "calculating.back"
+              },
+              RESOLVE: {
+                target: "resolving"
+              },
+              REGISTER: {
+                actions: ["setFlows"]
+              }
+            }
           },
-          BACK: {
-            target: "calculating.back",
+          // This is where we calculate the next/back/fallback state and then RESOLVE to it
+          calculating: {
+            id: "calculating",
+            initial: "next",
+            states: {
+              next: {
+                invoke: {
+                  src: "calculateNextRoute",
+                  onDone: {
+                    target: "#resolved",
+                    actions: "setResolved"
+                  },
+                  onError: {
+                    target: "#resolved",
+                    actions: "setResolved"
+                  }
+                }
+              },
+              back: {
+                invoke: {
+                  src: "calculateBackRoute",
+                  onDone: {
+                    target: "#resolved",
+                    actions: "setResolved"
+                  },
+                  onError: {
+                    target: "#resolved",
+                    actions: "setResolved"
+                  }
+                }
+              }
+            }
           },
-          RESOLVE: {
-            target: "resolving",
+
+          resolving: {
+            id: "resolving",
+            invoke: {
+              src: "resolve",
+              onDone: {
+                target: "#resolved",
+                actions: "setResolved"
+              },
+              onError: {
+                target: "#resolved",
+                actions: "setResolved"
+              }
+            },
+            on: {
+              NEXT: {
+                target: "calculating.next"
+              },
+              BACK: {
+                target: "calculating.back"
+              }
+            }
           },
-          REGISTER: {
-            target: "available",
-            actions: ["setFlows"],
-          },
-        },
+
+          resolved: {
+            id: "resolved",
+            after: {
+              wait: "idle"
+            }
+          }
+        }
       },
 
       unavailable: {
@@ -75,91 +141,27 @@ export default createMachine(
         on: {
           REGISTER: {
             target: "available",
-            actions: ["setFlows"],
-          },
-        },
+            actions: ["setFlows"]
+          }
+        }
       },
 
-      // ---
-      // This is where we calculate the next/back/fallback state and then RESOLVE to it
-      calculating: {
-        id: "calculating",
-        initial: "next",
-        states: {
-          next: {
-            invoke: {
-              src: "calculateNextRoute",
-              onDone: {
-                target: "#resolved",
-                actions: "setResolved",
-              },
-              onError: {
-                target: "#resolved",
-                actions: "setResolved",
-              },
-            },
-          },
-          back: {
-            invoke: {
-              src: "calculateBackRoute",
-              onDone: {
-                target: "#resolved",
-                actions: "setResolved",
-              },
-              onError: {
-                target: "#resolved",
-                actions: "setResolved",
-              },
-            },
-          },
-        },
-      },
-
-      resolving: {
-        id: "resolving",
-        invoke: {
-          src: "resolve",
-          onDone: {
-            target: "resolved",
-            actions: "setResolved",
-          },
-          onError: {
-            target: "resolved",
-            actions: "setResolved",
-          },
-        },
-        on: {
-          NEXT: {
-            target: "calculating.next",
-          },
-          BACK: {
-            target: "calculating.back",
-          },
-        },
-      },
-
-      resolved: {
-        id: "resolved",
-        after: {
-          wait: "available",
-        },
-      },
-
-      // ---
-      complete: {},
+      complete: {
+        type: "final"
+      }
     },
     on: {
       REFRESH: [
         {
           actions: ["setBasket"],
-          cond: "hasBasketChanged",
+          cond: "hasBasketChanged"
         },
-        { actions: ["setBasket"] },
+        { actions: ["setBasket"] }
       ],
       STOP: {
-        target: "complete",
-      },
-    },
+        target: "complete"
+      }
+    }
   },
   {
     actions: {
@@ -170,7 +172,7 @@ export default createMachine(
           error: undefined,
           // ---
           basketId: undefined,
-          basketHelper: undefined,
+          basketHelper: undefined
         })
       ),
 
@@ -178,13 +180,13 @@ export default createMachine(
         basketId: (_context, { data }: AnyEventObject) => {
           const basket = get(data, "basket", data);
           return basket?.id;
-        },
+        }
       }),
 
       setFlows: assign({
         flows: ({ flows }, { data }: AnyEventObject) => {
           return uniqBy([...(data ?? []), ...flows], "name");
-        },
+        }
       }),
 
       setResolved: assign({
@@ -198,33 +200,31 @@ export default createMachine(
         currentRoute: (_context, { data }: AnyEventObject) => {
           const route = get(data, "route", data);
           return route;
-        },
+        }
       }),
 
       // ---
       setBasketHelper: assign({
         basketHelper: ({ basketHelper }) => {
           return basketHelper ?? spawn(basketSubscription);
-        },
+        }
       }),
 
       loadBasket: pure(({ basketHelper }: RoutingEngineContext, _event) => {
         if (!basketHelper) return;
         return sendTo(basketHelper, {
-          type: "INIT",
+          type: "INIT"
         });
       }),
 
       // ---
       setError: assign({
-        error: (_context: RoutingEngineContext, { data }: AnyEventObject) => {
-          const error = get(data, "error", data);
-          return error;
-        },
+        error: (_context: RoutingEngineContext, { data }: AnyEventObject) =>
+          mapToHeadlessError(data)
       }),
       clearError: assign({
-        error: (_context, _event) => undefined,
-      }),
+        error: (_context, _event) => undefined
+      })
     },
 
     guards: {
@@ -238,14 +238,14 @@ export default createMachine(
         return value;
       },
 
-      hasNoFlows: context => isEmpty(context.flows),
+      hasNoFlows: context => isEmpty(context.flows)
     },
 
     delays: {
       error: () => useTime().ERROR,
-      wait: () => useTime().WAIT,
+      wait: () => useTime().WAIT
     },
 
-    services,
+    services
   }
 );

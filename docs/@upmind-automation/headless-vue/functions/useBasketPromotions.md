@@ -1,9 +1,9 @@
-[Upmind](../../packages.md) / [@upmind-automation/headless-vue](../index.md) / useBasketPromotions
+[Upmind](../../packages.md) / [@upmind-automation/headless](../index.md) / useBasketPromotions
 
 # useBasketPromotions()
 
 ```ts
-function useBasketPromotions(actorRef?): object
+function useBasketPromotions(actorRef?): object;
 ```
 
 ## Parameters
@@ -39,7 +39,7 @@ errors: ComputedRef<any>;
 ### input()
 
 ```ts
-input: (model) => any;
+input: model => any;
 ```
 
 #### Parameters
@@ -115,7 +115,7 @@ promotions: ComputedRef<any>;
 ### remove()
 
 ```ts
-remove: (promotion) => Promise<void>;
+remove: promotion => Promise<void>;
 ```
 
 #### Parameters

@@ -13,7 +13,7 @@ The `useBrand` composable returns various properties and methods to interact wit
 To use the `useBrand` composable in your Vue components, simply import it:
 
 ```js
-import { useBrand } from "@upmind-automation/headless-vue";
+import { useBrand } from "@upmind-automation/headless";
 ```
 
 ### Setup in a Vue component
@@ -22,7 +22,7 @@ To showcase how `useBrand` can be used, the following example is describing the 
 
 ```vue
 <script setup>
-import { useBrand } from "@upmind-automation/headless-vue";
+import { useBrand } from "@upmind-automation/headless";
 
 const { getConfig } = useBrand();
 

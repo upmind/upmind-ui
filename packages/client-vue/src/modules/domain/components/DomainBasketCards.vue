@@ -42,7 +42,7 @@ import { find, isEmpty, map } from "lodash-es";
 // --- types
 import { type ComputedRef } from "vue";
 import type { SelectCardsItemProps } from "@upmind-automation/upmind-ui";
-import type { DomainProduct } from "@upmind-automation/headless-vue";
+import type { DomainProduct } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
@@ -54,7 +54,7 @@ const props = withDefaults(
   defineProps<{
     i18nKey?: string;
     modelValue?: string;
-    items: DomainProduct[];
+    items?: DomainProduct[];
     loading?: boolean;
     processing?: boolean;
     disabled?: boolean;
@@ -64,7 +64,7 @@ const props = withDefaults(
     modelValue: "",
     loading: false,
     processing: false,
-    disabled: false,
+    disabled: false
   }
 );
 
@@ -74,7 +74,7 @@ const meta = computed(() => ({
   isLoading: props.loading,
   isEmpty: isEmpty(props.items),
   isDisabled: props.disabled,
-  isProcessing: props.processing,
+  isProcessing: props.processing
 }));
 
 const styles = useStyles(
@@ -98,7 +98,7 @@ const items = computed((): SelectCardsItemProps[] => {
     item: item,
     modelValue: modelValue.value,
     value: item.domain,
-    label: item.domain,
+    label: item.domain
   }));
 });
 </script>

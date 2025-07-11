@@ -10,12 +10,12 @@ export default {
 
     pricing: {
       root: cva(
-        "text-primary flex items-end justify-between text-lg font-medium leading-none"
+        "text-foreground flex items-end justify-between text-lg font-medium leading-none"
       ),
       regularPrice: cva(
         "text-emphasis-medium mb-1 mt-1 block text-right text-xs line-through"
       ),
-      currentPrice: cva("text-lg font-medium"),
+      currentPrice: cva("text-lg font-medium")
     },
 
     list: {
@@ -23,13 +23,13 @@ export default {
 
       item: {
         root: cva(
-          "text-base-foreground m-0 flex flex-wrap items-start gap-x-1.5 p-0"
+          "text-foreground m-0 flex flex-wrap items-start gap-x-1.5 p-0"
         ),
         icon: cva("text-icon mr-1 flex w-8 items-center justify-center"),
         category: cva("text-emphasis-medium basis-full text-xs leading-none"),
-        title: cva("text-base-foreground font-medium"),
-        quantity: cva("text-emphasis-high text-xs"),
-      },
+        title: cva("text-foreground font-medium"),
+        quantity: cva("text-emphasis-high text-xs")
+      }
     },
 
     footer: cva(
@@ -39,7 +39,7 @@ export default {
     skeleton: {
       root: cva("-mb-1.5 flex justify-between"),
       itemLong: cva("h-6 w-36"),
-      itemShort: cva("h-6 w-24"),
-    },
-  },
+      itemShort: cva("h-6 w-24")
+    }
+  }
 };

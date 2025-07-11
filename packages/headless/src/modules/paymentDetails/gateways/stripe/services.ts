@@ -6,7 +6,14 @@ import { useQuery, useSession } from "../../..";
 import sharedServices from "../services";
 
 // --- utils
-import { useValidation } from "../../../../utils";
+import {
+  DetailedError,
+  ErrorOrigin,
+  NotAuthenticatedError,
+  responseCodes,
+  useModelParser,
+  useValidation
+} from "../../../../utils";
 import { getSupportedPaymentMethods, getPublicKey } from "./utils";
 import { reject, set } from "lodash-es";
 
@@ -20,13 +27,26 @@ async function load({ gateway }: StripeContext, _event: AnyEventObject) {
   const options = await sharedServices.load({ gateway }, _event);
 
   const key = getPublicKey(gateway);
-  if (!key) return Promise.reject(new Error("Stripe public key not found."));
+  if (!key)
+    return Promise.reject(
+      new DetailedError(
+        "Stripe public key not found.",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      )
+    );
 
   const stripe = await loadStripe(key);
 
   return new Promise(resolve => {
     if (!stripe) {
-      reject(new Error("Stripe not found."));
+      reject(
+        new DetailedError(
+          "Stripe not found.",
+          responseCodes.Not_Found,
+          ErrorOrigin.Headless
+        )
+      );
     } else {
       resolve({ stripe, ...(options || {}) });
     }
@@ -40,7 +60,14 @@ async function validate(
   // ---
 
   // Get any errors from the Stripe Element
-  if (!element) return Promise.reject(new Error("Stripe elements not found."));
+  if (!element)
+    return Promise.reject(
+      new DetailedError(
+        "Stripe element not found.",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      )
+    );
 
   // Now validate the model as per normal
   const { validate } = useValidation();
@@ -57,14 +84,21 @@ async function validate(
         schemaPath: "#/properties/payment_method_addition",
         keyword: "required",
         params: {
-          missingProperty: "payment_method_addition",
+          missingProperty: "payment_method_addition"
         },
-        message: "Stripe element is incomplete.",
+        message: "Stripe element is incomplete."
       });
     }
 
     if (errors?.length) {
-      reject({ error: errors });
+      reject(
+        new DetailedError(
+          "Stripe validation failed",
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.Headless,
+          errors
+        )
+      );
     } else {
       resolve(model);
     }
@@ -83,23 +117,23 @@ async function createPaymentElement(
     mode: "payment",
     paymentMethodCreation: "manual",
     paymentMethodTypes: getSupportedPaymentMethods(gateway),
-    setupFutureUsage: "off_session",
+    setupFutureUsage: "off_session"
   });
   const element = elements?.create("payment", {
     defaultValues: {
       billingDetails: {
         address: {
           postal_code: address?.postcode,
-          country: address?.country?.code,
-        },
-      },
-    },
+          country: address?.country?.code
+        }
+      }
+    }
   });
 
   return new Promise(resolve => {
     resolve({
       elements,
-      element,
+      element
     });
   });
 }
@@ -113,25 +147,47 @@ async function createPaymentElement(
  */
 async function update({ elements, stripe, model }: StripeContext) {
   if (!elements || !stripe)
-    return Promise.reject(new Error("Gateway elements not found."));
+    return Promise.reject(
+      new DetailedError(
+        "Stripe elements or stripe not found.",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      )
+    );
 
   // Submit form to validate fields
   const { error: submitError } = await elements
     .submit()
-    .catch((error: any) => Promise.reject(error));
+    .catch((error: any) =>
+      Promise.reject(
+        new DetailedError(
+          "Stripe element submission failed.",
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.Headless,
+          error
+        )
+      )
+    );
 
   if (submitError) return Promise.reject(submitError);
 
   // Create PaymentMethod using details collected via Payment Element
   const { error, paymentMethod } = await stripe
     .createPaymentMethod({
-      elements,
+      elements
     })
     .catch((error: any) => Promise.reject(error));
 
   return new Promise((resolve, reject) => {
     if (error) {
-      reject(error);
+      reject(
+        new DetailedError(
+          "Stripe create payment method failed.",
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.Headless,
+          error
+        )
+      );
     } else {
       // add the payment details to the model
       set(
@@ -161,16 +217,21 @@ async function createAddElement(
   _event: AnyEventObject
 ) {
   const { post, useUrl } = useQuery();
-  const { getUserId } = useSession();
-  const client_id = await getUserId();
 
-  return post({
+  const { meta, user } = useSession();
+
+  if (!meta.value.isAuthenticated || !user.value?.id)
+    await Promise.reject(new NotAuthenticatedError());
+
+  const clientId = user.value!.id;
+
+  return post<any>({
     url: useUrl(`gateway/frontend/tokenize-begin/${gateway?.id}`),
     withAccessToken: true,
     data: {
-      client_id,
-    },
-  }).then(({ data }: any) => {
+      client_id: clientId
+    }
+  }).then(data => {
     // Flow ref: https://stripe.com/docs/payments/save-and-reuse?platform=web&ui=elements#enable-payment-methods
     const clientPaymentDetailsId = data?.client_payment_details?.id;
     const clientSecret = data?.gateway_specific?.client_secret;
@@ -178,7 +239,7 @@ async function createAddElement(
     // --- create stripe elements
     const elements = stripe.elements({
       clientSecret,
-      locale: "auto", // TODO: add i18n local
+      locale: "auto" // TODO: add i18n local
     });
 
     const element = elements?.create("payment", {
@@ -186,10 +247,10 @@ async function createAddElement(
         billingDetails: {
           address: {
             postal_code: address?.postcode,
-            country: address?.country?.code,
-          },
-        },
-      },
+            country: address?.country?.code
+          }
+        }
+      }
     });
     // ---
 
@@ -197,7 +258,7 @@ async function createAddElement(
       elements,
       element,
       clientSecret,
-      clientPaymentDetailsId,
+      clientPaymentDetailsId
     };
   });
 }
@@ -230,5 +291,5 @@ export default {
   // ---
   confirmSetup,
   endSetup,
-  update,
+  update
 };

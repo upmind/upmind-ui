@@ -1,8 +1,8 @@
 // --- internal
 
-import { ResponseError } from "src/modules/query";
-
 // -----------------------------------------------------------------------------
+
+import type { ResponseError } from "../../../utils";
 
 export interface RecaptchaContext {
   siteKey: string;

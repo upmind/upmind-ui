@@ -2,12 +2,12 @@
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --- internal
+import type { ResponseError } from "../../../utils";
 import type { IBasketPromotion } from "@upmind-automation/types";
-import { ResponseError } from "src/modules/query";
 
 // -----------------------------------------------------------------------------
 
-export interface Promotion {
+export interface PromotionModel {
   promocode: string;
 }
 
@@ -17,7 +17,7 @@ export interface PromotionsContext {
   promotions?: IBasketPromotion[];
   schema?: JsonSchema;
   uischema?: UISchemaElement;
-  model?: Promotion;
+  model?: PromotionModel;
   // ---
   dirty?: Boolean;
   autoupdate?: Boolean;

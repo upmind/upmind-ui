@@ -1,109 +1,143 @@
 // --- external
-import { createMachine, assign, sendParent } from "xstate";
+import { createMachine, assign } from "xstate";
 
 // --- utils
-import { useTime, useValidationParser } from "../../utils";
+import {
+  useTime,
+  responseCodes,
+  mapToHeadlessError,
+  useValidationParser,
+  ResponseError
+} from "../../utils";
 
 // --- types
 import type { AnyEventObject } from "xstate";
 import type { ClientItemContext } from "./types";
-import { responseCodes } from "../../utils";
-import { ResponseError } from "../query";
+import { ErrorObject } from "ajv";
 
 // -----------------------------------------------------------------------------
 
-export default createMachine(
+export default createMachine<ClientItemContext>(
   {
     //tsTypes: {} as import("./item.machine.typegen").Typegen0,
-    id: "clientItemManager",
+    id: "clientManager",
     predictableActionArguments: true,
-    initial: "loading",
-    context: {
-      title: undefined,
-      description: undefined,
-      // ---
-      schema: undefined,
-      uischema: undefined,
-      model: undefined,
-      // ---
-      error: undefined,
-    } as ClientItemContext,
+    initial: "subscribing",
+    context: {} as ClientItemContext,
     states: {
-      loading: {
-        entry: ["clearError"],
+      // Subscribe to basket changes and listen for a valid basket client,
+      subscribing: {
+        entry: ["clearContext", "setSubscription"],
+        always: { target: "loading", cond: "hasSubscription" },
+        on: {
+          REFRESH: {
+            actions: ["refreshContext"],
+            cond: "hasChanged"
+          },
+          SET: {
+            actions: ["setModel", "setAutoUpdate"]
+          },
 
+          CLEAR: {
+            actions: ["clearModel"]
+          }
+        }
+      },
+
+      loading: {
+        id: "loading",
+        entry: ["clearError"],
         invoke: {
           src: "loadLookups",
           onDone: {
-            target: "checking",
-            actions: ["setContext", "setSchemas", "setMeta"],
+            target: "available",
+            actions: ["setContext", "setSchemas", "setMeta"]
           },
           onError: {
-            target: "error",
-            actions: ["setError"],
-          },
-        },
+            target: "unavailable",
+            actions: ["setError", "setFeedbackError"]
+          }
+        }
       },
-      // ---
 
-      checking: {
-        entry: ["clearError"],
-        initial: "parsing",
+      available: {
+        id: "available",
+        initial: "checking",
         states: {
-          parsing: {
-            invoke: {
-              src: "parse",
-              onDone: {
-                target: "validating",
-                actions: ["setContext", "setSchemas", "setMeta"],
+          checking: {
+            entry: ["clearError"],
+            initial: "parsing",
+            states: {
+              parsing: {
+                invoke: {
+                  src: "parse",
+                  onDone: {
+                    target: "validating",
+                    actions: ["setParsed", "setSchemas", "setMeta"]
+                  }
+                }
               },
-            },
+              validating: {
+                invoke: {
+                  src: "validate",
+                  onDone: {
+                    target: "#valid"
+                  },
+                  onError: {
+                    target: "#invalid",
+                    actions: ["setError"]
+                  }
+                }
+              }
+            }
           },
-          validating: {
-            invoke: {
-              src: "validate",
-              onDone: {
-                target: "#valid",
+
+          valid: {
+            id: "valid",
+            always: { target: "#processing", cond: "shouldUpdate" },
+            on: {
+              SET: {
+                target: "checking",
+                actions: ["setAutoUpdate"]
               },
-              onError: {
-                target: "#invalid",
-                actions: ["setError"],
-              },
-            },
+              UPDATE: [
+                {
+                  target: "#processing.adding",
+                  cond: "isNew"
+                },
+                {
+                  target: "#processing.updating"
+                }
+              ]
+            }
           },
-        },
+
+          invalid: {
+            id: "invalid",
+            on: {
+              SET: {
+                target: "checking",
+                actions: ["setAutoUpdate"]
+              }
+            }
+          },
+
+          error: {
+            id: "error",
+            on: {
+              SET: {
+                target: "checking",
+                actions: ["setAutoUpdate"]
+              }
+            }
+          }
+        }
       },
 
-      valid: {
-        id: "valid",
-        on: {
-          SET: {
-            target: "checking",
-            actions: ["setModel"],
-          },
-          UPDATE: [
-            {
-              target: "processing.adding",
-              cond: "isNew",
-            },
-            {
-              target: "processing.updating",
-            },
-          ],
-        },
-      },
-
-      invalid: {
-        id: "invalid",
-        on: {
-          SET: {
-            target: "checking",
-            actions: ["setModel"],
-          },
-        },
-      },
+      unavailable: {},
 
       processing: {
+        id: "processing",
         entry: ["clearError"],
         states: {
           adding: {
@@ -111,108 +145,73 @@ export default createMachine(
               src: "add",
               onDone: {
                 target: "#processed",
-                actions: ["setModel"],
+                actions: ["setModel", "clearAutoUpdate"]
               },
               onError: {
                 target: "#error",
-                actions: ["setError"],
-              },
-            },
+                actions: ["setError"]
+              }
+            }
           },
           updating: {
             invoke: {
               src: "update",
               onDone: {
                 target: "#processed",
-                actions: ["setModel"],
+                actions: ["setModel", "clearAutoUpdate"]
               },
               onError: {
                 target: "#error",
-                actions: ["setError"],
-              },
-            },
-          },
-          removing: {
-            invoke: {
-              src: "remove",
-              onDone: {
-                target: "#processed",
-                actions: ["clearModel"],
-              },
-              onError: {
-                target: "#error",
-                actions: ["setError"],
-              },
-            },
-          },
-          setting: {
-            invoke: {
-              src: "setDefault",
-              onDone: {
-                target: "#processed",
-                actions: ["setModel"],
-              },
-              onError: {
-                target: "#error",
-                actions: ["setError"],
-              },
-            },
-          },
-        },
+                actions: ["setError"]
+              }
+            }
+          }
+        }
       },
 
       processed: {
         id: "processed",
         after: {
-          wait: {
-            target: "complete",
-          },
-        },
+          wait: [
+            {
+              target: "available",
+              cond: "continueEditing"
+            },
+            {
+              target: "complete"
+            }
+          ]
+        }
       },
 
       complete: {
-        entry: [
-          sendParent(
-            ({ model }: ClientItemContext, _event: AnyEventObject) => ({
-              type: "REFRESH",
-              data: model?.id,
-            })
-          ),
-        ],
-        type: "final",
-      },
-
-      error: {
-        id: "error",
-        on: {
-          RETRY: {
-            target: "processing",
-          },
-        },
-      },
+        id: "complete"
+        // type: "final"
+      }
     },
     on: {
       CLEAR: {
-        target: "checking",
-        actions: ["clearModel"],
+        target: "available.checking",
+        actions: ["clearModel"]
       },
-
-      // ---
-      REMOVE: {
-        target: "processing.removing",
-        cond: "canRemove",
-      },
-      DEFAULT: {
-        target: "processing.setting",
-        cond: "isNotDefault",
-      },
-    },
+      REFRESH: {
+        target: "loading"
+      }
+    }
   },
   {
     actions: {
       setContext: assign(
         (_context: ClientItemContext, { data }: AnyEventObject) => data
       ),
+
+      clearContext: assign(
+        (_context: ClientItemContext, _: AnyEventObject) => ({})
+      ),
+
+      setSubscription: assign({
+        //  should be provided withConfig
+      }),
 
       setSchemas: assign({
         //  should be provided withConfig
@@ -226,39 +225,50 @@ export default createMachine(
         //  should be provided withConfig
       }),
 
+      setParsed: assign(
+        (context: ClientItemContext, { data }: AnyEventObject) => ({
+          ...context,
+          ...(data ?? {})
+        })
+      ),
+
       clearModel: assign({
-        model: undefined,
+        model: undefined
       }),
 
-      // ---
+      setAutoUpdate: assign({
+        autoupdate: (_context, { update }: AnyEventObject) => !!update
+      }),
+
+      clearAutoUpdate: assign({
+        autoupdate: false
+      }),
+
       setError: assign({
-        error: (_context, { data }: AnyEventObject) => {
-          let error = data?.error;
-          if (data?.status == responseCodes.Unprocessable_Entity) {
-            // lets parse/override our error message and data
-            // this is to generate valid json schema validation errors
-            error = useValidationParser(error);
+        error: (_context: ClientItemContext, { data }: AnyEventObject) => {
+          let error = mapToHeadlessError(data);
+          if (error?.status == responseCodes.Unprocessable_Entity) {
+            error.data = useValidationParser(error);
           }
-
-          return error || data;
-        },
+          return error;
+        }
       }),
 
-      clearError: assign({ error: undefined }),
+      clearError: assign({ error: undefined })
     },
     guards: {
-      isNew: ({ model }: ClientItemContext, _event: AnyEventObject) =>
-        !model?.id,
-
-      isNotDefault: ({ model }: ClientItemContext, _event: AnyEventObject) =>
-        !!model?.id && !model?.default,
-
-      canRemove: ({ model }: ClientItemContext, _event: AnyEventObject) =>
-        !!model?.id && !!model?.canDelete,
+      hasSubscription: (_context: ClientItemContext, _event: AnyEventObject) =>
+        true,
+      hasChanged: (_context: ClientItemContext, _event: AnyEventObject) => true,
+      isNew: ({ id }: ClientItemContext, _event: AnyEventObject) => !id,
+      continueEditing: ({ allowMultipleEdits }) => !!allowMultipleEdits,
+      shouldUpdate: ({ autoupdate }, _event) => {
+        return !!autoupdate;
+      }
     },
     delays: {
       error: () => useTime().ERROR,
-      wait: () => useTime().WAIT,
-    },
+      wait: () => useTime().WAIT
+    }
   }
 );

@@ -9,7 +9,7 @@ import { isString } from "xstate/lib/utils";
 import { isEmpty, set } from "lodash-es";
 
 // --utils
-import { useTime } from "../../../utils";
+import { mapToHeadlessError, useTime } from "../../../utils";
 // -----------------------------------------------------------------------------
 export default createMachine(
   {
@@ -24,9 +24,9 @@ export default createMachine(
           SET_SITE_KEY: {
             target: "loading",
             actions: ["setSiteKey"],
-            cond: "isValidSiteKey",
-          },
-        },
+            cond: "isValidSiteKey"
+          }
+        }
       },
 
       loading: {
@@ -34,13 +34,13 @@ export default createMachine(
           src: "load",
           onDone: {
             target: "available",
-            actions: ["setGrecaptcha"],
+            actions: ["setGrecaptcha"]
           },
           onError: {
             target: "unavailable",
-            actions: ["setError"],
-          },
-        },
+            actions: ["setError"]
+          }
+        }
       },
 
       unavailable: {},
@@ -51,86 +51,86 @@ export default createMachine(
           idle: {
             on: {
               GENERATE_TOKEN: {
-                target: "processing",
-              },
-            },
+                target: "processing"
+              }
+            }
           },
           processing: {
             invoke: {
               src: "generateToken",
               onDone: {
                 target: "processed",
-                actions: ["setToken"],
+                actions: ["setToken"]
               },
               onError: {
                 target: "error",
-                actions: ["setError"],
-              },
-            },
+                actions: ["setError"]
+              }
+            }
           },
           processed: {
             after: {
               expired: {
                 target: "idle",
-                actions: ["clearToken"],
-              },
-            },
+                actions: ["clearToken"]
+              }
+            }
           },
           error: {
             after: {
               error: {
                 target: "idle",
-                actions: ["clearToken", "clearError"],
-              },
-            },
-          },
+                actions: ["clearToken", "clearError"]
+              }
+            }
+          }
         },
         on: {
           CLEAR: {
             target: "available.idle",
-            actions: ["clearToken", "clearError"],
-          },
-        },
+            actions: ["clearToken", "clearError"]
+          }
+        }
       },
 
       complete: {
-        type: "final",
-      },
-    },
+        type: "final"
+      }
+    }
   },
   {
     actions: {
       setSiteKey: assign({
-        siteKey: (_context, { siteKey }: AnyEventObject) => siteKey,
+        siteKey: (_context, { siteKey }: AnyEventObject) => siteKey
       }),
       setGrecaptcha: assign({
-        grecaptcha: (_context, { data }: AnyEventObject) => data,
+        grecaptcha: (_context, { data }: AnyEventObject) => data
       }),
 
       setToken: assign({
-        token: (_context, { data }: AnyEventObject) => data,
+        token: (_context, { data }: AnyEventObject) => data
       }),
       clearToken: assign({
-        token: _context => undefined,
+        token: _context => undefined
       }),
 
       setError: assign({
-        error: (_context, { data }: AnyEventObject) => data,
+        error: (_context, { data }: AnyEventObject) => mapToHeadlessError(data)
       }),
       clearError: assign({
-        error: _context => undefined,
-      }),
+        error: _context => undefined
+      })
     },
 
     services: services as any,
     guards: {
       isValidSiteKey: (_context, event) => {
         return isString(event.siteKey) && !isEmpty(event.siteKey);
-      },
+      }
     },
     delays: {
       expired: () => useTime().MINUTE * 2,
-      error: () => useTime().ERROR,
-    },
+      error: () => useTime().ERROR
+    }
   }
 );

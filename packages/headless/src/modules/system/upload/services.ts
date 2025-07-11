@@ -3,7 +3,12 @@ import { useQuery } from "../..";
 import { useBrand } from "../../brand";
 
 // --- utils
-import { useTime } from "../../../utils";
+import {
+  DetailedError,
+  ErrorOrigin,
+  responseCodes,
+  useTime
+} from "../../../utils";
 import { compact, includes, isEmpty, get } from "lodash-es";
 
 // --- types
@@ -12,6 +17,7 @@ import {
   ImageObjectTypes,
   ImageUploadTypes,
   BrandConfigKeys,
+  IImage
 } from "@upmind-automation/types";
 import { AnyEventObject } from "xstate";
 
@@ -65,19 +71,25 @@ async function getImage({ field }: UploadContext, { data }: AnyEventObject) {
   }
 
   if (!field?.field_type && !data.hash)
-    return Promise.reject(new Error("No field type or hash provided"));
+    return Promise.reject(
+      new DetailedError(
+        "No field type or hash provided",
+        responseCodes.No_Content,
+        ErrorOrigin.Headless
+      )
+    );
 
   const { get, useUrl } = useQuery();
 
   // const path = `${fieldPath({ field_type: field.field_type })}/${data.hash}`;
   const path = `images/${data.hash}`;
 
-  return get({
+  return get<IImage>({
     url: useUrl(path),
     queryKey: ["images", data.hash],
     staleTime: useTime()?.DAY,
-    withAccessToken: true,
-  }).then(({ data }: any) => data);
+    withAccessToken: true
+  });
 }
 
 async function check(_context: UploadContext, { data }: AnyEventObject) {
@@ -138,8 +150,8 @@ async function upload(
   return post({
     url: useUrl(path),
     data: request,
-    withAccessToken: true,
-  }).then(({ data }: any) => data);
+    withAccessToken: true
+  });
 }
 
 // -----------------------------------------------------------------------------
@@ -147,5 +159,5 @@ async function upload(
 export default {
   getImage,
   check,
-  upload,
+  upload
 };

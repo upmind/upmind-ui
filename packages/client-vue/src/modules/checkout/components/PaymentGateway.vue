@@ -3,7 +3,7 @@
     ref="form"
     class="flex flex-col gap-6"
     :class="{
-      'mb-4': (schema && uischema && !meta.isRenderless) || instructions,
+      'mb-4': (schema && uischema && !meta.isRenderless) || instructions
     }"
   >
     <transition-group
@@ -14,8 +14,8 @@
           '': variant === 'outline' || meta.hasRenderer || meta.hasInstructions,
           'border-control-error focus-within:ring-control-error focus-within:ring-4 focus-within:ring-opacity-20':
             meta.hasErrors &&
-            (variant === 'outline' || meta.hasRenderer || meta.hasInstructions),
-        },
+            (variant === 'outline' || meta.hasRenderer || meta.hasInstructions)
+        }
       ]"
       enter-active-class="m-0 transition duration-300 ease-out"
       enter-from-class="-translate-y-10 transform opacity-0"
@@ -48,7 +48,7 @@
         v-if="schema && uischema && !meta.isRenderless"
         v-show="!meta.isLoading"
         class="w-full"
-        :additional-errors="errors?.data"
+        :additional-errors="validationErrors"
         :model-value="model"
         :processing="meta.isProcessing"
         :schema="schema"
@@ -60,18 +60,14 @@
       />
 
       <Alert
-        v-if="!isEmpty(errors)"
+        v-if="meta.hasErrors"
         color="error"
         icon="alert-triangle"
         :title="t('payment.failed')"
       >
         <div class="mt-2 text-sm">
-          <li
-            v-for="error in errors"
-            :key="error.message || error.title"
-            class="my-0 py-0"
-          >
-            {{ error.message || error.title }}
+          <li class="my-0 py-0">
+            {{ errors }}
           </li>
         </div>
       </Alert>
@@ -81,12 +77,11 @@
 
 <script lang="ts" setup>
 // --- external
-import { onMounted, watch, ref } from "vue";
-import { isEmpty } from "lodash-es";
+import { onMounted, watch, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useBasketPaymentGateway } from "@upmind-automation/headless-vue";
+import { useBasketPaymentGateway } from "@upmind-automation/headless";
 
 // --- components
 import { Spinner, Alert, Markdown } from "@upmind-automation/upmind-ui";
@@ -94,6 +89,7 @@ import Form from "../../../components/form/Form.vue";
 
 // --- types
 import type { PaymentGatewayProps } from "../types";
+import { isFunction } from "xstate/lib/utils";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<PaymentGatewayProps>();
@@ -101,6 +97,7 @@ const props = defineProps<PaymentGatewayProps>();
 const {
   meta,
   errors,
+  validationErrors,
   model,
   schema,
   uischema,
@@ -109,22 +106,35 @@ const {
   input,
   update,
   render,
-  instructions,
+  instructions
 } = useBasketPaymentGateway();
 
 const { t } = useI18n();
 
-const container = ref();
+const container = useTemplateRef("container");
+
 // wait till we mount then try to render the gateway if it's provided
 // otherwise watch in case it's provided later
 onMounted(() => {
-  watch(renderer, () => {
-    // only render if we have a renderer and we've not already rendered
-    if (container.value?.innerHTML) return;
-
-    render(container.value).catch(err => {
+  if (isFunction(renderer.value)) {
+    if (!container.value || container.value?.innerHTML) return;
+    renderer.value(container.value)?.catch((err: any) => {
       if (err) console.error(err);
     });
-  });
+  } else {
+    const stop = watch(renderer, () => {
+      // only render if we have a renderer and we've not already rendered
+      if (!container.value || container.value?.innerHTML) return;
+
+      render(container.value)
+        ?.then(() => {
+          // stop watching once rendered
+          stop();
+        })
+        ?.catch((err: any) => {
+          if (err) console.error(err);
+        });
+    });
+  }
 });
 </script>

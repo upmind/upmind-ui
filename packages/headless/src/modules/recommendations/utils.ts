@@ -5,7 +5,7 @@ import { sha1 } from "object-hash";
 import {
   parseProductDetails,
   parseQuantity,
-  parseTermDetails,
+  parseTermDetails
 } from "../product/utils";
 
 // --- utils
@@ -22,7 +22,7 @@ import {
   reduce,
   some,
   toSafeInteger,
-  isBoolean,
+  isBoolean
 } from "lodash-es";
 import { useTranslateField, useTranslateName } from "../../utils";
 
@@ -248,7 +248,7 @@ export function parseRecommendation(
     added: meta?.added ?? false,
     seen: meta?.seen ?? false,
     processing: meta?.processing ?? false,
-    loading: meta?.loading ?? false,
+    loading: meta?.loading ?? false
   });
 
   // ---------------------------------------------------------------------------
@@ -274,7 +274,7 @@ export function parseRecommendation(
         : raw?.badge,
       benefits: map(raw?.benefits, benefit =>
         isString(benefit) ? ({ label: benefit } as Benefit) : benefit
-      ),
+      )
     },
     meta: term?.meta,
     promotions: term?.promotions,
@@ -294,8 +294,8 @@ export function parseRecommendation(
       term: config?.bcm ?? term?.cycle ?? 0,
       subproducts: compact(config?.sub_pids?.toString()?.split(",") ?? []),
       provisionFields: config?.pfields ?? {},
-      coupons: compact(config?.coupons?.toString()?.split(",") ?? []),
-    },
+      coupons: compact(config?.coupons?.toString()?.split(",") ?? [])
+    }
   } as Recommendation;
 }
 

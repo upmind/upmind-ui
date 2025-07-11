@@ -11,6 +11,7 @@
         @update:open="trackOpen(product.id, $event)"
         @remove="remove(product.id)"
         @update:quantity="updateQuantity(product.id, $event)"
+        data-testid="basket-product"
       >
         <template #default="slotProps">
           <slot v-bind="slotProps" />
@@ -21,7 +22,7 @@
 
   <div v-else class="flex flex-col space-y-4" v-auto-animate>
     <template
-      v-for="index in Math.max(1, products.length)"
+      v-for="index in Math.max(1, products?.length ?? 0)"
       :key="`skeleton-cart-item-${index}`"
     >
       <BasketProductSkeleton>
@@ -37,7 +38,7 @@ import { ref, watch } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
-import { useBasketProducts } from "@upmind-automation/headless-vue";
+import { useBasketProducts } from "@upmind-automation/headless";
 import BasketProduct from "./BasketProduct.vue";
 
 // --- components
@@ -48,7 +49,7 @@ import BasketProductSkeleton from "./BasketProductSkeleton.vue";
 import { type BasketProductCardsProps } from "./types";
 
 const props = withDefaults(defineProps<BasketProductCardsProps>(), {
-  color: "primary",
+  color: "base"
 });
 
 const emits = defineEmits(["update:open"]);

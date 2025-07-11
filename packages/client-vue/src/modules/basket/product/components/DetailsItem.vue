@@ -50,8 +50,8 @@ import { Icon, Tooltip } from "@upmind-automation/upmind-ui";
 // --- types
 import type {
   ProductSummaryDetailWithPrice,
-  ProductSummaryDetail,
-} from "@upmind-automation/headless-vue";
+  ProductSummaryDetail
+} from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 

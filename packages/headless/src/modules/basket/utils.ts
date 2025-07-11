@@ -7,7 +7,7 @@ import paymentDetailsMachine from "../paymentDetails/paymentDetails.machine";
 import customFieldsMachine from "./fields/fields.machine";
 import promotionsMachine from "./promotions/promotions.machine";
 import currencyMachine from "./currency/currency.machine";
-import billingDetailsMachine from "./billing/details.machine";
+import billingMachine from "./billing/billing.machine";
 
 // --- utils
 import { parseBasketProduct } from "../basketProduct/utils";
@@ -24,17 +24,18 @@ import { PaymentDetailsContext } from "../paymentDetails";
 
 // --- SPAWN ACTORS
 
-export function spawnBillingDetails(basket?: IBasket) {
+export function spawnBilling(basket?: IBasket) {
   return spawn(
-    billingDetailsMachine.withContext({
+    billingMachine.withContext({
       basketId: basket?.id,
       clientId: basket?.client_id,
       model: {
         addressId: basket?.address_id || undefined,
         companyId: basket?.company_id || undefined,
-      },
+        phoneId: basket?.phone_id || undefined
+      }
     }),
-    { name: "billingDetails", sync: true }
+    { name: "billing", sync: true }
   );
 }
 
@@ -42,7 +43,7 @@ export function spawnCurrency(basket?: IBasket) {
   return spawn(
     currencyMachine.withContext({
       basketId: basket?.id,
-      model: basket?.currency,
+      model: basket?.currency
     }),
     { name: "currency", sync: true }
   );
@@ -52,7 +53,7 @@ export function spawnCustomFields(basket?: IBasket) {
   return spawn(
     customFieldsMachine.withContext({
       basketId: basket?.id,
-      model: parseBasketFieldsModel(basket),
+      model: parseBasketFieldsModel(basket)
     }),
     { name: "customFields", sync: true }
   );
@@ -63,13 +64,10 @@ export function spawnPaymentDetails(basket?: IBasket) {
     paymentDetailsMachine.withContext({
       orderId: basket?.id,
       currency: basket?.currency,
-      // @ts-ignore address is available with relationship
       address: basket?.address,
       clientId: basket?.client_id,
       amount: basket?.unpaid_amount_converted || 0.0,
-      model: {
-        amount: basket?.unpaid_amount_converted || 0.0,
-      },
+      model: {}
     } as PaymentDetailsContext),
     { name: "paymentDetails", sync: true }
   );
@@ -79,7 +77,7 @@ export function spawnPromotions(basket?: IBasket) {
   return spawn(
     promotionsMachine.withContext({
       basketId: basket?.id,
-      promotions: basket?.promotions,
+      promotions: basket?.promotions
     }),
     { name: "promotions", sync: true }
   );
@@ -107,7 +105,7 @@ export const parseSummary = (data?: any, errors?: any) => {
       : null, // only include the discount if there is one
     subtotal: data?.net_amount_formatted || "",
     taxes: parseTaxes(data?.taxes),
-    total: data?.total_amount_formatted || "",
+    total: data?.total_amount_formatted || ""
     // ---
   };
   return summary;
@@ -151,7 +149,7 @@ export const parseTaxTagName = (tag: any) => {
       ? tag.tax_tag_company_type === TaxTagTypes.PERCENT &&
         `(${tag.tax_tag_company_amount}%)`
       : // Append percentage (if DEFAULT % rate)
-        tag?.tax_tag_type === TaxTagTypes.PERCENT && `(${tag.tax_tag_amount}%)`,
+        tag?.tax_tag_type === TaxTagTypes.PERCENT && `(${tag.tax_tag_amount}%)`
   ]).join(" ");
 };
 
@@ -169,6 +167,6 @@ export const parseBasketFieldsModel = (basket: any, data = {}) => {
   );
   return {
     notes,
-    customFields,
+    customFields
   };
 };

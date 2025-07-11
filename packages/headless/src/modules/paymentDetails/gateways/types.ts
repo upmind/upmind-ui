@@ -4,17 +4,9 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 // --- types
 // TODO:
 import { GatewayTypes as GatewayTypesEnum } from "@upmind-automation/types";
-import type {
-  ICurrency,
-  IGateway,
-  IOrder,
-  GatewayAuthType,
-  GatewayStoreType,
-  IPayment,
-  IPaymentDetail,
-} from "@upmind-automation/types";
-import { ErrorObject } from "ajv";
-import { ResponseError } from "src/modules/query";
+import type { ICurrency, IGateway, IOrder } from "@upmind-automation/types";
+
+import type { ResponseError } from "../../../utils";
 
 // -----------------------------------------------------------------------------
 
@@ -28,12 +20,12 @@ export enum GatewayTypes {
   SEPA = GatewayTypesEnum.SEPA,
   OFFLINE = GatewayTypesEnum.OFFLINE,
   MOBILE = GatewayTypesEnum.MOBILE,
-  WALLET = GatewayTypesEnum.WALLET,
+  WALLET = GatewayTypesEnum.WALLET
 }
 
 export enum GatewayCtx {
   PAY = "pay", // PAY = Gateways are shown in the context of making a payment (invoice, topup etc)
-  ADD = "add", // ADD = Gateways are shown in the context of adding a stored payment detail
+  ADD = "add" // ADD = Gateways are shown in the context of adding a stored payment detail
 }
 
 // TODO:
@@ -68,5 +60,5 @@ export interface GatewayContext {
   // --- Output
   paymentDetails?: any; // will contain the response from Card, as wel las any model data
   // ---
-  error?: ResponseError | ErrorObject[];
+  error?: ResponseError;
 }

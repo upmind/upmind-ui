@@ -4,21 +4,21 @@
 
 // --- utils
 import {
+  compact,
   find,
   findIndex,
-  isEmpty,
-  map,
   get,
-  isObject,
+  isEmpty,
   isFunction,
-  compact,
-  merge,
+  isObject,
+  map,
+  merge
 } from "lodash-es";
 
 // --- types
 import type { AnyEventObject } from "xstate";
-import type { ROUTE } from "./types";
-import type { Route, Target, Flow, RoutingEngineContext } from "./types";
+import type { Flow, Route, ROUTE, RoutingEngineContext, Target } from "./types";
+import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 
 // -----------------------------------------------------------------------------
 
@@ -27,7 +27,14 @@ async function matchTargets(
   route: Route,
   event?: any
 ): Promise<Flow> {
-  if (isEmpty(targets)) return Promise.reject();
+  if (isEmpty(targets))
+    return Promise.reject(
+      new DetailedError(
+        "No routing targets found",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      )
+    );
   // NB cant use lodash her as we are async
   const guards = map(targets, flow => guardTarget(flow, route, event));
   const match = await Promise.all(guards)
@@ -80,15 +87,15 @@ async function calculateNextRoute(
     return resolve(
       {
         flows,
-        currentFlow,
+        currentFlow
       },
       {
         type: "RESOLVE",
         data: {
           flow,
           route,
-          event,
-        },
+          event
+        }
       }
     );
   });
@@ -112,15 +119,15 @@ async function calculateBackRoute(
     return resolve(
       {
         flows,
-        currentFlow,
+        currentFlow
       },
       {
         type: "RESOLVE",
         data: {
           flow,
           route,
-          event,
-        },
+          event
+        }
       }
     );
   });
@@ -132,9 +139,13 @@ async function resolve(
 ) {
   // ---
   const route = data.route as Route;
+
   const name = data.name as ROUTE;
+
   const flow = data?.flow as Flow;
+
   const event = data?.event;
+
   const target = flow || find(flows, ["name", name]) || currentFlow;
 
   if (!target) return Promise.reject();
@@ -176,7 +187,7 @@ async function resolveRoute(
     ? flow.resolve(route, event).then(resolved => {
         return {
           ...resolved,
-          meta: merge({}, flow?.meta, resolved?.meta),
+          meta: merge({}, flow?.meta, resolved?.meta)
         };
       })
     : Promise.resolve({ name: flow.name, meta: flow?.meta ?? {} });
@@ -187,5 +198,5 @@ async function resolveRoute(
 export default {
   calculateNextRoute,
   calculateBackRoute,
-  resolve,
+  resolve
 };

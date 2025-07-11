@@ -1,7 +1,7 @@
 export const coukDomain = [
   /* NEW DOMAIN */
   {
-    name: ".CO.UK Domain - Billing Cycle - 1 year @webcentral @domains",
+    name: ".CO.UK Domain - Billing Cycle - 1 month @webcentral @domains",
     radioSelection: [[0, 0]],
     checkboxSelection: [],
     sldValue: "couktestingdomain",
@@ -14,14 +14,14 @@ export const coukDomain = [
     registrantState: "",
     registrantPostcode: "SW1A",
     registrantCountry: "United Kingdom",
-    total: "$9.00",
-    billingCycle: "1 year",
-    tldValue: ".co.uk",
+    total: "£2.00",
+    billingCycle: "1 month",
+    tldValue: ".co.uk"
   },
 
   /* TRANSFERRING A DOMAIN */
   {
-    name: ".CO.UK Domain - Billing Cycle - 1 year - Domain Transfer @webcentral @domains @domain-transfer",
+    name: ".CO.UK Domain - Billing Cycle - 1 month - Domain Transfer @webcentral @domains @domain-transfer",
     radioSelection: [[0, 0]],
     checkboxSelection: [[0, 0]],
     sldValue: "couktestingdomain",
@@ -35,7 +35,7 @@ export const coukDomain = [
     registrantPostcode: "SW1A",
     registrantCountry: "United Kingdom",
     total: "FREE",
-    billingCycle: "1 year",
-    tldValue: ".co.uk",
-  },
+    billingCycle: "1 month",
+    tldValue: ".co.uk"
+  }
 ];

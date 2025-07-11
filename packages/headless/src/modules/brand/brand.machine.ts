@@ -3,19 +3,22 @@ import { createMachine, assign, spawn } from "xstate";
 
 // --- internal
 import services from "./services";
-import { useSystemI18n } from "../system";
-import { querySubscription } from "../query";
+import { useLocale } from "../system";
 
 // --- utils
 import { defaultsDeep, startsWith } from "lodash-es";
-import { useTime } from "../../utils";
+import {
+  mapToHeadlessError,
+  responseCodes,
+  useTime,
+  useValidationParser
+} from "../../utils";
 import { BrandConfigKeys, OrgFeatureKeys } from "@upmind-automation/types";
 import { useBrandParser } from "./utils";
 
 // --- types
 import type { AnyEventObject } from "xstate";
 import type { BrandContext } from "./types";
-import type { QueryCacheNotifyEvent, QuerySubscriptionFilter } from "../query";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -23,7 +26,7 @@ export default createMachine(
     //tsTypes: {} as import("./brand.machine.typegen").Typegen0,
     id: "brandManager",
     predictableActionArguments: true,
-    initial: "subscribing",
+    initial: "loading",
     context: {
       initialised: false,
       modules: undefined,
@@ -37,7 +40,7 @@ export default createMachine(
           OrgFeatureKeys.REMOVE_UPMIND_BRANDING_ENABLED,
           OrgFeatureKeys.UNLIMITED_PAYMENT_GATEWAYS,
           OrgFeatureKeys.UNLIMITED_PROVISION_CONFIGURATIONS,
-          OrgFeatureKeys.WEBHOOKS,
+          OrgFeatureKeys.WEBHOOKS
         ],
         config: [
           BrandConfigKeys.ANALYTICS_GA_MEASUREMENT_ID,
@@ -63,29 +66,25 @@ export default createMachine(
           BrandConfigKeys.UI_CLIENT_APP_DISABLE_SUPPORT_SYSTEM,
           BrandConfigKeys.UI_CLIENT_APP_PAGE_AFTER_LOGIN,
           BrandConfigKeys.UI_ENTER_KEY_ACTION,
-          BrandConfigKeys.UI_PRICE_BEFORE_DISCOUNT_POSITION,
-        ],
+          BrandConfigKeys.UI_PRICE_BEFORE_DISCOUNT_POSITION
+        ]
       },
-      error: undefined,
+      error: undefined
     } as BrandContext,
 
     states: {
-      subscribing: {
-        entry: ["setQueryHelper"],
-        always: "loading",
-      },
       loading: {
         invoke: {
           src: "load",
           onDone: {
             target: "complete",
-            actions: ["setContext"],
+            actions: ["setContext"]
           },
           onError: {
             target: "error",
-            actions: ["setError"],
-          },
-        },
+            actions: ["setError"]
+          }
+        }
       },
       processing: {
         entry: ["clearError"],
@@ -93,13 +92,13 @@ export default createMachine(
           src: "fetchBrandConfig",
           onDone: {
             target: "complete",
-            actions: ["setContext"],
+            actions: ["setContext"]
           },
           onError: {
             target: "error",
-            actions: "setError",
-          },
-        },
+            actions: "setError"
+          }
+        }
       },
       error: { id: "error" },
       complete: {
@@ -107,16 +106,11 @@ export default createMachine(
         on: {
           "CONFIG.GET": {
             target: "processing",
-            actions: ["setConfigKeys"],
-          },
-        },
-      },
-    },
-    on: {
-      "QUERY.SUCCESS": {
-        actions: ["refreshContext"],
-      },
-    },
+            actions: ["setConfigKeys"]
+          }
+        }
+      }
+    }
   },
   {
     actions: {
@@ -124,83 +118,38 @@ export default createMachine(
         useBrandParser(data, context)
       ),
 
-      refreshContext: assign(
-        (context: BrandContext, { data, queryKey }: AnyEventObject) => {
-          if (!context.initialised) return;
-
-          if (startsWith(queryKey, "brand,organisation,config")) {
-            return useBrandParser(data, context);
-          }
-
-          if (startsWith(queryKey, "brand,config")) {
-            return useBrandParser(data, context);
-          }
-
-          if (startsWith(queryKey, "brand,settings")) {
-            return useBrandParser(data, context);
-          }
-
-          if (startsWith(queryKey, "brand,modules")) {
-            return defaultsDeep(data, context);
-          }
-          // otherwsie do nothing
-        }
-      ),
-
       setConfigKeys: assign({
         keys: ({ keys }: BrandContext, { data }: AnyEventObject) => {
           keys.config.push(...data);
           return keys;
-        },
+        }
       }),
 
       setDefaultLocale: (
         { initialised }: BrandContext,
         _event: AnyEventObject
       ) => {
-        if (!initialised) useSystemI18n().setDefaultLocale();
+        if (!initialised) useLocale().setDefaultLocale();
       },
 
       setInitialised: assign({
-        initialised: true,
-      }),
-
-      setQueryHelper: assign({
-        queryHelper: (
-          { queryHelper }: BrandContext,
-          _event: AnyEventObject
-        ) => {
-          // spawn a new query helper and set up the filter to only listen to brand events
-          if (!queryHelper) {
-            queryHelper = spawn(querySubscription);
-            const queryFilter: QuerySubscriptionFilter = (
-              event: QueryCacheNotifyEvent
-            ) => event.query.queryKey.includes("brand");
-
-            queryHelper.send({
-              type: "FILTER",
-              filter: queryFilter,
-            });
-          }
-          return queryHelper;
-        },
+        initialised: true
       }),
 
       setError: assign({
-        error: (_context: BrandContext, { data }: AnyEventObject) => {
-          return data?.error ?? data;
-        },
+        error: (_context: BrandContext, { data }: AnyEventObject) =>
+          mapToHeadlessError(data)
       }),
 
-      clearError: assign({ error: undefined }),
+      clearError: assign({ error: undefined })
 
       // ---
     },
     guards: {},
     delays: {
       error: () => useTime().ERROR,
-      wait: () => useTime().WAIT,
+      wait: () => useTime().WAIT
     },
-    services,
+    services
   }
 );

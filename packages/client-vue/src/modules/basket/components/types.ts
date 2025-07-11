@@ -3,7 +3,7 @@ import type {
   DialogProps,
   ButtonProps,
   IconProps,
-  AnimatedIconProps,
+  AnimatedIconProps
 } from "@upmind-automation/upmind-ui";
 
 // ---

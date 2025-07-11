@@ -1,6 +1,6 @@
 // --- types
 import type { ActorRef } from "xstate";
-import { ResponseError } from "../query";
+import type { ResponseError } from "../../utils";
 
 // -----------------------------------------------------------------------------
 
@@ -8,6 +8,8 @@ export enum ROUTE {
   LOADING = "loading",
   ERROR = "error",
   UNAVAILABLE = "unavailable",
+  // --- shop routes
+  CATALOGUE = "catalogue",
   // --- product routes
   PRODUCT_ADD = "product.add",
   PRODUCT_EDIT = "product.edit",
@@ -33,13 +35,13 @@ export enum ROUTE {
   EXPRESS_CHECKOUT = "express.checkout",
   // --- redirect routes
   REDIRECT_EXTERNAL = "redirect.external",
-  REDIRECT_INTERNAL = "redirect.internal",
+  REDIRECT_INTERNAL = "redirect.internal"
 }
 
 export enum REQUIRES_ACTION {
   PENDING = "pending",
   INVALID = "invalid",
-  RELATED = "related",
+  RELATED = "related"
 }
 
 export interface PageRoute {

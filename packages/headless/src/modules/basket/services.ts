@@ -9,9 +9,10 @@ import { useTracking } from "../system";
 // --- utils
 import {
   DetailedError,
+  ErrorOrigin,
   responseCodes,
   unflattenErrors,
-  useCookies,
+  useCookies
 } from "../../utils";
 import { parseBasketProductError } from "../basketProduct/utils";
 import { getTokenFromStorage, dumpTokenFromStorage } from "../session/utils";
@@ -26,7 +27,7 @@ import {
   map,
   omitBy,
   reduce,
-  set,
+  set
 } from "lodash-es";
 
 // --- types
@@ -52,8 +53,8 @@ async function load(context: BasketContext, _event: AnyEventObject) {
       url: useUrl("orders/claim"),
       withAccessToken: true,
       data: {
-        guest_token: guest_token.access_token,
-      },
+        guest_token: guest_token.access_token
+      }
     }).then(() => {
       // because we have successfully claimed the basket, we can dump the guest token
       // we only do it here, as we may need to claim the basket again if something went wrong
@@ -63,12 +64,12 @@ async function load(context: BasketContext, _event: AnyEventObject) {
 
   // We depend on the brand being ready, so we need to wait for it
   const { isReady } = useBrand();
-  await isReady().catch(error => Promise.reject(error));
+  await isReady();
 
   // finally return a basket with all the relevant data, include the provisioning fields
   // NB  we DON'T cache the current basket as it can change frequently, and it is the source of truth
   // for the current state of the basket
-  return get({
+  return get<IBasket>({
     url: useUrl("orders/current", {
       with: [
         "address",
@@ -97,22 +98,22 @@ async function load(context: BasketContext, _event: AnyEventObject) {
         "products.product.related",
         "products.product.category",
         // "status",
-        `products.product.category${".top_category".repeat(4)}`,
-      ].join(),
+        `products.product.category${".top_category".repeat(4)}`
+      ].join()
     }),
     init: { signal: context.controller?.signal },
     queryKey: ["basket", "current"],
     staleTime: 0, // disable cache, this may still return stale data while the request is in flight
     gcTime: 0, // force cache to be cleared immediately, to prevent stale data
-    withAccessToken: true,
-    revalidateIfStale: true,
+    withAccessToken: true
+    //revalidateIfStale: true,
   })
-    .then(({ data }: any) => {
+    .then(data => {
       // generate a new basket if we don't have one;
       if (isEmpty(data)) return generate(context, { type: "GENERATE" });
       return data;
     })
-    .then(getProvisioningFieldsValues);
+    .then(data => getProvisioningFieldsValues(data as IBasket));
 }
 
 // this generates an empty basket!
@@ -121,7 +122,7 @@ async function generate({ actors }: BasketContext, _event: AnyEventObject) {
   const { get: getTracking } = useTracking();
 
   const data: Record<string, any> = {
-    category_slug: "new_contract",
+    category_slug: "new_contract"
   };
   // ---
   // Conditional data
@@ -140,11 +141,11 @@ async function generate({ actors }: BasketContext, _event: AnyEventObject) {
 
   // ---
 
-  return post({
+  return post<IBasket>({
     url: useUrl("orders"),
     withAccessToken: true,
-    data,
-  }).then(({ data }: any) => data);
+    data
+  });
 }
 
 async function convert(
@@ -158,16 +159,18 @@ async function convert(
   if (!basket?.id)
     return Promise.reject(
       new DetailedError(
-        "[headless] Convert basket failed: no basket id provided",
-        responseCodes.Unprocessable_Entity
+        "Convert basket failed: no basket id provided",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
       )
     );
 
   if (isEmpty(paymentDetails) || !isObject(paymentDetails))
     return Promise.reject(
       new DetailedError(
-        "[headless] Convert basket failed: no payment details provided",
-        responseCodes.Unprocessable_Entity
+        "Convert basket failed: no payment details provided",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
       )
     );
 
@@ -182,7 +185,7 @@ async function convert(
     data.tracking = await getTracking().catch(() => undefined);
   } catch (error) {
     // TEMPORARY: we need to log this error, as it may be useful for debugging in sentry
-    console.error("[headless] Error converting basket", error);
+    console.error(" Error converting basket", error);
   }
 
   // ---
@@ -192,8 +195,8 @@ async function convert(
   return patch({
     url: useUrl(`/orders/${basket?.id}/convert`),
     withAccessToken: true,
-    data: omitBy(data, isNil), // NB we need to remove any null values
-  }).then(({ data }: any) => data);
+    data: omitBy(data, isNil) // NB we need to remove any null values
+  });
 }
 
 async function getProvisioningFieldsValues(basket: IBasket) {
@@ -207,10 +210,30 @@ async function getProvisioningFieldsValues(basket: IBasket) {
   // Start with a promise to check the baskets provisioning fields for errors
   const checkPromise = patch({
     url: useUrl(`orders/${basket.id}/provision_fields/values/check`),
-    withAccessToken: true,
+    withAccessToken: true
   })
-    .then(({ data }: any) => data)
-    .catch(({ error }) => error);
+    .then(() => {
+      // if we hit this point then we know we have no issues/errors
+      // so we can return undefined
+      return undefined;
+    })
+    .catch(error => {
+      // rawErrors will return a flattened object path in dot notation, so we need to convert back it to an object
+      // and then we 'pick' the products out of the object
+      const { products: rawErrors } = unflattenErrors(error?.data);
+      // then we parse the errors into a more usable format, replacing their indexes with the product ids
+      // this will allow us to easily access the provisioning fields for each product
+      const errors = reduce(
+        rawErrors,
+        (result, value, key: number) => {
+          const bpid = basket.products[key]?.id;
+          if (!bpid) return result;
+          return set(result, bpid, parseBasketProductError(value));
+        },
+        {}
+      );
+      return errors;
+    });
 
   provisioningPromises.push(checkPromise);
 
@@ -229,7 +252,7 @@ async function getProvisioningFieldsValues(basket: IBasket) {
       url: useUrl(
         `orders/${basket.id}/products/${id}/provision_fields/values`,
         {
-          sub_product_ids: subProducts,
+          sub_product_ids: subProducts
         }
       ),
       queryKey: [
@@ -238,12 +261,12 @@ async function getProvisioningFieldsValues(basket: IBasket) {
         "products",
         id,
         "provision_fields",
-        "values",
+        "values"
       ],
       withAccessToken: true,
       staleTime: 0, // disable cache, this may still return stale data while the request is in flight
-      gcTime: 0, // force cache to be cleared immediately, to prevent stale data
-    }).then(({ data }: any) => {
+      gcTime: 0 // force cache to be cleared immediately, to prevent stale data
+    }).then(data => {
       // update the product with the provisioning fields
       set(rawProduct, "provision_fields", data);
       return data;
@@ -254,31 +277,14 @@ async function getProvisioningFieldsValues(basket: IBasket) {
 
   // return the 'updated' basket once all the provisioning fields have been fetched
   return Promise.all(provisioningPromises)
-    .then(([data]) => {
-      // rawErrors will return a flattened object path in dot notation, so we need to convert back it to an object
-      // and then we 'pick' the products out of the object
-      const { products: rawErrors } = unflattenErrors(data?.data);
-      // then we parse the errors into a more usable format, replacing their indexes with the product ids
-      // this will allow us to easily access the provisioning fields for each product
-      const errors = reduce(
-        rawErrors,
-        (result, value, key: number) => {
-          const bpid = basket.products[key]?.id;
-          if (!bpid) return result;
-          return set(result, bpid, parseBasketProductError(value));
-        },
-        {}
-      );
-
-      return {
-        basket,
-        errors,
-      };
-    })
+    .then(([errors]) => ({
+      basket,
+      errors
+    }))
     .catch(error => {
       return {
         basket,
-        errors: error,
+        errors: error
       };
     });
 }
@@ -288,5 +294,5 @@ export default {
   load,
   refresh: load,
   convert,
-  isAuthenticated: () => useSession().isAuthenticated(),
+  isAuthenticated: () => useSession().isAuthenticated()
 };

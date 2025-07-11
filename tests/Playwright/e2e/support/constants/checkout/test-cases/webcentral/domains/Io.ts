@@ -14,8 +14,8 @@ export const ioDomain = [
     registrantState: "",
     registrantPostcode: "SW1A",
     registrantCountry: "United Kingdom",
-    total: "$22.50",
+    total: "£2.00",
     billingCycle: "1 year",
-    tldValue: ".io",
-  },
+    tldValue: ".io"
+  }
 ];

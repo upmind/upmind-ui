@@ -1,0 +1,68 @@
+{
+  "billing": {
+    "personal": "Personal",
+    "business": "Business"
+  },
+  "manage": {
+    "title": "Add New | Update",
+    "error": "An error occurred Adding | an error occurred Updating",
+    "default": "Default",
+    "actions": {
+      "change": "Change",
+      "add": "Add new",
+      "edit": "Edit",
+      "resolve": "Save details",
+      "reject": "Cancel"
+    }
+  },
+  "client": {
+    "address": {
+      "title": "Add New Address | Update Address",
+      "error": "An error occurred Adding the Address | an error occurred Updating the Address",
+      "default": "Default",
+      "actions": {
+        "change": "Change",
+        "add": "Add new",
+        "edit": "Edit",
+        "resolve": "Save details",
+        "reject": "Cancel"
+      }
+    },
+    "company": {
+      "title": "Add Company Details | Update Company Details",
+      "error": "An error occurred Adding the Company Details | an error occurred Updating the Company Details",
+      "default": "Default",
+      "actions": {
+        "change": "Change",
+        "add": "Add new",
+        "edit": "Edit",
+        "resolve": "Save details",
+        "reject": "Cancel"
+      }
+    },
+    "phone": {
+      "title": "Add New Phone Number | Update Phone Number",
+      "error": "An error occurred Adding the Phone Number | an error occurred Updating the Phone Number",
+      "default": "Default",
+      "actions": {
+        "change": "Change",
+        "add": "Add new",
+        "edit": "Edit",
+        "resolve": "Save details",
+        "reject": "Cancel"
+      }
+    },
+    "email": {
+      "title": "Add New Email | Update Email",
+      "error": "An error occurred Adding the Email | an error occurred Updating the Email",
+      "default": "Default",
+      "actions": {
+        "change": "Change",
+        "add": "Add new",
+        "edit": "Edit",
+        "resolve": "Save details",
+        "reject": "Cancel"
+      }
+    }
+  }
+}

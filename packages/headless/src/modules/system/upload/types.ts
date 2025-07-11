@@ -1,7 +1,6 @@
 // --- internal
 import type { ImageObjectTypes } from "@upmind-automation/types";
-import { ErrorObject } from "ajv";
-import { ResponseError } from "src/modules/query";
+import type { ResponseError } from "../../../utils";
 
 // -----------------------------------------------------------------------------
 
@@ -36,5 +35,5 @@ export interface UploadContext {
 
   // ---
   // error?: RequestError;
-  error?: ResponseError | ErrorObject[];
+  error?: ResponseError;
 }

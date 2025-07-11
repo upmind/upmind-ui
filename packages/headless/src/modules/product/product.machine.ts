@@ -1,20 +1,12 @@
 // --- external
-import {
-  createMachine,
-  assign,
-  actions,
-  spawn,
-  sendTo,
-  pure,
-  raise,
-} from "xstate";
+import { createMachine, assign, spawn, sendTo, pure, raise } from "xstate";
 
 // --- internal
 import services from "./services";
 import { basketSubscription } from "../basketProduct/helper";
 
 // --utils
-import { useTime } from "../../utils";
+import { mapToHeadlessError, useTime } from "../../utils";
 import {
   parseSubproductDetails,
   parseProvisioningSchema,
@@ -23,7 +15,7 @@ import {
   parseModel,
   parseBasketProductModel,
   parseProduct,
-  parseBundledProducts,
+  parseBundledProducts
 } from "./utils";
 
 import {
@@ -40,7 +32,7 @@ import {
   pick,
   remove,
   uniq,
-  xorBy,
+  xorBy
 } from "lodash-es";
 
 import { calculateSubscription } from "./services";
@@ -52,7 +44,7 @@ import type {
   ExternalError,
   PriceDisplay,
   ProductConfigContext,
-  ProductModel,
+  ProductModel
 } from "./types";
 import { transformProductDynamicValues } from "../basketProduct/utils";
 
@@ -73,8 +65,8 @@ export default createMachine(
         // Parse our Basket/Config data into context
         always: {
           target: "loading",
-          actions: "setBasketHelper",
-        },
+          actions: "setBasketHelper"
+        }
       },
 
       // first load our product, we do this even if we are given a valid set of values
@@ -87,14 +79,14 @@ export default createMachine(
           onDone: [
             {
               target: "available",
-              actions: ["setLookups"],
-            },
+              actions: ["setLookups"]
+            }
           ],
           onError: {
             target: "error",
-            actions: "setError",
-          },
-        },
+            actions: "setError"
+          }
+        }
       },
 
       refreshing: {
@@ -105,14 +97,14 @@ export default createMachine(
           onDone: [
             {
               target: "available",
-              actions: ["setLookups"],
-            },
+              actions: ["setLookups"]
+            }
           ],
           onError: {
             target: "error",
-            actions: "setError",
-          },
-        },
+            actions: "setError"
+          }
+        }
       },
 
       available: {
@@ -130,85 +122,85 @@ export default createMachine(
                     actions: [
                       "setModel",
                       "calculate",
-                      "setProduct",
+                      "setProduct"
                       // "setSchemas",
-                    ],
-                  },
-                },
+                    ]
+                  }
+                }
               },
               validating: {
                 invoke: {
                   src: "validate",
                   onDone: {
-                    target: "#valid",
+                    target: "#valid"
                   },
                   onError: {
                     target: "#invalid",
-                    actions: ["setError"],
-                  },
-                },
-              },
-            },
+                    actions: ["setError"]
+                  }
+                }
+              }
+            }
           },
 
           valid: {
-            id: "valid",
+            id: "valid"
           },
 
           invalid: {
-            id: "invalid",
+            id: "invalid"
           },
 
-          error: {},
+          error: {}
         },
         on: {
           REFRESH: [
             {
               target: "refreshing",
               actions: ["refreshContext", "setExternalError"],
-              cond: "hasBasketChanged",
+              cond: "hasBasketChanged"
             },
             {
               target: "available.error",
               actions: ["refreshContext", "setExternalError"],
-              cond: "hasError",
+              cond: "hasError"
             },
             {
-              actions: ["refreshContext", "setExternalError"],
-            },
+              actions: ["refreshContext", "setExternalError"]
+            }
           ],
 
           UPDATE: {
-            target: "processing",
+            target: "processing"
           },
 
           CALCULATING: {
-            actions: ["setCalculating"],
+            actions: ["setCalculating"]
           },
 
           CALCULATED: {
-            actions: ["clearCalculating", "setProduct"],
+            actions: ["clearCalculating", "setProduct"]
           },
           // ---
           SET: {
-            target: "available.invalid",
+            target: "available.invalid"
           },
           "SET.QUANTITY": {
-            target: "available.checking",
+            target: "available.checking"
           },
           "SET.TERM": {
-            target: "available.checking",
+            target: "available.checking"
           },
           "SET.ATTRIBUTES": {
-            target: "available.checking",
+            target: "available.checking"
           },
           "SET.OPTIONS": {
-            target: "available.checking",
+            target: "available.checking"
           },
           "SET.PROVISIONING": {
-            target: "available.checking",
-          },
-        },
+            target: "available.checking"
+          }
+        }
       },
 
       error: {},
@@ -223,13 +215,13 @@ export default createMachine(
               src: "validate",
               onDone: {
                 target: "updating",
-                actions: ["update"],
+                actions: ["update"]
               },
               onError: {
                 target: "#invalid",
-                actions: ["setError", "incrementAttempts"],
-              },
-            },
+                actions: ["setError", "incrementAttempts"]
+              }
+            }
           },
           updating: {
             entry: ["clearError"],
@@ -241,11 +233,11 @@ export default createMachine(
                 {
                   target: "bundling",
                   actions: ["addBundle"],
-                  cond: "hasBundles",
+                  cond: "hasBundles"
                 },
-                { target: "#complete" },
-              ],
-            },
+                { target: "#complete" }
+              ]
+            }
           },
           bundling: {
             on: {
@@ -254,41 +246,41 @@ export default createMachine(
               },
               UPDATED: { target: "#complete" },
               ERROR: { target: "#complete" }, // fail silently > move on
-              CANCEL: { target: "#complete" }, // cancel the bundle > move on
-            },
-          },
+              CANCEL: { target: "#complete" } // cancel the bundle > move on
+            }
+          }
         },
 
         on: {
-          CANCEL: { target: "available" },
-        },
+          CANCEL: { target: "available" }
+        }
       },
 
       // Handle completion, stop the machine and prevent further products
       complete: {
         id: "complete",
-        type: "final",
-      },
+        type: "final"
+      }
     },
     on: {
       STOP: "complete",
       RESET: {
         target: "refreshing",
-        actions: ["resetModel"],
+        actions: ["resetModel"]
       },
       // if our halper tells us we are processing then we can go directly to the
       //  processing state
       PROCESSING: {
-        target: "processing.updating",
+        target: "processing.updating"
       },
       ERROR: {
         target: "available.error",
-        actions: ["setExternalError", "clearCalculating"],
+        actions: ["setExternalError", "clearCalculating"]
       },
       CALCULATE_CANCELLED: {
-        actions: ["clearCalculating"],
-      },
-    },
+        actions: ["clearCalculating"]
+      }
+    }
   },
   {
     actions: {
@@ -307,7 +299,7 @@ export default createMachine(
             errorExternal,
             error,
             silent,
-            bundle,
+            bundle
           }: ProductConfigContext,
           _event: AnyEventObject
         ) => {
@@ -338,7 +330,7 @@ export default createMachine(
                 : undefined,
 
             // ---
-            calculateCallback: spawn(calculateSubscription),
+            calculateCallback: spawn(calculateSubscription)
           };
         }
       ),
@@ -350,7 +342,7 @@ export default createMachine(
             rawProduct,
             error,
             coupons,
-            rawBasketProduct,
+            rawBasketProduct
           }: ProductConfigContext,
           { data }: AnyEventObject
         ) => {
@@ -359,7 +351,7 @@ export default createMachine(
             client_id,
             currency_id,
             promotions,
-            error: errorExternal,
+            error: errorExternal
           } = data;
 
           lookups ??= {};
@@ -375,7 +367,7 @@ export default createMachine(
               "basketProduct mismatch",
               {
                 rawBasketProduct,
-                basket_product,
+                basket_product
               }
             );
           }
@@ -394,7 +386,7 @@ export default createMachine(
               : cloneDeep(model),
             errorExternal,
             error: merge({}, error),
-            lookups,
+            lookups
           };
 
           return newContext;
@@ -407,8 +399,8 @@ export default createMachine(
             basketHelper: basketHelper || spawn(basketSubscription),
             parseBasketProduct: (item: ProductModel) => parseModel(item),
             parseBasketProductComparison: (item: BasketProduct) => ({
-              id: item.id,
-            }),
+              id: item.id
+            })
           };
         }
       ),
@@ -434,13 +426,12 @@ export default createMachine(
             data.provisioning,
             data.product
           ),
-          bundled: parseBundledProducts(data.product, bundle),
-        }),
+          bundled: parseBundledProducts(data.product, bundle)
+        })
       }),
 
       persistModel: assign({
-        baseModel: ({ model }: ProductConfigContext, _event) =>
-          cloneDeep(model),
+        baseModel: ({ model }: ProductConfigContext, _event) => cloneDeep(model)
       }),
 
       setModel: assign({
@@ -460,21 +451,7 @@ export default createMachine(
 
           return lookups;
         },
-        error: ({ error }: ProductConfigContext, { data }: AnyEventObject) => {
-          // lets parse/override our error message and data, specifically external errors.
-          // For any dirty/hydrated field, remove any external error to allow for normal validation
-          // Once the external error is removed, we dont ever want to show it again, unless we refresh the product
-          forEach(data.model.provisionFields, (field, key) => {
-            if (
-              !isEmpty(field) ||
-              (!isNil(field) && isObject(error) && "provisionFields" in error)
-            ) {
-              remove((error as any)?.provisionFields, ["schemaPath", key]);
-            }
-          });
 
-          return omitBy(error, isEmpty) as ExternalError;
-        },
         errorExternal: (
           { errorExternal }: ProductConfigContext,
           { data }: AnyEventObject
@@ -489,15 +466,16 @@ export default createMachine(
                 isObject(errorExternal) &&
                 "provisionFields" in errorExternal)
             ) {
-              remove((errorExternal as any)?.provisionFields, [
-                "schemaPath",
-                key,
-              ]);
+              if (isObject(errorExternal) && "data" in errorExternal) {
+                remove(errorExternal?.data?.provisionFields, [
+                  "propertyName",
+                  key
+                ]);
+              }
             }
           });
-
           return omitBy(errorExternal, isEmpty) as ExternalError;
-        },
+        }
       }),
 
       // restroring the model + errors to its prev state
@@ -505,7 +483,7 @@ export default createMachine(
         model: ({ baseModel }: ProductConfigContext, _event) =>
           cloneDeep(baseModel),
         error: ({ error, errorExternal }, _event) =>
-          merge({}, error, errorExternal),
+          merge({}, error, errorExternal)
       }),
 
       // ---
@@ -517,7 +495,7 @@ export default createMachine(
             lookups,
             error,
             product,
-            rawBasketProduct,
+            rawBasketProduct
           }: ProductConfigContext,
           { data }: AnyEventObject
         ) => {
@@ -531,16 +509,16 @@ export default createMachine(
             currentPrice: data?.totalFormatted ?? fallback?.currentPrice,
             savingAmount: data?.total ? 0 : (fallback?.savingAmount ?? 0), // Cant calculate this
             savingPrice: data?.total ? "" : (fallback?.savingPrice ?? ""), // Cant calculate this
-            savingPercent: data?.total ? "" : (fallback?.savingPercent ?? ""), // Cant calculate this
+            savingPercent: data?.total ? "" : (fallback?.savingPercent ?? "") // Cant calculate this
           };
 
           return parseProduct(price, {
             model,
             lookups,
             error,
-            rawBasketProduct,
+            rawBasketProduct
           });
-        },
+        }
       }),
 
       setCalculating: assign({
@@ -549,7 +527,7 @@ export default createMachine(
           lookups.prices ??= {};
           lookups.prices.calculating = true;
           return lookups;
-        },
+        }
       }),
 
       clearCalculating: assign({
@@ -558,7 +536,7 @@ export default createMachine(
           lookups.prices ??= {};
           lookups.prices.calculating = false;
           return lookups;
-        },
+        }
       }),
 
       calculate: pure(
@@ -568,14 +546,14 @@ export default createMachine(
             silent,
             currencyId,
             model,
-            lookups,
+            lookups
           }: ProductConfigContext,
           _event
         ) => {
           if (!calculateCallback || silent) return;
           return sendTo(calculateCallback, {
             type: "CALCULATE",
-            data: { currencyId, model, lookups },
+            data: { currencyId, model, lookups }
           });
         }
       ),
@@ -590,7 +568,7 @@ export default createMachine(
         return sendTo(context.basketHelper, {
           type: "UPDATE",
           target: model,
-          context,
+          context
         });
       }),
 
@@ -614,7 +592,7 @@ export default createMachine(
             target: map(lookups.bundled, bundle => {
               return transformProductDynamicValues(bundle, basketProducts);
             }),
-            context,
+            context
           });
         }
       ),
@@ -624,34 +602,28 @@ export default createMachine(
           attempts = attempts || 0;
           attempts++;
           return attempts;
-        },
+        }
       }),
       // ---
 
       setExternalError: assign({
         errorExternal: (
-          { errorExternal }: ProductConfigContext,
+          _context: ProductConfigContext,
           { data }: AnyEventObject
-        ) => {
-          let errors = data?.error?.data;
-          return merge({}, errorExternal, errors);
-        },
-        error: ({ error }: ProductConfigContext, { data }: AnyEventObject) => {
-          let errors = data?.error?.data;
-          return merge({}, error, errors);
-        },
+        ) => mapToHeadlessError(data),
+        error: (_context: ProductConfigContext, { data }: AnyEventObject) =>
+          mapToHeadlessError(data)
       }),
 
+      // TODO: @DC implement the new response errors from the API
       setError: assign({
-        error: ({ error }: ProductConfigContext, { data }: AnyEventObject) => {
-          let errors = data?.error?.data;
-          return merge({}, error, errors);
-        },
+        error: (_context: ProductConfigContext, { data }: AnyEventObject) =>
+          mapToHeadlessError(data)
       }),
 
       clearError: assign({
-        error: {},
-      }),
+        error: {}
+      })
     },
     services,
     guards: {
@@ -663,7 +635,7 @@ export default createMachine(
           clientId,
           currencyId,
           promotions,
-          rawBasketProduct,
+          rawBasketProduct
         }: ProductConfigContext,
         { data }: AnyEventObject
       ) => {
@@ -698,11 +670,11 @@ export default createMachine(
         // if we are silent, then we are not bundled
         if (silent) return false;
         return !isEmpty(lookups?.bundled);
-      },
+      }
     },
     delays: {
       error: () => useTime().ERROR,
-      wait: () => useTime().WAIT,
-    },
+      wait: () => useTime().WAIT
+    }
   }
 );

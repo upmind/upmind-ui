@@ -44,7 +44,7 @@ import { kebabCase } from "lodash-es";
 const props = defineProps<SummaryItemProps>();
 
 const meta = computed(() => ({
-  hasIcon: !!props.icon,
+  hasIcon: !!props.icon
 }));
 
 const styles = useStyles("summary.list.item", meta, config) as ComputedRef<{

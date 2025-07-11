@@ -14,31 +14,31 @@ export default {
           variants: {
             isProcessing: {
               true: "",
-              false: "",
+              false: ""
             },
             isDisabled: {
               true: "",
-              false: "",
+              false: ""
             },
             isInvalid: {
               true: "",
-              false: "",
-            },
+              false: ""
+            }
           },
 
           defaultVariants: {
             isDisabled: false,
-            isInvalid: true,
-          },
+            isInvalid: true
+          }
         }
       ),
       wrapper: cva("flex w-full flex-1 flex-wrap items-stretch gap-6"),
       media: cva("m-0 size-20 flex-none overflow-hidden rounded-lg p-0", {
         variants: {
           filled: {
-            true: "bg-base-muted text-base-muted-foreground border",
-          },
-        },
+            true: "bg-base-muted text-base-muted-foreground border"
+          }
+        }
       }),
       header: cva(
         "flex flex-1 flex-col items-start justify-center gap-2 text-left"
@@ -65,9 +65,9 @@ export default {
       bold: cva("font-medium", {
         variants: {
           isCalculating: {
-            true: "opacity-50",
-          },
-        },
+            true: "opacity-50"
+          }
+        }
       }),
       total: cva("text-2xl font-medium leading-snug tracking-wide"),
       discount: cva(
@@ -85,7 +85,7 @@ export default {
           // isNew: {
           //   true: "motion-safe:animate-pulse",
           // },
-        },
+        }
       }),
       summary: cva("inline-flex flex-col"),
       // ---
@@ -96,25 +96,25 @@ export default {
           "text-emphasis-medium m-0 w-full p-0 text-sm font-normal tracking-wide"
         ),
         text: cva("m-0 p-0 text-sm tracking-wide"),
-        invalid: cva("text-error"),
-      },
+        invalid: cva("text-error")
+      }
     },
 
     config: {
       root: cva(
-        "bg-base text-base-foreground w-full overflow-hidden rounded-lg shadow-sm",
+        "bg-base text-foreground w-full overflow-hidden rounded-lg shadow-sm",
         {
           variants: {
             isDisabled: {
-              true: "pointer-events-none",
-            },
+              true: "pointer-events-none"
+            }
             // hasErrors: {
             //   true: "ring-invalid ring-2 ring-offset-2",
             // },
             // isNew: {
             //   true: "ring-ring ring-2 ring-offset-2",
             // },
-          },
+          }
         }
       ),
 
@@ -128,7 +128,7 @@ export default {
             // isNew: {
             //   true: "bg-accent text-accent-foreground",
             // },
-          },
+          }
         }
       ),
 
@@ -137,25 +137,25 @@ export default {
       media: cva("m-0 size-24 flex-none overflow-hidden rounded-lg p-0", {
         variants: {
           filled: {
-            true: "bg-base-muted text-base-muted-foreground border",
-          },
-        },
+            true: "bg-base-muted text-base-muted-foreground border"
+          }
+        }
       }),
 
       wrapper: cva(
         "flex w-full flex-1 flex-wrap items-stretch gap-x-6 gap-y-16"
       ),
 
-      heading: cva("flex w-full flex-wrap items-end gap-x-10"),
+      heading: cva("flex w-full flex-wrap items-end gap-x-10 gap-y-2"),
 
       headingContent: cva("flex w-full flex-1 flex-wrap items-center gap-4"),
 
       summary: cva("inline-flex items-end gap-x-6 gap-y-6", {
         variants: {
           isCalculating: {
-            true: "text-opacity-50",
-          },
-        },
+            true: "text-opacity-50"
+          }
+        }
       }),
 
       fields: cva(
@@ -175,9 +175,9 @@ export default {
       bold: cva("font-medium", {
         variants: {
           isCalculating: {
-            true: "text-opacity-50",
-          },
-        },
+            true: "text-opacity-50"
+          }
+        }
       }),
       // ---
       total: cva(
@@ -185,9 +185,9 @@ export default {
         {
           variants: {
             isCalculating: {
-              true: "text-opacity-50",
-            },
-          },
+              true: "text-opacity-50"
+            }
+          }
         }
       ),
       itemtotal: cva(
@@ -195,9 +195,9 @@ export default {
         {
           variants: {
             isCalculating: {
-              true: "text-opacity-50",
-            },
-          },
+              true: "text-opacity-50"
+            }
+          }
         }
       ),
       discount: cva(
@@ -205,9 +205,9 @@ export default {
         {
           variants: {
             isCalculating: {
-              true: "text-opacity-50",
-            },
-          },
+              true: "text-opacity-50"
+            }
+          }
         }
       ),
       price: cva(""),
@@ -220,22 +220,22 @@ export default {
         root: cva("w-full p-0", {
           variants: {
             disabled: {
-              true: "cursor-wait",
-            },
-          },
+              true: "cursor-wait"
+            }
+          }
         }),
         items: cva(
           "m-0 grid w-full list-none grid-cols-[repeat(auto-fit,_minmax(16rem,1fr))] gap-3 p-0"
         ),
         item: {
           root: cva(
-            "text-base-foreground m-0 flex h-full w-full cursor-pointer flex-col flex-wrap items-start gap-2 gap-y-3 rounded-md sm:flex-row sm:gap-y-4",
+            "text-foreground m-0 flex h-full w-full cursor-pointer flex-col flex-wrap items-start gap-2 gap-y-3 rounded-md sm:flex-row sm:gap-y-4",
             {
               variants: {
                 isSelected: {
-                  true: "w-full items-start justify-between sm:items-center",
-                },
-              },
+                  true: "w-full items-start justify-between sm:items-center"
+                }
+              }
             }
           ),
           // input: cva("text-primary"),
@@ -243,17 +243,17 @@ export default {
             variants: {
               isSelected: {
                 false:
-                  "flex-1 flex-wrap items-center justify-start sm:justify-between",
-              },
-            },
+                  "flex-1 flex-wrap items-center justify-start sm:justify-between"
+              }
+            }
           }),
           footer: cva("flex", {
             variants: {
               isSelected: {
                 false: "w-full flex-col gap-y-1.5 self-end",
-                true: "items-baseline gap-x-2",
-              },
-            },
+                true: "items-baseline gap-x-2"
+              }
+            }
           }),
           // ---
           title: cva("text-md m-0 text-nowrap font-medium text-inherit"),
@@ -262,14 +262,14 @@ export default {
             variants: {
               isSelected: {
                 true: "",
-                false: "text-2xl",
-              },
-            },
+                false: "text-2xl"
+              }
+            }
           }),
           discount: cva(
             "text-2xs !text-emphasis-medium leading-none text-inherit"
-          ),
-        },
+          )
+        }
       },
       // ---
       list: {
@@ -287,8 +287,8 @@ export default {
           ),
           discount: cva(
             "text-emphasis-medium block text-right text-sm font-normal leading-snug tracking-wide line-through"
-          ),
-        },
+          )
+        }
       },
       // ---
       form: {
@@ -296,11 +296,11 @@ export default {
           variants: {
             disabled: {
               // true: "pointer-events-none",
-            },
-          },
+            }
+          }
         }),
-        form: cva(""),
-      },
+        form: cva("")
+      }
     },
 
     notFound: {
@@ -311,13 +311,13 @@ export default {
       text: cva(
         "m-0 mb-8 max-w-md text-center text-lg leading-normal opacity-50"
       ),
-      avatar: cva("bg-primary text-primary-foreground size-20 p-2"),
-      actions: cva("flex w-full justify-center"),
+      avatar: cva("bg-primary text-base-foreground size-20 p-2"),
+      actions: cva("flex w-full justify-center")
     },
 
     pricing: {
       exPrice: cva("text-emphasis-medium text-xs leading-none"),
-      currentPrice: cva("leading-none"),
-    },
-  },
+      currentPrice: cva("leading-none")
+    }
+  }
 };

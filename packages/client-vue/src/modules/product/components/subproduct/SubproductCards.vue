@@ -51,7 +51,7 @@ import {
   RadioCards,
   CheckboxCards,
   FormField,
-  SelectCards,
+  SelectCards
 } from "@upmind-automation/upmind-ui";
 import CardSubproduct from "./SubproductCard.vue";
 
@@ -63,12 +63,12 @@ import type { ComputedRef } from "vue";
 import type {
   SelectCardsItemProps,
   RadioCardsItemProps,
-  CheckboxCardsItemProps,
+  CheckboxCardsItemProps
 } from "@upmind-automation/upmind-ui";
 import type {
   SubproductDetails,
-  SubproductValue,
-} from "@upmind-automation/headless-vue";
+  SubproductValue
+} from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
@@ -90,7 +90,7 @@ const props = defineProps<{
 // ---
 
 const modelValue = useVModel(props, "modelValue", emit, {
-  passive: true,
+  passive: true
   // defaultValue: null, //props.defaultValue,
 }) as any; // HACK : allows us to pass modle value to our dynamic component without typescript moaning
 
@@ -141,7 +141,7 @@ const parsedValues = computed(() => {
       group: subproduct?.uiMeta?.uischema?.group,
       item: subproduct,
       index,
-      modelValue: modelValue.value,
+      modelValue: modelValue.value
     };
   });
 
@@ -151,7 +151,7 @@ const parsedValues = computed(() => {
 function getSubproductValue(value: string): SubproductValue {
   const product = find(props.subproduct?.values, [
     "id",
-    value,
+    value
   ]) as SubproductValue;
 
   return {
@@ -159,7 +159,7 @@ function getSubproductValue(value: string): SubproductValue {
     quantity: get(props.quantities, value, 0),
     title: product?.uiMeta?.uischema?.primary
       ? product?.uiMeta?.uischema?.group
-      : product?.title,
+      : product?.title
     // icon: product?.uiMeta?.uischema?.icon, //Is this used?
   };
 }

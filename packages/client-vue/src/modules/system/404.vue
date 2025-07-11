@@ -1,6 +1,6 @@
 <template>
-  <article>
-    <ContentSection v-auto-animate>
+  <Layout>
+    <ContentSection v-auto-animate class="flex flex-grow items-center">
       <Interstitial
         v-bind="props"
         :title="t('basket.empty.title')"
@@ -8,14 +8,14 @@
         :actions="[
           {
             as: 'a',
-            color: 'secondary',
+            color: 'primary',
             href: storefrontUrl,
             prependIcon: {
               icon: 'arrow-left',
-              size: '2xs',
+              size: '2xs'
             },
-            label: t('errors.404.action'),
-          },
+            label: t('errors.404.action')
+          }
         ]"
       >
         <template #avatar>
@@ -38,7 +38,7 @@
         </template>
       </Interstitial>
     </ContentSection>
-  </article>
+  </Layout>
 </template>
 
 <script lang="ts" setup>
@@ -46,21 +46,27 @@
 import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
+// --- internal
+import { useBrand } from "@upmind-automation/headless";
+
 // -- components
 import { Interstitial, IconAnimated } from "@upmind-automation/upmind-ui";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
+import Layout from "../../components/layout/Layout.vue";
 
 // -- types
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
+
 // -----------------------------------------------------------------------------
+
 const { t } = useI18n();
-const storefrontUrl = import.meta.env.VITE_APP_STOREFRONT;
+const { storefrontUrl } = useBrand();
 
 const props = withDefaults(defineProps<InterstitialProps>(), {
   open: true,
   modal: true,
-  skrim: "light",
+  skrim: "light"
 });
 
 const createRepeatSequence = (
@@ -76,21 +82,21 @@ const icons = [
     sequence: createRepeatSequence(
       "delay:0,state:in-reveal,play,delay:2000,state:out-reveal,play,delay:0",
       50
-    ),
+    )
   },
   {
     icon: "zero",
     sequence: createRepeatSequence(
       "delay:300,state:in-reveal,play,delay:1700,state:out-reveal,play,delay:0",
       50
-    ),
+    )
   },
   {
     icon: "four",
     sequence: createRepeatSequence(
       "delay:600,state:in-reveal,play,delay:1400,state:out-reveal,play,delay:0",
       50
-    ),
-  },
+    )
+  }
 ];
 </script>

@@ -5,6 +5,7 @@ import { useQuery } from "../..";
 // --- utils
 import { isEmpty } from "lodash-es";
 import { getTokenFromStorage } from "../utils";
+import { DetailedError, ErrorOrigin, responseCodes } from "../../../utils";
 
 // ---types
 import type { ClientContext } from "./types";
@@ -16,7 +17,14 @@ async function load(_context: ClientContext, _event: any) {
   // and we need to check the token/get the user
 
   const token = getTokenFromStorage("client");
-  if (isEmpty(token)) return Promise.reject(new Error("No token found"));
+  if (isEmpty(token))
+    return Promise.reject(
+      new DetailedError(
+        "No token found",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      )
+    );
 
   const { get, useUrl } = useQuery();
 
@@ -24,22 +32,22 @@ async function load(_context: ClientContext, _event: any) {
     url: useUrl("self", {
       with: [
         "actor",
-        "accounts",
+        "accounts"
         // client specific only
         // "actor.account", // Relation required for determining `topup_enabled` value
         // "actor.brand", // Relation required for determining `topup_enabled` value
         // "delegated_ids",
         // "enabled_modules"
-      ].join(),
+      ].join()
     }),
     queryKey: ["session", "self"],
-    withAccessToken: true,
-  }).then(({ data }: any) => data);
+    withAccessToken: true
+  });
 }
 
 // -----------------------------------------------------------------------------
 
 export default {
   load,
-  transferTo: services.transferTo,
+  transferTo: services.transferTo
 };

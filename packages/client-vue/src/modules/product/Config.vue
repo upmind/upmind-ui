@@ -1,9 +1,9 @@
 <template>
-  <ContentSection v-auto-animate>
+  <ContentSection v-auto-animate class="flex flex-grow items-center">
     <form v-auto-animate @submit.prevent @reset.prevent>
       <Button
         type="reset"
-        class="relative -top-4 md:-top-6"
+        class="bg-base-background relative -top-4 md:-top-6"
         size="sm"
         variant="tonal"
         :label="t('navigation.back')"
@@ -47,7 +47,7 @@
           <ContentSection
             :title="t('product.summary.title')"
             :ui-config="{
-              title: 'py-1.5',
+              title: 'py-1.5'
             }"
           >
             <Summary :item="item" @resolve="doResolve" />
@@ -77,10 +77,9 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 
 // --- components
-import { Button, Icon } from "@upmind-automation/upmind-ui";
+import { Card, Button, Icon } from "@upmind-automation/upmind-ui";
 import Summary from "./components/summary/Summary.vue";
 import ProductConfig from "./components/config/Config.vue";
-import Card from "../../components/content/Card.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 // -----------------------------------------------------------------------------

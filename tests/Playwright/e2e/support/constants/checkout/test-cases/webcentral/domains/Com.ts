@@ -5,19 +5,19 @@ export const comDomain = [
     radioSelection: [[0, 0]],
     checkboxSelection: [],
     sldValue: "comtestingdomain",
-    total: "$8.98",
+    total: "£2.00",
     billingCycle: "1 year",
-    tldValue: ".com",
+    tldValue: ".com"
   },
   {
     name: ".COM Domain - Billing Cycle - 1 year, Domain Locking Standard: YES @webcentral @domains",
     radioSelection: [[0, 0]],
     checkboxSelection: [[1, 0]],
     sldValue: "comtestingdomain",
-    total: "$8.98",
+    total: "£2.00",
     billingCycle: "1 year",
     tldValue: ".com",
-    domainLocking: "Domain Locking Standard",
+    domainLocking: "Domain Locking Standard"
   },
 
   /* TRANSFERRING A DOMAIN */
@@ -29,6 +29,6 @@ export const comDomain = [
     total: "FREE",
     billingCycle: "1 year",
     tldValue: ".com",
-    domainLocking: "Domain Locking Standard",
-  },
+    domainLocking: "Domain Locking Standard"
+  }
 ];

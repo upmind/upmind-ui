@@ -1,6 +1,6 @@
 <template>
-  <article v-auto-animate>
-    <div class="flex items-center justify-center">
+  <Layout>
+    <div class="flex items-center justify-center" v-auto-animate>
       <section
         class="relative mx-auto flex w-full flex-wrap items-start justify-between gap-8"
       >
@@ -26,11 +26,7 @@
               </div>
             </template>
 
-            <ProductCards
-              :open="open"
-              @update:open="open = $event"
-              class="text-primary"
-            />
+            <ProductCards :open="open" @update:open="open = $event" />
           </ContentSection>
 
           <!-- Custom Fields  -->
@@ -82,7 +78,7 @@
                   meta.hasInvalidProducts
                 "
                 block
-                color="secondary"
+                color="primary"
                 :loading="meta.isProcessing || meta.isLoading"
                 @click="navigate()"
                 :label="t('basket.summary.proceed')"
@@ -118,7 +114,7 @@
                   class="text-inherit"
                   :to="{
                     name: 'product.edit',
-                    params: { bpid: basketItem.id },
+                    params: { bpid: basketItem.id }
                   }"
                 >
                   <span>{{ basketItem?.productDetails?.title }}</span>
@@ -129,7 +125,7 @@
         </aside>
       </section>
     </div>
-  </article>
+  </Layout>
 </template>
 
 <script lang="ts" setup>
@@ -142,19 +138,20 @@ import { useI18n } from "vue-i18n";
 import {
   useBasket,
   useBasketFields,
-  useDataLayer,
-} from "@upmind-automation/headless-vue";
+  useDataLayer
+} from "@upmind-automation/headless";
 
 // --- components
 import {
+  Card,
   Button,
   Icon,
   Alert,
   Link,
-  Skeleton,
+  Skeleton
 } from "@upmind-automation/upmind-ui";
+import Layout from "../../components/layout/Layout.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
-import Card from "../../components/content/Card.vue";
 import Summary from "./components/Summary.vue";
 import ProductCards from "./product/BasketProductCards.vue";
 import Form from "../../components/form/Form.vue";
@@ -172,7 +169,7 @@ const {
   schema: fieldsSchema,
   uischema: fieldsUischema,
   clear: fieldsClear,
-  update: fieldsUpdate,
+  update: fieldsUpdate
 } = useBasketFields();
 
 const open = ref(false);

@@ -5,7 +5,12 @@ import { useQuery, useSystem } from "../..";
 import { useBrand } from "../brand";
 
 // --- utils
-import { useTime } from "../../utils";
+import {
+  useTime,
+  ErrorOrigin,
+  responseCodes,
+  DetailedError
+} from "../../utils";
 
 import {
   parseQuantity,
@@ -15,7 +20,7 @@ import {
   checkQuantity,
   checkTerm,
   checkSubproducts,
-  checkProvisioning,
+  checkProvisioning
 } from "./utils";
 
 import {
@@ -27,7 +32,7 @@ import {
   map,
   omitBy,
   set,
-  sum,
+  sum
 } from "lodash-es";
 
 // --- types
@@ -37,7 +42,7 @@ import type {
   ProductConfigContext,
   Price,
   PriceCalculations,
-  ProductModel,
+  ProductModel
 } from "./types";
 
 import { AnyEventObject } from "xstate";
@@ -50,12 +55,19 @@ async function load(
     currencyId,
     promotions,
     basketId,
-    rawBasketProduct,
+    rawBasketProduct
   }: ProductConfigContext,
   _event: AnyEventObject
 ) {
   const productId = get(model, "productId");
-  if (!productId) return Promise.reject(new Error("No Product ID provided"));
+  if (!productId)
+    return Promise.reject(
+      new DetailedError(
+        "No Product ID provided",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      )
+    );
 
   // lets ensure we have a valid currency > fallback to default
   // as well as ensuring our promo display type is available
@@ -64,7 +76,7 @@ async function load(
 
   const [currency] = await Promise.all([
     validateCurrency({ id: currencyId }),
-    ensureConfig(BrandConfigKeys.SHOW_PROMOTION_AS),
+    ensureConfig(BrandConfigKeys.SHOW_PROMOTION_AS)
   ]);
 
   // lets ensure we parse our promotions correctly
@@ -82,8 +94,8 @@ async function load(
       "products_attributes",
       "products_options",
       "products_options.prices",
-      `category${".top_category".repeat(4)}`,
-    ].join(),
+      `category${".top_category".repeat(4)}`
+    ].join()
   };
   // conditionally agd the basket_id / basket_product_id if we have them,
   // this is important to get the correct prices once added to the basket
@@ -98,22 +110,22 @@ async function load(
       productId,
       {
         currency_id: currency?.id,
-        promotions: promocodes,
-      },
+        promotions: promocodes
+      }
     ],
     staleTime: useTime()?.DAY, // product data is not updated often, so we can cache for a day
-    withAccessToken: true,
-  }).then(({ data }: any) => data);
+    withAccessToken: true
+  });
 
   // lets get our provisioning fields early, so we can make them lookups
   const provisioningPromise = loadProvisioningFields(productId);
 
-  const conuntriesPromise = fetchCountries();
+  const countriesPromise = fetchCountries();
 
   return Promise.all([
     productPromise,
     provisioningPromise,
-    conuntriesPromise,
+    countriesPromise
   ]).then(([product, provisioning]) => {
     return { product, provisioning, currency };
   });
@@ -121,13 +133,20 @@ async function load(
 
 async function loadProvisioningFields(productId: string) {
   const { get, useUrl } = useQuery();
-  if (!productId) return Promise.reject(new Error("No Product ID provided"));
-  // we dont cache provisioning fields, as they can change with different options/attributes being selected
+  if (!productId)
+    return Promise.reject(
+      new DetailedError(
+        "No Product ID provided",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      )
+    );
+  // we don't cache provisioning fields, as they can change with different options/attributes being selected
   return get({
     url: useUrl(`basket/products/${productId}/provision_fields`),
     queryKey: ["product", productId, "provision-fields"],
-    withAccessToken: true,
-  }).then(({ data }: any) => data);
+    withAccessToken: true
+  });
 }
 
 // ---
@@ -139,7 +158,7 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
     term: 0,
     options: {},
     attributes: {},
-    provisionFields: {},
+    provisionFields: {}
   });
 
   let values: ProductModel = defaultsDeep(
@@ -149,7 +168,7 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
       term: data?.term,
       options: data?.options,
       attributes: data?.attributes,
-      provisionFields: data?.provisionFields,
+      provisionFields: data?.provisionFields
     },
 
     baseModel
@@ -157,7 +176,13 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
 
   // safety check, ensure we have a valid product
   if (!values?.productId) {
-    return Promise.reject(new Error("No Product ID provided"));
+    return Promise.reject(
+      new DetailedError(
+        "No Product ID provided",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      )
+    );
   }
 
   let prices: PriceCalculations = context.lookups?.prices || {};
@@ -195,7 +220,7 @@ async function validate(context: ProductConfigContext, _event: AnyEventObject) {
   // ---
 
   // We may opt to skip validation to allow the backend to do the validation
-  //  especially usefull when adding bulk products, recommendations etc.
+  //  especially usefully when adding bulk products, recommendations etc.
   if (context.silent) return Promise.resolve(context.model);
 
   // TODO: validate the model as per normal using the schema
@@ -216,14 +241,21 @@ async function validate(context: ProductConfigContext, _event: AnyEventObject) {
       provisionFields: checkProvisioning(
         context,
         context.model?.provisionFields
-      ),
+      )
     },
     isEmpty
   );
 
   return new Promise((resolve, reject) => {
     if (!isEmpty(errors)) {
-      reject({ error: { data: errors } });
+      reject(
+        new DetailedError(
+          "Product configuration validation failed",
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.Headless,
+          errors
+        )
+      );
     } else {
       resolve(context.model);
     }
@@ -266,12 +298,12 @@ async function formatCalculation(
     withAccessToken: true,
     data: {
       currency_id: currencyId,
-      prices: values,
-    },
-  }).then(({ data }: any) => {
+      prices: values
+    }
+  }).then(data => {
     return {
       total: get(data, "total", 0),
-      totalFormatted: get(data, "total_formatted", ""),
+      totalFormatted: get(data, "total_formatted", "")
       // TODO: get the API to return these values
       // subtotal: get(data, "subtotal", 0),
       // subtotalFormatted: get(data, "subtotal_formatted", ""),
@@ -364,5 +396,5 @@ export default {
   refresh: load, // alias
   // ---
   parse,
-  validate,
+  validate
 };

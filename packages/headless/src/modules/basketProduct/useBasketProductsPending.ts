@@ -1,57 +1,65 @@
 // --- external
-import { interpret, InterpreterStatus } from "xstate";
+import { isActor } from "xstate/lib/Actor";
 import { waitFor } from "xstate/lib/waitFor";
+import { computed } from "vue";
+import { InterpreterStatus, t } from "xstate";
 
 // --- internal
 import { useBasket } from "../basket";
 import { useBasketProductPending } from "./useBasketProductPending";
 
 // --- utils
-import { DetailedError, useSessionStorage } from "../../utils";
 import {
-  defaults,
-  find,
-  first,
-  forEach,
   get,
-  isEmpty,
-  isEqual,
-  isNil,
-  isString,
+  set,
+  find,
   keys,
   omit,
-  set,
+  first,
+  isNil,
   unset,
-  some,
+  forEach,
+  isEmpty,
+  isEqual,
+  defaults,
+  isString
 } from "lodash-es";
+import { DetailedError, ErrorOrigin, useSessionStorage } from "../../utils";
 
 // --- types
-import type { ActorRef, State, Subscription } from "xstate";
-import type { ProductModel, ProductProps } from "../product";
 import { responseCodes, compactDeep } from "../../utils";
-import { isArray } from "xstate/lib/utils";
+import type { ProductModel, ProductProps } from "../product";
+import type { ActorRef, State, Subscription } from "xstate";
 
-type BasketProductPending = ReturnType<typeof useBasketProductPending>;
+type PendingProduct = ReturnType<typeof useBasketProductPending>;
+
+type UseBasketProductPending = ReturnType<typeof useBasketProductPending>;
 // -----------------------------------------------------------------------------
 // --- Singletons
 
 let productConfigs: Record<string, ProductModel> = {};
-let productsPending: Record<string, BasketProductPending> = {}; // store the product productsPending
+let productsPending: Record<string, UseBasketProductPending> = {}; // store the product productsPending
 let subscriptions: Record<string, Subscription> = {}; // store subscriptions to changes on the product
 
 // -----------------------------------------------------------------------------
 
 export const useBasketProductsPending = () => {
-  const { isReady, productExists } = useBasket();
+  const { isReady, productExists, products } = useBasket();
   const storage = useSessionStorage();
 
   productConfigs = storage.get("pendingProducts", {});
 
   // ---
 
-  async function add(model: ProductProps): Promise<BasketProductPending> {
+  async function add(model: ProductProps): Promise<UseBasketProductPending> {
     if (isEmpty(model))
-      return Promise.reject(new Error("No product model found"));
+      return Promise.reject(
+        new DetailedError(
+          "No product model found",
+          responseCodes.Not_Found,
+          ErrorOrigin.Headless
+        )
+      );
 
     const id = btoa(JSON.stringify(model)); // use the model as the basis for the id
 
@@ -71,11 +79,11 @@ export const useBasketProductsPending = () => {
     pid: string,
     model: ProductProps,
     force: boolean = false
-  ): Promise<BasketProductPending> {
-    const product = find(productsPending, service => {
-      const state = service.getSnapshot();
-      return get(state, "context.model.productId") === pid;
-    });
+  ): Promise<UseBasketProductPending> {
+    const product = find(
+      productsPending,
+      ({ model }) => model.value?.productId === pid
+    );
 
     if (isEmpty(product) || force) {
       return add(model)
@@ -89,11 +97,11 @@ export const useBasketProductsPending = () => {
               ),
             { timeout: Infinity }
           ).then(state => {
-            if (state.matches("error")) throw new Error(state.context.error);
             if (state.matches("error"))
               throw new DetailedError(
-                "[headless] add in useBasketProductsPending has an error",
+                "Add Pending Product failed",
                 responseCodes.Unprocessable_Entity,
+                ErrorOrigin.Headless,
                 { state: state.value, errors: state.context.error }
               );
             return instance;
@@ -101,19 +109,33 @@ export const useBasketProductsPending = () => {
         })
         .catch(error => {
           unsetProduct(pid);
-          return Promise.reject(error);
+          return Promise.reject(
+            new DetailedError(
+              "Pending Product validation failed",
+              responseCodes.Unprocessable_Entity,
+              ErrorOrigin.Headless,
+              error
+            )
+          );
         });
     } else {
-      if (!product.getSnapshot().matches("error")) {
-        return Promise.resolve(product);
-      } else {
-        const error = get(product.getSnapshot(), "context.error");
-        unsetProduct(pid);
-        return Promise.reject({
-          message: error,
-          code: responseCodes.Unprocessable_Entity,
-        });
-      }
+      // if (!product.meta.value?.hasErrors) {
+      return Promise.resolve(product);
+      // } else {
+      //   const error = product.errors.value;
+      //   unsetProduct(pid);
+      //   return Promise.reject(
+      //     new DetailedError(
+      //       "Product already exists but has errors",
+      //       responseCodes.Unprocessable_Entity,
+      //       ErrorOrigin.Headless,
+      //       {
+      //         message: error,
+      //         code: responseCodes.Unprocessable_Entity,
+      //       }
+      //     )
+      //   );
+      // }
     }
   }
 
@@ -126,6 +148,8 @@ export const useBasketProductsPending = () => {
       } else if (state.done) {
         unsetProduct(pid);
       } else {
+        // should we resolve on complete?
+        // console.info("Product state", state.value);
         // resolve(actor);
       }
     });
@@ -137,19 +161,36 @@ export const useBasketProductsPending = () => {
   async function getProduct(
     pid?: string,
     sync?: boolean
-  ): Promise<BasketProductPending> {
+  ): Promise<UseBasketProductPending> {
     const productId = pid || first(keys(productConfigs));
     if (!productId) {
-      return Promise.reject({
-        message: "No product id found",
-        code: responseCodes.Not_Found,
-      });
+      return Promise.reject(
+        new DetailedError(
+          "No productId provided to getProduct",
+          responseCodes.Not_Found,
+          ErrorOrigin.Headless,
+          {
+            message: "No product id found",
+            code: responseCodes.Not_Found
+          }
+        )
+      );
     }
+
     const model = get(productConfigs, productId, { productId, quantity: 1 });
-    return ensure(productId, model).then(instance => {
-      if (sync) subscribe(productId, instance.service);
-      return instance;
-    });
+    return ensure(productId, model)
+      .then(instance => {
+        if (sync) subscribe(productId, instance.service);
+        return instance;
+      })
+      .catch(error => {
+        throw new DetailedError(
+          "Ensure Pending product failed",
+          responseCodes.No_Content,
+          ErrorOrigin.Headless,
+          { error, productId }
+        );
+      });
   }
 
   function setProduct(productId: string, value?: ProductModel | State<any>) {
@@ -162,10 +203,10 @@ export const useBasketProductsPending = () => {
   }
 
   function unsetProduct(pid: string) {
-    const product = find(productsPending, service => {
-      const state = service.getSnapshot();
-      return get(state, "context.model.productId") === pid;
-    }) as BasketProductPending;
+    const product = find(
+      productsPending,
+      ({ model }) => model.value?.productId === pid
+    ) as UseBasketProductPending;
 
     // ensure we unsubscribe from the item if it exists
     const sub = get(subscriptions, pid);
@@ -206,8 +247,33 @@ export const useBasketProductsPending = () => {
   // ---------------------------------------------------------------------------
 
   return {
-    getProducts: () => productsPending,
+    // --- state
     isReady: () => new Promise(resolve => resolve(!isNil(productConfigs))),
+
+    meta: computed(() => ({
+      hasProducts: !isEmpty(products.value)
+    })),
+
+    configure: async (
+      pid?: string | ActorRef<any>,
+      sync?: boolean
+    ): Promise<PendingProduct> => {
+      const instance = isActor(pid)
+        ? useBasketProductPending(pid as ActorRef<any>)
+        : await getProduct(pid as string, sync);
+
+      if (isEmpty(instance))
+        return Promise.reject(
+          new DetailedError(
+            "No product instance found",
+            responseCodes.Not_Found,
+            ErrorOrigin.Headless
+          )
+        );
+
+      return Promise.resolve(instance);
+    },
+
     isInBasket: async (config: Partial<ProductProps>) => {
       const cleanConfig = compactDeep(config);
       const keysModel = keys(cleanConfig);
@@ -217,13 +283,17 @@ export const useBasketProductsPending = () => {
       await isReady();
       return productExists(config);
     },
-    // ---
-    add: ensure,
-    get: getProduct,
-    remove: unsetProduct,
+    //  --- context
+
+    products,
+    productsPending,
+
     resolve,
-    // --
     addMany,
     clear,
+
+    add: ensure,
+    get: getProduct,
+    remove: unsetProduct
   };
 };

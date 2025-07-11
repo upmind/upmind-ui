@@ -11,7 +11,7 @@ import { uniqBy, isEmpty } from "lodash-es";
 // --- types
 import type { Flow, Route } from "../types";
 import { ROUTE } from "../types";
-import { SessionContext } from "src/modules/session/types";
+import { SessionContext } from "../../session/types";
 
 // -----------------------------------------------------------------------------
 
@@ -36,11 +36,10 @@ export const useSessionFlows = () => {
   const routing = useRoutingEngine();
   const {
     isAuthenticated,
-    hasExpired,
     transferFrom,
     getTransferDetails,
     transferred,
-    logout,
+    logout
   } = useSession();
   const { clear: clearPendingProducts } = useBasketProductsPending();
 
@@ -56,8 +55,8 @@ export const useSessionFlows = () => {
       targets: {
         next: [ROUTE.CHECKOUT, ROUTE.BASKET, ROUTE.EMPTY],
         back: [ROUTE.BASKET, ROUTE.EMPTY],
-        fallback: [ROUTE.BASKET, ROUTE.EMPTY],
-      },
+        fallback: [ROUTE.BASKET, ROUTE.EMPTY]
+      }
     },
     {
       name: ROUTE.SESSION_LOGIN,
@@ -70,8 +69,8 @@ export const useSessionFlows = () => {
       targets: {
         next: [ROUTE.CHECKOUT, ROUTE.BASKET, ROUTE.EMPTY],
         back: [ROUTE.BASKET, ROUTE.EMPTY],
-        fallback: [ROUTE.BASKET, ROUTE.EMPTY],
-      },
+        fallback: [ROUTE.BASKET, ROUTE.EMPTY]
+      }
     },
     {
       name: ROUTE.SESSION_REGISTER,
@@ -84,8 +83,8 @@ export const useSessionFlows = () => {
       targets: {
         next: [ROUTE.CHECKOUT, ROUTE.BASKET, ROUTE.EMPTY],
         back: [ROUTE.BASKET, ROUTE.EMPTY],
-        fallback: [ROUTE.BASKET, ROUTE.EMPTY],
-      },
+        fallback: [ROUTE.BASKET, ROUTE.EMPTY]
+      }
     },
     {
       name: ROUTE.SESSION_END,
@@ -97,13 +96,13 @@ export const useSessionFlows = () => {
       targets: {
         next: [],
         back: [ROUTE.BASKET, ROUTE.EMPTY],
-        fallback: [ROUTE.BASKET, ROUTE.EMPTY],
-      },
+        fallback: [ROUTE.BASKET, ROUTE.EMPTY]
+      }
     },
     {
       name: ROUTE.SESSION_TRANSFER,
       meta: {
-        replace: true,
+        replace: true
       },
       guard: async (route: Route) => {
         const query = useRouteQueryParams(route);
@@ -119,7 +118,7 @@ export const useSessionFlows = () => {
         const transfer = getTransferDetails();
 
         let route: Route = {
-          name: ROUTE.BASKET,
+          name: ROUTE.BASKET
         };
 
         // NB: WE always use location.href to redirect to ensure routes and query params are interpreted correctly
@@ -129,12 +128,12 @@ export const useSessionFlows = () => {
           if (isExternalURL(transfer?.redirect)) {
             window.location.href = transfer.redirect;
             route = {
-              name: ROUTE.SESSION_TRANSFER,
+              name: ROUTE.SESSION_TRANSFER
             };
           } else {
             window.location.href = parseInternalUrl(transfer.redirect);
             route = {
-              name: ROUTE.SESSION_TRANSFER,
+              name: ROUTE.SESSION_TRANSFER
             };
           }
         }
@@ -145,8 +144,8 @@ export const useSessionFlows = () => {
       targets: {
         next: [ROUTE.BASKET],
         back: [ROUTE.BASKET, ROUTE.EMPTY],
-        fallback: [ROUTE.BASKET, ROUTE.EMPTY],
-      },
+        fallback: [ROUTE.BASKET, ROUTE.EMPTY]
+      }
     },
     {
       name: ROUTE.SESSION_RECOVER_PASSWORD,
@@ -157,9 +156,9 @@ export const useSessionFlows = () => {
       targets: {
         next: [ROUTE.SESSION_LOGIN],
         back: [ROUTE.SESSION_LOGIN],
-        fallback: [ROUTE.BASKET, ROUTE.EMPTY],
-      },
-    },
+        fallback: [ROUTE.BASKET, ROUTE.EMPTY]
+      }
+    }
 
     // {
     //   name: ROUTE.PROFILE,
@@ -179,6 +178,6 @@ export const useSessionFlows = () => {
     register: (data?: Flow[]) => {
       flows = uniqBy([...(data ?? []), ...flows], "name");
       routing.register(flows);
-    },
+    }
   };
 };

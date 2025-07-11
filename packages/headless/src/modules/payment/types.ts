@@ -2,17 +2,15 @@
 
 // --- internal
 import type {
-  IBasket,
   IOrder,
   IPaymentDetail,
   IPaymentAttempt,
   Methods,
   IClient,
   ICurrency,
-  IAddress,
+  IAddress
 } from "@upmind-automation/types";
-import { ResponseError } from "../query";
-import { ErrorObject } from "ajv";
+import { ResponseError } from "../../utils";
 
 // -----------------------------------------------------------------------------
 
@@ -36,5 +34,5 @@ export interface PaymentContext extends PaymentArgs {
     url: URL["href"];
   };
   payment?: IPaymentAttempt & {};
-  error?: ResponseError | ErrorObject[];
+  error?: ResponseError;
 }

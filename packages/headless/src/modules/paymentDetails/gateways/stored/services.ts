@@ -4,6 +4,7 @@
 import sharedServices from "../services";
 
 // --- utils
+import { useModelParser } from "../../../../utils";
 import { unset, find, first } from "lodash-es";
 
 // --- types
@@ -27,10 +28,10 @@ async function update({ model }: GatewayContext) {
 }
 
 async function parse(
-  { model, stored_payment_methods }: GatewayContext,
+  { model, schema, stored_payment_methods }: GatewayContext,
   _event: any
 ) {
-  model ??= {}; // safeguard
+  model = useModelParser(schema, model);
 
   // make sure we don't have a gateway_id
   unset(model, "gateway_id");
@@ -50,5 +51,5 @@ export default {
   ...sharedServices,
   // ---
   update,
-  parse,
+  parse
 };

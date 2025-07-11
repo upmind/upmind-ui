@@ -19,7 +19,7 @@
       <span
         :class="[
           styles.domain.search.actions,
-          { 'select-none opacity-0': type === 'existing' },
+          { 'select-none opacity-0': type === 'existing' }
         ]"
       >
         <Button
@@ -34,6 +34,7 @@
           :disabled="isEmpty(inputValue)"
           :loading="isLoading"
           size="md"
+          color="secondary"
           :class="styles.domain.search.action"
           @click="emit('search', inputValue)"
         >
@@ -66,7 +67,7 @@ import type { DomainSearchProps } from "../types";
 const props = withDefaults(defineProps<DomainSearchProps>(), {
   modelValue: "",
   isLoading: false,
-  type: "register",
+  type: "register"
 });
 
 const emit = defineEmits<{

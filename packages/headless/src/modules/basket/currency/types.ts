@@ -3,9 +3,14 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --- internal
 import type { ICurrency } from "@upmind-automation/types";
-import { ResponseError } from "src/modules/query";
+import type { ResponseError } from "../../../utils";
 
 // -----------------------------------------------------------------------------
+
+export type CurrencyModel = {
+  id?: ICurrency["id"];
+  code?: ICurrency["code"];
+};
 
 export interface CurrencyContext {
   basketId?: string;
@@ -18,8 +23,8 @@ export interface CurrencyContext {
   // TODO:
   // model?: ICurrency;
   // baseModel?: ICurrency;
-  model?: any;
-  baseModel?: any;
+  model?: CurrencyModel;
+  baseModel?: CurrencyModel;
   autoupdate?: boolean;
   // ---
   dirty?: boolean;

@@ -2,13 +2,13 @@
 import { useQuery } from "../..";
 
 // --- utils
-import { DetailedError, responseCodes } from "../../utils";
+import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 import { getTokenFromStorage, persistTokenToStorage } from "./utils";
 
 import { isEmpty } from "lodash-es";
 
 // --- types
-import { GrantTypes } from "@upmind-automation/types";
+import { GrantTypes, IToken } from "@upmind-automation/types";
 import type { SessionContext } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -19,7 +19,14 @@ async function check(_context: SessionContext) {
     if (!isEmpty(token)) {
       resolve(token);
     } else {
-      reject(null);
+      reject(
+        new DetailedError(
+          "Token is not available",
+          responseCodes.Not_Found,
+          ErrorOrigin.Headless,
+          null
+        )
+      );
     }
   });
 }
@@ -29,8 +36,8 @@ async function transferTo(_context: SessionContext) {
 
   return post({
     url: useUrl("auth_code"),
-    withAccessToken: true,
-  }).then(({ data }: any) => data);
+    withAccessToken: true
+  });
 }
 
 async function transferFrom({ transfer }: SessionContext) {
@@ -38,17 +45,22 @@ async function transferFrom({ transfer }: SessionContext) {
 
   if (!transfer?.code)
     return Promise.reject(
-      new DetailedError("No code", responseCodes.Unprocessable_Entity, transfer)
+      new DetailedError(
+        "No code",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless,
+        transfer
+      )
     );
 
-  return post({
+  return post<IToken>({
     url: useUrl("access_token", {}, { context: "oauth" }),
     data: {
       grant_type: GrantTypes.AUTH_CODE,
       code: transfer.code,
-      lang: "en", // ensure we dont init i18n to get the locale
-    },
-  }).then((data: any) => {
+      lang: "en" // ensure we dont init i18n to get the locale
+    }
+  }).then(data => {
     persistTokenToStorage(data);
     return data;
   });
@@ -59,5 +71,5 @@ async function transferFrom({ transfer }: SessionContext) {
 export default {
   check,
   transferTo,
-  transferFrom,
+  transferFrom
 };

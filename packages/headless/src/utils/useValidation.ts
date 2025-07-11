@@ -1,6 +1,6 @@
 // --- external
-import { createAjv } from "@jsonforms/core";
 
+import { createAjv } from "@jsonforms/core";
 import ajvErrors from "ajv-errors";
 
 // --- internal
@@ -19,15 +19,16 @@ import {
   isArray,
   isEmpty,
   isNil,
+  isObject,
   map,
   omitBy,
   reduce,
   replace,
   set,
   trimEnd,
-  trimStart,
+  trimStart
 } from "lodash-es";
-import { parseError } from "./useError";
+import { parseError, ResponseError } from "./useError";
 import Ajv, { type ErrorObject } from "ajv";
 
 // --- types
@@ -107,43 +108,43 @@ function mapLaravelRuleToJSONSchema(
     return {
       type: "string",
       format: "phone",
-      phone_country_code: context?.defaultCountry?.code ?? "",
+      phone_country_code: context?.defaultCountry?.code ?? ""
       // errorMessage: "Please enter a valid international phone number",
     };
   } else if (rule == "domain_name") {
     return {
       type: "string",
       format: "domain_name",
-      errorMessage: "Please enter a valid domain name",
+      errorMessage: "Please enter a valid domain name"
     };
   } else if (rule === "alpha") {
     return {
       format: "alpha",
       errorMessage: {
-        format: "may only contain letters",
-      },
+        format: "may only contain letters"
+      }
     };
   } else if (rule === "alpha-dash") {
     return {
       format: "alpha-dash",
       errorMessage: {
-        format: "may only contain letters, numbers, and dashes",
-      },
+        format: "may only contain letters, numbers, and dashes"
+      }
     };
   } else if (rule === "alpha-num") {
     return {
       format: "alpha_num",
       errorMessage: {
-        format: "may only contain letters and numbers",
-      },
+        format: "may only contain letters and numbers"
+      }
     };
   } else if (rule === "alpha-dash-dot") {
     return {
       type: "string",
       pattern: "^[a-zA-Z.-]+$",
       errorMessage: {
-        pattern: "may only contain letters, dots and dashes",
-      },
+        pattern: "may only contain letters, dots and dashes"
+      }
     };
   }
 
@@ -164,8 +165,8 @@ function mapLaravelRuleToJSONSchema(
       return {
         oneOf: map(field?.options, option => ({
           const: option.value,
-          title: option.label,
-        })),
+          title: option.label
+        }))
       };
     } else {
       const values = rule.substring(3).split(",");
@@ -199,27 +200,27 @@ function mapLaravelRuleToJSONSchema(
     const value = parseInt(rule.substring(11), 10);
     return {
       type: "number",
-      exclusiveMinimum: Math.pow(10, value - 1),
+      exclusiveMinimum: Math.pow(10, value - 1)
     };
   } else if (rule.startsWith("max_digits:")) {
     const value = parseInt(rule.substring(11), 10);
     return {
       type: "number",
-      maximum: Math.pow(10, value) - 1,
+      maximum: Math.pow(10, value) - 1
     };
   } else if (rule.startsWith("digits:")) {
     const value = parseInt(rule.substring(7), 10);
     return {
       type: "number",
       exclusiveMinimum: Math.pow(10, value - 1),
-      maximum: Math.pow(10, value) - 1,
+      maximum: Math.pow(10, value) - 1
     };
   } else if (rule.startsWith("digits_between:")) {
     const [min, max] = rule.substring(15).split(",").map(Number);
     return {
       type: "number",
       exclusiveMinimum: Math.pow(10, min - 1),
-      maximum: Math.pow(10, max) - 1,
+      maximum: Math.pow(10, max) - 1
     };
   } else if (rule.startsWith("lt:")) {
     const value = parseFloat(rule.substring(3));
@@ -237,25 +238,25 @@ function mapLaravelRuleToJSONSchema(
     const date = rule.substring(7);
     return {
       format: "date",
-      formatMaximum: date,
+      formatMaximum: date
     };
   } else if (rule.startsWith("after:")) {
     const date = rule.substring(6);
     return {
       format: "date",
-      formatMinimum: date,
+      formatMinimum: date
     };
   } else if (rule.startsWith("before_or_equal:")) {
     const date = rule.substring(16);
     return {
       format: "date",
-      formatMaximum: date,
+      formatMaximum: date
     };
   } else if (rule.startsWith("after_or_equal:")) {
     const date = rule.substring(15);
     return {
       format: "date",
-      formatMinimum: date,
+      formatMinimum: date
     };
   }
 
@@ -265,43 +266,43 @@ function mapLaravelRuleToJSONSchema(
     return {
       required_if: {
         field: otherField,
-        value: expectedValue,
-      },
+        value: expectedValue
+      }
     };
   } else if (rule.startsWith("required_unless:")) {
     const [otherField, expectedValue] = rule.substring(16).split(",");
     return {
       required_unless: {
         field: otherField,
-        value: expectedValue,
-      },
+        value: expectedValue
+      }
     };
   } else if (rule.startsWith("required_with:")) {
     const otherField = rule.substring(14);
     return {
-      required_with: otherField,
+      required_with: otherField
     };
   } else if (rule.startsWith("required_without:")) {
     const otherField = rule.substring(17);
     return {
-      required_without: otherField,
+      required_without: otherField
     };
   } else if (rule === "same:") {
     const otherProperty = rule.substring(5);
     return {
-      same: otherProperty,
+      same: otherProperty
     };
   } else if (rule === "different:") {
     const otherProperty = rule.substring(9);
     return {
-      different: otherProperty,
+      different: otherProperty
     };
   }
   // 6. Default
   // For any rule we haven't explicitly mapped, we'll return it as a custom keyword
   return {
     type: "string", // Default to string type for unknown rules
-    [rule]: true,
+    [rule]: true
   };
 }
 
@@ -317,12 +318,12 @@ function mapLaravelConditionalRuleToJSONSchema(
       allOf.push({
         if: {
           properties: {
-            [otherField]: { const: expectedValue },
-          },
+            [otherField]: { const: expectedValue }
+          }
         },
         then: {
-          required: [name],
-        },
+          required: [name]
+        }
       });
     } else if (rule.startsWith("required_unless:")) {
       const [otherField, expectedValue] = rule.substring(16).split(",");
@@ -330,35 +331,35 @@ function mapLaravelConditionalRuleToJSONSchema(
         if: {
           not: {
             properties: {
-              [otherField]: { const: expectedValue },
-            },
-          },
+              [otherField]: { const: expectedValue }
+            }
+          }
         },
         then: {
-          required: [name],
-        },
+          required: [name]
+        }
       });
     } else if (rule.startsWith("required_with:")) {
       const otherField = rule.substring(14).split(",");
       allOf.push({
         if: {
-          required: otherField,
+          required: otherField
         },
         then: {
-          required: [name],
-        },
+          required: [name]
+        }
       });
     } else if (rule.startsWith("required_without:")) {
       const otherField = rule.substring(17).split(",");
       allOf.push({
         if: {
           not: {
-            required: otherField,
-          },
+            required: otherField
+          }
         },
         then: {
-          required: [name],
-        },
+          required: [name]
+        }
       });
     }
   }
@@ -412,7 +413,7 @@ export function useLaravalSchemaParser(
         title: field.field_label,
         description: field.description,
         default: field?.default_value,
-        ...mapLaravelRulesToJsonSchemaProperty(field, context), // Map the rules
+        ...mapLaravelRulesToJsonSchemaProperty(field, context) // Map the rules
       };
 
       // Handle 'required'
@@ -441,41 +442,102 @@ export function useLaravalSchemaParser(
     {
       type: "object",
       properties,
-      required: requiredFields,
+      required: requiredFields
       // allOf,
     },
     isEmpty
   ) as JsonSchema7;
 }
 
-export const useValidationParser = (error: any): ErrorObject[] => {
-  if (error?.data) {
-    error.message = "Validation error";
-    error.data = compact(
-      reduce(
-        error?.data,
-        (result: ErrorObject[], value, key) => {
-          const parsed = parseError(value, key);
-          return concat(result, parsed);
-        },
-        []
-      )
-    );
-  }
-  return error;
+function isErrorObject(error: any): error is ErrorObject {
+  if (isArray(error)) return every(error, isErrorObject);
+
+  return (
+    error && isObject(error) && "instancePath" in error && "schemaPath" in error
+  );
+}
+
+export const useValidationParser = (error: ResponseError): ErrorObject[] => {
+  //NB we may be given an error that is already an ErrorObject[] or a single ErrorObject
+  if (isErrorObject(error.data))
+    return isArray(error.data) ? error.data : ([error.data] as ErrorObject[]);
+
+  return compact(
+    reduce(
+      error?.data,
+      (result: ErrorObject[], value, key) => {
+        const parsed = parseError(value, key);
+        return concat(result, parsed);
+      },
+      []
+    )
+  );
 };
 
-export const useModelParser = (schema: JsonSchema, values: any) => {
+export const useModelParser = <
+  TModel extends Record<string, any> = Record<string, any>,
+  TBaseModel = TModel
+>(
+  schema: JsonSchema | undefined,
+  values?: Partial<TModel>,
+  baseModel?: Partial<TBaseModel>,
+  {
+    allowExtraProps
+  }: {
+    allowExtraProps?: boolean;
+  } = { allowExtraProps: true }
+): TModel => {
+  // values = omitBy(values, isEmpty) as Partial<TModel>;
+  // baseModel = omitBy(baseModel, isEmpty) as Partial<TBaseModel>;
+
+  values = defaultsDeep(values, baseModel) as Partial<TModel>;
+
+  if (!schema?.properties) return values as TModel;
+
+  /**
+   * Recursively retrieves a value from the schema based on the field type.
+   * If the field is an object or has properties, it recursively processes its properties.
+   * If the field has a const value, it returns that; otherwise, it checks the
+   * values object for the key, or falls back to the field's default value.
+   * If no value is found, it returns null.
+   *
+   * @param field
+   * @param values
+   * @param key
+   * @returns
+   */
+  function safeValue(field: JsonSchema, values: any, key: string): any {
+    if (field.type === "object" || field.properties) {
+      return reduce(
+        field.properties,
+        (result, subField, subKey) => {
+          const subValue = safeValue(subField, values?.[key], subKey);
+          set(result, subKey, subValue);
+          return result;
+        },
+        {} as Record<string, any>
+      );
+    }
+
+    return field?.const ?? get(values, key, field?.default) ?? null;
+  }
+
   const model = reduce(
     schema.properties,
     (result, field, key) => {
-      const value = field?.const || get(values, key, field?.default);
+      const value = safeValue(field, values, key);
       set(result, key, value);
       return result;
     },
-    {}
+    {} as Record<string, any>
   );
-  return defaultsDeep(model, values);
+  if (!allowExtraProps) return model as TModel;
+
+  const parsed = (
+    !allowExtraProps ? model : defaultsDeep(model, values)
+  ) as TModel;
+
+  return parsed;
 };
 
 // -----------------------------------------------------------------------------
@@ -489,12 +551,12 @@ export const useValidation = (ajv?: Ajv) => {
       ajv ??
       createAjv({
         useDefaults: true,
-        verbose: false,
+        verbose: false
       });
 
     ajvErrors(ajvInstance, {
       keepErrors: false,
-      singleError: true,
+      singleError: true
     });
 
     forEach(formats, format =>
@@ -513,6 +575,6 @@ export const useValidation = (ajv?: Ajv) => {
         return validate.errors ?? [];
       }
       return [];
-    },
+    }
   };
 };

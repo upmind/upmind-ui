@@ -1,5 +1,5 @@
 import { IUser, IClient, AccessRoleTypes } from "@upmind-automation/types";
-import { ResponseError } from "../query";
+import type { ResponseError } from "../../utils";
 
 // -----------------------------------------------------------------------------
 export interface IAuthTransfer {
@@ -33,7 +33,7 @@ export interface Token {
   // ---
   redirect?: Location["origin"] | null;
   actor_id?: string | null;
-  actor_type?: "guest" | "client" | "reseller" | "user" | null;
+  actor_type?: "guest" | "client" | "reseller" | "user" | string | null;
   // ---
   guest_token?: string | null;
 }

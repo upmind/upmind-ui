@@ -1,9 +1,9 @@
-[Upmind](../../packages.md) / [@upmind-automation/headless-vue](../index.md) / useBasketPaymentDetails
+[Upmind](../../packages.md) / [@upmind-automation/headless](../index.md) / useBasketPaymentDetails
 
 # useBasketPaymentDetails()
 
 ```ts
-function useBasketPaymentDetails(service?): object
+function useBasketPaymentDetails(service?): object;
 ```
 
 ## Parameters
@@ -51,7 +51,7 @@ gateways: ComputedRef<any>;
 ### input()
 
 ```ts
-input: (model) => any;
+input: model => any;
 ```
 
 #### Parameters

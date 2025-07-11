@@ -1,326 +1,299 @@
-// --- external
-
 // --- internal
-import { useQuery, useSystem, useSession, useBrand } from "../..";
-import { usePlaces } from "../places";
-import { useClientAddresses } from ".";
+import {
+  useQuery,
+  useBrand,
+  useSystem,
+  useSession,
+  useFeedback,
+  type QueryParams
+} from "../..";
 
 // --- utils
-import { useValidation } from "../../../utils";
-import { parseAddress } from "./utils";
 import {
-  some,
-  first,
-  isEmpty,
-  find,
-  get,
-  includes,
-  filter,
-  defaultsDeep,
-  pick,
-  isEqual,
-} from "lodash-es";
+  useTime,
+  ErrorOrigin,
+  useValidation,
+  DetailedError,
+  responseCodes,
+  useCollection,
+  useModelParser,
+  NotAuthenticatedError
+} from "../../../utils";
+import { invalidateQueryByKey } from "../../query";
+import { mapAddress, mapAddresses, mapIAddress } from "./mappers";
+import { get, isString, isEmpty, find, some, pick } from "lodash-es";
 
 // --- types
+import { BrandConfigKeys, type IAddress } from "@upmind-automation/types";
+import type { QueryKey } from "@tanstack/vue-query";
 import type { AnyEventObject } from "xstate";
-import { AddressTypes } from "./types";
-import type { AddressContext, AddressesContext, IAddressData } from "./types";
-import { isString } from "xstate/lib/utils";
-import { BrandConfigKeys } from "@upmind-automation/types";
+import type { Address, AddressModel, AddressContext } from "./types";
 
 // -----------------------------------------------------------------------------
-// SERVICE METHODS
-// Invoked by machines, providing context and event data
+// QUERIES
 
-// async function getEnums({ field }: AddressContext,) {
-//   const { getConfig } = useBrand();
+const queryKey: QueryKey = ["client", "addresses"];
+const { addError, addSuccess } = useFeedback();
 
-//   const brandPaymentPeriod: DefaultPaymentPeriod | any = await getConfig(
-//     BrandConfigKeys.PRICE_TAX_PRICE_DEFAULT_PAYMENT_PERIOD
-//   ).then(response =>
-//     get(response, BrandConfigKeys.PRICE_TAX_PRICE_DEFAULT_PAYMENT_PERIOD)
-//   );
-// }
+function loadList(params?: Partial<QueryParams>) {
+  const { meta, user } = useSession();
+  const { list, useUrl } = useQuery();
 
-export async function invalidateAddresses(context: object) {
-  const { queryClient } = useQuery();
-
-  return queryClient
-    .resetQueries({ queryKey: ["clients", "addresses"], exact: false }) // companies needs to invalidate ALL client libs
-    .then(() => context);
-}
-
-async function load(_context: AddressesContext) {
-  const { get, useUrl } = useQuery();
-
-  // prepare our brand settings
-  const { ensureConfig } = useBrand();
-  ensureConfig([BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS]);
-
-  const { isAuthenticated } = useSession();
-  const client = await isAuthenticated().catch(error => Promise.reject(error));
-
-  return get({
-    url: useUrl(`clients/${client.id}/addresses`, {
-      limit: 0,
-      with: ["region", "country"].join(),
+  return list<IAddress[], Address[]>({
+    ...(params as any),
+    queryKey,
+    url: useUrl(`clients/${user.value?.id}/addresses`, {
+      with: ["region", "country"].join()
     }),
-    queryKey: [
-      "clients",
-      "addresses",
-      {
-        limit: 0,
-        with: ["region", "country"].join(),
-      },
-    ],
     withAccessToken: true,
-    revalidateIfStale: true,
-  }).then(({ data }: any) => parseAddress(data));
-}
-
-async function filterItems(
-  { raw }: AddressesContext,
-  { data }: AnyEventObject
-) {
-  if (!data?.length)
-    return Promise.reject({ error: "No data provided for filtering" });
-
-  const filteredItems = filter(
-    raw,
-    item =>
-      includes(
-        item.getSnapshot().context?.title?.toLowerCase(),
-        data?.toLowerCase()
-      ) ||
-      includes(
-        item.getSnapshot().context?.description?.toLowerCase(),
-        data?.toLowerCase()
-      )
-  );
-
-  return Promise.resolve(filteredItems);
-}
-
-async function findItem({ raw }: AddressesContext, { data }: AnyEventObject) {
-  if (isEmpty(data))
-    return Promise.reject({ error: "No data provided for filtering" });
-
-  const value = pick(data, [
-    "address1",
-    "address2",
-    "city",
-    "postcode",
-    "regionId",
-    "countryId",
-  ]);
-  // same here
-  const found = find(raw, item => {
-    const id = item.getSnapshot().context.model.id;
-    const model = pick(item.getSnapshot().context.model, [
-      "address1",
-      "address2",
-      "city",
-      "postcode",
-      "regionId",
-      "countryId",
-    ]);
-
-    const matchId = isEqual(id, isString(data) ? data : data.id);
-    const matchModel = isEqual(model, value);
-    return matchId || matchModel;
-  });
-
-  return new Promise((resolve, reject) => {
-    if (!found) reject();
-    resolve(found);
+    guard: async () =>
+      new Promise((resolve, reject) => {
+        if (meta.value.isAuthenticated && !!user.value?.id) {
+          resolve(true);
+        } else {
+          reject(new NotAuthenticatedError());
+        }
+      }),
+    // --- options
+    select: mapAddresses,
+    staleTime: useTime().DAY
   });
 }
 
-// -----------------------------------------------------------------------------
-
-async function add({ model }: AddressContext) {
-  const { post, useUrl } = useQuery();
-  const { getUserId } = useSession();
-
-  const clientId = await getUserId();
-
-  return post({
-    url: useUrl(`clients/${clientId}/addresses`),
-    data: model,
-    withAccessToken: true,
-  })
-    .then(invalidateAddresses)
-    .then(({ data }: any) => data);
-}
-
-async function update({ model }: AddressContext) {
-  const { put, useUrl } = useQuery();
-  const { getUserId } = useSession();
-
-  const clientId = await getUserId();
-
-  return put({
-    url: useUrl(`clients/${clientId}/addresses/${model?.id}`),
-    data: model,
-    withAccessToken: true,
-  })
-    .then(invalidateAddresses)
-    .then(({ data }: any) => data);
-}
-
-async function remove({ model }: AddressContext) {
-  const { del, useUrl } = useQuery();
-  const { getUserId } = useSession();
-
-  const clientId = await getUserId();
-
-  return del({
-    url: useUrl(`clients/${clientId}/addresses/${model?.id}`),
-    withAccessToken: true,
-  })
-    .then(invalidateAddresses)
-    .then(({ data }: any) => data);
-}
-
-async function setDefault({ model }: AddressContext) {
-  const { put, useUrl } = useQuery();
-  const { getUserId } = useSession();
-
-  const clientId = await getUserId();
-
-  return put({
-    url: useUrl(`clients/${clientId}/addresses/${model?.id}`),
-    data: { default: true },
-    withAccessToken: true,
-  })
-    .then(invalidateAddresses)
-    .then(({ data }: any) => data);
-}
-// -----------------------------------------------------------------------------
-
-async function loadLookups({ model }: AddressContext) {
+async function loadLookups({
+  model,
+  schema
+}: AddressContext): Promise<AddressContext> {
   const { isReady, fetchCountries, fetchRegions, getCountry } = useSystem();
 
   // we have to do this synchronously as we need the values to be available for the model
-  // these could/should be cached in the system machine, so theres no worry about performance
-  await isReady().catch(error => Promise.reject(error));
+  // these could/should be cached in the system machine, so there's no worry about performance
+  await isReady().catch(error =>
+    Promise.reject(
+      new DetailedError(
+        "System not ready",
+        responseCodes.Unauthorized,
+        ErrorOrigin.Headless,
+        error
+      )
+    )
+  );
   const countries = await fetchCountries();
   const country = getCountry(model?.countryId);
   const regions = await fetchRegions(model?.countryId || country?.id);
 
+  const { ensureConfig } = useBrand();
+  const config = await ensureConfig([
+    BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS
+  ]);
+
   if (!countries || !regions) {
-    return Promise.reject(new Error("Failed to load countries and regions"));
+    return Promise.reject(
+      new DetailedError(
+        "Failed to load address lookups",
+        responseCodes.No_Content,
+        ErrorOrigin.Headless
+      )
+    );
   }
 
-  // ---
-  // lets start up/use our dependencies
-  const addresses: any = useClientAddresses();
-  const places = usePlaces();
+  const baseModel: AddressModel = {
+    countryId: country?.id,
+    address1: "",
+    city: "",
+    postcode: ""
+  };
 
-  return Promise.all([addresses.isReady(), places.isReady()])
-    .then(() => {
-      places.reset();
+  const safeModel = useModelParser<AddressModel>(schema, model, baseModel);
 
-      return {
-        countries,
-        regions,
-        types: AddressTypes,
-        places,
-        country,
-        // ---
-        addresses,
-        // ---
-        baseModel: {
-          ...model,
-          manualPlace: !!model?.id,
-          type: first(AddressTypes)?.key,
-          place: null,
-          countryId: country?.id,
-        },
-      };
-    })
-    .catch(() => Promise.reject(new Error("Failed to load lookups")));
+  return Promise.resolve({
+    regions,
+    country,
+    countries,
+    config,
+    // ---
+    model: safeModel,
+    baseModel: safeModel
+  } as AddressContext);
 }
 
-async function parse(
-  // { addresses, schema, model, regions, country, places }: AddressContext,
-  { addresses, schema, model, regions, country, places }: any
-) {
-  // We need to check and potentially update the regions list based on the selected country ( if its changed )
-  const { fetchRegions, getCountry } = useSystem();
+// -----------------------------------------------------------------------------
+// MUTATIONS
 
-  if (!isEmpty(model)) {
-    // let's check to see if we've been given a place to lookup
-    // if we have:
-    //  1: get the place from our existing addresses by placeId
-    //  2: get the place details from google
-    //  4: update the model with the place details
-    if (model?.place) {
-      const existing = addresses.getItem(model.place);
-      if (existing) {
-        model.name ??= existing.name; // only update it if weve not already got a value
-        model.address1 = existing.address1;
-        model.address2 = existing.address2;
-        model.city = existing.city;
-        model.postcode = existing.postcode;
-        model.regionId = existing.regionId;
-        model.state = existing.state;
-        model.countryId = existing.countryId;
-      } else {
-        const { getPlaceDetails } = places;
-        const place = await getPlaceDetails(model.place);
-        model = defaultsDeep(place, model);
-      }
-      model.place = undefined; // we dont need this anymore
-    }
+async function add(data: AddressModel) {
+  const { meta, user } = useSession();
+  const { post, useUrl } = useQuery();
 
-    // lets check if the country has changed, ie: the regions dont match
-    // if so, then we need to fetch the regions for the new country
-    // AND update our 'default' country to match the country fro mthe address
-    // this will in turn update the phone schema to match the country
-    if (!some(regions, ["countryId", model.countryId])) {
-      regions = await fetchRegions(model.countryId);
+  if (!meta.value.isAuthenticated || !user.value?.id) {
+    return Promise.reject(new NotAuthenticatedError());
+  }
+  return post<IAddress>({
+    url: useUrl(`clients/${user.value?.id}/addresses`),
+    data: mapIAddress(data),
+    withAccessToken: true
+  }).then(invalidateQueryByKey(queryKey, { exact: false }));
+}
 
-      country = getCountry(model.countryId);
-    }
+async function update(id: Address["id"], data: AddressModel) {
+  const { meta, user } = useSession();
+  const { put, useUrl } = useQuery();
 
-    // now lets check our regions list to see if we have a match
-    // if so, then we need to update the model with the new region id
-    // otherwise the regionId is reset to null
-    const region = find(regions, ["id", model?.regionId]);
-    model.regionId = get(region, "id");
-
-    // finally lets force a manual place if we are invalid:
-    const isValid = await validate({ schema, model })
-      .then(() => true)
-      .catch(() => false);
-
-    // force the manual place if we are have a place && are invalid
-    // OR editing an existing address
-    // OR the place value is our reserved word 'manual'
-    if (
-      (!!model.place?.length && !isValid) ||
-      !!model?.id ||
-      model.place == "manual"
-    ) {
-      model.manualPlace = true;
-    }
+  if (!meta.value.isAuthenticated || !user.value?.id) {
+    return Promise.reject(new NotAuthenticatedError());
   }
 
-  return Promise.resolve({ model, regions, country });
+  return put<IAddress>({
+    url: useUrl(`clients/${user.value?.id}/addresses/${id}`),
+    data: mapIAddress(data),
+    withAccessToken: true
+  }).then(invalidateQueryByKey(queryKey, { exact: false }));
+}
+
+async function ensure(model: AddressModel): Promise<Address> {
+  const { data, promise } = loadList();
+  await promise.value.finally(); // wait for the query to resolve
+  const { findOne } = useCollection<Address>(data.value ?? []);
+
+  // We only need to check if we have an address with the matching id
+  const mapping = pick(model, "id");
+  const found = isEmpty(mapping) ? undefined : findOne(mapping);
+  if (found) return Promise.resolve(found);
+
+  return add(model).then(raw => {
+    if (isEmpty(raw))
+      throw new DetailedError(
+        "Failed to ensure Address",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless,
+        { model }
+      );
+    // NB: Remember to refresh our machines so we have the new data
+    // refresh();
+    return mapAddress(raw);
+  });
+}
+
+function remove(addressId: Address["id"]) {
+  const { meta, user } = useSession();
+  const { mutate, useUrl } = useQuery();
+
+  return mutate<null>("DELETE", {
+    url: useUrl(`clients/${user.value?.id}/addresses/${addressId}`),
+    guard: async () =>
+      new Promise((resolve, reject) => {
+        if (meta.value.isAuthenticated || !user.value?.id) {
+          resolve(true);
+        } else {
+          reject(new NotAuthenticatedError());
+        }
+      }),
+    onError(error: any) {
+      addError({
+        title: isString(error)
+          ? error
+          : error?.title || "We experienced an error removing this address",
+        copy: error?.message,
+        data: error?.data
+      });
+    },
+    onSuccess(data) {
+      invalidateQueryByKey(queryKey, { exact: false })(data);
+      addSuccess("Successfully removed address");
+    },
+    withAccessToken: true
+  });
+}
+
+function setDefault(addressId: Address["id"]) {
+  const { meta, user } = useSession();
+  const { mutate, useUrl } = useQuery();
+
+  return mutate<IAddress>("PUT", {
+    url: useUrl(`clients/${user.value?.id}/addresses/${addressId}`),
+    guard: async () =>
+      new Promise((resolve, reject) => {
+        if (meta.value.isAuthenticated || !user.value?.id) {
+          resolve(true);
+        } else {
+          reject(new NotAuthenticatedError());
+        }
+      }),
+    data: { default: true },
+    onError(error: any) {
+      addError({
+        title: isString(error)
+          ? error
+          : error?.title ||
+            "We experienced an error setting this address as default",
+        copy: error?.message,
+        data: error?.data
+      });
+    },
+    onSuccess(data) {
+      invalidateQueryByKey(queryKey, { exact: false })(data);
+      addSuccess("Successfully set address as default");
+    },
+    withAccessToken: true
+  });
+}
+
+// -----------------------------------------------------------------------------
+//  SIDE EFFECTS
+
+async function parse(
+  { regions, country, schema }: AddressContext,
+  { data }: AnyEventObject
+) {
+  // We need to check and potentially update the region list based on the selected country (if it's changed)
+  const { fetchRegions, getCountry } = useSystem();
+
+  // sometimes the machine can return the full context as data, so we check to see if we have a model
+  // if not, then we assume the data is the model
+  const safeModel = useModelParser<AddressModel>(
+    schema,
+    get(data, "model", data)
+  );
+
+  // first let's check we have a valid country,
+  // fallback to the default country if not set or invalid
+  country = getCountry(safeModel?.countryId);
+  safeModel.countryId = country.id;
+
+  // let's check if the country has changed, i.e.: the regions don't match
+  // if so, then we need to fetch the regions for the new country
+  // AND update our 'default' country to match the country from the address
+  // this will in turn update the phone schema to match the country
+  if (!some(regions, ["countryId", safeModel?.countryId])) {
+    regions = await fetchRegions(safeModel.countryId);
+    country = getCountry(safeModel.countryId);
+  }
+
+  // now let's check our region list to see if we have a match
+  // if so, then we need to update the safeModel with the new region id
+  // otherwise the regionId is reset to null
+  const region = find(regions, ["id", safeModel?.regionId]);
+  safeModel.regionId = get(region, "id");
+
+  return Promise.resolve({ model: safeModel, regions, country });
 }
 
 async function validate({ schema, model }: Partial<AddressContext>) {
-  // ---
+  if (!schema) return Promise.resolve(model);
 
   // Now validate the model as per normal
   const { validate } = useValidation();
 
   return new Promise((resolve, reject) => {
-    if (!schema) return resolve(model);
     const errors = validate(schema, model);
     if (errors?.length) {
-      reject({ error: errors });
+      reject(
+        new DetailedError(
+          "Address validation failed",
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.Headless,
+          errors
+        )
+      );
     } else {
       resolve(model);
     }
@@ -328,19 +301,123 @@ async function validate({ schema, model }: Partial<AddressContext>) {
 }
 
 // -----------------------------------------------------------------------------
-// EXPORTS
 
 export default {
-  find: findItem,
-  load,
-  loadLookups,
-  validate,
-  parse,
-  setDefault,
-  add,
-  update,
+  /**
+   * The query key used for caching and identifying address-related queries.
+   * @type {QueryKey}
+   */
+  queryKey,
+
+  //--- queries
+  /**
+   * Loads the address list.
+   * @returns {Promise<Address[]>} A promise that resolves to the list of addresses
+   */
+  loadList,
+
+  //--- mutations
+  /**
+   * Removes a address by its ID.
+   * @param {Address["id"]} addressId - The ID of the address to remove.
+   * @returns {Promise<null>} A promise that resolves when the address is removed
+   */
   remove,
-  filter: filterItems,
-  isAuthenticated: () =>
-    useSession().isAuthenticated().then(invalidateAddresses),
+
+  /**
+   * Sets a address as the default address.
+   * @param {Address["id"]} addressId - The ID of the address to set as default.
+   * @returns {Promise<IAddress>} A promise that resolves to the updated address
+   */
+  setDefault
+};
+
+export const useClientAddressServices = () => {
+  return {
+    // --- methods
+
+    /**
+     * Adds a address.
+     * @param {Partial<AddressContext>} param0 - The address context containing the model to add.
+     * @returns {Promise<any>} The result of the add operation.
+     */
+    add: async ({ model }: Partial<AddressContext>) => {
+      if (isEmpty(model))
+        return Promise.reject(
+          new DetailedError(
+            "Add Address failed: model provided",
+            responseCodes.No_Content,
+            ErrorOrigin.Headless,
+            { model }
+          )
+        );
+      // return add(model);
+      return add(model);
+    },
+
+    /**
+     * Ensures a address exists.
+     * @param {Partial<AddressContext>} param0 - The address context containing the model to ensure.
+     * @returns {Promise<any>} The ensured address model, which will either be the existing address or a new one created.
+     */
+    ensure: async ({ model }: Partial<AddressContext>): Promise<any> => {
+      if (isEmpty(model))
+        return Promise.reject(
+          new DetailedError(
+            "Ensure Address failed: model provided",
+            responseCodes.No_Content,
+            ErrorOrigin.Headless,
+            { model }
+          )
+        );
+      return ensure(model);
+    },
+
+    /**
+     * Loads lookups for the address form.
+     * @param {AddressContext} context - The address context.
+     * @returns {Promise<AddressContext>} The loaded lookups.
+     */
+    loadLookups,
+
+    /**
+     * Parses a address context.
+     * @param {AddressContext} context - The address context.
+     * @param {AnyEventObject} event - The event object.
+     * @returns {Promise<any>} The parsed address context.
+     */
+    parse,
+
+    /**
+     * Refreshes the address list.
+     * @param {Partial<QueryParams>} params - Optional query params.
+     * @returns {Promise<any>} The refreshed address list.
+     */
+    refresh: loadList,
+
+    /**
+     * Updates a address.
+     * @param {Partial<AddressContext>} param0 - The address context containing id and model.
+     * @returns {Promise<any>} The result of the update operation.
+     */
+    update: async ({ id, model }: Partial<AddressContext>) => {
+      if (!id || isEmpty(model))
+        return Promise.reject(
+          new DetailedError(
+            "Update Address failed: No id or model provided",
+            responseCodes.No_Content,
+            ErrorOrigin.Headless,
+            { id, model }
+          )
+        );
+      return update(id, model);
+    },
+
+    /**
+     * Validates a address model.
+     * @param {Partial<AddressContext>} param0 - The address context containing schema and model.
+     * @returns {Promise<any>} The validated model.
+     */
+    validate
+  };
 };

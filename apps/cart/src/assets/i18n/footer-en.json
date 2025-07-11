@@ -1,0 +1,38 @@
+{
+  "footer": {
+    "address": {
+      "line1": "Hessen-Homburg-Platz 1",
+      "line2": "63452 Hanau",
+      "line3": "Germany"
+    },
+    "sales": "Sales",
+    "salesEmail": "sales{'@'}upmind.com",
+    "accounting": "Accounting",
+    "accountingEmail": "billing{'@'}upmind.com",
+    "followUs": "Follow us",
+    "dedicatedServer": "Dedicated Server",
+    "discoverAllServers": "Discover all servers",
+    "customSetups": "Custom Setups",
+    "serverLocations": "Server Locations",
+    "network": "Network",
+    "support": "Support",
+    "solutions": "Solutions",
+    "gaming": "Gaming",
+    "ai": "AI",
+    "bigData": "BigData",
+    "company": "Company",
+    "about": "About",
+    "history": "History",
+    "reseller": "Reseller",
+    "jobs": "Jobs",
+    "contact": "Contact",
+    "otherLinks": "Other Links",
+    "faq": "FAQ",
+    "lookingGlass": "Looking Glass",
+    "termsOfService": "Terms of Service",
+    "dataProtection": "Data Protection",
+    "legalNotice": "Legal Notice",
+    "commercialCustomersNote": "* Our products are intended solely to commercial customers and therefore do not include VAT.",
+    "copyright": "© 2025 Upmind. All rights reserved"
+  }
+}

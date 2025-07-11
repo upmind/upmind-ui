@@ -42,7 +42,7 @@
 import { ref, computed, watch } from "vue";
 
 // --- internal
-import { useSession } from "@upmind-automation/headless-vue";
+import { useSession } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../sesssion.config";
 
@@ -66,14 +66,14 @@ const props = withDefaults(defineProps<SessionExpiredProps>(), {
     shape: "circle",
     color: "primary",
     icon: "basket",
-    fit: "contain",
+    fit: "contain"
   }),
   action: () => ({
     label: "Reload",
     color: "primary",
     handler: () => window.location.reload(),
-    auto: true,
-  }),
+    auto: true
+  })
 });
 
 const { meta } = useSession();

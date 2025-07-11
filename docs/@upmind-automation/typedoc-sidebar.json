@@ -207,8 +207,8 @@
     ]
   },
   {
-    "text": "@upmind-automation/headless-vue",
-    "link": "/@upmind-automation/headless-vue/",
+    "text": "@upmind-automation/headless",
+    "link": "/@upmind-automation/headless/",
     "collapsed": true,
     "items": [
       {
@@ -217,43 +217,43 @@
         "items": [
           {
             "text": "BasketProduct",
-            "link": "/@upmind-automation/headless-vue/interfaces/BasketProduct.md"
+            "link": "/@upmind-automation/headless/interfaces/BasketProduct.md"
           },
           {
             "text": "BasketProductSummaryDetail",
-            "link": "/@upmind-automation/headless-vue/interfaces/BasketProductSummaryDetail.md"
+            "link": "/@upmind-automation/headless/interfaces/BasketProductSummaryDetail.md"
           },
           {
             "text": "BasketProductSummaryPrice",
-            "link": "/@upmind-automation/headless-vue/interfaces/BasketProductSummaryPrice.md"
+            "link": "/@upmind-automation/headless/interfaces/BasketProductSummaryPrice.md"
           },
           {
             "text": "IUseBrand",
-            "link": "/@upmind-automation/headless-vue/interfaces/IUseBrand.md"
+            "link": "/@upmind-automation/headless/interfaces/IUseBrand.md"
           },
           {
             "text": "IUseBrandMeta",
-            "link": "/@upmind-automation/headless-vue/interfaces/IUseBrandMeta.md"
+            "link": "/@upmind-automation/headless/interfaces/IUseBrandMeta.md"
           },
           {
             "text": "IUseSession",
-            "link": "/@upmind-automation/headless-vue/interfaces/IUseSession.md"
+            "link": "/@upmind-automation/headless/interfaces/IUseSession.md"
           },
           {
             "text": "IUseSessionMeta",
-            "link": "/@upmind-automation/headless-vue/interfaces/IUseSessionMeta.md"
+            "link": "/@upmind-automation/headless/interfaces/IUseSessionMeta.md"
           },
           {
             "text": "IUseSystem",
-            "link": "/@upmind-automation/headless-vue/interfaces/IUseSystem.md"
+            "link": "/@upmind-automation/headless/interfaces/IUseSystem.md"
           },
           {
             "text": "IUseSystemMeta",
-            "link": "/@upmind-automation/headless-vue/interfaces/IUseSystemMeta.md"
+            "link": "/@upmind-automation/headless/interfaces/IUseSystemMeta.md"
           },
           {
             "text": "Recommendation",
-            "link": "/@upmind-automation/headless-vue/interfaces/Recommendation.md"
+            "link": "/@upmind-automation/headless/interfaces/Recommendation.md"
           }
         ]
       },
@@ -263,7 +263,7 @@
         "items": [
           {
             "text": "BasketProductDetails",
-            "link": "/@upmind-automation/headless-vue/type-aliases/BasketProductDetails.md"
+            "link": "/@upmind-automation/headless/type-aliases/BasketProductDetails.md"
           }
         ]
       },
@@ -272,56 +272,56 @@
         "collapsed": true,
         "items": [
           {
-            "text": "useBasketBillingDetails",
-            "link": "/@upmind-automation/headless-vue/functions/useBasketBillingDetails.md"
+            "text": "useBasketBilling",
+            "link": "/@upmind-automation/headless/functions/useBasketBilling.md"
           },
           {
             "text": "useBasketCurrency",
-            "link": "/@upmind-automation/headless-vue/functions/useBasketCurrency.md"
+            "link": "/@upmind-automation/headless/functions/useBasketCurrency.md"
           },
           {
             "text": "useBasketFields",
-            "link": "/@upmind-automation/headless-vue/functions/useBasketFields.md"
+            "link": "/@upmind-automation/headless/functions/useBasketFields.md"
           },
           {
             "text": "useBasketPaymentDetails",
-            "link": "/@upmind-automation/headless-vue/functions/useBasketPaymentDetails.md"
+            "link": "/@upmind-automation/headless/functions/useBasketPaymentDetails.md"
           },
           {
             "text": "useBasketPaymentGateway",
-            "link": "/@upmind-automation/headless-vue/functions/useBasketPaymentGateway.md"
+            "link": "/@upmind-automation/headless/functions/useBasketPaymentGateway.md"
           },
           {
             "text": "useBasketProduct",
-            "link": "/@upmind-automation/headless-vue/functions/useBasketProduct.md"
+            "link": "/@upmind-automation/headless/functions/useBasketProduct.md"
           },
           {
             "text": "useBasketProductConfig",
-            "link": "/@upmind-automation/headless-vue/functions/useBasketProductConfig.md"
+            "link": "/@upmind-automation/headless/functions/useBasketProductConfig.md"
           },
           {
             "text": "useBasketPromotions",
-            "link": "/@upmind-automation/headless-vue/functions/useBasketPromotions.md"
+            "link": "/@upmind-automation/headless/functions/useBasketPromotions.md"
           },
           {
             "text": "useBrand",
-            "link": "/@upmind-automation/headless-vue/functions/useBrand.md"
+            "link": "/@upmind-automation/headless/functions/useBrand.md"
           },
           {
             "text": "useProductConfig",
-            "link": "/@upmind-automation/headless-vue/functions/useProductConfig.md"
+            "link": "/@upmind-automation/headless/functions/useProductConfig.md"
           },
           {
             "text": "useSession",
-            "link": "/@upmind-automation/headless-vue/functions/useSession.md"
+            "link": "/@upmind-automation/headless/functions/useSession.md"
           },
           {
             "text": "useSystem",
-            "link": "/@upmind-automation/headless-vue/functions/useSystem.md"
+            "link": "/@upmind-automation/headless/functions/useSystem.md"
           },
           {
             "text": "useUpload",
-            "link": "/@upmind-automation/headless-vue/functions/useUpload.md"
+            "link": "/@upmind-automation/headless/functions/useUpload.md"
           }
         ]
       }

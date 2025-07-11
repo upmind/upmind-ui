@@ -47,13 +47,13 @@
                 :key="`dac-${type}`"
                 :complete="meta.showSelected"
                 :disabled="!meta.isValid"
-                :items="available"
                 :loading="meta.isSearching"
                 :model-value="selected"
+                :items="available"
+                :selected="model"
                 :more="meta.hasMoreSearchResults"
-                :offset="searchOffset"
+                :offset="pagination.offset"
                 :processing="meta.isSyncing"
-                :values="model"
                 @search="search"
                 @search:more="searchMore"
                 @update:selected="toggle"
@@ -71,7 +71,6 @@
                 v-else-if="meta.showExisting"
                 autoFocus
                 :formItemId="`dac-${type}`"
-                :animation-delay="300"
               >
                 <Input
                   :class="styles.domain.existing"
@@ -106,14 +105,14 @@
 // --- external
 import { computed, watch, onBeforeUnmount, type ComputedRef } from "vue";
 import { useI18n } from "vue-i18n";
-import { vAutoAnimate } from "@formkit/auto-animate";
+
 // --- internal
-import { useDomain } from "@upmind-automation/headless-vue";
+import { useDomain } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./domain.config";
 
 // --- components
-import Dac from "./components/Dac.vue";
+import Dac from "./components/DacDrawer.vue";
 import DomainBasketCards from "./components/DomainBasketCards.vue";
 import {
   Accordion,
@@ -125,26 +124,26 @@ import {
   FormControl,
   FormMessage,
   RadioGroup,
-  RadioGroupItem,
+  RadioGroupItem
 } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { map } from "lodash-es";
-import { DomainTypes } from "@upmind-automation/headless-vue";
+import { DomainTypes } from "@upmind-automation/headless";
 
 // --- types
 import type { DomainProps } from "./types";
 
 // -----------------------------------------------------------------------------
 const emit = defineEmits<{
-  (e: "update:modelValue", value: string | string[]): void;
-  (e: "update:type", value: string): void;
+  (e: "update:modelValue", value?: string | string[]): void;
+  (e: "update:type", value?: string): void;
 }>();
 
 const props = withDefaults(defineProps<DomainProps>(), {
   type: DomainTypes.register,
   modelValue: "",
-  color: "secondary",
+  color: "primary"
 });
 const { t, tm, rt } = useI18n();
 
@@ -157,11 +156,9 @@ const {
   available,
   owned,
   basket,
-  errors,
   // ---
-  state,
   meta,
-  searchOffset,
+  pagination,
   // ---
   choose,
   search,
@@ -172,11 +169,8 @@ const {
   stop,
   addToBasket,
   select,
-  remove,
-} = useDomain({
-  model: props.modelValue,
-  type: props.type,
-});
+  remove
+} = useDomain(props.modelValue);
 
 const styles = useStyles(
   ["domain", "domain.form", "domain.form.trigger", "domain.form.content"],
@@ -218,7 +212,7 @@ const i18nChoices = computed(() => {
       label: rt(translations?.label) || choice.label,
       item: choice,
       index,
-      modelValue: choice.value,
+      modelValue: choice.value
     };
   });
 });
@@ -233,9 +227,9 @@ const ownedDomains = computed(() => {
     {
       as: "separator",
       persist: true,
-      domain: t("domain.existing.owned"),
+      domain: t("domain.existing.owned")
     },
-    ...owned.value,
+    ...owned.value
   ];
 });
 

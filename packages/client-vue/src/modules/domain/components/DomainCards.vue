@@ -1,11 +1,5 @@
 <template>
   <section :class="styles.domain.listings.root" v-auto-animate>
-    <Empty
-      :title="t('domain.empty.title')"
-      :text="t('domain.empty.text')"
-      v-if="!meta.isLoading && meta.isEmpty"
-    />
-
     <CheckboxCards
       v-if="(!meta.isLoading && !meta.isEmpty) || meta.isLoadingMore"
       no-input
@@ -33,25 +27,42 @@
     </CheckboxCards>
 
     <template v-if="meta.isLoading">
-      <section v-if="!results" :class="styles.domain.listings.loading">
-        <Interstitial
-          v-bind="props"
-          :text="t('domain.dac.loading.text')"
-          :modal="false"
-          open
-        >
-          <template #avatar>
-            <IconAnimated icon="internet" size="4xl" secondary-color="accent" />
-          </template>
-          <template #title>
-            <SmartTitle i18n-key="domain.dac.loading.title" align="center" />
-          </template>
-        </Interstitial>
-      </section>
+      <Interstitial
+        v-bind="props"
+        :text="t('domain.dac.loading.text')"
+        :modal="false"
+        open
+        v-if="!results"
+        :class="styles.domain.listings.loading"
+      >
+        <template #avatar>
+          <IconAnimated icon="internet" size="4xl" secondary-color="accent" />
+        </template>
+        <template #title>
+          <SmartTitle i18n-key="domain.dac.loading.title" align="center" />
+        </template>
+      </Interstitial>
+
       <template v-else>
         <DomainCardSkeleton v-for="i in results" :key="i" />
       </template>
     </template>
+
+    <Interstitial
+      v-bind="props"
+      :text="t('domain.dac.empty.text')"
+      :modal="false"
+      open
+      v-else-if="meta.isEmpty"
+      :class="styles.domain.listings.loading"
+    >
+      <template #avatar>
+        <IconAnimated icon="internet" size="4xl" secondary-color="accent" />
+      </template>
+      <template #title>
+        <SmartTitle i18n-key="domain.dac.empty.title" align="center" />
+      </template>
+    </Interstitial>
   </section>
 </template>
 
@@ -67,11 +78,10 @@ import config from "../domain.config";
 
 // --- components
 import DomainCard from "./DomainCard.vue";
-import Empty from "./Empty.vue";
 import {
   IconAnimated,
   CheckboxCards,
-  Interstitial,
+  Interstitial
 } from "@upmind-automation/upmind-ui";
 import SmartTitle from "../../../components/content/SmartTitle.vue";
 import DomainCardSkeleton from "./DomainCardSkeleton.vue";
@@ -81,7 +91,7 @@ import { includes, isArray, isNil, find, map } from "lodash-es";
 // --- types
 import type { CheckboxCardsItemProps } from "@upmind-automation/upmind-ui";
 import type { DomainCardsProps } from "../types";
-import type { DomainProduct } from "@upmind-automation/headless-vue";
+import type { DomainProduct } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 // const emit = defineEmits(["update:modelValue", "update:selected"]);
@@ -96,7 +106,7 @@ const props = withDefaults(defineProps<DomainCardsProps>(), {
   color: "base",
   loading: false,
   processing: false,
-  disabled: false,
+  disabled: false
 });
 
 const { t } = useI18n();
@@ -112,7 +122,7 @@ const meta = computed(() => ({
     (props.loading || isMinLoadingActive.value) && props.offset > 0,
   isEmpty: !props.items?.length,
   isDisabled: props.disabled,
-  isProcessing: props.processing,
+  isProcessing: props.processing
 }));
 
 const styles = useStyles(["domain.listings"], meta, config) as ComputedRef<{
@@ -142,7 +152,7 @@ const parsedValues = computed<CheckboxCardsItemProps[]>(() => {
     return {
       id: item.domain,
       value: item.domain,
-      label: item.domain,
+      label: item.domain
     };
   });
 });

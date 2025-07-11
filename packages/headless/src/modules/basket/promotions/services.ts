@@ -4,12 +4,19 @@
 import { useQuery } from "../../..";
 
 // --- utils
-import { useValidation } from "../../../utils";
+import {
+  DetailedError,
+  ErrorOrigin,
+  responseCodes,
+  useModelParser,
+  useValidation
+} from "../../../utils";
 import { get, isEmpty, some, trim } from "lodash-es";
 
 // --- types
 import type { PromotionsContext } from "./types";
 import type { AnyEventObject } from "xstate";
+import { IBasketPromotion } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -26,16 +33,26 @@ async function add(
 
   if (!model?.promocode)
     return Promise.reject(
-      new Error("No Promocode provided to add to basketId")
+      new DetailedError(
+        "No Promocode provided to add to basketId",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      )
     );
   if (some(promotions, { promocode: model?.promocode }))
-    return Promise.reject(new Error("Promocode already exists in basketId"));
+    return Promise.reject(
+      new DetailedError(
+        "Promocode already exists in basketId",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      )
+    );
 
-  return post({
+  return post<IBasketPromotion[]>({
     url: useUrl(`/orders/${basketId}/promotions`),
     data: { promocode: trim(model?.promocode) },
-    withAccessToken: true,
-  }).then(({ data }: any) => data);
+    withAccessToken: true
+  });
 }
 
 async function remove(
@@ -46,20 +63,29 @@ async function remove(
 
   if (!id)
     return Promise.reject(
-      new Error("No Promotion provided to remove from basketId")
+      new DetailedError(
+        "No Promotion provided to remove from basketId",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      )
     );
 
   const { del, useUrl } = useQuery();
 
   return del({
     url: useUrl(`/orders/${basketId}/promotions/${id}`),
-    withAccessToken: true,
-  }).then(({ data }: any) => data);
+    withAccessToken: true
+  });
 }
 
-async function parse({ model }: PromotionsContext, _event: AnyEventObject) {
+async function parse(
+  { model, schema }: PromotionsContext,
+  _event: AnyEventObject
+) {
   // ---
-  // we dont have any parsing checks or transforms so we can pass through the model
+  model = useModelParser(schema, model);
+
+  // we don't have any parsing checks or transforms so we can pass through the model
   return Promise.resolve({ model });
 }
 
@@ -79,7 +105,14 @@ async function validate(
 
     // HACK: we want promocode to be invalid if empty, but not necessarily have an error
     if (errors?.length || isEmpty(model?.promocode)) {
-      reject({ error: errors });
+      reject(
+        new DetailedError(
+          "Promotion validation failed",
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.Headless,
+          errors
+        )
+      );
     } else {
       resolve(model);
     }
@@ -93,5 +126,5 @@ export default {
   parse,
   validate,
   add,
-  remove,
+  remove
 };

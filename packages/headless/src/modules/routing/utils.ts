@@ -6,7 +6,13 @@ import { useBasket } from "../basket";
 import { useBasketProductsPending } from "../basketProduct";
 
 // --- utils
-import { DetailedError, responseCodes, useSafeParse } from "../../utils";
+import {
+  DetailedError,
+  ErrorOrigin,
+  responseCodes,
+  stateMatches,
+  useSafeParse
+} from "../../utils";
 import {
   compact,
   concat,
@@ -22,7 +28,7 @@ import {
   set,
   toNumber,
   uniq,
-  values,
+  values
 } from "lodash-es";
 
 // --- types
@@ -35,14 +41,17 @@ import { REQUIRES_ACTION, type Route } from "./types";
 // -----------------------------------------------------------------------------
 
 export async function awaitResolved(service: ActorRef<any>) {
-  return waitFor(service, state => ["resolved"].some(state.matches), {
-    timeout: 60_000,
+  return waitFor(service, state => stateMatches(state, "available.resolved"), {
+    timeout: 60_000
   })
-    .then(state => get(state, "context.currentRoute"))
+    .then(state => {
+      return get(state, "context.currentRoute");
+    })
     .catch(() => {
       throw new DetailedError(
-        "[headless] awaitResolved on routing/utils timed out",
-        responseCodes.Timeout
+        "await Resolved Route failed",
+        responseCodes.Timeout,
+        ErrorOrigin.Headless
       );
     });
 }
@@ -122,8 +131,8 @@ export const useRouteQueryParams = (route: Route) => {
         subproducts,
         provisionFields,
         coupons,
-        bundle,
-      },
+        bundle
+      }
     ];
 
     return model;
@@ -139,13 +148,14 @@ export const useRouteQueryParams = (route: Route) => {
     productConfigs: getProductConfigs(),
     productConfig: first(getProductConfigs()),
     basketProductId: getParam(QUERY_PARAMS.BASKET_PRODUCT_ID),
+    categoryId: getParam(QUERY_PARAMS.CATEGORY_ID),
 
     currency: getParam(
       QUERY_PARAMS.CURRENCY,
       getParam(QUERY_PARAMS.CURRENCY_CODE)
     ),
     coupon: getParam(QUERY_PARAMS.COUPONS),
-    bundle: getParam("bundle"),
+    bundle: getParam("bundle")
   };
 };
 
@@ -191,7 +201,7 @@ export const useRouteRequiresAction = () => {
     types: REQUIRES_ACTION[] = [
       REQUIRES_ACTION.PENDING,
       REQUIRES_ACTION.INVALID,
-      REQUIRES_ACTION.RELATED,
+      REQUIRES_ACTION.RELATED
     ]
   ) {
     // if we are passed a current item we want to check for any related items
@@ -216,6 +226,6 @@ export const useRouteRequiresAction = () => {
     getNextInvalid,
     getNextRelated,
     getProducts: () => getInvalidProducts(),
-    hasProducts: () => !isEmpty(getInvalidProducts()),
+    hasProducts: () => !isEmpty(getInvalidProducts())
   };
 };

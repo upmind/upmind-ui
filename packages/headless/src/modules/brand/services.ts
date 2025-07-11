@@ -17,11 +17,11 @@ async function fetchOrganisationConfig(
 
   return get({
     url: useUrl("config/organisation/values", {
-      keys: context.keys.organisation.join(),
+      keys: context.keys.organisation.join()
     }),
     queryKey: ["brand", "organisation", "config"],
-    staleTime: useTime()?.DAY,
-  }).then(({ data }: any) => data);
+    staleTime: useTime()?.DAY
+  });
 }
 
 async function fetchBrandSettings(
@@ -33,8 +33,8 @@ async function fetchBrandSettings(
   return get({
     url: useUrl("brand/settings", {}),
     queryKey: ["brand", "settings"],
-    staleTime: useTime()?.DAY,
-  }).then(({ data }: any) => data);
+    staleTime: useTime()?.DAY
+  });
 }
 
 // brand config is slightly different because we can ask for more config fro mthe api
@@ -50,12 +50,12 @@ async function fetchBrandConfig(context: BrandContext, _event: AnyEventObject) {
 
   return get({
     url: useUrl("config/brand/values", {
-      keys: missingKeys.join(),
+      keys: missingKeys.join()
     }),
     queryKey: ["brand", "config", ...missingKeys],
     staleTime: 0,
-    gcTime: 0,
-  }).then(({ data }: any) => {
+    gcTime: 0
+  }).then(data => {
     // create an object template with ALL the keys and set them to null
     // this is to ensure that the config object has all the keys that were requested
     const template = reduce(
@@ -77,8 +77,8 @@ async function fetchModules(_context: BrandContext, _event: AnyEventObject) {
   return get({
     url: useUrl("org/modules", {}),
     queryKey: ["brand", "modules"],
-    staleTime: useTime()?.DAY,
-  }).then(({ data }: any) => data);
+    staleTime: useTime()?.DAY
+  });
 }
 
 async function load(context: BrandContext, _event: AnyEventObject) {
@@ -86,13 +86,13 @@ async function load(context: BrandContext, _event: AnyEventObject) {
     fetchOrganisationConfig(context, _event),
     fetchBrandSettings(context, _event),
     fetchBrandConfig(context, _event),
-    fetchModules(context, _event),
+    fetchModules(context, _event)
   ]).then(([organisationConfig, brandSettings, brandConfig, modules]) => {
     return {
-      ...organisationConfig,
-      ...brandSettings,
-      ...brandConfig,
-      modules,
+      ...(organisationConfig || {}),
+      ...(brandSettings || {}),
+      ...(brandConfig || {}),
+      modules
     };
   });
 }
@@ -100,5 +100,5 @@ async function load(context: BrandContext, _event: AnyEventObject) {
 
 export default {
   load,
-  fetchBrandConfig,
+  fetchBrandConfig
 };

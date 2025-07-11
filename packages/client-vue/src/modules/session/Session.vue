@@ -76,7 +76,7 @@
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useSession } from "@upmind-automation/headless-vue";
+import { useSession } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./components/session.config";
 
@@ -93,7 +93,7 @@ import type { AuthProps } from "./components/types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<AuthProps>(), {
-  modelValue: "register",
+  modelValue: "register"
 });
 
 const { t } = useI18n();

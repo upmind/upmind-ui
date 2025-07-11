@@ -13,15 +13,15 @@
       >
         <div class="flex w-full flex-wrap justify-between gap-2">
           <div
-            class="text-primary group m-0 inline-flex flex-1 items-end gap-2 text-left text-sm font-medium leading-normal"
+            class="text-foreground group m-0 inline-flex flex-1 items-end gap-2 text-left text-sm font-medium leading-normal"
           >
             <span>{{ product?.title }}</span>
           </div>
 
           <div
-            class="text-base-foreground m-0 break-all text-right font-medium leading-normal"
+            class="text-foreground m-0 break-all text-right font-medium leading-normal"
           >
-            <strong class="text-primary">
+            <strong class="text-base-foreground">
               {{ product.summary.currentPrice }}
             </strong>
           </div>
@@ -31,17 +31,19 @@
 
     <!-- subtotals -->
     <dl
-      class="text-primary m-0 grid grid-cols-2 gap-0 border-t py-4 text-sm first-of-type:border-t-0 first-of-type:pt-0"
+      class="text-foreground m-0 grid grid-cols-2 gap-0 border-t py-4 text-sm first-of-type:border-t-0 first-of-type:pt-0"
       v-if="!!summary?.discount || !!summary?.taxes"
       v-auto-animate
     >
       <template v-if="summary?.discount">
         <dt
-          class="text-primary group m-0 inline-flex flex-1 items-center gap-2 text-left text-sm font-normal leading-normal"
+          class="text-foreground group m-0 inline-flex flex-1 items-center gap-2 text-left text-sm font-normal leading-normal"
         >
           <span
             class="text-emphasis-medium m-0 inline-flex items-end gap-2 text-left text-sm font-normal leading-normal"
-            >{{ t("basket.summary.discount.title", products.length) }}</span
+            >{{
+              t("basket.summary.discount.title", products?.length ?? 0)
+            }}</span
           >
         </dt>
 
@@ -54,11 +56,13 @@
 
       <template v-if="summary?.subtotal">
         <dt
-          class="text-primary group m-0 inline-flex flex-1 items-center gap-2 text-left text-sm font-normal leading-normal"
+          class="text-foreground group m-0 inline-flex flex-1 items-center gap-2 text-left text-sm font-normal leading-normal"
         >
           <span
             class="text-emphasis-medium m-0 inline-flex items-end gap-2 text-left text-sm font-normal leading-normal"
-            >{{ t("basket.summary.subtotal.title", products.length) }}</span
+            >{{
+              t("basket.summary.subtotal.title", products?.length ?? 0)
+            }}</span
           >
         </dt>
 
@@ -71,7 +75,7 @@
 
       <template v-for="(value, key) in summary?.taxes" :key="key">
         <dt
-          class="text-primary group m-0 inline-flex flex-1 items-center gap-2 text-left text-sm font-normal leading-normal"
+          class="text-foreground group m-0 inline-flex flex-1 items-center gap-2 text-left text-sm font-normal leading-normal"
         >
           <span
             class="text-emphasis-medium m-0 inline-flex items-end gap-2 text-left text-sm font-normal leading-normal"
@@ -90,10 +94,10 @@
     <!-- total -->
     <div class="flex flex-col gap-4 border-t">
       <dl class="m-0 flex flex-wrap justify-between space-x-2 pt-4 text-lg">
-        <span class="text-primary m-0 font-bold">
+        <span class="text-foreground m-0 font-bold">
           {{ t("basket.summary.total") }}
         </span>
-        <span class="text-primary m-0 break-all font-bold">
+        <span class="text-foreground m-0 break-all font-bold">
           {{ summary?.total }}
         </span>
       </dl>
@@ -119,7 +123,7 @@ import BasketPromotions from "./Promotions.vue";
 import SummarySkeleton from "./SummarySkeleton.vue";
 
 // --- internal
-import { useBasket } from "@upmind-automation/headless-vue";
+import { useBasket } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
@@ -128,12 +132,12 @@ const props = withDefaults(
     showProducts?: boolean;
   }>(),
   {
-    showProducts: false,
+    showProducts: false
   }
 );
 
 const emits = defineEmits(["edit"]);
 
 const { t } = useI18n();
-const { meta, removeItem, products, summary } = useBasket();
+const { meta, products, summary } = useBasket();
 </script>

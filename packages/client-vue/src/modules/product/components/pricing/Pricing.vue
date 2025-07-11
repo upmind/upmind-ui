@@ -14,6 +14,6 @@ import { type PricingProps } from "./types";
 const props = defineProps<PricingProps>();
 
 defineOptions({
-  inheritAttrs: false,
+  inheritAttrs: false
 });
 </script>

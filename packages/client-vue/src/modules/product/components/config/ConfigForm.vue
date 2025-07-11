@@ -15,7 +15,6 @@
       :model-value="modelValue"
       :additional-errors="additionalErrors"
       :touched="touched"
-      :additional-renderers="formRenderers"
       @update:modelValue="doResolve"
       no-actions
       as="fieldset"
@@ -31,7 +30,6 @@ import { useI18n } from "vue-i18n";
 // --- internal
 import { useStyles, cn } from "@upmind-automation/upmind-ui";
 import config from "../../product.config";
-import { formRenderers } from "../../../../components/form";
 
 // --- components
 import { FormField } from "@upmind-automation/upmind-ui";
@@ -64,7 +62,7 @@ const props = withDefaults(
     processing: false,
     touched: false,
     additionalErrors: () => [],
-    label: "",
+    label: ""
   }
 );
 

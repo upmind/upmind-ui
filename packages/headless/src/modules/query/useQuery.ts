@@ -1,25 +1,82 @@
 // --- external
+import {
+  QueryClient,
+  useMutation,
+  useQuery as vueUseQuery,
+  useInfiniteQuery as vueUseInfiniteQuery
+} from "@tanstack/vue-query";
+import { isArray, isFunction } from "xstate/lib/utils";
+import { ref, unref, watch, computed } from "vue";
 
 // --- internal
+import { useLocale } from "../system";
+import { useBasketCurrency } from "../basket";
 import { doFetch, refreshToken } from "./services";
 
 // --- utils
-import { useUrl } from "../../utils";
+import {
+  forEach,
+  get,
+  isEmpty,
+  isInteger,
+  isObject,
+  isString,
+  set,
+  toNumber,
+  unset
+} from "lodash-es";
+import {
+  parseData,
+  PAGINATION,
+  cleanQueryKey,
+  canRetryAuthorization
+} from "./utils";
+import {
+  useUrl,
+  useTime,
+  isPromise,
+  ErrorOrigin,
+  DetailedError,
+  responseCodes
+} from "../../utils";
 import { getTokenFromStorage } from "../session/utils";
-import { parseData, getQueryClient, canRetryAuthorization } from "./utils";
-import { get, set, unset, isString } from "lodash-es";
 
 // --- types
-import { QueryParams, ResponseError, RequestParams } from "./types";
+import type {
+  QueryParams,
+  QueryResponse,
+  RequestParams,
+  MutationParams,
+  InfiniteQueryPage,
+  ReactiveQueryKeys
+} from "./types";
 import { Methods } from "@upmind-automation/types";
-
-const queryClient = getQueryClient();
+import type { DefaultError } from "@tanstack/vue-query";
 
 // -----------------------------------------------------------------------------
 
+// NB we need to create our query client here so that it can be used in the `useQuery` hook.
+// This will then be used in the `useUpmind` composable, which initializes the Upmind instance
+// BEFORE vue has an injectable for the query client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Default time for inactive data to be garbage collected
+      gcTime: useTime().MINUTE * 30,
+      // Default cache time for data to be considered "fresh"
+      staleTime: useTime().MINUTE * 5,
+
+      // allow prefetching in the render phase, we need this for services and machine queries
+      experimental_prefetchInRender: true
+    }
+  }
+});
+
 export const useQuery = () => {
+  const { locale } = useLocale();
+
   /**
-   * Sends a request  with the given URL and options.
+   * Sends a request with the given URL and options.
    * @see {@link RequestParams}
    * @name request
    * @async
@@ -33,27 +90,82 @@ export const useQuery = () => {
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
-  async function request<T extends object = object>({
+  async function request<T extends any = any>({
     url,
+    sort,
+    filters,
+    pagination,
+    withCurrency,
+    // ---
     init,
-    withAccessToken,
-  }: RequestParams): Promise<T> {
+    withAccessToken
+  }: RequestParams): Promise<QueryResponse<T>> {
     // safeguard
     init ??= {};
     let attempts = 0;
 
     // Enforce Method (default to GET)
     set(init, "method", get(init, "method", Methods.GET).toUpperCase());
+
+    // NB only add the url params for GET requests
+    if (init.method === Methods.GET.toUpperCase()) {
+      // -- lets add our pagination, sorting, and filtering parameters
+      // Set 'order' (sort) parameter
+      if (!isEmpty(sort) && isArray(sort))
+        url.searchParams.set("order", sort.join(""));
+      else url.searchParams.delete("order");
+
+      // Set 'limit' parameter
+      if (!isEmpty(pagination) && isInteger(pagination?.limit))
+        url.searchParams.set("limit", `${pagination.limit}`);
+      // NB NEVER remove limits from the url as we may include limit=0
+
+      // Set 'offset' parameter
+      if (!isEmpty(pagination) && isInteger(pagination?.offset))
+        url.searchParams.set("offset", `${pagination.offset}`);
+      else url.searchParams.delete("offset");
+
+      // set the filters, if any
+      if (!isEmpty(filters) && isObject(filters)) {
+        forEach(filters, (value: any, key: string) => {
+          if (!isEmpty(value)) {
+            // if the value is an array, we need to set it as a comma-separated list
+            if (isArray(value)) value = value.join(",");
+
+            // if the value is an object, we need to stringify it
+            if (isObject(value)) value = JSON.stringify(value);
+
+            // if the value is a function, we need to call it with the current URL
+            if (isFunction(value)) value = value(url);
+
+            url.searchParams.set(key, value);
+          } else {
+            url.searchParams.delete(key);
+          }
+        });
+      }
+
+      // set "lang" parameter
+      if (!isEmpty(locale.value))
+        url.searchParams.set("lang", locale.value as string);
+
+      // set "currency" parameter
+      if (withCurrency) {
+        const { currencyCode } = useBasketCurrency();
+        url.searchParams.set("currency_code", currencyCode.value as string);
+      }
+    }
+
     // Enforce Content Type header
     if (init.body instanceof FormData) {
-      // do not set header content type
+      // do not set a header content type
       unset(init, "headers.Content-Type");
     } else {
       set(init, "headers.Content-Type", "application/json");
     }
 
-    // Enforce Authorization header, if required
-    // also allow us to pass a custom token, for eg 2fa
+    // Enforce Authorization header, if required,
+    // also allows us to pass a custom token, for e.g., 2fa
     if (withAccessToken) {
       const token = isString(withAccessToken)
         ? withAccessToken
@@ -61,11 +173,12 @@ export const useQuery = () => {
       set(init, `headers.Authorization`, `Bearer ${token}`);
     }
 
-    return await doFetch<T>({ url, init }).catch(async error => {
-      const requestError = error as ResponseError;
+    // -------------------------------------------------------------------------
+
+    return doFetch<T>({ url, init }).catch(async error => {
       attempts++;
 
-      // allow us to retry the request if we have a 401 error, but only once ( we dont want an infinite loop )
+      // allow us to retry the request if we have a 401 error, but only once (we don't want an infinite loop)
       if (canRetryAuthorization(url, error, { attempts, max: 1 })) {
         return refreshToken().then(() => {
           // get the new access token and update the access token in the request
@@ -73,44 +186,601 @@ export const useQuery = () => {
             init,
             `headers.Authorization`,
             `Bearer ${getTokenFromStorage()?.access_token}`
-          );
-          // finally rety the request
+          ); // finally, retry the request
           return doFetch<T>({ url, init });
         });
       }
-      return Promise.reject(requestError);
+
+      // let the original error propagate
+      throw error;
     });
+  }
+
+  // --- TanStack Query methods
+
+  /**
+   * Syntax sugar for sending a GET request to the server with the given URL and options.
+   * NOTE: this does not deal with pagination, it is a simple GET request.
+   * @see {@link QueryParams}
+   * @param url The URL to send the request to.
+   * @param init The request options.
+   * @param guard A function that returns a promise to be resolved before the request is sent. This can be used to ensure that certain conditions are met before the request is sent, such as checking if the user is authenticated.
+   * @param select A function that is used to transform the response data before it is returned. This can be used to extract specific fields from the response or to transform the data into a different format.
+   * @param queryKey The query key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
+   * @param withCurrency Whether to automagically add the currency filter to the request based on the `useBasketCurrency` composable.
+   * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
+   * @param options Additional options to pass to TanStack query.
+   */
+  function query<TQueryFnData = unknown, TData = TQueryFnData>({
+    url,
+    init,
+    guard,
+    select,
+    queryKey,
+    withCurrency = false,
+    withAccessToken,
+    ...options
+  }: Omit<QueryParams<TQueryFnData, TData>, "pagination">) {
+    const { currencyCode } = useBasketCurrency();
+
+    // --- state
+
+    const filters = ref<QueryParams["filters"]>({
+      ...(options?.filters ?? {})
+    });
+
+    const sort = ref(options?.sort);
+
+    // --- query
+    const reactiveKeys: ReactiveQueryKeys = { locale, sort, filters };
+    if (withCurrency) reactiveKeys.currencyCode = currencyCode;
+
+    return vueUseQuery<TQueryFnData, DefaultError, TData>(
+      {
+        queryKey: [...queryKey, reactiveKeys],
+        queryFn: async ({ signal }) => {
+          const hasGuard = isPromise(guard);
+          const safeguard: Promise<void | boolean> = hasGuard
+            ? guard()
+            : Promise.resolve();
+          return safeguard.then(() =>
+            request<TQueryFnData>({
+              url,
+              sort: sort.value,
+              filters: filters.value,
+              withCurrency,
+              init: {
+                ...init,
+                signal // Pass the new signal to the request to allow cancellation
+              },
+              withAccessToken
+            }).then(response => {
+              if (isFunction(select)) return select(response.data!) as TData;
+              return response.data as TQueryFnData;
+            })
+          );
+        },
+        ...(options as any)
+      },
+      queryClient
+    );
   }
 
   /**
    * Syntax sugar for sending a GET request to the server with the given URL and options.
+   * This method is specifically designed for listing resources with pagination, sorting, and filtering capabilities.
+   *
    * @see {@link QueryParams}
-   * @name getRequest
-   * @async
-   * @function
-   *
-   * @example getRequest({ url: "/orders", withAccessToken: true });
-   *
    * @param url The URL to send the request to.
    * @param init The request options.
-   * @param withAccessToken The access token to use for the request. Can be a string or a boolean.
+   * @param sort An array of strings representing the sorting order for the query. Each string should be in the format "field:direction", where "field" is the field to sort by and "direction" is either "asc" or "desc".
+   * @param guard A function that returns a promise to be resolved before the request is sent. This can be used to ensure that certain conditions are met before the request is sent, such as checking if the user is authenticated.
+   * @param queryKey The query key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
+   * @param withCurrency Whether to automagically add the currency filter to the request based on the `useBasketCurrency` composable.
+   * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
    * @param options Additional options to pass to TanStack query.
-   * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
-   * @throws {Error} Might throw an error if the request fails.
    */
-  async function getRequest<T extends object = object>({
+  function list<TQueryFnData = unknown, TData = TQueryFnData>({
     url,
     init,
+    guard,
+    select,
+    queryKey,
+    withCurrency = false,
     withAccessToken,
     ...options
-  }: QueryParams<T>): Promise<T> {
-    /**
-     * ensureQueryData is an asynchronous function that can be used to get an existing query's cached data.
-     * If the query does not exist, queryClient.fetchQuery will be called and its results returned.
-     */
-    return await queryClient.ensureQueryData<T>({
-      queryFn: () => request<T>({ url, init, withAccessToken }),
-      ...options,
+  }: QueryParams<TQueryFnData, TData>) {
+    const { currencyCode } = useBasketCurrency();
+
+    // --- state
+
+    const limit = options?.pagination?.limit ?? PAGINATION.limit;
+    const offset = options?.pagination?.offset ?? PAGINATION.offset;
+    const sort = ref(options?.sort);
+    const pageIndex = ref(Math.ceil(offset / limit) + 1);
+    const filters = ref<QueryParams["filters"]>({
+      ...(options?.filters ?? {})
+    });
+
+    // --- query
+    const reactiveKeys: ReactiveQueryKeys = { locale, filters, sort };
+    if (limit) reactiveKeys.limit = limit;
+    if (limit) reactiveKeys.pageIndex = pageIndex;
+    if (withCurrency) reactiveKeys.currencyCode = currencyCode;
+
+    const response = vueUseQuery<
+      TQueryFnData,
+      DefaultError,
+      QueryResponse<TData>
+    >(
+      {
+        queryKey: [...queryKey, reactiveKeys],
+        queryFn: async ({ signal }) => {
+          const hasGuard = isPromise(guard);
+          const safeguard: Promise<void | boolean> = hasGuard
+            ? guard()
+            : Promise.resolve();
+          return safeguard.then(() => {
+            return request<TQueryFnData>({
+              url,
+              sort: sort.value,
+              filters: filters.value,
+              pagination: { limit, offset: (pageIndex.value - 1) * limit },
+              withCurrency,
+              init: {
+                ...init,
+                signal // Pass the new signal to the request to allow cancellation
+              },
+              withAccessToken
+            }).then(response => {
+              // total.value = response.total || 0; // Set the total items count
+              // if (isFunction(select)) return select(response.data!) as TData;
+              // return response.data as TQueryFnData;
+
+              if (isFunction(select)) {
+                return {
+                  ...response,
+                  data: select(response.data!)
+                };
+              }
+              return response;
+            });
+          });
+        },
+        ...(options as any)
+      },
+      queryClient
+    );
+
+    // -------------------------------------------------------------------------
+
+    return {
+      ...response,
+
+      data: computed((): TData | null => response.data.value?.data),
+
+      total: computed((): number => response.data.value?.total ?? 0),
+
+      // ---state
+
+      /**
+       * Pagination information for the current query.
+       * @type {Object}
+       * @property {number} total - Total number of items in the query.
+       * @property {number} limit - Number of items per page.
+       * @property {number} page - Current page index.
+       * @property {number} pages - Total number of pages.
+       * @property {number} from - The starting item index for the current page.
+       * @property {number} to - The ending item index for the current page.
+       */
+      pagination: computed(() => {
+        const total = response.data?.value?.total ?? 0;
+        const pageTotal = !limit ? 1 : Math.max(Math.ceil(total / limit), 1);
+        return {
+          limit,
+          total,
+          page: pageIndex.value,
+          pages: pageTotal,
+          from: !total ? 0 : limit * (pageIndex.value - 1) + 1,
+          to: !limit ? total : Math.min(limit * pageIndex.value, total)
+        };
+      }),
+
+      /**
+       * Meta-information about the current query, such as whether there are next or previous pages.
+       * @type {Object}
+       * @property {boolean} hasNextPage - Whether there is a next page.
+       * @property {boolean} hasPrevPage - Whether there is a previous page.
+       */
+      meta: computed(() => {
+        const total = response.data?.value?.total ?? 0;
+        const pageTotal = !limit ? 1 : Math.max(Math.ceil(total / limit), 1);
+        return {
+          hasNextPage: pageIndex.value < pageTotal,
+          hasPrevPage: pageIndex.value > 1
+        };
+      }),
+
+      // --- methods
+
+      /**
+       * Function to go to the previous page in the query.
+       * @function
+       * @returns {void}
+       * @throws {Error} Throws an error if there is no previous page.
+       */
+      fetchPreviousPage: (): void => {
+        const total = response.data?.value?.total ?? 0;
+        const pageTotal = !limit ? 1 : Math.max(Math.ceil(total / limit), 1);
+
+        if (!response.isPlaceholderData.value && pageIndex.value <= 1) {
+          throw new DetailedError(
+            "No previous page available",
+            responseCodes.No_Content,
+            ErrorOrigin.Headless,
+            {
+              limit,
+              page: pageIndex.value,
+              from: !total ? 0 : limit * (pageIndex.value - 1) + 1,
+              total: total,
+              pages: pageTotal,
+              to: !limit ? total : Math.min(limit * pageIndex.value, total)
+            }
+          );
+        }
+        pageIndex.value = Math.max(pageIndex.value - 1, 1);
+      },
+
+      /**
+       * Function to go to the next page in the query.
+       * @function
+       * @returns {void}
+       * @throws {Error} Throws an error if there is no next page.
+       *
+       */
+      fetchNextPage: (): void => {
+        const total = response.data?.value?.total ?? 0;
+        const pageTotal = !limit ? 1 : Math.max(Math.ceil(total / limit), 1);
+
+        if (!response.isPlaceholderData.value && pageIndex.value >= pageTotal) {
+          throw new DetailedError(
+            "No next page available",
+            responseCodes.No_Content,
+            ErrorOrigin.Headless,
+            {
+              limit,
+              page: pageIndex.value,
+              from: !total ? 0 : limit * (pageIndex.value - 1) + 1,
+              total,
+              pages: pageTotal,
+              to: !limit ? total : Math.min(limit * pageIndex.value, total)
+            }
+          );
+        }
+        if (!response.isPlaceholderData.value) {
+          pageIndex.value = Math.min(pageIndex.value + 1, pageTotal);
+        }
+      },
+
+      sort: (values?: QueryParams["sort"]) => {
+        sort.value = unref(values);
+      },
+
+      filter: (values: QueryParams["filters"]) => {
+        filters.value = unref(values);
+        pageIndex.value = 1;
+      },
+
+      resetQuery: () => {
+        pageIndex.value = 1;
+        return queryClient.resetQueries({
+          queryKey: [...queryKey, reactiveKeys]
+        });
+      }
+    };
+  }
+
+  /**
+   * Syntax sugar for sending a GET request to the server with the given URL and options.
+   * This method is specifically designed for listing resources with infinite scrolling capabilities.
+   *
+   * @see {@link QueryParams}
+   * @param url The URL to send the request to.
+   * @param init The request options.
+   * @param sort An array of strings representing the sorting order for the query. Each string should be in the format "field:direction", where "field" is the field to sort by and "direction" is either "asc" or "desc".
+   * @param guard A function that returns a promise to be resolved before the request is sent. This can be used to ensure that certain conditions are met before the request is sent, such as checking if the user is authenticated.
+   * @param queryKey The query key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
+   * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
+   * @param options Additional options to pass to TanStack query.
+   */
+  function listInfinite<TQueryFnData = unknown, TData = TQueryFnData>({
+    url,
+    init,
+    guard,
+    select,
+    queryKey,
+    withCurrency = false,
+    withAccessToken,
+    ...options
+  }: QueryParams<TQueryFnData, TData>) {
+    const { currencyCode } = useBasketCurrency();
+
+    // --- state
+
+    const limit = options?.pagination?.limit ?? PAGINATION.limit;
+    const sort = ref(options?.sort);
+    const total = ref(0);
+    const pageTotal = computed(() => {
+      if (!limit) return 1; // Can only be 1 page if limit=0
+      return Math.max(Math.ceil(total.value / limit), 1);
+    });
+    const filters = ref<QueryParams["filters"]>({
+      ...(options?.filters ?? {})
+    });
+
+    // --- query
+    const reactiveKeys: ReactiveQueryKeys = { locale, sort, filters };
+    if (limit) reactiveKeys.limit = limit;
+    if (withCurrency) reactiveKeys.currencyCode = currencyCode;
+
+    const response = vueUseInfiniteQuery<TQueryFnData, DefaultError, TData>(
+      {
+        queryKey: [...queryKey, reactiveKeys],
+        queryFn: async ({ pageParam = 0, signal }) => {
+          const offset = toNumber(pageParam);
+          const hasGuard = isPromise(guard);
+          const safeguard: Promise<void | boolean> = hasGuard
+            ? guard()
+            : Promise.resolve();
+          return safeguard.then(() =>
+            request<TQueryFnData>({
+              url,
+              sort: sort.value,
+              filters: filters.value,
+              pagination: { limit, offset },
+              withCurrency,
+              init: {
+                ...init,
+                signal // Pass the new signal to the request to allow cancellation
+              },
+              withAccessToken
+            }).then(response => {
+              total.value = response.total || 0; // Set the total items count
+
+              const data = isFunction(select)
+                ? select(response.data!)
+                : response.data;
+
+              return {
+                nextOffset:
+                  !limit || offset + limit >= total.value
+                    ? undefined
+                    : offset + limit,
+                pageData: data
+              };
+            })
+          );
+        },
+        getNextPageParam: (lastPage: InfiniteQueryPage<TQueryFnData>) =>
+          lastPage.nextOffset,
+        ...(options as any)
+      },
+      queryClient
+    );
+
+    // -------------------------------------------------------------------------
+
+    return {
+      ...response,
+
+      // ---state
+
+      /**
+       * Pagination information for the current query.
+       * @type {Object}
+       * @property {number} total - Total number of items in the query.
+       * @property {number} limit - Number of items per page.
+       * @property {number} page - Current page index.
+       * @property {number} pages - Total number of pages.
+       * @property {number} from - The starting item index for the current page.
+       * @property {number} to - The ending item index for the current page.
+       */
+      pagination: computed(() => {
+        // We use the length of the final, selected data array.
+        // The `as any[]` is a safe type assertion here because we know
+        // our `select` function returns an array.
+        const itemsFetched = (response.data.value as any[])?.length ?? 0;
+
+        // Calculate pages fetched based on items and limit
+        const pagesFetched = limit > 0 ? Math.ceil(itemsFetched / limit) : 1;
+
+        return {
+          limit,
+          total: total.value,
+          page: pagesFetched,
+          pages: pageTotal.value,
+          from: 1, // For "load more", we always show from item 1
+          to: itemsFetched // The last item is simply the total number fetched
+        };
+      }),
+
+      /**
+       * Meta-information about the current query, such as whether there are next or previous pages.
+       * @type {Object}
+       * @property {boolean} hasNextPage - Whether there is a next page.
+       * @property {boolean} hasPrevPage - Whether there is a previous page.
+       */
+      meta: computed(() => ({
+        hasNextPage: response.hasNextPage.value,
+        hasPrevPage: response.hasPreviousPage.value
+      })),
+
+      sort: (values?: QueryParams["sort"]) => {
+        sort.value = unref(values);
+      },
+
+      filter: (values: QueryParams["filters"]) => {
+        filters.value = unref(values);
+      },
+
+      resetQuery: () =>
+        queryClient.resetQueries({
+          queryKey: [...queryKey, reactiveKeys]
+        })
+    };
+  }
+
+  /**
+   * Syntax sugar for sending a POST request to the server with the given URL and options.
+   * @see {@link MutationParams}
+   * @param method The HTTP method to use for the request (e.g., POST, PUT, PATCH, DELETE).
+   * @param url The URL to send the request to.
+   * @param init The request options.
+   * @param data The data to send with the request.
+   * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
+   * @param options Additional options to pass to TanStack mutation.
+   */
+  function mutate<
+    TData = unknown,
+    TError = DefaultError,
+    TVariables = void,
+    TContext = unknown
+  >(
+    method: Omit<Methods, "GET" | "HEAD">,
+    {
+      url,
+      init,
+      data,
+      withAccessToken,
+      ...options
+    }: MutationParams<QueryResponse<TData>, TError, TVariables, TContext>
+  ) {
+    // safeguard
+    init ??= {};
+
+    // Enforce method, header, parse body
+    set(init, "method", method.toUpperCase());
+    set(init, "body", parseData(data));
+
+    return useMutation(
+      {
+        mutationFn: async () => request<TData>({ url, init, withAccessToken }),
+        ...options
+      },
+      queryClient
+    );
+  }
+
+  // --- Async methods
+  /**
+   * Syntax sugar for sending a GET request to the server with the given URL and options.
+   * NOTE: this does not deal with pagination, it is a simple GET request.
+   * @see {@link QueryParams}
+   * @param url The URL to send the request to.
+   * @param init The request options.
+   * @param guard A function that returns a promise to be resolved before the request is sent. This can be used to ensure that certain conditions are met before the request is sent, such as checking if the user is authenticated.
+   * @param select A function to select a subset of the data returned by the request. This can be used to transform the data before it is returned.
+   * @param queryKey The query key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
+   * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
+   * @param options Additional options to pass to TanStack query.
+   */
+  async function getRequest<TQueryFnData = unknown, TData = TQueryFnData>({
+    url,
+    init,
+    guard,
+    select,
+    queryKey,
+    withAccessToken,
+    withCurrency,
+    ...options
+  }: Omit<QueryParams<TQueryFnData, TData>, "pagination">): Promise<TData> {
+    // Remove initialData from options before spreading, as it's not part of FetchQueryOptions
+
+    // --- state
+    const sort = options?.sort;
+    const filters = options?.filters;
+
+    // --- query
+    return queryClient.fetchQuery<TQueryFnData, DefaultError, TData>({
+      queryKey: cleanQueryKey([...queryKey, { locale, sort, filters }]),
+      queryFn: async ({ signal }) => {
+        return request<TQueryFnData>({
+          url,
+          sort,
+          filters,
+          init: {
+            ...init,
+            signal // Pass the new signal to the request to allow cancellation
+          },
+          withAccessToken
+        }).then(response => {
+          if (isFunction(select)) return select(response.data!) as TData;
+          return response.data as TQueryFnData;
+        });
+      },
+      ...(options as any)
+    });
+  }
+
+  /**
+   * Syntax sugar for sending a GET request with pagination, filters and sorting to the server with the given URL and options.
+   * @see {@link QueryParams}
+   * @param url The URL to send the request to.
+   * @param init The request options.
+   * @param guard A function that returns a promise to be resolved before the request is sent. This can be used to ensure that certain conditions are met before the request is sent, such as checking if the user is authenticated.
+   * @param select A function to select a subset of the data returned by the request. This can be used to transform the data before it is returned.
+   * @param queryKey The query key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
+   * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
+   * @param options Additional options to pass to TanStack query.
+   */
+  async function listRequest<TQueryFnData = unknown, TData = TQueryFnData>({
+    url,
+    init,
+    guard,
+    select,
+    queryKey,
+    withAccessToken,
+    ...options
+  }: QueryParams<TQueryFnData, TData>): Promise<QueryResponse<TData>> {
+    // --- state
+    const limit = options?.pagination?.limit ?? PAGINATION.limit;
+    const offset = options?.pagination?.offset ?? PAGINATION.offset;
+    const sort = options?.sort;
+    const filters = options?.filters;
+
+    const pageIndex = Math.ceil(offset / limit) + 1;
+
+    return queryClient.fetchQuery<
+      TQueryFnData,
+      DefaultError,
+      QueryResponse<TData>
+    >({
+      queryKey: cleanQueryKey([
+        ...queryKey,
+        { locale, sort, filters, limit, pageIndex }
+      ]),
+      queryFn: async ({ signal }) => {
+        return request<TQueryFnData>({
+          url,
+          sort,
+          filters,
+          pagination: { limit, offset },
+          init: {
+            ...init,
+            signal // Pass the new signal to the request to allow cancellation
+          },
+          withAccessToken
+        }).then(response => {
+          if (isFunction(select)) {
+            return {
+              ...response,
+              data: select(response.data!)
+            };
+          }
+          return response;
+        });
+      },
+      ...(options as any)
     });
   }
 
@@ -130,11 +800,11 @@ export const useQuery = () => {
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
-  async function postRequest<T extends object = object>({
+  async function postRequest<T = object>({
     url,
     init,
     data,
-    withAccessToken,
+    withAccessToken
   }: RequestParams): Promise<T> {
     // safeguard
     init ??= {};
@@ -143,7 +813,9 @@ export const useQuery = () => {
     set(init, "method", Methods.POST.toUpperCase());
     set(init, "body", parseData(data));
 
-    return request<T>({ url, init, withAccessToken });
+    return request<T>({ url, init, withAccessToken }).then(
+      response => (response?.data || response) as T
+    );
   }
 
   /**
@@ -162,11 +834,11 @@ export const useQuery = () => {
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
-  async function putRequest<T extends object = object>({
+  async function putRequest<T = object>({
     url,
     init,
     data,
-    withAccessToken,
+    withAccessToken
   }: RequestParams): Promise<T> {
     // safeguard
     init ??= {};
@@ -175,7 +847,9 @@ export const useQuery = () => {
     set(init, "method", Methods.PUT.toUpperCase());
     set(init, "body", JSON.stringify(data));
 
-    return request<T>({ url, init, withAccessToken });
+    return request<T>({ url, init, withAccessToken }).then(
+      response => (response?.data || response) as T
+    );
   }
 
   /**
@@ -194,11 +868,11 @@ export const useQuery = () => {
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
-  async function patchRequest<T extends object = object>({
+  async function patchRequest<T = object>({
     url,
     init,
     data,
-    withAccessToken,
+    withAccessToken
   }: RequestParams): Promise<T> {
     // safeguard
     init ??= {};
@@ -206,7 +880,10 @@ export const useQuery = () => {
     // Enforce method, header, parse body
     set(init, "method", Methods.PATCH.toUpperCase());
     set(init, "body", JSON.stringify(data));
-    return request<T>({ url, init, withAccessToken });
+
+    return request<T>({ url, init, withAccessToken }).then(
+      response => (response?.data || response) as T
+    );
   }
 
   /**
@@ -225,11 +902,11 @@ export const useQuery = () => {
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
-  async function deleteRequest<T extends object = object>({
+  async function deleteRequest<T = object>({
     url,
     init,
     data,
-    withAccessToken,
+    withAccessToken
   }: RequestParams): Promise<T> {
     // safeguard
     init ??= {};
@@ -238,7 +915,9 @@ export const useQuery = () => {
     set(init, "method", Methods.DELETE.toUpperCase());
     set(init, "body", JSON.stringify(data));
 
-    return request<T>({ url, init, withAccessToken });
+    return request<T>({ url, init, withAccessToken }).then(
+      response => (response?.data || response) as T
+    );
   }
 
   /**
@@ -257,31 +936,40 @@ export const useQuery = () => {
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
-  async function headRequest<T extends object = object>({
+  async function headRequest<T = object>({
     url,
     init,
-    withAccessToken,
-  }: RequestParams): Promise<T> {
+    withAccessToken
+  }: RequestParams): Promise<QueryResponse<T>> {
     // safeguard
     init ??= {};
 
-    // Enforce method & header
+    // Enforce method and header
     set(init, "method", Methods.GET.toUpperCase());
     set(init, "mode", "no-cors");
 
     return request<T>({ url, init, withAccessToken });
   }
 
+  // ---------------------------------------------------------------------------
+
   return {
+    // --- context
+    queryClient,
+    // --- utils
     useUrl,
-    // ---
+    // --- tanstack query methods
+    query,
+    list,
+    listInfinite,
+    mutate,
+    // --- async methods
     get: getRequest,
+    getList: listRequest,
     del: deleteRequest,
     put: putRequest,
     post: postRequest,
     head: headRequest,
-    patch: patchRequest,
-    // ---
-    queryClient,
+    patch: patchRequest
   };
 };

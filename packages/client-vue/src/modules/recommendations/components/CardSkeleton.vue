@@ -100,8 +100,7 @@ import config from "../recommendations.config";
 import { useStyles } from "@upmind-automation/upmind-ui";
 
 // --- components
-import Card from "../../../components/content/Card.vue";
-import { Skeleton } from "@upmind-automation/upmind-ui";
+import { Card, Skeleton } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -119,7 +118,7 @@ const styles = useStyles(
     "recommendation.skeleton.content.price.intro",
     "recommendation.skeleton.content.price.current",
     "recommendation.skeleton.content.price.summary",
-    "recommendation.skeleton.content.button",
+    "recommendation.skeleton.content.button"
   ],
   {},
   config

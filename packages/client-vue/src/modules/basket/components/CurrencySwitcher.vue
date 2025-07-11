@@ -1,7 +1,7 @@
 <template>
   <Combobox
     v-if="meta.isAvailable && (items?.length > 1 || meta.isLoading)"
-    class="w-dropdown-xs md:w-dropdown-2xs bg-base text-primary"
+    class="w-dropdown-xs md:w-dropdown-2xs bg-base text-base-foreground"
     :popoverClass="['w-dropdown-xs md:w-dropdown-2xs', props.popoverClass]"
     :modelValue="model?.code"
     :items="items"
@@ -16,7 +16,7 @@
 import { computed } from "vue";
 
 // --- internal
-import { useBasketCurrency } from "@upmind-automation/headless-vue";
+import { useBasketCurrency } from "@upmind-automation/headless";
 import rawCurrencies from "./currencies";
 
 interface Currency {
@@ -37,6 +37,7 @@ import { get, map } from "lodash-es";
 // --- types
 import type { HTMLAttributes } from "vue";
 import type { ComboboxItemProps } from "@upmind-automation/upmind-ui";
+import type { ICurrency } from "../../../../../types/src";
 // -----------------------------------------------------------------------------
 
 // props: {
@@ -48,13 +49,13 @@ const props = withDefaults(
     popoverClass?: HTMLAttributes["class"];
   }>(),
   {
-    popoverClass: "mt-0",
+    popoverClass: "mt-0"
   }
 );
 
 const { meta, model, currencies, update } = useBasketCurrency();
 
-function updateCurrency(value: string) {
+function updateCurrency(value: ICurrency["code"]) {
   update({ code: value });
 }
 
@@ -65,12 +66,12 @@ const items = computed(() => {
         icon: get(
           rawCurrencies,
           currency.code?.toUpperCase()
-        )?.country_code?.toLowerCase(),
+        )?.country_code?.toLowerCase()
       },
       label: currency.code,
       selectedLabel: currency.code,
       value: currency.code,
-      selected: currency.code === model.value.code,
+      selected: currency.code === model.value?.code
     };
   }) as ComboboxItemProps[];
 });

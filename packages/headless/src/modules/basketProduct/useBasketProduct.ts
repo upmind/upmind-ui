@@ -1,15 +1,21 @@
 // --- external
-import { interpret, InterpreterStatus } from "xstate";
+import { interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import productMachine from "../product/product.machine";
 import { useBasket } from "../basket";
+import { useProductConfig } from "../product";
 
 // --- utils
 import { getBasketProduct } from "./utils";
 import { parseQuantity } from "../product/utils";
-import { DetailedError, responseCodes, stopService } from "../../utils";
+import {
+  DetailedError,
+  ErrorOrigin,
+  responseCodes,
+  stopService
+} from "../../utils";
 import { isEmpty, get, add, subtract } from "lodash-es";
 
 // --- types
@@ -18,32 +24,38 @@ import type { Product } from "../product";
 // -----------------------------------------------------------------------------
 
 export const useBasketProduct = (bpid: string) => {
-  const { getBasket, getErrors } = useBasket();
-  const rawBasket = getBasket();
-  if (!rawBasket)
-    throw new DetailedError("No Basket found", responseCodes.Not_Found);
+  const { basket: rawBasket, errors } = useBasket();
+  if (!rawBasket.value)
+    throw new DetailedError(
+      "No Basket found",
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
+    );
 
-  let rawBasketProduct = getBasketProduct(bpid, rawBasket);
-  let errors = getErrors();
+  let rawBasketProduct = getBasketProduct(bpid, rawBasket.value);
 
   if (isEmpty(rawBasketProduct))
-    throw new DetailedError("No Basket Product found", responseCodes.Not_Found);
+    throw new DetailedError(
+      "No Basket Product found",
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
+    );
 
   let service = interpret(
     productMachine.withContext({
       id: bpid,
-      basketId: rawBasket.id,
-      clientId: rawBasket.client_id,
-      currencyId: rawBasket.currency_id,
-      promotions: rawBasket.promotions,
+      basketId: rawBasket.value.id,
+      clientId: rawBasket.value.client_id,
+      currencyId: rawBasket.value.currency_id,
+      promotions: rawBasket.value.promotions,
       coupons: [],
       // ---
       rawBasketProduct,
-      errorExternal: get(errors, bpid),
+      errorExternal: get(errors.value, bpid)
     }),
     {
       id: bpid,
-      devTools: true,
+      devTools: true
     }
   ).start();
 
@@ -51,7 +63,7 @@ export const useBasketProduct = (bpid: string) => {
 
   async function isReady(): Promise<void> {
     return waitFor(service, state => state.matches("available"), {
-      timeout: Infinity, // infinity = no timeout
+      timeout: Infinity
     }).then(() => {});
   }
 
@@ -60,7 +72,11 @@ export const useBasketProduct = (bpid: string) => {
       const product = get(service.getSnapshot(), "context.product") as Product;
       if (!product)
         return reject(
-          new DetailedError("Product not found", responseCodes.Not_Found)
+          new DetailedError(
+            "Product not found",
+            responseCodes.Not_Found,
+            ErrorOrigin.Headless
+          )
         );
       return resolve(product);
     });
@@ -69,20 +85,29 @@ export const useBasketProduct = (bpid: string) => {
   async function update(): Promise<void> {
     service.send({ type: "UPDATE" });
     return waitFor(service, state => !state.matches("processing"), {
-      timeout: 60_000,
+      timeout: 60_000
     })
       .then(state => {
         if (
           ["error", "available.invalid", "available.error"].some(state.matches)
         ) {
-          return Promise.reject(state.context.error);
+          return Promise.reject(
+            new DetailedError(
+              "Update in useBasketProduct not in a valid state.",
+              responseCodes.Unprocessable_Entity,
+              ErrorOrigin.Headless,
+              state.context.error
+            )
+          );
         }
         return Promise.resolve();
       })
-      .catch(() => {
+      .catch(error => {
         return Promise.reject(
-          new Error(
-            "[headless-vue] update in useBasketProductPending not in a valid state"
+          new DetailedError(
+            "Update in useBasketProductPending not in a valid state.",
+            responseCodes.Unprocessable_Entity,
+            ErrorOrigin.Headless
           )
         );
       });
@@ -90,12 +115,10 @@ export const useBasketProduct = (bpid: string) => {
 
   // ---------------------------------------------------------------------------
   return {
+    ...useProductConfig(service),
     id: bpid,
-    service,
-    getSnapshot: () => service?.getSnapshot(),
-    stop: () => stopService(service as InterpreterFrom<any>),
-    // ---
     isReady,
+    stop: () => stopService(service as InterpreterFrom<any>),
     // ---
     updateQuantity: async (value: number): Promise<void> =>
       getProduct().then(product => {
@@ -103,15 +126,16 @@ export const useBasketProduct = (bpid: string) => {
           return Promise.reject(
             new DetailedError(
               "Product not quantifiable",
-              responseCodes.Unprocessable_Entity
+              responseCodes.Unprocessable_Entity,
+              ErrorOrigin.Headless
             )
           );
 
         service.send({
           type: "SET.QUANTITY",
           data: {
-            quantity: parseQuantity(value, product.productDetails),
-          },
+            quantity: parseQuantity(value, product.productDetails)
+          }
         });
         return update();
       }),
@@ -122,7 +146,8 @@ export const useBasketProduct = (bpid: string) => {
           return Promise.reject(
             new DetailedError(
               "Product not quantifiable",
-              responseCodes.Unprocessable_Entity
+              responseCodes.Unprocessable_Entity,
+              ErrorOrigin.Headless
             )
           );
 
@@ -133,8 +158,8 @@ export const useBasketProduct = (bpid: string) => {
         service.send({
           type: "SET.QUANTITY",
           data: {
-            quantity: parseQuantity(qty, product.productDetails),
-          },
+            quantity: parseQuantity(qty, product.productDetails)
+          }
         });
         return update();
       }),
@@ -145,7 +170,8 @@ export const useBasketProduct = (bpid: string) => {
           return Promise.reject(
             new DetailedError(
               "Product not quantifiable",
-              responseCodes.Unprocessable_Entity
+              responseCodes.Unprocessable_Entity,
+              ErrorOrigin.Headless
             )
           );
 
@@ -156,12 +182,14 @@ export const useBasketProduct = (bpid: string) => {
         service.send({
           type: "SET.QUANTITY",
           data: {
-            quantity: parseQuantity(qty, product.productDetails),
-          },
+            quantity: parseQuantity(qty, product.productDetails)
+          }
         });
         return update();
       }),
 
-    update,
+    update
   };
 };
+
+export type UseBasketProduct = ReturnType<typeof useBasketProduct>;

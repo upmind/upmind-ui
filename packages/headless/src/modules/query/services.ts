@@ -1,19 +1,11 @@
 // --- external
 
 // --- internal
-import { useSystemI18n } from "../system";
 import { useQuery } from ".";
 import { useSession } from "../session";
-import { useFeedback } from "../feedback";
-const { add } = useFeedback();
-
+import { messageDisplays, messageTypes, useFeedback } from "../feedback";
+import { useLocale } from "../system";
 // --- utils
-import { responseCodes } from "../../utils";
-import {
-  getTokenFromStorage,
-  persistTokenToStorage,
-  dumpTokenFromStorage,
-} from "../session/utils";
 import {
   get,
   includes,
@@ -21,65 +13,82 @@ import {
   map,
   set,
   startsWith,
-  upperCase,
+  upperCase
 } from "lodash-es";
+import {
+  dumpTokenFromStorage,
+  getTokenFromStorage,
+  persistTokenToStorage
+} from "../session/utils";
+import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 
 // --- types
 import type { Token } from "../session/types";
 import { GrantTypes, Methods } from "@upmind-automation/types";
-import { RequestParams, ResponseError, Response } from "./types";
-import { messageDisplays, messageTypes } from "../feedback/types";
+import type { QueryResponse, RequestParams } from "./types";
+
+const { add } = useFeedback();
 
 // -----------------------------------------------------------------------------
 function handleError(
-  status: Response["status"],
-  error: Response["error"]
+  status: QueryResponse["status"],
+  error: QueryResponse["error"]
 ): Promise<never> {
-  // of we have a server error (5xx), we want to display a system message
-  if (status >= 500 && status < 600) {
+  // of we have a system error, we want to add some feedback for the ui
+  if (includes([responseCodes.Too_Many_Requests], status) || status >= 500) {
     add({
       type: messageTypes.ERROR,
       title: "Service temporarily unavailable",
       copy: "Service temporarily down for maintenance",
-      data: error,
+      data: { ...error, status },
       i18nKey: `errors.${status ?? responseCodes.Service_Unavailable}`,
       display: messageDisplays.SYSTEM,
       delay: 0,
-      maxAge: 0,
+      maxAge: 0
     });
   }
 
-  return Promise.reject({
-    status: status || responseCodes.Service_Unavailable,
-    data: null,
-    total: null,
-    error: {
-      id: error?.id ?? null,
-      type: error?.type ?? responseCodes.Service_Unavailable,
-      code: error?.code ?? null,
-      message: error?.message || "Service temporarily unavailable",
-      data: error?.data || null,
-    },
-    messages: null,
-  });
+  throw new DetailedError(
+    error?.message ?? "Service temporarily unavailable",
+    status || responseCodes.Service_Unavailable,
+    ErrorOrigin.Upmind,
+    error?.data
+  );
 }
 
-async function doFetch<T extends object = object>({
+async function doFetch<T extends any = any>({
   url,
-  init,
-}: RequestParams): Promise<T> {
+  init
+}: RequestParams): Promise<QueryResponse<T>> {
   init ??= {};
 
   if (!includes(map(Methods, upperCase), init?.method)) {
-    return Promise.reject(new Error(`Invalid method: ${init?.method}`));
+    return Promise.reject(
+      new DetailedError(
+        `Invalid method: ${init?.method}`,
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless,
+        {
+          url: url?.toString(),
+          method: init?.method
+        }
+      )
+    );
   }
 
-  if (!url) return Promise.reject(new Error("Invalid URL"));
+  if (!url)
+    await Promise.reject(
+      new DetailedError(
+        "Invalid URL",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      )
+    );
 
   if (!url.searchParams.has("lang") && !startsWith(url.pathname, "/oauth/")) {
-    const { getLocale } = useSystemI18n();
-    const locale = await getLocale();
-    if (!isEmpty(locale)) url.searchParams.set("lang", locale as string);
+    const { locale } = useLocale();
+    if (!isEmpty(locale.value))
+      url.searchParams.set("lang", locale.value as string);
   }
 
   // do the fetch
@@ -93,11 +102,24 @@ async function doFetch<T extends object = object>({
 
       if (!ok) throw data;
 
-      return data as T;
+      return data as QueryResponse<T>;
     })
     .catch(response => {
-      if (!response?.status) return Promise.reject();
-      return handleError(response.status, response?.error);
+      // Aborted requests are handled differently and do not throw an error
+      if (
+        response.status == responseCodes.Aborted ||
+        response.code == responseCodes.Aborted ||
+        response.name == "AbortError"
+      )
+        return Promise.reject();
+
+      // DC: change this as when we get service cors errors, we dont get a response object with status
+      // so we need to handle it differently, and that  genrally means the API is down
+
+      return handleError(
+        response.status ?? responseCodes.Service_Unavailable,
+        response?.error ?? response
+      );
     });
 }
 
@@ -112,11 +134,11 @@ async function refreshToken() {
     url: useUrl("access_token", {}, { context: "oauth" }),
     data: {
       grant_type: GrantTypes.REFRESH_TOKEN,
-      refresh_token,
-    },
+      refresh_token
+    }
   })
     .then(data => {
-      persistTokenToStorage(data);
+      persistTokenToStorage(data as unknown as Token);
       return data;
     })
     .catch(error => {
@@ -125,7 +147,8 @@ async function refreshToken() {
       if (token) dumpTokenFromStorage(token.actor_type);
       reauth();
 
-      return Promise.reject(error);
+      //  propagate the error
+      throw error;
     });
 }
 
