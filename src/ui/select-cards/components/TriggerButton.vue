@@ -22,7 +22,7 @@
 
     <template #append>
       <Icon
-        class="ml-auto mr-2 opacity-75 transition-all duration-200"
+        class="ml-auto opacity-75 transition-all duration-200"
         :class="open ? 'rotate-180' : ''"
         icon="arrow-down"
         size="xs"
