@@ -1,7 +1,15 @@
 <template>
   <component :is="layoutComponent">
-    <template v-if="$slots.controls" #controls>
+    <template #controls>
       <slot name="controls" />
+    </template>
+
+    <template #navigation>
+      <slot name="navigation" />
+    </template>
+
+    <template #actions>
+      <slot name="actions" />
     </template>
 
     <template #header>
