@@ -17,42 +17,38 @@
     </InputExtended>
 
     <div :class="styles.products.facet.list">
-      <RouterLink
+      <Button
+        :as="RouterLink"
         v-for="(category, index) in items"
         :key="`category-${index}`"
         :to="category.to"
+        variant="ghost"
+        size="sm"
+        :class="
+          cn([
+            styles.products.facet.list.button,
+            category.current && 'text-control-active'
+          ])
+        "
+        @click="category.handler"
+        :label="category.label"
       >
-        <Button
-          variant="ghost"
-          size="sm"
-          :class="
-            cn([
-              styles.products.facet.list.button,
-              category.current && 'text-control-active'
-            ])
-          "
-          @click="category.handler"
-          :label="category.label"
-        >
-          <template #prepend>
-            <Icon
-              icon="chevron-right"
-              :class="
-                cn([
-                  styles.products.facet.list.icon,
-                  category.current || category.open
-                    ? 'opacity-100'
-                    : 'opacity-0',
-                  category.open ? '-rotate-90' : ''
-                ])
-              "
-            />
-          </template>
-          <template #append v-if="category.count">
-            ({{ category.count }})
-          </template>
-        </Button>
-      </RouterLink>
+        <template #prepend>
+          <Icon
+            icon="chevron-right"
+            :class="
+              cn([
+                styles.products.facet.list.icon,
+                category.current || category.open ? 'opacity-100' : 'opacity-0',
+                category.open ? '-rotate-90' : ''
+              ])
+            "
+          />
+        </template>
+        <template #append v-if="category.count">
+          ({{ category.count }})
+        </template>
+      </Button>
     </div>
   </section>
 </template>

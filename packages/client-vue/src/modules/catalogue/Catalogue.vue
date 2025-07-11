@@ -85,10 +85,10 @@ const params = useUrlSearchParams<{
   sort?: ProductSortableProperties;
   direction?: RequestSortDirection;
   query?: string;
-}>("history");
-params.sort ??= ProductSortableProperties.DEFAULT;
-params.direction ??= RequestSortDirection.ASC;
-params.query ??= "";
+}>("history", {
+  removeNullishValues: true,
+  removeFalsyValues: true
+});
 
 // --- context
 
