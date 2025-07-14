@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 export default {
   control: {
     root: cva(
-      "flex h-12 w-full items-center justify-center border-b bg-base-background"
+      "flex min-h-12 w-full items-center justify-center border-b bg-base-background"
     ),
     content: cva("max-w-app flex w-full items-center justify-between"),
     controls: cva("flex-grow")
