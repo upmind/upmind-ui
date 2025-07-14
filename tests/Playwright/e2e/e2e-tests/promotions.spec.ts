@@ -4,11 +4,11 @@ import { ProductConfig } from "../support/page-objects/templates/ProductConfig";
 import { Basket } from "../support/page-objects/templates/Basket";
 import {
   getCurrentOrderId,
-  addProductToOrder,
+  addProductToOrder
 } from "../support/utils/functions/basket";
 import {
   getSessionToken,
-  getClientToken,
+  getClientToken
 } from "../support/utils/functions/tokens";
 import { Logins } from "../support/constants/Logins";
 
@@ -43,14 +43,14 @@ test.describe("Promotions", () => {
       });
       test.describe("Application per currency", () => {
         test("Apply for all currencies - No - Apply for GBP", async ({
-          page,
+          page
         }) => {
           await page.goto(URLs.gbpPromo);
           await page.waitForLoadState();
           await productConfig.promoBadgeExists();
         });
         test("Apply for all currencies - No - Apply for USD", async ({
-          page,
+          page
         }) => {
           await page.goto(URLs.usdPromo);
           await page.waitForLoadState();
@@ -59,7 +59,7 @@ test.describe("Promotions", () => {
       });
       test.describe("Application per billing term", () => {
         test("Apply for all billing terms - No (1 Year Billing term only)", async ({
-          page,
+          page
         }) => {
           await page.goto(URLs.oneYearPromo);
           await page.waitForLoadState();
@@ -89,12 +89,12 @@ test.describe("Promotions", () => {
   test.describe("Availability & Eligibility Settings", () => {
     test.describe.skip("Apply to multiple renewals", () => {
       test("Promotion applied on recurring renewals - Multiple (1 renewal)", async ({
-        page,
+        page
       }) => {
         // TBC
       });
       test("Promotion applied on recurring renewals - Unlimited", async ({
-        page,
+        page
       }) => {
         // TBC
       });

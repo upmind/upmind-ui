@@ -27,7 +27,7 @@ function GenerateUpmindCssPlugin(): Plugin {
         this.emitFile({
           type: "asset",
           fileName: "upmind-ui.css", // Static file name
-          source: upmindCssContent, // Content with the dynamic @import
+          source: upmindCssContent // Content with the dynamic @import
         });
 
         // console.debug(
@@ -36,7 +36,7 @@ function GenerateUpmindCssPlugin(): Plugin {
       } else {
         console.warn('No CSS file found with "index" in its name.');
       }
-    },
+    }
   };
 }
 

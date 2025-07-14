@@ -16,7 +16,7 @@ export const coukDomain = [
     registrantCountry: "United Kingdom",
     total: "£2.00",
     billingCycle: "1 month",
-    tldValue: ".co.uk",
+    tldValue: ".co.uk"
   },
 
   /* TRANSFERRING A DOMAIN */
@@ -36,6 +36,6 @@ export const coukDomain = [
     registrantCountry: "United Kingdom",
     total: "FREE",
     billingCycle: "1 month",
-    tldValue: ".co.uk",
-  },
+    tldValue: ".co.uk"
+  }
 ];

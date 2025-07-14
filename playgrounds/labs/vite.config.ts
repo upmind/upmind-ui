@@ -7,10 +7,10 @@ export default defineConfig({
     vue({
       template: {
         compilerOptions: {
-          isCustomElement: tag => tag.startsWith("lord-"),
-        },
-      },
-    }),
+          isCustomElement: tag => tag.startsWith("lord-")
+        }
+      }
+    })
   ],
   resolve: {
     alias: {
@@ -35,17 +35,17 @@ export default defineConfig({
       "@upmind-automation/client-vue": resolve(
         __dirname,
         "../../packages/client-vue/src/index.ts"
-      ),
-    },
+      )
+    }
   },
   server: {
     allowedHosts: true,
     fs: {
-      strict: false,
-    },
+      strict: false
+    }
   },
 
   build: {
-    sourcemap: true,
-  },
+    sourcemap: true
+  }
 });

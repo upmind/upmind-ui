@@ -6,7 +6,7 @@ export const orgDomain = [
     sldValue: "orgtestingdomain",
     total: "£2.00",
     billingCycle: "1 year",
-    tldValue: ".org",
+    tldValue: ".org"
   },
   {
     name: ".ORG Domain - Billing Cycle - 2 year @webcentral @domains",
@@ -15,7 +15,7 @@ export const orgDomain = [
     sldValue: "orgtestingdomain",
     total: "£5.00",
     billingCycle: "2 year",
-    tldValue: ".org",
+    tldValue: ".org"
   },
   {
     name: ".ORG Domain - Billing Cycle - 3 year @webcentral @domains",
@@ -24,6 +24,6 @@ export const orgDomain = [
     sldValue: "orgtestingdomain",
     total: "£10.00",
     billingCycle: "3 year",
-    tldValue: ".org",
-  },
+    tldValue: ".org"
+  }
 ];

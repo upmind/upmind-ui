@@ -7,7 +7,7 @@ const testUrl = [
   { name: "Checkout", path: URLs.checkout },
   { name: "Starter Hosting", path: URLs.starterHosting },
   { name: "Register", path: URLs.register },
-  { name: "Login", path: URLs.login },
+  { name: "Login", path: URLs.login }
 ];
 
 async function getDataLayer(page: Page) {

@@ -3,11 +3,11 @@ import { fakerEN_GB } from "@faker-js/faker";
 import { URLs } from "../support/constants/Urls";
 import {
   getCurrentOrderId,
-  addProductToOrder,
+  addProductToOrder
 } from "../support/utils/functions/basket";
 import {
   getSessionToken,
-  getClientToken,
+  getClientToken
 } from "../support/utils/functions/tokens";
 import { Checkout } from "../support/page-objects/templates/Checkout";
 import { Logins } from "../support/constants/Logins";
@@ -43,8 +43,8 @@ test.describe("Checkout - Happy paths", () => {
       [],
       {
         domain: `${fakerEN_GB.string.alphanumeric({
-          length: { min: 3, max: 15 },
-        })}.com`,
+          length: { min: 3, max: 15 }
+        })}.com`
       },
       []
     );
@@ -80,8 +80,8 @@ test.describe("Checkout - Happy paths", () => {
         [],
         {
           domain: `${fakerEN_GB.string.alphanumeric({
-            length: { min: 3, max: 15 },
-          })}.com`,
+            length: { min: 3, max: 15 }
+          })}.com`
         },
         []
       );
@@ -118,8 +118,8 @@ test.describe("Checkout - Happy paths", () => {
       [],
       {
         domain: `${fakerEN_GB.string.alphanumeric({
-          length: { min: 3, max: 15 },
-        })}.com`,
+          length: { min: 3, max: 15 }
+        })}.com`
       },
       []
     );
@@ -152,8 +152,8 @@ test.describe("Checkout - Happy paths", () => {
       [],
       {
         domain: `${fakerEN_GB.string.alphanumeric({
-          length: { min: 3, max: 15 },
-        })}.com`,
+          length: { min: 3, max: 15 }
+        })}.com`
       },
       []
     );
@@ -176,7 +176,7 @@ test.describe("Checkout - Declined Payments", () => {
     cardNumber,
     expiryDate,
     cvcCode,
-    dialogText,
+    dialogText
   } of DeclinedCards) {
     test(`Stripe Cards - ${name}`, async ({ page, context }) => {
       await getClientToken(
@@ -198,8 +198,8 @@ test.describe("Checkout - Declined Payments", () => {
         [],
         {
           domain: `${fakerEN_GB.string.alphanumeric({
-            length: { min: 3, max: 15 },
-          })}.com`,
+            length: { min: 3, max: 15 }
+          })}.com`
         },
         []
       );
@@ -227,7 +227,7 @@ test.describe("Checkout - Fraud Checks", async () => {
     cardNumber,
     expiryDate,
     cvcCode,
-    dialogText,
+    dialogText
   } of FraudCheckCards) {
     test(`Stripe Cards - ${name}`, async ({ page, context }) => {
       await getClientToken(
@@ -249,8 +249,8 @@ test.describe("Checkout - Fraud Checks", async () => {
         [],
         {
           domain: `${fakerEN_GB.string.alphanumeric({
-            length: { min: 3, max: 15 },
-          })}.com`,
+            length: { min: 3, max: 15 }
+          })}.com`
         },
         []
       );
@@ -275,7 +275,7 @@ test.describe("Checkout - Invalid Data", () => {
     cardNumber,
     expiryDate,
     cvcCode,
-    dialogText,
+    dialogText
   } of ErrorCards) {
     test(`Stripe Cards - ${name}`, async ({ page, context }) => {
       await getClientToken(
@@ -297,8 +297,8 @@ test.describe("Checkout - Invalid Data", () => {
         [],
         {
           domain: `${fakerEN_GB.string.alphanumeric({
-            length: { min: 3, max: 15 },
-          })}.com`,
+            length: { min: 3, max: 15 }
+          })}.com`
         },
         []
       );

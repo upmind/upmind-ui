@@ -19,7 +19,7 @@ function UpmindTransferPlugin(): Plugin {
         }
         next();
       });
-    },
+    }
   };
 }
 

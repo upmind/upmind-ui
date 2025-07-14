@@ -8,15 +8,15 @@ export default defineConfig({
     vue(),
     dts({
       entryRoot: "src",
-      outDir: "dist",
-    }),
+      outDir: "dist"
+    })
   ],
   build: {
     lib: {
       entry: resolve(__dirname, "src/index.ts"),
       name: "@upmind-automation/headless",
       fileName: "index",
-      formats: ["es"],
+      formats: ["es"]
     },
     rollupOptions: {
       external: ["vue", "vue-router"],
@@ -24,16 +24,16 @@ export default defineConfig({
         globals: {
           vue: "Vue",
           "vue-router": "VueRouter",
-          "vue-i18n": "VueI18n",
-        },
-      },
-    },
+          "vue-i18n": "VueI18n"
+        }
+      }
+    }
   },
   resolve: {
     alias: {
       "@": resolve(__dirname, "./src"),
       // ---
-      "@upmind-automation/types": resolve(__dirname, "../types/src/index.ts"),
-    },
-  },
+      "@upmind-automation/types": resolve(__dirname, "../types/src/index.ts")
+    }
+  }
 });

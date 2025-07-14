@@ -52,14 +52,14 @@ export async function getClientToken(
         accept: "*/*",
         "content-type": "application/json",
         origin: `${URLs.baseUrl}`,
-        referer: `${URLs.baseUrl}`,
+        referer: `${URLs.baseUrl}`
       },
       data: {
         currency_id: "3825d96e-763e-d091-3dc4-174825283406",
         grant_type: "password",
         password: `${password}`,
-        username: `${username}`,
-      },
+        username: `${username}`
+      }
     }
   );
 
@@ -73,7 +73,7 @@ export async function getClientToken(
       path: "/",
       httpOnly: false,
       secure: false,
-      sameSite: "Lax",
-    },
+      sameSite: "Lax"
+    }
   ]);
 }

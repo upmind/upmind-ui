@@ -16,7 +16,7 @@ export const ukDomain = [
     registrantCountry: "United Kingdom",
     total: "£2.00",
     billingCycle: "1 month",
-    tldValue: ".uk",
+    tldValue: ".uk"
   },
   {
     name: ".UK Domain - Billing Cycle - 3 month @webcentral @domains",
@@ -34,7 +34,7 @@ export const ukDomain = [
     registrantCountry: "United Kingdom",
     total: "£2.50",
     billingCycle: "3 month",
-    tldValue: ".uk",
+    tldValue: ".uk"
   },
   {
     name: ".UK Domain - Billing Cycle - 6 month @webcentral @domains",
@@ -52,7 +52,7 @@ export const ukDomain = [
     registrantCountry: "United Kingdom",
     total: "£4.99",
     billingCycle: "6 month",
-    tldValue: ".uk",
+    tldValue: ".uk"
   },
   {
     name: ".UK Domain - Billing Cycle - 1 year @webcentral @domains",
@@ -70,7 +70,7 @@ export const ukDomain = [
     registrantCountry: "United Kingdom",
     total: "£9.99",
     billingCycle: "1 year",
-    tldValue: ".uk",
+    tldValue: ".uk"
   },
   {
     name: ".UK Domain - Billing Cycle - 2 year @webcentral @domains",
@@ -88,7 +88,7 @@ export const ukDomain = [
     registrantCountry: "United Kingdom",
     total: "£19.99",
     billingCycle: "2 year",
-    tldValue: ".uk",
+    tldValue: ".uk"
   },
   {
     name: ".UK Domain - Billing Cycle - 3 year @webcentral @domains",
@@ -106,7 +106,7 @@ export const ukDomain = [
     registrantCountry: "United Kingdom",
     total: "£29.99",
     billingCycle: "3 year",
-    tldValue: ".uk",
+    tldValue: ".uk"
   },
   {
     name: ".UK Domain - Billing Cycle - 4 year @webcentral @domains",
@@ -124,7 +124,7 @@ export const ukDomain = [
     registrantCountry: "United Kingdom",
     total: "£39.99",
     billingCycle: "4 year",
-    tldValue: ".uk",
+    tldValue: ".uk"
   },
   {
     name: ".UK Domain - Billing Cycle - 5 year @webcentral @domains",
@@ -142,7 +142,7 @@ export const ukDomain = [
     registrantCountry: "United Kingdom",
     total: "£49.99",
     billingCycle: "5 year",
-    tldValue: ".uk",
+    tldValue: ".uk"
   },
   {
     name: ".UK Domain - Billing Cycle - 6 year @webcentral @domains",
@@ -160,7 +160,7 @@ export const ukDomain = [
     registrantCountry: "United Kingdom",
     total: "£59.99",
     billingCycle: "6 year",
-    tldValue: ".uk",
+    tldValue: ".uk"
   },
   {
     name: ".UK Domain - Billing Cycle - 7 year @webcentral @domains",
@@ -178,7 +178,7 @@ export const ukDomain = [
     registrantCountry: "United Kingdom",
     total: "£69.99",
     billingCycle: "7 year",
-    tldValue: ".uk",
+    tldValue: ".uk"
   },
   {
     name: ".UK Domain - Billing Cycle - 8 year @webcentral @domains",
@@ -196,7 +196,7 @@ export const ukDomain = [
     registrantCountry: "United Kingdom",
     total: "£79.99",
     billingCycle: "8 year",
-    tldValue: ".uk",
+    tldValue: ".uk"
   },
   {
     name: ".UK Domain - Billing Cycle - 9 year @webcentral @domains",
@@ -214,7 +214,7 @@ export const ukDomain = [
     registrantCountry: "United Kingdom",
     total: "£89.99",
     billingCycle: "9 year",
-    tldValue: ".uk",
+    tldValue: ".uk"
   },
   {
     name: ".UK Domain - Billing Cycle - 10 year @webcentral @domains",
@@ -232,7 +232,7 @@ export const ukDomain = [
     registrantCountry: "United Kingdom",
     total: "£99.99",
     billingCycle: "10 year",
-    tldValue: ".uk",
+    tldValue: ".uk"
   },
 
   /* TRANSFERRING A DOMAIN */
@@ -253,6 +253,6 @@ export const ukDomain = [
     total: "FREE",
     billingCycle: "10 year",
     tldValue: ".uk",
-    domainSetup: "Transfer",
-  },
+    domainSetup: "Transfer"
+  }
 ];

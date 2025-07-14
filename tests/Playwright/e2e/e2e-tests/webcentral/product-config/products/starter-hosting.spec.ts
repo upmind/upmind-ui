@@ -19,7 +19,7 @@ test.describe("Product Config - Happy Paths - Starter Hosting", async () => {
     total,
     billingCycle,
     webHosting,
-    domainName,
+    domainName
   } of testCases) {
     test(name, async ({ page }) => {
       /* PRODUCT OPTIONS */

@@ -21,7 +21,7 @@ test.describe("Product Config - Happy Paths - Dev Blocks", async () => {
     development,
     bundle,
     addons,
-    tracking,
+    tracking
   } of testCases) {
     test(name, async ({ page }) => {
       /* PRODUCT OPTIONS */
@@ -34,7 +34,7 @@ test.describe("Product Config - Happy Paths - Dev Blocks", async () => {
       }
       for (const [
         checkboxGroupIndex,
-        checkboxOptionIndex,
+        checkboxOptionIndex
       ] of checkboxSelection) {
         await productConfig.checkboxes.clickCheckbox(
           checkboxGroupIndex,

@@ -2,7 +2,7 @@ import { test, expect, Page } from "@playwright/test";
 import { ProductConfig } from "../../../support/page-objects/templates/ProductConfig";
 import {
   DefaultPaymentTerms,
-  DefaultPaymentTermsWithPromo,
+  DefaultPaymentTermsWithPromo
 } from "../../../support/constants/DefaultPaymentTerms";
 
 let productConfig: ProductConfig;
@@ -25,9 +25,9 @@ async function setBillingTerm(
       status: response.status(),
       headers: {
         ...response.headers(),
-        "content-type": "application/json",
+        "content-type": "application/json"
       },
-      body,
+      body
     });
   });
 }
@@ -59,7 +59,7 @@ test.describe("Assert that billing term functionality accounts for promotional d
     termSetting,
     radioGroup,
     radioOption,
-    url,
+    url
   } of termsWithPromo) {
     test(name, async ({ page }) => {
       setBillingTerm(page, termSetting, "3de78642-de53-9714-745c-21208469530d");
