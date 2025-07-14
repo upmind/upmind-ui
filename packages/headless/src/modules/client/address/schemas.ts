@@ -4,18 +4,91 @@ import { AddressTypes } from "./types";
 import type { Address, AddressContext } from "./types";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 import { BrandConfigKeys } from "@upmind-automation/types";
+import { title } from "process";
 
-export function useSchema({
-  id,
+export function useSchemaDefinitions({
   regions,
   baseModel,
   countries,
   config
+}: Partial<AddressContext>): JsonSchema7["definitions"] {
+  const schema = {
+    address: {
+      type: "object",
+      title: "Address",
+      required: ["address1", "city", "postcode", "countryId"],
+      properties: {
+        address1: {
+          type: ["string"],
+          title: "Address"
+        },
+
+        address2: {
+          type: ["string", "null"],
+          title: ""
+        },
+
+        city: {
+          type: "string",
+          title: "City"
+        },
+
+        postcode: {
+          type: "string",
+          title: "Postcode"
+        },
+
+        regionId: {
+          type: ["string", "null"],
+          title: "Region",
+          oneOf: !regions?.length
+            ? undefined
+            : map(regions, item => ({
+                const: item.id,
+                title: item.name
+              }))
+        },
+
+        countryId: {
+          type: "string",
+          title: "Country",
+          default: baseModel?.countryId,
+          oneOf: !countries?.length
+            ? undefined
+            : map(countries, item => ({
+                const: item.id,
+                title: item.name
+              }))
+        }
+      }
+    }
+  };
+
+  // ensure we honor the brand config
+  if (get(config, BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS)) {
+    schema.address.required.push("regionId");
+  }
+
+  return schema;
+}
+
+export function useSchema({
+  id,
+  baseModel,
+  config,
+  countries,
+  regions
 }: AddressContext): JsonSchema7 {
   const schema: JsonSchema7 = {
     type: "object",
     title: "Address",
-    required: ["address1", "city", "countryId", "postcode"],
+    required: ["address"],
+    definitions: useSchemaDefinitions({
+      config,
+      countries,
+      regions,
+      baseModel
+    }),
     properties: {
       id: {
         type: ["string", "null"],
@@ -24,55 +97,13 @@ export function useSchema({
         readOnly: true
       },
 
-      // ---
-      address1: {
-        type: ["string"],
-        title: "Address"
-      },
-
-      address2: {
-        type: ["string", "null"],
-        title: ""
-      },
-
-      city: {
-        type: "string",
-        title: "City"
-      },
-
-      postcode: {
-        type: "string",
-        title: "Postcode"
-      },
-
-      regionId: {
-        type: ["string", "null"],
-        title: "Region",
-        oneOf: !regions?.length
-          ? undefined
-          : map(regions, item => ({
-              const: item.id,
-              title: item.name
-            }))
-      },
-
-      countryId: {
-        type: "string",
-        title: "Country",
-        default: baseModel?.countryId,
-        oneOf: !countries?.length
-          ? undefined
-          : map(countries, item => ({
-              const: item.id,
-              title: item.name
-            }))
-      },
-
       name: {
         type: ["string", "null"],
         title: "Name",
         default: baseModel?.name
-      }
+      },
+
+      address: { $ref: "#/definitions/address" }
 
       // --- DEPRECATED
       // type: {
@@ -94,22 +125,17 @@ export function useSchema({
     schema.required!.push("name");
   }
 
-  // ensure we honor the brand config
-  if (get(config, BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS)) {
-    schema.required!.push("regionId");
-  }
-
   return schema;
 }
 
-export function useUischema({
-  id
-}: Partial<AddressContext> = {}): UISchemaElement {
-  const schema = {
-    type: "VerticalLayout",
-    elements: [
-      // ---
-      {
+export function useUischemaDefinitions({ id }: Partial<AddressContext> = {}) {
+  return {
+    type: "Control",
+    scope: "#/properties/address",
+    options: {
+      autoFocus: true,
+      autocomplete: "off",
+      detail: {
         type: "VerticalLayout",
         elements: [
           {
@@ -186,7 +212,16 @@ export function useUischema({
           }
         ]
       }
-    ]
+    }
+  };
+}
+
+export function useUischema({
+  id
+}: Partial<AddressContext> = {}): UISchemaElement {
+  const schema = {
+    type: "VerticalLayout",
+    elements: [useUischemaDefinitions({ id })]
   };
 
   return schema as UISchemaElement;

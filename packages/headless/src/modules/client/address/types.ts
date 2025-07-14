@@ -20,14 +20,16 @@ export const ADDRESS_TYPE_KEYS = {
 
 export interface AddressModel {
   id?: IAddress["id"];
-  address1: IAddress["address_1"];
-  address2?: IAddress["address_2"];
-  city: IAddress["city"];
-  countryId: IAddress["country_id"];
   name?: IAddress["name"];
-  postcode: IAddress["postcode"];
-  regionId?: IAddress["region_id"];
-  state?: IAddress["state"];
+  address: {
+    address1: IAddress["address_1"];
+    address2?: IAddress["address_2"];
+    city: IAddress["city"];
+    countryId: IAddress["country_id"];
+    postcode: IAddress["postcode"];
+    regionId?: IAddress["region_id"];
+    state?: IAddress["state"];
+  };
   // type: IAddress["type"]; // deprecated
 }
 

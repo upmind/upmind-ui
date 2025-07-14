@@ -103,7 +103,7 @@ async function loadLookups({
       type == UnifiedType.PERSONAL
         ? ({
             countryId: country?.id
-          } as AddressModel)
+          } as AddressModel["address"])
         : undefined,
     company:
       type == UnifiedType.BUSINESS
@@ -160,7 +160,7 @@ async function add(type: UnifiedType, data: UnifiedModel) {
 
   promises.push(
     data?.address && type == UnifiedType.PERSONAL
-      ? ensureAddress({ model: data.address })
+      ? ensureAddress({ model: { address: data.address } })
       : Promise.resolve(undefined)
   );
 
@@ -228,7 +228,7 @@ async function parse(
       city: null,
       postcode: null,
       countryId: baseModel.address?.countryId
-    } as AddressModel;
+    } as AddressModel["address"];
 
     country = getCountry(
       safeModel.company?.address?.countryId ?? baseModel.address?.countryId

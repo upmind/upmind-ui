@@ -9,7 +9,7 @@ export const EmailTypes = [{ key: 1, value: "Account" }];
 
 export interface EmailModel {
   id?: IEmail["id"];
-  email: IEmail["email"];
+  email: IEmail["email"] | null;
   // type: IEmail["type"]; // deprecated
 }
 

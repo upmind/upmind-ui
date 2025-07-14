@@ -30,13 +30,15 @@ export function mapAddress(raw: IAddress): Address {
     ]).join(", "),
     // ---
     name: raw.name,
-    address1: raw.address_1,
-    address2: raw.address_2,
-    city: raw.city,
-    state: raw.state,
-    postcode: raw.postcode,
-    regionId: raw.region_id,
-    countryId: raw.country_id,
+    address: {
+      address1: raw.address_1,
+      address2: raw.address_2,
+      city: raw.city,
+      state: raw.state,
+      postcode: raw.postcode,
+      regionId: raw.region_id,
+      countryId: raw.country_id
+    },
     type: raw.type,
     // ---
     meta: {
@@ -50,14 +52,14 @@ export function mapAddress(raw: IAddress): Address {
 export function mapIAddress(data: AddressModel): IAddress {
   return omitBy(
     {
-      name: data.name || data.address1 || "Address",
-      address_1: data.address1,
-      address_2: data.address2,
-      city: data.city,
-      state: data.state,
-      postcode: data.postcode,
-      region_id: data.regionId,
-      country_id: data.countryId,
+      name: data.name || data.address.address1 || "Address",
+      address_1: data.address.address1,
+      address_2: data.address.address2,
+      city: data.address.city,
+      state: data.address.state,
+      postcode: data.address.postcode,
+      region_id: data.address.regionId,
+      country_id: data.address.countryId,
       type: 1 // We are forcing type to always be 1 for simplicity
     } as IAddress,
     isNil

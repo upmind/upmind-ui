@@ -71,12 +71,10 @@ export const useClientCompanies = (
     RequestFilters & {
       query?: string;
     }
-  >({
-    query: ""
-  });
+  >({});
 
   const filterQuery = (value?: string) => {
-    set(filters.value, "query", value || "");
+    set(filters.value, "query", value);
     query.filter(filters.value);
   };
 
