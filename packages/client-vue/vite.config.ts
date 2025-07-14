@@ -9,15 +9,15 @@ export default defineConfig({
     dts({
       entryRoot: "src",
       outDir: "dist",
-      tsconfigPath: "tsconfig.build.json",
-    }),
+      tsconfigPath: "tsconfig.build.json"
+    })
   ],
   build: {
     lib: {
       entry: resolve(__dirname, "src/index.ts"),
       name: "@upmind-automation/client-vue",
       fileName: "index",
-      formats: ["es"],
+      formats: ["es"]
     },
     rollupOptions: {
       external: ["vue", "vue-router"],
@@ -25,10 +25,10 @@ export default defineConfig({
         globals: {
           vue: "Vue",
           "vue-router": "VueRouter",
-          "vue-i18n": "VueI18n",
-        },
-      },
-    },
+          "vue-i18n": "VueI18n"
+        }
+      }
+    }
   },
   resolve: {
     alias: {
@@ -43,7 +43,7 @@ export default defineConfig({
         "../headless/src/index.ts"
       ),
 
-      "@upmind-automation/upmind-ui": resolve(__dirname, "../ui/src/index.ts"),
-    },
-  },
+      "@upmind-automation/upmind-ui": resolve(__dirname, "../ui/src/index.ts")
+    }
+  }
 });

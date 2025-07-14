@@ -4,7 +4,7 @@ import { URLs } from "../support/constants/Urls";
 import { getSessionToken } from "../support/utils/functions/tokens";
 import {
   getCurrentOrderId,
-  addProductToOrder,
+  addProductToOrder
 } from "../support/utils/functions/basket";
 
 test.describe("Basket Tests", () => {

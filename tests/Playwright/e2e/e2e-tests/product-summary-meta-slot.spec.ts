@@ -17,7 +17,7 @@ test.describe("Product Config Meta Elements", () => {
     await expect(productConfig.summaryMetaSlot).toHaveCount(1);
   });
   test("Summary Meta Slot - Applied to category and product", async ({
-    page,
+    page
   }) => {
     await page.goto(URLs.starterHosting);
     await expect(productConfig.summaryMetaSlot).toHaveCount(1);

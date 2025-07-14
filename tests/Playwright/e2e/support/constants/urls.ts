@@ -50,5 +50,5 @@ export const URLs = {
   apiUrl: "https://api.staging.upmind.io/",
   apiOrigin: `${baseUrl}`,
   apiGetToken: "oauth/access_token",
-  apiGetBasket: "client/orders/current",
+  apiGetBasket: "client/orders/current"
 };

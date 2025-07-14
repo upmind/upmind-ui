@@ -28,7 +28,7 @@ test.describe("Product Config - Domains (.co.uk)", async () => {
     registrantCountry,
     total,
     billingCycle,
-    tldValue,
+    tldValue
   } of testCases) {
     test(name, async ({ page }) => {
       /* PRODUCT OPTIONS */
@@ -41,7 +41,7 @@ test.describe("Product Config - Domains (.co.uk)", async () => {
       }
       for (const [
         checkboxGroupIndex,
-        checkboxOptionIndex,
+        checkboxOptionIndex
       ] of checkboxSelection) {
         await productConfig.checkboxes.clickCheckbox(
           checkboxGroupIndex,

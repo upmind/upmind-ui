@@ -87,7 +87,7 @@ export const useBrand = () => {
         "processing.config.complete",
         "processing.settings.complete",
         "processing.modules.complete",
-        "processing.currencies.complete",
+        "processing.currencies.complete"
       ].some(state.value.matches),
 
       /**
@@ -103,8 +103,8 @@ export const useBrand = () => {
         "config.error",
         "settings.error",
         "modules.error",
-        "currencies.error",
-      ].some(state.value.matches),
+        "currencies.error"
+      ].some(state.value.matches)
     })),
 
     /**
@@ -162,6 +162,6 @@ export const useBrand = () => {
      */
     getMeta: computed(() => {
       return state.value.context.meta;
-    }),
+    })
   };
 };

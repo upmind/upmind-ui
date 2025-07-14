@@ -14,29 +14,29 @@ export const DefaultPaymentTerms = [
     termSetting: 0,
     radioGroup: 0,
     radioOption: 0,
-    url: `${URLs.paymentTerms}`,
+    url: `${URLs.paymentTerms}`
   },
   {
     name: "Default Payment Term - Lowest Price",
     termSetting: 1,
     radioGroup: 0,
     radioOption: 0,
-    url: `${URLs.paymentTerms}`,
+    url: `${URLs.paymentTerms}`
   },
   {
     name: "Default Payment Term - Lowest Monthly Price",
     termSetting: 2,
     radioGroup: 0,
     radioOption: 2,
-    url: `${URLs.paymentTerms}`,
+    url: `${URLs.paymentTerms}`
   },
   {
     name: "Default Payment Term - Highest Price",
     termSetting: 3,
     radioGroup: 0,
     radioOption: 2,
-    url: `${URLs.paymentTerms}`,
-  },
+    url: `${URLs.paymentTerms}`
+  }
 ];
 
 export const DefaultPaymentTermsWithPromo = [
@@ -45,27 +45,27 @@ export const DefaultPaymentTermsWithPromo = [
     termSetting: 0,
     radioGroup: 0,
     radioOption: 0,
-    url: `${URLs.paymentTermsPromo}`,
+    url: `${URLs.paymentTermsPromo}`
   },
   {
     name: "Default Payment Term - Lowest Price - Promotion Applied",
     termSetting: 1,
     radioGroup: 0,
     radioOption: 0,
-    url: `${URLs.paymentTermsPromo}`,
+    url: `${URLs.paymentTermsPromo}`
   },
   {
     name: "Default Payment Term - Lowest Monthly Price - Promotion Applied",
     termSetting: 2,
     radioGroup: 0,
     radioOption: 2,
-    url: `${URLs.paymentTermsPromo}`,
+    url: `${URLs.paymentTermsPromo}`
   },
   {
     name: "Default Payment Term - Highest Price - Promotion Applied",
     termSetting: 3,
     radioGroup: 0,
     radioOption: 1,
-    url: `${URLs.paymentTermsPromo}`,
-  },
+    url: `${URLs.paymentTermsPromo}`
+  }
 ];

@@ -19,7 +19,7 @@ test.describe("Product Config - Happy Paths - Domain (.com)", async () => {
     sldValue,
     total,
     billingCycle,
-    tldValue,
+    tldValue
   } of testCases) {
     test(name, async ({ page }) => {
       /* PRODUCT OPTIONS */
@@ -32,7 +32,7 @@ test.describe("Product Config - Happy Paths - Domain (.com)", async () => {
       }
       for (const [
         checkboxGroupIndex,
-        checkboxOptionIndex,
+        checkboxOptionIndex
       ] of checkboxSelection) {
         await productConfig.checkboxes.clickCheckbox(
           checkboxGroupIndex,

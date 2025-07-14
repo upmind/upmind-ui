@@ -6,8 +6,8 @@ export async function getCurrentOrder(token: string) {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
-      Accept: "application/json",
-    },
+      Accept: "application/json"
+    }
   });
 
   if (!response.ok) {
@@ -32,8 +32,8 @@ export async function getCurrentOrderId(token: string): Promise<string | null> {
       origin: `${URLs.apiOrigin}`,
       referer: `${URLs.apiUrl}`,
       "user-agent":
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
-    },
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
+    }
   });
 
   const response = await context.get(
@@ -66,8 +66,8 @@ export async function addProductToOrder(
       origin: `${URLs.apiOrigin}`,
       referer: `${URLs.apiUrl}`,
       "user-agent":
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
-    },
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
+    }
   });
 
   const response = await context.post(
@@ -80,8 +80,8 @@ export async function addProductToOrder(
         attributes: attributeValues,
         options: optionValues,
         provision_field_values: provisionFields,
-        promotions: promotionValues,
-      },
+        promotions: promotionValues
+      }
     }
   );
 

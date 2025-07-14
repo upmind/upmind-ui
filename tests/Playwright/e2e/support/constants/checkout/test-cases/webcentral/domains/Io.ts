@@ -16,6 +16,6 @@ export const ioDomain = [
     registrantCountry: "United Kingdom",
     total: "£2.00",
     billingCycle: "1 year",
-    tldValue: ".io",
-  },
+    tldValue: ".io"
+  }
 ];

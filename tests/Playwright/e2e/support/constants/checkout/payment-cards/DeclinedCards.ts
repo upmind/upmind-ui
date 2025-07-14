@@ -5,7 +5,7 @@ export const DeclinedCards = [
     expiryDate: "12/50",
     cvcCode: "123",
     dialogText:
-      "Your card was declined. Please click below to go to your invoice where you can retry your payment.",
+      "Your card was declined. Please click below to go to your invoice where you can retry your payment."
   },
   {
     name: "Insufficient Funds",
@@ -13,7 +13,7 @@ export const DeclinedCards = [
     expiryDate: "12/50",
     cvcCode: "123",
     dialogText:
-      "Your card has insufficient funds. Please click below to go to your invoice where you can retry your payment.",
+      "Your card has insufficient funds. Please click below to go to your invoice where you can retry your payment."
   },
   {
     name: "Lost Card",
@@ -21,7 +21,7 @@ export const DeclinedCards = [
     expiryDate: "12/50",
     cvcCode: "123",
     dialogText:
-      "Your card was declined. Please click below to go to your invoice where you can retry your payment.",
+      "Your card was declined. Please click below to go to your invoice where you can retry your payment."
   },
   {
     name: "Stolen Card",
@@ -29,7 +29,7 @@ export const DeclinedCards = [
     expiryDate: "12/50",
     cvcCode: "123",
     dialogText:
-      "Your card was declined. Please click below to go to your invoice where you can retry your payment.",
+      "Your card was declined. Please click below to go to your invoice where you can retry your payment."
   },
   {
     name: "Expired Card",
@@ -37,7 +37,7 @@ export const DeclinedCards = [
     expiryDate: "12/50",
     cvcCode: "123",
     dialogText:
-      "Your card has expired. Please click below to go to your invoice where you can retry your payment.",
+      "Your card has expired. Please click below to go to your invoice where you can retry your payment."
   },
   {
     name: "Incorrect Cvc",
@@ -45,7 +45,7 @@ export const DeclinedCards = [
     expiryDate: "12/50",
     cvcCode: "123",
     dialogText:
-      "Your card's security code is incorrect. Please click below to go to your invoice where you can retry your payment.",
+      "Your card's security code is incorrect. Please click below to go to your invoice where you can retry your payment."
   },
   {
     name: "Processing Error",
@@ -53,7 +53,7 @@ export const DeclinedCards = [
     expiryDate: "12/50",
     cvcCode: "123",
     dialogText:
-      "An error occurred while processing your card. Try again in a little bit. Please click below to go to your invoice where you can retry your payment.",
+      "An error occurred while processing your card. Try again in a little bit. Please click below to go to your invoice where you can retry your payment."
   },
   {
     name: "Exceeded Velocity Error",
@@ -61,6 +61,6 @@ export const DeclinedCards = [
     expiryDate: "12/50",
     cvcCode: "123",
     dialogText:
-      "Your card was declined for making repeated attempts too frequently or exceeding its amount limit. Please click below to go to your invoice where you can retry your payment.",
-  },
+      "Your card was declined for making repeated attempts too frequently or exceeding its amount limit. Please click below to go to your invoice where you can retry your payment."
+  }
 ];
