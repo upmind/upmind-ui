@@ -8,6 +8,9 @@
         <BreadcrumbItem>
           <BreadcrumbPage
             v-if="item.current || index === props.items.length - 1"
+            :class="{
+              'text-emphasis-high': index === props.items.length - 1
+            }"
           >
             {{ item.label }}
           </BreadcrumbPage>
