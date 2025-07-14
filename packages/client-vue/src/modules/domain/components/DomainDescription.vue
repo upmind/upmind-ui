@@ -12,18 +12,11 @@
       <template v-else-if="meta?.available && !meta.owned">
         <template v-if="meta.discounted">
           {{
-<<<<<<< Updated upstream
-            t("domain.card.available.description.discounted", [
-              price.regularPrice,
-              price.currentPrice,
-            ])
-=======
             t("domain.card.available.description.discounted", {
               regularPrice: price.regularPrice,
               currentPrice: price.currentPrice,
-              count: Math.floor((props.cycle ?? 0) / 12)
+              count: Math.floor((props.cycle ?? 0) / 12),
             })
->>>>>>> Stashed changes
           }}
         </template>
         <template v-else>

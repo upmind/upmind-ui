@@ -116,10 +116,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
     hasAttributes: !isEmpty(state.value.context?.lookups?.attributes),
     hasOptions: !isEmpty(state.value.context?.lookups?.options),
     hasTerms: !isEmpty(state.value.context?.lookups?.terms),
-    hasMonthlyTerms: some(
-      state.value.context?.lookups?.terms,
-      ({ cycle }) => cycle > 0
-    ),
+    hasMonthlyTerms: some(state.value.context?.lookups?.terms, ["cycle", 1]),
     hasTaxIncluded: checkIncludesTax(),
   }));
 
