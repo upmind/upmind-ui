@@ -15,7 +15,7 @@ export function mapPhones(raw: IPhone | IPhone[]): Phone[] {
 
 export function mapPhone(raw: IPhone): Phone {
   const phone = parsePhoneNumber(
-    raw.phone || "",
+    raw.phone ?? "",
     raw.phone_country_code as CountryCode
   );
 
@@ -24,10 +24,10 @@ export function mapPhone(raw: IPhone): Phone {
     title: get(raw, "international_phone"),
     description: compact([get(raw, "phone_country_code")]).join(" | "),
     phone: {
-      number: phone?.number ?? "",
-      country: phone?.country ?? "",
-      nationalNumber: phone?.nationalNumber ?? "",
-      countryCallingCode: phone?.countryCallingCode ?? ""
+      number: phone?.number ?? null,
+      country: phone?.country ?? null,
+      nationalNumber: phone?.nationalNumber ?? null,
+      countryCallingCode: phone?.countryCallingCode ?? null
     },
     type: raw.type,
     // ---

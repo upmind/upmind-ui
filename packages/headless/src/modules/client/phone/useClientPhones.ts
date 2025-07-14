@@ -75,7 +75,7 @@ export const useClientPhones = (
   });
 
   const filterQuery = (value?: string) => {
-    set(filters.value, "query", value || "");
+    set(filters.value, "query", value ?? "");
     query.filter(filters.value);
   };
 

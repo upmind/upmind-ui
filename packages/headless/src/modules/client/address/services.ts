@@ -79,8 +79,8 @@ async function loadLookups({
     )
   );
   const countries = await fetchCountries();
-  const country = getCountry(model?.countryId);
-  const regions = await fetchRegions(model?.countryId || country?.id);
+  const country = getCountry(model?.address?.countryId);
+  const regions = await fetchRegions(model?.address?.countryId || country?.id);
 
   const { ensureConfig } = useBrand();
   const config = await ensureConfig([
@@ -98,10 +98,12 @@ async function loadLookups({
   }
 
   const baseModel: AddressModel = {
-    countryId: country?.id,
-    address1: "",
-    city: "",
-    postcode: ""
+    address: {
+      countryId: country?.id,
+      address1: null,
+      city: null,
+      postcode: null
+    }
   };
 
   const safeModel = useModelParser<AddressModel>(schema, model, baseModel);
@@ -256,23 +258,23 @@ async function parse(
 
   // first let's check we have a valid country,
   // fallback to the default country if not set or invalid
-  country = getCountry(safeModel?.countryId);
-  safeModel.countryId = country.id;
+  country = getCountry(safeModel.address?.countryId);
+  safeModel.address.countryId = country.id;
 
   // let's check if the country has changed, i.e.: the regions don't match
   // if so, then we need to fetch the regions for the new country
   // AND update our 'default' country to match the country from the address
   // this will in turn update the phone schema to match the country
-  if (!some(regions, ["countryId", safeModel?.countryId])) {
-    regions = await fetchRegions(safeModel.countryId);
-    country = getCountry(safeModel.countryId);
+  if (!some(regions, ["countryId", safeModel?.address?.countryId])) {
+    regions = await fetchRegions(safeModel.address.countryId);
+    country = getCountry(safeModel.address.countryId);
   }
 
   // now let's check our region list to see if we have a match
   // if so, then we need to update the safeModel with the new region id
   // otherwise the regionId is reset to null
-  const region = find(regions, ["id", safeModel?.regionId]);
-  safeModel.regionId = get(region, "id");
+  const region = find(regions, ["id", safeModel?.address?.regionId]);
+  safeModel.address.regionId = get(region, "id");
 
   return Promise.resolve({ model: safeModel, regions, country });
 }

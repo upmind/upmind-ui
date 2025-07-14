@@ -18,16 +18,16 @@ export const useClientAddressActions = () => {
   return {
     setMeta: assign({
       title: ({ model }: AddressContext) =>
-        model?.name || model?.address1 || "New Address",
+        model?.name || model?.address?.address1 || "New Address",
       description: ({ model }: AddressContext) => {
         return compact([
-          get(model, "address1"),
-          get(model, "address2"),
-          get(model, "street"),
-          get(model, "city"),
-          get(model, "postcode"),
-          get(model, "region.name"),
-          get(model, "country.name")
+          get(model, "address.address1"),
+          get(model, "address.address2"),
+          get(model, "address.street"),
+          get(model, "address.city"),
+          get(model, "address.postcode"),
+          get(model, "address.region.name"),
+          get(model, "address.country.name")
         ]).join(", ");
       }
     }),

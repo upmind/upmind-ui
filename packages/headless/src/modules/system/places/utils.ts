@@ -18,17 +18,17 @@ function parseCountry(
     includes(entry.types, "country")
   );
 
-  return getCountry(country?.shortText || "");
+  return getCountry(country?.shortText);
 }
 
 async function parseRegion(
-  regionLevel1: string,
-  regionLevel2: string,
+  regionLevel1: string | null | undefined,
+  regionLevel2: string | null | undefined,
   country: string
 ) {
   const { fetchRegions, getRegion } = useSystem();
   return fetchRegions(country).then(() =>
-    getRegion([regionLevel1, regionLevel2], country)
+    getRegion([regionLevel1 ?? "", regionLevel2 ?? ""], country)
   );
 }
 
@@ -40,7 +40,7 @@ function parseValue(
     some(entry.types, type => includes(fields, type))
   );
 
-  return value?.longText || "";
+  return value?.longText ?? null;
 }
 
 // -----------------------------------------------------------------------------
@@ -72,7 +72,7 @@ export async function usePlaceParser(
   const region = await parseRegion(
     parseValue(address, ["administrative_area_level_1"]),
     parseValue(address, ["administrative_area_level_2"]),
-    country?.code ?? ""
+    country?.code ?? null
   );
 
   const fallbackTitle = compact([
@@ -87,10 +87,9 @@ export async function usePlaceParser(
     title,
     description: place.formattedAddress || fallbackTitle,
     address: {
-      name,
       city,
       postcode,
-      address1: address_1.length ? address_1.join(" ") : "",
+      address1: address_1.length ? address_1.join(" ") : null,
       address2: address_2.length ? address_2.join(" ") : undefined,
       regionId: get(region, "id"),
       countryId: get(country, "id")

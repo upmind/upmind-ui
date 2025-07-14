@@ -76,17 +76,6 @@ Sentry.init({
   // We recommend adjusting this value in production
   tracesSampleRate: 1.0,
 
-  // Set `tracePropagationTargets` to control for which URLs trace propagation should be enabled
-  tracePropagationTargets: [
-    /^https:\/\/checkout-upmind\.web\.app\.io/,
-    /^https:\/\/checkout\.upmind\.com/
-  ],
-
-  allowUrls: [
-    /^https:\/\/checkout-upmind\.web\.app\.io/,
-    /^https:\/\/checkout\.upmind\.com/
-  ],
-
   // Capture Replay for 10% of all sessions,
   // plus for 100% of sessions with an error
   // replaysSessionSampleRate: 0.1,

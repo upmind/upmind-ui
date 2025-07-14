@@ -18,10 +18,7 @@ export const useUnifiedActions = () => {
   return {
     setMeta: assign({
       title: ({ model }: UnifiedContext) =>
-        model?.company?.name ||
-        model?.address?.name ||
-        model?.address?.address1 ||
-        "Address",
+        model?.company?.name || model?.address?.address1 || "Address",
       description: ({ model }: UnifiedContext) => {
         const address = compact([
           get(model, "address.address1"),

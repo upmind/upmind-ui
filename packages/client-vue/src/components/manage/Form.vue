@@ -30,9 +30,9 @@
         :processing="meta.isProcessing"
         :no-actions="noActions"
       >
-        <template #actions="{ doReject, doResolve }">
+        <template #actions="{ doReject, doResolve, meta: formMeta }">
           <Actions
-            v-show="modal || meta.isDirty"
+            v-show="modal || meta.isDirty || formMeta.isTouched"
             :i18nKey="i18nKey"
             :disabled="meta.isProcessing"
             :processing="meta.isProcessing"
