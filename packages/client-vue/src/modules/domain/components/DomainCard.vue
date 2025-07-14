@@ -35,6 +35,7 @@
           v-if="meta.isAvailable"
           v-bind="domain"
           :title="props.domain"
+          :cycle="domain.configuration.term"
         />
       </div>
     </header>
@@ -44,9 +45,11 @@
         v-if="meta.isAvailable"
         :meta="domain.meta"
         :price="domain.price"
+        :cycle="domain.configuration.term"
       />
 
       <DomainActions
+        :cycle="domain.configuration.term"
         :domain="domain.domain"
         :tld="domain.tld"
         :meta="domain.meta"

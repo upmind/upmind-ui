@@ -12,15 +12,27 @@
       <template v-else-if="meta?.available && !meta.owned">
         <template v-if="meta.discounted">
           {{
+<<<<<<< Updated upstream
             t("domain.card.available.description.discounted", [
               price.regularPrice,
               price.currentPrice,
             ])
+=======
+            t("domain.card.available.description.discounted", {
+              regularPrice: price.regularPrice,
+              currentPrice: price.currentPrice,
+              count: Math.floor((props.cycle ?? 0) / 12)
+            })
+>>>>>>> Stashed changes
           }}
         </template>
         <template v-else>
           {{
-            t("domain.card.available.description.regular", [price.currentPrice])
+            t("domain.card.available.description.regular", {
+              regularPrice: price.regularPrice,
+              currentPrice: price.currentPrice,
+              count: Math.floor((props.cycle ?? 0) / 12),
+            })
           }}
         </template>
       </template>
@@ -35,10 +47,12 @@ import Description from "../../../components/content/Description.vue";
 // --- external
 import { useI18n } from "vue-i18n";
 
+// --- utils
+
 // --- types
 import type { DomainSummaryProps } from "../types";
 
-defineProps<DomainSummaryProps>();
+const props = defineProps<DomainSummaryProps>();
 
 const emit = defineEmits(["update"]);
 
