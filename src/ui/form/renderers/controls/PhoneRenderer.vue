@@ -182,9 +182,7 @@ function parsePhone(
     ? value
     : value?.nationalNumber || value?.number || "";
 
-  const code = !isString(value)
-    ? (value?.country ?? countryCode ?? defaultCountryCode)
-    : (countryCode ?? defaultCountryCode);
+  const code = countryCode ?? defaultCountryCode;
 
   let parsed;
   try {
@@ -215,7 +213,7 @@ function onCountyInput(value: any) {
 
 function onPhoneInput(value: string | number) {
   try {
-    phone.value = parsePhone(value as string);
+    phone.value = parsePhone(value as string, phone.value?.country);
     onInput(
       requiresString ? phone.value.number : phone.value,
       !isEmpty(phone.value) // NB only set touched IF we also have a phone number
