@@ -40,7 +40,7 @@ export default {
       icon: cva("mb-1 hidden md:block", {
         variants: {
           isAvailable: {
-            true: "text-secondary",
+            true: "text-primary",
             false: "text-emphasis-disabled"
           }
         }
