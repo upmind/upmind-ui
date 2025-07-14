@@ -227,7 +227,7 @@ function onChange({ data, errors: newErrors }: JsonFormsChangeEvent) {
   const rawModel = JSON.parse(JSON.stringify(model.value));
 
   if (!isEqual(rawData, rawModel)) {
-    touched.value = true;
+    // touched.value = true;
     model.value = data;
     emits("update:modelValue", model.value);
 
