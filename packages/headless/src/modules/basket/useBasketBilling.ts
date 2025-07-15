@@ -92,10 +92,6 @@ export const useBasketBilling = () => {
 
   // --- methods
 
-  function input(value: BillingModel) {
-    actor.value?.send({ type: "SET", data: toRaw(unref(value)) });
-  }
-
   async function update(value: BillingModel): Promise<void> {
     // first check if our fields have change, ie: model.code has changed
     value = omitBy(toRaw(unref(value)), isEmpty);
@@ -103,7 +99,7 @@ export const useBasketBilling = () => {
 
     if (!isEmpty(value) && !isEqual(value, model)) {
       actor.value?.send({ type: "SET", data: value, update: true });
-    } else {
+    } else if (!isEmpty(value)) {
       actor.value?.send({ type: "UPDATE" });
     }
     // then wait for the paymentGateway actor to be updated
@@ -201,13 +197,6 @@ export const useBasketBilling = () => {
 
     /** Clears the billing state. */
     clear,
-
-    /**
-     * Sends a SET event to update the billing model.
-     * @param {BillingModel} value The billing model to set.
-     * @returns {void} Does not return anything.
-     */
-    input,
 
     /**
      * Updates the billing if the code has changed.
