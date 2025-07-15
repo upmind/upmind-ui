@@ -1,7 +1,6 @@
 <template>
   <Loading :active="meta.isProcessing" class="w-full rounded-lg">
     <Tabs
-      v-if="meta.isAvailable"
       :as="props.as"
       class="min-h-56"
       v-model="activeTab"
