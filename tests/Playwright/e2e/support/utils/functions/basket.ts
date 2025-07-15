@@ -1,5 +1,5 @@
 import { request, APIRequestContext } from "@playwright/test";
-import { URLs } from "../../constants/Urls";
+import { URLs } from "../../constants/urls";
 
 export async function getCurrentOrder(token: string) {
   const response = await fetch(`${URLs.apiUrl}api/orders/current`, {

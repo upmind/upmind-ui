@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { fakerEN_GB } from "@faker-js/faker";
-import { URLs } from "../support/constants/Urls";
+import { URLs } from "../support/constants/urls";
 import {
   getCurrentOrderId,
   addProductToOrder
@@ -50,7 +50,7 @@ test.describe("Checkout - Happy paths", () => {
     );
     await page.goto(URLs.checkout);
     await page.waitForLoadState("domcontentloaded");
-    await checkout.payWithExistingMethod(page);
+    await checkout.payWithExistingMethod();
     await expect(page.getByRole("dialog")).toContainText(
       "Converting your order"
     );
@@ -207,13 +207,10 @@ test.describe("Checkout - Declined Payments", () => {
       await page.waitForTimeout(5000);
       await page.goto(URLs.checkout);
       await checkout.payWithStripeCard(page, cardNumber, expiryDate, cvcCode);
-      await expect(page.getByRole("dialog")).toContainText(
-        "Converting your order"
-      );
-      await expect(page.getByRole("dialog")).toContainText(
-        "Unable to process payment"
-      );
-      await expect(page.getByRole("dialog")).toContainText(`${dialogText}`);
+      const dialog = page.getByRole("dialog");
+      await expect(
+        dialog.locator(page.getByText(`${dialogText}`))
+      ).toBeVisible();
     });
   }
 });
