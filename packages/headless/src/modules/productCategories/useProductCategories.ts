@@ -133,6 +133,10 @@ export const useProductCategories = (initial?: QueryProps) => {
     return children;
   }
 
+  function getParent(id: ProductCategory["id"]) {
+    return getOne(id)?.parent;
+  }
+
   // ---------------------------------------------------------------------------
 
   return {
@@ -202,6 +206,13 @@ export const useProductCategories = (initial?: QueryProps) => {
      * @returns An array of child categories.
      */
     getChildren,
+
+    /**
+     * Get the parent of a category.
+     * @param id The id of the category to get the parent for.
+     * @returns The parent category if found, is otherwise undefined.
+     */
+    getParent,
 
     /**
      * Refresh the query to get the latest data.

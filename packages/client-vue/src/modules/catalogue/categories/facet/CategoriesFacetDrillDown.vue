@@ -1,23 +1,38 @@
 <template>
+  <section :class="styles.products.facet.drillDown.items">
+    <Button
+      :as="RouterLink"
+      v-for="(category, index) in items"
+      :key="`category-${index}`"
+      :to="category.to"
+      variant="ghost"
+      size="sm"
+      :class="
+        cn([
+          styles.products.facet.drillDown.action,
+          category.current && 'bg-control-active-muted'
+        ])
+      "
+      @click="category.handler"
+      :label="category.label"
+    >
+      <template #append>
+        <Icon icon="chevron-right" size="2xs" />
+      </template>
+    </Button>
+  </section>
+
   <Button
-    :as="RouterLink"
-    v-for="(category, index) in items"
-    :key="`category-${index}`"
-    :to="category.to"
-    variant="ghost"
+    v-if="modelValue"
+    variant="outline"
+    color="base"
     size="sm"
-    :class="
-      cn([
-        styles.products.facet.drillDown.button,
-        category.current && 'bg-control-active-muted'
-      ])
-    "
-    @click="category.handler"
-    :label="category.label"
-    block
+    :class="styles.products.facet.drillDown.back"
+    :label="'Back'"
+    @click="back"
   >
-    <template #append>
-      <Icon icon="chevron-right" size="2xs" />
+    <template #prepend>
+      <Icon icon="arrow-left" size="3xs" />
     </template>
   </Button>
 </template>
@@ -36,7 +51,7 @@ import config from "../../catalogue.config";
 import { Icon, Button, cn, useStyles } from "@upmind-automation/upmind-ui";
 
 // --- utils
-import { map, clone, concat } from "lodash-es";
+import { map } from "lodash-es";
 
 // --- types
 import type { ProductCategory } from "@upmind-automation/headless";
@@ -49,7 +64,7 @@ import type { CategoriesFacetProps } from "../types";
 const props = defineProps<CategoriesFacetProps>();
 const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
 
-const { filter, getChildren, getOne } = useProductCategories();
+const { filter, getChildren, getOne, getParent } = useProductCategories();
 
 const { t } = useI18n();
 
@@ -61,7 +76,9 @@ const styles = useStyles(
   products: {
     facet: {
       drillDown: {
-        button: string;
+        action: string;
+        back: string;
+        items: string;
       };
     };
   };
@@ -73,6 +90,14 @@ const filteredCategories = computed((): ProductCategory[] => {
   if (!props.query) return getChildren(modelValue.value);
 
   return filter(props.query, modelValue.value);
+});
+
+const currentCategory = computed(() => {
+  return getOne(modelValue.value ?? "");
+});
+
+const parentCategory = computed(() => {
+  return getParent(modelValue.value ?? "");
 });
 
 const createCategoryItem = (category: ProductCategory) => ({
@@ -96,10 +121,17 @@ const createCategoryItem = (category: ProductCategory) => ({
 
 const items = computed(() => {
   const items = map(filteredCategories.value, createCategoryItem);
-  const currentCategory = getOne(modelValue.value ?? "");
 
-  return currentCategory
-    ? [createCategoryItem(currentCategory), ...items]
+  return currentCategory.value
+    ? [createCategoryItem(currentCategory.value), ...items]
     : items;
 });
+
+const back = () => {
+  if (parentCategory.value) {
+    modelValue.value = parentCategory.value;
+  } else {
+    modelValue.value = undefined;
+  }
+};
 </script>
