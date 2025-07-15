@@ -1,4 +1,4 @@
-import { URLs } from "./Urls";
+import { URLs } from "./urls";
 
 /* 
 Pricing values, for reference:

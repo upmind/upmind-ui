@@ -1,5 +1,5 @@
 import { Page } from "@playwright/test";
-import { URLs } from "../../constants/Urls";
+import { URLs } from "../../constants/urls";
 import { faker } from "@faker-js/faker";
 
 /* Logs in as checkout test user */
