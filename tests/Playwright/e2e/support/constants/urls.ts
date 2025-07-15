@@ -30,6 +30,8 @@ export const URLs = {
   netDomain: `${baseUrl}product/add/5952098d-3de4-0917-774c-31578626e347`,
   ukDomain: `${baseUrl}product/add/4d036794-24d0-e710-448b-3153698d582e`,
 
+  managementTraining: `${baseUrl}product/add/20403869-6e54-721d-2e7c-518d9305e7d2`,
+
   /* PROMOTION TESTING PRODUCT URLS*/
   fixedDiscount: `${baseUrl}product/add/825d96e7-63ed-0913-752b-417482528340`,
   percentageDiscount: `${baseUrl}product/add/5d085e69-d562-3719-469c-218e940d4237`,
