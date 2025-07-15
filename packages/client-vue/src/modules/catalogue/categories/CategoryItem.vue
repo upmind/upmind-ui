@@ -1,12 +1,10 @@
 <template>
   <Button
-    class="w-full"
-    :as="RouterLink"
+    as="router-link"
     variant="outlined"
     color="secondary"
     :class="styles.categories.item.root"
     :aria-label="t('product.category.select', { name })"
-    @click="doSelect"
     :to="{
       name: ROUTE.CATALOGUE,
       query: {
@@ -15,6 +13,8 @@
         direction: props.direction
       }
     }"
+    :focusable="false"
+    tabindex="-1"
   >
     <Icon
       v-if="categoryIcon"
@@ -23,7 +23,12 @@
       :class="styles.categories.item.icon"
     />
 
-    <div :class="styles.categories.item.content">
+    <Button
+      variant="outlined"
+      color="secondary"
+      :class="styles.categories.item.action"
+      @click="doSelect"
+    >
       <h3 :class="styles.categories.item.titleContainer">
         <span :class="styles.categories.item.title">{{ name }}</span>
         <Icon
@@ -36,7 +41,7 @@
       <p v-if="description" :class="styles.categories.item.description">
         {{ description }}
       </p>
-    </div>
+    </Button>
   </Button>
 </template>
 
@@ -44,7 +49,6 @@
 // --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { RouterLink } from "vue-router";
 
 // --- internal
 import config from "../catalogue.config";
@@ -91,7 +95,7 @@ const styles = useStyles(
     item: {
       root: string;
       icon: string;
-      content: string;
+      action: string;
       titleContainer: string;
       title: string;
       arrowIcon: string;

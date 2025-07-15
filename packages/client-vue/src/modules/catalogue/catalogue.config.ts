@@ -7,19 +7,24 @@ export default {
       root: cva("mb-4 flex w-full flex-col md:mb-0 md:w-1/4")
     },
     facet: {
-      root: cva("flex w-full flex-col gap-y-4 md:gap-y-12"),
+      root: cva("flex w-full flex-col gap-y-4"),
       search: {
         input: cva("max-w-xl"),
         icon: cva("text-control-foreground mr-1.5")
       },
       list: {
         root: cva("flex flex-col space-y-2"),
-        button: cva("justify-start"),
         icon: cva("text-foreground h-5 w-5 transition-opacity duration-300")
+      },
+      drillDown: {
+        button: cva("flex justify-between")
+      },
+      expand: {
+        button: cva("flex justify-between")
       }
     },
     filters: {
-      root: cva("inline-flex w-full items-center md:w-auto"),
+      root: cva("inline-flex w-full items-center space-x-1 md:w-auto"),
       trigger: cva("-ml-1")
     },
     item: {
@@ -56,7 +61,7 @@ export default {
       button: cva("h-12 w-full rounded")
     },
     main: {
-      root: cva("flex w-full flex-col gap-y-12"),
+      root: cva("flex w-full flex-col gap-y-6"),
       controls: cva("flex items-center justify-between"),
       searchInput: cva("max-w-xl"),
       searchIcon: cva("text-control-foreground mr-1.5"),
@@ -77,7 +82,7 @@ export default {
   categories: {
     root: cva("flex flex-col gap-y-10"),
     grid: cva(
-      "bg-base-background text-emphasis-medium grid w-full grid-cols-1 overflow-hidden rounded-2xl border md:grid-cols-3"
+      "bg-base-background text-emphasis-medium grid w-full grid-cols-1 gap-px overflow-hidden rounded-2xl border md:grid-cols-3"
     ),
     controls: {
       root: cva(
@@ -93,12 +98,12 @@ export default {
     },
     item: {
       root: cva(
-        "text-foreground !border-control group flex h-auto flex-col items-start space-y-2 rounded-none !border-b-0 !border-l-0 border-r border-r-0 border-t p-4 text-left hover:bg-transparent md:border-r md:p-8 [&:nth-child(1)]:border-t-0 md:[&:nth-child(2)]:border-t-0 md:[&:nth-child(3)]:border-t-0 md:[&:nth-child(3n)]:border-r-0"
+        "text-foreground bg-card hover:bg-card/80 group relative z-10 m-0 flex h-full w-full flex-col items-start justify-start space-y-2 rounded-none border-none p-4 py-8 text-left before:absolute before:-inset-px before:-z-10 before:border before:border-solid before:border-gray-100 before:content-['']"
       ),
       icon: cva(
-        "text-emphasis-medium text-icon-secondary transition-all duration-300"
+        "text-emphasis-medium text-icon-secondary mx-4 transition-all duration-300"
       ),
-      content: cva("w-full"),
+      action: cva("block h-auto w-full border-none px-4 py-3 text-left"),
       titleContainer: cva(
         "m-0 flex w-full items-center justify-between text-lg font-normal"
       ),
