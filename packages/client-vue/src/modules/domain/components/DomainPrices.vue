@@ -6,7 +6,13 @@
 
     <strong :class="styles.domain.card.prices.current">
       {{ props.price.currentPrice }}
-      <span :class="styles.domain.card.prices.cycle"> /yr</span>
+      <span :class="styles.domain.card.prices.cycle">
+        <span>{{
+          te(`product.terms.term.${props.cycle}`)
+            ? t(`product.terms.term.${props.cycle}`)
+            : ""
+        }}</span>
+      </span>
     </strong>
   </span>
 </template>
@@ -14,6 +20,7 @@
 <script setup lang="ts">
 // --- external
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { useStyles } from "@upmind-automation/upmind-ui";
 
 // --- internal
@@ -24,6 +31,8 @@ import type { DomainSummaryProps } from "../types";
 import type { ComputedRef } from "vue";
 
 const props = defineProps<DomainSummaryProps>();
+
+const { t, te } = useI18n();
 
 const meta = computed(() => ({
   //

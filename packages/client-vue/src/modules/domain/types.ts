@@ -48,6 +48,7 @@ export type DomainCardProps = DomainProduct & {
 export interface DomainSummaryProps {
   price: DomainProduct["price"];
   meta: DomainProduct["meta"];
+  cycle: DomainProduct["configuration"]["term"];
 }
 
 export interface DomainActionProps extends DomainSummaryProps {

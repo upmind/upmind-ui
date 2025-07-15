@@ -29,9 +29,24 @@
         @click="onUpdate(props.domain)"
         >{{ t("domain.card.transfer.action") }}</Link
       >.
-      {{
-        t("domain.card.transfer.renew", [props.tld, props.price.regularPrice])
-      }}
+      <template v-if="meta.discounted">
+        {{
+          t("domain.card.transfer.renew.discounted", {
+            tld: props.tld,
+            regularPrice: props.price.regularPrice,
+            currentPrice: props.price.currentPrice
+          })
+        }}
+      </template>
+      <template v-else>
+        {{
+          t("domain.card.transfer.renew.regular", {
+            tld: props.tld,
+            regularPrice: props.price.regularPrice,
+            currentPrice: props.price.currentPrice
+          })
+        }}
+      </template>
     </Description>
   </template>
 </template>
@@ -51,6 +66,7 @@ import Description from "../../../components/content/Description.vue";
 // --- types
 import type { DomainActionProps } from "../types";
 import type { ComputedRef } from "vue";
+import type CurrentPrice from "@/modules/product/components/pricing/CurrentPrice.vue";
 
 // -----------------------------------------------------------------------------
 
