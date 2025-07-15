@@ -1,6 +1,6 @@
 import { test, expect, Page } from "@playwright/test";
 import { fakerEN_GB } from "@faker-js/faker";
-import { Logins } from "../../support/constants/Logins";
+import { Logins } from "../../support/constants/logins";
 import { ProductConfig } from "../../support/page-objects/templates/ProductConfig";
 import { Checkout } from "../../support/page-objects/templates/Checkout";
 import { Basket } from "../../support/page-objects/templates/Basket";
