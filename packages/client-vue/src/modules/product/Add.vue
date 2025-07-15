@@ -100,11 +100,11 @@ import type { ProductCategory } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 const { t, tm } = useI18n();
 
-const { navigateBack, navigateNext, isResolved, router } = useRoutingEngine();
+const { navigateBack, navigateNext, isResolved } = useRoutingEngine();
 const { meta: basketMeta, isReady } = useBasket();
 const { productId } = useQueryParams();
 const { configure, resolve } = useBasketProductsPending();
-const { storefrontUrl, uiCart } = useBrand();
+const { hasStorefront, storefrontUrl, uiCart } = useBrand();
 const { getPath } = useProductCategories();
 
 await isReady();
@@ -120,12 +120,11 @@ const { product } = useProductConfig(pendingProduct);
 
 const items = computed(() => {
   // Storefront
-  const hasCatalogueRoute = router?.hasRoute(ROUTE.CATALOGUE);
   const items: any[] = [
     {
       label: t("product.shop"),
-      to: hasCatalogueRoute ? { name: ROUTE.CATALOGUE } : undefined,
-      href: !hasCatalogueRoute ? storefrontUrl.value : undefined,
+      to: !hasStorefront.value ? { name: ROUTE.CATALOGUE } : undefined,
+      href: hasStorefront.value ? storefrontUrl.value : undefined,
       current: false
     }
   ];
@@ -136,7 +135,7 @@ const items = computed(() => {
     forEach(categoryPath, (category: ProductCategory) => {
       items.push({
         label: category.title,
-        to: hasCatalogueRoute
+        to: !hasStorefront.value
           ? {
               name: ROUTE.CATALOGUE,
               query: {
@@ -144,7 +143,7 @@ const items = computed(() => {
               }
             }
           : undefined,
-        current: uiCart.value?.catalogue?.disabled || !hasCatalogueRoute
+        current: uiCart.value?.catalogue?.disabled || hasStorefront.value
       });
     });
   }
