@@ -60,10 +60,9 @@ import {
 } from "@upmind-automation/headless";
 
 // --- components
-import { Interstitial } from "@upmind-automation/upmind-ui";
+import { Interstitial, Layout } from "@upmind-automation/upmind-ui";
 import ContentSection from "../../components/content/ContentSection.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
-import Layout from "../../components/layout/Layout.vue";
 
 // --- utils
 
