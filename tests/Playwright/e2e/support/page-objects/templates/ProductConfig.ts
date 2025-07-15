@@ -168,8 +168,9 @@ export class ProductConfig {
   }
 
   /* Product Functions */
-  async checkoutWithProduct(productId: string) {
-    await this.page.goto(`${URLs.baseUrl}product/add/${productId}`);
+  async addProductToBasket(productURL: string) {
+    await this.page.goto(productURL);
+    await this.confirmAndProceed.click();
   }
 
   async clickLineclamp() {
