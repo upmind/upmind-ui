@@ -32,7 +32,7 @@
       >
         <template #actions="{ doReject, doResolve, meta: formMeta }">
           <Actions
-            v-show="modal || meta.isDirty || formMeta.isTouched"
+            v-show="modal || meta.isDirty || (formMeta as any)?.isTouched"
             :i18nKey="i18nKey"
             :disabled="meta.isProcessing"
             :processing="meta.isProcessing"
@@ -56,7 +56,11 @@ import { useVModel } from "@vueuse/core";
 
 // --- components
 import { UpmForm } from "../form";
-import { Dialog, Alert } from "@upmind-automation/upmind-ui";
+import {
+  Dialog,
+  Alert,
+  type FormActionProps
+} from "@upmind-automation/upmind-ui";
 import Skeleton from "./Skeleton.vue";
 import Actions from "./Actions.vue";
 
