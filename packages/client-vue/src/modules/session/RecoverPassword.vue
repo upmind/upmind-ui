@@ -74,9 +74,8 @@ import { ROUTE, useRoutingEngine } from "@upmind-automation/headless";
 // --- components
 import ContentSection from "../../components/content/ContentSection.vue";
 import Auth from "./components/Auth.vue";
-import { Card, Button, Icon, Link } from "@upmind-automation/upmind-ui";
+import { Card, Button, Icon, Link, Layout } from "@upmind-automation/upmind-ui";
 import SmartTitle from "../../components/content/SmartTitle.vue";
-import Layout from "../../components/layout/Layout.vue";
 
 // --- types
 import type { AuthProps } from "./components/types";

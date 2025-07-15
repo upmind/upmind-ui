@@ -104,6 +104,9 @@
     "showDetails": "Show details",
     "hideDetails": "Hide details",
     "overridden": "This option overrides the main product price for the initial order",
+    "share": "Share",
+    "copied": "Copied",
+    "shop": "Shop",
     "edit": "Edit",
     "remove": "Remove"
   }

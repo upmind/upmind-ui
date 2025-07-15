@@ -1,8 +1,8 @@
 <template>
   <Layout>
-    <slot v-if="!meta.isCheckout && !meta.isComplete" name="back-button">
-      <Back :class="styles.checkout.backButton" />
-    </slot>
+    <template #navigation>
+      <Back @click.prevent="doReject" />
+    </template>
 
     <section :class="styles.checkout.section" v-auto-animate>
       <div :class="styles.checkout.container">
@@ -147,21 +147,20 @@ import {
   useStyles,
   Interstitial,
   Alert,
-  Card
+  Card,
+  Layout
 } from "@upmind-automation/upmind-ui";
 import Session from "../session/Session.vue";
 import Billing from "../billing/Billing.vue";
 import PaymentDetails from "./components/PaymentDetails.vue";
 import Summary from "../basket/components/Summary.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
-import Back from "../../components/navigation/Back.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
-import Layout from "../../components/layout/Layout.vue";
+import Back from "../../components/navigation/Back.vue";
 
 // --- types
 import type { CheckoutProps } from "./types";
 import { isEqual } from "lodash-es";
-import { errorsAt } from "@jsonforms/core";
 
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
@@ -199,6 +198,10 @@ const { dataLayer } = useDataLayer();
 dataLayer({ event: "begin_checkout" }).withEcommerce().push();
 
 // -----------------------------------------------------------------------------
+
+function doReject() {
+  navigateBack();
+}
 
 const processingTitleKey = computed(() => {
   if (meta.value.needsApproval) {
