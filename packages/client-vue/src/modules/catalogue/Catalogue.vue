@@ -17,13 +17,13 @@
     </template>
 
     <div :class="styles.products.root">
-      <nav :class="styles.products.facets.root" v-if="isFaceted">
+      <aside :class="styles.products.facets.root" v-if="isFaceted">
         <CategoriesFacet
           v-model="categoryId"
           :sort="params.sort"
           :direction="params.direction"
         />
-      </nav>
+      </aside>
 
       <component
         :is="widget"

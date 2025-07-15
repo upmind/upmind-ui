@@ -13,11 +13,13 @@ export default {
         icon: cva("text-control-foreground mr-1.5")
       },
       list: {
-        root: cva("flex flex-col space-y-2"),
+        root: cva("flex flex-col space-y-4"),
         icon: cva("text-foreground h-5 w-5 transition-opacity duration-300")
       },
       drillDown: {
-        button: cva("flex justify-between")
+        items: cva("flex flex-col space-y-2"),
+        action: cva("flex justify-between"),
+        back: cva("h-10 self-start")
       },
       expand: {
         button: cva("flex justify-between")

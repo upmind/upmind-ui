@@ -16,9 +16,9 @@
       </template>
     </InputExtended>
 
-    <div :class="styles.products.facet.list.root">
+    <nav :class="styles.products.facet.list.root">
       <CategoriesFacetDrillDown v-model="modelValue" :query="query" />
-    </div>
+    </nav>
   </section>
 </template>
 

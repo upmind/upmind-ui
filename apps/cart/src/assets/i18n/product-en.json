@@ -125,6 +125,7 @@
     "share": "Share",
     "copied": "Copied",
     "shop": "Shop",
+    "back": "Back",
     "category": {
       "select": "Select {name} category",
       "search": "Category search...",
