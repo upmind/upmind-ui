@@ -28,5 +28,10 @@ export const Logins = {
     grant_type: "password",
     username: "nathan.robinson+pricelist@upmind.com",
     password: "txr0vfx0hxp7azh-PEA"
+  },
+  twoFactor: {
+    grant_type: "password",
+    username: "nathan.robinson+twofactor@upmind.com",
+    password: "Twofactor1"
   }
 };

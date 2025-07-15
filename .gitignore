@@ -17,3 +17,4 @@ tests/Playwright/e2e/reports/
 tests/Playwright/blob-report/
 tests/Playwright/playwright/.cache/
 tests/Playwright/e2e/snapshots
+tests/Playwright/e2e/support/secrets
