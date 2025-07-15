@@ -99,10 +99,8 @@ export const useBasketBilling = () => {
 
     if (!isEmpty(value) && !isEqual(value, model)) {
       actor.value?.send({ type: "SET", data: value, update: true });
-    } else {
-      // bail: we dont wan tto set the same value
-      // actor.value?.send({ type: "UPDATE" });
-      return Promise.resolve();
+    } else if (!isEmpty(value)) {
+      actor.value?.send({ type: "UPDATE" });
     }
     // then wait for the paymentGateway actor to be updated
     return waitFor(
