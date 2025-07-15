@@ -1,15 +1,17 @@
 import { Locator, Page } from "@playwright/test";
 
 export class Select {
-  readonly select: Locator;
+  readonly selectList: Locator;
+  readonly selectOption: Locator;
 
   constructor(page: Page) {
-    this.select = page.locator("select");
+    this.selectList = page.getByTestId("combobox");
+    this.selectOption = page.getByRole("option");
   }
 
   getSelectOption(option: string) {
-    const selectList = this.select.first();
-    const selectOption = selectList.selectOption(option);
+    const selectList = this.selectList;
+    const selectOption = selectList.getByText(option);
     return selectOption;
   }
 }

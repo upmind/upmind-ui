@@ -56,5 +56,19 @@ export const ErrorCodes = {
       data: null
     },
     button: "reload-page"
+  },
+  timeout504: {
+    route: "**/api/*",
+    url: "http://qa-automation.local:5173/product/add/20403869-6e54-721d-264c-518d9305e7d2",
+    errorCode: 504,
+    status: "error",
+    responseError: {
+      id: null,
+      type: 0,
+      code: 504,
+      message: "Sorry, we have experienced an error",
+      data: null
+    },
+    button: "back-to-shopping"
   }
 };

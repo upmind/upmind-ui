@@ -10,10 +10,8 @@ export class Login {
 
   constructor(page: Page) {
     this.page = page;
-    this.usernameField = page.getByTestId(
-      "form-field-your-username-or-email-address"
-    );
-    this.passwordField = page.getByTestId("form-field-password");
+    this.usernameField = page.getByTestId("form-item-input-username");
+    this.passwordField = page.getByTestId("form-item-input-password");
     this.loginButton = page.getByTestId("button-log-into-my-account");
     this.popoverTrigger = page.getByTestId("popover-trigger");
     this.popoverContent = page.getByTestId("popover-content");
@@ -21,7 +19,7 @@ export class Login {
   }
 
   async inputLogin(username: string, password: string) {
-    await this.usernameField.getByTestId("text-input").fill(username);
+    await this.usernameField.fill(username);
     await this.passwordField.getByTestId("text-input").fill(password);
     await this.loginButton.click();
   }
