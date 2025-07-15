@@ -1,5 +1,5 @@
 import { Locator, Page, expect } from "@playwright/test";
-import { URLs } from "../../constants/Urls";
+import { URLs } from "../../constants/urls";
 import { TextInput } from "../components/TextInput";
 import { Checkboxes } from "../components/Checkboxes";
 import { RadioButtons } from "../components/RadioButtons";
@@ -25,6 +25,7 @@ export class ProductConfig {
   readonly registrantNameInput: Locator;
   readonly registrantOrgInput: Locator;
   readonly registrantEmailInput: Locator;
+  readonly registrantPhoneForm: Locator;
   readonly registrantPhoneInput: Locator;
   readonly registrantAddr1Input: Locator;
   readonly registrantCityInput: Locator;
@@ -85,32 +86,34 @@ export class ProductConfig {
     this.textInput = new TextInput(page);
     this.options = page.getByTestId("options-container-options");
     this.domainInput = page.getByTestId("text-input");
-    this.registrantNameInput = this.getFormField(
-      page.getByTestId("form-field-registrant-name")
+    this.registrantNameInput = page.getByTestId(
+      "form-item-input-update_registrant_name"
     );
-    this.registrantOrgInput = this.getFormField(
-      page.getByTestId("form-field-registrant-organisation")
+    this.registrantOrgInput = page.getByTestId(
+      "form-item-input-update_registrant_organisation"
     );
-    this.registrantEmailInput = this.getFormField(
-      page.getByTestId("form-field-registrant-email")
+    this.registrantEmailInput = page.getByTestId(
+      "form-item-input-update_registrant_email"
     );
-    this.registrantPhoneInput = this.getFormField(
-      page.getByTestId("form-field-registrant-phone")
+    this.registrantPhoneForm = page.getByTestId(
+      "form-item-update_registrant_phone"
     );
-    this.registrantAddr1Input = this.getFormField(
-      page.getByTestId("form-field-registrant-address-1")
+    this.registrantPhoneInput =
+      this.registrantPhoneForm.getByTestId("text-input");
+    this.registrantAddr1Input = page.getByTestId(
+      "form-item-input-update_registrant_address_1"
     );
-    this.registrantCityInput = this.getFormField(
-      page.getByTestId("form-field-registrant-city")
+    this.registrantCityInput = page.getByTestId(
+      "form-item-input-update_registrant_address_city"
     );
-    this.registrantStateInput = this.getFormField(
-      page.getByTestId("form-field-registrant-state")
+    this.registrantStateInput = page.getByTestId(
+      "form-item-input-update_registrant_address_state"
     );
-    this.registrantPostcodeInput = this.getFormField(
-      page.getByTestId("form-field-registrant-postcode")
+    this.registrantPostcodeInput = page.getByTestId(
+      "form-item-input-update_registrant_address_postcode"
     );
     this.registrantCountryInput = page.getByTestId(
-      "form-field-registrant-country"
+      "form-item-update_registrant_address_country_code"
     );
     this.promoBadge = page.getByTestId("badge");
 
@@ -181,9 +184,8 @@ export class ProductConfig {
   }
 
   async enterSld(sld: string) {
-    const sldFormField = this.page.getByTestId("form-field-domain-sld");
-    const sldInput = sldFormField.getByTestId("text-input");
-    await sldInput.fill(sld);
+    const sldFormField = this.page.getByTestId("form-item-input-sld");
+    await sldFormField.fill(sld);
   }
 
   getAddButton(checkboxNumber: number) {
@@ -218,5 +220,30 @@ export class ProductConfig {
     await expect(
       this.getPromoBadge(this.radioButtons.getRadioButton(0, 0))
     ).toBeVisible();
+  }
+
+  async enterRegistrantDetails(
+    registrantName: string,
+    registrantOrg: string,
+    registrantEmail: string,
+    registrantPhone: string,
+    registrantAddr1: string,
+    registrantCity: string,
+    registrantState: string,
+    registrantPostcode: string,
+    registrantCountryCode: string
+  ) {
+    await this.registrantNameInput.fill(registrantName);
+    await this.registrantOrgInput.fill(registrantOrg);
+    await this.registrantEmailInput.fill(registrantEmail);
+    await this.registrantPhoneInput.fill(registrantPhone);
+    await this.registrantAddr1Input.fill(registrantAddr1);
+    await this.registrantCityInput.fill(registrantCity);
+    await this.registrantStateInput.fill(registrantState);
+    await this.registrantPostcodeInput.fill(registrantPostcode);
+    await this.registrantCountryInput
+      .locator(this.page.getByRole("combobox"))
+      .click();
+    await this.page.getByTestId(`select-item-${registrantCountryCode}`).click();
   }
 }

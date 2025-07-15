@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { URLs } from "../support/constants/Urls";
+import { URLs } from "../support/constants/urls";
 import { Login } from "../support/page-objects/templates/Login";
 import { Logins } from "../support/constants/Logins";
 let login: Login;

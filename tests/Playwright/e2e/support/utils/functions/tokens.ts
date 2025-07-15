@@ -1,5 +1,5 @@
 import { BrowserContext, Page, request } from "@playwright/test";
-import { URLs } from "../../constants/Urls";
+import { URLs } from "../../constants/urls";
 
 /* Extracts the upm_client_session token from the browser context's cookies. */
 export async function getSessionToken(

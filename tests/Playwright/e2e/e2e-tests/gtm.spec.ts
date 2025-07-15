@@ -1,5 +1,5 @@
 import { test, expect, Page } from "@playwright/test";
-import { URLs } from "../support/constants/Urls";
+import { URLs } from "../support/constants/urls";
 
 const gtmContainerId = "G-9QKJBFZHN2";
 const testUrl = [

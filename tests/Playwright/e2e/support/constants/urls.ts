@@ -21,7 +21,7 @@ export const URLs = {
   paymentTerms: `${baseUrl}product/add/20403869-6e54-721d-2d7c-518d9305e7d2`,
   paymentTermsPromo: `${baseUrl}product/add/3de78642-de53-9714-745c-21208469530d`,
 
-  comDomain: `${baseUrl}product/add/47d73824-8507-9315-778f-81e642d59e06`,
+  comDomain: `${baseUrl}product/add/825d96e7-63ed-0913-792c-417482528340`,
   ioDomain: `${baseUrl}product/add/3de78642-de53-9714-795b-21208469530d`,
   orgDomain: `${baseUrl}product/add/20403869-6e54-721d-287b-518d9305e7d2`,
   auDomain: `${baseUrl}product/add/78985742-6489-7012-872c-21e325d0ed36`,
