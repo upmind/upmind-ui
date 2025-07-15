@@ -1,6 +1,6 @@
 <template>
   <Button
-    as="router-link"
+    :as="RouterLink"
     variant="outlined"
     color="secondary"
     :class="styles.categories.item.root"
@@ -49,6 +49,7 @@
 // --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { RouterLink } from "vue-router";
 
 // --- internal
 import config from "../catalogue.config";
