@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
-import { URLs } from "../../../../../support/constants/urls";
-import { ProductConfig } from "../../../../../support/page-objects/templates/ProductConfig";
-import { comDomain } from "../../../../../support/constants/checkout/test-cases/webcentral/domains/Com";
+import { URLs } from "../../../support/constants/urls";
+import { ProductConfig } from "../../../support/page-objects/templates/ProductConfig";
+import { comDomain } from "../../../support/constants/checkout/test-cases/webcentral/domains/Com";
 let productConfig: ProductConfig;
 let testCases = comDomain;
 
