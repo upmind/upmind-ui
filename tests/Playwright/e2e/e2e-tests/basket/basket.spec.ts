@@ -1,11 +1,11 @@
 import { test, expect } from "@playwright/test";
 import { fakerEN_GB } from "@faker-js/faker";
-import { URLs } from "../support/constants/urls";
-import { getSessionToken } from "../support/utils/functions/tokens";
+import { URLs } from "../../support/constants/urls";
+import { getSessionToken } from "../../support/utils/functions/tokens";
 import {
   getCurrentOrderId,
   addProductToOrder
-} from "../support/utils/functions/basket";
+} from "../../support/utils/functions/basket";
 
 test.describe("Basket Tests", () => {
   test("Basket with 1 item", async ({ page, context }) => {

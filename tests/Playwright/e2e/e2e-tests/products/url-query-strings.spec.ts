@@ -1,6 +1,6 @@
 import { test, expect, Page } from "@playwright/test";
-import { ProductConfig } from "../support/page-objects/templates/ProductConfig";
-import { Basket } from "../support/page-objects/templates/Basket";
+import { ProductConfig } from "../../support/page-objects/templates/ProductConfig";
+import { Basket } from "../../support/page-objects/templates/Basket";
 let productConfig: ProductConfig;
 let basket: Basket;
 
