@@ -2,13 +2,13 @@ import type { ButtonProps } from "@upmind-automation/upmind-ui";
 import type { Component, HtmlHTMLAttributes } from "vue";
 // ---
 export interface PaymentDetailsProps {
-  cardComponent?: Component | "div";
+  as?: Component | "div";
   class?: HtmlHTMLAttributes["class"];
   color?: ButtonProps["color"];
 }
 
 export interface CheckoutProps {
-  cardComponent?: Component | "div";
+  as?: Component | "div";
   contentSectionComponent?: Component | "div";
   color?: ButtonProps["color"];
 }

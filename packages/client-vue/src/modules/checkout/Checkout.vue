@@ -13,7 +13,7 @@
               :is="props.contentSectionComponent"
               v-if="!account.isAuthenticated && !meta.isCheckout"
             >
-              <component :is="props.cardComponent">
+              <component :is="props.as">
                 <Session
                   :class="styles.checkout.session"
                   id="account"
@@ -38,11 +38,9 @@
                 />
               </slot>
             </template>
-            <component :is="props.cardComponent">
-              <slot name="billing-details">
-                <Billing />
-              </slot>
-            </component>
+            <slot name="billing-details">
+              <Billing :as="props.as" />
+            </slot>
           </component>
 
           <component
@@ -67,7 +65,7 @@
             </template>
             <slot name="payment-details">
               <PaymentDetails
-                :card-component="props.cardComponent"
+                :as="props.as"
                 :class="styles.checkout.paymentDetails"
                 :color="color"
               />
@@ -81,7 +79,7 @@
               :is="props.contentSectionComponent"
               :title="t('checkout.summary.title')"
             >
-              <component :is="props.cardComponent">
+              <component :is="props.as">
                 <slot name="summary">
                   <Summary no-actions />
                 </slot>
@@ -172,7 +170,7 @@ const { navigateNext, navigateBack, isResolved } = useRoutingEngine();
 const { meta: paymentDetailsMeta } = useBasketPaymentDetails();
 
 const props = withDefaults(defineProps<CheckoutProps>(), {
-  cardComponent: Card,
+  as: Card,
   contentSectionComponent: ContentSection,
   color: "primary"
 });
