@@ -11,6 +11,7 @@ export class Basket {
   readonly applyPromo: Locator;
   readonly promoMessage: Locator;
   readonly promoBadge: Locator;
+  readonly proceedToCheckout: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -23,6 +24,7 @@ export class Basket {
     this.applyPromo = this.promotionForm.getByTestId("button-apply");
     this.promoMessage = this.promotionForm.getByTestId("form-message");
     this.promoBadge = page.getByTestId("badge");
+    this.proceedToCheckout = page.getByTestId("button-proceed-to-checkout");
   }
 
   enterPromoCode(promoCode: string | null) {

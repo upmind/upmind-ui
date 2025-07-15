@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { URLs } from "../support/constants/Urls";
+import { URLs } from "../support/constants/urls";
 import { ProductConfig } from "../support/page-objects/templates/ProductConfig";
 import { Basket } from "../support/page-objects/templates/Basket";
 import {

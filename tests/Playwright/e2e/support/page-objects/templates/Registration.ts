@@ -13,23 +13,19 @@ export class Registration {
   constructor(page: Page, context: BrowserContext) {
     this.page = page;
     this.context = context;
-    this.firstName = page.getByTestId("form-field-first-name");
-    this.lastName = page.getByTestId("form-field-last-name");
-    this.email = page.getByTestId("form-field-your-email-address");
-    this.password = page.getByTestId("form-field-password");
+    this.firstName = page.getByTestId("form-item-input-firstname");
+    this.lastName = page.getByTestId("form-item-input-lastname");
+    this.email = page.getByTestId("form-item-input-username");
+    this.password = page.getByTestId("form-item-input-password");
     this.alert = page.getByRole("alert");
   }
 
   async inputRegistration() {
-    await this.firstName
-      .getByTestId("text-input")
-      .fill(`${faker.person.firstName()}`);
-    await this.lastName
-      .getByTestId("text-input")
-      .fill(`${faker.person.lastName()}`);
-    await this.email
-      .getByTestId("text-input")
-      .fill(`nathan.robinson+${faker.string.alpha({ length: 10 })}@upmind.com`);
+    await this.firstName.fill(`${faker.person.firstName()}`);
+    await this.lastName.fill(`${faker.person.lastName()}`);
+    await this.email.fill(
+      `nathan.robinson+${faker.string.alpha({ length: 10 })}@upmind.com`
+    );
     await this.password
       .getByTestId("text-input")
       .fill(
