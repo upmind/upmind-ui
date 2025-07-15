@@ -1,19 +1,11 @@
 <template>
   <Layout>
+    <template #navigation>
+      <Back @click.prevent="doReject" />
+    </template>
+
     <ContentSection v-auto-animate class="flex flex-grow items-center">
       <form v-auto-animate @submit.prevent @reset.prevent>
-        <Button
-          v-if="basketMeta.hasProducts && basketMeta.isAvailable"
-          type="reset"
-          class="bg-base-background relative -top-4 mb-6 md:-top-6 md:mb-0"
-          size="sm"
-          variant="tonal"
-          :label="t('navigation.back')"
-          @click.prevent="doReject"
-        >
-          <template #prepend><Icon icon="arrow-left" size="2xs" /></template>
-        </Button>
-
         <div
           class="relative mx-auto flex w-full flex-wrap items-start justify-between gap-8"
         >
@@ -86,13 +78,13 @@ import {
 } from "@upmind-automation/headless";
 
 // --- components
-import { Card, Button, Icon } from "@upmind-automation/upmind-ui";
+import { Card, Layout } from "@upmind-automation/upmind-ui";
 import ContentSection from "../../components/content/ContentSection.vue";
 import ProductConfig from "./components/config/Config.vue";
 import Summary from "./components/summary/Summary.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 import ConfigSkeleton from "./components/ConfigSkeleton.vue";
-import Layout from "../../components/layout/Layout.vue";
+import Back from "../../components/navigation/Back.vue";
 
 // --- utils
 
