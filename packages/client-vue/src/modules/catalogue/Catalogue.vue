@@ -55,7 +55,7 @@ import config from "./catalogue.config";
 // --- components
 import { useStyles } from "@upmind-automation/upmind-ui";
 import CategoriesControls from "./categories/CategoriesControls.vue";
-import CategoriesFacet from "./categories/CategoriesFacet.vue";
+import CategoriesFacet from "./categories/facet/CategoriesFacet.vue";
 import Categories from "./categories/Categories.vue";
 import Layout from "../../components/layout/Layout.vue";
 import WidgetGrid from "./products/WidgetGrid.vue";
