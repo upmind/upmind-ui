@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-center space-x-2 py-0.5">
     <span
-      class="border-control flex h-10 items-center justify-center space-x-2 pl-4 text-sm"
+      class="border-control flex items-center justify-center space-x-2 text-sm"
     >
       <Avatar :icon="lowerCase(props.phone?.country ?? '')" size="3xs" />
 

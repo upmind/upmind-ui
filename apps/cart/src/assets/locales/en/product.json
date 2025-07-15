@@ -122,10 +122,10 @@
     "overridden": "This option overrides the main product price for the initial order",
     "edit": "Edit",
     "remove": "Remove",
-    "shop": {
-      "title": "Shop",
-      "copied": "Copied"
-    },
+    "share": "Share",
+    "copied": "Copied",
+    "shop": "Shop",
+    "back": "Back",
     "category": {
       "select": "Select {name} category",
       "search": "Category search...",

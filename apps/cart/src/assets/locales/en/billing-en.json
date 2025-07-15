@@ -32,12 +32,14 @@
     },
     "company": {
       "label": "Company",
+      "details": "Company: {regNumber} {vatNumber}",
       "title": "Add Company Details | Update Company Details",
       "error": "An error occurred Adding the Company Details | an error occurred Updating the Company Details",
       "default": "Default",
       "actions": {
         "change": "Change",
         "add": "Add new",
+        "close": "Close",
         "edit": "Edit",
         "resolve": "Save details",
         "reject": "Cancel"
@@ -65,6 +67,7 @@
       "actions": {
         "change": "Change",
         "add": "Add new",
+        "close": "Close",
         "edit": "Edit",
         "resolve": "Save details",
         "reject": "Cancel"

@@ -96,6 +96,16 @@ export const useUischema = ({ baseModel, type, config }: UnifiedContext) => {
     elements: []
   };
 
+  if (get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE)) {
+    uiSchema.elements.push({
+      type: "Control",
+      scope: "#/properties/phone",
+      options: {
+        detail: usePhoneUischema()
+      }
+    } as any);
+  }
+
   if (type == UnifiedType.PERSONAL) {
     uiSchema.elements.push(useAddressUischema());
   } else if (type == UnifiedType.BUSINESS) {
@@ -109,16 +119,6 @@ export const useUischema = ({ baseModel, type, config }: UnifiedContext) => {
           minimal: true,
           baseModel: baseModel?.company
         })
-      }
-    } as any);
-  }
-
-  if (get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE)) {
-    uiSchema.elements.push({
-      type: "Control",
-      scope: "#/properties/phone",
-      options: {
-        detail: usePhoneUischema()
       }
     } as any);
   }
