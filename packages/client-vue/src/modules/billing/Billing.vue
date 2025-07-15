@@ -5,6 +5,7 @@
       v-model="activeTab"
       :tabs="tabs"
       :default-tab="defaultTab"
+      data-testid="billing"
     >
       <template v-slot:[`content.personal`]>
         <TabPersonal v-model="modelValue" />
