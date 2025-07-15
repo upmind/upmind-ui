@@ -90,7 +90,8 @@ export function parseAvailable(
       // ---
       configuration: {
         productId: raw.id, //raw.product_id,
-        quantity: raw.unit_quantity ?? 1
+        quantity: raw.unit_quantity ?? 1,
+        term: termDetails.cycle
       },
       // ---
       domain: parsedDomain?.domain ?? domain,
