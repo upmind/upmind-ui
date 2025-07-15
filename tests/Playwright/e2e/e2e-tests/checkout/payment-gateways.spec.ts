@@ -1,20 +1,20 @@
 import { test, expect } from "@playwright/test";
 import { fakerEN_GB } from "@faker-js/faker";
-import { URLs } from "../support/constants/urls";
+import { URLs } from "../../support/constants/urls";
 import {
   getCurrentOrderId,
   addProductToOrder
-} from "../support/utils/functions/basket";
+} from "../../support/utils/functions/basket";
 import {
   getSessionToken,
   getClientToken
-} from "../support/utils/functions/tokens";
-import { Checkout } from "../support/page-objects/templates/Checkout";
-import { Logins } from "../support/constants/Logins";
-import { AcceptedCards } from "../support/constants/checkout/payment-cards/AcceptedCards";
-import { DeclinedCards } from "../support/constants/checkout/payment-cards/DeclinedCards";
-import { FraudCheckCards } from "../support/constants/checkout/payment-cards/FraudChecks";
-import { ErrorCards } from "../support/constants/checkout/payment-cards/InvalidData";
+} from "../../support/utils/functions/tokens";
+import { Checkout } from "../../support/page-objects/templates/Checkout";
+import { Logins } from "../../support/constants/logins";
+import { AcceptedCards } from "../../support/constants/checkout/payment-cards/AcceptedCards";
+import { DeclinedCards } from "../../support/constants/checkout/payment-cards/DeclinedCards";
+import { FraudCheckCards } from "../../support/constants/checkout/payment-cards/FraudChecks";
+import { ErrorCards } from "../../support/constants/checkout/payment-cards/InvalidData";
 
 let checkout: Checkout;
 
@@ -88,7 +88,7 @@ test.describe("Checkout - Happy paths", () => {
       await page.goto(URLs.basket);
       await page.waitForTimeout(5000);
       await page.goto(URLs.checkout);
-      await checkout.payWithStripeCard(page, cardNumber, expiryDate, cvcCode);
+      await checkout.payWithStripeCard(cardNumber, expiryDate, cvcCode);
       await expect(page.getByRole("dialog")).toContainText(
         "Converting your order"
       );
@@ -126,7 +126,7 @@ test.describe("Checkout - Happy paths", () => {
     await page.reload();
     await page.goto(URLs.checkout);
     await page.waitForLoadState("domcontentloaded");
-    await checkout.payWithOfflinePayment(page);
+    await checkout.payWithOfflinePayment();
     await expect(page.getByRole("dialog")).toContainText(
       "Converting your order"
     );
@@ -160,7 +160,7 @@ test.describe("Checkout - Happy paths", () => {
     await page.reload();
     await page.goto(URLs.checkout);
     await page.waitForLoadState("domcontentloaded");
-    await checkout.payWithBankTransfer(page);
+    await checkout.payWithBankTransfer();
     await expect(page.getByRole("dialog")).toBeVisible();
     await expect(page.getByRole("dialog")).toContainText("Order complete!");
   });
@@ -206,7 +206,7 @@ test.describe("Checkout - Declined Payments", () => {
       await page.goto(URLs.basket);
       await page.waitForTimeout(5000);
       await page.goto(URLs.checkout);
-      await checkout.payWithStripeCard(page, cardNumber, expiryDate, cvcCode);
+      await checkout.payWithStripeCard(cardNumber, expiryDate, cvcCode);
       const dialog = page.getByRole("dialog");
       await expect(
         dialog.locator(page.getByText(`${dialogText}`))
@@ -254,7 +254,7 @@ test.describe("Checkout - Fraud Checks", async () => {
       await page.goto(URLs.basket);
       await page.waitForTimeout(5000);
       await page.goto(URLs.checkout);
-      await checkout.payWithStripeCard(page, cardNumber, expiryDate, cvcCode);
+      await checkout.payWithStripeCard(cardNumber, expiryDate, cvcCode);
       await expect(page.getByRole("dialog")).toContainText(
         "Converting your order"
       );
@@ -302,8 +302,8 @@ test.describe("Checkout - Invalid Data", () => {
       await page.goto(URLs.basket);
       await page.waitForTimeout(5000);
       await page.goto(URLs.checkout);
-      await checkout.inputStripeDetails(page, cardNumber, expiryDate, cvcCode);
-      const stripeFrame = await checkout.getStripeIframe(page);
+      await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
+      const stripeFrame = await checkout.getStripeIframe();
       await expect(stripeFrame.getByRole("alert")).toContainText(
         `${dialogText}`
       );

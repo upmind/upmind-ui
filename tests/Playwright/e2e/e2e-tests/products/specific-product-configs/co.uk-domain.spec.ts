@@ -1,17 +1,17 @@
 import { test, expect } from "@playwright/test";
-import { URLs } from "../../../../../support/constants/urls";
-import { ProductConfig } from "../../../../../support/page-objects/templates/ProductConfig";
-import { ioDomain } from "../../../../../support/constants/checkout/test-cases/webcentral/domains/Io";
+import { URLs } from "../../../support/constants/urls";
+import { ProductConfig } from "../../../support/page-objects/templates/ProductConfig";
+import { coukDomain } from "../../../support/constants/checkout/test-cases/webcentral/domains/Co.uk";
 let productConfig: ProductConfig;
-let testCases = ioDomain;
+let testCases = coukDomain;
 
 test.beforeEach(async ({ page }) => {
   productConfig = new ProductConfig(page);
-  await page.goto(URLs.ioDomain);
+  await page.goto(URLs.coukDomain);
   await productConfig.optionsContainer.waitFor();
 });
 
-test.describe.skip("Product Config - Happy Paths - Domain (.io)", async () => {
+test.describe("Product Config - Domains (.co.uk)", async () => {
   for (const {
     name,
     radioSelection = [],

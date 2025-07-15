@@ -10,7 +10,7 @@ import {
   getSessionToken,
   getClientToken
 } from "../support/utils/functions/tokens";
-import { Logins } from "../support/constants/Logins";
+import { Logins } from "../support/constants/logins";
 
 let productConfig: ProductConfig;
 let basket: Basket;

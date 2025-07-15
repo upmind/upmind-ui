@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
-import { URLs } from "../support/constants/urls";
-import { Login } from "../support/page-objects/templates/Login";
-import { Logins } from "../support/constants/Logins";
+import { URLs } from "../../support/constants/urls";
+import { Login } from "../../support/page-objects/templates/Login";
+import { Logins } from "../../support/constants/logins";
 let login: Login;
 
 test.describe("Login", () => {
