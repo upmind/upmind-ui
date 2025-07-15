@@ -40,7 +40,7 @@ export default {
       icon: cva("mb-1 hidden md:block", {
         variants: {
           isAvailable: {
-            true: "text-secondary",
+            true: "text-primary",
             false: "text-emphasis-disabled"
           }
         }
@@ -50,7 +50,7 @@ export default {
       label: cva("text-2xs m-0 uppercase", {
         variants: {
           isAvailable: {
-            true: "text-secondary",
+            true: "text-primary",
             false: "text-emphasis-disabled"
           }
         }
