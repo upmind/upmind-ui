@@ -16,6 +16,7 @@
         :title="t(`${i18nKey ?? 'manage'}.error`, { isNew: !props.modelValue })"
         color="error"
         icon="alert-triangle"
+        class="mb-4"
       />
 
       <UpmForm
