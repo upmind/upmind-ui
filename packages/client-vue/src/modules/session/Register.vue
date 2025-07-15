@@ -1,20 +1,11 @@
 <template>
   <Layout>
-    <ContentSection class="mx-auto max-w-2xl">
-      <Button
-        type="reset"
-        class="bg-base-background relative -top-4 md:-top-6"
-        size="sm"
-        variant="tonal"
-        color="base"
-        :label="t('navigation.back')"
-        @click.prevent="doReject"
-      >
-        <template #prepend>
-          <Icon icon="arrow-left" size="2xs" />
-        </template>
-      </Button>
-    </ContentSection>
+    <template #navigation>
+      <Link class="flex items-center gap-x-2" @click.prevent="doReject">
+        <Icon icon="arrow-left" size="2xs" />
+        {{ t("navigation.back") }}
+      </Link>
+    </template>
 
     <ContentSection class="mx-auto max-w-2xl">
       <template #title>
@@ -82,11 +73,10 @@ import {
 } from "@upmind-automation/headless";
 
 // --- components
-import { Card, Button, Icon, Link } from "@upmind-automation/upmind-ui";
+import { Card, Button, Icon, Link, Layout } from "@upmind-automation/upmind-ui";
 import Auth from "./components/Auth.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
-import Layout from "../../components/layout/Layout.vue";
 
 // -----------------------------------------------------------------------------
 

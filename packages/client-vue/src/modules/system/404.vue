@@ -50,10 +50,13 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 import { useBrand } from "@upmind-automation/headless";
 
 // -- components
-import { Interstitial, IconAnimated } from "@upmind-automation/upmind-ui";
+import {
+  Interstitial,
+  IconAnimated,
+  Layout
+} from "@upmind-automation/upmind-ui";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
-import Layout from "../../components/layout/Layout.vue";
 
 // -- types
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";

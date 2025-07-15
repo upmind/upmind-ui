@@ -2,16 +2,7 @@
   <div :class="styles.categories.controls.root">
     <Breadcrumb :items="items" />
 
-    <div v-if="isSupported" :class="styles.categories.controls.shareContainer">
-      <Icon
-        :icon="copied ? 'check' : 'share'"
-        size="xs"
-        :class="styles.categories.controls.shareIcon"
-      />
-      <Link @click="handleShare">
-        {{ copied ? t("product.shop.copied") : t("product.shop.share") }}
-      </Link>
-    </div>
+    <Share class="hidden md:flex" />
   </div>
 </template>
 
@@ -19,7 +10,6 @@
 // --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { useClipboard } from "@vueuse/core";
 
 // --- internal
 import {
@@ -30,12 +20,8 @@ import {
 import config from "../catalogue.config";
 
 // --- components
-import {
-  Link,
-  Icon,
-  Breadcrumb,
-  useStyles
-} from "@upmind-automation/upmind-ui";
+import { Breadcrumb, useStyles } from "@upmind-automation/upmind-ui";
+import Share from "../../../components/navigation/Share.vue";
 
 // --- types
 import type { CategoriesProps } from "./types";
@@ -52,15 +38,13 @@ const { t } = useI18n();
 
 const { getPath } = useProductCategories();
 
-const { copy, copied, isSupported } = useClipboard({ legacy: true });
-
 const items = computed(() => {
   const paths = getPath(modelValue.value);
 
   const items = [
     // include "root" option
     {
-      label: t("product.shop.title"),
+      label: t("product.shop"),
       current: !modelValue.value,
       to: {
         name: ROUTE.CATALOGUE,
@@ -90,10 +74,6 @@ const items = computed(() => {
 
   return items;
 });
-
-const handleShare = () => {
-  copy(window.location.href);
-};
 
 const styles = useStyles(
   ["categories", "categories.controls"],

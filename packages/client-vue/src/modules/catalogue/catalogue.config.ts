@@ -87,9 +87,7 @@ export default {
     controls: {
       root: cva(
         "flex w-full flex-col items-start justify-between gap-4 md:flex-row md:items-center md:gap-0"
-      ),
-      shareContainer: cva("flex items-center gap-x-2"),
-      shareIcon: cva("")
+      )
     },
     header: {
       root: cva("flex max-w-2xl flex-col gap-y-2"),
