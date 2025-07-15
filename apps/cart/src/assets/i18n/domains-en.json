@@ -69,8 +69,8 @@
       "available": {
         "label": "Available",
         "description": {
-          "discounted": "Was {0}, now {1} for the first year.",
-          "regular": "Renews annually for {0}."
+          "discounted": "Was {regularPrice}, now {currentPrice} | Was {regularPrice}, now {currentPrice} for the first year. | Was {regularPrice}, now {currentPrice} for the first {count} years.",
+          "regular": "One-time price of {regularPrice}. | Renews every year for {regularPrice}.| Renews every {count} years for {regularPrice}."
         },
         "action": "Register | Added"
       },
@@ -79,7 +79,10 @@
         "ownership": "Do you own this domain?",
         "transfer": "Transfer it to us by ",
         "action": "clicking here",
-        "renew": "Our {0} renewal prices start from only {1}."
+        "renew": {
+          "discounted": "Our {tld} renewal prices start from only {currentPrice} (was {regularPrice}).",
+          "regular": "Our {tld} renewal prices start from only {regularPrice}."
+        }
       }
     }
   }
