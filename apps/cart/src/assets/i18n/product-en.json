@@ -130,7 +130,8 @@
     "category": {
       "select": "Select {name} category",
       "search": "Category search...",
-      "all": "All Categories"
+      "all": "All Categories",
+      "empty": "Empty"
     },
     "search": {
       "placeholder": "Search by product name..."

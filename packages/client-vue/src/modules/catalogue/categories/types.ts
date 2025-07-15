@@ -5,3 +5,7 @@ export interface CategoriesProps {
   sort?: ProductSortProps["property"];
   direction?: ProductSortProps["direction"];
 }
+
+export interface CategoriesFacetProps extends CategoriesProps {
+  query: string;
+}

@@ -2,21 +2,21 @@
   <div :class="styles.products.item.root">
     <div :class="styles.products.item.content">
       <div class="relative">
-        <img
-          v-if="productDetails?.imgUrl && !imageError"
-          :src="productDetails?.imgUrl"
-          :alt="productDetails?.title"
-          :class="styles.products.item.image"
-          @error="imageError = true"
-        />
+        <router-link :to="addLink">
+          <img
+            v-if="productDetails?.imgUrl && !imageError"
+            :src="productDetails?.imgUrl"
+            :alt="productDetails?.title"
+            :class="styles.products.item.image"
+            @error="imageError = true" />
 
-        <div v-else :class="styles.products.item.imagePlaceholder">
-          <Icon
-            icon="camera"
-            size="xl"
-            :class="styles.products.item.placeholderIcon"
-          />
-        </div>
+          <div v-else :class="styles.products.item.imagePlaceholder">
+            <Icon
+              icon="camera"
+              size="xl"
+              :class="styles.products.item.placeholderIcon"
+            /></div
+        ></router-link>
 
         <div class="absolute -right-3 top-3/4">
           <Promotion
