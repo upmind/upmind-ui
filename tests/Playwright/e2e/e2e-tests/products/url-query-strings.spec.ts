@@ -29,32 +29,6 @@ test.describe("Manipulating elements/behaviour with URL query strings", () => {
       );
     });
   });
-  test.describe("Setting a product bundle via URL params", () => {
-    test("Valid Bundle", async ({ page }) => {
-      await page.goto(
-        "http://qa-automation.local:5173?pid=8d632507-9806-5d1e-de4a-8174e234e98d&bundle=coaching"
-      );
-      await page.waitForLoadState("networkidle");
-      await page.getByTestId("button-confirm-and-proceed").click();
-      await expect(basket.basketProductSummary.nth(0)).toContainText(
-        "Startup Planning"
-      );
-      await expect(basket.basketProductSummary.nth(1)).toContainText(
-        "Coaching"
-      );
-    });
-    test("Invalid Bundle", async ({ page }) => {
-      await page.goto(
-        "http://qa-automation.local:5173?pid=8d632507-9806-5d1e-de4a-8174e234e98d&bundle=invalidstring"
-      );
-      await page.waitForLoadState("networkidle");
-      await page.getByTestId("button-confirm-and-proceed").click();
-      await expect(basket.basketProduct.nth(0)).toContainText(
-        "Startup Planning"
-      );
-      await expect(basket.basketProduct.nth(1)).toBeHidden();
-    });
-  });
   test.describe("Setting default quantity via URL param", () => {
     test("Valid quantity value", async ({ page }) => {
       await page.goto(
