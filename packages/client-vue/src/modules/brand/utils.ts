@@ -16,15 +16,14 @@ import {
   last,
   dropRight,
   join,
-  has,
-  isEmpty
+  has
 } from "lodash-es";
 import type { IImage } from "../../../../types/src";
 
 // import { IBrandMetaToken } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 
-const applyToken = (token: any /*IBrandMetaToken*/) => {
+function applyToken(token: any /*IBrandMetaToken*/) {
   const variables: Record<string, string> = {};
 
   const flatten = (obj: any, path: string[] = []) => {
@@ -48,7 +47,7 @@ const applyToken = (token: any /*IBrandMetaToken*/) => {
   forEach(variables, (value, key) => {
     document.documentElement.style.setProperty(`--${key}`, value);
   });
-};
+}
 
 // -----------------------------------------------------------------------------
 
@@ -112,7 +111,7 @@ export function setBrandFavicon(brandFavicon?: IImage) {
   });
 }
 
-export const setBrandFontFamily = (fontFamily: string) => {
+export function setBrandFontFamily(fontFamily: string) {
   if (!fontFamily) return;
 
   WebFontLoader.load({
@@ -132,9 +131,9 @@ export const setBrandFontFamily = (fontFamily: string) => {
       );
     }
   });
-};
+}
 
-export const setBrandTheme = (name: string, token: any /*IBrandMetaToken*/) => {
+export function setBrandTheme(name: string, token: any /*IBrandMetaToken*/) {
   applyToken(token);
 
   return {
@@ -143,4 +142,4 @@ export const setBrandTheme = (name: string, token: any /*IBrandMetaToken*/) => {
     extend: theme,
     uiConfig
   };
-};
+}

@@ -1,5 +1,5 @@
 // --- external
-import { ref, computed, readonly } from "vue";
+import { ref, computed } from "vue";
 
 // --- internal
 import { useBrand } from "@upmind-automation/headless";
@@ -11,7 +11,7 @@ import {
   setBrandTheme,
   setBrandTitle
 } from "./utils";
-import { isEmpty, keys, map, get, has, isEqual, first } from "lodash-es";
+import { isEmpty, keys, get, isEqual, first } from "lodash-es";
 
 // --- types
 import type { Theme } from "@upmind-automation/upmind-ui";
@@ -50,12 +50,11 @@ export const useBrandTheme = (initial?: Theme) => {
 
   // the theme definition
   const theme = ref<Theme | undefined>(initial);
-
   const available = computed(() => uiTheme.value?.variants);
 
   const meta = computed(() => ({
     isAvailable: brandMeta.value.isAvailable,
-    hasSettings: !isEmpty(theme.value)
+    hasSettings: brandMeta.value.isAvailable && !isEmpty(theme.value)
   }));
 
   // --- methods
