@@ -5,7 +5,6 @@
       class="min-h-56"
       v-model="activeTab"
       :tabs="tabs"
-      :default-tab="defaultTab"
       data-testid="billing"
     >
       <template v-slot:[`content.personal`]>
@@ -63,16 +62,22 @@ const { isReady, meta, config, update, model } = useBasketBilling();
 
 const activeTab = ref<UnifiedType>();
 
-await Promise.all([isReady(), useClientAddresses(), useClientCompanies()]).then(
-  () => {
-    // set initial value from the basket billing model
-    modelValue.value ??= model.value;
-
-    if (config.value?.requiresCompany || model.value?.companyId)
-      activeTab.value = UnifiedType.BUSINESS;
-    else activeTab.value = UnifiedType.PERSONAL;
+await Promise.allSettled([
+  isReady(),
+  useClientAddresses(),
+  useClientCompanies()
+]).then(() => {
+  // set initial value from the basket billing model
+  modelValue.value ??= model.value;
+  debugger;
+  if (config.value?.requiresCompany || model.value?.companyId) {
+    debugger;
+    activeTab.value = UnifiedType.BUSINESS;
+  } else {
+    debugger;
+    activeTab.value = UnifiedType.PERSONAL;
   }
-);
+});
 
 const tabs = computed((): TabItem[] => {
   const tabItems: TabItem[] = [];
@@ -93,11 +98,6 @@ const tabs = computed((): TabItem[] => {
   });
 
   return tabItems;
-});
-
-const defaultTab = computed((): UnifiedType => {
-  if (config.value?.requiresCompany) return UnifiedType.BUSINESS;
-  return UnifiedType.PERSONAL;
 });
 
 // --- side effects
