@@ -78,6 +78,7 @@
 import { HtmlHTMLAttributes, ref, watch } from "vue";
 import { debounce } from "lodash-es";
 import {
+  ProductSortableProperties,
   RequestSortDirection,
   useProductCatalogue
 } from "@upmind-automation/headless";
@@ -91,7 +92,7 @@ const props = withDefaults(
   defineProps<{
     class?: HtmlHTMLAttributes["class"];
     sort: {
-      property: string;
+      property: ProductSortableProperties;
       direction: RequestSortDirection;
     };
     limit?: number;
@@ -135,11 +136,10 @@ watch(
 watch(
   () => props.sort,
   (newSort: {
-    property: string;
-    direction: RequestSortDirection | "default";
+    property: ProductSortableProperties;
+    direction: RequestSortDirection;
   }) => {
-    if (newSort.direction === "default") sort.clear();
-    else sort.set(newSort.property, newSort.direction);
+    sort(newSort.property, newSort.direction);
   },
   { immediate: true }
 );
