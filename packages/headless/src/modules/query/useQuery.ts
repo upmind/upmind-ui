@@ -6,7 +6,7 @@ import {
   useInfiniteQuery as vueUseInfiniteQuery
 } from "@tanstack/vue-query";
 import { isArray, isFunction } from "xstate/lib/utils";
-import { ref, unref, watch, computed } from "vue";
+import { ref, unref, computed } from "vue";
 
 // --- internal
 import { useLocale } from "../system";
@@ -293,7 +293,6 @@ export const useQuery = () => {
     const { currencyCode } = useBasketCurrency();
 
     // --- state
-
     const limit = options?.pagination?.limit ?? PAGINATION.limit;
     const offset = options?.pagination?.offset ?? PAGINATION.offset;
     const sort = ref(options?.sort);
@@ -320,7 +319,7 @@ export const useQuery = () => {
           const safeguard: Promise<void | boolean> = hasGuard
             ? guard()
             : Promise.resolve();
-          return safeguard.then(() => {
+          return safeguard.then(async () => {
             return request<TQueryFnData>({
               url,
               sort: sort.value,
@@ -506,7 +505,6 @@ export const useQuery = () => {
     const { currencyCode } = useBasketCurrency();
 
     // --- state
-
     const limit = options?.pagination?.limit ?? PAGINATION.limit;
     const sort = ref(options?.sort);
     const total = ref(0);
@@ -681,6 +679,7 @@ export const useQuery = () => {
    * @param guard A function that returns a promise to be resolved before the request is sent. This can be used to ensure that certain conditions are met before the request is sent, such as checking if the user is authenticated.
    * @param select A function to select a subset of the data returned by the request. This can be used to transform the data before it is returned.
    * @param queryKey The query key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
+   * @param withCurrency Whether to automagically add the currency filter to the request based on the `useBasketCurrency` composable.
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
    * @param options Additional options to pass to TanStack query.
    */
@@ -690,8 +689,8 @@ export const useQuery = () => {
     guard,
     select,
     queryKey,
-    withAccessToken,
     withCurrency,
+    withAccessToken,
     ...options
   }: Omit<QueryParams<TQueryFnData, TData>, "pagination">): Promise<TData> {
     // Remove initialData from options before spreading, as it's not part of FetchQueryOptions
