@@ -338,7 +338,6 @@ function mapLaravelRulesToJsonSchemaProperty(
   }
 
   if (field.semantic_type) {
-    debugger;
     schemaProperty.semantic_type = field.semantic_type;
   }
 
