@@ -1,5 +1,5 @@
 <template>
-  <FormControl autoFocus :formItemId="id">
+  <FormControl autoFocus :formItemId="id" v-bind="$attrs">
     <DomainSearch
       v-model="queryValue"
       :showComplete="meta.showComplete"

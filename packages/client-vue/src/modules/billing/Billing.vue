@@ -69,12 +69,9 @@ await Promise.allSettled([
 ]).then(() => {
   // set initial value from the basket billing model
   modelValue.value ??= model.value;
-  debugger;
   if (config.value?.requiresCompany || model.value?.companyId) {
-    debugger;
     activeTab.value = UnifiedType.BUSINESS;
   } else {
-    debugger;
     activeTab.value = UnifiedType.PERSONAL;
   }
 });
