@@ -10,7 +10,8 @@ import {
   useLaravalSchemaParser,
   useTranslateField,
   useTranslateName,
-  useValidation
+  useValidation,
+  useImageUrl
 } from "../../utils";
 
 import {
@@ -544,7 +545,7 @@ export const parseProductDetails = (
     // ---
     description: useTranslateField(rawProduct, "description"),
     excerpt: useTranslateField(rawProduct, "short_description"),
-    imgUrl: rawProduct?.image?.full_url,
+    imgUrl: useImageUrl(rawProduct?.image?.full_url, "400x400"),
     // ---
     quantity: rawProduct?.min_order_quantity || rawProduct?.unit_quantity || 1,
     quantifiable: rawProduct?.order_type == 2,
