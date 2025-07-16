@@ -97,11 +97,7 @@ export default createMachine(
                 on: {
                   REFRESH: {
                     target: "complete",
-                    actions: [
-                      "setBasketProducts",
-                      "setCurrency",
-                      "setPromotions"
-                    ]
+                    actions: ["setBasketProducts", "refreshContext"]
                   },
                   ERROR: {
                     target: "complete"
@@ -198,7 +194,7 @@ export default createMachine(
             on: {
               REFRESH: {
                 // Do nothing > wait for the updated event
-                actions: ["setBasketProducts", "setCurrency", "setPromotions"]
+                actions: ["setBasketProducts", "refreshContext"]
               },
               UPDATED: {
                 target: "#basket",
@@ -336,8 +332,7 @@ export default createMachine(
       REFRESH: {
         actions: [
           "setBasketProducts",
-          "setCurrency",
-          "setPromotions",
+          "refreshContext",
           "checkChoices",
           "checkType"
         ]
@@ -393,6 +388,8 @@ export default createMachine(
           },
           // ---
           currency: undefined,
+          basketId: undefined,
+          brandId: undefined,
           promotions: [],
           // ---
           search: {
@@ -486,16 +483,25 @@ export default createMachine(
         error: undefined
       }),
 
-      setCurrency: assign({
-        currency: (_context, { data }: AnyEventObject) => {
-          return get(data, "currency.code");
-        }
-      }),
+      refreshContext: assign(
+        (_context: DomainContext, { data }: AnyEventObject) => {
+          const {
+            id: basketId,
+            brand_id: brandId,
+            currency,
+            promotions
+          } = data as IBasket;
 
-      setPromotions: assign({
-        promotions: (_context, { data }: AnyEventObject) =>
-          data?.promotions ?? []
-      }),
+          const newContext = {
+            basketId,
+            brandId,
+            currency: currency.code,
+            promotions: promotions ?? []
+          };
+
+          return newContext;
+        }
+      ),
 
       setAuthHelper: assign(({ authHelper }: DomainContext) => ({
         authHelper: authHelper || spawn(authSubscription)

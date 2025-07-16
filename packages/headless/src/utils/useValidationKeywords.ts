@@ -26,6 +26,12 @@ export const useManageKeyword: KeywordDefinition = {
   errors: false
 };
 
+export const useSemanticTypeKeyword: KeywordDefinition = {
+  keyword: "semantic_type",
+  schemaType: "string",
+  errors: false
+};
+
 export const phoneCountryCodeKeyword: KeywordDefinition = {
   keyword: "phone_country_code",
   type: ["string", "object", "null"],

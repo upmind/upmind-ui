@@ -10,7 +10,12 @@ import {
 
 // --- utils
 import { isEmpty } from "lodash-es";
-import { useCookies } from "../../../utils";
+import {
+  DetailedError,
+  ErrorOrigin,
+  responseCodes,
+  useCookies
+} from "../../../utils";
 import { getTokenFromStorage, persistTokenToStorage } from "../utils";
 
 // ---types
@@ -105,6 +110,18 @@ async function verify2fa({ token }: GuestContext, { data }: AnyEventObject) {
     .then(data => {
       persistTokenToStorage(data);
       return data;
+    })
+    .catch(error => {
+      return Promise.reject(
+        new DetailedError(
+          error.message || "Invalid 2FA code",
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.Upmind,
+          {
+            token: error.message || "Invalid Token"
+          }
+        )
+      );
     })
     .then(loadUser);
 }

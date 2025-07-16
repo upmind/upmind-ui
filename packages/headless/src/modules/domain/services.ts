@@ -17,6 +17,8 @@ import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 async function search({
   search,
   currency,
+  basketId,
+  brandId,
   controller,
   promotions,
   preferredCycle
@@ -42,6 +44,8 @@ async function search({
       sld,
       with: ["prices", "options", "options.prices", "attributes"].join(),
       currency_code: currency,
+      basket_id: basketId,
+      brand_id: brandId,
       // tld,
       promotions: promocodes
     },
@@ -58,6 +62,7 @@ async function search({
     },
     staleTime: 0,
     gcTime: 0,
+    withAccessToken: true,
     select(data) {
       return parseAvailable(sld, data ?? [], preferredCycle);
     }
