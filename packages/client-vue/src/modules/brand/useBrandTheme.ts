@@ -5,7 +5,12 @@ import { ref, computed, readonly } from "vue";
 import { useBrand } from "@upmind-automation/headless";
 
 // --- utils
-import { loadFont, createTheme } from "./utils";
+import {
+  setBrandFavicon,
+  setBrandFontFamily,
+  setBrandTheme,
+  setBrandTitle
+} from "./utils";
 import { isEmpty, keys, map, get, has, isEqual, first } from "lodash-es";
 
 // --- types
@@ -59,21 +64,15 @@ export const useBrandTheme = (initial?: Theme) => {
 
     const config = get(uiTheme.value, ["variants", value]);
     if (config) {
-      theme.value = createTheme(value, config);
+      theme.value = setBrandTheme(value, config);
       apply();
     }
   };
 
   async function apply() {
-    document.title = name.value ? `Checkout | ${name.value}` : "Checkout";
-    loadFont(styles.value?.brand_font?.family ?? "Inter Tight");
-    if (favicon.value) {
-      document.head.insertAdjacentHTML(
-        "beforeend",
-        `<link rel="icon" href="${favicon.value?.full_url}">`
-      );
-    }
-    return true;
+    setBrandTitle(name.value);
+    setBrandFontFamily(styles.value?.brand_font?.family ?? "Inter Tight");
+    setBrandFavicon(favicon.value);
   }
 
   // --- Side Effects
