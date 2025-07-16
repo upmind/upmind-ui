@@ -2,7 +2,7 @@
 import parsePhoneNumber, { CountryCode } from "libphonenumber-js";
 
 // --- utils
-import { map, get, compact, isArray, isNil, omitBy } from "lodash-es";
+import { map, get, compact, isArray } from "lodash-es";
 
 // --- types
 import type { IPhone } from "@upmind-automation/types";
@@ -40,12 +40,11 @@ export function mapPhone(raw: IPhone): Phone {
 }
 
 export function mapIPhone(data: PhoneModel): IPhone {
-  return omitBy(
-    {
-      phone: data.phone.nationalNumber, // without the country code
-      phone_code: `+${data.phone.countryCallingCode}`,
-      phone_country_code: data.phone.country
-    } as IPhone,
-    isNil
-  ) as IPhone;
+  return {
+    phone: data.phone.nationalNumber ?? null, // without the country code
+    phone_code: data.phone.countryCallingCode
+      ? `+${data.phone.countryCallingCode}`
+      : null,
+    phone_country_code: data.phone.country ?? null
+  } as IPhone;
 }
