@@ -23,7 +23,6 @@
           control.data?.number
         "
         :placeholder="exampleNumber || ''"
-        :auto-focus="formFieldProps.autoFocus"
         @update:modelValue="onPhoneInput"
         type="tel"
         class="rounded-l-none focus:outline-none"

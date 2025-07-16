@@ -85,7 +85,11 @@ function maybeFocus([section]: IntersectionObserverEntry[]) {
     // ensure the element itself is focusable, or try to find the first focusable child element
     if (!focussable.includes(el.tagName.toLowerCase())) {
       const children = el.querySelectorAll(focussable.join(", "));
-      el = first(children) as HTMLInputElement;
+      // Filter out elements with tabindex="-1" as they should not be auto-focused
+      const focusableChildren = Array.from(children).filter(
+        child => child.getAttribute("tabindex") !== "-1"
+      );
+      el = first(focusableChildren) as HTMLInputElement;
     }
 
     if (el?.getAttribute("tabindex")) el.setAttribute("tabindex", "-1");

@@ -21,7 +21,7 @@
     </TabsList>
 
     <template v-for="item in tabs" :key="item.value">
-      <TabsContent :value="item.value" :forceMount="item?.eager">
+      <TabsContent :value="item.value" :forceMount="item?.eager" tabindex="-1">
         <slot :name="`content.${item.value}`"></slot>
       </TabsContent>
     </template>
