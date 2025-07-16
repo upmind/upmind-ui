@@ -28,6 +28,6 @@ export const mapEmail = (raw: IEmail): Email => {
 
 export const mapIEmail = (data: EmailModel): IEmail => {
   return {
-    email: data.email
+    email: data.email ?? ""
   } as IEmail;
 };

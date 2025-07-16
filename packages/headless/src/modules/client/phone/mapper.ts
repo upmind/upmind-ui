@@ -41,10 +41,10 @@ export function mapPhone(raw: IPhone): Phone {
 
 export function mapIPhone(data: PhoneModel): IPhone {
   return {
-    phone: data.phone.nationalNumber ?? null, // without the country code
+    phone: data.phone.nationalNumber ?? "", // without the country code
     phone_code: data.phone.countryCallingCode
       ? `+${data.phone.countryCallingCode}`
-      : null,
-    phone_country_code: data.phone.country ?? null
+      : "",
+    phone_country_code: data.phone.country ?? ""
   } as IPhone;
 }
