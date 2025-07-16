@@ -1,7 +1,7 @@
 import { cva } from "class-variance-authority";
 
 export const tabsListVariants = cva(
-  "inline-flex items-center rounded-lg p-1 text-muted-foreground",
+  "mb-4 inline-flex items-center rounded-lg p-1 text-muted-foreground",
   {
     variants: {
       variant: {
