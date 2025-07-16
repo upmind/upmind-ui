@@ -1,9 +1,5 @@
 <template>
-  <div
-    v-if="!meta.isLoading"
-    class="flex w-full flex-col gap-4 pt-2"
-    v-auto-animate
-  >
+  <div v-if="!meta.isLoading" class="flex w-full flex-col gap-4" v-auto-animate>
     <Form
       v-if="showForm"
       i18nKey="client.company"
