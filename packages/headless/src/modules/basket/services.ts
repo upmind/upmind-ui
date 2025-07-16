@@ -185,7 +185,7 @@ async function convert(
     data.tracking = await getTracking().catch(() => undefined);
   } catch (error) {
     // TEMPORARY: we need to log this error, as it may be useful for debugging in sentry
-    console.error(" Error converting basket", error);
+    // console.error(" Error converting basket", error);
   }
 
   // ---
