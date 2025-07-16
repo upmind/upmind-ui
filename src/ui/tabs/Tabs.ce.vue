@@ -2,7 +2,12 @@
   <!--<link rel="stylesheet" :href="stylesheet" />-->
 
   <Tabs v-bind="forwarded">
-    <TabsList :class="styles.tabs.list" :color="color" :variant="variant">
+    <TabsList
+      :class="styles.tabs.list"
+      :color="color"
+      :variant="variant"
+      v-if="tabs.length > 1"
+    >
       <template v-for="item in tabs" :key="item.value">
         <TabsTrigger
           :value="item.value"
