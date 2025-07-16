@@ -1,5 +1,5 @@
 // --- utils
-import { get, map, isNil, isArray, compact, omitBy } from "lodash-es";
+import { get, map, isArray, compact } from "lodash-es";
 
 // --- types
 import type { IAddress } from "@upmind-automation/types";
@@ -50,18 +50,15 @@ export function mapAddress(raw: IAddress): Address {
 }
 
 export function mapIAddress(data: AddressModel): IAddress {
-  return omitBy(
-    {
-      name: data.name || data.address.address1 || "Address",
-      address_1: data.address.address1,
-      address_2: data.address.address2,
-      city: data.address.city,
-      state: data.address.state,
-      postcode: data.address.postcode,
-      region_id: data.address.regionId,
-      country_id: data.address.countryId,
-      type: 1 // We are forcing type to always be 1 for simplicity
-    } as IAddress,
-    isNil
-  ) as IAddress;
+  return {
+    name: data.name || data.address.address1 || null,
+    address_1: data.address.address1 ?? null,
+    address_2: data.address.address2 ?? null,
+    city: data.address.city ?? null,
+    state: data.address.state ?? null,
+    postcode: data.address.postcode ?? null,
+    region_id: data.address.regionId ?? null,
+    country_id: data.address.countryId ?? null,
+    type: 1 // We are forcing type to always be 1 for simplicity
+  } as IAddress;
 }
