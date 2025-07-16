@@ -69,12 +69,9 @@ await Promise.allSettled([
 ]).then(() => {
   // set initial value from the basket billing model
   modelValue.value ??= model.value;
-  debugger;
   if (config.value?.requiresCompany || model.value?.companyId) {
-    debugger;
     activeTab.value = UnifiedType.BUSINESS;
   } else {
-    debugger;
     activeTab.value = UnifiedType.PERSONAL;
   }
 });
@@ -105,11 +102,7 @@ const tabs = computed((): TabItem[] => {
 watch(
   modelValue,
   value => {
-    if (value) {
-      update(value).catch(error => {
-        console.error("Error updating billing model:", error);
-      });
-    }
+    if (value) update(value);
   },
   {
     immediate: true,
