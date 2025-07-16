@@ -3,7 +3,9 @@
     <nav :class="styles.control.content">
       <slot name="controls">
         <div>
-          <slot name="navigation" />
+          <slot name="navigation">
+            <p class="select-none opacity-0">Empty</p>
+          </slot>
         </div>
 
         <div>

@@ -38,6 +38,7 @@
         <div
           v-if="additionalOption"
           :class="styles.search.item"
+          class="text-emphasis-medium"
           @click="
             onSelect({
               id: 'additional',
