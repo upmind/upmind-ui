@@ -102,11 +102,7 @@ const tabs = computed((): TabItem[] => {
 watch(
   modelValue,
   value => {
-    if (value) {
-      update(value).catch(error => {
-        console.error("Error updating billing model:", error);
-      });
-    }
+    if (value) update(value);
   },
   {
     immediate: true,
