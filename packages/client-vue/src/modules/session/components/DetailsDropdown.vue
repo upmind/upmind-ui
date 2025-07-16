@@ -23,6 +23,7 @@
 
 <script setup lang="ts">
 // --- internal
+import { computed } from "vue";
 import { useSession } from "@upmind-automation/headless";
 
 // --- components
@@ -36,12 +37,12 @@ import { useI18n } from "vue-i18n";
 const { t } = useI18n();
 
 const { user, logout, meta } = useSession();
-const items: DropdownMenuItemProps[] = [
+const items = computed<DropdownMenuItemProps[]>(() => [
   {
     label: t("auth.actions.logout"),
     icon: "logout",
     value: "logout",
     handler: logout
   }
-];
+]);
 </script>
