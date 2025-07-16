@@ -65,8 +65,9 @@ export const useBrandTheme = (initial?: Theme) => {
     const config = get(uiTheme.value, ["variants", value]);
     if (config) {
       theme.value = setBrandTheme(value, config);
-      apply();
     }
+    // Apply the theme to the document
+    apply();
   };
 
   async function apply() {
