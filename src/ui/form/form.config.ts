@@ -15,7 +15,7 @@ export const formVariants = cva("", {
 
 export default {
   form: {
-    root: cva("relative flex w-full flex-col gap-8"),
+    root: cva("relative flex w-full flex-col gap-6"),
     loading: cva(""),
     content: cva("transition-opacity duration-300", {
       variants: {
