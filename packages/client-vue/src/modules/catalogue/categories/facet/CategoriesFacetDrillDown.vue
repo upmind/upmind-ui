@@ -4,7 +4,7 @@
       :as="RouterLink"
       v-for="(category, index) in items"
       :key="`category-${index}`"
-      :to="category.to"
+      v-bind="category"
       variant="ghost"
       size="sm"
       :class="
@@ -13,8 +13,6 @@
           category.current && 'bg-control-active-muted'
         ])
       "
-      @click="category.handler"
-      :label="category.label"
     >
       <template #append>
         <Icon icon="chevron-right" size="2xs" />
@@ -25,11 +23,11 @@
   <Button
     v-if="parentCategory"
     :as="RouterLink"
+    v-bind="parentCategory"
     variant="outline"
     color="base"
     size="sm"
     :class="styles.products.facet.drillDown.back"
-    v-bind="parentCategory"
   >
     <template #prepend>
       <Icon icon="arrow-left" size="3xs" />
@@ -97,12 +95,9 @@ const currentCategory = computed(() => {
 });
 
 const parentCategory = computed(() => {
-  const parentId = getParent(modelValue.value ?? "");
+  if (!modelValue.value) return;
 
-  if (!parentId) {
-    modelValue.value = undefined;
-    return;
-  }
+  const parentId = getParent(modelValue.value);
 
   return {
     id: parentId,
@@ -114,9 +109,6 @@ const parentCategory = computed(() => {
         direction: props.direction,
         catid: parentId
       }
-    },
-    handler: () => {
-      modelValue.value = parentId;
     }
   };
 });
