@@ -195,7 +195,11 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
 
   const options = parseSubproducts(
     "options",
-    context,
+    {
+      lookups: context.lookups,
+      model: values,
+      subproducts: context.subproducts
+    },
     values?.options,
     values.quantity
   );
@@ -204,7 +208,11 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
 
   const attributes = parseSubproducts(
     "attributes",
-    context,
+    {
+      lookups: context.lookups,
+      model: values,
+      subproducts: context.subproducts
+    },
     values?.attributes,
     values.quantity
   );
