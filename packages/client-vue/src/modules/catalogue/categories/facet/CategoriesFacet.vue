@@ -17,7 +17,12 @@
     </InputExtended>
 
     <nav :class="styles.products.facet.list.root">
-      <CategoriesFacetDrillDown v-model="modelValue" :query="query" />
+      <CategoriesFacetDrillDown
+        v-model="modelValue"
+        :query="query"
+        :sort="props.sort"
+        :direction="props.direction"
+      />
     </nav>
   </section>
 </template>
@@ -39,7 +44,7 @@ import type { CategoriesProps } from "../types";
 import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
-defineProps<Omit<CategoriesProps, "modelValue">>();
+const props = defineProps<Omit<CategoriesProps, "modelValue">>();
 const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
 
 // -----------------------------------------------------------------------------

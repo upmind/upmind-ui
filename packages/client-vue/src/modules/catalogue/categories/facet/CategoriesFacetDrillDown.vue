@@ -23,13 +23,13 @@
   </section>
 
   <Button
-    v-if="modelValue"
+    v-if="parentCategory"
+    :as="RouterLink"
     variant="outline"
     color="base"
     size="sm"
     :class="styles.products.facet.drillDown.back"
-    :label="'Back'"
-    @click="back"
+    v-bind="parentCategory"
   >
     <template #prepend>
       <Icon icon="arrow-left" size="3xs" />
@@ -97,7 +97,28 @@ const currentCategory = computed(() => {
 });
 
 const parentCategory = computed(() => {
-  return getParent(modelValue.value ?? "");
+  const parentId = getParent(modelValue.value ?? "");
+
+  if (!parentId) {
+    modelValue.value = undefined;
+    return;
+  }
+
+  return {
+    id: parentId,
+    label: t("product.back"),
+    to: {
+      name: ROUTE.CATALOGUE,
+      query: {
+        sort: props.sort,
+        direction: props.direction,
+        catid: parentId
+      }
+    },
+    handler: () => {
+      modelValue.value = parentId;
+    }
+  };
 });
 
 const createCategoryItem = (category: ProductCategory) => ({
@@ -126,12 +147,4 @@ const items = computed(() => {
     ? [createCategoryItem(currentCategory.value), ...items]
     : items;
 });
-
-const back = () => {
-  if (parentCategory.value) {
-    modelValue.value = parentCategory.value;
-  } else {
-    modelValue.value = undefined;
-  }
-};
 </script>
