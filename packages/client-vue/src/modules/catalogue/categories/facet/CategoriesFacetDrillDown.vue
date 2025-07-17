@@ -87,7 +87,7 @@ const styles = useStyles(
 const filteredCategories = computed((): ProductCategory[] => {
   if (!props.query) return getChildren(modelValue.value);
 
-  return filter(props.query, modelValue.value);
+  return filter(props.query);
 });
 
 const currentCategory = computed(() => {
