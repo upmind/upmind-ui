@@ -408,7 +408,7 @@ export function parseTerm(
 
 export function parseSubproducts(
   type: "attributes" | "options",
-  { lookups, model, subproducts: subproductIds }: ProductConfigContext,
+  { lookups, model, subproducts: subproductIds }: Partial<ProductConfigContext>,
   values: ProductModel["attributes"] | ProductModel["options"],
   quantity?: ProductModel["quantity"]
 ): {
@@ -486,8 +486,12 @@ export function parseSubproducts(
             // ensure we have a valid unit_quantity
             value.quantity = parseQuantity(Number(value.quantity), product);
 
-            // ensure we map the product cycle to the value
-            value.cycle = product.cycle;
+            // ensure we map the product cycle to the value of the term ( if set ), but only if this is a recurring product
+            // ie: if the cycle is 0, then we use the product cycle, otherwise we use the model term, fallbacking to the preferred product cycle
+            value.cycle =
+              product.cycle == 0
+                ? product.cycle
+                : (model?.term ?? product.cycle);
 
             set(result, id, value);
 
