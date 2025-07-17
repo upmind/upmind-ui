@@ -18,9 +18,9 @@ export const inputContainerVariants = cva(
       },
       inputSize: {
         sm: "px-3 py-2 text-sm",
-        md: "px-3 py-2 text-md md:text-lg",
-        lg: "px-4 py-3 text-md md:text-xl",
-        xl: "px-5 py-4 text-xl md:text-xl"
+        md: "px-3 py-2 text-md",
+        lg: "px-4 py-3 text-lg",
+        xl: "px-5 py-4 text-xl"
       }
     },
     defaultVariants: {
