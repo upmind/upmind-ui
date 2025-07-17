@@ -666,9 +666,14 @@ export default createMachine(
         return value;
       },
 
-      hasBundles: ({ lookups, rawProduct, silent }: ProductConfigContext) => {
-        // if we are silent, then we are not bundled
-        if (silent) return false;
+      hasBundles: ({
+        lookups,
+        rawProduct,
+        silent,
+        rawBasketProduct
+      }: ProductConfigContext) => {
+        // if we are silent or editing, then we are not bundled
+        if (silent || !isEmpty(rawBasketProduct)) return false;
         return !isEmpty(lookups?.bundled);
       }
     },
