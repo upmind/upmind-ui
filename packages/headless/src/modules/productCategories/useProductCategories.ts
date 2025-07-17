@@ -113,12 +113,8 @@ export const useProductCategories = (initial?: QueryProps) => {
 
     if (!param) return categories;
 
-    return filter(
-      categories,
-      item =>
-        includes(item.title.toLowerCase(), param.toLowerCase()) ||
-        includes(item?.description?.toLowerCase(), param.toLowerCase()) ||
-        includes(item?.excerpt?.toLowerCase(), param.toLowerCase())
+    return filter(categories, item =>
+      includes(item.title.toLowerCase(), param.toLowerCase())
     );
   }
 

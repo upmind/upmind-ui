@@ -54,7 +54,9 @@ export const useBrandTheme = (initial?: Theme) => {
 
   const meta = computed(() => ({
     isAvailable: brandMeta.value.isAvailable,
-    hasSettings: brandMeta.value.isAvailable && !isEmpty(theme.value)
+    hasSettings:
+      brandMeta.value.isAvailable &&
+      (isEmpty(available.value) || !isEmpty(theme.value))
   }));
 
   // --- methods
