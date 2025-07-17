@@ -1,7 +1,7 @@
 <template>
   <Layout>
     <template #navigation>
-      <Back :to="storefrontUrl" i18n-key="basket.back" />
+      <Back v-bind="route" i18n-key="basket.back" />
     </template>
 
     <div class="flex items-center justify-center" v-auto-animate>
@@ -134,7 +134,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 
@@ -143,7 +143,8 @@ import {
   useBasket,
   useBasketFields,
   useDataLayer,
-  useBrand
+  useBrand,
+  ROUTE
 } from "@upmind-automation/headless";
 
 // --- components
@@ -167,7 +168,7 @@ import Back from "../../components/navigation/Back.vue";
 
 const { t } = useI18n();
 const { meta, productsInvalid, isReady } = useBasket();
-const { storefrontUrl } = useBrand();
+const { storefrontUrl, hasStorefront } = useBrand();
 
 const {
   errors: fieldsErrors,
@@ -182,6 +183,13 @@ const {
 const open = ref(false);
 
 await isReady();
+
+const route = computed(() => {
+  return {
+    to: !hasStorefront.value ? { name: ROUTE.CATALOGUE } : undefined,
+    href: hasStorefront.value ? storefrontUrl.value : undefined
+  };
+});
 
 const { dataLayer } = useDataLayer();
 dataLayer({ event: "view_cart" }).withEcommerce().push();
