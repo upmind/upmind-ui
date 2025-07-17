@@ -33,7 +33,7 @@
     "type": "git",
     "url": "git@git.upmind.io:upmind/upmind-monorepo.git"
   },
-  "packageManager": "pnpm@10.12.1",
+  "packageManager": "pnpm@10.13.1",
   "scripts": {
     "clean": "rm -rf */**/{node_modules,dist,bin,lib,*.tsbuildinfo} && rm -rf node_modules && pnpm install",
     "start": "pnpm -r start",
@@ -74,6 +74,7 @@
     "vue-tsc": "^2.2.2"
   },
   "dependencies": {
+    "otpauth": "^9.4.0",
     "prettier-plugin-tailwindcss": "^0.6.11"
   }
 }

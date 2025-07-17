@@ -32,7 +32,9 @@ variables:
     paths:
       - apps/cart/dist
   script:
-    - pnpm --dir apps/cart install
+    - apk add git
+    - git config --global --add safe.directory '*'
+    - pnpm install
     - pnpm run build
 
 (apps/cart) deploy staging:

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!meta.isLoading" class="flex w-full flex-col gap-4 pt-2">
+  <div v-if="!meta.isLoading" class="flex w-full flex-col gap-4" v-auto-animate>
     <Form
       v-if="showForm"
       i18nKey="client.address"
@@ -60,6 +60,7 @@
 // --- external
 import { computed, ref } from "vue";
 import { useVModel } from "@vueuse/core";
+import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
 import {

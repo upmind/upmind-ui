@@ -8,14 +8,6 @@
     :minimal="props.minimal"
     :list="false"
     required
-    :ui-config="
-      {
-        select: {
-          item: 'p-0',
-          trigger: 'p-0'
-        }
-      } as any
-    "
   >
     <template #item="{ item }">
       <slot
@@ -48,7 +40,7 @@
 
     <template v-if="!readonly" #additional-item>
       <slot name="additional-item">
-        <p @click="doAdd" class="w-full p-3 px-4 text-sm">
+        <p @click="doAdd" class="w-full py-1 text-sm">
           {{ t(`${i18nKey ?? "manage"}.actions.add`) }}
         </p>
       </slot>

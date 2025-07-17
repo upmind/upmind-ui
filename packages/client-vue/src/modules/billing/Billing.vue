@@ -1,10 +1,11 @@
 <template>
-  <Loading :active="meta.isLoading || meta.isProcessing" class="w-full">
+  <Loading :active="meta.isProcessing" class="w-full rounded-lg">
     <Tabs
-      v-if="meta.isAvailable"
+      :as="props.as"
+      class="min-h-56"
       v-model="activeTab"
       :tabs="tabs"
-      :default-tab="defaultTab"
+      data-testid="billing"
     >
       <template v-slot:[`content.personal`]>
         <TabPersonal v-model="modelValue" />
@@ -26,7 +27,9 @@ import { useI18n } from "vue-i18n";
 import {
   UnifiedType,
   useSession,
-  useBasketBilling
+  useBasketBilling,
+  useClientAddresses,
+  useClientCompanies
 } from "@upmind-automation/headless";
 
 // --- components
@@ -38,23 +41,16 @@ import TabPersonal from "./components/TabPersonal.vue";
 
 // --- types
 import type { TabItem } from "@upmind-automation/upmind-ui";
-import type { BillingModel } from "@upmind-automation/headless";
-import { useVModel } from "@vueuse/core";
+import type { BillingProps } from "./types";
 
 // -----------------------------------------------------------------------------
 
-const props = defineProps<{
-  modelValue?: BillingModel;
-}>();
-
-const emits = defineEmits<{
-  (e: "update:modelValue", value: BillingModel): void;
-}>();
-
-const modelValue = useVModel(props, "modelValue", emits, {
-  passive: true,
-  deep: true
+const props = withDefaults(defineProps<Omit<BillingProps, "modelValue">>(), {
+  as: "div",
+  forceMount: false
 });
+
+const modelValue = defineModel<BillingProps["modelValue"]>("modelValue");
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
@@ -62,15 +58,22 @@ const { t } = useI18n();
 const { user } = useSession();
 const { isReady, meta, config, update, model } = useBasketBilling();
 
+// ensure we preload our data for speed between the tab
+
 const activeTab = ref<UnifiedType>();
 
-await isReady().then(() => {
+await Promise.allSettled([
+  isReady(),
+  useClientAddresses(),
+  useClientCompanies()
+]).then(() => {
   // set initial value from the basket billing model
   modelValue.value ??= model.value;
-
-  if (config.value?.requiresCompany || model.value?.companyId)
+  if (config.value?.requiresCompany || model.value?.companyId) {
     activeTab.value = UnifiedType.BUSINESS;
-  else activeTab.value = UnifiedType.PERSONAL;
+  } else {
+    activeTab.value = UnifiedType.PERSONAL;
+  }
 });
 
 const tabs = computed((): TabItem[] => {
@@ -94,21 +97,12 @@ const tabs = computed((): TabItem[] => {
   return tabItems;
 });
 
-const defaultTab = computed((): UnifiedType => {
-  if (config.value?.requiresCompany) return UnifiedType.BUSINESS;
-  return UnifiedType.PERSONAL;
-});
-
 // --- side effects
 
 watch(
   modelValue,
   value => {
-    if (value) {
-      update(value).catch(error => {
-        console.error("Error updating billing model:", error);
-      });
-    }
+    if (value) update(value);
   },
   {
     immediate: true,

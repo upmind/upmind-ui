@@ -1,12 +1,17 @@
 // --- external
-import { ref, computed, readonly } from "vue";
+import { ref, computed } from "vue";
 
 // --- internal
 import { useBrand } from "@upmind-automation/headless";
 
 // --- utils
-import { loadFont, createTheme } from "./utils";
-import { isEmpty, keys, map, get, has, isEqual, first } from "lodash-es";
+import {
+  setBrandFavicon,
+  setBrandFontFamily,
+  setBrandTheme,
+  setBrandTitle
+} from "./utils";
+import { isEmpty, keys, get, isEqual, first } from "lodash-es";
 
 // --- types
 import type { Theme } from "@upmind-automation/upmind-ui";
@@ -45,12 +50,13 @@ export const useBrandTheme = (initial?: Theme) => {
 
   // the theme definition
   const theme = ref<Theme | undefined>(initial);
-
   const available = computed(() => uiTheme.value?.variants);
 
   const meta = computed(() => ({
     isAvailable: brandMeta.value.isAvailable,
-    hasSettings: !isEmpty(theme.value)
+    hasSettings:
+      brandMeta.value.isAvailable &&
+      (isEmpty(available.value) || !isEmpty(theme.value))
   }));
 
   // --- methods
@@ -59,21 +65,16 @@ export const useBrandTheme = (initial?: Theme) => {
 
     const config = get(uiTheme.value, ["variants", value]);
     if (config) {
-      theme.value = createTheme(value, config);
-      apply();
+      theme.value = setBrandTheme(value, config);
     }
+    // Apply the theme to the document
+    apply();
   };
 
   async function apply() {
-    document.title = name.value ? `Checkout | ${name.value}` : "Checkout";
-    loadFont(styles.value?.brand_font?.family ?? "Inter Tight");
-    if (favicon.value) {
-      document.head.insertAdjacentHTML(
-        "beforeend",
-        `<link rel="icon" href="${favicon.value?.full_url}">`
-      );
-    }
-    return true;
+    setBrandTitle(name.value);
+    setBrandFontFamily(styles.value?.brand_font?.family ?? "Inter Tight");
+    setBrandFavicon(favicon.value);
   }
 
   // --- Side Effects

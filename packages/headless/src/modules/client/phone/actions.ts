@@ -19,8 +19,8 @@ export const useClientPhoneActions = () => {
     setMeta: assign({
       title: ({ model }: PhoneContext) => {
         const phone = get(model, "phone");
-        if (isObject(phone)) return get(model, "phone.number");
-        return get(model, "international_phone");
+        if (isObject(phone)) return get(model, "phone.number", "");
+        return phone;
       },
       description: ({ model, country }: PhoneContext) => {
         return compact([get(country, "name")]).join(" | ");

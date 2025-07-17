@@ -381,6 +381,23 @@ export const useBrand = () => {
     }),
 
     /**
+     * Returns boolean indicating if the brand has a storefront URL.
+     * This is derived from the meta, environment and router configuration.
+     */
+    hasStorefront: computed(() => {
+      const { router } = useRoutingEngine();
+
+      const externalUrl = !(
+        useUpmind.storefrontUrl ?? uiCart.value?.storefront_url
+      );
+
+      const enabled = !uiCart.value?.catalogue?.disabled;
+      const hasRoute = router?.hasRoute(ROUTE.CATALOGUE);
+
+      return !(externalUrl && enabled && hasRoute);
+    }),
+
+    /**
      * The current language object for the brand.
      */
     language,

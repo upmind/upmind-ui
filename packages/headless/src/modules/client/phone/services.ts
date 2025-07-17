@@ -94,9 +94,9 @@ async function loadLookups({
   }
   const baseModel: PhoneModel = {
     phone: {
-      number: "",
-      nationalNumber: "",
-      countryCallingCode: "",
+      number: null,
+      nationalNumber: null,
+      countryCallingCode: null,
       country: country.code
     }
   };
@@ -266,7 +266,7 @@ async function parse(
     phone?.countryCallingCode || safeModel?.phone?.countryCallingCode;
 
   safeModel.phone.country =
-    phone?.country || safeModel?.phone?.country || country?.code || "";
+    phone?.country || safeModel?.phone?.country || country?.code || null;
 
   if (
     !!safeModel?.phone?.country &&

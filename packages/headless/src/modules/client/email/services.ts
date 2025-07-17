@@ -57,7 +57,7 @@ async function loadLookups({
 }: EmailContext): Promise<EmailContext> {
   // we don't have any lookups for emails, so return null
   const baseModel: EmailModel = {
-    email: ""
+    email: null
   };
 
   const safeModel = useModelParser<EmailModel>(schema, model, baseModel);

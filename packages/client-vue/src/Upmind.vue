@@ -1,6 +1,6 @@
 <template>
   <Loading
-    :active="!themeMeta.isAvailable"
+    :active="!themeMeta.hasSettings"
     class="h-full min-h-screen w-full !text-gray-400"
   >
     <Suspense
@@ -38,7 +38,10 @@
 
                       <!-- fallback / loading state -->
                       <template #fallback>
-                        <AsyncLoading v-bind="loadingProps" />
+                        <AsyncLoading
+                          v-bind="loadingProps"
+                          v-if="themeMeta.hasSettings"
+                        />
                       </template>
                     </Suspense>
                   </KeepAlive>

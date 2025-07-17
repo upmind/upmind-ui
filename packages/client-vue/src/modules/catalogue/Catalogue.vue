@@ -1,23 +1,36 @@
 <template>
   <Layout>
-    <template v-if="categoryId" #controls>
-      <CategoriesControls v-model="categoryId" />
+    <template #controls>
+      <CategoriesControls
+        v-model="categoryId"
+        :sort="params.sort"
+        :direction="params.direction"
+      />
     </template>
+
     <template #header>
-      <Categories v-model="categoryId" />
+      <Categories
+        v-model="categoryId"
+        :sort="params.sort"
+        :direction="params.direction"
+      />
     </template>
 
     <div :class="styles.products.root">
-      <nav :class="styles.products.facets.root" v-if="uiCart?.catalogue?.facet">
-        <CategoriesFacet v-model="categoryId" />
-      </nav>
+      <aside :class="styles.products.facets.root" v-if="isFaceted">
+        <CategoriesFacet
+          v-model="categoryId"
+          :sort="params.sort"
+          :direction="params.direction"
+        />
+      </aside>
 
       <component
         :is="widget"
-        v-model:category-id="categoryId"
-        v-model:sort="sortProperty"
-        v-model:direction="sortDirection"
-        v-model:query="query"
+        v-model:categoryId="categoryId"
+        v-model:sort="params.sort"
+        v-model:direction="params.direction"
+        v-model:query="params.query"
       />
     </div>
   </Layout>
@@ -25,8 +38,9 @@
 
 <script setup lang="ts">
 // --- external
-import { computed, type ComputedRef } from "vue";
+import { computed } from "vue";
 import { useRouteQuery } from "@vueuse/router";
+import { useUrlSearchParams } from "@vueuse/core";
 // --- internal
 import {
   useProductCategories,
@@ -39,15 +53,15 @@ import {
 import config from "./catalogue.config";
 
 // --- components
-import { useStyles } from "@upmind-automation/upmind-ui";
+import { Layout, useStyles } from "@upmind-automation/upmind-ui";
 import CategoriesControls from "./categories/CategoriesControls.vue";
-import CategoriesFacet from "./categories/CategoriesFacet.vue";
+import CategoriesFacet from "./categories/facet/CategoriesFacet.vue";
 import Categories from "./categories/Categories.vue";
-import Layout from "../../components/layout/Layout.vue";
 import WidgetGrid from "./products/WidgetGrid.vue";
 import WidgetDAC from "./products/WidgetDAC.vue";
 
 // --- types
+import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 const { isReady, isResolved } = useRoutingEngine();
@@ -58,24 +72,21 @@ await isReady();
 await isResolved(ROUTE.PRODUCT_ADD);
 
 // --- state
+const isFaceted = computed(() => {
+  return !!uiCart.value?.catalogue?.facet;
+});
 
 const categoryId = useRouteQuery<string | undefined>("catid", undefined, {
   mode: "push"
 });
 
-const sortProperty = useRouteQuery<ProductSortableProperties>(
-  "sort",
-  ProductSortableProperties.DEFAULT,
-  { mode: "push" }
-);
-const sortDirection = useRouteQuery<RequestSortDirection | undefined>(
-  "direction",
-  RequestSortDirection.ASC,
-  { mode: "push" }
-);
-
-const query = useRouteQuery<string | undefined>("search", undefined, {
-  mode: "push"
+const params = useUrlSearchParams<{
+  sort?: ProductSortableProperties;
+  direction?: RequestSortDirection;
+  query?: string;
+}>("history", {
+  removeNullishValues: true,
+  removeFalsyValues: true
 });
 
 // --- context

@@ -29,5 +29,5 @@
 <script lang="ts" setup>
 // --- internal
 import UpmCurrency from "../../modules/basket/components/CurrencySwitcher.vue";
-import upmindLogo from "../../assets/favicon.svg";
+import upmindLogo from "../../assets/favicons/favicon.svg";
 </script>

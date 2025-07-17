@@ -1,8 +1,8 @@
 <template>
   <Layout>
-    <slot v-if="!meta.isCheckout && !meta.isComplete" name="back-button">
-      <Back :class="styles.checkout.backButton" />
-    </slot>
+    <template #navigation>
+      <Back @click.prevent="doReject" />
+    </template>
 
     <section :class="styles.checkout.section" v-auto-animate>
       <div :class="styles.checkout.container">
@@ -13,7 +13,7 @@
               :is="props.contentSectionComponent"
               v-if="!account.isAuthenticated && !meta.isCheckout"
             >
-              <component :is="props.cardComponent">
+              <component :is="props.as">
                 <Session
                   :class="styles.checkout.session"
                   id="account"
@@ -38,11 +38,9 @@
                 />
               </slot>
             </template>
-            <component :is="props.cardComponent">
-              <slot name="billing-details">
-                <Billing />
-              </slot>
-            </component>
+            <slot name="billing-details">
+              <Billing :as="props.as" />
+            </slot>
           </component>
 
           <component
@@ -67,7 +65,7 @@
             </template>
             <slot name="payment-details">
               <PaymentDetails
-                :card-component="props.cardComponent"
+                :as="props.as"
                 :class="styles.checkout.paymentDetails"
                 :color="color"
               />
@@ -81,7 +79,7 @@
               :is="props.contentSectionComponent"
               :title="t('checkout.summary.title')"
             >
-              <component :is="props.cardComponent">
+              <component :is="props.as">
                 <slot name="summary">
                   <Summary no-actions />
                 </slot>
@@ -147,21 +145,20 @@ import {
   useStyles,
   Interstitial,
   Alert,
-  Card
+  Card,
+  Layout
 } from "@upmind-automation/upmind-ui";
 import Session from "../session/Session.vue";
 import Billing from "../billing/Billing.vue";
 import PaymentDetails from "./components/PaymentDetails.vue";
 import Summary from "../basket/components/Summary.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
-import Back from "../../components/navigation/Back.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
-import Layout from "../../components/layout/Layout.vue";
+import Back from "../../components/navigation/Back.vue";
 
 // --- types
 import type { CheckoutProps } from "./types";
 import { isEqual } from "lodash-es";
-import { errorsAt } from "@jsonforms/core";
 
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
@@ -173,7 +170,7 @@ const { navigateNext, navigateBack, isResolved } = useRoutingEngine();
 const { meta: paymentDetailsMeta } = useBasketPaymentDetails();
 
 const props = withDefaults(defineProps<CheckoutProps>(), {
-  cardComponent: Card,
+  as: Card,
   contentSectionComponent: ContentSection,
   color: "primary"
 });
@@ -199,6 +196,10 @@ const { dataLayer } = useDataLayer();
 dataLayer({ event: "begin_checkout" }).withEcommerce().push();
 
 // -----------------------------------------------------------------------------
+
+function doReject() {
+  navigateBack();
+}
 
 const processingTitleKey = computed(() => {
   if (meta.value.needsApproval) {
@@ -273,18 +274,10 @@ const processingIcon = computed(() => {
 });
 
 // --- side effects
-watch(meta, (value, oldValue) => {
-  // TEMP: DC added this log to be able to debug production using sentry when we have issues with the checkout not being Ready/Able to actually Check Out
-  if (!isEqual(value, oldValue)) {
-    console.info("** Checkout State **", {
-      state: state.value,
-      value
-    });
-  }
-
+const stop = watch(meta, value => {
   if (value.isComplete) {
     navigateNext();
-    return;
+    stop();
   }
 });
 </script>

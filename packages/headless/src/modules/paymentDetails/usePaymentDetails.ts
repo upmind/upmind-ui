@@ -48,10 +48,10 @@ export const usePaymentDetails = (actor: ComputedRef<Actor | undefined>) => {
     }).then(service =>
       waitFor(
         service as ActorRef<any>,
-        state => !stateMatches(state, "loading"),
+        state => stateMatches(state, ["available", "unavailable", "error"]),
         { timeout: Infinity }
       ).then(state => {
-        if (stateMatches(state, ["error"])) return false;
+        if (stateMatches(state, ["error", "unavailable"])) return false;
         return true;
       })
     );

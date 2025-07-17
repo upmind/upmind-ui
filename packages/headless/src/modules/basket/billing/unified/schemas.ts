@@ -6,8 +6,8 @@ import { UnifiedType, type UnifiedContext } from "./types";
 import type { JsonSchema7, Layout, UISchemaElement } from "@jsonforms/core";
 import { BrandConfigKeys } from "@upmind-automation/types";
 import {
-  useSchema as useAddressSchema,
-  useUischema as useAddressUischema
+  useSchemaDefinitions as useAddressSchema,
+  useUischemaDefinitions as useAddressUischema
 } from "../../../client/address/schemas";
 
 import {
@@ -38,6 +38,14 @@ export const useSchema = ({
   };
 
   if (type == UnifiedType.BUSINESS) {
+    // NB we still need this definition forcompanies
+    schema.definitions = useAddressSchema({
+      config,
+      countries,
+      regions,
+      baseModel
+    });
+
     schema.properties!.company = useCompanySchema({
       baseModel: baseModel?.company,
       countries,
@@ -57,13 +65,13 @@ export const useSchema = ({
 
   // ---
   if (type == UnifiedType.PERSONAL) {
-    schema.properties!.address = useAddressSchema({
-      clientId,
-      regions,
-      baseModel,
+    schema.definitions = useAddressSchema({
+      config,
       countries,
-      config
+      regions,
+      baseModel
     });
+    schema.properties!.address = { $ref: "#/definitions/address" };
   }
   // NB: IF the Address is Required then we need to enforce the address field when adding a personal address
   if (
@@ -88,53 +96,30 @@ export const useUischema = ({ baseModel, type, config }: UnifiedContext) => {
     elements: []
   };
 
-  if (type == UnifiedType.PERSONAL) {
+  if (get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE)) {
     uiSchema.elements.push({
-      type: "VerticalLayout",
-      elements: [
-        {
-          type: "Control",
-          scope: "#/properties/address",
-          options: {
-            autoFocus: true,
-            autocomplete: "off",
-            detail: useAddressUischema()
-          }
-        }
-      ]
-    } as any);
-  } else if (type == UnifiedType.BUSINESS) {
-    uiSchema.elements.push({
-      type: "VerticalLayout",
-      elements: [
-        {
-          type: "Control",
-          scope: "#/properties/company",
-          options: {
-            autoFocus: true,
-            autocomplete: "off",
-            detail: useCompanyUischema({
-              minimal: true,
-              baseModel: baseModel?.company
-            })
-          }
-        }
-      ]
+      type: "Control",
+      scope: "#/properties/phone",
+      options: {
+        detail: usePhoneUischema()
+      }
     } as any);
   }
 
-  if (get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE)) {
+  if (type == UnifiedType.PERSONAL) {
+    uiSchema.elements.push(useAddressUischema());
+  } else if (type == UnifiedType.BUSINESS) {
     uiSchema.elements.push({
-      type: "VerticalLayout",
-      elements: [
-        {
-          type: "Control",
-          scope: "#/properties/phone",
-          options: {
-            detail: usePhoneUischema()
-          }
-        }
-      ]
+      type: "Control",
+      scope: "#/properties/company",
+      options: {
+        autoFocus: true,
+        autocomplete: "off",
+        detail: useCompanyUischema({
+          minimal: true,
+          baseModel: baseModel?.company
+        })
+      }
     } as any);
   }
 

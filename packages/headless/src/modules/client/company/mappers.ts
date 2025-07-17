@@ -1,5 +1,5 @@
 // --- utils
-import { get, map, compact, isArray, isNil, omitBy } from "lodash-es";
+import { get, map, compact, isArray } from "lodash-es";
 
 // --- types
 import type { ICompany } from "@upmind-automation/types";
@@ -41,15 +41,12 @@ export function mapCompany(raw: ICompany): Company {
 }
 
 export function mapICompany(data: CompanyModel): ICompany {
-  return omitBy(
-    {
-      name: data.name,
-      address_id: data.addressId,
-      phone_id: data.phoneId,
-      email_id: data.emailId,
-      reg_number: data.regNumber,
-      vat_number: data.vatNumber
-    } as ICompany,
-    isNil
-  ) as ICompany;
+  return {
+    name: data.name ?? "",
+    address_id: data.addressId ?? "",
+    phone_id: data.phoneId ?? "",
+    email_id: data.emailId ?? "",
+    reg_number: data.regNumber ?? "",
+    vat_number: data.vatNumber ?? ""
+  } as ICompany;
 }

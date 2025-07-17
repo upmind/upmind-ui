@@ -23,7 +23,7 @@
         <Item
           v-bind="getItem(item.id!)"
           :i18nKey="i18nKey"
-          :readonly="props.readonly"
+          :readonly="props.readonly || (!open && parsedValues.length > 1)"
           @edit="doEdit"
           @remove="doRemove"
         />

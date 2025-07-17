@@ -44,6 +44,7 @@ type GenericFieldWithValidation = {
   description?: string;
   default_value?: string | number | boolean;
   validation_rules: string[];
+  semantic_type?: string;
   options?: { label: string; value: string }[];
 } & Record<string, any>;
 
@@ -111,7 +112,7 @@ function mapLaravelRuleToJSONSchema(
       phone_country_code: context?.defaultCountry?.code ?? ""
       // errorMessage: "Please enter a valid international phone number",
     };
-  } else if (rule == "domain_name") {
+  } else if (rule == "domain_name" || rule == "domain-name") {
     return {
       type: "string",
       format: "domain_name",
@@ -306,67 +307,6 @@ function mapLaravelRuleToJSONSchema(
   };
 }
 
-function mapLaravelConditionalRuleToJSONSchema(
-  field: GenericFieldWithValidation
-): JsonSchema7[] {
-  const { name } = field;
-  const allOf: JsonSchema7[] = [];
-
-  for (const rule of field.validation_rules) {
-    if (rule.startsWith("required_if:")) {
-      const [otherField, expectedValue] = rule.substring(12).split(",");
-      allOf.push({
-        if: {
-          properties: {
-            [otherField]: { const: expectedValue }
-          }
-        },
-        then: {
-          required: [name]
-        }
-      });
-    } else if (rule.startsWith("required_unless:")) {
-      const [otherField, expectedValue] = rule.substring(16).split(",");
-      allOf.push({
-        if: {
-          not: {
-            properties: {
-              [otherField]: { const: expectedValue }
-            }
-          }
-        },
-        then: {
-          required: [name]
-        }
-      });
-    } else if (rule.startsWith("required_with:")) {
-      const otherField = rule.substring(14).split(",");
-      allOf.push({
-        if: {
-          required: otherField
-        },
-        then: {
-          required: [name]
-        }
-      });
-    } else if (rule.startsWith("required_without:")) {
-      const otherField = rule.substring(17).split(",");
-      allOf.push({
-        if: {
-          not: {
-            required: otherField
-          }
-        },
-        then: {
-          required: [name]
-        }
-      });
-    }
-  }
-
-  return allOf;
-}
-
 function mapLaravelRulesToJsonSchemaProperty(
   field: GenericFieldWithValidation,
   context: Record<string, any> = {}
@@ -396,6 +336,11 @@ function mapLaravelRulesToJsonSchemaProperty(
       schemaProperty.type = [schemaProperty.type, "null"];
     }
   }
+
+  if (field.semantic_type) {
+    schemaProperty.semantic_type = field.semantic_type;
+  }
+
   return schemaProperty;
 }
 
@@ -405,7 +350,6 @@ export function useLaravalSchemaParser(
 ): JsonSchema7 {
   const properties: JsonSchema7["properties"] = {};
   const requiredFields: JsonSchema7["required"] = [];
-  const allOf: JsonSchema7["allOf"] = [];
 
   forEach(fields, field => {
     if (!field.deferrable || field.defer_mode != "hidden") {
@@ -421,29 +365,15 @@ export function useLaravalSchemaParser(
         requiredFields.push(field.name);
       }
 
-      // Handle conditional requirements
-      // const conditionalRules = mapLaravelConditionalRuleToJSONSchema(field);
-      // if (!isEmpty(conditionalRules)) {
-      //   allOf.push(...conditionalRules);
-      // }
-
       set(properties, field.name, omitBy(schema, isNil));
     }
   });
-
-  // console.debug("useLaravalSchemaParser", {
-  //   type: "object",
-  //   properties,
-  //   required: requiredFields,
-  //   allOf,
-  // });
 
   return omitBy(
     {
       type: "object",
       properties,
       required: requiredFields
-      // allOf,
     },
     isEmpty
   ) as JsonSchema7;

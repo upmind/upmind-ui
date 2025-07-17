@@ -16,7 +16,7 @@
       </Card>
     </template>
 
-    <UpmBilling v-else />
+    <UpmBilling v-else :as="Card" />
   </UpmContentSection>
 </template>
 

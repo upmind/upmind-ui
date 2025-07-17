@@ -103,7 +103,7 @@ async function loadLookups({
       type == UnifiedType.PERSONAL
         ? ({
             countryId: country?.id
-          } as AddressModel)
+          } as AddressModel["address"])
         : undefined,
     company:
       type == UnifiedType.BUSINESS
@@ -116,9 +116,9 @@ async function loadLookups({
     phone: get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE)
       ? ((defaultPhone.value ?? {
           phone: {
-            number: "",
-            nationalNumber: "",
-            countryCallingCode: "",
+            number: null,
+            nationalNumber: null,
+            countryCallingCode: null,
             country: country?.code
           }
         }) as PhoneModel)
@@ -160,7 +160,7 @@ async function add(type: UnifiedType, data: UnifiedModel) {
 
   promises.push(
     data?.address && type == UnifiedType.PERSONAL
-      ? ensureAddress({ model: data.address })
+      ? ensureAddress({ model: { address: data.address } })
       : Promise.resolve(undefined)
   );
 
@@ -224,11 +224,11 @@ async function parse(
 
   if (safeModel?.company && !safeModel?.company?.addressId) {
     safeModel.company.address ??= {
-      address1: "",
-      city: "",
-      postcode: "",
+      address1: null,
+      city: null,
+      postcode: null,
       countryId: baseModel.address?.countryId
-    } as AddressModel;
+    } as AddressModel["address"];
 
     country = getCountry(
       safeModel.company?.address?.countryId ?? baseModel.address?.countryId
@@ -263,10 +263,10 @@ async function parse(
 
     safeModel.phone = {
       phone: {
-        number: phone?.number || "",
-        nationalNumber: phone?.nationalNumber || "",
-        countryCallingCode: phone?.countryCallingCode || "",
-        country: phone?.country || countryCode || ""
+        number: phone?.number || null,
+        nationalNumber: phone?.nationalNumber || null,
+        countryCallingCode: phone?.countryCallingCode || null,
+        country: phone?.country || countryCode || null
       }
     };
   }

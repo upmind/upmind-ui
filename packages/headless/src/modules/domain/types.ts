@@ -75,6 +75,8 @@ export type DomainContext = BasketHelperContext<DomainProduct> & {
     query?: string;
   };
   currency?: string;
+  basketId?: string;
+  brandId?: string;
   promotions?: IBasketPromotion[];
   controller?: AbortController;
   tlds?: string[];

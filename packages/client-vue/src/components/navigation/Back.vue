@@ -1,19 +1,22 @@
 <template>
-  <RouterLink :to="{ name: 'basket' }" tabindex="-1">
-    <Button
-      v-bind="$attrs"
-      size="sm"
-      variant="tonal"
-      :label="t('navigation.back')"
-      class="bg-base-background"
-    >
-      <template #prepend><Icon icon="arrow-left" size="2xs" /></template>
-    </Button>
-  </RouterLink>
+  <Link class="flex items-center gap-x-2" :to="to">
+    <Icon icon="arrow-left" size="2xs" />
+    {{ t(i18nKey) }}
+  </Link>
 </template>
 
 <script lang="ts" setup>
-import { Button, Icon } from "@upmind-automation/upmind-ui";
+import { Link, Icon } from "@upmind-automation/upmind-ui";
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
+
+const props = withDefaults(
+  defineProps<{
+    i18nKey?: string;
+    to?: string;
+  }>(),
+  {
+    i18nKey: "navigation.back"
+  }
+);
 </script>
