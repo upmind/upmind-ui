@@ -4,17 +4,14 @@
       :as="RouterLink"
       v-for="(category, index) in items"
       :key="`category-${index}`"
-      :to="category.to"
+      v-bind="category"
       variant="ghost"
-      size="sm"
       :class="
         cn([
           styles.products.facet.drillDown.action,
           category.current && 'bg-control-active-muted'
         ])
       "
-      @click="category.handler"
-      :label="category.label"
     >
       <template #append>
         <Icon icon="chevron-right" size="2xs" />
@@ -23,13 +20,12 @@
   </section>
 
   <Button
-    v-if="modelValue"
+    v-if="parentCategory"
+    :as="RouterLink"
+    v-bind="parentCategory"
     variant="outline"
     color="base"
-    size="sm"
     :class="styles.products.facet.drillDown.back"
-    :label="'Back'"
-    @click="back"
   >
     <template #prepend>
       <Icon icon="arrow-left" size="3xs" />
@@ -89,7 +85,7 @@ const styles = useStyles(
 const filteredCategories = computed((): ProductCategory[] => {
   if (!props.query) return getChildren(modelValue.value);
 
-  return filter(props.query, modelValue.value);
+  return filter(props.query);
 });
 
 const currentCategory = computed(() => {
@@ -97,7 +93,22 @@ const currentCategory = computed(() => {
 });
 
 const parentCategory = computed(() => {
-  return getParent(modelValue.value ?? "");
+  if (!modelValue.value) return;
+
+  const parentId = getParent(modelValue.value);
+
+  return {
+    id: parentId,
+    label: t("product.back"),
+    to: {
+      name: ROUTE.CATALOGUE,
+      query: {
+        sort: props.sort,
+        direction: props.direction,
+        catid: parentId
+      }
+    }
+  };
 });
 
 const createCategoryItem = (category: ProductCategory) => ({
@@ -126,12 +137,4 @@ const items = computed(() => {
     ? [createCategoryItem(currentCategory.value), ...items]
     : items;
 });
-
-const back = () => {
-  if (parentCategory.value) {
-    modelValue.value = parentCategory.value;
-  } else {
-    modelValue.value = undefined;
-  }
-};
 </script>
