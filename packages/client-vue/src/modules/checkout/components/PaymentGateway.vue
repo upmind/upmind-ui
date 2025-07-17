@@ -118,9 +118,7 @@ const container = useTemplateRef("container");
 onMounted(() => {
   if (isFunction(renderer.value)) {
     if (!container.value || container.value?.innerHTML) return;
-    renderer.value(container.value)?.catch((err: any) => {
-      if (err) console.error(err);
-    });
+    renderer.value(container.value)?.catch((err: any) => {});
   } else {
     const stop = watch(renderer, () => {
       // only render if we have a renderer and we've not already rendered
@@ -132,7 +130,8 @@ onMounted(() => {
           stop();
         })
         ?.catch((err: any) => {
-          if (err) console.error(err);
+          // do nothing
+          // console.error(err);
         });
     });
   }

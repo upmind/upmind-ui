@@ -69,11 +69,10 @@ import {
 } from "@upmind-automation/headless";
 
 // --- components
-import { Card, Button, Icon } from "@upmind-automation/upmind-ui";
+import { Card, Button, Icon, Layout } from "@upmind-automation/upmind-ui";
 import Configure from "./components/Configure.vue";
 import CardsCarousel from "./components/CardsCarousel.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
-import Layout from "../../components/layout/Layout.vue";
 
 // -----------------------------------------------------------------------------
 

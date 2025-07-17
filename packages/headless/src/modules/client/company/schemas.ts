@@ -3,8 +3,8 @@
 // --- internal
 import { useClientAddresses, useClientAddress } from "../address";
 import {
-  useSchema as useAddressSchema,
-  useUischema as useAddressUischema
+  useSchemaDefinitions as useAddressSchema,
+  useUischemaDefinitions as useAddressUischema
 } from "../address/schemas";
 
 import { useClientEmails, useClientEmail } from "../email";
@@ -34,6 +34,12 @@ export const useSchema = ({
     type: "object",
     title: "Company",
     required: ["name"],
+    definitions: useAddressSchema({
+      config,
+      countries,
+      regions,
+      baseModel
+    }),
     properties: {
       id: {
         type: ["string", "null"],
@@ -52,98 +58,34 @@ export const useSchema = ({
       vatNumber: {
         type: ["string", "null"],
         title: "Registered Tax ID"
-      }
-    },
-    // this is where we conditionally allow either an existing addressId or a new address object
-    allOf: [
-      {
-        oneOf: [
-          {
-            type: "object",
-            title: "Existing Address",
-            description: "Select an existing address for this company.",
-            required: ["addressId"],
-            properties: {
-              addressId: {
-                type: ["string", "null"],
-                title: "Address",
-                default: baseModel?.addressId
-              }
-            }
-          },
-          {
-            type: "object",
-            title: "New Address",
-            description: "Create a new address for this company.",
-            required: ["address"],
-            properties: {
-              address: useAddressSchema({
-                regions,
-                baseModel: {
-                  countryId: country?.id
-                },
-                countries: countries || [],
-                config
-              })
-            }
-          }
-        ]
-      }
-      // TODO: the allOF/anyOf schema needs to be handled for emails and phones
-      // {
-      //   anyOf: [
-      //     {
-      //       type: "object",
-      //       title: "Existing Phone",
-      //       description: "Select an existing phone for this company.",
-      //       properties: {
-      //         phoneId: {
-      //           type: ["string", "null"],
-      //           title: "Phone",
-      //           default: baseModel?.phoneId,
-      //         },
-      //       },
-      //     },
-      //     {
-      //       type: "object",
-      //       title: "New Phone",
-      //       description: "Create a new phone for this company.",
-      //       required: ["phone"],
-      //       properties: {
-      //         phone: usePhoneSchema({
-      //           country,
-      //         }),
-      //       },
-      //     },
-      //   ],
-      // },
-      // {
-      //   anyOf: [
-      //     {
-      //       type: "object",
-      //       title: "Existing Email",
-      //       description: "Select an existing email for this company.",
-      //       properties: {
-      //         emailId: {
-      //           type: ["string", "null"],
-      //           title: "Email",
-      //           default: baseModel?.emailId,
-      //         },
-      //       },
-      //     },
-      //     {
-      //       type: "object",
-      //       title: "New Email",
-      //       description: "Create a new email for this company.",
-      //       required: ["email"],
-      //       properties: {
-      //         email: useEmailSchema(),
-      //       },
-      //     },
-      //   ],
-      // },
-    ]
+      },
+      addressId: {
+        type: ["string", "null"],
+        title: "Address",
+        default: baseModel?.addressId
+      },
+      address: { $ref: "#/definitions/address" }
+    }
   };
+
+  // If we are we already have an address, then we will always use the addressId
+  // otherwise we will allow a full address object as we need to create one
+  if (baseModel?.addressId) {
+    schema.required!.push("addressId");
+    delete schema?.properties?.address;
+  } else {
+    schema.required!.push("address");
+  }
+
+  // TODO: same logic as address
+  // if (baseModel?.phoneId) {
+  //   delete schema?.properties?.phone;
+  // }
+
+  // TODO: same logic as address
+  // if (baseModel?.emailId) {
+  //   delete schema?.properties?.email;
+  // }
 
   return schema;
 };
@@ -190,17 +132,7 @@ export const useUischema = ({
   if (!baseModel?.addressId) {
     uiSchema.elements.push({
       type: "VerticalLayout",
-      elements: [
-        {
-          type: "Control",
-          scope: "#/properties/address",
-          options: {
-            autoFocus: true,
-            autocomplete: "off",
-            detail: useAddressUischema()
-          }
-        }
-      ]
+      elements: [useAddressUischema()]
     } as any);
   } else {
     uiSchema.elements.push({

@@ -11,6 +11,7 @@ export * from "./useStorage";
 export * from "./useTime";
 export * from "./useTranslation";
 export * from "./useUrl";
+export * from "./useImageUrl";
 export * from "./useValidation";
 export * from "./useState";
 

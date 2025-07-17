@@ -9,7 +9,8 @@ import {
   stateMatches,
   contextMatches,
   DEBOUNCE_DELAY,
-  contextValue
+  contextValue,
+  useImageUrl
 } from "../../utils";
 
 // --- utils
@@ -54,11 +55,9 @@ export const useProductConfig = (service: ActorRef<any>) => {
   const productDetails = computed<ProductDetails>(
     () => state.value.context?.lookups?.product
   );
+
   const productImage = (size: string = "400x400"): string | undefined => {
-    if (!productDetails.value?.imgUrl) return undefined;
-    const url = new URL(productDetails.value.imgUrl);
-    url.searchParams.set("size", size);
-    return url.toString();
+    return useImageUrl(productDetails.value?.imgUrl, size);
   };
 
   const product = computed<Product>(() => state.value.context?.product);

@@ -24,7 +24,7 @@ import {
   toSafeInteger,
   isBoolean
 } from "lodash-es";
-import { useTranslateField, useTranslateName } from "../../utils";
+import { useTranslateField, useTranslateName, useImageUrl } from "../../utils";
 
 // --- types
 import { ProductTypes } from "@upmind-automation/types";
@@ -266,7 +266,7 @@ export function parseRecommendation(
       imgUrl:
         isBoolean(raw.image_url) && !raw.image_url
           ? ""
-          : raw.image_url || productDetails?.imgUrl,
+          : raw.image_url || useImageUrl(productDetails?.imgUrl, "400x400"),
       // --- additional ui data
       // -- TODO: Maybe move this into UI meta
       badge: isString(raw?.badge)

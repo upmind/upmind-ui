@@ -12,6 +12,7 @@
       "title": "Required fields are incomplete",
       "description": "Please check and complete all required fields to proceed."
     },
+    "domain": "Domain",
     "cycle": "{value}/mo",
     "free": "FREE",
     "adds": "Adds to price",
@@ -76,19 +77,19 @@
       },
       "term": {
         "0": "one time",
-        "1": "mo",
+        "1": "/ mo",
         "3": "/ 3 mo",
         "6": "/ 6 mo",
-        "12": "year",
-        "24": "/ 2 years",
-        "36": "/ 3 years",
-        "48": "/ 4 years",
-        "60": "/ 5 years",
-        "72": "/ 6 years",
-        "84": "/ 7 years",
-        "96": "/ 8 years",
-        "108": "/ 9 years",
-        "120": "/ 10 years"
+        "12": "/ yr",
+        "24": "/ 2 yr",
+        "36": "/ 3 yr",
+        "48": "/ 4 yr",
+        "60": "/ 5 yr",
+        "72": "/ 6 yr",
+        "84": "/ 7 yr",
+        "96": "/ 8 yr",
+        "108": "/ 9 yr",
+        "120": "/ 10 yr"
       },
       "price": {
         "0": "One-time payment of {0}",
@@ -121,11 +122,10 @@
     "overridden": "This option overrides the main product price for the initial order",
     "edit": "Edit",
     "remove": "Remove",
-    "shop": {
-      "title": "Shop",
-      "share": "Share",
-      "copied": "Copied"
-    },
+    "share": "Share",
+    "copied": "Copied",
+    "shop": "Shop",
+    "back": "Back",
     "category": {
       "select": "Select {name} category",
       "search": "Category search...",

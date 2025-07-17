@@ -16,7 +16,7 @@ export interface CompanyModel {
   id?: ICompany["id"];
   // --- One of
   addressId?: ICompany["address_id"];
-  address?: AddressModel;
+  address?: AddressModel["address"];
   // ---
   emailId?: ICompany["email_id"];
   email?: Email["email"];

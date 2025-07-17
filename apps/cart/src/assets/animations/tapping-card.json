@@ -9,7 +9,7 @@
   "ddd": 0,
   "assets": [
     {
-      "id": "comp_0",
+      "id": "comp_1",
       "nm": "hover-pinch",
       "fr": 60,
       "layers": [
@@ -22,7 +22,7 @@
           "ks": {
             "o": { "a": 0, "k": 100, "ix": 11 },
             "r": { "a": 0, "k": 23, "ix": 10 },
-            "p": { "a": 0, "k": [167.867, 126.44, 0], "ix": 2, "l": 2 },
+            "p": { "a": 0, "k": [177.867, 146.44, 0], "ix": 2, "l": 2 },
             "a": { "a": 0, "k": [111.867, 165.94, 0], "ix": 1, "l": 2 },
             "s": { "a": 0, "k": [100, 100, 100], "ix": 6, "l": 2 }
           },
@@ -122,16 +122,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.031, 0.659, 0.541, 1],
+                    "k": [0.443, 0.4, 0.933, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-2365-tapping-credit-card').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 6,
+                    "k": 12,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-2365-tapping-credit-card').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-2365-tapping-credit-card').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -290,16 +290,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.031, 0.659, 0.541, 1],
+                    "k": [0.443, 0.4, 0.933, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-2365-tapping-credit-card').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 6,
+                    "k": 12,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-2365-tapping-credit-card').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-2365-tapping-credit-card').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -458,16 +458,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.031, 0.659, 0.541, 1],
+                    "k": [0.443, 0.4, 0.933, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-2365-tapping-credit-card').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 6,
+                    "k": 12,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-2365-tapping-credit-card').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-2365-tapping-credit-card').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -544,11 +544,11 @@
                   "i": { "x": 0.2, "y": 1 },
                   "o": { "x": 0.333, "y": 0 },
                   "t": 53,
-                  "s": [134.867, 135.44, 0],
+                  "s": [144.867, 155.44, 0],
                   "to": [4, -2.333, 0],
                   "ti": [-4, 2.333, 0]
                 },
-                { "t": 93, "s": [158.867, 121.44, 0] }
+                { "t": 93, "s": [168.867, 141.44, 0] }
               ],
               "ix": 2,
               "l": 2
@@ -627,16 +627,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.031, 0.659, 0.541, 1],
+                    "k": [0.443, 0.4, 0.933, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-2365-tapping-credit-card').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 6,
+                    "k": 12,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-2365-tapping-credit-card').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-2365-tapping-credit-card').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -747,16 +747,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.031, 0.659, 0.541, 1],
+                    "k": [0.443, 0.4, 0.933, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-2365-tapping-credit-card').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 6,
+                    "k": 12,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-2365-tapping-credit-card').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-2365-tapping-credit-card').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -826,7 +826,7 @@
                   "i": { "x": [0.25], "y": [1] },
                   "o": { "x": [0.333], "y": [0] },
                   "t": 30,
-                  "s": [-13]
+                  "s": [-11]
                 },
                 { "t": 76, "s": [10], "h": 1 },
                 {
@@ -846,28 +846,28 @@
                   "i": { "x": 0.667, "y": 1 },
                   "o": { "x": 0.333, "y": 0 },
                   "t": 0,
-                  "s": [330.992, 291.024, 0],
+                  "s": [340.992, 311.024, 0],
                   "to": [4.083, -4.75, 0],
                   "ti": [3, 9.833, 0]
                 },
                 {
-                  "i": { "x": 0.25, "y": 1 },
+                  "i": { "x": 0.667, "y": 1 },
                   "o": { "x": 0.333, "y": 0 },
                   "t": 24,
-                  "s": [350.992, 272.024, 0],
+                  "s": [344.992, 292.024, 0],
                   "to": [10.75, 26.417, 0],
                   "ti": [3.333, -26.167, 0]
                 },
-                { "t": 65, "s": [346.992, 368.024, 0], "h": 1 },
+                { "t": 65, "s": [347.992, 369.024, 0], "h": 1 },
                 {
                   "i": { "x": 0.2, "y": 1 },
                   "o": { "x": 0.333, "y": 0 },
                   "t": 109,
-                  "s": [346.992, 368.024, 0],
+                  "s": [347.992, 369.024, 0],
                   "to": [2.322, -26.332, 0],
                   "ti": [1.301, 5.561, 0]
                 },
-                { "t": 169, "s": [330.992, 291.024, 0] }
+                { "t": 169, "s": [340.992, 311.024, 0] }
               ],
               "ix": 2,
               "l": 2
@@ -1012,16 +1012,16 @@
                           "ty": "st",
                           "c": {
                             "a": 0,
-                            "k": [0.031, 0.659, 0.541, 1],
+                            "k": [0.443, 0.4, 0.933, 1],
                             "ix": 3,
                             "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-2365-tapping-credit-card').layer('control').effect('secondary')('Color');"
                           },
                           "o": { "a": 0, "k": 100, "ix": 4 },
                           "w": {
                             "a": 0,
-                            "k": 6,
+                            "k": 12,
                             "ix": 5,
-                            "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-2365-tapping-credit-card').layer('control').effect('stroke')('Menu'));"
+                            "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-2365-tapping-credit-card').layer('control').effect('stroke')('Menu'));"
                           },
                           "lc": 2,
                           "lj": 2,
@@ -1180,16 +1180,16 @@
                           "ty": "st",
                           "c": {
                             "a": 0,
-                            "k": [0.031, 0.659, 0.541, 1],
+                            "k": [0.443, 0.4, 0.933, 1],
                             "ix": 3,
                             "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-2365-tapping-credit-card').layer('control').effect('secondary')('Color');"
                           },
                           "o": { "a": 0, "k": 100, "ix": 4 },
                           "w": {
                             "a": 0,
-                            "k": 6,
+                            "k": 12,
                             "ix": 5,
-                            "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-2365-tapping-credit-card').layer('control').effect('stroke')('Menu'));"
+                            "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-2365-tapping-credit-card').layer('control').effect('stroke')('Menu'));"
                           },
                           "lc": 2,
                           "lj": 2,
@@ -1368,16 +1368,16 @@
                       "ty": "st",
                       "c": {
                         "a": 0,
-                        "k": [0.031, 0.659, 0.541, 1],
+                        "k": [0.443, 0.4, 0.933, 1],
                         "ix": 3,
                         "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-2365-tapping-credit-card').layer('control').effect('secondary')('Color');"
                       },
                       "o": { "a": 0, "k": 100, "ix": 4 },
                       "w": {
                         "a": 0,
-                        "k": 6,
+                        "k": 12,
                         "ix": 5,
-                        "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-2365-tapping-credit-card').layer('control').effect('stroke')('Menu'));"
+                        "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-2365-tapping-credit-card').layer('control').effect('stroke')('Menu'));"
                       },
                       "lc": 2,
                       "lj": 2,
@@ -1536,16 +1536,16 @@
                       "ty": "st",
                       "c": {
                         "a": 0,
-                        "k": [0.031, 0.659, 0.541, 1],
+                        "k": [0.443, 0.4, 0.933, 1],
                         "ix": 3,
                         "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-2365-tapping-credit-card').layer('control').effect('secondary')('Color');"
                       },
                       "o": { "a": 0, "k": 100, "ix": 4 },
                       "w": {
                         "a": 0,
-                        "k": 6,
+                        "k": 12,
                         "ix": 5,
-                        "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-2365-tapping-credit-card').layer('control').effect('stroke')('Menu'));"
+                        "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-2365-tapping-credit-card').layer('control').effect('stroke')('Menu'));"
                       },
                       "lc": 2,
                       "lj": 2,
@@ -1704,16 +1704,16 @@
                       "ty": "st",
                       "c": {
                         "a": 0,
-                        "k": [0.031, 0.659, 0.541, 1],
+                        "k": [0.443, 0.4, 0.933, 1],
                         "ix": 3,
                         "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-2365-tapping-credit-card').layer('control').effect('secondary')('Color');"
                       },
                       "o": { "a": 0, "k": 100, "ix": 4 },
                       "w": {
                         "a": 0,
-                        "k": 6,
+                        "k": 12,
                         "ix": 5,
-                        "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-2365-tapping-credit-card').layer('control').effect('stroke')('Menu'));"
+                        "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-2365-tapping-credit-card').layer('control').effect('stroke')('Menu'));"
                       },
                       "lc": 2,
                       "lj": 2,
@@ -1872,16 +1872,16 @@
                       "ty": "st",
                       "c": {
                         "a": 0,
-                        "k": [0.031, 0.659, 0.541, 1],
+                        "k": [0.443, 0.4, 0.933, 1],
                         "ix": 3,
                         "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-2365-tapping-credit-card').layer('control').effect('secondary')('Color');"
                       },
                       "o": { "a": 0, "k": 100, "ix": 4 },
                       "w": {
                         "a": 0,
-                        "k": 6,
+                        "k": 12,
                         "ix": 5,
-                        "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-2365-tapping-credit-card').layer('control').effect('stroke')('Menu'));"
+                        "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-2365-tapping-credit-card').layer('control').effect('stroke')('Menu'));"
                       },
                       "lc": 2,
                       "lj": 2,
@@ -2103,16 +2103,16 @@
                       "ty": "st",
                       "c": {
                         "a": 0,
-                        "k": [0.031, 0.659, 0.541, 1],
+                        "k": [0.443, 0.4, 0.933, 1],
                         "ix": 3,
                         "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-2365-tapping-credit-card').layer('control').effect('secondary')('Color');"
                       },
                       "o": { "a": 0, "k": 100, "ix": 4 },
                       "w": {
                         "a": 0,
-                        "k": 6,
+                        "k": 12,
                         "ix": 5,
-                        "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-2365-tapping-credit-card').layer('control').effect('stroke')('Menu'));"
+                        "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-2365-tapping-credit-card').layer('control').effect('stroke')('Menu'));"
                       },
                       "lc": 2,
                       "lj": 2,
@@ -2334,16 +2334,16 @@
                       "ty": "st",
                       "c": {
                         "a": 0,
-                        "k": [0.031, 0.659, 0.541, 1],
+                        "k": [0.443, 0.4, 0.933, 1],
                         "ix": 3,
                         "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-2365-tapping-credit-card').layer('control').effect('secondary')('Color');"
                       },
                       "o": { "a": 0, "k": 100, "ix": 4 },
                       "w": {
                         "a": 0,
-                        "k": 6,
+                        "k": 12,
                         "ix": 5,
-                        "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-2365-tapping-credit-card').layer('control').effect('stroke')('Menu'));"
+                        "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-2365-tapping-credit-card').layer('control').effect('stroke')('Menu'));"
                       },
                       "lc": 2,
                       "lj": 2,
@@ -2582,9 +2582,9 @@
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 6,
+                    "k": 12,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-2365-tapping-credit-card').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-2365-tapping-credit-card').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -2915,9 +2915,9 @@
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 6,
+                    "k": 12,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-2365-tapping-credit-card').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-2365-tapping-credit-card').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -3248,9 +3248,9 @@
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 6,
+                    "k": 12,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-2365-tapping-credit-card').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-2365-tapping-credit-card').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -3310,16 +3310,16 @@
           "ty": 5,
           "nm": "stroke",
           "np": 3,
-          "mn": "Pseudo/@@OMpkjaCCTfyYTsX5GNwyXw",
+          "mn": "Pseudo/@@nraY4x/bQwaQHvu90mElMA",
           "ix": 1,
           "en": 1,
           "ef": [
             {
               "ty": 7,
               "nm": "Menu",
-              "mn": "Pseudo/@@OMpkjaCCTfyYTsX5GNwyXw-0001",
+              "mn": "Pseudo/@@nraY4x/bQwaQHvu90mElMA-0001",
               "ix": 1,
-              "v": { "a": 0, "k": 1, "ix": 1 }
+              "v": { "a": 0, "k": 2, "ix": 1 }
             }
           ]
         },
@@ -3353,22 +3353,22 @@
               "nm": "Color",
               "mn": "ADBE Color Control-0001",
               "ix": 1,
-              "v": { "a": 0, "k": [0.031, 0.659, 0.541], "ix": 1 }
+              "v": { "a": 0, "k": [0.443, 0.4, 0.933], "ix": 1 }
             }
           ]
         }
       ],
       "ip": 0,
-      "op": 181,
+      "op": 251,
       "st": 0,
       "bm": 0
     },
     {
       "ddd": 0,
-      "ind": 2,
+      "ind": 3,
       "ty": 0,
       "nm": "hover-pinch",
-      "refId": "comp_0",
+      "refId": "comp_1",
       "sr": 1,
       "ks": {
         "o": { "a": 0, "k": 100, "ix": 11 },

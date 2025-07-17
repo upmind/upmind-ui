@@ -6,7 +6,7 @@ import type { AddressModel } from "../../client";
 export type Place = {
   id: string;
   title: string;
-  address: AddressModel;
+  address: AddressModel["address"];
   description: string;
 };
 

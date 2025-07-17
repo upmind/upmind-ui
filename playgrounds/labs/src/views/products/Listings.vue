@@ -1,48 +1,53 @@
 <template>
-  <div class="flex flex-col">
-    <div class="mb-4 flex items-center justify-between">
-      <label>
-        <span>Mode:</span>
-        <select v-model="mode">
-          <option value="infinite">Infinite</option>
-          <option value="paginated">Paginated</option>
-        </select>
-      </label>
+  <UpmContentSection
+    class="mx-auto max-w-app"
+    title="Product Catalogue"
+    subtitle="Browse and search products"
+  >
+    <div class="flex flex-col">
+      <div class="mb-4 flex items-center justify-between">
+        <label>
+          <span>Mode:</span>
+          <select v-model="mode">
+            <option value="infinite">Infinite</option>
+            <option value="paginated">Paginated</option>
+          </select>
+        </label>
 
-      <label>
-        <span>Sort by Name:</span>
-        <select v-model="selectedSortDirection">
-          <option value="default">Default</option>
-          <option value="">Ascending</option>
-          <option value="-">Descending</option>
-        </select>
-      </label>
-    </div>
-    <div class="flex gap-2">
-      <ProductCategories class="w-1/4" v-model="modelValue" />
-      <InfiniteProducts
-        v-if="mode === 'infinite'"
-        class="w-3/4"
-        :limit="4"
-        :categoryId="modelValue"
-        :sort="{
-          property: 'name',
-          direction: selectedSortDirection
-        }"
-      />
+        <label>
+          <span>Sort by Name:</span>
+          <select v-model="selectedSortDirection">
+            <option value="">Ascending</option>
+            <option value="-">Descending</option>
+          </select>
+        </label>
+      </div>
+      <div class="flex gap-2">
+        <ProductCategories class="w-1/4" v-model="modelValue" />
+        <InfiniteProducts
+          v-if="mode === 'infinite'"
+          class="w-3/4"
+          :limit="4"
+          :categoryId="modelValue"
+          :sort="{
+            property: 'name',
+            direction: selectedSortDirection
+          }"
+        />
 
-      <PaginatedProducts
-        class="w-3/4"
-        v-else-if="mode === 'paginated'"
-        :limit="4"
-        :categoryId="modelValue"
-        :sort="{
-          property: 'name',
-          direction: selectedSortDirection
-        }"
-      />
+        <PaginatedProducts
+          class="w-3/4"
+          v-else-if="mode === 'paginated'"
+          :limit="4"
+          :categoryId="modelValue"
+          :sort="{
+            property: 'name',
+            direction: selectedSortDirection
+          }"
+        />
+      </div>
     </div>
-  </div>
+  </UpmContentSection>
 </template>
 
 <script setup lang="ts">
@@ -52,6 +57,7 @@ import PaginatedProducts from "./Paginated.vue";
 import InfiniteProducts from "./Infinite.vue";
 import ProductCategories from "./Categories.vue";
 import { RequestSortDirection } from "@upmind-automation/headless";
+import { UpmContentSection } from "@upmind-automation/client-vue";
 
 const mode = ref<"infinite" | "paginated">("paginated");
 const modelValue = ref("");

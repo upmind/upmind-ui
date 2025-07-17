@@ -7,11 +7,8 @@
   >
     <template v-for="item in gateways" :key="item.id">
       <component
-        :is="props.cardComponent"
-        :class="[
-          !props.cardComponent && styles.checkout.accordion.card,
-          props.class
-        ]"
+        :is="props.as"
+        :class="[!props.as && styles.checkout.accordion.card, props.class]"
       >
         <AccordionItem
           :value="item.gateway_id"
@@ -65,8 +62,8 @@
 
   <component
     v-if="meta.isFree"
-    :is="props.cardComponent"
-    :class="[!props.cardComponent && styles.checkout.isFree, props.class]"
+    :is="props.as"
+    :class="[!props.as && styles.checkout.isFree, props.class]"
   >
     <PaymentNotRequired />
   </component>
@@ -104,7 +101,7 @@ import { set } from "lodash-es";
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<PaymentDetailsProps>(), {
   color: "secondary",
-  cardComponent: "div",
+  as: "div",
   class: "bg-base shadow-sm"
 });
 

@@ -1,19 +1,15 @@
 <template>
   <Layout>
+    <template #navigation>
+      <Breadcrumb :items="items" />
+    </template>
+
+    <template #actions>
+      <Share class="hidden md:flex" />
+    </template>
+
     <ContentSection v-auto-animate class="flex flex-grow items-center">
       <form v-auto-animate @submit.prevent @reset.prevent>
-        <Button
-          v-if="basketMeta.hasProducts && basketMeta.isAvailable"
-          type="reset"
-          class="bg-base-background relative -top-4 mb-6 md:-top-6 md:mb-0"
-          size="sm"
-          variant="tonal"
-          :label="t('navigation.back')"
-          @click.prevent="doReject"
-        >
-          <template #prepend><Icon icon="arrow-left" size="2xs" /></template>
-        </Button>
-
         <div
           class="relative mx-auto flex w-full flex-wrap items-start justify-between gap-8"
         >
@@ -72,9 +68,10 @@
 
 <script lang="ts" setup>
 // --- external
-import { watch } from "vue";
+import { watch, computed } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
+import { forEach } from "lodash-es";
 
 // --- internal
 import {
@@ -82,21 +79,23 @@ import {
   useRoutingEngine,
   useBasketProductsPending,
   useQueryParams,
+  useBrand,
+  useProductConfig,
+  useProductCategories,
   ROUTE
 } from "@upmind-automation/headless";
 
 // --- components
-import { Card, Button, Icon } from "@upmind-automation/upmind-ui";
+import { Card, Layout, Breadcrumb } from "@upmind-automation/upmind-ui";
 import ContentSection from "../../components/content/ContentSection.vue";
 import ProductConfig from "./components/config/Config.vue";
 import Summary from "./components/summary/Summary.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 import ConfigSkeleton from "./components/ConfigSkeleton.vue";
-import Layout from "../../components/layout/Layout.vue";
-
-// --- utils
+import Share from "../../components/navigation/Share.vue";
 
 // --- types
+import type { ProductCategory } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 const { t, tm } = useI18n();
@@ -105,6 +104,8 @@ const { navigateBack, navigateNext, isResolved } = useRoutingEngine();
 const { meta: basketMeta, isReady } = useBasket();
 const { productId } = useQueryParams();
 const { configure, resolve } = useBasketProductsPending();
+const { hasStorefront, storefrontUrl, uiCart } = useBrand();
+const { getPath } = useProductCategories();
 
 await isReady();
 await isResolved(ROUTE.PRODUCT_ADD);
@@ -114,6 +115,47 @@ const {
   update,
   service: pendingProduct
 } = await configure(productId);
+
+const { product } = useProductConfig(pendingProduct);
+
+const items = computed(() => {
+  // Storefront
+  const items: any[] = [
+    {
+      label: t("product.shop"),
+      to: !hasStorefront.value ? { name: ROUTE.CATALOGUE } : undefined,
+      href: hasStorefront.value ? storefrontUrl.value : undefined,
+      current: false
+    }
+  ];
+
+  // Categories
+  if (product?.value?.productDetails?.categoryId) {
+    const categoryPath = getPath(product.value.productDetails.categoryId);
+    forEach(categoryPath, (category: ProductCategory) => {
+      items.push({
+        label: category.title,
+        to: !hasStorefront.value
+          ? {
+              name: ROUTE.CATALOGUE,
+              query: {
+                catid: category.id
+              }
+            }
+          : undefined,
+        current: uiCart.value?.catalogue?.disabled || hasStorefront.value
+      });
+    });
+  }
+
+  // Current product
+  items.push({
+    label: product.value?.productDetails?.title,
+    current: true
+  });
+
+  return items;
+});
 
 async function doResolve() {
   update()

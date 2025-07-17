@@ -1,5 +1,9 @@
 <template>
   <Layout>
+    <template #navigation>
+      <Back :to="storefrontUrl" i18n-key="basket.back" />
+    </template>
+
     <div class="flex items-center justify-center" v-auto-animate>
       <section
         class="relative mx-auto flex w-full flex-wrap items-start justify-between gap-8"
@@ -138,11 +142,13 @@ import { useI18n } from "vue-i18n";
 import {
   useBasket,
   useBasketFields,
-  useDataLayer
+  useDataLayer,
+  useBrand
 } from "@upmind-automation/headless";
 
 // --- components
 import {
+  Layout,
   Card,
   Button,
   Icon,
@@ -150,17 +156,18 @@ import {
   Link,
   Skeleton
 } from "@upmind-automation/upmind-ui";
-import Layout from "../../components/layout/Layout.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
 import Summary from "./components/Summary.vue";
 import ProductCards from "./product/BasketProductCards.vue";
 import Form from "../../components/form/Form.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
+import Back from "../../components/navigation/Back.vue";
 
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
 const { meta, productsInvalid, isReady } = useBasket();
+const { storefrontUrl } = useBrand();
 
 const {
   errors: fieldsErrors,

@@ -16,6 +16,7 @@
         :title="t(`${i18nKey ?? 'manage'}.error`, { isNew: !props.modelValue })"
         color="error"
         icon="alert-triangle"
+        class="mb-4"
       />
 
       <UpmForm
@@ -30,11 +31,11 @@
         :processing="meta.isProcessing"
         :no-actions="noActions"
       >
-        <template #actions="{ doReject, doResolve }">
+        <template #actions="{ doReject, doResolve, meta: formMeta }">
           <Actions
-            v-show="modal || meta.isDirty"
+            v-show="modal || meta.isDirty || (formMeta as any)?.isTouched"
             :i18nKey="i18nKey"
-            :disabled="meta.isProcessing || !meta.isValid"
+            :disabled="meta.isProcessing"
             :processing="meta.isProcessing"
             :no-cancel="!modal"
             :loading="meta.isLoading"
@@ -56,7 +57,11 @@ import { useVModel } from "@vueuse/core";
 
 // --- components
 import { UpmForm } from "../form";
-import { Dialog, Alert } from "@upmind-automation/upmind-ui";
+import {
+  Dialog,
+  Alert,
+  type FormActionProps
+} from "@upmind-automation/upmind-ui";
 import Skeleton from "./Skeleton.vue";
 import Actions from "./Actions.vue";
 

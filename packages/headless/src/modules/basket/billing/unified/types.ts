@@ -19,7 +19,7 @@ export enum UnifiedType {
 }
 
 export type UnifiedModel = {
-  address?: AddressModel;
+  address?: AddressModel["address"];
   company?: CompanyModel;
   phone?: PhoneModel;
 };

@@ -14,6 +14,8 @@
         :key="category.id"
         v-bind="category"
         v-model="modelValue"
+        :sort="props.sort"
+        :direction="props.direction"
       />
     </nav>
   </div>
@@ -44,23 +46,17 @@ import type { CategoriesProps } from "./types";
 import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
-
+const props = defineProps<Omit<CategoriesProps, "modelValue">>();
 const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
+
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
 const { uiCart } = useBrand();
-const { data, meta, getOne } = useProductCategories();
+const { getChildren, meta, getOne } = useProductCategories();
 
 const displayCategories = computed(() => {
-  if (!data.value) return [];
-
-  if (!modelValue.value) {
-    return data.value;
-  }
-
-  const parentCategory = getOne(modelValue.value);
-  return parentCategory?.categories || [];
+  return getChildren(modelValue.value);
 });
 
 const category = computed((): ProductCategory => {

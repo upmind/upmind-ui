@@ -123,8 +123,11 @@ async function loadLookups({
       : undefined,
     // ---
     emailId: defaultEmail.value?.id,
+    // email: !defaultEmail.value?.id ? {} : undefined,
     phoneId: defaultPhone.value?.id,
-    phone: defaultPhone.value?.phone
+    phone: !defaultPhone.value?.phone
+      ? ({ country: country?.id } as CompanyModel["phone"])
+      : undefined
   };
 
   const safeModel = useModelParser<CompanyModel>(schema, model, baseModel);
@@ -302,7 +305,7 @@ async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
 
     ensureAddress({
       model: (data?.address
-        ? data.address
+        ? { address: data.address }
         : { id: data?.addressId }) as AddressModel
     })
   ])

@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { URLs } from "../support/constants/Urls";
+import { URLs } from "../support/constants/urls";
 import { ProductConfig } from "../support/page-objects/templates/ProductConfig";
 import { Basket } from "../support/page-objects/templates/Basket";
 import {
@@ -10,7 +10,7 @@ import {
   getSessionToken,
   getClientToken
 } from "../support/utils/functions/tokens";
-import { Logins } from "../support/constants/Logins";
+import { Logins } from "../support/constants/logins";
 
 let productConfig: ProductConfig;
 let basket: Basket;
