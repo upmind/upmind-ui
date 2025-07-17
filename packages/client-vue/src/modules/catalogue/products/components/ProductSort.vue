@@ -1,7 +1,6 @@
 <template>
   <div :class="styles.products.filters.root">
     <Button
-      size="sm"
       variant="outline"
       color="base"
       class="w-full"
@@ -22,7 +21,6 @@
     <DropdownMenu :items="items" class="flex-1">
       <template #trigger>
         <Button
-          size="sm"
           variant="outline"
           color="base"
           :label="currentSort?.label"

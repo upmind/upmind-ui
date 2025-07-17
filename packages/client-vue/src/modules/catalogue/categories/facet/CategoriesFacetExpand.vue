@@ -5,7 +5,6 @@
     :key="`category-${index}`"
     :to="category.to"
     variant="ghost"
-    size="sm"
     :class="
       cn([
         styles.products.facet.expand.button,

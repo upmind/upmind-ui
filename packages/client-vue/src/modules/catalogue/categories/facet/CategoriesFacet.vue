@@ -4,7 +4,6 @@
       v-model="query"
       :class="styles.products.facet.search.input"
       :placeholder="t('product.category.search')"
-      input-size="sm"
       :auto-focus="false"
     >
       <template #prepend>
