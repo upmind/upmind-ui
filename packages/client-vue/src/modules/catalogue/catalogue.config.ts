@@ -7,7 +7,7 @@ export default {
       root: cva("mb-4 flex w-full flex-col md:mb-0 md:w-1/4")
     },
     facet: {
-      root: cva("flex w-full flex-col gap-y-4"),
+      root: cva("flex w-full flex-col gap-y-8"),
       search: {
         input: cva("max-w-xl"),
         icon: cva("text-control-foreground mr-1.5")
@@ -26,7 +26,7 @@ export default {
       }
     },
     filters: {
-      root: cva("inline-flex w-full items-center space-x-1 md:w-auto"),
+      root: cva("inline-flex w-full items-center space-x-2 md:w-auto"),
       trigger: cva("-ml-1")
     },
     item: {
@@ -63,8 +63,10 @@ export default {
       button: cva("h-12 w-full rounded")
     },
     main: {
-      root: cva("flex w-full flex-col gap-y-6"),
-      controls: cva("flex items-center justify-between"),
+      root: cva("flex w-full flex-col gap-y-8"),
+      controls: cva(
+        "flex flex-col items-start justify-between gap-3 md:flex-row md:gap-4"
+      ),
       searchInput: cva("max-w-xl"),
       searchIcon: cva("text-control-foreground mr-1.5"),
       grid: {
