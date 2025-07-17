@@ -19,7 +19,7 @@ export default {
       drillDown: {
         items: cva("flex flex-col space-y-2"),
         action: cva("flex justify-between"),
-        back: cva("h-10 self-start")
+        back: cva("self-start")
       },
       expand: {
         button: cva("flex justify-between")

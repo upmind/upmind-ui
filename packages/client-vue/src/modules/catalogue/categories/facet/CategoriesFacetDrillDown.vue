@@ -6,7 +6,6 @@
       :key="`category-${index}`"
       v-bind="category"
       variant="ghost"
-      size="sm"
       :class="
         cn([
           styles.products.facet.drillDown.action,
@@ -26,7 +25,6 @@
     v-bind="parentCategory"
     variant="outline"
     color="base"
-    size="sm"
     :class="styles.products.facet.drillDown.back"
   >
     <template #prepend>

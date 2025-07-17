@@ -16,7 +16,6 @@
         :class="[styles.products.main.searchInput, 'flex-1']"
         :placeholder="t('product.search.placeholder')"
         :auto-focus="false"
-        input-size="sm"
         aria-label="Search products"
         data-testid="product-search"
         @update:model-value="doQuery"
