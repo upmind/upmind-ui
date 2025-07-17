@@ -163,6 +163,7 @@ import ProductCards from "./product/BasketProductCards.vue";
 import Form from "../../components/form/Form.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 import Back from "../../components/navigation/Back.vue";
+import { isEmpty, omitBy } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -185,10 +186,13 @@ const open = ref(false);
 await isReady();
 
 const route = computed(() => {
-  return {
-    to: !hasStorefront.value ? { name: ROUTE.CATALOGUE } : undefined,
-    href: hasStorefront.value ? storefrontUrl.value : undefined
-  };
+  return omitBy(
+    {
+      to: !hasStorefront.value ? { name: ROUTE.CATALOGUE } : undefined,
+      href: hasStorefront.value ? storefrontUrl.value : undefined
+    },
+    isEmpty
+  );
 });
 
 const { dataLayer } = useDataLayer();
