@@ -3,12 +3,10 @@ import { type HTMLAttributes } from "vue";
 import type { CxOptions, VariantProps } from "class-variance-authority";
 
 // --- internal
-import type { breadcrumbVariants } from "./breadcrumb.config";
+import type { rootVariants } from "./breadcrumb.config";
 import type { RouterLinkProps } from "vue-router";
 
-type BreadcrumbConsolidateVariantProps = VariantProps<
-  typeof breadcrumbVariants
->;
+type BreadcrumbConsolidateVariantProps = VariantProps<typeof rootVariants>;
 
 export interface BreadcrumbItem extends RouterLinkProps {
   label: string;
