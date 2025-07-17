@@ -57,8 +57,8 @@ export function mapIAddress(data: AddressModel): IAddress {
     city: data.address.city ?? "",
     state: data.address.state ?? "",
     postcode: data.address.postcode ?? "",
-    region_id: data.address.regionId ?? "",
-    country_id: data.address.countryId ?? "",
+    region_id: data.address.regionId,
+    country_id: data.address.countryId,
     type: 1 // We are forcing type to always be 1 for simplicity
   } as IAddress;
 }

@@ -291,17 +291,21 @@ async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
   // if they don't then we return a promise of the add method
   // NB: for each new dependency we force type to be 4 = company
   return Promise.all([
-    ensureEmail({
-      model: (data?.email
-        ? { email: data.email }
-        : { id: data?.emailId }) as EmailModel
-    }),
+    !data?.email && !data?.emailId
+      ? Promise.resolve(null) // no email provided/needed
+      : ensureEmail({
+          model: (data?.email
+            ? { email: data.email }
+            : { id: data?.emailId }) as EmailModel
+        }),
 
-    ensurePhone({
-      model: (data?.phone
-        ? { phone: data.phone }
-        : { id: data?.phoneId }) as PhoneModel
-    }),
+    !data?.phone && !data?.phoneId
+      ? Promise.resolve(null) // no phone provided/needed
+      : ensurePhone({
+          model: (data?.phone
+            ? { phone: data.phone }
+            : { id: data?.phoneId }) as PhoneModel
+        }),
 
     ensureAddress({
       model: (data?.address
@@ -310,11 +314,12 @@ async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
     })
   ])
     .then(([email, phone, address]) => {
+      debugger;
       return {
         id: data.id,
         addressId: address?.id,
-        phoneId: phone.id,
-        emailId: email.id,
+        phoneId: phone?.id,
+        emailId: email?.id,
         name: data.name,
         regNumber: data.regNumber,
         vatNumber: data.vatNumber,
@@ -322,6 +327,7 @@ async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
       };
     })
     .catch(errors => {
+      debugger;
       throw new DetailedError(
         "Ensure Company dependencies failed",
         responseCodes.Unprocessable_Entity,
