@@ -43,9 +43,9 @@ export function mapCompany(raw: ICompany): Company {
 export function mapICompany(data: CompanyModel): ICompany {
   return {
     name: data.name ?? "",
-    address_id: data.addressId ?? "",
-    phone_id: data.phoneId ?? "",
-    email_id: data.emailId ?? "",
+    address_id: data.addressId,
+    phone_id: data.phoneId,
+    email_id: data.emailId,
     reg_number: data.regNumber ?? "",
     vat_number: data.vatNumber ?? ""
   } as ICompany;
