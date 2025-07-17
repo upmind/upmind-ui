@@ -1,11 +1,11 @@
 import { cva } from "class-variance-authority";
 
-export const breadcrumbVariants = cva("", {
+export const rootVariants = cva("gap-1 font-normal sm:gap-1", {
   variants: {
     size: {
-      sm: "text-xs",
-      md: "text-sm",
-      lg: "text-base"
+      sm: "text-sm",
+      md: "text-md",
+      lg: "text-lg"
     }
   },
   defaultVariants: {
@@ -13,6 +13,11 @@ export const breadcrumbVariants = cva("", {
   }
 });
 
+export const itemVariants = cva("gap-0 font-normal");
+
 export default {
-  breadcrumb: breadcrumbVariants
+  breadcrumb: {
+    root: rootVariants,
+    item: itemVariants
+  }
 };
