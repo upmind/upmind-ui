@@ -5,12 +5,7 @@
     aria-label="Product listing"
   >
     <!-- Search and controls -->
-    <div
-      :class="[
-        styles.products.main.controls,
-        'flex-col gap-3 md:flex-row md:gap-4'
-      ]"
-    >
+    <div :class="styles.products.main.controls">
       <InputExtended
         :model-value="query"
         :class="[styles.products.main.searchInput, 'flex-1']"
