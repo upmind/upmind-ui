@@ -1,6 +1,6 @@
 <template>
-  <Breadcrumb :class="cn(styles.breadcrumb, props.class)">
-    <BreadcrumbList>
+  <Breadcrumb>
+    <BreadcrumbList :class="cn(styles.breadcrumb.root, props.class)">
       <template
         v-for="(item, index) in props.items"
         :key="`breadcrumb-${index}`"
@@ -8,13 +8,21 @@
         <BreadcrumbItem>
           <BreadcrumbPage
             v-if="item.current || index === props.items.length - 1"
-            :class="{
-              'text-emphasis-high': index === props.items.length - 1
-            }"
+            :class="[
+              styles.breadcrumb.item,
+              {
+                'text-emphasis-high': index === props.items.length - 1
+              }
+            ]"
           >
             {{ item.label }}
           </BreadcrumbPage>
-          <BreadcrumbLink v-else v-bind="item" :as="Link">
+          <BreadcrumbLink
+            v-else
+            v-bind="item"
+            :as="Link"
+            :class="styles.breadcrumb.item"
+          >
             {{ item.label }}
           </BreadcrumbLink>
         </BreadcrumbItem>
@@ -64,6 +72,9 @@ const styles = useStyles(
   config,
   props.uiConfig ?? {}
 ) as ComputedRef<{
-  breadcrumb?: string;
+  breadcrumb: {
+    root: string;
+    item: string;
+  };
 }>;
 </script>
