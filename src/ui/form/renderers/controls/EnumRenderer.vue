@@ -2,7 +2,7 @@
   <FormField v-bind="formFieldProps">
     <Select
       :model-value="control.data?.toString()"
-      :items="control.options"
+      :items="control.uischema.options?.items || control.options"
       @update:modelValue="onInput"
     />
   </FormField>
