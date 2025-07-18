@@ -41,14 +41,28 @@ export function useSchemaDefinitions({
         regionId: {
           type: ["string", "null"],
           title: "Region",
-          ...(regions?.length && { enum: map(regions, "id") })
+          ...(regions?.length &&
+            Array.isArray(regions) && {
+              enum: map(regions, "id"),
+              options: regions.map(region => ({
+                label: region.name,
+                value: region.id
+              }))
+            })
         },
 
         countryId: {
           type: "string",
           title: "Country",
           default: baseModel?.countryId,
-          ...(countries?.length && { enum: map(countries, "id") })
+          ...(countries?.length &&
+            Array.isArray(countries) && {
+              enum: map(countries, "id"),
+              options: countries.map(country => ({
+                label: country.name,
+                value: country.id
+              }))
+            })
         }
       }
     }
@@ -136,14 +150,7 @@ export function useUischemaDefinitions({
             type: "Control",
             scope: "#/properties/countryId",
             options: {
-              placeholder: "Please select a Country...",
-              items:
-                countries && Array.isArray(countries)
-                  ? countries.map(country => ({
-                      label: country.name,
-                      value: country.id
-                    }))
-                  : []
+              placeholder: "Select a country…"
             }
           },
           // ---
@@ -195,15 +202,8 @@ export function useUischemaDefinitions({
                     type: "Control",
                     scope: "#/properties/regionId",
                     options: {
-                      placeholder: "Select region",
-                      autocomplete: "address-level1",
-                      items:
-                        regions && Array.isArray(regions)
-                          ? regions.map(region => ({
-                              label: region.name,
-                              value: region.id
-                            }))
-                          : []
+                      placeholder: "Select a region…",
+                      autocomplete: "address-level1"
                     }
                   },
                   {
