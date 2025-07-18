@@ -39,7 +39,7 @@ The `playgrounds` folder contains several playgrounds, each implementing a diffe
 
 2. **Git submodules:**
 
-When cloning this repo, use `git clone --recurse-submodules git@git.upmind.io:upmind/upmind-types.git`.
+When cloning this repo, use `git clone --recurse-submodules git@github.com:upmind/types.git`.
 
 If you already have the repo cloned, then you need to `git submodule update --init --recursive`.
 
