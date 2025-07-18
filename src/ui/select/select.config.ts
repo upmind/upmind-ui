@@ -27,7 +27,14 @@ export const rootVariants = cva(
 export default {
   select: {
     root: rootVariants,
-    value: cva("text-control-foreground"),
+    value: cva("text-control-foreground", {
+      variants: {
+        hasValue: {
+          true: "",
+          false: "text-emphasis-disabled"
+        }
+      }
+    }),
     item: cva("focus:bg-control-active-hover focus:text-control-foreground")
   }
 };
