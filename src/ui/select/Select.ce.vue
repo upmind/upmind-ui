@@ -64,6 +64,7 @@ import { isEqual } from "lodash-es";
 const props = withDefaults(defineProps<SelectProps>(), {
   // --- props
   items: () => [],
+  placeholder: "Select an option",
   // -- styles
   width: "full",
   // --- styles
