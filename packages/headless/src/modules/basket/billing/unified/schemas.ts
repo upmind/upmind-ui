@@ -90,7 +90,13 @@ export const useSchema = ({
   return schema;
 };
 
-export const useUischema = ({ baseModel, type, config }: UnifiedContext) => {
+export const useUischema = ({
+  baseModel,
+  type,
+  config,
+  regions,
+  countries
+}: UnifiedContext) => {
   const uiSchema: Layout = {
     type: "VerticalLayout",
     elements: []
@@ -107,7 +113,7 @@ export const useUischema = ({ baseModel, type, config }: UnifiedContext) => {
   }
 
   if (type == UnifiedType.PERSONAL) {
-    uiSchema.elements.push(useAddressUischema());
+    uiSchema.elements.push(useAddressUischema({ regions, countries }));
   } else if (type == UnifiedType.BUSINESS) {
     uiSchema.elements.push({
       type: "Control",
@@ -117,7 +123,9 @@ export const useUischema = ({ baseModel, type, config }: UnifiedContext) => {
         autocomplete: "off",
         detail: useCompanyUischema({
           minimal: true,
-          baseModel: baseModel?.company
+          baseModel: baseModel?.company,
+          countries,
+          regions
         })
       }
     } as any);

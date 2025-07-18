@@ -92,7 +92,9 @@ export const useSchema = ({
 
 export const useUischema = ({
   baseModel,
-  minimal
+  minimal,
+  countries,
+  regions
 }: Partial<CompanyContext>) => {
   const uiSchema = {
     type: "VerticalLayout",
@@ -132,7 +134,7 @@ export const useUischema = ({
   if (!baseModel?.addressId) {
     uiSchema.elements.push({
       type: "VerticalLayout",
-      elements: [useAddressUischema()]
+      elements: [useAddressUischema({ countries, regions })]
     } as any);
   } else {
     uiSchema.elements.push({

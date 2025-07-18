@@ -41,24 +41,14 @@ export function useSchemaDefinitions({
         regionId: {
           type: ["string", "null"],
           title: "Region",
-          oneOf: !regions?.length
-            ? undefined
-            : map(regions, item => ({
-                const: item.id,
-                title: item.name
-              }))
+          ...(regions?.length && { enum: map(regions, "id") })
         },
 
         countryId: {
           type: "string",
           title: "Country",
           default: baseModel?.countryId,
-          oneOf: !countries?.length
-            ? undefined
-            : map(countries, item => ({
-                const: item.id,
-                title: item.name
-              }))
+          ...(countries?.length && { enum: map(countries, "id") })
         }
       }
     }
@@ -128,7 +118,11 @@ export function useSchema({
   return schema;
 }
 
-export function useUischemaDefinitions({ id }: Partial<AddressContext> = {}) {
+export function useUischemaDefinitions({
+  id,
+  countries,
+  regions
+}: Partial<AddressContext> = {}) {
   return {
     type: "Control",
     scope: "#/properties/address",
@@ -142,7 +136,14 @@ export function useUischemaDefinitions({ id }: Partial<AddressContext> = {}) {
             type: "Control",
             scope: "#/properties/countryId",
             options: {
-              placeholder: "Please select a Country..."
+              placeholder: "Please select a Country...",
+              items:
+                countries && Array.isArray(countries)
+                  ? countries.map(country => ({
+                      label: country.name,
+                      value: country.id
+                    }))
+                  : []
             }
           },
           // ---
@@ -195,7 +196,14 @@ export function useUischemaDefinitions({ id }: Partial<AddressContext> = {}) {
                     scope: "#/properties/regionId",
                     options: {
                       placeholder: "Select region",
-                      autocomplete: "address-level1"
+                      autocomplete: "address-level1",
+                      items:
+                        regions && Array.isArray(regions)
+                          ? regions.map(region => ({
+                              label: region.name,
+                              value: region.id
+                            }))
+                          : []
                     }
                   },
                   {
@@ -217,11 +225,13 @@ export function useUischemaDefinitions({ id }: Partial<AddressContext> = {}) {
 }
 
 export function useUischema({
-  id
+  id,
+  countries,
+  regions
 }: Partial<AddressContext> = {}): UISchemaElement {
   const schema = {
     type: "VerticalLayout",
-    elements: [useUischemaDefinitions({ id })]
+    elements: [useUischemaDefinitions({ id, countries, regions })]
   };
 
   return schema as UISchemaElement;
