@@ -12,6 +12,7 @@ export class Checkout {
   readonly phoneInput: Locator;
   readonly phoneRegion: Locator;
   readonly saveDetails: Locator;
+  readonly dialogWindow: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -32,6 +33,7 @@ export class Checkout {
     this.phoneRegion = this.phone.getByTestId("popover-trigger");
     this.phoneInput = this.phone.getByTestId("text-input");
     this.saveDetails = page.getByTestId("button-save-details");
+    this.dialogWindow = page.getByTestId("dialog-window");
   }
 
   async manuallyInputAddress(
