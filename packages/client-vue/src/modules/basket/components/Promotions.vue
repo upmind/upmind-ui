@@ -40,6 +40,7 @@
       class="flex flex-wrap items-center gap-1"
       v-if="meta.hasPromotions"
       v-auto-animate
+      data-testid="summary-footer"
     >
       <h4 class="sr-only">
         {{ t("basket.promotions.active.title") }}
