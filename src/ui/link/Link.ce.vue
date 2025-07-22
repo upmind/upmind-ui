@@ -11,7 +11,7 @@
     :data-disabled="disabled"
     @click="doAction"
     @keydown.enter="doAction"
-    data-testid="link"
+    :data-testid="`${kebabCase(props.label)}-link`"
   >
     <slot name="prepend"></slot>
     <slot
@@ -24,6 +24,7 @@
 <script lang="ts" setup>
 // --- external
 import { computed } from "vue";
+import { kebabCase } from "lodash-es";
 
 // --- internal
 import config from "./link.config";
