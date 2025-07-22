@@ -34,11 +34,9 @@ export const buttonVariants = cva(
         warning: "!ring-warning"
       },
       size: {
-        xs: "h-7 gap-1 px-2 py-1 text-xs",
-        sm: "h-9 gap-2 px-3 py-1 text-sm",
-        md: "h-10 gap-2 px-4 py-1 text-md",
-        lg: "h-11 gap-2 px-8 py-1 text-lg",
-        xl: "h-14 gap-2 px-8 py-1 text-lg",
+        sm: "px-1 py-2 text-sm",
+        md: "gap-0.5 px-3 py-2 text-sm",
+        lg: "gap-0.5 px-4 py-2 text-md",
         icon: "h-10 w-10 gap-2 px-2 py-1",
         badge: "gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold"
       },
