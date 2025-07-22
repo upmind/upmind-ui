@@ -48,6 +48,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
           props.class
         )
       "
+      data-testid="dialog-window"
     >
       <slot />
 
