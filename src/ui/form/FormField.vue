@@ -5,7 +5,6 @@
     v-auto-animate
     :class="cn('flex flex-wrap', props.class)"
     :data-visible="meta.isVisible"
-    :data-testid="`form-item-${props.id}`.replaceAll('#/properties/', '')"
   >
     <slot name="field">
       <!-- label -->
@@ -51,10 +50,7 @@
           :formItemId="props.id"
           :auto-focus="props.autoFocus"
           :formDescriptionId="`form-item-description-${props.id}`"
-          :formMessageId="`form-item-message-${props.id}`"
-          :data-testid="
-            `form-item-input-${props.id}`.replaceAll('#/properties/', '')
-          "
+          :formMessageId="`form-item-message-${props.id.replaceAll('#/properties/', '')}`"
         >
           <slot></slot>
         </FormControl>
