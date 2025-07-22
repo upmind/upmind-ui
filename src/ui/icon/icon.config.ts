@@ -7,18 +7,17 @@ export const iconVariants = cva(
     variants: {
       size: {
         auto: "h-full w-auto",
-        "4xs": "size-2.5",
-        "3xs": "size-3",
-        "2xs": "size-4",
+        nano: "size-4",
         xs: "size-6",
         sm: "size-8",
         md: "size-10",
         lg: "size-12",
         xl: "size-14",
-        "2xl": "size-16"
+        "2xl": "size-16",
+        "3xl": "size-20"
       },
       defaultVariants: {
-        size: "none"
+        size: "md"
       }
     }
   }

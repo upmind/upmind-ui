@@ -12,6 +12,10 @@
   >
     <slot name="prepend"></slot>
 
+    <slot name="icon">
+      <Icon :icon="icon" :size="props.size" />
+    </slot>
+
     <slot>
       <span
         v-if="label"
@@ -43,6 +47,7 @@ import { useStyles, cn } from "../../utils";
 
 // --- components
 import ButtonRoot from "./Button.vue";
+import Icon from "../icon/Icon.ce.vue";
 import { Spinner } from "../spinner";
 
 // --- types
