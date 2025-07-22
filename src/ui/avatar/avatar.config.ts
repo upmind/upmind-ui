@@ -5,7 +5,7 @@ import { ringClasses } from "../../assets/styles";
 
 // --- for out Typescript type
 export const avatarVariants = cva(
-  "relative inline-flex aspect-square shrink-0 select-none items-center justify-center overflow-hidden font-normal",
+  "relative inline-flex aspect-square shrink-0 select-none items-center justify-center overflow-hidden font-medium",
   {
     variants: {
       color: {
@@ -30,17 +30,12 @@ export const avatarVariants = cva(
         contain: "object-contain p-[0.5em]"
       },
       size: {
-        auto: "h-full w-auto text-inherit",
-        "4xs": "h-4 w-4 text-xs",
-        "3xs": "h-5 w-5 text-xs",
-        "2xs": "h-6 w-6 text-xs",
-        xs: "h-8 w-8 text-xs",
-        sm: "h-12 w-12 text-sm",
-        md: "h-16 w-16 text-2xl",
-        lg: "h-32 w-32 text-5xl",
-        xl: "h-40 w-40 text-6xl",
-        "2xl": "h-48 w-48 text-7xl",
-        "3xl": "h-56 w-56 text-8xl"
+        xs: "size-6 text-xs",
+        sm: "size-8 text-sm",
+        md: "size-10 text-md",
+        lg: "size-12 text-lg",
+        xl: "size-14 text-xl",
+        "2xl": "size-16 text-2xl"
       },
       shape: {
         color: "base",

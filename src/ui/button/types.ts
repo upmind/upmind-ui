@@ -12,7 +12,7 @@ export interface ButtonProps {
   label?: string;
   as?: string | Component;
   type?: "button" | "submit" | "reset"; //  type?: HTMLButtonElement["type"];
-  icon: string | Icon;
+  icon?: string | Icon;
   // ---
   disabled?: boolean;
   loading?: boolean;
