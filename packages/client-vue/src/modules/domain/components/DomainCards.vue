@@ -14,6 +14,7 @@
       cursor="default"
       class="gap-0"
       list
+      data-testid="dac-results"
     >
       <template #item="{ item: { value } }">
         <DomainCard
@@ -22,6 +23,7 @@
           :color="props.color"
           @update:selected="onToggleSelected"
           @remove="onRemove"
+          data-testid="dac-card"
         />
       </template>
     </CheckboxCards>
