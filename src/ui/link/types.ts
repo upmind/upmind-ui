@@ -17,6 +17,7 @@ export interface LinkProps {
   is?: "router-link" | "a" | "button";
   to?: string | RouteLocationAsRelativeGeneric | RouteLocationAsPathGeneric;
   href?: string;
+  icon?: string | Icon;
   as?: HTMLAttributes["class"];
   class?: HTMLAttributes["class"];
   handler?: Function;

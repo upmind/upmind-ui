@@ -2,6 +2,7 @@
 import type { CxOptions } from "class-variance-authority";
 import { type Component, type HTMLAttributes } from "vue";
 import type { VariantProps } from "class-variance-authority";
+import type { Icon } from "../icon/types";
 
 // --- internal
 import type { buttonVariants } from "./button.config";
@@ -11,6 +12,7 @@ export interface ButtonProps {
   label?: string;
   as?: string | Component;
   type?: "button" | "submit" | "reset"; //  type?: HTMLButtonElement["type"];
+  icon: string | Icon;
   // ---
   disabled?: boolean;
   loading?: boolean;

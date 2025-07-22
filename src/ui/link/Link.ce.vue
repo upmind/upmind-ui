@@ -14,6 +14,9 @@
     data-testid="link"
   >
     <slot name="prepend"></slot>
+    <slot name="icon">
+      <Icon :icon="icon" :size="props.size" />
+    </slot>
     <slot
       ><component :is="as">{{ label }}</component></slot
     >
@@ -28,6 +31,9 @@ import { computed } from "vue";
 // --- internal
 import config from "./link.config";
 import { useStyles, cn } from "../../utils";
+
+// --- components
+import Icon from "../icon/Icon.ce.vue";
 
 // --- types
 import type { ComputedRef } from "vue";
