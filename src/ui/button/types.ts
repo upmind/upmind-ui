@@ -25,6 +25,7 @@ export interface ButtonProps {
   loading?: boolean;
   iconOnly?: boolean;
   spinner?: boolean;
+  pill?: boolean;
   // ---
   focusable?: boolean;
   block?: boolean;
