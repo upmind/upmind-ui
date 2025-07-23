@@ -5,7 +5,7 @@ import { DomainModel, DomainProduct, PAGINATION, useQuery } from "../..";
 
 // --- utils
 import { isEmpty, map, omitBy } from "lodash-es";
-import { parseAvailable, parseDomain, parseSld } from "./utils";
+import { parseAvailable, parseDomain, parseDomainParts } from "./utils";
 
 // --- types
 import type { IProduct } from "@upmind-automation/types";
@@ -33,7 +33,8 @@ async function search({
         ErrorOrigin.Headless
       )
     );
-  const sld = parseSld(search.query);
+
+  const { sld, tld } = parseDomainParts(search.query);
 
   // lets ensure we parse our promotions correctly
   const promocodes = map(promotions, "promotion.code").join();
@@ -42,11 +43,11 @@ async function search({
   const params = omitBy(
     {
       sld,
+      tld,
       with: ["prices", "options", "options.prices", "attributes"].join(),
       currency_code: currency,
       basket_id: basketId,
       brand_id: brandId,
-      // tld,
       promotions: promocodes
     },
     isEmpty
