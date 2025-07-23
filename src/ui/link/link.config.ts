@@ -12,13 +12,9 @@ export const rootVariants = cva(
           "opacity-50 data-[disabled=true]:opacity-50 hover:data-[disabled=false]:opacity-100 focus:data-[disabled=false]:opacity-100"
       },
       size: {
-        inherit: "",
-        "2xs": "text-2xs",
-        xs: "text-xs",
-        sm: "text-sm",
-        md: "text-base",
-        lg: "text-lg",
-        xl: "text-xl"
+        sm: "px-1 py-2 text-sm",
+        md: "gap-0.5 px-3 py-2 text-sm",
+        lg: "gap-0.5 px-4 py-2 text-md"
       },
       offset: {
         none: "underline-offset-0",
@@ -43,7 +39,7 @@ export const rootVariants = cva(
     defaultVariants: {
       variant: "flat",
       color: "inherit",
-      size: "inherit",
+      size: "md",
       offset: "4"
     }
   }

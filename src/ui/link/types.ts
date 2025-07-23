@@ -7,6 +7,7 @@ type LinkVariantProps = VariantProps<typeof rootVariants>;
 
 // --- types
 import type { HTMLAttributes } from "vue";
+import type { Icon } from "../icon/types";
 
 import type {
   RouteLocationAsRelativeGeneric,

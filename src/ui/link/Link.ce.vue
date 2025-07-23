@@ -15,7 +15,7 @@
   >
     <slot name="prepend"></slot>
     <slot name="icon">
-      <Icon :icon="icon" :size="props.size" />
+      <Icon v-if="icon" :icon="icon" />
     </slot>
     <slot
       ><component :is="as">{{ label }}</component></slot
