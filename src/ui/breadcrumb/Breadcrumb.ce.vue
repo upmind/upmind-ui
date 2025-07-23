@@ -6,22 +6,24 @@
         :key="`breadcrumb-${index}`"
       >
         <BreadcrumbItem>
-          <BreadcrumbPage
+          <Button
             v-if="item.current || index === props.items.length - 1"
+            variant="link"
+            class="no-underline"
+            :size="props.size"
+            disabled
+            :focusable="false"
             :class="[
-              styles.breadcrumb.item,
               {
                 'text-emphasis-high': index === props.items.length - 1
               }
             ]"
           >
             {{ item.label }}
-          </BreadcrumbPage>
-          <BreadcrumbLink v-else>
-            <Button :to="item.to" variant="link">
-              {{ item.label }}
-            </Button>
-          </BreadcrumbLink>
+          </Button>
+          <Button v-else :to="item.to" variant="link" :size="props.size">
+            {{ item.label }}
+          </Button>
         </BreadcrumbItem>
 
         <BreadcrumbSeparator v-if="index < props.items.length - 1">
@@ -44,8 +46,6 @@ import config from "./breadcrumb.config";
 import Breadcrumb from "./Breadcrumb.vue";
 import BreadcrumbList from "./BreadcrumbList.vue";
 import BreadcrumbItem from "./BreadcrumbItem.vue";
-import BreadcrumbLink from "./BreadcrumbLink.vue";
-import BreadcrumbPage from "./BreadcrumbPage.vue";
 import BreadcrumbSeparator from "./BreadcrumbSeparator.vue";
 import { Button } from "../button";
 

@@ -4,9 +4,16 @@ import { invalidRingClasses, ringClasses } from "../../assets/styles";
 // -----------------------------------------------------------------------------
 
 export const buttonVariants = cva(
-  `relative inline-flex items-center justify-center whitespace-nowrap rounded-lg border font-medium no-underline ring-offset-background transition-all duration-300 disabled:pointer-events-none disabled:cursor-not-allowed disabled:!opacity-50`,
+  `disabled:text-emphasis-medium relative inline-flex items-center justify-center whitespace-nowrap rounded-lg border font-medium no-underline ring-offset-background transition-all duration-300 disabled:pointer-events-none disabled:cursor-not-allowed`,
   {
     variants: {
+      size: {
+        sm: "px-1 py-2 text-sm",
+        md: "gap-0.5 px-3 py-2 text-sm",
+        lg: "gap-0.5 px-4 py-2 text-md",
+        icon: "h-10 w-10 gap-2 px-2 py-1",
+        badge: "gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold"
+      },
       variant: {
         flat: "border-transparent hover:bg-opacity-90",
         outline: "bg-transparent",
@@ -32,13 +39,6 @@ export const buttonVariants = cva(
         info: "!ring-info",
         error: "!ring-error",
         warning: "!ring-warning"
-      },
-      size: {
-        sm: "px-1 py-2 text-sm",
-        md: "gap-0.5 px-3 py-2 text-sm",
-        lg: "gap-0.5 px-4 py-2 text-md",
-        icon: "h-10 w-10 gap-2 px-2 py-1",
-        badge: "gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold"
       },
       block: {
         true: "w-full basis-full"
