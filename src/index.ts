@@ -26,7 +26,6 @@ export * from "./ui/interstitial";
 export * from "./ui/label";
 export * from "./ui/layout";
 export * from "./ui/lineclamp";
-export * from "./ui/link";
 export * from "./ui/list";
 export * from "./ui/loading";
 export * from "./ui/markdown";

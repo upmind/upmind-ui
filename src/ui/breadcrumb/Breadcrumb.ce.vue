@@ -17,13 +17,10 @@
           >
             {{ item.label }}
           </BreadcrumbPage>
-          <BreadcrumbLink
-            v-else
-            v-bind="item"
-            :as="Link"
-            :class="styles.breadcrumb.item"
-          >
-            {{ item.label }}
+          <BreadcrumbLink v-else>
+            <Button :to="item.to" variant="link">
+              {{ item.label }}
+            </Button>
           </BreadcrumbLink>
         </BreadcrumbItem>
 
@@ -50,7 +47,7 @@ import BreadcrumbItem from "./BreadcrumbItem.vue";
 import BreadcrumbLink from "./BreadcrumbLink.vue";
 import BreadcrumbPage from "./BreadcrumbPage.vue";
 import BreadcrumbSeparator from "./BreadcrumbSeparator.vue";
-import Link from "../link/Link.ce.vue";
+import { Button } from "../button";
 
 // --- types
 import type { BreadcrumbConsolidateProps } from "./types";

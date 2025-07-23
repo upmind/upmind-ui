@@ -11,7 +11,7 @@ export const buttonVariants = cva(
         flat: "border-transparent hover:bg-opacity-90",
         outline: "bg-transparent",
         ghost: "border-transparent",
-        link: "!hover:underline border-none !bg-transparent !px-0 !underline-offset-4 hover:text-opacity-60",
+        link: "!rounded-none border-none !bg-transparent !p-0 underline decoration-2 underline-offset-4 hover:opacity-75",
         tonal: "border-transparent",
         inverse: "border-transparent",
         control:
@@ -269,56 +269,10 @@ export const buttonVariants = cva(
         class: "hover:bg-warning-muted !ring-warning-muted-active text-warning"
       },
 
-      // --- link
+      // --- link (simplified - just inherit text color)
       {
-        color: "base",
         variant: "link",
-        class: "bg-transparent text-base-foreground !ring-transparent"
-      },
-      {
-        color: "primary",
-        variant: "link",
-        class: "bg-transparent text-primary !ring-transparent"
-      },
-      {
-        color: "secondary",
-        variant: "link",
-        class: "bg-transparent text-secondary !ring-transparent"
-      },
-      {
-        color: "accent",
-        variant: "link",
-        class: "bg-transparent text-accent !ring-transparent"
-      },
-      {
-        color: "promotion",
-        variant: "link",
-        class: "bg-transparent text-promotion !ring-transparent"
-      },
-      {
-        color: "destructive",
-        variant: "link",
-        class: "bg-transparent text-destructive !ring-transparent"
-      },
-      {
-        color: "success",
-        variant: "link",
-        class: "bg-transparent text-success !ring-transparent"
-      },
-      {
-        color: "info",
-        variant: "link",
-        class: "bg-transparent text-info !ring-transparent"
-      },
-      {
-        color: "error",
-        variant: "link",
-        class: "bg-transparent text-error !ring-transparent"
-      },
-      {
-        color: "warning",
-        variant: "link",
-        class: "bg-transparent text-warning !ring-transparent"
+        class: "text-current"
       },
 
       // --- inverse
@@ -374,8 +328,6 @@ export const buttonVariants = cva(
         variant: "inverse",
         class: "hover:bg-warning-muted bg-warning-foreground text-warning"
       }
-
-      // ... existing compound variants ...
     ],
 
     defaultVariants: {
