@@ -17,6 +17,9 @@ export interface ButtonProps {
   is?: "button" | "router-link" | "a" | string | Component;
   type?: "button" | "submit" | "reset";
   icon?: string | Icon;
+  avatar?: string | Icon;
+  iconAppend?: string | Icon;
+  avatarAppend?: string | Icon;
   // --- link support
   to?: string | RouteLocationAsRelativeGeneric | RouteLocationAsPathGeneric;
   href?: string;
