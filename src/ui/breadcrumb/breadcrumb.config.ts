@@ -13,11 +13,8 @@ export const rootVariants = cva("gap-1 font-normal sm:gap-1", {
   }
 });
 
-export const itemVariants = cva("gap-0 font-normal");
-
 export default {
   breadcrumb: {
-    root: rootVariants,
-    item: itemVariants
+    root: rootVariants
   }
 };
