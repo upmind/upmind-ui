@@ -35,7 +35,7 @@
           :key="key"
           :color="color"
           v-bind="action"
-          @click="doAction(action, $event)"
+          @click="doAction(action, $event as MouseEvent)"
         />
       </slot>
     </div>

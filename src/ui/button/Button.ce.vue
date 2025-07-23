@@ -1,14 +1,14 @@
 <template>
-  <!--<link rel="stylesheet" :href="stylesheet" />-->
-
-  <ButtonRoot
-    :as="props.as"
+  <component
+    :is="component"
+    :to="to"
+    :href="href"
+    :type="type"
+    :disabled="disabled || loading"
+    :tabindex="focusable ? '0' : '-1'"
     :class="cn(styles.button, props.class)"
-    :disabled="props.disabled || props.loading"
-    :loading="props.loading"
-    :type="props.type || 'button'"
-    :tabindex="props.focusable ? '0' : '-1'"
     :data-testid="`button-${kebabCase(label ?? 'default')}`"
+    @click="$emit('click', $event)"
   >
     <slot name="prepend"></slot>
 
@@ -17,23 +17,13 @@
     </slot>
 
     <slot>
-      <span
-        v-if="label"
-        class="truncate"
-        :class="{ 'sr-only': props.iconOnly, truncate: truncate }"
-        >{{ label }}</span
-      >
+      <span v-if="label" :class="{ 'sr-only': iconOnly }">{{ label }}</span>
     </slot>
 
     <slot name="append"></slot>
 
-    <span
-      v-if="props.loading && props.spinner"
-      class="spinner absolute inset-0 flex items-center justify-center"
-    >
-      <Spinner size="sm" />
-    </span>
-  </ButtonRoot>
+    <Spinner v-if="loading && spinner" size="sm" class="absolute" />
+  </component>
 </template>
 
 <script lang="ts" setup>
@@ -42,36 +32,45 @@ import { computed } from "vue";
 import { kebabCase } from "lodash-es";
 
 // --- internal
-import config from "./button.config";
 import { useStyles, cn } from "../../utils";
+import config from "./button.config";
 
 // --- components
-import ButtonRoot from "./Button.vue";
 import Icon from "../icon/Icon.ce.vue";
 import { Spinner } from "../spinner";
+import Button from "./Button.vue";
+import { RouterLink } from "vue-router";
 
-// --- types
+// -- types
 import type { ComputedRef } from "vue";
 import type { ButtonProps } from "./types";
-// -----------------------------------------------------------------------------
+
 const props = withDefaults(defineProps<ButtonProps>(), {
-  // --- props
   disabled: false,
   loading: false,
   iconOnly: false,
   spinner: true,
   type: "button",
-  // --- styles
   size: "md",
   color: "base",
   variant: "flat",
   block: false,
   focusable: true,
   truncate: true,
-  // --- styles
   uiConfig: () => ({ button: [] }),
   class: "",
   contentClass: ""
+});
+
+defineEmits<{
+  click: [event: Event];
+}>();
+
+const component = computed(() => {
+  if (props.is) return props.is;
+  if (props.to) return RouterLink;
+  if (props.href) return "a";
+  return Button;
 });
 
 const meta = computed(() => ({
