@@ -6,7 +6,7 @@ export const iconVariants = cva(
   {
     variants: {
       size: {
-        auto: "h-full w-auto",
+        auto: "size-[1lh]",
         nano: "size-4",
         xs: "size-6",
         sm: "size-8",
@@ -17,7 +17,7 @@ export const iconVariants = cva(
         "3xl": "size-20"
       },
       defaultVariants: {
-        size: "md"
+        size: "auto"
       }
     }
   }
