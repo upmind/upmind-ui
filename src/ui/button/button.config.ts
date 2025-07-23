@@ -4,7 +4,7 @@ import { invalidRingClasses, ringClasses } from "../../assets/styles";
 // -----------------------------------------------------------------------------
 
 export const buttonVariants = cva(
-  `disabled:text-emphasis-medium relative inline-flex items-center justify-center whitespace-nowrap rounded-lg border font-medium no-underline ring-offset-background transition-all duration-300 disabled:pointer-events-none disabled:cursor-not-allowed`,
+  `disabled:text-emphasis-medium relative inline-flex items-center justify-center whitespace-nowrap border font-medium no-underline ring-offset-background transition-all duration-300 disabled:pointer-events-none disabled:cursor-not-allowed`,
   {
     variants: {
       size: {
@@ -18,7 +18,7 @@ export const buttonVariants = cva(
         flat: "border-transparent hover:bg-opacity-90",
         outline: "bg-transparent",
         ghost: "border-transparent",
-        link: "!rounded-none border-none !bg-transparent !p-0 underline decoration-2 underline-offset-4 hover:opacity-75",
+        link: "border-none !bg-transparent !p-0 underline underline-offset-4 hover:opacity-75",
         tonal: "border-transparent",
         inverse: "border-transparent",
         control:
@@ -45,6 +45,10 @@ export const buttonVariants = cva(
       },
       loading: {
         true: "pointer-events-none [&>:not(.spinner)]:opacity-50"
+      },
+      pill: {
+        true: "rounded-pill",
+        false: "rounded-lg"
       }
     },
 
@@ -335,7 +339,8 @@ export const buttonVariants = cva(
       variant: "flat",
       color: "base",
       size: "md",
-      loading: false
+      loading: false,
+      pill: false
     }
   }
 );

@@ -80,7 +80,8 @@ const meta = computed(() => ({
   block: props.block,
   disabled: props.disabled,
   loading: props.loading,
-  focusable: props.focusable
+  focusable: props.focusable,
+  pill: props.pill
 }));
 
 const styles = useStyles(
