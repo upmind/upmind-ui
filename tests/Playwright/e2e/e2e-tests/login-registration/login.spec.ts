@@ -4,7 +4,7 @@ import { Login } from "../../support/page-objects/templates/Login";
 import { Logins } from "../../support/constants/logins";
 let login: Login;
 
-test.describe("Login", () => {
+test.describe("Login", async () => {
   test.describe("Login via /auth/login", () => {
     test.beforeEach(({ page }) => {
       login = new Login(page);

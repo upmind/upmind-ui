@@ -34,12 +34,26 @@ export default defineConfig({
     headless: true,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: "on-first-retry"
+    trace: "on-first-retry",
     //video: 'retain-on-failure',
+
+    viewport: { width: 1920, height: 1080 }
   },
 
   /* Configure projects for major browsers */
   projects: [
+    {
+      name: "chrome",
+      use: {
+        ...devices["Desktop Chrome"],
+        browserName: "chromium",
+        headless: true,
+        viewport: { width: 1920, height: 1080 },
+        launchOptions: {
+          args: ["--no-sandbox", "--headless", "--disable-gpu"]
+        }
+      }
+    },
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] }

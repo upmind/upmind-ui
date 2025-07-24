@@ -22,6 +22,7 @@ export class ProductConfig {
   readonly optionsContainer: Locator;
   readonly checkoutMarkdown: Locator;
   readonly markdownLineclamp: Locator;
+  readonly billingTerms: Locator;
   readonly options: Locator;
   readonly domainRegister: Locator;
   readonly domainTransfer: Locator;
@@ -92,18 +93,19 @@ export class ProductConfig {
 
     /* Product Options */
     this.textInput = new TextInput(page);
+    this.billingTerms = page.getByTestId("form-item-terms");
     this.options = page.getByTestId("options-container-options");
     this.domainRegister = page.getByTestId("form-item-dac-register");
     this.domainTransfer = page.getByTestId("form-item-dac-transfer");
     this.domainExisting = page.getByTestId("form-item-dac-existing");
     this.registrantNameInput = page.getByTestId(
-      "form-item-input-update_registrant_name"
+      "form-item-update_registrant_name"
     );
     this.registrantOrgInput = page.getByTestId(
-      "form-item-input-update_registrant_organisation"
+      "form-item-update_registrant_organisation"
     );
     this.registrantEmailInput = page.getByTestId(
-      "form-item-input-update_registrant_email"
+      "form-item-update_registrant_email"
     );
     this.registrantPhoneForm = page.getByTestId(
       "form-item-update_registrant_phone"
@@ -111,16 +113,16 @@ export class ProductConfig {
     this.registrantPhoneInput =
       this.registrantPhoneForm.getByTestId("text-input");
     this.registrantAddr1Input = page.getByTestId(
-      "form-item-input-update_registrant_address_1"
+      "form-item-update_registrant_address_1"
     );
     this.registrantCityInput = page.getByTestId(
-      "form-item-input-update_registrant_address_city"
+      "form-item-update_registrant_address_city"
     );
     this.registrantStateInput = page.getByTestId(
-      "form-item-input-update_registrant_address_state"
+      "form-item-update_registrant_address_state"
     );
     this.registrantPostcodeInput = page.getByTestId(
-      "form-item-input-update_registrant_address_postcode"
+      "form-item-update_registrant_address_postcode"
     );
     this.registrantCountryInput = page.getByTestId(
       "form-item-update_registrant_address_country_code"
@@ -149,7 +151,7 @@ export class ProductConfig {
     this.meetingTypes = page.getByTestId("summary-value-meeting-types");
     this.addons = page.getByTestId("summary-value-addons");
     this.tracking = page.getByTestId("summary-value-tracking");
-    this.tldValue = page.getByTestId("summary-value-domains");
+    this.tldValue = page.getByTestId("summary-value-domain-names");
     this.domainName = page.getByTestId("summary-value-account-domain-name");
     this.domainSetup = page.getByTestId("summary-value-domain-setup-(free)");
     this.domainLocking = page.getByTestId("summary-value-domain-locking");
@@ -196,7 +198,7 @@ export class ProductConfig {
   }
 
   async enterSld(sld: string) {
-    const sldFormField = this.page.getByTestId("form-item-input-sld");
+    const sldFormField = this.page.getByTestId("form-item-sld");
     await sldFormField.fill(sld);
   }
 
@@ -218,16 +220,18 @@ export class ProductConfig {
     return badge;
   }
 
-  async promoBadgeDoesNotExist() {
-    await expect(
-      this.getPromoBadge(this.radioButtons.getRadioButton(0, 0))
-    ).toBeHidden();
+  async promoBadgeDoesNotExist(option: number) {
+    const term = this.billingTerms.locator(
+      this.radioButtons.radioOption.nth(option)
+    );
+    await expect(this.getPromoBadge(term)).toBeHidden();
   }
 
-  async promoBadgeExists() {
-    await expect(
-      this.getPromoBadge(this.radioButtons.getRadioButton(0, 0))
-    ).toBeVisible();
+  async promoBadgeExists(option: number) {
+    const term = this.billingTerms.locator(
+      this.radioButtons.radioOption.nth(option)
+    );
+    await expect(this.getPromoBadge(term)).toBeVisible();
   }
 
   async enterRegistrantDetails(
@@ -249,7 +253,7 @@ export class ProductConfig {
     await this.registrantCityInput.fill(registrantCity);
     await this.registrantStateInput.fill(registrantState);
     await this.registrantPostcodeInput.fill(registrantPostcode);
-    await this.registrantCountryInput
+    await this.optionsContainer
       .locator(this.page.getByRole("combobox"))
       .click();
     await this.page.getByTestId(`select-item-${registrantCountryCode}`).click();

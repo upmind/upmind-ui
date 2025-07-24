@@ -1,21 +1,21 @@
 import { test, expect } from "@playwright/test";
 import { URLs } from "../../../support/constants/urls";
 import { ProductConfig } from "../../../support/page-objects/templates/ProductConfig";
-import { coukDomain } from "../../../support/constants/checkout/test-cases/webcentral/domains/Co.uk";
+import { ukDomain } from "../../../support/constants/checkout/test-cases/webcentral/domains/Uk";
 let productConfig: ProductConfig;
-let testCases = coukDomain;
+let testCases = ukDomain;
 
 test.beforeEach(async ({ page }) => {
   productConfig = new ProductConfig(page);
-  await page.goto(URLs.coukDomain);
+  await page.goto(URLs.ukDomain);
   await productConfig.optionsContainer.waitFor();
 });
 
-test.describe("Product Config - Domains (.co.uk)", async () => {
+test.describe("Product Config - Domains (.uk)", async () => {
   for (const {
     name,
     radioSelection = [],
-    checkboxSelection = [],
+    transfer,
     sldValue,
     registrantName,
     registrantOrg,
@@ -39,26 +39,21 @@ test.describe("Product Config - Domains (.co.uk)", async () => {
           radioOptionIndex
         );
       }
-      for (const [
-        checkboxGroupIndex,
-        checkboxOptionIndex
-      ] of checkboxSelection) {
-        await productConfig.checkboxes.clickCheckbox(
-          checkboxGroupIndex,
-          checkboxOptionIndex
-        );
+      if (transfer === true) {
+        await productConfig.checkboxes.checkboxOption.first().click();
       }
       await productConfig.enterSld(sldValue);
-      await productConfig.registrantNameInput.fill(registrantName);
-      await productConfig.registrantOrgInput.fill(registrantOrg);
-      await productConfig.registrantEmailInput.fill(registrantEmail);
-      await productConfig.registrantPhoneInput.fill(registrantPhone);
-      await productConfig.registrantAddr1Input.fill(registrantAddr1);
-      await productConfig.registrantCityInput.fill(registrantCity);
-      await productConfig.registrantStateInput.fill(registrantState);
-      await productConfig.registrantPostcodeInput.fill(registrantPostcode);
-      await productConfig.registrantCountryInput.click();
-      await productConfig.select.getSelectOption(registrantCountry);
+      await productConfig.enterRegistrantDetails(
+        `${registrantName}`,
+        `${registrantOrg}`,
+        `${registrantEmail}`,
+        `${registrantPhone}`,
+        `${registrantAddr1}`,
+        `${registrantCity}`,
+        `${registrantState}`,
+        `${registrantPostcode}`,
+        `${registrantCountry}`
+      );
 
       /* SUMMARY FIELDS */
       /* Verify that all summary fields contain the expected data */
@@ -83,7 +78,7 @@ test.describe("Product Config - Domains (.co.uk)", async () => {
         registrantPostcode
       );
       await expect(productConfig.registrantCountry).toContainText(
-        registrantCountry
+        "United Kingdom"
       );
       await expect(productConfig.tldValue).toContainText(tldValue);
       //await expect(page).toHaveScreenshot(name);

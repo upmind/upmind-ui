@@ -23,14 +23,6 @@ export const FraudCheckCards = [
     dialogText: "Order complete!"
   },
   {
-    name: "CVC Check Failed",
-    cardNumber: "4000000000000101",
-    expiryDate: "12/50",
-    cvcCode: "123",
-    dialogText:
-      "Your card's security code is incorrect. Please click below to go to your invoice where you can retry your payment."
-  },
-  {
     name: "Postcode Check Failed",
     cardNumber: "4000000000000036",
     expiryDate: "12/50",
