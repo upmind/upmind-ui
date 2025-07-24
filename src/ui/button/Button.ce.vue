@@ -11,8 +11,13 @@
     @click="$emit('click', $event)"
   >
     <slot name="prepend">
-      <Icon v-if="icon" :icon="icon" />
-      <Avatar v-if="avatar" :icon="avatar" />
+      <span
+        v-if="icon || avatar"
+        class="flex size-[1lh] items-center justify-center"
+      >
+        <Icon v-if="icon" :icon="icon" size="3xs" />
+        <Avatar v-if="avatar" :icon="avatar" size="3xs" />
+      </span>
     </slot>
 
     <slot>
@@ -20,8 +25,13 @@
     </slot>
 
     <slot name="append">
-      <Icon v-if="iconAppend" :icon="iconAppend" />
-      <Avatar v-if="avatarAppend" :icon="avatarAppend" />
+      <span
+        v-if="iconAppend || avatarAppend"
+        class="flex size-[1lh] items-center justify-center"
+      >
+        <Icon v-if="iconAppend" :icon="iconAppend" size="3xs" />
+        <Avatar v-if="avatarAppend" :icon="avatarAppend" size="3xs" />
+      </span>
     </slot>
 
     <Spinner v-if="loading && spinner" size="sm" class="absolute" />
@@ -38,10 +48,10 @@ import { useStyles, cn } from "../../utils";
 import config from "./button.config";
 
 // --- components
-import Icon from "../icon/Icon.ce.vue";
-import Avatar from "../avatar/Avatar.ce.vue";
 import { Spinner } from "../spinner";
 import Button from "./Button.vue";
+import Icon from "../icon/Icon.ce.vue";
+import Avatar from "../avatar/Avatar.ce.vue";
 import { RouterLink } from "vue-router";
 
 // -- types
@@ -92,5 +102,7 @@ const styles = useStyles(
   meta,
   config,
   props.uiConfig ?? {}
-) as ComputedRef<{ button: string }>;
+) as ComputedRef<{
+  button: string;
+}>;
 </script>
