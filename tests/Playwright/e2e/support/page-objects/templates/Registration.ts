@@ -13,10 +13,10 @@ export class Registration {
   constructor(page: Page, context: BrowserContext) {
     this.page = page;
     this.context = context;
-    this.firstName = page.getByTestId("form-item-input-firstname");
-    this.lastName = page.getByTestId("form-item-input-lastname");
-    this.email = page.getByTestId("form-item-input-username");
-    this.password = page.getByTestId("form-item-input-password");
+    this.firstName = page.getByTestId("form-item-firstname");
+    this.lastName = page.getByTestId("form-item-lastname");
+    this.email = page.getByTestId("form-item-username");
+    this.password = page.getByTestId("form-item-password");
     this.alert = page.getByRole("alert");
   }
 

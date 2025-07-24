@@ -22,12 +22,12 @@ test.describe("Promotions", () => {
     productConfig = new ProductConfig(page);
     basket = new Basket(page);
   });
-  test.describe("Auto-Applied Promotions", () => {
+  test.describe("Auto-Applied Promotions", async () => {
     test.describe("Basic Config Settings", () => {
       test("Is Active - No", async ({ page }) => {
         await page.goto(URLs.inactivePromo);
         await page.waitForLoadState("networkidle");
-        await productConfig.promoBadgeDoesNotExist();
+        await productConfig.promoBadgeDoesNotExist(0);
       });
     });
     test.describe("Discounts and Conditions", () => {
@@ -35,12 +35,12 @@ test.describe("Promotions", () => {
         test("Fixed Discount Amount", async ({ page }) => {
           await page.goto(URLs.fixedDiscount);
           await page.waitForLoadState("networkidle");
-          await productConfig.promoBadgeDoesNotExist();
+          await productConfig.promoBadgeExists(0);
         });
         test("Percentage Discount Amount", async ({ page }) => {
           await page.goto(URLs.percentageDiscount);
           await page.waitForLoadState("networkidle");
-          await productConfig.promoBadgeExists();
+          await productConfig.promoBadgeExists(0);
         });
       });
       test.describe("Application per currency", () => {
@@ -49,14 +49,14 @@ test.describe("Promotions", () => {
         }) => {
           await page.goto(URLs.gbpPromo);
           await page.waitForLoadState();
-          await productConfig.promoBadgeExists();
+          await productConfig.promoBadgeExists(0);
         });
         test("Apply for all currencies - No - Apply for USD", async ({
           page
         }) => {
           await page.goto(URLs.usdPromo);
           await page.waitForLoadState();
-          await productConfig.promoBadgeExists();
+          await productConfig.promoBadgeExists(0);
         });
       });
       test.describe("Application per billing term", () => {
@@ -65,18 +65,14 @@ test.describe("Promotions", () => {
         }) => {
           await page.goto(URLs.oneYearPromo);
           await page.waitForLoadState("networkidle");
-          await expect(
-            productConfig.getPromoBadge(
-              productConfig.radioButtons.getRadioButton(0, 1)
-            )
-          ).toBeVisible();
+          await productConfig.promoBadgeExists(1);
         });
       });
       test.describe("Application per price list", () => {
         test("Apply for all price lists - No", async ({ page }) => {
           await page.goto(URLs.priceListPromo);
           await page.waitForLoadState("networkidle");
-          await productConfig.promoBadgeDoesNotExist();
+          await productConfig.promoBadgeDoesNotExist(0);
           await getClientToken(
             page,
             Logins.priceListUser.username,
@@ -84,7 +80,7 @@ test.describe("Promotions", () => {
           );
           await page.goto(URLs.priceListPromo);
           await page.waitForLoadState("networkidle");
-          await productConfig.promoBadgeExists();
+          await productConfig.promoBadgeExists(0);
         });
       });
     });
@@ -105,14 +101,14 @@ test.describe("Promotions", () => {
     test.describe("Use for new clients", () => {
       test("Exclusively for new clients", async ({ page }) => {
         await page.goto(URLs.newClientPromo);
-        await productConfig.promoBadgeExists();
+        await productConfig.promoBadgeExists(0);
         await getClientToken(
           page,
           Logins.priceListUser.username,
           Logins.priceListUser.password
         );
         await page.goto(URLs.newClientPromo);
-        await productConfig.promoBadgeDoesNotExist();
+        await productConfig.promoBadgeDoesNotExist(0);
       });
     });
     test.describe("Use for existing clients", () => {
@@ -125,10 +121,10 @@ test.describe("Promotions", () => {
         );
         await page.goto(URLs.existingClientPromo);
         await page.waitForLoadState();
-        await productConfig.promoBadgeExists();
+        await productConfig.promoBadgeExists(0);
         await page.goto(URLs.logout);
         await page.goto(URLs.existingClientPromo);
-        await productConfig.promoBadgeDoesNotExist();
+        await productConfig.promoBadgeDoesNotExist(0);
       });
     });
     test.describe("Use for upgrade clients", () => {
