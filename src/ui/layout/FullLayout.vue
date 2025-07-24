@@ -50,7 +50,8 @@ const slots = useSlots();
 const meta = computed(() => {
   return {
     hasHeader: !isEmptySlot("header", slots),
-    hasContent: !isEmptySlot("default", slots)
+    hasContent: !isEmptySlot("default", slots),
+    isMinimal: props.minimal
   };
 });
 const styles = useStyles(
