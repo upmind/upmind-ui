@@ -6,18 +6,12 @@
     :type="type"
     :disabled="disabled || loading"
     :tabindex="focusable ? '0' : '-1'"
-    :class="cn(styles.button, props.class)"
+    :class="cn(styles.button.root, props.class)"
     :data-testid="`button-${kebabCase(label ?? 'default')}`"
     @click="$emit('click', $event)"
   >
     <slot name="prepend">
-      <span
-        v-if="icon || avatar"
-        class="flex size-[1lh] items-center justify-center"
-      >
-        <Icon v-if="icon" :icon="icon" size="3xs" />
-        <Avatar v-if="avatar" :icon="avatar" size="3xs" />
-      </span>
+      <ButtonItems :icon="icon" :avatar="avatar" />
     </slot>
 
     <slot>
@@ -25,13 +19,7 @@
     </slot>
 
     <slot name="append">
-      <span
-        v-if="iconAppend || avatarAppend"
-        class="flex size-[1lh] items-center justify-center"
-      >
-        <Icon v-if="iconAppend" :icon="iconAppend" size="3xs" />
-        <Avatar v-if="avatarAppend" :icon="avatarAppend" size="3xs" />
-      </span>
+      <ButtonItems :icon="iconAppend" :avatar="avatarAppend" />
     </slot>
 
     <Spinner v-if="loading && spinner" size="sm" class="absolute" />
@@ -50,8 +38,7 @@ import config from "./button.config";
 // --- components
 import { Spinner } from "../spinner";
 import Button from "./Button.vue";
-import Icon from "../icon/Icon.ce.vue";
-import Avatar from "../avatar/Avatar.ce.vue";
+import ButtonItems from "./ButtonItems.vue";
 import { RouterLink } from "vue-router";
 
 // -- types
@@ -103,6 +90,8 @@ const styles = useStyles(
   config,
   props.uiConfig ?? {}
 ) as ComputedRef<{
-  button: string;
+  button: {
+    root: string;
+  };
 }>;
 </script>

@@ -8,7 +8,6 @@ export const iconVariants = cva(
       size: {
         auto: "size-[1lh]",
         nano: "size-4",
-        "3xs": "size-5",
         "2xs": "size-5",
         xs: "size-6",
         sm: "size-8",

@@ -9,8 +9,8 @@ import type {
 } from "vue-router";
 
 // --- internal
-import type { buttonVariants } from "./button.config";
-type ButtonVariantProps = VariantProps<typeof buttonVariants>;
+import type { rootVariants } from "./button.config";
+type ButtonVariantProps = VariantProps<typeof rootVariants>;
 
 export interface ButtonProps {
   label?: string;
@@ -40,4 +40,9 @@ export interface ButtonProps {
   uiConfig?: { button: CxOptions };
   class?: HTMLAttributes["class"];
   contentClass?: HTMLAttributes["class"];
+}
+
+export interface ButtonItemsProps {
+  icon?: ButtonProps["icon"];
+  avatar?: ButtonProps["avatar"];
 }
