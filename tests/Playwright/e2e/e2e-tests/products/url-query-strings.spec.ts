@@ -89,7 +89,7 @@ test.describe("Manipulating elements/behaviour with URL query strings", () => {
       await expect(page.url()).toBe(
         "http://qa-automation.local:5173/product/add/20403869-6e54-721d-264c-518d9305e7d2"
       );
-      await expect(page.getByTestId("popover-trigger")).toHaveText("USD");
+      await expect(page.getByTestId("currency-selector")).toHaveText("USD");
     });
     test("Invalid currency value", async ({ page }) => {
       await page.goto(
@@ -99,7 +99,7 @@ test.describe("Manipulating elements/behaviour with URL query strings", () => {
       await expect(page.url()).toBe(
         "http://qa-automation.local:5173/product/add/20403869-6e54-721d-264c-518d9305e7d2"
       );
-      await expect(page.getByTestId("popover-trigger")).toHaveText("GBP");
+      await expect(page.getByTestId("currency-selector")).toHaveText("GBP");
     });
   });
   test.describe("Selecting subproducts (options/attributes) via URL param", () => {
@@ -111,11 +111,11 @@ test.describe("Manipulating elements/behaviour with URL query strings", () => {
       await expect(page.url()).toBe(
         "http://qa-automation.local:5173/product/add/3de78642-de53-9714-76df-21208469530d"
       );
-      await expect(productConfig.checkboxes.getCheckbox(0, 0)).toHaveAttribute(
+      await expect(productConfig.checkboxes.getCheckbox(0)).toHaveAttribute(
         "data-active",
         "true"
       );
-      await expect(productConfig.checkboxes.getCheckbox(1, 0)).toHaveAttribute(
+      await expect(productConfig.checkboxes.getCheckbox(1)).toHaveAttribute(
         "data-active",
         "true"
       );
@@ -131,11 +131,11 @@ test.describe("Manipulating elements/behaviour with URL query strings", () => {
       await expect(page.url()).toBe(
         "http://qa-automation.local:5173/product/add/3de78642-de53-9714-76df-21208469530d"
       );
-      await expect(productConfig.checkboxes.getCheckbox(0, 0)).toHaveAttribute(
+      await expect(productConfig.checkboxes.getCheckbox(0)).toHaveAttribute(
         "data-active",
-        "true"
+        "false"
       );
-      await expect(productConfig.checkboxes.getCheckbox(1, 0)).toHaveAttribute(
+      await expect(productConfig.checkboxes.getCheckbox(1)).toHaveAttribute(
         "data-active",
         "false"
       );

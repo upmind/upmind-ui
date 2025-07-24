@@ -18,7 +18,7 @@ import { ErrorCards } from "../../support/constants/checkout/payment-cards/Inval
 
 let checkout: Checkout;
 
-test.describe("Checkout - Happy paths", () => {
+test.describe("Checkout - Happy paths", async () => {
   test.beforeEach(async ({ page }) => {
     checkout = new Checkout(page);
     await page.goto(URLs.login);
