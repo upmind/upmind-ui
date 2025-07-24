@@ -16,7 +16,7 @@ export const rootVariants = cva(
       },
       variant: {
         flat: "hover:bg-opacity-90",
-        outline: "outline-border outline outline-1",
+        outline: "shadow-border",
         ghost: "",
         link: "gap-1 !bg-transparent !p-0 underline underline-offset-4",
         tonal: "",
