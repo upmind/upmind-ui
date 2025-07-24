@@ -33,7 +33,7 @@ type BasketProductPending = ReturnType<typeof useBasketProductPending>;
 
 // -----------------------------------------------------------------------------
 
-export function basketSubscription(callback: any, onReceive: any) {
+export function basketSubscription(callback: any, onReceiveEvent: any) {
   const basket = useBasket();
   const pendingProducts = useBasketProductsPending();
 
@@ -54,7 +54,7 @@ export function basketSubscription(callback: any, onReceive: any) {
   });
 
   //-- initialise our basket
-  onReceive((event: any) => {
+  const onReceive = (event: any) => {
     if (event.type === "INIT") {
       basket
         .isReady()
@@ -78,15 +78,24 @@ export function basketSubscription(callback: any, onReceive: any) {
     const rawBasket = basket.basket.value;
     let basketProduct: BasketProduct | undefined;
 
-    if (!rawBasket) {
-      callback({
-        type: "ERROR",
-        data: new DetailedError(
-          "Basket not found",
-          responseCodes.Not_Found,
-          ErrorOrigin.Headless
-        )
-      });
+    if (!rawBasket?.id) {
+      // If no basket exists, refresh to create one, then retry the operation
+      basket
+        .refresh()
+        .then(() => {
+          // Re-trigger this event now that basket should exist
+          onReceive(event);
+        })
+        .catch(() => {
+          callback({
+            type: "ERROR",
+            data: new DetailedError(
+              "Basket not found",
+              responseCodes.Not_Found,
+              ErrorOrigin.Headless
+            )
+          });
+        });
       return;
     }
 
@@ -308,7 +317,7 @@ export function basketSubscription(callback: any, onReceive: any) {
             return productServices
               .updateMany(
                 {
-                  basketId: basket.basketId.value,
+                  basketId: rawBasket?.id,
                   basketProducts: basket.products.value,
                   promotions: event.context?.promotions
                 },
@@ -430,7 +439,9 @@ export function basketSubscription(callback: any, onReceive: any) {
 
         break;
     }
-  });
+  };
+
+  onReceiveEvent(onReceive);
 
   return () => {
     // when our  invoking manager is done, we should unsubscribe for any further updates

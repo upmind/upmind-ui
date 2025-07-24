@@ -38,8 +38,10 @@
               />
             </div>
             <div class="flex items-end justify-between">
-              <Link :to="editLink" offset="2">
-                <strong class="text-xl font-semibold leading-7 underline">
+              <Link :to="editLink" offset="2" class="min-w-0 flex-1 md:mr-8">
+                <strong
+                  class="break-all text-xl font-semibold leading-7 underline"
+                >
                   {{ summary.title }}
                 </strong>
               </Link>
