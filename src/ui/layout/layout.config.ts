@@ -34,7 +34,7 @@ export default {
         }
       }
     }),
-    contentRoot: cva("pb-10 pt-10 md:pb-16 md:pt-20", {
+    contentRoot: cva("px-[10px] py-24", {
       variants: {
         hasHeader: {
           true: "bg-base-background",
