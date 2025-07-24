@@ -164,10 +164,8 @@ function mapLaravelRuleToJSONSchema(
       )
     ) {
       return {
-        oneOf: map(field?.options, option => ({
-          const: option.value,
-          title: option.label
-        }))
+        enum: map(field?.options, ({ value }) => value),
+        options: map(field?.options, ({ label, value }) => ({ label, value }))
       };
     } else {
       const values = rule.substring(3).split(",");

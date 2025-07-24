@@ -4,7 +4,7 @@
       <Icon v-if="meta.hasIcon && icon" :icon="icon" size="2xs" />
     </span>
 
-    <span>
+    <span :class="styles.summary.list.item.content">
       <h5 :class="styles.summary.list.item.category">
         {{ category }}
       </h5>
@@ -56,6 +56,7 @@ const styles = useStyles("summary.list.item", meta, config) as ComputedRef<{
         title: string;
         quantity: string;
         icon: string;
+        content: string;
       };
     };
   };

@@ -25,10 +25,13 @@ export default {
         root: cva(
           "text-foreground m-0 flex flex-wrap items-start gap-x-1.5 p-0"
         ),
-        icon: cva("text-icon mr-1 flex w-8 items-center justify-center"),
+        icon: cva(
+          "text-icon mr-1 flex w-8 flex-shrink-0 items-center justify-center"
+        ),
+        content: cva("min-w-0 flex-1"),
         category: cva("text-emphasis-medium basis-full text-xs leading-none"),
-        title: cva("text-foreground font-medium"),
-        quantity: cva("text-emphasis-high text-xs")
+        title: cva("text-foreground break-words font-medium"),
+        quantity: cva("text-emphasis-high flex-shrink-0 text-xs")
       }
     },
 
