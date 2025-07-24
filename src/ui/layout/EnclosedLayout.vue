@@ -48,7 +48,8 @@ const meta = computed(() => {
   return {
     hasControls: !isEmptySlot("controls", slots),
     hasHeader: !isEmptySlot("header", slots),
-    hasContent: !isEmptySlot("default", slots)
+    hasContent: !isEmptySlot("default", slots),
+    isMinimal: props.minimal
   };
 });
 

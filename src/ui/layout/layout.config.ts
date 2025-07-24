@@ -26,7 +26,14 @@ export default {
 
   full: {
     root: cva("mx-auto w-full flex-wrap items-start justify-start"),
-    header: cva("max-w-app mx-auto pb-10 pt-10 md:pb-20 md:pt-14"),
+    header: cva("max-w-app mx-auto", {
+      variants: {
+        isMinimal: {
+          true: "py-[72px]",
+          false: "py-24"
+        }
+      }
+    }),
     contentRoot: cva("pb-10 pt-10 md:pb-16 md:pt-20", {
       variants: {
         hasHeader: {
