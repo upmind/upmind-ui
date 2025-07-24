@@ -13,7 +13,6 @@
         :aria-expanded="open"
         :color="props.color"
         :variant="props.variant"
-        data-testid="popover-trigger"
       >
         <template v-if="!isEmpty(modelValue) || searchTerm">
           <slot name="selected" v-bind="{ item: modelValue }">
