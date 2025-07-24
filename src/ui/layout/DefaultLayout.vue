@@ -27,13 +27,11 @@ import config from "./layout.config";
 import { isEmptySlot } from "./utils";
 
 // --- types
-import { type HTMLAttributes, type ComputedRef, computed, useSlots } from "vue";
+import { type ComputedRef, computed, useSlots } from "vue";
+import { type VariantProps } from "./types";
 
 // -----------------------------------------------------------------------------
-const props = defineProps<{
-  class?: HTMLAttributes["class"];
-  uiConfig?: Record<string, any>;
-}>();
+const props = defineProps<VariantProps>();
 
 // -----------------------------------------------------------------------------
 const slots = useSlots();
