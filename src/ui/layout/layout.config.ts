@@ -18,7 +18,7 @@ export default {
 
   enclosed: {
     root: cva(
-      "max-w-app mx-auto flex w-full flex-col flex-wrap items-start justify-start gap-6 pb-16 pt-10 md:pb-32 md:pt-16"
+      "max-w-app mx-auto flex w-full flex-col flex-wrap items-start justify-start gap-6 px-[10px] py-[72px]"
     ),
     controlsRoot: cva("w-full border-b bg-base-background py-4"),
     controls: cva("max-w-app mx-auto")
@@ -26,7 +26,7 @@ export default {
 
   full: {
     root: cva("mx-auto w-full flex-wrap items-start justify-start"),
-    header: cva("max-w-app mx-auto", {
+    header: cva("max-w-app mx-auto px-[10px]", {
       variants: {
         isMinimal: {
           true: "py-[72px]",
