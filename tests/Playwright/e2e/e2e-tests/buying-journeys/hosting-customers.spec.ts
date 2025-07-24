@@ -20,7 +20,7 @@ async function addProductToBasket() {
   await productConfig.confirmAndProceed.click();
 }
 
-test.describe("Hosting customers", () => {
+test.describe("Hosting customers", async () => {
   test.beforeEach(async ({ page, context }) => {
     productConfig = new ProductConfig(page);
     checkout = new Checkout(page);
