@@ -16,31 +16,25 @@ test.describe("User Registration", () => {
     await expect(registration.getCookie("client")).toBeDefined();
   });
   test("Invalid password entry", async ({ page }) => {
-    await registration.firstName
-      .getByTestId("text-input")
-      .fill(`${faker.person.firstName()}`);
-    await registration.lastName
-      .getByTestId("text-input")
-      .fill(`${faker.person.lastName()}`);
-    await registration.email
-      .getByTestId("text-input")
-      .fill(`nathan.robinson+${faker.string.alpha({ length: 10 })}@upmind.com`);
+    await registration.firstName.fill(`${faker.person.firstName()}`);
+    await registration.lastName.fill(`${faker.person.lastName()}`);
+    await registration.email.fill(
+      `nathan.robinson+${faker.string.alpha({ length: 10 })}@upmind.com`
+    );
     await registration.password
       .getByTestId("text-input")
       .fill(`${faker.internet.password({ length: 10, pattern: /[A-Z]/ })}`);
     await page.getByTestId("button-continue").click();
-    await expect(registration.alert).toContainText("Validation error");
+    await expect(registration.alert).toContainText(
+      "We experienced an error while trying to create your account"
+    );
   });
   test("Invalid email entry", async ({ page }) => {
-    await registration.firstName
-      .getByTestId("text-input")
-      .fill(`${faker.person.firstName()}`);
-    await registration.lastName
-      .getByTestId("text-input")
-      .fill(`${faker.person.lastName()}`);
-    await registration.email
-      .getByTestId("text-input")
-      .fill(`nathan.robinson+${faker.string.alpha({ length: 10 })}`);
+    await registration.firstName.fill(`${faker.person.firstName()}`);
+    await registration.lastName.fill(`${faker.person.lastName()}`);
+    await registration.email.fill(
+      `nathan.robinson+${faker.string.alpha({ length: 10 })}`
+    );
     await registration.password
       .getByTestId("text-input")
       .fill(

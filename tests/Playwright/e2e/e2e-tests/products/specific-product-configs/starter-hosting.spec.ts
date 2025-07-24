@@ -33,13 +33,18 @@ test.describe("Product Config - Happy Paths - Starter Hosting", async () => {
       for (const accordionItem of accordionSelection) {
         await productConfig.accordion.clickAccordion(accordionItem);
       }
-      if (!accordionSelection.includes(3)) {
-        await productConfig.domainInput.fill(domainName);
+      if (accordionSelection.includes(0)) {
+        await productConfig.domainRegister.fill(domainName);
+      }
+      if (accordionSelection.includes(1)) {
+        await productConfig.domainTransfer.fill(domainName);
+      }
+      if (accordionSelection.includes(2)) {
+        await productConfig.domainExisting.fill(domainName);
       }
       if (!accordionSelection.includes(2) && !accordionSelection.includes(3)) {
-        await productConfig.drawer.focus();
-        await productConfig.clickAddButton(2); // should change this to be in the constants
-        await productConfig.addDomainToBasket.click();
+        await productConfig.addDomain();
+        await productConfig.domainAddToBasket.click();
       }
 
       /* SUMMARY FIELDS */

@@ -5,7 +5,7 @@ export class RadioButtons {
   readonly radioOption: Locator;
 
   constructor(page: Page) {
-    this.radioGroup = page.getByTestId("radio-card-group");
+    this.radioGroup = page.getByRole("radiogroup");
     this.radioOption = page.getByTestId("radio-card-item");
   }
 

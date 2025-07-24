@@ -22,13 +22,7 @@ export const URLs = {
   paymentTermsPromo: `${baseUrl}product/add/3de78642-de53-9714-745c-21208469530d`,
 
   comDomain: `${baseUrl}product/add/825d96e7-63ed-0913-792c-417482528340`,
-  ioDomain: `${baseUrl}product/add/3de78642-de53-9714-795b-21208469530d`,
-  orgDomain: `${baseUrl}product/add/20403869-6e54-721d-287b-518d9305e7d2`,
-  auDomain: `${baseUrl}product/add/78985742-6489-7012-872c-21e325d0ed36`,
-  coukDomain: `${baseUrl}product/add/8d632507-9806-5d1e-dd4f-8174e234e98d`,
-  cozaDomain: `${baseUrl}product/add/320e4357-95e7-8d18-0d0a-31643202d986`,
-  netDomain: `${baseUrl}product/add/5952098d-3de4-0917-774c-31578626e347`,
-  ukDomain: `${baseUrl}product/add/4d036794-24d0-e710-448b-3153698d582e`,
+  ukDomain: `${baseUrl}product/add/320e4357-95e7-8d18-050b-31643202d986`,
 
   managementTraining: `${baseUrl}product/add/20403869-6e54-721d-2e7c-518d9305e7d2`,
 

@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { fakerEN_GB } from "@faker-js/faker";
-import { Logins } from "../../support/constants/Logins";
+import { Logins } from "../../support/constants/logins";
 import { ProductConfig } from "../../support/page-objects/templates/ProductConfig";
 import { Checkout } from "../../support/page-objects/templates/Checkout";
 import { Basket } from "../../support/page-objects/templates/Basket";
@@ -42,7 +42,7 @@ test.describe("Domain customers", () => {
     registration = new Registration(page, context);
     await page.goto(URLs.basket);
   });
-  test.describe("Existing Customer", () => {
+  test.describe("Existing Customer", async () => {
     test("Logged in customer", async ({ page }) => {
       await getClientToken(
         page,
