@@ -251,9 +251,9 @@ export const useBasket = () => {
 
       actor.value?.send({ type: "SET", data: { code }, update: true });
 
-      // then wait for the paymentGateway actor to be updated
+      // then wait for the currency actor to be updated
       return waitFor(
-        service as ActorRef<any>,
+        actor.value!.service,
         state => {
           return stateMatches(state, [
             "processed",
@@ -300,7 +300,7 @@ export const useBasket = () => {
 
       if (coupon) {
         actor.value?.send({ type: "SET", data: { promocode: coupon } });
-        await waitFor(service as ActorRef<any>, state =>
+        await waitFor(actor.value!.service, state =>
           stateMatches(state, ["valid", "error"])
         )
           .then(state => {
@@ -324,9 +324,9 @@ export const useBasket = () => {
 
       actor.value?.send({ type: "ADD" });
 
-      // then wait for the paymentGateway actor to be updated
+      // wait for the promotions actor to complete the ADD operation
       return waitFor(
-        service as ActorRef<any>,
+        actor.value!.service,
         state => {
           return stateMatches(state, ["processed", "complete", "error"]);
         },
