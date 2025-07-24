@@ -12,26 +12,22 @@ export class Checkout {
   readonly phoneInput: Locator;
   readonly phoneRegion: Locator;
   readonly saveDetails: Locator;
+  readonly dialogWindow: Locator;
 
   constructor(page: Page) {
     this.page = page;
     this.billingDetails = page.getByTestId("billing");
     this.addressSearch = this.billingDetails.getByTestId("form-field-address");
-    this.phone = this.billingDetails.getByTestId("form-item-input-phone2");
-    this.addressManualEntry = this.billingDetails.getByText(
-      "Enter address manually"
-    );
-    this.addressLine1 = this.billingDetails.getByTestId(
-      "form-item-input-address1"
-    );
-    this.addressLine2 = this.billingDetails.getByTestId(
-      "form-item-input-address2"
-    );
-    this.city = this.billingDetails.getByTestId("form-item-input-city");
-    this.postCode = this.billingDetails.getByTestId("form-item-input-postcode");
+    this.phone = this.billingDetails.getByTestId("form-item-phone2");
+    this.addressManualEntry = page.getByTestId("enter-address-manually-link");
+    this.addressLine1 = this.billingDetails.getByTestId("form-item-address1");
+    this.addressLine2 = this.billingDetails.getByTestId("form-item-address2");
+    this.city = this.billingDetails.getByTestId("form-item-city");
+    this.postCode = this.billingDetails.getByTestId("form-item-postcode");
     this.phoneRegion = this.phone.getByTestId("popover-trigger");
     this.phoneInput = this.phone.getByTestId("text-input");
     this.saveDetails = page.getByTestId("button-save-details");
+    this.dialogWindow = page.getByTestId("dialog-window");
   }
 
   async manuallyInputAddress(
@@ -41,6 +37,7 @@ export class Checkout {
     postCode: string,
     phoneInput: string
   ) {
+    await this.addressManualEntry.waitFor();
     await this.addressManualEntry.click();
     await this.addressLine1.fill(addressLine1);
     await this.addressLine2.fill(addressLine2);

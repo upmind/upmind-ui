@@ -4,7 +4,7 @@
     class="w-full md:w-auto"
     @update:open="doReset"
   >
-    <PopoverTrigger data-testid="popover-trigger">
+    <PopoverTrigger>
       <slot></slot>
     </PopoverTrigger>
     <PopoverContent

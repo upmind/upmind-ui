@@ -6,6 +6,7 @@ import { RadioButtons } from "../components/RadioButtons";
 import { Button } from "../components/Button";
 import { Accordion } from "../components/Accordion";
 import { Select } from "../components/Select";
+import { Drawer } from "../components/Drawer";
 
 export class ProductConfig {
   readonly page: Page;
@@ -15,13 +16,17 @@ export class ProductConfig {
   readonly button: Button;
   readonly accordion: Accordion;
   readonly select: Select;
+  readonly drawer: Drawer;
 
   /* Product Options */
   readonly optionsContainer: Locator;
   readonly checkoutMarkdown: Locator;
   readonly markdownLineclamp: Locator;
+  readonly billingTerms: Locator;
   readonly options: Locator;
-  readonly domainInput: Locator;
+  readonly domainRegister: Locator;
+  readonly domainTransfer: Locator;
+  readonly domainExisting: Locator;
   readonly registrantNameInput: Locator;
   readonly registrantOrgInput: Locator;
   readonly registrantEmailInput: Locator;
@@ -33,11 +38,6 @@ export class ProductConfig {
   readonly registrantPostcodeInput: Locator;
   readonly registrantCountryInput: Locator;
   readonly promoBadge: Locator;
-
-  /* Domain Drawer */
-  readonly drawer: Locator;
-  readonly drawerFooter: Locator;
-  readonly addDomainToBasket: Locator;
 
   /* Order Summary */
   readonly totalValue: Locator;
@@ -69,6 +69,13 @@ export class ProductConfig {
   readonly engagementTypes: Locator;
   readonly outcomes: Locator;
 
+  /* Domain Drawer */
+  readonly domainDrawer: Locator;
+  readonly domainResults: Locator;
+  readonly domainItem: Locator;
+  readonly domainButton: Locator;
+  readonly domainAddToBasket: Locator;
+
   /* Meta Slots*/
   readonly summaryMetaSlot: Locator;
 
@@ -76,24 +83,29 @@ export class ProductConfig {
     this.page = page;
     this.checkboxes = new Checkboxes(page);
     this.radioButtons = new RadioButtons(page);
+    this.button = new Button(page);
     this.accordion = new Accordion(page);
     this.select = new Select(page);
+    this.drawer = new Drawer(page);
     this.optionsContainer = page.getByTestId("content-section").first();
     this.checkoutMarkdown = page.getByTestId("markdown"); //TODO: Find a way to move to shared component page object
     this.markdownLineclamp = page.getByTestId("lineclamp"); //TODO: as above
 
     /* Product Options */
     this.textInput = new TextInput(page);
+    this.billingTerms = page.getByTestId("form-item-terms");
     this.options = page.getByTestId("options-container-options");
-    this.domainInput = page.getByTestId("text-input");
+    this.domainRegister = page.getByTestId("form-item-dac-register");
+    this.domainTransfer = page.getByTestId("form-item-dac-transfer");
+    this.domainExisting = page.getByTestId("form-item-dac-existing");
     this.registrantNameInput = page.getByTestId(
-      "form-item-input-update_registrant_name"
+      "form-item-update_registrant_name"
     );
     this.registrantOrgInput = page.getByTestId(
-      "form-item-input-update_registrant_organisation"
+      "form-item-update_registrant_organisation"
     );
     this.registrantEmailInput = page.getByTestId(
-      "form-item-input-update_registrant_email"
+      "form-item-update_registrant_email"
     );
     this.registrantPhoneForm = page.getByTestId(
       "form-item-update_registrant_phone"
@@ -101,16 +113,16 @@ export class ProductConfig {
     this.registrantPhoneInput =
       this.registrantPhoneForm.getByTestId("text-input");
     this.registrantAddr1Input = page.getByTestId(
-      "form-item-input-update_registrant_address_1"
+      "form-item-update_registrant_address_1"
     );
     this.registrantCityInput = page.getByTestId(
-      "form-item-input-update_registrant_address_city"
+      "form-item-update_registrant_address_city"
     );
     this.registrantStateInput = page.getByTestId(
-      "form-item-input-update_registrant_address_state"
+      "form-item-update_registrant_address_state"
     );
     this.registrantPostcodeInput = page.getByTestId(
-      "form-item-input-update_registrant_address_postcode"
+      "form-item-update_registrant_address_postcode"
     );
     this.registrantCountryInput = page.getByTestId(
       "form-item-update_registrant_address_country_code"
@@ -118,10 +130,11 @@ export class ProductConfig {
     this.promoBadge = page.getByTestId("badge");
 
     /* Domain Drawer */ // TODO: Needs to be it's own page object along with the associated functions
-    this.drawer = page.getByTestId("drawer-overlay");
-    this.drawerFooter = page.getByTestId("drawer-footer");
-    this.button = new Button(page);
-    this.addDomainToBasket = page.getByTestId("button-add-domain-to-basket");
+    this.domainDrawer = this.drawer.drawerOverlay;
+    this.domainResults = this.drawer.domainResults;
+    this.domainItem = this.drawer.domainItem;
+    this.domainButton = this.drawer.domainButton;
+    this.domainAddToBasket = page.getByTestId("button-add-domain-to-basket");
 
     /* Order Summary */
     this.totalValue = page.getByTestId("total-price");
@@ -131,14 +144,14 @@ export class ProductConfig {
     // refactor all of this to better fit the dynamic naming of the sumamry fields
     this.product = page.getByTestId("summary-value-product");
     this.development = page.getByTestId("summary-value-dev-work");
-    this.webHosting = page.getByTestId("summary-value-web-hosting");
+    this.webHosting = page.getByTestId("summary-value-shared-hosting");
     this.designServices = page.getByTestId("summary-value-design-services");
     this.consulting = page.getByTestId("summary-value-consulting");
     this.bundle = page.getByTestId("summary-value-bundle");
     this.meetingTypes = page.getByTestId("summary-value-meeting-types");
     this.addons = page.getByTestId("summary-value-addons");
     this.tracking = page.getByTestId("summary-value-tracking");
-    this.tldValue = page.getByTestId("summary-value-domains");
+    this.tldValue = page.getByTestId("summary-value-domain-names");
     this.domainName = page.getByTestId("summary-value-account-domain-name");
     this.domainSetup = page.getByTestId("summary-value-domain-setup-(free)");
     this.domainLocking = page.getByTestId("summary-value-domain-locking");
@@ -185,18 +198,14 @@ export class ProductConfig {
   }
 
   async enterSld(sld: string) {
-    const sldFormField = this.page.getByTestId("form-item-input-sld");
+    const sldFormField = this.page.getByTestId("form-item-sld");
     await sldFormField.fill(sld);
   }
 
-  getAddButton(checkboxNumber: number) {
-    const getDomainItem = this.checkboxes.checkboxOption.nth(checkboxNumber);
-    const getButton = getDomainItem.locator(this.button.button);
-    return getButton;
-  }
-
-  async clickAddButton(checkboxNumber: number) {
-    const button = this.getAddButton(checkboxNumber);
+  async addDomain() {
+    const drawer = this.drawer.domainResults;
+    const card = drawer.getByTestId("dac-card").first();
+    const button = card.getByRole("button");
     await button.click();
   }
 
@@ -211,16 +220,18 @@ export class ProductConfig {
     return badge;
   }
 
-  async promoBadgeDoesNotExist() {
-    await expect(
-      this.getPromoBadge(this.radioButtons.getRadioButton(0, 0))
-    ).toBeHidden();
+  async promoBadgeDoesNotExist(option: number) {
+    const term = this.billingTerms.locator(
+      this.radioButtons.radioOption.nth(option)
+    );
+    await expect(this.getPromoBadge(term)).toBeHidden();
   }
 
-  async promoBadgeExists() {
-    await expect(
-      this.getPromoBadge(this.radioButtons.getRadioButton(0, 0))
-    ).toBeVisible();
+  async promoBadgeExists(option: number) {
+    const term = this.billingTerms.locator(
+      this.radioButtons.radioOption.nth(option)
+    );
+    await expect(this.getPromoBadge(term)).toBeVisible();
   }
 
   async enterRegistrantDetails(
@@ -242,7 +253,7 @@ export class ProductConfig {
     await this.registrantCityInput.fill(registrantCity);
     await this.registrantStateInput.fill(registrantState);
     await this.registrantPostcodeInput.fill(registrantPostcode);
-    await this.registrantCountryInput
+    await this.optionsContainer
       .locator(this.page.getByRole("combobox"))
       .click();
     await this.page.getByTestId(`select-item-${registrantCountryCode}`).click();

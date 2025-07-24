@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, Page, BrowserContext, Browser } from "@playwright/test";
 import { URLs } from "../support/constants/urls";
 import { ProductConfig } from "../support/page-objects/templates/ProductConfig";
 import { Basket } from "../support/page-objects/templates/Basket";
@@ -12,33 +12,35 @@ import {
 } from "../support/utils/functions/tokens";
 import { Logins } from "../support/constants/logins";
 
+let context: BrowserContext;
 let productConfig: ProductConfig;
 let basket: Basket;
 
 test.describe("Promotions", () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, browser }) => {
+    context = await browser.newContext();
     productConfig = new ProductConfig(page);
     basket = new Basket(page);
   });
-  test.describe("Auto-Applied Promotions", () => {
+  test.describe("Auto-Applied Promotions", async () => {
     test.describe("Basic Config Settings", () => {
       test("Is Active - No", async ({ page }) => {
         await page.goto(URLs.inactivePromo);
-        await page.waitForLoadState();
-        await productConfig.promoBadgeDoesNotExist();
+        await page.waitForLoadState("networkidle");
+        await productConfig.promoBadgeDoesNotExist(0);
       });
     });
     test.describe("Discounts and Conditions", () => {
       test.describe("Discount Amounts", () => {
         test("Fixed Discount Amount", async ({ page }) => {
           await page.goto(URLs.fixedDiscount);
-          await page.waitForLoadState();
-          await productConfig.promoBadgeDoesNotExist();
+          await page.waitForLoadState("networkidle");
+          await productConfig.promoBadgeExists(0);
         });
         test("Percentage Discount Amount", async ({ page }) => {
           await page.goto(URLs.percentageDiscount);
-          await page.waitForLoadState();
-          await productConfig.promoBadgeExists();
+          await page.waitForLoadState("networkidle");
+          await productConfig.promoBadgeExists(0);
         });
       });
       test.describe("Application per currency", () => {
@@ -47,14 +49,14 @@ test.describe("Promotions", () => {
         }) => {
           await page.goto(URLs.gbpPromo);
           await page.waitForLoadState();
-          await productConfig.promoBadgeExists();
+          await productConfig.promoBadgeExists(0);
         });
         test("Apply for all currencies - No - Apply for USD", async ({
           page
         }) => {
           await page.goto(URLs.usdPromo);
           await page.waitForLoadState();
-          await productConfig.promoBadgeExists();
+          await productConfig.promoBadgeExists(0);
         });
       });
       test.describe("Application per billing term", () => {
@@ -62,26 +64,23 @@ test.describe("Promotions", () => {
           page
         }) => {
           await page.goto(URLs.oneYearPromo);
-          await page.waitForLoadState();
-          await expect(
-            productConfig.getPromoBadge(
-              productConfig.radioButtons.getRadioButton(0, 1)
-            )
-          ).toBeVisible();
+          await page.waitForLoadState("networkidle");
+          await productConfig.promoBadgeExists(1);
         });
       });
       test.describe("Application per price list", () => {
         test("Apply for all price lists - No", async ({ page }) => {
           await page.goto(URLs.priceListPromo);
-          await productConfig.promoBadgeDoesNotExist();
+          await page.waitForLoadState("networkidle");
+          await productConfig.promoBadgeDoesNotExist(0);
           await getClientToken(
             page,
             Logins.priceListUser.username,
             Logins.priceListUser.password
           );
           await page.goto(URLs.priceListPromo);
-          await page.waitForLoadState();
-          await productConfig.promoBadgeExists();
+          await page.waitForLoadState("networkidle");
+          await productConfig.promoBadgeExists(0);
         });
       });
     });
@@ -102,14 +101,14 @@ test.describe("Promotions", () => {
     test.describe("Use for new clients", () => {
       test("Exclusively for new clients", async ({ page }) => {
         await page.goto(URLs.newClientPromo);
-        await productConfig.promoBadgeExists();
+        await productConfig.promoBadgeExists(0);
         await getClientToken(
           page,
           Logins.priceListUser.username,
           Logins.priceListUser.password
         );
         await page.goto(URLs.newClientPromo);
-        await productConfig.promoBadgeDoesNotExist();
+        await productConfig.promoBadgeDoesNotExist(0);
       });
     });
     test.describe("Use for existing clients", () => {
@@ -122,10 +121,10 @@ test.describe("Promotions", () => {
         );
         await page.goto(URLs.existingClientPromo);
         await page.waitForLoadState();
-        await productConfig.promoBadgeExists();
+        await productConfig.promoBadgeExists(0);
         await page.goto(URLs.logout);
         await page.goto(URLs.existingClientPromo);
-        await productConfig.promoBadgeDoesNotExist();
+        await productConfig.promoBadgeDoesNotExist(0);
       });
     });
     test.describe("Use for upgrade clients", () => {
@@ -135,21 +134,16 @@ test.describe("Promotions", () => {
   test.describe("Promotions - Added at basket", () => {
     test.describe("Use with other promotions", () => {
       test.beforeEach(async ({ page, context }) => {
-        await getClientToken(
-          page,
-          Logins.checkoutUser.username,
-          Logins.checkoutUser.password
-        );
         await page.goto(URLs.basket);
         await page.waitForLoadState("networkidle");
-        const token = await getSessionToken(context, "client");
+        const token = await getSessionToken(context, "guest");
         const orderId = await getCurrentOrderId(token);
         await addProductToOrder(
           `${token}`,
           `${orderId}`,
           "20403869-6e54-721d-264c-518d9305e7d2",
           1,
-          1,
+          0,
           [],
           [],
           {},
@@ -159,20 +153,18 @@ test.describe("Promotions", () => {
       test("Use with other promotions - Yes", async ({ page }) => {
         await page.goto(URLs.basket);
         await basket.enterPromoCode("genericpromo");
-        await basket.applyPromo.click();
+        await page.waitForLoadState("networkidle");
         await basket.enterPromoCode("otherpromotionsyes");
-        await basket.applyPromo.click();
         await expect(basket.promoBadge.getByText("genericpromo")).toBeVisible();
         await expect(
-          basket.promoBadge.getByText("otherpromotionsno")
+          basket.promoBadge.getByText("otherpromotionsyes")
         ).toBeVisible();
       });
       test("Use with other promotions - No", async ({ page }) => {
         await page.goto(URLs.basket);
         await basket.enterPromoCode("genericpromo");
-        await basket.applyPromo.click();
+        await page.waitForLoadState("networkidle");
         await basket.enterPromoCode("otherpromotionsno");
-        await basket.applyPromo.click();
         await expect(basket.promoMessage).toContainText(
           "Unable to combine promotion otherpromotionsno with other promotions"
         );

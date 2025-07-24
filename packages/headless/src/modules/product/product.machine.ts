@@ -275,7 +275,7 @@ export default createMachine(
       },
       ERROR: {
         target: "available.error",
-        actions: ["setExternalError", "clearCalculating"]
+        actions: ["setExternalError", "clearCalculating", "incrementAttempts"]
       },
       CALCULATE_CANCELLED: {
         actions: ["clearCalculating"]
