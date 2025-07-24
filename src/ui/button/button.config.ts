@@ -4,7 +4,7 @@ import { invalidRingClasses, ringClasses } from "../../assets/styles";
 // -----------------------------------------------------------------------------
 
 export const rootVariants = cva(
-  `disabled:text-emphasis-medium relative inline-flex items-center justify-center whitespace-nowrap border font-medium no-underline ring-offset-background transition-all duration-300 disabled:pointer-events-none disabled:cursor-not-allowed`,
+  `disabled:text-emphasis-medium relative inline-flex items-center justify-center whitespace-nowrap font-medium no-underline ring-offset-background transition-all duration-300 disabled:pointer-events-none disabled:cursor-not-allowed`,
   {
     variants: {
       size: {
@@ -15,12 +15,12 @@ export const rootVariants = cva(
         badge: "gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold"
       },
       variant: {
-        flat: "border-transparent hover:bg-opacity-90",
-        outline: "bg-transparent",
-        ghost: "border-transparent",
-        link: "gap-1 border-none !bg-transparent !p-0 underline underline-offset-4",
-        tonal: "border-transparent",
-        inverse: "border-transparent",
+        flat: "hover:bg-opacity-90",
+        outline: "outline-border outline outline-1",
+        ghost: "",
+        link: "gap-1 !bg-transparent !p-0 underline underline-offset-4",
+        tonal: "",
+        inverse: "",
         control:
           "hover:!border-control-strong !border-control bg-control !text-control-foreground shadow-sm ring-offset-background"
       },
