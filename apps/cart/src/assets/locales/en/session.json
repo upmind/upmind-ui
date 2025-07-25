@@ -135,6 +135,10 @@
       "actions": {
         "continue": "Continue shopping"
       }
+    },
+    "terms": {
+      "label": "By clicking ‘{0}’ I agree to {1}'s",
+      "link": "Terms & Conditions"
     }
   }
 }
