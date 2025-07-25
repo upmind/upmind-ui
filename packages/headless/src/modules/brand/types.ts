@@ -24,6 +24,7 @@ export interface BrandContext extends IBrandSettings {
 export interface IBrandMeta {
   cart: {
     storefront_url?: string; // URL of the storefront
+    terms_url?: string;
     layout?: string;
     tagline?: string;
     description?: string;

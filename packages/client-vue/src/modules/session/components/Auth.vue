@@ -48,6 +48,19 @@
     >
       logout
     </Button>
+
+    <p v-if="currentForm === 'register'" class="text-emphasis-medium text-sm">
+      {{ t("session.terms.label", [t("auth.actions.register"), name]) }}
+      <Link
+        as="a"
+        v-if="uiCart?.terms_url"
+        :href="uiCart?.terms_url"
+        target="_blank"
+      >
+        {{ t("session.terms.link") }}
+      </Link>
+      <span v-else>{{ t("session.terms.link") }}</span>
+    </p>
   </div>
 </template>
 
@@ -64,7 +77,8 @@ import config from "../sesssion.config";
 import {
   ROUTE,
   useSession,
-  useRoutingEngine
+  useRoutingEngine,
+  useBrand
 } from "@upmind-automation/headless";
 import { useStyles, cn } from "@upmind-automation/upmind-ui";
 
@@ -103,6 +117,8 @@ const {
   logout,
   setModel
 } = useSession();
+
+const { name, uiCart } = useBrand();
 
 await isReady();
 
