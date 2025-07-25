@@ -7,7 +7,7 @@ export const StarterHosting = [
     total: "£4.00",
     billingCycle: "1 month",
     webHosting: "Starter Hosting",
-    domainName: "wcautotestingjghfjhf.net"
+    domainName: "wcautotestingjghfjhf.uk"
   },
   {
     name: "Billing term: 1 year - Account Domain Name: Register New Domain @webcentral @starter-hosting @new-domain",
@@ -16,7 +16,7 @@ export const StarterHosting = [
     total: "£40.00",
     billingCycle: "1 year",
     webHosting: "Starter Hosting",
-    domainName: "wcautotestingasdfg.net"
+    domainName: "wcautotestingasdfg.uk"
   },
   {
     name: "Billing term: 2 year - Account Domain Name: Register New Domain @webcentral @starter-hosting @new-domain",
@@ -25,7 +25,7 @@ export const StarterHosting = [
     total: "£60.00",
     billingCycle: "2 year",
     webHosting: "Starter Hosting",
-    domainName: "wcautotestingzxa.net"
+    domainName: "wcautotestingzxa.uk"
   },
 
   /* Transfer Domain */
@@ -36,7 +36,7 @@ export const StarterHosting = [
     total: "£4.00",
     billingCycle: "1 month",
     webHosting: "Starter Hosting",
-    domainName: "wcautotestingjghfjhf.net"
+    domainName: "wcautotestingjghfjhf.uk"
   },
   {
     name: "Billing term: 1 year - Account Domain Name: Transfer Domain @webcentral @starter-hosting @transfer-domain",
@@ -45,7 +45,7 @@ export const StarterHosting = [
     total: "£40.00",
     billingCycle: "1 year",
     webHosting: "Starter Hosting",
-    domainName: "wcautotestingasdfg.net"
+    domainName: "wcautotestingasdfg.uk"
   },
   {
     name: "Billing term: 2 year - Account Domain Name: Transfer Domain @webcentral @starter-hosting @transfer-domain",
@@ -54,7 +54,7 @@ export const StarterHosting = [
     total: "£60.00",
     billingCycle: "2 year",
     webHosting: "Starter Hosting",
-    domainName: "wcautotestingzxa.net"
+    domainName: "wcautotestingzxa.uk"
   },
 
   /* Use Existing Domain */
@@ -65,7 +65,7 @@ export const StarterHosting = [
     total: "£4.00",
     billingCycle: "1 month",
     webHosting: "Starter Hosting",
-    domainName: "wcautotestingjghfjhf.net"
+    domainName: "wcautotestingjghfjhf.uk"
   },
   {
     name: "Billing term: 1 year - Account Domain Name: Register New Domain @webcentral @starter-hosting @existing-domain",
@@ -74,7 +74,7 @@ export const StarterHosting = [
     total: "£40.00",
     billingCycle: "1 year",
     webHosting: "Starter Hosting",
-    domainName: "wcautotestingasdfg.net"
+    domainName: "wcautotestingasdfg.uk"
   },
   {
     name: "Billing term: 2 year - Account Domain Name: Register New Domain @webcentral @starter-hosting @existing-domain",
@@ -83,6 +83,6 @@ export const StarterHosting = [
     total: "£60.00",
     billingCycle: "2 year",
     webHosting: "Starter Hosting",
-    domainName: "wcautotestingzxa.net"
+    domainName: "wcautotestingzxa.uk"
   }
 ];

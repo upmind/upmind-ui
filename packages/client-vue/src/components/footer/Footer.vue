@@ -21,7 +21,7 @@
         >
       </span>
 
-      <UpmCurrency class="font-normal" />
+      <UpmCurrency class="font-normal" data-testid="currency-selector" />
     </div>
   </footer>
 </template>

@@ -109,6 +109,7 @@ export const useBasketBilling = () => {
         stateMatches(state, [
           "available.processed",
           "available.error",
+          "available.invalid",
           "complete"
         ]),
       { timeout: 60_000 }
