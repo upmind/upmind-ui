@@ -1,6 +1,6 @@
 <template>
   <div :class="cn(styles.container, props.class)">
-    <span :class="cn(styles.input.container, props.class)">
+    <span :class="styles.input.container">
       <slot name="prepend">
         <InputItems :icon="props.icon" :avatar="props.avatar" />
       </slot>
@@ -8,7 +8,7 @@
       <input
         v-bind="delegatedProps"
         v-model="modelValue"
-        :class="cn(styles.input.field, props.class)"
+        :class="styles.input.field"
       />
 
       <slot name="append">
@@ -51,7 +51,7 @@ const emits = defineEmits<{
 }>();
 
 const delegatedProps = computed(() =>
-  omit(props, ["class", "uiConfig", "defaultValue", "modelValue"])
+  omit(props, ["class", "uiConfig", "defaultValue", "modelValue", "width"])
 );
 
 const modelValue = useVModel(props, "modelValue", emits, {
