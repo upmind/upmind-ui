@@ -25,6 +25,7 @@
         variant="outline"
         color="base"
         :label="t('header.login')"
+        data-testid="login-popover-trigger"
       >
         <template #prepend>
           <Avatar

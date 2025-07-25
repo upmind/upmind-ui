@@ -23,10 +23,10 @@ export const ErrorCodes = {
       id: null,
       type: 0,
       code: 403,
-      message: "Sorry, your IP address is not allowed",
+      message: "Product not found",
       data: null
     },
-    button: "back-to-shopping"
+    button: "continue-shopping"
   },
 
   productNotFound: {

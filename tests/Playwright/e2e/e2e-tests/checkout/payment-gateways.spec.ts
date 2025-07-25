@@ -18,7 +18,7 @@ import { ErrorCards } from "../../support/constants/checkout/payment-cards/Inval
 
 let checkout: Checkout;
 
-test.describe("Checkout - Happy paths", () => {
+test.describe("Checkout - Happy paths", async () => {
   test.beforeEach(async ({ page }) => {
     checkout = new Checkout(page);
     await page.goto(URLs.login);
@@ -89,13 +89,14 @@ test.describe("Checkout - Happy paths", () => {
       await page.waitForTimeout(5000);
       await page.goto(URLs.checkout);
       await checkout.payWithStripeCard(cardNumber, expiryDate, cvcCode);
-      await expect(page.getByRole("dialog")).toContainText(
+      await checkout.dialogWindow.waitFor();
+      await expect(checkout.dialogWindow).toContainText(
         "Converting your order"
       );
-      await expect(page.getByRole("dialog")).toContainText(
+      await expect(checkout.dialogWindow).toContainText(
         "Processing your payment"
       );
-      await expect(page.getByRole("dialog")).toContainText("Order complete!");
+      await expect(checkout.dialogWindow).toContainText("Order complete!");
     });
   }
   test("Pay with Offline payment", async ({ page, context }) => {
@@ -207,9 +208,9 @@ test.describe("Checkout - Declined Payments", () => {
       await page.waitForTimeout(5000);
       await page.goto(URLs.checkout);
       await checkout.payWithStripeCard(cardNumber, expiryDate, cvcCode);
-      const dialog = page.getByRole("dialog");
+      await expect(checkout.dialogWindow).toBeVisible();
       await expect(
-        dialog.locator(page.getByText(`${dialogText}`))
+        checkout.dialogWindow.locator(page.getByText(`${dialogText}`))
       ).toBeVisible();
     });
   }

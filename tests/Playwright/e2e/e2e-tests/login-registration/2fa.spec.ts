@@ -7,7 +7,7 @@ import { secretKey } from "../../support/secrets/2fa-secret";
 let login: Login;
 let oneTimeCode: string;
 
-test.describe("Two-Factor Login", () => {
+test.describe("Two-Factor Login", async () => {
   test.beforeEach(async ({ page }) => {
     login = new Login(page);
     const twoFactor = new TOTP({
@@ -24,15 +24,15 @@ test.describe("Two-Factor Login", () => {
     );
   });
   test("Successful login with 2FA", async ({ page }) => {
-    await page.getByTestId("form-item-input-token").fill(oneTimeCode);
+    await page.getByTestId("form-item-token").fill(oneTimeCode);
     await page.getByTestId("button-log-into-my-account").click();
     await expect(page).toHaveURL(URLs.emptyBasket);
   });
   test("Unsuccessful login with 2FA", async ({ page }) => {
-    await page.getByTestId("form-item-input-token").fill("123456");
+    await page.getByTestId("form-item-token").fill("123456");
     await page.getByTestId("button-log-into-my-account").click();
     await expect(page.getByTestId("form-message")).toHaveText(
-      "Access token could not be verified"
+      "Invalid or expired two-factor auth code"
     );
   });
 });

@@ -47,8 +47,7 @@ test.describe("Assert correct billing term is selected based on default_payment_
         radioGroup,
         radioOption
       );
-      const button = radioCardItem.locator("label > div > button");
-      await expect(button).toHaveAttribute("data-state", "checked");
+      await expect(radioCardItem).toHaveAttribute("data-state", "checked");
     });
   }
 });
@@ -70,8 +69,7 @@ test.describe("Assert that billing term functionality accounts for promotional d
         radioGroup,
         radioOption
       );
-      const button = radioCardItem.locator("label > div > button");
-      await expect(button).toHaveAttribute("data-state", "checked");
+      await expect(radioCardItem).toHaveAttribute("data-state", "checked");
     });
   }
 });
