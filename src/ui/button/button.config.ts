@@ -48,7 +48,7 @@ export const rootVariants = cva(
       },
       pill: {
         true: "rounded-pill",
-        false: "rounded-lg"
+        false: "rounded"
       }
     },
 
