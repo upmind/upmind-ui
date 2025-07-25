@@ -62,6 +62,24 @@ export function parseSld(raw: string): string {
   return sld?.replace(/[^a-zA-Z0-9-]/g, "");
 }
 
+/**
+ * Parses a raw domain string and extracts the second-level domain (SLD) and top-level domain (TLD).
+ *
+ * The function attempts to match and extract the SLD and TLD from a given string,
+ * which may include protocol and subdomain prefixes. Non-alphanumeric characters
+ * (except hyphens) are removed from the SLD.
+ *
+ * @param raw - The raw domain string to parse (may include protocol or subdomain).
+ * @returns An object containing the extracted `sld` (second-level domain) and `tld` (top-level domain).
+ */
+export function parseDomainParts(raw: string): { sld: string; tld?: string } {
+  const match = raw.match(
+    /^(?:https?:\/{1,})?(?:w{3}\.)?([^\.]+)(\.[\.\w]{2,})?(?:.*)$/i
+  );
+  const [, sld, tld] = match ?? [];
+  return { sld: sld?.replace(/[^a-zA-Z0-9-]/g, "") || "", tld };
+}
+
 export function parseAvailable(
   sld: string,
   results: IProduct[] = [],
