@@ -105,53 +105,52 @@ export const rootVariants = cva(
       {
         color: "base",
         variant: "outline",
-        class:
-          "border-base-control text-base-foreground !ring-base hover:text-base-foreground/75"
+        class: "text-base-foreground hover:text-base-foreground/75"
       },
       {
         color: "primary",
         variant: "outline",
-        class: "hover:bg-primary-muted border-primary text-primary"
+        class: "hover:bg-primary-muted text-primary"
       },
       {
         color: "secondary",
         variant: "outline",
-        class: "hover:bg-secondary-muted border-secondary text-secondary"
+        class: "hover:bg-secondary-muted text-secondary"
       },
       {
         color: "accent",
         variant: "outline",
-        class: "hover:bg-accent-muted border-accent text-accent"
+        class: "hover:bg-accent-muted text-accent"
       },
       {
         color: "promotion",
         variant: "outline",
-        class: "hover:bg-promotion-muted border-promotion text-promotion"
+        class: "hover:bg-promotion-muted text-promotion"
       },
       {
         color: "destructive",
         variant: "outline",
-        class: "hover:bg-destructive-muted border-destructive text-destructive"
+        class: "hover:bg-destructive-muted text-destructive"
       },
       {
         color: "success",
         variant: "outline",
-        class: "hover:bg-success-muted border-success text-success"
+        class: "hover:bg-success-muted text-success"
       },
       {
         color: "info",
         variant: "outline",
-        class: "hover:bg-info-muted border-info text-info"
+        class: "hover:bg-info-muted text-info"
       },
       {
         color: "error",
         variant: "outline",
-        class: "hover:bg-error-muted border-error text-error"
+        class: "hover:bg-error-muted text-error"
       },
       {
         color: "warning",
         variant: "outline",
-        class: "hover:bg-warning-muted border-warning text-warning"
+        class: "hover:bg-warning-muted text-warning"
       },
 
       // --- tonal
