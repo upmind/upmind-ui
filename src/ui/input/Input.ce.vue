@@ -1,9 +1,21 @@
 <template>
-  <Input
-    v-model="modelValue"
-    v-bind="delegatedProps"
-    :class="cn(styles.input, props.class)"
-  />
+  <div :class="cn(styles.container, props.class)">
+    <span :class="cn(styles.input.container, props.class)">
+      <slot name="prepend">
+        <InputItems :icon="props.icon" :avatar="props.avatar" />
+      </slot>
+
+      <input
+        v-bind="delegatedProps"
+        v-model="modelValue"
+        :class="cn(styles.input.field, props.class)"
+      />
+
+      <slot name="append">
+        <InputItems :icon="props.iconAppend" :avatar="props.avatarAppend" />
+      </slot>
+    </span>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -11,12 +23,12 @@
 import { computed } from "vue";
 import { useVModel } from "@vueuse/core";
 
-// --- components
-import Input from "./Input.vue";
-
 // --- internal
 import config from "./input.config";
 import { useStyles, cn } from "../../utils";
+
+// --- components
+import InputItems from "./InputItems.vue";
 
 // --- utils
 import { omit } from "lodash-es";
@@ -53,9 +65,12 @@ const meta = computed(() => ({
 }));
 
 const styles = useStyles(
-  ["input"],
+  ["container", "input"],
   meta,
   config,
   props.uiConfig ?? {}
-) as ComputedRef<{ input: string }>;
+) as ComputedRef<{
+  container: string;
+  input: { container: string; field: string };
+}>;
 </script>
