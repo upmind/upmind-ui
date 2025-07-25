@@ -23,13 +23,11 @@ export const containerVariants = cva(
   }
 );
 
-export const inputContainerVariants = cva("flex gap-3", {
+export const inputContainerVariants = cva("flex items-center gap-3", {
   variants: {
     size: {
-      sm: "",
       md: "gap-3 px-4 py-2 text-sm",
-      lg: "gap-3 px-4 py-2 text-md",
-      xl: ""
+      lg: "gap-3 px-4 py-2 text-md"
     }
   },
   defaultVariants: {
@@ -47,6 +45,6 @@ export default {
   input: {
     container: inputContainerVariants,
     field: inputFieldVariants,
-    items: cva("text-color-base flex size-[1lh] items-center justify-center")
+    items: cva("")
   }
 };
