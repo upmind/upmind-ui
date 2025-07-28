@@ -1,5 +1,5 @@
 <template>
-  <div :class="styles.control.root">
+  <div v-if="meta.hasControls" :class="styles.control.root">
     <nav :class="styles.control.content">
       <div>
         <slot name="controls" />
@@ -48,7 +48,10 @@ const slots = useSlots();
 
 const meta = computed(() => {
   return {
-    hasControls: !isEmptySlot("controls", slots),
+    hasControls:
+      !isEmptySlot("controls", slots) ||
+      !isEmptySlot("navigation", slots) ||
+      !isEmptySlot("actions", slots),
     hasHeader: !isEmptySlot("header", slots),
     hasContent: !isEmptySlot("default", slots)
   };
