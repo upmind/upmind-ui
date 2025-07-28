@@ -1,8 +1,8 @@
 export const DevBlocks = [
   {
-    name: "Billing term: One-time - Bundle: Easy to implement - Addon: Automation - No tracking options selected @webcentral @dev-blocks",
+    name: "Billing term: One-time - Bundle: Easy to implement - Addon: Automation - No tracking options selected @dev-blocks",
+    billingTerm: 0,
     radioSelection: [
-      [0, 0],
       [1, 0],
       [2, 0]
     ],

@@ -14,7 +14,7 @@ test.beforeEach(async ({ page }) => {
 test.describe("Product Config - Happy Paths - Starter Hosting", async () => {
   for (const {
     name,
-    radioSelection = [],
+    billingTerm,
     accordionSelection,
     total,
     billingCycle,
@@ -24,12 +24,7 @@ test.describe("Product Config - Happy Paths - Starter Hosting", async () => {
     test(name, async ({ page }) => {
       /* PRODUCT OPTIONS */
       /* Make product selections */
-      for (const [radioGroupIndex, radioOptionIndex] of radioSelection) {
-        await productConfig.radioButtons.clickRadioButton(
-          radioGroupIndex,
-          radioOptionIndex
-        );
-      }
+      await productConfig.clickBillingTerm(billingTerm);
       for (const accordionItem of accordionSelection) {
         await productConfig.accordion.clickAccordion(accordionItem);
       }
