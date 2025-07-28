@@ -28,7 +28,7 @@
     </div>
   </footer>
 
-  <TermsAndConditions :action-text="getGatewayi18n('actions.submit')" />
+  <Clickwrap :action-text="getGatewayi18n('actions.submit')" />
 </template>
 
 <script lang="ts" setup>
@@ -43,7 +43,7 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 // --- components
 import { Icon, Button } from "@upmind-automation/upmind-ui";
 import PaymentGateway from "../PaymentGateway.vue";
-import TermsAndConditions from "./TermsAndConditions.vue";
+import Clickwrap from "./Clickwrap.vue";
 
 // --- types
 import type { ComputedRef } from "vue";
