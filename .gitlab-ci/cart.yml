@@ -122,3 +122,18 @@ variables:
         --commit-dirty=true \
         --project-name "${CLOUDFLARE_PAGES_PROJECT_CART}" \
         dist
+
+(apps/cart) notify slack:
+  stage: deploy
+  image: ${SLACK_NOTIFY_IMAGE}
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+$/
+      variables: { CI_ENVIRONMENT_URL: https://cart.my.upmind.com }
+    - if: $CI_COMMIT_TAG =~ /^cart-staging-v\d+(\.\d+)+$/
+      variables: { CI_ENVIRONMENT_URL: https://cart.my.upmind.dev }
+    - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+-rc\d+$/
+  allow_failure: true
+  script:
+    - /slacker deploy
+  variables:
+    MONOREPO_PROJECT: apps/cart
