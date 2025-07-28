@@ -10,6 +10,7 @@
     :aria-invalid="!!props.invalid"
     class="w-full"
     v-bind="attributesToRemove"
+    :data-testid="`form-item-${props.formItemId.replaceAll('#/properties/', '')}`"
   >
     <slot />
   </Slot>

@@ -11,7 +11,7 @@ import { marked } from "marked";
 import Sanitized from "../sanitized/Sanitized.vue";
 
 // --- utils
-import { first } from "lodash-es";
+import { first, lowerCase } from "lodash-es";
 
 // --- types
 import type { VNode } from "vue";
@@ -22,6 +22,7 @@ const emits = defineEmits(["mounted"]);
 
 const props = defineProps<{
   modelValue?: string;
+  keys?: Record<string, string>;
 }>();
 
 const slots = useSlots() as { default?: () => VNode[] };
@@ -30,8 +31,15 @@ marked.use({ async: false, breaks: true });
 
 const compiledMarkdown = computed((): string => {
   const slotContent = slots?.default ? slots.default() : [];
-  const modelValue =
+  let modelValue =
     first(slotContent)?.children?.toString() || props.modelValue || "";
+
+  if (props.keys) {
+    modelValue = modelValue.replace(/({{\s?\w+\s?}})/gi, (match, key) => {
+      return props.keys?.[lowerCase(key)] || match;
+    });
+  }
+
   return marked.parse(modelValue) as string;
 });
 
