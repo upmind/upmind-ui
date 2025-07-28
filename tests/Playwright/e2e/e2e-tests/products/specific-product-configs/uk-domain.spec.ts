@@ -14,7 +14,7 @@ test.beforeEach(async ({ page }) => {
 test.describe("Product Config - Domains (.uk)", async () => {
   for (const {
     name,
-    radioSelection = [],
+    billingTerm,
     transfer,
     sldValue,
     registrantName,
@@ -33,12 +33,7 @@ test.describe("Product Config - Domains (.uk)", async () => {
     test(name, async ({ page }) => {
       /* PRODUCT OPTIONS */
       /* Make product selections */
-      for (const [radioGroupIndex, radioOptionIndex] of radioSelection) {
-        await productConfig.radioButtons.clickRadioButton(
-          radioGroupIndex,
-          radioOptionIndex
-        );
-      }
+      await productConfig.clickBillingTerm(billingTerm);
       if (transfer === true) {
         await productConfig.checkboxes.checkboxOption.first().click();
       }

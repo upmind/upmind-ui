@@ -258,4 +258,11 @@ export class ProductConfig {
       .click();
     await this.page.getByTestId(`select-item-${registrantCountryCode}`).click();
   }
+
+  async clickBillingTerm(option: number) {
+    const term = this.billingTerms.locator(
+      this.radioButtons.radioOption.nth(option)
+    );
+    await term.click();
+  }
 }

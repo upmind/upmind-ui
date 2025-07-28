@@ -27,6 +27,8 @@
       </span>
     </div>
   </footer>
+
+  <TermsAndConditions :action-text="getGatewayi18n('actions.submit')" />
 </template>
 
 <script lang="ts" setup>
@@ -41,6 +43,7 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 // --- components
 import { Icon, Button } from "@upmind-automation/upmind-ui";
 import PaymentGateway from "../PaymentGateway.vue";
+import TermsAndConditions from "./TermsAndConditions.vue";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -60,6 +63,7 @@ const styles = useStyles(["checkout"], {}, config) as ComputedRef<{
     footer: string;
     action: string;
     additional: string;
+    terms: string;
   };
 }>;
 
