@@ -1,11 +1,9 @@
 <template>
-  <div :class="styles.control.root">
+  <div v-if="meta.hasControls" :class="styles.control.root">
     <nav :class="styles.control.content">
       <slot name="controls">
         <div>
-          <slot name="navigation">
-            <p class="select-none opacity-0">Empty</p>
-          </slot>
+          <slot name="navigation" />
         </div>
 
         <div>
@@ -52,7 +50,11 @@ const slots = useSlots();
 const meta = computed(() => {
   return {
     hasHeader: !isEmptySlot("header", slots),
-    hasContent: !isEmptySlot("default", slots)
+    hasContent: !isEmptySlot("default", slots),
+    hasControls:
+      !isEmptySlot("controls", slots) ||
+      !isEmptySlot("navigation", slots) ||
+      !isEmptySlot("actions", slots)
   };
 });
 const styles = useStyles(
