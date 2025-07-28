@@ -137,7 +137,7 @@
       }
     },
     "terms": {
-      "label": "By clicking ‘{0}’ I agree to {1}'s",
+      "label": "By clicking ‘{action}’ I agree to {name}'s {terms}.",
       "link": "Terms & Conditions"
     }
   }

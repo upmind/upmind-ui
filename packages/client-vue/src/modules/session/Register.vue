@@ -41,7 +41,7 @@
         >
           <template #[`privacyPolicy`]>
             <Link
-              class="has-text-grey-light"
+              class="font-normal text-inherit"
               href="https://policies.google.com/privacy"
               target="_blank"
               >{{ $t("auth.google_recaptcha.privacy_policy") }}</Link
@@ -49,7 +49,7 @@
           </template>
           <template #[`termsOfService`]>
             <Link
-              class="has-text-grey-light"
+              class="font-normal text-inherit"
               href="https://policies.google.com/terms"
               target="_blank"
               >{{ $t("auth.google_recaptcha.terms_of_service") }}</Link
