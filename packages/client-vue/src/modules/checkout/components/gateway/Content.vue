@@ -43,11 +43,7 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 // --- components
 import { Icon, Button } from "@upmind-automation/upmind-ui";
 import PaymentGateway from "../PaymentGateway.vue";
-<<<<<<< HEAD
 import Clickwrap from "./Clickwrap.vue";
-=======
-import TermsAndConditions from "./TermsAndConditions.vue";
->>>>>>> main
 
 // --- types
 import type { ComputedRef } from "vue";
