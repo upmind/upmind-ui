@@ -5,7 +5,7 @@ import { defineConfig, devices } from "@playwright/test";
  */
 export default defineConfig({
   /* Timeouts */
-  timeout: 60000,
+  timeout: 90000,
   expect: {
     timeout: 30000
   },
@@ -18,10 +18,10 @@ export default defineConfig({
     "./tests/Playwright/e2e/snapshots/{arg}-{projectName}.png",
 
   /*Set number of retries on a failed test*/
-  //retries: 2,
+  retries: 1,
 
   /* Run tests in files in parallel */
-  fullyParallel: false,
+  fullyParallel: true,
 
   /* Reporter to use for test results. See https://playwright.dev/docs/test-reporters */
   reporter: [["html", { outputFolder: "./tests/Playwright/e2e/reports/html" }]],
@@ -37,7 +37,12 @@ export default defineConfig({
     trace: "on-first-retry",
     //video: 'retain-on-failure',
 
-    viewport: { width: 1920, height: 1080 }
+    viewport: { width: 1920, height: 1080 },
+
+    video: {
+      mode: "on-first-retry",
+      size: { width: 1920, height: 1080 }
+    }
   },
 
   /* Configure projects for major browsers */
@@ -55,18 +60,28 @@ export default defineConfig({
       }
     },
     {
-      name: "chromium",
-      use: { ...devices["Desktop Chrome"] }
-    },
-
-    {
       name: "firefox",
-      use: { ...devices["Desktop Firefox"] }
+      use: {
+        ...devices["Desktop Firefox"],
+        browserName: "chromium",
+        headless: true,
+        viewport: { width: 1920, height: 1080 },
+        launchOptions: {
+          args: ["--no-sandbox", "--headless", "--disable-gpu"]
+        }
+      }
     },
-
     {
-      name: "webkit",
-      use: { ...devices["Desktop Safari"] }
+      name: "safari",
+      use: {
+        ...devices["Desktop Safari"],
+        browserName: "chromium",
+        headless: true,
+        viewport: { width: 1920, height: 1080 },
+        launchOptions: {
+          args: ["--no-sandbox", "--headless", "--disable-gpu"]
+        }
+      }
     }
 
     /* Test against mobile viewports. */

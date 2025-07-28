@@ -1,11 +1,25 @@
-import { test, expect, Page } from "@playwright/test";
+import { test as base, expect, BrowserContext, Page } from "@playwright/test";
 import { ProductConfig } from "../../support/page-objects/templates/ProductConfig";
 import {
   DefaultPaymentTerms,
   DefaultPaymentTermsWithPromo
 } from "../../support/constants/DefaultPaymentTerms";
 
-let productConfig: ProductConfig;
+const test = base.extend<{
+  context: BrowserContext;
+  page: Page;
+}>({
+  context: async ({ browser }, use) => {
+    const context = await browser.newContext();
+    await use(context);
+    await context.close();
+  },
+  page: async ({ context }, use) => {
+    const page = await context.newPage();
+    await use(page);
+  }
+});
+
 let terms = DefaultPaymentTerms;
 let termsWithPromo = DefaultPaymentTermsWithPromo;
 
@@ -32,14 +46,16 @@ async function setBillingTerm(
   });
 }
 
-test.beforeEach(async ({ page }) => {
-  productConfig = new ProductConfig(page);
-});
-
-test.describe("Assert correct billing term is selected based on default_payment_period value @default-terms", async () => {
+test.describe("Assert correct billing term is selected based on default_payment_period value @default-terms", () => {
   for (const { name, termSetting, radioGroup, radioOption, url } of terms) {
     test(name, async ({ page }) => {
-      setBillingTerm(page, termSetting, "20403869-6e54-721d-2d7c-518d9305e7d2");
+      const productConfig = new ProductConfig(page);
+
+      await setBillingTerm(
+        page,
+        termSetting,
+        "20403869-6e54-721d-2d7c-518d9305e7d2"
+      );
       await page.goto(url);
       await page.waitForLoadState("networkidle");
 
@@ -52,7 +68,7 @@ test.describe("Assert correct billing term is selected based on default_payment_
   }
 });
 
-test.describe("Assert that billing term functionality accounts for promotional discounts @default-terms @promotions", async () => {
+test.describe("Assert that billing term functionality accounts for promotional discounts @default-terms @promotions", () => {
   for (const {
     name,
     termSetting,
@@ -61,7 +77,13 @@ test.describe("Assert that billing term functionality accounts for promotional d
     url
   } of termsWithPromo) {
     test(name, async ({ page }) => {
-      setBillingTerm(page, termSetting, "3de78642-de53-9714-745c-21208469530d");
+      const productConfig = new ProductConfig(page);
+
+      await setBillingTerm(
+        page,
+        termSetting,
+        "3de78642-de53-9714-745c-21208469530d"
+      );
       await page.goto(url);
       await page.waitForLoadState("networkidle");
 

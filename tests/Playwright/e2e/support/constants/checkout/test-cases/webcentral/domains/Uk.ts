@@ -1,8 +1,8 @@
 export const ukDomain = [
   /* NEW DOMAIN */
   {
-    name: ".UK Domain - Billing Cycle - 1 month @webcentral @domains",
-    radioSelection: [[0, 0]],
+    name: ".UK Domain - Billing Cycle - 1 month @domains",
+    billingTerm: 0,
     transfer: false,
     sldValue: "uktestingdomain",
     registrantName: "Joe Bloggs",
@@ -21,8 +21,8 @@ export const ukDomain = [
 
   /* TRANSFERRING A DOMAIN */
   {
-    name: ".UK Domain - Billing Cycle - 1 month - Domain Transfer @webcentral @domains @domain-transfer",
-    radioSelection: [[0, 0]],
+    name: ".UK Domain - Billing Cycle - 1 month - Domain Transfer @domains @domain-transfer",
+    billingTerm: 0,
     transfer: true,
     sldValue: "uktestingdomain",
     registrantName: "Joe Bloggs",
