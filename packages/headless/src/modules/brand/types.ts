@@ -25,7 +25,7 @@ export interface IBrandMeta {
   cart: {
     storefront_url?: string; // URL of the storefront
     terms_url?: string;
-    privacy_url?: string;
+    clickwrap_disclaimer?: string;
     layout?: string;
     tagline?: string;
     description?: string;
