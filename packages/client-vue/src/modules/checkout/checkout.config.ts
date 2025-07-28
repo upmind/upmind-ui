@@ -46,7 +46,9 @@ export default {
     additional: cva(
       "bg-base-background text-base-foreground flex items-center justify-center space-x-2 self-stretch px-4 py-2 md:py-0"
     ),
-    terms: cva("text-emphasis-medium mt-4 text-left text-sm leading-snug"),
+    clickwrap: cva(
+      "text-emphasis-medium prose prose-a:font-normal prose-a:text-inherit mt-4 text-left text-sm leading-snug"
+    ),
 
     isFree: cva("bg-base shadow-sm")
   },
