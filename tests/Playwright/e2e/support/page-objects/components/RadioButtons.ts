@@ -14,9 +14,4 @@ export class RadioButtons {
     const getButton = getGroup.locator(this.radioOption).nth(option);
     return getButton;
   }
-
-  async clickRadioButton(group: number, option: number) {
-    const button = this.getRadioButton(group, option);
-    await button.click();
-  }
 }

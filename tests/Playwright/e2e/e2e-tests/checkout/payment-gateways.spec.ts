@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test as base, expect, BrowserContext, Page } from "@playwright/test";
 import { fakerEN_GB } from "@faker-js/faker";
 import { URLs } from "../../support/constants/urls";
 import {
@@ -17,6 +17,21 @@ import { FraudCheckCards } from "../../support/constants/checkout/payment-cards/
 import { ErrorCards } from "../../support/constants/checkout/payment-cards/InvalidData";
 
 let checkout: Checkout;
+
+const test = base.extend<{
+  context: BrowserContext;
+  page: Page;
+}>({
+  context: async ({ browser }, use) => {
+    const context = await browser.newContext();
+    await use(context);
+    await context.close();
+  },
+  page: async ({ context }, use) => {
+    const page = await context.newPage();
+    await use(page);
+  }
+});
 
 test.describe("Checkout - Happy paths", async () => {
   test.beforeEach(async ({ page }) => {

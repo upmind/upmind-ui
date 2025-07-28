@@ -1,7 +1,8 @@
 export const comDomain = [
   /* NEW DOMAIN */
   {
-    name: ".COM Domain - Billing Cycle - 1 year, Domain Locking Standard: NO @webcentral @domains",
+    name: ".COM Domain - Billing Cycle - 1 year, Domain Locking Standard: NO @domains",
+    billingterm: 0,
     transfer: false,
     sldValue: "comtestingdomain",
     total: "£12.00",
@@ -11,8 +12,8 @@ export const comDomain = [
 
   /* TRANSFERRING A DOMAIN */
   {
-    name: ".COM Domain - Billing Cycle - 1 year - Domain Transfer @webcentral @domains @domain-transfer",
-    radioSelection: [[0, 0]],
+    name: ".COM Domain - Billing Cycle - 1 year - Domain Transfer @domains @domain-transfer",
+    billingterm: 0,
     transfer: true,
     sldValue: "comtestingdomain",
     total: "FREE",
