@@ -45,6 +45,8 @@
     "prepare": "husky",
     "lint-staged": "lint-staged",
     "test:chrome": "pnpm playwright test --project=chrome",
+    "test:firefox": "pnpm playwright test --project=firefox",
+    "test:safari": "pnpm playwright test --project=safari",
     "test:all-browsers": "pnpm playwright test",
     "test:ui": "pnpm playwright test --ui"
   },

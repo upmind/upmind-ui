@@ -14,6 +14,7 @@ test.beforeEach(async ({ page }) => {
 test.describe("Product Config - Happy Paths - Dev Blocks", async () => {
   for (const {
     name,
+    billingTerm,
     radioSelection = [],
     total,
     billingCycle,
@@ -24,12 +25,7 @@ test.describe("Product Config - Happy Paths - Dev Blocks", async () => {
     test(name, async ({ page }) => {
       /* PRODUCT OPTIONS */
       /* Make product selections */
-      for (const [radioGroupIndex, radioOptionIndex] of radioSelection) {
-        await productConfig.radioButtons.clickRadioButton(
-          radioGroupIndex,
-          radioOptionIndex
-        );
-      }
+      await productConfig.clickBillingTerm(billingTerm);
 
       /* SUMMARY FIELDS */
       /* Verify that all summary fields contain the expected data */
