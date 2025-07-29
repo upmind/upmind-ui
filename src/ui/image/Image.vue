@@ -1,13 +1,28 @@
 <template>
-  <Transition name="fade">
-    <picture v-if="!isEmpty(images)" :class="styles.images.root">
+  <picture v-if="!isEmpty(images)" :class="styles.image.container">
+    <Transition name="fade">
       <img
         :key="currentImage?.url"
         :src="currentImage?.url"
         :alt="currentImage?.alt"
+        :class="cn(styles.image.root, props.class)"
       />
-    </picture>
-  </Transition>
+    </Transition>
+
+    <nav
+      v-if="isArray(images) && images.length > 1"
+      :class="styles.image.nav.root"
+    >
+      <Icon
+        v-for="(image, index) in images"
+        :key="index"
+        icon="dot"
+        @click.prevent="selectImage(index)"
+        :class="[styles.image.nav.item, isSelected(index) ? '' : 'opacity-50']"
+        size="2xs"
+      />
+    </nav>
+  </picture>
 </template>
 
 <script setup lang="ts">
@@ -15,13 +30,14 @@
 import { ref, computed, Transition } from "vue";
 
 // --- components
-import { useStyles } from "../../utils";
+import { Icon } from "../icon";
 
 // --- internal
 import config from "./image.config";
 
 // --- utils
 import { isEmpty, isArray } from "lodash-es";
+import { useStyles, cn } from "../../utils";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -29,13 +45,19 @@ import type { ImageProps } from "./types";
 
 const props = defineProps<ImageProps>();
 
-const styles = useStyles(["images"], {}, config) as ComputedRef<{
-  images: {
+const styles = useStyles(["image", "image.nav"], {}, config) as ComputedRef<{
+  image: {
+    container: string;
     root: string;
+    nav: {
+      root: string;
+      item: string;
+    };
   };
 }>;
 
 const imageIndex = ref(0);
+
 const currentImage = computed(() => {
   if (isArray(props?.images)) {
     return props?.images?.[imageIndex.value];
@@ -43,6 +65,14 @@ const currentImage = computed(() => {
 
   return props?.images;
 });
+
+function selectImage(index: number) {
+  imageIndex.value = index;
+}
+
+function isSelected(index: number) {
+  return imageIndex.value === index;
+}
 </script>
 
 <style scoped>
