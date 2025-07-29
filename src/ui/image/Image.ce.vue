@@ -17,7 +17,7 @@
       <span
         v-for="(image, index) in images"
         :key="index"
-        class="size-5 p-1"
+        :class="styles.image.nav.container"
         @click="selectImage(index)"
       >
         <Icon
@@ -51,7 +51,8 @@ import type { ComputedRef } from "vue";
 import type { ImageProps } from "./types";
 
 const props = withDefaults(defineProps<ImageProps>(), {
-  ratio: "3:2"
+  ratio: "3:2",
+  fit: "cover"
 });
 
 const meta = computed(() => ({
@@ -64,6 +65,7 @@ const styles = useStyles(["image", "image.nav"], meta, config) as ComputedRef<{
     root: string;
     nav: {
       root: string;
+      container: string;
       item: string;
     };
   };
