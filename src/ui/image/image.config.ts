@@ -1,6 +1,6 @@
 import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
-export const rootVariant = cva("w-full rounded-lg object-cover object-center", {
+export const rootVariant = cva("w-full rounded-lg", {
   variants: {
     ratio: {
       "1:1": "aspect-square",
@@ -8,7 +8,19 @@ export const rootVariant = cva("w-full rounded-lg object-cover object-center", {
       "3:2": "aspect-[3/2]",
       "16:9": "aspect-video",
       "18:6": "aspect-[18/6]"
+    },
+    fit: {
+      cover: "object-cover object-center",
+      contain: "object-contain",
+      fill: "object-fill",
+      stretch: "object-fill",
+      "scale-down": "object-scale-down",
+      none: "object-none"
     }
+  },
+  defaultVariants: {
+    fit: "cover",
+    ratio: "3:2"
   }
 });
 
@@ -18,6 +30,7 @@ export default {
     root: rootVariant,
     nav: {
       root: cva("absolute bottom-[22px] right-[22px] flex gap-[10px]"),
+      container: cva("size-5 p-1"),
       item: cva("text-white")
     }
   }
