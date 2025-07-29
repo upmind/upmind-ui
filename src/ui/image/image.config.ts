@@ -29,8 +29,7 @@ export default {
     container: cva("relative"),
     root: rootVariant,
     nav: {
-      root: cva("absolute bottom-[22px] right-[22px] flex gap-[10px]"),
-      container: cva("size-5 p-1"),
+      root: cva("absolute bottom-[22px] right-[22px] flex"),
       item: cva("text-white")
     }
   }

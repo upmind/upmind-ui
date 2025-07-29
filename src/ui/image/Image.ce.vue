@@ -14,20 +14,14 @@
       :class="styles.image.nav.root"
       @click.prevent.stop
     >
-      <span
+      <Icon
         v-for="(image, index) in images"
         :key="index"
-        :class="styles.image.nav.container"
+        icon="ellipse"
+        size="3xs"
+        :class="[styles.image.nav.item, isSelected(index) ? '' : 'opacity-50']"
         @click="selectImage(index)"
-      >
-        <Icon
-          icon="ellipse"
-          :class="[
-            styles.image.nav.item,
-            isSelected(index) ? '' : 'opacity-50'
-          ]"
-        />
-      </span>
+      />
     </nav>
   </picture>
 </template>
@@ -65,7 +59,6 @@ const styles = useStyles(["image", "image.nav"], meta, config) as ComputedRef<{
     root: string;
     nav: {
       root: string;
-      container: string;
       item: string;
     };
   };
