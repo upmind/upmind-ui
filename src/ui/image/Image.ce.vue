@@ -1,6 +1,14 @@
 <template>
-  <picture v-if="!isEmpty(images)" :class="styles.image.container">
-    <Transition name="fade">
+  <picture
+    v-if="!isEmpty(images)"
+    :class="cn(styles.image.container, 'overflow-hidden')"
+  >
+    <Transition
+      enter-active-class="transition-opacity duration-300 ease-in-out"
+      leave-active-class="transition-opacity duration-300 ease-in-out absolute inset-0 w-full h-full object-cover object-center"
+      enter-from-class="opacity-0"
+      leave-to-class="opacity-0"
+    >
       <img
         :key="currentImage?.url"
         :src="currentImage?.url"
@@ -82,19 +90,3 @@ function isSelected(index: number) {
   return imageIndex.value === index;
 }
 </script>
-
-<style scoped>
-.fade-enter-active {
-  transition: opacity 0.3s ease;
-}
-
-.fade-leave-active {
-  transition: opacity 0.3s ease;
-  position: absolute;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-</style>
