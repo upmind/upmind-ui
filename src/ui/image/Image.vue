@@ -12,11 +12,16 @@
     <nav
       v-if="isArray(images) && images.length > 1"
       :class="styles.image.nav.root"
+      @click.prevent.stop
     >
-      <span v-for="(image, index) in images" :key="index" class="size-5 p-1">
+      <span
+        v-for="(image, index) in images"
+        :key="index"
+        class="size-5 p-1"
+        @click="selectImage(index)"
+      >
         <Icon
           icon="ellipse"
-          @click.prevent="selectImage(index)"
           :class="[
             styles.image.nav.item,
             isSelected(index) ? '' : 'opacity-50'
