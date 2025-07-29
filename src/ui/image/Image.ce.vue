@@ -1,8 +1,5 @@
 <template>
-  <picture
-    v-if="!isEmpty(images)"
-    :class="cn(styles.image.container, 'overflow-hidden')"
-  >
+  <picture v-if="!meta.isEmpty" :class="styles.image.container">
     <Transition
       enter-active-class="transition-opacity duration-300 ease-in-out"
       leave-active-class="transition-opacity duration-300 ease-in-out absolute inset-0 w-full h-full object-cover object-center"
@@ -32,6 +29,10 @@
       />
     </nav>
   </picture>
+
+  <picture v-else :class="styles.image.root">
+    <Icon icon="camera" size="xl" :class="styles.image.icon" />
+  </picture>
 </template>
 
 <script setup lang="ts">
@@ -58,13 +59,16 @@ const props = withDefaults(defineProps<ImageProps>(), {
 });
 
 const meta = computed(() => ({
-  ratio: props.ratio
+  ratio: props.ratio,
+  fit: props.fit,
+  isEmpty: isEmpty(props.images)
 }));
 
 const styles = useStyles(["image", "image.nav"], meta, config) as ComputedRef<{
   image: {
     container: string;
     root: string;
+    icon: string;
     nav: {
       root: string;
       item: string;
