@@ -5,4 +5,5 @@ export interface ImageItem {
 
 export interface ImageProps {
   images: ImageItem[] | ImageItem;
+  class?: string;
 }
