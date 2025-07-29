@@ -43,9 +43,15 @@ import { useStyles, cn } from "../../utils";
 import type { ComputedRef } from "vue";
 import type { ImageProps } from "./types";
 
-const props = defineProps<ImageProps>();
+const props = withDefaults(defineProps<ImageProps>(), {
+  ratio: "3:2"
+});
 
-const styles = useStyles(["image", "image.nav"], {}, config) as ComputedRef<{
+const meta = computed(() => ({
+  ratio: props.ratio
+}));
+
+const styles = useStyles(["image", "image.nav"], meta, config) as ComputedRef<{
   image: {
     container: string;
     root: string;
