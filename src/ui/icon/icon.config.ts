@@ -4,8 +4,9 @@ import { cva } from "class-variance-authority";
 export const iconVariants = cva("[&>svg]:size-full", {
   variants: {
     size: {
-      auto: "",
+      auto: "size-full",
       nano: "size-4",
+      "3xs": "size-4",
       "2xs": "size-5",
       xs: "size-6",
       sm: "size-8",
