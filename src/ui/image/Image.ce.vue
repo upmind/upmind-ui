@@ -30,7 +30,7 @@
     </nav>
   </picture>
 
-  <picture v-else :class="styles.image.root">
+  <picture v-else :class="cn(styles.image.root, props.class)">
     <Icon icon="camera" size="xl" :class="styles.image.icon" />
   </picture>
 </template>
