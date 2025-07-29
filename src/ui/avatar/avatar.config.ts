@@ -30,12 +30,17 @@ export const avatarVariants = cva(
         contain: "object-contain p-[0.5em]"
       },
       size: {
-        xs: "size-6 text-xs",
-        sm: "size-8 text-sm",
-        md: "size-10 text-md",
-        lg: "size-12 text-lg",
-        xl: "size-14 text-xl",
-        "2xl": "size-16 text-2xl"
+        auto: "",
+        nano: "size-4",
+        "3xs": "size-5",
+        "2xs": "size-5",
+        xs: "size-6",
+        sm: "size-8",
+        md: "size-10",
+        lg: "size-12",
+        xl: "size-14",
+        "2xl": "size-16",
+        "3xl": "size-20"
       },
       shape: {
         color: "base",
