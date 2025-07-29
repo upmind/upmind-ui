@@ -1,11 +1,15 @@
 <template>
   <!--<link rel="stylesheet" :href="stylesheet" />-->
   <Badge :class="cn(styles.badge, props.class)">
-    <slot name="prepend"></slot>
-    <span>
-      <slot> {{ label }}</slot>
+    <slot name="prepend">
+      <Icon v-if="icon" :icon="icon" class="[&>svg]:size-[14px]" />
+    </slot>
+    <span class="px-1">
+      <slot>{{ label }}</slot>
     </span>
-    <slot name="append"> </slot>
+    <slot name="append">
+      <Icon v-if="appendIcon" :icon="appendIcon" size="2xs" />
+    </slot>
   </Badge>
 </template>
 
@@ -24,6 +28,7 @@ import {
 
 // --- components
 import Badge from "./Badge.vue";
+import { Icon } from "../icon";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -34,7 +39,7 @@ const props = withDefaults(defineProps<BadgeProps>(), {
   // --- props
   label: "",
   // --- styles
-  variant: "outline",
+  variant: "flat",
   color: "base",
   size: "md",
   // --- styles
