@@ -1,7 +1,7 @@
 import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
-export const iconVariants = cva("inline-block p-0.5", {
+export const iconVariants = cva("inline-block", {
   variants: {
     size: {
       auto: "[&>svg]:size-full",

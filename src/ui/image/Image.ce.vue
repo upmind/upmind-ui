@@ -20,17 +20,18 @@
       </CarouselContent>
 
       <nav :class="styles.image.nav.root" @click.prevent.stop>
-        <Icon
+        <span
           v-for="(image, index) in images"
           :key="index"
-          icon="ellipse"
-          size="3xs"
-          :class="[
-            styles.image.nav.item,
-            isSelected(index) ? '' : 'opacity-50'
-          ]"
-          @click="selectImage(index)"
-        />
+          :class="styles.image.nav.item"
+        >
+          <Icon
+            icon="ellipse"
+            size="3xs"
+            :class="[isSelected(index) ? '' : 'opacity-50']"
+            @click="selectImage(index)"
+          />
+        </span>
       </nav>
     </Carousel>
 
