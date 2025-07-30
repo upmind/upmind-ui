@@ -39,8 +39,8 @@ export default {
       item: cva("w-full flex-none pl-0")
     },
     nav: {
-      root: cva("absolute bottom-[22px] right-[22px] flex"),
-      item: cva("text-white")
+      root: cva("absolute bottom-[22px] right-[22px] flex gap-0.5"),
+      item: cva("grid size-3 place-items-center text-white")
     }
   }
 };
