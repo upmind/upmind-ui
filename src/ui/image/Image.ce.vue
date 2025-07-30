@@ -1,46 +1,62 @@
 <template>
-  <picture v-if="!meta.isEmpty" :class="styles.image.container">
-    <Transition
-      enter-active-class="transition-opacity duration-300 ease-in-out"
-      leave-active-class="transition-opacity duration-300 ease-in-out absolute inset-0 w-full h-full object-cover object-center"
-      enter-from-class="opacity-0"
-      leave-to-class="opacity-0"
+  <figure :class="cn(styles.image.container, props.class)">
+    <!-- Multiple images with carousel -->
+    <Carousel
+      v-if="!meta.isEmpty && isArray(images) && images.length > 1"
+      @init-api="onCarouselInit"
     >
-      <img
-        :key="currentImage?.url"
-        :src="currentImage?.url"
-        :alt="currentImage?.alt"
-        :class="cn(styles.image.root, props.class)"
-      />
-    </Transition>
+      <CarouselContent :class="styles.image.carousel.content">
+        <CarouselItem
+          v-for="(image, index) in images"
+          :key="index"
+          :class="styles.image.carousel.item"
+        >
+          <img
+            :src="image?.url"
+            :alt="image?.alt"
+            :class="cn(styles.image.root)"
+          />
+        </CarouselItem>
+      </CarouselContent>
 
-    <nav
-      v-if="isArray(images) && images.length > 1"
-      :class="styles.image.nav.root"
-      @click.prevent.stop
-    >
-      <Icon
-        v-for="(image, index) in images"
-        :key="index"
-        icon="ellipse"
-        size="3xs"
-        :class="[styles.image.nav.item, isSelected(index) ? '' : 'opacity-50']"
-        @click="selectImage(index)"
-      />
-    </nav>
-  </picture>
+      <nav :class="styles.image.nav.root" @click.prevent.stop>
+        <Icon
+          v-for="(image, index) in images"
+          :key="index"
+          icon="ellipse"
+          size="3xs"
+          :class="[
+            styles.image.nav.item,
+            isSelected(index) ? '' : 'opacity-50'
+          ]"
+          @click="selectImage(index)"
+        />
+      </nav>
+    </Carousel>
 
-  <picture v-else :class="cn(styles.image.root, props.class)">
-    <Icon icon="camera" size="xl" :class="styles.image.icon" />
-  </picture>
+    <!-- Single image -->
+    <img
+      v-else-if="!meta.isEmpty"
+      :key="currentImage?.url"
+      :src="currentImage?.url"
+      :alt="currentImage?.alt"
+      :class="cn(styles.image.root)"
+    />
+
+    <!-- Fallback icon -->
+    <div v-else :class="cn(styles.image.root)">
+      <Icon icon="camera" size="xl" :class="styles.image.icon" />
+    </div>
+  </figure>
 </template>
 
 <script setup lang="ts">
 // --- external
-import { ref, computed, Transition } from "vue";
+import { ref, computed } from "vue";
 
 // --- components
 import { Icon } from "../icon";
+import { Carousel, CarouselContent, CarouselItem } from "../carousel";
 
 // --- internal
 import config from "./image.config";
@@ -52,6 +68,7 @@ import { useStyles, cn } from "../../utils";
 // --- types
 import type { ComputedRef } from "vue";
 import type { ImageProps } from "./types";
+import type { CarouselApi } from "../carousel";
 
 const props = withDefaults(defineProps<ImageProps>(), {
   ratio: "3:2",
@@ -64,11 +81,19 @@ const meta = computed(() => ({
   isEmpty: isEmpty(props.images)
 }));
 
-const styles = useStyles(["image", "image.nav"], meta, config) as ComputedRef<{
+const styles = useStyles(
+  ["image", "image.carousel", "image.nav"],
+  meta,
+  config
+) as ComputedRef<{
   image: {
     container: string;
     root: string;
     icon: string;
+    carousel: {
+      content: string;
+      item: string;
+    };
     nav: {
       root: string;
       item: string;
@@ -77,6 +102,17 @@ const styles = useStyles(["image", "image.nav"], meta, config) as ComputedRef<{
 }>;
 
 const imageIndex = ref(0);
+const carouselApi = ref<CarouselApi>();
+
+function onCarouselInit(api: CarouselApi) {
+  carouselApi.value = api;
+
+  if (api) {
+    api.on("select", () => {
+      imageIndex.value = api.selectedScrollSnap() || 0;
+    });
+  }
+}
 
 const currentImage = computed(() => {
   if (isArray(props?.images)) {
@@ -88,6 +124,7 @@ const currentImage = computed(() => {
 
 function selectImage(index: number) {
   imageIndex.value = index;
+  carouselApi.value?.scrollTo(index);
 }
 
 function isSelected(index: number) {
