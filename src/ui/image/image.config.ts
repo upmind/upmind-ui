@@ -35,8 +35,8 @@ export default {
     icon: cva("opacity-25"),
     carousel: {
       content: cva(""),
-      list: cva("m-0 flex list-none -space-x-px p-0"),
-      item: cva("w-full flex-none pl-0")
+      list: cva("m-0 flex p-0"),
+      item: cva("w-full")
     },
     nav: {
       root: cva("absolute bottom-[22px] right-[22px] flex gap-0.5"),
