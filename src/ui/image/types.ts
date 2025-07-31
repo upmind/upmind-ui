@@ -5,6 +5,7 @@ import type { HTMLAttributes } from "vue";
 export type RootVariants = VariantProps<typeof rootVariant>;
 
 export interface ImageProps {
+  carousel?: boolean;
   images?: ImageItem[] | ImageItem;
   ratio?: RootVariants["ratio"];
   fit?: RootVariants["fit"];
