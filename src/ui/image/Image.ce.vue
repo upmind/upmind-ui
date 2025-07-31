@@ -4,7 +4,7 @@
     <Carousel v-if="meta.isCarousel" @init-api="onCarouselInit">
       <CarouselContent :class="styles.image.carousel.content">
         <CarouselItem
-          v-for="(image, index) in images as ImageItem[]"
+          v-for="(image, index) in image as ImageItem[]"
           :key="index"
           :class="styles.image.carousel.item"
         >
@@ -18,7 +18,7 @@
 
       <nav :class="styles.image.nav.root" @click.prevent.stop>
         <span
-          v-for="(image, index) in images"
+          v-for="(image, index) in image"
           :key="index"
           :class="styles.image.nav.item"
         >
@@ -35,9 +35,9 @@
     <!-- Single image -->
     <img
       v-else-if="!meta.isEmpty"
-      :key="currentImage?.url"
-      :src="currentImage?.url"
-      :alt="currentImage?.alt"
+      :key="isString(currentImage) ? currentImage : currentImage?.url"
+      :src="isString(currentImage) ? currentImage : currentImage?.url"
+      :alt="isString(currentImage) ? '' : currentImage?.alt"
       :class="cn(styles.image.root)"
     />
 
@@ -60,7 +60,7 @@ import { Carousel, CarouselContent, CarouselItem } from "../carousel";
 import config from "./image.config";
 
 // --- utils
-import { isEmpty, isArray } from "lodash-es";
+import { isEmpty, isArray, isString } from "lodash-es";
 import { useStyles, cn } from "../../utils";
 
 // --- types
@@ -77,8 +77,8 @@ const props = withDefaults(defineProps<ImageProps>(), {
 const meta = computed(() => ({
   ratio: props.ratio,
   fit: props.fit,
-  isEmpty: isEmpty(props.images),
-  isCarousel: props.carousel && isArray(props.images) && props.images.length > 1
+  isEmpty: isEmpty(props.image),
+  isCarousel: props.carousel && isArray(props.image) && props.image.length > 1
 }));
 
 const styles = useStyles(
@@ -115,11 +115,11 @@ function onCarouselInit(api: CarouselApi) {
 }
 
 const currentImage = computed(() => {
-  if (isArray(props?.images)) {
-    return props?.images?.[imageIndex.value];
+  if (isArray(props?.image)) {
+    return props?.image?.[imageIndex.value];
   }
 
-  return props?.images;
+  return props?.image;
 });
 
 function selectImage(index: number) {
