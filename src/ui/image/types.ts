@@ -6,7 +6,7 @@ export type RootVariants = VariantProps<typeof rootVariant>;
 
 export interface ImageProps {
   carousel?: boolean;
-  images?: ImageItem[] | ImageItem;
+  image?: ImageItem[] | ImageItem | string;
   ratio?: RootVariants["ratio"];
   fit?: RootVariants["fit"];
   // ---
