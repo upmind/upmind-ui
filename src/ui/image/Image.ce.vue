@@ -1,19 +1,16 @@
 <template>
   <figure :class="cn(styles.image.container, props.class)">
     <!-- Multiple images with carousel -->
-    <Carousel
-      v-if="!meta.isEmpty && isArray(images) && images.length > 1"
-      @init-api="onCarouselInit"
-    >
+    <Carousel v-if="meta.isCarousel" @init-api="onCarouselInit">
       <CarouselContent :class="styles.image.carousel.content">
         <CarouselItem
-          v-for="(image, index) in images"
+          v-for="(image, index) in images as ImageItem[]"
           :key="index"
           :class="styles.image.carousel.item"
         >
           <img
-            :src="image?.url"
-            :alt="image?.alt"
+            :src="image.url"
+            :alt="image.alt"
             :class="cn(styles.image.root)"
           />
         </CarouselItem>
@@ -68,18 +65,20 @@ import { useStyles, cn } from "../../utils";
 
 // --- types
 import type { ComputedRef } from "vue";
-import type { ImageProps } from "./types";
+import type { ImageProps, ImageItem } from "./types";
 import type { CarouselApi } from "../carousel";
 
 const props = withDefaults(defineProps<ImageProps>(), {
   ratio: "3:2",
-  fit: "cover"
+  fit: "cover",
+  carousel: true
 });
 
 const meta = computed(() => ({
   ratio: props.ratio,
   fit: props.fit,
-  isEmpty: isEmpty(props.images)
+  isEmpty: isEmpty(props.images),
+  isCarousel: props.carousel && isArray(props.images) && props.images.length > 1
 }));
 
 const styles = useStyles(
