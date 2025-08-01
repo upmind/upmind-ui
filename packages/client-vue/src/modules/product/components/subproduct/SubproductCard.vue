@@ -1,5 +1,5 @@
 <template>
-  <section class="m-0 w-full">
+  <section class="text-foreground m-0 w-full">
     <header class="flex flex-1 items-start gap-x-1">
       <div class="flex flex-grow flex-col gap-0.5 md:flex-row md:gap-x-2">
         <div class="flex flex-wrap items-center gap-2">
