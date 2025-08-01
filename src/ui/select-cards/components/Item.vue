@@ -2,7 +2,7 @@
   <li class="flex w-full list-none justify-between text-md font-medium">
     <span class="flex gap-2">
       {{ label }}
-      <Badge v-if="badge" v-bind="badge" />
+      <Badge v-if="badge" v-bind="badge" size="sm" />
     </span>
     <span>{{ appendLabel }}</span>
   </li>
