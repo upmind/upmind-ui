@@ -16,7 +16,7 @@
       >
         <template #item="{ item }: { item: SelectCardsItemProps }">
           <slot name="item" :item="item">
-            {{ item.label }}
+            <Item v-bind="item" />
           </slot>
         </template>
         <template #placeholder>
@@ -38,7 +38,7 @@
           :data-state="item.value === modelValue ? 'checked' : null"
         >
           <slot name="dropdown-item" v-bind="{ item, index }">
-            {{ item.label }}
+            <Item v-bind="item" />
           </slot>
         </DropdownMenuItem>
 
@@ -67,6 +67,7 @@ import config from "./selectCards.config";
 
 // --- components
 import TriggerButton from "./components/TriggerButton.vue";
+import Item from "./components/Item.vue";
 import {
   DropdownMenuContent,
   DropdownMenuItem,

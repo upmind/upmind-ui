@@ -22,7 +22,7 @@ export const rootVariants = cva(
         tonal: "",
         inverse: "",
         control:
-          "hover:!border-control-strong !border-control bg-control !text-control-foreground shadow-sm ring-offset-background"
+          "border bg-control !text-control-foreground ring-offset-background"
       },
       focusable: {
         true: `${ringClasses} ${invalidRingClasses}`,
