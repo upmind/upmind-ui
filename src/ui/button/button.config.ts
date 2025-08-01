@@ -8,11 +8,11 @@ export const rootVariants = cva(
   {
     variants: {
       size: {
-        sm: "px-1 py-2 text-sm",
-        md: "gap-1 px-3 py-2 text-sm",
-        lg: "gap-1 px-4 py-2 text-md",
+        sm: "px-0.5 py-2 text-sm",
+        md: "gap-0.5 px-3 py-2 text-sm",
+        lg: "gap-0.5 px-4 py-2 text-md",
         icon: "h-10 w-10 gap-2 px-2 py-1",
-        badge: "gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold"
+        badge: "gap-0.5 rounded-full px-2.5 py-0.5 text-xs font-semibold"
       },
       variant: {
         flat: "hover:bg-opacity-90",

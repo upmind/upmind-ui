@@ -9,9 +9,8 @@ import type {
   PopoverContentProps
 } from "radix-vue";
 import type { CxOptions, VariantProps } from "class-variance-authority";
-import type { BadgeProps } from "../badge";
-import type { IconProps } from "../icon";
-import type { AvatarProps } from "../avatar";
+import type { BadgeProps } from "../badge/types";
+import type { Icon } from "../icon/types";
 
 // --- internal
 import type { triggerVariants } from "./selectCards.config";
@@ -19,8 +18,8 @@ type TriggerVariantProps = VariantProps<typeof triggerVariants>;
 
 export interface SelectCardsItemProps extends RadioGroupItemProps {
   label: string;
-  icon?: string | IconProps;
-  avatar?: string | AvatarProps;
+  icon?: Icon | string;
+  avatar?: string | Icon;
   appendLabel?: string;
   badge?: BadgeProps | string;
 }
@@ -53,4 +52,5 @@ export interface SelectCardsTriggerProps
   open?: boolean;
   class?: string;
   focusable?: boolean;
+  chevron?: boolean;
 }

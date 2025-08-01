@@ -22,7 +22,7 @@
 
     <template #append>
       <Icon
-        class="ml-auto opacity-75 transition-all duration-200"
+        class="ml-4 transition-all duration-200 [&>svg]:size-[12px]"
         :class="open ? 'rotate-180' : ''"
         icon="arrow-down"
         size="xs"
