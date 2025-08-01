@@ -4,9 +4,9 @@ import type { CxOptions, VariantProps } from "class-variance-authority";
 import type { Icon } from "../icon/types";
 
 // --- internal
-import type { containerVariants, inputVariants } from "./input.config";
+import type { containerVariants, inputContainerVariants } from "./input.config";
 export type ContainerVariantProps = VariantProps<typeof containerVariants>;
-export type InputVariantProps = VariantProps<typeof inputVariants>;
+export type InputVariantProps = VariantProps<typeof inputContainerVariants>;
 
 export interface InputProps {
   modelValue?: string | number;
