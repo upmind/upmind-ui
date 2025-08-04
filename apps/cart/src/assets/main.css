@@ -1,31 +1,3 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/*
-TODO: Temporariy fix, the tailwind themer plugin is not correctly applying the var.
-*/
-
-.bg-base-muted-active,
-.hover\:bg-base-muted-active:hover {
-  background-color: var(--primary, #fa2f62) !important;
-}
-
-.\!ring-base-muted-active {
-  --tw-ring-color: var(--primary, #fa2f62) !important;
-}
-
-.bg-promotion-muted,
-.hover\:bg-promotion-muted:hover {
-  background-color: var(--promotion, #5e31ff) !important;
-}
-
-.ring-oromotion-muted-active,
-.focus-within\:ring-offset-2:focus-within {
-  --tw-ring-color: var(--promotion, #5e31ff) !important;
-}
-
-.text-promotion-muted-foreground,
-.hover\:text-promotion-muted-foreground:hover {
-  color: var(--promotion-foreground, #ffffff) !important;
-}
