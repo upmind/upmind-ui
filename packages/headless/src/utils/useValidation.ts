@@ -312,6 +312,8 @@ function mapLaravelRulesToJsonSchemaProperty(
   let schemaProperty: JsonSchemaExtended = {};
   for (const rule of field.validation_rules) {
     const keywordMap = mapLaravelRuleToJSONSchema(rule, field, context);
+    keywordMap.type ??= "string"; // Failsafe: default type to string if not already specified
+
     // merge each rule into the schemaProperty
     schemaProperty = { ...schemaProperty, ...keywordMap } as JsonSchemaExtended;
   }
