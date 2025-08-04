@@ -114,7 +114,6 @@ const colors = {
     800: "#89610a",
     900: "#744f0f",
     950: "#442a04",
-
     foreground: "#442a04",
     background: "#ffe900",
     muted: {
@@ -149,7 +148,7 @@ const colors = {
 
   // --- State Variants
   promotion: {
-    DEFAULT: "#f540c7",
+    DEFAULT: "var(--promotion,#f540c7)",
     50: "#fff4fd",
     100: "#ffe7fb",
     200: "#ffcef5",
@@ -161,12 +160,12 @@ const colors = {
     800: "#93156c",
     900: "#781758",
     950: "#510138",
-    foreground: "#021831",
-    background: "#f540c7",
+    foreground: "var(--promotion-foreground,#FFFFFF)",
+    background: "var(--promotion-background,#f540c7)",
     muted: {
-      DEFAULT: "#f540c7",
-      foreground: "#ffe7fb",
-      active: "#f540c7"
+      DEFAULT: "var(--promotion-muted,#f540c7)",
+      foreground: "var(--promotion-muted-foreground,#ffe7fb)",
+      active: "var(--promotion-muted-active,#f540c7)"
     }
   },
 

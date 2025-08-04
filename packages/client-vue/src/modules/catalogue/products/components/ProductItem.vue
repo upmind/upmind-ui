@@ -2,7 +2,7 @@
   <div :class="styles.products.item.root">
     <div :class="styles.products.item.content">
       <div class="relative">
-        <router-link :to="addLink">
+        <router-link :to="addLink" tabindex="-1">
           <img
             v-if="productDetails?.imgUrl && !imageError"
             :src="productDetails?.imgUrl"
@@ -48,7 +48,7 @@
         </p>
 
         <div :class="styles.products.item.buttonContainer">
-          <router-link :to="addLink">
+          <router-link :to="addLink" tabindex="-1">
             <Button color="primary" block>
               <template #prepend>
                 <Icon
