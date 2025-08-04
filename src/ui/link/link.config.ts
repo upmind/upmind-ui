@@ -1,9 +1,10 @@
 // ---  external
 import { cva } from "class-variance-authority";
+import { invalidRingClasses, ringClasses } from "../../assets/styles";
 // -----------------------------------------------------------------------------
 
 export const rootVariants = cva(
-  `inline-flex cursor-pointer items-center space-x-0.5 font-medium underline underline-offset-4 outline-none transition-all duration-200 focus:outline-none`,
+  `inline-flex cursor-pointer items-center space-x-0.5 font-medium underline underline-offset-4 outline-none ring-offset-background transition-all duration-200 focus:outline-none ${ringClasses} ${invalidRingClasses} rounded-lg !ring-offset-4`,
   {
     variants: {
       variant: {

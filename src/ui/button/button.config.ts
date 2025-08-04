@@ -23,15 +23,15 @@ export const buttonVariants = cva(
       },
       color: {
         base: "",
-        primary: "!ring-primary",
-        secondary: "!ring-secondary",
-        accent: "!ring-accent",
-        promotion: "!ring-promotion",
-        destructive: "!ring-destructive",
-        success: "!ring-success",
-        info: "!ring-info",
-        error: "!ring-error",
-        warning: "!ring-warning"
+        primary: "",
+        secondary: "",
+        accent: "",
+        promotion: "",
+        destructive: "",
+        success: "!",
+        info: "",
+        error: "",
+        warning: ""
       },
       size: {
         xs: "h-7 gap-1 px-2 py-1 text-xs",
@@ -55,48 +55,52 @@ export const buttonVariants = cva(
       {
         color: "base",
         variant: "flat",
-        class: "bg-base-foreground text-base-background !ring-base"
+        class: "bg-base-foreground text-base-background"
       },
       {
         color: "primary",
         variant: "flat",
-        class: "bg-primary text-primary-foreground"
+        class: "bg-primary text-primary-foreground !ring-primary"
       },
       {
         color: "secondary",
         variant: "flat",
-        class: "bg-secondary text-secondary-foreground"
+        class: "bg-secondary text-secondary-foreground !ring-secondary"
       },
       {
         color: "accent",
         variant: "flat",
-        class: "bg-accent text-accent-foreground"
+        class: "bg-accent text-accent-foreground !ring-accent"
       },
       {
         color: "promotion",
         variant: "flat",
-        class: "bg-promotion text-promotion-foreground"
+        class: "bg-promotion text-promotion-foreground !ring-promotion"
       },
       {
         color: "destructive",
         variant: "flat",
-        class: "bg-destructive text-destructive-foreground"
+        class: "bg-destructive text-destructive-foreground !ring-destructive"
       },
       {
         color: "success",
         variant: "flat",
-        class: "bg-success text-success-foreground"
+        class: "bg-success text-success-foreground !ring-success"
       },
-      { color: "info", variant: "flat", class: "bg-info text-info-foreground" },
+      {
+        color: "info",
+        variant: "flat",
+        class: "bg-info text-info-foreground !ring-info"
+      },
       {
         color: "error",
         variant: "flat",
-        class: "bg-error text-error-foreground"
+        class: "bg-error text-error-foreground !ring-error"
       },
       {
         color: "warning",
         variant: "flat",
-        class: "bg-warning text-warning-foreground"
+        class: "bg-warning text-warning-foreground !ring-warning"
       },
 
       // --- outline
@@ -104,52 +108,58 @@ export const buttonVariants = cva(
         color: "base",
         variant: "outline",
         class:
-          "border-base-control text-base-foreground !ring-base hover:text-base-foreground/75"
+          "border-base-control text-base-foreground hover:text-base-foreground/75"
       },
       {
         color: "primary",
         variant: "outline",
-        class: "hover:bg-primary-muted border-primary text-primary"
+        class:
+          "hover:bg-primary-muted border-primary text-primary !ring-primary"
       },
       {
         color: "secondary",
         variant: "outline",
-        class: "hover:bg-secondary-muted border-secondary text-secondary"
+        class:
+          "hover:bg-secondary-muted border-secondary text-secondary !ring-secondary"
       },
       {
         color: "accent",
         variant: "outline",
-        class: "hover:bg-accent-muted border-accent text-accent"
+        class: "hover:bg-accent-muted border-accent text-accent !ring-accent"
       },
       {
         color: "promotion",
         variant: "outline",
-        class: "hover:bg-promotion-muted border-promotion text-promotion"
+        class:
+          "hover:bg-promotion-muted border-promotion text-promotion !ring-promotion"
       },
       {
         color: "destructive",
         variant: "outline",
-        class: "hover:bg-destructive-muted border-destructive text-destructive"
+        class:
+          "hover:bg-destructive-muted border-destructive text-destructive !ring-destructive"
       },
       {
         color: "success",
         variant: "outline",
-        class: "hover:bg-success-muted border-success text-success"
+        class:
+          "hover:bg-success-muted border-success text-success !ring-success"
       },
       {
         color: "info",
         variant: "outline",
-        class: "hover:bg-info-muted border-info text-info"
+        class: "hover:bg-info-muted border-info text-info !ring-info"
       },
       {
         color: "error",
         variant: "outline",
-        class: "hover:bg-error-muted border-error text-error"
+        class: "hover:bg-error-muted border-error text-error !ring-error"
       },
       {
         color: "warning",
         variant: "outline",
-        class: "hover:bg-warning-muted border-warning text-warning"
+        class:
+          "hover:bg-warning-muted border-warning text-warning !ring-warning"
       },
 
       // --- tonal
