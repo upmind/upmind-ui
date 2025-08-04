@@ -108,7 +108,7 @@ export const buttonVariants = cva(
         color: "base",
         variant: "outline",
         class:
-          "border-base-control text-base-foreground !ring-primary hover:text-base-foreground/75"
+          "border-base-control text-base-foreground hover:text-base-foreground/75"
       },
       {
         color: "primary",
