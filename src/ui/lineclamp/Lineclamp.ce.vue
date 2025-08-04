@@ -13,11 +13,8 @@
           data-testid="lineclamp"
           as="span"
           variant="link"
-        >
-          <template #append>
-            <Icon :icon="meta.isOpen ? iconLess : iconMore" />
-          </template>
-        </Button>
+          :icon="meta.isOpen ? iconLess : iconMore"
+        />
       </p>
     </transition>
   </div>
