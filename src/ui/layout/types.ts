@@ -1,16 +1,20 @@
 import type { HTMLAttributes } from "vue";
 
-interface LayoutProps {
+export interface LayoutProps {
   variant?: "default" | "enclosed" | "full";
   minimal?: boolean;
 }
 
-interface VariantProps {
-  class?: HTMLAttributes["class"];
+export interface VariantProps {
   uiConfig?: Record<string, any>;
   minimal?: boolean;
   title?: string;
   asideTitle?: string;
 }
 
-export type { LayoutProps, VariantProps };
+export interface SectionProps {
+  title?: string;
+  as?: string;
+  class?: HTMLAttributes["class"];
+  variant?: LayoutProps["variant"];
+}
