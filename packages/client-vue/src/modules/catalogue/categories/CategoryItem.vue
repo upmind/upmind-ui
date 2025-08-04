@@ -1,8 +1,8 @@
 <template>
   <Button
     :as="RouterLink"
-    variant="outlined"
-    color="secondary"
+    variant="outline"
+    color="base"
     :class="styles.categories.item.root"
     :aria-label="t('product.category.select', { name })"
     :to="{
@@ -24,8 +24,8 @@
     />
 
     <Button
-      variant="outlined"
-      color="secondary"
+      variant="outline"
+      color="base"
       :class="styles.categories.item.action"
       @click="doSelect"
     >
