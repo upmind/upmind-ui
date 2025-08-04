@@ -17,11 +17,11 @@ export default {
   },
 
   enclosed: {
-    root: cva(
-      "max-w-app mx-auto flex w-full flex-col flex-wrap items-start justify-start gap-6 px-[10px] py-[72px]"
-    ),
+    root: cva("max-w-app mx-auto flex w-full gap-9 py-[72px]"),
+    main: cva("flex w-full flex-col gap-6"),
     controlsRoot: cva("w-full border-b bg-base-background py-4"),
-    controls: cva("max-w-app mx-auto")
+    controls: cva("max-w-app mx-auto"),
+    aside: cva("w-full max-w-md")
   },
 
   full: {
