@@ -42,6 +42,13 @@ export default {
         }
       }
     }),
-    content: cva("max-w-app mx-auto")
+    container: cva("max-w-app mx-auto flex w-full gap-12"),
+    aside: cva("w-full max-w-md"),
+    main: cva("w-full")
+  },
+
+  section: {
+    root: cva("flex flex-col gap-3"),
+    title: cva("w-full border-b pb-3 text-xl")
   }
 };

@@ -9,6 +9,8 @@ interface VariantProps {
   class?: HTMLAttributes["class"];
   uiConfig?: Record<string, any>;
   minimal?: boolean;
+  title?: string;
+  asideTitle?: string;
 }
 
 export type { LayoutProps, VariantProps };

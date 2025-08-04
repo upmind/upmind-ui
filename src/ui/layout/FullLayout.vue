@@ -14,15 +14,27 @@
   </div>
 
   <article :class="cn(styles.full.root, props.class)">
-    <section :class="styles.full.header" v-if="meta.hasHeader">
+    <Section :class="styles.full.header" v-if="meta.hasHeader">
       <slot name="header" />
-    </section>
+    </Section>
 
-    <section :class="styles.full.contentRoot">
-      <div :class="styles.full.content">
-        <slot name="default" />
+    <div :class="styles.full.contentRoot">
+      <div :class="styles.full.container">
+        <Section :class="styles.full.main" :title="title">
+          <slot name="default" />
+        </Section>
+
+        <Section
+          as="aside"
+          :class="styles.full.aside"
+          v-if="meta.hasAside"
+          :title="asideTitle"
+        >
+          <slot name="aside" />
+          <slot name="aside-footer" />
+        </Section>
       </div>
-    </section>
+    </div>
   </article>
 </template>
 
@@ -30,6 +42,9 @@
 // --- internal
 import { cn, useStyles } from "../../utils";
 import config from "./layout.config";
+
+// --- components
+import Section from "./Section.vue";
 
 // --- utils
 import { isEmptySlot } from "./utils";
@@ -53,7 +68,9 @@ const meta = computed(() => {
     hasControls:
       !isEmptySlot("controls", slots) ||
       !isEmptySlot("navigation", slots) ||
-      !isEmptySlot("actions", slots)
+      !isEmptySlot("actions", slots),
+    hasAside:
+      !isEmptySlot("aside", slots) || !isEmptySlot("aside-footer", slots)
   };
 });
 const styles = useStyles(
@@ -73,6 +90,9 @@ const styles = useStyles(
     header: string;
     contentRoot: string;
     content: string;
+    aside: string;
+    container: string;
+    main: string;
   };
 }>;
 </script>
