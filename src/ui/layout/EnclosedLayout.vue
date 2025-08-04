@@ -12,15 +12,27 @@
     </nav>
   </div>
 
-  <article :class="cn(styles.enclosed.root, props.class)">
-    <Card v-if="meta.hasHeader">
-      <slot name="header" />
-    </Card>
+  <section :class="cn(styles.enclosed.root, props.class)">
+    <article :class="styles.enclosed.main">
+      <Card v-if="meta.hasHeader" as="header">
+        <slot name="header" />
+      </Card>
 
-    <Card>
-      <slot name="default" />
-    </Card>
-  </article>
+      <Card>
+        <slot name="default" />
+      </Card>
+
+      <slot name="footer" />
+    </article>
+
+    <aside v-if="meta.hasAside" :class="styles.enclosed.aside">
+      <Card>
+        <slot name="aside" />
+      </Card>
+
+      <slot name="aside-footer" />
+    </aside>
+  </section>
 </template>
 
 <script lang="ts" setup>
@@ -52,6 +64,8 @@ const meta = computed(() => {
       !isEmptySlot("actions", slots),
     hasHeader: !isEmptySlot("header", slots),
     hasContent: !isEmptySlot("default", slots),
+    hasAside:
+      !isEmptySlot("aside", slots) || !isEmptySlot("aside-footer", slots),
     isMinimal: props.minimal
   };
 });
@@ -68,6 +82,8 @@ const styles = useStyles(
   };
   enclosed: {
     root: string;
+    main: string;
+    aside: string;
   };
 }>;
 </script>
