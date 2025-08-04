@@ -2,7 +2,7 @@
   <Button
     :as="RouterLink"
     variant="outlined"
-    color="secondary"
+    color="primary"
     :class="styles.categories.item.root"
     :aria-label="t('product.category.select', { name })"
     :to="{
