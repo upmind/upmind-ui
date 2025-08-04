@@ -20,7 +20,7 @@
 
     <div :class="styles.full.contentRoot">
       <div :class="styles.full.container">
-        <Section :class="styles.full.main" :title="title">
+        <Section :class="styles.full.main" :title="title" variant="full">
           <slot name="default" />
         </Section>
 
@@ -29,6 +29,7 @@
           :class="styles.full.aside"
           v-if="meta.hasAside"
           :title="asideTitle"
+          variant="full"
         >
           <slot name="aside" />
           <slot name="aside-footer" />
@@ -62,6 +63,7 @@ const slots = useSlots();
 
 const meta = computed(() => {
   return {
+    variant: "full",
     hasHeader: !isEmptySlot("header", slots),
     hasContent: !isEmptySlot("default", slots),
     isMinimal: props.minimal,

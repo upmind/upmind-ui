@@ -7,26 +7,29 @@
 </template>
 
 <script setup lang="ts">
+// --- external
+import { computed } from "vue";
+
 // --- internal
 import { cn, useStyles } from "../../utils";
 import config from "./layout.config";
 
 // --- types
 import { type ComputedRef } from "vue";
+import { type SectionProps } from "./types";
 
 // -----------------------------------------------------------------------------
-const props = withDefaults(
-  defineProps<{
-    title?: string;
-    as?: string;
-    class?: string;
-  }>(),
-  {
-    as: "section"
-  }
-);
+const props = withDefaults(defineProps<SectionProps>(), {
+  as: "section"
+});
 
-const styles = useStyles("section", {}, config) as ComputedRef<{
+const meta = computed(() => {
+  return {
+    variant: props.variant
+  };
+});
+
+const styles = useStyles("section", meta, config) as ComputedRef<{
   section: {
     root: string;
     title: string;

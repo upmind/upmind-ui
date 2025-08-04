@@ -49,6 +49,13 @@ export default {
 
   section: {
     root: cva("flex flex-col gap-3"),
-    title: cva("w-full border-b pb-3 text-xl")
+    title: cva("text-emphasis-medium w-full text-xl", {
+      variants: {
+        variant: {
+          full: "border-b pb-3",
+          enclosed: ""
+        }
+      }
+    })
   }
 };

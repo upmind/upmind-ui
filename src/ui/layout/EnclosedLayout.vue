@@ -18,9 +18,11 @@
         <slot name="header" />
       </Card>
 
-      <Card>
-        <slot name="default" />
-      </Card>
+      <Section :title="title" variant="enclosed">
+        <Card>
+          <slot name="default" />
+        </Card>
+      </Section>
 
       <slot name="footer" />
     </article>
@@ -38,6 +40,7 @@
 <script lang="ts" setup>
 // --- components
 import Card from "../card/Card.ce.vue";
+import Section from "./Section.vue";
 
 // --- internal
 import { cn, useStyles } from "../../utils";
@@ -58,6 +61,7 @@ const slots = useSlots();
 
 const meta = computed(() => {
   return {
+    variant: "enclosed",
     hasControls:
       !isEmptySlot("controls", slots) ||
       !isEmptySlot("navigation", slots) ||
