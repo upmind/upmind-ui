@@ -153,7 +153,7 @@ export default createMachine(
       }),
 
       clear: () => {
-        const actor = getCookie("upm_actor", value => JSON.parse(atob(value)));
+        const actor = getCookie("upm_actor");
 
         // if there is an actor, we need to clear the user data and update the data layer
         if (actor) {
