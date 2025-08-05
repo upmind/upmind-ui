@@ -24,10 +24,6 @@ export const rootVariants = cva(
         control:
           "border bg-control !text-control-foreground ring-offset-background"
       },
-      focusable: {
-        true: `${ringClasses} ${invalidRingClasses}`,
-        false: "outline-none focus:outline-none focus:ring-0"
-      },
       color: {
         base: "",
         primary: "!ring-primary",
@@ -40,18 +36,21 @@ export const rootVariants = cva(
         error: "!ring-error",
         warning: "!ring-warning"
       },
-      block: {
+      isFocusable: {
+        true: `${ringClasses} ${invalidRingClasses}`,
+        false: "outline-none focus:outline-none focus:ring-0"
+      },
+      isBlock: {
         true: "w-full basis-full"
       },
-      loading: {
+      isLoading: {
         true: "pointer-events-none [&>:not(.spinner)]:opacity-50"
       },
-      pill: {
+      isPill: {
         true: "rounded-pill",
         false: "rounded"
       }
     },
-
     compoundVariants: [
       //  --- flat
       {
@@ -334,12 +333,13 @@ export const rootVariants = cva(
     ],
 
     defaultVariants: {
-      block: false,
       variant: "flat",
       color: "base",
       size: "md",
-      loading: false,
-      pill: false
+      isFocusable: true,
+      isBlock: false,
+      isLoading: false,
+      isPill: false
     }
   }
 );

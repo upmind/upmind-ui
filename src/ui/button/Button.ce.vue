@@ -4,8 +4,8 @@
     :to="to"
     :href="href"
     :type="type"
-    :disabled="disabled || loading"
-    :tabindex="focusable ? '0' : '-1'"
+    :disabled="meta.isDisbled || meta.isLoading"
+    :tabindex="meta.isFocusable ? '0' : '-1'"
     :class="cn(styles.button.root, props.class)"
     :data-testid="`button-${kebabCase(label ?? 'default')}`"
     @click="$emit('click', $event)"
@@ -77,11 +77,11 @@ const meta = computed(() => ({
   size: props.size,
   variant: props.variant,
   color: props.color,
-  block: props.block,
-  disabled: props.disabled,
-  loading: props.loading,
-  focusable: props.focusable,
-  pill: props.pill
+  isPill: props.pill,
+  isBlock: props.block,
+  isDisbled: props.disabled,
+  isLoading: props.loading,
+  isFocusable: props.focusable
 }));
 
 const styles = useStyles(
