@@ -41,6 +41,7 @@ const updateContentHeight = (entries: readonly ResizeObserverEntry[]) => {
         props.contentClass
       )
     "
+    data-testid="accordion-content"
   >
     <div
       v-resize-observer="updateContentHeight"

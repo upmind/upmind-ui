@@ -29,6 +29,7 @@ const delegatedProps = computed(() => {
           props.class
         )
       "
+      data-testid="accordion-trigger"
     >
       <slot />
       <slot name="icon">
