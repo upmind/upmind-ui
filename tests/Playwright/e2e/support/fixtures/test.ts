@@ -1,9 +1,11 @@
-import { test as base, Page, BrowserContext } from "@playwright/test";
+import { test as base, BrowserContext, Page } from "@playwright/test";
 
-export const test = base.extend<{
+type TestFixtures = {
   context: BrowserContext;
   page: Page;
-}>({
+};
+
+export const test = base.extend<TestFixtures>({
   context: async ({ browser }, use) => {
     const context = await browser.newContext();
     await use(context);
