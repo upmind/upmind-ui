@@ -47,47 +47,19 @@ export class Checkout {
     await this.saveDetails.click();
   }
 
-  async inputStripeDetails(
-    cardNumber: string,
-    expiryDate: string,
-    cvcCode: string
-  ) {
-    await this.page.click('button:has-text("Stripe Payment")');
-    const stripeFrame = await this.getStripeIframe();
-    await stripeFrame.fill('input[name="number"]', `${cardNumber}`);
-    await stripeFrame.fill('input[name="expiry"]', `${expiryDate}`);
-    await stripeFrame.fill('input[name="cvc"]', `${cvcCode}`);
-    await stripeFrame.fill('input[name="postalCode"]', "SW1A 2AB");
+  async selectPaymentMethod(method: string) {
+    const button = this.page.locator("button", {
+      has: this.page.locator("h5", { hasText: method })
+    });
+    await button.click();
   }
 
-  async payWithExistingMethod() {
-    const placeOrderButton = this.page.locator(
-      'button:has-text("Place order and pay")'
-    );
-    await placeOrderButton.waitFor({ state: "attached" });
-    await expect(placeOrderButton).toBeEnabled();
-
-    await placeOrderButton.click();
-  }
-
-  async payWithStripeCard(
-    cardNumber: string,
-    expiryDate: string,
-    cvcCode: string
-  ) {
-    await this.page.click('button:has-text("Stripe Payment")');
-    const stripeFrame = await this.getStripeIframe();
-    await stripeFrame.fill('input[name="number"]', `${cardNumber}`);
-    await stripeFrame.fill('input[name="expiry"]', `${expiryDate}`);
-    await stripeFrame.fill('input[name="cvc"]', `${cvcCode}`);
-    await stripeFrame.fill('input[name="postalCode"]', "SW1A 2AB");
-
+  async clickPlaceOrderButton() {
     const placeOrderButton = this.page.getByTestId(
       "button-place-order-and-pay"
     );
     await placeOrderButton.waitFor({ state: "attached" });
     await expect(placeOrderButton).toBeEnabled();
-
     await placeOrderButton.click();
   }
 
@@ -100,32 +72,36 @@ export class Checkout {
     return frame;
   }
 
-  async payWithOfflinePayment() {
-    await this.page.click('button:has-text("Offline Payment")');
-    const placeOrderButton = this.page.getByTestId("button-place-order");
-    await placeOrderButton.waitFor({ state: "attached" });
-    await expect(placeOrderButton).toBeEnabled();
-
-    await placeOrderButton.click();
+  async inputStripeDetails(
+    cardNumber: string,
+    expiryDate: string,
+    cvcCode: string
+  ) {
+    const stripeFrame = await this.getStripeIframe();
+    await stripeFrame.fill('input[name="number"]', `${cardNumber}`);
+    await stripeFrame.fill('input[name="expiry"]', `${expiryDate}`);
+    await stripeFrame.fill('input[name="cvc"]', `${cvcCode}`);
+    await stripeFrame.fill('input[name="postalCode"]', "SW1A 2AB");
   }
 
-  async payWithBankTransfer() {
-    await this.page.click('button:has-text("Direct Bank Transfer")');
-    const placeOrderButton = this.page.getByTestId("button-place-order");
-    await placeOrderButton.waitFor({ state: "attached" });
-    await expect(placeOrderButton).toBeEnabled();
+  // async payWithStripeCard(
+  //   cardNumber: string,
+  //   expiryDate: string,
+  //   cvcCode: string
+  // ) {
+  //   await this.page.click('button:has-text("Stripe Payment")');
+  //   const stripeFrame = await this.getStripeIframe();
+  //   await stripeFrame.fill('input[name="number"]', `${cardNumber}`);
+  //   await stripeFrame.fill('input[name="expiry"]', `${expiryDate}`);
+  //   await stripeFrame.fill('input[name="cvc"]', `${cvcCode}`);
+  //   await stripeFrame.fill('input[name="postalCode"]', "SW1A 2AB");
 
-    await placeOrderButton.click();
-  }
+  //   const placeOrderButton = this.page.getByTestId(
+  //     "button-place-order-and-pay"
+  //   );
+  //   await placeOrderButton.waitFor({ state: "attached" });
+  //   await expect(placeOrderButton).toBeEnabled();
 
-  async payWithMicropayment() {
-    await this.page.click('button:has-text("Micropayments")');
-    const placeOrderButton = this.page.getByTestId(
-      "button-place-order-and-pay"
-    );
-    await placeOrderButton.waitFor({ state: "attached" });
-    await expect(placeOrderButton).toBeEnabled();
-
-    await placeOrderButton.click();
-  }
+  //   await placeOrderButton.click();
+  // }
 }

@@ -260,6 +260,7 @@ export class ProductConfig {
   }
 
   async clickBillingTerm(option: number) {
+    await this.billingTerms.waitFor();
     const term = this.billingTerms.locator(
       this.radioButtons.radioOption.nth(option)
     );

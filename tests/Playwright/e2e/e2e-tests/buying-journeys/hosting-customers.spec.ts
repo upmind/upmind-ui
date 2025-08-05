@@ -38,7 +38,8 @@ test.describe("Hosting customers", async () => {
       );
       await addProductToBasket();
       await basket.proceedToCheckout.click();
-      await checkout.payWithExistingMethod();
+      await checkout.selectPaymentMethod("Direct Bank Transfer");
+      await page.getByTestId("button-place-order").click();
       await expect(page.getByRole("dialog")).toContainText(
         "Converting your order"
       );
@@ -55,7 +56,8 @@ test.describe("Hosting customers", async () => {
         Logins.checkoutUser.username,
         Logins.checkoutUser.password
       );
-      await checkout.payWithExistingMethod();
+      await checkout.selectPaymentMethod("Direct Bank Transfer");
+      await page.getByTestId("button-place-order").click();
       await expect(page.getByRole("dialog")).toContainText(
         "Converting your order"
       );
@@ -77,7 +79,8 @@ test.describe("Hosting customers", async () => {
         "HU15 1EG",
         "07111111111"
       );
-      await checkout.payWithBankTransfer();
+      await checkout.selectPaymentMethod("Direct Bank Transfer");
+      await page.getByTestId("button-place-order").click();
       await expect(page.getByRole("dialog")).toContainText(
         "Converting your order"
       );
