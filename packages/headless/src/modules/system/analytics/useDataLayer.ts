@@ -111,9 +111,7 @@ class TrackingEvent {
     const { get: getCookie } = useCookies();
 
     let payload = {};
-    const storedActor = getCookie("upm_actor", value =>
-      JSON.parse(atob(value))
-    ) as DataLayerUser;
+    const storedActor = getCookie("upm_actor") as DataLayerUser;
 
     if (!isEmpty(storedActor)) {
       payload = storedActor;
