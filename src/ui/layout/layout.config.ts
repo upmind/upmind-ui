@@ -17,8 +17,8 @@ export default {
   },
 
   enclosed: {
-    root: cva("max-w-app mx-auto flex w-full gap-9 py-[72px]"),
-    main: cva("flex w-full flex-col gap-6"),
+    root: cva("max-w-app mx-auto flex w-full flex-col gap-6 py-[72px]"),
+    main: cva("flex w-full gap-6"),
     controlsRoot: cva("w-full border-b bg-base-background py-4"),
     controls: cva("max-w-app mx-auto"),
     aside: cva("w-full max-w-md")
@@ -26,7 +26,7 @@ export default {
 
   full: {
     root: cva("mx-auto w-full flex-wrap items-start justify-start"),
-    header: cva("max-w-app mx-auto px-[10px]", {
+    header: cva("max-w-app mx-auto", {
       variants: {
         isMinimal: {
           true: "py-[72px]",
@@ -34,15 +34,19 @@ export default {
         }
       }
     }),
-    contentRoot: cva("px-[10px] py-24", {
+    contentRoot: cva("px-[10px]", {
       variants: {
+        isMinimal: {
+          true: "py-[72px]",
+          false: "py-24"
+        },
         hasHeader: {
           true: "bg-base-background",
           false: ""
         }
       }
     }),
-    container: cva("max-w-app mx-auto flex w-full gap-12"),
+    container: cva("max-w-app mx-auto flex w-full gap-14"),
     aside: cva("w-full max-w-md"),
     main: cva("w-full")
   },

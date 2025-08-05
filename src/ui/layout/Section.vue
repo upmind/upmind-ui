@@ -2,13 +2,20 @@
   <component :is="as" :class="cn(styles.section.root, props.class)">
     <h4 v-if="title" :class="styles.section.title">{{ title }}</h4>
 
-    <slot name="default" />
+    <Card v-if="meta.hasCard">
+      <slot name="default" />
+    </Card>
+
+    <slot v-else name="default" />
   </component>
 </template>
 
 <script setup lang="ts">
 // --- external
 import { computed } from "vue";
+
+// --- components
+import Card from "../card/Card.ce.vue";
 
 // --- internal
 import { cn, useStyles } from "../../utils";
@@ -25,7 +32,8 @@ const props = withDefaults(defineProps<SectionProps>(), {
 
 const meta = computed(() => {
   return {
-    variant: props.variant
+    variant: props.variant,
+    hasCard: props.variant === "enclosed"
   };
 });
 
