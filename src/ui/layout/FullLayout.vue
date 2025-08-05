@@ -13,27 +13,21 @@
     </nav>
   </div>
 
-  <article :class="cn(styles.full.root, props.class)">
-    <Section :class="styles.full.header" v-if="meta.hasHeader">
+  <article :class="styles.full.root">
+    <header :class="styles.full.header" v-if="meta.hasHeader">
       <slot name="header" />
-    </Section>
+    </header>
 
     <div :class="styles.full.contentRoot">
       <div :class="styles.full.container">
-        <Section :class="styles.full.main" :title="title" variant="full">
+        <main :class="styles.full.main">
           <slot name="default" />
-        </Section>
+        </main>
 
-        <Section
-          as="aside"
-          :class="styles.full.aside"
-          v-if="meta.hasAside"
-          :title="asideTitle"
-          variant="full"
-        >
+        <aside :class="styles.full.aside" v-if="meta.hasAside">
           <slot name="aside" />
           <slot name="aside-footer" />
-        </Section>
+        </aside>
       </div>
     </div>
   </article>
@@ -41,11 +35,8 @@
 
 <script lang="ts" setup>
 // --- internal
-import { cn, useStyles } from "../../utils";
+import { useStyles } from "../../utils";
 import config from "./layout.config";
-
-// --- components
-import Section from "./Section.vue";
 
 // --- utils
 import { isEmptySlot } from "./utils";

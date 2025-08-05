@@ -12,35 +12,29 @@
     </nav>
   </div>
 
-  <section :class="cn(styles.enclosed.root, props.class)">
+  <section :class="styles.enclosed.root">
+    <Card v-if="meta.hasHeader" as="header">
+      <slot name="header" />
+    </Card>
+
     <article :class="styles.enclosed.main">
-      <Card v-if="meta.hasHeader" as="header">
-        <slot name="header" />
-      </Card>
+      <main class="w-full">
+        <slot name="default" />
+        <slot name="footer" />
+      </main>
 
-      <Section :title="title" variant="enclosed">
-        <Card>
-          <slot name="default" />
-        </Card>
-      </Section>
-
-      <slot name="footer" />
-    </article>
-
-    <aside v-if="meta.hasAside" :class="styles.enclosed.aside">
-      <Card>
+      <aside v-if="meta.hasAside" :class="styles.enclosed.aside">
         <slot name="aside" />
-      </Card>
 
-      <slot name="aside-footer" />
-    </aside>
+        <slot name="aside-footer" />
+      </aside>
+    </article>
   </section>
 </template>
 
 <script lang="ts" setup>
 // --- components
 import Card from "../card/Card.ce.vue";
-import Section from "./Section.vue";
 
 // --- internal
 import { cn, useStyles } from "../../utils";
