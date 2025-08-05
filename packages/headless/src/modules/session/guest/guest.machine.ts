@@ -400,7 +400,7 @@ export default createMachine(
           let error = mapToHeadlessError(data);
 
           if (error?.status == responseCodes.Unauthorized) {
-            error.message ??= "Unauthorised";
+            error.message ??= "Unauthorized";
           }
 
           if (error?.status == responseCodes.Unprocessable_Entity) {

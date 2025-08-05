@@ -6,7 +6,7 @@ import services from "./services";
 import { basketSubscription } from "../basketProduct/helper";
 
 // --utils
-import { mapToHeadlessError, useTime } from "../../utils";
+import { mapToHeadlessError, responseCodes, useTime } from "../../utils";
 import {
   parseSubproductDetails,
   parseProvisioningSchema,
@@ -82,10 +82,16 @@ export default createMachine(
               actions: ["setLookups"]
             }
           ],
-          onError: {
-            target: "error",
-            actions: "setError"
-          }
+          onError: [
+            {
+              target: "subscribing",
+              cond: "isUnauthorized"
+            },
+            {
+              target: "error",
+              actions: "setError"
+            }
+          ]
         }
       },
 
@@ -640,6 +646,7 @@ export default createMachine(
         { data }: AnyEventObject
       ) => {
         //  NB: data is raw basket data so use snake_case for comparison
+
         const clientChanged = clientId == data?.client_id!;
         const basketChanged = basketId !== data?.id;
         const currencyChanged = currencyId !== data?.currency_id;
@@ -675,6 +682,16 @@ export default createMachine(
         // if we are silent or editing, then we are not bundled
         if (silent || !isEmpty(rawBasketProduct)) return false;
         return !isEmpty(lookups?.bundled);
+      },
+
+      isUnauthorized: (
+        _context: ProductConfigContext,
+        { data }: AnyEventObject
+      ) => {
+        // if we are not authorised,( ie our token is regenerated) then we should reset the machine
+        // this is used to handle the case where the token has expired and cant be refreshed
+        const error = mapToHeadlessError(data);
+        return error?.code === responseCodes.Unauthorized;
       }
     },
     delays: {

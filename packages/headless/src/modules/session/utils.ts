@@ -58,14 +58,10 @@ export function getTokenFromStorage(actor_type?: Token["actor_type"]) {
   // this is a one-time operation to migrate from localStorage to cookies
   convertToCookie();
 
-  const clientCookie = getCookie("upm_client_session", value => {
-    return atob(value);
-  }) as string | undefined;
+  const clientCookie = getCookie("upm_client_session") as string | undefined;
 
   // const guestToken = localStorage.getItem(`guest/auth/token`);
-  const guestCookie = getCookie("upm_guest_session", value => {
-    return atob(value);
-  }) as string | undefined;
+  const guestCookie = getCookie("upm_guest_session") as string | undefined;
 
   let token: string | Token;
 
