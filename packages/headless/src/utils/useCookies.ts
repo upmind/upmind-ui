@@ -1,5 +1,10 @@
 // ---  external
 import { isEnabled, getCookie, setCookie, removeCookie } from "tiny-cookie";
+
+// --- internal
+import useUpmind from "../index";
+
+// --- utils
 import { isEmpty, set } from "lodash-es";
 
 // --- types
@@ -21,6 +26,18 @@ export function useCookies() {
   const domain = window.location.hostname;
   const topLevelDomain = getTopLevelDomain(window.location.href);
 
+  function isBase64Encoded(str: string): boolean {
+    try {
+      // Attempt to decode the string
+      atob(str);
+      // If decoding succeeds, it's likely Base64 encoded
+      return true;
+    } catch (e) {
+      // If an error occurs (e.g., InvalidCharacterError), it's not valid Base64
+      return false;
+    }
+  }
+
   function getTopLevelDomain(url: string) {
     const urlParts = new URL(url).hostname.split(".");
 
@@ -31,13 +48,15 @@ export function useCookies() {
   }
 
   // NB by default we always use JSON parse/strigify and base64 encoding to encode/decode the cookie value
-  const defaultEncoder = (value: any) => btoa(JSON.stringify(value));
-  const defaultDencoder = (value: string) => JSON.parse(atob(value));
+  const defaultEncoder = (value: any) =>
+    useUpmind.debug ? JSON.stringify(value) : btoa(JSON.stringify(value));
+  const defaultDecoder = (value: string) =>
+    JSON.parse(isBase64Encoded(value) ? atob(value) : value);
 
   return {
     get: (
       key: string,
-      encoder: Encoder<any> = defaultDencoder
+      encoder: Encoder<any> = defaultDecoder
     ): string | Record<string, any> | null => getCookie(key, encoder),
     set: (
       key: string,
