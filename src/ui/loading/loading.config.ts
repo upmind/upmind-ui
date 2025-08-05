@@ -7,7 +7,7 @@ export const loadingVariants = cva();
 // -----------------------------------------------------------------------------
 export default {
   loading: {
-    root: cva("z-50 flex items-center justify-center text-secondary", {
+    root: cva("z-50 flex w-full items-center justify-center text-secondary", {
       variants: {
         skrim: {
           light: "bg-white/75",
