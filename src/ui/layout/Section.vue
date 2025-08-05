@@ -1,13 +1,10 @@
 <template>
-  <component :is="as" :class="cn(styles.section.root, props.class)">
+  <div :class="styles.section.root">
     <h4 v-if="title" :class="styles.section.title">{{ title }}</h4>
-
-    <Card v-if="meta.hasCard">
+    <component :is="component" :class="cn(styles.section.content, props.class)">
       <slot name="default" />
-    </Card>
-
-    <slot v-else name="default" />
-  </component>
+    </component>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -32,15 +29,23 @@ const props = withDefaults(defineProps<SectionProps>(), {
 
 const meta = computed(() => {
   return {
-    variant: props.variant,
-    hasCard: props.variant === "enclosed"
+    variant: props.variant
   };
+});
+
+const component = computed(() => {
+  if (props.variant === "enclosed" && props.as === "section") {
+    return Card;
+  }
+
+  return props.as;
 });
 
 const styles = useStyles("section", meta, config) as ComputedRef<{
   section: {
     root: string;
     title: string;
+    content: string;
   };
 }>;
 </script>

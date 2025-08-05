@@ -53,7 +53,8 @@ export default {
   },
 
   section: {
-    root: cva("flex flex-col gap-3"),
+    root: cva("flex w-full flex-col gap-3"),
+    content: cva("flex w-full flex-col gap-3"),
     title: cva("text-emphasis-medium w-full text-xl", {
       variants: {
         variant: {
