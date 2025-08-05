@@ -2,13 +2,15 @@
   <!-- Router link -->
 
   <component
-    :is="props.is ? props.is : to ? 'router-link' : 'a'"
+    :is="
+      props.disabled ? 'span' : props.is ? props.is : to ? 'router-link' : 'a'
+    "
     :to="to"
     :href="href"
     :tabindex="props.focusable ? 0 : -1"
     :class="cn(styles.link.root, props.class)"
-    :aria-disabled="disabled"
-    :data-disabled="disabled"
+    :aria-disabled="props.disabled"
+    :data-disabled="props.disabled"
     @click="doAction"
     @keydown.enter="doAction"
     :data-testid="`${kebabCase(props.label)}-link`"

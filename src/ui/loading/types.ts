@@ -6,6 +6,7 @@ export type SpinnerVariantProps = VariantProps<typeof spinnerVariants>;
 export interface LoadingProps {
   active?: boolean;
   size?: SpinnerVariantProps["size"] | string;
-  class?: HTMLAttributes["class"];
   skrim?: "light" | "full";
+  class?: HTMLAttributes["class"];
+  classActive?: HTMLAttributes["class"];
 }

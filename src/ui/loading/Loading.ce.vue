@@ -1,5 +1,5 @@
 <template>
-  <div class="relative w-full">
+  <div class="relative w-full" :class="props.class">
     <slot></slot>
     <Transition
       enter-active-class="transition-opacity duration-300 ease-in-out"
@@ -12,7 +12,7 @@
         :class="[
           styles.loading.root,
           !hasSlotContent ? 'fixed inset-0' : 'absolute inset-0',
-          props.class
+          props.classActive
         ]"
       >
         <Spinner :size="size" />
