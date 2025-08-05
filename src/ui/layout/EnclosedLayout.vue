@@ -17,8 +17,8 @@
       <slot name="header" />
     </Card>
 
-    <article :class="styles.enclosed.main">
-      <main class="w-full">
+    <article :class="styles.enclosed.content">
+      <main :class="styles.enclosed.main">
         <slot name="default" />
         <slot name="footer" />
       </main>
@@ -81,6 +81,7 @@ const styles = useStyles(
   enclosed: {
     root: string;
     main: string;
+    content: string;
     aside: string;
   };
 }>;

@@ -18,7 +18,7 @@
       <slot name="header" />
     </header>
 
-    <div :class="styles.full.contentRoot">
+    <div :class="styles.full.content">
       <div :class="styles.full.container">
         <main :class="styles.full.main">
           <slot name="default" />
@@ -81,7 +81,6 @@ const styles = useStyles(
     controlsRoot: string;
     controls: string;
     header: string;
-    contentRoot: string;
     content: string;
     aside: string;
     container: string;
