@@ -20,7 +20,8 @@ import {
   isEqual,
   map,
   isFunction,
-  isEmpty
+  isEmpty,
+  isObject
 } from "lodash-es";
 
 // --- types
@@ -45,15 +46,20 @@ export const useUpmindUIRenderer = <
 
   // --- utils
   function getErrors() {
-    if (!jsonforms) return [];
+    if (!jsonforms?.core) return [];
 
     const errors = getErrorAt(
       input.control.value.path,
       input.control.value.rootSchema
-    )({ jsonforms });
+    )({
+      jsonforms: {
+        ...jsonforms,
+        core: { ...jsonforms.core, validationMode: "ValidateAndShow" } //NB force validation mode so we always get all errors
+      }
+    });
 
     if (
-      input.control.value.schema.type == "object" ||
+      isObject(input.control.value.schema.type) ||
       !isEmpty(input.control.value.schema?.properties)
     ) {
       const resolvedSchema = Resolve.schema(

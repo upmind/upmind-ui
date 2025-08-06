@@ -35,7 +35,7 @@
         </div>
       </FormControl>
 
-      <div class="w-full space-y-1 leading-none" v-auto-animate>
+      <div class="w-full space-y-1 leading-none">
         <!-- validation messages -->
         <FormMessage
           v-if="!!control.errors"
