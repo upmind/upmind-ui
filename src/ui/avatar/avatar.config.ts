@@ -40,7 +40,10 @@ export const avatarVariants = cva(
         lg: "size-12",
         xl: "size-14",
         "2xl": "size-16",
-        "3xl": "size-20"
+        "3xl": "size-20",
+        "4xl": "size-24",
+        "5xl": "size-28",
+        "6xl": "size-32"
       },
       shape: {
         color: "base",
