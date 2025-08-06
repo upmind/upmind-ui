@@ -107,11 +107,13 @@ export const useProductConfig = (service: ActorRef<any>) => {
       stateMatches(state, ["error", "available.invalid", "available.error"]) ||
       contextMatches(state, ["error"]),
 
-    isConfigurable: contextMatches(state, [
-      "lookups.attributes",
-      "lookups.options",
-      "lookups.provisionFields.properties"
-    ]),
+    isConfigurable:
+      terms.value?.length > 1 ||
+      contextMatches(state, [
+        "lookups.attributes",
+        "lookups.options",
+        "lookups.provisionFields.properties"
+      ]),
     isInvalid: stateMatches(state, ["available.invalid"]),
     isCalculating: contextMatches(state, ["lookups.prices.calculating"]),
     isProcessing: stateMatches(state, ["refreshing", "processing"]),

@@ -12,7 +12,7 @@
       />
       <div class="flex items-center justify-between">
         <div class="flex w-full items-center gap-x-3">
-          <router-link
+          <Link
             v-if="primary && productDetails.imgUrl"
             :to="editLink"
             :class="styles.product.summary.imageRoute"
@@ -21,7 +21,7 @@
               :src="productDetails.imgUrl"
               :class="styles.product.summary.image"
             />
-          </router-link>
+          </Link>
 
           <div class="flex w-full flex-col gap-y-1">
             <div class="flex items-end justify-between">

@@ -1,5 +1,5 @@
 <template>
-  <Loading :active="meta.isProcessing" class="w-full rounded-lg">
+  <Loading :active="meta.isProcessing" class-active="w-full rounded-lg">
     <Tabs
       :as="props.as"
       class="min-h-56"
