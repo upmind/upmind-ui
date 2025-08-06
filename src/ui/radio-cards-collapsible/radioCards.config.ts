@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 import { ringClasses } from "../../assets/styles";
 
 export const itemVariants = cva(
-  `group rounded-lg bg-control text-control-foreground transition-all duration-200 ${ringClasses}`,
+  `group rounded bg-control text-control-foreground transition-all duration-200 ${ringClasses}`,
   {
     variants: {
       isMinimal: {
@@ -49,7 +49,7 @@ export default {
     item: itemVariants,
     radio: cva("flex h-full items-start pr-2.5"),
     label: cva(
-      "m-0 flex h-full w-full min-w-0 cursor-pointer items-start rounded-lg text-md font-medium leading-snug peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+      "m-0 flex h-full w-full min-w-0 cursor-pointer items-start rounded text-md font-medium leading-snug peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
       {
         variants: {
           isMinimal: {

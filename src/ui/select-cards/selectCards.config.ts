@@ -24,11 +24,11 @@ export const triggerVariants = cva(
 );
 
 export const itemVariants = cva(
-  "hover:bg-control-active-focus focus:bg-control-active-focus m-0 flex h-full w-full cursor-pointer items-start space-x-2 rounded-lg px-3 py-2 text-md font-medium leading-none first:rounded-t-md last:rounded-b-md last:border-b-0 focus:outline-none"
+  "hover:bg-control-active-focus focus:bg-control-active-focus m-0 flex h-full w-full cursor-pointer items-start space-x-2 rounded px-3 py-2 text-md font-medium leading-none first:rounded-t-md last:rounded-b-md last:border-b-0 focus:outline-none"
 );
 
 export const contentVariants = cva(
-  `bg-control-background ${ringClasses} ${invalidRingClasses} mt-2 flex max-h-72 !w-[--radix-dropdown-menu-trigger-width] flex-col overflow-hidden overflow-y-scroll rounded-lg border border-control p-1`,
+  `bg-control-background ${ringClasses} ${invalidRingClasses} mt-2 flex max-h-72 !w-[--radix-dropdown-menu-trigger-width] flex-col overflow-hidden overflow-y-scroll rounded border border-control p-1`,
   {
     variants: {
       width: {
@@ -50,7 +50,7 @@ export const contentVariants = cva(
 );
 
 const groupVariants = cva(
-  `${ringClasses} ${invalidRingClasses} w-full rounded-lg transition-all duration-200`
+  `${ringClasses} ${invalidRingClasses} w-full rounded transition-all duration-200`
 );
 
 export default {
