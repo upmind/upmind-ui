@@ -60,7 +60,7 @@ export default {
       }
     ),
     input: cva(
-      `group-hover:border-control-strong ml-4 mt-[0.1rem] border-control leading-normal ring-offset-2 [transition:border-color_200ms_ease-in-out] ${ringClasses}`
+      `group-hover:border-control-strong mt-[0.1rem] border-control leading-normal ring-offset-2 [transition:border-color_200ms_ease-in-out] ${ringClasses}`
     )
   }
 };

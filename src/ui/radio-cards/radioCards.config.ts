@@ -48,12 +48,12 @@ export default {
   radioCards: {
     root: rootVariants,
     item: itemVariants,
-    radio: cva("flex h-full items-start pr-2.5"),
+    radio: cva("size-[1lh]"),
     label: cva(
-      "m-0 flex h-full w-full min-w-0 cursor-pointer items-start rounded py-3.5 pr-4 text-md font-medium leading-snug peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+      "m-0 flex h-full w-full min-w-0 cursor-pointer items-start rounded px-4 py-2 text-md font-medium leading-snug peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
     ),
     input: cva(
-      `group-hover:border-control-strong ml-4 mt-[0.1rem] border-control leading-normal ring-offset-2 [transition:border-color_200ms_ease-in-out] ${ringClasses}`
+      `group-hover:border-control-strong mt-[0.1rem] border-control leading-normal ring-offset-2 [transition:border-color_200ms_ease-in-out] ${ringClasses}`
     )
   }
 };
