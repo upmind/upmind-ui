@@ -36,6 +36,7 @@
           :color="color"
           v-bind="action"
           @click="doAction(action, $event as MouseEvent)"
+          pill
         />
       </slot>
     </div>
