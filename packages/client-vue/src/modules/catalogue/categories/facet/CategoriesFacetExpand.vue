@@ -1,6 +1,6 @@
 <template>
   <Button
-    as="router-link"
+    :as="RouterLink"
     v-for="(category, index) in items"
     :key="`category-${index}`"
     :to="category.to"
@@ -24,6 +24,7 @@
 <script setup lang="ts">
 // --- external
 import { computed } from "vue";
+import { RouterLink } from "vue-router";
 
 // --- internal
 import { ROUTE, useProductCategories } from "@upmind-automation/headless";

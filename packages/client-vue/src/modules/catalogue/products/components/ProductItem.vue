@@ -2,21 +2,39 @@
   <div :class="styles.products.item.root">
     <div :class="styles.products.item.content">
       <div class="relative">
-        <router-link :to="addLink" tabindex="-1">
+        <Link
+          :to="{
+            name: ROUTE.PRODUCT_ADD,
+            params: {
+              pid: props.id
+            },
+            query: {
+              force: 'true', // ensure we always add the product, even if it exists in the basket
+              navigateOnly: 'true' // this is used to prevent the product from being added to the basket when clicking on the image
+            }
+          }"
+          :handler="handleClick"
+          :loading="processing"
+          :disabled="processing"
+          tabindex="-1"
+          class="w-full"
+        >
           <img
             v-if="productDetails?.imgUrl && !imageError"
             :src="productDetails?.imgUrl"
             :alt="productDetails?.title"
             :class="styles.products.item.image"
-            @error="imageError = true" />
+            @error="imageError = true"
+          />
 
           <div v-else :class="styles.products.item.imagePlaceholder">
             <Icon
               icon="camera"
               size="xl"
               :class="styles.products.item.placeholderIcon"
-            /></div
-        ></router-link>
+            />
+          </div>
+        </Link>
 
         <div class="absolute -right-3 top-3/4">
           <Promotion
@@ -48,18 +66,33 @@
         </p>
 
         <div :class="styles.products.item.buttonContainer">
-          <router-link :to="addLink" tabindex="-1">
-            <Button color="primary" block>
-              <template #prepend>
-                <Icon
-                  icon="basket-add"
-                  size="2xs"
-                  :class="styles.products.item.buttonIcon"
-                />
-              </template>
-              {{ t("product.basket.add") }}
-            </Button>
-          </router-link>
+          <Button
+            :as="RouterLink"
+            :to="{
+              name: ROUTE.PRODUCT_ADD,
+              params: {
+                pid: props.id
+              },
+              query: {
+                force: 'true' // ensure we always add the product, even if it exists in the basket
+              }
+            }"
+            color="primary"
+            block
+            tabindex="-1"
+            @click="handleClick"
+            :loading="processing"
+            :disabled="processing"
+          >
+            <template #prepend>
+              <Icon
+                icon="basket-add"
+                size="2xs"
+                :class="styles.products.item.buttonIcon"
+              />
+            </template>
+            {{ t("product.basket.add") }}
+          </Button>
         </div>
       </div>
     </div>
@@ -70,13 +103,14 @@
 // --- external
 import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { RouterLink } from "vue-router";
 
 // --- types
-import type { Product } from "@upmind-automation/headless";
+import { ROUTE, type Product } from "@upmind-automation/headless";
 import type { ComputedRef } from "vue";
 
 // --- components
-import { Button, Icon, useStyles } from "@upmind-automation/upmind-ui";
+import { Button, Icon, useStyles, Link } from "@upmind-automation/upmind-ui";
 import Promotion from "../../../basket/product/components/Promotion.vue";
 
 // --- config
@@ -88,19 +122,15 @@ import ProductPriceDescription from "./ProductPriceDescription.vue";
 const props = defineProps<Product>();
 
 const { t } = useI18n();
+const processing = ref(false);
 
 // -----------------------------------------------------------------------------
 
 let imageError = ref(false);
 
-const addLink = computed(() => {
-  return {
-    name: "product.add",
-    params: {
-      pid: props.id
-    }
-  };
-});
+function handleClick(event: Event) {
+  processing.value = true;
+}
 
 const styles = useStyles(
   ["products", "products.item"],
