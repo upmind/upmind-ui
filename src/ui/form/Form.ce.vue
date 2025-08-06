@@ -62,14 +62,12 @@ import { upmindUIRenderers } from "./renderers";
 
 import { useStyles, isDeepEmpty, useValidation } from "../../utils";
 import {
-  includes,
   isEmpty,
   isEqual,
   isFunction,
   isString,
   mapValues,
   merge,
-  set,
   get
 } from "lodash-es";
 import { cn } from "../../utils";
@@ -78,7 +76,6 @@ import { cn } from "../../utils";
 import type { ComputedRef } from "vue";
 import type { JsonFormsChangeEvent } from "@jsonforms/vue";
 import type {
-  JsonFormsI18nState,
   ValidationMode,
   UISchemaElement,
   JsonSchema
@@ -209,7 +206,9 @@ const actions = computed<Record<string, FormActionProps>>(() => {
 
 const mode = computed<ValidationMode>(() => {
   // only show errors if we have interacted with the form
-  return meta.value.isTouched ? "ValidateAndShow" : "ValidateAndHide";
+  return meta.value.isTouched || !isEmpty(props.additionalErrors)
+    ? "ValidateAndShow"
+    : "ValidateAndHide";
 });
 
 // --- methods
