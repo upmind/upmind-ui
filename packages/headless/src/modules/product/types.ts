@@ -389,7 +389,7 @@ export interface ProductConfigContext {
   calculateCallback?: ActorRef<any>;
   // TODO: @DC implement the new response errors types from the API
   error?: ResponseError | ExternalError;
-  errorExternal?: ResponseError | ExternalError;
+  errorExternal?: ExternalError;
   attempts?: number;
   // ---
   rawProduct?: IProduct;
