@@ -349,6 +349,6 @@ export const rootVariants = cva(
 export default {
   button: {
     root: rootVariants,
-    items: cva("flex size-[1lh] items-center justify-center [&>i]:p-[5px]")
+    items: cva("flex size-[1lh] items-center justify-center [&>i]:p-1")
   }
 };
