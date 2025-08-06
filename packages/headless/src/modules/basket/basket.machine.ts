@@ -418,9 +418,9 @@ export default createMachine(
       updateBasket: assign({
         basket: (_context: BasketContext, { data }: AnyEventObject) =>
           parseBasket(data),
-        error: ({ error }: BasketContext, { data }: AnyEventObject) =>
-          mapToHeadlessError(data?.errors),
-        products: (context: BasketContext, { data }: AnyEventObject) => {
+        error: (_context: BasketContext, { data }: AnyEventObject) =>
+          get(data, "errors"),
+        products: (_context: BasketContext, { data }: AnyEventObject) => {
           const basket = parseBasket(data);
           const products = get(basket, "products", []);
           const errors = get(data, "errors");
