@@ -88,7 +88,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
     () => state.value.context?.error.data
   );
   const additionalErrors = computed<Product["errors"]>(
-    () => state.value.context?.errorExternal.data
+    () => state.value.context?.errorExternal
   );
 
   const meta = computed(() => ({

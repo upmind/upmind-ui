@@ -459,28 +459,30 @@ export default createMachine(
         },
 
         errorExternal: (
-          { errorExternal }: ProductConfigContext,
+          { errorExternal, model }: ProductConfigContext,
           { data }: AnyEventObject
         ) => {
+          // Change in Logic...if we have interacted with the product,
+          // we can clear the external errors and let our normal validation handle it
+          return !isEqual(model?.provisionFields, data.model?.provisionFields)
+            ? undefined
+            : errorExternal;
+
+          // DEPRECATED
           // lets parse/override our error message and data, specifically external errors.
           // For any dirty/hydrated field, remove any external error to allow for normal validation
           // Once the external error is removed, we dont ever want to show it again, unless we refresh the product
-          forEach(data.model.provisionFields, (field, key) => {
-            if (
-              !isEmpty(field) ||
-              (!isNil(field) &&
-                isObject(errorExternal) &&
-                "provisionFields" in errorExternal)
-            ) {
-              if (isObject(errorExternal) && "data" in errorExternal) {
-                remove(errorExternal?.data?.provisionFields, [
-                  "propertyName",
-                  key
-                ]);
-              }
-            }
-          });
-          return omitBy(errorExternal, isEmpty) as ExternalError;
+          // forEach(data.model.provisionFields, (field, key) => {
+          //   if (
+          //     !isEmpty(field) ||
+          //     (!isNil(field) &&
+          //       isObject(errorExternal) &&
+          //       !isEmpty(errorExternal?.provisionFields))
+          //   ) {
+          //     remove(errorExternal!.provisionFields!, ["propertyName", key]);
+          //   }
+          // });
+          // return omitBy(errorExternal, isEmpty) as ExternalError;
         }
       }),
 
