@@ -618,7 +618,7 @@ export default createMachine(
         errorExternal: (
           _context: ProductConfigContext,
           { data }: AnyEventObject
-        ) => mapToHeadlessError(data),
+        ) => data,
         error: (_context: ProductConfigContext, { data }: AnyEventObject) =>
           mapToHeadlessError(data)
       }),
