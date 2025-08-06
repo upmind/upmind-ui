@@ -21,7 +21,7 @@
         />
       </FormControl>
 
-      <div class="w-full space-y-1 leading-none" v-auto-animate>
+      <div class="w-full space-y-1 leading-none">
         <div
           class="flex w-full flex-row flex-nowrap items-center justify-between"
         >

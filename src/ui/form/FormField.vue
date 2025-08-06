@@ -2,7 +2,6 @@
   <FormItem
     :formItemId="id"
     v-if="meta.isVisible"
-    v-auto-animate
     :class="cn('flex flex-wrap', props.class)"
     :data-visible="meta.isVisible"
   >
