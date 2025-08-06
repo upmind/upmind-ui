@@ -14,15 +14,15 @@
     </template>
 
     <template v-else>
-      <router-link :to="editLink">
-        <Button
-          variant="link"
-          size="sm"
-          :label="t('product.configureNow')"
-          color="error"
-          class="inline-block h-5 underline"
-        />
-      </router-link>
+      <Button
+        :as="RouterLink"
+        :to="editLink"
+        variant="link"
+        size="sm"
+        :label="t('product.configureNow')"
+        color="error"
+        class="inline-block h-5 underline"
+      />
     </template>
   </div>
 </template>
@@ -30,6 +30,7 @@
 <script lang="ts" setup>
 // --- external
 import { computed } from "vue";
+import { RouterLink } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { Button } from "@upmind-automation/upmind-ui";
 import { some } from "lodash-es";

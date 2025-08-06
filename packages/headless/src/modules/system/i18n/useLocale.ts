@@ -32,7 +32,7 @@ export const useLocale = (defaultLocale: string = "en") => {
 
   // --- state
   const loading = ref<boolean>(true);
-  const locale = ref<string>(defaultLocale);
+  const locale = ref<string>(getLocale());
   // immediately check if the brand is ready and set the locale
 
   async function isReady(): Promise<boolean> {

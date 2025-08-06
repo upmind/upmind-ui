@@ -314,7 +314,6 @@ async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
     })
   ])
     .then(([email, phone, address]) => {
-      debugger;
       return {
         id: data.id,
         addressId: address?.id,
@@ -327,7 +326,6 @@ async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
       };
     })
     .catch(errors => {
-      debugger;
       throw new DetailedError(
         "Ensure Company dependencies failed",
         responseCodes.Unprocessable_Entity,

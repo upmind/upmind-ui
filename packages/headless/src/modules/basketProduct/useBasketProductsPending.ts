@@ -22,7 +22,8 @@ import {
   isEmpty,
   isEqual,
   defaults,
-  isString
+  isString,
+  omitBy
 } from "lodash-es";
 import { DetailedError, ErrorOrigin, useSessionStorage } from "../../utils";
 
@@ -82,7 +83,8 @@ export const useBasketProductsPending = () => {
   ): Promise<UseBasketProductPending> {
     const product = find(
       productsPending,
-      ({ model }) => model.value?.productId === pid
+      ({ model, meta }) =>
+        model.value?.productId === pid && !meta.value?.isComplete
     );
 
     if (isEmpty(product) || force) {
@@ -156,7 +158,8 @@ export const useBasketProductsPending = () => {
 
   async function getProduct(
     pid?: string,
-    sync?: boolean
+    sync?: boolean,
+    force?: boolean
   ): Promise<UseBasketProductPending> {
     const productId = pid || first(keys(productConfigs));
     if (!productId) {
@@ -174,7 +177,7 @@ export const useBasketProductsPending = () => {
     }
 
     const model = get(productConfigs, productId, { productId, quantity: 1 });
-    return ensure(productId, model)
+    return ensure(productId, model, force)
       .then(instance => {
         if (sync) subscribe(productId, instance.service);
         return instance;
@@ -217,6 +220,7 @@ export const useBasketProductsPending = () => {
 
     // remove the product from the pending products storage
     unset(productConfigs, pid);
+
     storage.set("pendingProducts", productConfigs);
   }
 
@@ -227,7 +231,14 @@ export const useBasketProductsPending = () => {
       : get(productsPending, product?.id ?? "");
 
     const pid = get(target, "state.context.model.productId");
+
     if (pid) unsetProduct(pid);
+
+    // NB ensure any complete products are removed from the pending products
+    productsPending = omitBy(
+      productsPending,
+      ({ meta }) => meta.value?.isComplete
+    );
   }
 
   function addMany(configs?: ProductModel[]): void {

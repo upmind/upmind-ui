@@ -223,6 +223,7 @@ class Upmind {
     if (!this.i18n?.instance) return;
 
     const defaultLocale = unref(this.i18n.instance.global.locale);
+
     const locale = useLocale(defaultLocale).locale.value; //TODO: use brand or user locale
 
     // then load our i18n messages from any provided files (globbed)
@@ -230,6 +231,9 @@ class Upmind {
       this.i18n.instance,
       this.i18n.files
     );
+    // NB ALWAYS load the default locale first, so we can use it as a fallback
+    loadLocaleMessages(defaultLocale);
+    // then load the locale we want to use
     loadLocaleMessages(locale);
     setLocale(locale);
   }
