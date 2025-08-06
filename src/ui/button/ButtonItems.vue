@@ -1,6 +1,6 @@
 <template>
   <span v-if="icon || avatar" :class="styles.button.items">
-    <Icon v-if="icon" :icon="icon" size="2xs" />
+    <Icon v-if="icon" :icon="icon" size="auto" :aria-checked="checked" />
     <Avatar v-if="avatar" :icon="avatar" size="2xs" />
   </span>
 </template>

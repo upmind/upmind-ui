@@ -11,7 +11,7 @@
     @click="$emit('click', $event)"
   >
     <slot name="prepend">
-      <ButtonItems :icon="icon" :avatar="avatar" />
+      <ButtonItems :icon="icon" :avatar="avatar" :checked="checked" />
     </slot>
 
     <slot>
@@ -19,7 +19,11 @@
     </slot>
 
     <slot name="append">
-      <ButtonItems :icon="iconAppend" :avatar="avatarAppend" />
+      <ButtonItems
+        :icon="iconAppend"
+        :avatar="avatarAppend"
+        :checked="checked"
+      />
     </slot>
 
     <Spinner v-if="loading && spinner" size="sm" class="absolute" />
