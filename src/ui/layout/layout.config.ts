@@ -18,7 +18,7 @@ export default {
 
   enclosed: {
     root: cva("max-w-app mx-auto flex w-full flex-col gap-6 py-[72px]"),
-    content: cva("flex w-full gap-9"),
+    content: cva("flex w-full flex-col gap-9 md:flex-row"),
     main: cva("flex w-full flex-col gap-6"),
     controlsRoot: cva("w-full border-b bg-base-background py-4"),
     controls: cva("max-w-app mx-auto"),
@@ -47,7 +47,7 @@ export default {
         }
       }
     }),
-    container: cva("max-w-app mx-auto flex w-full gap-14"),
+    container: cva("max-w-app mx-auto flex w-full flex-col gap-14 md:flex-row"),
     aside: cva("w-full max-w-md"),
     main: cva("flex w-full flex-col gap-12")
   }
