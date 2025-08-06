@@ -50,18 +50,5 @@ export default {
     container: cva("max-w-app mx-auto flex w-full gap-14"),
     aside: cva("w-full max-w-md"),
     main: cva("flex w-full flex-col gap-12")
-  },
-
-  section: {
-    root: cva("flex w-full flex-col gap-3"),
-    content: cva("flex w-full flex-col gap-3"),
-    title: cva("text-emphasis-medium w-full text-xl", {
-      variants: {
-        variant: {
-          full: "border-b pb-3",
-          enclosed: ""
-        }
-      }
-    })
   }
 };
