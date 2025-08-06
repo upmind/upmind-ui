@@ -11,7 +11,7 @@
       class="w-full rounded-md border border-gray-300 p-2"
     />
 
-    <Loading :active="meta.isLoading" class="w-full">
+    <Loading :active="meta.isLoading" class-active="w-full">
       <div
         class="grid w-full grid-cols-[repeat(auto-fill,_minmax(18rem,_1fr))] gap-6"
       >

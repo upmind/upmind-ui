@@ -72,26 +72,25 @@
           </ContentSection>
 
           <footer class="w-full">
-            <router-link to="/checkout" custom v-slot="{ navigate }">
-              <Button
-                :disabled="
-                  !fieldsMeta.isComplete ||
-                  meta.isProcessing ||
-                  meta.isLoading ||
-                  !meta.hasProducts ||
-                  meta.hasInvalidProducts
-                "
-                block
-                color="primary"
-                :loading="meta.isProcessing || meta.isLoading"
-                @click="navigate()"
-                :label="t('basket.summary.proceed')"
-              >
-                <template #prepend>
-                  <Icon icon="cart" size="2xs" class="-mt-0.5 mr-2" />
-                </template>
-              </Button>
-            </router-link>
+            <Button
+              :as="RouterLink"
+              :to="{ name: ROUTE.CHECKOUT }"
+              :disabled="
+                !fieldsMeta.isComplete ||
+                meta.isProcessing ||
+                meta.isLoading ||
+                !meta.hasProducts ||
+                meta.hasInvalidProducts
+              "
+              block
+              color="primary"
+              :loading="meta.isProcessing || meta.isLoading"
+              :label="t('basket.summary.proceed')"
+            >
+              <template #prepend>
+                <Icon icon="cart" size="2xs" class="-mt-0.5 mr-2" />
+              </template>
+            </Button>
           </footer>
 
           <Alert
@@ -114,15 +113,15 @@
                 :key="basketItem.id"
                 class="marker:text-inherit"
               >
-                <router-link
+                <Link
                   class="text-inherit"
                   :to="{
-                    name: 'product.edit',
+                    name: ROUTE.PRODUCT_EDIT,
                     params: { bpid: basketItem.id }
                   }"
                 >
                   <span>{{ basketItem?.productDetails?.title }}</span>
-                </router-link>
+                </Link>
               </li>
             </ol>
           </Alert>
@@ -164,6 +163,7 @@ import Form from "../../components/form/Form.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 import Back from "../../components/navigation/Back.vue";
 import { isEmpty, omitBy } from "lodash-es";
+import { RouterLink } from "vue-router";
 
 // -----------------------------------------------------------------------------
 

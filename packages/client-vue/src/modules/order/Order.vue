@@ -88,7 +88,7 @@ await isResolved(ROUTE.ORDER);
 
 const { transferTo, meta } = useSession();
 
-const orderId = route.params.orderId.toString();
+const orderId = route.params?.orderId?.toString();
 const success = computed(() => route.query.payment_success === "true");
 
 const transferBase =

@@ -41,7 +41,7 @@
               !model ||
               (item.gateway_id === model.gateway_id && basketMeta.isProcessing)
             "
-            :class="styles.checkout.accordion.loading"
+            :class-active="styles.checkout.accordion.loading"
           >
             <AccordionContent :class="styles.checkout.accordion.content">
               <GatewayContent
