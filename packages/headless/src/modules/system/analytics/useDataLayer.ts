@@ -208,7 +208,6 @@ class TrackingEvent {
     // Lets also add this to sentry for debugging purposes
     // MAYBE add a flag to only track certain events? eg: debug/breadcrumb
     //       or change this to be a `withBreadcrumb` method on the class
-    debugger;
     Sentry.addBreadcrumb({
       type: "debug",
       category: "log",
