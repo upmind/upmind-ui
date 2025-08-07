@@ -41,8 +41,6 @@ const items = computed(() => {
     data: any;
   };
 
-  debugger;
-
   return map(
     schema.options ?? options,
     (option, index): RadioCardsItemProps => {
