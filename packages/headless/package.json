@@ -23,10 +23,13 @@
   },
   "dependencies": {
     "@googlemaps/google-maps-services-js": "^3.4.0",
+    "@sentry/vue": "^9.3.0",
     "@googlemaps/js-api-loader": "^1.16.8",
     "@jsonforms/core": "^3.5.1",
     "@stripe/stripe-js": "^3.5.0",
+    "@tanstack/query-persist-client-core": "^5.83.0",
     "@tanstack/vue-query": "^5.79.0",
+    "@tanstack/vue-store": "^0.7.3",
     "@upmind-automation/types": "workspace:*",
     "@xstate/inspect": "^0.8.0",
     "@xstate/vue": "^2.0.0",
