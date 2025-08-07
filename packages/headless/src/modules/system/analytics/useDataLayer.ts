@@ -1,3 +1,6 @@
+// --- external
+import * as Sentry from "@sentry/browser";
+
 // --- internal
 import { useBasket, useLocale } from "../..";
 import packageJson from "../../../../package.json";
@@ -11,19 +14,10 @@ import {
   usePOP,
   useTime
 } from "../../../utils";
-import {
-  isEmpty,
-  isNil,
-  omitBy,
-  set,
-  map,
-  isArray,
-  sumBy,
-  some
-} from "lodash-es";
+import { isEmpty, isNil, omitBy, set, map, isArray, sumBy } from "lodash-es";
 
 // --- types
-import { IBasket, IInvoice } from "@upmind-automation/types";
+import { IInvoice } from "@upmind-automation/types";
 import type { BasketProduct } from "../../basketProduct";
 import type { Product } from "../../product";
 import { mapIBasketProduct, mapBasketProduct } from "./utils";
@@ -210,6 +204,18 @@ class TrackingEvent {
 
     DATA_LAYER.push(payload);
     this.complete = true;
+
+    // Lets also add this to sentry for debugging purposes
+    // MAYBE add a flag to only track certain events? eg: debug/breadcrumb
+    //       or change this to be a `withBreadcrumb` method on the class
+    debugger;
+    Sentry.addBreadcrumb({
+      type: "debug",
+      category: "log",
+      data: payload,
+      level: "debug"
+    });
+
     return payload;
   }
 }

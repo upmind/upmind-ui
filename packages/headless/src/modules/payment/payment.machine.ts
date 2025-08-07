@@ -6,6 +6,8 @@ const { escalate } = actions;
 // --- internal
 import services from "./services";
 import { useFeedback } from "../feedback";
+import { useDataLayer } from "../system";
+const { dataLayer } = useDataLayer();
 
 // --- utils
 import { useApprovalParser } from "./utils";
@@ -114,7 +116,8 @@ export default createMachine(
             invoke: {
               src: "redirect",
               onDone: {
-                target: "offsite"
+                target: "offsite",
+                actions: ["pushOffsite"]
               },
               onError: {
                 target: "#error",
@@ -164,6 +167,11 @@ export default createMachine(
         type: "PAYMENT",
         data: payment
       })),
+
+      // When a user goes offsite to process their payment
+      pushOffsite: ({ payment }: PaymentContext, _event: AnyEventObject) => {
+        dataLayer({ event: "begin_offsite_payment", ...payment }).push();
+      },
 
       setError: assign({
         error: (_context, { data }: AnyEventObject) => {
