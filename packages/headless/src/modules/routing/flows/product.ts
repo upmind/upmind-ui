@@ -17,7 +17,8 @@ import { uniqBy, set, isEmpty } from "lodash-es";
 // --- types
 import { ROUTE } from "../types";
 import type { Flow, Route } from "../types";
-import { stateMatches } from "../../../utils";
+import { contextValue, stateMatches } from "../../../utils";
+import { ProductProps } from "src/modules/product";
 
 // -----------------------------------------------------------------------------
 
@@ -63,22 +64,28 @@ export const useProductFlows = () => {
         return valid;
       },
       resolve: async (route: Route) => {
-        const {
-          productId: pid,
-          express,
-          getParam
-        } = useRouteQueryParams(route);
+        const { productId, express, getParam } = useRouteQueryParams(route);
 
         // honour the flag to force navigate to the product page
         const navigate = JSON.parse(getParam("navigateOnly", false));
 
-        const product = await getPendingProduct(pid).catch(() => undefined);
+        const product = await getPendingProduct(productId).catch(
+          () => undefined
+        );
 
         if (isEmpty(product?.service))
           return {
             name: ROUTE.PRODUCT_NOT_FOUND,
-            query: { pid }
+            query: { pid: productId }
           };
+
+        // NB this allows us to navigate to a product page without a given productId
+        // this is helpful for people returning to the cart that had prev added a product config without completing it
+        const pid = contextValue<ProductProps["productId"]>(
+          product.state,
+          "model.productId",
+          productId
+        );
 
         if (express || (!navigate && !product?.meta.value.isConfigurable))
           return product
