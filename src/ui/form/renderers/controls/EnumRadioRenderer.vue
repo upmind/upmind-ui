@@ -60,9 +60,9 @@ const items = computed(() => {
 </script>
 
 <script lang="ts">
-import { isOneOfEnumControl, and, optionIs } from "@jsonforms/core";
+import { isEnumControl, and, optionIs } from "@jsonforms/core";
 export const tester = {
   rank: 3,
-  controlType: and(isOneOfEnumControl, optionIs("format", "radio"))
+  controlType: and(isEnumControl, optionIs("format", "radio"))
 };
 </script>

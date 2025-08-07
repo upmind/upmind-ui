@@ -16,6 +16,9 @@ import PasswordRenderer, {
 } from "./PasswordRenderer.vue";
 import NumberRenderer, { tester as NumberTest } from "./NumberRenderer.vue";
 import EnumRenderer, { tester as EnumTest } from "./EnumRenderer.vue";
+import EnumRadioRenderer, {
+  tester as EnumRadioTest
+} from "./EnumRadioRenderer.vue";
 import UrlRenderer, { tester as UrlTest } from "./UrlRenderer.vue";
 import EmailRenderer, { tester as EmailTest } from "./EmailRenderer.vue";
 import PhoneRenderer, { tester as PhoneTest } from "./PhoneRenderer.vue";
@@ -41,6 +44,7 @@ export const controlRenderers = [
   registerEntry(ButtonToggleRenderer, ButtonToggleTest),
   registerEntry(NumberRenderer, NumberTest),
   registerEntry(EnumRenderer, EnumTest),
+  registerEntry(EnumRadioRenderer, EnumRadioTest),
   registerEntry(PasswordRenderer, PasswordTest),
   registerEntry(UrlRenderer, UrlTest),
   registerEntry(EmailRenderer, EmailTest),
