@@ -14,6 +14,7 @@
         :index="option.index || overrideIndex || index"
         :name="props.name"
         :label="option?.label"
+        :sublabel="option?.sublabel"
         :required="props.required"
         :disabled="props.disabled"
         :model-value="modelValue"
