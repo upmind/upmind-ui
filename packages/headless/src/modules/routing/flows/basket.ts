@@ -40,7 +40,6 @@ export const useBasketFlows = () => {
         next: [],
         back: [],
         fallback: [
-          ROUTE.EXPRESS_PRODUCT_ADD,
           ROUTE.PRODUCT_ADD,
           // if we have an exact match for our config in the basket,
           // then we can skip the product flow and go straight to the basket
