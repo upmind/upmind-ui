@@ -27,12 +27,20 @@ export const useSchema = (context: GatewayContext) => {
       payment_details_id: {
         type: ["string", "null"],
         title: "Select one of your stored payment methods",
-        oneOf: !context.stored_payment_methods?.length
+        options: map(
+          context.stored_payment_methods,
+          ({ id, name, card_type, card_expire_date }) => {
+            return {
+              value: id,
+              label: name,
+              text: `Exp ${card_expire_date}`,
+              appendIcon: { name: card_type, path: "payment-providers" }
+            };
+          }
+        ),
+        enum: !context.stored_payment_methods?.length
           ? undefined
-          : map(context.stored_payment_methods, ({ id, name }) => ({
-              const: id,
-              title: name
-            }))
+          : map(context.stored_payment_methods, "id")
       },
       return_url: {
         type: "string",
@@ -61,22 +69,7 @@ export const useUischema = ({ stored_payment_methods }: GatewayContext) => {
         scope: "#/properties/payment_details_id",
         i18n: "payment.payment_details_id",
         options: {
-          format: "radio",
-          stretch: true,
-          layout: "stacked",
-          noLabel: true,
-          required: true,
-          items: map(
-            stored_payment_methods,
-            ({ id, name, card_type, card_expire_date }) => {
-              return {
-                value: id,
-                label: name,
-                text: card_expire_date,
-                appendIcon: { name: card_type, path: "payment-providers" }
-              };
-            }
-          )
+          format: "radio"
         }
       }
     ]
