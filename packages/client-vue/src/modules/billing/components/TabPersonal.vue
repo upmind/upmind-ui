@@ -20,7 +20,7 @@
           useList: useClientPhones,
           useMutate: useClientPhone
         }"
-        show-label
+        :show-label="!!selectedPhone"
       >
         <template #item="{ item, readonly, doEdit, doRemove }">
           <PhoneItem
