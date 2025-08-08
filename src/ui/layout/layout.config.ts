@@ -47,7 +47,7 @@ export default {
         }
       }
     }),
-    container: cva("max-w-app mx-auto flex w-full flex-col gap-14 md:flex-row"),
+    container: cva("max-w-app gap-18 mx-auto flex w-full flex-col md:flex-row"),
     aside: cva("w-full max-w-md"),
     main: cva("flex w-full flex-col gap-12")
   }
