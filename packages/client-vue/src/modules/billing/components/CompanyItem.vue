@@ -29,7 +29,10 @@
       {{ description }}
     </p>
 
-    <p class="text-emphasis-medium m-0 inline-flex flex-wrap gap-x-1 text-sm">
+    <p
+      v-if="regNumber || vatNumber"
+      class="text-emphasis-medium m-0 inline-flex flex-wrap gap-x-1 text-sm"
+    >
       {{ t("client.company.details", { title, regNumber, vatNumber }) }}
     </p>
   </div>
