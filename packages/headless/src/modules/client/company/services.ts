@@ -299,7 +299,7 @@ async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
             : { id: data?.emailId }) as EmailModel
         }),
 
-    !data?.phone && !data?.phoneId
+    !data?.phone?.number && !data?.phoneId
       ? Promise.resolve(null) // no phone provided/needed
       : ensurePhone({
           model: (data?.phone
