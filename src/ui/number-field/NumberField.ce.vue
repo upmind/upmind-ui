@@ -7,16 +7,23 @@
     <NumberFieldContent>
       <NumberFieldDecrement
         class="rounded-l-lg"
+        :size="props.size"
         :class="styles.numberField.input"
-      />
+      >
+        <NumberFieldIcon icon="minus" />
+      </NumberFieldDecrement>
+
       <NumberFieldInput
         :class="cn(styles.numberField.field, props.classField)"
         data-testid="quantity-input"
       />
       <NumberFieldIncrement
         class="rounded-r-lg"
+        :size="props.size"
         :class="styles.numberField.input"
-      />
+      >
+        <NumberFieldIcon icon="plus" />
+      </NumberFieldIncrement>
     </NumberFieldContent>
   </NumberField>
 </template>
@@ -36,6 +43,7 @@ import NumberFieldContent from "./NumberFieldContent.vue";
 import NumberFieldDecrement from "./NumberFieldDecrement.vue";
 import NumberFieldInput from "./NumberFieldInput.vue";
 import NumberFieldIncrement from "./NumberFieldIncrement.vue";
+import NumberFieldIcon from "./NumberFieldIcon.vue";
 
 // --- utils
 import { omit } from "lodash-es";
@@ -70,10 +78,9 @@ const modelValue = useVModel(props, "modelValue", emits, {
 });
 
 const meta = computed(() => ({
-  // size: props.size,
+  size: props.size,
   width: props.width,
-  variant: props.variant,
-  height: props.height
+  variant: props.variant
 }));
 
 const styles = useStyles(
