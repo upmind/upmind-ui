@@ -20,7 +20,7 @@ export interface NumberFieldProps
     NumberFieldDecrementProps,
     NumberFieldIncrementProps {
   // --- variants
-  text?: NumberFieldRootVariants["text"];
+  size?: NumberFieldRootVariants["size"];
   width?: NumberFieldRootVariants["width"];
   variant?: NumberFieldVariants["variant"];
   height?: NumberFieldVariants["height"];
