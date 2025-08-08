@@ -10,7 +10,7 @@
         :formDescriptionId="`search-${props.id}`"
         :formMessageId="`search-${props.id}`"
       >
-        <InputExtended
+        <Input
           v-model="search"
           type="text"
           width="full"
@@ -22,7 +22,7 @@
           <template v-if="icon" #prepend>
             <Icon :icon="icon" :class="styles.search.icon" />
           </template>
-        </InputExtended>
+        </Input>
       </FormControl>
     </PopoverTrigger>
     <PopoverPortal>
@@ -65,7 +65,7 @@ import {
 
 // --- components
 import { FormControl } from "../form";
-import { InputExtended } from "../input-extended";
+import Input from "../input/Input.ce.vue";
 import { Icon } from "../icon";
 
 // --- utils

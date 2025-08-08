@@ -36,7 +36,7 @@ export const inputContainerVariants = cva("flex items-center gap-3", {
 });
 
 export const inputFieldVariants = cva(
-  "w-full rounded text-control-foreground focus:outline-none focus:ring-0"
+  "w-full rounded bg-base-background text-control-foreground focus:outline-none focus:ring-0"
 );
 
 // -----------------------------------------------------------------------------
