@@ -7,11 +7,7 @@
     type="multiple"
     data-testid="checkbox-group"
   >
-    <div
-      v-for="(item, index) in items"
-      :key="item.id || index"
-      :class="styles.checkboxCards.item"
-    >
+    <template v-for="(item, index) in items" :key="item.id || index">
       <CheckboxCardItem
         :id="`${item.id}-${index}`"
         :index="index"
@@ -21,6 +17,7 @@
         :disabled="props.disabled"
         :no-input="props.noInput"
         :class="cn(styles.checkboxCards.input, props.itemClass)"
+        :itemClass="styles.checkboxCards.item"
         data-testid="checkbox-item"
       >
         <Label
@@ -33,7 +30,7 @@
           </slot>
         </Label>
       </CheckboxCardItem>
-    </div>
+    </template>
   </ToggleGroupRoot>
 </template>
 
