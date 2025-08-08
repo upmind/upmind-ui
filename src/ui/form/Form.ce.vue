@@ -206,7 +206,7 @@ const actions = computed<Record<string, FormActionProps>>(() => {
 
 const mode = computed<ValidationMode>(() => {
   // only show errors if we have interacted with the form
-  return meta.value.isTouched || !isEmpty(props.additionalErrors)
+  return meta.value.isTouched && !isEmpty(props.additionalErrors)
     ? "ValidateAndShow"
     : "ValidateAndHide";
 });
