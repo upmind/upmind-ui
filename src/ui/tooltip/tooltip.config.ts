@@ -51,6 +51,6 @@ export default {
   tooltip: {
     content: contentVariants,
     arrow: arrowVariants,
-    trigger: cva("text-inherit")
+    trigger: cva("text-inherit no-underline")
   }
 };

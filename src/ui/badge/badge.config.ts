@@ -6,9 +6,9 @@ export const badgeVariants = cva(
   {
     variants: {
       variant: {
-        flat: "border border-transparent",
-        outline: "border !bg-base-background",
-        tonal: "border border-transparent"
+        flat: "",
+        outline: "!bg-base-background",
+        tonal: ""
       },
       size: {
         sm: "px-2 py-1 text-xs/tight",
@@ -33,48 +33,52 @@ export const badgeVariants = cva(
       {
         color: "base",
         variant: "outline",
-        class: "border-base-foreground text-base-foreground"
+        class: "shadow-border-base border-base-foreground text-base-foreground"
       },
       {
         color: "primary",
         variant: "outline",
-        class: "border-primary text-primary"
+        class: "shadow-border-primary border-primary text-primary"
       },
       {
         color: "secondary",
         variant: "outline",
-        class: "border-secondary text-secondary"
+        class: "shadow-border-secondary border-secondary text-secondary"
       },
       {
         color: "accent",
         variant: "outline",
-        class: "border-accent text-accent"
+        class: "shadow-border-accent border-accent text-accent"
       },
       {
         color: "promotion",
         variant: "outline",
-        class: "border-promotion text-promotion"
+        class: "shadow-border-promotion border-promotion text-promotion"
       },
       {
         color: "destructive",
         variant: "outline",
-        class: "border-destructive text-destructive"
+        class: "shadow-border-destructive border-destructive text-destructive"
       },
       {
         color: "success",
         variant: "outline",
-        class: "border-success text-success"
+        class: "shadow-border-success border-success text-success"
       },
-      { color: "info", variant: "outline", class: "border-info text-info" },
+      {
+        color: "info",
+        variant: "outline",
+        class: "shadow-border-info border-info text-info"
+      },
       {
         color: "error",
         variant: "outline",
-        class: "border-error text-error"
+        class: "shadow-border-error border-error text-error"
       },
       {
         color: "warning",
         variant: "outline",
-        class: "border-warning text-warning"
+        class: "shadow-border-warning border-warning text-warning"
       },
       // ---
 

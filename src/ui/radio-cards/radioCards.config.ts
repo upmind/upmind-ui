@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 import { ringClasses } from "../../assets/styles";
 
 export const itemVariants = cva(
-  `group rounded bg-control text-control-foreground transition-all duration-200 ${ringClasses}`,
+  `group rounded bg-control text-control-foreground transition-all duration-200 ${ringClasses} flex list-none gap-2 p-3 pr-4`,
   {
     variants: {
       isList: {
@@ -48,12 +48,9 @@ export default {
   radioCards: {
     root: rootVariants,
     item: itemVariants,
-    radio: cva("size-[1lh]"),
-    label: cva(
-      "m-0 flex h-full w-full min-w-0 cursor-pointer items-start rounded px-4 py-2 text-md font-medium leading-snug peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-    ),
+    radio: cva("flex size-[1lh] items-center justify-center"),
     input: cva(
-      `group-hover:border-control-strong mt-[0.1rem] border-control leading-normal ring-offset-2 [transition:border-color_200ms_ease-in-out] ${ringClasses}`
+      `group-hover:border-control-strong border-control leading-normal ring-offset-2 [transition:border-color_200ms_ease-in-out] ${ringClasses}`
     )
   }
 };
