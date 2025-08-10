@@ -1,40 +1,43 @@
 <template>
+  <!-- Multiple images with carousel -->
+  <Carousel
+    @init-api="onCarouselInit"
+    v-if="meta.isCarousel"
+    :class="cn(styles.image.carousel.root, props.class)"
+  >
+    <CarouselContent
+      :class="styles.image.carousel.content"
+      class="-ml-0 h-full"
+    >
+      <CarouselItem
+        v-for="(image, index) in image as ImageItem[]"
+        :key="index"
+        :class="styles.image.carousel.item"
+      >
+        <img :src="image.url" :alt="image.alt" :class="cn(styles.image.root)" />
+      </CarouselItem>
+    </CarouselContent>
+
+    <nav :class="styles.image.nav.root" @click.prevent.stop>
+      <span
+        v-for="(image, index) in image"
+        :key="index"
+        :class="styles.image.nav.item"
+      >
+        <Icon
+          icon="ellipse"
+          size="3xs"
+          :class="[isSelected(index) ? '' : 'opacity-50']"
+          @click="selectImage(index)"
+        />
+      </span>
+    </nav>
+  </Carousel>
+
   <figure :class="cn(styles.image.container, props.class)">
-    <!-- Multiple images with carousel -->
-    <Carousel v-if="meta.isCarousel" @init-api="onCarouselInit">
-      <CarouselContent :class="styles.image.carousel.content">
-        <CarouselItem
-          v-for="(image, index) in image as ImageItem[]"
-          :key="index"
-          :class="styles.image.carousel.item"
-        >
-          <img
-            :src="image.url"
-            :alt="image.alt"
-            :class="cn(styles.image.root)"
-          />
-        </CarouselItem>
-      </CarouselContent>
-
-      <nav :class="styles.image.nav.root" @click.prevent.stop>
-        <span
-          v-for="(image, index) in image"
-          :key="index"
-          :class="styles.image.nav.item"
-        >
-          <Icon
-            icon="ellipse"
-            size="3xs"
-            :class="[isSelected(index) ? '' : 'opacity-50']"
-            @click="selectImage(index)"
-          />
-        </span>
-      </nav>
-    </Carousel>
-
     <!-- Single image -->
     <img
-      v-else-if="!meta.isEmpty"
+      v-if="!meta.isCarousel && !meta.isEmpty"
       :key="isString(currentImage) ? currentImage : currentImage?.url"
       :src="isString(currentImage) ? currentImage : currentImage?.url"
       :alt="isString(currentImage) ? '' : currentImage?.alt"
@@ -42,7 +45,7 @@
     />
 
     <!-- Fallback icon -->
-    <div v-else :class="cn(styles.image.root)">
+    <div v-if="!meta.isCarousel && meta.isEmpty" :class="cn(styles.image.root)">
       <Icon icon="camera" size="xl" :class="styles.image.icon" />
     </div>
   </figure>
@@ -69,7 +72,7 @@ import type { ImageProps, ImageItem } from "./types";
 import type { CarouselApi } from "../carousel";
 
 const props = withDefaults(defineProps<ImageProps>(), {
-  ratio: "3:2",
+  ratio: "1:1",
   fit: "cover",
   carousel: true
 });
@@ -91,6 +94,7 @@ const styles = useStyles(
     root: string;
     icon: string;
     carousel: {
+      root: string;
       content: string;
       item: string;
     };
