@@ -2,6 +2,11 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 export const rootVariant = cva("h-full w-full", {
   variants: {
+    position: {
+      first: "rounded-l-lg",
+      middle: "",
+      last: "rounded-r-lg"
+    },
     isEmpty: {
       true: "flex items-center justify-center bg-secondary text-secondary-foreground"
     },
@@ -15,7 +20,8 @@ export const rootVariant = cva("h-full w-full", {
     }
   },
   defaultVariants: {
-    fit: "cover"
+    fit: "cover",
+    position: "middle"
   }
 });
 

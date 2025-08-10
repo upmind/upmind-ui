@@ -9,13 +9,9 @@
       :class="styles.image.carousel.content"
       class="-ml-0 h-full"
     >
-      <CarouselItem
-        v-for="(image, index) in image as ImageItem[]"
-        :key="index"
-        :class="styles.image.carousel.item"
-      >
-        <img :src="image.url" :alt="image.alt" :class="cn(styles.image.root)" />
-      </CarouselItem>
+      <template v-for="(data, index) in image">
+        <CarouselImage :image="data" :index="index" :total="meta.imageLength" />
+      </template>
     </CarouselContent>
 
     <nav :class="styles.image.nav.root" @click.prevent.stop>
@@ -57,7 +53,8 @@ import { ref, computed } from "vue";
 
 // --- components
 import { Icon } from "../icon";
-import { Carousel, CarouselContent, CarouselItem } from "../carousel";
+import { Carousel, CarouselContent } from "../carousel";
+import CarouselImage from "./CarouselImage.vue";
 
 // --- internal
 import config from "./image.config";
@@ -68,7 +65,7 @@ import { useStyles, cn } from "../../utils";
 
 // --- types
 import type { ComputedRef } from "vue";
-import type { ImageProps, ImageItem } from "./types";
+import type { ImageProps } from "./types";
 import type { CarouselApi } from "../carousel";
 
 const props = withDefaults(defineProps<ImageProps>(), {
@@ -81,7 +78,8 @@ const meta = computed(() => ({
   ratio: props.ratio,
   fit: props.fit,
   isEmpty: isEmpty(props.image),
-  isCarousel: props.carousel && isArray(props.image) && props.image.length > 1
+  isCarousel: props.carousel && isArray(props.image) && props.image.length > 1,
+  imageLength: isArray(props.image) ? props.image.length : 0
 }));
 
 const styles = useStyles(
