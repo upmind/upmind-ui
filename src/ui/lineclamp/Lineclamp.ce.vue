@@ -13,7 +13,6 @@
           data-testid="lineclamp"
           as="span"
           variant="link"
-          :icon="meta.isOpen ? iconLess : iconMore"
         />
       </p>
     </transition>
