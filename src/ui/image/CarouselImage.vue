@@ -5,18 +5,21 @@
 </template>
 
 <script setup lang="ts">
-import { useStyles, cn } from "../../utils";
-import { CarouselItem } from "../carousel";
+// --- external
 import { computed } from "vue";
-import config from "./image.config";
-import type { ImageItem } from "./types";
-import type { ComputedRef } from "vue";
 
-const props = defineProps<{
-  image: ImageItem;
-  index?: number;
-  total?: number;
-}>();
+// --- internal
+import config from "./image.config";
+import { useStyles } from "../../utils";
+
+// --- components
+import { CarouselItem } from "../carousel";
+
+// --- types
+import type { ComputedRef } from "vue";
+import type { CarouselImageProps } from "./types";
+
+const props = defineProps<CarouselImageProps>();
 
 const imageMeta = computed(() => ({
   position: (() => {

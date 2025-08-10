@@ -17,3 +17,9 @@ export interface ImageItem {
   url: string;
   alt: string;
 }
+
+export interface CarouselImageProps {
+  image: ImageItem;
+  index?: number;
+  total?: number;
+}
