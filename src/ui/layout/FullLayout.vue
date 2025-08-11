@@ -14,12 +14,14 @@
   </div>
 
   <article :class="styles.full.root">
-    <header :class="styles.full.header" v-if="meta.hasHeader">
-      <slot name="header" />
+    <header :class="styles.full.header.root" v-if="meta.hasHeader">
+      <section :class="styles.full.header.container">
+        <slot name="header" />
+      </section>
     </header>
 
-    <div :class="styles.full.content">
-      <div :class="styles.full.container">
+    <div :class="styles.full.content.root">
+      <div :class="styles.full.content.container">
         <main :class="styles.full.main">
           <slot name="default" />
         </main>
@@ -67,7 +69,7 @@ const meta = computed(() => {
   };
 });
 const styles = useStyles(
-  ["full", "control"],
+  ["full", "control", "full.header", "full.content"],
   meta,
   config,
   props.uiConfig ?? {}
@@ -80,8 +82,14 @@ const styles = useStyles(
     root: string;
     controlsRoot: string;
     controls: string;
-    header: string;
-    content: string;
+    header: {
+      root: string;
+      container: string;
+    };
+    content: {
+      root: string;
+      container: string;
+    };
     aside: string;
     container: string;
     main: string;
