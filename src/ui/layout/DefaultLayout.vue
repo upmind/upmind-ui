@@ -1,7 +1,9 @@
 <template>
   <div :class="styles.control.root" v-if="meta.hasControls">
-    <div :class="styles.control.content">
+    <div :class="styles.control.container">
       <slot name="controls" />
+      <slot name="navigation" />
+      <slot name="actions" />
     </div>
   </div>
 
@@ -53,7 +55,7 @@ const styles = useStyles(
 ) as ComputedRef<{
   control: {
     root: string;
-    content: string;
+    container: string;
   };
   default: {
     root: string;

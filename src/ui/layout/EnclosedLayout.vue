@@ -1,16 +1,11 @@
 <template>
-  <div v-if="meta.hasControls" :class="styles.control.root">
-    <nav :class="styles.control.content">
-      <div>
-        <slot name="controls" />
-        <slot name="navigation" />
-      </div>
-
-      <div>
-        <slot name="actions" />
-      </div>
-    </nav>
-  </div>
+  <nav v-if="meta.hasControls" :class="styles.control.root">
+    <div :class="styles.control.container">
+      <slot name="controls" />
+      <slot name="navigation" />
+      <slot name="actions" />
+    </div>
+  </nav>
 
   <section :class="styles.enclosed.root">
     <div :class="styles.enclosed.container">
@@ -78,7 +73,7 @@ const styles = useStyles(
 ) as ComputedRef<{
   control: {
     root: string;
-    content: string;
+    container: string;
   };
   enclosed: {
     root: string;
