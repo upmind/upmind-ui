@@ -16,10 +16,36 @@ export const numberFieldRootVariants = cva("group inline-block", {
       sm: "text-sm",
       md: "text-sm",
       lg: "text-md"
+    },
+    variant: {
+      flat: "",
+      minimal: ""
     }
   },
+  compoundVariants: [
+    {
+      variant: "minimal",
+      width: "auto",
+      class: "w-auto min-w-12"
+    },
+    {
+      variant: "minimal",
+      width: "sm",
+      class: "w-16"
+    },
+    {
+      variant: "minimal",
+      width: "md",
+      class: "w-20"
+    },
+    {
+      variant: "minimal",
+      width: "lg",
+      class: "w-28"
+    }
+  ],
   defaultVariants: {
-    width: "md",
+    width: "full",
     size: "md"
   }
 });
