@@ -3,7 +3,7 @@
   <Carousel
     @init-api="onCarouselInit"
     v-if="meta.isCarousel"
-    :class="cn(styles.image.carousel.root, props.class)"
+    :class="cn(styles.image.container, props.class)"
   >
     <CarouselContent
       :class="styles.image.carousel.content"
@@ -30,10 +30,13 @@
     </nav>
   </Carousel>
 
-  <figure :class="cn(styles.image.container, props.class)">
+  <figure
+    v-if="!meta.isCarousel"
+    :class="cn(styles.image.container, props.class)"
+  >
     <!-- Single image -->
     <img
-      v-if="!meta.isCarousel && !meta.isEmpty"
+      v-if="!meta.isEmpty"
       :key="isString(currentImage) ? currentImage : currentImage?.url"
       :src="isString(currentImage) ? currentImage : currentImage?.url"
       :alt="isString(currentImage) ? '' : currentImage?.alt"
@@ -41,7 +44,7 @@
     />
 
     <!-- Fallback icon -->
-    <div v-if="!meta.isCarousel && meta.isEmpty" :class="cn(styles.image.root)">
+    <div v-if="meta.isEmpty" :class="cn(styles.image.root)">
       <Icon icon="camera" size="xl" :class="styles.image.icon" />
     </div>
   </figure>
@@ -92,7 +95,6 @@ const styles = useStyles(
     root: string;
     icon: string;
     carousel: {
-      root: string;
       content: string;
       item: string;
     };
