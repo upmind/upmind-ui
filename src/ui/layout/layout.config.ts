@@ -24,7 +24,8 @@ export default {
   },
 
   enclosed: {
-    root: cva("max-w-app-lg mx-auto flex w-full flex-col gap-6 py-[72px]"),
+    root: cva("w-full px-[10px] py-[72px]"),
+    container: cva("max-w-app-lg mx-auto flex w-full flex-col gap-6"),
     content: cva("flex w-full flex-col gap-9 md:flex-row"),
     main: cva("flex w-full flex-col gap-6"),
     controlsRoot: cva("w-full border-b bg-base-background py-4"),
