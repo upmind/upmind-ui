@@ -41,7 +41,7 @@ export async function getCurrentOrderId(token: string): Promise<string | null> {
   );
 
   const body = await response.json();
-  //console.log("ORDER ID:", body?.data?.id);
+  console.log("ORDER ID:", body?.data?.id);
   return body?.data?.id ?? null;
 }
 
