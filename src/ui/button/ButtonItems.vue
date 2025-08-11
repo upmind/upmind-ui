@@ -6,6 +6,9 @@
 </template>
 
 <script setup lang="ts">
+// --- external
+import { computed } from "vue";
+
 // --- components
 import { Icon } from "../icon";
 import { Avatar } from "../avatar";
@@ -20,7 +23,14 @@ import type { ComputedRef } from "vue";
 
 const props = defineProps<ButtonItemsProps>();
 
-const styles = useStyles(["button"], {}, config, {}) as ComputedRef<{
+const meta = computed(() => {
+  return {
+    size: props.size,
+    variant: props.variant
+  };
+});
+
+const styles = useStyles(["button"], meta, config, {}) as ComputedRef<{
   button: {
     items: string;
   };

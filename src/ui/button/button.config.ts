@@ -349,6 +349,17 @@ export const rootVariants = cva(
 export default {
   button: {
     root: rootVariants,
-    items: cva("flex size-[1lh] items-center justify-center [&>i]:p-1")
+    items: cva("flex size-[1lh] items-center justify-center", {
+      variants: {
+        size: {
+          sm: "[&>i]:p-[3px]",
+          md: "[&>i]:p-[3px]",
+          lg: "[&>i]:p-[4px]"
+        },
+        variant: {
+          link: "text-emphasis-medium"
+        }
+      }
+    })
   }
 };
