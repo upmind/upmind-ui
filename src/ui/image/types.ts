@@ -1,13 +1,14 @@
 import type { VariantProps } from "class-variance-authority";
-import type { rootVariant } from "./image.config";
+import type { rootVariant, containerVariant } from "./image.config";
 import type { HTMLAttributes } from "vue";
 
 export type RootVariants = VariantProps<typeof rootVariant>;
+export type ContainerVariants = VariantProps<typeof containerVariant>;
 
 export interface ImageProps {
   carousel?: boolean;
   image?: ImageItem[] | ImageItem | string;
-  ratio?: RootVariants["ratio"];
+  ratio?: ContainerVariants["ratio"];
   fit?: RootVariants["fit"];
   // ---
   class?: HTMLAttributes["class"];
