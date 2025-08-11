@@ -153,7 +153,7 @@ async function add(type: UnifiedType, data: UnifiedModel) {
   const promises: Promise<any>[] = [];
 
   promises.push(
-    data?.phone
+    data?.phone && UnifiedType.PERSONAL
       ? ensurePhone({ model: data.phone })
       : Promise.resolve(undefined)
   );
@@ -164,22 +164,26 @@ async function add(type: UnifiedType, data: UnifiedModel) {
       : Promise.resolve(undefined)
   );
 
-  const [phone, address] = await Promise.all(promises);
+  promises.push(
+    data?.company && type == UnifiedType.BUSINESS
+      ? ensureCompany({
+          model: {
+            ...data.company,
+            phoneId: data.phone?.id,
+            phone: data.phone?.phone
+          }
+        })
+      : Promise.resolve(undefined)
+  );
 
-  return {
-    phone: phone?.phone, // NB the returned Phone object has a phone property
-    address,
-    company:
-      data?.company && type == UnifiedType.BUSINESS
-        ? await ensureCompany({
-            model: {
-              ...data.company,
-              phoneId: phone?.id,
-              phone: undefined // Don't pass phone data, use phoneId instead
-            }
-          })
-        : undefined
-  };
+  return Promise.all(promises).then(([phone, address, company]) => {
+    debugger;
+    return {
+      phone: phone?.phone ?? company.phone, // NB the returned Phone object has a phone property
+      address: address,
+      company
+    };
+  });
 }
 
 // -----------------------------------------------------------------------------
