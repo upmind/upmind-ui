@@ -28,7 +28,7 @@ import type { Email, EmailModel, EmailContext } from "./types";
 const queryKey: QueryKey = ["client", "emails"];
 const { addError, addSuccess } = useFeedback();
 
-function loadList(params?: Partial<QueryParams>) {
+function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
   const { meta, user } = useSession();
   const { list, useUrl } = useQuery();
 

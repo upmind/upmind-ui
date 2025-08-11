@@ -36,7 +36,7 @@ import type { Phone, PhoneModel, PhoneContext } from "./types";
 const queryKey: QueryKey = ["client", "phones"];
 const { addError, addSuccess } = useFeedback();
 
-function loadList(params?: Partial<QueryParams>) {
+function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
   const { meta, user } = useSession();
   const { list, useUrl } = useQuery();
 
