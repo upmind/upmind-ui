@@ -35,7 +35,7 @@ import type { Address, AddressModel, AddressContext } from "./types";
 const queryKey: QueryKey = ["client", "addresses"];
 const { addError, addSuccess } = useFeedback();
 
-function loadList(params?: Partial<QueryParams>) {
+function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
   const { meta, user } = useSession();
   const { list, useUrl } = useQuery();
 
