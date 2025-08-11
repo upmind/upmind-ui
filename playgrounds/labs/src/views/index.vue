@@ -6,6 +6,24 @@
 
     <div class="mt-8">
       <div class="space-y-8">
+        <!-- Brand -->
+        <div>
+          <h4 class="mb-4 text-lg font-medium">Brand</h4>
+          <div class="flex items-center justify-between border-b">
+            <div>
+              <h5 class="font-medium">Brand Playground</h5>
+              <p class="mt-1 text-gray-600">
+                Test the brand components and utilities
+              </p>
+            </div>
+            <RouterLink :to="{ name: 'brand' }">
+              <Button color="primary">
+                <Icon icon="arrow-right" size="xs" />
+              </Button>
+            </RouterLink>
+          </div>
+        </div>
+
         <!-- Places API -->
         <div>
           <h4 class="mb-4 text-lg font-medium">Places API</h4>
