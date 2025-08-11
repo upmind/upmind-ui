@@ -13,22 +13,24 @@
   </div>
 
   <section :class="styles.enclosed.root">
-    <Card v-if="meta.hasHeader" as="header">
-      <slot name="header" />
-    </Card>
+    <div :class="styles.enclosed.container">
+      <Card v-if="meta.hasHeader" as="header">
+        <slot name="header" />
+      </Card>
 
-    <article :class="styles.enclosed.content">
-      <main :class="styles.enclosed.main">
-        <slot name="default" />
-        <slot name="footer" />
-      </main>
+      <article :class="styles.enclosed.content">
+        <main :class="styles.enclosed.main">
+          <slot name="default" />
+          <slot name="footer" />
+        </main>
 
-      <aside v-if="meta.hasAside" :class="styles.enclosed.aside">
-        <slot name="aside" />
+        <aside v-if="meta.hasAside" :class="styles.enclosed.aside">
+          <slot name="aside" />
 
-        <slot name="aside-footer" />
-      </aside>
-    </article>
+          <slot name="aside-footer" />
+        </aside>
+      </article>
+    </div>
   </section>
 </template>
 
@@ -80,6 +82,7 @@ const styles = useStyles(
   };
   enclosed: {
     root: string;
+    container: string;
     main: string;
     content: string;
     aside: string;
