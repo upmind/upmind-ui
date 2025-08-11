@@ -62,6 +62,7 @@
           :formMessageId="`form-item-message-${props.id}`"
           :name="name"
           :errors="errors"
+          :data-testid="`form-item-message-${props.name.replaceAll('.', '-')}`"
         />
       </slot>
 
