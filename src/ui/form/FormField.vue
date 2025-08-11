@@ -9,7 +9,7 @@
       <!-- label -->
       <div class="w-full flex-col">
         <FormLabel v-if="meta.hasLabel" :formItemId="id">
-          <slot name="label" :label="label" data>
+          <slot name="label" :label="label">
             <span class="inline-flex w-full items-center gap-x-0.5">
               <slot name="icon" />
 
