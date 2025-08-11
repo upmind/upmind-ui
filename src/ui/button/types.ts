@@ -44,7 +44,9 @@ export interface ButtonProps {
 }
 
 export interface ButtonItemsProps {
+  variant?: ButtonProps["variant"];
   icon?: ButtonProps["icon"];
   avatar?: ButtonProps["avatar"];
+  size?: ButtonProps["size"];
   checked?: boolean;
 }

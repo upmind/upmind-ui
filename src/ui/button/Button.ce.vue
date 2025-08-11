@@ -11,7 +11,13 @@
     @click="$emit('click', $event)"
   >
     <slot name="prepend">
-      <ButtonItems :icon="icon" :avatar="avatar" :checked="checked" />
+      <ButtonItems
+        :icon="icon"
+        :avatar="avatar"
+        :checked="checked"
+        :size="size"
+        :variant="variant"
+      />
     </slot>
 
     <slot>
@@ -23,6 +29,8 @@
         :icon="iconAppend"
         :avatar="avatarAppend"
         :checked="checked"
+        :size="size"
+        :variant="variant"
       />
     </slot>
 
