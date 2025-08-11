@@ -2,6 +2,7 @@ import { Page, expect, Frame, Locator } from "@playwright/test";
 export class Checkout {
   readonly page: Page;
   readonly addressSearch: Locator;
+  readonly addressFormMessage: Locator;
   readonly phone: Locator;
   readonly addressManualEntry: Locator;
   readonly billingDetails: Locator;
@@ -18,6 +19,7 @@ export class Checkout {
     this.page = page;
     this.billingDetails = page.getByTestId("billing");
     this.addressSearch = this.billingDetails.getByTestId("form-field-address");
+    this.addressFormMessage = page.getByTestId("form-item-message-address");
     this.phone = this.billingDetails.getByTestId("form-item-phone2");
     this.addressManualEntry = page.getByTestId("enter-address-manually-link");
     this.addressLine1 = this.billingDetails.getByTestId("form-item-address1");
@@ -35,7 +37,7 @@ export class Checkout {
     addressLine2: string,
     city: string,
     postCode: string,
-    phoneInput: string
+    phoneInput: string | null
   ) {
     await this.addressManualEntry.waitFor();
     await this.addressManualEntry.click();
@@ -43,7 +45,9 @@ export class Checkout {
     await this.addressLine2.fill(addressLine2);
     await this.city.fill(city);
     await this.postCode.fill(postCode);
-    await this.phoneInput.fill(phoneInput);
+    if (phoneInput) {
+      await this.phoneInput.fill(phoneInput);
+    }
     await this.saveDetails.click();
   }
 

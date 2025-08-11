@@ -24,7 +24,9 @@ export class Basket {
     this.addPromo = page.getByTestId("add-a-voucher-linklink");
     this.promoInput = this.promotionForm.getByTestId("form-item-promocode");
     this.applyPromo = this.promotionForm.getByTestId("button-apply");
-    this.promoMessage = this.promotionForm.getByTestId("form-message");
+    this.promoMessage = this.promotionForm.getByTestId(
+      "form-item-message-promocode"
+    );
     this.promoBadge = this.summaryFooter.getByTestId("badge");
     this.proceedToCheckout = page.getByTestId("button-proceed-to-checkout");
   }
