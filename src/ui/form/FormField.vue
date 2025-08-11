@@ -9,7 +9,7 @@
       <!-- label -->
       <div class="w-full flex-col">
         <FormLabel v-if="meta.hasLabel" :formItemId="id">
-          <slot name="label" :label="label">
+          <slot name="label" :label="label" data>
             <span class="inline-flex w-full items-center gap-x-0.5">
               <slot name="icon" />
 
@@ -62,6 +62,7 @@
           :formMessageId="`form-item-message-${props.id}`"
           :name="name"
           :errors="errors"
+          :data-testid="`form-item-message-${props.name.replaceAll('.', '-')}`"
         />
       </slot>
 
