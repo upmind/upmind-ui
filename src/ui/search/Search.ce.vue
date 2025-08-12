@@ -18,11 +18,7 @@
           @focus="onSearch(search)"
           :class="styles.search.inputContainer"
           :input-class="styles.search.input"
-        >
-          <template v-if="icon" #prepend>
-            <Icon :icon="icon" :class="styles.search.icon" />
-          </template>
-        </Input>
+        />
       </FormControl>
     </PopoverTrigger>
     <PopoverPortal>
