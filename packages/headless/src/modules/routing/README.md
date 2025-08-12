@@ -325,7 +325,6 @@ send("navigate", { target: "checkout" }); // This will 'force' navigate to  a sp
 The Routing Engine requires a configuration object or `Flow` to define the possible routes and their transitions. This configuration object will typically include:
 
 - **Route Definitions:**
-
   - `name`: **Name of the route/node, NB: must match the node naming conventions.** (e.g. 'session.login', 'session.register', 'session.recover', 'cart', 'checkout', 'product.add', 'product.edit', 'order.success', 'order.failed')
   - `guard` :Conditions for entering the route (e.g., user is logged in, product is available)
   - `handler` function to be executed when the route is entered (e.g., navigation logic)

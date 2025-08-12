@@ -30,7 +30,6 @@ The **Brand Manager** Module can be imported as a named export and accessed thro
 The module employs the XState library to create a powerful state machine that orchestrates the retrieval of brand settings and configurations. Below is an overview of the state machine's functionality:
 
 - **Processing**: This is the initial state where the module begins its operations. It further breaks down into sub-states:
-
   - **Organisation**: Invokes a service to fetch organization-specific configurations.
 
   - **Settings**: Retrieves brand-related settings, including theming, language preferences, and currency support.

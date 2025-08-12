@@ -36,6 +36,10 @@
       "title": "Add Company Details | Update Company Details",
       "error": "An error occurred Adding the Company Details | an error occurred Updating the Company Details",
       "default": "Default",
+      "vat": {
+        "validationFailed": "VAT validation failed",
+        "notValidated": "VAT not validated"
+      },
       "actions": {
         "change": "Change",
         "add": "Add new",

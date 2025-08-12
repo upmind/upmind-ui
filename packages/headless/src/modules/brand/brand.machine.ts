@@ -47,6 +47,7 @@ export default createMachine(
           BrandConfigKeys.ANALYTICS_GTM_CONTAINER_ID,
           BrandConfigKeys.BASKET_DEFAULT_CURRENCY,
           BrandConfigKeys.BASKET_PAYMENT_TERM_DESCRIPTIONS,
+          BrandConfigKeys.BASKET_VAT_VALIDATION_ENABLED,
           BrandConfigKeys.BILLING_GATEWAY_FORCE_AUTO_PAYMENT,
           BrandConfigKeys.BILLING_GATEWAY_FORCE_CARD_STORAGE,
           BrandConfigKeys.CHECKOUT_FLOW,

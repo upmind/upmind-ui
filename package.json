@@ -51,7 +51,8 @@
     "test:firefox": "pnpm playwright test --project=firefox",
     "test:safari": "pnpm playwright test --project=safari",
     "test:all-browsers": "pnpm playwright test",
-    "test:ui": "pnpm playwright test --ui"
+    "test:ui": "pnpm playwright test --ui",
+    "outdated": "pnpm outdated -r"
   },
   "devDependencies": {
     "@faker-js/faker": "^9.9.0",
