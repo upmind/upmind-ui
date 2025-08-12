@@ -1,10 +1,8 @@
-import { compact, get, map, reduce } from "lodash-es";
+import { get, map } from "lodash-es";
 
-import { AddressTypes } from "./types";
-import type { Address, AddressContext } from "./types";
+import type { AddressContext } from "./types";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 import { BrandConfigKeys } from "@upmind-automation/types";
-import { title } from "process";
 
 export function useSchemaDefinitions({
   regions,
