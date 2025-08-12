@@ -35,9 +35,9 @@ import { watch, ref, type ComputedRef } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
-import { useFeedback, useMessage } from "@upmind-automation/headless";
-import { useStyles, toast } from "@upmind-automation/upmind-ui";
 import config from "./feedback.config";
+import { useStyles, toast } from "@upmind-automation/upmind-ui";
+import { useMessage, useFeedback } from "@upmind-automation/headless";
 
 // --- components
 import { Sonner } from "@upmind-automation/upmind-ui";
@@ -45,7 +45,7 @@ import Message from "./components/Message.vue";
 import Error from "../system/Error.vue";
 
 // --- utils
-import { forEach, some } from "lodash-es";
+import { get, some, forEach } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<{
@@ -59,7 +59,7 @@ const styles = useStyles(["feedback"], props, config) as ComputedRef<{
   };
 }>;
 
-const { notifications, toasts, dismiss, system, meta } = useFeedback();
+const { notifications, toasts, dismiss, system } = useFeedback();
 const activeToasts = ref<(string | number)[]>([]);
 
 function dismissToast(id: string) {
@@ -73,8 +73,8 @@ watch(toasts, toasts => {
     if (meta.value.isActive) {
       const id = toast(message.value.title, {
         id: message.value.hash,
+        duration: get(message.value, "data.persist", false) ? Infinity : 10000,
         description: message.value.copy,
-        duration: 10000,
         onDismiss: t => dismissToast(t.id.toString()),
         onAutoClose: t => dismissToast(t.id.toString()),
         // @ts-ignore -- we can actually pass this to the toast component

@@ -9,42 +9,40 @@ import { authSubscription } from "../session/helper";
 const { dataLayer } = useDataLayer();
 
 import { useFeedback } from "../feedback";
-const { addError } = useFeedback();
+const { addError, addWarning } = useFeedback();
 
 // --- utils
+import {
+  get,
+  has,
+  map,
+  isNil,
+  reduce,
+  forEach,
+  isArray,
+  isEmpty,
+  isEqual,
+  includes
+} from "lodash-es";
 import {
   parseBasket,
   parseSummary,
   spawnBilling,
   spawnCurrency,
+  spawnPromotions,
   spawnCustomFields,
-  spawnPaymentDetails,
-  spawnPromotions
+  spawnPaymentDetails
 } from "./utils";
-import { parseBasketProduct } from "../basketProduct/utils";
 import {
-  mapToHeadlessError,
-  responseCodes,
-  ResponseError,
-  stopActor,
   useTime,
-  useValidationParser
+  stopActor,
+  responseCodes,
+  mapToHeadlessError
 } from "../../utils";
-
-import {
-  forEach,
-  get,
-  includes,
-  isArray,
-  isEmpty,
-  isEqual,
-  isNil,
-  map,
-  set
-} from "lodash-es";
+import { parseBasketProduct } from "../basketProduct/utils";
 
 // --- types
-import type { ErrorObject } from "ajv";
+import type { Message } from "../feedback";
 import type { BasketContext } from "./types";
 import type { AnyEventObject } from "xstate";
 import type { PaymentContext } from "../payment";
@@ -84,7 +82,7 @@ export default createMachine(
               src: "load",
               onDone: {
                 target: "actors",
-                actions: ["updateBasket"]
+                actions: ["updateBasket", "setWarningNotes"]
               },
               onError: [
                 {
@@ -93,7 +91,7 @@ export default createMachine(
                 },
                 {
                   target: "#error",
-                  actions: ["updateBasket"]
+                  actions: ["updateBasket", "setWarningNotes"]
                 }
               ]
             }
@@ -126,7 +124,12 @@ export default createMachine(
                   src: "refresh",
                   onDone: {
                     target: "processed",
-                    actions: ["setError", "updateBasket", "refreshActors"]
+                    actions: [
+                      "setError",
+                      "updateBasket",
+                      "refreshActors",
+                      "setWarningNotes"
+                    ]
                   },
                   onError: {
                     target: "complete",
@@ -394,7 +397,7 @@ export default createMachine(
       REFRESH: [
         {
           target: "#refreshing.processing", // ideally we dont need to refresh cause the response has the updated basket WITH relations
-          actions: ["updateBasket", "refreshActors"],
+          actions: ["updateBasket", "refreshActors", "setWarningNotes"],
           cond: "hasNewBasket"
         },
         {
@@ -419,7 +422,7 @@ export default createMachine(
         basket: (_context: BasketContext, { data }: AnyEventObject) =>
           parseBasket(data),
         error: (_context: BasketContext, { data }: AnyEventObject) =>
-          get(data, "errors"),
+          mapToHeadlessError(data?.errors),
         products: (_context: BasketContext, { data }: AnyEventObject) => {
           const basket = parseBasket(data);
           const products = get(basket, "products", []);
@@ -476,9 +479,47 @@ export default createMachine(
         }
       }),
 
+      setWarningNotes: (context: BasketContext, { data }: AnyEventObject) => {
+        debugger;
+        const basket = get(data, "basket", data);
+        debugger;
+        if (has(basket, "warning_notes") && !isEmpty(basket.warning_notes)) {
+          reduce(
+            basket.warning_notes,
+            (
+              acc,
+              note: { id: string; message: string; is_hidden: boolean }
+            ) => {
+              if (!note.is_hidden) {
+                addWarning({
+                  hash: note.id,
+                  copy: note.message,
+                  data: { persist: true },
+                  actions: [
+                    {
+                      icon: "close",
+                      label: "Dismiss",
+                      value: "dismiss",
+                      i18nKey: "basket.actions.dismiss",
+                      handler: async (ctx: Message) => {
+                        services.dismissWarningNotes(context, {
+                          type: "DISMISS_WARNING",
+                          data: ctx.hash
+                        });
+                      }
+                    }
+                  ]
+                });
+              }
+              return acc;
+            },
+            null
+          );
+        }
+      },
+
       refreshActors: ({ basket, actors }: BasketContext) => {
         forEach(actors, actor => {
-          const state = actor?.getSnapshot();
           if (actor?.send) actor.send({ type: "REFRESH", data: basket });
         });
       },
@@ -612,34 +653,22 @@ export default createMachine(
       paymentDetailsComplete: (
         { actors }: BasketContext,
         { data }: AnyEventObject
-      ) => {
-        const value =
-          (actors?.paymentDetails?.getSnapshot()?.done ||
-            actors?.paymentDetails?.getSnapshot()?.matches("complete")) &&
-          !isEmpty(data);
-        return value;
-      },
+      ) =>
+        (actors?.paymentDetails?.getSnapshot()?.done ||
+          actors?.paymentDetails?.getSnapshot()?.matches("complete")) &&
+        !isEmpty(data),
 
-      hasPaymentDetails: ({ paymentDetails }: BasketContext) => {
-        const value = !isNil(paymentDetails) && !isEmpty(paymentDetails);
+      hasPaymentDetails: ({ paymentDetails }: BasketContext) =>
+        !isNil(paymentDetails) && !isEmpty(paymentDetails),
 
-        return value;
-      },
-
-      paymentDetailsConfiguring: ({
-        actors,
-        paymentDetails
-      }: BasketContext) => {
-        const valid =
-          isEmpty(paymentDetails) &&
-          ["available.invalid", "available.checking", "available.loading"].some(
-            actors?.paymentDetails?.getSnapshot()?.matches
-          );
-        return valid;
-      },
+      paymentDetailsConfiguring: ({ actors, paymentDetails }: BasketContext) =>
+        isEmpty(paymentDetails) &&
+        ["available.invalid", "available.checking", "available.loading"].some(
+          actors?.paymentDetails?.getSnapshot()?.matches
+        ),
 
       paymentNeeded: ({ paymentDetails }: BasketContext) => {
-        const hasOustandingBalance = paymentDetails?.amount ?? 0 > 0;
+        const hasOutstandingBalance = paymentDetails?.amount ?? 0 > 0;
 
         const payingNow = paymentDetails?.type != PaymentType.PAY_LATER;
 
@@ -648,16 +677,7 @@ export default createMachine(
           paymentDetails?.gateway?.type
         );
 
-        const value = hasOustandingBalance && payingNow && !manualPayment;
-
-        // console.debug("paymentNeeded", value, {
-        //   hasOustandingBalance,
-        //   payingNow,
-        //   manualPayment,
-        //   paymentDetails,
-        // });
-
-        return value;
+        return hasOutstandingBalance && payingNow && !manualPayment;
       },
 
       // --- Item Guards

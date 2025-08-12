@@ -11,7 +11,7 @@ import { useTime } from "../../utils";
 import { map, reduce, isEmpty, sortBy, isString, get } from "lodash-es";
 
 // --- types
-import type { Actor, ActorRef } from "xstate";
+import type { ActorRef } from "xstate";
 import { messageTypes } from "./types";
 import { messageDisplays, type Message } from "./types";
 
@@ -117,13 +117,13 @@ export const useFeedback = () => {
   }
 
   function dismiss(id: string) {
-    service.send({ type: "REMOVE", data: { id } });
+    service.send({ type: "DISMISS", data: { id } });
   }
 
   // --- syntactic sugar
 
   function addError(
-    message: string | object | any,
+    message: Partial<Message> | string,
     display: messageDisplays = messageDisplays.TOAST,
     delay: number = 0,
     maxAge: number = useTime().SECOND * 6
@@ -132,19 +132,22 @@ export const useFeedback = () => {
 
     return add({
       type: messageTypes.ERROR,
-      i18nKey: message?.i18nKey,
-      title: message?.title,
-      subtitle: message?.subtitle,
       copy: isString(message) ? message : message?.copy,
-      data: message?.data,
-      display,
+      ...(!isString(message) && {
+        hash: message.hash,
+        data: message.data,
+        title: message.title,
+        i18nKey: message.i18nKey,
+        actions: message.actions
+      }),
       delay,
-      maxAge
-    } as Message);
+      maxAge,
+      display
+    });
   }
 
   function addSuccess(
-    message: string | Object | any,
+    message: Partial<Message> | string,
     display: messageDisplays = messageDisplays.TOAST,
     delay: number = 0,
     maxAge: number = useTime().SECOND * 2
@@ -153,15 +156,42 @@ export const useFeedback = () => {
 
     return add({
       type: messageTypes.SUCCESS,
-      i18nKey: message?.i18nKey,
-      title: message?.title,
-      subtitle: message?.subtitle,
       copy: isString(message) ? message : message?.copy,
-      data: message?.data,
-      display,
+      ...(!isString(message) && {
+        hash: message.hash,
+        data: message.data,
+        title: message.title,
+        i18nKey: message.i18nKey,
+        actions: message.actions
+      }),
       delay,
-      maxAge
-    } as Message);
+      maxAge,
+      display
+    });
+  }
+
+  function addWarning(
+    message: Partial<Message> | string,
+    display: messageDisplays = messageDisplays.TOAST,
+    delay: number = 0,
+    maxAge: number = 0
+  ) {
+    if (!message) return; // bail if no message
+
+    return add({
+      type: messageTypes.WARNING,
+      copy: isString(message) ? message : message?.copy,
+      ...(!isString(message) && {
+        hash: message.hash,
+        data: message.data,
+        title: message.title,
+        i18nKey: message.i18nKey,
+        actions: message.actions
+      }),
+      delay,
+      maxAge,
+      display
+    });
   }
 
   // maybe?
@@ -191,13 +221,19 @@ export const useFeedback = () => {
     add: (data: MaybeRef<Message>) => add(unref(data)),
     addError,
     addSuccess,
+    addWarning,
     dismiss,
     // ---
     getMessage: (id: string) => get(messages.value, id)
   };
 };
 
-export const useMessage = (item: any /** ACTOR*/) => {
+/**
+ * This is a helper function to extract the message from an actor item.
+ * It is used to simplify the extraction of message properties from the feedback machine.
+ * @param item This is an actor item from the feedback machine.
+ */
+export const useMessage = (item: any) => {
   const { state, send } = item;
   // ---------------------------------------------------------------------------
   return {

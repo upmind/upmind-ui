@@ -43,7 +43,7 @@ async function loadLookups(
     };
   });
 
-  // // We should ALWAYS have an address set  ( if we have addresses )
+  // // We should ALWAYS have an address set (if we have addresses)
   // if (!isEmpty(defaultAddress)) {
   //   baseModel = {
   //     addressId: defaultAddress.id,
@@ -70,7 +70,7 @@ async function loadLookups(
 }
 
 async function parse(
-  { autoupdate, schema, baseModel }: BillingContext,
+  { autoupdate, schema }: BillingContext,
   { data }: AnyEventObject
 ) {
   // sometimes the machine can return the full context as data, so we check to see if we have a model
@@ -81,7 +81,7 @@ async function parse(
   );
 
   // ---
-  // we dont have any parsing checks or transforms so we can pass through the model
+  // we don't have any parsing checks or transforms so we can pass through the model
   return Promise.resolve({
     model: safeModel,
     autoupdate

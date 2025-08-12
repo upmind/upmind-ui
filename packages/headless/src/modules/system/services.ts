@@ -1,128 +1,205 @@
+import { Store } from "@tanstack/vue-store";
+
 // --- internal
-import { RequestSortDirection, useQuery } from "../..";
+import {
+  useQuery,
+  useSession,
+  type QueryParams,
+  RequestSortDirection,
+  localStoragePersister,
+  storePersister
+} from "../..";
 
 // --- utils
 import {
-  DetailedError,
+  useTime,
   ErrorOrigin,
   responseCodes,
-  useTime
+  DetailedError
 } from "../../utils";
 
 // --- types
-import type { IRegion } from "@upmind-automation/types";
-import type { SystemContext } from "./types";
-import type { AnyEventObject } from "xstate";
+import type {
+  IRegion,
+  IStatus,
+  ICountry,
+  ICurrency,
+  ILanguage,
+  IBillingCycle,
+  ITicketDepartment
+} from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
-// ENUMS
+
+const regionsStore = new Store<Record<string, IRegion[]>>({});
 
 // ---  SERVICE METHODS
-// Invoked by machines, providing context and event data
 
-// TODO: session type contextual/guest/client/admin endpoint logic
-//       as we are only guest/client at this point, we can ignore this for now
+function fetchCurrencies({
+  pagination = {
+    limit: 0,
+    offset: 0
+  },
+  ...params
+}: Partial<QueryParams> = {}) {
+  const { list, useUrl } = useQuery();
 
-async function fetchCurrencies(
-  _context: SystemContext,
-  _event: AnyEventObject
-) {
-  const { get, useUrl } = useQuery();
-
-  return get({
-    url: useUrl("currencies", { limit: 0 }),
+  return list<ICurrency[]>({
+    ...(params as any),
+    pagination,
+    url: useUrl("currencies"),
     queryKey: ["system", "currencies"],
-    staleTime: useTime()?.DAY
+    // --- options
+    staleTime: useTime()?.DAY,
+    persister: localStoragePersister.persisterFn
   });
 }
 
-async function fetchBillingCycles(
-  _context: SystemContext,
-  _event: AnyEventObject
-) {
-  const { get, useUrl } = useQuery();
-
-  return get({
-    url: useUrl("billing_cycles", { limit: 0 }),
+function fetchBillingCycles({
+  pagination = {
+    limit: 0,
+    offset: 0
+  },
+  ...params
+}: Partial<QueryParams> = {}) {
+  const { list, useUrl } = useQuery();
+  return list<IBillingCycle[]>({
+    ...(params as any),
+    pagination,
+    url: useUrl("billing_cycles"),
     queryKey: ["system", "billing-cycles"],
-    staleTime: useTime()?.DAY
+    // --- options
+    staleTime: useTime()?.DAY,
+    persister: localStoragePersister.persisterFn
   });
 }
 
-async function fetchCountries(_context: SystemContext, _event: AnyEventObject) {
-  const { get, useUrl } = useQuery();
+function fetchCountries({ pagination, ...params }: Partial<QueryParams> = {}) {
+  const { list, useUrl } = useQuery();
 
-  return get({
-    url: useUrl("countries", { limit: 0 }),
-    queryKey: ["system", "countries"],
+  return list<ICountry[]>({
     sort: [RequestSortDirection.ASC, "name"],
-    staleTime: useTime()?.DAY
+    ...(params as any),
+    pagination,
+    url: useUrl("countries"),
+    queryKey: ["system", "countries"],
+    // --- options
+    staleTime: useTime()?.DAY,
+    persister: localStoragePersister.persisterFn
   });
 }
 
-async function fetchRegions(
-  _context: SystemContext,
-  { data: { code, id } }: any
-) {
-  const { get, useUrl } = useQuery();
+function fetchRegions({
+  data: { code, id },
+  pagination = {
+    limit: 0,
+    offset: 0
+  },
+  ...params
+}: Partial<QueryParams> & {
+  data: { code: string; id: string };
+}) {
+  const { list, useUrl } = useQuery();
 
   if (!code || !id)
-    return Promise.reject(
-      new DetailedError(
-        "No code or id provided",
-        responseCodes.Unprocessable_Entity,
-        ErrorOrigin.Headless
-      )
+    throw new DetailedError(
+      "No code or id provided",
+      responseCodes.Unprocessable_Entity,
+      ErrorOrigin.Headless
     );
-  return get<any>({
-    url: useUrl(`countries/${id}/regions`, { limit: 0 }),
+
+  return list<IRegion[]>({
+    ...(params as any),
+    pagination,
+    url: useUrl(`countries/${id}/regions`),
     queryKey: ["system", "regions", code],
-    staleTime: useTime()?.DAY
-  }).then(data => ({ key: code, values: data }) as Record<string, IRegion>);
-}
-
-async function fetchLanguages(_context: SystemContext, _event: AnyEventObject) {
-  const { get, useUrl } = useQuery();
-
-  return get({
-    url: useUrl("languages", { limit: 0 }),
-    queryKey: ["system", "languages"],
+    // --- options
+    // select: data => parseRegion(data),
     staleTime: useTime()?.DAY,
-    withAccessToken: true
+    persister: storePersister(regionsStore, { append: code }).persisterFn
   });
 }
 
-async function fetchStatuses(_context: SystemContext, _event: AnyEventObject) {
-  const { get, useUrl } = useQuery();
+function fetchLanguages({
+  pagination = {
+    limit: 0,
+    offset: 0
+  },
+  ...params
+}: Partial<QueryParams> = {}) {
+  const { meta, user } = useSession();
+  const { list, useUrl } = useQuery();
 
-  return get({
-    url: useUrl("statuses", { limit: 0 }),
+  if (!meta.value.isAuthenticated || !user.value?.id) {
+    throw new DetailedError(
+      "You must be authenticated to fetch languages",
+      responseCodes.Unauthorized,
+      ErrorOrigin.Headless
+    );
+  }
+
+  return list<ILanguage[]>({
+    ...(params as any),
+    pagination,
+    url: useUrl("languages"),
+    queryKey: ["system", "languages"],
+    withAccessToken: true,
+    // --- options
+    staleTime: useTime()?.DAY,
+    persister: localStoragePersister.persisterFn
+  });
+}
+
+function fetchStatuses({
+  pagination = {
+    limit: 0,
+    offset: 0
+  },
+  ...params
+}: Partial<QueryParams> = {}) {
+  const { list, useUrl } = useQuery();
+
+  return list<IStatus>({
+    ...(params as any),
+    pagination,
+    url: useUrl("statuses"),
     queryKey: ["system", "statuses"],
-    staleTime: useTime()?.DAY
+    // --- options
+    staleTime: useTime()?.DAY,
+    persister: localStoragePersister.persisterFn
   });
 }
 
-async function fetchDepartments(
-  _context: SystemContext,
-  _event: AnyEventObject
-) {
-  const { get, useUrl } = useQuery();
+function fetchDepartments({
+  pagination,
+  ...params
+}: Partial<QueryParams> = {}) {
+  const { list, useUrl } = useQuery();
 
-  return get<any>({
-    url: useUrl("tickets/departments", { limit: 0 }),
+  return list<ITicketDepartment[]>({
+    ...(params as any),
+    pagination,
+    url: useUrl("tickets/departments"),
     queryKey: ["system", "departments"],
-    staleTime: useTime()?.DAY
+    // --- options
+    staleTime: useTime()?.DAY,
+    persister: localStoragePersister.persisterFn
   });
 }
 
 // -----------------------------------------------------------------------------
 
 export default {
-  fetchCurrencies,
-  fetchBillingCycles,
-  fetchCountries,
   fetchRegions,
-  fetchLanguages,
   fetchStatuses,
-  fetchDepartments
+  fetchCountries,
+  fetchLanguages,
+  fetchCurrencies,
+  fetchDepartments,
+  fetchBillingCycles
+  //--
+};
+
+export const stores = {
+  regions: regionsStore
 };

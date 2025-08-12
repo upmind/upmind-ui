@@ -22,7 +22,7 @@ import {
 } from "../../../utils";
 import { invalidateQueryByKey } from "../../query";
 import { mapIPhone, mapPhone, mapPhones } from "./mapper";
-import { get, isString, isEmpty, pick, omitBy } from "lodash-es";
+import { get, isString, isEmpty, omitBy } from "lodash-es";
 
 // --- types
 import type { IPhone } from "@upmind-automation/types";
