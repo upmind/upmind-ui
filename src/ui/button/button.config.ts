@@ -4,7 +4,7 @@ import { invalidRingClasses, ringClasses } from "../../assets/styles";
 // -----------------------------------------------------------------------------
 
 export const rootVariants = cva(
-  `disabled:text-emphasis-medium relative inline-flex items-center justify-center whitespace-nowrap font-medium no-underline ring-offset-background transition-all duration-300 disabled:pointer-events-none disabled:cursor-not-allowed`,
+  `relative inline-flex items-center justify-center whitespace-nowrap font-medium no-underline ring-offset-background transition-all duration-300`,
   {
     variants: {
       size: {
@@ -45,6 +45,9 @@ export const rootVariants = cva(
       },
       isLoading: {
         true: "pointer-events-none [&>:not(.spinner)]:opacity-50"
+      },
+      isDisabled: {
+        true: "cursor-not-allowed opacity-50"
       },
       isPill: {
         true: "rounded-pill",
