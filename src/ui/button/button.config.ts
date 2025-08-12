@@ -348,16 +348,25 @@ export const rootVariants = cva(
   }
 );
 
+const labelVariants = cva("px-1", {
+  variants: {
+    isIconOnly: {
+      true: "sr-only"
+    }
+  }
+});
+
 // -----------------------------------------------------------------------------
 export default {
   button: {
     root: rootVariants,
+    label: labelVariants,
     items: cva("flex size-[1lh] items-center justify-center", {
       variants: {
         size: {
           sm: "[&>i]:p-[3px]",
           md: "[&>i]:p-[3px]",
-          lg: "[&>i]:p-[4px]"
+          lg: "[&>i]:p-[5px]"
         },
         variant: {
           link: "text-emphasis-medium"

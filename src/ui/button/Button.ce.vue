@@ -21,7 +21,9 @@
     </slot>
 
     <slot>
-      <span v-if="label" :class="{ 'sr-only': iconOnly }">{{ label }}</span>
+      <span v-if="label" :class="styles.button.label">
+        {{ label }}
+      </span>
     </slot>
 
     <slot name="append">
@@ -89,6 +91,7 @@ const meta = computed(() => ({
   size: props.size,
   variant: props.variant,
   color: props.color,
+  isIconOnly: props.iconOnly,
   isPill: props.pill,
   isBlock: props.block,
   isDisbled: props.disabled,
@@ -104,6 +107,7 @@ const styles = useStyles(
 ) as ComputedRef<{
   button: {
     root: string;
+    label: string;
   };
 }>;
 </script>
