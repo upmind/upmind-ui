@@ -2,12 +2,13 @@ import { cva } from "class-variance-authority";
 import { ringClasses } from "../../assets/styles";
 
 export const itemVariants = cva(
-  `group rounded bg-control text-control-foreground transition-all duration-200 ${ringClasses}`,
+  `group rounded bg-control text-control-foreground transition-all duration-200 ${ringClasses} flex list-none gap-2 p-3 pr-4`,
   {
     variants: {
-      isMinimal: {
-        true: "",
-        false: "m-0 border px-1 shadow-sm"
+      isList: {
+        true: "hover:bg-control-active-focus my-0.5 border-0 shadow-none data-[state=checked]:ring-2 data-[state=checked]:ring-control-active",
+        false:
+          "hover:border-control-strong rounded border border-control shadow-sm"
       },
       width: {
         0: "",
@@ -26,8 +27,8 @@ export const itemVariants = cva(
       }
     },
     defaultVariants: {
-      width: 12,
-      isMinimal: false
+      isList: false,
+      width: 12
     }
   }
 );
@@ -47,20 +48,9 @@ export default {
   radioCards: {
     root: rootVariants,
     item: itemVariants,
-    radio: cva("flex h-full items-start pr-2.5"),
-    label: cva(
-      "m-0 flex h-full w-full min-w-0 cursor-pointer items-start rounded text-md font-medium leading-snug peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
-      {
-        variants: {
-          isMinimal: {
-            true: "py-0",
-            false: "py-3.5 pr-4"
-          }
-        }
-      }
-    ),
+    radio: cva("flex size-[1lh] items-center justify-center"),
     input: cva(
-      `group-hover:border-control-strong mt-[0.1rem] border-control leading-normal ring-offset-2 [transition:border-color_200ms_ease-in-out] ${ringClasses}`
+      `group-hover:border-control-strong border-control leading-normal ring-offset-2 [transition:border-color_200ms_ease-in-out] ${ringClasses}`
     )
   }
 };
