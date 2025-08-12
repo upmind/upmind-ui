@@ -1,6 +1,5 @@
 // --- external
-import type { AnyEventObject } from "xstate";
-import { createMachine, assign, actions, sendParent } from "xstate";
+import { createMachine, assign, sendParent } from "xstate";
 
 // --- internal
 import services from "./services";
@@ -8,20 +7,20 @@ import { useFeedback } from "../../feedback";
 const { addError } = useFeedback();
 
 // --- utils
-
 import {
   useTime,
-  useValidationParser,
+  parseError,
   useModelParser,
   mapToHeadlessError,
-  parseError
+  useValidationParser
 } from "../../../utils";
+import { responseCodes } from "../../../utils";
 import { useSchema, useUischema } from "./utils";
-import { remove, xorBy, get, includes, isEmpty } from "lodash-es";
+import { remove, xorBy, get, isEmpty } from "lodash-es";
 
 // --- types
+import type { AnyEventObject } from "xstate";
 import type { PromotionsContext, PromotionModel } from "./types";
-import { responseCodes } from "../../../utils";
 
 // -----------------------------------------------------------------------------
 export default createMachine(

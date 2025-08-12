@@ -2,20 +2,19 @@
 import { loadStripe } from "@stripe/stripe-js";
 
 // --- internal
-import { useQuery, useSession } from "../../..";
 import sharedServices from "../services";
+import { useQuery, useSession } from "../../..";
 
 // --- utils
 import {
-  DetailedError,
   ErrorOrigin,
-  NotAuthenticatedError,
+  DetailedError,
   responseCodes,
-  useModelParser,
-  useValidation
+  useValidation,
+  NotAuthenticatedError
 } from "../../../../utils";
-import { getSupportedPaymentMethods, getPublicKey } from "./utils";
 import { reject, set } from "lodash-es";
+import { getSupportedPaymentMethods, getPublicKey } from "./utils";
 
 // --- types
 import type { StripeContext } from "./types";
@@ -139,7 +138,7 @@ async function createPaymentElement(
 }
 
 /**
- * @name getPaymentData
+ * @name update
  * @desc Here we create a new payment detail via the Stripe SDK, and return
  * the payment detail ID which we later relay to the BE (when executing
  * payment). We do not need to pass a client secret for flow, as the
@@ -182,7 +181,7 @@ async function update({ elements, stripe, model }: StripeContext) {
     if (error) {
       reject(
         new DetailedError(
-          "Stripe create payment method failed.",
+          error.message ?? "Stripe create payment method failed.",
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
           error
@@ -208,7 +207,7 @@ async function update({ elements, stripe, model }: StripeContext) {
 }
 
 /**
- * @name beginSetup
+ * @name createAddElement
  * @desc Here we obtain a client secret via the API, before creating a
  * Stripe 'Elements' instance.
  */

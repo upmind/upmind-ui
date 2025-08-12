@@ -21,7 +21,7 @@ import { IBasketPromotion } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 
 async function load(_context: PromotionsContext, _event: AnyEventObject) {
-  // Promotions dont have any initial state to load, so we can pass through an empty object
+  // Promotions don't have any initial state to load, so we can pass through an empty object
   return Promise.resolve({});
 }
 

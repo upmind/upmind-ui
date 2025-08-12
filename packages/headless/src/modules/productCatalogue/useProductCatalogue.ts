@@ -16,12 +16,12 @@ import {
   isString,
   debounce
 } from "lodash-es";
+import { DEBOUNCE_DELAY } from "../../utils";
 
 // --- types
 import type { Product } from "../product";
 import type { ICurrency } from "@upmind-automation/types";
 import type { QueryProps, RequestFilters } from "../query";
-import { DEBOUNCE_DELAY } from "../../utils";
 
 export enum ProductSortableProperties {
   DEFAULT = "order",
