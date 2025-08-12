@@ -177,7 +177,6 @@ async function add(type: UnifiedType, data: UnifiedModel) {
   );
 
   return Promise.all(promises).then(([phone, address, company]) => {
-    debugger;
     return {
       phone: phone?.phone ?? company.phone, // NB the returned Phone object has a phone property
       address: address,
