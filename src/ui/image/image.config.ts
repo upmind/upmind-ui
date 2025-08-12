@@ -50,7 +50,7 @@ export default {
       item: cva("pl-0")
     },
     nav: {
-      root: cva("absolute bottom-[22px] right-[22px] flex gap-0.5"),
+      root: cva("bottom-5.5 right-5.5 absolute flex gap-0.5"),
       item: cva("grid size-3 place-items-center text-white")
     }
   }

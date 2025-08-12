@@ -9,7 +9,7 @@ export default {
     content: cva(
       `z-50 mt-2 w-[--radix-popover-trigger-width] overflow-hidden rounded border bg-white p-2 ${ringClasses}`
     ),
-    divider: cva("mx-3 h-[1px] border-t"),
+    divider: cva("mx-3 h-px border-t"),
     item: cva(
       "hover:bg-control-active-hover focus:bg-control-active-hover cursor-pointer rounded px-3 py-2 text-sm text-control-foreground"
     )

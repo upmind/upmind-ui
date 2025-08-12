@@ -47,7 +47,7 @@ export const rootVariants = cva(
         true: "pointer-events-none [&>:not(.spinner)]:opacity-50"
       },
       isDisabled: {
-        true: "cursor-not-allowed",
+        true: "cursor-not-allowed opacity-50",
         false: "cursor-pointer"
       },
       isPill: {
@@ -371,7 +371,7 @@ export default {
   button: {
     root: rootVariants,
     label: labelVariants,
-    items: cva("flex-center size-[1lh]", {
+    items: cva("flex-center size-lh", {
       variants: {
         size: {
           sm: "[&>i]:p-[3px]",

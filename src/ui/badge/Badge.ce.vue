@@ -2,7 +2,7 @@
   <!--<link rel="stylesheet" :href="stylesheet" />-->
   <Badge :class="cn(styles.badge, props.class)">
     <slot name="prepend">
-      <Icon v-if="icon" :icon="icon" class="[&>svg]:size-[14px]" />
+      <Icon v-if="icon" :icon="icon" class="[&>svg]:size-3.5" />
     </slot>
     <span class="px-1">
       <slot>{{ label }}</slot>

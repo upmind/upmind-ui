@@ -97,7 +97,7 @@ export const numberFieldVariants = cva(
 export const numberFieldInputVariants = cva("bg-control-background", {
   variants: {
     variant: {
-      flat: "[&>i]:disabled:text-emphasis-disabled shadow-border [&>i]:flex-center transition-all duration-300 disabled:opacity-100 [&>i]:size-[1lh]",
+      flat: "[&>i]:disabled:text-emphasis-disabled shadow-border [&>i]:flex-center [&>i]:size-lh transition-all duration-300 disabled:opacity-100",
       minimal:
         "shadow-border flex h-5 w-5 items-center justify-center rounded p-0"
     },
