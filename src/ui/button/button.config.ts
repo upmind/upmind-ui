@@ -12,7 +12,7 @@ export const rootVariants = cva(
         md: "gap-0.5 px-3 py-2 text-sm",
         lg: "gap-0.5 px-4 py-2 text-md",
         icon: "h-10 w-10 gap-2 px-2 py-1",
-        badge: "gap-0.5 rounded-full px-2.5 py-0.5 text-xs font-semibold"
+        badge: "gap-0.5 rounded-full px-2.5 py-0.5 text-xs font-medium"
       },
       variant: {
         flat: "font-medium hover:bg-opacity-90",
@@ -26,6 +26,7 @@ export const rootVariants = cva(
       },
       color: {
         base: "",
+        muted: "text-emphasis-medium",
         primary: "!ring-primary",
         secondary: "!ring-secondary",
         accent: "!ring-accent",
@@ -279,7 +280,12 @@ export const rootVariants = cva(
       // --- link (simplified - just inherit text color)
       {
         variant: "link",
-        class: "text-current"
+        class: ""
+      },
+      {
+        variant: "link",
+        color: "muted",
+        class: "text-emphasis-medium hover:text-emphasis-none"
       },
 
       // --- inverse
@@ -371,7 +377,7 @@ export default {
   button: {
     root: rootVariants,
     label: labelVariants,
-    items: cva("flex-center size-lh", {
+    items: cva("size-lh flex items-center justify-center", {
       variants: {
         size: {
           sm: "[&>i]:p-[3px]",

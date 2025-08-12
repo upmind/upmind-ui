@@ -1,8 +1,6 @@
 <template>
-  <span v-if="icon || avatar" :class="styles.input.items">
-    <Icon v-if="icon" :icon="icon" size="2xs" />
-    <Avatar v-if="avatar" :icon="avatar" size="2xs" />
-  </span>
+  <Icon v-if="icon" :icon="icon" size="2xs" :class="styles.input.items" />
+  <Avatar v-if="avatar" :icon="avatar" size="2xs" :class="styles.input.items" />
 </template>
 
 <script setup lang="ts">

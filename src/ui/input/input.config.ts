@@ -32,6 +32,6 @@ export default {
   input: {
     container: containerVariants,
     field: inputFieldVariants,
-    items: cva("flex-center size-lh")
+    items: cva("h-lh flex items-center justify-center")
   }
 };

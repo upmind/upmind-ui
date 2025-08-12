@@ -11,11 +11,11 @@
             variant="link"
             class="no-underline"
             :size="props.size"
-            disabled
             :focusable="false"
             :class="[
               {
-                'text-emphasis-high': index === props.items.length - 1
+                'text-emphasis-high cursor-default':
+                  index === props.items.length - 1
               }
             ]"
           >
