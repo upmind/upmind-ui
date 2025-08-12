@@ -1,6 +1,6 @@
 // --- utils
-import { concat, isEmpty, map, reduce, reverse, sum, sumBy } from "lodash-es";
-import { iterateParents, parseMeta, parseSubproducts } from "../product/utils";
+import { map, sum } from "lodash-es";
+import { iterateParents, parseMeta } from "../product/utils";
 import { useTranslateField, useTranslateName } from "../../utils";
 
 // --- types

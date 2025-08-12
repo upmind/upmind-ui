@@ -42,7 +42,7 @@ export const useProductCategories = (initial?: QueryProps) => {
 
   // --- utils
 
-  /** generate a utlility walker to tak all categories( data) and take their children  iterativel and add them to a flattend lit of categoris */
+  /** generate a utility walker to tak all categories( data) and take their children iterative and add them to a flattened lit of categories */
   function flattenCategories(categories: ProductCategory[]): ProductCategory[] {
     const flattened: ProductCategory[] = [];
     const walk = (category: ProductCategory) => {

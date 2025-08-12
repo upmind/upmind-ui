@@ -1,89 +1,90 @@
 // --- internal
-import { useSystem } from "../system";
 import { useBrand } from "../brand";
+import { useSystem } from "../system";
 
 // --- utils
 import {
-  DetailedError,
   ErrorOrigin,
+  useImageUrl,
   responseCodes,
-  useLaravalSchemaParser,
-  useTranslateField,
-  useTranslateName,
+  DetailedError,
   useValidation,
-  useImageUrl
+  useTranslateName,
+  useTranslateField,
+  useLaravalSchemaParser
 } from "../../utils";
 
 import {
-  compact,
-  concat,
-  find,
-  first,
-  flatMap,
-  forEach,
   get,
   has,
-  isArray,
-  isEmpty,
-  isFunction,
-  isNil,
-  isNumber,
-  keys,
   map,
+  set,
+  find,
+  keys,
+  some,
+  uniq,
+  first,
+  isNil,
   maxBy,
   merge,
   minBy,
-  omitBy,
-  orderBy,
-  reduce,
-  reverse,
-  set,
-  some,
-  subtract,
   times,
+  concat,
+  omitBy,
+  reduce,
+  values,
+  compact,
+  flatMap,
+  forEach,
+  isArray,
+  isEmpty,
+  orderBy,
+  reverse,
+  isNumber,
+  subtract,
   toNumber,
-  uniq,
-  values
+  isFunction
 } from "lodash-es";
 
 import type {
-  IBasketProduct,
   IProduct,
-  IProductAttribute,
-  IProductCategory,
+  IProductPrice,
+  IBasketProduct,
   IProductOption,
-  IProductPrice
+  IProductCategory,
+  IProductAttribute
 } from "@upmind-automation/types";
+
 // --- types
 import {
+  ProductTypes,
   BrandConfigKeys,
   DefaultPaymentPeriod,
-  ProductTypes,
   PromotionDisplayTypes
 } from "@upmind-automation/types";
 
 import type {
-  ExternalError,
-  IProductConfig,
-  PriceCalculations,
-  PriceDetail,
-  PriceDisplay,
+  UIMeta,
   Product,
-  ProductBundle,
-  ProductBundles,
-  ProductConfigContext,
-  ProductDetails,
+  PriceDetail,
+  TermDetails,
+  PriceDisplay,
   ProductModel,
   ProductProps,
-  ProductSummaryDetail,
-  ProductSummaryDetailWithPrice,
-  PromotionDetails,
-  SubproductDetails,
+  ExternalError,
+  ProductBundle,
+  IProductConfig,
+  ProductBundles,
+  ProductDetails,
   SubproductModel,
-  SubproductModelValue,
   SubproductValue,
-  TermDetails,
-  UIMeta
+  PromotionDetails,
+  PriceCalculations,
+  SubproductDetails,
+  ProductConfigContext,
+  ProductSummaryDetail,
+  SubproductModelValue,
+  ProductSummaryDetailWithPrice
 } from "./types";
 import { ErrorObject } from "ajv";
 
@@ -122,13 +123,13 @@ export function useUischemaTitle(
     )
   ) as string[];
 
-  if (isEmpty(templates)) fallback;
+  if (isEmpty(templates)) return fallback;
 
   // ---
   const template = first(templates) ?? "";
   const result = template.replace(
     /{{([^{}]+)}}/g,
-    (keyExpr, key) =>
+    (_keyExpr, key) =>
       useTranslateField(basketProduct, key) ??
       useTranslateField(product, key) ??
       ""
@@ -706,8 +707,8 @@ export const parseSummaryDetail = (
   raw: IProductPrice,
   overrides?: boolean
 ): ProductSummaryDetailWithPrice => {
-  const { getBillingCycle } = useSystem();
   const { includesTax } = useBrand();
+  const { getBillingCycle } = useSystem();
   const cycle = getBillingCycle(raw.billing_cycle_months);
 
   const discounted =

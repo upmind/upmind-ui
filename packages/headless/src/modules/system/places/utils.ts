@@ -27,6 +27,7 @@ async function parseRegion(
   country: string
 ) {
   const { fetchRegions, getRegion } = useSystem();
+
   return fetchRegions(country).then(() =>
     getRegion([regionLevel1 ?? "", regionLevel2 ?? ""], country)
   );
