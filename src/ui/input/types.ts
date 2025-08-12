@@ -4,9 +4,8 @@ import type { CxOptions, VariantProps } from "class-variance-authority";
 import type { Icon } from "../icon/types";
 
 // --- internal
-import type { containerVariants, inputContainerVariants } from "./input.config";
+import type { containerVariants } from "./input.config";
 export type ContainerVariantProps = VariantProps<typeof containerVariants>;
-export type InputVariantProps = VariantProps<typeof inputContainerVariants>;
 
 export interface InputProps {
   modelValue?: string | number;
@@ -34,8 +33,7 @@ export interface InputProps {
   min?: number | string;
   step?: number;
   // --- variants
-  size?: InputVariantProps["size"] | string;
-  width?: ContainerVariantProps["width"] | string;
+  width?: ContainerVariantProps["width"] | string | undefined;
   // ---
   uiConfig?: { input?: CxOptions };
   class?: HTMLAttributes["class"];

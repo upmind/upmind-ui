@@ -25,23 +25,25 @@ export const rootVariant = cva("h-full w-full", {
   }
 });
 
+export const containerVariant = cva("h-full overflow-hidden rounded-lg", {
+  variants: {
+    ratio: {
+      default: "",
+      "1:1": "aspect-square",
+      "4:3": "aspect-[4/3]",
+      "3:2": "aspect-[3/2]",
+      "16:9": "aspect-video",
+      "18:6": "aspect-[18/6]"
+    }
+  },
+  defaultVariants: {
+    ratio: "1:1"
+  }
+});
+
 export default {
   image: {
-    container: cva("h-full overflow-hidden rounded-lg", {
-      variants: {
-        ratio: {
-          default: "",
-          "1:1": "aspect-square",
-          "4:3": "aspect-[4/3]",
-          "3:2": "aspect-[3/2]",
-          "16:9": "aspect-video",
-          "18:6": "aspect-[18/6]"
-        }
-      },
-      defaultVariants: {
-        ratio: "1:1"
-      }
-    }),
+    container: containerVariant,
     root: rootVariant,
     icon: cva("opacity-25"),
     carousel: {

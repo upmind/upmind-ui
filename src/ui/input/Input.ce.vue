@@ -48,15 +48,32 @@ const emits = defineEmits<{
   (e: "update:modelValue", payload: string | number): void;
 }>();
 
-const delegatedProps = computed(() =>
-  omit(props, [
-    "class",
-    "uiConfig",
-    "defaultValue",
-    "modelValue",
-    "width",
-    "size"
-  ])
+const delegatedProps = computed(
+  (): Omit<
+    InputProps,
+    | "class"
+    | "uiConfig"
+    | "defaultValue"
+    | "modelValue"
+    | "width"
+    | "size"
+    | "icon"
+    | "avatar"
+    | "iconAppend"
+    | "avatarAppend"
+  > =>
+    omit(props, [
+      "class",
+      "uiConfig",
+      "defaultValue",
+      "modelValue",
+      "width",
+      "size",
+      "icon",
+      "avatar",
+      "iconAppend",
+      "avatarAppend"
+    ])
 );
 
 const modelValue = useVModel(props, "modelValue", emits, {
@@ -65,7 +82,6 @@ const modelValue = useVModel(props, "modelValue", emits, {
 });
 
 const meta = computed(() => ({
-  size: props.size,
   width: props.width
 }));
 
