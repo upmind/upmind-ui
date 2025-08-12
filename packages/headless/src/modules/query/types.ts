@@ -8,7 +8,8 @@ import type {
   QueryObserverOptions,
   MutationObserverOptions,
   QueryKey,
-  InfiniteData
+  InfiniteData,
+  UseInfiniteQueryReturnType
 } from "@tanstack/vue-query";
 
 // -----------------------------------------------------------------------------

@@ -2,22 +2,23 @@
 
 // --- internal
 import { useQuery } from ".";
+import { useLocale } from "../system";
 import { useSession } from "../session";
 import { messageDisplays, messageTypes, useFeedback } from "../feedback";
-import { useLocale } from "../system";
+
 // --- utils
 import {
   get,
-  includes,
-  isEmpty,
   map,
   set,
-  startsWith,
-  upperCase
+  isEmpty,
+  includes,
+  upperCase,
+  startsWith
 } from "lodash-es";
 import {
-  dumpTokenFromStorage,
   getTokenFromStorage,
+  dumpTokenFromStorage,
   persistTokenToStorage
 } from "../session/utils";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
@@ -113,8 +114,8 @@ async function doFetch<T extends any = any>({
       )
         return Promise.reject();
 
-      // DC: change this as when we get service cors errors, we dont get a response object with status
-      // so we need to handle it differently, and that  genrally means the API is down
+      // DC: change this as when we get service cors errors, we don't get a response object with status,
+      // so we need to handle it differently, and that generally means the API is down
 
       return handleError(
         response.status ?? responseCodes.Service_Unavailable,

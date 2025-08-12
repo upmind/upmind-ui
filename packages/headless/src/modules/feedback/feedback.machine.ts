@@ -3,13 +3,13 @@ import { createMachine, assign, spawn, InterpreterStatus } from "xstate";
 
 // --- internal
 import messageMachine from "./message.machine";
-import type { MessagesContext } from "./types";
 
 // --- utils
 import { generateHash, useMessageParser } from "./utils";
 import { find, isEmpty, remove, set, some } from "lodash-es";
 
 // --- types
+import type { MessagesContext } from "./types";
 import type { ActorRef, AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------
@@ -19,7 +19,9 @@ export default createMachine(
     id: "feedbackManager",
     predictableActionArguments: true,
     initial: "empty",
-    context: {} as MessagesContext,
+    context: {
+      messages: []
+    } as MessagesContext,
     states: {
       // our initial state depends on if the machine has any message
       // If we have context > message, we can skip to processing
@@ -58,12 +60,12 @@ export default createMachine(
         messages: ({ messages }: MessagesContext, { data }: AnyEventObject) => {
           messages = messages ?? [];
 
-          const id = data?.id || generateHash(data);
+          const id = data?.hash || generateHash(data);
           set(data, "hash", id);
 
           const exists = some(messages, ["id", id]);
 
-          // if we dont then spawn an actor for the new message
+          // if we don't, then spawn an actor for the new message
           if (!exists) {
             const machine: ActorRef<any> = spawn(
               messageMachine.withContext(useMessageParser(data)),
@@ -82,11 +84,11 @@ export default createMachine(
           { data: { id } }: AnyEventObject
         ) => {
           messages = messages ?? [];
-          // try find any messages with the same id
+          // try to find any messages with the same id
           const actor = find(messages, ["id", id]);
 
           // if it exists, stop the referenced machine
-          // and remove it from our list of actor
+          // and remove it from our list of an actor
           if (actor?.getSnapshot().status == InterpreterStatus.Running)
             actor?.stop && actor.stop();
 
@@ -102,13 +104,13 @@ export default createMachine(
         ) => {
           messages = messages ?? [];
 
-          // try find any messages with the same id
+          // try to find any messages with the same id
           const message = find(messages, ["id", id]);
 
           // if it exists, stop the referenced machine
-          // and remove it from our list of message
+          // and remove it from our list of messages
           if (message?.send && !message?.getSnapshot()?.done) {
-            message.send({ type: "DISMISS" });
+            message.send({ type: "ACTION", data: "dismiss" });
           } else {
             remove(messages, ["id", id]);
           }

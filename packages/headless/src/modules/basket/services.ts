@@ -116,6 +116,19 @@ async function load(context: BasketContext, _event: AnyEventObject) {
     .then(data => getProvisioningFieldsValues(data as IBasket));
 }
 
+async function dismissWarningNotes(
+  { basket }: BasketContext,
+  { data }: AnyEventObject
+) {
+  const { put, useUrl } = useQuery();
+
+  return put({
+    url: useUrl(`/orders/${basket?.id}/warnings/hide`),
+    data: { ids: [data] },
+    withAccessToken: true
+  });
+}
+
 // this generates an empty basket!
 async function generate({ actors }: BasketContext, _event: AnyEventObject) {
   const { post, useUrl } = useQuery();
@@ -292,6 +305,7 @@ async function getProvisioningFieldsValues(basket: IBasket) {
 
 export default {
   load,
+  dismissWarningNotes,
   refresh: load,
   convert,
   isAuthenticated: () => useSession().isAuthenticated()

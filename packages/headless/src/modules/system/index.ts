@@ -6,3 +6,4 @@ export * from "./places";
 export * from "./recaptcha";
 export * from "./upload";
 export * from "./useSystem";
+export * from "./clientArea";
