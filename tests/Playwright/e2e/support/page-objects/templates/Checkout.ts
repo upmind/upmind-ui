@@ -45,7 +45,7 @@ export class Checkout {
     await this.addressLine2.fill(addressLine2);
     await this.city.fill(city);
     await this.postCode.fill(postCode);
-    if (phoneInput) {
+    if (phoneInput != null) {
       await this.phoneInput.fill(phoneInput);
     }
     await this.saveDetails.click();
