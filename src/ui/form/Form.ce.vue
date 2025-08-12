@@ -9,7 +9,7 @@
     <JsonForms
       ref="jsonform"
       :additionalErrors="additionalErrors"
-      :ajv="ajv"
+      :ajv="ajv as any"
       :class="styles.form.content"
       :data="model"
       :enabled="!meta.isDisabled"
