@@ -4,7 +4,7 @@ import { invalidRingClasses, ringClasses } from "../../assets/styles";
 // -----------------------------------------------------------------------------
 
 export const rootVariants = cva(
-  `relative inline-flex items-center justify-center whitespace-nowrap font-medium no-underline ring-offset-background transition-all duration-300`,
+  `relative inline-flex items-center justify-center whitespace-nowrap no-underline ring-offset-background transition-all duration-300`,
   {
     variants: {
       size: {
@@ -15,14 +15,14 @@ export const rootVariants = cva(
         badge: "gap-0.5 rounded-full px-2.5 py-0.5 text-xs font-semibold"
       },
       variant: {
-        flat: "hover:bg-opacity-90",
-        outline: "shadow-border",
-        ghost: "",
+        flat: "font-medium hover:bg-opacity-90",
+        outline: "shadow-border font-medium",
+        ghost: "font-medium",
         link: "gap-1 !bg-transparent !p-0 underline underline-offset-4",
-        tonal: "",
-        inverse: "",
+        tonal: "font-medium",
+        inverse: "font-medium",
         control:
-          "border bg-control !text-control-foreground ring-offset-background"
+          "border bg-control font-medium !text-control-foreground ring-offset-background"
       },
       color: {
         base: "",
@@ -47,7 +47,8 @@ export const rootVariants = cva(
         true: "pointer-events-none [&>:not(.spinner)]:opacity-50"
       },
       isDisabled: {
-        true: "cursor-not-allowed opacity-50"
+        true: "cursor-not-allowed",
+        false: "cursor-pointer"
       },
       isPill: {
         true: "rounded-pill",
@@ -348,8 +349,17 @@ export const rootVariants = cva(
   }
 );
 
-const labelVariants = cva("px-1", {
+const labelVariants = cva("", {
   variants: {
+    variant: {
+      flat: "px-1",
+      outline: "px-1",
+      ghost: "px-1",
+      link: "",
+      tonal: "px-1",
+      inverse: "px-1",
+      control: "px-1"
+    },
     isIconOnly: {
       true: "sr-only"
     }
