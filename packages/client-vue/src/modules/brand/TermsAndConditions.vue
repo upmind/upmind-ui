@@ -13,11 +13,16 @@
           {{ t("brand.termsAndConditions.action") }}
         </span>
 
-        <Link v-else-if="meta.isUrl" :href="data.url" target="_blank">
+        <Link
+          v-else-if="meta.isUrl"
+          :href="data.url"
+          target="_blank"
+          class="font-normal text-inherit"
+        >
           {{ t("brand.termsAndConditions.action") }}
         </Link>
 
-        <Link v-else @click="toggleOpen">
+        <Link v-else @click="toggleOpen" class="font-normal text-inherit">
           {{ t("brand.termsAndConditions.action") }}
         </Link>
       </template>
