@@ -1,6 +1,8 @@
 <template>
-  <Icon v-if="icon" :icon="icon" size="2xs" />
-  <Avatar v-if="avatar" :icon="avatar" size="2xs" />
+  <span v-if="icon || avatar" :class="styles.input.items">
+    <Icon v-if="icon" :icon="icon" size="2xs" />
+    <Avatar v-if="avatar" :icon="avatar" size="2xs" />
+  </span>
 </template>
 
 <script setup lang="ts">
@@ -16,7 +18,7 @@ import config from "./input.config";
 import type { InputItemsProps } from "./types";
 import type { ComputedRef } from "vue";
 
-const props = defineProps<InputItemsProps>();
+defineProps<InputItemsProps>();
 
 const styles = useStyles(["input"], {}, config, {}) as ComputedRef<{
   input: {

@@ -371,7 +371,7 @@ export default {
   button: {
     root: rootVariants,
     label: labelVariants,
-    items: cva("flex size-[1lh] items-center justify-center", {
+    items: cva("flex-center size-[1lh]", {
       variants: {
         size: {
           sm: "[&>i]:p-[3px]",
