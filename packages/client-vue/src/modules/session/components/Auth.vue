@@ -49,31 +49,10 @@
       logout
     </Button>
 
-    <i18n-t
+    <TermsAndConditions
+      class="text-emphasis-medium text-center text-sm"
       v-if="currentForm === 'register'"
-      keypath="session.terms.label"
-      tag="p"
-      class="text-emphasis-medium text-sm"
-    >
-      <template #[`action`]>
-        {{ t("auth.actions.register") }}
-      </template>
-      <template #[`name`]>
-        {{ name }}
-      </template>
-      <template #[`terms`]>
-        <Link
-          v-if="uiCart?.terms_url"
-          as="a"
-          :href="uiCart.terms_url"
-          target="_blank"
-          class="font-normal text-inherit"
-        >
-          {{ t("session.terms.link") }}
-        </Link>
-        <template v-else>{{ t("session.terms.link") }}</template>
-      </template>
-    </i18n-t>
+    />
   </div>
 </template>
 
@@ -85,6 +64,7 @@ import { useVModel } from "@vueuse/core";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
+import TermsAndConditions from "../../brand/TermsAndConditions.vue";
 import Form from "../../../components/form/Form.vue";
 import config from "../sesssion.config";
 import {
