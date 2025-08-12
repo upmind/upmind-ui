@@ -10,10 +10,7 @@
       )
     "
   >
-    <span
-      class="flex-center size-[1lh]"
-      :class="props.noInput ? 'sr-only' : ''"
-    >
+    <span class="flex-center size-lh" :class="props.noInput ? 'sr-only' : ''">
       <span
         :class="
           cn(

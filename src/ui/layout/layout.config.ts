@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 export default {
   control: {
     root: cva(
-      "shadow-border-b flex w-full flex-shrink-0 items-center justify-center self-start bg-base-background px-[10px] py-4"
+      "shadow-border-b flex w-full flex-shrink-0 items-center justify-center self-start bg-base-background px-2.5 py-4"
     ),
     container: cva("flex w-full items-center justify-between", {
       variants: {
@@ -24,7 +24,7 @@ export default {
   },
 
   enclosed: {
-    root: cva("w-full px-[10px] py-[72px]"),
+    root: cva("py-18 w-full px-2.5"),
     container: cva("max-w-app-lg mx-auto flex w-full flex-col gap-6"),
     content: cva("flex w-full flex-col gap-9 md:flex-row"),
     main: cva("flex w-full flex-col gap-6"),
@@ -36,10 +36,10 @@ export default {
   full: {
     root: cva("mx-auto w-full flex-wrap items-start justify-start"),
     header: {
-      root: cva("px-[10px]", {
+      root: cva("px-2.5", {
         variants: {
           isMinimal: {
-            true: "py-[72px]",
+            true: "py-18",
             false: "py-24"
           }
         }
@@ -47,10 +47,10 @@ export default {
       container: cva("max-w-app mx-auto")
     },
     content: {
-      root: cva("px-[10px]", {
+      root: cva("px-2.5", {
         variants: {
           isMinimal: {
-            true: "py-[72px]",
+            true: "py-18",
             false: "py-24"
           },
           hasHeader: {
@@ -60,7 +60,7 @@ export default {
         }
       }),
       container: cva(
-        "max-w-app mx-auto flex w-full flex-col gap-[72px] md:flex-row"
+        "max-w-app gap-18 mx-auto flex w-full flex-col md:flex-row"
       )
     },
     aside: cva("w-full max-w-md"),

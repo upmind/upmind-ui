@@ -48,7 +48,7 @@ export default {
   radioCards: {
     root: rootVariants,
     item: itemVariants,
-    radio: cva("flex-center size-[1lh]"),
+    radio: cva("flex-center size-lh"),
     input: cva(
       `group-hover:border-control-strong border-control leading-normal ring-offset-2 [transition:border-color_200ms_ease-in-out] ${ringClasses}`
     )
