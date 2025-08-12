@@ -24,6 +24,11 @@ export const Logins = {
     username: "nathan.robinson+micropayment@upmind.com",
     password: "Micropayment1"
   },
+  existingMethodUser: {
+    grant_type: "password",
+    username: "nathan.robinson+existingmethod@upmind.com",
+    password: "ExistingMethod123"
+  },
   priceListUser: {
     grant_type: "password",
     username: "nathan.robinson+pricelist@upmind.com",

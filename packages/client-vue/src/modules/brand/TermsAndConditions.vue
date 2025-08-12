@@ -5,6 +5,7 @@
       keypath="brand.termsAndConditions.terms"
       tag="p"
       scope="global"
+      data-testid="terms-and-conditions"
     >
       <template #brand>{{ brandName }}</template>
 
@@ -22,7 +23,12 @@
           {{ t("brand.termsAndConditions.action") }}
         </Link>
 
-        <Link v-else @click="toggleOpen" class="font-normal text-inherit">
+        <Link
+          v-else
+          @click="toggleOpen"
+          class="font-normal text-inherit"
+          data-testid="terms-link"
+        >
           {{ t("brand.termsAndConditions.action") }}
         </Link>
       </template>

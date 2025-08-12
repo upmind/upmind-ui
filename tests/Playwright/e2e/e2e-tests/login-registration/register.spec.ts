@@ -5,7 +5,6 @@ import { Registration } from "../../support/page-objects/templates/Registration"
 let registration: Registration;
 
 test.describe("User Registration", () => {
-  test.use({ locale: "es-ES" });
   test.beforeEach(async ({ page, context }) => {
     registration = new Registration(page, context);
     await page.goto(URLs.register);
