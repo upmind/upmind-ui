@@ -19,16 +19,12 @@ export async function getSessionToken(
     throw new Error("Session cookie not found.");
   }
 
-  const rawToken = sessionCookie.value;
-  const decodedToken = JSON.parse(
-    Buffer.from(rawToken, "base64url").toString("utf-8")
-  );
-  const accessToken = decodedToken.access_token;
-  //console.log("DECODED TOKEN:", decodedToken);
-  return accessToken;
+  const parsed = JSON.parse(decodeURIComponent(sessionCookie.value));
+  //console.log("Session Token:", parsed.access_token);
+  return parsed.access_token;
 }
 
-/* Helper to encode JSON to base64url */
+/* Helper to encode JSON to base64url (No longer used in Dev) */
 function base64urlEncode(obj: any): string {
   const json = JSON.stringify(obj);
   return Buffer.from(json)
@@ -64,11 +60,10 @@ export async function getClientToken(
   );
 
   const json = await response.json();
-  const encodedToken = base64urlEncode(json);
   await page.context().addCookies([
     {
       name: "upm_client_session",
-      value: encodedToken,
+      value: JSON.stringify(json),
       domain: "qa-automation.local",
       path: "/",
       httpOnly: false,
