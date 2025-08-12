@@ -43,13 +43,22 @@ export interface Company {
   name: ICompany["name"];
   default: ICompany["default"];
   regNumber: ICompany["reg_number"];
-  vatNumber: ICompany["vat_number"];
-  vatPercent: ICompany["vat_percent"];
+  vat: {
+    valid: ICompany["vat_validated"];
+    percent: ICompany["vat_percent"];
+    number: ICompany["vat_number"];
+    reason: ICompany["vat_validation_failed_reason"];
+    checked: ICompany["vat_validation_checked_at"];
+    with: ICompany["vat_validated_with"];
+  };
   // --- meta info
   meta: {
     isDefault: boolean;
     canDelete: boolean;
     isVerified: boolean;
+    hasVat: boolean;
+    hasVatValidation: boolean;
+    hasValidVat: boolean;
   };
 }
 

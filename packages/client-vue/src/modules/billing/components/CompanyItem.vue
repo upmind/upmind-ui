@@ -30,10 +30,26 @@
     </p>
 
     <p
-      v-if="regNumber || vatNumber"
-      class="text-emphasis-medium m-0 inline-flex flex-wrap gap-x-1 text-sm"
+      v-if="regNumber || vat?.number"
+      class="text-emphasis-medium m-0 inline-flex flex-wrap items-center gap-x-1 text-sm"
     >
-      {{ t("client.company.details", { title, regNumber, vatNumber }) }}
+      {{
+        t("client.company.details", {
+          title,
+          regNumber,
+          vatNumber: vat?.number
+        })
+      }}
+
+      <template v-if="meta.hasVatValidation && meta.hasVat">
+        <Icon v-if="meta.hasValidVat" icon="check-circle" size="2xs" />
+        <Tooltip
+          v-else
+          :label="vat?.reason ?? t('client.company.vat.notValidated')"
+        >
+          <Icon icon="alert-triangle" size="2xs" />
+        </Tooltip>
+      </template>
     </p>
   </div>
 </template>
@@ -43,11 +59,10 @@
 import { useI18n } from "vue-i18n";
 
 // --- components
-import { Link, Badge } from "@upmind-automation/upmind-ui";
+import { Link, Badge, Icon, Tooltip } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { Company } from "@upmind-automation/headless";
-import type { register } from "module";
 
 // -----------------------------------------------------------------------------
 

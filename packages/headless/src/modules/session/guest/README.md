@@ -32,7 +32,6 @@ The module operates as a state machine with built-in context to manage user gues
 - **Loading**: In this initial state, the module checks if there is a valid token. If present, it proceeds to the **Processed** state. Otherwise, it generates a role based token in the "Generating" state.
 
 - **Processing**: This state represents a processing state for specific actions, which can be invoked as needed. It has three sub-states, **Generating**, **Refreshing**, and **Persisting**, depending on the action being performed.
-
   - **Generating**: In this state, the module generates a role based token. Once generated, it transitions to the **Persisting** state.
   - **Refreshing**: In this state, the module refreshes a role based token. Once refreshed, it transitions to the **Persisting** state.
   - **Persisting**: In this state, the module persists the token in local storage. Once persisted, it transitions to the **Processed** state.
