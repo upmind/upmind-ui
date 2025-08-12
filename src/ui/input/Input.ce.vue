@@ -1,20 +1,18 @@
 <template>
-  <div :class="cn(styles.container, props.class)">
-    <span :class="styles.input.container">
-      <slot name="prepend">
-        <InputItems :icon="props.icon" :avatar="props.avatar" />
-      </slot>
+  <div :class="cn(styles.input.container, props.class)">
+    <slot name="prepend">
+      <InputItems :icon="props.icon" :avatar="props.avatar" />
+    </slot>
 
-      <input
-        v-bind="delegatedProps"
-        v-model="modelValue"
-        :class="styles.input.field"
-      />
+    <input
+      v-bind="delegatedProps"
+      v-model="modelValue"
+      :class="styles.input.field"
+    />
 
-      <slot name="append">
-        <InputItems :icon="props.iconAppend" :avatar="props.avatarAppend" />
-      </slot>
-    </span>
+    <slot name="append">
+      <InputItems :icon="props.iconAppend" :avatar="props.avatarAppend" />
+    </slot>
   </div>
 </template>
 

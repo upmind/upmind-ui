@@ -9,7 +9,7 @@ export const invalidRingClasses =
   "aria-invalid:!ring-invalid aria-invalid:!ring-2 aria-invalid:!ring-offset-2";
 
 export const containerVariants = cva(
-  `bg-control-background border border-control transition-[background-color,border-color,opacity,box-shadow] duration-200 ${ringClasses} ${invalidRingClasses}`,
+  `bg-control-background flex items-center gap-3 border border-control px-4 py-2 text-md transition-[background-color,border-color,opacity,box-shadow] duration-200 ${ringClasses} ${invalidRingClasses}`,
   {
     variants: {
       width: {
@@ -23,28 +23,15 @@ export const containerVariants = cva(
   }
 );
 
-export const inputContainerVariants = cva("flex items-center gap-3", {
-  variants: {
-    size: {
-      md: "gap-3 px-4 py-2 text-sm",
-      lg: "gap-3 px-4 py-2 text-md"
-    }
-  },
-  defaultVariants: {
-    size: "md"
-  }
-});
-
 export const inputFieldVariants = cva(
   "w-full rounded bg-base-background text-control-foreground focus:outline-none focus:ring-0"
 );
 
 // -----------------------------------------------------------------------------
 export default {
-  container: containerVariants,
   input: {
-    container: inputContainerVariants,
+    container: containerVariants,
     field: inputFieldVariants,
-    items: cva("")
+    items: cva("flex-center size-[1lh]")
   }
 };

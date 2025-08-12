@@ -11,7 +11,7 @@
     "
   >
     <span
-      class="flex size-[1lh] items-center justify-center"
+      class="flex-center size-[1lh]"
       :class="props.noInput ? 'sr-only' : ''"
     >
       <span
