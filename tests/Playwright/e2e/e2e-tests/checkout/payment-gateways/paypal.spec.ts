@@ -1,22 +1,24 @@
 import { expect } from "@playwright/test";
-import { test } from "../../support/fixtures/test";
+import { test } from "../../../support/fixtures/test";
 import { fakerEN_GB } from "@faker-js/faker";
-import { URLs } from "../../support/constants/urls";
+import { URLs } from "../../../support/constants/urls";
 import {
   getCurrentOrderId,
   addProductToOrder
-} from "../../support/utils/functions/basket";
+} from "../../../support/utils/functions/basket";
 import {
   getSessionToken,
   getClientToken
-} from "../../support/utils/functions/tokens";
-import { Checkout } from "../../support/page-objects/templates/Checkout";
-import { Logins } from "../../support/constants/logins";
-import { payPalDetails } from "../../support/secrets/paypal";
+} from "../../../support/utils/functions/tokens";
+import { Checkout } from "../../../support/page-objects/templates/Checkout";
+import { Logins } from "../../../support/constants/logins";
+import { payPalDetails } from "../../../support/secrets/paypal";
 
 let checkout: Checkout;
 
 test.describe("Checkout with PayPal", () => {
+  let token: string;
+  let orderId: string | null;
   test.beforeEach(async ({ page }) => {
     checkout = new Checkout(page);
     await page.goto(URLs.login);
@@ -29,8 +31,8 @@ test.describe("Checkout with PayPal", () => {
     );
     await page.goto(URLs.basket);
     await page.waitForLoadState("networkidle");
-    const token = await getSessionToken(context, "client");
-    const orderId = await getCurrentOrderId(token);
+    token = await getSessionToken(context, "client");
+    orderId = await getCurrentOrderId(token);
     await addProductToOrder(
       `${token}`,
       `${orderId}`,

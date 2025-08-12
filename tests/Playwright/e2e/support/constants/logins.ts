@@ -33,5 +33,10 @@ export const Logins = {
     grant_type: "password",
     username: "nathan.robinson+twofactor@upmind.com",
     password: "Twofactor1"
+  },
+  brandUser: {
+    grant_type: "password",
+    username: "nathan.robinson+branduser@upmind.com",
+    password: "BrandUser1"
   }
 };
