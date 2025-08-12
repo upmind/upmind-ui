@@ -4,7 +4,7 @@
     :to="to"
     :href="href"
     :type="type"
-    :disabled="meta.isDisbled || meta.isLoading"
+    :disabled="meta.isDisabled || meta.isLoading"
     :tabindex="meta.isFocusable ? '0' : '-1'"
     :class="cn(styles.button.root, props.class)"
     :data-testid="`button-${kebabCase(label ?? 'default')}`"
