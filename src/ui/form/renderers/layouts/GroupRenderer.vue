@@ -39,17 +39,12 @@ import { useStyles } from "../../../../utils";
 // --- types
 import type { PropType, ComputedRef } from "vue";
 import type { Layout } from "@jsonforms/core";
-import type { InputProps } from "../../../input";
 
 // -------------------------------------------------------------------
 
 const props = defineProps({
   ...rendererProps<Layout>(),
   // ---  Additional Attributes
-  size: {
-    type: String as PropType<InputProps["size"]>,
-    default: null
-  },
   // --- Provide a way to add custom styles for a specific instance of the component
   uiConfig: { type: [Object, Array], default: () => ({}) }
 });

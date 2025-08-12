@@ -21,7 +21,7 @@ import type { ButtonProps } from "../button";
 type FormVariantProps = VariantProps<typeof formVariants>;
 
 // --- types
-import type { InputProps, InputVariantProps } from "../input";
+import type { InputProps } from "../input";
 
 export interface FormProps<T = Record<string, any>> {
   as?: string;
