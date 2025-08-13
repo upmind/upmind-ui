@@ -63,7 +63,7 @@ export default {
         "max-w-app gap-18 mx-auto flex w-full flex-col md:flex-row"
       )
     },
-    aside: cva("flex w-full max-w-md flex-col gap-6"),
+    aside: cva("flex w-full max-w-md flex-col gap-12"),
     main: cva("flex w-full flex-col gap-12")
   }
 };
