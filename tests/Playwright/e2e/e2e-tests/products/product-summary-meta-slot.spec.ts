@@ -9,7 +9,7 @@ test.describe("Product Config Meta Elements", () => {
     productConfig = new ProductConfig(page);
   });
   test("Summary Meta Slot - Applied to product", async ({ page }) => {
-    await page.goto(URLs.consultingBlock);
+    await page.goto(`${URLs.consultingBlock}?force=true&navigateOnly=true`);
     await expect(productConfig.summaryMetaSlot).toHaveCount(1);
   });
   test("Summary Meta Slot - Applied to category", async ({ page }) => {

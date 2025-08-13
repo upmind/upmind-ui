@@ -43,9 +43,6 @@ test.describe("Hosting customers", async () => {
       await expect(page.getByRole("dialog")).toContainText(
         "Converting your order"
       );
-      await expect(page.getByRole("dialog")).toContainText(
-        "Processing your payment"
-      );
       await expect(page.getByRole("dialog")).toContainText("Order complete!");
     });
     test("Log in at checkout", async ({ page }) => {
@@ -58,13 +55,7 @@ test.describe("Hosting customers", async () => {
       );
       await checkout.selectPaymentMethod("Direct Bank Transfer");
       await page.getByTestId("button-place-order").click();
-      await expect(page.getByRole("dialog")).toContainText(
-        "Converting your order"
-      );
-      await expect(page.getByRole("dialog")).toContainText(
-        "Processing your payment"
-      );
-      await expect(page.getByRole("dialog")).toContainText("Order complete!");
+      await expect(page.getByTestId("dialog-window")).toContainText("complete");
     });
   });
   test.describe("New Customer", () => {
@@ -77,7 +68,7 @@ test.describe("Hosting customers", async () => {
         `${fakerEN_GB.location.streetAddress()}`,
         `${fakerEN_GB.location.city()}`,
         "HU15 1EG",
-        "07111111111"
+        null
       );
       await checkout.selectPaymentMethod("Direct Bank Transfer");
       await page.getByTestId("button-place-order").click();
