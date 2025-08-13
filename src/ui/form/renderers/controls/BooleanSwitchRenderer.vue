@@ -34,7 +34,7 @@
           <FormDescription
             v-if="control?.description"
             :formDescriptionId="`form-item-description-${control.id}`"
-            class="!my-0"
+            class="my-0!"
           >
             {{ control.description }}
           </FormDescription>

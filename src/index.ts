@@ -1,4 +1,6 @@
-import "./assets/main.css";
+import "./main.css";
+
+// ---
 
 export * from "./ui/accordion";
 export * from "./ui/alert";

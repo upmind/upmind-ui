@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export const iconVariants = cva(
-  "inline-flex aspect-square flex-shrink-0 align-middle [&>svg]:size-full",
+  "inline-flex aspect-square shrink-0 align-middle [&>svg]:size-full",
   {
     variants: {
       size: {

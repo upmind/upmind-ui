@@ -1,11 +1,11 @@
 // ---  external
 import { cva } from "class-variance-authority";
-import { ringClasses } from "../../assets/styles";
+import { ringClasses } from "../../assets/ring.styles";
 // -----------------------------------------------------------------------------
 
 // --- for out Typescript type
 export const avatarVariants = cva(
-  "relative inline-flex aspect-square shrink-0 select-none items-center justify-center overflow-hidden font-normal",
+  "relative inline-flex aspect-square shrink-0 items-center justify-center overflow-hidden font-normal select-none",
   {
     variants: {
       color: {
@@ -19,7 +19,7 @@ export const avatarVariants = cva(
         info: "bg-info text-info-foreground",
         error: "bg-error text-error-foreground",
         warning: "bg-warning text-warning-foreground",
-        transparent: "overflow-visible bg-transparent text-primary"
+        transparent: "text-primary overflow-visible bg-transparent"
       },
       variant: {
         flat: "",
@@ -59,57 +59,57 @@ export const avatarVariants = cva(
     },
     compoundVariants: [
       {
-        variant: "outline",
+        variant: "outline-solid",
         color: "base",
         className: "ring-base-muted text-base-muted"
       },
       {
-        variant: "outline",
+        variant: "outline-solid",
         color: "primary",
         className: "text-primary ring-primary"
       },
       {
-        variant: "outline",
+        variant: "outline-solid",
         color: "secondary",
         className: "text-secondary ring-secondary"
       },
       {
-        variant: "outline",
+        variant: "outline-solid",
         color: "accent",
         className: "text-accent ring-accent"
       },
       {
-        variant: "outline",
+        variant: "outline-solid",
         color: "promotion",
         className: "text-promotion ring-promotion"
       },
       {
-        variant: "outline",
+        variant: "outline-solid",
         color: "destructive",
         className: "text-error ring-error"
       },
       {
-        variant: "outline",
+        variant: "outline-solid",
         color: "success",
         className: "text-success ring-success"
       },
       {
-        variant: "outline",
+        variant: "outline-solid",
         color: "info",
         className: "text-info ring-info"
       },
       {
-        variant: "outline",
+        variant: "outline-solid",
         color: "error",
         className: "text-error ring-error"
       },
       {
-        variant: "outline",
+        variant: "outline-solid",
         color: "warning",
         className: "text-warning ring-warning"
       },
       {
-        variant: "outline",
+        variant: "outline-solid",
         color: "transparent",
         className: "text-primary ring-primary"
       }

@@ -1,16 +1,16 @@
 // ---  external
 import { cva } from "class-variance-authority";
-import { invalidRingClasses, ringClasses } from "../../assets/styles";
+import { invalidRingClasses, ringClasses } from "../../assets/ring.styles";
 // -----------------------------------------------------------------------------
 
 export const rootVariants = cva(
-  `inline-flex cursor-pointer items-center space-x-0.5 font-medium underline underline-offset-4 outline-none ring-offset-background transition-all duration-200 focus:outline-none ${ringClasses} ${invalidRingClasses} rounded-lg !ring-offset-4`,
+  `ring-offset-background inline-flex cursor-pointer items-center space-x-0.5 font-medium underline underline-offset-4 outline-hidden transition-all duration-200 focus:outline-hidden ${ringClasses} ${invalidRingClasses} rounded-lg ring-offset-4!`,
   {
     variants: {
       variant: {
-        flat: "data-[disabled=true]:opacity-50 data-[disabled=false]:hover:opacity-75",
+        flat: "data-[disabled=false]:hover:opacity-75 data-[disabled=true]:opacity-50",
         muted:
-          "opacity-50 data-[disabled=true]:opacity-50 hover:data-[disabled=false]:opacity-100 focus:data-[disabled=false]:opacity-100"
+          "opacity-50 hover:data-[disabled=false]:opacity-100 focus:data-[disabled=false]:opacity-100 data-[disabled=true]:opacity-50"
       },
       size: {
         inherit: "",

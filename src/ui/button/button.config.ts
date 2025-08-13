@@ -1,25 +1,25 @@
 // ---  external
 import { cva } from "class-variance-authority";
-import { invalidRingClasses, ringClasses } from "../../assets/styles";
+import { invalidRingClasses, ringClasses } from "../../assets/ring.styles";
 // -----------------------------------------------------------------------------
 
 export const buttonVariants = cva(
-  `relative inline-flex items-center justify-center whitespace-nowrap rounded-lg border font-medium no-underline ring-offset-background transition-all duration-300 disabled:pointer-events-none disabled:cursor-not-allowed disabled:!opacity-50`,
+  `ring-offset-background relative inline-flex items-center justify-center rounded-lg border font-medium whitespace-nowrap no-underline transition-all duration-300 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50!`,
   {
     variants: {
       variant: {
-        flat: "border-transparent hover:bg-opacity-90",
+        flat: "hover:bg-opacity-90 border-transparent",
         outline: "bg-transparent",
         ghost: "border-transparent",
-        link: "!hover:underline border-none !bg-transparent !px-0 !underline-offset-4 hover:text-opacity-60",
+        link: "!hover:underline hover:text-opacity-60 border-none bg-transparent! px-0! underline-offset-4!",
         tonal: "border-transparent",
         inverse: "border-transparent",
         control:
-          "hover:!border-control-strong !border-control bg-control !text-control-foreground shadow-sm ring-offset-background"
+          "hover:!border-control-strong !border-control bg-control !text-control-foreground ring-offset-background shadow-2xs"
       },
       focusable: {
         true: `${ringClasses} ${invalidRingClasses}`,
-        false: "outline-none focus:outline-none focus:ring-0"
+        false: "outline-hidden focus:ring-0 focus:outline-hidden"
       },
       color: {
         base: "",
@@ -36,7 +36,7 @@ export const buttonVariants = cva(
       size: {
         xs: "h-7 gap-1 px-2 py-1 text-xs",
         sm: "h-9 gap-2 px-3 py-1 text-sm",
-        md: "h-10 gap-2 px-4 py-1 text-md",
+        md: "text-md h-10 gap-2 px-4 py-1",
         lg: "h-11 gap-2 px-8 py-1 text-lg",
         xl: "h-14 gap-2 px-8 py-1 text-lg",
         icon: "h-10 w-10 gap-2 px-2 py-1",
@@ -106,58 +106,58 @@ export const buttonVariants = cva(
       // --- outline
       {
         color: "base",
-        variant: "outline",
+        variant: "outline-solid",
         class:
           "border-base-control text-base-foreground hover:text-base-foreground/75"
       },
       {
         color: "primary",
-        variant: "outline",
+        variant: "outline-solid",
         class:
           "hover:bg-primary-muted border-primary text-primary !ring-primary"
       },
       {
         color: "secondary",
-        variant: "outline",
+        variant: "outline-solid",
         class:
           "hover:bg-secondary-muted border-secondary text-secondary !ring-secondary"
       },
       {
         color: "accent",
-        variant: "outline",
+        variant: "outline-solid",
         class: "hover:bg-accent-muted border-accent text-accent !ring-accent"
       },
       {
         color: "promotion",
-        variant: "outline",
+        variant: "outline-solid",
         class:
           "hover:bg-promotion-muted border-promotion text-promotion !ring-promotion"
       },
       {
         color: "destructive",
-        variant: "outline",
+        variant: "outline-solid",
         class:
           "hover:bg-destructive-muted border-destructive text-destructive !ring-destructive"
       },
       {
         color: "success",
-        variant: "outline",
+        variant: "outline-solid",
         class:
           "hover:bg-success-muted border-success text-success !ring-success"
       },
       {
         color: "info",
-        variant: "outline",
+        variant: "outline-solid",
         class: "hover:bg-info-muted border-info text-info !ring-info"
       },
       {
         color: "error",
-        variant: "outline",
+        variant: "outline-solid",
         class: "hover:bg-error-muted border-error text-error !ring-error"
       },
       {
         color: "warning",
-        variant: "outline",
+        variant: "outline-solid",
         class:
           "hover:bg-warning-muted border-warning text-warning !ring-warning"
       },
@@ -285,52 +285,52 @@ export const buttonVariants = cva(
       {
         color: "base",
         variant: "link",
-        class: "bg-transparent text-base-foreground !ring-transparent"
+        class: "text-base-foreground bg-transparent ring-transparent!"
       },
       {
         color: "primary",
         variant: "link",
-        class: "bg-transparent text-primary !ring-transparent"
+        class: "text-primary bg-transparent ring-transparent!"
       },
       {
         color: "secondary",
         variant: "link",
-        class: "bg-transparent text-secondary !ring-transparent"
+        class: "text-secondary bg-transparent ring-transparent!"
       },
       {
         color: "accent",
         variant: "link",
-        class: "bg-transparent text-accent !ring-transparent"
+        class: "text-accent bg-transparent ring-transparent!"
       },
       {
         color: "promotion",
         variant: "link",
-        class: "bg-transparent text-promotion !ring-transparent"
+        class: "text-promotion bg-transparent ring-transparent!"
       },
       {
         color: "destructive",
         variant: "link",
-        class: "bg-transparent text-destructive !ring-transparent"
+        class: "text-destructive bg-transparent ring-transparent!"
       },
       {
         color: "success",
         variant: "link",
-        class: "bg-transparent text-success !ring-transparent"
+        class: "text-success bg-transparent ring-transparent!"
       },
       {
         color: "info",
         variant: "link",
-        class: "bg-transparent text-info !ring-transparent"
+        class: "text-info bg-transparent ring-transparent!"
       },
       {
         color: "error",
         variant: "link",
-        class: "bg-transparent text-error !ring-transparent"
+        class: "text-error bg-transparent ring-transparent!"
       },
       {
         color: "warning",
         variant: "link",
-        class: "bg-transparent text-warning !ring-transparent"
+        class: "text-warning bg-transparent ring-transparent!"
       },
 
       // --- inverse

@@ -9,7 +9,7 @@ export default {
   },
   skeletonList: {
     root: cva(
-      "divide-base-muted flex w-full animate-pulse flex-col space-y-4 divide-y rounded border p-4 md:p-6"
+      "divide-base-muted flex w-full animate-pulse flex-col space-y-4 divide-y rounded-xs border p-4 md:p-6"
     ),
     rows: cva("flex items-center justify-between pt-4 first:pt-0"),
     line1: cva("bg-base-muted mb-2.5 h-2.5 w-24 rounded-full"),

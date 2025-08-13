@@ -34,7 +34,7 @@ const props = withDefaults(defineProps<BadgeProps>(), {
   // --- props
   label: "",
   // --- styles
-  variant: "outline",
+  variant: "outline-solid",
   color: "base",
   size: "md",
   // --- styles

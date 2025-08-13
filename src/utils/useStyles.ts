@@ -4,7 +4,7 @@ import { twMerge } from "tailwind-merge";
 import { clsx } from "clsx";
 import theme from "./useThemes";
 
-import defaultStylesheet from "../assets/main.css?url";
+import defaultStylesheet from "../main.css?url";
 
 // --- utils
 import {
