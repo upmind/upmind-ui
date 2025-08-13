@@ -80,7 +80,9 @@ import {
 import type { SelectCardsProps, SelectCardsItemProps } from "./types";
 import type { ComputedRef } from "vue";
 
-const props = defineProps<SelectCardsProps>();
+const props = withDefaults(defineProps<SelectCardsProps>(), {
+  required: true
+});
 
 const emits = defineEmits(["update:modelValue"]);
 
