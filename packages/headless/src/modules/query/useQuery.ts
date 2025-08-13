@@ -152,7 +152,8 @@ export const useQuery = () => {
       // set "currency" parameter
       if (withCurrency) {
         const { currencyCode } = useBasketCurrency();
-        url.searchParams.set("currency_code", currencyCode.value as string);
+        if (!isEmpty(currencyCode?.value))
+          url.searchParams.set("currency_code", currencyCode.value as string);
       }
     }
 
