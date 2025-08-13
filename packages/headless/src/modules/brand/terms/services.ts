@@ -1,5 +1,5 @@
 // --- internal
-import { useQuery } from "../..";
+import { localStoragePersister, useQuery } from "../..";
 
 // --- utils
 import { parseTerm } from "./mappers";
@@ -28,8 +28,8 @@ function load() {
     withAccessToken: true,
     // --- options
     select: data => parseTerm(data),
-    staleTime: useTime().DAY
-    // persister: useLocalStoragePersister().persistFn
+    staleTime: useTime().DAY,
+    persister: localStoragePersister.persisterFn
   });
 }
 
