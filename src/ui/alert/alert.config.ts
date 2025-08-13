@@ -1,7 +1,7 @@
 import { cva } from "class-variance-authority";
 
 export const alertVariants = cva(
-  "group relative w-full rounded-lg p-4 [&>i+div]:translate-y-[-3px] [&>i]:absolute [&>i]:left-4 [&>i]:top-4 [&>i~*]:pl-7",
+  "group relative w-full rounded-lg p-4 [&>i]:absolute [&>i]:top-4 [&>i]:left-4 [&>i+div]:translate-y-[-3px] [&>i~*]:pl-7",
   {
     // Alert props doesn't see that the variants exist without these
     variants: {
@@ -76,7 +76,7 @@ export const alertVariants = cva(
       {
         variant: "outline-solid",
         color: "base",
-        class: "border bg-base-background text-base-foreground"
+        class: "bg-base-background text-base-foreground border"
       },
       {
         variant: "outline-solid",

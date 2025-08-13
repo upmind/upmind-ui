@@ -4,7 +4,7 @@
     :name="toValue(props.name)"
     :class="
       cn(
-        'flex w-full flex-col gap-1 text-sm font-medium text-control-error',
+        'text-control-error flex w-full flex-col gap-1 text-sm font-medium',
         props.class
       )
     "

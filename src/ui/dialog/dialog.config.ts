@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export const contentVariant = cva(
-  "mx-auto grid max-h-[90dvh] w-full bg-base-background p-0 focus:outline-hidden",
+  "bg-base-background mx-auto grid max-h-[90dvh] w-full p-0 focus:outline-hidden",
   {
     variants: {
       size: {

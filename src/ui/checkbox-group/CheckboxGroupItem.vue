@@ -4,7 +4,7 @@
     :key="index"
     :class="
       cn(
-        'group relative m-0! flex w-full select-none items-start rounded-xs pl-10 text-start leading-none outline-hidden',
+        'group relative m-0! flex w-full items-start rounded-xs pl-10 text-start leading-none outline-hidden select-none',
         props.noInput ? 'pl-6' : '',
         props.itemClass
       )
@@ -13,7 +13,7 @@
     <span
       :class="
         cn(
-          'group-data-[state=checked]:text-control-active-foreground focus-visible:ring-ring absolute left-0 top-0 flex aspect-square h-4 w-4 shrink-0 items-center justify-center rounded-xs border border-control bg-control text-control-foreground ring-offset-background focus:outline-hidden focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 group-disabled:cursor-not-allowed group-disabled:opacity-50 group-data-[state=checked]:bg-control-active',
+          'group-data-[state=checked]:text-control-active-foreground focus-visible:ring-ring border-control bg-control text-control-foreground ring-offset-background group-data-[state=checked]:bg-control-active absolute top-0 left-0 flex aspect-square h-4 w-4 shrink-0 items-center justify-center rounded-xs border group-disabled:cursor-not-allowed group-disabled:opacity-50 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden',
           props.class,
           props.noInput ? 'sr-only' : ''
         )

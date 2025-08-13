@@ -6,7 +6,6 @@
 
 @source './src/**/*.{html,vue,js,tsx,ts}';
 
-
 @theme {
   --animate-fade: fadeIn 0.5s ease-in-out;
   --animate-collapsible-down: collapsible-down 0.3s ease-in-out;

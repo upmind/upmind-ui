@@ -6,11 +6,11 @@ export default {
     root: cva("flex flex-col space-y-2", {
       variants: {
         hasBorder: {
-          true: "border-t border-control pt-4"
+          true: "border-control border-t pt-4"
         }
       }
     }),
-    label: cva("w-full text-xs font-medium text-base-500"),
+    label: cva("text-base-500 w-full text-xs font-medium"),
     item: cva("")
   },
   layout: {

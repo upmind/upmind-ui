@@ -1,7 +1,7 @@
 <template>
   <p
     :id="formDescriptionId"
-    :class="cn('w-full text-sm text-muted-foreground', props.class)"
+    :class="cn('text-muted-foreground w-full text-sm', props.class)"
   >
     <slot />
   </p>
