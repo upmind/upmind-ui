@@ -30,7 +30,7 @@ export default {
     main: cva("flex w-full flex-col gap-6"),
     controlsRoot: cva("w-full border-b bg-base-background py-4"),
     controls: cva("max-w-app mx-auto"),
-    aside: cva("w-full max-w-md")
+    aside: cva("flex w-full max-w-md flex-col gap-6")
   },
 
   full: {
@@ -63,7 +63,7 @@ export default {
         "max-w-app gap-18 mx-auto flex w-full flex-col md:flex-row"
       )
     },
-    aside: cva("w-full max-w-md"),
+    aside: cva("flex w-full max-w-md flex-col gap-6"),
     main: cva("flex w-full flex-col gap-12")
   }
 };
