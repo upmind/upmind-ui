@@ -382,7 +382,7 @@ export default {
           icon: "",
           sm: "[&>i]:p-[3px]",
           md: "[&>i]:p-[3px]",
-          lg: "[&>i]:p-[5px]"
+          lg: "[&>i]:p-[4px]"
         },
         variant: {
           link: "text-emphasis-medium"
