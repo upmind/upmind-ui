@@ -11,8 +11,7 @@ export const rootVariants = cva(
         sm: "px-0.5 py-2 text-sm",
         md: "gap-0.5 px-3 py-2 text-sm",
         lg: "gap-0.5 px-4 py-2 text-md",
-        icon: "h-10 w-10 gap-2 px-2 py-1",
-        badge: "gap-0.5 rounded-full px-2.5 py-0.5 text-xs font-medium"
+        icon: ""
       },
       variant: {
         flat: "font-medium hover:bg-opacity-90",
@@ -380,6 +379,7 @@ export default {
     items: cva("size-lh flex items-center justify-center", {
       variants: {
         size: {
+          icon: "",
           sm: "[&>i]:p-[3px]",
           md: "[&>i]:p-[3px]",
           lg: "[&>i]:p-[5px]"
