@@ -1,6 +1,6 @@
 export const ErrorCodes = {
   plannedMaintenance: {
-    route: "**/api/config/organisation/values*",
+    route: "**/api/*",
     url: "http://qa-automation.local:5173/product/add/3de78642-de53-9714-76df-21208469530d",
     errorCode: 503,
     status: "error",
@@ -15,8 +15,8 @@ export const ErrorCodes = {
   },
 
   unauthorizedAccess: {
-    route: "**/api/*",
-    url: "http://qa-automation.local:5173/product/add/20403869-6e54-721d-264c-518d9305e7d2",
+    route: "**/api/**",
+    url: "http://qa-automation.local:5173/order/product/add/20403869-6e54-721d-264c-518d9305e7d2",
     errorCode: 403,
     status: "error",
     responseError: {
@@ -30,8 +30,8 @@ export const ErrorCodes = {
   },
 
   productNotFound: {
-    route: "**/api/basket/products/**",
-    url: "http://qa-automation.local:5173/product/add/20403869-6e54-721d-264c-518d9305e7d2",
+    route: "**/api/**",
+    url: "http://qa-automation.local:5173/order/product/add/20403869-6e54-721d-264c-518d9305e7d2",
     errorCode: 404,
     status: "error",
     responseError: {
@@ -45,7 +45,7 @@ export const ErrorCodes = {
   },
   generic500: {
     route: "**/api/*",
-    url: "http://qa-automation.local:5173/product/add/20403869-6e54-721d-264c-518d9305e7d2",
+    url: "http://qa-automation.local:5173/order/product/add/20403869-6e54-721d-264c-518d9305e7d2",
     errorCode: 500,
     status: "error",
     responseError: {
@@ -59,7 +59,7 @@ export const ErrorCodes = {
   },
   timeout504: {
     route: "**/api/*",
-    url: "http://qa-automation.local:5173/product/add/20403869-6e54-721d-264c-518d9305e7d2",
+    url: "http://qa-automation.local:5173/order/product/add/20403869-6e54-721d-264c-518d9305e7d2",
     errorCode: 504,
     status: "error",
     responseError: {

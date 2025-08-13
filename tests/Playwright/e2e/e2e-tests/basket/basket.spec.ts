@@ -8,13 +8,14 @@ import {
 } from "../../support/utils/functions/basket";
 
 test.describe("Basket Tests", () => {
+  let token: string;
+  let orderId: string | null;
   test("Basket with 1 item", async ({ page, context }) => {
     const domain = `${fakerEN_GB.string.alphanumeric({ length: { min: 3, max: 15 } })}.com`;
     await page.goto(URLs.basket);
     await page.waitForLoadState("networkidle");
-    const token = await getSessionToken(context, "guest");
-    const orderId = await getCurrentOrderId(token);
-    //console.log(orderId);
+    token = await getSessionToken(context, "guest");
+    orderId = await getCurrentOrderId(token);
     await addProductToOrder(
       token,
       orderId,
@@ -36,7 +37,7 @@ test.describe("Basket Tests", () => {
   });
   test("Empty basket", async ({ page, context }) => {
     await page.goto(URLs.basket);
-    await expect(page.getByRole("dialog")).toContainText(
+    await expect(page.getByTestId("dialog-window")).toContainText(
       "Your basket is empty"
     );
   });
