@@ -116,8 +116,13 @@ export const useFeedback = () => {
     service.send({ type: "ADD", data: message });
   }
 
+  function action(id: string, action: string) {
+    service.send({ type: "ACTION", data: { id, action } });
+  }
+
+  // syntactic sugar
   function dismiss(id: string) {
-    service.send({ type: "DISMISS", data: { id } });
+    action(id, "dismiss");
   }
 
   // --- syntactic sugar

@@ -480,9 +480,7 @@ export default createMachine(
       }),
 
       setWarningNotes: (context: BasketContext, { data }: AnyEventObject) => {
-        debugger;
         const basket = get(data, "basket", data);
-        debugger;
         if (has(basket, "warning_notes") && !isEmpty(basket.warning_notes)) {
           reduce(
             basket.warning_notes,
