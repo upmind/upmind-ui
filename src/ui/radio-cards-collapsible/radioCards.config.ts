@@ -1,13 +1,13 @@
 import { cva } from "class-variance-authority";
-import { ringClasses } from "../../assets/styles";
+import { ringClasses } from "../../assets/ring.styles";
 
 export const itemVariants = cva(
-  `group rounded-lg bg-control text-control-foreground transition-all duration-200 ${ringClasses}`,
+  `group bg-control text-control-foreground rounded-lg transition-all duration-200 ${ringClasses}`,
   {
     variants: {
       isMinimal: {
         true: "",
-        false: "m-0 border px-1 shadow-sm"
+        false: "m-0 border px-1 shadow-2xs"
       },
       width: {
         0: "",
@@ -49,7 +49,7 @@ export default {
     item: itemVariants,
     radio: cva("flex h-full items-start pr-2.5"),
     label: cva(
-      "m-0 flex h-full w-full min-w-0 cursor-pointer items-start rounded-lg text-md font-medium leading-snug peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+      "text-md m-0 flex h-full w-full min-w-0 cursor-pointer items-start rounded-lg leading-snug font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
       {
         variants: {
           isMinimal: {
@@ -60,7 +60,7 @@ export default {
       }
     ),
     input: cva(
-      `group-hover:border-control-strong ml-4 mt-[0.1rem] border-control leading-normal ring-offset-2 [transition:border-color_200ms_ease-in-out] ${ringClasses}`
+      `group-hover:border-control-strong border-control mt-[0.1rem] ml-4 leading-normal ring-offset-2 [transition:border-color_200ms_ease-in-out] ${ringClasses}`
     )
   }
 };

@@ -1,14 +1,14 @@
 import { cva } from "class-variance-authority";
-import { ringClasses } from "../../assets/styles";
+import { ringClasses } from "../../assets/ring.styles";
 
 export const itemVariants = cva(
-  `group rounded-lg bg-control text-control-foreground transition-all duration-200 ${ringClasses}`,
+  `group bg-control text-control-foreground rounded-lg transition-all duration-200 ${ringClasses}`,
   {
     variants: {
       isList: {
-        true: "hover:bg-control-active-focus my-0.5 border-0 shadow-none data-[state=checked]:ring-2 data-[state=checked]:ring-control-active",
+        true: "hover:bg-control-active-focus data-[state=checked]:ring-control-active my-0.5 border-0 shadow-none data-[state=checked]:ring-2",
         false:
-          "hover:border-control-strong rounded-lg border border-control shadow-sm"
+          "hover:border-control-strong border-control rounded-lg border shadow-2xs"
       },
       width: {
         0: "",
@@ -50,11 +50,11 @@ export default {
     item: itemVariants,
     radio: cva("flex h-full items-start pr-2.5"),
     label: cva(
-      "m-0 flex h-full w-full min-w-0 cursor-pointer items-start rounded-lg py-3.5 pr-4 text-md font-medium leading-snug peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+      "text-md m-0 flex h-full w-full min-w-0 cursor-pointer items-start rounded-lg py-3.5 pr-4 leading-snug font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
     ),
     sublabel: cva("text-emphasis-disabled m-0 mx-2 self-end text-sm"),
     input: cva(
-      `group-hover:border-control-strong ml-4 mt-[0.1rem] border-control leading-normal ring-offset-2 [transition:border-color_200ms_ease-in-out] ${ringClasses}`
+      `group-hover:border-control-strong border-control mt-[0.1rem] ml-4 leading-normal ring-offset-2 [transition:border-color_200ms_ease-in-out] ${ringClasses}`
     )
   }
 };

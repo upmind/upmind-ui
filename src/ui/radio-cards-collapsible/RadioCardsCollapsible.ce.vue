@@ -177,8 +177,8 @@ const unselectedItems = computed(() => {
 const selectedItemUiConfig = {
   radioCards: {
     input:
-      "!outline-none !ring-0 focus:!outline-none focus:!ring-0 active:!outline-none active:!ring-0 focus-visible:!outline-none focus-visible:ring-0 !ring-0",
-    item: "!outline-none !ring-0 focus:!outline-none focus:!ring-0 active:!outline-none active:!ring-0 focus-visible:!outline-none focus-visible:!ring-0 !ring-0"
+      "outline-hidden! ring-0! focus:outline-hidden! focus:ring-0! active:outline-hidden! active:ring-0! focus-visible:outline-hidden! focus-visible:ring-0 ring-0!",
+    item: "outline-hidden! ring-0! focus:outline-hidden! focus:ring-0! active:outline-hidden! active:ring-0! focus-visible:outline-hidden! focus-visible:ring-0! ring-0!"
   } as any
 };
 

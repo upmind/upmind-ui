@@ -74,61 +74,61 @@ export const alertVariants = cva(
         class: "bg-error-muted text-error-muted-foreground"
       },
       {
-        variant: "outline",
+        variant: "outline-solid",
         color: "base",
         class: "border bg-base-background text-base-foreground"
       },
       {
-        variant: "outline",
+        variant: "outline-solid",
         color: "primary",
         class: "bg-primary-muted text-primary-muted-foreground border-primary"
       },
       {
-        variant: "outline",
+        variant: "outline-solid",
         color: "secondary",
         class:
           "bg-secondary-muted text-secondary-muted-foreground border-secondary"
       },
       {
-        variant: "outline",
+        variant: "outline-solid",
         color: "accent",
         class: "test bg-accent-muted text-accent-muted-foreground border-accent"
       },
       {
-        variant: "outline",
+        variant: "outline-solid",
         color: "promotion",
         class:
           "bg-promotion-muted text-promotion-muted-foreground border-promotion"
       },
       {
-        variant: "outline",
+        variant: "outline-solid",
         color: "destructive",
         class:
           "bg-destructive-muted text-destructive-muted-foreground border-destructive"
       },
       {
-        variant: "outline",
+        variant: "outline-solid",
         color: "success",
         class: "bg-success-muted text-success-muted-foreground border-success"
       },
       {
-        variant: "outline",
+        variant: "outline-solid",
         color: "info",
         class: "bg-info-muted text-info-muted-foreground border-info"
       },
       {
-        variant: "outline",
+        variant: "outline-solid",
         color: "error",
         class: "bg-error-muted border-error text-error"
       },
       {
-        variant: "outline",
+        variant: "outline-solid",
         color: "warning",
         class: "bg-warning-muted text-warning-muted-foreground border-warning"
       }
     ],
     defaultVariants: {
-      variant: "outline",
+      variant: "outline-solid",
       color: "base"
     }
   }

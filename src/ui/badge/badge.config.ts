@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export const badgeVariants = cva(
-  "focus:ring-ring inline-flex w-fit items-center whitespace-nowrap rounded-pill border font-semibold leading-none transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2",
+  "focus:ring-ring inline-flex w-fit items-center whitespace-nowrap rounded-pill border font-semibold leading-none transition-colors focus:outline-hidden focus:ring-2 focus:ring-offset-2",
   {
     variants: {
       variant: {
@@ -11,11 +11,11 @@ export const badgeVariants = cva(
         tonal: "border border-transparent"
       },
       size: {
-        xs: "!text-2xs !px-1.5 !py-0.5",
-        sm: "!px-1.5 !py-0.5 !text-xs",
-        md: "!px-2 !py-1 !text-xs",
-        lg: "!px-3 !py-2 !text-lg",
-        xl: "!px-3.5 !py-2.5 !text-xl"
+        xs: "!text-2xs px-1.5! py-0.5!",
+        sm: "px-1.5! py-0.5! text-xs!",
+        md: "px-2! py-1! text-xs!",
+        lg: "px-3! py-2! text-lg!",
+        xl: "px-3.5! py-2.5! text-xl!"
       },
       color: {
         base: "bg-base-foreground text-base-background",
@@ -34,48 +34,48 @@ export const badgeVariants = cva(
     compoundVariants: [
       {
         color: "base",
-        variant: "outline",
+        variant: "outline-solid",
         class: "border-base-foreground text-base-foreground"
       },
       {
         color: "primary",
-        variant: "outline",
+        variant: "outline-solid",
         class: "border-primary text-primary"
       },
       {
         color: "secondary",
-        variant: "outline",
+        variant: "outline-solid",
         class: "border-secondary text-secondary"
       },
       {
         color: "accent",
-        variant: "outline",
+        variant: "outline-solid",
         class: "border-accent text-accent"
       },
       {
         color: "promotion",
-        variant: "outline",
+        variant: "outline-solid",
         class: "border-promotion text-promotion"
       },
       {
         color: "destructive",
-        variant: "outline",
+        variant: "outline-solid",
         class: "border-destructive text-destructive"
       },
       {
         color: "success",
-        variant: "outline",
+        variant: "outline-solid",
         class: "border-success text-success"
       },
-      { color: "info", variant: "outline", class: "border-info text-info" },
+      { color: "info", variant: "outline-solid", class: "border-info text-info" },
       {
         color: "error",
-        variant: "outline",
+        variant: "outline-solid",
         class: "border-error text-error"
       },
       {
         color: "warning",
-        variant: "outline",
+        variant: "outline-solid",
         class: "border-warning text-warning"
       },
       // ---
