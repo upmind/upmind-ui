@@ -9,6 +9,7 @@ import type { AnyEventObject } from "xstate";
 // -----------------------------------------------------------------------------
 
 async function processAction(context: Message, { data }: AnyEventObject) {
+  // MAYBE we need to force lowercase on value and data....
   const action = find(context.actions, ["value", data]);
 
   if (!action) {

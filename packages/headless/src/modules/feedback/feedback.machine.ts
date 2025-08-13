@@ -34,7 +34,10 @@ export default createMachine(
         always: [{ target: "empty", cond: "hasNoMessages" }],
         on: {
           DISMISS: {
-            actions: ["dismiss"]
+            actions: ["forwardAction"]
+          },
+          ACTION: {
+            actions: ["forwardAction"]
           }
         }
       },
@@ -97,10 +100,10 @@ export default createMachine(
         }
       }),
 
-      dismiss: assign({
+      forwardAction: assign({
         messages: (
           { messages }: MessagesContext,
-          { data: { id } }: AnyEventObject
+          { data: { id, action } }: AnyEventObject
         ) => {
           messages = messages ?? [];
 
@@ -110,7 +113,7 @@ export default createMachine(
           // if it exists, stop the referenced machine
           // and remove it from our list of messages
           if (message?.send && !message?.getSnapshot()?.done) {
-            message.send({ type: "ACTION", data: "dismiss" });
+            message.send({ type: "ACTION", data: action });
           } else {
             remove(messages, ["id", id]);
           }
