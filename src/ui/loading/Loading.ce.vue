@@ -1,5 +1,5 @@
 <template>
-  <div class="relative w-full" :class="props.class">
+  <component :is="is" class="relative w-full" :class="props.class">
     <slot></slot>
     <Transition
       enter-active-class="transition-opacity duration-300 ease-in-out"
@@ -18,7 +18,7 @@
         <Spinner :size="size" />
       </div>
     </Transition>
-  </div>
+  </component>
 </template>
 
 <script setup lang="ts">
@@ -44,7 +44,8 @@ const hasSlotContent = computed(() => !!slots.default);
 const props = withDefaults(defineProps<LoadingProps>(), {
   active: true,
   size: "lg",
-  skrim: "light"
+  skrim: "light",
+  is: "div"
 });
 
 const meta = computed(() => ({
