@@ -1,26 +1,29 @@
 import { test, expect } from "@playwright/test";
 import { ErrorCodes } from "../support/constants/errorCodes";
+import { returnError } from "../support/utils/functions/errors";
+import { getSessionToken } from "../support/utils/functions/tokens";
+import {
+  getCurrentOrderId,
+  setOrderCurrency
+} from "../support/utils/functions/basket";
+import { URLs } from "../support/constants/urls";
 
 test.describe("Error Code Handling", () => {
-  for (const {
-    route,
-    url,
-    errorCode,
-    status,
-    responseError,
-    button
-  } of Object.values(ErrorCodes)) {
+  let token: string;
+  let orderId: string | null;
+  test.beforeEach(async ({ page, context }) => {
+    await page.goto(URLs.basket);
+    await page.waitForLoadState("networkidle");
+    token = await getSessionToken(context, "guest");
+    orderId = await getCurrentOrderId(token);
+    setOrderCurrency(token, orderId, "USD");
+  });
+  for (const { url, route, errorCode, responseError, button } of Object.values(
+    ErrorCodes
+  )) {
     test(`Display ${errorCode} error message`, async ({ page }) => {
-      await page.route(route, async route => {
-        await route.fulfill({
-          status: errorCode,
-          contentType: "application/json",
-          body: JSON.stringify(responseError)
-        });
-      });
-
       await page.goto(url);
-
+      returnError(page, route, errorCode, responseError);
       const errorDialog = page.getByRole("dialog");
       await expect(errorDialog).toBeVisible();
       await expect(errorDialog).toContainText(responseError.message);

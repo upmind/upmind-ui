@@ -56,7 +56,7 @@ test.describe("Checkout with Stripe", () => {
           `${fakerEN_GB.location.streetAddress()}`,
           `${fakerEN_GB.location.city()}`,
           "HU15 1EG",
-          "07111111111"
+          null
         );
         await checkout.selectPaymentMethod("Stripe Payment");
         await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
@@ -109,7 +109,7 @@ test.describe("Checkout with Stripe", () => {
           `${fakerEN_GB.location.streetAddress()}`,
           `${fakerEN_GB.location.city()}`,
           "HU15 1EG",
-          "07111111111"
+          null
         );
         await checkout.selectPaymentMethod("Stripe Payment");
         await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
@@ -161,7 +161,7 @@ test.describe("Checkout with Stripe", () => {
           `${fakerEN_GB.location.streetAddress()}`,
           `${fakerEN_GB.location.city()}`,
           "HU15 1EG",
-          "07111111111"
+          null
         );
         await checkout.selectPaymentMethod("Stripe Payment");
         await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
@@ -210,7 +210,7 @@ test.describe("Checkout with Stripe", () => {
           `${fakerEN_GB.location.streetAddress()}`,
           `${fakerEN_GB.location.city()}`,
           "HU15 1EG",
-          "07111111111"
+          null
         );
         await checkout.selectPaymentMethod("Stripe Payment");
         await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);

@@ -89,3 +89,31 @@ export async function addProductToOrder(
   //console.log(`Add to basket - complete! ${JSON.stringify(body)}`);
   return body;
 }
+
+export async function setOrderCurrency(
+  token: string,
+  orderId: string | null,
+  currency: string
+) {
+  if (!orderId) {
+    throw new Error("Order ID is null or undefined");
+  }
+  const apiContext = await request.newContext({
+    baseURL: "https://api.staging.upmind.io",
+    extraHTTPHeaders: {
+      authorization: `Bearer ${token}`,
+      "content-type": "application/json",
+      accept: "*/*"
+    }
+  });
+  const response = await apiContext.put(
+    `/api/orders/${orderId}/currency?lang=en`,
+    {
+      data: {
+        currency_code: `${currency}`
+      }
+    }
+  );
+  const body = await response.json();
+  console.log(body);
+}

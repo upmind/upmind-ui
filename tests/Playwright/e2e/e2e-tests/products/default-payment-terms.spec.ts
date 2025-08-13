@@ -1,24 +1,24 @@
-import { test as base, expect, BrowserContext, Page } from "@playwright/test";
+import { test, expect, BrowserContext, Page } from "@playwright/test";
 import { ProductConfig } from "../../support/page-objects/templates/ProductConfig";
 import {
   DefaultPaymentTerms,
   DefaultPaymentTermsWithPromo
 } from "../../support/constants/DefaultPaymentTerms";
 
-const test = base.extend<{
-  context: BrowserContext;
-  page: Page;
-}>({
-  context: async ({ browser }, use) => {
-    const context = await browser.newContext();
-    await use(context);
-    await context.close();
-  },
-  page: async ({ context }, use) => {
-    const page = await context.newPage();
-    await use(page);
-  }
-});
+// const test = base.extend<{
+//   context: BrowserContext;
+//   page: Page;
+// }>({
+//   context: async ({ browser }, use) => {
+//     const context = await browser.newContext();
+//     await use(context);
+//     await context.close();
+//   },
+//   page: async ({ context }, use) => {
+//     const page = await context.newPage();
+//     await use(page);
+//   }
+// });
 
 let terms = DefaultPaymentTerms;
 let termsWithPromo = DefaultPaymentTermsWithPromo;
@@ -50,7 +50,6 @@ test.describe("Assert correct billing term is selected based on default_payment_
   for (const { name, termSetting, radioGroup, radioOption, url } of terms) {
     test(name, async ({ page }) => {
       const productConfig = new ProductConfig(page);
-
       await setBillingTerm(
         page,
         termSetting,
