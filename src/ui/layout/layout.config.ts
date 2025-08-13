@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 export default {
   control: {
     root: cva(
-      "flex w-full shrink-0 items-center justify-center self-start border-b bg-base-background py-4 leading-7"
+      "bg-base-background flex w-full shrink-0 items-center justify-center self-start border-b py-4 leading-7"
     ),
     content: cva("max-w-app flex w-full items-center justify-between"),
     controls: cva("grow")
@@ -11,23 +11,23 @@ export default {
 
   default: {
     root: cva("mx-auto w-full flex-wrap items-start justify-start"),
-    header: cva("max-w-app mx-auto pb-10 pt-10 md:pb-20 md:pt-14"),
-    contentRoot: cva("pb-10 pt-10 md:pb-16 md:pt-20"),
+    header: cva("max-w-app mx-auto pt-10 pb-10 md:pt-14 md:pb-20"),
+    contentRoot: cva("pt-10 pb-10 md:pt-20 md:pb-16"),
     content: cva("max-w-app mx-auto")
   },
 
   enclosed: {
     root: cva(
-      "max-w-app mx-auto flex w-full flex-col flex-wrap items-start justify-start gap-6 pb-16 pt-10 md:pb-32 md:pt-16"
+      "max-w-app mx-auto flex w-full flex-col flex-wrap items-start justify-start gap-6 pt-10 pb-16 md:pt-16 md:pb-32"
     ),
-    controlsRoot: cva("w-full border-b bg-base-background py-4"),
+    controlsRoot: cva("bg-base-background w-full border-b py-4"),
     controls: cva("max-w-app mx-auto")
   },
 
   full: {
     root: cva("mx-auto w-full flex-wrap items-start justify-start"),
-    header: cva("max-w-app mx-auto pb-10 pt-10 md:pb-20 md:pt-14"),
-    contentRoot: cva("pb-10 pt-10 md:pb-16 md:pt-20", {
+    header: cva("max-w-app mx-auto pt-10 pb-10 md:pt-14 md:pb-20"),
+    contentRoot: cva("pt-10 pb-10 md:pt-20 md:pb-16", {
       variants: {
         hasHeader: {
           true: "bg-base-background",

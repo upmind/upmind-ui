@@ -45,7 +45,7 @@ const updateContentHeight = (entries: readonly ResizeObserverEntry[]) => {
   >
     <div
       v-resize-observer="updateContentHeight"
-      :class="cn('pb-4 pt-0', props.class)"
+      :class="cn('pt-0 pb-4', props.class)"
     >
       <slot />
     </div>

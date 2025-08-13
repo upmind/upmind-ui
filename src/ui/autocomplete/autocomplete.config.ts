@@ -18,12 +18,12 @@ export const rootVariants = cva("relative rounded-lg", {
 });
 
 export const anchorVariants = cva(
-  `${ringClasses} ${invalidRingClasses} hover:border-control-strong flex w-dropdown-2xs items-center justify-between rounded-lg border border-control pr-3 leading-none outline-hidden transition-all duration-200`,
+  `${ringClasses} ${invalidRingClasses} hover:border-control-strong w-dropdown-2xs border-control flex items-center justify-between rounded-lg border pr-3 leading-none outline-hidden transition-all duration-200`,
   {
     variants: {
       size: {
         sm: "h-8 px-3 py-2 text-sm!",
-        md: "h-10 px-3 py-2 !text-md",
+        md: "!text-md h-10 px-3 py-2",
         lg: "h-12 px-3 py-2 text-lg!"
       },
       width: {
@@ -47,7 +47,7 @@ export const anchorVariants = cva(
 );
 
 export const contentVariants = cva(
-  "data-[side=top]:animate-slideDownAndFade data-[side=right]:animate-slideLeftAndFade data-[side=bottom]:animate-slideUpAndFade data-[side=left]:animate-slideRightAndFade absolute z-10 mt-2 max-h-96 min-w-full overflow-hidden rounded-lg border border-control bg-base p-1 will-change-[opacity,transform] empty:hidden",
+  "data-[side=top]:animate-slideDownAndFade data-[side=right]:animate-slideLeftAndFade data-[side=bottom]:animate-slideUpAndFade data-[side=left]:animate-slideRightAndFade border-control bg-base absolute z-10 mt-2 max-h-96 min-w-full overflow-hidden rounded-lg border p-1 will-change-[opacity,transform] empty:hidden",
   {
     variants: {
       popoverWidth: {
@@ -82,7 +82,7 @@ export default {
     empty: cva("py-2 text-center text-xs font-medium"),
     content: contentVariants,
     item: cva(
-      "data-[disabled]:text-control-disabled data-[highlighted]:bg-control-active-hover relative flex cursor-pointer! select-none items-center justify-between rounded-lg px-3 py-2 text-sm text-control-foreground data-disabled:pointer-events-none data-[highlighted]:text-control-active data-highlighted:outline-hidden"
+      "data-[disabled]:text-control-disabled data-[highlighted]:bg-control-active-hover text-control-foreground data-[highlighted]:text-control-active relative flex cursor-pointer! items-center justify-between rounded-lg px-3 py-2 text-sm select-none data-disabled:pointer-events-none data-highlighted:outline-hidden"
     ),
     indicator: cva("pr-2")
   }

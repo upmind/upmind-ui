@@ -1,7 +1,7 @@
 <template>
   <FormField
     v-bind="formFieldProps"
-    class="flex flex-row flex-nowrap items-center gap-x-3 space-y-0"
+    class="flex flex-row flex-nowrap items-center space-y-0 gap-x-3"
   >
     <template #field>
       <!-- input -->

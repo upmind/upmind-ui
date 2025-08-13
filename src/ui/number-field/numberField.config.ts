@@ -25,11 +25,11 @@ export const numberFieldRootVariants = cva("group inline-block", {
 });
 
 export const numberFieldVariants = cva(
-  "group-aria-invalid:!ring-invalid group-aria-invalid:ring-2! group-aria-invalid:ring-offset-2! focus-visible:ring-ring inline-flex w-full rounded-lg bg-transparent text-center font-medium text-control-foreground text-inherit ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+  "group-aria-invalid:!ring-invalid focus-visible:ring-ring text-control-foreground ring-offset-background placeholder:text-muted-foreground inline-flex w-full rounded-lg bg-transparent text-center font-medium text-inherit group-aria-invalid:ring-2! group-aria-invalid:ring-offset-2! file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
   {
     variants: {
       variant: {
-        flat: "border border-control",
+        flat: "border-control border",
         minimal: "border-none!"
       },
       height: {
@@ -69,8 +69,8 @@ export const numberFieldVariants = cva(
 export const numberFieldInputVariants = cva("bg-control-background", {
   variants: {
     variant: {
-      flat: "hover:border-control-strong border border-control transition-all duration-200",
-      minimal: "rounded-lg border border-control p-0.5"
+      flat: "hover:border-control-strong border-control border transition-all duration-200",
+      minimal: "border-control rounded-lg border p-0.5"
     },
     height: {
       sm: "",

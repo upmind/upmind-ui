@@ -24,7 +24,7 @@ export default {
       "m-0 mt-0 max-w-md text-center text-lg leading-normal opacity-50"
     ),
     content: cva("mt-4 max-w-md text-center text-lg leading-normal"),
-    avatar: cva("size-20 bg-primary p-2 text-primary-foreground"),
+    avatar: cva("bg-primary text-primary-foreground size-20 p-2"),
     actions: cva("mt-8 flex w-full justify-center gap-2")
   }
 };

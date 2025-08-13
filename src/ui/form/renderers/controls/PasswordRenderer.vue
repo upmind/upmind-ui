@@ -19,7 +19,7 @@
         @update:modelValue="onInput"
       />
       <Button
-        class="absolute right-0 top-0 my-auto mr-3 mt-0.5 transition-all duration-300"
+        class="absolute top-0 right-0 my-auto mt-0.5 mr-3 transition-all duration-300"
         :class="unmask ? 'opacity-100' : 'opacity-50 hover:opacity-100'"
         variant="link"
         size="sm"

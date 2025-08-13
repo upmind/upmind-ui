@@ -27,7 +27,7 @@
             iconOnly
             :focusable="false"
             @click="forceClose"
-            class="absolute right-1 top-1"
+            class="absolute top-1 right-1"
           />
 
           <DialogTitle
@@ -39,7 +39,7 @@
 
           <DialogDescription
             v-if="description || $slots.description"
-            class="text-sm text-muted-foreground"
+            class="text-muted-foreground text-sm"
           >
             <slot name="description">{{ description }}</slot>
           </DialogDescription>

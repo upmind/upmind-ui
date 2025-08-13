@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 export default {
   card: {
     root: cva(
-      "w-full rounded-lg bg-base-background p-5 px-6 text-base-foreground shadow-2xs md:p-8 md:px-9",
+      "bg-base-background text-base-foreground w-full rounded-lg p-5 px-6 shadow-2xs md:p-8 md:px-9",
       {
         variants: {
           isDisabled: {

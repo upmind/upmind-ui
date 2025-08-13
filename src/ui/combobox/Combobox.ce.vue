@@ -109,7 +109,7 @@
 
                 <span
                   v-if="item.tag"
-                  class="text-nowrap leading-none opacity-50"
+                  class="leading-none text-nowrap opacity-50"
                   >{{ item.tag }}</span
                 >
               </span>

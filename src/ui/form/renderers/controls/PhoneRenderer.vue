@@ -7,7 +7,7 @@
         "
         :items="countryItems"
         @update:modelValue="onCountyInput"
-        class="rounded-r-none border-r-0 text-sm !text-opacity-50 ring-0!"
+        class="!text-opacity-50 rounded-r-none border-r-0 text-sm ring-0!"
         popover-class="!w-dropdown-xl"
         align="start"
         width="xs"
