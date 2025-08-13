@@ -51,6 +51,7 @@ export default {
     radio: cva("size-lh flex items-center justify-center"),
     input: cva(
       `group-hover:border-control-strong border-control leading-normal ring-offset-2 [transition:border-color_200ms_ease-in-out] ${ringClasses}`
-    )
+    ),
+    sublabel: cva("text-emphasis-disabled m-0 mx-2 self-end text-sm")
   }
 };

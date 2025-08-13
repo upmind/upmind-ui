@@ -22,6 +22,14 @@
         "
       >
         <slot name="header">
+          <DialogClose
+            v-if="dismissable"
+            iconOnly
+            :focusable="false"
+            @click="forceClose"
+            class="absolute right-1 top-1"
+          />
+
           <DialogTitle
             v-if="title || $slots.title"
             class="mb-2 text-2xl font-normal"
