@@ -42,7 +42,9 @@ import { type ComputedRef, computed, useSlots } from "vue";
 import { type VariantProps } from "./types";
 
 // -----------------------------------------------------------------------------
-const props = defineProps<VariantProps>();
+const props = withDefaults(defineProps<VariantProps>(), {
+  overflow: "visible"
+});
 
 // -----------------------------------------------------------------------------
 
@@ -51,6 +53,7 @@ const slots = useSlots();
 const meta = computed(() => {
   return {
     variant: "full",
+    overflow: props.overflow,
     hasHeader: !isEmptySlot("header", slots),
     hasContent: !isEmptySlot("default", slots),
     isMinimal: props.minimal,

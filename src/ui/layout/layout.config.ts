@@ -24,7 +24,14 @@ export default {
   },
 
   enclosed: {
-    root: cva("py-18 w-full px-2.5"),
+    root: cva("py-18 w-full px-2.5", {
+      variants: {
+        overflow: {
+          hidden: "overflow-hidden",
+          visible: "overflow-visible"
+        }
+      }
+    }),
     container: cva("max-w-app-lg mx-auto flex w-full flex-col gap-6"),
     content: cva("flex w-full flex-col gap-9 md:flex-row"),
     main: cva("flex w-full flex-col gap-6"),
@@ -34,7 +41,14 @@ export default {
   },
 
   full: {
-    root: cva("mx-auto w-full flex-wrap items-start justify-start"),
+    root: cva("mx-auto w-full flex-wrap items-start justify-start", {
+      variants: {
+        overflow: {
+          hidden: "overflow-hidden",
+          visible: "overflow-visible"
+        }
+      }
+    }),
     header: {
       root: cva("px-2.5", {
         variants: {
