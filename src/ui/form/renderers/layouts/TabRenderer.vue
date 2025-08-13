@@ -59,7 +59,7 @@ const tabElements = computed((): TabElement[] => {
     return {
       label: get(element, "label") ?? "",
       elements: [element]
-    };
+    } as TabElement;
   });
 });
 

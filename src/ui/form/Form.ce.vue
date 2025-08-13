@@ -9,7 +9,7 @@
     <JsonForms
       ref="jsonform"
       :additionalErrors="additionalErrors"
-      :ajv="ajv"
+      :ajv="ajv as any"
       :class="styles.form.content"
       :data="model"
       :enabled="!meta.isDisabled"
@@ -207,7 +207,7 @@ const actions = computed<Record<string, FormActionProps>>(() => {
 
 const mode = computed<ValidationMode>(() => {
   // only show errors if we have interacted with the form
-  return meta.value.isTouched || !isEmpty(props.additionalErrors)
+  return meta.value.isTouched && !isEmpty(props.additionalErrors)
     ? "ValidateAndShow"
     : "ValidateAndHide";
 });
