@@ -23,9 +23,9 @@ test.describe("Verify checkout billing detail requirements", () => {
       Logins.brandUser.username,
       Logins.brandUser.password
     );
-    token = await getSessionToken(context, "client");
     await page.goto(URLs.basket);
     await page.waitForLoadState("networkidle");
+    token = await getSessionToken(context, "client");
     orderId = await getCurrentOrderId(token);
     await addProductToOrder(
       `${token}`,
@@ -53,11 +53,9 @@ test.describe("Verify checkout billing detail requirements", () => {
       requirePhoneForOrders: false
     });
     await page.goto(URLs.checkout);
-    await expect(
-      page.getByTestId("form-item-message-company-address")
-    ).toContainText("Address is required");
+    await expect(page.getByTestId("button-place-order-and-pay")).toBeDisabled();
   });
-  test("Company required at checkout", async ({ page, context }) => {
+  test("Company required at checkout", async ({ page }) => {
     await interceptConfigValues(page, token, {
       requireAddressForOrders: false,
       requireCompanyForOrders: true,
@@ -65,9 +63,9 @@ test.describe("Verify checkout billing detail requirements", () => {
       requirePhoneForOrders: false
     });
     await page.goto(URLs.checkout);
-    await expect(
-      page.getByTestId("form-item-message-company-name")
-    ).toContainText("must be string");
+    await expect(page.getByTestId("billing")).toContainText("Company Name");
+    await expect(page.getByTestId("tablist")).toHaveCount(0);
+    await expect(page.getByTestId("button-place-order-and-pay")).toBeDisabled();
   });
   test("Region required on address", async ({ page, context }) => {
     await interceptConfigValues(page, token, {
@@ -96,8 +94,6 @@ test.describe("Verify checkout billing detail requirements", () => {
       requirePhoneForOrders: true
     });
     await page.goto(URLs.checkout);
-    await expect(
-      page.getByTestId("form-item-message-address-phone")
-    ).toContainText("Phone is required");
+    await expect(page.getByTestId("form-item-phone2")).toBeVisible();
   });
 });

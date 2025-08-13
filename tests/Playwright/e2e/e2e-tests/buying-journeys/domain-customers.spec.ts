@@ -90,7 +90,7 @@ test.describe("Domain customers", () => {
         `${fakerEN_GB.location.streetAddress()}`,
         `${fakerEN_GB.location.city()}`,
         "HU15 1EG",
-        "07111111111"
+        null
       );
       await checkout.selectPaymentMethod("Direct Bank Transfer");
       await page.getByTestId("button-place-order").click();

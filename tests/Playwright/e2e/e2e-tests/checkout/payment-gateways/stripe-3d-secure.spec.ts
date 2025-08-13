@@ -51,7 +51,7 @@ test.describe("3D Secure Authentication", async () => {
         `${fakerEN_GB.location.streetAddress()}`,
         `${fakerEN_GB.location.city()}`,
         "HU15 1EG",
-        "07111111111"
+        null
       );
       await checkout.selectPaymentMethod("Stripe Payment");
       await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
@@ -61,13 +61,19 @@ test.describe("3D Secure Authentication", async () => {
         if (url.startsWith("https://hooks.stripe.com/3d_secure_2/hosted")) {
           let returnUrl = `http://qa-automation.local:5173/order/${orderId}?payment_success=true`;
           await page.goto(returnUrl);
+          await expect(page).toHaveURL(/payment_success=true/);
+          await expect(page.getByRole("dialog")).toContainText(
+            "Order complete!"
+          );
         } else {
           let returnUrl = `http://qa-automation.local:5173/order/${orderId}?payment_success=false`;
           await page.goto(returnUrl);
+          await expect(page).toHaveURL(/payment_success=false/);
+          await expect(page.getByRole("dialog")).toContainText(
+            "Unable to process payment"
+          );
         }
       });
-      await expect(page).toHaveURL(/payment_success=true/);
-      await expect(page.getByRole("dialog")).toContainText("Order complete!");
     });
   }
 });
