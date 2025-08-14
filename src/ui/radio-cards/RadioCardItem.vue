@@ -1,36 +1,35 @@
 <template>
-  <div
-    :class="styles.radioCards.item"
+  <Label
+    :for="`${props.name}-${index}`"
+    :class="cn(styles.radioCards.item)"
     :data-state="isSelected ? 'checked' : ''"
   >
-    <Label :for="`${props.name}-${index}`" :class="cn(styles.radioCards.label)">
-      <div :class="styles.radioCards.radio">
-        <RadioGroupItem
-          :id="`${props.name}-${index}`"
-          :value="value"
-          :name="props.name"
-          :required="props.required"
-          :disabled="props.disabled"
-          :class="styles.radioCards.input"
-          :tabindex="isSelected || !modelValue ? 0 : -1"
-          :data-state="isSelected ? 'checked' : ''"
-          :uiConfig="uiConfig"
-          @blur="onBlur"
-        />
-      </div>
-      <slot
-        name="item"
-        v-bind="{
-          item: { ...props.item, value }
-        }"
-      >
-        <span v-if="props.label">{{ props.label }}</span>
-        <span v-if="props.sublabel" :class="styles.radioCards.sublabel">{{
-          props.sublabel
-        }}</span>
-      </slot>
-    </Label>
-  </div>
+    <div :class="styles.radioCards.radio">
+      <RadioGroupItem
+        :id="`${props.name}-${index}`"
+        :value="value"
+        :name="props.name"
+        :required="props.required"
+        :disabled="props.disabled"
+        :class="styles.radioCards.input"
+        :tabindex="isSelected || !modelValue ? 0 : -1"
+        :data-state="isSelected ? 'checked' : ''"
+        :uiConfig="uiConfig"
+        @blur="onBlur"
+      />
+    </div>
+    <slot
+      name="item"
+      v-bind="{
+        item: { ...props.item, value }
+      }"
+    >
+      <span v-if="props.label">{{ props.label }}</span>
+      <span v-if="props.sublabel" :class="styles.radioCards.sublabel">{{
+        props.sublabel
+      }}</span>
+    </slot>
+  </Label>
 </template>
 
 <script setup lang="ts">

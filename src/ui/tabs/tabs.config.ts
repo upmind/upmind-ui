@@ -1,7 +1,7 @@
 import { cva } from "class-variance-authority";
 
 export const tabsListVariants = cva(
-  "text-muted-foreground mb-4 inline-flex items-center rounded-lg p-1",
+  "mb-4 inline-flex items-center rounded p-1 text-muted-foreground",
   {
     variants: {
       variant: {
@@ -81,47 +81,47 @@ export const tabsListVariants = cva(
       },
 
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "base",
         class: "border-base-muted-active text-base-foreground"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "primary",
         class: "border-primary text-primary"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "secondary",
         class: "border-secondary text-secondary"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "accent",
         class: "border-accent text-accent"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "success",
         class: "border-success text-success"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "error",
         class: "border-error text-error"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "warning",
         class: "border-warning text-warning"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "info",
         class: "border-info text-info"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "promotion",
         class: "border-promotion text-promotion"
       },
@@ -182,7 +182,7 @@ export const tabsListVariants = cva(
 );
 
 export const tabsTriggerVariants = cva(
-  "focus-visible:ring-ring ring-offset-background inline-flex items-center justify-center rounded-lg px-6 py-2 text-xs leading-none font-medium whitespace-nowrap transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50",
+  "focus-visible:ring-ring inline-flex items-center justify-center whitespace-nowrap rounded px-6 py-2 text-xs font-medium leading-none ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
@@ -251,47 +251,47 @@ export const tabsTriggerVariants = cva(
       },
 
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "base",
         class: "text-emphasis-high"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "primary",
         class: "text-primary"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "secondary",
         class: "text-secondary"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "accent",
         class: "text-accent"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "success",
         class: "text-success"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "error",
         class: "text-error"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "warning",
         class: "text-warning"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "info",
         class: "text-info"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "promotion",
         class: "text-promotion"
       },

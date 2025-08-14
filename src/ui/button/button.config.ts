@@ -1,165 +1,160 @@
 // ---  external
 import { cva } from "class-variance-authority";
-import { invalidRingClasses, ringClasses } from "../../assets/ring.styles";
+import { invalidRingClasses, ringClasses } from "../../assets/styles";
 // -----------------------------------------------------------------------------
 
-export const buttonVariants = cva(
-  `ring-offset-background relative inline-flex items-center justify-center rounded-lg border font-medium whitespace-nowrap no-underline transition-all duration-300 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50!`,
+export const rootVariants = cva(
+  `relative inline-flex items-center justify-center whitespace-nowrap no-underline ring-offset-background transition-all duration-300`,
   {
     variants: {
-      variant: {
-        flat: "hover:bg-opacity-90 border-transparent",
-        outline: "bg-transparent",
-        ghost: "border-transparent",
-        link: "!hover:underline hover:text-opacity-60 border-none bg-transparent! px-0! underline-offset-4!",
-        tonal: "border-transparent",
-        inverse: "border-transparent",
-        control:
-          "hover:!border-control-strong !border-control bg-control !text-control-foreground ring-offset-background shadow-2xs"
+      size: {
+        sm: "px-0.5 py-2 text-sm",
+        md: "gap-0.5 px-3 py-2 text-sm",
+        lg: "gap-0.5 px-4 py-2 text-md",
+        icon: ""
       },
-      focusable: {
-        true: `${ringClasses} ${invalidRingClasses}`,
-        false: "outline-hidden focus:ring-0 focus:outline-hidden"
+      variant: {
+        flat: "font-medium hover:bg-opacity-90",
+        outline: "shadow-border font-medium",
+        ghost: "font-medium",
+        link: "gap-1 !bg-transparent !p-0 underline underline-offset-4",
+        tonal: "font-medium",
+        inverse: "font-medium",
+        control:
+          "border bg-control font-medium !text-control-foreground ring-offset-background"
       },
       color: {
         base: "",
-        primary: "",
-        secondary: "",
-        accent: "",
-        promotion: "",
-        destructive: "",
-        success: "!",
-        info: "",
-        error: "",
-        warning: ""
+        muted: "text-emphasis-medium",
+        primary: "!ring-primary",
+        secondary: "!ring-secondary",
+        accent: "!ring-accent",
+        promotion: "!ring-promotion",
+        destructive: "!ring-destructive",
+        success: "!ring-success",
+        info: "!ring-info",
+        error: "!ring-error",
+        warning: "!ring-warning"
       },
-      size: {
-        xs: "h-7 gap-1 px-2 py-1 text-xs",
-        sm: "h-9 gap-2 px-3 py-1 text-sm",
-        md: "text-md h-10 gap-2 px-4 py-1",
-        lg: "h-11 gap-2 px-8 py-1 text-lg",
-        xl: "h-14 gap-2 px-8 py-1 text-lg",
-        icon: "h-10 w-10 gap-2 px-2 py-1",
-        badge: "gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold"
+      isFocusable: {
+        true: `${ringClasses} ${invalidRingClasses}`,
+        false: "outline-none focus:outline-none focus:ring-0"
       },
-      block: {
+      isBlock: {
         true: "w-full basis-full"
       },
-      loading: {
+      isLoading: {
         true: "pointer-events-none [&>:not(.spinner)]:opacity-50"
+      },
+      isDisabled: {
+        true: "cursor-not-allowed opacity-50",
+        false: "cursor-pointer"
+      },
+      isPill: {
+        true: "rounded-pill",
+        false: "rounded"
       }
     },
-
     compoundVariants: [
       //  --- flat
       {
         color: "base",
         variant: "flat",
-        class: "bg-base-foreground text-base-background"
+        class: "bg-base-foreground text-base-background !ring-base"
       },
       {
         color: "primary",
         variant: "flat",
-        class: "bg-primary text-primary-foreground !ring-primary"
+        class: "bg-primary text-primary-foreground"
       },
       {
         color: "secondary",
         variant: "flat",
-        class: "bg-secondary text-secondary-foreground !ring-secondary"
+        class: "bg-secondary text-secondary-foreground"
       },
       {
         color: "accent",
         variant: "flat",
-        class: "bg-accent text-accent-foreground !ring-accent"
+        class: "bg-accent text-accent-foreground"
       },
       {
         color: "promotion",
         variant: "flat",
-        class: "bg-promotion text-promotion-foreground !ring-promotion"
+        class: "bg-promotion text-promotion-foreground"
       },
       {
         color: "destructive",
         variant: "flat",
-        class: "bg-destructive text-destructive-foreground !ring-destructive"
+        class: "bg-destructive text-destructive-foreground"
       },
       {
         color: "success",
         variant: "flat",
-        class: "bg-success text-success-foreground !ring-success"
+        class: "bg-success text-success-foreground"
       },
-      {
-        color: "info",
-        variant: "flat",
-        class: "bg-info text-info-foreground !ring-info"
-      },
+      { color: "info", variant: "flat", class: "bg-info text-info-foreground" },
       {
         color: "error",
         variant: "flat",
-        class: "bg-error text-error-foreground !ring-error"
+        class: "bg-error text-error-foreground"
       },
       {
         color: "warning",
         variant: "flat",
-        class: "bg-warning text-warning-foreground !ring-warning"
+        class: "bg-warning text-warning-foreground"
       },
 
       // --- outline
       {
         color: "base",
-        variant: "outline-solid",
+        variant: "outline",
         class:
-          "border-base-control text-base-foreground hover:text-base-foreground/75"
+          "bg-base-background text-base-foreground hover:text-base-foreground/75"
       },
       {
         color: "primary",
-        variant: "outline-solid",
-        class:
-          "hover:bg-primary-muted border-primary text-primary !ring-primary"
+        variant: "outline",
+        class: "hover:bg-primary-muted text-primary"
       },
       {
         color: "secondary",
-        variant: "outline-solid",
-        class:
-          "hover:bg-secondary-muted border-secondary text-secondary !ring-secondary"
+        variant: "outline",
+        class: "hover:bg-secondary-muted text-secondary"
       },
       {
         color: "accent",
-        variant: "outline-solid",
-        class: "hover:bg-accent-muted border-accent text-accent !ring-accent"
+        variant: "outline",
+        class: "hover:bg-accent-muted text-accent"
       },
       {
         color: "promotion",
-        variant: "outline-solid",
-        class:
-          "hover:bg-promotion-muted border-promotion text-promotion !ring-promotion"
+        variant: "outline",
+        class: "hover:bg-promotion-muted text-promotion"
       },
       {
         color: "destructive",
-        variant: "outline-solid",
-        class:
-          "hover:bg-destructive-muted border-destructive text-destructive !ring-destructive"
+        variant: "outline",
+        class: "hover:bg-destructive-muted text-destructive"
       },
       {
         color: "success",
-        variant: "outline-solid",
-        class:
-          "hover:bg-success-muted border-success text-success !ring-success"
+        variant: "outline",
+        class: "hover:bg-success-muted text-success"
       },
       {
         color: "info",
-        variant: "outline-solid",
-        class: "hover:bg-info-muted border-info text-info !ring-info"
+        variant: "outline",
+        class: "hover:bg-info-muted text-info"
       },
       {
         color: "error",
-        variant: "outline-solid",
-        class: "hover:bg-error-muted border-error text-error !ring-error"
+        variant: "outline",
+        class: "hover:bg-error-muted text-error"
       },
       {
         color: "warning",
-        variant: "outline-solid",
-        class:
-          "hover:bg-warning-muted border-warning text-warning !ring-warning"
+        variant: "outline",
+        class: "hover:bg-warning-muted text-warning"
       },
 
       // --- tonal
@@ -281,56 +276,15 @@ export const buttonVariants = cva(
         class: "hover:bg-warning-muted !ring-warning-muted-active text-warning"
       },
 
-      // --- link
+      // --- link (simplified - just inherit text color)
       {
-        color: "base",
         variant: "link",
-        class: "text-base-foreground bg-transparent ring-transparent!"
+        class: ""
       },
       {
-        color: "primary",
         variant: "link",
-        class: "text-primary bg-transparent ring-transparent!"
-      },
-      {
-        color: "secondary",
-        variant: "link",
-        class: "text-secondary bg-transparent ring-transparent!"
-      },
-      {
-        color: "accent",
-        variant: "link",
-        class: "text-accent bg-transparent ring-transparent!"
-      },
-      {
-        color: "promotion",
-        variant: "link",
-        class: "text-promotion bg-transparent ring-transparent!"
-      },
-      {
-        color: "destructive",
-        variant: "link",
-        class: "text-destructive bg-transparent ring-transparent!"
-      },
-      {
-        color: "success",
-        variant: "link",
-        class: "text-success bg-transparent ring-transparent!"
-      },
-      {
-        color: "info",
-        variant: "link",
-        class: "text-info bg-transparent ring-transparent!"
-      },
-      {
-        color: "error",
-        variant: "link",
-        class: "text-error bg-transparent ring-transparent!"
-      },
-      {
-        color: "warning",
-        variant: "link",
-        class: "text-warning bg-transparent ring-transparent!"
+        color: "muted",
+        class: "text-emphasis-medium hover:text-emphasis-none"
       },
 
       // --- inverse
@@ -386,21 +340,54 @@ export const buttonVariants = cva(
         variant: "inverse",
         class: "hover:bg-warning-muted bg-warning-foreground text-warning"
       }
-
-      // ... existing compound variants ...
     ],
 
     defaultVariants: {
-      block: false,
       variant: "flat",
       color: "base",
       size: "md",
-      loading: false
+      isFocusable: true,
+      isBlock: false,
+      isLoading: false,
+      isPill: false
     }
   }
 );
 
+const labelVariants = cva("", {
+  variants: {
+    variant: {
+      flat: "px-1",
+      outline: "px-1",
+      ghost: "px-1",
+      link: "",
+      tonal: "px-1",
+      inverse: "px-1",
+      control: "px-1"
+    },
+    isIconOnly: {
+      true: "sr-only"
+    }
+  }
+});
+
 // -----------------------------------------------------------------------------
 export default {
-  button: buttonVariants
+  button: {
+    root: rootVariants,
+    label: labelVariants,
+    items: cva("size-lh flex items-center justify-center", {
+      variants: {
+        size: {
+          icon: "",
+          sm: "[&>i]:p-[3px]",
+          md: "[&>i]:p-[3px]",
+          lg: "[&>i]:p-[4px]"
+        },
+        variant: {
+          link: "text-emphasis-medium"
+        }
+      }
+    })
+  }
 };

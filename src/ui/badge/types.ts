@@ -6,8 +6,13 @@ import type { CxOptions, VariantProps } from "class-variance-authority";
 import type { badgeVariants } from "./badge.config";
 type BadgeVariantProps = VariantProps<typeof badgeVariants>;
 
+// --- types
+import { type Icon } from "../icon/types";
+
 export interface BadgeProps {
   label?: string;
+  icon?: string | Icon;
+  appendIcon?: string | Icon;
   // --- variants
   color?: BadgeVariantProps["color"] | string;
   variant?: BadgeVariantProps["variant"] | string;

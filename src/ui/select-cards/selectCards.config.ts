@@ -1,8 +1,8 @@
 import { cva } from "class-variance-authority";
-import { ringClasses, invalidRingClasses } from "../../assets/ring.styles";
+import { ringClasses, invalidRingClasses } from "../../assets/styles";
 
 export const triggerVariants = cva(
-  `border-control flex h-auto min-w-0 items-center justify-start rounded-lg px-3 py-2 text-left font-medium shadow-none`,
+  `group flex h-auto min-w-0 items-center justify-start rounded border-control px-4 py-2 text-left font-medium shadow-none`,
   {
     variants: {
       width: {
@@ -24,11 +24,11 @@ export const triggerVariants = cva(
 );
 
 export const itemVariants = cva(
-  "hover:bg-control-active-focus focus:bg-control-active-focus text-md m-0 flex h-full w-full cursor-pointer items-start space-x-2 rounded-lg px-3 py-2 leading-none font-medium first:rounded-t-md last:rounded-b-md last:border-b-0 focus:outline-hidden"
+  "hover:bg-control-active-focus focus:bg-control-active-focus m-0 flex h-full w-full cursor-pointer items-start space-x-2 rounded px-3 py-2 text-md font-medium leading-none first:rounded-t-md last:rounded-b-md last:border-b-0 focus:outline-none"
 );
 
 export const contentVariants = cva(
-  `bg-control-background ${ringClasses} ${invalidRingClasses} border-control mt-2 flex max-h-72 w-(--radix-dropdown-menu-trigger-width)! flex-col overflow-hidden overflow-y-scroll rounded-lg border p-1`,
+  `bg-control-background ${ringClasses} ${invalidRingClasses} mt-2 flex max-h-72 !w-[--radix-dropdown-menu-trigger-width] flex-col overflow-hidden overflow-y-scroll rounded border border-control p-1`,
   {
     variants: {
       width: {
@@ -50,7 +50,7 @@ export const contentVariants = cva(
 );
 
 const groupVariants = cva(
-  `${ringClasses} ${invalidRingClasses} w-full rounded-lg transition-all duration-200`
+  `${ringClasses} ${invalidRingClasses} w-full rounded transition-all duration-200`
 );
 
 export default {
@@ -60,6 +60,6 @@ export default {
     item: itemVariants,
     items: cva("w-full gap-0"),
     group: groupVariants,
-    input: cva("bg-control text-control-active my-3 mr-1 ml-3 leading-normal")
+    input: cva("my-3 ml-3 mr-1 bg-control leading-normal text-control-active")
   }
 };

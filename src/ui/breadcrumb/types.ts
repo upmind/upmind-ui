@@ -1,12 +1,10 @@
 // --- external
 import { type HTMLAttributes } from "vue";
-import type { CxOptions, VariantProps } from "class-variance-authority";
+import type { CxOptions } from "class-variance-authority";
 
 // --- internal
-import type { rootVariants } from "./breadcrumb.config";
+import type { ButtonProps } from "../button/types";
 import type { RouterLinkProps } from "vue-router";
-
-type BreadcrumbConsolidateVariantProps = VariantProps<typeof rootVariants>;
 
 export interface BreadcrumbItem extends RouterLinkProps {
   label: string;
@@ -18,7 +16,7 @@ export interface BreadcrumbItem extends RouterLinkProps {
 export interface BreadcrumbConsolidateProps {
   items: BreadcrumbItem[];
   // --- variants
-  size?: BreadcrumbConsolidateVariantProps["size"] | string;
+  size?: ButtonProps["size"] | string;
   // --- styles
   uiConfig?: { breadcrumbConsolidate?: CxOptions };
   class?: HTMLAttributes["class"];

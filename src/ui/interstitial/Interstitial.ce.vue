@@ -14,7 +14,7 @@
   >
     <section :class="cn(styles.interstitial.root, props.class)">
       <slot name="avatar">
-        <Avatar :animated-icon="animatedIcon" color="transparent" size="xl" />
+        <Avatar :animated-icon="animatedIcon" color="transparent" size="6xl" />
       </slot>
 
       <h3 :class="styles.interstitial.title">
@@ -34,18 +34,13 @@
           <Button
             v-for="(action, index) in actions"
             :key="`action-${index}`"
+            size="lg"
             v-bind="action"
             :loading="meta.isProcessing"
             color="secondary"
             @click.stop="doAction(action?.handler)"
-          >
-            <template #prepend>
-              <Icon v-if="action?.prependIcon" v-bind="action.prependIcon" />
-            </template>
-            <template #append>
-              <Icon v-if="action?.appendIcon" v-bind="action.appendIcon" />
-            </template>
-          </Button>
+            pill
+          />
         </slot>
       </footer>
     </section>

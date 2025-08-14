@@ -28,7 +28,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
     v-bind="forwarded"
     :class="
       cn(
-        'bg-popover text-popover-foreground flex h-full w-full flex-col overflow-hidden rounded-lg',
+        'flex h-full w-full flex-col overflow-hidden rounded bg-popover text-popover-foreground',
         props.class
       )
     "

@@ -2,24 +2,38 @@
 import type { CxOptions } from "class-variance-authority";
 import { type Component, type HTMLAttributes } from "vue";
 import type { VariantProps } from "class-variance-authority";
+import type { Icon } from "../icon/types";
+import type {
+  RouteLocationAsRelativeGeneric,
+  RouteLocationAsPathGeneric
+} from "vue-router";
 
 // --- internal
-import type { buttonVariants } from "./button.config";
-type ButtonVariantProps = VariantProps<typeof buttonVariants>;
+import type { rootVariants } from "./button.config";
+type ButtonVariantProps = VariantProps<typeof rootVariants>;
 
 export interface ButtonProps {
   label?: string;
-  as?: string | Component;
-  type?: "button" | "submit" | "reset"; //  type?: HTMLButtonElement["type"];
+  is?: "button" | "router-link" | "a" | string | Component;
+  type?: "button" | "submit" | "reset";
+  icon?: string | Icon;
+  avatar?: string | Icon;
+  iconAppend?: string | Icon;
+  avatarAppend?: string | Icon;
+  // --- link support
+  to?: string | RouteLocationAsRelativeGeneric | RouteLocationAsPathGeneric;
+  href?: string;
   // ---
   disabled?: boolean;
   loading?: boolean;
   iconOnly?: boolean;
   spinner?: boolean;
+  pill?: boolean;
   // ---
   focusable?: boolean;
   block?: boolean;
   truncate?: boolean;
+  checked?: boolean;
   variant?: ButtonVariantProps["variant"] | string;
   color?: ButtonVariantProps["color"] | string;
   size?: ButtonVariantProps["size"] | string;
@@ -27,4 +41,12 @@ export interface ButtonProps {
   uiConfig?: { button: CxOptions };
   class?: HTMLAttributes["class"];
   contentClass?: HTMLAttributes["class"];
+}
+
+export interface ButtonItemsProps {
+  variant?: ButtonProps["variant"];
+  icon?: ButtonProps["icon"];
+  avatar?: ButtonProps["avatar"];
+  size?: ButtonProps["size"];
+  checked?: boolean;
 }

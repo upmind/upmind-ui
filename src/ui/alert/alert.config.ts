@@ -1,7 +1,7 @@
 import { cva } from "class-variance-authority";
 
 export const alertVariants = cva(
-  "group relative w-full rounded-lg p-4 [&>i]:absolute [&>i]:top-4 [&>i]:left-4 [&>i+div]:translate-y-[-3px] [&>i~*]:pl-7",
+  "group relative w-full rounded p-4 px-5 [&>i+div]:translate-y-[-3px] [&>i]:absolute [&>i]:left-4 [&>i]:top-4 [&>i~*]:pl-7",
   {
     // Alert props doesn't see that the variants exist without these
     variants: {
@@ -74,61 +74,61 @@ export const alertVariants = cva(
         class: "bg-error-muted text-error-muted-foreground"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "base",
-        class: "bg-base-background text-base-foreground border"
+        class: "border bg-base-background text-base-foreground"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "primary",
         class: "bg-primary-muted text-primary-muted-foreground border-primary"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "secondary",
         class:
           "bg-secondary-muted text-secondary-muted-foreground border-secondary"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "accent",
         class: "test bg-accent-muted text-accent-muted-foreground border-accent"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "promotion",
         class:
           "bg-promotion-muted text-promotion-muted-foreground border-promotion"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "destructive",
         class:
           "bg-destructive-muted text-destructive-muted-foreground border-destructive"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "success",
         class: "bg-success-muted text-success-muted-foreground border-success"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "info",
         class: "bg-info-muted text-info-muted-foreground border-info"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "error",
         class: "bg-error-muted border-error text-error"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "warning",
         class: "bg-warning-muted text-warning-muted-foreground border-warning"
       }
     ],
     defaultVariants: {
-      variant: "outline-solid",
+      variant: "outline",
       color: "base"
     }
   }

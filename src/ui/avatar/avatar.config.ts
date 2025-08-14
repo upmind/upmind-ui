@@ -1,11 +1,11 @@
 // ---  external
 import { cva } from "class-variance-authority";
-import { ringClasses } from "../../assets/ring.styles";
+import { ringClasses } from "../../assets/styles";
 // -----------------------------------------------------------------------------
 
 // --- for out Typescript type
 export const avatarVariants = cva(
-  "relative inline-flex aspect-square shrink-0 items-center justify-center overflow-hidden font-normal select-none",
+  "relative inline-flex aspect-square shrink-0 select-none items-center justify-center overflow-hidden font-medium",
   {
     variants: {
       color: {
@@ -19,7 +19,7 @@ export const avatarVariants = cva(
         info: "bg-info text-info-foreground",
         error: "bg-error text-error-foreground",
         warning: "bg-warning text-warning-foreground",
-        transparent: "text-primary overflow-visible bg-transparent"
+        transparent: "overflow-visible bg-transparent text-primary"
       },
       variant: {
         flat: "",
@@ -30,17 +30,20 @@ export const avatarVariants = cva(
         contain: "object-contain p-[0.5em]"
       },
       size: {
-        auto: "h-full w-auto text-inherit",
-        "4xs": "h-4 w-4 text-xs",
-        "3xs": "h-5 w-5 text-xs",
-        "2xs": "h-6 w-6 text-xs",
-        xs: "h-8 w-8 text-xs",
-        sm: "h-12 w-12 text-sm",
-        md: "h-16 w-16 text-2xl",
-        lg: "h-32 w-32 text-5xl",
-        xl: "h-40 w-40 text-6xl",
-        "2xl": "h-48 w-48 text-7xl",
-        "3xl": "h-56 w-56 text-8xl"
+        auto: "",
+        nano: "size-4",
+        "3xs": "size-5",
+        "2xs": "size-5",
+        xs: "size-6",
+        sm: "size-8",
+        md: "size-10",
+        lg: "size-12",
+        xl: "size-14",
+        "2xl": "size-16",
+        "3xl": "size-20",
+        "4xl": "size-24",
+        "5xl": "size-28",
+        "6xl": "size-32"
       },
       shape: {
         color: "base",
@@ -59,57 +62,57 @@ export const avatarVariants = cva(
     },
     compoundVariants: [
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "base",
         className: "ring-base-muted text-base-muted"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "primary",
         className: "text-primary ring-primary"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "secondary",
         className: "text-secondary ring-secondary"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "accent",
         className: "text-accent ring-accent"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "promotion",
         className: "text-promotion ring-promotion"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "destructive",
         className: "text-error ring-error"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "success",
         className: "text-success ring-success"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "info",
         className: "text-info ring-info"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "error",
         className: "text-error ring-error"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "warning",
         className: "text-warning ring-warning"
       },
       {
-        variant: "outline-solid",
+        variant: "outline",
         color: "transparent",
         className: "text-primary ring-primary"
       }

@@ -3,33 +3,35 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export const ringClasses =
-  "ring-offset-background focus-within:outline-hidden focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 rounded-lg group-focus-within:ring-0 group-focus-within:ring-offset-0";
+  "ring-offset-background focus-within:outline-none focus-within:ring-2 focus-within:ring-ring rounded focus-within:ring-offset-2 group-focus-within:ring-0 group-focus-within:ring-offset-0";
 
 export const invalidRingClasses =
-  "aria-invalid:!ring-invalid aria-invalid:ring-2! aria-invalid:ring-offset-2!";
+  "aria-invalid:!ring-invalid aria-invalid:!ring-2 aria-invalid:!ring-offset-2";
 
-export const inputVariants = cva(
-  `${ringClasses} ${invalidRingClasses} bg-control-background hover:border-control-strong border-control text-control-foreground placeholder:text-muted-foreground flex rounded-lg border transition-[background-color,border-color,opacity,box-shadow] duration-200 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:cursor-not-allowed disabled:opacity-50`,
+export const containerVariants = cva(
+  `bg-control-background flex items-center gap-3 border border-control px-4 py-2 text-md transition-[background-color,border-color,opacity,box-shadow] duration-200 ${ringClasses} ${invalidRingClasses}`,
   {
     variants: {
       width: {
-        auto: "w-auto min-w-15",
+        auto: "w-auto min-w-[3.75rem]",
         full: "w-full"
-      },
-      size: {
-        sm: "h-8 px-3 py-2 text-sm",
-        md: "text-md h-10 px-3 py-2",
-        lg: "h-12 px-3 py-2 text-lg"
       }
     },
     defaultVariants: {
-      size: "md",
       width: "full"
     }
   }
 );
 
+export const inputFieldVariants = cva(
+  "w-full rounded bg-base-background text-control-foreground focus:outline-none focus:ring-0"
+);
+
 // -----------------------------------------------------------------------------
 export default {
-  input: inputVariants
+  input: {
+    container: containerVariants,
+    field: inputFieldVariants,
+    items: cva("h-lh flex items-center justify-center")
+  }
 };
