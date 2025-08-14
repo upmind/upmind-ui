@@ -8,7 +8,7 @@ export const rootVariant = cva("h-full w-full", {
       last: "rounded-r-lg"
     },
     isEmpty: {
-      true: "flex items-center justify-center bg-secondary text-secondary-foreground"
+      true: "bg-secondary text-secondary-foreground flex items-center justify-center"
     },
     fit: {
       cover: "object-cover object-center",
@@ -52,7 +52,7 @@ export default {
       item: cva("pl-0")
     },
     nav: {
-      root: cva("bottom-5.5 right-5.5 absolute flex gap-0.5"),
+      root: cva("absolute right-5.5 bottom-5.5 flex gap-0.5"),
       item: cva("grid size-3 place-items-center text-white")
     }
   }

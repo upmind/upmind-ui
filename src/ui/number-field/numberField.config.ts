@@ -54,7 +54,7 @@ export const numberFieldRootVariants = cva("group inline-block", {
 });
 
 export const numberFieldVariants = cva(
-  "group-aria-invalid:ring-invalid! group-aria-invalid:ring-2! group-aria-invalid:ring-offset-2! focus-visible:ring-ring inline-flex w-full rounded-lg border-none bg-transparent text-center font-medium text-control-foreground text-inherit ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+  "group-aria-invalid:ring-invalid! focus-visible:ring-ring text-control-foreground ring-offset-background placeholder:text-muted-foreground inline-flex w-full rounded-lg border-none bg-transparent text-center font-medium text-inherit group-aria-invalid:ring-2! group-aria-invalid:ring-offset-2! file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
   {
     variants: {
       variant: {
@@ -85,7 +85,7 @@ export const numberFieldVariants = cva(
       {
         variant: "flat",
         size: "lg",
-        class: "h-auto px-4 py-2 text-md"
+        class: "text-md h-auto px-4 py-2"
       }
     ],
     defaultVariants: {
