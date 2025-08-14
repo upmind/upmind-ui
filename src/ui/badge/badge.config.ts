@@ -2,20 +2,18 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export const badgeVariants = cva(
-  "focus:ring-ring rounded-pill inline-flex w-fit items-center border leading-none font-semibold whitespace-nowrap transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-hidden",
+  "focus:ring-ring inline-flex w-fit items-center whitespace-nowrap rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2",
   {
     variants: {
       variant: {
-        flat: "border border-transparent",
-        outline: "!bg-opacity-0 border",
-        tonal: "border border-transparent"
+        flat: "",
+        outline: "border !bg-base-background",
+        tonal: ""
       },
       size: {
-        xs: "!text-2xs px-1.5! py-0.5!",
-        sm: "px-1.5! py-0.5! text-xs!",
-        md: "px-2! py-1! text-xs!",
-        lg: "px-3! py-2! text-lg!",
-        xl: "px-3.5! py-2.5! text-xl!"
+        sm: "px-2 py-1 text-xs/tight",
+        md: "px-3 py-1 text-sm/tight",
+        lg: "!px-3 !py-2 !text-lg/tight"
       },
       color: {
         base: "bg-base-foreground text-base-background",
@@ -34,53 +32,53 @@ export const badgeVariants = cva(
     compoundVariants: [
       {
         color: "base",
-        variant: "outline-solid",
-        class: "border-base-foreground text-base-foreground"
+        variant: "outline",
+        class: "shadow-border-base border-base-foreground text-base-foreground"
       },
       {
         color: "primary",
-        variant: "outline-solid",
-        class: "border-primary text-primary"
+        variant: "outline",
+        class: "shadow-border-primary border-primary text-primary"
       },
       {
         color: "secondary",
-        variant: "outline-solid",
-        class: "border-secondary text-secondary"
+        variant: "outline",
+        class: "shadow-border-secondary border-secondary text-secondary"
       },
       {
         color: "accent",
-        variant: "outline-solid",
-        class: "border-accent text-accent"
+        variant: "outline",
+        class: "shadow-border-accent border-accent text-accent"
       },
       {
         color: "promotion",
-        variant: "outline-solid",
-        class: "border-promotion text-promotion"
+        variant: "outline",
+        class: "shadow-border-promotion border-promotion text-promotion"
       },
       {
         color: "destructive",
-        variant: "outline-solid",
-        class: "border-destructive text-destructive"
+        variant: "outline",
+        class: "shadow-border-destructive border-destructive text-destructive"
       },
       {
         color: "success",
-        variant: "outline-solid",
-        class: "border-success text-success"
+        variant: "outline",
+        class: "shadow-border-success border-success text-success"
       },
       {
         color: "info",
-        variant: "outline-solid",
-        class: "border-info text-info"
+        variant: "outline",
+        class: "shadow-border-info border-info text-info"
       },
       {
         color: "error",
-        variant: "outline-solid",
-        class: "border-error text-error"
+        variant: "outline",
+        class: "shadow-border-error border-error text-error"
       },
       {
         color: "warning",
-        variant: "outline-solid",
-        class: "border-warning text-warning"
+        variant: "outline",
+        class: "shadow-border-warning border-warning text-warning"
       },
       // ---
 

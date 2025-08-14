@@ -1,11 +1,13 @@
 <template>
   <div :class="styles.control.root" v-if="meta.hasControls">
-    <div :class="styles.control.content">
+    <div :class="styles.control.container">
       <slot name="controls" />
+      <slot name="navigation" />
+      <slot name="actions" />
     </div>
   </div>
 
-  <article :class="cn(styles.default.root, props.class)">
+  <article :class="styles.default.root">
     <section :class="styles.default.header" v-if="meta.hasHeader">
       <slot name="header" />
     </section>
@@ -27,13 +29,11 @@ import config from "./layout.config";
 import { isEmptySlot } from "./utils";
 
 // --- types
-import { type HTMLAttributes, type ComputedRef, computed, useSlots } from "vue";
+import { type ComputedRef, computed, useSlots } from "vue";
+import { type VariantProps } from "./types";
 
 // -----------------------------------------------------------------------------
-const props = defineProps<{
-  class?: HTMLAttributes["class"];
-  uiConfig?: Record<string, any>;
-}>();
+const props = defineProps<VariantProps>();
 
 // -----------------------------------------------------------------------------
 const slots = useSlots();
@@ -42,7 +42,8 @@ const meta = computed(() => {
   return {
     hasControls: !isEmptySlot("controls", slots),
     hasHeader: !isEmptySlot("header", slots),
-    hasContent: !isEmptySlot("default", slots)
+    hasContent: !isEmptySlot("default", slots),
+    isMinimal: props.minimal
   };
 });
 
@@ -54,7 +55,7 @@ const styles = useStyles(
 ) as ComputedRef<{
   control: {
     root: string;
-    content: string;
+    container: string;
   };
   default: {
     root: string;

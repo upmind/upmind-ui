@@ -1,5 +1,5 @@
 <template>
-  <InputExtended
+  <Input
     v-model="modelValue"
     v-bind="delegatedProps"
     :class="cn(styles.container, props.class)"
@@ -10,7 +10,7 @@
     <template #append>
       <slot name="append" />
     </template>
-  </InputExtended>
+  </Input>
 </template>
 
 <script lang="ts" setup>
@@ -19,7 +19,7 @@ import { computed } from "vue";
 import { useVModel } from "@vueuse/core";
 
 // --- components
-import InputExtended from "./InputExtended.vue";
+import Input from "../input/Input.ce.vue";
 
 // --- internal
 import config from "./inputExtended.config";

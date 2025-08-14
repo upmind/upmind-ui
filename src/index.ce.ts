@@ -22,7 +22,6 @@ import { UpmInterstitial } from "./ui/interstitial";
 import { UpmInput } from "./ui/input";
 import { UpmNumberField } from "./ui/number-field";
 import { UpmLoading } from "./ui/loading";
-import { UpmLink } from "./ui/link";
 import { UpmSonner } from "./ui/sonner";
 import { UpmSpinner } from "./ui/spinner";
 import { UpmTabs } from "./ui/tabs";
@@ -57,8 +56,7 @@ export {
   UpmTabs,
   UpmTooltip,
   UpmTextarea,
-  UpmLoading,
-  UpmLink
+  UpmLoading
 };
 
 // --- utility for registering all custom elements
@@ -88,7 +86,6 @@ export function register() {
   customElements.define("upm-tooltip", UpmTooltip);
   customElements.define("upm-textarea", UpmTextarea);
   customElements.define("upm-loading", UpmLoading);
-  customElements.define("upm-link", UpmLink);
 }
 
 // --- utility for registering custom elements and allowing for code splitting

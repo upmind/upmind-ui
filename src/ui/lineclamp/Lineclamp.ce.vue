@@ -6,17 +6,14 @@
 
     <transition name="fade">
       <p v-if="truncated" :class="styles.lineclamp.actions">
-        <Link
+        <Button
           @click="open = !open"
           :label="meta.isOpen ? labelLess : labelMore"
           :class="styles.lineclamp.action"
           data-testid="lineclamp"
           as="span"
-        >
-          <template #append>
-            <Icon :icon="meta.isOpen ? iconLess : iconMore" />
-          </template>
-        </Link>
+          variant="link"
+        />
       </p>
     </transition>
   </div>
@@ -37,7 +34,7 @@ import {
 // --- internal
 import Icon from "../../ui/icon/Icon.ce.vue";
 import config from "./lineclamp.config";
-import Link from "../../ui/link/Link.ce.vue";
+import { Button } from "../button";
 
 // --- utils
 import { cn, useStyles } from "../../utils";

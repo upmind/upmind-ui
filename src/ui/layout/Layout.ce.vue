@@ -1,5 +1,5 @@
 <template>
-  <component :is="layoutComponent">
+  <component :is="layoutComponent" :minimal="minimal" :overflow="overflow">
     <template #controls>
       <slot name="controls" />
     </template>
@@ -18,6 +18,18 @@
 
     <template #default>
       <slot name="default" />
+    </template>
+
+    <template #aside>
+      <slot name="aside" />
+    </template>
+
+    <template #aside-footer>
+      <slot name="aside-footer" />
+    </template>
+
+    <template #footer>
+      <slot name="footer" />
     </template>
   </component>
 </template>
