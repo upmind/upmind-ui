@@ -23,7 +23,7 @@ export const anchorVariants = cva(
     variants: {
       size: {
         sm: "h-8 px-3 py-2 text-sm!",
-        md: "h-10 px-3 py-2 !text-md",
+        md: "h-10 px-3 py-2 text-md!",
         lg: "h-12 px-3 py-2 text-lg!"
       },
       width: {
@@ -82,7 +82,7 @@ export default {
     empty: cva("py-2 text-center text-xs font-medium"),
     content: contentVariants,
     item: cva(
-      "data-[disabled]:text-control-disabled data-[highlighted]:bg-control-active-hover relative flex cursor-pointer! select-none items-center justify-between rounded px-3 py-2 text-sm text-control-foreground data-disabled:pointer-events-none data-[highlighted]:text-control-active data-highlighted:outline-none"
+      "data-[disabled]:text-control-disabled data-highlighted:bg-control-active-hover relative flex cursor-pointer! select-none items-center justify-between rounded px-3 py-2 text-sm text-control-foreground data-disabled:pointer-events-none data-highlighted:text-control-active data-highlighted:outline-none"
     ),
     indicator: cva("pr-2")
   }
