@@ -26,16 +26,16 @@ export const itemVariants = cva(
   {
     variants: {
       color: {
-        base: "data-[highlighted]:bg-base-muted",
-        primary: "data-[highlighted]:bg-primary-muted",
-        secondary: "data-[highlighted]:bg-secondary-muted",
-        accent: "data-[highlighted]:bg-accent-muted",
-        promotion: "data-[highlighted]:bg-promotion-muted",
-        destructive: "data-[highlighted]:bg-destructive-muted",
-        success: "data-[highlighted]:bg-success-muted",
-        info: "data-[highlighted]:bg-info-muted",
-        error: "data-[highlighted]:bg-error-muted",
-        warning: "data-[highlighted]:bg-warning-muted"
+        base: "data-highlighted:bg-base-muted",
+        primary: "data-highlighted:bg-primary-muted",
+        secondary: "data-highlighted:bg-secondary-muted",
+        accent: "data-highlighted:bg-accent-muted",
+        promotion: "data-highlighted:bg-promotion-muted",
+        destructive: "data-highlighted:bg-destructive-muted",
+        success: "data-highlighted:bg-success-muted",
+        info: "data-highlighted:bg-info-muted",
+        error: "data-highlighted:bg-error-muted",
+        warning: "data-highlighted:bg-warning-muted"
       }
     },
     defaultVariants: {

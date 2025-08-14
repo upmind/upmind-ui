@@ -5,4 +5,4 @@ export const ringClasses =
 export const groupRingClasses = `${ringClasses} group-focus-within:ring-2 group-focus-within:ring-control-active group-focus-within:ring-offset-2`;
 
 export const invalidRingClasses =
-  "aria-invalid:!ring-invalid aria-invalid:ring-2! aria-invalid:ring-offset-2!";
+  "aria-invalid:ring-invalid! aria-invalid:ring-2! aria-invalid:ring-offset-2!";
