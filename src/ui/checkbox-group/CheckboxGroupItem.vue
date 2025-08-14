@@ -4,7 +4,7 @@
     :key="index"
     :class="
       cn(
-        'group !m-0 flex w-full select-none items-start rounded-sm pl-10 text-start leading-none outline-none',
+        'group m-0! flex w-full select-none items-start rounded-sm pl-10 text-start leading-none outline-none',
         props.noInput ? 'pl-6' : '',
         props.itemClass
       )

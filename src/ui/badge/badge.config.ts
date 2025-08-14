@@ -13,7 +13,7 @@ export const badgeVariants = cva(
       size: {
         sm: "px-2 py-1 text-xs/tight",
         md: "px-3 py-1 text-sm/tight",
-        lg: "!px-3 !py-2 !text-lg/tight"
+        lg: "px-3! py-2! text-lg/tight!"
       },
       color: {
         base: "bg-base-foreground text-base-background",

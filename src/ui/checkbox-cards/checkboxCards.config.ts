@@ -3,10 +3,10 @@ import {
   ringClasses,
   groupRingClasses,
   invalidRingClasses
-} from "../../assets/styles";
+} from "../../assets/ring.styles";
 
 export const checkboxLabelVariants = cva(
-  "m-0 h-full w-full rounded text-md font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+  "text-md m-0 h-full w-full rounded leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
   {
     variants: {
       isList: {
@@ -25,23 +25,23 @@ export default {
   checkboxCards: {
     root: cva(`grid w-full gap-2`),
     item: cva(
-      `group flex items-start gap-2 p-3 pr-4 text-control-foreground transition-all duration-200`,
+      `group text-control-foreground flex items-start gap-2 p-3 pr-4 transition-all duration-200`,
       {
         variants: {
           isList: {
             true: "border-b last:border-b-0",
-            false: `hover:border-control-strong rounded border border-control bg-control shadow-sm ${ringClasses} ${invalidRingClasses}`
+            false: `hover:border-control-strong border-control bg-control rounded border shadow-sm ${ringClasses} ${invalidRingClasses}`
           }
         }
       }
     ),
     label: checkboxLabelVariants,
     input: cva(
-      `${groupRingClasses} static border-control pr-0 leading-normal text-control-active`,
+      `${groupRingClasses} border-control text-control-active static pr-0 leading-normal`,
       {
         variants: {
           isList: {
-            true: "!pl-0",
+            true: "pl-0!",
             false: ""
           }
         }

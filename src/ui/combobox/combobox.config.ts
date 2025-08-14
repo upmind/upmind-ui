@@ -25,7 +25,7 @@ export const triggerVariants = cva(
 );
 
 export const itemVariants = cva(
-  "data-[highlighted]:bg-control-active-focus flex w-full !cursor-pointer items-center rounded bg-base-background px-3 py-2 text-sm text-control-foreground",
+  "data-[highlighted]:bg-control-active-focus flex w-full cursor-pointer! items-center rounded bg-base-background px-3 py-2 text-sm text-control-foreground",
   {
     variants: {
       color: {
@@ -94,7 +94,7 @@ export default {
     content: contentVariants,
     item: itemVariants,
     input: cva(
-      "!rounded-none !border-b !border-l-0 !border-r-0 !border-t-0 !shadow-none !ring-0"
+      "rounded-none! border-b! border-l-0! border-r-0! border-t-0! shadow-none! ring-0!"
     )
   }
 };

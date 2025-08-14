@@ -1,27 +1,27 @@
 // ---  external
 import { cva } from "class-variance-authority";
-import { invalidRingClasses, ringClasses } from "../../assets/styles";
+import { ringClasses, invalidRingClasses } from "../../assets/ring.styles";
 // -----------------------------------------------------------------------------
 
 export const rootVariants = cva(
-  `relative inline-flex items-center justify-center whitespace-nowrap no-underline ring-offset-background transition-all duration-300`,
+  `ring-offset-background relative inline-flex items-center justify-center whitespace-nowrap no-underline transition-all duration-300`,
   {
     variants: {
       size: {
         sm: "px-0.5 py-2 text-sm",
         md: "gap-0.5 px-3 py-2 text-sm",
-        lg: "gap-0.5 px-4 py-2 text-md",
+        lg: "text-md gap-0.5 px-4 py-2",
         icon: ""
       },
       variant: {
-        flat: "font-medium hover:bg-opacity-90",
+        flat: "hover:bg-opacity-90 font-medium",
         outline: "shadow-border font-medium",
         ghost: "font-medium",
-        link: "gap-1 !bg-transparent !p-0 underline underline-offset-4",
+        link: "gap-1 bg-transparent! p-0! underline underline-offset-4",
         tonal: "font-medium",
         inverse: "font-medium",
         control:
-          "border bg-control font-medium !text-control-foreground ring-offset-background"
+          "bg-control !text-control-foreground ring-offset-background border font-medium"
       },
       color: {
         base: "",
@@ -38,7 +38,7 @@ export const rootVariants = cva(
       },
       isFocusable: {
         true: `${ringClasses} ${invalidRingClasses}`,
-        false: "outline-none focus:outline-none focus:ring-0"
+        false: "outline-none focus:ring-0 focus:outline-none"
       },
       isBlock: {
         true: "w-full basis-full"
