@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 export default {
   control: {
     root: cva(
-      "shadow-border-b flex w-full shrink-0 items-center justify-center self-start bg-base-background px-2.5 py-4"
+      "shadow-border-b bg-base-background flex w-full shrink-0 items-center justify-center self-start px-2.5 py-4"
     ),
     container: cva("flex w-full items-center justify-between", {
       variants: {
@@ -18,13 +18,13 @@ export default {
 
   default: {
     root: cva("mx-auto w-full flex-wrap items-start justify-start"),
-    header: cva("max-w-app mx-auto pb-10 pt-10 md:pb-20 md:pt-14"),
-    contentRoot: cva("pb-10 pt-10 md:pb-16 md:pt-20"),
+    header: cva("max-w-app mx-auto pt-10 pb-10 md:pt-14 md:pb-20"),
+    contentRoot: cva("pt-10 pb-10 md:pt-20 md:pb-16"),
     content: cva("max-w-app mx-auto")
   },
 
   enclosed: {
-    root: cva("py-18 w-full px-2.5", {
+    root: cva("w-full px-2.5 py-18", {
       variants: {
         overflow: {
           hidden: "overflow-hidden",
@@ -35,7 +35,7 @@ export default {
     container: cva("max-w-app-lg mx-auto flex w-full flex-col gap-6"),
     content: cva("flex w-full flex-col gap-9 md:flex-row"),
     main: cva("flex w-full flex-col gap-6"),
-    controlsRoot: cva("w-full border-b bg-base-background py-4"),
+    controlsRoot: cva("bg-base-background w-full border-b py-4"),
     controls: cva("max-w-app mx-auto"),
     aside: cva("flex w-full max-w-md flex-col gap-6")
   },
@@ -74,7 +74,7 @@ export default {
         }
       }),
       container: cva(
-        "max-w-app gap-18 mx-auto flex w-full flex-col md:flex-row"
+        "max-w-app mx-auto flex w-full flex-col gap-18 md:flex-row"
       )
     },
     aside: cva("flex w-full max-w-md flex-col gap-12"),

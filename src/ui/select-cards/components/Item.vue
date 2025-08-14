@@ -1,5 +1,5 @@
 <template>
-  <li class="flex w-full list-none justify-between text-md font-medium">
+  <li class="text-md flex w-full list-none justify-between font-medium">
     <span class="flex gap-2">
       {{ label }}
       <Badge v-if="badge" v-bind="badgeProps" size="sm" />
