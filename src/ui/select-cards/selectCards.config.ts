@@ -60,6 +60,8 @@ export default {
     item: itemVariants,
     items: cva("w-full gap-0"),
     group: groupVariants,
-    input: cva("bg-control text-control-active my-3 mr-1 ml-3 leading-normal")
+    input: cva(
+      "bg-control-backgroundtext-control-active my-3 mr-1 ml-3 leading-normal"
+    )
   }
 };
