@@ -34,14 +34,16 @@
     v-if="!meta.isCarousel"
     :class="cn(styles.image.container, props.class)"
   >
-    <!-- Single image -->
-    <img
-      v-if="!meta.isEmpty"
-      :key="isString(currentImage) ? currentImage : currentImage?.url"
-      :src="isString(currentImage) ? currentImage : currentImage?.url"
-      :alt="isString(currentImage) ? '' : currentImage?.alt"
-      :class="cn(styles.image.root)"
-    />
+    <!-- Single image with fallback -->
+    <picture v-if="!meta.isEmpty">
+      <img
+        :key="isString(currentImage) ? currentImage : currentImage?.url"
+        :src="isString(currentImage) ? currentImage : currentImage?.url"
+        :alt="isString(currentImage) ? '' : currentImage?.alt"
+        :class="cn(styles.image.root)"
+        @error="error = true"
+      />
+    </picture>
 
     <!-- Fallback icon -->
     <div v-if="meta.isEmpty" :class="cn(styles.image.root)">
@@ -80,7 +82,7 @@ const props = withDefaults(defineProps<ImageProps>(), {
 const meta = computed(() => ({
   ratio: props.ratio,
   fit: props.fit,
-  isEmpty: isEmpty(props.image),
+  isEmpty: isEmpty(props.image) || error.value,
   isCarousel: props.carousel && isArray(props.image) && props.image.length > 1,
   imageLength: isArray(props.image) ? props.image.length : 0
 }));
@@ -107,6 +109,7 @@ const styles = useStyles(
 
 const imageIndex = ref(0);
 const carouselApi = ref<CarouselApi>();
+const error = ref(false);
 
 function onCarouselInit(api: CarouselApi) {
   carouselApi.value = api;
