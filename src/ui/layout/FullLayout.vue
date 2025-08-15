@@ -42,9 +42,7 @@ import { type ComputedRef, computed, useSlots } from "vue";
 import { type VariantProps } from "./types";
 
 // -----------------------------------------------------------------------------
-const props = withDefaults(defineProps<VariantProps>(), {
-  overflow: "visible"
-});
+const props = defineProps<VariantProps>();
 
 // -----------------------------------------------------------------------------
 
