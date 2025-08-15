@@ -24,7 +24,7 @@ export const triggerVariants = cva(
 );
 
 export const itemVariants = cva(
-  "hover:bg-control-active-focus focus:bg-control-active-focus text-md m-0 flex h-full w-full cursor-pointer items-start space-x-2 rounded px-3 py-2 leading-none font-medium first:rounded-t-md last:rounded-b-md last:border-b-0 focus:outline-none"
+  "hover:bg-control-active-focus focus:bg-control-active-focus text-md m-0 flex h-full w-full cursor-pointer items-start space-x-2 rounded px-3 py-2 leading-none font-medium first:rounded-t-md last:rounded-b-md last:border-b-0 focus:outline-none data-[state=checked]:bg-transparent"
 );
 
 export const contentVariants = cva(
@@ -61,7 +61,7 @@ export default {
     items: cva("w-full gap-0"),
     group: groupVariants,
     input: cva(
-      "bg-control-backgroundtext-control-active my-3 mr-1 ml-3 leading-normal"
+      "bg-control-background text-control-active my-3 mr-1 ml-3 leading-normal"
     )
   }
 };
