@@ -59,7 +59,7 @@
     >
       <Command>
         <template v-if="props.search">
-          <InputExtended
+          <Input
             v-if="isFunction(props.search)"
             v-model="searchTerm"
             @update:modelValue="onSearch"
@@ -70,7 +70,7 @@
             <template #prepend>
               <Icon icon="search" size="2xs" class="mr-1 opacity-50" />
             </template>
-          </InputExtended>
+          </Input>
           <CommandInput
             v-else
             v-model="searchTerm"
@@ -142,7 +142,7 @@ import config from "./combobox.config";
 import Icon from "../icon/Icon.ce.vue";
 import Button from "../button/Button.ce.vue";
 import Avatar from "../avatar/Avatar.ce.vue";
-import { InputExtended } from "../input-extended";
+import Input from "../input/Input.ce.vue";
 import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 import {
   Command,

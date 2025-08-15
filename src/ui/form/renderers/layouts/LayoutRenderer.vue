@@ -37,18 +37,12 @@ import { useStyles } from "../../../../utils";
 // --- types
 import type { PropType, ComputedRef } from "vue";
 import type { Layout } from "@jsonforms/core";
-import type { RendererProps } from "@jsonforms/vue";
-import type { InputProps } from "../../../input";
 
 // -------------------------------------------------------------------
 
 const props = defineProps({
   ...rendererProps<Layout>(),
   // ---  Additional Attributes
-  size: {
-    type: String as PropType<InputProps["size"]>,
-    default: null
-  },
   pristine: {
     type: Boolean,
     default: false

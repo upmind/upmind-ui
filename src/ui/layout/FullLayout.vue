@@ -1,47 +1,50 @@
 <template>
-  <div v-if="meta.hasControls" :class="styles.control.root">
-    <nav :class="styles.control.content">
-      <slot name="controls">
-        <div>
-          <slot name="navigation" />
-        </div>
+  <nav v-if="meta.hasControls" :class="styles.control.root">
+    <div :class="styles.control.container">
+      <slot name="controls" />
+      <slot name="navigation" />
+      <slot name="actions" />
+    </div>
+  </nav>
 
-        <div>
-          <slot name="actions" />
-        </div>
-      </slot>
-    </nav>
-  </div>
+  <article :class="styles.full.root">
+    <header :class="styles.full.header.root" v-if="meta.hasHeader">
+      <section :class="styles.full.header.container">
+        <slot name="header" />
+      </section>
+    </header>
 
-  <article :class="cn(styles.full.root, props.class)">
-    <section :class="styles.full.header" v-if="meta.hasHeader">
-      <slot name="header" />
-    </section>
+    <div :class="styles.full.content.root">
+      <div :class="styles.full.content.container">
+        <main :class="styles.full.main">
+          <slot name="default" />
+        </main>
 
-    <section :class="styles.full.contentRoot">
-      <div :class="styles.full.content">
-        <slot name="default" />
+        <aside :class="styles.full.aside" v-if="meta.hasAside">
+          <slot name="aside" />
+          <slot name="aside-footer" />
+        </aside>
       </div>
-    </section>
+    </div>
   </article>
 </template>
 
 <script lang="ts" setup>
 // --- internal
-import { cn, useStyles } from "../../utils";
+import { useStyles } from "../../utils";
 import config from "./layout.config";
 
 // --- utils
 import { isEmptySlot } from "./utils";
 
 // --- types
-import { type HTMLAttributes, type ComputedRef, computed, useSlots } from "vue";
+import { type ComputedRef, computed, useSlots } from "vue";
+import { type VariantProps } from "./types";
 
 // -----------------------------------------------------------------------------
-const props = defineProps<{
-  class?: HTMLAttributes["class"];
-  uiConfig?: Record<string, any>;
-}>();
+const props = withDefaults(defineProps<VariantProps>(), {
+  overflow: "visible"
+});
 
 // -----------------------------------------------------------------------------
 
@@ -49,31 +52,44 @@ const slots = useSlots();
 
 const meta = computed(() => {
   return {
+    variant: "full",
+    overflow: props.overflow,
     hasHeader: !isEmptySlot("header", slots),
     hasContent: !isEmptySlot("default", slots),
+    isMinimal: props.minimal,
     hasControls:
       !isEmptySlot("controls", slots) ||
       !isEmptySlot("navigation", slots) ||
-      !isEmptySlot("actions", slots)
+      !isEmptySlot("actions", slots),
+    hasAside:
+      !isEmptySlot("aside", slots) || !isEmptySlot("aside-footer", slots)
   };
 });
 const styles = useStyles(
-  ["full", "control"],
+  ["full", "control", "full.header", "full.content"],
   meta,
   config,
   props.uiConfig ?? {}
 ) as ComputedRef<{
   control: {
     root: string;
-    content: string;
+    container: string;
   };
   full: {
     root: string;
     controlsRoot: string;
     controls: string;
-    header: string;
-    contentRoot: string;
-    content: string;
+    header: {
+      root: string;
+      container: string;
+    };
+    content: {
+      root: string;
+      container: string;
+    };
+    aside: string;
+    container: string;
+    main: string;
   };
 }>;
 </script>

@@ -1,10 +1,11 @@
 // --- external
 import type { InputTypeHTMLAttribute, HTMLAttributes } from "vue";
 import type { CxOptions, VariantProps } from "class-variance-authority";
+import type { Icon } from "../icon/types";
 
 // --- internal
-import type { inputVariants } from "./input.config";
-export type InputVariantProps = VariantProps<typeof inputVariants>;
+import type { containerVariants } from "./input.config";
+export type ContainerVariantProps = VariantProps<typeof containerVariants>;
 
 export interface InputProps {
   modelValue?: string | number;
@@ -14,6 +15,10 @@ export interface InputProps {
   name?: string;
   type?: InputTypeHTMLAttribute;
   placeholder?: string;
+  icon?: string | Icon;
+  avatar?: string | Icon;
+  iconAppend?: string | Icon;
+  avatarAppend?: string | Icon;
   // ---
   autocomplete?: string;
   autoFocus?: boolean;
@@ -28,9 +33,13 @@ export interface InputProps {
   min?: number | string;
   step?: number;
   // --- variants
-  size?: InputVariantProps["size"] | string;
-  width?: InputVariantProps["width"] | string;
+  width?: ContainerVariantProps["width"] | string | undefined;
   // ---
   uiConfig?: { input?: CxOptions };
   class?: HTMLAttributes["class"];
+}
+
+export interface InputItemsProps {
+  icon?: InputProps["icon"];
+  avatar?: InputProps["avatar"];
 }

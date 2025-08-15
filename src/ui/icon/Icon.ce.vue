@@ -4,6 +4,7 @@
     v-bind="props"
     :icon="props.icon"
     @error="iconError = true"
+    :aria-checked="checked"
   />
   <Icon v-else v-bind="props" :icon="props.fallback!" />
 </template>

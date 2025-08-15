@@ -20,7 +20,7 @@ const { carouselRef, orientation } = useCarousel();
 </script>
 
 <template>
-  <div ref="carouselRef" :class="!overflow ? 'overflow-hidden' : ''">
+  <div ref="carouselRef" :class="!overflow ? 'h-full overflow-hidden' : ''">
     <div
       :class="
         cn(

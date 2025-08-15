@@ -81,10 +81,10 @@
       </RadioGroup>
 
       <slot name="actions">
-        <Link
+        <Button
           :label="label"
           size="sm"
-          variant="muted"
+          variant="link"
           :disabled="props.disabled"
           @click="toggleExpanded"
         />
@@ -105,7 +105,7 @@ import config from "./radioCards.config";
 // --- components
 import { RadioGroup } from "../radio-group";
 import { Collapsible, CollapsibleContent } from "../collapsible";
-import { Link } from "../link";
+import { Button } from "../button";
 import { Skeleton } from "../skeleton";
 import RadioCardItem from "./RadioCardItem.vue";
 
