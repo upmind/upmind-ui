@@ -2,13 +2,12 @@ import { cva } from "class-variance-authority";
 import { ringClasses } from "../../assets/ring.styles";
 
 export const itemVariants = cva(
-  `group bg-control text-control-foreground rounded transition-all duration-200 ${ringClasses} flex list-none gap-2 p-3 pr-4`,
+  `group bg-control-background text-control-foreground rounded transition-all duration-200 ${ringClasses} flex list-none gap-2 p-3 pr-4`,
   {
     variants: {
       isList: {
         true: "hover:bg-control-active-focus data-[state=checked]:ring-control-active my-0.5 border-0 shadow-none data-[state=checked]:ring-2",
-        false:
-          "hover:border-control-strong border-control rounded border shadow-sm"
+        false: "hover:border-control-strong border-control rounded border"
       },
       width: {
         0: "",
