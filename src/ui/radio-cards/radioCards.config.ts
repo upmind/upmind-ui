@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 import { ringClasses } from "../../assets/ring.styles";
 
 export const itemVariants = cva(
-  `group bg-control-backgroundtext-control-foreground rounded transition-all duration-200 ${ringClasses} flex list-none gap-2 p-3 pr-4`,
+  `group bg-control-background text-control-foreground rounded transition-all duration-200 ${ringClasses} flex list-none gap-2 p-3 pr-4`,
   {
     variants: {
       isList: {
