@@ -24,7 +24,7 @@ const modelValue = useVModel(props, "modelValue", emits, {
   <div
     :class="
       cn(
-        'focus-within:ring-ring border-input bg-background ring-offset-background placeholder:text-muted-foreground flex w-full overflow-hidden rounded border text-sm transition-[box-shadow,transform,opacity] duration-300 file:border-0 file:bg-transparent file:text-sm file:font-medium focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+        'focus-within:ring-ring border-input bg-background ring-offset-background placeholder:text-muted-foreground flex w-full overflow-hidden rounded border text-sm transition-[box-shadow,transform,opacity] duration-300 file:border-0 file:bg-transparent file:text-sm file:font-medium focus-within:ring-2 focus-within:ring-offset-2 focus-within:outline-none disabled:cursor-not-allowed disabled:opacity-50',
         props.class
       )
     "
@@ -33,7 +33,7 @@ const modelValue = useVModel(props, "modelValue", emits, {
     <slot name="prepend" />
     <input
       v-model="modelValue"
-      :class="cn(props.inputClass, 'w-full focus:outline-none focus:ring-0')"
+      :class="cn(props.inputClass, 'w-full focus:ring-0 focus:outline-none')"
       v-bind="$attrs"
       data-testid="text-input"
     />

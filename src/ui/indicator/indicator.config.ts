@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export const indicatorVariants = cva(
-  "absolute right-0 top-0 inline-flex shrink-0 select-none items-center justify-center overflow-hidden p-1 text-xs font-normal",
+  "absolute top-0 right-0 inline-flex shrink-0 items-center justify-center overflow-hidden p-1 text-xs font-normal select-none",
 
   {
     variants: {

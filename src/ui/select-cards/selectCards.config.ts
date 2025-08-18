@@ -24,11 +24,11 @@ export const triggerVariants = cva(
 );
 
 export const itemVariants = cva(
-  "hover:bg-control-active-focus focus:bg-control-active-focus text-md m-0 flex h-full w-full cursor-pointer items-start space-x-2 rounded px-3 py-2 font-medium leading-none first:rounded-t-md last:rounded-b-md last:border-b-0 focus:outline-none data-[state=checked]:bg-transparent"
+  "hover:bg-control-active-focus focus:bg-control-active-focus text-md m-0 flex h-full w-full cursor-pointer items-start space-x-2 rounded px-3 py-2 leading-none font-medium first:rounded-t-md last:rounded-b-md last:border-b-0 focus:outline-none data-[state=checked]:bg-transparent"
 );
 
 export const contentVariants = cva(
-  `bg-control-background ${ringClasses} ${invalidRingClasses} border-control w-(--radix-dropdown-menu-trigger-width)! mt-2 flex max-h-72 flex-col overflow-hidden overflow-y-scroll rounded border p-1`,
+  `bg-control-background ${ringClasses} ${invalidRingClasses} border-control mt-2 flex max-h-72 w-(--radix-dropdown-menu-trigger-width)! flex-col overflow-hidden overflow-y-scroll rounded border p-1`,
   {
     variants: {
       width: {
@@ -61,7 +61,7 @@ export default {
     items: cva("w-full gap-0"),
     group: groupVariants,
     input: cva(
-      "bg-control-background text-control-active my-3 ml-3 mr-1 leading-normal"
+      "bg-control-background text-control-active my-3 mr-1 ml-3 leading-normal"
     )
   }
 };

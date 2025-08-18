@@ -14,10 +14,10 @@ export const rootVariants = cva(
         icon: ""
       },
       variant: {
-        flat: "font-medium hover:bg-opacity-90",
+        flat: "hover:bg-opacity-90 font-medium",
         outline: "shadow-border font-medium",
         ghost: "font-medium",
-        link: "bg-transparent! p-0! gap-1 underline underline-offset-4",
+        link: "gap-1 bg-transparent! p-0! underline underline-offset-4",
         tonal: "font-medium",
         inverse: "font-medium",
         control:
@@ -38,7 +38,7 @@ export const rootVariants = cva(
       },
       isFocusable: {
         true: `${ringClasses} ${invalidRingClasses}`,
-        false: "outline-none focus:outline-none focus:ring-0"
+        false: "outline-none focus:ring-0 focus:outline-none"
       },
       isBlock: {
         true: "w-full basis-full"

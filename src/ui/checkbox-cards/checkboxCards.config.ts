@@ -6,7 +6,7 @@ import {
 } from "../../assets/ring.styles";
 
 export const checkboxLabelVariants = cva(
-  "text-md m-0 h-full w-full rounded font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+  "text-md m-0 h-full w-full rounded leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
   {
     variants: {
       isList: {
