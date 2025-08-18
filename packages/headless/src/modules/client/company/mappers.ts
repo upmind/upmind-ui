@@ -17,8 +17,8 @@ export function mapCompany(raw: ICompany): Company {
   const { getConfig } = useBrand();
 
   const hasVatValidation: boolean = get(
-    getConfig(BrandConfigKeys.BASKET_VAT_VALIDATION_ENABLED),
-    BrandConfigKeys.BASKET_VAT_VALIDATION_ENABLED,
+    getConfig(BrandConfigKeys.TAX_NUMBER_VALIDATION_ENABLED),
+    BrandConfigKeys.TAX_NUMBER_VALIDATION_ENABLED,
     false
   );
 

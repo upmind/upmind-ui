@@ -1,8 +1,8 @@
 // --- external
 
 // --- internal
+import { useQuery } from "../..";
 import { useBrand } from "../brand";
-import { QueryResponse, useQuery } from "../..";
 
 // --- utils
 import { parseQuantity } from "../product/utils";

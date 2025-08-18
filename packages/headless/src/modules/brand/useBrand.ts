@@ -1,120 +1,109 @@
 // --- external
-
-import { computed } from "vue";
-import { interpret } from "xstate";
-import { waitFor } from "xstate/lib/waitFor";
-import { useActor } from "@xstate/vue";
+import { toRaw, computed, unref } from "vue";
 
 // --- internal
-import useUpmind, { ROUTE } from "../../";
+import services from "./services";
 import { useRoutingEngine } from "../routing";
-import brandMachine from "./brand.machine";
+import useUpmind, { ROUTE, invalidateQueryByKey } from "../../";
 
 // --- utils
-
 import {
-  DetailedError,
-  responseCodes,
-  useContext,
-  contextValue,
-  contextMatches,
-  stateMatches,
-  ErrorOrigin,
-  type ResponseError
-} from "../../utils";
-import { get, pick, isArray, find, some, first, isEmpty } from "lodash-es";
+  get,
+  has,
+  pick,
+  find,
+  some,
+  first,
+  every,
+  reduce,
+  isArray,
+  isEmpty,
+  forEach
+} from "lodash-es";
 
 // --- types
-
 import {
+  type ILanguage,
+  type ICurrency,
   BrandTaxTypes,
   BrandConfigKeys,
-  ILanguage,
-  ICurrency,
-  DefaultPaymentPeriod,
-  ICountry,
-  IBrand
+  DefaultPaymentPeriod
 } from "@upmind-automation/types";
-import { BrandContext, IBrandMeta } from "./types";
-import { CurrencyModel } from "../basket/currency/types";
-
-// -----------------------------------------------------------------------------
-// create a global instance of the brand machine
-// and a global object to store state
-// NB dont automatically start the machine as in order for the inspector to work
-// it needs to be started after the inspect service is created, so we only start it when we need it
-
-const service = interpret(brandMachine, { devTools: false });
+import type { IBrandMeta } from "./types";
+import type { CurrencyModel } from "../basket/currency/types";
 
 // -----------------------------------------------------------------------------
 
 export const useBrand = () => {
   // --- state
-  // if (service.status == InterpreterStatus.NotStarted) service.start();
 
-  const { state, send } = useActor(service.start());
+  const modulesQuery = services.fetchModules();
+  const brandConfigQuery = services.fetchBrandConfig();
+  const brandSettingsQuery = services.fetchBrandSettings();
+  const organisationConfigQuery = services.fetchOrganisationConfig();
 
-  async function isReady(): Promise<boolean> {
-    return waitFor(
-      service,
-      state => ["complete", "error"].some(state.matches),
-      { timeout: Infinity }
-    ).then(state => !stateMatches(state, "error"));
-  }
-
-  function hasModuleEnabled(code: string): boolean {
-    return some(state.value.context?.modules, ["code", code]);
-  }
+  const queries = [
+    modulesQuery,
+    brandConfigQuery,
+    brandSettingsQuery,
+    organisationConfigQuery
+  ];
 
   const meta = computed(() => ({
-    hasErrors: stateMatches(state, [
-      "organisation.error",
-      "config.error",
-      "settings.error",
-      "modules.error",
-      "currencies.error"
-    ]),
-    isComplete: stateMatches(state, "complete"),
-    isLoading: stateMatches(state, "processing"),
-    isAvailable: contextMatches(state, ["name"]) // we are available if we have a name in the context
+    isEmpty: some(queries, q => isEmpty(toRaw(q?.data?.value))),
+    hasError: some(queries, "isError.value"),
+    isLoading: some(queries, "isLoading.value"),
+    isComplete: every(queries, "isFetched.value"),
+    isAvailable: has(brandSettingsQuery.data?.value, "name")
   }));
+
+  async function isReady(): Promise<boolean> {
+    return new Promise(resolve => {
+      const interval = setInterval(() => {
+        if (meta.value.isComplete) {
+          clearInterval(interval);
+          resolve(!meta.value.hasError);
+        }
+      }, 100);
+    });
+  }
+
+  const modules = computed(() => unref(modulesQuery.data) ?? []);
+  const brandConfig = computed(() => unref(brandConfigQuery.data) ?? {});
+  const brandSettings = computed(() => unref(brandSettingsQuery.data) ?? {});
+  const organisationConfig = computed(
+    () => unref(organisationConfigQuery.data) ?? {}
+  );
+
+  function hasModuleEnabled(code: string): boolean {
+    return some(modules.value, ["code", code]);
+  }
 
   // --- context
 
-  const brandId = useContext<IBrand["id"]>(state, "id");
+  const brandId = computed(() => brandSettings.value.id);
 
-  const name = useContext<IBrand["name"]>(state, "name");
+  const name = computed(() => brandSettings.value.name);
 
-  const context = useContext<BrandContext>(state);
+  const countryId = computed(() => brandSettings.value.country_id);
 
-  const countryId = useContext<ICountry["id"]>(state, "country_id");
+  const currencyId = computed(() => brandSettings.value.currency_id);
 
-  const currencyId = useContext<ICurrency["id"]>(state, "currency_id");
+  const currencies = computed(() => brandSettings.value.currencies || []);
 
-  const currencies = useContext<ICurrency[]>(state, "currencies", []);
+  const image = computed(() => brandSettings.value.image);
 
-  const image = useContext<IBrand["image"]>(state, "image");
+  const styles = computed(() => brandSettings.value.style);
 
-  const styles = useContext<IBrand["style"]>(state, "style");
-
-  const favicon = useContext<IBrand["favicon"]>(state, "favicon");
-
-  // const uiMeta = useContext<IBrandMeta>(state, "meta");
+  const favicon = computed(() => brandSettings.value.favicon);
 
   const uiTheme = computed(
     (): {
       variants: IBrandMeta["variants"];
       variant: IBrandMeta["variant"];
     } => {
-      const variants = contextValue<IBrandMeta["variants"]>(
-        state,
-        "meta.variants",
-        {}
-      );
-      const variant = contextValue<IBrandMeta["variant"]>(
-        state,
-        "meta.variant"
-      );
+      const variants = get(brandSettings.value, "meta.variants", {});
+      const variant = get(brandSettings.value, "meta.variant");
 
       return {
         variant,
@@ -123,39 +112,79 @@ export const useBrand = () => {
     }
   );
 
-  const uiCart = useContext<IBrandMeta["cart"]>(state, "meta.cart");
+  const uiCart = computed<IBrandMeta["cart"]>(
+    () => get(brandSettings.value, "meta.cart") as any
+  );
 
-  const currency = computed(
-    (): ICurrency | undefined =>
+  const currency = computed<ICurrency | undefined>(
+    () =>
       find(currencies.value, ["id", currencyId.value]) ||
-      (first(state.value.context?.currencies) as ICurrency | undefined)
+      (first(brandSettings.value.currencies) as ICurrency | undefined)
   );
 
-  const defaultPaymentPeriod = useContext<DefaultPaymentPeriod>(
-    state,
-    BrandConfigKeys.DEFAULT_PAYMENT_PERIOD,
-    0
+  const defaultPaymentPeriod = computed(
+    () =>
+      get(
+        brandConfig.value,
+        BrandConfigKeys.DEFAULT_PAYMENT_PERIOD,
+        0
+      ) as DefaultPaymentPeriod
   );
 
-  const errors = useContext<ResponseError>(state, "error");
+  const errors = computed(() =>
+    reduce(
+      queries,
+      (acc, q) => {
+        if (q.isError && !isEmpty(q.error)) {
+          acc.push(q.error.value);
+        }
+        return acc;
+      },
+      [] as (Error | null)[]
+    )
+  );
 
   const includesTax = computed(
     (): boolean =>
-      !contextMatches(state, ["includes_tax"], BrandTaxTypes.EXCLUDE_TAX)
+      get(brandSettings.value, "tax_type") !== BrandTaxTypes.EXCLUDE_TAX
   );
 
-  const languages = useContext<ILanguage[]>(state, "languages", []);
+  const languages = computed(() => brandSettings.value.languages || []);
 
   const language = computed((): ILanguage | undefined => {
-    const language_id = contextValue<ILanguage["id"]>(
-      state,
-      "settings.language_id"
-    );
-    return (find(languages.value, ["id", language_id]) ||
+    const languageId = get(brandSettings.value, "language_id");
+    return (find(languages.value, ["id", languageId]) ||
       first(languages.value)) as ILanguage | undefined;
   });
 
-  const taxType = useContext<BrandTaxTypes>(state, "tax_type");
+  const taxType = computed(() => brandSettings.value.tax_type);
+
+  const storefrontUrl = computed((): string => {
+    const { router } = useRoutingEngine();
+
+    const url = useUpmind.storefrontUrl ?? uiCart.value?.storefront_url;
+    if (url) return url;
+
+    if (!uiCart.value?.catalogue?.disabled && router?.hasRoute(ROUTE.CATALOGUE))
+      return router.resolve({ name: ROUTE.CATALOGUE })?.fullPath;
+
+    return router?.hasRoute(ROUTE.BASKET)
+      ? router.resolve({ name: ROUTE.BASKET })?.fullPath
+      : "/";
+  });
+
+  const hasStorefront = computed(() => {
+    const { router } = useRoutingEngine();
+
+    const externalUrl = !(
+      useUpmind.storefrontUrl ?? uiCart.value?.storefront_url
+    );
+
+    const enabled = !uiCart.value?.catalogue?.disabled;
+    const hasRoute = router?.hasRoute(ROUTE.CATALOGUE);
+
+    return !(externalUrl && enabled && hasRoute);
+  });
 
   // --- methods
 
@@ -163,22 +192,10 @@ export const useBrand = () => {
     keys: BrandConfigKeys | BrandConfigKeys[]
   ): Promise<Record<string, any>> => {
     keys = isArray(keys) ? keys : [keys];
-    send({ type: "CONFIG.GET", data: keys });
-    await waitFor(service, newstate =>
-      [
-        "processing.config.complete",
-        "processing.config.error",
-        "complete"
-      ].some(newstate.matches)
-    ).catch(() => {
-      throw new DetailedError(
-        `Get Brand Config failed`,
-        responseCodes.Timeout,
-        ErrorOrigin.Headless,
-        { keys }
-      );
-    });
-    return pick(state.value.context, keys);
+
+    return services
+      .fetchBrandConfig(keys)
+      .promise.value.then(data => pick(data, keys));
   };
 
   const getAnalytics = async (): Promise<Record<string, any>> =>
@@ -186,14 +203,15 @@ export const useBrand = () => {
       ensureConfig([
         BrandConfigKeys.ANALYTICS_GA_MEASUREMENT_ID,
         BrandConfigKeys.ANALYTICS_GTM_CONTAINER_ID
-      ]).then((data: any) => data?.analytics || {})
+      ]).then((data: any) => data || {})
     );
 
   const getConfig = (
     keys: BrandConfigKeys | BrandConfigKeys[]
   ): Record<string, any> => {
     keys = isArray(keys) ? keys : [keys];
-    return contextValue<Record<string, any>>(state, keys, {}) ?? {};
+    // This method assumes keys are already in the context, so pick them
+    return pick(brandConfig.value, keys) ?? {};
   };
 
   const validateCurrency = async (
@@ -219,31 +237,35 @@ export const useBrand = () => {
     id?: string;
     code?: string;
   }): Promise<ILanguage | undefined> => {
-    const languages = get(state.value, "context.languages", []);
+    const currentLanguages = languages.value;
 
-    // if we dont have any languages, then just return the given currency
-    if (isEmpty(languages)) return model as ILanguage | undefined;
+    if (isEmpty(currentLanguages)) return model as ILanguage | undefined;
 
-    // otherwise we need to validate the given currency
-    // and possibly fallback to the default/first available currency
     const defaultLanguage =
-      find(languages, ["id", state.value.context?.language_id]) ||
-      first(languages);
+      find(currentLanguages, ["id", brandSettings.value?.language_id]) ||
+      first(currentLanguages);
 
-    // if we dont have a given currency,
-    // OR the given currency is not one of the available languages,
-    // then we return the default currency
     const found = find(
-      languages,
+      currentLanguages,
       ({ id, code }) =>
         id === model?.id ||
-        code.toLocaleLowerCase() === model?.code?.toLocaleLowerCase()
+        code?.toLocaleLowerCase() === model?.code?.toLocaleLowerCase()
     );
 
     if (isEmpty(found)) return defaultLanguage;
 
-    // othrwise we clearly have a valid currency and we return it
     return found;
+  };
+
+  // --- Utility methods for cache management and re-fetching
+  const refresh = async () => {
+    // Invalidate all related queries that feed into state via services.ts
+    forEach(queries, q => q.refetch());
+  };
+
+  const invalidate = () => {
+    // A broader invalidating for anything under the "brand" query key namespace
+    invalidateQueryByKey(["brand"], { exact: false });
   };
 
   // --- utils
@@ -268,8 +290,8 @@ export const useBrand = () => {
     hasModuleEnabled,
 
     /**
-     * Meta information about the brand state.
-     * @typedef {Object} BrandMeta
+     * Meta-information about the brand state.
+     * @type {Object} BrandMeta
      * @property {boolean} hasErrors - Indicates if there are any errors in the brand process.
      * @property {boolean} isComplete - Indicates if the brand process is complete.
      * @property {boolean} isLoading - Indicates if the brand is currently loading.
@@ -278,7 +300,6 @@ export const useBrand = () => {
     meta,
 
     // --- context
-
     /**
      * The current brand ID.
      */
@@ -288,11 +309,6 @@ export const useBrand = () => {
      * The current brand name.
      */
     name,
-
-    /**
-     * The full brand context from the XState machine.
-     */
-    context,
 
     /**
      * The default payment period for the brand.
@@ -363,39 +379,13 @@ export const useBrand = () => {
      * The URL of the storefront for the brand.
      * This is derived from the cart meta or environment variable.
      */
-    storefrontUrl: computed((): string => {
-      const { router } = useRoutingEngine();
-
-      const url = useUpmind.storefrontUrl ?? uiCart.value?.storefront_url;
-      if (url) return url;
-
-      if (
-        !uiCart.value?.catalogue?.disabled &&
-        router?.hasRoute(ROUTE.CATALOGUE)
-      )
-        return router.resolve({ name: ROUTE.CATALOGUE })?.fullPath;
-
-      return router?.hasRoute(ROUTE.BASKET)
-        ? router.resolve({ name: ROUTE.BASKET })?.fullPath
-        : "/";
-    }),
+    storefrontUrl,
 
     /**
      * Returns boolean indicating if the brand has a storefront URL.
      * This is derived from the meta, environment and router configuration.
      */
-    hasStorefront: computed(() => {
-      const { router } = useRoutingEngine();
-
-      const externalUrl = !(
-        useUpmind.storefrontUrl ?? uiCart.value?.storefront_url
-      );
-
-      const enabled = !uiCart.value?.catalogue?.disabled;
-      const hasRoute = router?.hasRoute(ROUTE.CATALOGUE);
-
-      return !(externalUrl && enabled && hasRoute);
-    }),
+    hasStorefront,
 
     /**
      * The current language object for the brand.
@@ -449,7 +439,27 @@ export const useBrand = () => {
      * @returns {  Promise<ILanguage | undefined>} A promise resolving to a valid language object or undefined.
      * @throws {DetailedError} If the languages are not available in the context.
      */
-    validateLanguage
+    validateLanguage,
+
+    /**
+     * Refreshes the brand state by re-fetching all related queries.
+     * This will invalidate the current brand state and re-fetch it from the API.
+     * It will also reset the initialized flag to force a re-run of the initial load
+     * logic, ensuring all brand data is up to date.
+     * @returns {Promise<void>} A promise that resolves when the brand state is refreshed.
+     * @throws {DetailedError} If the refresh fails.
+     */
+    refresh,
+
+    /**
+     * Invalidates the brand state and all related queries.
+     * This will clear the current brand state and re-fetch it from the API.
+     * It is useful for clearing the brand state and forcing a re-fetch of all brand data
+     * without resetting the initialized flag.
+     * @returns {void}
+     * @throws {DetailedError} If the invalidating fails.
+     */
+    invalidate
   };
 };
 
