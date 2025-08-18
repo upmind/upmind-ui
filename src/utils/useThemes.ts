@@ -15,13 +15,22 @@ import {
 // ---
 
 // --- types
+import { cva } from "class-variance-authority"; // If you have a type for cva, otherwise use `any`
 
-export type Theme = {
-  id: string;
+export type UIConfigValue =
+  | ReturnType<typeof cva>
+  | { [component: string]: UIConfigValue };
+
+export interface UIConfig {
+  [component: string]: UIConfigValue;
+}
+
+export interface Theme {
   name: string;
+  id: string;
   icon?: string;
-  uiConfig: object;
-};
+  uiConfig: UIConfig;
+}
 
 export interface ITheme {
   value: string;
