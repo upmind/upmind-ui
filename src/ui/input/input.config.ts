@@ -13,7 +13,7 @@ export const containerVariants = cva(
   {
     variants: {
       width: {
-        auto: "min-w-15 w-auto",
+        auto: "w-auto min-w-15",
         full: "w-full"
       }
     },
@@ -24,7 +24,7 @@ export const containerVariants = cva(
 );
 
 export const inputFieldVariants = cva(
-  "text-control-foreground w-full rounded bg-transparent focus:outline-none focus:ring-0"
+  "text-control-foreground w-full rounded bg-transparent focus:ring-0 focus:outline-none"
 );
 
 // -----------------------------------------------------------------------------
@@ -32,6 +32,6 @@ export default {
   input: {
     container: containerVariants,
     field: inputFieldVariants,
-    items: cva("h-lh flex items-center justify-center")
+    items: cva("flex h-lh items-center justify-center")
   }
 };

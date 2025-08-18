@@ -1,7 +1,7 @@
 <template>
   <FormField
     v-bind="formFieldProps"
-    class="flex flex-row flex-nowrap items-start gap-x-3 space-y-0"
+    class="flex flex-row flex-nowrap items-start space-y-0 gap-x-3"
   >
     <template #field>
       <!-- input -->
@@ -42,7 +42,7 @@
           <FormDescription
             v-if="control?.description"
             :formDescriptionId="`form-item-description-${control.id}`"
-            class="text-emphasis-medium mb-0 mt-1 leading-tight"
+            class="text-emphasis-medium mt-1 mb-0 leading-tight"
           >
             {{ control.description }}
           </FormDescription>

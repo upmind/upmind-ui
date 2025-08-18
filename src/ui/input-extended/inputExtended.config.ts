@@ -13,7 +13,7 @@ export const inputContainerVariants = cva(
   {
     variants: {
       width: {
-        auto: "min-w-15 w-auto",
+        auto: "w-auto min-w-15",
         full: "w-full"
       },
       inputSize: {

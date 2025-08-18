@@ -27,7 +27,7 @@
             iconOnly
             :focusable="false"
             @click="forceClose"
-            class="absolute right-1 top-1"
+            class="absolute top-1 right-1"
           />
 
           <DialogTitle
