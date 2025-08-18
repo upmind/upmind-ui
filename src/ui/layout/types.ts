@@ -4,11 +4,10 @@ export interface LayoutProps {
   variant?: "default" | "enclosed" | "full";
   minimal?: boolean;
   overflow?: "hidden" | "visible";
+  sticky?: boolean;
 }
-export interface VariantProps {
+export interface VariantProps extends LayoutProps {
   uiConfig?: Record<string, any>;
-  minimal?: boolean;
-  overflow?: "hidden" | "visible";
 }
 export interface SectionProps {
   title?: string;
