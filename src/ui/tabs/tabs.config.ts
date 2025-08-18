@@ -182,7 +182,7 @@ export const tabsListVariants = cva(
 );
 
 export const tabsTriggerVariants = cva(
-  "focus-visible:ring-ring ring-offset-background inline-flex items-center justify-center rounded px-6 py-2 text-xs leading-none font-medium whitespace-nowrap transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50",
+  "focus-visible:ring-ring ring-offset-background text-md inline-flex items-center justify-center rounded px-8 py-1 font-normal whitespace-nowrap transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
