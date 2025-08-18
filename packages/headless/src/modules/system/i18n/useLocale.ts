@@ -23,11 +23,6 @@ import { QUERY_PARAMS } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 
 export const useLocale = (defaultLocale: string = "en") => {
-  const {
-    validateLanguage,
-    // languages: supportedLocales,
-    isReady: brandIsReady
-  } = useBrand();
   const { get, set } = useLocalStorage();
 
   // --- state
@@ -36,10 +31,10 @@ export const useLocale = (defaultLocale: string = "en") => {
   // immediately check if the brand is ready and set the locale
 
   async function isReady(): Promise<boolean> {
+    const { isReady: brandIsReady } = useBrand();
     return brandIsReady().then(() => {
       loading.value = false;
-      const hasLocale = !isNil(locale.value);
-      return hasLocale;
+      return !isNil(locale.value);
     });
   }
 
@@ -129,6 +124,7 @@ export const useLocale = (defaultLocale: string = "en") => {
 
   async function setLocale(code: string): Promise<string> {
     await isReady();
+    const { validateLanguage } = useBrand();
     const validatedLocale = await validateLanguage({ code });
 
     // Switch i18n locale
@@ -161,8 +157,8 @@ export const useLocale = (defaultLocale: string = "en") => {
     isReady,
 
     /**
-     * Meta information about the i18n state.
-     * @typedef {Object} SystemI18nMeta
+     * Meta-information about the i18n state.
+     * @type {Object} SystemI18nMeta
      * @property {boolean} isLoading - Indicates if the locale is currently loading.
      * @property {boolean} isAvailable - Indicates if there are supported locales available.
      * @property {boolean} hasLocale - Indicates if a locale is set.

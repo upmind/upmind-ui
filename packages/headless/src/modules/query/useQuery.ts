@@ -222,8 +222,6 @@ export const useQuery = () => {
     withAccessToken,
     ...options
   }: Omit<QueryParams<TQueryFnData, TData>, "pagination">) {
-    const { currencyCode } = useBasketCurrency();
-
     // --- state
 
     const filters = ref<QueryParams["filters"]>({
@@ -234,7 +232,10 @@ export const useQuery = () => {
 
     // --- query
     const reactiveKeys: ReactiveQueryKeys = { locale, sort, filters };
-    if (withCurrency) reactiveKeys.currencyCode = currencyCode;
+    if (withCurrency) {
+      const { currencyCode } = useBasketCurrency();
+      reactiveKeys.currencyCode = currencyCode;
+    }
 
     return vueUseQuery<TQueryFnData, DefaultError, TData>(
       {

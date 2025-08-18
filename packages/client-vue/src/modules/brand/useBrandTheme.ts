@@ -74,7 +74,7 @@ export const useBrandTheme = (initial?: Theme) => {
   async function apply() {
     setBrandTitle(name.value);
     setBrandFontFamily(styles.value?.brand_font?.family ?? "Inter Tight");
-    setBrandFavicon(favicon.value);
+    setBrandFavicon(favicon.value ?? undefined);
   }
 
   // --- Side Effects
