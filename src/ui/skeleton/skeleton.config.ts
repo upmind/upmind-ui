@@ -5,7 +5,7 @@ import { cva } from "class-variance-authority";
 export default {
   skeleton: {
     root: cva("bg-base-muted muted w-auto animate-pulse rounded"),
-    content: cva("w-auto opacity-0 select-none")
+    content: cva("w-auto select-none opacity-0")
   },
   skeletonList: {
     root: cva(

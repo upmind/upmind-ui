@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 import { ringClasses, invalidRingClasses } from "../../assets/ring.styles";
 
 export const triggerVariants = cva(
-  `group border-control flex h-auto min-w-0 items-center justify-start rounded px-4 py-2 text-left font-medium shadow-none`,
+  `border-control group flex h-auto min-w-0 items-center justify-start rounded px-4 py-2 text-left font-medium shadow-none`,
   {
     variants: {
       width: {
@@ -24,11 +24,11 @@ export const triggerVariants = cva(
 );
 
 export const itemVariants = cva(
-  "hover:bg-control-active-focus focus:bg-control-active-focus text-md m-0 flex h-full w-full cursor-pointer items-start space-x-2 rounded px-3 py-2 leading-none font-medium first:rounded-t-md last:rounded-b-md last:border-b-0 focus:outline-none"
+  "hover:bg-control-active-focus focus:bg-control-active-focus text-md m-0 flex h-full w-full cursor-pointer items-start space-x-2 rounded px-3 py-2 font-medium leading-none first:rounded-t-md last:rounded-b-md last:border-b-0 focus:outline-none"
 );
 
 export const contentVariants = cva(
-  `bg-control-background ${ringClasses} ${invalidRingClasses} border-control mt-2 flex max-h-72 w-(--radix-dropdown-menu-trigger-width)! flex-col overflow-hidden overflow-y-scroll rounded border p-1`,
+  `bg-control-background ${ringClasses} ${invalidRingClasses} border-control w-(--radix-dropdown-menu-trigger-width)! mt-2 flex max-h-72 flex-col overflow-hidden overflow-y-scroll rounded border p-1`,
   {
     variants: {
       width: {
@@ -60,6 +60,6 @@ export default {
     item: itemVariants,
     items: cva("w-full gap-0"),
     group: groupVariants,
-    input: cva("bg-control text-control-active my-3 mr-1 ml-3 leading-normal")
+    input: cva("bg-control text-control-active my-3 ml-3 mr-1 leading-normal")
   }
 };

@@ -59,7 +59,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
       >
         <slot />
 
-        <DialogClose v-if="props.dismissable" class="absolute top-0 right-0" />
+        <DialogClose v-if="props.dismissable" class="absolute right-0 top-0" />
       </DialogContent>
     </DialogOverlay>
   </DialogPortal>
