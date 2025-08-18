@@ -1,5 +1,5 @@
 <template>
-  <component :is="layoutComponent" :minimal="minimal" :overflow="overflow">
+  <component :is="layoutComponent" v-bind="props">
     <template #controls>
       <slot name="controls" />
     </template>
@@ -46,7 +46,10 @@ import FullLayout from "./FullLayout.vue";
 // --- types
 import type { LayoutProps } from "./types";
 
-const props = defineProps<LayoutProps>();
+const props = withDefaults(defineProps<LayoutProps>(), {
+  overflow: "visible",
+  sticky: true
+});
 
 const layoutComponent = computed(() => {
   switch (props.variant) {

@@ -1,6 +1,6 @@
 <template>
   <li class="text-md flex w-full list-none justify-between font-medium">
-    <span class="flex gap-2">
+    <span class="flex items-center gap-2">
       {{ label }}
       <Badge v-if="badge" v-bind="badgeProps" size="sm" />
     </span>

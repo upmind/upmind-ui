@@ -7,7 +7,7 @@
     <PaginationList :class="cn(styles.pagination.root, props.class)">
       <PaginationPrev as-child>
         <Button
-          variant="outline"
+          variant="control"
           size="md"
           :class="styles.pagination.button"
           :disabled="page <= 1"
@@ -23,7 +23,7 @@
 
       <PaginationNext as-child>
         <Button
-          variant="outline"
+          variant="control"
           size="md"
           :class="styles.pagination.button"
           :disabled="page >= pageCount"

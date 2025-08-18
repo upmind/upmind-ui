@@ -61,7 +61,8 @@ const meta = computed(() => {
     hasContent: !isEmptySlot("default", slots),
     hasAside:
       !isEmptySlot("aside", slots) || !isEmptySlot("aside-footer", slots),
-    isMinimal: props.minimal
+    isMinimal: props.minimal,
+    isSticky: props.sticky
   };
 });
 

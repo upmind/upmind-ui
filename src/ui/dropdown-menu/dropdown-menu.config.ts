@@ -1,7 +1,7 @@
 import { cva } from "class-variance-authority";
 
 export const contentVariants = cva(
-  "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 outline-hidden z-50 mt-1 w-72 rounded-lg border p-0 shadow-md",
+  "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 mt-1 w-72 rounded-lg border p-0 outline-hidden",
   {
     variants: {
       width: {
@@ -22,7 +22,7 @@ export const contentVariants = cva(
 );
 
 export const itemVariants = cva(
-  "bg-base-background text-base-foreground cursor-pointer! flex w-full items-center rounded-md px-3 py-2.5 text-sm",
+  "bg-base-background text-base-foreground flex w-full cursor-pointer! items-center rounded-md px-3 py-2.5 text-sm",
   {
     variants: {
       color: {
