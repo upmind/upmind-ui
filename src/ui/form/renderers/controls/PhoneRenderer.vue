@@ -203,7 +203,10 @@ function parsePhone(
 }
 
 function onCountyInput(value: any) {
-  phone.value = parsePhone(phone.value?.nationalNumber, value as CountryCode);
+  phone.value = parsePhone(
+    phone.value?.nationalNumber || phone.value?.number,
+    value as CountryCode
+  );
   onInput(
     requiresString ? phone.value.number : phone.value,
     !isEmpty(phone.value) // NB only set touched IF we also have a phone number
