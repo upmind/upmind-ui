@@ -6,7 +6,7 @@
       <Icon v-if="icon" :icon="icon" size="2xs" />
       <div class="flex w-full items-center justify-between gap-2">
         <AlertTitle
-          class="leading-none font-medium tracking-tight"
+          class="font-medium leading-none tracking-tight"
           :class="description || $slots['description'] ? 'my-1' : ''"
         >
           <slot name="title">

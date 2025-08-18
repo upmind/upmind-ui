@@ -85,7 +85,7 @@
                 {{ get(item, itemLabel) }}
               </span>
 
-              <span class="leading-none text-nowrap opacity-50">{{
+              <span class="text-nowrap leading-none opacity-50">{{
                 item.tag
               }}</span>
             </span>

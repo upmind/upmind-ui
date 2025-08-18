@@ -8,7 +8,7 @@ import { cva } from "class-variance-authority";
 export default {
   lineclamp: {
     root: cva(""),
-    wrapper: cva("[&_p]:mb-0 [&_pre]:whitespace-pre-wrap!", {
+    wrapper: cva("[&_pre]:whitespace-pre-wrap! [&_p]:mb-0", {
       variants: {
         lines: {
           1: "",
@@ -57,6 +57,6 @@ export default {
       ]
     }),
     actions: cva("m-0"),
-    action: cva("!font-inherit py-0 text-[length:inherit]! text-inherit!")
+    action: cva("!font-inherit text-[length:inherit]! text-inherit! py-0")
   }
 };

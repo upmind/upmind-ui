@@ -7,7 +7,7 @@
         "
         :items="countryItems"
         @update:modelValue="onCountyInput"
-        class="!text-opacity-50 rounded-r-none border-r-0 text-sm ring-0!"
+        class="ring-0! rounded-r-none border-r-0 text-sm !text-opacity-50"
         popover-class="!w-dropdown-xl"
         align="start"
         width="xs"
@@ -25,7 +25,7 @@
         :placeholder="exampleNumber || ''"
         @update:modelValue="onPhoneInput"
         type="tel"
-        class="rounded-l-none focus:outline-hidden"
+        class="focus:outline-hidden rounded-l-none"
       />
     </InputGroup>
 

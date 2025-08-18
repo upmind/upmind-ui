@@ -18,13 +18,13 @@ export const rootVariants = cva("relative rounded", {
 });
 
 export const anchorVariants = cva(
-  `${ringClasses} ${invalidRingClasses} hover:border-control-strong w-dropdown-2xs border-control flex items-center justify-between rounded border pr-3 leading-none transition-all duration-200 outline-none`,
+  `${ringClasses} ${invalidRingClasses} hover:border-control-strong w-dropdown-2xs border-control flex items-center justify-between rounded border pr-3 leading-none outline-none transition-all duration-200`,
   {
     variants: {
       size: {
-        sm: "h-8 px-3 py-2 text-sm!",
+        sm: "text-sm! h-8 px-3 py-2",
         md: "text-md! h-10 px-3 py-2",
-        lg: "h-12 px-3 py-2 text-lg!"
+        lg: "text-lg! h-12 px-3 py-2"
       },
       width: {
         "3xs": "w-dropdown-3xs md:w-dropdown-2xs",
@@ -73,7 +73,7 @@ export default {
   autocomplete: {
     root: rootVariants,
     input: cva(
-      "h-full min-w-0 flex-1 bg-transparent! leading-none! outline-none"
+      "bg-transparent! leading-none! h-full min-w-0 flex-1 outline-none"
     ),
     anchor: anchorVariants,
     anchorIcon: cva(
@@ -82,7 +82,7 @@ export default {
     empty: cva("py-2 text-center text-xs font-medium"),
     content: contentVariants,
     item: cva(
-      "data-[disabled]:text-control-disabled data-highlighted:bg-control-active-hover text-control-foreground data-highlighted:text-control-active relative flex cursor-pointer! items-center justify-between rounded px-3 py-2 text-sm select-none data-disabled:pointer-events-none data-highlighted:outline-none"
+      "data-[disabled]:text-control-disabled data-highlighted:bg-control-active-hover text-control-foreground data-highlighted:text-control-active cursor-pointer! data-disabled:pointer-events-none data-highlighted:outline-none relative flex select-none items-center justify-between rounded px-3 py-2 text-sm"
     ),
     indicator: cva("pr-2")
   }

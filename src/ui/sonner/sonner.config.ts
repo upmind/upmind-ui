@@ -4,7 +4,7 @@ export default {
   sonner: {
     base: {
       toast: cva(
-        "toast group-[.toaster]:border-border group group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:shadow-lg has-[svg]:pl-4"
+        "toast group-[.toaster]:border-border group-[.toaster]:bg-background group-[.toaster]:text-foreground group group-[.toaster]:shadow-lg has-[svg]:pl-4"
       ),
       actionButton: cva(
         "group-data-[type=base]:bg-base-foreground group-data-[type=base]:text-base-background group-data-[type=base]:hover:bg-base-800 transition-all! duration-300!"

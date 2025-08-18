@@ -4,7 +4,7 @@ import { cva } from "class-variance-authority";
 
 // --- for out Typescript type
 export const spinnerVariants = cva(
-  "inline-block aspect-square shrink-0 animate-spin rounded-[100%] border-[0.2em] border-current border-t-transparent! text-current",
+  "border-t-transparent! inline-block aspect-square shrink-0 animate-spin rounded-[100%] border-[0.2em] border-current text-current",
   {
     variants: {
       size: {

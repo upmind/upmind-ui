@@ -42,7 +42,7 @@
               {{ props.sublabel }}
             </span>
 
-            <span v-if="props?.tag" class="text-center leading-none font-bold">
+            <span v-if="props?.tag" class="text-center font-bold leading-none">
               {{ props.tag }}
             </span>
           </span>
