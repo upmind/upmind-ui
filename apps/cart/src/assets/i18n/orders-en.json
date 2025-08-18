@@ -10,6 +10,14 @@
         "complete": "complete",
         "text": "Thanks for your order, your purchase is now complete. You will receive an email confirmation shortly."
       },
+      "error": {
+        "action": "Go to my account",
+        "title": {
+          "text": "Order not found"
+        },
+        "complete": "",
+        "text": "Unfortunately, we were unable to find your order. Please click the button below to return to your account."
+      },
       "failed": {
         "action": "Go to invoice",
         "title": {
