@@ -6,11 +6,11 @@ import { type QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
 // --- internal
 import {
   useI18n,
-  useBrand,
   useLocale,
   useSystem,
   useSession,
   useTracking,
+  useBrand,
   useRecaptcha,
   useDataLayer,
   type GlobbedFiles

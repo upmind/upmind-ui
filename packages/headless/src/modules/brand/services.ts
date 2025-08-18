@@ -1,104 +1,148 @@
+// --- external
+import { Store } from "@tanstack/vue-store";
+
 // --- internal
-import { useQuery } from "../..";
+import { localStoragePersister, useQuery } from "../..";
 
 // --- utils
-import { filter, has, reduce, defaultsDeep } from "lodash-es";
 import { useTime } from "../../utils";
-import { AnyEventObject } from "xstate";
-import { BrandContext } from "./types";
+import { uniq, reduce, defaultsDeep } from "lodash-es";
+
+// --- types
+import {
+  OrgFeatureKeys,
+  BrandConfigKeys,
+  type IUpmindModule,
+  type IBrandSettings
+} from "@upmind-automation/types";
+
+const defaultBrandConfigKeys = [
+  BrandConfigKeys.ANALYTICS_GA_MEASUREMENT_ID,
+  BrandConfigKeys.ANALYTICS_GTM_CONTAINER_ID,
+  BrandConfigKeys.BASKET_DEFAULT_CURRENCY,
+  BrandConfigKeys.BASKET_PAYMENT_TERM_DESCRIPTIONS,
+  BrandConfigKeys.BILLING_GATEWAY_FORCE_AUTO_PAYMENT,
+  BrandConfigKeys.BILLING_GATEWAY_FORCE_CARD_STORAGE,
+  BrandConfigKeys.CHECKOUT_FLOW,
+  BrandConfigKeys.CHECKOUT_HIDE_DISCOUNT_CODE_FIELD,
+  BrandConfigKeys.CHECKOUT_REQUIRE_PHONE,
+  BrandConfigKeys.CHECKOUT_SUMMARY_COLOR_STOP1,
+  BrandConfigKeys.CHECKOUT_SUMMARY_COLOR_STOP2,
+  BrandConfigKeys.CHECKOUT_SUMMARY_CONTRAST_MODE,
+  BrandConfigKeys.CLIENT_NOTES_AND_SECRETS_ENABLED,
+  BrandConfigKeys.DEFAULT_CLIENT_HOMEPAGE,
+  BrandConfigKeys.DEFAULT_PAYMENT_PERIOD,
+  BrandConfigKeys.DISABLE_CLIENT_REGISTRATION,
+  BrandConfigKeys.PARTIAL_PAYMENTS_ENABLED,
+  BrandConfigKeys.PAY_LATER_ENABLED,
+  BrandConfigKeys.PREVENT_CARD_REMOVAL_IF_LAST,
+  BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS,
+  BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS,
+  BrandConfigKeys.REQUIRE_PHONE_ON_REGISTRATION,
+  BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS,
+  BrandConfigKeys.SHOP_TRUNCATE_DESCRIPTIONS,
+  BrandConfigKeys.SHOW_CLIENT_STORE,
+  BrandConfigKeys.SHOW_PROMOTION_AS,
+  BrandConfigKeys.SUPPORT_PIN_ENABLED,
+  BrandConfigKeys.TAX_NUMBER_VALIDATION_ENABLED,
+  BrandConfigKeys.UI_CLIENT_APP_DISABLE_SUPPORT_SYSTEM,
+  BrandConfigKeys.UI_CLIENT_APP_PAGE_AFTER_LOGIN,
+  BrandConfigKeys.UI_ENTER_KEY_ACTION,
+  BrandConfigKeys.UI_PRICE_BEFORE_DISCOUNT_POSITION
+];
+
+const defaultOrgFeatureKeys = [
+  OrgFeatureKeys.CREATE_USER_API_TOKENS,
+  OrgFeatureKeys.BULK_NOTIFICATIONS_ENABLED,
+  OrgFeatureKeys.MULTI_BRAND_ENABLED,
+  OrgFeatureKeys.PRODUCT_PROVISIONING_ENABLED,
+  OrgFeatureKeys.REMOVE_UPMIND_BRANDING_ENABLED,
+  OrgFeatureKeys.UNLIMITED_PAYMENT_GATEWAYS,
+  OrgFeatureKeys.UNLIMITED_PROVISION_CONFIGURATIONS,
+  OrgFeatureKeys.WEBHOOKS
+];
 
 // -----------------------------------------------------------------------------
 
-async function fetchOrganisationConfig(
-  context: BrandContext,
-  _event: AnyEventObject
-) {
-  const { get, useUrl } = useQuery();
+const brandConfigKeysStore = new Store<BrandConfigKeys[]>([]);
 
-  return get({
+function fetchOrganisationConfig() {
+  const { query, useUrl } = useQuery();
+
+  return query({
     url: useUrl("config/organisation/values", {
-      keys: context.keys.organisation.join()
+      keys: defaultOrgFeatureKeys.join()
     }),
-    queryKey: ["brand", "organisation", "config"],
-    staleTime: useTime()?.DAY
+    queryKey: [
+      "brand",
+      "organisation",
+      "config",
+      { keys: defaultOrgFeatureKeys }
+    ],
+    // --- options
+    staleTime: useTime()?.DAY,
+    persister: localStoragePersister.persisterFn
   });
 }
 
-async function fetchBrandSettings(
-  _context: BrandContext,
-  _event: AnyEventObject
-) {
-  const { get, useUrl } = useQuery();
+function fetchBrandSettings() {
+  const { query, useUrl } = useQuery();
 
-  return get({
-    url: useUrl("brand/settings", {}),
+  return query<IBrandSettings, IBrandSettings>({
+    url: useUrl("brand/settings"),
     queryKey: ["brand", "settings"],
-    staleTime: useTime()?.DAY
+    // --- options
+    staleTime: useTime()?.DAY,
+    persister: localStoragePersister.persisterFn
   });
 }
 
-// brand config is slightly different because we can ask for more config fro mthe api
-// than what we initially requested, this allows us to only request config as we need it
-async function fetchBrandConfig(context: BrandContext, _event: AnyEventObject) {
-  const { get, useUrl } = useQuery();
+function fetchBrandConfig(keys: BrandConfigKeys[] = defaultBrandConfigKeys) {
+  const { query, useUrl } = useQuery();
 
-  // only request keys that are missing from the state, if any
-  const missingKeys = filter(context.keys.config, key => !has(context, key));
+  brandConfigKeysStore.setState(oldKeys => uniq([...oldKeys, ...keys]));
 
-  // if we dont have any missing keys, we can return the current state
-  if (!missingKeys.length) return Promise.resolve();
-
-  return get({
+  return query<Record<BrandConfigKeys, unknown>>({
     url: useUrl("config/brand/values", {
-      keys: missingKeys.join()
+      keys: brandConfigKeysStore.state.join()
     }),
-    queryKey: ["brand", "config", ...missingKeys],
-    staleTime: 0,
-    gcTime: 0
-  }).then(data => {
-    // create an object template with ALL the keys and set them to null
-    // this is to ensure that the config object has all the keys that were requested
-    const template = reduce(
-      missingKeys,
-      (acc: { [key: string]: any }, key: string) => {
-        acc[key] = null;
-        return acc;
-      },
-      {}
-    );
-    // now use the  template as a fallback for the data
-    return defaultsDeep(data, template);
+    queryKey: ["brand", "config", { keys: brandConfigKeysStore.state }],
+    select: data => {
+      // create an object template with ALL the keys and set them to null
+      // this is to ensure that the config object has all the keys that were requested
+      const template = reduce(
+        keys,
+        (acc: { [key: string]: any }, key: string) => {
+          acc[key] = null;
+          return acc;
+        },
+        {}
+      );
+      // now use the template as a fallback for the data
+      return defaultsDeep(data, template);
+    },
+    staleTime: useTime()?.DAY,
+    persister: localStoragePersister.persisterFn
   });
 }
 
-async function fetchModules(_context: BrandContext, _event: AnyEventObject) {
-  const { get, useUrl } = useQuery();
+function fetchModules() {
+  const { query, useUrl } = useQuery();
 
-  return get({
-    url: useUrl("org/modules", {}),
+  return query<IUpmindModule[]>({
+    url: useUrl("org/modules"),
     queryKey: ["brand", "modules"],
-    staleTime: useTime()?.DAY
+    // --- options
+    staleTime: useTime()?.DAY,
+    persister: localStoragePersister.persisterFn
   });
 }
 
-async function load(context: BrandContext, _event: AnyEventObject) {
-  return Promise.all([
-    fetchOrganisationConfig(context, _event),
-    fetchBrandSettings(context, _event),
-    fetchBrandConfig(context, _event),
-    fetchModules(context, _event)
-  ]).then(([organisationConfig, brandSettings, brandConfig, modules]) => {
-    return {
-      ...(organisationConfig || {}),
-      ...(brandSettings || {}),
-      ...(brandConfig || {}),
-      modules
-    };
-  });
-}
 // -----------------------------------------------------------------------------
 
 export default {
-  load,
-  fetchBrandConfig
+  fetchModules,
+  fetchBrandConfig,
+  fetchBrandSettings,
+  fetchOrganisationConfig
 };
