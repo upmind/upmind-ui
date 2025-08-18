@@ -25,9 +25,13 @@ export const useInvoice = (invoiceId: Invoice["id"]) => {
   const query = service.loadInvoice({ invoiceId });
 
   const meta = computed(() => ({
+    isPaid:
+      !isEmpty(query?.data?.value?.payments) &&
+      query?.data?.value?.unpaid_amount === 0,
     isEmpty: isEmpty(query?.data?.value) || query.pagination.value.total == 0,
     hasError: !isEmpty(query.error.value),
     isLoading: query?.isLoading.value || !query.isFetched.value,
+    isComplete: query.isFetched.value,
     isAvailable: sessionMeta.value.isAuthenticated
   }));
 
