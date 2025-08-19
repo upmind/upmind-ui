@@ -9,16 +9,20 @@
 
   <article :class="styles.full.root">
     <header :class="styles.full.header.root" v-if="meta.hasHeader">
-      <section :class="styles.full.header.container">
+      <div :class="styles.full.header.container">
         <slot name="header" />
-      </section>
+      </div>
     </header>
 
     <div :class="styles.full.content.root">
       <div :class="styles.full.content.container">
-        <main :class="styles.full.main">
+        <div :class="styles.full.main">
           <slot name="default" />
-        </main>
+
+          <footer>
+            <slot name="footer" />
+          </footer>
+        </div>
 
         <aside :class="styles.full.aside" v-if="meta.hasAside">
           <slot name="aside" />
