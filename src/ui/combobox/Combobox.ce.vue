@@ -33,7 +33,7 @@
               aria-hidden="true"
             />
 
-            <span class="truncate">{{ label }}</span>
+            <span :class="styles.combobox.label">{{ label }}</span>
           </slot>
         </template>
 
@@ -43,7 +43,7 @@
 
         <template #append>
           <Icon
-            class="-mr-1.5 ml-auto opacity-75 transition-all duration-200"
+            class="opacity-75 transition-all duration-200"
             icon="arrow-up-down"
             size="xs"
           />
@@ -102,7 +102,7 @@
               >
                 <span
                   v-if="(item as Record<string, any>)?.[itemLabel]"
-                  class="leading-none"
+                  :class="styles.combobox.label"
                 >
                   {{ get(item, itemLabel) }}
                 </span>
@@ -188,7 +188,7 @@ const props = withDefaults(defineProps<ComboboxProps>(), {
   // -- styles
   color: "base",
   size: "md",
-  width: "xl",
+  width: "auto",
   variant: "control",
   align: "end",
   side: "bottom",
@@ -208,6 +208,7 @@ const meta = computed(() => ({
   color: props.color,
   size: props.size,
   width: props.width,
+  truncate: props.truncate,
   hasAvatar: props.avatar || has(modelValue.value, "avatar"),
   hasIcon: props.icon || has(modelValue.value, "icon")
 }));

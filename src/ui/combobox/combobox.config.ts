@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 import { ringClasses, invalidRingClasses } from "../input/input.config";
 
 export const triggerVariants = cva(
-  "h-auto min-h-10 justify-start gap-2 overflow-hidden rounded px-3 transition-all duration-300",
+  "text-md h-auto justify-start gap-2 overflow-hidden rounded px-4 py-2 transition-all duration-300",
   {
     variants: {
       width: {
@@ -80,18 +80,28 @@ export const contentVariants = cva(
         xl: "w-dropdown-xl",
         "2xl": "w-dropdown-2xl",
         full: "w-full",
-        auto: "w-auto",
+        auto: "w-(--radix-popover-trigger-width)",
         app: "w-app"
       }
     }
   }
 );
 
+export const labelVariants = cva("", {
+  variants: {
+    truncate: {
+      true: "truncate",
+      false: ""
+    }
+  }
+});
+
 export default {
   combobox: {
     root: cva(`${ringClasses} ${invalidRingClasses} w-full rounded`),
     trigger: triggerVariants,
     content: contentVariants,
+    label: labelVariants,
     item: itemVariants,
     input: cva(
       "rounded-none! border-t-0! border-r-0! border-b! border-l-0! shadow-none! ring-0!"
