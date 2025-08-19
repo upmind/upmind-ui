@@ -29,7 +29,8 @@ export interface Theme {
   name: string;
   id: string;
   icon?: string;
-  uiConfig: UIConfig;
+  uiConfig?: UIConfig;
+  tokens?: Record<string, any>;
 }
 
 export interface ITheme {
@@ -101,7 +102,7 @@ export const useThemes = (value?: Theme | Theme[], defaultTheme?: string) => {
     activeTheme: readonly(activeTheme),
     themes: providedThemes,
     config: readonly(config),
-    set,
+    set: setTheme,
     add
   };
 };
