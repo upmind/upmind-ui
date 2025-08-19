@@ -1,0 +1,44 @@
+<template>
+  <dl :class="cn(styles.list.root, props.class)" data-testid="description-list">
+    <div v-for="(item, index) in items" :key="index" :class="styles.list.item">
+      <dt :class="cn(styles.list.term)">
+        {{ item.term }}
+      </dt>
+      <dd :class="cn(styles.list.description)">
+        {{ item.description }}
+      </dd>
+    </div>
+
+    <slot />
+  </dl>
+</template>
+
+<script lang="ts" setup>
+// --- internal
+import config from "./descriptionList.config";
+import { useStyles, cn } from "../../utils";
+
+// --- types
+import type { ComputedRef } from "vue";
+import type { DescriptionListProps } from "./types";
+
+// -----------------------------------------------------------------------------
+const props = withDefaults(defineProps<DescriptionListProps>(), {
+  uiConfig: () => ({ descriptionList: [] }),
+  class: ""
+});
+
+const styles = useStyles(
+  "list",
+  {},
+  config,
+  props.uiConfig ?? {}
+) as ComputedRef<{
+  list: {
+    root: string;
+    term: string;
+    description: string;
+    item: string;
+  };
+}>;
+</script>
