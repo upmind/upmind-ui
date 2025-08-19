@@ -67,30 +67,21 @@
       </DropdownMenuLabel>
 
       <DropdownMenuGroup :class="styles.dropdownMenu.group">
-        <template v-for="(item, index) in items" :key="`item-${index}`">
-          <DropdownMenuItem
+        <template
+          v-for="(item, index) in items"
+          :key="`dropdown-item-${index}`"
+        >
+          <Button
             v-if="!item.hidden"
+            variant="ghost"
+            align="left"
+            block
             :value="item.value"
             :disabled="item.disabled"
-            :class="
-              cn(
-                'group flex cursor-pointer items-center justify-start gap-3',
-                styles.dropdownMenu.item,
-                item.class,
-                props.itemClass
-              )
-            "
             @click="doAction(item)"
-          >
-            <Avatar v-if="item.avatar" v-bind="item.avatar" size="3xs" />
-            <Icon
-              v-if="item.icon"
-              :icon="item.icon"
-              size="3xs"
-              :class="styles.dropdownMenu.icon"
-            />
-            <span v-if="item.label" class="leading-none">{{ item.label }}</span>
-          </DropdownMenuItem>
+            :icon="item.icon"
+            :label="item.label"
+          />
         </template>
       </DropdownMenuGroup>
     </DropdownMenuContent>
