@@ -21,35 +21,10 @@ export const contentVariants = cva(
   }
 );
 
-export const itemVariants = cva(
-  "bg-base-background text-base-foreground flex w-full cursor-pointer! items-center rounded-md px-3 py-2.5 text-sm",
-  {
-    variants: {
-      color: {
-        base: "data-highlighted:bg-base-muted",
-        primary: "data-highlighted:bg-primary-muted",
-        secondary: "data-highlighted:bg-secondary-muted",
-        accent: "data-highlighted:bg-accent-muted",
-        promotion: "data-highlighted:bg-promotion-muted",
-        destructive: "data-highlighted:bg-destructive-muted",
-        success: "data-highlighted:bg-success-muted",
-        info: "data-highlighted:bg-info-muted",
-        error: "data-highlighted:bg-error-muted",
-        warning: "data-highlighted:bg-warning-muted"
-      }
-    },
-    defaultVariants: {
-      color: "base"
-    }
-  }
-);
-
 export default {
   dropdownMenu: {
     content: contentVariants,
-    item: itemVariants,
     label: cva("border-base-muted border-b px-4 py-3"),
-    group: cva("p-1"),
-    icon: cva("text-base-muted-foreground")
+    group: cva("p-1")
   }
 };
