@@ -1,5 +1,9 @@
 <template>
-  <dl :class="cn(styles.list.root, props.class)" data-testid="description-list">
+  <dl
+    :class="cn(styles.list.root, props.class)"
+    data-testid="description-list"
+    v-auto-animate
+  >
     <div v-for="(item, index) in items" :key="index" :class="styles.list.item">
       <dt :class="cn(styles.list.term)">
         {{ item.term }}
@@ -14,6 +18,9 @@
 </template>
 
 <script lang="ts" setup>
+// --- external
+import { vAutoAnimate } from "@formkit/auto-animate";
+
 // --- internal
 import config from "./descriptionList.config";
 import { useStyles, cn } from "../../utils";
