@@ -7,26 +7,29 @@
     </div>
   </nav>
 
-  <section :class="styles.enclosed.root">
+  <article :class="styles.enclosed.root">
     <div :class="styles.enclosed.container">
       <Card v-if="meta.hasHeader" as="header">
         <slot name="header" />
       </Card>
 
-      <article :class="styles.enclosed.content">
-        <main :class="styles.enclosed.main">
+      <div :class="styles.enclosed.content">
+        <div :class="styles.enclosed.main">
           <slot name="default" />
-          <slot name="footer" />
-        </main>
+
+          <footer>
+            <slot name="footer" />
+          </footer>
+        </div>
 
         <aside v-if="meta.hasAside" :class="styles.enclosed.aside">
           <slot name="aside" />
 
           <slot name="aside-footer" />
         </aside>
-      </article>
+      </div>
     </div>
-  </section>
+  </article>
 </template>
 
 <script lang="ts" setup>
