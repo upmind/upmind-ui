@@ -25,9 +25,8 @@
           <DialogClose
             v-if="dismissable"
             iconOnly
-            :focusable="false"
             @click="forceClose"
-            class="absolute top-1 right-1"
+            class="absolute top-0 right-0 m-4"
           />
 
           <DialogTitle
