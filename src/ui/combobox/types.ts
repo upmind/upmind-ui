@@ -44,6 +44,7 @@ export interface ComboboxProps
   icon?: IconProps["icon"];
   itemLabel?: string;
   itemValue?: string;
+  truncate?: boolean;
   // --- state
   items: ComboboxItemProps[];
   modelValue?: string;
