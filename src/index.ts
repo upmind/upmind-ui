@@ -18,6 +18,7 @@ export * from "./ui/collapsible";
 export * from "./ui/dialog";
 export * from "./ui/drawer";
 export * from "./ui/dropdown-menu";
+export * from "./ui/description-list";
 export * from "./ui/form";
 export * from "./ui/icon";
 export * from "./ui/icon-animated";
