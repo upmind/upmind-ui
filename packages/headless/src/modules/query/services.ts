@@ -1,10 +1,9 @@
 // --- external
 
 // --- internal
-import { useQuery } from ".";
 import { useLocale } from "../system";
 import { useSession } from "../session";
-import { messageDisplays, messageTypes, useFeedback } from "../feedback";
+import { handleError, useQuery } from ".";
 
 // --- utils
 import {
@@ -28,34 +27,7 @@ import type { Token } from "../session/types";
 import { GrantTypes, Methods } from "@upmind-automation/types";
 import type { QueryResponse, RequestParams } from "./types";
 
-const { add } = useFeedback();
-
 // -----------------------------------------------------------------------------
-function handleError(
-  status: QueryResponse["status"],
-  error: QueryResponse["error"]
-): Promise<never> {
-  // of we have a system error, we want to add some feedback for the ui
-  if (includes([responseCodes.Too_Many_Requests], status) || status >= 500) {
-    add({
-      type: messageTypes.ERROR,
-      title: "Service temporarily unavailable",
-      copy: "Service temporarily down for maintenance",
-      data: { ...error, status },
-      i18nKey: `errors.${status ?? responseCodes.Service_Unavailable}`,
-      display: messageDisplays.SYSTEM,
-      delay: 0,
-      maxAge: 0
-    });
-  }
-
-  throw new DetailedError(
-    error?.message ?? "Service temporarily unavailable",
-    status || responseCodes.Service_Unavailable,
-    ErrorOrigin.Upmind,
-    error?.data
-  );
-}
 
 async function doFetch<T extends any = any>({
   url,
