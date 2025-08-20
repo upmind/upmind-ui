@@ -1,9 +1,7 @@
 @import "tailwindcss";
-
-@plugin 'tailwindcss-animate';
 @plugin '@tailwindcss/typography';
+@import "tw-animate-css";
 @import "./assets/aria.utilities.css" layer(utilities);
-@import "./assets/animations.css" layer(theme);
 
 @source './src/**/*.{html,vue,js,tsx,ts}';
 
