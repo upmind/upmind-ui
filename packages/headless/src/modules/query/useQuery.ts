@@ -724,7 +724,7 @@ export const useQuery = () => {
   }
 
   /**
-   * Syntax sugar for sending a GET request with pagination, filters and sorting to the server with the given URL and options.
+   * Syntax sugar for sending a GET request with pagination, filters, and sorting to the server with the given URL and options.
    * @see {@link QueryParams}
    * @param url The URL to send the request to.
    * @param init The request options.
