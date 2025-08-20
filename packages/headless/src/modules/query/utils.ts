@@ -1,29 +1,39 @@
 // --- external
-import {
-  experimental_createQueryPersister,
-  PersistedQuery
-} from "@tanstack/query-persist-client-core";
+import { experimental_createQueryPersister } from "@tanstack/query-persist-client-core";
 
 // --- internal
 import { useQuery } from "./useQuery";
 
 // --- utils
 import {
-  values,
-  isObject,
+  isNil,
   includes,
-  toNumber,
-  set,
+  isObject,
   merge,
-  omit
+  omit,
+  set,
+  toNumber,
+  values,
+  get
 } from "lodash-es";
-import { compactDeep, DetailedError, responseCodes } from "../../utils";
+import {
+  compactDeep,
+  DetailedError,
+  ErrorOrigin,
+  responseCodes
+} from "../../utils";
 
 // ---types
-import type { QueryKey, InvalidateQueryFilters } from "@tanstack/vue-query";
+import type { InvalidateQueryFilters, QueryKey } from "@tanstack/vue-query";
 import { AnyUpdater, Store } from "@tanstack/vue-store";
 import { isArray, isString } from "xstate/lib/utils";
 import { QueryResponse } from "./types";
+import {
+  Message,
+  messageDisplays,
+  messageTypes,
+  useFeedback
+} from "../feedback";
 
 // --- constants
 export const PAGINATION = {
@@ -233,5 +243,86 @@ export const storePersister = <TState, TUpdater extends AnyUpdater>(
     storage
   });
 };
+
+/**
+ * Generates a mapping of HTTP response codes to user-facing error messages.
+ *
+ * This utility function returns an object where each key is a response code,
+ * and the value is either a `Message` object describing the error or `undefined`
+ * if no specific message is provided for that code.
+ *
+ * Some response codes (e.g., 429, 500, 503) have detailed messages including
+ * type, title, copy, error data, i18n key, display type, and optional delay/maxAge.
+ * Other codes return `undefined` to indicate no custom message.
+ *
+ * @param error - Optional error details from the query response.
+ * @param status - Optional HTTP status code from the query response.
+ * @returns A record mapping response codes to their corresponding error messages or `undefined`.
+ */
+const mapFeedback = (
+  error?: QueryResponse["error"]
+): Record<number, Message | undefined> => ({
+  [responseCodes.Bad_Request]: undefined,
+  [responseCodes.Unauthorized]: undefined,
+  [responseCodes.Forbidden]: undefined,
+  [responseCodes.Timeout]: undefined,
+  [responseCodes.Conflict]: undefined,
+  [responseCodes.Too_Many_Requests]: {
+    type: messageTypes.ERROR,
+    title: "Too many requests",
+    copy: "You have exceeded the number of allowed requests",
+    data: error,
+    i18nKey: `errors.${responseCodes.Too_Many_Requests}`,
+    display: messageDisplays.MODAL
+  },
+  [responseCodes.Unprocessable_Entity]: undefined,
+  [responseCodes.Internal_Server_Error]: {
+    type: messageTypes.ERROR,
+    title: "Internal server error",
+    copy: "An unexpected error occurred",
+    data: error,
+    i18nKey: `errors.${responseCodes.Internal_Server_Error}`,
+    display: messageDisplays.TOAST
+  },
+  [responseCodes.Bad_Gateway]: undefined,
+  [responseCodes.Service_Unavailable]: {
+    type: messageTypes.ERROR,
+    title: "Service temporarily unavailable",
+    copy: "Service temporarily down for maintenance",
+    data: error,
+    i18nKey: `errors.${responseCodes.Service_Unavailable}`,
+    display: messageDisplays.SYSTEM,
+    delay: 0,
+    maxAge: 0
+  },
+  [responseCodes.Gateway_Timeout]: undefined
+});
+
+/**
+ * Handles errors from a query response by displaying a feedback message and throwing a detailed error.
+ *
+ * @param status - The status code from the query response.
+ * @param error - The error object from the query response.
+ * @returns A promise that never resolves, as it always throws an error.
+ *
+ * @throws {DetailedError} Throws a detailed error containing the error message, status, origin, and additional data.
+ */
+export function handleError(
+  status: QueryResponse["status"],
+  error: QueryResponse["error"]
+): Promise<never> {
+  const { add } = useFeedback();
+
+  // get the mapped the error and status to a feedback message and display it if it exists
+  const feedback = get(mapFeedback(error), status);
+  if (!isNil(feedback)) add(feedback);
+
+  throw new DetailedError(
+    error?.message ?? "Service temporarily unavailable",
+    status || responseCodes.Service_Unavailable,
+    ErrorOrigin.Upmind,
+    error?.data
+  );
+}
 
 //TODO a machinePersister that will persist the query data in a machine context and send a REFRESH event to the machine when the data is updated
