@@ -484,6 +484,14 @@ export function parseSubproducts(
             // safety check, ensure we have a valid product otherwise bail
             if (isEmpty(product)) return result;
 
+            // Check if the product has pricing for the selected term
+            // Do not filter out products with cycle 0 (one-time purchases)
+            if (
+              !some(product.pricing, ["cycle", model?.term]) &&
+              !some(product.pricing, ["cycle", 0])
+            )
+              return result;
+
             // ensure we have a valid unit_quantity
             value.quantity = parseQuantity(Number(value.quantity), product);
 
