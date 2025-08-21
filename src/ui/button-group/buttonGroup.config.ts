@@ -18,9 +18,12 @@ const buttonVariants = cva("rounded-none", {
   }
 });
 
+const dropdownVariants = cva("rounded");
+
 export default {
   buttonGroup: {
     root: (meta: any) => cx(rootVariants(meta), buttonGroupVariants(meta)),
-    button: buttonVariants
+    button: buttonVariants,
+    dropdown: dropdownVariants
   }
 };

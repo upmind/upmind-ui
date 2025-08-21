@@ -62,7 +62,7 @@ export interface ComboboxProps
   width?: ContentVariantsProps["width"] | string;
   iconSize?: IconProps["size"];
   // --- styles
-  uiConfig?: { combobox: CxOptions };
+  uiConfig?: { dropdownMenu: any };
   class?: HTMLAttributes["class"];
   popoverClass?: HTMLAttributes["class"];
 }

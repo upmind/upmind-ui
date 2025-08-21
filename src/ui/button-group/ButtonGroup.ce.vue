@@ -19,13 +19,18 @@
 
       <DropdownMenu
         v-else-if="item.type === 'dropdown'"
-        :class="styles.buttonGroup.button"
         v-bind="item.props"
         :color="color"
         :size="size"
         :disabled="disabled || item.props.disabled"
         :ring="false"
         variant="ghost"
+        :uiConfig="{
+          dropdownMenu: {
+            trigger: styles.buttonGroup.button,
+            content: styles.buttonGroup.dropdown
+          }
+        }"
       />
     </template>
   </div>
@@ -75,6 +80,7 @@ const styles = useStyles(
   buttonGroup: {
     root: string;
     button: string;
+    dropdown: string;
   };
 }>;
 </script>

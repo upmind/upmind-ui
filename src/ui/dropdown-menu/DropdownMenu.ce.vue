@@ -40,6 +40,7 @@
         >
           <Button
             v-if="!item.hidden"
+            :class="styles.dropdownMenu.item"
             variant="ghost"
             align="left"
             block
@@ -86,12 +87,12 @@ const props = withDefaults(defineProps<DropdownMenuProps>(), {
   // -- styles
   color: "base",
   size: "md",
-  width: "md",
+  width: "auto",
   variant: "ghost",
   align: "end",
   ring: true,
   // --- styles
-  uiConfig: () => ({ dropdownMenu: [] }),
+  uiConfig: () => ({ dropdownMenu: { trigger: "" } }),
   class: "",
   popoverClass: "",
   itemClass: ""
@@ -121,6 +122,7 @@ const styles = useStyles(
     label?: string;
     group?: string;
     icon?: string;
+    item?: string;
   };
 }>;
 // ---
