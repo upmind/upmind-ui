@@ -6,7 +6,7 @@
   >
     <!-- Search and controls -->
     <div :class="styles.products.main.controls">
-      <InputExtended
+      <Input
         :model-value="query"
         :class="[styles.products.main.searchInput, 'flex-1']"
         :placeholder="t('product.search.placeholder')"
@@ -14,22 +14,12 @@
         aria-label="Search products"
         data-testid="product-search"
         @update:model-value="doQuery"
-      >
-        <template #prepend>
-          <Icon
-            icon="search"
-            size="2xs"
-            :class="styles.products.main.searchIcon"
-          />
-        </template>
-      </InputExtended>
+        icon="search"
+        size="lg"
+      />
 
-      <div class="w-full flex-shrink-0 md:w-auto">
-        <ProductSort
-          items="Sortable"
-          v-model:property="sortBy"
-          v-model:direction="direction"
-        />
+      <div class="w-full shrink-0 md:w-auto">
+        <ProductSort v-model:property="sortBy" v-model:direction="direction" />
       </div>
     </div>
 
@@ -42,14 +32,15 @@
         :class="styles.products.main.grid.container"
         data-testid="products-grid"
       >
-        <ProductItem
+        <ProductCard
           v-if="!meta.isLoading"
           v-for="product in data as Product[]"
           :key="product.id"
           v-bind="product"
+          :preserve-promotion="preservePromotions"
         />
 
-        <ProductItemSkeleton
+        <ProductCardSkeleton
           v-else
           v-for="n in lastProductCount"
           :key="`skeleton-${n}`"
@@ -90,7 +81,7 @@
 
 <script setup lang="ts">
 // --- external
-import { watch, ref } from "vue";
+import { watch, ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -104,22 +95,25 @@ import config from "../catalogue.config";
 
 // --- components
 import {
-  InputExtended,
+  Input,
   Icon,
   Pagination,
   useStyles
 } from "@upmind-automation/upmind-ui";
-import ProductItem from "./components/ProductItem.vue";
-import ProductItemSkeleton from "./components/ProductItemSkeleton.vue";
+import {
+  ProductCard,
+  ProductCardSkeleton
+} from "../../product/components/card";
 import ProductSort from "./components/ProductSort.vue";
 
 // --- utils
-import { debounce, isArray, isEmpty } from "lodash-es";
+import { debounce, isArray, isEmpty, some } from "lodash-es";
 
 // --- types
 import type { Product } from "@upmind-automation/headless";
 import type { ProductSortProps, ProductsProps } from "./types";
 import type { ComputedRef } from "vue";
+
 const { DEBOUNCE_DELAY } = utils;
 
 const DEFAULT_SKELETON_COUNT = 9;
@@ -192,6 +186,10 @@ const styles = useStyles(
 const doQuery = debounce((value: string | number | undefined) => {
   query.value = value?.toString().trim() || undefined;
 }, DEBOUNCE_DELAY);
+
+const preservePromotions = computed(() =>
+  some(data.value, (p: Product) => p.meta?.discounted === true)
+);
 
 //  --- side effects
 

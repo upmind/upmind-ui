@@ -27,7 +27,7 @@
             :key="`promotion-${index}`"
             v-bind="promotion"
             :class="styles.domain.card.promotion"
-            size="md"
+            size="sm"
           />
         </section>
 
@@ -36,6 +36,7 @@
           v-bind="domain"
           :title="props.domain"
           :cycle="domain.configuration.term"
+          :class="styles.domain.card.description"
         />
       </div>
     </header>
@@ -74,7 +75,7 @@ import config from "../domain.config";
 import { useBasketProduct } from "@upmind-automation/headless";
 
 // --- components
-import { Icon, Badge, Button, Link } from "@upmind-automation/upmind-ui";
+import { Icon } from "@upmind-automation/upmind-ui";
 import Promotion from "../../basket/product/components/Promotion.vue";
 import DomainActions from "./DomainActions.vue";
 import DomainDescription from "./DomainDescription.vue";
@@ -123,6 +124,7 @@ const styles = useStyles(
       icon: string;
       content: string;
       container: string;
+      description: string;
       label: string;
       title: string;
       sld: string;

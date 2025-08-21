@@ -74,11 +74,9 @@
   },
   "session": {
     "recover": {
-      "title": {
-        "text": "Forgotten your {0}",
-        "strong": "password"
-      },
-      "tagline": "Forgot your password? Not to worry – just enter your username below and we'll send you reset instructions right away.",
+      "title": "Forgot your password?",
+      "badge": "Fully Encrypted",
+      "tagline": "Not to worry – just enter your username below and we'll send you reset instructions right away.",
 
       "actions": {
         "text": "Forgotten your password?"
@@ -86,11 +84,9 @@
       "error": "We experienced an error while trying to send you a password reset email."
     },
     "register": {
-      "title": {
-        "text": "Create an {0}",
-        "strong": "account"
-      },
+      "title": "Create an account",
       "account": "account",
+      "badge": "Fully Encrypted",
       "actions": {
         "text": "Already have an account?",
         "action": "Log in here"
@@ -98,10 +94,8 @@
       "error": "We experienced an error while trying to create your account."
     },
     "login": {
-      "title": {
-        "text": "Log in to your {0}",
-        "strong": "account"
-      },
+      "title": "Log in to your account",
+      "badge": "Fully Encrypted",
       "account": "account",
       "actions": {
         "text": "Don't have an account?",

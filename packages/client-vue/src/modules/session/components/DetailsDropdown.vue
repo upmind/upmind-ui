@@ -1,17 +1,12 @@
 <!-- eslint-disable vue/no-unused-components -->
 <template>
-  <DropdownMenu
-    :items="items"
-    itemClass="!px-5 !py-4"
-    popoverClass="mt-8"
-    v-if="meta.isAuthenticated"
-  >
+  <DropdownMenu :items="items" popoverClass="mt-4" v-if="meta.isAuthenticated">
     <template #trigger>
       <slot></slot>
     </template>
 
     <template #label>
-      <div class="flex flex-col items-start break-all px-3 py-2" v-if="user">
+      <div class="flex flex-col items-start break-all" v-if="user">
         <div>{{ user.fullname }}</div>
         <div class="text-sm font-normal opacity-60">
           {{ user.username }}

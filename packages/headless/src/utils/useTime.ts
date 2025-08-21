@@ -1,3 +1,11 @@
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import relativeTime from "dayjs/plugin/relativeTime";
+import { isEmpty } from "lodash-es";
+
+dayjs.extend(utc);
+dayjs.extend(relativeTime);
+
 // -----------------------------------------------------------------------------
 
 export function useTime() {
@@ -33,51 +41,14 @@ export function useTime() {
 }
 
 export function useRelativeTime(
-  timestamp: EpochTimeStamp,
-  currentTime: EpochTimeStamp
-) {
-  if (timestamp == null || currentTime == null) {
-    return null;
-  }
+  timestamp: EpochTimeStamp | string,
+  currentTime?: EpochTimeStamp
+): string {
+  if (isEmpty(timestamp)) return "";
 
-  const expiresIn = timestamp - currentTime;
+  const now = dayjs(currentTime);
+  const target = dayjs.utc(timestamp).local();
+  const relativeTime = target.from(now);
 
-  const seconds = Math.floor(Math.abs(expiresIn) / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-
-  const remainingSeconds = seconds % 60;
-  const remainingMinutes = minutes % 60;
-
-  const isExpired = !seconds && !minutes && !hours;
-
-  let formattedString = "";
-
-  if (hours > 0) {
-    formattedString += `${hours} hour${hours > 1 ? "s" : ""}`;
-    if (remainingMinutes > 0 || remainingSeconds > 0) {
-      formattedString += " and ";
-    }
-  }
-
-  if (remainingMinutes > 0) {
-    formattedString += `${remainingMinutes} minute${
-      remainingMinutes > 1 ? "s" : ""
-    }`;
-    if (remainingSeconds > 0) {
-      formattedString += " and ";
-    }
-  }
-
-  if (remainingSeconds > 0) {
-    formattedString += `${remainingSeconds} second${
-      remainingSeconds > 1 ? "s" : ""
-    }`;
-  }
-
-  return seconds == 0
-    ? "now"
-    : isExpired
-      ? `${formattedString} ago`
-      : `in ${formattedString}`;
+  return relativeTime;
 }

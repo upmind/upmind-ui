@@ -7,6 +7,9 @@ import { get, map, compact, isArray, isEmpty } from "lodash-es";
 // --- types
 import { BrandConfigKeys, type ICompany } from "@upmind-automation/types";
 import type { Company, CompanyModel } from "./types";
+import { useRelativeTime } from "../../../utils";
+
+// -----------------------------------------------------------------------------
 
 export function mapCompanies(raw: ICompany | ICompany[]): Company[] {
   const rawListings = isArray(raw) ? raw : [raw];
@@ -45,10 +48,12 @@ export function mapCompany(raw: ICompany): Company {
       number: raw.vat_number,
       percent: raw.vat_percent,
       reason: raw.vat_validation_failed_reason,
-      checked: raw.vat_validation_checked_at,
+      checked: {
+        date: raw.vat_validation_checked_at,
+        relative: useRelativeTime(raw.vat_validation_checked_at ?? "")
+      },
       with: raw.vat_validated_with
     },
-    // vat
     // ---
     meta: {
       isDefault: raw.default,

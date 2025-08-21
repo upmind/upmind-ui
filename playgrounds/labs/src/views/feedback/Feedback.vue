@@ -63,7 +63,7 @@
         <Card
           v-for="notificationItem in notifications"
           :key="notificationItem.id"
-          class="transition-all hover:shadow-lg"
+          class="transition-all"
         >
           <!-- Mimicking CardHeader -->
           <div class="border-border mb-3 border-b pb-3">
@@ -139,7 +139,7 @@
         <Card
           v-for="toastItem in toasts"
           :key="toastItem.id"
-          class="transition-all hover:shadow-lg"
+          class="transition-all"
         >
           <div class="border-border mb-3 border-b pb-3">
             <div
@@ -212,7 +212,7 @@
         <Card
           v-for="systemItem in system"
           :key="systemItem.id"
-          class="transition-all hover:shadow-lg"
+          class="transition-all"
         >
           <div class="border-border mb-3 border-b pb-3">
             <div
@@ -356,7 +356,7 @@ function getBadgeVariant(displayType: messageDisplays) {
     case messageDisplays.SYSTEM:
       return "destructive";
     default:
-      return "outline";
+      return "outline-solid";
   }
 }
 
@@ -369,7 +369,7 @@ function getMessageTypeBadgeVariant(messageType: messageTypes) {
       // Assuming a 'success' variant is configured, otherwise use 'default'
       return "default";
     case messageTypes.INFO:
-      return "outline";
+      return "outline-solid";
     default:
       return "secondary";
   }

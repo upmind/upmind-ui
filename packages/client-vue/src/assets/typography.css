@@ -1,0 +1,42 @@
+@layer base {
+  /* Typography overrides for prose content using theme CSS variables */
+  .prose {
+    font-family: var(--font-body, var(--font-sans));
+  }
+
+  .prose h1 {
+    font-family: var(--font-display, var(--font-sans));
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .prose h1 {
+    font-family: var(--font-display, var(--font-sans));
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .prose h2 {
+    font-family: var(--font-display, var(--font-sans));
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .prose h3 {
+    font-family: var(--font-display, var(--font-sans));
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .prose h4 {
+    font-family: var(--font-display, var(--font-sans));
+    font-weight: 500;
+    line-height: 1.2;
+  }
+  .prose h5 {
+    font-family: var(--font-display, var(--font-sans));
+    font-weight: 500;
+    line-height: 1.2;
+  }
+  .prose h6 {
+    font-family: var(--font-display, var(--font-sans));
+    font-weight: 500;
+    line-height: 1.2;
+  }
+}

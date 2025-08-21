@@ -5,6 +5,7 @@ export type ExVariantProps = VariantProps<typeof exVariants>;
 export type CurrentVariantProps = VariantProps<typeof currentVariants>;
 
 interface BasePrice {
+  is?: string;
   cycle?: ProductSummaryDetailWithPrice["cycle"];
   meta?: ProductSummaryDetailWithPrice["meta"];
   showCycle?: boolean;

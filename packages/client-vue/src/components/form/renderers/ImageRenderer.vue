@@ -11,6 +11,7 @@
         max-file-size="5MB"
         stylePanelAspectRatio="0.2"
         stylePanelLayout="integrated"
+        class="bg-control-background rounded!"
         @addfile="onAddFile"
         @removefile="onRemoveFile"
       />
@@ -92,7 +93,7 @@ export const tester = {
 
 <style>
 .filepond--image-preview-wrapper {
-  @apply rounded-lg !important;
+  border-radius: var(--rounded) !important;
   border: 0;
 }
 

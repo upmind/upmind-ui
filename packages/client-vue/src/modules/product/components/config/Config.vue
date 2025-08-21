@@ -5,66 +5,8 @@
     @submit.prevent
     @reset.prevent
   >
-    <header
-      :class="styles.product.config.header"
-      v-if="!meta.isLoading && $slots.header && !props.noHeader"
-    >
-      <slot name="header"></slot>
-    </header>
-
     <!-- content -->
     <div :class="styles.product.config.content" v-if="product?.productDetails">
-      <!-- thumb -->
-      <figure :class="styles.product.config.media" v-if="productImage()">
-        <img
-          :src="productImage()"
-          :alt="`${product.productDetails?.name} thumbnail`"
-          :class="styles.product.config.image"
-        />
-      </figure>
-
-      <!-- details -->
-      <div
-        :class="styles.product.config.wrapper"
-        v-if="
-          !props.noTitle ||
-          !!product.productDetails?.description ||
-          !!product.productDetails?.excerpt
-        "
-      >
-        <!-- heading -->
-        <div :class="styles.product.config.heading">
-          <div
-            :class="styles.product.config.headingContent"
-            v-if="!props.noTitle"
-          >
-            <h3 :class="styles.product.config.title" v-if="!props.noTitle">
-              {{ product.productDetails.title }}
-            </h3>
-          </div>
-
-          <Lineclamp
-            :class="styles.product.config.text"
-            :lines="2"
-            :labelMore="t('product.actions.more', 1)"
-            :labelLess="t('product.actions.more', 0)"
-            v-if="product.productDetails?.description"
-          >
-            <Markdown :model-value="product.productDetails.description" />
-          </Lineclamp>
-
-          <Lineclamp
-            :class="styles.product.config.text"
-            :lines="2"
-            labelMore=""
-            labelLess=""
-            v-if="product.productDetails?.excerpt"
-          >
-            <Markdown :model-value="product.productDetails.excerpt" />
-          </Lineclamp>
-        </div>
-      </div>
-
       <!-- fields -->
       <div :class="cn(styles.product.config.fields)">
         <!-- terms -->
@@ -144,6 +86,8 @@
           :label="t('product.actions.reject')"
           :disabled="meta.isProcessing || required"
           variant="link"
+          size="lg"
+          color="muted"
           @click="doReject"
         />
 
@@ -164,6 +108,7 @@
           :loading="meta.isProcessing"
           :disabled="meta.isLoading"
           color="primary"
+          size="lg"
           @click="doResolve"
         />
       </slot>

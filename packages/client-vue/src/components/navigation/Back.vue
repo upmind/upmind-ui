@@ -1,12 +1,16 @@
 <template>
-  <Link class="flex items-center gap-x-2" :to="props.to">
-    <Icon icon="arrow-left" size="2xs" />
-    {{ t(props.i18nKey) }}
-  </Link>
+  <Button
+    class="flex items-center gap-x-2"
+    :to="to"
+    variant="link"
+    icon="arrow-left"
+    :label="t(i18nKey)"
+    size="lg"
+  />
 </template>
 
 <script lang="ts" setup>
-import { Link, Icon } from "@upmind-automation/upmind-ui";
+import { Button } from "@upmind-automation/upmind-ui";
 import { useI18n } from "vue-i18n";
 import type {
   RouteLocationAsRelativeGeneric,

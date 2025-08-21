@@ -1,22 +1,15 @@
 <template>
   <section class="flex w-full flex-col gap-3 text-left" v-auto-animate>
     <header>
-      <Link
+      <Button
         :label="t('basket.promotions.title')"
         size="sm"
-        variant="muted"
+        variant="link"
+        color="muted"
         :disabled="meta.isProcessing"
         @click="toggle = !toggle"
-      >
-        <template v-slot:append>
-          <Icon
-            icon="arrow-down"
-            class="size-6 transition-all aria-checked:rotate-180"
-            :aria-checked="toggle"
-            aria-hidden="true"
-          />
-        </template>
-      </Link>
+        :checked="toggle"
+      />
     </header>
 
     <Form
@@ -56,7 +49,7 @@
         <Badge
           color="promotion"
           variant="tonal"
-          size="md"
+          size="sm"
           :label="promotion.promotion.code"
           @click="toggleTooltip(promotion.id)"
           @mouseenter="toggleTooltip(promotion.id, true)"
@@ -69,11 +62,10 @@
               @click.prevent="doRemove(promotion.id)"
               variant="tonal"
               color="promotion"
-              class="-ml-1 mr-1 h-4 w-4 px-0"
+              size="icon"
+              iconAppend="close"
               :spinner="false"
-            >
-              <Icon icon="close" size="2xs" />
-            </Button>
+            />
           </template>
         </Badge>
       </Tooltip>
@@ -93,13 +85,7 @@ import { cva } from "class-variance-authority";
 import Form from "../../../components/form/Form.vue";
 
 // --- custom elements
-import {
-  Button,
-  Icon,
-  Badge,
-  Tooltip,
-  Link
-} from "@upmind-automation/upmind-ui";
+import { Button, Icon, Badge, Tooltip } from "@upmind-automation/upmind-ui";
 
 // --- internal
 import { useBasketPromotions } from "@upmind-automation/headless";

@@ -5,14 +5,21 @@ export default {
   currencySwitcher: {},
 
   basket: {
-    root: cva(),
+    aside: cva("", {
+      variants: {
+        variant: {
+          full: "gap-9",
+          enclosed: "gap-6"
+        }
+      }
+    }),
 
     summary: {
       root: cva("flex w-full flex-col gap-8 text-left"),
       header: cva("w-full"),
       title: cva("m-0 text-xl font-normal tracking-tight"),
       content: cva(
-        "bg-base text-base-foreground grid w-full space-y-4 rounded-lg border p-6 shadow-md"
+        "bg-base text-base-foreground grid w-full space-y-4 rounded-lg border p-6"
       ),
       form: cva("m-0 border-t pt-4 text-sm first:border-t-0 first:pt-0"),
       list: cva(
@@ -20,14 +27,14 @@ export default {
       ),
       heading: cva("group m-0 flex flex-1 items-center gap-2 font-light"),
       text: cva(
-        "text-base-700 m-0 inline-flex items-end gap-2 text-left text-sm font-normal leading-normal"
+        "text-base-700 m-0 inline-flex items-end gap-2 text-left text-sm leading-normal font-normal"
       ),
       bold: cva("text-foreground font-medium"),
       discount: cva("text-base-500 block text-xs font-light line-through"),
-      value: cva("flex-0 text-foreground m-0 block text-right font-medium"),
+      value: cva("text-foreground m-0 block flex-0 text-right font-medium"),
       total: cva("font-medium"),
-      icon: cva("flex-0 size-5 leading-normal"),
-      tooltipIcon: cva("flex-0 size-4 leading-6"),
+      icon: cva("size-5 flex-0 leading-normal"),
+      tooltipIcon: cva("size-4 flex-0 leading-6"),
       tooltip: cva("m-0 hidden text-xs leading-tight group-hover:block"),
 
       footer: cva(
@@ -51,7 +58,7 @@ export default {
     },
 
     details: {
-      root: cva("!gap-16", {
+      root: cva("gap-16!", {
         variants: {
           isDisabled: {
             true: "pointer-events-none"
@@ -73,29 +80,41 @@ export default {
       }),
       header: cva("flex w-full flex-col gap-2"),
       title: cva(
-        "m-0 flex items-center justify-between gap-4 text-5xl font-light leading-tight text-inherit"
+        "m-0 flex items-center justify-between gap-4 text-5xl leading-tight font-light text-inherit"
       ),
-      text: cva("text-base-700 m-0 text-lg font-light leading-7"),
+      text: cva("text-base-700 m-0 text-lg leading-7 font-light"),
       content: cva("flex w-full flex-1 flex-col gap-6"),
       footer: cva("order-last w-full max-w-xs items-start sm:sticky sm:top-40")
     },
 
     items: {
-      root: cva("!gap-16", {
+      root: cva("", {
         variants: {
-          isDisabled: {
-            true: "pointer-events-none"
+          variant: {
+            full: "gap-12",
+            enclosed: ""
           }
         }
       }),
-      header: cva("flex w-full flex-col gap-2"),
-      content: cva("flex w-full flex-col gap-4"),
-      footer: cva("flex w-full justify-end gap-2 empty:hidden"),
-      // ---
-      title: cva(
-        "m-0 flex items-center justify-between gap-4 text-5xl font-light leading-tight text-inherit"
-      ),
-      text: cva("text-base-700 m-0 text-lg font-light leading-7")
+      content: cva("", {
+        variants: {
+          variant: {
+            full: "gap-12",
+            enclosed: "gap-6 md:p-14.5"
+          }
+        }
+      })
+    },
+
+    customFields: {
+      root: cva("", {
+        variants: {
+          variant: {
+            full: "",
+            enclosed: "gap-6 md:p-14.5"
+          }
+        }
+      })
     },
 
     item: {
@@ -131,7 +150,7 @@ export default {
             variant: "outline",
             hasErrors: true,
             class:
-              "border-control-error focus-within:ring-control-error focus-within:ring-4 focus-within:ring-opacity-20"
+              "border-control-error focus-within:ring-control-error focus-within:ring-opacity-20 focus-within:ring-4"
           }
         ],
         defaultVariants: {

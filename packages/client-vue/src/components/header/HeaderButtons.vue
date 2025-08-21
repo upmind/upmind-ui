@@ -8,34 +8,23 @@
         basketMeta.isAvailable &&
         currentRoute?.name !== ROUTE.BASKET
       "
-      size="sm"
       variant="ghost"
-      color="base"
-      class="bg-background"
+      size="lg"
       @click="navigate(ROUTE.BASKET)"
-    >
-      <template #prepend>
-        <Icon icon="cart" size="2xs" />
-      </template>
-    </Button>
+      icon="cart"
+      pill
+    />
 
     <SessionLoginPopover v-if="!meta.isAuthenticated">
       <Button
-        size="sm"
+        size="lg"
         variant="outline"
         color="base"
         :label="t('header.login')"
+        icon="account"
+        pill
         data-testid="login-popover-trigger"
-      >
-        <template #prepend>
-          <Avatar
-            icon="account"
-            size="3xs"
-            class="-ml-1"
-            :class="styles.header.avatar.login"
-          />
-        </template>
-      </Button>
+      />
     </SessionLoginPopover>
 
     <SessionDetailsDropdown v-if="meta.isAuthenticated && user">

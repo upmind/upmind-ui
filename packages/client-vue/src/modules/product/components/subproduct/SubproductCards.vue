@@ -158,8 +158,8 @@ function getSubproductValue(value: string): SubproductValue {
     ...product,
     quantity: get(props.quantities, value, 0),
     title: product?.uiMeta?.uischema?.primary
-      ? product?.uiMeta?.uischema?.group
-      : product?.title
+      ? product?.uiMeta?.uischema?.group || product?.title || ""
+      : product?.title || ""
     // icon: product?.uiMeta?.uischema?.icon, //Is this used?
   };
 }

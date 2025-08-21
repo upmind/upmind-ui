@@ -58,12 +58,6 @@ const title = computed(() => {
   );
 });
 
-const description = computed(() => {
-  return (
-    props.description || (isEmpty(props.id) && uiCart.value?.description) || ""
-  );
-});
-
 const styles = useStyles(
   ["categories", "categories.header"],
   meta,

@@ -3,11 +3,11 @@
     <div
       class="max-w-app mx-auto flex w-full items-center justify-between md:justify-normal"
     >
-      <span class="flex w-full items-center gap-x-2.5">
+      <span class="flex w-full items-center gap-x-2.5 text-sm">
         <img
           v-if="upmindLogo"
           :src="upmindLogo"
-          class="h-5 w-auto"
+          class="h-4 w-auto"
           alt="logo"
         />
         <span
@@ -21,7 +21,7 @@
         >
       </span>
 
-      <UpmCurrency class="font-normal" data-testid="currency-selector" />
+      <UpmCurrency data-testid="currency-selector" />
     </div>
   </footer>
 </template>

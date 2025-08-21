@@ -1,20 +1,14 @@
 <template>
   <div class="flex items-baseline justify-between">
-    <Link
+    <Button
       :label="open ? t('product.hideDetails') : t('product.showDetails')"
       size="sm"
+      variant="link"
+      color="muted"
       @click="$emit('update:open', !open)"
       :disabled="isEmpty(details)"
-    >
-      <template #append>
-        <Icon
-          icon="arrow-down"
-          size="xs"
-          class="transition-all duration-300"
-          :class="{ 'rotate-180': open }"
-        />
-      </template>
-    </Link>
+      :checked="open"
+    />
 
     <div class="text-foreground flex items-end space-x-2">
       <Tooltip
@@ -25,8 +19,8 @@
         <Button
           :color="action.color"
           variant="link"
-          size="sm"
-          class="h-auto !p-0 leading-none"
+          size="lg"
+          class="text-emphasis-medium hover:text-emphasis-none h-auto p-0! leading-none"
           @click="action.onClick"
           :disabled="disabled"
         >
@@ -45,7 +39,7 @@ import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 
 // --- components
-import { Icon, Button, Tooltip, Link } from "@upmind-automation/upmind-ui";
+import { Icon, Button, Tooltip } from "@upmind-automation/upmind-ui";
 
 // --- types
 import { type BasketProductActionsProps } from "./types";

@@ -1,6 +1,6 @@
 <template>
   <UpmContentSection
-    class="mx-auto max-w-app"
+    class="max-w-app mx-auto"
     title="Address Renderer"
     subtitle="Search for addresses using the Places API"
   >

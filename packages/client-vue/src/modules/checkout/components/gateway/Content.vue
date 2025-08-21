@@ -7,28 +7,30 @@
     class="w-full"
   />
 
-  <footer :class="styles.checkout.footer" v-auto-animate>
-    <Button
-      :disabled="!basketMeta.isReadyForCheckout || meta.isProcessing"
-      :loading="basketMeta.isProcessingDetails"
-      :color="color"
-      @click.prevent="handleCheckout"
-      :label="getGatewayi18n('actions.submit')"
-      :class="styles.checkout.action"
-    />
+  <footer :class="styles.checkout.footer.root" v-auto-animate>
+    <div :class="styles.checkout.footer.actions">
+      <Button
+        :disabled="!basketMeta.isReadyForCheckout || meta.isProcessing"
+        :loading="basketMeta.isProcessingDetails"
+        :color="color"
+        size="lg"
+        @click.prevent="handleCheckout"
+        :label="getGatewayi18n('actions.submit')"
+        :class="styles.checkout.action"
+        pill
+      />
 
-    <div
-      v-if="!getGatewayi18n('footer.title').includes('checkout')"
-      :class="styles.checkout.additional"
-    >
-      <Icon :icon="getGatewayi18n('footer.icon')" class="size-3" />
-      <span>
+      <p
+        v-if="!getGatewayi18n('footer.title').includes('checkout')"
+        :class="styles.checkout.additional"
+      >
+        <Icon :icon="getGatewayi18n('footer.icon')" size="nano" />
         {{ getGatewayi18n("footer.title") }}
-      </span>
+      </p>
     </div>
-  </footer>
 
-  <Clickwrap :action-text="getGatewayi18n('actions.submit')" />
+    <Clickwrap :action-text="getGatewayi18n('actions.submit')" />
+  </footer>
 </template>
 
 <script lang="ts" setup>
@@ -56,11 +58,18 @@ const { t, te } = useI18n();
 
 const emit = defineEmits(["checkout"]);
 
-const styles = useStyles(["checkout"], {}, config) as ComputedRef<{
+const styles = useStyles(
+  ["checkout", "checkout.footer"],
+  {},
+  config
+) as ComputedRef<{
   checkout: {
     gateway: string;
     content: string;
-    footer: string;
+    footer: {
+      root: string;
+      actions: string;
+    };
     action: string;
     additional: string;
     terms: string;

@@ -11,12 +11,12 @@
     }"
   >
     <div v-if="active" :class="styles.recommendation.carousel.navigation">
-      <CarouselPrevious class="!static" />
-      <CarouselNext class="!static" />
+      <CarouselPrevious class="static!" />
+      <CarouselNext class="static!" />
     </div>
 
     <CarouselContent
-      :class="['embla__container', { 'justify-center': !active }]"
+      :class="['embla__container', { 'justify-center': !active }, '-ml-12']"
       overflow
     >
       <CarouselItem
@@ -24,17 +24,18 @@
         :key="recommendation.id"
         :class="styles.recommendation.carousel.item"
       >
-        <RecommendationCardSkeleton
+        <ProductCardSkeleton
           v-if="recommendation.meta?.loading"
           v-bind="recommendation"
+          hide-terms
         />
 
-        <RecommendationCard
+        <ProductCard
           v-else
           v-bind="recommendation"
+          :preserve-promotion="preservePromotions"
+          :navigate="false"
           @resolve="doResolve"
-          :disabled="processing"
-          class="animate-fade"
         />
       </CarouselItem>
     </CarouselContent>
@@ -43,8 +44,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { nextTick, ref, watch, useTemplateRef } from "vue";
-import { useI18n } from "vue-i18n";
+import { nextTick, ref, watch, computed } from "vue";
 import { vResizeObserver } from "@vueuse/components";
 
 // --- internal
@@ -60,13 +60,16 @@ import {
   CarouselPrevious
 } from "@upmind-automation/upmind-ui";
 
-import RecommendationCard from "./RecommendationCard.vue";
-import RecommendationCardSkeleton from "./CardSkeleton.vue";
+import {
+  ProductCard,
+  ProductCardSkeleton
+} from "../../product/components/card";
 
 //--- utils
-import { forEach, set } from "lodash-es";
+import { forEach, some } from "lodash-es";
 
 // --- types
+import type { Product } from "@upmind-automation/headless";
 import type { CarouselApi } from "@upmind-automation/upmind-ui";
 import type { ComputedRef } from "vue";
 import type { RecommendationsProps } from "./types";
@@ -78,8 +81,6 @@ const emit = defineEmits<{
   (e: "resolve", id: string): void;
   (e: "fetch", id: string): void;
 }>();
-
-const { t } = useI18n();
 
 const styles = useStyles(
   ["recommendation.carousel"],
@@ -97,8 +98,8 @@ const styles = useStyles(
 
 // ---
 
-function doResolve(value: string) {
-  emit("resolve", value);
+function doResolve(id: string) {
+  emit("resolve", id);
 }
 
 const active = ref(false);
@@ -137,6 +138,10 @@ const stop = watch(carouselApi, api => {
   setActive();
   api.on("slidesInView", fetchVisibleRecommendations);
 });
+
+const preservePromotions = computed(() =>
+  some(props.items, (p: Product) => p.meta?.discounted === true)
+);
 
 watch(props, ({ refreshing }) => {
   if (refreshing) fetchVisibleRecommendations();

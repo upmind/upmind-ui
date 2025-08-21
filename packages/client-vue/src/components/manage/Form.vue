@@ -6,7 +6,7 @@
     size="3xl"
     :title="t(`${i18nKey ?? 'manage'}.title`, { isNew: !props.modelValue })"
   >
-    <Skeleton v-if="meta.isLoading" :i18nKey="i18nKey" />
+    <Skeleton v-if="meta.isLoading" :i18nKey="i18nKey" :modal="modal" />
 
     <template v-else>
       <Alert

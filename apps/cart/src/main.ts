@@ -1,4 +1,4 @@
-import "./assets/main.css";
+import "./main.css";
 
 import { createApp } from "vue";
 import * as Sentry from "@sentry/vue";
@@ -10,6 +10,8 @@ import i18n from "./i18n";
 import UpmindClient from "@upmind-automation/client-vue";
 import { useCustomFlows } from "./router/useCustomFlows";
 import { plugins as uiPlugins } from "@upmind-automation/upmind-ui";
+
+// --- utils
 import { forEach } from "lodash-es";
 // -----------------------------------------------------------------------------
 

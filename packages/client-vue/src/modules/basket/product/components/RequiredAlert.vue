@@ -1,11 +1,5 @@
 <template>
-  <Alert
-    color="error"
-    icon="alert"
-    icon-size="xs"
-    variant="solid"
-    class="p-2 px-3"
-  >
+  <Alert color="error" icon="alert">
     <template #title>
       <h5 class="m-0 hidden md:inline">{{ t("basket.item.md.invalid") }}</h5>
       <h5 class="m-0 md:hidden">{{ t("basket.item.base.invalid") }}</h5>
@@ -17,15 +11,12 @@
         variant="link"
         size="sm"
         color="error"
-        class="-mr-1 underline"
+        icon-append="arrow-right"
       >
         <p class="m-0 hidden md:inline">
           {{ t("basket.item.md.invalidAction") }}
         </p>
         <p class="m-0 md:hidden">{{ t("basket.item.base.invalidAction") }}</p>
-        <template #append>
-          <Icon icon="chevron-right" size="xs" class="-ml-1.5" />
-        </template>
       </Button>
     </template>
   </Alert>

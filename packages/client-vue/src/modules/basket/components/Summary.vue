@@ -1,110 +1,18 @@
 <template>
-  <div v-if="!meta.isLoading">
-    <!-- products -->
-    <dl
-      class="m-0 border-t py-4 text-sm first-of-type:border-t-0 first-of-type:pt-0"
-      v-if="summary?.products?.length && props.showProducts"
-      v-auto-animate
-    >
-      <div
-        v-for="product in summary.products"
-        :key="product.id"
-        class="flex flex-col space-y-1"
-      >
-        <div class="flex w-full flex-wrap justify-between gap-2">
-          <div
-            class="text-foreground group m-0 inline-flex flex-1 items-end gap-2 text-left text-sm font-medium leading-normal"
-          >
-            <span>{{ product?.title }}</span>
-          </div>
-
-          <div
-            class="text-foreground m-0 break-all text-right font-medium leading-normal"
-          >
-            <strong class="text-base-foreground">
-              {{ product.summary.currentPrice }}
-            </strong>
-          </div>
-        </div>
-      </div>
-    </dl>
-
-    <!-- subtotals -->
-    <dl
-      class="text-foreground m-0 grid grid-cols-2 gap-0 border-t py-4 text-sm first-of-type:border-t-0 first-of-type:pt-0"
-      v-if="!!summary?.discount || !!summary?.taxes"
-      v-auto-animate
-    >
-      <template v-if="summary?.discount">
-        <dt
-          class="text-foreground group m-0 inline-flex flex-1 items-center gap-2 text-left text-sm font-normal leading-normal"
-        >
-          <span
-            class="text-emphasis-medium m-0 inline-flex items-end gap-2 text-left text-sm font-normal leading-normal"
-            >{{
-              t("basket.summary.discount.title", products?.length ?? 0)
-            }}</span
-          >
-        </dt>
-
-        <dd
-          class="flex-0 text-emphasis-medium m-0 block text-right font-medium"
-        >
-          {{ summary.discount }}
-        </dd>
-      </template>
-
-      <template v-if="summary?.subtotal">
-        <dt
-          class="text-foreground group m-0 inline-flex flex-1 items-center gap-2 text-left text-sm font-normal leading-normal"
-        >
-          <span
-            class="text-emphasis-medium m-0 inline-flex items-end gap-2 text-left text-sm font-normal leading-normal"
-            >{{
-              t("basket.summary.subtotal.title", products?.length ?? 0)
-            }}</span
-          >
-        </dt>
-
-        <dd
-          class="flex-0 text-emphasis-medium m-0 block text-right font-medium"
-        >
-          {{ summary.subtotal }}
-        </dd>
-      </template>
-
-      <template v-for="(value, key) in summary?.taxes" :key="key">
-        <dt
-          class="text-foreground group m-0 inline-flex flex-1 items-center gap-2 text-left text-sm font-normal leading-normal"
-        >
-          <span
-            class="text-emphasis-medium m-0 inline-flex items-end gap-2 text-left text-sm font-normal leading-normal"
-            >{{ key }}</span
-          >
-        </dt>
-
-        <dd
-          class="flex-0 text-emphasis-medium m-0 block text-right font-medium"
-        >
-          {{ value }}
-        </dd>
-      </template>
-    </dl>
-
-    <!-- total -->
-    <div class="flex flex-col gap-4 border-t">
-      <dl class="m-0 flex flex-wrap justify-between space-x-2 pt-4 text-lg">
-        <span class="text-foreground m-0 font-bold">
+  <div v-if="!meta.isLoading" :class="styles.summary.root">
+    <DescriptionList :items="items">
+      <div :class="styles.summary.item.root">
+        <dt :class="styles.summary.item.term">
           {{ t("basket.summary.total") }}
-        </span>
-        <span class="text-foreground m-0 break-all font-bold">
+        </dt>
+        <dd :class="styles.summary.item.description">
           {{ summary?.total }}
-        </span>
-      </dl>
+        </dd>
+      </div>
+    </DescriptionList>
 
-      <!-- promotions -->
-      <BasketPromotions />
-    </div>
+    <!-- promotions -->
+    <BasketPromotions />
   </div>
 
   <template v-else>
@@ -114,16 +22,22 @@
 
 <script lang="ts" setup>
 // --- external
-import { vAutoAnimate } from "@formkit/auto-animate";
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { toPairs, forEach, isEmpty } from "lodash-es";
 
 // --- components
-import { Button } from "@upmind-automation/upmind-ui";
+import { DescriptionList } from "@upmind-automation/upmind-ui";
 import BasketPromotions from "./Promotions.vue";
 import SummarySkeleton from "./SummarySkeleton.vue";
 
 // --- internal
 import { useBasket } from "@upmind-automation/headless";
+import { useStyles } from "@upmind-automation/upmind-ui";
+import config from "./summary.config";
+
+// --- types
+import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 
@@ -140,4 +54,67 @@ const emits = defineEmits(["edit"]);
 
 const { t } = useI18n();
 const { meta, products, summary } = useBasket();
+
+const styles = useStyles(
+  ["summary", "summary.item"],
+  props,
+  config
+) as ComputedRef<{
+  summary: {
+    root: string;
+    item: {
+      root: string;
+      term: string;
+      description: string;
+    };
+  };
+}>;
+
+const items = computed(() => {
+  const items = subtotalItems.value;
+
+  if (!isEmpty(summary.value?.products) && props.showProducts) {
+    items.push(...productItems.value);
+  }
+
+  return items;
+});
+
+const productItems = computed(() => {
+  return (
+    summary.value?.products?.map((product: any) => ({
+      term: product.title,
+      description: product.summary.currentPrice
+    })) ?? []
+  );
+});
+
+const subtotalItems = computed(() => {
+  const items = [];
+
+  if (!isEmpty(summary.value?.discount)) {
+    items.push({
+      term: t("basket.summary.discount.title", products?.value?.length ?? 0),
+      description: summary.value.discount
+    });
+  }
+
+  if (!isEmpty(summary.value?.subtotal)) {
+    items.push({
+      term: t("basket.summary.subtotal.title", products?.value?.length ?? 0),
+      description: summary.value.subtotal
+    });
+  }
+
+  if (!isEmpty(summary.value?.taxes)) {
+    forEach(toPairs(summary.value.taxes), ([key, value]) => {
+      items.push({
+        term: key,
+        description: value
+      });
+    });
+  }
+
+  return items;
+});
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <span :class="styles.pricing.current">
+  <component :is="props.is" :class="styles.pricing.current">
     <template v-if="priceMeta.isFree">
       {{ t("product.free") }}
     </template>
@@ -10,7 +10,7 @@
           : currentPrice
       }}
     </template>
-  </span>
+  </component>
 </template>
 
 <script setup lang="ts">
@@ -26,7 +26,9 @@ import config from "./pricing.config";
 import { type ComputedRef } from "vue";
 import { type CurrentPriceProps } from "./types";
 
-const props = defineProps<CurrentPriceProps>();
+const props = withDefaults(defineProps<CurrentPriceProps>(), {
+  is: "span"
+});
 
 const { t, te } = useI18n();
 

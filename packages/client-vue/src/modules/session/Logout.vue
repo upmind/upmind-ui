@@ -1,19 +1,16 @@
 <template>
   <Layout>
-    <ContentSection v-auto-animate class="flex flex-grow items-center">
+    <ContentSection v-auto-animate class="flex grow items-center">
       <Interstitial
         v-bind="props"
         :title="t('session.end.title')"
         :text="t('session.end.text')"
         :actions="[
           {
-            as: 'a',
+            is: 'a',
             color: 'secondary',
             href: storefrontUrl,
-            appendIcon: {
-              icon: 'arrow-right',
-              size: '2xs'
-            },
+            iconAppend: 'arrow-right',
             label: t('session.end.actions.continue')
           }
         ]"

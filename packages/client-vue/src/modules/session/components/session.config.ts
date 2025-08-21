@@ -6,12 +6,12 @@ export default {
     root: cva(""),
     header: cva("flex w-full flex-col gap-2"),
     title: cva(
-      "start-between m-0 flex w-full items-center gap-4 text-5xl font-light leading-tight text-inherit"
+      "start-between m-0 flex w-full items-center gap-4 text-5xl leading-tight font-light text-inherit"
     ),
     name: cva("font-normal"),
-    text: cva("text-base-700 m-0 text-lg font-light leading-7"),
+    text: cva("text-base-700 m-0 text-lg leading-7 font-light"),
     footer: cva(
-      "flex flex-col gap-2 text-sm font-light leading-tight tracking-tight"
+      "flex flex-col gap-2 text-sm leading-tight font-light tracking-tight"
     ),
     content: cva("rounded-box w-full max-w-5xl items-start"),
 

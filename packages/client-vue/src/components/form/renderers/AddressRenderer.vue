@@ -16,13 +16,16 @@
         @update:search="getSuggestions"
         :minQueryLength="1"
       />
-      <Link
-        class="mt-2"
-        label="Enter address manually"
-        size="sm"
-        variant="muted"
-        @click="setShowAddressFields(true)"
-      />
+      <footer>
+        <Button
+          variant="link"
+          class="mt-2"
+          label="Enter address manually"
+          size="sm"
+          color="muted"
+          @click="setShowAddressFields(true)"
+        />
+      </footer>
     </template>
 
     <DispatchRenderer
@@ -51,7 +54,7 @@ import {
 import { usePlaces } from "@upmind-automation/headless";
 
 // --- components
-import { FormField, Search, Link } from "@upmind-automation/upmind-ui";
+import { FormField, Search, Button } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";

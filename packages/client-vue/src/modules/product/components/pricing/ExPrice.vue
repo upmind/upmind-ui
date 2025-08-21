@@ -1,9 +1,11 @@
 <template>
   <del v-if="priceMeta.isDiscounted" :class="styles.pricing.ex">
     {{
-      priceMeta.canShowCycle && te("product.cycle")
-        ? t("product.cycle", { value: monthlyFromRegularPrice })
-        : regularPrice
+      t("product.was", [
+        priceMeta.canShowCycle && te("product.cycle")
+          ? t("product.cycle", { value: monthlyFromRegularPrice })
+          : regularPrice
+      ])
     }}
   </del>
 </template>

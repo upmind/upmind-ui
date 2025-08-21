@@ -29,9 +29,10 @@ import { useTranslateField, useTranslateName, useImageUrl } from "../../utils";
 // --- types
 import { ProductTypes } from "@upmind-automation/types";
 import type { IBasket, IBasketProduct } from "@upmind-automation/types";
-import type { Recommendation, RelatedProduct, Badge, Benefit } from "./types";
+import type { Recommendation, RelatedProduct, Badge } from "./types";
 import { calculateBillingTerm } from "../product/utils";
 import { ProductDetails, TermDetails, IProductConfig } from "../product";
+import type { Benefit } from "../product/types";
 
 // ---------------------------------------------------------------------------
 
@@ -279,7 +280,7 @@ export function parseRecommendation(
     meta: term?.meta,
     promotions: term?.promotions,
     price: term?.price,
-    pricing: [],
+    pricing: terms,
     details: [],
     // --- default config to be used when adding to basket
     configuration: {

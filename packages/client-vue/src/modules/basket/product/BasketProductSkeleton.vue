@@ -29,7 +29,7 @@
       </div>
 
       <!-- Mobile-only Price and Quantity Section -->
-      <div class="mt-1 flex flex-col gap-y-1 md:hidden">
+      <div class="mt-1 flex-col gap-y-1 max-md:flex md:hidden">
         <Skeleton class="h-5 w-48 text-sm" />
         <!-- Terms Description -->
         <div class="flex items-center justify-between">

@@ -10,8 +10,8 @@
       v-if="props.meta?.overrides && props.price"
       :label="t('product.overrides')"
     >
-      <span class="hover:cursor-help">
-        <Icon icon="transfer" size="3xs" class="text-inherit" />
+      <span class="flex items-center justify-center hover:cursor-help">
+        <Icon icon="transfer" size="nano" class="text-inherit" />
         <CurrentPrice
           :current-price="props.price?.currentPrice ?? ''"
           :meta="props.meta"

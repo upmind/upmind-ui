@@ -1,131 +1,82 @@
 <template>
-  <Layout>
+  <Layout :variant="uiCart?.layout" minimal>
     <template #navigation>
       <Back @click.prevent="doReject" />
     </template>
 
-    <section :class="styles.checkout.section" v-auto-animate>
-      <div :class="styles.checkout.container">
-        <div :class="styles.checkout.mainContent">
-          <!-- Account -->
-          <slot name="session">
-            <component
-              :is="props.contentSectionComponent"
-              v-if="!account.isAuthenticated && !meta.isCheckout"
-            >
-              <component :is="props.as">
-                <Session
-                  :class="styles.checkout.session"
-                  id="account"
-                  :noTabs="true"
-                  no-header
-                  :aria-disabled="meta.hasAccount"
-                  model-value="register"
-                />
-              </component>
-            </component>
-          </slot>
-
-          <component
-            v-if="meta.hasAccount && !meta.isCheckout"
-            :is="props.contentSectionComponent"
-          >
-            <template #title>
-              <slot name="billing-details-title">
-                <SmartTitle
-                  i18n-key="checkout.billing_details.title"
-                  size="2xl"
-                />
-              </slot>
-            </template>
-            <slot name="billing-details">
-              <Billing :as="props.as" />
-            </slot>
-          </component>
-
-          <component
-            :is="props.contentSectionComponent"
-            v-show="meta.hasAccount && !meta.isCheckout"
-          >
-            <template #title>
-              <slot name="payment-details-title">
-                <template v-if="paymentDetailsMeta.isFree">
-                  <SmartTitle
-                    i18n-key="checkout.payment_details.title"
-                    size="2xl"
-                  />
-                </template>
-                <template v-else>
-                  <SmartTitle
-                    i18n-key="checkout.payment_details.title"
-                    size="2xl"
-                  />
-                </template>
-              </slot>
-            </template>
-            <slot name="payment-details">
-              <PaymentDetails
-                :as="props.as"
-                :class="styles.checkout.paymentDetails"
-                :color="color"
-              />
-            </slot>
-          </component>
-        </div>
-
-        <aside v-if="!meta.isCheckout" :class="styles.checkout.aside">
-          <div :class="styles.checkout.asideInner">
-            <component
-              :is="props.contentSectionComponent"
-              :title="t('checkout.summary.title')"
-            >
-              <component :is="props.as">
-                <slot name="summary">
-                  <Summary no-actions />
-                </slot>
-              </component>
-            </component>
-          </div>
-
-          <Alert
-            v-if="meta.hasError"
-            color="error"
-            icon="alert-triangle"
-            :title="t('checkout.errors.title')"
-            :description="errors?.message"
-          >
-          </Alert>
-        </aside>
-      </div>
-    </section>
-
-    <!-- Basket procesing -->
-    <slot name="processing" v-if="meta.isCheckout">
-      <Interstitial
-        open
-        modal
-        size="2xl"
-        :animatedIcon="{
-          icon: processingIcon,
-          primaryColor: 'primary',
-          secondaryColor: 'secondary',
-          size: '4xl'
+    <template #header>
+      <Header
+        :title="t('checkout.header.title')"
+        :description="
+          t(
+            'checkout.header.description',
+            [summary.total],
+            products?.length || 0
+          )
+        "
+        :badge="{
+          label: t('checkout.header.badge'),
+          icon: 'lock'
         }"
-        :title="t(processingTitleKey)"
-        :text="t(processingTextKey)"
+      />
+    </template>
+
+    <template #default>
+      <Section :title="t('checkout.billing')">
+        <Billing />
+      </Section>
+
+      <Section :title="t('checkout.payment')">
+        <PaymentDetails
+          :class="styles.checkout.paymentDetails"
+          :color="color"
+        />
+      </Section>
+    </template>
+
+    <template #aside>
+      <Section :title="t('checkout.summary.title')">
+        <Summary no-actions />
+      </Section>
+    </template>
+
+    <template #aside-footer>
+      <Alert
+        v-if="meta.hasError"
+        color="error"
+        icon="alert-triangle"
+        :title="t('checkout.errors.title')"
+        :description="errors?.message"
       >
-        <template #title>
-          <SmartTitle :i18n-key="processingTitleKey" align="center" />
-        </template>
-      </Interstitial>
-    </slot>
+      </Alert>
+    </template>
   </Layout>
+
+  <!-- Basket procesing -->
+  <slot name="processing" v-if="meta.isCheckout">
+    <Interstitial
+      open
+      modal
+      size="2xl"
+      :animatedIcon="{
+        icon: processingIcon,
+        primaryColor: 'primary',
+        secondaryColor: 'secondary',
+        size: '4xl'
+      }"
+      :title="t(processingTitleKey)"
+      :text="t(processingTextKey)"
+    >
+      <template #title>
+        <SmartTitle :i18n-key="processingTitleKey" align="center" />
+      </template>
+    </Interstitial>
+  </slot>
 </template>
 
 <script lang="ts" setup>
 // --- external
 import { watch, computed, type ComputedRef } from "vue";
-import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -135,7 +86,8 @@ import {
   useBasketPaymentDetails,
   useRoutingEngine,
   ROUTE,
-  useDataLayer
+  useDataLayer,
+  useBrand
 } from "@upmind-automation/headless";
 
 import config from "./checkout.config";
@@ -152,22 +104,23 @@ import Session from "../session/Session.vue";
 import Billing from "../billing/Billing.vue";
 import PaymentDetails from "./components/PaymentDetails.vue";
 import Summary from "../basket/components/Summary.vue";
+import Header from "../../components/content/Header.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 import Back from "../../components/navigation/Back.vue";
+import Section from "../../components/content/LayoutSection.vue";
 
 // --- types
 import type { CheckoutProps } from "./types";
-import { isEqual } from "lodash-es";
-
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
 // ---
 
 const { meta: account, isAuthenticated } = useSession();
-const { state, meta, errors, isReady } = useBasket();
+const { state, meta, errors, isReady, summary, products } = useBasket();
 const { navigateNext, navigateBack, isResolved } = useRoutingEngine();
 const { meta: paymentDetailsMeta } = useBasketPaymentDetails();
+const { uiCart } = useBrand();
 
 const props = withDefaults(defineProps<CheckoutProps>(), {
   as: Card,
