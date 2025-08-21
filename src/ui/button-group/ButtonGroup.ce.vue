@@ -17,6 +17,7 @@
       <DropdownMenu
         v-else-if="item.type === 'dropdown'"
         v-bind="item.props"
+        :size="size"
         :disabled="disabled || item.props.disabled"
       />
     </template>
