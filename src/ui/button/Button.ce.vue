@@ -36,7 +36,7 @@
       />
     </slot>
 
-    <Spinner v-if="loading && spinner" size="sm" class="absolute" />
+    <Spinner v-if="loading" size="sm" class="absolute" />
   </component>
 </template>
 
@@ -65,7 +65,6 @@ const props = withDefaults(defineProps<ButtonProps>(), {
   color: "base",
   variant: "flat",
   align: "center",
-  spinner: true,
   focusable: true,
   truncate: true,
   ring: true,
