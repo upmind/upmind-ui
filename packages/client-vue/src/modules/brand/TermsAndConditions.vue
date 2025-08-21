@@ -44,7 +44,7 @@
       class-footer="flex-row items-center justify-between gap-x-4"
       :title="t('brand.termsAndConditions.action')"
     >
-      <Markdown :model-value="data.content" class="prose w-full text-left" />
+      <Markdown :model-value="data?.content" class="prose w-full text-left" />
 
       <template #close>
         <Button

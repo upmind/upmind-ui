@@ -24,11 +24,7 @@
         :key="recommendation.id"
         :class="styles.recommendation.carousel.item"
       >
-        <ProductCardSkeleton
-          v-if="recommendation.meta?.loading"
-          v-bind="recommendation"
-          hide-terms
-        />
+        <ProductCardSkeleton v-if="recommendation.meta?.loading" hide-terms />
 
         <ProductCard
           v-else
