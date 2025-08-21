@@ -46,7 +46,7 @@
           <ContentSection
             :title="t('product.summary.title')"
             :ui-config="{
-              title: 'py-1.5'
+              title: ['py-1.5']
             }"
           >
             <Summary :item="item" @resolve="doResolve" />

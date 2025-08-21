@@ -24,7 +24,7 @@ export interface BasketModalProps {
   title?: DialogProps["title"];
   titleI18n?: { key: string; plural?: number };
   text?: DialogProps["description"];
-  avatar?: AvatarProps;
+  avatar?: Partial<AvatarProps>;
   animatedIcon?: AnimatedIconProps;
   action?: ActionProps;
   to?: string;
