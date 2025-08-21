@@ -4,9 +4,9 @@
   <Alert :class="cn(styles.alert, props.class)">
     <div class="flex items-center justify-start gap-2">
       <Icon v-if="icon" :icon="icon" size="2xs" />
-      <div class="flex w-full items-center justify-between gap-2">
+      <div class="text-md/tight flex w-full items-center justify-between gap-2">
         <AlertTitle
-          class="leading-none font-medium tracking-tight"
+          class="font-medium"
           :class="description || $slots['description'] ? 'my-1' : ''"
         >
           <slot name="title">
@@ -18,7 +18,7 @@
       </div>
     </div>
 
-    <AlertDescription class="text-sm opacity-75 [&_p]:leading-relaxed">
+    <AlertDescription class="text-md/tight opacity-75">
       <slot name="description">
         {{ description }}
       </slot>
@@ -53,7 +53,7 @@ import type { AlertProps } from "./types";
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<AlertProps>(), {
   // --- styles
-  variant: "outline-solid",
+  variant: "outline",
   color: "base",
   // --- styles
   uiConfig: () => ({ alert: [] }),
