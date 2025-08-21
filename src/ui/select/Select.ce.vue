@@ -87,7 +87,6 @@ const open = ref(false);
 const uid = ref(timestamp());
 
 const meta = computed(() => ({
-  size: props.size,
   width: props.width,
   hasValue: !!props.modelValue
 }));

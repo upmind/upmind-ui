@@ -9,44 +9,11 @@
           :class="cn(styles.dropdownMenu.trigger, props.class)"
           :label="props.label"
           :size="props.size"
+          :ring="props.ring"
+          :icon="props.icon"
+          :avatar="props.avatar"
           :aria-expanded="open"
-        >
-          <template #prepend>
-            <Avatar
-              v-if="props.avatar"
-              v-bind="props.avatar"
-              size="3xs"
-              shape="circle"
-              fit="cover"
-              aria-hidden="true"
-            />
-            <Icon
-              v-if="props.icon"
-              :icon="props.icon"
-              shape="circle"
-              size="3xs"
-              fit="cover"
-              aria-hidden="true"
-            />
-          </template>
-
-          <span
-            class="flex flex-col gap-y-1"
-            v-if="props.label || props.sublabel || props.tag"
-          >
-            <span v-if="props?.label" class="truncate leading-none">
-              {{ props.label }}
-            </span>
-
-            <span v-if="props?.sublabel" class="leading-none opacity-50">
-              {{ props.sublabel }}
-            </span>
-
-            <span v-if="props?.tag" class="text-center leading-none font-bold">
-              {{ props.tag }}
-            </span>
-          </span>
-        </Button>
+        />
       </slot>
     </DropdownMenuTrigger>
 
@@ -73,6 +40,7 @@
         >
           <Button
             v-if="!item.hidden"
+            :class="styles.dropdownMenu.item"
             variant="ghost"
             align="left"
             block
@@ -98,21 +66,11 @@ import config from "./dropdown-menu.config";
 
 // --- components
 import Button from "../button/Button.ce.vue";
-import Avatar from "../avatar/Avatar.ce.vue";
-import Icon from "../icon/Icon.ce.vue";
-
 import DropdownMenu from "./DropdownMenu.vue";
 import DropdownMenuContent from "./DropdownMenuContent.vue";
 import DropdownMenuTrigger from "./DropdownMenuTrigger.vue";
 import DropdownMenuGroup from "./DropdownMenuGroup.vue";
-import DropdownMenuItem from "./DropdownMenuItem.vue";
 import DropdownMenuLabel from "./DropdownMenuLabel.vue";
-// import DropdownMenuSeparator from "./DropdownMenuSeparator.vue";
-
-// import DropdownMenuShortcut from "./DropdownMenuShortcut.vue";
-// import DropdownMenuSub from "./DropdownMenuSub.vue";
-// import DropdownMenuSubContent from "./DropdownMenuSubContent.vue";
-// import DropdownMenuSubTrigger from "./DropdownMenuSubTrigger.vue";
 
 // --- utils
 import { isFunction } from "lodash-es";
@@ -129,12 +87,10 @@ const props = withDefaults(defineProps<DropdownMenuProps>(), {
   // -- styles
   color: "base",
   size: "md",
-  width: "md",
+  width: "auto",
   variant: "ghost",
   align: "end",
-  // ---
-  icon: "navigation-menu-vertical",
-
+  ring: true,
   // --- styles
   uiConfig: () => ({ dropdownMenu: [] }),
   class: "",

@@ -22,8 +22,7 @@ export interface SelectProps
     title?: string;
     const?: string;
   } & SelectItemProps)[];
-  // --- variants
-  size?: RootVariants["size"];
+  // --- variants;
   width?: RootVariants["width"];
   placeholder?: string;
   // --- styles

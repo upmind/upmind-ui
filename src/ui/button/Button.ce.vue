@@ -36,7 +36,7 @@
       />
     </slot>
 
-    <Spinner v-if="loading && spinner" size="sm" class="absolute" />
+    <Spinner v-if="loading" size="sm" class="absolute" />
   </component>
 </template>
 
@@ -60,18 +60,14 @@ import type { ComputedRef } from "vue";
 import type { ButtonProps } from "./types";
 
 const props = withDefaults(defineProps<ButtonProps>(), {
-  disabled: false,
-  loading: false,
-  iconOnly: false,
-  spinner: true,
   type: "button",
   size: "md",
   color: "base",
   variant: "flat",
-  block: false,
+  align: "center",
   focusable: true,
   truncate: true,
-  align: "center",
+  ring: true,
   uiConfig: () => ({ button: [] }),
   class: "",
   contentClass: ""
@@ -98,7 +94,8 @@ const meta = computed(() => ({
   isBlock: props.block,
   isDisabled: props.disabled,
   isLoading: props.loading,
-  isFocusable: props.focusable
+  isFocusable: props.focusable,
+  hasRing: props.ring && !props.disabled && props.focusable
 }));
 
 const styles = useStyles(
