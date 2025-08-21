@@ -1,5 +1,5 @@
 // --- external
-import type { VariantProps } from "class-variance-authority";
+import type { CxOptions, VariantProps } from "class-variance-authority";
 import type { HTMLAttributes } from "vue";
 import type {
   InterstitialProps,
@@ -26,12 +26,12 @@ export interface ContentSectionProps {
   tagline?: string;
   class?: HTMLAttributes["class"];
   uiConfig?: {
-    root?: string;
-    header?: string;
-    title?: string;
-    tagline?: string;
-    content?: string;
-    footer?: string;
+    root?: CxOptions;
+    header?: CxOptions;
+    title?: CxOptions;
+    tagline?: CxOptions;
+    content?: CxOptions;
+    footer?: CxOptions;
   };
 }
 
@@ -49,10 +49,10 @@ export interface SectionProps {
   class?: HTMLAttributes["class"];
   uiConfig?: {
     section: {
-      root: string;
-      header: string;
-      title: string;
-      content: string;
+      root: CxOptions;
+      header: CxOptions;
+      title: CxOptions;
+      content: CxOptions;
     };
   };
 }

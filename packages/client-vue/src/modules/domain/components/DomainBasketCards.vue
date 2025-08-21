@@ -32,7 +32,7 @@ import { find, isEmpty, map } from "lodash-es";
 
 // --- types
 import { type ComputedRef } from "vue";
-import type { SelectCardsItemProps } from "@upmind-automation/upmind-ui";
+import type { SelectItemProps } from "@upmind-automation/upmind-ui";
 import type { DomainProduct } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
@@ -83,7 +83,7 @@ const styles = useStyles(
   };
 }>;
 
-const items = computed((): SelectCardsItemProps[] => {
+const items = computed((): SelectItemProps[] => {
   return map(props.items, (item, index) => ({
     index,
     item: item,

@@ -44,7 +44,7 @@
         :key="promotion.promotion.code"
         :label="tooltipLabel(promotion)"
         :open="!!open[promotion.id]"
-        :ui-config="{ trigger: 'rounded-pill' }"
+        :ui-config="{ trigger: ['rounded-pill'] }"
       >
         <Badge
           color="promotion"
@@ -64,7 +64,6 @@
               color="promotion"
               size="icon"
               iconAppend="close"
-              :spinner="false"
             />
           </template>
         </Badge>

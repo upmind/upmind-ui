@@ -16,7 +16,7 @@
 
         <Button
           v-else-if="meta.isUrl"
-          :href="data.url"
+          :href="data?.url"
           target="_blank"
           class="font-normal text-inherit"
           variant="link"

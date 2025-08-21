@@ -25,10 +25,6 @@ export default {
         button: cva("flex justify-between")
       }
     },
-    filters: {
-      root: cva("inline-flex w-full items-center md:w-auto"),
-      trigger: cva("-ml-1")
-    },
     skeleton: {
       root: cva("text-foreground group relative flex min-h-80 flex-col"),
       content: cva("flex h-full flex-col"),
