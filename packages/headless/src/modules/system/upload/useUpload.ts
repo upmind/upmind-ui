@@ -188,7 +188,7 @@ export const useUpload = (field?: object) => {
      * Stop the upload service.
      * @returns {void}
      */
-    stop: () => stopService(service as InterpreterFrom<any>)
+    stop: () => stopService(service)
   };
 };
 

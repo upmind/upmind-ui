@@ -1,5 +1,5 @@
 // --- external
-import { effectScope, onScopeDispose, getCurrentScope } from "vue";
+import { effectScope, onScopeDispose, getCurrentScope, ComputedRef } from "vue";
 
 import {
   QueryClient,
@@ -50,7 +50,8 @@ import type {
   RequestParams,
   MutationParams,
   InfiniteQueryPage,
-  ReactiveQueryKeys
+  ReactiveQueryKeys,
+  PaginationInfo
 } from "./types";
 import { Methods } from "@upmind-automation/types";
 import type { DefaultError } from "@tanstack/vue-query";
@@ -242,12 +243,8 @@ export const useQuery = () => {
       reactiveKeys.currencyCode = currencyCode;
     }
 
-    let response:
-      | ReturnType<typeof vueUseQuery<TQueryFnData, DefaultError, TData>>
-      | undefined;
-
-    scope.run(() => {
-      response = vueUseQuery<TQueryFnData, DefaultError, TData>(
+    const response = scope.run(() =>
+      vueUseQuery<TQueryFnData, DefaultError, TData>(
         {
           queryKey: [...queryKey, reactiveKeys],
           queryFn: async ({ signal }) => {
@@ -275,14 +272,8 @@ export const useQuery = () => {
           ...(options as any)
         },
         queryClient
-      );
-
-      // Manually dispose of the scope when done, or within a lifecycle hook
-      // if this is tied to a component's unmount.
-      onScopeDispose(() => {
-        scope.stop();
-      });
-    });
+      )
+    );
 
     return response;
   }
@@ -331,14 +322,8 @@ export const useQuery = () => {
     if (limit) reactiveKeys.pageIndex = pageIndex;
     if (withCurrency) reactiveKeys.currencyCode = currencyCode;
 
-    let response:
-      | ReturnType<
-          typeof vueUseQuery<TQueryFnData, DefaultError, QueryResponse<TData>>
-        >
-      | undefined;
-
-    scope.run(() => {
-      response = vueUseQuery<TQueryFnData, DefaultError, QueryResponse<TData>>(
+    let response = scope.run(() =>
+      vueUseQuery<TQueryFnData, DefaultError, QueryResponse<TData>>(
         {
           queryKey: [...queryKey, reactiveKeys],
           queryFn: async ({ signal }) => {
@@ -376,20 +361,17 @@ export const useQuery = () => {
           ...(options as any)
         },
         queryClient
-      );
-      // Manually dispose of the scope when done, or within a lifecycle hook
-      // if this is tied to a component's unmount.
-      onScopeDispose(() => {
-        scope.stop();
-      });
-    });
+      )
+    );
 
     // -------------------------------------------------------------------------
 
     return {
       ...response,
 
-      data: computed((): TData | null => response?.data?.value?.data ?? null),
+      data: computed(
+        (): TData | null | undefined => response?.data?.value?.data
+      ),
 
       total: computed((): number => response?.data?.value?.total ?? 0),
 
@@ -405,7 +387,7 @@ export const useQuery = () => {
        * @property {number} from - The starting item index for the current page.
        * @property {number} to - The ending item index for the current page.
        */
-      pagination: computed(() => {
+      pagination: computed((): PaginationInfo => {
         const total = response?.data?.value?.total ?? 0;
         const pageTotal = !limit ? 1 : Math.max(Math.ceil(total / limit), 1);
         return {
@@ -415,7 +397,7 @@ export const useQuery = () => {
           pages: pageTotal,
           from: !total ? 0 : limit * (pageIndex.value - 1) + 1,
           to: !limit ? total : Math.min(limit * pageIndex.value, total)
-        };
+        } as PaginationInfo;
       }),
 
       /**
@@ -512,6 +494,20 @@ export const useQuery = () => {
           queryKey: [...queryKey, reactiveKeys]
         });
       }
+    } as ReturnType<
+      typeof vueUseQuery<TQueryFnData, DefaultError, QueryResponse<TData>>
+    > & {
+      pagination: ComputedRef<PaginationInfo>;
+      meta: ComputedRef<{
+        hasNextPage: boolean;
+        hasPrevPage: boolean;
+      }>;
+      total: ComputedRef<number>;
+      fetchNextPage: () => void;
+      fetchPreviousPage: () => void;
+      sort: (values?: QueryParams["sort"]) => void;
+      filter: (values: QueryParams["filters"]) => void;
+      resetQuery: () => Promise<void>;
     };
   }
 
@@ -560,14 +556,8 @@ export const useQuery = () => {
     if (limit) reactiveKeys.limit = limit;
     if (withCurrency) reactiveKeys.currencyCode = currencyCode;
 
-    let response:
-      | ReturnType<
-          typeof vueUseInfiniteQuery<TQueryFnData, DefaultError, TData>
-        >
-      | undefined;
-
-    scope.run(() => {
-      response = vueUseInfiniteQuery<TQueryFnData, DefaultError, TData>(
+    const response = scope.run(() =>
+      vueUseInfiniteQuery<TQueryFnData, DefaultError, TData>(
         {
           queryKey: [...queryKey, reactiveKeys],
           queryFn: async ({ pageParam = 0, signal }) => {
@@ -610,13 +600,8 @@ export const useQuery = () => {
           ...(options as any)
         },
         queryClient
-      );
-      // Manually dispose of the scope when done, or within a lifecycle hook
-      // if this is tied to a component's unmount.
-      onScopeDispose(() => {
-        scope.stop();
-      });
-    });
+      )
+    );
 
     // -------------------------------------------------------------------------
 
@@ -635,7 +620,7 @@ export const useQuery = () => {
        * @property {number} from - The starting item index for the current page.
        * @property {number} to - The ending item index for the current page.
        */
-      pagination: computed(() => {
+      pagination: computed((): PaginationInfo => {
         // We use the length of the final, selected data array.
         // The `as any[]` is a safe type assertion here because we know
         // our `select` function returns an array.
@@ -677,6 +662,17 @@ export const useQuery = () => {
         queryClient.resetQueries({
           queryKey: [...queryKey, reactiveKeys]
         })
+    } as ReturnType<
+      typeof vueUseInfiniteQuery<TQueryFnData, DefaultError, TData>
+    > & {
+      pagination: ComputedRef<PaginationInfo>;
+      meta: ComputedRef<{
+        hasNextPage: boolean;
+        hasPrevPage: boolean;
+      }>;
+      sort: (values?: QueryParams["sort"]) => void;
+      filter: (values: QueryParams["filters"]) => void;
+      resetQuery: () => Promise<void>;
     };
   }
 

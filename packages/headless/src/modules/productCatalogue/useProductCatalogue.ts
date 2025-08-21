@@ -14,7 +14,8 @@ import {
   isEmpty,
   includes,
   isString,
-  debounce
+  debounce,
+  isArray
 } from "lodash-es";
 import { DEBOUNCE_DELAY } from "../../utils";
 
@@ -181,7 +182,10 @@ export const useProductCatalogue = (
      * The reactive data property containing the list of client items.
      * This is populated by the query and updates automatically when the query state changes.
      */
-    data: query.data,
+    data: computed(() => {
+      const data = query.data.value;
+      return isArray(data) ? data : null;
+    }),
 
     /**
      * The current error state of the query.

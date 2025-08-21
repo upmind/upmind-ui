@@ -187,7 +187,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
     id,
     product,
     model,
-    stop: () => stopService(service as InterpreterFrom<any>),
+    stop: () => stopService(service),
     // ---
     isReady,
     // ---

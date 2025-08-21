@@ -25,14 +25,19 @@ import { ProductProps } from "src/modules/product";
 export const useProductFlows = () => {
   const routing = useRoutingEngine();
   const {
+    addPromotion,
     findProduct,
-    productExists,
     getProduct,
-    isReady: isBasketReady
+    isReady: isBasketReady,
+    productExists,
+    setCurrency
   } = useBasket();
 
   const {
+    exists: productPendingExists,
     get: getPendingProduct,
+    add,
+    addMany,
     resolve,
     isInBasket
   } = useBasketProductsPending();
@@ -43,25 +48,34 @@ export const useProductFlows = () => {
     {
       name: ROUTE.PRODUCT_ADD,
       guard: async (route: Route) => {
-        const { productId, productConfig, getParam } =
+        // some query params that we ALWAYS look out for and resolve for the UI:
+        // currency,coupons, lang
+        const { currency, coupon, productConfig, productId, getParam } =
           useRouteQueryParams(route);
+        if (currency) setCurrency(currency);
+        if (coupon) addPromotion(coupon);
+        if (productConfig) addMany([productConfig]);
 
         // honour the flag to ensure we always add the product, even if it exists in the basket
         const force = JSON.parse(getParam("force", false));
-        const exists = !!productConfig && (await isInBasket(productConfig));
 
-        if (exists && !force) return false;
+        // if already have an exact product in the basket, and we are NOT force adding, then we can skip
+        const skip =
+          !force && !!productConfig && (await isInBasket(productConfig));
+        if (skip) return false;
 
-        const valid = await getPendingProduct(productId, true, force)
-          .then(basketItem => {
-            return !stateMatches(basketItem.state, ["error", "complete"]);
-          })
-          .catch(error => {
-            console.error("Error getting pending product:", error);
-            return false;
-          });
+        // otherwise ensure we have a valid product
+        const basketItem = await (
+          !productPendingExists(productId)
+            ? add(productId, productConfig ?? { productId, quantity: 1 }, force)
+            : getPendingProduct(productId, true, force)
+        ).catch((error: any) => {
+          console.error("Error getting pending product:", error);
+        });
 
-        return valid;
+        return (
+          !!basketItem && !stateMatches(basketItem.state, ["error", "complete"])
+        );
       },
       resolve: async (route: Route) => {
         const { productId, express, getParam } = useRouteQueryParams(route);
@@ -81,11 +95,12 @@ export const useProductFlows = () => {
 
         // NB this allows us to navigate to a product page without a given productId
         // this is helpful for people returning to the cart that had prev added a product config without completing it
-        const pid = contextValue<ProductProps["productId"]>(
-          product.state,
-          "model.productId",
-          productId
-        );
+        const pid =
+          productId ??
+          contextValue<ProductProps["productId"]>(
+            product.state,
+            "model.productId"
+          );
 
         if (express || (!navigate && !product?.meta.value.isConfigurable))
           return product

@@ -34,7 +34,7 @@
       >
         <ProductCard
           v-if="!meta.isLoading"
-          v-for="product in data as Product[]"
+          v-for="product in data"
           :key="product.id"
           v-bind="product"
           :preserve-promotion="preservePromotions"

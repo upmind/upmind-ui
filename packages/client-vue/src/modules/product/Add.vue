@@ -64,7 +64,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { watch, computed } from "vue";
+import { watch, computed, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { forEach } from "lodash-es";
 
@@ -99,14 +99,15 @@ import type { ComputedRef } from "vue";
 const { t, tm } = useI18n();
 
 const { navigateBack, navigateNext, isResolved } = useRoutingEngine();
-const { meta: basketMeta, isReady } = useBasket();
+const { isReady } = useBasket();
 const { productId } = useQueryParams();
-const { configure, resolve } = useBasketProductsPending();
+const { configure, resolve, remove } = useBasketProductsPending();
 const { hasStorefront, storefrontUrl, uiCart } = useBrand();
 const { getPath } = useProductCategories();
 
 await isReady();
 await isResolved(ROUTE.PRODUCT_ADD);
+
 const {
   meta,
   stop,
@@ -193,7 +194,10 @@ async function doResolve() {
 }
 
 function doReject() {
-  stop();
   navigateBack();
 }
+
+onUnmounted(() => {
+  remove(productId);
+});
 </script>

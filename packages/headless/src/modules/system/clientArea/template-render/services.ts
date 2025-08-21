@@ -18,9 +18,9 @@ function load({
   code?: ClientTemplateSlotCodes;
   objectId?: string;
 }) {
-  const { useUrl, list } = useQuery();
+  const { useUrl, query } = useQuery();
 
-  return list<ClientAreaTemplate>({
+  return query<ClientAreaTemplate>({
     queryKey: [...queryKey, { code, objectId }],
     url: useUrl(`templates/client_area/slots/${code}/render`, {
       object_id: objectId
