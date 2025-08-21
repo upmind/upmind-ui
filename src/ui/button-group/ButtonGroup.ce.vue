@@ -8,9 +8,10 @@
       <Button
         v-if="item.type === 'button'"
         v-bind="item.props"
-        variant="ghost"
         :size="size"
         :disabled="disabled || item.props.disabled"
+        variant="ghost"
+        :ring="false"
         @click="item.handler?.($event)"
       />
 
@@ -19,6 +20,8 @@
         v-bind="item.props"
         :size="size"
         :disabled="disabled || item.props.disabled"
+        :ring="false"
+        variant="ghost"
       />
     </template>
   </div>
@@ -42,13 +45,13 @@ import type { ButtonGroupProps } from "./types";
 
 const props = withDefaults(defineProps<ButtonGroupProps>(), {
   variant: "outline",
-  color: "base",
   size: "md",
   orientation: "horizontal",
-  disabled: false,
+  // ---
+  items: () => [],
+  // ---
   uiConfig: () => ({ buttonGroup: [] }),
-  class: "",
-  items: () => []
+  class: ""
 });
 
 const meta = computed(() => ({

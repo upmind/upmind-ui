@@ -12,9 +12,8 @@ import type { IconProps } from "../icon";
 import type { AvatarProps } from "../avatar";
 import type { ButtonProps } from "../button";
 
-import type { contentVariants, itemVariants } from "./dropdown-menu.config";
+import type { contentVariants } from "./dropdown-menu.config";
 type ContentVariantProps = VariantProps<typeof contentVariants>;
-type ItemVariantProps = VariantProps<typeof itemVariants>;
 
 export interface DropdownMenuItemProps {
   label: string;
@@ -35,16 +34,17 @@ export interface DropdownMenuProps
   label?: string;
   sublabel?: string;
   tag?: string;
-  avatar?: Partial<AvatarProps>;
+  avatar?: IconProps["icon"];
   icon?: IconProps["icon"];
   // --- state
   items: DropdownMenuItemProps[];
   loading?: boolean;
   // --- variants
-  color?: ItemVariantProps["color"] | string;
+  color?: ButtonProps["color"];
   variant?: ButtonProps["variant"];
   size?: ButtonProps["size"];
-  width?: ContentVariantProps["width"] | string;
+  width?: ContentVariantProps["width"];
+  ring?: ButtonProps["ring"];
   // --- styles
   uiConfig?: { dropdownMenu: CxOptions };
   class?: HTMLAttributes["class"];

@@ -60,18 +60,15 @@ import type { ComputedRef } from "vue";
 import type { ButtonProps } from "./types";
 
 const props = withDefaults(defineProps<ButtonProps>(), {
-  disabled: false,
-  loading: false,
-  iconOnly: false,
-  spinner: true,
   type: "button",
   size: "md",
   color: "base",
   variant: "flat",
-  block: false,
+  align: "center",
+  spinner: true,
   focusable: true,
   truncate: true,
-  align: "center",
+  ring: true,
   uiConfig: () => ({ button: [] }),
   class: "",
   contentClass: ""
@@ -98,7 +95,8 @@ const meta = computed(() => ({
   isBlock: props.block,
   isDisabled: props.disabled,
   isLoading: props.loading,
-  isFocusable: props.focusable
+  isFocusable: props.focusable,
+  hasRing: props.ring && !props.disabled && props.focusable
 }));
 
 const styles = useStyles(

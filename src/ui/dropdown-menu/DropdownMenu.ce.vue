@@ -9,9 +9,10 @@
           :class="cn(styles.dropdownMenu.trigger, props.class)"
           :label="props.label"
           :size="props.size"
-          :aria-expanded="open"
+          :ring="props.ring"
           :icon="props.icon"
           :avatar="props.avatar"
+          :aria-expanded="open"
         />
       </slot>
     </DropdownMenuTrigger>
@@ -88,6 +89,7 @@ const props = withDefaults(defineProps<DropdownMenuProps>(), {
   width: "md",
   variant: "ghost",
   align: "end",
+  ring: true,
   // --- styles
   uiConfig: () => ({ dropdownMenu: [] }),
   class: "",

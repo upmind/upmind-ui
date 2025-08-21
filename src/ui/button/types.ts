@@ -29,6 +29,7 @@ export interface ButtonProps {
   iconOnly?: boolean;
   spinner?: boolean;
   pill?: boolean;
+  ring?: boolean;
   // ---
   focusable?: boolean;
   block?: boolean;

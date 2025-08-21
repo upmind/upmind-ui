@@ -41,10 +41,6 @@ export const rootVariants = cva(
         center: "justify-center",
         right: "justify-end"
       },
-      isFocusable: {
-        true: `${ringClasses} ${invalidRingClasses}`,
-        false: "outline-none focus:ring-0 focus:outline-none"
-      },
       isBlock: {
         true: "w-full basis-full"
       },
@@ -58,6 +54,10 @@ export const rootVariants = cva(
       isPill: {
         true: "rounded-pill",
         false: "rounded"
+      },
+      hasRing: {
+        true: `${ringClasses} ${invalidRingClasses}`,
+        false: "outline-none focus:ring-0 focus:outline-none"
       }
     },
     compoundVariants: [
