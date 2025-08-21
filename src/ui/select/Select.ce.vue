@@ -17,7 +17,7 @@
       </template>
     </SelectTrigger>
 
-    <SelectContent>
+    <SelectContent :class="styles.select.content">
       <SelectGroup>
         <SelectItem
           v-for="item in items"
@@ -25,6 +25,12 @@
           :value="item.const || item.value"
           :class="styles.select.item"
         >
+          <template #indicator>
+            <SelectIndicator
+              :data-state="item.value === modelValue ? 'checked' : 'unchecked'"
+              :value="item.value"
+            />
+          </template>
           <span class="flex items-center space-x-1">
             <span>{{ item?.title || item?.textValue }}</span>
             <span v-if="item?.label">{{ item?.label }}</span>
@@ -52,6 +58,7 @@ import SelectContent from "./SelectContent.vue";
 import SelectGroup from "./SelectGroup.vue";
 import SelectItem from "./SelectItem.vue";
 import SelectValue from "./SelectValue.vue";
+import SelectIndicator from "./SelectIndicator.vue";
 import Icon from "../icon/Icon.vue";
 
 // --- types
@@ -108,6 +115,7 @@ const styles = useStyles(
 ) as ComputedRef<{
   select: {
     root: string;
+    content: string;
     value: string;
     item: string;
   };
