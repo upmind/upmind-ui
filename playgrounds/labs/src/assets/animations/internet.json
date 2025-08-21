@@ -2502,7 +2502,7 @@
           "ddd": 0,
           "ind": 1,
           "ty": 4,
-          "nm": "outline 3",
+          "nm": "outline-solid 3",
           "sr": 1,
           "ks": {
             "o": { "a": 0, "k": 100, "ix": 11 },
@@ -2945,7 +2945,7 @@
           "ddd": 0,
           "ind": 2,
           "ty": 4,
-          "nm": "outline 4",
+          "nm": "outline-solid 4",
           "parent": 1,
           "td": 1,
           "sr": 1,
@@ -3034,7 +3034,7 @@
                       }
                     ],
                     "ix": 2,
-                    "x": "var $bm_rt;\n$bm_rt = thisComp.layer('outline 3').content('Group 1').content('Path 1').path;"
+                    "x": "var $bm_rt;\n$bm_rt = thisComp.layer('outline-solid 3').content('Group 1').content('Path 1').path;"
                   },
                   "nm": "Path 1",
                   "mn": "ADBE Vector Shape - Group",
@@ -3154,7 +3154,7 @@
                       }
                     ],
                     "ix": 2,
-                    "x": "var $bm_rt;\n$bm_rt = thisComp.layer('outline 3').content('Group 2').content('Path 1').path;"
+                    "x": "var $bm_rt;\n$bm_rt = thisComp.layer('outline-solid 3').content('Group 2').content('Path 1').path;"
                   },
                   "nm": "Path 1",
                   "mn": "ADBE Vector Shape - Group",
@@ -3304,7 +3304,7 @@
           "ddd": 0,
           "ind": 4,
           "ty": 4,
-          "nm": "outline 5",
+          "nm": "outline-solid 5",
           "parent": 1,
           "td": 1,
           "sr": 1,
@@ -3393,7 +3393,7 @@
                       }
                     ],
                     "ix": 2,
-                    "x": "var $bm_rt;\n$bm_rt = thisComp.layer('outline 3').content('Group 1').content('Path 1').path;"
+                    "x": "var $bm_rt;\n$bm_rt = thisComp.layer('outline-solid 3').content('Group 1').content('Path 1').path;"
                   },
                   "nm": "Path 1",
                   "mn": "ADBE Vector Shape - Group",
@@ -3513,7 +3513,7 @@
                       }
                     ],
                     "ix": 2,
-                    "x": "var $bm_rt;\n$bm_rt = thisComp.layer('outline 3').content('Group 2').content('Path 1').path;"
+                    "x": "var $bm_rt;\n$bm_rt = thisComp.layer('outline-solid 3').content('Group 2').content('Path 1').path;"
                   },
                   "nm": "Path 1",
                   "mn": "ADBE Vector Shape - Group",

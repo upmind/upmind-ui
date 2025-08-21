@@ -18,10 +18,9 @@ export default {
     search: {
       root: cva("px-3 py-2"),
       icon: cva(
-        "text-emphasis-disabled hidden items-center justify-center pl-1 pr-4 md:flex"
+        "text-emphasis-disabled hidden items-center justify-center pr-4 pl-1 md:flex"
       ),
-      actions: cva("-mr-1 flex items-center justify-center space-x-4"),
-      action: cva("h-10 rounded-lg px-3 md:h-12 md:px-4")
+      actions: cva("flex items-center justify-center space-x-4")
     },
 
     card: {
@@ -45,9 +44,10 @@ export default {
           }
         }
       }),
-      content: cva("flex w-full flex-col gap-y-1"),
+      content: cva("flex w-full flex-col"),
       container: cva("m-0 flex w-full flex-wrap items-center gap-y-2"),
-      label: cva("text-2xs m-0 uppercase", {
+      description: cva("text-sm/tight"),
+      label: cva("m-0 text-sm/tight uppercase", {
         variants: {
           isAvailable: {
             true: "text-primary",
@@ -63,15 +63,15 @@ export default {
         }
       }),
       sld: cva(
-        "overflow-wrap-anywhere m-0 max-w-full break-all text-2xl font-normal"
+        "overflow-wrap-anywhere m-0 max-w-full text-2xl/tight font-normal break-all"
       ),
-      tld: cva("text-emphasis-none mr-2 text-2xl font-semibold"),
+      tld: cva("text-emphasis-none mr-2 text-2xl font-medium"),
       promotion: cva(""),
 
       prices: {
-        root: cva("flex flex-shrink-0 flex-col space-y-1 pr-6 md:space-y-0"),
-        regular: cva("text-emphasis-disabled mr-2 text-xs"),
-        current: cva("text-2xl font-semibold"),
+        root: cva("flex shrink-0 flex-col space-y-1 pr-6 md:space-y-0"),
+        regular: cva("text-emphasis-disabled mr-2 text-xs/tight"),
+        current: cva("text-2xl/tight font-medium"),
         cycle: cva("text-emphasis-disabled text-xs font-normal")
       }
     },
@@ -102,10 +102,9 @@ export default {
         radio: cva("relative flex w-11 justify-center pl-1.5")
       },
       item: cva(
-        "hover:border-control-strong rounded-lg border transition-all duration-200"
+        "bg-control-background rounded border transition-all duration-200"
       ),
-      items: cva("h-12"),
-      card: cva("bg-base shadow-sm"),
+      card: cva("bg-base"),
       loading: cva("text-secondary"),
       content: {
         root: cva("p-4 pt-0 md:pl-11"),

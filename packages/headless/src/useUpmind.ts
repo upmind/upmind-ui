@@ -6,17 +6,18 @@ import { type QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
 // --- internal
 import {
   useI18n,
+  useBrand,
   useLocale,
   useSystem,
   useSession,
   useTracking,
-  useBrand,
   useRecaptcha,
   useDataLayer,
   type GlobbedFiles
 } from "./modules";
 import { first } from "lodash-es";
 import { useRouting } from "./modules/routing/useRouting";
+import { useTheming } from "./modules/theming/useTheming";
 import { Flow, useQuery } from "./modules";
 
 // --- utils
@@ -32,6 +33,7 @@ import {
 import type { IApiPop } from "./utils";
 import type { I18n } from "vue-i18n";
 import type { Router } from "vue-router";
+import type { Theme } from "./modules/theming";
 
 // ---
 export enum UpmindStatus {
@@ -62,11 +64,13 @@ export interface UpmindProps {
     files: GlobbedFiles;
     debug?: boolean;
   };
+
+  themes?: Theme[];
 }
 
 // -----------------------------------------------------------------------------
 
-class Upmind {
+export class Upmind {
   private status: UpmindStatus = UpmindStatus.notInitialised;
   analytics: UpmindProps["analytics"];
   debug: UpmindProps["debug"];
@@ -78,6 +82,7 @@ class Upmind {
   recaptcha: UpmindProps["recaptcha"];
   router: UpmindProps["router"];
   storefrontUrl?: string;
+  themes?: UpmindProps["themes"];
 
   constructor() {
     const { queryClient } = useQuery();
@@ -92,7 +97,8 @@ class Upmind {
     pop,
     recaptcha,
     router,
-    storefrontUrl
+    storefrontUrl,
+    themes
   }: UpmindProps): Promise<void> {
     if (this.status != UpmindStatus.notInitialised)
       throw new DetailedError(
@@ -109,6 +115,7 @@ class Upmind {
     this.router = router;
     this.i18n = i18n;
     this.storefrontUrl = storefrontUrl;
+    this.themes = themes;
 
     this.initPlugins();
     this.initDebugging();
@@ -122,6 +129,7 @@ class Upmind {
             this.initAnalytics();
             this.initRouter();
             this.initI18n();
+            this.initTheming();
           });
         }
 
@@ -219,6 +227,10 @@ class Upmind {
     useRouting(this.router.instance, this.router.flows);
   }
 
+  private async initTheming() {
+    useTheming(this.themes);
+  }
+
   private async initI18n() {
     if (!this.i18n?.instance) return;
 
@@ -237,6 +249,7 @@ class Upmind {
     loadLocaleMessages(locale);
     setLocale(locale);
   }
+
   // ---------------------------------------------------------------------------
 
   isReady(): Promise<void> {

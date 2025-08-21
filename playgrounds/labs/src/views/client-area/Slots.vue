@@ -11,7 +11,7 @@
         v-model="searchTerm"
         type="text"
         placeholder="Search templates..."
-        class="w-full rounded border px-3 py-2"
+        class="w-full rounded-sm border px-3 py-2"
       />
     </div>
 
@@ -22,7 +22,7 @@
       <div
         v-for="slot in filteredSlots"
         :key="slot.id"
-        class="rounded bg-white p-4 shadow"
+        class="rounded-sm bg-white p-4"
         @click="redirectToTemplatePage(slot.code)"
       >
         <h2 class="text-xl font-semibold">{{ slot.name }}</h2>

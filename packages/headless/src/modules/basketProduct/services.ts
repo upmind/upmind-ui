@@ -93,6 +93,7 @@ async function fetch(
     promotions: promocodes,
     with: [
       "image",
+      "images",
       "prices",
       "products_attributes",
       "products_options",
@@ -168,6 +169,7 @@ async function fetchSelected(
     limit: productIds.length,
     with: [
       "image",
+      "images",
       "prices",
       "products_attributes",
       "products_options",
@@ -256,6 +258,7 @@ async function fetchRelated(
     order: "order",
     with: [
       "image",
+      "images",
       "prices",
       "products_attributes",
       "products_options",

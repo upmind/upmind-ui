@@ -1,39 +1,51 @@
 <template>
-  <Layout>
+  <Layout :variant="uiCart?.layout">
     <template #navigation>
-      <Link class="flex items-center gap-x-2" @click.prevent="doReject">
-        <Icon icon="arrow-left" size="2xs" />
-        {{ t("navigation.back") }}
-      </Link>
+      <Button
+        class="flex items-center gap-x-2"
+        @click.prevent="doReject"
+        variant="link"
+        icon="arrow-left"
+        :label="t('navigation.back')"
+        size="lg"
+      />
     </template>
 
-    <ContentSection class="mx-auto max-w-2xl">
-      <template #title>
-        <SmartTitle i18n-key="session.login.title" size="2xl" />
-      </template>
-
-      <p class="mt-0">
-        <span class="font-normal"
-          >{{ t("session.login.actions.text") }}&nbsp;</span
+    <template #default>
+      <Section class="mx-auto max-w-2xl gap-9">
+        <Header
+          :badge="{
+            label: t('session.login.badge'),
+            icon: 'lock'
+          }"
+          :title="t('session.login.title')"
         >
+          <template #description>
+            <span class="font-normal"
+              >{{ t("session.login.actions.text") }}&nbsp;</span
+            >
 
-        <Link :to="{ name: ROUTE.SESSION_REGISTER }">
-          {{ t("session.login.actions.action") }}
-        </Link>
-      </p>
+            <Button
+              :to="{ name: ROUTE.SESSION_REGISTER }"
+              variant="link"
+              size="xl"
+              :label="t('session.login.actions.action')"
+            />
+          </template>
+        </Header>
 
-      <Card class="mt-4 pb-3 md:pb-3">
-        <Auth
-          class="rounded-box w-full max-w-5xl items-start"
-          no-tabs
-          no-header
-          model-value="login"
-          @update:model-value="doUpdate"
-          @resolve="doResolve"
-        >
-        </Auth>
-      </Card>
-    </ContentSection>
+        <section>
+          <Auth
+            class="rounded-box w-full max-w-5xl items-start"
+            no-tabs
+            no-header
+            model-value="login"
+            @update:model-value="doUpdate"
+            @resolve="doResolve"
+          />
+        </section>
+      </Section>
+    </template>
   </Layout>
 </template>
 
@@ -42,13 +54,13 @@
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useRoutingEngine, ROUTE } from "@upmind-automation/headless";
+import { useRoutingEngine, useBrand, ROUTE } from "@upmind-automation/headless";
 
 // --- components
-import ContentSection from "../../components/content/ContentSection.vue";
+import { Button, Layout } from "@upmind-automation/upmind-ui";
 import Auth from "./components/Auth.vue";
-import { Card, Button, Icon, Link, Layout } from "@upmind-automation/upmind-ui";
-import SmartTitle from "../../components/content/SmartTitle.vue";
+import Header from "../../components/content/Header.vue";
+import Section from "../../components/content/LayoutSection.vue";
 
 // --- types
 import type { AuthProps } from "./components/types";
@@ -57,6 +69,7 @@ import type { AuthProps } from "./components/types";
 
 const { t } = useI18n();
 const { navigateNext, navigateBack, navigate, isResolved } = useRoutingEngine();
+const { uiCart } = useBrand();
 
 await isResolved(ROUTE.SESSION_LOGIN);
 

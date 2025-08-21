@@ -7,6 +7,7 @@
       :placeholder="t('domain.dac.search')"
       autocomplete="url"
       v-model="queryValue"
+      class="bg-base-background"
     />
   </FormControl>
 
@@ -16,7 +17,6 @@
     class="bg-white"
     to="#vue-app"
     fit="cover"
-    skrim="primary"
     :class="styles.domain.drawer.root"
     :class-header="styles.domain.drawer.header"
     :class-content="styles.domain.drawer.content"
@@ -55,10 +55,11 @@
         v-if="meta.showDialog && meta.hasItems && meta.hasMore"
         :label="t('domain.dac.actions.more')"
         :loading="meta.isLoading"
-        @click="onSearchOffset"
+        @click="() => onSearchOffset(offset)"
         block
         variant="ghost"
         color="base"
+        size="lg"
       />
     </div>
 
@@ -68,6 +69,7 @@
         :label="t('domain.dac.actions.cancel')"
         variant="link"
         color="base"
+        size="lg"
       />
     </template>
 
@@ -81,6 +83,7 @@
         :label="t('domain.dac.actions.continue', selected?.length)"
         prependIcon="plus"
         :color="color"
+        size="lg"
       />
       <!-- </div> -->
     </template>

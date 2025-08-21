@@ -1,7 +1,10 @@
 // --- external
 import type { VariantProps } from "class-variance-authority";
 import type { HTMLAttributes } from "vue";
-import type { InterstitialProps } from "@upmind-automation/upmind-ui";
+import type {
+  InterstitialProps,
+  LayoutProps
+} from "@upmind-automation/upmind-ui";
 
 // --- internal
 import type { titleVariants } from "./content.config";
@@ -39,4 +42,17 @@ export interface I18nText {
 
 export interface InterstitialExtendedProps extends InterstitialProps {
   i18nTitle?: I18nText;
+}
+export interface SectionProps {
+  title?: string;
+  as?: string;
+  class?: HTMLAttributes["class"];
+  uiConfig?: {
+    section: {
+      root: string;
+      header: string;
+      title: string;
+      content: string;
+    };
+  };
 }

@@ -1,12 +1,12 @@
 <template>
   <article
     :class="styles.domain.card.root"
-    class="w-full border-b !py-4 pl-5 last:border-b-0"
+    class="w-full border-b py-4! pl-5 last:border-b-0"
   >
     <header :class="styles.domain.card.header">
       <Skeleton :class="styles.domain.card.icon" class="h-8 w-8 pr-2" />
 
-      <div :class="styles.domain.card.content">
+      <div :class="styles.domain.card.content" class="gap-1">
         <Skeleton :class="styles.domain.card.label" class="h-4 w-16">
           Label
         </Skeleton>

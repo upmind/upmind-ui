@@ -1,8 +1,8 @@
 <template>
   <UpmContentSection class="mx-auto max-w-xl" title="Welcome to Upmind Labs">
-    <h3 class="mt-0">
+    <h1 class="mt-0 text-red-500">
       This is a playground for Upmind components and utilities.
-    </h3>
+    </h1>
 
     <div class="mt-8">
       <div class="space-y-8">

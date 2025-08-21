@@ -1,8 +1,8 @@
 import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
-export const currentVariants = cva("leading-none");
-export const exVariants = cva("text-emphasis-disabled text-xs leading-none");
+export const currentVariants = cva("");
+export const exVariants = cva("text-emphasis-disabled text-sm");
 
 export default {
   pricing: {

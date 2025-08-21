@@ -1,29 +1,26 @@
 <template>
   <template v-if="!props.loading">
-    <div v-auto-animate>
-      <div
-        :class="styles.summary.pricing.root"
+    <DescriptionList :items="summary">
+      <template
         v-for="(item, index) in props.pricing"
         :key="`pricing-${index}`"
       >
-        <span>{{ t("product.total") }}</span>
+        <div :class="styles.summary.pricing.price">
+          <dt :class="styles.summary.pricing.total">
+            {{ t("product.total") }}
+          </dt>
 
-        <span class="flex items-center gap-2">
           <CurrentPrice
-            :class="[
-              {
-                'text-emphasis-disabled': props.loading || props.processing
-              }
-            ]"
+            is="dd"
+            :class="styles.summary.pricing.currentPrice"
             :current-price="item.price.currentPrice"
             :meta="item.meta"
             :cycle="item.cycle"
             data-testid="total-price"
           />
-          <!-- <Spinner v-if="props.loading || props.processing" size="xs" /> -->
-        </span>
-      </div>
-    </div>
+        </div>
+      </template>
+    </DescriptionList>
   </template>
 
   <template v-else>
@@ -36,6 +33,7 @@
 
 <script setup lang="ts">
 // --- external
+import { computed } from "vue";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
@@ -43,13 +41,21 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 import config from "./summary.config";
 
 // --- components
-import { Skeleton, Spinner } from "@upmind-automation/upmind-ui";
+import { Skeleton, DescriptionList } from "@upmind-automation/upmind-ui";
+
+// --- utils
+import { omitBy, map } from "lodash-es";
 
 // --- types
 import type { SummaryPricingProps } from "./types";
 import type { ComputedRef } from "vue";
 import { useI18n } from "vue-i18n";
 import CurrentPrice from "../pricing/CurrentPrice.vue";
+import type { DescriptionItem } from "@upmind-automation/upmind-ui";
+import type {
+  ProductSummaryDetail,
+  ProductSummaryDetailWithPrice
+} from "@upmind-automation/headless";
 
 const { t } = useI18n();
 
@@ -63,6 +69,8 @@ const styles = useStyles(
   summary: {
     pricing: {
       root: string;
+      total: string;
+      price: string;
       regularPrice: string;
       currentPrice: string;
     };
@@ -73,4 +81,15 @@ const styles = useStyles(
     };
   };
 }>;
+
+const summary = computed<DescriptionItem[]>(() => {
+  const details = omitBy(props.details, (detail: ProductSummaryDetail) =>
+    ["term", "category", "provision_field.sld"].includes(detail.name)
+  ) as (ProductSummaryDetail | ProductSummaryDetailWithPrice)[];
+
+  return map(details, detail => ({
+    term: detail.category,
+    description: detail.title || "-"
+  })) as DescriptionItem[];
+});
 </script>

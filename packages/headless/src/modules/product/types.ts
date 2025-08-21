@@ -158,16 +158,18 @@ export type ProductDetails = {
   category: string;
   categories?: string[]; // parent category names
   cycle: number;
+  displayPrice?: TermDetails;
   description?: string;
   excerpt?: string;
   imgUrl?: string;
+  images?: ProductImage[];
   quantifiable: boolean;
   quantity: number;
   step: number;
   min: number;
   max: number; // or infinity
   defaultPaymentPeriod?: number;
-  uiMeta?: Record<string, any>;
+  uiMeta?: UIMeta;
   uiCategoryMeta?: Record<string, any>;
 };
 
@@ -318,10 +320,41 @@ export type PromotionDetails = {
   };
 };
 
+export type ProductImage = {
+  url: string;
+  default: boolean;
+  order: number;
+};
+
 export interface UIMeta {
   ui?: UIConfig;
   uischema?: UISchema;
   related?: Recommendation[];
+  product?: UIProductMeta;
+}
+
+export interface UIProductMeta {
+  variant?: string;
+  image: {
+    hide?: boolean;
+    carousel?: boolean;
+    ratio?: string;
+  };
+  card: {
+    benefits: {
+      hide?: boolean;
+      data?: Benefit[];
+    };
+    description: {
+      hide?: boolean;
+    };
+    breakdown: {
+      hide?: boolean;
+    };
+    terms: {
+      hide?: boolean;
+    };
+  };
 }
 
 export interface UIConfig {
@@ -334,8 +367,25 @@ export interface UISchema {
   billing?: {
     control?: string;
   };
+  primary?: boolean;
+  group?: string;
   group_name?: string;
   icon?: string;
+  config?: {
+    summary?: {
+      append?: string;
+    };
+  };
+  productConfig?: {
+    summary?: {
+      append?: string;
+    };
+  };
+}
+
+export interface Benefit {
+  label: string;
+  icon?: string | any;
 }
 
 export type PriceCalculations = {

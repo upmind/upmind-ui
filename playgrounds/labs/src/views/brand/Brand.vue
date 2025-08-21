@@ -1,6 +1,6 @@
 <template>
   <Layout>
-    <UpmContentSection class="mx-auto max-w-app" title="Terms and Conditions">
+    <UpmContentSection class="max-w-app mx-auto" title="Terms and Conditions">
       <UpmTermsAndConditions />
     </UpmContentSection>
   </Layout>

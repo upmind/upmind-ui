@@ -1,63 +1,76 @@
 <template>
-  <Layout>
+  <Layout :variant="uiCart?.layout">
     <template #navigation>
-      <Link class="flex items-center gap-x-2" @click.prevent="doReject">
-        <Icon icon="arrow-left" size="2xs" />
-        {{ t("navigation.back") }}
-      </Link>
+      <Button
+        class="flex items-center gap-x-2"
+        @click.prevent="doReject"
+        variant="link"
+        icon="arrow-left"
+        :label="t('navigation.back')"
+        size="lg"
+      />
     </template>
 
-    <ContentSection class="mx-auto max-w-2xl">
-      <template #title>
-        <SmartTitle i18n-key="session.register.title" size="2xl" />
-      </template>
-
-      <p class="mt-0">
-        <span class="font-normal"
-          >{{ t("session.register.actions.text") }}&nbsp;</span
+    <template #default>
+      <Section class="mx-auto max-w-2xl gap-9">
+        <Header
+          :badge="{
+            label: t('session.register.badge'),
+            icon: 'lock'
+          }"
+          :title="t('session.register.title')"
         >
-
-        <Link :to="{ name: ROUTE.SESSION_LOGIN }">
-          {{ t("session.register.actions.action") }}
-        </Link>
-      </p>
-
-      <Card class="mt-4 pb-3 md:pb-3">
-        <Auth
-          class="rounded-box w-full max-w-5xl items-start"
-          no-tabs
-          no-header
-          model-value="register"
-          @resolve="doResolve"
-        >
-        </Auth>
-      </Card>
-      <template #footer>
-        <i18n-t
-          class="mt-0"
-          keypath="auth.google_recaptcha.terms"
-          tag="p"
-          scope="global"
-        >
-          <template #[`privacyPolicy`]>
-            <Link
-              class="font-normal text-inherit"
-              href="https://policies.google.com/privacy"
-              target="_blank"
-              >{{ $t("auth.google_recaptcha.privacy_policy") }}</Link
+          <template #description>
+            <span class="font-normal"
+              >{{ t("session.register.actions.text") }}&nbsp;</span
             >
+
+            <Button
+              :to="{ name: ROUTE.SESSION_LOGIN }"
+              variant="link"
+              size="xl"
+              :label="t('session.register.actions.action')"
+            />
           </template>
-          <template #[`termsOfService`]>
-            <Link
-              class="font-normal text-inherit"
-              href="https://policies.google.com/terms"
-              target="_blank"
-              >{{ $t("auth.google_recaptcha.terms_of_service") }}</Link
-            >
-          </template>
-        </i18n-t>
-      </template>
-    </ContentSection>
+        </Header>
+
+        <section>
+          <Auth
+            class="rounded-box w-full max-w-5xl items-start"
+            no-tabs
+            no-header
+            model-value="register"
+            @resolve="doResolve"
+          />
+
+          <i18n-t
+            class="text-emphasis-medium mt-0 text-center text-sm"
+            keypath="auth.google_recaptcha.terms"
+            tag="p"
+            scope="global"
+          >
+            <template #[`privacyPolicy`]>
+              <Button
+                class="has-text-grey-light"
+                href="https://policies.google.com/privacy"
+                target="_blank"
+                variant="link"
+                >{{ $t("auth.google_recaptcha.privacy_policy") }}</Button
+              >
+            </template>
+            <template #[`termsOfService`]>
+              <Button
+                class="has-text-grey-light"
+                href="https://policies.google.com/terms"
+                target="_blank"
+                variant="link"
+                >{{ $t("auth.google_recaptcha.terms_of_service") }}</Button
+              >
+            </template>
+          </i18n-t>
+        </section>
+      </Section>
+    </template>
   </Layout>
 </template>
 
@@ -65,24 +78,27 @@
 // --- external
 import { useI18n } from "vue-i18n";
 import { watch } from "vue";
+
 // --- internal
 import {
   useRoutingEngine,
   useSession,
+  useBrand,
   ROUTE
 } from "@upmind-automation/headless";
 
 // --- components
-import { Card, Button, Icon, Link, Layout } from "@upmind-automation/upmind-ui";
+import { Button, Layout } from "@upmind-automation/upmind-ui";
 import Auth from "./components/Auth.vue";
-import ContentSection from "../../components/content/ContentSection.vue";
-import SmartTitle from "../../components/content/SmartTitle.vue";
+import Header from "../../components/content/Header.vue";
+import Section from "../../components/content/LayoutSection.vue";
 
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
 const { navigateNext, navigateBack, navigate, isResolved } = useRoutingEngine();
 const { meta } = useSession();
+const { uiCart } = useBrand();
 
 await isResolved(ROUTE.SESSION_REGISTER);
 

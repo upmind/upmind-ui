@@ -163,16 +163,16 @@ export default createMachine(
           REFRESH: [
             {
               target: "refreshing",
-              actions: ["refreshContext", "setExternalError"],
+              actions: ["refreshContext"],
               cond: "hasBasketChanged"
             },
             {
               target: "available.error",
-              actions: ["refreshContext", "setExternalError"],
+              actions: ["refreshContext"],
               cond: "hasError"
             },
             {
-              actions: ["refreshContext", "setExternalError"]
+              actions: ["refreshContext"]
             }
           ],
 
@@ -618,7 +618,7 @@ export default createMachine(
         errorExternal: (
           _context: ProductConfigContext,
           { data }: AnyEventObject
-        ) => data,
+        ) => mapToHeadlessError(data)?.data, // NB we only need the exact errors from the api
         error: (_context: ProductConfigContext, { data }: AnyEventObject) =>
           mapToHeadlessError(data)
       }),

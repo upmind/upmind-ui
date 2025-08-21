@@ -1,6 +1,6 @@
 <template>
   <Layout>
-    <ContentSection v-auto-animate class="flex flex-grow items-center">
+    <ContentSection v-auto-animate class="flex grow items-center">
       <Interstitial
         v-bind="props"
         :animatedIcon="animatedIcon"
@@ -113,13 +113,10 @@ const actions = computed((): InterstitialActionProps[] => {
   }
 
   const defaultAction: InterstitialActionProps = {
-    as: "a",
+    is: "a",
     color: "secondary",
     href,
-    prependIcon: {
-      icon: t(`${safeKey.value}.icon`),
-      size: "2xs"
-    },
+    icon: t(`${safeKey.value}.icon`),
     label: translations.value.action
   };
   return isNil(props.actions) ? [defaultAction] : props.actions;

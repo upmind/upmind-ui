@@ -1,6 +1,7 @@
 export * from "./query";
 export * from "./system";
 export * from "./brand";
+export * from "./theming";
 export * from "./session";
 export * from "./basket";
 export * from "./basketProduct";

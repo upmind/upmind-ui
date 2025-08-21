@@ -8,26 +8,20 @@
     :truncate="false"
     color="secondary"
     @click="selected ? onRemove(props.domain) : onUpdate(props.domain)"
-    size="md"
-  >
-    <span :class="styles.domain.card.footer.label">
-      {{ t("domain.card.available.action", selected ? 0 : 1) }}
-    </span>
-    <Icon
-      :class="styles.domain.card.footer.icon"
-      :icon="selected || meta.added ? 'basket-check' : 'basket-add'"
-      size="xs"
-    />
-  </Button>
+    size="lg"
+    :icon="selected || meta.added ? 'basket-check' : 'basket-add'"
+    :label="t('domain.card.available.action', selected ? 0 : 1)"
+  />
 
   <template v-if="!meta?.available && !selected" as="span">
     <Description class="not-italic md:max-w-64">
       {{ t("domain.card.transfer.ownership") }}
       {{ t("domain.card.transfer.transfer") }}
-      <Link
-        class="text-emphasis-medium font-medium text-inherit underline !underline-offset-1"
+      <Button
+        variant="link"
+        class="text-emphasis-medium font-medium text-inherit underline underline-offset-1!"
         @click="onUpdate(props.domain)"
-        >{{ t("domain.card.transfer.action") }}</Link
+        >{{ t("domain.card.transfer.action") }}</Button
       >.
       <template v-if="meta.discounted">
         {{
@@ -60,7 +54,7 @@ import { useI18n } from "vue-i18n";
 import config from "../domain.config";
 
 // components
-import { Button, Icon, Link } from "@upmind-automation/upmind-ui";
+import { Button, Icon } from "@upmind-automation/upmind-ui";
 import Description from "../../../components/content/Description.vue";
 
 // --- types

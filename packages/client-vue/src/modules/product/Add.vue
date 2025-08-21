@@ -1,75 +1,70 @@
 <template>
-  <Layout>
-    <template #navigation>
-      <Breadcrumb :items="items" />
+  <Layout :variant="uiCart?.layout" minimal>
+    <template #controls>
+      <Breadcrumb :items="items" size="lg" />
     </template>
 
     <template #actions>
       <Share class="hidden md:flex" />
     </template>
 
-    <ContentSection v-auto-animate class="flex flex-grow items-center">
-      <form v-auto-animate @submit.prevent @reset.prevent>
-        <div
-          class="relative mx-auto flex w-full flex-wrap items-start justify-between gap-8"
-        >
-          <section class="flex min-w-0 flex-1 flex-col gap-16">
-            <ContentSection>
-              <template #title>
-                <SmartTitle i18n-key="product.title" size="2xl" />
-              </template>
+    <template #header>
+      <Header v-bind="product" :product-image="productImage()" />
+    </template>
 
-              <!-- TODO: add skeleton loader when meta.isLoading -->
-              <Card class="!p-0">
-                <ProductConfig
-                  v-if="pendingProduct && !meta?.isLoading"
-                  :item="pendingProduct"
-                  :model-value="pendingProduct?.id"
-                  :no-footer="true"
-                  as="div"
-                  @resolve="doResolve"
-                  @reject="doReject"
-                />
+    <template #default>
+      <Section :title="t('product.configure')">
+        <form @submit.prevent @reset.prevent>
+          <ProductConfig
+            v-if="pendingProduct && !meta?.isLoading"
+            :item="pendingProduct"
+            :model-value="pendingProduct?.id"
+            :no-footer="true"
+            as="div"
+            @resolve="doResolve"
+            @reject="doReject"
+          />
+          <ConfigSkeleton v-else />
+        </form>
+      </Section>
+    </template>
 
-                <ConfigSkeleton v-else />
-              </Card>
-            </ContentSection>
-          </section>
+    <template #aside>
+      <Section
+        :title="t('product.summary.title')"
+        :class="styles.product.summary"
+      >
+        <Summary
+          v-if="pendingProduct"
+          :item="pendingProduct"
+          @resolve="doResolve"
+        />
+      </Section>
+    </template>
 
-          <header
-            class="flex w-full flex-col items-start gap-4 sm:sticky sm:top-1 xl:max-w-md"
-          >
-            <ContentSection :title="t('product.summary.title')">
-              <Summary
-                v-if="pendingProduct"
-                :item="pendingProduct"
-                @resolve="doResolve"
-              />
-            </ContentSection>
-          </header>
-        </div>
+    <template #aside-footer>
+      <SummaryFooter
+        v-if="pendingProduct"
+        :item="pendingProduct"
+        @resolve="doResolve"
+      />
+    </template>
 
-        <!-- small print -->
-        <footer
-          class="text-emphasis-medium mt-6 flex flex-col space-y-2 px-6 text-xs md:space-y-0 md:px-0"
-        >
-          <div
-            v-for="(term, index) in tm('product.smallprint')"
-            :key="index"
-            class="leading-snug"
-          >
-            {{ term }}
-          </div>
-        </footer>
-      </form>
-    </ContentSection>
+    <template #footer>
+      <p
+        v-for="(term, index) in tm('product.smallprint')"
+        :key="index"
+        class="leading-snug"
+      >
+        {{ term }}
+      </p>
+    </template>
   </Layout>
 </template>
 
 <script lang="ts" setup>
 // --- external
 import { watch, computed } from "vue";
-import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 import { forEach } from "lodash-es";
 
@@ -84,18 +79,21 @@ import {
   useProductCategories,
   ROUTE
 } from "@upmind-automation/headless";
+import config from "./product.config";
 
 // --- components
-import { Card, Layout, Breadcrumb } from "@upmind-automation/upmind-ui";
-import ContentSection from "../../components/content/ContentSection.vue";
+import { Layout, Breadcrumb, useStyles } from "@upmind-automation/upmind-ui";
 import ProductConfig from "./components/config/Config.vue";
 import Summary from "./components/summary/Summary.vue";
-import SmartTitle from "../../components/content/SmartTitle.vue";
+import SummaryFooter from "./components/summary/SummaryFooter.vue";
 import ConfigSkeleton from "./components/ConfigSkeleton.vue";
 import Share from "../../components/navigation/Share.vue";
+import Header from "./components/header/Header.vue";
+import Section from "../../components/content/LayoutSection.vue";
 
 // --- types
 import type { ProductCategory } from "@upmind-automation/headless";
+import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 const { t, tm } = useI18n();
@@ -116,7 +114,19 @@ const {
   service: pendingProduct
 } = await configure(productId);
 
-const { product } = useProductConfig(pendingProduct);
+const { product, productImage } = useProductConfig(pendingProduct);
+
+const configMeta = computed(() => {
+  return {
+    layout: uiCart.value?.layout
+  };
+});
+
+const styles = useStyles("product", configMeta, config) as ComputedRef<{
+  product: {
+    summary: string;
+  };
+}>;
 
 const items = computed(() => {
   // Storefront

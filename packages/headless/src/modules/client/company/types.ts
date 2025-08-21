@@ -48,7 +48,10 @@ export interface Company {
     percent: ICompany["vat_percent"];
     number: ICompany["vat_number"];
     reason: ICompany["vat_validation_failed_reason"];
-    checked: ICompany["vat_validation_checked_at"];
+    checked: {
+      date: ICompany["vat_validation_checked_at"];
+      relative: string;
+    };
     with: ICompany["vat_validated_with"];
   };
   // --- meta info

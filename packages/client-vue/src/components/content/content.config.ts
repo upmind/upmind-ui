@@ -26,20 +26,32 @@ export const titleVariants = cva("m-0", {
 
 export default {
   page: cva(
-    "prose-headings:font-display bg-background text-foreground flex w-full max-w-none flex-grow flex-wrap transition-colors"
+    "prose-headings:font-display bg-background text-foreground flex w-full max-w-none grow flex-wrap transition-colors"
   ),
-  section: {
-    root: cva("w-full"),
-    header: cva(
-      "mb-4 ml-[1px] flex flex-wrap items-end justify-between gap-4 md:mb-4 md:mt-4"
-    ),
-    title: cva("text-foreground m-0 !text-3xl"),
-    tagline: cva("text-base-700 text-sm"),
-    content: cva("w-full"),
-    footer: cva(
-      "text-base-700 mt-6 flex flex-col space-y-2 text-xs md:space-y-0"
-    )
-  },
   title: titleVariants,
-  description: cva("text-emphasis-medium my-0 text-sm italic leading-5")
+  description: cva("text-emphasis-medium my-0 text-sm"),
+  header: {
+    title: cva("text-5xl"),
+    description: cva("text-emphasis-medium text-lg")
+  },
+  section: {
+    header: cva("flex justify-between", {
+      variants: {
+        variant: {
+          full: "border-b pb-3",
+          enclosed: ""
+        }
+      }
+    }),
+    root: cva("flex w-full flex-col", {
+      variants: {
+        variant: {
+          full: "gap-9",
+          enclosed: "gap-3"
+        }
+      }
+    }),
+    content: cva("flex w-full flex-col gap-3"),
+    title: cva("text-emphasis-medium w-full text-xl")
+  }
 };

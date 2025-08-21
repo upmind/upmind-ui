@@ -3,7 +3,6 @@
     v-if="pendingProduct"
     to="#vue-app"
     fit="cover"
-    skrim="primary"
     open
     :title="t('recommendations.configuration.title')"
     :description="t('recommendations.configuration.description')"
@@ -25,7 +24,7 @@
         @click="doReject"
         :label="t('recommendations.configuration.actions.reject')"
         variant="link"
-        color="primary"
+        size="lg"
       />
     </template>
 
@@ -37,6 +36,7 @@
         :label="t('recommendations.configuration.actions.resolve')"
         prependIcon="plus-circle"
         color="primary"
+        size="lg"
       />
     </template>
   </Drawer>

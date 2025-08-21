@@ -30,6 +30,7 @@
           v-bind="action"
           @click.stop="doAction"
           :loading="processing"
+          size="lg"
         />
       </footer>
     </section>

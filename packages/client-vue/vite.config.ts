@@ -14,7 +14,10 @@ export default defineConfig({
   ],
   build: {
     lib: {
-      entry: resolve(__dirname, "src/index.ts"),
+      entry: {
+        main: resolve(__dirname, "src/index.ts"),
+        styles: resolve(__dirname, "src/main.css")
+      },
       name: "@upmind-automation/client-vue",
       fileName: "index",
       formats: ["es"]
@@ -42,7 +45,10 @@ export default defineConfig({
         __dirname,
         "../headless/src/index.ts"
       ),
-
+      "@upmind-automation/upmind-ui/styles": resolve(
+        __dirname,
+        "../ui/src/main.css"
+      ),
       "@upmind-automation/upmind-ui": resolve(__dirname, "../ui/src/index.ts")
     }
   }
