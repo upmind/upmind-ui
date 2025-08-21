@@ -17,7 +17,7 @@
       </template>
     </SelectTrigger>
 
-    <SelectContent :class="styles.select.content">
+    <SelectContent :class="styles.select.content" :align="align">
       <SelectGroup>
         <SelectItem
           v-for="item in items"
