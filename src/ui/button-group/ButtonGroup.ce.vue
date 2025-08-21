@@ -28,8 +28,11 @@
         :disabled="disabled || item.props.disabled"
         :ring="false"
         variant="ghost"
-        :uiConfig="{
-          dropdownMenu: [styles.buttonGroup.dropdown]
+        :ui-config="{
+          dropdownMenu: {
+            trigger: [styles.buttonGroup.dropdown.trigger],
+            content: [styles.buttonGroup.dropdown.content]
+          }
         }"
       />
     </template>
@@ -81,7 +84,10 @@ const styles = useStyles(
   buttonGroup: {
     root: string;
     button: string;
-    dropdown: string;
+    dropdown: {
+      trigger: string;
+      content: string;
+    };
   };
 }>;
 </script>

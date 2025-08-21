@@ -92,7 +92,16 @@ const props = withDefaults(defineProps<DropdownMenuProps>(), {
   align: "end",
   ring: true,
   // --- styles
-  uiConfig: () => ({ dropdownMenu: [] }),
+  uiConfig: () => ({
+    dropdownMenu: {
+      trigger: [],
+      content: [],
+      item: [],
+      label: [],
+      group: [],
+      icon: []
+    }
+  }),
   class: "",
   popoverClass: "",
   itemClass: ""
