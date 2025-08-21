@@ -45,6 +45,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
           props.class
         )
       "
+      data-testid="popover-content"
     >
       <slot />
     </PopoverContent>
