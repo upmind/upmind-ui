@@ -246,6 +246,7 @@ const styles = useStyles(
     content: string;
     item: string;
     input: string;
+    label: string;
   };
 }>;
 

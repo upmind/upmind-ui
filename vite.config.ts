@@ -19,7 +19,6 @@ export default defineConfig({
     lib: {
       entry: {
         main: resolve(__dirname, "src/index.ts"),
-        styles: resolve(__dirname, "src/main.css")
       },
       name: '@upmind-automation/upmind-ui',
       fileName: 'index',
