@@ -5,6 +5,7 @@ import { createMachine, assign, spawn, InterpreterStatus } from "xstate";
 import messageMachine from "./message.machine";
 
 // --- utils
+import { stopService } from "../../utils";
 import { generateHash, useMessageParser } from "./utils";
 import { find, isEmpty, remove, set, some } from "lodash-es";
 
@@ -92,8 +93,7 @@ export default createMachine(
 
           // if it exists, stop the referenced machine
           // and remove it from our list of an actor
-          if (actor?.getSnapshot().status == InterpreterStatus.Running)
-            actor?.stop && actor.stop();
+          if (actor) stopService(actor);
 
           remove(messages, ["id", id]);
           return messages;

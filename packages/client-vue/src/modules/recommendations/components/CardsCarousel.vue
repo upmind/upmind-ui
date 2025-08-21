@@ -62,7 +62,7 @@ import {
 } from "../../product/components/card";
 
 //--- utils
-import { forEach, some } from "lodash-es";
+import { forEach, some, omit } from "lodash-es";
 
 // --- types
 import type { Product } from "@upmind-automation/headless";

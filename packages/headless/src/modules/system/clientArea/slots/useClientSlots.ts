@@ -5,23 +5,23 @@ import { computed } from "vue";
 import service from "./services";
 
 // --- utils
-import { filter, isEmpty, includes } from "lodash-es";
+import { filter, isEmpty, includes, isArray } from "lodash-es";
 
 // --- types
 import { useCollection } from "../../../../utils";
 import type { ClientTemplateSlot } from "./types";
 import { type QueryProps, invalidateQueryByKey } from "../../../query";
 
-export const useClientSlots = (initial?: QueryProps) => {
+export const useClientSlots = () => {
   // --- state
-  const query = service.load(initial);
+  const query = service.load();
 
   const meta = computed(() => ({
-    isLoading: query?.isLoading.value || !query.isFetched.value,
-    hasError: !isEmpty(query.error.value),
+    isLoading: query?.isLoading.value || !query?.isFetched.value,
+    hasError: !isEmpty(query?.error.value),
     isEmpty: isEmpty(query?.data?.value),
-    isAvailable: true,
-    ...query?.meta.value
+    isAvailable: true
+    // ...query?.meta.value
   }));
 
   async function isReady(): Promise<boolean> {
@@ -33,20 +33,8 @@ export const useClientSlots = (initial?: QueryProps) => {
   // --- methods
 
   const { findOne, getOne } = useCollection<ClientTemplateSlot>(
-    query.data.value ?? []
+    isArray(query?.data.value) ? query.data.value : []
   );
-
-  function filterAll(param?: ClientTemplateSlot["id"]) {
-    if (!param) return query.data.value ?? [];
-
-    return filter(
-      query.data.value ?? [],
-      item =>
-        includes(item.title.toLowerCase(), param.toLowerCase()) ||
-        includes(item?.code?.toLowerCase(), param.toLowerCase()) ||
-        includes(item?.description?.toLowerCase(), param.toLowerCase())
-    );
-  }
 
   return {
     // --- state
@@ -73,13 +61,13 @@ export const useClientSlots = (initial?: QueryProps) => {
      * The reactive data property containing the list of client area templates.
      * This is populated by the query and can be used in templates.
      */
-    data: query.data,
+    data: query?.data,
 
     /**
      * The current error state of the query.
      * This will be populated if the query fails to fetch data.
      */
-    error: query.error,
+    error: query?.error,
 
     // --- methods
 
@@ -98,36 +86,11 @@ export const useClientSlots = (initial?: QueryProps) => {
     findOne,
 
     /**
-     * Filters the client area templates by name, code or description.
-     * @param param The string to filter the client area templates by.
-     * @return {ClientTemplateSlot[]} An array of client area templates that match the filter.
-     */
-    filter: filterAll,
-
-    /**
      * Refresh the query to get the latest data.
      * This will refetch the data from the server and update the query state.
      * @returns {void}
      */
-    refresh: query.refetch,
-
-    /**
-     * Go to the next page of items.
-     * Increments the page number by 1 if pagination is enabled and the current offset is less than the total number of items.
-     * This will only work if the current offset is less than the total number of items.
-     * @param value The new pagination parameters to set.
-     * @return {void}
-     */
-    nextPage: query.fetchNextPage,
-
-    /**
-     * Go to the previous page of items.
-     * Decrements the page number by 1 if pagination is enabled and the current offset is greater than or equal to the limit.
-     * This will only work if the current offset is greater than or equal to the limit.
-     * @param value The new pagination parameters to set.
-     * @return {void}
-     */
-    prevPage: query.fetchPreviousPage,
+    refresh: () => query?.refetch(),
 
     /**
      * Invalidate the query cache for the client area templates.

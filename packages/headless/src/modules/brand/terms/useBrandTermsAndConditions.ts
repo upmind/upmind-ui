@@ -20,10 +20,10 @@ export const useTermsAndConditions = () => {
   const query = service.load();
 
   const meta = computed(() => ({
-    isLoading: query?.isLoading.value || !query.isFetched.value,
-    hasError: !isEmpty(query.error.value),
+    isLoading: query?.isLoading.value || !query?.isFetched.value,
+    hasError: !isEmpty(query?.error.value),
     isEmpty:
-      isEmpty(query.data.value?.content) && isEmpty(query.data.value?.url),
+      isEmpty(query?.data.value?.content) && isEmpty(query?.data.value?.url),
     isAvailable: true,
     ...query?.data?.value?.meta // add any generated meta info here
   }));
@@ -67,20 +67,20 @@ export const useTermsAndConditions = () => {
      * The reactive data property containing the list of client items.
      * This is populated by the query and updates automatically when the query state changes.
      */
-    data: query.data,
+    data: query?.data,
 
     /**
      * The current error state of the query.
      * This will be populated if the query fails to fetch data.
      */
-    error: query.error,
+    error: query?.error,
 
     /**
      * Refresh the query to get the latest data.
      * This will refetch the data from the server and update the query state.
      * @returns {void}
      */
-    refresh: query.refetch
+    refresh: query?.refetch
   };
 };
 

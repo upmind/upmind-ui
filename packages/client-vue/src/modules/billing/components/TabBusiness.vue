@@ -80,7 +80,7 @@ import { find, set } from "lodash-es";
 
 // --- types
 import { UnifiedType } from "@upmind-automation/headless";
-import type { BillingModel, Phone } from "@upmind-automation/headless";
+import type { BillingModel, Company, Phone } from "@upmind-automation/headless";
 import CompanyItem from "./CompanyItem.vue";
 import PhoneItem from "./PhoneItem.vue";
 
@@ -139,7 +139,7 @@ const selectedCompany = computed({
   },
   set(val?: string) {
     modelValue.value ??= {};
-    const found = find(companies.value, { id: val });
+    const found = find(companies.value, ["id", val]) as Company | undefined;
     set(modelValue.value, "companyId", found?.id);
     set(modelValue.value, "addressId", found?.addressId);
   }
@@ -151,7 +151,7 @@ const selectedPhone = computed({
   },
   set(val?: string) {
     modelValue.value ??= {};
-    const found = find(phones.value, { id: val }) as Phone | undefined;
+    const found = find(phones.value, ["id", val]) as Phone | undefined;
     set(modelValue.value, "phoneId", found?.id ?? undefined);
   }
 });

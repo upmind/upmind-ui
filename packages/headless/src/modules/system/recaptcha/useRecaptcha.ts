@@ -179,7 +179,7 @@ export const useRecaptcha = () => {
     /**
      * Stops the recaptcha service.
      */
-    stop: () => stopService(service as InterpreterFrom<any>)
+    stop: () => stopService(service)
   };
 };
 

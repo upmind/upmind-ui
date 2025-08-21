@@ -14,7 +14,7 @@ import {
 } from "../../../utils";
 import { invalidateQueryByKey } from "../../query";
 import { mapEmail, mapEmails, mapIEmail } from "./mappers";
-import { get, isString, isEmpty, omitBy } from "lodash-es";
+import { get, isString, isEmpty, omitBy, isArray } from "lodash-es";
 
 // --- types
 import type { IEmail } from "@upmind-automation/types";
@@ -103,7 +103,9 @@ async function update(id: Email["id"], data: EmailModel) {
 async function ensure(model: EmailModel): Promise<Email> {
   const { data, promise } = loadList();
   await promise.value.finally(); // wait for the query to resolve
-  const { findOne } = useCollection<Email>(data.value ?? []);
+  const { findOne } = useCollection<Email>(
+    isArray(data.value) ? data.value : []
+  );
 
   // foe emails we map agains id or the actual email address
   const mapping = omitBy(model, isEmpty);

@@ -17,16 +17,15 @@ import type { IClientTemplateSlot } from "@upmind-automation/types";
 
 const queryKey: QueryKey = ["clientTemplates", "slots"];
 
-function load(params?: Partial<QueryParams>) {
-  const { list, useUrl } = useQuery();
+function load() {
+  const { query, useUrl } = useQuery();
 
-  return list<IClientTemplateSlot[], ClientTemplateSlot[]>({
-    ...(params as any),
+  return query<IClientTemplateSlot[], ClientTemplateSlot[]>({
     queryKey,
     url: useUrl("templates/client_area/slots", {
+      limit: 0,
       with: ["category"].join(",")
     }),
-    limit: 0,
     withAccessToken: true,
     // --- options
     select: data => map(data ?? [], parseClientSlot),

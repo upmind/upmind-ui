@@ -23,13 +23,13 @@ export const useClientTemplate = (params: {
   const query = service.load(params);
 
   const meta = computed(() => ({
-    isLoading: query?.isLoading.value || !query.isFetched.value,
-    hasError: !isEmpty(query.error.value),
+    isLoading: query?.isLoading.value || !query?.isFetched.value,
+    hasError: !isEmpty(query?.error.value),
     isEmpty: isEmpty(query?.data?.value),
     isAvailable: true,
-    isIframe: query.data.value?.type
+    isIframe: query?.data.value?.type
       ? [ClientAreaTemplateTypes.CLIENT_AREA_IFRAME].includes(
-          query.data.value?.type
+          query?.data.value?.type
         )
       : false
   }));
@@ -65,13 +65,13 @@ export const useClientTemplate = (params: {
      * The reactive data property containing the list of client area templates.
      * This is populated by the query and can be used in templates.
      */
-    data: query.data,
+    data: query?.data,
 
     /**
      * The current error state of the query.
      * This will be populated if the query fails to fetch data.
      */
-    error: query.error,
+    error: query?.error,
 
     // --- methods
 
@@ -80,7 +80,7 @@ export const useClientTemplate = (params: {
      * This will refetch the data from the server and update the query state.
      * @returns {void}
      */
-    refresh: query.refetch,
+    refresh: () => query?.refetch(),
 
     /**
      * Invalidate the query cache for the client area templates.
