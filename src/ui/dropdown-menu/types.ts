@@ -34,7 +34,7 @@ export interface DropdownMenuProps
   label?: string;
   sublabel?: string;
   tag?: string;
-  avatar?: IconProps["icon"];
+  avatar?: Partial<AvatarProps>;
   icon?: IconProps["icon"];
   // --- state
   items: DropdownMenuItemProps[];
@@ -46,7 +46,7 @@ export interface DropdownMenuProps
   width?: ContentVariantProps["width"];
   ring?: ButtonProps["ring"];
   // --- styles
-  uiConfig?: { dropdownMenu: any };
+  uiConfig?: { dropdownMenu: CxOptions };
   class?: HTMLAttributes["class"];
   popoverClass?: HTMLAttributes["class"];
   itemClass?: HTMLAttributes["class"];

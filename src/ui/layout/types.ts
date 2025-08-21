@@ -1,4 +1,4 @@
-import type { HTMLAttributes } from "vue";
+import type { CxOptions } from "class-variance-authority";
 
 export interface LayoutProps {
   variant?: "default" | "enclosed" | "full";
@@ -7,7 +7,7 @@ export interface LayoutProps {
   sticky?: boolean;
 }
 export interface VariantProps extends LayoutProps {
-  uiConfig?: Record<string, any>;
+  uiConfig?: { layout: CxOptions };
 }
 export interface SectionProps {
   title?: string;

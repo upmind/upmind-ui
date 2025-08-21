@@ -29,7 +29,7 @@
         :ring="false"
         variant="ghost"
         :uiConfig="{
-          dropdownMenu: styles.buttonGroup.dropdown
+          dropdownMenu: [styles.buttonGroup.dropdown]
         }"
       />
     </template>

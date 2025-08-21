@@ -351,7 +351,6 @@ export const rootVariants = cva(
       variant: "flat",
       color: "base",
       size: "md",
-      isFocusable: true,
       isBlock: false,
       isLoading: false,
       isPill: false

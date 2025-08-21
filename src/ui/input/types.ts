@@ -7,6 +7,9 @@ import type { Icon } from "../icon/types";
 import type { containerVariants } from "./input.config";
 export type ContainerVariantProps = VariantProps<typeof containerVariants>;
 
+// --- types
+import type { AvatarProps } from "../avatar";
+
 export interface InputProps {
   modelValue?: string | number;
   defaultValue?: string | number;
@@ -16,9 +19,9 @@ export interface InputProps {
   type?: InputTypeHTMLAttribute;
   placeholder?: string;
   icon?: string | Icon;
-  avatar?: string | Icon;
+  avatar?: Partial<AvatarProps>;
   iconAppend?: string | Icon;
-  avatarAppend?: string | Icon;
+  avatarAppend?: Partial<AvatarProps>;
   // ---
   autocomplete?: string;
   autoFocus?: boolean;

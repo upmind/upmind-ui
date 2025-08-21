@@ -10,6 +10,10 @@ import type {
 
 // --- internal
 import type { rootVariants } from "./button.config";
+
+// --- types
+import type { AvatarProps } from "../avatar";
+
 type ButtonVariantProps = VariantProps<typeof rootVariants>;
 
 export interface ButtonProps {
@@ -17,9 +21,9 @@ export interface ButtonProps {
   is?: "button" | "router-link" | "a" | string | Component;
   type?: "button" | "submit" | "reset";
   icon?: string | Icon;
-  avatar?: string | Icon;
+  avatar?: Partial<AvatarProps>;
   iconAppend?: string | Icon;
-  avatarAppend?: string | Icon;
+  avatarAppend?: Partial<AvatarProps>;
   // --- link support
   to?: string | RouteLocationAsRelativeGeneric | RouteLocationAsPathGeneric;
   href?: string;
