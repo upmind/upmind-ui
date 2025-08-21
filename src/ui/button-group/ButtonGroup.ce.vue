@@ -4,7 +4,10 @@
     role="group"
     :aria-disabled="disabled"
   >
-    <template v-for="(item, index) in items" :key="index">
+    <template
+      v-for="(item, index) in items"
+      :key="'button-group-item-' + index"
+    >
       <Button
         v-if="item.type === 'button'"
         :class="styles.buttonGroup.button"
