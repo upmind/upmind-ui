@@ -1,11 +1,10 @@
 // --- external
 import type { CxOptions } from "class-variance-authority";
-import type { VariantProps } from "class-variance-authority";
 import type { HTMLAttributes } from "vue";
 
 // --- internal
 import type { ButtonProps } from "../button/types";
-import type { DropdownMenuProps } from "../dropdown-menu/types";
+import type { SelectProps } from "../select/types";
 
 export type ButtonGroupItem = ButtonGroupButtonItem | ButtonGroupDropdownItem;
 export interface ButtonGroupProps {
@@ -20,9 +19,9 @@ export interface ButtonGroupProps {
 
 export namespace ButtonGroup {
   export const Button = "button" as const;
-  export const Dropdown = "dropdown" as const;
+  export const Select = "select" as const;
 
-  export type Type = typeof Button | typeof Dropdown;
+  export type Type = typeof Button | typeof Select;
 }
 
 export interface ButtonGroupItemBase {
@@ -37,6 +36,7 @@ export interface ButtonGroupButtonItem extends ButtonGroupItemBase {
 }
 
 export interface ButtonGroupDropdownItem extends ButtonGroupItemBase {
-  type: typeof ButtonGroup.Dropdown;
-  props: Omit<DropdownMenuProps, "variant" | "size">;
+  type: typeof ButtonGroup.Select;
+  props: Omit<SelectProps, "variant" | "size">;
+  handler?: (value: any) => void;
 }
