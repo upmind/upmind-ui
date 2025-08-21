@@ -35,7 +35,7 @@
           :key="key"
           :color="color"
           v-bind="action"
-          @click="doAction(action, $event as MouseEvent)"
+          @click="doAction(action, $event)"
           pill
         />
       </slot>
@@ -236,7 +236,7 @@ function onChange({ data, errors: newErrors }: JsonFormsChangeEvent) {
   }
 }
 
-function doAction(item: FormActionProps, $event: HTMLElementEventMap["click"]) {
+function doAction(item: FormActionProps, $event: Event) {
   touched.value = true;
   $event.preventDefault(); // prevent default form actions as we are handling it ourselves
 

@@ -12,9 +12,8 @@ import type { IconProps } from "../icon";
 import type { AvatarProps } from "../avatar";
 import type { ButtonProps } from "../button";
 
-import type { contentVariants, itemVariants } from "./dropdown-menu.config";
+import type { contentVariants } from "./dropdown-menu.config";
 type ContentVariantProps = VariantProps<typeof contentVariants>;
-type ItemVariantProps = VariantProps<typeof itemVariants>;
 
 export interface DropdownMenuItemProps {
   label: string;
@@ -41,7 +40,7 @@ export interface DropdownMenuProps
   items: DropdownMenuItemProps[];
   loading?: boolean;
   // --- variants
-  color?: ItemVariantProps["color"] | string;
+  color?: ButtonProps["color"] | string;
   variant?: ButtonProps["variant"];
   size?: ButtonProps["size"];
   width?: ContentVariantProps["width"] | string;
