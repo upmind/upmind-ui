@@ -46,7 +46,16 @@ export interface DropdownMenuProps
   width?: ContentVariantProps["width"];
   ring?: ButtonProps["ring"];
   // --- styles
-  uiConfig?: { dropdownMenu: CxOptions };
+  uiConfig?: {
+    dropdownMenu: {
+      trigger?: CxOptions;
+      content?: CxOptions;
+      item?: CxOptions;
+      label?: CxOptions;
+      group?: CxOptions;
+      icon?: CxOptions;
+    };
+  };
   class?: HTMLAttributes["class"];
   popoverClass?: HTMLAttributes["class"];
   itemClass?: HTMLAttributes["class"];
