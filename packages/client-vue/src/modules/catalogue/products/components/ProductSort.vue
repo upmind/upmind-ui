@@ -1,11 +1,5 @@
 <template>
-  <ButtonGroup
-    :items="groupItems"
-    variant="outline"
-    color="base"
-    size="lg"
-    :class="styles.products.filters.root"
-  />
+  <ButtonGroup :items="groupItems" variant="outline" size="lg" />
 </template>
 
 <script setup lang="ts">
@@ -18,13 +12,11 @@ import {
   ProductSortableProperties,
   RequestSortDirection
 } from "@upmind-automation/headless";
-import config from "../../catalogue.config";
 
 // --- components
 import {
   ButtonGroup,
   ButtonGroupTypes,
-  useStyles,
   type ButtonGroupItem,
   type ButtonProps,
   type DropdownMenuProps
@@ -36,9 +28,10 @@ import { find, isEmpty } from "lodash-es";
 // --- types
 import type { DropdownMenuItemProps } from "@upmind-automation/upmind-ui";
 import type { ProductSortProps } from "../types";
-import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
+
+const { t } = useI18n();
 
 const property = defineModel<ProductSortProps["property"]>("property", {
   default: ProductSortableProperties.DEFAULT
@@ -47,20 +40,7 @@ const property = defineModel<ProductSortProps["property"]>("property", {
 const direction = defineModel<ProductSortProps["direction"]>("direction", {
   default: RequestSortDirection.ASC
 });
-// -----------------------------------------------------------------------------
 
-const { t } = useI18n();
-
-const currentSort = computed(() => {
-  return find(items.value, { value: property.value });
-});
-
-function toggleDirection() {
-  direction.value =
-    direction.value == RequestSortDirection.ASC
-      ? RequestSortDirection.DESC
-      : RequestSortDirection.ASC;
-}
 const items = computed((): DropdownMenuItemProps[] => [
   {
     label: t("product.sort.default"),
@@ -85,19 +65,6 @@ const items = computed((): DropdownMenuItemProps[] => [
   }
 ]);
 
-const styles = useStyles(
-  ["products", "products.filters"],
-  {},
-  config
-) as ComputedRef<{
-  products: {
-    filters: {
-      root: string;
-      trigger: string;
-    };
-  };
-}>;
-
 const groupItems = computed((): ButtonGroupItem[] => [
   {
     type: ButtonGroupTypes.Button,
@@ -116,4 +83,15 @@ const groupItems = computed((): ButtonGroupItem[] => [
     } satisfies DropdownMenuProps
   }
 ]);
+
+const currentSort = computed(() => {
+  return find(items.value, { value: property.value });
+});
+
+function toggleDirection() {
+  direction.value =
+    direction.value == RequestSortDirection.ASC
+      ? RequestSortDirection.DESC
+      : RequestSortDirection.ASC;
+}
 </script>
