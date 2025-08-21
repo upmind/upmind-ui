@@ -23,9 +23,17 @@ export interface SelectProps
     const?: string;
   } & SelectItemProps)[];
   // --- variants;
+  variant?: RootVariants["variant"];
   width?: RootVariants["width"];
   placeholder?: string;
+  ring?: boolean;
   // --- styles
-  uiConfig?: { select: CxOptions };
+  uiConfig?: {
+    select: {
+      root: CxOptions;
+      value: CxOptions;
+      item: CxOptions;
+    };
+  };
   class?: HTMLAttributes["class"];
 }

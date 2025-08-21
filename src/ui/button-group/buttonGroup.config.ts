@@ -10,7 +10,7 @@ const buttonGroupVariants = cva("p-0", {
   }
 });
 
-const buttonVariants = cva("rounded-none", {
+const buttonVariants = cva("ring-0 outline-none", {
   variants: {
     variant: {
       outline: "focus:opacity-50"
@@ -21,10 +21,6 @@ const buttonVariants = cva("rounded-none", {
 export default {
   buttonGroup: {
     root: (meta: any) => cx(rootVariants(meta), buttonGroupVariants(meta)),
-    button: buttonVariants,
-    dropdown: {
-      trigger: buttonVariants,
-      content: cva("rounded")
-    }
+    button: buttonVariants
   }
 };

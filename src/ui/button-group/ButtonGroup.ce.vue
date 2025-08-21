@@ -8,33 +8,35 @@
       v-for="(item, index) in items"
       :key="'button-group-item-' + index"
     >
-      <Button
-        v-if="item.type === ButtonGroup.Button"
-        :class="styles.buttonGroup.button"
-        v-bind="item.props"
-        :color="color"
-        :size="size"
-        :disabled="disabled || item.props.disabled"
-        variant="ghost"
-        :ring="false"
-        @click="item.handler?.($event)"
-      />
+      <!-- TODO: Apply border-none to the individual components, then use the span to apply a divider -->
+      <span>
+        <Button
+          v-if="item.type === ButtonGroup.Button"
+          :class="styles.buttonGroup.button"
+          v-bind="item.props"
+          :color="color"
+          size="lg"
+          :disabled="disabled || item.props.disabled"
+          variant="ghost"
+          :ring="false"
+          @click="item.handler?.($event)"
+        />
 
-      <DropdownMenu
-        v-else-if="item.type === ButtonGroup.Dropdown"
-        v-bind="item.props"
-        :color="color"
-        :size="size"
-        :disabled="disabled || item.props.disabled"
-        :ring="false"
-        variant="ghost"
-        :ui-config="{
-          dropdownMenu: {
-            trigger: [styles.buttonGroup.dropdown.trigger],
-            content: [styles.buttonGroup.dropdown.content]
-          }
-        }"
-      />
+        <Select
+          v-else-if="item.type === ButtonGroup.Select"
+          v-bind="item.props"
+          :ring="false"
+          variant="ghost"
+          :ui-config="{
+            select: {
+              root: [styles.buttonGroup.button],
+              value: [],
+              item: []
+            }
+          }"
+          @update:modelValue="item.handler?.($event)"
+        />
+      </span>
     </template>
   </span>
 </template>
@@ -49,7 +51,7 @@ import config from "./buttonGroup.config";
 
 // --- components
 import { Button } from "../button";
-import { DropdownMenu } from "../dropdown-menu";
+import { Select } from "../select";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -58,7 +60,6 @@ import { ButtonGroup } from "./types";
 
 const props = withDefaults(defineProps<ButtonGroupProps>(), {
   variant: "outline",
-  size: "md",
   orientation: "horizontal",
   // ---
   items: () => [],
@@ -68,7 +69,6 @@ const props = withDefaults(defineProps<ButtonGroupProps>(), {
 });
 
 const meta = computed(() => ({
-  size: props.size,
   color: props.color,
   variant: props.variant,
   isDisabled: props.disabled,
@@ -76,7 +76,7 @@ const meta = computed(() => ({
 }));
 
 const styles = useStyles(
-  ["buttonGroup", "buttonGroup.dropdown"],
+  ["buttonGroup", "buttonGroup.select"],
   meta,
   config,
   props.uiConfig ?? {}
@@ -84,9 +84,8 @@ const styles = useStyles(
   buttonGroup: {
     root: string;
     button: string;
-    dropdown: {
-      trigger: string;
-      content: string;
+    select: {
+      root: string;
     };
   };
 }>;

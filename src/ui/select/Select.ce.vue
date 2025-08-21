@@ -66,9 +66,16 @@ const props = withDefaults(defineProps<SelectProps>(), {
   items: () => [],
   placeholder: "Select an option",
   // -- styles
+  variant: "outline",
   width: "full",
   // --- styles
-  uiConfig: () => ({ select: [] }),
+  uiConfig: () => ({
+    select: {
+      root: [],
+      value: [],
+      item: []
+    }
+  }),
   class: ""
 });
 
@@ -88,7 +95,9 @@ const uid = ref(timestamp());
 
 const meta = computed(() => ({
   width: props.width,
-  hasValue: !!props.modelValue
+  variant: props.variant,
+  hasValue: !!props.modelValue,
+  hasRing: props.ring
 }));
 
 const styles = useStyles(
