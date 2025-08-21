@@ -57,7 +57,7 @@ import { useVModel } from "@vueuse/core";
 // --- internal
 
 // --- components
-import { SelectCards, Link } from "@upmind-automation/upmind-ui";
+import { SelectCards } from "@upmind-automation/upmind-ui";
 import Item from "./Item.vue";
 
 // --- utils

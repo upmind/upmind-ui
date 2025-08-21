@@ -1,6 +1,6 @@
 <template>
   <Layout>
-    <ContentSection v-auto-animate class="flex flex-grow items-center">
+    <ContentSection v-auto-animate class="flex grow items-center">
       <Interstitial
         open
         modal
@@ -29,18 +29,14 @@
         <template #actions>
           <Button
             color="primary"
+            size="lg"
             :label="t(action)"
             :loading="processing"
             @click.stop="doAction"
-          >
-            <template #prepend>
-              <Icon v-if="!meta.isAuthenticated" icon="arrow-left" size="2xs" />
-            </template>
-
-            <template #append>
-              <Icon v-if="meta.isAuthenticated" icon="arrow-right" size="2xs" />
-            </template>
-          </Button>
+            :icon="!meta.isAuthenticated ? 'arrow-left' : ''"
+            :icon-append="meta.isAuthenticated ? 'arrow-right' : ''"
+            pill
+          />
         </template>
       </Interstitial>
     </ContentSection>

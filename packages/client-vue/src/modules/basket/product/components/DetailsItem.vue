@@ -28,7 +28,7 @@
         {{ safePrice }}
 
         <template v-if="showTermLabel">
-          {{ t(`product.terms.term.${cycle}`) }}
+          / {{ t(`product.terms.term.${cycle}`) }}
         </template>
       </p>
 

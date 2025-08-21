@@ -1,11 +1,15 @@
 <template>
-  <Layout>
+  <Layout :variant="uiCart?.layout" :minimal="isMinimal">
     <template #controls>
-      <CategoriesControls
+      <Breadcrumbs
         v-model="categoryId"
         :sort="params.sort"
         :direction="params.direction"
       />
+    </template>
+
+    <template #actions>
+      <Share class="hidden md:flex" />
     </template>
 
     <template #header>
@@ -13,6 +17,8 @@
         v-model="categoryId"
         :sort="params.sort"
         :direction="params.direction"
+        :description="description"
+        v-bind="category"
       />
     </template>
 
@@ -41,6 +47,8 @@
 import { computed } from "vue";
 import { useRouteQuery } from "@vueuse/router";
 import { useUrlSearchParams } from "@vueuse/core";
+import { useI18n } from "vue-i18n";
+
 // --- internal
 import {
   useProductCategories,
@@ -54,26 +62,37 @@ import config from "./catalogue.config";
 
 // --- components
 import { Layout, useStyles } from "@upmind-automation/upmind-ui";
-import CategoriesControls from "./categories/CategoriesControls.vue";
+import Breadcrumbs from "./categories/Breadcrumbs.vue";
+import Share from "../../components/navigation/Share.vue";
 import CategoriesFacet from "./categories/facet/CategoriesFacet.vue";
 import Categories from "./categories/Categories.vue";
 import WidgetGrid from "./products/WidgetGrid.vue";
 import WidgetDAC from "./products/WidgetDAC.vue";
 
+// --- utils
+import { isEmpty } from "lodash-es";
+
 // --- types
 import type { ComputedRef } from "vue";
+import type { ProductCategory } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 const { isReady, isResolved } = useRoutingEngine();
 const { uiCart } = useBrand();
-const { findOne } = useProductCategories();
+const { findOne, getOne } = useProductCategories();
 
 await isReady();
 await isResolved(ROUTE.PRODUCT_ADD);
 
+const { t } = useI18n();
+
 // --- state
 const isFaceted = computed(() => {
   return !!uiCart.value?.catalogue?.facet;
+});
+
+const isMinimal = computed(() => {
+  return !description.value;
 });
 
 const categoryId = useRouteQuery<string | undefined>("catid", undefined, {
@@ -87,6 +106,20 @@ const params = useUrlSearchParams<{
 }>("history", {
   removeNullishValues: true,
   removeFalsyValues: true
+});
+
+// --- category logic moved from Categories
+const category = computed((): ProductCategory => {
+  const category = categoryId.value ? getOne(categoryId.value) : undefined;
+  return category || { id: "", name: "", title: t("product.category.all") };
+});
+
+const description = computed(() => {
+  return (
+    category.value.description ||
+    (isEmpty(categoryId.value) && uiCart.value?.description) ||
+    ""
+  );
 });
 
 // --- context

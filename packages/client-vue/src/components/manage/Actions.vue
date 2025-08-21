@@ -3,6 +3,7 @@
     <Button
       :label="t(`${i18nKey ?? 'manage'}.actions.resolve`)"
       color="primary"
+      size="lg"
       :disabled="props.disabled || props.loading"
       :loading="props.processing"
       @click="emits('save')"
@@ -12,6 +13,7 @@
       :label="t(`${i18nKey ?? 'manage'}.actions.reject`)"
       color="base"
       variant="ghost"
+      size="lg"
       :disabled="props.loading || props.processing"
       @click="emits('cancel')"
     />

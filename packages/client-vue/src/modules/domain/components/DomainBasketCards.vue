@@ -2,25 +2,16 @@
   <section>
     <slot name="empty" v-bind="{ meta }" v-if="meta.isEmpty"></slot>
 
-    <SelectCards
+    <Select
       v-else
       id="dac-basket"
       name="dac-basket"
-      :class="styles.domain.form.items"
       :items="items"
       :disabled="meta.isDisabled"
       required
       v-model="modelValue"
-      content-class="z-50"
-    >
-      <template #item="{ item }">
-        <span :class="styles.domain.form.basket.item">{{ item.label }}</span>
-      </template>
-
-      <template #dropdown-item="{ item }">
-        <span :class="styles.domain.form.basket.item">{{ item.label }}</span>
-      </template>
-    </SelectCards>
+      class="bg-base-background"
+    />
   </section>
 </template>
 
@@ -34,7 +25,7 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../domain.config";
 
 // --- components
-import { SelectCards } from "@upmind-automation/upmind-ui";
+import { Select } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { find, isEmpty, map } from "lodash-es";

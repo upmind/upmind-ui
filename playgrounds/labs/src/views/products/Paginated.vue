@@ -13,7 +13,7 @@
 
     <Loading :active="meta.isLoading" class-active="w-full">
       <div
-        class="grid w-full grid-cols-[repeat(auto-fill,_minmax(18rem,_1fr))] gap-6"
+        class="grid w-full grid-cols-[repeat(auto-fill,minmax(18rem,1fr))] gap-6"
       >
         <template
           v-for="product in products ?? Array(skeletonCount)"

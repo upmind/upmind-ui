@@ -1,41 +1,29 @@
 <template>
-  <InputExtended
+  <Input
     v-model="inputValue"
     :placeholder="t('domain.dac.search')"
     autocomplete="url"
-    inputSize="lg"
-    :class="styles.domain.search.root"
+    :icon="type === 'existing' ? 'network-settings' : 'search'"
   >
-    <template #prepend>
-      <span :class="styles.domain.search.icon">
-        <Icon
-          :icon="type === 'existing' ? 'network-settings' : 'search'"
-          size="xs"
-        />
-      </span>
-    </template>
-
     <template #append>
       <span
         :class="[
           styles.domain.search.actions,
-          { 'select-none opacity-0': type === 'existing' }
+          { 'opacity-0 select-none': type === 'existing' }
         ]"
       >
         <Button
           variant="link"
-          size="xs"
+          size="lg"
           @click="inputValue = ''"
           :class="{ hidden: isEmpty(inputValue) }"
-        >
-          <Icon icon="clear" color="primary" size="xs" />
-        </Button>
+          icon="clear"
+        />
         <Button
           :disabled="isEmpty(inputValue)"
           :loading="isLoading"
-          size="md"
+          size="lg"
           color="secondary"
-          :class="styles.domain.search.action"
           @click="emit('search', inputValue)"
         >
           <span class="hidden md:block">{{ t("domain.search") }}</span>
@@ -43,7 +31,7 @@
         </Button>
       </span>
     </template>
-  </InputExtended>
+  </Input>
 </template>
 
 <script lang="ts" setup>
@@ -58,7 +46,7 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../domain.config";
 
 // --- components
-import { InputExtended, Icon, Button } from "@upmind-automation/upmind-ui";
+import { Input, Icon, Button } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { ComputedRef } from "vue";

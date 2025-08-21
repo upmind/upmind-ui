@@ -1,11 +1,13 @@
-import theme from "./tailwind.config";
 import uiConfig from "./ui.config";
+import tokens from "./tokens";
+// import WebFontLoader from "webfontloader";
+// import { compact, isEmpty, uniq } from "lodash-es";
 
-const defaultTheme = {
+const darkTheme = {
   name: "Upmind (Dark mode)",
   id: "upmind-dark",
-  extend: theme,
-  uiConfig
+  uiConfig,
+  tokens
 };
 
-export default defaultTheme;
+export default darkTheme;

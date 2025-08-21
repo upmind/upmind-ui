@@ -1,8 +1,6 @@
 <template>
   <Combobox
     v-if="meta.isAvailable && (items?.length > 1 || meta.isLoading)"
-    class="w-dropdown-xs md:w-dropdown-2xs bg-base text-base-foreground"
-    :popoverClass="['w-dropdown-xs md:w-dropdown-2xs', props.popoverClass]"
     :modelValue="model?.code"
     :items="items"
     :loading="meta.isLoading"

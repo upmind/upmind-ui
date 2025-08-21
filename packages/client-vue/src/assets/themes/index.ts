@@ -1,8 +1,6 @@
 // -- internal
-import upmind from "./light";
+import upmind from "./default";
 import upmindDark from "./dark";
+import type { Theme } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
-export default {
-  themes: [upmind, upmindDark],
-  defaultTheme: upmind
-};
+export default [upmind, upmindDark] as Theme[];

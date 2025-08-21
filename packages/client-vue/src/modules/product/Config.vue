@@ -1,16 +1,15 @@
 <template>
-  <ContentSection v-auto-animate class="flex flex-grow items-center">
+  <ContentSection v-auto-animate class="flex grow items-center">
     <form v-auto-animate @submit.prevent @reset.prevent>
       <Button
         type="reset"
         class="bg-base-background relative -top-4 md:-top-6"
-        size="sm"
+        size="lg"
         variant="tonal"
         :label="t('navigation.back')"
         @click.prevent="doReject"
-      >
-        <template #prepend><Icon icon="arrow-left" size="2xs" /></template>
-      </Button>
+        icon="arrow-left"
+      />
 
       <div
         class="relative mx-auto flex w-full flex-wrap items-start justify-between gap-8"
@@ -21,12 +20,12 @@
               <SmartTitle
                 i18n-key="product.title"
                 size="2xl"
-                class="py-0.5 !text-3xl leading-tight [&:has(mask)]:leading-normal"
+                class="py-0.5 text-3xl! leading-tight [&:has(mask)]:leading-normal"
               />
             </template>
 
             <!-- TODO: add skeleton loader when meta.isLoading -->
-            <Card class="!p-0">
+            <Card class="p-0!">
               <ProductConfig
                 v-if="item"
                 :item="props.item"

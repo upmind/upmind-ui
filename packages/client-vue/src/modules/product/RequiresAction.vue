@@ -16,13 +16,13 @@
             color: 'primary',
             variant: 'ghost',
             handler: navigateBack,
-            prependIcon: { icon: 'arrow-left', size: '2xs' },
+            icon: 'arrow-left',
             label: t('basket.requiresAction.actions.back')
           },
           {
             color: 'secondary',
             handler: navigateNext,
-            appendIcon: { icon: 'arrow-right', size: '2xs' },
+            iconAppend: 'arrow-right',
             label: t('basket.requiresAction.actions.continue')
           }
         ]"
@@ -37,7 +37,7 @@
         </template>
 
         <template #default>
-          <ol class="mt-4 list-disc text-left font-semibold">
+          <ol class="mt-4 list-disc text-left font-medium">
             <li v-for="basketItem in products" :key="basketItem.id">
               <span>{{ basketItem?.productDetails?.title }}</span>
             </li>

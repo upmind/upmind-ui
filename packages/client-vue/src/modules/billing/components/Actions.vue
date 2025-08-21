@@ -3,6 +3,7 @@
     <Button
       :label="t(`client.${type}.actions.resolve`)"
       color="primary"
+      size="lg"
       :disabled="props.disabled || props.loading"
       :loading="props.processing"
       @click="emits('save')"
@@ -11,6 +12,7 @@
       :label="t(`client.${type}.actions.reject`)"
       color="primary"
       variant="ghost"
+      size="lg"
       :disabled="props.loading"
       :loading="props.processing"
       @click="emits('cancel')"

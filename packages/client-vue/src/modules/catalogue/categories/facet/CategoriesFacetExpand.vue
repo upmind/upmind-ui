@@ -5,6 +5,7 @@
     :key="`category-${index}`"
     :to="category.to"
     variant="ghost"
+    size="lg"
     :class="
       cn([
         styles.products.facet.expand.button,
@@ -14,11 +15,8 @@
     @click="category.handler"
     :label="category.label"
     block
-  >
-    <template #append>
-      <Icon icon="chevron-down" size="2xs" />
-    </template>
-  </Button>
+    icon-append="chevron-down"
+  />
 </template>
 
 <script setup lang="ts">

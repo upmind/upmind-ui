@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!meta.isLoading" class="flex flex-col space-y-4">
+  <div v-if="!meta.isLoading" class="flex flex-col gap-6 divide-y">
     <template v-for="product in products" :key="product.id">
       <BasketProduct
         v-bind="product"

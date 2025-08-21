@@ -1,71 +1,67 @@
 <template>
-  <Layout>
+  <Layout :variant="uiCart?.layout" minimal>
     <template #navigation>
       <Back @click.prevent="doReject" />
     </template>
 
-    <ContentSection v-auto-animate class="flex flex-grow items-center">
-      <form v-auto-animate @submit.prevent @reset.prevent>
-        <div
-          class="relative mx-auto flex w-full flex-wrap items-start justify-between gap-8"
-        >
-          <section class="flex min-w-0 flex-1 flex-col gap-16">
-            <ContentSection>
-              <template #title>
-                <SmartTitle i18n-key="product.title" size="2xl" />
-              </template>
+    <template #header>
+      <Header v-if="product" v-bind="product" />
+    </template>
 
-              <!-- TODO: add skeleton loader when meta.isLoading -->
-              <Card class="!p-0">
-                <ProductConfig
-                  v-if="basketProduct && !meta?.isLoading"
-                  :item="basketProduct"
-                  :model-value="basketProduct?.id"
-                  :no-footer="true"
-                  as="div"
-                  @resolve="doResolve"
-                  @reject="doReject"
-                />
+    <template #default>
+      <Section :title="t('product.configure')">
+        <form @submit.prevent @reset.prevent>
+          <ProductConfig
+            v-if="basketProduct && !meta?.isLoading"
+            :item="basketProduct"
+            :model-value="basketProduct?.id"
+            :no-footer="true"
+            as="div"
+            @resolve="doResolve"
+            @reject="doReject"
+          />
 
-                <ConfigSkeleton v-else />
-              </Card>
-            </ContentSection>
-          </section>
+          <ConfigSkeleton v-else />
+        </form>
+      </Section>
+    </template>
 
-          <header
-            class="flex w-full flex-col items-start gap-4 sm:sticky sm:top-1 xl:max-w-md"
-          >
-            <ContentSection :title="t('product.summary.title')">
-              <Summary
-                v-if="basketProduct && !meta?.isLoading"
-                :item="basketProduct"
-                @resolve="doResolve"
-              />
-            </ContentSection>
-          </header>
-        </div>
+    <template #aside>
+      <Section
+        :title="t('product.summary.title')"
+        :class="styles.product.summary"
+      >
+        <Summary
+          v-if="basketProduct && !meta?.isLoading"
+          :item="basketProduct"
+          @resolve="doResolve"
+        />
+      </Section>
+    </template>
 
-        <!-- small print -->
-        <footer
-          class="text-emphasis-medium mt-6 flex flex-col space-y-2 px-6 text-xs md:space-y-0 md:px-0"
-        >
-          <div
-            v-for="(term, index) in tm('product.smallprint')"
-            :key="index"
-            class="leading-snug"
-          >
-            {{ term }}
-          </div>
-        </footer>
-      </form>
-    </ContentSection>
+    <template #aside-footer>
+      <SummaryFooter
+        v-if="basketProduct && !meta?.isLoading"
+        :item="basketProduct"
+        @resolve="doResolve"
+      />
+    </template>
+
+    <template #footer>
+      <p
+        v-for="(term, index) in tm('product.smallprint')"
+        :key="index"
+        class="leading-snug"
+      >
+        {{ term }}
+      </p>
+    </template>
   </Layout>
 </template>
 
 <script lang="ts" setup>
 // --- external
-import { watch } from "vue";
-import { vAutoAnimate } from "@formkit/auto-animate";
+import { computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -74,38 +70,57 @@ import {
   useRoutingEngine,
   useBasketProducts,
   useQueryParams,
-  ROUTE
+  ROUTE,
+  useBrand,
+  useProductConfig
 } from "@upmind-automation/headless";
+import config from "./product.config";
 
 // --- components
-import { Card, Layout } from "@upmind-automation/upmind-ui";
-import ContentSection from "../../components/content/ContentSection.vue";
+import { Layout, useStyles } from "@upmind-automation/upmind-ui";
 import ProductConfig from "./components/config/Config.vue";
 import Summary from "./components/summary/Summary.vue";
-import SmartTitle from "../../components/content/SmartTitle.vue";
 import ConfigSkeleton from "./components/ConfigSkeleton.vue";
 import Back from "../../components/navigation/Back.vue";
-
-// --- utils
+import Header from "./components/header/Header.vue";
+import SummaryFooter from "./components/summary/SummaryFooter.vue";
+import Section from "../../components/content/LayoutSection.vue";
 
 // --- types
+import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 const { t, tm } = useI18n();
 
 const { navigateBack, navigateNext, isResolved } = useRoutingEngine();
-const { meta: basketMeta, isReady } = useBasket();
+const { isReady } = useBasket();
 const { basketProductId } = useQueryParams();
 const { configure } = useBasketProducts();
-
-await isReady();
-await isResolved(ROUTE.PRODUCT_EDIT);
+const { uiCart } = useBrand();
 const {
+  isReady: isReadyBasket,
   meta,
   stop,
   update,
   service: basketProduct
 } = await configure(basketProductId);
+const { product } = useProductConfig(basketProduct);
+
+await isReady();
+await isReadyBasket();
+await isResolved(ROUTE.PRODUCT_EDIT);
+
+const configMeta = computed(() => {
+  return {
+    layout: uiCart.value?.layout
+  };
+});
+
+const styles = useStyles("product", configMeta, config) as ComputedRef<{
+  product: {
+    summary: string;
+  };
+}>;
 
 async function doResolve() {
   update()

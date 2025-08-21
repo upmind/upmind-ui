@@ -21,7 +21,7 @@
       :errors="props.errors"
       :touched="props.touched"
       :model-value="props.modelValue?.toString()"
-      content-class="!max-h-[18.5rem]"
+      content-class="max-h-74!"
       @update:modelValue="doResolve"
     >
       <template #item="{ item }: any">

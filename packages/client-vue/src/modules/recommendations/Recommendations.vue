@@ -1,5 +1,5 @@
 <template>
-  <Layout>
+  <Layout overflow="hidden">
     <aside v-auto-animate>
       <div class="flex flex-col items-center justify-center p-2">
         <SmartTitle
@@ -10,7 +10,7 @@
 
         <!-- TODO: Bug: text-emphasis-medium refuses to work here -->
         <p
-          class="text-foreground m-0 mb-12 mt-4 max-w-md text-center text-lg leading-normal opacity-60"
+          class="text-foreground m-0 mt-4 mb-12 max-w-md text-center text-lg leading-normal opacity-60"
         >
           {{ t("recommendations.header.subtitle") }}
         </p>
@@ -32,7 +32,7 @@
       />
 
       <Card
-        class="md:bg-base mt-8 flex flex-col items-center justify-between bg-transparent !p-0 shadow-none md:mt-8 md:flex-row md:!px-8 md:!py-6 md:shadow-sm"
+        class="md:bg-base md: mt-8 flex flex-col items-center justify-between bg-transparent p-0! shadow-none md:mt-8 md:flex-row md:px-8! md:py-6!"
       >
         <div
           class="text-md order-last mt-4 text-center font-medium md:order-first md:mt-0 md:text-left"
@@ -44,12 +44,11 @@
           @click="doClose"
           :label="t('recommendations.toolbar.actions.continue')"
           color="primary"
+          size="lg"
           class="w-full md:w-auto"
-        >
-          <template #append>
-            <Icon icon="arrow-right" size="2xs" />
-          </template>
-        </Button>
+          iconAppend="arrow-right"
+          pill
+        />
       </Card>
     </aside>
   </Layout>

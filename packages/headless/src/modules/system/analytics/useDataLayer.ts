@@ -136,7 +136,7 @@ class TrackingEvent {
       value: safeBasket.net_amount, //TODO: check the correct value is used
       gross_value: safeBasket.total_amount, //TODO: check the correct value is used
       coupon: !isEmpty(safeBasket.promotions)
-        ? map(safeBasket.promotions, "promotion.code").toString()
+        ? map(safeBasket.promotions, "promotion.code").join()
         : undefined,
       // --- invoice specific data
       transaction_id: safeBasket?.number,

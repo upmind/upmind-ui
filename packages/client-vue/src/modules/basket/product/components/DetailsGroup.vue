@@ -21,7 +21,6 @@
         size="sm"
         :label="t('product.configureNow')"
         color="error"
-        class="inline-block h-5 underline"
       />
     </template>
   </div>

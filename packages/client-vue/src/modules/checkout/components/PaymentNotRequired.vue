@@ -13,6 +13,7 @@
         class="mt-4"
         :label="t('payment.noPayment.action')"
         color="primary"
+        size="lg"
         @click="checkout"
       />
     </div>
