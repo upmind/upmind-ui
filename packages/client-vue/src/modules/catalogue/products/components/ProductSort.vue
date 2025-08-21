@@ -19,14 +19,14 @@ import {
   ButtonGroupTypes,
   type ButtonGroupItem,
   type ButtonProps,
-  type DropdownMenuProps
+  type SelectProps
 } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { find, isEmpty } from "lodash-es";
 
 // --- types
-import type { DropdownMenuItemProps } from "@upmind-automation/upmind-ui";
+import type { SelectItemProps } from "@upmind-automation/upmind-ui";
 import type { ProductSortProps } from "../types";
 
 // -----------------------------------------------------------------------------
@@ -41,27 +41,18 @@ const direction = defineModel<ProductSortProps["direction"]>("direction", {
   default: RequestSortDirection.ASC
 });
 
-const items = computed((): DropdownMenuItemProps[] => [
+const items = computed(() => [
   {
     label: t("product.sort.default"),
-    value: ProductSortableProperties.DEFAULT,
-    handler: () => {
-      property.value = ProductSortableProperties.DEFAULT;
-    }
+    value: ProductSortableProperties.DEFAULT
   },
   {
     label: t("product.sort.name"),
-    value: ProductSortableProperties.NAME,
-    handler: () => {
-      property.value = ProductSortableProperties.NAME;
-    }
+    value: ProductSortableProperties.NAME
   },
   {
     label: t("product.sort.price"),
-    value: ProductSortableProperties.PRICE,
-    handler: () => {
-      property.value = ProductSortableProperties.PRICE;
-    }
+    value: ProductSortableProperties.PRICE
   }
 ]);
 
@@ -76,11 +67,15 @@ const groupItems = computed((): ButtonGroupItem[] => [
     handler: toggleDirection
   },
   {
-    type: ButtonGroupTypes.Dropdown,
+    type: ButtonGroupTypes.Select,
     props: {
-      label: currentSort.value?.label,
-      items: items.value
-    } satisfies DropdownMenuProps
+      modelValue: property.value,
+      items: items.value,
+      placeholder: currentSort.value?.label
+    } satisfies SelectProps,
+    handler: (value: string) => {
+      property.value = value as ProductSortableProperties;
+    }
   }
 ]);
 
