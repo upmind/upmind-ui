@@ -35,40 +35,22 @@ const regionsStore = new Store<Record<string, IRegion[]>>({});
 
 // ---  SERVICE METHODS
 
-function fetchCurrencies(
-  { pagination, ...params }: Partial<QueryParams> = {
-    pagination: {
-      limit: 0,
-      offset: 0
-    }
-  }
-) {
-  const { list, useUrl } = useQuery();
+function fetchCurrencies() {
+  const { query, useUrl } = useQuery();
 
-  return list<ICurrency[]>({
-    ...(params as any),
-    pagination,
+  return query<ICurrency[]>({
     url: useUrl("currencies"),
-    queryKey: ["system", "currencies"],
+    queryKey: ["system", "currencies", { limit: 0 }],
     // --- options
     staleTime: useTime()?.DAY,
     persister: localStoragePersister.persisterFn
   });
 }
 
-function fetchBillingCycles(
-  { pagination, ...params }: Partial<QueryParams> = {
-    pagination: {
-      limit: 0,
-      offset: 0
-    }
-  }
-) {
-  const { list, useUrl } = useQuery();
-  return list<IBillingCycle[]>({
-    ...(params as any),
-    pagination,
-    url: useUrl("billing_cycles"),
+function fetchBillingCycles() {
+  const { query, useUrl } = useQuery();
+  return query<IBillingCycle[]>({
+    url: useUrl("billing_cycles", { limit: 0 }),
     queryKey: ["system", "billing-cycles"],
     // --- options
     staleTime: useTime()?.DAY,
@@ -76,21 +58,12 @@ function fetchBillingCycles(
   });
 }
 
-function fetchCountries(
-  { pagination, ...params }: Partial<QueryParams> = {
-    pagination: {
-      limit: 0,
-      offset: 0
-    }
-  }
-) {
-  const { list, useUrl } = useQuery();
+function fetchCountries() {
+  const { query, useUrl } = useQuery();
 
-  return list<ICountry[]>({
+  return query<ICountry[]>({
     sort: [RequestSortDirection.ASC, "name"],
-    ...(params as any),
-    pagination,
-    url: useUrl("countries"),
+    url: useUrl("countries", { limit: 0 }),
     queryKey: ["system", "countries"],
     // --- options
     staleTime: useTime()?.DAY,
@@ -99,13 +72,11 @@ function fetchCountries(
 }
 
 function fetchRegions({
-  data: { code, id },
-  pagination,
-  ...params
+  data: { code, id }
 }: Partial<QueryParams> & {
   data: { code: string; id: string };
 }) {
-  const { list, useUrl } = useQuery();
+  const { query, useUrl } = useQuery();
 
   if (!code || !id)
     throw new DetailedError(
@@ -114,10 +85,8 @@ function fetchRegions({
       ErrorOrigin.Headless
     );
 
-  return list<IRegion[]>({
-    ...(params as any),
-    pagination,
-    url: useUrl(`countries/${id}/regions`),
+  return query<IRegion[]>({
+    url: useUrl(`countries/${id}/regions`, { limit: 0 }),
     queryKey: ["system", "regions", code],
     // --- options
     // select: data => parseRegion(data),
@@ -126,29 +95,12 @@ function fetchRegions({
   });
 }
 
-function fetchLanguages(
-  { pagination, ...params }: Partial<QueryParams> = {
-    pagination: {
-      limit: 0,
-      offset: 0
-    }
-  }
-) {
+function fetchLanguages() {
   const { meta, user } = useSession();
-  const { list, useUrl } = useQuery();
+  const { query, useUrl } = useQuery();
 
-  if (!meta.value.isAuthenticated || !user.value?.id) {
-    throw new DetailedError(
-      "You must be authenticated to fetch languages",
-      responseCodes.Unauthorized,
-      ErrorOrigin.Headless
-    );
-  }
-
-  return list<ILanguage[]>({
-    ...(params as any),
-    pagination,
-    url: useUrl("languages"),
+  return query<ILanguage[]>({
+    url: useUrl("languages", { limit: 0 }),
     queryKey: ["system", "languages"],
     withAccessToken: true,
     // --- options
@@ -157,20 +109,11 @@ function fetchLanguages(
   });
 }
 
-function fetchStatuses(
-  { pagination, ...params }: Partial<QueryParams> = {
-    pagination: {
-      limit: 0,
-      offset: 0
-    }
-  }
-) {
-  const { list, useUrl } = useQuery();
+function fetchStatuses() {
+  const { query, useUrl } = useQuery();
 
-  return list<IStatus>({
-    ...(params as any),
-    pagination,
-    url: useUrl("statuses"),
+  return query<IStatus>({
+    url: useUrl("statuses", { limit: 0 }),
     queryKey: ["system", "statuses"],
     // --- options
     staleTime: useTime()?.DAY,
@@ -178,20 +121,11 @@ function fetchStatuses(
   });
 }
 
-function fetchDepartments(
-  { pagination, ...params }: Partial<QueryParams> = {
-    pagination: {
-      limit: 0,
-      offset: 0
-    }
-  }
-) {
-  const { list, useUrl } = useQuery();
+function fetchDepartments() {
+  const { query, useUrl } = useQuery();
 
-  return list<ITicketDepartment[]>({
-    ...(params as any),
-    pagination,
-    url: useUrl("tickets/departments"),
+  return query<ITicketDepartment[]>({
+    url: useUrl("tickets/departments", { limit: 0 }),
     queryKey: ["system", "departments"],
     // --- options
     staleTime: useTime()?.DAY,

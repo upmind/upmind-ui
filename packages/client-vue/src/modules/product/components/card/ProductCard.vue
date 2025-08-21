@@ -5,7 +5,7 @@
         :to="
           navigate
             ? {
-                name: ROUTE.LOADING,
+                name: ROUTE.PRODUCT_ADD,
                 params: {
                   pid: props.id
                 },
@@ -56,14 +56,13 @@
             :to="
               navigate
                 ? {
-                    name: ROUTE.LOADING,
+                    name: ROUTE.PRODUCT_ADD,
                     params: {
                       pid: props.id
                     },
                     query: {
                       bcm: selectedTerm,
-                      force: 'true', // ensure we always add the product, even if it exists in the basket
-                      navigateOnly: 'true' // this is used to prevent the product from being added to the basket when clicking on the image
+                      force: 'true' // ensure we always add the product, even if it exists in the basket
                     }
                   }
                 : undefined

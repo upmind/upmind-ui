@@ -182,7 +182,7 @@ export const useClientCompany = (
   }
 
   function stop(): void {
-    stopService(service as InterpreterFrom<any>);
+    stopService(service);
   }
   // ---------------------------------------------------------------------------
   return {

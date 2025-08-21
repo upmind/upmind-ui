@@ -428,7 +428,7 @@ export const useDomain = (
     /** Stop the domain service.
      * @returns {void}
      */
-    stop: () => stopService(service as InterpreterFrom<any>)
+    stop: () => stopService(service)
   };
 };
 

@@ -27,7 +27,8 @@ import {
   type ICurrency,
   BrandTaxTypes,
   BrandConfigKeys,
-  DefaultPaymentPeriod
+  DefaultPaymentPeriod,
+  IBrandSettings
 } from "@upmind-automation/types";
 import type { IBrandMeta } from "./types";
 import type { CurrencyModel } from "../basket/currency/types";
@@ -54,7 +55,7 @@ export const useBrand = () => {
     hasError: some(queries, "isError.value"),
     isLoading: some(queries, "isLoading.value"),
     isComplete: every(queries, "isFetched.value"),
-    isAvailable: has(brandSettingsQuery.data?.value, "name")
+    isAvailable: has(brandSettingsQuery?.data?.value, "name")
   }));
 
   async function isReady(): Promise<boolean> {
@@ -68,11 +69,11 @@ export const useBrand = () => {
     });
   }
 
-  const modules = computed(() => unref(modulesQuery.data) ?? []);
-  const brandConfig = computed(() => unref(brandConfigQuery.data) ?? {});
-  const brandSettings = computed(() => unref(brandSettingsQuery.data) ?? {});
+  const modules = computed(() => modulesQuery?.data.value);
+  const brandConfig = computed(() => brandConfigQuery?.data.value);
+  const brandSettings = computed(() => brandSettingsQuery?.data.value);
   const organisationConfig = computed(
-    () => unref(organisationConfigQuery.data) ?? {}
+    () => organisationConfigQuery?.data.value
   );
 
   function hasModuleEnabled(code: string): boolean {
@@ -81,21 +82,21 @@ export const useBrand = () => {
 
   // --- context
 
-  const brandId = computed(() => brandSettings.value.id);
+  const brandId = computed(() => brandSettings.value?.id);
 
-  const name = computed(() => brandSettings.value.name);
+  const name = computed(() => brandSettings.value?.name);
 
-  const countryId = computed(() => brandSettings.value.country_id);
+  const countryId = computed(() => brandSettings.value?.country_id);
 
-  const currencyId = computed(() => brandSettings.value.currency_id);
+  const currencyId = computed(() => brandSettings.value?.currency_id);
 
-  const currencies = computed(() => brandSettings.value.currencies || []);
+  const currencies = computed(() => brandSettings.value?.currencies || []);
 
-  const image = computed(() => brandSettings.value.image);
+  const image = computed(() => brandSettings.value?.image);
 
-  const styles = computed(() => brandSettings.value.style);
+  const styles = computed(() => brandSettings.value?.style);
 
-  const favicon = computed(() => brandSettings.value.favicon);
+  const favicon = computed(() => brandSettings.value?.favicon);
 
   const uiTheme = computed(
     (): {
@@ -119,7 +120,7 @@ export const useBrand = () => {
   const currency = computed<ICurrency | undefined>(
     () =>
       find(currencies.value, ["id", currencyId.value]) ||
-      (first(brandSettings.value.currencies) as ICurrency | undefined)
+      (first(brandSettings.value?.currencies) as ICurrency | undefined)
   );
 
   const defaultPaymentPeriod = computed(
@@ -135,7 +136,7 @@ export const useBrand = () => {
     reduce(
       queries,
       (acc, q) => {
-        if (q.isError && !isEmpty(q.error)) {
+        if (q && q.isError && !isEmpty(q.error)) {
           acc.push(q.error.value);
         }
         return acc;
@@ -149,7 +150,7 @@ export const useBrand = () => {
       get(brandSettings.value, "tax_type") !== BrandTaxTypes.EXCLUDE_TAX
   );
 
-  const languages = computed(() => brandSettings.value.languages || []);
+  const languages = computed(() => brandSettings.value?.languages || []);
 
   const language = computed((): ILanguage | undefined => {
     const languageId = get(brandSettings.value, "language_id");
@@ -157,7 +158,7 @@ export const useBrand = () => {
       first(languages.value)) as ILanguage | undefined;
   });
 
-  const taxType = computed(() => brandSettings.value.tax_type);
+  const taxType = computed(() => brandSettings.value?.tax_type);
 
   const storefrontUrl = computed((): string => {
     const { router } = useRoutingEngine();
@@ -193,9 +194,11 @@ export const useBrand = () => {
   ): Promise<Record<string, any>> => {
     keys = isArray(keys) ? keys : [keys];
 
-    return services
-      .fetchBrandConfig(keys)
-      .promise.value.then(data => pick(data, keys));
+    return (
+      services
+        .fetchBrandConfig(keys)
+        ?.promise.value.then(data => pick(data, keys)) ?? {}
+    );
   };
 
   const getAnalytics = async (): Promise<Record<string, any>> =>
@@ -260,7 +263,7 @@ export const useBrand = () => {
   // --- Utility methods for cache management and re-fetching
   const refresh = async () => {
     // Invalidate all related queries that feed into state via services.ts
-    forEach(queries, q => q.refetch());
+    forEach(queries, q => q?.refetch());
   };
 
   const invalidate = () => {

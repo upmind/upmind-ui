@@ -260,7 +260,7 @@ export const useRoutingEngine = () => {
   }
 
   function stop() {
-    stopService(service as InterpreterFrom<any>);
+    stopService(service);
   }
 
   // ---

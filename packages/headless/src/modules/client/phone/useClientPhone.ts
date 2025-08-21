@@ -181,7 +181,7 @@ export const useClientPhone = (
     service.send({ type: "CLEAR" });
   }
   function stop(): void {
-    stopService(service as InterpreterFrom<any>);
+    stopService(service);
   }
   // ---------------------------------------------------------------------------
   return {

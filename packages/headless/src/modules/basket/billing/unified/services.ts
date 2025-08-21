@@ -128,13 +128,14 @@ async function loadLookups({
   const safeModel = useModelParser<UnifiedModel>(schema, model, baseModel);
 
   return Promise.resolve({
+    type,
     regions,
     country,
     countries,
-    phones: phones.value,
-    emails: emails.value,
-    addresses: addresses.value,
-    companies: companies.value,
+    phones: phones.value ?? [],
+    emails: emails.value ?? [],
+    addresses: addresses.value ?? [],
+    companies: companies.value ?? [],
     config,
     // ---
     model: safeModel,
