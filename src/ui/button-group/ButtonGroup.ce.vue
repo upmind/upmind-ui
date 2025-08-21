@@ -7,7 +7,9 @@
     <template v-for="(item, index) in items" :key="index">
       <Button
         v-if="item.type === 'button'"
+        :class="styles.buttonGroup.button"
         v-bind="item.props"
+        :color="color"
         :size="size"
         :disabled="disabled || item.props.disabled"
         variant="ghost"
@@ -17,7 +19,9 @@
 
       <DropdownMenu
         v-else-if="item.type === 'dropdown'"
+        :class="styles.buttonGroup.button"
         v-bind="item.props"
+        :color="color"
         :size="size"
         :disabled="disabled || item.props.disabled"
         :ring="false"
@@ -55,8 +59,11 @@ const props = withDefaults(defineProps<ButtonGroupProps>(), {
 });
 
 const meta = computed(() => ({
-  orientation: props.orientation,
-  isDisabled: props.disabled
+  size: props.size,
+  color: props.color,
+  variant: props.variant,
+  isDisabled: props.disabled,
+  hasRing: true
 }));
 
 const styles = useStyles(
