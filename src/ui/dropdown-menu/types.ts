@@ -40,10 +40,11 @@ export interface DropdownMenuProps
   items: DropdownMenuItemProps[];
   loading?: boolean;
   // --- variants
-  color?: ButtonProps["color"] | string;
+  color?: ButtonProps["color"];
   variant?: ButtonProps["variant"];
   size?: ButtonProps["size"];
-  width?: ContentVariantProps["width"] | string;
+  width?: ContentVariantProps["width"];
+  ring?: ButtonProps["ring"];
   // --- styles
   uiConfig?: { dropdownMenu: CxOptions };
   class?: HTMLAttributes["class"];

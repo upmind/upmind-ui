@@ -41,10 +41,6 @@ export const rootVariants = cva(
         center: "justify-center",
         right: "justify-end"
       },
-      isFocusable: {
-        true: `${ringClasses} ${invalidRingClasses}`,
-        false: "outline-none focus:ring-0 focus:outline-none"
-      },
       isBlock: {
         true: "w-full basis-full"
       },
@@ -58,6 +54,10 @@ export const rootVariants = cva(
       isPill: {
         true: "rounded-pill",
         false: "rounded"
+      },
+      hasRing: {
+        true: `${ringClasses} ${invalidRingClasses}`,
+        false: "outline-none focus:ring-0 focus:outline-none"
       }
     },
     compoundVariants: [
@@ -114,7 +114,7 @@ export const rootVariants = cva(
         color: "base",
         variant: "outline",
         class:
-          "bg-base-background text-base-foreground hover:text-base-foreground/75"
+          "bg-control-background text-base-foreground hover:text-base-foreground/75"
       },
       {
         color: "primary",
@@ -284,7 +284,7 @@ export const rootVariants = cva(
       // --- link (simplified - just inherit text color)
       {
         variant: "link",
-        class: ""
+        class: "hover:opacity-75"
       },
       {
         variant: "link",
@@ -351,7 +351,6 @@ export const rootVariants = cva(
       variant: "flat",
       color: "base",
       size: "md",
-      isFocusable: true,
       isBlock: false,
       isLoading: false,
       isPill: false

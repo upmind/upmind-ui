@@ -16,10 +16,13 @@ import type { Icon } from "../icon/types";
 import type { triggerVariants } from "./selectCards.config";
 type TriggerVariantProps = VariantProps<typeof triggerVariants>;
 
+// --- types
+import type { AvatarProps } from "../avatar";
+
 export interface SelectCardsItemProps extends RadioGroupItemProps {
   label: string;
   icon?: Icon | string;
-  avatar?: string | Icon;
+  avatar?: Partial<AvatarProps>;
   appendLabel?: string;
   badge?: BadgeProps | string;
 }
