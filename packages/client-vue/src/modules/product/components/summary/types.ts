@@ -10,6 +10,7 @@ export interface SummaryItemProps extends ProductSummaryDetail {
 
 export interface SummaryPricingProps {
   pricing: Product["pricing"];
+  details: Product["details"];
   processing?: boolean;
   loading?: boolean;
 }

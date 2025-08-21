@@ -1,20 +1,19 @@
 <template>
-  <div
-    ref="form"
-    class="flex flex-col gap-6"
-    :class="{
-      'mb-4': (schema && uischema && !meta.isRenderless) || instructions
-    }"
-  >
+  <div ref="form" class="flex flex-col gap-6">
     <transition-group
       tag="div"
       :class="[
         'flex flex-col items-center justify-center gap-6',
         {
-          '': variant === 'outline' || meta.hasRenderer || meta.hasInstructions,
-          'border-control-error focus-within:ring-control-error focus-within:ring-4 focus-within:ring-opacity-20':
+          '':
+            variant === 'outline-solid' ||
+            meta.hasRenderer ||
+            meta.hasInstructions,
+          'border-control-error focus-within:ring-control-error focus-within:ring-opacity-20 focus-within:ring-4':
             meta.hasErrors &&
-            (variant === 'outline' || meta.hasRenderer || meta.hasInstructions)
+            (variant === 'outline-solid' ||
+              meta.hasRenderer ||
+              meta.hasInstructions)
         }
       ]"
       enter-active-class="m-0 transition duration-300 ease-out"

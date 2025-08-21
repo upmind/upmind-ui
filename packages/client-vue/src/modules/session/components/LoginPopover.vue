@@ -13,7 +13,7 @@
       data-testid="popover-content"
     >
       <div class="flex h-full flex-col md:flex-row">
-        <div class="w-screen p-8 md:w-[26rem]">
+        <div class="w-screen p-8 md:w-104">
           <Session no-header no-tabs v-model="tab" color="primary" />
         </div>
       </div>

@@ -1,0 +1,9 @@
+@import "@upmind-automation/upmind-ui/styles";
+
+/* @import "tailwindcss"; */
+@plugin "./assets/plugins/typography.plugin.ts";
+
+@import "./assets/typography.css";
+@import "./assets/theme.css";
+
+@source './src/**/*.{html,vue,js,tsx,ts}';

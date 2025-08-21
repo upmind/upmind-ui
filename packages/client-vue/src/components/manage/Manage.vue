@@ -12,6 +12,7 @@
       v-model="modelValue"
       :readonly="props.readonly"
       :class="props.class"
+      class="text-md"
       :minimal="props.minimal"
       @add="doAdd"
       @edit="doEdit"

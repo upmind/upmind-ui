@@ -13,6 +13,7 @@
         v-for="promotion in props.promotions"
         :key="promotion.code.toString()"
         v-bind="promotion"
+        size="sm"
       />
 
       <span

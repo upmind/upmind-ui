@@ -1,92 +1,94 @@
 // --- internal
-import { useBrand } from "../brand";
 import { useSystem } from "../system";
+import { useBrand } from "../brand";
 
 // --- utils
 import {
-  ErrorOrigin,
-  useImageUrl,
-  responseCodes,
   DetailedError,
-  useValidation,
-  useTranslateName,
+  ErrorOrigin,
+  responseCodes,
+  useLaravalSchemaParser,
   useTranslateField,
-  useLaravalSchemaParser
+  useTranslateName,
+  useValidation,
+  useImageUrl
 } from "../../utils";
 
 import {
+  compact,
+  concat,
+  find,
+  first,
+  flatMap,
+  forEach,
   get,
   has,
-  map,
-  set,
-  find,
-  keys,
-  some,
-  uniq,
-  first,
+  isArray,
+  isEmpty,
+  isFunction,
   isNil,
+  isNumber,
+  keys,
+  map,
   maxBy,
   merge,
   minBy,
-  times,
-  concat,
   omitBy,
-  reduce,
-  values,
-  compact,
-  flatMap,
-  forEach,
-  isArray,
-  isEmpty,
   orderBy,
+  reduce,
   reverse,
-  isNumber,
+  set,
+  some,
   subtract,
+  times,
   toNumber,
-  isFunction
+  uniq,
+  values
 } from "lodash-es";
 
 import type {
-  IProduct,
-  IProductPrice,
   IBasketProduct,
+  IImage,
+  IProduct,
+  IProductAttribute,
+  IProductPrice,
   IProductOption,
-  IProductCategory,
-  IProductAttribute
+  IProductCategory
 } from "@upmind-automation/types";
-
 // --- types
 import {
-  ProductTypes,
   BrandConfigKeys,
   DefaultPaymentPeriod,
+  ProductTypes,
   PromotionDisplayTypes
 } from "@upmind-automation/types";
 
 import type {
-  UIMeta,
-  Product,
+  ExternalError,
+  IProductConfig,
+  PriceCalculations,
   PriceDetail,
-  TermDetails,
   PriceDisplay,
+  Product,
+  ProductBundle,
+  ProductBundles,
+  ProductConfigContext,
+  ProductDetails,
+  ProductImage,
+  TermDetails,
   ProductModel,
   ProductProps,
-  ExternalError,
-  ProductBundle,
-  IProductConfig,
-  ProductBundles,
-  ProductDetails,
   SubproductModel,
   SubproductValue,
   PromotionDetails,
-  PriceCalculations,
   SubproductDetails,
-  ProductConfigContext,
   ProductSummaryDetail,
+  ProductSummaryDetailWithPrice,
   SubproductModelValue,
-  ProductSummaryDetailWithPrice
+  UIMeta
 } from "./types";
 import { ErrorObject } from "ajv";
+import { IBrandMeta } from "../brand/types";
 
 // -----------------------------------------------------------------------------
 
@@ -555,10 +557,15 @@ export const parseProductDetails = (
     // ---
     cycle: rawProduct?.billing_cycle_months, // TODO check: cycle: rawProduct?.display_price_billing_cycle_months ?? rawProduct?.billing_cycle_months,
     defaultPaymentPeriod: rawProduct?.default_payment_period,
+    displayPrice: find(parseTermDetails(rawProduct.prices), [
+      "cycle",
+      rawProduct.display_price_billing_cycle_months
+    ]),
     // ---
     description: useTranslateField(rawProduct, "description"),
     excerpt: useTranslateField(rawProduct, "short_description"),
     imgUrl: useImageUrl(rawProduct?.image?.full_url, "400x400"),
+    images: parseProductImages(rawProduct?.images),
     // ---
     quantity: rawProduct?.min_order_quantity || rawProduct?.unit_quantity || 1,
     quantifiable: rawProduct?.order_type == 2,
@@ -569,28 +576,42 @@ export const parseProductDetails = (
         ? rawProduct?.max_order_quantity
         : Infinity,
     // ---
-    uiMeta: parseMeta(rawProduct?.meta ?? {}, rawProduct?.category),
+    uiMeta: parseMeta(
+      rawProduct?.meta ?? {},
+      rawProduct?.category ?? {},
+      (rawProduct?.brand?.meta as IBrandMeta)?.cart?.ui ?? {}
+    ),
     uiCategoryMeta: rawProduct?.category?.meta || undefined
   };
 };
 
 export const parseMeta = (
-  meta: UIMeta,
-  category?: IProductCategory
+  productMeta: UIMeta,
+  category?: IProductCategory,
+  brandMeta?: UIMeta
 ): Record<string, any> => {
-  const all = iterateParents(category, [], {
+  productMeta ??= {};
+  brandMeta ??= {};
+
+  const categoryMeta = iterateParents(category, [], {
     valueKey: "meta",
     parentKey: "top_category"
   });
 
-  return reduce(
-    all,
-    (result, value) => {
-      result = merge({}, result, value);
-      return result;
+  // Priority order: brand (lowest) → categories → product (highest)
+  // Start with brand meta, then merge each category meta, then product meta
+  let result = merge({}, brandMeta);
+
+  result = reduce(
+    categoryMeta,
+    (result, categoryMetaItem) => {
+      return merge({}, result, categoryMetaItem);
     },
-    meta || {}
+    result
   );
+
+  // Product meta has highest priority, so merge it last
+  return merge({}, result, productMeta);
 };
 
 export const parseTermDetails = (raw: IProductPrice[]): TermDetails[] => {
@@ -639,7 +660,11 @@ export const parseSubproductDetails = (
         description: useTranslateField(rawSubproduct.category, "description"),
         excerpt: useTranslateField(rawSubproduct.category, "short_description"),
         uiCategorymeta: rawSubproduct?.category.meta,
-        uiMeta: parseMeta(rawSubproduct?.meta ?? {}, rawSubproduct?.category),
+        uiMeta: parseMeta(
+          rawSubproduct?.meta ?? {},
+          rawSubproduct?.category,
+          (rawSubproduct?.brand?.meta as IBrandMeta)?.cart?.ui || {}
+        ),
         uiCategoryMeta: rawSubproduct?.category?.meta || undefined,
         meta: {
           multiple: rawSubproduct.category.multiple,
@@ -715,8 +740,8 @@ export const parseSummaryDetail = (
   raw: IProductPrice,
   overrides?: boolean
 ): ProductSummaryDetailWithPrice => {
-  const { includesTax } = useBrand();
   const { getBillingCycle } = useSystem();
+  const { includesTax } = useBrand();
   const cycle = getBillingCycle(raw.billing_cycle_months);
 
   const discounted =
@@ -1208,3 +1233,10 @@ function parseBundleConfig(raw: ProductBundle): ProductProps | undefined {
     silent: true // always silent for bundled products
   } as ProductProps;
 }
+
+export const parseProductImages = (images: IImage[]): ProductImage[] => {
+  return map(images, image => ({
+    url: useImageUrl(image.full_url, "400x400"),
+    default: !!image.default
+  })) as ProductImage[];
+};

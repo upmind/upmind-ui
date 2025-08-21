@@ -89,6 +89,7 @@ async function load(
     with_staged_imports: true,
     with: [
       "image",
+      "images",
       "prices",
       "products_attributes",
       "products_options",

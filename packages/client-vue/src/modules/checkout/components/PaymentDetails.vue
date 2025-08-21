@@ -26,6 +26,7 @@
             <template #icon>
               <Icon
                 icon="arrow-down"
+                size="xs"
                 :class="[
                   styles.checkout.accordion.trigger.icon,
                   {
@@ -70,10 +71,14 @@
 </template>
 
 <script lang="ts" setup>
+// --- external
+import { computed } from "vue";
+
 // --- internal
 import {
   useBasketPaymentDetails,
-  useBasket
+  useBasket,
+  useBrand
 } from "@upmind-automation/headless";
 import config from "../checkout.config";
 import { useStyles } from "@upmind-automation/upmind-ui";
@@ -102,16 +107,20 @@ import { set } from "lodash-es";
 const props = withDefaults(defineProps<PaymentDetailsProps>(), {
   color: "secondary",
   as: "div",
-  class: "bg-base shadow-sm"
+  class: "bg-base "
 });
 
 const { meta, model, gateway, input, gateways } = useBasketPaymentDetails();
-
 const { meta: basketMeta, checkout } = useBasket();
+const { uiCart } = useBrand();
+
+const configMeta = computed(() => ({
+  layout: uiCart.value?.layout
+}));
 
 const styles = useStyles(
   ["checkout", "checkout.accordion", "checkout.accordion.trigger"],
-  {},
+  configMeta,
   config
 ) as ComputedRef<{
   checkout: {

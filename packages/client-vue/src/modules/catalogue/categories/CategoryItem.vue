@@ -19,29 +19,37 @@
     <Icon
       v-if="categoryIcon"
       :icon="categoryIcon"
-      size="xs"
+      size="sm"
       :class="styles.categories.item.icon"
     />
 
-    <Button
-      variant="outline"
-      color="base"
-      :class="styles.categories.item.action"
-      @click="doSelect"
-    >
-      <h3 :class="styles.categories.item.titleContainer">
-        <span :class="styles.categories.item.title">{{ name }}</span>
+    <section :class="styles.categories.item.action">
+      <header :class="styles.categories.item.titleContainer">
+        <Button
+          :as="RouterLink"
+          size="lg"
+          variant="link"
+          :to="{
+            name: ROUTE.CATALOGUE,
+            query: {
+              catid: id,
+              sort: props.sort,
+              direction: props.direction
+            }
+          }"
+          >{{ name }}</Button
+        >
         <Icon
           icon="arrow-right"
-          size="xs"
+          size="2xs"
           :class="styles.categories.item.arrowIcon"
         />
-      </h3>
+      </header>
 
       <p v-if="description" :class="styles.categories.item.description">
         {{ description }}
       </p>
-    </Button>
+    </section>
   </Button>
 </template>
 
@@ -76,10 +84,6 @@ const { t } = useI18n();
 const categoryIcon = computed(() => {
   return props.uiMeta?.uischema?.icon;
 });
-
-const doSelect = () => {
-  modelValue.value = props.id;
-};
 
 const meta = computed(() => {
   return {

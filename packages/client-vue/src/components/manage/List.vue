@@ -33,29 +33,32 @@
     <template #actions>
       <slot name="actions" v-bind="{ open, meta, doAdd }">
         <footer class="mt-1 flex space-x-2">
-          <Link
+          <Button
             v-if="!open && parsedValues.length > 1"
             :label="t(`${i18nKey ?? 'manage'}.actions.change`)"
-            size="xs"
-            variant="muted"
+            size="sm"
+            variant="link"
+            color="muted"
             @click="open = true"
           />
 
-          <Link
+          <Button
             v-else-if="!readonly"
             :label="t(`${i18nKey ?? 'manage'}.actions.add`)"
-            size="xs"
-            variant="muted"
+            size="sm"
+            color="muted"
+            variant="link"
             @click="doAdd"
           />
 
           <!-- TODO: Decide on the designs for the list close -->
-          <Link
+          <Button
             v-if="open"
             class="sr-only"
             :label="t(`${i18nKey ?? 'manage'}.actions.close`)"
-            size="xs"
-            variant="muted"
+            size="sm"
+            color="muted"
+            variant="link"
             @click="open = false"
           />
         </footer>
@@ -73,7 +76,7 @@ import { useVModel } from "@vueuse/core";
 // --- internal
 
 // --- components
-import { RadioCardsCollapsible, Link } from "@upmind-automation/upmind-ui";
+import { RadioCardsCollapsible, Button } from "@upmind-automation/upmind-ui";
 import Item from "./Item.vue";
 
 // --- utils

@@ -1,19 +1,16 @@
 <template>
   <Layout>
-    <ContentSection v-auto-animate class="flex flex-grow items-center">
+    <ContentSection v-auto-animate class="flex grow items-center">
       <Interstitial
         v-bind="props"
         :title="t('basket.empty.title')"
         :text="t('basket.empty.text')"
         :actions="[
           {
-            as: 'a',
+            is: 'a',
             color: 'primary',
             href: storefrontUrl,
-            prependIcon: {
-              icon: 'arrow-left',
-              size: '2xs'
-            },
+            icon: 'arrow-left',
             label: t('errors.404.action')
           }
         ]"

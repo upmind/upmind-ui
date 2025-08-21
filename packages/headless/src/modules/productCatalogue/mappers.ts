@@ -1,5 +1,5 @@
 // --- utils
-import { parseQuantity } from "../product/utils";
+import { parseQuantity, parseMeta } from "../product/utils";
 import { calculateBillingTerm } from "../product/utils";
 import { isEmpty, omit, toSafeInteger } from "lodash-es";
 import { parseProductDetails, parseTermDetails } from "../product/utils";
@@ -33,11 +33,11 @@ export function parseProduct(raw: IProduct): Product {
   // ---------------------------------------------------------------------------
   return {
     id: raw.id, // this is the internal id of the recommendation, with a fallback to a random uuid for the meta-generated recommendations; they don't have an id
-    productDetails: omit(productDetails, ["uiCategoryMeta", "uiMeta"]),
+    productDetails: productDetails,
     meta: term?.meta,
     promotions: term?.promotions,
     price: term?.price,
-    pricing: [],
+    pricing: terms,
     details: [],
     // --- default config to be used when adding to a basket
     configuration: {

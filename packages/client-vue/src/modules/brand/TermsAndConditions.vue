@@ -14,23 +14,23 @@
           {{ t("brand.termsAndConditions.action") }}
         </span>
 
-        <Link
+        <Button
           v-else-if="meta.isUrl"
           :href="data.url"
           target="_blank"
           class="font-normal text-inherit"
-        >
-          {{ t("brand.termsAndConditions.action") }}
-        </Link>
+          variant="link"
+          :label="t('brand.termsAndConditions.action')"
+        />
 
-        <Link
+        <Button
           v-else
           @click="toggleOpen"
           class="font-normal text-inherit"
           data-testid="terms-link"
-        >
-          {{ t("brand.termsAndConditions.action") }}
-        </Link>
+          variant="link"
+          :label="t('brand.termsAndConditions.action')"
+        />
       </template>
     </i18n-t>
 
@@ -40,7 +40,6 @@
       to="#vue-app"
       size="3xl"
       fit="cover"
-      skrim="primary"
       class="bg-white"
       class-footer="flex-row items-center justify-between gap-x-4"
       :title="t('brand.termsAndConditions.action')"
@@ -71,9 +70,7 @@ import {
   Drawer,
   Loading,
   Markdown,
-  Link,
-  Button,
-  Icon
+  Button
 } from "@upmind-automation/upmind-ui";
 
 // --- utils

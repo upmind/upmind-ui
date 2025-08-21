@@ -35,13 +35,14 @@ const regionsStore = new Store<Record<string, IRegion[]>>({});
 
 // ---  SERVICE METHODS
 
-function fetchCurrencies({
-  pagination = {
-    limit: 0,
-    offset: 0
-  },
-  ...params
-}: Partial<QueryParams> = {}) {
+function fetchCurrencies(
+  { pagination, ...params }: Partial<QueryParams> = {
+    pagination: {
+      limit: 0,
+      offset: 0
+    }
+  }
+) {
   const { list, useUrl } = useQuery();
 
   return list<ICurrency[]>({
@@ -55,13 +56,14 @@ function fetchCurrencies({
   });
 }
 
-function fetchBillingCycles({
-  pagination = {
-    limit: 0,
-    offset: 0
-  },
-  ...params
-}: Partial<QueryParams> = {}) {
+function fetchBillingCycles(
+  { pagination, ...params }: Partial<QueryParams> = {
+    pagination: {
+      limit: 0,
+      offset: 0
+    }
+  }
+) {
   const { list, useUrl } = useQuery();
   return list<IBillingCycle[]>({
     ...(params as any),
@@ -74,7 +76,14 @@ function fetchBillingCycles({
   });
 }
 
-function fetchCountries({ pagination, ...params }: Partial<QueryParams> = {}) {
+function fetchCountries(
+  { pagination, ...params }: Partial<QueryParams> = {
+    pagination: {
+      limit: 0,
+      offset: 0
+    }
+  }
+) {
   const { list, useUrl } = useQuery();
 
   return list<ICountry[]>({
@@ -91,10 +100,7 @@ function fetchCountries({ pagination, ...params }: Partial<QueryParams> = {}) {
 
 function fetchRegions({
   data: { code, id },
-  pagination = {
-    limit: 0,
-    offset: 0
-  },
+  pagination,
   ...params
 }: Partial<QueryParams> & {
   data: { code: string; id: string };
@@ -120,13 +126,14 @@ function fetchRegions({
   });
 }
 
-function fetchLanguages({
-  pagination = {
-    limit: 0,
-    offset: 0
-  },
-  ...params
-}: Partial<QueryParams> = {}) {
+function fetchLanguages(
+  { pagination, ...params }: Partial<QueryParams> = {
+    pagination: {
+      limit: 0,
+      offset: 0
+    }
+  }
+) {
   const { meta, user } = useSession();
   const { list, useUrl } = useQuery();
 
@@ -150,13 +157,14 @@ function fetchLanguages({
   });
 }
 
-function fetchStatuses({
-  pagination = {
-    limit: 0,
-    offset: 0
-  },
-  ...params
-}: Partial<QueryParams> = {}) {
+function fetchStatuses(
+  { pagination, ...params }: Partial<QueryParams> = {
+    pagination: {
+      limit: 0,
+      offset: 0
+    }
+  }
+) {
   const { list, useUrl } = useQuery();
 
   return list<IStatus>({
@@ -170,10 +178,14 @@ function fetchStatuses({
   });
 }
 
-function fetchDepartments({
-  pagination,
-  ...params
-}: Partial<QueryParams> = {}) {
+function fetchDepartments(
+  { pagination, ...params }: Partial<QueryParams> = {
+    pagination: {
+      limit: 0,
+      offset: 0
+    }
+  }
+) {
   const { list, useUrl } = useQuery();
 
   return list<ITicketDepartment[]>({

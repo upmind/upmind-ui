@@ -55,9 +55,9 @@ async function loadLookups(
   // }
 
   const baseModel: BillingModel = {
-    addressId: undefined,
-    companyId: undefined,
-    phoneId: undefined
+    addressId: null,
+    companyId: null,
+    phoneId: null
   };
 
   const safeModel = useModelParser<BillingModel>(schema, model, baseModel);

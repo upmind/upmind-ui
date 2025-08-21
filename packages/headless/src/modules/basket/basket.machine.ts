@@ -422,7 +422,7 @@ export default createMachine(
         basket: (_context: BasketContext, { data }: AnyEventObject) =>
           parseBasket(data),
         error: (_context: BasketContext, { data }: AnyEventObject) =>
-          mapToHeadlessError(data?.errors),
+          get(data, "errors"), //NB: these are already mapped in the service, so no need to map them again
         products: (_context: BasketContext, { data }: AnyEventObject) => {
           const basket = parseBasket(data);
           const products = get(basket, "products", []);

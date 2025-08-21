@@ -30,7 +30,7 @@
                     :checked="isSelected(item.value)"
                     tabindex="-1"
                     disabled
-                    class="relative !cursor-pointer !opacity-100" /></span
+                    class="relative cursor-pointer! opacity-100!" /></span
                 >{{ item.label }}
               </label>
               <template #icon><span /></template>
@@ -80,6 +80,7 @@
                   :placeholder="t('domain.existing.search')"
                   width="full"
                   :list="ownedDomains"
+                  class="bg-base-background"
                 />
               </FormControl>
 

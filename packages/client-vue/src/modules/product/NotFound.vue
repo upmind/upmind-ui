@@ -1,6 +1,6 @@
 <template>
   <Layout>
-    <ContentSection v-auto-animate class="flex flex-grow items-center">
+    <ContentSection v-auto-animate class="flex grow items-center">
       <Interstitial
         open
         modal
@@ -9,13 +9,10 @@
         :text="t('basket.notFound.text')"
         :actions="[
           {
-            as: 'a',
+            is: 'a',
             color: 'primary',
             href: storefrontUrl,
-            prependIcon: {
-              icon: 'arrow-left',
-              size: '2xs'
-            },
+            icon: 'arrow-left',
             label: t('basket.notFound.actions.continue')
           }
         ]"
@@ -51,9 +48,6 @@ import { useBrand } from "@upmind-automation/headless";
 import { Interstitial, Layout } from "@upmind-automation/upmind-ui";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
-
-// -- types
-import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 

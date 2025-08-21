@@ -1,140 +1,133 @@
 <template>
-  <Layout>
+  <Layout :variant="uiCart?.layout" minimal>
     <template #navigation>
       <Back v-bind="route" i18n-key="basket.back" />
     </template>
 
-    <div class="flex items-center justify-center" v-auto-animate>
-      <section
-        class="relative mx-auto flex w-full flex-wrap items-start justify-between gap-8"
+    <template #header>
+      <Header
+        :title="t('basket.title')"
+        :description="
+          t('basket.description', [summary.total], products?.length || 0)
+        "
+      />
+    </template>
+
+    <template #default>
+      <Section
+        :title="t('basket.items')"
+        :ui-config="{
+          section: {
+            root: styles.basket.items.root,
+            content: styles.basket.items.content
+          } as any
+        }"
       >
-        <div class="flex min-w-0 flex-1 flex-col gap-8">
-          <ContentSection>
-            <template #title>
-              <SmartTitle i18n-key="basket.title" size="2xl" />
-            </template>
-            <template #option>
-              <div class="flex items-center gap-6">
-                <Link
-                  :label="t('basket.expand', open ? 0 : 1)"
-                  :disabled="meta.isLoading || !meta.isAvailable"
-                  @click="open = !open"
-                  variant="muted"
-                  size="sm"
-                  class="space-x-2"
-                >
-                  <template v-slot:prepend>
-                    <Icon icon="configuration" class="size-3" />
-                  </template>
-                </Link>
-              </div>
-            </template>
+        <ProductCards :open="open" @update:open="open = $event" />
 
-            <ProductCards :open="open" @update:open="open = $event" />
-          </ContentSection>
+        <template #action>
+          <Button
+            variant="link"
+            color="muted"
+            :label="t('basket.expand', open ? 0 : 1)"
+            icon="sort-lines"
+            @click="open = !open"
+          />
+        </template>
+      </Section>
 
-          <!-- Custom Fields  -->
-          <ContentSection>
-            <template #title>
-              <SmartTitle i18n-key="customFields.title" size="2xl" />
-            </template>
-            <Card>
-              <Form
-                v-if="!fieldsMeta.isLoading"
-                :additional-errors="fieldsErrors?.data"
-                :model-value="fieldsModel"
-                :schema="fieldsSchema"
-                :uischema="fieldsUischema"
-                @reject="fieldsClear"
-                @resolve="fieldsUpdate"
-                @update:modelValue="fieldsUpdate"
-                no-actions
-                autosave
-              />
+      <Section
+        :title="t('customFields')"
+        :class="styles.basket.customFields.root"
+        :ui-config="{
+          section: {
+            root: styles.basket.items.root,
+            content: styles.basket.items.content
+          } as any
+        }"
+      >
+        <Form
+          v-if="!fieldsMeta.isLoading"
+          :additional-errors="fieldsErrors?.data"
+          :model-value="fieldsModel"
+          :schema="fieldsSchema"
+          :uischema="fieldsUischema"
+          @reject="fieldsClear"
+          @resolve="fieldsUpdate"
+          @update:modelValue="fieldsUpdate"
+          no-actions
+          autosave
+        />
+      </Section>
+    </template>
 
-              <template v-else>
-                <Skeleton class="-mt-1 w-24 text-sm leading-normal"
-                  >Title</Skeleton
-                >
-                <Skeleton class="mt-1 h-20 w-full" />
-              </template>
-            </Card>
-          </ContentSection>
-        </div>
+    <template #aside>
+      <Section :title="t('basket.summary.title')" :class="styles.basket.aside">
+        <Summary />
 
-        <aside
-          class="flex w-full flex-col items-start gap-4 sm:sticky sm:top-1 xl:max-w-md"
-        >
-          <ContentSection :title="t('basket.summary.title')">
-            <Card>
-              <Summary />
-            </Card>
-          </ContentSection>
+        <footer class="w-full">
+          <Button
+            :as="RouterLink"
+            :to="{ name: ROUTE.CHECKOUT }"
+            :disabled="
+              !fieldsMeta.isComplete ||
+              meta.isProcessing ||
+              meta.isLoading ||
+              !meta.hasProducts ||
+              meta.hasInvalidProducts
+            "
+            block
+            size="lg"
+            color="primary"
+            :loading="meta.isProcessing || meta.isLoading"
+            :label="t('basket.summary.proceed')"
+            icon="cart"
+            pill
+          />
+        </footer>
+      </Section>
+    </template>
 
-          <footer class="w-full">
-            <Button
-              :as="RouterLink"
-              :to="{ name: ROUTE.CHECKOUT }"
-              :disabled="
-                !fieldsMeta.isComplete ||
-                meta.isProcessing ||
-                meta.isLoading ||
-                !meta.hasProducts ||
-                meta.hasInvalidProducts
-              "
-              block
-              color="primary"
-              :loading="meta.isProcessing || meta.isLoading"
-              :label="t('basket.summary.proceed')"
-            >
-              <template #prepend>
-                <Icon icon="cart" size="2xs" class="-mt-0.5 mr-2" />
-              </template>
-            </Button>
-          </footer>
-
-          <Alert
-            v-if="meta.hasInvalidProducts"
-            color="error"
-            icon="alert-triangle"
-            :description="t('basket.requiresAction.summary.description')"
+    <template #aside-footer>
+      <Alert
+        v-if="meta.hasInvalidProducts"
+        color="error"
+        icon="alert"
+        :description="t('basket.requiresAction.summary.description')"
+      >
+        <template #title>
+          <i18n-t
+            keypath="basket.requiresAction.summary.title"
+            tag="span"
+            :plural="productsInvalid.length"
+            scope="global"
+          />
+        </template>
+        <ol class="ml-4 list-disc text-left">
+          <li
+            v-for="basketItem in productsInvalid"
+            :key="basketItem.id"
+            class="marker:text-inherit"
           >
-            <template #title>
-              <i18n-t
-                keypath="basket.requiresAction.summary.title"
-                tag="span"
-                :plural="productsInvalid.length"
-                scope="global"
-              />
-            </template>
-            <ol class="list-disc text-left">
-              <li
-                v-for="basketItem in productsInvalid"
-                :key="basketItem.id"
-                class="marker:text-inherit"
-              >
-                <Link
-                  class="text-inherit"
-                  :to="{
-                    name: ROUTE.PRODUCT_EDIT,
-                    params: { bpid: basketItem.id }
-                  }"
-                >
-                  <span>{{ basketItem?.productDetails?.title }}</span>
-                </Link>
-              </li>
-            </ol>
-          </Alert>
-        </aside>
-      </section>
-    </div>
+            <router-link
+              class="text-inherit"
+              :to="{
+                name: 'product.edit',
+                params: { bpid: basketItem.id }
+              }"
+            >
+              <span>{{ basketItem?.productDetails?.title }}</span>
+            </router-link>
+          </li>
+        </ol>
+      </Alert>
+    </template>
   </Layout>
 </template>
 
 <script lang="ts" setup>
 // --- external
 import { ref, computed } from "vue";
-import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -145,31 +138,28 @@ import {
   useBrand,
   ROUTE
 } from "@upmind-automation/headless";
+import { useStyles } from "@upmind-automation/upmind-ui";
+import config from "./basket.config";
 
 // --- components
-import {
-  Layout,
-  Card,
-  Button,
-  Icon,
-  Alert,
-  Link,
-  Skeleton
-} from "@upmind-automation/upmind-ui";
-import ContentSection from "../../components/content/ContentSection.vue";
+import { Layout, Button, Alert } from "@upmind-automation/upmind-ui";
+import Header from "../../components/content/Header.vue";
 import Summary from "./components/Summary.vue";
 import ProductCards from "./product/BasketProductCards.vue";
 import Form from "../../components/form/Form.vue";
-import SmartTitle from "../../components/content/SmartTitle.vue";
 import Back from "../../components/navigation/Back.vue";
+import Section from "../../components/content/LayoutSection.vue";
 import { isEmpty, omitBy } from "lodash-es";
 import { RouterLink } from "vue-router";
+
+// --- types
+import { type ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { meta, productsInvalid, isReady } = useBasket();
-const { storefrontUrl, hasStorefront } = useBrand();
+const { meta, productsInvalid, isReady, products, summary } = useBasket();
+const { uiCart, storefrontUrl, hasStorefront } = useBrand();
 
 const {
   errors: fieldsErrors,
@@ -184,6 +174,30 @@ const {
 const open = ref(false);
 
 await isReady();
+
+const basketMeta = computed(() => {
+  return {
+    variant: uiCart.value?.layout
+  };
+});
+
+const styles = useStyles(
+  ["basket.expand", "basket.items", "basket.customFields", "basket.aside"],
+  basketMeta,
+  config
+) as ComputedRef<{
+  basket: {
+    aside: string;
+    expand: string;
+    items: {
+      root: string;
+      content: string;
+    };
+    customFields: {
+      root: string;
+    };
+  };
+}>;
 
 const route = computed(() => {
   return omitBy(

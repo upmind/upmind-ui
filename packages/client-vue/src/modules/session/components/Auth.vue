@@ -32,27 +32,48 @@
 
   <div v-if="!meta.isLoading" :class="styles.session.auth.actions">
     <slot name="toggle">
-      <Link
+      <Button
         v-if="!meta.isAuthenticated && meta.showLoginForm"
         @click="toggleForm('recover')"
-      >
-        {{ buttons.recover.label }}
-      </Link>
+        variant="link"
+        color="muted"
+        :label="buttons.recover.label"
+        size="lg"
+      />
     </slot>
     <Button
       v-if="meta.isAuthenticated"
       variant="ghost"
+      size="lg"
       block
       type="reset"
       @click.prevent="logout"
-    >
-      logout
-    </Button>
-
-    <TermsAndConditions
-      class="text-emphasis-medium text-center text-sm"
-      v-if="currentForm === 'register'"
+      :label="t('auth.actions.logout')"
     />
+
+    <i18n-t
+      v-if="currentForm === 'register'"
+      keypath="session.terms.label"
+      tag="p"
+      class="text-emphasis-medium text-sm"
+    >
+      <template #[`action`]>
+        {{ t("auth.actions.register") }}
+      </template>
+      <template #[`name`]>
+        {{ name }}
+      </template>
+      <template #[`terms`]>
+        <Button
+          v-if="uiCart?.terms_url"
+          variant="link"
+          :href="uiCart.terms_url"
+          target="_blank"
+          :label="t('session.terms.link')"
+        />
+        <template v-else>{{ t("session.terms.link") }}</template>
+      </template>
+    </i18n-t>
   </div>
 </template>
 
@@ -64,7 +85,6 @@ import { useVModel } from "@vueuse/core";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
-import TermsAndConditions from "../../brand/TermsAndConditions.vue";
 import Form from "../../../components/form/Form.vue";
 import config from "../sesssion.config";
 import {
@@ -76,7 +96,7 @@ import {
 import { useStyles, cn } from "@upmind-automation/upmind-ui";
 
 // --- custom elements
-import { Link, Alert, Button } from "@upmind-automation/upmind-ui";
+import { Alert, Button } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -166,7 +186,8 @@ const authActions = computed(() => {
             ? t("auth.actions.recover")
             : t("auth.actions.continue"),
       block: true,
-      needsValid: true
+      needsValid: true,
+      size: "lg"
     }
   };
 });

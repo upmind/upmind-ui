@@ -26,10 +26,11 @@
       v-if="meta.hasItems && meta.hasMore"
       :label="t('domain.dac.actions.more')"
       :loading="meta.isLoading"
-      @click="onSearchOffset"
+      @click="() => onSearchOffset(offset)"
       block
       variant="ghost"
       color="base"
+      size="lg"
     />
   </div>
 
@@ -41,6 +42,7 @@
       :label="t('domain.dac.actions.continue', selected?.length)"
       prependIcon="plus"
       :color="color"
+      size="lg"
     />
     <!-- </div> -->
   </div>

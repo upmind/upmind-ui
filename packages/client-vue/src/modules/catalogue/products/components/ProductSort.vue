@@ -1,34 +1,11 @@
 <template>
-  <div :class="styles.products.filters.root">
-    <Button
-      variant="outline"
-      color="base"
-      class="w-full"
-      @click="toggleDirection"
-      :disabled="isEmpty(property)"
-    >
-      <template #prepend>
-        <Icon
-          :icon="
-            direction == RequestSortDirection.ASC ? 'sort-asc' : 'sort-desc'
-          "
-          size="2xs"
-          :class="styles.products.filters.trigger"
-        />
-      </template>
-    </Button>
-
-    <DropdownMenu :items="items" class="flex-1">
-      <template #trigger>
-        <Button
-          variant="outline"
-          color="base"
-          :label="currentSort?.label"
-          class="w-full"
-        />
-      </template>
-    </DropdownMenu>
-  </div>
+  <ButtonGroup
+    :items="groupItems"
+    variant="outline"
+    color="base"
+    size="lg"
+    :class="styles.products.filters.root"
+  />
 </template>
 
 <script setup lang="ts">
@@ -45,10 +22,12 @@ import config from "../../catalogue.config";
 
 // --- components
 import {
-  Button,
-  Icon,
-  DropdownMenu,
-  useStyles
+  ButtonGroup,
+  ButtonGroupTypes,
+  useStyles,
+  type ButtonGroupItem,
+  type ButtonProps,
+  type DropdownMenuProps
 } from "@upmind-automation/upmind-ui";
 
 // --- utils
@@ -118,4 +97,23 @@ const styles = useStyles(
     };
   };
 }>;
+
+const groupItems = computed((): ButtonGroupItem[] => [
+  {
+    type: ButtonGroupTypes.Button,
+    props: {
+      icon:
+        direction.value == RequestSortDirection.ASC ? "sort-asc" : "sort-desc",
+      disabled: isEmpty(property.value)
+    } satisfies ButtonProps,
+    handler: toggleDirection
+  },
+  {
+    type: ButtonGroupTypes.Dropdown,
+    props: {
+      label: currentSort.value?.label,
+      items: items.value
+    } satisfies DropdownMenuProps
+  }
+]);
 </script>

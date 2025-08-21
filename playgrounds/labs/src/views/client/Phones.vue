@@ -1,5 +1,5 @@
 <template>
-  <UpmContentSection class="mx-auto max-w-app" title="Phones">
+  <UpmContentSection class="max-w-app mx-auto" title="Phones">
     <UpmManage
       v-if="meta.isAuthenticated"
       i18n-key="client.phone"
