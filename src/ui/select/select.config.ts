@@ -39,7 +39,8 @@ export default {
       }
     }),
     item: cva(
-      "focus:bg-control-active-hover focus:text-control-foreground rounded text-sm"
-    )
+      "focus:bg-control-active-hover focus:text-control-foreground data-[state=unchecked]:text-emphasis-medium hover:!text-emphasis-none cursor-pointer gap-3 rounded px-4 py-2 text-sm font-medium transition-all duration-300"
+    ),
+    content: cva("p-2")
   }
 };
