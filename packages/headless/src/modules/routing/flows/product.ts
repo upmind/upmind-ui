@@ -155,6 +155,7 @@ export const useProductFlows = () => {
                 };
             }
           },
+          ROUTE.PRODUCT_NOT_FOUND,
           ROUTE.CATALOGUE
         ]
       }
