@@ -3,16 +3,16 @@
     v-bind="forwardedProps"
     :class="
       cn(
-        'focus-visible:ring-ring border-control text-primary ring-offset-background aspect-square h-4 w-4 rounded-full border focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+        'focus-visible:ring-ring border-control text-primary ring-offset-background aspect-square h-4.5 w-4.5 rounded-full border focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
 
-        'data-[state=checked]:text-control-active-foreground bg-control-background text-control-foreground data-[state=checked]:bg-control-active shrink-0',
+        'data-[state=checked]:text-control-active-foreground bg-base-background text-control-foreground data-[state=checked]:bg-control-active shrink-0',
         props.class,
         props.noInput ? 'sr-only' : ''
       )
     "
   >
     <RadioGroupIndicator class="flex items-center justify-center">
-      <Circle class="h-2.5 w-2.5 fill-current text-current" />
+      <Circle class="h-2 w-2 fill-current text-current" />
     </RadioGroupIndicator>
   </RadioGroupItem>
 </template>

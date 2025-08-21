@@ -56,11 +56,11 @@ export const innerVariant = cva("mx-auto max-h-[75vh] w-full", {
 export const overlayVariant = cva("", {
   variants: {
     skrim: {
-      dark: "bg-base-foreground/75",
-      light: "bg-base-foreground/20",
-      primary: "bg-primary-950/90",
-      secondary: "bg-secondary-950/90",
-      accent: "bg-accent-950/90"
+      dark: "bg-foreground/80",
+      light: "bg-foreground/50",
+      primary: "bg-primary-foreground/80",
+      secondary: "bg-secondary-foreground/80",
+      accent: "bg-accent-foreground/80"
     },
     defaultVariants: {
       skrim: "dark"

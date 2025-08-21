@@ -4,7 +4,11 @@
     data-testid="description-list"
     v-auto-animate
   >
-    <div v-for="(item, index) in items" :key="index" :class="styles.list.item">
+    <div
+      v-for="(item, index) in items"
+      :key="`dl-item-${index}`"
+      :class="styles.list.item"
+    >
       <dt :class="cn(styles.list.term)">
         {{ item.term }}
       </dt>

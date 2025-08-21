@@ -59,7 +59,7 @@ export const useUpmindUIRenderer = <
     });
 
     if (
-      isObject(input.control.value.schema.type) ||
+      input.control.value.schema.type == "object" &&
       !isEmpty(input.control.value.schema?.properties)
     ) {
       const resolvedSchema = Resolve.schema(

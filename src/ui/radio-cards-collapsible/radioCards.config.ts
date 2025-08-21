@@ -49,7 +49,7 @@ export default {
     item: itemVariants,
     radio: cva("size-lh flex items-center justify-center"),
     input: cva(
-      `group-hover:border-control-strong border-control leading-normal ring-offset-2 [transition:border-color_200ms_ease-in-out] ${ringClasses}`
+      `group-hover:border-control-strong leading-normal [transition:border-color_200ms_ease-in-out]`
     )
   }
 };
