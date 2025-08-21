@@ -52,12 +52,6 @@ export interface ProductTerm {
   prices?: ProductSummaryDetailWithPrice[];
 }
 
-export interface ProductCardSkeletonProps
-  extends Omit<
-    ProductCardProps,
-    "configuration" | "productDetails" | "details"
-  > {
-  configuration?: ProductSummaryDetail;
-  productDetails?: ProductDetails;
-  details?: ProductSummaryDetailWithPrice[];
+export interface ProductCardSkeletonProps {
+  hideTerms?: boolean;
 }
