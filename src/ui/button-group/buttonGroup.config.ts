@@ -2,7 +2,7 @@
 import { cva, cx } from "class-variance-authority";
 import { rootVariants } from "../button/button.config";
 
-const buttonGroupVariants = cva("p-0", {
+const buttonGroupVariants = cva("gap-0 p-0", {
   variants: {
     variant: {
       outline: "divide-border divide-x"
