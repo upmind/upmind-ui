@@ -108,10 +108,8 @@ export const useClientCompanies = (
      * The reactive data property containing the list of client items.
      * This is populated by the query and updates automatically when the query state changes.
      */
-    data: computed(() => {
-      const d = query.data.value;
-      return isArray(d?.data) ? d.data : null;
-    }),
+    data: computed(() => (isArray(query.data.value) ? query.data.value : [])),
+
     /**
      * The current error state of the query.
      * This will be populated if the query fails to fetch data.
