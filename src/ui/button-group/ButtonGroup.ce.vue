@@ -1,5 +1,5 @@
 <template>
-  <div
+  <span
     :class="cn(styles.buttonGroup.root, props.class)"
     role="group"
     :aria-disabled="disabled"
@@ -9,7 +9,7 @@
       :key="'button-group-item-' + index"
     >
       <Button
-        v-if="item.type === 'button'"
+        v-if="item.type === ButtonGroup.Button"
         :class="styles.buttonGroup.button"
         v-bind="item.props"
         :color="color"
@@ -21,7 +21,7 @@
       />
 
       <DropdownMenu
-        v-else-if="item.type === 'dropdown'"
+        v-else-if="item.type === ButtonGroup.Dropdown"
         v-bind="item.props"
         :color="color"
         :size="size"
@@ -33,7 +33,7 @@
         }"
       />
     </template>
-  </div>
+  </span>
 </template>
 
 <script lang="ts" setup>
@@ -51,6 +51,7 @@ import { DropdownMenu } from "../dropdown-menu";
 // --- types
 import type { ComputedRef } from "vue";
 import type { ButtonGroupProps } from "./types";
+import { ButtonGroup } from "./types";
 
 const props = withDefaults(defineProps<ButtonGroupProps>(), {
   variant: "outline",
