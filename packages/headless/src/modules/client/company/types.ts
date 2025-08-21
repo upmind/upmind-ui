@@ -72,5 +72,5 @@ export interface CompanyContext extends ClientItemContext<CompanyModel> {
   country?: ICountry;
   regions?: IRegion[];
   countries: ICountry[];
-  minimal: boolean;
+  minimal?: boolean;
 }

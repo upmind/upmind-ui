@@ -18,9 +18,9 @@ const queryKey: QueryKey = ["invoices"];
 
 function loadInvoice({ invoiceId }: { invoiceId: Invoice["id"] }) {
   const { meta, user } = useSession();
-  const { list, useUrl } = useQuery();
+  const { query, useUrl } = useQuery();
 
-  return list<IInvoice, Invoice>({
+  return query<IInvoice, Invoice>({
     url: useUrl(`/invoices/${invoiceId}`, {
       with: [
         "brand",

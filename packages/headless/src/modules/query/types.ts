@@ -108,3 +108,12 @@ export interface RequestPagination {
   limit?: number;
   offset?: number;
 }
+
+export interface PaginationInfo {
+  limit: number;
+  total: number;
+  page: number;
+  pages: number;
+  from: number;
+  to: number;
+}

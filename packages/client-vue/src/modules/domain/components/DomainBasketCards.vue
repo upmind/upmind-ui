@@ -88,7 +88,7 @@ const items = computed((): SelectItemProps[] => {
     index,
     item: item,
     modelValue: modelValue.value,
-    value: item.domain,
+    value: item.domain.toString(),
     label: item.domain
   }));
 });

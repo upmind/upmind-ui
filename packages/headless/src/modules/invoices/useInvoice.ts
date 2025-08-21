@@ -28,10 +28,10 @@ export const useInvoice = (invoiceId: Invoice["id"]) => {
     isPaid:
       !isEmpty(query?.data?.value?.payments) &&
       query?.data?.value?.unpaid_amount === 0,
-    isEmpty: isEmpty(query?.data?.value) || query.pagination.value.total == 0,
-    hasError: !isEmpty(query.error.value),
-    isLoading: query?.isLoading.value || !query.isFetched.value,
-    isComplete: query.isFetched.value,
+    isEmpty: isEmpty(query?.data?.value),
+    hasError: !isEmpty(query?.error.value),
+    isLoading: query?.isLoading.value || !query?.isFetched.value,
+    isComplete: query?.isFetched.value,
     isAvailable: sessionMeta.value.isAuthenticated
   }));
 
@@ -39,14 +39,14 @@ export const useInvoice = (invoiceId: Invoice["id"]) => {
     if (sessionMeta.value.isAuthenticated)
       return new Promise(resolve => {
         const interval = setInterval(() => {
-          if (query.isFetched.value) {
+          if (query?.isFetched.value) {
             clearInterval(interval);
             resolve(true);
           }
         }, 100);
       });
     return isAuthenticated()
-      .then(() => query.refetch().then(() => true))
+      .then(() => query?.refetch().then(() => true) ?? false)
       .catch(() => false);
   }
 
@@ -82,13 +82,13 @@ export const useInvoice = (invoiceId: Invoice["id"]) => {
      * The reactive data property containing the invoice details.
      * This is populated by the query and updates automatically when the query state changes.
      */
-    data: query.data,
+    data: query?.data,
 
     /**
      * The current error state of the query.
      * This will be populated if the query fails to fetch data.
      */
-    error: query.error,
+    error: query?.error,
 
     // --- methods
 

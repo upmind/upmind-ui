@@ -8,7 +8,7 @@ import { invalidateQueryByKey } from "../../query";
 
 // --- utils
 import { useCollection } from "../../../utils";
-import { set, isEmpty } from "lodash-es";
+import { set, isEmpty, isArray } from "lodash-es";
 
 // --- types
 import type { Address } from "./types";
@@ -35,7 +35,9 @@ export const useClientAddresses = (
     ...query?.meta.value
   }));
 
-  const { findOne, getOne, getDefault } = useCollection<Address>(query.data);
+  const { findOne, getOne, getDefault } = useCollection<Address>(
+    isArray(query.data.value) ? query.data.value : []
+  );
 
   async function isReady(): Promise<boolean> {
     if (sessionMeta.value.isAuthenticated)
@@ -105,8 +107,10 @@ export const useClientAddresses = (
      * The reactive data property containing the list of client items.
      * This is populated by the query and updates automatically when the query state changes.
      */
-    data: query.data,
-
+    data: computed(() => {
+      const d = query.data.value;
+      return isArray(d?.data) ? d.data : null;
+    }),
     /**
      * The current error state of the query.
      * This will be populated if the query fails to fetch data.

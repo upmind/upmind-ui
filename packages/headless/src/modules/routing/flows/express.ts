@@ -48,11 +48,13 @@ export const useProductFlows = () => {
       name: ROUTE.EXPRESS_PRODUCT_ADD,
       guard: async (route: Route) => {
         const { productId } = useRouteQueryParams(route);
-        const valid = await getPendingProduct(productId)
-          .then(
-            basketItem => !stateMatches(basketItem.state, ["error", "complete"])
-          )
-          .catch(() => false);
+        const basketItem = await getPendingProduct(productId).catch(
+          () => undefined
+        );
+        const valid = basketItem
+          ? !stateMatches(basketItem.state, ["error", "complete"])
+          : false;
+
         return valid;
       },
       resolve: async (route: Route) => {

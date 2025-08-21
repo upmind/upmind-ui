@@ -15,8 +15,7 @@ export default defineConfig({
   build: {
     lib: {
       entry: {
-        main: resolve(__dirname, "src/index.ts"),
-        styles: resolve(__dirname, "src/main.css")
+        main: resolve(__dirname, "src/index.ts")
       },
       name: "@upmind-automation/client-vue",
       fileName: "index",

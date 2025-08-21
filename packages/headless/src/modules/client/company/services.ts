@@ -31,7 +31,7 @@ import {
 } from "../../../utils";
 import { invalidateQueryByKey } from "../../query";
 import { mapCompanies, mapCompany, mapICompany } from "./mappers";
-import { get, isString, isEmpty, find, some, pick } from "lodash-es";
+import { get, isString, isEmpty, find, some, pick, isArray } from "lodash-es";
 
 // --- types
 import { BrandConfigKeys, type ICompany } from "@upmind-automation/types";
@@ -184,7 +184,9 @@ async function update(id: Company["id"], data: CompanyModel) {
 async function ensure(model: CompanyModel): Promise<Company> {
   const { data, promise } = loadList();
   await promise.value.finally(); // wait for the query to resolve
-  const { findOne } = useCollection<Company>(data.value ?? []);
+  const { findOne } = useCollection<Company>(
+    isArray(data.value) ? data.value : []
+  );
 
   // We only need to check if we have an company with the matching id
   const mapping = pick(model, "id");

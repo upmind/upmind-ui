@@ -103,16 +103,16 @@ export const useSystem = () => {
 
   // --- computed data accessors
   const statuses = computed(() => statusesQuery.value?.data || []);
-  const countries = computed(() => countriesQuery.data.value || []);
+  const countries = computed(() => countriesQuery?.data.value || []);
   const languages = computed(() => languagesQuery.value?.data || []);
-  const currencies = computed(() => currenciesQuery.data.value || []);
+  const currencies = computed(() => currenciesQuery?.data.value || []);
   const departments = computed(() => departmentsQuery.value?.data || []);
-  const billingCycles = computed(() => billingCyclesQuery.data.value || []);
+  const billingCycles = computed(() => billingCyclesQuery?.data.value || []);
 
   const errors = computed(() => ({
-    countries: countriesQuery.error.value,
-    currencies: currenciesQuery.error.value,
-    billingCycles: billingCyclesQuery.error.value,
+    countries: countriesQuery?.error.value,
+    currencies: currenciesQuery?.error.value,
+    billingCycles: billingCyclesQuery?.error.value,
     statuses: statusesQuery.value?.error,
     languages: languagesQuery.value?.error,
     departments: departmentsQuery.value?.error
@@ -207,9 +207,7 @@ export const useSystem = () => {
     const query = services.fetchRegions({
       data: { id: country.id, code: country.code }
     });
-    return await query.promise.value.then(
-      response => response.data as IRegion[]
-    );
+    return query!.promise.value;
   }
 
   async function fetchStatuses(): Promise<IStatus[]> {
@@ -226,9 +224,9 @@ export const useSystem = () => {
   }
 
   async function fetchCountries(): Promise<ICountry[]> {
-    if (!countriesQuery.isFetched) {
+    if (countriesQuery && !countriesQuery.isFetched)
       await countriesQuery.refetch();
-    }
+
     return countries.value;
   }
 
@@ -396,9 +394,9 @@ export const useSystem = () => {
 
     // --- utility methods
     refresh: () => {
-      countriesQuery.refetch();
-      currenciesQuery.refetch();
-      billingCyclesQuery.refetch();
+      countriesQuery?.refetch();
+      currenciesQuery?.refetch();
+      billingCyclesQuery?.refetch();
       statusesQuery.value?.refetch();
       languagesQuery.value?.refetch();
       departmentsQuery.value?.refetch();
