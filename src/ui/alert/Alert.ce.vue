@@ -5,10 +5,7 @@
     <div class="flex items-center justify-start gap-2">
       <Icon v-if="icon" :icon="icon" size="2xs" />
       <div class="text-md/tight flex w-full items-center justify-between gap-2">
-        <AlertTitle
-          class="font-medium"
-          :class="description || $slots['description'] ? 'my-1' : ''"
-        >
+        <AlertTitle class="font-medium">
           <slot name="title">
             <span>{{ title }}</span>
           </slot>
@@ -18,7 +15,7 @@
       </div>
     </div>
 
-    <AlertDescription class="text-md/tight opacity-75">
+    <AlertDescription class="text-md/tight">
       <slot name="description">
         {{ description }}
       </slot>
