@@ -26,10 +26,7 @@
         :ring="false"
         variant="ghost"
         :uiConfig="{
-          dropdownMenu: {
-            trigger: styles.buttonGroup.button,
-            content: styles.buttonGroup.dropdown
-          }
+          dropdownMenu: styles.buttonGroup.dropdown
         }"
       />
     </template>
@@ -72,7 +69,7 @@ const meta = computed(() => ({
 }));
 
 const styles = useStyles(
-  ["buttonGroup"],
+  ["buttonGroup", "buttonGroup.dropdown"],
   meta,
   config,
   props.uiConfig ?? {}

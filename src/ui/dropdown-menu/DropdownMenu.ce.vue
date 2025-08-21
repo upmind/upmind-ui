@@ -122,7 +122,6 @@ const styles = useStyles(
     label?: string;
     group?: string;
     icon?: string;
-    item?: string;
   };
 }>;
 // ---

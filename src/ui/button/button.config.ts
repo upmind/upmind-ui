@@ -284,7 +284,7 @@ export const rootVariants = cva(
       // --- link (simplified - just inherit text color)
       {
         variant: "link",
-        class: ""
+        class: "hover:opacity-75"
       },
       {
         variant: "link",
