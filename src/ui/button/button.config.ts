@@ -114,7 +114,7 @@ export const rootVariants = cva(
         color: "base",
         variant: "outline",
         class:
-          "bg-base-background text-base-foreground hover:text-base-foreground/75"
+          "bg-control-background text-base-foreground hover:text-base-foreground/75"
       },
       {
         color: "primary",
