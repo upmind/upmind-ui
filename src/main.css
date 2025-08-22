@@ -22,3 +22,15 @@
     border-color: var(--color-gray-200, currentcolor);
   }
 }
+
+/* Autofill */
+@layer utilities {
+  .autofill:has(input:autofill) {
+    @apply bg-[var(--color-autofill,var(--color-blue-50))];
+  }
+
+  .autofill input:-webkit-autofill {
+    box-shadow: 0 0 0 1000px var(--color-autofill, var(--color-blue-50)) inset !important;
+    -webkit-text-fill-color: inherit !important;
+  }
+}
