@@ -369,9 +369,7 @@ export const useQuery = () => {
     return {
       ...response,
 
-      data: computed(
-        (): TData | null | undefined => response?.data?.value?.data
-      ),
+      data: computed((): TData => response?.data?.value?.data ?? ([] as TData)),
 
       total: computed((): number => response?.data?.value?.total ?? 0),
 
@@ -497,6 +495,7 @@ export const useQuery = () => {
     } as ReturnType<
       typeof vueUseQuery<TQueryFnData, DefaultError, QueryResponse<TData>>
     > & {
+      data: ComputedRef<TData>;
       pagination: ComputedRef<PaginationInfo>;
       meta: ComputedRef<{
         hasNextPage: boolean;

@@ -14,8 +14,8 @@ import type { ComputedRef, Ref } from "vue";
 export type MinimalListComposable = (...args: any) => {
   isReady: () => Promise<boolean>;
   meta: ComputedRef<Record<string, boolean>>;
-  data: ComputedRef<any[] | null> | Ref<any[] | null>;
-  default: ComputedRef<any>;
+  data: ComputedRef<any[]> | Ref<any[]>;
+  default: () => any | undefined;
 };
 
 export type MinimalMutateComposable = (

@@ -117,15 +117,15 @@ async function loadLookups({
 
   const baseModel: CompanyModel = {
     // --- one of
-    addressId: defaultAddress.value?.id,
-    address: !defaultAddress.value?.id
+    addressId: defaultAddress()?.id,
+    address: !defaultAddress()?.id
       ? ({ countryId: country?.id } as CompanyModel["address"])
       : undefined,
     // ---
-    emailId: defaultEmail.value?.id,
+    emailId: defaultEmail()?.id,
     // email: !defaultEmail.value?.id ? {} : undefined,
-    phoneId: defaultPhone.value?.id,
-    phone: !defaultPhone.value?.phone
+    phoneId: defaultPhone()?.id,
+    phone: !defaultPhone()?.phone
       ? ({ country: country?.id } as CompanyModel["phone"])
       : undefined
   };
