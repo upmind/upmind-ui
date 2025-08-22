@@ -6,7 +6,7 @@ export const tabsListVariants = cva(
     variants: {
       variant: {
         flat: "px-0",
-        outline: "border-2 bg-transparent",
+        outline: "p-0 shadow-border",
         tonal: "bg-opacity-10"
       },
       color: {
@@ -83,7 +83,7 @@ export const tabsListVariants = cva(
       {
         variant: "outline",
         color: "base",
-        class: "border-base-muted-active text-base-foreground"
+        class: "bg-control-background text-base-foreground"
       },
       {
         variant: "outline",
@@ -172,8 +172,9 @@ export const tabsListVariants = cva(
         class: "bg-promotion text-promotion-foreground"
       }
     ],
+
     defaultVariants: {
-      variant: "flat",
+      variant: "outline",
       color: "base",
       alignment: "evenly",
       width: "auto"
@@ -182,13 +183,13 @@ export const tabsListVariants = cva(
 );
 
 export const tabsTriggerVariants = cva(
-  "focus-visible:ring-ring ring-offset-background text-md inline-flex items-center justify-center rounded px-8 py-1 font-normal whitespace-nowrap transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50",
+  "text-md relative z-10 inline-flex cursor-pointer items-center justify-center rounded px-8 py-2 font-normal whitespace-nowrap",
   {
     variants: {
       variant: {
         flat: "mx-1 w-full data-[state=active]:bg-white",
         outline:
-          "text-opacity-50 hover:text-opacity-100 data-[state=active]:text-opacity-100",
+          "data-[state=active]:border-foreground data-[state=active]:border",
         tonal: ""
       },
       color: {

@@ -64,7 +64,7 @@ const props = withDefaults(defineProps<TabsProps>(), {
   defaultValue: "",
   // -- styles
   color: "base",
-  variant: "flat",
+  variant: "outline",
   // --- styles
   uiConfig: () => ({
     tabs: {
