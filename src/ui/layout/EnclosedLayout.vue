@@ -56,6 +56,8 @@ const slots = useSlots();
 const meta = computed(() => {
   return {
     variant: "enclosed",
+    overflow: props.overflow,
+    isSticky: props.sticky,
     hasControls:
       !isEmptySlot("controls", slots) ||
       !isEmptySlot("navigation", slots) ||
@@ -64,8 +66,7 @@ const meta = computed(() => {
     hasContent: !isEmptySlot("default", slots),
     hasAside:
       !isEmptySlot("aside", slots) || !isEmptySlot("aside-footer", slots),
-    isMinimal: props.minimal,
-    isSticky: props.sticky
+    isMinimal: props.minimal
   };
 });
 

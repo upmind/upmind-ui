@@ -37,17 +37,14 @@ export default {
     main: cva("flex w-full flex-col gap-6"),
     controlsRoot: cva("bg-base-background w-full border-b py-4"),
     controls: cva("max-w-app mx-auto"),
-    aside: cva(
-      "sticky top-6 flex max-h-screen w-full max-w-md flex-col gap-6 overflow-y-auto",
-      {
-        variants: {
-          isSticky: {
-            true: "sticky top-6",
-            false: ""
-          }
+    aside: cva("flex w-full max-w-md flex-col gap-6", {
+      variants: {
+        isSticky: {
+          true: "sticky top-6 self-start",
+          false: ""
         }
       }
-    )
+    })
   },
 
   full: {
@@ -87,17 +84,14 @@ export default {
         "max-w-app mx-auto flex w-full flex-col gap-18 md:flex-row"
       )
     },
-    aside: cva(
-      "sticky top-12 flex max-h-screen w-full max-w-md flex-col gap-12 overflow-y-auto",
-      {
-        variants: {
-          isSticky: {
-            true: "sticky top-12",
-            false: ""
-          }
+    aside: cva("flex w-full max-w-md flex-col gap-12", {
+      variants: {
+        isSticky: {
+          true: "sticky top-6 self-start",
+          false: ""
         }
       }
-    ),
+    }),
     main: cva("flex w-full flex-col gap-12")
   }
 };

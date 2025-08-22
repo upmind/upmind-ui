@@ -56,6 +56,7 @@ const meta = computed(() => {
   return {
     variant: "full",
     overflow: props.overflow,
+    isSticky: props.sticky,
     hasHeader: !isEmptySlot("header", slots),
     hasContent: !isEmptySlot("default", slots),
     isMinimal: props.minimal,
