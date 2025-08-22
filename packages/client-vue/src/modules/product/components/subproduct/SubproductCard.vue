@@ -43,17 +43,15 @@
           @keydown.enter.prevent.stop
         />
 
-        <div class="hidden flex-col text-right md:flex">
-          <span
-            class="text-md/tight min-h-lh shrink-0 items-center justify-end gap-2"
-          >
-            <SubproductCardPricing
-              v-if="props.price"
-              :price="props.price"
-              :meta="props.meta"
-              :cycle="props.cycle"
-            />
-          </span>
+        <div
+          class="text-md/tight hidden flex-col gap-2 text-right md:flex md:flex-row"
+        >
+          <SubproductCardPricing
+            v-if="props.price"
+            :price="props.price"
+            :meta="props.meta"
+            :cycle="props.cycle"
+          />
         </div>
       </div>
     </header>
