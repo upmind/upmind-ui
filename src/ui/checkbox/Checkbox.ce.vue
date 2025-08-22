@@ -1,10 +1,12 @@
 <template>
-  <Checkbox
-    v-model:checked="checked"
-    v-bind="delegatedProps"
-    :class="cn(styles.checkbox, props.class)"
-    @keydown.enter="handleEnter"
-  />
+  <span class="flex h-lh items-center justify-center">
+    <Checkbox
+      v-model:checked="checked"
+      v-bind="delegatedProps"
+      :class="cn(styles.checkbox, props.class)"
+      @keydown.enter="handleEnter"
+    />
+  </span>
 </template>
 
 <script lang="ts" setup>
