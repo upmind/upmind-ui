@@ -4,7 +4,7 @@ import { ringClasses, invalidRingClasses } from "../../assets/ring.styles";
 // -----------------------------------------------------------------------------
 
 export const checkboxVariants = cva(
-  `bg-control-background data-[state=checked]:text-control-active-foreground data-[state=checked]:border-active border-control text-control-foreground ring-offset-background data-[state=checked]:bg-control-active peer shrink-0 rounded-xs border disabled:cursor-not-allowed disabled:opacity-50 ${ringClasses} ${invalidRingClasses}`,
+  `bg-base-background data-[state=checked]:text-control-active-foreground data-[state=checked]:border-active border-control text-control-foreground ring-offset-background data-[state=checked]:bg-control-active peer shrink-0 rounded-xs border disabled:cursor-not-allowed disabled:opacity-50 ${ringClasses} ${invalidRingClasses}`,
   {
     variants: {
       width: {
