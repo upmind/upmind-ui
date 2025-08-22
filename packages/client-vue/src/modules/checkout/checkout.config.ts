@@ -51,7 +51,8 @@ export default {
       root: cva("flex w-full flex-col gap-4"),
       actions: cva(
         "flex flex-col items-stretch justify-start space-y-2 space-x-0 md:flex-row md:space-y-0 md:space-x-4"
-      )
+      ),
+      terms: cva("text-emphasis-medium text-sm")
     },
     action: cva("block w-full self-center md:inline-block md:w-auto"),
     additional: cva(

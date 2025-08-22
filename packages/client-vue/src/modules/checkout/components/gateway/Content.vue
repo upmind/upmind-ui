@@ -29,7 +29,10 @@
       </p>
     </div>
 
-    <Clickwrap :action-text="getGatewayi18n('actions.submit')" />
+    <TermsAndConditions
+      :class="styles.checkout.footer.terms"
+      :label="getGatewayi18n('actions.submit')"
+    />
   </footer>
 </template>
 
@@ -43,6 +46,7 @@ import config from "../../checkout.config";
 import { useStyles } from "@upmind-automation/upmind-ui";
 
 // --- components
+import TermsAndConditions from "../../../brand/TermsAndConditions.vue";
 import { Icon, Button } from "@upmind-automation/upmind-ui";
 import PaymentGateway from "../PaymentGateway.vue";
 import Clickwrap from "./Clickwrap.vue";
@@ -69,6 +73,7 @@ const styles = useStyles(
     footer: {
       root: string;
       actions: string;
+      terms: string;
     };
     action: string;
     additional: string;
@@ -83,10 +88,10 @@ const getGatewayi18n = (property: string) => {
   if (type === 1) {
     const codeKey = `checkout.${code}.${property}`;
     if (te(codeKey)) return t(codeKey);
-    return t(`checkout.${type}.${property}`);
+    return `checkout.${type}.${property}`;
   }
 
-  return t(`checkout.${type}.${property}`);
+  return `checkout.${type}.${property}`;
 };
 
 const handleCheckout = () => {
