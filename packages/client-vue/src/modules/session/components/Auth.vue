@@ -51,29 +51,10 @@
       :label="t('auth.actions.logout')"
     />
 
-    <i18n-t
+    <TermsAndConditions
+      class="text-emphasis-medium text-center text-sm"
       v-if="currentForm === 'register'"
-      keypath="session.terms.label"
-      tag="p"
-      class="text-emphasis-medium text-sm"
-    >
-      <template #[`action`]>
-        {{ t("auth.actions.register") }}
-      </template>
-      <template #[`name`]>
-        {{ name }}
-      </template>
-      <template #[`terms`]>
-        <Button
-          v-if="uiCart?.terms_url"
-          variant="link"
-          :href="uiCart.terms_url"
-          target="_blank"
-          :label="t('session.terms.link')"
-        />
-        <template v-else>{{ t("session.terms.link") }}</template>
-      </template>
-    </i18n-t>
+    />
   </div>
 </template>
 
@@ -81,18 +62,13 @@
 // --- external
 import { computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { useVModel } from "@vueuse/core";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
+import TermsAndConditions from "../../brand/TermsAndConditions.vue";
 import Form from "../../../components/form/Form.vue";
 import config from "../sesssion.config";
-import {
-  ROUTE,
-  useSession,
-  useRoutingEngine,
-  useBrand
-} from "@upmind-automation/headless";
+import { useSession, useBrand } from "@upmind-automation/headless";
 import { useStyles, cn } from "@upmind-automation/upmind-ui";
 
 // --- custom elements
