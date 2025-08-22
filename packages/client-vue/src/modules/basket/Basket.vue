@@ -103,14 +103,14 @@
             scope="global"
           />
         </template>
-        <ol class="ml-4 list-disc text-left">
+        <ol class="ml-6 list-disc py-2 text-left">
           <li
             v-for="basketItem in productsInvalid"
             :key="basketItem.id"
             class="marker:text-inherit"
           >
             <router-link
-              class="text-inherit"
+              class="text-md/tight text-inherit underline"
               :to="{
                 name: 'product.edit',
                 params: { bpid: basketItem.id }

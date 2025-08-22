@@ -231,6 +231,7 @@
   --color-emphasis-disabled: color-mix(in srgb, currentColor 38%, transparent);
   --color-emphasis-medium: color-mix(in srgb, currentColor 60%, transparent);
   --color-emphasis-high: color-mix(in srgb, currentColor 75%, transparent);
+  --color-emphasis-none: color-mix(in srgb, currentColor 100%, transparent);
   --color-emphasis: currentColor;
 }
 
