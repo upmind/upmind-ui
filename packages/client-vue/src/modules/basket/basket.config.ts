@@ -17,7 +17,7 @@ export default {
     summary: {
       root: cva("flex w-full flex-col gap-8 text-left"),
       header: cva("w-full"),
-      title: cva("m-0 text-xl font-normal tracking-tight"),
+      title: cva("m-0 text-xl font-normal"),
       content: cva(
         "bg-base text-base-foreground grid w-full space-y-4 rounded-lg border p-6"
       ),
