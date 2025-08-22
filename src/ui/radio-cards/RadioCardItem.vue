@@ -11,7 +11,6 @@
         :name="props.name"
         :required="props.required"
         :disabled="props.disabled"
-        :class="styles.radioCards.input"
         :tabindex="isSelected || !modelValue ? 0 : -1"
         :data-state="isSelected ? 'checked' : ''"
         :uiConfig="uiConfig"
