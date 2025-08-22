@@ -13,7 +13,6 @@
           v-if="item.type === ButtonGroup.Button"
           :class="styles.buttonGroup.button"
           v-bind="item.props"
-          :color="color"
           size="lg"
           :disabled="disabled || item.props.disabled"
           variant="ghost"
