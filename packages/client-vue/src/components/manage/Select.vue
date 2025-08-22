@@ -40,7 +40,7 @@
 
     <template v-if="!readonly" #additional-item>
       <slot name="additional-item">
-        <p @click="doAdd" class="w-full py-1 text-sm">
+        <p @click="doAdd" class="w-full">
           {{ t(`${i18nKey ?? "manage"}.actions.add`) }}
         </p>
       </slot>

@@ -71,7 +71,8 @@ const groupItems = computed((): ButtonGroupItem[] => [
     props: {
       modelValue: property.value,
       items: items.value,
-      placeholder: currentSort.value?.label
+      placeholder: currentSort.value?.label,
+      align: "end"
     } satisfies SelectProps,
     handler: (value: string) => {
       property.value = value as ProductSortableProperties;
