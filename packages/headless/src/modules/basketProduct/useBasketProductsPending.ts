@@ -226,12 +226,16 @@ export const useBasketProductsPending = () => {
     ) as UseBasketProductPending;
     // ensure we unsubscribe from the item if it exists
     const sub = get(subscriptions, pid);
-    sub?.unsubscribe();
-    unset(subscriptions, pid);
+    if (sub?.unsubscribe) {
+      sub?.unsubscribe();
+      unset(subscriptions, pid);
+    }
 
     // stop the product if it exists and remove it from the pending products
-    stopService(product.service);
-    unset(productsPending, product.id);
+    if (product?.service) {
+      stopService(product.service);
+      unset(productsPending, product.id);
+    }
   }
 
   // resolve is called after successfully adding a product to the basket

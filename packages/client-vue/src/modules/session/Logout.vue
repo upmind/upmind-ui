@@ -53,7 +53,9 @@ const { logout } = useSession();
 const { storefrontUrl } = useBrand();
 
 // if we are not logged out, we should log out
-await isResolved(ROUTE.SESSION_END).catch(() => logout());
+await isResolved(ROUTE.SESSION_END).catch(() => {
+  logout();
+});
 
 const props = withDefaults(defineProps<InterstitialProps>(), {
   open: true,
