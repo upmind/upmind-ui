@@ -201,13 +201,16 @@ export const useSystem = () => {
     const countryCode = country.code;
     // Check if we already have a query for this country
     if (has(stores.regions.state, countryCode)) {
-      return stores.regions.state[countryCode];
+      const regions = stores.regions.state[countryCode];
+      return regions;
     }
 
     const query = services.fetchRegions({
       data: { id: country.id, code: country.code }
     });
-    return query!.promise.value;
+
+    const regions = await query!.promise.value;
+    return regions;
   }
 
   async function fetchStatuses(): Promise<IStatus[]> {
@@ -226,7 +229,6 @@ export const useSystem = () => {
   async function fetchCountries(): Promise<ICountry[]> {
     if (countriesQuery && !countriesQuery.isFetched)
       await countriesQuery.refetch();
-
     return countries.value;
   }
 

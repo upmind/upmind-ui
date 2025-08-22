@@ -200,12 +200,9 @@ export const storePersister = <TState, TUpdater extends AnyUpdater>(
     // We also set the store state with data in local storage
     getItem: (key: string): string => {
       const query = localStorage.getItem(key);
-      const parsed = isString(!query) ? JSON.parse(String(query)) : query;
-      const response = parsed?.state?.data as QueryResponse;
-
-      // set the store state with the data from local storage
-      if (response?.data) setState(response.data);
-
+      const parsed = isString(query) ? JSON.parse(String(query)) : query;
+      const data = parsed?.state?.data as QueryResponse;
+      setState(data);
       // return the query
       return query ?? "";
     },
@@ -215,13 +212,11 @@ export const storePersister = <TState, TUpdater extends AnyUpdater>(
     // and ALSO set the store state with the query data
     setItem: (key: string, query: string): void => {
       const parsed = JSON.parse(query);
-      const response = parsed?.state?.data as QueryResponse;
+      const data = parsed?.state?.data as QueryResponse;
+      setState(data);
 
       // persist the entire query as provided by the query client
       localStorage.setItem(key, query);
-
-      // set the store state with the data from the query
-      setState(response.data);
     },
 
     removeItem: (key: string): void => {
