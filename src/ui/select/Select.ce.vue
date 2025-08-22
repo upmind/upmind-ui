@@ -75,6 +75,7 @@ const props = withDefaults(defineProps<SelectProps>(), {
   // -- styles
   variant: "outline",
   width: "full",
+  ring: true,
   // --- styles
   uiConfig: () => ({
     select: {
