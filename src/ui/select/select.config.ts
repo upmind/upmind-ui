@@ -3,11 +3,11 @@ import { ringClasses, invalidRingClasses } from "../../assets/ring.styles";
 // -----------------------------------------------------------------------------
 
 export const rootVariants = cva(
-  "bg-control-background text-md border-control text-control-foreground placeholder:text-muted-foreground border-control flex cursor-pointer rounded px-4 py-2 shadow-none transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50",
+  "bg-control-background text-md text-control-foreground placeholder:text-muted-foreground flex cursor-pointer rounded px-4 py-2 shadow-none transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50",
   {
     variants: {
       variant: {
-        outline: "border-control",
+        outline: "shadow-border",
         ghost: "border-none"
       },
       width: {

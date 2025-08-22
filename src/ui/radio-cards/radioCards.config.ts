@@ -7,7 +7,7 @@ export const itemVariants = cva(
     variants: {
       isList: {
         true: "hover:bg-control-active-focus data-[state=checked]:ring-control-active my-0.5 border-0 shadow-none data-[state=checked]:ring-2",
-        false: "hover:border-control-strong border-control rounded border"
+        false: "shadow-border rounded"
       },
       width: {
         0: "",
@@ -49,7 +49,7 @@ export default {
     item: itemVariants,
     radio: cva("size-lh flex items-center justify-center"),
     input: cva(
-      `group-hover:border-control-strong border-control leading-normal ring-offset-2 [transition:border-color_200ms_ease-in-out] ${ringClasses}`
+      `shadow-border leading-normal ring-offset-2 [transition:border-color_200ms_ease-in-out] ${ringClasses}`
     ),
     sublabel: cva("text-emphasis-disabled m-0 mx-2 self-end text-sm")
   }

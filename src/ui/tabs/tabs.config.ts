@@ -6,7 +6,7 @@ export const tabsListVariants = cva(
     variants: {
       variant: {
         flat: "px-0",
-        outline: "p-0 shadow-border",
+        outline: "shadow-border p-0",
         tonal: "bg-opacity-10"
       },
       color: {
