@@ -2,7 +2,7 @@
 import { cva, cx } from "class-variance-authority";
 import { rootVariants } from "../button/button.config";
 
-const buttonGroupVariants = cva("gap-0 p-0", {
+export const buttonGroupVariants = cva("gap-0 overflow-hidden p-0", {
   variants: {
     variant: {
       outline: "divide-border divide-x"
@@ -10,10 +10,10 @@ const buttonGroupVariants = cva("gap-0 p-0", {
   }
 });
 
-const buttonVariants = cva("ring-0 outline-none", {
+export const buttonVariants = cva("px-3 py-1 ring-0", {
   variants: {
     variant: {
-      outline: "focus:opacity-50"
+      outline: "focus:bg-control-active-hover"
     }
   }
 });
@@ -21,6 +21,7 @@ const buttonVariants = cva("ring-0 outline-none", {
 export default {
   buttonGroup: {
     root: (meta: any) => cx(rootVariants(meta), buttonGroupVariants(meta)),
+    item: cva("flex items-center justify-center px-1 py-1"),
     button: buttonVariants
   }
 };

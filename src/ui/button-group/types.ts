@@ -8,10 +8,8 @@ import type { SelectProps } from "../select/types";
 
 export type ButtonGroupItem = ButtonGroupButtonItem | ButtonGroupDropdownItem;
 export interface ButtonGroupProps {
-  color?: ButtonProps["color"];
   variant?: ButtonProps["variant"];
   items: ButtonGroupItem[];
-  size?: ButtonProps["size"];
   disabled?: boolean;
   uiConfig?: { buttonGroup: CxOptions };
   class?: HTMLAttributes["class"];

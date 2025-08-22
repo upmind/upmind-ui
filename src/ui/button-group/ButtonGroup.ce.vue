@@ -8,8 +8,7 @@
       v-for="(item, index) in items"
       :key="'button-group-item-' + index"
     >
-      <!-- TODO: Apply border-none to the individual components, then use the span to apply a divider -->
-      <span>
+      <span :class="styles.buttonGroup.item">
         <Button
           v-if="item.type === ButtonGroup.Button"
           :class="styles.buttonGroup.button"
@@ -60,7 +59,6 @@ import { ButtonGroup } from "./types";
 
 const props = withDefaults(defineProps<ButtonGroupProps>(), {
   variant: "outline",
-  orientation: "horizontal",
   // ---
   items: () => [],
   // ---
@@ -69,7 +67,6 @@ const props = withDefaults(defineProps<ButtonGroupProps>(), {
 });
 
 const meta = computed(() => ({
-  color: props.color,
   variant: props.variant,
   isDisabled: props.disabled,
   hasRing: true
@@ -83,6 +80,7 @@ const styles = useStyles(
 ) as ComputedRef<{
   buttonGroup: {
     root: string;
+    item: string;
     button: string;
     select: {
       root: string;
