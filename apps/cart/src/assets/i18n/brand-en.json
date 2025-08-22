@@ -1,7 +1,8 @@
 {
   "brand": {
     "termsAndConditions": {
-      "terms": "By clicking ‘Continue’ I agree to {brand}'s {action}.",
+      "terms": "By clicking ‘{label}’ I agree to {brand}'s {action}.",
+      "label": "Continue",
       "action": "Terms and Conditions",
       "close": "Close"
     }

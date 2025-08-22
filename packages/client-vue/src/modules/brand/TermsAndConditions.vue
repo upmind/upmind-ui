@@ -9,9 +9,13 @@
     >
       <template #brand>{{ brandName }}</template>
 
+      <template #label>
+        {{ t(label) }}
+      </template>
+
       <template #action>
         <span v-if="meta.isEmpty">
-          {{ t("brand.termsAndConditions.action") }}
+          {{ t(action) }}
         </span>
 
         <Button
@@ -20,7 +24,7 @@
           target="_blank"
           class="font-normal text-inherit"
           variant="link"
-          :label="t('brand.termsAndConditions.action')"
+          :label="t(action)"
         />
 
         <Button
@@ -29,7 +33,7 @@
           class="font-normal text-inherit"
           data-testid="terms-link"
           variant="link"
-          :label="t('brand.termsAndConditions.action')"
+          :label="t(action)"
         />
       </template>
     </i18n-t>
@@ -42,14 +46,14 @@
       fit="cover"
       class="bg-white"
       class-footer="flex-row items-center justify-between gap-x-4"
-      :title="t('brand.termsAndConditions.action')"
+      :title="t(action)"
     >
       <Markdown :model-value="data?.content" class="prose w-full text-left" />
 
       <template #close>
         <Button
           @click="toggleOpen"
-          :label="t('brand.termsAndConditions.close')"
+          :label="t(close)"
           variant="link"
           color="base"
         />
@@ -73,16 +77,20 @@ import {
   Button
 } from "@upmind-automation/upmind-ui";
 
-// --- utils
-
 // --- types
+import type { TermsAndConditionsProps } from "./types";
 
 // -----------------------------------------------------------------------------
+
+withDefaults(defineProps<TermsAndConditionsProps>(), {
+  label: "brand.termsAndConditions.label",
+  action: "brand.termsAndConditions.action",
+  close: "brand.termsAndConditions.close"
+});
+
 const open = defineModel<boolean>("open", {
   default: false
 });
-
-// -----------------------------------------------------------------------------
 
 const { t } = useI18n();
 const { name: brandName, isReady } = useBrand();
