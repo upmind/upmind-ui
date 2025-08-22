@@ -8,7 +8,7 @@
       <PaginationPrev as-child>
         <Button
           variant="control"
-          size="md"
+          size="lg"
           :class="styles.pagination.button"
           :disabled="page <= 1"
           @click="emit('prev')"
@@ -24,7 +24,7 @@
       <PaginationNext as-child>
         <Button
           variant="control"
-          size="md"
+          size="lg"
           :class="styles.pagination.button"
           :disabled="page >= pageCount"
           @click="emit('next')"
