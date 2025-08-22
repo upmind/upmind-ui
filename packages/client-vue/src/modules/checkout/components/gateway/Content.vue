@@ -15,17 +15,17 @@
         :color="color"
         size="lg"
         @click.prevent="handleCheckout"
-        :label="getGatewayi18n('actions.submit')"
+        :label="t(getGatewayi18n('actions.submit'))"
         :class="styles.checkout.action"
         pill
       />
 
       <p
-        v-if="!getGatewayi18n('footer.title').includes('checkout')"
+        v-if="!t(getGatewayi18n('footer.title')).includes('checkout')"
         :class="styles.checkout.additional"
       >
-        <Icon :icon="getGatewayi18n('footer.icon')" size="nano" />
-        {{ getGatewayi18n("footer.title") }}
+        <Icon :icon="t(getGatewayi18n('footer.icon'))" size="nano" />
+        {{ t(getGatewayi18n("footer.title")) }}
       </p>
     </div>
 
