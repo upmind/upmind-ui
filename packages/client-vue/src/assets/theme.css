@@ -233,6 +233,9 @@
   --color-emphasis-high: color-mix(in srgb, currentColor 75%, transparent);
   --color-emphasis-none: color-mix(in srgb, currentColor 100%, transparent);
   --color-emphasis: currentColor;
+
+  /* Autofill */
+  --color-autofill: #f0f6fe;
 }
 
 @theme inline {
