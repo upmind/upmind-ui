@@ -114,7 +114,7 @@ export default createMachine(
       clear: assign((_context, _event) => {
         // clear all session data, including cookies and local storage
         //  also update the data layer to indicate the user has logged out
-        localStorage.clear();
+        sessionStorage.clear();
         removeCookie("upm_client_session");
         removeCookie("upm_guest_session");
         removeCookie("upm_actor");
