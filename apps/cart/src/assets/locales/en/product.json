@@ -38,7 +38,7 @@
       "included": "including taxes",
       "excluded": "excluding taxes"
     },
-    "term": "billed {name}",
+    "term": "term",
     "terms": {
       "label": "Billing Term",
       "taxes": "Price includes taxes",
@@ -62,19 +62,19 @@
       "renews": "Usually {0}",
       "cycle": {
         "0": "One-time",
-        "1": "1 month",
-        "3": "3 month",
-        "6": "6 month",
-        "12": "1 year",
-        "24": "2 year",
-        "36": "3 year",
-        "48": "4 year",
-        "60": "5 year",
-        "72": "6 year",
-        "84": "7 year",
-        "96": "8 year",
-        "108": "9 year",
-        "120": "10 year"
+        "1": "1-month",
+        "3": "3-month",
+        "6": "6-month",
+        "12": "1-year",
+        "24": "2-year",
+        "36": "3-year",
+        "48": "4-year",
+        "60": "5-year",
+        "72": "6-year",
+        "84": "7-year",
+        "96": "8-year",
+        "108": "9-year",
+        "120": "10-year"
       },
       "term": {
         "0": "one time",
