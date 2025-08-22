@@ -108,13 +108,13 @@ async function loadLookups({
     company:
       type == UnifiedType.BUSINESS
         ? ({
-            addressId: defaultAddress.value?.id,
-            emailId: defaultEmail.value?.id,
-            phoneId: defaultPhone.value?.id
+            addressId: defaultAddress()?.id,
+            emailId: defaultEmail()?.id,
+            phoneId: defaultPhone()?.id
           } as CompanyModel)
         : undefined,
     phone: get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE)
-      ? ((defaultPhone.value ?? {
+      ? ((defaultPhone() ?? {
           phone: {
             number: null,
             nationalNumber: null,

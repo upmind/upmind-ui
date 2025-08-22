@@ -1,5 +1,5 @@
 // --- external
-import { computed, ref } from "vue";
+import { computed, ComputedRef, ref } from "vue";
 
 // --- internal
 import service from "./services";
@@ -35,9 +35,7 @@ export const useClientPhones = (
     ...query?.meta.value
   }));
 
-  const { findOne, getOne, getDefault } = useCollection<Phone>(
-    isArray(query.data.value) ? query.data.value : []
-  );
+  const { findOne, getOne, getDefault } = useCollection<Phone>(query.data);
 
   async function isReady(): Promise<boolean> {
     if (sessionMeta.value.isAuthenticated)
@@ -130,7 +128,7 @@ export const useClientPhones = (
      * This is the phone that is set as default for the current client.
      * @returns {Phone} The default phone if found, is otherwise undefined.
      */
-    default: computed(() => getDefault()),
+    default: getDefault,
 
     // --- methods
 

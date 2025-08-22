@@ -123,9 +123,9 @@ const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
   deep: true,
   defaultValue: {
-    companyId: defaultCompany.value?.id,
-    addressId: defaultCompany.value?.addressId,
-    phoneId: billingMeta.value.needsPhone ? defaultPhone.value?.id : undefined
+    companyId: defaultCompany()?.id,
+    addressId: defaultCompany()?.addressId,
+    phoneId: billingMeta.value.needsPhone ? defaultPhone()?.id : undefined
   }
 });
 
@@ -160,11 +160,10 @@ const selectedPhone = computed({
 
 function doResolve(value: BillingModel) {
   selectedPhone.value = billingMeta.value.needsPhone
-    ? (value?.phoneId ?? defaultPhone.value?.id ?? undefined)
+    ? (value?.phoneId ?? defaultPhone()?.id ?? undefined)
     : undefined;
 
-  selectedCompany.value =
-    value?.companyId ?? defaultCompany.value?.id ?? undefined;
+  selectedCompany.value = value?.companyId ?? defaultCompany()?.id ?? undefined;
 
   showForm.value = false;
 }
@@ -174,10 +173,10 @@ function doResolve(value: BillingModel) {
 await Promise.all([isCompaniesReady(), isPhonesReady()]).then(() => {
   // Ensure modelValue is initialized with default values
   modelValue.value = {
-    companyId: modelValue.value?.companyId ?? defaultCompany.value?.id,
-    addressId: modelValue.value?.addressId ?? defaultCompany.value?.addressId,
+    companyId: modelValue.value?.companyId ?? defaultCompany()?.id,
+    addressId: modelValue.value?.addressId ?? defaultCompany()?.addressId,
     phoneId: billingMeta.value.needsPhone
-      ? (modelValue.value?.phoneId ?? defaultPhone.value?.id)
+      ? (modelValue.value?.phoneId ?? defaultPhone()?.id)
       : undefined
   };
 

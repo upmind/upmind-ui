@@ -1,5 +1,5 @@
 // --- external
-import { computed, ref } from "vue";
+import { computed, ComputedRef, ref } from "vue";
 
 // --- internal
 import service from "./services";
@@ -35,9 +35,7 @@ export const useClientEmails = (
     ...query?.meta.value
   }));
 
-  const { findOne, getOne, getDefault } = useCollection<Email>(
-    isArray(query.data.value) ? query.data.value : []
-  );
+  const { findOne, getOne, getDefault } = useCollection<Email>(query.data);
 
   async function isReady(): Promise<boolean> {
     if (sessionMeta.value.isAuthenticated)
@@ -128,7 +126,7 @@ export const useClientEmails = (
      * This is the email that is set as default for the current client.
      * @returns {Email} The default email if found, is otherwise undefined.
      */
-    default: computed(() => getDefault()),
+    default: getDefault,
 
     // --- methods
 

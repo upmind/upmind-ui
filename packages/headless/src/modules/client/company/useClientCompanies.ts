@@ -1,5 +1,5 @@
 // --- external
-import { computed, ref } from "vue";
+import { computed, ComputedRef, ref } from "vue";
 
 // --- internal
 import service from "./services";
@@ -35,9 +35,7 @@ export const useClientCompanies = (
     ...query?.meta.value
   }));
 
-  const { findOne, getOne, getDefault } = useCollection<Company>(
-    isArray(query.data.value) ? query.data.value : []
-  );
+  const { findOne, getOne, getDefault } = useCollection<Company>(query.data);
 
   async function isReady(): Promise<boolean> {
     if (sessionMeta.value.isAuthenticated)
@@ -129,7 +127,7 @@ export const useClientCompanies = (
      * This is the company that is set as default for the current client.
      * @returns {Company} The default company if found, is otherwise undefined.
      */
-    default: computed(() => getDefault()),
+    default: getDefault,
 
     // --- methods
 

@@ -1,5 +1,5 @@
 // --- external
-import { MaybeRef, toRaw, unref } from "vue";
+import { computed, MaybeRef, toRaw, unref } from "vue";
 
 // --- utils
 import {
@@ -25,12 +25,14 @@ import {
  * @template T The type of items in the collection.
  * @returns
  */
-export function useCollection<T = unknown>(initial?: MaybeRef<T[] | null>) {
+export function useCollection<T = unknown>(
+  initial: MaybeRef<T[] | null | undefined> = [] as T[]
+) {
   // --- methods
 
   function getOne(
     id?: string | number,
-    data: MaybeRef<T[] | null> = initial ?? []
+    data: MaybeRef<T[] | null | undefined> = initial ?? []
   ) {
     data = unref(toRaw(data)) as T[];
     if (isEmpty(id)) return undefined;
@@ -39,7 +41,7 @@ export function useCollection<T = unknown>(initial?: MaybeRef<T[] | null>) {
 
   function findOne(
     mapping: string | Partial<T>,
-    data: MaybeRef<T[] | null> = initial ?? [],
+    data: MaybeRef<T[] | null | undefined> = initial ?? [],
     searchableProps: string[] = []
   ) {
     data = unref(toRaw(data)) as T[];
@@ -65,7 +67,7 @@ export function useCollection<T = unknown>(initial?: MaybeRef<T[] | null>) {
     );
   }
 
-  function getDefault(data: MaybeRef<T[] | null> = initial ?? []) {
+  function getDefault(data: MaybeRef<T[] | null | undefined> = initial ?? []) {
     data = unref(toRaw(data)) as T[];
     return find(data || [], "meta.isDefault") as T | undefined;
   }
