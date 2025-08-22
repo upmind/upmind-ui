@@ -15,7 +15,7 @@ export const rootVariants = cva(
         full: "w-full"
       },
       hasRing: {
-        true: `${ringClasses} ${invalidRingClasses}`,
+        true: `ring-offset-background ${ringClasses} ${invalidRingClasses}`,
         false:
           "ring-0 ring-transparent outline-none focus:ring-0 focus:ring-transparent focus:outline-none"
       }
@@ -39,8 +39,8 @@ export default {
       }
     }),
     item: cva(
-      "focus:bg-control-active-hover focus:text-control-foreground data-[state=unchecked]:text-emphasis-medium hover:!text-emphasis-none cursor-pointer gap-3 rounded px-4 py-2 text-sm font-medium transition-all duration-300"
+      "focus:bg-control-active-hover focus:text-control-foreground data-[state=unchecked]:text-emphasis-medium hover:!text-emphasis-none focus:!text-emphasis-none cursor-pointer gap-3 rounded px-4 py-2 text-sm font-medium transition-all duration-300"
     ),
-    content: cva("p-2")
+    content: cva("mt-2 p-2")
   }
 };
