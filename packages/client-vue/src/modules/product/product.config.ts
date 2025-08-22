@@ -255,7 +255,14 @@ export default {
           // ---
           title: cva("text-md/tight m-0 font-medium text-nowrap text-inherit"),
           text: cva("text-emphasis-medium text-md w-full"),
-          total: cva("text-3xl font-medium"),
+          total: cva("font-medium", {
+            variants: {
+              isSelected: {
+                true: "",
+                false: "text-3xl"
+              }
+            }
+          }),
           discount: cva(
             "text-2xs text-emphasis-medium! leading-none text-inherit"
           )
