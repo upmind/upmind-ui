@@ -15,7 +15,10 @@
       </div>
     </div>
 
-    <AlertDescription class="text-md/tight">
+    <AlertDescription
+      v-if="description || $slots['description']"
+      class="text-md/tight"
+    >
       <slot name="description">
         {{ description }}
       </slot>
