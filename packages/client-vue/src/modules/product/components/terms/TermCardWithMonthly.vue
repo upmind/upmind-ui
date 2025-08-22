@@ -7,6 +7,9 @@
             ? t(`product.terms.cycle.${props.cycle}`)
             : props.title
         }}
+        <template v-if="props.cycle && props.cycle > 0">
+          {{ t("product.term") }}
+        </template>
       </strong>
 
       <Promotion
