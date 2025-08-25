@@ -238,6 +238,25 @@
   --color-autofill: #f0f6fe;
 }
 
+.text-xs,
+.text-sm,
+.text-md {
+  font-family: var(--font-body);
+}
+
+.text-lg,
+.text-xl,
+.text-2xl,
+.text-3xl {
+  font-family: var(--font-sans);
+}
+
+.text-4xl,
+.text-5xl,
+.text-6xl {
+  font-family: var(--font-display);
+}
+
 @theme inline {
   /* Box Shadow Borders */
   --shadow-border-b: inset 0 -1px 0 0 var(--border-color-default);
