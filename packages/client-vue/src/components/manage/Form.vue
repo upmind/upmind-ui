@@ -38,6 +38,7 @@
             :disabled="meta.isProcessing"
             :processing="meta.isProcessing"
             :no-cancel="!modal"
+            :modal="modal"
             :loading="meta.isLoading"
             @save="doResolve"
             @cancel="doReject"
