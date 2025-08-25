@@ -23,7 +23,7 @@ export default {
       root: cva("flex flex-col gap-3"),
       trigger: {
         root: cva(
-          "text-emphasis-high hover:text-foreground bg-control-background shadow-border-control flex cursor-pointer items-center justify-between space-x-2 rounded px-4 py-2 transition-all duration-300 hover:no-underline"
+          "text-emphasis-high hover:text-foreground bg-control-background shadow-border-control data-[state=open]:bg-background data-[state=open]:text-foreground data-[state=open]:shadow-border-foreground flex cursor-pointer items-center justify-between space-x-2 rounded px-5 py-3 transition-all duration-300 hover:no-underline"
         ),
         icon: cva(
           "text-emphasis-high group-hover:text-emphasis-none ml-auto transition-all duration-200 [&>svg]:size-3 [&>svg]:transition-all [&>svg]:duration-300"
@@ -33,12 +33,12 @@ export default {
       item: cva("border-none"),
       card: cva("bg-base"),
       loading: cva("text-secondary"),
-      content: cva("flex flex-col gap-6 transition-all duration-300", {
+      content: cva("overflo flex flex-col gap-6 transition-all duration-300", {
         variants: {
           layout: {
-            full: "p-4",
-            enclosed: "py-3",
-            default: "p-3"
+            full: "px-1 py-4",
+            enclosed: "px-1 py-3",
+            default: "px-1 py-3"
           }
         }
       })
