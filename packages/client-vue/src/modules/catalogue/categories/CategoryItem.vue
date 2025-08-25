@@ -29,6 +29,7 @@
           :as="RouterLink"
           size="lg"
           variant="link"
+          class="font-medium"
           :to="{
             name: ROUTE.CATALOGUE,
             query: {
