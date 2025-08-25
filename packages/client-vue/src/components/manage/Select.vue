@@ -40,9 +40,12 @@
 
     <template v-if="!readonly" #additional-item>
       <slot name="additional-item">
-        <p @click="doAdd" class="w-full">
+        <span
+          @click="doAdd"
+          class="text-md flex w-full items-center space-x-2 py-0.5"
+        >
           {{ t(`${i18nKey ?? "manage"}.actions.add`) }}
-        </p>
+        </span>
       </slot>
     </template>
   </SelectCards>
