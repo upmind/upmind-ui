@@ -4,6 +4,7 @@ import { useBrand } from "../brand";
 
 // --- utils
 import {
+  useMoney,
   DetailedError,
   ErrorOrigin,
   responseCodes,
@@ -615,17 +616,28 @@ export const parseMeta = (
 };
 
 export const parseTermDetails = (raw: IProductPrice[]): TermDetails[] => {
+  const money = useMoney();
+  const { uiCart } = useBrand();
+
   return map(orderBy(raw, "billing_cycle_months"), rawTerm => {
     const details: TermDetails = parseSummaryDetailWithPrice(rawTerm);
+    const trimTrailingZeroes =
+      uiCart.value.ui.product?.display_price?.trim_trailing_zeroes ?? false;
 
     details.price.monthlyFromCurrentAmount =
       rawTerm.monthly_price_from_discounted ?? rawTerm.monthly_price_from;
     details.price.monthlyFromCurrentPrice =
-      rawTerm.monthly_price_from_discounted_formatted ??
-      rawTerm.monthly_price_from_formatted;
+      money.parsePrice(rawTerm.monthly_price_from_discounted_formatted, {
+        trim_trailing_zeroes: trimTrailingZeroes
+      }) ??
+      money.parsePrice(rawTerm.monthly_price_from_formatted, {
+        trim_trailing_zeroes: trimTrailingZeroes
+      });
     details.price.monthlyFromRegularAmount = rawTerm.monthly_price_from;
-    details.price.monthlyFromRegularPrice =
-      rawTerm.monthly_price_from_formatted;
+    details.price.monthlyFromRegularPrice = money.parsePrice(
+      rawTerm.monthly_price_from_formatted,
+      { trim_trailing_zeroes: trimTrailingZeroes }
+    );
 
     return details;
   });
@@ -765,7 +777,8 @@ export const parseSummaryDetail = (
 
 export const parsePrice = (raw: IProductPrice): PriceDetail => {
   //  TODO: currently IProductPrice does not provide nett/gross values, only the brand setting
-  // const { checkIncludesTax } = useBrand();
+  const money = useMoney();
+  const { uiCart } = useBrand();
 
   const savingAmount =
     Math.round(subtract(raw.price, raw?.price_discounted || raw.price) * 100) /
@@ -773,12 +786,17 @@ export const parsePrice = (raw: IProductPrice): PriceDetail => {
 
   const discounted =
     !!raw.price_discounted && raw.price !== raw.price_discounted;
+  const trimTrailingZeroes =
+    uiCart.value?.ui?.product?.display_price?.trim_trailing_zeroes ?? false;
 
   return {
     currentAmount: raw.price_discounted ?? raw.price,
-    currentPrice: raw.price_discounted_formatted ?? raw.price_formatted,
+    currentPrice: money.parsePrice(
+      raw.price_discounted_formatted ?? raw.price_formatted,
+      { trimTrailingZeroes }
+    ),
     regularAmount: raw.price,
-    regularPrice: raw.price_formatted,
+    regularPrice: money.parsePrice(raw.price_formatted, { trimTrailingZeroes }),
     savingAmount,
     savingPrice: "", //TODO: missing formatted value
     savingPercent: discounted
