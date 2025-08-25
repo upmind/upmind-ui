@@ -23,7 +23,7 @@ export default {
       root: cva("flex flex-col gap-3"),
       trigger: {
         root: cva(
-          "text-emphasis-high hover:text-foreground bg-control-background shadow-border flex cursor-pointer items-center justify-between space-x-2 rounded px-4 py-2 transition-all duration-300 hover:no-underline"
+          "text-emphasis-high hover:text-foreground bg-control-background shadow-border-control flex cursor-pointer items-center justify-between space-x-2 rounded px-4 py-2 transition-all duration-300 hover:no-underline"
         ),
         icon: cva(
           "text-emphasis-high group-hover:text-emphasis-none ml-auto transition-all duration-200 [&>svg]:size-3 [&>svg]:transition-all [&>svg]:duration-300"
