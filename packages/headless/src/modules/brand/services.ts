@@ -66,25 +66,6 @@ const defaultOrgFeatureKeys = [
 
 const brandConfigKeysStore = new Store<BrandConfigKeys[]>([]);
 
-function fetchOrganisationConfig() {
-  const { query, useUrl } = useQuery();
-
-  return query({
-    url: useUrl("config/organisation/values", {
-      keys: defaultOrgFeatureKeys.join()
-    }),
-    queryKey: [
-      "brand",
-      "organisation",
-      "config",
-      { keys: defaultOrgFeatureKeys }
-    ],
-    // --- options
-    staleTime: useTime()?.DAY,
-    persister: localStoragePersister.persisterFn
-  });
-}
-
 function fetchBrandSettings() {
   const { query, useUrl } = useQuery();
 
@@ -92,7 +73,7 @@ function fetchBrandSettings() {
     url: useUrl("brand/settings"),
     queryKey: ["brand", "settings"],
     // --- options
-    staleTime: useTime()?.DAY,
+    staleTime: "static",
     persister: localStoragePersister.persisterFn
   });
 }
@@ -121,7 +102,7 @@ function fetchBrandConfig(keys: BrandConfigKeys[] = defaultBrandConfigKeys) {
       // now use the template as a fallback for the data
       return defaultsDeep(data, template);
     },
-    staleTime: useTime()?.DAY,
+    staleTime: "static",
     persister: localStoragePersister.persisterFn
   });
 }
@@ -133,7 +114,26 @@ function fetchModules() {
     url: useUrl("org/modules"),
     queryKey: ["brand", "modules"],
     // --- options
-    staleTime: useTime()?.DAY,
+    staleTime: "static",
+    persister: localStoragePersister.persisterFn
+  });
+}
+
+function fetchOrganisationConfig() {
+  const { query, useUrl } = useQuery();
+
+  return query({
+    url: useUrl("config/organisation/values", {
+      keys: defaultOrgFeatureKeys.join()
+    }),
+    queryKey: [
+      "brand",
+      "organisation",
+      "config",
+      { keys: defaultOrgFeatureKeys }
+    ],
+    // --- options
+    staleTime: "static",
     persister: localStoragePersister.persisterFn
   });
 }
@@ -141,8 +141,8 @@ function fetchModules() {
 // -----------------------------------------------------------------------------
 
 export default {
-  fetchModules,
   fetchBrandConfig,
   fetchBrandSettings,
+  fetchModules,
   fetchOrganisationConfig
 };
