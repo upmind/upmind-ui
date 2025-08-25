@@ -8,7 +8,7 @@ export default {
     term: cva("text-left", {
       variants: {
         hasEmphasis: {
-          true: "",
+          true: "text-emphasis-medium",
           false: "text-emphasis-medium"
         }
       }
