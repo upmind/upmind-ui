@@ -41,9 +41,7 @@
             :benefits="productMeta?.card?.benefits?.data"
           />
 
-          <section :class="styles.product.header.price.root">
-            <ProductPrice v-if="!configMeta.hidePrice" v-bind="props" />
-          </section>
+          <ProductPrice v-if="!configMeta.hidePrice" v-bind="props" />
           <ProductTerm
             v-if="!configMeta.hideTerms"
             :prices="props.pricing"
