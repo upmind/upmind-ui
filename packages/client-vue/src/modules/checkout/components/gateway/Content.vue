@@ -15,21 +15,24 @@
         :color="color"
         size="lg"
         @click.prevent="handleCheckout"
-        :label="getGatewayi18n('actions.submit')"
+        :label="t(getGatewayi18n('actions.submit'))"
         :class="styles.checkout.action"
         pill
       />
 
       <p
-        v-if="!getGatewayi18n('footer.title').includes('checkout')"
+        v-if="!t(getGatewayi18n('footer.title')).includes('checkout')"
         :class="styles.checkout.additional"
       >
-        <Icon :icon="getGatewayi18n('footer.icon')" size="nano" />
-        {{ getGatewayi18n("footer.title") }}
+        <Icon :icon="t(getGatewayi18n('footer.icon'))" size="nano" />
+        {{ t(getGatewayi18n("footer.title")) }}
       </p>
     </div>
 
-    <Clickwrap :action-text="getGatewayi18n('actions.submit')" />
+    <TermsAndConditions
+      :class="styles.checkout.footer.terms"
+      :label="getGatewayi18n('actions.submit')"
+    />
   </footer>
 </template>
 
@@ -43,6 +46,7 @@ import config from "../../checkout.config";
 import { useStyles } from "@upmind-automation/upmind-ui";
 
 // --- components
+import TermsAndConditions from "../../../brand/TermsAndConditions.vue";
 import { Icon, Button } from "@upmind-automation/upmind-ui";
 import PaymentGateway from "../PaymentGateway.vue";
 import Clickwrap from "./Clickwrap.vue";
@@ -69,6 +73,7 @@ const styles = useStyles(
     footer: {
       root: string;
       actions: string;
+      terms: string;
     };
     action: string;
     additional: string;
@@ -83,10 +88,10 @@ const getGatewayi18n = (property: string) => {
   if (type === 1) {
     const codeKey = `checkout.${code}.${property}`;
     if (te(codeKey)) return t(codeKey);
-    return t(`checkout.${type}.${property}`);
+    return `checkout.${type}.${property}`;
   }
 
-  return t(`checkout.${type}.${property}`);
+  return `checkout.${type}.${property}`;
 };
 
 const handleCheckout = () => {

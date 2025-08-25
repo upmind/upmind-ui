@@ -11,7 +11,7 @@
         max-file-size="5MB"
         stylePanelAspectRatio="0.2"
         stylePanelLayout="integrated"
-        class="bg-control-background rounded!"
+        class="bg-control-background text-emphasis-medium mb-4 rounded"
         @addfile="onAddFile"
         @removefile="onRemoveFile"
       />
