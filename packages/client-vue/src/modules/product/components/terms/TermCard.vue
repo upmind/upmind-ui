@@ -82,7 +82,7 @@ const { t, te } = useI18n();
 
 const meta = computed(() => ({
   hasPromotions: !isEmpty(props.promotions) || props.meta?.mixed,
-  isSelected: !!props.select
+  isSelect: !!props.select
 }));
 
 const styles = useStyles(
