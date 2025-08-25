@@ -22,7 +22,7 @@
       name="item"
       v-bind="{
         item: { ...props.item, value },
-        isSelected: isSelected
+        isSelect: isSelected
       }"
     >
       <span v-if="props.label">{{ props.label }}</span>
