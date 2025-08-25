@@ -7,7 +7,7 @@
         "
         :items="countryItems"
         @update:modelValue="onCountyInput"
-        class="rounded-r-none"
+        class="shadow-border-r-none rounded-r-none"
         popover-class="!w-dropdown-xl"
         align="start"
         width="fit"

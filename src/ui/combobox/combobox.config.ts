@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 import { ringClasses, invalidRingClasses } from "../input/input.config";
 
 export const triggerVariants = cva(
-  "text-md shadow-border-r-none h-auto justify-start gap-2 rounded px-4 py-2 transition-all duration-300",
+  "text-md shadow-border h-auto justify-start gap-2 rounded px-4 py-2 transition-all duration-300",
   {
     variants: {
       width: {
