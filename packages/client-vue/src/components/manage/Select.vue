@@ -42,7 +42,7 @@
       <slot name="additional-item">
         <span
           @click="doAdd"
-          class="text-md flex w-full items-center space-x-2 py-0.5"
+          class="text-md flex w-full items-center space-x-2 py-0.5 font-normal"
         >
           {{ t(`${i18nKey ?? "manage"}.actions.add`) }}
         </span>
