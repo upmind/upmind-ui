@@ -94,9 +94,6 @@
 
   /* Border Colors */
   --border-color-default: #eaeaf1;
-  --border-color-input: #eaeaf1;
-  --border-color-control-default: #eaeaf1;
-  --border-color-control-strong: #eaeaf1;
 
   /* Border Radius */
   --radius: 8px;
