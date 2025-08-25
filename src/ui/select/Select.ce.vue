@@ -32,7 +32,9 @@
             />
           </template>
           <span class="flex items-center space-x-1">
-            <span>{{ item?.title || item?.textValue }}</span>
+            <span v-if="item?.title || item?.textValue">{{
+              item?.title || item?.textValue
+            }}</span>
             <span v-if="item?.label">{{ item?.label }}</span>
           </span>
         </SelectItem>
