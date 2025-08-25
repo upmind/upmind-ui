@@ -24,6 +24,7 @@
 <script lang="ts" setup>
 // --- external
 import { vAutoAnimate } from "@formkit/auto-animate";
+import { computed } from "vue";
 
 // --- internal
 import config from "./descriptionList.config";
@@ -39,9 +40,13 @@ const props = withDefaults(defineProps<DescriptionListProps>(), {
   class: ""
 });
 
+const meta = computed(() => ({
+  hasEmphasis: props.emphasis
+}));
+
 const styles = useStyles(
   "list",
-  {},
+  meta,
   config,
   props.uiConfig ?? {}
 ) as ComputedRef<{
