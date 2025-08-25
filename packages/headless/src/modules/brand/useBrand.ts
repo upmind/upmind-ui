@@ -34,6 +34,13 @@ import type { IBrandMeta } from "./types";
 import type { CurrencyModel } from "../basket/currency/types";
 
 // -----------------------------------------------------------------------------
+/**
+ * Context to let us understand if we need to refetch on the inital use of Brand settings
+ * We do this because settings are persisted for fast load times but we still need
+ * to ensure that we get the latest settings in the background
+ *
+ */
+let initialised = false;
 
 export const useBrand = () => {
   // --- state
@@ -63,6 +70,13 @@ export const useBrand = () => {
       const interval = setInterval(() => {
         if (meta.value.isComplete) {
           clearInterval(interval);
+
+          // after first load, ensure we refetch our data in the background
+          if (!initialised) {
+            refresh();
+            initialised = true;
+          }
+
           resolve(!meta.value.hasError);
         }
       }, 100);
