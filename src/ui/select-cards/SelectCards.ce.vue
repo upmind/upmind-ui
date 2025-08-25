@@ -45,7 +45,6 @@
         <DropdownMenuItem
           v-if="$slots['additional-item']"
           :class="styles.select.item"
-          class="text-emphasis-medium"
         >
           <slot name="additional-item" />
         </DropdownMenuItem>
