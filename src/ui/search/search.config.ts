@@ -11,7 +11,7 @@ export default {
     ),
     divider: cva("mx-3 h-px border-t"),
     item: cva(
-      "hover:bg-control-active-hover focus:bg-control-active-hover text-control-foreground cursor-pointer list-none rounded px-3 py-2 text-sm"
+      "hover:bg-control-active-hover focus:bg-control-active-hover text-control-foreground text-md cursor-pointer list-none rounded px-3 py-2"
     )
   }
 };
