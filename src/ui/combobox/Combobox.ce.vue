@@ -78,7 +78,7 @@
           />
           <CommandEmpty>{{ emptyMessage }}</CommandEmpty>
         </template>
-        <CommandList class="w-full max-w-full" loop>
+        <CommandList class="w-full max-w-full border-t" loop>
           <CommandGroup>
             <CommandItem
               v-for="item in results"
