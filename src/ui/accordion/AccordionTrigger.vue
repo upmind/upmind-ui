@@ -9,7 +9,7 @@ import { ChevronDown } from "lucide-vue-next";
 import { cn } from "../../utils";
 
 const props = defineProps<
-  AccordionTriggerProps & { class?: HTMLAttributes["class"] }
+  AccordionTriggerProps & { class?: HTMLAttributes["class"]; open?: boolean }
 >();
 
 const delegatedProps = computed(() => {
@@ -30,6 +30,7 @@ const delegatedProps = computed(() => {
         )
       "
       data-testid="accordion-trigger"
+      :data-state="props.open ? 'open' : 'closed'"
     >
       <slot />
       <slot name="icon">
