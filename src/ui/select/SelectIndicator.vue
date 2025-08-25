@@ -3,7 +3,7 @@
     v-bind="forwardedProps"
     :class="
       cn(
-        'focus-visible:ring-ring shadow-border text-primary ring-offset-background flex aspect-square h-4.5 w-4.5 items-center justify-center rounded-full border-none focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+        'focus-visible:ring-ring shadow-border-control text-primary ring-offset-background flex aspect-square h-4.5 w-4.5 items-center justify-center rounded-full border-none focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
 
         'data-[state=checked]:text-control-active-foreground bg-base-background text-control-foreground data-[state=checked]:bg-control-active data-[state=checked]:shadow-border-none shrink-0',
         props.class,
