@@ -229,7 +229,7 @@ export const rootVariants = cva(
         color: "base",
         variant: "ghost",
         class:
-          "ring-base-muted-active text-base-foreground hover:text-base-foreground/75"
+          "ring-base-muted-active text-base-foreground !bg-control-background"
       },
       {
         color: "primary",

@@ -4,17 +4,19 @@
     :disabled="props.disabled"
     :class="styles.combobox.root"
   >
-    <PopoverTrigger as-child>
+    <PopoverTrigger as-child :ring="false">
       <Button
         v-bind="$attrs"
         :loading="props.loading"
         :class="cn('group', styles.combobox.trigger, props.class)"
-        :size="props.size"
+        size="lg"
         :aria-expanded="open"
-        :color="props.color"
-        :variant="props.variant"
+        variant="ghost"
+        :ring="false"
+        icon-append="arrow-down"
+        :checked="open"
       >
-        <template v-if="!isEmpty(modelValue) || searchTerm">
+        <template #prepend v-if="!isEmpty(modelValue) || searchTerm">
           <slot name="selected" v-bind="{ item: modelValue }">
             <Avatar
               v-if="meta.hasAvatar"
@@ -32,20 +34,25 @@
               fit="cover"
               aria-hidden="true"
             />
-
-            <span :class="styles.combobox.label">{{ label }}</span>
           </slot>
         </template>
 
-        <span v-else-if="search" class="opacity-50">
-          <slot name="placeholder">{{ props.placeholder }}</slot>
-        </span>
+        <template #default v-if="!isEmpty(modelValue) || searchTerm">
+          <span :class="styles.combobox.label">{{ label }}</span>
+        </template>
+
+        <template #default v-else-if="search">
+          <span class="opacity-50">
+            <slot name="placeholder">{{ props.placeholder }}</slot>
+          </span>
+        </template>
 
         <template #append>
           <Icon
-            class="opacity-75 transition-all duration-200"
-            icon="arrow-up-down"
-            size="xs"
+            class="opacity-75 transition-all duration-200 [&>svg]:p-0.5"
+            icon="arrow-down"
+            :class="cn(open ? 'rotate-180' : '')"
+            size="nano"
           />
         </template>
       </Button>
@@ -66,6 +73,7 @@
             :placeholder="placeholder"
             input-size="sm"
             :class="styles.combobox.input"
+            :ring="false"
           >
             <template #prepend>
               <Icon icon="search" size="2xs" class="mr-1 opacity-50" />
@@ -208,6 +216,7 @@ const meta = computed(() => ({
   color: props.color,
   size: props.size,
   width: props.width,
+  hasRing: props.ring,
   truncate: props.truncate,
   hasAvatar: props.avatar || has(modelValue.value, "avatar"),
   hasIcon: props.icon || has(modelValue.value, "icon")
