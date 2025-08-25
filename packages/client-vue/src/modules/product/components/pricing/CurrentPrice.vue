@@ -4,11 +4,10 @@
       {{ t("product.free") }}
     </template>
     <template v-else>
-      {{
-        priceMeta.canShowCycle && te("product.cycle")
-          ? t("product.cycle", { value: monthlyFromCurrentPrice })
-          : currentPrice
-      }}
+      {{ priceMeta.canShowCycle ? monthlyFromCurrentPrice : currentPrice }}
+      <small v-if="priceMeta.canShowCycle" :class="styles.pricing.term">{{
+        t(`product.cycle`)
+      }}</small>
     </template>
   </component>
 </template>
@@ -45,6 +44,7 @@ const styles = useStyles(
 ) as ComputedRef<{
   pricing: {
     current: string;
+    term: string;
   };
 }>;
 </script>
