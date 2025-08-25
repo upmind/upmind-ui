@@ -12,7 +12,7 @@
         :required="props.required"
         :disabled="props.disabled"
         :tabindex="isSelected || !modelValue ? 0 : -1"
-        :data-state="isSelected ? 'checked' : ''"
+        :data-state="isSelected ? 'checked' : 'unchecked'"
         :uiConfig="uiConfig"
         @blur="onBlur"
       />
