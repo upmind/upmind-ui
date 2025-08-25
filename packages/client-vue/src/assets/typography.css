@@ -1,3 +1,23 @@
+/* Font Families */
+.text-xs,
+.text-sm,
+.text-md {
+  font-family: var(--font-body);
+}
+
+.text-lg,
+.text-xl,
+.text-2xl,
+.text-3xl {
+  font-family: var(--font-sans);
+}
+
+.text-4xl,
+.text-5xl,
+.text-6xl {
+  font-family: var(--font-display);
+}
+
 @layer utilities {
   .text-xs\/tight {
     font-size: var(--text-xs);

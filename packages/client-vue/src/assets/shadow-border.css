@@ -1,0 +1,33 @@
+@utility shadow-border-* {
+  box-shadow: inset 0 0 0 1px --value(--color-*);
+}
+
+@utility shadow-border-b-* {
+  box-shadow: inset 0 -1px 0 0 --value(--color-*);
+}
+
+@utility shadow-border-t-* {
+  box-shadow: inset 0 1px 0 0 --value(--color-*);
+}
+
+@utility shadow-border-l-* {
+  box-shadow: inset 1px 0 0 0 --value(--color-*);
+}
+
+@utility shadow-border-r-* {
+  box-shadow: inset -1px 0 0 0 --value(--color-*);
+}
+
+@utility shadow-border-l-none-* {
+  box-shadow:
+    inset 0 1px 0 0 --value(--color-*),
+    inset -1px 0 0 0 --value(--color-*),
+    inset 0 -1px 0 0 --value(--color-*);
+}
+
+@utility shadow-border-r-none-* {
+  box-shadow:
+    inset 0 1px 0 0 --value(--color-*),
+    inset 1px 0 0 0 --value(--color-*),
+    inset 0 -1px 0 0 --value(--color-*);
+}
