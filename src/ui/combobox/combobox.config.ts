@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 import { ringClasses, invalidRingClasses } from "../input/input.config";
 
 export const triggerVariants = cva(
-  "text-md h-auto justify-start gap-2 overflow-hidden rounded px-4 py-2 transition-all duration-300",
+  "text-md shadow-border-r-none h-auto justify-start gap-2 rounded px-4 py-2 transition-all duration-300",
   {
     variants: {
       width: {
@@ -89,7 +89,7 @@ export const contentVariants = cva(
   }
 );
 
-export const labelVariants = cva("", {
+export const labelVariants = cva("px-0.5", {
   variants: {
     truncate: {
       true: "truncate",
@@ -98,15 +98,22 @@ export const labelVariants = cva("", {
   }
 });
 
+export const rootVariants = cva("w-full rounded", {
+  variants: {
+    hasRing: {
+      true: `${ringClasses} ${invalidRingClasses}`,
+      false: ""
+    }
+  }
+});
+
 export default {
   combobox: {
-    root: cva(`${ringClasses} ${invalidRingClasses} w-full rounded`),
+    root: rootVariants,
     trigger: triggerVariants,
     content: contentVariants,
     label: labelVariants,
     item: itemVariants,
-    input: cva(
-      "rounded-none! border-t-0! border-r-0! border-b! border-l-0! shadow-none! ring-0!"
-    )
+    input: cva("rounded-none shadow-none ring-0!")
   }
 };

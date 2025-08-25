@@ -3,11 +3,16 @@ import { PopoverTrigger, type PopoverTriggerProps } from "radix-vue";
 
 // TODO: Refactor into CE and CVA
 import { ringClasses } from "../../assets/ring.styles";
-const props = defineProps<PopoverTriggerProps>();
+const props = withDefaults(
+  defineProps<PopoverTriggerProps & { ring?: boolean }>(),
+  {
+    ring: true
+  }
+);
 </script>
 
 <template>
-  <PopoverTrigger v-bind="props" :class="ringClasses" as-child>
+  <PopoverTrigger v-bind="props" :class="ring ? ringClasses : ''" as-child>
     <slot />
   </PopoverTrigger>
 </template>
