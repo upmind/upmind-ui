@@ -14,13 +14,12 @@ export default {
 
   header: {
     avatar: {
-      login: cva("bg-transparent font-bold"),
-      session: cva("font-bold")
+      login: cva("bg-transparent")
     }
   },
   interstitial: {
     title: cva(
-      "text-foreground mb-2 text-center text-3xl font-medium tracking-normal text-balance md:text-4xl"
+      "text-foreground mb-2 text-center text-3xl font-normal tracking-normal text-balance md:text-4xl"
     )
   }
 };

@@ -1,6 +1,6 @@
 import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
-export const titleVariants = cva("m-0", {
+export const titleVariants = cva("m-0 [&_strong]:font-medium", {
   variants: {
     size: {
       inherit: "text-inherit",
