@@ -30,8 +30,8 @@
     <SessionDetailsDropdown v-if="meta.isAuthenticated && user">
       <Avatar
         v-bind="user.avatar"
-        size="xs"
-        class="h-9 w-9 cursor-pointer"
+        size="md"
+        class="cursor-pointer"
         focusable
         :class="styles.header.avatar.session"
       />

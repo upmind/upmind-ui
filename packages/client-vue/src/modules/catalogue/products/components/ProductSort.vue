@@ -1,5 +1,5 @@
 <template>
-  <ButtonGroup :items="groupItems" variant="outline" size="lg" />
+  <ButtonGroup :items="groupItems" variant="outline" />
 </template>
 
 <script setup lang="ts">

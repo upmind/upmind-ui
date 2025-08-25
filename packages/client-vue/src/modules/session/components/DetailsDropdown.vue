@@ -1,6 +1,15 @@
 <!-- eslint-disable vue/no-unused-components -->
 <template>
-  <DropdownMenu :items="items" popoverClass="mt-4" v-if="meta.isAuthenticated">
+  <DropdownMenu
+    v-if="meta.isAuthenticated"
+    :items="items"
+    width="sm"
+    :ui-config="{
+      dropdownMenu: {
+        content: ['mt-4']
+      }
+    }"
+  >
     <template #trigger>
       <slot></slot>
     </template>

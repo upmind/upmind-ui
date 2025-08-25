@@ -226,7 +226,7 @@ export default {
         ),
         item: {
           root: cva(
-            "text-foreground text-md m-0 flex h-full w-full cursor-pointer flex-col flex-wrap items-start gap-2 gap-y-3 rounded-lg sm:flex-row sm:gap-y-4",
+            "text-foreground text-md m-0 flex h-full w-full cursor-pointer flex-col flex-wrap items-start gap-4 rounded-lg sm:flex-row",
             {
               variants: {
                 isSelected: {
@@ -247,19 +247,19 @@ export default {
           footer: cva("flex", {
             variants: {
               isSelected: {
-                false: "w-full flex-col gap-y-1.5 self-end",
+                false: "w-full flex-col gap-y-0.5 self-end",
                 true: "items-baseline gap-x-2"
               }
             }
           }),
           // ---
-          title: cva("text-md m-0 font-medium text-nowrap text-inherit"),
+          title: cva("text-md/tight m-0 font-medium text-nowrap text-inherit"),
           text: cva("text-emphasis-medium text-md w-full"),
-          total: cva("leading-none! text-inherit", {
+          total: cva("font-medium", {
             variants: {
               isSelected: {
                 true: "",
-                false: "text-2xl"
+                false: "text-3xl"
               }
             }
           }),
