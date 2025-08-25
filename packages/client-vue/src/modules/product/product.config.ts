@@ -254,7 +254,7 @@ export default {
           }),
           // ---
           title: cva("text-md/tight m-0 font-medium text-nowrap text-inherit"),
-          text: cva("text-emphasis-medium text-md w-full"),
+          text: cva("text-emphasis-medium w-full text-sm font-normal"),
           total: cva("", {
             variants: {
               isSelect: {

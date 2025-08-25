@@ -1,4 +1,4 @@
-import type { VariantProps } from "class-variance-authority";
+import type { CxOptions, VariantProps } from "class-variance-authority";
 import type { currentVariants, exVariants } from "./pricing.config";
 import type { ProductSummaryDetailWithPrice } from "@upmind-automation/headless";
 export type ExVariantProps = VariantProps<typeof exVariants>;
@@ -11,8 +11,8 @@ interface BasePrice {
   showCycle?: boolean;
   uiConfig?: {
     pricing: {
-      ex?: ExVariantProps;
-      current?: CurrentVariantProps;
+      ex?: CxOptions;
+      current?: CxOptions;
     };
   };
 }
