@@ -142,7 +142,7 @@ export default createMachine(
         states: {
           payment: {
             invoke: {
-              src: "update",
+              src: "pay",
               onDone: {
                 target: "#processed",
                 actions: ["setPaymentDetails", "providePaymentDetails"]
@@ -159,7 +159,7 @@ export default createMachine(
           },
           adding: {
             invoke: {
-              src: "confirmSetup",
+              src: "add",
               onDone: {
                 target: "#processed",
                 actions: ["set"]

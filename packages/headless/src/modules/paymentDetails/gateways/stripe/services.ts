@@ -138,13 +138,13 @@ async function createPaymentElement(
 }
 
 /**
- * @name update
+ * @name pay
  * @desc Here we create a new payment detail via the Stripe SDK, and return
  * the payment detail ID which we later relay to the BE (when executing
  * payment). We do not need to pass a client secret for flow, as the
  * payment detail is attached to a customer and confirmed server-side.
  */
-async function update({ elements, stripe, model }: StripeContext) {
+async function pay({ elements, stripe, model }: StripeContext) {
   if (!elements || !stripe)
     return Promise.reject(
       new DetailedError(
@@ -263,12 +263,14 @@ async function createAddElement(
 }
 
 /**
- * @name confirmSetup
+ * @name add
  * @desc Here we confirm the setup of a new detail using the Stripe SDK. We
  * may (or may not), be redirected off site at point – hence we save the
  * operation (and next procedure) into session storage.
  */
-async function confirmSetup() {}
+async function add() {
+  // TODO
+}
 
 /**
  * @name endSetup
@@ -276,7 +278,9 @@ async function confirmSetup() {}
  * ID from Stripe. To finish up, we need to save detail as a payment
  * method within the Upmind ecosystem.
  */
-async function endSetup() {}
+async function endSetup() {
+  //TODO
+}
 
 // -----------------------------------------------------------------------------
 
@@ -288,7 +292,6 @@ export default {
   createPaymentElement,
   createAddElement,
   // ---
-  confirmSetup,
-  endSetup,
-  update
+  add,
+  pay
 };

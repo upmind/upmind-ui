@@ -137,6 +137,7 @@ export function spawnGateway({
   stored_payment_methods,
   address
 }: any) {
+  debugger;
   // lets spawn and return the appropriate machine based on the gateway
   // the order her eis important and matches the original order in the legacy app
   if (!amount || !gateway) {
@@ -218,6 +219,7 @@ export function spawnStored({
   currency,
   stored_payment_methods
 }: any) {
+  debugger;
   return spawn(
     gatewayMachine.withConfig(storedConfig as any).withContext({
       stored_payment_methods,
@@ -231,6 +233,7 @@ export function spawnStored({
 }
 
 export function spawnCard({ orderId, gateway, amount, currency }: any) {
+  debugger;
   return spawn(
     gatewayMachine.withConfig(cardConfig as any).withContext({
       orderId,
@@ -251,6 +254,7 @@ export function spawnStripe({
   currency,
   address
 }: PaymentDetailsContext) {
+  debugger;
   return spawn(
     stripeMachine.withContext({
       orderId,
@@ -270,6 +274,8 @@ export function spawnGenericGateway(
   type: any,
   { orderId, gateway, amount, currency, renderless = false }: any
 ) {
+  debugger;
+
   return spawn(
     gatewayMachine.withContext({
       orderId,
@@ -285,11 +291,12 @@ export function spawnGenericGateway(
 }
 
 export function spawnExternal({ orderId, gateway, amount, currency }: any) {
+  debugger;
   return spawn(
     gatewayMachine.withContext({
       orderId,
       gateway,
-      amount,
+      amount: amount || 0,
       currency,
       type: GatewayTypes.CARD,
       code: gateway?.gateway_provider?.code
@@ -322,5 +329,6 @@ const isMobile = (gateway: any) => gateway.type === GatewayTypes.MOBILE;
 const isOffline = (gateway: any) => gateway.type === GatewayTypes.OFFLINE;
 
 const isExternal = (gateway: any) =>
-  gateway.type === GatewayTypes.CARD &&
-  gateway?.gateway_provider.external_payment;
+  gateway.gateway_provider.external_store ||
+  (gateway.type === GatewayTypes.CARD &&
+    gateway?.gateway_provider.external_payment);

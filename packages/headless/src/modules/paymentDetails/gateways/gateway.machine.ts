@@ -81,7 +81,7 @@ export default createMachine(
       processing: {
         entry: ["clearError"],
         invoke: {
-          src: "update",
+          src: "pay",
           onDone: {
             target: "#processed",
             actions: ["setPaymentDetails", "providePaymentDetails"]
