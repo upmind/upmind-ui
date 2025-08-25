@@ -34,6 +34,7 @@
         <li
           v-if="additionalOption"
           :class="styles.search.item"
+          class="font-normal"
           @click="
             onSelect({
               id: 'additional',
