@@ -22,6 +22,7 @@ export interface InputProps {
   avatar?: Partial<AvatarProps>;
   iconAppend?: string | Icon;
   avatarAppend?: Partial<AvatarProps>;
+  ring?: boolean;
   // ---
   autocomplete?: string;
   autoFocus?: boolean;

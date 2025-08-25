@@ -39,6 +39,7 @@ import type { InputProps } from "./types";
 
 const props = withDefaults(defineProps<InputProps>(), {
   width: "full",
+  ring: true,
   // ---
   uiConfig: () => ({ input: [] }),
   class: ""
@@ -82,7 +83,8 @@ const modelValue = useVModel(props, "modelValue", emits, {
 });
 
 const meta = computed(() => ({
-  width: props.width
+  width: props.width,
+  hasRing: props.ring
 }));
 
 const styles = useStyles(
