@@ -6,6 +6,7 @@
     size="lg"
     variant="link"
     :label="copied ? t('product.copied') : t('product.share')"
+    class="font-medium"
   />
 </template>
 
