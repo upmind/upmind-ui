@@ -26,7 +26,7 @@
 
           <div class="flex w-full flex-col">
             <div class="flex items-end justify-between">
-              <div class="text-sm leading-5 font-normal">
+              <div class="text-emphasis-medium text-sm font-normal">
                 {{ summary.category }}
               </div>
               <Promotion
