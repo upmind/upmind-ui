@@ -6,7 +6,7 @@ export const tabsListVariants = cva(
     variants: {
       variant: {
         flat: "px-0",
-        outline: "shadow-border p-0",
+        outline: "shadow-border-control p-0",
         tonal: "bg-opacity-10"
       },
       color: {
@@ -188,8 +188,7 @@ export const tabsTriggerVariants = cva(
     variants: {
       variant: {
         flat: "mx-1 w-full data-[state=active]:bg-white",
-        outline:
-          "data-[state=active]:border-foreground data-[state=active]:border",
+        outline: "data-[state=active]:shadow-border-foreground",
         tonal: ""
       },
       color: {

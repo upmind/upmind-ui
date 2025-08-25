@@ -21,7 +21,7 @@ export const rootVariants = cva(
         tonal: "font-medium",
         inverse: "font-medium",
         control:
-          "bg-control-background text-control-foreground! ring-offset-background shadow-border font-medium",
+          "bg-control-background text-control-foreground! ring-offset-background shadow-border-control font-medium",
         subtle: "bg-subtle text-button-subtle font-medium"
       },
       color: {

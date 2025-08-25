@@ -58,7 +58,7 @@ export const numberFieldVariants = cva(
   {
     variants: {
       variant: {
-        flat: "shadow-border",
+        flat: "shadow-border-control",
         minimal: "shadow-none!"
       },
       size: {
@@ -97,9 +97,9 @@ export const numberFieldVariants = cva(
 export const numberFieldInputVariants = cva("bg-control-background", {
   variants: {
     variant: {
-      flat: "[&>i]:disabled:text-emphasis-disabled shadow-border [&>i]:size-lh transition-all duration-300 disabled:opacity-100 [&>i]:flex [&>i]:items-center [&>i]:justify-center",
+      flat: "[&>i]:disabled:text-emphasis-disabled shadow-border-control [&>i]:size-lh transition-all duration-300 disabled:opacity-100 [&>i]:flex [&>i]:items-center [&>i]:justify-center",
       minimal:
-        "shadow-border flex h-5 w-5 items-center justify-center rounded p-0"
+        "shadow-border-control flex h-5 w-5 items-center justify-center rounded p-0"
     },
     size: {
       sm: "",
