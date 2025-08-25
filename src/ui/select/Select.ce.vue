@@ -74,6 +74,7 @@ const props = withDefaults(defineProps<SelectProps>(), {
   placeholder: "Select an option",
   // -- styles
   variant: "outline",
+  size: "md",
   width: "full",
   ring: true,
   // --- styles
