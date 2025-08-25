@@ -23,7 +23,7 @@ export default {
       root: cva("flex flex-col gap-3"),
       trigger: {
         root: cva(
-          "text-emphasis-high hover:text-foreground bg-control-background border-control flex cursor-pointer items-center justify-between space-x-2 rounded border border-solid px-4 py-2 transition-all duration-300 hover:no-underline"
+          "text-emphasis-high hover:text-foreground bg-control-background shadow-border flex cursor-pointer items-center justify-between space-x-2 rounded px-4 py-2 transition-all duration-300 hover:no-underline"
         ),
         icon: cva(
           "text-emphasis-high group-hover:text-emphasis-none ml-auto transition-all duration-200 [&>svg]:size-3 [&>svg]:transition-all [&>svg]:duration-300"
@@ -36,9 +36,9 @@ export default {
       content: cva("flex flex-col gap-6 transition-all duration-300", {
         variants: {
           layout: {
-            full: "py-4",
+            full: "p-4",
             enclosed: "py-3",
-            default: "py-3"
+            default: "p-3"
           }
         }
       })
