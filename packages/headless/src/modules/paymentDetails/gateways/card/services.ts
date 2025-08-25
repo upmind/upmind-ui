@@ -17,7 +17,7 @@ import type { GatewayContext } from "../types";
  * payment). We do not need to pass a client secret for flow, as the
  * payment detail is attached to a customer and confirmed server-side.
  */
-async function update({ model }: GatewayContext) {
+async function pay({ model }: GatewayContext) {
   return new Promise(resolve => {
     // add the payment details to the model
     /* Here we don't pass 'store_on_payment_auto_payment' flag as 'store_on_payment_auto_payment' is injected from parent gatewayComponent */
@@ -30,5 +30,5 @@ async function update({ model }: GatewayContext) {
 export default {
   ...sharedServices,
   // ---
-  update
+  pay
 };

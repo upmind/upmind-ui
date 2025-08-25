@@ -37,10 +37,6 @@ import { BrandConfigKeys, PaymentType } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
-const whitelistGatewayProviders = (
-  import.meta.env.VITE_APP_WHITELIST_GATEWAY_PROVIDERS || ""
-).split(",");
-
 async function load(
   { currency, address }: PaymentDetailsContext,
   _event: AnyEventObject
@@ -109,18 +105,7 @@ async function load(
       { brandId: unref(brandId), clientId, currencyId }
     ],
     withAccessToken: true
-  }).then(data => {
-    // Allowlist payment gateways if provided
-    if (whitelistGatewayProviders.length) {
-      data = filter(data, ({ gateway }) => {
-        return includes(
-          whitelistGatewayProviders,
-          gateway.gateway_provider.code
-        );
-      });
-    }
-    return sortBy(data, ["order"]);
-  });
+  }).then(data => sortBy(data, ["order"]));
   // ----
 
   return Promise.all([stored_payment_methods, gateways, address]).then(
