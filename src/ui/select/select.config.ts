@@ -14,6 +14,10 @@ export const rootVariants = cva(
         auto: "w-auto min-w-15",
         full: "w-full"
       },
+      size: {
+        sm: "text-sm",
+        md: "text-md"
+      },
       hasRing: {
         true: `ring-offset-background ${ringClasses} ${invalidRingClasses}`,
         false:
