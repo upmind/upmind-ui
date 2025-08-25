@@ -68,7 +68,7 @@ const props = withDefaults(defineProps<ButtonProps>(), {
   focusable: true,
   truncate: true,
   ring: true,
-  uiConfig: () => ({ button: [] }),
+  uiConfig: () => ({ button: { root: [], label: [] } }),
   class: "",
   contentClass: ""
 });

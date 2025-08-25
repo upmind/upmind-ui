@@ -11,13 +11,18 @@
       <span :class="styles.buttonGroup.item">
         <Button
           v-if="item.type === ButtonGroup.Button"
-          :class="styles.buttonGroup.button"
           v-bind="item.props"
           size="lg"
           :disabled="disabled || item.props.disabled"
           variant="ghost"
           :ring="false"
           @click="item.handler?.($event)"
+          :ui-config="{
+            button: {
+              root: [styles.buttonGroup.button],
+              label: []
+            }
+          }"
         />
 
         <Select
