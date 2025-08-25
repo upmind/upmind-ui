@@ -9,12 +9,16 @@ export const invalidRingClasses =
   "aria-invalid:ring-invalid! aria-invalid:ring-2! aria-invalid:ring-offset-2!";
 
 export const containerVariants = cva(
-  `bg-control-background shadow-border text-md autofill flex items-center gap-3 px-4 py-2 transition-[border-color,opacity,box-shadow] duration-200 ${ringClasses} ${invalidRingClasses}`,
+  `bg-control-background shadow-border text-md autofill flex items-center gap-3 rounded px-4 py-2 transition-[border-color,opacity,box-shadow] duration-200`,
   {
     variants: {
       width: {
         auto: "w-auto min-w-15",
         full: "w-full"
+      },
+      hasRing: {
+        true: `${ringClasses} ${invalidRingClasses}`,
+        false: ""
       }
     },
     defaultVariants: {
