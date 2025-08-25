@@ -23,18 +23,17 @@
     </PopoverTrigger>
     <PopoverPortal>
       <PopoverContent v-if="meta.isOpen" :class="styles.search.content">
-        <div
+        <li
           v-for="item in results"
           :key="item.id"
           @click="onSelect(item)"
           :class="styles.search.item"
         >
           {{ item.label }}
-        </div>
-        <div
+        </li>
+        <li
           v-if="additionalOption"
           :class="styles.search.item"
-          class="text-emphasis-medium"
           @click="
             onSelect({
               id: 'additional',
@@ -43,7 +42,7 @@
           "
         >
           {{ additionalOption }}
-        </div>
+        </li>
       </PopoverContent>
     </PopoverPortal>
   </PopoverRoot>
