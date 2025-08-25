@@ -39,7 +39,7 @@ export default {
       }
     }),
     item: cva(
-      "focus:bg-control-active-hover focus:text-control-foreground data-[state=unchecked]:text-emphasis-medium hover:!text-emphasis-none focus:!text-emphasis-none cursor-pointer gap-3 rounded px-4 py-2 text-sm font-medium transition-all duration-300"
+      "focus:bg-control-active-hover focus:text-control-foreground data-[state=unchecked]:text-emphasis-medium hover:!text-emphasis-none focus:!text-emphasis-none text-md cursor-pointer gap-3 rounded px-4 py-2 font-medium transition-all duration-300"
     ),
     content: cva("mt-2 p-2")
   }

@@ -25,6 +25,7 @@ export interface SelectProps
   // --- variants;
   variant?: RootVariants["variant"];
   width?: RootVariants["width"];
+  size?: RootVariants["size"];
   placeholder?: string;
   ring?: boolean;
   // --- styles
