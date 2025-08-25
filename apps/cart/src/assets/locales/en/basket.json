@@ -31,7 +31,7 @@
     },
 
     "promotions": {
-      "title": "Add a voucher",
+      "title": "Add a voucher code",
       "tooltip": "Voucher applied",
       "actions": {
         "submit": "Apply"

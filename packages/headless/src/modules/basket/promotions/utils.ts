@@ -37,7 +37,7 @@ export const useUischema = (_context: PromotionsContext) => {
         options: {
           autoFocus: true,
           autocomplete: "off",
-          placeholder: "Enter code here",
+          placeholder: "Enter your voucher...",
           noLabel: true
         }
       }

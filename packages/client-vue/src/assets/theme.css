@@ -160,6 +160,9 @@
   --color-secondary-muted-foreground: #eaeaf1;
   --color-secondary-muted-active: #70707010;
 
+  --color-subtle: #f8f8fb;
+  --color-subtle-foreground: #262626;
+
   --color-promotion: #262626;
   --color-promotion-foreground: #ffffff;
   --color-promotion-background: #262626;

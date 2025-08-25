@@ -51,7 +51,7 @@ export default {
       content: cva(),
       footer: cva("flex flex-wrap items-center gap-1"),
       form: {
-        root: cva("flex-row items-start gap-1 space-x-2"),
+        root: cva("flex-row items-start gap-2"),
         actions: cva("w-auto items-start")
       },
       input: cva("w-20")
