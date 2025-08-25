@@ -1,40 +1,42 @@
 <template>
-  <header
-    v-if="meta?.discounted"
-    :class="styles.product.header.price.regularPrice"
-  >
-    <s>Was {{ price?.regularPrice }}</s>
-    <Badge variant="outline" color="promotion" size="sm">
-      {{ t("product.promotionSave", [price?.savingPercent]) }}
-    </Badge>
-  </header>
-  <p :class="styles.product.header.price.currentPrice.root">
-    <strong
-      v-if="meta?.free"
-      :class="styles.product.header.price.currentPrice.amount"
+  <section :class="styles.product.header.price.root">
+    <header
+      v-if="meta?.discounted"
+      :class="styles.product.header.price.regularPrice"
     >
-      {{ t("product.free") }}
-    </strong>
-    <template v-else>
-      <strong :class="styles.product.header.price.currentPrice.amount">{{
-        price?.currentPrice
-      }}</strong>
-      <small :class="styles.product.header.price.currentPrice.term"
-        >/ {{ t(`product.terms.term.${productDetails.cycle}`) }}</small
+      <s>Was {{ price?.regularPrice }}</s>
+      <Badge variant="outline" color="promotion" size="sm">
+        {{ t("product.promotionSave", [price?.savingPercent]) }}
+      </Badge>
+    </header>
+    <p :class="styles.product.header.price.currentPrice.root">
+      <strong
+        v-if="meta?.free"
+        :class="styles.product.header.price.currentPrice.amount"
       >
-    </template>
-  </p>
-  <footer v-if="!hideAnnualTerm" :class="styles.product.header.price.total">
-    <template
-      v-if="annualTerm && te(`product.terms.summary.${annualTerm?.cycle}`)"
-    >
-      {{
-        t(`product.terms.summary.${annualTerm?.cycle}`, [
-          annualTerm?.price.currentPrice
-        ])
-      }}
-    </template>
-  </footer>
+        {{ t("product.free") }}
+      </strong>
+      <template v-else>
+        <strong :class="styles.product.header.price.currentPrice.amount">{{
+          price?.currentPrice
+        }}</strong>
+        <small :class="styles.product.header.price.currentPrice.term"
+          >/ {{ t(`product.terms.term.${productDetails.cycle}`) }}</small
+        >
+      </template>
+    </p>
+    <footer v-if="!hideAnnualTerm" :class="styles.product.header.price.total">
+      <template
+        v-if="annualTerm && te(`product.terms.summary.${annualTerm?.cycle}`)"
+      >
+        {{
+          t(`product.terms.summary.${annualTerm?.cycle}`, [
+            annualTerm?.price.currentPrice
+          ])
+        }}
+      </template>
+    </footer>
+  </section>
 </template>
 
 <script setup lang="ts">
