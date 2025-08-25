@@ -1,24 +1,23 @@
-/* Font Families */
-.text-xs,
-.text-sm,
-.text-md {
-  font-family: var(--font-body);
-}
-
-.text-lg,
-.text-xl,
-.text-2xl,
-.text-3xl {
-  font-family: var(--font-sans);
-}
-
-.text-4xl,
-.text-5xl,
-.text-6xl {
-  font-family: var(--font-display);
-}
-
 @layer utilities {
+  [class*="text-xs"],
+  [class*="text-sm"],
+  [class*="text-md"] {
+    font-family: var(--font-body);
+  }
+
+  [class*="text-lg"],
+  [class*="text-xl"],
+  [class*="text-2xl"],
+  [class*="text-3xl"] {
+    font-family: var(--font-sans);
+  }
+
+  [class*="text-4xl"],
+  [class*="text-5xl"],
+  [class*="text-6xl"] {
+    font-family: var(--font-display);
+  }
+
   .text-xs\/tight {
     font-size: var(--text-xs);
     line-height: var(--text-xs--line-height-tight);
