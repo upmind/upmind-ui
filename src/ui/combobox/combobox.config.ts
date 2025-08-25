@@ -15,6 +15,7 @@ export const triggerVariants = cva(
         "2xl": "w-dropdown-2xl",
         full: "w-full",
         auto: "w-auto",
+        fit: "w-auto",
         app: "w-app"
       }
     },
@@ -25,7 +26,7 @@ export const triggerVariants = cva(
 );
 
 export const itemVariants = cva(
-  "data-highlighted:bg-control-active-focus bg-base-background text-control-foreground flex w-full cursor-pointer! items-center rounded px-3 py-2 text-sm",
+  "data-highlighted:bg-control-active-focus bg-base-background text-control-foreground text-md flex w-full cursor-pointer! items-center rounded px-3 py-2",
   {
     variants: {
       color: {
@@ -81,6 +82,7 @@ export const contentVariants = cva(
         "2xl": "w-dropdown-2xl",
         full: "w-full",
         auto: "w-(--radix-popover-trigger-width)",
+        fit: "w-fit",
         app: "w-app"
       }
     }
