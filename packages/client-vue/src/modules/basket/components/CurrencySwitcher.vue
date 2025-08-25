@@ -6,6 +6,7 @@
     :loading="meta.isLoading"
     @update:modelValue="updateCurrency"
     search
+    width="fit"
   />
 </template>
 
