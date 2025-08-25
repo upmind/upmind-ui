@@ -183,7 +183,7 @@ export const tabsListVariants = cva(
 );
 
 export const tabsTriggerVariants = cva(
-  "text-md relative z-10 inline-flex cursor-pointer items-center justify-center rounded px-8 py-2 font-normal whitespace-nowrap",
+  "text-md relative inline-flex cursor-pointer items-center justify-center rounded px-8 py-2 font-normal whitespace-nowrap",
   {
     variants: {
       variant: {
