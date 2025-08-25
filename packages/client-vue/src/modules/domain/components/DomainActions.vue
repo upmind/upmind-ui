@@ -14,7 +14,7 @@
   />
 
   <template v-if="!meta?.available && !selected" as="span">
-    <Description class="not-italic md:max-w-64">
+    <Description class="not-italic md:max-w-76">
       {{ t("domain.card.transfer.ownership") }}
       {{ t("domain.card.transfer.transfer") }}
       <Button
