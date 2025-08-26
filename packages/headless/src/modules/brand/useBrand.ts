@@ -388,7 +388,7 @@ export const useBrand = () => {
     uiTheme,
 
     /**
-     * The current cart meta object for the brand.
+     * The current cart metaobject for the brand.
      */
     uiCart,
 
@@ -410,7 +410,7 @@ export const useBrand = () => {
     language,
 
     /**
-     * The  list of all supported languages for the brand.
+     * The list of all supported languages for the brand.
      */
     languages,
 
@@ -431,7 +431,7 @@ export const useBrand = () => {
     getAnalytics,
 
     /**
-     * This method will return the requested keys from the config,
+     * This method will return the requested keys from the config.
      * It assumes that the keys are already in context in the state machine.
      * It will not request the keys from the API if they are not already in context.
      * It will also not wait for the state of the request to be processed/cached
@@ -443,7 +443,7 @@ export const useBrand = () => {
     getConfig,
 
     /**
-     * Validates and returns a supported currency object, or the default.
+     * Validates and returns a supported currency object or the default.
      * @param model  The currency model to validate ({ id?: string, code?: string }).
      * @returns {Promise<Partial<ICurrency> | ICurrency | undefined>} A promise resolving to a valid currency object or undefined.
      * @throws {DetailedError} If the currencies are not available in the context.
@@ -451,7 +451,7 @@ export const useBrand = () => {
     validateCurrency,
 
     /**
-     * Validates and returns a supported language object, or the default.
+     * Validates and returns a supported language object or the default.
      * @param model - The language model to validate ({ id?: string, code?: string }).
      * @returns {  Promise<ILanguage | undefined>} A promise resolving to a valid language object or undefined.
      * @throws {DetailedError} If the languages are not available in the context.

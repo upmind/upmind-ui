@@ -340,6 +340,9 @@ export interface UIProductMeta {
     carousel?: boolean;
     ratio?: string;
   };
+  display_price?: {
+    trim_trailing_zeroes?: boolean;
+  };
   card: {
     benefits: {
       hide?: boolean;

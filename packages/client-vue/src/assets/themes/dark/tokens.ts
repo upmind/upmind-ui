@@ -2,7 +2,8 @@ import type { ThemeTokens } from "@upmind-automation/headless";
 
 const tokens: ThemeTokens = {
   fonts: {
-    sans: "Inter Tight"
+    body: "Inter",
+    sans: "Inter"
   },
   border: {
     colorDefault: "#3D3D3D",

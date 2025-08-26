@@ -21,9 +21,5 @@ export default {
     title: cva(
       "text-foreground mb-2 text-center text-3xl font-medium tracking-normal text-balance md:text-4xl"
     )
-  },
-  title: cva("font-medium"),
-  section: {
-    title: cva("font-medium")
   }
 };

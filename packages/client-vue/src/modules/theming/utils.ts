@@ -163,8 +163,10 @@ export function setFontFamily(fonts?: ThemeTokens["fonts"]) {
   const stylesheet = ensureStylesheet("upmind-design-tokens");
 
   if (!isEmpty(families)) {
+    const familiesWithWeights = families.map(family => `${family}:400,500,600`);
+
     WebFontLoader.load({
-      google: { families },
+      google: { families: familiesWithWeights },
       active: () => {
         const cssVars: Record<string, string> = {};
 
