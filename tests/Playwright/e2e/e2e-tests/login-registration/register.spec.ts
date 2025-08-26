@@ -20,9 +20,9 @@ test.describe("User Registration", () => {
     await registration.email.fill(
       `nathan.robinson+${faker.string.alpha({ length: 10 })}@upmind.com`
     );
-    await registration.password
-      .getByTestId("text-input")
-      .fill(`${faker.internet.password({ length: 10, pattern: /[A-Z]/ })}`);
+    await registration.password.fill(
+      `${faker.internet.password({ length: 10, pattern: /[A-Z]/ })}`
+    );
     await page.getByTestId("button-continue").click();
     await expect(registration.alert).toContainText(
       "We experienced an error while trying to create your account"
@@ -34,11 +34,9 @@ test.describe("User Registration", () => {
     await registration.email.fill(
       `nathan.robinson+${faker.string.alpha({ length: 10 })}`
     );
-    await registration.password
-      .getByTestId("text-input")
-      .fill(
-        `${faker.internet.password({ length: 10, pattern: /[A-Z]/, prefix: "123" })}`
-      );
+    await registration.password.fill(
+      `${faker.internet.password({ length: 10, pattern: /[A-Z]/, prefix: "123" })}`
+    );
     await expect(page.getByTestId("form-item-message-username")).toContainText(
       'must match format "email"'
     );
