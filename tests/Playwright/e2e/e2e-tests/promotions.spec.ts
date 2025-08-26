@@ -1,10 +1,11 @@
-import { test, expect, Page, BrowserContext, Browser } from "@playwright/test";
+import { test, expect, BrowserContext, Browser } from "@playwright/test";
 import { URLs } from "../support/constants/urls";
 import { ProductConfig } from "../support/page-objects/templates/ProductConfig";
 import { Basket } from "../support/page-objects/templates/Basket";
 import {
   getCurrentOrderId,
-  addProductToOrder
+  addProductToOrder,
+  setOrderCurrency
 } from "../support/utils/functions/basket";
 import {
   getSessionToken,
@@ -44,6 +45,8 @@ test.describe("Promotions", () => {
         });
       });
       test.describe("Application per currency", () => {
+        let token: string;
+        let orderId: string | null;
         test("Apply for all currencies - No - Apply for GBP", async ({
           page
         }) => {
@@ -52,9 +55,16 @@ test.describe("Promotions", () => {
           await productConfig.promoBadgeExists(0);
         });
         test("Apply for all currencies - No - Apply for USD", async ({
-          page
+          page,
+          context
         }) => {
           await page.goto(URLs.usdPromo);
+          await page.waitForLoadState("networkidle");
+          token = await getSessionToken(context, "guest");
+          orderId = await getCurrentOrderId(token);
+          await setOrderCurrency(token, orderId, "USD");
+          await page.waitForLoadState("networkidle");
+          await page.reload();
           await page.waitForLoadState();
           await productConfig.promoBadgeExists(0);
         });
@@ -108,6 +118,7 @@ test.describe("Promotions", () => {
           Logins.priceListUser.password
         );
         await page.goto(URLs.newClientPromo);
+        await page.waitForLoadState("networkidle");
         await productConfig.promoBadgeDoesNotExist(0);
       });
     });
@@ -124,6 +135,7 @@ test.describe("Promotions", () => {
         await productConfig.promoBadgeExists(0);
         await page.goto(URLs.logout);
         await page.goto(URLs.existingClientPromo);
+        await page.waitForLoadState("networkidle");
         await productConfig.promoBadgeDoesNotExist(0);
       });
     });
@@ -153,7 +165,7 @@ test.describe("Promotions", () => {
       test("Use with other promotions - Yes", async ({ page }) => {
         await page.goto(URLs.basket);
         await basket.enterPromoCode("genericpromo");
-        await page.waitForLoadState("networkidle");
+        await page.waitForTimeout(2000);
         await basket.enterPromoCode("otherpromotionsyes");
         await expect(basket.promoBadge.getByText("genericpromo")).toBeVisible();
         await expect(
