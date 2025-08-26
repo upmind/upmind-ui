@@ -26,7 +26,7 @@ export const triggerVariants = cva(
 );
 
 export const itemVariants = cva(
-  "data-highlighted:bg-control-active-focus bg-base-background text-control-foreground text-md flex w-full cursor-pointer! items-center rounded px-3 py-2",
+  "data-highlighted:bg-control-active-focus bg-base-background text-control-foreground text-md flex w-full cursor-pointer! items-center gap-3 rounded px-4 py-2",
   {
     variants: {
       color: {
