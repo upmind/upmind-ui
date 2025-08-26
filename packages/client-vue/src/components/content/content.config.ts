@@ -1,6 +1,6 @@
 import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
-export const titleVariants = cva("m-0 [&_strong]:font-medium", {
+export const titleVariants = cva("font-display m-0 [&_strong]:font-medium", {
   variants: {
     size: {
       inherit: "text-inherit",
@@ -9,7 +9,8 @@ export const titleVariants = cva("m-0 [&_strong]:font-medium", {
       lg: "text-lg",
       xl: "text-xl md:text-2xl",
       "2xl": "text-2xl md:text-3xl",
-      "3xl": "text-3xl md:text-4xl"
+      "3xl": "text-3xl md:text-4xl",
+      "4xl": "text-4xl md:text-5xl"
     },
     align: {
       inherit: "text-inherit",
@@ -26,12 +27,13 @@ export const titleVariants = cva("m-0 [&_strong]:font-medium", {
 
 export default {
   page: cva(
-    "prose-headings:font-display bg-background text-foreground flex w-full max-w-none grow flex-wrap transition-colors"
+    "bg-background text-foreground flex w-full max-w-none grow flex-wrap transition-colors"
   ),
   title: titleVariants,
   description: cva("text-emphasis-medium my-0 text-sm"),
   header: {
-    title: cva("text-5xl"),
+    root: cva("flex flex-col gap-1"),
+    title: cva("font-display text-5xl"),
     description: cva("text-emphasis-medium text-lg")
   },
   section: {
