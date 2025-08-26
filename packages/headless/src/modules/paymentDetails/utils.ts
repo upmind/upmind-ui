@@ -137,7 +137,6 @@ export function spawnGateway({
   stored_payment_methods,
   address
 }: any) {
-  debugger;
   // lets spawn and return the appropriate machine based on the gateway
   // the order her eis important and matches the original order in the legacy app
   if (!amount || !gateway) {
@@ -219,7 +218,6 @@ export function spawnStored({
   currency,
   stored_payment_methods
 }: any) {
-  debugger;
   return spawn(
     gatewayMachine.withConfig(storedConfig as any).withContext({
       stored_payment_methods,
@@ -233,7 +231,6 @@ export function spawnStored({
 }
 
 export function spawnCard({ orderId, gateway, amount, currency }: any) {
-  debugger;
   return spawn(
     gatewayMachine.withConfig(cardConfig as any).withContext({
       orderId,
@@ -254,7 +251,6 @@ export function spawnStripe({
   currency,
   address
 }: PaymentDetailsContext) {
-  debugger;
   return spawn(
     stripeMachine.withContext({
       orderId,
@@ -274,8 +270,6 @@ export function spawnGenericGateway(
   type: any,
   { orderId, gateway, amount, currency, renderless = false }: any
 ) {
-  debugger;
-
   return spawn(
     gatewayMachine.withContext({
       orderId,
@@ -291,7 +285,6 @@ export function spawnGenericGateway(
 }
 
 export function spawnExternal({ orderId, gateway, amount, currency }: any) {
-  debugger;
   return spawn(
     gatewayMachine.withContext({
       orderId,

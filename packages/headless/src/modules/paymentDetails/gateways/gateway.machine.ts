@@ -1,6 +1,6 @@
 // --- external
 import type { AnyEventObject } from "xstate";
-import { createMachine, assign, actions, sendParent } from "xstate";
+import { createMachine, assign, sendParent, pure } from "xstate";
 
 // --- internal
 import services from "./card/services";
@@ -15,11 +15,11 @@ import {
   mapToHeadlessError
 } from "../../../utils";
 import { useSchema, useUischema } from "./utils";
+import { isArray, isFunction } from "lodash-es";
 
 // --- types
-import type { GatewayContext } from "./types";
+import { GatewayCtx, type GatewayContext } from "./types";
 import { responseCodes } from "../../../utils";
-import { isArray } from "xstate/lib/utils";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -33,98 +33,138 @@ export default createMachine(
       loading: {
         invoke: {
           src: "load",
-          onDone: { target: "checking", actions: ["setContext", "setSchemas"] },
+          onDone: {
+            target: "available",
+            actions: ["setContext", "setSchemas"]
+          },
           onError: {
-            target: "#error",
+            target: "unavailable",
             actions: ["setError", "setFeedbackError"]
           }
         }
       },
 
       // ---
-      checking: {
-        entry: ["clearError"],
-        initial: "parsing",
+      available: {
+        id: "available",
+        initial: "rendering",
         states: {
-          parsing: {
+          rendering: {
+            always: {
+              target: "checking",
+              cond: "isRenderless"
+            },
+            on: {
+              RENDER: {
+                target: "checking",
+                actions: ["render", "clearRenderer"]
+              }
+            }
+          },
+          checking: {
+            id: "checking",
+            entry: ["clearError"],
+            initial: "parsing",
+            states: {
+              parsing: {
+                invoke: {
+                  src: "parse",
+                  onDone: {
+                    target: "validating",
+                    actions: ["setSchemas", "setModel"]
+                  },
+                  onError: {
+                    target: "#invalid",
+                    actions: ["setError"]
+                  }
+                }
+              },
+              validating: {
+                invoke: {
+                  src: "validate",
+                  onDone: { target: "#valid" },
+                  onError: {
+                    target: "#invalid",
+                    actions: ["setError"]
+                  }
+                }
+              }
+            }
+          },
+          invalid: { id: "invalid" },
+
+          valid: {
+            id: "valid",
+            on: {
+              CHECKOUT: "processing",
+              PAY: "processing"
+            }
+          },
+
+          processing: {
+            entry: ["clearError"],
             invoke: {
-              src: "parse",
+              src: "pay",
               onDone: {
-                target: "validating",
-                actions: ["setSchemas", "setModel"]
-              }
-            }
-          },
-          validating: {
-            invoke: {
-              src: "validate",
-              onDone: { target: "#valid" },
+                target: "#processed",
+                actions: ["setPaymentDetails", "providePaymentDetails"]
+              },
               onError: {
-                target: "#invalid",
-                actions: ["setError"]
+                target: "#error",
+                actions: [
+                  "setError",
+                  "setFeedbackError",
+                  "cancelPaymentDetails"
+                ]
               }
             }
-          }
-        }
-      },
-
-      invalid: { id: "invalid" },
-
-      valid: {
-        id: "valid",
-        on: {
-          CHECKOUT: "processing",
-          PAY: "processing"
-        }
-      },
-
-      processing: {
-        entry: ["clearError"],
-        invoke: {
-          src: "pay",
-          onDone: {
-            target: "#processed",
-            actions: ["setPaymentDetails", "providePaymentDetails"]
           },
-          onError: {
-            target: "#error",
-            actions: ["setError", "setFeedbackError", "cancelPaymentDetails"]
+
+          processed: {
+            id: "processed",
+            after: {
+              wait: {
+                target: "#complete",
+                cond: "hasNoOutstandingBalance"
+              }
+            }
+          },
+
+          error: {
+            id: "error"
+          }
+        },
+        on: {
+          CLEAR: {
+            target: "available.checking",
+            actions: ["clearModel"]
+          },
+          SET: {
+            target: "available.checking",
+            actions: ["setModel"]
+          },
+          VALIDATE: {
+            target: "available.checking.validating",
+            actions: ["setElementStatus"]
           }
         }
       },
 
-      processed: {
-        id: "processed",
-        after: {
-          wait: {
-            target: "complete",
-            cond: "hasNoOutstandingBalance"
-          }
-        }
+      unavailable: {
+        id: "unavailable"
       },
 
       complete: {
         id: "complete",
         data: ({ paymentDetails }: GatewayContext, _event: AnyEventObject) =>
           paymentDetails
-      },
-
-      error: {
-        id: "error"
       }
     },
     on: {
-      CLEAR: {
-        target: "checking",
-        actions: ["clearModel"]
-      },
-      SET: {
-        target: "checking",
-        actions: ["setModel"]
-      },
       REFRESH: {
-        target: "checking",
-        actions: ["setContext"]
+        target: "available.checking",
+        actions: ["setContext"],
+        cond: "hasChanged"
       },
       UNAUTHENTICATED: {
         target: "loading",
@@ -134,16 +174,24 @@ export default createMachine(
   },
   {
     actions: {
+      render: pure(({ renderer }: GatewayContext, { data }: AnyEventObject) => {
+        return () => {
+          debugger;
+          if (renderer) renderer(data?.container);
+        };
+      }),
+
+      clearRenderer: assign({
+        renderer: undefined
+      }),
       setContext: assign(
-        // TODO: (_context: CurrencyContext, { data }: CurrencyEvent) => data
-        (_context: any, { data }: AnyEventObject) => data
+        (_context: GatewayContext, { data }: AnyEventObject) => data
       ),
 
       // ---
       setSchemas: assign({
         schema: context => useSchema(context),
-        // TODO: uischema: context => useUischema(context),
-        uischema: () => useUischema()
+        uischema: context => useUischema(context)
       }),
 
       clearSchemas: assign({
@@ -185,24 +233,27 @@ export default createMachine(
       })),
 
       // ---
-
       setFeedbackError: ({ error }: GatewayContext, _event: AnyEventObject) => {
         if (
           !error ||
           isArray(error) ||
-          error?.status == responseCodes.Unprocessable_Entity
+          error?.status == responseCodes.Unprocessable_Entity ||
+          error.code == responseCodes.Unprocessable_Entity
         )
           return;
         addError({
-          title: "We experienced an error processing your payment",
+          title: "We experienced an error processing your payment details",
           copy: error?.message,
           data: error?.data
         });
+
+        // escalate({ data: error });
       },
 
       setError: assign({
         error: (_context: GatewayContext, { data }: AnyEventObject) => {
           let error = mapToHeadlessError(data);
+
           if (error?.status == responseCodes.Unprocessable_Entity) {
             error.data = useValidationParser(error);
           }
@@ -214,12 +265,34 @@ export default createMachine(
     },
 
     guards: {
+      hasChanged: (
+        { orderId, currency, amount }: GatewayContext,
+        { data }: AnyEventObject
+      ) => {
+        const value =
+          orderId !== data.orderId ||
+          currency !== data.currency ||
+          amount !== data.amount;
+        return value;
+      },
+
+      isRenderless: (
+        { renderer, renderless }: GatewayContext,
+        _event: AnyEventObject
+      ) => renderless || !isFunction(renderer),
       hasNoOutstandingBalance: (
         _context: GatewayContext,
         _event: AnyEventObject
       ) => {
         // TODO: check if there is an outstanding balance
         return true;
+      },
+
+      isAdding: ({ ctx }: GatewayContext, _event: AnyEventObject) => {
+        return ctx !== undefined && ctx == GatewayCtx.ADD;
+      },
+      isPaying: ({ ctx }: GatewayContext, _event: AnyEventObject) => {
+        return ctx !== undefined && ctx == GatewayCtx.PAY;
       }
     },
 

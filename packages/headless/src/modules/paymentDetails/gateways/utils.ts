@@ -131,7 +131,7 @@ export const useSchema = (context: GatewayContext) => {
   return schema;
 };
 
-export const useUischema = () => {
+export const useUischema = (_context: GatewayContext) => {
   const uischema = {
     type: "VerticalLayout",
     elements: [
