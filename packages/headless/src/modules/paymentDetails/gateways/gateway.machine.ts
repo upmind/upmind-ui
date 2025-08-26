@@ -176,7 +176,6 @@ export default createMachine(
     actions: {
       render: pure(({ renderer }: GatewayContext, { data }: AnyEventObject) => {
         return () => {
-          debugger;
           if (renderer) renderer(data?.container);
         };
       }),

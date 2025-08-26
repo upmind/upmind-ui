@@ -241,9 +241,7 @@ export default createMachine(
           data?.element,
         renderer: (_context: StripeContext, { data }: AnyEventObject) => {
           function renderer(container: HTMLElement) {
-            debugger;
             data?.element?.mount(container);
-            debugger;
           }
           return renderer;
         },
@@ -270,7 +268,6 @@ export default createMachine(
 
       render: pure(({ renderer }: StripeContext, { data }: AnyEventObject) => {
         return () => {
-          debugger;
           if (renderer) renderer(data?.container);
         };
       }),
