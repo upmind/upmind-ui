@@ -45,7 +45,9 @@ export default {
     },
     main: {
       root: cva("flex w-full flex-col gap-12"),
-      controls: cva("flex items-center justify-between"),
+      controls: cva(
+        "md:flew-row flex flex-col items-center justify-between gap-3"
+      ),
       searchInput: cva("max-w-xl"),
       searchIcon: cva("text-control-foreground mr-1.5"),
       grid: {
