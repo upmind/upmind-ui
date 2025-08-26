@@ -2,7 +2,7 @@
   <header class="flex flex-col gap-3">
     <Badge v-if="badge" v-bind="badge" variant="outline" color="primary" />
 
-    <article>
+    <article :class="styles.header.root">
       <h1 :class="styles.header.title">
         {{ title }}
       </h1>
@@ -39,6 +39,7 @@ defineProps<{
 
 const styles = useStyles(["header"], {}, config) as ComputedRef<{
   header: {
+    root: string;
     title: string;
     description: string;
   };
