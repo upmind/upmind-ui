@@ -59,7 +59,7 @@ export interface StripeContext extends GatewayContext {
   elements?: any;
   element?: any;
   elementStatus?: any;
-  renderer?: (status: any) => void;
+  renderer?: (status?: any) => void;
   validationObserver: ActorRef<any>;
   clientPaymentDetailsId?: string;
   clientSecret?: string;

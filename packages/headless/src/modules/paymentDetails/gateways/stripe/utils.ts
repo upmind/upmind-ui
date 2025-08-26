@@ -36,8 +36,8 @@ export const useSchema = (context: StripeContext) => {
   return schema;
 };
 
-export const useUischema = (_context: StripeContext) => {
-  const defaultUischema = useDefaultUischema();
+export const useUischema = (context: StripeContext) => {
+  const defaultUischema = useDefaultUischema(context);
 
   const uischema = {
     type: "VerticalLayout",

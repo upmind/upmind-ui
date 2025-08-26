@@ -1,9 +1,10 @@
 // --- external
-import { assign } from "xstate";
+import { AnyEventObject, assign } from "xstate";
 
 // --- utils
 import { useModelParser } from "../../../../utils";
 import { useSchema, useUischema } from "./utils";
+import { GatewayContext } from "../types";
 
 // --- types
 
@@ -12,13 +13,12 @@ import { useSchema, useUischema } from "./utils";
 
 export default {
   setSchemas: assign({
-    schema: context => useSchema(context),
-    // TODO: uischema: context => useUischema(context),
-    uischema: () => useUischema()
+    schema: (context: GatewayContext) => useSchema(context),
+    uischema: (context: GatewayContext) => useUischema(context)
   }),
 
   setModel: assign({
-    model: ({ schema, model }: any, { data }: any) =>
+    model: ({ schema, model }: GatewayContext, { data }: AnyEventObject) =>
       useModelParser(schema, data || model)
   })
 };

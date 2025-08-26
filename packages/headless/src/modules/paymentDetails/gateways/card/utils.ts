@@ -72,8 +72,8 @@ export const useSchema = (context: GatewayContext) => {
 
 // TODO: export const useUischema = (context: GatewayContext) => {
 // TODO: const defaultUischema = useDefaultUischema(context);
-export const useUischema = () => {
-  const defaultUischema = useDefaultUischema();
+export const useUischema = (context: GatewayContext) => {
+  const defaultUischema = useDefaultUischema(context);
 
   const uischema = {
     type: "VerticalLayout",

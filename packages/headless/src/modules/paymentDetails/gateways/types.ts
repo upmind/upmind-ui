@@ -33,7 +33,7 @@ export interface GatewayContext {
   card?: any;
   elements?: any;
   element?: any;
-  renderer?: Function;
+  renderer?: (container: HTMLElement) => void;
   // ---
   orderId?: IOrder["id"];
   currency?: ICurrency;
