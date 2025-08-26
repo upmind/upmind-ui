@@ -8,7 +8,7 @@
       v-for="(item, index) in items"
       :key="'button-group-item-' + index"
     >
-      <span :class="styles.buttonGroup.item">
+      <span :class="cn(styles.buttonGroup.item, item.class)">
         <Button
           v-if="item.type === ButtonGroup.Button"
           v-bind="item.props"
