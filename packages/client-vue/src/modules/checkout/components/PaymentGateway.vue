@@ -105,35 +105,8 @@ const { t } = useI18n();
 
 const container = useTemplateRef("container");
 
-// wait till we mount then try to render the gateway if it's provided
-// otherwise watch in case it's provided later
+// wait till we mount then try to render the gateway
 onMounted(() => {
-  if (meta.value.hasRenderer) {
-    doRender();
-  } else {
-    const stop = watch(meta, () => {
-      doRender(stop);
-    });
-  }
+  render(container.value);
 });
-
-function doRender(stop?: WatchHandle) {
-  console.log("doRender", {
-    hasWatcher: !!stop,
-    meta: meta.value
-  });
-
-  if (meta.value.isRenderless || !meta.value.isAvailable || !container.value)
-    return;
-
-  render(container.value)
-    .then(() => {
-      if (stop) stop(); // stop watching once rendered
-    })
-    .catch((err: any) => {
-      debugger;
-      if (stop) stop(); // stop watching once rendered
-      console.error(err);
-    });
-}
 </script>

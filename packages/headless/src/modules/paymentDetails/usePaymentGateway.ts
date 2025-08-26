@@ -146,16 +146,27 @@ export const usePaymentGateway = (actor: ComputedRef<Actor | undefined>) => {
       });
   }
 
-  async function render(container: HTMLElement): Promise<void> {
-    if (!container) return Promise.reject(false);
+  async function render(container: HTMLElement | null): Promise<void> {
+    if (!container) {
+      return Promise.reject(
+        new DetailedError(
+          "No Container provided to renderer",
+          responseCodes.No_Content,
+          ErrorOrigin.Headless
+        )
+      );
+    }
 
-    actor.value?.send({ type: "RENDER", data: { container } });
-
-    // wait for the render to complete
-    return waitFor(
-      actor.value!.service,
-      state => !stateMatches(state, "available.rendering")
-    );
+    waitFor(actor.value!.service, state =>
+      stateMatches(state, ["available"])
+    ).then(() => {
+      actor.value?.send({ type: "RENDER", data: { container } });
+      // wait for the render to complete
+      return waitFor(
+        actor.value!.service,
+        state => !stateMatches(state, "available.rendering")
+      ).then(() => {});
+    });
   }
 
   // ---------------------------------------------------------------------------
