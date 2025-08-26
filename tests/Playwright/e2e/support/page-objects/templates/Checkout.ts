@@ -21,11 +21,19 @@ export class Checkout {
     this.addressSearch = this.billingDetails.getByTestId("form-field-address");
     this.addressFormMessage = page.getByTestId("form-item-message-address");
     this.phone = this.billingDetails.getByTestId("form-item-phone2");
-    this.addressManualEntry = page.getByTestId("enter-address-manually-link");
-    this.addressLine1 = this.billingDetails.getByTestId("form-item-address1");
-    this.addressLine2 = this.billingDetails.getByTestId("form-item-address2");
-    this.city = this.billingDetails.getByTestId("form-item-city");
-    this.postCode = this.billingDetails.getByTestId("form-item-postcode");
+    this.addressManualEntry = page.getByTestId("button-enter-address-manually");
+    this.addressLine1 = this.billingDetails
+      .getByTestId("form-item-address1")
+      .locator("input");
+    this.addressLine2 = this.billingDetails
+      .getByTestId("form-item-address2")
+      .locator("input");
+    this.city = this.billingDetails
+      .getByTestId("form-item-city")
+      .locator("input");
+    this.postCode = this.billingDetails
+      .getByTestId("form-item-postcode")
+      .locator("input");
     this.phoneRegion = this.phone.getByTestId("popover-trigger");
     this.phoneInput = this.phone.getByTestId("text-input");
     this.saveDetails = page.getByTestId("button-save-details");
