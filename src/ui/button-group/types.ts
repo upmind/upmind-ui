@@ -24,6 +24,7 @@ export namespace ButtonGroup {
 
 export interface ButtonGroupItemBase {
   type: ButtonGroup.Type;
+  class?: HTMLAttributes["class"];
   active?: boolean;
 }
 
