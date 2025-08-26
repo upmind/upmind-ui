@@ -622,21 +622,21 @@ export const parseTermDetails = (raw: IProductPrice[]): TermDetails[] => {
   return map(orderBy(raw, "billing_cycle_months"), rawTerm => {
     const details: TermDetails = parseSummaryDetailWithPrice(rawTerm);
     const trimTrailingZeroes =
-      uiCart.value.ui.product?.display_price?.trim_trailing_zeroes ?? false;
+      uiCart.value.ui?.product?.display_price?.trim_trailing_zeroes ?? false;
 
     details.price.monthlyFromCurrentAmount =
       rawTerm.monthly_price_from_discounted ?? rawTerm.monthly_price_from;
     details.price.monthlyFromCurrentPrice =
       money.parsePrice(rawTerm.monthly_price_from_discounted_formatted, {
-        trim_trailing_zeroes: trimTrailingZeroes
+        trimTrailingZeroes
       }) ??
       money.parsePrice(rawTerm.monthly_price_from_formatted, {
-        trim_trailing_zeroes: trimTrailingZeroes
+        trimTrailingZeroes
       });
     details.price.monthlyFromRegularAmount = rawTerm.monthly_price_from;
     details.price.monthlyFromRegularPrice = money.parsePrice(
       rawTerm.monthly_price_from_formatted,
-      { trim_trailing_zeroes: trimTrailingZeroes }
+      { trimTrailingZeroes }
     );
 
     return details;
