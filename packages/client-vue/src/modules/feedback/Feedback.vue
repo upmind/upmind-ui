@@ -8,6 +8,7 @@
         :scheduled="scheduled"
         block
         variant="stacked"
+        data-testid="feedback"
       />
     </aside>
 
@@ -25,6 +26,7 @@
       :status="error?.message.value?.data?.status"
       :open="error.meta.value.isActive"
       modal
+      data-testid="error"
     />
   </div>
 </template>
