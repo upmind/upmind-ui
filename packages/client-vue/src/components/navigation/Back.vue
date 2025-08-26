@@ -1,11 +1,11 @@
 <template>
   <Button
-    class="flex items-center gap-x-2"
     :to="to"
     variant="link"
     icon="arrow-left"
     :label="t(i18nKey)"
     size="lg"
+    class="font-medium"
   />
 </template>
 

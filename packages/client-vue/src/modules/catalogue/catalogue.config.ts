@@ -95,7 +95,7 @@ export default {
         "text-emphasis-medium group-hover:text-emphasis-none transition-all duration-300"
       ),
       description: cva(
-        "text-emphasis-medium group-hover:text-emphasis-none m-0 line-clamp-3 text-sm whitespace-normal transition-all duration-300"
+        "text-emphasis-medium group-hover:text-emphasis-none m-0 line-clamp-3 text-sm font-normal whitespace-normal transition-all duration-300"
       )
     }
   }

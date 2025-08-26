@@ -3,7 +3,7 @@
     <div
       class="max-w-app mx-auto flex w-full items-center justify-between md:justify-normal"
     >
-      <span class="flex w-full items-center gap-x-2.5 text-sm">
+      <span class="flex w-full items-center gap-x-2.5 text-sm font-medium">
         <img
           v-if="upmindLogo"
           :src="upmindLogo"
