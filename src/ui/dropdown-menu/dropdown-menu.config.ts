@@ -25,9 +25,6 @@ export default {
   dropdownMenu: {
     content: contentVariants,
     label: cva("border-base-muted border-b px-4 py-3"),
-    group: cva("p-1"),
-    item: cva(
-      "hover:bg-control-active-focus focus:bg-control-active-focus hover:text-base-foreground cursor-pointer text-sm"
-    )
+    group: cva("p-1")
   }
 };
