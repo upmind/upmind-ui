@@ -1,6 +1,6 @@
 <template>
   <template v-if="!props.loading">
-    <DescriptionList :items="summary" class="font-normal">
+    <DescriptionList :items="summary" class="font-normal" emphasis>
       <template
         v-for="(item, index) in props.pricing"
         :key="`pricing-${index}`"

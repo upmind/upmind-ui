@@ -13,8 +13,7 @@ export default {
   }),
   header: {
     avatar: {
-      login: cva("bg-transparent font-bold"),
-      session: cva("font-bold")
+      login: cva("bg-transparent")
     }
   },
   interstitial: {

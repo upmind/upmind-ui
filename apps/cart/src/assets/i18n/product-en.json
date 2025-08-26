@@ -13,7 +13,8 @@
       "description": "Please check and complete all required fields to proceed."
     },
     "domain": "Domain",
-    "cycle": "{value}/mo",
+    "cycle": "/ mo",
+    "payToday": "Pay {0} today",
     "free": "FREE",
     "adds": "Adds to price",
     "was": "Was {0}",

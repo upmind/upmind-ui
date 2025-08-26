@@ -20,6 +20,7 @@
           <AccordionTrigger
             :class="styles.checkout.accordion.trigger.root"
             @click.stop="selectGateway(item.gateway_id)"
+            :open="item.gateway_id === model?.gateway_id"
           >
             <GatewayTrigger v-bind="item" />
 

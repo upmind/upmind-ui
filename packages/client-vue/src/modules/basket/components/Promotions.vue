@@ -20,7 +20,6 @@
       :processing="meta.isProcessing"
       :schema="schema"
       :uischema="uischema"
-      color="primary"
       @reject="clear"
       @resolve="doAdd"
       @update:modelValue="input"
@@ -49,7 +48,7 @@
         <Badge
           color="promotion"
           variant="tonal"
-          size="sm"
+          size="md"
           :label="promotion.promotion.code"
           @click="toggleTooltip(promotion.id)"
           @mouseenter="toggleTooltip(promotion.id, true)"
@@ -139,9 +138,8 @@ const actions = computed((): Record<string, FormActionProps> => {
     submit: {
       type: "submit" as "submit",
       label: t("basket.promotions.actions.submit"),
-      size: "sm",
-      variant: "ghost",
-      color: "secondary",
+      size: "lg",
+      variant: "subtle",
       needsValid: true
     }
   };

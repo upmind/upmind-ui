@@ -1,6 +1,7 @@
 @import "@upmind-automation/upmind-ui/styles";
 
 @import "./assets/typography.css";
+@import "./assets/shadow-border.css";
 @import "./assets/theme.css";
 
 @source './src/**/*.{html,vue,js,tsx,ts}';

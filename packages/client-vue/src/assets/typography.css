@@ -1,4 +1,23 @@
 @layer utilities {
+  [class*="text-xs"],
+  [class*="text-sm"],
+  [class*="text-md"] {
+    font-family: var(--font-body);
+  }
+
+  [class*="text-lg"],
+  [class*="text-xl"],
+  [class*="text-2xl"],
+  [class*="text-3xl"] {
+    font-family: var(--font-sans);
+  }
+
+  [class*="text-4xl"],
+  [class*="text-5xl"],
+  [class*="text-6xl"] {
+    font-family: var(--font-display);
+  }
+
   .text-xs\/tight {
     font-size: var(--text-xs);
     line-height: var(--text-xs--line-height-tight);

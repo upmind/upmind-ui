@@ -1,12 +1,19 @@
 import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
-export const currentVariants = cva("");
+export const currentVariants = cva("", {
+  variants: {
+    showCycle: {
+      true: "flex items-baseline gap-1"
+    }
+  }
+});
 export const exVariants = cva("text-emphasis-medium text-sm font-normal");
 
 export default {
   pricing: {
     ex: exVariants,
-    current: currentVariants
+    current: currentVariants,
+    term: cva("text-sm/loose font-normal")
   }
 };
