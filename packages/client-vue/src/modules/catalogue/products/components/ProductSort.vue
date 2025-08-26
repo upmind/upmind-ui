@@ -1,5 +1,5 @@
 <template>
-  <ButtonGroup :items="groupItems" variant="outline" />
+  <ButtonGroup :items="groupItems" variant="outline" class="w-full" />
 </template>
 
 <script setup lang="ts">
@@ -59,6 +59,7 @@ const items = computed(() => [
 const groupItems = computed((): ButtonGroupItem[] => [
   {
     type: ButtonGroupTypes.Button,
+    class: "px-6 md:px-1",
     props: {
       icon:
         direction.value == RequestSortDirection.ASC ? "sort-asc" : "sort-desc",
@@ -68,11 +69,11 @@ const groupItems = computed((): ButtonGroupItem[] => [
   },
   {
     type: ButtonGroupTypes.Select,
+    class: "mx-auto md:mx-0",
     props: {
       modelValue: property.value,
       items: items.value,
-      placeholder: currentSort.value?.label,
-      align: "end"
+      placeholder: currentSort.value?.label
     } satisfies SelectProps,
     handler: (value: string) => {
       property.value = value as ProductSortableProperties;
