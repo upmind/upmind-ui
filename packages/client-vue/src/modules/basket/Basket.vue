@@ -103,7 +103,7 @@
             scope="global"
           />
         </template>
-        <ol class="ml-6 list-disc py-2 text-left">
+        <ol class="list-disc p-6 py-2 text-left">
           <li
             v-for="basketItem in productsInvalid"
             :key="basketItem.id"
