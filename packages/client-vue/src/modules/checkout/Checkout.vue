@@ -6,7 +6,7 @@
 
     <template #header>
       <Header
-        :title="t('checkout.header.title')"
+        title="checkout.header.title"
         :description="
           t(
             'checkout.header.description',
