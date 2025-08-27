@@ -15,14 +15,7 @@ test.describe("Terms and Conditions on Registration", () => {
     token = await getSessionToken(context, "guest");
   });
   test("No terms and conditions set", async ({ page }) => {
-    await interceptTermsAndConditions(
-      page,
-      token,
-      null, // id
-      null, // name
-      null, // url
-      null // terms
-    );
+    await interceptTermsAndConditions(page, token, null, null, null, null);
     await page.goto(URLs.register);
     await page.waitForLoadState("networkidle");
     await expect(page.getByTestId("terms-and-conditions")).toBeVisible();
@@ -32,10 +25,10 @@ test.describe("Terms and Conditions on Registration", () => {
     await interceptTermsAndConditions(
       page,
       token,
-      "8d632507-9806-5d1e-36b8-174e234e98d2", // id
-      null, // name
-      null, // url
-      'By clicking "Place order and pay" you agreed to pay pay for this order.' // terms
+      "8d632507-9806-5d1e-36b8-174e234e98d2",
+      null,
+      null,
+      'By clicking "Place order and pay" you agreed to pay pay for this order.'
     );
     await page.goto(URLs.register);
     await page.waitForLoadState("networkidle");
@@ -48,10 +41,10 @@ test.describe("Terms and Conditions on Registration", () => {
     await interceptTermsAndConditions(
       page,
       token,
-      "47d73824-8507-9315-36f8-1e642d59e063", // id
-      null, // name
-      "https://upmind.com/", // url
-      null // terms
+      "47d73824-8507-9315-36f8-1e642d59e063",
+      null,
+      "https://upmind.com/",
+      null
     );
     await page.goto(URLs.register);
     await page.waitForLoadState("networkidle");

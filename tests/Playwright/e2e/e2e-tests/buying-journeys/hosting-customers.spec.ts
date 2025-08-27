@@ -33,8 +33,8 @@ test.describe("Hosting customers", async () => {
     test("Logged in customer", async ({ page }) => {
       await getClientToken(
         page,
-        Logins.checkoutUser.username,
-        Logins.checkoutUser.password
+        Logins.hosting1.username,
+        Logins.hosting1.password
       );
       await addProductToBasket();
       await basket.proceedToCheckout.click();
@@ -50,8 +50,8 @@ test.describe("Hosting customers", async () => {
       await basket.proceedToCheckout.click();
       await page.getByText("Log in here").click();
       await login.inputLogin(
-        Logins.checkoutUser.username,
-        Logins.checkoutUser.password
+        Logins.hosting2.username,
+        Logins.hosting2.password
       );
       await checkout.selectPaymentMethod("Direct Bank Transfer");
       await page.getByTestId("button-place-order").click();
