@@ -62,7 +62,11 @@
     </template>
 
     <template #aside>
-      <Section :title="t('basket.summary.title')" :class="styles.basket.aside">
+      <Section
+        :title="t('basket.summary.title')"
+        :class="styles.basket.aside"
+        aside
+      >
         <Summary />
 
         <footer class="w-full">
