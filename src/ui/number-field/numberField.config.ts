@@ -2,15 +2,15 @@ import { cva } from "class-variance-authority";
 
 // -----------------------------------------------------------------------------
 
-export const numberFieldRootVariants = cva("group inline-block", {
+export const numberFieldRootVariants = cva("group inline-block w-full", {
   variants: {
     width: {
-      auto: "w-auto min-w-14",
-      sm: "w-20",
-      md: "w-32",
-      lg: "w-48",
-      full: "w-full",
-      app: "w-app"
+      auto: "",
+      sm: "",
+      md: "",
+      lg: "",
+      full: "",
+      app: ""
     },
     size: {
       sm: "text-sm",
@@ -45,6 +45,36 @@ export const numberFieldRootVariants = cva("group inline-block", {
       variant: "minimal",
       width: "lg",
       class: "w-28"
+    },
+    {
+      variant: "flat",
+      width: "auto",
+      class: "w-auto min-w-24"
+    },
+    {
+      variant: "flat",
+      width: "sm",
+      class: "md:w-80"
+    },
+    {
+      variant: "flat",
+      width: "md",
+      class: "md:w-84"
+    },
+    {
+      variant: "flat",
+      width: "lg",
+      class: "md:w-96"
+    },
+    {
+      variant: "flat",
+      width: "full",
+      class: "w-full"
+    },
+    {
+      variant: "flat",
+      width: "app",
+      class: "w-app"
     }
   ],
   defaultVariants: {
