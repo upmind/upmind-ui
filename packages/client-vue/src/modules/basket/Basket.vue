@@ -6,7 +6,7 @@
 
     <template #header>
       <Header
-        :title="t('basket.title')"
+        title="basket.title"
         :description="
           t('basket.description', [summary.total], products?.length || 0)
         "
