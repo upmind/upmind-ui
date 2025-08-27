@@ -4,6 +4,7 @@ import { TextInput } from "../components/TextInput";
 import { Checkboxes } from "../components/Checkboxes";
 import { RadioButtons } from "../components/RadioButtons";
 import { Button } from "../components/Button";
+import { Popover } from "../components/Popover";
 import { Accordion } from "../components/Accordion";
 import { Select } from "../components/Select";
 import { Drawer } from "../components/Drawer";
@@ -14,6 +15,7 @@ export class ProductConfig {
   readonly checkboxes: Checkboxes;
   readonly radioButtons: RadioButtons;
   readonly button: Button;
+  readonly popover: Popover;
   readonly accordion: Accordion;
   readonly select: Select;
   readonly drawer: Drawer;
@@ -31,6 +33,9 @@ export class ProductConfig {
   readonly registrantOrgInput: Locator;
   readonly registrantEmailInput: Locator;
   readonly registrantPhoneForm: Locator;
+  readonly registrantPhoneCountrySelectButton: Locator;
+  readonly registrantPhoneCountrySelectInput: Locator;
+  readonly registrantPhoneCountrySelectItem: Locator;
   readonly registrantPhoneInput: Locator;
   readonly registrantAddr1Input: Locator;
   readonly registrantCityInput: Locator;
@@ -84,6 +89,7 @@ export class ProductConfig {
     this.checkboxes = new Checkboxes(page);
     this.radioButtons = new RadioButtons(page);
     this.button = new Button(page);
+    this.popover = new Popover(page);
     this.accordion = new Accordion(page);
     this.select = new Select(page);
     this.drawer = new Drawer(page);
@@ -95,7 +101,9 @@ export class ProductConfig {
     this.textInput = new TextInput(page);
     this.billingTerms = page.getByTestId("form-item-terms");
     this.options = page.getByTestId("options-container-options");
-    this.domainRegister = page.getByTestId("form-item-dac-register");
+    this.domainRegister = page
+      .getByTestId("form-item-dac-register")
+      .locator("input");
     this.domainTransfer = page.getByTestId("form-item-dac-transfer");
     this.domainExisting = page.getByTestId("form-item-dac-existing");
     this.registrantNameInput = page.getByTestId(
@@ -110,6 +118,12 @@ export class ProductConfig {
     this.registrantPhoneForm = page.getByTestId(
       "form-item-update_registrant_phone"
     );
+    this.registrantPhoneCountrySelectButton =
+      this.registrantPhoneForm.getByTestId("button-default");
+    this.registrantPhoneCountrySelectInput =
+      this.popover.popoverContent.getByTestId("text-input");
+    this.registrantPhoneCountrySelectItem =
+      this.popover.popoverContent.getByTestId("combobox-item");
     this.registrantPhoneInput =
       this.registrantPhoneForm.getByTestId("text-input");
     this.registrantAddr1Input = page.getByTestId(
@@ -174,7 +188,7 @@ export class ProductConfig {
     );
     this.engagementTypes = page.getByTestId("summary-value-engagement-types");
     this.outcomes = page.getByTestId("summary-value-outcomes");
-    this.confirmAndProceed = page.getByTestId("button-confirm-and-proceed");
+    this.confirmAndProceed = page.getByTestId("button-add-to-basket");
 
     /* Meta Slots */
     this.summaryMetaSlot = page.getByTestId("slots:summary-append");
@@ -193,7 +207,7 @@ export class ProductConfig {
   async enterDomain(option: number, domainName: string) {
     const radioOption = this.accordion.getAccordion(option);
     await radioOption
-      .getByTestId("[data-testid='text-input']")
+      .getByTestId('[data-testid="text-input"]')
       .fill(domainName);
   }
 
@@ -248,6 +262,12 @@ export class ProductConfig {
     await this.registrantNameInput.fill(registrantName);
     await this.registrantOrgInput.fill(registrantOrg);
     await this.registrantEmailInput.fill(registrantEmail);
+    await this.registrantPhoneCountrySelectButton.click();
+    await this.registrantPhoneCountrySelectInput.fill(registrantCountryCode);
+    await this.registrantPhoneCountrySelectInput.press("Enter");
+    await this.registrantPhoneCountrySelectItem
+      .getByText("United Kingdom")
+      .click();
     await this.registrantPhoneInput.fill(registrantPhone);
     await this.registrantAddr1Input.fill(registrantAddr1);
     await this.registrantCityInput.fill(registrantCity);

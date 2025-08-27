@@ -33,8 +33,11 @@ export class Basket {
 
   async enterPromoCode(promoCode: string | null) {
     const promotionForm = this.page.getByTestId("promotions-form");
-    await this.page.getByTestId("add-a-voucher-link").click();
-    await promotionForm.getByTestId("form-item-promocode").fill(`${promoCode}`);
+    await this.page.getByTestId("button-add-a-voucher-code").click();
+    await promotionForm
+      .getByTestId("form-item-promocode")
+      .locator("input")
+      .fill(`${promoCode}`);
     await promotionForm.getByTestId("button-apply").click();
   }
 
