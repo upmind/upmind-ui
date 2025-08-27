@@ -1,36 +1,7 @@
-@import "tw-animate-css";
+@import "./assets/styles/vars.css";
+
 @import "tailwindcss";
-@import "./assets/aria.utilities.css";
-@plugin '@tailwindcss/typography';
+
+@import "./assets/styles/index.css";
 
 @source './src/**/*.{html,vue,js,tsx,ts}';
-
-/*
-  The default border color has changed to `currentcolor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
-@layer base {
-  *,
-  ::after,
-  ::before,
-  ::backdrop,
-  ::file-selector-button {
-    border-color: var(--color-gray-200, currentcolor);
-  }
-}
-
-/* Autofill */
-@layer utilities {
-  .autofill:has(input:autofill) {
-    @apply bg-[var(--color-autofill,var(--color-blue-50))];
-  }
-
-  .autofill input:-webkit-autofill {
-    box-shadow: 0 0 0 1000px var(--color-autofill, var(--color-blue-50)) inset !important;
-    -webkit-text-fill-color: inherit !important;
-  }
-}
