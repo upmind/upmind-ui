@@ -46,7 +46,11 @@ export default defineConfig({
       ),
       "@upmind-automation/upmind-ui/styles": resolve(
         __dirname,
-        "../ui/src/main.css"
+        "../ui/src/assets/styles/index.css"
+      ),
+      "@upmind-automation/upmind-ui/vars": resolve(
+        __dirname,
+        "../ui/src/assets/styles/vars.css"
       ),
       "@upmind-automation/upmind-ui": resolve(__dirname, "../ui/src/index.ts")
     }

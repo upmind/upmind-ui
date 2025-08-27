@@ -23,7 +23,7 @@ export default {
       root: cva("flex flex-col gap-3"),
       trigger: {
         root: cva(
-          "text-emphasis-high hover:text-foreground bg-control-background shadow-border-control data-[state=open]:bg-background data-[state=open]:text-foreground data-[state=open]:shadow-border-foreground flex cursor-pointer items-center justify-between space-x-2 rounded px-5 py-3 transition-all duration-300 hover:no-underline"
+          "text-emphasis-high hover:text-foreground bg-control-background shadow-border-control data-[state=open]:bg-background data-[state=open]:text-foreground data-[state=open]:shadow-border-foreground flex cursor-pointer items-center justify-between space-x-2 rounded px-5 py-3 font-normal transition-all duration-300 hover:no-underline data-[state=open]:font-medium"
         ),
         icon: cva(
           "text-emphasis-high group-hover:text-emphasis-none ml-auto transition-all duration-200 [&>svg]:size-3 [&>svg]:transition-all [&>svg]:duration-300"
@@ -44,7 +44,7 @@ export default {
       })
     },
 
-    title: cva("text-md text-left font-normal no-underline"),
+    title: cva("text-md text-left no-underline"),
     image: cva("m-0 h-6 md:h-7"),
     gateway: cva("w-full"),
     footer: {

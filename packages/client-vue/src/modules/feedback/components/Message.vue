@@ -10,6 +10,7 @@
     :anchor="safeAnchor"
     :variant="variant"
     @reject="dismiss"
+    data-testid="message"
   />
 </template>
 

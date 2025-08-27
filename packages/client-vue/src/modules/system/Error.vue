@@ -7,6 +7,7 @@
         :actions="actions"
         :title="t(`${safeKey}.title`)"
         :text="t(`${safeKey}.text`)"
+        data-testid="error"
       >
         <template #title>
           <SmartTitle :i18n-key="`${safeKey}.title`" align="center" />

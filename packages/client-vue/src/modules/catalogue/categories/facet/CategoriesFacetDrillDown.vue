@@ -7,6 +7,7 @@
       v-bind="category"
       variant="ghost"
       size="lg"
+      pill
       :class="
         cn([
           styles.products.facet.drillDown.action,
@@ -26,6 +27,7 @@
     variant="outline"
     color="base"
     size="lg"
+    pill
     :class="styles.products.facet.drillDown.back"
   >
     <template #prepend>
