@@ -39,7 +39,11 @@ export default defineConfig({
       ),
       "@upmind-automation/upmind-ui/styles": resolve(
         __dirname,
-        "../../packages/ui/src/main.css"
+        "../../packages/ui/src/assets/styles/index.css"
+      ),
+      "@upmind-automation/upmind-ui/vars": resolve(
+        __dirname,
+        "../../packages/ui/src/assets/styles/vars.css"
       ),
       "@upmind-automation/upmind-ui": resolve(
         __dirname,
@@ -47,7 +51,11 @@ export default defineConfig({
       ),
       "@upmind-automation/client-vue/styles": resolve(
         __dirname,
-        "../../packages/client-vue/src/main.css"
+        "../../packages/client-vue/src/assets/styles/index.css"
+      ),
+      "@upmind-automation/client-vue/vars": resolve(
+        __dirname,
+        "../../packages/client-vue/src/assets/styles/vars.css"
       ),
       "@upmind-automation/client-vue": resolve(
         __dirname,
