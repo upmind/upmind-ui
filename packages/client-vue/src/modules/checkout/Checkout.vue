@@ -35,7 +35,7 @@
     </template>
 
     <template #aside>
-      <Section :title="t('checkout.summary.title')">
+      <Section :title="t('checkout.summary.title')" aside>
         <Summary no-actions />
       </Section>
     </template>
