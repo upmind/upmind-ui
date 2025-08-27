@@ -1,5 +1,3 @@
-import "./main.css";
-
 // ---
 
 export * from "./ui/accordion";

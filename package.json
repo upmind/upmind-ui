@@ -3,6 +3,14 @@
   "version": "0.0.6",
   "description": "",
   "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./style.css": "./src/assets/styles/index.css",
+    "./vars.css": "./src/assets/styles/vars.css"
+  },
   "keywords": [],
   "author": "",
   "license": "UNLICENSED",
@@ -52,7 +60,6 @@
     "marked": "^15.0.12",
     "radix-vue": "^1.9.17",
     "tailwind-merge": "^3.3.1",
-    "tailwindcss": "^4.1.11",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^1.1.2",
     "vaul-vue": "^0.2.1",
@@ -88,6 +95,7 @@
   },
   "peerDependencies": {
     "vue": "^3.0.0",
-    "vue-router": "^4.5.0"
+    "vue-router": "^4.5.0",
+    "tailwindcss": "^4.1.11"
   }
 }
