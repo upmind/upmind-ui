@@ -97,7 +97,7 @@ await isReady();
 
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
-  defaultValue: defaultItem.value?.id
+  defaultValue: defaultItem()?.id
 });
 
 // -----------------------------------------------------------------------------

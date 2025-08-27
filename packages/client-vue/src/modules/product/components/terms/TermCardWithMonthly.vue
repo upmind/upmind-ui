@@ -45,7 +45,7 @@
         :cycle="props.cycle"
         :ui-config="{
           pricing: {
-            current: styles.product.config.grid.item.total
+            current: [styles.product.config.grid.item.total]
           }
         }"
       />
