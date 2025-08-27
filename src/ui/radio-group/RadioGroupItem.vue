@@ -4,8 +4,8 @@
     :class="
       cn(
         'focus-visible:ring-ring shadow-border-control text-primary ring-offset-background aspect-square h-4.5 w-4.5 rounded-full border-none focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
-
         'data-[state=checked]:text-control-active-foreground bg-base-background text-control-foreground data-[state=checked]:bg-control-active data-[state=checked]:shadow-border-none shrink-0',
+        groupRingClasses,
         props.class,
         props.noInput ? 'sr-only' : ''
       )
@@ -26,6 +26,7 @@ import {
   type RadioGroupItemProps,
   useForwardProps
 } from "radix-vue";
+import { groupRingClasses } from "../../assets/ring.styles";
 
 import { computed, type HTMLAttributes } from "vue";
 
