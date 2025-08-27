@@ -3,51 +3,14 @@
 // --- internal
 
 // --- utils
-import {
-  useSchema as useDefaultSchema,
-  useUischema as useDefaultUischema
-} from "../utils";
 
 import { reduce, includes, find } from "lodash-es";
 
 // --- types
 import type { IGateway } from "@upmind-automation/types";
-import type { StripeContext } from "./types";
 import { STRIPE_PAYMENT_METHOD_TYPES } from "./types";
-import type { UISchemaElement } from "@jsonforms/core";
 
 // -----------------------------------------------------------------------------
-
-export const useSchema = (context: StripeContext) => {
-  const defaultSchema = useDefaultSchema(context as any);
-
-  const schema = {
-    type: "object",
-    title: "Payment Gateway Options",
-    required: [
-      ...(defaultSchema?.required || []) // NB Always include the default schema required fields
-    ],
-
-    properties: {
-      ...(defaultSchema?.properties || {}) // NB Always include the default schema properties
-    }
-  };
-
-  return schema;
-};
-
-export const useUischema = (context: StripeContext) => {
-  const defaultUischema = useDefaultUischema(context);
-
-  const uischema = {
-    type: "VerticalLayout",
-    elements: [
-      ...(defaultUischema?.elements || []) // NB Always append the default uischema elements
-    ]
-  };
-
-  return uischema as UISchemaElement;
-};
 
 export function getSupportedPaymentMethods(gateway?: IGateway) {
   if (!gateway) return [];

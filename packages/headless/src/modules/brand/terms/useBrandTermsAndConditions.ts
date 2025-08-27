@@ -23,9 +23,9 @@ export const useTermsAndConditions = () => {
     isLoading: query?.isLoading.value || !query?.isFetched.value,
     hasError: !isEmpty(query?.error.value),
     isEmpty:
-      isEmpty(query?.data.value?.content) && isEmpty(query?.data.value?.url),
+      isEmpty(query.data.value?.content) && isEmpty(query.data.value?.url),
     isAvailable: true,
-    ...query?.data?.value?.meta // add any generated meta info here
+    ...query.data?.value?.meta // add any generated meta info here
   }));
 
   async function isReady(): Promise<boolean> {
@@ -67,7 +67,7 @@ export const useTermsAndConditions = () => {
      * The reactive data property containing the list of client items.
      * This is populated by the query and updates automatically when the query state changes.
      */
-    data: query?.data,
+    data: query.data,
 
     /**
      * The current error state of the query.

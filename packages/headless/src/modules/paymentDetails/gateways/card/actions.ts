@@ -3,7 +3,7 @@ import { AnyEventObject, assign } from "xstate";
 
 // --- utils
 import { useModelParser } from "../../../../utils";
-import { useSchema, useUischema } from "./utils";
+import { useSchema, useUischema } from "./schemas";
 import { GatewayContext } from "../types";
 
 // --- types

@@ -18,8 +18,8 @@ export interface PromotionsContext {
   schema?: JsonSchema;
   uischema?: UISchemaElement;
   model?: PromotionModel;
+  baseModel?: PromotionModel;
   // ---
-  dirty?: Boolean;
   autoupdate?: Boolean;
   error?: ResponseError;
 }

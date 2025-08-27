@@ -20,6 +20,7 @@ import { parseBasketFieldsModel } from "../utils";
 
 // --- types
 import { FieldsModel, FieldsContext } from "./types";
+import { isEqual } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -102,7 +103,7 @@ export default createMachine(
           src: "update",
           onDone: {
             target: "processed",
-            actions: ["clearDirty", "clearAutoUpdate"]
+            actions: ["clearAutoUpdate"]
           },
           onError: {
             target: "error",
@@ -136,7 +137,7 @@ export default createMachine(
       },
       SET: {
         target: "checking",
-        actions: ["setModel", "setDirty", "setAutoUpdate"]
+        actions: ["setModel", "setAutoUpdate"]
       },
 
       UNAUTHENTICATED: {
@@ -184,14 +185,6 @@ export default createMachine(
 
       clearModel: assign({
         model: undefined
-      }),
-
-      setDirty: assign({
-        dirty: true
-      }),
-
-      clearDirty: assign({
-        dirty: false
       }),
 
       setAutoUpdate: assign({
@@ -243,7 +236,8 @@ export default createMachine(
     },
 
     guards: {
-      isDirty: ({ dirty }: FieldsContext) => !!dirty,
+      isDirty: ({ model, baseModel }: FieldsContext, _event) =>
+        !isEqual(model, baseModel),
       hasBasket: ({ basketId }: FieldsContext) => !!basketId,
       hasChanged: (
         { model, basketId }: FieldsContext,

@@ -6,7 +6,7 @@
 import {
   useSchema as useDefaultSchema,
   useUischema as useDefaultUischema
-} from "../utils";
+} from "../schemas";
 import { get } from "lodash-es";
 
 // --- types

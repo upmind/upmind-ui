@@ -36,16 +36,18 @@ To make this process cleaner, the idea is that at the point of handing off to th
 
 if we dont have storage, we then leverage the `operation` query param . The `operation` params will contain all the necessary context to spawn the correct gateway machine with context and put it into the correct state to complete the process.
 
-Custom Gateways:
+### Custom Gateways
 
 - [ ] Stripe
   - [x] Pay
   - [ ] Add
 - [ ] External store gateway
   - [ ] Add
+- [ ] Open pay
+- [ ] Braintree
+- [ ] Mercado pargo
+- [ ] Mobile
+- [ ]
 
-### Test Creds
+---
 
-- Go Cardless
-  - https://developer.gocardless.com/resources/test-bank-details
-  - 200000 55779911 ✓

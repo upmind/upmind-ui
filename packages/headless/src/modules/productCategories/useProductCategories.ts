@@ -31,7 +31,7 @@ export const useProductCategories = (initial?: QueryProps) => {
   const meta = computed(() => ({
     isLoading: query?.isLoading.value || !query.isFetched.value,
     hasError: !isEmpty(query.error.value),
-    isEmpty: isEmpty(query?.data?.value),
+    isEmpty: isEmpty(query.data?.value),
     isAvailable: true
   }));
 
@@ -60,7 +60,7 @@ export const useProductCategories = (initial?: QueryProps) => {
 
   const dataFlattened = computed(() => {
     return flattenCategories(
-      isArray(query?.data?.value) ? query.data.value : []
+      isArray(query.data?.value) ? query.data.value : []
     );
   });
 
@@ -183,7 +183,7 @@ export const useProductCategories = (initial?: QueryProps) => {
         ? []
         : walkPath(
             categoryId,
-            isArray(query?.data?.value) ? query.data.value : []
+            isArray(query.data?.value) ? query.data.value : []
           ),
 
     /**

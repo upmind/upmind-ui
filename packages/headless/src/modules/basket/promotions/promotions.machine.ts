@@ -16,7 +16,7 @@ import {
 } from "../../../utils";
 import { responseCodes } from "../../../utils";
 import { useSchema, useUischema } from "./utils";
-import { remove, xorBy, get, isEmpty } from "lodash-es";
+import { remove, xorBy, get, isEmpty, isEqual } from "lodash-es";
 
 // --- types
 import type { AnyEventObject } from "xstate";
@@ -109,7 +109,7 @@ export default createMachine(
               src: "add",
               onDone: {
                 target: "#processed",
-                actions: ["setModel", "clearDirty", "clearAutoUpdate"]
+                actions: ["clearAutoUpdate"]
               },
               onError: {
                 target: "#error",
@@ -121,8 +121,7 @@ export default createMachine(
             invoke: {
               src: "remove",
               onDone: {
-                target: "#processed",
-                actions: ["setModel", "clearDirty"]
+                target: "#processed"
               },
               onError: {
                 target: "#error",
@@ -164,11 +163,11 @@ export default createMachine(
       },
       CLEAR: {
         target: "checking",
-        actions: ["clearModel", "setDirty"]
+        actions: ["clearModel"]
       },
       SET: {
         target: "checking",
-        actions: ["setModel", "setDirty", "setAutoUpdate"]
+        actions: ["setModel", "setAutoUpdate"]
       },
 
       UNAUTHENTICATED: {
@@ -248,14 +247,6 @@ export default createMachine(
         }
       }),
 
-      setDirty: assign({
-        dirty: true
-      }),
-
-      clearDirty: assign({
-        dirty: false
-      }),
-
       setAutoUpdate: assign({
         autoupdate: (_context: PromotionsContext, { update }: AnyEventObject) =>
           !!update
@@ -298,8 +289,8 @@ export default createMachine(
     },
 
     guards: {
-      isDirty: ({ dirty, model }, _event) =>
-        !!dirty && !isEmpty(model?.promocode),
+      isDirty: ({ baseModel, model }, _event) =>
+        !isEqual(model, baseModel) && !isEmpty(model?.promocode),
       hasBasket: ({ basketId }, _event) => !!basketId,
       hasChanged: ({ promotions, basketId }, { data }: AnyEventObject) =>
         !!xorBy(promotions, data?.promotions, "id")?.length ||

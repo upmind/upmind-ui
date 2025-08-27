@@ -28,7 +28,7 @@ export const useSchema = (context: GatewayContext) => {
         type: ["string", "null"],
         title: "Select one of your stored payment methods",
         options: map(
-          context.stored_payment_methods,
+          context.storedPaymentMethods,
           ({ id, name, card_type, card_expire_date }) => {
             return {
               value: id,
@@ -38,9 +38,9 @@ export const useSchema = (context: GatewayContext) => {
             };
           }
         ),
-        enum: !context.stored_payment_methods?.length
+        enum: !context.storedPaymentMethods?.length
           ? undefined
-          : map(context.stored_payment_methods, "id")
+          : map(context.storedPaymentMethods, "id")
       },
       return_url: {
         type: "string",
@@ -60,7 +60,7 @@ export const useSchema = (context: GatewayContext) => {
   return schema as JsonSchema;
 };
 
-export const useUischema = ({ stored_payment_methods }: GatewayContext) => {
+export const useUischema = ({ storedPaymentMethods }: GatewayContext) => {
   const uischema = {
     type: "VerticalLayout",
     elements: [

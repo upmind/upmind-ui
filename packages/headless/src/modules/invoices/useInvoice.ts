@@ -26,9 +26,9 @@ export const useInvoice = (invoiceId: Invoice["id"]) => {
 
   const meta = computed(() => ({
     isPaid:
-      !isEmpty(query?.data?.value?.payments) &&
-      query?.data?.value?.unpaid_amount === 0,
-    isEmpty: isEmpty(query?.data?.value),
+      !isEmpty(query.data?.value?.payments) &&
+      query.data?.value?.unpaid_amount === 0,
+    isEmpty: isEmpty(query.data?.value),
     hasError: !isEmpty(query?.error.value),
     isLoading: query?.isLoading.value || !query?.isFetched.value,
     isComplete: query?.isFetched.value,
@@ -82,7 +82,7 @@ export const useInvoice = (invoiceId: Invoice["id"]) => {
      * The reactive data property containing the invoice details.
      * This is populated by the query and updates automatically when the query state changes.
      */
-    data: query?.data,
+    data: query.data,
 
     /**
      * The current error state of the query.

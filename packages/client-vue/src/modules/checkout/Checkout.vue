@@ -10,7 +10,7 @@
         :description="
           t(
             'checkout.header.description',
-            [summary.total],
+            [summary?.total || 0],
             products?.length || 0
           )
         "

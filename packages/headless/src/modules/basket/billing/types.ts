@@ -33,6 +33,5 @@ export interface BillingContext {
   };
   // ---
   autoupdate?: boolean;
-  dirty?: boolean;
   error?: ResponseError;
 }

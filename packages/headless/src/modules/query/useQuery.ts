@@ -275,7 +275,26 @@ export const useQuery = () => {
       )
     );
 
-    return response;
+    return {
+      ...response,
+      data: computed((): TData => response?.data?.value ?? ([] as TData)),
+      sort: (values?: QueryParams["sort"]) => {
+        sort.value = unref(values);
+      },
+      filter: (values: QueryParams["filters"]) => {
+        filters.value = unref(values);
+      },
+      resetQuery: () => {
+        return queryClient.resetQueries({
+          queryKey: [...queryKey, reactiveKeys]
+        });
+      }
+    } as ReturnType<typeof vueUseQuery<TQueryFnData, DefaultError, TData>> & {
+      data: ComputedRef<TData>;
+      sort: (values?: QueryParams["sort"]) => void;
+      filter: (values: QueryParams["filters"]) => void;
+      resetQuery: () => Promise<void>;
+    };
   }
 
   /**
