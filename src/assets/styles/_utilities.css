@@ -1,3 +1,4 @@
+/* aria */
 @layer utilities {
   /* Boolean aria attributes */
   .aria-atomic[aria-atomic="true"] {
@@ -105,5 +106,17 @@
   .aria-sort-none[aria-sort="none"] {
   }
   .aria-sort-other[aria-sort="other"] {
+  }
+}
+
+/* Autofill */
+@layer utilities {
+  .autofill:has(input:autofill) {
+    @apply bg-[var(--color-autofill,var(--color-blue-50))];
+  }
+
+  .autofill input:-webkit-autofill {
+    box-shadow: 0 0 0 1000px var(--color-autofill, var(--color-blue-50)) inset !important;
+    -webkit-text-fill-color: inherit !important;
   }
 }
