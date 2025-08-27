@@ -47,6 +47,7 @@ export interface SectionProps {
   title?: string;
   as?: string;
   class?: HTMLAttributes["class"];
+  aside?: boolean;
   uiConfig?: {
     section: {
       root: CxOptions;

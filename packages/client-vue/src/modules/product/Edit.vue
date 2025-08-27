@@ -30,6 +30,7 @@
       <Section
         :title="t('product.summary.title')"
         :class="styles.product.summary"
+        aside
       >
         <Summary
           v-if="basketProduct && !meta?.isLoading"
