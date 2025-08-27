@@ -27,6 +27,5 @@ export interface CurrencyContext {
   baseModel?: CurrencyModel;
   autoupdate?: boolean;
   // ---
-  dirty?: boolean;
   error?: ResponseError;
 }

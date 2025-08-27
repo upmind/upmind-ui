@@ -51,7 +51,7 @@ export const useProductCatalogue = (
   const meta = computed(() => ({
     isLoading: query?.isLoading.value || !query.isFetched.value,
     hasError: !isEmpty(query.error.value),
-    isEmpty: isEmpty(query?.data?.value) || query.pagination.value.total == 0,
+    isEmpty: isEmpty(query.data?.value) || query.pagination.value.total == 0,
     isAvailable: true,
     ...query?.meta.value
   }));

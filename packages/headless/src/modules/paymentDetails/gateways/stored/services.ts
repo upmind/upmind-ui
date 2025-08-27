@@ -28,7 +28,7 @@ async function pay({ model }: GatewayContext) {
 }
 
 async function parse(
-  { model, schema, stored_payment_methods }: GatewayContext,
+  { model, schema, storedPaymentMethods }: GatewayContext,
   _event: any
 ) {
   model = useModelParser(schema, model);
@@ -37,10 +37,10 @@ async function parse(
   unset(model, "gateway_id");
 
   // If we have no selected a payment detail id, ensure we  use the default one
-  model.payment_details_id ??= find(stored_payment_methods, "default")?.id;
+  model.payment_details_id ??= find(storedPaymentMethods, "default")?.id;
 
   // Fallback to the first one
-  model.payment_details_id ??= first(stored_payment_methods)?.id;
+  model.payment_details_id ??= first(storedPaymentMethods)?.id;
 
   return Promise.resolve(model);
 }

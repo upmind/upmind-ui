@@ -15,7 +15,7 @@ import {
   useModelParser,
   mapToHeadlessError
 } from "../../../../utils";
-import { useSchema, useUischema } from "./utils";
+import { useSchema, useUischema } from "./schemas";
 import { isFunction, isArray } from "lodash-es";
 
 // --- types

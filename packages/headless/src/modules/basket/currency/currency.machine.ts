@@ -14,7 +14,7 @@ import {
   useValidationParser
 } from "../../../utils";
 import { useSchema, useUischema } from "./utils";
-import { get } from "lodash-es";
+import { get, isEqual } from "lodash-es";
 
 // --- types
 import type { AnyEventObject } from "xstate";
@@ -48,7 +48,7 @@ export default createMachine(
         },
         on: {
           SET: {
-            actions: ["setModel", "setDirty", "setAutoUpdate"]
+            actions: ["setModel", "setAutoUpdate"]
           }
         }
       },
@@ -111,7 +111,7 @@ export default createMachine(
           src: "update",
           onDone: {
             target: "processed",
-            actions: ["setModel", "clearDirty", "clearAutoUpdate"]
+            actions: ["clearAutoUpdate"]
           },
           onError: {
             target: "#error",
@@ -147,11 +147,11 @@ export default createMachine(
     on: {
       CLEAR: {
         target: "checking",
-        actions: ["clearModel", "setDirty"]
+        actions: ["clearModel"]
       },
       SET: {
         target: "checking",
-        actions: ["setModel", "setDirty", "setAutoUpdate"]
+        actions: ["setModel", "setAutoUpdate"]
       },
 
       UNAUTHENTICATED: {
@@ -207,14 +207,6 @@ export default createMachine(
         model: undefined
       }),
 
-      setDirty: assign({
-        dirty: true
-      }),
-
-      clearDirty: assign({
-        dirty: false
-      }),
-
       setAutoUpdate: assign({
         autoupdate: (_context: CurrencyContext, { update }: AnyEventObject) =>
           !!update
@@ -249,7 +241,8 @@ export default createMachine(
     },
 
     guards: {
-      isDirty: ({ dirty }: CurrencyContext, _event) => !!dirty,
+      isDirty: ({ model, baseModel }: CurrencyContext, _event) =>
+        !isEqual(model, baseModel),
       hasBasket: ({ basketId }: CurrencyContext, _event) => !!basketId,
       hasChanged: (
         { model, basketId }: CurrencyContext,

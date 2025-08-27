@@ -37,13 +37,13 @@ async function load({ gateway }: GatewayContext, _event: AnyEventObject) {
     BrandConfigKeys.BILLING_GATEWAY_FORCE_AUTO_PAYMENT
   ]).then(data => {
     const config = {
-      can_store: canBeStored(gateway),
-      must_store: get(
+      canStore: canBeStored(gateway),
+      mustStore: get(
         data,
         BrandConfigKeys.BILLING_GATEWAY_FORCE_CARD_STORAGE,
         gateway?.store_on_payment_force || false
       ),
-      must_auto_pay: get(
+      mustAutoPay: get(
         data,
         BrandConfigKeys.BILLING_GATEWAY_FORCE_AUTO_PAYMENT,
         false
@@ -54,17 +54,17 @@ async function load({ gateway }: GatewayContext, _event: AnyEventObject) {
 }
 
 async function parse(
-  { schema, model, can_store, must_store, must_auto_pay }: GatewayContext,
+  { schema, model, canStore, mustStore, mustAutoPay }: GatewayContext,
   _event: AnyEventObject
 ) {
   model = useModelParser(schema, model);
   // Honour the brand settings storage and auto payment
-  if (!can_store) {
+  if (!canStore) {
     model.store_on_payment = false;
     model.store_on_payment_auto_payment = false;
   } else {
-    if (must_store) model.store_on_payment = true;
-    if (must_auto_pay) model.store_on_payment_auto_payment = true;
+    if (mustStore) model.store_on_payment = true;
+    if (mustAutoPay) model.store_on_payment_auto_payment = true;
   }
 
   // If we are not storing, we should not allow auto payment

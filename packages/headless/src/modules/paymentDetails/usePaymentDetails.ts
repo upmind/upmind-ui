@@ -1,224 +1,116 @@
 // --- external
-import { computed, ComputedRef, toRaw, unref } from "vue";
-import { waitFor } from "xstate/lib/waitFor";
+import { computed } from "vue";
 
 // --- internal
+import { loadList } from "./services";
 
 // --- utils
-import {
-  contextMatches,
-  contextValue,
-  stateMatches,
-  stateValue,
-  useContext,
-  DetailedError,
-  responseCodes,
-  useContextActor,
-  Actor,
-  ErrorOrigin
-} from "../../utils";
-import { isEmpty, isEqual, isNil } from "lodash-es";
+import { isEmpty, isArray } from "lodash-es";
+import { useCollection } from "../../utils";
 
 // --- types
-import { ActorRef } from "xstate";
-import {
-  PaymentDetailsContext,
-  PaymentDetailModel,
-  PaymentDetailsArgs
-} from "./types";
+
+import { PaymentDetail } from "./types";
 
 // -----------------------------------------------------------------------------
-
 /**
- * A composable function that provides access to the payment gateway actor.
- * @param actor - A computed ref to the payment gateway actor.
- * @returns An object containing the payment gateway state and methods.
+ * Composable to manage the stored payment details.
+ * It provides methods to retrieve stored payment details.
+ * @returns {UsePaymentDetails} The composable methods and state for the stored payment details.
  */
-export const usePaymentDetails = (actor: ComputedRef<Actor | undefined>) => {
+export const usePaymentDetails = () => {
   // --- state
-
-  async function isReady(): Promise<boolean> {
-    return new Promise(resolve => {
-      const interval = setInterval(() => {
-        if (!isNil(actor.value?.service)) {
-          clearInterval(interval);
-          resolve(actor.value.service);
-        }
-      }, 100);
-    }).then(service =>
-      waitFor(
-        service as ActorRef<any>,
-        state => stateMatches(state, ["available", "unavailable", "error"]),
-        { timeout: Infinity }
-      ).then(state => {
-        if (stateMatches(state, ["error", "unavailable"])) return false;
-        return true;
-      })
-    );
-  }
+  const query = loadList();
 
   const meta = computed(() => ({
-    isAvailable:
-      !!actor.value &&
-      stateMatches(actor, ["available", "complete"]) &&
-      !stateMatches(actor, ["available.loading"]),
-    isLoading: !actor.value || stateMatches(actor, ["loading"]),
-    hasGateway: contextMatches(actor, ["actors.gateway"]),
-    hasErrors: stateMatches(actor, ["error"]),
-    isProcessing: stateMatches(actor, ["checking", "processing"]),
-    isValid: stateMatches(actor, ["valid"]),
-    isDirty: !isEmpty(
-      contextValue<PaymentDetailsContext["model"]>(actor, "model")
-    ),
-    isFree: !contextValue(actor, "amount"),
-    isComplete:
-      !contextValue(actor, "amount") ||
-      stateValue(actor, "done", false) ||
-      stateMatches(actor, ["processed", "complete"])
+    isLoading: query?.isLoading.value || !query?.isFetched.value,
+    hasError: !isEmpty(query?.error.value),
+    isEmpty: isEmpty(query.data?.value),
+    isAvailable: true
   }));
+
+  async function isReady(): Promise<boolean> {
+    return new Promise<boolean>(resolve => {
+      resolve(true);
+    });
+  }
 
   // --- context
 
-  const context = useContext<PaymentDetailsContext>(actor);
-  const gateway = useContextActor(actor, "actors.gateway");
-  const gateways = useContext<PaymentDetailsContext["gateways"]>(
-    actor,
-    "gateways"
-  );
-  const errors = useContext<PaymentDetailsContext["error"]>(actor, "error");
-  const amount = useContext<PaymentDetailsContext["amount"]>(actor, "amount");
-  const model = useContext<PaymentDetailsContext["model"]>(actor, "model");
-  const schema = useContext<PaymentDetailsContext["schema"]>(actor, "schema");
-  const uischema = useContext<PaymentDetailsContext["uischema"]>(
-    actor,
-    "uischema"
-  );
-
   // --- methods
 
-  function input(value: PaymentDetailModel) {
-    actor.value?.send({ type: "SET", data: toRaw(unref(value)) });
-  }
-
-  function update(value?: PaymentDetailModel): Promise<void> {
-    value = toRaw(unref(value));
-    const model = contextValue<PaymentDetailModel>(actor, "model");
-
-    if (!isEmpty(value) && !isEqual(model, value)) {
-      actor.value?.send({ type: "SET", data: value, update: true });
-    } else {
-      actor.value?.send({ type: "UPDATE" });
-    }
-    // then wait for the paymentGateway actor to be updated
-    return waitFor(
-      actor.value!.service,
-      state => stateMatches(state, ["processed", "complete", "error"]),
-      { timeout: 60_000 }
-    )
-      .then(state => {
-        if (stateMatches(state, "error")) throw state.context.error;
-
-        return Promise.resolve();
-      })
-      .catch(error => {
-        return Promise.reject(
-          new DetailedError(
-            error.message ?? "Update Payment Details failed",
-            error?.status ?? responseCodes.Timeout,
-            error.origin ?? ErrorOrigin.Headless,
-            {
-              error,
-              state: actor.value?.state?.value
-            }
-          )
-        );
-      });
-  }
-
-  function clear() {
-    actor.value?.send({ type: "CLEAR" });
-  }
-  function checkout() {
-    actor.value?.send({ type: "CHECKOUT" });
-  }
-
-  function refresh(context?: PaymentDetailsArgs) {
-    actor.value?.send({ type: "REFRESH", data: context });
-  }
+  const { findOne, getOne, getDefault } = useCollection<PaymentDetail>(
+    query.data
+  );
 
   // ---------------------------------------------------------------------------
+
   return {
     // --- state
 
     /**
-     * Waits for the payment details actor to be ready (not loading or error state).
-     * @returns {Promise<boolean>} Resolves true if ready, false if error.
+     * Resolves when the client items are ready to be used.
+     * Returns true if ready, false if an error occurred.
+     * @returns {Promise<boolean>} A promise resolving to true if ready, false if error.
      */
     isReady,
 
     /**
-     * Meta information about the basket payment details state.
-     * @typedef {Object} PaymentDetailsMeta
-     * @property {boolean} isAvailable - Indicates if the payment details actor is available.
-     * @property {boolean} isLoading - Indicates if the payment details actor is loading.
-     * @property {boolean} hasErrors - Indicates if there are errors.
-     * @property {boolean} isProcessing - Indicates if the payment details is processing.
-     * @property {boolean} isValid - Indicates if the payment details is valid.
-     * @property {boolean} isDirty - Indicates if the payment details is dirty.
-     * @property {boolean} hasGateway - Indicates if the payment details has a gateway actor.
-     * @property {boolean} isComplete - Indicates if the payment details is complete.
-     * @property {boolean} isFree - Indicates if the payment is free (no amount).
+     * Meta-information about the basket state.
+     * @type {Object} BasketMeta
+     * @property {boolean} isError - Indicates if there was an error during the query.
+     * @property {boolean} isEmpty - Indicates if the basket is empty.
+     * @property {boolean} isLoading - Indicates if the query is currently loading.
      */
     meta,
 
     // --- context
 
-    /** The full payment details context object. */
-    context,
+    /**
+     * The reactive data property containing the list of client items.
+     * This is populated by the query and updates automatically when the query state changes.
+     */
+    data: computed(() => {
+      const data = query.data.value;
+      return isArray(data) ? data : [];
+    }),
 
-    /** The available gateways. */
-    gateways,
-
-    /** The payment gateway actor. */
-    gateway,
-
-    /** Any error returned by the payment details actor. */
-    errors,
-
-    /** The payment amount, if applicable. */
-    amount,
-
-    /** The current payment details model. */
-    model,
-
-    /** The payment details schema. */
-    schema,
-
-    /** The payment details UI schema. */
-    uischema,
+    /**
+     * The current error state of the query.
+     * This will be populated if the query fails to fetch data.
+     */
+    error: query?.error,
 
     // --- methods
 
-    /** Clears the payment details state. */
-    clear,
+    /**
+     * Get a single address by id.
+     * @param id The id of the address to get.
+     * @returns The address object if found, is otherwise undefined.
+     */
+    getOne,
 
     /**
-     * Sends a SET event to update the payment details model.
-     * @param {PaymentDetailModel} value The payment details model to set.
-     * @returns {void} Does not return anything.
+     * Find a single address based on the given param. The param is matched against the title and description.
+     * @param mapping The filter to match against the address title and description.
+     * @returns The address object if found, is otherwise undefined.
      */
-    input,
+    findOne,
 
     /**
-     * Updates the payment details if the model has changed.
-     * @param {PaymentDetailModel} value The new payment details model to set.
-     * @returns {Promise<void>} Resolves when updated, rejects on error.
+     * The default Payment detail.
+     * This is the stored payment detail that is set as default for the current client.
+     * @returns {PaymentDetail} The default Payment detail if found, is otherwise undefined.
      */
-    update
+    default: getDefault,
+
+    /**
+     * Refresh the query to get the latest data.
+     * This will refetch the data from the server and update the query state.
+     * @returns {void}
+     */
+    refresh: () => query?.refetch()
   };
 };
 
-/**
- * The return type of usePaymentDetails composable.
- */
 export type UsePaymentDetails = ReturnType<typeof usePaymentDetails>;

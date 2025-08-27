@@ -21,7 +21,6 @@ export interface FieldsContext {
   baseModel?: FieldsModel;
   autoupdate?: boolean;
   // ---
-  dirty?: boolean;
   error?: ResponseError;
   controller?: AbortController;
 }

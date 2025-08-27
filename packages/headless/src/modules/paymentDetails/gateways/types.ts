@@ -42,16 +42,16 @@ export interface GatewayContext {
   // ---
   type?: GatewayTypes;
   ctx?: GatewayCtx;
-  stored_payment_methods?: any[];
+  storedPaymentMethods?: any[];
   code?: string;
 
   // ---
   renderless?: boolean;
-  can_store?: boolean;
-  must_store?: boolean;
-  must_auto_pay?: boolean;
+  canStore?: boolean;
+  mustStore?: boolean;
+  mustAutoPay?: boolean;
   // --- Operation
-  operation_id?: string;
+  operationId?: string;
   // --- UI
   schema?: JsonSchema;
   uischema?: UISchemaElement;

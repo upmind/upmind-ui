@@ -26,18 +26,79 @@ import {
   useValidation,
   NotAuthenticatedError,
   useModelParser,
-  stateMatches
+  stateMatches,
+  useTime
 } from "../../utils";
 
 // --- types
 import { GatewayTypes } from "./gateways/types";
 import type { AnyEventObject } from "xstate";
-import type { PaymentDetailsContext } from "./types";
-import { BrandConfigKeys, PaymentType } from "@upmind-automation/types";
+import type { PaymentDetail, PaymentDetailsContext } from "./types";
+import {
+  BrandConfigKeys,
+  IPaymentDetail,
+  PaymentType
+} from "@upmind-automation/types";
+import { QueryKey } from "@tanstack/vue-query";
+import { mapPaymentDetailDetails } from "./mappers";
+
+// -----------------------------------------------------------------------------
+const queryKey: QueryKey = ["paymentDetails", "stored"];
+
+export function loadList() {
+  const { brandId, currencyId } = useBrand();
+  const { meta, userId } = useSession();
+
+  const clientId = userId.value;
+
+  const { query, useUrl } = useQuery();
+
+  return query<IPaymentDetail[], PaymentDetail[]>({
+    queryKey,
+    url: useUrl(`clients/${clientId}/payment_details`, {
+      limit: 0,
+      brand_id: brandId.value,
+      active: true,
+      "filter[gateway.currencies.id]": currencyId.value,
+      order: ["-default", "id"].join(),
+      with: ["gateway", "client"].join()
+    }),
+    withAccessToken: true,
+    withCurrency: true,
+    // --- options
+    guard: async () =>
+      new Promise((resolve, reject) => {
+        if (
+          meta.value.isAuthenticated &&
+          !!userId.value &&
+          !!currencyId.value &&
+          !!brandId.value
+        ) {
+          resolve(true);
+        } else {
+          const error = !meta.value.isAuthenticated
+            ? new NotAuthenticatedError()
+            : new DetailedError(
+                "Load Payment details failed: Brand or Currency not provided",
+                responseCodes.No_Content,
+                ErrorOrigin.Headless,
+                {
+                  currencyId: currencyId.value,
+                  brandId: brandId.value
+                }
+              );
+
+          reject(error);
+        }
+      }),
+    select: mapPaymentDetailDetails,
+    staleTime: useTime().HOUR
+  });
+}
 
 // -----------------------------------------------------------------------------
 
-async function load(
+async function loadLookups(
   { currency, address }: PaymentDetailsContext,
   _event: AnyEventObject
 ) {
@@ -70,7 +131,7 @@ async function load(
 
   // ---
 
-  const stored_payment_methods = getRequest<any>({
+  const storedPaymentMethods = getRequest<any>({
     url: useUrl(`clients/${clientId}/payment_details`, {
       limit: 0,
       brand_id: unref(brandId),
@@ -108,13 +169,13 @@ async function load(
   }).then(data => sortBy(data, ["order"]));
   // ----
 
-  return Promise.all([stored_payment_methods, gateways, address]).then(
-    ([stored_payment_methods, gateways, address]) => {
+  return Promise.all([storedPaymentMethods, gateways, address]).then(
+    ([storedPaymentMethods, gateways, address]) => {
       // ensure we only show active stored payment methods
-      stored_payment_methods = filter(stored_payment_methods, "active");
+      storedPaymentMethods = filter(storedPaymentMethods, "active");
 
       // If we have stored payment methods, then we MUSt add a 'gateway' for them
-      if (stored_payment_methods?.length) {
+      if (storedPaymentMethods?.length) {
         gateways.unshift({
           gateway_id: "stored",
           gateway: {
@@ -126,7 +187,7 @@ async function load(
       }
 
       return {
-        stored_payment_methods,
+        storedPaymentMethods,
         gateways,
         payment_types: PaymentType,
         address
@@ -233,7 +294,7 @@ async function validate(
 // -----------------------------------------------------------------------------
 
 export default {
-  load,
+  loadLookups,
   parse,
   validate,
   // ---

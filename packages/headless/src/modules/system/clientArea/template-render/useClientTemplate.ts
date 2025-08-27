@@ -25,11 +25,11 @@ export const useClientTemplate = (params: {
   const meta = computed(() => ({
     isLoading: query?.isLoading.value || !query?.isFetched.value,
     hasError: !isEmpty(query?.error.value),
-    isEmpty: isEmpty(query?.data?.value),
+    isEmpty: isEmpty(query.data?.value),
     isAvailable: true,
-    isIframe: query?.data.value?.type
+    isIframe: query.data.value?.type
       ? [ClientAreaTemplateTypes.CLIENT_AREA_IFRAME].includes(
-          query?.data.value?.type
+          query.data.value?.type
         )
       : false
   }));
@@ -65,7 +65,7 @@ export const useClientTemplate = (params: {
      * The reactive data property containing the list of client area templates.
      * This is populated by the query and can be used in templates.
      */
-    data: query?.data,
+    data: query.data,
 
     /**
      * The current error state of the query.

@@ -6,11 +6,11 @@ import services from "./services";
 import { authSubscription } from "../session/helper";
 
 // --- utils
-import { spawnGateway, parsePaymentDetails } from "./utils";
+import { spawnGateway } from "./utils";
 import { mapToHeadlessError, stopActor, useModelParser } from "../../utils";
 import { useTime, useValidationParser } from "../../utils";
-import { useSchema, useUischema } from "./utils";
-import { set, unset, forEach } from "lodash-es";
+import { useSchema, useUischema } from "./schemas";
+import { set, unset, forEach, isEqual } from "lodash-es";
 
 // --- types
 import type { ActorRef, AnyEventObject } from "xstate";
@@ -20,7 +20,6 @@ import { responseCodes } from "../../utils";
 // -----------------------------------------------------------------------------
 export default createMachine(
   {
-    //tsTypes: {} as import("./paymentDetails.machine.typegen").Typegen0,
     id: "paymentDetailsManager",
     predictableActionArguments: true,
     initial: "subscribing",
@@ -63,7 +62,7 @@ export default createMachine(
             id: "loading",
             entry: ["clearError"],
             invoke: {
-              src: "load",
+              src: "loadLookups",
               onDone: {
                 target: "checking",
                 actions: ["setLookups"]
@@ -120,6 +119,8 @@ export default createMachine(
                 },
                 { target: "processing", cond: "hasBasket" }
               ],
+              SAVE: [{ target: "processing" }],
+
               // NB we need to re check our payment details if the gateway changes
               "xstate.update": {
                 target: "checking"
@@ -155,11 +156,11 @@ export default createMachine(
         on: {
           CLEAR: {
             target: "available.checking",
-            actions: ["clearModel", "setDirty"]
+            actions: ["clearModel"]
           },
           SET: {
             target: "available.checking",
-            actions: ["setDirty", "setAutoUpdate"]
+            actions: ["setAutoUpdate"]
           },
           REFRESH: [
             {
@@ -180,6 +181,7 @@ export default createMachine(
       complete: {
         entry: ["providePaymentDetails"],
         id: "complete",
+        type: "final",
         data: ({ paymentDetails }, _event) => paymentDetails,
         on: {
           REFRESH: {
@@ -211,10 +213,10 @@ export default createMachine(
       }),
 
       setLookups: assign({
-        stored_payment_methods: (_context, { data }: AnyEventObject) =>
+        storedPaymentMethods: (_context, { data }: AnyEventObject) =>
           data.stored_payment_methods,
         gateways: (_context, { data }) => data.gateways,
-        payment_types: (_context, { data }) => data.payment_types,
+        paymentTypes: (_context, { data }) => data.payment_types,
         address: (_context, { data }) => data.address
       }),
 
@@ -236,10 +238,6 @@ export default createMachine(
         model: undefined
       }),
 
-      setDirty: assign({
-        dirty: true
-      }),
-
       setAutoUpdate: assign({
         autoupdate: (_context, { update }: AnyEventObject) => !!update
       }),
@@ -258,15 +256,15 @@ export default createMachine(
             amount,
             gateway,
             actors,
-            stored_payment_methods
+            storedPaymentMethods
           },
           _event
         ) => {
           actors ??= {}; //sanity check
 
           // stop any existing gateways if they are different and not done/complete
-          if (actors?.gateway?.id != gateway?.id) {
-            stopActor(actors?.gateway);
+          if (actors.gateway && actors?.gateway?.id != gateway?.id) {
+            stopActor(actors.gateway);
             unset(actors, "gateway");
           }
 
@@ -277,7 +275,7 @@ export default createMachine(
               orderId,
               currency,
               gateway: amount ? gateway : null, // use the free gateway if amount is 0
-              stored_payment_methods,
+              storedPaymentMethods,
               address
             });
             set(actors, "gateway", actor);
@@ -322,7 +320,7 @@ export default createMachine(
           { amount, model, orderId, currency, address }: PaymentDetailsContext,
           { data }: AnyEventObject
         ) => {
-          return parsePaymentDetails({
+          return {
             ...model,
             ...data,
             // ensure OUR values are used
@@ -330,7 +328,7 @@ export default createMachine(
             currency,
             amount,
             address
-          });
+          };
         }
       }),
 
@@ -369,12 +367,11 @@ export default createMachine(
     },
 
     guards: {
-      isDirty: ({ dirty }: any, _event: any) => !!dirty,
+      isDirty: ({ model, baseModel }: PaymentDetailsContext, _event) =>
+        !isEqual(model, baseModel),
       hasBasket: ({ orderId }, _event) => !!orderId,
-      hasLookups: (
-        { stored_payment_methods, gateways, payment_types },
-        _event
-      ) => !!stored_payment_methods && !!gateways && !!payment_types,
+      hasLookups: ({ storedPaymentMethods, gateways, paymentTypes }, _event) =>
+        !!storedPaymentMethods && !!gateways && !!paymentTypes,
       isFree: ({ amount }, _event) => !amount,
       shouldUpdate: ({ autoupdate, orderId, amount }, _event) =>
         !!autoupdate && !!orderId && amount !== 0,
