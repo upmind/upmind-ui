@@ -45,7 +45,9 @@ export default {
     },
     main: {
       root: cva("flex w-full flex-col gap-12"),
-      controls: cva("flex items-center justify-between"),
+      controls: cva(
+        "flex flex-col items-center justify-between gap-3 md:flex-row"
+      ),
       searchInput: cva("max-w-xl"),
       searchIcon: cva("text-control-foreground mr-1.5"),
       grid: {
@@ -74,7 +76,7 @@ export default {
     },
     header: {
       root: cva("flex max-w-2xl flex-col gap-y-3"),
-      title: cva("m-0 text-5xl font-normal"),
+      title: cva("font-display m-0 text-5xl font-normal"),
       description: cva("text-md text-emphasis-medium m-0")
     },
     item: {

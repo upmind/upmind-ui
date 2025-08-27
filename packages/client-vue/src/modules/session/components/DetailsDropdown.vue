@@ -11,16 +11,19 @@
     }"
   >
     <template #trigger>
-      <slot></slot>
+      <slot />
     </template>
 
     <template #label>
-      <div class="flex flex-col items-start break-all" v-if="user">
-        <div>{{ user.fullname }}</div>
-        <div class="text-sm font-normal opacity-60">
+      <label
+        class="flex flex-col items-start text-sm/tight break-all not-italic"
+        v-if="user"
+      >
+        <strong class="font-medium">{{ user.fullname }}</strong>
+        <span class="text-sm/tight font-normal opacity-60">
           {{ user.username }}
-        </div>
-      </div>
+        </span>
+      </label>
     </template>
   </DropdownMenu>
 </template>

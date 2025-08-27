@@ -1,8 +1,12 @@
 <template>
   <Alert color="error" icon="alert">
     <template #title>
-      <h5 class="m-0 hidden md:inline">{{ t("basket.item.md.invalid") }}</h5>
-      <h5 class="m-0 md:hidden">{{ t("basket.item.base.invalid") }}</h5>
+      <h5 class="m-0 hidden font-normal md:inline">
+        {{ t("basket.item.md.invalid") }}
+      </h5>
+      <h5 class="m-0 font-normal md:hidden">
+        {{ t("basket.item.base.invalid") }}
+      </h5>
     </template>
     <template #action>
       <Button

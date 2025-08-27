@@ -62,7 +62,11 @@
     </template>
 
     <template #aside>
-      <Section :title="t('basket.summary.title')" :class="styles.basket.aside">
+      <Section
+        :title="t('basket.summary.title')"
+        :class="styles.basket.aside"
+        aside
+      >
         <Summary />
 
         <footer class="w-full">
@@ -103,7 +107,7 @@
             scope="global"
           />
         </template>
-        <ol class="ml-6 list-disc py-2 text-left">
+        <ol class="list-disc p-6 py-2 text-left">
           <li
             v-for="basketItem in productsInvalid"
             :key="basketItem.id"

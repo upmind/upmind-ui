@@ -13,10 +13,10 @@ export class Registration {
   constructor(page: Page, context: BrowserContext) {
     this.page = page;
     this.context = context;
-    this.firstName = page.getByTestId("form-item-firstname");
-    this.lastName = page.getByTestId("form-item-lastname");
-    this.email = page.getByTestId("form-item-username");
-    this.password = page.getByTestId("form-item-password");
+    this.firstName = page.getByTestId("form-item-firstname").locator("input");
+    this.lastName = page.getByTestId("form-item-lastname").locator("input");
+    this.email = page.getByTestId("form-item-username").locator("input");
+    this.password = page.getByTestId("form-item-password").locator("input");
     this.alert = page.getByRole("alert");
   }
 
@@ -26,11 +26,9 @@ export class Registration {
     await this.email.fill(
       `nathan.robinson+${faker.string.alpha({ length: 10 })}@upmind.com`
     );
-    await this.password
-      .getByTestId("text-input")
-      .fill(
-        `${faker.internet.password({ length: 10, pattern: /[A-Z]/, prefix: "123" })}`
-      );
+    await this.password.fill(
+      `${faker.internet.password({ length: 10, pattern: /[A-Z]/, prefix: "123" })}`
+    );
     await this.page.getByTestId("button-continue").click();
   }
 

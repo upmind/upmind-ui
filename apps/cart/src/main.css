@@ -1,3 +1,7 @@
+@import "@upmind-automation/client-vue/vars";
+
+@import "tailwindcss";
+
 @import "@upmind-automation/client-vue/styles";
 
 @source './src/**/*.{html,vue,js,tsx,ts}';
