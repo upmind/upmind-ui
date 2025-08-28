@@ -2,6 +2,7 @@
   <Layout>
     <ContentSection v-auto-animate class="flex grow items-center">
       <Interstitial
+        to="#vue-app"
         v-bind="props"
         :title="t('session.end.title')"
         :text="t('session.end.text')"

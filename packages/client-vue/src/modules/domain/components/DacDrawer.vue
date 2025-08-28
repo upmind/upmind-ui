@@ -13,9 +13,9 @@
 
   <Drawer
     v-model:open="open"
+    to="#vue-app"
     dismissible
     class="bg-white"
-    to="#vue-app"
     fit="cover"
     :class="styles.domain.drawer.root"
     :class-header="styles.domain.drawer.header"
