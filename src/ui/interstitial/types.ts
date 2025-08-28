@@ -25,6 +25,7 @@ export interface InterstitialActionProps extends ButtonProps {
 export interface InterstitialProps {
   modal?: boolean;
   open?: DialogProps["open"];
+  to?: DialogProps["to"];
   // ---
   title?: DialogProps["title"];
   text?: DialogProps["description"];
