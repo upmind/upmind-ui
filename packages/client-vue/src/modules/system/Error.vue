@@ -3,6 +3,7 @@
     <ContentSection v-auto-animate class="flex grow items-center">
       <Interstitial
         v-bind="props"
+        to="#vue-app"
         :animatedIcon="animatedIcon"
         :actions="actions"
         :title="t(`${safeKey}.title`)"

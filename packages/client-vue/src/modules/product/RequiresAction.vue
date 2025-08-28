@@ -2,6 +2,7 @@
   <Layout>
     <ContentSection>
       <Interstitial
+        to="#vue-app"
         :title="t('basket.requiresAction.title')"
         :text="t('basket.requiresAction.text')"
         :animatedIcon="{

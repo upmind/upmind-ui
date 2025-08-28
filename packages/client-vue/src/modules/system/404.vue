@@ -2,6 +2,7 @@
   <Layout>
     <ContentSection v-auto-animate class="flex grow items-center">
       <Interstitial
+        to="#vue-app"
         v-bind="props"
         :title="t('basket.empty.title')"
         :text="t('basket.empty.text')"

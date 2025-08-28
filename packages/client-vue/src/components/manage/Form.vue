@@ -1,6 +1,7 @@
 <template>
   <component
     v-if="modal || (!modal && open)"
+    to="#vue-app"
     :is="modal ? Dialog : 'section'"
     v-model:open="open"
     size="3xl"
