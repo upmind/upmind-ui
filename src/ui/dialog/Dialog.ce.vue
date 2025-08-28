@@ -138,7 +138,8 @@ const forwardedContent = useForwardPropsEmits(
     "trapFocus",
     "disableOutsidePointerEvents",
     "asChild",
-    "as"
+    "as",
+    "to"
   ]),
   emits
 );
