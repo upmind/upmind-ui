@@ -87,7 +87,8 @@ const secondaryHex = computed(() => {
 });
 
 function getComputedColor(className: string): string {
-  const cssVar = getComputedStyle(document.documentElement)
+  const app = document.getElementById("vue-app");
+  const cssVar = getComputedStyle(app || document.documentElement)
     .getPropertyValue(`--${className}`)
     .trim();
 
@@ -97,12 +98,12 @@ function getComputedColor(className: string): string {
 
   const tempElement = document.createElement("div");
   tempElement.className = "text-" + className;
-  document.body.appendChild(tempElement);
+  (app || document.body).appendChild(tempElement);
 
   const computedStyle = window.getComputedStyle(tempElement);
   const color = computedStyle.color;
 
-  document.body.removeChild(tempElement);
+  (app || document.body).removeChild(tempElement);
 
   const rgb = color.match(/\d+/g);
   if (rgb) {
