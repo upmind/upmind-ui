@@ -40,10 +40,12 @@
 
       <Tooltip
         v-for="promotion in promotions"
+        to="#vue-app"
         :key="promotion.promotion.code"
         :label="tooltipLabel(promotion)"
         :open="!!open[promotion.id]"
         :ui-config="{ trigger: ['rounded-pill'] }"
+        color="secondary"
       >
         <Badge
           color="promotion"
