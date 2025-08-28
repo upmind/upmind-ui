@@ -103,7 +103,7 @@ export default createMachine(
           src: "update",
           onDone: {
             target: "processed",
-            actions: ["clearAutoUpdate"]
+            actions: ["resetBaseModel", "clearAutoUpdate"]
           },
           onError: {
             target: "error",
@@ -180,6 +180,17 @@ export default createMachine(
         model: ({ schema, model }: FieldsContext, { data }: AnyEventObject) => {
           if (!schema) return data ?? model;
           return useModelParser<FieldsModel>(schema, data ?? model);
+        }
+      }),
+
+      resetBaseModel: assign({
+        baseModel: (
+          { schema, model, baseModel }: FieldsContext,
+          _event: AnyEventObject
+        ) => {
+          return useModelParser<FieldsModel>(schema, model, baseModel, {
+            allowExtraProps: false
+          });
         }
       }),
 

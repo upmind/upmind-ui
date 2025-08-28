@@ -19,24 +19,24 @@ import { useSchema, useUischema } from "./schemas";
 import { isFunction, isArray } from "lodash-es";
 
 // --- types
-import type { StripeContext } from "./types";
+import type { BraintreeContext } from "./types";
 import { GatewayCtx } from "../types";
 import { responseCodes } from "../../../../utils";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
   {
-    //tsTypes: {} as import("./stripe.machine.typegen").Typegen0,
-    id: "stripePaymentManager",
+    //tsTypes: {} as import("./braintree.machine.typegen").Typegen0,
+    id: "braintreePaymentManager",
     predictableActionArguments: true,
     initial: "loading",
-    context: {} as StripeContext,
+    context: {} as BraintreeContext,
     states: {
       loading: {
         id: "loading",
-        initial: "stripe",
+        initial: "braintree",
         states: {
-          stripe: {
+          braintree: {
             invoke: {
               src: "load",
               onDone: [
@@ -216,14 +216,14 @@ export default createMachine(
 
       complete: {
         id: "complete",
-        data: ({ paymentDetails }: StripeContext, _event: AnyEventObject) =>
+        data: ({ paymentDetails }: BraintreeContext, _event: AnyEventObject) =>
           paymentDetails
       }
     },
     on: {
       REFRESH: {
         target: "available.checking",
-        actions: ["setContext", "updateStripe"],
+        actions: ["setContext", "updateBraintree"],
         cond: "hasChanged"
       },
       UNAUTHENTICATED: {
@@ -235,21 +235,21 @@ export default createMachine(
   {
     actions: {
       setElements: assign({
-        elements: (_context: StripeContext, { data }: AnyEventObject) =>
+        elements: (_context: BraintreeContext, { data }: AnyEventObject) =>
           data?.elements,
-        element: (_context: StripeContext, { data }: AnyEventObject) =>
+        element: (_context: BraintreeContext, { data }: AnyEventObject) =>
           data?.element,
-        renderer: (_context: StripeContext, { data }: AnyEventObject) => {
+        renderer: (_context: BraintreeContext, { data }: AnyEventObject) => {
           function renderer(container: HTMLElement) {
             data?.element?.mount(container);
           }
           return renderer;
         },
         validationObserver: (
-          _context: StripeContext,
+          _context: BraintreeContext,
           { data }: AnyEventObject
         ) => {
-          const stripeChangeEvent = (callback: any) => {
+          const braintreeChangeEvent = (callback: any) => {
             data.element.on("change", (event: any) =>
               callback({ type: "VALIDATE", data: event })
             );
@@ -257,20 +257,22 @@ export default createMachine(
             return () => {};
           };
 
-          return spawn(stripeChangeEvent);
+          return spawn(braintreeChangeEvent);
         }
       }),
 
       setElementStatus: assign({
-        elementStatus: (_context: StripeContext, { data }: AnyEventObject) =>
+        elementStatus: (_context: BraintreeContext, { data }: AnyEventObject) =>
           data
       }),
 
-      render: pure(({ renderer }: StripeContext, { data }: AnyEventObject) => {
-        return () => {
-          if (renderer) renderer(data?.container);
-        };
-      }),
+      render: pure(
+        ({ renderer }: BraintreeContext, { data }: AnyEventObject) => {
+          return () => {
+            if (renderer) renderer(data?.container);
+          };
+        }
+      ),
 
       clearRenderer: assign({
         renderer: undefined
@@ -278,15 +280,15 @@ export default createMachine(
 
       setClientDetails: assign({
         clientPaymentDetailsId: (
-          _context: StripeContext,
+          _context: BraintreeContext,
           { data }: AnyEventObject
         ) => data?.clientPaymentDetailsId,
-        clientSecret: (_context: StripeContext, { data }: AnyEventObject) =>
+        clientSecret: (_context: BraintreeContext, { data }: AnyEventObject) =>
           data?.clientSecret
       }),
 
       setContext: assign(
-        (_context: StripeContext, { data }: AnyEventObject) => data
+        (_context: BraintreeContext, { data }: AnyEventObject) => data
       ),
 
       // ---
@@ -301,7 +303,10 @@ export default createMachine(
       }),
 
       setModel: assign({
-        model: ({ schema, model }: StripeContext, { data }: AnyEventObject) => {
+        model: (
+          { schema, model }: BraintreeContext,
+          { data }: AnyEventObject
+        ) => {
           if (!schema) return data ?? model;
           return useModelParser(schema, data ?? model);
         }
@@ -312,14 +317,14 @@ export default createMachine(
       }),
       // ---
 
-      updateStripe: (
-        { elements, element }: StripeContext,
+      updateBraintree: (
+        { elements, element }: BraintreeContext,
         { data }: AnyEventObject
       ) => {
-        if (!isFunction(elements?.update)) return; // in case we receive an update before stripe has loaded
+        if (!isFunction(elements?.update)) return; // in case we receive an update before braintree has loaded
 
-        const amount = Math.round((data?.amount || 0) * 100); // NB: Stripe expects amount in cents
-        if (amount <= 0) return; // NB: Stripe requires a positive amount
+        const amount = Math.round((data?.amount || 0) * 100); // NB: Braintree expects amount in cents
+        if (amount <= 0) return; // NB: Braintree requires a positive amount
 
         elements.update({
           amount,
@@ -342,8 +347,10 @@ export default createMachine(
 
       // ---
       setPaymentDetails: assign({
-        paymentDetails: (_context: StripeContext, { data }: AnyEventObject) =>
-          data
+        paymentDetails: (
+          _context: BraintreeContext,
+          { data }: AnyEventObject
+        ) => data
       }),
 
       providePaymentDetails: sendParent(({ paymentDetails }) => ({
@@ -356,7 +363,10 @@ export default createMachine(
       })),
 
       // ---
-      setFeedbackError: ({ error }: StripeContext, _event: AnyEventObject) => {
+      setFeedbackError: (
+        { error }: BraintreeContext,
+        _event: AnyEventObject
+      ) => {
         if (
           !error ||
           isArray(error) ||
@@ -374,7 +384,7 @@ export default createMachine(
       },
 
       setError: assign({
-        error: (_context: StripeContext, { data }: AnyEventObject) => {
+        error: (_context: BraintreeContext, { data }: AnyEventObject) => {
           let error = mapToHeadlessError(data);
 
           if (error?.status == responseCodes.Unprocessable_Entity) {
@@ -394,7 +404,7 @@ export default createMachine(
 
     guards: {
       hasChanged: (
-        { orderId, currency, amount, address }: StripeContext,
+        { orderId, currency, amount, address }: BraintreeContext,
         { data }: AnyEventObject
       ) => {
         const value =
@@ -405,21 +415,21 @@ export default createMachine(
         return value;
       },
 
-      hasNoElements: ({ elements }: StripeContext, _event: AnyEventObject) =>
+      hasNoElements: ({ elements }: BraintreeContext, _event: AnyEventObject) =>
         !elements,
 
       hasNoOutstandingBalance: (
-        _context: StripeContext,
+        _context: BraintreeContext,
         _event: AnyEventObject
       ) => {
         // TODO: check if there is an outstanding balance
         return true;
       },
 
-      isAdding: ({ ctx }: StripeContext, _event: AnyEventObject) => {
+      isAdding: ({ ctx }: BraintreeContext, _event: AnyEventObject) => {
         return ctx !== undefined && ctx == GatewayCtx.ADD;
       },
-      isPaying: ({ ctx }: StripeContext, _event: AnyEventObject) => {
+      isPaying: ({ ctx }: BraintreeContext, _event: AnyEventObject) => {
         return ctx !== undefined && ctx == GatewayCtx.PAY;
       }
     },
