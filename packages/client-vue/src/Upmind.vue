@@ -109,10 +109,15 @@ const route = computed(() =>
   get(currentRoute, "name", get(currentRoute, "path", ""))
 );
 
-const styles = useStyles(["page"], {
-  route,
-  loading
-}) as ComputedRef<{
+const meta = computed(() => {
+  return {
+    route: route.value,
+    loading: loading.value,
+    available: themeMeta.value.hasTheme
+  };
+});
+
+const styles = useStyles(["page"], meta) as ComputedRef<{
   page: string;
 }>;
 
