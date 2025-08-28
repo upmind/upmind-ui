@@ -8,7 +8,7 @@
     :skrim="skrim"
     :title="title"
     :fit="fit"
-    to="main"
+    :to="to"
     no-header
     :dismissable="false"
   >
