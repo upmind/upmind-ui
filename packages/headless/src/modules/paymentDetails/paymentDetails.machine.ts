@@ -120,7 +120,6 @@ export default createMachine(
                 { target: "processing", cond: "hasBasket" }
               ],
               SAVE: [{ target: "processing" }],
-
               // NB we need to re check our payment details if the gateway changes
               "xstate.update": {
                 target: "checking"

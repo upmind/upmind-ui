@@ -3,24 +3,21 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --- types
 // TODO:
-import { GatewayTypes as GatewayTypesEnum } from "@upmind-automation/types";
-import type { ICurrency, IGateway, IOrder } from "@upmind-automation/types";
+import { GatewayTypes } from "@upmind-automation/types";
+import type {
+  IAddress,
+  ICurrency,
+  IGateway,
+  IOrder
+} from "@upmind-automation/types";
 
 import type { ResponseError } from "../../../utils";
 
 // -----------------------------------------------------------------------------
 
-export enum GatewayTypes {
+export enum GatewayTypesExtended {
   FREE = -1,
-  STORED = 0,
-  // ---
-  CARD = GatewayTypesEnum.CARD,
-  BANK_TRANSFER = GatewayTypesEnum.BANK_TRANSFER,
-  DIRECT_DEBIT = GatewayTypesEnum.DIRECT_DEBIT,
-  SEPA = GatewayTypesEnum.SEPA,
-  OFFLINE = GatewayTypesEnum.OFFLINE,
-  MOBILE = GatewayTypesEnum.MOBILE,
-  WALLET = GatewayTypesEnum.WALLET
+  STORED = 0
 }
 
 export enum GatewayCtx {
@@ -37,10 +34,11 @@ export interface GatewayContext {
   // ---
   orderId?: IOrder["id"];
   currency?: ICurrency;
+  address?: IAddress;
   amount?: number;
   gateway?: IGateway;
   // ---
-  type?: GatewayTypes;
+  type?: GatewayTypes | GatewayTypesExtended;
   ctx?: GatewayCtx;
   storedPaymentMethods?: any[];
   code?: string;

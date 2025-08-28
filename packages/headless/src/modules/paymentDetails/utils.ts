@@ -4,15 +4,23 @@ import { spawn } from "xstate";
 // --- internal
 import gatewayMachine from "./gateways/gateway.machine";
 import stripeMachine from "./gateways/stripe/stripe.machine";
+import braintreeMachine from "./gateways/braintree/braintree.machine";
 import cardConfig from "./gateways/card";
 import storedConfig from "./gateways/stored";
 
 // --- utils
 
 // --- types
-import { GatewayCtx, GatewayTypes } from "./gateways/types";
-import { GatewayProviderCodes } from "@upmind-automation/types";
-import type { PaymentDetailsContext } from "./types";
+import {
+  GatewayContext,
+  GatewayCtx,
+  GatewayTypesExtended
+} from "./gateways/types";
+import {
+  GatewayProviderCodes,
+  IGateway,
+  GatewayTypes
+} from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -23,11 +31,11 @@ export function spawnGateway({
   currency,
   storedPaymentMethods,
   address
-}: any) {
+}: Partial<GatewayContext>) {
   // lets spawn and return the appropriate machine based on the gateway
   // the order her eis important and matches the original order in the legacy app
   if (!amount || !gateway) {
-    return spawnGenericGateway(GatewayTypes.FREE, {
+    return spawnGenericGateway(GatewayTypesExtended.FREE, {
       orderId,
       gateway,
       amount,
@@ -35,6 +43,7 @@ export function spawnGateway({
       renderless: true
     });
   }
+
   if (isStored(gateway)) {
     return spawnStored({
       orderId,
@@ -43,8 +52,10 @@ export function spawnGateway({
       storedPaymentMethods
     });
   }
+
   if (isStripe(gateway))
-    return spawnStripe({ orderId, gateway, amount, currency, address } as any);
+    return spawnStripe({ orderId, gateway, amount, currency, address });
+
   if (isBankTransfer(gateway))
     return spawnGenericGateway(GatewayTypes.BANK_TRANSFER, {
       orderId,
@@ -53,6 +64,25 @@ export function spawnGateway({
       currency,
       renderless: true
     });
+
+  if (isBraintree(gateway))
+    return spawnBraintree({
+      orderId,
+      gateway,
+      amount,
+      currency,
+      address
+    });
+
+  if (isBankTransfer(gateway))
+    return spawnGenericGateway(GatewayTypes.BANK_TRANSFER, {
+      orderId,
+      gateway,
+      amount,
+      currency,
+      renderless: true
+    });
+
   if (isDirectDebit(gateway))
     return spawnGenericGateway(GatewayTypes.DIRECT_DEBIT, {
       orderId,
@@ -61,6 +91,7 @@ export function spawnGateway({
       currency,
       renderless: true
     });
+
   if (isSEPA(gateway))
     return spawnGenericGateway(GatewayTypes.SEPA, {
       orderId,
@@ -70,6 +101,7 @@ export function spawnGateway({
       renderless: true,
       address
     });
+
   if (isMobile(gateway))
     return spawnGenericGateway(GatewayTypes.MOBILE, {
       orderId,
@@ -79,6 +111,7 @@ export function spawnGateway({
       renderless: true,
       address
     });
+
   if (isOffline(gateway))
     return spawnGenericGateway(GatewayTypes.OFFLINE, {
       orderId,
@@ -87,6 +120,7 @@ export function spawnGateway({
       currency,
       renderless: true
     });
+
   if (isExternalCard(gateway))
     return spawnExternal({
       orderId,
@@ -94,6 +128,7 @@ export function spawnGateway({
       amount,
       currency
     });
+
   if (isCard(gateway)) return spawnCard({ orderId, gateway, amount, currency });
 
   return null;
@@ -104,22 +139,27 @@ export function spawnStored({
   amount,
   currency,
   storedPaymentMethods
-}: any) {
+}: Partial<GatewayContext>) {
   return spawn(
-    gatewayMachine.withConfig(storedConfig as any).withContext({
+    gatewayMachine.withConfig(storedConfig).withContext({
       storedPaymentMethods,
       orderId,
       amount,
       currency,
-      type: GatewayTypes.STORED
+      type: GatewayTypesExtended.STORED
     }),
     { name: "stored", sync: true }
   );
 }
 
-export function spawnCard({ orderId, gateway, amount, currency }: any) {
+export function spawnCard({
+  orderId,
+  gateway,
+  amount,
+  currency
+}: Partial<GatewayContext>) {
   return spawn(
-    gatewayMachine.withConfig(cardConfig as any).withContext({
+    gatewayMachine.withConfig(cardConfig).withContext({
       orderId,
       gateway,
       amount,
@@ -137,7 +177,7 @@ export function spawnStripe({
   amount,
   currency,
   address
-}: PaymentDetailsContext) {
+}: Partial<GatewayContext>) {
   return spawn(
     stripeMachine.withContext({
       orderId,
@@ -148,14 +188,42 @@ export function spawnStripe({
       type: GatewayTypes.CARD,
       code: gateway?.gateway_provider?.code,
       address
-    } as any),
+    }),
+    { name: gateway?.id, sync: true }
+  );
+}
+
+export function spawnBraintree({
+  orderId,
+  gateway,
+  amount,
+  currency,
+  address
+}: Partial<GatewayContext>) {
+  return spawn(
+    braintreeMachine.withContext({
+      orderId,
+      gateway,
+      ctx: GatewayCtx.PAY,
+      amount,
+      currency,
+      type: GatewayTypes.CARD,
+      code: gateway?.gateway_provider?.code,
+      address
+    }),
     { name: gateway?.id, sync: true }
   );
 }
 
 export function spawnGenericGateway(
   type: any,
-  { orderId, gateway, amount, currency, renderless = false }: any
+  {
+    orderId,
+    gateway,
+    amount,
+    currency,
+    renderless = false
+  }: Partial<GatewayContext>
 ) {
   return spawn(
     gatewayMachine.withContext({
@@ -171,7 +239,12 @@ export function spawnGenericGateway(
   );
 }
 
-export function spawnExternal({ orderId, gateway, amount, currency }: any) {
+export function spawnExternal({
+  orderId,
+  gateway,
+  amount,
+  currency
+}: Partial<GatewayContext>) {
   return spawn(
     gatewayMachine.withContext({
       orderId,
@@ -188,29 +261,33 @@ export function spawnExternal({ orderId, gateway, amount, currency }: any) {
 
 // -----------------------------------------------------------------------------
 
-const isStored = (gateway: any) => gateway.type === GatewayTypes.STORED;
+const isStored = (gateway: IGateway) =>
+  gateway.type === (GatewayTypesExtended.STORED as any);
 
-const isCard = (gateway: any) => gateway.type === GatewayTypes.CARD;
+const isCard = (gateway: IGateway) => gateway.type === GatewayTypes.CARD;
 
-const isStripe = (gateway: any) =>
+const isStripe = (gateway: IGateway) =>
   gateway?.gateway_provider?.code === GatewayProviderCodes.STRIPE &&
   !!gateway?.use_frontend_implementation;
 
-const isBankTransfer = (gateway: any) =>
+const isBraintree = (gateway: IGateway) =>
+  gateway?.gateway_provider?.code === GatewayProviderCodes.BRAINTREE;
+
+const isBankTransfer = (gateway: IGateway) =>
   gateway.type === GatewayTypes.BANK_TRANSFER;
 
-const isDirectDebit = (gateway: any) =>
+const isDirectDebit = (gateway: IGateway) =>
   gateway.type === GatewayTypes.DIRECT_DEBIT;
 
-const isSEPA = (gateway: any) => gateway.type === GatewayTypes.SEPA;
+const isSEPA = (gateway: IGateway) => gateway.type === GatewayTypes.SEPA;
 
-const isMobile = (gateway: any) => gateway.type === GatewayTypes.MOBILE;
+const isMobile = (gateway: IGateway) => gateway.type === GatewayTypes.MOBILE;
 
-const isOffline = (gateway: any) => gateway.type === GatewayTypes.OFFLINE;
+const isOffline = (gateway: IGateway) => gateway.type === GatewayTypes.OFFLINE;
 
-const isExternalCard = (gateway: any) =>
+const isExternalCard = (gateway: IGateway) =>
   gateway.type === GatewayTypes.CARD &&
   gateway?.gateway_provider.external_payment;
 
-const isExternalStore = (gateway: any) =>
+const isExternalStore = (gateway: IGateway) =>
   gateway.gateway_provider.external_store;

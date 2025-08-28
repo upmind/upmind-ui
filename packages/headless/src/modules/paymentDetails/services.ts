@@ -259,10 +259,19 @@ async function validate(
     if (!actor) return Promise.resolve();
     return waitFor(
       actor,
-      state => !["loading", "checking"].some(state.matches),
+      state =>
+        !["loading", "available.checking", "available.rendering"].some(
+          state.matches
+        ),
       { timeout: 60_000 }
     ).then(state => {
-      if (stateMatches(state, ["error", "invalid"]))
+      if (
+        stateMatches(state, [
+          "unavailable",
+          "available.error",
+          "available.invalid"
+        ])
+      )
         errors.push({
           instancePath: actor.id,
           schemaPath: `actors/${actor.id}`,
