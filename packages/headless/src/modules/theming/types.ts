@@ -48,6 +48,8 @@ export interface ThemeTokens {
     primary?: string;
     primaryForeground?: string;
     primaryBackground?: string;
+    primaryGradientStart?: string;
+    primaryGradientEnd?: string;
     primaryMuted?: string;
     primaryMutedForeground?: string;
     primaryMutedActive?: string;
@@ -55,6 +57,8 @@ export interface ThemeTokens {
     secondary?: string;
     secondaryForeground?: string;
     secondaryBackground?: string;
+    secondaryGradientStart?: string;
+    secondaryGradientEnd?: string;
     secondaryMuted?: string;
     secondaryMutedForeground?: string;
     secondaryMutedActive?: string;
