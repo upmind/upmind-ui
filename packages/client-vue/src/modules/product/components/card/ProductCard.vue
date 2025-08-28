@@ -66,7 +66,7 @@
                 : undefined
             "
             icon="basket-add"
-            color="primary"
+            :color="color"
             :loading="processing"
             size="lg"
             block
@@ -114,7 +114,8 @@ const { t } = useI18n();
 
 const props = withDefaults(defineProps<ProductCardProps>(), {
   variant: "default",
-  navigate: true
+  navigate: true,
+  color: "primary"
 });
 
 const productMeta = computed(() => props.productDetails.uiMeta?.product);
