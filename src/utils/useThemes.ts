@@ -7,6 +7,7 @@ import {
   find,
   first,
   isArray,
+  isEmpty,
   lowerCase,
   reduce,
   set
@@ -73,7 +74,7 @@ export const useThemes = (value?: Theme | Theme[], defaultTheme?: string) => {
   setTheme(defaultTheme);
 
   function setTheme(theme: string) {
-    if (theme == activeTheme.value) return;
+    if (theme == activeTheme.value && !isEmpty(config.value)) return;
 
     activeTheme.value = theme || activeTheme.value || defaultTheme || "default";
     if (themes.value) {

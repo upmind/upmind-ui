@@ -76,9 +76,13 @@ export function useStyles(
     // ensure component is an array so we can loop over it and handle multiple components
     components = isArray(components) ? components : [components];
     configs = flattenDeep(configs); // in case were passed nested arrays
+
     // Add any provided config overrides
-    const globalConfig = unref(theme?.config);
-    if (!isEmpty(globalConfig)) configs.push(globalConfig);
+    const globalConfig = theme?.config.value;
+
+    if (!isEmpty(globalConfig)) {
+      configs.push(globalConfig);
+    }
 
     // deep clean the context object to remove any refs and falsy values
     const cleanContext = omitBy(
