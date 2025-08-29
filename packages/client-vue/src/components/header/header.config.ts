@@ -4,7 +4,7 @@ import { cva } from "class-variance-authority";
 export default {
   header: {
     root: cva(
-      "bg-base-background text-base-foreground shadow-border-b top-0 z-20 flex w-full flex-col items-center px-2.5 py-7 transition-all duration-500"
+      "bg-base-background text-base-foreground shadow-border-b top-0 z-20 flex w-full flex-col items-center px-6 py-7 transition-all duration-500 md:px-2.5"
     ),
     container: cva("mx-auto flex w-full items-center justify-between", {
       variants: {
