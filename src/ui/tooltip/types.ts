@@ -18,6 +18,7 @@ export interface TooltipProps
     TooltipProviderProps,
     TooltipTriggerProps {
   label?: string;
+  to?: string;
   // ---
   color?: TooltipVariantProps["color"] | string;
   // ---
