@@ -3,7 +3,6 @@
     <ContentSection v-auto-animate class="flex grow items-center">
       <Interstitial
         v-bind="props"
-        to="#vue-app"
         :animatedIcon="animatedIcon"
         :actions="actions"
         :title="t(`${safeKey}.title`)"
@@ -54,6 +53,7 @@ const props = withDefaults(
     open: true,
     modal: true,
     skrim: "light",
+    to: "#vue-app",
     animatedIcon: () => ({
       icon: "error",
       trigger: "loop",
