@@ -2,7 +2,6 @@
   <Layout>
     <ContentSection v-auto-animate class="flex grow items-center">
       <Interstitial
-        to="#vue-app"
         v-bind="props"
         :title="t('basket.empty.title')"
         :text="t('basket.empty.text')"
@@ -67,6 +66,7 @@ const { storefrontUrl } = useBrand();
 const props = withDefaults(defineProps<InterstitialProps>(), {
   open: true,
   modal: true,
+  to: "#vue-app",
   skrim: "light"
 });
 
