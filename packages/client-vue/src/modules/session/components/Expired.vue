@@ -9,7 +9,6 @@
     :skrim="skrim"
     :title="title"
     fit="cover"
-    :to="modal ? 'main' : ''"
     no-close
     no-header
     :dismissable="false"
