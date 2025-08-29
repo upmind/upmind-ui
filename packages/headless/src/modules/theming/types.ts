@@ -17,6 +17,12 @@ export interface ThemeTokens {
     body?: string;
     display?: string;
   };
+  maxWidth: {
+    app: {
+      default: string;
+      lg: string;
+    };
+  };
   radius?: {
     none?: string;
     sm?: string;
