@@ -2,7 +2,6 @@
   <Layout>
     <ContentSection v-auto-animate class="flex grow items-center">
       <Interstitial
-        to="#vue-app"
         v-bind="props"
         :title="t('session.end.title')"
         :text="t('session.end.text')"
@@ -59,9 +58,10 @@ await isResolved(ROUTE.SESSION_END).catch(() => {
 });
 
 const props = withDefaults(defineProps<InterstitialProps>(), {
-  open: true,
   modal: true,
   skrim: "light",
+  open: true,
+  to: "#vue-app",
 
   animatedIcon: () => ({
     icon: "keys",
