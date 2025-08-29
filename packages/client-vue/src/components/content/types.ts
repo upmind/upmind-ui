@@ -44,6 +44,7 @@ export interface InterstitialExtendedProps extends InterstitialProps {
   i18nTitle?: I18nText;
 }
 export interface SectionProps {
+  variant?: LayoutProps["variant"];
   title?: string;
   as?: string;
   class?: HTMLAttributes["class"];
