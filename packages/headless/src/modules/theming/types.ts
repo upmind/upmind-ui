@@ -20,6 +20,7 @@ export interface ThemeTokens {
   radius?: {
     none?: string;
     sm?: string;
+    default?: string;
     lg?: string;
     xl?: string;
     "2xl"?: string;
