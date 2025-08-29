@@ -20,7 +20,8 @@
           :ui-config="{
             button: {
               root: [styles.buttonGroup.button],
-              label: []
+              label: [],
+              items: []
             }
           }"
         />
