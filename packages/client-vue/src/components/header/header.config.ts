@@ -24,7 +24,8 @@ export default {
     name: cva("text-2xl"),
     avatar: {
       login: cva("bg-primary-background text-foreground"),
-      session: cva("bg-primary-background text-primary-foreground")
+      session: cva("bg-primary-background text-primary-foreground"),
+      basket: cva("")
     }
   }
 };
