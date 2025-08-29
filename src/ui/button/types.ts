@@ -43,7 +43,9 @@ export interface ButtonProps {
   color?: ButtonVariantProps["color"] | string;
   size?: ButtonVariantProps["size"] | string;
   // ---
-  uiConfig?: { button: { root: CxOptions; label: CxOptions } };
+  uiConfig?: {
+    button: { root: CxOptions; label: CxOptions; items: CxOptions };
+  };
   class?: HTMLAttributes["class"];
   contentClass?: HTMLAttributes["class"];
 }
