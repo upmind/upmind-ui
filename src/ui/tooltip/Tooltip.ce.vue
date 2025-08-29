@@ -53,7 +53,8 @@ const props = withDefaults(defineProps<TooltipProps>(), {
   // --- styles
   color: "base",
   // --- styles
-  class: ""
+  class: "",
+  to: "body"
 });
 
 const emits = defineEmits<TooltipContentEmits & TooltipRootEmits>();

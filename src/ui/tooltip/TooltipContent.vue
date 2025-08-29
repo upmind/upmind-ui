@@ -14,9 +14,12 @@ defineOptions({
 });
 
 const props = withDefaults(
-  defineProps<TooltipContentProps & { class?: HTMLAttributes["class"] }>(),
+  defineProps<
+    TooltipContentProps & { class?: HTMLAttributes["class"]; to?: string }
+  >(),
   {
-    sideOffset: 4
+    sideOffset: 4,
+    to: "body"
   }
 );
 
@@ -32,7 +35,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
 </script>
 
 <template>
-  <TooltipPortal>
+  <TooltipPortal :to="to">
     <TooltipContent
       v-bind="{ ...forwarded, ...$attrs }"
       :class="
