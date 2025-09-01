@@ -12,7 +12,7 @@
               item.current ||
               index === props.items.length - 1
             "
-            as="span"
+            is="span"
             class="cursor-default no-underline hover:opacity-100!"
             :size="props.size"
             :focusable="false"
@@ -20,13 +20,7 @@
           >
             {{ item.label }}
           </Link>
-          <Link
-            v-else
-            :is="RouterLink"
-            :to="item.to"
-            :href="item.href"
-            :size="props.size"
-          >
+          <Link v-else :to="item.to" :href="item.href" :size="props.size">
             {{ item.label }}
           </Link>
         </BreadcrumbItem>
