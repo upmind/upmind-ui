@@ -282,7 +282,11 @@ export default createMachine(
       setError: assign({
         error: (_context: PromotionsContext, { data }: AnyEventObject) => {
           let error = mapToHeadlessError(data);
-          if (error?.status == responseCodes.Unprocessable_Entity) {
+
+          if (
+            error?.status == responseCodes.Unprocessable_Entity ||
+            error?.status == responseCodes.Conflict
+          ) {
             if (isEmpty(error?.data)) {
               // ensure we have a valid error object
               error.data = parseError(error?.message, "promocode");
