@@ -39,6 +39,7 @@
     "ajv": "^8.17.1",
     "ajv-errors": "^3.0.0",
     "ajv-formats": "^3.0.1",
+    "braintree-web-drop-in": "^1.45.1",
     "class-variance-authority": "^0.7.1",
     "dayjs": "^1.11.13",
     "libphonenumber-js": "^1.12.10",
