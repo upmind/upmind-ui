@@ -150,7 +150,6 @@ async function add(type: UnifiedType, data: UnifiedModel) {
   const { ensure: ensureAddress } = useClientAddressServices();
   const { ensure: ensurePhone } = useClientPhoneServices();
   const { ensure: ensureCompany } = useClientCompanyServices();
-
   const promises: Promise<any>[] = [];
 
   promises.push(
@@ -179,8 +178,8 @@ async function add(type: UnifiedType, data: UnifiedModel) {
 
   return Promise.all(promises).then(([phone, address, company]) => {
     return {
-      phone: phone?.phone ?? company.phone, // NB the returned Phone object has a phone property
-      address: address,
+      phone: phone?.phone ?? company?.phone, // NB the returned Phone object has a phone property
+      address,
       company
     };
   });

@@ -1,5 +1,5 @@
 <template>
-  <Layout overflow="hidden" v-auto-animate>
+  <Layout overflow="hidden">
     <div class="flex flex-col items-center justify-center gap-1 p-2">
       <SmartTitle
         i18n-key="recommendations.header.title"
