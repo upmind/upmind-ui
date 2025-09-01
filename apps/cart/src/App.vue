@@ -1,5 +1,5 @@
 <template>
-  <Suspense> <Upm /> </Suspense>
+  <Upm />
 </template>
 
 <script lang="ts" setup>
