@@ -3,6 +3,7 @@
     <ContentSection v-auto-animate class="flex grow items-center">
       <Interstitial
         v-bind="props"
+        to="#vue-app"
         :modal="meta.useModal"
         :text="t('basket.empty.text')"
         :actions="[

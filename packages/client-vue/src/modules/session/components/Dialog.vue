@@ -1,5 +1,5 @@
 <template>
-  <Dialog classContent="pt-12 sm:max-w-[540px]">
+  <Dialog to="#vue-app" classContent="pt-12 sm:max-w-[540px]">
     <template name="trigger"><slot></slot></template>
     <Auth no-header block-tabs stretch-tabs model-value="login" />
   </Dialog>

@@ -1,7 +1,9 @@
 <template>
   <div :class="styles.section.root">
     <header v-if="title || slots.action" :class="styles.section.header">
-      <h4 :class="styles.section.title">{{ title }}</h4>
+      <slot name="title">
+        <h4 :class="styles.section.title">{{ title }}</h4>
+      </slot>
 
       <slot name="action" />
     </header>
@@ -42,7 +44,7 @@ const slots = useSlots();
 
 const meta = computed(() => {
   return {
-    variant: uiCart.value?.layout
+    variant: props.variant ?? uiCart.value?.layout
   };
 });
 

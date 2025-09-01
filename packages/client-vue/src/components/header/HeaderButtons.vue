@@ -8,6 +8,7 @@
         basketMeta.isAvailable &&
         currentRoute?.name !== ROUTE.BASKET
       "
+      :class="styles.header.avatar.basket"
       variant="ghost"
       size="lg"
       @click="navigate(ROUTE.BASKET)"
@@ -73,6 +74,7 @@ const styles = useStyles(["header.avatar"], {}, config) as ComputedRef<{
     avatar: {
       login: string;
       session: string;
+      basket: string;
     };
   };
 }>;

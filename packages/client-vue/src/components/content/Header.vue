@@ -1,6 +1,6 @@
 <template>
   <header class="flex flex-col gap-3">
-    <Badge v-if="badge" v-bind="badge" variant="outline" color="primary" />
+    <Badge v-if="badge" v-bind="badge" variant="outline" color="secondary" />
 
     <article :class="styles.header.root">
       <SmartTitle

@@ -33,7 +33,7 @@ export default {
   description: cva("text-emphasis-medium my-0 text-sm"),
   header: {
     root: cva("flex flex-col gap-1"),
-    title: cva("font-display text-5xl"),
+    title: cva("font-display text-4xl md:text-5xl"),
     description: cva("text-emphasis-medium text-lg")
   },
   section: {

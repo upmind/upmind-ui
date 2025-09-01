@@ -39,7 +39,7 @@
       }}
 
       <template v-if="meta.hasVatValidation && meta.hasVat">
-        <Tooltip :label="validationReason">
+        <Tooltip to="#vue-app" :label="validationReason" color="primary">
           <Icon v-if="meta.hasValidVat" icon="check-circle" size="2xs" />
           <Icon v-else icon="alert-triangle" size="2xs" />
         </Tooltip>
