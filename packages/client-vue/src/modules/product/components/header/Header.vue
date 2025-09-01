@@ -17,6 +17,7 @@
     </div>
 
     <aside
+      v-if="props.productDetails.imgUrl || !isEmpty(images)"
       :class="styles.header.aside"
       class="md:h-[var(--details-h)]"
       :style="{ '--details-h': `${height}px` }"

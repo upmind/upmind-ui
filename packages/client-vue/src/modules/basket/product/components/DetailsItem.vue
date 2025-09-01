@@ -16,8 +16,10 @@
         </span>
         <span v-else-if="props.meta?.overrides">
           <Tooltip
+            to="#vue-app"
             :label="t('product.overridden')"
             class="max-w-64 text-center"
+            color="primary"
           >
             <Icon size="3xs" icon="random" class="mr-0.5" />
           </Tooltip>

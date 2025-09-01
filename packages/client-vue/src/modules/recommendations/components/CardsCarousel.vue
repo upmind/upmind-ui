@@ -31,6 +31,7 @@
           v-bind="recommendation"
           :preserve-promotion="preservePromotions"
           :navigate="false"
+          color="secondary"
           @resolve="doResolve"
         />
       </CarouselItem>

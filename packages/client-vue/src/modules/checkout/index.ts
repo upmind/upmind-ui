@@ -5,6 +5,8 @@
 // to avoid circular dependencies. and to be able to lazy load them.
 
 export const UpmCheckoutView = import("./Checkout.vue");
+export { default as UpmPaymentDetails } from "./components/PaymentDetails.vue";
+export { default as UpmPaymentProcessing } from "./components/PaymentProcessing.vue";
 
 // --- Export Components
 

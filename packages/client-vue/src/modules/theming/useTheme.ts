@@ -73,12 +73,12 @@ export const useTheme = (initial?: string) => {
     if (!theme.value) return;
 
     // Apply the theme to the document and UI lib
-    setUiTheme(theme.value.id);
-    setDocumentTitle(name.value);
     setFontFamily({
       ...(theme.value?.tokens?.fonts ?? {}),
       display: styles.value?.brand_font?.family
     });
+    setUiTheme(theme.value.id);
+    setDocumentTitle(name.value);
     setDocumentFavicon(favicon.value ?? undefined);
   };
 

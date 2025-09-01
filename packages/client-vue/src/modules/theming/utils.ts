@@ -157,27 +157,38 @@ export function setDocumentFavicon(brandFavicon?: IImage | null) {
 }
 
 export function setFontFamily(fonts?: ThemeTokens["fonts"]) {
-  const families = uniq(compact([fonts?.sans, fonts?.body, fonts?.display]));
-
   //
   const stylesheet = ensureStylesheet("upmind-design-tokens");
+  loadFont(fonts)
+    .then(() => {
+      const cssVars: Record<string, string> = {};
 
-  if (!isEmpty(families)) {
+      forEach(fonts, (family, key) => {
+        if (!family) return;
+        cssVars[`--font-${key}`] =
+          `"${family}", ui-sans-serif, system-ui, sans-serif`;
+      });
+
+      setCssRules(stylesheet, ":root", cssVars);
+    })
+    .catch(() => {
+      console.warn("Failed to load fonts", fonts);
+    });
+}
+
+export async function loadFont(fonts?: ThemeTokens["fonts"]): Promise<void> {
+  const families = uniq(compact([fonts?.sans, fonts?.body, fonts?.display]));
+
+  return new Promise<void>((resolve, reject) => {
+    if (isEmpty(families)) return reject();
+
     const familiesWithWeights = families.map(family => `${family}:400,500,600`);
 
     WebFontLoader.load({
       google: { families: familiesWithWeights },
       active: () => {
-        const cssVars: Record<string, string> = {};
-
-        forEach(fonts, (family, key) => {
-          if (!family) return;
-          cssVars[`--font-${key}`] =
-            `"${family}", ui-sans-serif, system-ui, sans-serif`;
-        });
-
-        setCssRules(stylesheet, ":root", cssVars);
+        return resolve();
       }
     });
-  }
+  });
 }

@@ -44,7 +44,7 @@ import config from "./summary.config";
 import { Skeleton, DescriptionList } from "@upmind-automation/upmind-ui";
 
 // --- utils
-import { omitBy, map } from "lodash-es";
+import { omitBy, map, find } from "lodash-es";
 
 // --- types
 import type { SummaryPricingProps } from "./types";
@@ -84,12 +84,23 @@ const styles = useStyles(
 
 const summary = computed<DescriptionItem[]>(() => {
   const details = omitBy(props.details, (detail: ProductSummaryDetail) =>
-    ["term", "category", "provision_field.sld"].includes(detail.name)
+    ["category", "provision_field.sld", "term"].includes(detail.name)
   ) as (ProductSummaryDetail | ProductSummaryDetailWithPrice)[];
 
-  return map(details, detail => ({
+  const summary = map(details, detail => ({
     term: detail.category,
     description: detail.title || "-"
   })) as DescriptionItem[];
+
+  const term = find(props.details, d => d.name === "term");
+
+  if (term && term.category) {
+    summary.push({
+      term: term.category,
+      description: t(`product.terms.cycle.${term.cycle}`)
+    });
+  }
+
+  return summary;
 });
 </script>

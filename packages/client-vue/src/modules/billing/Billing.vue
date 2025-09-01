@@ -2,7 +2,7 @@
   <Loading :active="meta.isProcessing" class-active="w-full rounded">
     <Tabs
       :as="props.as"
-      class="min-h-56"
+      class="min-h-52"
       v-model="activeTab"
       :tabs="tabs"
       data-testid="billing"

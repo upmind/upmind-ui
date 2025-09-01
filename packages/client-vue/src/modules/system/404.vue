@@ -66,6 +66,7 @@ const { storefrontUrl } = useBrand();
 const props = withDefaults(defineProps<InterstitialProps>(), {
   open: true,
   modal: true,
+  to: "#vue-app",
   skrim: "light"
 });
 

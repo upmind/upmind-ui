@@ -9,7 +9,7 @@ import type {
 } from "@upmind-automation/headless";
 import type { VariantProps } from "class-variance-authority";
 import { rootVariant } from "./product.config";
-import type { RouteLocationRaw } from "vue-router";
+import type { ButtonProps } from "@upmind-automation/upmind-ui";
 
 export type RootVariants = VariantProps<typeof rootVariant>;
 
@@ -25,6 +25,7 @@ export interface ProductCardProps
   hideAnnualTerm?: boolean;
   preservePromotion?: boolean;
   navigate?: boolean;
+  color?: ButtonProps["color"];
 }
 
 export interface ProductInfo {

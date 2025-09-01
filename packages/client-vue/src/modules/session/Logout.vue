@@ -58,9 +58,10 @@ await isResolved(ROUTE.SESSION_END).catch(() => {
 });
 
 const props = withDefaults(defineProps<InterstitialProps>(), {
-  open: true,
   modal: true,
   skrim: "light",
+  open: true,
+  to: "#vue-app",
 
   animatedIcon: () => ({
     icon: "keys",

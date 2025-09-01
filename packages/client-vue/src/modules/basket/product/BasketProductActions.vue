@@ -13,8 +13,10 @@
     <div class="text-foreground flex items-end space-x-2">
       <Tooltip
         v-for="action in actions"
+        to="#vue-app"
         :key="action.icon"
         :label="action.tooltip"
+        color="primary"
       >
         <Button
           :color="action.color"

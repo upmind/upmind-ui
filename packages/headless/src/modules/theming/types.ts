@@ -17,6 +17,25 @@ export interface ThemeTokens {
     body?: string;
     display?: string;
   };
+  maxWidth?: {
+    app?: {
+      default?: string;
+      lg?: string;
+    };
+  };
+  radius?: {
+    none?: string;
+    sm?: string;
+    default?: string;
+    lg?: string;
+    xl?: string;
+    "2xl"?: string;
+    "3xl"?: string;
+    full?: string;
+    pill?: string;
+    button?: string;
+    box?: string;
+  };
   border?: {
     colorDefault?: string;
     colorInput?: string;

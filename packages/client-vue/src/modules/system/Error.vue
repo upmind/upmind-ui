@@ -53,6 +53,7 @@ const props = withDefaults(
     open: true,
     modal: true,
     skrim: "light",
+    to: "#vue-app",
     animatedIcon: () => ({
       icon: "error",
       trigger: "loop",

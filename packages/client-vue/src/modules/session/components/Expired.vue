@@ -1,6 +1,7 @@
 <template>
   <component
     v-if="(modal && isOpen) || !modal"
+    to="#vue-app"
     :is="modal ? Dialog : 'div'"
     :description="text"
     :open="isOpen"
@@ -8,7 +9,6 @@
     :skrim="skrim"
     :title="title"
     fit="cover"
-    :to="modal ? 'main' : ''"
     no-close
     no-header
     :dismissable="false"

@@ -31,6 +31,7 @@
     <template v-if="meta.isLoading">
       <Interstitial
         v-bind="props"
+        to="#vue-app"
         :text="t('domain.dac.loading.text')"
         :modal="false"
         open
@@ -52,6 +53,7 @@
 
     <Interstitial
       v-bind="props"
+      to="#vue-app"
       :text="t('domain.dac.empty.text')"
       :modal="false"
       open
