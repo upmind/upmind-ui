@@ -1,9 +1,9 @@
 // --- external
-import loadBraintree from "braintree-web-drop-in";
+import BraintreeDropin, { paypalCreateOptions } from "braintree-web-drop-in";
 
 // --- internal
 import sharedServices from "../services";
-import { useQuery, useSession } from "../../..";
+import { useLocale, useQuery, useSession } from "../../..";
 
 // --- utils
 import {
@@ -13,53 +13,127 @@ import {
   useValidation,
   NotAuthenticatedError
 } from "../../../../utils";
-import { reject, set } from "lodash-es";
-import { getSupportedPaymentMethods, getPublicKey } from "./utils";
+import { defaultsDeep, reject, set, filter, mapValues, keyBy } from "lodash-es";
 
 // --- types
 import type { BraintreeContext } from "./types";
 import type { AnyEventObject } from "xstate";
+import { json } from "stream/consumers";
 
 // -----------------------------------------------------------------------------
 
-async function load({ gateway }: BraintreeContext, _event: AnyEventObject) {
-  const options = await sharedServices.load({ gateway }, _event);
+async function load(
+  { gateway, amount, currency, orderId }: BraintreeContext,
+  _event: AnyEventObject
+) {
+  const { get: getRequest, useUrl } = useQuery();
 
-  const key = getPublicKey(gateway);
-  if (!key)
-    return Promise.reject(
-      new DetailedError(
-        "Braintree public key not found.",
-        responseCodes.Not_Found,
-        ErrorOrigin.Headless
-      )
-    );
+  const authorization = await getRequest<{
+    cancel_url: string;
+    gateway_specific: {
+      clientToken: string;
+    };
+    notify_url: string;
+    return_url: string;
+  }>({
+    url: useUrl(`gateway/frontend/${gateway?.id}`, {
+      amount: amount ?? 0,
+      currency: currency?.code ?? ""
+    }),
+    queryKey: ["gateway", "frontend", gateway?.id],
+    staleTime: "static",
+    withAccessToken: true,
+    withCurrency: true
+  }).then(response => response.gateway_specific.clientToken);
 
-  const braintree = await loadBraintree(key);
+  debugger;
+  const settings = mapValues(
+    keyBy(filter(gateway?.gateway_settings || [], ["private", false]), "field"),
+    ({ value }) => {
+      try {
+        return JSON.parse(value);
+      } catch {
+        return value;
+      }
+    }
+  );
+
+  debugger;
+  const options: Partial<BraintreeContext> =
+    (await sharedServices.load(
+      { gateway, amount, currency, orderId },
+      _event
+    )) ?? {};
 
   return new Promise(resolve => {
-    if (!braintree) {
+    if (!authorization) {
       reject(
         new DetailedError(
-          "Braintree not found.",
+          "Braintree Client Token not found.",
           responseCodes.Not_Found,
           ErrorOrigin.Headless
         )
       );
     } else {
-      resolve({ braintree, ...(options || {}) });
+      debugger;
+      resolve({ authorization, ...options, ...settings });
     }
   });
 }
 
+async function render(
+  { authorization, paymentUses3DS, paymentMethodPayPal }: BraintreeContext,
+  { data }: AnyEventObject
+) {
+  debugger;
+  const container = data?.container as HTMLElement;
+  debugger;
+
+  const paypal: paypalCreateOptions = defaultsDeep(data?.paypal ?? {}, {
+    flow: "vault",
+    buttonStyle: {
+      color: "gold",
+      shape: "rect",
+      size: "medium"
+    }
+  });
+  debugger;
+
+  if (!authorization || !container) {
+    return Promise.reject(
+      new DetailedError(
+        "Braintree cannot render",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless,
+        {
+          authorization,
+          container
+        }
+      )
+    );
+  }
+
+  const { locale } = useLocale();
+
+  debugger;
+
+  return BraintreeDropin.create({
+    authorization,
+    container,
+    locale: locale.value,
+    ...(paymentUses3DS ? { threeDSecure: true } : {}),
+    ...(paymentMethodPayPal ? { paypal } : {})
+  });
+}
+
 async function validate(
-  { schema, model, element, elementStatus }: BraintreeContext,
+  { schema, model, braintree, status }: BraintreeContext,
   { data }: AnyEventObject
 ) {
   // ---
 
   // Get any errors from the Braintree Element
-  if (!element)
+  if (!braintree)
     return Promise.reject(
       new DetailedError(
         "Braintree element not found.",
@@ -77,7 +151,7 @@ async function validate(
     const errors = validate(schema, model) || [];
 
     // NB: we are invalid if the braintree element status is NOT complete!
-    if (!elementStatus?.complete) {
+    if (!status?.complete) {
       errors.push({
         instancePath: "/payment_method_addition",
         schemaPath: "#/properties/payment_method_addition",
@@ -115,7 +189,7 @@ async function createPaymentElement(
     locale: "auto", // TODO: add i18n local
     mode: "payment",
     paymentMethodCreation: "manual",
-    paymentMethodTypes: getSupportedPaymentMethods(gateway),
+    // paymentMethodTypes: getSupportedPaymentMethods(gateway),
     setupFutureUsage: "off_session"
   });
   const element = elements?.create("payment", {
@@ -286,6 +360,7 @@ async function endSetup() {
 
 export default {
   load,
+  render,
   parse: sharedServices.parse,
   validate,
   // ---

@@ -31,7 +31,7 @@ import {
 } from "../../utils";
 
 // --- types
-import { GatewayTypes } from "./gateways/types";
+import { GatewayTypesExtended } from "./gateways/types";
 import type { AnyEventObject } from "xstate";
 import type { PaymentDetail, PaymentDetailsContext } from "./types";
 import {
@@ -181,7 +181,7 @@ async function loadLookups(
           gateway: {
             id: "stored",
             name: "Pay with an existing method",
-            type: GatewayTypes.STORED
+            type: GatewayTypesExtended.STORED
           }
         });
       }

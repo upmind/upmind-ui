@@ -21,6 +21,7 @@ import {
   IGateway,
   GatewayTypes
 } from "@upmind-automation/types";
+import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 
 // -----------------------------------------------------------------------------
 
@@ -140,6 +141,14 @@ export function spawnStored({
   currency,
   storedPaymentMethods
 }: Partial<GatewayContext>) {
+  if (!orderId || !currency || !amount) {
+    throw new DetailedError(
+      "orderId, amount, and currency are required",
+      responseCodes.Bad_Request,
+      ErrorOrigin.Headless
+    );
+  }
+
   return spawn(
     gatewayMachine.withConfig(storedConfig).withContext({
       storedPaymentMethods,
@@ -158,6 +167,13 @@ export function spawnCard({
   amount,
   currency
 }: Partial<GatewayContext>) {
+  if (!orderId || !currency || !amount) {
+    throw new DetailedError(
+      "orderId, amount, and currency are required",
+      responseCodes.Bad_Request,
+      ErrorOrigin.Headless
+    );
+  }
   return spawn(
     gatewayMachine.withConfig(cardConfig).withContext({
       orderId,
@@ -178,6 +194,13 @@ export function spawnStripe({
   currency,
   address
 }: Partial<GatewayContext>) {
+  if (!orderId || !currency || !amount) {
+    throw new DetailedError(
+      "orderId, amount, and currency are required",
+      responseCodes.Bad_Request,
+      ErrorOrigin.Headless
+    );
+  }
   return spawn(
     stripeMachine.withContext({
       orderId,
@@ -200,6 +223,13 @@ export function spawnBraintree({
   currency,
   address
 }: Partial<GatewayContext>) {
+  if (!orderId || !currency || !amount) {
+    throw new DetailedError(
+      "orderId, amount, and currency are required",
+      responseCodes.Bad_Request,
+      ErrorOrigin.Headless
+    );
+  }
   return spawn(
     braintreeMachine.withContext({
       orderId,
@@ -225,6 +255,13 @@ export function spawnGenericGateway(
     renderless = false
   }: Partial<GatewayContext>
 ) {
+  if (!orderId || !currency || !amount) {
+    throw new DetailedError(
+      "orderId, amount, and currency are required",
+      responseCodes.Bad_Request,
+      ErrorOrigin.Headless
+    );
+  }
   return spawn(
     gatewayMachine.withContext({
       orderId,
@@ -245,6 +282,13 @@ export function spawnExternal({
   amount,
   currency
 }: Partial<GatewayContext>) {
+  if (!orderId || !currency || !amount) {
+    throw new DetailedError(
+      "orderId, amount, and currency are required",
+      responseCodes.Bad_Request,
+      ErrorOrigin.Headless
+    );
+  }
   return spawn(
     gatewayMachine.withContext({
       orderId,

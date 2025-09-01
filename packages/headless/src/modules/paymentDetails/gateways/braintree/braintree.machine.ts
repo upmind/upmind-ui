@@ -27,62 +27,24 @@ import { responseCodes } from "../../../../utils";
 export default createMachine(
   {
     //tsTypes: {} as import("./braintree.machine.typegen").Typegen0,
-    id: "braintreePaymentManager",
+    id: "braintree",
     predictableActionArguments: true,
     initial: "loading",
     context: {} as BraintreeContext,
     states: {
       loading: {
         id: "loading",
-        initial: "braintree",
-        states: {
-          braintree: {
-            invoke: {
-              src: "load",
-              onDone: [
-                {
-                  target: "addElement",
-                  actions: ["setContext", "setSchemas"],
-                  cond: "isAdding"
-                },
-                {
-                  target: "paymentElement",
-                  actions: ["setContext", "setSchemas"]
-                  // cond: "isPaying"
-                }
-              ],
-              onError: {
-                target: "#error",
-                actions: ["setError", "setFeedbackError", "setSchemas"]
-              }
+        invoke: {
+          src: "load",
+          onDone: [
+            {
+              target: "available",
+              actions: ["setContext", "setSchemas"]
             }
-          },
-          paymentElement: {
-            invoke: {
-              src: "createPaymentElement",
-              onDone: {
-                target: "#available",
-                actions: ["setElements"]
-              },
-              onError: {
-                target: "#unavailable",
-                actions: ["setError", "setFeedbackError"]
-              }
-            }
-          },
-
-          addElement: {
-            invoke: {
-              src: "createAddElement",
-              onDone: {
-                target: "#available",
-                actions: ["setElements", "setClientDetails"]
-              },
-              onError: {
-                target: "#unavailable",
-                actions: ["setError", "setFeedbackError"]
-              }
-            }
+          ],
+          onError: {
+            target: "#error",
+            actions: ["setError", "setFeedbackError", "setSchemas"]
           }
         }
       },
@@ -91,13 +53,29 @@ export default createMachine(
 
       available: {
         id: "available",
-        initial: "rendering",
+        initial: "unrendered",
         states: {
-          rendering: {
+          unrendered: {
+            always: {
+              target: "checking",
+              cond: "hasInstance"
+            },
             on: {
               RENDER: {
+                target: "rendering"
+              }
+            }
+          },
+          rendering: {
+            invoke: {
+              src: "render",
+              onDone: {
                 target: "checking",
-                actions: ["render", "clearRenderer"]
+                actions: ["setContext"]
+              },
+              onError: {
+                target: "#unavailable",
+                actions: ["setError"]
               }
             }
           },
@@ -234,59 +212,6 @@ export default createMachine(
   },
   {
     actions: {
-      setElements: assign({
-        elements: (_context: BraintreeContext, { data }: AnyEventObject) =>
-          data?.elements,
-        element: (_context: BraintreeContext, { data }: AnyEventObject) =>
-          data?.element,
-        renderer: (_context: BraintreeContext, { data }: AnyEventObject) => {
-          function renderer(container: HTMLElement) {
-            data?.element?.mount(container);
-          }
-          return renderer;
-        },
-        validationObserver: (
-          _context: BraintreeContext,
-          { data }: AnyEventObject
-        ) => {
-          const braintreeChangeEvent = (callback: any) => {
-            data.element.on("change", (event: any) =>
-              callback({ type: "VALIDATE", data: event })
-            );
-
-            return () => {};
-          };
-
-          return spawn(braintreeChangeEvent);
-        }
-      }),
-
-      setElementStatus: assign({
-        elementStatus: (_context: BraintreeContext, { data }: AnyEventObject) =>
-          data
-      }),
-
-      render: pure(
-        ({ renderer }: BraintreeContext, { data }: AnyEventObject) => {
-          return () => {
-            if (renderer) renderer(data?.container);
-          };
-        }
-      ),
-
-      clearRenderer: assign({
-        renderer: undefined
-      }),
-
-      setClientDetails: assign({
-        clientPaymentDetailsId: (
-          _context: BraintreeContext,
-          { data }: AnyEventObject
-        ) => data?.clientPaymentDetailsId,
-        clientSecret: (_context: BraintreeContext, { data }: AnyEventObject) =>
-          data?.clientSecret
-      }),
-
       setContext: assign(
         (_context: BraintreeContext, { data }: AnyEventObject) => data
       ),
@@ -424,6 +349,13 @@ export default createMachine(
       ) => {
         // TODO: check if there is an outstanding balance
         return true;
+      },
+
+      hasInstance: (
+        { braintree }: BraintreeContext,
+        _event: AnyEventObject
+      ) => {
+        return !!braintree;
       },
 
       isAdding: ({ ctx }: BraintreeContext, _event: AnyEventObject) => {

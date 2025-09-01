@@ -27,7 +27,7 @@ import { responseCodes } from "../../../../utils";
 export default createMachine(
   {
     //tsTypes: {} as import("./stripe.machine.typegen").Typegen0,
-    id: "stripePaymentManager",
+    id: "stripe",
     predictableActionArguments: true,
     initial: "loading",
     context: {} as StripeContext,

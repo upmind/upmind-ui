@@ -22,7 +22,7 @@ import { responseCodes } from "../../utils";
 export default createMachine(
   {
     //tsTypes: {} as import("./payment.machine.typegen").Typegen0,
-    id: "paymentManager",
+    id: "",
     predictableActionArguments: true,
     initial: "loading",
     context: {} as PaymentContext,
