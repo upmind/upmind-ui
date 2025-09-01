@@ -15,7 +15,7 @@ import {
   useDataLayer,
   type GlobbedFiles
 } from "./modules";
-import { first } from "lodash-es";
+import { first, get } from "lodash-es";
 import { useRouting } from "./modules/routing/useRouting";
 import { useTheming } from "./modules/theming/useTheming";
 import { Flow, useQuery } from "./modules";
@@ -34,6 +34,7 @@ import type { IApiPop } from "./utils";
 import type { I18n } from "vue-i18n";
 import type { Router } from "vue-router";
 import type { Theme } from "./modules/theming";
+import { BrandConfigKeys } from "@upmind-automation/types";
 
 // ---
 export enum UpmindStatus {
@@ -201,9 +202,13 @@ export class Upmind {
     );
     this.analytics.gtm.dataLayer = id;
     init();
+
     this.analytics.gtm.containerId ??= await useBrand()
       .getAnalytics()
-      .then((analytics: any) => analytics?.gtm?.container_id);
+      .then((data: any) =>
+        get(data, BrandConfigKeys.ANALYTICS_GTM_CONTAINER_ID)
+      );
+
     if (this.analytics.gtm.containerId) {
       dataLayer({ gtm_start: new Date().getTime(), event: "gtm.js" }).push(
         false

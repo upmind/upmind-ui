@@ -5,8 +5,8 @@ import { Store } from "@tanstack/vue-store";
 import { localStoragePersister, useQuery } from "../..";
 
 // --- utils
-import { useTime } from "../../utils";
-import { uniq, reduce, defaultsDeep } from "lodash-es";
+import { mapBrandConfig } from "./mappers";
+import { uniq } from "lodash-es";
 
 // --- types
 import {
@@ -88,20 +88,7 @@ function fetchBrandConfig(keys: BrandConfigKeys[] = defaultBrandConfigKeys) {
       keys: brandConfigKeysStore.state.join()
     }),
     queryKey: ["brand", "config", { keys: brandConfigKeysStore.state }],
-    select: data => {
-      // create an object template with ALL the keys and set them to null
-      // this is to ensure that the config object has all the keys that were requested
-      const template = reduce(
-        keys,
-        (acc: { [key: string]: any }, key: string) => {
-          acc[key] = null;
-          return acc;
-        },
-        {}
-      );
-      // now use the template as a fallback for the data
-      return defaultsDeep(data, template);
-    },
+    select: data => mapBrandConfig(data, brandConfigKeysStore.state),
     staleTime: "static",
     persister: localStoragePersister.persisterFn
   });

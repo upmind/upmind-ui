@@ -100,10 +100,9 @@ async function check(_context: UploadContext, { data }: AnyEventObject) {
 
   const fileTypes = await ensureConfig(
     BrandConfigKeys.ALLOWED_UPLOAD_FILE_TYPES
-  ).then(response => {
+  ).then(data => {
     const types =
-      get(response, BrandConfigKeys.ALLOWED_UPLOAD_FILE_TYPES) ||
-      ImageUploadTypes;
+      get(data, BrandConfigKeys.ALLOWED_UPLOAD_FILE_TYPES) || ImageUploadTypes;
     return types;
   });
 
