@@ -14,9 +14,9 @@
             "
             is="span"
             class="cursor-default no-underline hover:opacity-100!"
+            :class="{ 'text-emphasis-high': index === props.items.length - 1 }"
             :size="props.size"
             :focusable="false"
-            :class="{ 'text-emphasis-high': index === props.items.length - 1 }"
           >
             {{ item.label }}
           </Link>
