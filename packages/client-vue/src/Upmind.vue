@@ -2,6 +2,8 @@
   <Loading
     :active="!themeMeta.hasSettings"
     class-active="h-full min-h-screen w-full text-gray-400!"
+    id="vue-app"
+    :data-theme="theme?.id"
   >
     <Suspense
       @pending="setLoading(true)"
@@ -10,8 +12,6 @@
     >
       <div
         class="bg-background text-foreground relative flex min-h-screen flex-col items-start antialiased"
-        :data-theme="theme?.id"
-        id="vue-app"
       >
         <slot name="header">
           <Header :logo="logo">
