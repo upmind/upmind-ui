@@ -25,9 +25,9 @@
           </Link>
         </BreadcrumbItem>
 
-        <BreadcrumbSeparator v-if="index < props.items.length - 1"
-          >&#47;</BreadcrumbSeparator
-        >
+        <BreadcrumbSeparator v-if="index < props.items.length - 1">{{
+          props.separator
+        }}</BreadcrumbSeparator>
       </template>
     </BreadcrumbList>
   </Breadcrumb>
@@ -55,6 +55,7 @@ import { RouterLink } from "vue-router";
 const props = withDefaults(defineProps<BreadcrumbConsolidateProps>(), {
   items: () => [],
   size: "md",
+  separator: "/",
   uiConfig: () => ({}),
   class: ""
 });

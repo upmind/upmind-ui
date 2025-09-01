@@ -18,6 +18,7 @@ export interface BreadcrumbConsolidateProps {
   items: BreadcrumbItem[];
   // --- variants
   size?: ButtonProps["size"] | string;
+  separator?: string;
   // --- styles
   uiConfig?: { breadcrumbConsolidate?: CxOptions };
   class?: HTMLAttributes["class"];
