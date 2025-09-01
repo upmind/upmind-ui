@@ -41,7 +41,7 @@
   </footer>
 
   <Alert
-    v-if="hasErrors"
+    v-if="meta.showErrors"
     :title="t('product.incomplete.title')"
     :description="t('product.incomplete.description')"
     icon="alert"
@@ -78,8 +78,6 @@ const emits = defineEmits(["resolve"]);
 
 const { t } = useI18n();
 
-const showErrors = ref(false);
-
 const { uiCart } = useBrand();
 const { product, meta, model, updateQuantity } = useProductConfig(props.item);
 
@@ -94,21 +92,8 @@ const styles = useStyles(["summary"], configMeta, config) as ComputedRef<{
   };
 }>;
 
-const hasErrors = computed(() => {
-  return meta.value.hasErrors && showErrors.value;
-});
-
-watch(hasErrors, () => {
-  if (hasErrors.value) {
-    // TODO: Auto-scroll to the first error
-  } else {
-    showErrors.value = false;
-  }
-});
-
 // ---
 const doResolve = async () => {
   emits("resolve", model.value);
-  showErrors.value = true;
 };
 </script>
