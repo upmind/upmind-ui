@@ -6,24 +6,29 @@
         :key="`breadcrumb-${index}`"
       >
         <BreadcrumbItem>
-          <Button
-            v-if="item.current || index === props.items.length - 1"
-            variant="link"
-            class="no-underline"
+          <Link
+            v-if="
+              (!item.to && !item.href) ||
+              item.current ||
+              index === props.items.length - 1
+            "
+            as="span"
+            class="cursor-default no-underline hover:opacity-100!"
             :size="props.size"
             :focusable="false"
-            :class="[
-              {
-                'text-emphasis-high cursor-default':
-                  index === props.items.length - 1
-              }
-            ]"
+            :class="{ 'text-emphasis-high': index === props.items.length - 1 }"
           >
             {{ item.label }}
-          </Button>
-          <Button v-else :to="item.to" variant="link" :size="props.size">
+          </Link>
+          <Link
+            v-else
+            :is="RouterLink"
+            :to="item.to"
+            :href="item.href"
+            :size="props.size"
+          >
             {{ item.label }}
-          </Button>
+          </Link>
         </BreadcrumbItem>
 
         <BreadcrumbSeparator v-if="index < props.items.length - 1">
@@ -47,10 +52,11 @@ import Breadcrumb from "./Breadcrumb.vue";
 import BreadcrumbList from "./BreadcrumbList.vue";
 import BreadcrumbItem from "./BreadcrumbItem.vue";
 import BreadcrumbSeparator from "./BreadcrumbSeparator.vue";
-import { Button } from "../button";
+import Link from "../button/Link.ce.vue";
 
 // --- types
 import type { BreadcrumbConsolidateProps } from "./types";
+import { RouterLink } from "vue-router";
 
 const props = withDefaults(defineProps<BreadcrumbConsolidateProps>(), {
   items: () => [],

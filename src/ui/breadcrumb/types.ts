@@ -11,6 +11,7 @@ export interface BreadcrumbItem extends RouterLinkProps {
   current?: boolean;
   value?: string | number;
   handler?: Function;
+  href?: string;
 }
 
 export interface BreadcrumbConsolidateProps {
