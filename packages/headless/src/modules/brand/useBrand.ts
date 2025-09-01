@@ -220,7 +220,7 @@ export const useBrand = () => {
       ensureConfig([
         BrandConfigKeys.ANALYTICS_GA_MEASUREMENT_ID,
         BrandConfigKeys.ANALYTICS_GTM_CONTAINER_ID
-      ]).then((data: any) => data || {})
+      ])
     );
 
   const getConfig = (
