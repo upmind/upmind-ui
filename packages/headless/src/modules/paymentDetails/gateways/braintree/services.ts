@@ -1,5 +1,5 @@
 // --- external
-import { loadBraintree } from "@braintree/braintree-js";
+import loadBraintree from "braintree-web-drop-in";
 
 // --- internal
 import sharedServices from "../services";
