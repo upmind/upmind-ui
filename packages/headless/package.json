@@ -51,6 +51,7 @@
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.2",
+    "@types/braintree-web-drop-in": "^1.39.4",
     "@types/google.maps": "^3.58.1",
     "@types/jsdom": "^21.1.7",
     "@types/lodash-es": "^4.17.12",

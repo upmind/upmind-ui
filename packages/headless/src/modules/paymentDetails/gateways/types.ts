@@ -32,10 +32,10 @@ export interface GatewayContext {
   element?: any;
   renderer?: (container: HTMLElement) => void;
   // ---
-  orderId?: IOrder["id"];
-  currency?: ICurrency;
+  currency: ICurrency;
+  amount: number;
+  orderId: IOrder["id"];
   address?: IAddress;
-  amount?: number;
   gateway?: IGateway;
   // ---
   type?: GatewayTypes | GatewayTypesExtended;

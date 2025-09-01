@@ -7,11 +7,8 @@ import type { GatewayContext } from "../types";
 // -----------------------------------------------------------------------------
 
 export interface BraintreeContext extends GatewayContext {
+  authorization?: string;
   braintree?: any;
-  elements?: any;
-  element?: any;
-  elementStatus?: any;
-  validationObserver?: ActorRef<any>;
-  clientPaymentDetailsId?: string;
-  clientSecret?: string;
+  paymentUses3DS?: boolean;
+  paymentMethodPayPal?: boolean;
 }
