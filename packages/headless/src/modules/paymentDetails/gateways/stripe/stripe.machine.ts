@@ -26,7 +26,6 @@ import { responseCodes } from "../../../../utils";
 // -----------------------------------------------------------------------------
 export default createMachine(
   {
-    //tsTypes: {} as import("./stripe.machine.typegen").Typegen0,
     id: "stripe",
     predictableActionArguments: true,
     initial: "loading",
@@ -34,54 +33,22 @@ export default createMachine(
     states: {
       loading: {
         id: "loading",
-        initial: "sdk",
-        states: {
-          sdk: {
-            invoke: {
-              src: "load",
-              onDone: [
-                {
-                  target: "addElement",
-                  actions: ["setContext", "setSchemas"],
-                  cond: "isAdding"
-                },
-                {
-                  target: "paymentElement",
-                  actions: ["setContext", "setSchemas"]
-                  // cond: "isPaying"
-                }
-              ],
-              onError: {
-                target: "#error",
-                actions: ["setError", "setFeedbackError", "setSchemas"]
-              }
+        invoke: {
+          src: "load",
+          onDone: [
+            {
+              target: "#available",
+              cond: "hasInstance",
+              actions: ["setContext", "setSchemas"]
+            },
+            {
+              target: "rendering",
+              actions: ["setContext", "setSchemas"]
             }
-          },
-          paymentElement: {
-            invoke: {
-              src: "createPaymentElement",
-              onDone: {
-                target: "#rendering",
-                actions: ["setElements"]
-              },
-              onError: {
-                target: "#unavailable",
-                actions: ["setError", "setFeedbackError"]
-              }
-            }
-          },
-          addElement: {
-            invoke: {
-              src: "createAddElement",
-              onDone: {
-                target: "#rendering",
-                actions: ["setElements", "setClientDetails"]
-              },
-              onError: {
-                target: "#unavailable",
-                actions: ["setError", "setFeedbackError"]
-              }
-            }
+          ],
+          onError: {
+            target: "unavailable",
+            actions: ["setError", "setFeedbackError", "setSchemas"]
           }
         }
       },
@@ -100,7 +67,7 @@ export default createMachine(
               src: "render",
               onDone: {
                 target: "#available",
-                actions: ["setContext"]
+                actions: ["setContext", "setObserver"]
               },
               onError: {
                 target: "#unavailable",
@@ -139,20 +106,15 @@ export default createMachine(
                 invoke: {
                   src: "validate",
                   onDone: { target: "#valid" },
-                  onError: [
-                    {
-                      target: "#loading",
-                      cond: "hasNoElements"
-                    },
-                    {
-                      target: "#invalid",
-                      actions: ["setError"]
-                    }
-                  ]
+                  onError: {
+                    target: "#invalid",
+                    actions: ["setError"]
+                  }
                 }
               }
             }
           },
+
           invalid: { id: "invalid" },
 
           valid: {
@@ -193,7 +155,8 @@ export default createMachine(
                   }
                 }
               }
-            }
+            },
+            on: { VALIDATE: { actions: [] /*do nothing*/ } }
           },
 
           processed: {
@@ -203,7 +166,8 @@ export default createMachine(
                 target: "#complete",
                 cond: "hasNoOutstandingBalance"
               }
-            }
+            },
+            on: { VALIDATE: { actions: [] /*do nothing*/ } }
           },
 
           error: {
@@ -220,8 +184,7 @@ export default createMachine(
             actions: ["setModel"]
           },
           VALIDATE: {
-            target: "available.checking.validating",
-            actions: ["setElementStatus"]
+            target: "available.checking.validating"
           }
         }
       },
@@ -250,46 +213,6 @@ export default createMachine(
   },
   {
     actions: {
-      setElements: assign({
-        elements: (_context: StripeContext, { data }: AnyEventObject) =>
-          data?.elements,
-        element: (_context: StripeContext, { data }: AnyEventObject) =>
-          data?.element,
-
-        validationObserver: (
-          _context: StripeContext,
-          { data }: AnyEventObject
-        ) => {
-          const stripeChangeEvent = (callback: any) => {
-            data.element.on("change", (event: any) =>
-              callback({ type: "VALIDATE", data: event })
-            );
-
-            return () => {};
-          };
-
-          return spawn(stripeChangeEvent);
-        }
-      }),
-
-      setElementStatus: assign({
-        elementStatus: (_context: StripeContext, { data }: AnyEventObject) =>
-          data
-      }),
-
-      clearRenderer: assign({
-        renderer: undefined
-      }),
-
-      setClientDetails: assign({
-        clientPaymentDetailsId: (
-          _context: StripeContext,
-          { data }: AnyEventObject
-        ) => data?.clientPaymentDetailsId,
-        clientSecret: (_context: StripeContext, { data }: AnyEventObject) =>
-          data?.clientSecret
-      }),
-
       setContext: assign(
         (_context: StripeContext, { data }: AnyEventObject) => data
       ),
@@ -315,6 +238,19 @@ export default createMachine(
       clearModel: assign({
         model: undefined
       }),
+
+      setObserver: assign({
+        validationObserver: (
+          { validationHelper, validationObserver }: StripeContext,
+          _event: AnyEventObject
+        ) => {
+          return (
+            validationObserver ??
+            (validationHelper ? spawn(validationHelper) : undefined)
+          );
+        }
+      }),
+
       // ---
 
       updateStripe: (
@@ -380,8 +316,7 @@ export default createMachine(
 
       setError: assign({
         error: (_context: StripeContext, { data }: AnyEventObject) => {
-          let error = mapToHeadlessError(data);
-
+          const error = mapToHeadlessError(data);
           if (error?.status == responseCodes.Unprocessable_Entity) {
             error.data = useValidationParser(error);
           } else if (error?.data) {
@@ -410,9 +345,6 @@ export default createMachine(
         return value;
       },
 
-      hasNoElements: ({ elements }: StripeContext, _event: AnyEventObject) =>
-        !elements,
-
       hasNoOutstandingBalance: (
         _context: StripeContext,
         _event: AnyEventObject
@@ -421,6 +353,9 @@ export default createMachine(
         return true;
       },
 
+      hasInstance: ({ element }: StripeContext, _event: AnyEventObject) => {
+        return !!element;
+      },
       isAdding: ({ ctx }: StripeContext, _event: AnyEventObject) => {
         return ctx !== undefined && ctx == GatewayCtx.ADD;
       },

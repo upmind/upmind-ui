@@ -1,29 +1,35 @@
 // --- external
-import { loadStripe } from "@stripe/stripe-js";
+import {
+  DefaultValuesOption,
+  loadStripe,
+  StripeElement,
+  StripeElementLocale,
+  StripeElements
+} from "@stripe/stripe-js";
 
 // --- internal
+import { useLocale } from "../../../";
 import sharedServices from "../services";
-import { useQuery, useSession } from "../../..";
 
 // --- utils
 import {
   ErrorOrigin,
   DetailedError,
   responseCodes,
-  useValidation,
-  NotAuthenticatedError
+  useValidation
 } from "../../../../utils";
-import { reject, set } from "lodash-es";
+import { isEmpty, omitBy, reject, set } from "lodash-es";
 import { getSupportedPaymentMethods, getPublicKey } from "./utils";
 
 // --- types
 import type { StripeContext } from "./types";
 import type { AnyEventObject } from "xstate";
+import { nextTick } from "vue";
 
 // -----------------------------------------------------------------------------
 
 async function load(
-  { gateway, amount, currency, orderId }: StripeContext,
+  { gateway, amount, currency, orderId, address }: StripeContext,
   _event: AnyEventObject
 ) {
   const options = await sharedServices.load(
@@ -41,25 +47,51 @@ async function load(
       )
     );
 
-  const stripe = await loadStripe(key);
-
-  return new Promise(resolve => {
-    if (!stripe) {
-      reject(
-        new DetailedError(
-          "Stripe not found.",
-          responseCodes.Not_Found,
-          ErrorOrigin.Headless
-        )
+  return loadStripe(key).then(stripe => {
+    if (!stripe)
+      throw new DetailedError(
+        "Stripe not found.",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
       );
-    } else {
-      resolve({ stripe, ...(options || {}) });
-    }
+
+    const { locale } = useLocale();
+
+    // Flow ref: https://stripe.com/docs/payments/finalize-payments-on-the-server?platform=web&type=payment#additional-options
+    const elements: StripeElements = stripe.elements({
+      amount: Math.round((amount || 0) * 100), // NB: Stripe expects amount in cents
+      currency: currency?.code.toLowerCase(), // NB: MUST be lowercase
+      locale: (locale.value.toLowerCase() ?? "auto") as StripeElementLocale,
+      mode: "payment",
+      paymentMethodCreation: "manual",
+      paymentMethodTypes: getSupportedPaymentMethods(gateway),
+      setupFutureUsage: "off_session"
+    });
+
+    const element: StripeElement = elements.create("payment", {
+      defaultValues: {
+        billingDetails: {
+          // name: client.name,
+          // email: client.email,
+          // phone: client.phone,
+          address: {
+            country: address?.country?.code,
+            postal_code: address?.postcode,
+            state: address?.state,
+            city: address?.city,
+            line1: address?.address_1,
+            line2: address?.address_2
+          }
+        }
+      } as DefaultValuesOption
+    });
+
+    return { stripe, elements, element, ...(options || {}) };
   });
 }
 
 async function validate(
-  { schema, model, element, elementStatus }: StripeContext,
+  { schema, model, element }: StripeContext,
   { data }: AnyEventObject
 ) {
   // ---
@@ -83,7 +115,7 @@ async function validate(
     const errors = validate(schema, model) || [];
 
     // NB: we are invalid if the stripe element status is NOT complete!
-    if (!elementStatus?.complete) {
+    if (!data?.complete) {
       errors.push({
         instancePath: "/payment_method_addition",
         schemaPath: "#/properties/payment_method_addition",
@@ -122,45 +154,23 @@ async function render({ element }: StripeContext, { data }: AnyEventObject) {
         )
       );
     }
+    const container = data.container as HTMLElement;
 
-    // mount the stripe element into the provided container
-    element.mount(data.container);
+    element!.mount(container);
+
+    const validationHelper = (
+      callback: any,
+      _onReceiveEvent: AnyEventObject
+    ) => {
+      (element as any)!.on("change", (event: any) => {
+        callback({ type: "VALIDATE", data: event });
+      });
+
+      return () => {};
+    };
 
     // once we successfully render we can 'clear; our renderer to prevent any further attempts
-    return resolve({ container: data.container });
-  });
-}
-
-async function createPaymentElement(
-  { amount, currency, gateway, stripe, address }: StripeContext,
-  _event: AnyEventObject
-) {
-  // Flow ref: https://stripe.com/docs/payments/finalize-payments-on-the-server?platform=web&type=payment#additional-options
-  const elements = stripe.elements({
-    amount: Math.round((amount || 0) * 100), // NB: Stripe expects amount in cents
-    currency: currency?.code.toLowerCase(), // NB: MUST be lowercase
-    locale: "auto", // TODO: add i18n local
-    mode: "payment",
-    paymentMethodCreation: "manual",
-    paymentMethodTypes: getSupportedPaymentMethods(gateway),
-    setupFutureUsage: "off_session"
-  });
-  const element = elements?.create("payment", {
-    defaultValues: {
-      billingDetails: {
-        address: {
-          postal_code: address?.postcode,
-          country: address?.country?.code
-        }
-      }
-    }
-  });
-
-  return new Promise(resolve => {
-    resolve({
-      elements,
-      element
-    });
+    return resolve({ container, validationHelper });
   });
 }
 
@@ -234,94 +244,12 @@ async function pay({ elements, stripe, model }: StripeContext) {
 }
 
 // -----------------------------------------------------------------------------
-// TODO: Implement add context
-/**
- * @name createAddElement
- * @desc Here we obtain a client secret via the API, before creating a
- * Stripe 'Elements' instance.
- */
-async function createAddElement(
-  { stripe, gateway, address }: StripeContext,
-  _event: AnyEventObject
-) {
-  const { post, useUrl } = useQuery();
-
-  const { meta, user } = useSession();
-
-  if (!meta.value.isAuthenticated || !user.value?.id)
-    await Promise.reject(new NotAuthenticatedError());
-
-  const clientId = user.value!.id;
-
-  return post<any>({
-    url: useUrl(`gateway/frontend/tokenize-begin/${gateway?.id}`),
-    withAccessToken: true,
-    data: {
-      client_id: clientId
-    }
-  }).then(data => {
-    // Flow ref: https://stripe.com/docs/payments/save-and-reuse?platform=web&ui=elements#enable-payment-methods
-    const clientPaymentDetailsId = data?.client_payment_details?.id;
-    const clientSecret = data?.gateway_specific?.client_secret;
-
-    // --- create stripe elements
-    const elements = stripe.elements({
-      clientSecret,
-      locale: "auto" // TODO: add i18n local
-    });
-
-    const element = elements?.create("payment", {
-      defaultValues: {
-        billingDetails: {
-          address: {
-            postal_code: address?.postcode,
-            country: address?.country?.code
-          }
-        }
-      }
-    });
-    // ---
-
-    return {
-      elements,
-      element,
-      clientSecret,
-      clientPaymentDetailsId
-    };
-  });
-}
-
-/**
- * @name add
- * @desc Here we confirm the setup of a new detail using the Stripe SDK. We
- * may (or may not), be redirected off site at point – hence we save the
- * operation (and next procedure) into session storage.
- */
-async function add() {
-  // TODO
-}
-
-/**
- * @name endSetup
- * @desc If function is invoked, we in theory have a new payment detail
- * ID from Stripe. To finish up, we need to save detail as a payment
- * method within the Upmind ecosystem.
- */
-async function endSetup() {
-  //TODO
-}
-
-// -----------------------------------------------------------------------------
 
 export default {
   load,
   parse: sharedServices.parse,
   validate,
-  // ---
-  createPaymentElement,
-  createAddElement,
   render,
   // ---
-  add,
   pay
 };
