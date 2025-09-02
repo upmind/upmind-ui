@@ -489,7 +489,9 @@ export function parseSubproducts(
 
             // Check if the product has pricing for the selected term
             // Do not filter out products with cycle 0 (one-time purchases)
+            // NB: Only check products WITH pricing (aka options)
             if (
+              !isEmpty(product.pricing) &&
               !some(product.pricing, ["cycle", model?.term]) &&
               !some(product.pricing, ["cycle", 0])
             )
