@@ -24,7 +24,6 @@ import type {
   PaymentMethodPayload,
   PaymentMethodRequestablePayload
 } from "braintree-web-drop-in";
-import { markRaw, toRaw } from "vue";
 // -----------------------------------------------------------------------------
 
 async function load(
@@ -122,7 +121,7 @@ async function render(
     ...(paymentMethodPayPal ? { paypal } : {})
   }).then(instance => {
     // set up our callback helper to watch for validation
-    const braintreeHelper = (callback: any, onReceiveEvent: any) => {
+    const validationHelper = (callback: any, onReceiveEvent: any) => {
       const cb = (event?: PaymentMethodRequestablePayload) => {
         callback({ type: "VALIDATE", data: { complete: !!event } });
       };
@@ -139,7 +138,7 @@ async function render(
     return {
       // NB: if we return the entire instance, we run into issue with our xstate inspector....
       //     So we only pull the methods we need.
-      braintreeHelper,
+      validationHelper,
       braintree: {
         clearSelectedPaymentMethod:
           instance.clearSelectedPaymentMethod.bind(instance),

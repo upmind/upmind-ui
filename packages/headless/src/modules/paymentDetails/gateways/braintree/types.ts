@@ -14,7 +14,7 @@ export interface BraintreeContext extends GatewayContext {
   paymentMethodPayPal?: boolean;
   // ---
   validationObserver?: ActorRef<any>;
-  braintreeHelper?: (callback: any) => void;
+  validationHelper?: (callback: any) => void;
 }
 
 export enum BraintreeTypes {

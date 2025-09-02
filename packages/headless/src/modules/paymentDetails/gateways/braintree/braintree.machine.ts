@@ -13,9 +13,7 @@ import {
   useTime,
   useValidationParser,
   useModelParser,
-  mapToHeadlessError,
-  DetailedError,
-  ErrorOrigin
+  mapToHeadlessError
 } from "../../../../utils";
 import { useSchema, useUischema } from "./schemas";
 import { isFunction, isArray } from "lodash-es";
@@ -28,7 +26,6 @@ import { responseCodes } from "../../../../utils";
 // -----------------------------------------------------------------------------
 export default createMachine(
   {
-    //tsTypes: {} as import("./braintree.machine.typegen").Typegen0,
     id: "braintree",
     predictableActionArguments: true,
     initial: "loading",
@@ -57,6 +54,7 @@ export default createMachine(
       },
 
       rendering: {
+        id: "rendering",
         initial: "idle",
         states: {
           idle: {
@@ -246,12 +244,12 @@ export default createMachine(
 
       setObserver: assign({
         validationObserver: (
-          { braintreeHelper, validationObserver }: BraintreeContext,
+          { validationHelper, validationObserver }: BraintreeContext,
           _event: AnyEventObject
         ) => {
           return (
             validationObserver ??
-            (braintreeHelper ? spawn(braintreeHelper) : undefined)
+            (validationHelper ? spawn(validationHelper) : undefined)
           );
         }
       }),
@@ -259,21 +257,21 @@ export default createMachine(
       // ---
 
       updateBraintree: (
-        { elements, element }: BraintreeContext,
+        { braintree }: BraintreeContext,
         { data }: AnyEventObject
       ) => {
-        if (!isFunction(elements?.update)) return; // in case we receive an update before braintree has loaded
+        if (!isFunction(braintree?.updateConfiguration)) return; // in case we receive an update before braintree has loaded
 
         const amount = Math.round((data?.amount || 0) * 100); // NB: Braintree expects amount in cents
         if (amount <= 0) return; // NB: Braintree requires a positive amount
 
-        elements.update({
+        braintree.updateConfiguration({
           amount,
           currency: data?.currency.code.toLowerCase() // NB: MUST be lowercase
         });
 
         if (data.address) {
-          element.update({
+          braintree.updateConfiguration({
             defaultValues: {
               billingDetails: {
                 address: {
@@ -354,9 +352,6 @@ export default createMachine(
           address?.id !== data.address?.id;
         return value;
       },
-
-      hasNoElements: ({ elements }: BraintreeContext, _event: AnyEventObject) =>
-        !elements,
 
       hasNoOutstandingBalance: (
         _context: BraintreeContext,
