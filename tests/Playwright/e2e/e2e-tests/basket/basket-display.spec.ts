@@ -35,7 +35,7 @@ test.describe("Basket Tests", () => {
       `${domain}`
     );
   });
-  test("Empty basket", async ({ page, context }) => {
+  test("Empty basket", async ({ page }) => {
     await page.goto(URLs.basket);
     await expect(page.getByTestId("dialog-window")).toContainText(
       "Your basket is empty"
