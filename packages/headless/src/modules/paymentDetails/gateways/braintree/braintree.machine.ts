@@ -157,7 +157,8 @@ export default createMachine(
                   }
                 }
               }
-            }
+            },
+            on: { VALIDATE: { actions: [] /*do nothing*/ } }
           },
 
           processed: {
@@ -167,7 +168,8 @@ export default createMachine(
                 target: "#complete",
                 cond: "hasNoOutstandingBalance"
               }
-            }
+            },
+            on: { VALIDATE: { actions: [] /*do nothing*/ } }
           },
 
           error: {
@@ -184,8 +186,7 @@ export default createMachine(
             actions: ["setModel"]
           },
           VALIDATE: {
-            target: "available.checking.validating",
-            actions: ["setElementStatus"]
+            target: "available.checking.validating"
           }
         }
       },
@@ -325,8 +326,7 @@ export default createMachine(
 
       setError: assign({
         error: (_context: BraintreeContext, { data }: AnyEventObject) => {
-          let error = mapToHeadlessError(data);
-
+          const error = mapToHeadlessError(data);
           if (error?.status == responseCodes.Unprocessable_Entity) {
             error.data = useValidationParser(error);
           } else if (error?.data) {

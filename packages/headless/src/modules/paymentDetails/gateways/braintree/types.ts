@@ -13,7 +13,6 @@ export interface BraintreeContext extends GatewayContext {
   paymentUses3DS?: boolean;
   paymentMethodPayPal?: boolean;
   // ---
-  status?: any;
   validationObserver?: ActorRef<any>;
   braintreeHelper?: (callback: any) => void;
 }
