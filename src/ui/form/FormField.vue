@@ -4,6 +4,7 @@
     v-if="meta.isVisible"
     :class="cn('flex flex-wrap', props.class)"
     :data-visible="meta.isVisible"
+    :data-testid="`form-item-${kebabCase(name)}`"
   >
     <slot name="field">
       <!-- label -->
