@@ -12,14 +12,7 @@ import {
   responseCodes,
   useValidation
 } from "../../../../utils";
-import {
-  defaultsDeep,
-  reject,
-  filter,
-  mapValues,
-  keyBy,
-  pick
-} from "lodash-es";
+import { defaultsDeep, reject, filter, mapValues, keyBy } from "lodash-es";
 
 // --- types
 import { BraintreeTypes, type BraintreeContext } from "./types";
@@ -129,9 +122,9 @@ async function render(
     ...(paymentMethodPayPal ? { paypal } : {})
   }).then(instance => {
     // set up our callback helper to watch for validation
-    const braintreeHelper = (callback: any) => {
+    const braintreeHelper = (callback: any, onReceiveEvent: any) => {
       const cb = (event?: PaymentMethodRequestablePayload) => {
-        callback({ type: "VALIDATE", data: !!event });
+        callback({ type: "VALIDATE", data: { complete: !!event } });
       };
 
       instance.on("paymentMethodRequestable", cb);
@@ -144,33 +137,31 @@ async function render(
     };
 
     return {
-      // NB: if we return the entire instance, we run into issue with our xstate debugger....
+      // NB: if we return the entire instance, we run into issue with our xstate inspector....
       //     So we only pull the methods we need.
       braintreeHelper,
-      braintree: pick(instance, [
-        "clearSelectedPaymentMethod",
-        "isPaymentMethodRequestable",
-        "on",
-        "off",
-        "requestPaymentMethod",
-        "teardown",
-        "updateConfiguration"
-      ]) as Dropin
+      braintree: {
+        clearSelectedPaymentMethod:
+          instance.clearSelectedPaymentMethod.bind(instance),
+        isPaymentMethodRequestable:
+          instance.isPaymentMethodRequestable.bind(instance),
+        requestPaymentMethod: instance.requestPaymentMethod.bind(instance),
+        teardown: instance.teardown.bind(instance),
+        updateConfiguration: instance.updateConfiguration.bind(instance)
+      } as Dropin
     };
   });
 }
 
 async function validate(
-  { schema, model, braintree, status }: BraintreeContext,
+  { schema, model, braintree }: BraintreeContext,
   { data }: AnyEventObject
 ) {
-  // ---
-
-  // Get any errors from the Braintree Element
+  // Get any errors from the Braintree Instance
   if (!braintree)
     return Promise.reject(
       new DetailedError(
-        "Braintree element not found.",
+        "Braintree instance not found.",
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )
@@ -185,7 +176,7 @@ async function validate(
     const errors = validate(schema, model) || [];
 
     // NB: we are invalid if the braintree element status is NOT complete!
-    if (!status?.complete) {
+    if (!data?.complete) {
       errors.push({
         instancePath: "/payment_method_addition",
         schemaPath: "#/properties/payment_method_addition",
@@ -193,7 +184,7 @@ async function validate(
         params: {
           missingProperty: "payment_method_addition"
         },
-        message: "Braintree element is incomplete."
+        message: "Braintree instance is incomplete."
       });
     }
 
@@ -213,50 +204,6 @@ async function validate(
 }
 
 /**
- * @name createNonce
- * @desc Requests a payment method nonce from the Braintree Drop-in instance.
- * @returns {Promise<string>}
- */
-
-async function createNonce({
-  braintree,
-  paymentUses3DS,
-  amount
-}: Partial<BraintreeContext>): Promise<string> {
-  if (!braintree) {
-    return Promise.reject(
-      new DetailedError(
-        "Braintree instance not found.",
-        responseCodes.Not_Found,
-        ErrorOrigin.Headless
-      )
-    );
-  }
-
-  const paymentOptions = (
-    paymentUses3DS ? {} : { threeDSecure: { amount: `${amount}` } }
-  ) as PaymentMethodOptions;
-
-  return braintree
-    .requestPaymentMethod(paymentOptions)
-    .then((payload: PaymentMethodPayload): string => {
-      const isCard = payload.type === BraintreeTypes.CARD;
-
-      if (isCard && paymentUses3DS && !payload.liabilityShifted) {
-        braintree.clearSelectedPaymentMethod();
-
-        throw new DetailedError(
-          "3D Secure challenge failed.",
-          responseCodes.Unprocessable_Entity,
-          ErrorOrigin.External
-        );
-      }
-
-      return payload.nonce;
-    });
-}
-
-/**
  * @name pay
  * @desc Here we create a new payment detail via the Braintree SDK, and return
  * the payment detail NONCE which we later relay to the BE (when executing
@@ -265,12 +212,11 @@ async function createNonce({
  */
 async function pay({
   gateway,
-  elements,
   braintree,
   paymentUses3DS,
   amount
 }: BraintreeContext) {
-  if (!elements || !braintree)
+  if (!braintree)
     return Promise.reject(
       new DetailedError(
         "Braintree instance not found.",
@@ -279,19 +225,34 @@ async function pay({
       )
     );
 
-  return createNonce({
-    braintree,
-    paymentUses3DS,
-    amount
-  }).then(payment_method_nonce => {
-    return {
-      /* Here we don't pass 'auto_payment' flag as 'store_on_payment_auto_payment' is injected from parent gatewayComponent */
-      gateway_id: gateway?.id,
-      payment_method_addition: {
-        payment_method_nonce
+  const paymentOptions = (
+    paymentUses3DS ? { threeDSecure: { amount: `${amount}` } } : {}
+  ) as PaymentMethodOptions;
+
+  return braintree
+    .requestPaymentMethod(paymentOptions)
+    .then((payload: PaymentMethodPayload) => {
+      const isCard = payload.type === BraintreeTypes.CARD;
+
+      // additional checks for any 3D Secure challenges
+      if (isCard && paymentUses3DS && !payload.liabilityShifted) {
+        braintree.clearSelectedPaymentMethod();
+        throw new DetailedError(
+          "3D Secure challenge failed.",
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.External
+        );
       }
-    };
-  });
+
+      // return our payment detial
+      return {
+        /* Here we don't pass 'auto_payment' flag as 'store_on_payment_auto_payment' is injected from parent gatewayComponent */
+        gateway_id: gateway?.id,
+        payment_method_addition: {
+          payment_method_nonce: payload.nonce
+        }
+      };
+    });
 }
 
 // -----------------------------------------------------------------------------
