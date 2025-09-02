@@ -7,7 +7,12 @@ import { authSubscription } from "../session/helper";
 
 // --- utils
 import { spawnGateway } from "./utils";
-import { mapToHeadlessError, stopActor, useModelParser } from "../../utils";
+import {
+  mapToHeadlessError,
+  stopActor,
+  stopService,
+  useModelParser
+} from "../../utils";
 import { useTime, useValidationParser } from "../../utils";
 import { useSchema, useUischema } from "./schemas";
 import { set, unset, forEach, isEqual } from "lodash-es";
@@ -263,7 +268,7 @@ export default createMachine(
 
           // stop any existing gateways if they are different and not done/complete
           if (actors.gateway && actors?.gateway?.id != gateway?.id) {
-            stopActor(actors.gateway);
+            stopService(actors.gateway);
             unset(actors, "gateway");
           }
 
@@ -273,7 +278,7 @@ export default createMachine(
               amount,
               orderId,
               currency,
-              gateway: amount ? gateway : null, // use the free gateway if amount is 0
+              gateway: amount ? gateway : undefined, // use the free gateway if amount is 0
               storedPaymentMethods,
               address
             });

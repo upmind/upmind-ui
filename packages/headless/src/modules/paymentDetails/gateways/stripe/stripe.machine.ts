@@ -34,9 +34,9 @@ export default createMachine(
     states: {
       loading: {
         id: "loading",
-        initial: "stripe",
+        initial: "sdk",
         states: {
-          stripe: {
+          sdk: {
             invoke: {
               src: "load",
               onDone: [
@@ -61,7 +61,7 @@ export default createMachine(
             invoke: {
               src: "createPaymentElement",
               onDone: {
-                target: "#available",
+                target: "#rendering",
                 actions: ["setElements"]
               },
               onError: {
@@ -70,12 +70,11 @@ export default createMachine(
               }
             }
           },
-
           addElement: {
             invoke: {
               src: "createAddElement",
               onDone: {
-                target: "#available",
+                target: "#rendering",
                 actions: ["setElements", "setClientDetails"]
               },
               onError: {
@@ -87,20 +86,37 @@ export default createMachine(
         }
       },
 
+      rendering: {
+        id: "rendering",
+        initial: "idle",
+        states: {
+          idle: {
+            on: {
+              RENDER: { target: "processing" }
+            }
+          },
+          processing: {
+            invoke: {
+              src: "render",
+              onDone: {
+                target: "#available",
+                actions: ["setContext"]
+              },
+              onError: {
+                target: "#unavailable",
+                actions: ["setError"]
+              }
+            }
+          }
+        }
+      },
+
       // ---
 
       available: {
         id: "available",
-        initial: "rendering",
+        initial: "checking",
         states: {
-          rendering: {
-            on: {
-              RENDER: {
-                target: "checking",
-                actions: ["render", "clearRenderer"]
-              }
-            }
-          },
           checking: {
             id: "checking",
             entry: ["clearError"],
@@ -239,12 +255,7 @@ export default createMachine(
           data?.elements,
         element: (_context: StripeContext, { data }: AnyEventObject) =>
           data?.element,
-        renderer: (_context: StripeContext, { data }: AnyEventObject) => {
-          function renderer(container: HTMLElement) {
-            data?.element?.mount(container);
-          }
-          return renderer;
-        },
+
         validationObserver: (
           _context: StripeContext,
           { data }: AnyEventObject
@@ -264,12 +275,6 @@ export default createMachine(
       setElementStatus: assign({
         elementStatus: (_context: StripeContext, { data }: AnyEventObject) =>
           data
-      }),
-
-      render: pure(({ renderer }: StripeContext, { data }: AnyEventObject) => {
-        return () => {
-          if (renderer) renderer(data?.container);
-        };
       }),
 
       clearRenderer: assign({

@@ -22,8 +22,14 @@ import type { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------
 
-async function load({ gateway }: StripeContext, _event: AnyEventObject) {
-  const options = await sharedServices.load({ gateway }, _event);
+async function load(
+  { gateway, amount, currency, orderId }: StripeContext,
+  _event: AnyEventObject
+) {
+  const options = await sharedServices.load(
+    { gateway, amount, currency, orderId },
+    _event
+  );
 
   const key = getPublicKey(gateway);
   if (!key)
@@ -101,6 +107,27 @@ async function validate(
     } else {
       resolve(model);
     }
+  });
+}
+
+async function render({ element }: StripeContext, { data }: AnyEventObject) {
+  return new Promise((resolve, reject) => {
+    if (!element || !data?.container) {
+      reject(
+        new DetailedError(
+          "Cannot render Stripe Element. Missing element or container.",
+          responseCodes.Not_Found,
+          ErrorOrigin.Headless,
+          { element, container: data?.container }
+        )
+      );
+    }
+
+    // mount the stripe element into the provided container
+    element.mount(data.container);
+
+    // once we successfully render we can 'clear; our renderer to prevent any further attempts
+    return resolve({ container: data.container });
   });
 }
 
@@ -206,6 +233,8 @@ async function pay({ elements, stripe, model }: StripeContext) {
   });
 }
 
+// -----------------------------------------------------------------------------
+// TODO: Implement add context
 /**
  * @name createAddElement
  * @desc Here we obtain a client secret via the API, before creating a
@@ -291,6 +320,7 @@ export default {
   // ---
   createPaymentElement,
   createAddElement,
+  render,
   // ---
   add,
   pay

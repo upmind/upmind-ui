@@ -35,9 +35,9 @@ import {
 } from "./utils";
 import {
   useTime,
-  stopActor,
   responseCodes,
-  mapToHeadlessError
+  mapToHeadlessError,
+  stopService
 } from "../../utils";
 import { parseBasketProduct } from "../basketProduct/utils";
 
@@ -524,7 +524,7 @@ export default createMachine(
 
       clearActors: assign({
         actors: ({ actors }: BasketContext) => {
-          forEach(actors, actor => stopActor(actor));
+          forEach(actors, actor => stopService(actor));
           return undefined;
         }
       }),
