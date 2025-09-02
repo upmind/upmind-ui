@@ -61,6 +61,7 @@ export const usePaymentGateway = (actor: ComputedRef<Actor | undefined>) => {
 
   const meta = computed(() => ({
     isLoading: !actor.value || stateMatches(actor.value, ["loading"]),
+    isRendering: !actor.value || stateMatches(actor.value, ["rendering"]),
     isAvailable: !!actor.value && stateMatches(actor, ["available"]),
     hasErrors: stateMatches(actor, ["available.error"]),
     isProcessing: stateMatches(actor, ["available.processing"]),
@@ -158,14 +159,14 @@ export const usePaymentGateway = (actor: ComputedRef<Actor | undefined>) => {
     }
 
     waitFor(actor.value!.service, state =>
-      stateMatches(state, ["available"])
+      stateMatches(state, ["rendering"])
     ).then(() => {
       actor.value?.send({ type: "RENDER", data: { container } });
       // wait for the render to complete
       return waitFor(
         actor.value!.service,
-        state => !stateMatches(state, "available.rendering")
-      ).then(() => {});
+        state => !stateMatches(state, ["available"])
+      );
     });
   }
 

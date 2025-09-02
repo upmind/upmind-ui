@@ -13,7 +13,9 @@ import {
   useTime,
   useValidationParser,
   useModelParser,
-  mapToHeadlessError
+  mapToHeadlessError,
+  DetailedError,
+  ErrorOrigin
 } from "../../../../utils";
 import { useSchema, useUischema } from "./schemas";
 import { isFunction, isArray } from "lodash-es";
@@ -38,13 +40,42 @@ export default createMachine(
           src: "load",
           onDone: [
             {
-              target: "available",
+              target: "#available",
+              cond: "hasInstance",
+              actions: ["setContext", "setSchemas"]
+            },
+            {
+              target: "rendering",
               actions: ["setContext", "setSchemas"]
             }
           ],
           onError: {
-            target: "#error",
+            target: "unavailable",
             actions: ["setError", "setFeedbackError", "setSchemas"]
+          }
+        }
+      },
+
+      rendering: {
+        initial: "idle",
+        states: {
+          idle: {
+            on: {
+              RENDER: { target: "processing" }
+            }
+          },
+          processing: {
+            invoke: {
+              src: "render",
+              onDone: {
+                target: "#available",
+                actions: ["setContext", "setObserver"]
+              },
+              onError: {
+                target: "#unavailable",
+                actions: ["setError"]
+              }
+            }
           }
         }
       },
@@ -53,32 +84,8 @@ export default createMachine(
 
       available: {
         id: "available",
-        initial: "unrendered",
+        initial: "checking",
         states: {
-          unrendered: {
-            always: {
-              target: "checking",
-              cond: "hasInstance"
-            },
-            on: {
-              RENDER: {
-                target: "rendering"
-              }
-            }
-          },
-          rendering: {
-            invoke: {
-              src: "render",
-              onDone: {
-                target: "checking",
-                actions: ["setContext"]
-              },
-              onError: {
-                target: "#unavailable",
-                actions: ["setError"]
-              }
-            }
-          },
           checking: {
             id: "checking",
             entry: ["clearError"],
@@ -101,20 +108,15 @@ export default createMachine(
                 invoke: {
                   src: "validate",
                   onDone: { target: "#valid" },
-                  onError: [
-                    {
-                      target: "#loading",
-                      cond: "hasNoElements"
-                    },
-                    {
-                      target: "#invalid",
-                      actions: ["setError"]
-                    }
-                  ]
+                  onError: {
+                    target: "#invalid",
+                    actions: ["setError"]
+                  }
                 }
               }
             }
           },
+
           invalid: { id: "invalid" },
 
           valid: {
@@ -240,6 +242,19 @@ export default createMachine(
       clearModel: assign({
         model: undefined
       }),
+
+      setObserver: assign({
+        validationObserver: (
+          { braintreeHelper, validationObserver }: BraintreeContext,
+          _event: AnyEventObject
+        ) => {
+          return (
+            validationObserver ??
+            (braintreeHelper ? spawn(braintreeHelper) : undefined)
+          );
+        }
+      }),
+
       // ---
 
       updateBraintree: (

@@ -59,45 +59,19 @@ type VueState = State<
 export function stopService(
   machine: InterpreterFrom<any> | ActorRef<any, any>
 ): boolean {
+  //   if (!machine) return;
+
   // Only access 'status' if machine is an Interpreter
-  const isInterpreter = !!(machine as any)?.status;
+  // const isInterpreter = !!(machine as any)?.status;
   const state = machine.getSnapshot();
 
-  if (
-    isInterpreter
-      ? (machine as InterpreterFrom<any>).status == InterpreterStatus.Running
-      : !state.done
-  ) {
+  if (state.status == InterpreterStatus.Running || !state.done) {
     machine?.stop && machine.stop();
   }
 
   // NB use the uipdated snapshot to check if we are stopped/done
-  return machine.getSnapshot().done;
-}
-
-export function stopActor(actor: ActorRef<any>): void {
-  if (!actor) return;
-
-  const state = actor.getSnapshot();
-
-  if (
-    actor.stop &&
-    (state.status == InterpreterStatus.Running || !state.done)
-  ) {
-    actor.stop();
-  } else {
-    // console.debug("** ACTOR State **", "Actor is already stopped", {
-    //   name: actor.id,
-    //   status: state.status,
-    //   done: state.done,
-    // });
-    return;
-  }
-
-  // console.debug("** ACTOR State **", "Actor stopped", {
-  //   name: actor.id,
-  //   state: actor.getSnapshot(),
-  // });
+  const success = machine.getSnapshot().done;
+  return success;
 }
 
 // ---  These are some helper to reduce the repetition of the same code when using xstate/vue
