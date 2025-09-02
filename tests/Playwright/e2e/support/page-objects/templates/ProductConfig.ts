@@ -106,41 +106,40 @@ export class ProductConfig {
       .locator("input");
     this.domainTransfer = page.getByTestId("form-item-dac-transfer");
     this.domainExisting = page.getByTestId("form-item-dac-existing");
-    this.registrantNameInput = page.getByTestId(
-      "form-item-update_registrant_name"
-    );
-    this.registrantOrgInput = page.getByTestId(
-      "form-item-update_registrant_organisation"
-    );
-    this.registrantEmailInput = page.getByTestId(
-      "form-item-update_registrant_email"
-    );
+    this.registrantNameInput = page
+      .getByTestId("form-item-update_registrant_name")
+      .locator("input");
+    this.registrantOrgInput = page
+      .getByTestId("form-item-update_registrant_organisation")
+      .locator("input");
+    this.registrantEmailInput = page
+      .getByTestId("form-item-update_registrant_email")
+      .locator("input");
     this.registrantPhoneForm = page.getByTestId(
       "form-item-update_registrant_phone"
     );
     this.registrantPhoneCountrySelectButton =
       this.registrantPhoneForm.getByTestId("button-default");
     this.registrantPhoneCountrySelectInput =
-      this.popover.popoverContent.getByTestId("text-input");
+      this.popover.popoverContent.locator("input");
     this.registrantPhoneCountrySelectItem =
       this.popover.popoverContent.getByTestId("combobox-item");
-    this.registrantPhoneInput =
-      this.registrantPhoneForm.getByTestId("text-input");
-    this.registrantAddr1Input = page.getByTestId(
-      "form-item-update_registrant_address_1"
-    );
-    this.registrantCityInput = page.getByTestId(
-      "form-item-update_registrant_address_city"
-    );
-    this.registrantStateInput = page.getByTestId(
-      "form-item-update_registrant_address_state"
-    );
-    this.registrantPostcodeInput = page.getByTestId(
-      "form-item-update_registrant_address_postcode"
-    );
-    this.registrantCountryInput = page.getByTestId(
-      "form-item-update_registrant_address_country_code"
-    );
+    this.registrantPhoneInput = this.registrantPhoneForm.locator("input");
+    this.registrantAddr1Input = page
+      .getByTestId("form-item-update_registrant_address_1")
+      .locator("input");
+    this.registrantCityInput = page
+      .getByTestId("form-item-update_registrant_address_city")
+      .locator("input");
+    this.registrantStateInput = page
+      .getByTestId("form-item-update_registrant_address_state")
+      .locator("input");
+    this.registrantPostcodeInput = page
+      .getByTestId("form-item-update_registrant_address_postcode")
+      .locator("input");
+    this.registrantCountryInput = page
+      .getByTestId("form-item-update-registrant-address-country-code")
+      .locator("button");
     this.promoBadge = page.getByTestId("badge");
 
     /* Domain Drawer */ // TODO: Needs to be it's own page object along with the associated functions
@@ -212,7 +211,9 @@ export class ProductConfig {
   }
 
   async enterSld(sld: string) {
-    const sldFormField = this.page.getByTestId("form-item-sld");
+    const sldFormField = this.page
+      .getByTestId("form-item-sld")
+      .locator("input");
     await sldFormField.fill(sld);
   }
 
@@ -273,10 +274,6 @@ export class ProductConfig {
     await this.registrantCityInput.fill(registrantCity);
     await this.registrantStateInput.fill(registrantState);
     await this.registrantPostcodeInput.fill(registrantPostcode);
-    await this.optionsContainer
-      .locator(this.page.getByRole("combobox"))
-      .click();
-    await this.page.getByTestId(`select-item-${registrantCountryCode}`).click();
   }
 
   async clickBillingTerm(option: number) {
