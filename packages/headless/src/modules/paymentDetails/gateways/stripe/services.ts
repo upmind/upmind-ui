@@ -4,7 +4,8 @@ import {
   loadStripe,
   StripeElement,
   StripeElementLocale,
-  StripeElements
+  StripeElements,
+  StripePaymentElement
 } from "@stripe/stripe-js";
 
 // --- internal
@@ -68,7 +69,7 @@ async function load(
       setupFutureUsage: "off_session"
     });
 
-    const element: StripeElement = elements.create("payment", {
+    const element = elements.create("payment", {
       defaultValues: {
         billingDetails: {
           // name: client.name,

@@ -83,13 +83,21 @@ async function load(
 }
 
 async function render(
-  { authorization, paymentUses3DS, paymentMethodPayPal }: BraintreeContext,
+  {
+    authorization,
+    paymentUses3DS,
+    paymentMethodPayPal,
+    amount,
+    currency
+  }: BraintreeContext,
   { data }: AnyEventObject
 ) {
   const container = data?.container as HTMLElement;
 
   const paypal: paypalCreateOptions = defaultsDeep(data?.paypal ?? {}, {
     flow: "vault",
+    amount,
+    currency: currency.code.toLowerCase(),
     buttonStyle: {
       color: "gold",
       shape: "rect",

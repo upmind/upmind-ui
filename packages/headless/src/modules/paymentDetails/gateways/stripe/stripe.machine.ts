@@ -257,7 +257,8 @@ export default createMachine(
         { elements, element }: StripeContext,
         { data }: AnyEventObject
       ) => {
-        if (!isFunction(elements?.update)) return; // in case we receive an update before stripe has loaded
+        if (!isFunction(elements?.update) || !isFunction(element?.update))
+          return; // in case we receive an update before stripe has loaded
 
         const amount = Math.round((data?.amount || 0) * 100); // NB: Stripe expects amount in cents
         if (amount <= 0) return; // NB: Stripe requires a positive amount

@@ -3,7 +3,12 @@ import type { ActorRef } from "xstate";
 
 // --- types
 import type { GatewayContext } from "../types";
-import { Stripe, StripeElement, StripeElements } from "@stripe/stripe-js";
+import {
+  Stripe,
+  StripeElement,
+  StripeElements,
+  StripePaymentElement
+} from "@stripe/stripe-js";
 
 // -----------------------------------------------------------------------------
 
@@ -49,7 +54,7 @@ export enum STRIPE_PAYMENT_METHOD_TYPES {
 export interface StripeContext extends GatewayContext {
   stripe?: Stripe;
   elements?: StripeElements;
-  element?: StripeElement;
+  element?: StripePaymentElement;
   validationObserver?: ActorRef<any>;
   validationHelper?: (callback: any) => void;
   container?: HTMLElement;
