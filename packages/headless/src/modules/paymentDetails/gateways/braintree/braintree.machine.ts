@@ -257,30 +257,22 @@ export default createMachine(
       // ---
 
       updateBraintree: (
-        { braintree }: BraintreeContext,
+        { braintree, paymentMethodPayPal }: BraintreeContext,
         { data }: AnyEventObject
       ) => {
         if (!isFunction(braintree?.updateConfiguration)) return; // in case we receive an update before braintree has loaded
 
-        const amount = Math.round((data?.amount || 0) * 100); // NB: Braintree expects amount in cents
+        const amount = data?.amount;
         if (amount <= 0) return; // NB: Braintree requires a positive amount
 
-        braintree.updateConfiguration({
-          amount,
-          currency: data?.currency.code.toLowerCase() // NB: MUST be lowercase
-        });
-
-        if (data.address) {
-          braintree.updateConfiguration({
-            defaultValues: {
-              billingDetails: {
-                address: {
-                  postal_code: data.address?.postcode,
-                  country: data.address?.country?.code
-                }
-              }
-            }
-          });
+        if (paymentMethodPayPal) {
+          debugger;
+          braintree.updateConfiguration("paypal", "amount", amount);
+          braintree.updateConfiguration(
+            "paypal",
+            "currency",
+            data?.currency.code.toLowerCase()
+          );
         }
       },
 
