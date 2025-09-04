@@ -50,8 +50,10 @@ export const useProductFlows = () => {
       guard: async (route: Route) => {
         // some query params that we ALWAYS look out for and resolve for the UI:
         // currency,coupons, lang
-        const { currency, coupon, productConfig, productId, getParam } =
+        let { currency, coupon, productConfig, productId, getParam } =
           useRouteQueryParams(route);
+
+        // NB if we have a currency, then set it and await the returned currency id to pass to the product config
         if (currency) setCurrency(currency);
         if (coupon) addPromotion(coupon);
         if (productConfig) addMany([productConfig]);
@@ -67,7 +69,14 @@ export const useProductFlows = () => {
         // otherwise ensure we have a valid product
         const basketItem = await (
           !productPendingExists(productId)
-            ? add(productId, productConfig ?? { productId, quantity: 1 }, force)
+            ? add(
+                productId,
+                productConfig ?? {
+                  productId,
+                  quantity: 1
+                },
+                force
+              )
             : getPendingProduct(productId, true, force)
         ).catch((error: any) => {
           console.error("Error getting pending product:", error);

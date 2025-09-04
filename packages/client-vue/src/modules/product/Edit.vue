@@ -12,7 +12,7 @@
       <Section :title="t('product.configure')">
         <form @submit.prevent @reset.prevent>
           <ProductConfig
-            v-if="basketProduct && !meta?.isLoading"
+            v-if="basketProduct && meta?.isAvailable"
             :item="basketProduct"
             :model-value="basketProduct?.id"
             :no-footer="true"
@@ -20,6 +20,8 @@
             @resolve="doResolve"
             @reject="doReject"
           />
+
+          <ProductNotFound v-else-if="meta?.isUnavailable" />
 
           <ConfigSkeleton v-else />
         </form>
@@ -33,6 +35,7 @@
         aside
       >
         <Summary
+          v-if="product"
           :product="product"
           :meta="meta"
           @resolve="doResolve"
@@ -68,9 +71,9 @@ import {
   useRoutingEngine,
   useBasketProducts,
   useQueryParams,
-  ROUTE,
   useBrand,
-  useProductConfig
+  useProductConfig,
+  ROUTE
 } from "@upmind-automation/headless";
 import config from "./product.config";
 
@@ -83,6 +86,7 @@ import ProductConfig from "./components/config/Config.vue";
 import Section from "../../components/content/LayoutSection.vue";
 import Summary from "./components/summary/Summary.vue";
 import SummaryFooter from "./components/summary/SummaryFooter.vue";
+import ProductNotFound from "./NotFound.vue";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -95,18 +99,17 @@ const { isReady } = useBasket();
 const { basketProductId } = useQueryParams();
 const { configure } = useBasketProducts();
 const { uiCart } = useBrand();
+
+await isReady();
+await isResolved(ROUTE.PRODUCT_EDIT);
+
 const {
-  isReady: isReadyBasket,
-  meta,
   stop,
   update,
   service: basketProduct
 } = await configure(basketProductId);
-const { product, updateQuantity } = useProductConfig(basketProduct);
 
-await isReady();
-await isReadyBasket();
-await isResolved(ROUTE.PRODUCT_EDIT);
+const { meta, product, updateQuantity } = useProductConfig(basketProduct);
 
 const configMeta = computed(() => {
   return {

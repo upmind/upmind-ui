@@ -209,6 +209,7 @@ export type PromotionModel = {
 // The props required to create a product configuration
 export interface ProductProps extends ProductModel {
   currencyId?: ICurrency["id"];
+  currencyCode?: ICurrency["code"];
   clientId?: IClient["id"];
   promotions?: IBasketPromotion[];
   coupons?: string[]; // these are 'promotions' passed via url or config that are not in the basket yet
@@ -417,6 +418,7 @@ export interface ProductConfigContext {
   id: string;
   clientId?: ProductProps["clientId"];
   currencyId?: ProductProps["currencyId"];
+  currencyCode?: ProductProps["currencyCode"];
   promotions?: ProductProps["promotions"];
   coupons?: ProductProps["coupons"];
   subproducts?: ProductProps["subproducts"];
