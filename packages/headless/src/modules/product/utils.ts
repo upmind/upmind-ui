@@ -459,8 +459,11 @@ export function parseSubproducts(
             productId: defaultSubproduct.id
           });
         } else if (
-          (subproduct?.meta.required && !subproduct.meta.multiple) ||
-          (subproduct.meta.multiple && subproduct.values?.length === 1)
+          // TODO: simplyfy this to be just: we jsut need to update the ui errors before doing this
+          //  subproduct?.meta.required && subproduct.values?.length === 1
+          subproduct?.meta.required &&
+          (!subproduct.meta.multiple ||
+            (subproduct.meta.multiple && subproduct.values?.length === 1))
         ) {
           const pid = get(first(subproduct.values), "id");
           if (pid) set(selected, pid, { productId: pid });
