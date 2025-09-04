@@ -91,7 +91,7 @@ const props = defineProps<{
 
 function safeValue(value: any): string | string[] {
   const { multiple, required } = props.subproduct.meta;
-  const hasMultiple = (props.subproduct?.values?.length || 0) >= 1;
+  const hasMultiple = (props.subproduct?.values?.length || 0) > 1;
   const shouldBeSingle = !multiple || (required && !hasMultiple);
   const safeArray = ((!isArray(value) ? [value] : value) ?? []) as string[];
   const safeString = (isArray(value) ? first(value) : value) ?? "";
@@ -132,9 +132,8 @@ const as = computed(() => {
 
 const mapComponent = (name: string) => {
   const { multiple, required } = props.subproduct.meta;
-  const hasMultiple = (props.subproduct?.values?.length || 0) >= 1;
+  const hasMultiple = (props.subproduct?.values?.length || 0) > 1;
 
-  // TODO: Create a helper that reliably maps the component name to the component (with a soft comparison)
   switch (name) {
     case "select":
     case "selectcards":
