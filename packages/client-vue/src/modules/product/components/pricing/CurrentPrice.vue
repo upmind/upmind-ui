@@ -29,11 +29,11 @@ const props = withDefaults(defineProps<CurrentPriceProps>(), {
   is: "span"
 });
 
-const { t, te } = useI18n();
+const { t } = useI18n();
 
 const priceMeta = computed(() => ({
   canShowCycle: props.showCycle && props.cycle,
-  isFree: props.meta?.free
+  isFree: props.free
 }));
 
 const styles = useStyles(

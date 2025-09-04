@@ -51,8 +51,12 @@
 
 <script setup lang="ts">
 // --- external
-import { computed, ref, watch } from "vue";
-import { useBrand, useProductConfig } from "@upmind-automation/headless";
+import { computed } from "vue";
+import {
+  useBrand,
+  type Product,
+  type UseProductConfigMeta
+} from "@upmind-automation/headless";
 import { useI18n } from "vue-i18n";
 import { useStyles } from "@upmind-automation/upmind-ui";
 
@@ -67,19 +71,18 @@ import { Alert, Button, NumberField } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { ComputedRef } from "vue";
-import type { ActorRef } from "xstate";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
-  item: ActorRef<any>;
+  product: Product;
+  meta: UseProductConfigMeta;
 }>();
 
-const emits = defineEmits(["resolve"]);
+const emits = defineEmits(["resolve", "update:quantity"]);
 
 const { t } = useI18n();
 
 const { uiCart } = useBrand();
-const { product, meta, model, updateQuantity } = useProductConfig(props.item);
 
 const configMeta = computed(() => ({
   layout: uiCart.value?.layout
@@ -93,7 +96,10 @@ const styles = useStyles(["summary"], configMeta, config) as ComputedRef<{
 }>;
 
 // ---
-const doResolve = async () => {
-  emits("resolve", model.value);
-};
+function updateQuantity(value: number) {
+  emits("update:quantity", value);
+}
+function doResolve() {
+  emits("resolve");
+}
 </script>
