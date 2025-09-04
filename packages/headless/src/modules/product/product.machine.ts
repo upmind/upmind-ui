@@ -443,20 +443,8 @@ export default createMachine(
       setModel: assign({
         model: (_context, { data }: AnyEventObject) =>
           parseModel(data?.model ?? data),
-
-        lookups: ({ lookups, rawProduct }, { data }: AnyEventObject) => {
-          // reset the lookup options options based on the term selected,
-          //  as this may impact what price and options are available
-          lookups ??= {};
-          lookups.options = parseSubproductDetails(
-            rawProduct?.products_options,
-            data.model?.term
-          );
-
-          lookups.prices = data.prices;
-
-          return lookups;
-        },
+        lookups: ({ lookups }, { data }: AnyEventObject) =>
+          data?.lookups ?? lookups ?? {},
 
         errorExternal: (
           { errorExternal, model }: ProductConfigContext,

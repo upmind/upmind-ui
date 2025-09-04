@@ -46,7 +46,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
   const { includesTax } = useBrand();
 
   const { state, send } = useActor(service);
-  const model = toRef(state.value.context, "model");
+  const model = computed(() => state.value.context.model); //toRef(state.value.context, "model");
   const lookups = computed(() => state.value.context.lookups);
   const id = computed(() => service.id);
   const touched = ref(false);
@@ -91,7 +91,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
     () => state.value.context?.errorExternal
   );
 
-  const meta = computed(() => ({
+  const meta = computed<UseProductConfigMeta>(() => ({
     isLoading: stateMatches(state, ["subscribing", "loading"]),
     isNew: !contextMatches(state, ["basketProduct"]),
     isDirty: !isEqual(
@@ -131,14 +131,6 @@ export const useProductConfig = (service: ActorRef<any>) => {
     hasTaxIncluded: includesTax.value
   }));
 
-  // keep our model in sync with the machine,
-  // typically this is only needed when the machine is updated/refreshed
-  watch(state, newVal => {
-    if (newVal.context.model !== model.value) {
-      model.value = newVal.context.model;
-    }
-  });
-
   // --
   async function setValues(
     type:
@@ -156,10 +148,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
       service,
       state => ["available.valid", "available.invalid"].some(state.matches),
       { timeout: 60_000 }
-    ).then(state => {
-      // NB only updat ethe model AFTER we have chaecked/parsed/validated
-      model.value = state.context.model;
-    });
+    );
   }
 
   // --- QUANTITY
@@ -366,4 +355,28 @@ export const useProductConfig = (service: ActorRef<any>) => {
     // ---
     reset: () => send({ type: "RESET" })
   };
+};
+
+export type UseProductConfig = ReturnType<typeof useProductConfig>;
+
+export type UseProductConfigMeta = {
+  isLoading: boolean;
+  isNew: boolean;
+  isDirty: boolean;
+  isTouched: boolean;
+  showErrors: boolean;
+  isUnavailable: any;
+  hasErrors: boolean;
+  isConfigurable: boolean;
+  isInvalid: boolean;
+  isCalculating: boolean;
+  isProcessing: boolean;
+  isComplete: any;
+  isDone: any;
+  hasProvisioning: boolean;
+  hasAttributes: boolean;
+  hasOptions: boolean;
+  hasTerms: boolean;
+  hasMonthlyTerms: boolean;
+  hasTaxIncluded: boolean;
 };

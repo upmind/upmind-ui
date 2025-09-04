@@ -2,7 +2,7 @@
   <template v-if="!props.meta?.free || props.meta?.overrides">
     <ExPrice
       :regular-price="props.price?.regularPrice ?? ''"
-      :meta="props.meta"
+      :discounted="props.meta?.discounted ?? false"
       :cycle="props.cycle"
     />
 
@@ -16,7 +16,7 @@
         <Icon icon="transfer" size="nano" class="text-inherit" />
         <CurrentPrice
           :current-price="props.price?.currentPrice ?? ''"
-          :meta="props.meta"
+          :free="props.meta.free ?? false"
           :cycle="props.cycle"
         />
       </span>
@@ -27,7 +27,7 @@
         <span>+</span
         ><CurrentPrice
           :current-price="props.price?.currentPrice ?? ''"
-          :meta="props.meta"
+          :free="props.meta.free ?? false"
           :cycle="props.cycle"
         />
       </span>

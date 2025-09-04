@@ -33,19 +33,16 @@
         aside
       >
         <Summary
-          v-if="basketProduct && !meta?.isLoading"
-          :item="basketProduct"
+          :product="product"
+          :meta="meta"
           @resolve="doResolve"
+          @update:quantity="updateQuantity"
         />
       </Section>
     </template>
 
     <template #aside-footer>
-      <SummaryFooter
-        v-if="basketProduct && !meta?.isLoading"
-        :item="basketProduct"
-        @resolve="doResolve"
-      />
+      <SummaryFooter v-if="product" :product="product" @resolve="doResolve" />
     </template>
 
     <template #footer>
@@ -105,7 +102,7 @@ const {
   update,
   service: basketProduct
 } = await configure(basketProductId);
-const { product } = useProductConfig(basketProduct);
+const { product, updateQuantity } = useProductConfig(basketProduct);
 
 await isReady();
 await isReadyBasket();

@@ -14,7 +14,7 @@
             is="dd"
             :class="styles.summary.pricing.currentPrice"
             :current-price="item.price.currentPrice"
-            :meta="item.meta"
+            :free="item.meta.free ?? false"
             :cycle="item.cycle"
             data-testid="total-price"
           />

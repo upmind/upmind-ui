@@ -36,19 +36,17 @@
         aside
       >
         <Summary
-          v-if="pendingProduct"
-          :item="pendingProduct"
+          v-if="product"
+          :product="product"
+          :meta="meta"
           @resolve="doResolve"
+          @update:quantity="updateQuantity"
         />
       </Section>
     </template>
 
     <template #aside-footer>
-      <SummaryFooter
-        v-if="pendingProduct"
-        :item="pendingProduct"
-        @resolve="doResolve"
-      />
+      <SummaryFooter v-if="product" :product="product" @resolve="doResolve" />
     </template>
 
     <template #footer>
@@ -111,8 +109,8 @@ await isResolved(ROUTE.PRODUCT_ADD);
 
 const {
   meta,
-  stop,
   update,
+  updateQuantity,
   service: pendingProduct
 } = await configure(productId);
 
