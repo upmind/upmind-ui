@@ -176,7 +176,6 @@ function doResolve(value: BillingModel) {
 
 await Promise.all([isAddressesReady(), isPhonesReady()]).then(() => {
   // Ensure modelValue is initialized with default values
-  console.log("Addresses Ready", addresses.value);
   modelValue.value = {
     companyId: undefined,
     addressId: modelValue.value?.addressId ?? defaultAddress()?.id,
