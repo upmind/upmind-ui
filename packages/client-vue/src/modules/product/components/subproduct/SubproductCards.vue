@@ -12,8 +12,6 @@
     :tooltip="subproduct?.description"
     @blur="blurred = true"
   >
-    <pre>{{ { modelValue, mapComponentName } }}</pre>
-
     <component
       :is="as"
       :id="subproduct.id"
