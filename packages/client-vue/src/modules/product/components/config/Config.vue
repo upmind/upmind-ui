@@ -29,7 +29,7 @@
           v-for="option in options"
           :key="option.id"
           :subproduct="option"
-          :model-value="keys(model.value?.['options']?.[option.id])"
+          :model-value="keys(model?.['options']?.[option.id])"
           :errors="getErrors('options', option)"
           :touched="meta.showErrors"
           :quantities="getQuantities(option)"
@@ -45,21 +45,19 @@
         />
 
         <!-- attributes -->
-        <!-- <SubproductCards
+        <SubproductCards
           v-for="attribute in attributes"
           :key="attribute.id"
           :subproduct="attribute"
-          :model-value="getValue('attributes', attribute)"
+          :model-value="keys(model?.['attributes']?.[attribute.id])"
           :errors="getErrors('attributes', attribute)"
           :touched="meta.showErrors"
           :required="attribute.meta.required"
           :visible="!!attribute.values?.length"
           :processing="meta.isProcessing || meta.isLoading"
           :disabled="props.disabled || meta.isLoading || meta.isProcessing"
-          @update:modelValue="
-            setAttributes(attribute,  $event)
-          "
-        /> -->
+          @update:modelValue="setAttributes(attribute, $event)"
+        />
 
         <!-- provisional fields -->
         <ConfigForm
@@ -210,8 +208,6 @@ const styles = useStyles(["product.config"], meta, config) as ComputedRef<{
 }>;
 
 const getTermsComponent = computed(() => {
-  console.log("getTermsComponent");
-
   // TODO: Can we do this in a lookup?
   const control =
     product.value.productDetails?.uiMeta?.uischema?.billing?.control ||
@@ -255,6 +251,6 @@ function doResolve() {
 
 onUpdated(() => {
   // Temp debug trick to see how many times we are triggered per config change
-  console.log("Config updated");
+  console.debug("Config updated");
 });
 </script>

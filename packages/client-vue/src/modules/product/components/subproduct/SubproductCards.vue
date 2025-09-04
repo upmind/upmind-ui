@@ -12,6 +12,8 @@
     :tooltip="subproduct?.description"
     @blur="blurred = true"
   >
+    <pre>{{ { modelValue, mapComponentName } }}</pre>
+
     <component
       :is="as"
       :id="subproduct.id"
@@ -99,7 +101,6 @@ const modelValue = defineModel<string | string[] | any>("modelValue", {
     return safeValue(value);
   },
   set(value) {
-    console.log("set modelValue", props.subproduct.id);
     return safeValue(value);
   }
 });
@@ -128,7 +129,6 @@ const as = computed(() => {
 const mapComponent = (name: string) => {
   const { multiple, required } = props.subproduct.meta;
   const hasMultiple = (props.subproduct?.values?.length || 0) > 1;
-
   switch (name) {
     case "select":
     case "selectcards":
@@ -143,6 +143,24 @@ const mapComponent = (name: string) => {
         : CheckboxCards;
   }
 };
+
+const mapComponentName = computed(() => {
+  const { multiple, required } = props.subproduct.meta;
+  const hasMultiple = (props.subproduct?.values?.length || 0) > 1;
+  switch (props.subproduct.uiMeta?.uischema?.control) {
+    case "select":
+    case "selectcards":
+    case "SelectCards":
+      return !multiple || (required && !hasMultiple)
+        ? "SelectCards"
+        : "CheckboxCards";
+
+    default:
+      return !multiple || (required && !hasMultiple)
+        ? "RadioCards"
+        : "CheckboxCards";
+  }
+});
 
 const parsedValues = computed(() => {
   const values = map(props.subproduct?.values, (subproduct, index) => {
