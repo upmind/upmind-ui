@@ -231,7 +231,7 @@ export const useBasket = () => {
   async function setCurrency(currency: string) {
     return waitFor(service, state => stateMatches(state, ["shopping"]), {
       timeout: 60_000
-    }).then(() => {
+    }).then(async () => {
       const actor = actors.currency;
       if (!actor.value)
         return Promise.reject(
@@ -247,7 +247,12 @@ export const useBasket = () => {
       const value = contextValue<any>(actor, "model") || {};
 
       // if it has not then bail
-      if (!code || code == value?.code) return Promise.resolve();
+      if (!code || code == value?.code) return Promise.resolve(value);
+
+      await waitFor(
+        actor.value!.service,
+        state => !stateMatches(state, ["loading"])
+      );
 
       actor.value?.send({ type: "SET", data: { code }, update: true });
 
@@ -268,7 +273,8 @@ export const useBasket = () => {
           if (stateMatches(state, ["error", "invalid"])) {
             return Promise.reject(contextValue(state, "error"));
           }
-          return Promise.resolve();
+          const value = contextValue<any>(actor, "model") || {};
+          return Promise.resolve(value);
         })
         .catch(() => {
           throw new DetailedError(

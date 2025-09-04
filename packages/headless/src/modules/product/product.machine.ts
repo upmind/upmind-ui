@@ -162,6 +162,11 @@ export default createMachine(
         on: {
           REFRESH: [
             {
+              target: "loading",
+              actions: ["refreshContext"],
+              cond: "hasCurrencyChanged"
+            },
+            {
               target: "refreshing",
               actions: ["refreshContext"],
               cond: "hasBasketChanged"
@@ -208,8 +213,6 @@ export default createMachine(
           }
         }
       },
-
-      error: {},
 
       // this is a state where we hav ebeen deleted or are no longer available from a parent machine
       processing: {
@@ -261,6 +264,8 @@ export default createMachine(
           CANCEL: { target: "available" }
         }
       },
+
+      error: {},
 
       // Handle completion, stop the machine and prevent further products
       complete: {
@@ -381,6 +386,7 @@ export default createMachine(
           const newContext = {
             clientId: client_id,
             currencyId: currency_id,
+            currencyCode: undefined, // we reset any given currency code after refresh to prevent going out of sync
             promotions: uniq(concat(promotions ?? [], coupons ?? [])),
             coupons: coupons ?? [],
             rawBasketProduct: rawBasketProduct ?? basket_product, // ensure we honoure any given basket product
@@ -629,7 +635,6 @@ export default createMachine(
         {
           basketId,
           clientId,
-          currencyId,
           promotions,
           rawBasketProduct
         }: ProductConfigContext,
@@ -639,7 +644,6 @@ export default createMachine(
 
         const clientChanged = clientId == data?.client_id!;
         const basketChanged = basketId !== data?.id;
-        const currencyChanged = currencyId !== data?.currency_id;
         const promotionsChanged = !isEmpty(
           xorBy(promotions, data?.promotions, "promotion_id")
         );
@@ -656,12 +660,16 @@ export default createMachine(
         const value =
           basketChanged ||
           clientChanged ||
-          currencyChanged ||
           promotionsChanged ||
           basketPoductChanged;
 
         return value;
       },
+
+      hasCurrencyChanged: (
+        { currencyId }: ProductConfigContext,
+        { data }: AnyEventObject
+      ) => currencyId !== data?.currency_id,
 
       hasBundles: ({
         lookups,

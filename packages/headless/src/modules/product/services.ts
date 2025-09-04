@@ -55,6 +55,7 @@ async function load(
   {
     model,
     currencyId,
+    currencyCode,
     promotions,
     basketId,
     rawBasketProduct
@@ -76,7 +77,7 @@ async function load(
   const { validateCurrency, ensureConfig } = useBrand();
 
   const [currency] = await Promise.all([
-    validateCurrency({ id: currencyId }),
+    validateCurrency({ id: currencyId, code: currencyCode }),
     ensureConfig(BrandConfigKeys.SHOW_PROMOTION_AS)
   ]);
 
@@ -116,7 +117,8 @@ async function load(
       }
     ],
     staleTime: useTime()?.DAY, // product data is not updated often, so we can cache for a day
-    withAccessToken: true
+    withAccessToken: true,
+    withCurrency: true
   });
 
   // lets get our provisioning fields early, so we can make them lookups

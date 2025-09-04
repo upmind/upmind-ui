@@ -120,10 +120,17 @@ export const useRouteQueryParams = (route: Route) => {
     // coupons
     const coupons = getParams(QUERY_PARAMS.COUPONS);
 
+    const currencyCode = getParam(
+      QUERY_PARAMS.CURRENCY,
+      getParam(QUERY_PARAMS.CURRENCY_CODE)
+    );
+
+    const currencyId = getParam(QUERY_PARAMS.CURRENCY_ID);
+
     // bundle
     const bundle = getParam("bundle");
 
-    const model = [
+    const model: ProductProps[] = [
       {
         productId,
         quantity: productQty ? toNumber(productQty) : 1,
@@ -131,7 +138,9 @@ export const useRouteQueryParams = (route: Route) => {
         subproducts,
         provisionFields,
         coupons,
-        bundle
+        bundle,
+        currencyCode,
+        currencyId
       }
     ];
 
