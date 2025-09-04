@@ -20,7 +20,8 @@ import {
   checkQuantity,
   checkTerm,
   checkSubproducts,
-  checkProvisioning
+  checkProvisioning,
+  parseSubproductDetails
 } from "./utils";
 
 import {
@@ -28,6 +29,7 @@ import {
   defaultsDeep,
   get,
   isEmpty,
+  isEqual,
   isNil,
   map,
   omitBy,
@@ -157,6 +159,9 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
     provisionFields: {}
   });
 
+  const lookups = context.lookups ?? {};
+  lookups.prices = context.lookups?.prices || {};
+
   let values: ProductModel = defaultsDeep(
     {
       productId: data?.productId,
@@ -181,13 +186,21 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
     );
   }
 
-  let prices: PriceCalculations = context.lookups?.prices || {};
-
   values.quantity = parseQuantity(values.quantity, context?.lookups?.product);
 
   const term = parseTerm(context, values?.term, values.quantity);
   values.term = term.term;
-  prices.term = term.price;
+  lookups.prices.term = term.price;
+
+  // NB:if terms have changed.....
+  // reset the lookup options based on the term selected
+  // as this may impact what price and options are available
+  if (!isEqual(baseModel?.term, values?.term)) {
+    lookups.options = parseSubproductDetails(
+      context.rawProduct?.products_options,
+      values.term
+    );
+  }
 
   const options = parseSubproducts(
     "options",
@@ -200,7 +213,7 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
     values.quantity
   );
   values.options = options.subproducts;
-  prices.options = options.price;
+  lookups.prices.options = options.price;
 
   const attributes = parseSubproducts(
     "attributes",
@@ -216,7 +229,7 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
 
   // ---
   return new Promise(resolve => {
-    resolve({ model: values, prices });
+    resolve({ model: values, lookups });
   });
 }
 
