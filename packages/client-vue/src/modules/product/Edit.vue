@@ -1,5 +1,5 @@
 <template>
-  <Layout :variant="uiCart?.layout" minimal>
+  <Layout :variant="configMeta.layout" minimal>
     <template #navigation>
       <Back @click.prevent="doReject" />
     </template>
@@ -76,13 +76,13 @@ import config from "./product.config";
 
 // --- components
 import { Layout, useStyles } from "@upmind-automation/upmind-ui";
-import ProductConfig from "./components/config/Config.vue";
-import Summary from "./components/summary/Summary.vue";
-import ConfigSkeleton from "./components/ConfigSkeleton.vue";
 import Back from "../../components/navigation/Back.vue";
+import ConfigSkeleton from "./components/ConfigSkeleton.vue";
 import Header from "./components/header/Header.vue";
-import SummaryFooter from "./components/summary/SummaryFooter.vue";
+import ProductConfig from "./components/config/Config.vue";
 import Section from "../../components/content/LayoutSection.vue";
+import Summary from "./components/summary/Summary.vue";
+import SummaryFooter from "./components/summary/SummaryFooter.vue";
 
 // --- types
 import type { ComputedRef } from "vue";

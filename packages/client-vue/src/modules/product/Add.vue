@@ -1,5 +1,5 @@
 <template>
-  <Layout :variant="uiCart?.layout" minimal>
+  <Layout :variant="configMeta.layout" minimal>
     <template #controls>
       <Breadcrumb :items="items" size="lg" />
     </template>
@@ -65,7 +65,6 @@
 // --- external
 import { watch, computed, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
-import { forEach } from "lodash-es";
 
 // --- internal
 import {
@@ -82,13 +81,16 @@ import config from "./product.config";
 
 // --- components
 import { Layout, Breadcrumb, useStyles } from "@upmind-automation/upmind-ui";
+import ConfigSkeleton from "./components/ConfigSkeleton.vue";
+import Header from "./components/header/Header.vue";
 import ProductConfig from "./components/config/Config.vue";
+import Section from "../../components/content/LayoutSection.vue";
+import Share from "../../components/navigation/Share.vue";
 import Summary from "./components/summary/Summary.vue";
 import SummaryFooter from "./components/summary/SummaryFooter.vue";
-import ConfigSkeleton from "./components/ConfigSkeleton.vue";
-import Share from "../../components/navigation/Share.vue";
-import Header from "./components/header/Header.vue";
-import Section from "../../components/content/LayoutSection.vue";
+
+// --- utils
+import { forEach } from "lodash-es";
 
 // --- types
 import type { ProductCategory } from "@upmind-automation/headless";
@@ -107,14 +109,10 @@ const { getPath } = useProductCategories();
 await isReady();
 await isResolved(ROUTE.PRODUCT_ADD);
 
-const {
-  meta,
-  update,
-  updateQuantity,
-  service: pendingProduct
-} = await configure(productId);
+const { meta, update, service: pendingProduct } = await configure(productId);
 
-const { product, productImage } = useProductConfig(pendingProduct);
+const { product, productImage, updateQuantity } =
+  useProductConfig(pendingProduct);
 
 const configMeta = computed(() => {
   return {
