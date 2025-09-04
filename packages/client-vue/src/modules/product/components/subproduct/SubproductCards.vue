@@ -61,11 +61,6 @@ import { find, map, get, isArray, first } from "lodash-es";
 // --- types
 import type { ComputedRef } from "vue";
 import type {
-  SelectCardsItemProps,
-  RadioCardsItemProps,
-  CheckboxCardsItemProps
-} from "@upmind-automation/upmind-ui";
-import type {
   SubproductDetails,
   SubproductValue
 } from "@upmind-automation/headless";
@@ -176,11 +171,10 @@ function getSubproductValue(value: string): SubproductValue {
   return {
     ...product,
     quantity: get(props.quantities, value, 0),
-    title: product?.title ?? ""
-    // title: product?.uiMeta?.uischema?.primary
-    //   ? product?.uiMeta?.uischema?.group || product?.title || ""
-    //   : product?.title || ""
-    // icon: product?.uiMeta?.uischema?.icon, //Is this used?
+    title: product?.uiMeta?.uischema?.primary
+      ? product?.uiMeta?.uischema?.group || product?.title || ""
+      : product?.title || ""
+    // icon: product?.uiMeta?.uischema?.icon //Is this used?
   };
 }
 
