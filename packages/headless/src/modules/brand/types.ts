@@ -8,7 +8,7 @@ import { ThemeTokens } from "../theming";
 export interface IBrandMeta {
   cart: {
     storefront_url?: string; // URL of the storefront
-    layout?: "default" | "enclosed" | "full" | string;
+    layout?: "default" | "enclosed" | "full";
     terms_url?: string;
     clickwrap_disclaimer?: string;
     tagline?: string;
