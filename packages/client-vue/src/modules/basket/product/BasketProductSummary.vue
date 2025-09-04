@@ -55,7 +55,7 @@
                 />
                 <CurrentPrice
                   :current-price="summary.price.currentPrice"
-                  :meta="summary.meta"
+                  :free="summary.meta.free ?? false"
                   :cycle="summary.cycle"
                   :ui-config="{
                     pricing: { current: [styles.product.pricing.current] }
@@ -73,7 +73,7 @@
           <div class="flex items-center gap-x-2">
             <CurrentPrice
               :current-price="summary.price.currentPrice"
-              :meta="summary.meta"
+              :free="summary.meta.free ?? false"
               :cycle="summary.cycle"
               :ui-config="{
                 pricing: { current: [styles.product.pricing.current] }
@@ -81,7 +81,7 @@
             />
             <ExPrice
               :regular-price="summary.price.regularPrice"
-              :meta="summary.meta"
+              :discounted="summary.meta.discounted ?? false"
               :cycle="summary.cycle"
               :ui-config="{ pricing: { ex: [styles.product.pricing.ex] } }"
             />
@@ -99,7 +99,7 @@
         <TermsDescription v-bind="summary" />
         <ExPrice
           :regular-price="summary.price.regularPrice"
-          :meta="summary.meta"
+          :discounted="summary.meta.discounted ?? false"
           :cycle="summary.cycle"
           :ui-config="{ pricing: { ex: [styles.product.pricing.ex] } }"
         />

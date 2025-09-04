@@ -29,11 +29,11 @@
           v-for="option in options"
           :key="option.id"
           :subproduct="option"
-          :model-value="getValue('options', option)"
+          :model-value="keys(model.value?.['options']?.[option.id])"
           :errors="getErrors('options', option)"
           :touched="meta.showErrors"
           :quantities="getQuantities(option)"
-          @update:modelValue="setOptions(option, safeValue(option, $event))"
+          @update:modelValue="setOptions(option, $event)"
           @update:quantity="
             (value: string, qty: number) =>
               updateOptionQuantity(option, value, qty)
@@ -45,7 +45,7 @@
         />
 
         <!-- attributes -->
-        <SubproductCards
+        <!-- <SubproductCards
           v-for="attribute in attributes"
           :key="attribute.id"
           :subproduct="attribute"
@@ -57,9 +57,9 @@
           :processing="meta.isProcessing || meta.isLoading"
           :disabled="props.disabled || meta.isLoading || meta.isProcessing"
           @update:modelValue="
-            setAttributes(attribute, safeValue(attribute, $event))
+            setAttributes(attribute,  $event)
           "
-        />
+        /> -->
 
         <!-- provisional fields -->
         <ConfigForm
@@ -119,7 +119,7 @@
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
-import { computed } from "vue";
+import { computed, onMounted, onUpdated, watch } from "vue";
 
 // --- internal
 import { useProductConfig } from "@upmind-automation/headless";
@@ -127,19 +127,18 @@ import { useStyles, cn } from "@upmind-automation/upmind-ui";
 import config from "../../product.config";
 
 // --- components
-import { Markdown, Lineclamp } from "@upmind-automation/upmind-ui";
 import TermsConfigGrid from "../terms/TermsConfigGrid.vue";
 import TermsConfigSelect from "../terms/TermsConfigSelect.vue";
 import SubproductCards from "../subproduct/SubproductCards.vue";
 import ConfigForm from "./ConfigForm.vue";
 
 // --- custom elements
-import { Badge, Button } from "@upmind-automation/upmind-ui";
+import { Button } from "@upmind-automation/upmind-ui";
 
 // --- utils
-import { reduce, get, first, isArray, set, keys, find } from "lodash-es";
+import { reduce, get, first, isArray, set, keys, isEqual } from "lodash-es";
 
-// -- -types
+// --- types
 import type { ActorRef } from "xstate";
 import type { ComputedRef, HTMLAttributes } from "vue";
 
@@ -172,7 +171,6 @@ const props = withDefaults(
 
 const {
   product,
-  productImage,
   terms,
   options,
   attributes,
@@ -211,16 +209,9 @@ const styles = useStyles(["product.config"], meta, config) as ComputedRef<{
   };
 }>;
 
-function safeValue(subproduct: any, value: any): string | string[] {
-  const shouldBeArray =
-    subproduct?.meta?.multiple || subproduct?.values?.length == 1;
-  const safeArray = !isArray(value) ? [value] : value;
-  const safeString = isArray(value) ? first(value) : value;
-  const safeValue = shouldBeArray ? safeArray : safeString;
-  return safeValue || "";
-}
-
 const getTermsComponent = computed(() => {
+  console.log("getTermsComponent");
+
   // TODO: Can we do this in a lookup?
   const control =
     product.value.productDetails?.uiMeta?.uischema?.billing?.control ||
@@ -228,14 +219,6 @@ const getTermsComponent = computed(() => {
 
   return control === "TermsConfigSelect" ? TermsConfigSelect : TermsConfigGrid;
 });
-
-function getValue(
-  type: "options" | "attributes",
-  subproduct: any
-): string | string[] {
-  const value = keys(model.value?.[type]?.[subproduct.id]);
-  return safeValue(subproduct, value);
-}
 
 function getQuantities(subproduct: any): Record<string, number> {
   const value = reduce(
@@ -249,6 +232,7 @@ function getQuantities(subproduct: any): Record<string, number> {
     {}
   );
 
+  // console.log("getQuantities", subproduct.id);
   return value;
 }
 
@@ -268,4 +252,9 @@ function doReject() {
 function doResolve() {
   emit("resolve", props.modelValue);
 }
+
+onUpdated(() => {
+  // Temp debug trick to see how many times we are triggered per config change
+  console.log("Config updated");
+});
 </script>
