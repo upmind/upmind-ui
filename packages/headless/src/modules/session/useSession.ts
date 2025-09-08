@@ -61,18 +61,10 @@ export const useSession = () => {
   // --- state
 
   async function isReady(): Promise<boolean> {
-    return waitFor(
-      service,
-      state => {
-        console.log("Session is ready?", state.value);
-        return !state.matches("checking");
-      },
-      {
-        timeout: 60_000
-      }
-    )
+    return waitFor(service, state => !state.matches("checking"), {
+      timeout: 60_000
+    })
       .then(state => {
-        console.log("Session is ready!", state.value);
         if (stateMatches(state, "error")) throw state.context.error;
         return true; // Session is ready
       })

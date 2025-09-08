@@ -1,9 +1,9 @@
 // --- internal
 import { useQuery } from "../..";
-import { useBasketPromotions } from "../basket";
+import { useBasket, useBasketPromotions } from "../basket";
 
 // --- utils
-import { map } from "lodash-es";
+import { map, set } from "lodash-es";
 import { parseProduct } from "./mappers";
 import { useTime } from "../../utils";
 
@@ -20,22 +20,29 @@ const queryKey: QueryKey = ["product", "catalogue"];
 
 function loadList(params?: Partial<QueryParams>) {
   const { list, useUrl } = useQuery();
+  const { basketId } = useBasket();
   const { promotions } = useBasketPromotions();
+
+  const urlParams = {
+    promotions: map(promotions.value, "promotion.code").join(),
+    with: [
+      "image",
+      "images",
+      "prices",
+      "products_attributes",
+      "products_options",
+      "products_options.prices",
+      `category${".top_category".repeat(4)}`
+    ].join(",")
+  };
+
+  if (basketId.value) set(urlParams, "basket_id", basketId.value);
 
   return list<IProduct[], Product[]>({
     ...(params as any),
     queryKey,
     url: useUrl(`basket/products`, {
-      promotions: map(promotions.value, "promotion.code").join(),
-      with: [
-        "image",
-        "images",
-        "prices",
-        "products_attributes",
-        "products_options",
-        "products_options.prices",
-        `category${".top_category".repeat(4)}`
-      ].join(",")
+      ...urlParams
     }),
     withAccessToken: true,
     // --- options
