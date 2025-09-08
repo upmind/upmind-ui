@@ -14,7 +14,7 @@ import type {
   IWalletBalance,
   PaymentType
 } from "@upmind-automation/types";
-import { GatewayCtx, GatewayTypes } from "./gateways/types";
+import { GatewayCtx, GatewayTypesExtended } from "./gateways/types";
 
 // --- utils
 import type { ResponseError } from "../../utils";
@@ -53,7 +53,7 @@ export type Gateway = {
   paymentType: IGateway["payment_type"];
   provider: IGateway["provider"];
   title: IGateway["name"];
-  type: GatewayTypes;
+  type: GatewayTypesExtended;
   meta: {
     isStored: boolean;
     canStore: boolean;
