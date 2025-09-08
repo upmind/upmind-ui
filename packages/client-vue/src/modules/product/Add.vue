@@ -84,7 +84,6 @@ import {
   useQueryParams,
   useBrand,
   useProductConfig,
-  useProductCategories,
   ROUTE,
   type ProductBreadcrumb
 } from "@upmind-automation/headless";
@@ -115,7 +114,6 @@ const { isReady } = useBasket();
 const { productId } = useQueryParams();
 const { configure, resolve, remove } = useBasketProductsPending();
 const { hasStorefront, storefrontUrl, uiCart } = useBrand();
-const { getPath } = useProductCategories();
 
 await isReady();
 await isResolved(ROUTE.PRODUCT_ADD);
