@@ -13,15 +13,16 @@ import {
   useTime,
   useValidationParser,
   useModelParser,
-  mapToHeadlessError
+  mapToHeadlessError,
+  responseCodes
 } from "../../../../utils";
+import { parseMinorUnitAmount } from "./utils";
 import { useSchema, useUischema } from "./schemas";
 import { isFunction, isArray } from "lodash-es";
 
 // --- types
 import type { StripeContext } from "./types";
 import { GatewayCtx } from "../types";
-import { responseCodes } from "../../../../utils";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -254,13 +255,13 @@ export default createMachine(
       // ---
 
       updateStripe: (
-        { elements, element }: StripeContext,
+        { elements, element, currency }: StripeContext,
         { data }: AnyEventObject
       ) => {
         if (!isFunction(elements?.update) || !isFunction(element?.update))
           return; // in case we receive an update before stripe has loaded
 
-        const amount = Math.round((data?.amount || 0) * 100); // NB: Stripe expects amount in cents
+        const amount = parseMinorUnitAmount(data?.amount || 0, currency.code);
         if (amount <= 0) return; // NB: Stripe requires a positive amount
 
         elements.update({

@@ -20,12 +20,17 @@ import {
   useValidation
 } from "../../../../utils";
 import { isEmpty, omitBy, reject, set } from "lodash-es";
-import { getSupportedPaymentMethods, getPublicKey } from "./utils";
+import {
+  getSupportedPaymentMethods,
+  getPublicKey,
+  parseMinorUnitAmount
+} from "./utils";
 
 // --- types
 import type { StripeContext } from "./types";
 import type { AnyEventObject } from "xstate";
 import { nextTick } from "vue";
+import { parse } from "path";
 
 // -----------------------------------------------------------------------------
 
@@ -33,6 +38,24 @@ async function load(
   { gateway, amount, currency, orderId, address }: StripeContext,
   _event: AnyEventObject
 ) {
+  if (!gateway)
+    return Promise.reject(
+      new DetailedError(
+        "Gateway not found.",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      )
+    );
+
+  if (!currency)
+    return Promise.reject(
+      new DetailedError(
+        "Currency not found.",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      )
+    );
+
   const options = await sharedServices.load(
     { gateway, amount, currency, orderId },
     _event
@@ -60,12 +83,12 @@ async function load(
 
     // Flow ref: https://stripe.com/docs/payments/finalize-payments-on-the-server?platform=web&type=payment#additional-options
     const elements: StripeElements = stripe.elements({
-      amount: Math.round((amount || 0) * 100), // NB: Stripe expects amount in cents
+      amount: parseMinorUnitAmount(amount || 0, currency.code),
       currency: currency?.code.toLowerCase(), // NB: MUST be lowercase
       locale: (locale.value.toLowerCase() ?? "auto") as StripeElementLocale,
       mode: "payment",
       paymentMethodCreation: "manual",
-      paymentMethodTypes: getSupportedPaymentMethods(gateway),
+      paymentMethodTypes: getSupportedPaymentMethods(gateway, currency.code),
       setupFutureUsage: "off_session"
     });
 
@@ -227,6 +250,18 @@ async function pay({ elements, stripe, model }: StripeContext) {
       );
     } else {
       // add the payment details to the model
+
+      // NB pass the model amout  back as we have to handle non-minor unit conversion here
+      // (e.g. UGX)
+      // ↳ Stripe requires minor unit for the amount when creating the element,
+      //   but we need to pass the standard unit amount to the BE when creating
+      //   the payment intent (as BE handles conversion to minor unit)
+      // set(
+      //   model,
+      //   "amount",
+      //   parseMinorUnitAmount(model.amount || 0, model.currency.code)
+      // );
+
       set(
         model,
         "payment_method_addition.payment_method_id",
