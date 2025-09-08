@@ -86,7 +86,8 @@ import type {
   ProductSummaryDetail,
   ProductSummaryDetailWithPrice,
   SubproductModelValue,
-  UIMeta
+  UIMeta,
+  ProductBreadcrumb
 } from "./types";
 import { ErrorObject } from "ajv";
 import { IBrandMeta } from "../brand/types";
@@ -560,6 +561,16 @@ export const parseProductDetails = (
         transform: useTranslateName
       })
     ) as string[],
+    breadcrumb: iterateParents(rawProduct.category, [], {
+      valueKey: "name",
+      parentKey: "top_category",
+      transform: (category: IProductCategory) => {
+        return {
+          id: category.id,
+          label: useTranslateName(category)
+        } as ProductBreadcrumb;
+      }
+    }) as ProductBreadcrumb[],
     // ---
     cycle: rawProduct?.billing_cycle_months, // TODO check: cycle: rawProduct?.display_price_billing_cycle_months ?? rawProduct?.billing_cycle_months,
     defaultPaymentPeriod: rawProduct?.default_payment_period,

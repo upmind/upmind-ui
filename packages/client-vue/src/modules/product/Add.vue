@@ -1,19 +1,23 @@
 <template>
   <Layout :variant="configMeta.layout" minimal>
-    <template #controls>
-      <Breadcrumb :items="items" size="lg" />
+    <template #navigation>
+      <Breadcrumb :items="items" size="lg" v-if="meta?.isAvailable" />
     </template>
 
     <template #actions>
-      <Share class="hidden md:flex" />
+      <Share class="hidden md:flex" v-if="meta?.isAvailable" />
     </template>
 
     <template #header>
-      <Header v-bind="product" :product-image="productImage()" />
+      <Header
+        v-bind="product"
+        :product-image="productImage()"
+        v-if="meta?.isAvailable"
+      />
     </template>
 
     <template #default>
-      <Section :title="t('product.configure')">
+      <Section :title="meta?.isAvailable ? t('product.configure') : ''">
         <form @submit.prevent @reset.prevent>
           <ProductConfig
             v-if="pendingProduct && meta?.isAvailable"
@@ -39,7 +43,7 @@
         aside
       >
         <Summary
-          v-if="product"
+          v-if="product && meta?.isAvailable"
           :product="product"
           :meta="meta"
           @resolve="doResolve"
@@ -49,9 +53,12 @@
     </template>
 
     <template #aside-footer>
-      <SummaryFooter v-if="product" :product="product" @resolve="doResolve" />
+      <SummaryFooter
+        v-if="product && meta?.isAvailable"
+        :product="product"
+        @resolve="doResolve"
+      />
     </template>
-
     <template #footer>
       <p
         v-for="(term, index) in tm('product.smallprint')"
@@ -77,8 +84,8 @@ import {
   useQueryParams,
   useBrand,
   useProductConfig,
-  useProductCategories,
-  ROUTE
+  ROUTE,
+  type ProductBreadcrumb
 } from "@upmind-automation/headless";
 import config from "./product.config";
 
@@ -94,10 +101,9 @@ import SummaryFooter from "./components/summary/SummaryFooter.vue";
 import ProductNotFound from "./NotFound.vue";
 
 // --- utils
-import { forEach } from "lodash-es";
+import { forEach, isEmpty } from "lodash-es";
 
 // --- types
-import type { ProductCategory } from "@upmind-automation/headless";
 import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
@@ -108,7 +114,6 @@ const { isReady } = useBasket();
 const { productId } = useQueryParams();
 const { configure, resolve, remove } = useBasketProductsPending();
 const { hasStorefront, storefrontUrl, uiCart } = useBrand();
-const { getPath } = useProductCategories();
 
 await isReady();
 await isResolved(ROUTE.PRODUCT_ADD);
@@ -142,22 +147,19 @@ const items = computed(() => {
   ];
 
   // Categories
-  if (product?.value?.productDetails?.categoryId) {
-    const categoryPath = getPath(product.value.productDetails.categoryId);
-    forEach(categoryPath, (category: ProductCategory) => {
-      items.push({
-        label: category.title,
-        to: !hasStorefront.value
-          ? {
-              name: ROUTE.CATALOGUE,
-              query: {
-                catid: category.id
-              }
-            }
-          : undefined,
-        current: uiCart.value?.catalogue?.disabled || hasStorefront.value
-      });
-    });
+  if (!isEmpty(product?.value?.productDetails?.breadcrumb)) {
+    forEach(
+      product.value.productDetails.breadcrumb,
+      (category: ProductBreadcrumb) => {
+        items.push({
+          label: category.label,
+          to: !hasStorefront.value
+            ? { name: ROUTE.CATALOGUE, query: { catid: category.id } }
+            : undefined,
+          current: uiCart.value?.catalogue?.disabled || hasStorefront.value
+        });
+      }
+    );
   }
 
   // Current product

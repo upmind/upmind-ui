@@ -103,6 +103,15 @@ async function refreshToken() {
   const token = getTokenFromStorage();
   const refresh_token = get(token, "refresh_token", "");
 
+  if (!token || !refresh_token)
+    return Promise.reject(
+      new DetailedError(
+        "No token",
+        responseCodes.Unauthorized,
+        ErrorOrigin.Headless
+      )
+    );
+
   return post<Token>({
     url: useUrl("access_token", {}, { context: "oauth" }),
     data: {

@@ -1,6 +1,6 @@
 // --- external
 import { computed } from "vue";
-import { interpret, InterpreterStatus } from "xstate";
+import { ActorRef, interpret, InterpreterStatus } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 import { useActor } from "@xstate/vue";
 
@@ -10,7 +10,7 @@ import { useFeedback } from "../feedback";
 export * from "./useTransfer";
 
 // --- utils
-import { get, isEmpty, values } from "lodash-es";
+import { get, isEmpty, some, values } from "lodash-es";
 import { getTokenFromStorage } from "./utils";
 import {
   DetailedError,
@@ -28,11 +28,13 @@ import type {
   IAuthTransfer,
   SessionContext,
   SessionTransfer,
+  Token,
   User
 } from "./types";
 import { GuestContext } from "./guest/types";
 import { ClientContext } from "./client/types";
 import { ErrorObject } from "ajv";
+import { mapValues } from "xstate/lib/utils";
 export type { User, SessionTransfer, IAuthTransfer } from "./types";
 // -----------------------------------------------------------------------------
 
@@ -41,7 +43,7 @@ export type { User, SessionTransfer, IAuthTransfer } from "./types";
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-const service = interpret(sessionMachine, { devTools: false });
+const service = interpret(sessionMachine, { devTools: true });
 
 // -----------------------------------------------------------------------------
 
@@ -59,28 +61,20 @@ export const useSession = () => {
   // --- state
 
   async function isReady(): Promise<boolean> {
-    return waitFor(
-      service,
-      state => {
-        const spawned = state?.children;
-        if (stateMatches(state, "error")) return false;
-        return values(spawned).some(async machine => {
-          return waitFor(machine, state => stateMatches(state, "available"))
-            .then(() => true)
-            .catch(() => false);
-        });
-      },
-      {
-        timeout: 60_000
-      }
-    )
+    return waitFor(service, state => !state.matches("checking"), {
+      timeout: 60_000
+    })
       .then(state => {
-        if (stateMatches(state, "error")) {
-          return Promise.reject(state.context.error);
-        }
-        return true;
+        if (stateMatches(state, "error")) throw state.context.error;
+        return true; // Session is ready
       })
-      .catch(() => false);
+      .catch(error => {
+        throw new DetailedError(
+          error?.message ?? "Session not ready",
+          error?.responseCode ?? responseCodes.No_Content,
+          error?.origin ?? ErrorOrigin.Headless
+        );
+      });
   }
 
   async function isAuthenticated(): Promise<User> {
