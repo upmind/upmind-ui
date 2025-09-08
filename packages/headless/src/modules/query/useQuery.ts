@@ -55,6 +55,7 @@ import type {
 } from "./types";
 import { Methods } from "@upmind-automation/types";
 import type { DefaultError } from "@tanstack/vue-query";
+import { useSession } from "../session";
 
 // -----------------------------------------------------------------------------
 
@@ -173,8 +174,10 @@ export const useQuery = () => {
     if (withAccessToken) {
       const token = isString(withAccessToken)
         ? withAccessToken
-        : getTokenFromStorage()?.access_token;
-      set(init, `headers.Authorization`, `Bearer ${token}`);
+        : await useSession()
+            .isReady()
+            .then(() => getTokenFromStorage()?.access_token);
+      if (token) set(init, `headers.Authorization`, `Bearer ${token}`);
     }
 
     // -------------------------------------------------------------------------

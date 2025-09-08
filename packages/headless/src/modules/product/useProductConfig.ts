@@ -43,7 +43,7 @@ import type {
 // -----------------------------------------------------------------------------
 
 export const useProductConfig = (service: ActorRef<any>) => {
-  const { includesTax } = useBrand();
+  const { isReady, includesTax } = useBrand();
 
   const { state, send } = useActor(service);
   const model = computed(() => state.value.context.model); //toRef(state.value.context, "model");
