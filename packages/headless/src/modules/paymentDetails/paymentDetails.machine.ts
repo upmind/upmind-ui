@@ -7,12 +7,7 @@ import { authSubscription } from "../session/helper";
 
 // --- utils
 import { spawnGateway } from "./utils";
-import {
-  mapToHeadlessError,
-  stopActor,
-  stopService,
-  useModelParser
-} from "../../utils";
+import { mapToHeadlessError, stopService, useModelParser } from "../../utils";
 import { useTime, useValidationParser } from "../../utils";
 import { useSchema, useUischema } from "./schemas";
 import { set, unset, forEach, isEqual } from "lodash-es";
