@@ -14,21 +14,18 @@ import type { SessionContext } from "./types";
 // -----------------------------------------------------------------------------
 
 async function check(_context: SessionContext) {
+  const { post, useUrl } = useQuery();
   const token = getTokenFromStorage();
-  return new Promise((resolve, reject) => {
-    if (!isEmpty(token)) {
-      resolve(token);
-    } else {
-      reject(
-        new DetailedError(
-          "Token is not available",
-          responseCodes.Not_Found,
-          ErrorOrigin.Headless,
-          null
-        )
-      );
-    }
-  });
+
+  if (!isEmpty(token)) {
+    return Promise.resolve(token);
+  } else {
+    // generate/persist the new guest token immediately
+    return post<IToken>({
+      url: useUrl("access_token", {}, { context: "oauth" }),
+      data: { grant_type: GrantTypes.GUEST }
+    }).then(data => persistTokenToStorage(data));
+  }
 }
 
 async function transferTo(_context: SessionContext) {

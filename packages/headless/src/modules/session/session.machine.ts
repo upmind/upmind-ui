@@ -34,17 +34,13 @@ export default createMachine(
               target: "client",
               cond: "isClientToken"
             },
-            // {
-            //   target: "guest",
-            //   cond: "isGuestToken",
-            // },
             {
-              // if we have  no token, we need to clear any possible  user data
-              target: "guest",
-              actions: "clear"
+              // if we have guest/no token, we need to clear any possible user data
+              target: "guest"
+              // actions: "clear"
             }
           ],
-          onError: { target: "#guest" }
+          onError: { target: "#guest", actions: "clear" }
         }
       },
 

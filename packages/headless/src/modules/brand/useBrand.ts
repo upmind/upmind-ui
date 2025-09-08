@@ -18,7 +18,9 @@ import {
   reduce,
   isArray,
   isEmpty,
-  forEach
+  forEach,
+  includes,
+  keys
 } from "lodash-es";
 
 // --- types
@@ -27,20 +29,23 @@ import {
   type ICurrency,
   BrandTaxTypes,
   BrandConfigKeys,
-  DefaultPaymentPeriod,
-  IBrandSettings
+  DefaultPaymentPeriod
 } from "@upmind-automation/types";
 import type { IBrandMeta } from "./types";
 import type { CurrencyModel } from "../basket/currency/types";
+import { k } from "@tanstack/vue-query/build/legacy/queryClient-CAHOJcvF";
 
 // -----------------------------------------------------------------------------
 /**
  * Context to let us understand if we need to refetch on the inital use of Brand settings
  * We do this because settings are persisted for fast load times but we still need
  * to ensure that we get the latest settings in the background
+ * NB:check if we actually have any persisted settings first
  *
  */
-let initialised = false;
+let needsRefresh = some(keys(localStorage), key =>
+  includes(key, `"brand","settings"`)
+);
 
 export const useBrand = () => {
   // --- state
@@ -71,10 +76,10 @@ export const useBrand = () => {
         if (meta.value.isComplete) {
           clearInterval(interval);
 
-          // after first load, ensure we refetch our data in the background
-          if (!initialised) {
+          // after first load, ensure we refetch our data in the background if we have previously fetched/persisted
+          if (needsRefresh) {
             refresh();
-            initialised = true;
+            needsRefresh = false;
           }
 
           resolve(!meta.value.hasError);
