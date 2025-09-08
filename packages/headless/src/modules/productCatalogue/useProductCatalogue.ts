@@ -23,6 +23,7 @@ import { DEBOUNCE_DELAY } from "../../utils";
 import type { Product } from "../product";
 import type { ICurrency } from "@upmind-automation/types";
 import type { QueryProps, RequestFilters } from "../query";
+import { useBasket } from "../basket";
 
 export enum ProductSortableProperties {
   DEFAULT = "order",
@@ -43,6 +44,7 @@ export const useProductCatalogue = (
   }
 ) => {
   // --- state
+  const { isReady: isBasketReady } = useBasket();
   const { infinite, ...params } = initial || {};
   const query = !infinite
     ? service.loadList({ ...params, withCurrency: true })
@@ -57,9 +59,7 @@ export const useProductCatalogue = (
   }));
 
   async function isReady(): Promise<boolean> {
-    return new Promise<boolean>(resolve => {
-      resolve(true);
-    });
+    return isBasketReady();
   }
 
   // --- context

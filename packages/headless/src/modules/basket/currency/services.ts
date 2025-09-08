@@ -23,6 +23,8 @@ async function load(
   { schema, model }: CurrencyContext,
   _event: AnyEventObject
 ) {
+  // TODO: use the lgic from setInitialCurrencyCode in cart 1
+
   const { currencies, currency, isReady } = useBrand();
 
   await isReady().catch(error =>
@@ -77,6 +79,8 @@ async function parse(
   // if we have a valid currency, lets hydrate it base don the code.
   const { validateCurrency } = useBrand();
   const currency = await validateCurrency(model ?? {});
+
+  // TODO: add logic for logged in users account currency....
 
   // sometimes the machine can return the full context as data, so we check to see if we have a model
   // if not, then we assume the data is the model
