@@ -238,16 +238,11 @@ export const useBrand = () => {
 
     if (isEmpty(currencies.value)) return model as Partial<ICurrency>;
 
-    if (
-      isEmpty(model) ||
-      !some(
-        currencies.value,
-        ({ id, code }) => id === model?.id || code === model?.code
-      )
-    )
-      return currency.value as ICurrency | undefined;
-
-    return model;
+    const found = find(
+      currencies.value,
+      ({ id, code }) => id === model?.id || code === model?.code?.toUpperCase()
+    );
+    return found ?? currency.value;
   };
 
   const validateLanguage = async (model: {

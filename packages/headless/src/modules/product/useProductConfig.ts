@@ -102,7 +102,6 @@ export const useProductConfig = (service: ActorRef<any>) => {
     showErrors:
       contextMatches(state, ["error"]) && contextMatches(state, ["attempts"]),
 
-    isUnavailable: state.value.done || stateMatches(state, ["error"]),
     hasErrors:
       stateMatches(state, ["error", "available.invalid", "available.error"]) ||
       contextMatches(state, ["error"]),
@@ -117,6 +116,8 @@ export const useProductConfig = (service: ActorRef<any>) => {
     isInvalid: stateMatches(state, ["available.invalid"]),
     isCalculating: contextMatches(state, ["lookups.prices.calculating"]),
     isProcessing: stateMatches(state, ["refreshing", "processing"]),
+    isAvailable: stateMatches(state, ["available", "refreshing", "processing"]),
+    isUnavailable: stateMatches(state, ["error"]),
     isComplete: state.value?.done || stateMatches(state, ["complete"]),
     isDone: state.value?.done,
 
@@ -365,14 +366,16 @@ export type UseProductConfigMeta = {
   isDirty: boolean;
   isTouched: boolean;
   showErrors: boolean;
-  isUnavailable: any;
   hasErrors: boolean;
   isConfigurable: boolean;
   isInvalid: boolean;
-  isCalculating: boolean;
   isProcessing: boolean;
-  isComplete: any;
-  isDone: any;
+  isCalculating: boolean;
+  isAvailable: boolean;
+  isUnavailable: boolean;
+  isComplete: boolean;
+  isDone: boolean;
+  // ---
   hasProvisioning: boolean;
   hasAttributes: boolean;
   hasOptions: boolean;
