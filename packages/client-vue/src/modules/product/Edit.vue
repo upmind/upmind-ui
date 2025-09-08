@@ -5,7 +5,7 @@
     </template>
 
     <template #header>
-      <Header v-if="product" v-bind="product" />
+      <Header v-if="product && meta?.isAvailable" v-bind="product" />
     </template>
 
     <template #default>
@@ -35,7 +35,7 @@
         aside
       >
         <Summary
-          v-if="product"
+          v-if="product && meta?.isAvailable"
           :product="product"
           :meta="meta"
           @resolve="doResolve"
@@ -45,7 +45,11 @@
     </template>
 
     <template #aside-footer>
-      <SummaryFooter v-if="product" :product="product" @resolve="doResolve" />
+      <SummaryFooter
+        v-if="product && meta?.isAvailable"
+        :product="product"
+        @resolve="doResolve"
+      />
     </template>
 
     <template #footer>

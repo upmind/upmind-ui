@@ -15,6 +15,7 @@ import { PromotionDisplayTypes } from "@upmind-automation/types";
 import type { Recommendation } from "../recommendations";
 import type { BasketProduct } from "../basketProduct";
 import { ResponseError } from "../../utils";
+import { Route } from "../routing";
 
 // -----------------------------------------------------------------------------
 /**
@@ -146,6 +147,7 @@ export type Product = {
   };
 };
 
+export type ProductBreadcrumb = { id: string; label: string };
 /**
  * Represents the actual store product being configured.
  */
@@ -157,6 +159,7 @@ export type ProductDetails = {
   categoryId: string;
   category: string;
   categories?: string[]; // parent category names
+  breadcrumb?: ProductBreadcrumb[]; // parent category names and ids for breadcrumbs
   cycle: number;
   displayPrice?: TermDetails;
   description?: string;
