@@ -162,9 +162,15 @@ export default createMachine(
             actions: ["setAutoUpdate"]
           },
           REFRESH: [
+            // NB if we change currecy, tear down the gateway and re create it
             {
               target: "available.loading",
-              actions: "refresh",
+              actions: ["clearGateway", "refresh"],
+              cond: "hasCurrencyChanged"
+            },
+            {
+              target: "available.loading",
+              actions: ["refresh"],
               cond: "hasChanged"
             },
             {
@@ -284,6 +290,17 @@ export default createMachine(
         }
       }),
 
+      clearGateway: assign({
+        actors: ({ actors }: PaymentDetailsContext) => {
+          if (actors?.gateway) {
+            stopService(actors.gateway);
+            unset(actors, "gateway");
+          }
+          return actors;
+        },
+        gateway: undefined
+      }),
+
       refresh: assign({
         orderId: (_context, { data }: AnyEventObject) => data?.id,
         clientId: (_context, { data }: AnyEventObject) => data?.client_id,
@@ -374,6 +391,14 @@ export default createMachine(
       isFree: ({ amount }, _event) => !amount,
       shouldUpdate: ({ autoupdate, orderId, amount }, _event) =>
         !!autoupdate && !!orderId && amount !== 0,
+
+      hasCurrencyChanged: (
+        { currency }: PaymentDetailsContext,
+        { data }: AnyEventObject
+      ) => currency?.id != data?.currency_id,
+
+      isAuthenticated: ({ authHelper }: PaymentDetailsContext, _event) =>
+        authHelper?.getSnapshot()?.matches("authenticated"),
 
       hasChanged: (
         { orderId, currency, clientId, amount, address }: PaymentDetailsContext,
