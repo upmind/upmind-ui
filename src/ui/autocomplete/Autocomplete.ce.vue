@@ -35,7 +35,7 @@
       <ComboboxTrigger class="group" v-if="!!results?.length">
         <Icon
           :class="styles.autocomplete.anchorIcon"
-          icon="arrow-down"
+          icon="chevron-down"
           :size="props.iconSize"
         />
       </ComboboxTrigger>

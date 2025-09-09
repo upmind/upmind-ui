@@ -13,7 +13,7 @@
         :aria-expanded="open"
         variant="ghost"
         :ring="false"
-        icon-append="arrow-down"
+        icon-append="chevron-down"
         :checked="open"
       >
         <template #prepend v-if="!isEmpty(modelValue) || searchTerm">
@@ -50,7 +50,7 @@
         <template #append>
           <Icon
             class="opacity-75 transition-all duration-200 [&>svg]:p-0.5"
-            icon="arrow-down"
+            icon="chevron-down"
             :class="cn(open ? 'rotate-180' : '')"
             size="nano"
           />
@@ -76,7 +76,7 @@
             :ring="false"
           >
             <template #prepend>
-              <Icon icon="search" size="2xs" class="mr-1 opacity-50" />
+              <Icon icon="search-md" size="2xs" class="mr-1 opacity-50" />
             </template>
           </Input>
           <CommandInput

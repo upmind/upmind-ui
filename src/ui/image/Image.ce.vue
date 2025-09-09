@@ -47,7 +47,7 @@
 
     <!-- Fallback icon -->
     <div v-if="meta.isEmpty" :class="cn(styles.image.root)">
-      <Icon icon="camera" size="xl" :class="styles.image.icon" />
+      <Icon icon="camera-01" size="xl" :class="styles.image.icon" />
     </div>
   </figure>
 </template>

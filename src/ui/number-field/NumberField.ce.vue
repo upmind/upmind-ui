@@ -10,7 +10,7 @@
         :size="props.size"
         :class="styles.numberField.input"
       >
-        <NumberFieldIcon icon="minus" />
+        <NumberFieldIcon :variant="variant" icon="minus" />
       </NumberFieldDecrement>
 
       <NumberFieldInput
@@ -22,7 +22,7 @@
         :size="props.size"
         :class="styles.numberField.input"
       >
-        <NumberFieldIcon icon="plus" />
+        <NumberFieldIcon :variant="variant" icon="plus" />
       </NumberFieldIncrement>
     </NumberFieldContent>
   </NumberField>
