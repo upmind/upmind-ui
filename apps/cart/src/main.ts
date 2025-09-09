@@ -38,7 +38,7 @@ UpmindClient.init({
   },
   recaptcha: {
     siteKey: import.meta.env.VITE_APP_GOOGLE_RECAPTCHA_V3_SITE_KEY,
-    enabled: !import.meta.env.DEV
+    enabled: !import.meta.env.DEV || true
   },
   analytics: {
     enabled: true

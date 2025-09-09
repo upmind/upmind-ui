@@ -29,7 +29,7 @@ import type { RecaptchaContext } from "./types";
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-let service = interpret(recaptchaMachine, { devTools: false });
+let service = interpret(recaptchaMachine, { devTools: true });
 
 // -----------------------------------------------------------------------------
 
