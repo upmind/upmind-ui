@@ -13,7 +13,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, ref, watchEffect } from "vue";
+import { computed, ref, watchEffect, inject } from "vue";
 
 // --- internal
 
@@ -66,21 +66,28 @@ const icons = import.meta.glob("@icons/**/*.svg", {
 
 const svg = ref();
 
+const variant = inject<ComputedRef<string>>("icon-variant");
+
 watchEffect(async () => {
   const safePath = isObject(props.icon) ? `${props.icon?.path}/` : "";
   const safeName = isObject(props.icon) ? props.icon?.name : props.icon;
 
-  const exactMatch = find(icons, (fn, iconPath) => {
-    const pathParts = iconPath.split("/");
-    const fileName = pathParts[pathParts.length - 1];
-    return fileName === `${safeName}.svg`;
-  });
+  // Try to find exact variant match first
+  const variantMatch = variant?.value
+    ? find(icons, (_, iconPath) =>
+        iconPath.endsWith(`/${variant.value}/${safeName}.svg`)
+      )
+    : null;
 
-  const asyncImport =
-    exactMatch ||
-    find(icons, (fn, iconPath) =>
-      endsWith(iconPath, `${safePath}${safeName}.svg`)
-    );
+  // Fallback to direct path match
+  const directMatch = find(
+    icons,
+    (_, iconPath) =>
+      iconPath.endsWith(`${safePath}${safeName}.svg`) &&
+      iconPath.endsWith(`/${safeName}.svg`)
+  );
+
+  const asyncImport = variantMatch || directMatch;
 
   if (!asyncImport) {
     console.warn("icon", "import not found", {
