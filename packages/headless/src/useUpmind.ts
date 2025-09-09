@@ -26,7 +26,8 @@ import {
   DetailedError,
   responseCodes,
   useSessionStorage,
-  ErrorOrigin
+  ErrorOrigin,
+  useScripts
 } from "./utils";
 
 // --- types
@@ -188,7 +189,9 @@ export class Upmind {
       this.mode == "express"
     )
       return;
+
     const { init } = useRecaptcha();
+
     init(this.recaptcha.siteKey);
   }
 
@@ -213,16 +216,12 @@ export class Upmind {
       dataLayer({ gtm_start: new Date().getTime(), event: "gtm.js" }).push(
         false
       );
-      const firstScript = first(document.getElementsByTagName("script"));
-      const script = document.createElement("script");
-      script.async = true;
-      script.setAttribute(
-        "src",
-        `https://www.googletagmanager.com/gtm.js?id=${this.analytics.gtm.containerId}${this.analytics.gtm?.dataLayer && this.analytics.gtm.dataLayer != "dataLayer" ? `&l=${this.analytics.gtm?.dataLayer}` : ""}`
+
+      useScripts().load(
+        "gtm",
+        `https://www.googletagmanager.com/gtm.js?id=${this.analytics.gtm.containerId}${this.analytics.gtm?.dataLayer && this.analytics.gtm.dataLayer != "dataLayer" ? `&l=${this.analytics.gtm?.dataLayer}` : ""}`,
+        { prepend: true }
       );
-      firstScript?.parentNode
-        ? firstScript.parentNode.insertBefore(script, firstScript)
-        : document.head.appendChild(script);
     }
     dataLayer().withPage().withUser().push(false);
   }

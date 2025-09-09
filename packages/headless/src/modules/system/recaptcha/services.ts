@@ -6,7 +6,12 @@ import { isEmpty } from "lodash-es";
 // --- types
 import { AnyEventObject } from "xstate";
 import type { RecaptchaContext } from "./types";
-import { DetailedError, ErrorOrigin, responseCodes } from "../../../utils";
+import {
+  DetailedError,
+  ErrorOrigin,
+  responseCodes,
+  useScripts
+} from "../../../utils";
 
 // -----------------------------------------------------------------------------
 
@@ -38,32 +43,16 @@ async function load({ siteKey }: RecaptchaContext, _event: AnyEventObject) {
     return Promise.resolve(window["grecaptcha"]);
   }
 
-  const src = `https://www.google.com/recaptcha/api.js?render=${siteKey}`;
-
-  return new Promise((resolve, reject) => {
-    const script = document.createElement("script");
-
-    script.setAttribute("src", src);
-    script.setAttribute("async", "true");
-
-    script.addEventListener("error", async () => {
-      return reject(
-        new DetailedError(
-          "Recaptcha failed to load",
-          responseCodes.Unprocessable_Entity,
-          ErrorOrigin.Headless
-        )
-      );
-    });
-
-    script.addEventListener("load", async () => {
-      window["grecaptcha"].ready(() => {
-        const grecaptcha = window["grecaptcha"];
-        return resolve(grecaptcha);
-      });
-    });
-    document.head.appendChild(script);
-  });
+  return useScripts().load(
+    "recaptcha",
+    `https://www.google.com/recaptcha/api.js?render=${siteKey}`,
+    {
+      onSuccess: async () =>
+        new Promise(resolve => {
+          window.grecaptcha.ready(() => resolve(window["grecaptcha"]));
+        })
+    }
+  );
 }
 
 async function generateToken(
