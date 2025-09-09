@@ -170,7 +170,7 @@ export default createMachine(
             },
             {
               target: "available.loading",
-              actions: ["refresh"],
+              actions: "refresh",
               cond: "hasChanged"
             },
             {
@@ -297,8 +297,7 @@ export default createMachine(
             unset(actors, "gateway");
           }
           return actors;
-        },
-        gateway: undefined
+        }
       }),
 
       refresh: assign({
@@ -397,27 +396,20 @@ export default createMachine(
         { data }: AnyEventObject
       ) => currency?.id != data?.currency_id,
 
-      isAuthenticated: ({ authHelper }: PaymentDetailsContext, _event) =>
-        authHelper?.getSnapshot()?.matches("authenticated"),
-
       hasChanged: (
         { orderId, currency, clientId, amount, address }: PaymentDetailsContext,
         { data }: AnyEventObject
       ) => {
         const orderChanged = orderId != data?.id;
-        const currencyChanged = currency?.id != data?.currency_id;
         const clientChanged = clientId != data?.client_id;
         const amountChanged = amount == (data?.unpaid_amount_converted || 0.0);
         const addressChanged = address?.id != data?.address?.id;
 
-        return (
-          orderChanged ||
-          currencyChanged ||
-          clientChanged ||
-          amountChanged ||
-          addressChanged
-        );
-      }
+        return orderChanged || clientChanged || amountChanged || addressChanged;
+      },
+
+      isAuthenticated: ({ authHelper }: PaymentDetailsContext, _event) =>
+        authHelper?.getSnapshot()?.matches("authenticated")
     },
 
     delays: {
