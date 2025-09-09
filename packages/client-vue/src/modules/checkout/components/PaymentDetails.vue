@@ -45,8 +45,12 @@
             "
             :class-active="styles.checkout.accordion.loading"
           >
-            <AccordionContent :class="styles.checkout.accordion.content">
+            <AccordionContent
+              :class="styles.checkout.accordion.content"
+              force-mount
+            >
               <GatewayContent
+                v-if="item.gateway_id === model?.gateway_id"
                 :item="item"
                 :gatewayId="gateway?.id?.toString()"
                 :modelValue="model?.gateway_id"
