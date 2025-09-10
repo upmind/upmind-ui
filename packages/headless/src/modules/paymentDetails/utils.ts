@@ -7,6 +7,7 @@ import stripeMachine from "./gateways/stripe/stripe.machine";
 import braintreeMachine from "./gateways/braintree/braintree.machine";
 import cardConfig from "./gateways/card";
 import storedConfig from "./gateways/stored";
+import openPayConfig from "./gateways/openPay";
 
 // --- utils
 
@@ -242,6 +243,35 @@ export function spawnBraintree({
   }
   return spawn(
     braintreeMachine.withContext({
+      orderId,
+      gateway,
+      ctx: GatewayCtx.PAY,
+      amount,
+      currency,
+      type: GatewayTypes.CARD,
+      code: gateway?.gateway_provider?.code,
+      address
+    }),
+    { name: gateway?.id, sync: true }
+  );
+}
+
+export function spawnOpenPay({
+  orderId,
+  gateway,
+  amount,
+  currency,
+  address
+}: Partial<GatewayContext>) {
+  if (!orderId || !currency || !amount) {
+    throw new DetailedError(
+      "orderId, amount, and currency are required",
+      responseCodes.Bad_Request,
+      ErrorOrigin.Headless
+    );
+  }
+  return spawn(
+    gatewayMachine.withConfig(openPayConfig).withContext({
       orderId,
       gateway,
       ctx: GatewayCtx.PAY,

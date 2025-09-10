@@ -98,6 +98,8 @@ export const useScripts = () => {
       set(values, key, promise);
       return values;
     });
+
+    return promise;
   }
 
   return {
