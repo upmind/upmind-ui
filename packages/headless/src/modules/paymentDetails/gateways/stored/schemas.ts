@@ -33,7 +33,7 @@ export const useSchema = (context: GatewayContext) => {
             return {
               value: id,
               label: name,
-              text: `Exp ${card_expire_date}`,
+              text: card_expire_date ? `Exp ${card_expire_date}` : "",
               appendIcon: { name: card_type, path: "payment-providers" }
             };
           }
