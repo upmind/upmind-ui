@@ -20,6 +20,7 @@ import type { AnyEventObject } from "xstate";
 // --- types
 import type { GatewayContext } from "../types";
 import { parseSettings } from "../utils";
+import { omit } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -46,11 +47,9 @@ async function load(context: OpenPayContext, _event: AnyEventObject) {
         "https://js.openpay.mx/openpay.v1.min.js",
         {
           onSuccess: () => {
-            debugger;
             return true;
           },
           onError: () => {
-            debugger;
             return false;
           }
         }
@@ -60,11 +59,9 @@ async function load(context: OpenPayContext, _event: AnyEventObject) {
         "https://js.openpay.mx/openpay-data.v1.min.js",
         {
           onSuccess: () => {
-            debugger;
             return true;
           },
           onError: () => {
-            debugger;
             return false;
           }
         }
@@ -72,9 +69,7 @@ async function load(context: OpenPayContext, _event: AnyEventObject) {
     ]);
 
     // Get the OpenPay instance from the window object
-    debugger;
     const openPay = window["OpenPay"];
-    debugger;
 
     if (!openPay)
       return Promise.reject(
@@ -87,25 +82,11 @@ async function load(context: OpenPayContext, _event: AnyEventObject) {
 
     openPay.setId(settings[OPENPAY_FIELDS.MERCHANT_ID]);
     openPay.setApiKey(settings[OPENPAY_FIELDS.PUBLIC_KEY]);
-    openPay.setSandboxMode(settings[OPENPAY_FIELDS.TEST_MODE] === "1");
+    openPay.setSandboxMode(settings[OPENPAY_FIELDS.TEST_MODE] == 1);
 
     return { openPay, ...config };
   });
 }
-
-// async function parse(context: OpenPayContext, _event: AnyEventObject) {
-//   return sharedServices.parse(context, _event).then(model => {
-//     //additional parsing required for openpay
-//     return {
-//       ...model,
-//       card_number: model.form.card_num.replace(/\s/g, ""),
-//       expiration_year:
-//         model.form.card_expire_date.match(/^\d{2}\/\d{2}(\d{2})$/)?.[1] || "",
-//       expiration_month:
-//         model.form.card_expire_date.match(/^(\d{2})\/\d{4}$/)?.[1] || ""
-//     } as OpenPayModel;
-//   });
-// }
 
 /**
  * @name getPaymentData
@@ -115,7 +96,6 @@ async function load(context: OpenPayContext, _event: AnyEventObject) {
  * payment detail is attached to a customer and confirmed server-side.
  */
 async function pay({ gateway, openPay, model }: OpenPayContext) {
-  debugger;
   if (!openPay)
     return Promise.reject(
       new DetailedError(
@@ -127,14 +107,18 @@ async function pay({ gateway, openPay, model }: OpenPayContext) {
 
   return new Promise((resolve, reject) => {
     openPay.token.create(
-      model as Record<string, any>,
+      model?.openpay as Record<string, any>,
       response =>
         resolve({
           /* Here we don't pass 'auto_payment' flag as 'store_on_payment_auto_payment' is injected from parent gatewayComponent */
           gateway_id: gateway?.id,
           payment_method_addition: {
             payment_method_id: response.data?.id
-          }
+          },
+          ...omit(
+            model,
+            ["openpay"] /* we don't need to send the card details again */
+          )
         }),
       response =>
         reject(

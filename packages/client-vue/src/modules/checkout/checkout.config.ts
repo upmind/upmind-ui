@@ -41,7 +41,8 @@ export default {
             default: "px-1 py-3"
           }
         }
-      })
+      }),
+      contentInner: cva("overflow-visible")
     },
 
     title: cva("text-md text-left no-underline"),
