@@ -117,15 +117,12 @@ export const useUischema = ({
 
     // NB: we want the ui to not show its required asterisk if the address is not required at checkout
     if (!get(config, BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS)) {
-      debugger;
       const addressRenderer = find(addressSchema.options?.detail?.elements, [
         "type",
         "address"
       ]);
       if (addressRenderer)
         set(addressRenderer, "options.hideRequiredAsterisk", true);
-
-      debugger;
     }
     uiSchema.elements.push(addressSchema);
   } else if (type == UnifiedType.BUSINESS) {
