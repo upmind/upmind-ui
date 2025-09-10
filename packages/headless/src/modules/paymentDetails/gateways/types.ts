@@ -56,7 +56,13 @@ export interface GatewayContext {
   schema?: JsonSchema;
   uischema?: UISchemaElement;
   // model?: IBillingDetail;
-  model?: any;
+  model?: Record<string, any> & {
+    auto_payment?: boolean;
+    store_on_payment?: boolean;
+    store_on_payment_auto_payment?: boolean;
+    return_url?: string;
+    cancel_url?: string;
+  };
   // --- Output
   paymentDetails?: any; // will contain the response from Card, as wel las any model data
   // ---

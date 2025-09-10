@@ -47,6 +47,7 @@
           >
             <AccordionContent
               :class="styles.checkout.accordion.content"
+              :contentClass="styles.checkout.accordion.contentInner"
               force-mount
             >
               <GatewayContent
@@ -139,6 +140,7 @@ const styles = useStyles(
       card: string;
       loading: string;
       content: string;
+      contentInner: string;
     };
     isFree: string;
   };
