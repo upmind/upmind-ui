@@ -2,7 +2,7 @@
   <FormField
     v-bind="formFieldProps"
     :label="open ? '' : appliedOptions?.label"
-    required
+    :required="!appliedOptions?.hideRequiredAsterisk"
     :id="formFieldProps?.id ?? 'address-search'"
   >
     <template v-if="!open">

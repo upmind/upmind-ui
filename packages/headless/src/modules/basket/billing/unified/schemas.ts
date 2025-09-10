@@ -1,5 +1,5 @@
 // --- utils
-import { get } from "lodash-es";
+import { find, get, set } from "lodash-es";
 
 // --- types
 import { UnifiedType, type UnifiedContext } from "./types";
@@ -113,7 +113,21 @@ export const useUischema = ({
   }
 
   if (type == UnifiedType.PERSONAL) {
-    uiSchema.elements.push(useAddressUischema({ regions, countries }));
+    const addressSchema = useAddressUischema({ regions, countries });
+
+    // NB: we want the ui to not show its required asterisk if the address is not required at checkout
+    if (!get(config, BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS)) {
+      debugger;
+      const addressRenderer = find(addressSchema.options?.detail?.elements, [
+        "type",
+        "address"
+      ]);
+      if (addressRenderer)
+        set(addressRenderer, "options.hideRequiredAsterisk", true);
+
+      debugger;
+    }
+    uiSchema.elements.push(addressSchema);
   } else if (type == UnifiedType.BUSINESS) {
     uiSchema.elements.push({
       type: "Control",
