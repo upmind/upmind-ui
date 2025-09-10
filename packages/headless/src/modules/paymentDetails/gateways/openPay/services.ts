@@ -43,21 +43,43 @@ async function load(context: OpenPayContext, _event: AnyEventObject) {
     await Promise.all([
       useScripts().load(
         "openPay_v1",
-        "https://js.openpay.mx/openpay.v1.min.js"
+        "https://js.openpay.mx/openpay.v1.min.js",
+        {
+          onSuccess: () => {
+            debugger;
+            return true;
+          },
+          onError: () => {
+            debugger;
+            return false;
+          }
+        }
       ),
       useScripts().load(
         "openPayData_v1",
-        "https://js.openpay.mx/openpay-data.v1.min.js"
+        "https://js.openpay.mx/openpay-data.v1.min.js",
+        {
+          onSuccess: () => {
+            debugger;
+            return true;
+          },
+          onError: () => {
+            debugger;
+            return false;
+          }
+        }
       )
     ]);
 
     // Get the OpenPay instance from the window object
+    debugger;
     const openPay = window["OpenPay"];
+    debugger;
 
     if (!openPay)
       return Promise.reject(
         new DetailedError(
-          "Braintree Client Token not found.",
+          "OpenPay not found.",
           responseCodes.Not_Found,
           ErrorOrigin.Headless
         )
@@ -92,8 +114,9 @@ async function load(context: OpenPayContext, _event: AnyEventObject) {
  * payment). We do not need to pass a client secret for flow, as the
  * payment detail is attached to a customer and confirmed server-side.
  */
-async function pay({ gateway, OpenPay, model }: OpenPayContext) {
-  if (!OpenPay)
+async function pay({ gateway, openPay, model }: OpenPayContext) {
+  debugger;
+  if (!openPay)
     return Promise.reject(
       new DetailedError(
         "OpenPay instance not found.",
@@ -103,7 +126,7 @@ async function pay({ gateway, OpenPay, model }: OpenPayContext) {
     );
 
   return new Promise((resolve, reject) => {
-    OpenPay.token.create(
+    openPay.token.create(
       model as Record<string, any>,
       response =>
         resolve({

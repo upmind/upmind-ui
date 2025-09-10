@@ -55,9 +55,9 @@ export const useSchema = (context: GatewayContext) => {
         maxLength: 2,
         // Pattern matches two digits, as extracted from MM/YYYY or MM/YY formats
         pattern: "^\\d{2}$",
-        title: "Expiration Year",
-        description:
-          "Last two digits of the year, extracted from MM/YYYY or MM/YY"
+        title: "Expiration Year"
+        // description:
+        //   "Last two digits of the year, extracted from MM/YYYY or MM/YY"
       },
       expiration_month: {
         type: "string",
@@ -65,8 +65,8 @@ export const useSchema = (context: GatewayContext) => {
         maxLength: 2,
         // Pattern matches two digits for month (01-12)
         pattern: "^(0[1-9]|1[0-2])$",
-        title: "Expiration Month",
-        description: "Two digit month, extracted from MM/YYYY or MM/YY"
+        title: "Expiration Month"
+        // description: "Two digit month, extracted from MM/YYYY or MM/YY"
       },
       cvv2: {
         type: "string",
@@ -95,7 +95,7 @@ export const useUischema = (context: GatewayContext) => {
       {
         type: "Control",
         scope: "#/properties/holder_name",
-        i18n: "payment.cardholder_name",
+        i18n: "form.card_holder_name",
         options: {
           autocomplete: "cc-name"
         }
@@ -103,7 +103,7 @@ export const useUischema = (context: GatewayContext) => {
       {
         type: "Control",
         scope: "#/properties/card_number",
-        i18n: "payment.card_num",
+        i18n: "form.card_num",
         options: {
           autocomplete: "cc-number"
         }
@@ -114,25 +114,27 @@ export const useUischema = (context: GatewayContext) => {
           {
             type: "Control",
             scope: "#/properties/expiration_month",
-            i18n: "payment.card_expiry_month",
+            i18n: "form.card_expiry_month",
             options: {
               autocomplete: "cc-exp-month",
-              trim: true
+              trim: true,
+              placeholder: "MM"
             }
           },
           {
             type: "Control",
             scope: "#/properties/expiration_year",
-            i18n: "payment.card_expiry_year",
+            i18n: "form.card_expiry_year",
             options: {
               autocomplete: "cc-exp-year",
-              trim: true
+              trim: true,
+              placeholder: "YY"
             }
           },
           {
             type: "Control",
             scope: "#/properties/cvv2",
-            i18n: "payment.card_cvv",
+            i18n: "form.card_cvv",
             options: {
               autocomplete: "cc-csc",
               trim: true
