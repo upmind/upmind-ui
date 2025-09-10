@@ -266,7 +266,6 @@ export default createMachine(
         if (amount <= 0) return; // NB: Braintree requires a positive amount
 
         if (paymentMethodPayPal) {
-          debugger;
           braintree.updateConfiguration("paypal", "amount", amount);
           braintree.updateConfiguration(
             "paypal",
