@@ -75,6 +75,16 @@ export function spawnGateway({
       address
     });
 
+  if (isOpenPay(gateway))
+    return spawnOpenPay({
+      orderId,
+      gateway,
+      amount,
+      currency
+    });
+
+  if (isCard(gateway)) return spawnCard({ orderId, gateway, amount, currency });
+
   if (isBankTransfer(gateway))
     return spawnGenericGateway(GatewayTypes.BANK_TRANSFER, {
       orderId,
@@ -316,6 +326,9 @@ const isStripe = (gateway: IGateway) =>
 
 const isBraintree = (gateway: IGateway) =>
   gateway?.gateway_provider?.code === GatewayProviderCodes.BRAINTREE;
+
+const isOpenPay = (gateway: IGateway) =>
+  gateway?.gateway_provider?.code === GatewayProviderCodes.OPENPAY;
 
 const isBankTransfer = (gateway: IGateway) =>
   gateway.type === GatewayTypes.BANK_TRANSFER;

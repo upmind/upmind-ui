@@ -30,7 +30,9 @@ export interface GatewayContext {
   card?: any;
   elements?: any;
   element?: any;
+  container?: HTMLElement;
   renderer?: (container: HTMLElement) => void;
+
   // ---
   currency: ICurrency;
   amount: number;

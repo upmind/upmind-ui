@@ -61,6 +61,7 @@ export default createMachine(
               }
             }
           },
+
           checking: {
             id: "checking",
             entry: ["clearError"],
@@ -91,6 +92,7 @@ export default createMachine(
               }
             }
           },
+
           invalid: { id: "invalid" },
 
           valid: {
