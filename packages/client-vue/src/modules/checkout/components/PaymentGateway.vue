@@ -60,11 +60,11 @@
       :title="t('payment.failed')"
       key="alert"
     >
-      <div class="mt-2 text-sm">
+      <ol class="mt-2 list-none text-sm">
         <li class="my-0 py-0">
           {{ errors }}
         </li>
-      </div>
+      </ol>
     </Alert>
   </transition-group>
 </template>

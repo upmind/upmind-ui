@@ -15,7 +15,6 @@ export interface BraintreeContext extends GatewayContext {
   // ---
   validationObserver?: ActorRef<any>;
   validationHelper?: (callback: any) => void;
-  container?: HTMLElement;
 }
 
 export enum BraintreeTypes {

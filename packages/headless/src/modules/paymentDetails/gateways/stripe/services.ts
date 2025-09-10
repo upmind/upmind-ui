@@ -34,10 +34,9 @@ import { parse } from "path";
 
 // -----------------------------------------------------------------------------
 
-async function load(
-  { gateway, amount, currency, orderId, address }: StripeContext,
-  _event: AnyEventObject
-) {
+async function load(context: StripeContext, _event: AnyEventObject) {
+  const { gateway, amount, currency, address } = context;
+
   if (!gateway)
     return Promise.reject(
       new DetailedError(
@@ -56,61 +55,58 @@ async function load(
       )
     );
 
-  const options = await sharedServices.load(
-    { gateway, amount, currency, orderId },
-    _event
-  );
-
-  const key = getPublicKey(gateway);
-  if (!key)
-    return Promise.reject(
-      new DetailedError(
-        "Stripe public key not found.",
-        responseCodes.Not_Found,
-        ErrorOrigin.Headless
-      )
-    );
-
-  return loadStripe(key).then(stripe => {
-    if (!stripe)
-      throw new DetailedError(
-        "Stripe not found.",
-        responseCodes.Not_Found,
-        ErrorOrigin.Headless
+  return sharedServices.load(context, _event).then(async config => {
+    const key = getPublicKey(gateway);
+    if (!key)
+      return Promise.reject(
+        new DetailedError(
+          "Stripe public key not found.",
+          responseCodes.Not_Found,
+          ErrorOrigin.Headless
+        )
       );
 
-    const { locale } = useLocale();
+    return loadStripe(key).then(stripe => {
+      if (!stripe)
+        throw new DetailedError(
+          "Stripe not found.",
+          responseCodes.Not_Found,
+          ErrorOrigin.Headless
+        );
 
-    // Flow ref: https://stripe.com/docs/payments/finalize-payments-on-the-server?platform=web&type=payment#additional-options
-    const elements: StripeElements = stripe.elements({
-      amount: parseMinorUnitAmount(amount || 0, currency.code),
-      currency: currency?.code.toLowerCase(), // NB: MUST be lowercase
-      locale: (locale.value.toLowerCase() ?? "auto") as StripeElementLocale,
-      mode: "payment",
-      paymentMethodCreation: "manual",
-      paymentMethodTypes: getSupportedPaymentMethods(gateway, currency.code),
-      setupFutureUsage: "off_session"
-    });
+      const { locale } = useLocale();
 
-    const element = elements.create("payment", {
-      defaultValues: {
-        billingDetails: {
-          // name: client.name,
-          // email: client.email,
-          // phone: client.phone,
-          address: {
-            country: address?.country?.code,
-            postal_code: address?.postcode,
-            state: address?.state,
-            city: address?.city,
-            line1: address?.address_1,
-            line2: address?.address_2
+      // Flow ref: https://stripe.com/docs/payments/finalize-payments-on-the-server?platform=web&type=payment#additional-options
+      const elements: StripeElements = stripe.elements({
+        amount: parseMinorUnitAmount(amount || 0, currency.code),
+        currency: currency.code.toLowerCase(), // NB: MUST be lowercase
+        locale: (locale.value.toLowerCase() ?? "auto") as StripeElementLocale,
+        mode: "payment",
+        paymentMethodCreation: "manual",
+        paymentMethodTypes: getSupportedPaymentMethods(gateway, currency.code),
+        setupFutureUsage: "off_session"
+      });
+
+      const element = elements.create("payment", {
+        defaultValues: {
+          billingDetails: {
+            // name: client.name,
+            // email: client.email,
+            // phone: client.phone,
+            address: {
+              country: address?.country?.code,
+              postal_code: address?.postcode,
+              state: address?.state,
+              city: address?.city,
+              line1: address?.address_1,
+              line2: address?.address_2
+            }
           }
-        }
-      } as DefaultValuesOption
-    });
+        } as DefaultValuesOption
+      });
 
-    return { stripe, elements, element, ...(options || {}) };
+      return { stripe, elements, element, ...config };
+    });
   });
 }
 

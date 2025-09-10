@@ -8,6 +8,7 @@
 import type { IGateway } from "@upmind-automation/types";
 import { GatewayStoreType, QUERY_PARAMS } from "@upmind-automation/types";
 import type { GatewayContext } from "./types";
+import { filter, keyBy, mapValues } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -79,4 +80,17 @@ export function canBeStored(gateway?: IGateway) {
   if (store_outside_payment) return true;
   if (store_on_payment) return false;
   return true;
+}
+
+export function parseSettings(gateway: IGateway) {
+  return mapValues(
+    keyBy(filter(gateway?.gateway_settings || [], ["private", false]), "field"),
+    ({ value }) => {
+      try {
+        return JSON.parse(value);
+      } catch {
+        return value;
+      }
+    }
+  );
 }

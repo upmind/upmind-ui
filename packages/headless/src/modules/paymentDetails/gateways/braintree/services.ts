@@ -24,50 +24,50 @@ import type {
   PaymentMethodPayload,
   PaymentMethodRequestablePayload
 } from "braintree-web-drop-in";
+import { parseSettings } from "../utils";
 // -----------------------------------------------------------------------------
 
-async function load(
-  { gateway, amount, currency, orderId }: BraintreeContext,
-  _event: AnyEventObject
-) {
-  const { get: getRequest, useUrl } = useQuery();
+async function load(context: BraintreeContext, _event: AnyEventObject) {
+  const { gateway, amount, currency, orderId } = context;
 
-  const authorization = await getRequest<{
-    cancel_url: string;
-    gateway_specific: {
-      clientToken: string;
-    };
-    notify_url: string;
-    return_url: string;
-  }>({
-    url: useUrl(`gateway/frontend/${gateway?.id}`, {
-      amount: amount ?? 0,
-      currency: currency?.code ?? ""
-    }),
-    queryKey: ["gateway", "frontend", gateway?.id],
-    staleTime: "static",
-    withAccessToken: true,
-    withCurrency: true
-  }).then(response => response.gateway_specific.clientToken);
+  if (!gateway)
+    return Promise.reject(
+      new DetailedError(
+        "Gateway not found.",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      )
+    );
 
-  const settings = mapValues(
-    keyBy(filter(gateway?.gateway_settings || [], ["private", false]), "field"),
-    ({ value }) => {
-      try {
-        return JSON.parse(value);
-      } catch {
-        return value;
-      }
-    }
-  );
+  return sharedServices.load(context, _event).then(async config => {
+    const { get: getRequest, useUrl } = useQuery();
 
-  const options: Partial<BraintreeContext> =
-    (await sharedServices.load(
-      { gateway, amount, currency, orderId },
-      _event
-    )) ?? {};
+    const authorization = await getRequest<{
+      cancel_url: string;
+      gateway_specific: {
+        clientToken: string;
+      };
+      notify_url: string;
+      return_url: string;
+    }>({
+      url: useUrl(`gateway/frontend/${gateway?.id}`, {
+        amount: amount ?? 0,
+        currency: currency?.code ?? ""
+      }),
+      queryKey: ["gateway", "frontend", gateway?.id],
+      staleTime: "static",
+      withAccessToken: true,
+      withCurrency: true
+    }).then(response => response.gateway_specific.clientToken);
 
-  return new Promise(resolve => {
+    const settings = parseSettings(gateway);
+
+    const options: Partial<BraintreeContext> =
+      (await sharedServices.load(
+        { gateway, amount, currency, orderId },
+        _event
+      )) ?? {};
+
     if (!authorization) {
       reject(
         new DetailedError(
@@ -77,7 +77,7 @@ async function load(
         )
       );
     } else {
-      resolve({ authorization, ...options, ...settings });
+      return { authorization, ...options, ...settings, ...config };
     }
   });
 }
