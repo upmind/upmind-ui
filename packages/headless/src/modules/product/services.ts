@@ -77,7 +77,9 @@ async function load(
   const { validateCurrency, ensureConfig } = useBrand();
 
   const [currency] = await Promise.all([
-    validateCurrency({ id: currencyId, code: currencyCode }),
+    validateCurrency(
+      currencyCode ? { code: currencyCode } : { id: currencyId }
+    ),
     ensureConfig(BrandConfigKeys.SHOW_PROMOTION_AS)
   ]);
 
