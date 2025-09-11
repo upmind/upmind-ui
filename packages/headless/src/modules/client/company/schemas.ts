@@ -55,9 +55,15 @@ export const useSchema = ({
         type: ["string", "null"],
         title: "Company Number"
       },
-      vatNumber: {
-        type: ["string", "null"],
-        title: "Registered Tax ID"
+      tax: {
+        type: "object",
+        title: "Tax Details",
+        properties: {
+          number: {
+            type: ["string", "null"],
+            title: "Registered Tax ID"
+          }
+        }
       },
       addressId: {
         type: ["string", "null"],
@@ -120,9 +126,9 @@ export const useUischema = ({
           },
           {
             type: "Control",
-            scope: "#/properties/vatNumber",
+            scope: "#/properties/tax/properties/number",
             options: {
-              placeholder: "VAT Number"
+              placeholder: "Tax Id"
             }
           }
         ]

@@ -26,7 +26,9 @@ export interface CompanyModel {
   // ---
   name?: ICompany["name"];
   regNumber?: ICompany["reg_number"];
-  vatNumber?: ICompany["vat_number"];
+  tax?: {
+    number?: ICompany["vat_number"];
+  };
   default?: ICompany["default"];
 }
 
@@ -43,7 +45,7 @@ export interface Company {
   name: ICompany["name"];
   default: ICompany["default"];
   regNumber: ICompany["reg_number"];
-  vat: {
+  tax: {
     valid: ICompany["vat_validated"];
     percent: ICompany["vat_percent"];
     number: ICompany["vat_number"];
@@ -59,9 +61,9 @@ export interface Company {
     isDefault: boolean;
     canDelete: boolean;
     isVerified: boolean;
-    hasVat: boolean;
-    hasVatValidation: boolean;
-    hasValidVat: boolean;
+    hasTax: boolean;
+    hasTaxValidation: boolean;
+    hasValidTax: boolean;
   };
 }
 
