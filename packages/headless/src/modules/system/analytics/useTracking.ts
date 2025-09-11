@@ -127,6 +127,7 @@ export const useTracking = () => {
   function getTracking() {
     return new Promise((resolve, reject) => {
       const cookie = getCookie(UPM_TRACK_COOKIE);
+
       if (!cookie)
         return reject(
           new DetailedError(
