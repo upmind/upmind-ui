@@ -323,7 +323,7 @@ async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
         emailId: email?.id,
         name: data.name,
         regNumber: data.regNumber,
-        vatNumber: data.vatNumber,
+        tax: data.tax,
         default: data.default
       };
     })
