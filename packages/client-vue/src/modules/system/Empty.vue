@@ -8,9 +8,8 @@
         :text="t('basket.empty.text')"
         :actions="[
           {
-            is: 'a',
+            ...storefrontRoute,
             color: 'primary',
-            href: storefrontUrl,
             iconAppend: 'arrow-right',
             label: t('basket.empty.actions.continue'),
             size: 'lg'
@@ -57,8 +56,7 @@ const props = withDefaults(defineProps<InterstitialProps>(), {
 });
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
-const router = useRouter();
-const { storefrontUrl } = useBrand();
+const { storefrontRoute } = useBrand();
 const route = useRoute();
 const routeMeta = route.meta;
 

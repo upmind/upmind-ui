@@ -1,7 +1,7 @@
 <template>
   <Layout :variant="uiCart?.layout" minimal>
     <template #navigation>
-      <Back v-bind="route" i18n-key="basket.back" />
+      <Back v-bind="storefrontRoute" i18n-key="basket.back" />
     </template>
 
     <template #header>
@@ -163,7 +163,7 @@ import { type ComputedRef } from "vue";
 
 const { t } = useI18n();
 const { meta, productsInvalid, isReady, products, summary } = useBasket();
-const { uiCart, storefrontUrl, hasStorefront } = useBrand();
+const { uiCart, storefrontRoute } = useBrand();
 
 const {
   errors: fieldsErrors,
@@ -202,16 +202,6 @@ const styles = useStyles(
     };
   };
 }>;
-
-const route = computed(() => {
-  return omitBy(
-    {
-      to: !hasStorefront.value ? { name: ROUTE.CATALOGUE } : undefined,
-      href: hasStorefront.value ? storefrontUrl.value : undefined
-    },
-    isEmpty
-  );
-});
 
 const { dataLayer } = useDataLayer();
 dataLayer({ event: "view_cart" }).withEcommerce().push();
