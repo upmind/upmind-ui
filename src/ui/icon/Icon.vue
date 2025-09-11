@@ -70,13 +70,14 @@ const svg = ref();
 const variant = inject(ICON_VARIANT_KEY);
 
 watchEffect(async () => {
+  const safeVariant = props.variant || variant?.value;
   const safePath = isObject(props.icon) ? `${props.icon?.path}/` : "";
   const safeName = isObject(props.icon) ? props.icon?.name : props.icon;
 
   // Try to find exact variant match first
-  const variantMatch = variant?.value
+  const variantMatch = safeVariant
     ? find(icons, (_, iconPath) =>
-        iconPath.endsWith(`/${variant.value}/${safeName}.svg`)
+        iconPath.endsWith(`/${safeVariant}/${safeName}.svg`)
       )
     : null;
 
