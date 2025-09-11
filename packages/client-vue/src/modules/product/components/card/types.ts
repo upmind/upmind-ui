@@ -29,11 +29,16 @@ export interface ProductCardProps
 }
 
 export interface ProductInfo {
+  id?: string;
   productDetails: ProductDetails;
   price?: PriceDetail;
   meta?: ProductSummaryMeta;
   hideDescription?: boolean;
   preservePromotion?: boolean;
+  navigate?: boolean;
+  processing?: boolean;
+  selectedTerm?: string;
+  handleResolve?: () => void;
 }
 
 export interface ProductBenefits {
