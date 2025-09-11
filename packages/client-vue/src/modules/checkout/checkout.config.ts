@@ -57,7 +57,7 @@ export default {
       ),
       terms: cva("text-emphasis-medium text-sm")
     },
-    action: cva("block w-full self-center md:inline-block md:w-auto"),
+    action: cva("flex w-full self-center md:inline-flex md:w-auto"),
     additional: cva(
       "bg-base-background text-base-foreground flex items-center justify-center gap-2 space-x-2 self-stretch px-4 py-2 md:py-0"
     ),
