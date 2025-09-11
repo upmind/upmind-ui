@@ -46,7 +46,7 @@ export const rootVariants = cva(
         true: "w-full basis-full"
       },
       isLoading: {
-        true: "pointer-events-none [&>:not(.spinner)]:opacity-50"
+        true: "pointer-events-none [&>*:not(.absolute)]:opacity-0"
       },
       isDisabled: {
         true: "cursor-not-allowed opacity-50",
