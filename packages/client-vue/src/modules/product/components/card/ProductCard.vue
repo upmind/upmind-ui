@@ -35,7 +35,14 @@
 
       <section :class="styles.product.details">
         <header :class="styles.product.header.root">
-          <ProductInfo v-bind="props" />
+          <ProductInfo
+            v-bind="props"
+            :id="props.id"
+            :selected-term="selectedTerm"
+            :handle-resolve="handleResolve"
+            :processing="processing"
+            :navigate="navigate"
+          />
           <ProductBenefits
             v-if="!configMeta.hideBenefits"
             :benefits="productMeta?.card?.benefits?.data"
