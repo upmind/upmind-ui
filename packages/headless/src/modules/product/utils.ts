@@ -43,6 +43,7 @@ import {
   subtract,
   times,
   toNumber,
+  trim,
   uniq,
   values
 } from "lodash-es";
@@ -61,7 +62,8 @@ import {
   BrandConfigKeys,
   DefaultPaymentPeriod,
   ProductTypes,
-  PromotionDisplayTypes
+  PromotionDisplayTypes,
+  ProvisionCategoryCodes
 } from "@upmind-automation/types";
 
 import type {
@@ -91,6 +93,7 @@ import type {
 } from "./types";
 import { ErrorObject } from "ajv";
 import { IBrandMeta } from "../brand/types";
+import def from "ajv/dist/vocabularies/discriminator";
 
 // -----------------------------------------------------------------------------
 
@@ -158,13 +161,22 @@ export function useProductName(
 ): string {
   const name = useTranslateName(product);
 
-  // TODO: check product type based on if (product.provision_blueprint?.code == "domain-names" | ProvisionCategoryCodes.DOMAINS) {}
-  // for now...we will just append the service identifier if it exists
-  if (basketProduct?.service_identifier) {
-    return `${name} (${basketProduct.service_identifier})`;
-  }
+  if (!basketProduct?.service_identifier) return name;
 
-  return name;
+  // individual product types may have different naming conventions
+  switch (basketProduct?.product.provision_blueprint?.code) {
+    case ProvisionCategoryCodes.DOMAIN_NAMES:
+      return basketProduct?.service_identifier;
+
+    case ProvisionCategoryCodes.SHARED_HOSTING:
+    case ProvisionCategoryCodes.AUTO_LOGIN:
+    case ProvisionCategoryCodes.SEO:
+    case ProvisionCategoryCodes.WEBSITE_BUILDERS:
+    case ProvisionCategoryCodes.SOFTWARE_LICENSES:
+    case ProvisionCategoryCodes.SERVERS:
+    default:
+      return trim(`${name} (${basketProduct.service_identifier})`);
+  }
 }
 
 /**

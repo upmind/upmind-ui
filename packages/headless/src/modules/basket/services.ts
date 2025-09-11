@@ -93,6 +93,7 @@ async function load(context: BasketContext, _event: AnyEventObject) {
         "products.product.products_options",
         "products.product.products_options.category",
         "products.product.products_options.prices",
+        "products.product.provision_blueprint",
         "products.product.provision_field_values",
         "products.tags",
         "products.product.related",
