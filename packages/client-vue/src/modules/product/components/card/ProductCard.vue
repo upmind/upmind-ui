@@ -2,6 +2,7 @@
   <li :class="styles.product.root">
     <div :class="styles.product.content">
       <Button
+        v-if="!configMeta.hideImage"
         :to="
           navigate
             ? {
@@ -25,7 +26,6 @@
         variant="link"
       >
         <Image
-          v-if="!configMeta.hideImage"
           :carousel="!configMeta.hideCarousel"
           :image="isEmpty(images) ? props.productDetails.imgUrl : images"
           :ratio="configMeta.imageRatio"
