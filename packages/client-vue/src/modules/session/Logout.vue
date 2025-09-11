@@ -7,9 +7,8 @@
         :text="t('session.end.text')"
         :actions="[
           {
-            is: 'a',
+            ...storefrontRoute,
             color: 'secondary',
-            href: storefrontUrl,
             iconAppend: 'arrow-right',
             label: t('session.end.actions.continue')
           }
@@ -46,11 +45,10 @@ import ContentSection from "../../components/content/ContentSection.vue";
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
-const router = useRouter();
 const { t } = useI18n();
 const { isResolved } = useRoutingEngine();
 const { logout } = useSession();
-const { storefrontUrl } = useBrand();
+const { storefrontRoute } = useBrand();
 
 // if we are not logged out, we should log out
 await isResolved(ROUTE.SESSION_END).catch(() => {

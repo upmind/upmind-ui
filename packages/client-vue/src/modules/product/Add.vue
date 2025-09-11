@@ -113,7 +113,7 @@ const { navigateBack, navigateNext, isResolved } = useRoutingEngine();
 const { isReady } = useBasket();
 const { productId } = useQueryParams();
 const { configure, resolve, remove } = useBasketProductsPending();
-const { hasStorefront, storefrontUrl, uiCart } = useBrand();
+const { hasStorefront, storefrontRoute, uiCart } = useBrand();
 
 await isReady();
 await isResolved(ROUTE.PRODUCT_ADD);
@@ -140,8 +140,7 @@ const items = computed(() => {
   const items: any[] = [
     {
       label: t("product.shop"),
-      to: !hasStorefront.value ? { name: ROUTE.CATALOGUE } : undefined,
-      href: hasStorefront.value ? storefrontUrl.value : undefined,
+      ...storefrontRoute?.value,
       current: false
     }
   ];

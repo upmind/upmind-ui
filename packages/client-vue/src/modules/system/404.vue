@@ -7,9 +7,8 @@
         :text="t('basket.empty.text')"
         :actions="[
           {
-            is: 'a',
+            ...storefrontRoute,
             color: 'primary',
-            href: storefrontUrl,
             icon: 'arrow-left',
             label: t('errors.404.action')
           }
@@ -61,7 +60,7 @@ import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { storefrontUrl } = useBrand();
+const { storefrontRoute } = useBrand();
 
 const props = withDefaults(defineProps<InterstitialProps>(), {
   open: true,
