@@ -38,14 +38,14 @@
     </p>
 
     <p
-      v-if="vat?.number"
+      v-if="tax?.number"
       class="text-emphasis-medium m-0 inline-flex flex-wrap gap-x-1 text-sm/tight"
     >
-      {{ t("client.company.tax", { title, vatNumber: vat.number }) }}
+      {{ t("client.company.tax.number", { title, taxNumber: tax.number }) }}
 
-      <template v-if="meta.hasVatValidation && meta.hasVat">
+      <template v-if="meta.hasTaxValidation && meta.hasTax">
         <Tooltip to="#vue-app" :label="validationReason" color="primary">
-          <Icon v-if="meta.hasValidVat" icon="check-circle" size="2xs" />
+          <Icon v-if="meta.hasValidTax" icon="check-circle" size="2xs" />
           <Icon v-else icon="alert-triangle" size="2xs" />
         </Tooltip>
       </template>
@@ -86,14 +86,14 @@ const doEdit = () => {
 };
 
 const validationReason = computed(() => {
-  switch (props.vat?.valid) {
+  switch (props.tax?.valid) {
     case 1:
-      return t("client.company.vat.valid", props.vat.checked);
+      return t("client.company.tax.valid", props.tax.checked);
     case 0:
-      return t("client.company.vat.invalid", props.vat);
+      return t("client.company.tax.invalid", props.tax);
     case null:
     default:
-      return t("client.company.vat.pending", props.vat);
+      return t("client.company.tax.pending", props.tax);
   }
 });
 </script>

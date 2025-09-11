@@ -34,8 +34,8 @@ export const useUnifiedActions = () => {
           model?.company?.regNumber
             ? `Reg #: ${get(model, "company.regNumber")}`
             : null,
-          model?.company?.vatNumber
-            ? `Tax #: ${get(model, "company.vatNumber")}`
+          model?.company?.tax?.number
+            ? `Tax #: ${get(model, "company.tax.number")}`
             : null
         ]).join(";");
 

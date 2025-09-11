@@ -136,10 +136,9 @@ export const useTracking = () => {
           )
         );
 
-      const trackAtob = atob(`${cookie}`);
       const values = Object.freeze(
         defaultsDeep(
-          pick(JSON.parse(trackAtob), UPM_TRACK_KEYS),
+          pick(cookie, UPM_TRACK_KEYS),
           keyBy(UPM_TRACK_KEYS, () => null)
         )
       );
