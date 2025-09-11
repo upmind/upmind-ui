@@ -33,15 +33,18 @@ export default {
       item: cva("border-none"),
       card: cva("bg-base"),
       loading: cva("text-secondary"),
-      content: cva("flex flex-col gap-6 transition-all duration-300", {
-        variants: {
-          layout: {
-            full: "px-1 py-4",
-            enclosed: "px-1 py-3",
-            default: "px-1 py-3"
+      content: cva(
+        "flex flex-col gap-6 transition-all duration-300 empty:p-0",
+        {
+          variants: {
+            layout: {
+              full: "px-1 py-4",
+              enclosed: "px-1 py-3",
+              default: "px-1 py-3"
+            }
           }
         }
-      })
+      )
     },
 
     title: cva("text-md text-left no-underline"),
