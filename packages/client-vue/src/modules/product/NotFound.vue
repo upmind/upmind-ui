@@ -10,9 +10,8 @@
         :text="t('basket.notFound.text')"
         :actions="[
           {
-            is: 'a',
+            ...storefrontRoute,
             color: 'primary',
-            href: storefrontUrl,
             icon: 'arrow-left',
             label: t('basket.notFound.actions.continue')
           }
@@ -53,5 +52,5 @@ import ContentSection from "../../components/content/ContentSection.vue";
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { storefrontUrl } = useBrand();
+const { storefrontRoute } = useBrand();
 </script>
