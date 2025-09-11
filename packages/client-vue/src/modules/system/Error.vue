@@ -36,11 +36,11 @@ import ContentSection from "../../components/content/ContentSection.vue";
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 import { computed } from "vue";
 import { isEmpty, isNil } from "lodash-es";
-import { ROUTE, useBrand } from "@upmind-automation/headless";
+import { useBrand } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 const { t, tm } = useI18n();
 const router = useRouter();
-const { storefrontUrl } = useBrand();
+const { storefrontRoute } = useBrand();
 
 const props = withDefaults(
   defineProps<
@@ -99,25 +99,26 @@ const translations = computed(() => {
 });
 
 const actions = computed((): InterstitialActionProps[] => {
-  let href = "window.location.href";
+  let route = storefrontRoute.value;
 
   switch (props.status) {
     // for service errors, we want to reload the page as its likely a temporary issue
     case 500:
     case 503:
-      href = window.location.href;
+      route = {
+        href: window.location.href
+      };
       break;
 
-    // for al lother errors, we want to redirect back to the storefront
+    // for all other errors, we want to redirect back to the storefront
     default:
-      href = storefrontUrl.value;
+      route = storefrontRoute.value;
       break;
   }
 
   const defaultAction: InterstitialActionProps = {
-    is: "a",
+    ...route,
     color: "secondary",
-    href,
     icon: t(`${safeKey.value}.icon`),
     label: translations.value.action
   };

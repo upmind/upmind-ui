@@ -1,7 +1,7 @@
 <template>
   <header :class="styles.header.root">
     <div :class="styles.header.container">
-      <a id="logo" :class="styles.header.anchor" :href="storefrontUrl">
+      <Link id="logo" :class="styles.header.anchor" v-bind="storefrontRoute">
         <picture v-if="logo" class="h-full w-full">
           <slot name="logo" :logo="logo">
             <img v-if="logo" :src="logo" class="h-9 w-auto" alt="logo" />
@@ -13,7 +13,7 @@
         <h3 v-else :class="styles.header.name">
           {{ name }}
         </h3>
-      </a>
+      </Link>
 
       <VHeaderButtons>
         <template #actions> <slot name="actions" /></template>
@@ -26,8 +26,7 @@
 // --- external
 import { useI18n } from "vue-i18n";
 import { useBrand } from "@upmind-automation/headless";
-import { useStyles } from "@upmind-automation/upmind-ui";
-import { useRouter } from "vue-router";
+import { useStyles, Link } from "@upmind-automation/upmind-ui";
 
 // --- internal
 import config from "./header.config";
@@ -40,7 +39,7 @@ import { computed } from "vue";
 // --- types
 import type { ComputedRef } from "vue";
 
-const { name, image, isReady, storefrontUrl, uiCart } = useBrand();
+const { name, image, isReady, storefrontRoute, uiCart } = useBrand();
 
 await isReady();
 const imageUrl = image.value?.full_url;
