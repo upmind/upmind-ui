@@ -3,11 +3,6 @@
     <slot name="actions" />
 
     <Button
-      v-if="
-        basketMeta.hasProducts &&
-        basketMeta.isAvailable &&
-        currentRoute?.name !== ROUTE.BASKET
-      "
       :class="styles.header.avatar.basket"
       variant="ghost"
       size="lg"
