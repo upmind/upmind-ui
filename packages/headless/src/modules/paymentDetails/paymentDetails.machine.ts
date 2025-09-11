@@ -335,6 +335,7 @@ export default createMachine(
           { amount, model, orderId, currency, address }: PaymentDetailsContext,
           { data }: AnyEventObject
         ) => {
+          // todo: parse the data to ensure we have what we need and dont send unnecessary stuff
           return {
             ...model,
             ...data,

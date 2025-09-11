@@ -84,7 +84,14 @@ export function spawnGateway({
       currency
     });
 
-  if (isCard(gateway)) return spawnCard({ orderId, gateway, amount, currency });
+  if (isAwaitingClient(gateway))
+    return spawnGenericGateway(GatewayTypes.AWAITING_CLIENT, {
+      orderId,
+      gateway,
+      amount,
+      currency,
+      renderless: true
+    });
 
   if (isBankTransfer(gateway))
     return spawnGenericGateway(GatewayTypes.BANK_TRANSFER, {
@@ -271,7 +278,7 @@ export function spawnOpenPay({
     );
   }
   return spawn(
-    gatewayMachine.withConfig(openPayConfig).withContext({
+    gatewayMachine.withConfig(openPayConfig as any).withContext({
       orderId,
       gateway,
       ctx: GatewayCtx.PAY,
@@ -378,3 +385,6 @@ const isExternalCard = (gateway: IGateway) =>
 
 const isExternalStore = (gateway: IGateway) =>
   gateway.gateway_provider.external_store;
+
+const isAwaitingClient = (gateway: IGateway) =>
+  gateway.type === GatewayTypes.AWAITING_CLIENT;

@@ -217,10 +217,10 @@ export default createMachine(
       // ---
       setPaymentDetails: assign({
         paymentDetails: (
-          { gateway }: GatewayContext,
+          _context: GatewayContext,
           { data }: AnyEventObject
         ) => {
-          return { gateway, ...data };
+          return data;
         }
       }),
 
