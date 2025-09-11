@@ -26,17 +26,22 @@
       />
     </header>
 
-    <p class="text-emphasis-high m-0 text-sm">
+    <p class="text-emphasis-high m-0 text-sm/tight">
       {{ description }}
     </p>
 
     <p
-      v-if="regNumber || vat?.number"
-      class="text-emphasis-medium m-0 inline-flex flex-wrap gap-x-1 text-sm"
+      v-if="regNumber"
+      class="text-emphasis-medium m-0 inline-flex flex-wrap gap-x-1 text-sm/tight"
     >
-      {{
-        t("client.company.details", { title, regNumber, vatNumber: vat.number })
-      }}
+      {{ t("client.company.number", { title, regNumber }) }}
+    </p>
+
+    <p
+      v-if="vat?.number"
+      class="text-emphasis-medium m-0 inline-flex flex-wrap gap-x-1 text-sm/tight"
+    >
+      {{ t("client.company.tax", { title, vatNumber: vat.number }) }}
 
       <template v-if="meta.hasVatValidation && meta.hasVat">
         <Tooltip to="#vue-app" :label="validationReason" color="primary">
