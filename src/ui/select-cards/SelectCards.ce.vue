@@ -25,7 +25,7 @@
       </TriggerButton>
     </DropdownMenuTrigger>
 
-    <DropdownMenuPortal>
+    <DropdownMenuPortal :to="props.to">
       <DropdownMenuContent
         :class="cn(styles.select.content, props.contentClass)"
       >
