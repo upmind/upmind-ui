@@ -66,6 +66,7 @@ const icons = import.meta.glob("@icons/**/*.svg", {
 
 const svg = ref();
 
+// TODO: FE-1579 Implement a singleton and structured approach to provide/inject namespacing
 const variant = inject<ComputedRef<string>>("icon-variant");
 
 watchEffect(async () => {
