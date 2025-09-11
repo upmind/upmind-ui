@@ -11,9 +11,31 @@
       />
 
       <div>
-        <h3 :class="styles.product.header.info.title">
-          {{ productDetails?.title }}
-        </h3>
+        <Button
+          :to="
+            navigate
+              ? {
+                  name: ROUTE.PRODUCT_ADD,
+                  params: {
+                    pid: props.id
+                  },
+                  query: {
+                    bcm: selectedTerm,
+                    force: 'true', // ensure we always add the product, even if it exists in the basket
+                    navigateOnly: 'true' // this is used to prevent the product from being added to the basket when clicking on the title
+                  }
+                }
+              : undefined
+          "
+          :handler="handleResolve"
+          :disabled="processing"
+          tabindex="-1"
+          variant="link"
+        >
+          <h3 :class="styles.product.header.info.title">
+            {{ productDetails?.title }}
+          </h3>
+        </Button>
 
         <DisplayPrice
           :product-details="productDetails"
@@ -36,8 +58,11 @@
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
+// --- internal
+import { ROUTE } from "@upmind-automation/headless";
+
 // --- components
-import { useStyles, Badge } from "@upmind-automation/upmind-ui";
+import { useStyles, Badge, Button } from "@upmind-automation/upmind-ui";
 import DisplayPrice from "../terms/DisplayPrice.vue";
 import ProductDescription from "./ProductDescription.vue";
 
