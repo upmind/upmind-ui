@@ -19,7 +19,7 @@ export function mapCompanies(raw: ICompany | ICompany[]): Company[] {
 export function mapCompany(raw: ICompany): Company {
   const { getConfig } = useBrand();
 
-  const hasVatValidation: boolean = get(
+  const hasTaxValidation: boolean = get(
     getConfig(BrandConfigKeys.TAX_NUMBER_VALIDATION_ENABLED),
     BrandConfigKeys.TAX_NUMBER_VALIDATION_ENABLED,
     false
@@ -43,9 +43,9 @@ export function mapCompany(raw: ICompany): Company {
     name: raw.name,
     default: raw.default,
     regNumber: raw.reg_number,
-    vat: {
-      valid: raw.vat_validated,
+    tax: {
       number: raw.vat_number,
+      valid: raw.vat_validated,
       percent: raw.vat_percent,
       reason: raw.vat_validation_failed_reason,
       checked: {
@@ -59,9 +59,9 @@ export function mapCompany(raw: ICompany): Company {
       isDefault: raw.default,
       canDelete: raw.can_delete,
       isVerified: !!raw.verified,
-      hasVat: !isEmpty(raw.vat_number),
-      hasVatValidation,
-      hasValidVat: !!raw.vat_validated
+      hasTax: !isEmpty(raw.vat_number),
+      hasTaxValidation,
+      hasValidTax: !!raw.vat_validated
     }
   };
 }
@@ -73,6 +73,6 @@ export function mapICompany(data: CompanyModel): ICompany {
     phone_id: data.phoneId,
     email_id: data.emailId,
     reg_number: data.regNumber ?? "",
-    vat_number: data.vatNumber ?? ""
+    vat_number: data.tax?.number ?? ""
   } as ICompany;
 }
