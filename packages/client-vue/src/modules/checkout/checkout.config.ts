@@ -33,7 +33,7 @@ export default {
       item: cva("border-none"),
       card: cva("bg-base"),
       loading: cva("text-secondary"),
-      content: cva("overflo flex flex-col gap-6 transition-all duration-300", {
+      content: cva("flex flex-col gap-6 transition-all duration-300", {
         variants: {
           layout: {
             full: "px-1 py-4",
