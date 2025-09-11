@@ -1,6 +1,9 @@
 // --- external
 import { ref, provide, computed, readonly } from "vue";
 
+// --- injection keys
+import { ICON_VARIANT_KEY } from "./injectionKeys";
+
 // --- utils
 import {
   compact,
@@ -98,7 +101,7 @@ export const useThemes = (value?: Theme | Theme[], defaultTheme?: string) => {
 
   // TODO: FE-1579 Implement a singleton and structured approach to provide/inject namespacing
   provide(
-    "icon-variant",
+    ICON_VARIANT_KEY,
     computed(() => iconVariant.value)
   );
 

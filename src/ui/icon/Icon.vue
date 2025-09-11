@@ -30,6 +30,7 @@ import { find, isObject, endsWith, isEmpty } from "lodash-es";
 // --- types
 import type { ComputedRef } from "vue";
 import type { IconProps } from ".";
+import { ICON_VARIANT_KEY } from "../../utils/injectionKeys";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<IconProps>(), {
@@ -66,8 +67,7 @@ const icons = import.meta.glob("@icons/**/*.svg", {
 
 const svg = ref();
 
-// TODO: FE-1579 Implement a singleton and structured approach to provide/inject namespacing
-const variant = inject<ComputedRef<string>>("icon-variant");
+const variant = inject(ICON_VARIANT_KEY);
 
 watchEffect(async () => {
   const safePath = isObject(props.icon) ? `${props.icon?.path}/` : "";
