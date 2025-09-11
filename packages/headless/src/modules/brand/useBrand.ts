@@ -20,7 +20,8 @@ import {
   isEmpty,
   forEach,
   includes,
-  keys
+  keys,
+  omitBy
 } from "lodash-es";
 
 // --- types
@@ -33,7 +34,7 @@ import {
 } from "@upmind-automation/types";
 import type { IBrandMeta } from "./types";
 import type { CurrencyModel } from "../basket/currency/types";
-import { k } from "@tanstack/vue-query/build/legacy/queryClient-CAHOJcvF";
+import { RouteLocationRaw } from "vue-router";
 
 // -----------------------------------------------------------------------------
 /**
@@ -205,6 +206,23 @@ export const useBrand = () => {
 
     return !(externalUrl && enabled && hasRoute);
   });
+
+  const storefrontRoute = computed(
+    ():
+      | {
+          to?: RouteLocationRaw;
+          href?: string;
+        }
+      | undefined => {
+      return omitBy(
+        {
+          to: !hasStorefront.value ? { name: ROUTE.CATALOGUE } : undefined,
+          href: hasStorefront.value ? storefrontUrl.value : undefined
+        },
+        isEmpty
+      );
+    }
+  );
 
   // --- methods
 
@@ -397,6 +415,13 @@ export const useBrand = () => {
      * This is derived from the cart meta or environment variable.
      */
     storefrontUrl,
+
+    /**
+     * The resolved storefront route within the application.
+     * This is derived from the meta, environment and router configuration.
+     * provided for convenience as a vue router friendly route object.
+     */
+    storefrontRoute,
 
     /**
      * Returns boolean indicating if the brand has a storefront URL.
