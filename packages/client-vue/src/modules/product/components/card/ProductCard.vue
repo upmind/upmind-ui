@@ -37,7 +37,6 @@
         <header :class="styles.product.header.root">
           <ProductInfo
             v-bind="props"
-            :id="props.id"
             :selected-term="selectedTerm"
             :handle-resolve="handleResolve"
             :processing="processing"
