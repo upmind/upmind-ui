@@ -19,7 +19,6 @@
             : undefined
         "
         :handler="handleResolve"
-        :loading="processing"
         :disabled="processing"
         tabindex="-1"
         class="w-full rounded-lg"
