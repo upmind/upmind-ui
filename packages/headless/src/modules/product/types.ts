@@ -358,6 +358,9 @@ export interface UIProductMeta {
     breakdown: {
       hide?: boolean;
     };
+    price: {
+      hide?: boolean;
+    };
     terms: {
       hide?: boolean;
     };
