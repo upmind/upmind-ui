@@ -36,6 +36,7 @@ export interface DropdownMenuProps
   tag?: string;
   avatar?: Partial<AvatarProps>;
   icon?: IconProps["icon"];
+  to?: string;
   // --- state
   items: DropdownMenuItemProps[];
   loading?: boolean;

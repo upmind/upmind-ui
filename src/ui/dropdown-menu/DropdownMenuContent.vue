@@ -10,7 +10,9 @@ import {
 import { cn } from "../../utils";
 
 const props = withDefaults(
-  defineProps<DropdownMenuContentProps & { class?: HTMLAttributes["class"] }>(),
+  defineProps<
+    DropdownMenuContentProps & { class?: HTMLAttributes["class"]; to?: string }
+  >(),
   {
     sideOffset: 4
   }
@@ -27,7 +29,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
 </script>
 
 <template>
-  <DropdownMenuPortal>
+  <DropdownMenuPortal :to="props?.to">
     <DropdownMenuContent
       v-bind="forwarded"
       :class="

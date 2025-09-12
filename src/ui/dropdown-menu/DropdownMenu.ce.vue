@@ -25,6 +25,7 @@
           props.popoverClass ? props.popoverClass : props.class
         )
       "
+      :to="props.to"
     >
       <DropdownMenuLabel
         v-if="props.title || $slots.label"
