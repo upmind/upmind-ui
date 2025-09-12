@@ -182,7 +182,9 @@ export async function loadFont(fonts?: ThemeTokens["fonts"]): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     if (isEmpty(families)) return reject();
 
-    const familiesWithWeights = families.map(family => `${family}:400,500,600`);
+    const familiesWithWeights = families.map(
+      family => `${family}:400,500,600,700,800`
+    );
 
     WebFontLoader.load({
       google: { families: familiesWithWeights },
