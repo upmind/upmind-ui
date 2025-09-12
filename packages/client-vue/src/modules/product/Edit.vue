@@ -6,6 +6,7 @@
 
     <template #header>
       <Header v-if="product && meta?.isAvailable" v-bind="product" />
+      <HeaderSkeleton v-else />
     </template>
 
     <template #default>
@@ -41,6 +42,8 @@
           @resolve="doResolve"
           @update:quantity="updateQuantity"
         />
+
+        <SummarySkeleton v-else />
       </Section>
     </template>
 
@@ -86,10 +89,12 @@ import { Layout, useStyles } from "@upmind-automation/upmind-ui";
 import Back from "../../components/navigation/Back.vue";
 import ConfigSkeleton from "./components/ConfigSkeleton.vue";
 import Header from "./components/header/Header.vue";
+import HeaderSkeleton from "./components/header/HeaderSkeleton.vue";
 import ProductConfig from "./components/config/Config.vue";
 import Section from "../../components/content/LayoutSection.vue";
 import Summary from "./components/summary/Summary.vue";
 import SummaryFooter from "./components/summary/SummaryFooter.vue";
+import SummarySkeleton from "./components/summary/SummarySkeleton.vue";
 import ProductNotFound from "./NotFound.vue";
 
 // --- types
