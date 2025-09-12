@@ -12,13 +12,17 @@ export class Login {
   constructor(page: Page) {
     this.page = page;
     this.usernameField = page
-      .getByTestId("form-item-username")
+      .getByTestId("form-item-your-username-or-email-address")
       .locator("input");
     this.passwordField = page
       .getByTestId("form-item-password")
       .locator("input");
     this.loginButton = page.getByTestId("button-log-into-my-account");
-    this.twoFactorInput = page.getByTestId("form-item-token").locator("input");
+    this.twoFactorInput = page
+      .getByTestId(
+        "form-item-this-account-is-secured-using-two-factor-authentication-please-enter-the-code-generated-by-your-authenticator-app"
+      )
+      .locator("input");
     this.popoverTrigger = page.getByTestId("login-popover-trigger");
     this.popoverContent = page.getByTestId("popover-content");
     this.alert = page.getByRole("alert");
