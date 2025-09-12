@@ -1,5 +1,10 @@
 <template>
-  <ButtonGroup :items="groupItems" variant="outline" class="w-full" />
+  <ButtonGroup
+    to="#vue-app"
+    :items="groupItems"
+    variant="outline"
+    class="w-full"
+  />
 </template>
 
 <script setup lang="ts">

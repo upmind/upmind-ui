@@ -15,6 +15,7 @@
     <SelectCards
       id="terms"
       name="terms"
+      to="#vue-app"
       :required="props.required"
       :items="parsedValues"
       :disabled="props.disabled || props.processing"
