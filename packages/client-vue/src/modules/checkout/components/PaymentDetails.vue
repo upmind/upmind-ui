@@ -120,7 +120,7 @@ const { meta: basketMeta, checkout } = useBasket();
 const { uiCart } = useBrand();
 
 const configMeta = computed(() => ({
-  layout: uiCart.value?.layout
+  layout: uiCart.value?.layout || "default"
 }));
 
 const styles = useStyles(
