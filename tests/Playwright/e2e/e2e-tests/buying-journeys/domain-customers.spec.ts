@@ -50,7 +50,6 @@ test.describe("Domain customers", () => {
         Logins.domain1.password
       );
       await enterDomainDetails();
-      await page.keyboard.press("Escape");
       await productConfig.confirmAndProceed.click();
       await basket.proceedToCheckout.click();
       await checkout.selectPaymentMethod("Direct Bank Transfer");
@@ -62,7 +61,6 @@ test.describe("Domain customers", () => {
     });
     test("Log in at checkout", async ({ page }) => {
       await enterDomainDetails();
-      await page.keyboard.press("Escape");
       await productConfig.confirmAndProceed.click();
       await basket.proceedToCheckout.click();
       await page.getByText("Log in here").click();
@@ -78,7 +76,6 @@ test.describe("Domain customers", () => {
   test.describe("New Customer", () => {
     test("Register at checkout", async ({ page }) => {
       await enterDomainDetails();
-      await page.keyboard.press("Escape");
       await productConfig.confirmAndProceed.click();
       await basket.proceedToCheckout.click();
       await registration.inputRegistration();

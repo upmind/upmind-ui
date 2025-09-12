@@ -27,6 +27,7 @@ export class ProductConfig {
   readonly billingTerms: Locator;
   readonly options: Locator;
   readonly domainRegister: Locator;
+  readonly domainRegisterInput: Locator;
   readonly domainTransfer: Locator;
   readonly domainExisting: Locator;
   readonly registrantNameInput: Locator;
@@ -99,25 +100,26 @@ export class ProductConfig {
 
     /* Product Options */
     this.textInput = new TextInput(page);
-    this.billingTerms = page.getByTestId("form-item-terms");
+    this.billingTerms = page.getByTestId("radio-card-group").first();
     this.options = page.getByTestId("options-container-options");
     this.domainRegister = page
+      .getByTestId("accordion-item")
+      .getByText("Register new domain");
+    this.domainRegisterInput = page
       .getByTestId("form-item-dac-register")
       .locator("input");
     this.domainTransfer = page.getByTestId("form-item-dac-transfer");
     this.domainExisting = page.getByTestId("form-item-dac-existing");
     this.registrantNameInput = page
-      .getByTestId("form-item-update_registrant_name")
+      .getByTestId("form-item-registrant-name")
       .locator("input");
     this.registrantOrgInput = page
-      .getByTestId("form-item-update_registrant_organisation")
+      .getByTestId("form-item-registrant-organisation")
       .locator("input");
     this.registrantEmailInput = page
-      .getByTestId("form-item-update_registrant_email")
+      .getByTestId("form-item-registrant-email")
       .locator("input");
-    this.registrantPhoneForm = page.getByTestId(
-      "form-item-update_registrant_phone"
-    );
+    this.registrantPhoneForm = page.getByTestId("form-item-registrant-phone");
     this.registrantPhoneCountrySelectButton =
       this.registrantPhoneForm.getByTestId("button-default");
     this.registrantPhoneCountrySelectInput =
@@ -126,19 +128,19 @@ export class ProductConfig {
       this.popover.popoverContent.getByTestId("combobox-item");
     this.registrantPhoneInput = this.registrantPhoneForm.locator("input");
     this.registrantAddr1Input = page
-      .getByTestId("form-item-update_registrant_address_1")
+      .getByTestId("form-item-registrant-address-1")
       .locator("input");
     this.registrantCityInput = page
-      .getByTestId("form-item-update_registrant_address_city")
+      .getByTestId("form-item-registrant-city")
       .locator("input");
     this.registrantStateInput = page
-      .getByTestId("form-item-update_registrant_address_state")
+      .getByTestId("form-item-registrant-state")
       .locator("input");
     this.registrantPostcodeInput = page
-      .getByTestId("form-item-update_registrant_address_postcode")
+      .getByTestId("form-item-registrant-postcode")
       .locator("input");
     this.registrantCountryInput = page
-      .getByTestId("form-item-update-registrant-address-country-code")
+      .getByTestId("form-item-registrant-country")
       .locator("button");
     this.promoBadge = page.getByTestId("badge");
 
@@ -152,41 +154,61 @@ export class ProductConfig {
     /* Order Summary */
     this.totalValue = page.getByTestId("total-price");
     this.totalQty = page.getByTestId("quantity-input"); // TODO: Move to shared page object
-    this.billingCycle = page.getByTestId("summary-value-billing-cycle");
+    this.billingCycle = page.getByTestId("description-list-item-billing-cycle");
 
     // refactor all of this to better fit the dynamic naming of the sumamry fields
-    this.product = page.getByTestId("summary-value-product");
-    this.development = page.getByTestId("summary-value-dev-work");
-    this.webHosting = page.getByTestId("summary-value-shared-hosting");
-    this.designServices = page.getByTestId("summary-value-design-services");
-    this.consulting = page.getByTestId("summary-value-consulting");
-    this.bundle = page.getByTestId("summary-value-bundle");
-    this.meetingTypes = page.getByTestId("summary-value-meeting-types");
-    this.addons = page.getByTestId("summary-value-addons");
-    this.tracking = page.getByTestId("summary-value-tracking");
-    this.tldValue = page.getByTestId("summary-value-domain-names");
-    this.domainName = page.getByTestId("summary-value-account-domain-name");
-    this.domainSetup = page.getByTestId("summary-value-domain-setup-(free)");
-    this.domainLocking = page.getByTestId("summary-value-domain-locking");
-    this.registrantName = page.getByTestId("summary-value-registrant-name");
+    this.product = page.getByTestId("description-list-item-product");
+    this.development = page.getByTestId("description-list-item-dev-work");
+    this.webHosting = page.getByTestId("description-list-item-shared-hosting");
+    this.designServices = page.getByTestId(
+      "description-list-item-design-services"
+    );
+    this.consulting = page.getByTestId("description-list-item-consulting");
+    this.bundle = page.getByTestId("description-list-item-bundle");
+    this.meetingTypes = page.getByTestId("description-list-item-meeting-types");
+    this.addons = page.getByTestId("description-list-item-addons");
+    this.tracking = page.getByTestId("description-list-item-tracking");
+    this.tldValue = page.getByTestId("description-list-item-domain-names");
+    this.domainName = page.getByTestId(
+      "description-list-item-account-domain-name"
+    );
+    this.domainSetup = page.getByTestId(
+      "description-list-item-domain-setup-(free)"
+    );
+    this.domainLocking = page.getByTestId(
+      "description-list-item-domain-locking"
+    );
+    this.registrantName = page.getByTestId(
+      "description-list-item-registrant-name"
+    );
     this.registrantOrg = page.getByTestId(
-      "summary-value-registrant-organisation"
+      "description-list-item-registrant-organisation"
     );
-    this.registrantEmail = page.getByTestId("summary-value-registrant-email");
-    this.registrantPhone = page.getByTestId("summary-value-registrant-phone");
+    this.registrantEmail = page.getByTestId(
+      "description-list-item-registrant-email"
+    );
+    this.registrantPhone = page.getByTestId(
+      "description-list-item-registrant-phone"
+    );
     this.registrantAddr1 = page.getByTestId(
-      "summary-value-registrant-address-1"
+      "description-list-item-registrant-address-1"
     );
-    this.registrantCity = page.getByTestId("summary-value-registrant-city");
-    this.registrantState = page.getByTestId("summary-value-registrant-state");
+    this.registrantCity = page.getByTestId(
+      "description-list-item-registrant-city"
+    );
+    this.registrantState = page.getByTestId(
+      "description-list-item-registrant-state"
+    );
     this.registrantPostcode = page.getByTestId(
-      "summary-value-registrant-postcode"
+      "description-list-item-registrant-postcode"
     );
     this.registrantCountry = page.getByTestId(
-      "summary-value-registrant-country"
+      "description-list-item-registrant-country"
     );
-    this.engagementTypes = page.getByTestId("summary-value-engagement-types");
-    this.outcomes = page.getByTestId("summary-value-outcomes");
+    this.engagementTypes = page.getByTestId(
+      "description-list-item-engagement-types"
+    );
+    this.outcomes = page.getByTestId("description-list-item-outcomes");
     this.confirmAndProceed = page.getByTestId("button-add-to-basket");
 
     /* Meta Slots */
@@ -212,7 +234,7 @@ export class ProductConfig {
 
   async enterSld(sld: string) {
     const sldFormField = this.page
-      .getByTestId("form-item-sld")
+      .getByTestId("form-item-domain-sld")
       .locator("input");
     await sldFormField.fill(sld);
   }
@@ -274,6 +296,8 @@ export class ProductConfig {
     await this.registrantCityInput.fill(registrantCity);
     await this.registrantStateInput.fill(registrantState);
     await this.registrantPostcodeInput.fill(registrantPostcode);
+    await this.registrantCountryInput.click();
+    await this.page.getByTestId(`select-item-${registrantCountryCode}`).click();
   }
 
   async clickBillingTerm(option: number) {
