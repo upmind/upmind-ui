@@ -37,7 +37,7 @@
         show-cycle
       />
 
-      <small :class="styles.product.config.grid.item.text">
+      <small v-if="!select" :class="styles.product.config.grid.item.text">
         <PayToday :price="props.price" />
       </small>
     </div>
