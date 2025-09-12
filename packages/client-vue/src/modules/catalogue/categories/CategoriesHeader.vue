@@ -1,7 +1,7 @@
 <template>
   <div :class="styles.categories.header.root" v-auto-animate>
     <template v-if="!meta.isLoading">
-      <h1 :class="styles.categories.header.title">{{ title }}</h1>
+      <h1 v-if="title" :class="styles.categories.header.title">{{ title }}</h1>
       <p v-if="description" :class="styles.categories.header.description">
         {{ description }}
       </p>
@@ -50,12 +50,7 @@ const meta = computed(() => {
 });
 
 const title = computed(() => {
-  return (
-    props.name ||
-    (isEmpty(props.id) && uiCart.value?.tagline) ||
-    name.value ||
-    ""
-  );
+  return props.name || (isEmpty(props.id) && uiCart.value?.tagline) || "";
 });
 
 const styles = useStyles(
