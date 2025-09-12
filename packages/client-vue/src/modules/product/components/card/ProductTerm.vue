@@ -1,6 +1,6 @@
 <template>
   <fieldset v-if="items.length > 1">
-    <SelectCards v-model="modelValue" :items="items" />
+    <SelectCards to="#vue-app" v-model="modelValue" :items="items" />
   </fieldset>
 </template>
 
