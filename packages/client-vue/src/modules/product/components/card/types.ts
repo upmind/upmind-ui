@@ -9,7 +9,7 @@ import type {
 } from "@upmind-automation/headless";
 import type { VariantProps } from "class-variance-authority";
 import { rootVariant } from "./product.config";
-import type { ButtonProps } from "@upmind-automation/upmind-ui";
+import type { ButtonProps, ImageProps } from "@upmind-automation/upmind-ui";
 
 export type RootVariants = VariantProps<typeof rootVariant>;
 
@@ -26,6 +26,7 @@ export interface ProductCardProps
   preservePromotion?: boolean;
   navigate?: boolean;
   color?: ButtonProps["color"];
+  ratio?: ImageProps["ratio"];
 }
 
 export interface ProductInfo {

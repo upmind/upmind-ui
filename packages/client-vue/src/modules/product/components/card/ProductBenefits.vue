@@ -6,7 +6,7 @@
       :class="styles.product.header.benefits.item"
     >
       <Icon
-        :icon="benefit.icon"
+        :icon="benefit.icon?.icon || benefit.icon"
         size="nano"
         :class="styles.product.header.benefits.icon"
       />

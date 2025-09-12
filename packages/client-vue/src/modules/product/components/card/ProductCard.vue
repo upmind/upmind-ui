@@ -28,7 +28,7 @@
         <Image
           :carousel="!configMeta.hideCarousel"
           :image="isEmpty(images) ? props.productDetails.imgUrl : images"
-          :ratio="configMeta.imageRatio"
+          :ratio="ratio || configMeta.imageRatio"
           :class="styles.product.image"
         />
       </Button>
@@ -44,7 +44,7 @@
           />
           <ProductBenefits
             v-if="!configMeta.hideBenefits"
-            :benefits="productMeta?.card?.benefits?.data"
+            :benefits="productDetails?.benefits"
           />
 
           <ProductPrice v-if="!configMeta.hidePrice" v-bind="props" />

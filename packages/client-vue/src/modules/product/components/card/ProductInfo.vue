@@ -2,7 +2,14 @@
   <section :class="styles.product.header.info.root">
     <div :class="styles.product.header.info.container">
       <Badge
-        v-if="meta?.discounted || preservePromotion"
+        v-if="productDetails?.badge"
+        v-bind="productDetails?.badge"
+        size="sm"
+        color="promotion"
+      />
+
+      <Badge
+        v-else-if="meta?.discounted || preservePromotion"
         :label="t('product.promotion')"
         icon="tag"
         size="sm"
