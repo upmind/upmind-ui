@@ -9,7 +9,7 @@ export default {
     container: cva("mx-auto flex w-full items-center justify-between", {
       variants: {
         layout: {
-          default: "max-w-app-lg",
+          default: "max-w-app",
           full: "max-w-app",
           enclosed: "max-w-app-lg"
         }
