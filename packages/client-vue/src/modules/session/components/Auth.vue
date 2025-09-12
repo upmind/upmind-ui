@@ -52,7 +52,7 @@
     />
 
     <TermsAndConditions
-      class="text-emphasis-medium text-center text-sm"
+      class="text-emphasis-medium max-w-3xl text-center text-sm"
       v-if="currentForm === 'register'"
     />
   </div>
