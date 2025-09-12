@@ -28,6 +28,7 @@ export interface SelectProps
   size?: RootVariants["size"];
   placeholder?: string;
   ring?: boolean;
+  to?: string;
   // --- styles
   uiConfig?: {
     select: {
