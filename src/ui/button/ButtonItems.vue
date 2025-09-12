@@ -31,6 +31,7 @@ const props = defineProps<ButtonItemsProps>();
 
 const meta = computed(() => {
   return {
+    isLoading: props.loading,
     size: props.size,
     variant: props.variant
   };

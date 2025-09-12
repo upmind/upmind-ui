@@ -17,6 +17,7 @@
         :checked="checked"
         :size="size"
         :variant="variant"
+        :loading="loading"
       />
     </slot>
 
@@ -33,6 +34,7 @@
         :checked="checked"
         :size="size"
         :variant="variant"
+        :loading="loading"
       />
     </slot>
 
