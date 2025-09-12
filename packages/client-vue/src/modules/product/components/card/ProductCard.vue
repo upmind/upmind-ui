@@ -135,8 +135,8 @@ const configMeta = computed(() => ({
   hideBenefits: productMeta.value?.card?.benefits?.hide ?? props.hideBenefits,
   hideImage: productMeta.value?.image?.hide,
   hideCarousel: productMeta.value?.image?.carousel,
-  hidePrice: productMeta.value?.card?.terms?.hide,
   hideDescription: productMeta.value?.card?.description?.hide,
+  hidePrice: productMeta.value?.card?.price?.hide,
   hideTerms: (productMeta.value?.card?.terms?.hide || props.hideTerms) ?? true
 }));
 
