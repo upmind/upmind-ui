@@ -47,7 +47,7 @@ const slots = useSlots();
 
 const meta = computed(() => {
   return {
-    variant: props.variant ?? uiCart.value?.layout
+    variant: props.variant || uiCart.value?.layout || "default"
   };
 });
 
