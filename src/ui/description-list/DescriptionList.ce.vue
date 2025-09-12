@@ -8,6 +8,7 @@
       v-for="(item, index) in items"
       :key="`dl-item-${index}`"
       :class="styles.list.item"
+      :data-testid="`description-list-item-${kebabCase(item.term)}`"
     >
       <dt :class="cn(styles.list.term)">
         {{ item.term }}
@@ -25,6 +26,7 @@
 // --- external
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { computed } from "vue";
+import { kebabCase } from "lodash-es";
 
 // --- internal
 import config from "./descriptionList.config";
