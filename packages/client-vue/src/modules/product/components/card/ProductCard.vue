@@ -137,7 +137,8 @@ const configMeta = computed(() => ({
   hideCarousel: productMeta.value?.image?.carousel,
   hideDescription: productMeta.value?.card?.description?.hide,
   hidePrice: productMeta.value?.card?.price?.hide,
-  hideTerms: (productMeta.value?.card?.terms?.hide || props.hideTerms) ?? true
+  hideTerms: (productMeta.value?.card?.terms?.hide || props.hideTerms) ?? true,
+  isLoading: processing
 }));
 
 const styles = useStyles(
