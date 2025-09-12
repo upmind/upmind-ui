@@ -96,7 +96,7 @@ export default {
       root: cva("flex flex-col gap-y-2"),
       trigger: {
         root: cva(
-          "outline-control-active py-3 pr-5 outline-offset-4 hover:no-underline"
+          "outline-control-active cursor-pointer py-3 pr-5 outline-offset-4 hover:no-underline"
         ),
         label: cva("flex cursor-pointer items-center"),
         radio: cva("relative flex w-11 justify-center pl-1.5")
