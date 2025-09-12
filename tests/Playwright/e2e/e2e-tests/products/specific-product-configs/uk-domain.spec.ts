@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { URLs } from "../../../support/constants/urls";
 import { ProductConfig } from "../../../support/page-objects/templates/ProductConfig";
-import { ukDomain } from "../../../support/constants/checkout/test-cases/webcentral/domains/Uk";
+import { ukDomain } from "../../../support/constants/checkout/test-cases/domains/Uk";
 let productConfig: ProductConfig;
 let testCases = ukDomain;
 

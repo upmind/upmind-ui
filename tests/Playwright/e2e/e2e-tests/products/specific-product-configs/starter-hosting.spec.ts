@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { URLs } from "../../../support/constants/urls";
 import { ProductConfig } from "../../../support/page-objects/templates/ProductConfig";
-import { StarterHosting } from "../../../support/constants/checkout/test-cases/webcentral/StarterHosting";
+import { StarterHosting } from "../../../support/constants/checkout/test-cases/StarterHosting";
 let productConfig: ProductConfig;
 let testCases = StarterHosting;
 
@@ -15,9 +15,9 @@ test.describe("Product Config - Happy Paths - Starter Hosting", async () => {
   for (const {
     name,
     billingTerm,
-    accordionSelection,
     total,
     billingCycle,
+    addons,
     webHosting,
     domainName
   } of testCases) {
@@ -25,19 +25,16 @@ test.describe("Product Config - Happy Paths - Starter Hosting", async () => {
       /* PRODUCT OPTIONS */
       /* Make product selections */
       await productConfig.clickBillingTerm(billingTerm);
-      for (const accordionItem of accordionSelection) {
-        await productConfig.accordion.clickAccordion(accordionItem);
-      }
-      if (accordionSelection.includes(0)) {
+      if (domainSelection.includes(0)) {
         await productConfig.domainRegister.fill(domainName);
       }
-      if (accordionSelection.includes(1)) {
+      if (domainSelection.includes(1)) {
         await productConfig.domainTransfer.fill(domainName);
       }
-      if (accordionSelection.includes(2)) {
+      if (domainSelection.includes(2)) {
         await productConfig.domainExisting.fill(domainName);
       }
-      if (!accordionSelection.includes(2) && !accordionSelection.includes(3)) {
+      if (!domainSelection.includes(2) && !domainSelection.includes(3)) {
         await productConfig.addDomain();
         await productConfig.domainAddToBasket.click();
       }

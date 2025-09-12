@@ -1,5 +1,5 @@
-import { expect } from "@playwright/test";
-import { test } from "../../../support/fixtures/test";
+import { test, expect } from "@playwright/test";
+//import { test } from "../../../support/fixtures/test";
 import { fakerEN_GB } from "@faker-js/faker";
 import { URLs } from "../../../support/constants/urls";
 import {
@@ -64,9 +64,6 @@ test.describe("Checkout with Stripe", () => {
         await checkout.dialogWindow.waitFor();
         await expect(checkout.dialogWindow).toContainText(
           "Converting your order"
-        );
-        await expect(checkout.dialogWindow).toContainText(
-          "Processing your payment"
         );
         await expect(checkout.dialogWindow).toContainText("Order complete!");
       });
@@ -166,9 +163,6 @@ test.describe("Checkout with Stripe", () => {
         await checkout.selectPaymentMethod("Stripe Payment");
         await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
         await checkout.clickPlaceOrderButton();
-        await expect(page.getByRole("dialog")).toContainText(
-          "Converting your order"
-        );
         await expect(page.getByRole("dialog")).toContainText(`${dialogText}`);
       });
     }

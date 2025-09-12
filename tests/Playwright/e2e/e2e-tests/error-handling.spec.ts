@@ -36,7 +36,9 @@ test.describe("Error Code Handling", async () => {
         await expect(dialog).toContainText(responseError.message);
         await expect(page.getByTestId(`button-${button}`)).toBeVisible();
       } else if (errorType === "redirect") {
-        await expect(page).toHaveURL(`${URLs.baseUrl}order/shop`);
+        await expect(page).toHaveURL(
+          `${URLs.baseUrl}order/product/not-found/?pid=3de78642-de53-9714-76df-21208469530d`
+        );
       } else if (errorType === "toast") {
         const toast = page.getByRole("status").first();
         await expect(toast).toBeVisible();
