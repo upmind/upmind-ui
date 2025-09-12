@@ -33,7 +33,7 @@ export default {
   description: cva("text-emphasis-medium my-0 text-sm"),
   header: {
     root: cva("flex flex-col gap-1"),
-    title: cva("font-display text-4xl md:text-5xl"),
+    title: cva("font-display text-4xl text-balance md:text-5xl"),
     description: cva("text-emphasis-medium text-lg")
   },
   section: {
@@ -41,6 +41,7 @@ export default {
       variants: {
         variant: {
           full: "border-b pb-3",
+          default: "border-b pb-3",
           enclosed: ""
         }
       }
@@ -48,6 +49,7 @@ export default {
     root: cva("flex w-full flex-col", {
       variants: {
         variant: {
+          default: "gap-9",
           full: "gap-9",
           enclosed: "gap-3"
         }
