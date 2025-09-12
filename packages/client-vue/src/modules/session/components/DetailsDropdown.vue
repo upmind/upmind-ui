@@ -9,6 +9,7 @@
         content: ['mt-4']
       }
     }"
+    to="#vue-app"
   >
     <template #trigger>
       <slot />
