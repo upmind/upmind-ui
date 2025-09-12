@@ -8,6 +8,7 @@ export default {
     container: cva("flex w-full items-center justify-between", {
       variants: {
         variant: {
+          default: "max-w-app",
           full: "max-w-app",
           enclosed: "max-w-app-lg"
         }
