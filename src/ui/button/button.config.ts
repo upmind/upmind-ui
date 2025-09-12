@@ -46,7 +46,7 @@ export const rootVariants = cva(
         true: "w-full basis-full"
       },
       isLoading: {
-        true: "pointer-events-none [&>*:not(.absolute)]:opacity-0"
+        true: "pointer-events-none"
       },
       isDisabled: {
         true: "cursor-not-allowed opacity-50",
@@ -372,6 +372,26 @@ const labelVariants = cva("", {
     },
     isIconOnly: {
       true: "sr-only"
+    },
+    isLoading: {
+      true: "opacity-0"
+    }
+  }
+});
+
+const itemsVariants = cva("size-lh flex items-center justify-center", {
+  variants: {
+    size: {
+      icon: "",
+      sm: "[&>i]:p-[3px]",
+      md: "[&>i]:p-[3px]",
+      lg: "[&>i]:p-[4px]"
+    },
+    variant: {
+      link: "text-emphasis-medium"
+    },
+    isLoading: {
+      true: "opacity-0"
     }
   }
 });
@@ -381,18 +401,6 @@ export default {
   button: {
     root: rootVariants,
     label: labelVariants,
-    items: cva("size-lh flex items-center justify-center", {
-      variants: {
-        size: {
-          icon: "",
-          sm: "[&>i]:p-[3px]",
-          md: "[&>i]:p-[3px]",
-          lg: "[&>i]:p-[4px]"
-        },
-        variant: {
-          link: "text-emphasis-medium"
-        }
-      }
-    })
+    items: itemsVariants
   }
 };
