@@ -8,6 +8,7 @@
       v-bind="delegatedProps"
       v-model="modelValue"
       :class="styles.input.field"
+      :data-testid="`input-${props.autocomplete || props.id}`"
     />
 
     <slot name="append">
