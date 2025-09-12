@@ -39,6 +39,9 @@ export const imageVariant = cva("h-auto w-full", {
       default: "",
       bordered: "",
       flush: "rounded-t-lg rounded-b-none"
+    },
+    isLoading: {
+      true: "opacity-50"
     }
   }
 });
