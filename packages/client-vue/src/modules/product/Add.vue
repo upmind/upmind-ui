@@ -14,6 +14,7 @@
         :product-image="productImage()"
         v-if="meta?.isAvailable"
       />
+      <HeaderSkeleton v-else />
     </template>
 
     <template #default>
@@ -49,6 +50,8 @@
           @resolve="doResolve"
           @update:quantity="updateQuantity"
         />
+
+        <SummarySkeleton v-else />
       </Section>
     </template>
 
@@ -94,10 +97,12 @@ import { Layout, Breadcrumb, useStyles } from "@upmind-automation/upmind-ui";
 import Share from "../../components/navigation/Share.vue";
 import ConfigSkeleton from "./components/ConfigSkeleton.vue";
 import Header from "./components/header/Header.vue";
+import HeaderSkeleton from "./components/header/HeaderSkeleton.vue";
 import ProductConfig from "./components/config/Config.vue";
 import Section from "../../components/content/LayoutSection.vue";
 import Summary from "./components/summary/Summary.vue";
 import SummaryFooter from "./components/summary/SummaryFooter.vue";
+import SummarySkeleton from "./components/summary/SummarySkeleton.vue";
 import ProductNotFound from "./NotFound.vue";
 
 // --- utils
