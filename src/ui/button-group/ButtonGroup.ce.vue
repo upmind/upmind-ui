@@ -31,6 +31,7 @@
           v-bind="item.props"
           :ring="false"
           variant="ghost"
+          :to="to"
           :ui-config="{
             select: {
               root: [styles.buttonGroup.button],
