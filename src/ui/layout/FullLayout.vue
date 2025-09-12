@@ -7,7 +7,7 @@
     </div>
   </nav>
 
-  <article :class="styles.full.root">
+  <article :class="cn(styles.full.root, props.class)">
     <header :class="styles.full.header.root" v-if="meta.hasHeader">
       <div :class="styles.full.header.container">
         <slot name="header" />
@@ -40,6 +40,7 @@ import config from "./layout.config";
 
 // --- utils
 import { isEmptySlot } from "./utils";
+import { cn } from "../../utils";
 
 // --- types
 import { type ComputedRef, computed, useSlots } from "vue";

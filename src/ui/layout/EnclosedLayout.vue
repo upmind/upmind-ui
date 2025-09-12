@@ -7,7 +7,7 @@
     </div>
   </nav>
 
-  <article :class="styles.enclosed.root">
+  <article :class="cn(styles.enclosed.root, props.class)">
     <div :class="styles.enclosed.container">
       <Card v-if="meta.hasHeader" as="header">
         <slot name="header" />
