@@ -75,7 +75,7 @@ export default {
       )
     },
     header: {
-      root: cva("flex max-w-2xl flex-col gap-y-3"),
+      root: cva("flex max-w-2xl flex-col gap-y-3 empty:hidden"),
       title: cva("font-display m-0 text-5xl font-normal"),
       description: cva("text-md text-emphasis-medium m-0")
     },
