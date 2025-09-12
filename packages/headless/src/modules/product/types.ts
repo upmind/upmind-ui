@@ -12,7 +12,7 @@ import type {
 } from "@upmind-automation/types";
 export { PromotionDisplayTypes } from "@upmind-automation/types";
 import { PromotionDisplayTypes } from "@upmind-automation/types";
-import type { Recommendation } from "../recommendations";
+import type { Recommendation, Badge } from "../recommendations";
 import type { BasketProduct } from "../basketProduct";
 import { ResponseError } from "../../utils";
 import { Route } from "../routing";
@@ -156,6 +156,7 @@ export type ProductDetails = {
   title: string;
   name: string; // untranslated name for reporting purposes
   brand: string;
+  badge?: Badge;
   categoryId: string;
   category: string;
   categories?: string[]; // parent category names
@@ -172,6 +173,7 @@ export type ProductDetails = {
   min: number;
   max: number; // or infinity
   defaultPaymentPeriod?: number;
+  benefits?: Benefit[];
   uiMeta?: UIMeta;
   uiCategoryMeta?: Record<string, any>;
 };

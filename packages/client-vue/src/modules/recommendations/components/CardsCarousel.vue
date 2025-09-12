@@ -32,6 +32,8 @@
           :preserve-promotion="preservePromotions"
           :navigate="false"
           color="secondary"
+          ratio="3:2"
+          hide-terms
           @resolve="doResolve"
         />
       </CarouselItem>
