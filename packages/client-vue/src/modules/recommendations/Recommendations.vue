@@ -1,59 +1,53 @@
 <template>
   <Layout overflow="hidden">
-    <div class="flex flex-col items-center justify-center gap-1 p-2">
-      <SmartTitle
-        i18n-key="recommendations.header.title"
-        size="4xl"
-        align="center"
+    <template #header>
+      <Header
+        title="recommendations.header.title"
+        :description="t('recommendations.header.subtitle')"
+      />
+    </template>
+
+    <template #default>
+      <CardsCarousel
+        :loading="meta?.isLoading"
+        :processing="meta?.isProcessing"
+        :refreshing="meta?.isRefreshing"
+        :items="recommendations"
+        @resolve="doAdd"
+        @fetch="fetchRecommendation"
       />
 
-      <p
-        class="text-emphasis-medium text-md m-0 max-w-lg text-center leading-normal"
-      >
-        {{ t("recommendations.header.subtitle") }}
-      </p>
-    </div>
-
-    <CardsCarousel
-      :loading="meta?.isLoading"
-      :processing="meta?.isProcessing"
-      :refreshing="meta?.isRefreshing"
-      :items="recommendations"
-      @resolve="doAdd"
-      @fetch="fetchRecommendation"
-    />
-
-    <Configure
-      v-if="basketItem?.id"
-      :modelValue="basketItem"
-      @resolve="doClose"
-    />
-
-    <Card
-      class="md:bg-base md: mt-8 flex flex-col items-center justify-between bg-transparent p-0! shadow-none md:mt-8 md:flex-row md:px-8! md:py-6!"
-    >
-      <div
-        class="text-md order-last mt-4 text-center font-medium md:order-first md:mt-0 md:text-left"
-      >
-        {{ t("recommendations.toolbar.title", { count: products?.length }) }}
-      </div>
-
-      <Button
-        @click="doClose"
-        :label="t('recommendations.toolbar.actions.continue')"
-        color="primary"
-        size="lg"
-        class="w-full md:w-auto"
-        iconAppend="arrow-right"
-        pill
+      <Configure
+        v-if="basketItem?.id"
+        :modelValue="basketItem"
+        @resolve="doClose"
       />
-    </Card>
+
+      <Card
+        class="md:bg-base md: mt-8 flex flex-col items-center justify-between bg-transparent p-0! shadow-none md:mt-8 md:flex-row md:px-8! md:py-6!"
+      >
+        <div
+          class="text-md order-last mt-4 text-center font-medium md:order-first md:mt-0 md:text-left"
+        >
+          {{ t("recommendations.toolbar.title", { count: products?.length }) }}
+        </div>
+
+        <Button
+          @click="doClose"
+          :label="t('recommendations.toolbar.actions.continue')"
+          color="primary"
+          size="lg"
+          class="w-full md:w-auto"
+          iconAppend="arrow-right"
+          pill
+        />
+      </Card>
+    </template>
   </Layout>
 </template>
 
 <script lang="ts" setup>
 // --- external
-import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -65,10 +59,10 @@ import {
 } from "@upmind-automation/headless";
 
 // --- components
-import { Card, Button, Icon, Layout } from "@upmind-automation/upmind-ui";
+import { Card, Button, Layout } from "@upmind-automation/upmind-ui";
 import Configure from "./components/Configure.vue";
 import CardsCarousel from "./components/CardsCarousel.vue";
-import SmartTitle from "../../components/content/SmartTitle.vue";
+import Header from "../../components/content/Header.vue";
 
 // -----------------------------------------------------------------------------
 
