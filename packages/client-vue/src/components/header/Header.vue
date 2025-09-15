@@ -39,9 +39,8 @@ import { computed } from "vue";
 // --- types
 import type { ComputedRef } from "vue";
 
-const { name, image, isReady, storefrontRoute, uiCart } = useBrand();
+const { name, image, storefrontRoute, uiCart } = useBrand();
 
-await isReady();
 const imageUrl = image.value?.full_url;
 
 // -----------------------------------------------------------------------------

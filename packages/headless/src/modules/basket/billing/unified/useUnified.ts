@@ -64,7 +64,7 @@ export const useUnified = (
       }),
     {
       id: "new-billing-detail",
-      devTools: true
+      devTools: false
     }
   );
 
