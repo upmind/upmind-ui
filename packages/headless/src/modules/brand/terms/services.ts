@@ -28,7 +28,7 @@ function load() {
     withAccessToken: true,
     // --- options
     select: data => parseTerm(data),
-    staleTime: "static",
+    staleTime: useTime().DAY,
     persister: localStoragePersister.persisterFn
   });
 }
