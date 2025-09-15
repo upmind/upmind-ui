@@ -1,5 +1,5 @@
 <template>
-  <Sanitized :modelValue="compiledMarkdown" data-testid="markdown" />
+  <Sanitized :tag="tag" :modelValue="compiledMarkdown" data-testid="markdown" />
 </template>
 
 <script lang="ts" setup>
@@ -15,15 +15,13 @@ import { first, lowerCase } from "lodash-es";
 
 // --- types
 import type { VNode } from "vue";
+import type { MarkdownProps } from "./types";
 
 // -----------------------------------------------------------------------------
 
 const emits = defineEmits(["mounted"]);
 
-const props = defineProps<{
-  modelValue?: string;
-  keys?: Record<string, string>;
-}>();
+const props = defineProps<MarkdownProps>();
 
 const slots = useSlots() as { default?: () => VNode[] };
 
