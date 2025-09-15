@@ -59,7 +59,7 @@ export const useClientCompany = (
       }),
     {
       id: id ?? "new-company",
-      devTools: true
+      devTools: false
     }
   );
 
