@@ -67,7 +67,6 @@ import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
-import Clickwrap from "../../checkout/components/gateway/Clickwrap.vue";
 import TermsAndConditions from "../../brand/TermsAndConditions.vue";
 import Form from "../../../components/form/Form.vue";
 import config from "../sesssion.config";

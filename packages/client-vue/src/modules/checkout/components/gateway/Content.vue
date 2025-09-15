@@ -29,12 +29,13 @@
       </p>
     </div>
 
-    <Clickwrap
+    <Markdown
       v-if="uiCart?.clickwrap_disclaimer"
-      class="max-w-full"
+      :class="styles.checkout.clickwrap"
       :model-value="uiCart.clickwrap_disclaimer"
       :keys="{ action: t(getGatewayi18n('actions.submit')) }"
     />
+
     <TermsAndConditions
       v-else
       :class="styles.checkout.footer.terms"
@@ -55,10 +56,8 @@ import { useBrand } from "@upmind-automation/headless";
 
 // --- components
 import TermsAndConditions from "../../../brand/TermsAndConditions.vue";
-import { Icon, Button } from "@upmind-automation/upmind-ui";
+import { Icon, Button, Markdown } from "@upmind-automation/upmind-ui";
 import PaymentGateway from "../PaymentGateway.vue";
-import Clickwrap from "./Clickwrap.vue";
-
 // --- types
 import type { ComputedRef } from "vue";
 import type { GatewayContentProps } from "./types";
@@ -88,6 +87,7 @@ const styles = useStyles(
     action: string;
     additional: string;
     terms: string;
+    clickwrap: string;
   };
 }>;
 
