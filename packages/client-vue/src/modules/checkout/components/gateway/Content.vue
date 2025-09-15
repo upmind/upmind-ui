@@ -31,6 +31,7 @@
 
     <Markdown
       v-if="uiCart?.clickwrap_disclaimer"
+      tag="p"
       :class="styles.checkout.clickwrap"
       :model-value="uiCart.clickwrap_disclaimer"
       :keys="{ action: t(getGatewayi18n('actions.submit')) }"
