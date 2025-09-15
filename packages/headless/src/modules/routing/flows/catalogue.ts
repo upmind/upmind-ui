@@ -24,10 +24,9 @@ export const useCatalogueFlows = () => {
     {
       name: ROUTE.CATALOGUE,
       guard: async (route: Route) => {
-        // currency,coupons, lang
-        const { currency, coupon } = useRouteQueryParams(route);
+        // currency, lang
+        const { currency } = useRouteQueryParams(route);
         if (currency) setCurrency(currency);
-        if (coupon) addPromotion(coupon);
 
         // some query params that we ALWAYS look out for and resolve for the UI:
         return await isReady().then(() => !uiCart.value?.catalogue?.disabled);
