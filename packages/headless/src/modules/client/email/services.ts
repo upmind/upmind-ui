@@ -34,7 +34,7 @@ function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
 
   return list<IEmail[], Email[]>({
     ...(params as any),
-    queryKey,
+    queryKey: [...queryKey, { user: user.value?.id }],
     url: useUrl(`clients/${user.value?.id}/emails`),
     withAccessToken: true,
     guard: async () =>
