@@ -41,7 +41,7 @@ function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
 
   return list<IAddress[], Address[]>({
     ...(params as any),
-    queryKey,
+    queryKey: [...queryKey, { user: user.value?.id }],
     url: useUrl(`clients/${user.value?.id}/addresses`, {
       with: ["region", "country"].join()
     }),
