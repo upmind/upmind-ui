@@ -254,9 +254,9 @@ export const useDomain = (
       .catch(error => {
         return Promise.reject(
           new DetailedError(
-            error.message ?? "Add to Basket failed",
-            error.code ?? responseCodes.Timeout,
-            error.origin ?? ErrorOrigin.Headless,
+            error?.message ?? "Add to Basket failed",
+            error?.code ?? responseCodes.Timeout,
+            error?.origin ?? ErrorOrigin.Headless,
             error?.data ?? {
               error,
               state: state.value
