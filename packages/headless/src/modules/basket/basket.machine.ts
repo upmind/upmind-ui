@@ -389,8 +389,14 @@ export default createMachine(
       // TODO: actual payment node.
 
       complete: {
-        id: "complete"
-        // type: "final"
+        id: "complete",
+        // restart the baslket process once the order is complete
+        after: {
+          wait: {
+            target: "loading",
+            actions: ["clearBasket", "clearActors"]
+          }
+        }
       }
     },
     on: {
