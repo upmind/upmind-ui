@@ -5,16 +5,9 @@ import { computed } from "vue";
 import service from "./services";
 
 // --- utils
-import { includes, isEmpty, keys, some } from "lodash-es";
-import { invalidateQueryByKey } from "../../query";
+import { isEmpty } from "lodash-es";
 
 // --- types
-
-// -----------------------------------------------------------------------------
-
-let needsRefresh = some(keys(localStorage), key =>
-  includes(key, `"brand","terms"`)
-);
 
 // -----------------------------------------------------------------------------
 /**
@@ -32,26 +25,12 @@ export const useTermsAndConditions = () => {
     isEmpty:
       isEmpty(query?.data.value?.content) && isEmpty(query?.data.value?.url),
     isAvailable: true,
-    isComplete: query?.isFetched.value,
     ...query?.data?.value?.meta // add any generated meta info here
   }));
 
   async function isReady(): Promise<boolean> {
-    return new Promise(resolve => {
-      const interval = setInterval(() => {
-        if (meta.value.isComplete) {
-          clearInterval(interval);
-
-          // after first load, ensure we refetch our data in the background if we have previously fetched/persisted
-          if (needsRefresh) {
-            invalidateQueryByKey(["brand", "terms"], { exact: false });
-            query!.refetch();
-            needsRefresh = false;
-          }
-
-          resolve(!meta.value.hasError);
-        }
-      }, 100);
+    return new Promise<boolean>(resolve => {
+      resolve(true);
     });
   }
 
