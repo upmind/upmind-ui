@@ -44,7 +44,7 @@
           />
 
           <i18n-t
-            class="text-emphasis-medium mt-0 text-center text-sm"
+            class="text-emphasis-medium text-sm"
             keypath="auth.google_recaptcha.terms"
             tag="p"
             scope="global"

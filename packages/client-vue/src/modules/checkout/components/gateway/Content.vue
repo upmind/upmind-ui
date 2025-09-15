@@ -29,7 +29,14 @@
       </p>
     </div>
 
+    <Clickwrap
+      v-if="uiCart?.clickwrap_disclaimer"
+      class="max-w-full"
+      :model-value="uiCart.clickwrap_disclaimer"
+      :keys="{ action: t(getGatewayi18n('actions.submit')) }"
+    />
     <TermsAndConditions
+      v-else
       :class="styles.checkout.footer.terms"
       :label="getGatewayi18n('actions.submit')"
     />
@@ -44,6 +51,7 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 // --- internal
 import config from "../../checkout.config";
 import { useStyles } from "@upmind-automation/upmind-ui";
+import { useBrand } from "@upmind-automation/headless";
 
 // --- components
 import TermsAndConditions from "../../../brand/TermsAndConditions.vue";
@@ -59,6 +67,8 @@ import type { GatewayContentProps } from "./types";
 const props = defineProps<GatewayContentProps>();
 
 const { t, te } = useI18n();
+
+const { uiCart } = useBrand();
 
 const emit = defineEmits(["checkout"]);
 

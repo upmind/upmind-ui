@@ -1,12 +1,5 @@
 <template>
-  <Markdown
-    v-if="uiCart?.clickwrap_disclaimer"
-    :model-value="uiCart.clickwrap_disclaimer"
-    :keys="{ action: t(label) }"
-    :class="cn(styles.clickwrap.root, props.class)"
-  />
-
-  <Loading v-else :active="meta.isLoading" class-active="w-full rounded-lg">
+  <Loading :active="meta.isLoading" class-active="w-full rounded-lg">
     <i18n-t
       class="mt-0"
       :class="props.class"
@@ -76,8 +69,6 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useTermsAndConditions, useBrand } from "@upmind-automation/headless";
-import { useStyles, cn } from "@upmind-automation/upmind-ui";
-import config from "./brand.config";
 
 // --- components
 import {
@@ -89,7 +80,6 @@ import {
 
 // --- types
 import type { TermsAndConditionsProps } from "./types";
-import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 
@@ -104,15 +94,8 @@ const open = defineModel<boolean>("open", {
 });
 
 const { t } = useI18n();
-const { uiCart } = useBrand();
 const { name: brandName, isReady } = useBrand();
 const { meta, data } = useTermsAndConditions();
-
-const styles = useStyles(["clickwrap"], {}, config) as ComputedRef<{
-  clickwrap: {
-    root: string;
-  };
-}>;
 
 // --- methods
 const toggleOpen = () => {
