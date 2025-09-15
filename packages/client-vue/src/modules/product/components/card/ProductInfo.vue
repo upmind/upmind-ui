@@ -19,21 +19,18 @@
 
       <div>
         <Button
-          :to="
-            navigate
-              ? {
-                  name: ROUTE.PRODUCT_ADD,
-                  params: {
-                    pid: props.id
-                  },
-                  query: {
-                    bcm: selectedTerm,
-                    force: 'true', // ensure we always add the product, even if it exists in the basket
-                    navigateOnly: 'true' // this is used to prevent the product from being added to the basket when clicking on the title
-                  }
-                }
-              : undefined
-          "
+          v-if="navigate"
+          :to="{
+            name: ROUTE.PRODUCT_ADD,
+            params: {
+              pid: props.id
+            },
+            query: {
+              bcm: selectedTerm,
+              force: 'true', // ensure we always add the product, even if it exists in the basket
+              navigateOnly: 'true' // this is used to prevent the product from being added to the basket when clicking on the title
+            }
+          }"
           :handler="handleResolve"
           :disabled="processing"
           tabindex="-1"
@@ -43,6 +40,10 @@
             {{ productDetails?.title }}
           </h3>
         </Button>
+
+        <h3 v-else :class="styles.product.header.info.title">
+          {{ productDetails?.title }}
+        </h3>
 
         <DisplayPrice
           :product-details="productDetails"
