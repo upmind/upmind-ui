@@ -27,7 +27,14 @@
       @update:model-value="setModel"
       :class="styles.session.auth.form"
       :actions="authActions"
-    />
+    >
+      <template v-if="currentForm === 'register'" #footer>
+        <TermsAndConditions
+          class="text-emphasis-medium text-sm"
+          :label="t('auth.actions.register')"
+        />
+      </template>
+    </Form>
   </div>
 
   <div v-if="!meta.isLoading" :class="styles.session.auth.actions">
@@ -50,11 +57,6 @@
       @click.prevent="logout"
       :label="t('auth.actions.logout')"
     />
-
-    <TermsAndConditions
-      class="text-emphasis-medium max-w-3xl text-center text-sm"
-      v-if="currentForm === 'register'"
-    />
   </div>
 </template>
 
@@ -65,6 +67,7 @@ import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
+import Clickwrap from "../../checkout/components/gateway/Clickwrap.vue";
 import TermsAndConditions from "../../brand/TermsAndConditions.vue";
 import Form from "../../../components/form/Form.vue";
 import config from "../sesssion.config";
@@ -107,7 +110,7 @@ const {
   setModel
 } = useSession();
 
-const { name, uiCart } = useBrand();
+const { uiCart } = useBrand();
 
 await isReady();
 
