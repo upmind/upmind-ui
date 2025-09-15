@@ -19,7 +19,6 @@ import type {
   TWOFAModel
 } from "./types";
 import { BrandConfigKeys } from "@upmind-automation/types";
-import { error } from "console";
 
 // -----------------------------------------------------------------------------
 
