@@ -68,6 +68,20 @@ export default createMachine(
       available: {
         initial: "checking",
         states: {
+          waiting: {
+            on: {
+              RESUME: {
+                target: "checking"
+              },
+              REFRESH: {
+                // do nothing
+              },
+              SET: {
+                actions: ["setModel", "setAutoUpdate"]
+              }
+            }
+          },
+
           checking: {
             entry: ["clearError"],
             initial: "parsing",
@@ -153,6 +167,7 @@ export default createMachine(
               }
             }
           },
+
           error: {
             id: "error",
             on: {
@@ -186,6 +201,9 @@ export default createMachine(
         target: "available.checking",
         actions: ["refreshContext", "setSchemas"],
         cond: "hasChanged"
+      },
+      WAIT: {
+        target: "available.waiting"
       }
     }
   },

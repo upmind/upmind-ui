@@ -71,7 +71,9 @@ import Actions from "./Actions.vue";
 
 // --- types
 import type { ManageRendererProps } from "./types";
-import { onUnmounted } from "vue";
+import { onUnmounted, watch } from "vue";
+import { emit } from "process";
+import { isEqual } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -90,6 +92,7 @@ const emits = defineEmits<{
   (e: "update:open", value: boolean): void;
   (e: "resolve", value: any): void; // return the full <T> of the Mutate composable
   (e: "reject"): void;
+  (e: "processing", value: boolean): void;
 }>();
 
 // -----------------------------------------------------------------------------
@@ -135,6 +138,11 @@ const doClose = () => {
   stop();
   open.value = false;
 };
+
+watch(meta, ({ isProcessing }, { isProcessing: wasProcessing }) => {
+  if (isEqual(isProcessing, wasProcessing)) return;
+  emits("processing", isProcessing);
+});
 
 onUnmounted(() => {
   stop();
