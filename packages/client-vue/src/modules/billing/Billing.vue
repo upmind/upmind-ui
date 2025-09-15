@@ -56,7 +56,7 @@ const modelValue = defineModel<BillingProps["modelValue"]>("modelValue");
 const { t } = useI18n();
 
 const { user } = useSession();
-const { isReady, meta, config, update, model } = useBasketBilling();
+const { isReady, meta, config, update, model, state } = useBasketBilling();
 
 // ensure we preload our data for speed between the tab
 
