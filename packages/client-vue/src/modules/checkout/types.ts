@@ -5,7 +5,6 @@ export interface PaymentDetailsProps {
   as?: Component | "div";
   class?: HtmlHTMLAttributes["class"];
   color?: ButtonProps["color"];
-  disabled?: boolean;
 }
 
 export interface CheckoutProps {
