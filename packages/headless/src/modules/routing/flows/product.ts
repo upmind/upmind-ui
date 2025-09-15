@@ -50,12 +50,11 @@ export const useProductFlows = () => {
       guard: async (route: Route) => {
         // some query params that we ALWAYS look out for and resolve for the UI:
         // currency,coupons, lang
-        let { currency, coupon, productConfig, productId, getParam } =
+        let { currency, productConfig, productId, getParam } =
           useRouteQueryParams(route);
 
         // NB if we have a currency, then set it and await the returned currency id to pass to the product config
         if (currency) setCurrency(currency);
-        if (coupon) addPromotion(coupon);
         if (productConfig) addMany([productConfig]);
 
         // honour the flag to ensure we always add the product, even if it exists in the basket
