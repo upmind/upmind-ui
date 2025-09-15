@@ -10,8 +10,8 @@
         :description="
           t(
             'checkout.header.description',
-            [summary.total],
-            products?.length || 0
+            [summary?.total ?? 0],
+            products?.length ?? 0
           )
         "
         :badge="{

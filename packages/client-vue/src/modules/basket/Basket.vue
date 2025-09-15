@@ -8,7 +8,7 @@
       <Header
         title="basket.title"
         :description="
-          t('basket.description', [summary.total], products?.length || 0)
+          t('basket.description', [summary?.total ?? 0], products?.length ?? 0)
         "
       />
     </template>

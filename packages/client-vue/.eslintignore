@@ -6,7 +6,6 @@ dist
 node_modules
 node_modules
 public
-vite.config.ts
 /dist/**
 /build/**
 /coverage/**
