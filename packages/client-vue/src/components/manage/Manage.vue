@@ -35,7 +35,6 @@
       :modal="!meta.isEmpty"
       @resolve="doResolve"
       @reject="doReject"
-      @processing="emits('processing', $event)"
       :no-actions="!openForm"
     />
   </div>
@@ -83,7 +82,6 @@ const props = withDefaults(
 
 const emits = defineEmits<{
   (e: "update:modelValue", value: any): void; // return the full <T> of the Mutate composable
-  (e: "processing", value: boolean): void;
 }>();
 
 // -----------------------------------------------------------------------------

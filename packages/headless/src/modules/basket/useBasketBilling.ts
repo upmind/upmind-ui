@@ -56,10 +56,7 @@ export const useBasketBilling = () => {
     isAvailable:
       !!actor.value && stateMatches(actor, ["available", "complete"]),
     hasErrors: stateMatches(actor, ["available.error"]),
-    isProcessing: stateMatches(actor, [
-      "available.processing",
-      "available.waiting"
-    ]),
+    isProcessing: stateMatches(actor, ["available.processing"]),
     isValid: stateMatches(actor, ["available.valid"]),
     isComplete:
       stateValue(actor, "done", false) ||
@@ -140,25 +137,9 @@ export const useBasketBilling = () => {
   function clear(): void {
     actor.value?.send({ type: "CLEAR" });
   }
-
-  function wait(value: boolean): Promise<boolean> {
-    if (value) actor.value?.send({ type: "WAIT" });
-    else actor.value?.send({ type: "RESUME" });
-
-    return waitFor(
-      actor.value!.service,
-      state => stateMatches(state, ["available"]),
-      { timeout: Infinity }
-    ).then(state => {
-      return stateMatches(state, ["error"]);
-    });
-  }
-
   // ---------------------------------------------------------------------------
   return {
     // --- state
-
-    state: computed(() => actor.value?.state?.value?.toStrings()),
 
     /**
      * Waits for the billing actor to be ready (not loading or error state).
@@ -224,14 +205,6 @@ export const useBasketBilling = () => {
      * @returns {Promise<void>} Resolves when updated, rejects on error.
      */
     update,
-
-    /**
-     * Puts the billing actor into a wait state before re-checking for validity.
-     * This is usefull if we are adding a new address or company and need to wait
-     * for the actor to re-validate the billing details.
-     * @returns {Promise<boolean>} Resolves true if successful, false if error.
-     */
-    wait,
 
     /**
      * Returns the unified address composable for billing details.
