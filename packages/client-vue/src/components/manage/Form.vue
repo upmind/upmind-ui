@@ -72,7 +72,6 @@ import Actions from "./Actions.vue";
 // --- types
 import type { ManageRendererProps } from "./types";
 import { onUnmounted } from "vue";
-
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
@@ -90,6 +89,7 @@ const emits = defineEmits<{
   (e: "update:open", value: boolean): void;
   (e: "resolve", value: any): void; // return the full <T> of the Mutate composable
   (e: "reject"): void;
+  (e: "processing", value: boolean): void;
 }>();
 
 // -----------------------------------------------------------------------------
@@ -112,6 +112,8 @@ const {
 } = props.useMutate(props.modelValue, props.options);
 
 const doResolve = async () => {
+  emits("processing", true);
+
   update()
     .then(value => {
       emits("resolve", value);
@@ -119,6 +121,9 @@ const doResolve = async () => {
     })
     .catch(error => {
       //  do nothing, error is handled in the form
+    })
+    .finally(() => {
+      emits("processing", false);
     });
 };
 
