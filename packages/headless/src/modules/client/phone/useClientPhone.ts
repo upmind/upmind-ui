@@ -59,7 +59,7 @@ export const useClientPhone = (
       }),
     {
       id: id ?? "new-phone",
-      devTools: true
+      devTools: false
     }
   );
 
