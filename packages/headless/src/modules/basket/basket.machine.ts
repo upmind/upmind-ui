@@ -406,7 +406,7 @@ export default createMachine(
       ],
 
       UNAUTHENTICATED: {
-        target: "loading",
+        target: "subscribing",
         actions: ["clearBasket", "clearActors"]
       }
     }
