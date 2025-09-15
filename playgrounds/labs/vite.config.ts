@@ -61,6 +61,8 @@ export default defineConfig({
     drop: isProd ? ["console", "debugger"] : []
   },
   build: {
+    minify: "esbuild", // Ensure esbuild is used for minification
+
     rollupOptions: {
       input: {
         main: resolve(__dirname, "index.html"),
