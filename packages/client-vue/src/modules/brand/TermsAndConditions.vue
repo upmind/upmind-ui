@@ -94,7 +94,7 @@ const open = defineModel<boolean>("open", {
 });
 
 const { t } = useI18n();
-const { name: brandName, isReady } = useBrand();
+const { name: brandName } = useBrand();
 const { meta, data } = useTermsAndConditions();
 
 // --- methods
@@ -103,5 +103,4 @@ const toggleOpen = () => {
 };
 
 // --- side effects
-await isReady();
 </script>
