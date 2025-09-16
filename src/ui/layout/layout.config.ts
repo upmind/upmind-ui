@@ -58,14 +58,7 @@ export default {
       }
     }),
     header: {
-      root: cva("px-6 md:px-2.5", {
-        variants: {
-          isMinimal: {
-            true: "py-18",
-            false: "py-24"
-          }
-        }
-      }),
+      root: cva("px-6 py-18 md:px-2.5"),
       container: cva("max-w-app mx-auto")
     },
     content: {
