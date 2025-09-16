@@ -56,4 +56,5 @@ export interface ButtonItemsProps {
   avatar?: ButtonProps["avatar"];
   size?: ButtonProps["size"];
   checked?: boolean;
+  loading?: boolean;
 }

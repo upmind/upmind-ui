@@ -5,6 +5,7 @@ export interface LayoutProps {
   minimal?: boolean;
   overflow?: "hidden" | "visible";
   sticky?: boolean;
+  class?: string;
 }
 export interface VariantProps extends LayoutProps {
   uiConfig?: { layout: CxOptions };

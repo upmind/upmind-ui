@@ -40,6 +40,7 @@ export interface SelectCardsProps extends RadioGroupRootProps {
   side?: PopoverContentProps["side"];
   width?: TriggerVariantProps["width"];
   focusable?: boolean;
+  to?: string;
 
   uiConfig?: { select: CxOptions };
   class?: HTMLAttributes["class"];
