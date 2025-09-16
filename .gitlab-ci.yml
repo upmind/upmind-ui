@@ -1,5 +1,5 @@
 variables:
-  NODE_IMAGE: node:20.11.0-alpine3.19
+  NODE_IMAGE: node:24.4.1-alpine3.22
   GIT_STRATEGY: clone
   GIT_SUBMODULE_STRATEGY: recursive
   GIT_SUBMODULE_FORCE_HTTPS: true
