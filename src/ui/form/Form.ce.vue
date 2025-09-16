@@ -124,7 +124,7 @@ defineExpose({
 });
 
 // --- state
-const { ajv } = useValidation(props.ajv);
+const { ajv, validate } = useValidation(props.ajv, props.i18n?.locale);
 
 const form = useTemplateRef("form");
 const jsonform = useTemplateRef("jsonform");
@@ -213,8 +213,8 @@ const mode = computed<ValidationMode>(() => {
 });
 
 // --- methods
-function onChange({ data, errors: newErrors }: JsonFormsChangeEvent) {
-  errors.value = newErrors ?? [];
+function onChange({ data }: JsonFormsChangeEvent) {
+  errors.value = props.schema ? validate(props.schema, data) : [];
   data ??= {};
   model.value ??= {};
 
