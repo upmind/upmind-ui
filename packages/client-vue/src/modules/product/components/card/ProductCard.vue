@@ -50,7 +50,12 @@
             :benefits="productDetails?.benefits"
           />
 
-          <ProductPrice v-if="!configMeta.hidePrice" v-bind="props" />
+          <ProductPrice
+            v-if="!configMeta.hidePrice"
+            v-bind="props.productDetails.displayPrice!"
+            :hide-term-summary="props.hideTermSummary"
+          />
+
           <ProductTerm
             v-if="!configMeta.hideTerms"
             :prices="props.pricing"
