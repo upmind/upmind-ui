@@ -2,7 +2,7 @@
 import { ref, provide, computed, readonly } from "vue";
 
 // --- injection keys
-import { ICON_VARIANT_KEY } from "./injectionKeys";
+import { ICON_STROKE_KEY, ICON_VARIANT_KEY } from "./injectionKeys";
 
 // --- utils
 import {
@@ -49,6 +49,7 @@ const activeTheme = ref(<string>"");
 const config = ref({});
 const themes = ref<Theme[]>([]);
 const iconVariant = ref<string>("");
+const iconStroke = ref<string>("");
 
 export const useThemes = (value?: Theme | Theme[], defaultTheme?: string) => {
   // safety checks
@@ -88,9 +89,14 @@ export const useThemes = (value?: Theme | Theme[], defaultTheme?: string) => {
     }
   }
 
-  function setIconVariant(variant?: string) {
-    if (!variant) return;
-    iconVariant.value = variant;
+  function setIconStyles(variant?: string, stroke?: string) {
+    if (variant) {
+      iconVariant.value = variant;
+    }
+
+    if (stroke) {
+      iconStroke.value = stroke;
+    }
   }
 
   function add(theme: Theme, setActive = true) {
@@ -105,13 +111,18 @@ export const useThemes = (value?: Theme | Theme[], defaultTheme?: string) => {
     computed(() => iconVariant.value)
   );
 
+  provide(
+    ICON_STROKE_KEY,
+    computed(() => iconStroke.value)
+  );
+
   // make our theme available to the app
   provide("uiConfig", {
     activeTheme,
     config,
     themes: providedThemes,
     setTheme,
-    setIconVariant
+    setIconStyles
   });
   // ---
 
@@ -121,7 +132,7 @@ export const useThemes = (value?: Theme | Theme[], defaultTheme?: string) => {
     config: readonly(config),
     set: setTheme,
     add,
-    setIconVariant
+    setIconStyles
   };
 };
 
