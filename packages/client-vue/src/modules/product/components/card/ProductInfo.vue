@@ -32,7 +32,7 @@
             }
           }"
           tabindex="-1"
-          class="underline underline-offset-4"
+          class="inline-block underline underline-offset-4"
         >
           <h3 :class="styles.product.header.info.title">
             {{ productDetails?.title }}
