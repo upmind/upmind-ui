@@ -254,6 +254,10 @@ export const useBrand = () => {
     return pick(brandConfig.value, keys) ?? {};
   };
 
+  function getConfigValue<T = unknown>(key: BrandConfigKeys): T | undefined {
+    return get(brandConfig.value, key) as T | undefined;
+  }
+
   const validateCurrency = async (
     model: CurrencyModel
   ): Promise<Partial<ICurrency> | ICurrency | undefined> => {
@@ -466,6 +470,18 @@ export const useBrand = () => {
      * @throws {DetailedError} If the keys are not available in the context.
      */
     getConfig,
+
+    /**
+     * This method will return the requested key VALUE from the config.
+     * It assumes that the key is already in context in the state machine.
+     * It will not request the key from the API if it is not already in context.
+     * It will also not wait for the state of the request to be processed/cached
+     * before returning the requested key.
+     * @param key - The key to request from the config
+     * @returns {any} The value of the requested key.
+     * @throws {DetailedError} If the key is not available in the context.
+     */
+    getConfigValue,
 
     /**
      * Validates and returns a supported currency object or the default.
