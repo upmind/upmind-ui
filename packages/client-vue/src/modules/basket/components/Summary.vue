@@ -107,10 +107,10 @@ const subtotalItems = computed(() => {
   }
 
   if (!isEmpty(summary.value?.taxes)) {
-    forEach(toPairs(summary.value.taxes), ([key, value]) => {
+    forEach(summary.value.taxes, tax => {
       items.push({
-        term: key,
-        description: value
+        term: tax.title,
+        description: tax.amount
       });
     });
   }
