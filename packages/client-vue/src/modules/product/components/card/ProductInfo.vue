@@ -18,35 +18,33 @@
       />
 
       <div>
-        <Button
-          :to="
-            navigate
-              ? {
-                  name: ROUTE.PRODUCT_ADD,
-                  params: {
-                    pid: props.id
-                  },
-                  query: {
-                    bcm: selectedTerm,
-                    force: 'true', // ensure we always add the product, even if it exists in the basket
-                    navigateOnly: 'true' // this is used to prevent the product from being added to the basket when clicking on the title
-                  }
-                }
-              : undefined
-          "
-          :handler="handleResolve"
-          :disabled="processing"
+        <router-link
+          v-if="navigate"
+          :to="{
+            name: ROUTE.PRODUCT_ADD,
+            params: {
+              pid: props.id
+            },
+            query: {
+              bcm: selectedTerm,
+              force: 'true', // ensure we always add the product, even if it exists in the basket
+              navigateOnly: 'true' // this is used to prevent the product from being added to the basket when clicking on the title
+            }
+          }"
           tabindex="-1"
-          variant="link"
+          class="inline-block underline underline-offset-4"
         >
           <h3 :class="styles.product.header.info.title">
             {{ productDetails?.title }}
           </h3>
-        </Button>
+        </router-link>
+
+        <h3 v-else :class="styles.product.header.info.title">
+          {{ productDetails?.title }}
+        </h3>
 
         <DisplayPrice
-          :product-details="productDetails"
-          :meta="meta"
+          v-bind="props.productDetails.displayPrice!"
           :class="styles.product.header.info.terms"
         />
       </div>

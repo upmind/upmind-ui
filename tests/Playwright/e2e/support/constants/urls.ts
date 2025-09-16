@@ -29,7 +29,7 @@ export const URLs = {
   /* PROMOTION TESTING PRODUCT URLS*/
   fixedDiscount: `${baseUrl}order/product/add/825d96e7-63ed-0913-752b-417482528340`,
   percentageDiscount: `${baseUrl}order/product/add/5d085e69-d562-3719-469c-218e940d4237`,
-  usdPromo: `${baseUrl}?pid=4d036794-24d0-e710-478a-3153698d582e&currency=USD`,
+  usdPromo: `${baseUrl}?pid=4d036794-24d0-e710-478a-3153698d582e&currency=usd`,
   gbpPromo: `${baseUrl}order/product/add/4d036794-24d0-e710-458c-3153698d582e`,
   oneYearPromo: `${baseUrl}order/product/add/8d632507-9806-5d1e-d64b-8174e234e98d`,
   priceListPromo: `${baseUrl}order/product/add/47d73824-8507-9315-798b-81e642d59e06`,

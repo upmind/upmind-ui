@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { URLs } from "../../../support/constants/urls";
 import { ProductConfig } from "../../../support/page-objects/templates/ProductConfig";
-import { StarterHosting } from "../../../support/constants/checkout/test-cases/webcentral/StarterHosting";
+import { StarterHosting } from "../../../support/constants/checkout/test-cases/StarterHosting";
 let productConfig: ProductConfig;
 let testCases = StarterHosting;
 
@@ -15,29 +15,39 @@ test.describe("Product Config - Happy Paths - Starter Hosting", async () => {
   for (const {
     name,
     billingTerm,
-    accordionSelection,
     total,
     billingCycle,
+    addons,
     webHosting,
-    domainName
+    domainName,
+    domainSelection
   } of testCases) {
     test(name, async ({ page }) => {
       /* PRODUCT OPTIONS */
       /* Make product selections */
       await productConfig.clickBillingTerm(billingTerm);
-      for (const accordionItem of accordionSelection) {
-        await productConfig.accordion.clickAccordion(accordionItem);
+      if (domainSelection.includes(0)) {
+        await productConfig.domainRegister.click();
+        await productConfig.domainRegister
+          .getByTestId("accordion-content")
+          .locator("input")
+          .fill(domainName);
       }
-      if (accordionSelection.includes(0)) {
-        await productConfig.domainRegister.fill(domainName);
+      if (domainSelection.includes(1)) {
+        await productConfig.domainTransfer.click();
+        await productConfig.domainTransfer
+          .getByTestId("accordion-content")
+          .locator("input")
+          .fill(domainName);
       }
-      if (accordionSelection.includes(1)) {
-        await productConfig.domainTransfer.fill(domainName);
+      if (domainSelection.includes(2)) {
+        await productConfig.domainExisting.click();
+        await productConfig.domainExisting
+          .getByTestId("accordion-content")
+          .locator("input")
+          .fill(domainName);
       }
-      if (accordionSelection.includes(2)) {
-        await productConfig.domainExisting.fill(domainName);
-      }
-      if (!accordionSelection.includes(2) && !accordionSelection.includes(3)) {
+      if (!domainSelection.includes(2) && !domainSelection.includes(3)) {
         await productConfig.addDomain();
         await productConfig.domainAddToBasket.click();
       }
@@ -52,10 +62,8 @@ test.describe("Product Config - Happy Paths - Starter Hosting", async () => {
 
       /* INLINE DROPDOWN */
       /*Verify that the domain basket inline dropdown contains the new domain name - not applicable for 'Existing Domain' or 'Domain in Basket' */
-      if (!accordionSelection.includes(2) && !accordionSelection.includes(3)) {
-        await expect(productConfig.accordion.getAccordion(3)).toContainText(
-          domainName
-        );
+      if (!domainSelection.includes(2) && !domainSelection.includes(3)) {
+        await expect(productConfig.domainBasket).toContainText(domainName);
       }
     });
   }

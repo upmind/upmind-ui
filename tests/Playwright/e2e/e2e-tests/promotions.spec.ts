@@ -45,8 +45,6 @@ test.describe("Promotions", () => {
         });
       });
       test.describe("Application per currency", () => {
-        let token: string;
-        let orderId: string | null;
         test("Apply for all currencies - No - Apply for GBP", async ({
           page
         }) => {
@@ -55,17 +53,10 @@ test.describe("Promotions", () => {
           await productConfig.promoBadgeExists(0);
         });
         test("Apply for all currencies - No - Apply for USD", async ({
-          page,
-          context
+          page
         }) => {
           await page.goto(URLs.usdPromo);
           await page.waitForLoadState("networkidle");
-          token = await getSessionToken(context, "guest");
-          orderId = await getCurrentOrderId(token);
-          await setOrderCurrency(token, orderId, "USD");
-          await page.waitForLoadState("networkidle");
-          await page.reload();
-          await page.waitForLoadState();
           await productConfig.promoBadgeExists(0);
         });
       });
@@ -123,7 +114,7 @@ test.describe("Promotions", () => {
       });
     });
     test.describe("Use for existing clients", () => {
-      test("Exclusively for existing clients", async ({ page }) => {
+      test("Exclusively for existing clients", async ({ page, context }) => {
         await page.goto(URLs.baseUrl);
         await getClientToken(
           page,
@@ -133,7 +124,7 @@ test.describe("Promotions", () => {
         await page.goto(URLs.existingClientPromo);
         await page.waitForLoadState();
         await productConfig.promoBadgeExists(0);
-        await page.goto(URLs.logout);
+        await context.clearCookies();
         await page.goto(URLs.existingClientPromo);
         await page.waitForLoadState("networkidle");
         await productConfig.promoBadgeDoesNotExist(0);

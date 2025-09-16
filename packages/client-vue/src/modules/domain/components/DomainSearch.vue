@@ -26,8 +26,10 @@
           color="secondary"
           @click="emit('search', inputValue)"
         >
-          <span class="hidden md:block">{{ t("domain.search") }}</span>
-          <Icon icon="search" size="xs" class="md:hidden" />
+          <template #label>
+            <span class="hidden md:block">{{ t("domain.search") }}</span>
+            <Icon icon="search" size="xs" class="md:hidden" />
+          </template>
         </Button>
       </span>
     </template>
