@@ -39,6 +39,7 @@
           v-if="product && meta?.isAvailable"
           :product="product"
           :meta="meta"
+          edit
           @resolve="doResolve"
           @update:quantity="updateQuantity"
         />
