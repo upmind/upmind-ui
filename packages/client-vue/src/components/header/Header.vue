@@ -30,7 +30,6 @@ import { useStyles, Link } from "@upmind-automation/upmind-ui";
 
 // --- internal
 import config from "./header.config";
-import upmindLogo from "../../assets/logo.svg";
 
 // --- components
 import VHeaderButtons from "./HeaderButtons.vue";
@@ -40,8 +39,6 @@ import { computed } from "vue";
 import type { ComputedRef } from "vue";
 
 const { name, image, storefrontRoute, uiCart } = useBrand();
-
-const imageUrl = image.value?.full_url;
 
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
@@ -53,7 +50,7 @@ const meta = computed(() => {
   };
 });
 
-const logo = computed(() => props.logo ?? imageUrl ?? upmindLogo);
+const logo = computed(() => props.logo ?? image.value?.full_url);
 
 const styles = useStyles(["header"], meta, config) as ComputedRef<{
   header: {
