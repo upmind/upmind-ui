@@ -12,6 +12,27 @@ import ajvErrors from "ajv-errors";
 // --- types
 import type { ErrorObject } from "ajv";
 
+const AJV_LOCALE_MAP: Record<string, keyof typeof localize> = {
+  // Your locale -> AJV i18n locale
+  de: "de",
+  en: "en",
+  es: "es",
+  fr: "fr",
+  it: "it",
+  pt: "pt-BR", // Map Portuguese to Brazilian Portuguese
+  ru: "ru"
+};
+
+/**
+ * Maps your application locales to AJV i18n supported locales
+ * @param locale Your application locale (e.g., 'pt', 'en', 'de')
+ * @returns AJV i18n compatible locale (e.g., 'pt-BR', 'en', 'de')
+ */
+export const mapToAjvLocale = (locale: string): keyof typeof localize => {
+  debugger;
+  return AJV_LOCALE_MAP[locale] || "en"; // fallback to English
+};
+
 // -----------------------------------------------------------------------------
 
 export const useValidation = (ajv?: Ajv, currentLocale = "en") => {
@@ -42,7 +63,7 @@ export const useValidation = (ajv?: Ajv, currentLocale = "en") => {
       const validate = ajvInstance.compile(schema);
       const valid = validate(data);
       if (!valid) {
-        localize[currentLocale as keyof typeof localize](validate.errors);
+        localize[mapToAjvLocale(currentLocale)](validate.errors);
         return validate.errors ?? [];
       }
       return [];
