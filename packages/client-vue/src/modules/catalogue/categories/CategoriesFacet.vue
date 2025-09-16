@@ -1,6 +1,6 @@
 <template>
   <div :class="styles.categories.header.root" v-auto-animate>
-    <h1 v-if="title" :class="styles.categories.header.title">
+    <h1 :class="styles.categories.header.title">
       {{ name }}
     </h1>
   </div>
