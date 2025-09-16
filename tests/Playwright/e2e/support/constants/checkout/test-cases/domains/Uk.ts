@@ -1,7 +1,7 @@
 export const ukDomain = [
   /* NEW DOMAIN */
   {
-    name: ".UK Domain - Billing Cycle - 1 month @domains",
+    name: ".UK Domain - Billing Cycle - 1 year @domains",
     billingTerm: 0,
     transfer: false,
     sldValue: "uktestingdomain",
@@ -15,13 +15,13 @@ export const ukDomain = [
     registrantPostcode: "SW1A",
     registrantCountry: "GB",
     total: "£10.00",
-    billingCycle: "1 year",
+    billingCycle: "1-year",
     tldValue: ".uk"
   },
 
   /* TRANSFERRING A DOMAIN */
   {
-    name: ".UK Domain - Billing Cycle - 1 month - Domain Transfer @domains @domain-transfer",
+    name: ".UK Domain - Billing Cycle - 1 year - Domain Transfer @domains @domain-transfer",
     billingTerm: 0,
     transfer: true,
     sldValue: "uktestingdomain",
@@ -35,7 +35,7 @@ export const ukDomain = [
     registrantPostcode: "SW1A",
     registrantCountry: "GB",
     total: "FREE",
-    billingCycle: "1 year",
+    billingCycle: "1-year",
     tldValue: ".uk"
   }
 ];
