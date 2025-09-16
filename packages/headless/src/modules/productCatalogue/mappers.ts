@@ -27,7 +27,7 @@ export function parseProduct(raw: IProduct): Product {
 
   const terms = parseTermDetails(raw?.prices);
   const term = !isEmpty(terms)
-    ? calculateBillingTerm(productDetails?.cycle, terms)
+    ? calculateBillingTerm(raw?.default_payment_period, terms)
     : ({} as TermDetails);
 
   // ---------------------------------------------------------------------------
