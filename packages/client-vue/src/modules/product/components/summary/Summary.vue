@@ -32,9 +32,7 @@
       color="primary"
       :loading="meta.isProcessing"
       :disabled="meta.isLoading"
-      :label="
-        edit ? t('product.actions.resolveEdit') : t('product.actions.resolve')
-      "
+      :label="t(`product.actions.${edit ? 'resolveEdit' : 'resolve'}`)"
       size="lg"
       @click="doResolve"
       :icon-append="edit ? 'arrow-right' : ''"
