@@ -1,4 +1,5 @@
 // --- external
+import { useI18n } from "vue-i18n";
 import { computed, ref, inject, watch } from "vue";
 import {
   Resolve,
@@ -16,15 +17,14 @@ import { useValidation } from "../../../utils";
 
 // --- utils
 import {
-  merge,
   cloneDeep,
   defaults,
-  set,
-  isEqual,
-  map,
-  isFunction,
   isEmpty,
-  isObject
+  isEqual,
+  isFunction,
+  map,
+  merge,
+  set
 } from "lodash-es";
 
 // --- types
@@ -44,7 +44,8 @@ export const useUpmindUIRenderer = <
   input: I,
   adaptTarget: (target: any) => any = v => v?.value || v || null
 ) => {
-  const { validate } = useValidation();
+  const { locale } = useI18n();
+  const { validate } = useValidation(undefined, locale?.value);
   const jsonforms = inject<JsonFormsSubStates>("jsonforms");
   if (!jsonforms) throw new Error("jsonforms not found");
 

@@ -35,7 +35,7 @@ export const mapToAjvLocale = (locale: string): keyof typeof localize => {
 
 // -----------------------------------------------------------------------------
 
-export const useValidation = (ajv?: Ajv, currentLocale = "en") => {
+export const useValidation = (ajv?: Ajv, currentLocale = "pt-BR") => {
   // use JSON Forms version of AJV as it has formats and other keywords already
 
   const initial = !ajv;
