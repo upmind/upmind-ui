@@ -1,6 +1,6 @@
 <template>
   <UpmContentSection
-    class="mx-auto max-w-app"
+    class="max-w-app mx-auto"
     title="Domain Renderer"
     subtitle="Search and manage basket domains"
   >

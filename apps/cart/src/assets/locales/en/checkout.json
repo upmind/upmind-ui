@@ -9,17 +9,19 @@
     "tagline": "Optional",
     "from": "From"
   },
-  "customFields": {
-    "title": {
-      "text": "{0} details",
-      "strong": "Additional"
-    }
-  },
+  "customFields": "Additional details",
   "billingDetails": {
     "title": "Your billing address"
   },
 
   "checkout": {
+    "billing": "Billing details",
+    "payment": "Payment details",
+    "header": {
+      "badge": "Fully Encrypted",
+      "title": "Secure checkout",
+      "description": "You have {n} item in your basket, totalling {0}. | You have {n} items in your basket, totalling {0}."
+    },
     "summary": {
       "title": "Summary"
     },

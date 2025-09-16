@@ -1,6 +1,6 @@
 <template>
   <UpmContentSection
-    class="mx-auto max-w-app"
+    class="max-w-app mx-auto"
     title="Address Search"
     subtitle="Search for addresses using the Places API"
   >
@@ -24,7 +24,7 @@
       </div>
 
       <!-- Error Display -->
-      <div v-if="error" class="rounded bg-destructive-50 p-3 text-destructive">
+      <div v-if="error" class="bg-destructive-50 text-destructive rounded p-3">
         {{ error }}
       </div>
 
@@ -36,7 +36,7 @@
           <div
             v-for="(place, index) in parsedResults"
             :key="index"
-            class="hover:bg-secondary/15 rounded-lg border p-4 transition-all hover:shadow-lg"
+            class="hover:bg-secondary/15 rounded border p-4 transition-all"
           >
             <div class="space-y-2">
               <div v-if="place.address?.name" class="flex gap-1">
@@ -83,7 +83,7 @@
   <Dialog :open="isDialogOpen" title="Raw Address Data">
     <div class="max-h-[60vh] overflow-auto">
       <pre
-        class="overflow-auto rounded-lg bg-primary p-4 text-xs text-primary-foreground"
+        class="bg-primary text-primary-foreground overflow-auto rounded p-4 text-xs"
         >{{ selectedJsonData }}</pre
       >
     </div>

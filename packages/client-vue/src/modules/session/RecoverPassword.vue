@@ -1,66 +1,39 @@
 <template>
-  <Layout>
-    <ContentSection class="mx-auto max-w-2xl">
+  <Layout :variant="uiCart?.layout">
+    <template #navigation>
       <Button
-        type="reset"
-        class="bg-base-background relative -top-4 md:-top-6"
-        size="sm"
-        variant="tonal"
-        :label="t('navigation.login')"
+        class="flex items-center gap-x-2"
         @click.prevent="doReject"
-      >
-        <template #prepend>
-          <Icon icon="arrow-left" size="2xs" />
-        </template>
-      </Button>
-    </ContentSection>
+        variant="link"
+        icon="arrow-left"
+        :label="t('navigation.login')"
+        size="lg"
+      />
+    </template>
 
-    <ContentSection
-      class="mx-auto max-w-2xl"
-      :tagline="t('session.recover.tagline')"
-    >
-      <template #title>
-        <SmartTitle i18n-key="session.recover.title" size="2xl" />
-      </template>
+    <template #default>
+      <Section class="mx-auto max-w-2xl gap-9">
+        <Header
+          :badge="{
+            label: t('session.recover.badge'),
+            icon: 'lock'
+          }"
+          :title="t('session.recover.title')"
+          :description="t('session.recover.tagline')"
+        />
 
-      <Card class="pb-3 md:pb-3">
-        <Auth
-          class="rounded-box w-full max-w-5xl items-start"
-          no-tabs
-          no-header
-          model-value="recover"
-          @update:model-value="doUpdate"
-          @resolve="doResolve"
-        >
-        </Auth>
-      </Card>
-
-      <template #footer>
-        <i18n-t
-          class="mt-0"
-          keypath="auth.google_recaptcha.terms"
-          tag="p"
-          scope="global"
-        >
-          <template #[`privacyPolicy`]>
-            <Link
-              class="has-text-grey-light"
-              href="https://policies.google.com/privacy"
-              target="_blank"
-              >{{ $t("auth.google_recaptcha.privacy_policy") }}</Link
-            >
-          </template>
-          <template #[`termsOfService`]>
-            <Link
-              class="has-text-grey-light"
-              href="https://policies.google.com/terms"
-              target="_blank"
-              >{{ $t("auth.google_recaptcha.terms_of_service") }}</Link
-            >
-          </template>
-        </i18n-t>
-      </template>
-    </ContentSection>
+        <section>
+          <Auth
+            class="rounded-box w-full max-w-5xl items-start"
+            no-tabs
+            no-header
+            model-value="recover"
+            @update:model-value="doUpdate"
+            @resolve="doResolve"
+          />
+        </section>
+      </Section>
+    </template>
   </Layout>
 </template>
 
@@ -69,13 +42,13 @@
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { ROUTE, useRoutingEngine } from "@upmind-automation/headless";
+import { ROUTE, useRoutingEngine, useBrand } from "@upmind-automation/headless";
 
 // --- components
-import ContentSection from "../../components/content/ContentSection.vue";
+import { Button, Layout } from "@upmind-automation/upmind-ui";
 import Auth from "./components/Auth.vue";
-import { Card, Button, Icon, Link, Layout } from "@upmind-automation/upmind-ui";
-import SmartTitle from "../../components/content/SmartTitle.vue";
+import Header from "../../components/content/Header.vue";
+import Section from "../../components/content/LayoutSection.vue";
 
 // --- types
 import type { AuthProps } from "./components/types";
@@ -84,6 +57,7 @@ import type { AuthProps } from "./components/types";
 
 const { t } = useI18n();
 const { navigateNext, navigateBack, navigate, isResolved } = useRoutingEngine();
+const { uiCart } = useBrand();
 
 await isResolved(ROUTE.SESSION_RECOVER_PASSWORD);
 

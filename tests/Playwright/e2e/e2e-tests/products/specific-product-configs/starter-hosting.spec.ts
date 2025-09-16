@@ -8,7 +8,7 @@ let testCases = StarterHosting;
 test.beforeEach(async ({ page }) => {
   productConfig = new ProductConfig(page);
   await page.goto(URLs.starterHosting);
-  await page.waitForLoadState();
+  await page.waitForLoadState("networkidle");
 });
 
 test.describe("Product Config - Happy Paths - Starter Hosting", async () => {

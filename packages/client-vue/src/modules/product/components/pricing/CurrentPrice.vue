@@ -1,16 +1,15 @@
 <template>
-  <span :class="styles.pricing.current">
+  <component :is="props.is" :class="styles.pricing.current">
     <template v-if="priceMeta.isFree">
       {{ t("product.free") }}
     </template>
     <template v-else>
-      {{
-        priceMeta.canShowCycle && te("product.cycle")
-          ? t("product.cycle", { value: monthlyFromCurrentPrice })
-          : currentPrice
-      }}
+      {{ priceMeta.canShowCycle ? monthlyFromCurrentPrice : currentPrice }}
+      <small v-if="priceMeta.canShowCycle" :class="styles.pricing.term">{{
+        t(`product.cycle`)
+      }}</small>
     </template>
-  </span>
+  </component>
 </template>
 
 <script setup lang="ts">
@@ -26,13 +25,15 @@ import config from "./pricing.config";
 import { type ComputedRef } from "vue";
 import { type CurrentPriceProps } from "./types";
 
-const props = defineProps<CurrentPriceProps>();
+const props = withDefaults(defineProps<CurrentPriceProps>(), {
+  is: "span"
+});
 
-const { t, te } = useI18n();
+const { t } = useI18n();
 
 const priceMeta = computed(() => ({
   canShowCycle: props.showCycle && props.cycle,
-  isFree: props.meta?.free
+  isFree: props.free
 }));
 
 const styles = useStyles(
@@ -43,6 +44,7 @@ const styles = useStyles(
 ) as ComputedRef<{
   pricing: {
     current: string;
+    term: string;
   };
 }>;
 </script>

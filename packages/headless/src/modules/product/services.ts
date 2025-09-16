@@ -1,7 +1,7 @@
 // --- external
 
 // --- internal
-import { useQuery, useSystem } from "../..";
+import { useQuery } from "../..";
 import { useBrand } from "../brand";
 
 // --- utils
@@ -20,7 +20,8 @@ import {
   checkQuantity,
   checkTerm,
   checkSubproducts,
-  checkProvisioning
+  checkProvisioning,
+  parseSubproductDetails
 } from "./utils";
 
 import {
@@ -28,6 +29,7 @@ import {
   defaultsDeep,
   get,
   isEmpty,
+  isEqual,
   isNil,
   map,
   omitBy,
@@ -53,6 +55,7 @@ async function load(
   {
     model,
     currencyId,
+    currencyCode,
     promotions,
     basketId,
     rawBasketProduct
@@ -72,10 +75,11 @@ async function load(
   // lets ensure we have a valid currency > fallback to default
   // as well as ensuring our promo display type is available
   const { validateCurrency, ensureConfig } = useBrand();
-  const { fetchCountries } = useSystem();
 
   const [currency] = await Promise.all([
-    validateCurrency({ id: currencyId }),
+    validateCurrency(
+      currencyCode ? { code: currencyCode } : { id: currencyId }
+    ),
     ensureConfig(BrandConfigKeys.SHOW_PROMOTION_AS)
   ]);
 
@@ -90,11 +94,13 @@ async function load(
     with_staged_imports: true,
     with: [
       "image",
+      "images",
       "prices",
       "products_attributes",
       "products_options",
       "products_options.prices",
-      `category${".top_category".repeat(4)}`
+      `category${".top_category".repeat(4)}`,
+      "provision_blueprint"
     ].join()
   };
   // conditionally agd the basket_id / basket_product_id if we have them,
@@ -114,21 +120,18 @@ async function load(
       }
     ],
     staleTime: useTime()?.DAY, // product data is not updated often, so we can cache for a day
-    withAccessToken: true
+    withAccessToken: true,
+    withCurrency: true
   });
 
   // lets get our provisioning fields early, so we can make them lookups
   const provisioningPromise = loadProvisioningFields(productId);
 
-  const countriesPromise = fetchCountries();
-
-  return Promise.all([
-    productPromise,
-    provisioningPromise,
-    countriesPromise
-  ]).then(([product, provisioning]) => {
-    return { product, provisioning, currency };
-  });
+  return Promise.all([productPromise, provisioningPromise]).then(
+    ([product, provisioning]) => {
+      return { product, provisioning, currency };
+    }
+  );
 }
 
 async function loadProvisioningFields(productId: string) {
@@ -161,6 +164,9 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
     provisionFields: {}
   });
 
+  const lookups = context.lookups ?? {};
+  lookups.prices = context.lookups?.prices || {};
+
   let values: ProductModel = defaultsDeep(
     {
       productId: data?.productId,
@@ -185,13 +191,21 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
     );
   }
 
-  let prices: PriceCalculations = context.lookups?.prices || {};
-
   values.quantity = parseQuantity(values.quantity, context?.lookups?.product);
 
   const term = parseTerm(context, values?.term, values.quantity);
   values.term = term.term;
-  prices.term = term.price;
+  lookups.prices.term = term.price;
+
+  // NB:if terms have changed.....
+  // reset the lookup options based on the term selected
+  // as this may impact what price and options are available
+  if (!isEqual(baseModel?.term, values?.term)) {
+    lookups.options = parseSubproductDetails(
+      context.rawProduct?.products_options,
+      values.term
+    );
+  }
 
   const options = parseSubproducts(
     "options",
@@ -204,7 +218,7 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
     values.quantity
   );
   values.options = options.subproducts;
-  prices.options = options.price;
+  lookups.prices.options = options.price;
 
   const attributes = parseSubproducts(
     "attributes",
@@ -220,7 +234,7 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
 
   // ---
   return new Promise(resolve => {
-    resolve({ model: values, prices });
+    resolve({ model: values, lookups });
   });
 }
 

@@ -162,17 +162,22 @@ export default createMachine(
         on: {
           REFRESH: [
             {
+              target: "loading",
+              actions: ["refreshContext"],
+              cond: "hasCurrencyChanged"
+            },
+            {
               target: "refreshing",
-              actions: ["refreshContext", "setExternalError"],
+              actions: ["refreshContext"],
               cond: "hasBasketChanged"
             },
             {
               target: "available.error",
-              actions: ["refreshContext", "setExternalError"],
+              actions: ["refreshContext"],
               cond: "hasError"
             },
             {
-              actions: ["refreshContext", "setExternalError"]
+              actions: ["refreshContext"]
             }
           ],
 
@@ -208,8 +213,6 @@ export default createMachine(
           }
         }
       },
-
-      error: {},
 
       // this is a state where we hav ebeen deleted or are no longer available from a parent machine
       processing: {
@@ -261,6 +264,8 @@ export default createMachine(
           CANCEL: { target: "available" }
         }
       },
+
+      error: {},
 
       // Handle completion, stop the machine and prevent further products
       complete: {
@@ -381,6 +386,7 @@ export default createMachine(
           const newContext = {
             clientId: client_id,
             currencyId: currency_id,
+            currencyCode: undefined, // we reset any given currency code after refresh to prevent going out of sync
             promotions: uniq(concat(promotions ?? [], coupons ?? [])),
             coupons: coupons ?? [],
             rawBasketProduct: rawBasketProduct ?? basket_product, // ensure we honoure any given basket product
@@ -443,44 +449,34 @@ export default createMachine(
       setModel: assign({
         model: (_context, { data }: AnyEventObject) =>
           parseModel(data?.model ?? data),
-
-        lookups: ({ lookups, rawProduct }, { data }: AnyEventObject) => {
-          // reset the lookup options options based on the term selected,
-          //  as this may impact what price and options are available
-          lookups ??= {};
-          lookups.options = parseSubproductDetails(
-            rawProduct?.products_options,
-            data.model?.term
-          );
-
-          lookups.prices = data.prices;
-
-          return lookups;
-        },
+        lookups: ({ lookups }, { data }: AnyEventObject) =>
+          data?.lookups ?? lookups ?? {},
 
         errorExternal: (
-          { errorExternal }: ProductConfigContext,
+          { errorExternal, model }: ProductConfigContext,
           { data }: AnyEventObject
         ) => {
+          // Change in Logic...if we have interacted with the product,
+          // we can clear the external errors and let our normal validation handle it
+          return !isEqual(model?.provisionFields, data.model?.provisionFields)
+            ? undefined
+            : errorExternal;
+
+          // DEPRECATED
           // lets parse/override our error message and data, specifically external errors.
           // For any dirty/hydrated field, remove any external error to allow for normal validation
           // Once the external error is removed, we dont ever want to show it again, unless we refresh the product
-          forEach(data.model.provisionFields, (field, key) => {
-            if (
-              !isEmpty(field) ||
-              (!isNil(field) &&
-                isObject(errorExternal) &&
-                "provisionFields" in errorExternal)
-            ) {
-              if (isObject(errorExternal) && "data" in errorExternal) {
-                remove(errorExternal?.data?.provisionFields, [
-                  "propertyName",
-                  key
-                ]);
-              }
-            }
-          });
-          return omitBy(errorExternal, isEmpty) as ExternalError;
+          // forEach(data.model.provisionFields, (field, key) => {
+          //   if (
+          //     !isEmpty(field) ||
+          //     (!isNil(field) &&
+          //       isObject(errorExternal) &&
+          //       !isEmpty(errorExternal?.provisionFields))
+          //   ) {
+          //     remove(errorExternal!.provisionFields!, ["propertyName", key]);
+          //   }
+          // });
+          // return omitBy(errorExternal, isEmpty) as ExternalError;
         }
       }),
 
@@ -616,7 +612,7 @@ export default createMachine(
         errorExternal: (
           _context: ProductConfigContext,
           { data }: AnyEventObject
-        ) => mapToHeadlessError(data),
+        ) => mapToHeadlessError(data)?.data, // NB we only need the exact errors from the api
         error: (_context: ProductConfigContext, { data }: AnyEventObject) =>
           mapToHeadlessError(data)
       }),
@@ -639,7 +635,6 @@ export default createMachine(
         {
           basketId,
           clientId,
-          currencyId,
           promotions,
           rawBasketProduct
         }: ProductConfigContext,
@@ -649,7 +644,6 @@ export default createMachine(
 
         const clientChanged = clientId == data?.client_id!;
         const basketChanged = basketId !== data?.id;
-        const currencyChanged = currencyId !== data?.currency_id;
         const promotionsChanged = !isEmpty(
           xorBy(promotions, data?.promotions, "promotion_id")
         );
@@ -666,12 +660,16 @@ export default createMachine(
         const value =
           basketChanged ||
           clientChanged ||
-          currencyChanged ||
           promotionsChanged ||
           basketPoductChanged;
 
         return value;
       },
+
+      hasCurrencyChanged: (
+        { currencyId }: ProductConfigContext,
+        { data }: AnyEventObject
+      ) => currencyId !== data?.currency_id,
 
       hasBundles: ({
         lookups,

@@ -33,17 +33,15 @@ test.describe("Hosting customers", async () => {
     test("Logged in customer", async ({ page }) => {
       await getClientToken(
         page,
-        Logins.checkoutUser.username,
-        Logins.checkoutUser.password
+        Logins.hosting1.username,
+        Logins.hosting1.password
       );
       await addProductToBasket();
       await basket.proceedToCheckout.click();
-      await checkout.payWithExistingMethod();
+      await checkout.selectPaymentMethod("Direct Bank Transfer");
+      await page.getByTestId("button-place-order").click();
       await expect(page.getByRole("dialog")).toContainText(
         "Converting your order"
-      );
-      await expect(page.getByRole("dialog")).toContainText(
-        "Processing your payment"
       );
       await expect(page.getByRole("dialog")).toContainText("Order complete!");
     });
@@ -52,17 +50,12 @@ test.describe("Hosting customers", async () => {
       await basket.proceedToCheckout.click();
       await page.getByText("Log in here").click();
       await login.inputLogin(
-        Logins.checkoutUser.username,
-        Logins.checkoutUser.password
+        Logins.hosting2.username,
+        Logins.hosting2.password
       );
-      await checkout.payWithExistingMethod();
-      await expect(page.getByRole("dialog")).toContainText(
-        "Converting your order"
-      );
-      await expect(page.getByRole("dialog")).toContainText(
-        "Processing your payment"
-      );
-      await expect(page.getByRole("dialog")).toContainText("Order complete!");
+      await checkout.selectPaymentMethod("Direct Bank Transfer");
+      await page.getByTestId("button-place-order").click();
+      await expect(page.getByTestId("dialog-window")).toContainText("complete");
     });
   });
   test.describe("New Customer", () => {
@@ -75,9 +68,10 @@ test.describe("Hosting customers", async () => {
         `${fakerEN_GB.location.streetAddress()}`,
         `${fakerEN_GB.location.city()}`,
         "HU15 1EG",
-        "07111111111"
+        null
       );
-      await checkout.payWithBankTransfer();
+      await checkout.selectPaymentMethod("Direct Bank Transfer");
+      await page.getByTestId("button-place-order").click();
       await expect(page.getByRole("dialog")).toContainText(
         "Converting your order"
       );

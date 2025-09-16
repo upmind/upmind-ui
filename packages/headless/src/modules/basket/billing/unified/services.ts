@@ -108,13 +108,13 @@ async function loadLookups({
     company:
       type == UnifiedType.BUSINESS
         ? ({
-            addressId: defaultAddress.value?.id,
-            emailId: defaultEmail.value?.id,
-            phoneId: defaultPhone.value?.id
+            addressId: defaultAddress()?.id,
+            emailId: defaultEmail()?.id,
+            phoneId: defaultPhone()?.id
           } as CompanyModel)
         : undefined,
     phone: get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE)
-      ? ((defaultPhone.value ?? {
+      ? ((defaultPhone() ?? {
           phone: {
             number: null,
             nationalNumber: null,
@@ -128,13 +128,14 @@ async function loadLookups({
   const safeModel = useModelParser<UnifiedModel>(schema, model, baseModel);
 
   return Promise.resolve({
+    type,
     regions,
     country,
     countries,
-    phones: phones.value,
-    emails: emails.value,
-    addresses: addresses.value,
-    companies: companies.value,
+    phones: phones.value ?? [],
+    emails: emails.value ?? [],
+    addresses: addresses.value ?? [],
+    companies: companies.value ?? [],
     config,
     // ---
     model: safeModel,
@@ -149,11 +150,10 @@ async function add(type: UnifiedType, data: UnifiedModel) {
   const { ensure: ensureAddress } = useClientAddressServices();
   const { ensure: ensurePhone } = useClientPhoneServices();
   const { ensure: ensureCompany } = useClientCompanyServices();
-
   const promises: Promise<any>[] = [];
 
   promises.push(
-    data?.phone
+    data?.phone && UnifiedType.PERSONAL
       ? ensurePhone({ model: data.phone })
       : Promise.resolve(undefined)
   );
@@ -164,22 +164,25 @@ async function add(type: UnifiedType, data: UnifiedModel) {
       : Promise.resolve(undefined)
   );
 
-  const [phone, address] = await Promise.all(promises);
+  promises.push(
+    data?.company && type == UnifiedType.BUSINESS
+      ? ensureCompany({
+          model: {
+            ...data.company,
+            phoneId: data.phone?.id,
+            phone: data.phone?.phone
+          }
+        })
+      : Promise.resolve(undefined)
+  );
 
-  return {
-    phone: phone?.phone, // NB the returned Phone object has a phone property
-    address,
-    company:
-      data?.company && type == UnifiedType.BUSINESS
-        ? await ensureCompany({
-            model: {
-              ...data.company,
-              phoneId: phone?.id,
-              phone: undefined // Don't pass phone data, use phoneId instead
-            }
-          })
-        : undefined
-  };
+  return Promise.all(promises).then(([phone, address, company]) => {
+    return {
+      phone: phone?.phone ?? company?.phone, // NB the returned Phone object has a phone property
+      address,
+      company
+    };
+  });
 }
 
 // -----------------------------------------------------------------------------

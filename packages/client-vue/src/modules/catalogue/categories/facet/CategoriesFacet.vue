@@ -1,19 +1,13 @@
 <template>
   <section :class="styles.products.facet.root">
-    <InputExtended
+    <Input
       v-model="query"
       :class="styles.products.facet.search.input"
       :placeholder="t('product.category.search')"
       :auto-focus="false"
-    >
-      <template #prepend>
-        <Icon
-          icon="search"
-          size="2xs"
-          :class="styles.products.facet.search.icon"
-        />
-      </template>
-    </InputExtended>
+      icon="search"
+      size="lg"
+    />
 
     <nav :class="styles.products.facet.list.root">
       <CategoriesFacetDrillDown
@@ -35,7 +29,7 @@ import { useI18n } from "vue-i18n";
 import config from "../../catalogue.config";
 
 // --- components
-import { InputExtended, Icon, useStyles } from "@upmind-automation/upmind-ui";
+import { Input, useStyles } from "@upmind-automation/upmind-ui";
 import CategoriesFacetDrillDown from "./CategoriesFacetDrillDown.vue";
 
 // --- types

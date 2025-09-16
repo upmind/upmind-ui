@@ -1,77 +1,83 @@
 <template>
-  <Layout>
+  <Layout :variant="configMeta.layout" minimal>
     <template #navigation>
-      <Breadcrumb :items="items" />
+      <Breadcrumb :items="items" size="lg" v-if="meta?.isAvailable" />
     </template>
 
     <template #actions>
-      <Share class="hidden md:flex" />
+      <Share class="hidden md:flex" v-if="meta?.isAvailable" />
     </template>
 
-    <ContentSection v-auto-animate class="flex flex-grow items-center">
-      <form v-auto-animate @submit.prevent @reset.prevent>
-        <div
-          class="relative mx-auto flex w-full flex-wrap items-start justify-between gap-8"
-        >
-          <section class="flex min-w-0 flex-1 flex-col gap-16">
-            <ContentSection>
-              <template #title>
-                <SmartTitle i18n-key="product.title" size="2xl" />
-              </template>
+    <template #header>
+      <Header
+        v-bind="product"
+        :product-image="productImage()"
+        v-if="meta?.isAvailable"
+      />
+      <HeaderSkeleton v-else />
+    </template>
 
-              <!-- TODO: add skeleton loader when meta.isLoading -->
-              <Card class="!p-0">
-                <ProductConfig
-                  v-if="pendingProduct && !meta?.isLoading"
-                  :item="pendingProduct"
-                  :model-value="pendingProduct?.id"
-                  :no-footer="true"
-                  as="div"
-                  @resolve="doResolve"
-                  @reject="doReject"
-                />
+    <template #default>
+      <Section :title="meta?.isAvailable ? t('product.configure') : ''">
+        <form @submit.prevent @reset.prevent>
+          <ProductConfig
+            v-if="pendingProduct && meta?.isAvailable"
+            :item="pendingProduct"
+            :model-value="pendingProduct?.id"
+            :no-footer="true"
+            as="div"
+            @resolve="doResolve"
+            @reject="doReject"
+          />
 
-                <ConfigSkeleton v-else />
-              </Card>
-            </ContentSection>
-          </section>
+          <ProductNotFound v-else-if="meta?.isUnavailable" />
 
-          <header
-            class="flex w-full flex-col items-start gap-4 sm:sticky sm:top-1 xl:max-w-md"
-          >
-            <ContentSection :title="t('product.summary.title')">
-              <Summary
-                v-if="pendingProduct"
-                :item="pendingProduct"
-                @resolve="doResolve"
-              />
-            </ContentSection>
-          </header>
-        </div>
+          <ConfigSkeleton v-else />
+        </form>
+      </Section>
+    </template>
 
-        <!-- small print -->
-        <footer
-          class="text-emphasis-medium mt-6 flex flex-col space-y-2 px-6 text-xs md:space-y-0 md:px-0"
-        >
-          <div
-            v-for="(term, index) in tm('product.smallprint')"
-            :key="index"
-            class="leading-snug"
-          >
-            {{ term }}
-          </div>
-        </footer>
-      </form>
-    </ContentSection>
+    <template #aside>
+      <Section
+        :title="t('product.summary.title')"
+        :class="styles.product.summary"
+        aside
+      >
+        <Summary
+          v-if="product && meta?.isAvailable"
+          :product="product"
+          :meta="meta"
+          @resolve="doResolve"
+          @update:quantity="updateQuantity"
+        />
+
+        <SummarySkeleton v-else />
+      </Section>
+    </template>
+
+    <template #aside-footer>
+      <SummaryFooter
+        v-if="product && meta?.isAvailable"
+        :product="product"
+        @resolve="doResolve"
+      />
+    </template>
+    <template #footer>
+      <p
+        v-for="(term, index) in tm('product.smallprint')"
+        :key="index"
+        class="leading-snug"
+      >
+        {{ term }}
+      </p>
+    </template>
   </Layout>
 </template>
 
 <script lang="ts" setup>
 // --- external
-import { watch, computed } from "vue";
-import { vAutoAnimate } from "@formkit/auto-animate";
+import { watch, computed, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
-import { forEach } from "lodash-es";
 
 // --- internal
 import {
@@ -81,71 +87,83 @@ import {
   useQueryParams,
   useBrand,
   useProductConfig,
-  useProductCategories,
-  ROUTE
+  ROUTE,
+  type ProductBreadcrumb
 } from "@upmind-automation/headless";
+import config from "./product.config";
 
 // --- components
-import { Card, Layout, Breadcrumb } from "@upmind-automation/upmind-ui";
-import ContentSection from "../../components/content/ContentSection.vue";
-import ProductConfig from "./components/config/Config.vue";
-import Summary from "./components/summary/Summary.vue";
-import SmartTitle from "../../components/content/SmartTitle.vue";
-import ConfigSkeleton from "./components/ConfigSkeleton.vue";
+import { Layout, Breadcrumb, useStyles } from "@upmind-automation/upmind-ui";
 import Share from "../../components/navigation/Share.vue";
+import ConfigSkeleton from "./components/ConfigSkeleton.vue";
+import Header from "./components/header/Header.vue";
+import HeaderSkeleton from "./components/header/HeaderSkeleton.vue";
+import ProductConfig from "./components/config/Config.vue";
+import Section from "../../components/content/LayoutSection.vue";
+import Summary from "./components/summary/Summary.vue";
+import SummaryFooter from "./components/summary/SummaryFooter.vue";
+import SummarySkeleton from "./components/summary/SummarySkeleton.vue";
+import ProductNotFound from "./NotFound.vue";
+
+// --- utils
+import { forEach, isEmpty } from "lodash-es";
 
 // --- types
-import type { ProductCategory } from "@upmind-automation/headless";
+import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 const { t, tm } = useI18n();
 
 const { navigateBack, navigateNext, isResolved } = useRoutingEngine();
-const { meta: basketMeta, isReady } = useBasket();
+const { isReady } = useBasket();
 const { productId } = useQueryParams();
-const { configure, resolve } = useBasketProductsPending();
-const { hasStorefront, storefrontUrl, uiCart } = useBrand();
-const { getPath } = useProductCategories();
+const { configure, resolve, remove } = useBasketProductsPending();
+const { hasStorefront, storefrontRoute, uiCart } = useBrand();
 
 await isReady();
 await isResolved(ROUTE.PRODUCT_ADD);
-const {
-  meta,
-  stop,
-  update,
-  service: pendingProduct
-} = await configure(productId);
 
-const { product } = useProductConfig(pendingProduct);
+const { update, service: pendingProduct } = await configure(productId);
+
+const { meta, product, productImage, updateQuantity } =
+  useProductConfig(pendingProduct);
+
+const configMeta = computed(() => {
+  return {
+    layout: uiCart.value?.layout
+  };
+});
+
+const styles = useStyles("product", configMeta, config) as ComputedRef<{
+  product: {
+    summary: string;
+  };
+}>;
 
 const items = computed(() => {
   // Storefront
   const items: any[] = [
     {
       label: t("product.shop"),
-      to: !hasStorefront.value ? { name: ROUTE.CATALOGUE } : undefined,
-      href: hasStorefront.value ? storefrontUrl.value : undefined,
+      ...storefrontRoute?.value,
       current: false
     }
   ];
 
   // Categories
-  if (product?.value?.productDetails?.categoryId) {
-    const categoryPath = getPath(product.value.productDetails.categoryId);
-    forEach(categoryPath, (category: ProductCategory) => {
-      items.push({
-        label: category.title,
-        to: !hasStorefront.value
-          ? {
-              name: ROUTE.CATALOGUE,
-              query: {
-                catid: category.id
-              }
-            }
-          : undefined,
-        current: uiCart.value?.catalogue?.disabled || hasStorefront.value
-      });
-    });
+  if (!isEmpty(product?.value?.productDetails?.breadcrumb)) {
+    forEach(
+      product.value.productDetails.breadcrumb,
+      (category: ProductBreadcrumb) => {
+        items.push({
+          label: category.label,
+          to: !hasStorefront.value
+            ? { name: ROUTE.CATALOGUE, query: { catid: category.id } }
+            : undefined,
+          current: uiCart.value?.catalogue?.disabled || hasStorefront.value
+        });
+      }
+    );
   }
 
   // Current product
@@ -183,7 +201,10 @@ async function doResolve() {
 }
 
 function doReject() {
-  stop();
   navigateBack();
 }
+
+onUnmounted(() => {
+  remove(productId);
+});
 </script>

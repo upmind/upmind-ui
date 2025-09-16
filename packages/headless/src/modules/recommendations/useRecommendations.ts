@@ -119,7 +119,7 @@ export const useRecommendations = () => {
   }
 
   function stop() {
-    stopService(service as InterpreterFrom<any>);
+    stopService(service);
   }
 
   // -----------------------------------------------------------------------------

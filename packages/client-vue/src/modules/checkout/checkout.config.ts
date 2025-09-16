@@ -17,40 +17,55 @@ export default {
     ),
     asideInner: cva("flex w-full flex-col gap-6 text-left"),
     session: cva("w-full min-w-full"),
-    paymentDetails: cva("!p-0"),
+    paymentDetails: cva("p-0!"),
 
     accordion: {
-      root: cva("flex flex-col gap-4"),
+      root: cva("flex flex-col gap-3"),
       trigger: {
         root: cva(
-          "text-emphasis-medium hover:text-foreground flex items-center justify-between space-x-2 p-4 px-6 transition-all duration-300 hover:no-underline md:p-5 md:px-9"
+          "text-emphasis-high hover:text-foreground bg-control-background shadow-border-control data-[state=open]:bg-background data-[state=open]:text-foreground data-[state=open]:shadow-border-foreground flex cursor-pointer items-center justify-between space-x-2 rounded px-5 py-3 font-normal transition-all duration-300 hover:no-underline data-[state=open]:font-medium"
         ),
-        icon: cva("h-6 w-6 shrink-0 transition-transform duration-200"),
+        icon: cva(
+          "text-emphasis-high group-hover:text-emphasis-none ml-auto transition-all duration-200 [&>svg]:size-3 [&>svg]:transition-all [&>svg]:duration-300"
+        ),
         header: cva("flex w-full items-center justify-between space-x-2")
       },
       item: cva("border-none"),
-      card: cva("bg-base shadow-sm"),
+      card: cva("bg-base"),
       loading: cva("text-secondary"),
       content: cva(
-        "border-base-muted flex flex-col border-t p-5 px-6 transition-all duration-300 md:p-8 md:px-9"
+        "flex flex-col gap-6 transition-all duration-300 empty:p-0",
+        {
+          variants: {
+            layout: {
+              full: "px-1 py-4",
+              enclosed: "px-1 py-3",
+              default: "px-1 py-3"
+            }
+          }
+        }
       )
     },
 
-    title: cva("text-foreground text-left text-sm leading-tight no-underline"),
+    title: cva("text-md text-left no-underline"),
     image: cva("m-0 h-6 md:h-7"),
     gateway: cva("w-full"),
-    footer: cva(
-      "flex flex-col items-stretch justify-start space-x-0 space-y-2 md:flex-row md:space-x-4 md:space-y-0"
-    ),
-    action: cva("block w-full self-center md:inline-block md:w-auto"),
+    footer: {
+      root: cva("flex w-full flex-col gap-4"),
+      actions: cva(
+        "flex flex-col items-stretch justify-start space-y-2 space-x-0 md:flex-row md:space-y-0 md:space-x-4"
+      ),
+      terms: cva("text-emphasis-medium text-sm")
+    },
+    action: cva("flex w-full self-center md:inline-flex md:w-auto"),
     additional: cva(
-      "bg-base-background text-base-foreground flex items-center justify-center space-x-2 self-stretch px-4 py-2 md:py-0"
+      "bg-base-background text-base-foreground flex items-center justify-center gap-2 space-x-2 self-stretch px-4 py-2 md:py-0"
     ),
     clickwrap: cva(
-      "text-emphasis-medium prose prose-a:font-normal prose-a:text-inherit mt-4 text-left text-sm leading-snug"
+      "text-emphasis-medium prose prose-a:font-normal prose-a:text-inherit text-left text-sm leading-snug"
     ),
 
-    isFree: cva("bg-base shadow-sm")
+    isFree: cva("bg-base")
   },
 
   client: {

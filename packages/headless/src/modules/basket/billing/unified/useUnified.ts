@@ -64,7 +64,7 @@ export const useUnified = (
       }),
     {
       id: "new-billing-detail",
-      devTools: true
+      devTools: false
     }
   );
 
@@ -191,7 +191,7 @@ export const useUnified = (
   }
 
   function stop(): void {
-    stopService(service as InterpreterFrom<any>);
+    stopService(service);
   }
   // ---------------------------------------------------------------------------
   return {

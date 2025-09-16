@@ -35,15 +35,13 @@ async function loadLookups(
     BrandConfigKeys.CHECKOUT_REQUIRE_PHONE,
     BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS,
     BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS
-  ]).then(config => {
-    return {
-      requiresPhone: config?.invoices?.common?.require_phone_for_orders,
-      requiresCompany: config?.invoices?.common?.require_company_for_orders,
-      requiresAddress: config?.invoices?.common?.require_address_for_orders
-    };
-  });
+  ]).then(config => ({
+    requiresPhone: get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE),
+    requiresCompany: get(config, BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS),
+    requiresAddress: get(config, BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS)
+  }));
 
-  // // We should ALWAYS have an address set  ( if we have addresses )
+  // // We should ALWAYS have an address set (if we have addresses)
   // if (!isEmpty(defaultAddress)) {
   //   baseModel = {
   //     addressId: defaultAddress.id,
@@ -55,9 +53,9 @@ async function loadLookups(
   // }
 
   const baseModel: BillingModel = {
-    addressId: undefined,
-    companyId: undefined,
-    phoneId: undefined
+    addressId: null,
+    companyId: null,
+    phoneId: null
   };
 
   const safeModel = useModelParser<BillingModel>(schema, model, baseModel);
@@ -70,7 +68,7 @@ async function loadLookups(
 }
 
 async function parse(
-  { autoupdate, schema, baseModel }: BillingContext,
+  { autoupdate, schema }: BillingContext,
   { data }: AnyEventObject
 ) {
   // sometimes the machine can return the full context as data, so we check to see if we have a model
@@ -81,7 +79,7 @@ async function parse(
   );
 
   // ---
-  // we dont have any parsing checks or transforms so we can pass through the model
+  // we don't have any parsing checks or transforms so we can pass through the model
   return Promise.resolve({
     model: safeModel,
     autoupdate

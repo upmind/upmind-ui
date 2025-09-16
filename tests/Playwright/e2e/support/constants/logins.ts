@@ -24,6 +24,11 @@ export const Logins = {
     username: "nathan.robinson+micropayment@upmind.com",
     password: "Micropayment1"
   },
+  existingMethodUser: {
+    grant_type: "password",
+    username: "nathan.robinson+existingmethod@upmind.com",
+    password: "ExistingMethod123"
+  },
   priceListUser: {
     grant_type: "password",
     username: "nathan.robinson+pricelist@upmind.com",
@@ -33,5 +38,30 @@ export const Logins = {
     grant_type: "password",
     username: "nathan.robinson+twofactor@upmind.com",
     password: "Twofactor1"
+  },
+  brandUser: {
+    grant_type: "password",
+    username: "nathan.robinson+branduser@upmind.com",
+    password: "BrandUser1"
+  },
+  domain1: {
+    grant_type: "password",
+    username: `nathan.robinson+domaincustomer1@upmind.com`,
+    password: "DomainCustomer1"
+  },
+  domain2: {
+    grant_type: "password",
+    username: `nathan.robinson+domaincustomer2@upmind.com`,
+    password: "DomainCustomer2"
+  },
+  hosting1: {
+    grant_type: "password",
+    username: `nathan.robinson+hostingcustomer1@upmind.com`,
+    password: "HostingCustomer1"
+  },
+  hosting2: {
+    grant_type: "password",
+    username: `nathan.robinson+hostingcustomer2@upmind.com`,
+    password: "HostingCustomer2"
   }
 };

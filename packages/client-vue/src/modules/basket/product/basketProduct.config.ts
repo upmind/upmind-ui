@@ -5,28 +5,21 @@ export default {
   product: {
     root: {
       card: cva(
-        "text-foreground relative flex flex-col gap-y-3 p-6 md:gap-y-4 md:p-8",
+        "text-foreground relative flex list-none flex-col gap-y-3 pb-6 last:pb-0",
         {
           variants: {
             isDisabled: {
-              true: "pointer-events-none !cursor-not-allowed",
+              true: "pointer-events-none cursor-not-allowed!",
               false: ""
             },
             isLoading: {
               true: "",
               false: ""
-            },
-            hasErrors: {
-              true: "",
-              false:
-                "ring-offset-background focus-within:ring-ring focus-within:outline-none focus-within:ring-1 focus-within:ring-offset-1 group-focus-within:ring-0 group-focus-within:ring-offset-0"
             }
           },
           compoundVariants: [
             {
-              isLoading: false,
-              hasErrors: true,
-              class: "ring-error !ring-error-1 ring-1"
+              isLoading: false
             }
           ]
         }
@@ -36,19 +29,19 @@ export default {
     summary: {
       container: cva("flex flex-col gap-y-4 py-4 first:pt-0 last:pb-0"),
       image: cva(
-        "m-0 h-12 min-w-12 max-w-12 rounded-lg object-cover object-center"
+        "m-0 h-12 max-w-12 min-w-12 rounded-lg object-cover object-center"
       ),
       imageRoute: cva("")
     },
     configDetails: {
       container: cva(
-        "flex flex-col divide-y divide-solid rounded-lg border p-4 px-5 text-sm font-medium leading-3"
+        "flex flex-col divide-y divide-solid rounded-lg border p-4 px-5 text-sm leading-3 font-medium"
       )
     },
 
     pricing: {
-      current: cva("text-lg font-semibold !leading-7 md:text-xl"),
-      ex: cva("!text-sm italic !leading-5")
+      current: cva("text-lg leading-7! font-medium md:text-xl"),
+      ex: cva("text-sm! leading-5! italic")
     }
   }
 };

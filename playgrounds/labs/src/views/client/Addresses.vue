@@ -1,5 +1,5 @@
 <template>
-  <UpmContentSection class="mx-auto max-w-app" title="Addresses">
+  <UpmContentSection class="max-w-app mx-auto" title="Addresses">
     <UpmManage
       v-if="meta.isAuthenticated"
       i18n-key="client.address"

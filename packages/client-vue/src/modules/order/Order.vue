@@ -1,8 +1,9 @@
 <template>
   <Layout>
-    <ContentSection v-auto-animate class="flex flex-grow items-center">
+    <ContentSection v-auto-animate class="flex grow items-center">
       <Interstitial
         open
+        to="#vue-app"
         modal
         skrim="light"
         :order-id="orderId"
@@ -29,18 +30,14 @@
         <template #actions>
           <Button
             color="primary"
+            size="lg"
             :label="t(action)"
             :loading="processing"
             @click.stop="doAction"
-          >
-            <template #prepend>
-              <Icon v-if="!meta.isAuthenticated" icon="arrow-left" size="2xs" />
-            </template>
-
-            <template #append>
-              <Icon v-if="meta.isAuthenticated" icon="arrow-right" size="2xs" />
-            </template>
-          </Button>
+            :icon="!meta.isAuthenticated ? 'arrow-left' : ''"
+            :icon-append="meta.isAuthenticated ? 'arrow-right' : ''"
+            pill
+          />
         </template>
       </Interstitial>
     </ContentSection>
@@ -61,7 +58,8 @@ import {
   useRoutingEngine,
   utils,
   ROUTE,
-  useBrand
+  useBrand,
+  useOrder
 } from "@upmind-automation/headless";
 
 // -- components
@@ -87,9 +85,14 @@ const { isResolved } = useRoutingEngine();
 await isResolved(ROUTE.ORDER);
 
 const { transferTo, meta } = useSession();
+const orderId = route.params?.orderId?.toString();
 
-const orderId = route.params.orderId.toString();
-const success = computed(() => route.query.payment_success === "true");
+const { meta: orderMeta, isReady: isOrderReady } = useOrder(orderId);
+await isOrderReady();
+
+const success = computed(
+  () => route.query.payment_success === "true" || orderMeta.value.isPaid
+);
 
 const transferBase =
   import.meta.env.VITE_APP_ORDER_TRANSFER_AUTH_BASE ?? undefined;
@@ -100,7 +103,7 @@ const transferAuth =
 const transferRedirect = (
   import.meta.env.VITE_APP_ORDER_TRANSFER_REDIRECT ||
   "/billing/orders/{{orderId}}/overview"
-).replace(/{{([^{}]+)}}/g, (keyExpr: string, key: string) => {
+).replace(/{{([^{}]+)}}/g, (_keyExpr: string, key: string) => {
   if (key == "orderId") return orderId;
   return;
 });
@@ -108,6 +111,8 @@ const transferRedirect = (
 const title = computed(() => {
   if (!meta.value.isAuthenticated) {
     return "order.confirmation.invalid.title";
+  } else if (orderMeta.value.hasError) {
+    return "order.confirmation.error.title.text";
   } else if (success.value) {
     return "order.confirmation.success.title";
   }
@@ -118,6 +123,8 @@ const title = computed(() => {
 const text = computed(() => {
   if (!meta.value.isAuthenticated) {
     return t("order.confirmation.invalid.text");
+  } else if (orderMeta.value.hasError) {
+    return t("order.confirmation.error.text");
   } else if (success.value) {
     return t("order.confirmation.success.text");
   }
@@ -136,6 +143,8 @@ const text = computed(() => {
 const action = computed(() => {
   if (!meta.value.isAuthenticated) {
     return "order.confirmation.invalid.action";
+  } else if (orderMeta.value.hasError) {
+    return "order.confirmation.error.action";
   } else if (success.value) {
     return "order.confirmation.success.action";
   }

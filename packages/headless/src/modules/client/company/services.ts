@@ -31,7 +31,7 @@ import {
 } from "../../../utils";
 import { invalidateQueryByKey } from "../../query";
 import { mapCompanies, mapCompany, mapICompany } from "./mappers";
-import { get, isString, isEmpty, find, some, pick } from "lodash-es";
+import { get, isString, isEmpty, find, some, pick, isArray } from "lodash-es";
 
 // --- types
 import { BrandConfigKeys, type ICompany } from "@upmind-automation/types";
@@ -45,7 +45,7 @@ import type { Company, CompanyModel, CompanyContext } from "./types";
 const queryKey: QueryKey = ["client", "companies"];
 const { addError, addSuccess } = useFeedback();
 
-function loadList(params?: Partial<QueryParams>) {
+function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
   const { meta, user } = useSession();
   const { list, useUrl } = useQuery();
 
@@ -117,15 +117,15 @@ async function loadLookups({
 
   const baseModel: CompanyModel = {
     // --- one of
-    addressId: defaultAddress.value?.id,
-    address: !defaultAddress.value?.id
+    addressId: defaultAddress()?.id,
+    address: !defaultAddress()?.id
       ? ({ countryId: country?.id } as CompanyModel["address"])
       : undefined,
     // ---
-    emailId: defaultEmail.value?.id,
+    emailId: defaultEmail()?.id,
     // email: !defaultEmail.value?.id ? {} : undefined,
-    phoneId: defaultPhone.value?.id,
-    phone: !defaultPhone.value?.phone
+    phoneId: defaultPhone()?.id,
+    phone: !defaultPhone()?.phone
       ? ({ country: country?.id } as CompanyModel["phone"])
       : undefined
   };
@@ -184,7 +184,9 @@ async function update(id: Company["id"], data: CompanyModel) {
 async function ensure(model: CompanyModel): Promise<Company> {
   const { data, promise } = loadList();
   await promise.value.finally(); // wait for the query to resolve
-  const { findOne } = useCollection<Company>(data.value ?? []);
+  const { findOne } = useCollection<Company>(
+    isArray(data.value) ? data.value : []
+  );
 
   // We only need to check if we have an company with the matching id
   const mapping = pick(model, "id");
@@ -314,7 +316,6 @@ async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
     })
   ])
     .then(([email, phone, address]) => {
-      debugger;
       return {
         id: data.id,
         addressId: address?.id,
@@ -322,12 +323,11 @@ async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
         emailId: email?.id,
         name: data.name,
         regNumber: data.regNumber,
-        vatNumber: data.vatNumber,
+        tax: data.tax,
         default: data.default
       };
     })
     .catch(errors => {
-      debugger;
       throw new DetailedError(
         "Ensure Company dependencies failed",
         responseCodes.Unprocessable_Entity,

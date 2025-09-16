@@ -59,7 +59,7 @@ export const useClientCompany = (
       }),
     {
       id: id ?? "new-company",
-      devTools: true
+      devTools: false
     }
   );
 
@@ -182,7 +182,7 @@ export const useClientCompany = (
   }
 
   function stop(): void {
-    stopService(service as InterpreterFrom<any>);
+    stopService(service);
   }
   // ---------------------------------------------------------------------------
   return {

@@ -1,26 +1,27 @@
 <template>
-  <div class="flex w-full flex-col gap-y-1">
-    <header
-      class="pointer-events-none flex w-full !cursor-pointer items-start justify-between"
-    >
-      <h3 class="m-0 flex items-center gap-x-2 text-sm font-semibold">
+  <div
+    class="flex w-full flex-col gap-1"
+    :class="!props.readonly && 'cursor-pointer!'"
+  >
+    <header class="flex w-full items-start justify-between">
+      <h3 class="text-md m-0 flex items-center gap-x-2 font-medium">
         {{ title }}
         <Badge
           v-if="meta?.isDefault"
           variant="flat"
-          size="xs"
+          size="sm"
           :label="t('client.address.default')"
         />
       </h3>
 
-      <Link
+      <Button
         v-if="!props.readonly"
         :label="t('client.address.actions.edit')"
-        size="xs"
-        variant="muted"
+        size="sm"
+        variant="link"
+        color="muted"
         tabindex="-1"
         @mousedown.stop.prevent
-        class="pointer-events-auto h-4"
         @click.stop.prevent="doEdit"
       />
     </header>
@@ -36,7 +37,7 @@
 import { useI18n } from "vue-i18n";
 
 // --- components
-import { Link, Badge } from "@upmind-automation/upmind-ui";
+import { Button, Badge } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { Address } from "@upmind-automation/headless";

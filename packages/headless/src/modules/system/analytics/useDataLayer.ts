@@ -1,3 +1,6 @@
+// --- external
+import * as Sentry from "@sentry/vue";
+
 // --- internal
 import { useBasket, useLocale } from "../..";
 import packageJson from "../../../../package.json";
@@ -11,19 +14,10 @@ import {
   usePOP,
   useTime
 } from "../../../utils";
-import {
-  isEmpty,
-  isNil,
-  omitBy,
-  set,
-  map,
-  isArray,
-  sumBy,
-  some
-} from "lodash-es";
+import { isEmpty, isNil, omitBy, set, map, isArray, sumBy } from "lodash-es";
 
 // --- types
-import { IBasket, IInvoice } from "@upmind-automation/types";
+import { IInvoice } from "@upmind-automation/types";
 import type { BasketProduct } from "../../basketProduct";
 import type { Product } from "../../product";
 import { mapIBasketProduct, mapBasketProduct } from "./utils";
@@ -142,7 +136,7 @@ class TrackingEvent {
       value: safeBasket.net_amount, //TODO: check the correct value is used
       gross_value: safeBasket.total_amount, //TODO: check the correct value is used
       coupon: !isEmpty(safeBasket.promotions)
-        ? map(safeBasket.promotions, "promotion.code").toString()
+        ? map(safeBasket.promotions, "promotion.code").join()
         : undefined,
       // --- invoice specific data
       transaction_id: safeBasket?.number,
@@ -210,6 +204,17 @@ class TrackingEvent {
 
     DATA_LAYER.push(payload);
     this.complete = true;
+
+    // Lets also add this to sentry for debugging purposes
+    // MAYBE add a flag to only track certain events? eg: debug/breadcrumb
+    //       or change this to be a `withBreadcrumb` method on the class
+    Sentry.addBreadcrumb({
+      type: "debug",
+      category: "log",
+      data: payload,
+      level: "debug"
+    });
+
     return payload;
   }
 }

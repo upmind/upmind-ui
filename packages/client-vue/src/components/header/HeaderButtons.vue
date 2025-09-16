@@ -3,46 +3,31 @@
     <slot name="actions" />
 
     <Button
-      v-if="
-        basketMeta.hasProducts &&
-        basketMeta.isAvailable &&
-        currentRoute?.name !== ROUTE.BASKET
-      "
-      size="sm"
+      :class="styles.header.avatar.basket"
       variant="ghost"
-      color="base"
-      class="bg-background"
+      size="lg"
       @click="navigate(ROUTE.BASKET)"
-    >
-      <template #prepend>
-        <Icon icon="cart" size="2xs" />
-      </template>
-    </Button>
+      icon="cart"
+      pill
+    />
 
     <SessionLoginPopover v-if="!meta.isAuthenticated">
       <Button
-        size="sm"
+        size="lg"
         variant="outline"
         color="base"
         :label="t('header.login')"
+        icon="account"
+        pill
         data-testid="login-popover-trigger"
-      >
-        <template #prepend>
-          <Avatar
-            icon="account"
-            size="3xs"
-            class="-ml-1"
-            :class="styles.header.avatar.login"
-          />
-        </template>
-      </Button>
+      />
     </SessionLoginPopover>
 
     <SessionDetailsDropdown v-if="meta.isAuthenticated && user">
       <Avatar
         v-bind="user.avatar"
-        size="xs"
-        class="h-9 w-9 cursor-pointer"
+        size="md"
+        class="cursor-pointer"
         focusable
         :class="styles.header.avatar.session"
       />
@@ -84,6 +69,7 @@ const styles = useStyles(["header.avatar"], {}, config) as ComputedRef<{
     avatar: {
       login: string;
       session: string;
+      basket: string;
     };
   };
 }>;

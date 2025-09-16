@@ -29,9 +29,9 @@ export const useBasketFlows = () => {
       guard: async (route: Route) => {
         // some query params that we ALWAYS look out for and resolve for the UI:
         // currency,coupons, lang
-        const { currency, coupon, productConfigs } = useRouteQueryParams(route);
+        const { currency, productConfigs } = useRouteQueryParams(route);
         if (currency) setCurrency(currency);
-        if (coupon) addPromotion(coupon);
+
         // then we sync the product(s) from our Query Params if we have any
         if (productConfigs) addMany(productConfigs);
         return false; //NB ALWAYS return false as we dont want the currentFlow to be Loading, but rather its fallback
@@ -40,7 +40,6 @@ export const useBasketFlows = () => {
         next: [],
         back: [],
         fallback: [
-          ROUTE.EXPRESS_PRODUCT_ADD,
           ROUTE.PRODUCT_ADD,
           // if we have an exact match for our config in the basket,
           // then we can skip the product flow and go straight to the basket

@@ -375,6 +375,7 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
           )
           .then((rawBasket: IBasket) => {
             // add the success event to the datalayer
+            // if (!event.target?.id) debugger;// TODo match agains tmodel if we dont have an id
             const basketProduct = basket.findProduct({ id: event.target.id });
             if (basketProduct) {
               dataLayer({ event: "add_to_cart" })

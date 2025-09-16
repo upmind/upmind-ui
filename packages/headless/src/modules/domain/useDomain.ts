@@ -69,7 +69,7 @@ export const useDomain = (
       choices: safeType,
       model: safeModel
     } as any),
-    { devTools: true }
+    { devTools: false }
   );
 
   const { state, send } = useActor(service.start());
@@ -254,9 +254,9 @@ export const useDomain = (
       .catch(error => {
         return Promise.reject(
           new DetailedError(
-            error.message ?? "Add to Basket failed",
-            error.code ?? responseCodes.Timeout,
-            error.origin ?? ErrorOrigin.Headless,
+            error?.message ?? "Add to Basket failed",
+            error?.code ?? responseCodes.Timeout,
+            error?.origin ?? ErrorOrigin.Headless,
             error?.data ?? {
               error,
               state: state.value
@@ -428,7 +428,7 @@ export const useDomain = (
     /** Stop the domain service.
      * @returns {void}
      */
-    stop: () => stopService(service as InterpreterFrom<any>)
+    stop: () => stopService(service)
   };
 };
 

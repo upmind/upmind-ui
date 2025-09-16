@@ -21,7 +21,7 @@ import {
 } from "../../../utils";
 import { invalidateQueryByKey } from "../../query";
 import { mapAddress, mapAddresses, mapIAddress } from "./mappers";
-import { get, isString, isEmpty, find, some, pick } from "lodash-es";
+import { get, isString, isEmpty, find, some, pick, isArray } from "lodash-es";
 
 // --- types
 import { BrandConfigKeys, type IAddress } from "@upmind-automation/types";
@@ -35,7 +35,7 @@ import type { Address, AddressModel, AddressContext } from "./types";
 const queryKey: QueryKey = ["client", "addresses"];
 const { addError, addSuccess } = useFeedback();
 
-function loadList(params?: Partial<QueryParams>) {
+function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
   const { meta, user } = useSession();
   const { list, useUrl } = useQuery();
 
@@ -154,7 +154,9 @@ async function update(id: Address["id"], data: AddressModel) {
 async function ensure(model: AddressModel): Promise<Address> {
   const { data, promise } = loadList();
   await promise.value.finally(); // wait for the query to resolve
-  const { findOne } = useCollection<Address>(data.value ?? []);
+  const { findOne } = useCollection<Address>(
+    isArray(data.value) ? data.value : []
+  );
 
   // We only need to check if we have an address with the matching id
   const mapping = pick(model, "id");

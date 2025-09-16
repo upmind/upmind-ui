@@ -14,14 +14,16 @@ import {
   isEmpty,
   includes,
   isString,
-  debounce
+  debounce,
+  isArray
 } from "lodash-es";
+import { DEBOUNCE_DELAY } from "../../utils";
 
 // --- types
 import type { Product } from "../product";
 import type { ICurrency } from "@upmind-automation/types";
 import type { QueryProps, RequestFilters } from "../query";
-import { DEBOUNCE_DELAY } from "../../utils";
+import { useBasket } from "../basket";
 
 export enum ProductSortableProperties {
   DEFAULT = "order",
@@ -42,6 +44,7 @@ export const useProductCatalogue = (
   }
 ) => {
   // --- state
+  const { isReady: isBasketReady } = useBasket();
   const { infinite, ...params } = initial || {};
   const query = !infinite
     ? service.loadList({ ...params, withCurrency: true })
@@ -56,9 +59,7 @@ export const useProductCatalogue = (
   }));
 
   async function isReady(): Promise<boolean> {
-    return new Promise<boolean>(resolve => {
-      resolve(true);
-    });
+    return isBasketReady();
   }
 
   // --- context
@@ -181,7 +182,10 @@ export const useProductCatalogue = (
      * The reactive data property containing the list of client items.
      * This is populated by the query and updates automatically when the query state changes.
      */
-    data: query.data,
+    data: computed(() => {
+      const data = query.data.value;
+      return isArray(data) ? data : null;
+    }),
 
     /**
      * The current error state of the query.

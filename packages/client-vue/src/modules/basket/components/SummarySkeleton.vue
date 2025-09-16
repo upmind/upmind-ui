@@ -11,7 +11,7 @@
     </Skeleton>
 
     <dd
-      class="flex-0 text-foreground m-0 flex w-full justify-end gap-2 text-right font-medium"
+      class="text-foreground m-0 flex w-full flex-0 justify-end gap-2 text-right font-medium"
     >
       <slot name="actions">
         <Skeleton class="text-primary">00.000000</Skeleton>
@@ -25,7 +25,7 @@
     </Skeleton>
 
     <dd
-      class="flex-0 text-foreground m-0 flex w-full justify-end gap-2 text-right font-medium"
+      class="text-foreground m-0 flex w-full flex-0 justify-end gap-2 text-right font-medium"
     >
       <slot name="actions">
         <Skeleton class="text-primary">00.000000000</Skeleton>
@@ -39,30 +39,30 @@
     v-auto-animate
   >
     <dt
-      class="text-base-700 group m-0 inline-flex flex-1 items-center text-left text-sm font-normal leading-normal"
+      class="text-base-700 group m-0 inline-flex flex-1 items-center text-left text-sm leading-normal font-normal"
     >
       <Skeleton
-        class="m-0 inline-flex h-full w-16 items-end text-left text-sm font-normal leading-normal"
+        class="m-0 inline-flex h-full w-16 items-end text-left text-sm leading-normal font-normal"
         >Title</Skeleton
       >
     </dt>
 
-    <dd class="flex-0 m-0 flex justify-end">
+    <dd class="m-0 flex flex-0 justify-end">
       <Skeleton class="text-base-700 block w-14 font-medium">
         Subtotal
       </Skeleton>
     </dd>
 
     <dt
-      class="text-base-700 group m-0 flex-1 items-center text-left text-sm font-normal leading-normal"
+      class="text-base-700 group m-0 flex-1 items-center text-left text-sm leading-normal font-normal"
     >
       <Skeleton
-        class="m-0 h-full w-24 text-left text-sm font-normal leading-normal"
+        class="m-0 h-full w-24 text-left text-sm leading-normal font-normal"
         >Title</Skeleton
       >
     </dt>
 
-    <dd class="flex-0 m-0 flex justify-end">
+    <dd class="m-0 flex flex-0 justify-end">
       <Skeleton class="text-base-700 block w-16 font-medium">
         Subtotal
       </Skeleton>

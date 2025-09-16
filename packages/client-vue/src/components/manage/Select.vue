@@ -40,9 +40,12 @@
 
     <template v-if="!readonly" #additional-item>
       <slot name="additional-item">
-        <p @click="doAdd" class="w-full py-1 text-sm">
+        <span
+          @click="doAdd"
+          class="text-md flex w-full items-center space-x-2 py-0.5 font-normal"
+        >
           {{ t(`${i18nKey ?? "manage"}.actions.add`) }}
-        </p>
+        </span>
       </slot>
     </template>
   </SelectCards>
@@ -57,7 +60,7 @@ import { useVModel } from "@vueuse/core";
 // --- internal
 
 // --- components
-import { SelectCards, Link } from "@upmind-automation/upmind-ui";
+import { SelectCards } from "@upmind-automation/upmind-ui";
 import Item from "./Item.vue";
 
 // --- utils
@@ -94,7 +97,7 @@ await isReady();
 
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
-  defaultValue: defaultItem.value?.id
+  defaultValue: defaultItem()?.id
 });
 
 // -----------------------------------------------------------------------------

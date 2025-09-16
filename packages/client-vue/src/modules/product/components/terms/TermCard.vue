@@ -7,12 +7,16 @@
             ? t(`product.terms.cycle.${props.cycle}`)
             : props.title
         }}
+        <template v-if="props.cycle && props.cycle > 0">
+          {{ t("product.term") }}
+        </template>
       </strong>
 
       <Promotion
         v-for="promotion in props.promotions"
         :key="promotion.code.toString()"
         v-bind="promotion"
+        size="sm"
       />
     </div>
 
@@ -26,7 +30,7 @@
         :cycle="props.cycle"
         :ui-config="{
           pricing: {
-            current: styles.product.config.grid.item.total
+            current: [styles.product.config.grid.item.total]
           }
         }"
       />
@@ -78,7 +82,7 @@ const { t, te } = useI18n();
 
 const meta = computed(() => ({
   hasPromotions: !isEmpty(props.promotions) || props.meta?.mixed,
-  isSelected: !!props.select
+  isSelect: !!props.select
 }));
 
 const styles = useStyles(

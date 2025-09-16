@@ -11,7 +11,7 @@
       v-if="!!searchQuery"
       class="m-0 flex max-h-full flex-col overflow-auto p-0"
     >
-      <Loading :active="meta.isLoading" class="w-full">
+      <Loading :active="meta.isLoading" class-active="w-full">
         <CategoryItem
           v-for="category in filteredCategories"
           v-model="modelValue"
@@ -22,7 +22,7 @@
     </ul>
 
     <ul v-else class="m-0 flex max-h-full flex-col overflow-auto p-0">
-      <Loading :active="meta.isLoading" class="w-full">
+      <Loading :active="meta.isLoading" class-active="w-full">
         <CategoryItem :category="all" v-model="modelValue" />
         <CategoryItem
           v-for="category in categories"

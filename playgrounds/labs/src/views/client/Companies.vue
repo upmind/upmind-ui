@@ -1,5 +1,5 @@
 <template>
-  <UpmContentSection class="mx-auto max-w-app" title="Companies">
+  <UpmContentSection class="max-w-app mx-auto" title="Companies">
     <UpmManage
       v-if="meta.isAuthenticated"
       i18n-key="client.company"

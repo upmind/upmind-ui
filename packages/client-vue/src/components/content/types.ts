@@ -1,7 +1,10 @@
 // --- external
-import type { VariantProps } from "class-variance-authority";
+import type { CxOptions, VariantProps } from "class-variance-authority";
 import type { HTMLAttributes } from "vue";
-import type { InterstitialProps } from "@upmind-automation/upmind-ui";
+import type {
+  InterstitialProps,
+  LayoutProps
+} from "@upmind-automation/upmind-ui";
 
 // --- internal
 import type { titleVariants } from "./content.config";
@@ -23,12 +26,12 @@ export interface ContentSectionProps {
   tagline?: string;
   class?: HTMLAttributes["class"];
   uiConfig?: {
-    root?: string;
-    header?: string;
-    title?: string;
-    tagline?: string;
-    content?: string;
-    footer?: string;
+    root?: CxOptions;
+    header?: CxOptions;
+    title?: CxOptions;
+    tagline?: CxOptions;
+    content?: CxOptions;
+    footer?: CxOptions;
   };
 }
 
@@ -39,4 +42,19 @@ export interface I18nText {
 
 export interface InterstitialExtendedProps extends InterstitialProps {
   i18nTitle?: I18nText;
+}
+export interface SectionProps {
+  variant?: LayoutProps["variant"];
+  title?: string;
+  as?: string;
+  class?: HTMLAttributes["class"];
+  aside?: boolean;
+  uiConfig?: {
+    section: {
+      root: CxOptions;
+      header: CxOptions;
+      title: CxOptions;
+      content: CxOptions;
+    };
+  };
 }

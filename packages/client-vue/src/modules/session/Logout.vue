@@ -1,19 +1,15 @@
 <template>
   <Layout>
-    <ContentSection v-auto-animate class="flex flex-grow items-center">
+    <ContentSection v-auto-animate class="flex grow items-center">
       <Interstitial
         v-bind="props"
         :title="t('session.end.title')"
         :text="t('session.end.text')"
         :actions="[
           {
-            as: 'a',
+            ...storefrontRoute,
             color: 'secondary',
-            href: storefrontUrl,
-            appendIcon: {
-              icon: 'arrow-right',
-              size: '2xs'
-            },
+            iconAppend: 'arrow-right',
             label: t('session.end.actions.continue')
           }
         ]"
@@ -49,19 +45,21 @@ import ContentSection from "../../components/content/ContentSection.vue";
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
-const router = useRouter();
 const { t } = useI18n();
 const { isResolved } = useRoutingEngine();
 const { logout } = useSession();
-const { storefrontUrl } = useBrand();
+const { storefrontRoute } = useBrand();
 
 // if we are not logged out, we should log out
-await isResolved(ROUTE.SESSION_END).catch(() => logout());
+await isResolved(ROUTE.SESSION_END).catch(() => {
+  logout();
+});
 
 const props = withDefaults(defineProps<InterstitialProps>(), {
-  open: true,
   modal: true,
   skrim: "light",
+  open: true,
+  to: "#vue-app",
 
   animatedIcon: () => ({
     icon: "keys",

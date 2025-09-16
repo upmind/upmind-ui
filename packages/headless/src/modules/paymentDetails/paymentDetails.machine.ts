@@ -164,6 +164,11 @@ export default createMachine(
           REFRESH: [
             {
               target: "available.loading",
+              actions: ["clearGateway", "refresh"],
+              cond: "hasCurrencyChanged"
+            },
+            {
+              target: "available.loading",
               actions: "refresh",
               cond: "hasChanged"
             },
@@ -287,6 +292,16 @@ export default createMachine(
         }
       }),
 
+      clearGateway: assign({
+        actors: ({ actors }: PaymentDetailsContext) => {
+          if (actors?.gateway) {
+            stopActor(actors.gateway);
+            unset(actors, "gateway");
+          }
+          return actors;
+        }
+      }),
+
       refresh: assign({
         orderId: (_context, { data }: AnyEventObject) => data?.id,
         clientId: (_context, { data }: AnyEventObject) => data?.client_id,
@@ -379,23 +394,21 @@ export default createMachine(
       shouldUpdate: ({ autoupdate, orderId, amount }, _event) =>
         !!autoupdate && !!orderId && amount !== 0,
 
+      hasCurrencyChanged: (
+        { currency }: PaymentDetailsContext,
+        { data }: AnyEventObject
+      ) => currency?.id != data?.currency_id,
+
       hasChanged: (
         { orderId, currency, clientId, amount, address }: PaymentDetailsContext,
         { data }: AnyEventObject
       ) => {
         const orderChanged = orderId != data?.id;
-        const currencyChanged = currency?.id != data?.currency_id;
         const clientChanged = clientId != data?.client_id;
         const amountChanged = amount == (data?.unpaid_amount_converted || 0.0);
         const addressChanged = address?.id != data?.address?.id;
 
-        return (
-          orderChanged ||
-          currencyChanged ||
-          clientChanged ||
-          amountChanged ||
-          addressChanged
-        );
+        return orderChanged || clientChanged || amountChanged || addressChanged;
       }
     },
 

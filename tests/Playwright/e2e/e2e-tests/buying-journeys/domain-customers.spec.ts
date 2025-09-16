@@ -29,7 +29,7 @@ async function enterDomainDetails() {
     `${fakerEN_GB.location.city()}`,
     `${fakerEN_GB.location.state()}`,
     `${fakerEN_GB.location.zipCode()}`,
-    "BS"
+    "GB"
   );
 }
 
@@ -46,14 +46,15 @@ test.describe("Domain customers", () => {
     test("Logged in customer", async ({ page }) => {
       await getClientToken(
         page,
-        Logins.checkoutUser.username,
-        Logins.checkoutUser.password
+        Logins.domain1.username,
+        Logins.domain1.password
       );
       await enterDomainDetails();
       await page.keyboard.press("Escape");
       await productConfig.confirmAndProceed.click();
       await basket.proceedToCheckout.click();
-      await checkout.payWithBankTransfer();
+      await checkout.selectPaymentMethod("Direct Bank Transfer");
+      await page.getByTestId("button-place-order").click();
       await expect(page.getByRole("dialog")).toContainText(
         "Converting your order"
       );
@@ -65,11 +66,9 @@ test.describe("Domain customers", () => {
       await productConfig.confirmAndProceed.click();
       await basket.proceedToCheckout.click();
       await page.getByText("Log in here").click();
-      await login.inputLogin(
-        Logins.checkoutUser.username,
-        Logins.checkoutUser.password
-      );
-      await checkout.payWithBankTransfer();
+      await login.inputLogin(Logins.domain2.username, Logins.domain2.password);
+      await checkout.selectPaymentMethod("Direct Bank Transfer");
+      await page.getByTestId("button-place-order").click();
       await expect(page.getByRole("dialog")).toContainText(
         "Converting your order"
       );
@@ -88,9 +87,10 @@ test.describe("Domain customers", () => {
         `${fakerEN_GB.location.streetAddress()}`,
         `${fakerEN_GB.location.city()}`,
         "HU15 1EG",
-        "07111111111"
+        null
       );
-      await checkout.payWithBankTransfer();
+      await checkout.selectPaymentMethod("Direct Bank Transfer");
+      await page.getByTestId("button-place-order").click();
       await expect(page.getByRole("dialog")).toContainText(
         "Converting your order"
       );

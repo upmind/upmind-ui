@@ -27,53 +27,36 @@
       @update:model-value="setModel"
       :class="styles.session.auth.form"
       :actions="authActions"
-    />
+    >
+      <template v-if="currentForm === 'register'" #footer>
+        <TermsAndConditions
+          class="text-emphasis-medium text-sm"
+          :label="t('auth.actions.register')"
+        />
+      </template>
+    </Form>
   </div>
 
   <div v-if="!meta.isLoading" :class="styles.session.auth.actions">
     <slot name="toggle">
-      <Link
+      <Button
         v-if="!meta.isAuthenticated && meta.showLoginForm"
         @click="toggleForm('recover')"
-      >
-        {{ buttons.recover.label }}
-      </Link>
+        variant="link"
+        color="muted"
+        :label="buttons.recover.label"
+        size="lg"
+      />
     </slot>
     <Button
       v-if="meta.isAuthenticated"
       variant="ghost"
+      size="lg"
       block
       type="reset"
       @click.prevent="logout"
-    >
-      logout
-    </Button>
-
-    <i18n-t
-      v-if="currentForm === 'register'"
-      keypath="session.terms.label"
-      tag="p"
-      class="text-emphasis-medium text-sm"
-    >
-      <template #[`action`]>
-        {{ t("auth.actions.register") }}
-      </template>
-      <template #[`name`]>
-        {{ name }}
-      </template>
-      <template #[`terms`]>
-        <Link
-          v-if="uiCart?.terms_url"
-          as="a"
-          :href="uiCart.terms_url"
-          target="_blank"
-          class="font-normal text-inherit"
-        >
-          {{ t("session.terms.link") }}
-        </Link>
-        <template v-else>{{ t("session.terms.link") }}</template>
-      </template>
-    </i18n-t>
+      :label="t('auth.actions.logout')"
+    />
   </div>
 </template>
 
@@ -81,22 +64,17 @@
 // --- external
 import { computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { useVModel } from "@vueuse/core";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
+import TermsAndConditions from "../../brand/TermsAndConditions.vue";
 import Form from "../../../components/form/Form.vue";
 import config from "../sesssion.config";
-import {
-  ROUTE,
-  useSession,
-  useRoutingEngine,
-  useBrand
-} from "@upmind-automation/headless";
+import { useSession, useBrand } from "@upmind-automation/headless";
 import { useStyles, cn } from "@upmind-automation/upmind-ui";
 
 // --- custom elements
-import { Link, Alert, Button } from "@upmind-automation/upmind-ui";
+import { Alert, Button } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -131,7 +109,7 @@ const {
   setModel
 } = useSession();
 
-const { name, uiCart } = useBrand();
+const { uiCart } = useBrand();
 
 await isReady();
 
@@ -186,7 +164,8 @@ const authActions = computed(() => {
             ? t("auth.actions.recover")
             : t("auth.actions.continue"),
       block: true,
-      needsValid: true
+      needsValid: true,
+      size: "lg"
     }
   };
 });

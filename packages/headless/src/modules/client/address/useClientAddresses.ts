@@ -1,5 +1,5 @@
 // --- external
-import { ref, computed } from "vue";
+import { ref, computed, ComputedRef } from "vue";
 
 // --- internal
 import service from "./services";
@@ -8,7 +8,7 @@ import { invalidateQueryByKey } from "../../query";
 
 // --- utils
 import { useCollection } from "../../../utils";
-import { set, isEmpty } from "lodash-es";
+import { set, isEmpty, isArray } from "lodash-es";
 
 // --- types
 import type { Address } from "./types";
@@ -105,8 +105,7 @@ export const useClientAddresses = (
      * The reactive data property containing the list of client items.
      * This is populated by the query and updates automatically when the query state changes.
      */
-    data: query.data,
-
+    data: computed(() => (isArray(query.data.value) ? query.data.value : [])),
     /**
      * The current error state of the query.
      * This will be populated if the query fails to fetch data.
@@ -126,7 +125,7 @@ export const useClientAddresses = (
      * This is the company that is set as default for the current client.
      * @returns {Address} The default address if found, is otherwise undefined.
      */
-    default: computed(() => getDefault()),
+    default: getDefault,
 
     // --- methods
 

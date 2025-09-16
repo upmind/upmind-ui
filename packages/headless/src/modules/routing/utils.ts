@@ -34,7 +34,7 @@ import {
 // --- types
 import type { ActorRef } from "xstate";
 import { QUERY_PARAMS } from "@upmind-automation/types";
-import type { ProductModel } from "../product";
+import type { ProductProps } from "../product";
 import type { BasketProduct } from "../basketProduct";
 import { REQUIRES_ACTION, type Route } from "./types";
 
@@ -74,7 +74,7 @@ export const useRouteQueryParams = (route: Route) => {
     return isArray(value) ? first(value) : value;
   }
 
-  function getProductConfigs(): ProductModel[] {
+  function getProductConfigs(): ProductProps[] {
     // This is a complex object that is passed in as a query param
     //  and is used to configure a product with multiple options, attributrs, etc.
     // NB: If ther eare multiple products, then we will have multiple configs, and we ASSUME the index alligns with the product index.
@@ -120,10 +120,17 @@ export const useRouteQueryParams = (route: Route) => {
     // coupons
     const coupons = getParams(QUERY_PARAMS.COUPONS);
 
+    const currencyCode = getParam(
+      QUERY_PARAMS.CURRENCY,
+      getParam(QUERY_PARAMS.CURRENCY_CODE)
+    );
+
+    const currencyId = getParam(QUERY_PARAMS.CURRENCY_ID);
+
     // bundle
     const bundle = getParam("bundle");
 
-    const model = [
+    const model: ProductProps[] = [
       {
         productId,
         quantity: productQty ? toNumber(productQty) : 1,
@@ -131,7 +138,9 @@ export const useRouteQueryParams = (route: Route) => {
         subproducts,
         provisionFields,
         coupons,
-        bundle
+        bundle,
+        currencyCode,
+        currencyId
       }
     ];
 

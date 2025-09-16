@@ -1,27 +1,18 @@
 <template>
   <li :class="styles.summary.list.item.root">
-    <span :class="styles.summary.list.item.icon">
-      <Icon v-if="meta.hasIcon && icon" :icon="icon" size="2xs" />
-    </span>
+    <h5 :class="styles.summary.list.item.category">
+      {{ category }}
+      <template v-if="quantity && quantity > 1">
+        {{ `x&nbsp;${quantity}` }}
+      </template>
+    </h5>
 
-    <span :class="styles.summary.list.item.content">
-      <h5 :class="styles.summary.list.item.category">
-        {{ category }}
-      </h5>
-
-      <strong
-        :class="styles.summary.list.item.title"
-        :data-testid="`summary-value-${kebabCase(category)}`"
-        >{{ title ?? "&ndash;" }}</strong
-      >
-
-      <span
-        :class="styles.summary.list.item.quantity"
-        v-if="quantity && quantity > 1"
-      >
-        &nbsp;{{ `x&nbsp;${quantity}` }}
-      </span>
-    </span>
+    <p
+      :class="styles.summary.list.item.title"
+      :data-testid="`summary-value-${kebabCase(category)}`"
+    >
+      {{ title ?? "&ndash;" }}
+    </p>
   </li>
 </template>
 
@@ -32,9 +23,6 @@ import { computed } from "vue";
 
 // --- internal
 import config from "./summary.config";
-
-// --- components
-import { Icon } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { SummaryItemProps } from "./types";

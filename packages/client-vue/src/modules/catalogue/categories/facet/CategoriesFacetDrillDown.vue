@@ -6,17 +6,18 @@
       :key="`category-${index}`"
       v-bind="category"
       variant="ghost"
+      size="lg"
+      pill
       :class="
         cn([
           styles.products.facet.drillDown.action,
           category.current && 'bg-control-active-muted'
         ])
       "
-    >
-      <template #append>
-        <Icon icon="chevron-right" size="2xs" />
-      </template>
-    </Button>
+      @click="category.handler"
+      :label="category.label"
+      icon-append="chevron-right"
+    />
   </section>
 
   <Button
@@ -25,6 +26,8 @@
     v-bind="parentCategory"
     variant="outline"
     color="base"
+    size="lg"
+    pill
     :class="styles.products.facet.drillDown.back"
   >
     <template #prepend>

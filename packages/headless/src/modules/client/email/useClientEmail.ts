@@ -181,7 +181,7 @@ export const useClientEmail = (
   }
 
   function stop(): void {
-    stopService(service as InterpreterFrom<any>);
+    stopService(service);
   }
   // ---------------------------------------------------------------------------
   return {

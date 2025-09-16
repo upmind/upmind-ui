@@ -1,10 +1,13 @@
 <template>
-  <span v-if="isSupported" class="flex items-center gap-x-2">
-    <Icon :icon="copied ? 'check' : 'share'" size="xs" />
-    <Link @click="handleShare">
-      {{ copied ? t("product.copied") : t("product.share") }}
-    </Link>
-  </span>
+  <Button
+    v-if="isSupported"
+    @click="handleShare"
+    :icon="copied ? 'check' : 'share'"
+    size="lg"
+    variant="link"
+    :label="copied ? t('product.copied') : t('product.share')"
+    class="font-medium"
+  />
 </template>
 
 <script lang="ts" setup>
@@ -12,7 +15,7 @@
 import { useClipboard } from "@vueuse/core";
 
 // --- components
-import { Link, Icon } from "@upmind-automation/upmind-ui";
+import { Button } from "@upmind-automation/upmind-ui";
 
 // --- internal
 import { useI18n } from "vue-i18n";

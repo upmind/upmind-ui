@@ -1,12 +1,13 @@
 <template>
   <component
     v-if="modal || (!modal && open)"
+    to="#vue-app"
     :is="modal ? Dialog : 'section'"
     v-model:open="open"
     size="3xl"
     :title="t(`${i18nKey ?? 'manage'}.title`, { isNew: !props.modelValue })"
   >
-    <Skeleton v-if="meta.isLoading" :i18nKey="i18nKey" />
+    <Skeleton v-if="meta.isLoading" :i18nKey="i18nKey" :modal="modal" />
 
     <template v-else>
       <Alert
@@ -38,6 +39,7 @@
             :disabled="meta.isProcessing"
             :processing="meta.isProcessing"
             :no-cancel="!modal"
+            :modal="modal"
             :loading="meta.isLoading"
             @save="doResolve"
             @cancel="doReject"

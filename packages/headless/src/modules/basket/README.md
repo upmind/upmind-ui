@@ -34,7 +34,6 @@ The module operates as a state machine with built-in context to manage user bask
 - **Loading**: In this initial state, the module checks if there is an existing basket. If present, it proceeds to the **Processed** state. Otherwise, it generates an empty basket in the **Generating** state.
 
 - **Processing**: This state represents a processing state for specific actions, which can be invoked as needed. It has a sub-state, **Generating**
-
   - **Generating**: In this state, the module generates a role based token. Once generated, it transitions to the **Persisting** state.
 
 - **Processed**: This state indicates that a valid basket is available. It has a sub-state, **Available**.

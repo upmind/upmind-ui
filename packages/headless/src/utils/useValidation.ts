@@ -163,13 +163,20 @@ function mapLaravelRuleToJSONSchema(
         option => has(option, "label") && has(option, "value")
       )
     ) {
+      const enums: (string | null)[] = map(
+        field?.options,
+        ({ value }) => value
+      );
+      if (!field.validation_rules.includes("required")) enums.push(null);
+
       return {
-        enum: map(field?.options, ({ value }) => value),
+        enum: enums,
         options: map(field?.options, ({ label, value }) => ({ label, value }))
       };
     } else {
-      const values = rule.substring(3).split(",");
-      return { enum: values };
+      const enums: (string | null)[] = rule.substring(3).split(",");
+      if (!field.validation_rules.includes("required")) enums.push(null);
+      return { enum: enums };
     }
   } else if (rule.startsWith("not_in:")) {
     const values = rule.substring(7).split(",");

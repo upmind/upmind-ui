@@ -1,27 +1,27 @@
 <template>
-  <Alert
-    color="error"
-    icon="alert"
-    icon-size="xs"
-    variant="solid"
-    class="p-2 px-3"
-  >
+  <Alert color="error" icon="alert">
     <template #title>
-      <h5 class="m-0 hidden md:inline">{{ t("basket.item.md.invalid") }}</h5>
-      <h5 class="m-0 md:hidden">{{ t("basket.item.base.invalid") }}</h5>
+      <h5 class="m-0 hidden font-normal md:inline">
+        {{ t("basket.item.md.invalid") }}
+      </h5>
+      <h5 class="m-0 font-normal md:hidden">
+        {{ t("basket.item.base.invalid") }}
+      </h5>
     </template>
     <template #action>
-      <router-link :to="editLink">
-        <Button variant="link" size="sm" color="error" class="-mr-1 underline">
-          <p class="m-0 hidden md:inline">
-            {{ t("basket.item.md.invalidAction") }}
-          </p>
-          <p class="m-0 md:hidden">{{ t("basket.item.base.invalidAction") }}</p>
-          <template #append>
-            <Icon icon="chevron-right" size="xs" class="-ml-1.5" />
-          </template>
-        </Button>
-      </router-link>
+      <Button
+        :as="RouterLink"
+        :to="editLink"
+        variant="link"
+        size="sm"
+        color="error"
+        icon-append="arrow-right"
+      >
+        <p class="m-0 hidden md:inline">
+          {{ t("basket.item.md.invalidAction") }}
+        </p>
+        <p class="m-0 md:hidden">{{ t("basket.item.base.invalidAction") }}</p>
+      </Button>
     </template>
   </Alert>
 </template>
@@ -30,6 +30,7 @@
 // --- external
 import { useI18n } from "vue-i18n";
 import { computed } from "vue";
+import { RouterLink } from "vue-router";
 
 // --- components
 import { Alert, Button, Icon } from "@upmind-automation/upmind-ui";

@@ -10,21 +10,27 @@ import { useBasketProductPending } from "./useBasketProductPending";
 
 // --- utils
 import {
-  get,
-  set,
+  defaults,
   find,
-  keys,
-  omit,
-  first,
-  isNil,
-  unset,
   forEach,
+  get,
   isEmpty,
   isEqual,
-  defaults,
-  isString
+  isNil,
+  isString,
+  keys,
+  last,
+  omit,
+  omitBy,
+  set,
+  unset
 } from "lodash-es";
-import { DetailedError, ErrorOrigin, useSessionStorage } from "../../utils";
+import {
+  DetailedError,
+  ErrorOrigin,
+  stopService,
+  useSessionStorage
+} from "../../utils";
 
 // --- types
 import { responseCodes, compactDeep } from "../../utils";
@@ -33,13 +39,18 @@ import type { ActorRef, State, Subscription } from "xstate";
 
 type PendingProduct = ReturnType<typeof useBasketProductPending>;
 
-type UseBasketProductPending = ReturnType<typeof useBasketProductPending>;
+export type UseBasketProductPending = ReturnType<
+  typeof useBasketProductPending
+>;
 // -----------------------------------------------------------------------------
 // --- Singletons
 
-let productConfigs: Record<string, ProductModel> = {};
-let productsPending: Record<string, UseBasketProductPending> = {}; // store the product productsPending
-let subscriptions: Record<string, Subscription> = {}; // store subscriptions to changes on the product
+let productConfigs: Record<ProductProps["productId"], ProductModel> = {};
+let productsPending: Record<
+  ProductProps["productId"],
+  UseBasketProductPending
+> = {}; // store the product productsPending
+let subscriptions: Record<ProductProps["productId"], Subscription> = {}; // store subscriptions to changes on the product
 
 // -----------------------------------------------------------------------------
 
@@ -76,15 +87,15 @@ export const useBasketProductsPending = () => {
   }
 
   async function ensure(
-    pid: string,
+    pid: ProductProps["productId"],
     model: ProductProps,
     force: boolean = false
   ): Promise<UseBasketProductPending> {
     const product = find(
       productsPending,
-      ({ model }) => model.value?.productId === pid
+      ({ model, meta }) =>
+        model.value?.productId === pid && !meta.value?.isComplete
     );
-
     if (isEmpty(product) || force) {
       return add(model)
         .then(async instance => {
@@ -139,14 +150,14 @@ export const useBasketProductsPending = () => {
     }
   }
 
-  function subscribe(pid: string, actor: ActorRef<any>) {
+  function subscribe(pid: ProductProps["productId"], actor: ActorRef<any>) {
     const subscription = actor.subscribe((state: State<any>) => {
       if (state.matches("error")) {
         unsetProduct(pid);
       } else if (state.matches("available")) {
         setProduct(pid, get(state, "context.model"));
       } else if (state.done) {
-        unsetProduct(pid);
+        resolve(pid);
       }
     });
     set(subscriptions, pid, subscription);
@@ -154,11 +165,17 @@ export const useBasketProductsPending = () => {
 
   // ---
 
+  function exists(pid: ProductProps["productId"]): boolean {
+    const model = get(productConfigs, pid);
+    return isEmpty(model);
+  }
+
   async function getProduct(
-    pid?: string,
-    sync?: boolean
+    pid?: ProductProps["productId"],
+    sync?: boolean,
+    force?: boolean
   ): Promise<UseBasketProductPending> {
-    const productId = pid || first(keys(productConfigs));
+    const productId = pid || last(keys(productConfigs));
     if (!productId) {
       return Promise.reject(
         new DetailedError(
@@ -174,7 +191,8 @@ export const useBasketProductsPending = () => {
     }
 
     const model = get(productConfigs, productId, { productId, quantity: 1 });
-    return ensure(productId, model)
+
+    return ensure(productId, model, force)
       .then(instance => {
         if (sync) subscribe(productId, instance.service);
         return instance;
@@ -189,45 +207,55 @@ export const useBasketProductsPending = () => {
       });
   }
 
-  function setProduct(productId: string, value?: ProductModel | State<any>) {
+  function setProduct(
+    pid: ProductProps["productId"],
+    value?: ProductModel | State<any>
+  ) {
     const safeValue = omit(value, "id");
 
-    const model = defaults(safeValue, { productId });
+    const model = defaults(safeValue, { productId: pid });
 
-    set(productConfigs, productId, model);
+    set(productConfigs, pid, model);
     storage.set("pendingProducts", productConfigs);
   }
 
-  function unsetProduct(pid: string) {
+  function unsetProduct(pid: ProductProps["productId"]) {
     const product = find(
       productsPending,
       ({ model }) => model.value?.productId === pid
     ) as UseBasketProductPending;
-
     // ensure we unsubscribe from the item if it exists
     const sub = get(subscriptions, pid);
-    sub?.unsubscribe();
-    unset(subscriptions, pid);
-
-    // stop the product if it exists and remove it from the pending products
-    if (product?.service?.getSnapshot().status == InterpreterStatus.Running) {
-      product.stop();
-      unset(productsPending, product.id);
+    if (sub?.unsubscribe) {
+      sub?.unsubscribe();
+      unset(subscriptions, pid);
     }
 
-    // remove the product from the pending products storage
-    unset(productConfigs, pid);
-    storage.set("pendingProducts", productConfigs);
+    // stop the product if it exists and remove it from the pending products
+    if (product?.service) {
+      stopService(product.service);
+      unset(productsPending, product.id);
+    }
   }
 
   // resolve is called after successfully adding a product to the basket
-  function resolve(product?: string | ActorRef<any>) {
-    const target = isString(product)
-      ? get(productsPending, product)
-      : get(productsPending, product?.id ?? "");
+  function resolve(target?: ProductProps["productId"] | ActorRef<any>) {
+    const pid = isString(target)
+      ? target
+      : get(productsPending, target!.id)?.model?.value?.productId;
 
-    const pid = get(target, "state.context.model.productId");
-    if (pid) unsetProduct(pid);
+    if (pid) {
+      unsetProduct(pid);
+      // as we have successfully added our config we can remove it from storage
+      unset(productConfigs, pid);
+      storage.set("pendingProducts", productConfigs);
+    }
+
+    // NB ensure any complete products are removed from the pending products
+    productsPending = omitBy(
+      productsPending,
+      ({ meta }) => meta.value?.isComplete
+    );
   }
 
   function addMany(configs?: ProductModel[]): void {
@@ -237,6 +265,7 @@ export const useBasketProductsPending = () => {
 
   function clear() {
     forEach(productConfigs, (_model, pid) => unsetProduct(pid));
+    productConfigs = {};
     storage.clear();
   }
 
@@ -251,12 +280,12 @@ export const useBasketProductsPending = () => {
     })),
 
     configure: async (
-      pid?: string | ActorRef<any>,
+      pid?: ProductProps["productId"] | ActorRef<any>,
       sync?: boolean
     ): Promise<PendingProduct> => {
       const instance = isActor(pid)
         ? useBasketProductPending(pid as ActorRef<any>)
-        : await getProduct(pid as string, sync);
+        : await getProduct(pid as ProductProps["productId"], sync);
 
       if (isEmpty(instance))
         return Promise.reject(
@@ -288,6 +317,7 @@ export const useBasketProductsPending = () => {
     addMany,
     clear,
 
+    exists,
     add: ensure,
     get: getProduct,
     remove: unsetProduct

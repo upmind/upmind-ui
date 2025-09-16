@@ -22,7 +22,7 @@
     "configuration": {
       "actions": {
         "reject": "Cancel",
-        "resolve": "Confirm and proceed"
+        "resolve": "Add to basket"
       },
       "description": "We need some information to add this product to your basket.",
       "title": "Configure your product"

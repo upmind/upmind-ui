@@ -124,8 +124,8 @@ const modelValue = useVModel(props, "modelValue", emits, {
   deep: true,
   defaultValue: {
     companyId: undefined,
-    addressId: defaultAddress.value?.id,
-    phoneId: billingMeta.value.needsPhone ? defaultPhone.value?.id : undefined
+    addressId: defaultAddress()?.id,
+    phoneId: billingMeta.value.needsPhone ? defaultPhone()?.id : undefined
   }
 });
 
@@ -164,11 +164,10 @@ const selectedPhone = computed<string | undefined>({
 
 function doResolve(value: BillingModel) {
   selectedPhone.value = billingMeta.value.needsPhone
-    ? (value?.phoneId ?? defaultPhone.value?.id ?? undefined)
+    ? (value?.phoneId ?? defaultPhone()?.id ?? undefined)
     : undefined;
 
-  selectedAddress.value =
-    value?.addressId ?? defaultAddress.value?.id ?? undefined;
+  selectedAddress.value = value?.addressId ?? defaultAddress()?.id ?? undefined;
 
   showForm.value = false;
 }
@@ -179,12 +178,11 @@ await Promise.all([isAddressesReady(), isPhonesReady()]).then(() => {
   // Ensure modelValue is initialized with default values
   modelValue.value = {
     companyId: undefined,
-    addressId: modelValue.value?.addressId ?? defaultAddress.value?.id,
+    addressId: modelValue.value?.addressId ?? defaultAddress()?.id,
     phoneId: billingMeta.value.needsPhone
-      ? (modelValue.value?.phoneId ?? defaultPhone.value?.id)
+      ? (modelValue.value?.phoneId ?? defaultPhone()?.id)
       : undefined
   };
-
   showForm.value = addressMeta.value.isEmpty && phoneMeta.value.isEmpty;
 });
 </script>

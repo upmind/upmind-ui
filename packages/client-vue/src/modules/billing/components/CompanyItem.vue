@@ -1,23 +1,24 @@
 <template>
-  <div class="flex w-full flex-col gap-y-1">
+  <div class="flex w-full flex-col gap-1">
     <header
-      class="pointer-events-none flex w-full !cursor-pointer items-start justify-between"
+      class="pointer-events-none flex w-full cursor-pointer! items-start justify-between"
     >
-      <h3 class="m-0 flex items-center gap-x-2 text-sm font-semibold">
+      <h3 class="text-md m-0 flex items-center gap-x-2 font-medium">
         {{ title }}
         <Badge
           v-if="meta?.isDefault"
           variant="flat"
-          size="xs"
+          size="sm"
           :label="t('client.company.default')"
         />
       </h3>
 
-      <Link
+      <Button
         v-if="!props.readonly"
         :label="t('client.company.actions.edit')"
-        size="xs"
-        variant="muted"
+        size="sm"
+        color="muted"
+        variant="link"
         tabindex="-1"
         @mousedown.stop.prevent
         class="pointer-events-auto h-4"
@@ -25,15 +26,29 @@
       />
     </header>
 
-    <p class="text-emphasis-high m-0 text-sm">
+    <p class="text-emphasis-high m-0 text-sm/tight">
       {{ description }}
     </p>
 
     <p
-      v-if="regNumber || vatNumber"
-      class="text-emphasis-medium m-0 inline-flex flex-wrap gap-x-1 text-sm"
+      v-if="regNumber"
+      class="text-emphasis-medium m-0 inline-flex flex-wrap gap-x-1 text-sm/tight"
     >
-      {{ t("client.company.details", { title, regNumber, vatNumber }) }}
+      {{ t("client.company.number", { title, regNumber }) }}
+    </p>
+
+    <p
+      v-if="tax?.number"
+      class="text-emphasis-medium m-0 inline-flex flex-wrap gap-x-1 text-sm/tight"
+    >
+      {{ t("client.company.tax.number", { title, taxNumber: tax.number }) }}
+
+      <template v-if="meta.hasTaxValidation && meta.hasTax">
+        <Tooltip to="#vue-app" :label="validationReason" color="primary">
+          <Icon v-if="meta.hasValidTax" icon="check-circle" size="2xs" />
+          <Icon v-else icon="alert-triangle" size="2xs" />
+        </Tooltip>
+      </template>
     </p>
   </div>
 </template>
@@ -43,11 +58,11 @@
 import { useI18n } from "vue-i18n";
 
 // --- components
-import { Link, Badge } from "@upmind-automation/upmind-ui";
+import { Badge, Button, Icon, Tooltip } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { Company } from "@upmind-automation/headless";
-import type { register } from "module";
+import { computed } from "vue";
 
 // -----------------------------------------------------------------------------
 
@@ -69,4 +84,16 @@ const doEdit = () => {
   if (!props?.id) return;
   emits("edit", props.id);
 };
+
+const validationReason = computed(() => {
+  switch (props.tax?.valid) {
+    case 1:
+      return t("client.company.tax.valid", props.tax.checked);
+    case 0:
+      return t("client.company.tax.invalid", props.tax);
+    case null:
+    default:
+      return t("client.company.tax.pending", props.tax);
+  }
+});
 </script>

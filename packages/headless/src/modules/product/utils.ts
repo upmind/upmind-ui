@@ -4,6 +4,7 @@ import { useBrand } from "../brand";
 
 // --- utils
 import {
+  useMoney,
   DetailedError,
   ErrorOrigin,
   responseCodes,
@@ -42,24 +43,28 @@ import {
   subtract,
   times,
   toNumber,
+  trim,
   uniq,
   values
 } from "lodash-es";
 
 import type {
   IBasketProduct,
+  IImage,
   IProduct,
   IProductAttribute,
-  IProductCategory,
+  IProductPrice,
   IProductOption,
-  IProductPrice
+  IProductCategory
 } from "@upmind-automation/types";
 // --- types
 import {
   BrandConfigKeys,
   DefaultPaymentPeriod,
   ProductTypes,
-  PromotionDisplayTypes
+  PromotionDisplayTypes,
+  ProvisionCategoryCodes,
+  PriceDisplayTypes
 } from "@upmind-automation/types";
 
 import type {
@@ -73,19 +78,22 @@ import type {
   ProductBundles,
   ProductConfigContext,
   ProductDetails,
+  ProductImage,
+  TermDetails,
   ProductModel,
   ProductProps,
-  ProductSummaryDetail,
-  ProductSummaryDetailWithPrice,
+  SubproductModel,
+  SubproductValue,
   PromotionDetails,
   SubproductDetails,
-  SubproductModel,
+  ProductSummaryDetail,
+  ProductSummaryDetailWithPrice,
   SubproductModelValue,
-  SubproductValue,
-  TermDetails,
-  UIMeta
+  UIMeta,
+  ProductBreadcrumb
 } from "./types";
 import { ErrorObject } from "ajv";
+import { IBrandMeta } from "../brand/types";
 
 // -----------------------------------------------------------------------------
 
@@ -122,13 +130,13 @@ export function useUischemaTitle(
     )
   ) as string[];
 
-  if (isEmpty(templates)) fallback;
+  if (isEmpty(templates)) return fallback;
 
   // ---
   const template = first(templates) ?? "";
   const result = template.replace(
     /{{([^{}]+)}}/g,
-    (keyExpr, key) =>
+    (_keyExpr, key) =>
       useTranslateField(basketProduct, key) ??
       useTranslateField(product, key) ??
       ""
@@ -153,13 +161,22 @@ export function useProductName(
 ): string {
   const name = useTranslateName(product);
 
-  // TODO: check product type based on if (product.provision_blueprint?.code == "domain-names" | ProvisionCategoryCodes.DOMAINS) {}
-  // for now...we will just append the service identifier if it exists
-  if (basketProduct?.service_identifier) {
-    return `${name} (${basketProduct.service_identifier})`;
-  }
+  if (!basketProduct?.service_identifier) return name;
 
-  return name;
+  // individual product types may have different naming conventions
+  switch (basketProduct?.product.provision_blueprint?.code) {
+    case ProvisionCategoryCodes.DOMAIN_NAMES:
+      return basketProduct?.service_identifier;
+
+    case ProvisionCategoryCodes.SHARED_HOSTING:
+    case ProvisionCategoryCodes.AUTO_LOGIN:
+    case ProvisionCategoryCodes.SEO:
+    case ProvisionCategoryCodes.WEBSITE_BUILDERS:
+    case ProvisionCategoryCodes.SOFTWARE_LICENSES:
+    case ProvisionCategoryCodes.SERVERS:
+    default:
+      return trim(`${name} (${basketProduct.service_identifier})`);
+  }
 }
 
 /**
@@ -455,8 +472,11 @@ export function parseSubproducts(
             productId: defaultSubproduct.id
           });
         } else if (
-          (subproduct?.meta.required && !subproduct.meta.multiple) ||
-          (subproduct.meta.multiple && subproduct.values?.length === 1)
+          // TODO: simplyfy this to be just: we jsut need to update the ui errors before doing this
+          //  subproduct?.meta.required && subproduct.values?.length === 1
+          subproduct?.meta.required &&
+          (!subproduct.meta.multiple ||
+            (subproduct.meta.multiple && subproduct.values?.length === 1))
         ) {
           const pid = get(first(subproduct.values), "id");
           if (pid) set(selected, pid, { productId: pid });
@@ -482,6 +502,16 @@ export function parseSubproducts(
 
             // safety check, ensure we have a valid product otherwise bail
             if (isEmpty(product)) return result;
+
+            // Check if the product has pricing for the selected term
+            // Do not filter out products with cycle 0 (one-time purchases)
+            // NB: Only check products WITH pricing (aka options)
+            if (
+              !isEmpty(product.pricing) &&
+              !some(product.pricing, ["cycle", model?.term]) &&
+              !some(product.pricing, ["cycle", 0])
+            )
+              return result;
 
             // ensure we have a valid unit_quantity
             value.quantity = parseQuantity(Number(value.quantity), product);
@@ -543,13 +573,28 @@ export const parseProductDetails = (
         transform: useTranslateName
       })
     ) as string[],
+    breadcrumb: iterateParents(rawProduct.category, [], {
+      valueKey: "name",
+      parentKey: "top_category",
+      transform: (category: IProductCategory) => {
+        return {
+          id: category.id,
+          label: useTranslateName(category)
+        } as ProductBreadcrumb;
+      }
+    }) as ProductBreadcrumb[],
     // ---
     cycle: rawProduct?.billing_cycle_months, // TODO check: cycle: rawProduct?.display_price_billing_cycle_months ?? rawProduct?.billing_cycle_months,
     defaultPaymentPeriod: rawProduct?.default_payment_period,
+    displayPrice: find(parseTermDetails(rawProduct.prices), [
+      "cycle",
+      rawProduct.display_price_billing_cycle_months
+    ]),
     // ---
     description: useTranslateField(rawProduct, "description"),
     excerpt: useTranslateField(rawProduct, "short_description"),
     imgUrl: useImageUrl(rawProduct?.image?.full_url, "400x400"),
+    images: parseProductImages(rawProduct?.images),
     // ---
     quantity: rawProduct?.min_order_quantity || rawProduct?.unit_quantity || 1,
     quantifiable: rawProduct?.order_type == 2,
@@ -560,42 +605,67 @@ export const parseProductDetails = (
         ? rawProduct?.max_order_quantity
         : Infinity,
     // ---
-    uiMeta: parseMeta(rawProduct?.meta ?? {}, rawProduct?.category),
+    uiMeta: parseMeta(
+      rawProduct?.meta ?? {},
+      rawProduct?.category ?? {},
+      (rawProduct?.brand?.meta as IBrandMeta)?.cart?.ui ?? {}
+    ),
     uiCategoryMeta: rawProduct?.category?.meta || undefined
   };
 };
 
 export const parseMeta = (
-  meta: UIMeta,
-  category?: IProductCategory
+  productMeta: UIMeta,
+  category?: IProductCategory,
+  brandMeta?: UIMeta
 ): Record<string, any> => {
-  const all = iterateParents(category, [], {
+  productMeta ??= {};
+  brandMeta ??= {};
+
+  const categoryMeta = iterateParents(category, [], {
     valueKey: "meta",
     parentKey: "top_category"
   });
 
-  return reduce(
-    all,
-    (result, value) => {
-      result = merge({}, result, value);
-      return result;
+  // Priority order: brand (lowest) → categories → product (highest)
+  // Start with brand meta, then merge each category meta, then product meta
+  let result = merge({}, brandMeta);
+
+  result = reduce(
+    categoryMeta,
+    (result, categoryMetaItem) => {
+      return merge({}, result, categoryMetaItem);
     },
-    meta || {}
+    result
   );
+
+  // Product meta has highest priority, so merge it last
+  return merge({}, result, productMeta);
 };
 
 export const parseTermDetails = (raw: IProductPrice[]): TermDetails[] => {
+  const money = useMoney();
+  const { uiCart } = useBrand();
+
   return map(orderBy(raw, "billing_cycle_months"), rawTerm => {
     const details: TermDetails = parseSummaryDetailWithPrice(rawTerm);
+    const trimTrailingZeroes =
+      uiCart.value?.ui?.product?.display_price?.trim_trailing_zeroes ?? false;
 
     details.price.monthlyFromCurrentAmount =
       rawTerm.monthly_price_from_discounted ?? rawTerm.monthly_price_from;
     details.price.monthlyFromCurrentPrice =
-      rawTerm.monthly_price_from_discounted_formatted ??
-      rawTerm.monthly_price_from_formatted;
+      money.parsePrice(rawTerm.monthly_price_from_discounted_formatted, {
+        trimTrailingZeroes
+      }) ??
+      money.parsePrice(rawTerm.monthly_price_from_formatted, {
+        trimTrailingZeroes
+      });
     details.price.monthlyFromRegularAmount = rawTerm.monthly_price_from;
-    details.price.monthlyFromRegularPrice =
-      rawTerm.monthly_price_from_formatted;
+    details.price.monthlyFromRegularPrice = money.parsePrice(
+      rawTerm.monthly_price_from_formatted,
+      { trimTrailingZeroes }
+    );
 
     return details;
   });
@@ -630,7 +700,11 @@ export const parseSubproductDetails = (
         description: useTranslateField(rawSubproduct.category, "description"),
         excerpt: useTranslateField(rawSubproduct.category, "short_description"),
         uiCategorymeta: rawSubproduct?.category.meta,
-        uiMeta: parseMeta(rawSubproduct?.meta ?? {}, rawSubproduct?.category),
+        uiMeta: parseMeta(
+          rawSubproduct?.meta ?? {},
+          rawSubproduct?.category,
+          (rawSubproduct?.brand?.meta as IBrandMeta)?.cart?.ui || {}
+        ),
         uiCategoryMeta: rawSubproduct?.category?.meta || undefined,
         meta: {
           multiple: rawSubproduct.category.multiple,
@@ -707,11 +781,32 @@ export const parseSummaryDetail = (
   overrides?: boolean
 ): ProductSummaryDetailWithPrice => {
   const { getBillingCycle } = useSystem();
-  const { includesTax } = useBrand();
+  const { includesTax, getConfigValue } = useBrand();
+
   const cycle = getBillingCycle(raw.billing_cycle_months);
 
   const discounted =
     !!raw.price_discounted && raw.price !== raw.price_discounted;
+
+  const displayType = getConfigValue<PriceDisplayTypes>(
+    BrandConfigKeys.PRICE_DISPLAY_TYPE
+  );
+
+  // NB: Context for displaying price as "/month" vs "/cycle":
+  // There are multiple brand settings that affect how prices are shown:
+  // - "lowest_monthly_price" and "abs_min": Both indicate that the price should be displayed as a monthly amount (e.g., "$5/month").
+  // - "min": Indicates that the price should be shown for the actual billing cycle (e.g., "$60/year" for a yearly cycle).
+  //
+  // Historically, we only had two options: show the regular cycle price, or show the lowest monthly price (by dividing the highest term price by its months).
+  // However, sometimes the lowest monthly price is not from the longest term, so we introduced "lowest_monthly_term" to calculate the true lowest monthly price.
+  //
+  // In summary:
+  // - Use "/month" display for "lowest_monthly_price" and "abs_min" settings.
+  // - Use "/cycle" display for "min" setting.
+  // - "lowest_monthly_term" ensures the actual lowest monthly price is shown, regardless of term length.
+  // This logic ensures price display is consistent with brand configuration and user expectations.
+  const useMonthlyFromPrice =
+    (cycle?.months ?? 0) > 1 && displayType !== PriceDisplayTypes.MONTHLY;
 
   return {
     cycle: raw.billing_cycle_months,
@@ -724,14 +819,16 @@ export const parseSummaryDetail = (
       discounted,
       includesTax: includesTax.value,
       free: (raw.price_discounted ?? raw.price) == 0,
-      overrides: !!overrides
+      overrides: !!overrides,
+      useMonthlyFromPrice
     }
   } as ProductSummaryDetailWithPrice;
 };
 
 export const parsePrice = (raw: IProductPrice): PriceDetail => {
   //  TODO: currently IProductPrice does not provide nett/gross values, only the brand setting
-  // const { checkIncludesTax } = useBrand();
+  const money = useMoney();
+  const { uiCart } = useBrand();
 
   const savingAmount =
     Math.round(subtract(raw.price, raw?.price_discounted || raw.price) * 100) /
@@ -739,12 +836,17 @@ export const parsePrice = (raw: IProductPrice): PriceDetail => {
 
   const discounted =
     !!raw.price_discounted && raw.price !== raw.price_discounted;
+  const trimTrailingZeroes =
+    uiCart.value?.ui?.product?.display_price?.trim_trailing_zeroes ?? false;
 
   return {
     currentAmount: raw.price_discounted ?? raw.price,
-    currentPrice: raw.price_discounted_formatted ?? raw.price_formatted,
+    currentPrice: money.parsePrice(
+      raw.price_discounted_formatted ?? raw.price_formatted,
+      { trimTrailingZeroes }
+    ),
     regularAmount: raw.price,
-    regularPrice: raw.price_formatted,
+    regularPrice: money.parsePrice(raw.price_formatted, { trimTrailingZeroes }),
     savingAmount,
     savingPrice: "", //TODO: missing formatted value
     savingPercent: discounted
@@ -1199,3 +1301,10 @@ function parseBundleConfig(raw: ProductBundle): ProductProps | undefined {
     silent: true // always silent for bundled products
   } as ProductProps;
 }
+
+export const parseProductImages = (images: IImage[]): ProductImage[] => {
+  return map(images, image => ({
+    url: useImageUrl(image.full_url, "400x400"),
+    default: !!image.default
+  })) as ProductImage[];
+};

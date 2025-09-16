@@ -19,6 +19,7 @@ import type { IBasket } from "@upmind-automation/types";
 import { TaxTagTypes } from "@upmind-automation/types";
 
 import { PaymentDetailsContext } from "../paymentDetails";
+import { BasketContext } from "./types";
 
 // -----------------------------------------------------------------------------
 
@@ -95,7 +96,10 @@ export const parseBasket = (data: any) => {
 
 // --- SUMMARY
 
-export const parseSummary = (data?: any, errors?: any) => {
+export const parseSummary = (
+  data?: IBasket,
+  errors?: any
+): BasketContext["summary"] => {
   const summary = {
     products: map(get(data, "products"), product =>
       parseBasketProduct(product, errors)
@@ -104,7 +108,7 @@ export const parseSummary = (data?: any, errors?: any) => {
       ? data.net_discount_amount_formatted
       : null, // only include the discount if there is one
     subtotal: data?.net_amount_formatted || "",
-    taxes: parseTaxes(data?.taxes),
+    taxes: parseTaxes(data?.taxes ?? []),
     total: data?.total_amount_formatted || ""
     // ---
   };
@@ -113,21 +117,24 @@ export const parseSummary = (data?: any, errors?: any) => {
 
 // --- TAXES
 
-export const parseTaxes = (taxes: any) => {
+export const parseTaxes = (taxes: IBasket["taxes"]) => {
   // we may have multiple taxes, and each tax may have multiple tags
   //  we want to return a unique list of tags and their values
   return reduce(
     taxes,
-    (result, tax) => {
+    (result: { title: string; amount: string }[], tax) => {
       // and we may have multiple tags for a single tax
       //  so parse them all and return a unique list
       // -- The old codebase just used the first tag, but lets see if we can do better
       const name = uniq(map(tax.tax_tag_data, parseTaxTagName)).join(", ");
-      set(result, name, tax.amount_formatted);
+      result.push({
+        title: name,
+        amount: tax.amount_formatted
+      });
 
       return result;
     },
-    {}
+    [] as { title: string; amount: string }[]
   );
 };
 

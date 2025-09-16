@@ -1,9 +1,11 @@
 <template>
   <del v-if="priceMeta.isDiscounted" :class="styles.pricing.ex">
     {{
-      priceMeta.canShowCycle && te("product.cycle")
-        ? t("product.cycle", { value: monthlyFromRegularPrice })
-        : regularPrice
+      t("product.was", [
+        priceMeta.canShowCycle && te("product.cycle")
+          ? t("product.cycle", { value: monthlyFromRegularPrice })
+          : regularPrice
+      ])
     }}
   </del>
 </template>
@@ -27,7 +29,7 @@ const { t, te } = useI18n();
 
 const priceMeta = computed(() => ({
   canShowCycle: props.showCycle && props.cycle,
-  isDiscounted: props.meta?.discounted
+  isDiscounted: props.discounted
 }));
 
 const styles = useStyles(

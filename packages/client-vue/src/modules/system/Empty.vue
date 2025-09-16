@@ -1,20 +1,18 @@
 <template>
   <Layout>
-    <ContentSection v-auto-animate class="flex flex-grow items-center">
+    <ContentSection v-auto-animate class="flex grow items-center">
       <Interstitial
         v-bind="props"
+        to="#vue-app"
         :modal="meta.useModal"
         :text="t('basket.empty.text')"
         :actions="[
           {
-            as: 'a',
+            ...storefrontRoute,
             color: 'primary',
-            href: storefrontUrl,
-            appendIcon: {
-              icon: 'arrow-right',
-              size: '2xs'
-            },
-            label: t('basket.empty.actions.continue')
+            iconAppend: 'arrow-right',
+            label: t('basket.empty.actions.continue'),
+            size: 'lg'
           }
         ]"
       >
@@ -58,8 +56,7 @@ const props = withDefaults(defineProps<InterstitialProps>(), {
 });
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
-const router = useRouter();
-const { storefrontUrl } = useBrand();
+const { storefrontRoute } = useBrand();
 const route = useRoute();
 const routeMeta = route.meta;
 

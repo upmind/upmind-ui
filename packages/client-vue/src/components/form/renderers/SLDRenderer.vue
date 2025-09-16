@@ -1,6 +1,6 @@
 <template>
   <FormField v-bind="fieldProps">
-    <InputExtended
+    <Input
       v-bind="appliedOptions"
       :model-value="control.data"
       :class="[{ 'py-0 pr-0': description }, appliedOptions?.class]"
@@ -11,7 +11,7 @@
           {{ description }}
         </footer>
       </template>
-    </InputExtended>
+    </Input>
   </FormField>
 </template>
 
@@ -25,7 +25,7 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../form.config";
 
 // --- components
-import { FormField, InputExtended } from "@upmind-automation/upmind-ui";
+import { FormField, Input } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";

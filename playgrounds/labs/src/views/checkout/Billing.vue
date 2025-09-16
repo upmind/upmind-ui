@@ -1,14 +1,14 @@
 <template>
-  <UpmContentSection class="mx-auto max-w-app" title="Addresses">
+  <UpmContentSection class="max-w-app mx-auto" title="Addresses">
     <template v-if="!meta.isAuthenticated && !meta.isLoading">
       <p class="mx-auto mt-4 w-full max-w-2xl pb-3 md:pb-3">
         <span class="font-normal"
           >{{ t(`session.${authMode}.actions.text`) }}&nbsp;</span
         >
 
-        <Link @click="toggleAuthMode">
+        <Button @click="toggleAuthMode" variant="link">
           {{ t(`session.${authMode}.actions.action`) }}
-        </Link>
+        </Button>
       </p>
 
       <Card class="mx-auto mt-4 w-full max-w-2xl pb-3 md:pb-3">
@@ -33,7 +33,7 @@ import {
   UpmContentSection,
   UpmAuth
 } from "@upmind-automation/client-vue";
-import { Card, Link } from "@upmind-automation/upmind-ui";
+import { Card, Button } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { AuthProps } from "@upmind-automation/client-vue";

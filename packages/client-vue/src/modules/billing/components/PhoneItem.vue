@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-center space-x-2 py-0.5">
     <span
-      class="border-control flex items-center justify-center space-x-2 text-sm"
+      class="border-control text-md flex items-center justify-center space-x-2"
     >
       <Avatar :icon="lowerCase(props.phone?.country ?? '')" size="3xs" />
 
@@ -9,7 +9,7 @@
         >+{{ props.phone?.countryCallingCode }}</span
       >
     </span>
-    <p class="text-sm">{{ props.phone?.nationalNumber }}</p>
+    <p class="text-md">{{ props.phone?.nationalNumber }}</p>
   </div>
 </template>
 

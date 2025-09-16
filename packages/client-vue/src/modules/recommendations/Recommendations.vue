@@ -1,21 +1,13 @@
 <template>
-  <Layout>
-    <aside v-auto-animate>
-      <div class="flex flex-col items-center justify-center p-2">
-        <SmartTitle
-          i18n-key="recommendations.header.title"
-          size="3xl"
-          align="center"
-        />
+  <Layout overflow="hidden">
+    <template #header>
+      <Header
+        title="recommendations.header.title"
+        :description="t('recommendations.header.subtitle')"
+      />
+    </template>
 
-        <!-- TODO: Bug: text-emphasis-medium refuses to work here -->
-        <p
-          class="text-foreground m-0 mb-12 mt-4 max-w-md text-center text-lg leading-normal opacity-60"
-        >
-          {{ t("recommendations.header.subtitle") }}
-        </p>
-      </div>
-
+    <template #default>
       <CardsCarousel
         :loading="meta?.isLoading"
         :processing="meta?.isProcessing"
@@ -32,7 +24,7 @@
       />
 
       <Card
-        class="md:bg-base mt-8 flex flex-col items-center justify-between bg-transparent !p-0 shadow-none md:mt-8 md:flex-row md:!px-8 md:!py-6 md:shadow-sm"
+        class="md:bg-base md: mt-8 flex flex-col items-center justify-between bg-transparent p-0! shadow-none md:mt-8 md:flex-row md:px-8! md:py-6!"
       >
         <div
           class="text-md order-last mt-4 text-center font-medium md:order-first md:mt-0 md:text-left"
@@ -44,20 +36,18 @@
           @click="doClose"
           :label="t('recommendations.toolbar.actions.continue')"
           color="primary"
+          size="lg"
           class="w-full md:w-auto"
-        >
-          <template #append>
-            <Icon icon="arrow-right" size="2xs" />
-          </template>
-        </Button>
+          iconAppend="arrow-right"
+          pill
+        />
       </Card>
-    </aside>
+    </template>
   </Layout>
 </template>
 
 <script lang="ts" setup>
 // --- external
-import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -69,10 +59,10 @@ import {
 } from "@upmind-automation/headless";
 
 // --- components
-import { Card, Button, Icon, Layout } from "@upmind-automation/upmind-ui";
+import { Card, Button, Layout } from "@upmind-automation/upmind-ui";
 import Configure from "./components/Configure.vue";
 import CardsCarousel from "./components/CardsCarousel.vue";
-import SmartTitle from "../../components/content/SmartTitle.vue";
+import Header from "../../components/content/Header.vue";
 
 // -----------------------------------------------------------------------------
 

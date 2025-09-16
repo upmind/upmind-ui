@@ -35,6 +35,14 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
     return value && typeof value === "object" && "productId" in value;
   }
 
+  const { basket: rawBasket } = useBasket();
+  if (!rawBasket.value)
+    throw new DetailedError(
+      "Basket not found",
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
+    );
+
   const actor: ActorRef<any> | undefined = isActor(data)
     ? (data as ActorRef<any>)
     : undefined;
@@ -42,6 +50,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
   const productProps: ProductProps | undefined = isProductProps(data)
     ? (omit(data, [
         "currencyId",
+        "currencyCode",
         "clientId",
         "promotions",
         "coupons",
@@ -51,24 +60,20 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
       ]) as ProductModel)
     : undefined;
 
-  const coupons = isProductProps(data) ? (data?.coupons ?? []) : [];
-  const subproducts = isProductProps(data) ? (data?.subproducts ?? []) : [];
-  const silent = isProductProps(data) ? (data?.silent ?? false) : false;
-  const bundle = isProductProps(data) ? data?.bundle : undefined;
-  const { basket: rawBasket } = useBasket();
-  if (!rawBasket.value)
-    throw new DetailedError(
-      "Basket not found",
-      responseCodes.Not_Found,
-      ErrorOrigin.Headless
-    );
-
   if (isEmpty(data) || (isEmpty(actor) && isEmpty(productProps?.productId)))
     throw new DetailedError(
       "Product not found",
       responseCodes.Not_Found,
       ErrorOrigin.Headless
     );
+
+  const currencyId =
+    isProductProps(data) && data.currencyId ? data.currencyId : undefined;
+  const currencyCode = isProductProps(data) ? data.currencyCode : undefined;
+  const coupons = isProductProps(data) ? (data?.coupons ?? []) : [];
+  const subproducts = isProductProps(data) ? (data?.subproducts ?? []) : [];
+  const silent = isProductProps(data) ? (data?.silent ?? false) : false;
+  const bundle = isProductProps(data) ? data?.bundle : undefined;
 
   const id = actor?.id || btoa(JSON.stringify(data)); // use the model as the basis for the id
 
@@ -79,7 +84,8 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
         id,
         basketId: rawBasket.value.id,
         clientId: rawBasket.value.client_id,
-        currencyId: rawBasket.value.currency_id,
+        currencyId: currencyId ?? rawBasket.value.currency_id,
+        currencyCode,
         promotions: rawBasket.value.promotions,
         subproducts,
         coupons,
@@ -187,7 +193,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
     id,
     product,
     model,
-    stop: () => stopService(service as InterpreterFrom<any>),
+    stop: () => stopService(service),
     // ---
     isReady,
     // ---

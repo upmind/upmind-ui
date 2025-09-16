@@ -1,0 +1,6 @@
+/* Typography overrides for prose content using theme CSS variables */
+@layer base {
+  .prose {
+    font-family: var(--font-body, var(--font-sans));
+  }
+}
