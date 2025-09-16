@@ -18,11 +18,11 @@
 
 <script lang="ts" setup>
 import { Switch, Select } from "@upmind-automation/upmind-ui";
-import { useBrandTheme } from "@upmind-automation/client-vue";
+import { useTheme } from "@upmind-automation/client-vue";
 import { intersection } from "lodash-es";
 import { computed } from "vue";
 
-const { selected, set: setTheme, available } = useBrandTheme();
+const { selected, set: setTheme, available } = useTheme();
 
 const toggleTheme = (checked: boolean) => {
   setTheme(checked ? "dark" : "default");

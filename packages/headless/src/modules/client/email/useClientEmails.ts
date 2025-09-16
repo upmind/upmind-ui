@@ -1,5 +1,5 @@
 // --- external
-import { computed, ref } from "vue";
+import { computed, ComputedRef, ref } from "vue";
 
 // --- internal
 import service from "./services";
@@ -8,7 +8,7 @@ import { invalidateQueryByKey } from "../../query";
 
 // --- utils
 import { useCollection } from "../../../utils";
-import { set, isEmpty } from "lodash-es";
+import { set, isEmpty, isArray } from "lodash-es";
 
 // --- types
 import type { Email } from "./types";
@@ -105,7 +105,7 @@ export const useClientEmails = (
      * The reactive data property containing the list of client items.
      * This is populated by the query and updates automatically when the query state changes.
      */
-    data: query.data,
+    data: computed(() => (isArray(query.data.value) ? query.data.value : [])),
 
     /**
      * The current error state of the query.
@@ -126,7 +126,7 @@ export const useClientEmails = (
      * This is the email that is set as default for the current client.
      * @returns {Email} The default email if found, is otherwise undefined.
      */
-    default: computed(() => getDefault()),
+    default: getDefault,
 
     // --- methods
 

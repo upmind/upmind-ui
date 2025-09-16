@@ -1,8 +1,9 @@
 <template>
   <Layout>
-    <ContentSection v-auto-animate class="flex flex-grow items-center">
+    <ContentSection v-auto-animate class="flex grow items-center">
       <Interstitial
         v-bind="props"
+        to="#vue-app"
         :title="t('basket.loading.title')"
         :text="t('basket.loading.text')"
       >

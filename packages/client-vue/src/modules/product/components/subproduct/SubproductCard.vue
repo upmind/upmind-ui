@@ -1,20 +1,21 @@
 <template>
-  <section class="text-foreground m-0 w-full">
-    <header class="flex flex-1 items-start gap-x-1">
-      <div class="flex flex-grow flex-col gap-0.5 md:flex-row md:gap-x-2">
+  <section class="text-foreground m-0 flex w-full flex-col gap-1">
+    <header class="flex flex-1 items-start gap-2">
+      <div class="flex grow flex-col gap-0.5 md:flex-row md:gap-x-2">
         <div class="flex flex-wrap items-center gap-2">
-          <h5 class="m-0 font-medium">{{ title }}</h5>
+          <h5 class="text-md/tight m-0 font-medium">{{ title }}</h5>
 
           <Promotion
             v-for="promotion in props.promotions"
             :key="promotion.code.toString()"
             v-bind="promotion"
+            size="sm"
           />
         </div>
 
         <div
           v-if="props.price && !props.meta?.free"
-          class="my-1 flex items-center gap-x-1 text-xs md:hidden"
+          class="text-md/tight items-center gap-x-1 max-md:flex md:hidden"
         >
           <SubproductCardPricing
             v-if="props.price"
@@ -42,21 +43,21 @@
           @keydown.enter.prevent.stop
         />
 
-        <div class="hidden flex-col text-right md:flex">
-          <span class="flex flex-shrink-0 items-center justify-end gap-x-1">
-            <SubproductCardPricing
-              v-if="props.price"
-              :price="props.price"
-              :meta="props.meta"
-              :cycle="props.cycle"
-            />
-          </span>
+        <div
+          class="text-md/tight hidden flex-col gap-2 text-right md:flex md:flex-row"
+        >
+          <SubproductCardPricing
+            v-if="props.price"
+            :price="props.price"
+            :meta="props.meta"
+            :cycle="props.cycle"
+          />
         </div>
       </div>
     </header>
 
     <p
-      class="text-emphasis-medium mb-0 mt-2 whitespace-normal text-xs leading-tight"
+      class="text-emphasis-medium text-sm/tight whitespace-normal"
       v-if="props.excerpt"
     >
       {{ props.excerpt }}

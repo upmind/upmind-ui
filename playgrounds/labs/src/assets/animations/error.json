@@ -17,7 +17,7 @@
           "ddd": 0,
           "ind": 1,
           "ty": 4,
-          "nm": "outline 2",
+          "nm": "outline-solid 2",
           "sr": 1,
           "ks": {
             "o": { "a": 0, "k": 100, "ix": 11 },
@@ -283,7 +283,7 @@
           "ddd": 0,
           "ind": 2,
           "ty": 4,
-          "nm": "outline",
+          "nm": "outline-solid",
           "sr": 1,
           "ks": {
             "o": { "a": 0, "k": 100, "ix": 11 },

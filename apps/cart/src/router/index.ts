@@ -29,119 +29,138 @@ import {
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    // Default route is /order this is our Loading view
     {
       path: "/",
       name: ROUTE.LOADING,
-      alias: ["/loading"],
+      alias: ["/order", "/loading"],
       component: () => UpmLoadingView
     },
 
+    // All other routes are prefixed with /order
     {
-      path: "/empty",
+      path: "/order/empty",
       name: ROUTE.EMPTY,
       component: () => UpmEmptyView
     },
     {
-      path: "/basket",
+      path: "/order/basket",
       name: ROUTE.BASKET,
-      alias: ["/cart"],
+      alias: ["/order/cart"],
       component: () => UpmBasketView
     },
     {
-      path: "/checkout",
+      path: "/order/checkout",
       name: ROUTE.CHECKOUT,
       component: () => UpmCheckoutView
     },
+
     {
       path: "/order/:orderId",
       name: ROUTE.ORDER,
       alias: ["/orders/:orderId"],
       component: () => UpmOrderView
     },
+
     {
-      path: "/shop",
+      path: "/order/shop",
       name: ROUTE.CATALOGUE,
       component: () => UpmShopView
     },
     {
-      path: "/product",
-      alias: ["/products", "/order/shop"],
-      redirect: { name: ROUTE.CATALOGUE } // Redirect to shop if /product is accessed
+      path: "/order/product",
+      alias: ["/order/products"],
+      redirect: { name: ROUTE.CATALOGUE }
     },
     {
-      path: "/recommendations",
+      path: "/order/recommendations",
       name: ROUTE.RECOMMENDATIONS,
       component: () => UpmRecommendationsView
     },
     {
-      path: "/auth",
+      path: "/order/auth",
       name: ROUTE.SESSION,
       component: () => UpmSessionRegisterView
     },
     {
-      path: "/auth/login",
+      path: "/order/auth/login",
       name: ROUTE.SESSION_LOGIN,
       component: () => UpmSessionLoginView
     },
     {
-      path: "/auth/register",
+      path: "/order/auth/register",
       name: ROUTE.SESSION_REGISTER,
-      alias: ["/auth/signup"],
+      alias: ["/order/auth/signup"],
       component: () => UpmSessionRegisterView
     },
     {
-      path: "/auth/logout",
-      alias: ["/auth/signout"],
+      path: "/order/auth/logout",
+      alias: ["/order/auth/signout"],
       name: ROUTE.SESSION_END,
       component: () => UpmSessionLogoutView
     },
     {
-      path: "/auth/transfer",
+      path: "/order/auth/transfer",
       name: ROUTE.SESSION_TRANSFER,
       component: () => UpmLoadingView
     },
     {
-      path: "/auth/recover",
+      path: "/order/auth/recover",
       name: ROUTE.SESSION_RECOVER_PASSWORD,
       component: () => UpmSessionRecoverPasswordView
     },
     {
-      path: "/express/product/add/:pid",
+      path: "/order/shop/express/add/:pid",
       name: ROUTE.EXPRESS_PRODUCT_ADD,
       component: () => UpmProductAddView
     },
     {
-      path: "/product/add/:pid",
+      path: "/order/product/add/:pid",
       name: ROUTE.PRODUCT_ADD,
       component: () => UpmProductAddView
     },
     {
-      path: "/product/recommendations/:pid",
+      path: "/order/product/recommendations/:pid",
       name: ROUTE.PRODUCT_RECOMMENDATIONS,
       component: () => UpmProductRecommendationsView
     },
     {
-      path: "/product/edit/:bpid",
+      path: "/order/product/edit/:bpid",
       name: ROUTE.PRODUCT_EDIT,
       component: () => UpmProductEditView
     },
-
     {
-      path: "/product/not-found/",
+      path: "/order/product/not-found/",
       name: ROUTE.PRODUCT_NOT_FOUND,
       component: () => UpmProductNotFoundView
     },
     {
-      path: "/product/requires-action/",
+      path: "/order/product/requires-action/",
       name: ROUTE.PRODUCT_REQUIRES_ACTION,
       component: () => UpmProductRequiresActionView
     },
     {
-      path: "/:pathMatch(.*)*",
+      path: "/order/:pathMatch(.*)*",
       name: "not-found",
       component: () => Upm404View,
       meta: {
         title: "Page Not Found"
+      }
+    },
+
+    // Single catch-all redirect for any route not starting with /order
+    {
+      path: "/:legacy(.*)",
+      redirect: to => {
+        if (to.path !== "/" && !to.path.startsWith("/order")) {
+          return {
+            path:
+              "/order" + (to.path.startsWith("/") ? to.path : "/" + to.path),
+            query: to.query,
+            hash: to.hash
+          };
+        }
+        return to.fullPath;
       }
     }
   ],

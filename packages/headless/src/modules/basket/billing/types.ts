@@ -12,9 +12,9 @@ export { UnifiedType } from "./unified/types";
 // -----------------------------------------------------------------------------
 
 export interface BillingModel {
-  addressId?: IBasket["address_id"];
-  companyId?: IBasket["company_id"];
-  phoneId?: IBasket["phone_id"];
+  addressId?: IBasket["address_id"] | null;
+  companyId?: IBasket["company_id"] | null;
+  phoneId?: IBasket["phone_id"] | null;
 }
 
 export interface BillingContext {

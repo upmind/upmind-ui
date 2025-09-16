@@ -1,71 +1,76 @@
 <template>
-  <Layout>
+  <Layout :variant="configMeta.layout" minimal>
     <template #navigation>
       <Back @click.prevent="doReject" />
     </template>
 
-    <ContentSection v-auto-animate class="flex flex-grow items-center">
-      <form v-auto-animate @submit.prevent @reset.prevent>
-        <div
-          class="relative mx-auto flex w-full flex-wrap items-start justify-between gap-8"
-        >
-          <section class="flex min-w-0 flex-1 flex-col gap-16">
-            <ContentSection>
-              <template #title>
-                <SmartTitle i18n-key="product.title" size="2xl" />
-              </template>
+    <template #header>
+      <Header v-if="product && meta?.isAvailable" v-bind="product" />
+      <HeaderSkeleton v-else />
+    </template>
 
-              <!-- TODO: add skeleton loader when meta.isLoading -->
-              <Card class="!p-0">
-                <ProductConfig
-                  v-if="basketProduct && !meta?.isLoading"
-                  :item="basketProduct"
-                  :model-value="basketProduct?.id"
-                  :no-footer="true"
-                  as="div"
-                  @resolve="doResolve"
-                  @reject="doReject"
-                />
+    <template #default>
+      <Section :title="t('product.configure')">
+        <form @submit.prevent @reset.prevent>
+          <ProductConfig
+            v-if="basketProduct && meta?.isAvailable"
+            :item="basketProduct"
+            :model-value="basketProduct?.id"
+            :no-footer="true"
+            as="div"
+            @resolve="doResolve"
+            @reject="doReject"
+          />
 
-                <ConfigSkeleton v-else />
-              </Card>
-            </ContentSection>
-          </section>
+          <ProductNotFound v-else-if="meta?.isUnavailable" />
 
-          <header
-            class="flex w-full flex-col items-start gap-4 sm:sticky sm:top-1 xl:max-w-md"
-          >
-            <ContentSection :title="t('product.summary.title')">
-              <Summary
-                v-if="basketProduct && !meta?.isLoading"
-                :item="basketProduct"
-                @resolve="doResolve"
-              />
-            </ContentSection>
-          </header>
-        </div>
+          <ConfigSkeleton v-else />
+        </form>
+      </Section>
+    </template>
 
-        <!-- small print -->
-        <footer
-          class="text-emphasis-medium mt-6 flex flex-col space-y-2 px-6 text-xs md:space-y-0 md:px-0"
-        >
-          <div
-            v-for="(term, index) in tm('product.smallprint')"
-            :key="index"
-            class="leading-snug"
-          >
-            {{ term }}
-          </div>
-        </footer>
-      </form>
-    </ContentSection>
+    <template #aside>
+      <Section
+        :title="t('product.summary.title')"
+        :class="styles.product.summary"
+        aside
+      >
+        <Summary
+          v-if="product && meta?.isAvailable"
+          :product="product"
+          :meta="meta"
+          edit
+          @resolve="doResolve"
+          @update:quantity="updateQuantity"
+        />
+
+        <SummarySkeleton v-else />
+      </Section>
+    </template>
+
+    <template #aside-footer>
+      <SummaryFooter
+        v-if="product && meta?.isAvailable"
+        :product="product"
+        @resolve="doResolve"
+      />
+    </template>
+
+    <template #footer>
+      <p
+        v-for="(term, index) in tm('product.smallprint')"
+        :key="index"
+        class="leading-snug"
+      >
+        {{ term }}
+      </p>
+    </template>
   </Layout>
 </template>
 
 <script lang="ts" setup>
 // --- external
-import { watch } from "vue";
-import { vAutoAnimate } from "@formkit/auto-animate";
+import { computed, onUnmounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -74,38 +79,59 @@ import {
   useRoutingEngine,
   useBasketProducts,
   useQueryParams,
+  useBrand,
+  useProductConfig,
   ROUTE
 } from "@upmind-automation/headless";
+import config from "./product.config";
 
 // --- components
-import { Card, Layout } from "@upmind-automation/upmind-ui";
-import ContentSection from "../../components/content/ContentSection.vue";
-import ProductConfig from "./components/config/Config.vue";
-import Summary from "./components/summary/Summary.vue";
-import SmartTitle from "../../components/content/SmartTitle.vue";
-import ConfigSkeleton from "./components/ConfigSkeleton.vue";
+import { Layout, useStyles } from "@upmind-automation/upmind-ui";
 import Back from "../../components/navigation/Back.vue";
-
-// --- utils
+import ConfigSkeleton from "./components/ConfigSkeleton.vue";
+import Header from "./components/header/Header.vue";
+import HeaderSkeleton from "./components/header/HeaderSkeleton.vue";
+import ProductConfig from "./components/config/Config.vue";
+import Section from "../../components/content/LayoutSection.vue";
+import Summary from "./components/summary/Summary.vue";
+import SummaryFooter from "./components/summary/SummaryFooter.vue";
+import SummarySkeleton from "./components/summary/SummarySkeleton.vue";
+import ProductNotFound from "./NotFound.vue";
 
 // --- types
+import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 const { t, tm } = useI18n();
 
 const { navigateBack, navigateNext, isResolved } = useRoutingEngine();
-const { meta: basketMeta, isReady } = useBasket();
+const { isReady } = useBasket();
 const { basketProductId } = useQueryParams();
 const { configure } = useBasketProducts();
+const { uiCart } = useBrand();
 
 await isReady();
 await isResolved(ROUTE.PRODUCT_EDIT);
+
 const {
-  meta,
   stop,
   update,
   service: basketProduct
 } = await configure(basketProductId);
+
+const { meta, product, updateQuantity } = useProductConfig(basketProduct);
+
+const configMeta = computed(() => {
+  return {
+    layout: uiCart.value?.layout
+  };
+});
+
+const styles = useStyles("product", configMeta, config) as ComputedRef<{
+  product: {
+    summary: string;
+  };
+}>;
 
 async function doResolve() {
   update()
@@ -127,7 +153,10 @@ async function doResolve() {
 }
 
 function doReject() {
-  stop();
   navigateBack();
 }
+
+onUnmounted(() => {
+  stop();
+});
 </script>

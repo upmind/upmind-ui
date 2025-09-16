@@ -20,12 +20,14 @@
           <AccordionTrigger
             :class="styles.checkout.accordion.trigger.root"
             @click.stop="selectGateway(item.gateway_id)"
+            :open="item.gateway_id === model?.gateway_id"
           >
             <GatewayTrigger v-bind="item" />
 
             <template #icon>
               <Icon
                 icon="arrow-down"
+                size="xs"
                 :class="[
                   styles.checkout.accordion.trigger.icon,
                   {
@@ -41,10 +43,14 @@
               !model ||
               (item.gateway_id === model.gateway_id && basketMeta.isProcessing)
             "
-            :class="styles.checkout.accordion.loading"
+            :class-active="styles.checkout.accordion.loading"
           >
-            <AccordionContent :class="styles.checkout.accordion.content">
+            <AccordionContent
+              :class="styles.checkout.accordion.content"
+              force-mount
+            >
               <GatewayContent
+                v-if="item.gateway_id === model?.gateway_id"
                 :item="item"
                 :gatewayId="gateway?.id?.toString()"
                 :modelValue="model?.gateway_id"
@@ -70,10 +76,14 @@
 </template>
 
 <script lang="ts" setup>
+// --- external
+import { computed } from "vue";
+
 // --- internal
 import {
   useBasketPaymentDetails,
-  useBasket
+  useBasket,
+  useBrand
 } from "@upmind-automation/headless";
 import config from "../checkout.config";
 import { useStyles } from "@upmind-automation/upmind-ui";
@@ -102,16 +112,20 @@ import { set } from "lodash-es";
 const props = withDefaults(defineProps<PaymentDetailsProps>(), {
   color: "secondary",
   as: "div",
-  class: "bg-base shadow-sm"
+  class: "bg-base "
 });
 
 const { meta, model, gateway, input, gateways } = useBasketPaymentDetails();
-
 const { meta: basketMeta, checkout } = useBasket();
+const { uiCart } = useBrand();
+
+const configMeta = computed(() => ({
+  layout: uiCart.value?.layout || "default"
+}));
 
 const styles = useStyles(
   ["checkout", "checkout.accordion", "checkout.accordion.trigger"],
-  {},
+  configMeta,
   config
 ) as ComputedRef<{
   checkout: {

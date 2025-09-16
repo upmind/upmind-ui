@@ -56,15 +56,23 @@ type VueState = State<
 >;
 // -----------------------------------------------------------------------------
 
-export function stopService(machine: InterpreterFrom<any>): boolean {
+export function stopService(
+  machine: InterpreterFrom<any> | ActorRef<any, any>
+): boolean {
+  // Only access 'status' if machine is an Interpreter
+  const isInterpreter = !!(machine as any)?.status;
+  const state = machine.getSnapshot();
+
   if (
-    machine.status == InterpreterStatus.Running ||
-    !machine.getSnapshot().done
+    isInterpreter
+      ? (machine as InterpreterFrom<any>).status == InterpreterStatus.Running
+      : !state.done
   ) {
-    machine.stop();
+    machine?.stop && machine.stop();
   }
 
-  return machine.status == InterpreterStatus.Stopped;
+  // NB use the uipdated snapshot to check if we are stopped/done
+  return machine.getSnapshot().done;
 }
 
 export function stopActor(actor: ActorRef<any>): void {

@@ -1,6 +1,6 @@
 <template>
   <UpmContentSection
-    class="mx-auto max-w-app"
+    class="max-w-app mx-auto"
     title="Product Catalogue"
     subtitle="Browse and search products"
   >

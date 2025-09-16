@@ -1,4 +1,4 @@
-import { request, APIRequestContext } from "@playwright/test";
+import { request, APIRequestContext, Page } from "@playwright/test";
 import { URLs } from "../../constants/urls";
 
 export async function getCurrentOrder(token: string) {
@@ -41,7 +41,7 @@ export async function getCurrentOrderId(token: string): Promise<string | null> {
   );
 
   const body = await response.json();
-  //console.log("ORDER ID:", body?.data?.id);
+  console.log("ORDER ID:", body?.data?.id);
   return body?.data?.id ?? null;
 }
 
@@ -88,4 +88,72 @@ export async function addProductToOrder(
   const body = await response.json();
   //console.log(`Add to basket - complete! ${JSON.stringify(body)}`);
   return body;
+}
+
+export async function setOrderCurrency(
+  token: string,
+  orderId: string | null,
+  currency: string
+) {
+  if (!orderId) {
+    throw new Error("Order ID is null or undefined");
+  }
+  const apiContext = await request.newContext({
+    baseURL: "https://api.staging.upmind.io",
+    extraHTTPHeaders: {
+      authorization: `Bearer ${token}`,
+      "content-type": "application/json",
+      accept: "*/*"
+    }
+  });
+  const response = await apiContext.put(
+    `/api/orders/${orderId}/currency?lang=en`,
+    {
+      data: {
+        currency_code: `${currency}`
+      }
+    }
+  );
+  const body = await response.json();
+  console.log(body);
+}
+
+export async function overrideWarningNotes(
+  page: Page,
+  newWarningNotes: string | null
+) {
+  await page.route("**/api/orders/current**", async route => {
+    const response = await route.fetch();
+    const text = await response.text();
+    let body;
+
+    try {
+      body = text ? JSON.parse(text) : {};
+    } catch (e) {
+      console.warn("Could not parse JSON body, returning as-is");
+      return route.fulfill({ response, body: text });
+    }
+
+    if (!body.data) body.data = {};
+    body.data.warning_notes = [
+      {
+        id: "3825d96e-763e-d091-3dc4-174825283406",
+        message: newWarningNotes,
+        translations: {
+          code: {
+            name: "WARNING"
+          }
+        },
+        created_at: "2025-09-02 08:50:42",
+        updated_at: "2025-09-02 08:50:42",
+        is_hidden: false
+      }
+    ];
+
+    await route.fulfill({
+      status: response.status(),
+      headers: response.headers(),
+      body: JSON.stringify(body)
+    });
+  });
 }

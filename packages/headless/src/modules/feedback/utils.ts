@@ -31,7 +31,7 @@ export const useMessageParser = (data?: object) => {
     created: Date.now(),
     i18nKey: null
   };
-  // TODO: pars einto a message format
+  // TODO: parse into a message format
   const message = defaultsDeep(data, defaultMessage);
   message.scheduled = Date.now() + (message?.delay || 0);
 

@@ -1,5 +1,5 @@
 // --- internal
-import { QueryParams, useQuery } from "../..";
+import { type QueryParams, useQuery } from "../..";
 
 // --- utils
 import { map } from "lodash-es";

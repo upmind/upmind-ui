@@ -118,7 +118,7 @@ export const useBasketProduct = (bpid: string) => {
     ...useProductConfig(service),
     id: bpid,
     isReady,
-    stop: () => stopService(service as InterpreterFrom<any>),
+    stop: () => stopService(service),
     // ---
     updateQuantity: async (value: number): Promise<void> =>
       getProduct().then(product => {

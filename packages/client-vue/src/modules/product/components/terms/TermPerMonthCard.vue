@@ -7,20 +7,16 @@
             ? t(`product.terms.cycle.${props.cycle}`)
             : props.title
         }}
+        <template v-if="props.cycle && props.cycle > 0">
+          {{ t("product.term") }}
+        </template>
       </strong>
 
       <Promotion
         v-for="promotion in props.promotions"
         :key="promotion.code.toString()"
         v-bind="promotion"
-      />
-
-      <CurrentPrice
-        :current-price="props.price.currentPrice"
-        :monthly-from-current-price="props.price.monthlyFromCurrentPrice"
-        :meta="props.meta"
-        :cycle="props.cycle"
-        :class="styles.product.config.grid.item.text"
+        size="sm"
       />
     </div>
 
@@ -35,11 +31,15 @@
         :cycle="props.cycle"
         :ui-config="{
           pricing: {
-            current: styles.product.config.grid.item.total
+            current: [styles.product.config.grid.item.total]
           }
         }"
         show-cycle
       />
+
+      <small v-if="!select" :class="styles.product.config.grid.item.text">
+        <PayToday :price="props.price" />
+      </small>
     </div>
   </div>
 </template>
@@ -54,7 +54,7 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../../product.config";
 
 // --- components
-import CurrentPrice from "../pricing/CurrentPrice.vue";
+import PayToday from "../pricing/PayToday.vue";
 import Pricing from "../pricing/Pricing.vue";
 import Promotion from "../../../basket/product/components/Promotion.vue";
 
@@ -79,7 +79,7 @@ const { t, te } = useI18n();
 
 const meta = computed(() => ({
   hasPromotions: !isEmpty(props.promotions) || props.meta?.mixed,
-  isSelected: props.select
+  isSelect: !!props.select
 }));
 
 const styles = useStyles(

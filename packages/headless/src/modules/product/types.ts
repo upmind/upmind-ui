@@ -12,9 +12,10 @@ import type {
 } from "@upmind-automation/types";
 export { PromotionDisplayTypes } from "@upmind-automation/types";
 import { PromotionDisplayTypes } from "@upmind-automation/types";
-import type { Recommendation } from "../recommendations";
+import type { Recommendation, Badge } from "../recommendations";
 import type { BasketProduct } from "../basketProduct";
 import { ResponseError } from "../../utils";
+import { Route } from "../routing";
 
 // -----------------------------------------------------------------------------
 /**
@@ -53,6 +54,11 @@ export type PriceDisplay = {
   savingAmount: number;
   savingPrice: string;
   savingPercent: string;
+  // ---
+  monthlyFromCurrentAmount?: number;
+  monthlyFromCurrentPrice?: string;
+  monthlyFromRegularAmount?: number;
+  monthlyFromRegularPrice?: string;
 };
 
 /**
@@ -146,6 +152,7 @@ export type Product = {
   };
 };
 
+export type ProductBreadcrumb = { id: string; label: string };
 /**
  * Represents the actual store product being configured.
  */
@@ -154,20 +161,25 @@ export type ProductDetails = {
   title: string;
   name: string; // untranslated name for reporting purposes
   brand: string;
+  badge?: Badge;
   categoryId: string;
   category: string;
   categories?: string[]; // parent category names
+  breadcrumb?: ProductBreadcrumb[]; // parent category names and ids for breadcrumbs
   cycle: number;
+  displayPrice?: TermDetails;
   description?: string;
   excerpt?: string;
   imgUrl?: string;
+  images?: ProductImage[];
   quantifiable: boolean;
   quantity: number;
   step: number;
   min: number;
   max: number; // or infinity
   defaultPaymentPeriod?: number;
-  uiMeta?: Record<string, any>;
+  benefits?: Benefit[];
+  uiMeta?: UIMeta;
   uiCategoryMeta?: Record<string, any>;
 };
 
@@ -207,6 +219,7 @@ export type PromotionModel = {
 // The props required to create a product configuration
 export interface ProductProps extends ProductModel {
   currencyId?: ICurrency["id"];
+  currencyCode?: ICurrency["code"];
   clientId?: IClient["id"];
   promotions?: IBasketPromotion[];
   coupons?: string[]; // these are 'promotions' passed via url or config that are not in the basket yet
@@ -246,6 +259,7 @@ export type ProductSummaryMeta = {
   includesTax?: boolean;
   default?: boolean;
   freeTrail?: boolean;
+  useMonthlyFromPrice?: boolean;
 };
 
 export type ProductSummaryDetail = {
@@ -264,12 +278,7 @@ export type ProductSummaryDetailWithPrice = ProductSummaryDetail & {
 };
 
 export type TermDetails = ProductSummaryDetail & {
-  price: PriceDetail & {
-    monthlyFromCurrentAmount?: number;
-    monthlyFromCurrentPrice?: string;
-    monthlyFromRegularAmount?: number;
-    monthlyFromRegularPrice?: string;
-  };
+  price: PriceDetail;
   showTaxes?: boolean;
 };
 
@@ -318,10 +327,47 @@ export type PromotionDetails = {
   };
 };
 
+export type ProductImage = {
+  url: string;
+  default: boolean;
+  order: number;
+};
+
 export interface UIMeta {
   ui?: UIConfig;
   uischema?: UISchema;
   related?: Recommendation[];
+  product?: UIProductMeta;
+}
+
+export interface UIProductMeta {
+  variant?: string;
+  image: {
+    hide?: boolean;
+    carousel?: boolean;
+    ratio?: string;
+  };
+  display_price?: {
+    trim_trailing_zeroes?: boolean;
+  };
+  card: {
+    benefits: {
+      hide?: boolean;
+      data?: Benefit[];
+    };
+    description: {
+      hide?: boolean;
+    };
+    breakdown: {
+      hide?: boolean;
+    };
+    price: {
+      hide?: boolean;
+    };
+    terms: {
+      hide?: boolean;
+    };
+  };
 }
 
 export interface UIConfig {
@@ -334,8 +380,25 @@ export interface UISchema {
   billing?: {
     control?: string;
   };
+  primary?: boolean;
+  group?: string;
   group_name?: string;
   icon?: string;
+  config?: {
+    summary?: {
+      append?: string;
+    };
+  };
+  productConfig?: {
+    summary?: {
+      append?: string;
+    };
+  };
+}
+
+export interface Benefit {
+  label: string;
+  icon?: string | any;
 }
 
 export type PriceCalculations = {
@@ -364,6 +427,7 @@ export interface ProductConfigContext {
   id: string;
   clientId?: ProductProps["clientId"];
   currencyId?: ProductProps["currencyId"];
+  currencyCode?: ProductProps["currencyCode"];
   promotions?: ProductProps["promotions"];
   coupons?: ProductProps["coupons"];
   subproducts?: ProductProps["subproducts"];
@@ -389,7 +453,7 @@ export interface ProductConfigContext {
   calculateCallback?: ActorRef<any>;
   // TODO: @DC implement the new response errors types from the API
   error?: ResponseError | ExternalError;
-  errorExternal?: ResponseError | ExternalError;
+  errorExternal?: ExternalError;
   attempts?: number;
   // ---
   rawProduct?: IProduct;

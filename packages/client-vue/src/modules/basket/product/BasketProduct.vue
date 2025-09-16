@@ -1,42 +1,45 @@
 <template>
-  <Loading :active="meta.isLoading || meta.isProcessing">
-    <Card :class="styles.product.root.card" v-auto-animate>
-      <div :class="styles.product.root.container">
-        <BasketProductSummary
-          v-for="(summary, index) in props.pricing"
-          :key="`${props.id}-${index}`"
-          :id="id"
-          :productDetails="props.productDetails"
-          :summary="summary"
-          :quantity="props.configuration.quantity"
-          :error="meta.hasErrors"
-          :primary="index === 0"
-          :loading="meta.isLoading"
-          :processing="meta.isProcessing"
-          :edit-link="editLink"
-          @update:quantity="doUpdateQuantity"
-          data-testid="basket-product-summary"
-        >
-          <slot
-            :productDetails="props.productDetails"
-            :price="price"
-            :quantity="props.configuration.quantity"
-          ></slot>
-        </BasketProductSummary>
-      </div>
-
-      <BasketConfigurationDetails v-if="open" :id="id" :details="details" />
-
-      <BasketProductActions
-        v-model:open="open"
-        :id="props.id"
-        :details="details"
-        :disabled="meta.isProcessing || meta.isLoading"
-        :color="color"
+  <Loading
+    as="li"
+    :class="styles.product.root.card"
+    v-auto-animate
+    :active="meta.isLoading || meta.isProcessing"
+  >
+    <div :class="styles.product.root.container">
+      <BasketProductSummary
+        v-for="(summary, index) in props.pricing"
+        :key="`${props.id}-${index}`"
+        :id="id"
+        :productDetails="props.productDetails"
+        :summary="summary"
+        :quantity="props.configuration.quantity"
+        :error="meta.hasErrors"
+        :primary="index === 0"
+        :loading="meta.isLoading"
+        :processing="meta.isProcessing"
         :edit-link="editLink"
-        @remove="doRemove"
-      />
-    </Card>
+        @update:quantity="doUpdateQuantity"
+        data-testid="basket-product-summary"
+      >
+        <slot
+          :productDetails="props.productDetails"
+          :price="price"
+          :quantity="props.configuration.quantity"
+        ></slot>
+      </BasketProductSummary>
+    </div>
+
+    <BasketConfigurationDetails v-if="open" :id="id" :details="details" />
+
+    <BasketProductActions
+      v-model:open="open"
+      :id="props.id"
+      :details="details"
+      :disabled="meta.isProcessing || meta.isLoading"
+      :color="color"
+      :edit-link="editLink"
+      @remove="doRemove"
+    />
   </Loading>
 </template>
 

@@ -1,6 +1,6 @@
 <template>
   <div :class="styles.categories.root" v-auto-animate>
-    <CategoriesHeader v-model="modelValue" v-bind="category" />
+    <CategoriesHeader v-model="modelValue" v-bind="props" />
 
     <nav
       v-if="hasCategories && !uiCart?.catalogue?.facet"
@@ -24,7 +24,6 @@
 <script setup lang="ts">
 // --- external
 import { computed } from "vue";
-import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
@@ -46,22 +45,18 @@ import type { CategoriesProps } from "./types";
 import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
-const props = defineProps<Omit<CategoriesProps, "modelValue">>();
+const props = defineProps<
+  Omit<CategoriesProps, "modelValue"> & ProductCategory
+>();
 const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
 
 // -----------------------------------------------------------------------------
 
-const { t } = useI18n();
 const { uiCart } = useBrand();
-const { getChildren, meta, getOne } = useProductCategories();
+const { getChildren, meta } = useProductCategories();
 
 const displayCategories = computed(() => {
   return getChildren(modelValue.value);
-});
-
-const category = computed((): ProductCategory => {
-  const category = modelValue.value ? getOne(modelValue.value) : undefined;
-  return category || { id: "", name: "", title: t("product.category.all") };
 });
 
 const hasCategories = computed(() => {

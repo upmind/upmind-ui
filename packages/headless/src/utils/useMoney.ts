@@ -9,11 +9,13 @@ export function useMoney() {
   }
 
   function parsePrice(
-    price: string,
-    amount: number,
-    options?: any //ICatalogueOptions
+    price?: string | null,
+    options?: {
+      trimTrailingZeroes?: boolean;
+    }
   ) {
-    if (options?.trimTrailingZeroes) price = removeTrailingZeroes(price);
+    if (price && options?.trimTrailingZeroes)
+      return removeTrailingZeroes(price);
     return price;
   }
 

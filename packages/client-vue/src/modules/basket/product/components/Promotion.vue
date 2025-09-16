@@ -3,7 +3,7 @@
     v-if="meta?.discounted && price"
     :color="disabled ? 'disabled' : 'promotion'"
     variant="tonal"
-    class="rounded-lg uppercase"
+    class="uppercase"
     :label="t('product.promotionSave', [price.savingPercent])"
     :size="size"
   />
@@ -18,11 +18,11 @@ withDefaults(
   defineProps<
     PromotionDetails & {
       disabled?: boolean;
-      size?: "xs" | "sm" | "md";
+      size?: "sm" | "sm" | "md";
     }
   >(),
   {
-    size: "xs"
+    size: "sm"
   }
 );
 

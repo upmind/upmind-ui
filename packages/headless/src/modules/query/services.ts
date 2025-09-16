@@ -1,23 +1,23 @@
 // --- external
 
 // --- internal
-import { useQuery } from ".";
-import { useSession } from "../session";
-import { messageDisplays, messageTypes, useFeedback } from "../feedback";
 import { useLocale } from "../system";
+import { useSession } from "../session";
+import { handleError, useQuery } from ".";
+
 // --- utils
 import {
   get,
-  includes,
-  isEmpty,
   map,
   set,
-  startsWith,
-  upperCase
+  isEmpty,
+  includes,
+  upperCase,
+  startsWith
 } from "lodash-es";
 import {
-  dumpTokenFromStorage,
   getTokenFromStorage,
+  dumpTokenFromStorage,
   persistTokenToStorage
 } from "../session/utils";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
@@ -27,34 +27,7 @@ import type { Token } from "../session/types";
 import { GrantTypes, Methods } from "@upmind-automation/types";
 import type { QueryResponse, RequestParams } from "./types";
 
-const { add } = useFeedback();
-
 // -----------------------------------------------------------------------------
-function handleError(
-  status: QueryResponse["status"],
-  error: QueryResponse["error"]
-): Promise<never> {
-  // of we have a system error, we want to add some feedback for the ui
-  if (includes([responseCodes.Too_Many_Requests], status) || status >= 500) {
-    add({
-      type: messageTypes.ERROR,
-      title: "Service temporarily unavailable",
-      copy: "Service temporarily down for maintenance",
-      data: { ...error, status },
-      i18nKey: `errors.${status ?? responseCodes.Service_Unavailable}`,
-      display: messageDisplays.SYSTEM,
-      delay: 0,
-      maxAge: 0
-    });
-  }
-
-  throw new DetailedError(
-    error?.message ?? "Service temporarily unavailable",
-    status || responseCodes.Service_Unavailable,
-    ErrorOrigin.Upmind,
-    error?.data
-  );
-}
 
 async function doFetch<T extends any = any>({
   url,
@@ -113,8 +86,8 @@ async function doFetch<T extends any = any>({
       )
         return Promise.reject();
 
-      // DC: change this as when we get service cors errors, we dont get a response object with status
-      // so we need to handle it differently, and that  genrally means the API is down
+      // DC: change this as when we get service cors errors, we don't get a response object with status,
+      // so we need to handle it differently, and that generally means the API is down
 
       return handleError(
         response.status ?? responseCodes.Service_Unavailable,
@@ -129,6 +102,15 @@ async function refreshToken() {
 
   const token = getTokenFromStorage();
   const refresh_token = get(token, "refresh_token", "");
+
+  if (!token || !refresh_token)
+    return Promise.reject(
+      new DetailedError(
+        "No token",
+        responseCodes.Unauthorized,
+        ErrorOrigin.Headless
+      )
+    );
 
   return post<Token>({
     url: useUrl("access_token", {}, { context: "oauth" }),

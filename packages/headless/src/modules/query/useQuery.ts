@@ -1,4 +1,6 @@
 // --- external
+import { effectScope, onScopeDispose, getCurrentScope, ComputedRef } from "vue";
+
 import {
   QueryClient,
   useMutation,
@@ -48,10 +50,12 @@ import type {
   RequestParams,
   MutationParams,
   InfiniteQueryPage,
-  ReactiveQueryKeys
+  ReactiveQueryKeys,
+  PaginationInfo
 } from "./types";
 import { Methods } from "@upmind-automation/types";
 import type { DefaultError } from "@tanstack/vue-query";
+import { useSession } from "../session";
 
 // -----------------------------------------------------------------------------
 
@@ -152,7 +156,8 @@ export const useQuery = () => {
       // set "currency" parameter
       if (withCurrency) {
         const { currencyCode } = useBasketCurrency();
-        url.searchParams.set("currency_code", currencyCode.value as string);
+        if (!isEmpty(currencyCode?.value))
+          url.searchParams.set("currency_code", currencyCode.value as string);
       }
     }
 
@@ -169,8 +174,10 @@ export const useQuery = () => {
     if (withAccessToken) {
       const token = isString(withAccessToken)
         ? withAccessToken
-        : getTokenFromStorage()?.access_token;
-      set(init, `headers.Authorization`, `Bearer ${token}`);
+        : await useSession()
+            .isReady()
+            .then(() => getTokenFromStorage()?.access_token);
+      if (token) set(init, `headers.Authorization`, `Bearer ${token}`);
     }
 
     // -------------------------------------------------------------------------
@@ -221,7 +228,8 @@ export const useQuery = () => {
     withAccessToken,
     ...options
   }: Omit<QueryParams<TQueryFnData, TData>, "pagination">) {
-    const { currencyCode } = useBasketCurrency();
+    // ensure we have a scope, in case we call this outside of a setup function
+    const scope = getCurrentScope() ?? effectScope();
 
     // --- state
 
@@ -233,37 +241,44 @@ export const useQuery = () => {
 
     // --- query
     const reactiveKeys: ReactiveQueryKeys = { locale, sort, filters };
-    if (withCurrency) reactiveKeys.currencyCode = currencyCode;
+    if (withCurrency) {
+      const { currencyCode } = useBasketCurrency();
+      reactiveKeys.currencyCode = currencyCode;
+    }
 
-    return vueUseQuery<TQueryFnData, DefaultError, TData>(
-      {
-        queryKey: [...queryKey, reactiveKeys],
-        queryFn: async ({ signal }) => {
-          const hasGuard = isPromise(guard);
-          const safeguard: Promise<void | boolean> = hasGuard
-            ? guard()
-            : Promise.resolve();
-          return safeguard.then(() =>
-            request<TQueryFnData>({
-              url,
-              sort: sort.value,
-              filters: filters.value,
-              withCurrency,
-              init: {
-                ...init,
-                signal // Pass the new signal to the request to allow cancellation
-              },
-              withAccessToken
-            }).then(response => {
-              if (isFunction(select)) return select(response.data!) as TData;
-              return response.data as TQueryFnData;
-            })
-          );
+    const response = scope.run(() =>
+      vueUseQuery<TQueryFnData, DefaultError, TData>(
+        {
+          queryKey: [...queryKey, reactiveKeys],
+          queryFn: async ({ signal }) => {
+            const hasGuard = isPromise(guard);
+            const safeguard: Promise<void | boolean> = hasGuard
+              ? guard()
+              : Promise.resolve();
+            return safeguard.then(() =>
+              request<TQueryFnData>({
+                url,
+                sort: sort.value,
+                filters: filters.value,
+                withCurrency,
+                init: {
+                  ...init,
+                  signal // Pass the new signal to the request to allow cancellation
+                },
+                withAccessToken
+              }).then(response => {
+                if (isFunction(select)) return select(response.data!) as TData;
+                return response.data as TQueryFnData;
+              })
+            );
+          },
+          ...(options as any)
         },
-        ...(options as any)
-      },
-      queryClient
+        queryClient
+      )
     );
+
+    return response;
   }
 
   /**
@@ -290,6 +305,9 @@ export const useQuery = () => {
     withAccessToken,
     ...options
   }: QueryParams<TQueryFnData, TData>) {
+    // ensure we have a scope, in case we call this outside of a setup function
+    const scope = getCurrentScope() ?? effectScope();
+
     const { currencyCode } = useBasketCurrency();
 
     // --- state
@@ -307,48 +325,46 @@ export const useQuery = () => {
     if (limit) reactiveKeys.pageIndex = pageIndex;
     if (withCurrency) reactiveKeys.currencyCode = currencyCode;
 
-    const response = vueUseQuery<
-      TQueryFnData,
-      DefaultError,
-      QueryResponse<TData>
-    >(
-      {
-        queryKey: [...queryKey, reactiveKeys],
-        queryFn: async ({ signal }) => {
-          const hasGuard = isPromise(guard);
-          const safeguard: Promise<void | boolean> = hasGuard
-            ? guard()
-            : Promise.resolve();
-          return safeguard.then(async () => {
-            return request<TQueryFnData>({
-              url,
-              sort: sort.value,
-              filters: filters.value,
-              pagination: { limit, offset: (pageIndex.value - 1) * limit },
-              withCurrency,
-              init: {
-                ...init,
-                signal // Pass the new signal to the request to allow cancellation
-              },
-              withAccessToken
-            }).then(response => {
-              // total.value = response.total || 0; // Set the total items count
-              // if (isFunction(select)) return select(response.data!) as TData;
-              // return response.data as TQueryFnData;
+    let response = scope.run(() =>
+      vueUseQuery<TQueryFnData, DefaultError, QueryResponse<TData>>(
+        {
+          queryKey: [...queryKey, reactiveKeys],
+          queryFn: async ({ signal }) => {
+            const hasGuard = isPromise(guard);
+            const safeguard: Promise<void | boolean> = hasGuard
+              ? guard()
+              : Promise.resolve();
+            return safeguard.then(async () => {
+              return request<TQueryFnData>({
+                url,
+                sort: sort.value,
+                filters: filters.value,
+                pagination: { limit, offset: (pageIndex.value - 1) * limit },
+                withCurrency,
+                init: {
+                  ...init,
+                  signal // Pass the new signal to the request to allow cancellation
+                },
+                withAccessToken
+              }).then(response => {
+                // total.value = response.total || 0; // Set the total items count
+                // if (isFunction(select)) return select(response.data!) as TData;
+                // return response.data as TQueryFnData;
 
-              if (isFunction(select)) {
-                return {
-                  ...response,
-                  data: select(response.data!)
-                };
-              }
-              return response;
+                if (isFunction(select)) {
+                  return {
+                    ...response,
+                    data: select(response.data!)
+                  };
+                }
+                return response;
+              });
             });
-          });
+          },
+          ...(options as any)
         },
-        ...(options as any)
-      },
-      queryClient
+        queryClient
+      )
     );
 
     // -------------------------------------------------------------------------
@@ -356,9 +372,9 @@ export const useQuery = () => {
     return {
       ...response,
 
-      data: computed((): TData | null => response.data.value?.data),
+      data: computed((): TData => response?.data?.value?.data ?? ([] as TData)),
 
-      total: computed((): number => response.data.value?.total ?? 0),
+      total: computed((): number => response?.data?.value?.total ?? 0),
 
       // ---state
 
@@ -372,8 +388,8 @@ export const useQuery = () => {
        * @property {number} from - The starting item index for the current page.
        * @property {number} to - The ending item index for the current page.
        */
-      pagination: computed(() => {
-        const total = response.data?.value?.total ?? 0;
+      pagination: computed((): PaginationInfo => {
+        const total = response?.data?.value?.total ?? 0;
         const pageTotal = !limit ? 1 : Math.max(Math.ceil(total / limit), 1);
         return {
           limit,
@@ -382,7 +398,7 @@ export const useQuery = () => {
           pages: pageTotal,
           from: !total ? 0 : limit * (pageIndex.value - 1) + 1,
           to: !limit ? total : Math.min(limit * pageIndex.value, total)
-        };
+        } as PaginationInfo;
       }),
 
       /**
@@ -392,7 +408,7 @@ export const useQuery = () => {
        * @property {boolean} hasPrevPage - Whether there is a previous page.
        */
       meta: computed(() => {
-        const total = response.data?.value?.total ?? 0;
+        const total = response?.data?.value?.total ?? 0;
         const pageTotal = !limit ? 1 : Math.max(Math.ceil(total / limit), 1);
         return {
           hasNextPage: pageIndex.value < pageTotal,
@@ -409,10 +425,10 @@ export const useQuery = () => {
        * @throws {Error} Throws an error if there is no previous page.
        */
       fetchPreviousPage: (): void => {
-        const total = response.data?.value?.total ?? 0;
+        const total = response?.data?.value?.total ?? 0;
         const pageTotal = !limit ? 1 : Math.max(Math.ceil(total / limit), 1);
 
-        if (!response.isPlaceholderData.value && pageIndex.value <= 1) {
+        if (!response?.isPlaceholderData.value && pageIndex.value <= 1) {
           throw new DetailedError(
             "No previous page available",
             responseCodes.No_Content,
@@ -438,10 +454,13 @@ export const useQuery = () => {
        *
        */
       fetchNextPage: (): void => {
-        const total = response.data?.value?.total ?? 0;
+        const total = response?.data?.value?.total ?? 0;
         const pageTotal = !limit ? 1 : Math.max(Math.ceil(total / limit), 1);
 
-        if (!response.isPlaceholderData.value && pageIndex.value >= pageTotal) {
+        if (
+          !response?.isPlaceholderData.value &&
+          pageIndex.value >= pageTotal
+        ) {
           throw new DetailedError(
             "No next page available",
             responseCodes.No_Content,
@@ -456,7 +475,7 @@ export const useQuery = () => {
             }
           );
         }
-        if (!response.isPlaceholderData.value) {
+        if (!response?.isPlaceholderData.value) {
           pageIndex.value = Math.min(pageIndex.value + 1, pageTotal);
         }
       },
@@ -476,6 +495,21 @@ export const useQuery = () => {
           queryKey: [...queryKey, reactiveKeys]
         });
       }
+    } as ReturnType<
+      typeof vueUseQuery<TQueryFnData, DefaultError, QueryResponse<TData>>
+    > & {
+      data: ComputedRef<TData>;
+      pagination: ComputedRef<PaginationInfo>;
+      meta: ComputedRef<{
+        hasNextPage: boolean;
+        hasPrevPage: boolean;
+      }>;
+      total: ComputedRef<number>;
+      fetchNextPage: () => void;
+      fetchPreviousPage: () => void;
+      sort: (values?: QueryParams["sort"]) => void;
+      filter: (values: QueryParams["filters"]) => void;
+      resetQuery: () => Promise<void>;
     };
   }
 
@@ -502,6 +536,9 @@ export const useQuery = () => {
     withAccessToken,
     ...options
   }: QueryParams<TQueryFnData, TData>) {
+    // ensure we have a scope, in case we call this outside of a setup function
+    const scope = getCurrentScope() ?? effectScope();
+
     const { currencyCode } = useBasketCurrency();
 
     // --- state
@@ -521,49 +558,51 @@ export const useQuery = () => {
     if (limit) reactiveKeys.limit = limit;
     if (withCurrency) reactiveKeys.currencyCode = currencyCode;
 
-    const response = vueUseInfiniteQuery<TQueryFnData, DefaultError, TData>(
-      {
-        queryKey: [...queryKey, reactiveKeys],
-        queryFn: async ({ pageParam = 0, signal }) => {
-          const offset = toNumber(pageParam);
-          const hasGuard = isPromise(guard);
-          const safeguard: Promise<void | boolean> = hasGuard
-            ? guard()
-            : Promise.resolve();
-          return safeguard.then(() =>
-            request<TQueryFnData>({
-              url,
-              sort: sort.value,
-              filters: filters.value,
-              pagination: { limit, offset },
-              withCurrency,
-              init: {
-                ...init,
-                signal // Pass the new signal to the request to allow cancellation
-              },
-              withAccessToken
-            }).then(response => {
-              total.value = response.total || 0; // Set the total items count
+    const response = scope.run(() =>
+      vueUseInfiniteQuery<TQueryFnData, DefaultError, TData>(
+        {
+          queryKey: [...queryKey, reactiveKeys],
+          queryFn: async ({ pageParam = 0, signal }) => {
+            const offset = toNumber(pageParam);
+            const hasGuard = isPromise(guard);
+            const safeguard: Promise<void | boolean> = hasGuard
+              ? guard()
+              : Promise.resolve();
+            return safeguard.then(() =>
+              request<TQueryFnData>({
+                url,
+                sort: sort.value,
+                filters: filters.value,
+                pagination: { limit, offset },
+                withCurrency,
+                init: {
+                  ...init,
+                  signal // Pass the new signal to the request to allow cancellation
+                },
+                withAccessToken
+              }).then(response => {
+                total.value = response.total || 0; // Set the total items count
 
-              const data = isFunction(select)
-                ? select(response.data!)
-                : response.data;
+                const data = isFunction(select)
+                  ? select(response.data!)
+                  : response.data;
 
-              return {
-                nextOffset:
-                  !limit || offset + limit >= total.value
-                    ? undefined
-                    : offset + limit,
-                pageData: data
-              };
-            })
-          );
+                return {
+                  nextOffset:
+                    !limit || offset + limit >= total.value
+                      ? undefined
+                      : offset + limit,
+                  pageData: data
+                };
+              })
+            );
+          },
+          getNextPageParam: (lastPage: InfiniteQueryPage<TQueryFnData>) =>
+            lastPage.nextOffset,
+          ...(options as any)
         },
-        getNextPageParam: (lastPage: InfiniteQueryPage<TQueryFnData>) =>
-          lastPage.nextOffset,
-        ...(options as any)
-      },
-      queryClient
+        queryClient
+      )
     );
 
     // -------------------------------------------------------------------------
@@ -583,11 +622,11 @@ export const useQuery = () => {
        * @property {number} from - The starting item index for the current page.
        * @property {number} to - The ending item index for the current page.
        */
-      pagination: computed(() => {
+      pagination: computed((): PaginationInfo => {
         // We use the length of the final, selected data array.
         // The `as any[]` is a safe type assertion here because we know
         // our `select` function returns an array.
-        const itemsFetched = (response.data.value as any[])?.length ?? 0;
+        const itemsFetched = (response?.data.value as any[])?.length ?? 0;
 
         // Calculate pages fetched based on items and limit
         const pagesFetched = limit > 0 ? Math.ceil(itemsFetched / limit) : 1;
@@ -609,8 +648,8 @@ export const useQuery = () => {
        * @property {boolean} hasPrevPage - Whether there is a previous page.
        */
       meta: computed(() => ({
-        hasNextPage: response.hasNextPage.value,
-        hasPrevPage: response.hasPreviousPage.value
+        hasNextPage: response?.hasNextPage?.value,
+        hasPrevPage: response?.hasPreviousPage?.value
       })),
 
       sort: (values?: QueryParams["sort"]) => {
@@ -625,6 +664,17 @@ export const useQuery = () => {
         queryClient.resetQueries({
           queryKey: [...queryKey, reactiveKeys]
         })
+    } as ReturnType<
+      typeof vueUseInfiniteQuery<TQueryFnData, DefaultError, TData>
+    > & {
+      pagination: ComputedRef<PaginationInfo>;
+      meta: ComputedRef<{
+        hasNextPage: boolean;
+        hasPrevPage: boolean;
+      }>;
+      sort: (values?: QueryParams["sort"]) => void;
+      filter: (values: QueryParams["filters"]) => void;
+      resetQuery: () => Promise<void>;
     };
   }
 
@@ -722,7 +772,7 @@ export const useQuery = () => {
   }
 
   /**
-   * Syntax sugar for sending a GET request with pagination, filters and sorting to the server with the given URL and options.
+   * Syntax sugar for sending a GET request with pagination, filters, and sorting to the server with the given URL and options.
    * @see {@link QueryParams}
    * @param url The URL to send the request to.
    * @param init The request options.

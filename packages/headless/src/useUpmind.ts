@@ -15,8 +15,9 @@ import {
   useDataLayer,
   type GlobbedFiles
 } from "./modules";
-import { first } from "lodash-es";
+import { first, get } from "lodash-es";
 import { useRouting } from "./modules/routing/useRouting";
+import { useTheming } from "./modules/theming/useTheming";
 import { Flow, useQuery } from "./modules";
 
 // --- utils
@@ -32,6 +33,8 @@ import {
 import type { IApiPop } from "./utils";
 import type { I18n } from "vue-i18n";
 import type { Router } from "vue-router";
+import type { Theme } from "./modules/theming";
+import { BrandConfigKeys } from "@upmind-automation/types";
 
 // ---
 export enum UpmindStatus {
@@ -62,11 +65,13 @@ export interface UpmindProps {
     files: GlobbedFiles;
     debug?: boolean;
   };
+
+  themes?: Theme[];
 }
 
 // -----------------------------------------------------------------------------
 
-class Upmind {
+export class Upmind {
   private status: UpmindStatus = UpmindStatus.notInitialised;
   analytics: UpmindProps["analytics"];
   debug: UpmindProps["debug"];
@@ -78,6 +83,7 @@ class Upmind {
   recaptcha: UpmindProps["recaptcha"];
   router: UpmindProps["router"];
   storefrontUrl?: string;
+  themes?: UpmindProps["themes"];
 
   constructor() {
     const { queryClient } = useQuery();
@@ -92,7 +98,8 @@ class Upmind {
     pop,
     recaptcha,
     router,
-    storefrontUrl
+    storefrontUrl,
+    themes
   }: UpmindProps): Promise<void> {
     if (this.status != UpmindStatus.notInitialised)
       throw new DetailedError(
@@ -109,6 +116,7 @@ class Upmind {
     this.router = router;
     this.i18n = i18n;
     this.storefrontUrl = storefrontUrl;
+    this.themes = themes;
 
     this.initPlugins();
     this.initDebugging();
@@ -122,6 +130,7 @@ class Upmind {
             this.initAnalytics();
             this.initRouter();
             this.initI18n();
+            this.initTheming();
           });
         }
 
@@ -193,9 +202,13 @@ class Upmind {
     );
     this.analytics.gtm.dataLayer = id;
     init();
+
     this.analytics.gtm.containerId ??= await useBrand()
       .getAnalytics()
-      .then((analytics: any) => analytics?.gtm?.container_id);
+      .then((data: any) =>
+        get(data, BrandConfigKeys.ANALYTICS_GTM_CONTAINER_ID)
+      );
+
     if (this.analytics.gtm.containerId) {
       dataLayer({ gtm_start: new Date().getTime(), event: "gtm.js" }).push(
         false
@@ -219,10 +232,15 @@ class Upmind {
     useRouting(this.router.instance, this.router.flows);
   }
 
+  private async initTheming() {
+    useTheming(this.themes);
+  }
+
   private async initI18n() {
     if (!this.i18n?.instance) return;
 
     const defaultLocale = unref(this.i18n.instance.global.locale);
+
     const locale = useLocale(defaultLocale).locale.value; //TODO: use brand or user locale
 
     // then load our i18n messages from any provided files (globbed)
@@ -230,9 +248,13 @@ class Upmind {
       this.i18n.instance,
       this.i18n.files
     );
+    // NB ALWAYS load the default locale first, so we can use it as a fallback
+    loadLocaleMessages(defaultLocale);
+    // then load the locale we want to use
     loadLocaleMessages(locale);
     setLocale(locale);
   }
+
   // ---------------------------------------------------------------------------
 
   isReady(): Promise<void> {

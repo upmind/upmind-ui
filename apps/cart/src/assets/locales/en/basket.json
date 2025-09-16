@@ -1,14 +1,14 @@
 {
   "basket": {
-    "title": {
-      "text": "Your {0}",
-      "strong": "basket"
-    },
+    "title": "Your basket",
+    "items": "Basket items",
+    "description": "You have {n} item in your basket, totalling {0}. | You have {n} items in your basket, totalling {0}.",
     "back": "Continue shopping",
-    "expand": "Expand all configurations | Collapse all configurations ",
+    "expand": "Expand all details | Collapse all details ",
     "actions": {
       "edit": "Edit configuration",
-      "remove": "Remove from basket"
+      "remove": "Remove from basket",
+      "dismiss": "Dismiss"
     },
     "summary": {
       "title": "Summary",
@@ -31,7 +31,7 @@
     },
 
     "promotions": {
-      "title": "Add a voucher",
+      "title": "Add a voucher code",
       "tooltip": "Voucher applied",
       "actions": {
         "submit": "Apply"

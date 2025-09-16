@@ -11,12 +11,10 @@ on the product cnfiguration page we call...
 <!-- countries / regions / currencies -->
 
 5. Get the lookup of countries....why?
-
    - https://api.staging.upmind.io/api/countries?limit=0
    -
 
 6. Get the Lookup of Billing Cycles...Put in the brand like currencies : only in store > conditional / event driven
-
    - https://api.staging.upmind.io/api/billing_cycles?limit=0
    <!-- --- -->
 
@@ -29,7 +27,6 @@ on the product cnfiguration page we call...
    -
 9. Get the products provisioning fields **IF the product has provisioning fields** `provision_blueprint_id` `provision_provider_id`
    productConfigProvider / provisionProvider / provisionConfigurationProvider
-
    - https://api.staging.upmind.io/api/basket/products/5d085e69-d562-3719-7d6f-218e940d4237/provision_fields?client_id=20403869-6e54-721d-359f-518d9305e7d2&limit=0
 
 10. Get the Domain search availability/status,

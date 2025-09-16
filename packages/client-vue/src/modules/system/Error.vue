@@ -1,12 +1,13 @@
 <template>
   <Layout>
-    <ContentSection v-auto-animate class="flex flex-grow items-center">
+    <ContentSection v-auto-animate class="flex grow items-center">
       <Interstitial
         v-bind="props"
         :animatedIcon="animatedIcon"
         :actions="actions"
         :title="t(`${safeKey}.title`)"
         :text="t(`${safeKey}.text`)"
+        data-testid="error"
       >
         <template #title>
           <SmartTitle :i18n-key="`${safeKey}.title`" align="center" />
@@ -35,11 +36,11 @@ import ContentSection from "../../components/content/ContentSection.vue";
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 import { computed } from "vue";
 import { isEmpty, isNil } from "lodash-es";
-import { ROUTE, useBrand } from "@upmind-automation/headless";
+import { useBrand } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 const { t, tm } = useI18n();
 const router = useRouter();
-const { storefrontUrl } = useBrand();
+const { storefrontRoute } = useBrand();
 
 const props = withDefaults(
   defineProps<
@@ -52,6 +53,7 @@ const props = withDefaults(
     open: true,
     modal: true,
     skrim: "light",
+    to: "#vue-app",
     animatedIcon: () => ({
       icon: "error",
       trigger: "loop",
@@ -97,29 +99,27 @@ const translations = computed(() => {
 });
 
 const actions = computed((): InterstitialActionProps[] => {
-  let href = "window.location.href";
+  let route = storefrontRoute.value;
 
   switch (props.status) {
     // for service errors, we want to reload the page as its likely a temporary issue
     case 500:
     case 503:
-      href = window.location.href;
+      route = {
+        href: window.location.href
+      };
       break;
 
-    // for al lother errors, we want to redirect back to the storefront
+    // for all other errors, we want to redirect back to the storefront
     default:
-      href = storefrontUrl.value;
+      route = storefrontRoute.value;
       break;
   }
 
   const defaultAction: InterstitialActionProps = {
-    as: "a",
+    ...route,
     color: "secondary",
-    href,
-    prependIcon: {
-      icon: t(`${safeKey.value}.icon`),
-      size: "2xs"
-    },
+    icon: t(`${safeKey.value}.icon`),
     label: translations.value.action
   };
   return isNil(props.actions) ? [defaultAction] : props.actions;

@@ -1,128 +1,151 @@
+import { Store } from "@tanstack/vue-store";
+
 // --- internal
-import { RequestSortDirection, useQuery } from "../..";
+import {
+  useQuery,
+  useSession,
+  type QueryParams,
+  RequestSortDirection,
+  localStoragePersister,
+  storePersister
+} from "../..";
 
 // --- utils
 import {
-  DetailedError,
+  useTime,
   ErrorOrigin,
   responseCodes,
-  useTime
+  DetailedError
 } from "../../utils";
 
 // --- types
-import type { IRegion } from "@upmind-automation/types";
-import type { SystemContext } from "./types";
-import type { AnyEventObject } from "xstate";
+import type {
+  IRegion,
+  IStatus,
+  ICountry,
+  ICurrency,
+  ILanguage,
+  IBillingCycle,
+  ITicketDepartment
+} from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
-// ENUMS
+
+const regionsStore = new Store<Record<string, IRegion[]>>({});
 
 // ---  SERVICE METHODS
-// Invoked by machines, providing context and event data
 
-// TODO: session type contextual/guest/client/admin endpoint logic
-//       as we are only guest/client at this point, we can ignore this for now
+function fetchCurrencies() {
+  const { query, useUrl } = useQuery();
 
-async function fetchCurrencies(
-  _context: SystemContext,
-  _event: AnyEventObject
-) {
-  const { get, useUrl } = useQuery();
-
-  return get({
-    url: useUrl("currencies", { limit: 0 }),
-    queryKey: ["system", "currencies"],
-    staleTime: useTime()?.DAY
+  return query<ICurrency[]>({
+    url: useUrl("currencies"),
+    queryKey: ["system", "currencies", { limit: 0 }],
+    // --- options
+    staleTime: useTime()?.DAY,
+    persister: localStoragePersister.persisterFn
   });
 }
 
-async function fetchBillingCycles(
-  _context: SystemContext,
-  _event: AnyEventObject
-) {
-  const { get, useUrl } = useQuery();
-
-  return get({
+function fetchBillingCycles() {
+  const { query, useUrl } = useQuery();
+  return query<IBillingCycle[]>({
     url: useUrl("billing_cycles", { limit: 0 }),
     queryKey: ["system", "billing-cycles"],
-    staleTime: useTime()?.DAY
+    // --- options
+    staleTime: useTime()?.DAY,
+    persister: localStoragePersister.persisterFn
   });
 }
 
-async function fetchCountries(_context: SystemContext, _event: AnyEventObject) {
-  const { get, useUrl } = useQuery();
+function fetchCountries() {
+  const { query, useUrl } = useQuery();
 
-  return get({
+  return query<ICountry[]>({
+    sort: [RequestSortDirection.ASC, "name"],
     url: useUrl("countries", { limit: 0 }),
     queryKey: ["system", "countries"],
-    sort: [RequestSortDirection.ASC, "name"],
-    staleTime: useTime()?.DAY
+    // --- options
+    staleTime: useTime()?.DAY,
+    persister: localStoragePersister.persisterFn
   });
 }
 
-async function fetchRegions(
-  _context: SystemContext,
-  { data: { code, id } }: any
-) {
-  const { get, useUrl } = useQuery();
+function fetchRegions({
+  data: { code, id }
+}: Partial<QueryParams> & {
+  data: { code: string; id: string };
+}) {
+  const { query, useUrl } = useQuery();
 
   if (!code || !id)
-    return Promise.reject(
-      new DetailedError(
-        "No code or id provided",
-        responseCodes.Unprocessable_Entity,
-        ErrorOrigin.Headless
-      )
+    throw new DetailedError(
+      "No code or id provided",
+      responseCodes.Unprocessable_Entity,
+      ErrorOrigin.Headless
     );
-  return get<any>({
+
+  return query<IRegion[]>({
     url: useUrl(`countries/${id}/regions`, { limit: 0 }),
     queryKey: ["system", "regions", code],
-    staleTime: useTime()?.DAY
-  }).then(data => ({ key: code, values: data }) as Record<string, IRegion>);
+    // --- options
+    // select: data => parseRegion(data),
+    staleTime: useTime()?.DAY,
+    persister: storePersister(regionsStore, { append: code }).persisterFn
+  });
 }
 
-async function fetchLanguages(_context: SystemContext, _event: AnyEventObject) {
-  const { get, useUrl } = useQuery();
+function fetchLanguages() {
+  const { meta, user } = useSession();
+  const { query, useUrl } = useQuery();
 
-  return get({
+  return query<ILanguage[]>({
     url: useUrl("languages", { limit: 0 }),
     queryKey: ["system", "languages"],
+    withAccessToken: true,
+    // --- options
     staleTime: useTime()?.DAY,
-    withAccessToken: true
+    persister: localStoragePersister.persisterFn
   });
 }
 
-async function fetchStatuses(_context: SystemContext, _event: AnyEventObject) {
-  const { get, useUrl } = useQuery();
+function fetchStatuses() {
+  const { query, useUrl } = useQuery();
 
-  return get({
+  return query<IStatus>({
     url: useUrl("statuses", { limit: 0 }),
     queryKey: ["system", "statuses"],
-    staleTime: useTime()?.DAY
+    // --- options
+    staleTime: useTime()?.DAY,
+    persister: localStoragePersister.persisterFn
   });
 }
 
-async function fetchDepartments(
-  _context: SystemContext,
-  _event: AnyEventObject
-) {
-  const { get, useUrl } = useQuery();
+function fetchDepartments() {
+  const { query, useUrl } = useQuery();
 
-  return get<any>({
+  return query<ITicketDepartment[]>({
     url: useUrl("tickets/departments", { limit: 0 }),
     queryKey: ["system", "departments"],
-    staleTime: useTime()?.DAY
+    // --- options
+    staleTime: useTime()?.DAY,
+    persister: localStoragePersister.persisterFn
   });
 }
 
 // -----------------------------------------------------------------------------
 
 export default {
-  fetchCurrencies,
-  fetchBillingCycles,
-  fetchCountries,
   fetchRegions,
-  fetchLanguages,
   fetchStatuses,
-  fetchDepartments
+  fetchCountries,
+  fetchLanguages,
+  fetchCurrencies,
+  fetchDepartments,
+  fetchBillingCycles
+  //--
+};
+
+export const stores = {
+  regions: regionsStore
 };

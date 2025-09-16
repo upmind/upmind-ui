@@ -1,22 +1,30 @@
 <!-- eslint-disable vue/no-unused-components -->
 <template>
   <DropdownMenu
-    :items="items"
-    itemClass="!px-5 !py-4"
-    popoverClass="mt-8"
     v-if="meta.isAuthenticated"
+    :items="items"
+    width="sm"
+    :ui-config="{
+      dropdownMenu: {
+        content: ['mt-4']
+      }
+    }"
+    to="#vue-app"
   >
     <template #trigger>
-      <slot></slot>
+      <slot />
     </template>
 
     <template #label>
-      <div class="flex flex-col items-start break-all px-3 py-2" v-if="user">
-        <div>{{ user.fullname }}</div>
-        <div class="text-sm font-normal opacity-60">
+      <label
+        class="flex flex-col items-start text-sm/tight break-all not-italic"
+        v-if="user"
+      >
+        <strong class="font-medium">{{ user.fullname }}</strong>
+        <span class="text-sm/tight font-normal opacity-60">
           {{ user.username }}
-        </div>
-      </div>
+        </span>
+      </label>
     </template>
   </DropdownMenu>
 </template>

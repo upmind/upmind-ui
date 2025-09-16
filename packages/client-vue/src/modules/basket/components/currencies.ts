@@ -346,5 +346,143 @@ export default {
     name: "South African Rand",
     country: "South Africa",
     country_code: "ZA"
+  },
+  ZMW: {
+    code: "ZMW",
+    name: "Zambian Kwacha",
+    country: "Zambia",
+    country_code: "ZM"
+  },
+  ARS: {
+    code: "ARS",
+    name: "Argentine Peso",
+    country: "Argentina",
+    country_code: "AR"
+  },
+  BBD: {
+    code: "BBD",
+    name: "Barbadian Dollar",
+    country: "Barbados",
+    country_code: "BB"
+  },
+  BOB: {
+    code: "BOB",
+    name: "Bolivian Boliviano",
+    country: "Bolivia",
+    country_code: "BO"
+  },
+  CVE: {
+    code: "CVE",
+    name: "Cape Verdean Escudo",
+    country: "Cape Verde",
+    country_code: "CV"
+  },
+  KYD: {
+    code: "KYD",
+    name: "Cayman Islands Dollar",
+    country: "Cayman Islands",
+    country_code: "KY"
+  },
+  CRC: {
+    code: "CRC",
+    name: "Costa Rican Colón",
+    country: "Costa Rica",
+    country_code: "CR"
+  },
+  DOP: {
+    code: "DOP",
+    name: "Dominican Peso",
+    country: "Dominican Republic",
+    country_code: "DO"
+  },
+  GEL: {
+    code: "GEL",
+    name: "Georgian Lari",
+    country: "Georgia",
+    country_code: "GE"
+  },
+  GTQ: {
+    code: "GTQ",
+    name: "Guatemalan Quetzal",
+    country: "Guatemala",
+    country_code: "GT"
+  },
+  HNL: {
+    code: "HNL",
+    name: "Honduran Lempira",
+    country: "Honduras",
+    country_code: "HN"
+  },
+  IQD: {
+    code: "IQD",
+    name: "Iraqi Dinar",
+    country: "Iraq",
+    country_code: "IQ"
+  },
+  MUR: {
+    code: "MUR",
+    name: "Mauritian Rupee",
+    country: "Mauritius",
+    country_code: "MU"
+  },
+  NIO: {
+    code: "NIO",
+    name: "Nicaraguan Córdoba",
+    country: "Nicaragua",
+    country_code: "NI"
+  },
+  PEN: {
+    code: "PEN",
+    name: "Peruvian Sol",
+    country: "Peru",
+    country_code: "PE"
+  },
+  PGK: {
+    code: "PGK",
+    name: "Papua New Guinean Kina",
+    country: "Papua New Guinea",
+    country_code: "PG"
+  },
+  PHP: {
+    code: "PHP",
+    name: "Philippine Peso",
+    country: "Philippines",
+    country_code: "PH"
+  },
+  SAR: {
+    code: "SAR",
+    name: "Saudi Riyal",
+    country: "Saudi Arabia",
+    country_code: "SA"
+  },
+  RSD: {
+    code: "RSD",
+    name: "Serbian Dinar",
+    country: "Serbia",
+    country_code: "RS"
+  },
+  LKR: {
+    code: "LKR",
+    name: "Sri Lankan Rupee",
+    country: "Sri Lanka",
+    country_code: "LK"
+  },
+  TND: {
+    code: "TND",
+    name: "Tunisian Dinar",
+    country: "Tunisia",
+    country_code: "TN"
+  },
+  UYU: {
+    code: "UYU",
+    name: "Uruguayan Peso",
+    country: "Uruguay",
+    country_code: "UY"
+  },
+  VND: {
+    code: "VND",
+    name: "Vietnamese Dong",
+    country: "Vietnam",
+    country_code: "VN"
   }
 } as Record<string, Currency>;

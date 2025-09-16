@@ -1,0 +1,113 @@
+<template>
+  <section :class="styles.product.header.price.root">
+    <header
+      v-if="meta?.discounted"
+      :class="styles.product.header.price.regularPrice"
+    >
+      <del>Was {{ regularPrice }}</del>
+      <Badge variant="outline" color="promotion" size="sm">
+        {{ t("product.promotionSave", [price?.savingPercent]) }}
+      </Badge>
+    </header>
+
+    <p :class="styles.product.header.price.currentPrice.root">
+      <strong
+        v-if="meta?.free"
+        :class="styles.product.header.price.currentPrice.amount"
+      >
+        {{ t("product.free") }}
+      </strong>
+
+      <template v-else>
+        <strong :class="styles.product.header.price.currentPrice.amount">{{
+          currentPrice
+        }}</strong>
+
+        <small :class="styles.product.header.price.currentPrice.term"
+          >/
+          {{
+            t(`product.terms.term.${meta.useMonthlyFromPrice ? 1 : cycle}`)
+          }}</small
+        >
+      </template>
+    </p>
+
+    <footer
+      v-if="!hideTermSummary && !meta.oneoff && meta.useMonthlyFromPrice"
+      :class="styles.product.header.price.total"
+    >
+      <template v-if="te(`product.terms.summary.${cycle}`)">
+        {{ t(`product.terms.summary.${cycle}`, [price?.currentPrice]) }}
+      </template>
+    </footer>
+  </section>
+</template>
+
+<script setup lang="ts">
+// --- external
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
+
+// --- internal
+import config from "./product.config";
+
+// --- utils
+import { first } from "lodash-es";
+
+// --- components
+import { useStyles } from "@upmind-automation/upmind-ui";
+import { Badge } from "@upmind-automation/upmind-ui";
+
+// --- types
+import type { ComputedRef } from "vue";
+import type { ProductPrice } from "./types";
+
+// -----------------------------------------------------------------------------
+
+const props = defineProps<ProductPrice>();
+
+const { t, te } = useI18n();
+
+const configMeta = computed(() => ({
+  //
+}));
+
+const styles = useStyles(
+  [
+    "product.header",
+    "product.header.price",
+    "product.header.price.currentPrice"
+  ],
+  configMeta,
+  config
+) as ComputedRef<{
+  product: {
+    header: {
+      price: {
+        root: string;
+        regularPrice: string;
+        currentPrice: {
+          root: string;
+          amount: string;
+          term: string;
+        };
+        total: string;
+      };
+    };
+  };
+}>;
+
+const regularPrice = computed(() => {
+  if (props.meta?.useMonthlyFromPrice)
+    return props.price?.monthlyFromRegularPrice;
+
+  return props.price?.regularPrice;
+});
+
+const currentPrice = computed(() => {
+  if (props.meta?.useMonthlyFromPrice)
+    return props.price?.monthlyFromCurrentPrice;
+
+  return props.price?.currentPrice;
+});
+</script>

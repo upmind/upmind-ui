@@ -1,0 +1,8 @@
+@import "./assets/styles/vars.css";
+
+@import "tailwindcss";
+
+@import "./assets/styles/index.css";
+
+@source '../ui/src/**/*.{html,vue,js,tsx,ts}';
+@source './src/**/*.{html,vue,js,tsx,ts}';

@@ -4,6 +4,7 @@ import type {
   DialogProps,
   AvatarProps
 } from "@upmind-automation/upmind-ui";
+import type { CxOptions } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 export interface ActionProps extends ButtonProps {
   type?: HTMLButtonElement["type"];
@@ -21,7 +22,7 @@ export interface AuthProps {
   blockTabs?: boolean;
   stretchTabs?: boolean;
   // ---
-  uiConfig?: { alert: Partial<AuthProps> };
+  uiConfig?: { alert: CxOptions };
   class?: HTMLAttributes["class"];
 }
 
@@ -32,7 +33,7 @@ export interface SessionExpiredProps {
   // ---
   title?: DialogProps["title"];
   text?: DialogProps["description"];
-  avatar?: AvatarProps;
+  avatar?: Partial<AvatarProps>;
   action?: ActionProps;
   // ---
   size?: DialogProps["size"];

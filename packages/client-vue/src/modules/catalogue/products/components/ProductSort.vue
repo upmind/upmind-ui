@@ -1,34 +1,10 @@
 <template>
-  <div :class="styles.products.filters.root">
-    <Button
-      variant="outline"
-      color="base"
-      class="w-full"
-      @click="toggleDirection"
-      :disabled="isEmpty(property)"
-    >
-      <template #prepend>
-        <Icon
-          :icon="
-            direction == RequestSortDirection.ASC ? 'sort-asc' : 'sort-desc'
-          "
-          size="2xs"
-          :class="styles.products.filters.trigger"
-        />
-      </template>
-    </Button>
-
-    <DropdownMenu :items="items" class="flex-1">
-      <template #trigger>
-        <Button
-          variant="outline"
-          color="base"
-          :label="currentSort?.label"
-          class="w-full"
-        />
-      </template>
-    </DropdownMenu>
-  </div>
+  <ButtonGroup
+    to="#vue-app"
+    :items="groupItems"
+    variant="outline"
+    class="w-full"
+  />
 </template>
 
 <script setup lang="ts">
@@ -41,25 +17,26 @@ import {
   ProductSortableProperties,
   RequestSortDirection
 } from "@upmind-automation/headless";
-import config from "../../catalogue.config";
 
 // --- components
 import {
-  Button,
-  Icon,
-  DropdownMenu,
-  useStyles
+  ButtonGroup,
+  ButtonGroupTypes,
+  type ButtonGroupItem,
+  type ButtonProps,
+  type SelectProps
 } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { find, isEmpty } from "lodash-es";
 
 // --- types
-import type { DropdownMenuItemProps } from "@upmind-automation/upmind-ui";
+import type { SelectItemProps } from "@upmind-automation/upmind-ui";
 import type { ProductSortProps } from "../types";
-import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
+
+const { t } = useI18n();
 
 const property = defineModel<ProductSortProps["property"]>("property", {
   default: ProductSortableProperties.DEFAULT
@@ -68,9 +45,46 @@ const property = defineModel<ProductSortProps["property"]>("property", {
 const direction = defineModel<ProductSortProps["direction"]>("direction", {
   default: RequestSortDirection.ASC
 });
-// -----------------------------------------------------------------------------
 
-const { t } = useI18n();
+const items = computed(() => [
+  {
+    label: t("product.sort.default"),
+    value: ProductSortableProperties.DEFAULT
+  },
+  {
+    label: t("product.sort.name"),
+    value: ProductSortableProperties.NAME
+  },
+  {
+    label: t("product.sort.price"),
+    value: ProductSortableProperties.PRICE
+  }
+]);
+
+const groupItems = computed((): ButtonGroupItem[] => [
+  {
+    type: ButtonGroupTypes.Button,
+    class: "px-6 md:px-1",
+    props: {
+      icon:
+        direction.value == RequestSortDirection.ASC ? "sort-asc" : "sort-desc",
+      disabled: isEmpty(property.value)
+    } satisfies ButtonProps,
+    handler: toggleDirection
+  },
+  {
+    type: ButtonGroupTypes.Select,
+    class: "mx-auto md:mx-0",
+    props: {
+      modelValue: property.value,
+      items: items.value,
+      placeholder: currentSort.value?.label
+    } satisfies SelectProps,
+    handler: (value: string) => {
+      property.value = value as ProductSortableProperties;
+    }
+  }
+]);
 
 const currentSort = computed(() => {
   return find(items.value, { value: property.value });
@@ -82,40 +96,4 @@ function toggleDirection() {
       ? RequestSortDirection.DESC
       : RequestSortDirection.ASC;
 }
-const items = computed((): DropdownMenuItemProps[] => [
-  {
-    label: t("product.sort.default"),
-    value: ProductSortableProperties.DEFAULT,
-    handler: () => {
-      property.value = ProductSortableProperties.DEFAULT;
-    }
-  },
-  {
-    label: t("product.sort.name"),
-    value: ProductSortableProperties.NAME,
-    handler: () => {
-      property.value = ProductSortableProperties.NAME;
-    }
-  },
-  {
-    label: t("product.sort.price"),
-    value: ProductSortableProperties.PRICE,
-    handler: () => {
-      property.value = ProductSortableProperties.PRICE;
-    }
-  }
-]);
-
-const styles = useStyles(
-  ["products", "products.filters"],
-  {},
-  config
-) as ComputedRef<{
-  products: {
-    filters: {
-      root: string;
-      trigger: string;
-    };
-  };
-}>;
 </script>

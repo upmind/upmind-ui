@@ -1,5 +1,3 @@
-import { isFunction } from "lodash-es";
-
 export * from "./isDeepEmpty";
 export * from "./useCookies";
 export * from "./useCollections";

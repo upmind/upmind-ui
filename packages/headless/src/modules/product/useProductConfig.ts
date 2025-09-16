@@ -1,5 +1,5 @@
 // --- external
-import { computed, ref, toRef, watch } from "vue";
+import { computed, ref } from "vue";
 import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
@@ -43,10 +43,10 @@ import type {
 // -----------------------------------------------------------------------------
 
 export const useProductConfig = (service: ActorRef<any>) => {
-  const { includesTax } = useBrand();
+  const { isReady, includesTax } = useBrand();
 
   const { state, send } = useActor(service);
-  const model = toRef(state.value.context, "model");
+  const model = computed(() => state.value.context.model); //toRef(state.value.context, "model");
   const lookups = computed(() => state.value.context.lookups);
   const id = computed(() => service.id);
   const touched = ref(false);
@@ -88,10 +88,10 @@ export const useProductConfig = (service: ActorRef<any>) => {
     () => state.value.context?.error.data
   );
   const additionalErrors = computed<Product["errors"]>(
-    () => state.value.context?.errorExternal.data
+    () => state.value.context?.errorExternal
   );
 
-  const meta = computed(() => ({
+  const meta = computed<UseProductConfigMeta>(() => ({
     isLoading: stateMatches(state, ["subscribing", "loading"]),
     isNew: !contextMatches(state, ["basketProduct"]),
     isDirty: !isEqual(
@@ -102,19 +102,22 @@ export const useProductConfig = (service: ActorRef<any>) => {
     showErrors:
       contextMatches(state, ["error"]) && contextMatches(state, ["attempts"]),
 
-    isUnavailable: state.value.done || stateMatches(state, ["error"]),
     hasErrors:
       stateMatches(state, ["error", "available.invalid", "available.error"]) ||
       contextMatches(state, ["error"]),
 
-    isConfigurable: contextMatches(state, [
-      "lookups.attributes",
-      "lookups.options",
-      "lookups.provisionFields.properties"
-    ]),
+    isConfigurable:
+      terms.value?.length > 1 ||
+      contextMatches(state, [
+        "lookups.attributes",
+        "lookups.options",
+        "lookups.provisionFields.properties"
+      ]),
     isInvalid: stateMatches(state, ["available.invalid"]),
     isCalculating: contextMatches(state, ["lookups.prices.calculating"]),
     isProcessing: stateMatches(state, ["refreshing", "processing"]),
+    isAvailable: stateMatches(state, ["available", "refreshing", "processing"]),
+    isUnavailable: stateMatches(state, ["error"]),
     isComplete: state.value?.done || stateMatches(state, ["complete"]),
     isDone: state.value?.done,
 
@@ -128,14 +131,6 @@ export const useProductConfig = (service: ActorRef<any>) => {
     hasMonthlyTerms: some(state.value.context?.lookups?.terms, ["cycle", 1]),
     hasTaxIncluded: includesTax.value
   }));
-
-  // keep our model in sync with the machine,
-  // typically this is only needed when the machine is updated/refreshed
-  watch(state, newVal => {
-    if (newVal.context.model !== model.value) {
-      model.value = newVal.context.model;
-    }
-  });
 
   // --
   async function setValues(
@@ -154,10 +149,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
       service,
       state => ["available.valid", "available.invalid"].some(state.matches),
       { timeout: 60_000 }
-    ).then(state => {
-      // NB only updat ethe model AFTER we have chaecked/parsed/validated
-      model.value = state.context.model;
-    });
+    );
   }
 
   // --- QUANTITY
@@ -364,4 +356,30 @@ export const useProductConfig = (service: ActorRef<any>) => {
     // ---
     reset: () => send({ type: "RESET" })
   };
+};
+
+export type UseProductConfig = ReturnType<typeof useProductConfig>;
+
+export type UseProductConfigMeta = {
+  isLoading: boolean;
+  isNew: boolean;
+  isDirty: boolean;
+  isTouched: boolean;
+  showErrors: boolean;
+  hasErrors: boolean;
+  isConfigurable: boolean;
+  isInvalid: boolean;
+  isProcessing: boolean;
+  isCalculating: boolean;
+  isAvailable: boolean;
+  isUnavailable: boolean;
+  isComplete: boolean;
+  isDone: boolean;
+  // ---
+  hasProvisioning: boolean;
+  hasAttributes: boolean;
+  hasOptions: boolean;
+  hasTerms: boolean;
+  hasMonthlyTerms: boolean;
+  hasTaxIncluded: boolean;
 };

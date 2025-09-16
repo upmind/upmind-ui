@@ -38,7 +38,6 @@ export const useCheckoutFlows = () => {
         next: [
           {
             name: ROUTE.ORDER,
-            meta: { replace: true },
             guard: async (_route: Route) => basketMeta.value.isComplete,
             resolve: async (_route: Route) => {
               return {
@@ -55,7 +54,6 @@ export const useCheckoutFlows = () => {
         fallback: [
           {
             name: ROUTE.ORDER,
-            meta: { replace: true },
             guard: async (_route: Route) => basketMeta.value.isComplete,
             resolve: async (_route: Route) => {
               return {

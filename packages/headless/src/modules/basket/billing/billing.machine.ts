@@ -1,26 +1,26 @@
 // --- external
-import type { AnyEventObject } from "xstate";
 import { assign, sendParent, createMachine } from "xstate";
 
 // --- internal
 import services from "./services";
 import { useFeedback } from "../../feedback";
+import { useSchema, useUischema } from "./schema";
 const { addError } = useFeedback();
 
 // --- utils
-import { useSchema, useUischema } from "./schema";
 import {
   useTime,
-  useValidationParser,
   useModelParser,
-  ResponseError,
-  mapToHeadlessError
+  mapToHeadlessError,
+  useValidationParser
 } from "../../../utils";
+import { responseCodes } from "../../../utils";
 import { isEqual } from "lodash-es";
 
 // --- types
+import type { AnyEventObject } from "xstate";
 import type { BillingContext } from "./types";
-import { responseCodes } from "../../../utils";
+import type { ResponseError } from "../../../utils";
 
 // -----------------------------------------------------------------------------
 export default createMachine(

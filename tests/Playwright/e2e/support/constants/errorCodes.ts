@@ -1,74 +1,76 @@
+import { URLs } from "./urls";
+
 export const ErrorCodes = {
   plannedMaintenance: {
-    route: "**/api/config/organisation/values*",
-    url: "http://qa-automation.local:5173/product/add/3de78642-de53-9714-76df-21208469530d",
+    route: "**/api/*",
+    url: `${URLs.starterHosting}`,
     errorCode: 503,
     status: "error",
     responseError: {
-      id: null,
+      id: "planned_maintenance",
       type: 503,
       code: "planned_maintenance",
-      message: "Service temporarily unavailable",
-      data: null
+      message: "Service temporarily unavailable"
     },
-    button: "reload-page"
+    button: "reload-page",
+    errorType: "dialog"
   },
 
   unauthorizedAccess: {
-    route: "**/api/*",
-    url: "http://qa-automation.local:5173/product/add/20403869-6e54-721d-264c-518d9305e7d2",
+    route: "**/api/**",
+    url: `${URLs.starterHosting}`,
     errorCode: 403,
     status: "error",
     responseError: {
-      id: null,
+      id: "unauthorized_access",
       type: 0,
       code: 403,
-      message: "Product not found",
-      data: null
+      message: "Product not found"
     },
-    button: "continue-shopping"
+    button: "continue-shopping",
+    errorType: "redirect"
   },
 
   productNotFound: {
-    route: "**/api/basket/products/**",
-    url: "http://qa-automation.local:5173/product/add/20403869-6e54-721d-264c-518d9305e7d2",
+    route: "**/api/**",
+    url: `${URLs.starterHosting}`,
     errorCode: 404,
     status: "error",
     responseError: {
-      id: null,
+      id: "product_not_found",
       type: 0,
       code: 404,
-      message: "Product not found",
-      data: null
+      message: "Product not found"
     },
-    button: "continue-shopping"
+    button: "continue-shopping",
+    errorType: "redirect"
   },
   generic500: {
     route: "**/api/*",
-    url: "http://qa-automation.local:5173/product/add/20403869-6e54-721d-264c-518d9305e7d2",
+    url: `${URLs.starterHosting}`,
     errorCode: 500,
     status: "error",
     responseError: {
-      id: null,
+      id: "generic_error",
       type: 0,
       code: 500,
-      message: "Sorry, we are experiencing technical issues",
-      data: null
+      message: "An unexpected error occurred"
     },
-    button: "reload-page"
+    button: "reload-page",
+    errorType: "toast"
   },
   timeout504: {
     route: "**/api/*",
-    url: "http://qa-automation.local:5173/product/add/20403869-6e54-721d-264c-518d9305e7d2",
+    url: `${URLs.starterHosting}`,
     errorCode: 504,
     status: "error",
     responseError: {
-      id: null,
+      id: "timeout_error",
       type: 0,
       code: 504,
-      message: "Sorry, we have experienced an error",
-      data: null
+      message: "Sorry, we have experienced an error"
     },
-    button: "back-to-shopping"
+    button: "back-to-shopping",
+    errorType: "toast"
   }
 };

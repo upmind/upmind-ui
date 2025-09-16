@@ -1,50 +1,44 @@
 <template>
-  <UpmLayout variant="enclosed">
+  <Layout variant="enclosed">
     <template #controls>
-      <UpmContentSection class="mx-auto max-w-app" class-content="gap-2 flex">
-        <Button
-          type="reset"
-          class="relative -top-4 md:-top-6"
-          size="sm"
-          variant="tonal"
-          label="Addresses"
-          @click.prevent="router.push({ name: 'client.addresses' })"
-        >
-        </Button>
-        <Button
-          type="reset"
-          class="relative -top-4 md:-top-6"
-          size="sm"
-          variant="tonal"
-          label="Emails"
-          @click.prevent="router.push({ name: 'client.emails' })"
-        >
-        </Button>
-        <Button
-          type="reset"
-          class="relative -top-4 md:-top-6"
-          size="sm"
-          variant="tonal"
-          label="Phones"
-          @click.prevent="router.push({ name: 'client.phones' })"
-        >
-        </Button>
-        <Button
-          type="reset"
-          class="relative -top-4 md:-top-6"
-          size="sm"
-          variant="tonal"
-          label="Companies"
-          @click.prevent="router.push({ name: 'client.companies' })"
-        >
-        </Button>
+      <div class="flex w-full flex-col items-center justify-between gap-4">
+        <div class="flex flex-col justify-center gap-2 md:flex-row">
+          <Button
+            size="sm"
+            variant="tonal"
+            label="Addresses"
+            @click.prevent="router.push({ name: 'client.addresses' })"
+          >
+          </Button>
+          <Button
+            size="sm"
+            variant="tonal"
+            label="Emails"
+            @click.prevent="router.push({ name: 'client.emails' })"
+          >
+          </Button>
+          <Button
+            size="sm"
+            variant="tonal"
+            label="Phones"
+            @click.prevent="router.push({ name: 'client.phones' })"
+          >
+          </Button>
+          <Button
+            size="sm"
+            variant="tonal"
+            label="Companies"
+            @click.prevent="router.push({ name: 'client.companies' })"
+          >
+          </Button>
+        </div>
 
         <Alert
           v-if="!meta.isAuthenticated && !meta.isLoading"
           color="error"
           title="Please log in to use client companies"
         />
-      </UpmContentSection>
+      </div>
     </template>
 
     <RouterView
@@ -70,7 +64,7 @@
         </KeepAlive>
       </template>
     </RouterView>
-  </UpmLayout>
+  </Layout>
 </template>
 
 <script lang="ts" setup>
@@ -81,13 +75,9 @@ import { useRouter } from "vue-router";
 import { useSession } from "@upmind-automation/headless";
 
 // --- components
-import {
-  UpmLoading,
-  UpmLayout,
-  UpmContentSection
-} from "@upmind-automation/client-vue";
+import { UpmLoading } from "@upmind-automation/client-vue";
 
-import { Button, Alert } from "@upmind-automation/upmind-ui";
+import { Layout, Button, Alert } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 

@@ -1,24 +1,24 @@
 <template>
-  <div class="flex w-full flex-col gap-y-1">
+  <div class="flex w-full flex-col gap-1">
     <header class="flex w-full items-start justify-between">
-      <h3 class="m-0 flex items-center gap-x-2 text-sm font-semibold">
+      <h3 class="text-md m-0 flex items-center gap-x-2 font-medium">
         {{ title }}
         <Badge
           v-if="meta?.isDefault"
           variant="flat"
-          size="xs"
+          size="sm"
           :label="t(`${i18nKey ?? 'manage'}.default`)"
         />
       </h3>
 
-      <Link
+      <Button
         v-if="!props.readonly"
         :label="t(`${i18nKey ?? 'manage'}.actions.edit`)"
-        size="xs"
-        variant="muted"
+        size="sm"
+        variant="link"
+        color="muted"
         tabindex="-1"
         @mousedown.stop.prevent
-        class="h-4"
         @click.stop.prevent="doEdit"
       />
     </header>
@@ -34,7 +34,7 @@
 import { useI18n } from "vue-i18n";
 
 // --- components
-import { Link, Badge } from "@upmind-automation/upmind-ui";
+import { Button, Badge } from "@upmind-automation/upmind-ui";
 
 // --- types
 

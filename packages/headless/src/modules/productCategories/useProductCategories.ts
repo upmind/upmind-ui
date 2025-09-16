@@ -15,7 +15,8 @@ import {
   includes,
   isString,
   reduce,
-  concat
+  concat,
+  isArray
 } from "lodash-es";
 
 // --- types
@@ -42,7 +43,7 @@ export const useProductCategories = (initial?: QueryProps) => {
 
   // --- utils
 
-  /** generate a utlility walker to tak all categories( data) and take their children  iterativel and add them to a flattend lit of categoris */
+  /** generate a utility walker to tak all categories( data) and take their children iterative and add them to a flattened lit of categories */
   function flattenCategories(categories: ProductCategory[]): ProductCategory[] {
     const flattened: ProductCategory[] = [];
     const walk = (category: ProductCategory) => {
@@ -58,7 +59,9 @@ export const useProductCategories = (initial?: QueryProps) => {
   // --- context
 
   const dataFlattened = computed(() => {
-    return flattenCategories(query.data.value ?? []);
+    return flattenCategories(
+      isArray(query?.data?.value) ? query.data.value : []
+    );
   });
 
   // --- methods
@@ -160,7 +163,10 @@ export const useProductCategories = (initial?: QueryProps) => {
      * The reactive data property containing the list of client items.
      * This is populated by the query and updates automatically when the query state changes.
      */
-    data: query.data,
+    data: computed(() => {
+      const data = query.data.value;
+      return isArray(data) ? data : null;
+    }),
 
     dataFlattened,
 
@@ -173,7 +179,12 @@ export const useProductCategories = (initial?: QueryProps) => {
     // --- methods
 
     getPath: (categoryId?: ProductCategory["id"]) =>
-      !categoryId ? [] : walkPath(categoryId, query.data.value ?? []),
+      !categoryId
+        ? []
+        : walkPath(
+            categoryId,
+            isArray(query?.data?.value) ? query.data.value : []
+          ),
 
     /**
      * Get a single address by id.

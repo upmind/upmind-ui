@@ -23,7 +23,9 @@ export const useClientCompanyActions = () => {
         const addressDetails = get(address, "description");
         const companyDetails = compact([
           model?.regNumber ? `Reg #: ${get(model, "company.regNumber")}` : null,
-          model?.vatNumber ? `Tax #: ${get(model, "company.vatNumber")}` : null
+          model?.tax?.number
+            ? `Tax #: ${get(model, "company.tax.number")}`
+            : null
         ]).join(";");
 
         return compact([addressDetails, companyDetails]).join(";");

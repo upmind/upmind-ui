@@ -2,7 +2,7 @@
   <div class="w-full">
     <footer class="footerTheme" aria-labelledby="footer-heading">
       <div class="bg-base-background text-base-foreground">
-        <div class="container mx-auto max-w-app py-16">
+        <div class="max-w-app container mx-auto py-16">
           <h2 id="footer-heading" class="sr-only">Footer</h2>
           <div
             class="flex flex-col items-start justify-between space-y-8 sm:flex-row sm:space-y-0"
@@ -96,11 +96,11 @@
       id="bottom-left-modal"
       data-modal-placement="bottom-left"
       tabindex="1"
-      class="gdprTheme h-modal fixed inset-x-0 bottom-0 left-0 right-0 z-[2147483002] items-end overflow-y-auto p-4 md:right-auto"
+      class="gdprTheme h-modal fixed inset-x-0 right-0 bottom-0 left-0 z-2147483002 items-end overflow-y-auto p-4 md:right-auto"
     >
       <div class="relative h-full max-w-lg md:h-auto">
         <div
-          class="bg-gdprBackground dark:bg-gdprBackgroundDark border-gdprBorder dark:border-gdprBorderDark rounded-dropdownNavigation relative border shadow"
+          class="bg-gdprBackground dark:bg-gdprBackgroundDark border-gdprBorder dark:border-gdprBorderDark rounded-dropdownNavigation relative border"
         >
           <div class="space-y-4 p-6">
             <h3 class="text-heading dark:text-headingDark text-base-foreground">
@@ -125,7 +125,7 @@
               Preferences</button
             ><button
               type="button"
-              class="text-cta hover:text-ctaHover dark:text-ctaDark dark:hover:text-ctaDarkHover bg-ctaBackground hover:bg-ctaBackgroundHover dark:bg-ctaBackgroundDark dark:hover:bg-ctaBackgroundHoverDark inline-block rounded px-4 py-1.5 shadow-sm"
+              class="text-cta hover:text-ctaHover dark:text-ctaDark dark:hover:text-ctaDarkHover bg-ctaBackground hover:bg-ctaBackgroundHover dark:bg-ctaBackgroundDark dark:hover:bg-ctaBackgroundHoverDark inline-block rounded-sm px-4 py-1.5"
               tabindex="2"
             >
               <span>OK</span>

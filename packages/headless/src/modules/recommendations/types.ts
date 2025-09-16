@@ -15,6 +15,7 @@ import type {
   Product
 } from "../product";
 import type { ResponseError } from "../../utils";
+import type { Benefit } from "../product";
 
 // -----------------------------------------------------------------------------
 
@@ -24,11 +25,6 @@ export interface Badge {
   variant?: string;
   size?: string;
   class?: string;
-}
-
-export interface Benefit {
-  label: string;
-  icon?: string | any;
 }
 
 interface Promotion {

@@ -7,28 +7,42 @@
     class="w-full"
   />
 
-  <footer :class="styles.checkout.footer" v-auto-animate>
-    <Button
-      :disabled="!basketMeta.isReadyForCheckout || meta.isProcessing"
-      :loading="basketMeta.isProcessingDetails"
-      :color="color"
-      @click.prevent="handleCheckout"
-      :label="getGatewayi18n('actions.submit')"
-      :class="styles.checkout.action"
+  <footer :class="styles.checkout.footer.root" v-auto-animate>
+    <div :class="styles.checkout.footer.actions">
+      <Button
+        :disabled="!basketMeta.isReadyForCheckout || meta.isProcessing"
+        :loading="basketMeta.isProcessingDetails"
+        :color="color"
+        size="lg"
+        @click.prevent="handleCheckout"
+        :label="t(getGatewayi18n('actions.submit'))"
+        :class="styles.checkout.action"
+        pill
+      />
+
+      <p
+        v-if="!t(getGatewayi18n('footer.title')).includes('checkout')"
+        :class="styles.checkout.additional"
+      >
+        <Icon :icon="t(getGatewayi18n('footer.icon'))" size="nano" />
+        {{ t(getGatewayi18n("footer.title")) }}
+      </p>
+    </div>
+
+    <Markdown
+      v-if="uiCart?.clickwrap_disclaimer"
+      tag="p"
+      :class="styles.checkout.clickwrap"
+      :model-value="uiCart.clickwrap_disclaimer"
+      :keys="{ action: t(getGatewayi18n('actions.submit')) }"
     />
 
-    <div
-      v-if="!getGatewayi18n('footer.title').includes('checkout')"
-      :class="styles.checkout.additional"
-    >
-      <Icon :icon="getGatewayi18n('footer.icon')" class="size-3" />
-      <span>
-        {{ getGatewayi18n("footer.title") }}
-      </span>
-    </div>
+    <TermsAndConditions
+      v-else
+      :class="styles.checkout.footer.terms"
+      :label="getGatewayi18n('actions.submit')"
+    />
   </footer>
-
-  <Clickwrap :action-text="getGatewayi18n('actions.submit')" />
 </template>
 
 <script lang="ts" setup>
@@ -39,12 +53,12 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 // --- internal
 import config from "../../checkout.config";
 import { useStyles } from "@upmind-automation/upmind-ui";
+import { useBrand } from "@upmind-automation/headless";
 
 // --- components
-import { Icon, Button } from "@upmind-automation/upmind-ui";
+import TermsAndConditions from "../../../brand/TermsAndConditions.vue";
+import { Icon, Button, Markdown } from "@upmind-automation/upmind-ui";
 import PaymentGateway from "../PaymentGateway.vue";
-import Clickwrap from "./Clickwrap.vue";
-
 // --- types
 import type { ComputedRef } from "vue";
 import type { GatewayContentProps } from "./types";
@@ -54,16 +68,27 @@ const props = defineProps<GatewayContentProps>();
 
 const { t, te } = useI18n();
 
+const { uiCart } = useBrand();
+
 const emit = defineEmits(["checkout"]);
 
-const styles = useStyles(["checkout"], {}, config) as ComputedRef<{
+const styles = useStyles(
+  ["checkout", "checkout.footer"],
+  {},
+  config
+) as ComputedRef<{
   checkout: {
     gateway: string;
     content: string;
-    footer: string;
+    footer: {
+      root: string;
+      actions: string;
+      terms: string;
+    };
     action: string;
     additional: string;
     terms: string;
+    clickwrap: string;
   };
 }>;
 
@@ -74,10 +99,10 @@ const getGatewayi18n = (property: string) => {
   if (type === 1) {
     const codeKey = `checkout.${code}.${property}`;
     if (te(codeKey)) return t(codeKey);
-    return t(`checkout.${type}.${property}`);
+    return `checkout.${type}.${property}`;
   }
 
-  return t(`checkout.${type}.${property}`);
+  return `checkout.${type}.${property}`;
 };
 
 const handleCheckout = () => {

@@ -24,14 +24,14 @@ test.describe("Two-Factor Login", async () => {
     );
   });
   test("Successful login with 2FA", async ({ page }) => {
-    await page.getByTestId("form-item-token").fill(oneTimeCode);
+    await login.twoFactorInput.fill(oneTimeCode);
     await page.getByTestId("button-log-into-my-account").click();
     await expect(page).toHaveURL(URLs.emptyBasket);
   });
   test("Unsuccessful login with 2FA", async ({ page }) => {
-    await page.getByTestId("form-item-token").fill("123456");
+    await login.twoFactorInput.fill("123456");
     await page.getByTestId("button-log-into-my-account").click();
-    await expect(page.getByTestId("form-message")).toHaveText(
+    await expect(page.getByTestId("form-item-message-token")).toHaveText(
       "Invalid or expired two-factor auth code"
     );
   });

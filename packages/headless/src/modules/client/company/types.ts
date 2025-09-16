@@ -26,7 +26,9 @@ export interface CompanyModel {
   // ---
   name?: ICompany["name"];
   regNumber?: ICompany["reg_number"];
-  vatNumber?: ICompany["vat_number"];
+  tax?: {
+    number?: ICompany["vat_number"];
+  };
   default?: ICompany["default"];
 }
 
@@ -43,13 +45,25 @@ export interface Company {
   name: ICompany["name"];
   default: ICompany["default"];
   regNumber: ICompany["reg_number"];
-  vatNumber: ICompany["vat_number"];
-  vatPercent: ICompany["vat_percent"];
+  tax: {
+    valid: ICompany["vat_validated"];
+    percent: ICompany["vat_percent"];
+    number: ICompany["vat_number"];
+    reason: ICompany["vat_validation_failed_reason"];
+    checked: {
+      date: ICompany["vat_validation_checked_at"];
+      relative: string;
+    };
+    with: ICompany["vat_validated_with"];
+  };
   // --- meta info
   meta: {
     isDefault: boolean;
     canDelete: boolean;
     isVerified: boolean;
+    hasTax: boolean;
+    hasTaxValidation: boolean;
+    hasValidTax: boolean;
   };
 }
 
@@ -60,5 +74,5 @@ export interface CompanyContext extends ClientItemContext<CompanyModel> {
   country?: ICountry;
   regions?: IRegion[];
   countries: ICountry[];
-  minimal: boolean;
+  minimal?: boolean;
 }

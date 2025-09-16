@@ -2,20 +2,22 @@ import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { resolve } from "path";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
-import UpmindTransferPlugin from "./vite.plugin.transfer";
+import vueDevTools from "vite-plugin-vue-devtools";
+import tailwindcss from "@tailwindcss/vite";
 
 const isProd = process.env.MODE === "production";
 
 export default defineConfig({
   plugins: [
-    UpmindTransferPlugin(),
     vue({
       template: {
         compilerOptions: {
-          isCustomElement: tag => tag.startsWith("lord-")
+          isCustomElement: (tag: string) => tag.startsWith("lord-")
         }
       }
     }),
+    vueDevTools(),
+    tailwindcss(),
     sentryVitePlugin({
       org: "upmind",
       project: "cart",
@@ -35,9 +37,25 @@ export default defineConfig({
         __dirname,
         "../../packages/headless/src/index.ts"
       ),
+      "@upmind-automation/upmind-ui/styles": resolve(
+        __dirname,
+        "../../packages/ui/src/assets/styles/index.css"
+      ),
+      "@upmind-automation/upmind-ui/vars": resolve(
+        __dirname,
+        "../../packages/ui/src/assets/styles/vars.css"
+      ),
       "@upmind-automation/upmind-ui": resolve(
         __dirname,
         "../../packages/ui/src/index.ts"
+      ),
+      "@upmind-automation/client-vue/styles": resolve(
+        __dirname,
+        "../../packages/client-vue/src/assets/styles/index.css"
+      ),
+      "@upmind-automation/client-vue/vars": resolve(
+        __dirname,
+        "../../packages/client-vue/src/assets/styles/vars.css"
       ),
       "@upmind-automation/client-vue": resolve(
         __dirname,
@@ -57,6 +75,7 @@ export default defineConfig({
     drop: isProd ? ["console", "debugger"] : []
   },
   build: {
+    minify: "esbuild", // Ensure esbuild is used for minification
     rollupOptions: {
       input: {
         main: resolve(__dirname, "index.html"),

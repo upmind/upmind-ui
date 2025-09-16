@@ -1,7 +1,9 @@
 <template>
   <Loading
     :active="!themeMeta.hasSettings"
-    class="h-full min-h-screen w-full !text-gray-400"
+    class-active="h-full min-h-screen w-full text-gray-400!"
+    id="vue-app"
+    :data-theme="theme?.id"
   >
     <Suspense
       @pending="setLoading(true)"
@@ -10,8 +12,6 @@
     >
       <div
         class="bg-background text-foreground relative flex min-h-screen flex-col items-start antialiased"
-        :data-theme="activeTheme"
-        id="vue-app"
       >
         <slot name="header">
           <Header :logo="logo">
@@ -75,7 +75,7 @@ import { useRoute } from "vue-router";
 
 // --- internal
 import { useThemes, useStyles } from "@upmind-automation/upmind-ui";
-import { useBrandTheme } from "./modules/brand";
+import { useTheme } from "./modules/theming";
 
 // --- components
 import Footer from "./components/footer/Footer.vue";
@@ -86,7 +86,7 @@ import AsyncLoading from "./modules/system/Loading.vue";
 import { Loading } from "@upmind-automation/upmind-ui";
 
 // --- utils
-import { get } from "lodash-es";
+import { find, get } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -94,34 +94,30 @@ import type { InterstitialProps } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
-  theme?: any;
+  theme?: string;
   logo?: string;
   loadingProps?: InterstitialProps;
 }>();
 const loading = ref(true);
 
 // -----------------------------------------------------------------------------
+const { theme, meta: themeMeta } = useTheme(props.theme);
 
-const { theme, isReady, meta: themeMeta } = useBrandTheme(props.theme);
-isReady().then(() => {
-  if (!theme.value) {
-    console.warn("No theme found, using default theme.");
-    return;
-  }
-  add(theme.value);
-});
-
-const { activeTheme, add } = useThemes(theme.value);
 const currentRoute = useRoute();
 
 const route = computed(() =>
   get(currentRoute, "name", get(currentRoute, "path", ""))
 );
 
-const styles = useStyles(["page"], {
-  route,
-  loading
-}) as ComputedRef<{
+const meta = computed(() => {
+  return {
+    route: route.value,
+    loading: loading.value,
+    available: themeMeta.value.hasTheme
+  };
+});
+
+const styles = useStyles(["page"], meta) as ComputedRef<{
   page: string;
 }>;
 

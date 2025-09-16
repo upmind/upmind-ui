@@ -1,70 +1,63 @@
 <template>
-  <Card :class="styles.summary.card" as="aside">
-    <header :class="styles.summary.header">
-      <SummaryPricing
-        v-if="product?.pricing"
-        :pricing="product.pricing"
-        :meta="product.meta"
-        :loading="meta.isLoading"
-        :processing="meta.isCalculating"
-      />
-    </header>
+  <header :class="styles.summary.header">
+    <SummaryPricing
+      v-if="product?.pricing"
+      :pricing="product.pricing"
+      :meta="product.meta"
+      :loading="meta.isLoading"
+      :processing="meta.isCalculating"
+      :details="product.details"
+    />
+  </header>
 
-    <footer :class="styles.summary.footer" v-if="product?.productDetails">
-      <NumberField
-        v-if="product?.productDetails?.quantifiable"
-        :min="product.productDetails.min"
-        :max="product.productDetails.max"
-        :step="product.productDetails.step"
-        :model-value="product.configuration.quantity"
-        :default-value="
-          product.configuration.quantity || product.productDetails.step
-        "
-        @update:modelValue="updateQuantity"
-        :disabled="meta.isLoading || meta.isProcessing"
-      />
+  <footer :class="styles.summary.footer" v-if="product?.productDetails">
+    <NumberField
+      v-if="product?.productDetails?.quantifiable"
+      :min="product.productDetails.min"
+      :max="product.productDetails.max"
+      :step="product.productDetails.step"
+      :model-value="product.configuration.quantity"
+      :default-value="
+        product.configuration.quantity || product.productDetails.step
+      "
+      @update:modelValue="updateQuantity"
+      :disabled="meta.isLoading || meta.isProcessing"
+      size="lg"
+      :width="configMeta.layout === 'enclosed' ? 'lg' : 'sm'"
+    />
 
-      <Button
-        block
-        type="submit"
-        color="primary"
-        :loading="meta.isProcessing"
-        :disabled="meta.isLoading"
-        :label="t('product.actions.resolve')"
-        @click="doResolve"
-      >
-        <template #prepend>
-          <Icon icon="cart" size="2xs" />
-        </template>
-      </Button>
-    </footer>
-  </Card>
+    <Button
+      block
+      type="submit"
+      color="primary"
+      :loading="meta.isProcessing"
+      :disabled="meta.isLoading"
+      :label="t(`product.actions.${edit ? 'resolveEdit' : 'resolve'}`)"
+      size="lg"
+      @click="doResolve"
+      :icon-append="edit ? 'arrow-right' : ''"
+      :icon="edit ? '' : 'cart'"
+      pill
+    />
+  </footer>
 
   <Alert
-    v-if="hasErrors"
+    v-if="meta.showErrors"
     :title="t('product.incomplete.title')"
     :description="t('product.incomplete.description')"
     icon="alert"
     color="error"
-    class="mt-4"
-  />
-
-  <SummaryList v-if="product?.productDetails" v-bind="product" />
-
-  <Markdown
-    v-if="product?.productDetails"
-    data-testid="slots:summary-append"
-    :model-value="
-      product?.productDetails?.uiMeta?.uischema?.config?.summary?.append ??
-      product?.productDetails?.uiMeta?.uischema?.productConfig?.summary?.append
-    "
   />
 </template>
 
 <script setup lang="ts">
 // --- external
-import { computed, ref, watch } from "vue";
-import { useProductConfig } from "@upmind-automation/headless";
+import { computed } from "vue";
+import {
+  useBrand,
+  type Product,
+  type UseProductConfigMeta
+} from "@upmind-automation/headless";
 import { useI18n } from "vue-i18n";
 import { useStyles } from "@upmind-automation/upmind-ui";
 
@@ -73,58 +66,42 @@ import config from "./summary.config";
 
 // --- components
 import SummaryPricing from "./SummaryPricing.vue";
-import SummaryList from "./SummaryList.vue";
-import {
-  Markdown,
-  NumberField,
-  Icon,
-  Button,
-  Card,
-  Alert
-} from "@upmind-automation/upmind-ui";
+import { Alert, Button, NumberField } from "@upmind-automation/upmind-ui";
 
 // --- utils
 
 // --- types
 import type { ComputedRef } from "vue";
-import type { ActorRef } from "xstate";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
-  item: ActorRef<any>;
+  product: Product;
+  meta: UseProductConfigMeta;
+  edit?: boolean;
 }>();
 
-const emits = defineEmits(["resolve"]);
+const emits = defineEmits(["resolve", "update:quantity"]);
 
-const { t, te } = useI18n();
+const { t } = useI18n();
 
-const showErrors = ref(false);
+const { uiCart } = useBrand();
 
-const { product, meta, model, updateQuantity } = useProductConfig(props.item);
+const configMeta = computed(() => ({
+  layout: uiCart.value?.layout
+}));
 
-const styles = useStyles(["summary"], {}, config) as ComputedRef<{
+const styles = useStyles(["summary"], configMeta, config) as ComputedRef<{
   summary: {
-    card: string;
     footer: string;
     header?: string;
   };
 }>;
 
-const hasErrors = computed(() => {
-  return meta.value.hasErrors && showErrors.value;
-});
-
-watch(hasErrors, () => {
-  if (hasErrors.value) {
-    // Auto-scroll to the first error
-  } else {
-    showErrors.value = false;
-  }
-});
-
 // ---
-const doResolve = async () => {
-  emits("resolve", model.value);
-  showErrors.value = true;
-};
+function updateQuantity(value: number) {
+  emits("update:quantity", value);
+}
+function doResolve() {
+  emits("resolve");
+}
 </script>

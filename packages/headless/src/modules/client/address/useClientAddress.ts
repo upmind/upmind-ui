@@ -59,7 +59,7 @@ export const useClientAddress = (
       }),
     {
       id: id ?? "new-address",
-      devTools: true
+      devTools: false
     }
   );
 
@@ -184,7 +184,7 @@ export const useClientAddress = (
   }
 
   function stop(): void {
-    stopService(service as InterpreterFrom<any>);
+    stopService(service);
   }
   // ---------------------------------------------------------------------------
   return {

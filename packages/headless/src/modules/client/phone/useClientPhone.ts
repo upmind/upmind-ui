@@ -59,7 +59,7 @@ export const useClientPhone = (
       }),
     {
       id: id ?? "new-phone",
-      devTools: true
+      devTools: false
     }
   );
 
@@ -181,7 +181,7 @@ export const useClientPhone = (
     service.send({ type: "CLEAR" });
   }
   function stop(): void {
-    stopService(service as InterpreterFrom<any>);
+    stopService(service);
   }
   // ---------------------------------------------------------------------------
   return {
