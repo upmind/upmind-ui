@@ -411,7 +411,6 @@ export function parseTerm(
         lookups?.product?.defaultPaymentPeriod,
         lookups?.terms ?? []
       );
-      debugger;
     }
   }
 
