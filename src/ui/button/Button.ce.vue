@@ -22,8 +22,8 @@
     </slot>
 
     <slot>
-      <span v-if="label" :class="styles.button.label">
-        {{ label }}
+      <span v-if="label || slots.label" :class="styles.button.label">
+        <slot name="label">{{ label }}</slot>
       </span>
     </slot>
 
@@ -44,7 +44,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed } from "vue";
+import { computed, useSlots } from "vue";
 import { kebabCase } from "lodash-es";
 
 // --- internal
@@ -74,6 +74,8 @@ const props = withDefaults(defineProps<ButtonProps>(), {
   class: "",
   contentClass: ""
 });
+
+const slots = useSlots();
 
 defineEmits<{
   click: [event: Event];
