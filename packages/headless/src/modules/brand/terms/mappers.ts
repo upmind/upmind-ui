@@ -4,6 +4,7 @@
 import type { TermsAndConditions } from "./types";
 import type { ITermsAndConditions } from "@upmind-automation/types";
 import { useTranslateField, useTranslateName } from "../../../utils";
+import { isNil } from "lodash-es";
 
 // ---------------------------------------------------------------------------
 
@@ -18,6 +19,7 @@ import { useTranslateField, useTranslateName } from "../../../utils";
  */
 export function parseTerm(raw: ITermsAndConditions): TermsAndConditions {
   // ---------------------------------------------------------------------------
+  if (isNil(raw)) return {} as TermsAndConditions;
   return {
     id: raw.id,
     title: useTranslateName(raw),
