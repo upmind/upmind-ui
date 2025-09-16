@@ -19,20 +19,33 @@ test.describe("Product Config - Happy Paths - Starter Hosting", async () => {
     billingCycle,
     addons,
     webHosting,
-    domainName
+    domainName,
+    domainSelection
   } of testCases) {
     test(name, async ({ page }) => {
       /* PRODUCT OPTIONS */
       /* Make product selections */
       await productConfig.clickBillingTerm(billingTerm);
       if (domainSelection.includes(0)) {
-        await productConfig.domainRegister.fill(domainName);
+        await productConfig.domainRegister.click();
+        await productConfig.domainRegister
+          .getByTestId("accordion-content")
+          .locator("input")
+          .fill(domainName);
       }
       if (domainSelection.includes(1)) {
-        await productConfig.domainTransfer.fill(domainName);
+        await productConfig.domainTransfer.click();
+        await productConfig.domainTransfer
+          .getByTestId("accordion-content")
+          .locator("input")
+          .fill(domainName);
       }
       if (domainSelection.includes(2)) {
-        await productConfig.domainExisting.fill(domainName);
+        await productConfig.domainExisting.click();
+        await productConfig.domainExisting
+          .getByTestId("accordion-content")
+          .locator("input")
+          .fill(domainName);
       }
       if (!domainSelection.includes(2) && !domainSelection.includes(3)) {
         await productConfig.addDomain();
@@ -49,10 +62,8 @@ test.describe("Product Config - Happy Paths - Starter Hosting", async () => {
 
       /* INLINE DROPDOWN */
       /*Verify that the domain basket inline dropdown contains the new domain name - not applicable for 'Existing Domain' or 'Domain in Basket' */
-      if (!accordionSelection.includes(2) && !accordionSelection.includes(3)) {
-        await expect(productConfig.accordion.getAccordion(3)).toContainText(
-          domainName
-        );
+      if (!domainSelection.includes(2) && !domainSelection.includes(3)) {
+        await expect(productConfig.domainBasket).toContainText(domainName);
       }
     });
   }

@@ -2,7 +2,7 @@ import { test, expect, Page } from "@playwright/test";
 import { ProductConfig } from "../../support/page-objects/templates/ProductConfig";
 let productConfig: ProductConfig;
 
-test.describe("Manipulating elements/behaviour with URL query strings", () => {
+test.describe("Manipulating elements/behaviour with URL query strings @url-params", () => {
   test.beforeEach(async ({ page }) => {
     productConfig = new ProductConfig(page);
   });
@@ -108,16 +108,14 @@ test.describe("Manipulating elements/behaviour with URL query strings", () => {
       await expect(page.url()).toBe(
         "http://qa-automation.local:5173/order/product/add/3de78642-de53-9714-76df-21208469530d"
       );
-      await expect(productConfig.checkboxes.getCheckbox(0)).toHaveAttribute(
-        "data-active",
-        "true"
-      );
-      await expect(productConfig.checkboxes.getCheckbox(1)).toHaveAttribute(
-        "data-active",
-        "true"
-      );
       await expect(
-        productConfig.radioButtons.getRadioButton(1, 1)
+        productConfig.radioButtons.getRadioButton(1, 0)
+      ).toHaveAttribute("data-state", "checked");
+      await expect(
+        productConfig.radioButtons.getRadioButton(2, 0)
+      ).toHaveAttribute("data-state", "checked");
+      await expect(
+        productConfig.radioButtons.getRadioButton(3, 1)
       ).toHaveAttribute("data-state", "checked");
     });
     test("Invalid option selections", async ({ page }) => {
@@ -128,16 +126,14 @@ test.describe("Manipulating elements/behaviour with URL query strings", () => {
       await expect(page.url()).toBe(
         "http://qa-automation.local:5173/order/product/add/3de78642-de53-9714-76df-21208469530d"
       );
-      await expect(productConfig.checkboxes.getCheckbox(0)).toHaveAttribute(
-        "data-active",
-        "false"
-      );
-      await expect(productConfig.checkboxes.getCheckbox(1)).toHaveAttribute(
-        "data-active",
-        "false"
-      );
       await expect(
-        productConfig.radioButtons.getRadioButton(1, 1)
+        productConfig.radioButtons.getRadioButton(1, 0)
+      ).toHaveAttribute("data-state", "");
+      await expect(
+        productConfig.radioButtons.getRadioButton(2, 0)
+      ).toHaveAttribute("data-state", "");
+      await expect(
+        productConfig.radioButtons.getRadioButton(3, 1)
       ).toHaveAttribute("data-state", "");
     });
   });
