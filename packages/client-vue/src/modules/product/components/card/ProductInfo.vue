@@ -18,7 +18,7 @@
       />
 
       <div>
-        <Button
+        <router-link
           v-if="navigate"
           :to="{
             name: ROUTE.PRODUCT_ADD,
@@ -31,15 +31,13 @@
               navigateOnly: 'true' // this is used to prevent the product from being added to the basket when clicking on the title
             }
           }"
-          :handler="handleResolve"
-          :disabled="processing"
           tabindex="-1"
-          variant="link"
+          class="underline underline-offset-4"
         >
           <h3 :class="styles.product.header.info.title">
             {{ productDetails?.title }}
           </h3>
-        </Button>
+        </router-link>
 
         <h3 v-else :class="styles.product.header.info.title">
           {{ productDetails?.title }}
