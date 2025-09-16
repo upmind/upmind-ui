@@ -27,10 +27,10 @@ const AJV_LOCALE_MAP: Record<string, keyof typeof localize> = {
  * Maps your application locales to AJV i18n supported locales
  * @param locale Your application locale (e.g., 'pt', 'en', 'de')
  * @returns AJV i18n compatible locale (e.g., 'pt-BR', 'en', 'de')
+ * @see https://github.com/ajv-validator/ajv-i18n/blob/master/messages/index.js for supported locales
  */
 export const mapToAjvLocale = (locale: string): keyof typeof localize => {
-  debugger;
-  return AJV_LOCALE_MAP[locale] || "en"; // fallback to English
+  return AJV_LOCALE_MAP[locale] ?? locale ?? "en"; // if our mapper does not support the given locale, we assume it is an ajv-i18n compatible locale
 };
 
 // -----------------------------------------------------------------------------
