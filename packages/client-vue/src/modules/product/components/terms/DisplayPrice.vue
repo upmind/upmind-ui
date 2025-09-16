@@ -1,24 +1,20 @@
 <template>
   <p>
     <template v-if="meta?.oneoff">
-      {{
-        t(`product.terms.price.0`, [
-          productDetails?.displayPrice?.price.monthlyFromCurrentPrice
-        ])
-      }}
+      {{ t(`product.terms.price.0`, [price?.currentPrice]) }}
     </template>
-    <template v-else>
-      {{
-        t(`product.terms.price.1`, [
-          productDetails?.displayPrice?.price.monthlyFromCurrentPrice
-        ])
-      }}
+
+    <template v-else-if="meta?.useMonthlyFromPrice">
+      {{ t(`product.terms.price.1`, [price?.monthlyFromCurrentPrice]) }}
       <del v-if="meta?.discounted" class="text-emphasis-medium">
-        {{
-          t("product.was", [
-            productDetails?.displayPrice?.price.monthlyFromRegularPrice
-          ])
-        }}
+        {{ t("product.was", [price?.monthlyFromRegularPrice]) }}
+      </del>
+    </template>
+
+    <template v-else>
+      {{ t(`product.terms.price.${cycle}`, [price?.currentPrice]) }}
+      <del v-if="meta?.discounted" class="text-emphasis-medium">
+        {{ t("product.was", [price?.regularPrice]) }}
       </del>
     </template>
   </p>
@@ -28,14 +24,12 @@
 import type {
   Price,
   ProductDetails,
-  ProductSummaryMeta
+  ProductSummaryMeta,
+  TermDetails
 } from "@upmind-automation/headless";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
 
-defineProps<{
-  productDetails: ProductDetails;
-  meta?: ProductSummaryMeta;
-}>();
+defineProps<TermDetails>();
 </script>
