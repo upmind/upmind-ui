@@ -44,8 +44,7 @@
         </h3>
 
         <DisplayPrice
-          :product-details="productDetails"
-          :meta="meta"
+          v-bind="props.productDetails.displayPrice!"
           :class="styles.product.header.info.terms"
         />
       </div>

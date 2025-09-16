@@ -63,7 +63,8 @@ import {
   DefaultPaymentPeriod,
   ProductTypes,
   PromotionDisplayTypes,
-  ProvisionCategoryCodes
+  ProvisionCategoryCodes,
+  PriceDisplayTypes
 } from "@upmind-automation/types";
 
 import type {
@@ -93,7 +94,6 @@ import type {
 } from "./types";
 import { ErrorObject } from "ajv";
 import { IBrandMeta } from "../brand/types";
-import def from "ajv/dist/vocabularies/discriminator";
 
 // -----------------------------------------------------------------------------
 
@@ -411,6 +411,7 @@ export function parseTerm(
         lookups?.product?.defaultPaymentPeriod,
         lookups?.terms ?? []
       );
+      debugger;
     }
   }
 
@@ -781,11 +782,32 @@ export const parseSummaryDetail = (
   overrides?: boolean
 ): ProductSummaryDetailWithPrice => {
   const { getBillingCycle } = useSystem();
-  const { includesTax } = useBrand();
+  const { includesTax, getConfigValue } = useBrand();
+
   const cycle = getBillingCycle(raw.billing_cycle_months);
 
   const discounted =
     !!raw.price_discounted && raw.price !== raw.price_discounted;
+
+  const displayType = getConfigValue<PriceDisplayTypes>(
+    BrandConfigKeys.PRICE_DISPLAY_TYPE
+  );
+
+  // NB: Context for displaying price as "/month" vs "/cycle":
+  // There are multiple brand settings that affect how prices are shown:
+  // - "lowest_monthly_price" and "abs_min": Both indicate that the price should be displayed as a monthly amount (e.g., "$5/month").
+  // - "min": Indicates that the price should be shown for the actual billing cycle (e.g., "$60/year" for a yearly cycle).
+  //
+  // Historically, we only had two options: show the regular cycle price, or show the lowest monthly price (by dividing the highest term price by its months).
+  // However, sometimes the lowest monthly price is not from the longest term, so we introduced "lowest_monthly_term" to calculate the true lowest monthly price.
+  //
+  // In summary:
+  // - Use "/month" display for "lowest_monthly_price" and "abs_min" settings.
+  // - Use "/cycle" display for "min" setting.
+  // - "lowest_monthly_term" ensures the actual lowest monthly price is shown, regardless of term length.
+  // This logic ensures price display is consistent with brand configuration and user expectations.
+  const useMonthlyFromPrice =
+    (cycle?.months ?? 0) > 1 && displayType !== PriceDisplayTypes.MONTHLY;
 
   return {
     cycle: raw.billing_cycle_months,
@@ -798,7 +820,8 @@ export const parseSummaryDetail = (
       discounted,
       includesTax: includesTax.value,
       free: (raw.price_discounted ?? raw.price) == 0,
-      overrides: !!overrides
+      overrides: !!overrides,
+      useMonthlyFromPrice
     }
   } as ProductSummaryDetailWithPrice;
 };

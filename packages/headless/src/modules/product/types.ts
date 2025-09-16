@@ -54,6 +54,11 @@ export type PriceDisplay = {
   savingAmount: number;
   savingPrice: string;
   savingPercent: string;
+  // ---
+  monthlyFromCurrentAmount?: number;
+  monthlyFromCurrentPrice?: string;
+  monthlyFromRegularAmount?: number;
+  monthlyFromRegularPrice?: string;
 };
 
 /**
@@ -254,6 +259,7 @@ export type ProductSummaryMeta = {
   includesTax?: boolean;
   default?: boolean;
   freeTrail?: boolean;
+  useMonthlyFromPrice?: boolean;
 };
 
 export type ProductSummaryDetail = {
@@ -272,12 +278,7 @@ export type ProductSummaryDetailWithPrice = ProductSummaryDetail & {
 };
 
 export type TermDetails = ProductSummaryDetail & {
-  price: PriceDetail & {
-    monthlyFromCurrentAmount?: number;
-    monthlyFromCurrentPrice?: string;
-    monthlyFromRegularAmount?: number;
-    monthlyFromRegularPrice?: string;
-  };
+  price: PriceDetail;
   showTaxes?: boolean;
 };
 

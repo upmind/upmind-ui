@@ -1,14 +1,16 @@
 <template>
+  <!-- <pre>{{ props }}</pre> -->
   <section :class="styles.product.header.price.root">
     <header
       v-if="meta?.discounted"
       :class="styles.product.header.price.regularPrice"
     >
-      <s>Was {{ price?.regularPrice }}</s>
+      <del>Was {{ regularPrice }}</del>
       <Badge variant="outline" color="promotion" size="sm">
         {{ t("product.promotionSave", [price?.savingPercent]) }}
       </Badge>
     </header>
+
     <p :class="styles.product.header.price.currentPrice.root">
       <strong
         v-if="meta?.free"
@@ -16,24 +18,27 @@
       >
         {{ t("product.free") }}
       </strong>
+
       <template v-else>
         <strong :class="styles.product.header.price.currentPrice.amount">{{
-          price?.currentPrice
+          currentPrice
         }}</strong>
+
         <small :class="styles.product.header.price.currentPrice.term"
-          >/ {{ t(`product.terms.term.${productDetails.cycle}`) }}</small
+          >/
+          {{
+            t(`product.terms.term.${meta.useMonthlyFromPrice ? 1 : cycle}`)
+          }}</small
         >
       </template>
     </p>
-    <footer v-if="!hideAnnualTerm" :class="styles.product.header.price.total">
-      <template
-        v-if="annualTerm && te(`product.terms.summary.${annualTerm?.cycle}`)"
-      >
-        {{
-          t(`product.terms.summary.${annualTerm?.cycle}`, [
-            annualTerm?.price.currentPrice
-          ])
-        }}
+
+    <footer
+      v-if="!hideTermSummary && !meta.oneoff && meta.useMonthlyFromPrice"
+      :class="styles.product.header.price.total"
+    >
+      <template v-if="te(`product.terms.summary.${cycle}`)">
+        {{ t(`product.terms.summary.${cycle}`, [price?.currentPrice]) }}
       </template>
     </footer>
   </section>
@@ -93,7 +98,17 @@ const styles = useStyles(
   };
 }>;
 
-const annualTerm = computed(() => {
-  return first(props.pricing?.filter(p => p.cycle && p.cycle % 12 === 0));
+const regularPrice = computed(() => {
+  if (props.meta?.useMonthlyFromPrice)
+    return props.price?.monthlyFromRegularPrice;
+
+  return props.price?.regularPrice;
+});
+
+const currentPrice = computed(() => {
+  if (props.meta?.useMonthlyFromPrice)
+    return props.price?.monthlyFromCurrentPrice;
+
+  return props.price?.currentPrice;
 });
 </script>
