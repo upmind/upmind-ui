@@ -30,6 +30,7 @@ export class ProductConfig {
   readonly domainRegisterInput: Locator;
   readonly domainTransfer: Locator;
   readonly domainExisting: Locator;
+  readonly domainBasket: Locator;
   readonly registrantNameInput: Locator;
   readonly registrantOrgInput: Locator;
   readonly registrantEmailInput: Locator;
@@ -102,14 +103,13 @@ export class ProductConfig {
     this.textInput = new TextInput(page);
     this.billingTerms = page.getByTestId("radio-card-group").first();
     this.options = page.getByTestId("options-container-options");
-    this.domainRegister = page
-      .getByTestId("accordion-item")
-      .getByText("Register new domain");
+    this.domainRegister = page.getByTestId("accordion-item-register");
     this.domainRegisterInput = page
       .getByTestId("form-item-dac-register")
       .locator("input");
-    this.domainTransfer = page.getByTestId("form-item-dac-transfer");
-    this.domainExisting = page.getByTestId("form-item-dac-existing");
+    this.domainTransfer = page.getByTestId("accordion-item-transfer");
+    this.domainExisting = page.getByTestId("accordion-item-existing");
+    this.domainBasket = page.getByTestId("accordion-item-basket");
     this.registrantNameInput = page
       .getByTestId("form-item-registrant-name")
       .locator("input");
@@ -154,7 +154,9 @@ export class ProductConfig {
     /* Order Summary */
     this.totalValue = page.getByTestId("total-price");
     this.totalQty = page.getByTestId("quantity-input"); // TODO: Move to shared page object
-    this.billingCycle = page.getByTestId("description-list-item-billing-cycle");
+    this.billingCycle = page
+      .getByTestId("description-list-item-billing-cycle")
+      .locator("dd");
 
     // refactor all of this to better fit the dynamic naming of the sumamry fields
     this.product = page.getByTestId("description-list-item-product");
@@ -202,9 +204,9 @@ export class ProductConfig {
     this.registrantPostcode = page.getByTestId(
       "description-list-item-registrant-postcode"
     );
-    this.registrantCountry = page.getByTestId(
-      "description-list-item-registrant-country"
-    );
+    this.registrantCountry = page
+      .getByTestId("description-list-item-registrant-country")
+      .locator("dd");
     this.engagementTypes = page.getByTestId(
       "description-list-item-engagement-types"
     );

@@ -35,7 +35,7 @@ test.describe("Product Config - Domains (.uk)", async () => {
       /* Make product selections */
       await productConfig.clickBillingTerm(billingTerm);
       if (transfer === true) {
-        await productConfig.checkboxes.checkboxOption.first().click();
+        await productConfig.radioButtons.getRadioButton(1, 0).click();
       }
       await productConfig.enterSld(sldValue);
       await productConfig.enterRegistrantDetails(
@@ -73,7 +73,7 @@ test.describe("Product Config - Domains (.uk)", async () => {
         registrantPostcode
       );
       await expect(productConfig.registrantCountry).toContainText(
-        "United Kingdom"
+        registrantCountry
       );
       await expect(productConfig.tldValue).toContainText(tldValue);
       //await expect(page).toHaveScreenshot(name);
