@@ -5,7 +5,7 @@
         <h1 :class="styles.header.title">
           {{ productDetails?.title }}
         </h1>
-        <DisplayPrice :product-details="productDetails" class="text-xl" />
+        <DisplayPrice v-bind="productDetails.displayPrice!" class="text-xl" />
       </hgroup>
 
       <ProductDescription

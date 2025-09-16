@@ -5,6 +5,7 @@
       "remove": "Remove",
       "configure": "Configure",
       "resolve": "Add to basket",
+      "resolveEdit": "Continue",
       "reject": "Cancel",
       "invalid": "Add missing details"
     },

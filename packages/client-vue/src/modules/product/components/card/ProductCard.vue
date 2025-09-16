@@ -2,22 +2,18 @@
   <li :class="styles.product.root">
     <div :class="styles.product.content">
       <Button
-        v-if="!configMeta.hideImage"
-        :to="
-          navigate
-            ? {
-                name: ROUTE.PRODUCT_ADD,
-                params: {
-                  pid: props.id
-                },
-                query: {
-                  bcm: selectedTerm,
-                  force: 'true', // ensure we always add the product, even if it exists in the basket
-                  navigateOnly: 'true' // this is used to prevent the product from being added to the basket when clicking on the image
-                }
-              }
-            : undefined
-        "
+        v-if="!configMeta.hideImage && navigate"
+        :to="{
+          name: ROUTE.PRODUCT_ADD,
+          params: {
+            pid: props.id
+          },
+          query: {
+            bcm: selectedTerm,
+            force: 'true', // ensure we always add the product, even if it exists in the basket
+            navigateOnly: 'true' // this is used to prevent the product from being added to the basket when clicking on the image
+          }
+        }"
         :handler="handleResolve"
         :disabled="processing"
         tabindex="-1"
@@ -31,6 +27,14 @@
           :class="styles.product.image"
         />
       </Button>
+
+      <Image
+        v-else-if="!configMeta.hideImage"
+        :carousel="!configMeta.hideCarousel"
+        :image="isEmpty(images) ? props.productDetails.imgUrl : images"
+        :ratio="ratio || configMeta.imageRatio"
+        :class="styles.product.image"
+      />
 
       <section :class="styles.product.details">
         <header :class="styles.product.header.root">
@@ -46,7 +50,12 @@
             :benefits="productDetails?.benefits"
           />
 
-          <ProductPrice v-if="!configMeta.hidePrice" v-bind="props" />
+          <ProductPrice
+            v-if="!configMeta.hidePrice"
+            v-bind="props.productDetails.displayPrice!"
+            :hide-term-summary="props.hideTermSummary"
+          />
+
           <ProductTerm
             v-if="!configMeta.hideTerms"
             :prices="props.pricing"

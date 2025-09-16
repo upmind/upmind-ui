@@ -5,7 +5,8 @@ import type {
   PriceDetail,
   ProductSummaryMeta,
   ProductSummaryDetailWithPrice,
-  ProductSummaryDetail
+  ProductSummaryDetail,
+  TermDetails
 } from "@upmind-automation/headless";
 import type { VariantProps } from "class-variance-authority";
 import { rootVariant } from "./product.config";
@@ -22,7 +23,7 @@ export interface ProductCardProps
   hideBenefits?: boolean;
   hideDescription?: boolean;
   hideTerms?: boolean;
-  hideAnnualTerm?: boolean;
+  hideTermSummary?: boolean;
   preservePromotion?: boolean;
   navigate?: boolean;
   color?: ButtonProps["color"];
@@ -46,12 +47,8 @@ export interface ProductBenefits {
   benefits?: Benefit[];
 }
 
-export interface ProductPrice {
-  productDetails: ProductDetails;
-  price?: PriceDetail;
-  pricing?: ProductSummaryDetailWithPrice[];
-  meta?: ProductSummaryMeta;
-  hideAnnualTerm?: boolean;
+export interface ProductPrice extends TermDetails {
+  hideTermSummary?: boolean;
 }
 
 export interface ProductTerm {

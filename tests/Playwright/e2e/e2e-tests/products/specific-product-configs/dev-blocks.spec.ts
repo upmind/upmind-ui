@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { URLs } from "../../../support/constants/urls";
 import { ProductConfig } from "../../../support/page-objects/templates/ProductConfig";
-import { DevBlocks } from "../../../support/constants/checkout/test-cases/webcentral/DevBlocks";
+import { DevBlocks } from "../../../support/constants/checkout/test-cases/DevBlocks";
 let productConfig: ProductConfig;
 let testCases = DevBlocks;
 
@@ -15,7 +15,6 @@ test.describe("Product Config - Happy Paths - Dev Blocks", async () => {
   for (const {
     name,
     billingTerm,
-    radioSelection = [],
     total,
     billingCycle,
     development,
@@ -26,6 +25,16 @@ test.describe("Product Config - Happy Paths - Dev Blocks", async () => {
       /* PRODUCT OPTIONS */
       /* Make product selections */
       await productConfig.clickBillingTerm(billingTerm);
+      await page
+        .getByTestId("form-item-bundle")
+        .getByTestId("radio-card-item")
+        .getByText(bundle)
+        .click();
+      await page
+        .getByTestId("form-item-addons")
+        .getByTestId("radio-card-item")
+        .getByText(addons)
+        .click();
 
       /* SUMMARY FIELDS */
       /* Verify that all summary fields contain the expected data */

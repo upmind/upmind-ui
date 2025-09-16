@@ -32,10 +32,11 @@
       color="primary"
       :loading="meta.isProcessing"
       :disabled="meta.isLoading"
-      :label="t('product.actions.resolve')"
+      :label="t(`product.actions.${edit ? 'resolveEdit' : 'resolve'}`)"
       size="lg"
       @click="doResolve"
-      icon="cart"
+      :icon-append="edit ? 'arrow-right' : ''"
+      :icon="edit ? '' : 'cart'"
       pill
     />
   </footer>
@@ -76,6 +77,7 @@ import type { ComputedRef } from "vue";
 const props = defineProps<{
   product: Product;
   meta: UseProductConfigMeta;
+  edit?: boolean;
 }>();
 
 const emits = defineEmits(["resolve", "update:quantity"]);

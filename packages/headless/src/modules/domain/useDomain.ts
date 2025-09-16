@@ -69,7 +69,7 @@ export const useDomain = (
       choices: safeType,
       model: safeModel
     } as any),
-    { devTools: true }
+    { devTools: false }
   );
 
   const { state, send } = useActor(service.start());
