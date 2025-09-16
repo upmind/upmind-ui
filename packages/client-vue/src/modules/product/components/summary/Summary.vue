@@ -37,7 +37,8 @@
       "
       size="lg"
       @click="doResolve"
-      icon="cart"
+      :icon-append="edit ? 'arrow-right' : ''"
+      :icon="edit ? '' : 'cart'"
       pill
     />
   </footer>
