@@ -1,9 +1,11 @@
 <template>
   <div :class="styles.categories.root" v-auto-animate>
-    <CategoriesHeader v-model="modelValue" v-bind="props" />
+    <CategoriesFacet v-if="isFaceted" v-model="modelValue" v-bind="props" />
+
+    <CategoriesHeader v-else v-model="modelValue" v-bind="props" />
 
     <nav
-      v-if="hasCategories && !uiCart?.catalogue?.facet"
+      v-if="!isFaceted && hasCategories"
       :class="styles.categories.grid"
       role="region"
       aria-label="Product categories"
@@ -38,6 +40,7 @@ import config from "../catalogue.config";
 
 // --- components
 import CategoriesHeader from "./CategoriesHeader.vue";
+import CategoriesFacet from "./CategoriesFacet.vue";
 import CategoryItem from "./CategoryItem.vue";
 
 // --- types
@@ -46,7 +49,7 @@ import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<
-  Omit<CategoriesProps, "modelValue"> & ProductCategory
+  Omit<CategoriesProps, "modelValue"> & ProductCategory & { isFaceted: boolean }
 >();
 const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
 
