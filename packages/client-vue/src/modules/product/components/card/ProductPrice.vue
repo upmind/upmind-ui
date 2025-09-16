@@ -1,5 +1,4 @@
 <template>
-  <!-- <pre>{{ props }}</pre> -->
   <section :class="styles.product.header.price.root">
     <header
       v-if="meta?.discounted"
