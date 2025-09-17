@@ -287,7 +287,7 @@ export const useBasketProductsPending = () => {
         ? useBasketProductPending(pid as ActorRef<any>)
         : await getProduct(pid as ProductProps["productId"], sync);
 
-      if (isEmpty(instance))
+      if (isEmpty(instance)) {
         return Promise.reject(
           new DetailedError(
             "No product instance found",
@@ -295,6 +295,7 @@ export const useBasketProductsPending = () => {
             ErrorOrigin.Headless
           )
         );
+      }
 
       return Promise.resolve(instance);
     },
