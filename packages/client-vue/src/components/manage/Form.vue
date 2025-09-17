@@ -117,13 +117,12 @@ const doResolve = async () => {
   update()
     .then(value => {
       emits("resolve", value);
+      emits("processing", false);
       doClose();
     })
     .catch(error => {
-      //  do nothing, error is handled in the form
-    })
-    .finally(() => {
       emits("processing", false);
+      //  do nothing, error is handled in the form
     });
 };
 
