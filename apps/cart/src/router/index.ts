@@ -23,6 +23,7 @@ import {
   UpmSessionRegisterView,
   UpmShopView
 } from "@upmind-automation/client-vue";
+import { trimStart } from "lodash-es";
 
 // -----------------------------------------------------
 
@@ -152,10 +153,9 @@ const router = createRouter({
     {
       path: "/:legacy(.*)",
       redirect: to => {
-        if (to.path !== "/" && !to.path.startsWith("/order")) {
+        if (to.path !== "/" && !to.path.startsWith("/order/")) {
           return {
-            path:
-              "/order" + (to.path.startsWith("/") ? to.path : "/" + to.path),
+            path: `/order/${trimStart(to.path, "/")}`,
             query: to.query,
             hash: to.hash
           };
