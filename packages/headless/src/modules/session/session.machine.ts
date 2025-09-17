@@ -94,7 +94,11 @@ export default createMachine(
         }
       },
 
-      expired: {},
+      expired: {
+        after: {
+          wait: "checking"
+        }
+      },
 
       error: {},
 
@@ -107,7 +111,7 @@ export default createMachine(
     },
     on: {
       EXPIRED: {
-        target: "checking"
+        target: "expired"
       },
       TRANSFER_FROM: {
         target: "transferring",

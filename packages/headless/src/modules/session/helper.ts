@@ -23,20 +23,19 @@ const authCallback = (
   // Valid session
   const clientMachine = state?.children?.clientMachine;
   const guestMachine = state?.children?.guestMachine;
-  const currentMachine = clientMachine || guestMachine;
+  const currentMachine =
+    state?.children?.clientMachine || state?.children?.guestMachine;
 
-  // @ts-ignore -- this definitely works, despite typescript moaning onDone doesnt exist
+  if (stateMatches(state, ["expired"])) {
+    callback({ type: "UNAUTHENTICATED" });
+    return false;
+  }
 
   if (
     stateMatches(state, ["checking", "error", "expired"]) ||
     clientMachine?.getSnapshot()?.done
   ) {
     if (hasSession) callback({ type: "UNAUTHENTICATED" });
-
-    // DEPRECATED:
-    // we dont need to tell any machines what our error is...
-    // just that we are no longer authenticated
-    // callback({ type: "ERROR", data: state.context.error });
     return false;
   }
 
@@ -57,6 +56,17 @@ const authCallback = (
     clientMachine?.getSnapshot()?.matches("available")
   ) {
     callback({ type: "AUTHENTICATED" });
+  }
+
+  // Unauthenticated if guest loading
+  // > indicates we are not logged in and are generating a guest token
+  else if (
+    hasSession &&
+    state.matches("guest") &&
+    guestMachine?.getSnapshot()?.matches("loading")
+  ) {
+    hasSession = false;
+    callback({ type: "UNAUTHENTICATED" });
   }
 
   return hasSession;
@@ -84,7 +94,7 @@ export const authSubscription = async (callback: any, onReceive: any) => {
     // watch for our child machines to transition to a non-loading state
     // and then send the callback to the subscriber
     if (currentMachine) {
-      // @ts-ignore -- this definitely works, despite typescript moaning onTransition doesnt exist
+      // @ts-ignore -- this definitely works, despite typescriptm oanind onTrannsition doesnt exist
       currentMachine?.onTransition(() => {
         hasSession = authCallback(state, hasSession, callback);
       });
