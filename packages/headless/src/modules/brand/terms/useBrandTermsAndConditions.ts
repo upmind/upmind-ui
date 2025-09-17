@@ -41,14 +41,6 @@ export const useTermsAndConditions = () => {
       const interval = setInterval(() => {
         if (meta.value.isComplete) {
           clearInterval(interval);
-
-          // after first load, ensure we refetch our data in the background if we have previously fetched/persisted
-          if (needsRefresh) {
-            invalidateQueryByKey(["brand", "terms"], { exact: false });
-            query!.refetch();
-            needsRefresh = false;
-          }
-
           resolve(!meta.value.hasError);
         }
       }, 100);
@@ -61,6 +53,14 @@ export const useTermsAndConditions = () => {
 
   // --- filters
 
+  // --- side effects
+  // after first load, ensure we refetch our data in the background if we have previously fetched/persisted
+  isReady().then(() => {
+    if (needsRefresh) {
+      query!.refetch();
+      needsRefresh = false;
+    }
+  });
   // ---------------------------------------------------------------------------
 
   return {
