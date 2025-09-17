@@ -34,7 +34,7 @@
             current: [styles.product.config.grid.item.total]
           }
         }"
-        show-cycle
+        :show-cycle="(props.cycle ?? 0) > 1"
       />
 
       <small v-if="!select" :class="styles.product.config.grid.item.text">
