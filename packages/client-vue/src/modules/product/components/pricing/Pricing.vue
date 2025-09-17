@@ -1,12 +1,21 @@
 <template>
-  <ExPrice v-bind="props" />
-  <CurrentPrice v-bind="props" />
+  <ExPrice
+    v-bind="
+      pick(props, ['regularPrice', 'monthlyFromRegularPrice', 'discounted'])
+    "
+  />
+  <CurrentPrice
+    v-bind="pick(props, ['currentPrice', 'monthlyFromCurrentPrice', 'free'])"
+  />
 </template>
 
 <script setup lang="ts">
 // --- components
 import ExPrice from "./ExPrice.vue";
 import CurrentPrice from "./CurrentPrice.vue";
+
+// --- internal
+import { pick } from "lodash-es";
 
 // --- types
 import { type PricingProps } from "./types";

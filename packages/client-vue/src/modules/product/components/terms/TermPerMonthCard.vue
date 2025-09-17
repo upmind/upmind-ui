@@ -24,11 +24,11 @@
       <Pricing
         class="pricing"
         :regular-price="props.price.regularPrice"
-        :monthly-from-regular-price="props.price.monthlyFromRegularPrice"
+        :monthly-from-regular-price="props.price.monthlyFromRegularPrice!"
         :current-price="props.price.currentPrice"
-        :monthly-from-current-price="props.price.monthlyFromCurrentPrice"
-        :meta="props.meta"
-        :cycle="props.cycle"
+        :monthly-from-current-price="props.price.monthlyFromCurrentPrice!"
+        :discounted="props.meta?.discounted ?? false"
+        :free="props.meta?.free ?? false"
         :ui-config="{
           pricing: {
             current: [styles.product.config.grid.item.total]
