@@ -56,7 +56,7 @@
                 <CurrentPrice
                   :current-price="summary.price.currentPrice"
                   :monthly-from-current-price="
-                    summary.price.monthlyFromCurrentPrice!
+                    summary.price.monthlyFromCurrentPrice ?? ''
                   "
                   :free="summary.meta.free ?? false"
                   :ui-config="{
@@ -76,7 +76,7 @@
             <CurrentPrice
               :current-price="summary.price.currentPrice"
               :monthly-from-current-price="
-                summary.price.monthlyFromCurrentPrice!
+                summary.price.monthlyFromCurrentPrice ?? ''
               "
               :free="summary.meta.free ?? false"
               :ui-config="{
@@ -86,7 +86,7 @@
             <ExPrice
               :regular-price="summary.price.regularPrice"
               :monthly-from-regular-price="
-                summary.price.monthlyFromRegularPrice!
+                summary.price.monthlyFromRegularPrice ?? ''
               "
               :discounted="summary.meta.discounted ?? false"
               :ui-config="{ pricing: { ex: [styles.product.pricing.ex] } }"
@@ -105,7 +105,9 @@
         <TermsDescription v-bind="summary" />
         <ExPrice
           :regular-price="summary.price.regularPrice"
-          :monthly-from-regular-price="summary.price.monthlyFromRegularPrice!"
+          :monthly-from-regular-price="
+            summary.price.monthlyFromRegularPrice ?? ''
+          "
           :discounted="summary.meta.discounted ?? false"
           :cycle="summary.cycle!"
           :ui-config="{ pricing: { ex: [styles.product.pricing.ex] } }"
