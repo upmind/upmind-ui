@@ -4,9 +4,6 @@
 [submodule "apps/webcentral"]
 	path = apps/webcentral
 	url = git@git.upmind.io:upmind/groups/frontend-team/webcentral-checkout.git
-[submodule "apps/doteasy"]
-	path = apps/doteasy
-	url = git@git.upmind.io:upmind/groups/frontend-team/doteasy-checkout.git
 [submodule "packages/types"]
 	path = packages/types
 	url = git@github.com:upmind/types.git
