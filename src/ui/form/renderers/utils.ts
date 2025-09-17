@@ -1,19 +1,15 @@
 // --- external
-import { useI18n } from "vue-i18n";
 import { computed, ref, inject, watch } from "vue";
 import {
-  Resolve,
   composePaths,
   createCombinatorRenderInfos,
   findUISchema,
   getErrorAt,
-  getSubErrorsAt,
   getFirstPrimitiveProp,
-  rankWith
+  getSubErrorsAt,
+  rankWith,
+  Resolve
 } from "@jsonforms/core";
-
-// --- internal
-import { useValidation } from "../../../utils";
 
 // --- utils
 import {
@@ -29,13 +25,12 @@ import {
 
 // --- types
 import type {
-  JsonFormsSubStates,
   Tester,
-  CombinatorSubSchemaRenderInfo,
-  JsonSchema
+  JsonFormsSubStates,
+  CombinatorSubSchemaRenderInfo
 } from "@jsonforms/core";
-import type { FormControlProps } from "../types";
 import type { ErrorObject } from "ajv";
+import type { FormControlProps } from "../types";
 // -----------------------------------------------------------------------------
 
 export const useUpmindUIRenderer = <
@@ -44,8 +39,6 @@ export const useUpmindUIRenderer = <
   input: I,
   adaptTarget: (target: any) => any = v => v?.value || v || null
 ) => {
-  const { locale } = useI18n();
-  const { validate } = useValidation(undefined, locale?.value);
   const jsonforms = inject<JsonFormsSubStates>("jsonforms");
   if (!jsonforms) throw new Error("jsonforms not found");
 
@@ -90,7 +83,20 @@ export const useUpmindUIRenderer = <
         } as ErrorObject);
     }
 
-    return errors;
+    return map(errors, error => {
+      const translated =
+        isFunction(jsonforms.i18n?.translateError) &&
+        isFunction(jsonforms.i18n?.translate)
+          ? jsonforms.i18n.translateError(
+              error,
+              jsonforms.i18n.translate,
+              input.control.value.schema
+            )
+          : undefined;
+
+      error.message = translated ?? error.message;
+      return error;
+    });
   }
 
   // --- state
@@ -109,12 +115,12 @@ export const useUpmindUIRenderer = <
     );
   });
 
-  // lets get our errors as full error objects
-  watch(input.control, control => {
+  // let's get our errors as full error objects
+  watch(input.control, _control => {
     touched.value =
       touched.value || jsonforms?.core?.validationMode === "ValidateAndShow";
 
-    errors.value = validate(control.schema as JsonSchema, control.data);
+    errors.value = getErrors();
   });
 
   const onInput = (value: any, isTouched: boolean = true) => {
