@@ -38,17 +38,21 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
   const pendingProducts = useBasketProductsPending();
 
   let isRefreshing = false;
+  let isLoading = false;
 
   // let's let our subscriber know when the basket has been refreshed
   const subscription = basket.subscribe((state: any) => {
     // mark the basket as refreshing
-    if (state.matches("shopping.refreshing.processing")) {
-      isRefreshing = true;
-    }
+    if (state.matches("loading")) isLoading = true;
+    if (state.matches("shopping.refreshing.processing")) isRefreshing = true;
 
     // when the basket has been refreshed, then we can forward the refresh event
-    if (isRefreshing && state.matches("shopping.refreshing.processed")) {
+    if (
+      (isLoading && state.matches("shopping")) ||
+      (isRefreshing && state.matches("shopping.refreshing.processed"))
+    ) {
       isRefreshing = false;
+      isLoading = false;
       callback({ type: "REFRESH", data: state.context?.basket });
     }
   });
