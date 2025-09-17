@@ -152,8 +152,8 @@ export const useRouteQueryParams = (route: Route) => {
     getParams,
     getParam,
     express: useSafeParse(getParam("express", false)) == true, // make sure we only return true if the value is actually true
-    productId: getParam(QUERY_PARAMS.PRODUCT_ID),
-    products: getParams(QUERY_PARAMS.PRODUCT_ID),
+    productId: getParam(QUERY_PARAMS.PRODUCT_ID, getParam("product")),
+    products: getParams(QUERY_PARAMS.PRODUCT_ID, getParams("product")),
     productConfigs: getProductConfigs(),
     productConfig: first(getProductConfigs()),
     basketProductId: getParam(QUERY_PARAMS.BASKET_PRODUCT_ID),
