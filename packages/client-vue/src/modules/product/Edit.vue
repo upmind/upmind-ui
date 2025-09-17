@@ -70,7 +70,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, onUnmounted, watch } from "vue";
+import { computed, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -116,7 +116,8 @@ await isResolved(ROUTE.PRODUCT_EDIT);
 const {
   stop,
   update,
-  service: basketProduct
+  service: basketProduct,
+  onDone
 } = await configure(basketProductId);
 
 const { meta, product, updateQuantity } = useProductConfig(basketProduct);
@@ -140,15 +141,9 @@ async function doResolve() {
       // if we take more than 60 seconds to resolve the product ( which is unlikely but possible),
       // add a failsafe to ensure the user is not stuck on the page and that we actually navigate away,
       // if the product is successfully added to the basket ( onDone = success)
-      watch(
-        meta,
-        ({ isDone }) => {
-          if (isDone) navigateNext(basketProduct);
-        },
-        {
-          immediate: true
-        }
-      );
+      onDone().then(() => {
+        navigateNext(basketProduct);
+      });
     });
 }
 
