@@ -67,7 +67,6 @@ dependencies:
       paths:
         - node_modules
         - playgrounds/storybook/node_modules
-        - apps/doteasy/node_modules
         - apps/velia/node_modules
         - apps/webcentral/node_modules
         - apps/hosting/node_modules
@@ -84,7 +83,6 @@ dependencies:
       - node_modules
       - playgrounds/storybook/node_modules
       - apps/cart/node_modules
-      - apps/doteasy/node_modules
       - apps/velia/node_modules
       - apps/webcentral/node_modules
       - apps/hosting/node_modules
