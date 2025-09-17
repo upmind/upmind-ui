@@ -18,6 +18,7 @@ import {
   DetailedError,
   ErrorOrigin,
   responseCodes,
+  stateMatches,
   stopService,
   useContext
 } from "../../utils";
@@ -110,7 +111,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
   async function isReady(): Promise<void> {
     return waitFor(service, state => state.matches("available"), {
       timeout: Infinity
-    }).then(() => {});
+    });
   }
 
   // refresh: async (newBasket: IBasket) => {
@@ -143,33 +144,27 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
     service.send({ type: "UPDATE" });
     return waitFor(
       service,
-      state =>
-        !state.matches("processing", {
-          timeout: 60_000
-        }),
-      {}
+      state => {
+        console.log("Product Updating", state.value);
+        return !state.matches("processing") || state.done;
+      },
+      { timeout: 60_000 }
     )
       .then(state => {
+        console.log("Product Updated!", state.value);
         if (
-          ["error", "available.invalid", "available.error"].some(state.matches)
+          stateMatches(state, ["error", "available.invalid", "available.error"])
         ) {
-          return Promise.reject(
-            new DetailedError(
-              "Update of Pending Products failed",
-              responseCodes.Unprocessable_Entity,
-              ErrorOrigin.Headless,
-              state.context.error
-            )
-          );
+          throw state.context.error;
         }
-        return Promise.resolve();
       })
-      .catch(() => {
+      .catch(error => {
+        console.log("Product Updated Failed!", state.value, error);
         return Promise.reject(
           new DetailedError(
-            "Pending Products validation failed",
-            responseCodes.Unprocessable_Entity,
-            ErrorOrigin.Headless
+            error?.message ?? "Pending Products validation failed",
+            error?.code ?? responseCodes.Unprocessable_Entity,
+            error?.origin ?? ErrorOrigin.Headless
           )
         );
       });
