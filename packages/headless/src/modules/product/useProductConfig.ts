@@ -118,8 +118,8 @@ export const useProductConfig = (service: ActorRef<any>) => {
     isProcessing: stateMatches(state, ["refreshing", "processing"]),
     isAvailable: stateMatches(state, ["available", "refreshing", "processing"]),
     isUnavailable: stateMatches(state, ["error"]),
-    isComplete: state.value?.done || stateMatches(state, ["complete"]),
-    isDone: state.value?.done,
+    isComplete: stateMatches(state, ["complete"]),
+    isDone: !state.value || state.value?.done,
 
     // ---
     hasProvisioning: !isEmpty(
@@ -354,7 +354,16 @@ export const useProductConfig = (service: ActorRef<any>) => {
     setProvisioningFields,
     getProvisioningField,
     // ---
-    reset: () => send({ type: "RESET" })
+    reset: () => send({ type: "RESET" }),
+    onDone: () =>
+      new Promise(resolve => {
+        const sub = service.subscribe(state => {
+          if (state.done) {
+            resolve(state.context);
+            sub.unsubscribe();
+          }
+        });
+      })
   };
 };
 

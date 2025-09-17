@@ -76,7 +76,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { watch, computed, onUnmounted } from "vue";
+import { computed, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -117,13 +117,14 @@ const { t, tm } = useI18n();
 const { navigateBack, navigateNext, isResolved } = useRoutingEngine();
 const { isReady } = useBasket();
 const { productId } = useQueryParams();
+
 const { configure, resolve, remove } = useBasketProductsPending();
 const { hasStorefront, storefrontRoute, uiCart } = useBrand();
 
 await isReady();
 await isResolved(ROUTE.PRODUCT_ADD);
 
-const { update, service: pendingProduct } = await configure(productId);
+const { update, service: pendingProduct, onDone } = await configure(productId);
 
 const { meta, product, productImage, updateQuantity } =
   useProductConfig(pendingProduct);
@@ -181,22 +182,15 @@ async function doResolve() {
       resolve(pendingProduct);
       navigateNext(pendingProduct);
     })
-    .catch(() => {
+    .catch(error => {
+      console.warn("Product Configuration Error", error);
       // if we take more than 60 seconds to resolve the product ( which is unlikely but possible),
       // add a failsafe to ensure the user is not stuck on the page and that we actually navigate away,
       // if the product is successfully added to the basket ( onDone = success)
-      watch(
-        meta,
-        ({ isDone }) => {
-          if (isDone) {
-            resolve(pendingProduct);
-            navigateNext(pendingProduct);
-          }
-        },
-        {
-          immediate: true
-        }
-      );
+      onDone().then(() => {
+        resolve(pendingProduct);
+        navigateNext(pendingProduct);
+      });
     });
 }
 
