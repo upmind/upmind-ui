@@ -5,9 +5,16 @@ import { computed } from "vue";
 import service from "./services";
 
 // --- utils
-import { isEmpty } from "lodash-es";
+import { includes, isEmpty, keys, some } from "lodash-es";
+import { invalidateQueryByKey } from "../../query";
 
 // --- types
+
+// -----------------------------------------------------------------------------
+
+let needsRefresh = some(keys(localStorage), key =>
+  includes(key, `"brand","terms"`)
+);
 
 // -----------------------------------------------------------------------------
 /**
@@ -25,12 +32,18 @@ export const useTermsAndConditions = () => {
     isEmpty:
       isEmpty(query?.data.value?.content) && isEmpty(query?.data.value?.url),
     isAvailable: true,
+    isComplete: query?.isFetched.value,
     ...query?.data?.value?.meta // add any generated meta info here
   }));
 
   async function isReady(): Promise<boolean> {
-    return new Promise<boolean>(resolve => {
-      resolve(true);
+    return new Promise(resolve => {
+      const interval = setInterval(() => {
+        if (meta.value.isComplete) {
+          clearInterval(interval);
+          resolve(!meta.value.hasError);
+        }
+      }, 100);
     });
   }
 
@@ -40,6 +53,14 @@ export const useTermsAndConditions = () => {
 
   // --- filters
 
+  // --- side effects
+  // after first load, ensure we refetch our data in the background if we have previously fetched/persisted
+  isReady().then(() => {
+    if (needsRefresh) {
+      query!.refetch();
+      needsRefresh = false;
+    }
+  });
   // ---------------------------------------------------------------------------
 
   return {

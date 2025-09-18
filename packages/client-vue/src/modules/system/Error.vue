@@ -103,6 +103,7 @@ const actions = computed((): InterstitialActionProps[] => {
 
   switch (props.status) {
     // for service errors, we want to reload the page as its likely a temporary issue
+    case 401:
     case 500:
     case 503:
       route = {
