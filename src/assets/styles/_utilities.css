@@ -244,7 +244,6 @@
     line-height: var(--text-6xl--line-height-loose);
   }
 }
-
 /* Autofill */
 @layer utilities {
   .autofill:has(input:autofill) {

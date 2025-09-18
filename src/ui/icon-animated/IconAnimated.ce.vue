@@ -10,6 +10,7 @@
   />
 </template>
 
+<span class="text-icon-primary text-icon-neutral hidden" />
 <script lang="ts" setup>
 // --- external
 import { onMounted, computed, ref, watch } from "vue";
