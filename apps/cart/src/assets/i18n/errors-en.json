@@ -10,6 +10,15 @@
       "action": "Back to shopping",
       "icon": "arrow-left"
     },
+    "401": {
+      "title": {
+        "text": "Sorry, your {0} has expired",
+        "strong": "session"
+      },
+      "text": "Please reload the page to continue.",
+      "action": "Reload page",
+      "icon": "network-refresh"
+    },
     "404": {
       "title": {
         "text": "Sorry, this {0} was not found",
