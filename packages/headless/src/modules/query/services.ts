@@ -105,7 +105,6 @@ async function refreshToken() {
   const refresh_token = get(token, "refresh_token", "");
 
   if (!token || !refresh_token) {
-    // window.location.reload();
     useFeedback().add({
       type: messageTypes.ERROR,
       title: "Session error",

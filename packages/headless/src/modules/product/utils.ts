@@ -940,7 +940,7 @@ export const parsePromotionDetails = (
   }
 };
 
-export const parseProvisioningSchema = (data: any, product: any) => {
+export const parseProvisioningSchema = (data: any, product: IProduct) => {
   const { getCountry } = useSystem();
 
   const defaultCountry = getCountry();
