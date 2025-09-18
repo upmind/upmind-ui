@@ -38,8 +38,6 @@ function loadList(params?: Partial<QueryParams>) {
 
   if (basketId.value) set(urlParams, "basket_id", basketId.value);
 
-  console.log("ProductCatalogue", "loadList", basketId.value);
-
   const query = list<IProduct[], Product[]>({
     ...(params as any),
     queryKey: [...queryKey, { basketId }],

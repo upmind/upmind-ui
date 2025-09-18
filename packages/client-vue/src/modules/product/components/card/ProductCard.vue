@@ -51,8 +51,8 @@
           />
 
           <ProductPrice
-            v-if="!configMeta.hidePrice"
-            v-bind="props.productDetails.displayPrice!"
+            v-if="!configMeta.hidePrice && props.productDetails?.displayPrice"
+            v-bind="props.productDetails.displayPrice"
             :hide-term-summary="props.hideTermSummary"
           />
 

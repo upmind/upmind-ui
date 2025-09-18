@@ -145,13 +145,11 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
     return waitFor(
       service,
       state => {
-        console.log("Product Updating", state.value);
         return !state.matches("processing") || state.done;
       },
       { timeout: 60_000 }
     )
       .then(state => {
-        console.log("Product Updated!", state.value);
         if (
           stateMatches(state, ["error", "available.invalid", "available.error"])
         ) {
@@ -159,7 +157,6 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
         }
       })
       .catch(error => {
-        console.log("Product Updated Failed!", state.value, error);
         return Promise.reject(
           new DetailedError(
             error?.message ?? "Pending Products validation failed",
