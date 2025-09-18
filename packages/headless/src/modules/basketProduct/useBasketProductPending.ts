@@ -150,6 +150,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
       { timeout: 60_000 }
     )
       .then(state => {
+        console.log("Product Updated!", state.value);
         if (
           stateMatches(state, ["error", "available.invalid", "available.error"])
         ) {
