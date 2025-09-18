@@ -88,7 +88,7 @@ export type Product = {
   /**
    * The model of the product, this contains the configuration settings/values to be used for editing purposes
    */
-  configuration: ProductModel;
+  configuration: ProductProps;
 
   /**
    * The detailed information about the actial product. This will contain all the product details such as title, description etc

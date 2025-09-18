@@ -49,7 +49,7 @@ import type { AnyEventObject } from "xstate";
 import type { IBasket, IBasketProduct } from "@upmind-automation/types";
 import { DomainTypes } from "./types";
 import type { DomainModel, DomainContext, DomainProduct } from "./types";
-import type { ProductModel } from "../product";
+import type { ProductModel, ProductProps } from "../product";
 import { parseBasketProduct } from "../basketProduct/utils";
 import { PAGINATION } from "../query";
 
@@ -542,19 +542,9 @@ export default createMachine(
 
           parseProductModel: (
             item: DomainProduct
-          ): ProductModel | undefined => {
+          ): ProductProps | undefined => {
             if (!item?.configuration?.productId) return undefined;
-
-            return {
-              productId: item.configuration.productId,
-              quantity: 1,
-              term: item.configuration.term,
-              options: item.configuration.options,
-              attributes: item.configuration.attributes,
-              provisionFields: {
-                sld: item.sld
-              }
-            } as ProductModel;
+            return item.configuration;
           }
         };
       }),

@@ -265,9 +265,7 @@ async function getProvisioningFieldsValues(basket: IBasket) {
     const promise = get({
       url: useUrl(
         `orders/${basket.id}/products/${id}/provision_fields/values`,
-        {
-          sub_product_ids: subProducts
-        }
+        { sub_product_ids: subProducts }
       ),
       queryKey: [
         "basket",
@@ -275,7 +273,8 @@ async function getProvisioningFieldsValues(basket: IBasket) {
         "products",
         id,
         "provision_fields",
-        "values"
+        "values",
+        { subProducts }
       ],
       withAccessToken: true,
       staleTime: 0, // disable cache, this may still return stale data while the request is in flight

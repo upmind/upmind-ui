@@ -114,6 +114,7 @@ async function fetch(
       "fetch",
       productId,
       {
+        basketId,
         currency: currency?.id,
         promotions: promocodes
       }
@@ -191,6 +192,7 @@ async function fetchSelected(
       "fetch-selected",
       productIds,
       {
+        basketId,
         currency: currency?.id,
         promotions: promocodes
       }
@@ -282,6 +284,7 @@ async function fetchRelated(
       {
         limit,
         offset,
+        basketId,
         currency: currency?.id,
         promotions: promocodes
       }

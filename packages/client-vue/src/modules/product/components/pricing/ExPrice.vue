@@ -3,7 +3,7 @@
     {{
       t("product.was", [
         priceMeta.canShowCycle && te("product.cycle")
-          ? t("product.cycle", { value: monthlyFromRegularPrice })
+          ? t("product.cycle", { value: props.monthlyFromRegularPrice })
           : regularPrice
       ])
     }}
@@ -28,7 +28,7 @@ const props = defineProps<ExPriceProps>();
 const { t, te } = useI18n();
 
 const priceMeta = computed(() => ({
-  canShowCycle: props.showCycle && props.cycle,
+  canShowCycle: props.showCycle,
   isDiscounted: props.discounted
 }));
 

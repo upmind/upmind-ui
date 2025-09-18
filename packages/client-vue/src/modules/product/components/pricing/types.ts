@@ -19,14 +19,14 @@ interface BasePrice {
 
 export interface ExPriceProps extends BasePrice {
   regularPrice: string;
-  monthlyFromRegularPrice?: string;
-  discounted?: boolean;
+  monthlyFromRegularPrice: string;
+  discounted: boolean;
 }
 
 export interface CurrentPriceProps extends BasePrice {
   currentPrice: string;
-  monthlyFromCurrentPrice?: string;
-  free?: boolean;
+  monthlyFromCurrentPrice: string;
+  free: boolean;
 }
 
 export interface PricingProps extends ExPriceProps, CurrentPriceProps {}
