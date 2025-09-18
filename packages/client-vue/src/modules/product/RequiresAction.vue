@@ -14,14 +14,14 @@
         }"
         :actions="[
           {
-            color: 'primary',
+            color: 'base',
             variant: 'ghost',
             handler: navigateBack,
             icon: 'arrow-left',
             label: t('basket.requiresAction.actions.back')
           },
           {
-            color: 'secondary',
+            color: 'primary',
             handler: navigateNext,
             iconAppend: 'arrow-right',
             label: t('basket.requiresAction.actions.continue')

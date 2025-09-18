@@ -8,7 +8,7 @@
         :actions="[
           {
             ...storefrontRoute,
-            color: 'secondary',
+            color: 'primary',
             iconAppend: 'arrow-right',
             label: t('session.end.actions.continue')
           }
