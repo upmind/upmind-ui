@@ -1,6 +1,145 @@
 @theme {
-  /* Icon */
-  --color-icon-primary: #89898a;
-  --color-icon-neutral: #262626;
-  --color-icon-subtle: #b2b2c2;
+  /* Button radius */
+  --button-radius: "";
+
+  /* Control radius */
+  --control-radius: "";
+
+  /* Badge radius */
+  --badge-radius: "";
+
+  /* Image radius */
+  --image-radius: "";
+
+  /* Card radius */
+  --card-radius: "";
+
+  /* Color - Primary/Secondary */
+  --color-primary: #46FDAE;
+  --color-secondary: #C6FB4B;
+
+  /* Color - Background */
+  --color-background-canvas: #F4FDF3;
+  --color-background-surface: #FFFFFF;
+  --color-background-surfaceGlass: #FFFFFFF2;
+  --color-background-skeleton: #0D493D13;
+
+  /* Color - Background - Control */
+  --color-background-control-surface: #FEFEFE;
+  --color-background-control-checked: #00C069;
+  --color-background-control-checkedHover: #0D493D;
+  --color-background-control-unchecked: #CDCDDB;
+  --color-background-control-uncheckedHover: #B2B2C2;
+  --color-background-control-selected: #F1FBF0;
+
+  /* Color - Background - Button */
+  --color-background-button-primaryRing: #00C069;
+  --color-background-button-primary0: #46FDAE;
+  --color-background-button-primary1: #C6FB4B;
+  --color-background-button-primaryHover0: #C6FB4B;
+  --color-background-button-primaryHover1: #C6FB4B;
+  --color-background-button-secondaryRing: #0D493D;
+  --color-background-button-secondary0: #0D493D;
+  --color-background-button-secondary1: #0D493D;
+  --color-background-button-secondaryHover0: #122E2B;
+  --color-background-button-secondaryHover1: #575757;
+  --color-background-button-neutralRing: #262626;
+  --color-background-button-neutral0: #132828;
+  --color-background-button-neutral1: #132828;
+  --color-background-button-neutralHover0: #1A1A1A;
+  --color-background-button-neutralHover1: #1A1A1A;
+  --color-background-button-subtleRing: #0D493D;
+  --color-background-button-subtle0: #E8F5E7;
+  --color-background-button-subtle1: #E8F5E7;
+  --color-background-button-subtleHover0: #E0F0DF;
+  --color-background-button-subtleHover1: #E0F0DF;
+  --color-background-button-dangerRing: #F46240;
+  --color-background-button-danger0: #F46240;
+  --color-background-button-danger1: #F46240;
+  --color-background-button-dangerHover0: #E7350D;
+  --color-background-button-dangerHover1: #E7350D;
+  --color-background-button-dangerHover2: #E7350D;
+  --color-background-button-outline: transparent;
+  --color-background-button-outlineHover: #E8F5E7;
+  --color-background-button-outlineRing: #A1AFAD;
+  --color-background-button-ghost: transparent;
+  --color-background-button-ghostHover: #F8F8FB;
+  --color-background-button-ghostRing: #A1AFAD;
+
+  /* Color - Background - Accent */
+  --color-background-accent-primary: #46FDAE;
+  --color-background-accent-promotion: #794DFF;
+  --color-background-accent-destructive: #F46240;
+  --color-background-accent-subtle: #F1FBF0;
+  --color-background-accent-info: #FFFFFF;
+  --color-background-accent-caution: #FFFFFF;
+  --color-background-accent-warning: #FFFFFF;
+  --color-background-accent-danger: #FFFFFF;
+  --color-background-accent-success: #FFFFFF;
+
+  /* Color - Ring */
+  --color-ring-control: #00C069;
+
+  /* Color - Border */
+  --color-border-surface: #D9F0D6;
+  --color-border-base: #CFE5CC;
+
+  /* Color - Border - Button */
+  --color-border-button-outline: #E0F0DF;
+  --color-border-button-outlineHover: #E0F0DF;
+
+  /* Color - Border - Button - Control */
+  --color-border-button-control-default: #E8E8E8;
+  --color-border-button-control-hover: #BABABA;
+  --color-border-button-control-selected: #00C069;
+  --color-border-button-control-active: #FFFFFF;
+
+  /* Color - Icon */
+  --color-icon-primary: #00C069;
+  --color-icon-neutral: #132828;
+  --color-icon-subtle: #BABABA;
+
+  /* Color - Text */
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #FFFFFF32;
+  --color-text-white: #FFFFFF;
+  --color-text-base: #132828;
+  --color-text-display: #132828;
+  --color-text-muted: #728884;
+  --color-text-faint: #A1AFAD;
+  --color-text-danger: #F46240;
+
+  /* Color - Text - Control */
+  --color-text-control-selected: #00C069;
+  --color-text-control-checked: #FFFFFF;
+
+  /* Color - Text - Accent */
+  --color-text-accent-primary: #00C069;
+  --color-text-accent-primaryContrast: #054D27;
+  --color-text-accent-promotive: #6A38FF;
+  --color-text-accent-promotiveContrast: #F7F5FF;
+  --color-text-accent-destructive: #F46240;
+  --color-text-accent-destructiveContrast: #FFFFFF;
+  --color-text-accent-subtle: #728884;
+  --color-text-accent-subtleContrast: #728884;
+  --color-text-accent-info: #FFFFFF;
+  --color-text-accent-caution: #FFFFFF;
+  --color-text-accent-warning: #FFFFFF;
+  --color-text-accent-danger: #FFFFFF;
+  --color-text-accent-success: #FFFFFF;
+
+  /* Color - Text - Button */
+  --color-text-button-primary: #0A1616;
+  --color-text-button-secondary: #FFFFFF;
+  --color-text-button-neutral: #FFFFFF;
+  --color-text-button-subtle: #0D493D;
+  --color-text-button-danger: #F46240;
+  --color-text-button-dangerLink: #F15530;
+  --color-text-button-dangerLinkHover: #FFFFFF;
+  --color-text-button-outline: #0A1616;
+  --color-text-button-ghost: #0A1616;
+  --color-text-button-link: #0A1616;
+  --color-text-button-linkHover: #00C069;
+  --color-text-button-mutedLink: #728884;
+  --color-text-button-mutedLinkHover: #0A1616;
 }
