@@ -26,6 +26,7 @@ import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 import type { Token } from "../session/types";
 import { GrantTypes, Methods } from "@upmind-automation/types";
 import type { QueryResponse, RequestParams } from "./types";
+import { messageDisplays, messageTypes, useFeedback } from "../feedback";
 
 // -----------------------------------------------------------------------------
 
@@ -104,14 +105,26 @@ async function refreshToken() {
   const refresh_token = get(token, "refresh_token", "");
 
   if (!token || !refresh_token) {
-    reauth();
-    return Promise.reject(
-      new DetailedError(
-        "No Auth token found",
-        responseCodes.Unauthorized,
-        ErrorOrigin.Headless
-      )
-    );
+    // window.location.reload();
+    useFeedback().add({
+      type: messageTypes.ERROR,
+      title: "Session error",
+      copy: "Your session has expired, please reload the page",
+      i18nKey: `errors.${responseCodes.Unauthorized}`,
+      data: { status: responseCodes.Unauthorized },
+      display: messageDisplays.SYSTEM,
+      delay: 0,
+      maxAge: 0
+    });
+
+    // reauth();
+    // return Promise.reject(
+    //   new DetailedError(
+    //     "No Auth token found",
+    //     responseCodes.Unauthorized,
+    //     ErrorOrigin.Headless
+    //   )
+    // );
   }
 
   return post<Token>({

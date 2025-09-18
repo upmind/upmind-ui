@@ -31,7 +31,7 @@
       type="submit"
       color="primary"
       :loading="meta.isProcessing"
-      :disabled="meta.isLoading"
+      :disabled="meta.isLoading || meta.isUnavailable"
       :label="t(`product.actions.${edit ? 'resolveEdit' : 'resolve'}`)"
       size="lg"
       @click="doResolve"
