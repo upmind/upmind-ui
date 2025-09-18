@@ -141,17 +141,17 @@ export const numberFieldInputVariants = cva("bg-control-background", {
     {
       variant: "flat",
       size: "sm",
-      class: "px-0.5 py-2"
+      class: "w-1/3 py-2"
     },
     {
       variant: "flat",
       size: "md",
-      class: "px-3 py-2"
+      class: "w-1/3 py-2"
     },
     {
       variant: "flat",
       size: "lg",
-      class: "px-4 py-2"
+      class: "w-1/3 py-2"
     }
   ],
   defaultVariants: {
