@@ -94,8 +94,8 @@
     "vue-tsc": "^3.0.5"
   },
   "peerDependencies": {
+    "tailwindcss": "^4.1.11",
     "vue": "^3.0.0",
-    "vue-router": "^4.5.0",
-    "tailwindcss": "^4.1.11"
+    "vue-router": "^4.5.0"
   }
 }

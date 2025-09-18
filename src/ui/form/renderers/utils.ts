@@ -1,38 +1,36 @@
 // --- external
 import { computed, ref, inject, watch } from "vue";
 import {
-  Resolve,
   composePaths,
   createCombinatorRenderInfos,
   findUISchema,
   getErrorAt,
-  getSubErrorsAt,
   getFirstPrimitiveProp,
-  rankWith
+  getSubErrorsAt,
+  rankWith,
+  Resolve
 } from "@jsonforms/core";
 
 // --- utils
 import {
-  merge,
   cloneDeep,
   defaults,
-  set,
-  isEqual,
-  map,
-  isFunction,
   isEmpty,
-  isObject
+  isEqual,
+  isFunction,
+  map,
+  merge,
+  set
 } from "lodash-es";
 
 // --- types
 import type {
-  JsonFormsSubStates,
   Tester,
-  CombinatorSubSchemaRenderInfo,
-  JsonSchema
+  JsonFormsSubStates,
+  CombinatorSubSchemaRenderInfo
 } from "@jsonforms/core";
-import type { FormControlProps } from "../types";
 import type { ErrorObject } from "ajv";
+import type { FormControlProps } from "../types";
 // -----------------------------------------------------------------------------
 
 export const useUpmindUIRenderer = <
@@ -85,7 +83,20 @@ export const useUpmindUIRenderer = <
         } as ErrorObject);
     }
 
-    return errors;
+    return map(errors, error => {
+      const translated =
+        isFunction(jsonforms.i18n?.translateError) &&
+        isFunction(jsonforms.i18n?.translate)
+          ? jsonforms.i18n.translateError(
+              error,
+              jsonforms.i18n.translate,
+              input.control.value.schema
+            )
+          : undefined;
+
+      error.message = translated ?? error.message;
+      return error;
+    });
   }
 
   // --- state
@@ -104,8 +115,8 @@ export const useUpmindUIRenderer = <
     );
   });
 
-  // lets get our errors as full error objects
-  watch(input.control, control => {
+  // let's get our errors as full error objects
+  watch(input.control, _control => {
     touched.value =
       touched.value || jsonforms?.core?.validationMode === "ValidateAndShow";
 
