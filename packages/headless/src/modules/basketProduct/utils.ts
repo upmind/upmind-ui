@@ -316,7 +316,7 @@ export function parseBasketProductData(
   } as IBasketProductModel;
 }
 
-function parseBasketSubproductConfig(
+export function parseBasketSubproductConfig(
   subproducts?: SubproductModel
 ): IBasketSubproductModel[] {
   return reduce(

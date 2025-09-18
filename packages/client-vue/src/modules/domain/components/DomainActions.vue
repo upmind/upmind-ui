@@ -13,7 +13,7 @@
     :label="t('domain.card.available.action', selected ? 0 : 1)"
   />
 
-  <template v-if="!meta?.available && !selected" as="span">
+  <template v-if="!meta?.available && !selected && !meta.added" as="span">
     <Description class="not-italic md:max-w-76">
       {{ t("domain.card.transfer.ownership") }}
       {{ t("domain.card.transfer.transfer") }}

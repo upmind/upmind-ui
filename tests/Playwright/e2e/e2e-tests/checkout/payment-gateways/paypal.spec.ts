@@ -49,7 +49,7 @@ test.describe("Checkout with PayPal", () => {
       []
     );
     await page.goto(URLs.checkout);
-    await page.waitForLoadState("networkidle");
+    // await page.waitForLoadState("networkidle");
     await checkout.selectPaymentMethod("PayPal Express");
     await checkout.clickPlaceOrderButton();
     await page.waitForURL(

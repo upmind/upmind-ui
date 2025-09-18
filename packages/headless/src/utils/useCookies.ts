@@ -1,5 +1,6 @@
 // ---  external
 import { isEnabled, getCookie, setCookie, removeCookie } from "tiny-cookie";
+import { parse, ParsedDomain } from "psl";
 
 // --- internal
 import useUpmind from "../index";
@@ -24,7 +25,7 @@ declare type Encoder<T> = (value: T) => string;
 
 export function useCookies() {
   const domain = window.location.hostname;
-  const topLevelDomain = getTopLevelDomain(window.location.href);
+  const apexDomain = getApexDomain(window.location.hostname);
 
   function isBase64Encoded(str: string): boolean {
     try {
@@ -38,13 +39,10 @@ export function useCookies() {
     }
   }
 
-  function getTopLevelDomain(url: string) {
-    const urlParts = new URL(url).hostname.split(".");
-
-    return urlParts
-      .slice(0)
-      .slice(-(urlParts.length === 4 ? 3 : 2))
-      .join(".");
+  function getApexDomain(hostname?: URL["hostname"]) {
+    hostname = hostname || window.location.hostname;
+    const parsed = parse(hostname) as ParsedDomain;
+    return parsed?.domain || hostname;
   }
 
   // NB by default we always use JSON parse/strigify and base64 encoding to encode/decode the cookie value
@@ -74,7 +72,7 @@ export function useCookies() {
       // this is to ensure that the cookie is available if the top-level domain fails to set the cookie
       options ??= {};
 
-      set(options, "domain", topLevelDomain);
+      set(options, "domain", apexDomain);
       setCookie(key, value, encoder, options);
 
       const success = getCookie(key, encoder);
@@ -87,7 +85,7 @@ export function useCookies() {
     removeTopLevel: (key: string, options?: CookieOptions) => {
       // NB we always remove the cookie for both the current domain and the top-level domain
       options ??= {};
-      set(options, "domain", topLevelDomain);
+      set(options, "domain", apexDomain);
       removeCookie(key, options);
       set(options, "domain", domain);
       removeCookie(key, options);

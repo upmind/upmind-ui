@@ -21,6 +21,7 @@
           useMutate: useClientPhone
         }"
         :show-label="!!selectedPhone"
+        @processing="wait"
       >
         <template #item="{ item, readonly, doEdit, doRemove }">
           <PhoneItem
@@ -41,6 +42,7 @@
           useMutate: useClientAddress
         }"
         :show-label="!!selectedAddress"
+        @processing="wait"
       >
         <template #item="{ item, readonly, doEdit, doRemove }">
           <AddressItem
@@ -98,7 +100,7 @@ const emits = defineEmits<{
 const showForm = ref(false);
 // -----------------------------------------------------------------------------
 
-const { useUnifiedBillingDetail, meta: billingMeta } = useBasketBilling();
+const { useUnifiedBillingDetail, meta: billingMeta, wait } = useBasketBilling();
 
 const {
   data: addresses,

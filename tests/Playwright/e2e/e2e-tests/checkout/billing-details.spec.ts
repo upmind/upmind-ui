@@ -94,6 +94,6 @@ test.describe("Verify checkout billing detail requirements", () => {
       requirePhoneForOrders: true
     });
     await page.goto(URLs.checkout);
-    await expect(page.getByTestId("form-item-phone2")).toBeVisible();
+    await expect(checkout.phone).toBeVisible();
   });
 });

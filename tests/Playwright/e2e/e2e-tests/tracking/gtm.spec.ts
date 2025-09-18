@@ -1,5 +1,5 @@
 import { test, expect, Page } from "@playwright/test";
-import { URLs } from "../support/constants/urls";
+import { URLs } from "../../support/constants/urls";
 
 const gtmContainerId = "G-9QKJBFZHN2";
 const testUrl = [
@@ -34,7 +34,6 @@ test.describe("Google Tag Manager", () => {
       await page.goto(URLs.starterHosting);
       await page.waitForLoadState("networkidle");
       const dataLayer = await getDataLayer(page);
-      //console.log(dataLayer);
       const gtmStart = await dataLayer.find(
         (entry: any) => entry.event === "gtm.js"
       );

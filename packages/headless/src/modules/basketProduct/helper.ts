@@ -11,7 +11,12 @@ import { useDataLayer } from "../system";
 const { dataLayer } = useDataLayer();
 
 // --- utils
-import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
+import {
+  DetailedError,
+  ErrorOrigin,
+  responseCodes,
+  stateMatches
+} from "../../utils";
 import {
   concat,
   defaults,
@@ -43,13 +48,15 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
   // let's let our subscriber know when the basket has been refreshed
   const subscription = basket.subscribe((state: any) => {
     // mark the basket as refreshing
-    if (state.matches("loading")) isLoading = true;
-    if (state.matches("shopping.refreshing.processing")) isRefreshing = true;
+
+    if (stateMatches(state, ["loading", "subscribing"])) isLoading = true;
+    if (stateMatches(state, ["shopping.refreshing.processing"]))
+      isRefreshing = true;
 
     // when the basket has been refreshed, then we can forward the refresh event
     if (
-      (isLoading && state.matches("shopping")) ||
-      (isRefreshing && state.matches("shopping.refreshing.processed"))
+      (isLoading && stateMatches(state, ["shopping"])) ||
+      (isRefreshing && stateMatches(state, ["shopping.refreshing.processed"]))
     ) {
       isRefreshing = false;
       isLoading = false;
@@ -311,7 +318,9 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
                 { timeout: 60_000 } // wait 1 min (max)
               )
                 .then(() => actor)
-                .catch(() => undefined);
+                .catch(error => {
+                  return undefined;
+                });
             });
         }) as Promise<ActorRef<any>>[];
 
