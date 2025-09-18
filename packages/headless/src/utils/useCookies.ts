@@ -25,7 +25,7 @@ declare type Encoder<T> = (value: T) => string;
 
 export function useCookies() {
   const domain = window.location.hostname;
-  const apexDomain = getApexDomain(window.location.href);
+  const apexDomain = getApexDomain(window.location.hostname);
 
   function isBase64Encoded(str: string): boolean {
     try {

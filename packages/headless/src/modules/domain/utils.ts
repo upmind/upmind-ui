@@ -1,39 +1,25 @@
 // --- externals
-import { parse, type ParsedDomain } from "psl";
+import { parse } from "psl";
 
 // --- internals
 import { useBrand } from "../brand";
 import { calculateBillingTerm } from "../product/utils";
 
 // --- utils
-import {
-  parseProductDetails,
-  parseQuantity,
-  parseTermDetails
-} from "../product/utils";
+import { parseProductDetails, parseTermDetails } from "../product/utils";
 import {
   compact,
   find,
   first,
   get,
-  has,
   isEmpty,
-  isNil,
-  subtract,
   isObject,
   map,
-  orderBy,
-  reduce,
-  set,
   uniqBy
 } from "lodash-es";
 
 // --- types
-import {
-  IBasketProduct,
-  IProduct,
-  IProductPrice
-} from "@upmind-automation/types";
+import { IProduct } from "@upmind-automation/types";
 import type { BasketProduct } from "../basketProduct";
 import type { DomainProduct, DomainModel } from "./types";
 import { ProductProps } from "../product";
