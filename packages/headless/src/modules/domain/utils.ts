@@ -36,6 +36,7 @@ import {
 } from "@upmind-automation/types";
 import type { BasketProduct } from "../basketProduct";
 import type { DomainProduct, DomainModel } from "./types";
+import { ProductProps } from "../product";
 
 // ----------------------------------------------------------------------------
 const DOMAIN_PATTERN =
@@ -109,8 +110,10 @@ export function parseAvailable(
       configuration: {
         productId: raw.id, //raw.product_id,
         quantity: raw.unit_quantity ?? 1,
-        term: termDetails.cycle
-      },
+        term: termDetails.cycle,
+        subproducts: compact([raw.sub_product_id]),
+        provisionFields: { sld }
+      } as ProductProps,
       // ---
       domain: parsedDomain?.domain ?? domain,
       sld: parsedDomain?.sld ?? sld,
