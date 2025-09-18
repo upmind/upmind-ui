@@ -6,11 +6,10 @@
     :delay="delay"
     :sequence="sequence"
     :class="cn(styles.iconAnimated, props.class)"
-    :colors="`primary:${primaryHex},secondary:${secondaryHex}`"
+    :colors="`primary:${neutralHex},secondary:${primaryHex}`"
   />
 </template>
 
-<span class="text-icon-primary text-icon-secondary hidden" />
 <script lang="ts" setup>
 // --- external
 import { onMounted, computed, ref, watch } from "vue";
@@ -81,9 +80,9 @@ const primaryHex = computed(() => {
   return getComputedColor("icon-primary");
 });
 
-const secondaryHex = computed(() => {
+const neutralHex = computed(() => {
   const _ = styles.value;
-  return getComputedColor("icon-secondary");
+  return getComputedColor("icon-neutral");
 });
 
 function getComputedColor(className: string): string {
