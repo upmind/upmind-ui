@@ -31,7 +31,6 @@ export interface FormProps<T = Record<string, any>> {
   uischema?: UISchemaElement & Internationalizable;
   validationMode?: ValidationMode;
   ajv?: Ajv;
-  validate?: (schema: JsonSchema, data: Record<string, any>) => ErrorObject[];
   additionalErrors?: ErrorObject<string, Record<string, any>, unknown>[];
   middleware?: Middleware;
   // ---  props
