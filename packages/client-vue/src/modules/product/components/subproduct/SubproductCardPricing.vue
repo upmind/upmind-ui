@@ -2,8 +2,8 @@
   <template v-if="!props.meta?.free || props.meta?.overrides">
     <ExPrice
       :regular-price="props.price?.regularPrice ?? ''"
+      :monthly-from-regular-price="props.price?.monthlyFromRegularPrice ?? ''"
       :discounted="props.meta?.discounted ?? false"
-      :cycle="props.cycle"
     />
 
     <Tooltip
@@ -16,8 +16,10 @@
         <Icon icon="transfer" size="nano" class="text-inherit" />
         <CurrentPrice
           :current-price="props.price?.currentPrice ?? ''"
+          :monthly-from-current-price="
+            props.price?.monthlyFromCurrentPrice ?? ''
+          "
           :free="props.meta.free ?? false"
-          :cycle="props.cycle"
         />
       </span>
     </Tooltip>
@@ -27,8 +29,10 @@
         <span>+</span
         ><CurrentPrice
           :current-price="props.price?.currentPrice ?? ''"
+          :monthly-from-current-price="
+            props.price?.monthlyFromCurrentPrice ?? ''
+          "
           :free="props.meta.free ?? false"
-          :cycle="props.cycle"
         />
       </span>
     </Tooltip>

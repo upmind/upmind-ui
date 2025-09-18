@@ -34,10 +34,15 @@ export class Basket {
   async enterPromoCode(promoCode: string | null) {
     const promotionForm = this.page.getByTestId("promotions-form");
     await this.page.getByTestId("button-add-a-voucher-code").click();
-    await promotionForm
-      .getByTestId("form-item-promocode")
-      .locator("input")
-      .fill(`${promoCode}`);
+    let promoInput = promotionForm
+      .getByTestId("form-item-promo-code")
+      .locator("input");
+    if (!(await promoInput.count())) {
+      promoInput = promotionForm
+        .getByTestId("form-item-promocode")
+        .locator("input");
+    }
+    await promoInput.fill(`${promoCode}`);
     await promotionForm.getByTestId("button-apply").click();
   }
 
@@ -45,3 +50,5 @@ export class Basket {
     this.page.getByRole("link", { name: "Expand all configurations" });
   }
 }
+
+("form-item-promocode");

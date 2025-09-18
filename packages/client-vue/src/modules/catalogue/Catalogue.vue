@@ -18,6 +18,7 @@
         :sort="params.sort"
         :direction="params.direction"
         :description="description"
+        :is-faceted="isFaceted"
         v-bind="category"
       />
     </template>

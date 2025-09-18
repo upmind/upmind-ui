@@ -21,10 +21,12 @@ import {
   checkTerm,
   checkSubproducts,
   checkProvisioning,
-  parseSubproductDetails
+  parseSubproductDetails,
+  parseProvisioningSchema
 } from "./utils";
 
 import {
+  compact,
   concat,
   defaultsDeep,
   get,
@@ -38,16 +40,18 @@ import {
 } from "lodash-es";
 
 // --- types
-import { BrandConfigKeys } from "@upmind-automation/types";
+import { BrandConfigKeys, IProduct } from "@upmind-automation/types";
 
 import type {
   ProductConfigContext,
   Price,
   PriceCalculations,
-  ProductModel
+  ProductModel,
+  SubproductModel
 } from "./types";
 
 import { AnyEventObject } from "xstate";
+import { parseBasketSubproductConfig } from "../basketProduct/utils";
 
 // -----------------------------------------------------------------------------
 
@@ -109,12 +113,13 @@ async function load(
   if (rawBasketProduct?.id)
     set(params, "basket_product_id", rawBasketProduct.id);
 
-  const productPromise = getRequest({
+  const productPromise = getRequest<IProduct>({
     url: useUrl(`basket/products/${productId}`, params),
     queryKey: [
       "product",
       productId,
       {
+        basketId,
         currency_id: currency?.id,
         promotions: promocodes
       }
@@ -125,17 +130,29 @@ async function load(
   });
 
   // lets get our provisioning fields early, so we can make them lookups
-  const provisioningPromise = loadProvisioningFields(productId);
+  const provisioningPromise = loadProvisioningFields(
+    { model } as ProductConfigContext,
+    _event
+  );
 
   return Promise.all([productPromise, provisioningPromise]).then(
     ([product, provisioning]) => {
-      return { product, provisioning, currency };
+      return {
+        product,
+        provisioning: parseProvisioningSchema(provisioning, product),
+        currency
+      };
     }
   );
 }
 
-async function loadProvisioningFields(productId: string) {
-  const { get, useUrl } = useQuery();
+async function loadProvisioningFields(
+  { model }: ProductConfigContext,
+  _event: AnyEventObject
+) {
+  const { get: getRequest, useUrl } = useQuery();
+
+  const productId = get(model, "productId");
   if (!productId)
     return Promise.reject(
       new DetailedError(
@@ -144,10 +161,17 @@ async function loadProvisioningFields(productId: string) {
         ErrorOrigin.Headless
       )
     );
+
+  const attributes = parseBasketSubproductConfig(model?.attributes);
+  const options = parseBasketSubproductConfig(model?.options);
+  const subProducts = compact(map(concat(options, attributes), "product_id"));
+
   // we don't cache provisioning fields, as they can change with different options/attributes being selected
-  return get({
-    url: useUrl(`basket/products/${productId}/provision_fields`),
-    queryKey: ["product", productId, "provision-fields"],
+  return getRequest({
+    url: useUrl(`basket/products/${productId}/provision_fields`, {
+      sub_product_ids: subProducts
+    }),
+    queryKey: ["product", productId, "provision-fields", { subProducts }],
     withAccessToken: true
   });
 }
@@ -232,10 +256,16 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
   );
   values.attributes = attributes.subproducts;
 
+  // update the provisioning fields : we need to do this when attributes/options change
+  lookups.provisionFields = await loadProvisioningFields(
+    { model: values } as ProductConfigContext,
+    {} as AnyEventObject
+  ).then(provisioning =>
+    parseProvisioningSchema(provisioning, context.rawProduct!)
+  );
+
   // ---
-  return new Promise(resolve => {
-    resolve({ model: values, lookups });
-  });
+  return Promise.resolve({ model: values, lookups });
 }
 
 async function validate(context: ProductConfigContext, _event: AnyEventObject) {

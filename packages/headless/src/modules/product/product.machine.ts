@@ -434,10 +434,7 @@ export default createMachine(
             model?.term
           ),
           attributes: parseSubproductDetails(data.product.products_attributes),
-          provisionFields: parseProvisioningSchema(
-            data.provisioning,
-            data.product
-          ),
+          provisionFields: data.provisioning,
           bundled: parseBundledProducts(data.product, bundle)
         })
       }),
@@ -617,7 +614,6 @@ export default createMachine(
           mapToHeadlessError(data)
       }),
 
-      // TODO: @DC implement the new response errors from the API
       setError: assign({
         error: (_context: ProductConfigContext, { data }: AnyEventObject) =>
           mapToHeadlessError(data)

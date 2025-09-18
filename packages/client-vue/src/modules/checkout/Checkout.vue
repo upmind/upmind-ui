@@ -101,7 +101,6 @@ import {
   Card,
   Layout
 } from "@upmind-automation/upmind-ui";
-import Session from "../session/Session.vue";
 import Billing from "../billing/Billing.vue";
 import PaymentDetails from "./components/PaymentDetails.vue";
 import Summary from "../basket/components/Summary.vue";
@@ -123,7 +122,7 @@ const { navigateNext, navigateBack, isResolved } = useRoutingEngine();
 const { meta: paymentDetailsMeta } = useBasketPaymentDetails();
 const { uiCart } = useBrand();
 
-const props = withDefaults(defineProps<CheckoutProps>(), {
+withDefaults(defineProps<CheckoutProps>(), {
   as: Card,
   contentSectionComponent: ContentSection,
   color: "primary"
