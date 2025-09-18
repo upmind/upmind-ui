@@ -5,7 +5,11 @@
     </template>
 
     <template #header>
-      <Header v-if="product && meta?.isAvailable" v-bind="product" />
+      <Header
+        v-if="meta?.isAvailable && product?.productDetails"
+        :product-details="product.productDetails"
+        :product-image="productImage()"
+      />
       <HeaderSkeleton v-else />
     </template>
 
@@ -120,7 +124,8 @@ const {
   onDone
 } = await configure(basketProductId);
 
-const { meta, product, updateQuantity } = useProductConfig(basketProduct);
+const { meta, product, updateQuantity, productImage } =
+  useProductConfig(basketProduct);
 
 const configMeta = computed(() => {
   return {
