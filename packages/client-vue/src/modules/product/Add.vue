@@ -10,9 +10,9 @@
 
     <template #header>
       <Header
-        v-bind="product"
+        v-if="meta?.isAvailable && product?.productDetails"
+        :product-details="product.productDetails"
         :product-image="productImage()"
-        v-if="meta?.isAvailable"
       />
       <HeaderSkeleton v-else />
     </template>
