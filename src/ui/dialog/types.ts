@@ -34,7 +34,6 @@ export interface DialogProps
   size?: DialogContentVariantProps["size"] | string;
   overflow?: DialogContentVariantProps["overflow"] | string;
   fit?: DialogContentVariantProps["fit"] | string;
-  skrim?: DialogOverlayVariantProps["skrim"] | string;
 
   // ---
   uiConfig?: {

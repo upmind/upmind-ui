@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export const contentVariant = cva(
-  "bg-base-background mx-auto grid max-h-[90dvh] w-full p-0 focus:outline-hidden",
+  "bg-background-surface mx-auto grid max-h-[90dvh] w-full p-0 focus:outline-hidden",
   {
     variants: {
       size: {
@@ -48,20 +48,7 @@ export const containerVariant = cva("", {
   }
 });
 
-export const overlayVariant = cva("", {
-  variants: {
-    skrim: {
-      dark: "bg-base-foreground opacity-75",
-      light: "bg-base-foreground opacity-25",
-      primary: "bg-primary-950 opacity-90",
-      secondary: "bg-secondary-950 opacity-90",
-      accent: "bg-accent-950 opacity-90"
-    },
-    defaultVariants: {
-      skrim: "dark"
-    }
-  }
-});
+export const overlayVariant = cva("bg-background-overlay");
 
 export default {
   dialog: {
