@@ -8,11 +8,11 @@ export const interstitialVariants = cva();
 export default {
   interstitial: {
     root: cva(
-      "relative flex w-full flex-col flex-wrap items-center justify-center gap-1 px-4 md:px-8",
+      "relative flex w-full flex-col flex-wrap items-center justify-center gap-1 px-4 md:px-24",
       {
         variants: {
           isModal: {
-            false: "py-16 md:py-28",
+            false: "py-16 md:py-18",
             true: "py-12"
           }
         }

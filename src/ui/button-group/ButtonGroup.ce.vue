@@ -12,6 +12,7 @@
         <Button
           v-if="item.type === ButtonGroup.Button"
           v-bind="item.props"
+          class="control-radius"
           size="lg"
           :disabled="disabled || item.props.disabled"
           variant="ghost"
@@ -64,7 +65,7 @@ import type { ButtonGroupProps } from "./types";
 import { ButtonGroup } from "./types";
 
 const props = withDefaults(defineProps<ButtonGroupProps>(), {
-  variant: "outline",
+  variant: "control",
   // ---
   items: () => [],
   // ---
@@ -73,7 +74,7 @@ const props = withDefaults(defineProps<ButtonGroupProps>(), {
 });
 
 const meta = computed(() => ({
-  variant: props.variant,
+  variant: "control",
   isDisabled: props.disabled,
   hasRing: true
 }));
