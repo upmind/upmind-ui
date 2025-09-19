@@ -1,0 +1,82 @@
+@layer utilities {
+  .text-xs\/tight {
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height-tight);
+  }
+  .text-xs\/loose {
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height-loose);
+  }
+  .text-sm\/tight {
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height-tight);
+  }
+  .text-sm\/loose {
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height-loose);
+  }
+  .text-md\/tight {
+    font-size: var(--text-md);
+    line-height: var(--text-md--line-height-tight);
+  }
+  .text-md\/loose {
+    font-size: var(--text-md);
+    line-height: var(--text-md--line-height-loose);
+  }
+  .text-lg\/tight {
+    font-size: var(--text-lg);
+    line-height: var(--text-lg--line-height-tight);
+  }
+  .text-lg\/loose {
+    font-size: var(--text-lg);
+    line-height: var(--text-lg--line-height-loose);
+  }
+  .text-xl\/tight {
+    font-size: var(--text-xl);
+    line-height: var(--text-xl--line-height-tight);
+  }
+  .text-xl\/loose {
+    font-size: var(--text-xl);
+    line-height: var(--text-xl--line-height-loose);
+  }
+  .text-2xl\/tight {
+    font-size: var(--text-2xl);
+    line-height: var(--text-2xl--line-height-tight);
+  }
+  .text-2xl\/loose {
+    font-size: var(--text-2xl);
+    line-height: var(--text-2xl--line-height-loose);
+  }
+  .text-3xl\/tight {
+    font-size: var(--text-3xl);
+    line-height: var(--text-3xl--line-height-tight);
+  }
+  .text-3xl\/loose {
+    font-size: var(--text-3xl);
+    line-height: var(--text-3xl--line-height-loose);
+  }
+  .text-4xl\/tight {
+    font-size: var(--text-4xl);
+    line-height: var(--text-4xl--line-height-tight);
+  }
+  .text-4xl\/loose {
+    font-size: var(--text-4xl);
+    line-height: var(--text-4xl--line-height-loose);
+  }
+  .text-5xl\/tight {
+    font-size: var(--text-5xl);
+    line-height: var(--text-5xl--line-height-tight);
+  }
+  .text-5xl\/loose {
+    font-size: var(--text-5xl);
+    line-height: var(--text-5xl--line-height-loose);
+  }
+  .text-6xl\/tight {
+    font-size: var(--text-6xl);
+    line-height: var(--text-6xl--line-height-tight);
+  }
+  .text-6xl\/loose {
+    font-size: var(--text-6xl);
+    line-height: var(--text-6xl--line-height-loose);
+  }
+}
