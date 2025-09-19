@@ -1,6 +1,6 @@
 @theme {
   /* Button radius */
-  --button-radius: "";
+  --button-radius: 40px;
 
   /* Control radius */
   --control-radius: "";
@@ -15,131 +15,131 @@
   --card-radius: "";
 
   /* Color - Primary/Secondary */
-  --color-primary: #46FDAE;
-  --color-secondary: #C6FB4B;
+  --color-primary: #46fdae;
+  --color-secondary: #c6fb4b;
 
   /* Color - Background */
-  --color-background-canvas: #F4FDF3;
-  --color-background-surface: #FFFFFF;
-  --color-background-surfaceGlass: #FFFFFFF2;
-  --color-background-skeleton: #0D493D13;
+  --color-background-canvas: #f4fdf3;
+  --color-background-surface: #ffffff;
+  --color-background-surfaceGlass: #fffffff2;
+  --color-background-skeleton: #0d493d13;
 
   /* Color - Background - Control */
-  --color-background-control-surface: #FEFEFE;
-  --color-background-control-checked: #00C069;
-  --color-background-control-checkedHover: #0D493D;
-  --color-background-control-unchecked: #CDCDDB;
-  --color-background-control-uncheckedHover: #B2B2C2;
-  --color-background-control-selected: #F1FBF0;
+  --color-background-control-surface: #fefefe;
+  --color-background-control-checked: #00c069;
+  --color-background-control-checkedHover: #0d493d;
+  --color-background-control-unchecked: #cdcddb;
+  --color-background-control-uncheckedHover: #b2b2c2;
+  --color-background-control-selected: #f1fbf0;
 
   /* Color - Background - Button */
-  --color-background-button-primaryRing: #00C069;
-  --color-background-button-primary0: #46FDAE;
-  --color-background-button-primary1: #C6FB4B;
-  --color-background-button-primaryHover0: #C6FB4B;
-  --color-background-button-primaryHover1: #C6FB4B;
-  --color-background-button-secondaryRing: #0D493D;
-  --color-background-button-secondary0: #0D493D;
-  --color-background-button-secondary1: #0D493D;
-  --color-background-button-secondaryHover0: #122E2B;
+  --color-background-button-primaryRing: #00c069;
+  --color-background-button-primary0: #46fdae;
+  --color-background-button-primary1: #c6fb4b;
+  --color-background-button-primaryHover0: #c6fb4b;
+  --color-background-button-primaryHover1: #c6fb4b;
+  --color-background-button-secondaryRing: #0d493d;
+  --color-background-button-secondary0: #0d493d;
+  --color-background-button-secondary1: #0d493d;
+  --color-background-button-secondaryHover0: #122e2b;
   --color-background-button-secondaryHover1: #575757;
   --color-background-button-neutralRing: #262626;
   --color-background-button-neutral0: #132828;
   --color-background-button-neutral1: #132828;
-  --color-background-button-neutralHover0: #1A1A1A;
-  --color-background-button-neutralHover1: #1A1A1A;
-  --color-background-button-subtleRing: #0D493D;
-  --color-background-button-subtle0: #E8F5E7;
-  --color-background-button-subtle1: #E8F5E7;
-  --color-background-button-subtleHover0: #E0F0DF;
-  --color-background-button-subtleHover1: #E0F0DF;
-  --color-background-button-dangerRing: #F46240;
-  --color-background-button-danger0: #F46240;
-  --color-background-button-danger1: #F46240;
-  --color-background-button-dangerHover0: #E7350D;
-  --color-background-button-dangerHover1: #E7350D;
-  --color-background-button-dangerHover2: #E7350D;
+  --color-background-button-neutralHover0: #1a1a1a;
+  --color-background-button-neutralHover1: #1a1a1a;
+  --color-background-button-subtleRing: #0d493d;
+  --color-background-button-subtle0: #e8f5e7;
+  --color-background-button-subtle1: #e8f5e7;
+  --color-background-button-subtleHover0: #e0f0df;
+  --color-background-button-subtleHover1: #e0f0df;
+  --color-background-button-dangerRing: #f46240;
+  --color-background-button-danger0: #f46240;
+  --color-background-button-danger1: #f46240;
+  --color-background-button-dangerHover0: #e7350d;
+  --color-background-button-dangerHover1: #e7350d;
+  --color-background-button-dangerHover2: #e7350d;
   --color-background-button-outline: transparent;
-  --color-background-button-outlineHover: #E8F5E7;
-  --color-background-button-outlineRing: #A1AFAD;
+  --color-background-button-outlineHover: #e8f5e7;
+  --color-background-button-outlineRing: #a1afad;
   --color-background-button-ghost: transparent;
-  --color-background-button-ghostHover: #F8F8FB;
-  --color-background-button-ghostRing: #A1AFAD;
+  --color-background-button-ghostHover: #f8f8fb;
+  --color-background-button-ghostRing: #a1afad;
 
   /* Color - Background - Accent */
-  --color-background-accent-primary: #46FDAE;
-  --color-background-accent-promotion: #794DFF;
-  --color-background-accent-destructive: #F46240;
-  --color-background-accent-subtle: #F1FBF0;
-  --color-background-accent-info: #FFFFFF;
-  --color-background-accent-caution: #FFFFFF;
-  --color-background-accent-warning: #FFFFFF;
-  --color-background-accent-danger: #FFFFFF;
-  --color-background-accent-success: #FFFFFF;
+  --color-background-accent-primary: #46fdae;
+  --color-background-accent-promotion: #794dff;
+  --color-background-accent-destructive: #f46240;
+  --color-background-accent-subtle: #f1fbf0;
+  --color-background-accent-info: #ffffff;
+  --color-background-accent-caution: #ffffff;
+  --color-background-accent-warning: #ffffff;
+  --color-background-accent-danger: #ffffff;
+  --color-background-accent-success: #ffffff;
 
   /* Color - Ring */
-  --color-ring-control: #00C069;
+  --color-ring-control: #00c069;
 
   /* Color - Border */
-  --color-border-surface: #D9F0D6;
-  --color-border-base: #CFE5CC;
+  --color-border-surface: #d9f0d6;
+  --color-border-base: #cfe5cc;
 
   /* Color - Border - Button */
-  --color-border-button-outline: #E0F0DF;
-  --color-border-button-outlineHover: #E0F0DF;
+  --color-border-button-outline: #e0f0df;
+  --color-border-button-outlineHover: #e0f0df;
 
   /* Color - Border - Button - Control */
-  --color-border-button-control-default: #E8E8E8;
-  --color-border-button-control-hover: #BABABA;
-  --color-border-button-control-selected: #00C069;
-  --color-border-button-control-active: #FFFFFF;
+  --color-border-button-control-default: #e8e8e8;
+  --color-border-button-control-hover: #bababa;
+  --color-border-button-control-selected: #00c069;
+  --color-border-button-control-active: #ffffff;
 
   /* Color - Icon */
-  --color-icon-primary: #00C069;
+  --color-icon-primary: #00c069;
   --color-icon-neutral: #132828;
-  --color-icon-subtle: #BABABA;
+  --color-icon-subtle: #bababa;
 
   /* Color - Text */
-  --color-text-primary: #FFFFFF;
-  --color-text-secondary: #FFFFFF32;
-  --color-text-white: #FFFFFF;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #ffffff32;
+  --color-text-white: #ffffff;
   --color-text-base: #132828;
   --color-text-display: #132828;
   --color-text-muted: #728884;
-  --color-text-faint: #A1AFAD;
-  --color-text-danger: #F46240;
+  --color-text-faint: #a1afad;
+  --color-text-danger: #f46240;
 
   /* Color - Text - Control */
-  --color-text-control-selected: #00C069;
-  --color-text-control-checked: #FFFFFF;
+  --color-text-control-selected: #00c069;
+  --color-text-control-checked: #ffffff;
 
   /* Color - Text - Accent */
-  --color-text-accent-primary: #00C069;
-  --color-text-accent-primaryContrast: #054D27;
-  --color-text-accent-promotive: #6A38FF;
-  --color-text-accent-promotiveContrast: #F7F5FF;
-  --color-text-accent-destructive: #F46240;
-  --color-text-accent-destructiveContrast: #FFFFFF;
+  --color-text-accent-primary: #00c069;
+  --color-text-accent-primaryContrast: #054d27;
+  --color-text-accent-promotive: #6a38ff;
+  --color-text-accent-promotiveContrast: #f7f5ff;
+  --color-text-accent-destructive: #f46240;
+  --color-text-accent-destructiveContrast: #ffffff;
   --color-text-accent-subtle: #728884;
   --color-text-accent-subtleContrast: #728884;
-  --color-text-accent-info: #FFFFFF;
-  --color-text-accent-caution: #FFFFFF;
-  --color-text-accent-warning: #FFFFFF;
-  --color-text-accent-danger: #FFFFFF;
-  --color-text-accent-success: #FFFFFF;
+  --color-text-accent-info: #ffffff;
+  --color-text-accent-caution: #ffffff;
+  --color-text-accent-warning: #ffffff;
+  --color-text-accent-danger: #ffffff;
+  --color-text-accent-success: #ffffff;
 
   /* Color - Text - Button */
-  --color-text-button-primary: #0A1616;
-  --color-text-button-secondary: #FFFFFF;
-  --color-text-button-neutral: #FFFFFF;
-  --color-text-button-subtle: #0D493D;
-  --color-text-button-danger: #F46240;
-  --color-text-button-dangerLink: #F15530;
-  --color-text-button-dangerLinkHover: #FFFFFF;
-  --color-text-button-outline: #0A1616;
-  --color-text-button-ghost: #0A1616;
-  --color-text-button-link: #0A1616;
-  --color-text-button-linkHover: #00C069;
+  --color-text-button-primary: #0a1616;
+  --color-text-button-secondary: #ffffff;
+  --color-text-button-neutral: #ffffff;
+  --color-text-button-subtle: #0d493d;
+  --color-text-button-danger: #f46240;
+  --color-text-button-dangerLink: #f15530;
+  --color-text-button-dangerLinkHover: #ffffff;
+  --color-text-button-outline: #0a1616;
+  --color-text-button-ghost: #0a1616;
+  --color-text-button-link: #0a1616;
+  --color-text-button-linkHover: #00c069;
   --color-text-button-mutedLink: #728884;
-  --color-text-button-mutedLinkHover: #0A1616;
+  --color-text-button-mutedLinkHover: #0a1616;
 }
