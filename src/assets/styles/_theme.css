@@ -133,9 +133,9 @@
   --color-text-button-secondary: #ffffff;
   --color-text-button-neutral: #ffffff;
   --color-text-button-subtle: #0d493d;
-  --color-text-button-danger: #f46240;
-  --color-text-button-dangerLink: #f15530;
-  --color-text-button-dangerLinkHover: #ffffff;
+  --color-text-button-danger: #ffffff;
+  --color-text-button-dangerLink: #ff4013;
+  --color-text-button-dangerLinkHover: #ff3a0c;
   --color-text-button-outline: #0a1616;
   --color-text-button-ghost: #0a1616;
   --color-text-button-link: #0a1616;

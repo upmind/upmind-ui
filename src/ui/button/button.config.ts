@@ -8,26 +8,26 @@ export const rootVariants = cva(
   {
     variants: {
       size: {
-        sm: "px-0.5 py-2 text-sm",
+        sm: "p-2 text-sm",
         md: "gap-0.5 px-3 py-2 text-sm",
         lg: "text-md gap-0.5 px-4 py-2",
         icon: ""
       },
       variant: {
         primary:
-          "from-background-button-primary0 to-background-button-primary1 text-button-primary bg-gradient-to-br",
+          "from-background-button-primary0 to-background-button-primary1 text-text-button-primary bg-gradient-to-br",
         secondary:
-          "from-background-button-secondary0 to-background-button-secondary1 text-button-secondary bg-gradient-to-br",
+          "from-background-button-secondary0 to-background-button-secondary1 text-text-button-secondary bg-gradient-to-br",
         neutral:
-          "from-background-button-neutral0 to-background-button-neutral1 text-button-neutral bg-gradient-to-br",
+          "from-background-button-neutral0 to-background-button-neutral1 text-text-button-neutral bg-gradient-to-br",
         subtle:
-          "from-background-button-subtle0 to-background-button-subtle1 text-button-subtle bg-gradient-to-br",
+          "from-background-button-subtle0 to-background-button-subtle1 text-text-button-subtle bg-gradient-to-br",
         danger:
-          "from-background-button-danger0 to-background-button-danger1 text-button-danger bg-gradient-to-br",
+          "from-background-button-danger0 to-background-button-danger1 text-text-button-danger bg-gradient-to-br",
         outline:
-          "bg-background-button-outline text-button-outline border-button-outline",
-        ghost: "bg-background-button-ghost text-button-ghost",
-        link: "text-button-link"
+          "bg-background-button-outline text-text-button-outline border-button-outline",
+        ghost: "bg-background-button-ghost text-text-button-ghost",
+        link: "text-text-button-link"
       },
       align: {
         left: "justify-start",
