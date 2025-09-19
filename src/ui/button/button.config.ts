@@ -15,19 +15,20 @@ export const rootVariants = cva(
       },
       variant: {
         primary:
-          "from-background-button-primary0 to-background-button-primary1 text-text-button-primary bg-gradient-to-br",
+          "from-background-button-primary-0 to-background-button-primary-1 text-text-button-primary [&:hover,&[data-hover=true]]:from-background-button-primary-hover-0 [&:hover,&[data-hover=true]]:to-background-button-primary-hover-1 bg-gradient-to-br",
         secondary:
-          "from-background-button-secondary0 to-background-button-secondary1 text-text-button-secondary bg-gradient-to-br",
+          "from-background-button-secondary-0 to-background-button-secondary-1 text-text-button-secondary [&:hover,&[data-hover=true]]:from-background-button-secondary-hover-0 [&:hover,&[data-hover=true]]:to-background-button-secondary-hover-1 bg-gradient-to-br",
         neutral:
-          "from-background-button-neutral0 to-background-button-neutral1 text-text-button-neutral bg-gradient-to-br",
+          "from-background-button-neutral-0 to-background-button-neutral-1 text-text-button-neutral [&:hover,&[data-hover=true]]:from-background-button-neutral-hover-0 [&:hover,&[data-hover=true]]:to-background-button-neutral-hover-1 bg-gradient-to-br",
         subtle:
-          "from-background-button-subtle0 to-background-button-subtle1 text-text-button-subtle bg-gradient-to-br",
+          "from-background-button-subtle-0 to-background-button-subtle-1 text-text-button-subtle [&:hover,&[data-hover=true]]:from-background-button-subtle-hover-0 [&:hover,&[data-hover=true]]:to-background-button-subtle-hover-1 bg-gradient-to-br",
         danger:
-          "from-background-button-danger0 to-background-button-danger1 text-text-button-danger bg-gradient-to-br",
+          "from-background-button-danger-0 to-background-button-danger-1 text-text-button-danger [&:hover,&[data-hover=true]]:from-background-button-danger-hover-0 [&:hover,&[data-hover=true]]:to-background-button-danger-hover-1 bg-gradient-to-br",
         outline:
-          "bg-background-button-outline text-text-button-outline border-button-outline",
-        ghost: "bg-background-button-ghost text-text-button-ghost",
-        link: "text-text-button-link"
+          "bg-background-button-outline text-text-button-outline border-button-outline [&:hover,&[data-hover=true]]:bg-background-button-outline-hover",
+        ghost:
+          "bg-background-button-ghost text-text-button-ghost [&:hover,&[data-hover=true]]:bg-background-button-ghost-hover",
+        link: "text-text-button-link [&:hover,&[data-hover=true]]:text-text-button-link-hover"
       },
       align: {
         left: "justify-start",

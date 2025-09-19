@@ -21,50 +21,50 @@
   /* Color - Background */
   --color-background-canvas: #f4fdf3;
   --color-background-surface: #ffffff;
-  --color-background-surfaceGlass: #fffffff2;
+  --color-background-surface-glass: #fffffff2;
   --color-background-skeleton: #0d493d13;
 
   /* Color - Background - Control */
   --color-background-control-surface: #fefefe;
   --color-background-control-checked: #00c069;
-  --color-background-control-checkedHover: #0d493d;
+  --color-background-control-checked-hover: #0d493d;
   --color-background-control-unchecked: #cdcddb;
-  --color-background-control-uncheckedHover: #b2b2c2;
+  --color-background-control-unchecked-hover: #b2b2c2;
   --color-background-control-selected: #f1fbf0;
 
   /* Color - Background - Button */
-  --color-background-button-primaryRing: #00c069;
-  --color-background-button-primary0: #46fdae;
-  --color-background-button-primary1: #c6fb4b;
-  --color-background-button-primaryHover0: #c6fb4b;
-  --color-background-button-primaryHover1: #c6fb4b;
-  --color-background-button-secondaryRing: #0d493d;
-  --color-background-button-secondary0: #0d493d;
-  --color-background-button-secondary1: #0d493d;
-  --color-background-button-secondaryHover0: #122e2b;
-  --color-background-button-secondaryHover1: #575757;
-  --color-background-button-neutralRing: #262626;
-  --color-background-button-neutral0: #132828;
-  --color-background-button-neutral1: #132828;
-  --color-background-button-neutralHover0: #1a1a1a;
-  --color-background-button-neutralHover1: #1a1a1a;
-  --color-background-button-subtleRing: #0d493d;
-  --color-background-button-subtle0: #e8f5e7;
-  --color-background-button-subtle1: #e8f5e7;
-  --color-background-button-subtleHover0: #e0f0df;
-  --color-background-button-subtleHover1: #e0f0df;
-  --color-background-button-dangerRing: #f46240;
-  --color-background-button-danger0: #f46240;
-  --color-background-button-danger1: #f46240;
-  --color-background-button-dangerHover0: #e7350d;
-  --color-background-button-dangerHover1: #e7350d;
-  --color-background-button-dangerHover2: #e7350d;
+  --color-background-button-primary-ring: #00c069;
+  --color-background-button-primary-0: #46fdae;
+  --color-background-button-primary-1: #c6fb4b;
+  --color-background-button-primary-hover-0: #c6fb4b;
+  --color-background-button-primary-hover-1: #c6fb4b;
+  --color-background-button-secondary-ring: #0d493d;
+  --color-background-button-secondary-0: #0d493d;
+  --color-background-button-secondary-1: #0d493d;
+  --color-background-button-secondary-hover-0: #122e2b;
+  --color-background-button-secondary-hover-1: #575757;
+  --color-background-button-neutral-ring: #262626;
+  --color-background-button-neutral-0: #132828;
+  --color-background-button-neutral-1: #132828;
+  --color-background-button-neutral-hover-0: #1a1a1a;
+  --color-background-button-neutral-hover-1: #1a1a1a;
+  --color-background-button-subtle-ring: #0d493d;
+  --color-background-button-subtle-0: #e8f5e7;
+  --color-background-button-subtle-1: #e8f5e7;
+  --color-background-button-subtle-hover-0: #e0f0df;
+  --color-background-button-subtle-hover-1: #e0f0df;
+  --color-background-button-danger-ring: #f46240;
+  --color-background-button-danger-0: #f46240;
+  --color-background-button-danger-1: #f46240;
+  --color-background-button-danger-hover-0: #e7350d;
+  --color-background-button-danger-hover-1: #e7350d;
+  --color-background-button-danger-hover-2: #e7350d;
   --color-background-button-outline: transparent;
-  --color-background-button-outlineHover: #e8f5e7;
-  --color-background-button-outlineRing: #a1afad;
+  --color-background-button-outline-hover: #e8f5e7;
+  --color-background-button-outline-ring: #a1afad;
   --color-background-button-ghost: transparent;
-  --color-background-button-ghostHover: #f8f8fb;
-  --color-background-button-ghostRing: #a1afad;
+  --color-background-button-ghost-hover: #f8f8fb;
+  --color-background-button-ghost-ring: #a1afad;
 
   /* Color - Background - Accent */
   --color-background-accent-primary: #46fdae;
@@ -86,7 +86,7 @@
 
   /* Color - Border - Button */
   --color-border-button-outline: #e0f0df;
-  --color-border-button-outlineHover: #e0f0df;
+  --color-border-button-outline-hover: #e0f0df;
 
   /* Color - Border - Button - Control */
   --color-border-button-control-default: #e8e8e8;
@@ -115,13 +115,13 @@
 
   /* Color - Text - Accent */
   --color-text-accent-primary: #00c069;
-  --color-text-accent-primaryContrast: #054d27;
+  --color-text-accent-primary-contrast: #054d27;
   --color-text-accent-promotive: #6a38ff;
-  --color-text-accent-promotiveContrast: #f7f5ff;
+  --color-text-accent-promotive-contrast: #f7f5ff;
   --color-text-accent-destructive: #f46240;
-  --color-text-accent-destructiveContrast: #ffffff;
+  --color-text-accent-destructive-contrast: #ffffff;
   --color-text-accent-subtle: #728884;
-  --color-text-accent-subtleContrast: #728884;
+  --color-text-accent-subtle-contrast: #728884;
   --color-text-accent-info: #ffffff;
   --color-text-accent-caution: #ffffff;
   --color-text-accent-warning: #ffffff;
@@ -134,12 +134,12 @@
   --color-text-button-neutral: #ffffff;
   --color-text-button-subtle: #0d493d;
   --color-text-button-danger: #ffffff;
-  --color-text-button-dangerLink: #ff4013;
-  --color-text-button-dangerLinkHover: #ff3a0c;
+  --color-text-button-danger-link: #ff4013;
+  --color-text-button-danger-link-hover: #ff3a0c;
   --color-text-button-outline: #0a1616;
   --color-text-button-ghost: #0a1616;
   --color-text-button-link: #0a1616;
-  --color-text-button-linkHover: #00c069;
-  --color-text-button-mutedLink: #728884;
-  --color-text-button-mutedLinkHover: #0a1616;
+  --color-text-button-link-hover: #00c069;
+  --color-text-button-muted-link: #728884;
+  --color-text-button-muted-link-hover: #0a1616;
 }
