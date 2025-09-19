@@ -2,6 +2,7 @@
 @import "./utilities/typography.css";
 @import "./utilities/shadow.css";
 @import "./utilities/button.css";
+@import "./utilities/control.css";
 
 @layer utilities {
   .autofill:has(input:autofill) {

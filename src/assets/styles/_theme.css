@@ -3,16 +3,16 @@
   --button-radius: 40px;
 
   /* Control radius */
-  --control-radius: "";
+  --control-radius: "8px";
 
   /* Badge radius */
-  --badge-radius: "";
+  --badge-radius: "16px";
 
   /* Image radius */
-  --image-radius: "";
+  --image-radius: "16px";
 
   /* Card radius */
-  --card-radius: "";
+  --card-radius: "16px";
 
   /* Color - Primary/Secondary */
   --color-primary: #46fdae;
@@ -23,6 +23,7 @@
   --color-background-surface: #ffffff;
   --color-background-surface-glass: #fffffff2;
   --color-background-skeleton: #0d493d13;
+  --color-background-overlay: #00000075;
 
   /* Color - Background - Control */
   --color-background-control-surface: #fefefe;
@@ -49,7 +50,7 @@
   --color-background-button-neutral-hover-0: #1a1a1a;
   --color-background-button-neutral-hover-1: #1a1a1a;
   --color-background-button-subtle-ring: #0d493d;
-  --color-background-button-subtle-0: #e8f5e7;
+  --color-background-button-subtle-0: #e8f5e6;
   --color-background-button-subtle-1: #e8f5e7;
   --color-background-button-subtle-hover-0: #e0f0df;
   --color-background-button-subtle-hover-1: #e0f0df;
