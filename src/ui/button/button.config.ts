@@ -4,7 +4,7 @@ import { ringClasses, invalidRingClasses } from "../../assets/ring.styles";
 // -----------------------------------------------------------------------------
 
 export const rootVariants = cva(
-  `ring-offset-background relative inline-flex items-center whitespace-nowrap no-underline transition-all duration-300`,
+  `ring-offset-background-canvas relative inline-flex items-center whitespace-nowrap no-underline transition-all duration-300`,
   {
     variants: {
       size: {

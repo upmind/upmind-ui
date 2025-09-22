@@ -6,7 +6,7 @@ export const itemVariants = cva(
   {
     variants: {
       isList: {
-        true: "hover:bg-control-active-focus data-[state=checked]:ring-control-active my-0.5 border-0 shadow-none data-[state=checked]:ring-2",
+        true: "my-0.5 border-0",
         false:
           "border-border-control hover:border-border-control-hover rounded border"
       },

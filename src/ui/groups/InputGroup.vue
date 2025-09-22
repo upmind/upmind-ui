@@ -6,5 +6,5 @@
 
 <script lang="ts" setup>
 // --- utils=
-import { ringClasses, invalidRingClasses } from "../input/input.config";
+import { ringClasses, invalidRingClasses } from "../../assets/ring.styles";
 </script>

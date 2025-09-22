@@ -1,8 +1,8 @@
 // TODO: We should be able to override these values individually
 export const ringClasses =
-  "outline-hidden focus-within:outline-hidden [&:focus-visible,&[data-focus=true]]:ring-2 ring-control-active [&:focus-visible,&[data-focus=true]]:ring-control-transparent [&:focus-visible,&[data-focus=true]]:ring-offset-2 focus-within:ring-2 focus-within:ring-control-active focus-within:ring-offset-2 active:ring-2 active:ring-control-active active:ring-offset-2";
+  "outline-hidden focus-within:outline-hidden [&:focus-visible,&[data-focus=true]]:ring-2 [&:focus-visible,&[data-focus=true]]:ring-ring-control focus-within:ring-2 focus-within:ring-ring-control active:ring-2 active:ring-ring-control";
 
-export const groupRingClasses = `${ringClasses} group-focus-within:ring-2 group-focus-within:ring-control-active group-focus-within:ring-offset-2`;
+export const groupRingClasses = `${ringClasses} group-focus-within:ring-2 group-focus-within:ring-ring-control`;
 
 export const invalidRingClasses =
-  "aria-invalid:ring-invalid! aria-invalid:ring-2! aria-invalid:ring-offset-2!";
+  "aria-invalid:ring-invalid! aria-invalid:ring-2!";

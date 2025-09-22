@@ -1,4 +1,5 @@
 import { cva } from "class-variance-authority";
+import { groupRingClasses } from "../../assets/ring.styles";
 
 // -----------------------------------------------------------------------------
 
@@ -84,7 +85,7 @@ export const numberFieldRootVariants = cva("group inline-block w-full", {
 });
 
 export const numberFieldVariants = cva(
-  "group-aria-invalid:ring-invalid! focus-visible:ring-ring text-control-foreground ring-offset-background placeholder:text-muted-foreground bg-background-control-surface inline-flex w-full rounded-lg border-none text-center font-medium text-inherit group-aria-invalid:ring-2! group-aria-invalid:ring-offset-2! file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
+  `${groupRingClasses} text-control-foreground placeholder:text-muted-foreground bg-background-control-surface inline-flex w-full rounded-lg border-none text-center font-medium text-inherit file:border-0 file:bg-transparent file:text-sm file:font-medium`,
   {
     variants: {
       variant: {

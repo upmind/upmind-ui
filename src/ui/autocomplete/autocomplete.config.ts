@@ -1,6 +1,6 @@
 import { cva } from "class-variance-authority";
 
-import { ringClasses, invalidRingClasses } from "../input/input.config";
+import { ringClasses, invalidRingClasses } from "../../assets/ring.styles";
 
 // ---
 

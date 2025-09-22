@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export const ringClasses =
-  "ring-offset-background focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 rounded group-focus-within:ring-0 group-focus-within:ring-offset-0";
+  "ring-offset-background-canvas focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 rounded group-focus-within:ring-0 group-focus-within:ring-offset-0";
 
 export const invalidRingClasses =
   "aria-invalid:ring-invalid! aria-invalid:ring-2! aria-invalid:ring-offset-2!";

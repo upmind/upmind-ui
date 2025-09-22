@@ -19,7 +19,7 @@ export const rootVariants = cva(
         md: "text-md"
       },
       hasRing: {
-        true: `ring-offset-background ${ringClasses} ${invalidRingClasses}`,
+        true: `${ringClasses} ${invalidRingClasses}`,
         false:
           "ring-0 ring-transparent outline-none focus:ring-0 focus:ring-transparent focus:outline-none"
       }

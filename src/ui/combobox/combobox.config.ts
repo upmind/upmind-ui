@@ -1,5 +1,5 @@
 import { cva } from "class-variance-authority";
-import { ringClasses, invalidRingClasses } from "../input/input.config";
+import { ringClasses, invalidRingClasses } from "../../assets/ring.styles";
 
 export const triggerVariants = cva(
   "text-md shadow-border-border-control h-auto justify-start gap-2 rounded px-4 py-2 transition-all duration-300",
