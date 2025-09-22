@@ -22,7 +22,7 @@
 
     <template #append>
       <Icon
-        class="text-emphasis-medium group-hover:text-emphasis-none ml-auto pl-4 transition-all duration-200 [&>svg]:size-3 [&>svg]:transition-all [&>svg]:duration-300"
+        class="text-text-muted group-hover:text-emphasis-none ml-auto pl-4 transition-all duration-200 [&>svg]:size-3 [&>svg]:transition-all [&>svg]:duration-300"
         :class="open ? '[&>svg]:rotate-180' : ''"
         icon="arrow-down"
         size="xs"
