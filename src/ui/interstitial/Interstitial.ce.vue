@@ -5,7 +5,6 @@
     :description="text"
     :open="meta.isOpen"
     :size="size"
-    :skrim="skrim"
     :title="title"
     :fit="fit"
     :to="to"
@@ -73,7 +72,6 @@ import type { InterstitialActionProps, InterstitialProps } from "./types";
 const props = withDefaults(defineProps<InterstitialProps>(), {
   open: true,
   modal: false,
-  skrim: "light",
   size: "2xl",
   fit: "contain",
   animatedIcon: () => ({

@@ -44,12 +44,11 @@ const hasSlotContent = computed(() => !!slots.default);
 const props = withDefaults(defineProps<LoadingProps>(), {
   active: true,
   size: "lg",
-  skrim: "light",
   is: "div"
 });
 
 const meta = computed(() => ({
-  skrim: props.skrim
+  //
 }));
 
 const styles = useStyles("loading", meta, config) as ComputedRef<{

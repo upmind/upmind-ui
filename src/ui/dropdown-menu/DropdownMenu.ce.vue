@@ -4,7 +4,6 @@
       <slot name="trigger">
         <Button
           :variant="props.variant"
-          :color="props.color"
           :loading="props.loading"
           :class="cn(styles.dropdownMenu.trigger, props.class)"
           :label="props.label"
@@ -86,7 +85,6 @@ const props = withDefaults(defineProps<DropdownMenuProps>(), {
   items: () => [],
   loading: false,
   // -- styles
-  color: "base",
   size: "md",
   width: "auto",
   variant: "ghost",

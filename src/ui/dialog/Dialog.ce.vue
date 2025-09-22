@@ -108,7 +108,6 @@ const props = withDefaults(defineProps<DialogProps>(), {
   size: "app",
   overflow: "auto",
   fit: "contain",
-  skrim: "dark",
   to: "body",
   // --- styles
   uiConfig: () => ({
@@ -149,8 +148,7 @@ const forwardedContent = useForwardPropsEmits(
 const meta = computed(() => ({
   size: props.size,
   overflow: props.overflow,
-  fit: props.fit,
-  skrim: props.skrim
+  fit: props.fit
 }));
 
 const styles = useStyles(
