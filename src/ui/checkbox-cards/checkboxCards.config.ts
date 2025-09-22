@@ -30,7 +30,7 @@ export default {
         variants: {
           isList: {
             true: "border-b last:border-b-0",
-            false: `hover:border-control-strong border-control bg-control-background rounded border ${ringClasses} ${invalidRingClasses}`
+            false: `hover:border-control-strong border-control bg-background-control-surface rounded border ${ringClasses} ${invalidRingClasses}`
           }
         }
       }

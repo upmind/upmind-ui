@@ -84,7 +84,7 @@ export const numberFieldRootVariants = cva("group inline-block w-full", {
 });
 
 export const numberFieldVariants = cva(
-  "group-aria-invalid:ring-invalid! focus-visible:ring-ring text-control-foreground ring-offset-background placeholder:text-muted-foreground bg-control-background inline-flex w-full rounded-lg border-none text-center font-medium text-inherit group-aria-invalid:ring-2! group-aria-invalid:ring-offset-2! file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
+  "group-aria-invalid:ring-invalid! focus-visible:ring-ring text-control-foreground ring-offset-background placeholder:text-muted-foreground bg-background-control-surface inline-flex w-full rounded-lg border-none text-center font-medium text-inherit group-aria-invalid:ring-2! group-aria-invalid:ring-offset-2! file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
   {
     variants: {
       variant: {
@@ -124,7 +124,7 @@ export const numberFieldVariants = cva(
   }
 );
 
-export const numberFieldInputVariants = cva("bg-control-background", {
+export const numberFieldInputVariants = cva("bg-background-control-surface", {
   variants: {
     variant: {
       flat: "[&>i]:disabled:text-text-muted shadow-border-control [&>i]:size-lh cursor-pointer transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-20 [&>i]:flex [&>i]:items-center [&>i]:justify-center",

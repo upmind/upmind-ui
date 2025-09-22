@@ -83,7 +83,7 @@ export const tabsListVariants = cva(
       {
         variant: "outline",
         color: "base",
-        class: "bg-control-background text-base-foreground"
+        class: "bg-background-control-surface text-base-foreground"
       },
       {
         variant: "outline",
