@@ -5,17 +5,17 @@ import { defineConfig, devices } from "@playwright/test";
  */
 export default defineConfig({
   /* Timeouts */
-  timeout: 90000,
+  timeout: 60000,
   expect: {
     timeout: 30000
   },
 
   /*Filepaths*/
-  testDir: "./tests/Playwright/e2e/e2e-tests",
+  testDir: "./tests/Playwright/e2e/",
   outputDir: "./tests/Playwright/e2e/test-output/test-results",
   testMatch: "**/*.spec.ts",
   snapshotPathTemplate:
-    "./tests/Playwright/e2e/snapshots/{arg}-{projectName}.png",
+    "./tests/Playwright/e2e/snapshots/{testFilePath}/{projectName}/{arg}.png",
 
   /*Set number of retries on a failed test*/
   retries: 1,

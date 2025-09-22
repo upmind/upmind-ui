@@ -1,5 +1,8 @@
 <template>
-  <footer class="bg-base-background text-base-foreground w-full border-t p-6">
+  <footer
+    class="bg-base-background text-base-foreground w-full border-t p-6"
+    data-testid="footer"
+  >
     <div
       class="max-w-app mx-auto flex w-full items-center justify-between md:justify-normal"
     >
