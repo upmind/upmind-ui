@@ -40,7 +40,6 @@ export interface ButtonProps {
   truncate?: boolean;
   checked?: boolean;
   variant?: ButtonVariantProps["variant"] | string;
-  color?: ButtonVariantProps["color"] | string;
   size?: ButtonVariantProps["size"] | string;
   // ---
   uiConfig?: {

@@ -64,8 +64,7 @@ import type { ButtonProps } from "./types";
 const props = withDefaults(defineProps<ButtonProps>(), {
   type: "button",
   size: "md",
-  color: "base",
-  variant: "flat",
+  variant: "primary",
   align: "center",
   focusable: true,
   truncate: true,
