@@ -90,10 +90,10 @@
   --color-border-button-outline-hover: #e0f0df;
 
   /* Color - Border - Button - Control */
-  --color-border-button-control-default: #e8e8e8;
-  --color-border-button-control-hover: #bababa;
-  --color-border-button-control-selected: #00c069;
-  --color-border-button-control-active: #ffffff;
+  --color-border-control: #e8e8e8;
+  --color-border-control-hover: #bababa;
+  --color-border-control-selected: #00c069;
+  --color-border-control-active: #ffffff;
 
   /* Color - Icon */
   --color-icon-primary: #00c069;
