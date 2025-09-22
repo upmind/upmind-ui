@@ -90,7 +90,7 @@ const itemsVariants = cva("size-lh flex items-center justify-center", {
       lg: "[&>i]:p-[4px]"
     },
     variant: {
-      link: "text-emphasis-medium"
+      link: "text-text-muted"
     },
     isLoading: {
       true: "opacity-0"

@@ -38,12 +38,12 @@ export default {
       variants: {
         hasValue: {
           true: "",
-          false: "text-emphasis-disabled"
+          false: "text-text-muted"
         }
       }
     }),
     item: cva(
-      "focus:bg-control-active-hover focus:text-control-foreground data-[state=unchecked]:text-text-muted hover:!text-emphasis-none focus:!text-emphasis-none text-md cursor-pointer gap-3 rounded px-4 py-2 font-medium transition-all duration-300"
+      "focus:bg-control-active-hover focus:text-control-foreground data-[state=unchecked]:text-text-muted hover:!text-text-base focus:!text-text-base text-md cursor-pointer gap-3 rounded px-4 py-2 font-medium transition-all duration-300"
     ),
     content: cva("mt-2 p-2")
   }
