@@ -107,7 +107,6 @@ const props = withDefaults(defineProps<DropdownMenuProps>(), {
 });
 
 const meta = computed(() => ({
-  color: props.color,
   width: props.width,
   size: props.size
 }));
