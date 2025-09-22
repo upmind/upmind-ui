@@ -9,7 +9,7 @@ export const invalidRingClasses =
   "aria-invalid:ring-invalid! aria-invalid:ring-2! aria-invalid:ring-offset-2!";
 
 export const containerVariants = cva(
-  `bg-background-control-surface shadow-border-control-default text-md autofill flex items-center gap-3 rounded border px-4 py-2 transition-[border-color,opacity,box-shadow] duration-200`,
+  `bg-background-control-surface shadow-border-border-control text-md autofill flex items-center gap-3 rounded border px-4 py-2 transition-[border-color,opacity,box-shadow] duration-200`,
   {
     variants: {
       width: {

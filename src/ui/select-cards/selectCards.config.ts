@@ -28,7 +28,7 @@ export const itemVariants = cva(
 );
 
 export const contentVariants = cva(
-  `bg-background-control-surface ${ringClasses} ${invalidRingClasses} border-control mt-2 flex max-h-72 w-(--radix-dropdown-menu-trigger-width)! flex-col overflow-hidden overflow-y-scroll rounded border p-1`,
+  `bg-background-control-surface ${ringClasses} ${invalidRingClasses} border-border-control mt-2 flex max-h-72 w-(--radix-dropdown-menu-trigger-width)! flex-col overflow-hidden overflow-y-scroll rounded border p-1`,
   {
     variants: {
       width: {
