@@ -3,13 +3,13 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export const ringClasses =
-  "ring-offset-background focus-within:outline-none focus-within:ring-2 focus-within:ring-ring rounded focus-within:ring-offset-2 group-focus-within:ring-0 group-focus-within:ring-offset-0";
+  "ring-offset-background focus-within:outline-none focus-within:ring-2 focus-within:ring-ring-control rounded focus-within:ring-offset-2 group-focus-within:ring-0 group-focus-within:ring-offset-0";
 
 export const invalidRingClasses =
   "aria-invalid:ring-invalid! aria-invalid:ring-2! aria-invalid:ring-offset-2!";
 
 export const containerVariants = cva(
-  `bg-control-background shadow-border-control text-md autofill flex items-center gap-3 rounded px-4 py-2 transition-[border-color,opacity,box-shadow] duration-200`,
+  `bg-background-control-surface shadow-border-control-default text-md autofill flex items-center gap-3 rounded border px-4 py-2 transition-[border-color,opacity,box-shadow] duration-200`,
   {
     variants: {
       width: {
