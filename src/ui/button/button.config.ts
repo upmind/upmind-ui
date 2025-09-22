@@ -56,8 +56,7 @@ export const rootVariants = cva(
       variant: "primary",
       size: "md",
       isBlock: false,
-      isLoading: false,
-      isPill: false
+      isLoading: false
     }
   }
 );
