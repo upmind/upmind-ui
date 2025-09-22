@@ -26,7 +26,7 @@ export const badgeVariants = cva(
         info: "bg-info text-info-foreground",
         error: "bg-error text-error-foreground",
         warning: "bg-warning text-warning-foreground",
-        disabled: "bg-base-muted text-base-muted-foreground text-emphasis-high"
+        disabled: "bg-base-muted text-base-muted-foreground text-text-muted"
       }
     },
     compoundVariants: [
