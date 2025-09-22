@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 import { ringClasses, invalidRingClasses } from "../../assets/ring.styles";
 
 export const triggerVariants = cva(
-  `bg-background-control-surface group roundedpx-4 flex h-auto min-w-0 items-center justify-start py-2 text-left font-medium`,
+  `bg-background-control-surface group border-border-control hover:border-border-control-hover flex h-auto min-w-0 items-center justify-start rounded px-4 py-2 text-left font-medium`,
   {
     variants: {
       width: {
