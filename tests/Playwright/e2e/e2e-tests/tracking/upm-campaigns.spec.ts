@@ -27,7 +27,9 @@ async function getTrackingCookie(
   const trackingCookie = cookies.find(cookie => cookie.name === "upm_track");
 
   if (!trackingCookie) {
-    throw new Error("Tracking cookie not found.");
+    const message = "Tracking cookie not found.";
+    console.error(message);
+    throw new Error(message);
   }
 
   return JSON.parse(decodeURIComponent(trackingCookie.value)) as TrackingCookie;
@@ -51,9 +53,10 @@ async function getTrackingData(page: Page, requestUrl: string) {
 test.describe("UPM Campaign Tracking", () => {
   let token: string;
   let orderId: string | null;
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page, context, browser }) => {
     registration = new Registration(page, context);
     checkout = new Checkout(page);
+    context.clearCookies();
   });
   test("Check that UPM cookie is created successfully", async ({
     page,
@@ -72,10 +75,12 @@ test.describe("UPM Campaign Tracking", () => {
     await expect(trackingCookie.term).toBe("term_example");
   });
   test('Check "register" request body for tracking node', async ({ page }) => {
-    await page.goto(URLs.register);
+    await page.goto(
+      `${URLs.register}?upm_campaign=playwright_test_campaign&upm_source=playwright&upm_medium=e2e_test&upm_content=content_example&upm_term=term_example`
+    );
     await registration.inputRegistration();
     await page.waitForLoadState("networkidle");
-    const tracking = await getTrackingData(page, "**/api/clients/register**");
+    const tracking = await getTrackingData(page, "api/clients/register?");
     console.log(JSON.stringify(tracking));
     await expect(tracking).toBeDefined();
     await expect(tracking.campaign).toBeDefined();
@@ -85,9 +90,10 @@ test.describe("UPM Campaign Tracking", () => {
     await expect(tracking.term).toBeDefined();
   });
   test('Check "order" request body for tracking node', async ({ page }) => {
-    await page.goto(URLs.basket);
-    await page.waitForLoadState("networkidle");
-    const tracking = await getTrackingData(page, "**/api/orders/current**");
+    await page.goto(
+      "http://qa-automation.local:5173/order/product/add/3de78642-de53-9714-76df-21208469530d?upm_campaign=playwright_test_campaign&upm_source=playwright&upm_medium=e2e_test&upm_content=content_example&upm_term=term_example"
+    );
+    const tracking = await getTrackingData(page, "/api/orders?");
     console.log(JSON.stringify(tracking));
     await expect(tracking).toBeDefined();
     await expect(tracking.campaign).toBeDefined();
@@ -100,7 +106,9 @@ test.describe("UPM Campaign Tracking", () => {
     page,
     context
   }) => {
-    await page.goto(URLs.basket);
+    await page.goto(
+      `${URLs.basket}?upm_campaign=playwright_test_campaign&upm_source=playwright&upm_medium=e2e_test&upm_content=content_example&upm_term=term_example`
+    );
     await page.waitForLoadState("networkidle");
     token = await getSessionToken(context, "guest");
     orderId = await getCurrentOrderId(token);
@@ -122,11 +130,14 @@ test.describe("UPM Campaign Tracking", () => {
     await page.goto(URLs.basket);
     await page.waitForLoadState("networkidle");
     await page.goto(URLs.checkout);
+    await registration.inputRegistration();
     await checkout.selectPaymentMethod("Stripe Payment");
     await checkout.inputStripeDetails("4242424242424242", "01/50", "123");
-    const tracking = await getTrackingData(page, "**/api/orders/current**");
     await checkout.clickPlaceOrderButton();
-    await page.waitForLoadState("networkidle");
+    const tracking = await getTrackingData(
+      page,
+      `/api/orders/${orderId}/convert?`
+    );
     console.log(JSON.stringify(tracking));
     await expect(tracking).toBeDefined();
     await expect(tracking.campaign).toBeDefined();
@@ -141,8 +152,8 @@ test.describe("UPM Campaign Tracking", () => {
   }) => {
     await page.goto(URLs.register);
     await page.waitForLoadState("networkidle");
-    let trackingCookie = await getTrackingCookie(context);
-    console.log(JSON.stringify(trackingCookie));
-    await expect(trackingCookie).toBeUndefined;
+    await expect(async () => {
+      await getTrackingCookie(context);
+    }).rejects.toThrow("Tracking cookie not found.");
   });
 });

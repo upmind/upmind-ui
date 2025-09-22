@@ -90,6 +90,39 @@ export async function addProductToOrder(
   return body;
 }
 
+export async function addPromotionToOrder(
+  orderId: string | null,
+  promoCode: string,
+  token: string | null
+): Promise<any> {
+  const apiContext: APIRequestContext = await request.newContext();
+  const response = await apiContext.post(
+    `${URLs.apiUrl}api/orders/${orderId}/promotions?lang=en`,
+    {
+      headers: {
+        accept: "*/*",
+        "accept-language":
+          "en-GB,en;q=0.9,es;q=0.8,am;q=0.7,af;q=0.6,su;q=0.5,en-US;q=0.4,yi;q=0.3,zu;q=0.2",
+        authorization: `Bearer ${token}`,
+        "content-type": "application/json",
+        origin: `${URLs.apiOrigin}`,
+        referer: `${URLs.baseUrl}`,
+        "user-agent":
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      },
+      data: {
+        promocode: promoCode
+      }
+    }
+  );
+  if (!response.ok()) {
+    throw new Error(
+      `Failed to apply promotion code: ${response.status()} ${response.statusText()}`
+    );
+  }
+  return await response.json();
+}
+
 export async function setOrderCurrency(
   token: string,
   orderId: string | null,
