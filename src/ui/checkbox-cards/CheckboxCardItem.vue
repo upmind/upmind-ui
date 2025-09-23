@@ -17,7 +17,9 @@
       <span
         :class="
           cn(
-            'focus-visible:ring-ring border-border-control bg-base-background text-control-foreground ring-offset-background-canvas shadow-border-border-control [button[data-state=on]_&]:shadow-border-none flex aspect-square h-4 w-4 shrink-0 items-center justify-center rounded-sm group-disabled:cursor-not-allowed group-disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
+            ringClasses,
+            'ring-offset-background-control-surface',
+            'border-border-control bg-base-background text-control-foreground shadow-border-border-control flex aspect-square h-4 w-4 shrink-0 items-center justify-center rounded-sm group-disabled:cursor-not-allowed group-disabled:opacity-50',
             '[button[data-state=on]_&]:text-control-active-foreground [button[data-state=on]_&]:bg-control-active [button[data-state=off]_&]:text-transparent',
             props.class
           )
@@ -39,6 +41,7 @@ import {
   useForwardProps,
   type ToggleGroupItemProps
 } from "radix-vue";
+import { ringClasses } from "../../assets/ring.styles";
 
 import { computed, type HTMLAttributes } from "vue";
 
