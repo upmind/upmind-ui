@@ -1,5 +1,5 @@
 // --- external
-import { effectScope, onScopeDispose, getCurrentScope, ComputedRef } from "vue";
+import { effectScope, getCurrentScope, ComputedRef } from "vue";
 
 import {
   QueryClient,
@@ -11,7 +11,7 @@ import { isArray, isFunction } from "xstate/lib/utils";
 import { ref, unref, computed } from "vue";
 
 // --- internal
-import { useLocale } from "../system";
+import { useI18n, useLocale } from "../system";
 import { useBasketCurrency } from "../basket";
 import { doFetch, refreshToken } from "./services";
 
@@ -56,6 +56,7 @@ import type {
 import { Methods } from "@upmind-automation/types";
 import type { DefaultError } from "@tanstack/vue-query";
 import { useSession } from "../session";
+import { off } from "process";
 
 // -----------------------------------------------------------------------------
 
@@ -150,8 +151,9 @@ export const useQuery = () => {
       }
 
       // set "lang" parameter
-      if (!isEmpty(locale.value))
+      if (!isEmpty(locale.value)) {
         url.searchParams.set("lang", locale.value as string);
+      }
 
       // set "currency" parameter
       if (withCurrency) {
@@ -240,7 +242,9 @@ export const useQuery = () => {
     const sort = ref(options?.sort);
 
     // --- query
-    const reactiveKeys: ReactiveQueryKeys = { locale, sort, filters };
+    const reactiveKeys: ReactiveQueryKeys = { sort, filters };
+    if (locale.value) reactiveKeys.locale = locale;
+
     if (withCurrency) {
       const { currencyCode } = useBasketCurrency();
       reactiveKeys.currencyCode = currencyCode;
@@ -306,6 +310,7 @@ export const useQuery = () => {
     ...options
   }: QueryParams<TQueryFnData, TData>) {
     // ensure we have a scope, in case we call this outside of a setup function
+    const { t } = useI18n();
     const scope = getCurrentScope() ?? effectScope();
 
     const { currencyCode } = useBasketCurrency();
@@ -320,7 +325,8 @@ export const useQuery = () => {
     });
 
     // --- query
-    const reactiveKeys: ReactiveQueryKeys = { locale, filters, sort };
+    const reactiveKeys: ReactiveQueryKeys = { sort, filters };
+    if (locale.value) reactiveKeys.locale = locale;
     if (limit) reactiveKeys.limit = limit;
     if (limit) reactiveKeys.pageIndex = pageIndex;
     if (withCurrency) reactiveKeys.currencyCode = currencyCode;
@@ -430,7 +436,7 @@ export const useQuery = () => {
 
         if (!response?.isPlaceholderData.value && pageIndex.value <= 1) {
           throw new DetailedError(
-            "No previous page available",
+            t("text.page_previous_not_available"),
             responseCodes.No_Content,
             ErrorOrigin.Headless,
             {
@@ -462,7 +468,7 @@ export const useQuery = () => {
           pageIndex.value >= pageTotal
         ) {
           throw new DetailedError(
-            "No next page available",
+            t("text.page_next_not_available"),
             responseCodes.No_Content,
             ErrorOrigin.Headless,
             {
@@ -554,7 +560,8 @@ export const useQuery = () => {
     });
 
     // --- query
-    const reactiveKeys: ReactiveQueryKeys = { locale, sort, filters };
+    const reactiveKeys: ReactiveQueryKeys = { sort, filters };
+    if (locale.value) reactiveKeys.locale = locale;
     if (limit) reactiveKeys.limit = limit;
     if (withCurrency) reactiveKeys.currencyCode = currencyCode;
 
@@ -748,10 +755,12 @@ export const useQuery = () => {
     // --- state
     const sort = options?.sort;
     const filters = options?.filters;
+    const reactiveKeys: ReactiveQueryKeys = { sort, filters };
+    if (locale.value) reactiveKeys.locale = locale.value;
 
     // --- query
     return queryClient.fetchQuery<TQueryFnData, DefaultError, TData>({
-      queryKey: cleanQueryKey([...queryKey, { locale, sort, filters }]),
+      queryKey: cleanQueryKey([...queryKey, reactiveKeys]),
       queryFn: async ({ signal }) => {
         return request<TQueryFnData>({
           url,
@@ -796,18 +805,17 @@ export const useQuery = () => {
     const offset = options?.pagination?.offset ?? PAGINATION.offset;
     const sort = options?.sort;
     const filters = options?.filters;
-
     const pageIndex = Math.ceil(offset / limit) + 1;
+
+    const reactiveKeys: ReactiveQueryKeys = { sort, filters, limit, pageIndex };
+    if (locale.value) reactiveKeys.locale = locale.value;
 
     return queryClient.fetchQuery<
       TQueryFnData,
       DefaultError,
       QueryResponse<TData>
     >({
-      queryKey: cleanQueryKey([
-        ...queryKey,
-        { locale, sort, filters, limit, pageIndex }
-      ]),
+      queryKey: cleanQueryKey([...queryKey, reactiveKeys]),
       queryFn: async ({ signal }) => {
         return request<TQueryFnData>({
           url,

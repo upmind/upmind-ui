@@ -3,7 +3,7 @@ import { Store } from "@tanstack/vue-store";
 // --- internal
 import {
   useQuery,
-  useSession,
+  useI18n,
   type QueryParams,
   RequestSortDirection,
   localStoragePersister,
@@ -76,11 +76,12 @@ function fetchRegions({
 }: Partial<QueryParams> & {
   data: { code: string; id: string };
 }) {
+  const { t } = useI18n();
   const { query, useUrl } = useQuery();
 
   if (!code || !id)
     throw new DetailedError(
-      "No code or id provided",
+      t("error.region_not_available"),
       responseCodes.Unprocessable_Entity,
       ErrorOrigin.Headless
     );
@@ -96,7 +97,6 @@ function fetchRegions({
 }
 
 function fetchLanguages() {
-  const { meta, user } = useSession();
   const { query, useUrl } = useQuery();
 
   return query<ILanguage[]>({

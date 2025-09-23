@@ -1,20 +1,20 @@
 <template>
   <p>
     <template v-if="meta?.oneoff">
-      {{ t(`product.terms.price.0`, [price?.currentPrice]) }}
+      {{ t(`term.price_0_msg`, { price: price?.currentPrice }) }}
     </template>
 
     <template v-else-if="meta?.useMonthlyFromPrice">
-      {{ t(`product.terms.price.1`, [price?.monthlyFromCurrentPrice]) }}
+      {{ t(`term.price_1_msg`, { price: price?.monthlyFromCurrentPrice }) }}
       <del v-if="meta?.discounted" class="text-emphasis-medium">
-        {{ t("product.was", [price?.monthlyFromRegularPrice]) }}
+        {{ t("text.price_was", { price: price?.monthlyFromRegularPrice }) }}
       </del>
     </template>
 
     <template v-else>
-      {{ t(`product.terms.price.${cycle}`, [price?.currentPrice]) }}
+      {{ t(`term.price_${cycle}_msg`, { price: price?.currentPrice }) }}
       <del v-if="meta?.discounted" class="text-emphasis-medium">
-        {{ t("product.was", [price?.regularPrice]) }}
+        {{ t("text.price_was", { price: price?.regularPrice }) }}
       </del>
     </template>
   </p>
@@ -31,5 +31,5 @@ import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
 
-defineProps<TermDetails>();
+defineProps<Omit<TermDetails, "name">>();
 </script>

@@ -34,6 +34,7 @@ import {
   messageTypes,
   useFeedback
 } from "../feedback";
+import { useI18n } from "../system";
 
 // --- constants
 export const PAGINATION = {
@@ -306,6 +307,7 @@ export function handleError(
   status: QueryResponse["status"],
   error: QueryResponse["error"]
 ): Promise<never> {
+  const { t } = useI18n();
   const { add } = useFeedback();
 
   // get the mapped the error and status to a feedback message and display it if it exists
@@ -313,7 +315,7 @@ export function handleError(
   if (!isNil(feedback)) add(feedback);
 
   throw new DetailedError(
-    error?.message ?? "Service temporarily unavailable",
+    error?.message ?? t("error.503.title_md"),
     status || responseCodes.Service_Unavailable,
     ErrorOrigin.Upmind,
     error?.data

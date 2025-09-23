@@ -1,25 +1,26 @@
 // --- external
-import type { AnyEventObject } from "xstate";
-import { createMachine, assign, actions, sendParent } from "xstate";
+import { createMachine, assign, sendParent } from "xstate";
 
 // --- internal
 import services from "./card/services";
+import { useI18n } from "../../system";
 import { useFeedback } from "../../feedback";
 const { addError } = useFeedback();
 
 // --- utils
 import {
-  useTime,
-  useValidationParser,
+  mapToHeadlessError,
   useModelParser,
-  mapToHeadlessError
+  useTime,
+  useValidationParser
 } from "../../../utils";
+import { isArray } from "xstate/lib/utils";
+import { responseCodes } from "../../../utils";
 import { useSchema, useUischema } from "./utils";
 
 // --- types
+import type { AnyEventObject } from "xstate";
 import type { GatewayContext } from "./types";
-import { responseCodes } from "../../../utils";
-import { isArray } from "xstate/lib/utils";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -187,6 +188,8 @@ export default createMachine(
       // ---
 
       setFeedbackError: ({ error }: GatewayContext, _event: AnyEventObject) => {
+        const { t } = useI18n();
+
         if (
           !error ||
           isArray(error) ||
@@ -194,7 +197,7 @@ export default createMachine(
         )
           return;
         addError({
-          title: "We experienced an error processing your payment",
+          title: t("error.payment_process_failed"),
           copy: error?.message,
           data: error?.data
         });

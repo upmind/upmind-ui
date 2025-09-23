@@ -1,7 +1,7 @@
 // --- external
 
 // --- internal
-import { useLocale } from "../system";
+import { useI18n, useLocale } from "../system";
 import { useSession } from "../session";
 import { handleError, useQuery } from ".";
 
@@ -35,11 +35,12 @@ async function doFetch<T extends any = any>({
   init
 }: RequestParams): Promise<QueryResponse<T>> {
   init ??= {};
+  const { t } = useI18n();
 
   if (!includes(map(Methods, upperCase), init?.method)) {
     return Promise.reject(
       new DetailedError(
-        `Invalid method: ${init?.method}`,
+        t("error.http_method_not_valid", { method: init?.method }),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless,
         {
@@ -53,7 +54,7 @@ async function doFetch<T extends any = any>({
   if (!url)
     await Promise.reject(
       new DetailedError(
-        "Invalid URL",
+        t("error.url_not_available"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )

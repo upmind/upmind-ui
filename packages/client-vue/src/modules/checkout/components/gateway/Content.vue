@@ -97,12 +97,10 @@ const getGatewayi18n = (property: string) => {
   const type = props.item.gateway.type;
   const code = props.item.gateway.gateway_provider?.code;
   if (type === 1) {
-    const codeKey = `checkout.${code}.${property}`;
-    if (te(codeKey)) return t(codeKey);
-    return `checkout.${type}.${property}`;
+    return t(`cart.gateway.${code}.${property}`);
   }
 
-  return `checkout.${type}.${property}`;
+  return `cart.gateway.${type}.${property}`;
 };
 
 const handleCheckout = () => {

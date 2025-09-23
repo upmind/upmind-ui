@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-baseline justify-between">
     <Button
-      :label="open ? t('product.hideDetails') : t('product.showDetails')"
+      :label="open ? t('action.hide_details') : t('action.show_details')"
       size="sm"
       variant="link"
       color="muted"
@@ -58,13 +58,13 @@ const actions = computed(() => [
   {
     icon: "pencil",
     color: props.color,
-    tooltip: t("product.edit"),
+    tooltip: t("action.edit"),
     onClick: () => router.push(props.editLink)
   },
   {
     icon: "bin",
     color: props.color,
-    tooltip: t("product.remove"),
+    tooltip: t("action.remove"),
     onClick: () => emits("remove")
   }
 ]);

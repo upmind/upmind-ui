@@ -10,14 +10,7 @@
       <Skeleton class="mt-2 h-10 w-full" />
     </div>
 
-    <Actions
-      v-if="modal"
-      :i18nKey="i18nKey"
-      disabled
-      loading
-      type="address"
-      :modal="modal"
-    />
+    <Actions v-if="modal" disabled loading type="address" :modal="modal" />
   </section>
 </template>
 
@@ -28,7 +21,6 @@ import Actions from "./Actions.vue";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
-  i18nKey?: string;
   modal?: boolean;
 }>();
 </script>

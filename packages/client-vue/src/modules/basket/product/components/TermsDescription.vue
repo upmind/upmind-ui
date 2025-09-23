@@ -1,13 +1,15 @@
 <template>
   <Description>
-    {{ t(`product.terms.billing.${props.cycle}`, [props.price.currentPrice]) }}.
+    {{
+      t(`term.renews_${props.cycle}_msg`, { price: props.price.currentPrice })
+    }}.
     <template v-if="props.meta?.discounted && cycle !== 0"
-      >{{ t("product.terms.renews", [props.price.regularPrice]) }}.
+      >{{ t("term.renews_usually_msg", { price: props.price.regularPrice }) }}.
     </template>
     <template v-if="props.meta?.includesTax"
-      >{{ t("product.terms.taxes") }}.</template
+      >{{ t("text.price_include_taxes") }}.</template
     >
-    <template v-else>{{ t("product.terms.taxesExcluded") }}.</template>
+    <template v-else>{{ t("text.price_exclude_taxes") }}.</template>
   </Description>
 </template>
 

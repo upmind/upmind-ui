@@ -2,12 +2,10 @@
   <UpmContentSection class="max-w-app mx-auto" title="Addresses">
     <template v-if="!meta.isAuthenticated && !meta.isLoading">
       <p class="mx-auto mt-4 w-full max-w-2xl pb-3 md:pb-3">
-        <span class="font-normal"
-          >{{ t(`session.${authMode}.actions.text`) }}&nbsp;</span
-        >
+        <span class="font-normal">{{ getText(authMode) }}&nbsp;</span>
 
         <Button @click="toggleAuthMode" variant="link">
-          {{ t(`session.${authMode}.actions.action`) }}
+          {{ getAction(authMode) }}
         </Button>
       </p>
 
@@ -53,6 +51,24 @@ function toggleAuthMode() {
     case "register":
       authMode.value = "login";
       break;
+  }
+}
+
+function getText(key: "login" | "register") {
+  switch (key) {
+    case "login":
+      return t("auth.no_account_qn");
+    case "register":
+      return t("auth.already_have_account_qn");
+  }
+}
+
+function getAction(key: "login" | "register") {
+  switch (key) {
+    case "login":
+      return t("action.create_one_here");
+    case "register":
+      return t("action.log_in_here");
   }
 }
 </script>

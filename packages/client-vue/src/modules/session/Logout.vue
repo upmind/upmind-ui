@@ -3,20 +3,17 @@
     <ContentSection v-auto-animate class="flex grow items-center">
       <Interstitial
         v-bind="props"
-        :title="t('session.end.title')"
-        :text="t('session.end.text')"
+        :title="t('auth.logged_out_md')"
+        :text="t('text.continue_shopping_desc')"
         :actions="[
           {
             ...storefrontRoute,
             color: 'primary',
             iconAppend: 'arrow-right',
-            label: t('session.end.actions.continue')
+            label: t('action.continue_shopping')
           }
         ]"
       >
-        <template #title>
-          <SmartTitle i18n-key="session.end.title" align="center" />
-        </template>
       </Interstitial>
     </ContentSection>
   </Layout>
@@ -38,7 +35,6 @@ import {
 
 // -- components
 import { Interstitial, Layout } from "@upmind-automation/upmind-ui";
-import SmartTitle from "../../components/content/SmartTitle.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
 
 // -- types

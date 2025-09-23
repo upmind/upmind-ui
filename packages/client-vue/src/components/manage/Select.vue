@@ -21,7 +21,6 @@
       >
         <Item
           v-bind="getItem(item.id!)"
-          :i18nKey="i18nKey"
           :readonly="props.readonly"
           @edit="doEdit"
           @remove="doRemove"
@@ -34,7 +33,7 @@
         name="item"
         v-bind="{ item: getItem(item.id!), readonly, doEdit, doRemove }"
       >
-        <Item v-bind="getItem(item.id!)" :i18nKey="i18nKey" />
+        <Item v-bind="getItem(item.id!)" />
       </slot>
     </template>
 
@@ -44,7 +43,7 @@
           @click="doAdd"
           class="text-md flex w-full items-center space-x-2 py-0.5 font-normal"
         >
-          {{ t(`${i18nKey ?? "manage"}.actions.add`) }}
+          {{ t("action.add_new") }}
         </span>
       </slot>
     </template>
@@ -74,7 +73,6 @@ import type { ManageRendererProps } from "./types";
 
 const props = defineProps<{
   useList: ManageRendererProps["useList"]; // the mutation composable needed to create or update the model
-  i18nKey?: string; // optional i18n key for actions
   modelValue?: string;
   readonly?: boolean;
   open?: boolean;

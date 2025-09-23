@@ -7,7 +7,7 @@
       >
         <div :class="styles.summary.pricing.price">
           <dt :class="styles.summary.pricing.total">
-            {{ t("product.total") }}
+            {{ t("text.total") }}
           </dt>
 
           <CurrentPrice
@@ -99,7 +99,7 @@ const summary = computed<DescriptionItem[]>(() => {
   if (term && term.category) {
     summary.push({
       term: term.category,
-      description: t(`product.terms.cycle.${term.cycle}`)
+      description: t(`term.cycle_${term.cycle}`)
     });
   }
 

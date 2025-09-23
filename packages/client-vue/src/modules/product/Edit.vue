@@ -14,7 +14,7 @@
     </template>
 
     <template #default>
-      <Section :title="t('product.configure')">
+      <Section :title="t('text.product_configuration')">
         <form @submit.prevent @reset.prevent>
           <ProductConfig
             v-if="basketProduct && meta?.isAvailable"
@@ -34,11 +34,7 @@
     </template>
 
     <template #aside>
-      <Section
-        :title="t('product.summary.title')"
-        :class="styles.product.summary"
-        aside
-      >
+      <Section :title="t('text.summary')" :class="styles.product.summary" aside>
         <Summary
           v-if="product && meta?.isAvailable"
           :product="product"
@@ -62,7 +58,7 @@
 
     <template #footer>
       <p
-        v-for="(term, index) in tm('product.smallprint')"
+        v-for="(term, index) in tm('text.product_smallprint')"
         :key="index"
         class="leading-snug"
       >

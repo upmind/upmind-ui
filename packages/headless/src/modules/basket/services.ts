@@ -2,7 +2,7 @@
 
 // --- internal
 import { useBrand } from "../brand";
-import { useQuery } from "../..";
+import { useI18n, useQuery } from "../..";
 import { useSession } from "../session";
 import { useTracking } from "../system";
 
@@ -166,6 +166,7 @@ async function convert(
   { basket, paymentDetails }: BasketContext,
   _event: AnyEventObject
 ) {
+  const { t } = useI18n();
   const { patch, useUrl } = useQuery();
   const { get: getCookie } = useCookies();
   const { get: getTracking } = useTracking();
@@ -173,7 +174,7 @@ async function convert(
   if (!basket?.id)
     return Promise.reject(
       new DetailedError(
-        "Convert basket failed: no basket id provided",
+        t("error.basket_not_available"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )
@@ -182,7 +183,7 @@ async function convert(
   if (isEmpty(paymentDetails) || !isObject(paymentDetails))
     return Promise.reject(
       new DetailedError(
-        "Convert basket failed: no payment details provided",
+        t("error.basket_convert_failed"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )

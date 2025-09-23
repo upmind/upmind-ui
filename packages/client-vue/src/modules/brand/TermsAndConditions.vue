@@ -2,7 +2,7 @@
   <i18n-t
     class="mt-0"
     :class="props.class"
-    keypath="brand.termsAndConditions.terms"
+    keypath="text.terms_and_conditions_desc"
     tag="p"
     scope="global"
     data-testid="terms-and-conditions"
@@ -77,9 +77,9 @@ import type { TermsAndConditionsProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<TermsAndConditionsProps>(), {
-  label: "brand.termsAndConditions.label",
-  action: "brand.termsAndConditions.action",
-  close: "brand.termsAndConditions.close"
+  label: "action.continue",
+  action: "text.terms_and_conditions_link",
+  close: "action.close"
 });
 
 const open = defineModel<boolean>("open", {

@@ -18,7 +18,9 @@
     </template>
 
     <template #default>
-      <Section :title="meta?.isAvailable ? t('product.configure') : ''">
+      <Section
+        :title="meta?.isAvailable ? t('text.product_configuration') : ''"
+      >
         <form @submit.prevent @reset.prevent>
           <ProductConfig
             v-if="pendingProduct && meta?.isAvailable"
@@ -38,11 +40,7 @@
     </template>
 
     <template #aside>
-      <Section
-        :title="t('product.summary.title')"
-        :class="styles.product.summary"
-        aside
-      >
+      <Section :title="t('text.summary')" :class="styles.product.summary" aside>
         <Summary
           v-if="product && meta?.isAvailable"
           :product="product"
@@ -64,7 +62,7 @@
     </template>
     <template #footer>
       <p
-        v-for="(term, index) in tm('product.smallprint')"
+        v-for="(term, index) in tm('text.product_smallprint')"
         :key="index"
         class="leading-snug"
       >
@@ -145,7 +143,7 @@ const items = computed(() => {
   // Storefront
   const items: any[] = [
     {
-      label: t("product.shop"),
+      label: t("text.shop"),
       ...storefrontRoute?.value,
       current: false
     }

@@ -5,6 +5,7 @@ import { filter, isString, includes, lowerCase } from "lodash-es";
 
 // --- internal
 import services from "./services";
+import { useI18n } from "../../../system";
 import { useFeedback } from "../../../feedback";
 const { addError } = useFeedback();
 
@@ -15,14 +16,14 @@ import {
   useModelParser,
   mapToHeadlessError
 } from "../../../../utils";
-import { useSchema, useUischema } from "./utils";
+import { isArray } from "xstate/lib/utils";
 import { isFunction } from "lodash-es";
+import { GatewayCtx } from "../types";
+import { responseCodes } from "../../../../utils";
+import { useSchema, useUischema } from "./utils";
 
 // --- types
 import type { StripeContext } from "./types";
-import { GatewayCtx } from "../types";
-import { responseCodes } from "../../../../utils";
-import { isArray } from "xstate/lib/utils";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -332,6 +333,8 @@ export default createMachine(
 
       // ---
       setFeedbackError: ({ error }: StripeContext, _event: AnyEventObject) => {
+        const { t } = useI18n();
+
         if (
           !error ||
           isArray(error) ||
@@ -340,7 +343,7 @@ export default createMachine(
         )
           return;
         addError({
-          title: "We experienced an error processing your payment details",
+          title: t("error.payment_details_process_failed"),
           copy: error?.message,
           data: error?.data
         });

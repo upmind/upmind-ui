@@ -9,13 +9,13 @@
           v-if="meta?.isDefault"
           variant="flat"
           size="sm"
-          :label="t('client.company.default')"
+          :label="t('text.default')"
         />
       </h3>
 
       <Button
         v-if="!props.readonly"
-        :label="t('client.company.actions.edit')"
+        :label="t('action.edit')"
         size="sm"
         color="muted"
         variant="link"
@@ -34,14 +34,14 @@
       v-if="regNumber"
       class="text-emphasis-medium m-0 inline-flex flex-wrap gap-x-1 text-sm/tight"
     >
-      {{ t("client.company.number", { title, regNumber }) }}
+      {{ t("text.company_number", { title, regNumber }) }}
     </p>
 
     <p
       v-if="tax?.number"
       class="text-emphasis-medium m-0 inline-flex flex-wrap gap-x-1 text-sm/tight"
     >
-      {{ t("client.company.tax.number", { title, taxNumber: tax.number }) }}
+      {{ t("text.tax_number", { title, taxNumber: tax.number }) }}
 
       <template v-if="meta.hasTaxValidation && meta.hasTax">
         <Tooltip to="#vue-app" :label="validationReason" color="primary">
@@ -88,12 +88,12 @@ const doEdit = () => {
 const validationReason = computed(() => {
   switch (props.tax?.valid) {
     case 1:
-      return t("client.company.tax.valid", props.tax.checked);
+      return t("text.tax_valid", props.tax.checked);
     case 0:
-      return t("client.company.tax.invalid", props.tax);
+      return t("text.tax_invalid", props.tax);
     case null:
     default:
-      return t("client.company.tax.pending", props.tax);
+      return t("text.tax_pending", props.tax);
   }
 });
 </script>

@@ -2,13 +2,9 @@
   <div :class="styles.product.config.grid.item.root">
     <div :class="styles.product.config.grid.item.header">
       <strong :class="styles.product.config.grid.item.title">
-        {{
-          te(`product.terms.cycle.${props.cycle}`)
-            ? t(`product.terms.cycle.${props.cycle}`)
-            : props.title
-        }}
+        {{ t(`term.cycle_${props.cycle}`) }}
         <template v-if="props.cycle && props.cycle > 0">
-          {{ t("product.term") }}
+          {{ t("text.term") }}
         </template>
       </strong>
 
@@ -78,7 +74,7 @@ const props = withDefaults(
 
 // ---
 
-const { t, te } = useI18n();
+const { t } = useI18n();
 
 const meta = computed(() => ({
   hasPromotions: !isEmpty(props.promotions) || props.meta?.mixed,

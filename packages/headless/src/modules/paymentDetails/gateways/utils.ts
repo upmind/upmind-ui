@@ -138,7 +138,7 @@ export const useUischema = () => {
       {
         type: "Control",
         scope: "#/properties/store_on_payment",
-        i18n: "payment.store_on_payment",
+        i18n: "form.store_on_payment",
         options: {
           autocomplete: "off"
         },
@@ -160,7 +160,7 @@ export const useUischema = () => {
       {
         type: "Control",
         scope: "#/properties/store_on_payment_auto_payment",
-        i18n: "payment.store_on_payment_auto_payment",
+        i18n: "form.allow_auto_payment",
         options: {
           autocomplete: "off"
         },
