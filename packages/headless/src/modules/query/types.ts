@@ -76,11 +76,12 @@ export type QueryParams<
   >;
 
 export type ReactiveQueryKeys = {
-  locale: MaybeRef<string>;
+  locale?: MaybeRef<string>;
   sort?: MaybeRef<undefined | string[] | [RequestSortDirection, string]>;
   filters?: MaybeRef<undefined | RequestFilters>;
   currencyCode?: MaybeRef<undefined | string>;
   limit?: MaybeRef<undefined | number>;
+  offset?: MaybeRef<undefined | number>;
   pageIndex?: MaybeRef<undefined | number>;
 };
 

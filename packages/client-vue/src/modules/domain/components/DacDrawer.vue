@@ -4,7 +4,7 @@
       :class="styles.domain.search"
       @update:modelValue="onSearch"
       :prependIcon="meta.showComplete ? null : 'search'"
-      :placeholder="t('domain.dac.search')"
+      :placeholder="t('form.domain_search.placeholder')"
       autocomplete="url"
       v-model="queryValue"
       class="bg-base-background"
@@ -53,7 +53,7 @@
 
       <Button
         v-if="meta.showDialog && meta.hasItems && meta.hasMore"
-        :label="t('domain.dac.actions.more')"
+        :label="t('action.load_more')"
         :loading="meta.isLoading"
         @click="() => onSearchOffset(offset)"
         block
@@ -66,7 +66,7 @@
     <template #close>
       <Button
         @click="onReject"
-        :label="t('domain.dac.actions.cancel')"
+        :label="t('action.cancel')"
         variant="link"
         color="base"
         size="lg"
@@ -80,7 +80,7 @@
         :loading="meta.isProcessing"
         :disabled="meta.isEmpty || meta.isDisabled || meta.isProcessing"
         @click="onResolve"
-        :label="t('domain.dac.actions.continue', selected?.length)"
+        :label="t('action.add_domain_to_basket', selected?.length ?? 0)"
         prependIcon="plus"
         :color="color"
         size="lg"

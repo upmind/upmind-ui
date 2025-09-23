@@ -1,9 +1,11 @@
 // --- external
+import { waitFor } from "xstate/lib/waitFor";
 import { computed } from "vue";
 import { interpret } from "xstate";
 import { useActor } from "@xstate/vue";
 
 // --- internal
+import { useI18n } from "../system";
 import domainMachine from "./domain.machine";
 
 // --- utils
@@ -16,8 +18,6 @@ import {
   isArray,
   some,
   get,
-  values,
-  pick,
   isEmpty
 } from "lodash-es";
 import {
@@ -35,9 +35,7 @@ import { parseDomain } from "./utils";
 
 // --- types
 import { DomainTypes, DomainContext, DomainProduct } from "./types";
-import type { InterpreterFrom } from "xstate";
 import { PAGINATION } from "../query";
-import { waitFor } from "xstate/lib/waitFor";
 
 // -----------------------------------------------------------------------------
 
@@ -57,7 +55,8 @@ export const useDomain = (
     type: DomainTypes;
   }
 ) => {
-  // safetycheck to ensure forcedType is valid
+  const { t } = useI18n();
+  // safety check to ensure forcedType is valid
   const safeType =
     options?.type && has(DomainTypes, options.type) ? options.type : undefined;
 
@@ -81,7 +80,7 @@ export const useDomain = (
       service,
       state => !stateMatches(state, ["subscribing", "loading"]),
       { timeout: Infinity }
-    ).then(state => {
+    ).then(_state => {
       return true;
     });
   }
@@ -254,7 +253,7 @@ export const useDomain = (
       .catch(error => {
         return Promise.reject(
           new DetailedError(
-            error?.message ?? "Add to Basket failed",
+            error?.message ?? t("error.domain_add_failed"),
             error?.code ?? responseCodes.Timeout,
             error?.origin ?? ErrorOrigin.Headless,
             error?.data ?? {

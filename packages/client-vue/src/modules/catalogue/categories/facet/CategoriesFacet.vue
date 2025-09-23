@@ -3,7 +3,7 @@
     <Input
       v-model="query"
       :class="styles.products.facet.search.input"
-      :placeholder="t('product.category.search')"
+      :placeholder="t('form.category_search.placeholder')"
       :auto-focus="false"
       icon="search"
       size="lg"

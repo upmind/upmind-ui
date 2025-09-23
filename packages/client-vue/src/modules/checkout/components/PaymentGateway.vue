@@ -62,7 +62,7 @@
         v-if="meta.hasErrors"
         color="error"
         icon="alert-triangle"
-        :title="t('payment.failed')"
+        :title="t('text.payment_failed')"
       >
         <div class="mt-2 text-sm">
           <li class="my-0 py-0">

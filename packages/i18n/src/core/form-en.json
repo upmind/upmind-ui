@@ -1,0 +1,173 @@
+{
+  "auth_email": {
+    "description": null,
+    "label": "Your username or email address",
+    "placeholder": "name@email.com",
+    "error": "A username or email address is required"
+  },
+
+  "auth_password": {
+    "description": null,
+    "label": "Password",
+    "placeholder": "Password or passphrase",
+    "error": "A strong password is required"
+  },
+
+  "firstname": {
+    "description": null,
+    "label": "First name",
+    "placeholder": null,
+    "error": "Your first name is required"
+  },
+
+  "lastname": {
+    "description": null,
+    "label": "Last name",
+    "placeholder": null,
+    "error": "Your last name is required"
+  },
+
+  "address": {
+    "description": null,
+    "label": "Address",
+    "placeholder": null,
+    "error": "An error occurred Adding the Address | an error occurred Updating the Address",
+    "title": "Add New Address | Update Address"
+  },
+
+  "company": {
+    "description": null,
+    "label": "Company",
+    "placeholder": null,
+    "error": "An error occurred Adding the Company Details | an error occurred Updating the Company Details",
+    "title": "Add Company Details | Update Company Details"
+  },
+
+  "email": {
+    "description": null,
+    "label": "Email",
+    "placeholder": null,
+    "error": "An error occurred Adding the Email | an error occurred Updating the Email",
+    "title": "Add New Email | Update Email"
+  },
+
+  "phone": {
+    "description": null,
+    "label": "Phone",
+    "placeholder": null,
+    "error": "An error occurred Adding the Phone Number | an error occurred Updating the Phone Number",
+    "title": "Add New Phone Number | Update Phone Number"
+  },
+
+  "login": {
+    "description": null,
+    "label": null,
+    "placeholder": null,
+    "error": "We experienced an error while trying to log you in."
+  },
+
+  "register": {
+    "description": null,
+    "label": null,
+    "placeholder": null,
+    "error": "We experienced an error while trying to create your account."
+  },
+
+  "recover": {
+    "description": null,
+    "label": null,
+    "placeholder": null,
+    "error": "We experienced an error while trying to send you a password reset email."
+  },
+
+  "category_search": {
+    "description": null,
+    "label": null,
+    "placeholder": "Category search...",
+    "error": null
+  },
+
+  "domain_search": {
+    "description": null,
+    "label": null,
+    "placeholder": "Search for a domain...",
+    "error": null
+  },
+
+  "product_name_search": {
+    "description": null,
+    "label": null,
+    "placeholder": "Search by product name...",
+    "error": null
+  },
+
+  "select_option": {
+    "description": null,
+    "label": null,
+    "placeholder": "Select an option",
+    "error": null
+  },
+
+  "allow_auto_payment": {
+    "description": "Allow this payment method to be used for making automated offline payments – such as paying a renewal invoice.",
+    "label": "Allow auto payment",
+    "placeholder": null,
+    "error": null
+  },
+
+  "promocode": {
+    "description": null,
+    "label": null,
+    "placeholder": "Enter voucher code here",
+    "error": "Invalid promo code"
+  },
+
+  "cardholder_name": {
+    "description": null,
+    "label": "Cardholder name",
+    "placeholder": "Enter cardholder name",
+    "error": null
+  },
+
+  "card_num": {
+    "description": "The 16 digit number on the front of your card.",
+    "label": "Card number",
+    "placeholder": "1234 1234 1234 1234",
+    "error": null
+  },
+
+  "card_expiry": {
+    "description": "Expiry Date of the card. Date Format: MM/YY",
+    "label": "Expiry date",
+    "placeholder": "MM/YY",
+    "error": null
+  },
+
+  "card_cvv": {
+    "description": "card security code found on the back of your card that provides an additional measure of credit card security.",
+    "label": "CVV",
+    "placeholder": "CVC",
+    "error": null
+  },
+
+  "payment_details_id": {
+    "label": null,
+    "description": null,
+    "placeholder": null,
+    "error": null
+  },
+
+  "store_on_payment": {
+    "description": null,
+    "label": "Save payment details",
+    "placeholder": null,
+    "error": null
+  },
+
+  "domain": {
+    "description": null,
+    "label": null,
+    "placeholder": "Enter your domain...",
+    "error": null
+  }
+}

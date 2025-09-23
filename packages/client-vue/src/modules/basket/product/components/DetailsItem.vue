@@ -5,7 +5,7 @@
       {{ title }}
 
       <template v-if="quantity && quantity > 1">
-        ({{ t("product.configurationQuantity") }}{{ quantity }})
+        ({{ t("text.product_configuration_quantity") }}{{ quantity }})
       </template>
     </p>
 
@@ -17,7 +17,7 @@
         <span v-else-if="props.meta?.overrides">
           <Tooltip
             to="#vue-app"
-            :label="t('product.overridden')"
+            :label="t('text.option_overrides_price_desc')"
             class="max-w-64 text-center"
             color="primary"
           >
@@ -30,12 +30,12 @@
         {{ safePrice }}
 
         <template v-if="showTermLabel">
-          / {{ t(`product.terms.term.${cycle}`) }}
+          / {{ t(`term.term_${cycle}`) }}
         </template>
       </p>
 
       <template v-else>
-        <span>{{ t("product.free") }}</span>
+        <span>{{ t("text.free") }}</span>
       </template>
     </span>
   </div>

@@ -4,6 +4,7 @@ import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
+import { useI18n } from "../system";
 
 // --- utils
 import { map, get, pick, debounce } from "lodash-es";
@@ -20,6 +21,7 @@ const maybeActor = (item: any) =>
   item?.state ? { id: item.id, ...item.state.context } : item;
 // ---
 export function useLookup(lookup: Function) {
+  const { t } = useI18n();
   const { service } = lookup();
   const { state, send }: any = useActor(service);
 
@@ -73,7 +75,7 @@ export function useLookup(lookup: Function) {
           timeout: 60_000
         }).catch(error => {
           throw new DetailedError(
-            `Fetch Lookup failed`,
+            t("error.lookup_load_failed"),
             responseCodes.Timeout,
             ErrorOrigin.Headless,
             error

@@ -25,7 +25,7 @@ const props = withDefaults(
     to?: string | RouteLocationAsRelativeGeneric | RouteLocationAsPathGeneric;
   }>(),
   {
-    i18nKey: "navigation.back"
+    i18nKey: "action.back_to_basket"
   }
 );
 </script>

@@ -9,7 +9,7 @@ import {
   useClientPhones
 } from "../../../client";
 import { useBrand } from "../../../brand";
-import { useSystem } from "../../../system";
+import { useI18n, useSystem } from "../../../system";
 import { useClientEmailServices } from "../../../client/email/services";
 import { useClientPhoneServices } from "../../../client/phone/services";
 import { useClientCompanyServices } from "../../../client/company/services";
@@ -281,6 +281,8 @@ async function parse(
 }
 
 async function validate({ schema, model }: Partial<UnifiedContext>) {
+  const { t } = useI18n();
+
   if (!schema) return Promise.resolve(model);
 
   // Now validate the model as per normal
@@ -292,7 +294,7 @@ async function validate({ schema, model }: Partial<UnifiedContext>) {
     if (errors?.length) {
       reject(
         new DetailedError(
-          "Unified address validation failed",
+          t("error.unified_address_validation_failed"),
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
           errors

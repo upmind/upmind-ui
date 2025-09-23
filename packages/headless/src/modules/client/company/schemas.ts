@@ -147,7 +147,7 @@ export const useUischema = ({
       type: "Manager",
       scope: "#/properties/addressId",
       options: {
-        i18nKey: "client.address",
+        i18nKey: "form.address",
         manage: {
           useList: useClientAddresses,
           useMutate: useClientAddress

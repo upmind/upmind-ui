@@ -4,7 +4,7 @@ import { computed, ref } from "vue";
 // --- internal
 import { useBasket } from "../basket";
 import services from "./services";
-import { useDataLayer } from "../system";
+import { useDataLayer, useI18n } from "../system";
 const { dataLayer } = useDataLayer();
 
 // --- utils
@@ -34,6 +34,7 @@ export const useBasketProducts = () => {
     basketId,
     meta: basketMeta
   } = useBasket();
+  const { t } = useI18n();
 
   // --- state
   const processing = ref<string[]>([]);
@@ -48,7 +49,7 @@ export const useBasketProducts = () => {
   async function remove(id: string): Promise<IBasket | undefined> {
     if (!basketId.value) {
       throw new DetailedError(
-        "No Basket found",
+        t("error.basket_not_available"),
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       );
@@ -57,7 +58,7 @@ export const useBasketProducts = () => {
     const basketProduct = findProduct({ id });
     if (!basketProduct) {
       throw new DetailedError(
-        "Basket Product not found",
+        t("error.basket_product_not_found"),
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       );
@@ -78,7 +79,7 @@ export const useBasketProducts = () => {
   ): Promise<IBasket | undefined> {
     if (!basketId.value) {
       throw new DetailedError(
-        "No Basket found",
+        t("error.basket_not_available"),
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       );
@@ -94,7 +95,7 @@ export const useBasketProducts = () => {
         const basketProduct = findProduct({ id });
         if (!basketProduct) {
           throw new DetailedError(
-            "Basket Product not found after update",
+            t("error.basket_product_not_found"),
             responseCodes.Not_Found,
             ErrorOrigin.Headless
           );
@@ -109,7 +110,7 @@ export const useBasketProducts = () => {
     return isReady().then(async () => {
       if (!basketId.value) {
         throw new DetailedError(
-          "No Basket found",
+          t("error.basket_not_available"),
           responseCodes.Not_Found,
           ErrorOrigin.Headless
         );
@@ -117,7 +118,7 @@ export const useBasketProducts = () => {
       const basketProduct = findProduct({ id });
       if (!basketProduct) {
         throw new DetailedError(
-          "Basket Product not found",
+          t("error.basket_product_not_found"),
           responseCodes.Not_Found,
           ErrorOrigin.Headless
         );
@@ -136,7 +137,7 @@ export const useBasketProducts = () => {
           const basketProduct = findProduct({ id });
           if (!basketProduct) {
             throw new DetailedError(
-              "Basket Product not found after update",
+              t("error.basket_product_not_found"),
               responseCodes.Not_Found,
               ErrorOrigin.Headless
             );
@@ -152,7 +153,7 @@ export const useBasketProducts = () => {
     return isReady().then(async () => {
       if (!basketId.value) {
         throw new DetailedError(
-          "No Basket found",
+          t("error.basket_not_available"),
           responseCodes.Not_Found,
           ErrorOrigin.Headless
         );
@@ -161,7 +162,7 @@ export const useBasketProducts = () => {
       const basketProduct = findProduct({ id });
       if (!basketProduct) {
         throw new DetailedError(
-          "Basket Product not found",
+          t("error.basket_product_not_found"),
           responseCodes.Not_Found,
           ErrorOrigin.Headless
         );
@@ -181,7 +182,7 @@ export const useBasketProducts = () => {
           const basketProduct = findProduct({ id });
           if (!basketProduct) {
             throw new DetailedError(
-              "Basket Product not found after update",
+              t("error.basket_product_not_found"),
               responseCodes.Not_Found,
               ErrorOrigin.Headless
             );
@@ -202,7 +203,7 @@ export const useBasketProducts = () => {
     return isReady().then(async () => {
       if (!basketId.value) {
         throw new DetailedError(
-          "No Basket found",
+          t("error.basket_not_available"),
           responseCodes.Not_Found,
           ErrorOrigin.Headless
         );
@@ -211,7 +212,7 @@ export const useBasketProducts = () => {
       const basketProduct = findProduct({ id });
       if (!basketProduct) {
         throw new DetailedError(
-          "Basket Product not found",
+          t("error.basket_product_not_found"),
           responseCodes.Not_Found,
           ErrorOrigin.Headless
         );
@@ -226,7 +227,7 @@ export const useBasketProducts = () => {
           const basketProduct = findProduct({ id });
           if (!basketProduct) {
             throw new DetailedError(
-              "Basket Product not found after update",
+              t("error.basket_product_not_found"),
               responseCodes.Not_Found,
               ErrorOrigin.Headless
             );
@@ -260,7 +261,7 @@ export const useBasketProducts = () => {
       if (processing.value.includes(bpid)) {
         return Promise.reject(
           new DetailedError(
-            "Already processing",
+            t("error.basket_product_already_processing"),
             responseCodes.Conflict,
             ErrorOrigin.Headless
           )
@@ -292,7 +293,7 @@ export const useBasketProducts = () => {
       if (isEmpty(basketProduct))
         return Promise.reject(
           new DetailedError(
-            "Basket product not found.",
+            t("error.basket_product_not_found"),
             responseCodes.Not_Found,
             ErrorOrigin.Headless
           )

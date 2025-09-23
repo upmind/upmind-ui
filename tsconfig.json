@@ -14,6 +14,7 @@
     "moduleResolution": "node",
     "outDir": "dist",
     "paths": {
+      "@upmind-automation/i18n": ["packages/i18n/src/index.ts"],
       "@upmind-automation/types": ["packages/types/src/index.ts"], // Adjust paths as needed
       "@upmind-automation/headless": ["packages/headless/src/index.ts"],
       "@upmind-automation/upmind-ui": ["packages/ui/src/index.ts"],

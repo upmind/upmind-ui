@@ -6,7 +6,7 @@
         @click.prevent="doReject"
         variant="link"
         icon="arrow-left"
-        :label="t('navigation.back')"
+        :label="t('action.back_to_basket')"
         size="lg"
       />
     </template>
@@ -15,21 +15,19 @@
       <Section class="mx-auto max-w-2xl gap-9">
         <Header
           :badge="{
-            label: t('session.login.badge'),
+            label: t('text.fully_encrypted_title'),
             icon: 'lock'
           }"
-          :title="t('session.login.title')"
+          :title="t('action.log_in_to_your_account')"
         >
           <template #description>
-            <span class="font-normal"
-              >{{ t("session.login.actions.text") }}&nbsp;</span
-            >
+            <span class="font-normal">{{ t("auth.no_account_qn") }}&nbsp;</span>
 
             <Button
               :to="{ name: ROUTE.SESSION_REGISTER }"
               variant="link"
               size="xl"
-              :label="t('session.login.actions.action')"
+              :label="t('action.create_one_here')"
             />
           </template>
         </Header>

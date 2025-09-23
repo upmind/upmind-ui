@@ -2,7 +2,7 @@
   <div v-if="!meta.isLoading" class="flex w-full flex-col gap-4" v-auto-animate>
     <Form
       v-if="showForm"
-      i18nKey="client.address"
+      i18nKey="form.address"
       :useMutate="useUnifiedBillingDetail"
       :modelValue="UnifiedType.PERSONAL"
       open
@@ -13,7 +13,7 @@
     <template v-else>
       <Manage
         v-if="billingMeta.needsPhone"
-        i18n-key="client.phone"
+        :label="t('text.phone')"
         v-model="selectedPhone"
         as="select"
         :manage="{
@@ -26,7 +26,6 @@
         <template #item="{ item, readonly, doEdit, doRemove }">
           <PhoneItem
             v-bind="item"
-            :i18nKey="'client.phone'"
             :readonly="readonly"
             @edit="doEdit"
             @remove="doRemove"
@@ -35,7 +34,7 @@
       </Manage>
 
       <Manage
-        i18n-key="client.address"
+        :label="t('text.address')"
         v-model="selectedAddress"
         :manage="{
           useList: useClientAddresses,
@@ -47,7 +46,6 @@
         <template #item="{ item, readonly, doEdit, doRemove }">
           <AddressItem
             v-bind="item"
-            :i18nKey="'client.address'"
             :readonly="readonly"
             @edit="doEdit"
             @remove="doRemove"
@@ -60,6 +58,7 @@
 
 <script setup lang="ts">
 // --- external
+import { useI18n } from "vue-i18n";
 import { computed, ref } from "vue";
 import { useVModel } from "@vueuse/core";
 import { vAutoAnimate } from "@formkit/auto-animate";
@@ -92,6 +91,8 @@ const props = defineProps<{
   modelValue?: BillingModel;
   readonly?: boolean;
 }>();
+
+const { t } = useI18n();
 
 const emits = defineEmits<{
   (e: "update:modelValue", value: BillingModel): void;

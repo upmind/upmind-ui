@@ -4,7 +4,11 @@
     :color="disabled ? 'disabled' : 'promotion'"
     variant="tonal"
     class="uppercase"
-    :label="t('product.promotionSave', [price.savingPercent])"
+    :label="
+      t('action.save_value', {
+        value: price.savingPercent
+      })
+    "
     :size="size"
   />
 </template>

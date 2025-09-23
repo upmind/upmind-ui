@@ -1,19 +1,18 @@
 // --- external
-import { unref } from "vue";
+import { nextTick, Ref, ref, unref } from "vue";
 import { inspect } from "@xstate/inspect";
 import { type QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
 
 // --- internal
 import {
-  useI18n,
+  type GlobbedFiles,
   useBrand,
-  useLocale,
-  useSystem,
-  useSession,
-  useTracking,
-  useRecaptcha,
   useDataLayer,
-  type GlobbedFiles
+  useLocalisation,
+  useRecaptcha,
+  useSession,
+  useSystem,
+  useTracking
 } from "./modules";
 import { first, get } from "lodash-es";
 import { useRouting } from "./modules/routing/useRouting";
@@ -31,9 +30,9 @@ import {
 
 // --- types
 import type { IApiPop } from "./utils";
-import type { I18n } from "vue-i18n";
 import type { Router } from "vue-router";
 import type { Theme } from "./modules/theming";
+import type { I18n, Composer } from "vue-i18n";
 import { BrandConfigKeys } from "@upmind-automation/types";
 
 // ---
@@ -72,7 +71,7 @@ export interface UpmindProps {
 // -----------------------------------------------------------------------------
 
 export class Upmind {
-  private status: UpmindStatus = UpmindStatus.notInitialised;
+  status: Ref<UpmindStatus> = ref(UpmindStatus.notInitialised);
   analytics: UpmindProps["analytics"];
   debug: UpmindProps["debug"];
   i18n: UpmindProps["i18n"];
@@ -101,13 +100,13 @@ export class Upmind {
     storefrontUrl,
     themes
   }: UpmindProps): Promise<void> {
-    if (this.status != UpmindStatus.notInitialised)
+    if (this.status.value != UpmindStatus.notInitialised)
       throw new DetailedError(
-        `Upmind has already been initialised, please use the isReady() method to check if Upmind is ready`,
+        (i18n?.instance.global as Composer).t("error.upmind_initialised"),
         responseCodes.Conflict,
         ErrorOrigin.Headless
       );
-    this.status = UpmindStatus.initialising;
+    this.status.value = UpmindStatus.initialising;
     this.debug = debug;
     this.mode = mode ?? "default";
     this.pop = pop;
@@ -125,16 +124,24 @@ export class Upmind {
       .isReady()
       .then(async () => {
         if (this.mode != "express") {
-          await this.initHeadless().then(() => {
-            this.initRecaptcha();
-            this.initAnalytics();
-            this.initRouter();
-            this.initI18n();
-            this.initTheming();
-          });
+          await this.initHeadless()
+            .then(async () => {
+              // start with our render blocking initialisations
+              return Promise.all([
+                this.initTheming(),
+                this.initLocalisation(),
+                this.initRouter()
+              ]);
+            })
+            .then(() => {
+              // then do our non render blocking initialisations
+              this.initRecaptcha();
+              this.initAnalytics();
+            });
         }
 
-        this.status = UpmindStatus.initialised;
+        // Finally set our status to initialised
+        this.status.value = UpmindStatus.initialised;
       });
   }
 
@@ -176,9 +183,7 @@ export class Upmind {
 
   private async initHeadless() {
     if (!this.pop) return;
-    useSystem();
-    useBrand();
-    useSession();
+    return Promise.all([useSystem(), useBrand(), useSession()]);
   }
 
   private async initRecaptcha() {
@@ -233,34 +238,21 @@ export class Upmind {
   }
 
   private async initTheming() {
-    useTheming(this.themes);
+    const { isReady } = useTheming(this.themes);
+    await isReady();
   }
 
-  private async initI18n() {
+  private async initLocalisation() {
     if (!this.i18n?.instance) return;
-
-    const defaultLocale = unref(this.i18n.instance.global.locale);
-
-    const locale = useLocale(defaultLocale).locale.value; //TODO: use brand or user locale
-
-    // then load our i18n messages from any provided files (globbed)
-    const { loadLocaleMessages, setLocale } = useI18n(
-      this.i18n.instance,
-      this.i18n.files
-    );
-    // NB ALWAYS load the default locale first, so we can use it as a fallback
-    loadLocaleMessages(defaultLocale);
-    // then load the locale we want to use
-    loadLocaleMessages(locale);
-    setLocale(locale);
+    const { isReady } = useLocalisation(this.i18n.instance, this.i18n.files);
+    await isReady();
   }
-
   // ---------------------------------------------------------------------------
 
   isReady(): Promise<void> {
     return new Promise(resolve => {
       const interval = setInterval(() => {
-        if (this.status !== UpmindStatus.notInitialised) {
+        if (this.status.value !== UpmindStatus.notInitialised) {
           clearInterval(interval);
           resolve();
         }

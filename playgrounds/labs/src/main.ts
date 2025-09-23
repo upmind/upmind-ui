@@ -23,10 +23,10 @@ UpmindClient.init({
     region: import.meta.env.VITE_API_REGION
   },
   i18n: {
-    instance: i18n as any,
-    files: import.meta.env.DEV
-      ? import.meta.glob(`@/**/i18n/*-en.json`, { eager: true }) // 'en' only source messages
-      : import.meta.glob("@/assets/locales/**/*.json", { eager: true }) // compiled messages
+    instance: i18n,
+    files: import.meta.glob<Record<string, string>>(
+      "@/assets/locales/**/*.json"
+    )
   },
   router: {
     instance: router,

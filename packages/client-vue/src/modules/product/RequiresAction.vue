@@ -3,8 +3,8 @@
     <ContentSection>
       <Interstitial
         to="#vue-app"
-        :title="t('basket.requiresAction.title')"
-        :text="t('basket.requiresAction.text')"
+        :title="t('cart.basket_products_require_attention_md')"
+        :text="t('cart.basket_products_review_desc')"
         :animatedIcon="{
           icon: 'basket',
           delay: 5000,
@@ -18,25 +18,17 @@
             variant: 'ghost',
             handler: navigateBack,
             icon: 'arrow-left',
-            label: t('basket.requiresAction.actions.back')
+            label: t('action.back_to_basket')
           },
           {
             color: 'primary',
             handler: navigateNext,
             iconAppend: 'arrow-right',
-            label: t('basket.requiresAction.actions.continue')
+            label: t('action.review_next_product')
           }
         ]"
         modal
       >
-        <template #title>
-          <SmartTitle
-            i18n-key="basket.requiresAction.title"
-            :plural="products.length"
-            align="center"
-          />
-        </template>
-
         <template #default>
           <ol class="mt-4 list-disc text-left font-medium">
             <li v-for="basketItem in products" :key="basketItem.id">
@@ -63,7 +55,6 @@ import {
 // --- components
 import { Interstitial, Layout } from "@upmind-automation/upmind-ui";
 import ContentSection from "../../components/content/ContentSection.vue";
-import SmartTitle from "../../components/content/SmartTitle.vue";
 
 // --- utils
 

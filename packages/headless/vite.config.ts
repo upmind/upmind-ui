@@ -19,7 +19,7 @@ export default defineConfig({
       formats: ["es"]
     },
     rollupOptions: {
-      external: ["vue", "vue-router"],
+      external: ["vue", "vue-router", "vue-i18n"],
       output: {
         globals: {
           vue: "Vue",
@@ -33,7 +33,8 @@ export default defineConfig({
     alias: {
       "@": resolve(__dirname, "./src"),
       // ---
-      "@upmind-automation/types": resolve(__dirname, "../types/src/index.ts")
+      "@upmind-automation/types": resolve(__dirname, "../types/src/index.ts"),
+      "@upmind-automation/i18n": resolve(__dirname, "../i18n/src/index.ts")
     }
   }
 });

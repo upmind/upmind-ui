@@ -12,6 +12,7 @@ import type { Product } from "../product";
 import type { IProduct } from "@upmind-automation/types";
 import type { QueryParams, QueryResponseError } from "../..";
 import type { InfiniteData, QueryKey } from "@tanstack/vue-query";
+import { parsePromotionsOrCoupons } from "../basketProduct/utils";
 
 // -----------------------------------------------------------------------------
 // QUERIES
@@ -24,7 +25,7 @@ function loadList(params?: Partial<QueryParams>) {
   const { promotions } = useBasketPromotions();
 
   const urlParams = {
-    promotions: map(promotions.value, "promotion.code").join(),
+    promotions: parsePromotionsOrCoupons(promotions.value).join(),
     with: [
       "image",
       "images",
@@ -71,7 +72,7 @@ function loadInfinite(params?: Partial<QueryParams>) {
         `category${".top_category".repeat(4)}`
       ].join(",")
     }),
-    promotions: map(promotions.value, "promotion.code").join(),
+    promotions: parsePromotionsOrCoupons(promotions.value).join(),
     withAccessToken: true,
     // --- options
     select: data => map(data ?? [], parseProduct),

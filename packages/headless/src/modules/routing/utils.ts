@@ -2,6 +2,7 @@
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
+import { useI18n } from "../system";
 import { useBasket } from "../basket";
 import { useBasketProductsPending } from "../basketProduct";
 
@@ -41,6 +42,8 @@ import { REQUIRES_ACTION, type Route } from "./types";
 // -----------------------------------------------------------------------------
 
 export async function awaitResolved(service: ActorRef<any>) {
+  const { t } = useI18n();
+
   return waitFor(service, state => stateMatches(state, "available.resolved"), {
     timeout: 60_000
   })
@@ -49,7 +52,7 @@ export async function awaitResolved(service: ActorRef<any>) {
     })
     .catch(() => {
       throw new DetailedError(
-        "await Resolved Route failed",
+        t("error.route_resolve_failed"),
         responseCodes.Timeout,
         ErrorOrigin.Headless
       );
@@ -72,6 +75,16 @@ export const useRouteQueryParams = (route: Route) => {
     const value = get(params, type, get(query, type, fallback));
     if (isEmpty(value)) return isFunction(fallback) ? fallback() : fallback;
     return isArray(value) ? first(value) : value;
+  }
+
+  function consumeParam(type: string, fallback?: any) {
+    const value = getParam(type, fallback);
+    // now remove it from the query so we dont use it again
+    const cleanedUrl = new URL(window.location?.href);
+    cleanedUrl.searchParams.delete(type);
+    window.history.replaceState("", "", cleanedUrl.toString());
+
+    return value;
   }
 
   function getProductConfigs(): ProductProps[] {
@@ -151,20 +164,21 @@ export const useRouteQueryParams = (route: Route) => {
     parse: useSafeParse,
     getParams,
     getParam,
-    express: useSafeParse(getParam("express", false)) == true, // make sure we only return true if the value is actually true
+    consumeParam,
     productId: getParam(QUERY_PARAMS.PRODUCT_ID, getParam("product")),
     products: getParams(QUERY_PARAMS.PRODUCT_ID, getParams("product")),
     productConfigs: getProductConfigs(),
     productConfig: first(getProductConfigs()),
     basketProductId: getParam(QUERY_PARAMS.BASKET_PRODUCT_ID),
     categoryId: getParam(QUERY_PARAMS.CATEGORY_ID),
-
-    currency: getParam(
+    // ---
+    express: useSafeParse(consumeParam("express", false)) == true, // make sure we only return true if the value is actually true
+    currency: consumeParam(
       QUERY_PARAMS.CURRENCY,
-      getParam(QUERY_PARAMS.CURRENCY_CODE)
+      consumeParam(QUERY_PARAMS.CURRENCY_CODE)
     ),
-    coupon: getParam(QUERY_PARAMS.COUPONS),
-    bundle: getParam("bundle")
+    coupon: consumeParam(QUERY_PARAMS.COUPONS),
+    bundle: consumeParam("bundle")
   };
 };
 

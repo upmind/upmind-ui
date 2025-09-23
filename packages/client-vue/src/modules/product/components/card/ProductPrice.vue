@@ -6,7 +6,11 @@
     >
       <del>Was {{ regularPrice }}</del>
       <Badge variant="outline" color="promotion" size="sm">
-        {{ t("product.promotionSave", [price?.savingPercent]) }}
+        {{
+          t("action.save_value", {
+            value: price?.savingPercent
+          })
+        }}
       </Badge>
     </header>
 
@@ -15,7 +19,7 @@
         v-if="meta?.free"
         :class="styles.product.header.price.currentPrice.amount"
       >
-        {{ t("product.free") }}
+        {{ t("text.free") }}
       </strong>
 
       <template v-else>
@@ -24,10 +28,7 @@
         }}</strong>
 
         <small :class="styles.product.header.price.currentPrice.term"
-          >/
-          {{
-            t(`product.terms.term.${meta.useMonthlyFromPrice ? 1 : cycle}`)
-          }}</small
+          >/ {{ t(`term.term_${meta.useMonthlyFromPrice ? 1 : cycle}`) }}</small
         >
       </template>
     </p>
@@ -36,8 +37,8 @@
       v-if="!hideTermSummary && !meta.oneoff && meta.useMonthlyFromPrice"
       :class="styles.product.header.price.total"
     >
-      <template v-if="te(`product.terms.summary.${cycle}`)">
-        {{ t(`product.terms.summary.${cycle}`, [price?.currentPrice]) }}
+      <template>
+        {{ t(`term.summary_${cycle}`, { price: price?.currentPrice }) }}
       </template>
     </footer>
   </section>
@@ -64,9 +65,9 @@ import type { ProductPrice } from "./types";
 
 // -----------------------------------------------------------------------------
 
-const props = defineProps<ProductPrice>();
+const props = defineProps<Omit<ProductPrice, "name">>();
 
-const { t, te } = useI18n();
+const { t } = useI18n();
 
 const configMeta = computed(() => ({
   //

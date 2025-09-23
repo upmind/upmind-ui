@@ -16,7 +16,7 @@
           :errors="errors?.term"
           :touched="meta.showErrors"
           :items="terms"
-          :label="t('product.terms.label')"
+          :label="t('term.label')"
           :model-value="model?.term"
           :processing="meta.isProcessing || meta.isLoading"
           @update:modelValue="updateTerm"
@@ -81,7 +81,7 @@
         <Button
           type="reset"
           tabindex="1"
-          :label="t('product.actions.reject')"
+          :label="t('action.cancel')"
           :disabled="meta.isProcessing || required"
           variant="link"
           size="lg"
@@ -93,7 +93,7 @@
           :class="styles.product.config.itemtotal"
           v-if="product.price.regularAmount"
         >
-          <span>{{ t("product.total") }}</span>
+          <span>{{ t("text.total") }}</span>
           <strong :class="styles.product.config.bold">
             {{ product.price?.regularPrice }}
           </strong>
@@ -102,7 +102,7 @@
         <Button
           type="submit"
           tabindex="0"
-          :label="t('product.actions.resolve')"
+          :label="t('action.add_to_basket')"
           :loading="meta.isProcessing"
           :disabled="meta.isLoading"
           color="primary"
@@ -227,7 +227,7 @@ function getQuantities(subproduct: any): Record<string, number> {
     {}
   );
 
-  // console.log("getQuantities", subproduct.id);
+  // console.debug("getQuantities", subproduct.id);
   return value;
 }
 

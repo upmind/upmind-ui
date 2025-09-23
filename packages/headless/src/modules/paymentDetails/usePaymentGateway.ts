@@ -3,6 +3,7 @@ import { computed, unref, toRaw, MaybeRef, ComputedRef } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
+import { useI18n } from "../system";
 
 // --- utils
 import {
@@ -33,7 +34,7 @@ import { ErrorObject } from "ajv";
  */
 export const usePaymentGateway = (actor: ComputedRef<Actor | undefined>) => {
   // --- state
-
+  const { t } = useI18n();
   /**
    * Waits for the payment gateway actor to be ready (not loading or error state).
    * @returns {Promise<boolean>} Resolves true if ready, false if error.
@@ -130,7 +131,7 @@ export const usePaymentGateway = (actor: ComputedRef<Actor | undefined>) => {
       .catch(error => {
         return Promise.reject(
           new DetailedError(
-            error?.message ?? "Update Payment Gateway failed",
+            error?.message ?? t("error.payment_gateway_update_failed"),
             error?.code ??
               error?.statusCode ??
               responseCodes.Unprocessable_Entity,
