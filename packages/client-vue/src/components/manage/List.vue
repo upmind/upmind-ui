@@ -3,7 +3,7 @@
     v-if="!meta.isLoading && !meta.isEmpty"
     v-model:open="open"
     v-model="modelValue"
-    :name="`${i18nKey}-radio-cards`"
+    :name="`${modelValue}-radio-cards`"
     :items="parsedValues"
     :class="props.class"
     :list="false"
@@ -22,7 +22,6 @@
       >
         <Item
           v-bind="getItem(item.id!)"
-          :i18nKey="i18nKey"
           :readonly="props.readonly || (!open && parsedValues.length > 1)"
           @edit="doEdit"
           @remove="doRemove"
@@ -35,7 +34,7 @@
         <footer class="mt-1 flex space-x-2">
           <Button
             v-if="!open && parsedValues.length > 1"
-            :label="t(`${i18nKey ?? 'manage'}.actions.change`)"
+            :label="t('action.change')"
             size="sm"
             variant="link"
             color="muted"
@@ -44,7 +43,7 @@
 
           <Button
             v-else-if="!readonly"
-            :label="t(`${i18nKey ?? 'manage'}.actions.add`)"
+            :label="t('action.add_new')"
             size="sm"
             color="muted"
             variant="link"
@@ -55,7 +54,7 @@
           <Button
             v-if="open"
             class="sr-only"
-            :label="t(`${i18nKey ?? 'manage'}.actions.close`)"
+            :label="t('action.close')"
             size="sm"
             color="muted"
             variant="link"
@@ -90,7 +89,6 @@ import type { ManageRendererProps } from "./types";
 
 const props = defineProps<{
   useList: ManageRendererProps["useList"]; // the mutation composable needed to create or update the model
-  i18nKey?: string; // optional i18n key for actions
   modelValue?: string;
   readonly?: boolean;
   open?: boolean;

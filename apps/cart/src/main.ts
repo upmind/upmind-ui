@@ -18,7 +18,6 @@ import { forEach } from "lodash-es";
 const app = createApp(App);
 
 // ---
-
 UpmindClient.init({
   debug: import.meta.env.DEV,
   pop: {
@@ -27,10 +26,10 @@ UpmindClient.init({
     region: import.meta.env.VITE_API_REGION
   },
   i18n: {
-    instance: i18n as any,
-    files: import.meta.env.DEV
-      ? import.meta.glob(`@/**/i18n/*-en.json`, { eager: true }) // 'en' only source messages
-      : import.meta.glob("@/assets/locales/**/*.json", { eager: true }) // compiled messages
+    instance: i18n,
+    files: import.meta.glob<Record<string, string>>(
+      "@/assets/locales/**/*.json"
+    )
   },
   router: {
     instance: router,
@@ -38,7 +37,7 @@ UpmindClient.init({
   },
   recaptcha: {
     siteKey: import.meta.env.VITE_APP_GOOGLE_RECAPTCHA_V3_SITE_KEY,
-    enabled: !import.meta.env.DEV
+    enabled: true
   },
   analytics: {
     enabled: true

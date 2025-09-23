@@ -5,6 +5,7 @@ import { resolve } from "path";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
 import vueDevTools from "vite-plugin-vue-devtools";
 import tailwindcss from "@tailwindcss/vite";
+import { compact } from "lodash-es";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
@@ -12,7 +13,7 @@ export default defineConfig(({ mode }) => {
   const isProd = mode === "production";
 
   return {
-    plugins: [
+    plugins: compact([
       vue({
         template: {
           compilerOptions: {
@@ -27,7 +28,7 @@ export default defineConfig(({ mode }) => {
         project: "cart",
         applicationKey: "cart"
       })
-    ].filter(Boolean),
+    ]),
     resolve: {
       alias: {
         "@": resolve(__dirname, "./src"),
@@ -36,6 +37,10 @@ export default defineConfig(({ mode }) => {
         "@upmind-automation/types": resolve(
           __dirname,
           "../../packages/types/src/index.ts"
+        ),
+        "@upmind-automation/i18n": resolve(
+          __dirname,
+          "../../packages/i18n/src"
         ),
         "@upmind-automation/headless": resolve(
           __dirname,

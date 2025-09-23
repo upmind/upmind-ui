@@ -24,7 +24,7 @@
 
     <Button
       v-if="meta.hasItems && meta.hasMore"
-      :label="t('domain.dac.actions.more')"
+      :label="t('action.load_more')"
       :loading="meta.isLoading"
       @click="() => onSearchOffset(offset)"
       block
@@ -39,7 +39,7 @@
       :loading="meta.isProcessing"
       :disabled="meta.isEmpty || meta.isDisabled || meta.isProcessing"
       @click="onResolve"
-      :label="t('domain.dac.actions.continue', selected?.length)"
+      :label="t('action.add_domain_to_basket', selected?.length ?? 0)"
       prependIcon="plus"
       :color="color"
       size="lg"

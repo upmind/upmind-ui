@@ -8,7 +8,7 @@
         skrim="light"
         :order-id="orderId"
         :success="success"
-        :title="t(title)"
+        :title="title"
         :text="text"
         size="2xl"
         shape="circle"
@@ -23,10 +23,6 @@
           size: '4xl'
         }"
       >
-        <template #title>
-          <SmartTitle :i18n-key="title" align="center" />
-        </template>
-
         <template #actions>
           <Button
             color="primary"
@@ -70,7 +66,6 @@ import {
   Layout
 } from "@upmind-automation/upmind-ui";
 import ContentSection from "../../components/content/ContentSection.vue";
-import SmartTitle from "../../components/content/SmartTitle.vue";
 
 // -----------------------------------------------------------------------------
 
@@ -110,46 +105,45 @@ const transferRedirect = (
 
 const title = computed(() => {
   if (!meta.value.isAuthenticated) {
-    return "order.confirmation.invalid.title";
+    return t("text.session_expired_md");
   } else if (orderMeta.value.hasError) {
-    return "order.confirmation.error.title.text";
+    return t("order.confirmation.error.title.text");
   } else if (success.value) {
-    return "order.confirmation.success.title";
+    return t("invoice.order_complete_md");
   }
 
-  return "order.confirmation.failed.title";
+  return t("invoice.unable_to_process_payment_md");
 });
 
 const text = computed(() => {
   if (!meta.value.isAuthenticated) {
-    return t("order.confirmation.invalid.text");
+    return t("text.session_expired_return_store_msg");
   } else if (orderMeta.value.hasError) {
-    return t("order.confirmation.error.text");
+    return t("invoice.order_not_found_msg");
   } else if (success.value) {
-    return t("order.confirmation.success.text");
+    return t("invoice.order_complete_confirmation_msg");
   }
 
   // Payment failed
   if (errors?.value?.message) {
     const message = errors.value.message;
     return `${message}${message.endsWith(".") ? "" : "."} ${t(
-      "order.confirmation.failed.textRetry"
+      "invoice.go_to_invoice_retry_payment_desc"
     )}`;
   }
 
-  return `${t("order.confirmation.failed.text")} ${t("order.confirmation.failed.textRetry")}`;
+  return `${t("invoice.unable_process_payment_desc")} ${t("invoice.go_to_invoice_retry_payment_desc")}`;
 });
 
 const action = computed(() => {
   if (!meta.value.isAuthenticated) {
-    return "order.confirmation.invalid.action";
+    return "action.return_to_shop";
   } else if (orderMeta.value.hasError) {
-    return "order.confirmation.error.action";
+    return "action.go_to_my_account";
   } else if (success.value) {
-    return "order.confirmation.success.action";
+    return "action.go_to_my_account";
   }
-
-  return "order.confirmation.failed.action";
+  return "action.go_to_invoice";
 });
 
 const icon = computed(() => {

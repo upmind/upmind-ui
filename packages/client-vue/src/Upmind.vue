@@ -1,6 +1,6 @@
 <template>
   <Loading
-    :active="!themeMeta.hasSettings"
+    :active="!appMeta.isAvailable || !themeMeta.hasSettings"
     class-active="h-full min-h-screen w-full text-gray-400!"
     id="vue-app"
     :data-theme="theme?.id"
@@ -13,7 +13,7 @@
       <div
         class="bg-background text-foreground relative flex min-h-screen flex-col items-start antialiased"
       >
-        <slot name="header">
+        <slot name="header" v-if="appMeta.isAvailable">
           <Header :logo="logo">
             <template #actions>
               <slot name="actions" />
@@ -22,7 +22,7 @@
           </Header>
         </slot>
 
-        <div class="flex w-full flex-1 flex-col">
+        <div class="flex w-full flex-1 flex-col" v-if="appMeta.isAvailable">
           <RouterView v-slot="routerViewProps" :key="$route.fullPath">
             <slot v-bind="routerViewProps">
               <template v-if="routerViewProps.Component">
@@ -40,7 +40,7 @@
                       <template #fallback>
                         <AsyncLoading
                           v-bind="loadingProps"
-                          v-if="themeMeta.hasSettings"
+                          v-if="appMeta.isAvailable && themeMeta.hasSettings"
                         />
                       </template>
                     </Suspense>
@@ -51,7 +51,7 @@
           </RouterView>
         </div>
 
-        <slot name="footer">
+        <slot name="footer" v-if="appMeta.isAvailable">
           <Footer />
         </slot>
       </div>
@@ -74,6 +74,7 @@ import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 
 // --- internal
+import useUpmind, { UpmindStatus } from "@upmind-automation/headless";
 import { useThemes, useStyles } from "@upmind-automation/upmind-ui";
 import { useTheme } from "./modules/theming";
 
@@ -102,6 +103,10 @@ const loading = ref(true);
 
 // -----------------------------------------------------------------------------
 const { theme, meta: themeMeta } = useTheme(props.theme);
+
+const appMeta = computed(() => ({
+  isAvailable: useUpmind.status.value == UpmindStatus.initialised
+}));
 
 const currentRoute = useRoute();
 

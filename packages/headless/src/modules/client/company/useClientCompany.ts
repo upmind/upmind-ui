@@ -5,6 +5,7 @@ import { waitFor } from "xstate/lib/waitFor";
 import { useActor } from "@xstate/vue";
 
 // --- internal
+import { useI18n } from "../../system";
 import itemMachine from "../item.machine";
 import { useClientCompanyActions, useClientCompanyGuards } from "./actions";
 import { useClientCompanyServices } from "./services";
@@ -42,6 +43,7 @@ export const useClientCompany = (
     clientId
   }: { allowMultipleEdits?: boolean; clientId?: IClient["id"] } = {}
 ) => {
+  const { t } = useI18n();
   const { getOne } = useClientCompanies();
 
   const service = interpret(
@@ -127,7 +129,7 @@ export const useClientCompany = (
       .catch(() => {
         return Promise.reject(
           new DetailedError(
-            "Input not available",
+            t("error.input_not_available"),
             responseCodes.Forbidden,
             ErrorOrigin.Headless
           )
@@ -165,7 +167,7 @@ export const useClientCompany = (
       .catch(error => {
         return Promise.reject(
           new DetailedError(
-            "Update Company failed",
+            t("error.client_email_update_failed"),
             error?.status ?? responseCodes.Timeout,
             ErrorOrigin.Headless,
             {

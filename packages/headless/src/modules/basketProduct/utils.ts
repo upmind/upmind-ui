@@ -1,6 +1,7 @@
 // --- external
 
 // --- internal
+import { useI18n } from "../system";
 import { useBrand } from "../brand";
 
 // --- utils
@@ -43,7 +44,8 @@ import type { ErrorObject } from "ajv";
 import type {
   IBasket,
   IBasketProduct,
-  IBasketPromotion
+  IBasketPromotion,
+  IPromotion
 } from "@upmind-automation/types";
 import {
   ProductOrderTypes,
@@ -64,7 +66,7 @@ import type {
   ProductSummaryDetail,
   PriceDetail,
   ExternalError
-} from "../product/types";
+} from "../product";
 
 // -----------------------------------------------------------------------------
 
@@ -290,6 +292,17 @@ export function parseProvisionFieldSummary(
     }
   };
 }
+export function parsePromotionsOrCoupons(
+  promotions?: IBasketPromotion[] | string[]
+) {
+  return map(promotions, basketPromotion => {
+    const promocode: string = has(basketPromotion, "promotion")
+      ? (basketPromotion as IBasketPromotion).promotion.code
+      : (basketPromotion as string);
+
+    return promocode;
+  });
+}
 
 export function parseBasketProductData(
   model: ProductModel,
@@ -306,10 +319,9 @@ export function parseBasketProductData(
     provision_field_values: model.provisionFields || {},
     // ---
     promotions: map(promotions, basketPromotion => {
-      const promocode =
-        isObject(basketPromotion) && "promotion" in basketPromotion
-          ? basketPromotion.promotion.code
-          : basketPromotion;
+      const promocode: string = has(basketPromotion, "promotion")
+        ? (basketPromotion as IBasketPromotion).promotion.code
+        : (basketPromotion as string);
 
       return { promocode };
     })
@@ -343,10 +355,11 @@ export function parseBasketSubproductConfig(
 }
 
 export function getBasketProduct(id: string, basket: IBasket) {
+  const { t } = useI18n();
   const value = find(basket?.products, { id });
   if (!value) {
     throw new DetailedError(
-      "Product not found in basket",
+      t("error.basket_product_not_found"),
       responseCodes.Not_Found,
       ErrorOrigin.Headless
     );

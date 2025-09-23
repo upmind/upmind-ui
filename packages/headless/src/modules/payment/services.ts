@@ -1,17 +1,17 @@
 // --- external
 
 // --- internal
-import { useQuery } from "../..";
+import { useI18n, useQuery } from "../..";
 
 // --- utils
 import { usePaymentParser } from "./utils";
 import { get, isEmpty } from "lodash-es";
+import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 
 // --- types
 import { Methods, Targets } from "@upmind-automation/types";
 import { type PaymentContext } from "./types";
 import type { AnyEventObject } from "xstate";
-import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 
 // -----------------------------------------------------------------------------
 
@@ -59,6 +59,7 @@ function submitViaForm({
 }
 
 async function load({ orderId }: PaymentContext, { data }: AnyEventObject) {
+  const { t } = useI18n();
   const { get, useUrl } = useQuery();
 
   // if we already have the order, we don't need to load it again, and we can return an empty object
@@ -67,7 +68,7 @@ async function load({ orderId }: PaymentContext, { data }: AnyEventObject) {
   if (!data?.id)
     return Promise.reject(
       new DetailedError(
-        "Invalid order",
+        t("error.order_not_available"),
         responseCodes.Bad_Request,
         ErrorOrigin.Upmind
       )
@@ -114,11 +115,13 @@ async function validate(
   { paymentDetail }: PaymentContext,
   _event: AnyEventObject
 ) {
+  const { t } = useI18n();
+
   return new Promise((resolve, reject) => {
     if (isEmpty(paymentDetail)) {
       reject(
         new DetailedError(
-          "Payment validation failed.",
+          t("error.payment_detail_not_available"),
           responseCodes.Not_Found,
           ErrorOrigin.Headless
         )

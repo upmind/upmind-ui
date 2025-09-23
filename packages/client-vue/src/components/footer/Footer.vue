@@ -24,7 +24,10 @@
         >
       </span>
 
-      <UpmCurrency data-testid="currency-selector" />
+      <div class="flex gap-x-2.5">
+        <UpmLocale data-testid="locale-selector" />
+        <UpmCurrency data-testid="currency-selector" />
+      </div>
     </div>
   </footer>
 </template>
@@ -32,5 +35,6 @@
 <script lang="ts" setup>
 // --- internal
 import UpmCurrency from "../../modules/basket/components/CurrencySwitcher.vue";
+import UpmLocale from "../../components/LocaleSwitcher.vue";
 import upmindLogo from "../../assets/favicons/favicon.svg";
 </script>

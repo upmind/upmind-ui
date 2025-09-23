@@ -16,7 +16,7 @@
         size="lg"
         variant="outline"
         color="base"
-        :label="t('header.login')"
+        :label="t('action.login')"
         icon="account"
         pill
         data-testid="login-popover-trigger"

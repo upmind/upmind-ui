@@ -81,7 +81,7 @@ export const useUischema = () => {
       {
         type: "Control",
         scope: "#/properties/cardholder_name",
-        i18n: "payment.cardholder_name",
+        i18n: "form.cardholder_name",
         options: {
           autocomplete: "cc-name"
         },
@@ -98,7 +98,7 @@ export const useUischema = () => {
       {
         type: "Control",
         scope: "#/properties/card_num",
-        i18n: "payment.card_num",
+        i18n: "form.card_num",
         options: {
           autocomplete: "cc-number"
         }
@@ -109,7 +109,7 @@ export const useUischema = () => {
           {
             type: "Control",
             scope: "#/properties/card_expiry",
-            i18n: "payment.card_expiry",
+            i18n: "form.card_expiry",
             options: {
               autocomplete: "cc-exp",
               trim: true
@@ -118,7 +118,7 @@ export const useUischema = () => {
           {
             type: "Control",
             scope: "#/properties/card_cvv",
-            i18n: "payment.card_cvv",
+            i18n: "form.card_cvv",
             options: {
               autocomplete: "cc-csc",
               trim: true

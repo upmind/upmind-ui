@@ -5,16 +5,16 @@
     :is="modal ? Dialog : 'section'"
     v-model:open="open"
     size="3xl"
-    :title="t(`${i18nKey ?? 'manage'}.title`, { isNew: !props.modelValue })"
+    :title="t('action.add_new_or_update', !props.modelValue ? 0 : 1)"
   >
-    <Skeleton v-if="meta.isLoading" :i18nKey="i18nKey" :modal="modal" />
+    <Skeleton v-if="meta.isLoading" :modal="modal" />
 
     <template v-else>
       <Alert
         v-if="meta.hasErrors"
         :description="errors"
         :message="errors"
-        :title="t(`${i18nKey ?? 'manage'}.error`, { isNew: !props.modelValue })"
+        :title="t('error.adding_or_updating', !props.modelValue ? 0 : 1)"
         color="error"
         icon="alert-triangle"
         class="mb-4"
@@ -35,7 +35,6 @@
         <template #actions="{ doReject, doResolve, meta: formMeta }">
           <Actions
             v-show="modal || meta.isDirty || (formMeta as any)?.isTouched"
-            :i18nKey="i18nKey"
             :disabled="meta.isProcessing"
             :processing="meta.isProcessing"
             :no-cancel="!modal"
@@ -58,14 +57,10 @@ import { useVModel } from "@vueuse/core";
 // --- internal
 
 // --- components
-import { UpmForm } from "../form";
-import {
-  Dialog,
-  Alert,
-  type FormActionProps
-} from "@upmind-automation/upmind-ui";
 import Skeleton from "./Skeleton.vue";
 import Actions from "./Actions.vue";
+import { UpmForm } from "../form";
+import { Alert, Dialog } from "@upmind-automation/upmind-ui";
 
 // --- utils
 
@@ -76,7 +71,6 @@ import { onUnmounted } from "vue";
 
 const props = defineProps<{
   useMutate: ManageRendererProps["useMutate"]; // the mutation composable needed to create or update the model
-  i18nKey?: string; // the i18n key to use for translations
   modelValue?: string;
   readonly?: boolean;
   open?: boolean;

@@ -3,7 +3,7 @@ import { loadStripe } from "@stripe/stripe-js";
 
 // --- internal
 import sharedServices from "../services";
-import { useQuery, useSession } from "../../..";
+import { useI18n, useQuery, useSession } from "../../..";
 
 // --- utils
 import {
@@ -23,13 +23,14 @@ import type { AnyEventObject } from "xstate";
 // -----------------------------------------------------------------------------
 
 async function load({ gateway }: StripeContext, _event: AnyEventObject) {
+  const { t } = useI18n();
   const options = await sharedServices.load({ gateway }, _event);
 
   const key = getPublicKey(gateway);
   if (!key)
     return Promise.reject(
       new DetailedError(
-        "Stripe public key not found.",
+        t("error.stripe_public_key_not_available"),
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )
@@ -41,7 +42,7 @@ async function load({ gateway }: StripeContext, _event: AnyEventObject) {
     if (!stripe) {
       reject(
         new DetailedError(
-          "Stripe not found.",
+          t("error.stripe_not_available"),
           responseCodes.Not_Found,
           ErrorOrigin.Headless
         )
@@ -56,13 +57,13 @@ async function validate(
   { schema, model, element, elementStatus }: StripeContext,
   { data }: AnyEventObject
 ) {
-  // ---
+  const { t } = useI18n();
 
   // Get any errors from the Stripe Element
   if (!element)
     return Promise.reject(
       new DetailedError(
-        "Stripe element not found.",
+        t("error.stripe_element_not_available"),
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )
@@ -92,7 +93,7 @@ async function validate(
     if (errors?.length) {
       reject(
         new DetailedError(
-          "Stripe validation failed",
+          t("error.stripe_validation_failed"),
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
           errors
@@ -145,10 +146,12 @@ async function createPaymentElement(
  * payment detail is attached to a customer and confirmed server-side.
  */
 async function update({ elements, stripe, model }: StripeContext) {
+  const { t } = useI18n();
+
   if (!elements || !stripe)
     return Promise.reject(
       new DetailedError(
-        "Stripe elements or stripe not found.",
+        t("error.stripe_element_not_available"),
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )
@@ -160,7 +163,7 @@ async function update({ elements, stripe, model }: StripeContext) {
     .catch((error: any) =>
       Promise.reject(
         new DetailedError(
-          "Stripe element submission failed.",
+          t("error.stripe_element_submission_failed"),
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
           error
@@ -181,7 +184,7 @@ async function update({ elements, stripe, model }: StripeContext) {
     if (error) {
       reject(
         new DetailedError(
-          error.message ?? "Stripe create payment method failed.",
+          error.message ?? t("error.stripe_payment_method_create_failed"),
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
           error

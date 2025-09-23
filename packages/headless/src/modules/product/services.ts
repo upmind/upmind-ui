@@ -1,8 +1,8 @@
 // --- external
 
 // --- internal
-import { useQuery } from "../..";
 import { useBrand } from "../brand";
+import { useI18n, useQuery } from "../..";
 
 // --- utils
 import {
@@ -43,11 +43,11 @@ import {
 import { BrandConfigKeys, IProduct } from "@upmind-automation/types";
 
 import type {
-  ProductConfigContext,
   Price,
   PriceCalculations,
   ProductModel,
-  SubproductModel
+  SubproductModel,
+  ProductConfigContext
 } from "./types";
 
 import { AnyEventObject } from "xstate";
@@ -60,17 +60,18 @@ async function load(
     model,
     currencyId,
     currencyCode,
-    promotions,
+    coupons,
     basketId,
     rawBasketProduct
   }: ProductConfigContext,
   _event: AnyEventObject
 ) {
+  const { t } = useI18n();
   const productId = get(model, "productId");
   if (!productId)
     return Promise.reject(
       new DetailedError(
-        "No Product ID provided",
+        t("error.product_not_available"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )
@@ -88,13 +89,13 @@ async function load(
   ]);
 
   // lets ensure we parse our promotions correctly
-  const promocodes = map(promotions, "promotion.code").join();
+  const promotions = coupons?.join();
   // ---
   const { get: getRequest, useUrl } = useQuery();
 
   const params = {
     currency_id: currency?.id,
-    promotions: promocodes,
+    promotions,
     with_staged_imports: true,
     with: [
       "image",
@@ -121,7 +122,7 @@ async function load(
       {
         basketId,
         currency_id: currency?.id,
-        promotions: promocodes
+        promotions
       }
     ],
     staleTime: useTime()?.DAY, // product data is not updated often, so we can cache for a day
@@ -150,13 +151,14 @@ async function loadProvisioningFields(
   { model }: ProductConfigContext,
   _event: AnyEventObject
 ) {
+  const { t } = useI18n();
   const { get: getRequest, useUrl } = useQuery();
 
   const productId = get(model, "productId");
   if (!productId)
     return Promise.reject(
       new DetailedError(
-        "No Product ID provided",
+        t("error.product_not_available"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )
@@ -179,6 +181,7 @@ async function loadProvisioningFields(
 // ---
 
 async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
+  const { t } = useI18n();
   const baseModel = defaultsDeep(context.model, {
     productId: undefined,
     quantity: 1,
@@ -208,7 +211,7 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
   if (!values?.productId) {
     return Promise.reject(
       new DetailedError(
-        "No Product ID provided",
+        t("error.product_not_available"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )
@@ -269,7 +272,7 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
 }
 
 async function validate(context: ProductConfigContext, _event: AnyEventObject) {
-  // ---
+  const { t } = useI18n();
 
   // We may opt to skip validation to allow the backend to do the validation
   //  especially usefully when adding bulk products, recommendations etc.
@@ -302,7 +305,7 @@ async function validate(context: ProductConfigContext, _event: AnyEventObject) {
     if (!isEmpty(errors)) {
       reject(
         new DetailedError(
-          "Product configuration validation failed",
+          t("error.product_validation_failed"),
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
           errors

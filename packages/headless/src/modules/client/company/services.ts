@@ -1,3 +1,5 @@
+// --- external
+
 // --- internal
 import {
   useQuery,
@@ -11,7 +13,8 @@ import {
   useClientAddresses,
   AddressModel,
   EmailModel,
-  PhoneModel
+  PhoneModel,
+  useI18n
 } from "../..";
 
 import { useClientAddressServices } from "../address/services";
@@ -182,6 +185,7 @@ async function update(id: Company["id"], data: CompanyModel) {
 }
 
 async function ensure(model: CompanyModel): Promise<Company> {
+  const { t } = useI18n();
   const { data, promise } = loadList();
   await promise.value.finally(); // wait for the query to resolve
   const { findOne } = useCollection<Company>(
@@ -196,7 +200,7 @@ async function ensure(model: CompanyModel): Promise<Company> {
   return add(model).then(raw => {
     if (isEmpty(raw))
       throw new DetailedError(
-        "Ensure company failed",
+        t("error.client_company_not_available"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless,
         { model }
@@ -222,17 +226,19 @@ function remove(companyId: Company["id"]) {
         }
       }),
     onError(error: any) {
+      const { t } = useI18n();
       addError({
         title: isString(error)
           ? error
-          : error?.title || "We experienced an error removing this company",
+          : error?.title || t("error.client_company_delete_failed"),
         copy: error?.message,
         data: error?.data
       });
     },
     onSuccess(data) {
+      const { t } = useI18n();
       invalidateQueryByKey(queryKey, { exact: false })(data);
-      addSuccess("Successfully removed company");
+      addSuccess(t("confirm.company_removed"));
     },
     withAccessToken: true
   });
@@ -254,18 +260,19 @@ function setDefault(companyId: Company["id"]) {
       }),
     data: { default: true },
     onError(error: any) {
+      const { t } = useI18n();
       addError({
         title: isString(error)
           ? error
-          : error?.title ||
-            "We experienced an error setting this company as default",
+          : error?.title || t("error.client_company_set_default_failed"),
         copy: error?.message,
         data: error?.data
       });
     },
     onSuccess(data) {
+      const { t } = useI18n();
       invalidateQueryByKey(queryKey, { exact: false })(data);
-      addSuccess("Successfully set company as default");
+      addSuccess(t("confirm.company_set_default"));
     },
     withAccessToken: true
   });
@@ -275,10 +282,11 @@ function setDefault(companyId: Company["id"]) {
 //  SIDE EFFECTS
 
 async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
+  const { t } = useI18n();
   if (isEmpty(data))
     return Promise.reject(
       new DetailedError(
-        "Ensure Company dependencies faile: No data provided",
+        t("error.client_company_not_available"),
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )
@@ -329,7 +337,7 @@ async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
     })
     .catch(errors => {
       throw new DetailedError(
-        "Ensure Company dependencies failed",
+        t("error.client_company_ensure_dependencies_failed"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless,
         errors
@@ -383,6 +391,7 @@ async function parse(
 }
 
 async function validate({ schema, model }: Partial<CompanyContext>) {
+  const { t } = useI18n();
   if (!schema) return Promise.resolve(model);
 
   // Now validate the model as per normal
@@ -394,7 +403,7 @@ async function validate({ schema, model }: Partial<CompanyContext>) {
     if (errors?.length) {
       reject(
         new DetailedError(
-          "Company validation failed",
+          t("error.client_company_validation_failed"),
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
           errors
@@ -447,11 +456,12 @@ export const useClientCompanyServices = () => {
      * @param {Partial<CompanyContext>} param0 - The company context containing the model to add.
      * @returns {Promise<any>} The result of the add operation.
      */
-    add: async ({ model }: Partial<CompanyContext>) => {
+    add: async ({ model }: Partial<CompanyContext>): Promise<any> => {
+      const { t } = useI18n();
       if (isEmpty(model))
         return Promise.reject(
           new DetailedError(
-            "Add Company failed: model provided",
+            t("error.client_company_not_available"),
             responseCodes.No_Content,
             ErrorOrigin.Headless,
             { model }
@@ -466,11 +476,12 @@ export const useClientCompanyServices = () => {
      * @param {Partial<CompanyContext>} param0 - The company context containing the model to ensure.
      * @returns {Promise<any>} The ensured company model, which will either be the existing company or a new one created.
      */
-    ensure: async ({ model }: Partial<CompanyContext>) => {
+    ensure: async ({ model }: Partial<CompanyContext>): Promise<any> => {
+      const { t } = useI18n();
       if (isEmpty(model))
         return Promise.reject(
           new DetailedError(
-            "Ensure Company failed: model provided",
+            t("error.client_company_not_available"),
             responseCodes.No_Content,
             ErrorOrigin.Headless,
             { model }
@@ -506,11 +517,12 @@ export const useClientCompanyServices = () => {
      * @param {Partial<CompanyContext>} param0 - The company context containing id and model.
      * @returns {Promise<any>} The result of the update operation.
      */
-    update: async ({ id, model }: Partial<CompanyContext>) => {
+    update: async ({ id, model }: Partial<CompanyContext>): Promise<any> => {
+      const { t } = useI18n();
       if (!id || isEmpty(model))
         return Promise.reject(
           new DetailedError(
-            "Update Company failed: No id or model provided",
+            t("error.client_company_not_available"),
             responseCodes.No_Content,
             ErrorOrigin.Headless,
             { id, model }

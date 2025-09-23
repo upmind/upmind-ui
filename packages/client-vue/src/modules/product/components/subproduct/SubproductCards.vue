@@ -21,8 +21,8 @@
       :items="parsedValues"
       :disabled="props.disabled"
       :errors="errors"
-      :none-text="t('product.select.none')"
-      :placeholder="t('product.select.placeholder')"
+      :none-text="t('text.none')"
+      :placeholder="t('action.select_an_option')"
       :multiple="subproduct.meta.multiple"
       :size="subproduct.uiMeta?.uischema?.options?.size"
     >

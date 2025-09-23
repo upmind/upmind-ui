@@ -221,7 +221,7 @@ export interface ProductProps extends ProductModel {
   currencyId?: ICurrency["id"];
   currencyCode?: ICurrency["code"];
   clientId?: IClient["id"];
-  promotions?: IBasketPromotion[];
+  promotions?: IBasketPromotion[]; // these are needed so we can know if we need to recalculate the price
   coupons?: string[]; // these are 'promotions' passed via url or config that are not in the basket yet
   subproducts?: string[]; // these are the ids of the subproducts that are passed via url or config that are not in the model/config yet
   bundle?: string; // allow to pass a bundle id to indicate that this product should  apply the specific bundle configuration; false forces no bundles to be applied

@@ -40,6 +40,7 @@ export default defineConfig({
       "@animations": resolve(__dirname, "./src/assets/animations"),
       // ---
       "@upmind-automation/types": resolve(__dirname, "../types/src/index.ts"),
+      "@upmind-automation/i18n": resolve(__dirname, "../../packages/i18n/src"),
       "@upmind-automation/headless": resolve(
         __dirname,
         "../headless/src/index.ts"

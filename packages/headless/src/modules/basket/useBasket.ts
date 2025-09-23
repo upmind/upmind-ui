@@ -5,6 +5,7 @@ import { interpret, InterpreterStatus } from "xstate";
 import { useActor } from "@xstate/vue";
 
 // --- internal
+import { useI18n } from "../system";
 import { useBrand } from "../brand";
 import { useSession } from "../session";
 import basketMachine from "./basket.machine";
@@ -42,13 +43,15 @@ import type {
   IBasket,
   IInvoice,
   ICurrency,
-  IPromotion
+  IPromotion,
+  IBasketPromotion
 } from "@upmind-automation/types";
 export * from "./billing";
 export * from "./types";
 import type { ActorRef } from "xstate";
 import type { BasketContext } from "./types";
 import type { BasketProduct } from "../basketProduct";
+import { parsePromotionsOrCoupons } from "../basketProduct/utils";
 
 // -----------------------------------------------------------------------------
 // create a global instance of the basket machine
@@ -61,6 +64,7 @@ const service = interpret(basketMachine, { devTools: true });
 // -----------------------------------------------------------------------------
 
 export const useBasket = () => {
+  const { t } = useI18n();
   const { includesTax } = useBrand();
   const { meta: sessionMeta } = useSession();
   if (service.status == InterpreterStatus.NotStarted) service.start();
@@ -201,9 +205,13 @@ export const useBasket = () => {
     filter(products.value, product => !isEmpty(product?.errors))
   );
   const summary = useContext<BasketContext["summary"]>(state, "summary");
-  const promotions = useContext<IPromotion[]>(state, "basket.promotions", []);
+  const promotions = useContext<IBasketPromotion[]>(
+    state,
+    "basket.promotions",
+    []
+  );
   const promotionCodes = computed(
-    () => map(promotions.value, "promotion.code") as IPromotion["code"][]
+    () => parsePromotionsOrCoupons(promotions.value) as IPromotion["code"][]
   );
   const taxes = useContext<IBasket["taxes"]>(state, "basket.taxes", []);
 
@@ -236,7 +244,7 @@ export const useBasket = () => {
       if (!actor.value)
         return Promise.reject(
           new DetailedError(
-            "setCurrency on basket failed",
+            t("error.currency_not_available"),
             responseCodes.Unprocessable_Entity,
             ErrorOrigin.Headless
           )
@@ -278,7 +286,7 @@ export const useBasket = () => {
         })
         .catch(() => {
           throw new DetailedError(
-            "setCurrency on basket timed out",
+            t("error.currency_update_failed"),
             responseCodes.Timeout,
             ErrorOrigin.Headless,
             {
@@ -298,7 +306,7 @@ export const useBasket = () => {
       if (!actor.value)
         return Promise.reject(
           new DetailedError(
-            "addPromotion on basket failed",
+            t("error.promotion_not_available"),
             responseCodes.Unprocessable_Entity,
             ErrorOrigin.Headless
           )
@@ -316,7 +324,7 @@ export const useBasket = () => {
           .catch(error => {
             return Promise.reject(
               new DetailedError(
-                "addPromotion on basket failed",
+                t("error.promotion_add_failed"),
                 responseCodes.Timeout,
                 ErrorOrigin.Headless,
                 {
@@ -341,7 +349,7 @@ export const useBasket = () => {
         if (stateMatches(state, ["error"])) {
           return Promise.reject(
             new DetailedError(
-              "addPromotion on basket failed",
+              t("error.promotion_add_failed"),
               responseCodes.Timeout,
               ErrorOrigin.Headless,
               contextValue(state, "error")
@@ -413,7 +421,7 @@ export const useBasket = () => {
       } else {
         reject(
           new DetailedError(
-            "Basket item not found",
+            t("error.basket_product_not_found"),
             responseCodes.Not_Found,
             ErrorOrigin.Headless
           )

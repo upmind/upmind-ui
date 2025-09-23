@@ -9,7 +9,7 @@
       v-if="meta.hasErrors"
       color="error"
       icon="alert-triangle"
-      :title="t(`session.${currentForm}.error`)"
+      :title="t(`form.${currentForm}.error`)"
       :description="errors"
     />
 
@@ -55,7 +55,7 @@
       block
       type="reset"
       @click.prevent="logout"
-      :label="t('auth.actions.logout')"
+      :label="t('action.logout')"
     />
   </div>
 </template>
@@ -138,16 +138,16 @@ const currentForm = computed(() => {
 const buttons = computed(() => {
   return {
     register: {
-      label: t("session.register.actions.text"),
-      action: t("session.register.actions.action")
+      label: t("auth.already_have_account_qn"),
+      action: t("action.log_in_here")
     },
     login: {
-      label: t("session.login.actions.text"),
-      action: t("session.login.actions.action")
+      label: t("auth.no_account_qn"),
+      action: t("action.create_one_here")
     },
     recover: {
-      label: t("session.recover.actions.text"),
-      action: t("session.recover.actions.action")
+      label: t("auth.forgot_password_qn"),
+      action: t("session.recover.actions.action") // TODO: this does not exist in translations
     }
   };
 });
@@ -157,12 +157,12 @@ const authActions = computed(() => {
     submit: {
       type: "submit" as "submit",
       label: meta.value.showLoginForm
-        ? t("auth.actions.login")
+        ? t("action.log_into_my_account")
         : meta.value.showRegisterForm
-          ? t("auth.actions.register")
+          ? t("action.continue")
           : meta.value.showRecoverPasswordForm
-            ? t("auth.actions.recover")
-            : t("auth.actions.continue"),
+            ? t("action.send_reset")
+            : t("action.continue"),
       block: true,
       needsValid: true,
       size: "lg"

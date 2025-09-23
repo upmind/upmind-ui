@@ -19,6 +19,7 @@ import {
   responseCodes,
   useCookies
 } from "../../../utils";
+import { useI18n } from "../localisation";
 
 // --- Types
 const UPM_TRACK_KEYS = ["source", "medium", "campaign", "content", "term"];
@@ -50,6 +51,8 @@ export const useTracking = () => {
   );
 
   async function init() {
+    const { t } = useI18n();
+
     // Get existing track cookie and Abort if exists
     return (
       getTracking()
@@ -59,7 +62,7 @@ export const useTracking = () => {
             return tracking;
           } else
             throw new DetailedError(
-              "No tracking cookie found",
+              t("error.tracking_cookie_not_available"),
               responseCodes.Unprocessable_Entity,
               ErrorOrigin.Headless
             );
@@ -125,13 +128,15 @@ export const useTracking = () => {
   }
 
   function getTracking() {
+    const { t } = useI18n();
+
     return new Promise((resolve, reject) => {
       const cookie = getCookie(UPM_TRACK_COOKIE);
 
       if (!cookie)
         return reject(
           new DetailedError(
-            "No tracking cookie found",
+            t("error.tracking_cookie_not_available"),
             responseCodes.Unprocessable_Entity,
             ErrorOrigin.Headless
           )

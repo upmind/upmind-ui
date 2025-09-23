@@ -85,7 +85,7 @@
             size="lg"
             block
             pill
-            :label="t('product.basket.add')"
+            :label="t('action.add_to_basket')"
             @click="handleResolve"
           />
         </footer>

@@ -3,11 +3,7 @@
     <SummaryItem
       v-if="term"
       v-bind="term"
-      :title="
-        te(`product.terms.cycle.${term.cycle}`)
-          ? t(`product.terms.cycle.${term.cycle}`)
-          : term?.title
-      "
+      :title="t(`term.cycle_${term.cycle}`)"
       icon="configuration"
     />
 
@@ -43,7 +39,7 @@ import type { ComputedRef } from "vue";
 // --- props
 const props = defineProps<Product>();
 
-const { t, te } = useI18n();
+const { t } = useI18n();
 
 const styles = useStyles("summary.list", {}, config) as ComputedRef<{
   summary: {

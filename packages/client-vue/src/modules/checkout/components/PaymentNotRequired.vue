@@ -4,14 +4,14 @@
   >
     <div class="w-full">
       <div class="text-foreground font-medium">
-        {{ t("payment.noPayment.title") }}
+        {{ t("cart.nothing_to_pay_msg") }}
       </div>
       <div class="text-base-foreground">
-        {{ t("payment.noPayment.text") }}
+        {{ t("cart.place_order_desc") }}
       </div>
       <Button
         class="mt-4"
-        :label="t('payment.noPayment.action')"
+        :label="t('action.place_order')"
         color="primary"
         size="lg"
         @click="checkout"

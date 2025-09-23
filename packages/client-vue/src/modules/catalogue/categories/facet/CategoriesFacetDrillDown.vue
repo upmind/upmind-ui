@@ -100,7 +100,7 @@ const parentCategory = computed(() => {
 
   return {
     id: parentId,
-    label: t("product.back"),
+    label: t("action.back"),
     to: {
       name: ROUTE.CATALOGUE,
       query: {
