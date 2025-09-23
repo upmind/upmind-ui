@@ -1,3 +1,5 @@
+// --- external
+
 // --- internal
 import {
   useQuery,
@@ -5,7 +7,8 @@ import {
   useSystem,
   useSession,
   useFeedback,
-  type QueryParams
+  type QueryParams,
+  useI18n
 } from "../..";
 
 // --- utils
@@ -64,6 +67,7 @@ async function loadLookups({
   model,
   schema
 }: AddressContext): Promise<AddressContext> {
+  const { t } = useI18n();
   const { isReady, fetchCountries, fetchRegions, getCountry } = useSystem();
 
   // we have to do this synchronously as we need the values to be available for the model
@@ -71,7 +75,7 @@ async function loadLookups({
   await isReady().catch(error =>
     Promise.reject(
       new DetailedError(
-        "System not ready",
+        t("error.system_not_available"),
         responseCodes.Unauthorized,
         ErrorOrigin.Headless,
         error
@@ -88,12 +92,12 @@ async function loadLookups({
   ]);
 
   if (!countries || !regions) {
+    const message = !countries
+      ? t("error.countries_not_available")
+      : t("error.regions_not_available");
+
     return Promise.reject(
-      new DetailedError(
-        "Failed to load address lookups",
-        responseCodes.No_Content,
-        ErrorOrigin.Headless
-      )
+      new DetailedError(message, responseCodes.No_Content, ErrorOrigin.Headless)
     );
   }
 
@@ -152,6 +156,7 @@ async function update(id: Address["id"], data: AddressModel) {
 }
 
 async function ensure(model: AddressModel): Promise<Address> {
+  const { t } = useI18n();
   const { data, promise } = loadList();
   await promise.value.finally(); // wait for the query to resolve
   const { findOne } = useCollection<Address>(
@@ -166,7 +171,7 @@ async function ensure(model: AddressModel): Promise<Address> {
   return add(model).then(raw => {
     if (isEmpty(raw))
       throw new DetailedError(
-        "Failed to ensure Address",
+        t("error.client_address_not_available"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless,
         { model }
@@ -178,6 +183,7 @@ async function ensure(model: AddressModel): Promise<Address> {
 }
 
 function remove(addressId: Address["id"]) {
+  const { t } = useI18n();
   const { meta, user } = useSession();
   const { mutate, useUrl } = useQuery();
 
@@ -195,20 +201,21 @@ function remove(addressId: Address["id"]) {
       addError({
         title: isString(error)
           ? error
-          : error?.title || "We experienced an error removing this address",
+          : error?.title || t("error.client_address_update_failed"),
         copy: error?.message,
         data: error?.data
       });
     },
     onSuccess(data) {
       invalidateQueryByKey(queryKey, { exact: false })(data);
-      addSuccess("Successfully removed address");
+      addSuccess(t("confirm.address_removed"));
     },
     withAccessToken: true
   });
 }
 
 function setDefault(addressId: Address["id"]) {
+  const { t } = useI18n();
   const { meta, user } = useSession();
   const { mutate, useUrl } = useQuery();
 
@@ -227,15 +234,14 @@ function setDefault(addressId: Address["id"]) {
       addError({
         title: isString(error)
           ? error
-          : error?.title ||
-            "We experienced an error setting this address as default",
+          : error?.title || t("error.client_address_set_default_failed"),
         copy: error?.message,
         data: error?.data
       });
     },
     onSuccess(data) {
       invalidateQueryByKey(queryKey, { exact: false })(data);
-      addSuccess("Successfully set address as default");
+      addSuccess(t("confirm.address_set_default"));
     },
     withAccessToken: true
   });
@@ -282,6 +288,7 @@ async function parse(
 }
 
 async function validate({ schema, model }: Partial<AddressContext>) {
+  const { t } = useI18n();
   if (!schema) return Promise.resolve(model);
 
   // Now validate the model as per normal
@@ -292,7 +299,7 @@ async function validate({ schema, model }: Partial<AddressContext>) {
     if (errors?.length) {
       reject(
         new DetailedError(
-          "Address validation failed",
+          t("error.client_address_validation_failed"),
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
           errors
@@ -337,6 +344,8 @@ export default {
 };
 
 export const useClientAddressServices = () => {
+  const { t } = useI18n();
+
   return {
     // --- methods
 
@@ -345,11 +354,11 @@ export const useClientAddressServices = () => {
      * @param {Partial<AddressContext>} param0 - The address context containing the model to add.
      * @returns {Promise<any>} The result of the add operation.
      */
-    add: async ({ model }: Partial<AddressContext>) => {
+    add: async ({ model }: Partial<AddressContext>): Promise<any> => {
       if (isEmpty(model))
         return Promise.reject(
           new DetailedError(
-            "Add Address failed: model provided",
+            t("error.client_address_not_available"),
             responseCodes.No_Content,
             ErrorOrigin.Headless,
             { model }
@@ -368,7 +377,7 @@ export const useClientAddressServices = () => {
       if (isEmpty(model))
         return Promise.reject(
           new DetailedError(
-            "Ensure Address failed: model provided",
+            t("error.client_address_not_available"),
             responseCodes.No_Content,
             ErrorOrigin.Headless,
             { model }
@@ -404,11 +413,11 @@ export const useClientAddressServices = () => {
      * @param {Partial<AddressContext>} param0 - The address context containing id and model.
      * @returns {Promise<any>} The result of the update operation.
      */
-    update: async ({ id, model }: Partial<AddressContext>) => {
+    update: async ({ id, model }: Partial<AddressContext>): Promise<any> => {
       if (!id || isEmpty(model))
         return Promise.reject(
           new DetailedError(
-            "Update Address failed: No id or model provided",
+            t("error.client_address_not_available"),
             responseCodes.No_Content,
             ErrorOrigin.Headless,
             { id, model }

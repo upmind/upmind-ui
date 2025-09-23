@@ -5,13 +5,10 @@
         v-bind="props"
         :animatedIcon="animatedIcon"
         :actions="actions"
-        :title="t(`${safeKey}.title`)"
-        :text="t(`${safeKey}.text`)"
+        :title="title"
+        :text="text"
         data-testid="error"
       >
-        <template #title>
-          <SmartTitle :i18n-key="`${safeKey}.title`" align="center" />
-        </template>
       </Interstitial>
     </ContentSection>
   </Layout>
@@ -20,7 +17,6 @@
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
-import { useRouter } from "vue-router";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // -- components
@@ -29,17 +25,16 @@ import {
   type InterstitialActionProps,
   Layout
 } from "@upmind-automation/upmind-ui";
-import SmartTitle from "../../components/content/SmartTitle.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
 
 // -- types
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 import { computed } from "vue";
-import { isEmpty, isNil } from "lodash-es";
-import { useBrand } from "@upmind-automation/headless";
+import { isNil } from "lodash-es";
+import { utils, useBrand } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
-const { t, tm } = useI18n();
-const router = useRouter();
+const { t } = useI18n();
+const { responseCodes } = utils;
 const { storefrontRoute } = useBrand();
 
 const props = withDefaults(
@@ -64,22 +59,84 @@ const props = withDefaults(
   }
 );
 
-const useGeneric = computed(() => {
-  return !useStatus.value && !useProvided.value;
-});
-const useProvided = computed(() => {
-  if (!props.i18nKey) return false;
-  const messages = tm(props.i18nKey);
-  return !isEmpty(messages);
-});
-const useStatus = computed(() => {
-  return !isEmpty(tm(`errors.${props.status}`));
+const title = computed(() => {
+  if (props.i18nKey) return t(`${props.i18nKey}.title_md`);
+  switch (props.status) {
+    case responseCodes.Unauthorized:
+      return t("error.401.title_md");
+    case responseCodes.Forbidden:
+      return t("error.403.title_md");
+    case responseCodes.Not_Found:
+      return t("error.404.title_md");
+    case responseCodes.Too_Many_Requests:
+      return t("error.429.title_md");
+    case responseCodes.Internal_Server_Error:
+      return t("error.500.title_md");
+    case responseCodes.Service_Unavailable:
+      return t("error.503.title_md");
+    default:
+      return t("error.generic.title_md");
+  }
 });
 
-const safeKey = computed(() => {
-  if (useProvided.value) return props.i18nKey;
-  if (useStatus.value) return `errors.${props.status}`;
-  if (useGeneric.value) return "errors.generic";
+const text = computed(() => {
+  if (props.i18nKey) return t(`${props.i18nKey}.text`);
+  switch (props.status) {
+    case responseCodes.Unauthorized:
+      return t("error.404.text");
+    case responseCodes.Forbidden:
+      return t("error.403.text");
+    case responseCodes.Not_Found:
+      return t("error.404.text");
+    case responseCodes.Too_Many_Requests:
+      return t("error.429.text");
+    case responseCodes.Internal_Server_Error:
+      return t("error.500.text");
+    case responseCodes.Service_Unavailable:
+      return t("error.503.text");
+    default:
+      return t("error.generic.text");
+  }
+});
+
+const icon = computed(() => {
+  if (props.i18nKey) return t(`${props.i18nKey}.icon`);
+  switch (props.status) {
+    case responseCodes.Unauthorized:
+      return t("error.401.icon");
+    case responseCodes.Forbidden:
+      return t("error.403.icon");
+    case responseCodes.Not_Found:
+      return t("error.404.icon");
+    case responseCodes.Too_Many_Requests:
+      return t("error.429.icon");
+    case responseCodes.Internal_Server_Error:
+      return t("error.500.icon");
+    case responseCodes.Service_Unavailable:
+      return t("error.503.icon");
+    default:
+      return t("error.generic.icon");
+  }
+});
+
+const action = computed(() => {
+  if (props.i18nKey) return t(`${props.i18nKey}.action`);
+  switch (props.status) {
+    case responseCodes.Unauthorized:
+      return t("error.404.action");
+    case responseCodes.Forbidden:
+      return t("error.403.action");
+    case responseCodes.Not_Found:
+      return t("error.404.action");
+    case responseCodes.Too_Many_Requests:
+      return t("error.429.action");
+    case responseCodes.Internal_Server_Error:
+      return t("error.500.action");
+    case responseCodes.Service_Unavailable:
+      return t("error.503.action");
+    default:
+      return t("error.generic.action");
+  }
 });
 
 const animatedIcon = computed(() => ({
@@ -90,22 +147,14 @@ const animatedIcon = computed(() => ({
   size: props.animatedIcon.size
 }));
 
-const translations = computed(() => {
-  return {
-    title: t(`${safeKey.value}.title`),
-    text: t(`${safeKey.value}.text`),
-    action: t(`${safeKey.value}.action`)
-  };
-});
-
 const actions = computed((): InterstitialActionProps[] => {
   let route = storefrontRoute.value;
 
   switch (props.status) {
     // for service errors, we want to reload the page as its likely a temporary issue
-    case 401:
-    case 500:
-    case 503:
+    case responseCodes.Unauthorized:
+    case responseCodes.Service_Unavailable:
+    case responseCodes.Internal_Server_Error:
       route = {
         href: window.location.href
       };
@@ -120,9 +169,10 @@ const actions = computed((): InterstitialActionProps[] => {
   const defaultAction: InterstitialActionProps = {
     ...route,
     color: "secondary",
-    icon: t(`${safeKey.value}.icon`),
-    label: translations.value.action
+    icon: icon.value,
+    label: action.value
   };
+
   return isNil(props.actions) ? [defaultAction] : props.actions;
 });
 </script>

@@ -1,7 +1,7 @@
 <template>
   <footer class="flex flex-col gap-2 md:flex-row md:justify-start">
     <Button
-      :label="t(`client.${type}.actions.resolve`)"
+      :label="t('action.save_details')"
       color="primary"
       size="lg"
       :disabled="props.disabled || props.loading"
@@ -9,7 +9,7 @@
       @click="emits('save')"
     />
     <Button
-      :label="t(`client.${type}.actions.reject`)"
+      :label="t('text.cancel')"
       color="primary"
       variant="ghost"
       size="lg"

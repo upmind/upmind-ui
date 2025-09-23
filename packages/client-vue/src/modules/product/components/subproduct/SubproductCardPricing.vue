@@ -9,7 +9,7 @@
     <Tooltip
       v-if="props.meta?.overrides && props.price"
       to="#vue-app"
-      :label="t('product.overrides')"
+      :label="t('text.overrides_price')"
       color="primary"
     >
       <span class="flex items-center justify-center hover:cursor-help">
@@ -24,7 +24,12 @@
       </span>
     </Tooltip>
 
-    <Tooltip v-else to="#vue-app" :label="t('product.adds')" color="primary">
+    <Tooltip
+      v-else
+      to="#vue-app"
+      :label="t('text.adds_to_price')"
+      color="primary"
+    >
       <span class="hover:cursor-help">
         <span>+</span
         ><CurrentPrice

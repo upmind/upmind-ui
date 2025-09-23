@@ -1,8 +1,9 @@
 // --- external
-import { ref, computed, toRaw } from "vue";
+import { ref, computed } from "vue";
 
 // --- internal
 import services, { stores } from "./services";
+import { useI18n } from "./localisation";
 import { useBrand } from "../brand";
 import { invalidateQueryByKey } from "../query";
 
@@ -233,6 +234,7 @@ export const useSystem = () => {
   }
 
   async function fetchLanguages(): Promise<ILanguage[]> {
+    const { t } = useI18n();
     try {
       if (!languagesQuery.value) {
         languagesQuery.value = services.fetchLanguages();
@@ -246,7 +248,7 @@ export const useSystem = () => {
       return languages.value as ILanguage[];
     } catch (e) {
       const error = mapToHeadlessError(e);
-      addError(error?.message || "Failed to fetch languages");
+      addError(error?.message || t("error.language_load_failed"));
       return [];
     }
   }

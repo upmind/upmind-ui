@@ -1,10 +1,11 @@
 // --- external
-import { interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
+import { interpret } from "xstate";
 
 // --- internal
-import productMachine from "../product/product.machine";
+import { useI18n } from "../system";
 import { useBasket } from "../basket";
+import productMachine from "../product/product.machine";
 import { useProductConfig } from "../product";
 
 // --- utils
@@ -19,15 +20,16 @@ import {
 import { isEmpty, get, add, subtract } from "lodash-es";
 
 // --- types
-import type { InterpreterFrom } from "xstate";
 import type { Product } from "../product";
 // -----------------------------------------------------------------------------
 
 export const useBasketProduct = (bpid: string) => {
+  const { t } = useI18n();
   const { basket: rawBasket, errors } = useBasket();
+
   if (!rawBasket.value)
     throw new DetailedError(
-      "No Basket found",
+      t("error.basket_not_available"),
       responseCodes.Not_Found,
       ErrorOrigin.Headless
     );
@@ -36,7 +38,7 @@ export const useBasketProduct = (bpid: string) => {
 
   if (isEmpty(rawBasketProduct))
     throw new DetailedError(
-      "No Basket Product found",
+      t("error.basket_product_not_found"),
       responseCodes.Not_Found,
       ErrorOrigin.Headless
     );
@@ -73,7 +75,7 @@ export const useBasketProduct = (bpid: string) => {
       if (!product)
         return reject(
           new DetailedError(
-            "Product not found",
+            t("error.product_not_available"),
             responseCodes.Not_Found,
             ErrorOrigin.Headless
           )
@@ -93,7 +95,7 @@ export const useBasketProduct = (bpid: string) => {
         ) {
           return Promise.reject(
             new DetailedError(
-              "Update in useBasketProduct not in a valid state.",
+              t("error.basket_product_update_failed"),
               responseCodes.Unprocessable_Entity,
               ErrorOrigin.Headless,
               state.context.error
@@ -105,7 +107,7 @@ export const useBasketProduct = (bpid: string) => {
       .catch(error => {
         return Promise.reject(
           new DetailedError(
-            "Update in useBasketProductPending not in a valid state.",
+            t("error.basket_product_pending_update_failed"),
             responseCodes.Unprocessable_Entity,
             ErrorOrigin.Headless
           )
@@ -125,7 +127,7 @@ export const useBasketProduct = (bpid: string) => {
         if (!product?.productDetails.quantifiable)
           return Promise.reject(
             new DetailedError(
-              "Product not quantifiable",
+              t("error.product_quantifiable_not_available"),
               responseCodes.Unprocessable_Entity,
               ErrorOrigin.Headless
             )
@@ -145,7 +147,7 @@ export const useBasketProduct = (bpid: string) => {
         if (!product?.productDetails.quantifiable)
           return Promise.reject(
             new DetailedError(
-              "Product not quantifiable",
+              t("error.product_quantifiable_not_available"),
               responseCodes.Unprocessable_Entity,
               ErrorOrigin.Headless
             )
@@ -169,7 +171,7 @@ export const useBasketProduct = (bpid: string) => {
         if (!product?.productDetails.quantifiable)
           return Promise.reject(
             new DetailedError(
-              "Product not quantifiable",
+              t("error.product_quantifiable_not_available"),
               responseCodes.Unprocessable_Entity,
               ErrorOrigin.Headless
             )

@@ -140,22 +140,22 @@ const getContent = computed(() => {
   if (props.meta.owned) {
     return {
       icon: "lock",
-      label: t("domain.card.owned.label")
+      label: t("confirm.in_use")
     };
   } else if (props.meta.added) {
     return {
       icon: "check-circle-solid",
-      label: t("domain.card.basket.label")
+      label: t("confirm.in_basket")
     };
   } else if (props.meta.available) {
     return {
       icon: "check-circle",
-      label: t("domain.card.available.label")
+      label: t("text.available")
     };
   } else {
     return {
       icon: "transfer",
-      label: t("domain.card.transfer.label")
+      label: t("text.taken")
     };
   }
 });

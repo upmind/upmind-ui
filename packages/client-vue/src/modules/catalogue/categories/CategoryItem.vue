@@ -4,7 +4,7 @@
     variant="outline"
     color="base"
     :class="styles.categories.item.root"
-    :aria-label="t('product.category.select', { name })"
+    :aria-label="t('action.category_select', { name })"
     :to="{
       name: ROUTE.CATALOGUE,
       query: {

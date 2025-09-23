@@ -387,7 +387,7 @@ export default createMachine(
             clientId: client_id,
             currencyId: currency_id,
             currencyCode: undefined, // we reset any given currency code after refresh to prevent going out of sync
-            promotions: uniq(concat(promotions ?? [], coupons ?? [])),
+            promotions: promotions ?? [],
             coupons: coupons ?? [],
             rawBasketProduct: rawBasketProduct ?? basket_product, // ensure we honoure any given basket product
             baseModel: basket_product

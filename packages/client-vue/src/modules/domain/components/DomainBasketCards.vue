@@ -43,7 +43,6 @@ const emit = defineEmits<{
 
 const props = withDefaults(
   defineProps<{
-    i18nKey?: string;
     modelValue?: string;
     items?: DomainProduct[];
     loading?: boolean;
@@ -51,7 +50,6 @@ const props = withDefaults(
     disabled?: boolean;
   }>(),
   {
-    i18nKey: "domain.listings",
     modelValue: "",
     loading: false,
     processing: false,

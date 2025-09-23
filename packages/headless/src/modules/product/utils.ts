@@ -1,6 +1,6 @@
 // --- internal
-import { useSystem } from "../system";
 import { useBrand } from "../brand";
+import { useI18n, useSystem } from "../system";
 
 // --- utils
 import {
@@ -321,11 +321,13 @@ export const calculateBillingTerm = (
   period: DefaultPaymentPeriod | undefined,
   available: TermDetails[]
 ): TermDetails => {
+  const { t } = useI18n();
+
   // because we have multiple options, we need to select one base don the following strategy:
 
   if (isEmpty(available))
     throw new DetailedError(
-      "Get BillingTerms failed",
+      t("error.terms_not_available"),
       responseCodes.Not_Found,
       ErrorOrigin.Headless
     );
@@ -355,7 +357,7 @@ export const calculateBillingTerm = (
 
   if (isEmpty(term))
     throw new DetailedError(
-      "Get Billing Terms failed",
+      t("error.terms_not_available"),
       responseCodes.Not_Found,
       ErrorOrigin.Headless
     );

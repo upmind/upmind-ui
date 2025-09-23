@@ -5,6 +5,7 @@ import { waitFor } from "xstate/lib/waitFor";
 import { interpret, InterpreterStatus } from "xstate";
 
 // --- internal
+import { useI18n } from "../localisation";
 import uploadMachine from "./upload.machine";
 
 // --- utils
@@ -17,10 +18,8 @@ import {
   DetailedError,
   responseCodes
 } from "../../../utils";
-import { get, isEmpty } from "lodash-es";
 
 // --- types
-import type { InterpreterFrom } from "xstate";
 
 // -----------------------------------------------------------------------------
 
@@ -29,6 +28,7 @@ import type { InterpreterFrom } from "xstate";
 // and we need to be able to start and stop them individually
 
 export const useUpload = (field?: object) => {
+  const { t } = useI18n();
   const context = {
     field
   };
@@ -78,7 +78,7 @@ export const useUpload = (field?: object) => {
       .catch(error => {
         return Promise.reject(
           new DetailedError(
-            error?.message ?? `Fetch Upload failed`,
+            error?.message ?? t("error.system_upload_add_failed"),
             error?.type ?? responseCodes.Timeout,
             error
           )

@@ -1,8 +1,8 @@
 // --- external
 
 // --- internal
-import { useQuery } from "../..";
 import { useBrand } from "../brand";
+import { useI18n, useQuery } from "../..";
 
 // --- utils
 import { parseQuantity } from "../product/utils";
@@ -14,7 +14,11 @@ import {
   unflattenErrors,
   useTime
 } from "../../utils";
-import { parseBasketProductData, parseBasketProductError } from "./utils";
+import {
+  parseBasketProductData,
+  parseBasketProductError,
+  parsePromotionsOrCoupons
+} from "./utils";
 
 import {
   get,
@@ -66,10 +70,11 @@ async function fetch(
   },
   { data: { productId } }: { data: { productId: string } }
 ) {
+  const { t } = useI18n();
   if (!productId)
     return Promise.reject(
       new DetailedError(
-        "No Product ID provided",
+        t("error.product_not_available"),
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )
@@ -86,7 +91,7 @@ async function fetch(
   // ---
   const { get, useUrl } = useQuery();
   // lets ensure we parse our promotions correctly
-  const promocodes = map(promotions, "promotion.code").join();
+  const promocodes = parsePromotionsOrCoupons(promotions).join();
 
   const params = {
     currency_id: currency?.id,
@@ -149,10 +154,11 @@ async function fetchSelected(
   },
   { data: { productIds } }: { data: { productIds: string[] } }
 ): Promise<any> {
+  const { t } = useI18n();
   if (isEmpty(productIds))
     return Promise.reject(
       new DetailedError(
-        "No Product ID provided",
+        t("error.product_not_available"),
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )
@@ -182,7 +188,7 @@ async function fetchSelected(
   if (basketId) set(params, "basket_id", basketId);
 
   // lets ensure we parse our promotions correctly
-  const promocodes = map(promotions, "promotion.code").join();
+  const promocodes = parsePromotionsOrCoupons(promotions).join();
 
   return get({
     url: useUrl(`basket/products/`, params),
@@ -236,10 +242,11 @@ async function fetchRelated(
     };
   }
 ) {
+  const { t } = useI18n();
   if (!productId)
     return Promise.reject(
       new DetailedError(
-        "No Product ID provided",
+        t("error.product_not_available"),
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )
@@ -272,7 +279,7 @@ async function fetchRelated(
   if (basketId) set(params, "basket_id", basketId);
 
   // lets ensure we parse our promotions correctly
-  const promocodes = map(promotions, "promotion.code").join();
+  const promocodes = parsePromotionsOrCoupons(promotions).join();
 
   return get({
     url: useUrl(`basket/products/${productId}/related`, params),
@@ -316,11 +323,12 @@ async function updateQuantity(
   },
   { data }: { data: number }
 ): Promise<IBasket> {
+  const { t } = useI18n();
   // sanity check
   if (!basketId)
     return Promise.reject(
       new DetailedError(
-        "No basket provided/available",
+        t("error.basket_not_available"),
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )
@@ -328,7 +336,7 @@ async function updateQuantity(
   if (!basketProduct.productDetails)
     return Promise.reject(
       new DetailedError(
-        "No product details provided",
+        t("error.product_not_available"),
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )
@@ -336,7 +344,7 @@ async function updateQuantity(
   if (!basketProduct.productDetails?.quantifiable)
     return Promise.reject(
       new DetailedError(
-        "Product is not quantifiable",
+        t("error.product_quantifiable_not_available"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )
@@ -356,7 +364,7 @@ async function updateQuantity(
     .then(data => {
       if (isNil(data))
         throw new DetailedError(
-          "No data returned from the server",
+          t("error.basket_not_available"),
           responseCodes.Internal_Server_Error,
           ErrorOrigin.Headless
         );
@@ -389,11 +397,12 @@ async function update(
   },
   { data }: { data: ProductModel }
 ): Promise<IBasket> {
+  const { t } = useI18n();
   const { put, post, useUrl } = useQuery();
   if (!basketId)
     return Promise.reject(
       new DetailedError(
-        "No basket provided/available",
+        t("error.basket_not_available"),
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )
@@ -401,7 +410,7 @@ async function update(
   if (isEmpty(data))
     return Promise.reject(
       new DetailedError(
-        "No product data provided",
+        t("error.product_not_available"),
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )
@@ -422,7 +431,7 @@ async function update(
     .then(data => {
       if (isNil(data))
         throw new DetailedError(
-          "No data returned from the server",
+          t("error.basket_not_available"),
           responseCodes.Internal_Server_Error,
           ErrorOrigin.Headless
         );
@@ -449,10 +458,11 @@ async function updateMany(
   { basketId, basketProducts, promotions }: any,
   { data }: { data: ActorRef<any>[] }
 ): Promise<IBasket> {
+  const { t } = useI18n();
   if (!basketId)
     return Promise.reject(
       new DetailedError(
-        "No basket provided/available",
+        t("error.basket_not_available"),
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )
@@ -474,16 +484,18 @@ async function updateMany(
     item.send({ type: "PROCESSING" });
     // ---
     const model = get(item, "state.context.model");
+    const coupons = get(item, "state.context.coupons");
+
     if (!model)
       return Promise.reject(
         new DetailedError(
-          "No model found for the product",
+          t("error.product_not_available"),
           responseCodes.Not_Found,
           ErrorOrigin.Headless
         )
       );
     // ---
-    const product = parseBasketProductData(model, promotions);
+    const product = parseBasketProductData(model, coupons);
     // Add a flag to the product to indicate that the field values should NOT be validated.
     //  we want to ge these products in without deep validation
     set(product, "provision_field_values_validate", false);
@@ -526,7 +538,7 @@ async function updateMany(
 
       if (isNil(data))
         throw new DetailedError(
-          "No data returned from the server",
+          t("error.basket_not_available"),
           responseCodes.Internal_Server_Error,
           ErrorOrigin.Headless
         );
@@ -536,7 +548,7 @@ async function updateMany(
       forEach(validItems, item => item.send({ type: "CANCEL" }));
       return Promise.reject(
         new DetailedError(
-          "Error updating many products in the basket",
+          t("error.basket_product_update_failed"),
           responseCodes.Internal_Server_Error,
           ErrorOrigin.Headless
         )
@@ -560,11 +572,12 @@ async function remove({
   basketId: string;
   bpid: string;
 }): Promise<IBasket> {
+  const { t } = useI18n();
   const { del, useUrl } = useQuery();
   if (!bpid)
     return Promise.reject(
       new DetailedError(
-        "No Basket Product ID provided",
+        t("error.basket_product_not_available"),
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )
@@ -572,7 +585,7 @@ async function remove({
   if (!basketId)
     return Promise.reject(
       new DetailedError(
-        "No basket provided/available",
+        t("error.basket_not_available"),
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )
@@ -584,7 +597,7 @@ async function remove({
   }).then(data => {
     if (isNil(data))
       throw new DetailedError(
-        "No data returned from the server",
+        t("error.basket_not_available"),
         responseCodes.Internal_Server_Error,
         ErrorOrigin.Headless
       );

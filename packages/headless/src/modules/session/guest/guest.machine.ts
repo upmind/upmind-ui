@@ -13,7 +13,7 @@ import type {
   TWOFAModel
 } from "./types";
 
-import { useDataLayer } from "../../system";
+import { useDataLayer, useI18n } from "../../system";
 const { dataLayer } = useDataLayer();
 
 import { useFeedback } from "../../feedback";
@@ -27,7 +27,6 @@ import {
   mapToHeadlessError
 } from "../../../utils";
 const { setTopLevel: setCookie } = useCookies();
-
 import {
   use2faModelParser,
   use2faSchemaParser,
@@ -42,8 +41,8 @@ import {
   useRegisterSchemaParser,
   useRegisterUischemaParser
 } from "./utils";
-
 import { omit } from "lodash-es";
+
 // --- types
 import { responseCodes } from "../../../utils";
 import { GrantTypes } from "@upmind-automation/types";
@@ -361,7 +360,8 @@ export default createMachine(
       }),
 
       setFeedbackSuccess: (_context: GuestContext, _event: AnyEventObject) => {
-        addSuccess("Thanks – reset instructions have been sent to your email.");
+        const { t } = useI18n();
+        addSuccess(t("confirm.reset_instructions_sent_msg"));
       },
 
       setFeedbackError: ({ error }: GuestContext, _event: AnyEventObject) => {

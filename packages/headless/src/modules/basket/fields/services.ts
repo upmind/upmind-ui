@@ -1,7 +1,7 @@
 // --- external
 
 // --- internal
-import { useQuery } from "../../..";
+import { useI18n, useQuery } from "../../..";
 
 // --- utils
 import { get } from "lodash-es";
@@ -14,9 +14,9 @@ import {
 } from "../../../utils";
 
 // --- types
-import type { FieldsContext, FieldsModel } from "./types";
+import type { IBasket } from "@upmind-automation/types";
 import type { AnyEventObject } from "xstate";
-import { IBasket } from "@upmind-automation/types";
+import type { FieldsContext, FieldsModel } from "./types";
 
 // -----------------------------------------------------------------------------
 
@@ -69,8 +69,7 @@ async function validate(
   { schema, model }: FieldsContext,
   _event: AnyEventObject
 ) {
-  // ---
-
+  const { t } = useI18n();
   // Now validate the model as per normal
   const { validate } = useValidation();
 
@@ -81,7 +80,7 @@ async function validate(
     if (errors?.length) {
       reject(
         new DetailedError(
-          "Fields validation failed",
+          t("error.basket_fields_validation_failed"),
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
           errors

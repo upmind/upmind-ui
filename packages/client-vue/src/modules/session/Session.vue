@@ -25,7 +25,7 @@
         <template v-if="meta.isAuthenticated">
           <i18n-t
             :class="styles.session.text"
-            keypath="session.authenticated.footer.text"
+            keypath="action.sign_in_with_another_account"
             tag="p"
             scope="global"
           >
@@ -33,14 +33,14 @@
               <Button
                 variant="link"
                 @click.prevent="logout"
-                :label="t('session.authenticated.footer.action')"
+                :label="t('action.here')"
               />
             </template>
           </i18n-t>
 
           <i18n-t
             :class="styles.session.title"
-            keypath="session.authenticated.header.title"
+            keypath="text.welcome_back_msg"
             tag="h3"
             scope="global"
           >
