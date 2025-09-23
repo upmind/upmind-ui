@@ -6,7 +6,7 @@
   /* Primitive Colors - Primary */
   --color-primitive-primary-default: #0099ff;
   --color-primitive-primary-default-stop: #0055ff;
-  --color-primitive-primary-default-hover: #0055ff;
+  --color-primitive-primary-default-delta: #0055ff;
   --color-primitive-primary-default-contrast: #ffffff;
   --color-primitive-primary-muted: #1f1f1f;
   --color-primitive-primary-muted-contrast: #0099ff;
@@ -14,12 +14,12 @@
   /* Primitive Colors - Secondary */
   --color-primitive-secondary-default: #a77ff4;
   --color-primitive-secondary-default-stop: #a77ff4;
-  --color-primitive-secondary-default-hover: #a77ff4;
+  --color-primitive-secondary-default-delta: #a77ff4;
   --color-primitive-secondary-default-contrast: #ffffff;
 
   /* Primitive Colors - Neutral */
   --color-primitive-neutral-default: #eaeaf1;
-  --color-primitive-neutral-default-hover: #f8f8fb;
+  --color-primitive-neutral-default-delta: #f8f8fb;
   --color-primitive-neutral-default-contrast: #262626;
   --color-primitive-neutral-muted: #3d3d3d;
   --color-primitive-neutral-muted-hover: #484848;
@@ -33,7 +33,7 @@
 
   /* Primitive Colors - Danger */
   --color-primitive-danger-default: #fa2f62;
-  --color-primitive-danger-default-hover: #ef0640;
+  --color-primitive-danger-default-delta: #ef0640;
   --color-primitive-danger-default-contrast: #fff5f7;
   --color-primitive-danger-muted: #1f1f1f;
   --color-primitive-danger-muted-contrast: #fa2f62;
@@ -80,10 +80,10 @@
     --color-primitive-primary-default-stop
   );
   --color-background-button-primary-hover-0: var(
-    --color-primitive-primary-default-hover
+    --color-primitive-primary-default-delta
   );
   --color-background-button-primary-hover-1: var(
-    --color-primitive-primary-default-hover
+    --color-primitive-primary-default-delta
   );
   --color-background-button-secondary-ring: var(
     --color-primitive-secondary-default-stop
@@ -95,10 +95,10 @@
     --color-primitive-secondary-default-stop
   );
   --color-background-button-secondary-hover-0: var(
-    --color-primitive-secondary-default-hover
+    --color-primitive-secondary-default-delta
   );
   --color-background-button-secondary-hover-1: var(
-    --color-primitive-secondary-default-hover
+    --color-primitive-secondary-default-delta
   );
   --color-background-button-neutral-ring: var(
     --color-primitive-neutral-default
@@ -106,10 +106,10 @@
   --color-background-button-neutral-0: var(--color-primitive-neutral-default);
   --color-background-button-neutral-1: var(--color-primitive-neutral-default);
   --color-background-button-neutral-hover-0: var(
-    --color-primitive-neutral-default-hover
+    --color-primitive-neutral-default-delta
   );
   --color-background-button-neutral-hover-1: var(
-    --color-primitive-neutral-default-hover
+    --color-primitive-neutral-default-delta
   );
   --color-background-button-subtle-ring: var(--color-primitive-neutral-default);
   --color-background-button-subtle-0: var(
@@ -128,10 +128,10 @@
   --color-background-button-danger-0: var(--color-primitive-danger-default);
   --color-background-button-danger-1: var(--color-primitive-danger-default);
   --color-background-button-danger-hover-0: var(
-    --color-primitive-danger-default-hover
+    --color-primitive-danger-default-delta
   );
   --color-background-button-danger-hover-1: var(
-    --color-primitive-danger-default-hover
+    --color-primitive-danger-default-delta
   );
   --color-background-button-outline: transparent;
   --color-background-button-outline-hover: var(
