@@ -1,5 +1,6 @@
 @layer utilities {
   .primary-stroke {
+    border: var(--stroke-badge) solid transparent;
     background:
       linear-gradient(
           var(--color-background-surface),
