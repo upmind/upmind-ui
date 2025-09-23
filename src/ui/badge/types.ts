@@ -14,9 +14,9 @@ export interface BadgeProps {
   icon?: string | Icon;
   appendIcon?: string | Icon;
   // --- variants
-  color?: BadgeVariantProps["color"] | string;
-  variant?: BadgeVariantProps["variant"] | string;
-  size?: BadgeVariantProps["size"] | string;
+  color?: BadgeVariantProps["color"];
+  variant?: BadgeVariantProps["variant"];
+  size?: BadgeVariantProps["size"];
   // --- styles
   uiConfig?: { badge: CxOptions };
   class?: HTMLAttributes["class"];
