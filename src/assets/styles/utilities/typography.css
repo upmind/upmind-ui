@@ -79,4 +79,8 @@
     font-size: var(--text-6xl);
     line-height: var(--text-6xl--line-height-loose);
   }
+
+  .text-base {
+    color: var(--color-text-base);
+  }
 }
