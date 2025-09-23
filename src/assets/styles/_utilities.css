@@ -3,6 +3,8 @@
 @import "./utilities/shadow.css";
 @import "./utilities/button.css";
 @import "./utilities/control.css";
+@import "./utilities/radius.css";
+@import "./utilities/border.css";
 
 @layer utilities {
   .autofill:has(input:autofill) {

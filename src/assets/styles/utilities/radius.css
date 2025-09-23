@@ -1,0 +1,25 @@
+@layer utilities {
+  .badge-radius {
+    border-radius: var(--badge-radius);
+  }
+
+  .control-radius {
+    border-radius: var(--control-radius);
+  }
+
+  .button-radius {
+    border-radius: var(--button-radius);
+  }
+
+  .image-radius {
+    border-radius: var(--image-radius);
+  }
+
+  .card-radius {
+    border-radius: var(--card-radius);
+  }
+
+  .message-radius {
+    border-radius: var(--message-radius);
+  }
+}

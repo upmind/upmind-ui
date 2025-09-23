@@ -1,0 +1,20 @@
+@layer utilities {
+  .primary-stroke {
+    background:
+      linear-gradient(
+          var(--color-background-surface),
+          var(--color-background-surface)
+        )
+        padding-box,
+      linear-gradient(
+          to right,
+          var(--color-primitive-primary-default),
+          var(--color-primitive-primary-default-stop)
+        )
+        border-box;
+  }
+
+  .stroke-badge {
+    border-width: var(--stroke-badge);
+  }
+}
