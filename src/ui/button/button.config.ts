@@ -25,7 +25,7 @@ export const rootVariants = cva(
         danger:
           "button-radius from-background-button-danger-0 to-background-button-danger-1 text-text-button-danger [&:hover,&[data-hover=true]]:from-background-button-danger-hover-0 [&:hover,&[data-hover=true]]:to-background-button-danger-hover-1 ring-background-button-danger-ring! bg-gradient-to-br",
         outline:
-          "button-radius bg-background-button-outline text-text-button-outline border-button-outline [&:hover,&[data-hover=true]]:bg-background-button-outline-hover ring-background-button-outline-ring! border-border-button-outline border",
+          "button-radius bg-background-button-outline text-text-button-outline border-button-outline [&:hover,&[data-hover=true]]:bg-background-button-outline-hover ring-background-button-outline-ring! shadow-border-border-button-outline",
         ghost:
           "button-radius bg-background-button-ghost text-text-button-ghost [&:hover,&[data-hover=true]]:bg-background-button-ghost-hover ring-background-button-ghost-ring!",
         link: "button-radius text-text-button-link [&:hover,&[data-hover=true]]:text-text-button-link-hover [&:focus,&[data-focus=true]]:text-text-button-link-hover p-0 underline underline-offset-4 !shadow-none !ring-0 !ring-offset-0 !outline-none",
