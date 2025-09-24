@@ -85,11 +85,11 @@ export const numberFieldRootVariants = cva("group inline-block w-full", {
 });
 
 export const numberFieldVariants = cva(
-  `${groupRingClasses} text-control-foreground placeholder:text-muted-foreground bg-background-control-surface inline-flex w-full rounded-lg border-none text-center font-medium text-inherit file:border-0 file:bg-transparent file:text-sm file:font-medium`,
+  `${groupRingClasses} text-control-foreground placeholder:text-muted-foreground inline-flex w-full rounded-lg border-none text-center font-medium text-inherit file:border-0 file:bg-transparent file:text-sm file:font-medium`,
   {
     variants: {
       variant: {
-        flat: "shadow-border-border-control-default",
+        flat: "shadow-border-border-control-default bg-background-control-surface",
         minimal: "shadow-none!"
       },
       size: {
