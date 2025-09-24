@@ -51,9 +51,9 @@ export default {
     radio: cva("size-lh text-md/tight flex items-center justify-center"),
     content: {
       label: cva("text-md/tight text-text-display font-medium"),
-      sublabel: cva("text-md/tight text-text-display font-medium"),
-      labelRowA: cva("text-text-base text-sm/tight"),
-      labelRowB: cva("text-text-muted text-sm/tight")
+      secondaryLabel: cva("text-md/tight text-text-display font-medium"),
+      description: cva("text-text-base text-sm/tight"),
+      secondaryDescription: cva("text-text-muted text-sm/tight")
     }
   }
 };

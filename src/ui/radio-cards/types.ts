@@ -12,8 +12,12 @@ export interface RadioCardsItemProps extends RadioGroupItemProps {
   item: any;
   index: number;
   name?: string;
+  // ---
   label?: string;
-  sublabel?: string;
+  secondaryLabel?: string;
+  description?: string;
+  secondaryDescription?: string;
+  // ---
   required?: boolean;
   disabled?: boolean;
   modelValue: any;

@@ -26,32 +26,41 @@
       <div class="flex w-full items-start gap-4">
         <div class="flex flex-1 flex-col">
           <header
-            v-if="props.label || props.sublabel"
+            v-if="props.label || props.secondaryLabel"
             class="flex items-center justify-between"
           >
             <span class="flex gap-2">
-              <h5 :class="styles.radioCards.content.label">Label left</h5>
+              <h5 :class="styles.radioCards.content.label">
+                {{ props.label }}
+              </h5>
+              <Badge v-if="props.badge" v-bind="props.badge" size="sm" />
+            </span>
+            <span class="flex gap-2">
+              <h5 :class="styles.radioCards.content.sublabel">
+                {{ props.secondaryLabel }}
+              </h5>
               <Badge
-                variant="muted"
-                color="primary"
-                label="Default"
+                v-if="props.secondaryBadge"
+                v-bind="props.secondaryBadge"
                 size="sm"
               />
             </span>
-            <span class="flex gap-2">
-              <h5 :class="styles.radioCards.content.sublabel">Label right</h5>
-              <Badge variant="muted" color="promo" label="Default" size="sm" />
-            </span>
           </header>
-          <p v-if="props.sublabel" :class="styles.radioCards.content.labelRowA">
-            Content for sub-row A
+          <p
+            v-if="props.description"
+            :class="styles.radioCards.content.description"
+          >
+            {{ props.description }}
           </p>
-          <p v-if="props.sublabel" :class="styles.radioCards.content.labelRowB">
-            Content for sub-row B
+          <p
+            v-if="props.secondaryDescription"
+            :class="styles.radioCards.content.secondaryDescription"
+          >
+            {{ props.secondaryDescription }}
           </p>
         </div>
-        <div>
-          <Button variant="muted-link" label="Edit" />
+        <div v-if="props.action">
+          <Button v-bind="props.action" />
         </div>
       </div>
     </slot>
@@ -117,8 +126,8 @@ const styles = useStyles(
     content: {
       label: string;
       sublabel: string;
-      labelRowA: string;
-      labelRowB: string;
+      description: string;
+      secondaryDescription: string;
     };
   };
 }>;
