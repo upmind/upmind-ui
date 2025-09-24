@@ -36,14 +36,14 @@
               <Badge v-if="props.badge" v-bind="props.badge" size="sm" />
             </span>
             <span class="flex gap-2">
-              <h5 :class="styles.radioCards.content.sublabel">
-                {{ props.secondaryLabel }}
-              </h5>
               <Badge
                 v-if="props.secondaryBadge"
                 v-bind="props.secondaryBadge"
                 size="sm"
               />
+              <h5 :class="styles.radioCards.content.sublabel">
+                {{ props.secondaryLabel }}
+              </h5>
             </span>
           </header>
           <p
@@ -60,7 +60,12 @@
           </p>
         </div>
         <div v-if="props.action">
-          <Button v-bind="props.action" />
+          <Button
+            variant="muted-link"
+            :label="props.action"
+            size="sm"
+            @click="onAction"
+          />
         </div>
       </div>
     </slot>
@@ -94,7 +99,7 @@ const props = withDefaults(defineProps<RadioCardsItemProps>(), {
   isList: false
 });
 
-const emits = defineEmits(["focus"]);
+const emits = defineEmits(["focus", "action"]);
 
 const isSelected = computed(() => {
   return props.modelValue === props.value;
@@ -132,9 +137,9 @@ const styles = useStyles(
   };
 }>;
 
-const label = computed(() => {
-  return props.label || props.item.label;
-});
+const onAction = () => {
+  emits("action", props.value);
+};
 
 const onBlur = (e: FocusEvent) => {
   if (props.disabled) {
