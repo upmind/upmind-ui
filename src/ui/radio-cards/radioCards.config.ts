@@ -50,7 +50,7 @@ export default {
     item: itemVariants,
     radio: cva("size-lh flex items-center justify-center"),
     input: cva(
-      `shadow-border-border-control leading-normal ring-offset-2 [transition:border-color_200ms_ease-in-out] ${ringClasses}`
+      `shadow-border-border-control-default-default leading-normal ring-offset-2 [transition:border-color_200ms_ease-in-out] ${ringClasses}`
     ),
     sublabel: cva("text-text-muted m-0 mx-2 self-end text-sm")
   }

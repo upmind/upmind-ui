@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export const switchVariants = cva(
-  "shadow-border-border-control data-[state=checked]:bg-control-active data-[state=unchecked]:bg-control-foreground w-11!"
+  "shadow-border-border-control-default data-[state=checked]:bg-control-active data-[state=unchecked]:bg-control-foreground w-11!"
 );
 
 // -----------------------------------------------------------------------------

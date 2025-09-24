@@ -30,7 +30,7 @@ export const rootVariants = cva(
           "button-radius bg-background-button-ghost text-text-button-ghost [&:hover,&[data-hover=true]]:bg-background-button-ghost-hover ring-background-button-ghost-ring!",
         link: "button-radius text-text-button-link [&:hover,&[data-hover=true]]:text-text-button-link-hover [&:focus,&[data-focus=true]]:text-text-button-link-hover p-0 underline underline-offset-4 !shadow-none !ring-0 !ring-offset-0 !outline-none",
         control:
-          "control-radius shadow-border-border-control hover:border-border-control-hover ring-background-button-control-ring!"
+          "control-radius shadow-border-border-control-default hover:border-border-control-hover ring-background-button-control-ring!"
       },
       align: {
         left: "justify-start",

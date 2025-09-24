@@ -19,7 +19,7 @@
           cn(
             ringClasses,
             'ring-offset-background-control-surface',
-            'border-border-control bg-base-background text-control-foreground shadow-border-border-control flex aspect-square h-4 w-4 shrink-0 items-center justify-center rounded-sm group-disabled:cursor-not-allowed group-disabled:opacity-50',
+            'border-border-control bg-base-background text-control-foreground shadow-border-border-control-default flex aspect-square h-4 w-4 shrink-0 items-center justify-center rounded-sm group-disabled:cursor-not-allowed group-disabled:opacity-50',
             '[button[data-state=on]_&]:text-control-active-foreground [button[data-state=on]_&]:bg-control-active [button[data-state=off]_&]:text-transparent',
             props.class
           )

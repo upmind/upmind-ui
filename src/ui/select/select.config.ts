@@ -7,7 +7,7 @@ export const rootVariants = cva(
   {
     variants: {
       variant: {
-        outline: "shadow-border-border-control border-none",
+        outline: "shadow-border-border-control-default border-none",
         ghost: "border-none"
       },
       width: {

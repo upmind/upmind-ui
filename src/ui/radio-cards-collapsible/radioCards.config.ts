@@ -50,7 +50,7 @@ export default {
     item: itemVariants,
     radio: cva("size-lh flex items-center justify-center"),
     input: cva(
-      `shadow-border-border-control leading-normal [transition:border-color_200ms_ease-in-out]`
+      `shadow-border-border-control-default leading-normal [transition:border-color_200ms_ease-in-out]`
     )
   }
 };
