@@ -3,6 +3,25 @@
   --color-primary: #fa2f62;
   --color-secondary: #794dff;
 
+  /* Primitive Colors - Core */
+  --color-primitive-core-canvas: #1a1a1a;
+  --color-primitive-core-surface: #262626;
+  --color-primitive-core-base: #f8f8fb;
+  --color-primitive-core-display: #ffffff;
+  --color-primitive-core-faint: #707070;
+  --color-primitive-core-muted: #9d9da9;
+  --color-primitive-core-skeleton: #3d3d3d;
+  --color-primitive-core-overlay: #00000060;
+
+  /* Primitive Colors - Control */
+  --color-primitive-control-default: #0099ff;
+  --color-primitive-control-default-delta: #0091f2;
+  --color-primitive-control-default-contrast: #323232;
+  --color-primitive-control-muted: #484848;
+  --color-primitive-control-muted-contrast: #ffffff;
+  --color-primitive-control-stroke: #575757;
+  --color-primitive-control-stroke-delta: #707070;
+
   /* Primitive Colors - Primary */
   --color-primitive-primary-default: #0099ff;
   --color-primitive-primary-default-stop: #0055ff;
@@ -24,6 +43,8 @@
   --color-primitive-neutral-muted: #3d3d3d;
   --color-primitive-neutral-muted-hover: #484848;
   --color-primitive-neutral-muted-contrast: #eaeaf1;
+  --color-primitive-neutral-stroke: #3d3d3d;
+  --color-primitive-neutral-stroke-delta: #575757;
 
   /* Primitive Colors - Promo */
   --color-primitive-promo-default: #a379ff;
@@ -48,7 +69,7 @@
   --color-primitive-success-default: #00d88c;
   --color-primitive-success-default-contrast: #002c19;
   --color-primitive-success-muted: #1f1f1f;
-  --color-primitive-success-muted-contrast: var(--color-primitive-success);
+  --color-primitive-success-muted-contrast: #00d88c;
 
   /* Primitive Colors - Info */
   --color-primitive-info-default: #00acff;
@@ -57,19 +78,26 @@
   --color-primitive-info-muted-contrast: #00acff;
 
   /* Background Colors */
-  --color-background-canvas: #1a1a1a;
-  --color-background-surface: #262626;
+  --color-background-canvas: var(--color-primitive-core-canvas);
+  --color-background-surface: var(--color-primitive-core-surface);
   --color-background-surface-glass: #ffffff0a;
-  --color-background-skeleton: #3d3d3d;
-  --color-background-overlay: #00000060;
+  --color-background-skeleton: var(--color-primitive-core-skeleton);
+  --color-background-overlay: var(--color-primitive-core-overlay);
 
   /* Background - Control */
-  --color-background-control-surface: #323232;
-  --color-background-control-checked: #0099ff;
-  --color-background-control-checked-hover: #0091f2;
-  --color-background-control-unchecked: #575757;
-  --color-background-control-unchecked-hover: #707070;
-  --color-background-control-selected: #3d3d3d;
+  --color-background-control-checked: var(--color-primitive-control-default);
+  --color-background-control-checked-hover: var(
+    --color-primitive-control-default-delta
+  );
+  --color-background-control-unchecked: var(--color-primitive-control-stroke);
+  --color-background-control-unchecked-hover: var(
+    --color-primitive-control-stroke-delta
+  );
+  --color-background-control-selected: var(--color-primitive-control-muted);
+  --color-background-control-surface: var(
+    --color-primitive-control-default-contrast
+  );
+  --color-background-control-ring: var(--color-primitive-control-default);
 
   /* Background - Button */
   --color-background-button-primary-ring: var(
@@ -162,24 +190,23 @@
   --color-background-accent-info: var(--color-primitive-info-default);
   --color-background-accent-info-muted: var(--color-primitive-info-muted);
 
-  /* Ring Colors */
-  --color-ring-control: #0099ff;
-
   /* Border Colors */
-  --color-border-surface: #3d3d3d;
-  --color-border-base: #575757;
+  --color-border-surface: var(--color-primitive-neutral-stroke);
 
   /* Border - Button */
-  --color-border-button-outline: #575757;
-  --color-border-button-outline-hover: #707070;
+  --color-border-button-outline: var(--color-primitive-neutral-stroke);
+  --color-border-button-outline-hover: var(
+    --color-primitive-neutral-stroke-delta
+  );
 
   /* Border - Control */
-  --color-border-control-default: #575757;
-  --color-border-control-hover: #707070;
-  --color-border-control-selected: #ffffff80;
-  --color-border-control-active: #ffffff;
+  --color-border-control-default: var(--color-primitive-control-stroke);
+  --color-border-control-hover: var(--color-primitive-control-stroke-delta);
+  --color-border-control-selected: var(--color-primitive-control-default);
 
   /* Border - Accent */
+  --color-border-accent-primary: var(--color-primitive-primary-default);
+  --color-border-accent-secondary: var(--color-primitive-secondary-default);
   --color-border-accent-neutral: var(--color-primitive-neutral-default);
   --color-border-accent-promo: var(--color-primitive-promo-default);
   --color-border-accent-danger: var(--color-primitive-danger-default);
@@ -194,17 +221,13 @@
 
   /* Text Colors */
   --color-text-primary: #ffffff;
-  --color-text-secondary: #ffffff80;
-  --color-text-white: #ffffff;
-  --color-text-base: #f8f8fb;
-  --color-text-display: #ffffff;
-  --color-text-muted: #9d9da9;
-  --color-text-faint: #707070;
-  --color-text-danger: #fa2f62;
+  --color-text-base: var(--color-primitive-core-base);
+  --color-text-display: var(--color-primitive-core-display);
+  --color-text-muted: var(--color-primitive-core-muted);
+  --color-text-faint: var(--color-primitive-core-faint);
 
   /* Text - Control */
-  --color-text-control-selected: #ffffff;
-  --color-text-control-checked: #ffffff;
+  --color-text-control-selected: var(--color-primitive-control-muted-contrast);
 
   /* Text - Accent */
   --color-text-accent-primary: var(--color-primitive-primary-default);
@@ -258,19 +281,23 @@
   );
 
   /* Text - Button */
-  --color-text-button-primary: #ffffff;
-  --color-text-button-secondary: #002a8b;
-  --color-text-button-neutral: #1a1a1a;
+  --color-text-button-primary: var(--color-primitive-primary-default-contrast);
+  --color-text-button-secondary: var(
+    --color-primitive-secondary-default-contrast
+  );
+  --color-text-button-neutral: var(--color-primitive-neutral-default-contrast);
   --color-text-button-subtle: #f8f8fb;
-  --color-text-button-danger: #ffffff;
+  --color-text-button-danger: var(--color-primitive-danger-default-contrast);
   --color-text-button-danger-link: var(--color-primitive-danger-default);
-  --color-text-button-danger-link-hover: #fdaabf;
-  --color-text-button-outline: #ffffff;
-  --color-text-button-ghost: #ffffff;
-  --color-text-button-link: #ffffff;
-  --color-text-button-link-hover: #a78aff;
-  --color-text-button-muted-link: #9d9da9;
-  --color-text-button-muted-link-hover: #ffffff;
+  --color-text-button-danger-link-hover: var(
+    --color-primitive-danger-default-delta
+  );
+  --color-text-button-outline: var(--color-primitive-core-display);
+  --color-text-button-ghost: var(--color-primitive-core-display);
+  --color-text-button-link: var(--color-primitive-core-display);
+  --color-text-button-link-hover: var(--color-primitive-core-default);
+  --color-text-button-muted-link: var(--color-primitive-core-muted);
+  --color-text-button-muted-link-hover: var(--color-primitive-control-default);
 
   /* Radius Variables */
   --button-radius: 8px;
@@ -280,5 +307,7 @@
   --card-radius: 16px;
   --message-radius: 16px;
 
+  /* Stroke Variables */
+  --stroke-icon: 1px;
   --stroke-badge: 1px;
 }
