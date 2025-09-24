@@ -16,7 +16,10 @@
 
               <span
                 >{{ label }}
-                <FormRequiredIndicator v-if="meta.isRequired" :formItemId="id"
+                <FormRequiredIndicator
+                  v-if="meta.isRequired"
+                  :formItemId="id"
+                  :text="props.requiredText"
               /></span>
 
               <Tooltip
@@ -37,6 +40,7 @@
                 v-if="!meta.isRequired"
                 :formItemId="id"
                 class="ml-auto"
+                :text="props.optionalText"
               />
             </span>
           </slot>
