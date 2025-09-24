@@ -1,29 +1,33 @@
 import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
+const variants = {
+  variant: {
+    solid: "",
+    minimal: "",
+    muted: ""
+  },
+  color: {
+    primary: "",
+    neutral: "",
+    promo: "",
+    danger: "",
+    warning: "",
+    success: "",
+    info: ""
+  },
+  size: {
+    sm: "px-2 py-1 text-xs/tight font-semibold",
+    md: "px-3 py-1 text-sm/tight font-medium"
+  }
+};
+
+export { variants };
+
 export const badgeVariants = cva(
   "badge-radius inline-flex w-fit items-center whitespace-nowrap",
   {
-    variants: {
-      variant: {
-        solid: "",
-        minimal: "",
-        muted: ""
-      },
-      color: {
-        primary: "",
-        neutral: "",
-        promo: "",
-        danger: "",
-        warning: "",
-        success: "",
-        info: ""
-      },
-      size: {
-        sm: "px-2 py-1 text-xs/tight font-semibold",
-        md: "px-3 py-1 text-sm/tight font-medium"
-      }
-    },
+    variants,
     defaultVariants: {
       color: "primary",
       variant: "solid",
