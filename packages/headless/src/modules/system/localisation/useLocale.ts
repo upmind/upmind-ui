@@ -19,7 +19,7 @@ import {
   some,
   isNil,
   filter,
-  find
+  includes
 } from "lodash-es";
 import { useLocalStorage } from "../../../utils";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../../utils";
@@ -52,13 +52,22 @@ export const useLocale = () => {
   //     this is because the locale is tied to the account's preferred language
   //     and changing it while authenticated could lead to unwanted side effects
   const meta = computed(() => ({
-    isLoading: loading.value || sessionMeta.value.isLoading,
+    isLoading: loading.value,
     isAvailable:
-      !isEmpty(UpmindSupportedLocales) && !sessionMeta.value.isAuthenticated,
+      !isEmpty(UpmindSupportedLocales) &&
+      !sessionMeta.value.isAuthenticated &&
+      supportedLanguages.value.length > 1,
     hasLocale: !isEmpty(locale.value)
   }));
 
   // --- context
+
+  const supportedLanguages = computed(() => {
+    const { languages } = useBrand();
+    return filter(languages.value, ({ code }) =>
+      includes(UpmindSupportedLocales, code)
+    );
+  });
 
   // --- methods
 
@@ -225,7 +234,10 @@ export const useLocale = () => {
       await isReady();
       defaultLocale.value = value || defaultLocale.value;
       locale.value = getLocale();
-    }
+    },
+
+    /** The list of supported languages, filtered by the brand's supported languages. */
+    supportedLanguages
   };
 };
 

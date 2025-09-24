@@ -1,6 +1,6 @@
 <template>
   <Combobox
-    v-if="meta.isAvailable && (items?.length > 1 || meta.isLoading)"
+    v-if="meta.isAvailable || meta.isLoading"
     :modelValue="locale"
     :items="items"
     :loading="meta.isLoading"
@@ -15,7 +15,7 @@
 import { computed } from "vue";
 
 // --- internal
-import { useBrand, useLocale } from "@upmind-automation/headless";
+import { useLocale } from "@upmind-automation/headless";
 
 // --- components
 import { Combobox } from "@upmind-automation/upmind-ui";
@@ -42,16 +42,14 @@ const props = withDefaults(
   }
 );
 
-const { meta, languages } = useBrand();
-
-const { locale, setLocale } = useLocale();
+const { isReady, locale, setLocale, meta, supportedLanguages } = useLocale();
 
 function updateLocale(value: ILanguage["code"]) {
   setLocale(value);
 }
 
 const items = computed(() => {
-  return map(languages.value, item => {
+  return map(supportedLanguages.value, item => {
     return {
       avatar: {
         icon: last(split(item.code, "-"))?.toLowerCase()
@@ -63,4 +61,6 @@ const items = computed(() => {
     };
   }) as ComboboxItemProps[];
 });
+
+await isReady();
 </script>
