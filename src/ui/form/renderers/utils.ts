@@ -90,7 +90,15 @@ export const useUpmindUIRenderer = <
           ? jsonforms.i18n.translateError(
               error,
               jsonforms.i18n.translate,
-              input.control.value.schema
+              // NB we need tp provide the translated label as title for better error messages
+              //    we also provide the path so that we can use it in the i18n key if needed
+              //    these props are not part of the schema but we add them here for convenience
+              {
+                ...input.control.value.schema,
+                path: input.control.value.path,
+                title:
+                  input.control.value.label ?? input.control.value.schema.title
+              }
             )
           : undefined;
 

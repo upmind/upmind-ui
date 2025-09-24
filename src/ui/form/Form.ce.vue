@@ -298,7 +298,7 @@ function updateUischema(uischema: FormProps["uischema"]) {
 
     // map additional i18n, json forms just does title & description
     if (child?.i18n && isFunction(props?.i18n?.translate)) {
-      const value = props?.i18n?.translate(
+      const value = props.i18n.translate(
         child.i18n,
         child?.options?.title,
         model.value
@@ -307,12 +307,14 @@ function updateUischema(uischema: FormProps["uischema"]) {
     }
 
     // TODO: map additional form props that need to be inherited by all children
-    // eg: form size, show.hide required or optional indicicators, etc
+    // eg: form size, show.hide required or optional indicators, etc
+    if (props.optionalText) child.options.optionalText ??= props.optionalText;
+    if (props.requiredText) child.options.requiredText ??= props.requiredText;
   });
 }
 
 function syncUischema() {
-  // sync the uischema to the forms current uschema so that we ALWAYS have a uischema,
+  // sync the uischema to the forms current uischema so that we ALWAYS have a uischema,
   // this is important for us to be able to manipulate the form
   const currentUischema: UISchemaElement = get(
     jsonform.value,
@@ -326,6 +328,7 @@ function syncUischema() {
 
 onMounted(() => {
   syncUischema();
+  updateUischema(uischema.value);
 });
 // --- effects
 watch(
