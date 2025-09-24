@@ -51,6 +51,8 @@ export interface FormProps<T = Record<string, any>> {
   processing?: boolean;
   disabled?: boolean;
   touched?: boolean;
+  optionalText?: string;
+  requiredText?: string;
   // ---
   // --- Provide a way to add custom variants for a specific instance of the component
   uiConfig?: { form: CxOptions };
@@ -95,6 +97,8 @@ export interface FormControlProps extends InputProps {
   tags?: string[];
   description?: string;
   errors?: string | string[];
+  requiredText?: string;
+  optionalText?: string;
   // --- variants
   noLabel?: boolean;
   noErrors?: boolean;

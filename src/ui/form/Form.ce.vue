@@ -304,6 +304,8 @@ function updateUischema(uischema: FormProps["uischema"]) {
         model.value
       );
       merge(child.options, value);
+      if (props.optionalText) child.options.optionalText ??= props.optionalText;
+      if (props.requiredText) child.options.requiredText ??= props.requiredText;
     }
 
     // TODO: map additional form props that need to be inherited by all children

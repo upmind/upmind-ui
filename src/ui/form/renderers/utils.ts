@@ -142,7 +142,9 @@ export const useUpmindUIRenderer = <
       description: input.control.value.description,
       required: input.control.value.required,
       disabled: !input.control.value.enabled,
-      visible: input.control.value.visible
+      visible: input.control.value.visible,
+      optionalText: appliedOptions.value?.optionalText,
+      requiredText: appliedOptions.value?.requiredText
     });
 
     set(props, "id", input.control.value?.id);
