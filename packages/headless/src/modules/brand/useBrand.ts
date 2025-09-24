@@ -1,5 +1,5 @@
 // --- external
-import { toRaw, computed, unref } from "vue";
+import { toRaw, computed } from "vue";
 
 // --- internal
 import services from "./services";
@@ -48,13 +48,23 @@ let needsRefresh = some(keys(localStorage), key =>
   includes(key, `"brand","settings"`)
 );
 
-export const useBrand = () => {
-  // --- state
+// ---  singleton queries to prevent multiple fetches
+let modulesQuery: ReturnType<typeof services.fetchModules>;
+let brandConfigQuery: ReturnType<typeof services.fetchBrandConfig>;
+let brandSettingsQuery: ReturnType<typeof services.fetchBrandSettings>;
+let organisationConfigQuery: ReturnType<
+  typeof services.fetchOrganisationConfig
+>;
 
-  const modulesQuery = services.fetchModules();
-  const brandConfigQuery = services.fetchBrandConfig();
-  const brandSettingsQuery = services.fetchBrandSettings();
-  const organisationConfigQuery = services.fetchOrganisationConfig();
+// -----------------------------------------------------------------------------
+
+export const useBrand = () => {
+  modulesQuery ??= services.fetchModules();
+  brandConfigQuery ??= services.fetchBrandConfig();
+  brandSettingsQuery ??= services.fetchBrandSettings();
+  organisationConfigQuery ??= services.fetchOrganisationConfig();
+
+  // --- state
 
   const queries = [
     modulesQuery,
@@ -265,10 +275,10 @@ export const useBrand = () => {
     return found ?? currency.value;
   };
 
-  const validateLanguage = async (model: {
+  const validateLanguage = (model: {
     id?: string;
     code?: string;
-  }): Promise<ILanguage | undefined> => {
+  }): ILanguage | undefined => {
     const currentLanguages = languages.value;
 
     if (isEmpty(currentLanguages)) return model as ILanguage | undefined;
@@ -285,6 +295,16 @@ export const useBrand = () => {
     );
 
     if (isEmpty(found)) return defaultLanguage;
+
+    return found;
+  };
+
+  const isSupportedLanguage = (locale: string): boolean => {
+    if (isEmpty(languages.value) || isEmpty(locale)) return false;
+
+    const found = some(languages.value, ({ code }) => {
+      return code?.toLocaleLowerCase() === locale.toLocaleLowerCase();
+    });
 
     return found;
   };
@@ -501,6 +521,13 @@ export const useBrand = () => {
      * @throws {DetailedError} If the languages are not available in the context.
      */
     validateLanguage,
+
+    /**     * Checks if the given language model is supported by the brand.
+     * @param model - The language model to check ({ id?: string, code?: string }).
+     * @returns {boolean} True if the language is supported, false otherwise.
+     * @throws {DetailedError} If the languages are not available in the context.
+     */
+    isSupportedLanguage,
 
     /**
      * Refreshes the brand state by re-fetching all related queries.
