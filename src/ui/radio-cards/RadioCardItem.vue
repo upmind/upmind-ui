@@ -4,7 +4,7 @@
     :class="cn(styles.radioCards.item)"
     :data-state="isSelected ? 'checked' : ''"
   >
-    <div :class="styles.radioCards.radio">
+    <span :class="styles.radioCards.radio">
       <RadioGroupItem
         :id="`${props.name}-${index}`"
         :value="value"
@@ -16,17 +16,44 @@
         :uiConfig="uiConfig"
         @blur="onBlur"
       />
-    </div>
+    </span>
     <slot
       name="item"
       v-bind="{
         item: { ...props.item, value }
       }"
     >
-      <span v-if="props.label">{{ props.label }}</span>
-      <span v-if="props.sublabel" :class="styles.radioCards.sublabel">{{
-        props.sublabel
-      }}</span>
+      <div class="flex w-full items-start gap-4">
+        <div class="flex flex-1 flex-col">
+          <header
+            v-if="props.label || props.sublabel"
+            class="flex items-center justify-between"
+          >
+            <span class="flex gap-2">
+              <h5 :class="styles.radioCards.content.label">Label left</h5>
+              <Badge
+                variant="muted"
+                color="primary"
+                label="Default"
+                size="sm"
+              />
+            </span>
+            <span class="flex gap-2">
+              <h5 :class="styles.radioCards.content.sublabel">Label right</h5>
+              <Badge variant="muted" color="promo" label="Default" size="sm" />
+            </span>
+          </header>
+          <p v-if="props.sublabel" :class="styles.radioCards.content.labelRowA">
+            Content for sub-row A
+          </p>
+          <p v-if="props.sublabel" :class="styles.radioCards.content.labelRowB">
+            Content for sub-row B
+          </p>
+        </div>
+        <div>
+          <Button variant="muted-link" label="Edit" />
+        </div>
+      </div>
     </slot>
   </Label>
 </template>
@@ -42,6 +69,8 @@ import config from "./radioCards.config";
 
 // --- components
 import Label from "../label/Label.ce.vue";
+import { Button } from "../button";
+import { Badge } from "../badge";
 import { RadioGroupItem } from "../radio-group";
 
 // --- types
@@ -68,7 +97,13 @@ const meta = computed(() => ({
 }));
 
 const styles = useStyles(
-  ["radioCards"],
+  [
+    "radioCards",
+    "radioCards.content",
+    "radioCards.content.label1",
+    "radioCards.content.label2",
+    "radioCards.content.label3"
+  ],
   meta,
   config,
   props.uiConfig ?? {}
@@ -79,10 +114,18 @@ const styles = useStyles(
     item: string;
     radio: string;
     input: string;
-    label: string;
-    sublabel: string;
+    content: {
+      label: string;
+      sublabel: string;
+      labelRowA: string;
+      labelRowB: string;
+    };
   };
 }>;
+
+const label = computed(() => {
+  return props.label || props.item.label;
+});
 
 const onBlur = (e: FocusEvent) => {
   if (props.disabled) {

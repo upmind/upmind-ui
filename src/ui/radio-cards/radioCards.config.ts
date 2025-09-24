@@ -2,13 +2,13 @@ import { cva } from "class-variance-authority";
 import { ringClasses } from "../../assets/ring.styles";
 
 export const itemVariants = cva(
-  `bg-background-control-surface text-control-foreground group rounded transition-all duration-200 ${ringClasses} flex cursor-pointer list-none gap-2 p-3 pr-4`,
+  `bg-background-control-surface text-control-foreground group rounded font-normal transition-all duration-200 ${ringClasses} flex cursor-pointer list-none gap-2 py-4 pr-4 pl-3`,
   {
     variants: {
       isList: {
         true: "my-0.5 border-0",
         false:
-          "border-border-control-default hover:border-border-control-hover rounded border"
+          "shadow-border-border-control-default hover:shadow-border-border-control-hover rounded"
       },
       width: {
         0: "",
@@ -48,10 +48,12 @@ export default {
   radioCards: {
     root: rootVariants,
     item: itemVariants,
-    radio: cva("size-lh flex items-center justify-center"),
-    input: cva(
-      `shadow-border-border-control-default-default leading-normal [transition:border-color_200ms_ease-in-out] ${ringClasses}`
-    ),
-    sublabel: cva("text-text-muted m-0 mx-2 self-end text-sm")
+    radio: cva("size-lh text-md/tight flex items-center justify-center"),
+    content: {
+      label: cva("text-md/tight text-text-display font-medium"),
+      sublabel: cva("text-md/tight text-text-display font-medium"),
+      labelRowA: cva("text-text-base text-sm/tight"),
+      labelRowB: cva("text-text-muted text-sm/tight")
+    }
   }
 };
