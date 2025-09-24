@@ -1,0 +1,33 @@
+@theme {
+  /* Sizing */
+  --size-lh: 1lh;
+
+  /* Dropdown Widths */
+  --width-dropdown-3xs: 6rem;
+  --width-dropdown-2xs: 8rem;
+  --width-dropdown-xs: 10rem;
+  --width-dropdown-sm: 12rem;
+  --width-dropdown-md: 14rem;
+  --width-dropdown-lg: 16rem;
+  --width-dropdown-xl: 18rem;
+  --width-dropdown-2xl: 20rem;
+
+  /* Widths */
+  --width-3xs: 6rem;
+  --width-2xs: 8rem;
+  --width-xs: 10rem;
+  --width-sm: 12rem;
+  --width-md: 14rem;
+  --width-lg: 16rem;
+  --width-xl: 18rem;
+  --width-2xl: 20rem;
+
+  --spacing-3-5: 14px;
+  --spacing-5-5: 22px;
+  --spacing-14-5: 60px;
+  --spacing-18: 72px;
+
+  /* Max Widths */
+  --max-width-app: 1280px;
+  --max-width-app-lg: 1400px;
+}

@@ -19,3 +19,38 @@
     border-width: var(--stroke-badge);
   }
 }
+
+@theme {
+  /* Border Radius */
+  --radius: 8px;
+  --radius-none: 0;
+  --radius-sm: 4px;
+  --radius-lg: 16px;
+  --radius-xl: 32px;
+  --radius-2xl: 128px;
+  --radius-3xl: 360px;
+  --radius-full: 99999px;
+  --radius-pill: 32px;
+  --radius-button: 0.25rem;
+  --radius-box: 0.5rem;
+
+  /* Stroke Variables */
+  --stroke-icon: 1px;
+  --stroke-badge: 1px;
+
+  /* Default Shadow Borders */
+  --shadow-border: inset 0 0 0 1px var(--border-color-default);
+  --shadow-border-b: inset 0 -1px 0 0 var(--border-color-default);
+  --shadow-border-t: inset 0 1px 0 0 var(--border-color-default);
+  --shadow-border-l: inset 1px 0 0 0 var(--border-color-default);
+  --shadow-border-r: inset -1px 0 0 0 var(--border-color-default);
+  --shadow-border-l-none:
+    inset 0 1px 0 0 var(--border-color-default),
+    inset -1px 0 0 0 var(--border-color-default),
+    inset 0 -1px 0 0 var(--border-color-default);
+  --shadow-border-r-none:
+    inset 0 1px 0 0 var(--border-color-default),
+    inset 1px 0 0 0 var(--border-color-default),
+    inset 0 -1px 0 0 var(--border-color-default);
+  --shadow-border-none: inset 0 0 0 0 var(--border-color-default);
+}

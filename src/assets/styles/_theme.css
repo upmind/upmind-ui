@@ -306,8 +306,4 @@
   --image-radius: 16px;
   --card-radius: 16px;
   --message-radius: 16px;
-
-  /* Stroke Variables */
-  --stroke-icon: 1px;
-  --stroke-badge: 1px;
 }
