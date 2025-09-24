@@ -32,7 +32,7 @@ const items = computed(() => {
 
   return props.prices?.map(price => {
     const item = {
-      label: t(`term.cycle_${price.cycle}`),
+      label: price.cycleFormatted?.numeric,
       value: toString(price.cycle),
       appendLabel: price.price.currentPrice
     } as SelectCardsItemProps;

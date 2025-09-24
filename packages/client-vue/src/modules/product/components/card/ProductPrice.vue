@@ -28,8 +28,13 @@
         }}</strong>
 
         <small :class="styles.product.header.price.currentPrice.term"
-          >/ {{ t(`term.term_${meta.useMonthlyFromPrice ? 1 : cycle}`) }}</small
-        >
+          >/
+          {{
+            meta.useMonthlyFromPrice
+              ? t("term.n_months", 1)
+              : cycleFormatted?.descriptive
+          }}
+        </small>
       </template>
     </p>
 
@@ -37,9 +42,12 @@
       v-if="!hideTermSummary && !meta.oneoff && meta.useMonthlyFromPrice"
       :class="styles.product.header.price.total"
     >
-      <template>
-        {{ t(`term.summary_${cycle}`, { price: price?.currentPrice }) }}
-      </template>
+      {{
+        t("term.summary_msg", {
+          term: props.cycleFormatted?.numeric,
+          price: price?.currentPrice
+        })
+      }}
     </footer>
   </section>
 </template>

@@ -3,7 +3,7 @@
     <SummaryItem
       v-if="term"
       v-bind="term"
-      :title="t(`term.cycle_${term.cycle}`)"
+      :title="term.cycleFormatted!.numeric"
       icon="configuration"
     />
 

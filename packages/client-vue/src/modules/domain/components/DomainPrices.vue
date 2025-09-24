@@ -10,7 +10,9 @@
       <template v-else
         >{{ props.price.currentPrice }}
         <span :class="styles.domain.card.prices.cycle">
-          <span>/ {{ t(`term_${props.cycle}`) }}</span>
+          <span v-if="props?.cycle"
+            >/ {{ parseBillingCycle(props.cycle).descriptive }}</span
+          >
         </span>
       </template>
     </strong>
@@ -24,6 +26,7 @@ import { useI18n } from "vue-i18n";
 import { useStyles } from "@upmind-automation/upmind-ui";
 
 // --- internal
+import { parseBillingCycle } from "@upmind-automation/headless";
 import config from "../domain.config";
 
 // --- types
