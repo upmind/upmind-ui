@@ -2,7 +2,7 @@
   <div :class="styles.product.config.grid.item.root">
     <div :class="styles.product.config.grid.item.header">
       <strong :class="styles.product.config.grid.item.title">
-        {{ t(`term.cycle_${props.cycle}`) }}
+        {{ props.cycleFormatted?.numeric }}
         <template v-if="props.cycle && props.cycle > 0">
           {{ t("text.term") }}
         </template>

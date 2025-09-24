@@ -23,6 +23,7 @@ import {
   includes,
   isArray,
   isEmpty,
+  isEqual,
   isFunction,
   reduce,
   reject,
@@ -80,9 +81,14 @@ export const useRouteQueryParams = (route: Route) => {
   function consumeParam(type: string, fallback?: any) {
     const value = getParam(type, fallback);
     // now remove it from the query so we dont use it again
+    const url = new URL(window.location.toString());
     const cleanedUrl = new URL(window.location?.href);
+
     cleanedUrl.searchParams.delete(type);
-    window.history.replaceState("", "", cleanedUrl.toString());
+
+    if (!isEqual(cleanedUrl.searchParams, url.searchParams)) {
+      history.replaceState(history.state, "", cleanedUrl);
+    }
 
     return value;
   }
