@@ -6,7 +6,7 @@ import { useI18n } from "./useI18n";
 import { useBrand } from "../../brand";
 import { useSession } from "../../session";
 import { useRouteQueryParams } from "../../routing";
-import { SupportedLocaleCodes } from "./locales";
+import { SupportedLocaleCodes as UpmindSupportedLocales } from "./locales";
 
 // --- utils
 import {
@@ -17,7 +17,9 @@ import {
   first,
   reduce,
   some,
-  isNil
+  isNil,
+  filter,
+  find
 } from "lodash-es";
 import { useLocalStorage } from "../../../utils";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../../utils";
@@ -52,7 +54,7 @@ export const useLocale = () => {
   const meta = computed(() => ({
     isLoading: loading.value || sessionMeta.value.isLoading,
     isAvailable:
-      !isEmpty(SupportedLocaleCodes) && !sessionMeta.value.isAuthenticated,
+      !isEmpty(UpmindSupportedLocales) && !sessionMeta.value.isAuthenticated,
     hasLocale: !isEmpty(locale.value)
   }));
 
@@ -77,15 +79,30 @@ export const useLocale = () => {
       consumeParam(QUERY_PARAMS.LANG)
     );
 
-    const preferredLocales: SupportedLocaleCodes[] = uniq(
+    const preferredLocales: UpmindSupportedLocales[] = uniq(
       map(
         compact([
           lang,
           getFromStorage("i18n/locale"),
           window.navigator.language
         ]),
-        code => code.replace("_", "-") as SupportedLocaleCodes
+        code => code.replace("_", "-") as UpmindSupportedLocales
       )
+    );
+
+    return ensureLocale(preferredLocales);
+  }
+
+  function ensureLocale(preferredLocales: UpmindSupportedLocales[]): string {
+    const { isSupportedLanguage, validateLanguage } = useBrand();
+
+    let value: string | undefined;
+
+    //  Ensure supported languages for the brand AND Upmind,
+    //  there are some brand languages that are not supported by Upmind
+    const supportedLanguages = filter(
+      UpmindSupportedLocales,
+      isSupportedLanguage
     );
 
     /**
@@ -94,56 +111,57 @@ export const useLocale = () => {
      * when comparing the designator part (ISO 639-1) of the locale code (eg.
      * 'es' from 'es-MX') */
 
-    //  if we don't have a brand languages, we can't get the locale
-    if (isEmpty(SupportedLocaleCodes)) {
-      return first(preferredLocales) ?? defaultLocale.value;
+    if (isEmpty(supportedLanguages)) {
+      value = first(preferredLocales);
+    } else {
+      const localeIntersection = reduce(
+        preferredLocales,
+        (result: string[], code: UpmindSupportedLocales) => {
+          const exactMatch = some(
+            supportedLanguages,
+            supportedLocale =>
+              supportedLocale.toLocaleLowerCase() == code.toLocaleLowerCase()
+          );
+
+          if (exactMatch) {
+            result.push(code);
+          } else {
+            const designator = first(code.split("-"));
+            const designatorMatch = some(
+              supportedLanguages,
+              supportedLocale =>
+                first(supportedLocale.split("-")) === designator
+            );
+            if (designator && designatorMatch) result.push(designator);
+          }
+
+          return uniq(result);
+        },
+        [] as string[]
+      );
+
+      // NB clear out any search params from in the url.
+
+      /**
+       * @desc Here we get the final localeCode, fully checking for Upmind level
+       * support (including principal subdivisions) */
+      value = first(localeIntersection);
     }
 
-    const localeIntersection = reduce(
-      preferredLocales,
-      (result: string[], code: SupportedLocaleCodes) => {
-        const exactMatch = some(
-          SupportedLocaleCodes,
-          language => language.toLocaleLowerCase() == code.toLocaleLowerCase()
-        );
-        if (exactMatch) {
-          result.push(code);
-        } else {
-          const designator = first(code.split("-"));
-          const designatorMatch = some(
-            SupportedLocaleCodes,
-            language => first(language.split("-")) === designator
-          );
-          if (designator && designatorMatch) result.push(designator);
-        }
-        return result;
-      },
-      [] as string[]
-    );
-
-    // NB clear out any search params from nthe url.
-
-    /**
-     * @desc Here we get the final localeCode, fully checking for Upmind level
-     * support (including principal subdivisions) */
-    return first(localeIntersection) ?? defaultLocale.value;
+    return validateLanguage({ code: value })?.code ?? defaultLocale.value;
   }
 
   async function setLocale(code: string): Promise<string> {
-    await isReady();
-    const { validateLanguage } = useBrand();
-    const validatedLocale = await validateLanguage({ code });
-    // Switch i18n locale
-    return new Promise((resolve, reject) => {
-      if (validatedLocale?.code) {
-        setStorage("i18n/locale", validatedLocale.code);
-        useI18n().setLocale(validatedLocale.code);
-        document
-          .querySelector("html")
-          ?.setAttribute("lang", validatedLocale.code);
-        locale.value = validatedLocale.code;
+    const validatedLocale = ensureLocale([code as UpmindSupportedLocales]);
 
-        return resolve(validatedLocale.code);
+    return new Promise((resolve, reject) => {
+      if (validatedLocale) {
+        setStorage("i18n/locale", validatedLocale);
+        useI18n().setLocale(validatedLocale);
+        document.querySelector("html")?.setAttribute("lang", validatedLocale);
+        locale.value = validatedLocale;
+
+        return resolve(validatedLocale);
       }
       return reject(
         new DetailedError(
@@ -188,7 +206,7 @@ export const useLocale = () => {
     /**
      * The supported locales (reactive).
      */
-    SupportedLocaleCodes,
+    UpmindSupportedLocales,
 
     // --- methods
 
