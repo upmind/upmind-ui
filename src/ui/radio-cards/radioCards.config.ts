@@ -8,7 +8,7 @@ export const itemVariants = cva(
       isList: {
         true: "my-0.5 border-0",
         false:
-          "border-border-control hover:border-border-control-hover rounded border"
+          "border-border-control-default hover:border-border-control-hover rounded border"
       },
       width: {
         0: "",

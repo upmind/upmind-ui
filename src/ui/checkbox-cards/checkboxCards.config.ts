@@ -30,14 +30,14 @@ export default {
         variants: {
           isList: {
             true: "border-b last:border-b-0",
-            false: `hover:border-border-control-hover border-border-control bg-background-control-surface rounded border ${ringClasses} ${invalidRingClasses}`
+            false: `hover:border-border-control-hover border-border-control-default bg-background-control-surface rounded border ${ringClasses} ${invalidRingClasses}`
           }
         }
       }
     ),
     label: checkboxLabelVariants,
     input: cva(
-      `${groupRingClasses} border-border-control text-control-active static pr-0 leading-normal`,
+      `${groupRingClasses} border-border-control-default text-control-active static pr-0 leading-normal`,
       {
         variants: {
           isList: {
