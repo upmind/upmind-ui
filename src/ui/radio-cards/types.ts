@@ -6,6 +6,7 @@ import type { ButtonProps } from "../button";
 import type { RadioGroupRootProps, RadioGroupItemProps } from "radix-vue";
 import type { CxOptions, VariantProps } from "class-variance-authority";
 import type { itemVariants } from "./radioCards.config";
+import type { BadgeProps } from "../badge";
 type RadioCardsItemVariantProps = VariantProps<typeof itemVariants>;
 
 export interface RadioCardsItemProps extends RadioGroupItemProps {
@@ -17,6 +18,9 @@ export interface RadioCardsItemProps extends RadioGroupItemProps {
   secondaryLabel?: string;
   description?: string;
   secondaryDescription?: string;
+  badge?: BadgeProps;
+  secondaryBadge?: BadgeProps;
+  action?: string;
   // ---
   required?: boolean;
   disabled?: boolean;

@@ -3,6 +3,8 @@
     :for="`${props.name}-${index}`"
     :class="cn(styles.radioCards.item)"
     :data-state="isSelected ? 'checked' : ''"
+    :data-hover="$attrs['data-hover']"
+    :data-focus="$attrs['data-focus']"
   >
     <span :class="styles.radioCards.radio">
       <RadioGroupItem
