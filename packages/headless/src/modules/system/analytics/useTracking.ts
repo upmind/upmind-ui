@@ -123,7 +123,7 @@ export const useTracking = () => {
 
     // Update router only if params have changed
     if (!isEqual(cleanUrl.searchParams, url.searchParams)) {
-      window.history.replaceState("", "", cleanUrl);
+      history.replaceState(history.state, "", cleanUrl);
     }
   }
 

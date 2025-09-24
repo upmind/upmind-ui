@@ -167,6 +167,7 @@ export type ProductDetails = {
   categories?: string[]; // parent category names
   breadcrumb?: ProductBreadcrumb[]; // parent category names and ids for breadcrumbs
   cycle: number;
+  cycleFormatted: BillingCycleFormats;
   displayPrice?: TermDetails;
   description?: string;
   excerpt?: string;
@@ -266,6 +267,7 @@ export type ProductSummaryDetail = {
   name: string; // untranslated name for reporting purposes  category?: string;
   title?: string;
   cycle?: number;
+  cycleFormatted?: BillingCycleFormats;
   category?: string;
   quantity?: number;
   promotions?: PromotionDetails[];
@@ -275,6 +277,19 @@ export type ProductSummaryDetail = {
 
 export type ProductSummaryDetailWithPrice = ProductSummaryDetail & {
   price: PriceDetail;
+};
+
+export type BillingCycleFormats = {
+  /** Adverbial variant e.g. `Monthly`, `Annually`, `One time`. */
+  adverbial: string;
+  /** Descriptive variant e.g. `month`, `3 years`. */
+  descriptive: string;
+  /** Monthly variant e.g., `month`, `6 months`. */
+  monthly: string;
+  /** Abbreviated suffix variant e.g. `mo` for 1 month, `2yr` for 2 years. */
+  suffix: string;
+  /** Numeric variant e.g. `1-month` or `2-year`. */
+  numeric: string;
 };
 
 export type TermDetails = ProductSummaryDetail & {
