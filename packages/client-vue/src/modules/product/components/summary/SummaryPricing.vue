@@ -99,7 +99,7 @@ const summary = computed<DescriptionItem[]>(() => {
   if (term && term.category) {
     summary.push({
       term: term.category,
-      description: t(`term.cycle_${term.cycle}`)
+      description: term.cycleFormatted!.numeric
     });
   }
 

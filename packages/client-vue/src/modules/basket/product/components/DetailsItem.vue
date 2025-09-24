@@ -30,7 +30,7 @@
         {{ safePrice }}
 
         <template v-if="showTermLabel">
-          / {{ t(`term.term_${cycle}`) }}
+          / {{ cycleFormatted?.descriptive }}
         </template>
       </p>
 

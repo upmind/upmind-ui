@@ -1,8 +1,7 @@
 <template>
   <Description>
-    {{
-      t(`term.renews_${props.cycle}_msg`, { price: props.price.currentPrice })
-    }}.
+    {{ t("term.renews_msg", { cycle: props.cycleFormatted?.descriptive }) }}.
+
     <template v-if="props.meta?.discounted && cycle !== 0"
       >{{ t("term.renews_usually_msg", { price: props.price.regularPrice }) }}.
     </template>

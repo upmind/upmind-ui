@@ -24,7 +24,7 @@
   "pattern": "{title} tem que combinar com o padrão {pattern}",
   "patternProperties": "A propriedade {title} {propertyName} está inválida (padrão incompatível)",
   "propertyNames": "A propriedade {title} {propertyName} não está certo.",
-  "required": "{title} tem que ter a propriedade {missingProperty}",
+  "required": "{title} deve ter a propriedade necessária {missingProperty}",
   "type": "{title} tem de ser {type}",
   "uniqueItems": "{title} não pode ter itens duplicados (os itens {j} e {i} são iguais)"
 }
