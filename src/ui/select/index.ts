@@ -5,7 +5,7 @@ import { keys } from "lodash-es";
 // --- vue elements
 export { default as Select } from "./Select.ce.vue";
 
-export { type SelectProps } from "./types";
+export { type SelectProps, type SelectItemAdditional } from "./types";
 export type { SelectItemProps } from "radix-vue";
 
 // --- custom elements

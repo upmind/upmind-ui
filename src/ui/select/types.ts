@@ -8,6 +8,9 @@ import type {
   SelectValueProps
 } from "radix-vue";
 
+// --- components
+import type { IconProps } from "../icon";
+
 // --- types
 import type { rootVariants } from "./select.config";
 type RootVariants = VariantProps<typeof rootVariants>;
@@ -22,6 +25,7 @@ export interface SelectProps
     title?: string;
     const?: string;
   } & SelectItemProps)[];
+  additionalItems?: SelectItemAdditional[];
   // --- variants;
   width?: RootVariants["width"];
   size?: RootVariants["size"];
@@ -37,4 +41,11 @@ export interface SelectProps
     };
   };
   class?: HTMLAttributes["class"];
+}
+
+export interface SelectItemAdditional {
+  textValue: string;
+  value: string;
+  icon: IconProps["icon"];
+  emitOnly?: boolean;
 }

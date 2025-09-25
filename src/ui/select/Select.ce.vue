@@ -38,6 +38,18 @@
             <span v-if="item?.label">{{ item?.label }}</span>
           </span>
         </SelectItem>
+
+        <SelectItem
+          v-for="item in additionalItems"
+          :class="styles.select.item"
+          :key="'additional-' + item.value"
+          :value="item.value"
+        >
+          <template #indicator>
+            <Icon :icon="item.icon" size="2xs" />
+          </template>
+          <span>{{ item.textValue }}</span>
+        </SelectItem>
       </SelectGroup>
     </SelectContent>
   </Select>
@@ -65,7 +77,7 @@ import Icon from "../icon/Icon.vue";
 
 // --- types
 import type { SelectRootEmits, SelectContentEmits } from "radix-vue";
-import type { SelectProps } from "./types";
+import type { SelectProps, SelectItemAdditional } from "./types";
 import type { ComputedRef } from "vue";
 import { timestamp } from "@vueuse/shared";
 import { isEqual } from "lodash-es";
