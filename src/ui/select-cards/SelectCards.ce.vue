@@ -30,6 +30,7 @@
     <DropdownMenuPortal :to="props.to">
       <DropdownMenuContent
         :class="cn(styles.select.content, props.contentClass)"
+        :align="props.align"
       >
         <DropdownMenuItem
           v-for="(item, index) in items"
@@ -83,7 +84,8 @@ import type { ComputedRef } from "vue";
 
 const props = withDefaults(defineProps<SelectCardsProps>(), {
   required: true,
-  placeholder: "Select an option"
+  placeholder: "Select an option",
+  align: "start"
 });
 
 const emits = defineEmits(["update:modelValue"]);
