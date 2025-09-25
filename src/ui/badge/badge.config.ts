@@ -1,7 +1,7 @@
 import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
-const variants = {
+export const variants = {
   variant: {
     solid: "",
     minimal: "",
@@ -21,8 +21,6 @@ const variants = {
     md: "px-3 py-1 text-sm/tight font-medium"
   }
 };
-
-export { variants };
 
 export const badgeVariants = cva(
   "badge-radius inline-flex w-fit items-center whitespace-nowrap",

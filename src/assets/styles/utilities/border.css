@@ -18,6 +18,10 @@
   .stroke-badge {
     border-width: var(--stroke-badge);
   }
+
+  .control-radius {
+    border-radius: var(--control-radius);
+  }
 }
 
 @theme {
