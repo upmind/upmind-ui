@@ -17,6 +17,8 @@
         :data-state="isSelected ? 'checked' : 'unchecked'"
         :uiConfig="uiConfig"
         @blur="onBlur"
+        :data-focus="$attrs['data-focus']"
+        :data-hover="$attrs['data-hover']"
       />
     </span>
     <slot
