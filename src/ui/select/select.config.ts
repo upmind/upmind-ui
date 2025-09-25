@@ -19,7 +19,7 @@ export const variants = {
 };
 
 export const rootVariants = cva(
-  `bg-background-control-surface hover:border-border-control-hover control-radius border-border-control-default group flex cursor-pointer px-4 py-2 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 ${ringClasses} ${invalidRingClasses}`,
+  `bg-background-control-surface hover:shadow-border-border-control-hover control-radius shadow-border-border-control-default group flex cursor-pointer border-none px-4 py-2 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 ${ringClasses} ${invalidRingClasses}`,
   {
     variants,
     defaultVariants: {
