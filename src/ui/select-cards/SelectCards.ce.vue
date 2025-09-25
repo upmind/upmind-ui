@@ -12,6 +12,8 @@
         :label="props.label"
         :loading="props.loading"
         :placeholder="props.placeholder"
+        :data-hover="$attrs['data-hover']"
+        :data-focus="$attrs['data-focus']"
         focusable
       >
         <template #item="{ item }: { item: SelectCardsItemProps }">
@@ -57,7 +59,7 @@
 // --- external
 import { first, find } from "lodash-es";
 import { useVModel } from "@vueuse/core";
-import { ref, computed, useSlots } from "vue";
+import { ref, computed } from "vue";
 import { vIntersectionObserver } from "@vueuse/components";
 
 // --- internal
