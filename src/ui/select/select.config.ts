@@ -19,7 +19,7 @@ export const variants = {
 };
 
 export const rootVariants = cva(
-  `bg-background-control-surface hover:border-border-control-strong control-radius border-border-control-default text-control-foreground placeholder:text-muted-foreground flex cursor-pointer px-4 py-2 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 ${ringClasses} ${invalidRingClasses}`,
+  `bg-background-control-surface hover:border-border-control-strong control-radius border-border-control-default duration-200 disabled:cursor-not-allowed flex cursor-pointer px-4 py-2 transition-all disabled:opacity-50 group ${ringClasses} ${invalidRingClasses}`,
   {
     variants,
     defaultVariants: {
@@ -36,7 +36,7 @@ export default {
       variants: {
         hasValue: {
           true: "",
-          false: "text-text-muted"
+          false: "text-text-faint group-hover:text-text-base transition-colors duration-200"
         }
       }
     }),

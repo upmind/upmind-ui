@@ -106,6 +106,7 @@ const uid = ref(timestamp());
 
 const meta = computed(() => ({
   width: props.width,
+  size: props.size,
   hasValue: !!props.modelValue,
   hasRing: props.ring
 }));
