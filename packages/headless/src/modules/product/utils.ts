@@ -812,7 +812,6 @@ export const parseSummaryDetail = (
   const useMonthlyFromPrice =
     (cycle?.months ?? 0) > 1 && displayType !== PriceDisplayTypes.MONTHLY;
 
-  debugger;
   return {
     cycle: raw.billing_cycle_months,
     cycleFormatted: parseBillingCycle(raw.billing_cycle_months),

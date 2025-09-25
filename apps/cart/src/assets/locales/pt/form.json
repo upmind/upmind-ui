@@ -56,6 +56,9 @@
     "label": "E-mail",
     "title": "Adicionar novo e-mail | Atualizar e-mail"
   },
+  "field_notes": {
+    "label": "Notas"
+  },
   "firstname": {
     "error": "O seu primeiro nome é obrigatório",
     "label": "Primeiro nome"
