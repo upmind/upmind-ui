@@ -268,7 +268,7 @@ const mapFeedback = (
     title: "Too many requests",
     copy: "You have exceeded the number of allowed requests",
     data: error,
-    i18nKey: `errors.${responseCodes.Too_Many_Requests}`,
+    i18nKey: `error.${responseCodes.Too_Many_Requests}`,
     display: messageDisplays.MODAL
   },
   [responseCodes.Unprocessable_Entity]: undefined,
@@ -277,7 +277,7 @@ const mapFeedback = (
     title: "Internal server error",
     copy: "An unexpected error occurred",
     data: error,
-    i18nKey: `errors.${responseCodes.Internal_Server_Error}`,
+    i18nKey: `error.${responseCodes.Internal_Server_Error}`,
     display: messageDisplays.TOAST
   },
   [responseCodes.Bad_Gateway]: undefined,
@@ -286,7 +286,7 @@ const mapFeedback = (
     title: "Service temporarily unavailable",
     copy: "Service temporarily down for maintenance",
     data: error,
-    i18nKey: `errors.${responseCodes.Service_Unavailable}`,
+    i18nKey: `error.${responseCodes.Service_Unavailable}`,
     display: messageDisplays.SYSTEM,
     delay: 0,
     maxAge: 0

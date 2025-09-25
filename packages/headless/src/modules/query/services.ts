@@ -60,7 +60,7 @@ async function doFetch<T extends any = any>({
       )
     );
 
-  if (!url.searchParams.has("lang") && !startsWith(url.pathname, "/oauth/")) {
+  if (!url.searchParams.has("lang")) {
     const { locale } = useLocale();
     if (!isEmpty(locale.value))
       url.searchParams.set("lang", locale.value as string);
@@ -110,7 +110,7 @@ async function refreshToken() {
       type: messageTypes.ERROR,
       title: "Session error",
       copy: "Your session has expired, please reload the page",
-      i18nKey: `errors.${responseCodes.Unauthorized}`,
+      i18nKey: `error.${responseCodes.Unauthorized}`,
       data: { status: responseCodes.Unauthorized },
       display: messageDisplays.SYSTEM,
       delay: 0,

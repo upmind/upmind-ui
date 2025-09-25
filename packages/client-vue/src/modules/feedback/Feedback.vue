@@ -53,7 +53,6 @@ import { get, some, forEach } from "lodash-es";
 const props = defineProps<{
   scheduled?: boolean;
 }>();
-
 const styles = useStyles(["feedback"], props, config) as ComputedRef<{
   feedback: {
     root: string;

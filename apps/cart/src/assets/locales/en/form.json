@@ -56,6 +56,9 @@
     "label": "Email",
     "title": "Add New Email | Update Email"
   },
+  "field_notes": {
+    "label": "Order Notes"
+  },
   "firstname": {
     "error": "Your first name is required",
     "label": "First name"
