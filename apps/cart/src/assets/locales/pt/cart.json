@@ -2,7 +2,7 @@
   "basket_product_missing_data": "Dados em falta",
   "basket_product_missing_data_help": "Este item está com dados em falta e precisa de atenção.",
   "basket_products": "Itens do carrinho",
-  "basket_products_count_desc": "Tem {count} item no seu carrinho, totalizando {total} . | Tem {count} itens no seu carrinho, totalizando {total} .",
+  "basket_products_count_desc": "Tem {count} item no seu carrinho, totalizando {total}. | Tem {count} itens no seu carrinho, totalizando {total}.",
   "basket_products_count_msg": "nenhum item no carrinho | {count} item no carrinho | {count} itens no carrinho",
   "basket_products_require_attention": "**{count}** produtos requerem **{keyword} ** | **{count}** produto requer **{keyword}** | **{count}** produtos requerem **{keyword}**",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
@@ -87,6 +87,6 @@
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
   "promo_code_help": "{code} oferece um desconto de {amount} {description}",
   "promo_codes_active": "Descontos ativos",
-  "summary_desc": "Tem {count} item no seu carrinho, totalizando {total} . | Tem {count} itens no seu carrinho, totalizando {total} .",
+  "summary_desc": "Tem {count} item no seu carrinho, totalizando {total}. | Tem {count} itens no seu carrinho, totalizando {total}.",
   "title": "O seu carrinho"
 }

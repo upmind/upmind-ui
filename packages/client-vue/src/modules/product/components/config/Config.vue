@@ -38,6 +38,7 @@
             (value: string, qty: number) =>
               updateOptionQuantity(option, value, qty)
           "
+          :optional-text="t('text.optional')"
           :required="option.meta.required"
           :visible="!!option.values?.length"
           :processing="meta.isProcessing || meta.isLoading"
@@ -134,7 +135,7 @@ import ConfigForm from "./ConfigForm.vue";
 import { Button } from "@upmind-automation/upmind-ui";
 
 // --- utils
-import { reduce, get, first, isArray, set, keys, isEqual } from "lodash-es";
+import { reduce, get, set, keys } from "lodash-es";
 
 // --- types
 import type { ActorRef } from "xstate";
