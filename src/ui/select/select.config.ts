@@ -19,7 +19,7 @@ export const variants = {
 };
 
 export const rootVariants = cva(
-  `bg-background-control-surface hover:border-border-control-strong control-radius border-border-control-default duration-200 disabled:cursor-not-allowed flex cursor-pointer px-4 py-2 transition-all disabled:opacity-50 group ${ringClasses} ${invalidRingClasses}`,
+  `bg-background-control-surface hover:border-border-control-hover control-radius border-border-control-default group flex cursor-pointer px-4 py-2 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 ${ringClasses} ${invalidRingClasses}`,
   {
     variants,
     defaultVariants: {
@@ -36,12 +36,13 @@ export default {
       variants: {
         hasValue: {
           true: "",
-          false: "text-text-faint group-hover:text-text-base transition-colors duration-200"
+          false:
+            "text-text-faint group-hover:text-text-base transition-colors duration-200"
         }
       }
     }),
     item: cva(
-      "data-[state=unchecked]:text-text-muted hover:text-text-base focus:text-text-base cursor-pointer gap-3 px-4 py-2 font-normal transition-all duration-300",
+      "data-[state=unchecked]:text-text-muted data-[state=unchecked]:hover:text-text-base data-[state=unchecked]:focus:text-text-base data-[state=checked]:text-text-base control-radius data-[state=checked]:bg-background-control-selected cursor-pointer gap-3 px-4 py-2 font-normal transition-all duration-200",
       {
         variants: {
           size: variants.size
