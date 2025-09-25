@@ -6,7 +6,7 @@
         ringClasses,
         'ring-offset-background-control-surface',
         'shadow-border-border-control-default text-primary aspect-square h-4.5 w-4.5 rounded-full disabled:cursor-not-allowed disabled:opacity-50',
-        'bg-base-background text-control-foreground data-[state=checked]:bg-background-control-checked shrink-0',
+        'text-control-foreground data-[state=checked]:bg-background-control-checked shrink-0',
         props.class,
         props.noInput ? 'sr-only' : ''
       )
@@ -15,7 +15,9 @@
     :data-hover="$attrs['data-hover']"
   >
     <RadioGroupIndicator class="flex items-center justify-center">
-      <Circle class="h-2 w-2 fill-current text-current" />
+      <Circle
+        class="text-background-control-checked-contrast h-2 w-2 fill-current"
+      />
     </RadioGroupIndicator>
   </RadioGroupItem>
 </template>

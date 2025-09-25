@@ -37,7 +37,7 @@ export const badgeVariants = cva(
         variant: "solid",
         color: "primary",
         class:
-          "from-primitive-primary-default to-primitive-primary-default-stop text-text-primary-default-contrast bg-gradient-to-r"
+          "from-primitive-primary-default to-primitive-primary-default-stop text-text-accent-primary-contrast bg-gradient-to-r"
       },
       {
         variant: "solid",
