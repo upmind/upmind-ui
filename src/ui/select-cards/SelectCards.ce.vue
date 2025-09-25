@@ -80,7 +80,8 @@ import type { SelectCardsProps, SelectCardsItemProps } from "./types";
 import type { ComputedRef } from "vue";
 
 const props = withDefaults(defineProps<SelectCardsProps>(), {
-  required: true
+  required: true,
+  placeholder: "Select an option"
 });
 
 const emits = defineEmits(["update:modelValue"]);

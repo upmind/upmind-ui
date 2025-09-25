@@ -15,7 +15,7 @@
     </slot>
 
     <slot v-if="!selected" name="placeholder" v-bind="{ item: selected }">
-      <span class="opacity-50">
+      <span class="text-text-faint [.group:hover_&,.group[data-hover=true]_&]:text-text-base [.group:focus-within_&,.group[data-focus=true]_&]:text-text-base transition-colors duration-200">
         <slot name="placeholder">{{ placeholder }}</slot>
       </span>
     </slot>

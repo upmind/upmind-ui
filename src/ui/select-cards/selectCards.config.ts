@@ -16,7 +16,7 @@ export const variants = {
 };
 
 export const triggerVariants = cva(
-  `bg-background-control-surface group shadow-border-border-control-default hover:shadow-border-border-control-hover flex h-auto min-w-0 items-center justify-start rounded px-4 py-2 text-left font-medium`,
+  `bg-background-control-surface [&:hover,&:focus-within,&[data-hover=true],&[data-focus=true]]:shadow-border-border-control-hover [&:focus-within,&[data-focus=true]]:ring-ring control-radius shadow-border-border-control-default group flex cursor-pointer border-none px-4 py-2 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 [&:focus-within,&[data-focus=true]]:ring-2 [&:focus-within,&[data-focus=true]]:ring-offset-2 ${ringClasses} ${invalidRingClasses} h-auto min-w-0 items-center justify-start text-left font-medium`,
   {
     variants,
     defaultVariants: {
@@ -26,11 +26,11 @@ export const triggerVariants = cva(
 );
 
 export const itemVariants = cva(
-  "hover:bg-control-active-focus focus:bg-control-active-focus text-md m-0 flex h-full w-full cursor-pointer items-start space-x-2 rounded px-3 py-2 leading-none font-medium first:rounded-t-md last:rounded-b-md last:border-b-0 focus:outline-none"
+  "data-[state=unchecked]:text-text-muted data-[state=unchecked]:hover:text-text-base data-[state=unchecked]:focus:text-text-base data-[state=checked]:text-text-base control-radius data-[state=checked]:bg-background-control-selected [&:hover,&[data-hover=true]]:bg-background-control-selected [&:focus,&[data-focus=true]]:bg-background-control-selected cursor-pointer gap-3 px-4 py-2 font-normal transition-all duration-200"
 );
 
 export const contentVariants = cva(
-  `bg-background-control-surface ${ringClasses} ${invalidRingClasses} shadow-border-border-control-default control-radius mt-2 flex max-h-72 w-(--radix-dropdown-menu-trigger-width)! flex-col overflow-hidden overflow-y-scroll p-0`,
+  `control-radius shadow-border-border-control-default bg-background-control-surface mt-2 border-none ${ringClasses} ${invalidRingClasses} flex max-h-72 w-(--radix-dropdown-menu-trigger-width)! flex-col overflow-hidden overflow-y-scroll p-2`,
   {
     variants,
     defaultVariants: {
@@ -40,7 +40,7 @@ export const contentVariants = cva(
 );
 
 const groupVariants = cva(
-  `${ringClasses} ${invalidRingClasses} w-full rounded transition-all duration-200`
+  `${ringClasses} ${invalidRingClasses} control-radius w-full transition-all duration-200`
 );
 
 export default {
