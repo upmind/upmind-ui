@@ -27,7 +27,7 @@
     </SelectTrigger>
 
     <SelectContent :class="styles.select.content" :align="align" :to="to">
-      <SelectGroup class="p-0">
+      <SelectGroup class="p-2">
         <SelectItem
           v-for="item in items"
           :key="item.value"

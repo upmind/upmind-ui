@@ -50,7 +50,7 @@ export default {
       }
     ),
     content: cva(
-      `control-radius border-border-control-default mt-2 p-2 ${ringClasses} ${invalidRingClasses}`
+      `control-radius border-border-control-default mt-2 ${ringClasses} ${invalidRingClasses}`
     )
   }
 };

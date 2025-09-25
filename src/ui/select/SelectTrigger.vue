@@ -28,7 +28,7 @@ const forwardedProps = useForwardProps(delegatedProps);
     :class="
       cn(
         props.class,
-        'placeholder:text-muted-foreground flex w-full items-center justify-between text-start text-sm disabled:cursor-not-allowed disabled:opacity-50 [&>span]:truncate'
+        'placeholder:text-muted-foreground flex items-center justify-between text-start text-sm disabled:cursor-not-allowed disabled:opacity-50 [&>span]:truncate'
       )
     "
   >
