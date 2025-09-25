@@ -16,7 +16,7 @@ export const variants = {
 };
 
 export const triggerVariants = cva(
-  `bg-background-control-surface group border-border-control-default hover:border-border-control-hover flex h-auto min-w-0 items-center justify-start rounded px-4 py-2 text-left font-medium`,
+  `bg-background-control-surface group shadow-border-border-control-default hover:shadow-border-border-control-hover flex h-auto min-w-0 items-center justify-start rounded px-4 py-2 text-left font-medium`,
   {
     variants,
     defaultVariants: {
@@ -30,7 +30,7 @@ export const itemVariants = cva(
 );
 
 export const contentVariants = cva(
-  `bg-background-control-surface ${ringClasses} ${invalidRingClasses} border-border-control-default mt-2 flex max-h-72 w-(--radix-dropdown-menu-trigger-width)! flex-col overflow-hidden overflow-y-scroll rounded border p-1`,
+  `bg-background-control-surface ${ringClasses} ${invalidRingClasses} shadow-border-border-control-default control-radius mt-2 flex max-h-72 w-(--radix-dropdown-menu-trigger-width)! flex-col overflow-hidden overflow-y-scroll p-0`,
   {
     variants,
     defaultVariants: {
