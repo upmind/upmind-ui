@@ -5,8 +5,17 @@
     :key="uid"
     :model-value="modelValue"
   >
-    <SelectTrigger :class="cn(styles.select.root, props.class)">
-      <SelectValue :placeholder="placeholder" :class="styles.select.value" />
+    <SelectTrigger
+      :class="cn(styles.select.root, props.class)"
+      :data-hover="$attrs['data-hover']"
+      :data-focus="$attrs['data-focus']"
+    >
+      <SelectValue
+        :placeholder="placeholder"
+        :class="styles.select.value"
+        :data-hover="$attrs['data-hover']"
+        :data-focus="$attrs['data-focus']"
+      />
       <template #icon>
         <Icon
           class="text-text-muted group-hover:text-text-base ml-auto pl-4 transition-all duration-200 [&>svg]:size-3 [&>svg]:transition-all [&>svg]:duration-300"
@@ -77,7 +86,7 @@ import Icon from "../icon/Icon.vue";
 
 // --- types
 import type { SelectRootEmits, SelectContentEmits } from "radix-vue";
-import type { SelectProps, SelectItemAdditional } from "./types";
+import type { SelectProps } from "./types";
 import type { ComputedRef } from "vue";
 import { timestamp } from "@vueuse/shared";
 import { isEqual } from "lodash-es";
