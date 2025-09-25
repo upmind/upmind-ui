@@ -85,6 +85,9 @@
   --color-background-overlay: var(--color-primitive-core-overlay);
 
   /* Background - Control */
+  --color-background-control-checked-contrast: var(
+    --color-primitive-control-default-contrast
+  );
   --color-background-control-checked: var(--color-primitive-control-default);
   --color-background-control-checked-hover: var(
     --color-primitive-control-default-delta
