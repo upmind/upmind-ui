@@ -14,7 +14,7 @@
           alt="logo"
         />
         <span
-          >Powered by
+          >{{ t("text.powered_by") }}
           <a
             href="https://upmind.com"
             target="_blank"
@@ -24,7 +24,7 @@
         >
       </span>
 
-      <div class="flex gap-x-2.5">
+      <div class="flex flex-col gap-y-2.5 sm:flex-row sm:gap-x-2.5">
         <UpmLocale data-testid="locale-selector" />
         <UpmCurrency data-testid="currency-selector" />
       </div>
@@ -33,8 +33,13 @@
 </template>
 
 <script lang="ts" setup>
+// --- external
+import { useI18n } from "vue-i18n";
+
 // --- internal
 import UpmCurrency from "../../modules/basket/components/CurrencySwitcher.vue";
 import UpmLocale from "../../components/LocaleSwitcher.vue";
 import upmindLogo from "../../assets/favicons/favicon.svg";
+
+const { t } = useI18n();
 </script>

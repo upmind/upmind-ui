@@ -9,7 +9,7 @@
       v-if="meta.hasErrors"
       color="error"
       icon="alert-triangle"
-      :title="t(`form.${currentForm}.error`)"
+      :title="alertTitle"
       :description="errors"
     />
 
@@ -131,6 +131,20 @@ const currentForm = computed(() => {
       : meta.value.showRecoverPasswordForm
         ? "recover"
         : "unknown";
+});
+
+const alertTitle = computed(() => {
+  switch (currentForm.value) {
+    case "register": {
+      return t("form.register.error");
+    }
+    case "recover": {
+      return t("form.recover.error");
+    }
+    case "login": {
+      return t("form.login.error");
+    }
+  }
 });
 
 // ---

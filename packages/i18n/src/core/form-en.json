@@ -169,5 +169,12 @@
     "label": null,
     "placeholder": "Enter your domain...",
     "error": null
+  },
+
+  "field_notes": {
+    "description": null,
+    "label": "Order Notes",
+    "placeholder": null,
+    "error": null
   }
 }

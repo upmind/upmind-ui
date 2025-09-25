@@ -11,6 +11,8 @@
     :label="subproduct.title"
     :tooltip="subproduct?.description"
     @blur="blurred = true"
+    :optional-text="props.optionalText"
+    :required-text="props.requiredText"
   >
     <component
       :is="as"
@@ -80,6 +82,8 @@ const props = defineProps<{
   processing?: boolean;
   visible?: boolean;
   size?: number;
+  optionalText?: string;
+  requiredText?: string;
 }>();
 
 // ---
