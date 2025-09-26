@@ -5,8 +5,8 @@ import { cva } from "class-variance-authority";
 export const checkboxVariants = cva(``, {
   variants: {
     size: {
-      sm: "h-2 w-2",
-      md: "h-3 w-3"
+      sm: "h-3 w-3",
+      md: "h-4 w-4"
     }
   },
   defaultVariants: {

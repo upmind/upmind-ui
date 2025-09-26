@@ -30,18 +30,19 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
     :class="
       cn(
         ringClasses,
-        'data-[state=checked]:text-background-control-checked-contrast shadow-border-border-control-default data-[state=checked]:shadow-border-none bg-background-control-checked',
-        'h-3 w-3 shrink-0 rounded-sm border-none peer-last:ml-2 disabled:cursor-not-allowed disabled:opacity-50',
+        'ring-offset-background-control-surface',
+        'data-[state=unchecked]:shadow-border-border-control-default data-[state=checked]:shadow-border-border-control-checked text-primary aspect-square h-4 w-4 rounded-sm disabled:cursor-not-allowed disabled:opacity-50',
+        'text-control-foreground data-[state=checked]:bg-background-control-checked shrink-0',
         props.class
       )
     "
+    :data-state="$attrs['data-state']"
   >
     <CheckboxIndicator
       class="flex h-full w-full items-center justify-center text-current"
     >
       <slot>
-        <!-- <Icon icon="check" /> -->
-        <Check class="h-3 w-3" />
+        <Check class="text-background-control-checked-contrast h-3 w-3" />
       </slot>
     </CheckboxIndicator>
   </CheckboxRoot>
