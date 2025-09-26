@@ -25,6 +25,8 @@ export interface PaginationProps {
   limit: number;
   from?: number;
   to?: number;
+  // --- i18n
+  paginationInfo?: string;
   // --- variants
   size?: PaginationRootVariantProps["size"] | string;
   alignment?: PaginationRootVariantProps["alignment"] | string;
