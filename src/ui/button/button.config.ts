@@ -27,7 +27,7 @@ export const variants = {
       "button-radius bg-background-button-ghost text-text-button-ghost [&:hover,&[data-hover=true]]:bg-background-button-ghost-hover ring-background-button-ghost-ring!",
     link: "button-radius text-text-button-link [&:hover,&[data-hover=true]]:text-text-button-link-hover [&:focus,&[data-focus=true]]:text-text-button-link-hover p-0 underline underline-offset-4 !shadow-none !ring-0 !ring-offset-0 !outline-none",
     "muted-link":
-      "button-radius text-text-button-muted0link [&:hover,&[data-hover=true]]:text-text-button-muted-link-hover [&:focus,&[data-focus=true]]:text-text-button-muted-link p-0 underline underline-offset-4 !shadow-none !ring-0 !ring-offset-0 !outline-none",
+      "button-radius text-text-button-muted-link [&:hover,&[data-hover=true]]:text-text-button-muted-link-hover [&:focus,&[data-focus=true]]:text-text-button-muted-link p-0 underline underline-offset-4 !shadow-none !ring-0 !ring-offset-0 !outline-none font-normal",
     control:
       "control-radius shadow-border-border-control-default hover:border-border-control-hover ring-background-button-control-ring!"
   },
@@ -53,7 +53,7 @@ export const variants = {
 };
 
 export const rootVariants = cva(
-  `ring-offset-background-canvas relative inline-flex items-center whitespace-nowrap no-underline transition-all duration-300`,
+  `ring-offset-background-canvas relative inline-flex items-center font-medium whitespace-nowrap no-underline transition-all duration-300`,
   {
     variants,
     defaultVariants: {
