@@ -34,7 +34,7 @@
 
         <Button
           @click="doClose"
-          :label="t('action.continue')"
+          :label="t('action.continue_label')"
           color="primary"
           size="lg"
           class="w-full md:w-auto"
