@@ -68,7 +68,7 @@ const props = withDefaults(defineProps<PaginationProps>(), {
   uiConfig: () => ({}),
   class: ""
 });
-debugger;
+
 const emit = defineEmits<{
   next: [];
   prev: [];
