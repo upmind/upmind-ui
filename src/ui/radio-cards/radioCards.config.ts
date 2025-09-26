@@ -8,7 +8,7 @@ export const itemVariants = cva(
       isList: {
         true: "my-0.5 border-0",
         false:
-          "shadow-border-border-control-default [&:hover,&[data-hover=true]]:shadow-border-border-control-hover [&:focus-within,&[data-focus=true]]:ring-2 [&:focus-within,&[data-focus=true]]:ring-ring [&:focus-within,&[data-focus=true]]:ring-offset-2 rounded"
+          "shadow-border-border-control-default [&:hover,&[data-hover=true]]:shadow-border-border-control-hover [&:focus-within,&[data-focus=true]]:ring-ring rounded [&:focus-within,&[data-focus=true]]:ring-2 [&:focus-within,&[data-focus=true]]:ring-offset-2"
       },
       width: {
         0: "",
@@ -52,8 +52,8 @@ export default {
     content: {
       label: cva("text-md/tight text-text-display font-medium"),
       secondaryLabel: cva("text-md/tight text-text-display font-medium"),
-      description: cva("text-text-base text-sm/tight"),
-      secondaryDescription: cva("text-text-muted text-sm/tight")
+      description: cva("text-text-base text-sm/tight font-normal"),
+      secondaryDescription: cva("text-text-muted text-sm/tight font-normal")
     }
   }
 };

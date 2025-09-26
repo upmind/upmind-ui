@@ -45,7 +45,7 @@
                 v-bind="props.secondaryBadge"
                 size="sm"
               />
-              <h5 :class="styles.radioCards.content.sublabel">
+              <h5 :class="styles.radioCards.content.secondaryLabel">
                 {{ props.secondaryLabel }}
               </h5>
             </span>
@@ -115,13 +115,7 @@ const meta = computed(() => ({
 }));
 
 const styles = useStyles(
-  [
-    "radioCards",
-    "radioCards.content",
-    "radioCards.content.label1",
-    "radioCards.content.label2",
-    "radioCards.content.label3"
-  ],
+  ["radioCards", "radioCards.content"],
   meta,
   config,
   props.uiConfig ?? {}
@@ -134,7 +128,7 @@ const styles = useStyles(
     input: string;
     content: {
       label: string;
-      sublabel: string;
+      secondaryLabel: string;
       description: string;
       secondaryDescription: string;
     };
