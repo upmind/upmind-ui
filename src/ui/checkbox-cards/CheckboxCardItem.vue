@@ -18,14 +18,18 @@
         :class="
           cn(
             ringClasses,
-            'ring-offset-background-control-surface',
-            'border-border-control bg-base-background text-control-foreground shadow-border-border-control-default flex aspect-square h-4 w-4 shrink-0 items-center justify-center rounded-sm group-disabled:cursor-not-allowed group-disabled:opacity-50',
+            'ring-offset-background-control-surface data-[state=checked]:bg-background-control-checked',
+            'data-[state=unchecked]:shadow-border-border-control-default data-[state=checked]:shadow-border-border-control-checked text-primary h-4 w-4 rounded-sm disabled:cursor-not-allowed disabled:opacity-50',
+            'flex shrink-0 items-center justify-center',
             '[button[data-state=on]_&]:text-control-active-foreground [button[data-state=on]_&]:bg-control-active [button[data-state=off]_&]:text-transparent',
-            props.class
+
+            props.class,
+            props.noInput ? 'sr-only' : ''
           )
         "
+        :data-state="props.checked ? 'checked' : 'unchecked'"
       >
-        <Check class="h-3 w-3" />
+        <Check class="text-background-control-checked-contrast h-3 w-3" />
       </span>
     </span>
 
@@ -42,7 +46,6 @@ import {
   type ToggleGroupItemProps
 } from "radix-vue";
 import { ringClasses } from "../../assets/ring.styles";
-
 import { computed, type HTMLAttributes } from "vue";
 
 const props = defineProps<
@@ -51,6 +54,7 @@ const props = defineProps<
     class?: HTMLAttributes["class"];
     itemClass?: HTMLAttributes["class"];
     noInput?: boolean;
+    checked?: boolean;
   }
 >();
 

@@ -18,6 +18,7 @@
         :no-input="props.noInput"
         :class="cn(styles.checkboxCards.input, props.itemClass)"
         :itemClass="styles.checkboxCards.item"
+        :checked="includes(modelValue, item.value)"
         data-testid="checkbox-item"
       >
         <Label
@@ -39,6 +40,7 @@
 import { computed } from "vue";
 import { useVModel } from "@vueuse/core";
 import { ToggleGroupRoot } from "radix-vue";
+import { includes } from "lodash-es";
 
 // --- internal
 import { cn, useStyles } from "../../utils";
