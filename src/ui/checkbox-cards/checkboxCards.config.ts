@@ -46,6 +46,12 @@ export default {
           }
         }
       }
-    )
+    ),
+    content: {
+      label: cva("text-md/tight text-text-display font-medium"),
+      secondaryLabel: cva("text-md/tight text-text-display font-medium"),
+      description: cva("text-text-base text-sm/tight"),
+      secondaryDescription: cva("text-text-muted text-sm/tight")
+    }
   }
 };

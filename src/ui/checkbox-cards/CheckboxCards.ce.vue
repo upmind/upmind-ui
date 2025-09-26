@@ -27,7 +27,51 @@
           data-testid="checkbox-label"
         >
           <slot name="item" v-bind="{ item, index }">
-            {{ item.label }}
+            <div class="flex w-full items-start gap-4">
+              <div class="flex flex-1 flex-col">
+                <header
+                  v-if="item.label || item.secondaryLabel"
+                  class="flex items-center justify-between"
+                >
+                  <span class="flex gap-2">
+                    <h5 :class="styles.checkboxCards.content.label">
+                      {{ item.label || item.name }}
+                    </h5>
+                    <Badge v-if="item.badge" v-bind="item.badge" size="sm" />
+                  </span>
+                  <span class="flex gap-2">
+                    <Badge
+                      v-if="item.secondaryBadge"
+                      v-bind="item.secondaryBadge"
+                      size="sm"
+                    />
+                    <h5 :class="styles.checkboxCards.content.secondaryLabel">
+                      {{ item.secondaryLabel }}
+                    </h5>
+                  </span>
+                </header>
+                <p
+                  v-if="item.description"
+                  :class="styles.checkboxCards.content.description"
+                >
+                  {{ item.description }}
+                </p>
+                <p
+                  v-if="item.secondaryDescription"
+                  :class="styles.checkboxCards.content.secondaryDescription"
+                >
+                  {{ item.secondaryDescription }}
+                </p>
+              </div>
+              <div v-if="item.action">
+                <Button
+                  variant="muted-link"
+                  :label="item.action"
+                  size="sm"
+                  @click="onAction"
+                />
+              </div>
+            </div>
           </slot>
         </Label>
       </CheckboxCardItem>
@@ -49,6 +93,8 @@ import config from "./checkboxCards.config";
 // --- components
 import CheckboxCardItem from "./CheckboxCardItem.vue";
 import { Label } from "../label";
+import { Button } from "../button";
+import { Badge } from "../badge";
 
 // --- types
 import type { CheckboxCardsProps } from "./types";
@@ -63,6 +109,7 @@ const props = withDefaults(defineProps<CheckboxCardsProps>(), {
 const emits = defineEmits<{
   /** Update the model value */
   (e: "update:modelValue", payload: string[]): void;
+  (e: "action", payload: any): void;
 }>();
 
 defineSlots<{
@@ -83,7 +130,7 @@ const meta = computed(() => ({
 }));
 
 const styles = useStyles(
-  ["checkboxCards"],
+  ["checkboxCards", "checkboxCards.content"],
   meta,
   config,
   props.uiConfig ?? {}
@@ -94,6 +141,16 @@ const styles = useStyles(
     item: string;
     input: string;
     label: string;
+    content: {
+      label: string;
+      secondaryLabel: string;
+      description: string;
+      secondaryDescription: string;
+    };
   };
 }>;
+
+const onAction = (value: any) => {
+  emits("action", value);
+};
 </script>

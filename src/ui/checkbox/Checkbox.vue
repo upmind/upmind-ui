@@ -8,6 +8,7 @@ import {
 } from "radix-vue";
 import { Check } from "lucide-vue-next";
 import { cn } from "../../utils";
+import { ringClasses } from "../../assets/ring.styles";
 
 const props = defineProps<
   CheckboxRootProps & { class?: HTMLAttributes["class"] }
@@ -28,7 +29,9 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
     v-bind="forwarded"
     :class="
       cn(
-        'data-[state=checked]:text-control-active focus-visible:ring-ring shadow-border-border-control-default ring-offset-background-canvas data-[state=checked]:shadow-border-none data-[state=checked]:bg-background-control-checkedpeer h-4 w-4 shrink-0 !rounded-sm border-none peer-last:ml-2 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50',
+        ringClasses,
+        'data-[state=checked]:text-background-control-checked-contrast shadow-border-border-control-default data-[state=checked]:shadow-border-none bg-background-control-checked',
+        'h-3 w-3 shrink-0 rounded-sm border-none peer-last:ml-2 disabled:cursor-not-allowed disabled:opacity-50',
         props.class
       )
     "

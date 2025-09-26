@@ -2,7 +2,7 @@
 import { type HTMLAttributes } from "vue";
 
 // --- types
-import type { ButtonProps } from "../button";
+import type { BadgeProps } from "../badge";
 import type { ToggleGroupRootProps, ToggleGroupItemProps } from "radix-vue";
 import type { CxOptions, VariantProps } from "class-variance-authority";
 
@@ -12,6 +12,12 @@ type CheckboxLabelVariantProps = VariantProps<typeof checkboxLabelVariants>;
 
 export interface CheckboxCardsItemProps extends ToggleGroupItemProps {
   label: string;
+  secondaryLabel?: string;
+  description?: string;
+  secondaryDescription?: string;
+  badge?: BadgeProps;
+  secondaryBadge?: BadgeProps;
+  action?: string;
   id?: string;
   /** When `true`, prevents the user from interacting with the radio item. */
   disabled?: boolean;
