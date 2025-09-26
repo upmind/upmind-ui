@@ -3,6 +3,8 @@
     v-model="modelValue"
     v-bind="delegatedProps"
     :class="cn(styles.textarea, props.class)"
+    :data-hover="$attrs['data-hover']"
+    :data-focus="$attrs['data-focus']"
   />
 </template>
 
