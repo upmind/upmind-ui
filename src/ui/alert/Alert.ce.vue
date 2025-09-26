@@ -1,29 +1,37 @@
 <template>
   <!--<link rel="stylesheet" :href="stylesheet" />-->
 
-  <Alert :class="cn(styles.alert, props.class)">
-    <div class="flex items-center justify-start gap-2">
-      <Icon v-if="icon" :icon="icon" size="2xs" />
-      <div class="text-md/tight flex w-full items-center justify-between gap-2">
-        <AlertTitle class="font-medium">
+  <Alert :class="cn(styles.alert.root, props.class)">
+    <div
+      class="flex items-start justify-start gap-3"
+      :class="styles.alert.icon"
+    >
+      <Icon
+        v-if="icon"
+        :icon="icon"
+        size="2xs"
+        :class="styles.alert.icon"
+        class="p-0.5"
+      />
+      <div class="text-md/tight w-full gap-2">
+        <AlertTitle :class="styles.alert.title">
           <slot name="title">
-            <span>{{ title }} {{ size }}</span>
+            <span>{{ title }}</span>
           </slot>
         </AlertTitle>
 
-        <slot name="action" />
+        <AlertDescription
+          v-if="description || $slots['description']"
+          :class="styles.alert.description"
+        >
+          <slot name="description">
+            {{ description }}
+          </slot>
+        </AlertDescription>
       </div>
     </div>
 
-    <AlertDescription
-      v-if="description || $slots['description']"
-      class="text-md/tight"
-    >
-      <slot name="description">
-        {{ description }}
-      </slot>
-    </AlertDescription>
-
+    <slot name="action" />
     <slot></slot>
   </Alert>
 </template>
@@ -82,5 +90,12 @@ const styles = useStyles(
   meta,
   config,
   props.uiConfig ?? {}
-) as ComputedRef<{ alert: string }>;
+) as ComputedRef<{
+  alert: {
+    root: string;
+    title: string;
+    description: string;
+    icon: string;
+  };
+}>;
 </script>
