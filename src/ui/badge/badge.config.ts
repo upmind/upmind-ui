@@ -74,86 +74,86 @@ export const badgeVariants = cva(
         variant: "minimal",
         color: "primary",
         class:
-          "bg-background-surface border-border-surface text-primitive-primary-muted-contrast stroke-badge"
+          "bg-background-surface shadow-border-badge-border-surface text-primitive-primary-muted-contrast"
       },
       {
         variant: "minimal",
         color: "neutral",
         class:
-          "bg-background-surface-glass border-border-surface text-text-accent-neutral-muted-contrast stroke-badge"
+          "bg-background-surface-glass shadow-border-badge-border-surface text-text-accent-neutral-muted-contrast"
       },
       {
         variant: "minimal",
         color: "promo",
         class:
-          "bg-background-surface-glass border-border-surface text-text-accent-promo-muted-contrast stroke-badge"
+          "bg-background-surface-glass shadow-border-badge-border-surface text-text-accent-promo-muted-contrast"
       },
       {
         variant: "minimal",
         color: "danger",
         class:
-          "bg-background-surface-glass border-border-surface text-text-accent-danger-muted-contrast stroke-badge"
+          "bg-background-surface-glass shadow-border-badge-border-surface text-text-accent-danger-muted-contrast"
       },
       {
         variant: "minimal",
         color: "warning",
         class:
-          "bg-background-surface-glass border-border-surface text-text-accent-warning-muted-contrast stroke-badge"
+          "bg-background-surface-glass shadow-border-badge-border-surface text-text-accent-warning-muted-contrast"
       },
       {
         variant: "minimal",
         color: "success",
         class:
-          "bg-background-surface-glass border-border-surface text-text-accent-success-muted-contrast stroke-badge"
+          "bg-background-surface-glass shadow-border-badge-border-surface text-text-accent-success-muted-contrast"
       },
       {
         variant: "minimal",
         color: "info",
         class:
-          "bg-background-surface-glass border-border-surface text-text-accent-info-muted-contrast stroke-badge"
+          "bg-background-surface-glass shadow-border-badge-border-surface text-text-accent-info-muted-contrast"
       },
       // Muted
       {
         variant: "muted",
         color: "primary",
         class:
-          "primary-stroke bg-primitive-primary-muted text-text-primitive-primary-muted-contrast stroke-badge"
+          "primary-stroke bg-primitive-primary-muted text-text-primitive-primary-muted-contrast"
       },
       {
         variant: "muted",
         color: "neutral",
         class:
-          "bg-background-accent-neutral-muted border-border-accent-neutral text-text-accent-neutral-muted-contrast stroke-badge"
+          "bg-background-accent-neutral-muted shadow-border-badge-border-accent-neutral text-text-accent-neutral-muted-contrast"
       },
       {
         variant: "muted",
         color: "promo",
         class:
-          "bg-background-accent-promo-muted border-border-accent-promo text-text-accent-promo-muted-contrast stroke-badge"
+          "bg-background-accent-promo-muted shadow-border-badge-border-accent-promo text-text-accent-promo-muted-contrast"
       },
       {
         variant: "muted",
         color: "danger",
         class:
-          "bg-background-accent-danger-muted border-border-accent-danger text-text-accent-danger-muted-contrast stroke-badge"
+          "bg-background-accent-danger-muted shadow-border-badge-border-accent-danger text-text-accent-danger-muted-contrast"
       },
       {
         variant: "muted",
         color: "warning",
         class:
-          "bg-background-accent-warning-muted border-border-accent-warning text-text-accent-warning-muted-contrast stroke-badge"
+          "bg-background-accent-warning-muted shadow-border-badge-border-accent-warning text-text-accent-warning-muted-contrast"
       },
       {
         variant: "muted",
         color: "success",
         class:
-          "bg-background-accent-success-muted border-border-accent-success text-text-accent-success-muted-contrast stroke-badge"
+          "bg-background-accent-success-muted shadow-border-badge-border-accent-success text-text-accent-success-muted-contrast"
       },
       {
         variant: "muted",
         color: "info",
         class:
-          "bg-background-accent-info-muted border-border-accent-info text-text-accent-info-muted-contrast stroke-badge"
+          "bg-background-accent-info-muted shadow-border-badge-border-accent-info text-text-accent-info-muted-contrast"
       }
     ]
   }

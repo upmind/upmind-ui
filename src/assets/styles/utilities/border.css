@@ -43,6 +43,9 @@
   --stroke-badge: 1px;
 
   /* Default Shadow Borders */
+  --shadow-border-badge: inset 0 0 0 var(--stroke-badge)
+    var(--border-color-default);
+
   --shadow-border: inset 0 0 0 1px var(--border-color-default);
   --shadow-border-b: inset 0 -1px 0 0 var(--border-color-default);
   --shadow-border-t: inset 0 1px 0 0 var(--border-color-default);
