@@ -61,7 +61,6 @@ import { useI18n } from "vue-i18n";
 import config from "./product.config";
 
 // --- utils
-import { first } from "lodash-es";
 
 // --- components
 import { useStyles } from "@upmind-automation/upmind-ui";

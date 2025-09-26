@@ -53,12 +53,12 @@ function search(
   items?: ComboboxItemProps[]
 ): ComboboxItemProps[] {
   if (!value || isEmpty(items)) {
-    return items || []; // If no search term or no items, return all or empty
+    return items || [];
   }
 
   const lowercasedSearchTerm = value.toString().toLowerCase();
 
-  return filter(items, (item: ComboboxItemProps) => {
+  return (items || []).filter((item: ComboboxItemProps) => {
     // 1. Check the human-readable label (e.g., "Portuguese")
     const label = get(item, "label")?.toString().toLowerCase();
     const matchesLabel = label && includes(label, lowercasedSearchTerm);
