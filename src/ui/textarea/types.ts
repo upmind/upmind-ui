@@ -25,8 +25,6 @@ export interface TextareaProps {
   // ---
   maxlength?: number;
   minlength?: number;
-  // --- variants
-  size?: TextareaVariantProps["size"] | string;
   // ---
   uiConfig?: { textarea: CxOptions };
   class?: HTMLAttributes["class"];
