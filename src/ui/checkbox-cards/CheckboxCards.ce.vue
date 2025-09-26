@@ -30,7 +30,7 @@
         >
           <slot name="item" v-bind="{ item, index }">
             <div class="flex w-full items-start gap-4">
-              <div class="flex flex-1 flex-col">
+              <span class="flex flex-1 flex-col">
                 <header
                   v-if="item.label || item.secondaryLabel"
                   class="flex items-center justify-between"
@@ -64,15 +64,15 @@
                 >
                   {{ item.secondaryDescription }}
                 </p>
-              </div>
-              <div v-if="item.action">
+              </span>
+              <span v-if="item.action" class="leading-none">
                 <Button
                   variant="muted-link"
                   :label="item.action"
                   size="sm"
                   @click="onAction"
                 />
-              </div>
+              </span>
             </div>
           </slot>
         </Label>

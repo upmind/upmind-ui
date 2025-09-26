@@ -28,10 +28,10 @@
       }"
     >
       <div class="flex w-full items-start gap-4">
-        <div class="flex flex-1 flex-col">
+        <span class="flex flex-1 flex-col">
           <header
             v-if="props.label || props.secondaryLabel"
-            class="flex items-center justify-between"
+            class="flex justify-between"
           >
             <span class="flex gap-2">
               <h5 :class="styles.radioCards.content.label">
@@ -62,15 +62,15 @@
           >
             {{ props.secondaryDescription }}
           </p>
-        </div>
-        <div v-if="props.action">
+        </span>
+        <span v-if="props.action" class="leading-none">
           <Button
             variant="muted-link"
             :label="props.action"
             size="sm"
             @click="onAction"
           />
-        </div>
+        </span>
       </div>
     </slot>
   </Label>
