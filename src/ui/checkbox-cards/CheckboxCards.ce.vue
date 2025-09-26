@@ -20,6 +20,8 @@
         :itemClass="styles.checkboxCards.item"
         :checked="includes(modelValue, item.value)"
         data-testid="checkbox-item"
+        :data-hover="$attrs['data-hover']"
+        :data-focus="$attrs['data-focus']"
       >
         <Label
           :for="`${item.id}-${index}`"

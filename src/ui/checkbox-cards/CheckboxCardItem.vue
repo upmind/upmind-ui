@@ -28,6 +28,8 @@
           )
         "
         :data-state="props.checked ? 'checked' : 'unchecked'"
+        :data-hover="$attrs['data-hover']"
+        :data-focus="$attrs['data-focus']"
       >
         <Check class="text-background-control-checked-contrast h-3 w-3" />
       </span>
