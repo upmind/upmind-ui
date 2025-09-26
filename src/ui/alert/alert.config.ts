@@ -20,7 +20,7 @@ export const variants = {
   }
 };
 
-const rootVariants = cva("message-radius", {
+const rootVariants = cva("message-radius flex items-end justify-between", {
   variants: {
     variant: {
       muted: "", // Contextual background and no border
@@ -209,7 +209,7 @@ const iconVariants = cva("", {
   variants: {
     variant: {
       muted: "",
-      minimal: "text-text-muted"
+      minimal: ""
     },
     size: variants.size,
     color: variants.color
@@ -283,12 +283,61 @@ const iconVariants = cva("", {
   ]
 });
 
+const actionVariants = cva("", {
+  variants: {
+    variant: {
+      muted: "",
+      minimal: "text-text-muted"
+    },
+    size: variants.size,
+    color: variants.color
+  },
+  defaultVariants: {
+    variant: "minimal",
+    color: "neutral",
+    size: "md"
+  },
+  compoundVariants: [
+    {
+      variant: "muted",
+      color: "neutral",
+      class: "text-text-accent-neutral-muted-contrast"
+    },
+    {
+      variant: "muted",
+      color: "promo",
+      class: "text-text-accent-promo-muted-contrast"
+    },
+    {
+      variant: "muted",
+      color: "danger",
+      class: "text-text-accent-danger-muted-contrast"
+    },
+    {
+      variant: "muted",
+      color: "warning",
+      class: "text-text-accent-warning-muted-contrast"
+    },
+    {
+      variant: "muted",
+      color: "success",
+      class: "text-text-accent-success-muted-contrast"
+    },
+    {
+      variant: "muted",
+      color: "info",
+      class: "text-text-accent-info-muted-contrast"
+    }
+  ]
+});
+
 // -----------------------------------------------------------------------------
 export default {
   alert: {
     root: rootVariants,
     title: titleVariants,
     description: descriptionVariants,
-    icon: iconVariants
+    icon: iconVariants,
+    action: actionVariants
   }
 };

@@ -2,10 +2,7 @@
   <!--<link rel="stylesheet" :href="stylesheet" />-->
 
   <Alert :class="cn(styles.alert.root, props.class)">
-    <div
-      class="flex items-start justify-start gap-3"
-      :class="styles.alert.icon"
-    >
+    <header class="flex items-start justify-start gap-3">
       <Icon
         v-if="icon"
         :icon="icon"
@@ -28,11 +25,24 @@
             {{ description }}
           </slot>
         </AlertDescription>
-      </div>
-    </div>
 
-    <slot name="action" />
-    <slot></slot>
+        <slot></slot>
+      </div>
+    </header>
+
+    <footer v-if="action || $slots['action']">
+      <slot name="action">
+        <div class="flex items-center gap-0.5" :class="styles.alert.action">
+          <Button
+            size="sm"
+            variant="muted-link"
+            :label="action"
+            class="text-current"
+          />
+          <Icon icon="arrow-right" class="p-1.5 [&>svg]:size-3" />
+        </div>
+      </slot>
+    </footer>
   </Alert>
 </template>
 
@@ -52,6 +62,7 @@ import {
 import Alert from "./Alert.vue";
 import AlertTitle from "./AlertTitle.vue";
 import AlertDescription from "./AlertDescription.vue";
+import { Button } from "../button";
 import { Icon } from "../icon";
 
 // --- types
@@ -96,6 +107,7 @@ const styles = useStyles(
     title: string;
     description: string;
     icon: string;
+    action: string;
   };
 }>;
 </script>

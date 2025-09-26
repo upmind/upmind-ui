@@ -14,6 +14,8 @@ export interface AlertProps {
   description?: string;
   /** An optional icon for the alert */
   icon?: string | Icon;
+  /** An optional action for the alert */
+  action?: string;
   // ---
   variant?: AlertVariantProps["variant"] | string;
   color?: AlertVariantProps["color"] | string;
