@@ -10,7 +10,7 @@
           v-if="meta?.isDefault"
           variant="flat"
           size="sm"
-          :label="t('text.default')"
+          :label="t('text.default_label')"
         />
       </h3>
 

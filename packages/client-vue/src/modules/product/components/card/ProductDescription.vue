@@ -1,11 +1,16 @@
 <template>
-  <component :is="component">
+  <component
+    :is="component"
+    :label-more="t('action.show_more')"
+    :label-less="t('action.show_less')"
+  >
     {{ description }}
   </component>
 </template>
 
 <script setup lang="ts">
 // --- external
+import { useI18n } from "vue-i18n";
 import { computed } from "vue";
 
 // --- components
@@ -25,4 +30,6 @@ const component = computed(() => {
   }
   return "p";
 });
+
+const { t } = useI18n();
 </script>

@@ -52,6 +52,12 @@
         :meta="meta"
         @next="nextPage"
         @prev="prevPage"
+        :pagination-info="
+          t('text.pagination_info', {
+            page: '{page}',
+            pages: '{pages}'
+          })
+        "
       />
     </section>
 
@@ -81,8 +87,8 @@
 
 <script setup lang="ts">
 // --- external
-import { watch, ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { watch, ref, computed } from "vue";
 
 // --- internal
 import {

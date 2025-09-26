@@ -31,7 +31,7 @@
       <template v-if="currentForm === 'register'" #footer>
         <TermsAndConditions
           class="text-emphasis-medium text-sm"
-          :label="t('auth.actions.register')"
+          :label="t('action.continue_label')"
         />
       </template>
     </Form>
@@ -161,7 +161,7 @@ const buttons = computed(() => {
     },
     recover: {
       label: t("auth.forgot_password_qn"),
-      action: t("session.recover.actions.action") // TODO: this does not exist in translations
+      action: t("session.recover.actions.action")
     }
   };
 });
@@ -173,10 +173,10 @@ const authActions = computed(() => {
       label: meta.value.showLoginForm
         ? t("action.log_into_my_account")
         : meta.value.showRegisterForm
-          ? t("action.continue")
+          ? t("action.continue_label")
           : meta.value.showRecoverPasswordForm
             ? t("action.send_reset")
-            : t("action.continue"),
+            : t("action.continue_label"),
       block: true,
       needsValid: true,
       size: "lg"
