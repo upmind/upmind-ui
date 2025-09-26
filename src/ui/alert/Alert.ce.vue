@@ -7,7 +7,7 @@
       <div class="text-md/tight flex w-full items-center justify-between gap-2">
         <AlertTitle class="font-medium">
           <slot name="title">
-            <span>{{ title }}</span>
+            <span>{{ title }} {{ size }}</span>
           </slot>
         </AlertTitle>
 
@@ -73,7 +73,8 @@ defineSlots<{
 
 const meta = computed(() => ({
   variant: props.variant,
-  color: props.color
+  color: props.color,
+  size: props.size
 }));
 
 const styles = useStyles(

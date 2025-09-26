@@ -1,138 +1,102 @@
 import { cva } from "class-variance-authority";
 
-export const alertVariants = cva(
-  "group relative flex w-full flex-col gap-1 rounded p-4 px-6 [&>i]:absolute [&>i]:top-4 [&>i]:left-4 [&>i+div]:translate-y-[-3px] [&>i~*]:pl-7",
-  {
-    // Alert props doesn't see that the variants exist without these
-    variants: {
-      variant: {
-        outline: "border",
-        solid: ""
-      },
-      color: {
-        base: "",
-        primary: "",
-        secondary: "",
-        accent: "",
-        promotion: "",
-        destructive: "",
-        success: "",
-        info: "",
-        error: "",
-        warning: ""
-      }
-    },
-    compoundVariants: [
-      {
-        variant: "solid",
-        color: "base",
-        class: "bg-base-muted text-base-muted-foreground"
-      },
-      {
-        variant: "solid",
-        color: "primary",
-        class: "bg-primary-muted text-primary-muted-foreground"
-      },
-      {
-        variant: "solid",
-        color: "secondary",
-        class: "bg-secondary-muted text-secondary-muted-foreground"
-      },
-      {
-        variant: "solid",
-        color: "accent",
-        class: "bg-accent-muted text-accent-muted-foreground"
-      },
-      {
-        variant: "solid",
-        color: "promotion",
-        class: "bg-promotion-muted text-promotion-muted-foreground"
-      },
-      {
-        variant: "solid",
-        color: "destructive",
-        class: "bg-destructive-muted text-destructive-muted-foreground"
-      },
-      {
-        variant: "solid",
-        color: "success",
-        class: "bg-success-muted text-success-muted-foreground"
-      },
-      {
-        variant: "solid",
-        color: "warning",
-        class: "bg-warning-muted text-warning-muted-foreground"
-      },
-      {
-        variant: "solid",
-        color: "info",
-        class: "bg-info-muted text-info-muted-foreground"
-      },
-      {
-        variant: "solid",
-        color: "error",
-        class: "bg-error-muted text-error-muted-foreground"
-      },
-      {
-        variant: "outline",
-        color: "base",
-        class: "bg-base-background text-base-foreground border"
-      },
-      {
-        variant: "outline",
-        color: "primary",
-        class: "bg-primary-muted text-primary-muted-foreground border-primary"
-      },
-      {
-        variant: "outline",
-        color: "secondary",
-        class:
-          "bg-secondary-muted text-secondary-muted-foreground border-secondary"
-      },
-      {
-        variant: "outline",
-        color: "accent",
-        class: "test bg-accent-muted text-accent-muted-foreground border-accent"
-      },
-      {
-        variant: "outline",
-        color: "promotion",
-        class:
-          "bg-promotion-muted text-promotion-muted-foreground border-promotion"
-      },
-      {
-        variant: "outline",
-        color: "destructive",
-        class:
-          "bg-destructive-muted text-destructive-muted-foreground border-destructive"
-      },
-      {
-        variant: "outline",
-        color: "success",
-        class: "bg-success-muted text-success-muted-foreground border-success"
-      },
-      {
-        variant: "outline",
-        color: "info",
-        class: "bg-info-muted text-info-muted-foreground border-info"
-      },
-      {
-        variant: "outline",
-        color: "error",
-        class: "bg-error-muted border-error text-error"
-      },
-      {
-        variant: "outline",
-        color: "warning",
-        class: "bg-warning-muted text-warning-muted-foreground border-warning"
-      }
-    ],
-    defaultVariants: {
-      variant: "outline",
-      color: "base"
-    }
+export const variants = {
+  variant: {
+    minimal: "bg-background-surface border-[1.5px]",
+    muted: ""
+  },
+  size: {
+    sm: "p-4",
+    md: "px-4 py-5"
+  },
+  color: {
+    neutral: "",
+    promo: "",
+    danger: "",
+    warning: "",
+    success: "",
+    info: ""
   }
-);
+};
+
+export const alertVariants = cva("message-radius", {
+  variants,
+  defaultVariants: {
+    variant: "minimal",
+    color: "neutral",
+    size: "md"
+  },
+  compoundVariants: [
+    // Minimal
+    {
+      variant: "minimal",
+      color: "neutral",
+      class: "border-border-accent-neutral"
+    },
+    {
+      variant: "minimal",
+      color: "promo",
+      class: "border-border-accent-promo"
+    },
+    {
+      variant: "minimal",
+      color: "danger",
+      class: "border-border-accent-danger"
+    },
+    {
+      variant: "minimal",
+      color: "warning",
+      class: "border-border-accent-warning"
+    },
+    {
+      variant: "minimal",
+      color: "success",
+      class: "border-border-accent-success"
+    },
+    {
+      variant: "minimal",
+      color: "info",
+      class: "border-border-accent-info"
+    },
+    // Muted
+    {
+      variant: "muted",
+      color: "neutral",
+      class:
+        "bg-background-accent-neutral-muted text-text-accent-neutral-muted-contrast"
+    },
+    {
+      variant: "muted",
+      color: "promo",
+      class:
+        "bg-background-accent-promo-muted text-text-accent-promo-muted-contrast"
+    },
+    {
+      variant: "muted",
+      color: "danger",
+      class:
+        "bg-background-accent-danger-muted text-text-accent-danger-muted-contrast"
+    },
+    {
+      variant: "muted",
+      color: "warning",
+      class:
+        "bg-background-accent-warning-muted text-text-accent-warning-muted-contrast"
+    },
+    {
+      variant: "muted",
+      color: "success",
+      class:
+        "bg-background-accent-success-muted text-text-accent-success-muted-contrast"
+    },
+    {
+      variant: "muted",
+      color: "info",
+      class:
+        "bg-background-accent-info-muted text-text-accent-info-muted-contrast"
+    }
+  ]
+});
 
 // -----------------------------------------------------------------------------
 export default {

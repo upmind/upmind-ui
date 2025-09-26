@@ -17,6 +17,7 @@ export interface AlertProps {
   // ---
   variant?: AlertVariantProps["variant"] | string;
   color?: AlertVariantProps["color"] | string;
+  size?: AlertVariantProps["size"] | string;
   // ---
   uiConfig?: { alert: CxOptions };
   class?: HTMLAttributes["class"];
