@@ -6,6 +6,7 @@ import {
   getCurrentOrderId,
   setOrderCurrency
 } from "../support/utils/functions/basket";
+import { setLocale } from "../support/utils/functions/locale-helper";
 import { URLs } from "../support/constants/urls";
 
 test.describe("Error Code Handling", async () => {
@@ -29,6 +30,7 @@ test.describe("Error Code Handling", async () => {
     test(`Display ${errorCode} error message`, async ({ page }) => {
       await returnError(page, route, errorCode, responseError);
       await page.goto(url);
+      await setLocale(page, "pt"); //temp
       await page.waitForLoadState("domcontentloaded");
       if (errorType === "dialog") {
         const dialog = page.getByRole("dialog");
