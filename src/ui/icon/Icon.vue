@@ -25,7 +25,7 @@ import {
 import config from "./icon.config";
 
 // --- utils
-import { find, isObject, endsWith, isEmpty } from "lodash-es";
+import { find, isObject, endsWith, isEmpty, trimEnd } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -67,8 +67,13 @@ const icons = import.meta.glob("@icons/**/*.svg", {
 const svg = ref();
 
 watchEffect(async () => {
-  const safePath = isObject(props.icon) ? `${props.icon?.path}/` : "";
-  const safeName = isObject(props.icon) ? props.icon?.name : props.icon;
+  const safePath = isObject(props.icon)
+    ? `${trimEnd(props.icon?.path, "/")}/`
+    : "";
+  const safeName = trimEnd(
+    isObject(props.icon) ? props.icon?.name : props.icon,
+    ".svg"
+  );
 
   const exactMatch = find(icons, (fn, iconPath) => {
     const pathParts = iconPath.split("/");
