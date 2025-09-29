@@ -8,7 +8,6 @@
     :toast-options="{
       classes: {
         toast: cn(
-          styles.sonner.base.toast,
           styles.sonner.neutral.toast,
           styles.sonner.success.toast,
           styles.sonner.danger.toast,
@@ -17,7 +16,6 @@
           styles.sonner.promo.toast
         ),
         actionButton: cn(
-          styles.sonner.base.actionButton,
           styles.sonner.neutral.actionButton,
           styles.sonner.success.actionButton,
           styles.sonner.danger.actionButton,
@@ -26,7 +24,6 @@
           styles.sonner.promo.actionButton
         ),
         closeButton: cn(
-          styles.sonner.base.closeButton,
           styles.sonner.neutral.closeButton,
           styles.sonner.success.closeButton,
           styles.sonner.danger.closeButton,
@@ -99,7 +96,6 @@ const props = defineProps<SonnerProps>();
 const styles = useStyles(
   [
     "sonner",
-    "sonner.base",
     "sonner.neutral",
     "sonner.success",
     "sonner.danger",
@@ -112,11 +108,6 @@ const styles = useStyles(
   props.uiConfig ?? {}
 ) as ComputedRef<{
   sonner: {
-    base: {
-      toast: string;
-      actionButton: string;
-      closeButton: string;
-    };
     neutral: {
       toast: string;
       actionButton: string;
