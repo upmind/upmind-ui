@@ -3,6 +3,7 @@
     :class="styles.products.main.root"
     role="main"
     aria-label="Product listing"
+    data-testid="widget-grid"
   >
     <!-- Search and controls -->
     <div :class="styles.products.main.controls">
