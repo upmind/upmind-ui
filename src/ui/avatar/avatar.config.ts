@@ -3,125 +3,51 @@ import { cva } from "class-variance-authority";
 import { ringClasses } from "../../assets/ring.styles";
 // -----------------------------------------------------------------------------
 
-// --- for out Typescript type
+export const variants = {
+  color: {
+    blue: "bg-background-blue",
+    pink: "bg-background-pink",
+    orange: "bg-background-orange",
+    green: "bg-background-green",
+    yellow: "bg-background-yellow",
+    purple: "bg-background-purple"
+  },
+  fit: {
+    cover: "object-cover",
+    contain: "object-contain p-[0.5em]"
+  },
+  size: {
+    auto: "",
+    xs: "size-6 text-xs leading-6",
+    sm: "size-8 text-sm leading-6",
+    md: "size-10 text-md leading-6",
+    lg: "size-12 text-lg leading-6",
+    xl: "size-14 text-xl leading-8",
+    "2xl": "size-16 text-2xl leading-8"
+  },
+  shape: {
+    color: "base",
+    circle: "rounded-full",
+    square: "rounded-md"
+  },
+  focusable: {
+    true: `${ringClasses}`
+  }
+};
+
 export const avatarVariants = cva(
-  "relative inline-flex aspect-square shrink-0 items-center justify-center overflow-hidden font-medium select-none",
+  "text-text-white relative inline-flex aspect-square shrink-0 items-center justify-center overflow-hidden font-medium select-none",
   {
-    variants: {
-      color: {
-        base: "bg-base-muted text-base-muted-foreground",
-        primary: "bg-primary text-primary-foreground",
-        secondary: "bg-secondary text-secondary-foreground",
-        accent: "bg-accent text-accent-foreground",
-        promotion: "bg-promotion text-promotion-foreground",
-        destructive: "bg-error text-error-foreground",
-        success: "bg-success text-success-foreground",
-        info: "bg-info text-info-foreground",
-        error: "bg-error text-error-foreground",
-        warning: "bg-warning text-warning-foreground",
-        transparent: "text-primary overflow-visible bg-transparent"
-      },
-      variant: {
-        flat: "",
-        outline: "bg-transparent ring-1 ring-inset"
-      },
-      fit: {
-        cover: "object-cover",
-        contain: "object-contain p-[0.5em]"
-      },
-      size: {
-        auto: "",
-        nano: "size-4",
-        "3xs": "size-5",
-        "2xs": "size-5",
-        xs: "size-6",
-        sm: "size-8",
-        md: "size-10",
-        lg: "size-12",
-        xl: "size-14",
-        "2xl": "size-16",
-        "3xl": "size-20",
-        "4xl": "size-24",
-        "5xl": "size-28",
-        "6xl": "size-32"
-      },
-      shape: {
-        color: "base",
-        circle: "rounded-full",
-        square: "rounded-md"
-      },
-      focusable: {
-        true: `${ringClasses}`
-      }
-    },
+    variants,
     defaultVariants: {
       fit: "cover",
       size: "md",
       shape: "circle",
-      variant: "flat"
-    },
-    compoundVariants: [
-      {
-        variant: "outline",
-        color: "base",
-        className: "ring-base-muted text-base-muted"
-      },
-      {
-        variant: "outline",
-        color: "primary",
-        className: "text-primary ring-primary"
-      },
-      {
-        variant: "outline",
-        color: "secondary",
-        className: "text-secondary ring-secondary"
-      },
-      {
-        variant: "outline",
-        color: "accent",
-        className: "text-accent ring-accent"
-      },
-      {
-        variant: "outline",
-        color: "promotion",
-        className: "text-promotion ring-promotion"
-      },
-      {
-        variant: "outline",
-        color: "destructive",
-        className: "text-error ring-error"
-      },
-      {
-        variant: "outline",
-        color: "success",
-        className: "text-success ring-success"
-      },
-      {
-        variant: "outline",
-        color: "info",
-        className: "text-info ring-info"
-      },
-      {
-        variant: "outline",
-        color: "error",
-        className: "text-error ring-error"
-      },
-      {
-        variant: "outline",
-        color: "warning",
-        className: "text-warning ring-warning"
-      },
-      {
-        variant: "outline",
-        color: "transparent",
-        className: "text-primary ring-primary"
-      }
-    ]
+      color: "blue"
+    }
   }
 );
 
-// -----------------------------------------------------------------------------
-// --- for our useStyles helper
 export default {
   avatar: avatarVariants
 };
