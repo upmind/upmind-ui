@@ -17,7 +17,7 @@ export const containerVariant = cva("mx-auto w-full", {
     }
   },
   defaultVariants: {
-    width: "app"
+    width: "xs"
   }
 });
 
@@ -59,7 +59,7 @@ export default {
   drawer: {
     overlay: overlayVariant,
     container: containerVariant,
-    content: cva("w-full"),
+    content: cva("bg-background-surface w-full rounded-t-lg border-none py-12"),
     inner: innerVariant,
     header: "",
     footer: ""

@@ -30,7 +30,7 @@
         </div>
       </DrawerHeader>
 
-      <div :class="cn(styles.drawer.inner)">
+      <div v-if="$slots['default']" :class="cn(styles.drawer.inner)">
         <div :class="cn('py-1', styles.drawer.container, props.classContent)">
           <slot></slot>
         </div>
