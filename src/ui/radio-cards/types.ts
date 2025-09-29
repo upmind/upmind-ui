@@ -27,7 +27,7 @@ export interface RadioCardsItemProps extends RadioGroupItemProps {
 
 export interface RadioCardsProps extends RadioGroupRootProps {
   label?: string;
-  placeholder?: string;
+  // placeholder?: string;
   noneText?: string;
   required?: boolean;
   overrideIndex?: number;
