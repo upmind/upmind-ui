@@ -63,8 +63,7 @@ const props = withDefaults(defineProps<TabsProps>(), {
   tabs: (): TabItem[] => [],
   defaultValue: "",
   // -- styles
-  color: "base",
-  variant: "outline",
+  color: "default",
   // --- styles
   uiConfig: () => ({
     tabs: {
@@ -78,13 +77,8 @@ const props = withDefaults(defineProps<TabsProps>(), {
 const emits = defineEmits<TabsRootEmits>();
 const forwarded = useForwardPropsEmits(props, emits);
 
-const onTabClick = (value: string) => {
-  emits("update:modelValue", value);
-};
-
 const meta = computed(() => ({
   color: props.color,
-  variant: props.variant,
   alignment: props.alignment,
   width: props.width
 }));
