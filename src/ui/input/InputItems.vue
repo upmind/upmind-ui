@@ -3,7 +3,7 @@
   <Avatar
     v-if="avatar"
     :avatar="avatar"
-    size="2xs"
+    size="xs"
     :class="styles.input.items"
   />
 </template>

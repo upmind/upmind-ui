@@ -23,8 +23,8 @@ export interface TabsProps extends TabsRootProps, TabsListProps {
   tabs: TabItem[];
   defaultValue?: string;
   // ---
-  alignment?: TabsListVariantProps["alignment"] | string;
-  width?: TabsListVariantProps["width"] | string;
+  alignment?: TabsListVariantProps["alignment"];
+  width?: TabsListVariantProps["width"];
   // ---
   uiConfig?: {
     tabs: {

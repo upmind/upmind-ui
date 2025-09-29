@@ -65,11 +65,10 @@ const props = withDefaults(defineProps<AvatarProps>(), {
   src: "",
   caption: "",
   //  --- styles
-  color: "base",
+  color: "primary",
   fit: "cover",
   shape: "circle",
-  size: "auto",
-  variant: "flat",
+  size: "xs",
 
   // --- styles
   uiConfig: () => ({ avatar: [] }),
@@ -81,7 +80,6 @@ const meta = computed(() => ({
   fit: props.fit,
   shape: props.shape,
   size: props.size,
-  variant: props.variant,
   focusable: props.focusable,
   // ---
   hasIcon: !isEmpty(props.icon),

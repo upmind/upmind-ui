@@ -5,6 +5,7 @@ import { ringClasses } from "../../assets/ring.styles";
 
 export const variants = {
   color: {
+    primary: "bg-background-primary",
     blue: "bg-background-blue",
     pink: "bg-background-pink",
     orange: "bg-background-orange",

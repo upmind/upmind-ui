@@ -72,8 +72,8 @@ import type { AlertProps } from "./types";
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<AlertProps>(), {
   // --- styles
-  variant: "solid",
-  color: "base",
+  variant: "muted",
+  color: "neutral",
   // --- styles
   uiConfig: () => ({ alert: [] }),
   class: ""

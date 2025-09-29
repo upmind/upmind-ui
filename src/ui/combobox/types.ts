@@ -60,7 +60,7 @@ export interface ComboboxProps
   color?: ItemVariantProps["color"] | string;
   variant?: ButtonProps["variant"];
   width?: ContentVariantsProps["width"] | string;
-  iconSize?: IconProps["size"];
+  iconSize?: AvatarProps["size"];
   // --- styles
   ring?: boolean;
   uiConfig?: { combobox: CxOptions };

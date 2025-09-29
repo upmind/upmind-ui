@@ -48,7 +48,7 @@ const modelValue = useVModel(props, "modelValue", emits, {
 });
 
 const meta = computed(() => ({
-  size: props.size
+  //
 }));
 
 const styles = useStyles(

@@ -21,7 +21,7 @@
             <Avatar
               v-if="meta.hasAvatar"
               v-bind="avatar"
-              size="3xs"
+              size="xs"
               shape="circle"
               fit="cover"
               aria-hidden="true"
@@ -202,7 +202,7 @@ const props = withDefaults(defineProps<ComboboxProps>(), {
   side: "bottom",
   // ---
   icon: "",
-  iconSize: "2xs",
+  iconSize: "xs",
 
   // --- styles
   uiConfig: () => ({ combobox: [] }),

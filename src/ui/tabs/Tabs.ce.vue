@@ -2,19 +2,9 @@
   <!--<link rel="stylesheet" :href="stylesheet" />-->
 
   <Tabs v-bind="forwarded">
-    <TabsList
-      :class="styles.tabs.list"
-      :color="color"
-      :variant="variant"
-      v-if="tabs.length > 1"
-    >
+    <TabsList :class="styles.tabs.list" v-if="tabs.length > 1">
       <template v-for="item in tabs" :key="item.value">
-        <TabsTrigger
-          :value="item.value"
-          :class="styles.tabs.trigger"
-          :color="props.color"
-          :variant="props.variant"
-        >
+        <TabsTrigger :value="item.value" :class="styles.tabs.trigger">
           <slot :name="`trigger.${item.value}`">{{ item.label }}</slot>
         </TabsTrigger>
       </template>
@@ -78,7 +68,6 @@ const emits = defineEmits<TabsRootEmits>();
 const forwarded = useForwardPropsEmits(props, emits);
 
 const meta = computed(() => ({
-  color: props.color,
   alignment: props.alignment,
   width: props.width
 }));
