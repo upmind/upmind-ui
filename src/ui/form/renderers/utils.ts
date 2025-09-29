@@ -7,6 +7,7 @@ import {
   getErrorAt,
   getFirstPrimitiveProp,
   getSubErrorsAt,
+  isLayout,
   rankWith,
   Resolve
 } from "@jsonforms/core";
@@ -27,7 +28,9 @@ import {
 import type {
   Tester,
   JsonFormsSubStates,
-  CombinatorSubSchemaRenderInfo
+  CombinatorSubSchemaRenderInfo,
+  IterateCallback,
+  UISchemaElement
 } from "@jsonforms/core";
 import type { ErrorObject } from "ajv";
 import type { FormControlProps } from "../types";
@@ -335,3 +338,30 @@ export function registerEntry(
   };
   return entry;
 }
+
+/**
+ * Iterates over the UISchema elements and applies a callback function.
+ * A more comprehensive implementation than in JsonForms core, as it also
+ * iterates over detail elements and not just layout elements.
+ * @param uischema The UISchema element to iterate over.
+ * @param toApply The callback function to apply to each element.
+ * @returns void
+ */
+export const iterateSchema = (
+  uischema: UISchemaElement,
+  toApply: IterateCallback
+): void => {
+  if (isEmpty(uischema)) return;
+
+  if (isLayout(uischema)) {
+    uischema.elements.forEach(child => iterateSchema(child, toApply));
+    return;
+  }
+
+  if (uischema?.options?.detail?.elements) {
+    uischema.options.detail.elements.forEach((child: UISchemaElement) =>
+      iterateSchema(child, toApply)
+    );
+  }
+  toApply(uischema);
+};
