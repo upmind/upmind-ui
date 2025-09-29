@@ -73,6 +73,7 @@ import { isEqual } from "lodash-es";
 const props = withDefaults(defineProps<SelectProps>(), {
   // --- props
   items: () => [],
+  placeholder: "",
   // -- styles
   variant: "outline",
   size: "md",
