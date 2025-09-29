@@ -27,6 +27,7 @@ export interface DialogProps
   description?: string;
   // ---
   noHeader?: boolean;
+  noFooter?: boolean;
   // ---
   open?: boolean;
   dismissable?: boolean;

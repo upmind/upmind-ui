@@ -52,14 +52,19 @@
       </div>
 
       <DialogFooter
-        v-if="$slots.footer || ($slots.close && dismissable) || $slots.actions"
+        v-if="$slots.footer || dismissable || $slots.actions"
         :class="props.classFooter"
       >
-        <slot name="footer" />
-
-        <DialogClose @click="forceClose" v-if="$slots.close && dismissable">
-          <slot name="close" />
-        </DialogClose>
+        <slot name="footer">
+          <slot name="close">
+            <Button
+              @click="forceClose"
+              v-if="!noFooter"
+              variant="muted-link"
+              label="Close"
+            />
+          </slot>
+        </slot>
 
         <slot name="actions" />
       </DialogFooter>
@@ -86,6 +91,7 @@ import DialogTitle from "./DialogTitle.vue";
 import DialogDescription from "./DialogDescription.vue";
 import DialogTrigger from "./DialogTrigger.vue";
 import DialogClose from "./DialogClose.vue";
+import { Button } from "../button";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -102,6 +108,7 @@ const props = withDefaults(defineProps<DialogProps>(), {
   // --- props
   open: false,
   dismissable: true,
+  noFooter: false,
   title: "",
   description: "",
   // --- styles
