@@ -9,39 +9,30 @@
       classes: {
         toast: cn(
           styles.sonner.base.toast,
-          styles.sonner.primary.toast,
-          styles.sonner.secondary.toast,
-          styles.sonner.accent.toast,
+          styles.sonner.neutral.toast,
           styles.sonner.success.toast,
-          styles.sonner.error.toast,
+          styles.sonner.danger.toast,
           styles.sonner.warning.toast,
           styles.sonner.info.toast,
-          styles.sonner.promotion.toast,
-          styles.sonner.destructive.toast
+          styles.sonner.promo.toast
         ),
         actionButton: cn(
           styles.sonner.base.actionButton,
-          styles.sonner.primary.actionButton,
-          styles.sonner.secondary.actionButton,
-          styles.sonner.accent.actionButton,
+          styles.sonner.neutral.actionButton,
           styles.sonner.success.actionButton,
-          styles.sonner.error.actionButton,
+          styles.sonner.danger.actionButton,
           styles.sonner.warning.actionButton,
           styles.sonner.info.actionButton,
-          styles.sonner.promotion.actionButton,
-          styles.sonner.destructive.actionButton
+          styles.sonner.promo.actionButton
         ),
         closeButton: cn(
           styles.sonner.base.closeButton,
-          styles.sonner.primary.closeButton,
-          styles.sonner.secondary.closeButton,
-          styles.sonner.accent.closeButton,
+          styles.sonner.neutral.closeButton,
           styles.sonner.success.closeButton,
-          styles.sonner.error.closeButton,
+          styles.sonner.danger.closeButton,
           styles.sonner.warning.closeButton,
           styles.sonner.info.closeButton,
-          styles.sonner.promotion.closeButton,
-          styles.sonner.destructive.closeButton
+          styles.sonner.promo.closeButton
         )
         // title: cn(
         //   styles.sonner.base.title,
@@ -108,15 +99,12 @@ const styles = useStyles(
   [
     "sonner",
     "sonner.base",
-    "sonner.primary",
-    "sonner.secondary",
-    "sonner.accent",
+    "sonner.neutral",
     "sonner.success",
-    "sonner.error",
+    "sonner.danger",
+    "sonner.warning",
     "sonner.info",
-    "sonner.promotion",
-    "sonner.destructive",
-    "sonner.warning"
+    "sonner.promo"
   ],
   {},
   config,
@@ -128,17 +116,7 @@ const styles = useStyles(
       actionButton: string;
       closeButton: string;
     };
-    primary: {
-      toast: string;
-      actionButton: string;
-      closeButton: string;
-    };
-    secondary: {
-      toast: string;
-      actionButton: string;
-      closeButton: string;
-    };
-    accent: {
+    neutral: {
       toast: string;
       actionButton: string;
       closeButton: string;
@@ -148,7 +126,7 @@ const styles = useStyles(
       actionButton: string;
       closeButton: string;
     };
-    error: {
+    danger: {
       toast: string;
       actionButton: string;
       closeButton: string;
@@ -163,12 +141,7 @@ const styles = useStyles(
       actionButton: string;
       closeButton: string;
     };
-    promotion: {
-      toast: string;
-      actionButton: string;
-      closeButton: string;
-    };
-    destructive: {
+    promo: {
       toast: string;
       actionButton: string;
       closeButton: string;
