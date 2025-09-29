@@ -33,7 +33,8 @@
           styles.sonner.warning.closeButton,
           styles.sonner.info.closeButton,
           styles.sonner.promo.closeButton
-        )
+        ),
+        icon: cn('w-0! h-0! opacity-0!')
         // title: cn(
         //   styles.sonner.base.title,
         //   styles.sonner.primary.title,
