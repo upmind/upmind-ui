@@ -3,6 +3,13 @@
   --color-primary: #fa2f62;
   --color-secondary: #794dff;
 
+  --color-background-blue: #00acff;
+  --color-background-pink: #f75fde;
+  --color-background-orange: #ff7d52;
+  --color-background-green: #2dca72;
+  --color-background-yellow: #ffc233;
+  --color-background-purple: #7047eb;
+
   /* Primitive Colors - Core */
   --color-primitive-core-canvas: #1a1a1a;
   --color-primitive-core-surface: #262626;
@@ -223,6 +230,8 @@
   --color-icon-subtle: #f8f8fb;
 
   /* Text Colors */
+  --color-text-white: #ffffff;
+
   --color-text-primary: #ffffff;
   --color-text-base: var(--color-primitive-core-base);
   --color-text-display: var(--color-primitive-core-display);
