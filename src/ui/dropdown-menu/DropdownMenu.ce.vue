@@ -40,10 +40,11 @@
         >
           <Button
             v-if="!item.hidden"
+            :class="styles.dropdownMenu.item"
             variant="ghost"
             align="left"
             block
-            :size="props.size"
+            size="md"
             :value="item.value"
             :disabled="item.disabled"
             @click="doAction(item)"
@@ -87,7 +88,7 @@ const props = withDefaults(defineProps<DropdownMenuProps>(), {
   // -- styles
   size: "md",
   width: "auto",
-  variant: "ghost",
+  variant: "primary",
   align: "end",
   ring: true,
   // --- styles
