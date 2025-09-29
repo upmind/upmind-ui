@@ -17,7 +17,6 @@ export const variants = {
     contain: "object-contain p-[0.5em]"
   },
   size: {
-    auto: "",
     xs: "size-6 text-xs leading-6",
     sm: "size-8 text-sm leading-6",
     md: "size-10 text-md leading-6",
