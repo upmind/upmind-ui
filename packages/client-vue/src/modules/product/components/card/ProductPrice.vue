@@ -4,7 +4,17 @@
       v-if="meta?.discounted"
       :class="styles.product.header.price.regularPrice"
     >
-      <del>Was {{ regularPrice }}</del>
+      <del>
+        {{
+          t("text.price_was", {
+            price:
+              meta?.oneoff || !meta?.useMonthlyFromPrice
+                ? price?.regularPrice
+                : price?.monthlyFromRegularPrice
+          })
+        }}
+      </del>
+
       <Badge variant="outline" color="promotion" size="sm">
         {{
           t("action.save_value", {
