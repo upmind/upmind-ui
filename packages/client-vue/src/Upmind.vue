@@ -13,7 +13,7 @@
       <div
         class="bg-background text-foreground relative flex min-h-screen flex-col items-start antialiased"
       >
-        <slot name="header" v-if="appMeta.isAvailable">
+        <slot name="header" v-if="appMeta.isAvailable && themeMeta.hasSettings">
           <Header :logo="logo">
             <template #actions>
               <slot name="actions" />
@@ -22,7 +22,10 @@
           </Header>
         </slot>
 
-        <div class="flex w-full flex-1 flex-col" v-if="appMeta.isAvailable">
+        <div
+          class="flex w-full flex-1 flex-col"
+          v-if="appMeta.isAvailable && themeMeta.hasSettings"
+        >
           <RouterView v-slot="routerViewProps" :key="$route.fullPath">
             <slot v-bind="routerViewProps">
               <template v-if="routerViewProps.Component">
@@ -51,7 +54,7 @@
           </RouterView>
         </div>
 
-        <slot name="footer" v-if="appMeta.isAvailable">
+        <slot name="footer" v-if="appMeta.isAvailable && themeMeta.hasSettings">
           <Footer />
         </slot>
       </div>
