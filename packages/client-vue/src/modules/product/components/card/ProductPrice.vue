@@ -4,9 +4,23 @@
       v-if="meta?.discounted"
       :class="styles.product.header.price.regularPrice"
     >
-      <del>Was {{ regularPrice }}</del>
+      <del>
+        {{
+          t("text.price_was", {
+            price:
+              meta?.oneoff || !meta?.useMonthlyFromPrice
+                ? price?.regularPrice
+                : price?.monthlyFromRegularPrice
+          })
+        }}
+      </del>
+
       <Badge variant="outline" color="promotion" size="sm">
-        {{ t("product.promotionSave", [price?.savingPercent]) }}
+        {{
+          t("action.save_value", {
+            value: price?.savingPercent
+          })
+        }}
       </Badge>
     </header>
 
@@ -15,7 +29,7 @@
         v-if="meta?.free"
         :class="styles.product.header.price.currentPrice.amount"
       >
-        {{ t("product.free") }}
+        {{ t("text.free") }}
       </strong>
 
       <template v-else>
@@ -23,22 +37,34 @@
           currentPrice
         }}</strong>
 
-        <small :class="styles.product.header.price.currentPrice.term"
+        <small
+          :class="styles.product.header.price.currentPrice.term"
+          v-if="has(props, 'cycle')"
           >/
           {{
-            t(`product.terms.term.${meta.useMonthlyFromPrice ? 1 : cycle}`)
-          }}</small
-        >
+            meta.useMonthlyFromPrice
+              ? t("term.n_months", 1)
+              : parseBillingCycle(props.cycle!).descriptive
+          }}
+        </small>
       </template>
     </p>
 
     <footer
-      v-if="!hideTermSummary && !meta.oneoff && meta.useMonthlyFromPrice"
+      v-if="
+        !hideTermSummary &&
+        !meta.oneoff &&
+        meta.useMonthlyFromPrice &&
+        has(props, 'cycle')
+      "
       :class="styles.product.header.price.total"
     >
-      <template v-if="te(`product.terms.summary.${cycle}`)">
-        {{ t(`product.terms.summary.${cycle}`, [price?.currentPrice]) }}
-      </template>
+      {{
+        t("term.summary_msg", {
+          term: parseBillingCycle(props.cycle!).numeric,
+          price: price?.currentPrice
+        })
+      }}
     </footer>
   </section>
 </template>
@@ -49,10 +75,11 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
+import { parseBillingCycle } from "@upmind-automation/headless";
 import config from "./product.config";
 
 // --- utils
-import { first } from "lodash-es";
+import { has } from "lodash-es";
 
 // --- components
 import { useStyles } from "@upmind-automation/upmind-ui";
@@ -64,9 +91,9 @@ import type { ProductPrice } from "./types";
 
 // -----------------------------------------------------------------------------
 
-const props = defineProps<ProductPrice>();
+const props = defineProps<Omit<ProductPrice, "name">>();
 
-const { t, te } = useI18n();
+const { t } = useI18n();
 
 const configMeta = computed(() => ({
   //

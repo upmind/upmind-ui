@@ -33,7 +33,7 @@ export const useUischema = (_context: PromotionsContext) => {
       {
         type: "Control",
         scope: "#/properties/promocode",
-        i18n: "basket.promotions.promocode",
+        i18n: "form.promocode",
         options: {
           autoFocus: true,
           autocomplete: "off",

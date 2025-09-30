@@ -49,7 +49,17 @@ export default {
 
     title: cva("text-md text-left no-underline"),
     image: cva("m-0 h-6 md:h-7"),
-    gateway: cva("w-full"),
+
+    gateway: cva("flex w-full flex-col items-center justify-center gap-6", {
+      variants: {
+        hasErrors: {
+          true: "border-control-error focus-within:ring-control-error focus-within:ring-opacity-20 focus-within:ring-4",
+          false: ""
+        }
+      },
+      defaultVariants: { hasErrors: false }
+    }),
+
     footer: {
       root: cva("flex w-full flex-col gap-4"),
       actions: cva(

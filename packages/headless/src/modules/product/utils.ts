@@ -1,6 +1,6 @@
 // --- internal
-import { useSystem } from "../system";
 import { useBrand } from "../brand";
+import { useI18n, useSystem } from "../system";
 
 // --- utils
 import {
@@ -321,11 +321,13 @@ export const calculateBillingTerm = (
   period: DefaultPaymentPeriod | undefined,
   available: TermDetails[]
 ): TermDetails => {
+  const { t } = useI18n();
+
   // because we have multiple options, we need to select one base don the following strategy:
 
   if (isEmpty(available))
     throw new DetailedError(
-      "Get BillingTerms failed",
+      t("error.terms_not_available"),
       responseCodes.Not_Found,
       ErrorOrigin.Headless
     );
@@ -355,7 +357,7 @@ export const calculateBillingTerm = (
 
   if (isEmpty(term))
     throw new DetailedError(
-      "Get Billing Terms failed",
+      t("error.terms_not_available"),
       responseCodes.Not_Found,
       ErrorOrigin.Headless
     );
@@ -952,7 +954,7 @@ export const parseProvisioningSchema = (data: any, product: IProduct) => {
 
   // TODO: Implement a proper solution for this where field type is input_sld
   // if (field.name === "sld") {
-  //   //   type = ["string"];
+  //   //type = "string";
   //   format = "sld";
   //   // TODO: Set the raw TLD rather, not the product name
   //   field.description = product?.name;
@@ -1082,10 +1084,11 @@ const parseSummaryTerm = (
   terms: TermDetails[],
   error?: ExternalError["term"]
 ): TermDetails | undefined => {
+  const { t } = useI18n();
   const term = find(terms, ["cycle", cycle]);
   if (term) {
     term.name = "term";
-    term.category = "Billing Cycle";
+    term.category = t("text.billing_cycle");
     term.meta = {
       ...term.meta,
       invalid: has(error, "term")
@@ -1308,3 +1311,96 @@ export const parseProductImages = (images: IImage[]): ProductImage[] => {
     default: !!image.default
   })) as ProductImage[];
 };
+
+/**
+ * Maps a billing cycle duration in months to various descriptive formats.
+ *
+ * @param months - The duration of the billing cycle in months.
+ * @returns An object with multiple representations of the billing cycle
+ */
+
+export function parseBillingCycle(months: number) {
+  const years = months / 12;
+  const { t } = useI18n();
+
+  switch (months) {
+    case 0:
+      return {
+        adverbial: t("term.once"), // Once
+        descriptive: t("term.one_time"), // One time
+        monthly: t("term.one_time"), // One time
+        suffix: "", //
+        numeric: t("term.one_time") // One time
+      };
+    case 1:
+      return {
+        adverbial: t("term.monthly"), // Monthly
+        descriptive: t("term.n_months", months), // month
+        monthly: t("term.n_months", months), // month
+        suffix: t("term.n_mo", months), // mo
+        numeric: t("term.n_month", { n: months.toString() }) // 1-month
+      };
+    case 3:
+      return {
+        adverbial: t("term.quarterly"), // Quarterly
+        descriptive: t("term.n_months", months), // 3 months
+        monthly: t("term.n_months", months), // 3 months
+        suffix: t("term.n_mo", months), // 3mo
+        numeric: t("term.n_month", { n: months.toString() }) // 3-month
+      };
+    case 6:
+      return {
+        adverbial: t("term.semiannually"), // Semiannually
+        descriptive: t("term.n_months", months), // 6 months
+        monthly: t("term.n_months", months), // 6 months
+        suffix: t("term.n_mo", months), // 6mo
+        numeric: t("term.n_month", { n: months.toString() }) // 6-month
+      };
+    case 12:
+      return {
+        adverbial: t("term.annually"), // Annually
+        descriptive: t("term.n_years", years), // year
+        monthly: t("term.n_months", months), // 12 months
+        suffix: t("term.n_yr", years), // yr
+        numeric: t("term.n_year", { n: years.toString() }) // 1-year
+      };
+    case 24:
+      return {
+        adverbial: t("term.biennially"), // Biennially
+        descriptive: t("term.n_years", years), // 2 years
+        monthly: t("term.n_months", months), // 24 months
+        suffix: t("term.n_yr", years), // 2yr
+        numeric: t("term.n_year", { n: years.toString() }) // 2-year
+      };
+    case 36:
+      return {
+        adverbial: t("term.triennially"), // Triennially
+        descriptive: t("term.n_years", years), // 3 years
+        monthly: t("term.n_months", months), // 36 months
+        suffix: t("term.n_yr", years), // 3yr
+        numeric: t("term.n_year", { n: years.toString() }) // 3-year
+      };
+    case 48:
+    case 60:
+    case 72:
+    case 84:
+    case 96:
+    case 108:
+    case 120:
+      return {
+        adverbial: t("term.n_years", years), // {n} years
+        descriptive: t("term.n_years", years), // {n} years
+        monthly: t("term.n_months", months), // {n} months
+        suffix: t("term.n_yr", years), // {n}yr
+        numeric: t("term.n_year", { n: years.toString() }) // {n}-year
+      };
+    default:
+      return {
+        adverbial: t("term.n_months", months), // {n} months
+        descriptive: t("term.n_months", months), // {n} months
+        monthly: t("term.n_months", months), // {n} months
+        suffix: t("term.n_mo", months), // {n}mo
+        numeric: t("term.n_month", { n: months.toString() }) // {n}-month
+      };
+  }
+}

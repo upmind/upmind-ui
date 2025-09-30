@@ -108,6 +108,7 @@ export const useUischema = ({
       {
         type: "Control",
         scope: "#/properties/name",
+        i18n: "form.companyName",
         options: {
           autoFocus: true,
           autocomplete: "off",
@@ -120,6 +121,7 @@ export const useUischema = ({
           {
             type: "Control",
             scope: "#/properties/regNumber",
+            i18n: "form.companyNumber",
             options: {
               placeholder: "Registered tax or GST"
             }
@@ -127,6 +129,7 @@ export const useUischema = ({
           {
             type: "Control",
             scope: "#/properties/tax/properties/number",
+            i18n: "form.taxNumber",
             options: {
               placeholder: "Tax Id"
             }
@@ -146,8 +149,8 @@ export const useUischema = ({
     uiSchema.elements.push({
       type: "Manager",
       scope: "#/properties/addressId",
+      i18nKey: "form.address",
       options: {
-        i18nKey: "client.address",
         manage: {
           useList: useClientAddresses,
           useMutate: useClientAddress

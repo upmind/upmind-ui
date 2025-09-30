@@ -10,13 +10,13 @@
           v-if="meta?.isDefault"
           variant="flat"
           size="sm"
-          :label="t('client.address.default')"
+          :label="t('text.default_label')"
         />
       </h3>
 
       <Button
         v-if="!props.readonly"
-        :label="t('client.address.actions.edit')"
+        :label="t('action.edit')"
         size="sm"
         variant="link"
         color="muted"

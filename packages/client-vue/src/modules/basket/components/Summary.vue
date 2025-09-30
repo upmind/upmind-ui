@@ -3,7 +3,7 @@
     <DescriptionList :items="items" class="font-normal">
       <div :class="styles.summary.item.root">
         <dt :class="styles.summary.item.term">
-          {{ t("basket.summary.total") }}
+          {{ t("text.total") }}
         </dt>
         <dd :class="styles.summary.item.description">
           {{ summary?.total }}
@@ -94,14 +94,14 @@ const subtotalItems = computed(() => {
 
   if (!isEmpty(summary.value?.discount)) {
     items.push({
-      term: t("basket.summary.discount.title", products?.value?.length ?? 0),
+      term: t("text.discount", products?.value?.length ?? 0),
       description: summary.value!.discount
     });
   }
 
   if (!isEmpty(summary.value?.subtotal)) {
     items.push({
-      term: t("basket.summary.subtotal.title", products?.value?.length ?? 0),
+      term: t("text.subtotal", products?.value?.length ?? 0),
       description: summary.value!.subtotal
     });
   }

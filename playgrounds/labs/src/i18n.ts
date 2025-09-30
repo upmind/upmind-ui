@@ -1,4 +1,4 @@
-import { createI18n } from "vue-i18n";
+import { createI18n, type I18n } from "vue-i18n";
 
 const i18n = createI18n({
   legacy: false,
@@ -12,4 +12,4 @@ const i18n = createI18n({
   silentFallbackWarn: true
 });
 
-export default i18n;
+export default i18n as I18n;

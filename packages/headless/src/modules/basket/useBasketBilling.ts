@@ -3,6 +3,7 @@ import { computed, toRaw, unref } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
+import { useI18n } from "../system";
 import { useBasket } from ".";
 import { useUnified } from "./billing/unified/useUnified";
 
@@ -26,6 +27,7 @@ import { BillingContext, BillingModel } from "./billing/types";
 // -----------------------------------------------------------------------------
 
 export const useBasketBilling = () => {
+  const { t } = useI18n();
   const { actors } = useBasket();
   const actor = actors.billing;
 
@@ -125,7 +127,7 @@ export const useBasketBilling = () => {
       .catch(error => {
         return Promise.reject(
           new DetailedError(
-            "Update Billing Details failed",
+            t("error.billing_details_update_failed"),
             responseCodes.Timeout,
             ErrorOrigin.Headless,
             {

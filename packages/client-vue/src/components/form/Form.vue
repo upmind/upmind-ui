@@ -1,9 +1,11 @@
 <template>
   <Form
+    :key="locale"
     v-bind="forwarded"
     :i18n="i18n"
     :ajv="ajv"
     :additional-renderers="formRenderers"
+    :optional-text="t('text.optional')"
   >
     <template #footer="{ meta }">
       <slot name="footer" v-bind="{ meta }"></slot>
@@ -36,9 +38,11 @@ import type {
   FormFooterProps,
   FormActionsProps
 } from "@upmind-automation/upmind-ui";
+import { useI18n } from "vue-i18n";
 // -----------------------------------------------------------------------------
 const props = defineProps<Omit<FormProps, "ajv">>();
 
+const { t, locale } = useI18n();
 // B: Always ensure we use our internal ajv instance
 const { ajv } = useValidation();
 

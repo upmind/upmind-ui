@@ -6,14 +6,14 @@
         to="#vue-app"
         modal
         skrim="light"
-        :title="t('basket.notFound.text')"
-        :text="t('basket.notFound.text')"
+        :title="t('cart.product_not_found_md')"
+        :text="t('error.product_not_found')"
         :actions="[
           {
             ...storefrontRoute,
             color: 'primary',
             icon: 'arrow-left',
-            label: t('basket.notFound.actions.continue')
+            label: t('action.continue_shopping')
           }
         ]"
         :animatedIcon="{
@@ -24,13 +24,6 @@
           size: '4xl'
         }"
       >
-        <template #title>
-          <SmartTitle
-            i18n-key="basket.notFound.title"
-            class="mt-6"
-            align="center"
-          />
-        </template>
       </Interstitial>
     </ContentSection>
   </Layout>
@@ -46,7 +39,6 @@ import { useBrand } from "@upmind-automation/headless";
 
 // -- components
 import { Interstitial, Layout } from "@upmind-automation/upmind-ui";
-import SmartTitle from "../../components/content/SmartTitle.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
 
 // -----------------------------------------------------------------------------

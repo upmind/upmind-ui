@@ -18,8 +18,8 @@
       :items="parsedValues"
       :disabled="props.disabled || props.processing"
       :errors="props.errors"
-      :none-text="t('product.select.none')"
-      :placeholder="t('product.select.placeholder')"
+      :none-text="t('text.none')"
+      :placeholder="t('form.select_option.placeholder')"
       :class="styles.product.config.grid.items"
       layout="grid"
       ring

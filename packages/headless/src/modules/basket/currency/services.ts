@@ -2,7 +2,7 @@
 
 // --- internal
 import type { AnyEventObject } from "xstate";
-import { useQuery, useBrand } from "../../..";
+import { useQuery, useBrand, useI18n } from "../../..";
 
 // --- utils
 import {
@@ -14,8 +14,8 @@ import {
 } from "../../../utils";
 
 // --- types
+import type { ICurrency } from "@upmind-automation/types";
 import type { CurrencyContext, CurrencyModel } from "./types";
-import { ICurrency } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -23,14 +23,15 @@ async function load(
   { schema, model }: CurrencyContext,
   _event: AnyEventObject
 ) {
-  // TODO: use the lgic from setInitialCurrencyCode in cart 1
+  // TODO: use the logic from setInitialCurrencyCode in cart 1
 
+  const { t } = useI18n();
   const { currencies, currency, isReady } = useBrand();
 
   await isReady().catch(error =>
     Promise.reject(
       new DetailedError(
-        "Brand not ready",
+        t("error.brand_not_available"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless,
         error
@@ -93,8 +94,7 @@ async function validate(
   { schema, model }: CurrencyContext,
   _event: AnyEventObject
 ) {
-  // ---
-
+  const { t } = useI18n();
   // Now validate the model as per normal
   const { validate } = useValidation();
 
@@ -105,7 +105,7 @@ async function validate(
     if (errors?.length) {
       reject(
         new DetailedError(
-          "Currency validation failed",
+          t("error.currency_validation_failed"),
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
           errors

@@ -3,11 +3,7 @@
     <SummaryItem
       v-if="term"
       v-bind="term"
-      :title="
-        te(`product.terms.cycle.${term.cycle}`)
-          ? t(`product.terms.cycle.${term.cycle}`)
-          : term?.title
-      "
+      :title="parseBillingCycle(term.cycle!).numeric"
       icon="configuration"
     />
 
@@ -25,6 +21,7 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 
 // --- internal
 import config from "./summary.config";
+import { parseBillingCycle } from "@upmind-automation/headless";
 
 // --- components
 import SummaryItem from "./SummaryItem.vue";
@@ -43,7 +40,7 @@ import type { ComputedRef } from "vue";
 // --- props
 const props = defineProps<Product>();
 
-const { t, te } = useI18n();
+const { t } = useI18n();
 
 const styles = useStyles("summary.list", {}, config) as ComputedRef<{
   summary: {

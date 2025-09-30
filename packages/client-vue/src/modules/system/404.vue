@@ -3,14 +3,14 @@
     <ContentSection v-auto-animate class="flex grow items-center">
       <Interstitial
         v-bind="props"
-        :title="t('basket.empty.title')"
-        :text="t('basket.empty.text')"
+        :title="t('error.404_title_md')"
+        :text="t('error.404_text')"
         :actions="[
           {
             ...storefrontRoute,
             color: 'primary',
             icon: 'arrow-left',
-            label: t('errors.404.action')
+            label: t('action.back_to_shop')
           }
         ]"
       >
@@ -27,10 +27,6 @@
               :sequence="icon.sequence"
             />
           </div>
-        </template>
-
-        <template #title>
-          <SmartTitle i18n-key="errors.404.title" class="mt-6" align="center" />
         </template>
       </Interstitial>
     </ContentSection>
@@ -51,7 +47,6 @@ import {
   IconAnimated,
   Layout
 } from "@upmind-automation/upmind-ui";
-import SmartTitle from "../../components/content/SmartTitle.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
 
 // -- types

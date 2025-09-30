@@ -25,7 +25,6 @@ import { ProductProps } from "src/modules/product";
 export const useProductFlows = () => {
   const routing = useRoutingEngine();
   const {
-    addPromotion,
     findProduct,
     getProduct,
     isReady: isBasketReady,

@@ -1,6 +1,6 @@
 // --- internal
-import { useQuery } from "../..";
 import { useBrand } from "../../brand";
+import { useI18n, useQuery } from "../..";
 
 // --- utils
 import {
@@ -65,6 +65,8 @@ const fieldPath = (field: any) => {
 // Invoked by machines, providing context and event data
 
 async function getImage({ field }: UploadContext, { data }: AnyEventObject) {
+  const { t } = useI18n();
+
   // if we have a hash, we can skip the request
   if (data?.hash) {
     return Promise.resolve({ ...field, value: data.hash });
@@ -73,7 +75,7 @@ async function getImage({ field }: UploadContext, { data }: AnyEventObject) {
   if (!field?.field_type && !data.hash)
     return Promise.reject(
       new DetailedError(
-        "No field type or hash provided",
+        t("error.upload_field_not_found"),
         responseCodes.No_Content,
         ErrorOrigin.Headless
       )
@@ -93,6 +95,8 @@ async function getImage({ field }: UploadContext, { data }: AnyEventObject) {
 }
 
 async function check(_context: UploadContext, { data }: AnyEventObject) {
+  const { t } = useI18n();
+
   let isValid = true;
   let error: any = null;
 
@@ -108,7 +112,7 @@ async function check(_context: UploadContext, { data }: AnyEventObject) {
 
   if (!isEmpty(fileTypes) && !includes(fileTypes, data.type)) {
     isValid = false;
-    error = "Invalid file fileType";
+    error = t("error.upload_file_type_not_valid");
   }
 
   // if (file.size > 1000000) {

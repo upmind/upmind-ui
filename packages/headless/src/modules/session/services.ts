@@ -1,11 +1,12 @@
+// --- external
+
 // --- internal
-import { useQuery } from "../..";
+import { useI18n, useQuery } from "../..";
 
 // --- utils
+import { isEmpty } from "lodash-es";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 import { getTokenFromStorage, persistTokenToStorage } from "./utils";
-
-import { isEmpty } from "lodash-es";
 
 // --- types
 import { GrantTypes, IToken } from "@upmind-automation/types";
@@ -38,12 +39,13 @@ async function transferTo(_context: SessionContext) {
 }
 
 async function transferFrom({ transfer }: SessionContext) {
+  const { t } = useI18n();
   const { post, useUrl } = useQuery();
 
   if (!transfer?.code)
     return Promise.reject(
       new DetailedError(
-        "No code",
+        t("error.session_transfer_code_not_available"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless,
         transfer

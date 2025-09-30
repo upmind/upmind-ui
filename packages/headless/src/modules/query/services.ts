@@ -1,7 +1,7 @@
 // --- external
 
 // --- internal
-import { useLocale } from "../system";
+import { useI18n, useLocale } from "../system";
 import { useSession } from "../session";
 import { handleError, useQuery } from ".";
 
@@ -35,11 +35,12 @@ async function doFetch<T extends any = any>({
   init
 }: RequestParams): Promise<QueryResponse<T>> {
   init ??= {};
+  const { t } = useI18n();
 
   if (!includes(map(Methods, upperCase), init?.method)) {
     return Promise.reject(
       new DetailedError(
-        `Invalid method: ${init?.method}`,
+        t("error.http_method_not_valid", { method: init?.method }),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless,
         {
@@ -53,13 +54,13 @@ async function doFetch<T extends any = any>({
   if (!url)
     await Promise.reject(
       new DetailedError(
-        "Invalid URL",
+        t("error.url_not_available"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )
     );
 
-  if (!url.searchParams.has("lang") && !startsWith(url.pathname, "/oauth/")) {
+  if (!url.searchParams.has("lang")) {
     const { locale } = useLocale();
     if (!isEmpty(locale.value))
       url.searchParams.set("lang", locale.value as string);
@@ -100,6 +101,7 @@ async function doFetch<T extends any = any>({
 async function refreshToken() {
   const { reauth } = useSession();
   const { post, useUrl } = useQuery();
+  const { t } = useI18n();
 
   const token = getTokenFromStorage();
   const refresh_token = get(token, "refresh_token", "");
@@ -107,9 +109,8 @@ async function refreshToken() {
   if (!token || !refresh_token) {
     useFeedback().add({
       type: messageTypes.ERROR,
-      title: "Session error",
-      copy: "Your session has expired, please reload the page",
-      i18nKey: `errors.${responseCodes.Unauthorized}`,
+      title: t("error.401_title_md"),
+      copy: t("error.401_text"),
       data: { status: responseCodes.Unauthorized },
       display: messageDisplays.SYSTEM,
       delay: 0,

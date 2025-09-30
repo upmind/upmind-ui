@@ -22,7 +22,6 @@
     <Error
       v-for="error in system"
       :key="error.id"
-      :i18nKey="error?.message.value.i18nKey"
       :status="error?.message.value?.data?.status"
       :open="error.meta.value.isActive"
       modal
@@ -53,7 +52,6 @@ import { get, some, forEach } from "lodash-es";
 const props = defineProps<{
   scheduled?: boolean;
 }>();
-
 const styles = useStyles(["feedback"], props, config) as ComputedRef<{
   feedback: {
     root: string;

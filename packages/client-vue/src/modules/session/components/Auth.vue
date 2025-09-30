@@ -9,7 +9,7 @@
       v-if="meta.hasErrors"
       color="error"
       icon="alert-triangle"
-      :title="t(`session.${currentForm}.error`)"
+      :title="alertTitle"
       :description="errors"
     />
 
@@ -31,7 +31,7 @@
       <template v-if="currentForm === 'register'" #footer>
         <TermsAndConditions
           class="text-emphasis-medium text-sm"
-          :label="t('auth.actions.register')"
+          :label="t('action.continue_label')"
         />
       </template>
     </Form>
@@ -55,7 +55,7 @@
       block
       type="reset"
       @click.prevent="logout"
-      :label="t('auth.actions.logout')"
+      :label="t('action.logout')"
     />
   </div>
 </template>
@@ -133,20 +133,34 @@ const currentForm = computed(() => {
         : "unknown";
 });
 
+const alertTitle = computed(() => {
+  switch (currentForm.value) {
+    case "register": {
+      return t("form.register.error");
+    }
+    case "recover": {
+      return t("form.recover.error");
+    }
+    case "login": {
+      return t("form.login.error");
+    }
+  }
+});
+
 // ---
 
 const buttons = computed(() => {
   return {
     register: {
-      label: t("session.register.actions.text"),
-      action: t("session.register.actions.action")
+      label: t("auth.already_have_account_qn"),
+      action: t("action.log_in_here")
     },
     login: {
-      label: t("session.login.actions.text"),
-      action: t("session.login.actions.action")
+      label: t("auth.no_account_qn"),
+      action: t("action.create_one_here")
     },
     recover: {
-      label: t("session.recover.actions.text"),
+      label: t("auth.forgot_password_qn"),
       action: t("session.recover.actions.action")
     }
   };
@@ -157,12 +171,12 @@ const authActions = computed(() => {
     submit: {
       type: "submit" as "submit",
       label: meta.value.showLoginForm
-        ? t("auth.actions.login")
+        ? t("action.log_in_to_your_account")
         : meta.value.showRegisterForm
-          ? t("auth.actions.register")
+          ? t("action.continue_label")
           : meta.value.showRecoverPasswordForm
-            ? t("auth.actions.recover")
-            : t("auth.actions.continue"),
+            ? t("action.send_reset")
+            : t("action.continue_label"),
       block: true,
       needsValid: true,
       size: "lg"

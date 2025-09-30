@@ -1,14 +1,13 @@
 <template>
   <div :class="styles.product.config.grid.item.root">
     <div :class="styles.product.config.grid.item.header">
-      <strong :class="styles.product.config.grid.item.title">
-        {{
-          te(`product.terms.cycle.${props.cycle}`)
-            ? t(`product.terms.cycle.${props.cycle}`)
-            : props.title
-        }}
-        <template v-if="props.cycle && props.cycle > 0">
-          {{ t("product.term") }}
+      <strong
+        :class="styles.product.config.grid.item.title"
+        v-if="has(props, 'cycle')"
+      >
+        {{ parseBillingCycle(props.cycle!).numeric }}
+        <template v-if="props.cycle! > 0">
+          {{ t("text.term") }}
         </template>
       </strong>
 
@@ -23,12 +22,12 @@
         :class="styles.product.config.grid.item.text"
         v-if="
           props.price.monthlyFromCurrentAmount &&
-          props?.cycle &&
-          props.cycle > 1
+          has(props, 'cycle') &&
+          props.cycle! > 1
         "
       >
         {{
-          t("product.cycle", {
+          t("text.product_cycle_per_month", {
             value: props.price.monthlyFromCurrentPrice
           })
         }}
@@ -59,6 +58,7 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
+import { parseBillingCycle } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../../product.config";
 
@@ -67,7 +67,7 @@ import Pricing from "../pricing/Pricing.vue";
 import Promotion from "../../../basket/product/components/Promotion.vue";
 
 // --- utils
-import { isEmpty } from "lodash-es";
+import { isEmpty, has } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -79,7 +79,7 @@ const props = defineProps<TermDetails>();
 
 // ---
 
-const { t, te } = useI18n();
+const { t } = useI18n();
 
 const meta = computed(() => ({
   hasPromotions: !isEmpty(props.promotions) || props.meta?.mixed

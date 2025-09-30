@@ -10,7 +10,7 @@
 
       <Badge
         v-else-if="meta?.discounted || preservePromotion"
-        :label="t('product.promotion')"
+        :label="t('text.on_sale')"
         icon="tag"
         size="sm"
         color="promotion"

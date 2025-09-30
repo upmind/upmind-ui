@@ -48,15 +48,15 @@ const direction = defineModel<ProductSortProps["direction"]>("direction", {
 
 const items = computed(() => [
   {
-    label: t("product.sort.default"),
+    label: t("action.sort_by_default"),
     value: ProductSortableProperties.DEFAULT
   },
   {
-    label: t("product.sort.name"),
+    label: t("action.sort_by_name"),
     value: ProductSortableProperties.NAME
   },
   {
-    label: t("product.sort.price"),
+    label: t("action.sort_by_price"),
     value: ProductSortableProperties.PRICE
   }
 ]);

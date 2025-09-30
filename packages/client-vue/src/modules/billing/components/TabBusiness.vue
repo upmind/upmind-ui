@@ -2,7 +2,7 @@
   <div v-if="!meta.isLoading" class="flex w-full flex-col gap-4" v-auto-animate>
     <Form
       v-if="showForm"
-      i18nKey="client.company"
+      i18nKey="form.company"
       :useMutate="useUnifiedBillingDetail"
       :modelValue="UnifiedType.BUSINESS"
       open
@@ -26,7 +26,7 @@
         <template #item="{ item, readonly, doEdit, doRemove }">
           <PhoneItem
             v-bind="item"
-            :i18nKey="'client.phone'"
+            i18nKey="client.phone"
             :readonly="readonly"
             @edit="doEdit"
             @remove="doRemove"
@@ -35,7 +35,7 @@
       </Manage>
 
       <Manage
-        i18n-key="client.company"
+        i18n-key="form.company"
         v-model="selectedCompany"
         :manage="{
           useList: useClientCompanies,
@@ -47,7 +47,7 @@
         <template #item="{ item, readonly, doEdit, doRemove }">
           <CompanyItem
             v-bind="item"
-            :i18nKey="'client.company'"
+            i18nKey="form.company"
             :readonly="readonly"
             @edit="doEdit"
             @remove="doRemove"

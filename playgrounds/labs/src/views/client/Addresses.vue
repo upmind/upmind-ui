@@ -2,7 +2,7 @@
   <UpmContentSection class="max-w-app mx-auto" title="Addresses">
     <UpmManage
       v-if="meta.isAuthenticated"
-      i18n-key="client.address"
+      i18n-key="form.address"
       :manage="{
         useList: useClientAddresses,
         useMutate: useClientAddress

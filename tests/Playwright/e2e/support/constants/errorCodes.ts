@@ -16,6 +16,21 @@ export const ErrorCodes = {
     errorType: "dialog"
   },
 
+  incorrectCredentials: {
+    route: "**/api/**",
+    url: `${URLs.starterHosting}`,
+    errorCode: 401,
+    status: "error",
+    responseError: {
+      id: "incorrect_credentials",
+      type: 0,
+      code: 401,
+      message: "Sorry, you are not authorized to view this page"
+    },
+    button: "back-to-shopping",
+    errorType: "dialog"
+  },
+
   unauthorizedAccess: {
     route: "**/api/**",
     url: `${URLs.starterHosting}`,

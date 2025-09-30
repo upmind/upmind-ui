@@ -5,18 +5,13 @@
     </s>
 
     <strong :class="styles.domain.card.prices.current">
-      <template v-if="props.meta.free">{{ t("product.free") }}</template>
+      <template v-if="props.meta.free">{{ t("text.free") }}</template>
 
       <template v-else
         >{{ props.price.currentPrice }}
         <span :class="styles.domain.card.prices.cycle">
-          <span
-            >/
-            {{
-              te(`product.terms.term.${props.cycle}`)
-                ? t(`product.terms.term.${props.cycle}`)
-                : ""
-            }}</span
+          <span v-if="has(props, 'cycle')"
+            >/ {{ parseBillingCycle(props.cycle!).descriptive }}</span
           >
         </span>
       </template>
@@ -31,7 +26,11 @@ import { useI18n } from "vue-i18n";
 import { useStyles } from "@upmind-automation/upmind-ui";
 
 // --- internal
+import { parseBillingCycle } from "@upmind-automation/headless";
 import config from "../domain.config";
+
+// --- utils
+import { has } from "lodash-es";
 
 // --- types
 import type { DomainSummaryProps } from "../types";
@@ -39,7 +38,7 @@ import type { ComputedRef } from "vue";
 
 const props = defineProps<DomainSummaryProps>();
 
-const { t, te } = useI18n();
+const { t } = useI18n();
 
 const meta = computed(() => ({
   //

@@ -1,7 +1,7 @@
 // --- external
 
 // --- internal
-import { useBrand, useQuery, useSession } from "../../..";
+import { useBrand, useI18n, useQuery, useSession } from "../../..";
 
 // --- utils
 import {
@@ -90,6 +90,7 @@ async function validate(
   { schema, model }: BillingContext,
   _event: AnyEventObject
 ) {
+  const { t } = useI18n();
   // Now validate the model as per normal
   const { validate } = useValidation();
 
@@ -99,7 +100,7 @@ async function validate(
     if (errors?.length) {
       reject(
         new DetailedError(
-          "Billing validation failed",
+          t("error.billing_validation_failed"),
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
           errors
@@ -115,12 +116,13 @@ async function update(
   { basketId, model }: BillingContext,
   _event: AnyEventObject
 ) {
+  const { t } = useI18n();
   const { put, useUrl } = useQuery();
 
   if (!model?.addressId)
     return Promise.reject(
       new DetailedError(
-        "No addressId provided to update billing",
+        t("error.client_address_not_available"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )

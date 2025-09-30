@@ -1,12 +1,14 @@
 <template>
   <component :is="props.is" :class="styles.pricing.current">
     <template v-if="priceMeta.isFree">
-      {{ t("product.free") }}
+      {{ t("text.free") }}
     </template>
     <template v-else>
       {{ priceMeta.canShowCycle ? monthlyFromCurrentPrice : currentPrice }}
       <small v-if="priceMeta.canShowCycle" :class="styles.pricing.term">{{
-        t(`product.cycle`, { value: props.monthlyFromCurrentPrice })
+        t("text.product_cycle_per_month", {
+          value: props.monthlyFromCurrentPrice
+        })
       }}</small>
     </template>
   </component>

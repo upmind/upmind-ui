@@ -2,7 +2,7 @@
   <section class="flex w-full flex-col gap-3 text-left" v-auto-animate>
     <header>
       <Button
-        :label="t('basket.promotions.title')"
+        :label="t('action.add_promotion')"
         size="sm"
         variant="link"
         color="muted"
@@ -35,7 +35,7 @@
       data-testid="summary-footer"
     >
       <h4 class="sr-only">
-        {{ t("basket.promotions.active.title") }}
+        {{ t("cart.promotions_active") }}
       </h4>
 
       <Tooltip
@@ -79,13 +79,12 @@ import { ref, computed } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 import { set } from "lodash-es";
-import { cva } from "class-variance-authority";
 
 // --- components
 import Form from "../../../components/form/Form.vue";
 
 // --- custom elements
-import { Button, Icon, Badge, Tooltip } from "@upmind-automation/upmind-ui";
+import { Button, Badge, Tooltip } from "@upmind-automation/upmind-ui";
 
 // --- internal
 import { useBasketPromotions } from "@upmind-automation/headless";
@@ -139,7 +138,7 @@ const actions = computed((): Record<string, FormActionProps> => {
   return {
     submit: {
       type: "submit" as "submit",
-      label: t("basket.promotions.actions.submit"),
+      label: t("action.apply"),
       size: "lg",
       variant: "subtle",
       needsValid: true
@@ -149,7 +148,7 @@ const actions = computed((): Record<string, FormActionProps> => {
 
 const tooltipLabel = computed(() => ({ promotion }: any) => {
   if (promotion.amountFormatted) {
-    return t("basket.promotions.active.tooltip", {
+    return t("cart.promotion_help", {
       code: promotion.code,
       amount: promotion.amountFormatted,
       description: promotion.excerpt ? `. (${promotion.excerpt})` : ""
