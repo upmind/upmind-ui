@@ -3,6 +3,7 @@ import { assign, createMachine, sendParent } from "xstate";
 
 // --- internal
 import services from "./services";
+import { useI18n } from "../../system";
 import { useFeedback } from "../../feedback";
 
 // --- utils
@@ -21,8 +22,6 @@ import type { AnyEventObject } from "xstate";
 import type { CurrencyContext } from "./types";
 
 const { addError } = useFeedback();
-
-// --- utils
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -218,10 +217,11 @@ export default createMachine(
       // ---
 
       setFeedbackError: ({ error }: CurrencyContext, _event) => {
+        const { t } = useI18n();
         if (!error || error?.status == responseCodes.Unprocessable_Entity)
           return;
         addError({
-          title: "We experienced an error updating the basket currency",
+          title: t("error.currency_update_failed"),
           copy: error?.message,
           data: error?.data
         });

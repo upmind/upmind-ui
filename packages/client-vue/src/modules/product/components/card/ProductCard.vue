@@ -2,46 +2,60 @@
   <li :class="styles.product.root">
     <div :class="styles.product.content">
       <Button
-        :to="
-          navigate
-            ? {
-                name: ROUTE.PRODUCT_ADD,
-                params: {
-                  pid: props.id
-                },
-                query: {
-                  bcm: selectedTerm,
-                  force: 'true', // ensure we always add the product, even if it exists in the basket
-                  navigateOnly: 'true' // this is used to prevent the product from being added to the basket when clicking on the image
-                }
-              }
-            : undefined
-        "
+        v-if="!configMeta.hideImage && navigate"
+        :to="{
+          name: ROUTE.PRODUCT_ADD,
+          params: {
+            pid: props.id
+          },
+          query: {
+            bcm: selectedTerm,
+            force: 'true', // ensure we always add the product, even if it exists in the basket
+            navigateOnly: 'true' // this is used to prevent the product from being added to the basket when clicking on the image
+          }
+        }"
         :handler="handleResolve"
-        :loading="processing"
         :disabled="processing"
         tabindex="-1"
         class="w-full rounded-lg"
         variant="link"
       >
         <Image
-          v-if="!configMeta.hideImage"
           :carousel="!configMeta.hideCarousel"
           :image="isEmpty(images) ? props.productDetails.imgUrl : images"
-          :ratio="configMeta.imageRatio"
+          :ratio="ratio || configMeta.imageRatio"
           :class="styles.product.image"
         />
       </Button>
 
+      <Image
+        v-else-if="!configMeta.hideImage"
+        :carousel="!configMeta.hideCarousel"
+        :image="isEmpty(images) ? props.productDetails.imgUrl : images"
+        :ratio="ratio || configMeta.imageRatio"
+        :class="styles.product.image"
+      />
+
       <section :class="styles.product.details">
         <header :class="styles.product.header.root">
-          <ProductInfo v-bind="props" />
+          <ProductInfo
+            v-bind="props"
+            :selected-term="selectedTerm"
+            :handle-resolve="handleResolve"
+            :processing="processing"
+            :navigate="navigate"
+          />
           <ProductBenefits
             v-if="!configMeta.hideBenefits"
-            :benefits="productMeta?.card?.benefits?.data"
+            :benefits="productDetails?.benefits"
           />
 
-          <ProductPrice v-if="!configMeta.hidePrice" v-bind="props" />
+          <ProductPrice
+            v-if="!configMeta.hidePrice && props.productDetails?.displayPrice"
+            v-bind="props.productDetails.displayPrice"
+            :hide-term-summary="props.hideTermSummary"
+          />
+
           <ProductTerm
             v-if="!configMeta.hideTerms"
             :prices="props.pricing"
@@ -71,7 +85,7 @@
             size="lg"
             block
             pill
-            :label="t('product.basket.add')"
+            :label="t('action.add_to_basket')"
             @click="handleResolve"
           />
         </footer>
@@ -129,9 +143,10 @@ const configMeta = computed(() => ({
   hideBenefits: productMeta.value?.card?.benefits?.hide ?? props.hideBenefits,
   hideImage: productMeta.value?.image?.hide,
   hideCarousel: productMeta.value?.image?.carousel,
-  hidePrice: productMeta.value?.card?.terms?.hide,
   hideDescription: productMeta.value?.card?.description?.hide,
-  hideTerms: (productMeta.value?.card?.terms?.hide || props.hideTerms) ?? true
+  hidePrice: productMeta.value?.card?.price?.hide,
+  hideTerms: (productMeta.value?.card?.terms?.hide || props.hideTerms) ?? true,
+  isLoading: processing
 }));
 
 const styles = useStyles(

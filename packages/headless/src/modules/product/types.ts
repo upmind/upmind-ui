@@ -12,7 +12,7 @@ import type {
 } from "@upmind-automation/types";
 export { PromotionDisplayTypes } from "@upmind-automation/types";
 import { PromotionDisplayTypes } from "@upmind-automation/types";
-import type { Recommendation } from "../recommendations";
+import type { Recommendation, Badge } from "../recommendations";
 import type { BasketProduct } from "../basketProduct";
 import { ResponseError } from "../../utils";
 import { Route } from "../routing";
@@ -54,6 +54,11 @@ export type PriceDisplay = {
   savingAmount: number;
   savingPrice: string;
   savingPercent: string;
+  // ---
+  monthlyFromCurrentAmount?: number;
+  monthlyFromCurrentPrice?: string;
+  monthlyFromRegularAmount?: number;
+  monthlyFromRegularPrice?: string;
 };
 
 /**
@@ -83,7 +88,7 @@ export type Product = {
   /**
    * The model of the product, this contains the configuration settings/values to be used for editing purposes
    */
-  configuration: ProductModel;
+  configuration: ProductProps;
 
   /**
    * The detailed information about the actial product. This will contain all the product details such as title, description etc
@@ -156,6 +161,7 @@ export type ProductDetails = {
   title: string;
   name: string; // untranslated name for reporting purposes
   brand: string;
+  badge?: Badge;
   categoryId: string;
   category: string;
   categories?: string[]; // parent category names
@@ -172,6 +178,7 @@ export type ProductDetails = {
   min: number;
   max: number; // or infinity
   defaultPaymentPeriod?: number;
+  benefits?: Benefit[];
   uiMeta?: UIMeta;
   uiCategoryMeta?: Record<string, any>;
 };
@@ -214,7 +221,7 @@ export interface ProductProps extends ProductModel {
   currencyId?: ICurrency["id"];
   currencyCode?: ICurrency["code"];
   clientId?: IClient["id"];
-  promotions?: IBasketPromotion[];
+  promotions?: IBasketPromotion[]; // these are needed so we can know if we need to recalculate the price
   coupons?: string[]; // these are 'promotions' passed via url or config that are not in the basket yet
   subproducts?: string[]; // these are the ids of the subproducts that are passed via url or config that are not in the model/config yet
   bundle?: string; // allow to pass a bundle id to indicate that this product should  apply the specific bundle configuration; false forces no bundles to be applied
@@ -252,6 +259,7 @@ export type ProductSummaryMeta = {
   includesTax?: boolean;
   default?: boolean;
   freeTrail?: boolean;
+  useMonthlyFromPrice?: boolean;
 };
 
 export type ProductSummaryDetail = {
@@ -269,13 +277,21 @@ export type ProductSummaryDetailWithPrice = ProductSummaryDetail & {
   price: PriceDetail;
 };
 
+export type BillingCycleFormats = {
+  /** Adverbial variant e.g. `Monthly`, `Annually`, `One time`. */
+  adverbial: string;
+  /** Descriptive variant e.g. `month`, `3 years`. */
+  descriptive: string;
+  /** Monthly variant e.g., `month`, `6 months`. */
+  monthly: string;
+  /** Abbreviated suffix variant e.g. `mo` for 1 month, `2yr` for 2 years. */
+  suffix: string;
+  /** Numeric variant e.g. `1-month` or `2-year`. */
+  numeric: string;
+};
+
 export type TermDetails = ProductSummaryDetail & {
-  price: PriceDetail & {
-    monthlyFromCurrentAmount?: number;
-    monthlyFromCurrentPrice?: string;
-    monthlyFromRegularAmount?: number;
-    monthlyFromRegularPrice?: string;
-  };
+  price: PriceDetail;
   showTaxes?: boolean;
 };
 
@@ -356,6 +372,9 @@ export interface UIProductMeta {
       hide?: boolean;
     };
     breakdown: {
+      hide?: boolean;
+    };
+    price: {
       hide?: boolean;
     };
     terms: {

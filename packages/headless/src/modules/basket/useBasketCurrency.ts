@@ -3,6 +3,7 @@ import { computed, toRaw, unref } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
+import { useI18n } from "../system";
 import { useBasket } from "./";
 
 // --- utils
@@ -22,12 +23,13 @@ import { get, isEmpty, isEqual, isNil } from "lodash-es";
 
 // --- types
 import type { ActorRef } from "xstate";
-import { CurrencyContext, CurrencyModel } from "./currency/types";
+import type { CurrencyContext, CurrencyModel } from "./currency/types";
 
 // -----------------------------------------------------------------------------
 // We allow an actor to be passed in, but if not, we will use the basket actorRef and wait for the 'actor'' machine to be ready
 
 export const useBasketCurrency = () => {
+  const { t } = useI18n();
   const { actors } = useBasket();
   const actor = actors.currency;
 
@@ -92,7 +94,7 @@ export const useBasketCurrency = () => {
       .catch(() => {
         return Promise.reject(
           new DetailedError(
-            "Input not available",
+            t("error.input_not_available"),
             responseCodes.Forbidden,
             ErrorOrigin.Headless
           )
@@ -125,7 +127,7 @@ export const useBasketCurrency = () => {
       .then(state => {
         if (stateMatches(state, "error"))
           throw new DetailedError(
-            "Input not available",
+            t("error.input_not_available"),
             responseCodes.Forbidden,
             ErrorOrigin.Headless,
             state.context.error
@@ -136,7 +138,7 @@ export const useBasketCurrency = () => {
       .catch(error => {
         return Promise.reject(
           new DetailedError(
-            "Update Currency failed",
+            t("error.currency_update_failed"),
             error?.status ?? responseCodes.Timeout,
             ErrorOrigin.Headless,
             {

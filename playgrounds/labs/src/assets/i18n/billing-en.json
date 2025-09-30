@@ -32,13 +32,16 @@
     },
     "company": {
       "label": "Company",
-      "details": "Company: {regNumber} {vatNumber}",
+      "number": "Company #: {regNumber}",
       "title": "Add Company Details | Update Company Details",
       "error": "An error occurred Adding the Company Details | an error occurred Updating the Company Details",
       "default": "Default",
-      "vat": {
-        "validationFailed": "VAT validation failed",
-        "notValidated": "VAT not validated"
+      "tax": {
+        "number": "Tax #: {taxNumber}",
+        "invalid": "{number} is an invalid tax number.",
+        "pending": "This tax number is yet to be validated.",
+        "unvalidated": "We were unable to validate the tax number {number}.",
+        "valid": "Validated {relative}"
       },
       "actions": {
         "change": "Change",

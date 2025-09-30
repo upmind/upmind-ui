@@ -5,6 +5,7 @@ import { interpret, InterpreterStatus } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
+import { useI18n } from "../localisation";
 import recaptchaMachine from "./recaptcha.machine";
 
 // --- utils
@@ -20,7 +21,6 @@ import {
 } from "../../../utils";
 
 // --- types
-import type { InterpreterFrom } from "xstate";
 import type { RecaptchaContext } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -35,6 +35,7 @@ let service = interpret(recaptchaMachine, { devTools: true });
 
 export const useRecaptcha = () => {
   // --- state
+  const { t } = useI18n();
   const { state } = useActor(service);
 
   async function init(siteKey: string) {
@@ -86,7 +87,7 @@ export const useRecaptcha = () => {
           if (!token) {
             return Promise.reject(
               new DetailedError(
-                "Recaptcha token not set",
+                t("error.recaptcha_not_available"),
                 responseCodes.Not_Found,
                 ErrorOrigin.Headless,
                 errors.value
@@ -99,7 +100,7 @@ export const useRecaptcha = () => {
       .catch(() => {
         return Promise.reject(
           new DetailedError(
-            "Recaptcha not available",
+            t("error.recaptcha_not_available"),
             responseCodes.Service_Unavailable,
             ErrorOrigin.Headless,
             errors.value

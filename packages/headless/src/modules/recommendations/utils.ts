@@ -243,7 +243,7 @@ export function parseRecommendation(
   // try use the provided config term, otherwise calculate the term based on the product details
   const term = !isEmpty(terms)
     ? find(terms, ["cycle", config?.bcm]) ||
-      calculateBillingTerm(productDetails?.cycle, terms)
+      calculateBillingTerm(raw.product.default_payment_period, terms)
     : ({} as TermDetails);
   term.meta = defaultsDeep(term.meta, {
     added: meta?.added ?? false,

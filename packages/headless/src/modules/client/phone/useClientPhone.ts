@@ -5,6 +5,7 @@ import { waitFor } from "xstate/lib/waitFor";
 import { useActor } from "@xstate/vue";
 
 // --- internal
+import { useI18n } from "../../system";
 import itemMachine from "../item.machine";
 import { useClientPhoneActions, useClientPhoneGuards } from "./actions";
 import { useClientPhoneServices } from "./services";
@@ -42,6 +43,7 @@ export const useClientPhone = (
     clientId
   }: { allowMultipleEdits?: boolean; clientId?: IClient["id"] } = {}
 ) => {
+  const { t } = useI18n();
   const { getOne } = useClientPhones();
 
   const service = interpret(
@@ -59,7 +61,7 @@ export const useClientPhone = (
       }),
     {
       id: id ?? "new-phone",
-      devTools: true
+      devTools: false
     }
   );
 
@@ -127,7 +129,7 @@ export const useClientPhone = (
       .catch(() => {
         return Promise.reject(
           new DetailedError(
-            "Input not available",
+            t("error.input_not_available"),
             responseCodes.Forbidden,
             ErrorOrigin.Headless
           )
@@ -165,7 +167,7 @@ export const useClientPhone = (
       .catch(error => {
         return Promise.reject(
           new DetailedError(
-            "Update Phone failed",
+            t("error.client_phone_update_failed"),
             error?.status ?? responseCodes.Timeout,
             ErrorOrigin.Headless,
             {

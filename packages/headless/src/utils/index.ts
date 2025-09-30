@@ -7,6 +7,7 @@ export * from "./useMoney";
 export * from "./usePOP";
 export * from "./useStorage";
 export * from "./useTime";
+export * from "./useError";
 export * from "./useTranslation";
 export * from "./useUrl";
 export * from "./useImageUrl";

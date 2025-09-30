@@ -14,7 +14,13 @@ export interface BasketContext {
   // ---
   error?: ResponseError;
   controller?: AbortController;
-  summary?: any; //TODO: define summary type
+  summary?: {
+    products: BasketProduct[];
+    discount: string | null;
+    subtotal: string;
+    taxes: { title: string; amount: string }[];
+    total: string;
+  };
   // --- SPAWNED ACTORS/MACHINES
   actors?: {
     billing: ActorRef<any>;

@@ -3,7 +3,6 @@ import { localStoragePersister, useQuery } from "../..";
 
 // --- utils
 import { parseTerm } from "./mappers";
-import { useTime } from "../../../utils";
 
 // --- types
 import type { TermsAndConditions } from "./types";
@@ -28,7 +27,7 @@ function load() {
     withAccessToken: true,
     // --- options
     select: data => parseTerm(data),
-    staleTime: useTime().DAY,
+    staleTime: "static",
     persister: localStoragePersister.persisterFn
   });
 }

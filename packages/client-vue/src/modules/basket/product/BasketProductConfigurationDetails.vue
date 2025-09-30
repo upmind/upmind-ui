@@ -6,13 +6,14 @@
       :id="id"
       :category="first(group)?.category"
       :items="group"
+      :data-testid="`basket-product-details-${kebabCase(index)}`"
     />
   </div>
 </template>
 
 <script lang="ts" setup>
 // --- external
-import { groupBy, first } from "lodash-es";
+import { groupBy, first, kebabCase } from "lodash-es";
 import { computed } from "vue";
 
 // --- components

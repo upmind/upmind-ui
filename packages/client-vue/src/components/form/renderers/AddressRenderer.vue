@@ -8,9 +8,9 @@
     <template v-if="!open">
       <Search
         :autoFocus="formFieldProps?.autoFocus"
-        :placeholder="appliedOptions?.placeholder"
+        :placeholder="t('form.address.placeholder')"
         :results="predictions"
-        additional-option="Enter address manually"
+        :additional-option="t('action.enter_address_manually')"
         class="mb-6"
         @select="selectAddress"
         @update:search="getSuggestions"
@@ -20,7 +20,7 @@
         <Button
           variant="link"
           class="mt-2"
-          label="Enter address manually"
+          :label="t('action.enter_address_manually')"
           size="sm"
           color="muted"
           @click="setShowAddressFields(true)"
@@ -44,6 +44,7 @@
 <script setup lang="ts">
 // --- external
 import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import {
   DispatchRenderer,
   rendererProps,
@@ -72,6 +73,7 @@ const props = defineProps({
 });
 
 // -----------------------------------------------------------------------------
+const { t } = useI18n();
 
 const { search, predictions, getPlaceDetails } = usePlaces();
 

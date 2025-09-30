@@ -18,6 +18,7 @@
         :sort="params.sort"
         :direction="params.direction"
         :description="description"
+        :is-faceted="isFaceted"
         v-bind="category"
       />
     </template>
@@ -111,7 +112,7 @@ const params = useUrlSearchParams<{
 // --- category logic moved from Categories
 const category = computed((): ProductCategory => {
   const category = categoryId.value ? getOne(categoryId.value) : undefined;
-  return category || { id: "", name: "", title: t("product.category.all") };
+  return category || { id: "", name: "", title: t("text.categories") };
 });
 
 const description = computed(() => {

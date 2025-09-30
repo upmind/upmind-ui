@@ -14,13 +14,13 @@ export interface CheckoutProps {
 }
 
 export interface BillingProps {
-  i18nKey?: string;
   modelValue: any;
   color?: ButtonProps["color"];
   noActions?: boolean;
 }
 
 export interface PaymentGatewayProps {
-  id: string;
+  modelValue: string;
   variant?: string;
+  color?: ButtonProps["color"];
 }

@@ -13,20 +13,5 @@
       "source": "${lang}",
       "operations": "formatLang: LL, LL-RR, LL, LL-RR"
     }
-  ],
-  "upload": {
-    "folder": "./src/",
-    "type": "json",
-    "deprecate": "project",
-    "importAsNew": false,
-    "forceCurrent": false,
-    "forceSource": false,
-    "files": [
-      {
-        "lang": "en",
-        "file": "${autodetectFile}",
-        "pattern": "/**/i18n/*.json"
-      }
-    ]
-  }
+  ]
 }

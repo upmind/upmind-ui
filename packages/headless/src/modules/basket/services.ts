@@ -2,7 +2,7 @@
 
 // --- internal
 import { useBrand } from "../brand";
-import { useQuery } from "../..";
+import { useI18n, useQuery } from "../..";
 import { useSession } from "../session";
 import { useTracking } from "../system";
 
@@ -93,6 +93,7 @@ async function load(context: BasketContext, _event: AnyEventObject) {
         "products.product.products_options",
         "products.product.products_options.category",
         "products.product.products_options.prices",
+        "products.product.provision_blueprint",
         "products.product.provision_field_values",
         "products.tags",
         "products.product.related",
@@ -165,6 +166,7 @@ async function convert(
   { basket, paymentDetails }: BasketContext,
   _event: AnyEventObject
 ) {
+  const { t } = useI18n();
   const { patch, useUrl } = useQuery();
   const { get: getCookie } = useCookies();
   const { get: getTracking } = useTracking();
@@ -172,7 +174,7 @@ async function convert(
   if (!basket?.id)
     return Promise.reject(
       new DetailedError(
-        "Convert basket failed: no basket id provided",
+        t("error.basket_not_available"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )
@@ -181,7 +183,7 @@ async function convert(
   if (isEmpty(paymentDetails) || !isObject(paymentDetails))
     return Promise.reject(
       new DetailedError(
-        "Convert basket failed: no payment details provided",
+        t("error.basket_convert_failed"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )
@@ -264,9 +266,7 @@ async function getProvisioningFieldsValues(basket: IBasket) {
     const promise = get({
       url: useUrl(
         `orders/${basket.id}/products/${id}/provision_fields/values`,
-        {
-          sub_product_ids: subProducts
-        }
+        { sub_product_ids: subProducts }
       ),
       queryKey: [
         "basket",
@@ -274,7 +274,8 @@ async function getProvisioningFieldsValues(basket: IBasket) {
         "products",
         id,
         "provision_fields",
-        "values"
+        "values",
+        { subProducts }
       ],
       withAccessToken: true,
       staleTime: 0, // disable cache, this may still return stale data while the request is in flight

@@ -5,6 +5,7 @@ import { waitFor } from "xstate/lib/waitFor";
 import { useActor } from "@xstate/vue";
 
 // --- internal
+import { useI18n } from "../../../system";
 import itemMachine from "../../../client/item.machine";
 import { useUnifiedActions, useUnifiedGuards } from "./actions";
 import { useUnifiedServices } from "./services";
@@ -29,7 +30,6 @@ import { debounce, get, isEmpty, isEqual } from "lodash-es";
 
 // --- types
 import type { IClient } from "@upmind-automation/types";
-import type { BillingModel } from "../types";
 import { UnifiedType } from "./types";
 import type { UnifiedModel, UnifiedContext } from "./types";
 
@@ -48,6 +48,7 @@ export const useUnified = (
   type: UnifiedContext["type"] = UnifiedType.PERSONAL,
   { clientId }: { clientId?: IClient["id"] } = {}
 ) => {
+  const { t } = useI18n();
   const service = interpret(
     itemMachine
       .withConfig({
@@ -64,7 +65,7 @@ export const useUnified = (
       }),
     {
       id: "new-billing-detail",
-      devTools: true
+      devTools: false
     }
   );
 
@@ -139,7 +140,7 @@ export const useUnified = (
       .catch(() => {
         return Promise.reject(
           new DetailedError(
-            "Input not available",
+            t("error.input_not_available"),
             responseCodes.Forbidden,
             ErrorOrigin.Headless
           )
@@ -174,7 +175,7 @@ export const useUnified = (
       .catch(error => {
         return Promise.reject(
           new DetailedError(
-            "Update Unified Address failed",
+            t("error.unified_address_update_failed"),
             error?.status ?? responseCodes.Timeout,
             ErrorOrigin.Headless,
             {

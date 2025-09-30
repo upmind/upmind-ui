@@ -5,17 +5,14 @@
         <!-- heading -->
         <header :class="styles.product.config.heading">
           <div class="w-full">
-            <Skeleton :class="styles.product.config.title" class="h-8 w-64">
-              Product Title
-            </Skeleton>
-
-            <div class="mt-7 flex flex-col gap-y-1">
-              <Skeleton class="h-5 w-5/12" />
-              <Skeleton class="h-5 w-6/12" />
-              <Skeleton class="h-5 w-24" />
+            <div class="flex flex-col gap-2">
+              <Skeleton class="h-6 w-32" />
+              <Skeleton class="h-10 w-full" />
+              <Skeleton class="h-10 w-full" />
+              <Skeleton class="h-10 w-full" />
             </div>
 
-            <div class="mt-10 flex flex-col gap-y-1">
+            <div class="mt-10 flex flex-col gap-2">
               <Skeleton class="h-7 w-56" />
               <div class="flex gap-x-2">
                 <Skeleton class="h-28 w-6/12" />
@@ -27,7 +24,7 @@
               </div>
             </div>
 
-            <div class="mt-10 flex flex-col gap-y-1">
+            <div class="mt-10 flex flex-col gap-2">
               <Skeleton class="h-7 w-56" />
               <Skeleton class="h-10 w-full" />
               <Skeleton class="h-10 w-full" />

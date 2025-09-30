@@ -9,6 +9,7 @@ import { isEmpty } from "lodash-es";
 // --- types
 import type { State } from "xstate";
 import { getTokenFromStorage } from "./utils";
+import { stateMatches } from "../../utils";
 // -----------------------------------------------------------------------------
 // We have a valid AUTH session when we are logged in as a client (TODO: admin + actor)
 // this will fire every time we transition to a new state
@@ -25,12 +26,16 @@ const authCallback = (
   const currentMachine =
     state?.children?.clientMachine || state?.children?.guestMachine;
 
-  if (["checking", "error"].some(state.matches)) {
+  if (stateMatches(state, ["expired"])) {
+    callback({ type: "UNAUTHENTICATED" });
+    return false;
+  }
+
+  if (
+    stateMatches(state, ["checking", "error", "expired"]) ||
+    clientMachine?.getSnapshot()?.done
+  ) {
     if (hasSession) callback({ type: "UNAUTHENTICATED" });
-    // DEPRECATED:
-    // we dont need to tell any machines what our error is...
-    // just that we are no longer authenticated
-    // callback({ type: "ERROR", data: state.context.error });
     return false;
   }
 

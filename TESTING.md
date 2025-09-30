@@ -30,25 +30,8 @@
 // So the only remaining features left to test are the Vue components
 //
 // - Integration tests (for Vue components)
-// (we can use Cypress components - https://github.com/cypress-io/cypress-component-testing-apps/blob/main/vue3-vite-ts/src/components/Welcome.cy.ts
+// (we can use Cypress components - <https://github.com/cypress-io/cypress-component-testing-apps/blob/main/vue3-vite-ts/src/components/Welcome.cy.ts>
 //
 // - Mock API requests with `cy.intercept`
-// . (https://github.com/cypress-io/cypress-component-testing-apps/blob/main/vue3-vite-ts/src/App.cy.ts)
-//
-
-//
-// playgrounds/doteasy
-// A client implementation (DotEasy) using our Client-Vue lib (eventually via "npm install @upmind-automation/client-vue")
-//
-// - e2e tests with Cypress
-//
-// - No mocks
-// - We can use staging env
-// - Eventually we can have a more controlled test env
-// - with a DB seeding strategy
-//
-// Upmind Admin
-// - We're probably not doing it for playgrounds/doteasy (DotEasy)
-// - However, this approach is my recommendation for the admin app
-// (because it will also be a "client" of our upflow-vue and upmind-ui libs - or even Client-vue if that's the way)
+// . (<https://github.com/cypress-io/cypress-component-testing-apps/blob/main/vue3-vite-ts/src/App.cy.ts>)
 //

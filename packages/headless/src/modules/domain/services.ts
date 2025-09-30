@@ -1,7 +1,13 @@
 // --- external
 
 // --- internal
-import { DomainModel, DomainProduct, PAGINATION, useQuery } from "../..";
+import {
+  DomainModel,
+  DomainProduct,
+  PAGINATION,
+  useI18n,
+  useQuery
+} from "../..";
 
 // --- utils
 import { isEmpty, map, omitBy } from "lodash-es";
@@ -11,6 +17,7 @@ import { parseAvailable, parseDomain, parseDomainParts } from "./utils";
 import type { IProduct } from "@upmind-automation/types";
 import type { DomainContext } from "./types";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
+import { parsePromotionsOrCoupons } from "../basketProduct/utils";
 
 // -----------------------------------------------------------------------------
 
@@ -23,12 +30,13 @@ async function search({
   promotions,
   preferredCycle
 }: DomainContext) {
+  const { t } = useI18n();
   const { getList, useUrl } = useQuery();
 
   if (!search?.query?.length)
     return Promise.reject(
       new DetailedError(
-        "No query provided",
+        t("error.query_not_found"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )
@@ -37,7 +45,7 @@ async function search({
   const { sld, tld } = parseDomainParts(search.query);
 
   // lets ensure we parse our promotions correctly
-  const promocodes = map(promotions, "promotion.code").join();
+  const promocodes = parsePromotionsOrCoupons(promotions).join();
 
   // --- Build the request and Fetch the search results
   const params = omitBy(

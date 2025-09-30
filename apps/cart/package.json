@@ -1,7 +1,7 @@
 {
   "name": "@upmind-automation/cart",
   "private": true,
-  "version": "0.1.14",
+  "version": "0.2.0",
   "description": "Bespoke Vue.js, e-commerce platform built on the Upmind platform",
   "keywords": [
     "Upmind",
@@ -34,9 +34,7 @@
     "test": "vitest",
     "lint": "eslint . --fix",
     "format": "prettier --write src/",
-    "localazy": "localazy upload",
-    "localazy:download": "localazy download",
-    "localazy:sync": "localazy upload && localazy download",
+    "localazy": "localazy download",
     "deploy:staging": "pnpm build:staging  && firebase deploy --only hosting:staging",
     "deploy": "pnpm build && firebase deploy --only hosting:cart"
   },
@@ -47,6 +45,7 @@
     "@tanstack/vue-query": "^5.83.1",
     "@upmind-automation/client-vue": "workspace:*",
     "@upmind-automation/upmind-ui": "workspace:*",
+    "@upmind-automation/i18n": "workspace:*",
     "@vueuse/components": "^13.6.0",
     "@vueuse/core": "^13.6.0",
     "class-variance-authority": "^0.7.1",

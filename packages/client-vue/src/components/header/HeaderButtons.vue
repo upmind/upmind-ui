@@ -3,11 +3,6 @@
     <slot name="actions" />
 
     <Button
-      v-if="
-        basketMeta.hasProducts &&
-        basketMeta.isAvailable &&
-        currentRoute?.name !== ROUTE.BASKET
-      "
       :class="styles.header.avatar.basket"
       variant="ghost"
       size="lg"
@@ -21,7 +16,7 @@
         size="lg"
         variant="outline"
         color="base"
-        :label="t('header.login')"
+        :label="t('action.login')"
         icon="account"
         pill
         data-testid="login-popover-trigger"

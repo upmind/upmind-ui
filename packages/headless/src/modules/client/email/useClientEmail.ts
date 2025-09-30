@@ -5,6 +5,7 @@ import { waitFor } from "xstate/lib/waitFor";
 import { useActor } from "@xstate/vue";
 
 // --- internal
+import { useI18n } from "../../system";
 import itemMachine from "../item.machine";
 import { useClientEmailActions, useClientEmailGuards } from "./actions";
 import { useClientEmailServices } from "./services";
@@ -42,6 +43,7 @@ export const useClientEmail = (
     clientId
   }: { allowMultipleEdits?: boolean; clientId?: IClient["id"] } = {}
 ) => {
+  const { t } = useI18n();
   const { getOne } = useClientEmails();
 
   // --- state
@@ -126,7 +128,7 @@ export const useClientEmail = (
       .catch(() => {
         return Promise.reject(
           new DetailedError(
-            "Input not available",
+            t("error.input_not_available"),
             responseCodes.Forbidden,
             ErrorOrigin.Headless
           )
@@ -164,7 +166,7 @@ export const useClientEmail = (
       .catch(error => {
         return Promise.reject(
           new DetailedError(
-            "Update Email failed",
+            t("error.client_email_update_failed"),
             error?.status ?? responseCodes.Timeout,
             ErrorOrigin.Headless,
             {

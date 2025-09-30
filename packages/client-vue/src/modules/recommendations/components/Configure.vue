@@ -4,8 +4,8 @@
     to="#vue-app"
     fit="cover"
     open
-    :title="t('recommendations.configuration.title')"
-    :description="t('recommendations.configuration.description')"
+    :title="t('action.configure_your_product')"
+    :description="t('text.product_info_needed_msg')"
     :dismissible="false"
     :class-footer="styles.recommendation.configuration.footer"
   >
@@ -22,7 +22,7 @@
     <template #close>
       <Button
         @click="doReject"
-        :label="t('recommendations.configuration.actions.reject')"
+        :label="t('action.cancel')"
         variant="link"
         size="lg"
       />
@@ -33,7 +33,7 @@
         :loading="meta.isProcessing"
         :disabled="meta.isProcessing"
         @click="doResolve"
-        :label="t('recommendations.configuration.actions.resolve')"
+        :label="t('action.add_to_basket')"
         prependIcon="plus-circle"
         color="primary"
         size="lg"

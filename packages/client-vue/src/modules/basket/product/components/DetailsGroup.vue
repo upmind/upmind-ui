@@ -19,7 +19,7 @@
         :to="editLink"
         variant="link"
         size="sm"
-        :label="t('product.configureNow')"
+        :label="t('action.configure_now')"
         color="error"
       />
     </template>

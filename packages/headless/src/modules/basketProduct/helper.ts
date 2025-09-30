@@ -7,48 +7,62 @@ import { useBasketProductsPending } from "./useBasketProductsPending";
 import { useBasketProductPending } from "./useBasketProductPending";
 import productServices from "./services";
 
-import { useDataLayer } from "../system";
+import { useDataLayer, useI18n, useLocale } from "../system";
 const { dataLayer } = useDataLayer();
 
 // --- utils
-import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 import {
-  concat,
-  defaults,
-  get,
-  isArray,
-  isEmpty,
-  map,
-  pick,
-  uniq,
-  compact
-} from "lodash-es";
+  DetailedError,
+  ErrorOrigin,
+  responseCodes,
+  stateMatches
+} from "../../utils";
+import { defaults, get, isArray, isEmpty, map, pick, compact } from "lodash-es";
 
 // --- types
 import type { IBasket } from "@upmind-automation/types";
 import type { BasketProduct } from "./types";
-import { ActorRef } from "xstate";
+import type { ActorRef } from "xstate";
+import { watch } from "vue";
 
 type BasketProductPending = ReturnType<typeof useBasketProductPending>;
 
 // -----------------------------------------------------------------------------
 
 export function basketSubscription(callback: any, onReceiveEvent: any) {
+  const { t } = useI18n();
+  const { locale } = useLocale();
   const basket = useBasket();
   const pendingProducts = useBasketProductsPending();
 
   let isRefreshing = false;
+  let isLoading = false;
+
+  // NB remember to refresh the basket and any subsequent actors if the locale changes
+  watch(locale, (value, oldValue) => {
+    if (!basket.basketId.value) return;
+    debugger;
+    callback({
+      type: "REFRESH",
+      data: basket.basket.value
+    });
+  });
 
   // let's let our subscriber know when the basket has been refreshed
   const subscription = basket.subscribe((state: any) => {
     // mark the basket as refreshing
-    if (state.matches("shopping.refreshing.processing")) {
+
+    if (stateMatches(state, ["loading", "subscribing"])) isLoading = true;
+    if (stateMatches(state, ["shopping.refreshing.processing"]))
       isRefreshing = true;
-    }
 
     // when the basket has been refreshed, then we can forward the refresh event
-    if (isRefreshing && state.matches("shopping.refreshing.processed")) {
+    if (
+      (isLoading && stateMatches(state, ["shopping"])) ||
+      (isRefreshing && stateMatches(state, ["shopping.refreshing.processed"]))
+    ) {
       isRefreshing = false;
+      isLoading = false;
       callback({ type: "REFRESH", data: state.context?.basket });
     }
   });
@@ -90,7 +104,7 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
           callback({
             type: "ERROR",
             data: new DetailedError(
-              "Basket not found",
+              t("error.basket_not_available"),
               responseCodes.Not_Found,
               ErrorOrigin.Headless
             )
@@ -104,14 +118,13 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
         if (isEmpty(event.target)) return Promise.resolve([]);
 
         const data = { productId: event.target };
+
         productServices
           .fetch(
             {
               basketId: rawBasket.id,
               currencyId: rawBasket.currency_id,
-              promotions: uniq(
-                concat(rawBasket?.promotions, event.context?.promotions)
-              )
+              promotions: event.context?.configuration?.coupons
             },
             { data }
           )
@@ -133,9 +146,7 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
           .fetchSelected(
             {
               basketId: rawBasket?.id,
-              currencyId: rawBasket?.currency_id,
-              promotions: map(rawBasket?.promotions, "promotion.code")
-              // promotions: uniq(concat(rawBasket?.promotions, context?.promotions)),
+              currencyId: rawBasket?.currency_id
             },
             { data: { productIds: event.target } }
           )
@@ -154,8 +165,7 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
           .fetchRelated(
             {
               basketId: rawBasket?.id,
-              currencyId: rawBasket?.currency_id,
-              promotions: map(rawBasket?.promotions, "promotion.code")
+              currencyId: rawBasket?.currency_id
             },
             {
               data: defaults(pick(event.context, ["limit", "offset"]), {
@@ -211,7 +221,7 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
               })
               .catch(() => {
                 throw new DetailedError(
-                  "ADD_UPDATE on basketProduct timed out",
+                  t("error.basket_product_add_failed"),
                   responseCodes.Timeout,
                   ErrorOrigin.Headless,
                   instance
@@ -220,11 +230,12 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
           })
           .then((instance: BasketProductPending) => {
             const model = instance.model;
+            const coupons = instance.coupons;
             const actor = instance.service;
             const product = instance.product;
             if (!product)
               throw new DetailedError(
-                "Product not found",
+                t("error.product_not_available"),
                 responseCodes.Not_Found,
                 ErrorOrigin.Headless
               );
@@ -236,9 +247,7 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
               .update(
                 {
                   basketId: rawBasket?.id,
-                  promotions: uniq(
-                    concat(rawBasket?.promotions, event.context?.promotions)
-                  ),
+                  promotions: coupons,
                   currencyId: rawBasket?.currency_id
                 },
                 { data: model.value! }
@@ -307,7 +316,9 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
                 { timeout: 60_000 } // wait 1 min (max)
               )
                 .then(() => actor)
-                .catch(() => undefined);
+                .catch(error => {
+                  return undefined;
+                });
             });
         }) as Promise<ActorRef<any>>[];
 
@@ -318,8 +329,7 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
               .updateMany(
                 {
                   basketId: rawBasket?.id,
-                  basketProducts: basket.products.value,
-                  promotions: event.context?.promotions
+                  basketProducts: basket.products.value
                 },
                 { data: compact(instances) }
               )
@@ -366,9 +376,7 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
           .update(
             {
               basketId: rawBasket?.id,
-              promotions: uniq(
-                concat(rawBasket?.promotions, event.context?.promotions)
-              ),
+              promotions: event.context?.coupons,
               currencyId: rawBasket?.currency_id
             },
             { data: event.target }
@@ -404,7 +412,7 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
           callback({
             type: "ERROR",
             data: new DetailedError(
-              "Basket Product not found",
+              t("error.basket_product_not_found"),
               responseCodes.Not_Found,
               ErrorOrigin.Headless
             )

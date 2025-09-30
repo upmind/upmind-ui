@@ -3,6 +3,7 @@ import { computed, toRaw, unref } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
+import { useI18n } from "../system";
 import { useBasket } from ".";
 import { useUnified } from "./billing/unified/useUnified";
 
@@ -26,6 +27,7 @@ import { BillingContext, BillingModel } from "./billing/types";
 // -----------------------------------------------------------------------------
 
 export const useBasketBilling = () => {
+  const { t } = useI18n();
   const { actors } = useBasket();
   const actor = actors.billing;
 
@@ -56,7 +58,10 @@ export const useBasketBilling = () => {
     isAvailable:
       !!actor.value && stateMatches(actor, ["available", "complete"]),
     hasErrors: stateMatches(actor, ["available.error"]),
-    isProcessing: stateMatches(actor, ["available.processing"]),
+    isProcessing: stateMatches(actor, [
+      "available.processing",
+      "available.waiting"
+    ]),
     isValid: stateMatches(actor, ["available.valid"]),
     isComplete:
       stateValue(actor, "done", false) ||
@@ -122,7 +127,7 @@ export const useBasketBilling = () => {
       .catch(error => {
         return Promise.reject(
           new DetailedError(
-            "Update Billing Details failed",
+            t("error.billing_details_update_failed"),
             responseCodes.Timeout,
             ErrorOrigin.Headless,
             {
@@ -137,9 +142,25 @@ export const useBasketBilling = () => {
   function clear(): void {
     actor.value?.send({ type: "CLEAR" });
   }
+
+  function wait(value: boolean): Promise<boolean> {
+    if (value) actor.value?.send({ type: "WAIT" });
+    else actor.value?.send({ type: "RESUME" });
+
+    return waitFor(
+      actor.value!.service,
+      state => stateMatches(state, ["available"]),
+      { timeout: Infinity }
+    ).then(state => {
+      return stateMatches(state, ["error"]);
+    });
+  }
+
   // ---------------------------------------------------------------------------
   return {
     // --- state
+
+    state: computed(() => actor.value?.state?.value?.toStrings()),
 
     /**
      * Waits for the billing actor to be ready (not loading or error state).
@@ -205,6 +226,14 @@ export const useBasketBilling = () => {
      * @returns {Promise<void>} Resolves when updated, rejects on error.
      */
     update,
+
+    /**
+     * Puts the billing actor into a wait state before re-checking for validity.
+     * This is usefull if we are adding a new address or company and need to wait
+     * for the actor to re-validate the billing details.
+     * @returns {Promise<boolean>} Resolves true if successful, false if error.
+     */
+    wait,
 
     /**
      * Returns the unified address composable for billing details.

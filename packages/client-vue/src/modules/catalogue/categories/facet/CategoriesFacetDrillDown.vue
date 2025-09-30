@@ -29,10 +29,8 @@
     size="lg"
     pill
     :class="styles.products.facet.drillDown.back"
+    icon="arrow-left"
   >
-    <template #prepend>
-      <Icon icon="arrow-left" size="3xs" />
-    </template>
   </Button>
 </template>
 
@@ -102,7 +100,7 @@ const parentCategory = computed(() => {
 
   return {
     id: parentId,
-    label: t("product.back"),
+    label: t("action.back"),
     to: {
       name: ROUTE.CATALOGUE,
       query: {

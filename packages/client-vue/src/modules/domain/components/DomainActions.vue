@@ -10,22 +10,22 @@
     @click="selected ? onRemove(props.domain) : onUpdate(props.domain)"
     size="lg"
     :icon="selected || meta.added ? 'basket-check' : 'basket-add'"
-    :label="t('domain.card.available.action', selected ? 0 : 1)"
+    :label="t('action.register_or_added', selected ? 0 : 1)"
   />
 
-  <template v-if="!meta?.available && !selected" as="span">
+  <template v-if="!meta?.available && !selected && !meta.added" as="span">
     <Description class="not-italic md:max-w-76">
-      {{ t("domain.card.transfer.ownership") }}
-      {{ t("domain.card.transfer.transfer") }}
+      {{ t("domain.own_domain_qn") }}
+      {{ t("domain.transfer_domain_by_msg") }}
       <Button
         variant="link"
         class="text-emphasis-medium font-medium text-inherit underline underline-offset-1!"
         @click="onUpdate(props.domain)"
-        >{{ t("domain.card.transfer.action") }}</Button
+        >{{ t("action.clicking_here") }}</Button
       >.
       <template v-if="meta.discounted">
         {{
-          t("domain.card.transfer.renew.discounted", {
+          t("domain.tld_renewal_price_desc", {
             tld: props.tld,
             regularPrice: props.price.regularPrice,
             currentPrice: props.price.currentPrice
@@ -34,7 +34,7 @@
       </template>
       <template v-else>
         {{
-          t("domain.card.transfer.renew.regular", {
+          t("domain.tld_renewal_price_from_desc", {
             tld: props.tld,
             regularPrice: props.price.regularPrice,
             currentPrice: props.price.currentPrice

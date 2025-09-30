@@ -5,21 +5,18 @@
         v-bind="props"
         to="#vue-app"
         :modal="meta.useModal"
-        :text="t('basket.empty.text')"
+        :title="t('cart.empty_md')"
+        :text="t('cart.empty_msg')"
         :actions="[
           {
-            is: 'a',
+            ...storefrontRoute,
             color: 'primary',
-            href: storefrontUrl,
             iconAppend: 'arrow-right',
-            label: t('basket.empty.actions.continue'),
+            label: t('action.continue_shopping'),
             size: 'lg'
           }
         ]"
       >
-        <template #title>
-          <SmartTitle i18n-key="basket.empty.title" align="center" />
-        </template>
       </Interstitial>
     </ContentSection>
   </Layout>
@@ -34,12 +31,11 @@ import { computed } from "vue";
 
 // -- components
 import { Interstitial, Layout } from "@upmind-automation/upmind-ui";
-import SmartTitle from "../../components/content/SmartTitle.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
 
 // -- types
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
-import { ROUTE, useBrand } from "@upmind-automation/headless";
+import { ROUTE, useBrand, useFeedback } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<InterstitialProps>(), {
@@ -57,8 +53,7 @@ const props = withDefaults(defineProps<InterstitialProps>(), {
 });
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
-const router = useRouter();
-const { storefrontUrl } = useBrand();
+const { storefrontRoute } = useBrand();
 const route = useRoute();
 const routeMeta = route.meta;
 

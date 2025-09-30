@@ -1,5 +1,5 @@
 // --- external
-import { toRaw, computed, unref } from "vue";
+import { toRaw, computed } from "vue";
 
 // --- internal
 import services from "./services";
@@ -20,7 +20,8 @@ import {
   isEmpty,
   forEach,
   includes,
-  keys
+  keys,
+  omitBy
 } from "lodash-es";
 
 // --- types
@@ -33,7 +34,7 @@ import {
 } from "@upmind-automation/types";
 import type { IBrandMeta } from "./types";
 import type { CurrencyModel } from "../basket/currency/types";
-import { k } from "@tanstack/vue-query/build/legacy/queryClient-CAHOJcvF";
+import { RouteLocationRaw } from "vue-router";
 
 // -----------------------------------------------------------------------------
 /**
@@ -47,13 +48,23 @@ let needsRefresh = some(keys(localStorage), key =>
   includes(key, `"brand","settings"`)
 );
 
-export const useBrand = () => {
-  // --- state
+// ---  singleton queries to prevent multiple fetches
+let modulesQuery: ReturnType<typeof services.fetchModules>;
+let brandConfigQuery: ReturnType<typeof services.fetchBrandConfig>;
+let brandSettingsQuery: ReturnType<typeof services.fetchBrandSettings>;
+let organisationConfigQuery: ReturnType<
+  typeof services.fetchOrganisationConfig
+>;
 
-  const modulesQuery = services.fetchModules();
-  const brandConfigQuery = services.fetchBrandConfig();
-  const brandSettingsQuery = services.fetchBrandSettings();
-  const organisationConfigQuery = services.fetchOrganisationConfig();
+// -----------------------------------------------------------------------------
+
+export const useBrand = () => {
+  modulesQuery ??= services.fetchModules();
+  brandConfigQuery ??= services.fetchBrandConfig();
+  brandSettingsQuery ??= services.fetchBrandSettings();
+  organisationConfigQuery ??= services.fetchOrganisationConfig();
+
+  // --- state
 
   const queries = [
     modulesQuery,
@@ -75,13 +86,6 @@ export const useBrand = () => {
       const interval = setInterval(() => {
         if (meta.value.isComplete) {
           clearInterval(interval);
-
-          // after first load, ensure we refetch our data in the background if we have previously fetched/persisted
-          if (needsRefresh) {
-            refresh();
-            needsRefresh = false;
-          }
-
           resolve(!meta.value.hasError);
         }
       }, 100);
@@ -206,6 +210,23 @@ export const useBrand = () => {
     return !(externalUrl && enabled && hasRoute);
   });
 
+  const storefrontRoute = computed(
+    ():
+      | {
+          to?: RouteLocationRaw;
+          href?: string;
+        }
+      | undefined => {
+      return omitBy(
+        {
+          to: !hasStorefront.value ? { name: ROUTE.CATALOGUE } : undefined,
+          href: hasStorefront.value ? storefrontUrl.value : undefined
+        },
+        isEmpty
+      );
+    }
+  );
+
   // --- methods
 
   const ensureConfig = async (
@@ -236,6 +257,10 @@ export const useBrand = () => {
     return pick(brandConfig.value, keys) ?? {};
   };
 
+  function getConfigValue<T = unknown>(key: BrandConfigKeys): T | undefined {
+    return get(brandConfig.value, key) as T | undefined;
+  }
+
   const validateCurrency = async (
     model: CurrencyModel
   ): Promise<Partial<ICurrency> | ICurrency | undefined> => {
@@ -250,10 +275,10 @@ export const useBrand = () => {
     return found ?? currency.value;
   };
 
-  const validateLanguage = async (model: {
+  const validateLanguage = (model: {
     id?: string;
     code?: string;
-  }): Promise<ILanguage | undefined> => {
+  }): ILanguage | undefined => {
     const currentLanguages = languages.value;
 
     if (isEmpty(currentLanguages)) return model as ILanguage | undefined;
@@ -274,6 +299,16 @@ export const useBrand = () => {
     return found;
   };
 
+  const isSupportedLanguage = (locale: string): boolean => {
+    if (isEmpty(languages.value) || isEmpty(locale)) return false;
+
+    const found = some(languages.value, ({ code }) => {
+      return code?.toLocaleLowerCase() === locale.toLocaleLowerCase();
+    });
+
+    return found;
+  };
+
   // --- Utility methods for cache management and re-fetching
   const refresh = async () => {
     // Invalidate all related queries that feed into state via services.ts
@@ -288,6 +323,16 @@ export const useBrand = () => {
   // --- utils
 
   // (none currently)
+
+  // --- side effects
+
+  // after first load, ensure we refetch our data in the background if we have previously fetched/persisted
+  isReady().then(() => {
+    if (needsRefresh) {
+      refresh();
+      needsRefresh = false;
+    }
+  });
 
   return {
     // --- state
@@ -399,6 +444,13 @@ export const useBrand = () => {
     storefrontUrl,
 
     /**
+     * The resolved storefront route within the application.
+     * This is derived from the meta, environment and router configuration.
+     * provided for convenience as a vue router friendly route object.
+     */
+    storefrontRoute,
+
+    /**
      * Returns boolean indicating if the brand has a storefront URL.
      * This is derived from the meta, environment and router configuration.
      */
@@ -443,6 +495,18 @@ export const useBrand = () => {
     getConfig,
 
     /**
+     * This method will return the requested key VALUE from the config.
+     * It assumes that the key is already in context in the state machine.
+     * It will not request the key from the API if it is not already in context.
+     * It will also not wait for the state of the request to be processed/cached
+     * before returning the requested key.
+     * @param key - The key to request from the config
+     * @returns {any} The value of the requested key.
+     * @throws {DetailedError} If the key is not available in the context.
+     */
+    getConfigValue,
+
+    /**
      * Validates and returns a supported currency object or the default.
      * @param model  The currency model to validate ({ id?: string, code?: string }).
      * @returns {Promise<Partial<ICurrency> | ICurrency | undefined>} A promise resolving to a valid currency object or undefined.
@@ -457,6 +521,13 @@ export const useBrand = () => {
      * @throws {DetailedError} If the languages are not available in the context.
      */
     validateLanguage,
+
+    /**     * Checks if the given language model is supported by the brand.
+     * @param model - The language model to check ({ id?: string, code?: string }).
+     * @returns {boolean} True if the language is supported, false otherwise.
+     * @throws {DetailedError} If the languages are not available in the context.
+     */
+    isSupportedLanguage,
 
     /**
      * Refreshes the brand state by re-fetching all related queries.

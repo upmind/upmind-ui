@@ -1,0 +1,91 @@
+import { test, expect } from "@playwright/test";
+import { URLs } from "../support/constants/urls";
+import { Basket } from "../support/page-objects/templates/Basket";
+import { Checkout } from "../support/page-objects/templates/Checkout";
+import { getSessionToken } from "../support/utils/functions/tokens";
+import {
+  getCurrentOrderId,
+  addProductToOrder
+} from "../support/utils/functions/basket";
+import { getClientToken } from "../support/utils/functions/tokens";
+import { Logins } from "../support/constants/logins";
+import { setLocale } from "../support/utils/functions/locale-helper";
+import { Languages as languages } from "../support/constants/languages";
+
+let basket: Basket;
+let checkout: Checkout;
+
+for (const { language, locale } of languages) {
+  test.describe(`Checkout Visual Regression Tests - ${language}`, () => {
+    let token: string;
+    let orderId: string | null;
+    test.beforeEach(async ({ page }) => {
+      basket = new Basket(page);
+      checkout = new Checkout(page);
+      // Disable all CSS animations and transitions
+      await page.goto(URLs.emptyBasket);
+      await page.waitForLoadState("load");
+      await page.addStyleTag({
+        content: `
+                    *,
+                    *::before,
+                    *::after {
+                        transition: none !important;
+                        animation: none !important;
+                        caret-color: transparent !important;
+                    }
+                    `
+      });
+    });
+    test("Checkout - Guest", async ({ page, context }) => {
+      await page.goto(URLs.basket);
+      await setLocale(page, locale);
+      await page.waitForLoadState("load");
+      await page.waitForLoadState("networkidle");
+      token = await getSessionToken(context, "guest");
+      orderId = await getCurrentOrderId(token);
+      await addProductToOrder(
+        token,
+        orderId,
+        "3de78642-de53-9714-76df-21208469530d",
+        1,
+        24,
+        [],
+        [],
+        { domain: "uicheckout.com" },
+        []
+      );
+      await page.reload();
+      await page.waitForLoadState("networkidle");
+      await basket.proceedToCheckout.click();
+      await page.waitForLoadState("networkidle");
+      await expect(page).toHaveScreenshot(`${language}/checkout-guest)`);
+    });
+    test("Checkout - Registered User", async ({ page, context }) => {
+      await getClientToken(
+        page,
+        Logins.checkoutUser.username,
+        Logins.checkoutUser.password
+      );
+      await page.goto(URLs.basket);
+      await page.waitForLoadState("networkidle");
+      token = await getSessionToken(context, "client");
+      orderId = await getCurrentOrderId(token);
+      await addProductToOrder(
+        `${token}`,
+        `${orderId}`,
+        "3de78642-de53-9714-76df-21208469530d",
+        1,
+        24,
+        [],
+        [],
+        { domain: "uicheckout.com" },
+        []
+      );
+      await page.reload();
+      await page.goto(URLs.checkout);
+      await page.waitForLoadState("networkidle");
+      await expect(page).toHaveScreenshot(`${language}/checkout-account-user)`);
+    });
+  });
+}

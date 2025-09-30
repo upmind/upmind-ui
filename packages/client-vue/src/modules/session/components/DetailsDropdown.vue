@@ -9,6 +9,7 @@
         content: ['mt-4']
       }
     }"
+    to="#vue-app"
   >
     <template #trigger>
       <slot />
@@ -46,7 +47,7 @@ const { t } = useI18n();
 const { user, logout, meta } = useSession();
 const items = computed<DropdownMenuItemProps[]>(() => [
   {
-    label: t("auth.actions.logout"),
+    label: t("action.logout"),
     icon: "logout",
     value: "logout",
     handler: logout

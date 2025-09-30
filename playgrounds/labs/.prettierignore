@@ -6,7 +6,10 @@ build
 coverage
 dist
 node_modules
+<<<<<<< HEAD
 
+=======
+>>>>>>> develop
 
 # Ignore Presets:
 src/presets

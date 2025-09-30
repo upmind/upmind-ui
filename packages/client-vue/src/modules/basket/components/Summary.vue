@@ -1,9 +1,9 @@
 <template>
-  <div v-if="!meta.isLoading" :class="styles.summary.root">
+  <div v-if="!meta.isLoading && meta.hasProducts" :class="styles.summary.root">
     <DescriptionList :items="items" class="font-normal">
       <div :class="styles.summary.item.root">
         <dt :class="styles.summary.item.term">
-          {{ t("basket.summary.total") }}
+          {{ t("text.total") }}
         </dt>
         <dd :class="styles.summary.item.description">
           {{ summary?.total }}
@@ -24,10 +24,13 @@
 // --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { toPairs, forEach, isEmpty } from "lodash-es";
+import { toPairs, forEach, isEmpty, map } from "lodash-es";
 
 // --- components
-import { DescriptionList } from "@upmind-automation/upmind-ui";
+import {
+  DescriptionList,
+  type DescriptionItem
+} from "@upmind-automation/upmind-ui";
 import BasketPromotions from "./Promotions.vue";
 import SummarySkeleton from "./SummarySkeleton.vue";
 
@@ -70,23 +73,20 @@ const styles = useStyles(
   };
 }>;
 
-const items = computed(() => {
+const items = computed((): DescriptionItem[] => {
   const items = subtotalItems.value;
 
   if (!isEmpty(summary.value?.products) && props.showProducts) {
-    items.push(...productItems.value);
+    const productItems =
+      map(summary.value!.products, (product: any) => ({
+        term: product.title,
+        description: product.summary.currentPrice ?? ""
+      })) ?? [];
+
+    items.concat(productItems);
   }
 
-  return items;
-});
-
-const productItems = computed(() => {
-  return (
-    summary.value?.products?.map((product: any) => ({
-      term: product.title,
-      description: product.summary.currentPrice
-    })) ?? []
-  );
+  return items as DescriptionItem[];
 });
 
 const subtotalItems = computed(() => {
@@ -94,23 +94,23 @@ const subtotalItems = computed(() => {
 
   if (!isEmpty(summary.value?.discount)) {
     items.push({
-      term: t("basket.summary.discount.title", products?.value?.length ?? 0),
-      description: summary.value.discount
+      term: t("text.discount", products?.value?.length ?? 0),
+      description: summary.value!.discount
     });
   }
 
   if (!isEmpty(summary.value?.subtotal)) {
     items.push({
-      term: t("basket.summary.subtotal.title", products?.value?.length ?? 0),
-      description: summary.value.subtotal
+      term: t("text.subtotal", products?.value?.length ?? 0),
+      description: summary.value!.subtotal
     });
   }
 
   if (!isEmpty(summary.value?.taxes)) {
-    forEach(toPairs(summary.value.taxes), ([key, value]) => {
+    forEach(summary.value!.taxes, tax => {
       items.push({
-        term: key,
-        description: value
+        term: tax.title,
+        description: tax.amount
       });
     });
   }

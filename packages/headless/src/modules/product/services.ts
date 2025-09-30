@@ -1,8 +1,8 @@
 // --- external
 
 // --- internal
-import { useQuery } from "../..";
 import { useBrand } from "../brand";
+import { useI18n, useQuery } from "../..";
 
 // --- utils
 import {
@@ -21,10 +21,12 @@ import {
   checkTerm,
   checkSubproducts,
   checkProvisioning,
-  parseSubproductDetails
+  parseSubproductDetails,
+  parseProvisioningSchema
 } from "./utils";
 
 import {
+  compact,
   concat,
   defaultsDeep,
   get,
@@ -38,16 +40,18 @@ import {
 } from "lodash-es";
 
 // --- types
-import { BrandConfigKeys } from "@upmind-automation/types";
+import { BrandConfigKeys, IProduct } from "@upmind-automation/types";
 
 import type {
-  ProductConfigContext,
   Price,
   PriceCalculations,
-  ProductModel
+  ProductModel,
+  SubproductModel,
+  ProductConfigContext
 } from "./types";
 
 import { AnyEventObject } from "xstate";
+import { parseBasketSubproductConfig } from "../basketProduct/utils";
 
 // -----------------------------------------------------------------------------
 
@@ -56,17 +60,18 @@ async function load(
     model,
     currencyId,
     currencyCode,
-    promotions,
+    coupons,
     basketId,
     rawBasketProduct
   }: ProductConfigContext,
   _event: AnyEventObject
 ) {
+  const { t } = useI18n();
   const productId = get(model, "productId");
   if (!productId)
     return Promise.reject(
       new DetailedError(
-        "No Product ID provided",
+        t("error.product_not_available"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )
@@ -84,13 +89,13 @@ async function load(
   ]);
 
   // lets ensure we parse our promotions correctly
-  const promocodes = map(promotions, "promotion.code").join();
+  const promotions = coupons?.join();
   // ---
   const { get: getRequest, useUrl } = useQuery();
 
   const params = {
     currency_id: currency?.id,
-    promotions: promocodes,
+    promotions,
     with_staged_imports: true,
     with: [
       "image",
@@ -99,7 +104,8 @@ async function load(
       "products_attributes",
       "products_options",
       "products_options.prices",
-      `category${".top_category".repeat(4)}`
+      `category${".top_category".repeat(4)}`,
+      "provision_blueprint"
     ].join()
   };
   // conditionally agd the basket_id / basket_product_id if we have them,
@@ -108,14 +114,15 @@ async function load(
   if (rawBasketProduct?.id)
     set(params, "basket_product_id", rawBasketProduct.id);
 
-  const productPromise = getRequest({
+  const productPromise = getRequest<IProduct>({
     url: useUrl(`basket/products/${productId}`, params),
     queryKey: [
       "product",
       productId,
       {
+        basketId,
         currency_id: currency?.id,
-        promotions: promocodes
+        promotions
       }
     ],
     staleTime: useTime()?.DAY, // product data is not updated often, so we can cache for a day
@@ -124,29 +131,49 @@ async function load(
   });
 
   // lets get our provisioning fields early, so we can make them lookups
-  const provisioningPromise = loadProvisioningFields(productId);
+  const provisioningPromise = loadProvisioningFields(
+    { model } as ProductConfigContext,
+    _event
+  );
 
   return Promise.all([productPromise, provisioningPromise]).then(
     ([product, provisioning]) => {
-      return { product, provisioning, currency };
+      return {
+        product,
+        provisioning: parseProvisioningSchema(provisioning, product),
+        currency
+      };
     }
   );
 }
 
-async function loadProvisioningFields(productId: string) {
-  const { get, useUrl } = useQuery();
+async function loadProvisioningFields(
+  { model }: ProductConfigContext,
+  _event: AnyEventObject
+) {
+  const { t } = useI18n();
+  const { get: getRequest, useUrl } = useQuery();
+
+  const productId = get(model, "productId");
   if (!productId)
     return Promise.reject(
       new DetailedError(
-        "No Product ID provided",
+        t("error.product_not_available"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )
     );
+
+  const attributes = parseBasketSubproductConfig(model?.attributes);
+  const options = parseBasketSubproductConfig(model?.options);
+  const subProducts = compact(map(concat(options, attributes), "product_id"));
+
   // we don't cache provisioning fields, as they can change with different options/attributes being selected
-  return get({
-    url: useUrl(`basket/products/${productId}/provision_fields`),
-    queryKey: ["product", productId, "provision-fields"],
+  return getRequest({
+    url: useUrl(`basket/products/${productId}/provision_fields`, {
+      sub_product_ids: subProducts
+    }),
+    queryKey: ["product", productId, "provision-fields", { subProducts }],
     withAccessToken: true
   });
 }
@@ -154,6 +181,7 @@ async function loadProvisioningFields(productId: string) {
 // ---
 
 async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
+  const { t } = useI18n();
   const baseModel = defaultsDeep(context.model, {
     productId: undefined,
     quantity: 1,
@@ -183,7 +211,7 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
   if (!values?.productId) {
     return Promise.reject(
       new DetailedError(
-        "No Product ID provided",
+        t("error.product_not_available"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )
@@ -231,14 +259,20 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
   );
   values.attributes = attributes.subproducts;
 
+  // update the provisioning fields : we need to do this when attributes/options change
+  lookups.provisionFields = await loadProvisioningFields(
+    { model: values } as ProductConfigContext,
+    {} as AnyEventObject
+  ).then(provisioning =>
+    parseProvisioningSchema(provisioning, context.rawProduct!)
+  );
+
   // ---
-  return new Promise(resolve => {
-    resolve({ model: values, lookups });
-  });
+  return Promise.resolve({ model: values, lookups });
 }
 
 async function validate(context: ProductConfigContext, _event: AnyEventObject) {
-  // ---
+  const { t } = useI18n();
 
   // We may opt to skip validation to allow the backend to do the validation
   //  especially usefully when adding bulk products, recommendations etc.
@@ -271,7 +305,7 @@ async function validate(context: ProductConfigContext, _event: AnyEventObject) {
     if (!isEmpty(errors)) {
       reject(
         new DetailedError(
-          "Product configuration validation failed",
+          t("error.product_validation_failed"),
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
           errors

@@ -1,3 +1,6 @@
+// --- internal
+import { useI18n } from "../system";
+
 // --- utils
 import {
   DetailedError,
@@ -20,7 +23,6 @@ import {
 // --- types
 import type { Token, User } from "./types";
 import type { IUser } from "@upmind-automation/types";
-import { t } from "xstate";
 
 // -----------------------------------------------------------------------------
 function convertToCookie() {
@@ -77,11 +79,12 @@ export function getTokenFromStorage(actor_type?: Token["actor_type"]) {
 }
 
 export function persistTokenToStorage(token: Token) {
+  const { t } = useI18n();
   const { setTopLevel: setCookie } = useCookies();
 
   if (!token || !token.access_token)
     throw new DetailedError(
-      "Token is invalid or missing the access_token property.",
+      t("error.token_not_available"),
       responseCodes.Unprocessable_Entity,
       ErrorOrigin.Headless,
       token
@@ -90,7 +93,7 @@ export function persistTokenToStorage(token: Token) {
   if (!localStorage)
     return Promise.reject(
       new DetailedError(
-        "No Local Storage available",
+        t("error.local_storage_not_available"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )

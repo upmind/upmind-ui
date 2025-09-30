@@ -6,7 +6,8 @@ import {
   useSystem,
   useSession,
   useFeedback,
-  type QueryParams
+  type QueryParams,
+  useI18n
 } from "../..";
 
 // --- utils
@@ -42,7 +43,7 @@ function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
 
   return list<IPhone[], Phone[]>({
     ...(params as any),
-    queryKey,
+    queryKey: [...queryKey, { user: user.value?.id }],
     url: useUrl(`clients/${user.value?.id}/phones`),
     withAccessToken: true,
     guard: async () =>
@@ -68,13 +69,14 @@ async function loadLookups({
   model,
   schema
 }: PhoneContext): Promise<PhoneContext> {
+  const { t } = useI18n();
   const { isReady, fetchCountries, getCountry } = useSystem();
   // we have to do this synchronously as we need the values to be available for the model
   // these could/should be cached in the system machine, so there's no worry about performance
   await isReady().catch(error =>
     Promise.reject(
       new DetailedError(
-        "System not ready",
+        t("error.system_not_available"),
         responseCodes.Unauthorized,
         ErrorOrigin.Headless,
         error
@@ -86,7 +88,7 @@ async function loadLookups({
   if (!countries) {
     return Promise.reject(
       new DetailedError(
-        "Failed to load countries",
+        t("error.countries_load_failed"),
         responseCodes.No_Content,
         ErrorOrigin.Headless
       )
@@ -143,6 +145,7 @@ async function update(id: Phone["id"], data: PhoneModel) {
 }
 
 async function ensure(model: PhoneModel): Promise<Phone> {
+  const { t } = useI18n();
   const { data, promise } = loadList();
   await promise.value.finally(); // wait for the query to resolve
   const { findOne } = useCollection<Phone>(
@@ -157,7 +160,7 @@ async function ensure(model: PhoneModel): Promise<Phone> {
   return add(model).then(raw => {
     if (isEmpty(raw))
       throw new DetailedError(
-        "Failed to ensure phone",
+        t("error.client_phone_not_available"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless,
         { model }
@@ -169,6 +172,7 @@ async function ensure(model: PhoneModel): Promise<Phone> {
 }
 
 function remove(phoneId: Phone["id"]) {
+  const { t } = useI18n();
   const { meta, user } = useSession();
   const { mutate, useUrl } = useQuery();
 
@@ -186,20 +190,21 @@ function remove(phoneId: Phone["id"]) {
       addError({
         title: isString(error)
           ? error
-          : error?.title || "We experienced an error removing this phone",
+          : error?.title || t("error.client_phone_delete_failed"),
         copy: error?.message,
         data: error?.data
       });
     },
     onSuccess(data) {
       invalidateQueryByKey(queryKey, { exact: false })(data);
-      addSuccess("Successfully removed phone");
+      addSuccess(t("confirm.phone_removed"));
     },
     withAccessToken: true
   });
 }
 
 function setDefault(phoneId: Phone["id"]) {
+  const { t } = useI18n();
   const { meta, user } = useSession();
   const { mutate, useUrl } = useQuery();
 
@@ -218,15 +223,14 @@ function setDefault(phoneId: Phone["id"]) {
       addError({
         title: isString(error)
           ? error
-          : error?.title ||
-            "We experienced an error setting this phone as default",
+          : error?.title || t("error.client_phone_set_default_failed"),
         copy: error?.message,
         data: error?.data
       });
     },
     onSuccess(data) {
       invalidateQueryByKey(queryKey, { exact: false })(data);
-      addSuccess("Successfully set phone as default");
+      addSuccess(t("confirm.phone_set_default"));
     },
     withAccessToken: true
   });
@@ -283,6 +287,7 @@ async function parse(
 }
 
 async function validate({ schema, model }: Partial<PhoneContext>) {
+  const { t } = useI18n();
   if (!schema) return Promise.resolve(model);
 
   // Now validate the model as per normal
@@ -293,7 +298,7 @@ async function validate({ schema, model }: Partial<PhoneContext>) {
     if (errors?.length) {
       reject(
         new DetailedError(
-          "Phone validation failed",
+          t("error.client_phone_validation_failed"),
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
           errors
@@ -319,6 +324,8 @@ export default {
 };
 
 export const useClientPhoneServices = () => {
+  const { t } = useI18n();
+
   return {
     loadLookups,
 
@@ -326,7 +333,7 @@ export const useClientPhoneServices = () => {
       if (isEmpty(model))
         return Promise.reject(
           new DetailedError(
-            "Ensure Phone failed: model provided",
+            t("error.client_phone_not_available"),
             responseCodes.No_Content,
             ErrorOrigin.Headless,
             { model }
@@ -339,7 +346,7 @@ export const useClientPhoneServices = () => {
       if (isEmpty(model))
         return Promise.reject(
           new DetailedError(
-            "Add Phone failed: model provided",
+            t("error.client_phone_not_available"),
             responseCodes.No_Content,
             ErrorOrigin.Headless,
             { model }
@@ -351,7 +358,7 @@ export const useClientPhoneServices = () => {
       if (!id || isEmpty(model))
         return Promise.reject(
           new DetailedError(
-            "Update Phone failed: No id or model provided",
+            t("error.client_phone_not_available"),
             responseCodes.No_Content,
             ErrorOrigin.Headless,
             { id, model }

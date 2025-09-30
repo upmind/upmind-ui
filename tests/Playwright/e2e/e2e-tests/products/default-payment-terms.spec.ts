@@ -1,24 +1,9 @@
-import { test, expect, BrowserContext, Page } from "@playwright/test";
+import { test, expect, Page } from "@playwright/test";
 import { ProductConfig } from "../../support/page-objects/templates/ProductConfig";
 import {
   DefaultPaymentTerms,
   DefaultPaymentTermsWithPromo
 } from "../../support/constants/DefaultPaymentTerms";
-
-// const test = base.extend<{
-//   context: BrowserContext;
-//   page: Page;
-// }>({
-//   context: async ({ browser }, use) => {
-//     const context = await browser.newContext();
-//     await use(context);
-//     await context.close();
-//   },
-//   page: async ({ context }, use) => {
-//     const page = await context.newPage();
-//     await use(page);
-//   }
-// });
 
 let terms = DefaultPaymentTerms;
 let termsWithPromo = DefaultPaymentTermsWithPromo;

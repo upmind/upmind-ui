@@ -6,7 +6,7 @@ import { waitFor } from "xstate/lib/waitFor";
 // --- internal
 import productMachine from "../product/product.machine";
 import { useBasket } from "../basket";
-import { useDataLayer } from "../system";
+import { useDataLayer, useI18n } from "../system";
 import { useProductConfig } from "../product";
 const { dataLayer } = useDataLayer();
 
@@ -18,17 +18,20 @@ import {
   DetailedError,
   ErrorOrigin,
   responseCodes,
+  stateMatches,
   stopService,
   useContext
 } from "../../utils";
 
 // --- types
-import type { ActorRef, InterpreterFrom } from "xstate";
+import type { ActorRef } from "xstate";
 import type { Product, ProductModel, ProductProps } from "../product";
 
 // -----------------------------------------------------------------------------
 
 export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
+  const { t } = useI18n();
+
   function isProductProps(
     value: ProductProps | ActorRef<any>
   ): value is ProductProps {
@@ -38,7 +41,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
   const { basket: rawBasket } = useBasket();
   if (!rawBasket.value)
     throw new DetailedError(
-      "Basket not found",
+      t("error.basket_not_available"),
       responseCodes.Not_Found,
       ErrorOrigin.Headless
     );
@@ -62,7 +65,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
 
   if (isEmpty(data) || (isEmpty(actor) && isEmpty(productProps?.productId)))
     throw new DetailedError(
-      "Product not found",
+      t("error.product_not_available"),
       responseCodes.Not_Found,
       ErrorOrigin.Headless
     );
@@ -110,7 +113,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
   async function isReady(): Promise<void> {
     return waitFor(service, state => state.matches("available"), {
       timeout: Infinity
-    }).then(() => {});
+    });
   }
 
   // refresh: async (newBasket: IBasket) => {
@@ -130,7 +133,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
       if (!product)
         return reject(
           new DetailedError(
-            "Product not found",
+            t("error.product_not_available"),
             responseCodes.Not_Found,
             ErrorOrigin.Headless
           )
@@ -143,33 +146,25 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
     service.send({ type: "UPDATE" });
     return waitFor(
       service,
-      state =>
-        !state.matches("processing", {
-          timeout: 60_000
-        }),
-      {}
+      state => {
+        return !state.matches("processing") || state.done;
+      },
+      { timeout: 60_000 }
     )
       .then(state => {
         if (
-          ["error", "available.invalid", "available.error"].some(state.matches)
+          stateMatches(state, ["error", "available.invalid", "available.error"])
         ) {
-          return Promise.reject(
-            new DetailedError(
-              "Update of Pending Products failed",
-              responseCodes.Unprocessable_Entity,
-              ErrorOrigin.Headless,
-              state.context.error
-            )
-          );
+          throw state.context.error;
         }
-        return Promise.resolve();
       })
-      .catch(() => {
+      .catch(error => {
         return Promise.reject(
           new DetailedError(
-            "Pending Products validation failed",
-            responseCodes.Unprocessable_Entity,
-            ErrorOrigin.Headless
+            error?.message ??
+              t("error.basket_product_pending_validation_failed"),
+            error?.code ?? responseCodes.Unprocessable_Entity,
+            error?.origin ?? ErrorOrigin.Headless
           )
         );
       });
@@ -193,6 +188,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
     id,
     product,
     model,
+    coupons,
     stop: () => stopService(service),
     // ---
     isReady,
@@ -202,7 +198,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
         if (!product?.productDetails.quantifiable)
           return Promise.reject(
             new DetailedError(
-              "Product not quantifiable",
+              t("error.product_quantifiable_not_available"),
               responseCodes.Unprocessable_Entity,
               ErrorOrigin.Headless
             )
@@ -222,7 +218,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
         if (!product?.productDetails.quantifiable)
           return Promise.reject(
             new DetailedError(
-              "Product not quantifiable",
+              t("error.product_quantifiable_not_available"),
               responseCodes.Unprocessable_Entity,
               ErrorOrigin.Headless
             )
@@ -246,7 +242,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
         if (!product?.productDetails.quantifiable)
           return Promise.reject(
             new DetailedError(
-              "Product not quantifiable",
+              t("error.product_quantifiable_not_available"),
               responseCodes.Unprocessable_Entity,
               ErrorOrigin.Headless
             )
