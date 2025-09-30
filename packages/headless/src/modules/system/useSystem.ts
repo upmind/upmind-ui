@@ -3,7 +3,6 @@ import { computed } from "vue";
 
 // --- internal
 import services, { stores } from "./services";
-import { useI18n } from "./localisation";
 import { useBrand } from "../brand";
 import { invalidateQueryByKey } from "../query";
 
