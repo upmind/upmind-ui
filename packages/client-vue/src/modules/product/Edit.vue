@@ -5,11 +5,16 @@
     </template>
 
     <template #header>
-      <Header v-if="product && meta?.isAvailable" v-bind="product" />
+      <Header
+        v-if="meta?.isAvailable && product?.productDetails"
+        :product-details="product.productDetails"
+        :product-image="productImage()"
+      />
+      <HeaderSkeleton v-else />
     </template>
 
     <template #default>
-      <Section :title="t('product.configure')">
+      <Section :title="t('text.product_configuration')">
         <form @submit.prevent @reset.prevent>
           <ProductConfig
             v-if="basketProduct && meta?.isAvailable"
@@ -29,18 +34,17 @@
     </template>
 
     <template #aside>
-      <Section
-        :title="t('product.summary.title')"
-        :class="styles.product.summary"
-        aside
-      >
+      <Section :title="t('text.summary')" :class="styles.product.summary" aside>
         <Summary
           v-if="product && meta?.isAvailable"
           :product="product"
           :meta="meta"
+          edit
           @resolve="doResolve"
           @update:quantity="updateQuantity"
         />
+
+        <SummarySkeleton v-else />
       </Section>
     </template>
 
@@ -54,7 +58,7 @@
 
     <template #footer>
       <p
-        v-for="(term, index) in tm('product.smallprint')"
+        v-for="(term, index) in tm('text.product_smallprint')"
         :key="index"
         class="leading-snug"
       >
@@ -66,7 +70,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, onUnmounted, watch } from "vue";
+import { computed, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -86,10 +90,12 @@ import { Layout, useStyles } from "@upmind-automation/upmind-ui";
 import Back from "../../components/navigation/Back.vue";
 import ConfigSkeleton from "./components/ConfigSkeleton.vue";
 import Header from "./components/header/Header.vue";
+import HeaderSkeleton from "./components/header/HeaderSkeleton.vue";
 import ProductConfig from "./components/config/Config.vue";
 import Section from "../../components/content/LayoutSection.vue";
 import Summary from "./components/summary/Summary.vue";
 import SummaryFooter from "./components/summary/SummaryFooter.vue";
+import SummarySkeleton from "./components/summary/SummarySkeleton.vue";
 import ProductNotFound from "./NotFound.vue";
 
 // --- types
@@ -110,10 +116,12 @@ await isResolved(ROUTE.PRODUCT_EDIT);
 const {
   stop,
   update,
-  service: basketProduct
+  service: basketProduct,
+  onDone
 } = await configure(basketProductId);
 
-const { meta, product, updateQuantity } = useProductConfig(basketProduct);
+const { meta, product, updateQuantity, productImage } =
+  useProductConfig(basketProduct);
 
 const configMeta = computed(() => {
   return {
@@ -134,15 +142,9 @@ async function doResolve() {
       // if we take more than 60 seconds to resolve the product ( which is unlikely but possible),
       // add a failsafe to ensure the user is not stuck on the page and that we actually navigate away,
       // if the product is successfully added to the basket ( onDone = success)
-      watch(
-        meta,
-        ({ isDone }) => {
-          if (isDone) navigateNext(basketProduct);
-        },
-        {
-          immediate: true
-        }
-      );
+      onDone().then(() => {
+        navigateNext(basketProduct);
+      });
     });
 }
 

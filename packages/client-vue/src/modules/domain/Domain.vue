@@ -77,7 +77,7 @@
                   :model-value="selected"
                   @update:modelValue="update($event.toString())"
                   autocomplete="url"
-                  :placeholder="t('domain.existing.search')"
+                  :placeholder="t('form.domain.placeholder')"
                   width="full"
                   :list="ownedDomains"
                   class="bg-base-background"
@@ -228,7 +228,7 @@ const ownedDomains = computed(() => {
     {
       as: "separator",
       persist: true,
-      domain: t("domain.existing.owned")
+      domain: t("domain.owned_domains_title")
     },
     ...owned.value
   ];

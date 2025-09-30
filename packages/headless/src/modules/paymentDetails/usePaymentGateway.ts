@@ -3,6 +3,7 @@ import { computed, unref, toRaw, ComputedRef } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
+import { useI18n } from "../system";
 
 // --- utils
 import {
@@ -24,6 +25,12 @@ import { GatewayContext } from "../paymentDetails";
 import { isFunction } from "xstate/lib/utils";
 import { QueryResponseError } from "../query";
 import { ErrorObject } from "ajv";
+import { useBrand } from "../brand";
+import {
+  GatewayTypes,
+  IPaymentType,
+  PaymentType
+} from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 /**
@@ -33,7 +40,7 @@ import { ErrorObject } from "ajv";
  */
 export const usePaymentGateway = (actor: ComputedRef<Actor | undefined>) => {
   // --- state
-
+  const { t } = useI18n();
   /**
    * Waits for the payment gateway actor to be ready (not loading or error state).
    * @returns {Promise<boolean>} Resolves true if ready, false if error.
@@ -60,6 +67,14 @@ export const usePaymentGateway = (actor: ComputedRef<Actor | undefined>) => {
   }
 
   const meta = computed(() => ({
+    needsPayment:
+      contextValue<number>(actor, "amount", 0)! >= 0 &&
+      !contextMatches(actor, "gateway.type", GatewayTypes.OFFLINE),
+    // contextMatches(actor, "gateway.payment_types", [
+    //   PaymentType.PARTIAL_PAYMENT,
+    //   PaymentType.PAY_IN_FULL
+    // ]),
+    isAvailable: !!actor.value,
     isLoading: !actor.value || stateMatches(actor.value, ["loading"]),
     isRendering: !actor.value || stateMatches(actor.value, ["rendering"]),
     isAvailable: !!actor.value && stateMatches(actor, ["available"]),
@@ -97,6 +112,9 @@ export const usePaymentGateway = (actor: ComputedRef<Actor | undefined>) => {
   const instructions = useContext<any>(actor, "gateway.payment_instructions");
   const type = useContext<GatewayContext["type"]>(actor, "type");
   const code = useContext<GatewayContext["code"]>(actor, "code");
+
+  const { uiCart } = useBrand();
+  const clickwrap = computed(() => uiCart.value?.clickwrap_disclaimer);
 
   // --- methods
 
@@ -136,7 +154,7 @@ export const usePaymentGateway = (actor: ComputedRef<Actor | undefined>) => {
       .catch(error => {
         return Promise.reject(
           new DetailedError(
-            error?.message ?? "Update Payment Gateway failed",
+            error?.message ?? t("error.payment_gateway_update_failed"),
             error?.code ??
               error?.statusCode ??
               responseCodes.Unprocessable_Entity,
@@ -222,6 +240,12 @@ export const usePaymentGateway = (actor: ComputedRef<Actor | undefined>) => {
 
     /** The current payment gateway model. */
     model,
+
+    /** The payment gateway renderer. */
+    // renderer,
+
+    /** The payment gateway clickwrap disclaimer. */
+    clickwrap,
 
     /** The payment gateway schema. */
     schema,

@@ -2,7 +2,7 @@
 import * as Sentry from "@sentry/vue";
 
 // --- internal
-import { useBasket, useLocale } from "../..";
+import { useBasket, useI18n, useLocale } from "../..";
 import packageJson from "../../../../package.json";
 
 // --- utils
@@ -120,12 +120,13 @@ class TrackingEvent {
   }
 
   withEcommerce(invoice?: IInvoice): TrackingEvent {
+    const { t } = useI18n();
     const { basket } = useBasket();
     const safeBasket = invoice ?? basket.value;
 
     if (isEmpty(safeBasket)) {
       throw new DetailedError(
-        "No Basket available",
+        t("error.basket_not_available"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       );
@@ -161,11 +162,12 @@ class TrackingEvent {
   withItems(
     items: (Product | Product[]) | (BasketProduct | BasketProduct[])
   ): TrackingEvent {
+    const { t } = useI18n();
     const safeItems = isArray(items) ? items : [items];
 
     if (isEmpty(safeItems)) {
       throw new DetailedError(
-        "No Products available",
+        t("error.product_not_available"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       );
@@ -174,7 +176,7 @@ class TrackingEvent {
     const { basket } = useBasket();
     if (isEmpty(basket))
       throw new DetailedError(
-        "No Basket available",
+        t("error.basket_not_available"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       );

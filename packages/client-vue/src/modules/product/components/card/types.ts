@@ -5,11 +5,12 @@ import type {
   PriceDetail,
   ProductSummaryMeta,
   ProductSummaryDetailWithPrice,
-  ProductSummaryDetail
+  ProductSummaryDetail,
+  TermDetails
 } from "@upmind-automation/headless";
 import type { VariantProps } from "class-variance-authority";
 import { rootVariant } from "./product.config";
-import type { ButtonProps } from "@upmind-automation/upmind-ui";
+import type { ButtonProps, ImageProps } from "@upmind-automation/upmind-ui";
 
 export type RootVariants = VariantProps<typeof rootVariant>;
 
@@ -22,30 +23,32 @@ export interface ProductCardProps
   hideBenefits?: boolean;
   hideDescription?: boolean;
   hideTerms?: boolean;
-  hideAnnualTerm?: boolean;
+  hideTermSummary?: boolean;
   preservePromotion?: boolean;
   navigate?: boolean;
   color?: ButtonProps["color"];
+  ratio?: ImageProps["ratio"];
 }
 
 export interface ProductInfo {
+  id?: string;
   productDetails: ProductDetails;
   price?: PriceDetail;
   meta?: ProductSummaryMeta;
   hideDescription?: boolean;
   preservePromotion?: boolean;
+  navigate?: boolean;
+  processing?: boolean;
+  selectedTerm?: string;
+  handleResolve?: () => void;
 }
 
 export interface ProductBenefits {
   benefits?: Benefit[];
 }
 
-export interface ProductPrice {
-  productDetails: ProductDetails;
-  price?: PriceDetail;
-  pricing?: ProductSummaryDetailWithPrice[];
-  meta?: ProductSummaryMeta;
-  hideAnnualTerm?: boolean;
+export interface ProductPrice extends TermDetails {
+  hideTermSummary?: boolean;
 }
 
 export interface ProductTerm {

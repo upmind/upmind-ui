@@ -1,8 +1,8 @@
 // --- external
 
 // --- internal
-import { useBrand, useSession } from "../../..";
-import { BrandConfigKeys } from "@upmind-automation/types";
+import { useBrand, useI18n, useSession } from "../../..";
+
 // --- utils
 import { canBeStored } from "./utils";
 import {
@@ -15,6 +15,7 @@ import {
 import { get, isNil } from "lodash-es";
 
 // --- types
+import { BrandConfigKeys } from "@upmind-automation/types";
 import type { GatewayContext } from "./types";
 import type { AnyEventObject } from "xstate";
 
@@ -80,7 +81,7 @@ async function validate(
   _event: AnyEventObject
 ) {
   // ---
-
+  const { t } = useI18n();
   // Now validate the model as per normal
   const { validate } = useValidation();
 
@@ -90,7 +91,7 @@ async function validate(
     if (errors?.length) {
       reject(
         new DetailedError(
-          "Payment gateway validation failed",
+          t("error.payment_gateway_validation_failed"),
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
           errors

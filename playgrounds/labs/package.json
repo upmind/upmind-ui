@@ -33,6 +33,7 @@
     "@tanstack/vue-query": "^5.83.1",
     "@upmind-automation/client-vue": "workspace:*",
     "@upmind-automation/upmind-ui": "workspace:*",
+    "@upmind-automation/i18n": "workspace:*",
     "@vueuse/components": "^13.6.0",
     "@vueuse/core": "^13.6.0",
     "class-variance-authority": "^0.7.1",

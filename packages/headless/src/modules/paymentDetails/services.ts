@@ -3,7 +3,7 @@ import { unref } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import { useBrand, useQuery, useSession } from "..";
+import { useBrand, useI18n, useQuery, useSession } from "..";
 
 // --- utils
 import {
@@ -245,8 +245,7 @@ async function validate(
   { schema, model, actors }: PaymentDetailsContext,
   _event: AnyEventObject
 ) {
-  // ---
-
+  const { t } = useI18n();
   // Now validate the model as per normal
   const { validate } = useValidation();
 
@@ -288,7 +287,7 @@ async function validate(
     if (errors?.length) {
       reject(
         new DetailedError(
-          "Payment details validation failed",
+          t("error.payment_details_validation_failed"),
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
           errors

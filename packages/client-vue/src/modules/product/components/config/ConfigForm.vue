@@ -9,8 +9,6 @@
     name="product-config-form"
   >
     <Form
-      :locale="locale"
-      :translator="t"
       :schema="fields"
       :model-value="modelValue"
       :additional-errors="additionalErrors"
@@ -25,7 +23,6 @@
 <script lang="ts" setup>
 // --- external
 import { computed } from "vue";
-import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useStyles, cn } from "@upmind-automation/upmind-ui";
@@ -67,8 +64,6 @@ const props = withDefaults(
 );
 
 // -----------------------------------------------------------------------------
-
-const { t, locale } = useI18n();
 
 const styles = useStyles(
   ["product.config.form"],

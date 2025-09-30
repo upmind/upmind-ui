@@ -1,7 +1,7 @@
 <template>
   <footer class="flex flex-col gap-2 md:flex-row md:justify-start">
     <Button
-      :label="t(`${i18nKey ?? 'manage'}.actions.resolve`)"
+      :label="t('action.save_details')"
       color="primary"
       size="lg"
       :disabled="props.disabled || props.loading"
@@ -11,7 +11,7 @@
     />
     <Button
       v-if="!props.noCancel"
-      :label="t(`${i18nKey ?? 'manage'}.actions.reject`)"
+      :label="t('action.cancel')"
       color="base"
       variant="ghost"
       size="lg"
@@ -32,7 +32,6 @@ import { Button } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
-  i18nKey?: string;
   disabled?: boolean;
   modal?: boolean;
   processing?: boolean;

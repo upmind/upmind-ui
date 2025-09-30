@@ -1,5 +1,5 @@
 <template>
-  <FormField v-bind="formFieldProps">
+  <FormField v-bind="formFieldProps" :optional-text="t('text.optional')">
     <Domain
       :model-value="control.data"
       :touched="formFieldProps.touched"
@@ -23,10 +23,12 @@ import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
 // --- types
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
+import { useI18n } from "vue-i18n";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
+const { t } = useI18n();
 const { control, formFieldProps, onInput } = useUpmindUIRenderer(
   useJsonFormsControl(props)
 );

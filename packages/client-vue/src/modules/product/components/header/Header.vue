@@ -5,7 +5,11 @@
         <h1 :class="styles.header.title">
           {{ productDetails?.title }}
         </h1>
-        <DisplayPrice :product-details="productDetails" class="text-xl" />
+        <DisplayPrice
+          v-if="props.productDetails?.displayPrice"
+          v-bind="props.productDetails.displayPrice"
+          class="text-xl"
+        />
       </hgroup>
 
       <ProductDescription
@@ -17,7 +21,7 @@
     </div>
 
     <aside
-      v-if="props.productDetails.imgUrl || !isEmpty(images)"
+      v-if="props.productDetails?.imgUrl || !isEmpty(images)"
       :class="styles.header.aside"
       class="md:h-[var(--details-h)]"
       :style="{ '--details-h': `${height}px` }"

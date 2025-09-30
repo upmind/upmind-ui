@@ -19,7 +19,6 @@ import type {
   TWOFAModel
 } from "./types";
 import { BrandConfigKeys } from "@upmind-automation/types";
-import { error } from "console";
 
 // -----------------------------------------------------------------------------
 
@@ -104,7 +103,7 @@ export const useRegisterUischemaParser = (data: any) => {
       {
         type: "Control",
         scope: "#/properties/firstname",
-        i18n: "auth.register.firstname",
+        i18n: "form.firstname",
         options: {
           autoFocus: true,
           autocomplete: "given-name",
@@ -114,7 +113,7 @@ export const useRegisterUischemaParser = (data: any) => {
       {
         type: "Control",
         scope: "#/properties/lastname",
-        i18n: "auth.register.lastname",
+        i18n: "form.lastname",
         options: {
           autocomplete: "family-name",
           placeholder: "Doe, Smith, ..."
@@ -123,7 +122,7 @@ export const useRegisterUischemaParser = (data: any) => {
       {
         type: "Control",
         scope: "#/properties/username",
-        i18n: "auth.register.email",
+        i18n: "form.auth_email",
         options: {
           type: "email",
           format: "email",
@@ -134,7 +133,7 @@ export const useRegisterUischemaParser = (data: any) => {
       {
         type: "Control",
         scope: "#/properties/password",
-        i18n: "auth.register.password",
+        i18n: "form.auth_password",
         options: {
           type: "password",
           autocomplete: "current-password",
@@ -206,7 +205,7 @@ export const useLoginUischemaParser = () => {
       {
         type: "Control",
         scope: "#/properties/username",
-        i18n: "auth.login.email",
+        i18n: "form.auth_email",
         options: {
           autoFocus: true,
           autocomplete: "email",
@@ -216,7 +215,7 @@ export const useLoginUischemaParser = () => {
       {
         type: "Control",
         scope: "#/properties/password",
-        i18n: "auth.login.password",
+        i18n: "form.auth_password",
         options: {
           autocomplete: "current-password",
           placeholder: "password or passphrase"
@@ -299,7 +298,7 @@ export const useRecoverUischemaParser = () => {
       {
         type: "Control",
         scope: "#/properties/username",
-        i18n: "auth.recover.email",
+        i18n: "form.auth_email",
         options: {
           autoFocus: true,
           autocomplete: "email",

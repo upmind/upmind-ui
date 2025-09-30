@@ -31,19 +31,20 @@
       type="submit"
       color="primary"
       :loading="meta.isProcessing"
-      :disabled="meta.isLoading"
-      :label="t('product.actions.resolve')"
+      :disabled="meta.isLoading || meta.isUnavailable"
+      :label="t('action.add_to_basket')"
       size="lg"
       @click="doResolve"
-      icon="cart"
+      :icon-append="edit ? 'arrow-right' : ''"
+      :icon="edit ? '' : 'cart'"
       pill
     />
   </footer>
 
   <Alert
     v-if="meta.showErrors"
-    :title="t('product.incomplete.title')"
-    :description="t('product.incomplete.description')"
+    :title="t('error.product_not_valid')"
+    :description="t('text.check_required_fields_desc')"
     icon="alert"
     color="error"
   />
@@ -76,6 +77,7 @@ import type { ComputedRef } from "vue";
 const props = defineProps<{
   product: Product;
   meta: UseProductConfigMeta;
+  edit?: boolean;
 }>();
 
 const emits = defineEmits(["resolve", "update:quantity"]);

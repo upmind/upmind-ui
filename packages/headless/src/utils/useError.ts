@@ -1,3 +1,6 @@
+// --- internal
+import { useI18n } from "../modules";
+
 // --- utils
 import {
   map,
@@ -9,13 +12,11 @@ import {
   isNil,
   isString,
   isNumber,
-  toNumber,
   isEmpty
 } from "lodash-es";
 
 // --- types
 import type { ErrorObject } from "ajv";
-import { stat } from "fs";
 
 export type { ErrorObject } from "ajv";
 
@@ -75,7 +76,9 @@ export class NotAuthenticatedError extends Error {
   code: number;
   origin: ErrorOrigin;
   constructor() {
-    super("The user is not authenticated. Please log in to continue.");
+    const { t } = useI18n();
+
+    super(t("auth.login_to_continue"));
     this.code = responseCodes.Unauthorized;
     this.origin = ErrorOrigin.Upmind;
   }

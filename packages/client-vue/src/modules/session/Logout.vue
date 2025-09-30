@@ -3,21 +3,17 @@
     <ContentSection v-auto-animate class="flex grow items-center">
       <Interstitial
         v-bind="props"
-        :title="t('session.end.title')"
-        :text="t('session.end.text')"
+        :title="t('auth.logged_out_md')"
+        :text="t('text.continue_shopping_desc')"
         :actions="[
           {
-            is: 'a',
-            color: 'secondary',
-            href: storefrontUrl,
+            ...storefrontRoute,
+            color: 'primary',
             iconAppend: 'arrow-right',
-            label: t('session.end.actions.continue')
+            label: t('action.continue_shopping')
           }
         ]"
       >
-        <template #title>
-          <SmartTitle i18n-key="session.end.title" align="center" />
-        </template>
       </Interstitial>
     </ContentSection>
   </Layout>
@@ -39,18 +35,16 @@ import {
 
 // -- components
 import { Interstitial, Layout } from "@upmind-automation/upmind-ui";
-import SmartTitle from "../../components/content/SmartTitle.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
 
 // -- types
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
-const router = useRouter();
 const { t } = useI18n();
 const { isResolved } = useRoutingEngine();
 const { logout } = useSession();
-const { storefrontUrl } = useBrand();
+const { storefrontRoute } = useBrand();
 
 // if we are not logged out, we should log out
 await isResolved(ROUTE.SESSION_END).catch(() => {

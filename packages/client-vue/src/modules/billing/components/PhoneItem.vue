@@ -15,7 +15,6 @@
 
 <script setup lang="ts">
 // --- external
-import { useI18n } from "vue-i18n";
 
 // --- components
 import { Avatar } from "@upmind-automation/upmind-ui";
@@ -39,8 +38,6 @@ const emits = defineEmits<{
 }>();
 
 // -----------------------------------------------------------------------------
-
-const { t } = useI18n();
 
 const doEdit = () => {
   if (!props?.id) return;

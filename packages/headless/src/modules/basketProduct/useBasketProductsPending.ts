@@ -36,6 +36,7 @@ import {
 import { responseCodes, compactDeep } from "../../utils";
 import type { ProductModel, ProductProps } from "../product";
 import type { ActorRef, State, Subscription } from "xstate";
+import { useI18n } from "../system";
 
 type PendingProduct = ReturnType<typeof useBasketProductPending>;
 
@@ -55,6 +56,7 @@ let subscriptions: Record<ProductProps["productId"], Subscription> = {}; // stor
 // -----------------------------------------------------------------------------
 
 export const useBasketProductsPending = () => {
+  const { t } = useI18n();
   const { isReady, productExists, products } = useBasket();
   const storage = useSessionStorage();
 
@@ -66,7 +68,7 @@ export const useBasketProductsPending = () => {
     if (isEmpty(model))
       return Promise.reject(
         new DetailedError(
-          "No product model found",
+          t("error.product_not_available"),
           responseCodes.Not_Found,
           ErrorOrigin.Headless
         )
@@ -110,7 +112,7 @@ export const useBasketProductsPending = () => {
           ).then(state => {
             if (state.matches("error"))
               throw new DetailedError(
-                "Add Pending Product failed",
+                t("error.product_pending_add_failed"),
                 responseCodes.Unprocessable_Entity,
                 ErrorOrigin.Headless,
                 { state: state.value, errors: state.context.error }
@@ -122,7 +124,7 @@ export const useBasketProductsPending = () => {
           unsetProduct(pid);
           return Promise.reject(
             new DetailedError(
-              "Pending Product validation failed",
+              t("error.product_pending_validation_failed"),
               responseCodes.Unprocessable_Entity,
               ErrorOrigin.Headless,
               error
@@ -179,11 +181,11 @@ export const useBasketProductsPending = () => {
     if (!productId) {
       return Promise.reject(
         new DetailedError(
-          "No productId provided to getProduct",
+          t("error.product_not_available"),
           responseCodes.Not_Found,
           ErrorOrigin.Headless,
           {
-            message: "No product id found",
+            message: t("error.product_not_available"),
             code: responseCodes.Not_Found
           }
         )
@@ -199,7 +201,7 @@ export const useBasketProductsPending = () => {
       })
       .catch(error => {
         throw new DetailedError(
-          "Ensure Pending product failed",
+          t("error.product_pending_ensure_failed"),
           responseCodes.No_Content,
           ErrorOrigin.Headless,
           { error, productId }
@@ -287,14 +289,15 @@ export const useBasketProductsPending = () => {
         ? useBasketProductPending(pid as ActorRef<any>)
         : await getProduct(pid as ProductProps["productId"], sync);
 
-      if (isEmpty(instance))
+      if (isEmpty(instance)) {
         return Promise.reject(
           new DetailedError(
-            "No product instance found",
+            t("error.product_not_available"),
             responseCodes.Not_Found,
             ErrorOrigin.Headless
           )
         );
+      }
 
       return Promise.resolve(instance);
     },

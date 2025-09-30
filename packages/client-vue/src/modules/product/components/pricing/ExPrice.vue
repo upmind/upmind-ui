@@ -1,11 +1,13 @@
 <template>
   <del v-if="priceMeta.isDiscounted" :class="styles.pricing.ex">
     {{
-      t("product.was", [
-        priceMeta.canShowCycle && te("product.cycle")
-          ? t("product.cycle", { value: monthlyFromRegularPrice })
+      t("text.price_was", {
+        price: priceMeta.canShowCycle
+          ? t("text.product_cycle_per_month", {
+              value: monthlyFromRegularPrice
+            })
           : regularPrice
-      ])
+      })
     }}
   </del>
 </template>
@@ -25,10 +27,10 @@ import type { ExPriceProps } from "./types";
 
 const props = defineProps<ExPriceProps>();
 
-const { t, te } = useI18n();
+const { t } = useI18n();
 
 const priceMeta = computed(() => ({
-  canShowCycle: props.showCycle && props.cycle,
+  canShowCycle: props.showCycle,
   isDiscounted: props.discounted
 }));
 

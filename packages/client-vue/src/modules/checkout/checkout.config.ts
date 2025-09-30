@@ -33,21 +33,33 @@ export default {
       item: cva("border-none"),
       card: cva("bg-base"),
       loading: cva("text-secondary"),
-      content: cva("flex flex-col gap-6 transition-all duration-300", {
-        variants: {
-          layout: {
-            full: "px-1 py-4",
-            enclosed: "px-1 py-3",
-            default: "px-1 py-3"
+      content: cva(
+        "flex flex-col gap-6 transition-all duration-300 empty:p-0",
+        {
+          variants: {
+            layout: {
+              full: "px-1 py-4",
+              enclosed: "px-1 py-3",
+              default: "px-1 py-3"
+            }
           }
         }
-      }),
-      contentInner: cva("overflow-visible")
+      )
     },
 
     title: cva("text-md text-left no-underline"),
     image: cva("m-0 h-6 md:h-7"),
-    gateway: cva("w-full"),
+
+    gateway: cva("flex w-full flex-col items-center justify-center gap-6", {
+      variants: {
+        hasErrors: {
+          true: "border-control-error focus-within:ring-control-error focus-within:ring-opacity-20 focus-within:ring-4",
+          false: ""
+        }
+      },
+      defaultVariants: { hasErrors: false }
+    }),
+
     footer: {
       root: cva("flex w-full flex-col gap-4"),
       actions: cva(

@@ -1,12 +1,11 @@
 <template>
   <div v-if="!meta.isLoading" class="w-full">
-    <FormLabel v-if="showLabel" :formItemId="i18nKey">{{
-      t(`${i18nKey ?? "manage"}.label`)
-    }}</FormLabel>
+    <FormLabel v-if="showLabel && label" :formItemId="label">
+      {{ label }}
+    </FormLabel>
 
     <component
       :is="component"
-      :i18nKey="i18nKey"
       :useList="manage.useList"
       v-model:open="open"
       v-model="modelValue"
@@ -28,13 +27,13 @@
 
     <Form
       v-if="openForm || meta.isEmpty"
-      :i18nKey="i18nKey"
       :useMutate="manage.useMutate"
       v-model:open="openForm"
       :model-value="editId"
       :modal="!meta.isEmpty"
       @resolve="doResolve"
       @reject="doReject"
+      @processing="emits('processing', $event)"
       :no-actions="!openForm"
     />
   </div>
@@ -61,27 +60,28 @@ import { get } from "lodash-es";
 const props = withDefaults(
   defineProps<{
     manage: ManageRendererProps; // the manage composable that contains the list and mutate composables
-    i18nKey?: string; // the i18n key to use for the actions
     modelValue?: string;
     readonly?: boolean;
     as?: "list" | "select";
     identifier?: string; // optional property to use for the list/model to  identify the item, defaults to "id"
     class?: string;
     minimal?: boolean; // if true, the list will be rendered as a minimal list
+    label?: string; // optional label to show above the component, defaults to the i18n key
     showLabel?: boolean;
   }>(),
   {
-    i18nKey: "manage",
     modelValue: "",
     readonly: false,
     as: "list",
     identifier: "id",
+    label: "",
     showLabel: false
   }
 );
 
 const emits = defineEmits<{
   (e: "update:modelValue", value: any): void; // return the full <T> of the Mutate composable
+  (e: "processing", value: boolean): void;
 }>();
 
 // -----------------------------------------------------------------------------

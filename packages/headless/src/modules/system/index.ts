@@ -1,7 +1,7 @@
 // --- exports
 export * from "./analytics";
 export * from "./form";
-export * from "./i18n";
+export * from "./localisation";
 export * from "./places";
 export * from "./recaptcha";
 export * from "./upload";

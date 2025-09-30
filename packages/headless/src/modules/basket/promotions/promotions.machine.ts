@@ -21,6 +21,7 @@ import { remove, xorBy, get, isEmpty, isEqual } from "lodash-es";
 // --- types
 import type { AnyEventObject } from "xstate";
 import type { PromotionsContext, PromotionModel } from "./types";
+import { useI18n } from "../../system";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -261,10 +262,11 @@ export default createMachine(
         { error }: PromotionsContext,
         _event: AnyEventObject
       ) => {
+        const { t } = useI18n();
         if (!error || error.status < 500) return;
 
         addError({
-          title: "We experienced an error updating the basket promotions",
+          title: t("error.promotion_update_failed"),
           copy: error?.message,
           data: error?.data
         });

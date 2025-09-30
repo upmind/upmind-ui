@@ -4,37 +4,57 @@
       v-if="meta?.discounted"
       :class="styles.product.header.price.regularPrice"
     >
-      <s>Was {{ price?.regularPrice }}</s>
+      <del>Was {{ regularPrice }}</del>
       <Badge variant="outline" color="promotion" size="sm">
-        {{ t("product.promotionSave", [price?.savingPercent]) }}
+        {{
+          t("action.save_value", {
+            value: price?.savingPercent
+          })
+        }}
       </Badge>
     </header>
+
     <p :class="styles.product.header.price.currentPrice.root">
       <strong
         v-if="meta?.free"
         :class="styles.product.header.price.currentPrice.amount"
       >
-        {{ t("product.free") }}
+        {{ t("text.free") }}
       </strong>
+
       <template v-else>
         <strong :class="styles.product.header.price.currentPrice.amount">{{
-          price?.currentPrice
+          currentPrice
         }}</strong>
-        <small :class="styles.product.header.price.currentPrice.term"
-          >/ {{ t(`product.terms.term.${productDetails.cycle}`) }}</small
-        >
+
+        <small
+          :class="styles.product.header.price.currentPrice.term"
+          v-if="has(props, 'cycle')"
+          >/
+          {{
+            meta.useMonthlyFromPrice
+              ? t("term.n_months", 1)
+              : parseBillingCycle(props.cycle!).descriptive
+          }}
+        </small>
       </template>
     </p>
-    <footer v-if="!hideAnnualTerm" :class="styles.product.header.price.total">
-      <template
-        v-if="annualTerm && te(`product.terms.summary.${annualTerm?.cycle}`)"
-      >
-        {{
-          t(`product.terms.summary.${annualTerm?.cycle}`, [
-            annualTerm?.price.currentPrice
-          ])
-        }}
-      </template>
+
+    <footer
+      v-if="
+        !hideTermSummary &&
+        !meta.oneoff &&
+        meta.useMonthlyFromPrice &&
+        has(props, 'cycle')
+      "
+      :class="styles.product.header.price.total"
+    >
+      {{
+        t("term.summary_msg", {
+          term: parseBillingCycle(props.cycle!).numeric,
+          price: price?.currentPrice
+        })
+      }}
     </footer>
   </section>
 </template>
@@ -45,10 +65,11 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
+import { parseBillingCycle } from "@upmind-automation/headless";
 import config from "./product.config";
 
 // --- utils
-import { first } from "lodash-es";
+import { has } from "lodash-es";
 
 // --- components
 import { useStyles } from "@upmind-automation/upmind-ui";
@@ -60,9 +81,9 @@ import type { ProductPrice } from "./types";
 
 // -----------------------------------------------------------------------------
 
-const props = defineProps<ProductPrice>();
+const props = defineProps<Omit<ProductPrice, "name">>();
 
-const { t, te } = useI18n();
+const { t } = useI18n();
 
 const configMeta = computed(() => ({
   //
@@ -93,7 +114,17 @@ const styles = useStyles(
   };
 }>;
 
-const annualTerm = computed(() => {
-  return first(props.pricing?.filter(p => p.cycle && p.cycle % 12 === 0));
+const regularPrice = computed(() => {
+  if (props.meta?.useMonthlyFromPrice)
+    return props.price?.monthlyFromRegularPrice;
+
+  return props.price?.regularPrice;
+});
+
+const currentPrice = computed(() => {
+  if (props.meta?.useMonthlyFromPrice)
+    return props.price?.monthlyFromCurrentPrice;
+
+  return props.price?.currentPrice;
 });
 </script>

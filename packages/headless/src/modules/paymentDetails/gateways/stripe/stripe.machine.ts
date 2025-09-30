@@ -1,10 +1,11 @@
 // --- external
 import type { AnyEventObject } from "xstate";
-import { createMachine, assign, spawn, sendParent, pure } from "xstate";
-import { filter, isString, includes, lowerCase, omit } from "lodash-es";
+import { createMachine, assign, spawn, sendParent } from "xstate";
+import { filter, isString, includes, lowerCase } from "lodash-es";
 
 // --- internal
 import services from "./services";
+import { useI18n } from "../../../system";
 import { useFeedback } from "../../../feedback";
 const { addError } = useFeedback();
 
@@ -300,6 +301,8 @@ export default createMachine(
 
       // ---
       setFeedbackError: ({ error }: StripeContext, _event: AnyEventObject) => {
+        const { t } = useI18n();
+
         if (
           !error ||
           isArray(error) ||
@@ -308,7 +311,7 @@ export default createMachine(
         )
           return;
         addError({
-          title: "We experienced an error processing your payment details",
+          title: t("error.payment_details_process_failed"),
           copy: error?.message,
           data: error?.data
         });

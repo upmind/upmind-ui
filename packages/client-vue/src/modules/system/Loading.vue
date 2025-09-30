@@ -4,17 +4,9 @@
       <Interstitial
         v-bind="props"
         to="#vue-app"
-        :title="t('basket.loading.title')"
-        :text="t('basket.loading.text')"
+        :title="t('text.loading_title_md')"
+        :text="t('text.almost_there_msg')"
       >
-        <template #title>
-          <SmartTitle
-            i18n-key="basket.loading.title"
-            align="center"
-            size="3xl"
-          />
-        </template>
-
         <template #background>
           <slot name="loading-background"></slot>
         </template>
@@ -30,7 +22,6 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 
 // -- components
 import { Interstitial, Layout } from "@upmind-automation/upmind-ui";
-import SmartTitle from "../../components/content/SmartTitle.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
 
 // -- types

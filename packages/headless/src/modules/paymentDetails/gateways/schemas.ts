@@ -28,17 +28,35 @@ export const useSchema = (context: GatewayContext) => {
         const: context?.gateway?.id,
         readOnly: true
       },
+      // a helper for the ui to not show the checkboxes if the gateway does not support storing
+      // ---
+      can_store: {
+        type: "boolean",
+        const: context.can_store,
+        readOnly: true
+      },
+      must_store: {
+        type: "boolean",
+        const: context.must_store,
+        readOnly: true
+      },
+      must_auto_pay: {
+        type: "boolean",
+        const: context.must_auto_pay,
+        readOnly: true
+      },
+      //  ---
       store_on_payment: {
         type: "boolean",
-        default: context.canStore,
-        readOnly: context.canStore == false
+        default: context.can_store,
+        readOnly: context.can_store == false
       },
       store_on_payment_auto_payment: {
         type: "boolean",
         title: "",
         description: "",
-        default: context.canStore,
-        readOnly: context.canStore == false
+        default: context.can_store,
+        readOnly: context.can_store == false
       },
       return_url: {
         type: "string",
@@ -60,44 +78,55 @@ export const useSchema = (context: GatewayContext) => {
   return schema;
 };
 
-export const useUischema = (context: GatewayContext) => {
-  const showStoreElements = context.canStore && !context.mustStore;
-
+export const useUischema = () => {
   const uischema = {
     type: "VerticalLayout",
-    elements: !showStoreElements
-      ? []
-      : [
-          {
-            type: "Control",
-            scope: "#/properties/store_on_payment",
-            i18n: "payment.store_on_payment",
-            options: {
-              autocomplete: "off"
-            }
-          },
-          {
-            type: "Control",
-            scope: "#/properties/store_on_payment_auto_payment",
-            i18n: "payment.store_on_payment_auto_payment",
-            options: {
-              autocomplete: "off"
-            },
-            // only show this field if we have the store_on_payment flag
-            rule: {
-              effect: "SHOW",
-              condition: {
-                scope: "#",
-                schema: {
-                  required: ["store_on_payment"],
-                  properties: {
-                    store_on_payment: { const: true }
-                  }
-                }
+    elements: [
+      {
+        type: "Control",
+        scope: "#/properties/store_on_payment",
+        i18n: "form.store_on_payment",
+        options: {
+          autocomplete: "off"
+        },
+        // only show this field if we have the store_on_payment flag
+        rule: {
+          effect: "SHOW",
+          condition: {
+            scope: "#",
+            schema: {
+              required: ["can_store"],
+              properties: {
+                can_store: { const: true },
+                must_store: { not: { const: true } }
               }
             }
           }
-        ]
+        }
+      },
+      {
+        type: "Control",
+        scope: "#/properties/store_on_payment_auto_payment",
+        i18n: "form.allow_auto_payment",
+        options: {
+          autocomplete: "off"
+        },
+        // only show this field if we have the store_on_payment flag
+        rule: {
+          effect: "SHOW",
+          condition: {
+            scope: "#",
+            schema: {
+              required: ["store_on_payment"],
+              properties: {
+                store_on_payment: { const: true },
+                must_auto_pay: { not: { const: true } }
+              }
+            }
+          }
+        }
+      }
+    ]
   };
 
   return uischema as Layout;

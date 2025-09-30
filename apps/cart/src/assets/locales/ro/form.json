@@ -1,0 +1,134 @@
+{
+  "address": {
+    "error": "A apărut o eroare la adăugarea adresei | a apărut o eroare la actualizarea adresei",
+    "label": "Adresa",
+    "placeholder": "Începeți să tastați adresa dvs.",
+    "title": "Adăugați o adresă nouă | Actualizați adresa"
+  },
+  "address1": {
+    "label": "Address",
+    "placeholder": "Numele casei, numărul apartamentului etc."
+  },
+  "address2": {
+    "label": "",
+    "placeholder": "Numele străzii, drumului etc."
+  },
+  "allow_auto_payment": {
+    "description": "Permiteți ca această metodă de plată să fie utilizată pentru efectuarea de plăți offline automate – cum ar fi plata unei facturi de reînnoire.",
+    "label": "Permiteți plata automată"
+  },
+  "auth_email": {
+    "error": "Este necesar un nume de utilizator sau o adresă de e-mail",
+    "label": "Numele dvs. de utilizator sau adresa de e-mail",
+    "placeholder": "nume@email.com"
+  },
+  "auth_password": {
+    "error": "Este necesară o parolă puternică",
+    "label": "Parolă",
+    "placeholder": "Parolă sau frază de acces"
+  },
+  "card_cvv": {
+    "description": "codul de securitate al cardului care se află pe spatele cardului, și care oferă o măsură suplimentară de securitate a cardului de credit.",
+    "label": "CVV",
+    "placeholder": "CVC"
+  },
+  "card_expiry": {
+    "description": "Data expirării cardului. Format dată: LL/AA",
+    "label": "Data de expirare",
+    "placeholder": "LL/AA"
+  },
+  "card_num": {
+    "description": "Numărul de 16 cifre de pe fața cardului dumneavoastră.",
+    "label": "Numărul de card",
+    "placeholder": "1234 1234 1234 1234"
+  },
+  "cardholder_name": {
+    "label": "Nume Deţinător Card",
+    "placeholder": "Introduceți numele titularului cardului"
+  },
+  "category_search": {
+    "placeholder": "Căutare pe categorii..."
+  },
+  "city": {
+    "label": "Oraş",
+    "placeholder": "Oraș, sat etc."
+  },
+  "company": {
+    "error": "A apărut o eroare la adăugarea detaliilor companiei | a apărut o eroare la actualizarea detaliilor companiei",
+    "label": "Companie",
+    "title": "Adăugați detalii despre companie | Actualizați detaliile despre companie"
+  },
+  "companyName": {
+    "label": "Numele companiei",
+    "placeholder": "Numele companiei dumneavoastră"
+  },
+  "companyNumber": {
+    "label": "Numărul companiei",
+    "placeholder": "Taxă înregistrată sau GST"
+  },
+  "country": {
+    "label": "Ţară",
+    "placeholder": "Selectați o țară"
+  },
+  "domain": {
+    "placeholder": "Introduceți domeniul dvs...."
+  },
+  "domain_search": {
+    "placeholder": "Caută un domeniu..."
+  },
+  "email": {
+    "error": "A apărut o eroare la adăugarea adresei de e-mail | a apărut o eroare la actualizarea adresei de e-mail",
+    "label": "E-mail",
+    "title": "Adăugați o adresă de e-mail nouă | Actualizați adresa de e-mail"
+  },
+  "field_notes": {
+    "label": "Note de comandă"
+  },
+  "firstname": {
+    "error": "Prenumele dumneavoastră este obligatoriu",
+    "label": "Prenume"
+  },
+  "lastname": {
+    "error": "Numele dumneavoastră de familie este obligatoriu",
+    "label": "Nume"
+  },
+  "login": {
+    "error": "Am întâmpinat o eroare la încercarea de a vă conecta."
+  },
+  "phone": {
+    "error": "A apărut o eroare la adăugarea numărului de telefon | a apărut o eroare la actualizarea numărului de telefon",
+    "label": "Telefon",
+    "title": "Adăugați un număr de telefon nou | Actualizați numărul de telefon"
+  },
+  "postcode": {
+    "label": "Cod poștal",
+    "placeholder": "de exemplu, 10011"
+  },
+  "product_name_search": {
+    "placeholder": "Căutați după numele produsului..."
+  },
+  "promocode": {
+    "error": "Cod promoțional nevalid",
+    "placeholder": "Introduceți codul voucherului aici"
+  },
+  "recover": {
+    "error": "Am întâmpinat o eroare în timp ce încercam să vă trimitem un e-mail de resetare a parolei."
+  },
+  "region": {
+    "label": "Regiune",
+    "placeholder": "Selectați o regiune…"
+  },
+  "register": {
+    "error": "Am întâmpinat o eroare în timp ce încercam să vă creăm contul."
+  },
+  "select_option": {
+    "placeholder": "Selectați o opțiune"
+  },
+  "store_on_payment": {
+    "label": "Salvați detaliile de plată"
+  },
+  "taxNumber": {
+    "label": "Cod fiscal",
+    "placeholder": "Cod fiscal"
+  }
+}

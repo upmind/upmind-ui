@@ -1,12 +1,14 @@
 <template>
   <component :is="props.is" :class="styles.pricing.current">
     <template v-if="priceMeta.isFree">
-      {{ t("product.free") }}
+      {{ t("text.free") }}
     </template>
     <template v-else>
       {{ priceMeta.canShowCycle ? monthlyFromCurrentPrice : currentPrice }}
       <small v-if="priceMeta.canShowCycle" :class="styles.pricing.term">{{
-        t(`product.cycle`)
+        t("text.product_cycle_per_month", {
+          value: props.monthlyFromCurrentPrice
+        })
       }}</small>
     </template>
   </component>
@@ -32,7 +34,7 @@ const props = withDefaults(defineProps<CurrentPriceProps>(), {
 const { t } = useI18n();
 
 const priceMeta = computed(() => ({
-  canShowCycle: props.showCycle && props.cycle,
+  canShowCycle: props.showCycle,
   isFree: props.free
 }));
 

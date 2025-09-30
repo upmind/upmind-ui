@@ -1,6 +1,6 @@
 // --- internal
 import services from "../services";
-import { useQuery } from "../..";
+import { useI18n, useQuery } from "../..";
 
 // --- utils
 import { isEmpty } from "lodash-es";
@@ -15,12 +15,13 @@ import type { ClientContext } from "./types";
 async function load(_context: ClientContext, _event: any) {
   // if we have a token, we are potentially authenticated
   // and we need to check the token/get the user
+  const { t } = useI18n();
 
   const token = getTokenFromStorage("client");
   if (isEmpty(token))
     return Promise.reject(
       new DetailedError(
-        "No token found",
+        t("error.token_not_available"),
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )

@@ -7,13 +7,13 @@
           v-if="meta?.isDefault"
           variant="flat"
           size="sm"
-          :label="t(`${i18nKey ?? 'manage'}.default`)"
+          :label="t('text.default_label')"
         />
       </h3>
 
       <Button
         v-if="!props.readonly"
-        :label="t(`${i18nKey ?? 'manage'}.actions.edit`)"
+        :label="t('action.edit')"
         size="sm"
         variant="link"
         color="muted"
@@ -41,7 +41,6 @@ import { Button, Badge } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
-  i18nKey?: string;
   readonly?: boolean;
   id: string;
   title: string;

@@ -2,8 +2,15 @@
   <section :class="styles.product.header.info.root">
     <div :class="styles.product.header.info.container">
       <Badge
-        v-if="meta?.discounted || preservePromotion"
-        :label="t('product.promotion')"
+        v-if="productDetails?.badge"
+        v-bind="productDetails?.badge"
+        size="sm"
+        color="promotion"
+      />
+
+      <Badge
+        v-else-if="meta?.discounted || preservePromotion"
+        :label="t('text.on_sale')"
         icon="tag"
         size="sm"
         color="promotion"
@@ -11,13 +18,34 @@
       />
 
       <div>
-        <h3 :class="styles.product.header.info.title">
+        <router-link
+          v-if="navigate"
+          :to="{
+            name: ROUTE.PRODUCT_ADD,
+            params: {
+              pid: props.id
+            },
+            query: {
+              bcm: selectedTerm,
+              force: 'true', // ensure we always add the product, even if it exists in the basket
+              navigateOnly: 'true' // this is used to prevent the product from being added to the basket when clicking on the title
+            }
+          }"
+          tabindex="-1"
+          class="inline-block underline underline-offset-4"
+        >
+          <h3 :class="styles.product.header.info.title">
+            {{ productDetails?.title }}
+          </h3>
+        </router-link>
+
+        <h3 v-else :class="styles.product.header.info.title">
           {{ productDetails?.title }}
         </h3>
 
         <DisplayPrice
-          :product-details="productDetails"
-          :meta="meta"
+          v-if="props.productDetails?.displayPrice"
+          v-bind="props.productDetails.displayPrice"
           :class="styles.product.header.info.terms"
         />
       </div>
@@ -36,8 +64,11 @@
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
+// --- internal
+import { ROUTE } from "@upmind-automation/headless";
+
 // --- components
-import { useStyles, Badge } from "@upmind-automation/upmind-ui";
+import { useStyles, Badge, Button } from "@upmind-automation/upmind-ui";
 import DisplayPrice from "../terms/DisplayPrice.vue";
 import ProductDescription from "./ProductDescription.vue";
 

@@ -3,6 +3,7 @@ import { computed, ComputedRef, toRaw, unref } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
+import { useI18n } from "../system";
 
 // --- utils
 import {
@@ -36,6 +37,8 @@ import {
  * @returns An object containing the payment gateway state and methods to make a payment.
  */
 export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
+  const { t } = useI18n();
+
   // --- state
 
   async function isReady(): Promise<boolean> {
@@ -124,7 +127,7 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
       .catch(error => {
         return Promise.reject(
           new DetailedError(
-            error.message ?? "Update Payment Details failed",
+            error.message ?? t("error.payment_details_update_failed"),
             error?.status ?? responseCodes.Timeout,
             error.origin ?? ErrorOrigin.Headless,
             {

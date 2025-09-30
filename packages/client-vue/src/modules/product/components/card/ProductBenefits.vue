@@ -1,12 +1,15 @@
 <template>
-  <ul v-if="benefits" :class="styles.product.header.benefits.root">
+  <ul
+    v-if="configMeta.hasBenefits"
+    :class="styles.product.header.benefits.root"
+  >
     <li
       v-for="benefit in benefits"
       :key="benefit.label"
       :class="styles.product.header.benefits.item"
     >
       <Icon
-        :icon="benefit.icon"
+        :icon="benefit.icon?.icon || benefit.icon"
         size="nano"
         :class="styles.product.header.benefits.icon"
       />
@@ -23,6 +26,9 @@ import { computed } from "vue";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import { Icon } from "@upmind-automation/upmind-ui";
 
+// --- utils
+import { isEmpty } from "lodash-es";
+
 // --- config
 import config from "./product.config";
 
@@ -32,10 +38,10 @@ import type { ProductBenefits } from "./types";
 
 // -----------------------------------------------------------------------------
 
-defineProps<ProductBenefits>();
+const props = defineProps<ProductBenefits>();
 
 const configMeta = computed(() => ({
-  //
+  hasBenefits: !isEmpty(props.benefits)
 }));
 
 const styles = useStyles(

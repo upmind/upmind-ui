@@ -2,10 +2,10 @@
   <Alert color="error" icon="alert">
     <template #title>
       <h5 class="m-0 hidden font-normal md:inline">
-        {{ t("basket.item.md.invalid") }}
+        {{ t("cart.basket_product_missing_data_help") }}
       </h5>
       <h5 class="m-0 font-normal md:hidden">
-        {{ t("basket.item.base.invalid") }}
+        {{ t("cart.basket_product_missing_data") }}
       </h5>
     </template>
     <template #action>
@@ -18,9 +18,9 @@
         icon-append="arrow-right"
       >
         <p class="m-0 hidden md:inline">
-          {{ t("basket.item.md.invalidAction") }}
+          {{ t("action.add_missing_data") }}
         </p>
-        <p class="m-0 md:hidden">{{ t("basket.item.base.invalidAction") }}</p>
+        <p class="m-0 md:hidden">{{ t("action.fix") }}</p>
       </Button>
     </template>
   </Alert>

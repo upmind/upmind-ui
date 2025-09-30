@@ -1,5 +1,5 @@
 // --- internal
-import { useBasket, useBrand, useQuery, useSystem } from "../..";
+import { useBasket, useBrand, useI18n, useQuery, useSystem } from "../..";
 import { useRecaptcha, useTracking } from "../../system/";
 import {
   BrandConfigKeys,
@@ -19,8 +19,13 @@ import {
 import { getTokenFromStorage, persistTokenToStorage } from "../utils";
 
 // ---types
-import { GuestContext, LoginModel, RecoverModel, RegisterModel } from "./types";
-import { AnyEventObject } from "xstate";
+import type {
+  GuestContext,
+  LoginModel,
+  RecoverModel,
+  RegisterModel
+} from "./types";
+import type { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------
 
@@ -97,6 +102,7 @@ async function authenticate({ model }: GuestContext<LoginModel>) {
 }
 
 async function verify2fa({ token }: GuestContext, { data }: AnyEventObject) {
+  const { t } = useI18n();
   const { post, useUrl } = useQuery();
   return post<IToken>({
     url: useUrl("access_token", {}, { context: "oauth" }),
@@ -114,11 +120,11 @@ async function verify2fa({ token }: GuestContext, { data }: AnyEventObject) {
     .catch(error => {
       return Promise.reject(
         new DetailedError(
-          error.message || "Invalid 2FA code",
+          error.message || t("error.twofa_not_valid"),
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Upmind,
           {
-            token: error.message || "Invalid Token"
+            token: error.message || t("error.token_not_available")
           }
         )
       );

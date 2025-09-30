@@ -3,6 +3,7 @@ import { assign, sendParent, createMachine } from "xstate";
 
 // --- internal
 import services from "./services";
+import { useI18n } from "../../system";
 import { useFeedback } from "../../feedback";
 import { useSchema, useUischema } from "./schema";
 const { addError } = useFeedback();
@@ -68,6 +69,18 @@ export default createMachine(
       available: {
         initial: "checking",
         states: {
+          waiting: {
+            on: {
+              RESUME: {
+                target: "checking"
+              },
+              SET: {
+                target: "checking",
+                actions: ["setModel", "setAutoUpdate"]
+              }
+            }
+          },
+
           checking: {
             entry: ["clearError"],
             initial: "parsing",
@@ -153,6 +166,7 @@ export default createMachine(
               }
             }
           },
+
           error: {
             id: "error",
             on: {
@@ -186,6 +200,9 @@ export default createMachine(
         target: "available.checking",
         actions: ["refreshContext", "setSchemas"],
         cond: "hasChanged"
+      },
+      WAIT: {
+        target: "available.waiting"
       }
     }
   },
@@ -262,6 +279,7 @@ export default createMachine(
       // ---
 
       setFeedbackError: (context: BillingContext, _event) => {
+        const { t } = useI18n();
         const error = context.error as ResponseError;
         // dont show any unauthorized errors
         if (
@@ -272,7 +290,7 @@ export default createMachine(
           return;
 
         addError({
-          title: "We experienced an error updating billing details",
+          title: t("error.billing_details_update_failed"),
           copy: error?.message,
           data: error?.data
         });

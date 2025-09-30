@@ -6,6 +6,7 @@ import {
   getCurrentOrderId,
   setOrderCurrency
 } from "../support/utils/functions/basket";
+import { setLocale } from "../support/utils/functions/locale-helper";
 import { URLs } from "../support/constants/urls";
 
 test.describe("Error Code Handling", async () => {
@@ -29,6 +30,7 @@ test.describe("Error Code Handling", async () => {
     test(`Display ${errorCode} error message`, async ({ page }) => {
       await returnError(page, route, errorCode, responseError);
       await page.goto(url);
+      await setLocale(page, "pt"); //temp
       await page.waitForLoadState("domcontentloaded");
       if (errorType === "dialog") {
         const dialog = page.getByRole("dialog");
@@ -36,7 +38,9 @@ test.describe("Error Code Handling", async () => {
         await expect(dialog).toContainText(responseError.message);
         await expect(page.getByTestId(`button-${button}`)).toBeVisible();
       } else if (errorType === "redirect") {
-        await expect(page).toHaveURL(`${URLs.baseUrl}order/shop`);
+        await expect(page).toHaveURL(
+          `${URLs.baseUrl}order/product/not-found/?pid=3de78642-de53-9714-76df-21208469530d`
+        );
       } else if (errorType === "toast") {
         const toast = page.getByRole("status").first();
         await expect(toast).toBeVisible();

@@ -5,6 +5,7 @@ import { waitFor } from "xstate/lib/waitFor";
 import { useActor } from "@xstate/vue";
 
 // --- internal
+import { useI18n } from "../../system";
 import itemMachine from "../item.machine";
 import { useSession } from "../../session";
 import { useClientAddresses } from "./useClientAddresses";
@@ -42,6 +43,7 @@ export const useClientAddress = (
     clientId
   }: { allowMultipleEdits?: boolean; clientId?: IClient["id"] } = {}
 ) => {
+  const { t } = useI18n();
   const { getOne } = useClientAddresses();
 
   const service = interpret(
@@ -59,7 +61,7 @@ export const useClientAddress = (
       }),
     {
       id: id ?? "new-address",
-      devTools: true
+      devTools: false
     }
   );
 
@@ -127,7 +129,7 @@ export const useClientAddress = (
       .catch(() => {
         return Promise.reject(
           new DetailedError(
-            "Input not available",
+            t("error.input_not_available"),
             responseCodes.Forbidden,
             ErrorOrigin.Headless
           )
@@ -166,7 +168,7 @@ export const useClientAddress = (
         .catch(error => {
           return Promise.reject(
             new DetailedError(
-              "Update Address failed",
+              t("error.client_address_update_failed"),
               error?.status ?? responseCodes.Timeout,
               ErrorOrigin.Headless,
               {

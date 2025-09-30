@@ -2,14 +2,12 @@
 import {
   DefaultValuesOption,
   loadStripe,
-  StripeElement,
   StripeElementLocale,
-  StripeElements,
-  StripePaymentElement
+  StripeElements
 } from "@stripe/stripe-js";
 
 // --- internal
-import { useLocale } from "../../../";
+import { useI18n, useLocale } from "../../..";
 import sharedServices from "../services";
 
 // --- utils
@@ -19,28 +17,31 @@ import {
   responseCodes,
   useValidation
 } from "../../../../utils";
-import { isEmpty, omitBy, reject, set } from "lodash-es";
+
 import {
   getSupportedPaymentMethods,
   getPublicKey,
   parseMinorUnitAmount
 } from "./utils";
 
+import { set } from "lodash-es";
+
 // --- types
 import type { StripeContext } from "./types";
 import type { AnyEventObject } from "xstate";
-import { nextTick } from "vue";
-import { parse } from "path";
 
 // -----------------------------------------------------------------------------
 
 async function load(context: StripeContext, _event: AnyEventObject) {
   const { gateway, amount, currency, address } = context;
 
+  const { t } = useI18n();
+  const options = await sharedServices.load(context, _event);
+
   if (!gateway)
     return Promise.reject(
       new DetailedError(
-        "Gateway not found.",
+        t("error.stripe_public_key_not_available"),
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )
@@ -60,7 +61,7 @@ async function load(context: StripeContext, _event: AnyEventObject) {
     if (!key)
       return Promise.reject(
         new DetailedError(
-          "Stripe public key not found.",
+          t("error.stripe_not_available"),
           responseCodes.Not_Found,
           ErrorOrigin.Headless
         )
@@ -114,13 +115,13 @@ async function validate(
   { schema, model, element }: StripeContext,
   { data }: AnyEventObject
 ) {
-  // ---
+  const { t } = useI18n();
 
   // Get any errors from the Stripe Element
   if (!element)
     return Promise.reject(
       new DetailedError(
-        "Stripe element not found.",
+        t("error.stripe_element_not_available"),
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )
@@ -150,7 +151,7 @@ async function validate(
     if (errors?.length) {
       reject(
         new DetailedError(
-          "Stripe validation failed",
+          t("error.stripe_validation_failed"),
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
           errors
@@ -202,10 +203,12 @@ async function render({ element }: StripeContext, { data }: AnyEventObject) {
  * payment detail is attached to a customer and confirmed server-side.
  */
 async function pay({ elements, stripe, model }: StripeContext) {
+  const { t } = useI18n();
+
   if (!elements || !stripe)
     return Promise.reject(
       new DetailedError(
-        "Stripe elements or stripe not found.",
+        t("error.stripe_element_not_available"),
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )
@@ -217,7 +220,7 @@ async function pay({ elements, stripe, model }: StripeContext) {
     .catch((error: any) =>
       Promise.reject(
         new DetailedError(
-          "Stripe element submission failed.",
+          t("error.stripe_element_submission_failed"),
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
           error
@@ -238,7 +241,7 @@ async function pay({ elements, stripe, model }: StripeContext) {
     if (error) {
       reject(
         new DetailedError(
-          error.message ?? "Stripe create payment method failed.",
+          error.message ?? t("error.stripe_payment_method_create_failed"),
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
           error
@@ -259,12 +262,12 @@ async function pay({ elements, stripe, model }: StripeContext) {
       // );
 
       set(
-        model,
+        model!,
         "payment_method_addition.payment_method_id",
         paymentMethod?.id
       );
       set(
-        model,
+        model!,
         "payment_method_addition.payment_method_type",
         paymentMethod?.type
       );

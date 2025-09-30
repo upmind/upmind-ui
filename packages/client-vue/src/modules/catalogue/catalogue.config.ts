@@ -75,13 +75,13 @@ export default {
       )
     },
     header: {
-      root: cva("flex max-w-2xl flex-col gap-y-3"),
-      title: cva("font-display m-0 text-5xl font-normal"),
+      root: cva("flex max-w-2xl flex-col gap-y-3 empty:hidden"),
+      title: cva("font-display m-0 text-5xl font-normal text-balance"),
       description: cva("text-md text-emphasis-medium m-0")
     },
     item: {
       root: cva(
-        "text-foreground bg-card hover:bg-card/80 group shadow-border-none relative z-10 m-0 flex h-full w-full flex-col items-start justify-start gap-4 rounded-none border-none p-8 text-left before:absolute before:-inset-px before:-z-10 before:border before:border-solid before:border-gray-100 before:content-['']"
+        "text-foreground bg-card hover:bg-card/80 shadow-border-none group relative z-10 m-0 flex h-full w-full flex-col items-start justify-start gap-4 rounded-none border-none p-8 text-left before:absolute before:-inset-px before:-z-10 before:border before:border-solid before:border-gray-100 before:content-['']"
       ),
       icon: cva(
         "text-emphasis-medium text-icon-secondary transition-all duration-300 [&>svg]:p-px"

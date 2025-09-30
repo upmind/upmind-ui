@@ -1,9 +1,9 @@
 // --- external
-import type { AnyEventObject } from "xstate";
 import { createMachine, assign } from "xstate";
 
 // --- internal
 import services from "./services";
+import { useI18n } from "../../system";
 import { useFeedback } from "../../feedback";
 const { addError } = useFeedback();
 
@@ -18,9 +18,12 @@ import { responseCodes } from "../../../utils";
 import { useSchema, useUischema } from "./utils";
 import { parseBasketFieldsModel } from "../utils";
 
-// --- types
-import { FieldsModel, FieldsContext } from "./types";
+// --- utils
 import { isEqual } from "lodash-es";
+
+// --- types
+import type { AnyEventObject } from "xstate";
+import type { FieldsModel, FieldsContext } from "./types";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -223,11 +226,12 @@ export default createMachine(
       // ---
 
       setFeedbackError: ({ error }: FieldsContext, _event) => {
+        const { t } = useI18n();
         if (!error || error?.status == responseCodes.Unprocessable_Entity)
           return;
 
         addError({
-          title: "We experienced an error updating the basket fields",
+          title: t("error.basket_fields_update_failed"),
           copy: error?.message,
           data: error?.data
         });

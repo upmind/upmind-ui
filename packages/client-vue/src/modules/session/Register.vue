@@ -6,7 +6,7 @@
         @click.prevent="doReject"
         variant="link"
         icon="arrow-left"
-        :label="t('navigation.back')"
+        :label="t('action.back_to_basket')"
         size="lg"
       />
     </template>
@@ -15,21 +15,21 @@
       <Section class="mx-auto max-w-2xl gap-9">
         <Header
           :badge="{
-            label: t('session.register.badge'),
+            label: t('text.fully_encrypted_title'),
             icon: 'lock'
           }"
-          :title="t('session.register.title')"
+          :title="t('action.create_an_account')"
         >
           <template #description>
             <span class="font-normal"
-              >{{ t("session.register.actions.text") }}&nbsp;</span
+              >{{ t("auth.already_have_account_qn") }}&nbsp;</span
             >
 
             <Button
               :to="{ name: ROUTE.SESSION_LOGIN }"
               variant="link"
               size="xl"
-              :label="t('session.register.actions.action')"
+              :label="t('action.log_in_here')"
             />
           </template>
         </Header>
@@ -44,8 +44,8 @@
           />
 
           <i18n-t
-            class="text-emphasis-medium mt-0 text-center text-sm"
-            keypath="auth.google_recaptcha.terms"
+            class="text-emphasis-medium text-sm"
+            keypath="auth.recaptcha_terms_desc"
             tag="p"
             scope="global"
           >
@@ -55,7 +55,7 @@
                 href="https://policies.google.com/privacy"
                 target="_blank"
                 variant="link"
-                >{{ $t("auth.google_recaptcha.privacy_policy") }}</Button
+                >{{ $t("text.privacy_policy") }}</Button
               >
             </template>
             <template #[`termsOfService`]>
@@ -64,7 +64,7 @@
                 href="https://policies.google.com/terms"
                 target="_blank"
                 variant="link"
-                >{{ $t("auth.google_recaptcha.terms_of_service") }}</Button
+                >{{ $t("text.terms_of_service") }}</Button
               >
             </template>
           </i18n-t>

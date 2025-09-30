@@ -11,12 +11,9 @@
         secondaryColor: 'secondary',
         size: '4xl'
       }"
-      :title="t(processingTitleKey)"
-      :text="t(processingTextKey)"
+      :title="processingTitle"
+      :text="processingText"
     >
-      <template #title>
-        <SmartTitle :i18n-key="processingTitleKey" align="center" />
-      </template>
     </Interstitial>
   </slot>
 </template>
@@ -34,7 +31,6 @@ import {
 
 // --- components
 import { Interstitial } from "@upmind-automation/upmind-ui";
-import SmartTitle from "../../../components/content/SmartTitle.vue";
 
 // -----------------------------------------------------------------------------
 
@@ -42,52 +38,52 @@ const { meta } = useBasket();
 const { meta: paymentDetailsMeta } = useBasketPaymentDetails();
 const { t } = useI18n();
 
-const processingTitleKey = computed(() => {
+const processingTitle = computed(() => {
   if (meta.value.needsApproval) {
-    return "checkout.processing.approval.title";
+    return t("checkout.processing.approval.title");
   }
 
   if (meta.value.isConverting) {
-    return "checkout.processing.converting.title";
+    return t("checkout.processing.converting.title");
   }
 
   if (meta.value.isPaying) {
-    return "checkout.processing.paying.title";
+    return t("checkout.processing.paying.title");
   }
 
   if (meta.value.isCheckout) {
-    return "checkout.processing.default.title";
+    return t("checkout.processing.default.title");
   }
 
   if (paymentDetailsMeta.value.isFree) {
-    return "checkout.processing.noCharge.title";
+    return t("checkout.processing.noCharge.title");
   }
 
-  return "checkout.processing.invalid.title";
+  return t("checkout.processing.invalid.title");
 });
 
-const processingTextKey = computed(() => {
+const processingText = computed(() => {
   if (meta.value.needsApproval) {
-    return "checkout.processing.approval.text";
+    return t("checkout.processing.approval.text");
   }
 
   if (meta.value.isConverting) {
-    return "checkout.processing.converting.text";
+    return t("checkout.processing.converting.text");
   }
 
   if (meta.value.isPaying) {
-    return "checkout.processing.paying.text";
+    return t("checkout.processing.paying.text");
   }
 
   if (meta.value.isCheckout) {
-    return "checkout.processing.default.text";
+    return t("checkout.processing.default.text");
   }
 
   if (paymentDetailsMeta.value.isFree) {
-    return "checkout.processing.noCharge.text";
+    return t("checkout.processing.noCharge.text");
   }
 
-  return "checkout.processing.invalid.text";
+  return t("checkout.processing.invalid.text");
 });
 
 const processingIcon = computed(() => {

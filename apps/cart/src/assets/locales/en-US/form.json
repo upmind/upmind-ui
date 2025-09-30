@@ -1,0 +1,134 @@
+{
+  "address": {
+    "error": "An error occurred Adding the Address | an error occurred Updating the Address",
+    "label": "Address",
+    "placeholder": "Start typing your address",
+    "title": "Add New Address | Update Address"
+  },
+  "address1": {
+    "label": "Address",
+    "placeholder": "House name, apartment number etc."
+  },
+  "address2": {
+    "label": "",
+    "placeholder": "Road, street name etc."
+  },
+  "allow_auto_payment": {
+    "description": "Allow this payment method to be used for making automated offline payments – such as paying a renewal invoice.",
+    "label": "Allow auto payment"
+  },
+  "auth_email": {
+    "error": "A username or email address is required",
+    "label": "Your username or email address",
+    "placeholder": "name@email.com"
+  },
+  "auth_password": {
+    "error": "A strong password is required",
+    "label": "Password",
+    "placeholder": "Password or passphrase"
+  },
+  "card_cvv": {
+    "description": "card security code found on the back of your card that provides an additional measure of credit card security.",
+    "label": "CVV",
+    "placeholder": "CVC"
+  },
+  "card_expiry": {
+    "description": "Expiry Date of the card. Date Format: MM/YY",
+    "label": "Expiry date",
+    "placeholder": "MM/YY"
+  },
+  "card_num": {
+    "description": "The 16 digit number on the front of your card.",
+    "label": "Card number",
+    "placeholder": "1234 1234 1234 1234"
+  },
+  "cardholder_name": {
+    "label": "Cardholder name",
+    "placeholder": "Enter cardholder name"
+  },
+  "category_search": {
+    "placeholder": "Category search..."
+  },
+  "city": {
+    "label": "City",
+    "placeholder": "City, town etc."
+  },
+  "company": {
+    "error": "An error occurred Adding the Company Details | an error occurred Updating the Company Details",
+    "label": "Company",
+    "title": "Add Company Details | Update Company Details"
+  },
+  "companyName": {
+    "label": "Company Name",
+    "placeholder": "Your company name"
+  },
+  "companyNumber": {
+    "label": "Company Number",
+    "placeholder": "Registered tax or GST"
+  },
+  "country": {
+    "label": "Country",
+    "placeholder": "Select a country"
+  },
+  "domain": {
+    "placeholder": "Enter your domain..."
+  },
+  "domain_search": {
+    "placeholder": "Search for a domain..."
+  },
+  "email": {
+    "error": "An error occurred Adding the Email | an error occurred Updating the Email",
+    "label": "Email",
+    "title": "Add New Email | Update Email"
+  },
+  "field_notes": {
+    "label": "Order Notes"
+  },
+  "firstname": {
+    "error": "Your first name is required",
+    "label": "First name"
+  },
+  "lastname": {
+    "error": "Your last name is required",
+    "label": "Last name"
+  },
+  "login": {
+    "error": "We experienced an error while trying to log you in."
+  },
+  "phone": {
+    "error": "An error occurred Adding the Phone Number | an error occurred Updating the Phone Number",
+    "label": "Phone",
+    "title": "Add New Phone Number | Update Phone Number"
+  },
+  "postcode": {
+    "label": "Postcode",
+    "placeholder": "eg. 10011"
+  },
+  "product_name_search": {
+    "placeholder": "Search by product name..."
+  },
+  "promocode": {
+    "error": "Invalid promo code",
+    "placeholder": "Enter voucher code here"
+  },
+  "recover": {
+    "error": "We experienced an error while trying to send you a password reset email."
+  },
+  "region": {
+    "label": "Region",
+    "placeholder": "Select a region…"
+  },
+  "register": {
+    "error": "We experienced an error while trying to create your account."
+  },
+  "select_option": {
+    "placeholder": "Select an option"
+  },
+  "store_on_payment": {
+    "label": "Save payment details"
+  },
+  "taxNumber": {
+    "label": "Tax Number",
+    "placeholder": "Tax Id"
+  }
+}

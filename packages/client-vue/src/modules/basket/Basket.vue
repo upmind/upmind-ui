@@ -1,21 +1,24 @@
 <template>
   <Layout :variant="uiCart?.layout" minimal>
     <template #navigation>
-      <Back v-bind="route" i18n-key="basket.back" />
+      <Back v-bind="storefrontRoute" :label="t('action.continue_shopping')" />
     </template>
 
     <template #header>
       <Header
-        title="basket.title"
+        title="cart.basket_title"
         :description="
-          t('basket.description', [summary.total], products?.length || 0)
+          t('cart.basket_summary_desc', {
+            count: products?.length ?? 0,
+            total: summary?.total ?? 0
+          })
         "
       />
     </template>
 
     <template #default>
       <Section
-        :title="t('basket.items')"
+        :title="t('cart.basket_products')"
         :ui-config="{
           section: {
             root: styles.basket.items.root,
@@ -29,7 +32,7 @@
           <Button
             variant="link"
             color="muted"
-            :label="t('basket.expand', open ? 0 : 1)"
+            :label="t('action.details_toggle', open ? 0 : 1)"
             icon="sort-lines"
             @click="open = !open"
           />
@@ -37,7 +40,7 @@
       </Section>
 
       <Section
-        :title="t('customFields')"
+        :title="t('text.additional_details')"
         :class="styles.basket.customFields.root"
         :ui-config="{
           section: {
@@ -62,11 +65,7 @@
     </template>
 
     <template #aside>
-      <Section
-        :title="t('basket.summary.title')"
-        :class="styles.basket.aside"
-        aside
-      >
+      <Section :title="t('text.summary')" :class="styles.basket.aside" aside>
         <Summary />
 
         <footer class="w-full">
@@ -84,7 +83,7 @@
             size="lg"
             color="primary"
             :loading="meta.isProcessing || meta.isLoading"
-            :label="t('basket.summary.proceed')"
+            :label="t('action.proceed_to_checkout')"
             icon="cart"
             pill
           />
@@ -97,11 +96,11 @@
         v-if="meta.hasInvalidProducts"
         color="error"
         icon="alert"
-        :description="t('basket.requiresAction.summary.description')"
+        :description="t('cart.basket_products_review_msg')"
       >
         <template #title>
           <i18n-t
-            keypath="basket.requiresAction.summary.title"
+            keypath="cart.basket_products_require_attention_msg"
             tag="span"
             :plural="productsInvalid.length"
             scope="global"
@@ -163,7 +162,7 @@ import { type ComputedRef } from "vue";
 
 const { t } = useI18n();
 const { meta, productsInvalid, isReady, products, summary } = useBasket();
-const { uiCart, storefrontUrl, hasStorefront } = useBrand();
+const { uiCart, storefrontRoute } = useBrand();
 
 const {
   errors: fieldsErrors,
@@ -202,16 +201,6 @@ const styles = useStyles(
     };
   };
 }>;
-
-const route = computed(() => {
-  return omitBy(
-    {
-      to: !hasStorefront.value ? { name: ROUTE.CATALOGUE } : undefined,
-      href: hasStorefront.value ? storefrontUrl.value : undefined
-    },
-    isEmpty
-  );
-});
 
 const { dataLayer } = useDataLayer();
 dataLayer({ event: "view_cart" }).withEcommerce().push();

@@ -18,7 +18,6 @@ import { forEach } from "lodash-es";
 const app = createApp(App);
 
 // ---
-
 UpmindClient.init({
   debug: import.meta.env.DEV,
   pop: {
@@ -27,10 +26,11 @@ UpmindClient.init({
     region: import.meta.env.VITE_API_REGION
   },
   i18n: {
-    instance: i18n as any,
-    files: import.meta.env.DEV
-      ? import.meta.glob(`@/**/i18n/*-en.json`, { eager: true }) // 'en' only source messages
-      : import.meta.glob("@/assets/locales/**/*.json", { eager: true }) // compiled messages
+    instance: i18n,
+    files: import.meta.glob<Record<string, string>>(
+      "@/assets/locales/**/*.json",
+      { import: "default" }
+    )
   },
   router: {
     instance: router,
@@ -81,7 +81,7 @@ Sentry.init({
   // Capture Replay for 10% of all sessions,
   // plus for 100% of sessions with an error
   // replaysSessionSampleRate: 0.1,
-  replaysSessionSampleRate: 1.0,
+  replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1.0
 });
 

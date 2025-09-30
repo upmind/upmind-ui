@@ -1,14 +1,13 @@
 <template>
   <div :class="styles.product.config.grid.item.root">
     <div :class="styles.product.config.grid.item.header">
-      <strong :class="styles.product.config.grid.item.title">
-        {{
-          te(`product.terms.cycle.${props.cycle}`)
-            ? t(`product.terms.cycle.${props.cycle}`)
-            : props.title
-        }}
-        <template v-if="props.cycle && props.cycle > 0">
-          {{ t("product.term") }}
+      <strong
+        :class="styles.product.config.grid.item.title"
+        v-if="has(props, 'cycle')"
+      >
+        {{ parseBillingCycle(props.cycle!).numeric }}
+        <template v-if="props.cycle! > 0">
+          {{ t("text.term") }}
         </template>
       </strong>
 
@@ -23,11 +22,11 @@
     <div :class="styles.product.config.grid.item.footer">
       <Pricing
         :regular-price="props.price.regularPrice"
-        :monthly-from-regular-price="props.price.monthlyFromRegularPrice"
+        :monthly-from-regular-price="props.price.monthlyFromRegularPrice ?? ''"
         :current-price="props.price.currentPrice"
-        :monthly-from-current-price="props.price.monthlyFromCurrentPrice"
-        :meta="props.meta"
-        :cycle="props.cycle"
+        :monthly-from-current-price="props.price.monthlyFromCurrentPrice ?? ''"
+        :discounted="props.meta?.discounted ?? false"
+        :free="props.meta?.free ?? false"
         :ui-config="{
           pricing: {
             current: [styles.product.config.grid.item.total]
@@ -44,6 +43,7 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
+import { parseBillingCycle } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../../product.config";
 
@@ -52,7 +52,7 @@ import Pricing from "../pricing/Pricing.vue";
 import Promotion from "../../../basket/product/components/Promotion.vue";
 
 // --- utils
-import { isEmpty } from "lodash-es";
+import { isEmpty, has } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -78,7 +78,7 @@ const props = withDefaults(
 
 // ---
 
-const { t, te } = useI18n();
+const { t } = useI18n();
 
 const meta = computed(() => ({
   hasPromotions: !isEmpty(props.promotions) || props.meta?.mixed,

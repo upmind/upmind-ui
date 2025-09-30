@@ -5,13 +5,14 @@ import { useBasket, useBasketPromotions } from "../basket";
 // --- utils
 import { map, set } from "lodash-es";
 import { parseProduct } from "./mappers";
-import { useTime } from "../../utils";
+import { responseCodes, useTime } from "../../utils";
 
 // --- types
 import type { Product } from "../product";
 import type { IProduct } from "@upmind-automation/types";
-import type { QueryParams } from "../..";
+import type { QueryParams, QueryResponseError } from "../..";
 import type { InfiniteData, QueryKey } from "@tanstack/vue-query";
+import { parsePromotionsOrCoupons } from "../basketProduct/utils";
 
 // -----------------------------------------------------------------------------
 // QUERIES
@@ -20,11 +21,11 @@ const queryKey: QueryKey = ["product", "catalogue"];
 
 function loadList(params?: Partial<QueryParams>) {
   const { list, useUrl } = useQuery();
-  const { basketId } = useBasket();
+  const { basketId, isReady: isBasketReady } = useBasket();
   const { promotions } = useBasketPromotions();
 
   const urlParams = {
-    promotions: map(promotions.value, "promotion.code").join(),
+    promotions: parsePromotionsOrCoupons(promotions.value).join(),
     with: [
       "image",
       "images",
@@ -38,9 +39,9 @@ function loadList(params?: Partial<QueryParams>) {
 
   if (basketId.value) set(urlParams, "basket_id", basketId.value);
 
-  return list<IProduct[], Product[]>({
+  const query = list<IProduct[], Product[]>({
     ...(params as any),
-    queryKey,
+    queryKey: [...queryKey, { basketId }],
     url: useUrl(`basket/products`, {
       ...urlParams
     }),
@@ -49,6 +50,8 @@ function loadList(params?: Partial<QueryParams>) {
     select: data => map(data ?? [], parseProduct),
     staleTime: useTime().HOUR
   });
+
+  return query;
 }
 
 function loadInfinite(params?: Partial<QueryParams>) {
@@ -69,7 +72,7 @@ function loadInfinite(params?: Partial<QueryParams>) {
         `category${".top_category".repeat(4)}`
       ].join(",")
     }),
-    promotions: map(promotions.value, "promotion.code").join(),
+    promotions: parsePromotionsOrCoupons(promotions.value).join(),
     withAccessToken: true,
     // --- options
     select: data => map(data ?? [], parseProduct),

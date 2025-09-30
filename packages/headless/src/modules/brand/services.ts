@@ -36,6 +36,7 @@ const defaultBrandConfigKeys = [
   BrandConfigKeys.PARTIAL_PAYMENTS_ENABLED,
   BrandConfigKeys.PAY_LATER_ENABLED,
   BrandConfigKeys.PREVENT_CARD_REMOVAL_IF_LAST,
+  BrandConfigKeys.PRICE_DISPLAY_TYPE,
   BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS,
   BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS,
   BrandConfigKeys.REQUIRE_PHONE_ON_REGISTRATION,
@@ -109,7 +110,7 @@ function fetchModules() {
 function fetchOrganisationConfig() {
   const { query, useUrl } = useQuery();
 
-  return query({
+  return query<Record<OrgFeatureKeys, unknown>>({
     url: useUrl("config/organisation/values", {
       keys: defaultOrgFeatureKeys.join()
     }),

@@ -40,7 +40,7 @@ export const useUischema = ({ fields }: FieldsContext) => {
       {
         type: "Control",
         scope: "#/properties/notes",
-        i18n: "basket.fields.notes",
+        i18n: "form.field_notes",
         options: {
           multi: true,
           autosize: true,

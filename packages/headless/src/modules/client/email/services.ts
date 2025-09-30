@@ -1,5 +1,13 @@
+// --- external
+
 // --- internal
-import { useQuery, useSession, useFeedback, type QueryParams } from "../..";
+import {
+  useQuery,
+  useSession,
+  useFeedback,
+  type QueryParams,
+  useI18n
+} from "../..";
 
 // --- utils
 import {
@@ -34,7 +42,7 @@ function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
 
   return list<IEmail[], Email[]>({
     ...(params as any),
-    queryKey,
+    queryKey: [...queryKey, { user: user.value?.id }],
     url: useUrl(`clients/${user.value?.id}/emails`),
     withAccessToken: true,
     guard: async () =>
@@ -101,6 +109,7 @@ async function update(id: Email["id"], data: EmailModel) {
 }
 
 async function ensure(model: EmailModel): Promise<Email> {
+  const { t } = useI18n();
   const { data, promise } = loadList();
   await promise.value.finally(); // wait for the query to resolve
   const { findOne } = useCollection<Email>(
@@ -115,7 +124,7 @@ async function ensure(model: EmailModel): Promise<Email> {
   return add(model).then(raw => {
     if (isEmpty(raw))
       throw new DetailedError(
-        "Failed to ensure email",
+        t("error.client_email_not_available"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless,
         { model }
@@ -127,6 +136,7 @@ async function ensure(model: EmailModel): Promise<Email> {
 }
 
 function remove(emailId: Email["id"]) {
+  const { t } = useI18n();
   const { meta, user } = useSession();
   const { mutate, useUrl } = useQuery();
 
@@ -144,20 +154,21 @@ function remove(emailId: Email["id"]) {
       addError({
         title: isString(error)
           ? error
-          : error?.title || "We experienced an error removing this email",
+          : error?.title || t("error.client_email_delete_failed"),
         copy: error?.message,
         data: error?.data
       });
     },
     onSuccess(data) {
       invalidateQueryByKey(queryKey, { exact: false })(data);
-      addSuccess("Successfully removed email");
+      addSuccess(t("confirm.email_removed"));
     },
     withAccessToken: true
   });
 }
 
 function setDefault(emailId: Email["id"]) {
+  const { t } = useI18n();
   const { meta, user } = useSession();
   const { mutate, useUrl } = useQuery();
 
@@ -176,15 +187,14 @@ function setDefault(emailId: Email["id"]) {
       addError({
         title: isString(error)
           ? error
-          : error?.title ||
-            "We experienced an error setting this email as default",
+          : error?.title || t("error.client_email_set_default_failed"),
         copy: error?.message,
         data: error?.data
       });
     },
     onSuccess(data) {
       invalidateQueryByKey(queryKey, { exact: false })(data);
-      addSuccess("Successfully set email as default");
+      addSuccess(t("confirm.email_set_default"));
     },
     withAccessToken: true
   });
@@ -205,6 +215,7 @@ async function parse({ schema }: EmailContext, { data }: AnyEventObject) {
 }
 
 async function validate({ schema, model }: EmailContext) {
+  const { t } = useI18n();
   if (!schema) return Promise.resolve(model);
 
   // Now validate the model as per normal
@@ -215,7 +226,7 @@ async function validate({ schema, model }: EmailContext) {
     if (errors?.length) {
       reject(
         new DetailedError(
-          "Email validation failed",
+          t("error.client_email_validation_failed"),
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
           errors
@@ -269,10 +280,11 @@ export const useClientEmailServices = () => {
      * @returns {Promise<any>} The result of the add operation.
      */
     add: async ({ model }: Partial<EmailContext>): Promise<any> => {
+      const { t } = useI18n();
       if (isEmpty(model))
         return Promise.reject(
           new DetailedError(
-            "Add Email failed: model provided",
+            t("error.client_email_not_available"),
             responseCodes.No_Content,
             ErrorOrigin.Headless,
             { model }
@@ -288,10 +300,11 @@ export const useClientEmailServices = () => {
      * @returns {Promise<any>} The ensured email model, which will either be the existing email or a new one created.
      */
     ensure: async ({ model }: Partial<EmailContext>): Promise<any> => {
+      const { t } = useI18n();
       if (isEmpty(model))
         return Promise.reject(
           new DetailedError(
-            "Ensure Email failed: model provided",
+            t("error.client_email_not_available"),
             responseCodes.No_Content,
             ErrorOrigin.Headless,
             { model }
@@ -328,10 +341,11 @@ export const useClientEmailServices = () => {
      * @returns {Promise<any>} The result of the update operation.
      */
     update: async ({ id, model }: Partial<EmailContext>): Promise<any> => {
+      const { t } = useI18n();
       if (!id || isEmpty(model))
         return Promise.reject(
           new DetailedError(
-            "Update Email failed: No id or model provided",
+            t("error.client_email_not_available"),
             responseCodes.No_Content,
             ErrorOrigin.Headless,
             { id, model }
