@@ -64,13 +64,13 @@ export default {
 
     promo: {
       toast: cva(
-        "toast group-[.toaster]:border-border group-[.toaster]:bg-background group-[.toaster]:text-foreground group group-[.toaster]:data-[type=promo]:bg-accent-promo-muted! group-[.toaster]:data-[type=promo]:border-background-accent-promo-muted! group-[.toaster]:data-[type=promo]:text-accent-promo-muted-contrast! group-[.toaster]:shadow-sm has-[svg]:pl-4"
+        "group-[.toaster]:data-[type=promo]:border-[var(--color-background-accent-promo-muted)]! group-[.toaster]:data-[type=promo]:bg-[var(--color-background-accent-promo-muted)]! group-[.toaster]:data-[type=promo]:text-[var(--color-text-accent-promo-muted-contrast)]!"
       ),
       actionButton: cva(
-        "group-data-[type=promo]:bg-accent-promo! group-data-[type=promo]:text-accent-promo-muted! transition-all! duration-300! group-data-[type=promo]:hover:opacity-80!"
+        "transition-all! duration-300! group-data-[type=promo]:bg-[var(--color-background-accent-promo)]! group-data-[type=promo]:text-[var(--color-text-accent-promo-contrast)]! group-data-[type=promo]:hover:opacity-90!"
       ),
       closeButton: cva(
-        "group-data-[type=promo]:text-accent-promo-muted transition-all! duration-300! group-data-[type=promo]:hover:opacity-80!"
+        "transition-all! duration-300! group-data-[type=promo]:text-[var(--color-text-accent-promo-muted-contrast)]! group-data-[type=promo]:hover:opacity-80!"
       )
     }
   }

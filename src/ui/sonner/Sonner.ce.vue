@@ -142,4 +142,4 @@ const styles = useStyles(
 }>;
 </script>
 
-<style src="./sonner.css"></style>
+<style src="./sonner.css" global></style>
