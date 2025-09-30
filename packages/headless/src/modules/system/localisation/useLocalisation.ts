@@ -6,9 +6,8 @@ import { useI18n } from "./useI18n";
 import { useLocale } from "./useLocale";
 
 // ---types
-import { Composer, I18n } from "vue-i18n";
+import { I18n } from "vue-i18n";
 import { GlobbedFiles } from "./types";
-import { DetailedError } from "src/utils";
 // -----------------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------
