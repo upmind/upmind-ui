@@ -42,9 +42,9 @@
           <span :class="styles.combobox.label">{{ label }}</span>
         </template>
 
-        <template #default v-else-if="search">
+        <template #default>
           <span class="opacity-50">
-            <slot name="placeholder">{{ props.placeholder }}</slot>
+            <slot name="placeholder">{{ props.placeholder || "&nbsp;" }}</slot>
           </span>
         </template>
 
@@ -192,7 +192,7 @@ const props = withDefaults(defineProps<ComboboxProps>(), {
   loading: false,
   search: false,
   emptyMessage: "No Results",
-  placeholder: "Search...",
+  placeholder: "",
   itemLabel: "label",
   itemValue: "value",
   checkedIcon: true,
