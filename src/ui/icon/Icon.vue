@@ -70,32 +70,35 @@ watchEffect(async () => {
   const safePath = isObject(props.icon)
     ? `${trimEnd(props.icon?.path, "/")}/`
     : "";
-  const safeName = isObject(props.icon) ? props.icon?.name : props.icon;
+
+  let filename = isObject(props.icon) ? props.icon?.name : props.icon;
+
+  // ensure we add the svg extension if provided
+  if (!endsWith(filename, ".svg")) filename += ".svg";
 
   const exactMatch = find(icons, (fn, iconPath) => {
     const pathParts = iconPath.split("/");
-    const fileName = pathParts[pathParts.length - 1];
-    return fileName === `${safeName}.svg`;
+    return pathParts[pathParts.length - 1] === filename;
   });
+
+  if (!exactMatch) debugger;
 
   const asyncImport =
     exactMatch ||
-    find(icons, (fn, iconPath) =>
-      endsWith(iconPath, `${safePath}${safeName}.svg`)
-    );
+    find(icons, (fn, iconPath) => endsWith(iconPath, `${safePath}${filename}`));
 
   if (!asyncImport) {
     console.warn("icon", "import not found", {
       icon: props.icon,
       icons
     });
-    emit("error", new Error(`Icon not found: ${safeName}`));
+    emit("error", new Error(`Icon not found: ${filename}`));
     svg.value = null;
     return;
   }
 
   svg.value = await asyncImport().catch(() => {
-    emit("error", new Error(`Failed to process content: ${safeName}`));
+    emit("error", new Error(`Failed to process content: ${filename}`));
     return null;
   });
 });
