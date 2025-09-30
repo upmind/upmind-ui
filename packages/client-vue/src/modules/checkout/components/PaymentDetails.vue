@@ -22,7 +22,20 @@
             @click.stop="selectGateway(item.gateway_id)"
             :open="item.gateway_id === model?.gateway_id"
           >
-            <GatewayTrigger v-bind="item" />
+            <header :class="styles.checkout.accordion.trigger.header">
+              <h5 :class="styles.checkout.title">
+                {{ item.gateway.name }}
+              </h5>
+
+              <Icon
+                v-if="item.gateway?.gateway_provider?.code"
+                :class="styles.checkout.image"
+                :icon="{
+                  path: `/gateways/`,
+                  name: item.gateway?.gateway_provider?.code
+                }"
+              />
+            </header>
 
             <template #icon>
               <Icon
@@ -49,13 +62,9 @@
               :class="styles.checkout.accordion.content"
               force-mount
             >
-              <GatewayContent
+              <PaymentGateway
                 v-if="item.gateway_id === model?.gateway_id"
-                :item="item"
-                :gatewayId="gateway?.id?.toString()"
-                :modelValue="model?.gateway_id"
-                :meta="meta"
-                :basket-meta="basketMeta"
+                :modelValue="item.gateway_id"
                 :color="color"
                 @checkout="handleCheckout"
               />
@@ -97,8 +106,7 @@ import {
   AccordionContent,
   Icon
 } from "@upmind-automation/upmind-ui";
-import GatewayTrigger from "./gateway/Trigger.vue";
-import GatewayContent from "./gateway/Content.vue";
+import PaymentGateway from "./PaymentGateway.vue";
 import PaymentNotRequired from "./PaymentNotRequired.vue";
 
 // --- types
@@ -133,6 +141,7 @@ const styles = useStyles(
       root: string;
       trigger: {
         root: string;
+        header: string;
         icon: string;
       };
       item: string;
@@ -140,6 +149,8 @@ const styles = useStyles(
       loading: string;
       content: string;
     };
+    title: string;
+    image: string;
     isFree: string;
   };
 }>;

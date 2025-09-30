@@ -1,9 +1,12 @@
 <template>
   <div :class="styles.product.config.grid.item.root">
     <div :class="styles.product.config.grid.item.header">
-      <strong :class="styles.product.config.grid.item.title">
-        {{ props.cycleFormatted?.numeric }}
-        <template v-if="props.cycle && props.cycle > 0">
+      <strong
+        :class="styles.product.config.grid.item.title"
+        v-if="has(props, 'cycle')"
+      >
+        {{ parseBillingCycle(props.cycle!).numeric }}
+        <template v-if="props.cycle! > 0">
           {{ t("text.term") }}
         </template>
       </strong>
@@ -46,6 +49,7 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
+import { parseBillingCycle } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../../product.config";
 
@@ -55,7 +59,7 @@ import Pricing from "../pricing/Pricing.vue";
 import Promotion from "../../../basket/product/components/Promotion.vue";
 
 // --- utils
-import { isEmpty } from "lodash-es";
+import { isEmpty, has } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";

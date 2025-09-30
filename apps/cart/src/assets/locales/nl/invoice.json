@@ -1,0 +1,10 @@
+{
+  "go_to_invoice_retry_payment_desc": "Klik hieronder om naar uw factuur te gaan, waar u opnieuw kunt proberen te betalen.",
+  "order_complete": "Bestelling **voltooid**!",
+  "order_complete_confirmation_msg": "Bedankt voor je bestelling, je aankoop is nu voltooid. Je ontvangt binnenkort een e-mailbevestiging.",
+  "order_complete_md": "@.markdown:{'invoice.order_complete'}",
+  "order_not_found_msg": "Helaas hebben we uw bestelling niet kunnen vinden. Klik op onderstaande knop om terug te keren naar uw account.",
+  "payment_unable_process_desc": "Er kunnen verschillende redenen zijn waarom we uw betaling voor deze bestelling niet konden verwerken.",
+  "payment_unable_to_process": "Betaling kan niet **verwerkt** worden",
+  "payment_unable_to_process_md": "@.markdown:{'invoice.payment_unable_to_process'}"
+}

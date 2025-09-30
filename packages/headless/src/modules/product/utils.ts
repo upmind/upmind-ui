@@ -587,7 +587,6 @@ export const parseProductDetails = (
     }) as ProductBreadcrumb[],
     // ---
     cycle: rawProduct?.billing_cycle_months, // TODO check: cycle: rawProduct?.display_price_billing_cycle_months ?? rawProduct?.billing_cycle_months,
-    cycleFormatted: parseBillingCycle(rawProduct?.billing_cycle_months),
     defaultPaymentPeriod: rawProduct?.default_payment_period,
     displayPrice: find(parseTermDetails(rawProduct.prices), [
       "cycle",
@@ -750,7 +749,6 @@ export const parseSubproductDetails = (
       const value: SubproductValue = {
         ...productDetails,
         cycle: price?.cycle ?? productDetails.cycle,
-        cycleFormatted: parseBillingCycle(productDetails.cycle),
         price: price?.price,
         pricing: pricing,
         promotions: price?.promotions,
@@ -814,7 +812,6 @@ export const parseSummaryDetail = (
 
   return {
     cycle: raw.billing_cycle_months,
-    cycleFormatted: parseBillingCycle(raw.billing_cycle_months),
     title: cycle ? useTranslateName(cycle) : useTranslateName(raw),
     name: cycle?.name,
     promotions: parsePromotionDetails(raw),
@@ -957,7 +954,7 @@ export const parseProvisioningSchema = (data: any, product: IProduct) => {
 
   // TODO: Implement a proper solution for this where field type is input_sld
   // if (field.name === "sld") {
-  //   //   type = ["string"];
+  //   //type = "string";
   //   format = "sld";
   //   // TODO: Set the raw TLD rather, not the product name
   //   field.description = product?.name;

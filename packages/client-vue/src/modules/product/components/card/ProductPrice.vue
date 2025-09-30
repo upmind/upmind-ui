@@ -27,24 +27,31 @@
           currentPrice
         }}</strong>
 
-        <small :class="styles.product.header.price.currentPrice.term"
+        <small
+          :class="styles.product.header.price.currentPrice.term"
+          v-if="has(props, 'cycle')"
           >/
           {{
             meta.useMonthlyFromPrice
               ? t("term.n_months", 1)
-              : cycleFormatted?.descriptive
+              : parseBillingCycle(props.cycle!).descriptive
           }}
         </small>
       </template>
     </p>
 
     <footer
-      v-if="!hideTermSummary && !meta.oneoff && meta.useMonthlyFromPrice"
+      v-if="
+        !hideTermSummary &&
+        !meta.oneoff &&
+        meta.useMonthlyFromPrice &&
+        has(props, 'cycle')
+      "
       :class="styles.product.header.price.total"
     >
       {{
         t("term.summary_msg", {
-          term: props.cycleFormatted?.numeric,
+          term: parseBillingCycle(props.cycle!).numeric,
           price: price?.currentPrice
         })
       }}
@@ -58,9 +65,11 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
+import { parseBillingCycle } from "@upmind-automation/headless";
 import config from "./product.config";
 
 // --- utils
+import { has } from "lodash-es";
 
 // --- components
 import { useStyles } from "@upmind-automation/upmind-ui";

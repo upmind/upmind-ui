@@ -41,7 +41,6 @@ const props = withDefaults(
   defineProps<
     {
       status?: number;
-      i18nKey?: string;
     } & InterstitialProps
   >(),
   {
@@ -60,82 +59,78 @@ const props = withDefaults(
 );
 
 const title = computed(() => {
-  if (props.i18nKey) return t(`${props.i18nKey}.title_md`);
   switch (props.status) {
     case responseCodes.Unauthorized:
-      return t("error.401.title_md");
+      return t("error.401_title_md");
     case responseCodes.Forbidden:
-      return t("error.403.title_md");
+      return t("error.403_title_md");
     case responseCodes.Not_Found:
-      return t("error.404.title_md");
+      return t("error.404_title_md");
     case responseCodes.Too_Many_Requests:
-      return t("error.429.title_md");
+      return t("error.429_title_md");
     case responseCodes.Internal_Server_Error:
-      return t("error.500.title_md");
+      return t("error.500_title_md");
     case responseCodes.Service_Unavailable:
-      return t("error.503.title_md");
+      return t("error.503_title_md");
     default:
-      return t("error.generic.title_md");
+      return t("error.generic_title_md");
   }
 });
 
 const text = computed(() => {
-  if (props.i18nKey) return t(`${props.i18nKey}.text`);
   switch (props.status) {
     case responseCodes.Unauthorized:
-      return t("error.404.text");
+      return t("error.404_text");
     case responseCodes.Forbidden:
-      return t("error.403.text");
+      return t("error.403_text");
     case responseCodes.Not_Found:
-      return t("error.404.text");
+      return t("error.404_text");
     case responseCodes.Too_Many_Requests:
-      return t("error.429.text");
+      return t("error.429_text");
     case responseCodes.Internal_Server_Error:
-      return t("error.500.text");
+      return t("error.500_text");
     case responseCodes.Service_Unavailable:
-      return t("error.503.text");
+      return t("error.503_text");
     default:
-      return t("error.generic.text");
+      return t("error.generic_text");
   }
 });
 
 const icon = computed(() => {
-  if (props.i18nKey) return t(`${props.i18nKey}.icon`);
   switch (props.status) {
     case responseCodes.Unauthorized:
-      return t("error.401.icon");
+      return "arrow-left";
     case responseCodes.Forbidden:
-      return t("error.403.icon");
+      return "arrow-left";
     case responseCodes.Not_Found:
-      return t("error.404.icon");
+      return "arrow-left";
     case responseCodes.Too_Many_Requests:
-      return t("error.429.icon");
+      return "arrow-left";
     case responseCodes.Internal_Server_Error:
-      return t("error.500.icon");
+      return "network-refresh";
     case responseCodes.Service_Unavailable:
-      return t("error.503.icon");
+      return "network-refresh";
     default:
-      return t("error.generic.icon");
+      return "arrow-left";
   }
 });
 
 const action = computed(() => {
-  if (props.i18nKey) return t(`${props.i18nKey}.action`);
   switch (props.status) {
     case responseCodes.Unauthorized:
-      return t("error.404.action");
+      return t("action.back_to_shop");
     case responseCodes.Forbidden:
-      return t("error.403.action");
+      return t("action.back_to_shop");
     case responseCodes.Not_Found:
-      return t("error.404.action");
+      return t("action.back_to_shop");
     case responseCodes.Too_Many_Requests:
-      return t("error.429.action");
+      return t("action.back_to_shop");
     case responseCodes.Internal_Server_Error:
-      return t("error.500.action");
+      return t("action.reload_page");
     case responseCodes.Service_Unavailable:
-      return t("error.503.action");
+      return t("action.reload_page");
     default:
-      return t("error.generic.action");
+      return t("action.back_to_shop");
   }
 });
 

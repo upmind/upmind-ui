@@ -7,7 +7,7 @@ import { useBasketProductsPending } from "./useBasketProductsPending";
 import { useBasketProductPending } from "./useBasketProductPending";
 import productServices from "./services";
 
-import { useDataLayer, useI18n } from "../system";
+import { useDataLayer, useI18n, useLocale } from "../system";
 const { dataLayer } = useDataLayer();
 
 // --- utils
@@ -17,22 +17,13 @@ import {
   responseCodes,
   stateMatches
 } from "../../utils";
-import {
-  concat,
-  defaults,
-  get,
-  isArray,
-  isEmpty,
-  map,
-  pick,
-  uniq,
-  compact
-} from "lodash-es";
+import { defaults, get, isArray, isEmpty, map, pick, compact } from "lodash-es";
 
 // --- types
 import type { IBasket } from "@upmind-automation/types";
 import type { BasketProduct } from "./types";
 import type { ActorRef } from "xstate";
+import { watch } from "vue";
 
 type BasketProductPending = ReturnType<typeof useBasketProductPending>;
 
@@ -40,11 +31,22 @@ type BasketProductPending = ReturnType<typeof useBasketProductPending>;
 
 export function basketSubscription(callback: any, onReceiveEvent: any) {
   const { t } = useI18n();
+  const { locale } = useLocale();
   const basket = useBasket();
   const pendingProducts = useBasketProductsPending();
 
   let isRefreshing = false;
   let isLoading = false;
+
+  // NB remember to refresh the basket and any subsequent actors if the locale changes
+  watch(locale, (value, oldValue) => {
+    if (!basket.basketId.value) return;
+    debugger;
+    callback({
+      type: "REFRESH",
+      data: basket.basket.value
+    });
+  });
 
   // let's let our subscriber know when the basket has been refreshed
   const subscription = basket.subscribe((state: any) => {
