@@ -1,5 +1,6 @@
 <template>
-  <p>
+  <!-- <pre>{{ props }}</pre> -->
+  <p v-if="has(props, 'cycle')">
     {{
       t("term.price_msg", {
         n: calculatedN,
@@ -7,7 +8,7 @@
           meta?.oneoff || !meta?.useMonthlyFromPrice
             ? price?.currentPrice
             : price?.monthlyFromCurrentPrice,
-        period: props.cycleFormatted?.descriptive
+        period: parseBillingCycle(props.cycle!).descriptive
       })
     }}
 
@@ -25,14 +26,13 @@
 </template>
 
 <script setup lang="ts">
-import type {
-  Price,
-  ProductDetails,
-  ProductSummaryMeta,
-  TermDetails
-} from "@upmind-automation/headless";
+import type { TermDetails } from "@upmind-automation/headless";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { parseBillingCycle } from "@upmind-automation/headless";
+import { has } from "lodash-es";
+
+// -----------------------------------------------------------------------------
 
 const { t } = useI18n();
 

@@ -171,7 +171,7 @@ const authActions = computed(() => {
     submit: {
       type: "submit" as "submit",
       label: meta.value.showLoginForm
-        ? t("action.log_into_my_account")
+        ? t("action.log_in_to_your_account")
         : meta.value.showRegisterForm
           ? t("action.continue_label")
           : meta.value.showRecoverPasswordForm

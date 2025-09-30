@@ -17,8 +17,6 @@
   "continue_shopping_desc": "You can continue shopping without being logged in.",
   "default_label": "Default",
   "discount": "Discount",
-  "exciting_around_corner": "Something **exciting** is around the corner",
-  "exciting_around_corner_md": "@.markdown:{'text.exciting_around_corner'}",
   "forgot_your_password_qn": "Forgot your password?",
   "free": "FREE",
   "free_trial": "Free Trial",
@@ -68,7 +66,7 @@
   "tax_valid": "Validated {relative}",
   "term": "term",
   "terms_and_conditions_desc": "By clicking ‘{label}’ I agree to {brand}'s {action}.",
-  "terms_and_conditions_link": "Terms and Conditions",
+  "terms_and_conditions": "Terms and Conditions",
   "terms_of_service": "Terms of service",
   "total": "Total",
   "welcome_back_msg": "Welcome back, {name}"

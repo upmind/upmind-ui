@@ -17,7 +17,7 @@ export function useSchemaDefinitions({
       required: ["address1", "city", "postcode", "countryId"],
       properties: {
         address1: {
-          type: ["string"],
+          type: "string",
           title: "Address"
         },
 
@@ -138,6 +138,7 @@ export function useUischemaDefinitions({
   return {
     type: "Control",
     scope: "#/properties/address",
+    i18n: "form.address",
     options: {
       autoFocus: true,
       autocomplete: "off",
@@ -147,6 +148,7 @@ export function useUischemaDefinitions({
           {
             type: "Control",
             scope: "#/properties/countryId",
+            i18n: "form.country",
             options: {
               placeholder: "Select a country…"
             }
@@ -154,6 +156,7 @@ export function useUischemaDefinitions({
           // ---
           {
             type: id ? "VerticalLayout" : "address",
+            i18n: "form.address",
             options: {
               fields: ["address1", "address2"],
               placeholder: "Start typing your address",
@@ -169,6 +172,7 @@ export function useUischemaDefinitions({
                   {
                     type: "Control",
                     scope: "#/properties/address1",
+                    i18n: "form.address1",
                     options: {
                       placeholder: "House name, apartment number etc.",
                       autocomplete: "address-line1",
@@ -178,6 +182,7 @@ export function useUischemaDefinitions({
                   {
                     type: "Control",
                     scope: "#/properties/address2",
+                    i18n: "form.address2",
                     options: {
                       placeholder: "Road, street name etc.",
                       autocomplete: "address-line2"
@@ -188,6 +193,7 @@ export function useUischemaDefinitions({
               {
                 type: "Control",
                 scope: "#/properties/city",
+                i18n: "form.city",
                 options: {
                   placeholder: "City, town etc.",
                   autocomplete: "address-level2"
@@ -199,6 +205,7 @@ export function useUischemaDefinitions({
                   {
                     type: "Control",
                     scope: "#/properties/regionId",
+                    i18n: "form.region",
                     options: {
                       placeholder: "Select a region…",
                       autocomplete: "address-level1"
@@ -207,6 +214,7 @@ export function useUischemaDefinitions({
                   {
                     type: "Control",
                     scope: "#/properties/postcode",
+                    i18n: "form.postcode",
                     options: {
                       placeholder: "eg. 10011",
                       autocomplete: "postal-code"

@@ -47,6 +47,7 @@ import { nextTick, ref, watch, computed } from "vue";
 import { vResizeObserver } from "@vueuse/components";
 
 // --- internal
+import { parseBillingCycle } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../recommendations.config";
 

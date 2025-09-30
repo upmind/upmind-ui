@@ -78,7 +78,7 @@ import type { TermsAndConditionsProps } from "./types";
 
 const props = withDefaults(defineProps<TermsAndConditionsProps>(), {
   label: "action.continue_label",
-  action: "text.terms_and_conditions_link",
+  action: "text.terms_and_conditions",
   close: "action.close"
 });
 

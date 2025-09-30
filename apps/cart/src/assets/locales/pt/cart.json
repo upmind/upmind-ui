@@ -1,68 +1,19 @@
 {
+  "basket_items": "nenhum item no carrinho | {count} item no carrinho | {count} itens no carrinho",
   "basket_product_missing_data": "Dados em falta",
   "basket_product_missing_data_help": "Este item está com dados em falta e precisa de atenção.",
   "basket_products": "Itens do carrinho",
-  "basket_products_count_desc": "Tem {count} item no seu carrinho, totalizando {total}. | Tem {count} itens no seu carrinho, totalizando {total}.",
-  "basket_products_count_msg": "nenhum item no carrinho | {count} item no carrinho | {count} itens no carrinho",
   "basket_products_require_attention": "**{count}** produtos requerem **{keyword} ** | **{count}** produto requer **{keyword}** | **{count}** produtos requerem **{keyword}**",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
   "basket_products_require_attention_msg": "{count} produtos que precisam de atenção | {count} produto que precisa de atenção | {count} produtos que precisam de atenção",
   "basket_products_review_desc": "Reveja os seguintes itens antes de prosseguir ou devolva-os ao carrinho.",
   "basket_products_review_msg": "Por favor, reveja os seguintes itens antes de continuar",
+  "basket_summary_desc": "Tem {count} item no seu carrinho, totalizando {total} . | Tem {count} itens no seu carrinho, totalizando {total} .",
+  "basket_title": "O seu carrinho",
   "empty": "O seu **carrinho** está vazio",
   "empty_md": "@.markdown:{'cart.empty'}",
   "empty_msg": "Parece que ainda não colocou nada no seu carrinho.",
-  "gateway": {
-    "0": {
-      "actions": {
-        "submit": "Faça o pedido e pague"
-      },
-      "footer": {
-        "icon": "lock",
-        "title": "Pagamentos encriptados e seguros"
-      }
-    },
-    "1": {
-      "actions": {
-        "submit": "Faça o pedido e pague"
-      },
-      "footer": {
-        "icon": "lock",
-        "title": "Pagamentos encriptados e seguros"
-      }
-    },
-    "2": {
-      "actions": {
-        "submit": "Fazer pedido"
-      }
-    },
-    "3": {
-      "actions": {
-        "submit": "Fazer pedido"
-      }
-    },
-    "4": {
-      "actions": {
-        "submit": "Fazer pedido"
-      }
-    },
-    "5": {
-      "actions": {
-        "submit": "Fazer pedido"
-      }
-    },
-    "6": {
-      "actions": {
-        "submit": "Fazer pedido"
-      }
-    },
-    "7": {
-      "actions": {
-        "submit": "Fazer pedido"
-      }
-    }
-  },
-  "no_items": "nenhum item no carrinho | {count} item no carrinho | {count} itens no carrinho",
+  "encrypted_and_secure_payments": "Pagamentos encriptados e seguros",
   "nothing_to_pay_msg": "Ótima notícia – não tem nada para pagar!",
   "order_converting": "A **converter** o seu pedido",
   "order_converting_md": "@.markdown:{'cart.order_converting'}",
@@ -85,8 +36,6 @@
   "place_order_desc": "É só clicar no botão \"Fazer pedido\" para finalizar a sua compra.",
   "product_not_found": "**Produto** não encontrado",
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
-  "promo_code_help": "{code} oferece um desconto de {amount} {description}",
-  "promo_codes_active": "Descontos ativos",
-  "summary_desc": "Tem {count} item no seu carrinho, totalizando {total}. | Tem {count} itens no seu carrinho, totalizando {total}.",
-  "title": "O seu carrinho"
+  "promotion_help": "{code} oferece um desconto de {amount} {description}",
+  "promotions_active": "Descontos ativos"
 }

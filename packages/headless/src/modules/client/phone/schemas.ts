@@ -86,6 +86,7 @@ export const useUischema = () => {
       {
         type: "Control",
         scope: "#/properties/phone",
+        i18n: "form.phone",
         options: {
           autoFocus: true,
           autocomplete: "phone"

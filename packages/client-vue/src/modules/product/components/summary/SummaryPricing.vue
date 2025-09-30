@@ -37,9 +37,9 @@
 // --- external
 import { computed } from "vue";
 import { useStyles } from "@upmind-automation/upmind-ui";
-import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
+import { parseBillingCycle } from "@upmind-automation/headless";
 import config from "./summary.config";
 
 // --- components
@@ -99,7 +99,7 @@ const summary = computed<DescriptionItem[]>(() => {
   if (term && term.category) {
     summary.push({
       term: term.category,
-      description: term.cycleFormatted!.numeric
+      description: parseBillingCycle(term.cycle!).numeric
     });
   }
 

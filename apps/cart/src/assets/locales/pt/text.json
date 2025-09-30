@@ -17,8 +17,6 @@
   "continue_shopping_desc": "Pode continuar a fazer compras sem ter de fazer login.",
   "default_label": "Predefinido",
   "discount": "Desconto",
-  "exciting_around_corner": "Algo **emocionante** está a caminho",
-  "exciting_around_corner_md": "@.markdown:{'text.exciting_around_corner'}",
   "forgot_your_password_qn": "Esqueceu-se da sua palavra-passe?",
   "free": "GRÁTIS",
   "free_trial": "Avaliação gratuita",
@@ -66,8 +64,8 @@
   "tax_pending": "Este número fiscal ainda não foi validado.",
   "tax_valid": "Validado {relative}",
   "term": "termo",
+  "terms_and_conditions": "Termos e Condições",
   "terms_and_conditions_desc": "Ao clicar em '{label}', eu concordo com o {action} da {brand}.",
-  "terms_and_conditions_link": "Termos e Condições",
   "terms_of_service": "Termos de Serviço",
   "total": "Total",
   "welcome_back_msg": "Bem-vindo de volta, {name}"

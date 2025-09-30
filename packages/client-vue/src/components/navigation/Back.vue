@@ -3,7 +3,7 @@
     :to="to"
     variant="link"
     icon="arrow-left"
-    :label="t(i18nKey)"
+    :label="safeLabel"
     size="lg"
     class="font-medium"
   />
@@ -11,6 +11,7 @@
 
 <script lang="ts" setup>
 import { Button } from "@upmind-automation/upmind-ui";
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import type {
   RouteLocationAsRelativeGeneric,
@@ -21,11 +22,11 @@ const { t } = useI18n();
 
 const props = withDefaults(
   defineProps<{
-    i18nKey?: string;
     to?: string | RouteLocationAsRelativeGeneric | RouteLocationAsPathGeneric;
+    label?: string;
   }>(),
-  {
-    i18nKey: "action.back_to_basket"
-  }
+  {}
 );
+
+const safeLabel = computed(() => props.label || t("action.back_to_basket"));
 </script>
