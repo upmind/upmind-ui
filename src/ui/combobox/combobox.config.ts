@@ -3,13 +3,13 @@ import { ringClasses, invalidRingClasses } from "../../assets/ring.styles";
 
 export const variants = {
   size: {
-    md: "",
-    lg: ""
+    md: "text-sm font-normal",
+    lg: "text-md font-normal"
   }
 };
 
 export const triggerVariants = cva(
-  "text-md bg-background-control-surface [&:hover,&:focus-within,&[data-hover=true],&[data-focus=true]]:shadow-border-border-control-hover control-radius shadow-border-border-control-default h-auto justify-between gap-2 px-4 py-2 transition-all duration-300",
+  "text-md bg-background-control-surface [&:hover,&:focus-within,&[data-hover=true],&[data-focus=true]]:shadow-border-border-control-hover control-radius [&:hover,&[data-hover=true]]:bg-background-control-surface shadow-border-border-control-default text-text-base h-auto justify-between gap-2 px-4 py-2 transition-all duration-300",
   {
     variants: {
       size: variants.size,
