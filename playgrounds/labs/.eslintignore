@@ -6,10 +6,6 @@ dist
 node_modules
 node_modules
 public
-<<<<<<< HEAD
-
-=======
->>>>>>> develop
 /dist/**
 /build/**
 /coverage/**
