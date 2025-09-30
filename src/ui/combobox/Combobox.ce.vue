@@ -72,7 +72,7 @@
               v-if="isFunction(props.search)"
               v-model="searchTerm"
               @update:modelValue="onSearch"
-              :placeholder="placeholder"
+              :placeholder="searchPlaceholder"
               input-size="sm"
               :class="styles.combobox.input"
               :ring="false"
@@ -84,7 +84,7 @@
             <CommandInput
               v-else
               v-model="searchTerm"
-              :placeholder="placeholder"
+              :placeholder="searchPlaceholder"
               :class="styles.combobox.input"
             />
             <CommandEmpty>{{ emptyMessage }}</CommandEmpty>

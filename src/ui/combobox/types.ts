@@ -57,6 +57,7 @@ export interface ComboboxProps
   // --- Search
   search?: boolean | ComboboxSearchFunction;
   placeholder?: string;
+  searchPlaceholder?: string;
   emptyMessage?: string;
   checkedIcon?: boolean;
   // --- variants
