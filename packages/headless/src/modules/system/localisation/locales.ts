@@ -35,6 +35,7 @@ export enum SupportedLocaleCodes {
   FR = "fr", // French
   FR_CA = "fr-CA", // Canadian French
   // HE= "he", // Hebrew
+  HU = "hu", // Hungarian
   ID = "id", // Indonesian
   IT = "it", // Italian
   // JA= "ja", // Japanese

@@ -3,7 +3,7 @@
   "basket_product_missing_data": "Item kehilangan data",
   "basket_product_missing_data_help": "Item ini kehilangan data dan memerlukan perhatian",
   "basket_products": "Item keranjang",
-  "basket_products_require_attention": "**{count} ** produk memerlukan **{keyword} ** | **{count} ** produk memerlukan **{keyword} ** | **{count} ** produk memerlukan **{keyword} **",
+  "basket_products_require_attention": "**{count}** produk memerlukan **perhatian** | **{count}** produk memerlukan **perhatian** | **{count}** produk memerlukan **perhatian**",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
   "basket_products_require_attention_msg": "{count}produk memerlukan perhatian |{count} produk memerlukan perhatian |{count} produk membutuhkan perhatian",
   "basket_products_review_desc": "Harap tinjau item berikut sebelum melanjutkan, atau kembalikan ke keranjang.",

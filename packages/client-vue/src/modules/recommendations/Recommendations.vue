@@ -2,7 +2,7 @@
   <Layout overflow="hidden">
     <template #header>
       <Header
-        title="text.complete_online_toolkit_md"
+        :title="t('text.complete_online_toolkit_md')"
         :description="t('text.popular_offers')"
       />
     </template>

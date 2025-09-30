@@ -3,7 +3,7 @@
   "basket_product_missing_data": "Element məlumat çatışmır",
   "basket_product_missing_data_help": "Bu elementdə məlumat yoxdur və diqqət tələb olunur",
   "basket_products": "Səbət əşyaları",
-  "basket_products_require_attention": "**{count} ** məhsullar tələb olunur **{keyword} ** | **{count} ** məhsul tələb edir **{keyword} ** | **{count} ** məhsullar tələb olunur **{keyword} **",
+  "basket_products_require_attention": "**{count}** məhsullar **diqqət** tələb edir | **{count}** məhsul **diqqət** tələb edir | **{count}** məhsullar **diqqət** tələb edir",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
   "basket_products_require_attention_msg": "{count}məhsullar diqqət tələb edir |{count} məhsul diqqət tələb edir |{count} məhsulları diqqət tələb edir",
   "basket_products_review_desc": "Davam etməzdən əvvəl aşağıdakı elementləri nəzərdən keçirin, alternativ olaraq səbətə qayıdın.",

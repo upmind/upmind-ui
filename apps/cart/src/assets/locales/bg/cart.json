@@ -3,7 +3,7 @@
   "basket_product_missing_data": "Липсващи данни за елемента",
   "basket_product_missing_data_help": "Този елемент е лишен от данни и изисква внимание",
   "basket_products": "Артикули от кошницата",
-  "basket_products_require_attention": "**{count} ** продуктите изискват **{keyword} ** | **{count} ** продуктът изисква **{keyword} ** | **{count} ** продуктите изискват **{keyword} **",
+  "basket_products_require_attention": "**{count}** продуктите изискват **внимание** | **{count}** продуктът изисква **внимание** | **{count}**продуктите изискват **внимание**",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
   "basket_products_require_attention_msg": "{count}продуктите изискват внимание |{count} продуктът изисква внимание |{count} продуктите изискват внимание",
   "basket_products_review_desc": "Моля, прегледайте следните артикули, преди да продължите, или се върнете в кошницата.",

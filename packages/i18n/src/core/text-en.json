@@ -7,6 +7,7 @@
   "amount_save": "Save {amount}",
   "available": "Available",
   "billing_details": "Billing details",
+  "billing_cycle": "Billing cycle",
   "business": "Business",
   "categories": "All Categories",
   "check_required_fields_desc": "Please check and complete all required fields to proceed.",

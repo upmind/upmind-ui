@@ -3,7 +3,7 @@
   "basket_product_missing_data": "項目缺失資料",
   "basket_product_missing_data_help": "此項缺少數據，需要注意",
   "basket_products": "購物籃商品",
-  "basket_products_require_attention": "**{count} ** 產品要求 **{keyword} ** | **{count} ** 產品要求 **{keyword} ** | **{count} ** 產品要求 **{keyword} **",
+  "basket_products_require_attention": "**{count}** 產品需要**注意** | **{count}** 產品需要**注意** | **{count}**產品需要**注意**",
   "basket_products_require_attention_md": "@.markdown：{'cart.basket_products_require_attention'}",
   "basket_products_require_attention_msg": "{count}產品需要注意 |{count}產品需要注意 |{count}產品需要關注",
   "basket_products_review_desc": "請在繼續之前檢查以下項目，或返回購物籃。",
