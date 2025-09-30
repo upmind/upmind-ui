@@ -289,7 +289,6 @@ function doReject() {
 
 function updateUischema(uischema: FormProps["uischema"]) {
   if (!uischema) return;
-  console.log("updateUischema", uischema);
   iterateSchema(uischema, (child: FormProps["uischema"]) => {
     if (!child) return; //safety check
     child.options ??= {}; //safety check
@@ -298,8 +297,6 @@ function updateUischema(uischema: FormProps["uischema"]) {
     // child.options.size ??= props.size; // only set if not already set
 
     // map additional i18n, json forms just does title & description
-    console.log("updateUischema", { child });
-
     if (child?.i18n && isFunction(props?.i18n?.translate)) {
       const value = props.i18n.translate(
         child.i18n,
@@ -309,7 +306,6 @@ function updateUischema(uischema: FormProps["uischema"]) {
       merge(child.options, value);
       if (props.optionalText) child.options.optionalText ??= props.optionalText;
       if (props.requiredText) child.options.requiredText ??= props.requiredText;
-      console.log("updateUischema", { child, value });
     }
 
     // TODO: map additional form props that need to be inherited by all children
