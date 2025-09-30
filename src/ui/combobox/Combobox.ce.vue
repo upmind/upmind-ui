@@ -9,7 +9,7 @@
         v-bind="$attrs"
         :loading="props.loading"
         :class="cn('group', styles.combobox.trigger, props.class)"
-        size="lg"
+        :size="props.size"
         :aria-expanded="open"
         variant="ghost"
         :ring="false"
@@ -64,45 +64,47 @@
       avoidCollisions
       :class="cn(styles.combobox.content, props.popoverClass)"
     >
-      <Command>
+      <Command :modelValue="modelValue">
         <template v-if="props.search">
-          <Input
-            v-if="isFunction(props.search)"
-            v-model="searchTerm"
-            @update:modelValue="onSearch"
-            :placeholder="placeholder"
-            input-size="sm"
-            :class="styles.combobox.input"
-            :ring="false"
-          >
-            <template #prepend>
-              <Icon icon="search" size="2xs" class="mr-1 opacity-50" />
-            </template>
-          </Input>
-          <CommandInput
-            v-else
-            v-model="searchTerm"
-            :placeholder="placeholder"
-          />
-          <CommandEmpty>{{ emptyMessage }}</CommandEmpty>
+          <div class="p-2">
+            <Input
+              v-if="isFunction(props.search)"
+              v-model="searchTerm"
+              @update:modelValue="onSearch"
+              :placeholder="placeholder"
+              input-size="sm"
+              :class="styles.combobox.input"
+              :ring="false"
+            >
+              <template #prepend>
+                <Icon icon="search" size="2xs" class="mr-1 opacity-50" />
+              </template>
+            </Input>
+            <CommandInput
+              v-else
+              v-model="searchTerm"
+              :placeholder="placeholder"
+              :class="styles.combobox.input"
+            />
+            <CommandEmpty>{{ emptyMessage }}</CommandEmpty>
+          </div>
         </template>
-        <CommandList class="w-full max-w-full border-t" loop>
+        <CommandList
+          class="border-border-control-default w-full max-w-full border-t p-2"
+          loop
+        >
           <CommandGroup>
             <CommandItem
               v-for="item in results"
               :key="(item as Record<string, any>)[itemValue]"
-              :value="(item as Record<string, any>)[itemValue]"
+              :value="item"
               @select="doSelect(get(item, itemValue))"
               class="group flex cursor-pointer items-center justify-start gap-4"
               :class="styles.combobox.item"
             >
-              <Avatar
-                v-if="item.avatar"
-                v-bind="item.avatar"
-                :size="props.iconSize"
-              />
+              <Avatar v-if="item.avatar" v-bind="item.avatar" size="xs" />
 
-              <Icon v-if="item.icon" :icon="item.icon" :size="props.iconSize" />
+              <Icon v-if="item.icon" :icon="item.icon" size="xs" />
 
               <span
                 class="flex w-full items-center justify-between"
@@ -125,7 +127,7 @@
               <Icon
                 v-if="props.checkedIcon"
                 icon="check"
-                :size="props.iconSize"
+                size="2xs"
                 :class="
                   cn('ml-auto', isSelected(item) ? 'opacity-100' : 'opacity-0')
                 "
@@ -213,7 +215,6 @@ const props = withDefaults(defineProps<ComboboxProps>(), {
 const emits = defineEmits(["update:modelValue"]);
 
 const meta = computed(() => ({
-  color: props.color,
   size: props.size,
   width: props.width,
   hasRing: props.ring,
