@@ -1,0 +1,10 @@
+{
+  "go_to_invoice_retry_payment_desc": "Vă rugăm să faceți clic mai jos pentru a accesa factura, unde puteți încerca din nou plata.",
+  "order_complete": "Comandă **completată**!",
+  "order_complete_confirmation_msg": "Vă mulțumim pentru comandă, achiziția este acum finalizată. Veți primi în scurt timp o confirmare prin e-mail.",
+  "order_complete_md": "@.markdown:{'invoice.order_complete'}",
+  "order_not_found_msg": "Din păcate, nu am putut găsi comanda dvs. Vă rugăm să faceți clic pe butonul de mai jos pentru a reveni la contul dvs.",
+  "payment_unable_process_desc": "Nu am putut procesa plata dumneavoastră pentru această comandă. Acest lucru s-ar putea datora mai multor motive.",
+  "payment_unable_to_process": "Nu se poate **procesa** plata",
+  "payment_unable_to_process_md": "@.markdown:{'invoice.payment_unable_to_process'}"
+}

@@ -1,10 +1,11 @@
 import { Page, Route, Request } from "@playwright/test";
 
 interface ConfigOverrides {
-  requireAddressForOrders: boolean;
-  requireCompanyForOrders: boolean;
-  requireRegionInAddress: boolean;
-  requirePhoneForOrders: boolean;
+  requireAddressForOrders?: boolean;
+  requireCompanyForOrders?: boolean;
+  requireRegionInAddress?: boolean;
+  requirePhoneForOrders?: boolean;
+  displayPriceType?: string;
 }
 
 export async function interceptConfigValues(
@@ -13,7 +14,7 @@ export async function interceptConfigValues(
   overrides: ConfigOverrides
 ) {
   await page.route(
-    "**/api/config/brand/values**",
+    "**/api/config/brand/values?**",
     async (route: Route, request: Request) => {
       const originalHeaders = request.headers();
       const modifiedHeaders = {
@@ -33,6 +34,8 @@ export async function interceptConfigValues(
         overrides.requireRegionInAddress;
       json.data["invoices.common.require_phone_for_orders"] =
         overrides.requirePhoneForOrders;
+      json.data["invoices.common.display_price_type"] =
+        overrides.displayPriceType;
       const updatedResponseBody = {
         ...json
       };

@@ -39,7 +39,7 @@ const items = computed(() => {
   const items = [
     // include "root" option
     {
-      label: t("product.shop"),
+      label: t("text.shop"),
       current: !modelValue.value,
       to: {
         name: ROUTE.CATALOGUE,

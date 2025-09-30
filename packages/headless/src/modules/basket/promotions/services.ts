@@ -1,7 +1,7 @@
 // --- external
 
 // --- internal
-import { useQuery } from "../../..";
+import { useI18n, useQuery } from "../../..";
 
 // --- utils
 import {
@@ -11,12 +11,12 @@ import {
   useModelParser,
   useValidation
 } from "../../../utils";
-import { get, isEmpty, some, trim } from "lodash-es";
+import { get, some, trim } from "lodash-es";
 
 // --- types
 import type { PromotionsContext } from "./types";
 import type { AnyEventObject } from "xstate";
-import { IBasketPromotion } from "@upmind-automation/types";
+import type { IBasketPromotion } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -29,12 +29,13 @@ async function add(
   { basketId, model, promotions }: PromotionsContext,
   _event: AnyEventObject
 ) {
+  const { t } = useI18n();
   const { post, useUrl } = useQuery();
 
   if (!model?.promocode)
     return Promise.reject(
       new DetailedError(
-        "No Promocode provided to add to basketId",
+        t("error.promotion_not_available"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )
@@ -42,7 +43,7 @@ async function add(
   if (some(promotions, { promocode: model?.promocode }))
     return Promise.reject(
       new DetailedError(
-        "Promocode already exists in basketId",
+        t("error.promocode_add_failed"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )
@@ -59,12 +60,13 @@ async function remove(
   { basketId }: PromotionsContext,
   { data }: AnyEventObject
 ) {
+  const { t } = useI18n();
   const id = get(data, "id", data);
 
   if (!id)
     return Promise.reject(
       new DetailedError(
-        "No Promotion provided to remove from basketId",
+        t("error.promotion_not_available"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )
@@ -93,8 +95,7 @@ async function validate(
   { schema, model }: PromotionsContext,
   _event: AnyEventObject
 ) {
-  //---
-
+  const { t } = useI18n();
   // Now validate the model as per normal
   const { validate } = useValidation();
 
@@ -106,7 +107,7 @@ async function validate(
     if (errors?.length) {
       reject(
         new DetailedError(
-          "Promotion validation failed",
+          t("error.promotion_validation_failed"),
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
           errors

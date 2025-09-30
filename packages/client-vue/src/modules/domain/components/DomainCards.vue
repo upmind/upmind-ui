@@ -32,17 +32,15 @@
       <Interstitial
         v-bind="props"
         to="#vue-app"
-        :text="t('domain.dac.loading.text')"
+        :text="t('text.moment_short_desc')"
         :modal="false"
         open
         v-if="!results"
         :class="styles.domain.listings.loading"
+        :title="t('domain.finding_perfect_domain_md')"
       >
         <template #avatar>
           <IconAnimated icon="internet" size="4xl" secondary-color="accent" />
-        </template>
-        <template #title>
-          <SmartTitle i18n-key="domain.dac.loading.title" align="center" />
         </template>
       </Interstitial>
 
@@ -54,17 +52,15 @@
     <Interstitial
       v-bind="props"
       to="#vue-app"
-      :text="t('domain.dac.empty.text')"
+      :text="t('domain.begin_search_above_desc')"
       :modal="false"
       open
       v-else-if="meta.isEmpty"
       :class="styles.domain.listings.loading"
+      :title="t('domain.starts_with_domain_md')"
     >
       <template #avatar>
         <IconAnimated icon="internet" size="4xl" secondary-color="accent" />
-      </template>
-      <template #title>
-        <SmartTitle i18n-key="domain.dac.empty.title" align="center" />
       </template>
     </Interstitial>
   </section>
@@ -87,7 +83,6 @@ import {
   CheckboxCards,
   Interstitial
 } from "@upmind-automation/upmind-ui";
-import SmartTitle from "../../../components/content/SmartTitle.vue";
 import DomainCardSkeleton from "./DomainCardSkeleton.vue";
 // --- utils
 import { includes, isArray, isNil, find, map } from "lodash-es";

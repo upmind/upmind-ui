@@ -1,0 +1,10 @@
+{
+  "go_to_invoice_retry_payment_desc": "Veuillez cliquer ci-dessous pour accéder à votre facture où vous pourrez réessayer votre paiement.",
+  "order_complete": "Commande **complète**!",
+  "order_complete_confirmation_msg": "Merci de votre commande ! Votre achat est maintenant terminé. Vous recevrez bientôt un courriel de confirmation.",
+  "order_complete_md": "@.markdown:{'invoice.order_complete'}",
+  "order_not_found_msg": "Malheureusement, nous n'avons pas pu trouver votre commande. Cliquez sur le bouton ci-dessous pour revenir à votre compte.",
+  "payment_unable_process_desc": "Nous n'avons pas été en mesure de traiter votre paiement pour cette commande, cela peut être dû à plusieurs raisons.",
+  "payment_unable_to_process": "Impossible de **traiter** le paiement",
+  "payment_unable_to_process_md": "@.markdown:{'invoice.payment_unable_to_process'}"
+}

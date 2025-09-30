@@ -5,6 +5,7 @@ import { waitFor } from "xstate/lib/waitFor";
 import { useActor } from "@xstate/vue";
 
 // --- internal
+import { useI18n } from "../system";
 import sessionMachine from "./session.machine";
 import { useFeedback } from "../feedback";
 export * from "./useTransfer";
@@ -28,13 +29,11 @@ import type {
   IAuthTransfer,
   SessionContext,
   SessionTransfer,
-  Token,
   User
 } from "./types";
+import { ErrorObject } from "ajv";
 import { GuestContext } from "./guest/types";
 import { ClientContext } from "./client/types";
-import { ErrorObject } from "ajv";
-import { mapValues } from "xstate/lib/utils";
 export type { User, SessionTransfer, IAuthTransfer } from "./types";
 // -----------------------------------------------------------------------------
 
@@ -54,6 +53,7 @@ const service = interpret(sessionMachine, { devTools: false });
  * @returns Session management API (see below for details)
  */
 export const useSession = () => {
+  const { t } = useI18n();
   if (service.status == InterpreterStatus.NotStarted) service.start();
 
   const { state, send } = useActor(service);
@@ -70,7 +70,7 @@ export const useSession = () => {
       })
       .catch(error => {
         throw new DetailedError(
-          error?.message ?? "Session not ready",
+          error?.message ?? t("error.session_not_available"),
           error?.responseCode ?? responseCodes.No_Content,
           error?.origin ?? ErrorOrigin.Headless
         );
@@ -82,7 +82,7 @@ export const useSession = () => {
       .then(async () => {
         if (!client.value)
           throw new DetailedError(
-            "User is not authenticated",
+            t("auth.login_to_continue"),
             responseCodes.Unauthorized,
             ErrorOrigin.Headless
           );
@@ -97,7 +97,7 @@ export const useSession = () => {
           const user = contextValue<User>(client, "user");
           if (!user) {
             throw new DetailedError(
-              "User is not authenticated",
+              t("auth.login_to_continue"),
               responseCodes.Unauthorized,
               ErrorOrigin.Headless
             );
@@ -108,7 +108,7 @@ export const useSession = () => {
       .catch(() =>
         Promise.reject(
           new DetailedError(
-            "Unauthorized",
+            t("error.401_title_md"),
             responseCodes.Unauthorized,
             ErrorOrigin.Headless
           )
@@ -214,7 +214,7 @@ export const useSession = () => {
   async function getUser(): Promise<User> {
     if (!client.value) {
       throw new DetailedError(
-        "Get User failed",
+        t("error.user_not_available"),
         responseCodes.Unauthorized,
         ErrorOrigin.Headless
       );
@@ -231,7 +231,7 @@ export const useSession = () => {
         const user = get(state, "user");
         if (!user)
           throw new DetailedError(
-            "Get User failed",
+            t("error.user_not_available"),
             responseCodes.Unauthorized,
             ErrorOrigin.Headless
           );
@@ -239,7 +239,7 @@ export const useSession = () => {
       })
       .catch(() => {
         throw new DetailedError(
-          "Get User failed",
+          t("error.user_load_failed"),
           responseCodes.Timeout,
           ErrorOrigin.Headless
         );
@@ -403,10 +403,10 @@ export const useSession = () => {
   async function transferTo(): Promise<IAuthTransfer> {
     if (!client.value) {
       const { addError } = useFeedback();
-      addError({ title: "Transfer not available" });
+      addError({ title: t("error.session_transfer_not_available") });
       return Promise.reject(
         new DetailedError(
-          "Transfer on useSession not available",
+          t("error.session_transfer_not_available"),
           responseCodes.No_Content,
           ErrorOrigin.Headless
         )
@@ -426,7 +426,7 @@ export const useSession = () => {
         const transfer = newState.context.transfer;
         if (!transfer) {
           throw new DetailedError(
-            "Transfer on useSession not available",
+            t("error.session_transfer_not_available"),
             responseCodes.No_Content,
             ErrorOrigin.Headless
           );
@@ -435,10 +435,10 @@ export const useSession = () => {
       })
       .catch(() => {
         const { addError } = useFeedback();
-        addError({ title: "Transfer not available" });
+        addError({ title: t("error.session_transfer_not_available") });
         return Promise.reject(
           new DetailedError(
-            "TransferTo on useSession not available",
+            t("error.session_transfer_not_available"),
             responseCodes.No_Content,
             ErrorOrigin.Headless
           )
@@ -469,7 +469,7 @@ export const useSession = () => {
         if (!transfer || error) {
           return Promise.reject(
             new DetailedError(
-              "Transfer not available",
+              t("error.session_transfer_not_available"),
               responseCodes.Conflict,
               ErrorOrigin.Headless,
               error
@@ -480,7 +480,7 @@ export const useSession = () => {
       })
       .catch(() => {
         throw new DetailedError(
-          "TransferFrom on useSession failed",
+          t("error.session_transfer_failed"),
           responseCodes.Timeout,
           ErrorOrigin.Headless
         );
@@ -503,7 +503,7 @@ export const useSession = () => {
     if (meta.value.showRecoverPasswordForm) return recover(model);
     return Promise.reject(
       new DetailedError(
-        "No Form to resolve",
+        t("error.session_form_not_available"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )

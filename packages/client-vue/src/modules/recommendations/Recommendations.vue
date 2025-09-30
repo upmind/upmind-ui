@@ -2,8 +2,8 @@
   <Layout overflow="hidden">
     <template #header>
       <Header
-        title="recommendations.header.title"
-        :description="t('recommendations.header.subtitle')"
+        :title="t('text.complete_online_toolkit_md')"
+        :description="t('text.popular_offers')"
       />
     </template>
 
@@ -29,12 +29,12 @@
         <div
           class="text-md order-last mt-4 text-center font-medium md:order-first md:mt-0 md:text-left"
         >
-          {{ t("recommendations.toolbar.title", { count: products?.length }) }}
+          {{ t("cart.basket_items", { count: products?.length }) }}
         </div>
 
         <Button
           @click="doClose"
-          :label="t('recommendations.toolbar.actions.continue')"
+          :label="t('action.continue_label')"
           color="primary"
           size="lg"
           class="w-full md:w-auto"

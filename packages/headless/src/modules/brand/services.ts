@@ -110,7 +110,7 @@ function fetchModules() {
 function fetchOrganisationConfig() {
   const { query, useUrl } = useQuery();
 
-  return query({
+  return query<Record<OrgFeatureKeys, unknown>>({
     url: useUrl("config/organisation/values", {
       keys: defaultOrgFeatureKeys.join()
     }),

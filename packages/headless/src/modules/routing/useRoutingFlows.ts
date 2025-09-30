@@ -11,12 +11,10 @@ import { useCheckoutFlows } from "./flows/checkout";
 import { useOrderFlows } from "./flows/order";
 
 // --- utils
-import { uniqBy, concat } from "lodash-es";
+import { uniqBy, concat, isFunction } from "lodash-es";
 
 // --- types
 import type { Flow } from "./types";
-import { isPromise } from "util/types";
-import { isFunction } from "xstate/lib/utils";
 export * from "./types";
 
 // -----------------------------------------------------------------------------

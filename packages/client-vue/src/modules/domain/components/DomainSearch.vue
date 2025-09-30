@@ -1,7 +1,7 @@
 <template>
   <Input
     v-model="inputValue"
-    :placeholder="t('domain.dac.search')"
+    :placeholder="t('form.domain_search.placeholder')"
     autocomplete="url"
     :icon="type === 'existing' ? 'network-settings' : 'search'"
   >
@@ -27,7 +27,7 @@
           @click="emit('search', inputValue)"
         >
           <template #label>
-            <span class="hidden md:block">{{ t("domain.search") }}</span>
+            <span class="hidden md:block">{{ t("action.search") }}</span>
             <Icon icon="search" size="xs" class="md:hidden" />
           </template>
         </Button>

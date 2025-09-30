@@ -2,7 +2,7 @@
   <UpmContentSection class="max-w-app mx-auto" title="Companies">
     <UpmManage
       v-if="meta.isAuthenticated"
-      i18n-key="client.company"
+      i18n-key="form.company"
       :manage="{
         useList: useClientCompanies,
         useMutate: useClientCompany

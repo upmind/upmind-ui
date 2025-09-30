@@ -4,7 +4,7 @@ import { createMachine, assign, spawn } from "xstate";
 // --- internal
 import services from "./services";
 import paymentMachine from "../payment/payment.machine";
-import { useDataLayer } from "../system";
+import { useDataLayer, useI18n } from "../system";
 import { authSubscription } from "../session/helper";
 const { dataLayer } = useDataLayer();
 
@@ -486,6 +486,7 @@ export default createMachine(
       }),
 
       setWarningNotes: (context: BasketContext, { data }: AnyEventObject) => {
+        const { t } = useI18n();
         const basket = get(data, "basket", data);
         if (has(basket, "warning_notes") && !isEmpty(basket.warning_notes)) {
           reduce(
@@ -502,9 +503,8 @@ export default createMachine(
                   actions: [
                     {
                       icon: "close",
-                      label: "Dismiss",
+                      label: t("action.dismiss"),
                       value: "dismiss",
-                      i18nKey: "basket.actions.dismiss",
                       handler: async (ctx: Message) => {
                         services.dismissWarningNotes(context, {
                           type: "DISMISS_WARNING",
@@ -577,6 +577,7 @@ export default createMachine(
       // ---
 
       setFeedbackError: ({ error }: BasketContext, _event: AnyEventObject) => {
+        const { t } = useI18n();
         if (
           !error ||
           isArray(error) || // we know this is going to be a validation error
@@ -587,7 +588,7 @@ export default createMachine(
         }
 
         addError({
-          title: "We experienced an error with the basket",
+          title: t("error.basket_update_failed"),
           copy: error?.message ?? undefined,
           data: error
         });

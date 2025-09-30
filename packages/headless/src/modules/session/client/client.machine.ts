@@ -1,9 +1,8 @@
 // --- external
-import type { AnyEventObject } from "xstate";
 import { createMachine, assign } from "xstate";
 
 // --- internal
-import { useLocale } from "../../system/i18n/useLocale";
+import { useI18n, useLocale } from "../../system";
 import services from "./services";
 
 import type { ClientContext } from "./types";
@@ -15,13 +14,14 @@ import { useFeedback } from "../../feedback";
 const { addError } = useFeedback();
 
 // --- utils
+import { omit } from "lodash-es";
 import { useTime, useCookies, mapToHeadlessError } from "../../../utils";
 const { removeTopLevel: removeCookie, setTopLevel: setCookie } = useCookies();
 import { useUserParser } from "../utils";
-import { omit, remove } from "lodash-es";
 
 // --- types
 import { responseCodes } from "../../../utils";
+import type { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -151,11 +151,13 @@ export default createMachine(
       }),
 
       setFeedbackError: ({ error }, _event) => {
+        const { t } = useI18n();
+
         if (!error || error?.status == responseCodes.Unprocessable_Entity)
           return;
 
         addError({
-          title: "We experienced an error processing your request",
+          title: t("error.request_process_failed"),
           copy: error?.message,
           data: error?.data
         });

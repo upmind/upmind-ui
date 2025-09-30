@@ -1,12 +1,13 @@
 // --- internal
+import { useI18n } from "../localisation";
 
 // --- utils
 import { isEmpty } from "lodash-es";
+import { DetailedError, ErrorOrigin, responseCodes } from "../../../utils";
 
 // --- types
-import { AnyEventObject } from "xstate";
+import type { AnyEventObject } from "xstate";
 import type { RecaptchaContext } from "./types";
-import { DetailedError, ErrorOrigin, responseCodes } from "../../../utils";
 
 // -----------------------------------------------------------------------------
 
@@ -23,11 +24,12 @@ declare global {
 }
 
 async function load({ siteKey }: RecaptchaContext, _event: AnyEventObject) {
+  const { t } = useI18n();
   // check if the site key is set
   if (isEmpty(siteKey))
     return Promise.reject(
       new DetailedError(
-        "Recaptcha site key not set",
+        t("error.recaptcha_not_available"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )
@@ -49,7 +51,7 @@ async function load({ siteKey }: RecaptchaContext, _event: AnyEventObject) {
     script.addEventListener("error", async () => {
       return reject(
         new DetailedError(
-          "Recaptcha failed to load",
+          t("error.recaptcha_load_failed"),
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless
         )
@@ -70,10 +72,11 @@ async function generateToken(
   { grecaptcha, siteKey }: RecaptchaContext,
   { data }: AnyEventObject
 ) {
+  const { t } = useI18n();
   if (!grecaptcha || !siteKey)
     return Promise.reject(
       new DetailedError(
-        "Recaptcha not loaded",
+        t("error.recaptcha_not_available"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )

@@ -1,0 +1,134 @@
+{
+  "address": {
+    "error": "Er is een fout opgetreden bij het toevoegen van het adres | er is een fout opgetreden bij het bijwerken van het adres",
+    "label": "Adres",
+    "placeholder": "Begin met het typen van uw adres",
+    "title": "Nieuw adres toevoegen | Adres bijwerken"
+  },
+  "address1": {
+    "label": "Adres",
+    "placeholder": "Huisnaam, appartementnummer etc."
+  },
+  "address2": {
+    "label": "",
+    "placeholder": "Straatnaam, straatnaam etc."
+  },
+  "allow_auto_payment": {
+    "description": "Geef deze betaalmethode toestemming voor het uitvoeren van geautomatiseerde offline betalingen, zoals het betalen van een verlengingsfactuur.",
+    "label": "Automatische betaling toestaan"
+  },
+  "auth_email": {
+    "error": "Een gebruikersnaam of e-mailadres is vereist",
+    "label": "Uw gebruikersnaam of e-mailadres",
+    "placeholder": "naam@email.com"
+  },
+  "auth_password": {
+    "error": "Een sterk wachtwoord is vereist",
+    "label": "Wachtwoord",
+    "placeholder": "Wachtwoord of wachtwoordzin"
+  },
+  "card_cvv": {
+    "description": "Kaartbeveiligingscode die op de achterkant van uw kaart staat en die zorgt voor extra beveiliging van uw creditcard.",
+    "label": "CVV",
+    "placeholder": "CVC"
+  },
+  "card_expiry": {
+    "description": "Vervaldatum van de kaart. Datumnotatie: MM/JJ",
+    "label": "Vervaldatum",
+    "placeholder": "MM/JJ"
+  },
+  "card_num": {
+    "description": "Het 16-cijferige nummer op de voorkant van uw kaart.",
+    "label": "Kaartnummer",
+    "placeholder": "1234 1234 1234 1234"
+  },
+  "cardholder_name": {
+    "label": "Naam kaarthouder",
+    "placeholder": "Voer de naam van de kaarthouder in"
+  },
+  "category_search": {
+    "placeholder": "Zoeken op categorie..."
+  },
+  "city": {
+    "label": "Stad",
+    "placeholder": "Stad, dorp etc."
+  },
+  "company": {
+    "error": "Er is een fout opgetreden bij het toevoegen van de bedrijfsgegevens | er is een fout opgetreden bij het bijwerken van de bedrijfsgegevens",
+    "label": "Bedrijf",
+    "title": "Bedrijfsgegevens toevoegen | Bedrijfsgegevens bijwerken"
+  },
+  "companyName": {
+    "label": "Bedrijfsnaam",
+    "placeholder": "Uw bedrijfsnaam"
+  },
+  "companyNumber": {
+    "label": "Bedrijfsnummer",
+    "placeholder": "Geregistreerde belasting of GST"
+  },
+  "country": {
+    "label": "Land",
+    "placeholder": "Selecteer een land"
+  },
+  "domain": {
+    "placeholder": "Voer uw domein in..."
+  },
+  "domain_search": {
+    "placeholder": "Zoek naar een domein..."
+  },
+  "email": {
+    "error": "Er is een fout opgetreden bij het toevoegen van het e-mailadres | Er is een fout opgetreden bij het bijwerken van het e-mailadres",
+    "label": "E-mail",
+    "title": "Nieuw e-mailadres toevoegen | E-mailadres bijwerken"
+  },
+  "field_notes": {
+    "label": "Bestelnotities"
+  },
+  "firstname": {
+    "error": "Uw voornaam is vereist",
+    "label": "Voornaam"
+  },
+  "lastname": {
+    "error": "Uw achternaam is vereist",
+    "label": "Achternaam"
+  },
+  "login": {
+    "error": "Er is een fout opgetreden bij het inloggen."
+  },
+  "phone": {
+    "error": "Er is een fout opgetreden bij het toevoegen van het telefoonnummer | er is een fout opgetreden bij het bijwerken van het telefoonnummer",
+    "label": "Telefoon",
+    "title": "Nieuw telefoonnummer toevoegen | Telefoonnummer bijwerken"
+  },
+  "postcode": {
+    "label": "Postcode",
+    "placeholder": "bijv. 10011"
+  },
+  "product_name_search": {
+    "placeholder": "Zoeken op productnaam..."
+  },
+  "promocode": {
+    "error": "Ongeldige promotiecode",
+    "placeholder": "Voer hier de vouchercode in"
+  },
+  "recover": {
+    "error": "Er is een fout opgetreden bij het verzenden van een e-mail om uw wachtwoord opnieuw in te stellen."
+  },
+  "region": {
+    "label": "Regio",
+    "placeholder": "Selecteer een regio…"
+  },
+  "register": {
+    "error": "Er is een fout opgetreden bij het aanmaken van uw account."
+  },
+  "select_option": {
+    "placeholder": "Selecteer een optie"
+  },
+  "store_on_payment": {
+    "label": "Bewaar betalingsgegevens"
+  },
+  "taxNumber": {
+    "label": "Belastingnummer",
+    "placeholder": "Belastingnummer"
+  }
+}

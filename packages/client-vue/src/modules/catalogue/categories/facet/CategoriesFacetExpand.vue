@@ -76,7 +76,7 @@ const items = computed(() => {
     // include "root" option
     // {
     //   id: 0,
-    //   label: t("product.category.all"),
+    //   label: t("text.categories"),
     //   current: !modelValue.value,
     //   open: false,
     //   count: 0,

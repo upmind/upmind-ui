@@ -1,0 +1,134 @@
+{
+  "address": {
+    "error": "Ocorreu um erro ao adicionar o endereço | Ocorreu um erro ao atualizar o endereço",
+    "label": "Endereço",
+    "placeholder": "Comece a digitar seu endereço",
+    "title": "Adicionar novo endereço | Atualizar endereço"
+  },
+  "address1": {
+    "label": "Endereço",
+    "placeholder": "Nome da casa, número do apartamento etc."
+  },
+  "address2": {
+    "label": "",
+    "placeholder": "Estrada, nome da rua etc."
+  },
+  "allow_auto_payment": {
+    "description": "Permita que este método de pagamento seja usado para fazer pagamentos offline automatizados, como pagar uma fatura de renovação.",
+    "label": "Permitir pagamento automático"
+  },
+  "auth_email": {
+    "error": "É necessário um nome de usuário ou endereço de e-mail",
+    "label": "Seu nome de usuário ou endereço de e-mail",
+    "placeholder": "nome@email.com"
+  },
+  "auth_password": {
+    "error": "É necessária uma senha forte",
+    "label": "Senha",
+    "placeholder": "Senha ou frase-senha"
+  },
+  "card_cvv": {
+    "description": "código de segurança do cartão encontrado no verso do seu cartão que fornece uma medida adicional de segurança do cartão de crédito.",
+    "label": "CVV",
+    "placeholder": "CVC"
+  },
+  "card_expiry": {
+    "description": "Data de validade do cartão. Formato da data: MM/AA",
+    "label": "Data de validade",
+    "placeholder": "MM/AA"
+  },
+  "card_num": {
+    "description": "O número de 16 dígitos na frente do seu cartão.",
+    "label": "Número do cartão",
+    "placeholder": "1234 1234 1234 1234"
+  },
+  "cardholder_name": {
+    "label": "Nome do Titular",
+    "placeholder": "Digite o nome do titular do cartão"
+  },
+  "category_search": {
+    "placeholder": "Pesquisa de categoria..."
+  },
+  "city": {
+    "label": "Cidade",
+    "placeholder": "Cidade, vila etc."
+  },
+  "company": {
+    "error": "Ocorreu um erro ao adicionar os detalhes da empresa | Ocorreu um erro ao atualizar os detalhes da empresa",
+    "label": "Empresa",
+    "title": "Adicionar detalhes da empresa | Atualizar detalhes da empresa"
+  },
+  "companyName": {
+    "label": "nome da empresa",
+    "placeholder": "Nome da sua empresa"
+  },
+  "companyNumber": {
+    "label": "Número da empresa",
+    "placeholder": "Imposto registrado ou GST"
+  },
+  "country": {
+    "label": "País",
+    "placeholder": "Selecione um país"
+  },
+  "domain": {
+    "placeholder": "Digite seu domínio..."
+  },
+  "domain_search": {
+    "placeholder": "Pesquisar um domínio..."
+  },
+  "email": {
+    "error": "Ocorreu um erro ao adicionar o e-mail | Ocorreu um erro ao atualizar o e-mail",
+    "label": "E-mail",
+    "title": "Adicionar novo e-mail | Atualizar e-mail"
+  },
+  "field_notes": {
+    "label": "Notas do pedido"
+  },
+  "firstname": {
+    "error": "Seu primeiro nome é obrigatório",
+    "label": "Primeiro nome"
+  },
+  "lastname": {
+    "error": "Seu sobrenome é obrigatório",
+    "label": "Sobrenome"
+  },
+  "login": {
+    "error": "Ocorreu um erro ao tentar efetuar seu login."
+  },
+  "phone": {
+    "error": "Ocorreu um erro ao adicionar o número de telefone | Ocorreu um erro ao atualizar o número de telefone",
+    "label": "Telefone",
+    "title": "Adicionar novo número de telefone | Atualizar número de telefone"
+  },
+  "postcode": {
+    "label": "Código postal",
+    "placeholder": "por exemplo, 10011"
+  },
+  "product_name_search": {
+    "placeholder": "Pesquisar por nome do produto..."
+  },
+  "promocode": {
+    "error": "Código promocional inválido",
+    "placeholder": "Insira o código do voucher aqui"
+  },
+  "recover": {
+    "error": "Ocorreu um erro ao tentar enviar um e-mail de redefinição de senha."
+  },
+  "region": {
+    "label": "Região",
+    "placeholder": "Selecione uma região…"
+  },
+  "register": {
+    "error": "Ocorreu um erro ao tentar criar sua conta."
+  },
+  "select_option": {
+    "placeholder": "Selecione uma opção"
+  },
+  "store_on_payment": {
+    "label": "Salvar detalhes de pagamento"
+  },
+  "taxNumber": {
+    "label": "Número de identificação fiscal",
+    "placeholder": "ID fiscal"
+  }
+}

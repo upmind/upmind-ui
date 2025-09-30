@@ -3,13 +3,14 @@
     :class="styles.products.main.root"
     role="main"
     aria-label="Product listing"
+    data-testid="widget-grid"
   >
     <!-- Search and controls -->
     <div :class="styles.products.main.controls">
       <Input
         :model-value="query"
         :class="[styles.products.main.searchInput, 'flex-1']"
-        :placeholder="t('product.search.placeholder')"
+        :placeholder="t('form.product_name_search.placeholder')"
         :auto-focus="false"
         aria-label="Search products"
         data-testid="product-search"
@@ -52,6 +53,12 @@
         :meta="meta"
         @next="nextPage"
         @prev="prevPage"
+        :pagination-info="
+          t('text.pagination_info', {
+            page: '{page}',
+            pages: '{pages}'
+          })
+        "
       />
     </section>
 
@@ -69,10 +76,10 @@
       />
       <div>
         <h3 :class="styles.products.main.emptyState.title">
-          {{ t("product.empty.title") }}
+          {{ t("text.products_not_found") }}
         </h3>
         <p :class="styles.products.main.emptyState.description">
-          {{ t("product.empty.description") }}
+          {{ t("text.adjust_search_filters_msg") }}
         </p>
       </div>
     </section>
@@ -81,8 +88,8 @@
 
 <script setup lang="ts">
 // --- external
-import { watch, ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { watch, ref, computed } from "vue";
 
 // --- internal
 import {

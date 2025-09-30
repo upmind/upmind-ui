@@ -5,6 +5,7 @@ import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
+import { useI18n } from "../system";
 import { useBasket } from "../basket";
 import { useSession } from "../session";
 import routingEngine from "./routingEngine.machine";
@@ -24,7 +25,6 @@ export { useRouteRequiresAction, useRouteQueryParams } from "./utils";
 import { some } from "lodash-es";
 
 // --- types
-import type { InterpreterFrom } from "xstate";
 import type { RouteLocation, Router } from "vue-router";
 import { ROUTE } from "./types";
 import type { Flow, Route, RoutingEngineContext } from "./types";
@@ -41,6 +41,7 @@ let router: Router;
 // -----------------------------------------------------------------------------
 
 export const useRoutingEngine = () => {
+  const { t } = useI18n();
   const { meta: basketMeta } = useBasket();
   const { meta: sessionMeta } = useSession();
 
@@ -57,12 +58,12 @@ export const useRoutingEngine = () => {
     )
       .then(state => {
         if (stateMatches(state, "unavailable"))
-          throw "Routing Engine is unavailable";
+          throw t("error.routing_engine_not_available");
       })
       .then(() => router.isReady().then(() => true))
       .catch(error => {
         throw new DetailedError(
-          "Routing Engine is unavailable",
+          t("error.routing_engine_not_available"),
           responseCodes.Service_Unavailable,
           ErrorOrigin.Headless,
           {

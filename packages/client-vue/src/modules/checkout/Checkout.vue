@@ -6,27 +6,26 @@
 
     <template #header>
       <Header
-        title="checkout.header.title"
+        :title="t('text.secure_checkout')"
         :description="
-          t(
-            'checkout.header.description',
-            [summary?.total ?? 0],
-            products?.length ?? 0
-          )
+          t('cart.basket_summary_desc', {
+            count: products?.length ?? 0,
+            total: summary?.total ?? 0
+          })
         "
         :badge="{
-          label: t('checkout.header.badge'),
+          label: t('text.fully_encrypted_title'),
           icon: 'lock'
         }"
       />
     </template>
 
     <template #default>
-      <Section :title="t('checkout.billing')">
+      <Section :title="t('text.billing_details')">
         <Billing />
       </Section>
 
-      <Section :title="t('checkout.payment')">
+      <Section :title="t('text.payment_details')">
         <PaymentDetails
           :class="styles.checkout.paymentDetails"
           :color="color"
@@ -35,7 +34,7 @@
     </template>
 
     <template #aside>
-      <Section :title="t('checkout.summary.title')" aside>
+      <Section :title="t('text.summary')" aside>
         <Summary no-actions />
       </Section>
     </template>
@@ -45,14 +44,14 @@
         v-if="meta.hasError"
         color="error"
         icon="alert-triangle"
-        :title="t('checkout.errors.title')"
+        :title="t('error.checkout')"
         :description="errors?.message"
       >
       </Alert>
     </template>
   </Layout>
 
-  <!-- Basket procesing -->
+  <!-- Basket processing -->
   <slot name="processing" v-if="meta.isCheckout">
     <Interstitial
       open
@@ -65,12 +64,9 @@
         secondaryColor: 'secondary',
         size: '4xl'
       }"
-      :title="t(processingTitleKey)"
-      :text="t(processingTextKey)"
+      :title="processingTitle"
+      :text="processingText"
     >
-      <template #title>
-        <SmartTitle :i18n-key="processingTitleKey" align="center" />
-      </template>
     </Interstitial>
   </slot>
 </template>
@@ -106,7 +102,6 @@ import PaymentDetails from "./components/PaymentDetails.vue";
 import Summary from "../basket/components/Summary.vue";
 import Header from "../../components/content/Header.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
-import SmartTitle from "../../components/content/SmartTitle.vue";
 import Back from "../../components/navigation/Back.vue";
 import Section from "../../components/content/LayoutSection.vue";
 
@@ -154,52 +149,52 @@ function doReject() {
   navigateBack();
 }
 
-const processingTitleKey = computed(() => {
+const processingTitle = computed(() => {
   if (meta.value.needsApproval) {
-    return "checkout.processing.approval.title";
+    return t("cart.payment_awaiting_approval_md");
   }
 
   if (meta.value.isConverting) {
-    return "checkout.processing.converting.title";
+    return t("cart.order_converting_md");
   }
 
   if (meta.value.isPaying) {
-    return "checkout.processing.paying.title";
+    return t("cart.payment_processing_md");
   }
 
   if (meta.value.isCheckout) {
-    return "checkout.processing.default.title";
+    return t("cart.payment_checking_details_md");
   }
 
   if (paymentDetailsMeta.value.isFree) {
-    return "checkout.processing.noCharge.title";
+    return t("cart.order_processing_md");
   }
 
-  return "checkout.processing.invalid.title";
+  return t("cart.order_unsuccessful_md");
 });
 
-const processingTextKey = computed(() => {
+const processingText = computed(() => {
   if (meta.value.needsApproval) {
-    return "checkout.processing.approval.text";
+    return t("cart.payment_awaiting_approval_msg");
   }
 
   if (meta.value.isConverting) {
-    return "checkout.processing.converting.text";
+    return t("cart.order_converting_msg");
   }
 
   if (meta.value.isPaying) {
-    return "checkout.processing.paying.text";
+    return t("cart.payment_processing_msg");
   }
 
   if (meta.value.isCheckout) {
-    return "checkout.processing.default.text";
+    return t("cart.payment_verifying_msg");
   }
 
   if (paymentDetailsMeta.value.isFree) {
-    return "checkout.processing.noCharge.text";
+    return t("cart.order_processing_msg");
   }
 
-  return "checkout.processing.invalid.text";
+  return t("cart.payment_check_details_msg");
 });
 
 const processingIcon = computed(() => {

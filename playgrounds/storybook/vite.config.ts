@@ -10,14 +10,17 @@ export default defineConfig({
     vue({
       template: {
         compilerOptions: {
-          isCustomElement: tag => tag.startsWith("upm-"),
-        },
-      },
-    }),
+          isCustomElement: tag => tag.startsWith("upm-")
+        }
+      }
+    })
   ],
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./stories", import.meta.url)),
+      "@animations": fileURLToPath(
+        new URL("./stories/assets/animations", import.meta.url)
+      ),
       "@icons": fileURLToPath(
         new URL("./stories/assets/icons", import.meta.url)
       ),
@@ -31,9 +34,9 @@ export default defineConfig({
       "@upmind-automation/upmind-ui": resolve(
         __dirname,
         "../../packages/ui/src/index.ts"
-      ),
-    },
-  },
+      )
+    }
+  }
   // build: {
   //   rollupOptions: {
   //     output: {

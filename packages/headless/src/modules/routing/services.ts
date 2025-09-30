@@ -1,6 +1,7 @@
 // --- external
 
 // --- internal
+import { useI18n } from "../system";
 
 // --- utils
 import {
@@ -14,11 +15,11 @@ import {
   map,
   merge
 } from "lodash-es";
+import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 
 // --- types
 import type { AnyEventObject } from "xstate";
 import type { Flow, Route, ROUTE, RoutingEngineContext, Target } from "./types";
-import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 
 // -----------------------------------------------------------------------------
 
@@ -27,10 +28,12 @@ async function matchTargets(
   route: Route,
   event?: any
 ): Promise<Flow> {
+  const { t } = useI18n();
+
   if (isEmpty(targets))
     return Promise.reject(
       new DetailedError(
-        "No routing targets found",
+        t("error.routing_targets_not_available"),
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )

@@ -17,15 +17,17 @@
   "upload": {
     "folder": "./src/",
     "type": "json",
-    "deprecate": "project",
+    "deprecate": "file",
     "importAsNew": false,
-    "forceCurrent": false,
+    "forceCurrent": true,
     "forceSource": false,
     "files": [
       {
-        "lang": "en",
+        "lang": "${autodetectLang}",
         "file": "${autodetectFile}",
-        "pattern": "/**/i18n/*.json"
+        "pattern": "/**/locales/**/*.json",
+        "excludes": ["en/*.json"],
+        "type": "json"
       }
     ]
   }

@@ -1,5 +1,5 @@
 // --- external
-import { ref, computed, toRaw } from "vue";
+import { computed } from "vue";
 
 // --- internal
 import services, { stores } from "./services";
@@ -16,7 +16,10 @@ import {
   reject,
   isEmpty,
   isArray,
-  isString
+  isString,
+  keys,
+  includes,
+  forEach
 } from "lodash-es";
 
 // --- types
@@ -32,12 +35,27 @@ import type {
 import { useFeedback } from "../feedback";
 import { mapToHeadlessError } from "../../utils";
 
-// Query types
-type StatusesQuery = ReturnType<typeof services.fetchStatuses>;
-type LanguagesQuery = ReturnType<typeof services.fetchLanguages>;
-type DepartmentsQuery = ReturnType<typeof services.fetchDepartments>;
-
 const { addError } = useFeedback();
+
+// -----------------------------------------------------------------------------
+/**
+ * Context to let us understand if we need to refetch on the inital use of Brand settings
+ * We do this because settings are persisted for fast load times but we still need
+ * to ensure that we get the latest settings in the background
+ * NB:check if we actually have any persisted settings first
+ *
+ */
+let needsRefresh = some(keys(localStorage), key => includes(key, `"system"`));
+
+// --- singleton queries to prevent multiple fetches
+
+let countriesQuery: ReturnType<typeof services.fetchCountries>;
+let currenciesQuery: ReturnType<typeof services.fetchCurrencies>;
+let billingCyclesQuery: ReturnType<typeof services.fetchBillingCycles>;
+let statusesQuery: ReturnType<typeof services.fetchStatuses>;
+let languagesQuery: ReturnType<typeof services.fetchLanguages>;
+let departmentsQuery: ReturnType<typeof services.fetchDepartments>;
+// -----------------------------------------------------------------------------
 
 /**
  * The `useSystem` composable provides a simple interface to interact with the system API
@@ -47,14 +65,20 @@ export const useSystem = () => {
   const { isReady: brandIsReady, countryId, currencyId } = useBrand();
 
   // --- queries (auto-loading essential data)
-  const countriesQuery = services.fetchCountries();
-  const currenciesQuery = services.fetchCurrencies();
-  const billingCyclesQuery = services.fetchBillingCycles();
+  countriesQuery ??= services.fetchCountries();
+  currenciesQuery ??= services.fetchCurrencies();
+  billingCyclesQuery ??= services.fetchBillingCycles();
 
-  // --- lazy-loaded queries
-  const statusesQuery = ref<StatusesQuery>();
-  const languagesQuery = ref<LanguagesQuery>();
-  const departmentsQuery = ref<DepartmentsQuery>();
+  // --- state
+
+  const queries = [
+    billingCyclesQuery,
+    countriesQuery,
+    currenciesQuery,
+    departmentsQuery,
+    languagesQuery,
+    statusesQuery
+  ];
 
   // --- meta information
   const meta = computed(() => {
@@ -63,7 +87,7 @@ export const useSystem = () => {
       isEmpty
     );
     const optionalQueries = reject(
-      [statusesQuery.value, languagesQuery.value, departmentsQuery.value],
+      [statusesQuery, languagesQuery, departmentsQuery],
       isEmpty
     );
 
@@ -101,21 +125,21 @@ export const useSystem = () => {
     }
   }
 
-  // --- computed data accessors
-  const statuses = computed(() => statusesQuery.value?.data || []);
+  // --- computed
+  const statuses = computed(() => statusesQuery?.data.value || []);
   const countries = computed(() => countriesQuery?.data.value || []);
-  const languages = computed(() => languagesQuery.value?.data || []);
+  const languages = computed(() => languagesQuery?.data.value || []);
   const currencies = computed(() => currenciesQuery?.data.value || []);
-  const departments = computed(() => departmentsQuery.value?.data || []);
+  const departments = computed(() => departmentsQuery?.data.value || []);
   const billingCycles = computed(() => billingCyclesQuery?.data.value || []);
 
   const errors = computed(() => ({
     countries: countriesQuery?.error.value,
     currencies: currenciesQuery?.error.value,
     billingCycles: billingCyclesQuery?.error.value,
-    statuses: statusesQuery.value?.error,
-    languages: languagesQuery.value?.error,
-    departments: departmentsQuery.value?.error
+    statuses: statusesQuery?.error.value,
+    languages: languagesQuery?.error.value,
+    departments: departmentsQuery?.error.value
   }));
 
   // --- helper methods
@@ -214,55 +238,55 @@ export const useSystem = () => {
   }
 
   async function fetchStatuses(): Promise<IStatus[]> {
-    if (!statusesQuery.value) {
-      statusesQuery.value = services.fetchStatuses();
-    }
+    statusesQuery ??= services.fetchStatuses();
 
-    const query = statusesQuery.value;
-    if (!query?.isFetched) {
-      await query?.refetch();
+    if (!statusesQuery?.isFetched) {
+      await statusesQuery?.refetch();
     }
 
     return statuses.value as IStatus[];
   }
 
   async function fetchCountries(): Promise<ICountry[]> {
-    if (countriesQuery && !countriesQuery.isFetched)
-      await countriesQuery.refetch();
+    if (!countriesQuery?.isFetched) await countriesQuery?.refetch();
     return countries.value;
   }
 
   async function fetchLanguages(): Promise<ILanguage[]> {
-    try {
-      if (!languagesQuery.value) {
-        languagesQuery.value = services.fetchLanguages();
-      }
+    languagesQuery ??= services.fetchLanguages();
 
-      const query = languagesQuery.value;
-      if (!query?.isFetched) {
-        await query?.refetch();
-      }
-
-      return languages.value as ILanguage[];
-    } catch (e) {
-      const error = mapToHeadlessError(e);
-      addError(error?.message || "Failed to fetch languages");
-      return [];
-    }
+    if (!languagesQuery?.isFetched) await languagesQuery?.refetch();
+    return languages.value as ILanguage[];
   }
 
   async function fetchDepartments(): Promise<ITicketDepartment[]> {
-    if (!departmentsQuery.value) {
-      departmentsQuery.value = services.fetchDepartments();
-    }
+    departmentsQuery ??= services.fetchDepartments();
 
-    const query = departmentsQuery.value;
-    if (!query?.isFetched) {
-      await query?.refetch();
-    }
+    if (!departmentsQuery?.isFetched) await departmentsQuery?.refetch();
 
     return departments.value as ITicketDepartment[];
   }
+
+  // --- Utility methods for cache management and re-fetching
+  const refresh = async () => {
+    // Invalidate all related queries that feed into state via services.ts
+    forEach(queries, q => q?.refetch());
+  };
+
+  const invalidate = () => {
+    // A broader invalidating for anything under the "brand" query key namespace
+    invalidateQueryByKey(["system"], { exact: false });
+  };
+
+  // --- side effects
+
+  // after first load, ensure we refetch our data in the background if we have previously fetched/persisted
+  isReady().then(() => {
+    if (needsRefresh) {
+      refresh();
+      needsRefresh = false;
+    }
+  });
 
   // ---------------------------------------------------------------------------
 
@@ -395,18 +419,9 @@ export const useSystem = () => {
     fetchDepartments,
 
     // --- utility methods
-    refresh: () => {
-      countriesQuery?.refetch();
-      currenciesQuery?.refetch();
-      billingCyclesQuery?.refetch();
-      statusesQuery.value?.refetch();
-      languagesQuery.value?.refetch();
-      departmentsQuery.value?.refetch();
-    },
+    refresh,
 
-    invalidate: () => {
-      invalidateQueryByKey(["system"], { exact: false });
-    }
+    invalidate
   };
 };
 

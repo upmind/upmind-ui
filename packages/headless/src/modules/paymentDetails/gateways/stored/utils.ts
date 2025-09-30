@@ -67,7 +67,7 @@ export const useUischema = ({ stored_payment_methods }: GatewayContext) => {
       {
         type: "Control",
         scope: "#/properties/payment_details_id",
-        i18n: "payment.payment_details_id",
+        i18n: "form.payment_details_id",
         options: {
           format: "radio"
         }

@@ -6,7 +6,7 @@
         @click.prevent="doReject"
         variant="link"
         icon="arrow-left"
-        :label="t('navigation.login')"
+        :label="t('action.back_to_login')"
         size="lg"
       />
     </template>
@@ -15,11 +15,11 @@
       <Section class="mx-auto max-w-2xl gap-9">
         <Header
           :badge="{
-            label: t('session.recover.badge'),
+            label: t('text.fully_encrypted_title'),
             icon: 'lock'
           }"
-          :title="t('session.recover.title')"
-          :description="t('session.recover.tagline')"
+          :title="t('text.forgot_your_password_qn')"
+          :description="t('auth.forgot_password_help')"
         />
 
         <section>

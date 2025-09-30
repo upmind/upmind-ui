@@ -3,6 +3,7 @@ import { computed, toRaw, unref } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
+import { useI18n } from "../system";
 import { useBasket } from "./";
 
 // --- utils
@@ -27,6 +28,7 @@ import { QueryResponseError } from "../query";
 // We allow an actor to be passed in, but if not, we will use the basket actorRef and wait for the 'actor'' machine to be ready
 
 export const useBasketPromotions = () => {
+  const { t } = useI18n();
   const { actors } = useBasket();
   const actor = actors.promotions;
 
@@ -117,7 +119,7 @@ export const useBasketPromotions = () => {
       .catch(error => {
         return Promise.reject(
           new DetailedError(
-            "Add Promotion failed",
+            t("error.promotion_add_failed"),
             error?.status ?? responseCodes.Timeout,
             ErrorOrigin.Headless,
             {
@@ -146,7 +148,7 @@ export const useBasketPromotions = () => {
       .catch(error => {
         return Promise.reject(
           new DetailedError(
-            "Add Promotion failed",
+            t("error.promotion_add_failed"),
             responseCodes.Timeout,
             ErrorOrigin.Headless,
             {

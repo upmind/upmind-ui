@@ -1,5 +1,4 @@
 import { Locator, Page, expect } from "@playwright/test";
-import { URLs } from "../../constants/urls";
 import { TextInput } from "../components/TextInput";
 import { Checkboxes } from "../components/Checkboxes";
 import { RadioButtons } from "../components/RadioButtons";

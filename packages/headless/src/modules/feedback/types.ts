@@ -28,7 +28,6 @@ export interface Message {
   display: messageDisplays;
   type: messageTypes;
   // ---
-  i18nKey?: string; // i18n key for the message
   title?: string;
   copy?: string;
   data?: any;
@@ -36,7 +35,6 @@ export interface Message {
     value: string; // Value to identify the action
     label: string; // Label for the action button
     icon?: string; // Icon to display in the action button
-    i18nKey?: string; // i18n key for the action label
     handler?: (context: any) => void | Promise<void>; // Handler function to execute when the action is clicked
   }>;
   // ---

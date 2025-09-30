@@ -11,6 +11,9 @@ import { computed } from "vue";
 import { toString } from "lodash-es";
 import { useI18n } from "vue-i18n";
 
+// --- internal
+import { parseBillingCycle } from "@upmind-automation/headless";
+
 // --- components
 import {
   SelectCards,
@@ -32,15 +35,15 @@ const items = computed(() => {
 
   return props.prices?.map(price => {
     const item = {
-      label: t(`product.terms.cycle.${price.cycle}`),
+      label: parseBillingCycle(price.cycle!).numeric,
       value: toString(price.cycle),
       appendLabel: price.price.currentPrice
     } as SelectCardsItemProps;
 
     if (price.price?.savingAmount > 0) {
       item.badge = {
-        label: t("product.promotion_save", {
-          value: price.price.savingPercent
+        label: t("text.amount_save", {
+          amount: price.price.savingPercent
         }),
         color: "promotion",
         variant: "outline"

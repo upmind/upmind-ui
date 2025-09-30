@@ -34,6 +34,7 @@
     "@tanstack/vue-query": "^5.83.1",
     "@tanstack/vue-store": "^0.7.3",
     "@upmind-automation/types": "workspace:*",
+    "@upmind-automation/i18n": "workspace:*",
     "@xstate/inspect": "^0.8.0",
     "@xstate/vue": "^2.0.0",
     "ajv": "^8.17.1",
