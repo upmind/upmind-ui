@@ -20,7 +20,9 @@ a
       </PaginationPrev>
 
       <!-- TODO: Current pagination doesn't support direct page change so we should static text for now-->
-      <p :class="styles.pagination.info">Page {{ page }} of {{ pages }}</p>
+      <p :class="styles.pagination.info">
+        {{ displayedPaginationInfo(page, pages) }}
+      </p>
 
       <PaginationNext as-child>
         <Button
@@ -90,4 +92,23 @@ const styles = useStyles(
     info?: string;
   };
 }>;
+
+/**
+ * The parent component is responsible for providing an already translated string via the 'paginationInfo' prop.
+ * However, since this child component does not have access to an i18n instance, it cannot perform the dynamic placeholder
+ * (e.g., {page}, {pages}) replacement itself.
+ * Therefore, this component must explicitly replace these placeholders with the actual current page and total pages values.
+ * @param currentPage {number} - The current page number.
+ * @param totalPages {number} - The total number of pages.
+ * @returns {string} - The formatted pagination info string.
+ */
+const displayedPaginationInfo = (currentPage: number, totalPages: number) => {
+  if (props.paginationInfo) {
+    return props.paginationInfo
+      .replace("{page}", currentPage.toString())
+      .replace("{pages}", totalPages.toString());
+  }
+  // Otherwise, fall back to the default English string.
+  return `Page ${currentPage} of ${totalPages}`;
+};
 </script>

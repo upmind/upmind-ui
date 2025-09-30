@@ -62,7 +62,6 @@ import type { ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<RadioCardsProps>(), {
   // --- props
-  placeholder: "Select an option",
   overrideIndex: 0,
   useInputGroup: true,
   // -- variants

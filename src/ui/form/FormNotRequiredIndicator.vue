@@ -4,7 +4,7 @@
     :for="props.formItemId"
     :invalid="false"
   >
-    <slot>Optional</slot>
+    <slot>{{ props.text }}</slot>
   </span>
 </template>
 
@@ -14,10 +14,16 @@ import { cn } from "../../utils";
 
 import type { LabelProps } from "radix-vue";
 
-const props = defineProps<
-  LabelProps & {
-    formItemId: string;
-    class?: HTMLAttributes["class"];
+const props = withDefaults(
+  defineProps<
+    LabelProps & {
+      text?: string;
+      formItemId: string;
+      class?: HTMLAttributes["class"];
+    }
+  >(),
+  {
+    text: "Optional"
   }
->();
+);
 </script>

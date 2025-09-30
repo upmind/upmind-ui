@@ -1,38 +1,39 @@
 // --- external
 import { computed, ref, inject, watch } from "vue";
 import {
-  Resolve,
   composePaths,
   createCombinatorRenderInfos,
   findUISchema,
   getErrorAt,
-  getSubErrorsAt,
   getFirstPrimitiveProp,
-  rankWith
+  getSubErrorsAt,
+  isLayout,
+  rankWith,
+  Resolve
 } from "@jsonforms/core";
 
 // --- utils
 import {
-  merge,
   cloneDeep,
   defaults,
-  set,
-  isEqual,
-  map,
-  isFunction,
   isEmpty,
-  isObject
+  isEqual,
+  isFunction,
+  map,
+  merge,
+  set
 } from "lodash-es";
 
 // --- types
 import type {
-  JsonFormsSubStates,
   Tester,
+  JsonFormsSubStates,
   CombinatorSubSchemaRenderInfo,
-  JsonSchema
+  IterateCallback,
+  UISchemaElement
 } from "@jsonforms/core";
-import type { FormControlProps } from "../types";
 import type { ErrorObject } from "ajv";
+import type { FormControlProps } from "../types";
 // -----------------------------------------------------------------------------
 
 export const useUpmindUIRenderer = <
@@ -85,7 +86,28 @@ export const useUpmindUIRenderer = <
         } as ErrorObject);
     }
 
-    return errors;
+    return map(errors, error => {
+      const translated =
+        isFunction(jsonforms.i18n?.translateError) &&
+        isFunction(jsonforms.i18n?.translate)
+          ? jsonforms.i18n.translateError(
+              error,
+              jsonforms.i18n.translate,
+              // NB we need tp provide the translated label as title for better error messages
+              //    we also provide the path so that we can use it in the i18n key if needed
+              //    these props are not part of the schema but we add them here for convenience
+              {
+                ...input.control.value.schema,
+                path: input.control.value.path,
+                title:
+                  input.control.value.label ?? input.control.value.schema.title
+              }
+            )
+          : undefined;
+
+      error.message = translated ?? error.message;
+      return error;
+    });
   }
 
   // --- state
@@ -104,8 +126,8 @@ export const useUpmindUIRenderer = <
     );
   });
 
-  // lets get our errors as full error objects
-  watch(input.control, control => {
+  // let's get our errors as full error objects
+  watch(input.control, _control => {
     touched.value =
       touched.value || jsonforms?.core?.validationMode === "ValidateAndShow";
 
@@ -123,7 +145,9 @@ export const useUpmindUIRenderer = <
       description: input.control.value.description,
       required: input.control.value.required,
       disabled: !input.control.value.enabled,
-      visible: input.control.value.visible
+      visible: input.control.value.visible,
+      optionalText: appliedOptions.value?.optionalText,
+      requiredText: appliedOptions.value?.requiredText
     });
 
     set(props, "id", input.control.value?.id);
@@ -314,3 +338,30 @@ export function registerEntry(
   };
   return entry;
 }
+
+/**
+ * Iterates over the UISchema elements and applies a callback function.
+ * A more comprehensive implementation than in JsonForms core, as it also
+ * iterates over detail elements and not just layout elements.
+ * @param uischema The UISchema element to iterate over.
+ * @param toApply The callback function to apply to each element.
+ * @returns void
+ */
+export const iterateSchema = (
+  uischema: UISchemaElement,
+  toApply: IterateCallback
+): void => {
+  if (isEmpty(uischema)) return;
+
+  if (isLayout(uischema)) {
+    uischema.elements.forEach(child => iterateSchema(child, toApply));
+    return;
+  }
+
+  if (uischema?.options?.detail?.elements) {
+    uischema.options.detail.elements.forEach((child: UISchemaElement) =>
+      iterateSchema(child, toApply)
+    );
+  }
+  toApply(uischema);
+};

@@ -16,6 +16,12 @@
         :data-hover="$attrs['data-hover']"
         :data-focus="$attrs['data-focus']"
       />
+      <span
+        v-if="isEmpty(placeholder) && isEmpty(modelValue)"
+        class="pointer-events-none invisible select-none"
+      >
+        &nbsp;
+      </span>
       <template #icon>
         <Icon
           class="text-text-muted group-hover:text-text-base ml-auto pl-4 transition-all duration-200 [&>svg]:size-3 [&>svg]:transition-all [&>svg]:duration-300"
@@ -84,17 +90,19 @@ import SelectValue from "./SelectValue.vue";
 import SelectIndicator from "./SelectIndicator.vue";
 import Icon from "../icon/Icon.vue";
 
+// --- utils
+import { isEmpty, isEqual } from "lodash-es";
+
 // --- types
 import type { SelectRootEmits, SelectContentEmits } from "radix-vue";
 import type { SelectProps } from "./types";
 import type { ComputedRef } from "vue";
 import { timestamp } from "@vueuse/shared";
-import { isEqual } from "lodash-es";
 
 const props = withDefaults(defineProps<SelectProps>(), {
   // --- props
   items: () => [],
-  placeholder: "Select an option",
+  placeholder: "",
   // -- styles
   variant: "outline",
   size: "md",

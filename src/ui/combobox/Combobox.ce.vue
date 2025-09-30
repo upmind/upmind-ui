@@ -270,7 +270,7 @@ async function safeSearch(value: string | number) {
   if (!value) {
     results.value = reject(props.items, "persist");
   } else if (isFunction(props.search)) {
-    results.value = await props.search(value.toString());
+    results.value = props.search(value.toString(), props.items);
   } else {
     // --- if no search function is provided, just filter the items
     results.value = filter(props.items ?? [], (item: ComboboxItemProps) => {
@@ -317,7 +317,7 @@ function doSelect(item: string) {
     searchTerm.value = get(selected, itemLabel.value, searchTerm.value);
   }
 
-  // finnaly close the popover
+  // finally close the popover
   open.value = false;
 }
 

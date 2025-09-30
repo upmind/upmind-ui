@@ -21,11 +21,11 @@
       </slot>
 
       <h3 :class="styles.interstitial.title">
-        <slot name="title">{{ title }}</slot>
+        <slot name="title"><Sanitized v-if="title" :modelValue="title" /></slot>
       </h3>
 
       <p :class="styles.interstitial.text">
-        <slot name="text">{{ text }}</slot>
+        <slot name="text"><Sanitized v-if="text" :modelValue="text" /></slot>
       </p>
 
       <div v-if="!!$slots.default" :class="styles.interstitial.content">
@@ -40,7 +40,7 @@
             size="lg"
             v-bind="action"
             :loading="meta.isProcessing"
-            color="primary"
+            :color="action?.color || 'primary'"
             @click.stop="doAction(action?.handler)"
             pill
           />
@@ -64,6 +64,7 @@ import { Dialog } from "../dialog";
 import { Button } from "../button";
 import { Avatar } from "../avatar";
 import { Icon } from "../icon";
+import Sanitized from "../sanitized/Sanitized.vue";
 
 // --- utils
 import { isFunction } from "lodash-es";

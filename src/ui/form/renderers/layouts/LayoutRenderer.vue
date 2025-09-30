@@ -21,7 +21,6 @@
 <script setup lang="ts">
 // --- external
 import { computed } from "vue";
-import { isLayout } from "@jsonforms/core";
 import {
   DispatchRenderer,
   rendererProps,
@@ -35,7 +34,7 @@ import { useUpmindUILayoutRenderer } from "../utils";
 import { useStyles } from "../../../../utils";
 
 // --- types
-import type { PropType, ComputedRef } from "vue";
+import type { ComputedRef } from "vue";
 import type { Layout } from "@jsonforms/core";
 
 // -------------------------------------------------------------------
@@ -76,5 +75,6 @@ const { layout, appliedOptions } = useUpmindUILayoutRenderer(
 </script>
 
 <script lang="ts">
+import { isLayout } from "@jsonforms/core";
 export const tester = { rank: 1, controlType: isLayout };
 </script>
