@@ -5,7 +5,7 @@
   "const": "{title}doit être égal à la valeur permise",
   "contains": "{title}doit contenir un élément valide",
   "dependencies": "{title}doit avoir une propriété{property} lorsque la propriété{dependency} est présent",
-  "enum": "{title}doit être égal à l&#39;une des valeurs autorisées",
+  "enum": "{title}doit être égal à l'une des valeurs autorisées",
   "exclusiveMaximum": "{title}doit être inférieur à{exclusiveMaximum}",
   "exclusiveMinimum": "{title}doit être supérieur à{exclusiveMinimum}",
   "format": "{title}doit correspondre au format{format}",
@@ -20,11 +20,11 @@
   "minimum": "{title}doit être supérieur ou égal à{minimum}",
   "multipleOf": "{title}doit être un multiple de{multipleOf}",
   "not": "{title}ne doit PAS être valide selon le schéma dans « not »",
-  "oneOf": "{title}devrait correspondre exactement à l&#39;un des schémas dans « oneOf »",
+  "oneOf": "{title}doit correspondre exactement à l'un des schémas de « OneOf »",
   "pattern": "{title}doit correspondre au modèle{pattern}",
-  "patternProperties": "{title}nom de la propriété{propertyName} n&#39;est pas valide (incompatibilité de modèle)",
+  "patternProperties": "{title}le nom de propriété n'{propertyName}est pas valide (modèle non concordant)",
   "propertyNames": "{title}nom de la propriété{propertyName} est invalide",
   "required": "{title}doit avoir la propriété requise{missingProperty}",
   "type": "{title}doit être{type}",
-  "uniqueItems": "{title}ne doit PAS avoir d&#39;articles en double (articles{j} et{i} sont identiques)"
+  "uniqueItems": "{title}ne doit PAS contenir d'articles dupliqués (articles {j} et {i} identiques)"
 }
