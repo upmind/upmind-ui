@@ -22,7 +22,7 @@ export const variants = {
 };
 
 export const triggerVariants = cva(
-  "text-md bg-background-control-surface [&:hover,&:focus-within,&[data-hover=true],&[data-focus=true]]:shadow-border-border-control-hover control-radius [&:hover,&[data-hover=true]]:bg-background-control-surface shadow-border-border-control-default text-text-base h-auto justify-between gap-2 transition-all duration-200",
+  "text-md bg-control-surface [&:hover,&:focus-within,&[data-hover=true],&[data-focus=true]]:shadow-border-control-hover control-radius [&:hover,&[data-hover=true]]:bg-control-surface shadow-border-control-default h-auto justify-between gap-2 text-base transition-all duration-200",
   {
     variants,
     defaultVariants: {
@@ -32,7 +32,7 @@ export const triggerVariants = cva(
 );
 
 export const itemVariants = cva(
-  "data-[selected=false]:text-text-muted data-[selected=false]:hover:text-text-base data-[selected=false]:focus:text-text-base data-[selected=true]:text-text-base data-[selected=true]:bg-background-control-selected [&:hover,&[data-hover=true]]:bg-background-control-selected [&:focus,&[data-focus=true]]:bg-background-control-selected cursor-pointer gap-3 rounded px-4 py-2 font-normal transition-all duration-200",
+  "data-[selected=false]:text-muted data-[selected=true]:bg-control-selected [&:hover,&[data-hover=true]]:bg-control-selected [&:focus,&[data-focus=true]]:bg-control-selected cursor-pointer gap-3 rounded px-4 py-2 font-normal transition-all duration-200 data-[selected=false]:hover:text-base data-[selected=false]:focus:text-base data-[selected=true]:text-base",
   {
     variants: {
       size: {
@@ -47,7 +47,7 @@ export const itemVariants = cva(
 );
 
 export const contentVariants = cva(
-  `control-radius shadow-border-border-control-default bg-background-control-surface mt-2 border-none ${ringClasses} ${invalidRingClasses} p-0`,
+  `control-radius shadow-border-control-default bg-control-surface mt-2 border-none ${ringClasses} ${invalidRingClasses} p-0`,
   {
     variants: {
       width: {
@@ -86,7 +86,7 @@ export const rootVariants = cva("w-full rounded", {
 });
 
 export const inputVariants = cva(
-  "text-text-base! placeholder:text-text-muted! rounded-none shadow-none ring-0!",
+  "placeholder:text-muted! rounded-none text-base! shadow-none ring-0!",
   {
     variants: {
       size: {

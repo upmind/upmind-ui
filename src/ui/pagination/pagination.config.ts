@@ -32,7 +32,7 @@ const buttonVariants = cva("w-full flex-1", {
   }
 });
 
-const infoVariants = cva("text-text-muted hidden text-sm md:inline-block", {
+const infoVariants = cva("text-muted hidden text-sm md:inline-block", {
   variants: {
     size: {
       sm: "text-xs",

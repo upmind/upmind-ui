@@ -30,14 +30,14 @@ export default {
         variants: {
           isList: {
             true: "border-b last:border-b-0",
-            false: `shadow-border-border-control-default [&:hover,&[data-hover=true]]:shadow-border-border-control-hover bg-background-control-surface control-radius ${ringClasses} ${invalidRingClasses}`
+            false: `shadow-border-control-default [&:hover,&[data-hover=true]]:shadow-border-control-hover bg-control-surface control-radius ${ringClasses} ${invalidRingClasses}`
           }
         }
       }
     ),
     label: checkboxLabelVariants,
     input: cva(
-      `${groupRingClasses} border-border-control-default text-control-active static pr-0 leading-normal`,
+      `${groupRingClasses} border-control-default text-control-active static pr-0 leading-normal`,
       {
         variants: {
           isList: {
@@ -48,10 +48,10 @@ export default {
       }
     ),
     content: {
-      label: cva("text-md/tight text-text-display font-medium"),
-      secondaryLabel: cva("text-md/tight text-text-display font-medium"),
-      description: cva("text-text-base text-sm/tight font-normal"),
-      secondaryDescription: cva("text-text-muted text-sm/tight font-normal")
+      label: cva("text-md/tight text-display font-medium"),
+      secondaryLabel: cva("text-md/tight text-display font-medium"),
+      description: cva("text-base text-sm/tight font-normal"),
+      secondaryDescription: cva("text-muted text-sm/tight font-normal")
     }
   }
 };

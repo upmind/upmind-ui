@@ -2,13 +2,13 @@ import { cva } from "class-variance-authority";
 import { ringClasses } from "../../assets/ring.styles";
 
 export const itemVariants = cva(
-  `bg-background-control-surface text-control-foreground group rounded font-normal transition-all duration-200 ${ringClasses} flex cursor-pointer list-none gap-2 py-4 pr-4 pl-3`,
+  `bg-control-surface text-control-foreground group rounded font-normal transition-all duration-200 ${ringClasses} flex cursor-pointer list-none gap-2 py-4 pr-4 pl-3`,
   {
     variants: {
       isList: {
         true: "my-0.5 border-0",
         false:
-          "shadow-border-border-control-default [&:hover,&[data-hover=true]]:shadow-border-border-control-hover [&:focus-within,&[data-focus=true]]:ring-ring rounded [&:focus-within,&[data-focus=true]]:ring-2 [&:focus-within,&[data-focus=true]]:ring-offset-2"
+          "shadow-border-control-default [&:hover,&[data-hover=true]]:shadow-border-control-hover [&:focus-within,&[data-focus=true]]:ring-ring rounded [&:focus-within,&[data-focus=true]]:ring-2 [&:focus-within,&[data-focus=true]]:ring-offset-2"
       },
       width: {
         0: "",
@@ -50,10 +50,10 @@ export default {
     item: itemVariants,
     radio: cva("size-lh text-md/tight flex items-center justify-center"),
     content: {
-      label: cva("text-md/tight text-text-display font-medium"),
-      secondaryLabel: cva("text-md/tight text-text-display font-medium"),
-      description: cva("text-text-base text-sm/tight font-normal"),
-      secondaryDescription: cva("text-text-muted text-sm/tight font-normal")
+      label: cva("text-md/tight text-display font-medium"),
+      secondaryLabel: cva("text-md/tight text-display font-medium"),
+      description: cva("text-base text-sm/tight font-normal"),
+      secondaryDescription: cva("text-muted text-sm/tight font-normal")
     }
   }
 };

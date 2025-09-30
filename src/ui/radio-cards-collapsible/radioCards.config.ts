@@ -2,13 +2,13 @@ import { cva } from "class-variance-authority";
 import { ringClasses } from "../../assets/ring.styles";
 
 export const itemVariants = cva(
-  `bg-background-control-surface text-control-foreground group rounded transition-all duration-200 ${ringClasses} flex list-none gap-2 p-3 pr-4`,
+  `bg-control-surface text-control-foreground group rounded transition-all duration-200 ${ringClasses} flex list-none gap-2 p-3 pr-4`,
   {
     variants: {
       isList: {
         true: "hover:bg-control-active-focus data-[state=checked]:ring-background-control-ring my-0.5 border-0 shadow-none data-[state=checked]:ring-2",
         false:
-          "hover:border-border-control-hover border-border-control-default control-radius"
+          "hover:border-control-hover border-control-default control-radius"
       },
       width: {
         0: "",
@@ -50,7 +50,7 @@ export default {
     item: itemVariants,
     radio: cva("size-lh flex items-center justify-center"),
     input: cva(
-      `shadow-border-border-control-default leading-normal [transition:border-color_200ms_ease-in-out]`
+      `shadow-border-control-default leading-normal [transition:border-color_200ms_ease-in-out]`
     )
   }
 };

@@ -17,14 +17,16 @@
     </slot>
 
     <slot v-if="!selected" name="placeholder" v-bind="{ item: selected }">
-      <span class="text-text-faint [.group:hover_&,.group[data-hover=true]_&]:text-text-base [.group:focus-within_&,.group[data-focus=true]_&]:text-text-base transition-colors duration-200">
+      <span
+        class="text-faint transition-colors duration-200 [.group:focus-within_&,.group[data-focus=true]_&]:text-base [.group:hover_&,.group[data-hover=true]_&]:text-base"
+      >
         <slot name="placeholder">{{ placeholder }}</slot>
       </span>
     </slot>
 
     <template #append>
       <Icon
-        class="text-text-muted group-hover:text-text-base ml-auto pl-4 transition-all duration-200 [&>svg]:size-3 [&>svg]:transition-all [&>svg]:duration-300"
+        class="text-muted ml-auto pl-4 transition-all duration-200 group-hover:text-base [&>svg]:size-3 [&>svg]:transition-all [&>svg]:duration-300"
         :class="open ? '[&>svg]:rotate-180' : ''"
         icon="arrow-down"
         size="xs"

@@ -12,24 +12,24 @@ export const variants = {
   },
   variant: {
     primary:
-      "button-radius from-background-button-primary-0 to-background-button-primary-1 text-text-button-primary [&:hover,&[data-hover=true]]:from-background-button-primary-hover-0 [&:hover,&[data-hover=true]]:to-background-button-primary-hover-1 ring-background-button-primary-ring! bg-gradient-to-br",
+      "button-radius from-background-button-primary-0 to-background-button-primary-1 text-button-primary [&:hover,&[data-hover=true]]:from-background-button-primary-hover-0 [&:hover,&[data-hover=true]]:to-background-button-primary-hover-1 ring-background-button-primary-ring! bg-gradient-to-br",
     secondary:
-      "button-radius from-background-button-secondary-0 to-background-button-secondary-1 text-text-button-secondary [&:hover,&[data-hover=true]]:from-background-button-secondary-hover-0 [&:hover,&[data-hover=true]]:to-background-button-secondary-hover-1 ring-background-button-secondary-ring! bg-gradient-to-br",
+      "button-radius from-background-button-secondary-0 to-background-button-secondary-1 text-button-secondary [&:hover,&[data-hover=true]]:from-background-button-secondary-hover-0 [&:hover,&[data-hover=true]]:to-background-button-secondary-hover-1 ring-background-button-secondary-ring! bg-gradient-to-br",
     neutral:
-      "button-radius from-background-button-neutral-0 to-background-button-neutral-1 text-text-button-neutral [&:hover,&[data-hover=true]]:from-background-button-neutral-hover-0 [&:hover,&[data-hover=true]]:to-background-button-neutral-hover-1 ring-background-button-neutral-ring! bg-gradient-to-br",
+      "button-radius from-background-button-neutral-0 to-background-button-neutral-1 text-button-neutral [&:hover,&[data-hover=true]]:from-background-button-neutral-hover-0 [&:hover,&[data-hover=true]]:to-background-button-neutral-hover-1 ring-background-button-neutral-ring! bg-gradient-to-br",
     subtle:
-      "button-radius from-background-button-subtle-0 to-background-button-subtle-1 text-text-button-subtle [&:hover,&[data-hover=true]]:from-background-button-subtle-hover-0 [&:hover,&[data-hover=true]]:to-background-button-subtle-hover-1 ring-background-button-subtle-ring! bg-gradient-to-br",
+      "button-radius from-background-button-subtle-0 to-background-button-subtle-1 text-button-subtle [&:hover,&[data-hover=true]]:from-background-button-subtle-hover-0 [&:hover,&[data-hover=true]]:to-background-button-subtle-hover-1 ring-background-button-subtle-ring! bg-gradient-to-br",
     danger:
-      "button-radius from-background-button-danger-0 to-background-button-danger-1 text-text-button-danger [&:hover,&[data-hover=true]]:from-background-button-danger-hover-0 [&:hover,&[data-hover=true]]:to-background-button-danger-hover-1 ring-background-button-danger-ring! bg-gradient-to-br",
+      "button-radius from-background-button-danger-0 to-background-button-danger-1 text-button-danger [&:hover,&[data-hover=true]]:from-background-button-danger-hover-0 [&:hover,&[data-hover=true]]:to-background-button-danger-hover-1 ring-background-button-danger-ring! bg-gradient-to-br",
     outline:
-      "button-radius bg-background-button-outline text-text-button-outline border-button-outline [&:hover,&[data-hover=true]]:bg-background-button-outline-hover ring-background-button-outline-ring! shadow-border-border-button-outline",
+      "button-radius bg-button-outline text-button-outline border-button-outline [&:hover,&[data-hover=true]]:bg-button-outline-hover ring-background-button-outline-ring! shadow-border-button-outline",
     ghost:
-      "button-radius bg-background-button-ghost text-text-button-ghost [&:hover,&[data-hover=true]]:bg-background-button-ghost-hover ring-background-button-ghost-ring!",
-    link: "button-radius text-text-button-link [&:hover,&[data-hover=true]]:text-text-button-link-hover [&:focus,&[data-focus=true]]:text-text-button-link-hover p-0 underline underline-offset-4 !shadow-none !ring-0 !ring-offset-0 !outline-none",
+      "button-radius bg-button-ghost text-button-ghost [&:hover,&[data-hover=true]]:bg-button-ghost-hover ring-background-button-ghost-ring!",
+    link: "button-radius text-button-link [&:hover,&[data-hover=true]]:text-button-link-hover [&:focus,&[data-focus=true]]:text-button-link-hover p-0 underline underline-offset-4 !shadow-none !ring-0 !ring-offset-0 !outline-none",
     "muted-link":
-      "button-radius text-text-button-muted-link [&:hover,&[data-hover=true]]:text-text-button-muted-link-hover [&:focus,&[data-focus=true]]:text-text-button-muted-link p-0 underline underline-offset-4 !shadow-none !ring-0 !ring-offset-0 !outline-none font-normal",
+      "button-radius text-button-muted-link [&:hover,&[data-hover=true]]:text-button-muted-link-hover [&:focus,&[data-focus=true]]:text-button-muted-link p-0 underline underline-offset-4 !shadow-none !ring-0 !ring-offset-0 !outline-none font-normal",
     control:
-      "control-radius shadow-border-border-control-default hover:border-border-control-hover ring-background-button-control-ring!"
+      "control-radius shadow-border-control-default hover:border-control-hover ring-background-button-control-ring!"
   },
   align: {
     left: "justify-start",
@@ -94,7 +94,7 @@ const itemsVariants = cva("size-lh flex items-center justify-center", {
       lg: "[&>i]:p-[4px]"
     },
     variant: {
-      link: "text-text-muted"
+      link: "text-muted"
     },
     isLoading: {
       true: "opacity-0"

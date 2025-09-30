@@ -4,12 +4,12 @@ import { cva } from "class-variance-authority";
 
 export const variants = {
   color: {
-    neutral: "bg-background-accent-neutral text-text-accent-neutral-contrast",
-    promo: "bg-background-accent-promo text-text-accent-promo-contrast",
-    danger: "bg-background-accent-danger text-text-accent-danger-contrast",
-    warning: "bg-background-accent-warning text-text-accent-warning-contrast",
-    success: "bg-background-accent-success text-text-accent-success-contrast",
-    info: "bg-background-accent-info text-text-accent-info-contrast"
+    neutral: "bg-accent-neutral text-accent-neutral-contrast",
+    promo: "bg-accent-promo text-accent-promo-contrast",
+    danger: "bg-accent-danger text-accent-danger-contrast",
+    warning: "bg-accent-warning text-accent-warning-contrast",
+    success: "bg-accent-success text-accent-success-contrast",
+    info: "bg-accent-info text-accent-info-contrast"
   }
 };
 
@@ -26,13 +26,13 @@ export const contentVariants = cva(
 export const arrowVariants = cva("", {
   variants: {
     color: {
-      neutral: "text-text-accent-neutral",
-      promo: "text-text-accent-promo",
-      danger: "text-text-accent-danger",
-      warning: "text-text-accent-warning",
-      success: "text-text-accent-success",
-      info: "text-text-accent-info",
-      error: "text-text-accent-error"
+      neutral: "text-accent-neutral",
+      promo: "text-accent-promo",
+      danger: "text-accent-danger",
+      warning: "text-accent-warning",
+      success: "text-accent-success",
+      info: "text-accent-info",
+      error: "text-accent-error"
     }
   },
   defaultVariants: {

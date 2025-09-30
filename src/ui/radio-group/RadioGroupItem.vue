@@ -5,8 +5,8 @@
       cn(
         ringClasses,
         'ring-offset-background-control-surface',
-        'data-[state=unchecked]:shadow-border-border-control-default data-[state=checked]:shadow-border-border-control-checked text-primary aspect-square h-4 w-4 rounded-full disabled:cursor-not-allowed disabled:opacity-50',
-        'text-control-foreground data-[state=checked]:bg-background-control-checked shrink-0',
+        'data-[state=unchecked]:shadow-border-control-default data-[state=checked]:shadow-border-control-checked text-primary aspect-square h-4 w-4 rounded-full disabled:cursor-not-allowed disabled:opacity-50',
+        'text-control-foreground data-[state=checked]:bg-control-checked shrink-0',
         props.class,
         props.noInput ? 'sr-only' : ''
       )

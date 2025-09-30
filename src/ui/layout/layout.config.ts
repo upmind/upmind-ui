@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 export default {
   control: {
     root: cva(
-      "shadow-border-b-border-surface bg-background-surface flex w-full shrink-0 items-center justify-center self-start px-6 py-4 md:px-2.5"
+      "shadow-border-b-border-surface bg-surface flex w-full shrink-0 items-center justify-center self-start px-6 py-4 md:px-2.5"
     ),
     container: cva("flex w-full items-center justify-between", {
       variants: {
@@ -58,7 +58,7 @@ export default {
       }
     }),
     header: {
-      root: cva("bg-background-canvas px-6 py-18 md:px-2.5"),
+      root: cva("bg-canvas px-6 py-18 md:px-2.5"),
       container: cva("max-w-app mx-auto")
     },
     content: {
@@ -69,8 +69,8 @@ export default {
             false: "py-24"
           },
           hasHeader: {
-            true: "bg-background-surface",
-            false: "bg-background-canvas"
+            true: "bg-surface",
+            false: "bg-canvas"
           }
         }
       }),

@@ -27,7 +27,7 @@ export const variants = {
 };
 
 export const contentVariant = cva(
-  "bg-background-surface border-border-surface mx-auto grid max-h-[90dvh] w-full border p-0 shadow-none focus:outline-hidden",
+  "bg-surface border-surface mx-auto grid max-h-[90dvh] w-full border p-0 shadow-none focus:outline-hidden",
   {
     variants,
     defaultVariants: {
@@ -50,7 +50,7 @@ export const containerVariant = cva("", {
   }
 });
 
-export const overlayVariant = cva("bg-background-overlay");
+export const overlayVariant = cva("bg-overlay");
 
 export default {
   dialog: {

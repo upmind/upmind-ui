@@ -90,12 +90,10 @@
           </div>
         </template>
         <CommandList
-          class="border-border-control-default w-full max-w-full border-t p-2"
+          class="border-control-default w-full max-w-full border-t p-2"
           loop
         >
-          <CommandEmpty class="text-text-muted">{{
-            emptyMessage
-          }}</CommandEmpty>
+          <CommandEmpty class="text-muted">{{ emptyMessage }}</CommandEmpty>
           <CommandGroup>
             <CommandItem
               v-for="item in results"

@@ -20,11 +20,7 @@ import { computed } from "vue";
 // --- internal
 import config from "./badge.config";
 
-import {
-  useStyles,
-  cn
-  //stylesheet
-} from "../../utils";
+import { useStyles, cn } from "../../utils";
 
 // --- components
 import Badge from "./Badge.vue";

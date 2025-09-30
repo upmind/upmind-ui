@@ -18,10 +18,10 @@
         :class="
           cn(
             ringClasses,
-            'ring-offset-background-control-surface data-[state=checked]:bg-background-control-checked',
-            'data-[state=unchecked]:shadow-border-border-control-default data-[state=checked]:shadow-border-border-control-checked text-primary h-4 w-4 rounded-sm disabled:cursor-not-allowed disabled:opacity-50',
+            'ring-offset-background-control-surface data-[state=checked]:bg-control-checked',
+            'data-[state=unchecked]:shadow-border-control-default data-[state=checked]:shadow-border-control-checked text-primary h-4 w-4 rounded-sm disabled:cursor-not-allowed disabled:opacity-50',
             'flex shrink-0 items-center justify-center',
-            '[button[data-state=on]_&]:text-background-control-active-foreground [button[data-state=on]_&]:bg-background-control-active [button[data-state=off]_&]:text-transparent',
+            '[button[data-state=on]_&]:text-background-control-active-foreground [button[data-state=on]_&]:bg-control-active [button[data-state=off]_&]:text-transparent',
 
             props.class,
             props.noInput ? 'sr-only' : ''

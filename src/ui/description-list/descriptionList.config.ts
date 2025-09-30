@@ -8,8 +8,8 @@ export default {
     term: cva("text-left", {
       variants: {
         hasEmphasis: {
-          true: "text-text-muted",
-          false: "text-text-muted"
+          true: "text-muted",
+          false: "text-muted"
         }
       }
     }),
@@ -17,7 +17,7 @@ export default {
       variants: {
         hasEmphasis: {
           true: "",
-          false: "text-text-muted"
+          false: "text-muted"
         }
       }
     }),

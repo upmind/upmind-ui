@@ -53,13 +53,13 @@ export const innerVariant = cva("mx-auto max-h-[75vh] w-full", {
   }
 });
 
-export const overlayVariant = cva("bg-background-overlay");
+export const overlayVariant = cva("bg-overlay");
 
 export default {
   drawer: {
     overlay: overlayVariant,
     container: containerVariant,
-    content: cva("bg-background-surface w-full rounded-t-lg border-none py-12"),
+    content: cva("bg-surface w-full rounded-t-lg border-none py-12"),
     inner: innerVariant,
     header: "",
     footer: ""

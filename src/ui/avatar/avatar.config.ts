@@ -5,13 +5,8 @@ import { ringClasses } from "../../assets/ring.styles";
 
 export const variants = {
   color: {
-    primary: "bg-background-primary",
-    blue: "bg-background-blue",
-    pink: "bg-background-pink",
-    orange: "bg-background-orange",
-    green: "bg-background-green",
-    yellow: "bg-background-yellow",
-    purple: "bg-background-purple"
+    primary: "bg-primary",
+    secondary: "bg-secondary"
   },
   fit: {
     cover: "object-cover",
@@ -36,7 +31,7 @@ export const variants = {
 };
 
 export const avatarVariants = cva(
-  "text-text-white relative inline-flex aspect-square shrink-0 items-center justify-center overflow-hidden font-medium select-none",
+  "relative inline-flex aspect-square shrink-0 items-center justify-center overflow-hidden font-medium text-white select-none",
   {
     variants,
     defaultVariants: {

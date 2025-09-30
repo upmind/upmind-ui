@@ -6,7 +6,7 @@ export default {
     root: cva("flex flex-col space-y-2", {
       variants: {
         hasBorder: {
-          true: "border-border-control-default border-t pt-4"
+          true: "border-control-default border-t pt-4"
         }
       }
     }),

@@ -19,7 +19,7 @@ export const variants = {
 };
 
 export const rootVariants = cva(
-  `bg-background-control-surface [&:hover,&:focus-within,&[data-hover=true],&[data-focus=true]]:shadow-border-border-control-hover [&:focus-within,&[data-focus=true]]:ring-ring control-radius shadow-border-border-control-default group flex cursor-pointer border-none px-4 py-2 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 [&:focus-within,&[data-focus=true]]:ring-2 [&:focus-within,&[data-focus=true]]:ring-offset-2 ${ringClasses} ${invalidRingClasses}`,
+  `bg-control-surface [&:hover,&:focus-within,&[data-hover=true],&[data-focus=true]]:shadow-border-control-hover [&:focus-within,&[data-focus=true]]:ring-ring control-radius shadow-border-control-default group flex cursor-pointer border-none px-4 py-2 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 [&:focus-within,&[data-focus=true]]:ring-2 [&:focus-within,&[data-focus=true]]:ring-offset-2 ${ringClasses} ${invalidRingClasses}`,
   {
     variants,
     defaultVariants: {
@@ -37,12 +37,12 @@ export default {
         hasValue: {
           true: "",
           false:
-            "text-text-faint [.group:hover_&,.group[data-hover=true]_&]:text-text-base [.group:focus-within_&,.group[data-focus=true]_&]:text-text-base transition-colors duration-200"
+            "text-faint transition-colors duration-200 [.group:focus-within_&,.group[data-focus=true]_&]:text-base [.group:hover_&,.group[data-hover=true]_&]:text-base"
         }
       }
     }),
     item: cva(
-      "data-[state=unchecked]:text-text-muted data-[state=unchecked]:hover:text-text-base data-[state=unchecked]:focus:text-text-base data-[state=checked]:text-text-base data-[state=checked]:bg-background-control-selected [&:hover,&[data-hover=true]]:bg-background-control-selected [&:focus,&[data-focus=true]]:bg-background-control-selected cursor-pointer gap-3 rounded px-4 py-2 font-normal transition-all duration-200",
+      "data-[state=unchecked]:text-muted data-[state=checked]:bg-control-selected [&:hover,&[data-hover=true]]:bg-control-selected [&:focus,&[data-focus=true]]:bg-control-selected cursor-pointer gap-3 rounded px-4 py-2 font-normal transition-all duration-200 data-[state=checked]:text-base data-[state=unchecked]:hover:text-base data-[state=unchecked]:focus:text-base",
       {
         variants: {
           size: variants.size
@@ -50,7 +50,7 @@ export default {
       }
     ),
     content: cva(
-      `control-radius shadow-border-border-control-default bg-background-control-surface mt-2 border-none ${ringClasses} ${invalidRingClasses} p-0`
+      `control-radius shadow-border-control-default bg-control-surface mt-2 border-none ${ringClasses} ${invalidRingClasses} p-0`
     )
   }
 };

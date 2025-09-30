@@ -5,7 +5,7 @@ export default {
   search: {
     input: cva(""),
     inputContainer: cva("text-md! cursor-default"),
-    icon: cva("text-text-muted mr-1 size-5"),
+    icon: cva("text-muted mr-1 size-5"),
     content: cva(
       `z-50 mt-2 w-(--radix-popover-trigger-width) overflow-hidden rounded border bg-white p-2 ${ringClasses}`
     ),
