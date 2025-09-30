@@ -5,28 +5,26 @@ export const variants = {
   size: {
     md: "text-sm font-normal",
     lg: "text-md font-normal"
+  },
+  width: {
+    "2xs": "w-dropdown-2xs",
+    xs: "w-dropdown-xs",
+    sm: "w-dropdown-sm",
+    md: "w-dropdown-md",
+    lg: "w-dropdown-lg",
+    xl: "w-dropdown-xl",
+    "2xl": "w-dropdown-2xl",
+    full: "w-full",
+    auto: "w-auto",
+    fit: "w-auto",
+    app: "w-app"
   }
 };
 
 export const triggerVariants = cva(
   "text-md bg-background-control-surface [&:hover,&:focus-within,&[data-hover=true],&[data-focus=true]]:shadow-border-border-control-hover control-radius [&:hover,&[data-hover=true]]:bg-background-control-surface shadow-border-border-control-default text-text-base h-auto justify-between gap-2 transition-all duration-200",
   {
-    variants: {
-      size: variants.size,
-      width: {
-        "2xs": "w-dropdown-2xs",
-        xs: "w-dropdown-xs",
-        sm: "w-dropdown-sm",
-        md: "w-dropdown-md",
-        lg: "w-dropdown-lg",
-        xl: "w-dropdown-xl",
-        "2xl": "w-dropdown-2xl",
-        full: "w-full",
-        auto: "w-auto",
-        fit: "w-auto",
-        app: "w-app"
-      }
-    },
+    variants,
     defaultVariants: {
       width: "full"
     }
