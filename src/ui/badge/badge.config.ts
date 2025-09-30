@@ -42,7 +42,7 @@ export const badgeVariants = cva(
       {
         variant: "solid",
         color: "neutral",
-        class: "bg-accent-neutral textaccent-neutral-contrast"
+        class: "bg-accent-neutral text-accent-neutral-contrast"
       },
       {
         variant: "solid",

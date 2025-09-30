@@ -22,6 +22,56 @@
   .control-radius {
     border-radius: var(--control-radius);
   }
+
+  /* Shadow Border Utilities */
+  .shadow-border-surface {
+    box-shadow: var(--shadow-border-surface);
+  }
+
+  /* Shadow Border - Control */
+  .shadow-border-control-default {
+    box-shadow: var(--shadow-border-control-default);
+  }
+  .shadow-border-control-hover {
+    box-shadow: var(--shadow-border-control-hover);
+  }
+  .shadow-border-control-selected {
+    box-shadow: var(--shadow-border-control-selected);
+  }
+
+  /* Shadow Border - Button */
+  .shadow-border-button-outline {
+    box-shadow: var(--shadow-border-button-outline);
+  }
+  .shadow-border-button-outline-hover {
+    box-shadow: var(--shadow-border-button-outline-hover);
+  }
+
+  /* Shadow Border - Accent */
+  .shadow-border-accent-primary {
+    box-shadow: var(--shadow-border-accent-primary);
+  }
+  .shadow-border-accent-secondary {
+    box-shadow: var(--shadow-border-accent-secondary);
+  }
+  .shadow-border-accent-neutral {
+    box-shadow: var(--shadow-border-accent-neutral);
+  }
+  .shadow-border-accent-promo {
+    box-shadow: var(--shadow-border-accent-promo);
+  }
+  .shadow-border-accent-danger {
+    box-shadow: var(--shadow-border-accent-danger);
+  }
+  .shadow-border-accent-warning {
+    box-shadow: var(--shadow-border-accent-warning);
+  }
+  .shadow-border-accent-success {
+    box-shadow: var(--shadow-border-accent-success);
+  }
+  .shadow-border-accent-info {
+    box-shadow: var(--shadow-border-accent-info);
+  }
 }
 
 @theme {
@@ -60,4 +110,26 @@
     inset 1px 0 0 0 var(--border-color-default),
     inset 0 -1px 0 0 var(--border-color-default);
   --shadow-border-none: inset 0 0 0 0 var(--border-color-default);
+
+  /* Control Shadow Borders */
+  --shadow-border-control-default: inset 0 0 0 1px var(--color-border-control-default);
+  --shadow-border-control-hover: inset 0 0 0 1px var(--color-border-control-hover);
+  --shadow-border-control-selected: inset 0 0 0 1px var(--color-border-control-selected);
+
+  /* Button Shadow Borders */
+  --shadow-border-button-outline: inset 0 0 0 1px var(--color-border-button-outline);
+  --shadow-border-button-outline-hover: inset 0 0 0 1px var(--color-border-button-outline-hover);
+
+  /* Surface Shadow Borders */
+  --shadow-border-surface: inset 0 0 0 1px var(--color-border-surface);
+
+  /* Accent Shadow Borders */
+  --shadow-border-accent-primary: inset 0 0 0 1px var(--color-border-accent-primary);
+  --shadow-border-accent-secondary: inset 0 0 0 1px var(--color-border-accent-secondary);
+  --shadow-border-accent-neutral: inset 0 0 0 1px var(--color-border-accent-neutral);
+  --shadow-border-accent-promo: inset 0 0 0 1px var(--color-border-accent-promo);
+  --shadow-border-accent-danger: inset 0 0 0 1px var(--color-border-accent-danger);
+  --shadow-border-accent-warning: inset 0 0 0 1px var(--color-border-accent-warning);
+  --shadow-border-accent-success: inset 0 0 0 1px var(--color-border-accent-success);
+  --shadow-border-accent-info: inset 0 0 0 1px var(--color-border-accent-info);
 }

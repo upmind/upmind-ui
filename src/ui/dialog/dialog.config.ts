@@ -27,7 +27,7 @@ export const variants = {
 };
 
 export const contentVariant = cva(
-  "bg-surface border-surface mx-auto grid max-h-[90dvh] w-full border p-0 shadow-none focus:outline-hidden",
+  "bg-surface border-surface mx-auto grid max-h-[90dvh] w-full border p-0 text-base shadow-none focus:outline-hidden",
   {
     variants,
     defaultVariants: {
