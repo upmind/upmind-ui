@@ -13,7 +13,7 @@ const { dataLayer } = useDataLayer();
 // --- utils
 import { isActor } from "xstate/lib/utils";
 import { parseQuantity } from "../product/utils";
-import { isEmpty, get, omit, add, subtract } from "lodash-es";
+import { isEmpty, get, omit, add, subtract, isObject, has } from "lodash-es";
 import {
   DetailedError,
   ErrorOrigin,
@@ -35,7 +35,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
   function isProductProps(
     value: ProductProps | ActorRef<any>
   ): value is ProductProps {
-    return value && typeof value === "object" && "productId" in value;
+    return value && isObject(value) && has(value, "productId");
   }
 
   const { basket: rawBasket } = useBasket();

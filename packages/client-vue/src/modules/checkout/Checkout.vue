@@ -6,7 +6,7 @@
 
     <template #header>
       <Header
-        title="text.secure_checkout"
+        :title="t('text.secure_checkout')"
         :description="
           t('cart.basket_summary_desc', {
             count: products?.length ?? 0,

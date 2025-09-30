@@ -3,7 +3,7 @@
   "basket_product_missing_data": "Відсутні дані для елемента",
   "basket_product_missing_data_help": "У цьому елементі відсутні дані, і він потребує уваги",
   "basket_products": "Товари з кошика",
-  "basket_products_require_attention": "**{count} ** продукти вимагають **{keyword} ** | **{count} ** продукт вимагає **{keyword} ** | **{count} ** продукти вимагають **{keyword} **",
+  "basket_products_require_attention": "**{count}**продукція потребує **уваги** | **{count}** продукт потребує **уваги** | **{count}**товари потребують **уваги**",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
   "basket_products_require_attention_msg": "{count}продукти потребують уваги{count} продукт потребує уваги{count} продукти потребують уваги",
   "basket_products_review_desc": "Будь ласка, перегляньте наступні товари, перш ніж продовжити, або поверніться до кошика.",

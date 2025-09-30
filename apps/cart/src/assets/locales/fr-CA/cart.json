@@ -3,7 +3,7 @@
   "basket_product_missing_data": "Données manquantes sur l&#39;élément",
   "basket_product_missing_data_help": "Cet élément manque de données et nécessite une attention particulière",
   "basket_products": "Articles du panier",
-  "basket_products_require_attention": "**{count} ** les produits requièrent **{keyword} ** **{count} ** le produit nécessite **{keyword} ** **{count} ** les produits requièrent **{keyword} **",
+  "basket_products_require_attention": "**{count}** les produits nécessitent une **attention** | **{count}** le produit nécessite **une attention** | **{count}** les produits nécessitent une **attention**",
   "basket_products_require_attention_md": "@.markdown : {'cart.basket_products_require_attention'}",
   "basket_products_require_attention_msg": "{count}les produits nécessitent une attention particulière |{count} le produit nécessite une attention particulière |{count} les produits nécessitent une attention particulière",
   "basket_products_review_desc": "Veuillez vérifier les éléments suivants avant de continuer, ou retournez-les au panier.",
