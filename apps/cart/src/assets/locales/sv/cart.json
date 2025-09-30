@@ -3,7 +3,7 @@
   "basket_product_missing_data": "Saknade data för objektet",
   "basket_product_missing_data_help": "Det här objektet saknar data och kräver åtgärd",
   "basket_products": "Varor i varukorgen",
-  "basket_products_require_attention": "**{count} ** produkter kräver **{keyword} ** | **{count} ** produkten kräver **{keyword} ** | **{count} ** produkter kräver **{keyword} **",
+  "basket_products_require_attention": "**{count}**produkter kräver **uppmärksamhet** | **{count}** produkten kräver **uppmärksamhet** | **{count}**produkter kräver **uppmärksamhet**",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
   "basket_products_require_attention_msg": "{count}produkter kräver uppmärksamhet |{count} produkten kräver uppmärksamhet |{count} produkter kräver uppmärksamhet",
   "basket_products_review_desc": "Vänligen granska följande artiklar innan du fortsätter, alternativt lägg dem tillbaka i varukorgen.",

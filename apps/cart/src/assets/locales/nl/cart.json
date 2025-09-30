@@ -3,7 +3,7 @@
   "basket_product_missing_data": "Ontbrekende gegevens van item",
   "basket_product_missing_data_help": "Er ontbreken gegevens voor dit item en er is aandacht nodig",
   "basket_products": "Artikelen in het winkelmandje",
-  "basket_products_require_attention": "**{count} ** producten vereisen **{keyword} ** | **{count} ** product vereist **{keyword} ** | **{count} ** producten vereisen **{keyword} **",
+  "basket_products_require_attention": "**{count}** producten vereisen **aandacht** | **{count}** product vereist **aandacht** | **{count}** producten vereisen **aandacht**",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
   "basket_products_require_attention_msg": "{count}producten vereisen aandacht |{count} product vereist aandacht |{count} producten vereisen aandacht",
   "basket_products_review_desc": "Controleer de volgende items voordat u verdergaat. U kunt ze ook terugzetten in uw winkelmandje.",

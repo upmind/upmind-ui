@@ -1084,10 +1084,11 @@ const parseSummaryTerm = (
   terms: TermDetails[],
   error?: ExternalError["term"]
 ): TermDetails | undefined => {
+  const { t } = useI18n();
   const term = find(terms, ["cycle", cycle]);
   if (term) {
     term.name = "term";
-    term.category = "Billing Cycle";
+    term.category = t("text.billing_cycle");
     term.meta = {
       ...term.meta,
       invalid: has(error, "term")

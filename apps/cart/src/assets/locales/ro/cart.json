@@ -3,7 +3,7 @@
   "basket_product_missing_data": "Element lipsește date",
   "basket_product_missing_data_help": "Acest element are date lipsă și necesită atenție.",
   "basket_products": "Articole în coș",
-  "basket_products_require_attention": "**{count} ** produsele necesită **{keyword} ** | **{count} ** produsul necesită **{keyword} ** | **{count} ** produsele necesită **{keyword} **",
+  "basket_products_require_attention": "**{count}** produsele necesită **atenție** | **{count}** produsul necesită **atenție** | **{count}** produsele necesită **atenție**",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
   "basket_products_require_attention_msg": "{count}produsele necesită atenție{count} produsul necesită atenție{count} produsele necesită atenție",
   "basket_products_review_desc": "Vă rugăm să verificați următoarele elemente înainte de a continua, alternativ reveniți la coș.",

@@ -3,7 +3,7 @@
   "basket_product_missing_data": "Öğede veri eksik",
   "basket_product_missing_data_help": "Bu öğede veri eksik ve dikkat gerektiriyor",
   "basket_products": "Sepet ürünleri",
-  "basket_products_require_attention": "**{count} ** ürünler gerektirir **{keyword} ** | **{count} ** ürün gerektirir **{keyword} ** | **{count} ** ürünler gerektirir **{keyword} **",
+  "basket_products_require_attention": "**{count}** Ürünler **dikkat** gerektirir | **{count}** ürün **dikkat** gerektirir | **{count}**ürünler **dikkat** gerektirir",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
   "basket_products_require_attention_msg": "{count}ürünler dikkat gerektirir |{count} ürün dikkat gerektiriyor |{count} ürünler dikkat gerektirir",
   "basket_products_review_desc": "Devam etmeden önce lütfen aşağıdaki maddeleri inceleyin veya alternatif olarak sepete geri dönün.",
