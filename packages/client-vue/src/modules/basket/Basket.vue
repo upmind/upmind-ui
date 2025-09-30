@@ -1,14 +1,14 @@
 <template>
   <Layout :variant="uiCart?.layout" minimal>
     <template #navigation>
-      <Back v-bind="storefrontRoute" i18n-key="action.continue_shopping" />
+      <Back v-bind="storefrontRoute" :label="t('action.continue_shopping')" />
     </template>
 
     <template #header>
       <Header
-        title="cart.title"
+        title="cart.basket_title"
         :description="
-          t('cart.basket_products_count_desc', {
+          t('cart.basket_summary_desc', {
             count: products?.length ?? 0,
             total: summary?.total ?? 0
           })

@@ -167,7 +167,6 @@ export type ProductDetails = {
   categories?: string[]; // parent category names
   breadcrumb?: ProductBreadcrumb[]; // parent category names and ids for breadcrumbs
   cycle: number;
-  cycleFormatted: BillingCycleFormats;
   displayPrice?: TermDetails;
   description?: string;
   excerpt?: string;
@@ -267,7 +266,6 @@ export type ProductSummaryDetail = {
   name: string; // untranslated name for reporting purposes  category?: string;
   title?: string;
   cycle?: number;
-  cycleFormatted?: BillingCycleFormats;
   category?: string;
   quantity?: number;
   promotions?: PromotionDetails[];

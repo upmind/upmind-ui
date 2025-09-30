@@ -108,7 +108,7 @@ export const useSession = () => {
       .catch(() =>
         Promise.reject(
           new DetailedError(
-            t("error.401.title_md"),
+            t("error.401_title_md"),
             responseCodes.Unauthorized,
             ErrorOrigin.Headless
           )

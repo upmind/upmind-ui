@@ -8,7 +8,7 @@
       <Header
         title="text.secure_checkout"
         :description="
-          t('cart.summary_desc', {
+          t('cart.basket_summary_desc', {
             count: products?.length ?? 0,
             total: summary?.total ?? 0
           })

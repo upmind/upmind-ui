@@ -25,6 +25,12 @@ import { GatewayContext } from "../paymentDetails";
 import { isFunction } from "xstate/lib/utils";
 import { QueryResponseError } from "../query";
 import { ErrorObject } from "ajv";
+import { useBrand } from "../brand";
+import {
+  GatewayTypes,
+  IPaymentType,
+  PaymentType
+} from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 /**
@@ -61,6 +67,13 @@ export const usePaymentGateway = (actor: ComputedRef<Actor | undefined>) => {
   }
 
   const meta = computed(() => ({
+    needsPayment:
+      contextValue<number>(actor, "amount", 0)! >= 0 &&
+      !contextMatches(actor, "gateway.type", GatewayTypes.OFFLINE),
+    // contextMatches(actor, "gateway.payment_types", [
+    //   PaymentType.PARTIAL_PAYMENT,
+    //   PaymentType.PAY_IN_FULL
+    // ]),
     isAvailable: !!actor.value,
     isLoading: !actor.value || stateMatches(actor.value, ["loading"]),
     hasErrors: stateMatches(actor, ["error"]),
@@ -97,6 +110,9 @@ export const usePaymentGateway = (actor: ComputedRef<Actor | undefined>) => {
   const instructions = useContext<any>(actor, "gateway.payment_instructions");
   const type = useContext<GatewayContext["type"]>(actor, "type");
   const code = useContext<GatewayContext["code"]>(actor, "code");
+
+  const { uiCart } = useBrand();
+  const clickwrap = computed(() => uiCart.value?.clickwrap_disclaimer);
 
   // --- methods
 
@@ -210,6 +226,9 @@ export const usePaymentGateway = (actor: ComputedRef<Actor | undefined>) => {
 
     /** The payment gateway renderer. */
     renderer,
+
+    /** The payment gateway clickwrap disclaimer. */
+    clickwrap,
 
     /** The payment gateway schema. */
     schema,

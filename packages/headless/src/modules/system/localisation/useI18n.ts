@@ -133,18 +133,24 @@ export const useI18n = () => {
         { ...files, ...sourceFiles },
         (result: Promise<any>[], value: any, key: string) => {
           if (name && !includes(key, name)) return result;
-          if (isFunction(value))
+          if (isFunction(value)) {
             result.push(
-              value().then((msgs: Record<string, string>) =>
-                get(parse(key, { ...msgs }), name)
+              value().then(
+                (
+                  msgs:
+                    | Record<string, string>
+                    | { default: Record<string, string> }
+                ) => {
+                  msgs = (msgs?.default ?? msgs) as Record<string, string>; // in case default import is not specified in the glob definition https://vite.dev/guide/features.html#named-imports
+                  return get(parse(key, { ...msgs }), name);
+                }
               )
             );
-          else
-            result.push(
-              Promise.resolve(value?.default ?? value).then(msgs =>
-                get(parse(key, msgs), name)
-              )
-            );
+          } else {
+            value = value?.default ?? value; // in case default import is not specified in the glob definition https://vite.dev/guide/features.html#named-imports
+            const msgs = get(parse(key, value), name);
+            result.push(Promise.resolve(msgs));
+          }
 
           return result;
         },

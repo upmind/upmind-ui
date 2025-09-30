@@ -101,6 +101,7 @@ async function doFetch<T extends any = any>({
 async function refreshToken() {
   const { reauth } = useSession();
   const { post, useUrl } = useQuery();
+  const { t } = useI18n();
 
   const token = getTokenFromStorage();
   const refresh_token = get(token, "refresh_token", "");
@@ -108,9 +109,8 @@ async function refreshToken() {
   if (!token || !refresh_token) {
     useFeedback().add({
       type: messageTypes.ERROR,
-      title: "Session error",
-      copy: "Your session has expired, please reload the page",
-      i18nKey: `error.${responseCodes.Unauthorized}`,
+      title: t("error.401_title_md"),
+      copy: t("error.401_text"),
       data: { status: responseCodes.Unauthorized },
       display: messageDisplays.SYSTEM,
       delay: 0,

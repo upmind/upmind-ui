@@ -486,6 +486,7 @@ export default createMachine(
       }),
 
       setWarningNotes: (context: BasketContext, { data }: AnyEventObject) => {
+        const { t } = useI18n();
         const basket = get(data, "basket", data);
         if (has(basket, "warning_notes") && !isEmpty(basket.warning_notes)) {
           reduce(
@@ -502,9 +503,8 @@ export default createMachine(
                   actions: [
                     {
                       icon: "close",
-                      label: "Dismiss",
+                      label: t("action.dismiss"),
                       value: "dismiss",
-                      i18nKey: "action.dismiss",
                       handler: async (ctx: Message) => {
                         services.dismissWarningNotes(context, {
                           type: "DISMISS_WARNING",

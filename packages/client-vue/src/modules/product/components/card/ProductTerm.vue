@@ -11,6 +11,9 @@ import { computed } from "vue";
 import { toString } from "lodash-es";
 import { useI18n } from "vue-i18n";
 
+// --- internal
+import { parseBillingCycle } from "@upmind-automation/headless";
+
 // --- components
 import {
   SelectCards,
@@ -32,7 +35,7 @@ const items = computed(() => {
 
   return props.prices?.map(price => {
     const item = {
-      label: price.cycleFormatted?.numeric,
+      label: parseBillingCycle(price.cycle!).numeric,
       value: toString(price.cycle),
       appendLabel: price.price.currentPrice
     } as SelectCardsItemProps;

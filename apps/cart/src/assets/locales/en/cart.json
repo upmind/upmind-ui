@@ -1,68 +1,19 @@
 {
+  "basket_items": "no items in basket | {count} item in basket | {count} items in basket",
   "basket_product_missing_data": "Item missing data",
   "basket_product_missing_data_help": "This item is missing data and requires attention",
   "basket_products": "Basket items",
-  "basket_products_count_desc": "You have {count} item in your basket, totalling {total}. | You have {count} items in your basket, totalling {total}.",
-  "basket_products_count_msg": "no items in basket | {count} item in basket | {count} items in basket",
   "basket_products_require_attention": "**{count}** products require **{keyword}** | **{count}** product requires **{keyword}** | **{count}** products require **{keyword}**",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
   "basket_products_require_attention_msg": "{count} products require attention | {count} product requires attention | {count} products require attention",
   "basket_products_review_desc": "Please review the following items before proceeding, alternatively return to the basket.",
   "basket_products_review_msg": "Please review the following items before continuing",
+  "basket_summary_desc": "You have {count} item in your basket, totalling {total}. | You have {count} items in your basket, totalling {total}.",
+  "basket_title": "Your basket",
   "empty": "Your **basket** is empty",
   "empty_md": "@.markdown:{'cart.empty'}",
   "empty_msg": "Looks like you haven't added anything to your basket yet.",
-  "gateway": {
-    "0": {
-      "actions": {
-        "submit": "Place order and pay"
-      },
-      "footer": {
-        "icon": "lock",
-        "title": "Encrypted and secure payments"
-      }
-    },
-    "1": {
-      "actions": {
-        "submit": "Place order and pay"
-      },
-      "footer": {
-        "icon": "lock",
-        "title": "Encrypted and secure payments"
-      }
-    },
-    "2": {
-      "actions": {
-        "submit": "Place order"
-      }
-    },
-    "3": {
-      "actions": {
-        "submit": "Place order"
-      }
-    },
-    "4": {
-      "actions": {
-        "submit": "Place order"
-      }
-    },
-    "5": {
-      "actions": {
-        "submit": "Place order"
-      }
-    },
-    "6": {
-      "actions": {
-        "submit": "Place order"
-      }
-    },
-    "7": {
-      "actions": {
-        "submit": "Place order"
-      }
-    }
-  },
-  "no_items": "no items in basket | {count} item in basket | {count} items in basket",
+  "encrypted_and_secure_payments": "Encrypted and secure payments",
   "nothing_to_pay_msg": "Great news – there's nothing to pay!",
   "order_converting": "**Converting** your order",
   "order_converting_md": "@.markdown:{'cart.order_converting'}",
@@ -85,8 +36,6 @@
   "place_order_desc": "Just click the 'Place order' button to complete your purchase.",
   "product_not_found": "**Product** not found",
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
-  "promo_code_help": "{code} provides {amount} discount {description}",
-  "promo_codes_active": "Active discounts",
-  "summary_desc": "You have {count} item in your basket, totalling {total}. | You have {count} items in your basket, totalling {total}.",
-  "title": "Your basket"
+  "promotion_help": "{code} provides {amount} discount {description}",
+  "promotions_active": "Active discounts"
 }
