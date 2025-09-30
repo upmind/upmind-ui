@@ -46,11 +46,10 @@ import Breadcrumb from "./Breadcrumb.vue";
 import BreadcrumbList from "./BreadcrumbList.vue";
 import BreadcrumbItem from "./BreadcrumbItem.vue";
 import BreadcrumbSeparator from "./BreadcrumbSeparator.vue";
-import Link from "../button/Link.ce.vue";
+import Link from "../link/Link.ce.vue";
 
 // --- types
 import type { BreadcrumbConsolidateProps } from "./types";
-import { RouterLink } from "vue-router";
 
 const props = withDefaults(defineProps<BreadcrumbConsolidateProps>(), {
   items: () => [],

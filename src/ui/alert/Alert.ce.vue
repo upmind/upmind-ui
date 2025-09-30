@@ -32,14 +32,12 @@
 
     <footer v-if="action || $slots['action']">
       <slot name="action">
-        <div class="flex items-center gap-0.5" :class="styles.alert.action">
-          <Button
-            size="sm"
-            variant="muted-link"
-            :label="action"
-            class="text-current"
-          />
-          <Icon icon="arrow-right" class="p-1.5 [&>svg]:size-3" />
+        <div class="flex items-center gap-0.5">
+          <Link size="sm" :color="color" :label="action">
+            <template #append>
+              <Icon icon="arrow-right" class="p-1.5 [&>svg]:size-3" />
+            </template>
+          </Link>
         </div>
       </slot>
     </footer>
@@ -62,7 +60,7 @@ import {
 import Alert from "./Alert.vue";
 import AlertTitle from "./AlertTitle.vue";
 import AlertDescription from "./AlertDescription.vue";
-import { Button } from "../button";
+import { Link } from "../link";
 import { Icon } from "../icon";
 
 // --- types

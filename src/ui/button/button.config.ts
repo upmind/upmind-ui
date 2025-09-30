@@ -25,9 +25,6 @@ export const variants = {
       "button-radius bg-button-outline text-button-outline border-button-outline [&:hover,&[data-hover=true]]:bg-button-outline-hover ring-background-button-outline-ring! shadow-border-button-outline",
     ghost:
       "button-radius bg-button-ghost text-button-ghost [&:hover,&[data-hover=true]]:bg-button-ghost-hover ring-background-button-ghost-ring!",
-    link: "button-radius text-button-link [&:hover,&[data-hover=true]]:text-button-link-hover [&:focus,&[data-focus=true]]:text-button-link-hover p-0 underline underline-offset-4 !shadow-none !ring-0 !ring-offset-0 !outline-none",
-    "muted-link":
-      "button-radius text-button-muted-link [&:hover,&[data-hover=true]]:text-button-muted-link-hover [&:focus,&[data-focus=true]]:text-button-muted-link p-0 underline underline-offset-4 !shadow-none !ring-0 !ring-offset-0 !outline-none font-normal",
     control:
       "control-radius shadow-border-control-default hover:border-control-hover ring-background-button-control-ring!"
   },
@@ -71,7 +68,6 @@ const labelVariants = cva("", {
       flat: "px-1",
       outline: "px-1",
       ghost: "px-1",
-      link: "",
       tonal: "px-1",
       inverse: "px-1",
       control: "px-1"
@@ -92,9 +88,6 @@ const itemsVariants = cva("size-lh flex items-center justify-center", {
       sm: "[&>i]:p-[3px]",
       md: "[&>i]:p-[3px]",
       lg: "[&>i]:p-[4px]"
-    },
-    variant: {
-      link: "text-muted"
     },
     isLoading: {
       true: "opacity-0"

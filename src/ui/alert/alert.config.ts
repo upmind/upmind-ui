@@ -279,61 +279,12 @@ const iconVariants = cva("", {
   ]
 });
 
-const actionVariants = cva("", {
-  variants: {
-    variant: {
-      muted: "",
-      minimal: "text-muted"
-    },
-    size: variants.size,
-    color: variants.color
-  },
-  defaultVariants: {
-    variant: "minimal",
-    color: "neutral",
-    size: "md"
-  },
-  compoundVariants: [
-    {
-      variant: "muted",
-      color: "neutral",
-      class: "text-accent-neutral-muted-contrast"
-    },
-    {
-      variant: "muted",
-      color: "promo",
-      class: "text-accent-promo-muted-contrast"
-    },
-    {
-      variant: "muted",
-      color: "danger",
-      class: "text-accent-danger-muted-contrast"
-    },
-    {
-      variant: "muted",
-      color: "warning",
-      class: "text-accent-warning-muted-contrast"
-    },
-    {
-      variant: "muted",
-      color: "success",
-      class: "text-accent-success-muted-contrast"
-    },
-    {
-      variant: "muted",
-      color: "info",
-      class: "text-accent-info-muted-contrast"
-    }
-  ]
-});
-
 // -----------------------------------------------------------------------------
 export default {
   alert: {
     root: rootVariants,
     title: titleVariants,
     description: descriptionVariants,
-    icon: iconVariants,
-    action: actionVariants
+    icon: iconVariants
   }
 };
