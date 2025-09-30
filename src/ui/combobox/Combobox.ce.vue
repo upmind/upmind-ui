@@ -87,21 +87,24 @@
               :placeholder="searchPlaceholder"
               :class="styles.combobox.input"
             />
-            <CommandEmpty>{{ emptyMessage }}</CommandEmpty>
           </div>
         </template>
         <CommandList
           class="border-border-control-default w-full max-w-full border-t p-2"
           loop
         >
+          <CommandEmpty class="text-text-muted">{{
+            emptyMessage
+          }}</CommandEmpty>
           <CommandGroup>
             <CommandItem
               v-for="item in results"
               :key="(item as Record<string, any>)[itemValue]"
-              :value="item"
+              :value="(item as Record<string, any>)[itemValue]"
               @select="doSelect(get(item, itemValue))"
               class="group flex cursor-pointer items-center justify-start gap-4"
               :class="styles.combobox.item"
+              :data-selected="isSelected(item) ? 'true' : 'false'"
             >
               <Avatar v-if="item.avatar" v-bind="item.avatar" size="xs" />
 

@@ -32,7 +32,7 @@ export const triggerVariants = cva(
 );
 
 export const itemVariants = cva(
-  "data-[state=unchecked]:text-text-muted data-[state=unchecked]:hover:text-text-base data-[state=unchecked]:focus:text-text-base data-[state=checked]:text-text-base data-[state=checked]:bg-background-control-selected [&:hover,&[data-hover=true]]:bg-background-control-selected [&:focus,&[data-focus=true]]:bg-background-control-selected cursor-pointer gap-3 rounded px-4 py-2 font-normal transition-all duration-200"
+  "data-[selected=false]:text-text-muted data-[selected=false]:hover:text-text-base data-[selected=false]:focus:text-text-base data-[selected=true]:text-text-base data-[selected=true]:bg-background-control-selected [&:hover,&[data-hover=true]]:bg-background-control-selected [&:focus,&[data-focus=true]]:bg-background-control-selected cursor-pointer gap-3 rounded px-4 py-2 font-normal transition-all duration-200"
 );
 
 export const contentVariants = cva(
