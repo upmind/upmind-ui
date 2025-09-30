@@ -3,7 +3,7 @@
   "basket_product_missing_data": "Λείπουν δεδομένα από το στοιχείο",
   "basket_product_missing_data_help": "Αυτό το στοιχείο δεν έχει δεδομένα και απαιτεί προσοχή",
   "basket_products": "Είδη καλαθιού",
-  "basket_products_require_attention": "**{count} **τα προϊόντα απαιτούν **{keyword} ** | **{count} ** το προϊόν απαιτεί **{keyword} ** | **{count} **τα προϊόντα απαιτούν **{keyword} **",
+  "basket_products_require_attention": "**{count}**τα προϊόντα απαιτούν **προσοχή** | **{count}** το προϊόν απαιτεί **προσοχή** | **{count}**τα προϊόντα απαιτούν **προσοχή**",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
   "basket_products_require_attention_msg": "{count}τα προϊόντα απαιτούν προσοχή |{count} το προϊόν απαιτεί προσοχή |{count} προϊόντα που απαιτούν προσοχή",
   "basket_products_review_desc": "Παρακαλούμε ελέγξτε τα παρακάτω στοιχεία πριν προχωρήσετε, εναλλακτικά επιστρέψτε τα στο καλάθι.",

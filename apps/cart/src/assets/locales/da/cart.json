@@ -3,7 +3,7 @@
   "basket_product_missing_data": "Manglende data på varen",
   "basket_product_missing_data_help": "Denne vare mangler data og kræver opmærksomhed",
   "basket_products": "Kurvvarer",
-  "basket_products_require_attention": "**{count} ** produkter kræver **{keyword} ** | **{count} **produkt kræver**{keyword} ** | **{count} ** produkter kræver **{keyword} **",
+  "basket_products_require_attention": "**{count}**produkter kræver **opmærksomhed** | **{count}** Produktet kræver **opmærksomhed** | **{count}**produkter kræver **opmærksomhed**",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
   "basket_products_require_attention_msg": "{count}produkter kræver opmærksomhed |{count} produkt kræver opmærksomhed |{count} produkter kræver opmærksomhed",
   "basket_products_review_desc": "Gennemgå venligst følgende punkter, før du fortsætter, eller returner dem til kurven.",

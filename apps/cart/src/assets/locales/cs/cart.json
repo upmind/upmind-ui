@@ -3,7 +3,7 @@
   "basket_product_missing_data": "Chybějící data u položky",
   "basket_product_missing_data_help": "U této položky chybí data a vyžaduje pozornost.",
   "basket_products": "Položky v košíku",
-  "basket_products_require_attention": "**{count} ** produkty vyžadují **{keyword} ** | **{count} ** výrobek vyžaduje **{keyword} ** | **{count} ** produkty vyžadují **{keyword} **",
+  "basket_products_require_attention": "**{count}** výrobky vyžadují **pozornost** | **{count}** výrobek vyžaduje **pozornost** | **{count}**výrobky vyžadují **pozornost**",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
   "basket_products_require_attention_msg": "{count}výrobky vyžadují pozornost |{count} produkt vyžaduje pozornost{count} výrobky vyžadují pozornost",
   "basket_products_review_desc": "Před pokračováním si prosím zkontrolujte následující položky, případně se vraťte do košíku.",

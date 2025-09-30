@@ -3,7 +3,7 @@
     <ContentSection>
       <Interstitial
         to="#vue-app"
-        :title="t('cart.basket_products_require_attention_md')"
+        :title="t('cart.basket_products_require_attention_md', products.length)"
         :text="t('cart.basket_products_review_desc')"
         :animatedIcon="{
           icon: 'basket',

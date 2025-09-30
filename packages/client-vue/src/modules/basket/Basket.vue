@@ -6,7 +6,7 @@
 
     <template #header>
       <Header
-        title="cart.basket_title"
+        :title="t('cart.basket_title')"
         :description="
           t('cart.basket_summary_desc', {
             count: products?.length ?? 0,

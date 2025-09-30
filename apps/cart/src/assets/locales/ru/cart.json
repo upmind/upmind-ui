@@ -3,7 +3,7 @@
   "basket_product_missing_data": "Отсутствующие данные по элементу",
   "basket_product_missing_data_help": "В этом элементе отсутствуют данные и требуется внимание.",
   "basket_products": "Товары в корзине",
-  "basket_products_require_attention": "**{count} ** продукты требуют **{keyword} ** | **{count} ** продукт требует **{keyword} ** | **{count} ** продукты требуют **{keyword} **",
+  "basket_products_require_attention": "**{count}** продукты требуют **внимания** | **{count}** продукт требует **внимания** | **{count}** продукты требуют **внимания**",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
   "basket_products_require_attention_msg": "{count}продукты требуют внимания |{count} продукт требует внимания |{count} продукты требуют внимания",
   "basket_products_review_desc": "Прежде чем продолжить, пожалуйста, ознакомьтесь со следующими пунктами или верните их в корзину.",

@@ -3,7 +3,7 @@
   "basket_product_missing_data": "آئٹم کا ڈیٹا غائب ہے۔",
   "basket_product_missing_data_help": "اس آئٹم میں ڈیٹا غائب ہے اور توجہ کی ضرورت ہے۔",
   "basket_products": "ٹوکری اشیاء",
-  "basket_products_require_attention": "**{count} ** مصنوعات کی ضرورت ہوتی ہے **{keyword} ** | **{count} ** مصنوعات کی ضرورت ہے **{keyword} ** | **{count} ** مصنوعات کی ضرورت ہوتی ہے **{keyword} **",
+  "basket_products_require_attention": "**{count}** مصنوعات کو **توجہ** کی ضرورت ہے۔ **{count}** پروڈکٹ کو **توجہ** کی ضرورت ہے۔ **{count}** مصنوعات کو ** توجہ کی ضرورت ہے**",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
   "basket_products_require_attention_msg": "{count}مصنوعات توجہ کی ضرورت ہے |{count} مصنوعات کی توجہ کی ضرورت ہے |{count} مصنوعات توجہ کی ضرورت ہے",
   "basket_products_review_desc": "براہ کرم آگے بڑھنے سے پہلے درج ذیل آئٹمز کا جائزہ لیں، متبادل طور پر ٹوکری پر واپس جائیں۔",

@@ -3,7 +3,7 @@
   "basket_product_missing_data": "Manglende data for elementet",
   "basket_product_missing_data_help": "Denne varen mangler data og krever oppmerksomhet",
   "basket_products": "Varer i handlekurven",
-  "basket_products_require_attention": "**{count} ** produkter krever **{keyword} ** | **{count} ** produktet krever **{keyword} ** | **{count} ** produkter krever **{keyword} **",
+  "basket_products_require_attention": "**{count}**produkter krever **oppmerksomhet** | **{count}** produktet krever **tilsyn** | **{count}**produkter krever **oppmerksomhet**",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
   "basket_products_require_attention_msg": "{count}produkter krever oppmerksomhet |{count} produktet krever oppmerksomhet |{count} produkter krever oppmerksomhet",
   "basket_products_review_desc": "Vennligst gjennomgå følgende elementer før du fortsetter, alternativt legg dem tilbake i handlekurven.",
