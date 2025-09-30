@@ -6,15 +6,16 @@
   >
     <PopoverTrigger as-child :ring="false">
       <Button
-        v-bind="$attrs"
         :loading="props.loading"
         :class="cn('group', styles.combobox.trigger, props.class)"
         :size="props.size"
         :aria-expanded="open"
         variant="ghost"
-        :ring="false"
         icon-append="arrow-down"
         :checked="open"
+        :data-hover="$attrs['data-hover']"
+        :data-focus="$attrs['data-focus']"
+        ring
       >
         <template #prepend v-if="!isEmpty(modelValue) || searchTerm">
           <slot name="selected" v-bind="{ item: modelValue }">

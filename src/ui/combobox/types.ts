@@ -64,7 +64,6 @@ export interface ComboboxProps
   variant?: ButtonProps["variant"];
   width?: ContentVariantsProps["width"];
   // --- styles
-  ring?: boolean;
   uiConfig?: { combobox: CxOptions };
   class?: HTMLAttributes["class"];
   popoverClass?: HTMLAttributes["class"];
