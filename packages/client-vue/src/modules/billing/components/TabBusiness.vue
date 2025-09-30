@@ -26,7 +26,7 @@
         <template #item="{ item, readonly, doEdit, doRemove }">
           <PhoneItem
             v-bind="item"
-            :i18nKey="'client.phone'"
+            i18nKey="client.phone"
             :readonly="readonly"
             @edit="doEdit"
             @remove="doRemove"
@@ -47,7 +47,7 @@
         <template #item="{ item, readonly, doEdit, doRemove }">
           <CompanyItem
             v-bind="item"
-            :i18nKey="'form.company'"
+            i18nKey="form.company"
             :readonly="readonly"
             @edit="doEdit"
             @remove="doRemove"

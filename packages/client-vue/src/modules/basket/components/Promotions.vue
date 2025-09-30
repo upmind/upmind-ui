@@ -2,7 +2,7 @@
   <section class="flex w-full flex-col gap-3 text-left" v-auto-animate>
     <header>
       <Button
-        :label="t('action.add_promo_code')"
+        :label="t('action.add_promotion')"
         size="sm"
         variant="link"
         color="muted"
@@ -35,7 +35,7 @@
       data-testid="summary-footer"
     >
       <h4 class="sr-only">
-        {{ t("cart.promo_codes_active") }}
+        {{ t("cart.promotions_active") }}
       </h4>
 
       <Tooltip
@@ -148,7 +148,7 @@ const actions = computed((): Record<string, FormActionProps> => {
 
 const tooltipLabel = computed(() => ({ promotion }: any) => {
   if (promotion.amountFormatted) {
-    return t("cart.promo_code_help", {
+    return t("cart.promotion_help", {
       code: promotion.code,
       amount: promotion.amountFormatted,
       description: promotion.excerpt ? `. (${promotion.excerpt})` : ""

@@ -3,14 +3,14 @@
     <ContentSection v-auto-animate class="flex grow items-center">
       <Interstitial
         v-bind="props"
-        :title="t('error.404.title_md')"
-        :text="t('error.404.text')"
+        :title="t('error.404_title_md')"
+        :text="t('error.404_text')"
         :actions="[
           {
             ...storefrontRoute,
             color: 'primary',
             icon: 'arrow-left',
-            label: t('error.404.action')
+            label: t('action.back_to_shop')
           }
         ]"
       >

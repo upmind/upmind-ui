@@ -11,7 +11,7 @@ import {
 } from "lodash-es";
 
 // --- internal
-import { useSystem } from "..";
+import { useLocale, useSystem } from "..";
 
 // --- utils
 import { parsePlaces, usePlaceParser } from "./utils";
@@ -36,6 +36,8 @@ let places: PlaceService | undefined;
  * This provides access to address searching and parsing functions.
  */
 export const usePlaces = () => {
+  const { locale } = useLocale();
+
   // If we dont have a places, load it
   if (!places) {
     // Otherwise create a new places
@@ -87,6 +89,7 @@ export const usePlaces = () => {
     // Define the request parameters with the proper type
     const request: google.maps.places.AutocompleteRequest = {
       input: query,
+      language: locale.value,
       sessionToken,
       ...(countryCode && { includedRegionCodes: [countryCode] })
     };

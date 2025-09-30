@@ -257,42 +257,43 @@ export const storePersister = <TState, TUpdater extends AnyUpdater>(
  */
 const mapFeedback = (
   error?: QueryResponse["error"]
-): Record<number, Message | undefined> => ({
-  [responseCodes.Bad_Request]: undefined,
-  [responseCodes.Unauthorized]: undefined,
-  [responseCodes.Forbidden]: undefined,
-  [responseCodes.Timeout]: undefined,
-  [responseCodes.Conflict]: undefined,
-  [responseCodes.Too_Many_Requests]: {
-    type: messageTypes.ERROR,
-    title: "Too many requests",
-    copy: "You have exceeded the number of allowed requests",
-    data: error,
-    i18nKey: `error.${responseCodes.Too_Many_Requests}`,
-    display: messageDisplays.MODAL
-  },
-  [responseCodes.Unprocessable_Entity]: undefined,
-  [responseCodes.Internal_Server_Error]: {
-    type: messageTypes.ERROR,
-    title: "Internal server error",
-    copy: "An unexpected error occurred",
-    data: error,
-    i18nKey: `error.${responseCodes.Internal_Server_Error}`,
-    display: messageDisplays.TOAST
-  },
-  [responseCodes.Bad_Gateway]: undefined,
-  [responseCodes.Service_Unavailable]: {
-    type: messageTypes.ERROR,
-    title: "Service temporarily unavailable",
-    copy: "Service temporarily down for maintenance",
-    data: error,
-    i18nKey: `error.${responseCodes.Service_Unavailable}`,
-    display: messageDisplays.SYSTEM,
-    delay: 0,
-    maxAge: 0
-  },
-  [responseCodes.Gateway_Timeout]: undefined
-});
+): Record<number, Message | undefined> => {
+  const { t } = useI18n();
+  return {
+    [responseCodes.Bad_Request]: undefined,
+    [responseCodes.Unauthorized]: undefined,
+    [responseCodes.Forbidden]: undefined,
+    [responseCodes.Timeout]: undefined,
+    [responseCodes.Conflict]: undefined,
+    [responseCodes.Unprocessable_Entity]: undefined,
+    [responseCodes.Bad_Gateway]: undefined,
+    [responseCodes.Gateway_Timeout]: undefined,
+    // ---
+    [responseCodes.Too_Many_Requests]: {
+      type: messageTypes.ERROR,
+      title: t("error.429_title_md"),
+      copy: t("error.429_text"),
+      data: error,
+      display: messageDisplays.MODAL
+    },
+    [responseCodes.Internal_Server_Error]: {
+      type: messageTypes.ERROR,
+      title: t("error.500_title_md"),
+      copy: t("error.500_text"),
+      data: error,
+      display: messageDisplays.TOAST
+    },
+    [responseCodes.Service_Unavailable]: {
+      type: messageTypes.ERROR,
+      title: t("error.503_title_md"),
+      copy: t("error.503_text"),
+      data: error,
+      display: messageDisplays.SYSTEM,
+      delay: 0,
+      maxAge: 0
+    }
+  };
+};
 
 /**
  * Handles errors from a query response by displaying a feedback message and throwing a detailed error.
@@ -315,7 +316,7 @@ export function handleError(
   if (!isNil(feedback)) add(feedback);
 
   throw new DetailedError(
-    error?.message ?? t("error.503.title_md"),
+    error?.message ?? t("error.503_title_md"),
     status || responseCodes.Service_Unavailable,
     ErrorOrigin.Upmind,
     error?.data

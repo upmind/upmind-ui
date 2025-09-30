@@ -29,7 +29,7 @@
         <div
           class="text-md order-last mt-4 text-center font-medium md:order-first md:mt-0 md:text-left"
         >
-          {{ t("cart.no_items", { count: products?.length }) }}
+          {{ t("cart.basket_items", { count: products?.length }) }}
         </div>
 
         <Button

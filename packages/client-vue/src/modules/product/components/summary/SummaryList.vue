@@ -3,7 +3,7 @@
     <SummaryItem
       v-if="term"
       v-bind="term"
-      :title="term.cycleFormatted!.numeric"
+      :title="parseBillingCycle(term.cycle!).numeric"
       icon="configuration"
     />
 
@@ -21,6 +21,7 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 
 // --- internal
 import config from "./summary.config";
+import { parseBillingCycle } from "@upmind-automation/headless";
 
 // --- components
 import SummaryItem from "./SummaryItem.vue";

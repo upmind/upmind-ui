@@ -10,8 +10,8 @@
       <template v-else
         >{{ props.price.currentPrice }}
         <span :class="styles.domain.card.prices.cycle">
-          <span v-if="props?.cycle"
-            >/ {{ parseBillingCycle(props.cycle).descriptive }}</span
+          <span v-if="has(props, 'cycle')"
+            >/ {{ parseBillingCycle(props.cycle!).descriptive }}</span
           >
         </span>
       </template>
@@ -28,6 +28,9 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 // --- internal
 import { parseBillingCycle } from "@upmind-automation/headless";
 import config from "../domain.config";
+
+// --- utils
+import { has } from "lodash-es";
 
 // --- types
 import type { DomainSummaryProps } from "../types";

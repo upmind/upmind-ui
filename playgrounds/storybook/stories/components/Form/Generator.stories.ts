@@ -22,18 +22,18 @@ const meta: Meta<typeof Form> = {
         "additionalErrors",
         "schema",
         "uischema",
-        "modelValue",
-      ],
+        "modelValue"
+      ]
     },
     docs: {
       story: {
-        inline: true,
+        inline: true
       },
       description: {
         component:
-          "A component for dynamically generating forms based on a JSON schema.",
-      },
-    },
+          "A component for dynamically generating forms based on a JSON schema."
+      }
+    }
   },
   component: Form,
   render: args => ({
@@ -56,7 +56,7 @@ const meta: Meta<typeof Form> = {
         doResolve,
         formStatus: computed(() =>
           !isEmpty(omitBy(model.value, isEmpty)) ? (isValid.value ? 1 : 2) : 0
-        ),
+        )
       };
     },
     i18n: { messages },
@@ -73,7 +73,7 @@ const meta: Meta<typeof Form> = {
         <strong class="font-mono uppercase">{{t("form.model", formStatus)}}</strong>
         <pre class="sticky top-0 text-wrap">{{ model }}</pre>
       </div>
-    `,
+    `
   }),
   argTypes: {},
   args: {
@@ -88,17 +88,17 @@ const meta: Meta<typeof Form> = {
           maxLength: 10,
           title: "What is your name?",
           description: "Please enter your full name",
-          i18n: "form.name",
+          i18n: "form.name"
         },
 
         password: {
-          type: "string",
+          type: "string"
         },
 
         date: {
           title: "What is your date of birth?",
           type: "string",
-          format: "date",
+          format: "date"
         },
 
         // categories: {
@@ -118,19 +118,19 @@ const meta: Meta<typeof Form> = {
           properties: {
             number: {
               type: ["string", "null"],
-              title: "Phone number",
+              title: "Phone number"
             },
 
             country: {
               type: ["string", "null"],
-              title: "Country",
+              title: "Country"
             },
 
             countryCallingCode: {
               type: ["string", "null"],
-              title: "Country calling code",
-            },
-          },
+              title: "Country calling code"
+            }
+          }
         },
 
         age: {
@@ -138,25 +138,25 @@ const meta: Meta<typeof Form> = {
           title: "How old are you?",
           exclusiveMinimum: 0,
           exclusiveMaximum: 120,
-          i18n: "form.age",
+          i18n: "form.age"
         },
         postalCode: {
           type: "string",
           maxLength: 5,
           title: "What is your postal/zip code?",
-          i18n: "form.postalCode",
+          i18n: "form.postalCode"
         },
         about: {
           type: "string",
           title: "Tell us about yourself",
           maxLength: 280,
-          i18n: "form.about",
+          i18n: "form.about"
         },
         accept: {
           type: "boolean",
           title: "Do you accept the terms and conditions?",
           description: "Must be accepted to use our service",
-          i18n: "form.accept",
+          i18n: "form.accept"
         },
 
         personalData: {
@@ -167,14 +167,14 @@ const meta: Meta<typeof Form> = {
               minimum: 0,
               maximum: 250,
               title: "How much do you weigh?",
-              i18n: "form.weight",
+              i18n: "form.weight"
             },
             height: {
               type: "integer",
               minimum: 120,
               maximum: 220,
               title: "How tall are you?",
-              i18n: "form.height",
+              i18n: "form.height"
             },
             drivingSkill: {
               type: "number",
@@ -183,88 +183,88 @@ const meta: Meta<typeof Form> = {
               oneOf: [
                 {
                   title: "pro",
-                  const: 3,
+                  const: 3
                 },
                 {
                   title: "okay",
-                  const: 2,
+                  const: 2
                 },
                 {
                   title: "beginner",
-                  const: 1,
+                  const: 1
                 },
                 {
                   title: "dont",
-                  const: 0,
-                },
-              ],
+                  const: 0
+                }
+              ]
             },
             vegetarian: {
               type: "boolean",
               title: "Are you a vegetarian?",
-              i18n: "form.vegetarian",
+              i18n: "form.vegetarian"
             },
             nationality: {
               type: "string",
               enum: ["DE", "IT", "JP", "US", "RU", "Other"],
               title: "What is your nationality?",
-              i18n: "form.nationality",
+              i18n: "form.nationality"
             },
             nationalityDetailed: {
               type: "string",
               oneOf: [
                 {
                   title: "Germany",
-                  const: "DE",
+                  const: "DE"
                 },
                 {
                   title: "Italy",
-                  const: "IT",
+                  const: "IT"
                 },
                 {
                   title: "Japan",
-                  const: "JP",
+                  const: "JP"
                 },
                 {
                   title: "United States",
-                  const: "US",
+                  const: "US"
                 },
                 {
                   title: "Russia",
-                  const: "RU",
+                  const: "RU"
                 },
                 {
                   title: "Other",
-                  const: "Other",
-                },
+                  const: "Other"
+                }
               ],
               title: "What is your nationality?",
-              i18n: "form.nationality",
+              i18n: "form.nationality"
             },
             occupation: {
               type: "string",
               title: "What is your occupation?",
-              i18n: "form.occupation",
-            },
+              i18n: "form.occupation"
+            }
           },
-          required: ["weight", "height", "drivingSkill"],
-        },
+          required: ["weight", "height", "drivingSkill"]
+        }
       },
-      required: ["name", "accept", "age", "switch", "toggle"],
+      required: ["name", "accept", "age", "switch", "toggle"]
       // errorMessage: {
       //   properties: {
       //     accept: "We require you accept our Terms and Conditions",
       //   },
       // },
-    },
-  },
+    }
+  }
 };
 
 export default meta;
 type Story = StoryObj<typeof Form>;
 
 export const Base: Story = {
-  args: {},
+  args: {}
 };
 
 export const Formatted: Story = {
@@ -274,7 +274,7 @@ export const Formatted: Story = {
       elements: [
         {
           type: "Control",
-          scope: "#/properties/name",
+          scope: "#/properties/name"
         },
         {
           type: "HorizontalLayout",
@@ -284,14 +284,14 @@ export const Formatted: Story = {
               scope: "#/properties/dob",
               options: {
                 format: "date",
-                min: "2024-10-16",
-              },
+                min: "2024-10-16"
+              }
             },
             {
               type: "Control",
-              scope: "#/properties/postalCode",
-            },
-          ],
+              scope: "#/properties/postalCode"
+            }
+          ]
         },
 
         {
@@ -305,21 +305,21 @@ export const Formatted: Story = {
                   type: "Control",
                   scope: "#/properties/personalData/properties/height",
                   options: {
-                    appendText: "cm",
-                  },
+                    appendText: "cm"
+                  }
                 },
                 {
                   type: "Control",
                   scope: "#/properties/personalData/properties/weight",
                   options: {
-                    appendText: "kg",
-                  },
-                },
-              ],
+                    appendText: "kg"
+                  }
+                }
+              ]
             },
             {
               type: "Control",
-              scope: "#/properties/personalData/properties/nationality",
+              scope: "#/properties/personalData/properties/nationality"
             },
             {
               type: "Control",
@@ -332,25 +332,25 @@ export const Formatted: Story = {
                 "Physician",
                 "Student",
                 "Teacher",
-                "Other",
-              ],
+                "Other"
+              ]
             },
             {
               type: "Control",
               scope: "#/properties/personalData/properties/drivingSkill",
               options: {
-                format: "radio",
-              },
+                format: "radio"
+              }
             },
             {
               type: "Control",
-              scope: "#/properties/personalData/properties/vegetarian",
-            },
-          ],
-        },
-      ],
-    },
-  },
+              scope: "#/properties/personalData/properties/vegetarian"
+            }
+          ]
+        }
+      ]
+    }
+  }
 };
 
 export const Task: Story = {
@@ -359,35 +359,35 @@ export const Task: Story = {
       required: ["name", "rating"],
       properties: {
         name: {
-          type: ["string"],
-          i18n: "taskform.name",
+          type: "string",
+          i18n: "taskform.name"
         },
 
         description: {
           type: ["string", "null"],
           maxLength: 140,
-          i18n: "taskform.description",
+          i18n: "taskform.description"
         },
 
         rating: {
           type: "integer",
           maximum: 5,
           minimum: 1,
-          i18n: "taskform.rating",
+          i18n: "taskform.rating"
         },
 
         impact: {
           type: "number",
           maximum: 10,
           minimum: 0,
-          i18n: "taskform.impact",
+          i18n: "taskform.impact"
         },
 
         dueDate: {
           type: ["string", "null"],
           format: "date",
           formatMinimum: new Date(Date.now()).toLocaleString(),
-          i18n: "taskform.dueDate",
+          i18n: "taskform.dueDate"
         },
 
         recurrence: {
@@ -396,33 +396,33 @@ export const Task: Story = {
           oneOf: [
             {
               const: "daily",
-              i18n: "taskform.recurrence.options.daily",
+              i18n: "taskform.recurrence.options.daily"
             },
             {
               const: "weekly",
-              i18n: "taskform.recurrence.options.weekly",
+              i18n: "taskform.recurrence.options.weekly"
             },
             {
               const: "monthly",
               i18n: "taskform.recurrence.options.monthly",
-              title: "Monthly",
-            },
-          ],
+              title: "Monthly"
+            }
+          ]
         },
 
         recurrenceInterval: {
           type: "integer",
           minimum: 1,
           maximum: 365,
-          i18n: "taskform.recurrenceInterval",
+          i18n: "taskform.recurrenceInterval"
         },
 
         done: {
           type: ["boolean", "null"],
           enum: [true, false, null],
-          i18n: "taskform.done",
-        },
-      },
+          i18n: "taskform.done"
+        }
+      }
     },
 
     uischema: {
@@ -430,15 +430,15 @@ export const Task: Story = {
       elements: [
         {
           type: "Label",
-          i18n: "taskform.label",
+          i18n: "taskform.label"
         },
 
         {
           type: "Control",
           scope: "#/properties/name",
           options: {
-            autoFocus: true,
-          },
+            autoFocus: true
+          }
         },
 
         {
@@ -446,8 +446,8 @@ export const Task: Story = {
           scope: "#/properties/description",
           options: {
             multi: true,
-            autosize: true,
-          },
+            autosize: true
+          }
         },
 
         {
@@ -455,14 +455,14 @@ export const Task: Story = {
           elements: [
             {
               type: "Control",
-              scope: "#/properties/rating",
+              scope: "#/properties/rating"
             },
 
             {
               type: "Control",
-              scope: "#/properties/impact",
-            },
-          ],
+              scope: "#/properties/impact"
+            }
+          ]
         },
 
         {
@@ -472,8 +472,8 @@ export const Task: Story = {
               type: "Control",
               scope: "#/properties/recurrence",
               options: {
-                format: "radio",
-              },
+                format: "radio"
+              }
             },
             {
               type: "Control",
@@ -481,15 +481,15 @@ export const Task: Story = {
               options: {
                 min: 1,
                 max: 365,
-                suffix: "days",
+                suffix: "days"
               },
               rule: {
                 effect: "SHOW",
                 condition: {
                   scope: "#/properties/recurrence",
-                  schema: { type: "string", const: "Daily" },
-                },
-              },
+                  schema: { type: "string", const: "Daily" }
+                }
+              }
             },
             {
               type: "Control",
@@ -497,15 +497,15 @@ export const Task: Story = {
               options: {
                 min: 1,
                 max: 52,
-                suffix: "weeks",
+                suffix: "weeks"
               },
               rule: {
                 effect: "SHOW",
                 condition: {
                   scope: "#/properties/recurrence",
-                  schema: { type: "string", const: "Weekly" },
-                },
-              },
+                  schema: { type: "string", const: "Weekly" }
+                }
+              }
             },
             {
               type: "Control",
@@ -513,17 +513,17 @@ export const Task: Story = {
               options: {
                 min: 1,
                 max: 12,
-                suffix: "months",
+                suffix: "months"
               },
               rule: {
                 effect: "SHOW",
                 condition: {
                   scope: "#/properties/recurrence",
-                  schema: { type: "string", const: "Monthly" },
-                },
-              },
-            },
-          ],
+                  schema: { type: "string", const: "Monthly" }
+                }
+              }
+            }
+          ]
         },
 
         {
@@ -533,16 +533,16 @@ export const Task: Story = {
           elements: [
             {
               type: "Control",
-              scope: "#/properties/dueDate",
+              scope: "#/properties/dueDate"
             },
 
             {
               type: "Control",
-              scope: "#/properties/done",
-            },
-          ],
-        },
-      ],
-    },
-  },
+              scope: "#/properties/done"
+            }
+          ]
+        }
+      ]
+    }
+  }
 };

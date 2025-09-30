@@ -8,6 +8,8 @@ import type { ICurrency, IGateway, IOrder } from "@upmind-automation/types";
 
 import type { ResponseError } from "../../../utils";
 
+export type { IBrandGateway as Gateway } from "@upmind-automation/types";
+
 // -----------------------------------------------------------------------------
 
 export enum GatewayTypes {

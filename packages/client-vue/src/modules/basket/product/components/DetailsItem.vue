@@ -29,8 +29,8 @@
       <p v-if="!props.meta?.free" class="m-0 whitespace-nowrap">
         {{ safePrice }}
 
-        <template v-if="showTermLabel">
-          / {{ cycleFormatted?.descriptive }}
+        <template v-if="showTermLabel && has(props, 'cycle')">
+          / {{ parseBillingCycle(props.cycle!).descriptive }}
         </template>
       </p>
 
@@ -46,6 +46,9 @@
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
+// --- internal
+import { parseBillingCycle } from "@upmind-automation/headless";
+
 // --- components
 import { Icon, Tooltip } from "@upmind-automation/upmind-ui";
 
@@ -54,6 +57,7 @@ import type {
   ProductSummaryDetailWithPrice,
   ProductSummaryDetail
 } from "@upmind-automation/headless";
+import { has } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -69,7 +73,7 @@ const showPlusIcon = computed(
     "price" in props &&
     props?.price?.currentAmount > 0
 );
-const showTermLabel = computed(() => props?.cycle && props.cycle > 0);
+const showTermLabel = computed(() => has(props, "cycle") && props.cycle! > 0);
 
 const hasPricing = computed(() => "price" in props);
 

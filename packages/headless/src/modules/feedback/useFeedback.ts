@@ -142,7 +142,6 @@ export const useFeedback = () => {
         hash: message.hash,
         data: message.data,
         title: message.title,
-        i18nKey: message.i18nKey,
         actions: message.actions
       }),
       delay,
@@ -166,7 +165,6 @@ export const useFeedback = () => {
         hash: message.hash,
         data: message.data,
         title: message.title,
-        i18nKey: message.i18nKey,
         actions: message.actions
       }),
       delay,
@@ -190,7 +188,6 @@ export const useFeedback = () => {
         hash: message.hash,
         data: message.data,
         title: message.title,
-        i18nKey: message.i18nKey,
         actions: message.actions
       }),
       delay,

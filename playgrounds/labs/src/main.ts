@@ -25,7 +25,8 @@ UpmindClient.init({
   i18n: {
     instance: i18n,
     files: import.meta.glob<Record<string, string>>(
-      "@/assets/locales/**/*.json"
+      "@/assets/locales/**/*.json",
+      { import: "default" }
     )
   },
   router: {
