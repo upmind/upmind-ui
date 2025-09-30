@@ -70,10 +70,7 @@ watchEffect(async () => {
   const safePath = isObject(props.icon)
     ? `${trimEnd(props.icon?.path, "/")}/`
     : "";
-  const safeName = trimEnd(
-    isObject(props.icon) ? props.icon?.name : props.icon,
-    ".svg"
-  );
+  const safeName = isObject(props.icon) ? props.icon?.name : props.icon;
 
   const exactMatch = find(icons, (fn, iconPath) => {
     const pathParts = iconPath.split("/");
