@@ -18,7 +18,7 @@ export const variants = {
     promo:
       "button-radius text-accent-promo p-0 underline underline-offset-4 !shadow-none !ring-0 !ring-offset-0 !outline-none [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:brightness-125",
     danger:
-      "button-radius text-accent-danger p-0 underline underline-offset-4 !shadow-none !ring-0 !ring-offset-0 !outline-none [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:brightness-150",
+      "button-radius text-accent-danger p-0 underline underline-offset-4 !shadow-none !ring-0 !ring-offset-0 !outline-none [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:brightness-125",
     warning:
       "button-radius text-accent-warning p-0 underline underline-offset-4 !shadow-none !ring-0 !ring-offset-0 !outline-none [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:brightness-125",
     success:
