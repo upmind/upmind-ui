@@ -6,7 +6,7 @@
     "title": "Dodaj nowy adres | Aktualizuj adres"
   },
   "address1": {
-    "label": "Address",
+    "label": "Adres",
     "placeholder": "Nazwa domu, numer mieszkania itp."
   },
   "address2": {

@@ -6,7 +6,7 @@
     "title": "Yeni Adres Ekle | Adresi Güncelle"
   },
   "address1": {
-    "label": "Address",
+    "label": "Adres",
     "placeholder": "Ev adı, daire numarası vb."
   },
   "address2": {
