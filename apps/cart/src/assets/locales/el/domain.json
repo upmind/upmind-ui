@@ -19,12 +19,12 @@
     }
   },
   "finding_perfect_domain": "Εύρεση του **τέλειου** τομέα σας",
-  "finding_perfect_domain_md": "@.χαμήλωση τιμής:{'domain.finding_perfect_domain'}",
+  "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
   "own_domain_qn": "Είστε κάτοχος αυτού του τομέα;",
   "owned_domains_title": "Domains που σας ανήκουν αυτήν τη στιγμή",
   "price_renewal_desc": "Εφάπαξ τιμή{regularPrice} . | Ανανεώνεται κάθε χρόνο για{regularPrice} .| Ανανεώνει κάθε{count} χρόνια για{regularPrice} .",
   "starts_with_domain": "Όλα ξεκινούν με ένα **όνομα τομέα**",
-  "starts_with_domain_md": "@.χαμήλωση τιμής:{'domain.starts_with_domain'}",
+  "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
   "tld_renewal_price_desc": "Μας{tld} οι τιμές ανανέωσης ξεκινούν από μόνο{currentPrice} (ήταν{regularPrice} ).",
   "tld_renewal_price_from_desc": "Μας{tld} οι τιμές ανανέωσης ξεκινούν από μόνο{regularPrice} .",
   "transfer_domain_by_msg": "Μεταφέρετέ το σε εμάς μέσω"
