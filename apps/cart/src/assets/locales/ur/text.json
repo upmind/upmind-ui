@@ -66,7 +66,7 @@
   "tax_valid": "تصدیق شدہ {relative}",
   "term": "مدت",
   "terms_and_conditions": "شرائط و ضوابط",
-  "terms_and_conditions_desc": "'پر کلک کرکے {label}' میں مانتا ہوں۔ {brand} کی {action}.",
+  "terms_and_conditions_desc": "پر کلک کرکے '{label}', میں اس سے اتفاق کرتا ہوں {action} کی {brand}.",
   "terms_of_service": "سروس کی شرائط",
   "total": "کل",
   "welcome_back_msg": "دوبارہ خوش آمدید، {name}"

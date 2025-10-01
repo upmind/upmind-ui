@@ -66,7 +66,7 @@
   "tax_valid": "Zweryfikowany {relative}",
   "term": "termin",
   "terms_and_conditions": "Warunki korzystania z serwisu",
-  "terms_and_conditions_desc": "Klikając „ {label} Zgadzam się na {brand}' S {action}.",
+  "terms_and_conditions_desc": "Klikając „{label}„, Zgadzam się na {action} z {brand}.",
   "terms_of_service": "Warunki korzystania z usługi",
   "total": "Całkowity",
   "welcome_back_msg": "Witamy ponownie, {name}"

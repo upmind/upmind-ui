@@ -66,7 +66,7 @@
   "tax_valid": "Gevalideerd {relative}",
   "term": "termijn",
   "terms_and_conditions": "Algemene voorwaarden",
-  "terms_and_conditions_desc": "Door op 'te klikken {label}' Ik ga akkoord met {brand}' S {action}.",
+  "terms_and_conditions_desc": "Door op 'te klikken {label}', ik ga akkoord met de {action} van {brand}.",
   "terms_of_service": "Servicevoorwaarden",
   "total": "Totaal",
   "welcome_back_msg": "Welkom terug, {name}"

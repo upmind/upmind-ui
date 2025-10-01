@@ -66,7 +66,7 @@
   "tax_valid": "Divalidasi {relative}",
   "term": "ketentuan",
   "terms_and_conditions": "syarat dan Ketentuan",
-  "terms_and_conditions_desc": "Dengan mengklik '{label}' Saya setuju dengan {brand}' S {action}.",
+  "terms_and_conditions_desc": "Dengan mengklik '{label}', Saya setuju dengan {action} dari {brand}.",
   "terms_of_service": "Ketentuan Layanan",
   "total": "Total",
   "welcome_back_msg": "Selamat Datang kembali, {name}"
