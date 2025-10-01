@@ -12,9 +12,9 @@ export const variants = {
   },
   color: {
     neutral:
-      "button-radius text-button-link  p-0 underline underline-offset-4 !shadow-none !ring-0 !ring-offset-0 !outline-none  [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:brightness-125",
+      "button-radius text-button-link  p-0 underline underline-offset-4 !shadow-none !ring-0 !ring-offset-0 !outline-none [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:brightness-125",
     muted:
-      "button-radius text-button-muted-link p-0 underline underline-offset-4 !shadow-none !ring-0 !ring-offset-0 !outline-none font-normal  [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:brightness-125",
+      "button-radius text-button-muted-link p-0 underline underline-offset-4 !shadow-none !ring-0 !ring-offset-0 !outline-none [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:brightness-125",
     promo:
       "button-radius text-accent-promo p-0 underline underline-offset-4 !shadow-none !ring-0 !ring-offset-0 !outline-none [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:brightness-125",
     danger:
