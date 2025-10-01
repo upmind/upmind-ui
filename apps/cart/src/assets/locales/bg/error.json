@@ -58,7 +58,7 @@
   "currency_update_failed": "Възникна грешка при актуализирането на валутата",
   "currency_validation_failed": "Валидацията на валутата не бе успешна",
   "domain_add_failed": "Добавянето на домейна в кошницата не бе успешно",
-  "feedback_action_not_available": "Действие със стойност {data}' не е налично.'",
+  "feedback_action_not_available": "Действие със стойност '{data}' не е налично.",
   "generic_error": "грешка",
   "generic_text": "Нека те върнем на правилния път",
   "generic_title": "За съжаление, възникна **грешка**",

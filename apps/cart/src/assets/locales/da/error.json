@@ -58,7 +58,7 @@
   "currency_update_failed": "Der opstod en fejl under opdatering af valutaen",
   "currency_validation_failed": "Valutavalidering mislykkedes",
   "domain_add_failed": "Domænet kunne ikke tilføjes til kurven",
-  "feedback_action_not_available": "Handling med værdi {data}' ikke tilgængelig.",
+  "feedback_action_not_available": "Handling med værdi '{data}' ikke tilgængelig.",
   "generic_error": "fejl",
   "generic_text": "Lad os få dig tilbage på sporet",
   "generic_title": "Beklager, vi har oplevet en **fejl**",

@@ -58,7 +58,7 @@
   "currency_update_failed": "Pri aktualizácii meny sa vyskytla chyba",
   "currency_validation_failed": "Overenie meny zlyhalo",
   "domain_add_failed": "Pridanie domény do košíka zlyhalo",
-  "feedback_action_not_available": "Akcia s hodnotou {data}' nie je k dispozícii.'",
+  "feedback_action_not_available": "Akcia s hodnotou '{data}' nie je k dispozícii.",
   "generic_error": "chyba",
   "generic_text": "Poďme ťa vrátiť späť na správnu cestu",
   "generic_title": "Prepáčte, vyskytla sa **chyba**",
