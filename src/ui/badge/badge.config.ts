@@ -17,13 +17,13 @@ export const variants = {
     info: ""
   },
   size: {
-    sm: "px-2 py-1 text-xs/tight font-semibold",
-    md: "px-3 py-1 text-sm/tight font-medium"
+    sm: "px-2 py-1",
+    md: "px-3 py-1"
   }
 };
 
 export const badgeVariants = cva(
-  "badge-radius inline-flex w-fit items-center whitespace-nowrap",
+  "badge-radius inline-flex w-fit items-center leading-normal whitespace-nowrap",
   {
     variants,
     defaultVariants: {
@@ -117,7 +117,7 @@ export const badgeVariants = cva(
         variant: "muted",
         color: "primary",
         class:
-          "primary-stroke bg-primitive-primary-muted text-primitive-primary-muted-contrast"
+          "bg-primitive-primary-muted shadow-border-primary-gradient text-primitive-primary-muted-contrast"
       },
       {
         variant: "muted",
@@ -159,7 +159,19 @@ export const badgeVariants = cva(
   }
 );
 
+const labelVariants = cva("px-1", {
+  variants: {
+    size: {
+      sm: "text-xs/tight font-semibold",
+      md: "text-sm/tight font-medium"
+    }
+  }
+});
+
 // -----------------------------------------------------------------------------
 export default {
-  badge: badgeVariants
+  badge: {
+    root: badgeVariants,
+    label: labelVariants
+  }
 };

@@ -15,6 +15,28 @@
         border-box;
   }
 
+  .shadow-border-primary-gradient {
+    position: relative;
+  }
+
+  .shadow-border-primary-gradient::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: var(--stroke-badge);
+    background: linear-gradient(
+      to right,
+      var(--color-primitive-primary-default),
+      var(--color-primitive-primary-default-stop)
+    );
+    border-radius: inherit;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: xor;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    pointer-events: none;
+  }
+
   .stroke-badge {
     border-width: var(--stroke-badge);
   }

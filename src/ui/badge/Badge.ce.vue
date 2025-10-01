@@ -1,10 +1,10 @@
 <template>
   <!--<link rel="stylesheet" :href="stylesheet" />-->
-  <Badge :class="cn(styles.badge, props.class)">
+  <Badge :class="cn(styles.badge.root, props.class)">
     <slot name="prepend">
       <Icon v-if="icon" :icon="icon" class="[&>svg]:size-3.5" />
     </slot>
-    <span class="px-1">
+    <span :class="styles.badge.label">
       <slot>{{ label }}</slot>
     </span>
     <slot name="append">
@@ -54,5 +54,10 @@ const styles = useStyles(
   meta,
   config,
   props.uiConfig ?? {}
-) as ComputedRef<{ badge: string }>;
+) as ComputedRef<{
+  badge: {
+    root: string;
+    label: string;
+  };
+}>;
 </script>
