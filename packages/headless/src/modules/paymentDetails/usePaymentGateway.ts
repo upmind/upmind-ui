@@ -22,15 +22,11 @@ import { isNil, isEqual, every, isEmpty } from "lodash-es";
 // --- types
 import type { ActorRef } from "xstate";
 import { GatewayContext } from "../paymentDetails";
-import { isFunction } from "xstate/lib/utils";
+import { isFunction } from "lodash-es";
 import { QueryResponseError } from "../query";
 import { ErrorObject } from "ajv";
 import { useBrand } from "../brand";
-import {
-  GatewayTypes,
-  IPaymentType,
-  PaymentType
-} from "@upmind-automation/types";
+import { GatewayTypes } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 /**

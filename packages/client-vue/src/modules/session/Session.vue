@@ -7,9 +7,11 @@
             {{ t("session.header.register.text") }}
           </span>
 
-          <h1 :class="styles.session.title">
-            {{ t("session.header.register.title") }}
-          </h1>
+          <Sanitized
+            tag="h1"
+            :modelValue="t('session.header.register.title')"
+            :class="styles.session.title"
+          />
         </template>
 
         <template v-if="!meta.isAuthenticated && meta.showLoginForm">
@@ -17,9 +19,11 @@
             {{ t("session.header.login.text") }}
           </span>
 
-          <h1 :class="styles.session.title">
-            {{ t("session.header.login.title") }}
-          </h1>
+          <Sanitized
+            tag="h1"
+            :modelValue="t('session.header.login.title')"
+            :class="styles.session.title"
+          />
         </template>
 
         <template v-if="meta.isAuthenticated">
@@ -77,7 +81,7 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useSession } from "@upmind-automation/headless";
-import { useStyles } from "@upmind-automation/upmind-ui";
+import { useStyles, Sanitized } from "@upmind-automation/upmind-ui";
 import config from "./components/session.config";
 
 // --- components

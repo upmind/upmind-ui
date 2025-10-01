@@ -41,7 +41,6 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
   // NB remember to refresh the basket and any subsequent actors if the locale changes
   watch(locale, (value, oldValue) => {
     if (!basket.basketId.value) return;
-    debugger;
     callback({
       type: "REFRESH",
       data: basket.basket.value

@@ -1,14 +1,14 @@
 {
-  "basket_items": "нет товаров в корзине |{count} товар в корзине |{count} товары в корзине",
+  "basket_items": "нет товаров в корзине | {count} товар в корзине | {count} товары в корзине",
   "basket_product_missing_data": "Отсутствующие данные по элементу",
   "basket_product_missing_data_help": "В этом элементе отсутствуют данные и требуется внимание.",
   "basket_products": "Товары в корзине",
-  "basket_products_require_attention": "**{count} ** продукты требуют **{keyword} ** | **{count} ** продукт требует **{keyword} ** | **{count} ** продукты требуют **{keyword} **",
+  "basket_products_require_attention": "**{count}** продукты требуют **внимания** | **{count}** продукт требует **внимания** | **{count}** продукты требуют **внимания**",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
-  "basket_products_require_attention_msg": "{count}продукты требуют внимания |{count} продукт требует внимания |{count} продукты требуют внимания",
+  "basket_products_require_attention_msg": "{count} продукты требуют внимания | {count} продукт требует внимания | {count} продукты требуют внимания",
   "basket_products_review_desc": "Прежде чем продолжить, пожалуйста, ознакомьтесь со следующими пунктами или верните их в корзину.",
   "basket_products_review_msg": "Прежде чем продолжить, ознакомьтесь со следующими пунктами.",
-  "basket_summary_desc": "У вас есть{count} товар в вашей корзине на общую сумму{total} . | У тебя есть{count} товаров в вашей корзине на общую сумму{total} .",
+  "basket_summary_desc": "У вас есть {count} товар в вашей корзине на общую сумму {total}. | У тебя есть {count} товаров в вашей корзине на общую сумму {total}.",
   "basket_title": "Ваша корзина",
   "empty": "Ваша **корзина** пуста",
   "empty_md": "@.markdown:{'cart.empty'}",
@@ -36,6 +36,6 @@
   "place_order_desc": "Просто нажмите кнопку «Оформить заказ», чтобы завершить покупку.",
   "product_not_found": "**Товар** не найден",
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
-  "promotion_help": "{code}обеспечивает{amount} скидка{description}",
+  "promotion_help": "{code} обеспечивает {amount} скидка {description}",
   "promotions_active": "Активные скидки"
 }

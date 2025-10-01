@@ -1,20 +1,20 @@
 {
   "address": {
-    "error": "Si è verificato un errore durante l&#39;aggiunta dell&#39;indirizzo | si è verificato un errore durante l&#39;aggiornamento dell&#39;indirizzo",
+    "error": "Si è verificato un errore durante l'aggiunta dell'indirizzo | si è verificato un errore durante l'aggiornamento dell'indirizzo",
     "label": "Indirizzo",
     "placeholder": "Inizia a digitare il tuo indirizzo",
     "title": "Aggiungi nuovo indirizzo | Aggiorna indirizzo"
   },
   "address1": {
-    "label": "Address",
-    "placeholder": "Nome della casa, numero dell&#39;appartamento ecc."
+    "label": "Indirizzo",
+    "placeholder": "Nome della casa, numero dell'appartamento ecc."
   },
   "address2": {
     "label": "",
     "placeholder": "Strada, nome della via ecc."
   },
   "allow_auto_payment": {
-    "description": "Consenti l&#39;utilizzo di questo metodo di pagamento per effettuare pagamenti offline automatici, ad esempio per pagare una fattura di rinnovo.",
+    "description": "Consenti l'utilizzo di questo metodo di pagamento per effettuare pagamenti offline automatici, ad esempio per pagare una fattura di rinnovo.",
     "label": "Consenti il pagamento automatico"
   },
   "auth_email": {
@@ -28,7 +28,7 @@
     "placeholder": "Password o frase segreta"
   },
   "card_cvv": {
-    "description": "codice di sicurezza della carta che si trova sul retro della carta e che fornisce un&#39;ulteriore misura di sicurezza della carta di credito.",
+    "description": "codice di sicurezza della carta che si trova sul retro della carta e che fornisce un'ulteriore misura di sicurezza della carta di credito.",
     "label": "Codice CVV",
     "placeholder": "CVC"
   },
@@ -54,12 +54,12 @@
     "placeholder": "Città, paese ecc."
   },
   "company": {
-    "error": "Si è verificato un errore durante l&#39;aggiunta dei dettagli dell&#39;azienda | Si è verificato un errore durante l&#39;aggiornamento dei dettagli dell&#39;azienda",
+    "error": "Si è verificato un errore durante l'aggiunta dei dettagli dell'azienda | Si è verificato un errore durante l'aggiornamento dei dettagli dell'azienda",
     "label": "Azienda",
     "title": "Aggiungi dettagli azienda | Aggiorna dettagli azienda"
   },
   "companyName": {
-    "label": "Nome dell&#39;azienda",
+    "label": "Nome dell'azienda",
     "placeholder": "Il nome della tua azienda"
   },
   "companyNumber": {
@@ -77,12 +77,12 @@
     "placeholder": "Cerca un dominio..."
   },
   "email": {
-    "error": "Si è verificato un errore durante l&#39;aggiunta dell&#39;e-mail | si è verificato un errore durante l&#39;aggiornamento dell&#39;e-mail",
+    "error": "Si è verificato un errore durante l'aggiunta dell'e-mail | si è verificato un errore durante l'aggiornamento dell'e-mail",
     "label": "E-mail",
     "title": "Aggiungi nuova email | Aggiorna email"
   },
   "field_notes": {
-    "label": "Note sull&#39;ordine"
+    "label": "Note sull'ordine"
   },
   "firstname": {
     "error": "Il tuo nome è obbligatorio",
@@ -96,7 +96,7 @@
     "error": "Si è verificato un errore durante il tentativo di accesso."
   },
   "phone": {
-    "error": "Si è verificato un errore durante l&#39;aggiunta del numero di telefono | si è verificato un errore durante l&#39;aggiornamento del numero di telefono",
+    "error": "Si è verificato un errore durante l'aggiunta del numero di telefono | si è verificato un errore durante l'aggiornamento del numero di telefono",
     "label": "Telefono",
     "title": "Aggiungi nuovo numero di telefono | Aggiorna numero di telefono"
   },
@@ -112,7 +112,7 @@
     "placeholder": "Inserisci qui il codice voucher"
   },
   "recover": {
-    "error": "Si è verificato un errore durante il tentativo di inviarti un&#39;e-mail per reimpostare la password."
+    "error": "Si è verificato un errore durante il tentativo di inviarti un'e-mail per reimpostare la password."
   },
   "region": {
     "label": "Regione",
@@ -122,7 +122,7 @@
     "error": "Si è verificato un errore durante il tentativo di creare il tuo account."
   },
   "select_option": {
-    "placeholder": "Seleziona un&#39;opzione"
+    "placeholder": "Seleziona un'opzione"
   },
   "store_on_payment": {
     "label": "Salva i dettagli del pagamento"

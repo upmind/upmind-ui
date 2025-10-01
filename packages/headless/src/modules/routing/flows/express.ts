@@ -6,15 +6,8 @@
 // --- external
 
 // --- internal
-import {
-  useRoutingEngine,
-  useRouteQueryParams,
-  useRouteRequiresAction
-} from "..";
+import { useRoutingEngine, useRouteQueryParams } from "..";
 import { useBasketProductsPending } from "../../basketProduct";
-
-import { useBasket } from "../../basket";
-import { useProductRecommendations } from "../../recommendations";
 
 // --- utils
 import { uniqBy, set, isEmpty } from "lodash-es";
@@ -28,18 +21,8 @@ import { stateMatches } from "../../../utils";
 
 export const useProductFlows = () => {
   const routing = useRoutingEngine();
-  const {
-    findProduct,
-    productExists,
-    getProduct,
-    isReady: isBasketReady
-  } = useBasket();
 
-  const {
-    get: getPendingProduct,
-    resolve,
-    isInBasket
-  } = useBasketProductsPending();
+  const { get: getPendingProduct, resolve } = useBasketProductsPending();
 
   // --- utils
 

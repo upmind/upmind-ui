@@ -30,7 +30,7 @@ import { QUERY_PARAMS } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 
 const defaultLocale = ref<string>("en");
-const locale = ref<string>("");
+const locale = ref<string>("en");
 
 export const useLocale = () => {
   const { t } = useI18n();

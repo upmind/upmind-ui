@@ -22,10 +22,10 @@
   "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
   "own_domain_qn": "Vlastníte túto doménu?",
   "owned_domains_title": "Domény, ktoré momentálne vlastníte",
-  "price_renewal_desc": "Jednorazová cena{regularPrice} . | Obnovuje sa každý rok{regularPrice} .| Obnovuje sa každých{count} roky pre{regularPrice} .",
+  "price_renewal_desc": "Jednorazová cena {regularPrice}. | Obnovuje sa každý rok {regularPrice}. | Obnovuje sa každých {count} roky pre {regularPrice}.",
   "starts_with_domain": "Všetko sa to začína **názvom domény**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
-  "tld_renewal_price_desc": "Naše{tld} ceny za obnovenie začínajú už od{currentPrice} (bol{regularPrice} ).",
-  "tld_renewal_price_from_desc": "Naše{tld} ceny za obnovenie začínajú už od{regularPrice} .",
+  "tld_renewal_price_desc": "Naše {tld} ceny za obnovenie začínajú už od {currentPrice} (bol {regularPrice}).",
+  "tld_renewal_price_from_desc": "Naše {tld} ceny za obnovenie začínajú už od {regularPrice}.",
   "transfer_domain_by_msg": "Preveďte nám to prostredníctvom"
 }

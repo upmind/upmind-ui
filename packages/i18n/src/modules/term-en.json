@@ -7,7 +7,7 @@
   "n_month": "{n}-month",
   "n_months": "month | {n} months",
   "n_year": "{n}-year",
-  "n_years": " year | {count} years",
+  "n_years": "year | {count} years",
   "n_yr": "yr | {n}yr",
   "once": "Once",
   "one_time": "One time",
@@ -15,9 +15,9 @@
   "price_msg": "One-time payment of {price} | From {price} a month | From {price} every {period}",
   "quarterly": "Quarterly",
   "renews_msg": "One-time payment | Renews every {cycle} ",
+  "renews_usually_msg": "Usually {price}",
   "semiannually": "Semiannually",
   "showing_items_summary": "Showing {range} of {total} items",
-  "triennially": "Triennially",
-  "renews_usually_msg": "Usually {price}",
-  "summary_msg": "For a {term} term. Pay {price} today."
+  "summary_msg": "For a {term} term. Pay {price} today.",
+  "triennially": "Triennially"
 }

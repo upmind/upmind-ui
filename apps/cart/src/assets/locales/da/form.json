@@ -6,7 +6,7 @@
     "title": "Tilføj ny adresse | Opdater adresse"
   },
   "address1": {
-    "label": "Address",
+    "label": "Adresse",
     "placeholder": "Husnavn, lejlighedsnummer osv."
   },
   "address2": {

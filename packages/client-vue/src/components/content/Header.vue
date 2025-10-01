@@ -2,38 +2,35 @@
   <header class="flex flex-col gap-3">
     <Badge v-if="badge" v-bind="badge" variant="outline" color="secondary" />
 
-    <article :class="styles.header.root">
+    <section :class="styles.header.root">
       <h1 :class="styles.header.title">
-        <template>
-          {{ title }}
-        </template>
+        <slot>
+          <Sanitized v-if="props.title" :modelValue="props.title" />
+        </slot>
       </h1>
 
       <p :class="styles.header.description">
         <slot name="description">
-          {{ description }}
+          {{ props.description }}
         </slot>
       </p>
-    </article>
+    </section>
   </header>
 </template>
 
 <script setup lang="ts">
 // --- external
-import { useI18n } from "vue-i18n";
 
 // --- components
 import { Badge } from "@upmind-automation/upmind-ui";
 
 // --- internal
 import config from "./content.config";
-import { useStyles } from "@upmind-automation/upmind-ui";
+import { useStyles, Sanitized } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { ComputedRef } from "vue";
 import type { BadgeProps } from "@upmind-automation/upmind-ui";
-
-const { te } = useI18n();
 
 const props = defineProps<{
   badge?: BadgeProps;
