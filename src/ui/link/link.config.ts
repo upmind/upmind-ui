@@ -11,19 +11,21 @@ export const variants = {
     lg: "text-md gap-0.5"
   },
   color: {
+    inherit:
+      "button-radius p-0 underline underline-offset-4 [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:opacity-75",
     neutral:
-      "button-radius text-button-link  p-0 underline underline-offset-4 !shadow-none !ring-0 !ring-offset-0 !outline-none [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:brightness-125",
+      "button-radius text-button-link p-0 underline underline-offset-4 [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:opacity-75",
     muted:
-      "button-radius text-button-muted-link p-0 underline underline-offset-4 !shadow-none !ring-0 !ring-offset-0 !outline-none [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:brightness-125",
+      "button-radius text-button-muted-link p-0 underline underline-offset-4 [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:opacity-75",
     promo:
-      "button-radius text-accent-promo p-0 underline underline-offset-4 !shadow-none !ring-0 !ring-offset-0 !outline-none [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:brightness-125",
+      "button-radius text-accent-promo p-0 underline underline-offset-4 [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:opacity-75",
     danger:
-      "button-radius text-accent-danger p-0 underline underline-offset-4 !shadow-none !ring-0 !ring-offset-0 !outline-none [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:brightness-125",
+      "button-radius text-accent-danger p-0 underline underline-offset-4 [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:opacity-75",
     warning:
-      "button-radius text-accent-warning p-0 underline underline-offset-4 !shadow-none !ring-0 !ring-offset-0 !outline-none [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:brightness-125",
+      "button-radius text-accent-warning p-0 underline underline-offset-4 [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:opacity-75",
     success:
-      "button-radius text-accent-success p-0 underline underline-offset-4 !shadow-none !ring-0 !ring-offset-0 !outline-none [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:brightness-125",
-    info: "button-radius text-accent-info p-0 underline underline-offset-4 !shadow-none !ring-0 !ring-offset-0 !outline-none [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:brightness-125"
+      "button-radius text-accent-success p-0 underline underline-offset-4 [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:opacity-75",
+    info: "button-radius text-accent-info p-0 underline underline-offset-4 [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:opacity-75"
   },
   isDisabled: {
     true: "cursor-not-allowed opacity-50",

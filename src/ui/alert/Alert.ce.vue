@@ -33,7 +33,7 @@
     <footer v-if="action || $slots['action']">
       <slot name="action">
         <div class="flex items-center gap-0.5">
-          <Link size="sm" :color="color" :label="action">
+          <Link size="sm" color="inherit" :label="action">
             <template #append>
               <Icon icon="arrow-right" class="p-1.5 [&>svg]:size-3" />
             </template>

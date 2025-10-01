@@ -57,7 +57,7 @@ import type { LinkProps } from "./types";
 
 const props = withDefaults(defineProps<LinkProps>(), {
   size: "md",
-  color: "default",
+  color: "inherit",
   focusable: true,
   uiConfig: () => ({ link: { root: [], label: [], items: [] } }),
   class: "",
@@ -74,7 +74,7 @@ const component = computed(() => {
   if (props.is) return props.is;
   if (props.to) return RouterLink;
   if (props.href) return "a";
-  return Button;
+  return "a";
 });
 
 const meta = computed(() => ({
