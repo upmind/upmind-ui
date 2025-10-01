@@ -66,7 +66,7 @@
   "tax_valid": "Проверено {relative}",
   "term": "срок",
   "terms_and_conditions": "Условия и положения",
-  "terms_and_conditions_desc": "Нажав « {label} «Я согласен с {brand}' s {action}.",
+  "terms_and_conditions_desc": "Нажав «{label}», я согласен с {action} из {brand}.",
   "terms_of_service": "Условия обслуживания",
   "total": "Общий",
   "welcome_back_msg": "Добро пожаловать, {name}"

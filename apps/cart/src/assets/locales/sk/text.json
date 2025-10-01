@@ -66,7 +66,7 @@
   "tax_valid": "Overené {relative}",
   "term": "termín",
   "terms_and_conditions": "Zmluvné podmienky",
-  "terms_and_conditions_desc": "Kliknutím na '{label} Súhlasím s {brand} je {action}.",
+  "terms_and_conditions_desc": "Kliknutím na '{label}', súhlasím s {action} z {brand}.",
   "terms_of_service": "Podmienky služby",
   "total": "Celkom",
   "welcome_back_msg": "Vitaj späť, {name}"

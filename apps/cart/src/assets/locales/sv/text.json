@@ -66,7 +66,7 @@
   "tax_valid": "Validerad {relative}",
   "term": "kalla",
   "terms_and_conditions": "Villkor",
-  "terms_and_conditions_desc": "Genom att klicka på '{label} Jag samtycker till {brand} s {action}.",
+  "terms_and_conditions_desc": "Genom att klicka på '{label}', Jag håller med om {action} av {brand}.",
   "terms_of_service": "Användarvillkor",
   "total": "Total",
   "welcome_back_msg": "Välkommen tillbaka, {name}"

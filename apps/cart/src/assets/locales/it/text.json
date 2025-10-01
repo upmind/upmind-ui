@@ -66,7 +66,7 @@
   "tax_valid": "convalidato {relative}",
   "term": "termine",
   "terms_and_conditions": "Termini e Condizioni",
-  "terms_and_conditions_desc": "Cliccando su '{label}' Accetto di {brand}' S {action}.",
+  "terms_and_conditions_desc": "Cliccando su '{label}', sono d'accordo con il {action} di {brand}.",
   "terms_of_service": "Termini di servizio",
   "total": "Totale",
   "welcome_back_msg": "Bentornato, {name}"
