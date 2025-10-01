@@ -1,7 +1,7 @@
 {
   "additionalItems": "{title}-dən çox olmamalıdır {limit} əlavə maddə | {title}-dən çox olmamalıdır {limit} əlavə maddələr",
-  "allOf": "{title}' allOf'dakı bütün sxemlərə uyğun olmalıdır",
-  "anyOf": "{title}' anyOf'dakı sxemlərdən ən azı birinə uyğun olmalıdır",
+  "allOf": "{title} 'allOf' dakı bütün sxemlərə uyğun olmalıdır",
+  "anyOf": "{title} 'anyOf' dakı sxemlərdən ən azı birinə uyğun olmalıdır",
   "const": "{title} icazə verilən dəyərə bərabər olmalıdır",
   "contains": "{title} etibarlı elementi ehtiva etməlidir",
   "dependencies": "{title} mülkü olmalıdır {property} əmlak olduqda {dependency} mövcuddur",
