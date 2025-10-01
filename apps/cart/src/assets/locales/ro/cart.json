@@ -8,7 +8,7 @@
   "basket_products_require_attention_msg": "{count} produsele necesită atenție {count} produsul necesită atenție {count} produsele necesită atenție",
   "basket_products_review_desc": "Vă rugăm să verificați următoarele elemente înainte de a continua, alternativ reveniți la coș.",
   "basket_products_review_msg": "Vă rugăm să verificați următoarele elemente înainte de a continua",
-  "basket_summary_desc": "Aveți {count} articol din coș, în valoare totală {total} Ai {count} articole din coșul dvs., în valoare totală {total}.",
+  "basket_summary_desc": "Aveți {count} articol din coș, în valoare totală {total} | Ai {count} articole din coșul dvs., în valoare totală {total}.",
   "basket_title": "Coșul dumneavoastră",
   "empty": "Coșul tău este gol",
   "empty_md": "@.markdown:{'cart.empty'}",

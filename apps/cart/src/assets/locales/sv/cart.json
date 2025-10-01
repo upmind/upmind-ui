@@ -8,7 +8,7 @@
   "basket_products_require_attention_msg": "{count} produkter kräver uppmärksamhet | {count} produkten kräver uppmärksamhet | {count} produkter kräver uppmärksamhet",
   "basket_products_review_desc": "Vänligen granska följande artiklar innan du fortsätter, alternativt lägg dem tillbaka i varukorgen.",
   "basket_products_review_msg": "Vänligen granska följande punkter innan du fortsätter",
-  "basket_summary_desc": "Du har {count} vara i din varukorg, totalt {total} Du har {count} varor i din varukorg, totalt {total}.",
+  "basket_summary_desc": "Du har {count} vara i din varukorg, totalt {total} | Du har {count} varor i din varukorg, totalt {total}.",
   "basket_title": "Din varukorg",
   "empty": "Din **korg** är tom",
   "empty_md": "@.markdown:{'cart.empty'}",
