@@ -11,7 +11,7 @@
   "n_yr": "année | {n} année",
   "once": "Une fois",
   "one_time": "Une fois",
-  "price_by_n_years": "{price}/an | {price} /{n} ans",
+  "price_by_n_years": "{price} /an | {price} /{n} ans",
   "price_msg": "Paiement unique de {price} | De {price} un mois | De {price} tous les {period}",
   "quarterly": "Trimestriel",
   "renews_msg": "Paiement unique | Renouvellement tous les {cycle}",
