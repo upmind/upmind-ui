@@ -19,13 +19,13 @@
     }
   },
   "finding_perfect_domain": "尋找您的**完美**域名",
-  "finding_perfect_domain_md": "@.markdown：{'domain.finding_perfect_domain'}",
+  "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
   "own_domain_qn": "您擁有這個網域嗎？",
   "owned_domains_title": "您目前擁有的域名",
-  "price_renewal_desc": "一次性價格{regularPrice}. | 每年續訂{regularPrice}.| 更新每個{count}年{regularPrice}。",
+  "price_renewal_desc": "一次性價格 {regularPrice}. | 每年續訂 {regularPrice}. | 更新每個 {count} 年 {regularPrice} 。",
   "starts_with_domain": "一切都始於**域名**",
-  "starts_with_domain_md": "@.markdown：{'domain.starts_with_domain'}",
-  "tld_renewal_price_desc": "我們的{tld}續訂價格僅從{currentPrice}（曾是{regularPrice}）。",
-  "tld_renewal_price_from_desc": "我們的{tld}續訂價格僅從{regularPrice}。",
+  "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_price_desc": "我們的 {tld} 續訂價格僅從 {currentPrice} （曾是 {regularPrice} ）。",
+  "tld_renewal_price_from_desc": "我們的 {tld} 續訂價格僅從 {regularPrice} 。",
   "transfer_domain_by_msg": "透過以下方式轉移給我們"
 }

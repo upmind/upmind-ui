@@ -66,7 +66,7 @@
   "tax_valid": "Validated {relative}",
   "term": "term",
   "terms_and_conditions": "Terms and Conditions",
-  "terms_and_conditions_desc": "By clicking ‘{label}’ I agree to {brand}'s {action}.",
+  "terms_and_conditions_desc": "By clicking '{label}', I agree to the {action} of {brand}.",
   "terms_of_service": "Terms of service",
   "total": "Total",
   "welcome_back_msg": "Welcome back, {name}"

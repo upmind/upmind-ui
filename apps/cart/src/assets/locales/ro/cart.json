@@ -1,14 +1,14 @@
 {
-  "basket_items": "niciun articol în coș |{count} articol în coș |{count} articole în coș",
+  "basket_items": "niciun articol în coș | {count} articol în coș | {count} articole în coș",
   "basket_product_missing_data": "Element lipsește date",
   "basket_product_missing_data_help": "Acest element are date lipsă și necesită atenție.",
   "basket_products": "Articole în coș",
   "basket_products_require_attention": "**{count}** produsele necesită **atenție** | **{count}** produsul necesită **atenție** | **{count}** produsele necesită **atenție**",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
-  "basket_products_require_attention_msg": "{count}produsele necesită atenție{count} produsul necesită atenție{count} produsele necesită atenție",
+  "basket_products_require_attention_msg": "{count} produsele necesită atenție {count} produsul necesită atenție {count} produsele necesită atenție",
   "basket_products_review_desc": "Vă rugăm să verificați următoarele elemente înainte de a continua, alternativ reveniți la coș.",
   "basket_products_review_msg": "Vă rugăm să verificați următoarele elemente înainte de a continua",
-  "basket_summary_desc": "Aveți{count} articol din coș, în valoare totală{total} Ai{count} articole din coșul dvs., în valoare totală{total} .",
+  "basket_summary_desc": "Aveți {count} articol din coș, în valoare totală {total} Ai {count} articole din coșul dvs., în valoare totală {total}.",
   "basket_title": "Coșul dumneavoastră",
   "empty": "Coșul tău este gol",
   "empty_md": "@.markdown:{'cart.empty'}",
@@ -36,6 +36,6 @@
   "place_order_desc": "Pur și simplu faceți clic pe butonul „Plasați comanda” pentru a finaliza achiziția.",
   "product_not_found": "**Produsul** nu a fost găsit",
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
-  "promotion_help": "{code}oferă{amount} reducere{description}",
+  "promotion_help": "{code} oferă {amount} reducere {description}",
   "promotions_active": "Reduceri active"
 }

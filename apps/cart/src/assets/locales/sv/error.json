@@ -58,7 +58,7 @@
   "currency_update_failed": "Vi uppstod ett fel vid uppdatering av valutan",
   "currency_validation_failed": "Valutavalidering misslyckades",
   "domain_add_failed": "Misslyckades med att lägga till domänen i varukorgen",
-  "feedback_action_not_available": "Handling med värde{data} &#39; inte tillgänglig.",
+  "feedback_action_not_available": "Handling med värde '{data}' inte tillgänglig.",
   "generic_error": "fel",
   "generic_text": "Nu får vi dig tillbaka på rätt spår",
   "generic_title": "Tyvärr har vi upplevt ett **fel**",
