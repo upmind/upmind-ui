@@ -23,10 +23,12 @@
         item: { ...props.item, value }
       }"
     >
-      <span v-if="props.label">{{ props.label }}</span>
-      <span v-if="props.sublabel" :class="styles.radioCards.sublabel">{{
-        props.sublabel
-      }}</span>
+      <div :class="styles.radioCards.content">
+        <p v-if="props.label" class="font-medium">{{ props.label }}</p>
+        <small v-if="props.sublabel" :class="styles.radioCards.sublabel">{{
+          props.sublabel
+        }}</small>
+      </div>
     </slot>
   </Label>
 </template>
@@ -79,6 +81,7 @@ const styles = useStyles(
     item: string;
     radio: string;
     input: string;
+    content: string;
     label: string;
     sublabel: string;
   };
