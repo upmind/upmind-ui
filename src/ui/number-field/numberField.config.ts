@@ -125,41 +125,43 @@ export const numberFieldVariants = cva(
   }
 );
 
-export const numberFieldInputVariants = cva("bg-control-surface", {
-  variants: {
-    variant: {
-      flat: "[&>i]:disabled:text-muted shadow-border-control-default [&>i]:size-lh cursor-pointer transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-20 [&>i]:flex [&>i]:items-center [&>i]:justify-center",
-      minimal:
-        "shadow-border-control-default flex h-5 w-5 items-center justify-center rounded p-0"
+export const numberFieldInputVariants = cva(
+  "bg-control-surface shadow-border-control-default hover:shadow-border-control-hover",
+  {
+    variants: {
+      variant: {
+        flat: "[&>i]:disabled:text-muted [&>i]:size-lh cursor-pointer transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-20 [&>i]:flex [&>i]:items-center [&>i]:justify-center",
+        minimal: "flex h-5 w-5 items-center justify-center rounded p-0"
+      },
+      size: {
+        sm: "",
+        md: "",
+        lg: ""
+      }
     },
-    size: {
-      sm: "",
-      md: "",
-      lg: ""
+    compoundVariants: [
+      {
+        variant: "flat",
+        size: "sm",
+        class: "w-1/3 py-2"
+      },
+      {
+        variant: "flat",
+        size: "md",
+        class: "w-1/3 py-2"
+      },
+      {
+        variant: "flat",
+        size: "lg",
+        class: "w-1/3 py-2"
+      }
+    ],
+    defaultVariants: {
+      variant: "flat",
+      size: "md"
     }
-  },
-  compoundVariants: [
-    {
-      variant: "flat",
-      size: "sm",
-      class: "w-1/3 py-2"
-    },
-    {
-      variant: "flat",
-      size: "md",
-      class: "w-1/3 py-2"
-    },
-    {
-      variant: "flat",
-      size: "lg",
-      class: "w-1/3 py-2"
-    }
-  ],
-  defaultVariants: {
-    variant: "flat",
-    size: "md"
   }
-});
+);
 
 // -----------------------------------------------------------------------------
 export default {
