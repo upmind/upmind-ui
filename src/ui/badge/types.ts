@@ -13,6 +13,7 @@ export interface BadgeProps {
   label?: string;
   icon?: string | Icon;
   appendIcon?: string | Icon;
+  close?: boolean;
   // --- variants
   color?: BadgeVariantProps["color"];
   variant?: BadgeVariantProps["variant"];
