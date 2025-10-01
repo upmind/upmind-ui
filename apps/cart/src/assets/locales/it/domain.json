@@ -22,10 +22,10 @@
   "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
   "own_domain_qn": "Possiedi questo dominio?",
   "owned_domains_title": "Domini di cui sei attualmente proprietario",
-  "price_renewal_desc": "Prezzo una tantum di{regularPrice} . | Si rinnova ogni anno per{regularPrice} .| Rinnova ogni{count} anni per{regularPrice} .",
+  "price_renewal_desc": "Prezzo una tantum di {regularPrice}. | Si rinnova ogni anno per {regularPrice}. | Rinnova ogni {count} anni per {regularPrice}.",
   "starts_with_domain": "Tutto inizia con un **nome di dominio**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
-  "tld_renewal_price_desc": "Nostro{tld} i prezzi di rinnovo partono da soli{currentPrice} (era{regularPrice} ).",
-  "tld_renewal_price_from_desc": "Nostro{tld} i prezzi di rinnovo partono da soli{regularPrice} .",
+  "tld_renewal_price_desc": "Nostro {tld} i prezzi di rinnovo partono da soli {currentPrice} (era {regularPrice} ).",
+  "tld_renewal_price_from_desc": "Nostro {tld} i prezzi di rinnovo partono da soli {regularPrice}.",
   "transfer_domain_by_msg": "Trasferiscilo a noi tramite"
 }
