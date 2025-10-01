@@ -163,3 +163,35 @@ Replace:
 $1$2$4
 
 ```
+
+### Markdown modifier
+
+When using the markdown modifier `@.markdown:{'key'}`, ensure there are no spaces around the colon `:` and that the key is correctly formatted within the curly braces `{}`.
+
+```
+Find:
+@.markdown : 
+
+Replace manually
+@.markdown:
+
+```
+
+**What to look for:**
+
+* There should be no spaces before or after the colon (`:`) in `@.markdown:{'key'}`.
+* The key should be a quoted string inside the curly braces, with no leading or trailing spaces inside the braces.
+
+**Correct examples:**
+
+* `@.markdown:{'key'}`
+* `@.markdown:{'another_key'}`
+
+**Incorrect examples:**
+
+* `@.markdown : {'key'}`
+* `@.markdown: { 'key' }`
+* `@.markdown :{ 'key'}`
+
+**How to fix:**
+Use Find/Replace to remove spaces around the colon and inside the curly braces as needed.
