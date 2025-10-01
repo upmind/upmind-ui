@@ -8,7 +8,7 @@
   "basket_products_require_attention_msg": "{count} výrobky vyžadujúce pozornosť | {count} produkt vyžaduje pozornosť | {count} výrobky si vyžadujú pozornosť",
   "basket_products_review_desc": "Pred pokračovaním si prosím skontrolujte nasledujúce položky, prípadne sa vráťte do košíka.",
   "basket_products_review_msg": "Pred pokračovaním si prosím skontrolujte nasledujúce položky",
-  "basket_summary_desc": "Máte {count} položka vo vašom košíku, celková suma {total} Máte {count} položky vo vašom košíku, spolu {total}.",
+  "basket_summary_desc": "Máte {count} položka vo vašom košíku, celková suma {total} | Máte {count} položky vo vašom košíku, spolu {total}.",
   "basket_title": "Váš košík",
   "empty": "Váš **košík** je prázdny",
   "empty_md": "@.markdown:{'cart.empty'}",
