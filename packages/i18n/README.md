@@ -195,3 +195,7 @@ Replace manually
 
 **How to fix:**
 Use Find/Replace to remove spaces around the colon and inside the curly braces as needed.
+
+### Terms.json
+
+This file has a few exceptions to the above rules: especially around braces and spaces. always compare to the term-en.json in the i18n package for the correct formatting.
