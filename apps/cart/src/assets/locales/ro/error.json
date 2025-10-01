@@ -58,7 +58,7 @@
   "currency_update_failed": "Am întâmpinat o eroare la actualizarea monedei",
   "currency_validation_failed": "Validarea monedei a eșuat",
   "domain_add_failed": "Nu s-a putut adăuga domeniul în coș",
-  "feedback_action_not_available": "Acțiune cu valoare{data} &#39; nu este disponibil.",
+  "feedback_action_not_available": "Acțiune cu valoare '{data}' nu este disponibil.",
   "generic_error": "eroare",
   "generic_text": "Hai să te readucem pe drumul cel bun",
   "generic_title": "Ne pare rău, am întâmpinat o **eroare**",
