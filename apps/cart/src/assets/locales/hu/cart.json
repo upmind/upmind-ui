@@ -1,14 +1,14 @@
 {
-  "basket_items": "nincsenek tételek a kosárban |{count} tétel a kosárban |{count} kosárban lévő tételek",
+  "basket_items": "nincsenek tételek a kosárban | {count} tétel a kosárban | {count} kosárban lévő tételek",
   "basket_product_missing_data": "Hiányzó adatok a tételből",
   "basket_product_missing_data_help": "Ez az elem adathiányos, és figyelmet igényel.",
   "basket_products": "Kosár tételei",
   "basket_products_require_attention": "**{count}** a termékek **figyelmet** igényelnek | **{count}** a termék **figyelmet** igényel | **{count}**A termékek **figyelmet** igényelnek",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
-  "basket_products_require_attention_msg": "{count}termékek, amelyek figyelmet igényelnek |{count} a termék figyelmet igényel |{count} a termékek figyelmet igényelnek",
+  "basket_products_require_attention_msg": "{count} termékek, amelyek figyelmet igényelnek | {count} a termék figyelmet igényel | {count} a termékek figyelmet igényelnek",
   "basket_products_review_desc": "Kérjük, a folytatás előtt tekintse át az alábbiakat, vagy tegye vissza a kosárba.",
   "basket_products_review_msg": "Kérjük, a folytatás előtt tekintse át a következőket",
-  "basket_summary_desc": "Van{count} tétel a kosarában, összesen{total} . | Neked van{count} a kosárban lévő tételek, összesen{total} .",
+  "basket_summary_desc": "Van {count} tétel a kosarában, összesen {total}. | Neked van {count} a kosárban lévő tételek, összesen {total}.",
   "basket_title": "A kosarad",
   "empty": "A **kosarad** üres",
   "empty_md": "@.markdown:{'cart.empty'}",
@@ -36,6 +36,6 @@
   "place_order_desc": "A vásárlás befejezéséhez csak kattintson a „Megrendelés leadása” gombra.",
   "product_not_found": "**Termék** nem található",
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
-  "promotion_help": "{code}biztosít{amount} kedvezmény{description}",
+  "promotion_help": "{code} biztosít {amount} kedvezmény {description}",
   "promotions_active": "Aktív kedvezmények"
 }

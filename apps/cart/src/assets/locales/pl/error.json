@@ -58,7 +58,7 @@
   "currency_update_failed": "Wystąpił błąd podczas aktualizacji waluty",
   "currency_validation_failed": "Nieudana walidacja waluty",
   "domain_add_failed": "Nie udało się dodać domeny do koszyka",
-  "feedback_action_not_available": "Działanie z wartością{data} &#39; niedostępne.",
+  "feedback_action_not_available": "Działanie z wartością {data}' niedostępne.",
   "generic_error": "błąd",
   "generic_text": "Przywróćmy Cię na właściwe tory",
   "generic_title": "Przepraszamy, wystąpił **błąd**",

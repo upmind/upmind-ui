@@ -5,7 +5,7 @@
     <section :class="styles.header.root">
       <h1 :class="styles.header.title">
         <slot>
-          {{ props.title }}
+          <Sanitized v-if="props.title" :modelValue="props.title" />
         </slot>
       </h1>
 
@@ -26,7 +26,7 @@ import { Badge } from "@upmind-automation/upmind-ui";
 
 // --- internal
 import config from "./content.config";
-import { useStyles } from "@upmind-automation/upmind-ui";
+import { useStyles, Sanitized } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { ComputedRef } from "vue";
