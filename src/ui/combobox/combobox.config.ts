@@ -32,7 +32,7 @@ export const triggerVariants = cva(
 );
 
 export const itemVariants = cva(
-  "data-[selected=false]:text-muted data-[selected=true]:bg-control-selected [&:hover,&[data-hover=true]]:bg-control-selected [&:focus,&[data-focus=true]]:bg-control-selected cursor-pointer gap-3 rounded px-4 py-2 font-normal transition-all duration-200 data-[selected=false]:hover:text-base data-[selected=false]:focus:text-base data-[selected=true]:text-base",
+  "data-[selected=false]:text-muted data-[selected=true]:bg-control-selected [&:focus,&[data-focus=true]]:bg-control-selected cursor-pointer gap-3 rounded px-4 py-2 font-normal transition-all duration-200 data-[selected=false]:hover:text-base data-[selected=false]:focus:text-base data-[selected=true]:text-base",
   {
     variants: {
       size: {
@@ -47,7 +47,7 @@ export const itemVariants = cva(
 );
 
 export const contentVariants = cva(
-  `control-radius shadow-border-control-default bg-control-surface mt-2 border-none ${ringClasses} ${invalidRingClasses} p-0`,
+  `control-radius shadow-border-control-default bg-control-surface ring-background-button-ghost-ring! mt-2 border-none ${ringClasses} ${invalidRingClasses} p-0`,
   {
     variants: {
       width: {

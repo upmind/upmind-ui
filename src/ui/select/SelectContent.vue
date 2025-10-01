@@ -52,7 +52,6 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
       <SelectViewport
         :class="
           cn(
-            'p-1',
             position === 'popper' &&
               'h-(--radix-select-trigger-height) min-w-(--radix-select-trigger-width)'
           )

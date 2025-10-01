@@ -67,27 +67,25 @@
     >
       <Command :modelValue="modelValue">
         <template v-if="props.search">
-          <div class="p-2">
-            <Input
-              v-if="isFunction(props.search)"
-              v-model="searchTerm"
-              @update:modelValue="onSearch"
-              :placeholder="searchPlaceholder"
-              input-size="sm"
-              :class="styles.combobox.input"
-              :ring="false"
-            >
-              <template #prepend>
-                <Icon icon="search" size="2xs" class="mr-1 opacity-50" />
-              </template>
-            </Input>
-            <CommandInput
-              v-else
-              v-model="searchTerm"
-              :placeholder="searchPlaceholder"
-              :class="styles.combobox.input"
-            />
-          </div>
+          <Input
+            v-if="isFunction(props.search)"
+            v-model="searchTerm"
+            @update:modelValue="onSearch"
+            :placeholder="searchPlaceholder"
+            input-size="sm"
+            :class="styles.combobox.input"
+            :ring="false"
+          >
+            <template #prepend>
+              <Icon icon="search" size="2xs" class="mr-1 opacity-50" />
+            </template>
+          </Input>
+          <CommandInput
+            v-else
+            v-model="searchTerm"
+            :placeholder="searchPlaceholder"
+            :class="styles.combobox.input"
+          />
         </template>
         <CommandList
           class="border-control-default w-full max-w-full border-t p-2"
