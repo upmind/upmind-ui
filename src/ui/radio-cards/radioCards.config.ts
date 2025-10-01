@@ -51,6 +51,7 @@ export default {
     input: cva(
       `shadow-border-control leading-normal ring-offset-2 [transition:border-color_200ms_ease-in-out] ${ringClasses}`
     ),
-    sublabel: cva("text-emphasis-disabled m-0 mx-2 self-end text-sm")
+    sublabel: cva("text-emphasis-disabled text-sm"),
+    content: cva("flex flex-wrap items-baseline gap-x-2")
   }
 };
