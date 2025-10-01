@@ -355,8 +355,10 @@
   color: var(--color-text-button-muted-link-hover);
 }
 
-/* Override Tailwind's text-base font-size for all variants */
-[class*="text-base"] {
-  font-size: inherit;
-  line-height: inherit;
+@theme {
+  --color-base: var(--color-primitive-core-base);
+}
+
+@utility text-base {
+  color: var(--color-base);
 }
