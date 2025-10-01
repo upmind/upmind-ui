@@ -4,7 +4,12 @@
       <Link id="logo" :class="styles.header.anchor" v-bind="storefrontRoute">
         <picture v-if="logo" class="h-full w-full">
           <slot name="logo" :logo="logo">
-            <img v-if="logo" :src="logo" class="h-9 w-auto" alt="logo" />
+            <img
+              v-if="logo"
+              :src="logo"
+              class="h-9 w-auto max-w-3xs"
+              alt="logo"
+            />
           </slot>
           <span class="sr-only">
             {{ t("header.title") }}
