@@ -4,7 +4,7 @@
     "last_week": "[Dernier] dddd",
     "next_day": "[Demain]",
     "next_week": "dddd",
-    "same_day": "[Aujourd&#39;hui]"
+    "same_day": "[Aujourd'hui]"
   },
   "date": {
     "default": "MMM Do, AAAA",

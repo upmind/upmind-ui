@@ -58,7 +58,7 @@
   "currency_update_failed": "Beim Aktualisieren der Währung ist ein Fehler aufgetreten",
   "currency_validation_failed": "Währungsvalidierung fehlgeschlagen",
   "domain_add_failed": "Das Hinzufügen der Domain zum Warenkorb ist fehlgeschlagen",
-  "feedback_action_not_available": "Aktion mit Wert‘{data} &#39; nicht verfügbar.",
+  "feedback_action_not_available": "Aktion mit Wert '{data}' nicht verfügbar.",
   "generic_error": "Fehler",
   "generic_text": "Wir bringen Sie wieder auf Kurs",
   "generic_title": "Entschuldigung, es ist ein **Fehler** aufgetreten.",

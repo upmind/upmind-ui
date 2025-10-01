@@ -58,7 +58,7 @@
   "currency_update_failed": "Παρουσιάστηκε σφάλμα κατά την ενημέρωση του νομίσματος",
   "currency_validation_failed": "Η επικύρωση νομίσματος απέτυχε.",
   "domain_add_failed": "Αποτυχία προσθήκης του τομέα στο καλάθι",
-  "feedback_action_not_available": "Δράση με αξία{data} &#39;δεν είναι διαθέσιμο.&#39;",
+  "feedback_action_not_available": "Δράση με αξία '{data}' δεν είναι διαθέσιμο.",
   "generic_error": "σφάλμα",
   "generic_text": "Ας σε επαναφέρουμε στο σωστό δρόμο",
   "generic_title": "Λυπούμαστε, παρουσιάστηκε **σφάλμα**",

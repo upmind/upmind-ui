@@ -1,14 +1,14 @@
 {
-  "basket_items": "немає товарів у кошику |{count} товар у кошику |{count} товари в кошику",
+  "basket_items": "немає товарів у кошику | {count} товар у кошику | {count} товари в кошику",
   "basket_product_missing_data": "Відсутні дані для елемента",
   "basket_product_missing_data_help": "У цьому елементі відсутні дані, і він потребує уваги",
   "basket_products": "Товари з кошика",
   "basket_products_require_attention": "**{count}**продукція потребує **уваги** | **{count}** продукт потребує **уваги** | **{count}**товари потребують **уваги**",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
-  "basket_products_require_attention_msg": "{count}продукти потребують уваги{count} продукт потребує уваги{count} продукти потребують уваги",
+  "basket_products_require_attention_msg": "{count} продукти потребують уваги {count} продукт потребує уваги {count} продукти потребують уваги",
   "basket_products_review_desc": "Будь ласка, перегляньте наступні товари, перш ніж продовжити, або поверніться до кошика.",
   "basket_products_review_msg": "Будь ласка, перегляньте наступні пункти, перш ніж продовжити",
-  "basket_summary_desc": "У вас є{count} товар у вашому кошику, на загальну суму{total} Ви маєте{count} товари у вашому кошику, на загальну суму{total} .",
+  "basket_summary_desc": "У вас є {count} товар у вашому кошику, на загальну суму {total} Ви маєте {count} товари у вашому кошику, на загальну суму {total}.",
   "basket_title": "Ваш кошик",
   "empty": "Ваш **кошик** порожній",
   "empty_md": "@.markdown:{'cart.empty'}",
@@ -36,6 +36,6 @@
   "place_order_desc": "Просто натисніть кнопку «Оформити замовлення», щоб завершити покупку.",
   "product_not_found": "**Товар** не знайдено",
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
-  "promotion_help": "{code}забезпечує{amount} знижка{description}",
+  "promotion_help": "{code} забезпечує {amount} знижка {description}",
   "promotions_active": "Активні знижки"
 }

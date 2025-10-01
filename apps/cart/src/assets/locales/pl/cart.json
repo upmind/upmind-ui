@@ -1,14 +1,14 @@
 {
-  "basket_items": "brak pozycji w koszyku |{count} przedmiot w koszyku |{count} przedmioty w koszyku",
+  "basket_items": "brak pozycji w koszyku | {count} przedmiot w koszyku | {count} przedmioty w koszyku",
   "basket_product_missing_data": "Brak danych o elemencie",
   "basket_product_missing_data_help": "W tym elemencie brakuje danych i wymaga on uwagi",
   "basket_products": "Przedmioty w koszyku",
   "basket_products_require_attention": "**{count}**produkty wymagają **uwagi** | **{count}**produkt wymaga **uwagi** | **{count}**produkty wymagają **uwagi**",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
-  "basket_products_require_attention_msg": "{count}produkty wymagające uwagi |{count} produkt wymaga uwagi |{count} produkty wymagają uwagi",
+  "basket_products_require_attention_msg": "{count} produkty wymagające uwagi | {count} produkt wymaga uwagi | {count} produkty wymagają uwagi",
   "basket_products_review_desc": "Przed kontynuowaniem sprawdź poniższe elementy lub wróć do koszyka.",
   "basket_products_review_msg": "Przed kontynuowaniem zapoznaj się z poniższymi informacjami",
-  "basket_summary_desc": "Masz{count} pozycja w Twoim koszyku o łącznej wartości{total} . | Masz{count} artykułów w Twoim koszyku, łącznie{total} .",
+  "basket_summary_desc": "Masz {count} pozycja w Twoim koszyku o łącznej wartości {total}. | Masz {count} artykułów w Twoim koszyku, łącznie {total}.",
   "basket_title": "Twój koszyk",
   "empty": "Twój **koszyk** jest pusty",
   "empty_md": "@.markdown:{'cart.empty'}",
@@ -36,6 +36,6 @@
   "place_order_desc": "Aby dokończyć zakup, wystarczy kliknąć przycisk „Złóż zamówienie”.",
   "product_not_found": "**Produkt** nie został znaleziony",
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
-  "promotion_help": "{code}zapewnia{amount} rabat{description}",
+  "promotion_help": "{code} zapewnia {amount} rabat {description}",
   "promotions_active": "Aktywne zniżki"
 }
