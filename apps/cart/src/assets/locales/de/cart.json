@@ -1,14 +1,14 @@
 {
-  "basket_items": "keine Artikel im Warenkorb |{count} Artikel im Warenkorb |{count} Artikel im Warenkorb",
+  "basket_items": "keine Artikel im Warenkorb | {count} Artikel im Warenkorb | {count} Artikel im Warenkorb",
   "basket_product_missing_data": "Fehlende Daten zum Artikel",
   "basket_product_missing_data_help": "Für diesen Artikel fehlen Daten und er erfordert Aufmerksamkeit",
   "basket_products": "Warenkorbartikel",
   "basket_products_require_attention": "**{count}**Produkte erfordern **Aufmerksamkeit** | **{count}** Produkt erfordert **Aufmerksamkeit** | **{count}**Produkte erfordern **Aufmerksamkeit**",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
-  "basket_products_require_attention_msg": "{count}Produkte erfordern Aufmerksamkeit |{count} Produkt erfordert Aufmerksamkeit |{count} Produkte erfordern Aufmerksamkeit",
+  "basket_products_require_attention_msg": "{count} Produkte erfordern Aufmerksamkeit | {count} Produkt erfordert Aufmerksamkeit | {count} Produkte erfordern Aufmerksamkeit",
   "basket_products_review_desc": "Bitte überprüfen Sie die folgenden Punkte, bevor Sie fortfahren, oder kehren Sie alternativ zum Warenkorb zurück.",
   "basket_products_review_msg": "Bitte überprüfen Sie die folgenden Punkte, bevor Sie fortfahren",
-  "basket_summary_desc": "Du hast{count} Artikel in Ihrem Warenkorb, insgesamt{total} . | Sie haben{count} Artikel in Ihrem Warenkorb, insgesamt{total} .",
+  "basket_summary_desc": "Du hast {count} Artikel in Ihrem Warenkorb, insgesamt {total}. | Sie haben {count} Artikel in Ihrem Warenkorb, insgesamt {total}.",
   "basket_title": "Ihr Warenkorb",
   "empty": "Ihr **Warenkorb** ist leer",
   "empty_md": "@.markdown:{'cart.empty'}",
@@ -36,6 +36,6 @@
   "place_order_desc": "Klicken Sie einfach auf die Schaltfläche „Bestellung aufgeben“, um Ihren Einkauf abzuschließen.",
   "product_not_found": "**Produkt** nicht gefunden",
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
-  "promotion_help": "{code}bietet{amount} Rabatt{description}",
+  "promotion_help": "{code} bietet {amount} Rabatt {description}",
   "promotions_active": "Aktive Rabatte"
 }

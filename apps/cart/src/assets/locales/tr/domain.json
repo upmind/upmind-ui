@@ -22,10 +22,10 @@
   "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
   "own_domain_qn": "Bu alan adı size mi ait?",
   "owned_domains_title": "Şu anda sahip olduğunuz alan adları",
-  "price_renewal_desc": "Tek seferlik fiyat{regularPrice} | Her yıl yenilenir{regularPrice} .| Her yenilenir{count} yıllar boyunca{regularPrice} .",
+  "price_renewal_desc": "Tek seferlik fiyat {regularPrice} | Her yıl yenilenir {regularPrice}. | Her yenilenir {count} yıllar boyunca {regularPrice}.",
   "starts_with_domain": "Her şey bir **alan adı** ile başlar",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
-  "tld_renewal_price_desc": "Bizim{tld} yenileme fiyatları yalnızca şu fiyattan başlıyor:{currentPrice} (idi{regularPrice} ).",
-  "tld_renewal_price_from_desc": "Bizim{tld} yenileme fiyatları yalnızca şu fiyattan başlıyor:{regularPrice} .",
+  "tld_renewal_price_desc": "Bizim {tld} yenileme fiyatları yalnızca şu fiyattan başlıyor:{currentPrice} (idi {regularPrice}).",
+  "tld_renewal_price_from_desc": "Bizim {tld} yenileme fiyatları yalnızca şu fiyattan başlıyor:{regularPrice}.",
   "transfer_domain_by_msg": "Bunu bize şu şekilde aktarın:"
 }

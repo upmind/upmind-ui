@@ -1,14 +1,14 @@
 {
-  "basket_items": "няма артикули в кошницата |{count} артикул в кошницата |{count} артикули в кошницата",
+  "basket_items": "няма артикули в кошницата | {count} артикул в кошницата | {count} артикули в кошницата",
   "basket_product_missing_data": "Липсващи данни за елемента",
   "basket_product_missing_data_help": "Този елемент е лишен от данни и изисква внимание",
   "basket_products": "Артикули от кошницата",
   "basket_products_require_attention": "**{count}** продуктите изискват **внимание** | **{count}** продуктът изисква **внимание** | **{count}**продуктите изискват **внимание**",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
-  "basket_products_require_attention_msg": "{count}продуктите изискват внимание |{count} продуктът изисква внимание |{count} продуктите изискват внимание",
+  "basket_products_require_attention_msg": "{count} продуктите изискват внимание | {count} продуктът изисква внимание | {count} продуктите изискват внимание",
   "basket_products_review_desc": "Моля, прегледайте следните артикули, преди да продължите, или се върнете в кошницата.",
   "basket_products_review_msg": "Моля, прегледайте следните елементи, преди да продължите",
-  "basket_summary_desc": "Вие имате{count} артикул във вашата кошница, на обща стойност{total} Вие имате{count} артикули във вашата кошница, общо{total} .",
+  "basket_summary_desc": "Вие имате {count} артикул във вашата кошница, на обща стойност {total} Вие имате {count} артикули във вашата кошница, общо {total}.",
   "basket_title": "Вашата кошница",
   "empty": "Вашата **кошница** е празна",
   "empty_md": "@.markdown:{'cart.empty'}",
@@ -36,6 +36,6 @@
   "place_order_desc": "Просто кликнете върху бутона „Направи поръчка“, за да завършите покупката си.",
   "product_not_found": "**Продукт** не е намерен",
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
-  "promotion_help": "{code}осигурява{amount} отстъпка{description}",
+  "promotion_help": "{code} осигурява {amount} отстъпка {description}",
   "promotions_active": "Активни отстъпки"
 }

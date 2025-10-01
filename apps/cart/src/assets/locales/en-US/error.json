@@ -63,7 +63,7 @@
   "generic_text": "Let's get you back on track",
   "generic_title": "Sorry, we have experienced an **error**",
   "generic_title_md": "@.markdown:{'error.generic_title'}",
-  "http_method_not_valid": "Invalid method: {method}",
+  "http_method_not_valid": "Invalid method:{method}",
   "input_not_available": "Input not available",
   "language_load_failed": "Failed to load languages",
   "local_storage_not_available": "Local Storage not available",

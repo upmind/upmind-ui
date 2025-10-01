@@ -58,7 +58,7 @@
   "currency_update_failed": "ہمیں کرنسی کو اپ ڈیٹ کرنے میں ایک خرابی کا سامنا کرنا پڑا",
   "currency_validation_failed": "کرنسی کی توثیق ناکام ہو گئی۔",
   "domain_add_failed": "ڈومین کو ٹوکری میں شامل کرنے میں ناکام",
-  "feedback_action_not_available": "قدر کے ساتھ ایکشن&#39;{data} &#39; دستیاب نہیں",
+  "feedback_action_not_available": "قدر کے ساتھ ایکشن'{data}' دستیاب نہیں",
   "generic_error": "غلطی",
   "generic_text": "آئیے آپ کو ٹریک پر واپس لاتے ہیں۔",
   "generic_title": "معذرت، ہم نے ایک **خرابی** کا تجربہ کیا ہے",

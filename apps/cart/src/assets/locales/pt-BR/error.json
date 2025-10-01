@@ -58,7 +58,7 @@
   "currency_update_failed": "Ocorreu um erro ao atualizar a moeda",
   "currency_validation_failed": "Falha na validação da moeda",
   "domain_add_failed": "Falha ao adicionar o domínio ao carrinho",
-  "feedback_action_not_available": "Ação com valor &#39;{data} &#39; não disponível.",
+  "feedback_action_not_available": "Ação com valor '{data}' não disponível.",
   "generic_error": "erro",
   "generic_text": "Vamos colocar você de volta nos trilhos",
   "generic_title": "Desculpe, ocorreu um **erro**",

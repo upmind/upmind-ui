@@ -22,10 +22,10 @@
   "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
   "own_domain_qn": "Öné ez a domain?",
   "owned_domains_title": "Jelenlegi tulajdonodban lévő domainek",
-  "price_renewal_desc": "Egyszeri ár{regularPrice} . | Minden évben megújul{regularPrice} .| Megújul minden{count} évekig{regularPrice} .",
+  "price_renewal_desc": "Egyszeri ár {regularPrice}. | Minden évben megújul {regularPrice}. | Megújul minden {count} évekig {regularPrice}.",
   "starts_with_domain": "Minden egy **domain névvel** kezdődik",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
-  "tld_renewal_price_desc": "A miénk{tld} a megújítási árak már csak{currentPrice} (volt{regularPrice} ).",
-  "tld_renewal_price_from_desc": "A miénk{tld} a megújítási árak már csak{regularPrice} .",
+  "tld_renewal_price_desc": "A miénk {tld} a megújítási árak már csak {currentPrice} (volt {regularPrice}).",
+  "tld_renewal_price_from_desc": "A miénk {tld} a megújítási árak már csak {regularPrice}.",
   "transfer_domain_by_msg": "Utassa át nekünk a következő módon:"
 }
