@@ -58,7 +58,7 @@
   "currency_update_failed": "Під час оновлення валюти сталася помилка",
   "currency_validation_failed": "Не вдалося перевірити валюту",
   "domain_add_failed": "Не вдалося додати домен до кошика",
-  "feedback_action_not_available": "Дія з цінністю {data}' недоступно'.",
+  "feedback_action_not_available": "Дія з цінністю '{data}' недоступно.",
   "generic_error": "помилка",
   "generic_text": "Давайте повернемо вас на правильний шлях",
   "generic_title": "Вибачте, сталася **помилка**",

@@ -58,7 +58,7 @@
   "currency_update_failed": "Při aktualizaci měny došlo k chybě.",
   "currency_validation_failed": "Ověření měny se nezdařilo",
   "domain_add_failed": "Nepodařilo se přidat doménu do košíku",
-  "feedback_action_not_available": "Akce s hodnotou {data}' není k dispozici.'",
+  "feedback_action_not_available": "Akce s hodnotou '{data}' není k dispozici.",
   "generic_error": "chyba",
   "generic_text": "Pojďme tě dostat zpátky na správnou cestu",
   "generic_title": "Omlouváme se, došlo k **chybě**",

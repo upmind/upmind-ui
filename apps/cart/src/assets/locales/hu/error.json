@@ -58,7 +58,7 @@
   "currency_update_failed": "Hiba történt a pénznem frissítésekor",
   "currency_validation_failed": "A pénznem érvényesítése sikertelen volt",
   "domain_add_failed": "Nem sikerült hozzáadni a domaint a kosárhoz",
-  "feedback_action_not_available": "Értékkel bíró cselekvés {data}' nem elérhető.",
+  "feedback_action_not_available": "Értékkel bíró cselekvés '{data}' nem elérhető.",
   "generic_error": "hiba",
   "generic_text": "Visszatérítünk a helyes útra",
   "generic_title": "Sajnáljuk, **hibát** tapasztaltunk",
