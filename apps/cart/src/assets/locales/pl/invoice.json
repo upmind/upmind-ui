@@ -2,9 +2,9 @@
   "go_to_invoice_retry_payment_desc": "Kliknij poniżej, aby przejść do faktury i spróbować ponownie dokonać płatności.",
   "order_complete": "Zamówienie **zakończone**!",
   "order_complete_confirmation_msg": "Dziękujemy za zamówienie. Zakup został zrealizowany. Wkrótce otrzymasz e-mail z potwierdzeniem.",
-  "order_complete_md": "@.obniżka cen:{'invoice.order_complete'}",
+  "order_complete_md": "@.markdown:{'invoice.order_complete'}",
   "order_not_found_msg": "Niestety, nie udało nam się znaleźć Twojego zamówienia. Kliknij poniższy przycisk, aby wrócić do swojego konta.",
   "payment_unable_process_desc": "Nie udało nam się przetworzyć Twojej płatności za to zamówienie. Może to mieć kilka przyczyn.",
   "payment_unable_to_process": "Nie można przetworzyć płatności",
-  "payment_unable_to_process_md": "@.obniżka cen:{'invoice.payment_unable_to_process'}"
+  "payment_unable_to_process_md": "@.markdown:{'invoice.payment_unable_to_process'}"
 }

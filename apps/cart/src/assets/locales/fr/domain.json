@@ -11,7 +11,7 @@
     },
     "register": {
       "label": "Enregistrer un nouveau domaine",
-      "tooltip": "Vous n&#39;avez pas encore de domaine ? Enregistrez-en un nouveau chez nous."
+      "tooltip": "Vous n'avez pas encore de domaine ? Enregistrez-en un nouveau auprès de nous"
     },
     "transfer": {
       "label": "Transférer un domaine",
@@ -19,13 +19,13 @@
     }
   },
   "finding_perfect_domain": "Trouver votre domaine **parfait**",
-  "finding_perfect_domain_md": "@.réduction :{'domain.finding_perfect_domain'}",
+  "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
   "own_domain_qn": "Êtes-vous propriétaire de ce domaine ?",
   "owned_domains_title": "Domaines que vous possédez présentement",
-  "price_renewal_desc": "Prix unique de{regularPrice} . | Se renouvelle chaque année pour{regularPrice} .| Se renouvelle chaque{count} années pour{regularPrice} .",
+  "price_renewal_desc": "Prix unique de {regularPrice}. | Se renouvelle chaque année pour {regularPrice}. | Se renouvelle chaque {count} années pour {regularPrice}.",
   "starts_with_domain": "Tout commence par un **nom de domaine**",
-  "starts_with_domain_md": "@.réduction :{'domain.starts_with_domain'}",
-  "tld_renewal_price_desc": "Notre{tld} les prix de renouvellement commencent à partir de seulement{currentPrice} (était{regularPrice} ).",
-  "tld_renewal_price_from_desc": "Notre{tld} les prix de renouvellement commencent à partir de seulement{regularPrice} .",
+  "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_price_desc": "Notre {tld} les prix de renouvellement commencent à partir de seulement {currentPrice} (était {regularPrice}).",
+  "tld_renewal_price_from_desc": "Notre {tld} les prix de renouvellement commencent à partir de seulement {regularPrice}.",
   "transfer_domain_by_msg": "Transférez-le nous par"
 }

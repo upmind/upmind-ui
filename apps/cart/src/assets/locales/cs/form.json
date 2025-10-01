@@ -6,7 +6,7 @@
     "title": "Přidat novou adresu | Aktualizovat adresu"
   },
   "address1": {
-    "label": "Address",
+    "label": "Adresa",
     "placeholder": "Název domu, číslo bytu atd."
   },
   "address2": {

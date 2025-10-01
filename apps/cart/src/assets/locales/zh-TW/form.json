@@ -6,7 +6,7 @@
     "title": "新增地址 | 更新地址"
   },
   "address1": {
-    "label": "Address",
+    "label": "地址",
     "placeholder": "房屋名稱、公寓號碼等。"
   },
   "address2": {

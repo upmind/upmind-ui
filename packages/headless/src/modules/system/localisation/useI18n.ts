@@ -8,24 +8,19 @@ import {
   get,
   includes,
   isEmpty,
-  isEqual,
   last,
-  map,
   merge,
   nth,
   reduce,
   set,
   split,
-  values
+  isFunction
 } from "lodash-es";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../../utils";
 
 // --- types
 import type { GlobbedFiles } from "./types";
 import type { I18n, LocaleMessages, Composer } from "vue-i18n";
-import { isFunction } from "xstate/lib/utils";
-import { debug } from "console";
-import Module from "module";
 
 // -----------------------------------------------------------------------------
 

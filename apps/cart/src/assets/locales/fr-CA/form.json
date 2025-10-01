@@ -1,13 +1,13 @@
 {
   "address": {
-    "error": "Une erreur s&#39;est produite lors de l&#39;ajout de l&#39;adresse | une erreur s&#39;est produite lors de la mise à jour de l&#39;adresse",
+    "error": "Une erreur s'est produite lors de l'ajout de l'adresse | une erreur s'est produite lors de la mise à jour de l'adresse",
     "label": "Discours",
     "placeholder": "Commencez à taper votre adresse",
-    "title": "Ajouter une nouvelle adresse | Mettre à jour l&#39;adresse"
+    "title": "Ajouter une nouvelle adresse | Mettre à jour l'adresse"
   },
   "address1": {
-    "label": "Address",
-    "placeholder": "Nom de la maison, numéro de l&#39;appartement, etc."
+    "label": "Discours",
+    "placeholder": "Nom de la maison, numéro de l'appartement, etc."
   },
   "address2": {
     "label": "",
@@ -18,8 +18,8 @@
     "label": "Autoriser le paiement automatique"
   },
   "auth_email": {
-    "error": "Un nom d&#39;utilisateur ou une adresse courriel est requis",
-    "label": "Votre nom d&#39;utilisateur ou votre adresse courriel",
+    "error": "Un nom d'utilisateur ou une adresse courriel est requis",
+    "label": "Votre nom d'utilisateur ou votre adresse courriel",
     "placeholder": "nom@email.com"
   },
   "auth_password": {
@@ -33,8 +33,8 @@
     "placeholder": "CVC"
   },
   "card_expiry": {
-    "description": "Date d&#39;expiration de la carte. Format de date : MM/AA",
-    "label": "Date d&#39;expiration",
+    "description": "Date d'expiration de la carte. Format de date : MM/AA",
+    "label": "Date d'expiration",
     "placeholder": "MM/AA"
   },
   "card_num": {
@@ -54,16 +54,16 @@
     "placeholder": "Ville, village, etc."
   },
   "company": {
-    "error": "Une erreur s&#39;est produite lors de l&#39;ajout des détails de l&#39;entreprise | une erreur s&#39;est produite lors de la mise à jour des détails de l&#39;entreprise",
+    "error": "Une erreur s'est produite lors de l'ajout des détails de l'entreprise | une erreur s'est produite lors de la mise à jour des détails de l'entreprise",
     "label": "Entreprise",
-    "title": "Ajouter les détails de l&#39;entreprise | Mettre à jour les détails de l&#39;entreprise"
+    "title": "Ajouter les détails de l'entreprise | Mettre à jour les détails de l'entreprise"
   },
   "companyName": {
-    "label": "Nom de l&#39;entreprise",
+    "label": "Nom de l'entreprise",
     "placeholder": "Le nom de votre entreprise"
   },
   "companyNumber": {
-    "label": "Numéro d&#39;entreprise",
+    "label": "Numéro d'entreprise",
     "placeholder": "Taxe enregistrée ou TPS"
   },
   "country": {
@@ -77,9 +77,9 @@
     "placeholder": "Rechercher un domaine..."
   },
   "email": {
-    "error": "Une erreur s&#39;est produite lors de l&#39;ajout de l&#39;e-mail | une erreur s&#39;est produite lors de la mise à jour de l&#39;e-mail",
+    "error": "Une erreur s'est produite lors de l'ajout de l'e-mail | une erreur s'est produite lors de la mise à jour de l'e-mail",
     "label": "E-mail",
-    "title": "Ajouter une nouvelle adresse e-mail | Mettre à jour l&#39;adresse e-mail"
+    "title": "Ajouter une nouvelle adresse e-mail | Mettre à jour l'adresse e-mail"
   },
   "field_notes": {
     "label": "Notes de commande"
@@ -96,7 +96,7 @@
     "error": "Nous avons rencontré une erreur lors de la tentative de connexion."
   },
   "phone": {
-    "error": "Une erreur s&#39;est produite lors de l&#39;ajout du numéro de téléphone | une erreur s&#39;est produite lors de la mise à jour du numéro de téléphone",
+    "error": "Une erreur s'est produite lors de l'ajout du numéro de téléphone | une erreur s'est produite lors de la mise à jour du numéro de téléphone",
     "label": "Téléphone",
     "title": "Ajouter un nouveau numéro de téléphone | Mettre à jour le numéro de téléphone"
   },
@@ -112,7 +112,7 @@
     "placeholder": "Entrez le code promo ici"
   },
   "recover": {
-    "error": "Nous avons rencontré une erreur lors de la tentative d&#39;envoi d&#39;un courriel de réinitialisation de mot de passe."
+    "error": "Nous avons rencontré une erreur lors de la tentative d'envoi d'un courriel de réinitialisation de mot de passe."
   },
   "region": {
     "label": "Région",
@@ -128,7 +128,7 @@
     "label": "Enregistrer les détails du paiement"
   },
   "taxNumber": {
-    "label": "Numéro d&#39;identification fiscale",
-    "placeholder": "Numéro d&#39;identification fiscale"
+    "label": "Numéro d'identification fiscale",
+    "placeholder": "Numéro d'identification fiscale"
   }
 }
