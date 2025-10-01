@@ -25,7 +25,7 @@
   "price_renewal_desc": "Engangspris på {regularPrice}. | Fornyes hvert år for {regularPrice}. | Fornyes hver {count} år for {regularPrice}.",
   "starts_with_domain": "Det hele starter med et **domenenavn**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
-  "tld_renewal_price_desc": "Vår {tld} fornyelsespriser starter fra kun {currentPrice} (var {regularPrice} ).",
+  "tld_renewal_price_desc": "Vår {tld} fornyelsespriser starter fra kun {currentPrice} (var {regularPrice}).",
   "tld_renewal_price_from_desc": "Vår {tld} fornyelsespriser starter fra kun {regularPrice}.",
   "transfer_domain_by_msg": "Overfør den til oss via"
 }
