@@ -17,13 +17,13 @@ export const variants = {
     info: ""
   },
   size: {
-    sm: "px-2 py-1",
-    md: "px-3 py-1"
+    sm: "px-2 py-1 text-xs/tight font-semibold",
+    md: "px-3 py-1 text-sm/tight font-medium"
   }
 };
 
 export const badgeVariants = cva(
-  "badge-radius inline-flex w-fit items-center leading-normal whitespace-nowrap",
+  "badge-radius inline-flex w-fit items-center self-start leading-normal whitespace-nowrap",
   {
     variants,
     defaultVariants: {
@@ -159,14 +159,7 @@ export const badgeVariants = cva(
   }
 );
 
-const labelVariants = cva("px-1", {
-  variants: {
-    size: {
-      sm: "text-xs/tight font-semibold",
-      md: "text-sm/tight font-medium"
-    }
-  }
-});
+const labelVariants = cva("px-1");
 
 // -----------------------------------------------------------------------------
 export default {
