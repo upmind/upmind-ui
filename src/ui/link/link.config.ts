@@ -12,20 +12,20 @@ export const variants = {
   },
   color: {
     inherit:
-      "button-radius p-0 underline underline-offset-4 [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:opacity-75",
+      "button-radius underline underline-offset-4 [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:opacity-75",
     neutral:
-      "button-radius text-button-link p-0 underline underline-offset-4 [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:opacity-75",
+      "button-radius text-button-link underline underline-offset-4 [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:opacity-75",
     muted:
-      "button-radius text-button-muted-link p-0 underline underline-offset-4 [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:opacity-75",
+      "button-radius text-button-muted-link underline underline-offset-4 [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:opacity-75",
     promo:
-      "button-radius text-accent-promo p-0 underline underline-offset-4 [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:opacity-75",
+      "button-radius text-accent-promo underline underline-offset-4 [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:opacity-75",
     danger:
-      "button-radius text-accent-danger p-0 underline underline-offset-4 [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:opacity-75",
+      "button-radius text-accent-danger underline underline-offset-4 [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:opacity-75",
     warning:
-      "button-radius text-accent-warning p-0 underline underline-offset-4 [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:opacity-75",
+      "button-radius text-accent-warning underline underline-offset-4 [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:opacity-75",
     success:
-      "button-radius text-accent-success p-0 underline underline-offset-4 [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:opacity-75",
-    info: "button-radius text-accent-info p-0 underline underline-offset-4 [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:opacity-75"
+      "button-radius text-accent-success underline underline-offset-4 [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:opacity-75",
+    info: "button-radius text-accent-info underline underline-offset-4 [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:opacity-75"
   },
   isDisabled: {
     true: "cursor-not-allowed opacity-50",
@@ -34,7 +34,7 @@ export const variants = {
 };
 
 export const rootVariants = cva(
-  `ring-offset-background-canvas relative inline-flex items-center font-medium whitespace-nowrap no-underline transition-all duration-300 ${ringClasses}`,
+  `ring-offset-background-canvas relative inline-flex items-center p-0 font-medium whitespace-nowrap no-underline transition-all duration-300 ${ringClasses}`,
   {
     variants,
     defaultVariants: {

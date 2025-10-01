@@ -47,7 +47,6 @@ import { useStyles, cn } from "../../utils";
 import config from "./link.config";
 
 // --- components
-import Button from "../button/Button.vue";
 import LinkItems from "./LinkItems.vue";
 import { RouterLink } from "vue-router";
 
