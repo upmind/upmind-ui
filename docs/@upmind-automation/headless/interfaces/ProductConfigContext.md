@@ -4,21 +4,29 @@
 
 ## Properties
 
-### baseModel
+### attempts?
 
 ```ts
-baseModel: ProductModel;
+optional attempts: number;
 ```
 
----
+***
+
+### baseModel?
+
+```ts
+optional baseModel: ProductModel;
+```
+
+***
 
 ### basketHelper?
 
 ```ts
-optional basketHelper: ActorRef<any>;
+optional basketHelper: ActorRef<any, any>;
 ```
 
----
+***
 
 ### basketId?
 
@@ -26,47 +34,31 @@ optional basketHelper: ActorRef<any>;
 optional basketId: string;
 ```
 
----
+***
 
-### basketItemMapper()?
-
-```ts
-optional basketItemMapper: (item) => Partial<BasketProduct>;
-```
-
-#### Parameters
-
-• **item**: [`BasketProduct`](BasketProduct.md)
-
-#### Returns
-
-`Partial`\<[`BasketProduct`](BasketProduct.md)\>
-
----
-
-### basketProduct?
+### bundle?
 
 ```ts
-optional basketProduct: BasketProduct;
+optional bundle: string;
 ```
 
----
+***
 
 ### calculateCallback?
 
 ```ts
-optional calculateCallback: ActorRef<any>;
+optional calculateCallback: ActorRef<any, any>;
 ```
 
----
+***
 
-### clientId
+### clientId?
 
 ```ts
-clientId: string;
+optional clientId: string;
 ```
 
----
+***
 
 ### coupons?
 
@@ -74,31 +66,39 @@ clientId: string;
 optional coupons: string[];
 ```
 
----
+***
 
-### currencyId
+### currencyCode?
 
 ```ts
-currencyId: string;
+optional currencyCode: ISO_4217_CURRENCY_CODE;
 ```
 
----
+***
+
+### currencyId?
+
+```ts
+optional currencyId: string;
+```
+
+***
 
 ### error?
 
 ```ts
-optional error: any;
+optional error: ResponseError | ExternalError;
 ```
 
----
+***
 
-### errorExternal
+### errorExternal?
 
 ```ts
-errorExternal: any;
+optional errorExternal: ExternalError;
 ```
 
----
+***
 
 ### id
 
@@ -106,108 +106,152 @@ errorExternal: any;
 id: string;
 ```
 
----
+***
 
-### itemBuilder()?
-
-```ts
-optional itemBuilder: (item) => ProductModel;
-```
-
-#### Parameters
-
-• **item**: [`ProductModel`](ProductModel.md)
-
-#### Returns
-
-[`ProductModel`](ProductModel.md)
-
----
-
-### lookups
+### lookups?
 
 ```ts
-lookups: object;
+optional lookups: object;
 ```
 
 #### attributes?
 
 ```ts
-optional attributes: any[];
+optional attributes: SubproductDetails[];
+```
+
+#### bundled?
+
+```ts
+optional bundled: ProductModel[];
 ```
 
 #### options?
 
 ```ts
-optional options: any[];
+optional options: SubproductDetails[];
+```
+
+#### prices?
+
+```ts
+optional prices: PriceCalculations;
 ```
 
 #### product?
 
 ```ts
-optional product: any;
+optional product: ProductDetails;
+```
+
+#### provisionFields?
+
+```ts
+optional provisionFields: Record<string, any>;
 ```
 
 #### terms?
 
 ```ts
-optional terms: any[];
+optional terms: TermDetails[];
 ```
 
----
+***
 
-### model
+### meta?
 
 ```ts
-model: ProductModel;
+optional meta: UIMeta;
 ```
 
----
+***
 
-### prices?
+### model?
 
 ```ts
-optional prices: object;
+optional model: ProductModel;
 ```
 
-#### attributes?
+***
+
+### parseBasketProduct()?
 
 ```ts
-optional attributes: number[];
+optional parseBasketProduct: (item) => ProductModel;
 ```
 
-#### options?
+#### Parameters
+
+##### item
+
+[`ProductModel`](../type-aliases/ProductModel.md)
+
+#### Returns
+
+[`ProductModel`](../type-aliases/ProductModel.md)
+
+***
+
+### parseBasketProductComparison()?
 
 ```ts
-optional options: number[];
+optional parseBasketProductComparison: (item) => Partial<ProductModel>;
 ```
 
-#### term?
+#### Parameters
+
+##### item
+
+[`BasketProduct`](BasketProduct.md)
+
+#### Returns
+
+`Partial`\<[`ProductModel`](../type-aliases/ProductModel.md)\>
+
+***
+
+### product?
 
 ```ts
-optional term: number[];
+optional product: Product;
 ```
 
----
+***
 
 ### promotions?
 
 ```ts
-optional promotions: string[];
+optional promotions: IBasketPromotion[];
 ```
 
----
+***
+
+### rawBasketProduct?
+
+```ts
+optional rawBasketProduct: IBasketProduct;
+```
+
+***
 
 ### rawProduct?
 
 ```ts
-optional rawProduct: any;
+optional rawProduct: IProduct;
 ```
 
----
+***
 
-### summary?
+### silent?
 
 ```ts
-optional summary: any;
+optional silent: boolean;
+```
+
+***
+
+### subproducts?
+
+```ts
+optional subproducts: string[];
 ```

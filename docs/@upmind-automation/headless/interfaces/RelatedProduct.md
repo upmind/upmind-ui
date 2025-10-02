@@ -16,7 +16,25 @@ active: boolean;
 
 #### Inherited from
 
-`IRelatedObject.active`
+```ts
+IRelatedObject.active
+```
+
+***
+
+### badge?
+
+```ts
+optional badge: Badge;
+```
+
+***
+
+### benefits?
+
+```ts
+optional benefits: Benefit[];
+```
 
 ***
 
@@ -36,7 +54,9 @@ created_at: string;
 
 #### Inherited from
 
-`IRelatedObject.created_at`
+```ts
+IRelatedObject.created_at
+```
 
 ***
 
@@ -48,7 +68,9 @@ deleted_at: null | string;
 
 #### Inherited from
 
-`IRelatedObject.deleted_at`
+```ts
+IRelatedObject.deleted_at
+```
 
 ***
 
@@ -60,7 +82,9 @@ description: null | string;
 
 #### Inherited from
 
-`IRelatedObject.description`
+```ts
+IRelatedObject.description
+```
 
 ***
 
@@ -72,7 +96,9 @@ description_translated: null | string;
 
 #### Inherited from
 
-`IRelatedObject.description_translated`
+```ts
+IRelatedObject.description_translated
+```
 
 ***
 
@@ -84,7 +110,9 @@ id: string;
 
 #### Inherited from
 
-`IRelatedObject.id`
+```ts
+IRelatedObject.id
+```
 
 ***
 
@@ -96,7 +124,9 @@ optional image: IImage;
 
 #### Inherited from
 
-`IRelatedObject.image`
+```ts
+IRelatedObject.image
+```
 
 ***
 
@@ -116,7 +146,9 @@ label: null | string;
 
 #### Inherited from
 
-`IRelatedObject.label`
+```ts
+IRelatedObject.label
+```
 
 ***
 
@@ -128,7 +160,9 @@ label_translated: null | string;
 
 #### Inherited from
 
-`IRelatedObject.label_translated`
+```ts
+IRelatedObject.label_translated
+```
 
 ***
 
@@ -140,7 +174,9 @@ name: null | string;
 
 #### Inherited from
 
-`IRelatedObject.name`
+```ts
+IRelatedObject.name
+```
 
 ***
 
@@ -152,7 +188,9 @@ name_translated: string;
 
 #### Inherited from
 
-`IRelatedObject.name_translated`
+```ts
+IRelatedObject.name_translated
+```
 
 ***
 
@@ -164,7 +202,9 @@ object_id: string;
 
 #### Inherited from
 
-`IRelatedObject.object_id`
+```ts
+IRelatedObject.object_id
+```
 
 ***
 
@@ -176,7 +216,9 @@ object_type: string;
 
 #### Inherited from
 
-`IRelatedObject.object_type`
+```ts
+IRelatedObject.object_type
+```
 
 ***
 
@@ -188,14 +230,16 @@ order: number;
 
 #### Inherited from
 
-`IRelatedObject.order`
+```ts
+IRelatedObject.order
+```
 
 ***
 
-### product?
+### product
 
 ```ts
-optional product: IProduct;
+product: IProduct;
 ```
 
 ***
@@ -208,7 +252,9 @@ product_id: string;
 
 #### Inherited from
 
-`IRelatedObject.product_id`
+```ts
+IRelatedObject.product_id
+```
 
 ***
 
@@ -220,7 +266,9 @@ related_object: IProduct | IProductCategory;
 
 #### Inherited from
 
-`IRelatedObject.related_object`
+```ts
+IRelatedObject.related_object
+```
 
 ***
 
@@ -240,7 +288,9 @@ translations: ITranslation[];
 
 #### Inherited from
 
-`IRelatedObject.translations`
+```ts
+IRelatedObject.translations
+```
 
 ***
 
@@ -252,7 +302,9 @@ updated_at: string;
 
 #### Inherited from
 
-`IRelatedObject.updated_at`
+```ts
+IRelatedObject.updated_at
+```
 
 ***
 
@@ -264,4 +316,6 @@ optional use_object_description: boolean;
 
 #### Inherited from
 
-`IRelatedObject.use_object_description`
+```ts
+IRelatedObject.use_object_description
+```
