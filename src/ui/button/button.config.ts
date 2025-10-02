@@ -24,7 +24,7 @@ export const variants = {
     outline:
       "button-radius bg-button-outline text-button-outline border-button-outline [&:hover,&[data-hover=true]]:bg-button-outline-hover ring-background-button-outline-ring! shadow-border-button-outline",
     ghost:
-      "button-radius bg-button-ghost text-button-ghost [&:hover,&[data-hover=true]]:bg-button-ghost-hover ring-background-button-ghost-ring!",
+      "button-radius bg-button-ghost text-button-ghost [&:hover,&:focus-within,&[data-hover=true],&[data-focus=true]]:bg-button-ghost-hover ring-background-button-ghost-ring!",
     control:
       "control-radius shadow-border-control-default hover:border-control-hover ring-background-button-control-ring!"
   },
@@ -50,7 +50,7 @@ export const variants = {
 };
 
 export const rootVariants = cva(
-  `ring-offset-background-canvas relative inline-flex items-center font-medium whitespace-nowrap no-underline transition-all duration-300`,
+  `ring-offset-background-canvas relative inline-flex items-center font-medium whitespace-nowrap no-underline transition-all duration-200`,
   {
     variants,
     defaultVariants: {

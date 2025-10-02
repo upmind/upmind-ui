@@ -24,7 +24,7 @@
       </span>
       <template #icon>
         <Icon
-          class="text-muted ml-auto pl-4 transition-all duration-200 group-hover:text-base [&>svg]:size-3 [&>svg]:transition-all [&>svg]:duration-300"
+          class="text-muted ml-auto pl-4 transition-all duration-200 group-hover:text-base [&>svg]:size-3 [&>svg]:transition-all [&>svg]:duration-200"
           :class="open ? '[&>svg]:rotate-180' : ''"
           icon="arrow-down"
           size="xs"
@@ -134,6 +134,7 @@ const open = ref(false);
 const uid = ref(timestamp());
 
 const meta = computed(() => ({
+  variant: props.variant,
   width: props.width,
   size: props.size,
   hasValue: !!props.modelValue,

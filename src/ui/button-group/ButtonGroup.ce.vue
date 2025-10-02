@@ -8,11 +8,11 @@
       v-for="(item, index) in items"
       :key="'button-group-item-' + index"
     >
-      <span :class="cn(styles.buttonGroup.item, item.class)">
+      <span :class="styles.buttonGroup.item">
         <Button
           v-if="item.type === ButtonGroup.Button"
           v-bind="item.props"
-          class="control-radius"
+          :class="styles.buttonGroup.button"
           size="lg"
           :disabled="disabled || item.props.disabled"
           variant="ghost"
@@ -30,7 +30,9 @@
         <Select
           v-else-if="item.type === ButtonGroup.Select"
           v-bind="item.props"
+          :class="styles.buttonGroup.button"
           :ring="false"
+          size="lg"
           variant="ghost"
           :to="to"
           :ui-config="{
@@ -68,6 +70,7 @@ const props = withDefaults(defineProps<ButtonGroupProps>(), {
   variant: "control",
   // ---
   items: () => [],
+  size: "md",
   // ---
   uiConfig: () => ({ buttonGroup: [] }),
   class: ""
