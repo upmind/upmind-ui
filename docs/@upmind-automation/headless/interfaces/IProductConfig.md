@@ -23,12 +23,8 @@ optional coupons: string[];
 ### pfields?
 
 ```ts
-optional pfields: object;
+optional pfields: Record<string, any>;
 ```
-
-#### Index Signature
-
- \[`key`: `string`\]: `string` \| `number`
 
 ***
 
