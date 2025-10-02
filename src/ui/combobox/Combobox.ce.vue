@@ -10,7 +10,7 @@
         :class="cn('group', styles.combobox.trigger, props.class)"
         :size="props.size"
         :aria-expanded="open"
-        variant="ghost"
+        variant="control"
         icon-append="arrow-down"
         :checked="open"
         :data-hover="$attrs['data-hover']"

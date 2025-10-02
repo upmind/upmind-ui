@@ -87,6 +87,7 @@
     inset 0 -1px 0 0 var(--border-color-default);
   --shadow-border-none: inset 0 0 0 0 var(--border-color-default);
 
+
   /* Control Shadow Borders */
   --shadow-border-control-default: inset 0 0 0 1px
     var(--color-border-control-default);

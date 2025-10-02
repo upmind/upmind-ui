@@ -22,7 +22,7 @@ export const variants = {
 };
 
 export const triggerVariants = cva(
-  "text-md bg-control-surface [&:hover,&:focus-within,&[data-hover=true],&[data-focus=true]]:shadow-border-control-hover control-radius [&:hover,&[data-hover=true]]:bg-control-surface shadow-border-control-default h-auto justify-between gap-2 text-base transition-all duration-200",
+  "text-md bg-control-surface hover:shadow-border-control-hover control-radius shadow-border-control-default h-auto justify-between gap-2 text-base transition-all duration-200",
   {
     variants,
     defaultVariants: {

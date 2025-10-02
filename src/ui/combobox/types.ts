@@ -62,7 +62,6 @@ export interface ComboboxProps
   checkedIcon?: boolean;
   // --- variants
   size?: TriggerVariantProps["size"];
-  variant?: ButtonProps["variant"];
   width?: ContentVariantsProps["width"];
   // --- styles
   uiConfig?: { combobox: CxOptions };
