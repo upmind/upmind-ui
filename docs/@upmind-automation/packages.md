@@ -2,6 +2,6 @@
 
 ## Packages
 
-| Name                                             | Version | Description |
-| ------------------------------------------------ | ------- | ----------- |
-| [@upmind-automation/headless](headless/index.md) | 0.0.2   | -           |
+| Package | Version | Description |
+| ------ | ------ | ------ |
+| [@upmind-automation/headless](headless/index.md) | 0.0.8 | - |

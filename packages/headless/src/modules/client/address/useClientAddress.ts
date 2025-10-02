@@ -251,7 +251,7 @@ export const useClientAddress = (
     clear,
 
     /**
-     * Inputs a new model, resolving to the updated model., this is debounced to avoid excessive calls.
+     * Inputs a new model, resolving to the updated model. This is debounced to avoid excessive calls.
      * @param {AddressModel} value - The model to input.
      * @returns {Promise<AddressModel>} The updated model.
      */

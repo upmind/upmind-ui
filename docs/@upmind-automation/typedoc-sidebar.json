@@ -9,48 +9,62 @@
         "collapsed": true,
         "items": [
           {
-            "text": "BrandConfigKeys",
-            "link": "/@upmind-automation/headless/enumerations/BrandConfigKeys.md"
-          },
-          {
-            "text": "GatewayAuthType",
-            "link": "/@upmind-automation/headless/enumerations/GatewayAuthType.md"
+            "text": "DomainTypes",
+            "link": "/@upmind-automation/headless/enumerations/DomainTypes.md"
           },
           {
             "text": "GatewayCtx",
             "link": "/@upmind-automation/headless/enumerations/GatewayCtx.md"
           },
           {
-            "text": "GatewayProviderCodes",
-            "link": "/@upmind-automation/headless/enumerations/GatewayProviderCodes.md"
-          },
-          {
-            "text": "GatewayStoreType",
-            "link": "/@upmind-automation/headless/enumerations/GatewayStoreType.md"
-          },
-          {
             "text": "GatewayTypes",
             "link": "/@upmind-automation/headless/enumerations/GatewayTypes.md"
           },
           {
-            "text": "PaymentMethodTypes",
-            "link": "/@upmind-automation/headless/enumerations/PaymentMethodTypes.md"
+            "text": "messageDisplays",
+            "link": "/@upmind-automation/headless/enumerations/messageDisplays.md"
           },
           {
-            "text": "PaymentTypes",
-            "link": "/@upmind-automation/headless/enumerations/PaymentTypes.md"
+            "text": "messageTypes",
+            "link": "/@upmind-automation/headless/enumerations/messageTypes.md"
           },
           {
-            "text": "ProductOrderTypes",
-            "link": "/@upmind-automation/headless/enumerations/ProductOrderTypes.md"
+            "text": "ProductSortableProperties",
+            "link": "/@upmind-automation/headless/enumerations/ProductSortableProperties.md"
           },
           {
-            "text": "QUERY_PARAMS",
-            "link": "/@upmind-automation/headless/enumerations/QUERY_PARAMS.md"
+            "text": "PromotionDisplayTypes",
+            "link": "/@upmind-automation/headless/enumerations/PromotionDisplayTypes.md"
           },
           {
-            "text": "TaxTagTypes",
-            "link": "/@upmind-automation/headless/enumerations/TaxTagTypes.md"
+            "text": "RequestSortDirection",
+            "link": "/@upmind-automation/headless/enumerations/RequestSortDirection.md"
+          },
+          {
+            "text": "REQUIRES_ACTION",
+            "link": "/@upmind-automation/headless/enumerations/REQUIRES_ACTION.md"
+          },
+          {
+            "text": "ROUTE",
+            "link": "/@upmind-automation/headless/enumerations/ROUTE.md"
+          },
+          {
+            "text": "UnifiedType",
+            "link": "/@upmind-automation/headless/enumerations/UnifiedType.md"
+          },
+          {
+            "text": "UpmindStatus",
+            "link": "/@upmind-automation/headless/enumerations/UpmindStatus.md"
+          }
+        ]
+      },
+      {
+        "text": "Classes",
+        "collapsed": true,
+        "items": [
+          {
+            "text": "Upmind",
+            "link": "/@upmind-automation/headless/classes/Upmind.md"
           }
         ]
       },
@@ -59,88 +73,220 @@
         "collapsed": true,
         "items": [
           {
-            "text": "Basket",
-            "link": "/@upmind-automation/headless/interfaces/Basket.md"
+            "text": "Address",
+            "link": "/@upmind-automation/headless/interfaces/Address.md"
+          },
+          {
+            "text": "AddressContext",
+            "link": "/@upmind-automation/headless/interfaces/AddressContext.md"
+          },
+          {
+            "text": "AddressModel",
+            "link": "/@upmind-automation/headless/interfaces/AddressModel.md"
+          },
+          {
+            "text": "Badge",
+            "link": "/@upmind-automation/headless/interfaces/Badge.md"
           },
           {
             "text": "BasketContext",
             "link": "/@upmind-automation/headless/interfaces/BasketContext.md"
           },
           {
-            "text": "BasketEvent",
-            "link": "/@upmind-automation/headless/interfaces/BasketEvent.md"
+            "text": "BasketHelperContext",
+            "link": "/@upmind-automation/headless/interfaces/BasketHelperContext.md"
           },
           {
             "text": "BasketProduct",
             "link": "/@upmind-automation/headless/interfaces/BasketProduct.md"
           },
           {
-            "text": "BasketProductConfig",
-            "link": "/@upmind-automation/headless/interfaces/BasketProductConfig.md"
+            "text": "Benefit",
+            "link": "/@upmind-automation/headless/interfaces/Benefit.md"
           },
           {
-            "text": "BasketProductSummaryDetail",
-            "link": "/@upmind-automation/headless/interfaces/BasketProductSummaryDetail.md"
+            "text": "BillingContext",
+            "link": "/@upmind-automation/headless/interfaces/BillingContext.md"
           },
           {
-            "text": "BasketProductSummaryPrice",
-            "link": "/@upmind-automation/headless/interfaces/BasketProductSummaryPrice.md"
+            "text": "BillingModel",
+            "link": "/@upmind-automation/headless/interfaces/BillingModel.md"
           },
           {
-            "text": "DomainProduct",
-            "link": "/@upmind-automation/headless/interfaces/DomainProduct.md"
+            "text": "Company",
+            "link": "/@upmind-automation/headless/interfaces/Company.md"
+          },
+          {
+            "text": "CompanyContext",
+            "link": "/@upmind-automation/headless/interfaces/CompanyContext.md"
+          },
+          {
+            "text": "CompanyModel",
+            "link": "/@upmind-automation/headless/interfaces/CompanyModel.md"
+          },
+          {
+            "text": "DataLayerEcommerce",
+            "link": "/@upmind-automation/headless/interfaces/DataLayerEcommerce.md"
+          },
+          {
+            "text": "DataLayerEcommerceItem",
+            "link": "/@upmind-automation/headless/interfaces/DataLayerEcommerceItem.md"
+          },
+          {
+            "text": "DataLayerEcommerceItems",
+            "link": "/@upmind-automation/headless/interfaces/DataLayerEcommerceItems.md"
+          },
+          {
+            "text": "DataLayerPage",
+            "link": "/@upmind-automation/headless/interfaces/DataLayerPage.md"
+          },
+          {
+            "text": "DataLayerUser",
+            "link": "/@upmind-automation/headless/interfaces/DataLayerUser.md"
+          },
+          {
+            "text": "Email",
+            "link": "/@upmind-automation/headless/interfaces/Email.md"
+          },
+          {
+            "text": "EmailContext",
+            "link": "/@upmind-automation/headless/interfaces/EmailContext.md"
+          },
+          {
+            "text": "EmailModel",
+            "link": "/@upmind-automation/headless/interfaces/EmailModel.md"
+          },
+          {
+            "text": "Flow",
+            "link": "/@upmind-automation/headless/interfaces/Flow.md"
+          },
+          {
+            "text": "FormComposable",
+            "link": "/@upmind-automation/headless/interfaces/FormComposable.md"
+          },
+          {
+            "text": "Gateway",
+            "link": "/@upmind-automation/headless/interfaces/Gateway.md"
           },
           {
             "text": "GatewayContext",
             "link": "/@upmind-automation/headless/interfaces/GatewayContext.md"
           },
           {
-            "text": "GatewayEvent",
-            "link": "/@upmind-automation/headless/interfaces/GatewayEvent.md"
+            "text": "IAuthTransfer",
+            "link": "/@upmind-automation/headless/interfaces/IAuthTransfer.md"
           },
           {
-            "text": "IGateway",
-            "link": "/@upmind-automation/headless/interfaces/IGateway.md"
+            "text": "IBasketProductModel",
+            "link": "/@upmind-automation/headless/interfaces/IBasketProductModel.md"
           },
           {
-            "text": "IGatewayProvider",
-            "link": "/@upmind-automation/headless/interfaces/IGatewayProvider.md"
+            "text": "IBasketSubproductModel",
+            "link": "/@upmind-automation/headless/interfaces/IBasketSubproductModel.md"
           },
           {
-            "text": "IPaymentDetail",
-            "link": "/@upmind-automation/headless/interfaces/IPaymentDetail.md"
+            "text": "IMessage",
+            "link": "/@upmind-automation/headless/interfaces/IMessage.md"
+          },
+          {
+            "text": "IPhoneData",
+            "link": "/@upmind-automation/headless/interfaces/IPhoneData.md"
           },
           {
             "text": "IProductConfig",
             "link": "/@upmind-automation/headless/interfaces/IProductConfig.md"
           },
           {
-            "text": "IProductPromotion",
-            "link": "/@upmind-automation/headless/interfaces/IProductPromotion.md"
+            "text": "Locale",
+            "link": "/@upmind-automation/headless/interfaces/Locale.md"
+          },
+          {
+            "text": "Message",
+            "link": "/@upmind-automation/headless/interfaces/Message.md"
+          },
+          {
+            "text": "MessageError",
+            "link": "/@upmind-automation/headless/interfaces/MessageError.md"
+          },
+          {
+            "text": "MessageModel",
+            "link": "/@upmind-automation/headless/interfaces/MessageModel.md"
+          },
+          {
+            "text": "MessagesContext",
+            "link": "/@upmind-automation/headless/interfaces/MessagesContext.md"
+          },
+          {
+            "text": "PageRoute",
+            "link": "/@upmind-automation/headless/interfaces/PageRoute.md"
+          },
+          {
+            "text": "PaginationInfo",
+            "link": "/@upmind-automation/headless/interfaces/PaginationInfo.md"
+          },
+          {
+            "text": "PaymentArgs",
+            "link": "/@upmind-automation/headless/interfaces/PaymentArgs.md"
+          },
+          {
+            "text": "PaymentContext",
+            "link": "/@upmind-automation/headless/interfaces/PaymentContext.md"
+          },
+          {
+            "text": "PaymentDetailModel",
+            "link": "/@upmind-automation/headless/interfaces/PaymentDetailModel.md"
+          },
+          {
+            "text": "PaymentDetailsArgs",
+            "link": "/@upmind-automation/headless/interfaces/PaymentDetailsArgs.md"
           },
           {
             "text": "PaymentDetailsContext",
             "link": "/@upmind-automation/headless/interfaces/PaymentDetailsContext.md"
           },
           {
-            "text": "PaymentDetailsEvent",
-            "link": "/@upmind-automation/headless/interfaces/PaymentDetailsEvent.md"
+            "text": "Phone",
+            "link": "/@upmind-automation/headless/interfaces/Phone.md"
+          },
+          {
+            "text": "PhoneContext",
+            "link": "/@upmind-automation/headless/interfaces/PhoneContext.md"
+          },
+          {
+            "text": "PhoneModel",
+            "link": "/@upmind-automation/headless/interfaces/PhoneModel.md"
           },
           {
             "text": "Price",
             "link": "/@upmind-automation/headless/interfaces/Price.md"
           },
           {
+            "text": "ProductBundle",
+            "link": "/@upmind-automation/headless/interfaces/ProductBundle.md"
+          },
+          {
             "text": "ProductConfigContext",
             "link": "/@upmind-automation/headless/interfaces/ProductConfigContext.md"
           },
           {
-            "text": "ProductConfigEvent",
-            "link": "/@upmind-automation/headless/interfaces/ProductConfigEvent.md"
+            "text": "ProductProps",
+            "link": "/@upmind-automation/headless/interfaces/ProductProps.md"
           },
           {
-            "text": "ProductModel",
-            "link": "/@upmind-automation/headless/interfaces/ProductModel.md"
+            "text": "QueryClient",
+            "link": "/@upmind-automation/headless/interfaces/QueryClient.md"
+          },
+          {
+            "text": "QueryResponse",
+            "link": "/@upmind-automation/headless/interfaces/QueryResponse.md"
+          },
+          {
+            "text": "QueryResponseError",
+            "link": "/@upmind-automation/headless/interfaces/QueryResponseError.md"
+          },
+          {
+            "text": "RecaptchaContext",
+            "link": "/@upmind-automation/headless/interfaces/RecaptchaContext.md"
           },
           {
             "text": "Recommendation",
@@ -151,16 +297,68 @@
             "link": "/@upmind-automation/headless/interfaces/RecommendationsEngineContext.md"
           },
           {
-            "text": "RecommendationsEngineEvents",
-            "link": "/@upmind-automation/headless/interfaces/RecommendationsEngineEvents.md"
-          },
-          {
-            "text": "RefreshEvent",
-            "link": "/@upmind-automation/headless/interfaces/RefreshEvent.md"
-          },
-          {
             "text": "RelatedProduct",
             "link": "/@upmind-automation/headless/interfaces/RelatedProduct.md"
+          },
+          {
+            "text": "RequestFilters",
+            "link": "/@upmind-automation/headless/interfaces/RequestFilters.md"
+          },
+          {
+            "text": "RequestPagination",
+            "link": "/@upmind-automation/headless/interfaces/RequestPagination.md"
+          },
+          {
+            "text": "RoutingEngineContext",
+            "link": "/@upmind-automation/headless/interfaces/RoutingEngineContext.md"
+          },
+          {
+            "text": "SessionTransfer",
+            "link": "/@upmind-automation/headless/interfaces/SessionTransfer.md"
+          },
+          {
+            "text": "Theme",
+            "link": "/@upmind-automation/headless/interfaces/Theme.md"
+          },
+          {
+            "text": "ThemeConfig",
+            "link": "/@upmind-automation/headless/interfaces/ThemeConfig.md"
+          },
+          {
+            "text": "ThemeTokens",
+            "link": "/@upmind-automation/headless/interfaces/ThemeTokens.md"
+          },
+          {
+            "text": "UIConfig",
+            "link": "/@upmind-automation/headless/interfaces/UIConfig.md"
+          },
+          {
+            "text": "UIMeta",
+            "link": "/@upmind-automation/headless/interfaces/UIMeta.md"
+          },
+          {
+            "text": "UIProductMeta",
+            "link": "/@upmind-automation/headless/interfaces/UIProductMeta.md"
+          },
+          {
+            "text": "UISchema",
+            "link": "/@upmind-automation/headless/interfaces/UISchema.md"
+          },
+          {
+            "text": "UploadContext",
+            "link": "/@upmind-automation/headless/interfaces/UploadContext.md"
+          },
+          {
+            "text": "UpmindProps",
+            "link": "/@upmind-automation/headless/interfaces/UpmindProps.md"
+          },
+          {
+            "text": "User",
+            "link": "/@upmind-automation/headless/interfaces/User.md"
+          },
+          {
+            "text": "ValidationErrorObject",
+            "link": "/@upmind-automation/headless/interfaces/ValidationErrorObject.md"
           }
         ]
       },
@@ -169,8 +367,354 @@
         "collapsed": true,
         "items": [
           {
-            "text": "BasketProductDetails",
-            "link": "/@upmind-automation/headless/type-aliases/BasketProductDetails.md"
+            "text": "AutocompleteSuggestions",
+            "link": "/@upmind-automation/headless/type-aliases/AutocompleteSuggestions.md"
+          },
+          {
+            "text": "BillingCycleFormats",
+            "link": "/@upmind-automation/headless/type-aliases/BillingCycleFormats.md"
+          },
+          {
+            "text": "DomainContext",
+            "link": "/@upmind-automation/headless/type-aliases/DomainContext.md"
+          },
+          {
+            "text": "DomainModel",
+            "link": "/@upmind-automation/headless/type-aliases/DomainModel.md"
+          },
+          {
+            "text": "DomainProduct",
+            "link": "/@upmind-automation/headless/type-aliases/DomainProduct.md"
+          },
+          {
+            "text": "DomainProps",
+            "link": "/@upmind-automation/headless/type-aliases/DomainProps.md"
+          },
+          {
+            "text": "DomainSearch",
+            "link": "/@upmind-automation/headless/type-aliases/DomainSearch.md"
+          },
+          {
+            "text": "ExternalError",
+            "link": "/@upmind-automation/headless/type-aliases/ExternalError.md"
+          },
+          {
+            "text": "GlobbedFiles",
+            "link": "/@upmind-automation/headless/type-aliases/GlobbedFiles.md"
+          },
+          {
+            "text": "InfiniteQueryPage",
+            "link": "/@upmind-automation/headless/type-aliases/InfiniteQueryPage.md"
+          },
+          {
+            "text": "MutationParams",
+            "link": "/@upmind-automation/headless/type-aliases/MutationParams.md"
+          },
+          {
+            "text": "Place",
+            "link": "/@upmind-automation/headless/type-aliases/Place.md"
+          },
+          {
+            "text": "PlacePrediction",
+            "link": "/@upmind-automation/headless/type-aliases/PlacePrediction.md"
+          },
+          {
+            "text": "PlacePredictions",
+            "link": "/@upmind-automation/headless/type-aliases/PlacePredictions.md"
+          },
+          {
+            "text": "PlaceService",
+            "link": "/@upmind-automation/headless/type-aliases/PlaceService.md"
+          },
+          {
+            "text": "PriceCalculations",
+            "link": "/@upmind-automation/headless/type-aliases/PriceCalculations.md"
+          },
+          {
+            "text": "PriceDetail",
+            "link": "/@upmind-automation/headless/type-aliases/PriceDetail.md"
+          },
+          {
+            "text": "PriceDisplay",
+            "link": "/@upmind-automation/headless/type-aliases/PriceDisplay.md"
+          },
+          {
+            "text": "Product",
+            "link": "/@upmind-automation/headless/type-aliases/Product.md"
+          },
+          {
+            "text": "ProductBreadcrumb",
+            "link": "/@upmind-automation/headless/type-aliases/ProductBreadcrumb.md"
+          },
+          {
+            "text": "ProductBundles",
+            "link": "/@upmind-automation/headless/type-aliases/ProductBundles.md"
+          },
+          {
+            "text": "ProductCategory",
+            "link": "/@upmind-automation/headless/type-aliases/ProductCategory.md"
+          },
+          {
+            "text": "ProductDetails",
+            "link": "/@upmind-automation/headless/type-aliases/ProductDetails.md"
+          },
+          {
+            "text": "ProductImage",
+            "link": "/@upmind-automation/headless/type-aliases/ProductImage.md"
+          },
+          {
+            "text": "ProductModel",
+            "link": "/@upmind-automation/headless/type-aliases/ProductModel.md"
+          },
+          {
+            "text": "ProductSummary",
+            "link": "/@upmind-automation/headless/type-aliases/ProductSummary.md"
+          },
+          {
+            "text": "ProductSummaryDetail",
+            "link": "/@upmind-automation/headless/type-aliases/ProductSummaryDetail.md"
+          },
+          {
+            "text": "ProductSummaryDetailWithPrice",
+            "link": "/@upmind-automation/headless/type-aliases/ProductSummaryDetailWithPrice.md"
+          },
+          {
+            "text": "ProductSummaryMeta",
+            "link": "/@upmind-automation/headless/type-aliases/ProductSummaryMeta.md"
+          },
+          {
+            "text": "PromotionDetails",
+            "link": "/@upmind-automation/headless/type-aliases/PromotionDetails.md"
+          },
+          {
+            "text": "PromotionModel",
+            "link": "/@upmind-automation/headless/type-aliases/PromotionModel.md"
+          },
+          {
+            "text": "QueryParams",
+            "link": "/@upmind-automation/headless/type-aliases/QueryParams.md"
+          },
+          {
+            "text": "QueryProps",
+            "link": "/@upmind-automation/headless/type-aliases/QueryProps.md"
+          },
+          {
+            "text": "RawInfiniteQueryData",
+            "link": "/@upmind-automation/headless/type-aliases/RawInfiniteQueryData.md"
+          },
+          {
+            "text": "ReactiveQueryKeys",
+            "link": "/@upmind-automation/headless/type-aliases/ReactiveQueryKeys.md"
+          },
+          {
+            "text": "RequestParams",
+            "link": "/@upmind-automation/headless/type-aliases/RequestParams.md"
+          },
+          {
+            "text": "Route",
+            "link": "/@upmind-automation/headless/type-aliases/Route.md"
+          },
+          {
+            "text": "RouteQueryParams",
+            "link": "/@upmind-automation/headless/type-aliases/RouteQueryParams.md"
+          },
+          {
+            "text": "SubproductDetails",
+            "link": "/@upmind-automation/headless/type-aliases/SubproductDetails.md"
+          },
+          {
+            "text": "SubproductModel",
+            "link": "/@upmind-automation/headless/type-aliases/SubproductModel.md"
+          },
+          {
+            "text": "SubproductModelValue",
+            "link": "/@upmind-automation/headless/type-aliases/SubproductModelValue.md"
+          },
+          {
+            "text": "SubproductValue",
+            "link": "/@upmind-automation/headless/type-aliases/SubproductValue.md"
+          },
+          {
+            "text": "Target",
+            "link": "/@upmind-automation/headless/type-aliases/Target.md"
+          },
+          {
+            "text": "TermDetails",
+            "link": "/@upmind-automation/headless/type-aliases/TermDetails.md"
+          },
+          {
+            "text": "ThemeConfigValue",
+            "link": "/@upmind-automation/headless/type-aliases/ThemeConfigValue.md"
+          },
+          {
+            "text": "UseBasket",
+            "link": "/@upmind-automation/headless/type-aliases/UseBasket.md"
+          },
+          {
+            "text": "UseBasketBilling",
+            "link": "/@upmind-automation/headless/type-aliases/UseBasketBilling.md"
+          },
+          {
+            "text": "UseBasketCurrency",
+            "link": "/@upmind-automation/headless/type-aliases/UseBasketCurrency.md"
+          },
+          {
+            "text": "UseBasketFields",
+            "link": "/@upmind-automation/headless/type-aliases/UseBasketFields.md"
+          },
+          {
+            "text": "UseBasketProduct",
+            "link": "/@upmind-automation/headless/type-aliases/UseBasketProduct.md"
+          },
+          {
+            "text": "UseBasketProductPending",
+            "link": "/@upmind-automation/headless/type-aliases/UseBasketProductPending.md"
+          },
+          {
+            "text": "UseBasketPromotions",
+            "link": "/@upmind-automation/headless/type-aliases/UseBasketPromotions.md"
+          },
+          {
+            "text": "UseBrand",
+            "link": "/@upmind-automation/headless/type-aliases/UseBrand.md"
+          },
+          {
+            "text": "UseClientAddress",
+            "link": "/@upmind-automation/headless/type-aliases/UseClientAddress.md"
+          },
+          {
+            "text": "UseClientAddresses",
+            "link": "/@upmind-automation/headless/type-aliases/UseClientAddresses.md"
+          },
+          {
+            "text": "UseClientCompanies",
+            "link": "/@upmind-automation/headless/type-aliases/UseClientCompanies.md"
+          },
+          {
+            "text": "UseClientCompany",
+            "link": "/@upmind-automation/headless/type-aliases/UseClientCompany.md"
+          },
+          {
+            "text": "UseClientEmail",
+            "link": "/@upmind-automation/headless/type-aliases/UseClientEmail.md"
+          },
+          {
+            "text": "UseClientEmails",
+            "link": "/@upmind-automation/headless/type-aliases/UseClientEmails.md"
+          },
+          {
+            "text": "UseClientPhone",
+            "link": "/@upmind-automation/headless/type-aliases/UseClientPhone.md"
+          },
+          {
+            "text": "UseClientPhones",
+            "link": "/@upmind-automation/headless/type-aliases/UseClientPhones.md"
+          },
+          {
+            "text": "UseDataLayer",
+            "link": "/@upmind-automation/headless/type-aliases/UseDataLayer.md"
+          },
+          {
+            "text": "UseDomain",
+            "link": "/@upmind-automation/headless/type-aliases/UseDomain.md"
+          },
+          {
+            "text": "UseInvoice",
+            "link": "/@upmind-automation/headless/type-aliases/UseInvoice.md"
+          },
+          {
+            "text": "useLocale",
+            "link": "/@upmind-automation/headless/type-aliases/useLocale.md"
+          },
+          {
+            "text": "UsePayment",
+            "link": "/@upmind-automation/headless/type-aliases/UsePayment.md"
+          },
+          {
+            "text": "UsePaymentDetails",
+            "link": "/@upmind-automation/headless/type-aliases/UsePaymentDetails.md"
+          },
+          {
+            "text": "UsePaymentGateway",
+            "link": "/@upmind-automation/headless/type-aliases/UsePaymentGateway.md"
+          },
+          {
+            "text": "UseProductCatalogue",
+            "link": "/@upmind-automation/headless/type-aliases/UseProductCatalogue.md"
+          },
+          {
+            "text": "UseProductCategories",
+            "link": "/@upmind-automation/headless/type-aliases/UseProductCategories.md"
+          },
+          {
+            "text": "UseProductConfig",
+            "link": "/@upmind-automation/headless/type-aliases/UseProductConfig.md"
+          },
+          {
+            "text": "UseProductConfigMeta",
+            "link": "/@upmind-automation/headless/type-aliases/UseProductConfigMeta.md"
+          },
+          {
+            "text": "useRecaptcha",
+            "link": "/@upmind-automation/headless/type-aliases/useRecaptcha.md"
+          },
+          {
+            "text": "UseRecommendations",
+            "link": "/@upmind-automation/headless/type-aliases/UseRecommendations.md"
+          },
+          {
+            "text": "UseSession",
+            "link": "/@upmind-automation/headless/type-aliases/UseSession.md"
+          },
+          {
+            "text": "UseSystem",
+            "link": "/@upmind-automation/headless/type-aliases/UseSystem.md"
+          },
+          {
+            "text": "UseTermsAndConditions",
+            "link": "/@upmind-automation/headless/type-aliases/UseTermsAndConditions.md"
+          },
+          {
+            "text": "UseTracking",
+            "link": "/@upmind-automation/headless/type-aliases/UseTracking.md"
+          },
+          {
+            "text": "UseTransfer",
+            "link": "/@upmind-automation/headless/type-aliases/UseTransfer.md"
+          },
+          {
+            "text": "useUpload",
+            "link": "/@upmind-automation/headless/type-aliases/useUpload.md"
+          }
+        ]
+      },
+      {
+        "text": "Variables",
+        "collapsed": true,
+        "items": [
+          {
+            "text": "ADDRESS_TYPE_KEYS",
+            "link": "/@upmind-automation/headless/variables/ADDRESS_TYPE_KEYS.md"
+          },
+          {
+            "text": "AddressTypes",
+            "link": "/@upmind-automation/headless/variables/AddressTypes.md"
+          },
+          {
+            "text": "default",
+            "link": "/@upmind-automation/headless/variables/default.md"
+          },
+          {
+            "text": "EmailTypes",
+            "link": "/@upmind-automation/headless/variables/EmailTypes.md"
+          },
+          {
+            "text": "localStoragePersister",
+            "link": "/@upmind-automation/headless/variables/localStoragePersister.md"
+          },
+          {
+            "text": "PAGINATION",
+            "link": "/@upmind-automation/headless/variables/PAGINATION.md"
           }
         ]
       },
@@ -179,98 +723,41 @@
         "collapsed": true,
         "items": [
           {
-            "text": "useBasketProductConfig",
-            "link": "/@upmind-automation/headless/functions/useBasketProductConfig.md"
+            "text": "canRetryAuthorization",
+            "link": "/@upmind-automation/headless/functions/canRetryAuthorization.md"
           },
           {
-            "text": "useBrand",
-            "link": "/@upmind-automation/headless/functions/useBrand.md"
+            "text": "cleanQueryKey",
+            "link": "/@upmind-automation/headless/functions/cleanQueryKey.md"
           },
           {
-            "text": "useDomain",
-            "link": "/@upmind-automation/headless/functions/useDomain.md"
+            "text": "handleError",
+            "link": "/@upmind-automation/headless/functions/handleError.md"
           },
           {
-            "text": "useRecommendationsEngine",
-            "link": "/@upmind-automation/headless/functions/useRecommendationsEngine.md"
+            "text": "invalidateQueryByKey",
+            "link": "/@upmind-automation/headless/functions/invalidateQueryByKey.md"
           },
           {
-            "text": "useSession",
-            "link": "/@upmind-automation/headless/functions/useSession.md"
+            "text": "parseBillingCycle",
+            "link": "/@upmind-automation/headless/functions/parseBillingCycle.md"
           },
           {
-            "text": "useSystem",
-            "link": "/@upmind-automation/headless/functions/useSystem.md"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "text": "@upmind-automation/headless",
-    "link": "/@upmind-automation/headless/",
-    "collapsed": true,
-    "items": [
-      {
-        "text": "Interfaces",
-        "collapsed": true,
-        "items": [
-          {
-            "text": "BasketProduct",
-            "link": "/@upmind-automation/headless/interfaces/BasketProduct.md"
+            "text": "parseData",
+            "link": "/@upmind-automation/headless/functions/parseData.md"
           },
           {
-            "text": "BasketProductSummaryDetail",
-            "link": "/@upmind-automation/headless/interfaces/BasketProductSummaryDetail.md"
+            "text": "resetQueryByKey",
+            "link": "/@upmind-automation/headless/functions/resetQueryByKey.md"
           },
           {
-            "text": "BasketProductSummaryPrice",
-            "link": "/@upmind-automation/headless/interfaces/BasketProductSummaryPrice.md"
+            "text": "storePersister",
+            "link": "/@upmind-automation/headless/functions/storePersister.md"
           },
           {
-            "text": "IUseBrand",
-            "link": "/@upmind-automation/headless/interfaces/IUseBrand.md"
+            "text": "useBasket",
+            "link": "/@upmind-automation/headless/functions/useBasket.md"
           },
-          {
-            "text": "IUseBrandMeta",
-            "link": "/@upmind-automation/headless/interfaces/IUseBrandMeta.md"
-          },
-          {
-            "text": "IUseSession",
-            "link": "/@upmind-automation/headless/interfaces/IUseSession.md"
-          },
-          {
-            "text": "IUseSessionMeta",
-            "link": "/@upmind-automation/headless/interfaces/IUseSessionMeta.md"
-          },
-          {
-            "text": "IUseSystem",
-            "link": "/@upmind-automation/headless/interfaces/IUseSystem.md"
-          },
-          {
-            "text": "IUseSystemMeta",
-            "link": "/@upmind-automation/headless/interfaces/IUseSystemMeta.md"
-          },
-          {
-            "text": "Recommendation",
-            "link": "/@upmind-automation/headless/interfaces/Recommendation.md"
-          }
-        ]
-      },
-      {
-        "text": "Type Aliases",
-        "collapsed": true,
-        "items": [
-          {
-            "text": "BasketProductDetails",
-            "link": "/@upmind-automation/headless/type-aliases/BasketProductDetails.md"
-          }
-        ]
-      },
-      {
-        "text": "Functions",
-        "collapsed": true,
-        "items": [
           {
             "text": "useBasketBilling",
             "link": "/@upmind-automation/headless/functions/useBasketBilling.md"
@@ -282,6 +769,10 @@
           {
             "text": "useBasketFields",
             "link": "/@upmind-automation/headless/functions/useBasketFields.md"
+          },
+          {
+            "text": "useBasketFlows",
+            "link": "/@upmind-automation/headless/functions/useBasketFlows.md"
           },
           {
             "text": "useBasketPaymentDetails",
@@ -296,8 +787,16 @@
             "link": "/@upmind-automation/headless/functions/useBasketProduct.md"
           },
           {
-            "text": "useBasketProductConfig",
-            "link": "/@upmind-automation/headless/functions/useBasketProductConfig.md"
+            "text": "useBasketProductPending",
+            "link": "/@upmind-automation/headless/functions/useBasketProductPending.md"
+          },
+          {
+            "text": "useBasketProducts",
+            "link": "/@upmind-automation/headless/functions/useBasketProducts.md"
+          },
+          {
+            "text": "useBasketProductsPending",
+            "link": "/@upmind-automation/headless/functions/useBasketProductsPending.md"
           },
           {
             "text": "useBasketPromotions",
@@ -308,16 +807,192 @@
             "link": "/@upmind-automation/headless/functions/useBrand.md"
           },
           {
+            "text": "useCheckoutFlows",
+            "link": "/@upmind-automation/headless/functions/useCheckoutFlows.md"
+          },
+          {
+            "text": "useClientAddress",
+            "link": "/@upmind-automation/headless/functions/useClientAddress.md"
+          },
+          {
+            "text": "useClientAddresses",
+            "link": "/@upmind-automation/headless/functions/useClientAddresses.md"
+          },
+          {
+            "text": "useClientCompanies",
+            "link": "/@upmind-automation/headless/functions/useClientCompanies.md"
+          },
+          {
+            "text": "useClientCompany",
+            "link": "/@upmind-automation/headless/functions/useClientCompany.md"
+          },
+          {
+            "text": "useClientEmail",
+            "link": "/@upmind-automation/headless/functions/useClientEmail.md"
+          },
+          {
+            "text": "useClientEmails",
+            "link": "/@upmind-automation/headless/functions/useClientEmails.md"
+          },
+          {
+            "text": "useClientPhone",
+            "link": "/@upmind-automation/headless/functions/useClientPhone.md"
+          },
+          {
+            "text": "useClientPhones",
+            "link": "/@upmind-automation/headless/functions/useClientPhones.md"
+          },
+          {
+            "text": "useClientSlots",
+            "link": "/@upmind-automation/headless/functions/useClientSlots.md"
+          },
+          {
+            "text": "useClientTemplate",
+            "link": "/@upmind-automation/headless/functions/useClientTemplate.md"
+          },
+          {
+            "text": "useDataLayer",
+            "link": "/@upmind-automation/headless/functions/useDataLayer.md"
+          },
+          {
+            "text": "useDomain",
+            "link": "/@upmind-automation/headless/functions/useDomain.md"
+          },
+          {
+            "text": "useFeedback",
+            "link": "/@upmind-automation/headless/functions/useFeedback.md"
+          },
+          {
+            "text": "useI18n",
+            "link": "/@upmind-automation/headless/functions/useI18n.md"
+          },
+          {
+            "text": "useInvoice",
+            "link": "/@upmind-automation/headless/functions/useInvoice.md"
+          },
+          {
+            "text": "useLocale",
+            "link": "/@upmind-automation/headless/functions/useLocale.md"
+          },
+          {
+            "text": "useLocalisation",
+            "link": "/@upmind-automation/headless/functions/useLocalisation.md"
+          },
+          {
+            "text": "useMessage",
+            "link": "/@upmind-automation/headless/functions/useMessage.md"
+          },
+          {
+            "text": "useOrder",
+            "link": "/@upmind-automation/headless/functions/useOrder.md"
+          },
+          {
+            "text": "useOrderFlows",
+            "link": "/@upmind-automation/headless/functions/useOrderFlows.md"
+          },
+          {
+            "text": "usePayment",
+            "link": "/@upmind-automation/headless/functions/usePayment.md"
+          },
+          {
+            "text": "usePaymentDetails",
+            "link": "/@upmind-automation/headless/functions/usePaymentDetails.md"
+          },
+          {
+            "text": "usePaymentGateway",
+            "link": "/@upmind-automation/headless/functions/usePaymentGateway.md"
+          },
+          {
+            "text": "usePlaces",
+            "link": "/@upmind-automation/headless/functions/usePlaces.md"
+          },
+          {
+            "text": "useProductCatalogue",
+            "link": "/@upmind-automation/headless/functions/useProductCatalogue.md"
+          },
+          {
+            "text": "useProductCategories",
+            "link": "/@upmind-automation/headless/functions/useProductCategories.md"
+          },
+          {
             "text": "useProductConfig",
             "link": "/@upmind-automation/headless/functions/useProductConfig.md"
+          },
+          {
+            "text": "useProductFlows",
+            "link": "/@upmind-automation/headless/functions/useProductFlows.md"
+          },
+          {
+            "text": "useProductRecommendations",
+            "link": "/@upmind-automation/headless/functions/useProductRecommendations.md"
+          },
+          {
+            "text": "useProductsRequiringAction",
+            "link": "/@upmind-automation/headless/functions/useProductsRequiringAction.md"
+          },
+          {
+            "text": "useQuery",
+            "link": "/@upmind-automation/headless/functions/useQuery.md"
+          },
+          {
+            "text": "useQueryParams",
+            "link": "/@upmind-automation/headless/functions/useQueryParams.md"
+          },
+          {
+            "text": "useRecaptcha",
+            "link": "/@upmind-automation/headless/functions/useRecaptcha.md"
+          },
+          {
+            "text": "useRecommendations",
+            "link": "/@upmind-automation/headless/functions/useRecommendations.md"
+          },
+          {
+            "text": "useRecommendationsFlows",
+            "link": "/@upmind-automation/headless/functions/useRecommendationsFlows.md"
+          },
+          {
+            "text": "useRouteQueryParams",
+            "link": "/@upmind-automation/headless/functions/useRouteQueryParams.md"
+          },
+          {
+            "text": "useRouteRequiresAction",
+            "link": "/@upmind-automation/headless/functions/useRouteRequiresAction.md"
+          },
+          {
+            "text": "useRoutingEngine",
+            "link": "/@upmind-automation/headless/functions/useRoutingEngine.md"
+          },
+          {
+            "text": "useRoutingFlows",
+            "link": "/@upmind-automation/headless/functions/useRoutingFlows.md"
           },
           {
             "text": "useSession",
             "link": "/@upmind-automation/headless/functions/useSession.md"
           },
           {
+            "text": "useSessionFlows",
+            "link": "/@upmind-automation/headless/functions/useSessionFlows.md"
+          },
+          {
             "text": "useSystem",
             "link": "/@upmind-automation/headless/functions/useSystem.md"
+          },
+          {
+            "text": "useTermsAndConditions",
+            "link": "/@upmind-automation/headless/functions/useTermsAndConditions.md"
+          },
+          {
+            "text": "useTheming",
+            "link": "/@upmind-automation/headless/functions/useTheming.md"
+          },
+          {
+            "text": "useTracking",
+            "link": "/@upmind-automation/headless/functions/useTracking.md"
+          },
+          {
+            "text": "useTransfer",
+            "link": "/@upmind-automation/headless/functions/useTransfer.md"
           },
           {
             "text": "useUpload",

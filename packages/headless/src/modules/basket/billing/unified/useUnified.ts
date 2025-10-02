@@ -224,7 +224,7 @@ export const useUnified = (
     /** Title of the address */
     title,
 
-    /** Description of the.address */
+    /** Description of the address */
     description,
 
     /** The ID of the address */
@@ -265,7 +265,7 @@ export const useUnified = (
     clear,
 
     /**
-     * Inputs a new model, resolving to the updated model., this is debounced to avoid excessive calls.
+     * Inputs a new model, resolving to the updated model. This is debounced to avoid excessive calls.
      * @param {UnifiedModel} value The model to input.
      * @returns {Promise<UnifiedModel>} The updated model.
      */

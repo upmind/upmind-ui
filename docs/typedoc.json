@@ -4,6 +4,7 @@
   "entryPoints": ["../packages/headless"],
   "entryPointStrategy": "packages",
   "outputFileStrategy": "members",
+  "alwaysCreateEntryPointModule": true,
   "plugin": ["typedoc-plugin-markdown", "typedoc-vitepress-theme"],
   "readme": "./index.md",
   "indexFormat": "table",
