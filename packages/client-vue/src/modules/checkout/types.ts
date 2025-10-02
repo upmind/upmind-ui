@@ -20,7 +20,6 @@ export interface BillingProps {
 }
 
 export interface PaymentGatewayProps {
-  modelValue: string;
   variant?: string;
   color?: ButtonProps["color"];
 }

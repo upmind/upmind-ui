@@ -20,6 +20,6 @@ export default {
 
   setModel: assign({
     model: ({ schema, model }: OpenPayContext, { data }: AnyEventObject) =>
-      useModelParser<OpenPayModel>(schema, data || model)
+      useModelParser<OpenPayContext["model"]>(schema, data ?? model ?? {})
   })
 };

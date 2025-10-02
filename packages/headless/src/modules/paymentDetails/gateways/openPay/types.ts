@@ -49,7 +49,7 @@ export type OpenPay = {
 
 export interface OpenPayContext extends GatewayContext {
   openPay?: OpenPay;
-  model?: GatewayContext["model"] & {
+  model: GatewayContext["model"] & {
     openpay: OpenPayModel;
   };
 }
