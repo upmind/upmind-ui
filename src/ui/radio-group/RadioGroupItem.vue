@@ -6,7 +6,7 @@
         ringClasses,
         'ring-offset-background-control-surface',
         'data-[state=unchecked]:shadow-border-control-default data-[state=checked]:shadow-border-control-checked text-primary aspect-square h-4 w-4 rounded-full disabled:cursor-not-allowed disabled:opacity-50',
-        'text-control-foreground data-[state=checked]:bg-control-checked shrink-0',
+        'text-control-foreground data-[state=checked]:bg-control-checked data-[state=unchecked]:hover:shadow-border-control-hover shrink-0 cursor-pointer transition-all duration-200',
         props.class,
         props.noInput ? 'sr-only' : ''
       )

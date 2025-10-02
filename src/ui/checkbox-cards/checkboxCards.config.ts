@@ -25,7 +25,7 @@ export default {
   checkboxCards: {
     root: cva(`grid w-full gap-2`),
     item: cva(
-      `text-control-foreground group flex items-start gap-2 py-4 pr-4 pl-3 font-normal transition-all duration-200`,
+      `text-control-foreground group group flex items-start gap-2 py-4 pr-4 pl-3 font-normal transition-all duration-200`,
       {
         variants: {
           isList: {

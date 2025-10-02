@@ -13,10 +13,10 @@
               index === props.items.length - 1
             "
             class="cursor-default no-underline hover:opacity-100!"
-            :class="{ 'text-': index === props.items.length - 1 }"
             :size="props.size"
             :focusable="false"
             :label="item.label"
+            :color="index === props.items.length - 1 ? 'muted' : 'default'"
           />
           <Link
             v-else

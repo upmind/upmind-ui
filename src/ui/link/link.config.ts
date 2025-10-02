@@ -11,7 +11,7 @@ export const variants = {
     lg: "text-md"
   },
   color: {
-    inherit: "",
+    inherit: "[&:hover,&[data-hover=true]]:opacity-75",
     default:
       "text-button-link [&:hover,&[data-hover=true]]:text-button-link-hover group-hover:text-button-link-hover",
     muted:
@@ -29,7 +29,7 @@ export const variants = {
 };
 
 export const rootVariants = cva(
-  `ring-offset-background-canvas button-radius font-medium whitespace-nowrap underline underline-offset-4 transition-all duration-200 ${outlineReset} ${focusVisibleRing}`,
+  `ring-offset-background-canvas button-radius font-medium whitespace-nowrap underline underline-offset-4 transition-all duration-200 ${outlineReset} ${focusVisibleRing} `,
   {
     variants,
     defaultVariants: {
