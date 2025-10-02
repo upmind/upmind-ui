@@ -9,7 +9,7 @@
     :data-testid="`link-${kebabCase(label ?? 'default')}`"
     @click="$emit('click', $event)"
   >
-    <slot name="label">{{ label }}</slot>
+    <slot>{{ label }}</slot>
   </component>
 </template>
 
