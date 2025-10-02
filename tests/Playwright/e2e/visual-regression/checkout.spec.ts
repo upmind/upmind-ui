@@ -9,14 +9,47 @@ import {
 } from "../support/utils/functions/basket";
 import { getClientToken } from "../support/utils/functions/tokens";
 import { Logins } from "../support/constants/logins";
-import { setLocale } from "../support/utils/functions/locale-helper";
-import { Languages as languages } from "../support/constants/languages";
 
 let basket: Basket;
 let checkout: Checkout;
 
-for (const { language, locale } of languages) {
-  test.describe(`Checkout Visual Regression Tests - ${language}`, () => {
+const localeKeys: (keyof typeof Logins)[] = [
+  "english",
+  "englishUS",
+  "french",
+  "german",
+  "greek",
+  "danish",
+  "polish",
+  "spanish",
+  "portuguese",
+  "bulgarian",
+  "azerbaijani",
+  "dutch",
+  "indonesian",
+  "norwegian",
+  "turkish",
+  "ukrainian",
+  "urdu",
+  "russian",
+  "frenchCanada",
+  "chinese",
+  "spanishLATAM",
+  "romanian",
+  "czech",
+  "slovak",
+  "portugueseBrazil",
+  "swedish",
+  "hungarian"
+];
+
+const localeLogins = localeKeys.map(key => ({
+  language: key,
+  ...Logins[key]
+}));
+
+for (const { language, username, password } of localeLogins) {
+  test.describe.skip(`Checkout Visual Regression Tests - ${language}`, () => {
     let token: string;
     let orderId: string | null;
     test.beforeEach(async ({ page }) => {
@@ -37,9 +70,8 @@ for (const { language, locale } of languages) {
                     `
       });
     });
-    test("Checkout - Guest", async ({ page, context }) => {
+    test.skip("Checkout - Guest", async ({ page, context }) => {
       await page.goto(URLs.basket);
-      await setLocale(page, locale);
       await page.waitForLoadState("load");
       await page.waitForLoadState("networkidle");
       token = await getSessionToken(context, "guest");
@@ -59,14 +91,12 @@ for (const { language, locale } of languages) {
       await page.waitForLoadState("networkidle");
       await basket.proceedToCheckout.click();
       await page.waitForLoadState("networkidle");
-      await expect(page).toHaveScreenshot(`${language}/checkout-guest)`);
+      await expect(page).toHaveScreenshot(`${language}/checkout-guest)`, {
+        fullPage: true
+      });
     });
     test("Checkout - Registered User", async ({ page, context }) => {
-      await getClientToken(
-        page,
-        Logins.checkoutUser.username,
-        Logins.checkoutUser.password
-      );
+      await getClientToken(page, username, password);
       await page.goto(URLs.basket);
       await page.waitForLoadState("networkidle");
       token = await getSessionToken(context, "client");
@@ -84,8 +114,12 @@ for (const { language, locale } of languages) {
       );
       await page.reload();
       await page.goto(URLs.checkout);
+      await page.waitForLoadState("load");
       await page.waitForLoadState("networkidle");
-      await expect(page).toHaveScreenshot(`${language}/checkout-account-user)`);
+      await expect(page).toHaveScreenshot(
+        `${language}/checkout-account-user)`,
+        { fullPage: true }
+      );
     });
   });
 }

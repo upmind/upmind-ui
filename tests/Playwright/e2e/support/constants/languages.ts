@@ -15,7 +15,7 @@ export const Languages = [
   { language: "Indonesian", locale: "id" },
   { language: "Norwegian Bokmål", locale: "nb" },
   { language: "Turkish", locale: "tr" },
-  { language: "Ukranian", locale: "uk" },
+  { language: "Ukrainian", locale: "uk" },
   { language: "Urdu", locale: "ur" },
   { language: "Russian", locale: "ru" },
   { language: "French (Canada)", locale: "fr-CA" },
