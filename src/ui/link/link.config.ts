@@ -13,7 +13,7 @@ export const variants = {
   color: {
     inherit: "",
     default:
-      "text-button-link [&:hover,&[data-hover=true]]:text-button-link-hover",
+      "text-button-link [&:hover,&[data-hover=true]]:text-button-link-hover group-hover:text-button-link-hover",
     muted:
       "text-button-muted-link [&:hover,&[data-hover=true]]:text-button-muted-link-hover",
     promo: "text-accent-promo [&:hover,&[data-hover=true]]:opacity-75",
@@ -33,7 +33,7 @@ export const rootVariants = cva(
   {
     variants,
     defaultVariants: {
-      color: "neutral",
+      color: "default",
       size: "md",
       isDisabled: false
     }
