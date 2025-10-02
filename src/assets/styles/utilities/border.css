@@ -40,71 +40,14 @@
     -webkit-mask-composite: xor;
     pointer-events: none;
   }
-}
 
-@utility stroke-badge {
-  border-width: var(--stroke-badge);
-}
+  .stroke-badge {
+    border-width: var(--stroke-badge);
+  }
 
-@utility control-radius {
-  border-radius: var(--control-radius);
-}
-
-/* Shadow Border Utilities */
-@utility shadow-border-surface {
-  box-shadow: var(--shadow-border-surface);
-}
-
-@utility shadow-border-control-default {
-  box-shadow: var(--shadow-border-control-default);
-}
-
-@utility shadow-border-control-hover {
-  box-shadow: var(--shadow-border-control-hover);
-}
-
-@utility shadow-border-control-selected {
-  box-shadow: var(--shadow-border-control-selected);
-}
-
-@utility shadow-border-button-outline {
-  box-shadow: var(--shadow-border-button-outline);
-}
-
-@utility shadow-border-button-outline-hover {
-  box-shadow: var(--shadow-border-button-outline-hover);
-}
-
-@utility shadow-border-accent-primary {
-  box-shadow: var(--shadow-border-accent-primary);
-}
-
-@utility shadow-border-accent-secondary {
-  box-shadow: var(--shadow-border-accent-secondary);
-}
-
-@utility shadow-border-accent-neutral {
-  box-shadow: var(--shadow-border-accent-neutral);
-}
-
-@utility shadow-border-accent-promo {
-  box-shadow: var(--shadow-border-accent-promo);
-}
-
-@utility shadow-border-accent-danger {
-  box-shadow: var(--shadow-border-accent-danger);
-}
-
-@utility shadow-border-accent-warning {
-  box-shadow: var(--shadow-border-accent-warning);
-}
-
-@utility shadow-border-accent-success {
-  box-shadow: var(--shadow-border-accent-success);
-}
-
-@utility shadow-border-accent-info {
-  box-shadow: var(--shadow-border-accent-info);
+  .control-radius {
+    border-radius: var(--control-radius);
+  }
 }
 
 @theme {
