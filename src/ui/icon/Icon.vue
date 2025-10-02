@@ -81,8 +81,6 @@ watchEffect(async () => {
     return pathParts[pathParts.length - 1] === filename;
   });
 
-  if (!exactMatch) debugger;
-
   const asyncImport =
     exactMatch ||
     find(icons, (fn, iconPath) => endsWith(iconPath, `${safePath}${filename}`));
