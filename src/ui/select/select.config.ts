@@ -29,6 +29,7 @@ export const rootVariants = cva(
   {
     variants,
     defaultVariants: {
+      variant: "outline",
       width: "full"
     }
   }
