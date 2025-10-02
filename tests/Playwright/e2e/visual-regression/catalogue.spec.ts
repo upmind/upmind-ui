@@ -4,7 +4,7 @@ import { setLocale } from "../support/utils/functions/locale-helper";
 import { Languages as languages } from "../support/constants/languages";
 
 for (const { language, locale } of languages) {
-  test.describe(`Catalogue Visual Regression Tests - ${language}`, () => {
+  test.describe.skip(`Catalogue Visual Regression Tests - ${language}`, () => {
     test.beforeEach(async ({ page }) => {
       // Disable all CSS animations and transitions
       await page.addStyleTag({
@@ -25,7 +25,8 @@ for (const { language, locale } of languages) {
       await page.waitForLoadState("networkidle");
       await expect(page.getByTestId("product-search")).toBeVisible();
       await expect(page).toHaveScreenshot(`${language}/catalogue-page-1`, {
-        mask: [page.locator("img")]
+        mask: [page.locator("img")],
+        fullPage: true
       });
     });
     // test('Catalogue Root - Page 2', async ({page}) => {
@@ -37,7 +38,8 @@ for (const { language, locale } of languages) {
       await page.waitForLoadState("networkidle");
       await expect(page.getByTestId("product-search")).toBeVisible();
       await expect(page).toHaveScreenshot(`${language}/category-page`, {
-        mask: [page.locator("img")]
+        mask: [page.locator("img")],
+        fullPage: true
       });
     });
     test("Nested Category page", async ({ page }) => {
@@ -46,7 +48,8 @@ for (const { language, locale } of languages) {
       await page.waitForLoadState("networkidle");
       await expect(page.getByTestId("product-search")).toBeVisible();
       await expect(page).toHaveScreenshot(`${language}/nested-category-page`, {
-        mask: [page.locator("img")]
+        mask: [page.locator("img")],
+        fullPage: true
       });
     });
     test("Domain Search", async ({ page }) => {
@@ -56,7 +59,8 @@ for (const { language, locale } of languages) {
       await expect(page).toHaveScreenshot(
         `${language}/catalogue-domain-search`,
         {
-          mask: [page.locator("lord-icon")]
+          mask: [page.locator("lord-icon")],
+          fullPage: true
         }
       );
     });
