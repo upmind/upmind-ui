@@ -27,6 +27,7 @@ export interface SelectProps
   } & SelectItemProps)[];
   additionalItems?: SelectItemAdditional[];
   // --- variants;
+  variant?: RootVariants["variant"];
   width?: RootVariants["width"];
   size?: RootVariants["size"];
   placeholder?: string;

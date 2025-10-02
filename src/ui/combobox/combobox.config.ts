@@ -47,7 +47,7 @@ export const itemVariants = cva(
 );
 
 export const contentVariants = cva(
-  `control-radius shadow-border-control-default bg-control-surface ring-background-button-ghost-ring! mt-2 border-none ${ringClasses} ${invalidRingClasses} p-0`,
+  `control-radius shadow-border-control-default bg-control-surface ring-primitive-control-default! mt-2 border-none ${ringClasses} ${invalidRingClasses} p-0`,
   {
     variants: {
       width: {

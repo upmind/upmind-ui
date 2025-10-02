@@ -1,8 +1,9 @@
 // --- external
 import { cva, cx } from "class-variance-authority";
+import { focusWithinRing } from "../../assets/ring.styles";
 
 export const rootVariants = cva(
-  "control-radius divide-border-control-default shadow-border-control-default flex gap-0 divide-x overflow-hidden p-0"
+  `control-radius divide-border-control-default shadow-border-control-default flex divide-x overflow-hidden ${focusWithinRing}`
 );
 
 export const buttonVariants = cva("px-3 py-1");
@@ -10,7 +11,7 @@ export const buttonVariants = cva("px-3 py-1");
 export default {
   buttonGroup: {
     root: rootVariants,
-    item: cva("flex items-center justify-center px-1 py-1"),
+    item: cva("px-1 py-1 leading-none"),
     button: buttonVariants
   }
 };
