@@ -16,7 +16,7 @@ import type { rootVariants } from "./select.config";
 type RootVariants = VariantProps<typeof rootVariants>;
 
 export interface SelectProps
-  extends SelectRootProps,
+  extends Omit<SelectRootProps, "variant">,
     SelectContentProps,
     SelectValueProps {
   // --- state

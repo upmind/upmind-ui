@@ -18,13 +18,6 @@
           variant="ghost"
           :ring="false"
           @click="item.handler?.($event)"
-          :ui-config="{
-            button: {
-              root: [styles.buttonGroup.button],
-              label: [],
-              items: []
-            }
-          }"
         />
 
         <Select
@@ -35,13 +28,6 @@
           size="lg"
           variant="ghost"
           :to="to"
-          :ui-config="{
-            select: {
-              root: [styles.buttonGroup.button],
-              value: [],
-              item: []
-            }
-          }"
           @update:modelValue="item.handler?.($event)"
         />
       </span>
