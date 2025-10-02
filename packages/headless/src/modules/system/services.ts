@@ -112,7 +112,7 @@ function fetchLanguages() {
 function fetchStatuses() {
   const { query, useUrl } = useQuery();
 
-  return query<IStatus>({
+  return query<IStatus[]>({
     url: useUrl("statuses", { limit: 0 }),
     queryKey: ["system", "statuses"],
     // --- options

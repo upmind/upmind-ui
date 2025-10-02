@@ -42,21 +42,20 @@ export const usePaymentGateway = (actor: ComputedRef<Actor | undefined>) => {
    * @returns {Promise<boolean>} Resolves true if ready, false if error.
    */
   async function isReady(): Promise<boolean> {
-    return new Promise(resolve => {
+    return new Promise<Actor>(resolve => {
       const interval = setInterval(() => {
-        if (!isNil(actor.value)) {
+        if (!isNil(actor.value?.service)) {
           clearInterval(interval);
           resolve(actor.value);
         }
       }, 100);
-    }).then(service => {
-      if (!service) return false;
+    }).then((actor: Actor) => {
       return waitFor(
-        service as ActorRef<any>,
-        state => stateMatches(state, ["available", "unavailable"]),
+        actor.service,
+        state => !stateMatches(state, ["loading"]),
         { timeout: Infinity }
       ).then(state => {
-        if (stateMatches(state, ["unavailable"])) return false;
+        if (stateMatches(state, ["unavailable", "complete"])) return false;
         return true;
       });
     });
@@ -70,7 +69,6 @@ export const usePaymentGateway = (actor: ComputedRef<Actor | undefined>) => {
     //   PaymentType.PARTIAL_PAYMENT,
     //   PaymentType.PAY_IN_FULL
     // ]),
-    isAvailable: !!actor.value,
     isLoading: !actor.value || stateMatches(actor.value, ["loading"]),
     isRendering: !actor.value || stateMatches(actor.value, ["rendering"]),
     isAvailable: !!actor.value && stateMatches(actor, ["available"]),
@@ -163,24 +161,28 @@ export const usePaymentGateway = (actor: ComputedRef<Actor | undefined>) => {
 
   async function render(container: HTMLElement | null): Promise<void> {
     if (!container) {
-      return Promise.reject(
-        new DetailedError(
-          "No Container provided to renderer",
-          responseCodes.No_Content,
-          ErrorOrigin.Headless
-        )
+      // don't throw, just log
+      console.error(
+        "Payment gateway render error",
+        "No container element provided"
       );
+      return;
     }
 
-    waitFor(actor.value!.service, state =>
-      stateMatches(state, ["rendering"])
-    ).then(() => {
-      actor.value?.send({ type: "RENDER", data: { container } });
-      // wait for the render to complete
-      return waitFor(
-        actor.value!.service,
-        state => !stateMatches(state, ["available"])
-      );
+    return isReady().then(() => {
+      waitFor(actor.value!.service, state => stateMatches(state, ["rendering"]))
+        .then(() => {
+          actor.value?.send({ type: "RENDER", data: { container } });
+          // wait for the render to complete
+          return waitFor(
+            actor.value!.service,
+            state => !stateMatches(state, ["available"])
+          );
+        })
+        .catch(error => {
+          // don't throw, just log
+          console.error("Payment gateway render error", error);
+        });
     });
   }
 

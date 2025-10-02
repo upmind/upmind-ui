@@ -13,8 +13,6 @@ import type {
 
 import type { ResponseError } from "../../../utils";
 
-export type { IBrandGateway as Gateway } from "@upmind-automation/types";
-
 // -----------------------------------------------------------------------------
 
 export enum GatewayTypesExtended {

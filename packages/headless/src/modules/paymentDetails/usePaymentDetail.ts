@@ -91,6 +91,10 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
   );
   const errors = useContext<PaymentDetailsContext["error"]>(actor, "error");
   const amount = useContext<PaymentDetailsContext["amount"]>(actor, "amount");
+  const currency = useContext<PaymentDetailsContext["currency"]>(
+    actor,
+    "currency"
+  );
   const model = useContext<PaymentDetailsContext["model"]>(actor, "model");
   const schema = useContext<PaymentDetailsContext["schema"]>(actor, "schema");
   const uischema = useContext<PaymentDetailsContext["uischema"]>(
@@ -142,6 +146,7 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
   function clear() {
     actor.value?.send({ type: "CLEAR" });
   }
+
   function checkout() {
     actor.value?.send({ type: "CHECKOUT" });
   }
@@ -191,6 +196,9 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
 
     /** The payment amount, if applicable. */
     amount,
+
+    /** The payment currency */
+    currency,
 
     /** The current payment details model. */
     model,

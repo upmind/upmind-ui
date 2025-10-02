@@ -30,7 +30,7 @@ export type PaymentDetail = {
   cardToken: IPaymentDetail["card_token"];
   cardType: IPaymentDetail["card_type"];
   clientId: IPaymentDetail["client_id"];
-  currency?: Partial<IPaymentDetail["currency"]>; // with relation
+  currency: Partial<IPaymentDetail["currency"]>; // with relation
   gatewayID: IPaymentDetail["gateway_id"];
   id: IPaymentDetail["id"];
   title: IPaymentDetail["name"];

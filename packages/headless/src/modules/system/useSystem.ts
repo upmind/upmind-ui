@@ -244,7 +244,7 @@ export const useSystem = () => {
       await statusesQuery?.refetch();
     }
 
-    return statuses.value as IStatus[];
+    return statuses.value;
   }
 
   async function fetchCountries(): Promise<ICountry[]> {

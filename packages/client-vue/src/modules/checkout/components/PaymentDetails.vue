@@ -51,26 +51,19 @@
             </template>
           </AccordionTrigger>
 
-          <Loading
-            :active="
-              !model ||
-              (item.gateway_id === model.gateway_id && basketMeta.isProcessing)
-            "
-            :class-active="styles.checkout.accordion.loading"
+          <AccordionContent
+            :class="styles.checkout.accordion.content"
+            :contentClass="styles.checkout.accordion.contentInner"
+            force-mount
           >
-            <AccordionContent
-              :class="styles.checkout.accordion.content"
-              :contentClass="styles.checkout.accordion.contentInner"
-              force-mount
-            >
-              <PaymentGateway
-                v-if="item.gateway_id === model?.gateway_id"
-                :modelValue="item.gateway_id"
-                :color="color"
-                @checkout="handleCheckout"
-              />
-            </AccordionContent>
-          </Loading>
+            <PaymentGateway
+              v-if="item.gateway_id === model?.gateway_id && currency?.code"
+              :key="currency.code"
+              :color="color"
+              @checkout="handleCheckout"
+              :class="styles.checkout.accordion.loading"
+            />
+          </AccordionContent>
         </AccordionItem>
       </component>
     </template>
@@ -124,7 +117,8 @@ const props = withDefaults(defineProps<PaymentDetailsProps>(), {
   class: "bg-base "
 });
 
-const { meta, model, gateway, input, gateways } = useBasketPaymentDetails();
+const { meta, model, gateway, input, gateways, currency } =
+  useBasketPaymentDetails();
 const { meta: basketMeta, checkout } = useBasket();
 const { uiCart } = useBrand();
 

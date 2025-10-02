@@ -1,114 +1,98 @@
 <template>
-  <transition-group
-    tag="div"
-    ref="form"
-    :class="styles.checkout.gateway"
-    enter-active-class="transition duration-300 ease-out"
-    enter-from-class="-translate-y-10 transform opacity-0"
-    enter-to-class="translate-y-0 transform opacity-100"
-    leave-active-class="absolute transition duration-100 ease-in"
-    leave-from-class="translate-y-0 transform opacity-100"
-    leave-to-class="-translate-y-1 transform opacity-0"
-    appear
-  >
-    <Spinner size="xs" v-if="meta.isAvailable" key="spinner" />
+  <Loading :active="!meta.isAvailable">
+    <div ref="form" :class="styles.checkout.gateway">
+      <!-- Instructions -->
+      <Markdown
+        v-if="instructions"
+        class="m-0 w-full p-0"
+        :model-value="instructions"
+      />
 
-    <!-- Instructions -->
-    <Markdown
-      v-if="instructions"
-      class="m-0 w-full p-0"
-      :model-value="instructions"
-    />
+      <!-- gateway Render Content (* IF Provided) -->
+      <div ref="container" class="w-full empty:hidden" key="render"></div>
 
-    <!-- gateway Render Content (* IF Provided) -->
-    <div
-      ref="container"
-      class="w-full empty:hidden"
-      v-show="!meta.isLoading"
-      key="render"
-    ></div>
+      <!-- gateway Form (* IF Provided) -->
+      <Form
+        v-if="schema && uischema && !meta.isRenderless"
+        key="form"
+        :additional-errors="validationErrors"
+        :model-value="model"
+        :processing="meta.isProcessing"
+        :schema="schema"
+        :uischema="uischema"
+        @reject="clear"
+        @resolve="update"
+        @update:modelValue="input"
+        no-actions
+      />
 
-    <!-- gateway Form (* IF Provided) -->
-    <Form
-      key="form"
-      v-if="schema && uischema && !meta.isRenderless"
-      v-show="!meta.isLoading"
-      class="w-full"
-      :additional-errors="validationErrors"
-      :model-value="model"
-      :processing="meta.isProcessing"
-      :schema="schema"
-      :uischema="uischema"
-      @reject="clear"
-      @resolve="update"
-      @update:modelValue="input"
-      no-actions
-    />
+      <!-- Errors and Feedback -->
+      <Alert
+        v-if="meta.hasErrors"
+        color="error"
+        icon="alert-triangle"
+        :title="t('text.payment_failed')"
+      >
+        <div class="mt-2 text-sm">
+          <li class="my-0 py-0">
+            {{ errors }}
+          </li>
+        </div>
+      </Alert>
 
-    <Alert
-      v-if="meta.hasErrors"
-      color="error"
-      icon="alert-triangle"
-      :title="t('text.payment_failed')"
-    >
-      <div class="mt-2 text-sm">
-        <li class="my-0 py-0">
-          {{ errors }}
-        </li>
-      </div>
-    </Alert>
+      <!-- Actions and Terms -->
+      <footer key="actions" :class="styles.checkout.footer.root">
+        <div :class="styles.checkout.footer.actions">
+          <Button
+            :disabled="meta.isProcessing"
+            :loading="meta.isProcessing"
+            :color="props.color"
+            size="lg"
+            @click.prevent="handleCheckout"
+            :label="action"
+            :class="styles.checkout.action"
+            pill
+          />
 
-    <footer key="actions" :class="styles.checkout.footer.root">
-      <div :class="styles.checkout.footer.actions">
-        <Button
-          :disabled="meta.isProcessing"
-          :loading="meta.isLoading"
-          :color="props.color"
-          size="lg"
-          @click.prevent="handleCheckout"
-          :label="action"
-          :class="styles.checkout.action"
-          pill
+          <p v-if="meta.needsPayment" :class="styles.checkout.additional">
+            <Icon icon="lock" size="nano" />
+            {{ t("cart.encrypted_and_secure_payments") }}
+          </p>
+        </div>
+
+        <Markdown
+          v-if="clickwrap"
+          tag="p"
+          :class="styles.checkout.clickwrap"
+          :model-value="clickwrap"
+          :keys="{ action }"
         />
 
-        <p v-if="meta.needsPayment" :class="styles.checkout.additional">
-          <Icon icon="lock" size="nano" />
-          {{ t("cart.encrypted_and_secure_payments") }}
-        </p>
-      </div>
-
-      <Markdown
-        v-if="clickwrap"
-        tag="p"
-        :class="styles.checkout.clickwrap"
-        :model-value="clickwrap"
-        :keys="{ action }"
-      />
-
-      <TermsAndConditions
-        v-else
-        :class="styles.checkout.footer.terms"
-        :label="action"
-      />
-    </footer>
-  </transition-group>
+        <TermsAndConditions
+          v-else
+          :class="styles.checkout.footer.terms"
+          :label="action"
+        />
+      </footer>
+    </div>
+  </Loading>
 </template>
 
 <script lang="ts" setup>
 // --- external
 import {
   onMounted,
-  watch,
   useTemplateRef,
   type ComputedRef,
-  computed
+  computed,
+  watch
 } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useBasketPaymentGateway } from "@upmind-automation/headless";
 import config from "../checkout.config";
-import { useStyles } from "@upmind-automation/upmind-ui";
+import { useStyles, Loading } from "@upmind-automation/upmind-ui";
 import TermsAndConditions from "../../brand/TermsAndConditions.vue";
 
 // --- components
@@ -122,7 +106,7 @@ import {
 import Form from "../../../components/form/Form.vue";
 
 // --- utils
-import { isFunction } from "lodash-es";
+
 // --- types
 import type { PaymentGatewayProps } from "../types";
 
@@ -137,8 +121,6 @@ const {
   model,
   schema,
   uischema,
-  renderer,
-  type,
   clear,
   input,
   update,
@@ -188,6 +170,14 @@ const handleCheckout = () => {
 // wait till we mount then try to render the gateway if it's provided
 // otherwise watch in case it's provided later
 onMounted(() => {
+  debugger;
   render(container.value);
 });
+
+watch(
+  () => props,
+  () => {
+    debugger;
+  }
+);
 </script>
