@@ -2,55 +2,65 @@
 
 # Price
 
-## Extended by
-
-- [`BasketProductSummaryDetail`](BasketProductSummaryDetail.md)
-- [`BasketProductSummaryPrice`](BasketProductSummaryPrice.md)
+The price details for any price , allowing for gross/net and discount breakdowns
+ Price
 
 ## Properties
 
-### currentAmount?
+### discount
 
 ```ts
-optional currentAmount: number;
+discount: number;
 ```
+
+The discount price of the product
 
 ***
 
-### currentPrice?
+### discountFormatted
 
 ```ts
-optional currentPrice: string;
+discountFormatted: string;
 ```
+
+The formatted discount price of the product
 
 ***
 
-### currentSaving?
+### subtotal
 
 ```ts
-optional currentSaving: string;
+subtotal: number;
 ```
+
+The subtotal price of the product
 
 ***
 
-### currentSavingAmount?
+### subtotalFormatted
 
 ```ts
-optional currentSavingAmount: number;
+subtotalFormatted: string;
 ```
+
+The formatted subtotal price of the product
 
 ***
 
-### regularAmount?
+### total
 
 ```ts
-optional regularAmount: number;
+total: number;
 ```
+
+The total price of the product
 
 ***
 
-### regularPrice?
+### totalFormatted
 
 ```ts
-optional regularPrice: string;
+totalFormatted: string;
 ```
+
+The formatted total price of the product

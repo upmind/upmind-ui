@@ -4,51 +4,59 @@
 
 ## Properties
 
-### actors
+### actors?
 
 ```ts
-actors: object;
+optional actors: object;
 ```
 
-#### billingDetails?
+#### billing
 
 ```ts
-optional billingDetails: ActorRef<any>;
+billing: ActorRef<any>;
 ```
 
-#### currency?
+#### currency
 
 ```ts
-optional currency: ActorRef<any>;
+currency: ActorRef<any>;
 ```
 
-#### customFields?
+#### customFields
 
 ```ts
-optional customFields: ActorRef<any>;
+customFields: ActorRef<any>;
 ```
 
-#### paymentDetails?
+#### paymentDetails
 
 ```ts
-optional paymentDetails: ActorRef<any>;
+paymentDetails: ActorRef<any>;
 ```
 
-#### promotions?
+#### promotions
 
 ```ts
-optional promotions: ActorRef<any>;
+promotions: ActorRef<any>;
 ```
 
----
+***
+
+### authHelper?
+
+```ts
+optional authHelper: ActorRef<any, any>;
+```
+
+***
 
 ### basket?
 
 ```ts
-optional basket: Basket;
+optional basket: IBasket;
 ```
 
----
+***
 
 ### controller?
 
@@ -56,53 +64,39 @@ optional basket: Basket;
 optional controller: AbortController;
 ```
 
----
+***
 
 ### error?
 
 ```ts
-optional error: object;
+optional error: ResponseError;
 ```
 
-#### provisioningErrors?
-
-```ts
-optional provisioningErrors: Record<string, any>;
-```
-
----
+***
 
 ### invoice?
 
 ```ts
-optional invoice: any;
+optional invoice: IInvoice;
 ```
 
----
-
-### items?
-
-```ts
-optional items: ActorRef<any>[];
-```
-
----
+***
 
 ### payment?
 
 ```ts
-optional payment: ActorRef<any>;
+optional payment: ActorRef<any, any>;
 ```
 
----
+***
 
 ### paymentDetails?
 
 ```ts
-optional paymentDetails: ActorRef<any>;
+optional paymentDetails: any;
 ```
 
----
+***
 
 ### products
 
@@ -110,10 +104,40 @@ optional paymentDetails: ActorRef<any>;
 products: BasketProduct[];
 ```
 
----
+***
 
 ### summary?
 
 ```ts
-optional summary: any;
+optional summary: object;
+```
+
+#### discount
+
+```ts
+discount: null | string;
+```
+
+#### products
+
+```ts
+products: BasketProduct[];
+```
+
+#### subtotal
+
+```ts
+subtotal: string;
+```
+
+#### taxes
+
+```ts
+taxes: object[];
+```
+
+#### total
+
+```ts
+total: string;
 ```

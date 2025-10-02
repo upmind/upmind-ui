@@ -13,10 +13,7 @@ export default defineConfig({
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     logo: "/logo.svg",
-    nav: [
-      { text: "Headless", link: "/@upmind-automation/headless" },
-      { text: "Headless-vue", link: "/@upmind-automation/headless" }
-    ],
+    nav: [{ text: "Headless", link: "/@upmind-automation/headless" }],
     sidebar: {
       "/@upmind-automation/headless/": [
         {
@@ -33,7 +30,7 @@ export default defineConfig({
         },
         {
           text: "API Reference",
-          items: typedocSidebar[0].items
+          items: typedocSidebar
         }
       ]
     },

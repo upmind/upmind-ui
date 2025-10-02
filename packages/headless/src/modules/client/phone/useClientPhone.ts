@@ -248,7 +248,7 @@ export const useClientPhone = (
     clear,
 
     /**
-     * Inputs a new model, resolving to the updated model., this is debounced to avoid excessive calls.
+     * Inputs a new model, resolving to the updated model. This is debounced to avoid excessive calls.
      * @param {PhoneModel} model - The model to input.
      * @returns {Promise<PhoneModel>} The updated model.
      */
