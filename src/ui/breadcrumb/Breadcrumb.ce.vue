@@ -12,17 +12,19 @@
               item.current ||
               index === props.items.length - 1
             "
-            is="span"
             class="cursor-default no-underline hover:opacity-100!"
             :class="{ 'text-': index === props.items.length - 1 }"
             :size="props.size"
             :focusable="false"
-          >
-            {{ item.label }}
-          </Link>
-          <Link v-else :to="item.to" :href="item.href" :size="props.size">
-            {{ item.label }}
-          </Link>
+            :label="item.label"
+          />
+          <Link
+            v-else
+            :to="item.to"
+            :href="item.href"
+            :size="props.size"
+            :label="item.label"
+          />
         </BreadcrumbItem>
 
         <BreadcrumbSeparator v-if="index < props.items.length - 1">{{

@@ -9,31 +9,7 @@
     :data-testid="`link-${kebabCase(label ?? 'default')}`"
     @click="$emit('click', $event)"
   >
-    <slot name="prepend">
-      <LinkItems
-        :icon="icon"
-        :avatar="avatar"
-        :checked="checked"
-        :size="size"
-        :color="color"
-      />
-    </slot>
-
-    <slot>
-      <span v-if="label || slots.label" :class="styles.link.label">
-        <slot name="label">{{ label }}</slot>
-      </span>
-    </slot>
-
-    <slot name="append">
-      <LinkItems
-        :icon="iconAppend"
-        :avatar="avatarAppend"
-        :checked="checked"
-        :size="size"
-        :color="color"
-      />
-    </slot>
+    <slot name="label">{{ label }}</slot>
   </component>
 </template>
 
@@ -47,7 +23,6 @@ import { useStyles, cn } from "../../utils";
 import config from "./link.config";
 
 // --- components
-import LinkItems from "./LinkItems.vue";
 import { RouterLink } from "vue-router";
 
 // -- types
@@ -62,8 +37,6 @@ const props = withDefaults(defineProps<LinkProps>(), {
   class: "",
   contentClass: ""
 });
-
-const slots = useSlots();
 
 defineEmits<{
   click: [event: Event];
@@ -81,8 +54,7 @@ const meta = computed(() => ({
   size: props.size,
   isDisabled: props.disabled,
   isFocusable: props.focusable,
-  hasRing: !props.disabled && props.focusable,
-  hasIcon: props.icon || props.iconAppend || slots.prepend || slots.append
+  hasRing: !props.disabled && props.focusable
 }));
 
 const styles = useStyles(

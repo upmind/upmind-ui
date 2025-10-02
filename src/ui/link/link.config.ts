@@ -44,50 +44,14 @@ export const rootVariants = cva(
     defaultVariants: {
       color: "neutral",
       size: "md",
-      isDisabled: false,
-      hasIcon: false
-    },
-    compoundVariants: [
-      {
-        hasIcon: true,
-        size: "md",
-        class: "gap-0.5"
-      },
-      {
-        hasIcon: true,
-        size: "lg",
-        class: "gap-0.5"
-      }
-    ]
-  }
-);
-
-const labelVariants = cva("");
-
-const itemsVariants = cva("size-lh flex items-center justify-center", {
-  variants: {
-    size: {
-      icon: "",
-      sm: "[&>i]:p-[3px]",
-      md: "[&>i]:p-[3px]",
-      lg: "[&>i]:p-[4px]"
-    },
-    color: {
-      neutral: "text-button-link",
-      promo: "text-accent-promo",
-      danger: "text-accent-danger",
-      warning: "text-accent-warning",
-      success: "text-accent-success",
-      info: "text-accent-info"
+      isDisabled: false
     }
   }
-});
+);
 
 // -----------------------------------------------------------------------------
 export default {
   link: {
-    root: rootVariants,
-    label: labelVariants,
-    items: itemsVariants
+    root: rootVariants
   }
 };

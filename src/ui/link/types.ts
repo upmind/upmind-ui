@@ -19,10 +19,6 @@ type LinkVariantProps = VariantProps<typeof rootVariants>;
 export interface LinkProps {
   label?: string;
   is?: "router-link" | "a";
-  icon?: string | Icon;
-  avatar?: Partial<AvatarProps>;
-  iconAppend?: string | Icon;
-  avatarAppend?: Partial<AvatarProps>;
   // --- link support
   to?: string | RouteLocationAsRelativeGeneric | RouteLocationAsPathGeneric;
   href?: string;
@@ -39,13 +35,4 @@ export interface LinkProps {
   };
   class?: HTMLAttributes["class"];
   contentClass?: HTMLAttributes["class"];
-}
-
-export interface LinkItemsProps {
-  color?: LinkProps["color"];
-  icon?: LinkProps["icon"];
-  avatar?: LinkProps["avatar"];
-  size?: LinkProps["size"];
-  checked?: boolean;
-  loading?: boolean;
 }
