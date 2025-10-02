@@ -56,7 +56,7 @@ import type { LinkProps } from "./types";
 
 const props = withDefaults(defineProps<LinkProps>(), {
   size: "md",
-  color: "inherit",
+  color: "neutral",
   focusable: true,
   uiConfig: () => ({ link: { root: [], label: [], items: [] } }),
   class: "",
@@ -81,7 +81,8 @@ const meta = computed(() => ({
   size: props.size,
   isDisabled: props.disabled,
   isFocusable: props.focusable,
-  hasRing: !props.disabled && props.focusable
+  hasRing: !props.disabled && props.focusable,
+  hasIcon: props.icon || props.iconAppend || slots.prepend || slots.append
 }));
 
 const styles = useStyles(

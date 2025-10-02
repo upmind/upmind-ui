@@ -1,14 +1,18 @@
 // ---  external
 import { cva } from "class-variance-authority";
-import { ringClasses } from "../../assets/ring.styles";
+import { focusVisibleRing, outlineReset } from "../../assets/ring.styles";
 // -----------------------------------------------------------------------------
 
 export const variants = {
   size: {
     inherit: "",
     sm: "text-sm",
-    md: "gap-0.5 text-sm",
-    lg: "text-md gap-0.5"
+    md: "text-sm",
+    lg: "text-md"
+  },
+  hasIcon: {
+    true: "",
+    false: ""
   },
   color: {
     inherit:
@@ -34,14 +38,27 @@ export const variants = {
 };
 
 export const rootVariants = cva(
-  `ring-offset-background-canvas relative inline-flex items-center p-0 font-medium whitespace-nowrap no-underline transition-all duration-300 ${ringClasses}`,
+  `ring-offset-background-canvas inline-flex items-center font-medium whitespace-nowrap transition-all duration-300 ${outlineReset} ${focusVisibleRing}`,
   {
     variants,
     defaultVariants: {
       color: "neutral",
       size: "md",
-      isDisabled: false
-    }
+      isDisabled: false,
+      hasIcon: false
+    },
+    compoundVariants: [
+      {
+        hasIcon: true,
+        size: "md",
+        class: "gap-0.5"
+      },
+      {
+        hasIcon: true,
+        size: "lg",
+        class: "gap-0.5"
+      }
+    ]
   }
 );
 
