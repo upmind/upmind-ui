@@ -12,13 +12,15 @@ export const variants = {
   },
   color: {
     inherit: "",
-    neutral: "text-button-link",
-    muted: "text-button-muted-link",
-    promo: "text-accent-promo",
-    danger: "text-accent-danger",
-    warning: "text-accent-warning",
-    success: "text-accent-success",
-    info: "text-accent-info"
+    default:
+      "text-button-link [&:hover,&[data-hover=true]]:text-button-link-hover",
+    muted:
+      "text-button-muted-link [&:hover,&[data-hover=true]]:text-button-muted-link-hover",
+    promo: "text-accent-promo [&:hover,&[data-hover=true]]:opacity-75",
+    danger: "text-accent-danger [&:hover,&[data-hover=true]]:opacity-75",
+    warning: "text-accent-warning [&:hover,&[data-hover=true]]:opacity-75",
+    success: "text-accent-success [&:hover,&[data-hover=true]]:opacity-75",
+    info: "text-accent-info [&:hover,&[data-hover=true]]:opacity-75"
   },
   isDisabled: {
     true: "cursor-not-allowed opacity-50",
@@ -27,7 +29,7 @@ export const variants = {
 };
 
 export const rootVariants = cva(
-  `ring-offset-background-canvas button-radius font-medium whitespace-nowrap underline underline-offset-4 transition-all duration-200 [&:hover,&[data-hover=true]]:opacity-75 ${outlineReset} ${focusVisibleRing}`,
+  `ring-offset-background-canvas button-radius font-medium whitespace-nowrap underline underline-offset-4 transition-all duration-200 ${outlineReset} ${focusVisibleRing}`,
   {
     variants,
     defaultVariants: {

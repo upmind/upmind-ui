@@ -31,7 +31,7 @@ import type { LinkProps } from "./types";
 
 const props = withDefaults(defineProps<LinkProps>(), {
   size: "md",
-  color: "neutral",
+  color: "default",
   focusable: true,
   uiConfig: () => ({ link: { root: [], label: [], items: [] } }),
   class: "",
