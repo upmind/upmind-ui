@@ -20,7 +20,7 @@
   }
 
   .shadow-border-primary-gradient::before {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
     padding: var(--stroke-badge);
@@ -30,70 +30,81 @@
       var(--color-primitive-primary-default-stop)
     );
     border-radius: inherit;
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
     mask-composite: xor;
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     pointer-events: none;
   }
+}
 
-  .stroke-badge {
-    border-width: var(--stroke-badge);
-  }
+@utility stroke-badge {
+  border-width: var(--stroke-badge);
+}
 
-  .control-radius {
-    border-radius: var(--control-radius);
-  }
+@utility control-radius {
+  border-radius: var(--control-radius);
+}
 
-  /* Shadow Border Utilities */
-  .shadow-border-surface {
-    box-shadow: var(--shadow-border-surface);
-  }
+/* Shadow Border Utilities */
+@utility shadow-border-surface {
+  box-shadow: var(--shadow-border-surface);
+}
 
-  /* Shadow Border - Control */
-  .shadow-border-control-default {
-    box-shadow: var(--shadow-border-control-default);
-  }
-  .shadow-border-control-hover {
-    box-shadow: var(--shadow-border-control-hover);
-  }
-  .shadow-border-control-selected {
-    box-shadow: var(--shadow-border-control-selected);
-  }
+@utility shadow-border-control-default {
+  box-shadow: var(--shadow-border-control-default);
+}
 
-  /* Shadow Border - Button */
-  .shadow-border-button-outline {
-    box-shadow: var(--shadow-border-button-outline);
-  }
-  .shadow-border-button-outline-hover {
-    box-shadow: var(--shadow-border-button-outline-hover);
-  }
+@utility shadow-border-control-hover {
+  box-shadow: var(--shadow-border-control-hover);
+}
 
-  /* Shadow Border - Accent */
-  .shadow-border-accent-primary {
-    box-shadow: var(--shadow-border-accent-primary);
-  }
-  .shadow-border-accent-secondary {
-    box-shadow: var(--shadow-border-accent-secondary);
-  }
-  .shadow-border-accent-neutral {
-    box-shadow: var(--shadow-border-accent-neutral);
-  }
-  .shadow-border-accent-promo {
-    box-shadow: var(--shadow-border-accent-promo);
-  }
-  .shadow-border-accent-danger {
-    box-shadow: var(--shadow-border-accent-danger);
-  }
-  .shadow-border-accent-warning {
-    box-shadow: var(--shadow-border-accent-warning);
-  }
-  .shadow-border-accent-success {
-    box-shadow: var(--shadow-border-accent-success);
-  }
-  .shadow-border-accent-info {
-    box-shadow: var(--shadow-border-accent-info);
-  }
+@utility shadow-border-control-selected {
+  box-shadow: var(--shadow-border-control-selected);
+}
+
+@utility shadow-border-button-outline {
+  box-shadow: var(--shadow-border-button-outline);
+}
+
+@utility shadow-border-button-outline-hover {
+  box-shadow: var(--shadow-border-button-outline-hover);
+}
+
+@utility shadow-border-accent-primary {
+  box-shadow: var(--shadow-border-accent-primary);
+}
+
+@utility shadow-border-accent-secondary {
+  box-shadow: var(--shadow-border-accent-secondary);
+}
+
+@utility shadow-border-accent-neutral {
+  box-shadow: var(--shadow-border-accent-neutral);
+}
+
+@utility shadow-border-accent-promo {
+  box-shadow: var(--shadow-border-accent-promo);
+}
+
+@utility shadow-border-accent-danger {
+  box-shadow: var(--shadow-border-accent-danger);
+}
+
+@utility shadow-border-accent-warning {
+  box-shadow: var(--shadow-border-accent-warning);
+}
+
+@utility shadow-border-accent-success {
+  box-shadow: var(--shadow-border-accent-success);
+}
+
+@utility shadow-border-accent-info {
+  box-shadow: var(--shadow-border-accent-info);
 }
 
 @theme {
@@ -134,24 +145,35 @@
   --shadow-border-none: inset 0 0 0 0 var(--border-color-default);
 
   /* Control Shadow Borders */
-  --shadow-border-control-default: inset 0 0 0 1px var(--color-border-control-default);
-  --shadow-border-control-hover: inset 0 0 0 1px var(--color-border-control-hover);
-  --shadow-border-control-selected: inset 0 0 0 1px var(--color-border-control-selected);
+  --shadow-border-control-default: inset 0 0 0 1px
+    var(--color-border-control-default);
+  --shadow-border-control-hover: inset 0 0 0 1px
+    var(--color-border-control-hover);
+  --shadow-border-control-selected: inset 0 0 0 1px
+    var(--color-border-control-selected);
 
   /* Button Shadow Borders */
-  --shadow-border-button-outline: inset 0 0 0 1px var(--color-border-button-outline);
-  --shadow-border-button-outline-hover: inset 0 0 0 1px var(--color-border-button-outline-hover);
+  --shadow-border-button-outline: inset 0 0 0 1px
+    var(--color-border-button-outline);
+  --shadow-border-button-outline-hover: inset 0 0 0 1px
+    var(--color-border-button-outline-hover);
 
   /* Surface Shadow Borders */
   --shadow-border-surface: inset 0 0 0 1px var(--color-border-surface);
 
   /* Accent Shadow Borders */
-  --shadow-border-accent-primary: inset 0 0 0 1px var(--color-border-accent-primary);
-  --shadow-border-accent-secondary: inset 0 0 0 1px var(--color-border-accent-secondary);
-  --shadow-border-accent-neutral: inset 0 0 0 1px var(--color-border-accent-neutral);
+  --shadow-border-accent-primary: inset 0 0 0 1px
+    var(--color-border-accent-primary);
+  --shadow-border-accent-secondary: inset 0 0 0 1px
+    var(--color-border-accent-secondary);
+  --shadow-border-accent-neutral: inset 0 0 0 1px
+    var(--color-border-accent-neutral);
   --shadow-border-accent-promo: inset 0 0 0 1px var(--color-border-accent-promo);
-  --shadow-border-accent-danger: inset 0 0 0 1px var(--color-border-accent-danger);
-  --shadow-border-accent-warning: inset 0 0 0 1px var(--color-border-accent-warning);
-  --shadow-border-accent-success: inset 0 0 0 1px var(--color-border-accent-success);
+  --shadow-border-accent-danger: inset 0 0 0 1px
+    var(--color-border-accent-danger);
+  --shadow-border-accent-warning: inset 0 0 0 1px
+    var(--color-border-accent-warning);
+  --shadow-border-accent-success: inset 0 0 0 1px
+    var(--color-border-accent-success);
   --shadow-border-accent-info: inset 0 0 0 1px var(--color-border-accent-info);
 }
