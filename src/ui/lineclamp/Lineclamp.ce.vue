@@ -9,8 +9,9 @@
         <Link
           @click="open = !open"
           :label="meta.isOpen ? labelLess : labelMore"
-          :class="styles.lineclamp.action"
           data-testid="lineclamp"
+          color="inherit"
+          size="inherit"
         />
       </p>
     </transition>
@@ -75,7 +76,6 @@ const styles = useStyles("lineclamp", meta, config) as ComputedRef<{
     root: string;
     wrapper: string;
     actions: string;
-    action: string;
   };
 }>;
 

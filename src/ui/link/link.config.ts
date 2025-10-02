@@ -10,26 +10,15 @@ export const variants = {
     md: "text-sm",
     lg: "text-md"
   },
-  hasIcon: {
-    true: "",
-    false: ""
-  },
   color: {
-    inherit:
-      "button-radius underline underline-offset-4 [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:opacity-75",
-    neutral:
-      "button-radius text-button-link underline underline-offset-4 [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:opacity-75",
-    muted:
-      "button-radius text-button-muted-link underline underline-offset-4 [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:opacity-75",
-    promo:
-      "button-radius text-accent-promo underline underline-offset-4 [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:opacity-75",
-    danger:
-      "button-radius text-accent-danger underline underline-offset-4 [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:opacity-75",
-    warning:
-      "button-radius text-accent-warning underline underline-offset-4 [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:opacity-75",
-    success:
-      "button-radius text-accent-success underline underline-offset-4 [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:opacity-75",
-    info: "button-radius text-accent-info underline underline-offset-4 [&:focus,&[data-focus=true],&:hover,&[data-hover=true]]:opacity-75"
+    inherit: "",
+    neutral: "text-button-link",
+    muted: "text-button-muted-link",
+    promo: "text-accent-promo",
+    danger: "text-accent-danger",
+    warning: "text-accent-warning",
+    success: "text-accent-success",
+    info: "text-accent-info"
   },
   isDisabled: {
     true: "cursor-not-allowed opacity-50",
@@ -38,7 +27,7 @@ export const variants = {
 };
 
 export const rootVariants = cva(
-  `ring-offset-background-canvas inline-flex items-center font-medium whitespace-nowrap transition-all duration-200 ${outlineReset} ${focusVisibleRing}`,
+  `ring-offset-background-canvas button-radius font-medium whitespace-nowrap underline underline-offset-4 transition-all duration-200 [&:hover,&[data-hover=true]]:opacity-75 ${outlineReset} ${focusVisibleRing}`,
   {
     variants,
     defaultVariants: {
