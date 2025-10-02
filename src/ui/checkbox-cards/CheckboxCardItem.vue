@@ -21,7 +21,7 @@
             'ring-offset-background-control-surface data-[state=checked]:bg-control-checked',
             'data-[state=unchecked]:shadow-border-control-default data-[state=checked]:shadow-border-control-checked text-primary h-4 w-4 rounded-sm disabled:cursor-not-allowed disabled:opacity-50',
             'flex shrink-0 items-center justify-center',
-            '[button[data-state=on]_&]:text-background-control-active-foreground [button[data-state=on]_&]:bg-control-active [button[data-state=off]_&]:text-transparent',
+            '[button[data-state=on]_&]:text-control-active-foreground [button[data-state=on]_&]:bg-control-active [button[data-state=off]_&]:text-transparent',
 
             props.class,
             props.noInput ? 'sr-only' : ''
@@ -31,7 +31,7 @@
         :data-hover="$attrs['data-hover']"
         :data-focus="$attrs['data-focus']"
       >
-        <Check class="text-background-control-checked-contrast h-3 w-3" />
+        <Check class="text-control-checked-contrast h-3 w-3" />
       </span>
     </span>
 

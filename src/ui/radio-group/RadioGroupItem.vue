@@ -15,9 +15,7 @@
     :data-hover="$attrs['data-hover']"
   >
     <RadioGroupIndicator class="flex items-center justify-center">
-      <Circle
-        class="text-background-control-checked-contrast h-2 w-2 fill-current"
-      />
+      <Circle class="text-control-checked-contrast h-2 w-2 fill-current" />
     </RadioGroupIndicator>
   </RadioGroupItem>
 </template>

@@ -12,9 +12,7 @@
     "
   >
     <SelectItemIndicator class="">
-      <Circle
-        class="text-background-control-checked-contrast h-2 w-2 fill-current"
-      />
+      <Circle class="text-control-checked-contrast h-2 w-2 fill-current" />
     </SelectItemIndicator>
   </span>
 </template>

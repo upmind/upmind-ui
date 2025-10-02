@@ -314,6 +314,9 @@
 @utility text-control-selected {
   color: var(--color-text-control-selected);
 }
+@utility text-control-checked-contrast {
+  color: var(--color-background-control-checked-contrast);
+}
 
 @utility text-button-primary {
   color: var(--color-text-button-primary);
