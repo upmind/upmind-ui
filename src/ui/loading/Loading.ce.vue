@@ -2,8 +2,8 @@
   <component :is="is" class="relative w-full" :class="props.class">
     <slot></slot>
     <Transition
-      enter-active-class="transition-opacity duration-300 ease-in-out"
-      leave-active-class="transition-opacity duration-300 ease-in-out"
+      enter-active-class="transition-opacity duration-200 ease-in-out"
+      leave-active-class="transition-opacity duration-200 ease-in-out"
       enter-from-class="opacity-0"
       leave-to-class="opacity-0"
     >

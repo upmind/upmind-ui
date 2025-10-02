@@ -32,7 +32,7 @@
                 <Icon
                   icon="information-circle"
                   size="nano"
-                  class="opacity-50 transition-all duration-300 hover:opacity-100"
+                  class="opacity-50 transition-all duration-200 hover:opacity-100"
                 />
               </Tooltip>
 

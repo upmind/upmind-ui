@@ -38,7 +38,7 @@ export const variants = {
 };
 
 export const rootVariants = cva(
-  `ring-offset-background-canvas inline-flex items-center font-medium whitespace-nowrap transition-all duration-300 ${outlineReset} ${focusVisibleRing}`,
+  `ring-offset-background-canvas inline-flex items-center font-medium whitespace-nowrap transition-all duration-200 ${outlineReset} ${focusVisibleRing}`,
   {
     variants,
     defaultVariants: {
