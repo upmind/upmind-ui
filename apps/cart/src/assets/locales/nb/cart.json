@@ -8,7 +8,7 @@
   "basket_products_require_attention_msg": "{count} produkter krever oppmerksomhet | {count} produktet krever oppmerksomhet | {count} produkter krever oppmerksomhet",
   "basket_products_review_desc": "Vennligst gjennomgå følgende elementer før du fortsetter, alternativt legg dem tilbake i handlekurven.",
   "basket_products_review_msg": "Vennligst gjennomgå følgende punkter før du fortsetter",
-  "basket_summary_desc": "Du har {count} vare i handlekurven din, totalt {total} Du har {count} varer i handlekurven din, totalt {total}.",
+  "basket_summary_desc": "Du har {count} vare i handlekurven din, totalt {total} | Du har {count} varer i handlekurven din, totalt {total}.",
   "basket_title": "Handlekurven din",
   "empty": "**Handlekurven** din er tom",
   "empty_md": "@.markdown:{'cart.empty'}",
