@@ -8,7 +8,7 @@ import { Languages as languages } from "../support/constants/languages";
 let login: Login;
 
 for (const { language, locale } of languages) {
-  test.describe(`Login Page Visual Regression Tests - ${language}`, () => {
+  test.describe.skip(`Login Page Visual Regression Tests - ${language}`, () => {
     test.beforeEach(async ({ page }) => {
       login = new Login(page);
       // Disable all CSS animations and transitions

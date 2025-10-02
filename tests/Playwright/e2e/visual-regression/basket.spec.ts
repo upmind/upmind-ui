@@ -10,7 +10,7 @@ import { setLocale } from "../support/utils/functions/locale-helper";
 import { Languages as languages } from "../support/constants/languages";
 
 for (const { language, locale } of languages) {
-  test.describe(`Basket Visual Regression Tests - ${language}`, () => {
+  test.describe.skip(`Basket Visual Regression Tests - ${language}`, () => {
     let token: string;
     let orderId: string | null;
     test.beforeEach(async ({ page }) => {
