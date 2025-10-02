@@ -23,7 +23,7 @@ export const variants = {
 };
 
 export const badgeVariants = cva(
-  "badge-radius inline-flex w-fit items-center self-start leading-normal whitespace-nowrap",
+  "badge-radius inline-flex w-fit items-center self-center leading-normal whitespace-nowrap",
   {
     variants,
     defaultVariants: {

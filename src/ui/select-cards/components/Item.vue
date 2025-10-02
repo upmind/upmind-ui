@@ -1,10 +1,12 @@
 <template>
-  <li class="text-md flex w-full list-none justify-between font-medium">
+  <li
+    class="text-md flex w-full list-none items-center justify-between font-medium"
+  >
     <span class="flex items-center gap-2">
-      {{ label }}
+      <p>{{ label }}</p>
       <Badge v-if="badge" v-bind="badgeProps" size="sm" />
     </span>
-    <span>{{ appendLabel }}</span>
+    <p>{{ appendLabel }}</p>
   </li>
 </template>
 
