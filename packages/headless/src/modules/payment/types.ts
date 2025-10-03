@@ -3,12 +3,9 @@
 // --- internal
 import type {
   IOrder,
-  IPaymentDetail,
   IPaymentAttempt,
   Methods,
-  IClient,
-  ICurrency,
-  IAddress
+  SelectPaymentMethodData
 } from "@upmind-automation/types";
 import { ResponseError } from "../../utils";
 
@@ -16,10 +13,7 @@ import { ResponseError } from "../../utils";
 
 export interface PaymentArgs {
   orderId: IOrder["id"];
-  clientId: IClient["id"];
-  currency: ICurrency;
-  address: IAddress;
-  paymentDetail: IPaymentDetail;
+  paymentDetail: SelectPaymentMethodData;
 }
 
 export interface PaymentContext extends PaymentArgs {

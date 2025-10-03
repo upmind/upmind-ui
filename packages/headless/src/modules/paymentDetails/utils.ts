@@ -6,7 +6,6 @@ import gatewayMachine from "./gateways/gateway.machine";
 import stripeMachine from "./gateways/stripe/stripe.machine";
 import braintreeMachine from "./gateways/braintree/braintree.machine";
 import cardConfig from "./gateways/card";
-import storedConfig from "./gateways/stored";
 import openPayConfig from "./gateways/openPay";
 
 // --- utils
@@ -128,7 +127,7 @@ export function spawnGateway({
 
   if (isCard(gateway)) return spawnCard({ orderId, gateway, amount, currency });
 
-  return null;
+  return undefined;
 }
 
 export function spawnCard({
@@ -145,7 +144,7 @@ export function spawnCard({
     );
   }
   return spawn(
-    gatewayMachine.withConfig(cardConfig).withContext({
+    gatewayMachine.withConfig(cardConfig as any).withContext({
       orderId,
       gateway,
       amount,

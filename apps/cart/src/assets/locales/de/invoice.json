@@ -1,10 +1,10 @@
 {
-  "go_to_invoice_retry_payment_desc": "Klicken Sie unten, um zu Ihrer Rechnung zu gelangen, wo Sie Ihre Zahlung erneut versuchen können.",
+  "order_payment_retry_msg": "Klicken Sie unten, um zu Ihrer Rechnung zu gelangen, wo Sie Ihre Zahlung erneut versuchen können.",
   "order_complete": "Bestellung **abgeschlossen**!",
-  "order_complete_confirmation_msg": "Vielen Dank für Ihre Bestellung. Ihr Kauf ist nun abgeschlossen. Sie erhalten in Kürze eine Bestätigung per E-Mail.",
+  "order_complete_msg": "Vielen Dank für Ihre Bestellung. Ihr Kauf ist nun abgeschlossen. Sie erhalten in Kürze eine Bestätigung per E-Mail.",
   "order_complete_md": "@.markdown:{'invoice.order_complete'}",
   "order_not_found_msg": "Leider konnten wir Ihre Bestellung nicht finden. Klicken Sie bitte auf die Schaltfläche unten, um zu Ihrem Konto zurückzukehren.",
-  "payment_unable_process_desc": "Wir konnten Ihre Zahlung für diese Bestellung nicht verarbeiten. Dies kann verschiedene Gründe haben.",
-  "payment_unable_to_process": "Zahlung kann nicht **verarbeitet** werden",
-  "payment_unable_to_process_md": "@.markdown:{'invoice.payment_unable_to_process'}"
+  "order_payment_failed_msg": "Wir konnten Ihre Zahlung für diese Bestellung nicht verarbeiten. Dies kann verschiedene Gründe haben.",
+  "order_payment_failed": "Zahlung kann nicht **verarbeitet** werden",
+  "order_payment_failed_md": "@.markdown:{'invoice.order_payment_failed'}"
 }

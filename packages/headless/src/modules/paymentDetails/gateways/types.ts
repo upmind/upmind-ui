@@ -5,6 +5,7 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 // TODO:
 import { GatewayTypes } from "@upmind-automation/types";
 import type {
+  GatewayData,
   IAddress,
   ICurrency,
   IGateway,
@@ -51,15 +52,9 @@ export interface GatewayContext {
   schema?: JsonSchema;
   uischema?: UISchemaElement;
   // model?: IBillingDetail;
-  model?: Record<string, any> & {
-    autoPayment?: boolean;
-    storeOnPayment?: boolean;
-    storeOnPaymentAutoPayment?: boolean;
-    returnUrl?: string;
-    cancelUrl?: string;
-  };
+  model?: GatewayData;
   // --- Output
-  paymentDetails?: any; // will contain the response from Card, as wel las any model data
+  paymentDetails?: GatewayData; // will contain the response from Card, as wel las any model data
   // ---
   error?: ResponseError;
 }

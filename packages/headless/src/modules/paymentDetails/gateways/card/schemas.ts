@@ -58,6 +58,10 @@ export const useSchema = (context: GatewayContext) => {
       external: {
         type: "boolean",
         const: false
+      },
+      store: {
+        type: "boolean",
+        const: false
       }
     }
   };
@@ -125,6 +129,11 @@ export const useUischema = (context: GatewayContext) => {
             }
           }
         ]
+      },
+      {
+        type: "Control",
+        scope: "#/properties/store",
+        i18n: "form.store_on_payment" // save as store on payment control for other gateways
       },
       ...(defaultUischema?.elements || []) // NB Always append the default uischema elements
     ]

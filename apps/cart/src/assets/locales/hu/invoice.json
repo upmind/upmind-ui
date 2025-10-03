@@ -1,10 +1,10 @@
 {
-  "go_to_invoice_retry_payment_desc": "Kérjük, kattintson az alábbi gombra a számlájához való ugráshoz, ahol újra megpróbálhatja a fizetést.",
+  "order_payment_retry_msg": "Kérjük, kattintson az alábbi gombra a számlájához való ugráshoz, ahol újra megpróbálhatja a fizetést.",
   "order_complete": "Rendelés **kész**!",
-  "order_complete_confirmation_msg": "Köszönjük a rendelését, a vásárlása most befejeződött. Hamarosan kapni fog egy visszaigazoló e-mailt.",
+  "order_complete_msg": "Köszönjük a rendelését, a vásárlása most befejeződött. Hamarosan kapni fog egy visszaigazoló e-mailt.",
   "order_complete_md": "@.markdown:{'invoice.order_complete'}",
   "order_not_found_msg": "Sajnos nem találtuk a rendelését. Kérjük, kattintson az alábbi gombra a fiókjába való visszatéréshez.",
-  "payment_unable_process_desc": "Nem tudtuk feldolgozni a megrendelésére vonatkozó fizetését, ennek több oka is lehet.",
-  "payment_unable_to_process": "A fizetés **feldolgozása** sikertelen",
-  "payment_unable_to_process_md": "@.markdown:{'invoice.payment_unable_to_process'}"
+  "order_payment_failed_msg": "Nem tudtuk feldolgozni a megrendelésére vonatkozó fizetését, ennek több oka is lehet.",
+  "order_payment_failed": "A fizetés **feldolgozása** sikertelen",
+  "order_payment_failed_md": "@.markdown:{'invoice.order_payment_failed'}"
 }

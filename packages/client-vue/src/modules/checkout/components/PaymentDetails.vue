@@ -13,13 +13,13 @@
         v-if="meta.hasStoredPaymentMethods"
         value="stored"
         :class="styles.checkout.accordion.item"
-        :open="!model?.gatewayId || true"
-        :disabled="!model?.gatewayId"
+        :open="!model?.gateway_id || true"
+        :disabled="!model?.gateway_id"
         asChild
       >
         <AccordionTrigger
           :class="styles.checkout.accordion.trigger.root"
-          :open="!model?.gatewayId || true"
+          :open="!model?.gateway_id || true"
           @click.stop="clearGateway()"
         >
           <header :class="styles.checkout.accordion.trigger.header">
@@ -35,7 +35,7 @@
               :class="[
                 styles.checkout.accordion.trigger.icon,
                 {
-                  'rotate-180': !model?.gatewayId
+                  'rotate-180': !model?.gateway_id
                 }
               ]"
             />
@@ -48,7 +48,7 @@
           force-mount
         >
           <StoredPayments
-            v-if="!model?.gatewayId && currency?.code"
+            v-if="!model?.gateway_id && currency?.code"
             :key="currency.code"
             :color="color"
             @checkout="handleCheckout"
@@ -66,14 +66,14 @@
         <AccordionItem
           :value="item.gateway_id"
           :class="styles.checkout.accordion.item"
-          :open="item.gateway_id === model?.gatewayId"
-          :disabled="item.gateway_id === model?.gatewayId"
+          :open="item.gateway_id === model?.gateway_id"
+          :disabled="item.gateway_id === model?.gateway_id"
           asChild
         >
           <AccordionTrigger
             :class="styles.checkout.accordion.trigger.root"
             @click.stop="selectGateway(item.gateway_id)"
-            :open="item.gateway_id === model?.gatewayId"
+            :open="item.gateway_id === model?.gateway_id"
           >
             <header :class="styles.checkout.accordion.trigger.header">
               <h5 :class="styles.checkout.title">
@@ -97,7 +97,7 @@
                 :class="[
                   styles.checkout.accordion.trigger.icon,
                   {
-                    'rotate-180': item.gateway_id === model?.gatewayId
+                    'rotate-180': item.gateway_id === model?.gateway_id
                   }
                 ]"
               />
@@ -110,7 +110,7 @@
             force-mount
           >
             <PaymentGateway
-              v-if="item.gateway_id === model?.gatewayId && currency?.code"
+              v-if="item.gateway_id === model?.gateway_id && currency?.code"
               :key="currency.code"
               :color="color"
               @checkout="handleCheckout"
@@ -220,17 +220,14 @@ const handleCheckout = () => {
 };
 
 const selectGateway = (id: string) => {
-  debugger;
   if (!model.value) return;
-  debugger;
   input({
     ...model.value,
-    gatewayId: id
+    gateway_id: id
   });
 };
 
 const clearGateway = () => {
-  debugger;
   clear();
 };
 </script>

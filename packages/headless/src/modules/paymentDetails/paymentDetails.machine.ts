@@ -10,12 +10,14 @@ import { spawnGateway } from "./utils";
 import { mapToHeadlessError, stopService, useModelParser } from "../../utils";
 import { useTime, useValidationParser } from "../../utils";
 import { useSchema, useUischema } from "./schemas";
-import { set, unset, forEach, isEqual, some, isEmpty } from "lodash-es";
+import { set, unset, forEach, isEqual, some, isEmpty, has } from "lodash-es";
 
 // --- types
 import type { ActorRef, AnyEventObject } from "xstate";
 import type { PaymentDetailsContext } from "./types";
 import { responseCodes } from "../../utils";
+import { StoredCardData } from "@upmind-automation/types";
+import { Store } from "@tanstack/vue-store";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -114,7 +116,6 @@ export default createMachine(
               PAYMENT_DETAILS: [
                 {
                   target: "checking",
-                  actions: ["setPaymentDetails"],
                   cond: "isPaymentDetail"
                 }
               ],
@@ -204,7 +205,10 @@ export default createMachine(
         entry: ["providePaymentDetails"],
         id: "complete",
         type: "final",
-        data: ({ paymentDetails }, _event) => paymentDetails,
+        data: ({ paymentDetails }, _event) => {
+          console.log("PaymentDetail", "complete", paymentDetails);
+          return paymentDetails;
+        },
         on: {
           REFRESH: {
             target: "available",
@@ -352,20 +356,16 @@ export default createMachine(
 
       setPaymentDetails: assign({
         paymentDetails: (
-          { amount, model, orderId, currency, address }: PaymentDetailsContext,
+          { amount, model, orderId }: PaymentDetailsContext,
           { data }: AnyEventObject
         ) => {
-          debugger;
-          // todo: parse the data to ensure we have what we need and dont send unnecessary stuff
           return {
-            ...model,
-            ...data,
-            // ensure OUR values are used
-            orderId,
-            currency,
-            amount,
-            address
-          };
+            ...data, // provided GatewayData ( must already be parsed correctly by the gateway )
+            returnUrl: model?.return_url,
+            cancelUrl: model?.cancel_url,
+            order_id: orderId,
+            amount
+          } as PaymentDetailsContext["paymentDetails"];
         }
       }),
 
@@ -410,15 +410,10 @@ export default createMachine(
       hasLookups: ({ storedPaymentMethods, gateways, paymentTypes }, _event) =>
         !!storedPaymentMethods && !!gateways && !!paymentTypes,
       isFree: ({ amount }, _event) => !amount,
-      hasPaymentDetails: ({ storedPaymentMethods, paymentDetails }, _event) => {
-        debugger;
-        return !isEmpty(paymentDetails?.id);
-      },
-      isPaymentDetail: (_context, { data }: AnyEventObject) => {
-        debugger;
-        return !isEmpty(data?.id);
-      },
-
+      hasPaymentDetails: ({ paymentDetails }, _event) =>
+        !isEmpty((paymentDetails as StoredCardData)?.payment_details_id),
+      isPaymentDetail: (_context, { data }: AnyEventObject) =>
+        !isEmpty(data?.payment_details_id),
       shouldUpdate: ({ autoupdate, orderId, amount }, _event) =>
         !!autoupdate && !!orderId && amount !== 0,
       hasCurrencyChanged: (
