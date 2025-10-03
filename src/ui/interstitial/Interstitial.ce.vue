@@ -36,7 +36,7 @@
             size="lg"
             v-bind="action"
             :loading="meta.isProcessing"
-            :color="action?.color || 'primary'"
+            :variant="action?.variant || 'primary'"
             @click.stop="doAction(action?.handler)"
             pill
           />

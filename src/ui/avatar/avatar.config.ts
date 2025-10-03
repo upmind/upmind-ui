@@ -38,7 +38,7 @@ export const avatarVariants = cva(
       fit: "cover",
       size: "md",
       shape: "circle",
-      color: "blue"
+      color: "primary"
     }
   }
 );
