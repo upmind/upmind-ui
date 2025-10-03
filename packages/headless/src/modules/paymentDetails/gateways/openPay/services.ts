@@ -110,7 +110,7 @@ async function pay({ gateway, openPay, model }: OpenPayContext) {
       model?.openpay as Record<string, any>,
       response =>
         resolve({
-          /* Here we don't pass 'auto_payment' flag as 'store_on_payment_auto_payment' is injected from parent gatewayComponent */
+          /* Here we don't pass 'autoPayment' flag as 'storeOnPaymentAutoPayment' is injected from parent gatewayComponent */
           gateway_id: gateway?.id,
           payment_method_addition: {
             payment_method_id: response.data?.id

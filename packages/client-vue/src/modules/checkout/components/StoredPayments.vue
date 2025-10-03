@@ -1,19 +1,7 @@
 <template>
   <Loading :active="!meta.isAvailable">
     <div ref="form" :class="styles.checkout.gateway">
-      <!-- Instructions -->
-      <Markdown
-        v-if="instructions"
-        class="m-0 w-full p-0"
-        :model-value="instructions"
-      />
-
-      <!-- gateway Render Content (* IF Provided) -->
-      <div ref="container" class="w-full empty:hidden" key="render"></div>
-
-      <!-- gateway Form (* IF Provided) -->
       <Form
-        v-if="schema && uischema && !meta.isRenderless"
         key="form"
         :additional-errors="validationErrors"
         :model-value="model"
@@ -21,8 +9,7 @@
         :schema="schema"
         :uischema="uischema"
         @reject="clear"
-        @resolve="update"
-        @update:modelValue="input"
+        @resolve="useStoredPayment"
         no-actions
       />
 
@@ -54,7 +41,7 @@
             pill
           />
 
-          <p v-if="meta.needsPayment" :class="styles.checkout.additional">
+          <p v-if="!meta.isFree" :class="styles.checkout.additional">
             <Icon icon="lock" size="nano" />
             {{ t("cart.encrypted_and_secure_payments") }}
           </p>
@@ -80,11 +67,11 @@
 
 <script lang="ts" setup>
 // --- external
-import { onMounted, useTemplateRef, type ComputedRef, computed } from "vue";
+import { type ComputedRef, computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useBasketPaymentGateway } from "@upmind-automation/headless";
+import { useBasketPaymentDetails } from "@upmind-automation/headless";
 import config from "../checkout.config";
 import { useStyles, Loading } from "@upmind-automation/upmind-ui";
 import TermsAndConditions from "../../brand/TermsAndConditions.vue";
@@ -110,16 +97,11 @@ const {
   schema,
   uischema,
   clear,
-  input,
-  update,
-  render,
-  clickwrap,
-  instructions
-} = useBasketPaymentGateway();
+  useStoredPayment,
+  clickwrap
+} = useBasketPaymentDetails();
 
 const { t } = useI18n();
-
-const container = useTemplateRef("container");
 
 const styles = useStyles(
   ["checkout", "checkout.footer"],
@@ -142,7 +124,7 @@ const styles = useStyles(
 }>;
 
 const action = computed(() => {
-  if (!meta.value.needsPayment) return t("action.place_order");
+  if (meta.value.isFree) return t("action.place_order");
 
   // if (meta.value.payLater) return t("action.place_order_pay_later");
 
@@ -154,10 +136,4 @@ const handleCheckout = () => {
 };
 
 // --- side effects
-
-// wait till we mount then try to render the gateway if it's provided
-// otherwise watch in case it's provided later
-onMounted(() => {
-  render(container.value);
-});
 </script>

@@ -7,16 +7,24 @@ import { useTranslateName } from "../../utils";
 import { omit, map } from "lodash-es";
 
 // --- types
-import { PaymentType } from "@upmind-automation/types";
+import { PaymentType, QUERY_PARAMS } from "@upmind-automation/types";
 import type { PaymentDetailsContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
+import { generateResponseUrls } from "./gateways/utils";
 
 // -----------------------------------------------------------------------------
 
 export const useSchema = ({
   paymentTypes,
-  gateways
+  gateways,
+  storedPaymentMethods,
+  orderId
 }: PaymentDetailsContext): JsonSchema => {
+  const { cancel, success, fail } = generateResponseUrls(
+    window.location.origin,
+    { orderId }
+  );
+  debugger;
   const schema = {
     type: "object",
     title: "Payment details",
@@ -27,36 +35,67 @@ export const useSchema = ({
         type: "string",
         title: "Payment type",
         const: PaymentType.PAY_IN_FULL,
-        oneOf: !paymentTypes
+        enum: !paymentTypes?.length ? undefined : map(paymentTypes, "value"),
+        options: !paymentTypes
           ? undefined
           : map(paymentTypes, (value, key) => ({
               const: value,
               title: key
             }))
       },
-      gateway_id: {
+      gatewayId: {
         type: ["string", "null"],
         title: "Select a payment method",
-        oneOf: !gateways?.length
+        enum: !gateways?.length
+          ? undefined
+          : [...map(gateways, "gateway_id"), null],
+        options: !gateways?.length
           ? undefined
           : map(gateways, ({ gateway_id, gateway }) => ({
-              const: gateway_id,
-              title: useTranslateName(gateway)
+              value: gateway_id,
+              label: useTranslateName(gateway)
             }))
+      },
+      paymentDetailId: {
+        type: ["string", "null"],
+        title: "Select one of your stored payment methods",
+        enum: !storedPaymentMethods?.length
+          ? undefined
+          : [...map(storedPaymentMethods, "id"), null],
+        options: !storedPaymentMethods
+          ? undefined
+          : map(
+              storedPaymentMethods,
+              ({ id, name, cardType, cardExpireDate }) => {
+                return {
+                  value: id,
+                  label: name,
+                  text: cardExpireDate ? `Exp ${cardExpireDate}` : "",
+                  appendIcon: { name: cardType, path: "payment-providers" }
+                };
+              }
+            )
+      },
+      returnUrl: {
+        type: "string",
+        format: "uri-reference",
+        const: `?${QUERY_PARAMS.SUCCESS}=${encodeURIComponent(success)}&${QUERY_PARAMS.FAILED}=${encodeURIComponent(fail)}`
+      },
+      cancelUrl: {
+        type: "string",
+        format: "uri",
+        const: cancel
       }
-    },
-
-    if: {
-      properties: {
-        type: { const: PaymentType.PAY_IN_FULL }
-      }
-    },
-    then: {
-      oneOf: [
-        { required: ["gateway_id"] },
-        { required: ["payment_details_id"] }
-      ]
     }
+
+    // if: {
+    //   properties: {
+    //     type: { const: PaymentType.PAY_IN_FULL }
+    //   }
+    // },
+    // then: {
+    //   oneOf: [{ required: ["gatewayId"] }, { required: ["paymentDetailId"] }]
+    // }
   };
 
   return schema as JsonSchema;
@@ -93,24 +132,11 @@ export const useUischema = () => {
 
       {
         type: "Control",
-        scope: "#/properties/gateway_id",
+        scope: "#/properties/paymentDetailId",
+        i18n: "form.payment_details_id",
         options: {
-          format: "radio",
-          stretch: true,
-          layout: "grid"
+          format: "radio"
         }
-        // rule: {
-        //   effect: "SHOW",
-        //   condition: {
-        //     scope: "#",
-        //     schema: {
-        //       required: ["type", "amount"],
-        //       properties: {
-        //         amount: { not: { const: 0 } }
-        //       }
-        //     }
-        //   }
-        // }
       }
     ]
   };

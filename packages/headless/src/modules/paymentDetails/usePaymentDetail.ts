@@ -16,7 +16,8 @@ import {
   responseCodes,
   useContextActor,
   Actor,
-  ErrorOrigin
+  ErrorOrigin,
+  ErrorObject
 } from "../../utils";
 import { isEmpty, isEqual, isNil } from "lodash-es";
 
@@ -27,6 +28,7 @@ import {
   PaymentDetailModel,
   PaymentDetailsArgs
 } from "./types";
+import { useBrand } from "../brand";
 
 // -----------------------------------------------------------------------------
 
@@ -68,12 +70,14 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
       !stateMatches(actor, ["available.loading"]),
     isLoading: !actor.value || stateMatches(actor, ["loading"]),
     hasGateway: contextMatches(actor, ["actors.gateway"]),
+    hasStoredPaymentMethods: contextMatches(actor, ["storedPaymentMethods"]),
     hasErrors: stateMatches(actor, ["error"]),
     isProcessing: stateMatches(actor, ["checking", "processing"]),
     isValid: stateMatches(actor, ["valid"]),
     isDirty: !isEmpty(
       contextValue<PaymentDetailsContext["model"]>(actor, "model")
     ),
+
     isFree: !contextValue(actor, "amount"),
     isComplete:
       !contextValue(actor, "amount") ||
@@ -90,6 +94,9 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
     "gateways"
   );
   const errors = useContext<PaymentDetailsContext["error"]>(actor, "error");
+  const validationErrors = useContext<ErrorObject[]>(actor, "error.data");
+
+  // ---
   const amount = useContext<PaymentDetailsContext["amount"]>(actor, "amount");
   const currency = useContext<PaymentDetailsContext["currency"]>(
     actor,
@@ -101,6 +108,13 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
     actor,
     "uischema"
   );
+
+  const storedPaymentMethods = useContext<
+    PaymentDetailsContext["storedPaymentMethods"]
+  >(actor, "storedPaymentMethods");
+
+  const { uiCart } = useBrand();
+  const clickwrap = computed(() => uiCart.value?.clickwrap_disclaimer);
 
   // --- methods
 
@@ -147,12 +161,8 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
     actor.value?.send({ type: "CLEAR" });
   }
 
-  function checkout() {
-    actor.value?.send({ type: "CHECKOUT" });
-  }
-
-  function refresh(context?: PaymentDetailsArgs) {
-    actor.value?.send({ type: "REFRESH", data: context });
+  function useStoredPayment(model: PaymentDetailModel) {
+    actor.value?.send({ type: "PAYMENT_DETAILS", data: model });
   }
 
   // ---------------------------------------------------------------------------
@@ -177,6 +187,7 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
      * @property {boolean} hasGateway - Indicates if the payment details has a gateway actor.
      * @property {boolean} isComplete - Indicates if the payment details is complete.
      * @property {boolean} isFree - Indicates if the payment is free (no amount).
+     * @property {boolean} hasStoredPaymentMethods - Indicates if there are stored payment methods available.
      */
     meta,
 
@@ -191,8 +202,19 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
     /** The payment gateway actor. */
     gateway,
 
+    /** The stored payment methods available. */
+    storedPaymentMethods,
+
     /** Any error returned by the payment details actor. */
     errors,
+
+    /**
+     * Validation errors encountered during payment gateway operations.
+     * Typically contains an array of error objects with details about the validation issues.
+     * @type {ErrorObject[]}
+     * @see https://ajv.js.org/guide/validation-errors.html#validation-error-object
+     */
+    validationErrors,
 
     /** The payment amount, if applicable. */
     amount,
@@ -208,6 +230,9 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
 
     /** The payment details UI schema. */
     uischema,
+
+    /** The payment details clickwrap disclaimer. */
+    clickwrap,
 
     // --- methods
 
@@ -226,7 +251,14 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
      * @param {PaymentDetailModel} value The new payment details model to set.
      * @returns {Promise<void>} Resolves when updated, rejects on error.
      */
-    update
+    update,
+
+    /** Updates the payment details with the stored Payment method ID.
+     * @param {PaymentDetailModel} model The payment details model to use for checkout.
+     * @returns {void} Does not return anything.
+     */
+    //
+    useStoredPayment
   };
 };
 

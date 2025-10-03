@@ -15,9 +15,7 @@ import {
   unset,
   filter,
   sortBy,
-  forEach,
-  includes,
-  defaultsDeep
+  isEmpty
 } from "lodash-es";
 import {
   ErrorOrigin,
@@ -31,11 +29,16 @@ import {
 } from "../../utils";
 
 // --- types
-import { GatewayTypesExtended } from "./gateways/types";
 import type { AnyEventObject } from "xstate";
-import type { PaymentDetail, PaymentDetailsContext } from "./types";
+import type {
+  PaymentDetail,
+  PaymentDetailModel,
+  PaymentDetailsContext
+} from "./types";
 import {
   BrandConfigKeys,
+  IAddress,
+  IGateway,
   IPaymentDetail,
   PaymentType
 } from "@upmind-automation/types";
@@ -103,6 +106,7 @@ async function loadLookups(
   _event: AnyEventObject
 ) {
   const { meta, user } = useSession();
+  const paymentTypes = { ...PaymentType };
 
   if (!meta.value.isAuthenticated || !user.value?.id) {
     return Promise.reject(new NotAuthenticatedError());
@@ -116,22 +120,14 @@ async function loadLookups(
   const clientId = user.value!.id;
   const currencyId = currency?.id || defaultCurrencyId.value; // fallback to default currency
 
-  await ensureConfig([
+  const config = ensureConfig([
     BrandConfigKeys.PARTIAL_PAYMENTS_ENABLED,
     BrandConfigKeys.PAY_LATER_ENABLED,
     BrandConfigKeys.BILLING_GATEWAY_FORCE_CARD_STORAGE,
     BrandConfigKeys.BILLING_GATEWAY_FORCE_AUTO_PAYMENT
-  ]).then(data => {
-    if (!get(data, BrandConfigKeys.PARTIAL_PAYMENTS_ENABLED))
-      unset(PaymentType, "PARTIAL_PAYMENT");
+  ]);
 
-    if (!get(data, BrandConfigKeys.PAY_LATER_ENABLED))
-      unset(PaymentType, "PAY_LATER");
-  });
-
-  // ---
-
-  const storedPaymentMethods = getRequest<any>({
+  const storedPaymentMethods = getRequest<IPaymentDetail[], PaymentDetail[]>({
     url: useUrl(`clients/${clientId}/payment_details`, {
       limit: 0,
       brand_id: unref(brandId),
@@ -147,11 +143,11 @@ async function loadLookups(
       "payment-details",
       { clientId, brandId: unref(brandId), currencyId }
     ],
-    withAccessToken: true
+    withAccessToken: true,
+    select: mapPaymentDetailDetails
   });
 
-  // ---
-  const gateways = getRequest<any>({
+  const gateways = getRequest<IGateway[]>({
     url: useUrl(`brands/${unref(brandId)}/gateways`, {
       limit: 0,
       client_id: clientId,
@@ -166,79 +162,122 @@ async function loadLookups(
       { brandId: unref(brandId), clientId, currencyId }
     ],
     withAccessToken: true
-  }).then(data => sortBy(data, ["order"]));
+  });
+
   // ----
 
-  return Promise.all([storedPaymentMethods, gateways, address]).then(
-    ([storedPaymentMethods, gateways, address]) => {
-      // ensure we only show active stored payment methods
-      storedPaymentMethods = filter(storedPaymentMethods, "active");
+  return Promise.all([config, storedPaymentMethods, gateways]).then(
+    ([config, storedPaymentMethods, gateways]: [
+      Record<string, any>,
+      PaymentDetail[],
+      IGateway[]
+    ]) => {
+      if (!get(config, BrandConfigKeys.PARTIAL_PAYMENTS_ENABLED))
+        unset(paymentTypes, PaymentType.PARTIAL_PAYMENT);
 
-      // If we have stored payment methods, then we MUSt add a 'gateway' for them
-      if (storedPaymentMethods?.length) {
-        gateways.unshift({
-          gateway_id: "stored",
-          gateway: {
-            id: "stored",
-            name: "Pay with an existing method",
-            type: GatewayTypesExtended.STORED
-          }
-        });
-      }
+      if (!get(config, BrandConfigKeys.PAY_LATER_ENABLED))
+        unset(paymentTypes, PaymentType.PAY_LATER);
 
+      debugger;
       return {
-        storedPaymentMethods,
-        gateways,
-        payment_types: PaymentType,
+        storedPaymentMethods: filter(storedPaymentMethods, "meta.isActive"), // ensure we only show active stored payment methods
+        gateways: sortBy(gateways, ["order"]),
+        paymentTypes,
         address
-      };
+      } as unknown as Partial<PaymentDetailsContext>;
     }
   );
 }
 
 async function parse(
-  { amount, model, schema, gateways }: PaymentDetailsContext,
+  {
+    amount,
+    model,
+    schema,
+    gateways,
+    storedPaymentMethods,
+    orderId,
+    currency,
+    address
+  }: PaymentDetailsContext,
   { data }: AnyEventObject
 ) {
   // ---
   let gateway = null;
+  let paymentDetails = null;
 
   // ---
   // Create a safe model to work with
-  const safeModel = useModelParser(
+  const safeModel = useModelParser<PaymentDetailModel>(
     schema,
-    pick(data, ["type", "gateway_id"]),
-    model
+    pick(data, [
+      "type",
+      "gatewayId",
+      "paymentDetailId",
+      "returnUrl",
+      "cancelUrl"
+    ]),
+    model,
+    {
+      allowExtraProps: false
+    }
   );
+  debugger;
 
   // ---
   // HACK: TEMP: FORCE payment type to PAY_IN_FULL
   safeModel.type ??= PaymentType.PAY_IN_FULL;
   // ---
-  // Gateway vs. Stored Payment Logic...
 
   // 1) Make sure if a gateway is selected that we use that
-  if (safeModel?.gateway_id) {
-    gateway = find(gateways, {
-      gateway_id: safeModel.gateway_id
-    })?.gateway;
-    // if we don't have a matching/valid gateway, then we should remove the gateway_id
-    if (!gateway) unset(safeModel, "gateway_id");
+  if (safeModel?.gatewayId) {
+    gateway = find(gateways, ["gateway_id", safeModel.gatewayId])?.gateway;
+    // if we don't have a matching/valid gateway, then we should remove the gatewayId
+    if (!gateway) {
+      unset(safeModel, "gatewayId");
+    } else {
+      unset(safeModel, "paymentDetailId");
+    }
   }
 
   // 2) finally If we don't have any selected gateways, then we should use the first available
-  if (!safeModel.gateway_id) {
-    gateway = first(gateways)?.gateway;
-    safeModel.gateway_id = gateway?.id;
+  if (!safeModel?.gatewayId) {
+    debugger;
+    if (isEmpty(storedPaymentMethods)) {
+      gateway = first(gateways)?.gateway;
+      safeModel.gatewayId = gateway?.id;
+      safeModel.paymentDetailId = undefined; // we can't use a stored payment method if we're using a gateway
+    } else {
+      safeModel.paymentDetailId ??= first(storedPaymentMethods)?.id;
+    }
   }
 
-  // 3) Safety Check...if the payment type is pay later or Free, clear the gateway_id
+  // 3) If we're using a stored payment method, then we should use that and clear the gatewayId
+  if (safeModel?.paymentDetailId) {
+    debugger;
+    unset(safeModel, "gatewayId");
+    gateway = null;
+    paymentDetails = {
+      id: safeModel.paymentDetailId,
+      type: safeModel.type,
+      orderId,
+      currency: currency.code,
+      amount,
+      address: address.id
+    };
+  } else {
+    paymentDetails = undefined;
+  }
+
+  // 4) Safety Check...if the payment type is pay later or Free, clear the gatewayId
   if (safeModel?.type == PaymentType.PAY_LATER || amount <= 0) {
-    unset(safeModel, "gateway_id");
+    unset(safeModel, "gatewayId");
+    unset(safeModel, "paymentDetailId");
     gateway = null;
   }
 
-  return Promise.resolve({ model: safeModel, gateway });
+  debugger;
+  return Promise.resolve({ model: safeModel, gateway, paymentDetails });
 }
 
 async function validate(

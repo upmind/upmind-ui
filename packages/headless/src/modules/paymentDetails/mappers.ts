@@ -16,6 +16,7 @@ export function mapPaymentDetailDetails(
 
 export function mapPaymentDetail(raw: IPaymentDetail): PaymentDetail {
   return {
+    name: raw.name,
     addressId: raw.address_id,
     cardCvv: raw.card_cvv,
     cardExpireDate: raw.card_expire_date,

@@ -14,11 +14,23 @@ import { filter, keyBy, mapValues } from "lodash-es";
 
 export function generateResponseUrls(
   url: string,
-  { gateway, orderId, type, model }: GatewayContext
+  {
+    externalPayment,
+    orderId,
+    type,
+    autoPay
+    // operationId
+  }: {
+    orderId: string;
+    autoPay?: boolean;
+    externalPayment?: boolean;
+    type?: number | string;
+    // operationId?: string;
+  }
 ) {
   // TODO: implemet operations machine
-  // if (operation_id)
-  //   url.searchParams.append(QUERY_PARAMS.OPERATION_ID, operation_id || "");
+  // if (operationId)
+  // url.searchParams.append(QUERY_PARAMS.OPERATION_ID, operationId || "");
   // ---
   const successUrl = new URL(`order/${orderId}`, url);
   // successUrl.searchParams.append("orderId", orderId);
@@ -35,19 +47,13 @@ export function generateResponseUrls(
   // cancelUrl.searchParams.append(QUERY_PARAMS.ORDER_ID, orderId);
   cancelUrl.searchParams.append(
     QUERY_PARAMS.AUTO_PAY,
-    encodeURIComponent(
-      btoa(JSON.stringify(model?.store_on_payment_auto_payment))
-    )
+    encodeURIComponent(btoa(JSON.stringify(autoPay)))
   );
 
   cancelUrl.searchParams.append(
     QUERY_PARAMS.INIT_PAY,
     encodeURIComponent(
-      btoa(
-        JSON.stringify(
-          gateway?.gateway_provider?.external_payment ? { orderId } : undefined
-        )
-      )
+      btoa(JSON.stringify(externalPayment ? { orderId } : undefined))
     )
   );
 
@@ -65,20 +71,12 @@ export function generateResponseUrls(
   };
 }
 
-export function canBeStored(gateway?: IGateway) {
-  if (!gateway) return false;
-
-  const {
-    is_stored,
-    gateway_provider,
-    store_on_payment,
-    store_outside_payment
-  } = gateway;
-  const { store_type } = gateway_provider;
-  if (!is_stored) return false;
-  if (store_type === GatewayStoreType.NONE) return false;
-  if (store_outside_payment) return true;
-  if (store_on_payment) return false;
+export function canBeStored(raw?: IGateway) {
+  if (!raw) return false;
+  if (!raw.is_stored) return false;
+  if (raw.gateway_provider?.store_type === GatewayStoreType.NONE) return false;
+  if (raw.store_outside_payment) return true;
+  if (raw.store_on_payment) return false;
   return true;
 }
 

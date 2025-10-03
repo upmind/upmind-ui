@@ -15,7 +15,12 @@ import { generateResponseUrls } from "./utils";
 export const useSchema = (context: GatewayContext) => {
   const { cancel, success, fail } = generateResponseUrls(
     window.location.origin,
-    context
+    {
+      orderId: context.orderId,
+      autoPay: context?.model?.storeOnPaymentAutoPayment,
+      externalPayment: context?.gateway?.gateway_provider?.external_payment,
+      type: context?.type
+    }
   );
   const schema = {
     type: "object",
@@ -51,7 +56,7 @@ export const useSchema = (context: GatewayContext) => {
         default: context.canStore,
         readOnly: context.canStore == false
       },
-      storeOnPayment_auto_payment: {
+      storeOnPaymentAutoPayment: {
         type: "boolean",
         title: "",
         description: "",
@@ -85,7 +90,7 @@ export const useUischema = (context: GatewayContext) => {
       {
         type: "Control",
         scope: "#/properties/storeOnPayment",
-        i18n: "form.storeOnPayment",
+        i18n: "form.store_on_payment",
         options: {
           autocomplete: "off"
         },
@@ -106,7 +111,7 @@ export const useUischema = (context: GatewayContext) => {
       },
       {
         type: "Control",
-        scope: "#/properties/storeOnPayment_auto_payment",
+        scope: "#/properties/storeOnPaymentAutoPayment",
         i18n: "form.allow_auto_payment",
         options: {
           autocomplete: "off"
