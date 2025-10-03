@@ -26,7 +26,7 @@
                 v-if="tooltip"
                 :label="tooltip"
                 side="right"
-                color="primary"
+                color="info"
                 class="max-w-72 text-center text-xs"
               >
                 <Icon
