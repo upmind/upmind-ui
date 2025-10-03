@@ -82,6 +82,10 @@ export const useThemes = (value?: Theme | Theme[], defaultTheme?: string) => {
         find(themes.value, ["id", activeTheme.value]) || first(themes.value);
       if (themeConfig) config.value = themeConfig.uiConfig || {};
     }
+
+    if (document && document.body) {
+      document.body.dataset.theme = activeTheme.value;
+    }
   }
 
   function add(theme: Theme, setActive = true) {
