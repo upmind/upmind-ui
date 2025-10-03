@@ -1,5 +1,5 @@
 export const baseRing =
-  "ring-2 ring-background-control-ring ring-offset-2 ring-offset-background-surface";
+  "ring-2 ring-background-control-ring focus:ring-offset-2 focus-within:ring-offset-2 ring-offset-background-surface";
 
 export const outlineReset = "outline-hidden focus-within:outline-hidden";
 
