@@ -11,23 +11,23 @@
   --color-background-purple: #7047eb;
 
   /* Primitive Colors - Core */
-  --color-primitive-core-canvas: #1a1a1a;
-  --color-primitive-core-surface: #262626;
-  --color-primitive-core-base: #f8f8fb;
-  --color-primitive-core-display: #ffffff;
-  --color-primitive-core-faint: #707070;
-  --color-primitive-core-muted: #9d9da9;
-  --color-primitive-core-skeleton: #3d3d3d;
-  --color-primitive-core-overlay: #00000060;
+  --color-primitive-core-canvas: #F9F9FC;
+  --color-primitive-core-surface: #FFFFFF;
+  --color-primitive-core-base: #3D3D3D;
+  --color-primitive-core-display: #262626;
+  --color-primitive-core-faint: #9D9DA9;
+  --color-primitive-core-muted: #89898A;
+  --color-primitive-core-skeleton: #2626260C;
+  --color-primitive-core-overlay: #3D3D3DCC;
 
   /* Primitive Colors - Control */
-  --color-primitive-control-default: #0099ff;
-  --color-primitive-control-default-delta: #0091f2;
-  --color-primitive-control-default-contrast: #323232;
-  --color-primitive-control-muted: #484848;
-  --color-primitive-control-muted-contrast: #ffffff;
-  --color-primitive-control-stroke: #575757;
-  --color-primitive-control-stroke-delta: #707070;
+  --color-primitive-control-default: #262626;
+  --color-primitive-control-default-delta: #1A1A1A;
+  --color-primitive-control-default-contrast: #FEFEFE;
+  --color-primitive-control-muted: #F8F8FB;
+  --color-primitive-control-muted-contrast: #262626;
+  --color-primitive-control-stroke: #E2E2EB;
+  --color-primitive-control-stroke-delta: #D5D5DE;
 
   /* Primitive Colors - Primary */
   --color-primitive-primary-default: #0099ff;
@@ -50,8 +50,8 @@
   --color-primitive-neutral-muted: #3d3d3d;
   --color-primitive-neutral-muted-delta: #484848;
   --color-primitive-neutral-muted-contrast: #eaeaf1;
-  --color-primitive-neutral-stroke: #3d3d3d;
-  --color-primitive-neutral-stroke-delta: #575757;
+  --color-primitive-neutral-stroke: #EAEAF1;
+  --color-primitive-neutral-stroke-delta: #CDCDDB;
 
   /* Primitive Colors - Promo */
   --color-primitive-promo-default: #a379ff;
@@ -87,7 +87,7 @@
   /* Background Colors */
   --color-background-canvas: var(--color-primitive-core-canvas);
   --color-background-surface: var(--color-primitive-core-surface);
-  --color-background-surface-glass: #ffffff0a;
+  --color-background-surface-glass: #FFFFFFF2;
   --color-background-skeleton: var(--color-primitive-core-skeleton);
   --color-background-overlay: var(--color-primitive-core-overlay);
 
