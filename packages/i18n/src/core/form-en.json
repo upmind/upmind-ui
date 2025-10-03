@@ -184,5 +184,10 @@
     "description": null,
     "label": "Order Notes",
     "placeholder": null
+  },
+  "stored_payment_method": {
+    "description": null,
+    "label": "Select one of your stored payment methods",
+    "placeholder": null
   }
 }

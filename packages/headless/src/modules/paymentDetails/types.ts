@@ -4,6 +4,7 @@ import type { ActorRef } from "xstate";
 
 // --- internal
 import type {
+  GatewayTypes,
   IAddress,
   IBrandGateway,
   IClient,
@@ -14,7 +15,7 @@ import type {
   IWalletBalance,
   PaymentType
 } from "@upmind-automation/types";
-import { GatewayCtx, GatewayTypesExtended } from "./gateways/types";
+import { GatewayCtx } from "./gateways/types";
 
 // --- utils
 import type { ResponseError } from "../../utils";
@@ -22,6 +23,7 @@ import type { ResponseError } from "../../utils";
 // -----------------------------------------------------------------------------
 
 export type PaymentDetail = {
+  name: IPaymentDetail["name"];
   addressId: IPaymentDetail["address_id"];
   cardCvv: IPaymentDetail["card_cvv"];
   cardExpireDate: IPaymentDetail["card_expire_date"];
@@ -53,7 +55,7 @@ export type Gateway = {
   paymentType: IGateway["payment_type"];
   provider: IGateway["provider"];
   title: IGateway["name"];
-  type: GatewayTypesExtended;
+  type: GatewayTypes;
   meta: {
     isStored: boolean;
     canStore: boolean;
@@ -63,8 +65,11 @@ export type Gateway = {
 };
 
 export interface PaymentDetailModel {
-  type?: PaymentType;
-  gateway_id?: IGateway["id"];
+  type?: Partial<PaymentType>;
+  gatewayId?: IGateway["id"];
+  paymentDetailId?: PaymentDetail["id"];
+  returnUrl?: string;
+  cancelUrl?: string;
 }
 
 // For when adding a new payment detail "Add" context
@@ -87,7 +92,7 @@ export interface PaymentDetailsContext extends PaymentDetailsArgs {
   gateways?: IBrandGateway[];
   paymentTypes?: PaymentType;
   // ---
-  storedPaymentMethods?: PaymentDetailModel[];
+  storedPaymentMethods?: PaymentDetail[];
   balance?: IWalletBalance;
   gateway?: IGateway;
   // ---
@@ -98,7 +103,7 @@ export interface PaymentDetailsContext extends PaymentDetailsArgs {
   baseModel?: PaymentDetailModel;
   // ---
   mount?: HTMLElement;
-  paymentDetails?: any; // This is the response from the actual payment gateway
+  paymentDetails?: PaymentDetail; // This is the response from the actual payment gateway
   // --- SPAWNED ACTORS/MACHINES
   actors: {
     gateway?: ActorRef<any>;

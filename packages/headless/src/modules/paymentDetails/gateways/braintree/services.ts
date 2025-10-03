@@ -12,7 +12,7 @@ import {
   responseCodes,
   useValidation
 } from "../../../../utils";
-import { defaultsDeep, reject, filter, mapValues, keyBy } from "lodash-es";
+import { defaultsDeep, reject } from "lodash-es";
 
 // --- types
 import { BraintreeTypes, type BraintreeContext } from "./types";
@@ -253,7 +253,7 @@ async function pay({
 
       // return our payment detial
       return {
-        /* Here we don't pass 'auto_payment' flag as 'store_on_payment_auto_payment' is injected from parent gatewayComponent */
+        /* Here we don't pass 'autoPayment' flag as 'storeOnPaymentAutoPayment' is injected from parent gatewayComponent */
         gateway_id: gateway?.id,
         payment_method_addition: {
           payment_method_nonce: payload.nonce

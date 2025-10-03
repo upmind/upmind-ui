@@ -15,11 +15,6 @@ import type { ResponseError } from "../../../utils";
 
 // -----------------------------------------------------------------------------
 
-export enum GatewayTypesExtended {
-  FREE = -1,
-  STORED = 0
-}
-
 export enum GatewayCtx {
   PAY = "pay", // PAY = Gateways are shown in the context of making a payment (invoice, topup etc)
   ADD = "add" // ADD = Gateways are shown in the context of adding a stored payment detail
@@ -40,7 +35,7 @@ export interface GatewayContext {
   address?: IAddress;
   gateway?: IGateway;
   // ---
-  type?: GatewayTypes | GatewayTypesExtended;
+  type?: GatewayTypes;
   ctx?: GatewayCtx;
   storedPaymentMethods?: any[];
   code?: string;
@@ -57,11 +52,11 @@ export interface GatewayContext {
   uischema?: UISchemaElement;
   // model?: IBillingDetail;
   model?: Record<string, any> & {
-    auto_payment?: boolean;
-    store_on_payment?: boolean;
-    store_on_payment_auto_payment?: boolean;
-    return_url?: string;
-    cancel_url?: string;
+    autoPayment?: boolean;
+    storeOnPayment?: boolean;
+    storeOnPaymentAutoPayment?: boolean;
+    returnUrl?: string;
+    cancelUrl?: string;
   };
   // --- Output
   paymentDetails?: any; // will contain the response from Card, as wel las any model data

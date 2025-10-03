@@ -61,16 +61,16 @@ async function parse(
   model = useModelParser(schema, model);
   // Honour the brand settings storage and auto payment
   if (!canStore) {
-    model.store_on_payment = false;
-    model.store_on_payment_auto_payment = false;
+    model.storeOnPayment = false;
+    model.storeOnPaymentAutoPayment = false;
   } else {
-    if (mustStore) model.store_on_payment = true;
-    if (mustAutoPay) model.store_on_payment_auto_payment = true;
+    if (mustStore) model.storeOnPayment = true;
+    if (mustAutoPay) model.storeOnPaymentAutoPayment = true;
   }
 
   // If we are not storing, we should not allow auto payment
-  if (!isNil(model.store_on_payment) && !model.store_on_payment) {
-    model.store_on_payment_auto_payment = false;
+  if (!isNil(model.storeOnPayment) && !model.storeOnPayment) {
+    model.storeOnPaymentAutoPayment = false;
   }
 
   return Promise.resolve(model);
@@ -113,7 +113,7 @@ async function validate(
 async function pay({ model }: GatewayContext) {
   return new Promise(resolve => {
     // add the payment details to the model
-    /* Here we don't pass 'store_on_payment_auto_payment' flag as 'store_on_payment_auto_payment' is injected from parent gatewayComponent */
+    /* Here we don't pass 'storeOnPaymentAutoPayment' flag as 'storeOnPaymentAutoPayment' is injected from parent gatewayComponent */
     resolve(model);
   });
 }

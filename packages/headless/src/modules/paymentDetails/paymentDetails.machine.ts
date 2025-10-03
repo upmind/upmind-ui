@@ -10,7 +10,7 @@ import { spawnGateway } from "./utils";
 import { mapToHeadlessError, stopService, useModelParser } from "../../utils";
 import { useTime, useValidationParser } from "../../utils";
 import { useSchema, useUischema } from "./schemas";
-import { set, unset, forEach, isEqual } from "lodash-es";
+import { set, unset, forEach, isEqual, some, isEmpty } from "lodash-es";
 
 // --- types
 import type { ActorRef, AnyEventObject } from "xstate";
@@ -65,7 +65,7 @@ export default createMachine(
               src: "loadLookups",
               onDone: {
                 target: "checking",
-                actions: ["setLookups"]
+                actions: ["setLookups", "setSchemas"]
               },
               onError: {
                 target: "#error",
@@ -109,17 +109,34 @@ export default createMachine(
 
           valid: {
             id: "valid",
-            always: { target: "processing", cond: "shouldUpdate" },
+            always: [{ target: "processing", cond: "shouldUpdate" }],
             on: {
+              PAYMENT_DETAILS: [
+                {
+                  target: "checking",
+                  actions: ["setPaymentDetails"],
+                  cond: "isPaymentDetail"
+                }
+              ],
+
+              // NB: if we are Free then we can complete CHECKOUT without going to processing
+              //     if we already have payment details, then we can complete immediately on CHECKOUT,
+              //     otherwise we need to go via processing where the spawned gateway will handle the checkout
+              //     and return PAYMENT_DETAILS when done
               CHECKOUT: [
                 {
                   target: "#complete",
                   actions: ["setPaymentDetails"],
                   cond: "isFree"
                 },
+                {
+                  target: "#complete",
+                  cond: "hasPaymentDetails"
+                },
+
                 { target: "processing", cond: "hasBasket" }
               ],
-              SAVE: [{ target: "processing" }],
+
               // NB we need to re check our payment details if the gateway changes
               "xstate.update": {
                 target: "checking"
@@ -214,14 +231,16 @@ export default createMachine(
 
       setParsed: assign({
         model: (_context, { data }: AnyEventObject) => data.model,
-        gateway: (_context, { data }: AnyEventObject) => data.gateway
+        gateway: (_context, { data }: AnyEventObject) => data.gateway,
+        paymentDetails: (_context, { data }: AnyEventObject) =>
+          data.paymentDetails
       }),
 
       setLookups: assign({
         storedPaymentMethods: (_context, { data }: AnyEventObject) =>
-          data.stored_payment_methods,
+          data.storedPaymentMethods,
         gateways: (_context, { data }) => data.gateways,
-        paymentTypes: (_context, { data }) => data.payment_types,
+        paymentTypes: (_context, { data }) => data.paymentTypes,
         address: (_context, { data }) => data.address
       }),
 
@@ -240,7 +259,8 @@ export default createMachine(
       }),
 
       clearModel: assign({
-        model: undefined
+        model: undefined,
+        gateway: undefined
       }),
 
       setAutoUpdate: assign({
@@ -335,6 +355,7 @@ export default createMachine(
           { amount, model, orderId, currency, address }: PaymentDetailsContext,
           { data }: AnyEventObject
         ) => {
+          debugger;
           // todo: parse the data to ensure we have what we need and dont send unnecessary stuff
           return {
             ...model,
@@ -389,9 +410,17 @@ export default createMachine(
       hasLookups: ({ storedPaymentMethods, gateways, paymentTypes }, _event) =>
         !!storedPaymentMethods && !!gateways && !!paymentTypes,
       isFree: ({ amount }, _event) => !amount,
+      hasPaymentDetails: ({ storedPaymentMethods, paymentDetails }, _event) => {
+        debugger;
+        return !isEmpty(paymentDetails?.id);
+      },
+      isPaymentDetail: (_context, { data }: AnyEventObject) => {
+        debugger;
+        return !isEmpty(data?.id);
+      },
+
       shouldUpdate: ({ autoupdate, orderId, amount }, _event) =>
         !!autoupdate && !!orderId && amount !== 0,
-
       hasCurrencyChanged: (
         { currency }: PaymentDetailsContext,
         { data }: AnyEventObject

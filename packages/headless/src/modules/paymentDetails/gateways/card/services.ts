@@ -20,7 +20,7 @@ import type { GatewayContext } from "../types";
 async function pay({ model }: GatewayContext) {
   return new Promise(resolve => {
     // add the payment details to the model
-    /* Here we don't pass 'store_on_payment_auto_payment' flag as 'store_on_payment_auto_payment' is injected from parent gatewayComponent */
+    /* Here we don't pass 'storeOnPaymentAutoPayment' flag as 'storeOnPaymentAutoPayment' is injected from parent gatewayComponent */
     resolve(model);
   });
 }
