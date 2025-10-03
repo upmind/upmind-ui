@@ -11,6 +11,7 @@ import { PaymentType, QUERY_PARAMS } from "@upmind-automation/types";
 import type { PaymentDetailsContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import { generateResponseUrls } from "./gateways/utils";
+import { useI18n } from "../system";
 
 // -----------------------------------------------------------------------------
 
@@ -20,6 +21,8 @@ export const useSchema = ({
   storedPaymentMethods,
   orderId
 }: PaymentDetailsContext): JsonSchema => {
+  const { t } = useI18n();
+
   const { cancel, success, fail } = generateResponseUrls(
     window.location.origin,
     { orderId }
@@ -69,7 +72,9 @@ export const useSchema = ({
                 return {
                   value: id,
                   label: name,
-                  text: cardExpireDate ? `Exp ${cardExpireDate}` : "",
+                  text: cardExpireDate
+                    ? `${t("text.expires_abbr")} ${cardExpireDate}`
+                    : "",
                   appendIcon: { name: cardType, path: "payment-providers" }
                 };
               }
