@@ -7,8 +7,6 @@ export const loadingVariants = cva();
 // -----------------------------------------------------------------------------
 export default {
   loading: {
-    root: cva(
-      "text-secondary bg-overlay z-50 flex w-full items-center justify-center"
-    )
+    root: cva("text-secondary z-50 flex w-full items-center justify-center")
   }
 };

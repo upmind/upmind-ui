@@ -1,5 +1,5 @@
 <template>
-  <component :is="is" class="relative w-full" :class="props.class">
+  <component :is="is" class="relative w-full" :class="[props.class, active ? 'opacity-50' : '']">
     <slot></slot>
     <Transition
       enter-active-class="transition-opacity duration-200 ease-in-out"
