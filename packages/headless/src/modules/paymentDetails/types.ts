@@ -13,7 +13,8 @@ import type {
   IOrder,
   IPaymentDetail,
   IWalletBalance,
-  PaymentType
+  PaymentType,
+  SelectPaymentMethodData
 } from "@upmind-automation/types";
 import { GatewayCtx } from "./gateways/types";
 
@@ -66,10 +67,10 @@ export type Gateway = {
 
 export interface PaymentDetailModel {
   type?: Partial<PaymentType>;
-  gatewayId?: IGateway["id"];
-  paymentDetailId?: PaymentDetail["id"];
-  returnUrl?: string;
-  cancelUrl?: string;
+  gateway_id?: IGateway["id"];
+  payment_details_id?: PaymentDetail["id"];
+  return_url?: string;
+  cancel_url?: string;
 }
 
 // For when adding a new payment detail "Add" context
@@ -103,7 +104,7 @@ export interface PaymentDetailsContext extends PaymentDetailsArgs {
   baseModel?: PaymentDetailModel;
   // ---
   mount?: HTMLElement;
-  paymentDetails?: PaymentDetail; // This is the response from the actual payment gateway
+  paymentDetails?: SelectPaymentMethodData; // This is the response from the actual payment gateway(s)
   // --- SPAWNED ACTORS/MACHINES
   actors: {
     gateway?: ActorRef<any>;

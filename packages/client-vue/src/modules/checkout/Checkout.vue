@@ -1,5 +1,5 @@
 <template>
-  <Layout :variant="uiCart?.layout" minimal>
+  <Layout :variant="uiCart?.layout" minimal v-if="!meta.isCheckout">
     <template #navigation>
       <Back @click.prevent="doReject" />
     </template>

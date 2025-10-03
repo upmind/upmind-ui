@@ -178,7 +178,6 @@ async function loadLookups(
       if (!get(config, BrandConfigKeys.PAY_LATER_ENABLED))
         unset(paymentTypes, PaymentType.PAY_LATER);
 
-      debugger;
       return {
         storedPaymentMethods: filter(storedPaymentMethods, "meta.isActive"), // ensure we only show active stored payment methods
         gateways: sortBy(gateways, ["order"]),
@@ -196,15 +195,14 @@ async function parse(
     schema,
     gateways,
     storedPaymentMethods,
-    orderId,
-    currency,
-    address
+    address,
+    clientId
   }: PaymentDetailsContext,
   { data }: AnyEventObject
 ) {
   // ---
-  let gateway = null;
-  let paymentDetails = null;
+  let gateway = undefined;
+  let paymentDetails = undefined;
 
   // ---
   // Create a safe model to work with
@@ -212,17 +210,16 @@ async function parse(
     schema,
     pick(data, [
       "type",
-      "gatewayId",
-      "paymentDetailId",
-      "returnUrl",
-      "cancelUrl"
+      "gateway_id",
+      "payment_details_id",
+      "return_url",
+      "cancel_url"
     ]),
     model,
     {
       allowExtraProps: false
     }
   );
-  debugger;
 
   // ---
   // HACK: TEMP: FORCE payment type to PAY_IN_FULL
@@ -230,53 +227,48 @@ async function parse(
   // ---
 
   // 1) Make sure if a gateway is selected that we use that
-  if (safeModel?.gatewayId) {
-    gateway = find(gateways, ["gateway_id", safeModel.gatewayId])?.gateway;
-    // if we don't have a matching/valid gateway, then we should remove the gatewayId
+  if (safeModel?.gateway_id) {
+    gateway = find(gateways, ["gateway_id", safeModel.gateway_id])?.gateway;
+    // if we don't have a matching/valid gateway, then we should remove the gateway_id
     if (!gateway) {
-      unset(safeModel, "gatewayId");
+      unset(safeModel, "gateway_id");
     } else {
-      unset(safeModel, "paymentDetailId");
+      unset(safeModel, "payment_details_id");
     }
   }
 
   // 2) finally If we don't have any selected gateways, then we should use the first available
-  if (!safeModel?.gatewayId) {
-    debugger;
+  if (!safeModel?.gateway_id) {
     if (isEmpty(storedPaymentMethods)) {
       gateway = first(gateways)?.gateway;
-      safeModel.gatewayId = gateway?.id;
-      safeModel.paymentDetailId = undefined; // we can't use a stored payment method if we're using a gateway
+      safeModel.gateway_id = gateway?.id;
+      safeModel.payment_details_id = undefined; // we can't use a stored payment method if we're using a gateway
     } else {
-      safeModel.paymentDetailId ??= first(storedPaymentMethods)?.id;
+      safeModel.payment_details_id ??= first(storedPaymentMethods)?.id;
     }
   }
 
-  // 3) If we're using a stored payment method, then we should use that and clear the gatewayId
-  if (safeModel?.paymentDetailId) {
-    debugger;
-    unset(safeModel, "gatewayId");
-    gateway = null;
+  // 3) If we're using a stored payment method, then we should use that and clear the gateway_id
+  if (safeModel?.payment_details_id) {
+    unset(safeModel, "gateway_id");
+    gateway = undefined;
     paymentDetails = {
-      id: safeModel.paymentDetailId,
-      type: safeModel.type,
-      orderId,
-      currency: currency.code,
       amount,
-      address: address.id
+      payment_details_id: safeModel.payment_details_id,
+      address_id: address?.id,
+      client_id: clientId
     };
   } else {
     paymentDetails = undefined;
   }
 
-  // 4) Safety Check...if the payment type is pay later or Free, clear the gatewayId
+  // 4) Safety Check...if the payment type is pay later or Free, clear the gateway_id
   if (safeModel?.type == PaymentType.PAY_LATER || amount <= 0) {
-    unset(safeModel, "gatewayId");
-    unset(safeModel, "paymentDetailId");
-    gateway = null;
+    unset(safeModel, "gateway_id");
+    unset(safeModel, "payment_details_id");
+    gateway = undefined;
   }
 
-  debugger;
   return Promise.resolve({ model: safeModel, gateway, paymentDetails });
 }
 

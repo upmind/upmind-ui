@@ -4,7 +4,8 @@ import { AnyEventObject, assign } from "xstate";
 // --- utils
 import { useModelParser } from "../../../../utils";
 import { useSchema, useUischema } from "./schemas";
-import { GatewayContext } from "../types";
+import { GatewayCardContext } from "./types";
+import { GatewayCardData } from "@upmind-automation/types";
 
 // --- types
 
@@ -13,12 +14,12 @@ import { GatewayContext } from "../types";
 
 export default {
   setSchemas: assign({
-    schema: (context: GatewayContext) => useSchema(context),
-    uischema: (context: GatewayContext) => useUischema(context)
+    schema: (context: GatewayCardContext) => useSchema(context),
+    uischema: (context: GatewayCardContext) => useUischema(context)
   }),
 
   setModel: assign({
-    model: ({ schema, model }: GatewayContext, { data }: AnyEventObject) =>
-      useModelParser(schema, data || model)
+    model: ({ schema, model }: GatewayCardContext, { data }: AnyEventObject) =>
+      useModelParser<GatewayCardData>(schema, data || model)
   })
 };

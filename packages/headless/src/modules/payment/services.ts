@@ -4,7 +4,6 @@
 import { useI18n, useQuery } from "../..";
 
 // --- utils
-import { usePaymentParser } from "./utils";
 import { get, isEmpty } from "lodash-es";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 
@@ -80,14 +79,18 @@ async function load({ orderId }: PaymentContext, { data }: AnyEventObject) {
   }).then(data => ({ fields: data }));
 }
 
-async function update(context: PaymentContext, _event: AnyEventObject) {
+async function update(
+  { paymentDetail, orderId }: PaymentContext,
+  _event: AnyEventObject
+) {
   const { post, useUrl } = useQuery();
 
-  // build the payload with ALL the data we need for the payment details AND the order
-  const data = usePaymentParser(context);
   return post({
     url: useUrl(`/payments`),
-    data,
+    data: {
+      ...paymentDetail,
+      invoice_id: orderId //ensure we always send the orderId
+    },
     withAccessToken: true
   });
 }

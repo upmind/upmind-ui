@@ -24,7 +24,6 @@ export const useSchema = ({
     window.location.origin,
     { orderId }
   );
-  debugger;
   const schema = {
     type: "object",
     title: "Payment details",
@@ -43,7 +42,7 @@ export const useSchema = ({
               title: key
             }))
       },
-      gatewayId: {
+      gateway_id: {
         type: ["string", "null"],
         title: "Select a payment method",
         enum: !gateways?.length
@@ -56,7 +55,7 @@ export const useSchema = ({
               label: useTranslateName(gateway)
             }))
       },
-      paymentDetailId: {
+      payment_details_id: {
         type: ["string", "null"],
         title: "Select one of your stored payment methods",
         enum: !storedPaymentMethods?.length
@@ -76,12 +75,12 @@ export const useSchema = ({
               }
             )
       },
-      returnUrl: {
+      return_url: {
         type: "string",
         format: "uri-reference",
         const: `?${QUERY_PARAMS.SUCCESS}=${encodeURIComponent(success)}&${QUERY_PARAMS.FAILED}=${encodeURIComponent(fail)}`
       },
-      cancelUrl: {
+      cancel_url: {
         type: "string",
         format: "uri",
         const: cancel
@@ -94,7 +93,7 @@ export const useSchema = ({
     //   }
     // },
     // then: {
-    //   oneOf: [{ required: ["gatewayId"] }, { required: ["paymentDetailId"] }]
+    //   oneOf: [{ required: ["gateway_id"] }, { required: ["payment_details_id"] }]
     // }
   };
 
@@ -132,7 +131,7 @@ export const useUischema = () => {
 
       {
         type: "Control",
-        scope: "#/properties/paymentDetailId",
+        scope: "#/properties/payment_details_id",
         i18n: "form.payment_details_id",
         options: {
           format: "radio"

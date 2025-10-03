@@ -5,23 +5,12 @@
 // --- utils
 
 // --- types
-import { QUERY_PARAMS } from "@upmind-automation/types";
 import type { GatewayContext } from "./types";
-import type { Layout } from "@jsonforms/core";
-import { generateResponseUrls } from "./utils";
+import { RuleEffect, type Layout } from "@jsonforms/core";
 
 // -----------------------------------------------------------------------------
 
 export const useSchema = (context: GatewayContext) => {
-  const { cancel, success, fail } = generateResponseUrls(
-    window.location.origin,
-    {
-      orderId: context.orderId,
-      autoPay: context?.model?.storeOnPaymentAutoPayment,
-      externalPayment: context?.gateway?.gateway_provider?.external_payment,
-      type: context?.type
-    }
-  );
   const schema = {
     type: "object",
     title: "Payment Gateway Options",
@@ -33,49 +22,18 @@ export const useSchema = (context: GatewayContext) => {
         const: context?.gateway?.id,
         readOnly: true
       },
-      // a helper for the ui to not show the checkboxes if the gateway does not support storing
-      // ---
-      canStore: {
-        type: "boolean",
-        const: context.canStore,
-        readOnly: true
-      },
-      mustStore: {
-        type: "boolean",
-        const: context.mustStore,
-        readOnly: true
-      },
-      mustAutoPay: {
-        type: "boolean",
-        const: context.mustAutoPay,
-        readOnly: true
-      },
       //  ---
-      storeOnPayment: {
+      store_on_payment: {
         type: "boolean",
         default: context.canStore,
         readOnly: context.canStore == false
       },
-      storeOnPaymentAutoPayment: {
+      store_on_payment_auto_payment: {
         type: "boolean",
         title: "",
         description: "",
         default: context.canStore,
         readOnly: context.canStore == false
-      },
-      returnUrl: {
-        type: "string",
-        title: "Return URL",
-        format: "uri-reference",
-        readOnly: true,
-        const: `?${QUERY_PARAMS.SUCCESS}=${encodeURIComponent(success)}&${QUERY_PARAMS.FAILED}=${encodeURIComponent(fail)}`
-      },
-      cancelUrl: {
-        type: "string",
-        title: "Cancel URL",
-        format: "uri",
-        readOnly: true,
-        const: cancel
       }
     }
   };
@@ -84,55 +42,40 @@ export const useSchema = (context: GatewayContext) => {
 };
 
 export const useUischema = (context: GatewayContext) => {
-  const uischema = {
+  const uischema: Layout = {
     type: "VerticalLayout",
-    elements: [
-      {
-        type: "Control",
-        scope: "#/properties/storeOnPayment",
-        i18n: "form.store_on_payment",
-        options: {
-          autocomplete: "off"
-        },
-        // only show this field if we have the storeOnPayment flag
-        rule: {
-          effect: "SHOW",
-          condition: {
-            scope: "#",
-            schema: {
-              required: ["canStore"],
-              properties: {
-                canStore: { const: true },
-                mustStore: { not: { const: true } }
-              }
-            }
-          }
-        }
+    elements: []
+  };
+
+  if (context.canStore && !context.mustStore) {
+    uischema.elements.push({
+      type: "Control",
+      scope: "#/properties/store_on_payment",
+      i18n: "form.store_on_payment"
+    });
+  }
+
+  if (!context.mustAutoPay) {
+    uischema.elements.push({
+      type: "Control",
+      scope: "#/properties/store_on_payment_auto_payment",
+      i18n: "form.allow_auto_payment",
+      options: {
+        autocomplete: "off"
       },
-      {
-        type: "Control",
-        scope: "#/properties/storeOnPaymentAutoPayment",
-        i18n: "form.allow_auto_payment",
-        options: {
-          autocomplete: "off"
-        },
-        // only show this field if we have the storeOnPayment flag
-        rule: {
-          effect: "SHOW",
-          condition: {
-            scope: "#",
-            schema: {
-              required: ["storeOnPayment"],
-              properties: {
-                storeOnPayment: { const: true },
-                mustAutoPay: { not: { const: true } }
-              }
-            }
+      // only show this field if we have the store_on_payment flag
+      rule: {
+        effect: RuleEffect.SHOW,
+        condition: {
+          scope: "#",
+          schema: {
+            required: ["store_on_payment"],
+            properties: { store_on_payment: { const: true } }
           }
         }
       }
-    ]
-  };
+    });
+  }
 
   return uischema as Layout;
 };

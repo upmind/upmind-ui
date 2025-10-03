@@ -1,5 +1,8 @@
 <template>
-  <div v-if="!meta.isLoading && meta.hasProducts" :class="styles.summary.root">
+  <div
+    v-if="(!meta.isLoading && meta.hasProducts) || meta.isCheckout"
+    :class="styles.summary.root"
+  >
     <DescriptionList :items="items" class="font-normal">
       <div :class="styles.summary.item.root">
         <dt :class="styles.summary.item.term">

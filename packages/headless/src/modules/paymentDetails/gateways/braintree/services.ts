@@ -253,7 +253,6 @@ async function pay({
 
       // return our payment detial
       return {
-        /* Here we don't pass 'autoPayment' flag as 'storeOnPaymentAutoPayment' is injected from parent gatewayComponent */
         gateway_id: gateway?.id,
         payment_method_addition: {
           payment_method_nonce: payload.nonce
