@@ -19,7 +19,7 @@ export default {
       }
     ),
 
-    title: cva("font-display m-0 mt-3 text-center text-3xl"),
+    title: cva("font-display m-0 mt-3 text-center text-4xl"),
     text: cva(
       "m-0 mt-0 max-w-md text-center text-lg leading-normal opacity-50"
     ),

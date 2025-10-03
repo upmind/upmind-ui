@@ -44,7 +44,7 @@
             variant="ghost"
             align="left"
             block
-            size="md"
+            :size="props.size"
             :value="item.value"
             :disabled="item.disabled"
             @click="doAction(item)"

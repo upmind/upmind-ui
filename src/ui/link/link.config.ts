@@ -59,8 +59,8 @@ export const rootVariants = cva(
       color: variants.color,
       isDisabled: variants.isDisabled,
       hasIcon: {
-        true: "inline-flex items-center debug-has-icon-true",
-        false: "inline-flex items-center debug-has-icon-false"
+        true: "inline-flex items-center",
+        false: "inline-flex items-center"
       }
     },
     defaultVariants: {
