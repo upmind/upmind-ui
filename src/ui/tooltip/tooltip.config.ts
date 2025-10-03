@@ -14,7 +14,7 @@ export const variants = {
 };
 
 export const contentVariants = cva(
-  "animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 overflow-hidden rounded-xs border-transparent px-3 py-1.5 text-sm",
+  "animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 overflow-hidden rounded-xs border-transparent px-3 py-1.5 text-sm ring-0 ring-transparent focus:ring-0 focus-visible:ring-0 focus-within:ring-0 outline-none",
   {
     variants,
     defaultVariants: {
@@ -46,6 +46,6 @@ export default {
   tooltip: {
     content: contentVariants,
     arrow: arrowVariants,
-    trigger: cva("text-inherit no-underline")
+    trigger: cva("text-inherit no-underline ring-0 ring-transparent focus:ring-0 focus-visible:ring-0 focus-within:ring-0 outline-none")
   }
 };

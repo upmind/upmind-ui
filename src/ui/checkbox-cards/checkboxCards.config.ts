@@ -25,11 +25,11 @@ export default {
   checkboxCards: {
     root: cva(`grid w-full gap-2`),
     item: cva(
-      `text-control-foreground group group flex items-start gap-2 py-4 pr-4 pl-3 font-normal transition-all duration-200`,
+      `text-control-foreground group group flex items-start gap-2 rounded-none py-4 pr-4 pl-3 font-normal transition-all duration-200`,
       {
         variants: {
           isList: {
-            true: "border-b last:border-b-0",
+            true: "border-control-default border-b last:border-b-0",
             false: `shadow-border-control-default [&:hover,&[data-hover=true]]:shadow-border-control-hover bg-control-surface control-radius ${ringClasses} ${invalidRingClasses}`
           }
         }

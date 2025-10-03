@@ -79,7 +79,9 @@ export const useThemes = (value?: Theme | Theme[], defaultTheme?: string) => {
     activeTheme.value = theme || activeTheme.value || defaultTheme || "default";
     if (themes.value) {
       const themeConfig =
-        find(themes.value, ["id", activeTheme.value]) || first(themes.value);
+        find(themes.value, ["id", activeTheme.value]) ||
+        find(themes.value, ["id", "upmind"]) ||
+        first(themes.value);
       if (themeConfig) config.value = themeConfig.uiConfig || {};
     }
 

@@ -1,6 +1,6 @@
 // ---  external
 import { cva } from "class-variance-authority";
-import { focusVisibleRing, outlineReset } from "../../assets/ring.styles";
+import { ringClasses } from "../../assets/ring.styles";
 // -----------------------------------------------------------------------------
 
 export const variants = {
@@ -52,7 +52,7 @@ const itemsVariants = cva("size-lh flex items-center justify-center", {
 });
 
 export const rootVariants = cva(
-  `ring-offset-background-canvas button-radius font-medium whitespace-nowrap underline underline-offset-4 transition-all duration-200 ${outlineReset} ${focusVisibleRing} `,
+  `ring-offset-background-canvas button-radius font-medium whitespace-nowrap underline underline-offset-4 transition-all duration-200 ${ringClasses}`,
   {
     variants: {
       size: variants.size,
