@@ -21,7 +21,7 @@
           <Button
             :class="unmask ? 'opacity-100' : 'opacity-50 hover:opacity-100'"
             variant="link"
-            size="sm"
+            size="icon"
             @click.prevent="unmask = !unmask"
             :focusable="false"
           >

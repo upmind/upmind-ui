@@ -16,7 +16,7 @@ withDefaults(
     ring?: boolean;
   }>(),
   {
-    ring: true
+    ring: false
   }
 );
 </script>
