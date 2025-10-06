@@ -49,7 +49,7 @@ const localeLogins = localeKeys.map(key => ({
 }));
 
 for (const { language, username, password } of localeLogins) {
-  test.describe.skip(`Checkout Visual Regression Tests - ${language}`, () => {
+  test.describe(`Checkout Visual Regression Tests - ${language}`, () => {
     let token: string;
     let orderId: string | null;
     test.beforeEach(async ({ page }) => {

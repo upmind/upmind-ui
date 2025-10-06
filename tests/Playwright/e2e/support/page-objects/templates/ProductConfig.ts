@@ -100,7 +100,7 @@ export class ProductConfig {
 
     /* Product Options */
     this.textInput = new TextInput(page);
-    this.billingTerms = page.getByTestId("radio-card-group").first();
+    this.billingTerms = page.getByTestId("form-item-terms");
     this.options = page.getByTestId("options-container-options");
     this.domainRegister = page.getByTestId("accordion-item-register");
     this.domainRegisterInput = page
@@ -110,15 +110,17 @@ export class ProductConfig {
     this.domainExisting = page.getByTestId("accordion-item-existing");
     this.domainBasket = page.getByTestId("accordion-item-basket");
     this.registrantNameInput = page
-      .getByTestId("form-item-registrant-name")
+      .getByTestId("form-item-update-registrant-name")
       .locator("input");
     this.registrantOrgInput = page
-      .getByTestId("form-item-registrant-organisation")
+      .getByTestId("form-item-update-registrant-organisation")
       .locator("input");
     this.registrantEmailInput = page
-      .getByTestId("form-item-registrant-email")
+      .getByTestId("form-item-update-registrant-email")
       .locator("input");
-    this.registrantPhoneForm = page.getByTestId("form-item-registrant-phone");
+    this.registrantPhoneForm = page.getByTestId(
+      "form-item-update-registrant-phone"
+    );
     this.registrantPhoneCountrySelectButton =
       this.registrantPhoneForm.getByTestId("button-default");
     this.registrantPhoneCountrySelectInput =
@@ -127,19 +129,19 @@ export class ProductConfig {
       this.popover.popoverContent.getByTestId("combobox-item");
     this.registrantPhoneInput = this.registrantPhoneForm.locator("input");
     this.registrantAddr1Input = page
-      .getByTestId("form-item-registrant-address-1")
+      .getByTestId("form-item-update-registrant-address-1")
       .locator("input");
     this.registrantCityInput = page
-      .getByTestId("form-item-registrant-city")
+      .getByTestId("form-item-update-registrant-address-city")
       .locator("input");
     this.registrantStateInput = page
-      .getByTestId("form-item-registrant-state")
+      .getByTestId("form-item-update-registrant-address-state")
       .locator("input");
     this.registrantPostcodeInput = page
-      .getByTestId("form-item-registrant-postcode")
+      .getByTestId("form-item-update-registrant-address-postcode")
       .locator("input");
     this.registrantCountryInput = page
-      .getByTestId("form-item-registrant-country")
+      .getByTestId("form-item-update-registrant-address-country-code")
       .locator("button");
     this.promoBadge = page.getByTestId("badge");
 
@@ -235,7 +237,7 @@ export class ProductConfig {
 
   async enterSld(sld: string) {
     const sldFormField = this.page
-      .getByTestId("form-item-domain-sld")
+      .getByTestId("form-item-sld")
       .locator("input");
     await sldFormField.fill(sld);
   }

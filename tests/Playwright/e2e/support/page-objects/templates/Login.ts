@@ -17,7 +17,7 @@ export class Login {
     this.passwordField = page
       .getByTestId("form-item-password")
       .locator("input");
-    this.loginButton = page.getByTestId("button-log-into-my-account");
+    this.loginButton = page.getByTestId("button-log-in-to-your-account");
     this.twoFactorInput = page.getByTestId("form-item-token").locator("input");
     this.popoverTrigger = page.getByTestId("login-popover-trigger");
     this.popoverContent = page.getByTestId("popover-content");
