@@ -7,7 +7,7 @@
     },
     "existing": {
       "label": "Použít existující doménu",
-      "tooltip": "Stávající doménu můžete použít aktualizací nameserverů."
+      "tooltip": "Můžete použít existující doménu aktualizací nameserverů"
     },
     "register": {
       "label": "Registrace nové domény",
@@ -22,7 +22,7 @@
   "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
   "own_domain_qn": "Vlastníte tuto doménu?",
   "owned_domains_title": "Domény, které aktuálně vlastníte",
-  "price_renewal_desc": "Jednorázová cena {regularPrice}. | Obnovuje se každý rok na {regularPrice}. | Obnovuje se každých {count} roky pro {regularPrice}.",
+  "price_renewal_desc": "Jednorázová cena {regularPrice}. | Obnovuje se každý rok za {regularPrice}. | Obnovuje se každých {count} let za {regularPrice}.",
   "starts_with_domain": "Všechno to začíná **doménovým názvem**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
   "tld_renewal_price_desc": "Náš {tld} ceny obnovení začínají již od {currentPrice} (byl {regularPrice}).",

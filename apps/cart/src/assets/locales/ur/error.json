@@ -63,7 +63,7 @@
   "generic_text": "آئیے آپ کو ٹریک پر واپس لاتے ہیں۔",
   "generic_title": "معذرت، ہم نے ایک **خرابی** کا تجربہ کیا ہے",
   "generic_title_md": "@.markdown:{'error.generic_title'}",
-  "http_method_not_valid": "غلط طریقہ:{method}",
+  "http_method_not_valid": "غلط طریقہ: {method}",
   "input_not_available": "ان پٹ دستیاب نہیں ہے۔",
   "language_load_failed": "زبانیں لوڈ کرنے میں ناکام",
   "local_storage_not_available": "مقامی اسٹوریج دستیاب نہیں ہے۔",

@@ -63,7 +63,7 @@
   "generic_text": "Przywróćmy Cię na właściwe tory",
   "generic_title": "Przepraszamy, wystąpił **błąd**",
   "generic_title_md": "@.markdown:{'error.generic_title'}",
-  "http_method_not_valid": "Nieprawidłowa metoda:{method}",
+  "http_method_not_valid": "Nieprawidłowa metoda: {method}",
   "input_not_available": "Dane wejściowe niedostępne",
   "language_load_failed": "Nie udało się załadować języków",
   "local_storage_not_available": "Pamięć lokalna niedostępna",
