@@ -70,6 +70,7 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
       !stateMatches(actor, ["available.loading"]),
     isLoading: !actor.value || stateMatches(actor, ["loading"]),
     hasGateway: contextMatches(actor, ["actors.gateway"]),
+    hasGateways: contextMatches(actor, ["gateways"]),
     hasStoredPaymentMethods: contextMatches(actor, ["storedPaymentMethods"]),
     hasErrors: stateMatches(actor, ["error"]),
     isProcessing: stateMatches(actor, ["checking", "processing"]),
@@ -188,6 +189,10 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
      * @property {boolean} isComplete - Indicates if the payment details is complete.
      * @property {boolean} isFree - Indicates if the payment is free (no amount).
      * @property {boolean} hasStoredPaymentMethods - Indicates if there are stored payment methods available.
+     * @property {boolean} hasGateways - Indicates if there are multiple payment gateways available.
+     * @property {boolean} isFree - Indicates if the payment amount is zero or not set.
+     * @property {boolean} isComplete - Indicates if the payment details process is complete.
+     * @type {PaymentDetailsMeta}
      */
     meta,
 
