@@ -51,7 +51,7 @@ test.describe("Checkout with Offline Payment", () => {
     await page.goto(URLs.checkout);
     await page.waitForLoadState("domcontentloaded");
     await checkout.selectPaymentMethod("Offline Payment");
-    await page.getByTestId("button-place-order").click();
+    await checkout.placeOrderButton.click();
     await expect(page.getByRole("dialog")).toContainText(
       "Converting your order"
     );

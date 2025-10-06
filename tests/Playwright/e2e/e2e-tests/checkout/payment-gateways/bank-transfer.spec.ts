@@ -51,7 +51,7 @@ test.describe("Checkout with Bank Transfer", () => {
     await page.goto(URLs.checkout);
     await page.waitForLoadState("domcontentloaded");
     await checkout.selectPaymentMethod("Direct Bank Transfer");
-    await page.getByTestId("button-place-order").click();
+    await checkout.placeOrderButton.click();
     await expect(page.getByRole("dialog")).toBeVisible();
     await expect(page.getByRole("dialog")).toContainText("Order complete!");
   });
