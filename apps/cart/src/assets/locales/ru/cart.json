@@ -23,6 +23,7 @@
   "order_processing_msg": "Мы обрабатываем ваш заказ. Это займёт всего минуту.",
   "order_unsuccessful": "**Невозможно** выполнить ваш заказ",
   "order_unsuccessful_md": "@.markdown:{'cart.order_unsuccessful'}",
+  "pay_with_stored": "Оплатить существующим методом",
   "payment_awaiting_approval": "**Ожидаем** одобрения",
   "payment_awaiting_approval_md": "@.markdown:{'text.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "Мы ждём одобрения. Это займёт всего минуту.",

@@ -23,6 +23,7 @@
   "order_processing_msg": "Vi behandler bestillingen din. Dette bør bare ta et øyeblikk.",
   "order_unsuccessful": "**Kan ikke fullføre** bestillingen din",
   "order_unsuccessful_md": "@.markdown:{'cart.order_unsuccessful'}",
+  "pay_with_stored": "Betal med en eksisterende metode",
   "payment_awaiting_approval": "**Venter** på godkjenning",
   "payment_awaiting_approval_md": "@.markdown:{'text.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "Vi venter på godkjenning. Dette burde bare ta et øyeblikk.",
