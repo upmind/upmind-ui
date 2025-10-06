@@ -23,6 +23,7 @@
   "order_processing_msg": "Siparişiniz işleniyor. Bu işlem yalnızca bir dakika sürecektir.",
   "order_unsuccessful": "Siparişiniz tamamlanamadı",
   "order_unsuccessful_md": "@.markdown:{'cart.order_unsuccessful'}",
+  "pay_with_stored": "Mevcut bir yöntemle ödeyin",
   "payment_awaiting_approval": "Onay **bekleniyor**",
   "payment_awaiting_approval_md": "@.markdown:{'text.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "Onay bekliyoruz. Bu sadece bir dakika sürecektir.",

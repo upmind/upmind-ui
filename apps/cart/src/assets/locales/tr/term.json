@@ -14,7 +14,7 @@
   "price_by_n_years": "{price}/yıl | {price} /{n} yıllar",
   "price_msg": "Tek seferlik ödeme {price} | Kimden {price} bir ay | Kimden {price} Her {period}",
   "quarterly": "Üç aylık",
-  "renews_msg": "Tek seferlik ödeme | Her yenilenir {cycle}",
+  "renews_msg": "Tek seferlik ödeme | Her {cycle} yenilenir",
   "renews_usually_msg": "Genellikle {price}",
   "semiannually": "Altı ayda bir",
   "showing_items_summary": "Gösteriliyor {range} ile ilgili {total} öğeler",

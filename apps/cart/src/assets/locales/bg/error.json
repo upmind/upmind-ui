@@ -63,7 +63,7 @@
   "generic_text": "Нека те върнем на правилния път",
   "generic_title": "За съжаление, възникна **грешка**",
   "generic_title_md": "@.markdown:{'error.generic_title'}",
-  "http_method_not_valid": "Невалиден метод:{method}",
+  "http_method_not_valid": "Невалиден метод: {method}",
   "input_not_available": "Входните данни не са налични",
   "language_load_failed": "Зареждането на езиците не бе успешно",
   "local_storage_not_available": "Локално хранилище не е налично",
