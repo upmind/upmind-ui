@@ -63,7 +63,7 @@
   "generic_text": "Ας σε επαναφέρουμε στο σωστό δρόμο",
   "generic_title": "Λυπούμαστε, παρουσιάστηκε **σφάλμα**",
   "generic_title_md": "@.markdown:{'error.generic_title'}",
-  "http_method_not_valid": "Μη έγκυρη μέθοδος:{method}",
+  "http_method_not_valid": "Μη έγκυρη μέθοδος: {method}",
   "input_not_available": "Η εισαγωγή δεν είναι διαθέσιμη",
   "language_load_failed": "Η φόρτωση γλωσσών απέτυχε",
   "local_storage_not_available": "Η τοπική αποθήκευση δεν είναι διαθέσιμη.",

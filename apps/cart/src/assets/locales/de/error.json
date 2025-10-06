@@ -63,7 +63,7 @@
   "generic_text": "Wir bringen Sie wieder auf Kurs",
   "generic_title": "Entschuldigung, es ist ein **Fehler** aufgetreten.",
   "generic_title_md": "@.markdown:{'error.generic_title'}",
-  "http_method_not_valid": "Ungültige Methode:{method}",
+  "http_method_not_valid": "Ungültige Methode: {method}",
   "input_not_available": "Eingabe nicht verfügbar",
   "language_load_failed": "Sprachen konnten nicht geladen werden",
   "local_storage_not_available": "Lokaler Speicher nicht verfügbar",

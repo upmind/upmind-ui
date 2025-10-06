@@ -7,7 +7,7 @@
     },
     "existing": {
       "label": "Utilizar dominio existente",
-      "tooltip": "Puede utilizar un dominio existente actualizando los servidores de nombres"
+      "tooltip": "Puedes usar un dominio existente actualizando los servidores de nombres"
     },
     "register": {
       "label": "Registrar nuevo dominio",
@@ -22,7 +22,7 @@
   "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
   "own_domain_qn": "¿Es usted el propietario de este dominio?",
   "owned_domains_title": "Dominios que posee actualmente",
-  "price_renewal_desc": "Precio único de {regularPrice}. | Se renueva cada año por {regularPrice}. | Se renueva cada {count} años para {regularPrice}.",
+  "price_renewal_desc": "Precio único de {regularPrice}. | Se renueva cada año por {regularPrice}. | Se renueva cada {count} años por {regularPrice}.",
   "starts_with_domain": "Todo comienza con un **nombre de dominio**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
   "tld_renewal_price_desc": "Nuestro {tld} Los precios de renovación comienzan desde solo {currentPrice} (era {regularPrice}).",

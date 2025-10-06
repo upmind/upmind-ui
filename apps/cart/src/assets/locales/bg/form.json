@@ -127,6 +127,9 @@
   "store_on_payment": {
     "label": "Запазване на данните за плащане"
   },
+  "stored_payment_method": {
+    "label": "Изберете един от съхранените си методи за плащане"
+  },
   "taxNumber": {
     "label": "Данъчен номер",
     "placeholder": "Данъчен номер"

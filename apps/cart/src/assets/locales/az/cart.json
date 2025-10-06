@@ -23,6 +23,7 @@
   "order_processing_msg": "Sifarişinizi emal edirik. Bu, yalnız bir an çəkməlidir.",
   "order_unsuccessful": "**Sifarişinizi tamamlamaq mümkün deyil**",
   "order_unsuccessful_md": "@.markdown:{'cart.order_unsuccessful'}",
+  "pay_with_stored": "Mövcud üsulla ödə",
   "payment_awaiting_approval": "**Təsdiqi gözləyirik**",
   "payment_awaiting_approval_md": "@.markdown:{'text.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "Təsdiqi gözləyirik. Bu, yalnız bir an çəkməlidir.",

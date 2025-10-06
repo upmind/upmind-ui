@@ -23,6 +23,7 @@
   "order_processing_msg": "Обработваме поръчката ви. Това би трябвало да отнеме само малко време.",
   "order_unsuccessful": "**Невъзможно** да завършите поръчката си",
   "order_unsuccessful_md": "@.markdown:{'cart.order_unsuccessful'}",
+  "pay_with_stored": "Платете с наличен метод",
   "payment_awaiting_approval": "**Чака** одобрение",
   "payment_awaiting_approval_md": "@.markdown:{'text.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "Чакаме одобрение. Това би трябвало да отнеме само малко време.",

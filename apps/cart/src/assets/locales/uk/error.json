@@ -63,7 +63,7 @@
   "generic_text": "Давайте повернемо вас на правильний шлях",
   "generic_title": "Вибачте, сталася **помилка**",
   "generic_title_md": "@.markdown:{'error.generic_title'}",
-  "http_method_not_valid": "Недійсний метод:{method}",
+  "http_method_not_valid": "Недійсний метод: {method}",
   "input_not_available": "Вхідні дані недоступні",
   "language_load_failed": "Не вдалося завантажити мови",
   "local_storage_not_available": "Локальне сховище недоступне",
