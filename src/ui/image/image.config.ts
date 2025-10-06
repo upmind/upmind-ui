@@ -8,7 +8,7 @@ export const rootVariant = cva("h-full w-full", {
       last: "rounded-r-lg"
     },
     isEmpty: {
-      true: "bg-secondary text-secondary-foreground flex items-center justify-center"
+      true: "text-accent-neutral flex items-center justify-center"
     },
     fit: {
       cover: "object-cover object-center",
@@ -45,7 +45,7 @@ export default {
   image: {
     container: containerVariant,
     root: rootVariant,
-    icon: cva("opacity-25"),
+    icon: cva("bg-surface p-3.5"),
     carousel: {
       content: cva(""),
       list: cva("m-0 flex p-0"),

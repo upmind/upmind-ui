@@ -32,13 +32,8 @@
 
   <figure
     v-if="!meta.isCarousel"
-    :class="
-      cn(
-        styles.image.container,
-        props.class,
-        meta.isEmpty ? 'bg-primary-muted' : ''
-      )
-    "
+    :class="cn(styles.image.container, props.class)"
+    :style="meta.isEmpty ? fallbackStyle : ''"
   >
     <!-- Single image with fallback -->
     <picture v-if="!meta.isEmpty">
@@ -50,14 +45,9 @@
         @error="error = true"
       />
     </picture>
-
     <!-- Fallback icon -->
-    <div
-      v-if="meta.isEmpty"
-      :class="cn(styles.image.root)"
-      :style="fallbackStyle"
-    >
-      <Icon icon="camera" size="xl" :class="styles.image.icon" />
+    <div v-if="meta.isEmpty" :class="cn(styles.image.root)">
+      <Icon icon="camera" size="lg" :class="styles.image.icon" />
     </div>
   </figure>
 </template>
@@ -72,14 +62,14 @@ import { Carousel, CarouselContent } from "../carousel";
 import CarouselImage from "./CarouselImage.vue";
 
 // --- assets
-import dotSvg from "../../assets/icons/dot.svg";
+import dotSvgRaw from "../../assets/icons/dot-pattern.svg?raw";
 
 // --- internal
 import config from "./image.config";
 
 // --- utils
 import { isEmpty, isArray, isString } from "lodash-es";
-import { useStyles, cn } from "../../utils";
+import { useStyles, cn, getComputedColor } from "../../utils";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -151,9 +141,19 @@ function isSelected(index: number) {
   return imageIndex.value === index;
 }
 
-const fallbackStyle = computed(() => ({
-  backgroundImage: `url(${dotSvg})`,
-  backgroundRepeat: "repeat",
-  backgroundSize: "16px 16px"
-}));
+const fallbackStyle = computed(() => {
+  const color = getComputedColor("accent-neutral");
+  const modifiedSvg = dotSvgRaw.replace(
+    'fill="currentColor"',
+    `fill="${color}"`
+  );
+  const encodedSvg = encodeURIComponent(modifiedSvg);
+
+  return {
+    backgroundColor: "hsl(var(--secondary))",
+    backgroundImage: `url("data:image/svg+xml,${encodedSvg}")`,
+    backgroundRepeat: "repeat",
+    backgroundSize: "26px 30px"
+  };
+});
 </script>
