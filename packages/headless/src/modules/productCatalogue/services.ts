@@ -21,7 +21,7 @@ const queryKey: QueryKey = ["product", "catalogue"];
 
 function loadList(params?: Partial<QueryParams>) {
   const { list, useUrl } = useQuery();
-  const { basketId, isReady: isBasketReady } = useBasket();
+  const { basketId } = useBasket();
   const { promotions } = useBasketPromotions();
 
   const urlParams = {

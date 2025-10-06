@@ -1,5 +1,6 @@
 <template>
   <Accordion
+    v-if="meta.hasGateways || meta.hasStoredPaymentMethods"
     v-show="!meta.isFree"
     type="multiple"
     :class="styles.checkout.accordion.root"
@@ -123,12 +124,20 @@
   </Accordion>
 
   <component
-    v-if="meta.isFree"
+    v-else-if="meta.isFree"
     :is="props.as"
     :class="[!props.as && styles.checkout.isFree, props.class]"
   >
     <PaymentNotRequired />
   </component>
+
+  <Alert
+    v-else
+    color="error"
+    icon="alert-triangle"
+    :title="t('error.gateways_not_found_md')"
+    :description="t('error.gateways_not_found_msg')"
+  />
 </template>
 
 <script lang="ts" setup>
@@ -151,7 +160,8 @@ import {
   AccordionItem,
   AccordionTrigger,
   AccordionContent,
-  Icon
+  Icon,
+  Alert
 } from "@upmind-automation/upmind-ui";
 import PaymentGateway from "./PaymentGateway.vue";
 import StoredPayments from "./StoredPayments.vue";
