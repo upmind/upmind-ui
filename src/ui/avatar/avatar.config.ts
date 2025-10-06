@@ -5,8 +5,8 @@ import { ringClasses } from "../../assets/ring.styles";
 
 export const variants = {
   color: {
-    primary: "bg-primary text-button-primary",
-    secondary: "bg-secondary text-button-secondary"
+    primary: "bg-primary-default text-button-primary",
+    secondary: "bg-secondary-default text-button-secondary"
   },
   fit: {
     cover: "object-cover",
