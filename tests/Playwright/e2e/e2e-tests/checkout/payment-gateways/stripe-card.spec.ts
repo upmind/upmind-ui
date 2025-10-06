@@ -47,17 +47,9 @@ test.describe("Checkout with Stripe", () => {
           },
           []
         );
-        await page.goto(URLs.basket);
-        await page.waitForLoadState("networkidle");
         await page.goto(URLs.checkout);
+        await page.waitForLoadState("networkidle");
         await registration.inputRegistration();
-        await checkout.manuallyInputAddress(
-          `${fakerEN_GB.location.streetAddress()}`,
-          `${fakerEN_GB.location.streetAddress()}`,
-          `${fakerEN_GB.location.city()}`,
-          "HU15 1EG",
-          null
-        );
         await checkout.selectPaymentMethod("Stripe Payment");
         await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
         await checkout.clickPlaceOrderButton();
@@ -75,6 +67,7 @@ test.describe("Checkout with Stripe", () => {
       cardNumber,
       expiryDate,
       cvcCode,
+      dialogTitle,
       dialogText
     } of DeclinedCards) {
       test(`Declined Stripe Cards - ${name}`, async ({ page, context }) => {
@@ -97,21 +90,16 @@ test.describe("Checkout with Stripe", () => {
           },
           []
         );
-        await page.goto(URLs.basket);
-        await page.waitForLoadState("networkidle");
         await page.goto(URLs.checkout);
+        await page.waitForLoadState("networkidle");
         await registration.inputRegistration();
-        await checkout.manuallyInputAddress(
-          `${fakerEN_GB.location.streetAddress()}`,
-          `${fakerEN_GB.location.streetAddress()}`,
-          `${fakerEN_GB.location.city()}`,
-          "HU15 1EG",
-          null
-        );
         await checkout.selectPaymentMethod("Stripe Payment");
         await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
         await checkout.clickPlaceOrderButton();
         await expect(checkout.dialogWindow).toBeVisible();
+        await expect(
+          checkout.dialogWindow.locator(page.getByText(`${dialogTitle}`))
+        ).toBeVisible();
         await expect(
           checkout.dialogWindow.locator(page.getByText(`${dialogText}`))
         ).toBeVisible();
@@ -124,6 +112,7 @@ test.describe("Checkout with Stripe", () => {
       cardNumber,
       expiryDate,
       cvcCode,
+      dialogTitle,
       dialogText
     } of FraudCheckCards) {
       test(`Fraud Checked Stripe Cards - ${name}`, async ({
@@ -149,20 +138,15 @@ test.describe("Checkout with Stripe", () => {
           },
           []
         );
-        await page.goto(URLs.basket);
-        await page.waitForLoadState("networkidle");
         await page.goto(URLs.checkout);
+        await page.waitForLoadState("networkidle");
         await registration.inputRegistration();
-        await checkout.manuallyInputAddress(
-          `${fakerEN_GB.location.streetAddress()}`,
-          `${fakerEN_GB.location.streetAddress()}`,
-          `${fakerEN_GB.location.city()}`,
-          "HU15 1EG",
-          null
-        );
         await checkout.selectPaymentMethod("Stripe Payment");
         await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
         await checkout.clickPlaceOrderButton();
+        await expect(
+          checkout.dialogWindow.locator(page.getByText(`${dialogTitle}`))
+        ).toBeVisible();
         await expect(page.getByRole("dialog")).toContainText(`${dialogText}`);
       });
     }
@@ -195,17 +179,9 @@ test.describe("Checkout with Stripe", () => {
           },
           []
         );
-        await page.goto(URLs.basket);
-        await page.waitForLoadState("networkidle");
         await page.goto(URLs.checkout);
+        await page.waitForLoadState("networkidle");
         await registration.inputRegistration();
-        await checkout.manuallyInputAddress(
-          `${fakerEN_GB.location.streetAddress()}`,
-          `${fakerEN_GB.location.streetAddress()}`,
-          `${fakerEN_GB.location.city()}`,
-          "HU15 1EG",
-          null
-        );
         await checkout.selectPaymentMethod("Stripe Payment");
         await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
         const stripeFrame = await checkout.getStripeIframe();

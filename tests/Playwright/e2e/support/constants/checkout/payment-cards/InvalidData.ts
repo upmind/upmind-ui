@@ -4,6 +4,7 @@ export const ErrorCards = [
     cardNumber: "4242424242424241",
     expiryDate: "12/50",
     cvcCode: "123",
+    dialogTitle: "Unable to process payment",
     dialogText: "Your card number is invalid."
   },
   {

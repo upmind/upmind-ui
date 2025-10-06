@@ -1,8 +1,14 @@
 import { test, expect } from "@playwright/test";
 import { interceptProductMeta } from "../../support/utils/functions/product";
 import { URLs } from "../../support/constants/urls";
+import { ProductConfig } from "../../support/page-objects/templates/ProductConfig";
+
+let productConfig: ProductConfig;
 
 test.describe("Product UI Metadata Tests", () => {
+  test.beforeEach(async ({ page }) => {
+    productConfig = new ProductConfig(page);
+  });
   test("Billing Terms - Display as dropdown", async ({ page }) => {
     await interceptProductMeta(page, {
       uischema: {
@@ -13,11 +19,11 @@ test.describe("Product UI Metadata Tests", () => {
     });
     await page.goto(URLs.uiTestProduct);
     await page.waitForLoadState("networkidle");
-    await expect(page.getByTestId("form-item-billing-term")).toBeVisible();
+    await expect(productConfig.billingTerms).toBeVisible();
     await expect(page).toHaveScreenshot(
       "uimetadata-billing-term-dropdown-closed"
     );
-    await page.getByTestId("form-item-billing-term").locator("button").click();
+    await page.getByTestId("form-item-terms").locator("button").click();
     await expect(page).toHaveScreenshot(
       "uimetadata-billing-term-dropdown-open"
     );
