@@ -1,3 +1,142 @@
-@utility button-radius {
-  border-radius: var(--button-radius);
+@layer utilities {
+  /* Button Background Colors */
+  .bg-button-primary-ring {
+    background-color: var(--bg-button-primary-ring);
+  }
+  .bg-button-primary-0 {
+    background-color: var(--bg-button-primary-0);
+  }
+  .bg-button-primary-1 {
+    background-color: var(--bg-button-primary-1);
+  }
+  .bg-button-primary-hover-0 {
+    background-color: var(--bg-button-primary-hover-0);
+  }
+  .bg-button-primary-hover-1 {
+    background-color: var(--bg-button-primary-hover-1);
+  }
+  .bg-button-secondary-ring {
+    background-color: var(--bg-button-secondary-ring);
+  }
+  .bg-button-secondary-0 {
+    background-color: var(--bg-button-secondary-0);
+  }
+  .bg-button-secondary-1 {
+    background-color: var(--bg-button-secondary-1);
+  }
+  .bg-button-secondary-hover-0 {
+    background-color: var(--bg-button-secondary-hover-0);
+  }
+  .bg-button-secondary-hover-1 {
+    background-color: var(--bg-button-secondary-hover-1);
+  }
+  .bg-button-neutral-ring {
+    background-color: var(--bg-button-neutral-ring);
+  }
+  .bg-button-neutral-0 {
+    background-color: var(--bg-button-neutral-0);
+  }
+  .bg-button-neutral-1 {
+    background-color: var(--bg-button-neutral-1);
+  }
+  .bg-button-neutral-hover-0 {
+    background-color: var(--bg-button-neutral-hover-0);
+  }
+  .bg-button-neutral-hover-1 {
+    background-color: var(--bg-button-neutral-hover-1);
+  }
+  .bg-button-subtle-ring {
+    background-color: var(--bg-button-subtle-ring);
+  }
+  .bg-button-subtle-0 {
+    background-color: var(--bg-button-subtle-0);
+  }
+  .bg-button-subtle-1 {
+    background-color: var(--bg-button-subtle-1);
+  }
+  .bg-button-subtle-hover-0 {
+    background-color: var(--bg-button-subtle-hover-0);
+  }
+  .bg-button-subtle-hover-1 {
+    background-color: var(--bg-button-subtle-hover-1);
+  }
+  .bg-button-danger-ring {
+    background-color: var(--bg-button-danger-ring);
+  }
+  .bg-button-danger-0 {
+    background-color: var(--bg-button-danger-0);
+  }
+  .bg-button-danger-1 {
+    background-color: var(--bg-button-danger-1);
+  }
+  .bg-button-danger-hover-0 {
+    background-color: var(--bg-button-danger-hover-0);
+  }
+  .bg-button-danger-hover-1 {
+    background-color: var(--bg-button-danger-hover-1);
+  }
+  .bg-button-outline {
+    background-color: var(--bg-button-outline);
+  }
+  .bg-button-outline-hover {
+    background-color: var(--bg-button-outline-hover);
+  }
+  .bg-button-outline-ring {
+    background-color: var(--bg-button-outline-ring);
+  }
+  .bg-button-ghost {
+    background-color: var(--bg-button-ghost);
+  }
+  .bg-button-ghost-hover {
+    background-color: var(--bg-button-ghost-hover);
+  }
+  .bg-button-ghost-ring {
+    background-color: var(--bg-button-ghost-ring);
+  }
+
+  /* Button Text Colors */
+  .text-button-primary {
+    color: var(--text-button-primary);
+  }
+  .text-button-secondary {
+    color: var(--text-button-secondary);
+  }
+  .text-button-neutral {
+    color: var(--text-button-neutral);
+  }
+  .text-button-subtle {
+    color: var(--text-button-subtle);
+  }
+  .text-button-danger {
+    color: var(--text-button-danger);
+  }
+  .text-button-danger-link {
+    color: var(--text-button-danger-link);
+  }
+  .text-button-danger-link-hover {
+    color: var(--text-button-danger-link-hover);
+  }
+  .text-button-outline {
+    color: var(--text-button-outline);
+  }
+  .text-button-ghost {
+    color: var(--text-button-ghost);
+  }
+  .text-button-link {
+    color: var(--text-button-link);
+  }
+  .text-button-link-hover {
+    color: var(--text-button-link-hover);
+  }
+  .text-button-muted-link {
+    color: var(--text-button-muted-link);
+  }
+  .text-button-muted-link-hover {
+    color: var(--text-button-muted-link-hover);
+  }
+
+  /* Button Radius */
+  .button-radius {
+    border-radius: var(--button-radius);
+  }
 }

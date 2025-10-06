@@ -1,8 +1,4 @@
 @theme {
-  /* Primary/Secondary Colors */
-  --color-primary: #fa2f62;
-  --color-secondary: #794dff;
-
   /* Primitive Colors - Core */
   --color-core-canvas: #f9f9fc;
   --color-core-surface: #ffffff;
@@ -37,19 +33,19 @@
   --color-secondary-default-contrast: #ffffff;
 
   /* Primitive Colors - Neutral */
-  --color-neutral-default: #eaeaf1;
-  --color-neutral-default-delta: #f8f8fb;
-  --color-neutral-default-contrast: #262626;
-  --color-neutral-muted: #3d3d3d;
-  --color-neutral-muted-delta: #484848;
-  --color-neutral-muted-contrast: #eaeaf1;
+  --color-neutral-default: #707070;
+  --color-neutral-default-delta: #575757;
+  --color-neutral-default-contrast: #ffffff;
+  --color-neutral-muted: #f8f8fb;
+  --color-neutral-muted-delta: #f2f2f9;
+  --color-neutral-muted-contrast: #575757;
   --color-neutral-stroke: #eaeaf1;
   --color-neutral-stroke-delta: #cdcddb;
 
   /* Primitive Colors - Promo */
   --color-promo-default: #a379ff;
   --color-promo-default-contrast: #ffffff;
-  --color-promo-muted: #1f1f1f;
+  --color-promo-muted: #f7f5ff;
   --color-promo-muted-contrast: #a379ff;
 
   /* Primitive Colors - Danger */
@@ -111,8 +107,8 @@
   --bg-button-neutral-hover-0: var(--color-neutral-default-delta);
   --bg-button-neutral-hover-1: var(--color-neutral-default-delta);
   --bg-button-subtle-ring: var(--color-neutral-default);
-  --bg-button-subtle-0: var(--color-neutral-muted-delta);
-  --bg-button-subtle-1: var(--color-neutral-muted-delta);
+  --bg-button-subtle-0: var(--color-neutral-muted);
+  --bg-button-subtle-1: var(--color-neutral-muted);
   --bg-button-subtle-hover-0: var(--color-neutral-muted-delta);
   --bg-button-subtle-hover-1: var(--color-neutral-muted-delta);
   --bg-button-danger-ring: var(--color-danger-default);
@@ -144,7 +140,7 @@
   --bg-accent-info-muted: var(--color-info-muted);
 
   /* Border Colors */
-  --border-surface: var(--color-neutral-stroke);
+  --color-border-surface: var(--color-neutral-stroke);
 
   /* Border - Button */
   --border-button-outline: var(--color-neutral-stroke);
@@ -201,12 +197,13 @@
   --text-accent-info: var(--color-info-default);
   --text-accent-info-muted-contrast: var(--color-info-muted-contrast);
   --text-accent-info-contrast: var(--color-info-default-contrast);
+}
 
-  /* Text - Button */
+:root {
   --text-button-primary: var(--color-primary-default-contrast);
   --text-button-secondary: var(--color-secondary-default-contrast);
   --text-button-neutral: var(--color-neutral-default-contrast);
-  --text-button-subtle: #f8f8fb;
+  --text-button-subtle: var(--color-neutral-muted-contrast);
   --text-button-danger: var(--color-danger-default-contrast);
   --text-button-danger-link: var(--color-danger-default);
   --text-button-danger-link-hover: var(--color-danger-default-delta);
@@ -216,7 +213,9 @@
   --text-button-link-hover: var(--color-control-default);
   --text-button-muted-link: var(--color-core-muted);
   --text-button-muted-link-hover: var(--color-control-default);
+}
 
+@theme {
   /* Radius Variables */
   --button-radius: 8px;
   --control-radius: 8px;

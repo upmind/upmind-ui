@@ -12,21 +12,21 @@ export const variants = {
   },
   variant: {
     primary:
-      "button-radius from-background-button-primary-0 to-background-button-primary-1 text-button-primary [&:hover,&[data-hover=true]]:from-background-button-primary-hover-0 [&:hover,&[data-hover=true]]:to-background-button-primary-hover-1 ring-background-button-primary-ring! bg-gradient-to-br",
+      "button-radius from-bg-button-primary-0 to-bg-button-primary-1 text-button-primary [&:hover,&[data-hover=true]]:from-bg-button-primary-hover-0 [&:hover,&[data-hover=true]]:to-bg-button-primary-hover-1 ring-bg-button-primary-ring! bg-gradient-to-br",
     secondary:
-      "button-radius from-background-button-secondary-0 to-background-button-secondary-1 text-button-secondary [&:hover,&[data-hover=true]]:from-background-button-secondary-hover-0 [&:hover,&[data-hover=true]]:to-background-button-secondary-hover-1 ring-background-button-secondary-ring! bg-gradient-to-br",
+      "button-radius from-bg-button-secondary-0 to-bg-button-secondary-1 text-button-secondary [&:hover,&[data-hover=true]]:from-bg-button-secondary-hover-0 [&:hover,&[data-hover=true]]:to-bg-button-secondary-hover-1 ring-bg-button-secondary-ring! bg-gradient-to-br",
     neutral:
-      "button-radius from-background-button-neutral-0 to-background-button-neutral-1 text-button-neutral [&:hover,&[data-hover=true]]:from-background-button-neutral-hover-0 [&:hover,&[data-hover=true]]:to-background-button-neutral-hover-1 ring-background-button-neutral-ring! bg-gradient-to-br",
+      "button-radius from-bg-button-neutral-0 to-bg-button-neutral-1 text-button-neutral [&:hover,&[data-hover=true]]:from-bg-button-neutral-hover-0 [&:hover,&[data-hover=true]]:to-bg-button-neutral-hover-1 ring-bg-button-neutral-ring! bg-gradient-to-br",
     subtle:
-      "button-radius from-background-button-subtle-0 to-background-button-subtle-1 text-button-subtle [&:hover,&[data-hover=true]]:from-background-button-subtle-hover-0 [&:hover,&[data-hover=true]]:to-background-button-subtle-hover-1 ring-background-button-subtle-ring! bg-gradient-to-br",
+      "button-radius from-bg-button-subtle-0 to-bg-button-subtle-1 text-button-subtle [&:hover,&[data-hover=true]]:from-bg-button-subtle-hover-0 [&:hover,&[data-hover=true]]:to-bg-button-subtle-hover-1 ring-bg-button-subtle-ring! bg-gradient-to-br",
     danger:
-      "button-radius from-background-button-danger-0 to-background-button-danger-1 text-button-danger [&:hover,&[data-hover=true]]:from-background-button-danger-hover-0 [&:hover,&[data-hover=true]]:to-background-button-danger-hover-1 ring-background-button-danger-ring! bg-gradient-to-br",
+      "button-radius from-bg-button-danger-0 to-bg-button-danger-1 text-button-danger [&:hover,&[data-hover=true]]:from-bg-button-danger-hover-0 [&:hover,&[data-hover=true]]:to-bg-button-danger-hover-1 ring-bg-button-danger-ring! bg-gradient-to-br",
     outline:
-      "button-radius bg-button-outline text-button-outline border-button-outline [&:hover,&[data-hover=true]]:bg-button-outline-hover ring-background-button-outline-ring! shadow-border-button-outline",
+      "button-radius bg-bg-button-outline text-button-outline [&:hover,&[data-hover=true]]:bg-button-outline-hover ring-bg-button-outline-ring! shadow-border-button-outline",
     ghost:
-      "button-radius bg-button-ghost text-button-ghost [&:hover,&:focus-within,&[data-hover=true],&[data-focus=true]]:bg-button-ghost-hover ring-background-button-ghost-ring!",
+      "button-radius bg-bg-button-ghost text-button-ghost [&:hover,&:focus-within,&[data-hover=true],&[data-focus=true]]:bg-button-ghost-hover ring-bg-button-ghost-ring!",
     control:
-      "control-radius shadow-border-control-default hover:border-control-hover ring-background-button-control-ring!"
+      "control-radius shadow-border-control-default hover:border-control-hover ring-bg-button-control-ring!"
   },
   align: {
     left: "justify-start",
@@ -50,7 +50,7 @@ export const variants = {
 };
 
 export const rootVariants = cva(
-  `ring-offset-background-canvas relative inline-flex items-center font-medium whitespace-nowrap no-underline transition-all duration-200`,
+  `ring-offset-bg-canvas relative inline-flex items-center font-medium whitespace-nowrap no-underline transition-all duration-200`,
   {
     variants,
     defaultVariants: {
