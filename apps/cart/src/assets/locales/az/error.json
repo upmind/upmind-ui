@@ -63,7 +63,7 @@
   "generic_text": "Gəlin sizi yoluna qaytaraq",
   "generic_title": "Üzr istəyirik, **xəta** ilə qarşılaşdıq",
   "generic_title_md": "@.markdown:{'error.generic_title'}",
-  "http_method_not_valid": "Yanlış üsul:{method}",
+  "http_method_not_valid": "Yanlış metod: {method}",
   "input_not_available": "Daxiletmə mövcud deyil",
   "language_load_failed": "Dilləri yükləmək alınmadı",
   "local_storage_not_available": "Yerli Yaddaş mövcud deyil",

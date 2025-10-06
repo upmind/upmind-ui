@@ -23,6 +23,7 @@
   "order_processing_msg": "Stiamo elaborando il tuo ordine. L'operazione dovrebbe richiedere solo pochi istanti.",
   "order_unsuccessful": "**Impossibile** completare l'ordine",
   "order_unsuccessful_md": "@.markdown:{'cart.order_unsuccessful'}",
+  "pay_with_stored": "Paga con un metodo esistente",
   "payment_awaiting_approval": "**In attesa** di approvazione",
   "payment_awaiting_approval_md": "@.markdown:{'text.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "Stiamo aspettando l'approvazione. Ci vorrà solo un attimo.",

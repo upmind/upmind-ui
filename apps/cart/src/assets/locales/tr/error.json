@@ -63,7 +63,7 @@
   "generic_text": "Hadi seni tekrar yola koyalım",
   "generic_title": "Üzgünüz, bir **hata** yaşadık",
   "generic_title_md": "@.markdown:{'error.generic_title'}",
-  "http_method_not_valid": "Geçersiz yöntem:{method}",
+  "http_method_not_valid": "Geçersiz yöntem: {method}",
   "input_not_available": "Giriş mevcut değil",
   "language_load_failed": "Diller yüklenemedi",
   "local_storage_not_available": "Yerel Depolama mevcut değil",
