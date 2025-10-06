@@ -2,6 +2,8 @@
   "order_complete": "Pesanan **selesai**!",
   "order_complete_md": "@.markdown:{'invoice.order_complete'}",
   "order_complete_msg": "Terima kasih atas pesanan Anda. Pembelian Anda kini telah selesai. Anda akan segera menerima email konfirmasi.",
+  "order_not_found": "Pesanan **tidak ditemukan**!",
+  "order_not_found_md": "@.markdown:{'invoice.order_not_found'}",
   "order_not_found_msg": "Sayangnya, kami tidak dapat menemukan pesanan Anda. Silakan klik tombol di bawah ini untuk kembali ke akun Anda.",
   "order_payment_failed": "Tidak dapat **memproses** pembayaran",
   "order_payment_failed_md": "@.markdown:{'invoice.order_payment_failed'}",

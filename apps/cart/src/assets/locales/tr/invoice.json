@@ -2,6 +2,8 @@
   "order_complete": "Sipariş **tamamlandı**!",
   "order_complete_md": "@.markdown:{'invoice.order_complete'}",
   "order_complete_msg": "Siparişiniz için teşekkür ederiz, satın alma işleminiz tamamlandı. Kısa süre içinde bir e-posta onayı alacaksınız.",
+  "order_not_found": "Sipariş **bulunamadı**!",
+  "order_not_found_md": "@.markdown:{'invoice.order_not_found'}",
   "order_not_found_msg": "Maalesef siparişinizi bulamadık. Hesabınıza geri dönmek için lütfen aşağıdaki butona tıklayın.",
   "order_payment_failed": "Ödeme **işlenemiyor**",
   "order_payment_failed_md": "@.markdown:{'invoice.order_payment_failed'}",

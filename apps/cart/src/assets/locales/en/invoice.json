@@ -2,6 +2,8 @@
   "order_complete": "Order **complete**!",
   "order_complete_md": "@.markdown:{'invoice.order_complete'}",
   "order_complete_msg": "Thanks for your order, your purchase is now complete. You will receive an email confirmation shortly.",
+  "order_not_found": "Order **not found**!",
+  "order_not_found_md": "@.markdown:{'invoice.order_not_found'}",
   "order_not_found_msg": "Unfortunately, we were unable to find your order. Please click the button below to return to your account.",
   "order_payment_failed": "Unable to **process** payment",
   "order_payment_failed_md": "@.markdown:{'invoice.order_payment_failed'}",

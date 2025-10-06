@@ -2,6 +2,8 @@
   "order_complete": "Beställning **klar**!",
   "order_complete_md": "@.markdown:{'invoice.order_complete'}",
   "order_complete_msg": "Tack för din beställning, ditt köp är nu slutfört. Du kommer att få en bekräftelse via e-post inom kort.",
+  "order_not_found": "Beställning **hittades inte**!",
+  "order_not_found_md": "@.markdown:{'invoice.order_not_found'}",
   "order_not_found_msg": "Tyvärr kunde vi inte hitta din beställning. Klicka på knappen nedan för att återgå till ditt konto.",
   "order_payment_failed": "Det gick inte att **behandla** betalningen",
   "order_payment_failed_md": "@.markdown:{'invoice.order_payment_failed'}",

@@ -23,6 +23,7 @@
   "order_processing_msg": "Zpracováváme vaši objednávku. Mělo by to trvat jen chvilku.",
   "order_unsuccessful": "**Nelze** dokončit vaši objednávku",
   "order_unsuccessful_md": "@.markdown:{'cart.order_unsuccessful'}",
+  "pay_with_stored": "Zaplaťte stávající metodou",
   "payment_awaiting_approval": "**Čekání** na schválení",
   "payment_awaiting_approval_md": "@.markdown:{'text.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "Čekáme na schválení. Mělo by to trvat jen chvilku.",

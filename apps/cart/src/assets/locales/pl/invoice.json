@@ -2,6 +2,8 @@
   "order_complete": "Zamówienie **zakończone**!",
   "order_complete_md": "@.markdown:{'invoice.order_complete'}",
   "order_complete_msg": "Dziękujemy za zamówienie. Zakup został zrealizowany. Wkrótce otrzymasz e-mail z potwierdzeniem.",
+  "order_not_found": "Zamówienie **nie znalezione**!",
+  "order_not_found_md": "@.markdown:{'invoice.order_not_found'}",
   "order_not_found_msg": "Niestety, nie udało nam się znaleźć Twojego zamówienia. Kliknij poniższy przycisk, aby wrócić do swojego konta.",
   "order_payment_failed": "Nie można przetworzyć płatności",
   "order_payment_failed_md": "@.markdown:{'invoice.order_payment_failed'}",

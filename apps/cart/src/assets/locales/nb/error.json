@@ -63,7 +63,7 @@
   "generic_text": "La oss få deg tilbake på sporet",
   "generic_title": "Beklager, vi har opplevd en **feil**",
   "generic_title_md": "@.markdown:{'error.generic_title'}",
-  "http_method_not_valid": "Ugyldig metode:{method}",
+  "http_method_not_valid": "Ugyldig metode: {method}",
   "input_not_available": "Inndata ikke tilgjengelig",
   "language_load_failed": "Kunne ikke laste inn språk",
   "local_storage_not_available": "Lokal lagring er ikke tilgjengelig",

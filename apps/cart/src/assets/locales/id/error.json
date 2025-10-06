@@ -63,7 +63,7 @@
   "generic_text": "Mari kita kembalikan Anda ke jalur yang benar",
   "generic_title": "Maaf, kami mengalami **kesalahan**",
   "generic_title_md": "@.markdown:{'error.generic_title'}",
-  "http_method_not_valid": "Metode tidak valid:{method}",
+  "http_method_not_valid": "Metode tidak valid: {method}",
   "input_not_available": "Input tidak tersedia",
   "language_load_failed": "Gagal memuat bahasa",
   "local_storage_not_available": "Penyimpanan Lokal tidak tersedia",
