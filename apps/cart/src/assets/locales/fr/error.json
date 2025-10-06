@@ -63,7 +63,7 @@
   "generic_text": "Remettons-nous sur la bonne voie",
   "generic_title": "Désolé, on a rencontré une **erreur**",
   "generic_title_md": "@.markdown:{'error.generic_title'}",
-  "http_method_not_valid": "Méthode invalide :{method}",
+  "http_method_not_valid": "Méthode invalide: {method}",
   "input_not_available": "Entrée non disponible",
   "language_load_failed": "Échec du chargement des langues",
   "local_storage_not_available": "Stockage local non disponible",

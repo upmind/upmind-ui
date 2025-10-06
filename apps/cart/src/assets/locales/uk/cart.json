@@ -23,6 +23,7 @@
   "order_processing_msg": "Ми обробляємо ваше замовлення. Це займе лише хвилинку.",
   "order_unsuccessful": "**Не вдалося** виконати ваше замовлення",
   "order_unsuccessful_md": "@.markdown:{'cart.order_unsuccessful'}",
+  "pay_with_stored": "Сплатити існуючим методом",
   "payment_awaiting_approval": "**Очікування** на схвалення",
   "payment_awaiting_approval_md": "@.markdown:{'text.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "Ми чекаємо на схвалення. Це займе лише хвилинку.",

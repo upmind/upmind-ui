@@ -127,6 +127,9 @@
   "store_on_payment": {
     "label": "Zapisz dane płatności"
   },
+  "stored_payment_method": {
+    "label": "Wybierz jedną z zapisanych metod płatności"
+  },
   "taxNumber": {
     "label": "Numer podatkowy",
     "placeholder": "Numer identyfikacji podatkowej"

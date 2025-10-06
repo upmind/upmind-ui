@@ -22,7 +22,7 @@
   "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
   "own_domain_qn": "Ви володієте цим доменом?",
   "owned_domains_title": "Домени, якими ви зараз володієте",
-  "price_renewal_desc": "Одноразова ціна {regularPrice}. | Поновлюється щороку протягом {regularPrice}. | Поновлюється кожні {count} років для {regularPrice}.",
+  "price_renewal_desc": "Одноразова ціна {regularPrice}. | Оновлюється щороку за {regularPrice}. | Оновлюється кожні {count} роки за {regularPrice}.",
   "starts_with_domain": "Все починається з **доменного імені**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
   "tld_renewal_price_desc": "Наш {tld} ціни на поновлення починаються від лише {currentPrice} (було {regularPrice}).",

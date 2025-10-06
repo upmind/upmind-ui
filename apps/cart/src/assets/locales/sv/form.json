@@ -127,6 +127,9 @@
   "store_on_payment": {
     "label": "Spara betalningsuppgifter"
   },
+  "stored_payment_method": {
+    "label": "Välj en av dina sparade betalningsmetoder"
+  },
   "taxNumber": {
     "label": "Skattenummer",
     "placeholder": "Skatte-ID"

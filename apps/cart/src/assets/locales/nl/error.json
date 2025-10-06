@@ -63,7 +63,7 @@
   "generic_text": "Laten we je weer op het goede spoor zetten",
   "generic_title": "Sorry, er is een **fout** opgetreden",
   "generic_title_md": "@.markdown:{'error.generic_title'}",
-  "http_method_not_valid": "Ongeldige methode:{method}",
+  "http_method_not_valid": "Ongeldige methode: {method}",
   "input_not_available": "Invoer niet beschikbaar",
   "language_load_failed": "Talen laden is mislukt",
   "local_storage_not_available": "Lokale opslag niet beschikbaar",

@@ -22,7 +22,7 @@
   "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
   "own_domain_qn": "Czy jesteś właścicielem tej domeny?",
   "owned_domains_title": "Domeny, które obecnie posiadasz",
-  "price_renewal_desc": "Jednorazowa cena {regularPrice}. | Odnawiany co roku {regularPrice}. | Odnawiany co roku {count} lat dla {regularPrice}.",
+  "price_renewal_desc": "Jednorazowa cena {regularPrice}. | Odnawia się co roku za {regularPrice}. | Odnawia się co {count} lat za {regularPrice}.",
   "starts_with_domain": "Wszystko zaczyna się od **nazwy domeny**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
   "tld_renewal_price_desc": "Nasz {tld} ceny odnowienia zaczynają się już od {currentPrice} (był {regularPrice}).",
