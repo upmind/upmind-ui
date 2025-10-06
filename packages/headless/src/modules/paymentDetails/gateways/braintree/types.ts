@@ -7,7 +7,7 @@ import type { GatewayContext } from "../types";
 
 // -----------------------------------------------------------------------------
 
-export interface BraintreeContext extends GatewayContext {
+export type BraintreeContext = GatewayContext<{
   authorization?: string;
   braintree?: Dropin;
   paymentUses3DS?: boolean;
@@ -15,7 +15,7 @@ export interface BraintreeContext extends GatewayContext {
   // ---
   validationObserver?: ActorRef<any>;
   validationHelper?: (callback: any) => void;
-}
+}>;
 
 export enum BraintreeTypes {
   CARD = "CreditCard",

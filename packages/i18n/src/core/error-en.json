@@ -77,6 +77,8 @@
   "payment_details_process_failed": "We experienced an error processing your payment details",
   "payment_details_update_failed": "We experienced an error updating payment details",
   "payment_details_validation_failed": "Payment details validation failed",
+  "payment_gateways_not_available_title": "There are no payment options for your selected currency ({currency}) or country ({country})",
+  "payment_gateways_not_available_msg": "You can still submit your order now and complete payment later. Our support team will be able to assist you.",
   "payment_gateway_update_failed": "We experienced an error updating payment gateway",
   "payment_gateway_validation_failed": "Payment gateway validation failed",
   "payment_process_failed": "We experienced an error processing your payment",

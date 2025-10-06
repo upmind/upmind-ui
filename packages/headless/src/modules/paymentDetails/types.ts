@@ -14,9 +14,9 @@ import type {
   IPaymentDetail,
   IWalletBalance,
   PaymentType,
-  SelectPaymentMethodData
+  SelectedPaymentMethod
 } from "@upmind-automation/types";
-import { GatewayCtx } from "./gateways/types";
+import { GatewayContext as GatewayCtx } from "@upmind-automation/types";
 
 // --- utils
 import type { ResponseError } from "../../utils";
@@ -66,7 +66,7 @@ export type Gateway = {
 };
 
 export interface PaymentDetailModel {
-  type?: Partial<PaymentType>;
+  type?: Partial<PaymentType> | null;
   gateway_id?: IGateway["id"];
   payment_details_id?: PaymentDetail["id"];
   return_url?: string;
@@ -104,7 +104,8 @@ export interface PaymentDetailsContext extends PaymentDetailsArgs {
   baseModel?: PaymentDetailModel;
   // ---
   mount?: HTMLElement;
-  paymentDetails?: SelectPaymentMethodData; // This is the response from the actual payment gateway(s)
+  paymentDetails?: SelectedPaymentMethod;
+
   // --- SPAWNED ACTORS/MACHINES
   actors: {
     gateway?: ActorRef<any>;

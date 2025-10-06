@@ -28,7 +28,8 @@ import { parseSettings } from "../utils";
 // -----------------------------------------------------------------------------
 
 async function load(context: BraintreeContext, _event: AnyEventObject) {
-  const { gateway, amount, currency, orderId } = context;
+  const { gateway, amount, currency, orderId, clientId, address, ctx } =
+    context;
 
   if (!gateway)
     return Promise.reject(
@@ -62,12 +63,6 @@ async function load(context: BraintreeContext, _event: AnyEventObject) {
 
     const settings = parseSettings(gateway);
 
-    const options: Partial<BraintreeContext> =
-      (await sharedServices.load(
-        { gateway, amount, currency, orderId },
-        _event
-      )) ?? {};
-
     if (!authorization) {
       reject(
         new DetailedError(
@@ -77,7 +72,7 @@ async function load(context: BraintreeContext, _event: AnyEventObject) {
         )
       );
     } else {
-      return { authorization, ...options, ...settings, ...config };
+      return { authorization, ...config, ...settings };
     }
   });
 }

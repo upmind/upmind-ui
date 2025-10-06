@@ -11,11 +11,13 @@ import openPayConfig from "./gateways/openPay";
 // --- utils
 
 // --- types
-import { GatewayContext, GatewayCtx } from "./gateways/types";
+import { GatewayContext as GatewayCtx } from "@upmind-automation/types";
+import { GatewayContext } from "./gateways/types";
 import {
   GatewayProviderCodes,
   IGateway,
-  GatewayTypes
+  GatewayTypes,
+  PaymentMethodType
 } from "@upmind-automation/types";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 
@@ -26,14 +28,22 @@ export function spawnGateway({
   gateway,
   amount,
   currency,
-  address
+  address,
+  clientId
 }: Partial<GatewayContext>) {
   // lets spawn and return the appropriate machine based on the gateway
   // the order her eis important and matches the original order in the legacy app
   if (!amount || !gateway) return;
 
   if (isStripe(gateway))
-    return spawnStripe({ orderId, gateway, amount, currency, address });
+    return spawnStripe({
+      orderId,
+      gateway,
+      amount,
+      currency,
+      address,
+      clientId
+    });
 
   if (isBankTransfer(gateway))
     return spawnGenericGateway(GatewayTypes.BANK_TRANSFER, {
@@ -41,6 +51,8 @@ export function spawnGateway({
       gateway,
       amount,
       currency,
+      address,
+      clientId,
       renderless: true
     });
 
@@ -50,7 +62,8 @@ export function spawnGateway({
       gateway,
       amount,
       currency,
-      address
+      address,
+      clientId
     });
 
   if (isOpenPay(gateway))
@@ -58,7 +71,9 @@ export function spawnGateway({
       orderId,
       gateway,
       amount,
-      currency
+      currency,
+      address,
+      clientId
     });
 
   if (isAwaitingClient(gateway))
@@ -67,6 +82,8 @@ export function spawnGateway({
       gateway,
       amount,
       currency,
+      address,
+      clientId,
       renderless: true
     });
 
@@ -76,6 +93,8 @@ export function spawnGateway({
       gateway,
       amount,
       currency,
+      address,
+      clientId,
       renderless: true
     });
 
@@ -85,6 +104,8 @@ export function spawnGateway({
       gateway,
       amount,
       currency,
+      address,
+      clientId,
       renderless: true
     });
 
@@ -94,8 +115,9 @@ export function spawnGateway({
       gateway,
       amount,
       currency,
-      renderless: true,
-      address
+      address,
+      clientId,
+      renderless: true
     });
 
   if (isMobile(gateway))
@@ -104,8 +126,9 @@ export function spawnGateway({
       gateway,
       amount,
       currency,
-      renderless: true,
-      address
+      address,
+      clientId,
+      renderless: true
     });
 
   if (isOffline(gateway))
@@ -114,18 +137,23 @@ export function spawnGateway({
       gateway,
       amount,
       currency,
+      address,
+      clientId,
       renderless: true
     });
 
   if (isExternalCard(gateway))
-    return spawnExternal({
+    return spawnExternalCard({
       orderId,
       gateway,
       amount,
-      currency
+      currency,
+      address,
+      clientId
     });
 
-  if (isCard(gateway)) return spawnCard({ orderId, gateway, amount, currency });
+  if (isCard(gateway))
+    return spawnCard({ orderId, gateway, amount, currency, address, clientId });
 
   return undefined;
 }
@@ -134,11 +162,13 @@ export function spawnCard({
   orderId,
   gateway,
   amount,
-  currency
+  currency,
+  clientId,
+  address
 }: Partial<GatewayContext>) {
-  if (!orderId || !currency || !amount) {
+  if (!orderId || !currency || !amount || !gateway || !clientId) {
     throw new DetailedError(
-      "orderId, amount, and currency are required",
+      "gateway, orderId, amount, currency, and clientId are required",
       responseCodes.Bad_Request,
       ErrorOrigin.Headless
     );
@@ -149,8 +179,12 @@ export function spawnCard({
       gateway,
       amount,
       currency,
+      address,
+      clientId,
       type: GatewayTypes.CARD,
-      code: gateway?.gateway_provider?.code
+      paymentMethod: PaymentMethodType.GATEWAY_CARD,
+      code: gateway?.gateway_provider?.code,
+      ctx: GatewayCtx.PAY
     }),
     { name: gateway?.id, sync: true }
   );
@@ -161,9 +195,10 @@ export function spawnStripe({
   gateway,
   amount,
   currency,
-  address
+  address,
+  clientId
 }: Partial<GatewayContext>) {
-  if (!orderId || !currency || !amount) {
+  if (!orderId || !currency || !amount || !gateway || !clientId) {
     throw new DetailedError(
       "orderId, amount, and currency are required",
       responseCodes.Bad_Request,
@@ -178,7 +213,9 @@ export function spawnStripe({
       amount,
       currency,
       type: GatewayTypes.CARD,
+      paymentMethod: PaymentMethodType.GATEWAY_CARD,
       code: gateway?.gateway_provider?.code,
+      clientId,
       address
     }),
     { name: gateway?.id, sync: true }
@@ -190,9 +227,10 @@ export function spawnBraintree({
   gateway,
   amount,
   currency,
-  address
+  address,
+  clientId
 }: Partial<GatewayContext>) {
-  if (!orderId || !currency || !amount) {
+  if (!orderId || !currency || !amount || !gateway || !clientId) {
     throw new DetailedError(
       "orderId, amount, and currency are required",
       responseCodes.Bad_Request,
@@ -207,7 +245,9 @@ export function spawnBraintree({
       amount,
       currency,
       type: GatewayTypes.CARD,
+      paymentMethod: PaymentMethodType.GATEWAY_CARD,
       code: gateway?.gateway_provider?.code,
+      clientId,
       address
     }),
     { name: gateway?.id, sync: true }
@@ -219,9 +259,10 @@ export function spawnOpenPay({
   gateway,
   amount,
   currency,
-  address
+  address,
+  clientId
 }: Partial<GatewayContext>) {
-  if (!orderId || !currency || !amount) {
+  if (!orderId || !currency || !amount || !gateway || !clientId) {
     throw new DetailedError(
       "orderId, amount, and currency are required",
       responseCodes.Bad_Request,
@@ -236,8 +277,10 @@ export function spawnOpenPay({
       amount,
       currency,
       type: GatewayTypes.CARD,
+      paymentMethod: PaymentMethodType.GATEWAY_CARD,
       code: gateway?.gateway_provider?.code,
-      address
+      address,
+      clientId
     }),
     { name: gateway?.id, sync: true }
   );
@@ -250,10 +293,11 @@ export function spawnGenericGateway(
     gateway,
     amount,
     currency,
-    renderless = false
+    clientId,
+    renderless
   }: Partial<GatewayContext>
 ) {
-  if (!orderId || !currency || !amount) {
+  if (!orderId || !currency || !amount || !gateway || !clientId) {
     throw new DetailedError(
       "orderId, amount, and currency are required",
       responseCodes.Bad_Request,
@@ -267,6 +311,9 @@ export function spawnGenericGateway(
       amount: amount || 0,
       currency,
       type,
+      ctx: GatewayCtx.PAY,
+      paymentMethod: PaymentMethodType.GATEWAY_CARD,
+      clientId,
       code: gateway?.gateway_provider?.code,
       renderless
     }),
@@ -274,13 +321,14 @@ export function spawnGenericGateway(
   );
 }
 
-export function spawnExternal({
+export function spawnExternalCard({
   orderId,
   gateway,
   amount,
-  currency
+  currency,
+  clientId
 }: Partial<GatewayContext>) {
-  if (!orderId || !currency || !amount) {
+  if (!orderId || !currency || !amount || !gateway || !clientId) {
     throw new DetailedError(
       "orderId, amount, and currency are required",
       responseCodes.Bad_Request,
@@ -293,7 +341,10 @@ export function spawnExternal({
       gateway,
       amount: amount || 0,
       currency,
+      clientId,
       type: GatewayTypes.CARD,
+      paymentMethod: PaymentMethodType.EXTERNAL_STORE,
+      ctx: GatewayCtx.PAY,
       code: gateway?.gateway_provider?.code
       // external: gateway?.gateway_provider.external_payment,
     }),

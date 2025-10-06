@@ -1,5 +1,5 @@
 <template>
-  <Loading :active="!meta.isAvailable">
+  <Loading :active="!meta.isAvailable || meta.isLoading">
     <div ref="form" :class="styles.checkout.gateway">
       <!-- Instructions -->
       <Markdown

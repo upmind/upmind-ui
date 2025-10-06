@@ -5,7 +5,7 @@
 // --- utils
 
 // --- types
-import type { IGateway } from "@upmind-automation/types";
+import type { IGateway, PaymentMethodType } from "@upmind-automation/types";
 import { GatewayStoreType, QUERY_PARAMS } from "@upmind-automation/types";
 import type { GatewayContext } from "./types";
 import { filter, keyBy, mapValues } from "lodash-es";
@@ -13,50 +13,34 @@ import { filter, keyBy, mapValues } from "lodash-es";
 // -----------------------------------------------------------------------------
 
 export function generateResponseUrls(
-  url: string,
-  {
-    externalPayment,
-    orderId,
-    type,
-    autoPay
-    // operationId
-  }: {
-    orderId: string;
+  url: URL,
+  options?: {
+    orderId?: string;
     autoPay?: boolean;
     externalPayment?: boolean;
-    type?: number | string;
+    type?: PaymentMethodType;
     // operationId?: string;
   }
 ) {
-  // TODO: implemet operations machine
-  // if (operationId)
-  // url.searchParams.append(QUERY_PARAMS.OPERATION_ID, operationId || "");
-  // ---
-  const successUrl = new URL(`order/${orderId}`, url);
-  // successUrl.searchParams.append("orderId", orderId);
+  const { orderId, autoPay, externalPayment, type } = options || {};
+  const successUrl = url;
+
   successUrl.searchParams.append(QUERY_PARAMS.PAYMENT_SUCCESS, "true");
 
-  // ---
-  const failUrl = new URL(`order/${orderId}`, url);
-  // failUrl.searchParams.append("orderId", orderId);
+  const failUrl = url;
   failUrl.searchParams.append(QUERY_PARAMS.PAYMENT_SUCCESS, "false");
 
-  // ---
-  const cancelUrl = new URL(`order/${orderId}`, url);
-  // cancelUrl.searchParams.append("orderId", orderId);
-  // cancelUrl.searchParams.append(QUERY_PARAMS.ORDER_ID, orderId);
+  const cancelUrl = new URL(window.location.href); // always go back to where we were
   cancelUrl.searchParams.append(
     QUERY_PARAMS.AUTO_PAY,
     encodeURIComponent(btoa(JSON.stringify(autoPay)))
   );
-
   cancelUrl.searchParams.append(
     QUERY_PARAMS.INIT_PAY,
     encodeURIComponent(
       btoa(JSON.stringify(externalPayment ? { orderId } : undefined))
     )
   );
-
   if (type) {
     cancelUrl.searchParams.append(
       QUERY_PARAMS.PAYMENT_METHOD_TYPE,
@@ -65,9 +49,10 @@ export function generateResponseUrls(
   }
 
   return {
-    cancel: cancelUrl.toString(),
-    success: successUrl.toString(),
-    fail: failUrl.toString()
+    cancelUrl: cancelUrl.toString(),
+    successUrl: successUrl.toString(),
+    failUrl: failUrl.toString(),
+    returnUrl: `?${QUERY_PARAMS.SUCCESS}=${encodeURIComponent(successUrl.toString())}&${QUERY_PARAMS.FAILED}=${encodeURIComponent(failUrl.toString())}`
   };
 }
 

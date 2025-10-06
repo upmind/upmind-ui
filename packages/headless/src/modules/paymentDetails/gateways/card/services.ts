@@ -1,7 +1,11 @@
 // --- external
 
 // --- internal
+import { IPaymentDetail, PaymentMethodType } from "@upmind-automation/types";
 import sharedServices from "../services";
+import { GatewayCardContext } from "./types";
+import { generateResponseUrls } from "../utils";
+import { useQuery } from "../../../query";
 
 // --- utils
 
@@ -9,8 +13,92 @@ import sharedServices from "../services";
 
 // -----------------------------------------------------------------------------
 
+/**
+ * @name getPaymentData
+ * @desc Here we create a new payment detail via the Card SDK, and return
+ * the payment detail ID which we later relay to the BE (when executing
+ * payment). We do not need to pass a client secret for flow, as the
+ * payment detail is attached to a customer and confirmed server-side.
+ */
+async function pay({ model, clientId }: GatewayCardContext) {
+  if (model.store) {
+    debugger;
+    return storePaymentMethod({
+      model,
+      clientId
+    } as GatewayCardContext)
+      .then((result: IPaymentDetail) => {
+        debugger;
+        return {
+          payment_details_id: result.id
+        };
+      })
+      .catch(err => {
+        console.error("Error storing payment method:", err);
+        throw err;
+      });
+  }
+
+  return Promise.resolve(model);
+}
+
+async function storePaymentMethod({
+  model,
+  clientId,
+  orderId
+}: GatewayCardContext): Promise<IPaymentDetail> {
+  const currentUrl = new URL(window.location.href);
+
+  const { returnUrl } = generateResponseUrls(
+    currentUrl, // ensure we come back to where we were
+    {
+      orderId,
+      type: PaymentMethodType.GATEWAY_CARD,
+      autoPay: model.auto_payment
+    }
+  );
+
+  // const: `?${QUERY_PARAMS.SUCCESS}=${encodeURIComponent(success)}&${QUERY_PARAMS.FAILED}=${encodeURIComponent(fail)}`
+
+  const { post, useUrl } = useQuery();
+
+  // TODO: correct Typing
+  return post<IPaymentDetail>({
+    url: useUrl(`clients/${clientId}/payment_details`),
+    data: {
+      card_type: model.card_type,
+      card_num: model.card_num,
+      card_expire_date: model.card_expire_date,
+      card_cvv: model.card_cvv,
+      name: model.name,
+      address_id: model.address_id,
+      gateway_id: model.gateway_id,
+      cardholder_name: model.cardholder_name,
+      return_url: returnUrl,
+      auto_payment: model?.auto_payment
+    },
+    withAccessToken: true
+  }).then(result => {
+    debugger;
+    const scaVerified = result?.sca_verified;
+    const nextAction = result?.next_action;
+    debugger;
+    // DC: What does this do?
+    // if (nextAction && !scaVerified) {
+    //   debugger;
+    //   return {
+    //     ...nextAction,
+    //     returnLocation: currentUrl.toString()
+    //   };
+    // }
+
+    return result;
+  });
+}
+
 // -----------------------------------------------------------------------------
 
 export default {
-  ...sharedServices
+  ...sharedServices,
+  pay
 };

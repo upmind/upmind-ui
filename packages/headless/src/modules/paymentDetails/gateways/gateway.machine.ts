@@ -20,11 +20,15 @@ import { useSchema, useUischema } from "./schemas";
 
 // --- types
 import type { AnyEventObject } from "xstate";
-import { GatewayCtx, type GatewayContext } from "./types";
+import {
+  GatewayContext as GatewayCtx,
+  GatewayData
+} from "@upmind-automation/types";
+import { type GatewayContext } from "./types";
 import { isFunction } from "lodash-es";
 
 // -----------------------------------------------------------------------------
-export default createMachine(
+export default createMachine<GatewayContext, AnyEventObject>(
   {
     //tsTypes: {} as import("./gateway.machine.typegen").Typegen0,
     id: "gateway",
@@ -33,6 +37,7 @@ export default createMachine(
     context: {} as GatewayContext,
     states: {
       loading: {
+        entry: ["clearModel"],
         invoke: {
           src: "load",
           onDone: {
@@ -208,7 +213,7 @@ export default createMachine(
           { data }: AnyEventObject
         ) => {
           if (!schema) return data ?? model;
-          return useModelParser(schema, data ?? model);
+          return useModelParser<GatewayData>(schema, data ?? model);
         }
       }),
 
@@ -306,6 +311,6 @@ export default createMachine(
       wait: () => useTime().WAIT
     },
 
-    services
+    services: services as any // to compensate for different signatures from the gateways
   }
 );

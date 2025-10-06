@@ -1,94 +1,34 @@
 <template>
-  <Accordion
-    v-if="meta.hasGateways || meta.hasStoredPaymentMethods"
-    v-show="!meta.isFree"
-    type="multiple"
-    :class="styles.checkout.accordion.root"
-    collapsible
-  >
-    <component
-      :is="props.as"
-      :class="[!props.as && styles.checkout.accordion.card, props.class]"
+  <pre>{{ state }}</pre>
+  <Loading :active="!meta.isAvailable">
+    <Accordion
+      v-if="!meta.isFree && meta.hasGateways"
+      type="multiple"
+      :class="styles.checkout.accordion.root"
+      collapsible
     >
-      <AccordionItem
-        v-if="meta.hasStoredPaymentMethods"
-        value="stored"
-        :class="styles.checkout.accordion.item"
-        :open="!model?.gateway_id || true"
-        :disabled="!model?.gateway_id"
-        asChild
-      >
-        <AccordionTrigger
-          :class="styles.checkout.accordion.trigger.root"
-          :open="!model?.gateway_id || true"
-          @click.stop="clearGateway()"
-        >
-          <header :class="styles.checkout.accordion.trigger.header">
-            <h5 :class="styles.checkout.title">
-              {{ t("cart.pay_with_stored") }}
-            </h5>
-          </header>
-
-          <template #icon>
-            <Icon
-              icon="arrow-down"
-              size="xs"
-              :class="[
-                styles.checkout.accordion.trigger.icon,
-                {
-                  'rotate-180': !model?.gateway_id
-                }
-              ]"
-            />
-          </template>
-        </AccordionTrigger>
-
-        <AccordionContent
-          :class="styles.checkout.accordion.content"
-          :contentClass="styles.checkout.accordion.contentInner"
-          force-mount
-        >
-          <StoredPayments
-            v-if="!model?.gateway_id && currency?.code"
-            :key="currency.code"
-            :color="color"
-            @checkout="handleCheckout"
-            :class="styles.checkout.accordion.loading"
-          />
-        </AccordionContent>
-      </AccordionItem>
-    </component>
-
-    <template v-for="item in gateways" :key="item.id">
+      <!-- Stored Payment Methods -->
       <component
         :is="props.as"
         :class="[!props.as && styles.checkout.accordion.card, props.class]"
+        v-if="meta.hasStoredPaymentMethods"
       >
         <AccordionItem
-          :value="item.gateway_id"
+          value="stored"
           :class="styles.checkout.accordion.item"
-          :open="item.gateway_id === model?.gateway_id"
-          :disabled="item.gateway_id === model?.gateway_id"
+          :open="!model?.gateway_id || true"
+          :disabled="!model?.gateway_id"
           asChild
         >
           <AccordionTrigger
             :class="styles.checkout.accordion.trigger.root"
-            @click.stop="selectGateway(item.gateway_id)"
-            :open="item.gateway_id === model?.gateway_id"
+            :open="!model?.gateway_id || true"
+            @click.stop="clearGateway()"
           >
             <header :class="styles.checkout.accordion.trigger.header">
               <h5 :class="styles.checkout.title">
-                {{ item.gateway.name }}
+                {{ t("cart.pay_with_stored") }}
               </h5>
-
-              <Icon
-                v-if="item.gateway?.gateway_provider?.code"
-                :class="styles.checkout.image"
-                :icon="{
-                  path: `/gateways/`,
-                  name: item.gateway?.gateway_provider?.code
-                }"
-              />
             </header>
 
             <template #icon>
@@ -98,7 +38,7 @@
                 :class="[
                   styles.checkout.accordion.trigger.icon,
                   {
-                    'rotate-180': item.gateway_id === model?.gateway_id
+                    'rotate-180': !model?.gateway_id
                   }
                 ]"
               />
@@ -110,8 +50,8 @@
             :contentClass="styles.checkout.accordion.contentInner"
             force-mount
           >
-            <PaymentGateway
-              v-if="item.gateway_id === model?.gateway_id && currency?.code"
+            <StoredPayments
+              v-if="!model?.gateway_id && currency?.code"
               :key="currency.code"
               :color="color"
               @checkout="handleCheckout"
@@ -120,24 +60,88 @@
           </AccordionContent>
         </AccordionItem>
       </component>
-    </template>
-  </Accordion>
 
-  <component
-    v-else-if="meta.isFree"
-    :is="props.as"
-    :class="[!props.as && styles.checkout.isFree, props.class]"
-  >
-    <PaymentNotRequired />
-  </component>
+      <!-- Gateways -->
+      <template v-for="item in gateways" :key="item.id">
+        <component
+          :is="props.as"
+          :class="[!props.as && styles.checkout.accordion.card, props.class]"
+        >
+          <AccordionItem
+            :value="item.gateway_id"
+            :class="styles.checkout.accordion.item"
+            :open="item.gateway_id === model?.gateway_id"
+            :disabled="item.gateway_id === model?.gateway_id"
+            asChild
+          >
+            <AccordionTrigger
+              :class="styles.checkout.accordion.trigger.root"
+              @click.stop="selectGateway(item.gateway_id)"
+              :open="item.gateway_id === model?.gateway_id"
+            >
+              <header :class="styles.checkout.accordion.trigger.header">
+                <h5 :class="styles.checkout.title">
+                  {{ item.gateway.name }}
+                </h5>
 
-  <Alert
-    v-else
-    color="error"
-    icon="alert-triangle"
-    :title="t('error.gateways_not_found_md')"
-    :description="t('error.gateways_not_found_msg')"
-  />
+                <Icon
+                  v-if="item.gateway?.gateway_provider?.code"
+                  :class="styles.checkout.image"
+                  :icon="{
+                    path: `/gateways/`,
+                    name: item.gateway?.gateway_provider?.code
+                  }"
+                />
+              </header>
+
+              <template #icon>
+                <Icon
+                  icon="arrow-down"
+                  size="xs"
+                  :class="[
+                    styles.checkout.accordion.trigger.icon,
+                    {
+                      'rotate-180': item.gateway_id === model?.gateway_id
+                    }
+                  ]"
+                />
+              </template>
+            </AccordionTrigger>
+
+            <AccordionContent
+              :class="styles.checkout.accordion.content"
+              :contentClass="styles.checkout.accordion.contentInner"
+              force-mount
+            >
+              <PaymentGateway
+                v-if="item.gateway_id === model?.gateway_id && currency?.code"
+                :key="currency.code"
+                :color="color"
+                @checkout="handleCheckout"
+                :class="styles.checkout.accordion.loading"
+              />
+            </AccordionContent>
+          </AccordionItem>
+        </component>
+      </template>
+    </Accordion>
+
+    <component
+      v-if="meta.isFree"
+      :is="props.as"
+      :class="[!props.as && styles.checkout.isFree, props.class]"
+    >
+      <PaymentNotRequired @checkout="handleCheckout" />
+    </component>
+
+    <component
+      v-else-if="!meta.hasGateways"
+      :is="props.as"
+      :class="[!props.as && styles.checkout.isFree, props.class]"
+    >
+      <GatewaysUnavailable @checkout="handleCheckout" />
+    </component>
+  </Loading>
 </template>
 
 <script lang="ts" setup>
@@ -152,7 +156,7 @@ import {
   useBrand
 } from "@upmind-automation/headless";
 import config from "../checkout.config";
-import { useStyles } from "@upmind-automation/upmind-ui";
+import { useStyles, Loading } from "@upmind-automation/upmind-ui";
 
 // --- components
 import {
@@ -160,12 +164,12 @@ import {
   AccordionItem,
   AccordionTrigger,
   AccordionContent,
-  Icon,
-  Alert
+  Icon
 } from "@upmind-automation/upmind-ui";
 import PaymentGateway from "./PaymentGateway.vue";
 import StoredPayments from "./StoredPayments.vue";
 import PaymentNotRequired from "./PaymentNotRequired.vue";
+import GatewaysUnavailable from "./PaymentGatewaysUnavailable.vue";
 
 // --- types
 import type { PaymentDetailsProps } from "../types";
@@ -182,18 +186,10 @@ const props = withDefaults(defineProps<PaymentDetailsProps>(), {
 
 const { t } = useI18n();
 
-const {
-  meta,
-  model,
-  gateway,
-  input,
-  clear,
-  gateways,
-  currency,
-  storedPaymentMethods
-} = useBasketPaymentDetails();
+const { state, meta, model, input, clear, gateways, currency } =
+  useBasketPaymentDetails();
 
-const { meta: basketMeta, checkout } = useBasket();
+const { checkout } = useBasket();
 const { uiCart } = useBrand();
 
 const configMeta = computed(() => ({
@@ -231,6 +227,7 @@ const handleCheckout = () => {
 
 const selectGateway = (id: string) => {
   if (!model.value) return;
+  debugger;
   input({
     ...model.value,
     gateway_id: id

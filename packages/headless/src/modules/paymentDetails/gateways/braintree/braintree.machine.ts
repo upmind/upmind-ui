@@ -19,8 +19,8 @@ import { useSchema, useUischema } from "./schemas";
 import { isFunction, isArray } from "lodash-es";
 
 // --- types
+import { GatewayContext as GatewayCtx } from "@upmind-automation/types";
 import type { BraintreeContext } from "./types";
-import { GatewayCtx } from "../types";
 import { responseCodes } from "../../../../utils";
 
 // -----------------------------------------------------------------------------
