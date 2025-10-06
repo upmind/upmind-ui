@@ -18,7 +18,7 @@
         :class="
           cn(
             ringClasses,
-            'ring-offset-background-control-surface',
+            'ring-offset-bg-control-surface',
             'data-[state=unchecked]:shadow-border-control-default data-[state=checked]:shadow-border-control-checked text-primary aspect-square h-4 w-4 rounded-sm disabled:cursor-not-allowed disabled:opacity-50',
             'text-control-foreground data-[state=checked]:bg-control-checked data-[state=unchecked]:group-hover:shadow-border-control-hover flex shrink-0 cursor-pointer items-center justify-center transition-all duration-200'
           )

@@ -10,9 +10,6 @@
   --color-core-overlay: #3d3d3dcc;
 
   /* Primitive Colors - Control */
-  --color-control-default: #262626;
-  --color-control-default-delta: #1a1a1a;
-  --color-control-default-contrast: #fefefe;
   --color-control-muted: #f8f8fb;
   --color-control-muted-contrast: #262626;
   --color-control-stroke: #e2e2eb;
@@ -89,7 +86,6 @@
   --bg-control-selected: var(--color-control-muted);
   --bg-control-surface: var(--color-control-default-contrast);
   --bg-control-ring: var(--color-control-default);
-
   /* Background - Button */
   --bg-button-primary-ring: var(--color-primary-default-stop);
   --bg-button-primary-0: var(--color-primary-default);
@@ -200,6 +196,10 @@
 }
 
 :root {
+  --color-control-default: #262626;
+  --color-control-default-delta: #1a1a1a;
+  --color-control-default-contrast: #fefefe;
+
   --text-button-primary: var(--color-primary-default-contrast);
   --text-button-secondary: var(--color-secondary-default-contrast);
   --text-button-neutral: var(--color-neutral-default-contrast);

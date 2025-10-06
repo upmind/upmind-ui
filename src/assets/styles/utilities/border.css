@@ -52,10 +52,7 @@
   .primary-stroke {
     border: var(--stroke-badge) solid transparent;
     background:
-      linear-gradient(
-          var(--color-background-surface),
-          var(--color-background-surface)
-        )
+      linear-gradient(var(--color-bg-surface), var(--color-bg-surface))
         padding-box,
       linear-gradient(
           to right,
@@ -124,18 +121,69 @@
 }
 
 /* Border color utilities that work with all variants */
-@utility border-control-default { border-color: var(--border-control-default); }
-@utility border-control-hover { border-color: var(--border-control-hover); }
-@utility border-control-selected { border-color: var(--border-control-selected); }
+@utility border-control-default {
+  border-color: var(--border-control-default);
+}
+@utility border-control-hover {
+  border-color: var(--border-control-hover);
+}
+@utility border-control-selected {
+  border-color: var(--border-control-selected);
+}
 
-@utility border-button-outline { border-color: var(--border-button-outline); }
-@utility border-button-outline-hover { border-color: var(--border-button-outline-hover); }
+@utility border-button-outline {
+  border-color: var(--border-button-outline);
+}
+@utility border-button-outline-hover {
+  border-color: var(--border-button-outline-hover);
+}
 
-@utility border-accent-primary { border-color: var(--border-accent-primary); }
-@utility border-accent-secondary { border-color: var(--border-accent-secondary); }
-@utility border-accent-neutral { border-color: var(--border-accent-neutral); }
-@utility border-accent-promo { border-color: var(--border-accent-promo); }
-@utility border-accent-danger { border-color: var(--border-accent-danger); }
-@utility border-accent-warning { border-color: var(--border-accent-warning); }
-@utility border-accent-success { border-color: var(--border-accent-success); }
-@utility border-accent-info { border-color: var(--border-accent-info); }
+@utility border-accent-primary {
+  border-color: var(--border-accent-primary);
+}
+@utility border-accent-secondary {
+  border-color: var(--border-accent-secondary);
+}
+@utility border-accent-neutral {
+  border-color: var(--border-accent-neutral);
+}
+@utility border-accent-promo {
+  border-color: var(--border-accent-promo);
+}
+@utility border-accent-danger {
+  border-color: var(--border-accent-danger);
+}
+@utility border-accent-warning {
+  border-color: var(--border-accent-warning);
+}
+@utility border-accent-success {
+  border-color: var(--border-accent-success);
+}
+@utility border-accent-info {
+  border-color: var(--border-accent-info);
+}
+
+/* Pseudo-element border utilities */
+@layer utilities {
+  .before\:border-control-default::before {
+    content: var(--tw-content);
+    border-color: var(--border-control-default);
+  }
+
+  .after\:border-control-default::after {
+    content: var(--tw-content);
+    border-color: var(--border-control-default);
+  }
+}
+
+/* Divide utilities */
+@layer utilities {
+  .divide-border-control-default > :not([hidden]) ~ :not([hidden]) {
+    --tw-divide-opacity: 1;
+    border-color: var(--border-control-default);
+  }
+
+  .divide-control-default > :not([hidden]) ~ :not([hidden]) {
+    border-color: var(--border-control-default);
+  }
+}

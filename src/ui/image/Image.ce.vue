@@ -46,7 +46,11 @@
     </picture>
 
     <!-- Fallback icon -->
-    <div v-if="meta.isEmpty" :class="cn(styles.image.root)">
+    <div
+      v-if="meta.isEmpty"
+      :class="cn(styles.image.root)"
+      :style="fallbackStyle"
+    >
       <Icon icon="camera" size="xl" :class="styles.image.icon" />
     </div>
   </figure>
@@ -60,6 +64,9 @@ import { ref, computed } from "vue";
 import { Icon } from "../icon";
 import { Carousel, CarouselContent } from "../carousel";
 import CarouselImage from "./CarouselImage.vue";
+
+// --- assets
+import dotSvg from "../../assets/icons/dot.svg";
 
 // --- internal
 import config from "./image.config";
@@ -137,4 +144,10 @@ function selectImage(index: number) {
 function isSelected(index: number) {
   return imageIndex.value === index;
 }
+
+const fallbackStyle = computed(() => ({
+  backgroundImage: `url(${dotSvg})`,
+  backgroundRepeat: 'repeat',
+  backgroundSize: '16px 16px'
+}));
 </script>

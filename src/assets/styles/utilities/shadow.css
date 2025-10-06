@@ -79,13 +79,18 @@
 }
 
 /* Semantic shadow border utilities - override generic patterns */
-@layer utilities {
-  .shadow-border-control-default {
-    --tw-shadow: inset 0 0 0 1px var(--border-control-default);
-    box-shadow:
-      var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
-      var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-  }
+@utility shadow-border-control-default {
+  --tw-shadow: inset 0 0 0 1px var(--border-control-default);
+  box-shadow:
+    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
+    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+@utility shadow-border-control-checked {
+  --tw-shadow: inset 0 0 0 1px var(--border-control-selected);
+  box-shadow:
+    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
+    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
 }
 
 @utility shadow-border-control-hover {

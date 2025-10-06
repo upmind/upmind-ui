@@ -5,7 +5,6 @@
 }
 
 @layer utilities {
-  /* Background Colors */
   .bg-canvas {
     background-color: var(--bg-canvas);
   }
@@ -121,6 +120,9 @@
   .text-control-selected {
     color: var(--text-control-selected);
   }
+  .text-control-checked-contrast {
+    color: var(--bg-control-checked-contrast);
+  }
 
   /* Text - Accent */
   .text-accent-primary {
@@ -188,7 +190,6 @@
   }
 }
 
-/* Semantic background utilities - override generic patterns */
 @utility bg-accent-primary {
   background-color: var(--bg-accent-primary);
 }
@@ -429,6 +430,9 @@
 @utility ring-bg-button-control-ring {
   --tw-ring-color: var(--bg-control-ring);
 }
+@utility ring-bg-control-ring {
+  --tw-ring-color: var(--bg-control-ring);
+}
 
 /* Text button utilities - explicit definitions since variables are outside @theme */
 @utility text-button-primary {
@@ -469,4 +473,11 @@
 }
 @utility text-button-muted-link-hover {
   color: var(--text-button-muted-link-hover);
+}
+
+@utility bg-control-checked {
+  background-color: var(--bg-control-checked);
+}
+@utility text-control-checked-contrast {
+  color: var(--bg-control-checked-contrast);
 }
