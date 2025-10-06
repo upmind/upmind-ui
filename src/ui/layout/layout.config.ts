@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 export default {
   control: {
     root: cva(
-      "shadow-border-b-border-surface bg-surface flex w-full shrink-0 items-center justify-center self-start px-6 py-4 md:px-2.5"
+      "shadow-b-border-surface bg-surface flex w-full shrink-0 items-center justify-center self-start px-6 py-4 md:px-2.5"
     ),
     container: cva("flex w-full items-center justify-between", {
       variants: {

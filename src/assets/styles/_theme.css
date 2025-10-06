@@ -10,6 +10,9 @@
   --color-core-overlay: #3d3d3dcc;
 
   /* Primitive Colors - Control */
+  --color-control-default: #262626;
+  --color-control-default-delta: #1a1a1a;
+  --color-control-default-contrast: #fefefe;
   --color-control-muted: #f8f8fb;
   --color-control-muted-contrast: #262626;
   --color-control-stroke: #e2e2eb;
@@ -171,6 +174,20 @@
   /* Text - Control */
   --text-control-selected: var(--color-control-muted-contrast);
 
+  --color-button-primary: var(--color-primary-default-contrast);
+  --color-button-secondary: var(--color-secondary-default-contrast);
+  --color-button-neutral: var(--color-neutral-default-contrast);
+  --color-button-subtle: var(--color-neutral-muted-contrast);
+  --color-button-danger: var(--color-danger-default-contrast);
+  --color-button-danger-link: var(--color-danger-default);
+  --color-button-danger-link-hover: var(--color-danger-default-delta);
+  --color-button-outline: var(--color-core-display);
+  --color-button-ghost: var(--color-core-display);
+  --color-button-link: var(--color-core-display);
+  --color-button-link-hover: var(--color-control-default);
+  --color-button-muted-link: var(--color-core-muted);
+  --color-button-muted-link-hover: var(--color-control-default);
+
   /* Text - Accent */
   --text-accent-primary: var(--color-primary-default);
   --text-accent-primary-muted-contrast: var(--color-primary-muted-contrast);
@@ -193,26 +210,6 @@
   --text-accent-info: var(--color-info-default);
   --text-accent-info-muted-contrast: var(--color-info-muted-contrast);
   --text-accent-info-contrast: var(--color-info-default-contrast);
-}
-
-:root {
-  --color-control-default: #262626;
-  --color-control-default-delta: #1a1a1a;
-  --color-control-default-contrast: #fefefe;
-
-  --text-button-primary: var(--color-primary-default-contrast);
-  --text-button-secondary: var(--color-secondary-default-contrast);
-  --text-button-neutral: var(--color-neutral-default-contrast);
-  --text-button-subtle: var(--color-neutral-muted-contrast);
-  --text-button-danger: var(--color-danger-default-contrast);
-  --text-button-danger-link: var(--color-danger-default);
-  --text-button-danger-link-hover: var(--color-danger-default-delta);
-  --text-button-outline: var(--color-core-display);
-  --text-button-ghost: var(--color-core-display);
-  --text-button-link: var(--color-core-display);
-  --text-button-link-hover: var(--color-control-default);
-  --text-button-muted-link: var(--color-core-muted);
-  --text-button-muted-link-hover: var(--color-control-default);
 }
 
 @theme {

@@ -434,47 +434,6 @@
   --tw-ring-color: var(--bg-control-ring);
 }
 
-/* Text button utilities - explicit definitions since variables are outside @theme */
-@utility text-button-primary {
-  color: var(--text-button-primary);
-}
-@utility text-button-secondary {
-  color: var(--text-button-secondary);
-}
-@utility text-button-neutral {
-  color: var(--text-button-neutral);
-}
-@utility text-button-subtle {
-  color: var(--text-button-subtle);
-}
-@utility text-button-danger {
-  color: var(--text-button-danger);
-}
-@utility text-button-danger-link {
-  color: var(--text-button-danger-link);
-}
-@utility text-button-danger-link-hover {
-  color: var(--text-button-danger-link-hover);
-}
-@utility text-button-outline {
-  color: var(--text-button-outline);
-}
-@utility text-button-ghost {
-  color: var(--text-button-ghost);
-}
-@utility text-button-link {
-  color: var(--text-button-link);
-}
-@utility text-button-link-hover {
-  color: var(--text-button-link-hover);
-}
-@utility text-button-muted-link {
-  color: var(--text-button-muted-link);
-}
-@utility text-button-muted-link-hover {
-  color: var(--text-button-muted-link-hover);
-}
-
 @utility bg-control-checked {
   background-color: var(--bg-control-checked);
 }
@@ -490,4 +449,3 @@
 @utility text-muted {
   color: var(--text-muted);
 }
-

@@ -74,43 +74,43 @@ export const badgeVariants = cva(
         variant: "minimal",
         color: "primary",
         class:
-          "bg-surface shadow-border-badge-border-surface text-primitive-primary-muted-contrast"
+          "bg-surface shadow-badge-border-surface text-primitive-primary-muted-contrast"
       },
       {
         variant: "minimal",
         color: "neutral",
         class:
-          "bg-surface-glass shadow-border-badge-border-surface text-accent-neutral-muted-contrast"
+          "bg-surface-glass shadow-badge-border-surface text-accent-neutral-muted-contrast"
       },
       {
         variant: "minimal",
         color: "promo",
         class:
-          "bg-surface-glass shadow-border-badge-border-surface text-accent-promo-muted-contrast"
+          "bg-surface-glass shadow-badge-border-surface text-accent-promo-muted-contrast"
       },
       {
         variant: "minimal",
         color: "danger",
         class:
-          "bg-surface-glass shadow-border-badge-border-surface text-accent-danger-muted-contrast"
+          "bg-surface-glass shadow-badge-border-surface text-accent-danger-muted-contrast"
       },
       {
         variant: "minimal",
         color: "warning",
         class:
-          "bg-surface-glass shadow-border-badge-border-surface text-accent-warning-muted-contrast"
+          "bg-surface-glass shadow-badge-border-surface text-accent-warning-muted-contrast"
       },
       {
         variant: "minimal",
         color: "success",
         class:
-          "bg-surface-glass shadow-border-badge-border-surface text-accent-success-muted-contrast"
+          "bg-surface-glass shadow-badge-border-surface text-accent-success-muted-contrast"
       },
       {
         variant: "minimal",
         color: "info",
         class:
-          "bg-surface-glass shadow-border-badge-border-surface text-accent-info-muted-contrast"
+          "bg-surface-glass shadow-badge-border-surface text-accent-info-muted-contrast"
       },
       // Muted
       {
@@ -123,37 +123,37 @@ export const badgeVariants = cva(
         variant: "muted",
         color: "neutral",
         class:
-          "bg-accent-neutral-muted shadow-border-badge-border-accent-neutral text-accent-neutral-muted-contrast"
+          "bg-accent-neutral-muted shadow-badge-border-accent-neutral text-accent-neutral-muted-contrast"
       },
       {
         variant: "muted",
         color: "promo",
         class:
-          "bg-accent-promo-muted shadow-border-badge-border-accent-promo text-accent-promo-muted-contrast"
+          "bg-accent-promo-muted shadow-badge-border-accent-promo text-accent-promo-muted-contrast"
       },
       {
         variant: "muted",
         color: "danger",
         class:
-          "bg-accent-danger-muted shadow-border-badge-border-accent-danger text-accent-danger-muted-contrast"
+          "bg-accent-danger-muted shadow-badge-border-accent-danger text-accent-danger-muted-contrast"
       },
       {
         variant: "muted",
         color: "warning",
         class:
-          "bg-accent-warning-muted shadow-border-badge-border-accent-warning text-accent-warning-muted-contrast"
+          "bg-accent-warning-muted shadow-badge-border-accent-warning text-accent-warning-muted-contrast"
       },
       {
         variant: "muted",
         color: "success",
         class:
-          "bg-accent-success-muted shadow-border-badge-border-accent-success text-accent-success-muted-contrast"
+          "bg-accent-success-muted shadow-badge-border-accent-success text-accent-success-muted-contrast"
       },
       {
         variant: "muted",
         color: "info",
         class:
-          "bg-accent-info-muted shadow-border-badge-border-accent-info text-accent-info-muted-contrast"
+          "bg-accent-info-muted shadow-badge-border-accent-info text-accent-info-muted-contrast"
       }
     ]
   }

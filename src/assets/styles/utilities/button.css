@@ -94,47 +94,6 @@
     background-color: var(--bg-button-ghost-ring);
   }
 
-  /* Button Text Colors */
-  .text-button-primary {
-    color: var(--text-button-primary);
-  }
-  .text-button-secondary {
-    color: var(--text-button-secondary);
-  }
-  .text-button-neutral {
-    color: var(--text-button-neutral);
-  }
-  .text-button-subtle {
-    color: var(--text-button-subtle);
-  }
-  .text-button-danger {
-    color: var(--text-button-danger);
-  }
-  .text-button-danger-link {
-    color: var(--text-button-danger-link);
-  }
-  .text-button-danger-link-hover {
-    color: var(--text-button-danger-link-hover);
-  }
-  .text-button-outline {
-    color: var(--text-button-outline);
-  }
-  .text-button-ghost {
-    color: var(--text-button-ghost);
-  }
-  .text-button-link {
-    color: var(--text-button-link);
-  }
-  .text-button-link-hover {
-    color: var(--text-button-link-hover);
-  }
-  .text-button-muted-link {
-    color: var(--text-button-muted-link);
-  }
-  .text-button-muted-link-hover {
-    color: var(--text-button-muted-link-hover);
-  }
-
   /* Button Radius */
   .button-radius {
     border-radius: var(--button-radius);

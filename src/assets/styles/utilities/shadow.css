@@ -1,46 +1,46 @@
-@utility shadow-border-* {
+@utility shadow-* {
   --tw-shadow: inset 0 0 0 1px --value(--color-*);
   box-shadow:
     var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
     var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
 }
 
-@utility shadow-border-badge-* {
+@utility shadow-badge-* {
   --tw-shadow: inset 0 0 0 1px --value(--color-*);
   box-shadow:
     var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
     var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
 }
 
-@utility shadow-border-b-* {
+@utility shadow-b-* {
   --tw-shadow: inset 0 -1px 0 0 --value(--color-*);
   box-shadow:
     var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
     var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
 }
 
-@utility shadow-border-t-* {
+@utility shadow-t-* {
   --tw-shadow: inset 0 1px 0 0 --value(--color-*);
   box-shadow:
     var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
     var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
 }
 
-@utility shadow-border-l-* {
+@utility shadow-l-* {
   --tw-shadow: inset 1px 0 0 0 --value(--color-*);
   box-shadow:
     var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
     var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
 }
 
-@utility shadow-border-r-* {
+@utility shadow-r-* {
   --tw-shadow: inset -1px 0 0 0 --value(--color-*);
   box-shadow:
     var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
     var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
 }
 
-@utility shadow-border-l-none-* {
+@utility shadow-l-none-* {
   --tw-shadow:
     inset 0 1px 0 0 --value(--color-*), inset -1px 0 0 0 --value(--color-*),
     inset 0 -1px 0 0 --value(--color-*);
@@ -49,7 +49,7 @@
     var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
 }
 
-@utility shadow-border-r-none-* {
+@utility shadow-r-none-* {
   --tw-shadow:
     inset 0 1px 0 0 --value(--color-*), inset 1px 0 0 0 --value(--color-*),
     inset 0 -1px 0 0 --value(--color-*);
