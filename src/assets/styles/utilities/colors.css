@@ -481,3 +481,13 @@
 @utility text-control-checked-contrast {
   color: var(--bg-control-checked-contrast);
 }
+@utility bg-control-selected {
+  background-color: var(--bg-control-selected);
+}
+@utility text-control-selected {
+  color: var(--text-control-selected);
+}
+@utility text-muted {
+  color: var(--text-muted);
+}
+

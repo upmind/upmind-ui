@@ -1,6 +1,6 @@
 <template>
   <span
-    :class="cn('text-muted text-error', props.class)"
+    :class="cn('text-danger-default', props.class)"
     :for="props.formItemId"
     :invalid="true"
   >
