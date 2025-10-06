@@ -14,7 +14,7 @@
   "price_by_n_years": "{price}/年 | {price} /{n} 歲",
   "price_msg": "一次付款 {price} | 來自 {price} 一個月 | 來自 {price} 每一個 {period}",
   "quarterly": "季刊",
-  "renews_msg": "一次性付款 | 每 {cycle}",
+  "renews_msg": "一次性付款 | 每 {cycle} 續約",
   "renews_usually_msg": "通常 {price}",
   "semiannually": "每半年",
   "showing_items_summary": "顯示 {range} 的 {total} 專案",

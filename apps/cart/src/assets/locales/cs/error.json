@@ -63,7 +63,7 @@
   "generic_text": "Pojďme tě dostat zpátky na správnou cestu",
   "generic_title": "Omlouváme se, došlo k **chybě**",
   "generic_title_md": "@.markdown:{'error.generic_title'}",
-  "http_method_not_valid": "Neplatná metoda:{method}",
+  "http_method_not_valid": "Neplatná metoda: {method}",
   "input_not_available": "Vstup není k dispozici",
   "language_load_failed": "Načtení jazyků se nezdařilo",
   "local_storage_not_available": "Místní úložiště není k dispozici",

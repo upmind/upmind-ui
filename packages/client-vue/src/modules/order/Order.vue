@@ -107,12 +107,12 @@ const title = computed(() => {
   if (!meta.value.isAuthenticated) {
     return t("text.session_expired_md");
   } else if (orderMeta.value.hasError) {
-    return t("order.confirmation.error.title.text");
+    return t("invoice.order_not_found_md");
   } else if (success.value) {
     return t("invoice.order_complete_md");
   }
 
-  return t("invoice.unable_to_process_payment_md");
+  return t("invoice.order_payment_failed_md");
 });
 
 const text = computed(() => {
@@ -121,18 +121,18 @@ const text = computed(() => {
   } else if (orderMeta.value.hasError) {
     return t("invoice.order_not_found_msg");
   } else if (success.value) {
-    return t("invoice.order_complete_confirmation_msg");
+    return t("invoice.order_complete_msg");
   }
 
   // Payment failed
   if (errors?.value?.message) {
     const message = errors.value.message;
     return `${message}${message.endsWith(".") ? "" : "."} ${t(
-      "invoice.go_to_invoice_retry_payment_desc"
+      "invoice.order_payment_retry_msg"
     )}`;
   }
 
-  return `${t("invoice.unable_process_payment_desc")} ${t("invoice.go_to_invoice_retry_payment_desc")}`;
+  return `${t("invoice.order_payment_failed_msg")} ${t("invoice.order_payment_retry_msg")}`;
 });
 
 const action = computed(() => {

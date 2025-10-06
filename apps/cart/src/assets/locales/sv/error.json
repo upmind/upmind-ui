@@ -63,7 +63,7 @@
   "generic_text": "Nu får vi dig tillbaka på rätt spår",
   "generic_title": "Tyvärr har vi upplevt ett **fel**",
   "generic_title_md": "@.markdown:{'error.generic_title'}",
-  "http_method_not_valid": "Ogiltig metod:{method}",
+  "http_method_not_valid": "Ogiltig metod: {method}",
   "input_not_available": "Inmatning inte tillgänglig",
   "language_load_failed": "Misslyckades med att ladda språk",
   "local_storage_not_available": "Lokal lagring är inte tillgänglig",

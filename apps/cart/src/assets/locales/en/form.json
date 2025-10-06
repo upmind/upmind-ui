@@ -127,6 +127,9 @@
   "store_on_payment": {
     "label": "Save payment details"
   },
+  "stored_payment_method": {
+    "label": "Select one of your stored payment methods"
+  },
   "taxNumber": {
     "label": "Tax Number",
     "placeholder": "Tax Id"

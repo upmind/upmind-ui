@@ -63,7 +63,7 @@
   "generic_text": "Hai să te readucem pe drumul cel bun",
   "generic_title": "Ne pare rău, am întâmpinat o **eroare**",
   "generic_title_md": "@.markdown:{'error.generic_title'}",
-  "http_method_not_valid": "Metodă nevalidă:{method}",
+  "http_method_not_valid": "Metodă invalidă: {method}",
   "input_not_available": "Intrare indisponibilă",
   "language_load_failed": "Nu s-au putut încărca limbile",
   "local_storage_not_available": "Stocare locală indisponibilă",

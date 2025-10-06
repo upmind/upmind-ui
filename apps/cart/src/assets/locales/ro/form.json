@@ -127,6 +127,9 @@
   "store_on_payment": {
     "label": "Salvați detaliile de plată"
   },
+  "stored_payment_method": {
+    "label": "Selectați una dintre metodele de plată stocate"
+  },
   "taxNumber": {
     "label": "Cod fiscal",
     "placeholder": "Cod fiscal"

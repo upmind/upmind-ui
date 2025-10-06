@@ -63,7 +63,7 @@
   "generic_text": "Ti rimettiamo in carreggiata",
   "generic_title": "Spiacenti, si è verificato un **errore**",
   "generic_title_md": "@.markdown:{'error.generic_title'}",
-  "http_method_not_valid": "Metodo non valido:{method}",
+  "http_method_not_valid": "Metodo non valido: {method}",
   "input_not_available": "Input non disponibile",
   "language_load_failed": "Impossibile caricare le lingue",
   "local_storage_not_available": "Archiviazione locale non disponibile",

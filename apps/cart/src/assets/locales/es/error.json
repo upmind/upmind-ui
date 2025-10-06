@@ -63,7 +63,7 @@
   "generic_text": "Vamos a ponerte de nuevo en marcha",
   "generic_title": "Lo sentimos, hemos experimentado un **error**",
   "generic_title_md": "@.markdown:{'error.generic_title'}",
-  "http_method_not_valid": "Método inválido:{method}",
+  "http_method_not_valid": "Método inválido: {method}",
   "input_not_available": "Entrada no disponible",
   "language_load_failed": "No se pudieron cargar los idiomas",
   "local_storage_not_available": "Almacenamiento local no disponible",

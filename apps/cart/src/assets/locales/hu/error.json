@@ -63,7 +63,7 @@
   "generic_text": "Visszatérítünk a helyes útra",
   "generic_title": "Sajnáljuk, **hibát** tapasztaltunk",
   "generic_title_md": "@.markdown:{'error.generic_title'}",
-  "http_method_not_valid": "Érvénytelen metódus:{method}",
+  "http_method_not_valid": "Érvénytelen módszer: {method}",
   "input_not_available": "Bevitel nem elérhető",
   "language_load_failed": "Nem sikerült betölteni a nyelveket",
   "local_storage_not_available": "Helyi tárhely nem érhető el",
