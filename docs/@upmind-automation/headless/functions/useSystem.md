@@ -3,263 +3,378 @@
 # useSystem()
 
 ```ts
-function useSystem(): object
+function useSystem(): object;
 ```
+
+The `useSystem` composable provides a simple interface to interact with the system API
+and includes utility methods for fetching data.
 
 ## Returns
 
-`object`
+### billingCycles
+
+```ts
+billingCycles: ComputedRef<IBillingCycle[]>;
+```
+
+Computed property to the system's billing cycles.
+
+### countries
+
+```ts
+countries: ComputedRef<ICountry[]>;
+```
+
+Computed property to the system's countries.
+
+### currencies
+
+```ts
+currencies: ComputedRef<ICurrency[]>;
+```
+
+Computed property to the system's currencies.
+
+### departments
+
+```ts
+departments: ComputedRef<ITicketDepartment[]>;
+```
+
+Computed property to the system's departments.
+
+### errors
+
+```ts
+errors: ComputedRef<{
+  billingCycles: undefined | null | Error;
+  countries: undefined | null | Error;
+  currencies: undefined | null | Error;
+  departments: undefined | null | Error;
+  languages: undefined | null | Error;
+  statuses: undefined | null | Error;
+}>;
+```
+
+Computed property to any errors encountered during the system state machine's process.
 
 ### fetchCountries()
 
 ```ts
-fetchCountries: () => Promise<any>;
+fetchCountries: () => Promise<ICountry[]>;
 ```
+
+Fetches the list of countries from the API or returns cached countries if available.
 
 #### Returns
 
-`Promise`\<`any`\>
+`Promise`\<`ICountry`[]\>
+
+A promise resolving to the list of countries.
 
 ### fetchDepartments()
 
 ```ts
-fetchDepartments: () => Promise<any>;
+fetchDepartments: () => Promise<ITicketDepartment[]>;
 ```
+
+Fetches the list of departments from the API or returns cached departments if available.
 
 #### Returns
 
-`Promise`\<`any`\>
+`Promise`\<`ITicketDepartment`[]\>
+
+A promise resolving to the list of departments.
 
 ### fetchLanguages()
 
 ```ts
-fetchLanguages: () => Promise<any>;
+fetchLanguages: () => Promise<ILanguage[]>;
 ```
+
+Fetches the list of languages from the API or returns cached languages if available.
 
 #### Returns
 
-`Promise`\<`any`\>
+`Promise`\<`ILanguage`[]\>
+
+A promise resolving to the list of languages.
 
 ### fetchRegions()
 
 ```ts
-fetchRegions: (country?) => Promise<any>;
+fetchRegions: (country?) => Promise<IRegion[]>;
 ```
+
+Fetches the regions for a given country from the API or returns cached regions if available.
 
 #### Parameters
 
-• **country?**: `string` \| `ICountry`
+##### country?
+
+The country object or code to fetch regions for.
+
+`string` | `ICountry`
 
 #### Returns
 
-`Promise`\<`any`\>
+`Promise`\<`IRegion`[]\>
+
+A promise resolving to the list of regions for the country.
 
 ### fetchStatuses()
 
 ```ts
-fetchStatuses: () => Promise<any>;
+fetchStatuses: () => Promise<IStatus[]>;
 ```
+
+Fetches the list of statuses from the API or returns cached statuses if available.
 
 #### Returns
 
-`Promise`\<`any`\>
+`Promise`\<`IStatus`[]\>
+
+A promise resolving to the list of statuses.
 
 ### getBillingCycle()
 
 ```ts
-getBillingCycle: (value) => any;
+getBillingCycle: (value) => undefined | IBillingCycle;
 ```
+
+Returns the billing cycle object for a given number of months.
 
 #### Parameters
 
-• **value**: `any`
+##### value
+
+`number`
+
+The number of months for the billing cycle.
 
 #### Returns
 
-`any`
+`undefined` \| `IBillingCycle`
 
-### getBillingCycles()
-
-```ts
-getBillingCycles: () => any;
-```
-
-#### Returns
-
-`any`
-
-### getCountries()
-
-```ts
-getCountries: () => any;
-```
-
-#### Returns
-
-`any`
+The matching billing cycle object, or undefined if not found.
 
 ### getCountry()
 
 ```ts
-getCountry: (value?) => any;
+getCountry: (value?) => ICountry;
 ```
+
+Returns the country object for a given country code or id.
 
 #### Parameters
 
-• **value?**: `string`
+##### value?
+
+The country code (2-letter) or id.
+
+`null` | `string`
 
 #### Returns
 
-`any`
+`ICountry`
 
-### getCurrencies()
-
-```ts
-getCurrencies: () => any;
-```
-
-#### Returns
-
-`any`
+The matching country object, or the default country if not found.
 
 ### getCurrency()
 
 ```ts
-getCurrency: (value?) => any;
+getCurrency: (value?) => undefined | ICurrency;
 ```
+
+Returns the currency object for a given currency code or id.
 
 #### Parameters
 
-• **value?**: `string`
+##### value?
+
+`string`
+
+The currency code (3-letter) or id.
 
 #### Returns
 
-`any`
+`undefined` \| `ICurrency`
+
+The matching currency object, or undefined if not found.
 
 ### getDepartment()
 
 ```ts
-getDepartment: (value) => any;
+getDepartment: (value) => undefined | ITicketDepartment;
 ```
+
+Returns the department object for a given department code.
 
 #### Parameters
 
-• **value**: `any`
+##### value
+
+`string`
+
+The department code.
 
 #### Returns
 
-`any`
+`undefined` \| `ITicketDepartment`
 
-### getDepartments()
-
-```ts
-getDepartments: () => any;
-```
-
-#### Returns
-
-`any`
+The matching department object, or undefined if not found.
 
 ### getLanguage()
 
 ```ts
-getLanguage: (value) => any;
+getLanguage: (value) => undefined | ILanguage;
 ```
+
+Returns the language object for a given language code.
 
 #### Parameters
 
-• **value**: `any`
+##### value
+
+`string`
+
+The language code.
 
 #### Returns
 
-`any`
+`undefined` \| `ILanguage`
 
-### getLanguages()
-
-```ts
-getLanguages: () => any;
-```
-
-#### Returns
-
-`any`
+The matching language object, or undefined if not found.
 
 ### getRegion()
 
 ```ts
-getRegion: (values, country) => any;
+getRegion: (values, country) => undefined | IRegion;
 ```
+
+Returns a specific region object by name or array of names for a given country.
 
 #### Parameters
 
-• **values**: `string` \| `string`[]
+##### values
 
-• **country**: `string` \| `ICountry`
+The region name or array of region names.
+
+`string` | `string`[]
+
+##### country
+
+The country object or code.
+
+`string` | `ICountry`
 
 #### Returns
 
-`any`
+`undefined` \| `IRegion`
+
+The matching region object, or undefined if not found.
 
 ### getRegions()
 
 ```ts
-getRegions: (value) => any;
+getRegions: (country) => undefined | IRegion[];
 ```
+
+Returns the regions for a given country from the context.
 
 #### Parameters
 
-• **value**: `string` \| `ICountry`
+##### country
+
+`string` | `ICountry`
 
 #### Returns
 
-`any`
+`undefined` \| `IRegion`[]
 
-### getSnapshot()
-
-```ts
-getSnapshot: () => any;
-```
-
-#### Returns
-
-`any`
+The regions array for the country, or undefined if not found.
 
 ### getStatus()
 
 ```ts
-getStatus: (value) => any;
+getStatus: (value) => undefined | IStatus;
 ```
+
+Returns the status object for a given status code.
 
 #### Parameters
 
-• **value**: `any`
+##### value
+
+`string`
+
+The status code.
 
 #### Returns
 
-`any`
+`undefined` \| `IStatus`
 
-### getStatuses()
+The matching status object, or undefined if not found.
+
+### invalidate()
 
 ```ts
-getStatuses: () => any;
+invalidate: () => void;
 ```
 
 #### Returns
 
-`any`
+`void`
 
 ### isReady()
 
 ```ts
-isReady: () => Promise<State<BrandContext, AnyEventObject, any, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>>>;
+isReady: () => Promise<boolean>;
+```
+
+Resolves when the brand service is ready or errors.
+
+#### Returns
+
+`Promise`\<`boolean`\>
+
+### languages
+
+```ts
+languages: ComputedRef<ILanguage[]>;
+```
+
+Computed property to the system's languages.
+
+### meta
+
+```ts
+meta: ComputedRef<{
+  hasError: ComputedRef<boolean>;
+  isAvailable: boolean;
+  isComplete: ComputedRef<boolean>;
+  isEmpty: boolean;
+  isLoading: ComputedRef<boolean>;
+  isReady: boolean;
+}>;
+```
+
+Meta-information about the system state.
+
+### refresh()
+
+```ts
+refresh: () => Promise<void>;
 ```
 
 #### Returns
 
-`Promise`\<`State`\<`BrandContext`, `AnyEventObject`, `any`, `object`, `ResolveTypegenMeta`\<`TypegenDisabled`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>\>
+`Promise`\<`void`\>
 
-### service
+### statuses
 
 ```ts
-service: Interpreter<SystemContext, any, AnyEventObject, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>>;
+statuses: ComputedRef<never[] | IStatus>;
 ```
+
+Computed property to the system's statuses.

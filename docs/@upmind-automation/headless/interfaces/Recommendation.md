@@ -2,116 +2,99 @@
 
 # Recommendation
 
+Represents a "configured" product with its configuration, pricing, and associated details.
+
+## Extends
+
+- [`Product`](../type-aliases/Product.md)
+
 ## Properties
 
-### category?
+### configuration
 
 ```ts
-optional category: string;
+configuration: ProductProps;
+```
+
+The product configuration matches the way we can interperet a product config machine: ie ProductProps
+This has additional fields to allow setting sub_pids, coupons,currency, etc...
+
+#### Overrides
+
+```ts
+Product.configuration
 ```
 
 ***
 
-### categoryId?
+### details
 
 ```ts
-optional categoryId: string;
+details: (
+  | ProductSummaryDetail
+  | ProductSummaryDetailWithPrice)[];
+```
+
+A summary of the product configuration.
+This can include details with or without pricing information, depending on the context.
+eg:
+ terms will have pricing information
+ a subproduct may have pricing information depending if its an option or attribute
+ provision fields will not have pricing information
+
+#### Inherited from
+
+```ts
+Product.details
 ```
 
 ***
 
-### config?
+### errors?
 
 ```ts
-optional config: object;
+optional errors: object;
 ```
 
-#### coupons?
+An optional object containing errors related to the product.
+This can include errors for terms, attributes, options, or provision fields.
+
+#### attributes?
 
 ```ts
-optional coupons: string[];
+optional attributes: any;
 ```
 
-#### productId
+Errors related to the product's attributes.
+
+#### options?
 
 ```ts
-productId: string;
+optional options: any;
 ```
+
+Errors related to the product's options.
 
 #### provisionFields?
 
 ```ts
-optional provisionFields: object;
+optional provisionFields: any;
 ```
 
-##### Index Signature
-
- \[`key`: `string`\]: `string` \| `number`
-
-#### quantity?
-
-```ts
-optional quantity: number;
-```
-
-#### subproducts?
-
-```ts
-optional subproducts: string[];
-```
+Errors related to the product's provision fields.
 
 #### term?
 
 ```ts
-optional term: number;
+optional term: any;
 ```
 
-***
+Errors related to the product's term.
 
-### currentAmount?
-
-```ts
-optional currentAmount: number;
-```
-
-***
-
-### currentPrice?
+#### Inherited from
 
 ```ts
-optional currentPrice: string;
-```
-
-***
-
-### cycle?
-
-```ts
-optional cycle: number;
-```
-
-***
-
-### defaultPaymentPeriod?
-
-```ts
-optional defaultPaymentPeriod: number;
-```
-
-***
-
-### description?
-
-```ts
-optional description: any;
-```
-
-***
-
-### excerpt?
-
-```ts
-optional excerpt: any;
+Product.errors
 ```
 
 ***
@@ -122,130 +105,163 @@ optional excerpt: any;
 id: string;
 ```
 
-***
+The unique identifier of the product. Optional as pending products will not have an ID.
 
-### imgUrl?
+#### Overrides
 
 ```ts
-optional imgUrl: string;
+Product.id
 ```
 
 ***
 
-### label?
+### meta
 
 ```ts
-optional label: any;
+meta: ProductSummaryMeta & object;
 ```
 
-***
+#### Type Declaration
 
-### max?
-
-```ts
-optional max: number;
-```
-
-***
-
-### meta?
-
-```ts
-optional meta: object;
-```
-
-#### added?
+##### added?
 
 ```ts
 optional added: boolean;
 ```
 
-#### discounted?
+##### loading?
 
 ```ts
-optional discounted: boolean;
+optional loading: boolean;
 ```
 
-#### free?
-
-```ts
-optional free: boolean;
-```
-
-#### processing?
+##### processing?
 
 ```ts
 optional processing: boolean;
 ```
 
-#### seen?
+##### seen?
 
 ```ts
 optional seen: boolean;
 ```
 
-***
-
-### min?
+#### Overrides
 
 ```ts
-optional min: number;
+Product.meta
 ```
 
 ***
 
-### mixedPromotions?
+### price
 
 ```ts
-optional mixedPromotions: boolean;
+price: PriceDisplay & object & object;
 ```
 
-***
+The display price details for the product. This is the total configured pricing including any discounts or adjustments.
+It will always be the price that is shown to the customer, and it may or may not include tax, depending on the brand's settings.
+The display price includes the current amount, regular amount, and any savings.
 
-### monthlyFromCurrentAmount?
+#### Type Declaration
+
+##### configuration?
+
+```ts
+optional configuration: Price;
+```
+
+##### unit?
+
+```ts
+optional unit: Price;
+```
+
+#### Type Declaration
+
+##### monthlyFromCurrentAmount?
 
 ```ts
 optional monthlyFromCurrentAmount: number;
 ```
 
-***
-
-### monthlyFromCurrentPrice?
+##### monthlyFromCurrentPrice?
 
 ```ts
 optional monthlyFromCurrentPrice: string;
 ```
 
-***
-
-### monthlyFromRegularAmount?
+##### monthlyFromRegularAmount?
 
 ```ts
 optional monthlyFromRegularAmount: number;
 ```
 
-***
-
-### monthlyFromRegularPrice?
+##### monthlyFromRegularPrice?
 
 ```ts
 optional monthlyFromRegularPrice: string;
 ```
 
-***
-
-### name?
+#### Overrides
 
 ```ts
-optional name: any;
+Product.price
 ```
 
 ***
 
-### productId
+### pricing
 
 ```ts
-productId: string;
+pricing: ProductSummaryDetailWithPrice[];
+```
+
+A breakdown of the product's pricing details.
+This may have multiple entries depending on if some configuration options are not quantifiable
+
+#### Inherited from
+
+```ts
+Product.pricing
+```
+
+***
+
+### productDetails
+
+```ts
+productDetails: ProductDetails & object;
+```
+
+The detailed information about the actial product. This will contain all the product details such as title, description etc
+
+#### Type Declaration
+
+##### badge?
+
+```ts
+optional badge: Badge;
+```
+
+##### benefits?
+
+```ts
+optional benefits: Benefit[];
+```
+
+##### label
+
+```ts
+label: string;
+```
+
+#### Overrides
+
+```ts
+Product.productDetails
 ```
 
 ***
@@ -253,39 +269,15 @@ productId: string;
 ### promotions?
 
 ```ts
-optional promotions: string[];
+optional promotions: PromotionDetails[];
 ```
 
-***
+The promotions that are currently applied to the product.
 
-### quantifiable?
-
-```ts
-optional quantifiable: boolean;
-```
-
-***
-
-### quantity?
+#### Inherited from
 
 ```ts
-optional quantity: number;
-```
-
-***
-
-### regularAmount?
-
-```ts
-optional regularAmount: number;
-```
-
-***
-
-### regularPrice?
-
-```ts
-optional regularPrice: string;
+Product.promotions
 ```
 
 ***
@@ -294,12 +286,4 @@ optional regularPrice: string;
 
 ```ts
 optional serviceIdentifier: string;
-```
-
-***
-
-### step?
-
-```ts
-optional step: number;
 ```

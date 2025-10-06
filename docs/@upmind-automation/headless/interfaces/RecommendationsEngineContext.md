@@ -7,10 +7,10 @@
 ### basketHelper?
 
 ```ts
-optional basketHelper: ActorRef<any>;
+optional basketHelper: ActorRef<any, any>;
 ```
 
----
+***
 
 ### basketId?
 
@@ -18,87 +18,97 @@ optional basketHelper: ActorRef<any>;
 optional basketId: string;
 ```
 
----
+***
 
 ### basketItem?
 
 ```ts
-optional basketItem: ActorRef<any>;
+optional basketItem: ActorRef<any, any>;
 ```
 
----
+***
 
-### basketItemBuilder()?
+### currency?
 
 ```ts
-optional basketItemBuilder: (model) => BasketProduct;
+optional currency: ICurrency;
 ```
 
-#### Parameters
-
-• **model**: [`ProductModel`](ProductModel.md)
-
-#### Returns
-
-[`BasketProduct`](BasketProduct.md)
-
----
-
-### basketItemMapper()?
-
-```ts
-optional basketItemMapper: (item) => Partial<BasketProduct>;
-```
-
-#### Parameters
-
-• **item**: [`BasketProduct`](BasketProduct.md)
-
-#### Returns
-
-`Partial`\<[`BasketProduct`](BasketProduct.md)\>
-
----
-
-### currencyId?
-
-```ts
-optional currencyId: string;
-```
-
----
+***
 
 ### error?
 
 ```ts
-optional error: any;
+optional error: ResponseError;
 ```
 
----
+***
 
-### itemBuilder()?
+### parseBasketProduct()?
 
 ```ts
-optional itemBuilder: (item) => ProductModel;
+optional parseBasketProduct: (item) => ProductModel;
 ```
 
 #### Parameters
 
-• **item**: [`ProductModel`](ProductModel.md)
+##### item
+
+[`ProductModel`](../type-aliases/ProductModel.md)
 
 #### Returns
 
-[`ProductModel`](ProductModel.md)
+[`ProductModel`](../type-aliases/ProductModel.md)
 
----
+***
+
+### parseBasketProductComparison()?
+
+```ts
+optional parseBasketProductComparison: (item) => Partial<ProductModel>;
+```
+
+#### Parameters
+
+##### item
+
+[`BasketProduct`](BasketProduct.md)
+
+#### Returns
+
+`Partial`\<[`ProductModel`](../type-aliases/ProductModel.md)\>
+
+***
+
+### parseProductModel()?
+
+```ts
+optional parseProductModel: (recommendation, products) => ProductProps;
+```
+
+#### Parameters
+
+##### recommendation
+
+[`Recommendation`](Recommendation.md)
+
+##### products
+
+`IBasketProduct`[]
+
+#### Returns
+
+[`ProductProps`](ProductProps.md)
+
+***
 
 ### promotions?
 
 ```ts
-optional promotions: string[];
+optional promotions: IPromotion[];
 ```
 
----
+***
 
 ### raw
 
@@ -109,13 +119,13 @@ raw: object;
 #### added
 
 ```ts
-added: string[];
+added: IBasketProduct[];
 ```
 
 #### products
 
 ```ts
-products: BasketProduct[];
+products: IProduct[];
 ```
 
 #### related
@@ -136,7 +146,7 @@ relationships: Record<string, string[]>;
 seen: string[];
 ```
 
----
+***
 
 ### recommendations
 
