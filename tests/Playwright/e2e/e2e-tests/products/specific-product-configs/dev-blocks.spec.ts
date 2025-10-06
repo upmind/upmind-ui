@@ -26,15 +26,10 @@ test.describe("Product Config - Happy Paths - Dev Blocks", async () => {
       /* Make product selections */
       await productConfig.clickBillingTerm(billingTerm);
       await page
-        .getByTestId("form-item-bundle")
-        .getByTestId("radio-card-item")
+        .getByTestId("description-list-item-bundle")
         .getByText(bundle)
         .click();
-      await page
-        .getByTestId("form-item-addons")
-        .getByTestId("radio-card-item")
-        .getByText(addons)
-        .click();
+      await page.getByText(addons).click();
 
       /* SUMMARY FIELDS */
       /* Verify that all summary fields contain the expected data */
@@ -43,7 +38,6 @@ test.describe("Product Config - Happy Paths - Dev Blocks", async () => {
       await expect(productConfig.development).toContainText(development);
       await expect(productConfig.bundle).toContainText(bundle);
       await expect(productConfig.addons).toContainText(addons);
-      //await expect(page).toHaveScreenshot(name);
     });
   }
 });

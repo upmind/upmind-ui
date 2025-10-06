@@ -4,7 +4,7 @@ import { setLocale } from "../support/utils/functions/locale-helper";
 import { Languages as languages } from "../support/constants/languages";
 
 for (const { language, locale } of languages) {
-  test.describe.skip(`Catalogue Visual Regression Tests - ${language}`, () => {
+  test.describe(`Catalogue Visual Regression Tests - ${language}`, () => {
     test.beforeEach(async ({ page }) => {
       // Disable all CSS animations and transitions
       await page.addStyleTag({
