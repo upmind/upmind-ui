@@ -2,6 +2,7 @@
   <Description v-if="has(props, 'cycle')">
     {{
       t("term.renews_msg", {
+        n: props.cycle,
         cycle: parseBillingCycle(props.cycle!).descriptive
       })
     }}.
