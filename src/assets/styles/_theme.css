@@ -89,6 +89,7 @@
   --bg-control-selected: var(--color-control-muted);
   --bg-control-surface: var(--color-control-default-contrast);
   --bg-control-ring: var(--color-control-default);
+
   /* Background - Button */
   --bg-button-primary-ring: var(--color-primary-default-stop);
   --bg-button-primary-0: var(--color-primary-default);
@@ -139,7 +140,7 @@
   --bg-accent-info-muted: var(--color-info-muted);
 
   /* Border Colors */
-  --color-border-surface: var(--color-neutral-stroke);
+  --border-surface: var(--color-neutral-stroke);
 
   /* Border - Button */
   --border-button-outline: var(--color-neutral-stroke);
@@ -173,7 +174,6 @@
 
   /* Text - Control */
   --color-control-selected: var(--color-control-muted-contrast);
-
   --color-button-primary: var(--color-primary-default-contrast);
   --color-button-secondary: var(--color-secondary-default-contrast);
   --color-button-neutral: var(--color-neutral-default-contrast);

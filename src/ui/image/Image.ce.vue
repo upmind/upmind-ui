@@ -32,7 +32,13 @@
 
   <figure
     v-if="!meta.isCarousel"
-    :class="cn(styles.image.container, props.class)"
+    :class="
+      cn(
+        styles.image.container,
+        props.class,
+        meta.isEmpty ? 'bg-primary-muted' : ''
+      )
+    "
   >
     <!-- Single image with fallback -->
     <picture v-if="!meta.isEmpty">
@@ -147,7 +153,7 @@ function isSelected(index: number) {
 
 const fallbackStyle = computed(() => ({
   backgroundImage: `url(${dotSvg})`,
-  backgroundRepeat: 'repeat',
-  backgroundSize: '16px 16px'
+  backgroundRepeat: "repeat",
+  backgroundSize: "16px 16px"
 }));
 </script>

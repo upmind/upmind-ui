@@ -31,7 +31,7 @@ export interface Theme {
   id: string;
   icon?: string;
   uiConfig?: UIConfig;
-  tokens?: Record<string, any>;
+  tokens?: string;
 }
 
 export interface ITheme {

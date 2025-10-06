@@ -38,7 +38,7 @@
     background-color: var(--bg-control-unchecked-hover);
   }
   .bg-control-selected {
-    background-color: var(--bg-control-selected);
+    background-color: var(--bg-control-selected) !important;
   }
   .bg-control-surface {
     background-color: var(--bg-control-surface);
@@ -276,5 +276,119 @@
 }
 
 @utility bg-control-selected {
-  background-color: var(--bg-control-selected);
+  background-color: var(--bg-control-selected) !important;
+}
+
+@utility text-control-selected {
+  color: var(--color-control-selected);
+}
+
+@utility text-control-checked-contrast {
+  color: var(--bg-control-checked-contrast);
+}
+
+@utility text-primary {
+  color: var(--text-primary);
+}
+@utility text-base {
+  color: var(--text-base);
+}
+@utility text-display {
+  color: var(--text-display);
+}
+@utility text-muted {
+  color: var(--text-muted);
+}
+
+@utility text-faint {
+  color: var(--text-faint);
+}
+
+@utility text-icon-primary {
+  color: var(--text-icon-primary);
+}
+@utility text-icon-neutral {
+  color: var(--text-icon-neutral);
+}
+
+/* Text - Control */
+@utility text-control-selected {
+  color: var(--text-control-selected);
+}
+@utility text-button-primary {
+  color: var(--text-button-primary);
+}
+@utility text-button-secondary {
+  color: var(--text-button-secondary);
+}
+@utility text-button-neutral {
+  color: var(--text-button-neutral);
+}
+@utility text-button-subtle {
+  color: var(--text-button-subtle);
+}
+@utility text-button-danger {
+  color: var(--text-button-danger);
+}
+@utility text-button-danger-link {
+  color: var(--text-button-danger-link);
+}
+@utility text-button-danger-link-hover {
+  color: var(--text-button-danger-link-hover);
+}
+@utility text-button-outline {
+  color: var(--text-button-outline);
+}
+@utility text-button-ghost {
+  color: var(--text-button-ghost);
+}
+@utility text-button-link {
+  color: var(--text-button-link);
+}
+@utility text-button-link-hover {
+  color: var(--text-button-link-hover);
+}
+@utility text-button-muted-link {
+  color: var(--text-button-muted-link);
+}
+@utility text-button-muted-link-hover {
+  color: var(--text-button-muted-link-hover);
+}
+
+/* Text - Accent */
+@utility text-accent-primary {
+  color: var(--text-accent-primary);
+}
+@utility text-accent-primary-muted-contrast {
+  color: var(--text-accent-primary-muted-contrast);
+}
+@utility text-accent-primary-contrast {
+  color: var(--text-accent-primary-contrast);
+}
+@utility text-accent-neutral {
+  color: var(--text-accent-neutral);
+}
+@utility text-accent-neutral-muted-contrast {
+  color: var(--text-accent-neutral-muted-contrast);
+}
+@utility text-accent-neutral-contrast {
+  color: var(--text-accent-neutral-contrast);
+}
+@utility text-accent-promo {
+  color: var(--text-accent-promo);
+}
+@utility text-accent-promo-muted-contrast {
+  color: var(--text-accent-promo-muted-contrast);
+}
+@utility text-accent-promo-contrast {
+  color: var(--text-accent-promo-contrast);
+}
+@utility text-accent-danger {
+  color: var(--text-accent-danger);
+}
+@utility text-accent-danger-muted-contrast {
+  color: var(--text-accent-danger-muted-contrast);
+}
+@utility text-accent-danger-contrast {
+  color: var(--text-accent-danger-contrast);
 }

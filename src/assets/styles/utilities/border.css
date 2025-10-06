@@ -1,106 +1,3 @@
-@layer utilities {
-  /* Border Colors */
-  .border-surface {
-    border-color: var(--color-border-surface);
-  }
-
-  /* Border - Button */
-  .border-button-outline {
-    border-color: var(--border-button-outline);
-  }
-  .border-button-outline-hover {
-    border-color: var(--border-button-outline-hover);
-  }
-
-  /* Border - Control */
-  .border-control-default {
-    border-color: var(--border-control-default);
-  }
-  .border-control-hover {
-    border-color: var(--border-control-hover);
-  }
-  .border-control-selected {
-    border-color: var(--border-control-selected);
-  }
-
-  /* Border - Accent */
-  .border-accent-primary {
-    border-color: var(--border-accent-primary);
-  }
-  .border-accent-secondary {
-    border-color: var(--border-accent-secondary);
-  }
-  .border-accent-neutral {
-    border-color: var(--border-accent-neutral);
-  }
-  .border-accent-promo {
-    border-color: var(--border-accent-promo);
-  }
-  .border-accent-danger {
-    border-color: var(--border-accent-danger);
-  }
-  .border-accent-warning {
-    border-color: var(--border-accent-warning);
-  }
-  .border-accent-success {
-    border-color: var(--border-accent-success);
-  }
-  .border-accent-info {
-    border-color: var(--border-accent-info);
-  }
-
-  .primary-stroke {
-    border: var(--stroke-badge) solid transparent;
-    background:
-      linear-gradient(var(--color-bg-surface), var(--color-bg-surface))
-        padding-box,
-      linear-gradient(
-          to right,
-          var(--color-primitive-primary-default),
-          var(--color-primitive-primary-default-stop)
-        )
-        border-box;
-  }
-
-  .shadow-border-primary-gradient {
-    position: relative;
-  }
-
-  .shadow-border-primary-gradient::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    padding: var(--stroke-badge);
-    background: linear-gradient(
-      to right,
-      var(--color-primitive-primary-default),
-      var(--color-primitive-primary-default-stop)
-    );
-    border-radius: inherit;
-    mask:
-      linear-gradient(#fff 0 0) content-box,
-      linear-gradient(#fff 0 0);
-    mask-composite: xor;
-    -webkit-mask:
-      linear-gradient(#fff 0 0) content-box,
-      linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    pointer-events: none;
-  }
-
-  .stroke-badge {
-    border-width: var(--stroke-badge);
-  }
-
-  .control-radius {
-    border-radius: var(--control-radius);
-  }
-
-  .button-radius {
-    border-radius: var(--button-radius);
-  }
-}
-
 @theme {
   /* Border Radius */
   --radius: 8px;
@@ -121,6 +18,10 @@
 }
 
 /* Border color utilities that work with all variants */
+@utility border-surface {
+  border-color: var(--border-surface);
+}
+
 @utility border-control-default {
   border-color: var(--border-control-default);
 }
@@ -163,20 +64,17 @@
   border-color: var(--border-accent-info);
 }
 
-/* Pseudo-element border utilities */
 @layer utilities {
   .before\:border-control-default::before {
     content: var(--tw-content);
-    border-color: var(--border-control-default);
   }
 
   .after\:border-control-default::after {
     content: var(--tw-content);
-    border-color: var(--border-control-default);
+    border-color: var(--border-surface);
   }
 }
 
-/* Divide utilities */
 @layer utilities {
   .divide-border-control-default > :not([hidden]) ~ :not([hidden]) {
     --tw-divide-opacity: 1;
