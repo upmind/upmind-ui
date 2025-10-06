@@ -248,7 +248,7 @@ export const useClientEmail = (
     clear,
 
     /**
-     * Inputs a new model, resolving to the updated model., this is debounced to avoid excessive calls.
+     * Inputs a new model, resolving to the updated model. This is debounced to avoid excessive calls.
      * @param {EmailModel} model - The model to input.
      * @returns {Promise<EmailModel>} The updated model.
      */

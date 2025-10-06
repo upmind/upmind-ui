@@ -2,6 +2,10 @@
 
 # PaymentDetailsContext
 
+## Extends
+
+- [`PaymentDetailsArgs`](PaymentDetailsArgs.md)
+
 ## Properties
 
 ### actors
@@ -13,18 +17,42 @@ actors: object;
 #### gateway?
 
 ```ts
-optional gateway: ActorRef<any>;
+optional gateway: ActorRef<any, any>;
 ```
 
----
+***
 
-### address?
+### address
 
 ```ts
-optional address: any;
+address: IAddress;
 ```
 
----
+#### Inherited from
+
+[`PaymentDetailsArgs`](PaymentDetailsArgs.md).[`address`](PaymentDetailsArgs.md#address)
+
+***
+
+### amount
+
+```ts
+amount: number;
+```
+
+#### Inherited from
+
+[`PaymentDetailsArgs`](PaymentDetailsArgs.md).[`amount`](PaymentDetailsArgs.md#amount)
+
+***
+
+### authHelper?
+
+```ts
+optional authHelper: ActorRef<any, any>;
+```
+
+***
 
 ### autoupdate?
 
@@ -32,39 +60,39 @@ optional address: any;
 optional autoupdate: boolean;
 ```
 
----
+***
 
 ### balance?
 
 ```ts
-optional balance: any;
+optional balance: IWalletBalance;
 ```
 
----
+***
 
-### basketId?
+### clientId
 
 ```ts
-optional basketId: string;
+clientId: string;
 ```
 
----
+#### Inherited from
 
-### clientId?
+[`PaymentDetailsArgs`](PaymentDetailsArgs.md).[`clientId`](PaymentDetailsArgs.md#clientid)
+
+***
+
+### currency
 
 ```ts
-optional clientId: string;
+currency: ICurrency;
 ```
 
----
+#### Inherited from
 
-### currency?
+[`PaymentDetailsArgs`](PaymentDetailsArgs.md).[`currency`](PaymentDetailsArgs.md#currency)
 
-```ts
-optional currency: any;
-```
-
----
+***
 
 ### dirty?
 
@@ -72,15 +100,15 @@ optional currency: any;
 optional dirty: boolean;
 ```
 
----
+***
 
 ### error?
 
 ```ts
-optional error: any;
+optional error: ResponseError;
 ```
 
----
+***
 
 ### fields?
 
@@ -88,31 +116,31 @@ optional error: any;
 optional fields: any;
 ```
 
----
+***
 
 ### gateway?
 
 ```ts
-optional gateway: any;
+optional gateway: IGateway;
 ```
 
----
+***
 
 ### gateways?
 
 ```ts
-optional gateways: any[];
+optional gateways: Gateway[];
 ```
 
----
+***
 
 ### model?
 
 ```ts
-optional model: IPaymentDetail;
+optional model: PaymentDetailModel;
 ```
 
----
+***
 
 ### mount?
 
@@ -120,23 +148,35 @@ optional model: IPaymentDetail;
 optional mount: HTMLElement;
 ```
 
----
+***
 
-### payment_types?
+### orderId
 
 ```ts
-optional payment_types: PaymentTypes;
+orderId: string;
 ```
 
----
+#### Inherited from
+
+[`PaymentDetailsArgs`](PaymentDetailsArgs.md).[`orderId`](PaymentDetailsArgs.md#orderid)
+
+***
+
+### payment\_types?
+
+```ts
+optional payment_types: PaymentType;
+```
+
+***
 
 ### paymentDetails?
 
 ```ts
-optional paymentDetails: object;
+optional paymentDetails: any;
 ```
 
----
+***
 
 ### schema?
 
@@ -144,15 +184,15 @@ optional paymentDetails: object;
 optional schema: JsonSchema;
 ```
 
----
+***
 
-### stored_payment_methods?
+### stored\_payment\_methods?
 
 ```ts
-optional stored_payment_methods: IPaymentDetail[];
+optional stored_payment_methods: PaymentDetailModel[];
 ```
 
----
+***
 
 ### uischema?
 

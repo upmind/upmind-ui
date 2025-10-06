@@ -12,14 +12,6 @@ optional amount: number;
 
 ***
 
-### basketId?
-
-```ts
-optional basketId: string;
-```
-
-***
-
 ### can\_store?
 
 ```ts
@@ -47,7 +39,7 @@ optional code: string;
 ### ctx?
 
 ```ts
-optional ctx: GatewayContext;
+optional ctx: GatewayCtx;
 ```
 
 ***
@@ -79,7 +71,7 @@ optional elements: any;
 ### error?
 
 ```ts
-optional error: any;
+optional error: ResponseError;
 ```
 
 ***
@@ -120,6 +112,14 @@ optional must_store: boolean;
 
 ```ts
 optional operation_id: string;
+```
+
+***
+
+### orderId?
+
+```ts
+optional orderId: string;
 ```
 
 ***
