@@ -10,7 +10,7 @@ import { useDataLayer } from "../system";
 const { dataLayer } = useDataLayer();
 
 // --- utils
-import { useApprovalParser } from "./utils";
+import { mapApproval } from "./mappers";
 import { mapToHeadlessError, useTime, useValidationParser } from "../../utils";
 import { isEmpty } from "lodash-es";
 
@@ -160,7 +160,7 @@ export default createMachine(
       }),
 
       setApproval: assign({
-        approval: ({ payment }: PaymentContext) => useApprovalParser(payment)
+        approval: ({ payment }: PaymentContext) => mapApproval(payment)
       }),
 
       providePayment: sendParent(({ payment }) => ({

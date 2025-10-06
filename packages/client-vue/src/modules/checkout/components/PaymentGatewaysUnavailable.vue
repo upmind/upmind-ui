@@ -1,9 +1,15 @@
 <template>
   <div :class="styles.checkout.gateway">
     <Alert
-      icon="check-circle"
-      :title="t('cart.nothing_to_pay_msg')"
-      :description="t('cart.place_order_desc')"
+      color="error"
+      icon="alert-triangle"
+      :title="
+        t('error.payment_gateways_not_available_title', {
+          currency: currency?.code,
+          country: address?.country?.name
+        })
+      "
+      :description="t('error.payment_gateways_not_available_msg')"
     />
 
     <!-- Actions and Terms -->
@@ -61,7 +67,7 @@ import type { PaymentGatewayProps } from "../types";
 const props = defineProps<PaymentGatewayProps>();
 const emit = defineEmits(["checkout"]);
 
-const { meta, clickwrap } = useBasketPaymentDetails();
+const { meta, clickwrap, currency, address } = useBasketPaymentDetails();
 
 const { t } = useI18n();
 

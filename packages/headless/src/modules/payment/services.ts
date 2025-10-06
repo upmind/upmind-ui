@@ -4,13 +4,14 @@
 import { useI18n, useQuery } from "../..";
 
 // --- utils
-import { get, isEmpty } from "lodash-es";
+import { get, isEmpty, map } from "lodash-es";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 
 // --- types
 import { Methods, Targets } from "@upmind-automation/types";
 import { type PaymentContext } from "./types";
 import type { AnyEventObject } from "xstate";
+import { mapPaymentData } from "./mappers";
 
 // -----------------------------------------------------------------------------
 
@@ -83,13 +84,25 @@ async function update(
   { paymentDetail, orderId }: PaymentContext,
   _event: AnyEventObject
 ) {
+  // TODO: HANDLE WALLET PAYMENTS
+  // if (paymentDetails?.amount) data.amount = paymentDetails?.amount;
+  // if (paymentDetails?.walletAmount) {
+  //   data.wallet_amount = paymentDetails?.walletAmount;
+  //   if (!paymentMethodType) data.amount = data.wallet_amount;
+  // }
+
   const { post, useUrl } = useQuery();
+
+  const data = mapPaymentData(paymentDetail!);
+  debugger;
 
   return post({
     url: useUrl(`/payments`),
     data: {
-      ...paymentDetail,
-      invoice_id: orderId //ensure we always send the orderId
+      ...data,
+      // --- required
+      amount: paymentDetail.amount,
+      invoice_id: orderId
     },
     withAccessToken: true
   });

@@ -103,7 +103,7 @@ export function loadList() {
 // -----------------------------------------------------------------------------
 
 async function loadLookups(
-  { currency, address }: PaymentDetailsContext,
+  { currency }: PaymentDetailsContext,
   _event: AnyEventObject
 ) {
   const { meta, user } = useSession();
@@ -128,14 +128,17 @@ async function loadLookups(
     BrandConfigKeys.BILLING_GATEWAY_FORCE_AUTO_PAYMENT
   ]);
 
-  const storedPaymentMethods = getRequest<IPaymentDetail[], PaymentDetail[]>({
+  const storedPaymentMethods: Promise<PaymentDetail[]> = getRequest<
+    IPaymentDetail[],
+    PaymentDetail[]
+  >({
     url: useUrl(`clients/${clientId}/payment_details`, {
       limit: 0,
       brand_id: unref(brandId),
+      invoice_id: unref(basketId),
       active: true,
       "filter[gateway.currencies.id]": currencyId,
       // "filter[active]": 1,
-
       order: ["-default", "id"].join(),
       with: ["gateway", "client"].join()
       // with_staged_imports: 1
@@ -145,27 +148,35 @@ async function loadLookups(
       { clientId, brandId: unref(brandId), currencyId }
     ],
     withAccessToken: true,
+    staleTime: 0, // disable cache, this may still return stale data while the request is in flight
+    gcTime: 0, // force cache to be cleared immediately, to prevent stale data
     select: mapPaymentDetailDetails
   });
 
   const urlParams = {
     limit: 0,
     client_id: clientId,
+    invoice_id: unref(basketId),
     order: "order",
     "filter[gateway.currencies.id]": currencyId,
     "filter[active]": 1,
     with: ["gateway.gateway_provider", "gateway.card_types"].join()
   };
 
-  if (basketId.value) set(urlParams, "basket_id", basketId.value);
-
-  const gateways = getRequest<IGateway[]>({
+  const gateways: Promise<IGateway[]> = getRequest<IGateway[]>({
     url: useUrl(`brands/${unref(brandId)}/gateways`, urlParams),
     queryKey: [
       "payment-details",
       "gateways",
-      { brandId: unref(brandId), clientId, currencyId }
+      {
+        brandId: unref(brandId),
+        clientId,
+        currencyId,
+        basketId: unref(basketId)
+      }
     ],
+    staleTime: 0, // disable cache, this may still return stale data while the request is in flight
+    gcTime: 0, // force cache to be cleared immediately, to prevent stale data
     withAccessToken: true
   });
 
@@ -186,8 +197,7 @@ async function loadLookups(
       return {
         storedPaymentMethods: filter(storedPaymentMethods, "meta.isActive"), // ensure we only show active stored payment methods
         gateways: sortBy(gateways, ["order"]),
-        paymentTypes,
-        address
+        paymentTypes
       } as unknown as Partial<PaymentDetailsContext>;
     }
   );
@@ -227,17 +237,18 @@ async function parse(
   );
 
   // ---
-  // HACK: TEMP: FORCE payment type to PAY_IN_FULL
+  // FORCE payment type to PAY_IN_FULL if its not set
   safeModel.type ??= PaymentType.PAY_IN_FULL;
   // ---
 
   // 1) Make sure if a gateway is selected that we use that
   if (safeModel?.gateway_id) {
-    gateway = find(gateways, ["gateway_id", safeModel.gateway_id])?.gateway;
+    const brandGateway = find(gateways, ["gateway_id", safeModel.gateway_id]);
     // if we don't have a matching/valid gateway, then we should remove the gateway_id
-    if (!gateway) {
+    if (!brandGateway) {
       unset(safeModel, "gateway_id");
     } else {
+      gateway = brandGateway!.gateway;
       unset(safeModel, "payment_details_id");
     }
   }
@@ -257,6 +268,7 @@ async function parse(
   if (safeModel?.payment_details_id) {
     unset(safeModel, "gateway_id");
     gateway = undefined;
+
     paymentDetails = {
       amount,
       payment_details_id: safeModel.payment_details_id,
@@ -272,6 +284,22 @@ async function parse(
     unset(safeModel, "gateway_id");
     unset(safeModel, "payment_details_id");
     gateway = undefined;
+  }
+
+  // NB:as a final check... if we have no gateways or stored payment methods, then we should force the type to pay later
+  // this will allow the order to be placed without any payment details
+  if (isEmpty(gateways)) {
+    gateway = undefined;
+    unset(safeModel, "gateway_id");
+    unset(safeModel, "payment_details_id");
+    safeModel.type = PaymentType.PAY_LATER;
+
+    paymentDetails = {
+      type: PaymentType.PAY_LATER,
+      amount,
+      address_id: address?.id,
+      client_id: clientId
+    };
   }
 
   return Promise.resolve({ model: safeModel, gateway, paymentDetails });

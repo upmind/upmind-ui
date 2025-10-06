@@ -46,7 +46,7 @@ import type { Message } from "../feedback";
 import type { BasketContext } from "./types";
 import type { AnyEventObject } from "xstate";
 import type { PaymentContext } from "../payment";
-import { PaymentType, GatewayTypes } from "@upmind-automation/types";
+import { PaymentMethodType } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -333,7 +333,7 @@ export default createMachine(
             {
               target: "#paying",
               actions: ["setInvoice", "clearActors", "pushPurchase"],
-              cond: "paymentNeeded"
+              cond: "needsPayment"
             },
             {
               target: "#complete",
@@ -672,17 +672,21 @@ export default createMachine(
           actors?.paymentDetails?.getSnapshot()?.matches
         ),
 
-      paymentNeeded: ({ paymentDetails }: BasketContext) => {
+      needsPayment: ({ paymentDetails }: BasketContext) => {
         const hasOutstandingBalance = paymentDetails?.amount ?? 0 > 0;
 
-        const payingNow = paymentDetails?.type != PaymentType.PAY_LATER;
-
         const manualPayment = includes(
-          [GatewayTypes.OFFLINE, GatewayTypes.BANK_TRANSFER],
-          paymentDetails?.gateway?.type
+          [
+            PaymentMethodType.PAY_LATER,
+            PaymentMethodType.GATEWAY_OFFLINE,
+            PaymentMethodType.MANUAL_PAYMENT,
+            PaymentMethodType.GATEWAY_DIRECT_DEBIT
+          ],
+          paymentDetails?.type
         );
 
-        return hasOutstandingBalance && payingNow && !manualPayment;
+        debugger;
+        return (hasOutstandingBalance && !manualPayment) as boolean;
       },
 
       // --- Item Guards

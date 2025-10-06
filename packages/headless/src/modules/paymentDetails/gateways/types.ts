@@ -2,27 +2,25 @@
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --- types
-// TODO:
 import { GatewayTypes } from "@upmind-automation/types";
 import type {
   GatewayData,
   IAddress,
+  IClient,
   ICurrency,
   IGateway,
-  IOrder
+  IOrder,
+  PaymentMethodType,
+  SelectedPaymentMethod,
+  GatewayContext as GatewayCtx
 } from "@upmind-automation/types";
 
 import type { ResponseError } from "../../../utils";
+import { PaymentDetail } from "../types";
 
 // -----------------------------------------------------------------------------
 
-export enum GatewayCtx {
-  PAY = "pay", // PAY = Gateways are shown in the context of making a payment (invoice, topup etc)
-  ADD = "add" // ADD = Gateways are shown in the context of adding a stored payment detail
-}
-
-// TODO:
-export interface GatewayContext {
+export type BaseGatewayContext = {
   card?: any;
   elements?: any;
   element?: any;
@@ -30,18 +28,19 @@ export interface GatewayContext {
   renderer?: (container: HTMLElement) => void;
 
   // ---
-  currency: ICurrency;
-  amount: number;
-  orderId: IOrder["id"];
   address?: IAddress;
-  gateway?: IGateway;
-  // ---
-  type?: GatewayTypes;
-  ctx?: GatewayCtx;
-  storedPaymentMethods?: any[];
+  amount: SelectedPaymentMethod["amount"];
+  clientId: IClient["id"];
+  ctx: GatewayCtx;
+  currency: ICurrency;
+  gateway: IGateway;
+  orderId: IOrder["id"];
+  paymentMethod: PaymentMethodType;
+  type: GatewayTypes;
+  // --- Lookups
+  storedPaymentMethods?: PaymentDetail[];
   code?: string;
-
-  // ---
+  // --- Computed
   renderless?: boolean;
   canStore?: boolean;
   mustStore?: boolean;
@@ -51,10 +50,11 @@ export interface GatewayContext {
   // --- UI
   schema?: JsonSchema;
   uischema?: UISchemaElement;
-  // model?: IBillingDetail;
   model?: GatewayData;
   // --- Output
-  paymentDetails?: GatewayData; // will contain the response from Card, as wel las any model data
+  paymentDetails?: SelectedPaymentMethod; // will contain the response from Card, as wel las any model data
   // ---
   error?: ResponseError;
-}
+};
+
+export type GatewayContext<T = {}> = BaseGatewayContext & T;

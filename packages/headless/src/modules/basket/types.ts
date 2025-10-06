@@ -2,7 +2,11 @@
 import type { ActorRef } from "xstate";
 import type { ResponseError } from "../../utils";
 import type { BasketProduct } from "../basketProduct";
-import type { IBasket, IInvoice } from "@upmind-automation/types";
+import type {
+  IBasket,
+  IInvoice,
+  SelectedPaymentMethod
+} from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -30,12 +34,7 @@ export interface BasketContext {
     promotions: ActorRef<any>;
   };
   authHelper?: ActorRef<any>;
-  // --- Payments
-  paymentDetails?: any;
-  // TODO: define payment details type correctly and refactor the paymentdetails machine/response
-  // IPaymentDetail & {
-  //   tracking?: Record<string, any>;
-  //   referral_cookie: string | Record<string, any>;
-  // };
   payment?: ActorRef<any>;
+  // --- Payment
+  paymentDetails?: SelectedPaymentMethod;
 }

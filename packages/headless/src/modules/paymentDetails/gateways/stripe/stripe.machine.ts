@@ -23,7 +23,7 @@ import { isFunction, isArray } from "lodash-es";
 
 // --- types
 import type { StripeContext } from "./types";
-import { GatewayCtx } from "../types";
+import { GatewayContext as GatewayCtx } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 export default createMachine(

@@ -23,8 +23,8 @@ export const useSchema = ({
 }: PaymentDetailsContext): JsonSchema => {
   const { t } = useI18n();
 
-  const { cancel, success, fail } = generateResponseUrls(
-    window.location.origin,
+  const { cancelUrl, returnUrl } = generateResponseUrls(
+    new URL(`order/${orderId}`, window.location.origin),
     { orderId }
   );
   const schema = {
@@ -36,7 +36,6 @@ export const useSchema = ({
       type: {
         type: "string",
         title: "Payment type",
-        const: PaymentType.PAY_IN_FULL,
         enum: !paymentTypes?.length ? undefined : map(paymentTypes, "value"),
         options: !paymentTypes
           ? undefined
@@ -83,12 +82,12 @@ export const useSchema = ({
       return_url: {
         type: "string",
         format: "uri-reference",
-        const: `?${QUERY_PARAMS.SUCCESS}=${encodeURIComponent(success)}&${QUERY_PARAMS.FAILED}=${encodeURIComponent(fail)}`
+        const: returnUrl
       },
       cancel_url: {
         type: "string",
         format: "uri",
-        const: cancel
+        const: cancelUrl
       }
     }
 

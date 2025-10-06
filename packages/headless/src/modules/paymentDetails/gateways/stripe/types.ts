@@ -98,11 +98,11 @@ export enum ZERO_DECIMAL_CURRENCIES {
   XPF = "XPF" // CFP Franc
 }
 
-export interface StripeContext extends GatewayContext {
+export type StripeContext = GatewayContext<{
   stripe?: Stripe;
   elements?: StripeElements;
   element?: StripePaymentElement;
   validationObserver?: ActorRef<any>;
   validationHelper?: (callback: any) => void;
   container?: HTMLElement;
-}
+}>;

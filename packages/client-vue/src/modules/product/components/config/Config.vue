@@ -251,6 +251,6 @@ function doResolve() {
 
 onUpdated(() => {
   // Temp debug trick to see how many times we are triggered per config change
-  console.debug("Config updated");
+  // console.debug("Config updated");
 });
 </script>

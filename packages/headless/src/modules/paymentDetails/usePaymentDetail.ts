@@ -65,9 +65,7 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
 
   const meta = computed(() => ({
     isAvailable:
-      !!actor.value &&
-      stateMatches(actor, ["available", "complete"]) &&
-      !stateMatches(actor, ["available.loading"]),
+      !!actor.value && stateMatches(actor, ["available", "complete"]),
     isLoading: !actor.value || stateMatches(actor, ["loading"]),
     hasGateway: contextMatches(actor, ["actors.gateway"]),
     hasGateways: contextMatches(actor, ["gateways"]),
@@ -103,6 +101,10 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
     actor,
     "currency"
   );
+  const address = useContext<PaymentDetailsContext["address"]>(
+    actor,
+    "address"
+  );
   const model = useContext<PaymentDetailsContext["model"]>(actor, "model");
   const schema = useContext<PaymentDetailsContext["schema"]>(actor, "schema");
   const uischema = useContext<PaymentDetailsContext["uischema"]>(
@@ -119,7 +121,7 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
 
   // --- methods
 
-  function input(value: PaymentDetailModel) {
+  async function input(value: PaymentDetailModel) {
     actor.value?.send({ type: "SET", data: toRaw(unref(value)) });
   }
 
@@ -169,6 +171,7 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
   // ---------------------------------------------------------------------------
   return {
     // --- state
+    state: computed(() => actor.value?.state.value.value),
 
     /**
      * Waits for the payment details actor to be ready (not loading or error state).
@@ -226,6 +229,9 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
 
     /** The payment currency */
     currency,
+
+    /** The full address to be used for the order */
+    address,
 
     /** The current payment details model. */
     model,
