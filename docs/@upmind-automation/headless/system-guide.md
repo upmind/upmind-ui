@@ -1,6 +1,8 @@
 # System
 
-The `useSystem` composable provides a comprehensive interface for interacting with system-related data from the Upmind API. It manages countries, regions, languages, currencies, billing cycles, statuses, and departments with built-in caching and error handling.
+The [`useSystem`](./functions/useSystem.md) composable provides a comprehensive interface for interacting with system-related data from the Upmind API. It manages countries, regions, languages, currencies, billing cycles, statuses, and departments with built-in caching and error handling.
+
+> **Important:** The [`useSystem`](./functions/useSystem.md) composable persists its state to [`localStorage`](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage) to improve performance and reduce API calls. On the initial load, it performs a background refresh to check for any changes to system settings and update the local storage if necessary.
 
 ## API Reference
 
