@@ -1,5 +1,9 @@
 <template>
-  <component :is="is" class="relative w-full" :class="[props.class, active ? 'opacity-50' : '']">
+  <component
+    :is="is"
+    class="relative w-full"
+    :class="[props.class, active ? 'opacity-50' : '']"
+  >
     <slot></slot>
     <Transition
       enter-active-class="transition-opacity duration-200 ease-in-out"
@@ -9,6 +13,7 @@
     >
       <div
         v-if="active"
+        class="opacity-100"
         :class="[
           styles.loading.root,
           !hasSlotContent ? 'fixed inset-0' : 'absolute inset-0',

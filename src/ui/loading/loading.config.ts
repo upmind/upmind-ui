@@ -7,6 +7,8 @@ export const loadingVariants = cva();
 // -----------------------------------------------------------------------------
 export default {
   loading: {
-    root: cva("text-secondary z-50 flex w-full items-center justify-center")
+    root: cva(
+      "text-control-default z-50 flex w-full items-center justify-center"
+    )
   }
 };
