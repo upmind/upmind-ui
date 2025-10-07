@@ -34,6 +34,9 @@ export const containerVariant = cva("h-full overflow-hidden rounded-lg", {
       "3:2": "aspect-3/2",
       "16:9": "aspect-video",
       "18:6": "aspect-18/6"
+    },
+    isEmpty: {
+      true: "opacity-20"
     }
   },
   defaultVariants: {
