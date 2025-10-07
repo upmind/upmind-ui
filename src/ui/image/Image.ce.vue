@@ -47,7 +47,7 @@
     </picture>
     <!-- Fallback icon -->
     <div v-if="meta.isEmpty" :class="cn(styles.image.root)">
-      <Icon icon="camera" size="lg" :class="styles.image.icon" />
+      <Icon icon="camera-off" size="lg" :class="styles.image.icon" />
     </div>
   </figure>
 </template>
@@ -143,17 +143,6 @@ function isSelected(index: number) {
 
 const fallbackStyle = computed(() => {
   const color = getComputedColor("accent-neutral");
-  const modifiedSvg = dotSvgRaw.replace(
-    'fill="currentColor"',
-    `fill="${color}"`
-  );
-  const encodedSvg = encodeURIComponent(modifiedSvg);
-
-  return {
-    backgroundColor: "hsl(var(--secondary))",
-    backgroundImage: `url("data:image/svg+xml,${encodedSvg}")`,
-    backgroundRepeat: "repeat",
-    backgroundSize: "26px 30px"
-  };
+  return `background: radial-gradient(${color} 2px, transparent 2px) 50% 50% / 20px 20px repeat;`;
 });
 </script>

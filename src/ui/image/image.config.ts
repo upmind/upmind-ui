@@ -36,7 +36,7 @@ export const containerVariant = cva("h-full overflow-hidden rounded-lg", {
       "18:6": "aspect-18/6"
     },
     isEmpty: {
-      true: "opacity-20"
+      true: "border-2 opacity-20"
     }
   },
   defaultVariants: {
@@ -48,7 +48,7 @@ export default {
   image: {
     container: containerVariant,
     root: rootVariant,
-    icon: cva("bg-surface p-3.5"),
+    icon: cva("bg-surface p-2"),
     carousel: {
       content: cva(""),
       list: cva("m-0 flex p-0"),
