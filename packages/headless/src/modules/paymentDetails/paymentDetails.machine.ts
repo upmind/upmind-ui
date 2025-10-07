@@ -302,7 +302,10 @@ export default createMachine(
             if (gatewayHelper) stopService(gatewayHelper);
 
             // then find the gateway in the list
-            const brandGateway = find(gateways, ["id", model?.gateway_id]);
+            const brandGateway = find(gateways, [
+              "gateway_id",
+              model?.gateway_id
+            ]);
             debugger;
             if (!brandGateway?.gateway) return undefined;
 
