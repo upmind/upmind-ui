@@ -131,7 +131,7 @@ export const numberFieldInputVariants = cva(
     variants: {
       variant: {
         flat: "[&>i]:disabled:text-muted [&>i]:size-lh cursor-pointer transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-20 [&>i]:flex [&>i]:items-center [&>i]:justify-center",
-        minimal: "flex h-5 w-5 items-center justify-center rounded p-0"
+        minimal: "control-radius flex h-5 w-5 items-center justify-center p-0"
       },
       size: {
         sm: "",
