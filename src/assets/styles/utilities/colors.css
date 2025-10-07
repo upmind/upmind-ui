@@ -17,6 +17,13 @@
   --color-primary-muted: var(--color-primary-muted);
   --color-primary-muted-contrast: var(--color-primary-muted-contrast);
 
+  --color-control-default-delta: var(--color-control-default-delta);
+  --color-control-default-contrast: var(--color-control-default-contrast);
+  --color-control-muted: var(--color-control-muted);
+  --color-control-muted-contrast: var(--color-control-muted-contrast);
+  --color-control-stroke: var(--color-control-stroke);
+  --color-control-stroke-delta: var(--color-control-stroke-delta);
+
   /* Secondary Colors */
   --color-secondary-default: var(--color-secondary-default);
   --color-secondary-default-stop: var(--color-secondary-default-stop);

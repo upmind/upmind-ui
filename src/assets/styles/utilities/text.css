@@ -15,10 +15,14 @@
   color: var(--text-faint);
 }
 
-/* Text Control Colors */
+/* Main Variants */
 @utility text-control-selected {
   color: var(--text-control-selected);
 }
+@utility text-control-checked-contrast {
+  color: var(--bg-control-checked-contrast);
+}
+
 @utility text-button-primary {
   color: var(--text-button-primary);
 }
@@ -124,6 +128,7 @@
   color: var(--text-accent-info-contrast);
 }
 
+/* Icons */
 @utility text-icon-primary {
   color: var(--text-icon-primary);
 }
