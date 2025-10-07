@@ -1,9 +1,15 @@
 // --- utils
-import { isArray, map } from "lodash-es";
+import { isArray, isEmpty, map } from "lodash-es";
 
 // --- types
 import type { PaymentDetail, Gateway } from "./types";
-import type { IGateway, IPaymentDetail } from "@upmind-automation/types";
+import { PaymentMethodType } from "@upmind-automation/types";
+import type {
+  IGateway,
+  IPaymentDetail,
+  SelectPaymentMethodData,
+  StoredCardData
+} from "@upmind-automation/types";
 import { canBeStored } from "./gateways/utils";
 import { useTranslateField, useTranslateName } from "../../utils";
 
@@ -52,6 +58,7 @@ export function mapGateway(raw: IGateway): Gateway {
     id: raw.id,
     title: useTranslateName(raw),
     type: raw.type as any,
+    // paymentType :
     cardTypes: raw.card_types,
     currencies: raw.currencies,
     gatewayProvider: raw.gateway_provider,

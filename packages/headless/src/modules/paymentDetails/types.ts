@@ -89,30 +89,24 @@ export interface PaymentDetailsArgs {
 }
 
 export interface PaymentDetailsContext extends PaymentDetailsArgs {
-  ctx: GatewayCtx;
+  // ctx: GatewayCtx; // TODo when we have Add and pay contexts
+  // --- lookups
   gateways?: IBrandGateway[];
   paymentTypes?: PaymentType;
-  // ---
   storedPaymentMethods?: PaymentDetail[];
   balance?: IWalletBalance;
-  gateway?: IGateway;
   // ---
   fields?: any;
   schema?: JsonSchema;
   uischema?: UISchemaElement;
   model?: PaymentDetailModel;
   baseModel?: PaymentDetailModel;
-  // ---
-  mount?: HTMLElement;
-  paymentDetails?: SelectedPaymentMethod;
-
-  // --- SPAWNED ACTORS/MACHINES
-  actors: {
-    gateway?: ActorRef<any>;
-  };
-  authHelper?: ActorRef<any>;
-
-  // ---
   autoupdate?: boolean;
+  // --- SPAWNED ACTORS/MACHINES
+  gatewayHelper?: ActorRef<any>;
+  authHelper?: ActorRef<any>;
+  // --- output
+  paymentDetails?: SelectedPaymentMethod;
   error?: ResponseError;
+  // operationId?: string; TODO when we have more complex operations based on responses and persisted state
 }

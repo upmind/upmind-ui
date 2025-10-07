@@ -45,7 +45,7 @@ import { parseBasketProduct } from "../basketProduct/utils";
 import type { Message } from "../feedback";
 import type { BasketContext } from "./types";
 import type { AnyEventObject } from "xstate";
-import type { PaymentContext } from "../payment";
+import type { PaymentArgs, PaymentContext } from "../payment";
 import { PaymentMethodType } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -353,14 +353,13 @@ export default createMachine(
         invoke: {
           id: "payment",
           src: paymentMachine,
-          data: ({ invoice, paymentDetails }: BasketContext) =>
-            ({
+          data: ({ invoice, paymentDetails }: BasketContext) => {
+            debugger;
+            return {
               orderId: invoice?.id,
-              address: invoice?.address,
-              clientId: invoice?.client_id,
-              currency: invoice?.currency,
               paymentDetail: paymentDetails
-            }) as PaymentContext,
+            } as PaymentArgs;
+          },
           onDone: {
             target: "#complete",
             actions: ["setPayment", "pushPaid"]
