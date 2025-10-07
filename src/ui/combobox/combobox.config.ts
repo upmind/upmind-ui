@@ -22,7 +22,7 @@ export const variants = {
 };
 
 export const triggerVariants = cva(
-  "text-md bg-control-surface hover:shadow-border-control-hover control-radius shadow-border-control-default h-auto justify-between gap-2 text-base transition-all duration-200",
+  "text-md bg-control-surface hover:shadow-control-hover control-radius shadow-control-default h-auto justify-between gap-2 text-base transition-all duration-200",
   {
     variants,
     defaultVariants: {
@@ -47,7 +47,7 @@ export const itemVariants = cva(
 );
 
 export const contentVariants = cva(
-  `control-radius shadow-border-control-default bg-control-surface ring-primitive-control-default! mt-2 border-none ${ringClasses} ${invalidRingClasses} p-0`,
+  `control-radius shadow-control-default bg-control-surface ring-primitive-control-default! mt-2 border-none ${ringClasses} ${invalidRingClasses} p-0`,
   {
     variants: {
       width: {

@@ -30,7 +30,7 @@ export default {
         variants: {
           isList: {
             true: "border-control-default border-b last:border-b-0",
-            false: `shadow-border-control-default [&:hover,&[data-hover=true]]:shadow-border-control-hover bg-control-surface control-radius ${ringClasses} ${invalidRingClasses}`
+            false: `shadow-control-default [&:hover,&[data-hover=true]]:shadow-control-hover bg-control-surface control-radius ${ringClasses} ${invalidRingClasses}`
           }
         }
       }

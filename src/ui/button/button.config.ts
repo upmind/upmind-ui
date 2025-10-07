@@ -22,11 +22,11 @@ export const variants = {
     danger:
       "button-radius from-bg-button-danger-0 to-bg-button-danger-1 text-button-danger [&:hover,&[data-hover=true]]:from-bg-button-danger-hover-0 [&:hover,&[data-hover=true]]:to-bg-button-danger-hover-1 ring-bg-button-danger-ring! bg-gradient-to-br",
     outline:
-      "button-radius bg-bg-button-outline text-button-outline [&:hover,&[data-hover=true]]:bg-button-outline-hover ring-bg-button-outline-ring! shadow-border-button-outline",
+      "button-radius bg-bg-button-outline text-button-outline [&:hover,&[data-hover=true]]:bg-button-outline-hover ring-bg-button-outline-ring! shadow-button-outline",
     ghost:
       "button-radius bg-bg-button-ghost text-button-ghost [&:hover,&:focus-within,&[data-hover=true],&[data-focus=true]]:bg-button-ghost-hover ring-bg-button-ghost-ring!",
     control:
-      "control-radius shadow-border-control-default hover:border-control-hover ring-bg-button-control-ring!"
+      "control-radius shadow-control-default hover:border-control-hover ring-bg-button-control-ring!"
   },
   align: {
     left: "justify-start",

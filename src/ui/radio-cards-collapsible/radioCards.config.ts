@@ -8,7 +8,7 @@ export const itemVariants = cva(
       isList: {
         true: "my-0.5 border-0",
         false:
-          "shadow-border-control-default [&:hover,&[data-hover=true]]:shadow-border-control-hover [&:focus-within,&[data-focus=true]]:ring-ring rounded [&:focus-within,&[data-focus=true]]:ring-2 [&:focus-within,&[data-focus=true]]:ring-offset-2"
+          "shadow-control-default [&:hover,&[data-hover=true]]:shadow-control-hover [&:focus-within,&[data-focus=true]]:ring-ring rounded [&:focus-within,&[data-focus=true]]:ring-2 [&:focus-within,&[data-focus=true]]:ring-offset-2"
       },
       width: {
         0: "",
@@ -50,7 +50,7 @@ export default {
     item: itemVariants,
     radio: cva("size-lh flex items-center justify-center"),
     input: cva(
-      `shadow-border-control-default leading-normal [transition:border-color_200ms_ease-in-out]`
+      `shadow-control-default leading-normal [transition:border-color_200ms_ease-in-out]`
     )
   }
 };

@@ -4,7 +4,7 @@ import { ringClasses, invalidRingClasses } from "../../assets/ring.styles";
 // -----------------------------------------------------------------------------
 
 export const containerVariants = cva(
-  `bg-control-surface shadow-border-control-default hover:shadow-border-control-hover text-md autofill control-radius flex items-center gap-3 px-4 py-2 transition-[border-color,opacity,box-shadow] duration-200`,
+  `bg-control-surface shadow-control-default hover:shadow-control-hover text-md autofill control-radius flex items-center gap-3 px-4 py-2 transition-[border-color,opacity,box-shadow] duration-200`,
   {
     variants: {
       width: {

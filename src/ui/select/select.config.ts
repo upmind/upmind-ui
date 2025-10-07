@@ -5,7 +5,7 @@ import { ringClasses, invalidRingClasses } from "../../assets/ring.styles";
 export const variants = {
   variant: {
     outline:
-      "bg-control-surface [&:hover,&:focus-within,&[data-hover=true],&[data-focus=true]]:shadow-border-control-hover shadow-border-control-default",
+      "bg-control-surface [&:hover,&:focus-within,&[data-hover=true],&[data-focus=true]]:shadow-control-hover shadow-control-default",
     ghost:
       "[&:hover,&:focus-within,&[data-hover=true],&[data-focus=true]]:bg-button-ghost-hover"
   },
@@ -58,7 +58,7 @@ export default {
       }
     ),
     content: cva(
-      `control-radius shadow-border-control-default bg-control-surface ring-primitive-control-default! mt-2 border-none ${ringClasses} ${invalidRingClasses} p-0`
+      `control-radius shadow-control-default bg-control-surface ring-primitive-control-default! mt-2 border-none ${ringClasses} ${invalidRingClasses} p-0`
     )
   }
 };

@@ -16,7 +16,7 @@ export const variants = {
 };
 
 export const triggerVariants = cva(
-  `bg-control-surface [&:hover,&:focus-within,&[data-hover=true],&[data-focus=true]]:shadow-border-control-hover [&:focus-within,&[data-focus=true]]:ring-ring control-radius shadow-border-control-default group flex cursor-pointer border-none px-4 py-2 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 [&:focus-within,&[data-focus=true]]:ring-2 [&:focus-within,&[data-focus=true]]:ring-offset-2 ${ringClasses} ${invalidRingClasses} h-auto min-w-0 items-center justify-start text-left font-medium`,
+  `bg-control-surface [&:hover,&:focus-within,&[data-hover=true],&[data-focus=true]]:shadow-ontrol-hover [&:focus-within,&[data-focus=true]]:ring-ring control-radius sshadow-ntrol-default group flex cursor-pointer border-none px-4 py-2 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 [&:focus-within,&[data-focus=true]]:ring-2 [&:focus-within,&[data-focus=true]]:ring-offset-2 ${ringClasses} ${invalidRingClasses} h-auto min-w-0 items-center justify-start text-left font-medium`,
   {
     variants,
     defaultVariants: {
@@ -30,7 +30,7 @@ export const itemVariants = cva(
 );
 
 export const contentVariants = cva(
-  `control-radius shadow-border-control-default bg-control-surface mt-2 border-none ${ringClasses} ${invalidRingClasses} flex max-h-72 min-w-(--radix-dropdown-menu-trigger-width) flex-col overflow-hidden overflow-y-scroll p-2`,
+  `control-radius shadow-ontrol-default bg-control-surface mt-2 border-none ${ringClasses} ${invalidRingClasses} flex max-h-72 min-w-(--radix-dropdown-menu-trigger-width) flex-col overflow-hidden overflow-y-scroll p-2`,
   {
     variants,
     defaultVariants: {

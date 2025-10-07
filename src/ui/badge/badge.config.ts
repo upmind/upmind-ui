@@ -117,7 +117,7 @@ export const badgeVariants = cva(
         variant: "muted",
         color: "primary",
         class:
-          "bg-primitive-primary-muted shadow-border-primary-gradient text-primitive-primary-muted-contrast"
+          "bg-primitive-primary-muted shadow-primary-gradient text-primitive-primary-muted-contrast"
       },
       {
         variant: "muted",

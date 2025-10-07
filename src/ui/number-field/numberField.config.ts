@@ -89,7 +89,7 @@ export const numberFieldVariants = cva(
   {
     variants: {
       variant: {
-        flat: `shadow-border-control-default bg-control-surface`,
+        flat: `shadow-control-default bg-control-surface`,
         minimal: "shadow-none!"
       },
       size: {
@@ -126,7 +126,7 @@ export const numberFieldVariants = cva(
 );
 
 export const numberFieldInputVariants = cva(
-  "bg-control-surface shadow-border-control-default hover:shadow-border-control-hover",
+  "bg-control-surface shadow-control-default hover:shadow-control-hover",
   {
     variants: {
       variant: {
