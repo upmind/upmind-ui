@@ -58,19 +58,19 @@
   /* Primitive Colors - Warning */
   --color-warning-default: #ffc233;
   --color-warning-default-contrast: #523900;
-  --color-warning-muted: #1f1f1f;
+  --color-warning-muted: #fff9eb;
   --color-warning-muted-contrast: #ffc233;
 
   /* Primitive Colors - Success */
   --color-success-default: #00d88c;
   --color-success-default-contrast: #002c19;
-  --color-success-muted: #1f1f1f;
+  --color-success-muted: #e7fff1;
   --color-success-muted-contrast: #00d88c;
 
   /* Primitive Colors - Info */
   --color-info-default: #00acff;
   --color-info-default-contrast: #ffffff;
-  --color-info-muted: #1f1f1f;
+  --color-info-muted: #f0faff;
   --color-info-muted-contrast: #00acff;
 
   /* Background Colors */
