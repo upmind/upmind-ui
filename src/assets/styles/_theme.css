@@ -91,37 +91,37 @@
   --bg-control-ring: var(--color-control-default);
 
   /* Background - Button */
-  --bg-button-primary-ring: var(--color-primary-default-stop);
+  --bg-button-primary-ring: var(--color-primary-default-delta);
   --bg-button-primary-0: var(--color-primary-default);
   --bg-button-primary-1: var(--color-primary-default-stop);
   --bg-button-primary-hover-0: var(--color-primary-default-delta);
   --bg-button-primary-hover-1: var(--color-primary-default-delta);
-  --bg-button-secondary-ring: var(--color-secondary-default-stop);
+  --bg-button-secondary-ring: var(--color-secondary-default-delta);
   --bg-button-secondary-0: var(--color-secondary-default);
   --bg-button-secondary-1: var(--color-secondary-default-stop);
   --bg-button-secondary-hover-0: var(--color-secondary-default-delta);
   --bg-button-secondary-hover-1: var(--color-secondary-default-delta);
-  --bg-button-neutral-ring: var(--color-neutral-default);
+  --bg-button-neutral-ring: var(--color-neutral-default-delta);
   --bg-button-neutral-0: var(--color-neutral-default);
   --bg-button-neutral-1: var(--color-neutral-default);
   --bg-button-neutral-hover-0: var(--color-neutral-default-delta);
   --bg-button-neutral-hover-1: var(--color-neutral-default-delta);
-  --bg-button-subtle-ring: var(--color-neutral-default);
+  --bg-button-subtle-ring: var(--color-neutral-default-delta);
   --bg-button-subtle-0: var(--color-neutral-muted);
   --bg-button-subtle-1: var(--color-neutral-muted);
   --bg-button-subtle-hover-0: var(--color-neutral-muted-delta);
   --bg-button-subtle-hover-1: var(--color-neutral-muted-delta);
-  --bg-button-danger-ring: var(--color-danger-default);
+  --bg-button-danger-ring: var(--color-danger-default-delta);
   --bg-button-danger-0: var(--color-danger-default);
   --bg-button-danger-1: var(--color-danger-default);
   --bg-button-danger-hover-0: var(--color-danger-default-delta);
   --bg-button-danger-hover-1: var(--color-danger-default-delta);
   --bg-button-outline: transparent;
   --bg-button-outline-hover: var(--color-neutral-muted-delta);
-  --bg-button-outline-ring: var(--color-neutral-default);
+  --bg-button-outline-ring: var(--color-neutral-default-delta);
   --bg-button-ghost: transparent;
   --bg-button-ghost-hover: var(--color-neutral-muted-delta);
-  --bg-button-ghost-ring: var(--color-neutral-default);
+  --bg-button-ghost-ring: var(--color-neutral-default-delta);
 
   /* Background - Accent */
   --bg-accent-primary: var(--color-primary-default);

@@ -70,6 +70,16 @@
   --color-info-default-contrast: var(--color-info-default-contrast);
   --color-info-muted: var(--color-info-muted);
   --color-info-muted-contrast: var(--color-info-muted-contrast);
+
+  /* Ring Colors */
+  --color-bg-control-ring: var(--bg-control-ring);
+  --color-bg-button-primary-ring: var(--bg-button-primary-ring);
+  --color-bg-button-secondary-ring: var(--bg-button-secondary-ring);
+  --color-bg-button-neutral-ring: var(--bg-button-neutral-ring);
+  --color-bg-button-subtle-ring: var(--bg-button-subtle-ring);
+  --color-bg-button-danger-ring: var(--bg-button-danger-ring);
+  --color-bg-button-warning-ring: var(--bg-button-warning-ring);
+  --color-bg-button-success-ring: var(--bg-button-success-ring);
 }
 
 @utility text-control-default {
