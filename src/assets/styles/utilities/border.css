@@ -1,27 +1,17 @@
-@theme {
-  /* Border Radius */
-  --radius: 8px;
-  --radius-none: 0;
-  --radius-sm: 4px;
-  --radius-lg: 16px;
-  --radius-xl: 32px;
-  --radius-2xl: 128px;
-  --radius-3xl: 360px;
-  --radius-full: 99999px;
-  --radius-pill: 32px;
-  --radius-button: 0.25rem;
-  --radius-box: 0.5rem;
-
-  /* Stroke Variables */
-  --stroke-icon: 1px;
-  --stroke-badge: 1px;
-}
-
-/* Border color utilities that work with all variants */
+/* Border Color Utilities */
 @utility border-surface {
   border-color: var(--border-surface);
 }
 
+/* Border - Button */
+@utility border-button-outline {
+  border-color: var(--border-button-outline);
+}
+@utility border-button-outline-hover {
+  border-color: var(--border-button-outline-hover);
+}
+
+/* Border - Control */
 @utility border-control-default {
   border-color: var(--border-control-default);
 }
@@ -32,13 +22,7 @@
   border-color: var(--border-control-selected);
 }
 
-@utility border-button-outline {
-  border-color: var(--border-button-outline);
-}
-@utility border-button-outline-hover {
-  border-color: var(--border-button-outline-hover);
-}
-
+/* Border - Accent */
 @utility border-accent-primary {
   border-color: var(--border-accent-primary);
 }
@@ -62,26 +46,4 @@
 }
 @utility border-accent-info {
   border-color: var(--border-accent-info);
-}
-
-@layer utilities {
-  .before\:border-control-default::before {
-    content: var(--tw-content);
-  }
-
-  .after\:border-control-default::after {
-    content: var(--tw-content);
-    border-color: var(--border-surface);
-  }
-}
-
-@layer utilities {
-  .divide-border-control-default > :not([hidden]) ~ :not([hidden]) {
-    --tw-divide-opacity: 1;
-    border-color: var(--border-control-default);
-  }
-
-  .divide-control-default > :not([hidden]) ~ :not([hidden]) {
-    border-color: var(--border-control-default);
-  }
 }

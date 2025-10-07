@@ -1,201 +1,63 @@
-@utility shadow-* {
-  --tw-shadow: inset 0 0 0 1px --value(--color-*);
-  box-shadow:
-    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
-    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-}
-
-@utility shadow-badge-border-surface {
+/* Shadow Border Utilities */
+@utility shadow-surface {
   --tw-shadow: inset 0 0 0 1px var(--border-surface);
-  box-shadow:
-    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
-    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
 }
 
-@utility shadow-b-* {
-  --tw-shadow: inset 0 -1px 0 0 --value(--color-*);
-  box-shadow:
-    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
-    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-}
-
-@utility shadow-t-* {
-  --tw-shadow: inset 0 1px 0 0 --value(--color-*);
-  box-shadow:
-    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
-    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-}
-
-@utility shadow-l-* {
-  --tw-shadow: inset 1px 0 0 0 --value(--color-*);
-  box-shadow:
-    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
-    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-}
-
-@utility shadow-r-* {
-  --tw-shadow: inset -1px 0 0 0 --value(--color-*);
-  box-shadow:
-    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
-    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-}
-
-@utility shadow-l-none-* {
-  --tw-shadow:
-    inset 0 1px 0 0 --value(--color-*), inset -1px 0 0 0 --value(--color-*),
-    inset 0 -1px 0 0 --value(--color-*);
-  box-shadow:
-    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
-    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-}
-
-@utility shadow-r-none-* {
-  --tw-shadow:
-    inset 0 1px 0 0 --value(--color-*), inset 1px 0 0 0 --value(--color-*),
-    inset 0 -1px 0 0 --value(--color-*);
-  box-shadow:
-    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
-    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-}
-
-@utility shadow-border-control-r-none {
-  --tw-shadow:
-    inset 0 1px 0 0 var(--border-control-default),
-    inset 1px 0 0 0 var(--border-control-default),
-    inset 0 -1px 0 0 var(--border-control-default);
-  box-shadow:
-    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
-    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-}
-
-@utility shadow-border-control-hover-r-none {
-  --tw-shadow:
-    inset 0 1px 0 0 var(--border-control-hover),
-    inset 1px 0 0 0 var(--border-control-hover),
-    inset 0 -1px 0 0 var(--border-control-hover);
-  box-shadow:
-    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
-    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-}
-
-/* Semantic shadow border utilities - override generic patterns */
-@utility shadow-border-control-default {
-  --tw-shadow: inset 0 0 0 1px var(--border-control-default);
-  box-shadow:
-    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
-    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-}
-
-@utility shadow-border-control-checked {
-  --tw-shadow: inset 0 0 0 1px var(--border-control-selected);
-  box-shadow:
-    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
-    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-}
-
-@utility shadow-border-control-hover {
-  --tw-shadow: inset 0 0 0 1px var(--border-control-hover);
-  box-shadow:
-    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
-    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-}
-
-@utility shadow-border-control-selected {
-  --tw-shadow: inset 0 0 0 1px var(--border-control-selected);
-  box-shadow:
-    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
-    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-}
-
-/* Button shadow border utilities */
-@utility shadow-border-button-outline {
+/* Shadow - Button */
+@utility shadow-button-outline {
   --tw-shadow: inset 0 0 0 1px var(--border-button-outline);
-  box-shadow:
-    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
-    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
 }
-
-@utility shadow-border-button-outline-hover {
+@utility shadow-button-outline-hover {
   --tw-shadow: inset 0 0 0 1px var(--border-button-outline-hover);
-  box-shadow:
-    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
-    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
 }
 
-/* Accent shadow border utilities */
-@utility shadow-border-accent-primary {
+/* Shadow - Control */
+@utility shadow-control-default {
+  --tw-shadow: inset 0 0 0 1px var(--border-control-default);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+@utility shadow-control-hover {
+  --tw-shadow: inset 0 0 0 1px var(--border-control-hover);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+@utility shadow-control-selected {
+  --tw-shadow: inset 0 0 0 1px var(--border-control-selected);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+/* Shadow - Accent */
+@utility shadow-accent-primary {
   --tw-shadow: inset 0 0 0 1px var(--border-accent-primary);
-  box-shadow:
-    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
-    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
 }
-
-@utility shadow-border-accent-secondary {
+@utility shadow-accent-secondary {
   --tw-shadow: inset 0 0 0 1px var(--border-accent-secondary);
-  box-shadow:
-    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
-    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
 }
-
-@utility shadow-border-accent-neutral {
+@utility shadow-accent-neutral {
   --tw-shadow: inset 0 0 0 1px var(--border-accent-neutral);
-  box-shadow:
-    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
-    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
 }
-
-@utility shadow-border-accent-promo {
+@utility shadow-accent-promo {
   --tw-shadow: inset 0 0 0 1px var(--border-accent-promo);
-  box-shadow:
-    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
-    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
 }
-
-@utility shadow-border-accent-danger {
+@utility shadow-accent-danger {
   --tw-shadow: inset 0 0 0 1px var(--border-accent-danger);
-  box-shadow:
-    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
-    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
 }
-
-@utility shadow-border-accent-warning {
+@utility shadow-accent-warning {
   --tw-shadow: inset 0 0 0 1px var(--border-accent-warning);
-  box-shadow:
-    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
-    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
 }
-
-@utility shadow-border-accent-success {
+@utility shadow-accent-success {
   --tw-shadow: inset 0 0 0 1px var(--border-accent-success);
-  box-shadow:
-    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
-    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
 }
-
-@utility shadow-border-accent-info {
+@utility shadow-accent-info {
   --tw-shadow: inset 0 0 0 1px var(--border-accent-info);
-  box-shadow:
-    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
-    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-}
-
-@utility shadow-border-surface {
-  --tw-shadow: inset 0 0 0 1px var(--border-surface);
-  box-shadow:
-    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
-    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-}
-
-@utility shadow-b-border-surface {
-  --tw-shadow: inset 0 -1px 0 0 var(--border-surface);
-  box-shadow:
-    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
-    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-}
-
-@utility shadow-t-border-surface {
-  --tw-shadow: inset 0 1px 0 0 var(--border-surface);
-  box-shadow:
-    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
-    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
 }

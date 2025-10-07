@@ -1,4 +1,4 @@
-@theme {
+:root {
   /* Primitive Colors - Core */
   --color-core-canvas: #f9f9fc;
   --color-core-surface: #ffffff;
@@ -162,57 +162,55 @@
   --border-accent-info: var(--color-info-default);
 
   /* Icon Colors */
-  --color-icon-primary: var(--color-primary-default);
-  --color-icon-neutral: var(--color-core-base);
+  --text-icon-primary: var(--color-primary-default);
+  --text-icon-neutral: var(--color-core-base);
 
   /* Text Colors */
-  --color-primary: #ffffff;
-  --color-base: var(--color-core-base);
-  --color-display: var(--color-core-display);
-  --color-muted: var(--color-core-muted);
-  --color-faint: var(--color-core-faint);
+  --text-primary: #ffffff;
+  --text-base: var(--color-core-base);
+  --text-display: var(--color-core-display);
+  --text-muted: var(--color-core-muted);
+  --text-faint: var(--color-core-faint);
 
   /* Text - Control */
-  --color-control-selected: var(--color-control-muted-contrast);
-  --color-button-primary: var(--color-primary-default-contrast);
-  --color-button-secondary: var(--color-secondary-default-contrast);
-  --color-button-neutral: var(--color-neutral-default-contrast);
-  --color-button-subtle: var(--color-neutral-muted-contrast);
-  --color-button-danger: var(--color-danger-default-contrast);
-  --color-button-danger-link: var(--color-danger-default);
-  --color-button-danger-link-hover: var(--color-danger-default-delta);
-  --color-button-outline: var(--color-core-display);
-  --color-button-ghost: var(--color-core-display);
-  --color-button-link: var(--color-core-display);
-  --color-button-link-hover: var(--color-control-default);
-  --color-button-muted-link: var(--color-core-muted);
-  --color-button-muted-link-hover: var(--color-control-default);
+  --text-control-selected: var(--color-control-muted-contrast);
+  --text-button-primary: var(--color-primary-default-contrast);
+  --text-button-secondary: var(--color-secondary-default-contrast);
+  --text-button-neutral: var(--color-neutral-default-contrast);
+  --text-button-subtle: var(--color-neutral-muted-contrast);
+  --text-button-danger: var(--color-danger-default-contrast);
+  --text-button-danger-link: var(--color-danger-default);
+  --text-button-danger-link-hover: var(--color-danger-default-delta);
+  --text-button-outline: var(--color-core-display);
+  --text-button-ghost: var(--color-core-display);
+  --text-button-link: var(--color-core-display);
+  --text-button-link-hover: var(--color-control-default);
+  --text-button-muted-link: var(--color-core-muted);
+  --text-button-muted-link-hover: var(--color-control-default);
 
   /* Text - Accent */
-  --color-accent-primary: var(--color-primary-default);
-  --color-accent-primary-muted-contrast: var(--color-primary-muted-contrast);
-  --color-accent-primary-contrast: var(--color-primary-default-contrast);
-  --color-accent-neutral: var(--color-neutral-default);
-  --color-accent-neutral-muted-contrast: var(--color-neutral-muted-contrast);
-  --color-accent-neutral-contrast: var(--color-neutral-default-contrast);
-  --color-accent-promo: var(--color-promo-default);
-  --color-accent-promo-muted-contrast: var(--color-promo-muted-contrast);
-  --color-accent-promo-contrast: var(--color-promo-default-contrast);
-  --color-accent-danger: var(--color-danger-default);
-  --color-accent-danger-muted-contrast: var(--color-danger-muted-contrast);
-  --color-accent-danger-contrast: var(--color-danger-default-contrast);
-  --color-accent-warning: var(--color-warning-default);
-  --color-accent-warning-muted-contrast: var(--color-warning-muted-contrast);
-  --color-accent-warning-contrast: var(--color-warning-default-contrast);
-  --color-accent-success: var(--color-success-default);
-  --color-accent-success-muted-contrast: var(--color-success-muted-contrast);
-  --color-accent-success-contrast: var(--color-success-default-contrast);
-  --color-accent-info: var(--color-info-default);
-  --color-accent-info-muted-contrast: var(--color-info-muted-contrast);
-  --color-accent-info-contrast: var(--color-info-default-contrast);
-}
+  --text-accent-primary: var(--color-primary-default);
+  --text-accent-primary-muted-contrast: var(--color-primary-muted-contrast);
+  --text-accent-primary-contrast: var(--color-primary-default-contrast);
+  --text-accent-neutral: var(--color-neutral-default);
+  --text-accent-neutral-muted-contrast: var(--color-neutral-muted-contrast);
+  --text-accent-neutral-contrast: var(--color-neutral-default-contrast);
+  --text-accent-promo: var(--color-promo-default);
+  --text-accent-promo-muted-contrast: var(--color-promo-muted-contrast);
+  --text-accent-promo-contrast: var(--color-promo-default-contrast);
+  --text-accent-danger: var(--color-danger-default);
+  --text-accent-danger-muted-contrast: var(--color-danger-muted-contrast);
+  --text-accent-danger-contrast: var(--color-danger-default-contrast);
+  --text-accent-warning: var(--color-warning-default);
+  --text-accent-warning-muted-contrast: var(--color-warning-muted-contrast);
+  --text-accent-warning-contrast: var(--color-warning-default-contrast);
+  --text-accent-success: var(--color-success-default);
+  --text-accent-success-muted-contrast: var(--color-success-muted-contrast);
+  --text-accent-success-contrast: var(--color-success-default-contrast);
+  --text-accent-info: var(--color-info-default);
+  --text-accent-info-muted-contrast: var(--color-info-muted-contrast);
+  --text-accent-info-contrast: var(--color-info-default-contrast);
 
-@theme {
   /* Radius Variables */
   --button-radius: 8px;
   --control-radius: 8px;

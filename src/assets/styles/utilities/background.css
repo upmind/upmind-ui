@@ -1,0 +1,181 @@
+/* Background Color Utilities */
+@utility bg-canvas {
+  background-color: var(--bg-canvas);
+}
+@utility bg-surface {
+  background-color: var(--bg-surface);
+}
+@utility bg-surface-glass {
+  background-color: var(--bg-surface-glass);
+}
+@utility bg-skeleton {
+  background-color: var(--bg-skeleton);
+}
+@utility bg-overlay {
+  background-color: var(--bg-overlay);
+}
+
+/* Background - Control */
+@utility bg-control-checked-contrast {
+  background-color: var(--bg-control-checked-contrast);
+}
+@utility bg-control-checked {
+  background-color: var(--bg-control-checked);
+}
+@utility bg-control-checked-hover {
+  background-color: var(--bg-control-checked-hover);
+}
+@utility bg-control-unchecked {
+  background-color: var(--bg-control-unchecked);
+}
+@utility bg-control-unchecked-hover {
+  background-color: var(--bg-control-unchecked-hover);
+}
+@utility bg-control-selected {
+  background-color: var(--bg-control-selected);
+}
+@utility bg-control-surface {
+  background-color: var(--bg-control-surface);
+}
+@utility bg-control-ring {
+  background-color: var(--bg-control-ring);
+}
+
+/* Background - Button */
+@utility bg-button-primary-ring {
+  background-color: var(--bg-button-primary-ring);
+}
+@utility bg-button-primary-0 {
+  background-color: var(--bg-button-primary-0);
+}
+@utility bg-button-primary-1 {
+  background-color: var(--bg-button-primary-1);
+}
+@utility bg-button-primary-hover-0 {
+  background-color: var(--bg-button-primary-hover-0);
+}
+@utility bg-button-primary-hover-1 {
+  background-color: var(--bg-button-primary-hover-1);
+}
+@utility bg-button-secondary-ring {
+  background-color: var(--bg-button-secondary-ring);
+}
+@utility bg-button-secondary-0 {
+  background-color: var(--bg-button-secondary-0);
+}
+@utility bg-button-secondary-1 {
+  background-color: var(--bg-button-secondary-1);
+}
+@utility bg-button-secondary-hover-0 {
+  background-color: var(--bg-button-secondary-hover-0);
+}
+@utility bg-button-secondary-hover-1 {
+  background-color: var(--bg-button-secondary-hover-1);
+}
+@utility bg-button-neutral-ring {
+  background-color: var(--bg-button-neutral-ring);
+}
+@utility bg-button-neutral-0 {
+  background-color: var(--bg-button-neutral-0);
+}
+@utility bg-button-neutral-1 {
+  background-color: var(--bg-button-neutral-1);
+}
+@utility bg-button-neutral-hover-0 {
+  background-color: var(--bg-button-neutral-hover-0);
+}
+@utility bg-button-neutral-hover-1 {
+  background-color: var(--bg-button-neutral-hover-1);
+}
+@utility bg-button-subtle-ring {
+  background-color: var(--bg-button-subtle-ring);
+}
+@utility bg-button-subtle-0 {
+  background-color: var(--bg-button-subtle-0);
+}
+@utility bg-button-subtle-1 {
+  background-color: var(--bg-button-subtle-1);
+}
+@utility bg-button-subtle-hover-0 {
+  background-color: var(--bg-button-subtle-hover-0);
+}
+@utility bg-button-subtle-hover-1 {
+  background-color: var(--bg-button-subtle-hover-1);
+}
+@utility bg-button-danger-ring {
+  background-color: var(--bg-button-danger-ring);
+}
+@utility bg-button-danger-0 {
+  background-color: var(--bg-button-danger-0);
+}
+@utility bg-button-danger-1 {
+  background-color: var(--bg-button-danger-1);
+}
+@utility bg-button-danger-hover-0 {
+  background-color: var(--bg-button-danger-hover-0);
+}
+@utility bg-button-danger-hover-1 {
+  background-color: var(--bg-button-danger-hover-1);
+}
+@utility bg-button-outline {
+  background-color: var(--bg-button-outline);
+}
+@utility bg-button-outline-hover {
+  background-color: var(--bg-button-outline-hover);
+}
+@utility bg-button-outline-ring {
+  background-color: var(--bg-button-outline-ring);
+}
+@utility bg-button-ghost {
+  background-color: var(--bg-button-ghost);
+}
+@utility bg-button-ghost-hover {
+  background-color: var(--bg-button-ghost-hover);
+}
+@utility bg-button-ghost-ring {
+  background-color: var(--bg-button-ghost-ring);
+}
+
+/* Background - Accent */
+@utility bg-accent-primary {
+  background-color: var(--bg-accent-primary);
+}
+@utility bg-accent-primary-muted {
+  background-color: var(--bg-accent-primary-muted);
+}
+@utility bg-accent-neutral {
+  background-color: var(--bg-accent-neutral);
+}
+@utility bg-accent-neutral-muted {
+  background-color: var(--bg-accent-neutral-muted);
+}
+@utility bg-accent-promo {
+  background-color: var(--bg-accent-promo);
+}
+@utility bg-accent-promo-muted {
+  background-color: var(--bg-accent-promo-muted);
+}
+@utility bg-accent-danger {
+  background-color: var(--bg-accent-danger);
+}
+@utility bg-accent-danger-muted {
+  background-color: var(--bg-accent-danger-muted);
+}
+@utility bg-accent-warning {
+  background-color: var(--bg-accent-warning);
+}
+@utility bg-accent-warning-muted {
+  background-color: var(--bg-accent-warning-muted);
+}
+@utility bg-accent-success {
+  background-color: var(--bg-accent-success);
+}
+@utility bg-accent-success-muted {
+  background-color: var(--bg-accent-success-muted);
+}
+@utility bg-accent-info {
+  background-color: var(--bg-accent-info);
+}
+@utility bg-accent-info-muted {
+  background-color: var(--bg-accent-info-muted);
+}

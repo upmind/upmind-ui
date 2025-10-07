@@ -6,6 +6,8 @@
 @import "./utilities/border.css";
 @import "./utilities/size.css";
 @import "./utilities/colors.css";
+@import "./utilities/text.css";
+@import "./utilities/background.css";
 
 @layer utilities {
   .autofill:has(input:autofill) {
