@@ -81,7 +81,3 @@
   --color-bg-button-warning-ring: var(--bg-button-warning-ring);
   --color-bg-button-success-ring: var(--bg-button-success-ring);
 }
-
-@utility text-control-default {
-  --color-control-default: var(--color-control-default);
-}

@@ -16,6 +16,9 @@
 }
 
 /* Main Variants */
+@utility text-control-default {
+  --color-control-default: var(--color-control-default);
+}
 @utility text-control-selected {
   color: var(--text-control-selected);
 }
