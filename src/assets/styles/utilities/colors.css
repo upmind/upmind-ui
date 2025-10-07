@@ -77,7 +77,7 @@
   --color-secondary-ring: var(--bg-button-secondary-ring);
   --color-neutral-ring: var(--bg-button-neutral-ring);
   --color-subtle-ring: var(--bg-button-subtle-ring);
-  --color-outline-ring: var(--bg-button-outline-ring: );
+  --color-outline-ring: var(--bg-button-outline-ring);
   --color-danger-ring: var(--bg-button-danger-ring);
   --color-warning-ring: var(--bg-button-warning-ring);
   --color-success-ring: var(--bg-button-success-ring);
