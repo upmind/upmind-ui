@@ -1,3 +1,4 @@
+import { GatewayData } from "@upmind-automation/types";
 import type { GatewayContext } from "../types";
 
 // -----------------------------------------------------------------------------
@@ -14,14 +15,6 @@ export enum OPENPAY_FIELDS {
   STORED = "stored",
   TEST_MODE = "testMode"
 }
-
-export type OpenPayModel = {
-  card_number: string; // eg. '5105105105105100'
-  holder_name: string;
-  expiration_year: string; // eg. '24'
-  expiration_month: string; // eg. '12'
-  cvv2: string; // eg. '123'
-};
 
 export type OpenPayTokenResponse = {
   status: number;
@@ -47,9 +40,17 @@ export type OpenPay = {
   [key: string]: any;
 };
 
+export type OpenPayModel = GatewayData & {
+  openpay: {
+    card_number: string; // eg. '5105105105105100'
+    holder_name: string;
+    expiration_year: string; // eg. '24'
+    expiration_month: string; // eg. '12'
+    cvv2: string; // eg. '123'
+  };
+};
+
 export type OpenPayContext = GatewayContext<{
   openPay?: OpenPay;
-  model: GatewayContext["model"] & {
-    openpay: OpenPayModel;
-  };
+  model?: OpenPayModel;
 }>;

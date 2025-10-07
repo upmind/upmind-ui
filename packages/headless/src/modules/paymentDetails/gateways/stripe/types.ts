@@ -99,10 +99,9 @@ export enum ZERO_DECIMAL_CURRENCIES {
 }
 
 export type StripeContext = GatewayContext<{
-  stripe?: Stripe;
-  elements?: StripeElements;
-  element?: StripePaymentElement;
-  validationObserver?: ActorRef<any>;
-  validationHelper?: (callback: any) => void;
-  container?: HTMLElement;
+  sdk?: {
+    stripe: Stripe;
+    elements: StripeElements;
+    element: StripePaymentElement;
+  };
 }>;

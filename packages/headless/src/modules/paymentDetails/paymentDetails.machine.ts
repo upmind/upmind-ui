@@ -10,13 +10,18 @@ import { spawnGateway } from "./utils";
 import { mapToHeadlessError, stopService, useModelParser } from "../../utils";
 import { useTime, useValidationParser } from "../../utils";
 import { useSchema, useUischema } from "./schemas";
-import { set, unset, forEach, isEqual, isEmpty } from "lodash-es";
+import { isEqual, isEmpty, find } from "lodash-es";
 
 // --- types
-import type { ActorRef, AnyEventObject } from "xstate";
+import type { AnyEventObject } from "xstate";
 import type { PaymentDetailsContext } from "./types";
 import { responseCodes } from "../../utils";
-import { PaymentType, StoredCardData } from "@upmind-automation/types";
+import {
+  PaymentType,
+  SelectedPaymentMethod,
+  GatewayContext as GatewayCtx,
+  IBrandGateway
+} from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -200,7 +205,10 @@ export default createMachine(
         data: (
           { paymentDetails }: PaymentDetailsContext,
           _event: AnyEventObject
-        ) => paymentDetails
+        ) => {
+          debugger;
+          return paymentDetails;
+        }
       }
     },
     on: {
@@ -222,8 +230,8 @@ export default createMachine(
       setParsed: assign({
         model: (_context: PaymentDetailsContext, { data }: AnyEventObject) =>
           data.model,
-        gateway: (_context: PaymentDetailsContext, { data }: AnyEventObject) =>
-          data.gateway,
+        // gateway: (_context: PaymentDetailsContext, { data }: AnyEventObject) =>
+        //   data.gateway,
         paymentDetails: (
           _context: PaymentDetailsContext,
           { data }: AnyEventObject
@@ -258,8 +266,8 @@ export default createMachine(
       }),
 
       clearModel: assign({
-        model: undefined,
-        gateway: undefined
+        model: undefined
+        // gateway: undefined
       }),
 
       setAutoUpdate: assign({
@@ -275,52 +283,51 @@ export default createMachine(
 
       setGateway: assign({
         // NB: SPAWN HAS TO BE DONE IN AN ASSIGN!
-        actors: (
+        gatewayHelper: (
           {
             address,
             orderId,
             currency,
             amount,
-            gateway,
-            actors,
+            gateways,
+            gatewayHelper,
             clientId,
-            storedPaymentMethods
+            model
           }: PaymentDetailsContext,
           _event: AnyEventObject
         ) => {
-          actors ??= {}; //sanity check
+          debugger;
+          if (gatewayHelper?.id != model?.gateway_id) {
+            // stop any existing gateways if they are different
+            if (gatewayHelper) stopService(gatewayHelper);
 
-          // stop any existing gateways if they are different and not done/complete
-          if (actors.gateway && actors?.gateway?.id != gateway?.id) {
-            stopService(actors.gateway);
-            unset(actors, "gateway");
-          }
+            // then find the gateway in the list
+            const brandGateway = find(gateways, ["id", model?.gateway_id]);
+            debugger;
+            if (!brandGateway?.gateway) return undefined;
 
-          // if we are provided a gateway AND dont have one spawned yet,
-          if (!actors?.gateway && gateway) {
-            const actor = spawnGateway({
+            debugger;
+            // and spawn it if it exists
+            return spawnGateway({
               orderId,
-              gateway: amount ? gateway : undefined, // use the free gateway if amount is 0
+              gateway: brandGateway.gateway,
               amount,
               currency,
               address,
               clientId,
-              storedPaymentMethods
+              ctx: GatewayCtx.PAY
             });
-            set(actors, "gateway", actor);
           }
 
-          return actors;
+          debugger;
+          return gatewayHelper; // otherwise just return the existing one
         }
       }),
 
       clearGateway: assign({
-        actors: ({ actors }: PaymentDetailsContext) => {
-          if (actors?.gateway) {
-            stopService(actors.gateway);
-            unset(actors, "gateway");
-          }
-          return actors;
+        gatewayHelper: ({ gatewayHelper }: PaymentDetailsContext) => {
+          if (gatewayHelper) stopService(gatewayHelper);
+          return undefined;
         }
       }),
 
@@ -348,9 +355,9 @@ export default createMachine(
       }),
 
       refreshActors: assign({
-        actors: (
+        gatewayHelper: (
           {
-            actors,
+            gatewayHelper,
             orderId,
             currency,
             amount,
@@ -359,21 +366,20 @@ export default createMachine(
           }: PaymentDetailsContext,
           _event: AnyEventObject
         ) => {
-          forEach(actors, actor => {
-            if (actor?.send && !actor?.getSnapshot()?.done) {
-              actor.send({
-                type: "REFRESH",
-                data: {
-                  orderId,
-                  currency,
-                  amount,
-                  address,
-                  clientId
-                }
-              });
-            }
-          });
-          return actors;
+          if (gatewayHelper?.send && !gatewayHelper?.getSnapshot()?.done) {
+            gatewayHelper.send({
+              type: "REFRESH",
+              data: {
+                orderId,
+                currency,
+                amount,
+                address,
+                clientId
+              }
+            });
+          }
+
+          return gatewayHelper;
         }
       }),
 
@@ -381,17 +387,20 @@ export default createMachine(
 
       setPaymentDetails: assign({
         paymentDetails: (
-          { amount, model, orderId }: PaymentDetailsContext,
+          { amount, model, currency }: PaymentDetailsContext,
           { data }: AnyEventObject
         ) => {
+          debugger;
           return {
-            ...data, // provided GatewayData ( must already be parsed correctly by the gateway )
-            returnUrl: model?.return_url,
-            cancelUrl: model?.cancel_url,
-            type: model?.type,
-            order_id: orderId,
-            amount
-          } as PaymentDetailsContext["paymentDetails"];
+            amount,
+            walletAmount: undefined,
+            currency_id: currency.id,
+            data: {
+              ...data, // provided GatewayData ( must already be parsed correctly by the gateway )
+              return_url: model?.return_url,
+              cancel_url: model?.cancel_url
+            }
+          } as SelectedPaymentMethod;
         }
       }),
 
@@ -408,12 +417,8 @@ export default createMachine(
 
       // ---
 
-      forwardCheckout: ({ actors }: PaymentDetailsContext) => {
-        forEach(actors, (actor: ActorRef<any> | undefined) => {
-          if (actor?.send) {
-            actor.send({ type: "CHECKOUT" });
-          }
-        });
+      forwardCheckout: ({ gatewayHelper }: PaymentDetailsContext) => {
+        if (gatewayHelper?.send) gatewayHelper.send({ type: "CHECKOUT" });
       },
 
       // ---
@@ -449,7 +454,7 @@ export default createMachine(
       hasPaymentDetails: (
         { paymentDetails }: PaymentDetailsContext,
         _event: AnyEventObject
-      ) => !isEmpty((paymentDetails as StoredCardData)?.payment_details_id),
+      ) => !isEmpty(paymentDetails?.data),
       isPaymentDetail: (
         _context: PaymentDetailsContext,
         { data }: AnyEventObject
@@ -470,11 +475,13 @@ export default createMachine(
       ) => {
         const orderChanged = orderId != data?.id;
         const clientChanged = clientId != data?.client_id;
-        const addressChanged = address?.id != data?.address_id;
         const currencyChanged = currency?.id != data?.currency_id;
+        // NB : We only need to worry if the address country changes  as that is all that affects payment methods
+        const countryChanged =
+          data?.address && address?.country_id != data?.address?.country_id;
 
         return (
-          orderChanged || clientChanged || addressChanged || currencyChanged
+          orderChanged || clientChanged || countryChanged || currencyChanged
         );
       }
     },

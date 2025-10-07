@@ -104,8 +104,8 @@ export const usePaymentGateway = (actor: ComputedRef<Actor | undefined>) => {
   const uischema = useContext<GatewayContext["uischema"]>(actor, "uischema");
   // const renderer = useContext<GatewayContext["renderer"]>(actor, "renderer");
   const instructions = useContext<any>(actor, "gateway.payment_instructions");
-  const type = useContext<GatewayContext["type"]>(actor, "type");
-  const code = useContext<GatewayContext["code"]>(actor, "code");
+  // const type = useContext<GatewayContext["type"]>(actor, "type");
+  // const code = useContext<GatewayContext["code"]>(actor, "code");
 
   const { uiCart } = useBrand();
   const clickwrap = computed(() => uiCart.value?.clickwrap_disclaimer);
@@ -216,7 +216,7 @@ export const usePaymentGateway = (actor: ComputedRef<Actor | undefined>) => {
     // --- context
 
     /** The payment gateway code. */
-    code,
+    // code,
 
     /** The full payment gateway context object. */
     context,
@@ -250,7 +250,7 @@ export const usePaymentGateway = (actor: ComputedRef<Actor | undefined>) => {
     schema,
 
     /** The payment gateway type. */
-    type,
+    // type,
 
     /** The payment gateway UI schema. */
     uischema,

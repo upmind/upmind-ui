@@ -1,0 +1,62 @@
+// --- external
+import { assign } from "xstate";
+
+// --- internal
+
+// --- utils
+import { parseMinorUnitAmount } from "./utils";
+import {
+  useValidationParser,
+  mapToHeadlessError,
+  responseCodes
+} from "../../../../utils";
+import { isFunction, filter, isString, includes, lowerCase } from "lodash-es";
+// --- types
+import type { AnyEventObject } from "xstate";
+import type { StripeContext } from "./types";
+
+// -----------------------------------------------------------------------------
+// override the macine actions to generate the schema, uischema and model
+
+export default {
+  updateSdk: ({ sdk, currency }: StripeContext, { data }: AnyEventObject) => {
+    if (!isFunction(sdk?.elements?.update) || !isFunction(sdk?.element?.update))
+      return; // in case we receive an update before stripe has loaded
+
+    const amount = parseMinorUnitAmount(data?.amount || 0, currency.code);
+    if (amount <= 0) return; // NB: Stripe requires a positive amount
+
+    sdk.elements.update({
+      amount,
+      currency: data?.currency.code.toLowerCase() // NB: MUST be lowercase
+    });
+
+    if (data.address) {
+      sdk.element.update({
+        defaultValues: {
+          billingDetails: {
+            address: {
+              postal_code: data.address?.postcode,
+              country: data.address?.country?.code
+            }
+          }
+        }
+      });
+    }
+  },
+
+  setError: assign({
+    error: (_context: StripeContext, { data }: AnyEventObject) => {
+      const error = mapToHeadlessError(data);
+      if (error?.status == responseCodes.Unprocessable_Entity) {
+        error.data = useValidationParser(error);
+      } else if (error?.data) {
+        error.data = filter(
+          error.data,
+          e => isString(e.title) && !includes(lowerCase(e.title), "element")
+        );
+      }
+      return error;
+    }
+  })
+};

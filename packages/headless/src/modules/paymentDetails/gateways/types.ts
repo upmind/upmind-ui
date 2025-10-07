@@ -17,17 +17,10 @@ import type {
 
 import type { ResponseError } from "../../../utils";
 import { PaymentDetail } from "../types";
+import { ActorRef } from "xstate";
 
 // -----------------------------------------------------------------------------
-
-export type BaseGatewayContext = {
-  card?: any;
-  elements?: any;
-  element?: any;
-  container?: HTMLElement;
-  renderer?: (container: HTMLElement) => void;
-
-  // ---
+export type GatewayParams = {
   address?: IAddress;
   amount: SelectedPaymentMethod["amount"];
   clientId: IClient["id"];
@@ -35,26 +28,27 @@ export type BaseGatewayContext = {
   currency: ICurrency;
   gateway: IGateway;
   orderId: IOrder["id"];
-  paymentMethod: PaymentMethodType;
-  type: GatewayTypes;
-  // --- Lookups
-  storedPaymentMethods?: PaymentDetail[];
-  code?: string;
-  // --- Computed
   renderless?: boolean;
+  // paymentMethod: PaymentMethodType;
+  // type: GatewayTypes;
+};
+export type GeneticGatewayContext = {
+  // --- state
+  sdk?: unknown;
+  container?: HTMLElement;
+  validationObserver?: ActorRef<any>;
+  validationHelper?: (callback: any) => void;
+  // --- Computed
   canStore?: boolean;
   mustStore?: boolean;
   mustAutoPay?: boolean;
-  // --- Operation
-  operationId?: string;
   // --- UI
   schema?: JsonSchema;
   uischema?: UISchemaElement;
   model?: GatewayData;
   // --- Output
   paymentDetails?: SelectedPaymentMethod; // will contain the response from Card, as wel las any model data
-  // ---
   error?: ResponseError;
 };
 
-export type GatewayContext<T = {}> = BaseGatewayContext & T;
+export type GatewayContext<T = {}> = GatewayParams & GeneticGatewayContext & T;

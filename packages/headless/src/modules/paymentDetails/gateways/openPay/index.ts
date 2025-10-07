@@ -1,9 +1,8 @@
-import services from "./services";
+// --- internal
 import actions from "./actions";
-
+import services from "./services";
 // -----------------------------------------------------------------------------
-
 export default {
-  services,
-  actions
+  actions,
+  services
 };

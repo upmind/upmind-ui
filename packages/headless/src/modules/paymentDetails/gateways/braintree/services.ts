@@ -78,13 +78,7 @@ async function load(context: BraintreeContext, _event: AnyEventObject) {
 }
 
 async function render(
-  {
-    authorization,
-    paymentUses3DS,
-    paymentMethodPayPal,
-    amount,
-    currency
-  }: BraintreeContext,
+  { sdk, amount, currency }: BraintreeContext,
   { data }: AnyEventObject
 ) {
   const container = data?.container as HTMLElement;
@@ -100,14 +94,14 @@ async function render(
     }
   });
 
-  if (!authorization || !container) {
+  if (!sdk?.authorization || !container) {
     return Promise.reject(
       new DetailedError(
         "Braintree cannot render",
         responseCodes.Not_Found,
         ErrorOrigin.Headless,
         {
-          authorization,
+          authorization: sdk?.authorization,
           container
         }
       )
@@ -117,11 +111,11 @@ async function render(
   const { locale } = useLocale();
 
   return BraintreeDropin.create({
-    authorization,
+    authorization: sdk?.authorization,
     container,
     locale: locale.value,
-    ...(paymentUses3DS ? { threeDSecure: true } : {}),
-    ...(paymentMethodPayPal ? { paypal } : {})
+    ...(sdk?.paymentUses3DS ? { threeDSecure: true } : {}),
+    ...(sdk?.paymentMethodPayPal ? { paypal } : {})
   }).then(instance => {
     // set up our callback helper to watch for validation
     const validationHelper = (callback: any, onReceiveEvent: any) => {
@@ -156,11 +150,11 @@ async function render(
 }
 
 async function validate(
-  { schema, model, braintree }: BraintreeContext,
+  { schema, model, sdk }: BraintreeContext,
   { data }: AnyEventObject
 ) {
   // Get any errors from the Braintree Instance
-  if (!braintree)
+  if (!sdk?.braintree)
     return Promise.reject(
       new DetailedError(
         "Braintree instance not found.",
@@ -212,12 +206,7 @@ async function validate(
  * payment). We do not need to pass a client secret for flow, as the
  * payment detail is attached to a customer and confirmed server-side.
  */
-async function pay({
-  gateway,
-  braintree,
-  paymentUses3DS,
-  amount
-}: BraintreeContext) {
+async function pay({ gateway, sdk, amount }: BraintreeContext) {
   if (!braintree)
     return Promise.reject(
       new DetailedError(
@@ -228,17 +217,17 @@ async function pay({
     );
 
   const paymentOptions = (
-    paymentUses3DS ? { threeDSecure: { amount: `${amount}` } } : {}
+    sdk?.paymentUses3DS ? { threeDSecure: { amount: `${amount}` } } : {}
   ) as PaymentMethodOptions;
 
-  return braintree
+  return sdk?.braintree
     .requestPaymentMethod(paymentOptions)
     .then((payload: PaymentMethodPayload) => {
       const isCard = payload.type === BraintreeTypes.CARD;
 
       // additional checks for any 3D Secure challenges
-      if (isCard && paymentUses3DS && !payload.liabilityShifted) {
-        braintree.clearSelectedPaymentMethod();
+      if (isCard && sdk?.paymentUses3DS && !payload.liabilityShifted) {
+        sdk?.braintree?.clearSelectedPaymentMethod();
         throw new DetailedError(
           "3D Secure challenge failed.",
           responseCodes.Unprocessable_Entity,

@@ -8,13 +8,12 @@ import type { GatewayContext } from "../types";
 // -----------------------------------------------------------------------------
 
 export type BraintreeContext = GatewayContext<{
-  authorization?: string;
-  braintree?: Dropin;
-  paymentUses3DS?: boolean;
-  paymentMethodPayPal?: boolean;
-  // ---
-  validationObserver?: ActorRef<any>;
-  validationHelper?: (callback: any) => void;
+  sdk?: {
+    authorization: string;
+    braintree: Dropin;
+    paymentUses3DS: boolean;
+    paymentMethodPayPal: boolean;
+  };
 }>;
 
 export enum BraintreeTypes {

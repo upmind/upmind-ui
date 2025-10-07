@@ -218,7 +218,6 @@ async function parse(
   { data }: AnyEventObject
 ) {
   // ---
-  let gateway = undefined;
   let paymentDetails = undefined;
 
   // ---
@@ -242,7 +241,7 @@ async function parse(
   // FORCE payment type to PAY_IN_FULL if its not set
   safeModel.type ??= PaymentType.PAY_IN_FULL;
   // ---
-
+  debugger;
   // 1) Make sure if a gateway is selected that we use that
   if (safeModel?.gateway_id) {
     const brandGateway = find(gateways, ["gateway_id", safeModel.gateway_id]);
@@ -250,7 +249,6 @@ async function parse(
     if (!brandGateway) {
       unset(safeModel, "gateway_id");
     } else {
-      gateway = brandGateway!.gateway;
       unset(safeModel, "payment_details_id");
     }
   }
@@ -258,8 +256,9 @@ async function parse(
   // 2) finally If we don't have any selected gateways, then we should use the first available
   if (!safeModel?.gateway_id) {
     if (isEmpty(storedPaymentMethods)) {
-      gateway = first(gateways)?.gateway;
-      safeModel.gateway_id = gateway?.id;
+      debugger;
+      safeModel.gateway_id = first(gateways)?.gateway_id;
+      debugger;
       safeModel.payment_details_id = undefined; // we can't use a stored payment method if we're using a gateway
     } else {
       safeModel.payment_details_id ??= first(storedPaymentMethods)?.id;
@@ -269,13 +268,10 @@ async function parse(
   // 3) If we're using a stored payment method, then we should use that and clear the gateway_id
   if (safeModel?.payment_details_id) {
     unset(safeModel, "gateway_id");
-    gateway = undefined;
-
     paymentDetails = {
-      amount,
-      payment_details_id: safeModel.payment_details_id,
-      address_id: address?.id,
-      client_id: clientId
+      data: {
+        payment_details_id: safeModel.payment_details_id
+      }
     };
   } else {
     paymentDetails = undefined;
@@ -285,13 +281,11 @@ async function parse(
   if (safeModel?.type == PaymentType.PAY_LATER || amount <= 0) {
     unset(safeModel, "gateway_id");
     unset(safeModel, "payment_details_id");
-    gateway = undefined;
   }
 
   // NB:as a final check... if we have no gateways or stored payment methods, then we should force the type to pay later
   // this will allow the order to be placed without any payment details
   if (isEmpty(gateways)) {
-    gateway = undefined;
     unset(safeModel, "gateway_id");
     unset(safeModel, "payment_details_id");
     safeModel.type = PaymentType.PAY_LATER;
@@ -304,11 +298,12 @@ async function parse(
     };
   }
 
-  return Promise.resolve({ model: safeModel, gateway, paymentDetails });
+  debugger;
+  return Promise.resolve({ model: safeModel, paymentDetails });
 }
 
 async function validate(
-  { schema, model, actors }: PaymentDetailsContext,
+  { schema, model, gatewayHelper }: PaymentDetailsContext,
   _event: AnyEventObject
 ) {
   const { t } = useI18n();
@@ -320,49 +315,45 @@ async function validate(
 
   // ALSO check if any of our actors are in an invalid state
   // NB, wait for them to finish loading/checking before we proceed
-  const promises = map(actors, actor => {
-    if (!actor) return Promise.resolve();
-    return waitFor(
-      actor,
-      state =>
-        !["loading", "available.checking", "available.rendering"].some(
-          state.matches
-        ),
-      { timeout: 60_000 }
-    ).then(state => {
-      if (
-        stateMatches(state, [
-          "unavailable",
-          "available.error",
-          "available.invalid"
-        ])
-      )
-        errors.push({
-          instancePath: actor.id,
-          schemaPath: `actors/${actor.id}`,
-          keyword: "actorState",
-          params: {},
-          message: `${actor.id} is ${state.value}`
-        });
-    });
-  });
+  return !gatewayHelper
+    ? Promise.resolve(model)
+    : waitFor(
+        gatewayHelper,
+        state =>
+          !["loading", "available.checking", "available.rendering"].some(
+            state.matches
+          ),
+        { timeout: 60_000 }
+      ).then(state => {
+        if (
+          stateMatches(state, [
+            "unavailable",
+            "available.error",
+            "available.invalid"
+          ])
+        ) {
+          errors.push({
+            instancePath: gatewayHelper.id,
+            schemaPath: `actors/${gatewayHelper.id}`,
+            keyword: "actorState",
+            params: {},
+            message: `${gatewayHelper.id} is ${state.value}`
+          });
+        }
 
-  await Promise.all(promises);
+        if (errors?.length) {
+          throw new DetailedError(
+            t("error.payment_details_validation_failed"),
+            responseCodes.Unprocessable_Entity,
+            ErrorOrigin.Headless,
+            errors
+          );
+        } else {
+          return model;
+        }
+      });
 
-  return new Promise((resolve, reject) => {
-    if (errors?.length) {
-      reject(
-        new DetailedError(
-          t("error.payment_details_validation_failed"),
-          responseCodes.Unprocessable_Entity,
-          ErrorOrigin.Headless,
-          errors
-        )
-      );
-    } else {
-      resolve(model);
-    }
-  });
+  // ---
 }
 
 // -----------------------------------------------------------------------------

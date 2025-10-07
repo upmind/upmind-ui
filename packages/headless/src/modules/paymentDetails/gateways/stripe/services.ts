@@ -2,6 +2,7 @@
 import {
   DefaultValuesOption,
   loadStripe,
+  Stripe,
   StripeElementLocale,
   StripeElements
 } from "@stripe/stripe-js";
@@ -34,9 +35,9 @@ import type { AnyEventObject } from "xstate";
 
 async function load(context: StripeContext, _event: AnyEventObject) {
   const { gateway, amount, currency, address } = context;
+  const { locale } = useLocale();
 
   const { t } = useI18n();
-  const options = await sharedServices.load(context, _event);
 
   if (!gateway)
     return Promise.reject(
@@ -75,8 +76,6 @@ async function load(context: StripeContext, _event: AnyEventObject) {
           ErrorOrigin.Headless
         );
 
-      const { locale } = useLocale();
-
       // Flow ref: https://stripe.com/docs/payments/finalize-payments-on-the-server?platform=web&type=payment#additional-options
       const elements: StripeElements = stripe.elements({
         amount: parseMinorUnitAmount(amount || 0, currency.code),
@@ -106,19 +105,19 @@ async function load(context: StripeContext, _event: AnyEventObject) {
         } as DefaultValuesOption
       });
 
-      return { stripe, elements, element, ...config };
+      return { sdk: { stripe, elements, element }, ...config };
     });
   });
 }
 
 async function validate(
-  { schema, model, element }: StripeContext,
+  { schema, model, sdk }: StripeContext,
   { data }: AnyEventObject
 ) {
   const { t } = useI18n();
 
   // Get any errors from the Stripe Element
-  if (!element)
+  if (!sdk?.element)
     return Promise.reject(
       new DetailedError(
         t("error.stripe_element_not_available"),
@@ -163,27 +162,27 @@ async function validate(
   });
 }
 
-async function render({ element }: StripeContext, { data }: AnyEventObject) {
+async function render({ sdk }: StripeContext, { data }: AnyEventObject) {
   return new Promise((resolve, reject) => {
-    if (!element || !data?.container) {
+    if (sdk?.element || data?.container) {
       reject(
         new DetailedError(
           "Cannot render Stripe Element. Missing element or container.",
           responseCodes.Not_Found,
           ErrorOrigin.Headless,
-          { element, container: data?.container }
+          { element: sdk?.element, container: data?.container }
         )
       );
     }
     const container = data.container as HTMLElement;
 
-    element!.mount(container);
+    sdk!.element!.mount(container);
 
     const validationHelper = (
       callback: any,
       _onReceiveEvent: AnyEventObject
     ) => {
-      (element as any)!.on("change", (event: any) => {
+      (sdk!.element as any)!.on("change", (event: any) => {
         callback({ type: "VALIDATE", data: event });
       });
 
@@ -202,10 +201,10 @@ async function render({ element }: StripeContext, { data }: AnyEventObject) {
  * payment). We do not need to pass a client secret for flow, as the
  * payment detail is attached to a customer and confirmed server-side.
  */
-async function pay({ elements, stripe, model }: StripeContext) {
+async function pay({ sdk, model }: StripeContext) {
   const { t } = useI18n();
 
-  if (!elements || !stripe)
+  if (!sdk?.stripe || !sdk?.element || !sdk?.elements)
     return Promise.reject(
       new DetailedError(
         t("error.stripe_element_not_available"),
@@ -215,7 +214,7 @@ async function pay({ elements, stripe, model }: StripeContext) {
     );
 
   // Submit form to validate fields
-  const { error: submitError } = await elements
+  const { error: submitError } = await sdk.elements
     .submit()
     .catch((error: any) =>
       Promise.reject(
@@ -231,26 +230,14 @@ async function pay({ elements, stripe, model }: StripeContext) {
   if (submitError) return Promise.reject(submitError);
 
   // Create PaymentMethod using details collected via Payment Element
-  const { error, paymentMethod } = await stripe
+  return sdk.stripe
     .createPaymentMethod({
-      elements
+      elements: sdk.elements
     })
-    .catch((error: any) => Promise.reject(error));
-
-  return new Promise((resolve, reject) => {
-    if (error) {
-      reject(
-        new DetailedError(
-          error.message ?? t("error.stripe_payment_method_create_failed"),
-          responseCodes.Unprocessable_Entity,
-          ErrorOrigin.Headless,
-          error
-        )
-      );
-    } else {
+    .then(({ error, paymentMethod }) => {
       // add the payment details to the model
 
-      // NB pass the model amout  back as we have to handle non-minor unit conversion here
+      // NB pass the model amount back as we have to handle non-minor unit conversion here
       // (e.g. UGX)
       // ↳ Stripe requires minor unit for the amount when creating the element,
       //   but we need to pass the standard unit amount to the BE when creating
@@ -272,10 +259,8 @@ async function pay({ elements, stripe, model }: StripeContext) {
         paymentMethod?.type
       );
 
-      /* Here we don't pass 'storeOnPaymentAutoPayment' flag as 'storeOnPaymentAutoPayment' is injected from parent gatewayComponent */
-      resolve(model);
-    }
-  });
+      return model;
+    });
 }
 
 // -----------------------------------------------------------------------------
