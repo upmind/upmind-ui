@@ -1,3 +1,27 @@
+@theme {
+  /* Button Gradient Colors */
+  --color-bg-button-primary-0: var(--bg-button-primary-0);
+  --color-bg-button-primary-1: var(--bg-button-primary-1);
+  --color-bg-button-primary-hover-0: var(--bg-button-primary-hover-0);
+  --color-bg-button-primary-hover-1: var(--bg-button-primary-hover-1);
+  --color-bg-button-secondary-0: var(--bg-button-secondary-0);
+  --color-bg-button-secondary-1: var(--bg-button-secondary-1);
+  --color-bg-button-secondary-hover-0: var(--bg-button-secondary-hover-0);
+  --color-bg-button-secondary-hover-1: var(--bg-button-secondary-hover-1);
+  --color-bg-button-neutral-0: var(--bg-button-neutral-0);
+  --color-bg-button-neutral-1: var(--bg-button-neutral-1);
+  --color-bg-button-neutral-hover-0: var(--bg-button-neutral-hover-0);
+  --color-bg-button-neutral-hover-1: var(--bg-button-neutral-hover-1);
+  --color-bg-button-subtle-0: var(--bg-button-subtle-0);
+  --color-bg-button-subtle-1: var(--bg-button-subtle-1);
+  --color-bg-button-subtle-hover-0: var(--bg-button-subtle-hover-0);
+  --color-bg-button-subtle-hover-1: var(--bg-button-subtle-hover-1);
+  --color-bg-button-danger-0: var(--bg-button-danger-0);
+  --color-bg-button-danger-1: var(--bg-button-danger-1);
+  --color-bg-button-danger-hover-0: var(--bg-button-danger-hover-0);
+  --color-bg-button-danger-hover-1: var(--bg-button-danger-hover-1);
+}
+
 /* Background Color Utilities */
 @utility bg-canvas {
   background-color: var(--bg-canvas);
@@ -41,99 +65,18 @@
   background-color: var(--bg-control-ring);
 }
 
-/* Background - Button */
-@utility bg-button-primary-ring {
-  background-color: var(--bg-button-primary-ring);
-}
-@utility bg-button-primary-0 {
-  background-color: var(--bg-button-primary-0);
-}
-@utility bg-button-primary-1 {
-  background-color: var(--bg-button-primary-1);
-}
-@utility bg-button-primary-hover-0 {
-  background-color: var(--bg-button-primary-hover-0);
-}
-@utility bg-button-primary-hover-1 {
-  background-color: var(--bg-button-primary-hover-1);
-}
-@utility bg-button-secondary-ring {
-  background-color: var(--bg-button-secondary-ring);
-}
-@utility bg-button-secondary-0 {
-  background-color: var(--bg-button-secondary-0);
-}
-@utility bg-button-secondary-1 {
-  background-color: var(--bg-button-secondary-1);
-}
-@utility bg-button-secondary-hover-0 {
-  background-color: var(--bg-button-secondary-hover-0);
-}
-@utility bg-button-secondary-hover-1 {
-  background-color: var(--bg-button-secondary-hover-1);
-}
-@utility bg-button-neutral-ring {
-  background-color: var(--bg-button-neutral-ring);
-}
-@utility bg-button-neutral-0 {
-  background-color: var(--bg-button-neutral-0);
-}
-@utility bg-button-neutral-1 {
-  background-color: var(--bg-button-neutral-1);
-}
-@utility bg-button-neutral-hover-0 {
-  background-color: var(--bg-button-neutral-hover-0);
-}
-@utility bg-button-neutral-hover-1 {
-  background-color: var(--bg-button-neutral-hover-1);
-}
-@utility bg-button-subtle-ring {
-  background-color: var(--bg-button-subtle-ring);
-}
-@utility bg-button-subtle-0 {
-  background-color: var(--bg-button-subtle-0);
-}
-@utility bg-button-subtle-1 {
-  background-color: var(--bg-button-subtle-1);
-}
-@utility bg-button-subtle-hover-0 {
-  background-color: var(--bg-button-subtle-hover-0);
-}
-@utility bg-button-subtle-hover-1 {
-  background-color: var(--bg-button-subtle-hover-1);
-}
-@utility bg-button-danger-ring {
-  background-color: var(--bg-button-danger-ring);
-}
-@utility bg-button-danger-0 {
-  background-color: var(--bg-button-danger-0);
-}
-@utility bg-button-danger-1 {
-  background-color: var(--bg-button-danger-1);
-}
-@utility bg-button-danger-hover-0 {
-  background-color: var(--bg-button-danger-hover-0);
-}
-@utility bg-button-danger-hover-1 {
-  background-color: var(--bg-button-danger-hover-1);
-}
+/* Background - Button Non-Gradient */
 @utility bg-button-outline {
   background-color: var(--bg-button-outline);
 }
 @utility bg-button-outline-hover {
   background-color: var(--bg-button-outline-hover);
 }
-@utility bg-button-outline-ring {
-  background-color: var(--bg-button-outline-ring);
-}
 @utility bg-button-ghost {
   background-color: var(--bg-button-ghost);
 }
 @utility bg-button-ghost-hover {
   background-color: var(--bg-button-ghost-hover);
-}
-@utility bg-button-ghost-ring {
-  background-color: var(--bg-button-ghost-ring);
 }
 
 /* Background - Accent */
