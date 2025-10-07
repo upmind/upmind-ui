@@ -171,7 +171,7 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
   // ---------------------------------------------------------------------------
   return {
     // --- state
-    state: computed(() => actor.value?.state.value.value),
+    state: computed(() => actor.value?.state.value.toStrings()),
 
     /**
      * Waits for the payment details actor to be ready (not loading or error state).

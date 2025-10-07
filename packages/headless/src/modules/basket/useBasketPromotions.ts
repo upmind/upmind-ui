@@ -9,6 +9,7 @@ import { useBasket } from "./";
 // --- utils
 import {
   contextValue,
+  DEBOUNCE_DELAY,
   DetailedError,
   ErrorObject,
   ErrorOrigin,
@@ -16,7 +17,7 @@ import {
   useContext
 } from "../../utils";
 import { contextMatches, stateMatches, stateValue } from "../../utils";
-import { isEmpty, isEqual, isNil } from "lodash-es";
+import { debounce, isEmpty, isEqual, isNil } from "lodash-es";
 
 // --- types
 import type { ActorRef } from "xstate";
@@ -219,7 +220,7 @@ export const useBasketPromotions = () => {
      * @param {PromotionModel} value The new promotion model to set.
      * @returns {void} Does not return anything.
      */
-    input,
+    input: debounce(input, DEBOUNCE_DELAY),
 
     /**
      * Adds the promotion to the basket.
