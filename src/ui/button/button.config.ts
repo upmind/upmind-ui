@@ -50,7 +50,7 @@ export const variants = {
 };
 
 export const rootVariants = cva(
-  `ring-offset-canvas! relative inline-flex items-center font-medium whitespace-nowrap no-underline transition-all duration-200`,
+  `ring-offset-canvas relative inline-flex items-center font-medium whitespace-nowrap no-underline transition-all duration-200`,
   {
     variants,
     defaultVariants: {
