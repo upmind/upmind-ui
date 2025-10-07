@@ -1,8 +1,7 @@
 <template>
-  <pre>{{ state }}</pre>
   <Loading :active="!meta.isAvailable">
     <Accordion
-      v-if="!meta.isFree && meta.hasGateways"
+      v-show="!meta.isFree && meta.hasGateways"
       type="multiple"
       :class="styles.checkout.accordion.root"
       collapsible
@@ -146,7 +145,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed } from "vue";
+import { computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -174,6 +173,7 @@ import GatewaysUnavailable from "./PaymentGatewaysUnavailable.vue";
 // --- types
 import type { PaymentDetailsProps } from "../types";
 import type { ComputedRef } from "vue";
+import { isEqual } from "lodash-es";
 
 // --- utils
 
@@ -237,4 +237,12 @@ const selectGateway = (id: string) => {
 const clearGateway = () => {
   clear();
 };
+
+watch(
+  () => state.value,
+  (state, oldstate) => {
+    if (isEqual(state, oldstate)) return;
+    console.log("PaymentDetails state", state);
+  }
+);
 </script>

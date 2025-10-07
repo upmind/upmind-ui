@@ -103,7 +103,7 @@ export function loadList() {
 // -----------------------------------------------------------------------------
 
 async function loadLookups(
-  { currency }: PaymentDetailsContext,
+  { currency, address }: PaymentDetailsContext,
   _event: AnyEventObject
 ) {
   const { meta, user } = useSession();
@@ -135,21 +135,24 @@ async function loadLookups(
     url: useUrl(`clients/${clientId}/payment_details`, {
       limit: 0,
       brand_id: unref(brandId),
-      invoice_id: unref(basketId),
       active: true,
       "filter[gateway.currencies.id]": currencyId,
-      // "filter[active]": 1,
       order: ["-default", "id"].join(),
-      with: ["gateway", "client"].join()
-      // with_staged_imports: 1
+      with: ["gateway", "client"].join(),
+      invoice_id: unref(basketId)
+      // "filter[active]": 1,
     }),
     queryKey: [
       "payment-details",
-      { clientId, brandId: unref(brandId), currencyId }
+      {
+        brandId: unref(brandId),
+        clientId,
+        currencyId,
+        invoiceId: unref(basketId),
+        addressId: address?.id
+      }
     ],
     withAccessToken: true,
-    staleTime: 0, // disable cache, this may still return stale data while the request is in flight
-    gcTime: 0, // force cache to be cleared immediately, to prevent stale data
     select: mapPaymentDetailDetails
   });
 
@@ -172,11 +175,10 @@ async function loadLookups(
         brandId: unref(brandId),
         clientId,
         currencyId,
-        basketId: unref(basketId)
+        invoiceId: unref(basketId),
+        addressId: address?.id
       }
     ],
-    staleTime: 0, // disable cache, this may still return stale data while the request is in flight
-    gcTime: 0, // force cache to be cleared immediately, to prevent stale data
     withAccessToken: true
   });
 

@@ -68,7 +68,7 @@ export default createMachine(
             invoke: {
               src: "render",
               onDone: {
-                target: "#available",
+                target: "processed",
                 actions: ["setContext", "setObserver"]
               },
               onError: {
@@ -76,6 +76,9 @@ export default createMachine(
                 actions: ["setError"]
               }
             }
+          },
+          processed: {
+            after: { wait: "#available" }
           }
         }
       },
@@ -177,6 +180,11 @@ export default createMachine(
           }
         },
         on: {
+          REFRESH: {
+            target: "available.checking",
+            actions: ["setContext", "updateStripe"],
+            cond: "hasChanged"
+          },
           CLEAR: {
             target: "available.checking",
             actions: ["clearModel"]
@@ -202,11 +210,6 @@ export default createMachine(
       }
     },
     on: {
-      REFRESH: {
-        target: "available.checking",
-        actions: ["setContext", "updateStripe"],
-        cond: "hasChanged"
-      },
       UNAUTHENTICATED: {
         target: "loading",
         actions: ["clearError", "clearModel", "clearSchemas"]
@@ -341,14 +344,11 @@ export default createMachine(
       hasChanged: (
         { orderId, currency, amount, address }: StripeContext,
         { data }: AnyEventObject
-      ) => {
-        const value =
-          orderId !== data.orderId ||
-          currency !== data.currency ||
-          amount !== data.amount ||
-          address?.id !== data.address?.id;
-        return value;
-      },
+      ) =>
+        amount !== data.amount ||
+        orderId !== data.orderId ||
+        currency?.id !== data.currency?.id ||
+        address?.id !== data.address?.id,
 
       hasNoOutstandingBalance: (
         _context: StripeContext,

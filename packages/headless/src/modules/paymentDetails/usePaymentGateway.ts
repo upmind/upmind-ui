@@ -189,6 +189,7 @@ export const usePaymentGateway = (actor: ComputedRef<Actor | undefined>) => {
   // ---------------------------------------------------------------------------
   return {
     // --- state
+    state: computed(() => actor.value?.state.value.toStrings()),
 
     /**
      * Waits for the payment gateway actor to be ready (not loading or error state).

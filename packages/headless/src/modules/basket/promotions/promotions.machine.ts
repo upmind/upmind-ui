@@ -110,11 +110,11 @@ export default createMachine(
               src: "add",
               onDone: {
                 target: "#processed",
-                actions: ["clearAutoUpdate"]
+                actions: ["clearAutoUpdate", "clearModel"]
               },
               onError: {
                 target: "#error",
-                actions: ["setError", "setFeedbackError"]
+                actions: ["setError", "clearAutoUpdate", "setFeedbackError"]
               }
             }
           },

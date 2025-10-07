@@ -32,20 +32,16 @@ export default createMachine(
         entry: ["setAuthHelper"],
         on: {
           AUTHENTICATED: { target: "checking" },
-          REFRESH: { actions: "refresh" }
+          REFRESH: {
+            actions: ["refresh"]
+          }
         }
       },
 
       checking: {
         invoke: {
           src: "isAuthenticated",
-          onDone: [
-            {
-              target: "available.checking",
-              cond: "hasLookups"
-            },
-            { target: "available" }
-          ],
+          onDone: { target: "loading" },
           onError: { target: "unavailable" }
         }
       },
@@ -178,20 +174,17 @@ export default createMachine(
             actions: ["setAutoUpdate"]
           },
           REFRESH: [
-            // NB if we change currecy, tear down the gateway and re create it
+            // NB if we change core values, tear down the gateway and re create it
             {
               target: "#loading",
-              actions: ["clearGateway", "refresh"],
-              cond: "hasCurrencyChanged"
-            },
-            {
-              target: "#loading",
-              actions: "refresh",
+              actions: ["clearGateway", "refresh", "refreshActors"],
               cond: "hasChanged"
             },
+            // otherwise just update context and actors
             {
               target: "available.checking",
-              actions: "refresh"
+              actions: ["refresh", "refreshActors"],
+              cond: "hasAmountChanged"
             }
           ]
         }
@@ -247,9 +240,7 @@ export default createMachine(
         paymentTypes: (
           _context: PaymentDetailsContext,
           { data }: AnyEventObject
-        ) => data.paymentTypes,
-        address: (_context: PaymentDetailsContext, { data }: AnyEventObject) =>
-          data.address
+        ) => data.paymentTypes
       }),
 
       setSchemas: assign({
@@ -341,17 +332,11 @@ export default createMachine(
         currency: (
           { currency }: PaymentDetailsContext,
           { data }: AnyEventObject
-        ) => {
-          if (!data?.currency) debugger;
-          return data?.currency ?? currency;
-        },
+        ) => data?.currency ?? currency,
         address: (
           { address }: PaymentDetailsContext,
           { data }: AnyEventObject
-        ) => {
-          if (!data?.address) debugger;
-          return data?.address ?? address;
-        },
+        ) => data?.address ?? address,
         model: (_context: PaymentDetailsContext, { data }: AnyEventObject) =>
           undefined, // we clear the model so we force a reparse
         paymentDetails: (
@@ -359,22 +344,31 @@ export default createMachine(
           { data }: AnyEventObject
         ) => undefined, // we clear the payment details so we force a reparse
         amount: (_context: PaymentDetailsContext, { data }: AnyEventObject) =>
-          data?.unpaid_amount_converted || 0.0, // NB: we always force use the outstanding amount
+          data?.unpaid_amount_converted || 0.0 // NB: we always force use the outstanding amount
+      }),
 
+      refreshActors: assign({
         actors: (
-          { actors }: PaymentDetailsContext,
-          { data }: AnyEventObject
+          {
+            actors,
+            orderId,
+            currency,
+            amount,
+            address,
+            clientId
+          }: PaymentDetailsContext,
+          _event: AnyEventObject
         ) => {
           forEach(actors, actor => {
             if (actor?.send && !actor?.getSnapshot()?.done) {
               actor.send({
                 type: "REFRESH",
                 data: {
-                  orderId: data?.id,
-                  currency: data?.currency,
-                  amount: data?.unpaid_amount_converted || 0.0,
-                  address: data?.address,
-                  clientId: data?.client_id
+                  orderId,
+                  currency,
+                  amount,
+                  address,
+                  clientId
                 }
               });
             }
@@ -464,36 +458,25 @@ export default createMachine(
         { autoupdate, orderId, amount }: PaymentDetailsContext,
         _event: AnyEventObject
       ) => !!autoupdate && !!orderId && amount !== 0,
-      hasCurrencyChanged: (
-        { currency }: PaymentDetailsContext,
+
+      hasAmountChanged: (
+        { amount }: PaymentDetailsContext,
         { data }: AnyEventObject
-      ) => currency?.id != data?.currency_id,
+      ) => amount != (data?.unpaid_amount_converted || 0.0),
 
       hasChanged: (
-        { orderId, currency, clientId, amount, address }: PaymentDetailsContext,
+        { orderId, clientId, address, currency }: PaymentDetailsContext,
         { data }: AnyEventObject
       ) => {
         const orderChanged = orderId != data?.id;
         const clientChanged = clientId != data?.client_id;
-        const amountChanged = amount == (data?.unpaid_amount_converted || 0.0);
         const addressChanged = address?.id != data?.address_id;
-        if (addressChanged) debugger;
+        const currencyChanged = currency?.id != data?.currency_id;
 
-        const value =
-          orderChanged || clientChanged || amountChanged || addressChanged;
-        if (value)
-          console.log("Basket has changed", {
-            orderChanged,
-            clientChanged,
-            amountChanged,
-            addressChanged
-          });
-        return value;
-      },
-      isAuthenticated: (
-        { authHelper }: PaymentDetailsContext,
-        _event: AnyEventObject
-      ) => authHelper?.getSnapshot()?.matches("authenticated")
+        return (
+          orderChanged || clientChanged || addressChanged || currencyChanged
+        );
+      }
     },
 
     delays: {
