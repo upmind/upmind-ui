@@ -149,3 +149,19 @@
     var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
     var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
 }
+
+@utility shadow-primary-gradient {
+  border: var(--stroke-badge) solid transparent;
+  background:
+    linear-gradient(
+        var(--bg-surface),
+        var(--bg-surface)
+      )
+      padding-box,
+    linear-gradient(
+        to right,
+        var(--color-primary-default),
+        var(--color-primary-default-stop)
+      )
+      border-box;
+}

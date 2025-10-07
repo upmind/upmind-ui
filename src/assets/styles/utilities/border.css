@@ -3,6 +3,26 @@
   border-color: var(--border-surface);
 }
 
+.primary-stroke {
+  border: var(--stroke-badge) solid transparent;
+  background:
+    linear-gradient(
+        var(--bg-surface),
+        var(--bg-surface)
+      )
+      padding-box,
+    linear-gradient(
+        to right,
+        var(--color-primary-default),
+        var(--color-primary-default-stop)
+      )
+      border-box;
+}
+
+.shadow-border-primary-gradient {
+  position: relative;
+}
+
 /* Border - Button */
 @utility border-button-outline {
   border-color: var(--border-button-outline);
