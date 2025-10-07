@@ -15,7 +15,7 @@
   --color-control-default-contrast: #fefefe;
   --color-control-muted: #f8f8fb;
   --color-control-muted-contrast: #262626;
-  --color-control-stroke: #e2e2eb;
+  --color-control-stroke: #e3e3eb;
   --color-control-stroke-delta: #d5d5de;
 
   /* Primitive Colors - Primary */
@@ -30,7 +30,7 @@
   --color-secondary-default: #eaeaf1;
   --color-secondary-default-stop: #eaeaf1;
   --color-secondary-default-delta: #cdcddb;
-  --color-secondary-default-contrast: #ffffff;
+  --color-secondary-default-contrast: #262626;
 
   /* Primitive Colors - Neutral */
   --color-neutral-default: #707070;
@@ -43,10 +43,10 @@
   --color-neutral-stroke-delta: #cdcddb;
 
   /* Primitive Colors - Promo */
-  --color-promo-default: #a379ff;
+  --color-promo-default: #794dff;
   --color-promo-default-contrast: #ffffff;
   --color-promo-muted: #f7f5ff;
-  --color-promo-muted-contrast: #a379ff;
+  --color-promo-muted-contrast: #794dff;
 
   /* Primitive Colors - Danger */
   --color-danger-default: #fa2f62;
@@ -59,13 +59,13 @@
   --color-warning-default: #ffc233;
   --color-warning-default-contrast: #523900;
   --color-warning-muted: #fff9eb;
-  --color-warning-muted-contrast: #ffc233;
+  --color-warning-muted-contrast: #c28800;
 
   /* Primitive Colors - Success */
   --color-success-default: #00d88c;
   --color-success-default-contrast: #002c19;
   --color-success-muted: #e7fff1;
-  --color-success-muted-contrast: #00d88c;
+  --color-success-muted-contrast: #007d4f;
 
   /* Primitive Colors - Info */
   --color-info-default: #00acff;
