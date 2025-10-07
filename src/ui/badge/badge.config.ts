@@ -37,7 +37,7 @@ export const badgeVariants = cva(
         variant: "solid",
         color: "primary",
         class:
-          "from-primitive-primary-default to-primitive-primary-default-stop text-accent-primary-contrast bg-gradient-to-r"
+          "from-primary-default to-primary-default-stop text-accent-primary-contrast bg-gradient-to-r"
       },
       {
         variant: "solid",
@@ -123,37 +123,37 @@ export const badgeVariants = cva(
         variant: "muted",
         color: "neutral",
         class:
-          "bg-accent-neutral-muted shadow-badge-border-accent-neutral text-accent-neutral-muted-contrast"
+          "bg-accent-neutral-muted shadow-badge-accent-neutral text-accent-neutral-muted-contrast"
       },
       {
         variant: "muted",
         color: "promo",
         class:
-          "bg-accent-promo-muted shadow-badge-border-accent-promo text-accent-promo-muted-contrast"
+          "bg-accent-promo-muted shadow-badge-accent-promo text-accent-promo-muted-contrast"
       },
       {
         variant: "muted",
         color: "danger",
         class:
-          "bg-accent-danger-muted shadow-badge-border-accent-danger text-accent-danger-muted-contrast"
+          "bg-accent-danger-muted shadow-badge-accent-danger text-accent-danger-muted-contrast"
       },
       {
         variant: "muted",
         color: "warning",
         class:
-          "bg-accent-warning-muted shadow-badge-border-accent-warning text-accent-warning-muted-contrast"
+          "bg-accent-warning-muted shadow-badge-accent-warning text-accent-warning-muted-contrast"
       },
       {
         variant: "muted",
         color: "success",
         class:
-          "bg-accent-success-muted shadow-badge-border-accent-success text-accent-success-muted-contrast"
+          "bg-accent-success-muted shadow-badge-accent-success text-accent-success-muted-contrast"
       },
       {
         variant: "muted",
         color: "info",
         class:
-          "bg-accent-info-muted shadow-badge-border-accent-info text-accent-info-muted-contrast"
+          "bg-accent-info-muted shadow-badge-accent-info text-accent-info-muted-contrast"
       }
     ]
   }

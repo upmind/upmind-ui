@@ -1,20 +1,3 @@
-/* Base Text Colors */
-@utility text-primary {
-  color: var(--text-primary);
-}
-@utility text-base {
-  color: var(--text-base);
-}
-@utility text-display {
-  color: var(--text-display);
-}
-@utility text-muted {
-  color: var(--text-muted);
-}
-@utility text-faint {
-  color: var(--text-faint);
-}
-
 /* Main Variants */
 @utility text-control-default {
   --color-control-default: var(--color-control-default);

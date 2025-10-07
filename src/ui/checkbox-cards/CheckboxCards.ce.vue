@@ -66,8 +66,8 @@
                 </p>
               </span>
               <span v-if="item.action" class="leading-none">
-                <Button
-                  variant="muted-link"
+                <Link
+                  color="muted"
                   :label="item.action"
                   size="sm"
                   @click="onAction"
@@ -95,7 +95,7 @@ import config from "./checkboxCards.config";
 // --- components
 import CheckboxCardItem from "./CheckboxCardItem.vue";
 import { Label } from "../label";
-import { Button } from "../button";
+import { Link } from "../link";
 import { Badge } from "../badge";
 
 // --- types

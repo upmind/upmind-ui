@@ -15,16 +15,16 @@ export const variants = {
     false: ""
   },
   color: {
-    inherit: "[&:hover,&[data-hover=true]]:opacity-75",
+    inherit: "[&:not([aria-disabled=true]):hover,&:not([aria-disabled=true])[data-hover=true]]:opacity-75",
     default:
-      "text-button-link [&:hover,&[data-hover=true]]:text-button-link-hover group-hover:text-button-link-hover",
+      "text-button-link [&:not([aria-disabled=true]):hover,&:not([aria-disabled=true])[data-hover=true]]:text-button-link-hover [&:not([aria-disabled=true])]:group-hover:text-button-link-hover",
     muted:
-      "text-button-muted-link [&:hover,&[data-hover=true]]:text-button-muted-link-hover",
-    promo: "text-accent-promo [&:hover,&[data-hover=true]]:opacity-75",
-    danger: "text-accent-danger [&:hover,&[data-hover=true]]:opacity-75",
-    warning: "text-accent-warning [&:hover,&[data-hover=true]]:opacity-75",
-    success: "text-accent-success [&:hover,&[data-hover=true]]:opacity-75",
-    info: "text-accent-info [&:hover,&[data-hover=true]]:opacity-75"
+      "text-button-muted-link [&:not([aria-disabled=true]):hover,&:not([aria-disabled=true])[data-hover=true]]:text-button-muted-link-hover",
+    promo: "text-accent-promo [&:not([aria-disabled=true]):hover,&:not([aria-disabled=true])[data-hover=true]]:opacity-75",
+    danger: "text-accent-danger [&:not([aria-disabled=true]):hover,&:not([aria-disabled=true])[data-hover=true]]:opacity-75",
+    warning: "text-accent-warning [&:not([aria-disabled=true]):hover,&:not([aria-disabled=true])[data-hover=true]]:opacity-75",
+    success: "text-accent-success [&:not([aria-disabled=true]):hover,&:not([aria-disabled=true])[data-hover=true]]:opacity-75",
+    info: "text-accent-info [&:not([aria-disabled=true]):hover,&:not([aria-disabled=true])[data-hover=true]]:opacity-75"
   },
   isDisabled: {
     true: "cursor-not-allowed opacity-50",

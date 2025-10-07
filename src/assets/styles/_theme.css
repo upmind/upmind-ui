@@ -218,4 +218,6 @@
   --image-radius: 16px;
   --card-radius: 16px;
   --message-radius: 16px;
+
+  --stroke-badge: 1.5px;
 }

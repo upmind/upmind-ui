@@ -1,13 +1,13 @@
 @theme {
   /* Core Colors */
-  --color-core-canvas: var(--color-core-canvas);
-  --color-core-surface: var(--color-core-surface);
-  --color-core-base: var(--color-core-base);
-  --color-core-display: var(--color-core-display);
-  --color-core-faint: var(--color-core-faint);
-  --color-core-muted: var(--color-core-muted);
-  --color-core-skeleton: var(--color-core-skeleton);
-  --color-core-overlay: var(--color-core-overlay);
+  --color-canvas: var(--color-core-canvas);
+  --color-surface: var(--color-core-surface);
+  --color-base: var(--color-core-base);
+  --color-display: var(--color-core-display);
+  --color-faint: var(--color-core-faint);
+  --color-muted: var(--color-core-muted);
+  --color-skeleton: var(--color-core-skeleton);
+  --color-overlay: var(--color-core-overlay);
 
   /* Primary Colors */
   --color-primary-default: var(--color-primary-default);
@@ -72,12 +72,21 @@
   --color-info-muted-contrast: var(--color-info-muted-contrast);
 
   /* Ring Colors */
-  --color-bg-control-ring: var(--bg-control-ring);
-  --color-bg-button-primary-ring: var(--bg-button-primary-ring);
-  --color-bg-button-secondary-ring: var(--bg-button-secondary-ring);
-  --color-bg-button-neutral-ring: var(--bg-button-neutral-ring);
-  --color-bg-button-subtle-ring: var(--bg-button-subtle-ring);
-  --color-bg-button-danger-ring: var(--bg-button-danger-ring);
-  --color-bg-button-warning-ring: var(--bg-button-warning-ring);
-  --color-bg-button-success-ring: var(--bg-button-success-ring);
+  --color-control-ring: var(--bg-control-ring);
+  --color-primary-ring: var(--bg-button-primary-ring);
+  --color-secondary-ring: var(--bg-button-secondary-ring);
+  --color-neutral-ring: var(--bg-button-neutral-ring);
+  --color-subtle-ring: var(--bg-button-subtle-ring);
+  --color-outline-ring: var(--bg-button-outline-ring: );
+  --color-danger-ring: var(--bg-button-danger-ring);
+  --color-warning-ring: var(--bg-button-warning-ring);
+  --color-success-ring: var(--bg-button-success-ring);
+
+  /* Accent Colors */
+  --color-accent-neutral: var(--bg-accent-neutral);
+  --color-accent-promo: var(--bg-accent-promo);
+  --color-accent-danger: var(--bg-accent-danger);
+  --color-accent-warning: var(--bg-accent-warning);
+  --color-accent-success: var(--bg-accent-success);
+  --color-accent-info: var(--bg-accent-info);
 }
