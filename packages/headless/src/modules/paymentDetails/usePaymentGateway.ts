@@ -20,7 +20,6 @@ import {
 import { isNil, isEqual, every, isEmpty } from "lodash-es";
 
 // --- types
-import type { ActorRef } from "xstate";
 import { GatewayContext } from "../paymentDetails";
 import { isFunction } from "lodash-es";
 import { QueryResponseError } from "../query";
@@ -170,8 +169,21 @@ export const usePaymentGateway = (actor: ComputedRef<Actor | undefined>) => {
     }
 
     return isReady().then(() => {
-      waitFor(actor.value!.service, state => stateMatches(state, ["rendering"]))
-        .then(() => {
+      waitFor(
+        actor.value!.service,
+        state => stateMatches(state, ["rendering", "available"]) || state.done
+      )
+        .then(state => {
+          // NB bail we dont need to render
+          if (
+            state.done ||
+            stateMatches(state, "available") ||
+            contextMatches(state, "renderless") ||
+            !contextMatches(state, "sdk")
+          ) {
+            return;
+          }
+
           actor.value?.send({ type: "RENDER", data: { container } });
           // wait for the render to complete
           return waitFor(
