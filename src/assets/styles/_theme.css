@@ -76,7 +76,6 @@
   /* Background Colors */
   --bg-canvas: var(--color-core-canvas);
   --bg-surface: var(--color-core-surface);
-  --bg-surface-glass: #fffffff2;
   --bg-skeleton: var(--color-core-skeleton);
   --bg-overlay: var(--color-core-overlay);
 

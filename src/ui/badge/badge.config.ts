@@ -80,37 +80,37 @@ export const badgeVariants = cva(
         variant: "minimal",
         color: "neutral",
         class:
-          "bg-surface-glass shadow-badge-border-surface text-accent-neutral-muted-contrast"
+          "bg-surface shadow-badge-border-surface text-accent-neutral-muted-contrast"
       },
       {
         variant: "minimal",
         color: "promo",
         class:
-          "bg-surface-glass shadow-badge-border-surface text-accent-promo-muted-contrast"
+          "bg-surface shadow-badge-border-surface text-accent-promo-muted-contrast"
       },
       {
         variant: "minimal",
         color: "danger",
         class:
-          "bg-surface-glass shadow-badge-border-surface text-accent-danger-muted-contrast"
+          "bg-surface shadow-badge-border-surface text-accent-danger-muted-contrast"
       },
       {
         variant: "minimal",
         color: "warning",
         class:
-          "bg-surface-glass shadow-badge-border-surface text-accent-warning-muted-contrast"
+          "bg-surface shadow-badge-border-surface text-accent-warning-muted-contrast"
       },
       {
         variant: "minimal",
         color: "success",
         class:
-          "bg-surface-glass shadow-badge-border-surface text-accent-success-muted-contrast"
+          "bg-surface shadow-badge-border-surface text-accent-success-muted-contrast"
       },
       {
         variant: "minimal",
         color: "info",
         class:
-          "bg-surface-glass shadow-badge-border-surface text-accent-info-muted-contrast"
+          "bg-surface shadow-badge-border-surface text-accent-info-muted-contrast"
       },
       // Muted
       {

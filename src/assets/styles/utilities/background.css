@@ -31,9 +31,6 @@
 @utility bg-surface {
   background-color: var(--bg-surface);
 }
-@utility bg-surface-glass {
-  background-color: var(--bg-surface-glass);
-}
 @utility bg-skeleton {
   background-color: var(--bg-skeleton);
 }
