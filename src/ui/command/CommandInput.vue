@@ -36,7 +36,8 @@ const forwardedProps = useForwardProps(delegatedProps);
       :class="
         cn(
           'placeholder:text-muted-foreground flex h-11 w-full rounded bg-transparent py-3 text-sm outline-none disabled:cursor-not-allowed disabled:opacity-50',
-          props.class
+          props.class,
+          'text-base'
         )
       "
     />

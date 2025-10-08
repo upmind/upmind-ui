@@ -1,12 +1,10 @@
 /* Main Variants */
-.text-base {
+
+@utility text-base {
   color: var(--text-base);
 }
 @utility text-primary {
   color: var(--text-primary);
-}
-@utility text-base {
-  color: var(--text-base);
 }
 @utility text-display {
   color: var(--text-display);
