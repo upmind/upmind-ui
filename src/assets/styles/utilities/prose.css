@@ -1,0 +1,11 @@
+.prose {
+  --tw-prose-headings: var(--color-core-base);
+  --tw-prose-bold: var(--color-core-base);
+  --tw-prose-links: var(--color-core-base);
+  --tw-prose-quotes: var(--color-core-base);
+  --tw-prose-quote-borders: var(--color-core-base);
+  --tw-prose-captions: var(--color-core-base);
+  --tw-prose-code: var(--color-core-base);
+  --tw-prose-pre-code: var(--color-core-base);
+  --tw-prose-pre-bg: var(--color-core-base);
+}

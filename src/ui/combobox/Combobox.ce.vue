@@ -20,7 +20,7 @@
         <template #prepend v-if="!isEmpty(modelValue) || searchValue">
           <slot name="selected" v-bind="{ item: modelValue }">
             <Avatar
-              v-if="meta.hasAvatar"
+              v-if="meta.hasAvatar && !props.icon"
               v-bind="avatar"
               size="xs"
               shape="circle"
@@ -28,10 +28,10 @@
               aria-hidden="true"
             />
             <Icon
-              v-if="meta.hasIcon"
+              v-if="meta.hasIcon && !props.avatar"
               :icon="icon"
               shape="circle"
-              size="3xs"
+              size="2xs"
               fit="cover"
               aria-hidden="true"
             />
