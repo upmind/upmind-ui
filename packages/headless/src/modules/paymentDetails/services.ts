@@ -45,7 +45,7 @@ import { QueryKey } from "@tanstack/vue-query";
 import { mapPaymentDetailDetails } from "./mappers";
 
 // -----------------------------------------------------------------------------
-const queryKey: QueryKey = ["paymentDetails", "stored"];
+const queryKey: QueryKey = ["paymentDetail", "stored"];
 
 export function loadList() {
   const { brandId, currencyId } = useBrand();
@@ -216,7 +216,7 @@ async function parse(
   { data }: AnyEventObject
 ) {
   // ---
-  let paymentDetails = undefined;
+  let paymentDetail = undefined;
 
   // ---
   // Create a safe model to work with
@@ -263,13 +263,13 @@ async function parse(
   // 3) If we're using a stored payment method, then we should use that and clear the gateway_id
   if (safeModel?.payment_details_id) {
     unset(safeModel, "gateway_id");
-    paymentDetails = {
+    paymentDetail = {
       data: {
         payment_details_id: safeModel.payment_details_id
       }
     };
   } else {
-    paymentDetails = undefined;
+    paymentDetail = undefined;
   }
 
   // 4) Safety Check...if the payment type is pay later or Free, clear the gateway_id
@@ -285,7 +285,7 @@ async function parse(
     unset(safeModel, "payment_details_id");
     safeModel.type = PaymentType.PAY_LATER;
 
-    paymentDetails = {
+    paymentDetail = {
       type: PaymentType.PAY_LATER,
       amount,
       address_id: address?.id,
@@ -293,7 +293,7 @@ async function parse(
     };
   }
 
-  return { model: safeModel, paymentDetails };
+  return { model: safeModel, paymentDetail };
 }
 
 async function validate(

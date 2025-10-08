@@ -22,13 +22,11 @@ import { useQuery } from "../../../query";
  */
 async function pay({ model, clientId }: GatewayCardContext) {
   if (model.store) {
-    debugger;
     return storePaymentMethod({
       model,
       clientId
     } as GatewayCardContext)
       .then((result: IPaymentDetail) => {
-        debugger;
         return {
           payment_details_id: result.id
         };
@@ -77,13 +75,11 @@ async function storePaymentMethod({
     },
     withAccessToken: true
   }).then(result => {
-    debugger;
     const scaVerified = result?.sca_verified;
     const nextAction = result?.next_action;
-    debugger;
     // DC: What does this do?
     // if (nextAction && !scaVerified) {
-    //   debugger;
+    //   ;
     //   return {
     //     ...nextAction,
     //     returnLocation: currentUrl.toString()

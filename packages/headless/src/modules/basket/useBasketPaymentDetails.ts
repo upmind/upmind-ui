@@ -14,7 +14,7 @@ import { usePaymentDetail } from "../paymentDetails";
 
 export const useBasketPaymentDetails = () => {
   const { actors } = useBasket();
-  const actor = actors.paymentDetails;
+  const actor = actors.paymentDetail;
 
   return usePaymentDetail(actor);
 };

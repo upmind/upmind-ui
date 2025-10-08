@@ -70,7 +70,7 @@ export function spawnPaymentDetails(basket?: IBasket) {
       amount: basket?.unpaid_amount_converted || 0.0,
       model: {}
     } as PaymentDetailsContext),
-    { name: "paymentDetails", sync: true }
+    { name: "paymentDetail", sync: true }
   );
 }
 

@@ -10,7 +10,7 @@ import { spawnGateway } from "./utils";
 import { mapToHeadlessError, stopService, useModelParser } from "../../utils";
 import { useTime, useValidationParser } from "../../utils";
 import { useSchema, useUischema } from "./schemas";
-import { isEqual, isEmpty, find, map } from "lodash-es";
+import { isEqual, isEmpty, find, map, isNil } from "lodash-es";
 
 // --- types
 import type { AnyEventObject } from "xstate";
@@ -18,16 +18,14 @@ import type { PaymentDetailsContext } from "./types";
 import { responseCodes } from "../../utils";
 import {
   PaymentType,
-  SelectedPaymentMethod,
-  GatewayContext as GatewayCtx,
-  IBrandGateway
+  GatewayContext as GatewayCtx
 } from "@upmind-automation/types";
-import { mapPaymentData, mapPaymentDetail } from "./mappers";
+import { mapPaymentData } from "./mappers";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
   {
-    id: "paymentDetailsManager",
+    id: "paymentDetailManager",
     predictableActionArguments: true,
     initial: "subscribing",
     context: {} as PaymentDetailsContext,
@@ -204,9 +202,9 @@ export default createMachine(
         id: "complete",
         type: "final",
         data: (
-          { paymentDetails }: PaymentDetailsContext,
+          { paymentDetail }: PaymentDetailsContext,
           _event: AnyEventObject
-        ) => paymentDetails
+        ) => paymentDetail
       }
     },
     on: {
@@ -230,10 +228,10 @@ export default createMachine(
           data.model,
         // gateway: (_context: PaymentDetailsContext, { data }: AnyEventObject) =>
         //   data.gateway,
-        paymentDetails: (
+        paymentDetail: (
           _context: PaymentDetailsContext,
           { data }: AnyEventObject
-        ) => data.paymentDetails
+        ) => data.paymentDetail
       }),
 
       setLookups: assign({
@@ -343,7 +341,7 @@ export default createMachine(
         ) => data?.address ?? address,
         model: (_context: PaymentDetailsContext, { data }: AnyEventObject) =>
           undefined, // we clear the model so we force a reparse
-        paymentDetails: (
+        paymentDetail: (
           _context: PaymentDetailsContext,
           { data }: AnyEventObject
         ) => undefined, // we clear the payment details so we force a reparse
@@ -383,7 +381,7 @@ export default createMachine(
       // ---
 
       setPaymentDetails: assign({
-        paymentDetails: (
+        paymentDetail: (
           { amount, model, gateways, clientId }: PaymentDetailsContext,
           { data }: AnyEventObject
         ) =>
@@ -397,9 +395,9 @@ export default createMachine(
       }),
 
       providePaymentDetails: sendParent(
-        ({ paymentDetails }: PaymentDetailsContext) => ({
+        ({ paymentDetail }: PaymentDetailsContext) => ({
           type: "PAYMENT_DETAILS",
-          data: paymentDetails
+          data: paymentDetail
         })
       ),
 
@@ -444,9 +442,9 @@ export default createMachine(
         _event: AnyEventObject
       ) => !amount || model?.type == PaymentType.PAY_LATER,
       hasPaymentDetails: (
-        { paymentDetails }: PaymentDetailsContext,
+        { paymentDetail }: PaymentDetailsContext,
         _event: AnyEventObject
-      ) => !isEmpty(paymentDetails?.data),
+      ) => !isNil(paymentDetail),
       isPaymentDetail: (
         _context: PaymentDetailsContext,
         { data }: AnyEventObject

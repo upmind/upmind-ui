@@ -2,11 +2,8 @@
 import type { ActorRef } from "xstate";
 import type { ResponseError } from "../../utils";
 import type { BasketProduct } from "../basketProduct";
-import type {
-  IBasket,
-  IInvoice,
-  SelectedPaymentMethod
-} from "@upmind-automation/types";
+import type { IBasket, IInvoice } from "@upmind-automation/types";
+import { PaymentDetailData } from "../paymentDetails";
 
 // -----------------------------------------------------------------------------
 
@@ -30,11 +27,11 @@ export interface BasketContext {
     billing: ActorRef<any>;
     currency: ActorRef<any>;
     customFields: ActorRef<any>;
-    paymentDetails: ActorRef<any>;
+    paymentDetail: ActorRef<any>;
     promotions: ActorRef<any>;
   };
   authHelper?: ActorRef<any>;
   payment?: ActorRef<any>;
   // --- Payment
-  paymentDetails?: SelectedPaymentMethod;
+  paymentDetail?: PaymentDetailData;
 }
