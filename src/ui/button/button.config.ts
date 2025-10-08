@@ -12,21 +12,21 @@ export const variants = {
   },
   variant: {
     primary:
-      "button-radius from-bg-button-primary-0 to-bg-button-primary-1 text-button-primary [&:hover,&[data-hover=true]]:from-bg-button-primary-hover-0 [&:hover,&[data-hover=true]]:to-bg-button-primary-hover-1 ring-primary-ring! bg-gradient-to-br",
+      "button-radius from-bg-button-primary-0 to-bg-button-primary-1 text-button-primary [&:hover:not(:disabled),&[data-hover=true]:not([data-disabled=true])]:from-bg-button-primary-hover-0 [&:hover:not(:disabled),&[data-hover=true]:not([data-disabled=true])]:to-bg-button-primary-hover-1 ring-primary-ring! bg-gradient-to-br",
     secondary:
-      "button-radius from-bg-button-secondary-0 to-bg-button-secondary-1 text-button-secondary [&:hover,&[data-hover=true]]:from-bg-button-secondary-hover-0 [&:hover,&[data-hover=true]]:to-bg-button-secondary-hover-1 ring-secondary-ring! bg-gradient-to-br",
+      "button-radius from-bg-button-secondary-0 to-bg-button-secondary-1 text-button-secondary [&:hover:not(:disabled),&[data-hover=true]:not([data-disabled=true])]:from-bg-button-secondary-hover-0 [&:hover:not(:disabled),&[data-hover=true]:not([data-disabled=true])]:to-bg-button-secondary-hover-1 ring-secondary-ring! bg-gradient-to-br",
     neutral:
-      "button-radius from-bg-button-neutral-0 to-bg-button-neutral-1 text-button-neutral [&:hover,&[data-hover=true]]:from-bg-button-neutral-hover-0 [&:hover,&[data-hover=true]]:to-bg-button-neutral-hover-1 ring-neutral-ring! bg-gradient-to-br",
+      "button-radius from-bg-button-neutral-0 to-bg-button-neutral-1 text-button-neutral [&:hover:not(:disabled),&[data-hover=true]:not([data-disabled=true])]:from-bg-button-neutral-hover-0 [&:hover:not(:disabled),&[data-hover=true]:not([data-disabled=true])]:to-bg-button-neutral-hover-1 ring-neutral-ring! bg-gradient-to-br",
     subtle:
-      "button-radius from-bg-button-subtle-0 to-bg-button-subtle-1 text-button-subtle [&:hover,&[data-hover=true]]:from-bg-button-subtle-hover-0 [&:hover,&[data-hover=true]]:to-bg-button-subtle-hover-1 ring-subtle-ring! bg-gradient-to-br",
+      "button-radius from-bg-button-subtle-0 to-bg-button-subtle-1 text-button-subtle [&:hover:not(:disabled),&[data-hover=true]:not([data-disabled=true])]:from-bg-button-subtle-hover-0 [&:hover:not(:disabled),&[data-hover=true]:not([data-disabled=true])]:to-bg-button-subtle-hover-1 ring-subtle-ring! bg-gradient-to-br",
     danger:
-      "button-radius from-bg-button-danger-0 to-bg-button-danger-1 text-button-danger [&:hover,&[data-hover=true]]:from-bg-button-danger-hover-0 [&:hover,&[data-hover=true]]:to-bg-button-danger-hover-1 ring-danger-ring! bg-gradient-to-br",
+      "button-radius from-bg-button-danger-0 to-bg-button-danger-1 text-button-danger [&:hover:not(:disabled),&[data-hover=true]:not([data-disabled=true])]:from-bg-button-danger-hover-0 [&:hover:not(:disabled),&[data-hover=true]:not([data-disabled=true])]:to-bg-button-danger-hover-1 ring-danger-ring! bg-gradient-to-br",
     outline:
-      "button-radius bg-button-outline text-button-outline [&:hover,&[data-hover=true]]:bg-button-outline-hover ring-outline-ring! shadow-button-outline",
+      "button-radius bg-button-outline text-button-outline [&:hover:not(:disabled),&[data-hover=true]:not([data-disabled=true])]:bg-button-outline-hover ring-outline-ring! shadow-button-outline",
     ghost:
-      "button-radius bg-button-ghost text-button-ghost [&:hover,&:focus-within,&[data-hover=true],&[data-focus=true]]:bg-button-ghost-hover ring-ghost-ring!",
+      "button-radius bg-button-ghost text-button-ghost [&:hover:not(:disabled),&:focus-within:not(:disabled),&[data-hover=true]:not([data-disabled=true]),&[data-focus=true]:not([data-disabled=true])]:bg-button-ghost-hover ring-ghost-ring!",
     control:
-      "control-radius shadow-control-default hover:border-control-hover ring-control-ring!"
+      "control-radius shadow-control-default hover:not(:disabled):border-control-hover ring-control-ring!"
   },
   align: {
     left: "justify-start",

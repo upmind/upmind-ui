@@ -1,6 +1,6 @@
 // ---  external
 import { cva } from "class-variance-authority";
-import { ringClasses } from "../../assets/ring.styles";
+import { outlineReset } from "../../assets/ring.styles";
 // -----------------------------------------------------------------------------
 
 export const variants = {
@@ -15,20 +15,29 @@ export const variants = {
     false: ""
   },
   color: {
-    inherit: "[&:not([aria-disabled=true]):hover,&:not([aria-disabled=true])[data-hover=true]]:opacity-75",
+    inherit:
+      "[&:not([aria-disabled=true]):hover,&:not([aria-disabled=true])[data-hover=true]]:opacity-75",
     default:
       "text-button-link [&:not([aria-disabled=true]):hover,&:not([aria-disabled=true])[data-hover=true]]:text-button-link-hover [&:not([aria-disabled=true])]:group-hover:text-button-link-hover",
     muted:
       "text-button-muted-link [&:not([aria-disabled=true]):hover,&:not([aria-disabled=true])[data-hover=true]]:text-button-muted-link-hover",
-    promo: "text-accent-promo [&:not([aria-disabled=true]):hover,&:not([aria-disabled=true])[data-hover=true]]:opacity-75",
-    danger: "text-accent-danger [&:not([aria-disabled=true]):hover,&:not([aria-disabled=true])[data-hover=true]]:opacity-75",
-    warning: "text-accent-warning [&:not([aria-disabled=true]):hover,&:not([aria-disabled=true])[data-hover=true]]:opacity-75",
-    success: "text-accent-success [&:not([aria-disabled=true]):hover,&:not([aria-disabled=true])[data-hover=true]]:opacity-75",
+    promo:
+      "text-accent-promo [&:not([aria-disabled=true]):hover,&:not([aria-disabled=true])[data-hover=true]]:opacity-75",
+    danger:
+      "text-accent-danger [&:not([aria-disabled=true]):hover,&:not([aria-disabled=true])[data-hover=true]]:opacity-75",
+    warning:
+      "text-accent-warning [&:not([aria-disabled=true]):hover,&:not([aria-disabled=true])[data-hover=true]]:opacity-75",
+    success:
+      "text-accent-success [&:not([aria-disabled=true]):hover,&:not([aria-disabled=true])[data-hover=true]]:opacity-75",
     info: "text-accent-info [&:not([aria-disabled=true]):hover,&:not([aria-disabled=true])[data-hover=true]]:opacity-75"
   },
   isDisabled: {
     true: "cursor-not-allowed opacity-50",
     false: "cursor-pointer"
+  },
+  hasRing: {
+    true: `${outlineReset} focus-visible:ring-2 focus-visible:ring-control-ring focus-visible:ring-offset-2 focus-visible:ring-offset-core-surface`,
+    false: "outline-none focus:ring-0 focus:outline-none"
   }
 };
 
@@ -52,7 +61,7 @@ const itemsVariants = cva("size-lh flex items-center justify-center", {
 });
 
 export const rootVariants = cva(
-  `ring-offset-bg-canvas button-radius font-medium whitespace-nowrap underline underline-offset-4 transition-all duration-200 ${ringClasses} [&:focus-visible]:ring-offset-4`,
+  `ring-offset-bg-canvas button-radius font-medium whitespace-nowrap underline underline-offset-4 transition-all duration-200 focus-visible:ring-offset-4`,
   {
     variants: {
       size: variants.size,
@@ -61,7 +70,8 @@ export const rootVariants = cva(
       hasIcon: {
         true: "inline-flex items-center",
         false: "inline-flex items-center"
-      }
+      },
+      hasRing: variants.hasRing
     },
     defaultVariants: {
       color: "default",

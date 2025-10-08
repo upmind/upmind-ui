@@ -12,7 +12,7 @@
               item.current ||
               index === props.items.length - 1
             "
-            class="cursor-default no-underline hover:opacity-100!"
+            class="hover:text-muted! cursor-default no-underline hover:opacity-100!"
             :size="props.size"
             :focusable="false"
             :label="item.label"
