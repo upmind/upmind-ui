@@ -7,11 +7,11 @@ export default {
     inputContainer: cva("text-md! cursor-default"),
     icon: cva("text-muted mr-1 size-5"),
     content: cva(
-      `z-50 mt-2 w-(--radix-popover-trigger-width) overflow-hidden rounded border p-2 ${ringClasses}`
+      `z-50 my-2 w-(--radix-popover-trigger-width) overflow-hidden rounded border p-2 ${ringClasses} bg-control-surface control-radius`
     ),
     divider: cva("mx-3 h-px border-t"),
     item: cva(
-      "hover:bg-control-active-hover focus:bg-control-active-hover text-control-foreground text-md cursor-pointer list-none rounded px-3 py-2 font-medium"
+      "text-control-foreground text-md text-muted hover:text-control-selected cursor-pointer list-none rounded px-3 py-2 transition-all duration-200"
     )
   }
 };
