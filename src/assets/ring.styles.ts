@@ -11,4 +11,4 @@ export const groupFocusRing = `group-focus-within:${baseRing}`;
 export const ringClasses = `${outlineReset} ${focusVisibleRing} ${focusWithinRing} ${activeRing}`;
 export const groupRingClasses = `${ringClasses} ${groupFocusRing}`;
 export const invalidRingClasses =
-  "aria-invalid:ring-invalid! aria-invalid:ring-2!";
+  "aria-invalid:ring-danger-ring! aria-invalid:ring-2!";
