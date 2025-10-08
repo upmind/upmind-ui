@@ -12,6 +12,8 @@ import type { PaymentDetailsContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import { generateResponseUrls } from "./gateways/utils";
 import { useI18n } from "../system";
+import { read } from "fs";
+import { readonly } from "vue";
 
 // -----------------------------------------------------------------------------
 
@@ -23,10 +25,6 @@ export const useSchema = ({
 }: PaymentDetailsContext): JsonSchema => {
   const { t } = useI18n();
 
-  const { cancelUrl, returnUrl } = generateResponseUrls(
-    new URL(`order/${orderId}`, window.location.origin),
-    { orderId }
-  );
   const schema = {
     type: "object",
     title: "Payment details",
@@ -82,12 +80,12 @@ export const useSchema = ({
       return_url: {
         type: "string",
         format: "uri-reference",
-        const: returnUrl
+        readonly: true
       },
       cancel_url: {
         type: "string",
         format: "uri",
-        const: cancelUrl
+        readonly: true
       }
     }
 

@@ -31,13 +31,14 @@ import {
   spawnCurrency,
   spawnPromotions,
   spawnCustomFields,
-  spawnPaymentDetails
+  spawnPaymentDetail
 } from "./utils";
 import {
   useTime,
   responseCodes,
   mapToHeadlessError,
-  stopService
+  stopService,
+  stateMatches
 } from "../../utils";
 import { parseBasketProduct } from "../basketProduct/utils";
 
@@ -45,8 +46,8 @@ import { parseBasketProduct } from "../basketProduct/utils";
 import type { Message } from "../feedback";
 import type { BasketContext } from "./types";
 import type { AnyEventObject } from "xstate";
-import type { PaymentArgs, PaymentContext } from "../payment";
-import { PaymentMethodType, PaymentType } from "@upmind-automation/types";
+import type { PaymentArgs } from "../payment";
+import { PaymentType } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -288,7 +289,7 @@ export default createMachine(
                   // response from the paymentDetail machine = we are ready to convert
                   PAYMENT_DETAILS: {
                     target: "complete",
-                    actions: ["setPaymentDetails", "pushPaymentDetails"],
+                    actions: ["setPaymentDetail", "pushPaymentDetail"],
                     cond: "paymentDetailComplete"
                   }
                 }
@@ -318,7 +319,7 @@ export default createMachine(
         id: "checkout",
         always: {
           target: "converting",
-          cond: "hasPaymentDetails"
+          cond: "hasPaymentDetail"
         }
       },
 
@@ -449,7 +450,7 @@ export default createMachine(
         invoice: undefined
       }),
 
-      setPaymentDetails: assign({
+      setPaymentDetail: assign({
         paymentDetail: (_context: BasketContext, { data }: AnyEventObject) =>
           data
       }),
@@ -473,7 +474,7 @@ export default createMachine(
           // only spawn if we have not already spawned
           actors ??= {
             billing: spawnBilling(basket),
-            paymentDetail: spawnPaymentDetails(basket),
+            paymentDetail: spawnPaymentDetail(basket),
             currency: spawnCurrency(basket),
             customFields: spawnCustomFields(basket),
             promotions: spawnPromotions(basket)
@@ -558,7 +559,7 @@ export default createMachine(
       },
 
       // When a user enters their payment info
-      pushPaymentDetails: (_context: BasketContext, _event: AnyEventObject) => {
+      pushPaymentDetail: (_context: BasketContext, _event: AnyEventObject) => {
         dataLayer({ event: "add_payment_info" }).withEcommerce().push();
       },
 
@@ -608,67 +609,52 @@ export default createMachine(
         !isEmpty(data) && !isEqual(basket, data),
 
       // --- Actor Guards
-      currencyComplete: ({ actors }: BasketContext) => {
-        return actors?.currency?.getSnapshot()?.matches("complete");
-      },
+      currencyComplete: ({ actors }: BasketContext) =>
+        stateMatches(actors?.currency, ["complete", "done"]),
 
-      currencyConfiguring: ({ actors }: BasketContext) => {
-        return !actors?.currency?.getSnapshot()?.matches("complete");
-      },
+      currencyConfiguring: ({ actors }: BasketContext) =>
+        !stateMatches(actors?.currency, ["complete", "done"]),
 
-      promotionsComplete: ({ actors }: BasketContext) => {
-        // promotions should not hold up the process of checking out
-        // unless it is in the process of being updated or loading
-        return !["processing", "loading"].some(
-          actors?.promotions?.getSnapshot()?.matches
-        );
-      },
+      // promotions should not hold up the process of checking out
+      // unless it is in the process of being updated or loading
+      promotionsComplete: ({ actors }: BasketContext) =>
+        stateMatches(actors?.promotions, ["complete", "done"]),
 
-      promotionsConfiguring: ({ actors }: BasketContext) => {
-        return ["processing", "loading"].some(
-          actors?.promotions?.getSnapshot()?.matches
-        );
-      },
+      promotionsConfiguring: ({ actors }: BasketContext) =>
+        stateMatches(actors?.promotions, ["processing", "loading"]),
 
-      customFieldsComplete: ({ actors }: BasketContext) => {
-        return actors?.customFields?.getSnapshot()?.matches("complete");
-      },
+      customFieldsComplete: ({ actors }: BasketContext) =>
+        stateMatches(actors?.customFields, ["complete", "done"]),
 
-      customFieldsConfiguring: ({ actors }: BasketContext) => {
-        return !actors?.customFields?.getSnapshot()?.matches("complete");
-      },
+      customFieldsConfiguring: ({ actors }: BasketContext) =>
+        !stateMatches(actors?.customFields, ["complete", "done"]),
 
-      billingComplete: ({ actors }: BasketContext) => {
-        return actors?.billing?.getSnapshot()?.matches("complete");
-      },
+      billingComplete: ({ actors }: BasketContext) =>
+        stateMatches(actors?.billing, ["complete", "done"]),
 
-      billingConfiguring: ({ actors }: BasketContext) => {
-        return !actors?.billing?.getSnapshot()?.matches("complete");
-      },
+      billingConfiguring: ({ actors }: BasketContext) =>
+        !stateMatches(actors?.billing, ["complete", "done"]),
 
-      paymentDetailValid: ({ actors }: BasketContext) => {
-        return (
-          actors?.paymentDetail?.getSnapshot()?.done ||
-          actors?.paymentDetail?.getSnapshot()?.matches("available.valid")
-        );
-      },
+      paymentDetailValid: ({ actors }: BasketContext) =>
+        stateMatches(actors?.paymentDetail, ["available.valid"]),
 
       paymentDetailComplete: (
         { actors }: BasketContext,
         { data }: AnyEventObject
       ) =>
-        (actors?.paymentDetail?.getSnapshot()?.done ||
-          actors?.paymentDetail?.getSnapshot()?.matches("complete")) &&
-        !isNil(data),
-
-      hasPaymentDetails: ({ paymentDetail }: BasketContext) =>
-        !isNil(paymentDetail),
+        stateMatches(actors?.paymentDetail, ["complete", "done"]) &&
+        !isNil(data) &&
+        !isEmpty(data),
 
       paymentDetailConfiguring: ({ actors, paymentDetail }: BasketContext) =>
-        isNil(paymentDetail) &&
-        ["available.invalid", "available.checking", "available.loading"].some(
-          actors?.paymentDetail?.getSnapshot()?.matches
-        ),
+        stateMatches(actors?.paymentDetail, [
+          "available.invalid",
+          "available.checking",
+          "available.loading"
+        ]),
+
+      hasPaymentDetail: ({ paymentDetail }: BasketContext) =>
+        !isNil(paymentDetail) && !isEmpty(paymentDetail),
 
       needsPayment: ({ paymentDetail }: BasketContext) => {
         const isFree = (paymentDetail?.amount ?? 0) === 0;

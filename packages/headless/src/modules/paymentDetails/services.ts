@@ -43,6 +43,7 @@ import {
 } from "@upmind-automation/types";
 import { QueryKey } from "@tanstack/vue-query";
 import { mapPaymentDetailDetails } from "./mappers";
+import { generateResponseUrls } from "./gateways/utils";
 
 // -----------------------------------------------------------------------------
 const queryKey: QueryKey = ["paymentDetail", "stored"];
@@ -205,6 +206,7 @@ async function loadLookups(
 
 async function parse(
   {
+    orderId,
     amount,
     model,
     schema,
@@ -292,6 +294,15 @@ async function parse(
       client_id: clientId
     };
   }
+
+  // genrate our return and cancel urls
+  const { cancelUrl, returnUrl } = generateResponseUrls(
+    new URL(`order/${orderId}`, window.location.origin),
+    { orderId }
+  );
+
+  safeModel.cancel_url = cancelUrl;
+  safeModel.return_url = returnUrl;
 
   return { model: safeModel, paymentDetail };
 }
