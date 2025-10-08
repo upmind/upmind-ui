@@ -1,4 +1,20 @@
 /* Main Variants */
+@utility text-primary {
+  color: var(--text-primary);
+}
+@utility text-base {
+  color: var(--text-base);
+}
+@utility text-display {
+  color: var(--text-display);
+}
+@utility text-faint {
+  color: var(--text-faint);
+}
+@utility text-muted {
+  color: var(--text-muted);
+}
+
 @utility text-control-default {
   --color-control-default: var(--color-control-default);
 }
