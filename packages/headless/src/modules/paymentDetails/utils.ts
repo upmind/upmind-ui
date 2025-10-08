@@ -97,6 +97,7 @@ export function spawnGateway({
       );
 
     // GERERIC RENDERLESS / REDIRECT / OFFSITE GATEWAYS
+    case GatewayProviderCodes.BLOCKONOMICS:
     case GatewayProviderCodes.MICROPAYMENT:
     case GatewayProviderCodes.OFFLINE:
     case GatewayProviderCodes.BANK_TRANSFER:
@@ -131,7 +132,6 @@ export function spawnGateway({
     default:
     case GatewayProviderCodes.ADYEN:
     case GatewayProviderCodes.BIT_PAY:
-    case GatewayProviderCodes.BLOCKONOMICS:
     case GatewayProviderCodes.COIN_GATE:
     case GatewayProviderCodes.D_LOCAL:
     case GatewayProviderCodes.FLUTTERWAVE:
