@@ -58,8 +58,6 @@ async function storePaymentMethod({
     }
   );
 
-  // const: `?${QUERY_PARAMS.SUCCESS}=${encodeURIComponent(success)}&${QUERY_PARAMS.FAILED}=${encodeURIComponent(fail)}`
-
   const { post, useUrl } = useQuery();
 
   // TODO: correct Typing

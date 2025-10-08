@@ -354,7 +354,6 @@ export default createMachine(
           id: "payment",
           src: paymentMachine,
           data: ({ invoice, paymentDetails }: BasketContext) => {
-            debugger;
             return {
               orderId: invoice?.id,
               paymentDetail: paymentDetails

@@ -11,7 +11,6 @@ import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 import { Methods, Targets } from "@upmind-automation/types";
 import { type PaymentContext } from "./types";
 import type { AnyEventObject } from "xstate";
-import { mapPaymentData } from "./mappers";
 
 // -----------------------------------------------------------------------------
 
@@ -93,16 +92,11 @@ async function update(
 
   const { post, useUrl } = useQuery();
 
-  const data = mapPaymentData(paymentDetail!);
-  debugger;
-
   return post({
     url: useUrl(`/payments`),
     data: {
-      ...data,
-      // --- required
-      amount: paymentDetail.amount,
-      invoice_id: orderId
+      invoice_id: orderId,
+      ...paymentDetail
     },
     withAccessToken: true
   });
