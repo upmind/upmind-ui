@@ -12,16 +12,19 @@
 @layer utilities {
   .autofill:has(input:autofill) {
     @apply bg-[var(--bg-control-selected)];
+    color: var(--color-core-base) !important;
   }
 
   input:-webkit-autofill,
   textarea:-webkit-autofill,
   select:-webkit-autofill {
     -webkit-box-shadow: 0 0 0 1000px var(--bg-control-selected) inset !important;
-    -webkit-text-fill-color: var(--color-text-control-selected) !important;
+    -webkit-text-fill-color: var(--color-core-base) !important;
+    color: var(--color-core-base) !important;
   }
   input:-webkit-autofill {
     -webkit-box-shadow: 0 0 0 1000px var(--bg-control-selected) inset !important;
-    -webkit-text-fill-color: var(--color-text-control-selected) !important;
+    -webkit-text-fill-color: var(--color-core-base) !important;
+    color: var(--color-core-base) !important;
   }
 }
