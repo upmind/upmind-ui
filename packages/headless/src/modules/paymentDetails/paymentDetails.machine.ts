@@ -10,7 +10,7 @@ import { spawnGateway } from "./utils";
 import { mapToHeadlessError, stopService, useModelParser } from "../../utils";
 import { useTime, useValidationParser } from "../../utils";
 import { useSchema, useUischema } from "./schemas";
-import { isEqual, isEmpty, find } from "lodash-es";
+import { isEqual, isEmpty, find, map } from "lodash-es";
 
 // --- types
 import type { AnyEventObject } from "xstate";
@@ -22,6 +22,7 @@ import {
   GatewayContext as GatewayCtx,
   IBrandGateway
 } from "@upmind-automation/types";
+import { mapPaymentData, mapPaymentDetail } from "./mappers";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -205,10 +206,7 @@ export default createMachine(
         data: (
           { paymentDetails }: PaymentDetailsContext,
           _event: AnyEventObject
-        ) => {
-          debugger;
-          return paymentDetails;
-        }
+        ) => paymentDetails
       }
     },
     on: {
@@ -386,21 +384,16 @@ export default createMachine(
 
       setPaymentDetails: assign({
         paymentDetails: (
-          { amount, model, currency }: PaymentDetailsContext,
+          { amount, model, gateways, clientId }: PaymentDetailsContext,
           { data }: AnyEventObject
-        ) => {
-          debugger;
-          return {
+        ) =>
+          mapPaymentData({
             amount,
-            walletAmount: undefined,
-            currency_id: currency.id,
-            data: {
-              ...data, // provided GatewayData ( must already be parsed correctly by the gateway )
-              return_url: model?.return_url,
-              cancel_url: model?.cancel_url
-            }
-          } as SelectedPaymentMethod;
-        }
+            clientId,
+            data,
+            gateways,
+            model: model!
+          })
       }),
 
       providePaymentDetails: sendParent(
