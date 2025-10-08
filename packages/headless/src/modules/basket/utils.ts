@@ -3,7 +3,7 @@ import { spawn } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import paymentDetailsMachine from "../paymentDetails/paymentDetails.machine";
+import paymentDetailsMachine from "../paymentDetails/paymentDetail.machine";
 import customFieldsMachine from "./fields/fields.machine";
 import promotionsMachine from "./promotions/promotions.machine";
 import currencyMachine from "./currency/currency.machine";
@@ -60,7 +60,7 @@ export function spawnCustomFields(basket?: IBasket) {
   );
 }
 
-export function spawnPaymentDetails(basket?: IBasket) {
+export function spawnPaymentDetail(basket?: IBasket) {
   return spawn(
     paymentDetailsMachine.withContext({
       orderId: basket?.id,

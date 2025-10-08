@@ -17,7 +17,8 @@ import {
   isEqual,
   PropertyPath,
   compact,
-  pick
+  pick,
+  includes
 } from "lodash-es";
 
 // --- types
@@ -110,6 +111,9 @@ export const stateMatches = (
   const state = safeState(stateLike);
 
   states = isArray(states) ? states : [states];
+
+  // special check for 'done' state, as xstate does not allow us to check for done using matches
+  if (includes(states, "done")) !!state?.done;
 
   if (!isFunction(state?.matches)) return false;
 
