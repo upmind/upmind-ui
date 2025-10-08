@@ -3,7 +3,7 @@ export const baseRing =
 
 export const outlineReset = "outline-hidden focus-within:outline-hidden";
 
-export const focusWithinRing = `focus-within:${baseRing}`;
+export const focusWithinRing = `focus-within:${baseRing} focus-within:ring-control-ring`;
 export const activeRing = `active:${baseRing}`;
 export const groupFocusRing = `group-focus-within:${baseRing}`;
 
