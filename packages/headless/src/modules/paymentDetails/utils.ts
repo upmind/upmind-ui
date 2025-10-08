@@ -76,7 +76,7 @@ export function spawnGateway({
     case GatewayProviderCodes.STRIPE:
       if (!gateway?.use_frontend_implementation) {
         console.warn(
-          "DEPRECATION: Stripe in only supported via frontend implementation, please update your gateway settings"
+          `DEPRECATION: ${gateway.name} is no longer supported via Headless`
         );
         return;
       }
@@ -104,7 +104,6 @@ export function spawnGateway({
     case GatewayProviderCodes.PAYPAL_EXPRESS:
     case GatewayProviderCodes.PAYPAL_LEGACY_SUBSCRIPTION:
     case GatewayProviderCodes.PAYPAL_PRO:
-    case GatewayProviderCodes.PAYPAL_REST:
     case GatewayProviderCodes.PAYPAL_SUBSCRIPTION_AGREEMENT:
       return spawn(
         gatewayMachine(gateway.gateway_provider.code).withContext({
@@ -120,6 +119,13 @@ export function spawnGateway({
         }),
         { name: gateway.id, sync: true }
       );
+
+    // DEPRECATED GATEWAYS
+    case GatewayProviderCodes.PAYPAL_REST:
+      console.warn(
+        `DEPRECATION: ${gateway.name} is no longer supported via Headless`
+      );
+      return;
 
     // UNSUPPORTED OR UNKNOWN GATEWAYS
     default:

@@ -16,6 +16,7 @@ import {
   forEach,
   get,
   has,
+  includes,
   isArray,
   isEmpty,
   isNil,
@@ -456,6 +457,10 @@ export const useModelParser = <
       );
     }
 
+    // NB ensure we always cast booleans correctly, we dont want null or undefined for booleans
+    if (field.type === "boolean" || includes(field.type, "boolean")) {
+      return field?.const ?? get(values, key, field?.default) ?? false;
+    }
     return field?.const ?? get(values, key, field?.default) ?? null;
   }
 
