@@ -16,7 +16,7 @@ export const variants = {
 };
 
 export const tabsListVariants = cva(
-  "text-muted-foreground shadow-control-default bg-control-surface text-base-foreground control-radius mb-6 inline-flex items-center p-0",
+  "text-muted-foreground shadow-control-default bg-control-surface control-radius mb-6 inline-flex items-center p-0 text-base",
   {
     variants,
     defaultVariants: {
