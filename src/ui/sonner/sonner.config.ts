@@ -10,7 +10,7 @@ export default {
         "group-data-[type=neutral]:bg-accent-neutral! group-data-[type=neutral]:text-accent-neutral-contrast! transition-all! duration-200! group-data-[type=neutral]:hover:opacity-90!"
       ),
       closeButton: cva(
-        "group-data-[type=neutral]:text-accent-neutral-muted-contrast! transition-all! duration-200!"
+        "bg-surface! border-control-surface! group-data-[type=neutral]:text-accent-neutral! transition-all! duration-200!"
       )
     },
 
@@ -22,7 +22,7 @@ export default {
         "group-data-[type=success]:bg-accent-success-contrast! group-data-[type=success]:text-accent-success! transition-all! duration-200! group-data-[type=success]:hover:opacity-90!"
       ),
       closeButton: cva(
-        "group-data-[type=success]:text-accent-success-muted-contrast! transition-all! duration-200!"
+        "bg-surface! border-control-surface! group-data-[type=success]:text-accent-success! transition-all! duration-200!"
       )
     },
 
@@ -34,7 +34,7 @@ export default {
         "group-data-[type=danger]:bg-accent-danger! group-data-[type=danger]:text-accent-danger-contrast! transition-all! duration-200! group-data-[type=danger]:hover:opacity-90!"
       ),
       closeButton: cva(
-        "group-data-[type=danger]:text-accent-danger-muted-contrast! transition-all! duration-200!"
+        "bg-surface! border-control-surface! group-data-[type=danger]:text-accent-danger! transition-all! duration-200!"
       )
     },
 
@@ -46,7 +46,7 @@ export default {
         "group-data-[type=warning]:bg-accent-warning! group-data-[type=warning]:text-accent-warning-contrast! transition-all! duration-200! group-data-[type=warning]:hover:opacity-90!"
       ),
       closeButton: cva(
-        "group-data-[type=warning]:text-accent-warning-muted-contrast! transition-all! duration-200!"
+        "bg-surface! border-control-surface! group-data-[type=warning]:text-accent-warning! transition-all! duration-200!"
       )
     },
 
@@ -58,7 +58,7 @@ export default {
         "group-data-[type=info]:bg-accent-info! group-data-[type=info]:text-accent-info-contrast! transition-all! duration-200! group-data-[type=info]:hover:opacity-90!"
       ),
       closeButton: cva(
-        "group-data-[type=info]:text-accent-info-muted-contrast! transition-all! duration-200!"
+        "bg-surface! border-control-surface! group-data-[type=info]:text-accent-info! transition-all! duration-200!"
       )
     },
 
@@ -70,7 +70,7 @@ export default {
         "group-data-[type=promo]:bg-accent-promo! group-data-[type=promo]:text-accent-promo-contrast! transition-all! duration-200! group-data-[type=promo]:hover:opacity-90!"
       ),
       closeButton: cva(
-        "group-data-[type=promo]:text-accent-promo-muted-contrast! transition-all! duration-200!"
+        "bg-surface! border-control-surface! group-data-[type=promo]:text-accent-promo! transition-all! duration-200!"
       )
     }
   }
