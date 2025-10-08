@@ -35,43 +35,32 @@ import type { AnyEventObject } from "xstate";
 
 async function load(context: StripeContext, _event: AnyEventObject) {
   const { gateway, amount, currency, address } = context;
+
   const { locale } = useLocale();
 
   const { t } = useI18n();
 
   if (!gateway)
-    return Promise.reject(
-      new DetailedError(
-        t("error.stripe_public_key_not_available"),
-        responseCodes.Not_Found,
-        ErrorOrigin.Headless
-      )
-    );
-
-  if (!currency)
-    return Promise.reject(
-      new DetailedError(
-        "Currency not found.",
-        responseCodes.Not_Found,
-        ErrorOrigin.Headless
-      )
+    throw new DetailedError(
+      t("error.payment_gateway_not_available"),
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
     );
 
   return sharedServices.load(context, _event).then(async config => {
     const key = getPublicKey(gateway);
+
     if (!key)
-      return Promise.reject(
-        new DetailedError(
-          t("error.stripe_not_available"),
-          responseCodes.Not_Found,
-          ErrorOrigin.Headless
-        )
+      throw new DetailedError(
+        t("error.payment_gateway_not_available"),
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
       );
 
     return loadStripe(key).then(stripe => {
       if (!stripe)
         throw new DetailedError(
-          "Stripe not found.",
+          t("error.payment_gateway_not_available"),
           responseCodes.Not_Found,
           ErrorOrigin.Headless
         );
@@ -104,10 +93,35 @@ async function load(context: StripeContext, _event: AnyEventObject) {
           }
         } as DefaultValuesOption
       });
-
       return { sdk: { stripe, elements, element }, ...config };
     });
   });
+}
+
+async function render({ sdk }: StripeContext, { data }: AnyEventObject) {
+  const { t } = useI18n();
+
+  if (!sdk?.element || !data?.container) {
+    throw new DetailedError(
+      t("error.payment_gateway_not_available"),
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless,
+      { element: sdk?.element, container: data?.container }
+    );
+  }
+  const container = data.container as HTMLElement;
+
+  sdk.element!.mount(container);
+
+  const validationHelper = (callback: any, _onReceiveEvent: AnyEventObject) => {
+    (sdk.element as any)!.on("change", (event: any) => {
+      callback({ type: "VALIDATE", data: event });
+    });
+
+    return () => {};
+  };
+
+  return { sdk, container, validationHelper };
 }
 
 async function validate(
@@ -119,7 +133,7 @@ async function validate(
   // Get any errors from the Stripe Element
   if (!sdk?.element) {
     throw new DetailedError(
-      t("error.stripe_element_not_available"),
+      t("error.payment_gateway_not_available"),
       responseCodes.Not_Found,
       ErrorOrigin.Headless
     );
@@ -147,7 +161,7 @@ async function validate(
 
   if (errors?.length) {
     throw new DetailedError(
-      t("error.stripe_validation_failed"),
+      t("error.payment_gateway_validation_failed"),
       responseCodes.Unprocessable_Entity,
       ErrorOrigin.Headless,
       errors
@@ -155,31 +169,6 @@ async function validate(
   }
 
   return model;
-}
-
-async function render({ sdk }: StripeContext, { data }: AnyEventObject) {
-  if (!sdk?.element || !data?.container) {
-    throw new DetailedError(
-      "Cannot render Stripe Element. Missing element or container.",
-      responseCodes.Not_Found,
-      ErrorOrigin.Headless,
-      { element: sdk?.element, container: data?.container }
-    );
-  }
-  const container = data.container as HTMLElement;
-
-  sdk.element!.mount(container);
-
-  const validationHelper = (callback: any, _onReceiveEvent: AnyEventObject) => {
-    (sdk.element as any)!.on("change", (event: any) => {
-      callback({ type: "VALIDATE", data: event });
-    });
-
-    return () => {};
-  };
-
-  // once we successfully render we can 'clear; our renderer to prevent any further attempts
-  return { container, validationHelper };
 }
 
 /**
@@ -194,7 +183,7 @@ async function pay({ sdk, model }: StripeContext) {
 
   if (!sdk?.stripe || !sdk?.element || !sdk?.elements)
     throw new DetailedError(
-      t("error.stripe_element_not_available"),
+      t("error.payment_gateway_not_available"),
       responseCodes.Not_Found,
       ErrorOrigin.Headless
     );
@@ -207,7 +196,7 @@ async function pay({ sdk, model }: StripeContext) {
       .then(({ error }) => {
         if (error)
           return new DetailedError(
-            error.message ?? t("error.stripe_element_submission_failed"),
+            error.message ?? t("error.payment_gateway_submission_failed"),
             responseCodes.Unprocessable_Entity,
             ErrorOrigin.External,
             error
@@ -222,7 +211,7 @@ async function pay({ sdk, model }: StripeContext) {
           .then(({ error, paymentMethod }) => {
             if (error)
               return new DetailedError(
-                error.message ?? t("error.stripe_element_submission_failed"),
+                error.message ?? t("error.payment_gateway_submission_failed"),
                 responseCodes.Unprocessable_Entity,
                 ErrorOrigin.External,
                 error
@@ -262,9 +251,9 @@ async function pay({ sdk, model }: StripeContext) {
 
 export default {
   load,
+  render,
   parse: sharedServices.parse,
   validate,
-  render,
   // ---
   pay
 };

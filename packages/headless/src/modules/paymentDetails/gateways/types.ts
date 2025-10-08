@@ -34,10 +34,11 @@ export type GeneticGatewayContext = {
   container?: HTMLElement;
   validationObserver?: ActorRef<any>;
   validationHelper?: (callback: any) => void;
-  // --- Computed
+  // --- Settings
   canStore?: boolean;
   mustStore?: boolean;
   mustAutoPay?: boolean;
+
   // --- UI
   schema?: JsonSchema;
   uischema?: UISchemaElement;

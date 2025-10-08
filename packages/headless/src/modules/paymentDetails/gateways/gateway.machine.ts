@@ -258,6 +258,8 @@ export default <T = unknown>(name: string) =>
         }),
 
         setSdk: assign({
+          sdk: ({ sdk }: GatewayContext<any>, { data }: AnyEventObject) =>
+            data?.sdk ?? sdk, // some gateways return sdk on render so we need to update it if needed
           container: (
             _context: GatewayContext<any>,
             { data }: AnyEventObject
