@@ -30,7 +30,7 @@ export const itemVariants = cva(
 );
 
 export const contentVariants = cva(
-  `control-radius shadow-ontrol-default bg-control-surface mt-2 border-none ${ringClasses} ${invalidRingClasses} flex max-h-72 min-w-(--radix-dropdown-menu-trigger-width) flex-col overflow-hidden overflow-y-scroll p-2`,
+  `control-radius shadow-control-default bg-control-surface mt-2 border-none ${ringClasses} ${invalidRingClasses} flex max-h-72 min-w-(--radix-dropdown-menu-trigger-width) flex-col overflow-hidden overflow-y-scroll p-2`,
   {
     variants,
     defaultVariants: {
