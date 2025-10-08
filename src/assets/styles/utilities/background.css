@@ -20,6 +20,8 @@
   --color-bg-button-danger-1: var(--bg-button-danger-1);
   --color-bg-button-danger-hover-0: var(--bg-button-danger-hover-0);
   --color-bg-button-danger-hover-1: var(--bg-button-danger-hover-1);
+
+  --color-control-surface: var(--bg-control-surface);
 }
 
 /* Background Color Utilities */
@@ -57,12 +59,6 @@
 }
 @utility bg-control-selected {
   background-color: var(--bg-control-selected);
-}
-@utility bg-control-surface {
-  background-color: var(--bg-control-surface);
-}
-@utility bg-control-ring {
-  background-color: var(--bg-control-ring);
 }
 
 /* Background - Button Non-Gradient */

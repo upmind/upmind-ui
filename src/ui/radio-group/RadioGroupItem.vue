@@ -4,7 +4,7 @@
     :class="
       cn(
         ringClasses,
-        'ring-offset-bg-control-surface',
+        'ring-offset-control-surface',
         'data-[state=unchecked]:shadow-control-default data-[state=checked]:shadow-control-checked text-primary aspect-square h-4 w-4 rounded-full disabled:cursor-not-allowed disabled:opacity-50',
         'text-control-foreground data-[state=checked]:bg-control-checked data-[state=unchecked]:hover:shadow-control-hover shrink-0 cursor-pointer transition-none duration-0',
         props.class,
