@@ -227,7 +227,6 @@ const handleCheckout = () => {
 
 const selectGateway = (id: string) => {
   if (!model.value) return;
-  debugger;
   input({
     ...model.value,
     gateway_id: id

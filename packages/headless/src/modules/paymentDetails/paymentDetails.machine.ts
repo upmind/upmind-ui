@@ -296,7 +296,6 @@ export default createMachine(
           }: PaymentDetailsContext,
           _event: AnyEventObject
         ) => {
-          debugger;
           if (gatewayHelper?.id != model?.gateway_id) {
             // stop any existing gateways if they are different
             if (gatewayHelper) stopService(gatewayHelper);
@@ -306,10 +305,8 @@ export default createMachine(
               "gateway_id",
               model?.gateway_id
             ]);
-            debugger;
             if (!brandGateway?.gateway) return undefined;
 
-            debugger;
             // and spawn it if it exists
             return spawnGateway({
               orderId,
@@ -322,7 +319,6 @@ export default createMachine(
             });
           }
 
-          debugger;
           return gatewayHelper; // otherwise just return the existing one
         }
       }),

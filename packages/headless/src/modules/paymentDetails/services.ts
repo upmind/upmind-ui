@@ -8,15 +8,13 @@ import { useBasket, useBrand, useI18n, useQuery, useSession } from "..";
 // --- utils
 import {
   get,
-  map,
   find,
   pick,
   first,
   unset,
   filter,
   sortBy,
-  isEmpty,
-  set
+  isEmpty
 } from "lodash-es";
 import {
   ErrorOrigin,
@@ -109,9 +107,9 @@ async function loadLookups(
   const { meta, user } = useSession();
   const paymentTypes = { ...PaymentType };
 
-  if (!meta.value.isAuthenticated || !user.value?.id) {
-    return Promise.reject(new NotAuthenticatedError());
-  }
+  if (!meta.value.isAuthenticated || !user.value?.id)
+    throw new NotAuthenticatedError();
+
   const { basketId } = useBasket();
   const { brandId, currencyId: defaultCurrencyId, ensureConfig } = useBrand();
   const { get: getRequest, useUrl } = useQuery();
@@ -241,7 +239,6 @@ async function parse(
   // FORCE payment type to PAY_IN_FULL if its not set
   safeModel.type ??= PaymentType.PAY_IN_FULL;
   // ---
-  debugger;
   // 1) Make sure if a gateway is selected that we use that
   if (safeModel?.gateway_id) {
     const brandGateway = find(gateways, ["gateway_id", safeModel.gateway_id]);
@@ -256,9 +253,7 @@ async function parse(
   // 2) finally If we don't have any selected gateways, then we should use the first available
   if (!safeModel?.gateway_id) {
     if (isEmpty(storedPaymentMethods)) {
-      debugger;
       safeModel.gateway_id = first(gateways)?.gateway_id;
-      debugger;
       safeModel.payment_details_id = undefined; // we can't use a stored payment method if we're using a gateway
     } else {
       safeModel.payment_details_id ??= first(storedPaymentMethods)?.id;
@@ -298,8 +293,7 @@ async function parse(
     };
   }
 
-  debugger;
-  return Promise.resolve({ model: safeModel, paymentDetails });
+  return { model: safeModel, paymentDetails };
 }
 
 async function validate(
@@ -316,7 +310,7 @@ async function validate(
   // ALSO check if any of our actors are in an invalid state
   // NB, wait for them to finish loading/checking before we proceed
   return !gatewayHelper
-    ? Promise.resolve(model)
+    ? model
     : waitFor(
         gatewayHelper,
         state =>

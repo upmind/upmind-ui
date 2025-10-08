@@ -67,7 +67,7 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
     isAvailable:
       !!actor.value && stateMatches(actor, ["available", "complete"]),
     isLoading: !actor.value || stateMatches(actor, ["loading"]),
-    hasGateway: contextMatches(actor, ["actors.gateway"]),
+    hasGateway: contextMatches(actor, ["gatewayHelper"]),
     hasGateways: contextMatches(actor, ["gateways"]),
     hasStoredPaymentMethods: contextMatches(actor, ["storedPaymentMethods"]),
     hasErrors: stateMatches(actor, ["error"]),
@@ -87,7 +87,7 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
   // --- context
 
   const context = useContext<PaymentDetailsContext>(actor);
-  const gateway = useContextActor(actor, "actors.gateway");
+  const gateway = useContextActor(actor, "gatewayHelper");
   const gateways = useContext<PaymentDetailsContext["gateways"]>(
     actor,
     "gateways"

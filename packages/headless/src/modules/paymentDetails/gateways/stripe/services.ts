@@ -117,81 +117,69 @@ async function validate(
   const { t } = useI18n();
 
   // Get any errors from the Stripe Element
-  if (!sdk?.element)
-    return Promise.reject(
-      new DetailedError(
-        t("error.stripe_element_not_available"),
-        responseCodes.Not_Found,
-        ErrorOrigin.Headless
-      )
+  if (!sdk?.element) {
+    throw new DetailedError(
+      t("error.stripe_element_not_available"),
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
     );
+  }
 
   // Now validate the model as per normal
   const { validate } = useValidation();
 
-  return new Promise((resolve, reject) => {
-    if (!schema) return resolve(model);
+  if (!schema) return model;
 
-    const errors = validate(schema, model) || [];
+  const errors = validate(schema, model) || [];
 
-    // NB: we are invalid if the stripe element status is NOT complete!
-    if (!data?.complete) {
-      errors.push({
-        instancePath: "/payment_method_addition",
-        schemaPath: "#/properties/payment_method_addition",
-        keyword: "required",
-        params: {
-          missingProperty: "payment_method_addition"
-        },
-        message: "Stripe element is incomplete."
-      });
-    }
+  // NB: we are invalid if the stripe element status is NOT complete!
+  if (!data?.complete) {
+    errors.push({
+      instancePath: "/payment_method_addition",
+      schemaPath: "#/properties/payment_method_addition",
+      keyword: "required",
+      params: {
+        missingProperty: "payment_method_addition"
+      },
+      message: "Stripe element is incomplete."
+    });
+  }
 
-    if (errors?.length) {
-      reject(
-        new DetailedError(
-          t("error.stripe_validation_failed"),
-          responseCodes.Unprocessable_Entity,
-          ErrorOrigin.Headless,
-          errors
-        )
-      );
-    } else {
-      resolve(model);
-    }
-  });
+  if (errors?.length) {
+    throw new DetailedError(
+      t("error.stripe_validation_failed"),
+      responseCodes.Unprocessable_Entity,
+      ErrorOrigin.Headless,
+      errors
+    );
+  }
+
+  return model;
 }
 
 async function render({ sdk }: StripeContext, { data }: AnyEventObject) {
-  return new Promise((resolve, reject) => {
-    if (sdk?.element || data?.container) {
-      reject(
-        new DetailedError(
-          "Cannot render Stripe Element. Missing element or container.",
-          responseCodes.Not_Found,
-          ErrorOrigin.Headless,
-          { element: sdk?.element, container: data?.container }
-        )
-      );
-    }
-    const container = data.container as HTMLElement;
+  if (!sdk?.element || !data?.container) {
+    throw new DetailedError(
+      "Cannot render Stripe Element. Missing element or container.",
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless,
+      { element: sdk?.element, container: data?.container }
+    );
+  }
+  const container = data.container as HTMLElement;
 
-    sdk!.element!.mount(container);
+  sdk.element!.mount(container);
 
-    const validationHelper = (
-      callback: any,
-      _onReceiveEvent: AnyEventObject
-    ) => {
-      (sdk!.element as any)!.on("change", (event: any) => {
-        callback({ type: "VALIDATE", data: event });
-      });
+  const validationHelper = (callback: any, _onReceiveEvent: AnyEventObject) => {
+    (sdk.element as any)!.on("change", (event: any) => {
+      callback({ type: "VALIDATE", data: event });
+    });
 
-      return () => {};
-    };
+    return () => {};
+  };
 
-    // once we successfully render we can 'clear; our renderer to prevent any further attempts
-    return resolve({ container, validationHelper });
-  });
+  // once we successfully render we can 'clear; our renderer to prevent any further attempts
+  return { container, validationHelper };
 }
 
 /**
@@ -205,62 +193,69 @@ async function pay({ sdk, model }: StripeContext) {
   const { t } = useI18n();
 
   if (!sdk?.stripe || !sdk?.element || !sdk?.elements)
-    return Promise.reject(
-      new DetailedError(
-        t("error.stripe_element_not_available"),
-        responseCodes.Not_Found,
-        ErrorOrigin.Headless
-      )
+    throw new DetailedError(
+      t("error.stripe_element_not_available"),
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
     );
 
   // Submit form to validate fields
-  const { error: submitError } = await sdk.elements
-    .submit()
-    .catch((error: any) =>
-      Promise.reject(
-        new DetailedError(
-          t("error.stripe_element_submission_failed"),
-          responseCodes.Unprocessable_Entity,
-          ErrorOrigin.Headless,
-          error
-        )
+  return (
+    sdk.elements
+      .submit()
+      // Check for any errors when submitting the element
+      .then(({ error }) => {
+        if (error)
+          return new DetailedError(
+            error.message ?? t("error.stripe_element_submission_failed"),
+            responseCodes.Unprocessable_Entity,
+            ErrorOrigin.External,
+            error
+          );
+      })
+      // Create PaymentMethod using details collected via Payment Element
+      .then(() =>
+        sdk.stripe
+          .createPaymentMethod({
+            elements: sdk.elements
+          })
+          .then(({ error, paymentMethod }) => {
+            if (error)
+              return new DetailedError(
+                error.message ?? t("error.stripe_element_submission_failed"),
+                responseCodes.Unprocessable_Entity,
+                ErrorOrigin.External,
+                error
+              );
+
+            // add the payment details to the model
+
+            // NB pass the model amount back as we have to handle non-minor unit conversion here
+            // (e.g. UGX)
+            // ↳ Stripe requires minor unit for the amount when creating the element,
+            //   but we need to pass the standard unit amount to the BE when creating
+            //   the payment intent (as BE handles conversion to minor unit)
+            // set(
+            //   model,
+            //   "amount",
+            //   parseMinorUnitAmount(model.amount || 0, model.currency.code)
+            // );
+
+            set(
+              model!,
+              "payment_method_addition.payment_method_id",
+              paymentMethod?.id
+            );
+            set(
+              model!,
+              "payment_method_addition.payment_method_type",
+              paymentMethod?.type
+            );
+
+            return model;
+          })
       )
-    );
-
-  if (submitError) return Promise.reject(submitError);
-
-  // Create PaymentMethod using details collected via Payment Element
-  return sdk.stripe
-    .createPaymentMethod({
-      elements: sdk.elements
-    })
-    .then(({ error, paymentMethod }) => {
-      // add the payment details to the model
-
-      // NB pass the model amount back as we have to handle non-minor unit conversion here
-      // (e.g. UGX)
-      // ↳ Stripe requires minor unit for the amount when creating the element,
-      //   but we need to pass the standard unit amount to the BE when creating
-      //   the payment intent (as BE handles conversion to minor unit)
-      // set(
-      //   model,
-      //   "amount",
-      //   parseMinorUnitAmount(model.amount || 0, model.currency.code)
-      // );
-
-      set(
-        model!,
-        "payment_method_addition.payment_method_id",
-        paymentMethod?.id
-      );
-      set(
-        model!,
-        "payment_method_addition.payment_method_type",
-        paymentMethod?.type
-      );
-
-      return model;
-    });
+  );
 }
 
 // -----------------------------------------------------------------------------

@@ -40,29 +40,8 @@ export function spawnGateway({
     // SDK SPECIFIC gateways
     case GatewayProviderCodes.BRAINTREE:
       return spawn(
-        gatewayMachine<BraintreeContext>(
-          gateway.gateway_provider.code,
-          {
-            amount,
-            clientId,
-            ctx: GatewayCtx.PAY,
-            currency,
-            gateway,
-            orderId
-          },
-          braintreeConfig
-        ),
-        {
-          name: gateway?.gateway_provider?.code,
-          sync: true
-        }
-      );
-
-    case GatewayProviderCodes.OPENPAY:
-      return spawn(
-        gatewayMachine<OpenPayContext>(
-          gateway.gateway_provider.code,
-          {
+        gatewayMachine<BraintreeContext>(gateway.gateway_provider.code)
+          .withContext({
             address,
             amount,
             clientId,
@@ -70,10 +49,28 @@ export function spawnGateway({
             currency,
             gateway,
             orderId
-          },
-          openPayConfig
-        ),
-        { name: gateway.gateway_provider.code, sync: true }
+          })
+          .withConfig(braintreeConfig),
+        {
+          name: gateway.id,
+          sync: true
+        }
+      );
+
+    case GatewayProviderCodes.OPENPAY:
+      return spawn(
+        gatewayMachine<OpenPayContext>(gateway.gateway_provider.code)
+          .withContext({
+            address,
+            amount,
+            clientId,
+            ctx: GatewayCtx.PAY,
+            currency,
+            gateway,
+            orderId
+          })
+          .withConfig(openPayConfig),
+        { name: gateway.id, sync: true }
       );
 
     case GatewayProviderCodes.STRIPE:
@@ -85,9 +82,8 @@ export function spawnGateway({
       }
 
       return spawn(
-        gatewayMachine<StripeContext>(
-          gateway.gateway_provider.code,
-          {
+        gatewayMachine<StripeContext>(gateway.gateway_provider.code)
+          .withContext({
             address,
             amount,
             clientId,
@@ -95,10 +91,9 @@ export function spawnGateway({
             currency,
             gateway,
             orderId
-          },
-          stripeConfig
-        ),
-        { name: gateway.gateway_provider.code, sync: true }
+          })
+          .withConfig(stripeConfig),
+        { name: gateway.id, sync: true }
       );
 
     // GERERIC RENDERLESS / REDIRECT / OFFSITE GATEWAYS
@@ -112,16 +107,18 @@ export function spawnGateway({
     case GatewayProviderCodes.PAYPAL_REST:
     case GatewayProviderCodes.PAYPAL_SUBSCRIPTION_AGREEMENT:
       return spawn(
-        gatewayMachine(gateway.gateway_provider.code, {
+        gatewayMachine(gateway.gateway_provider.code).withContext({
+          address,
           amount,
           clientId,
           ctx: GatewayCtx.PAY,
           currency,
           gateway,
           orderId,
-          renderless: true
+          renderless: true,
+          sdk: false
         }),
-        { name: gateway.gateway_provider.code, sync: true }
+        { name: gateway.id, sync: true }
       );
 
     // UNSUPPORTED OR UNKNOWN GATEWAYS

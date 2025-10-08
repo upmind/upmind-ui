@@ -44,7 +44,7 @@
       <footer key="actions" :class="styles.checkout.footer.root">
         <div :class="styles.checkout.footer.actions">
           <Button
-            :disabled="meta.isProcessing"
+            :disabled="!meta.isValid"
             :loading="meta.isProcessing"
             :color="props.color"
             size="lg"
