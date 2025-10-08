@@ -11,22 +11,24 @@
     no-header
     :dismissable="false"
   >
-    <section :class="cn(styles.interstitial.root, props.class)">
+    <div :class="cn(styles.interstitial.root, props.class)">
       <slot name="avatar">
         <Avatar :animated-icon="animatedIcon" class="size-36 bg-transparent" />
       </slot>
 
-      <h3 :class="styles.interstitial.title">
-        <slot name="title"><Sanitized v-if="title" :modelValue="title" /></slot>
-      </h3>
+      <section :class="styles.interstitial.section">
+        <h3 :class="styles.interstitial.title">
+          <slot name="title"
+            ><Sanitized v-if="title" :modelValue="title"
+          /></slot>
+        </h3>
 
-      <p :class="styles.interstitial.text">
-        <slot name="text"><Sanitized v-if="text" :modelValue="text" /></slot>
-      </p>
+        <p :class="styles.interstitial.text">
+          <slot name="text"><Sanitized v-if="text" :modelValue="text" /></slot>
+        </p>
 
-      <div v-if="!!$slots.default" :class="styles.interstitial.content">
         <slot></slot>
-      </div>
+      </section>
 
       <footer :class="styles.interstitial.actions">
         <slot name="actions">
@@ -42,7 +44,7 @@
           />
         </slot>
       </footer>
-    </section>
+    </div>
   </component>
 </template>
 
@@ -101,8 +103,8 @@ const styles = useStyles(
     root: string;
     title: string;
     text: string;
-    content: string;
     actions: string;
+    section: string;
   };
 }>;
 
