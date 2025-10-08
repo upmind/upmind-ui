@@ -17,7 +17,7 @@
         :data-focus="$attrs['data-focus']"
         ring
       >
-        <template #prepend v-if="!isEmpty(modelValue) || searchTerm">
+        <template #prepend v-if="!isEmpty(modelValue) || searchValue">
           <slot name="selected" v-bind="{ item: modelValue }">
             <Avatar
               v-if="meta.hasAvatar"
@@ -38,7 +38,7 @@
           </slot>
         </template>
 
-        <template #default v-if="!isEmpty(modelValue) || searchTerm">
+        <template #default v-if="!isEmpty(modelValue)">
           <span :class="styles.combobox.label">{{ label }}</span>
         </template>
 
@@ -65,24 +65,13 @@
       avoidCollisions
       :class="cn(styles.combobox.content, props.popoverClass)"
     >
-      <Command :modelValue="modelValue">
+      <Command
+        :modelValue="modelValue"
+        :filterFunction="items => items"
+        v-model:searchTerm="searchValue"
+      >
         <template v-if="props.search">
-          <Input
-            v-if="isFunction(props.search)"
-            v-model="searchTerm"
-            @update:modelValue="onSearch"
-            :placeholder="searchPlaceholder"
-            input-size="sm"
-            :class="styles.combobox.input"
-            :ring="false"
-          >
-            <template #prepend>
-              <Icon icon="search" size="2xs" class="mr-1 opacity-50" />
-            </template>
-          </Input>
           <CommandInput
-            v-else
-            v-model="searchTerm"
             :placeholder="searchPlaceholder"
             :class="styles.combobox.input"
           />
@@ -94,7 +83,7 @@
           <CommandEmpty class="text-muted">{{ emptyMessage }}</CommandEmpty>
           <CommandGroup>
             <CommandItem
-              v-for="item in results"
+              v-for="item in filteredItems"
               :key="(item as Record<string, any>)[itemValue]"
               :value="(item as Record<string, any>)[itemValue]"
               @select="doSelect(get(item, itemValue))"
@@ -152,7 +141,6 @@ import config from "./combobox.config";
 import Icon from "../icon/Icon.ce.vue";
 import Button from "../button/Button.ce.vue";
 import Avatar from "../avatar/Avatar.ce.vue";
-import Input from "../input/Input.ce.vue";
 import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 import {
   Command,
@@ -164,24 +152,11 @@ import {
 } from "../command";
 
 // --- utils
-import {
-  debounce,
-  filter,
-  find,
-  get,
-  includes,
-  isObject,
-  isEmpty,
-  isEqual,
-  isFunction,
-  isString,
-  reject,
-  has
-} from "lodash-es";
+import { find, get, isEmpty, isEqual, isFunction, has } from "lodash-es";
 
 // --- types
 import type { ComboboxProps, ComboboxItemProps } from "./types";
-import type { ComputedRef, Ref } from "vue";
+import type { ComputedRef } from "vue";
 
 const props = withDefaults(defineProps<ComboboxProps>(), {
   // --- props
@@ -224,7 +199,6 @@ const meta = computed(() => ({
 }));
 
 const open = ref(false);
-const processing = ref(false);
 
 const itemValue = computed((): string => props.itemValue || "value");
 const itemLabel = computed((): string => props.itemLabel || "label");
@@ -233,14 +207,11 @@ const modelValue = computed(() =>
   find(props.items, [itemValue.value, props.modelValue])
 );
 
-const searchTerm = ref();
 const avatar = computed(() => modelValue.value?.avatar || props.avatar);
-const icon = computed(() => () => modelValue.value?.icon || props.icon);
+const icon = computed(() => modelValue.value?.icon || props.icon);
 const label = computed(() => {
   const selectedLabel = get(modelValue.value, "selectedLabel");
-  return (
-    selectedLabel || get(modelValue.value, itemLabel.value) || searchTerm.value
-  );
+  return selectedLabel || get(modelValue.value, itemLabel.value);
 });
 // ---
 
@@ -260,39 +231,28 @@ const styles = useStyles(
   };
 }>;
 
-async function safeSearch(value: string | number) {
-  processing.value = !!value;
+const searchValue = ref("");
 
-  if (!value) {
-    results.value = reject(props.items, "persist");
-  } else if (isFunction(props.search)) {
-    results.value = props.search(value.toString(), props.items);
-  } else {
-    // --- if no search function is provided, just filter the items
-    results.value = filter(props.items ?? [], (item: ComboboxItemProps) => {
-      const v = get(item, itemValue.value)?.toString().toLowerCase();
-      const l = get(item, itemLabel.value)?.toString().toLowerCase();
-      return (
-        item.persist ||
-        includes(v, value.toString().toLowerCase()) ||
-        includes(l, value.toString().toLowerCase())
-      );
-    });
+const filteredItems = computed(() => {
+  if (!props.search || !searchValue.value) {
+    return props.items ?? [];
   }
 
-  const presistedItems = filter(props.items, "persist");
-
-  if (presistedItems.length > 0) {
-    // if (results.value.length) results.value.push({ as: "separator" });
-    results.value.push(...presistedItems);
+  if (isFunction(props.search)) {
+    return props.search(searchValue.value, props.items);
   }
 
-  processing.value = false;
-}
-
-const onSearch = debounce(safeSearch, 350);
-
-const results = ref(props.items ?? []) as Ref<ComboboxItemProps[]>;
+  return (props.items ?? []).filter((item: ComboboxItemProps) => {
+    const value = get(item, itemValue.value)?.toString().toLowerCase();
+    const label = get(item, itemLabel.value)?.toString().toLowerCase();
+    const search = searchValue.value.toLowerCase();
+    return (
+      item.persist ||
+      (value && value.includes(search)) ||
+      (label && label.includes(search))
+    );
+  });
+});
 
 // --- methods
 function doSelect(item: string) {
@@ -301,16 +261,11 @@ function doSelect(item: string) {
     item
   ]) as ComboboxItemProps;
 
-  const value = get(selected, itemValue.value);
+  const newValue = get(selected, itemValue.value);
   const oldValue = get(modelValue.value, itemValue.value);
-  const hasChanged = !isEqual(value, oldValue);
+  const hasChanged = !isEqual(newValue, oldValue);
   if (hasChanged) {
-    emits("update:modelValue", value); // NB emit only the value
-  }
-
-  // if we have a search value,  set it to the selected value = seamless ui
-  if (searchTerm.value) {
-    searchTerm.value = get(selected, itemLabel.value, searchTerm.value);
+    emits("update:modelValue", newValue); // NB emit only the value
   }
 
   // finally close the popover
@@ -325,11 +280,9 @@ function isSelected(item: ComboboxItemProps) {
 // --- side effect
 
 watch(
-  () => props,
-  newProps => {
-    results.value = newProps.items;
-    doSelect(newProps.modelValue);
-  },
-  { deep: true }
+  () => props.modelValue,
+  newValue => {
+    if (newValue) doSelect(newValue);
+  }
 );
 </script>
