@@ -18,6 +18,7 @@
       />
       <span
         v-if="isEmpty(placeholder) && isEmpty(modelValue)"
+        :class="styles.select.value"
         class="pointer-events-none invisible select-none"
       >
         &nbsp;
@@ -105,7 +106,7 @@ const props = withDefaults(defineProps<SelectProps>(), {
   placeholder: "",
   // -- styles
   variant: "outline",
-  size: "md",
+  size: "lg",
   width: "full",
   ring: true,
   // --- styles

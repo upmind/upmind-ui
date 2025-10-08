@@ -25,7 +25,7 @@ export const variants = {
 };
 
 export const rootVariants = cva(
-  `control-radius group flex cursor-pointer border-none px-4 py-2 transition-all duration-200`,
+  `control-radius group flex cursor-pointer border-none px-4 py-3 transition-all duration-200`,
   {
     variants,
     defaultVariants: {

@@ -172,7 +172,7 @@ const props = withDefaults(defineProps<ComboboxProps>(), {
   checkedIcon: true,
   // -- styles
   color: "base",
-  size: "md",
+  size: "lg",
   width: "auto",
   variant: "control",
   align: "end",
