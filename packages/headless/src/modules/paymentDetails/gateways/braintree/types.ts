@@ -13,8 +13,8 @@ export type BraintreeContext = GatewayContext<{
     braintree: Dropin;
   };
   // gateway settings
-  paymentUses3DS: boolean;
-  paymentMethodPayPal: boolean;
+  paymentUses3DS?: boolean;
+  paymentMethodPayPal?: boolean;
 }>;
 
 export enum BraintreeTypes {
