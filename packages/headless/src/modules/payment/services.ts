@@ -84,9 +84,9 @@ async function update(
   _event: AnyEventObject
 ) {
   // TODO: HANDLE WALLET PAYMENTS
-  // if (paymentDetails?.amount) data.amount = paymentDetails?.amount;
-  // if (paymentDetails?.walletAmount) {
-  //   data.wallet_amount = paymentDetails?.walletAmount;
+  // if (paymentDetail?.amount) data.amount = paymentDetail?.amount;
+  // if (paymentDetail?.walletAmount) {
+  //   data.wallet_amount = paymentDetail?.walletAmount;
   //   if (!paymentMethodType) data.amount = data.wallet_amount;
   // }
 

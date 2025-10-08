@@ -10,27 +10,23 @@ import type {
   ICurrency,
   IGateway,
   IOrder,
-  PaymentMethodType,
-  SelectedPaymentMethod,
   GatewayContext as GatewayCtx
 } from "@upmind-automation/types";
 
 import type { ResponseError } from "../../../utils";
-import { PaymentDetail } from "../types";
+import { PaymentDetailData } from "../types";
 import { ActorRef } from "xstate";
 
 // -----------------------------------------------------------------------------
 export type GatewayParams = {
   address?: IAddress;
-  amount: SelectedPaymentMethod["amount"];
+  amount: PaymentDetailData["amount"];
   clientId: IClient["id"];
   ctx: GatewayCtx;
   currency: ICurrency;
   gateway: IGateway;
   orderId: IOrder["id"];
   renderless?: boolean;
-  // paymentMethod: PaymentMethodType;
-  // type: GatewayTypes;
 };
 export type GeneticGatewayContext = {
   // --- state
@@ -47,7 +43,7 @@ export type GeneticGatewayContext = {
   uischema?: UISchemaElement;
   model?: GatewayData;
   // --- Output
-  paymentDetails?: SelectedPaymentMethod; // will contain the response from Card, as wel las any model data
+  paymentDetail?: PaymentDetailData; // will contain the response from Card, as wel las any model data
   error?: ResponseError;
 };
 

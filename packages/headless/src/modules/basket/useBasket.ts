@@ -123,7 +123,7 @@ export const useBasket = () => {
 
       hasCurrency: machineMatches(actors.currency, ["complete"]),
 
-      hasPaymentDetails: machineMatches(actors.paymentDetails, [
+      hasPaymentDetails: machineMatches(actors.paymentDetail, [
         "complete",
         "available.valid",
         "available.processing"
@@ -151,7 +151,7 @@ export const useBasket = () => {
           "shopping.currency.complete",
           "shopping.billing.complete",
           "shopping.customFields.complete",
-          "shopping.paymentDetails.available"
+          "shopping.paymentDetail.available"
         ],
         true
       ),
@@ -162,7 +162,7 @@ export const useBasket = () => {
 
       isProcessingDetails:
         machineMatches(payment, ["approving"]) ||
-        stateMatches(state, ["shopping.paymentDetails.processing"]),
+        stateMatches(state, ["shopping.paymentDetail.processing"]),
       isConverting: stateMatches(state, ["converting"]),
       isPaying: stateMatches(state, ["paying"]),
       needsApproval: machineMatches(payment, ["approving"]),
@@ -178,13 +178,13 @@ export const useBasket = () => {
   // so that when they are invoked we can listen to their state changes
   const actors: {
     customFields: ComputedRef<Actor | undefined>;
-    paymentDetails: ComputedRef<Actor | undefined>;
+    paymentDetail: ComputedRef<Actor | undefined>;
     billing: ComputedRef<Actor | undefined>;
     currency: ComputedRef<Actor | undefined>;
     promotions: ComputedRef<Actor | undefined>;
   } = {
     customFields: useContextActor(state, "actors.customFields"),
-    paymentDetails: useContextActor(state, "actors.paymentDetails"),
+    paymentDetail: useContextActor(state, "actors.paymentDetail"),
     billing: useContextActor(state, "actors.billing"),
     currency: useContextActor(state, "actors.currency"),
     promotions: useContextActor(state, "actors.promotions")
@@ -490,7 +490,7 @@ export const useBasket = () => {
     // --- context
 
     /**
-     * Child machine actors for basket submodules (customFields, paymentDetails, etc).
+     * Child machine actors for basket submodules (customFields, paymentDetail, etc).
      */
     actors,
 

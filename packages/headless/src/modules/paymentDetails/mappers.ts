@@ -8,11 +8,7 @@ import type {
   PaymentDetailsContext,
   PaymentDetailModel
 } from "./types";
-import {
-  GatewayProviderCodes,
-  PaymentMethodType,
-  PaymentType
-} from "@upmind-automation/types";
+import { GatewayProviderCodes, PaymentType } from "@upmind-automation/types";
 import type {
   IGateway,
   IPaymentDetail,
@@ -21,16 +17,11 @@ import type {
   GatewayCardData,
   GatewayData,
   GatewayExternalCardData,
-  GatewayMobileData,
-  IClient,
-  ManualPaymentData,
-  SelectedPaymentMethod
+  GatewayMobileData
 } from "@upmind-automation/types";
 
 import { canBeStored } from "./gateways/utils";
 import { useTranslateField, useTranslateName } from "../../utils";
-import { GatewayContext } from "./gateways/types";
-import { Store } from "@tanstack/vue-store";
 
 // -----------------------------------------------------------------------------
 
@@ -170,7 +161,7 @@ export function mapPaymentData({
 
   // First check if we are deferring payment
   if (model.type === PaymentType.PAY_LATER) {
-    return defaults({ type: model.type }, paymentDetail);
+    return defaults({ type: PaymentType.PAY_LATER }, paymentDetail);
     // do nothing, pay later does not need any additional data
   }
 
@@ -186,10 +177,8 @@ export function mapPaymentData({
     // map our specific gateway data
     switch (brandGateway?.gateway?.gateway_provider?.code) {
       // SIMPLE SDK OR REDIRECT GATEWAYS
-      case GatewayProviderCodes.BANK_TRANSFER:
       case GatewayProviderCodes.BRAINTREE:
       case GatewayProviderCodes.MICROPAYMENT:
-      case GatewayProviderCodes.OFFLINE:
       case GatewayProviderCodes.OPENPAY:
       case GatewayProviderCodes.PAYPAL_BILLING_AGREEMENT:
       case GatewayProviderCodes.PAYPAL_EXPRESS:
@@ -211,6 +200,7 @@ export function mapPaymentData({
       // UNSUPPORTED OR UNKNOWN GATEWAYS
       default:
       case GatewayProviderCodes.ADYEN:
+      case GatewayProviderCodes.BANK_TRANSFER:
       case GatewayProviderCodes.BIT_PAY:
       case GatewayProviderCodes.BLOCKONOMICS:
       case GatewayProviderCodes.COIN_GATE:
@@ -221,6 +211,7 @@ export function mapPaymentData({
       case GatewayProviderCodes.MERCADO_PAGO:
       case GatewayProviderCodes.MERCADO_PAGO_OTHER_PAYMENTS:
       case GatewayProviderCodes.MOMO_MTN_COLLECTIONS:
+      case GatewayProviderCodes.OFFLINE:
       case GatewayProviderCodes.OPENPAY_NON_CARD:
       case GatewayProviderCodes.PAYSAFECARD:
       case GatewayProviderCodes.PAYSTACK:
@@ -233,28 +224,10 @@ export function mapPaymentData({
       case GatewayProviderCodes.SAGE_PAY_DIRECT:
       case GatewayProviderCodes.WORLD_PAY_JSON:
         //  DO NOTHING, UNSUPPORTED GATEWAYS
-        break;
+        return defaults({ type: PaymentType.MANUAL_PAYMENT }, paymentDetail);
     }
   }
 
-  return paymentDetail;
-
-  // switch (paymentDetails?.type) {
-  //   case PaymentMethodType.STORED_CARD:
-  //     return mapStoreCardData(paymentDetails);
-  //   case PaymentMethodType.EXTERNAL_STORE:
-  //     return mapExternalCardGatewayData(paymentDetails);
-  //   case PaymentMethodType.GATEWAY_CARD:
-  //     return mapCardGatewayData(paymentDetails);
-  //   case PaymentMethodType.GATEWAY_SEPA:
-  //   case PaymentMethodType.GATEWAY_OFFLINE:
-  //   case PaymentMethodType.GATEWAY_DIRECT_DEBIT:
-  //   case PaymentMethodType.GATEWAY_BANK_TRANSFER:
-  //   case PaymentMethodType.GATEWAY_AWAITING_CLIENT:
-  //     return mapGatewayData(paymentDetails);
-  //   case PaymentMethodType.GATEWAY_MOBILE:
-  //     return mapGatewayMobileData(paymentDetails);
-  //   case PaymentMethodType.MANUAL_PAYMENT:
-  //     return mapManualPaymentData(paymentDetails);
-  // }
+  // As a catch all we will force "manual payments" to allow the order to go through but not take payment
+  return defaults({ type: PaymentType.MANUAL_PAYMENT }, paymentDetail);
 }

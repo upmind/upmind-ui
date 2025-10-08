@@ -46,7 +46,7 @@ import type { Message } from "../feedback";
 import type { BasketContext } from "./types";
 import type { AnyEventObject } from "xstate";
 import type { PaymentArgs, PaymentContext } from "../payment";
-import { PaymentMethodType } from "@upmind-automation/types";
+import { PaymentMethodType, PaymentType } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -258,16 +258,16 @@ export default createMachine(
             }
           },
 
-          paymentDetails: {
+          paymentDetail: {
             initial: "configuring",
             states: {
               configuring: {
-                always: [{ target: "available", cond: "paymentDetailsValid" }]
+                always: [{ target: "available", cond: "paymentDetailValid" }]
               },
 
               available: {
                 always: [
-                  { target: "configuring", cond: "paymentDetailsConfiguring" }
+                  { target: "configuring", cond: "paymentDetailConfiguring" }
                 ],
                 // ---
                 // NB: Checkout is a chained sequence of events, that can only start once ALL the shopping details are complete
@@ -285,18 +285,18 @@ export default createMachine(
                   CANCEL: {
                     target: "configuring"
                   },
-                  // response from the paymentDetails machine = we are ready to convert
+                  // response from the paymentDetail machine = we are ready to convert
                   PAYMENT_DETAILS: {
                     target: "complete",
                     actions: ["setPaymentDetails", "pushPaymentDetails"],
-                    cond: "paymentDetailsComplete"
+                    cond: "paymentDetailComplete"
                   }
                 }
               },
 
               complete: {
                 always: [
-                  { target: "configuring", cond: "paymentDetailsConfiguring" }
+                  { target: "configuring", cond: "paymentDetailConfiguring" }
                 ],
                 type: "final"
               }
@@ -309,10 +309,10 @@ export default createMachine(
       },
 
       // We are now ready to accept payment as all the shopping details are complete
-      // We will trigger checkout event to the paymentDetails machine
+      // We will trigger checkout event to the paymentDetail machine
       // Which in turn will forward it to the payment_gateway machine
-      // The payment_gateway machine will then run its process and when complete will return the Payload back to the paymentDetails machine
-      // The paymentDetails machine will then Parse and return the response back to the basket machine
+      // The payment_gateway machine will then run its process and when complete will return the Payload back to the paymentDetail machine
+      // The paymentDetail machine will then Parse and return the response back to the basket machine
       // This will trigger the Convert service, which will then process the order
       checkout: {
         id: "checkout",
@@ -353,10 +353,10 @@ export default createMachine(
         invoke: {
           id: "payment",
           src: paymentMachine,
-          data: ({ invoice, paymentDetails }: BasketContext) => {
+          data: ({ invoice, paymentDetail }: BasketContext) => {
             return {
               orderId: invoice?.id,
-              paymentDetail: paymentDetails
+              paymentDetail: paymentDetail
             } as PaymentArgs;
           },
           onDone: {
@@ -444,13 +444,13 @@ export default createMachine(
         products: undefined,
         summary: undefined,
         error: undefined,
-        paymentDetails: undefined,
+        paymentDetail: undefined,
         payment: undefined,
         invoice: undefined
       }),
 
       setPaymentDetails: assign({
-        paymentDetails: (_context: BasketContext, { data }: AnyEventObject) =>
+        paymentDetail: (_context: BasketContext, { data }: AnyEventObject) =>
           data
       }),
 
@@ -473,7 +473,7 @@ export default createMachine(
           // only spawn if we have not already spawned
           actors ??= {
             billing: spawnBilling(basket),
-            paymentDetails: spawnPaymentDetails(basket),
+            paymentDetail: spawnPaymentDetails(basket),
             currency: spawnCurrency(basket),
             customFields: spawnCustomFields(basket),
             promotions: spawnPromotions(basket)
@@ -535,7 +535,7 @@ export default createMachine(
 
       forwardCheckout: ({ actors }: BasketContext) => {
         // for Now  only the payment details is affected by checkout
-        actors?.paymentDetails.send({ type: "CHECKOUT" });
+        actors?.paymentDetail.send({ type: "CHECKOUT" });
       },
 
       // ---
@@ -646,45 +646,37 @@ export default createMachine(
         return !actors?.billing?.getSnapshot()?.matches("complete");
       },
 
-      paymentDetailsValid: ({ actors }: BasketContext) => {
+      paymentDetailValid: ({ actors }: BasketContext) => {
         return (
-          actors?.paymentDetails?.getSnapshot()?.done ||
-          actors?.paymentDetails?.getSnapshot()?.matches("available.valid")
+          actors?.paymentDetail?.getSnapshot()?.done ||
+          actors?.paymentDetail?.getSnapshot()?.matches("available.valid")
         );
       },
 
-      paymentDetailsComplete: (
+      paymentDetailComplete: (
         { actors }: BasketContext,
         { data }: AnyEventObject
       ) =>
-        (actors?.paymentDetails?.getSnapshot()?.done ||
-          actors?.paymentDetails?.getSnapshot()?.matches("complete")) &&
-        !isEmpty(data),
+        (actors?.paymentDetail?.getSnapshot()?.done ||
+          actors?.paymentDetail?.getSnapshot()?.matches("complete")) &&
+        !isNil(data),
 
-      hasPaymentDetails: ({ paymentDetails }: BasketContext) =>
-        !isNil(paymentDetails) && !isEmpty(paymentDetails),
+      hasPaymentDetails: ({ paymentDetail }: BasketContext) =>
+        !isNil(paymentDetail),
 
-      paymentDetailsConfiguring: ({ actors, paymentDetails }: BasketContext) =>
-        isEmpty(paymentDetails) &&
+      paymentDetailConfiguring: ({ actors, paymentDetail }: BasketContext) =>
+        isNil(paymentDetail) &&
         ["available.invalid", "available.checking", "available.loading"].some(
-          actors?.paymentDetails?.getSnapshot()?.matches
+          actors?.paymentDetail?.getSnapshot()?.matches
         ),
 
-      needsPayment: ({ paymentDetails }: BasketContext) => {
-        const hasOutstandingBalance = paymentDetails?.amount ?? 0 > 0;
+      needsPayment: ({ paymentDetail }: BasketContext) => {
+        const isFree = (paymentDetail?.amount ?? 0) === 0;
+        const manualPayment =
+          paymentDetail?.type === PaymentType.MANUAL_PAYMENT;
+        const payLater = paymentDetail?.type === PaymentType.PAY_LATER;
 
-        const manualPayment = includes(
-          [
-            PaymentMethodType.PAY_LATER,
-            PaymentMethodType.GATEWAY_OFFLINE,
-            PaymentMethodType.MANUAL_PAYMENT,
-            PaymentMethodType.GATEWAY_DIRECT_DEBIT
-          ],
-          paymentDetails?.type
-        );
-
-        debugger;
-        return (hasOutstandingBalance && !manualPayment) as boolean;
+        return !isFree && !manualPayment && !payLater;
       },
 
       // --- Item Guards

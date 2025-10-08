@@ -4,16 +4,16 @@
 import type {
   IOrder,
   IPaymentAttempt,
-  Methods,
-  SelectedPaymentMethod
+  Methods
 } from "@upmind-automation/types";
 import { ResponseError } from "../../utils";
+import { PaymentDetailData } from "../paymentDetails";
 
 // -----------------------------------------------------------------------------
 
 export interface PaymentArgs {
   orderId: IOrder["id"];
-  paymentDetail: SelectedPaymentMethod;
+  paymentDetail: PaymentDetailData;
 }
 
 export interface PaymentContext extends PaymentArgs {

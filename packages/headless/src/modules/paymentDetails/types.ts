@@ -14,9 +14,8 @@ import type {
   IPaymentDetail,
   IWalletBalance,
   PaymentType,
-  SelectedPaymentMethod
+  SelectPaymentMethodData
 } from "@upmind-automation/types";
-import { GatewayContext as GatewayCtx } from "@upmind-automation/types";
 
 // --- utils
 import type { ResponseError } from "../../utils";
@@ -65,13 +64,19 @@ export type Gateway = {
   };
 };
 
-export interface PaymentDetailModel {
+export type PaymentDetailData = PaymentDetailModel & {
+  //   walletAmount?: number;
+  amount?: number;
+  data?: SelectPaymentMethodData;
+};
+
+export type PaymentDetailModel = {
   type?: Partial<PaymentType> | null;
   gateway_id?: IGateway["id"];
   payment_details_id?: PaymentDetail["id"];
   return_url?: string;
   cancel_url?: string;
-}
+};
 
 // For when adding a new payment detail "Add" context
 export interface PaymentDetailsAddArgs {
@@ -106,7 +111,7 @@ export interface PaymentDetailsContext extends PaymentDetailsArgs {
   gatewayHelper?: ActorRef<any>;
   authHelper?: ActorRef<any>;
   // --- output
-  paymentDetails?: SelectedPaymentMethod;
+  paymentDetail?: PaymentDetailData;
   error?: ResponseError;
   // operationId?: string; TODO when we have more complex operations based on responses and persisted state
 }

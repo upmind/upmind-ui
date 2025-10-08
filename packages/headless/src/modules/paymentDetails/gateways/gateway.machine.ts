@@ -215,8 +215,8 @@ export default <T = unknown>(name: string) =>
 
         complete: {
           id: "complete",
-          data: ({ paymentDetails }: GatewayContext, _event: AnyEventObject) =>
-            paymentDetails
+          data: ({ paymentDetail }: GatewayContext, _event: AnyEventObject) =>
+            paymentDetail
         }
       },
       on: {
@@ -285,19 +285,16 @@ export default <T = unknown>(name: string) =>
 
         // ---
         setPaymentDetails: assign({
-          paymentDetails: (
+          paymentDetail: (
             _context: GatewayContext<any>,
             { data }: AnyEventObject
           ) => data
         }),
 
         providePaymentDetails: sendParent(
-          (
-            { paymentDetails }: GatewayContext<any>,
-            _event: AnyEventObject
-          ) => ({
+          ({ paymentDetail }: GatewayContext<any>, _event: AnyEventObject) => ({
             type: "PAYMENT_DETAILS",
-            data: paymentDetails
+            data: paymentDetail
           })
         ),
 

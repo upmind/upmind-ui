@@ -163,7 +163,7 @@ async function generate({ actors }: BasketContext, _event: AnyEventObject) {
 }
 
 async function convert(
-  { basket, paymentDetails }: BasketContext,
+  { basket, paymentDetail }: BasketContext,
   _event: AnyEventObject
 ) {
   const { t } = useI18n();
@@ -180,7 +180,7 @@ async function convert(
       )
     );
 
-  if (isEmpty(paymentDetails) || !isObject(paymentDetails))
+  if (isEmpty(paymentDetail) || !isObject(paymentDetail))
     return Promise.reject(
       new DetailedError(
         t("error.basket_convert_failed"),
@@ -189,7 +189,7 @@ async function convert(
       )
     );
 
-  const data: Record<string, any> = { ...paymentDetails };
+  const data: Record<string, any> = { ...paymentDetail };
 
   try {
     // add referral cookie if available
