@@ -22,6 +22,14 @@
   --color-bg-button-danger-hover-1: var(--bg-button-danger-hover-1);
 
   --color-control-surface: var(--bg-control-surface);
+
+  --color-accent-primary-muted: var(--bg-accent-primary-muted);
+  --color-accent-warning-muted: var(--bg-accent-warning-muted);
+  --color-accent-neutral-muted: var(--bg-accent-neutral-muted);
+  --color-accent-success-muted: var(--bg-accent-success-muted);
+  --color-accent-info-muted: var(--bg-accent-info-muted);
+  --color-accent-promo-muted: var(--bg-accent-promo-muted);
+  --color-accent-danger-muted: var(--bg-accent-danger-muted);
 }
 
 /* Background Color Utilities */
@@ -76,38 +84,21 @@
 @utility bg-accent-primary {
   background-color: var(--bg-accent-primary);
 }
-@utility bg-accent-primary-muted {
-  background-color: var(--bg-accent-primary-muted);
-}
 @utility bg-accent-neutral {
   background-color: var(--bg-accent-neutral);
-}
-@utility bg-accent-neutral-muted {
-  background-color: var(--bg-accent-neutral-muted);
 }
 @utility bg-accent-promo {
   background-color: var(--bg-accent-promo);
 }
-@utility bg-accent-promo-muted {
-  background-color: var(--bg-accent-promo-muted);
-}
 @utility bg-accent-danger {
   background-color: var(--bg-accent-danger);
-}
-@utility bg-accent-danger-muted {
-  background-color: var(--bg-accent-danger-muted);
 }
 @utility bg-accent-warning {
   background-color: var(--bg-accent-warning);
 }
-@utility bg-accent-warning-muted {
-  background-color: var(--bg-accent-warning-muted);
-}
+
 @utility bg-accent-success {
   background-color: var(--bg-accent-success);
-}
-@utility bg-accent-success-muted {
-  background-color: var(--bg-accent-success-muted);
 }
 @utility bg-accent-info {
   background-color: var(--bg-accent-info);
