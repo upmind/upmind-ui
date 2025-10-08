@@ -50,7 +50,7 @@ export default {
       }
     }),
     item: cva(
-      "data-[state=unchecked]:text-muted data-[state=checked]:bg-control-selected cursor-pointer gap-3 rounded px-4 py-2 font-normal transition-all duration-200 data-[state=checked]:text-base data-[state=unchecked]:hover:text-base data-[state=unchecked]:focus:text-base",
+      "data-[state=unchecked]:text-muted data-[state=unchecked]:hover:text-control-selected data-[state=checked]:bg-control-selected data-[state=checked]:text-control-selected cursor-pointer gap-3 rounded px-4 py-2 font-normal transition-all duration-200",
       {
         variants: {
           size: variants.size

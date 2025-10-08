@@ -17,7 +17,7 @@
         tabindex="-1"
       />
       <Input
-        class="group-hover:shadow-control-hover focus-within:ring-bg-control-ring focus-within:ring-offset-bg-surface z-10 rounded-l-none! outline-hidden focus-within:ring-2 focus-within:ring-offset-2 focus-within:outline-hidden"
+        class="group-hover:shadow-control-hover focus-within:ring-bg-control-ring focus-within:ring-offset-core-surface z-10 rounded-l-none! outline-hidden focus-within:ring-2 focus-within:ring-offset-2 focus-within:outline-hidden"
         :ring="false"
         :disabled="!control.enabled"
         :default-value="

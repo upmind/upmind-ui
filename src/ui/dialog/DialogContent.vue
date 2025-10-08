@@ -54,7 +54,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
 
       <DialogClose
         v-if="props.dismissable"
-        class="ring-offset-bg-canvas focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:pointer-events-none"
+        class="ring-offset-core-canvas focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:pointer-events-none"
       />
     </DialogContent>
   </DialogPortal>
