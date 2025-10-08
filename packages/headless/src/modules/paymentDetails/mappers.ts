@@ -88,7 +88,7 @@ export function mapGateway(raw: IGateway): Gateway {
 }
 
 // ---
-function mapStoreCardData(model: PaymentDetailModel) {
+function mapStoredPaymentDetailData(model: PaymentDetailModel) {
   return {
     payment_details_id: model.payment_details_id
   } as StoredCardData;
@@ -167,7 +167,7 @@ export function mapPaymentData({
 
   //  check if we're using a stored payment method
   if (model.payment_details_id) {
-    return defaults(mapStoreCardData(model), paymentDetail);
+    return defaults(mapStoredPaymentDetailData(model), paymentDetail);
   }
 
   // Then if are using a gateway, we need to map the data based on the gateway type
@@ -224,10 +224,10 @@ export function mapPaymentData({
       case GatewayProviderCodes.SAGE_PAY_DIRECT:
       case GatewayProviderCodes.WORLD_PAY_JSON:
         //  DO NOTHING, UNSUPPORTED GATEWAYS
-        return defaults({ type: PaymentType.MANUAL_PAYMENT }, paymentDetail);
+        return defaults({ type: PaymentType.PAY_LATER }, paymentDetail);
     }
   }
 
   // As a catch all we will force "manual payments" to allow the order to go through but not take payment
-  return defaults({ type: PaymentType.MANUAL_PAYMENT }, paymentDetail);
+  return defaults({ type: PaymentType.PAY_LATER }, paymentDetail);
 }

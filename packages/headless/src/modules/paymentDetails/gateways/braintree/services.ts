@@ -2,8 +2,8 @@
 import BraintreeDropin from "braintree-web-drop-in";
 
 // --- internal
+import { useI18n, useLocale, useQuery } from "../../..";
 import sharedServices from "../services";
-import { useLocale, useQuery } from "../../..";
 
 // --- utils
 import {
@@ -12,10 +12,14 @@ import {
   responseCodes,
   useValidation
 } from "../../../../utils";
-import { defaultsDeep, reject } from "lodash-es";
+import { defaultsDeep, pick, set } from "lodash-es";
 
 // --- types
-import { BraintreeTypes, type BraintreeContext } from "./types";
+import {
+  BraintreeAuthResponse,
+  BraintreeTypes,
+  type BraintreeContext
+} from "./types";
 import type { AnyEventObject } from "xstate";
 import type {
   Dropin,
@@ -25,62 +29,57 @@ import type {
   PaymentMethodRequestablePayload
 } from "braintree-web-drop-in";
 import { parseSettings } from "../utils";
+import { locale } from "dayjs";
 // -----------------------------------------------------------------------------
 
 async function load(context: BraintreeContext, _event: AnyEventObject) {
-  const { gateway, amount, currency, orderId, clientId, address, ctx } =
-    context;
+  const { gateway, currency } = context;
 
-  if (!gateway)
-    return Promise.reject(
-      new DetailedError(
-        "Gateway not found.",
-        responseCodes.Not_Found,
-        ErrorOrigin.Headless
-      )
-    );
+  const { t } = useI18n();
 
   return sharedServices.load(context, _event).then(async config => {
     const { get: getRequest, useUrl } = useQuery();
 
-    const authorization = await getRequest<{
-      cancel_url: string;
-      gateway_specific: {
-        clientToken: string;
-      };
-      notify_url: string;
-      return_url: string;
-    }>({
-      url: useUrl(`gateway/frontend/${gateway?.id}`, {
-        amount: amount ?? 0,
-        currency: currency?.code ?? ""
+    const authorization = await getRequest<BraintreeAuthResponse>({
+      url: useUrl(`gateway/frontend/${gateway.id}`, {
+        currency: currency.code
       }),
-      queryKey: ["gateway", "frontend", gateway?.id],
-      staleTime: "static",
+      queryKey: ["gateway", "frontend", gateway.id],
       withAccessToken: true,
-      withCurrency: true
+      staleTime: 0, // disable cache, this may still return stale data while the request is in flight
+      gcTime: 0 // force cache to be cleared immediately, to prevent stale data
     }).then(response => response.gateway_specific.clientToken);
 
-    const settings = parseSettings(gateway);
+    const settings = pick(parseSettings(gateway), [
+      "paymentUses3DS",
+      "paymentMethodPayPal"
+    ]);
 
     if (!authorization) {
-      reject(
-        new DetailedError(
-          "Braintree Client Token not found.",
-          responseCodes.Not_Found,
-          ErrorOrigin.Headless
-        )
+      throw new DetailedError(
+        t("error.payment_gateway_not_available"),
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
       );
-    } else {
-      return { authorization, ...config, ...settings };
     }
+
+    return { sdk: { authorization }, ...config, ...settings };
   });
 }
 
 async function render(
-  { sdk, amount, currency }: BraintreeContext,
+  {
+    sdk,
+    amount,
+    currency,
+    paymentUses3DS,
+    paymentMethodPayPal
+  }: BraintreeContext,
   { data }: AnyEventObject
 ) {
+  const { locale } = useLocale();
+  const { t } = useI18n();
+
   const container = data?.container as HTMLElement;
 
   const paypal: paypalCreateOptions = defaultsDeep(data?.paypal ?? {}, {
@@ -95,27 +94,23 @@ async function render(
   });
 
   if (!sdk?.authorization || !container) {
-    return Promise.reject(
-      new DetailedError(
-        "Braintree cannot render",
-        responseCodes.Not_Found,
-        ErrorOrigin.Headless,
-        {
-          authorization: sdk?.authorization,
-          container
-        }
-      )
+    throw new DetailedError(
+      t("error.payment_gateway_not_available"),
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless,
+      {
+        authorization: sdk?.authorization,
+        container
+      }
     );
   }
 
-  const { locale } = useLocale();
-
   return BraintreeDropin.create({
-    authorization: sdk?.authorization,
+    authorization: sdk.authorization,
     container,
     locale: locale.value,
-    ...(sdk?.paymentUses3DS ? { threeDSecure: true } : {}),
-    ...(sdk?.paymentMethodPayPal ? { paypal } : {})
+    ...(paymentUses3DS ? { threeDSecure: true } : {}),
+    ...(paymentMethodPayPal ? { paypal } : {})
   }).then(instance => {
     // set up our callback helper to watch for validation
     const validationHelper = (callback: any, onReceiveEvent: any) => {
@@ -135,16 +130,20 @@ async function render(
     return {
       // NB: if we return the entire instance, we run into issue with our xstate inspector....
       //     So we only pull the methods we need.
-      validationHelper,
-      braintree: {
-        clearSelectedPaymentMethod:
-          instance.clearSelectedPaymentMethod.bind(instance),
-        isPaymentMethodRequestable:
-          instance.isPaymentMethodRequestable.bind(instance),
-        requestPaymentMethod: instance.requestPaymentMethod.bind(instance),
-        teardown: instance.teardown.bind(instance),
-        updateConfiguration: instance.updateConfiguration.bind(instance)
-      } as Dropin
+      sdk: {
+        authorization: sdk.authorization,
+        braintree: {
+          clearSelectedPaymentMethod:
+            instance.clearSelectedPaymentMethod.bind(instance),
+          isPaymentMethodRequestable:
+            instance.isPaymentMethodRequestable.bind(instance),
+          requestPaymentMethod: instance.requestPaymentMethod.bind(instance),
+          teardown: instance.teardown.bind(instance),
+          updateConfiguration: instance.updateConfiguration.bind(instance)
+        } as Dropin
+      },
+      container,
+      validationHelper
     };
   });
 }
@@ -153,50 +152,48 @@ async function validate(
   { schema, model, sdk }: BraintreeContext,
   { data }: AnyEventObject
 ) {
+  const { t } = useI18n();
+
   // Get any errors from the Braintree Instance
-  if (!sdk?.braintree)
-    return Promise.reject(
-      new DetailedError(
-        "Braintree instance not found.",
-        responseCodes.Not_Found,
-        ErrorOrigin.Headless
-      )
+
+  if (!sdk?.braintree) {
+    throw new DetailedError(
+      t("error.payment_gateway_not_available"),
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
     );
+  }
 
   // Now validate the model as per normal
   const { validate } = useValidation();
 
-  return new Promise((resolve, reject) => {
-    if (!schema) return resolve(model);
+  if (!schema) return model;
 
-    const errors = validate(schema, model) || [];
+  const errors = validate(schema, model) || [];
 
-    // NB: we are invalid if the braintree element status is NOT complete!
-    if (!data?.complete) {
-      errors.push({
-        instancePath: "/payment_method_addition",
-        schemaPath: "#/properties/payment_method_addition",
-        keyword: "required",
-        params: {
-          missingProperty: "payment_method_addition"
-        },
-        message: "Braintree instance is incomplete."
-      });
-    }
+  // NB: we are invalid if the braintree element status is NOT complete!
+  if (!data?.complete) {
+    errors.push({
+      instancePath: "/payment_method_addition",
+      schemaPath: "#/properties/payment_method_addition",
+      keyword: "required",
+      params: {
+        missingProperty: "payment_method_addition"
+      },
+      message: "Braintree instance is incomplete."
+    });
+  }
 
-    if (errors?.length) {
-      reject(
-        new DetailedError(
-          "Braintree validation failed",
-          responseCodes.Unprocessable_Entity,
-          ErrorOrigin.Headless,
-          errors
-        )
-      );
-    } else {
-      resolve(model);
-    }
-  });
+  if (errors?.length) {
+    throw new DetailedError(
+      t("error.payment_gateway_validation_failed"),
+      responseCodes.Unprocessable_Entity,
+      ErrorOrigin.Headless,
+      errors
+    );
+  }
+
+  return model;
 }
 
 /**
@@ -206,18 +203,19 @@ async function validate(
  * payment). We do not need to pass a client secret for flow, as the
  * payment detail is attached to a customer and confirmed server-side.
  */
-async function pay({ gateway, sdk, amount }: BraintreeContext) {
-  if (!braintree)
-    return Promise.reject(
-      new DetailedError(
-        "Braintree instance not found.",
-        responseCodes.Not_Found,
-        ErrorOrigin.Headless
-      )
+async function pay({ model, sdk, amount, paymentUses3DS }: BraintreeContext) {
+  const { t } = useI18n();
+
+  if (!sdk?.braintree || !sdk?.authorization) {
+    throw new DetailedError(
+      t("error.braintree_instance_not_found"),
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
     );
+  }
 
   const paymentOptions = (
-    sdk?.paymentUses3DS ? { threeDSecure: { amount: `${amount}` } } : {}
+    paymentUses3DS ? { threeDSecure: { amount: amount?.toString() } } : {}
   ) as PaymentMethodOptions;
 
   return sdk?.braintree
@@ -226,7 +224,7 @@ async function pay({ gateway, sdk, amount }: BraintreeContext) {
       const isCard = payload.type === BraintreeTypes.CARD;
 
       // additional checks for any 3D Secure challenges
-      if (isCard && sdk?.paymentUses3DS && !payload.liabilityShifted) {
+      if (isCard && paymentUses3DS && !payload.liabilityShifted) {
         sdk?.braintree?.clearSelectedPaymentMethod();
         throw new DetailedError(
           "3D Secure challenge failed.",
@@ -235,13 +233,14 @@ async function pay({ gateway, sdk, amount }: BraintreeContext) {
         );
       }
 
-      // return our payment detial
-      return {
-        gateway_id: gateway?.id,
-        payment_method_addition: {
-          payment_method_nonce: payload.nonce
-        }
-      };
+      // add the payment details to the model
+      set(
+        model!,
+        "payment_method_addition.payment_method_nonce",
+        payload.nonce
+      );
+
+      return model;
     });
 }
 
