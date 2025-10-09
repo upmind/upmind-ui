@@ -8,7 +8,7 @@ interface BasePrice {
   is?: string;
   cycle?: ProductSummaryDetailWithPrice["cycle"];
   // meta?: ProductSummaryDetailWithPrice["meta"];
-  showCycle?: boolean;
+  useMonthlyFromPrice?: boolean;
   uiConfig?: {
     pricing: {
       ex?: CxOptions;

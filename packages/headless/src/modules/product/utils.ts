@@ -180,6 +180,47 @@ export function useProductName(
 }
 
 /**
+ * This function determines the price display type for a product based on a hierarchy of settings
+ * 1. It first checks for a price display type set in the product's category hierarchy (meta.uischema.price_display_type)
+ * 2. If not found, it checks for a product-specific override based on the product's provision blueprint code
+ * 3. If still not found, it falls back to a brand-wide default price display type from the brand configuration
+ * @param product
+ * @param category
+ * @returns
+ */
+function getPriceDisplayType(raw: IProduct): PriceDisplayTypes | undefined {
+  const { getConfigValue } = useBrand();
+
+  const brandDisplayType = getConfigValue<PriceDisplayTypes>(
+    BrandConfigKeys.PRICE_DISPLAY_TYPE
+  );
+
+  const meta = parseMeta(raw?.meta ?? {}, raw.category);
+  const configDisplayType = get(meta, "uischema.price_display_type");
+  // ----
+
+  let productDisplayType = undefined;
+  // individual product types may have different naming conventions
+  switch (raw.provision_blueprint?.code) {
+    case ProvisionCategoryCodes.DOMAIN_NAMES:
+      productDisplayType ??= PriceDisplayTypes.CYCLE;
+      break;
+
+    case ProvisionCategoryCodes.SHARED_HOSTING:
+    case ProvisionCategoryCodes.AUTO_LOGIN:
+    case ProvisionCategoryCodes.SEO:
+    case ProvisionCategoryCodes.WEBSITE_BUILDERS:
+    case ProvisionCategoryCodes.SOFTWARE_LICENSES:
+    case ProvisionCategoryCodes.SERVERS:
+    default:
+      productDisplayType ??= undefined;
+      break;
+  }
+
+  return configDisplayType ?? productDisplayType ?? brandDisplayType;
+}
+
+/**
  * Recursively merges values from a property in a nested object hierarchy
  * @param item The current object in the hierarchy
  * @param result The array to collect values into
@@ -588,7 +629,7 @@ export const parseProductDetails = (
     // ---
     cycle: rawProduct?.billing_cycle_months, // TODO check: cycle: rawProduct?.display_price_billing_cycle_months ?? rawProduct?.billing_cycle_months,
     defaultPaymentPeriod: rawProduct?.default_payment_period,
-    displayPrice: find(parseTermDetails(rawProduct.prices), [
+    displayPrice: find(parseTermDetails(rawProduct), [
       "cycle",
       rawProduct.display_price_billing_cycle_months
     ]),
@@ -617,7 +658,7 @@ export const parseProductDetails = (
 };
 
 export const parseMeta = (
-  productMeta: UIMeta,
+  productMeta?: UIMeta,
   category?: IProductCategory,
   brandMeta?: UIMeta
 ): Record<string, any> => {
@@ -645,12 +686,12 @@ export const parseMeta = (
   return merge({}, result, productMeta);
 };
 
-export const parseTermDetails = (raw: IProductPrice[]): TermDetails[] => {
+export const parseTermDetails = (raw: IProduct): TermDetails[] => {
   const money = useMoney();
   const { uiCart } = useBrand();
 
-  return map(orderBy(raw, "billing_cycle_months"), rawTerm => {
-    const details: TermDetails = parseSummaryDetailWithPrice(rawTerm);
+  return map(orderBy(raw?.prices, "billing_cycle_months"), rawTerm => {
+    const details: TermDetails = parseSummaryDetailWithPrice(rawTerm, raw);
     const trimTrailingZeroes =
       uiCart.value?.ui?.product?.display_price?.trim_trailing_zeroes ?? false;
 
@@ -737,6 +778,7 @@ export const parseSubproductDetails = (
         rawPrice =>
           parseSummaryDetailWithPrice(
             rawPrice,
+            rawSubproduct,
             rawSubproduct.category.price_override
           )
       );
@@ -780,6 +822,7 @@ export const parseSubproductDetails = (
 
 export const parseSummaryDetail = (
   raw: IProductPrice,
+  rawProduct: IProduct,
   overrides?: boolean
 ): ProductSummaryDetailWithPrice => {
   const { getBillingCycle } = useSystem();
@@ -790,9 +833,7 @@ export const parseSummaryDetail = (
   const discounted =
     !!raw.price_discounted && raw.price !== raw.price_discounted;
 
-  const displayType = getConfigValue<PriceDisplayTypes>(
-    BrandConfigKeys.PRICE_DISPLAY_TYPE
-  );
+  const displayType = getPriceDisplayType(rawProduct);
 
   // NB: Context for displaying price as "/month" vs "/cycle":
   // There are multiple brand settings that affect how prices are shown:
@@ -808,7 +849,7 @@ export const parseSummaryDetail = (
   // - "lowest_monthly_term" ensures the actual lowest monthly price is shown, regardless of term length.
   // This logic ensures price display is consistent with brand configuration and user expectations.
   const useMonthlyFromPrice =
-    (cycle?.months ?? 0) > 1 && displayType !== PriceDisplayTypes.MONTHLY;
+    (cycle?.months ?? 0) > 1 && displayType !== PriceDisplayTypes.CYCLE;
 
   return {
     cycle: raw.billing_cycle_months,
@@ -859,10 +900,12 @@ export const parsePrice = (raw: IProductPrice): PriceDetail => {
 
 export const parseSummaryDetailWithPrice = (
   raw: IProductPrice,
+  rawProduct: IProduct,
   overrides?: boolean
 ): ProductSummaryDetailWithPrice => {
   const result: ProductSummaryDetailWithPrice = parseSummaryDetail(
     raw,
+    rawProduct,
     overrides
   );
   result.price = parsePrice(raw);

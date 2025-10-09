@@ -21,39 +21,28 @@
       :disabled="props.disabled || props.processing"
       :errors="props.errors"
       :touched="props.touched"
+      :placeholder="t('form.select_option.placeholder')"
       :model-value="props.modelValue?.toString()"
       content-class="max-h-74!"
       @update:modelValue="doResolve"
     >
-      <template #item="{ item }: any">
-        <slot name="item" :item="item">
-          <CardTermPerMonth
-            v-if="isMonthly(item.value)"
-            v-bind="getTerm(item.value)"
-            select
-            :class="props.class"
-          />
+      <template #item="slotProps">
+        <slot name="item" v-bind="slotProps">
           <CardTerm
-            v-else
-            v-bind="getTerm(item.value)"
-            select
+            v-bind="slotProps.item"
+            no-summary
             :class="props.class"
+            layout="inline"
           />
         </slot>
       </template>
-      <template #dropdown-item="{ item }: any">
-        <slot name="dropdown" :item="item">
-          <CardTermPerMonth
-            v-if="isMonthly(item.value)"
-            v-bind="getTerm(item.value)"
-            select
-            :class="props.class"
-          />
+      <template #dropdown-item="slotProps">
+        <slot name="dropdown" v-bind="slotProps">
           <CardTerm
-            v-else
-            v-bind="getTerm(item.value)"
-            select
+            v-bind="slotProps.item"
             :class="props.class"
+            layout="inline"
+            no-summary
           />
         </slot>
       </template>
@@ -75,10 +64,9 @@ import config from "../../product.config";
 // --- components
 import { FormField, SelectCards } from "@upmind-automation/upmind-ui";
 import CardTerm from "./TermCard.vue";
-import CardTermPerMonth from "./TermPerMonthCard.vue";
 
 // --- utils
-import { isNil, map, toNumber, find } from "lodash-es";
+import { isNil, map, toNumber } from "lodash-es";
 
 // --- types
 import type { ComputedRef, HTMLAttributes } from "vue";
@@ -97,7 +85,6 @@ const props = withDefaults(
     label?: string;
     description?: string;
     // --- state
-    monthly?: boolean;
     required?: boolean;
     disabled?: boolean;
     loading?: boolean;
@@ -151,25 +138,13 @@ const hasItems = computed(() => {
   return !isNil(props.modelValue) && !!props.items?.length;
 });
 
-function getTerm(value: string): TermDetails {
-  const item = find(props.items, ["cycle", toNumber(value)]) as TermDetails;
-  return item;
-}
-
-function isMonthly(value: string) {
-  const term = getTerm(value) as TermDetails;
-  return (
-    props.monthly && term.price.monthlyFromRegularPrice && (term.cycle ?? 0) > 1
-  );
-}
-function doResolve(item: string | number) {
+function doResolve(value: string | number) {
   if (props.disabled) return;
-  emits("update:modelValue", toNumber(item));
+  emits("update:modelValue", toNumber(value));
 }
 
 const mapComponent = (as: string) => {
-  switch (as) {
-    case "FormField":
+  switch (as.toLowerCase()) {
     case "formfield":
       return FormField;
     default:

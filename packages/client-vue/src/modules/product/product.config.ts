@@ -229,27 +229,38 @@ export default {
             "text-foreground text-md m-0 flex h-full w-full cursor-pointer flex-col flex-wrap items-start gap-4 rounded-lg sm:flex-row",
             {
               variants: {
-                isSelect: {
-                  true: "w-full items-start justify-between sm:items-center"
+                layout: {
+                  stacked: "",
+                  inline: "w-full items-start justify-between sm:items-center"
                 }
+              },
+              defaultVariants: {
+                layout: "stacked"
               }
             }
           ),
           // input: cva("text-primary"),
           header: cva("flex items-center gap-x-2 gap-y-1 leading-tight", {
             variants: {
-              isSelect: {
-                false:
-                  "flex-1 flex-wrap items-center justify-start sm:justify-between"
+              layout: {
+                stacked:
+                  "flex-1 flex-wrap items-center justify-start sm:justify-between",
+                inline: ""
               }
+            },
+            defaultVariants: {
+              layout: "stacked"
             }
           }),
           footer: cva("flex", {
             variants: {
-              isSelect: {
-                false: "w-full flex-col gap-y-0.5 self-end",
-                true: "items-baseline gap-x-2"
+              layout: {
+                stacked: "w-full flex-col gap-y-0.5 self-end",
+                inline: "items-baseline gap-x-2"
               }
+            },
+            defaultVariants: {
+              layout: "stacked"
             }
           }),
           // ---
@@ -257,10 +268,13 @@ export default {
           text: cva("text-emphasis-medium w-full text-sm font-normal"),
           total: cva("", {
             variants: {
-              isSelect: {
-                true: "font-normal",
-                false: "text-3xl font-medium"
+              layout: {
+                stacked: "text-3xl font-medium",
+                inline: "font-normal"
               }
+            },
+            defaultVariants: {
+              layout: "stacked"
             }
           }),
           discount: cva(
