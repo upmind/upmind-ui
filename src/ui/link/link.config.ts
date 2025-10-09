@@ -1,6 +1,6 @@
 // ---  external
 import { cva } from "class-variance-authority";
-import { outlineReset } from "../../assets/styles";
+import { outlineReset, ringClasses } from "../../assets/styles";
 // -----------------------------------------------------------------------------
 
 export const variants = {
@@ -38,6 +38,10 @@ export const variants = {
   hasRing: {
     true: `${outlineReset} focus-visible:ring-2 focus-visible:ring-control-ring focus-visible:ring-offset-2 focus-visible:ring-offset-core-surface`,
     false: "outline-none focus:ring-0 focus:outline-none"
+  },
+  enforceRing: {
+    true: `${outlineReset} focus:ring-2 focus:ring-control-ring focus:ring-offset-2 focus:ring-offset-core-surface`,
+    false: ""
   }
 };
 
@@ -71,7 +75,8 @@ export const rootVariants = cva(
         true: "inline-flex items-center",
         false: "inline-flex items-center"
       },
-      hasRing: variants.hasRing
+      hasRing: variants.hasRing,
+      enforceRing: variants.enforceRing
     },
     defaultVariants: {
       color: "default",

@@ -79,7 +79,8 @@ const meta = computed(() => ({
   size: props.size,
   isDisabled: props.disabled,
   isFocusable: props.focusable,
-  hasRing: !props.disabled && props.focusable,
+  hasRing: !props.clickRing && !props.disabled && props.focusable,
+  hasClickRing: props.clickRing,
   hasIcon:
     !isEmpty(props.icon) ||
     !isEmpty(props.iconAppend) ||
