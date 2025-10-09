@@ -1,6 +1,8 @@
 # Brand
 
-The `useBrand` composable provides a simple interface for interacting with the brand-related information from the Upmind API. It helps manage the brand's configurations, as well as fetch analytics and handle errors.
+The [`useBrand`](./functions/useBrand.md) composable provides a simple interface for interacting with the brand-related information from the Upmind API. It helps manage the brand's configurations, as well as fetch analytics and handle errors.
+
+> **Important:** The [`useBrand`](./functions/useBrand.md) composable persists its state to [`localStorage`](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage) to improve performance and reduce API calls. On the initial load, it performs a background refresh to check for any changes to brand settings and update the local storage if necessary.
 
 ## API Reference
 
