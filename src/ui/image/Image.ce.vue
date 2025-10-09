@@ -20,10 +20,11 @@
         :key="index"
         :class="styles.image.nav.item"
       >
-        <Icon
-          icon="ellipse"
-          size="3xs"
-          :class="[isSelected(index) ? '' : 'opacity-50']"
+        <div
+          :class="[
+            'h-2 w-2 cursor-pointer rounded-full bg-current',
+            isSelected(index) ? '' : 'opacity-50'
+          ]"
           @click="selectImage(index)"
         />
       </span>
@@ -57,7 +58,6 @@
 import { ref, computed } from "vue";
 
 // --- components
-import { Icon } from "../icon";
 import { Carousel, CarouselContent } from "../carousel";
 import CarouselImage from "./CarouselImage.vue";
 
