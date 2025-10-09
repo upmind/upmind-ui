@@ -1,11 +1,15 @@
 <template>
   <ExPrice
-    v-bind="
-      pick(props, ['regularPrice', 'monthlyFromRegularPrice', 'discounted'])
-    "
+    :regular-price="props.regularPrice"
+    :monthly-from-regular-price="props.monthlyFromRegularPrice"
+    :discounted="props.discounted"
+    :use-monthly-from-price="props.useMonthlyFromPrice"
   />
   <CurrentPrice
-    v-bind="pick(props, ['currentPrice', 'monthlyFromCurrentPrice', 'free'])"
+    :current-price="props.currentPrice"
+    :monthly-from-current-price="props.monthlyFromCurrentPrice"
+    :free="props.free"
+    :use-monthly-from-price="props.useMonthlyFromPrice"
   />
 </template>
 
@@ -14,15 +18,12 @@
 import ExPrice from "./ExPrice.vue";
 import CurrentPrice from "./CurrentPrice.vue";
 
-// --- internal
-import { pick } from "lodash-es";
-
 // --- types
 import { type PricingProps } from "./types";
 
-const props = defineProps<PricingProps>();
+// -----------------------------------------------------------------------------
 
-defineOptions({
-  inheritAttrs: false
-});
+defineOptions({ inheritAttrs: false });
+
+const props = defineProps<PricingProps>();
 </script>
