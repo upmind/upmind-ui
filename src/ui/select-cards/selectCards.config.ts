@@ -16,7 +16,7 @@ export const variants = {
 };
 
 export const triggerVariants = cva(
-  `bg-control-surface [&:hover,&:focus-within,&[data-hover=true],&[data-focus=true]]:shadow-ontrol-hover [&:focus-within,&[data-focus=true]]:ring-ring control-radius sshadow-ntrol-default group flex cursor-pointer border-none px-4 py-3 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 [&:focus-within,&[data-focus=true]]:ring-2 [&:focus-within,&[data-focus=true]]:ring-offset-2 ${ringClasses} ${invalidRingClasses} h-auto min-w-0 items-center justify-start text-left font-medium`,
+  `bg-control-surface [&:hover,&:focus-within,&[data-hover=true],&[data-focus=true]]:shadow-control-hover [&:focus-within,&[data-focus=true]]:ring-ring control-radius shadow-control-default group flex cursor-pointer border-none px-4 py-2 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 [&:focus-within,&[data-focus=true]]:ring-2 [&:focus-within,&[data-focus=true]]:ring-offset-2 ${ringClasses} ${invalidRingClasses} h-auto min-w-0 items-center justify-start text-left font-medium`,
   {
     variants,
     defaultVariants: {
