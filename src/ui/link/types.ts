@@ -30,7 +30,7 @@ export interface LinkProps {
   disabled?: boolean;
   // ---
   focusable?: boolean;
-  clickRing?: boolean;
+  ring?: "focus" | "focus-visible";
   checked?: boolean;
   color?: LinkVariantProps["color"];
   size?: LinkVariantProps["size"];

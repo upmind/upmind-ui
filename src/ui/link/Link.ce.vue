@@ -56,6 +56,7 @@ const props = withDefaults(defineProps<LinkProps>(), {
   size: "md",
   color: "default",
   focusable: true,
+  ring: "focus-visible",
   uiConfig: () => ({ link: { root: [], label: [], items: [] } }),
   class: "",
   contentClass: ""
@@ -79,8 +80,8 @@ const meta = computed(() => ({
   size: props.size,
   isDisabled: props.disabled,
   isFocusable: props.focusable,
-  hasRing: !props.clickRing && !props.disabled && props.focusable,
-  hasClickRing: props.clickRing,
+  hasRing: props.ring === "focus-visible" && !props.disabled && props.focusable,
+  hasFocusRing: props.ring === "focus" && !props.disabled && props.focusable,
   hasIcon:
     !isEmpty(props.icon) ||
     !isEmpty(props.iconAppend) ||
