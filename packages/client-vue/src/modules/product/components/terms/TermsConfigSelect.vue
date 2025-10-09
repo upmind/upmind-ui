@@ -26,20 +26,20 @@
       content-class="max-h-74!"
       @update:modelValue="doResolve"
     >
-      <template #item="{ item }: any">
-        <slot name="item" :item="item">
+      <template #item="slotProps">
+        <slot name="item" v-bind="slotProps">
           <CardTerm
-            v-bind="item"
+            v-bind="slotProps.item"
             no-summary
             :class="props.class"
             layout="inline"
           />
         </slot>
       </template>
-      <template #dropdown-item="{ item }: any">
-        <slot name="dropdown" :item="item">
+      <template #dropdown-item="slotProps">
+        <slot name="dropdown" v-bind="slotProps">
           <CardTerm
-            v-bind="item"
+            v-bind="slotProps.item"
             :class="props.class"
             layout="inline"
             no-summary
