@@ -66,3 +66,6 @@ export {
   type Theme,
   type ITheme
 } from "./utils";
+
+// // --- styles
+export * from "./assets/styles";

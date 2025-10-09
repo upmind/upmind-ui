@@ -61,9 +61,6 @@ import { Icon } from "../icon";
 import { Carousel, CarouselContent } from "../carousel";
 import CarouselImage from "./CarouselImage.vue";
 
-// --- assets
-import dotSvgRaw from "../../assets/icons/dot-pattern.svg?raw";
-
 // --- internal
 import config from "./image.config";
 

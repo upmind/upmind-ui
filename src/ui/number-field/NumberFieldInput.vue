@@ -2,7 +2,7 @@
 import { NumberFieldInput } from "radix-vue";
 import type { HTMLAttributes } from "vue";
 import { cn } from "../../utils";
-import { ringClasses } from "../../assets/ring.styles";
+import { ringClasses } from "../../assets/styles";
 
 const props = defineProps<{
   class?: HTMLAttributes["class"];

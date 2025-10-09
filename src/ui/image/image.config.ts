@@ -1,4 +1,5 @@
 import { cva } from "class-variance-authority";
+import { ringClasses } from "../../assets/styles";
 // -----------------------------------------------------------------------------
 export const rootVariant = cva("h-full w-full", {
   variants: {
@@ -25,7 +26,7 @@ export const rootVariant = cva("h-full w-full", {
   }
 });
 
-export const containerVariant = cva("h-full overflow-hidden rounded-lg", {
+export const containerVariant = cva(`h-full overflow-hidden rounded-lg`, {
   variants: {
     ratio: {
       default: "",
@@ -37,6 +38,10 @@ export const containerVariant = cva("h-full overflow-hidden rounded-lg", {
     },
     isEmpty: {
       true: "opacity-20"
+    },
+    isCarousel: {
+      true: `${ringClasses} transition-all duration-200`,
+      false: ""
     }
   },
   defaultVariants: {

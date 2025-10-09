@@ -8,7 +8,7 @@ import {
 } from "radix-vue";
 import { Check } from "lucide-vue-next";
 import { cn } from "../../utils";
-import { ringClasses } from "../../assets/ring.styles";
+import { ringClasses } from "../../assets/styles";
 
 const props = defineProps<
   CheckboxRootProps & { class?: HTMLAttributes["class"] }

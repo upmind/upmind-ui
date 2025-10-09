@@ -3,7 +3,7 @@ import {
   ringClasses,
   groupRingClasses,
   invalidRingClasses
-} from "../../assets/ring.styles";
+} from "../../assets/styles";
 
 export const checkboxLabelVariants = cva(
   "text-md m-0 h-full w-full rounded leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",

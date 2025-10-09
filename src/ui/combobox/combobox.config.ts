@@ -1,5 +1,5 @@
 import { cva } from "class-variance-authority";
-import { ringClasses, invalidRingClasses } from "../../assets/ring.styles";
+import { ringClasses, invalidRingClasses } from "../../assets/styles";
 
 export const variants = {
   size: {

@@ -9,7 +9,7 @@
 
 <script lang="ts" setup>
 // --- utils=
-import { ringClasses, invalidRingClasses } from "../../assets/ring.styles";
+import { ringClasses, invalidRingClasses } from "../../assets/styles";
 
 withDefaults(
   defineProps<{

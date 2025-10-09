@@ -1,6 +1,6 @@
 // --- external
 import { cva, cx } from "class-variance-authority";
-import { focusWithinRing } from "../../assets/ring.styles";
+import { focusWithinRing } from "../../assets/styles";
 
 export const rootVariants = cva(
   `control-radius divide-border-control-default shadow-control-default bg-control-surface [&:hover,&:focus-within]:shadow-control-hover flex divide-x overflow-hidden ${focusWithinRing}`

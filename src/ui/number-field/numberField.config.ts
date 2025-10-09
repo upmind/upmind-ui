@@ -1,5 +1,5 @@
 import { cva } from "class-variance-authority";
-import { ringClasses, outlineReset } from "../../assets/ring.styles";
+import { ringClasses, outlineReset } from "../../assets/styles";
 
 // -----------------------------------------------------------------------------
 

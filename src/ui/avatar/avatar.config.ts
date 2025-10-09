@@ -1,6 +1,6 @@
 // ---  external
 import { cva } from "class-variance-authority";
-import { ringClasses } from "../../assets/ring.styles";
+import { ringClasses } from "../../assets/styles";
 // -----------------------------------------------------------------------------
 
 export const variants = {

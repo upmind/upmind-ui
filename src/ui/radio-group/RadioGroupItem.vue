@@ -29,7 +29,7 @@ import {
   type RadioGroupItemProps,
   useForwardProps
 } from "radix-vue";
-import { ringClasses } from "../../assets/ring.styles";
+import { ringClasses } from "../../assets/styles";
 
 import { computed, type HTMLAttributes } from "vue";
 
