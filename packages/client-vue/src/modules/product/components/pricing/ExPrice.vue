@@ -3,9 +3,7 @@
     {{
       t("text.price_was", {
         price: priceMeta.useMonthlyFromPrice
-          ? t("text.product_cycle_per_month", {
-              value: props.monthlyFromRegularPrice
-            })
+          ? `${props.monthlyFromRegularPrice} ${t("text.product_cycle_per_month")}`
           : props.regularPrice
       })
     }}

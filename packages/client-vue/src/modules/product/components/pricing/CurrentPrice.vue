@@ -12,11 +12,7 @@
       <small
         v-if="priceMeta.useMonthlyFromPrice"
         :class="styles.pricing.term"
-        >{{
-          t("text.product_cycle_per_month", {
-            value: props.monthlyFromCurrentPrice
-          })
-        }}</small
+        >{{ t("text.product_cycle_per_month") }}</small
       >
     </template>
   </component>
