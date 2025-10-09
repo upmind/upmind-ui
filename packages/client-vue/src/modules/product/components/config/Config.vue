@@ -212,7 +212,7 @@ const getTermsComponent = computed(() => {
   const control =
     product.value.productDetails?.uiMeta?.uischema?.billing?.control ||
     product.value.productDetails?.uiCategoryMeta?.uischema?.billing?.control;
-  return control.toLowerCase() === "termsconfigselect"
+  return control?.toLowerCase() === "termsconfigselect"
     ? TermsConfigSelect
     : TermsConfigGrid;
 });
