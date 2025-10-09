@@ -1,21 +1,16 @@
 <template>
-  <component
-    :is="is"
-    class="relative w-full"
-    :class="[props.class, active ? 'opacity-50' : '']"
-  >
+  <component :is="is" class="relative w-full" :class="styles.loading.root">
     <slot></slot>
     <Transition
+      v-if="active"
       enter-active-class="transition-opacity duration-200 ease-in-out"
       leave-active-class="transition-opacity duration-200 ease-in-out"
       enter-from-class="opacity-0"
       leave-to-class="opacity-0"
     >
       <div
-        v-if="active"
-        class="opacity-100"
         :class="[
-          styles.loading.root,
+          styles.loading.spinner,
           !hasSlotContent ? 'fixed inset-0' : 'absolute inset-0',
           props.classActive
         ]"
@@ -48,17 +43,20 @@ const hasSlotContent = computed(() => !!slots.default);
 
 const props = withDefaults(defineProps<LoadingProps>(), {
   active: true,
+  transparent: true,
   size: "lg",
   is: "div"
 });
 
 const meta = computed(() => ({
-  //
+  isTransparent: props.transparent,
+  isActive: props.active
 }));
 
 const styles = useStyles("loading", meta, config) as ComputedRef<{
   loading: {
     root: string;
+    spinner: string;
   };
 }>;
 </script>
