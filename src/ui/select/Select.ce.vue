@@ -56,7 +56,7 @@
         </SelectItem>
 
         <SelectItem
-          v-for="item in additionalItems"
+          v-for="item in props.additionalItems"
           :class="styles.select.item"
           :key="'additional-' + item.value"
           :value="item.value"
@@ -103,6 +103,7 @@ import { timestamp } from "@vueuse/shared";
 const props = withDefaults(defineProps<SelectProps>(), {
   // --- props
   items: () => [],
+  additionalItems: () => [],
   placeholder: "",
   // -- styles
   variant: "outline",
