@@ -212,7 +212,9 @@ const getTermsComponent = computed(() => {
   const control =
     product.value.productDetails?.uiMeta?.uischema?.billing?.control ||
     product.value.productDetails?.uiCategoryMeta?.uischema?.billing?.control;
-  return control === "TermsConfigSelect" ? TermsConfigSelect : TermsConfigGrid;
+  return control.toLowerCase() === "termsconfigselect"
+    ? TermsConfigSelect
+    : TermsConfigGrid;
 });
 
 function getQuantities(subproduct: any): Record<string, number> {
@@ -250,6 +252,6 @@ function doResolve() {
 
 onUpdated(() => {
   // Temp debug trick to see how many times we are triggered per config change
-  console.debug("Config updated");
+  // console.debug("Config updated");
 });
 </script>
