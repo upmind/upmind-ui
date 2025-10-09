@@ -1,5 +1,9 @@
 <template>
-  <component :is="is" class="relative w-full" :class="styles.loading.root">
+  <component
+    :is="is"
+    class="relative w-full"
+    :class="cn(styles.loading.root, props.class)"
+  >
     <slot></slot>
     <Transition
       v-if="active"
