@@ -4,6 +4,7 @@
   <Sonner
     class="toaster group"
     data-testid="sonner-toast"
+    data-theme=""
     v-bind="props"
     :toast-options="{
       classes: {
