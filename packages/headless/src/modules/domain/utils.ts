@@ -85,7 +85,7 @@ export function parseAvailable(
     const domain = `${sld}${raw.tld}`;
     const parsedDomain = parseDomain(domain);
     const productDetails = parseProductDetails(raw);
-    const terms = parseTermDetails(raw.prices);
+    const terms = parseTermDetails(raw);
     const termDetails = calculateBillingTerm(
       paymentPeriod || raw.default_payment_period,
       terms
