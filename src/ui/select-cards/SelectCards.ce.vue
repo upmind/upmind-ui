@@ -14,8 +14,8 @@
         :placeholder="props.placeholder"
         focusable
       >
-        <template #item="{ item }: { item: SelectCardsItemProps }">
-          <slot name="item" :item="item">
+        <template #item="{ item }">
+          <slot name="item" v-bind="item as SelectCardsItemProps">
             <Item v-bind="item" />
           </slot>
         </template>
@@ -37,7 +37,10 @@
           v-intersection-observer="[maybeFocus, { threshold: 0.25 }]"
           :data-state="item.value === modelValue ? 'checked' : null"
         >
-          <slot name="dropdown-item" v-bind="{ item, index }">
+          <slot
+            name="dropdown-item"
+            v-bind="{ ...item, index } as SelectCardsItemProps"
+          >
             <Item v-bind="item" />
           </slot>
         </DropdownMenuItem>
@@ -78,6 +81,7 @@ import {
 // --- types
 import type { SelectCardsProps, SelectCardsItemProps } from "./types";
 import type { ComputedRef } from "vue";
+import Select from "../select/Select.vue";
 
 const props = withDefaults(defineProps<SelectCardsProps>(), {
   required: true

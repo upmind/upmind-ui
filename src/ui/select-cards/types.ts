@@ -20,6 +20,8 @@ type TriggerVariantProps = VariantProps<typeof triggerVariants>;
 import type { AvatarProps } from "../avatar";
 
 export interface SelectCardsItemProps extends RadioGroupItemProps {
+  item?: any;
+  index?: number;
   label: string;
   icon?: Icon | string;
   avatar?: Partial<AvatarProps>;
