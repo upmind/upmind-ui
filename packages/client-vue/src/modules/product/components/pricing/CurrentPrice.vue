@@ -4,12 +4,16 @@
       {{ t("text.free") }}
     </template>
     <template v-else>
-      {{ priceMeta.canShowCycle ? monthlyFromCurrentPrice : currentPrice }}
-      <small v-if="priceMeta.canShowCycle" :class="styles.pricing.term">{{
-        t("text.product_cycle_per_month", {
-          value: props.monthlyFromCurrentPrice
-        })
-      }}</small>
+      {{
+        priceMeta.useMonthlyFromPrice
+          ? props.monthlyFromCurrentPrice
+          : props.currentPrice
+      }}
+      <small
+        v-if="priceMeta.useMonthlyFromPrice"
+        :class="styles.pricing.term"
+        >{{ t("text.product_cycle_per_month") }}</small
+      >
     </template>
   </component>
 </template>
@@ -24,8 +28,10 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./pricing.config";
 
 // --- types
-import { type ComputedRef } from "vue";
-import { type CurrentPriceProps } from "./types";
+import type { ComputedRef } from "vue";
+import type { CurrentPriceProps } from "./types";
+
+// -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<CurrentPriceProps>(), {
   is: "span"
@@ -34,7 +40,7 @@ const props = withDefaults(defineProps<CurrentPriceProps>(), {
 const { t } = useI18n();
 
 const priceMeta = computed(() => ({
-  canShowCycle: props.showCycle,
+  useMonthlyFromPrice: props.useMonthlyFromPrice,
   isFree: props.free
 }));
 

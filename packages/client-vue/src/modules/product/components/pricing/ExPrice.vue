@@ -2,11 +2,9 @@
   <del v-if="priceMeta.isDiscounted" :class="styles.pricing.ex">
     {{
       t("text.price_was", {
-        price: priceMeta.canShowCycle
-          ? t("text.product_cycle_per_month", {
-              value: monthlyFromRegularPrice
-            })
-          : regularPrice
+        price: priceMeta.useMonthlyFromPrice
+          ? `${props.monthlyFromRegularPrice} ${t("text.product_cycle_per_month")}`
+          : props.regularPrice
       })
     }}
   </del>
@@ -14,8 +12,8 @@
 
 <script setup lang="ts">
 // --- external
-import { useI18n } from "vue-i18n";
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
@@ -25,12 +23,14 @@ import config from "./pricing.config";
 import type { ComputedRef } from "vue";
 import type { ExPriceProps } from "./types";
 
+// -----------------------------------------------------------------------------
+
 const props = defineProps<ExPriceProps>();
 
 const { t } = useI18n();
 
 const priceMeta = computed(() => ({
-  canShowCycle: props.showCycle,
+  useMonthlyFromPrice: props.useMonthlyFromPrice,
   isDiscounted: props.discounted
 }));
 

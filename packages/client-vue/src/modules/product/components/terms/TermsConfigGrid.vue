@@ -1,5 +1,6 @@
 <template>
-  <FormField
+  <component
+    :is="mapComponent(props.as)"
     v-if="hasItems"
     id="terms"
     name="terms"
@@ -28,14 +29,10 @@
       :width="0"
     >
       <template #item="{ item }">
-        <CardTermPerMonth
-          v-if="isMonthly(item.value)"
-          v-bind="getTerm(item.value)"
-        />
-        <CardTerm v-else v-bind="getTerm(item.value)" />
+        <CardTerm v-bind="item" />
       </template>
     </RadioCards>
-  </FormField>
+  </component>
 
   <!-- <pre v-if="errors">{{ errors }}</pre> -->
 </template>
@@ -50,15 +47,14 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../../product.config";
 
 // --- components
-import { RadioCards, FormField } from "@upmind-automation/upmind-ui";
+import { FormField, RadioCards } from "@upmind-automation/upmind-ui";
 import CardTerm from "./TermCard.vue";
-import CardTermPerMonth from "./TermPerMonthCard.vue";
 
 // --- utils
-import { isNil, map, toNumber, find } from "lodash-es";
+import { isNil, map, toNumber } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
+import type { ComputedRef, HTMLAttributes } from "vue";
 import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
 import type { TermDetails } from "@upmind-automation/headless";
 
@@ -66,6 +62,7 @@ import type { TermDetails } from "@upmind-automation/headless";
 const emits = defineEmits(["update:modelValue"]);
 const props = withDefaults(
   defineProps<{
+    as?: string;
     items: TermDetails[];
     modelValue?: string | number;
     errors?: string;
@@ -73,14 +70,16 @@ const props = withDefaults(
     label?: string;
     description?: string;
     // --- state
-    monthly?: boolean;
     required?: boolean;
     disabled?: boolean;
     loading?: boolean;
     processing?: boolean;
     visible?: boolean;
+    // ---
+    class?: HTMLAttributes["class"];
   }>(),
   {
+    as: "FormField",
     required: true,
     disabled: false,
     loading: false,
@@ -123,20 +122,17 @@ const hasItems = computed(() => {
   return !isNil(props.modelValue) && !!props.items?.length;
 });
 
-function getTerm(value: string): TermDetails {
-  const item = find(props.items, ["cycle", toNumber(value)]) as TermDetails;
-  return item;
-}
-
-function isMonthly(value: string) {
-  const term = getTerm(value) as TermDetails;
-  return (
-    props.monthly && term.price.monthlyFromRegularPrice && (term.cycle ?? 0) > 1
-  );
-}
-
 function doResolve(value: string | number) {
   if (props.disabled) return;
   emits("update:modelValue", toNumber(value));
 }
+
+const mapComponent = (as: string) => {
+  switch (as.toLowerCase()) {
+    case "formfield":
+      return FormField;
+    default:
+      return as;
+  }
+};
 </script>
