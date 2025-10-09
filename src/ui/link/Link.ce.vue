@@ -1,8 +1,7 @@
 <template>
   <component
     :is="component"
-    :to="to"
-    :href="href"
+    v-bind="isRouterLink ? { to } : { href }"
     :disabled="meta.isDisabled"
     :tabindex="meta.isFocusable ? '0' : '-1'"
     :class="cn(styles.link.root, props.class)"
@@ -74,6 +73,8 @@ const component = computed(() => {
   if (props.href) return "a";
   return "a";
 });
+
+const isRouterLink = computed(() => component.value === RouterLink);
 
 const meta = computed(() => ({
   color: props.color,

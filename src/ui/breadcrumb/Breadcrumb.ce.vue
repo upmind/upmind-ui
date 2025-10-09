@@ -18,13 +18,7 @@
             :label="item.label"
             :color="index === props.items.length - 1 ? 'muted' : 'default'"
           />
-          <Link
-            v-else
-            :to="item.to"
-            :href="item.href"
-            :size="props.size"
-            :label="item.label"
-          />
+          <Link v-else :to="item.to" :size="props.size" :label="item.label" />
         </BreadcrumbItem>
 
         <BreadcrumbSeparator v-if="index < props.items.length - 1">{{

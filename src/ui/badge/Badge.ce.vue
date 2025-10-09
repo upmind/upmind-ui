@@ -15,7 +15,7 @@
         :class="styles.badge.icon"
       />
       <Icon
-        v-else-if="close"
+        v-else-if="props.close"
         icon="x"
         :class="styles.badge.close"
         @click="handleClose"
