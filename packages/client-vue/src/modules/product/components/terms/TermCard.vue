@@ -19,20 +19,29 @@
       />
     </div>
 
-    <div :class="styles.product.config.grid.item.footer">
+    <div :class="styles.product.config.grid.item.footer" class="pricing">
       <Pricing
+        class="pricing"
         :regular-price="props.price.regularPrice"
         :monthly-from-regular-price="props.price.monthlyFromRegularPrice ?? ''"
         :current-price="props.price.currentPrice"
         :monthly-from-current-price="props.price.monthlyFromCurrentPrice ?? ''"
         :discounted="props.meta?.discounted ?? false"
         :free="props.meta?.free ?? false"
+        :use-monthly-from-price="props.meta?.useMonthlyFromPrice"
         :ui-config="{
           pricing: {
             current: [styles.product.config.grid.item.total]
           }
         }"
       />
+
+      <small
+        v-if="meta.showSummary"
+        :class="styles.product.config.grid.item.text"
+      >
+        <PayToday :price="props.price" />
+      </small>
     </div>
   </div>
 </template>
@@ -48,6 +57,7 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../../product.config";
 
 // --- components
+import PayToday from "../pricing/PayToday.vue";
 import Pricing from "../pricing/Pricing.vue";
 import Promotion from "../../../basket/product/components/Promotion.vue";
 
@@ -56,33 +66,30 @@ import { isEmpty, has } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
-import { type BadgeProps } from "@upmind-automation/upmind-ui";
 import type { TermDetails } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
+
 const props = withDefaults(
   defineProps<
     TermDetails & {
-      select?: boolean;
-      badge?: BadgeProps;
+      noSummary?: boolean;
+      layout?: "stacked" | "inline";
     }
   >(),
   {
-    badge: () => ({
-      color: "promotion",
-      variant: "tonal",
-      size: "sm"
-    })
+    noSummary: false,
+    layout: "stacked"
   }
 );
-
-// ---
 
 const { t } = useI18n();
 
 const meta = computed(() => ({
+  layout: props.layout,
   hasPromotions: !isEmpty(props.promotions) || props.meta?.mixed,
-  isSelect: !!props.select
+  showStacked: !props.noSummary,
+  showSummary: !props.noSummary && props.meta.useMonthlyFromPrice
 }));
 
 const styles = useStyles(
@@ -98,6 +105,7 @@ const styles = useStyles(
           root: string;
           header: string;
           title: string;
+          text: string;
           footer: string;
           total: string;
         };

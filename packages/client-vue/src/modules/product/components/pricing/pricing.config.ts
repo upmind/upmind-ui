@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 
 export const currentVariants = cva("", {
   variants: {
-    showCycle: {
+    useMonthlyFromPrice: {
       true: "flex items-baseline gap-1"
     }
   }

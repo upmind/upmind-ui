@@ -104,7 +104,7 @@ import { ROUTE } from "@upmind-automation/headless";
 
 // --- components
 import { Button, Image, useStyles } from "@upmind-automation/upmind-ui";
-import config from "./product.config";
+import config from "./card";
 import ProductInfo from "./ProductInfo.vue";
 import ProductBenefits from "./ProductBenefits.vue";
 import ProductPrice from "./ProductPrice.vue";
