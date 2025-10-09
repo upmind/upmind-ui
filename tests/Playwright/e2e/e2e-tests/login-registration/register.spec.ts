@@ -38,7 +38,7 @@ test.describe("User Registration", () => {
       `${faker.internet.password({ length: 10, pattern: /[A-Z]/, prefix: "123" })}`
     );
     await expect(page.getByTestId("form-item-message-username")).toContainText(
-      'must match format "email"'
+      "Your username or email address must match format email"
     );
   });
 });

@@ -23,7 +23,7 @@ export class Checkout {
       "input-address-search-search"
     );
     this.addressFormMessage = page.getByTestId("form-item-message-address");
-    this.phone = this.billingDetails.getByTestId("form-item-phone");
+    this.phone = this.billingDetails.getByTestId("form-item-phone-phone");
     this.addressManualEntry = page.getByTestId("button-enter-address-manually");
     this.addressLine1 = this.billingDetails.getByTestId("input-address-line1");
     this.addressLine2 = this.billingDetails.getByTestId("input-address-line2");
