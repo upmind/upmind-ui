@@ -10,6 +10,7 @@
 @import "./utilities/text.css";
 
 @layer utilities {
+  /* Autofill */
   .autofill:has(input:autofill) {
     @apply bg-[var(--bg-control-selected)];
     color: var(--color-core-base) !important;
@@ -26,5 +27,35 @@
     -webkit-box-shadow: 0 0 0 1000px var(--bg-control-selected) inset !important;
     -webkit-text-fill-color: var(--color-core-base) !important;
     color: var(--color-core-base) !important;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--bg-surface);
+    border-radius: var(--control-radius);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-control-default);
+    border-radius: var(--control-radius);
+    border: 1px solid var(--bg-surface);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--border-control-hover);
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: var(--bg-surface);
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-control-default) var(--bg-surface);
   }
 }
