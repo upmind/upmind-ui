@@ -38,7 +38,7 @@ import {
   mapToHeadlessError,
   stopService,
   stateMatches,
-  machineMatches
+  isStoppedService
 } from "../../utils";
 import { parseBasketProduct } from "../basketProduct/utils";
 
@@ -48,6 +48,7 @@ import type { BasketContext } from "./types";
 import type { AnyEventObject } from "xstate";
 import type { PaymentArgs } from "../payment";
 import { PaymentType } from "@upmind-automation/types";
+import billingMachine from "./billing/billing.machine";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -343,13 +344,8 @@ export default createMachine(
             }
           ],
           onError: {
-            target: "#refreshing.processing", // ideally we dont need to refresh cause the response has the updated basket WITH relations
-            actions: [
-              "setError",
-              "updateBasket",
-              "refreshActors",
-              "setWarningNotes"
-            ]
+            target: "#shopping",
+            actions: ["setError", "restartActors", "setWarningNotes"]
           }
         }
       },
@@ -531,6 +527,38 @@ export default createMachine(
         }
       },
 
+      restartActors: assign({
+        actors: ({ actors, basket }: BasketContext) => {
+          debugger;
+          // safety check - if we have no actors, then spawn them all
+          const activeActors: BasketContext["actors"] = {
+            currency:
+              !actors?.currency || isStoppedService(actors.currency)
+                ? spawnCurrency(basket)
+                : actors.currency,
+            customFields:
+              !actors?.customFields || isStoppedService(actors.customFields)
+                ? spawnCustomFields(basket)
+                : actors.customFields,
+            promotions:
+              !actors?.promotions || isStoppedService(actors.promotions)
+                ? spawnPromotions(basket)
+                : actors.promotions,
+            paymentDetail:
+              !actors?.paymentDetail || isStoppedService(actors.paymentDetail)
+                ? spawnPaymentDetail(basket)
+                : actors.paymentDetail,
+            billing:
+              !actors?.billing || isStoppedService(actors.billing)
+                ? spawnBilling(basket)
+                : actors.billing
+          };
+
+          debugger;
+          return activeActors;
+        }
+      }),
+
       refreshActors: ({ basket, actors }: BasketContext) => {
         //Refresh any existing actors with the new basket data
         forEach(actors, actor => {
@@ -545,10 +573,7 @@ export default createMachine(
 
         // NB : We need to check/ensure  we only spawn if we have a 'claimed' basket
         //      AND the billing actor is complete : this prevents unnecessary requests
-        if (
-          basket?.client_id &&
-          machineMatches(actors?.billing, ["complete"])
-        ) {
+        if (basket?.client_id && stateMatches(actors?.billing, ["complete"])) {
           actors!.paymentDetail ??= spawnPaymentDetail(basket);
         }
       },
@@ -656,10 +681,10 @@ export default createMachine(
         !stateMatches(actors?.customFields, ["complete", "done"]),
 
       billingComplete: ({ actors }: BasketContext) =>
-        stateMatches(actors?.billing, ["complete", "done"]),
+        !!actors?.billing && stateMatches(actors.billing, ["complete", "done"]),
 
       billingConfiguring: ({ actors }: BasketContext) =>
-        !stateMatches(actors?.billing, ["complete", "done"]),
+        !actors?.billing || !stateMatches(actors.billing, ["complete", "done"]),
 
       paymentDetailValid: ({ actors }: BasketContext) =>
         stateMatches(actors?.paymentDetail, ["available.valid"]),

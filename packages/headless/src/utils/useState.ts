@@ -75,6 +75,18 @@ export function stopService(
   return success;
 }
 
+export function isStoppedService(
+  machine: InterpreterFrom<any> | ActorRef<any, any>
+): boolean {
+  //   if (!machine) return;
+
+  // Only access 'status' if machine is an Interpreter
+  // const isInterpreter = !!(machine as any)?.status;
+  const state = machine.getSnapshot();
+
+  return state.done;
+}
+
 // ---  These are some helper to reduce the repetition of the same code when using xstate/vue
 
 // safe state allows us to pass reactive objects and get the state object
