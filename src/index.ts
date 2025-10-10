@@ -49,7 +49,7 @@ export * from "./ui/sonner";
 export * from "./ui/spinner";
 export * from "./ui/switch";
 export * from "./ui/tabs";
-export * from "./ui/tabs";
+export * from "./ui/tabs-minimal";
 export * from "./ui/textarea";
 export * from "./ui/tooltip";
 
