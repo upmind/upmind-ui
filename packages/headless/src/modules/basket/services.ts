@@ -183,7 +183,7 @@ async function convert(
   if (isEmpty(paymentDetail) || !isObject(paymentDetail))
     return Promise.reject(
       new DetailedError(
-        t("error.basket_convert_failed"),
+        t("error.payment_details_not_available"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )
@@ -191,17 +191,12 @@ async function convert(
 
   const data: Record<string, any> = { ...paymentDetail };
 
-  try {
-    // add referral cookie if available
-    const referralCookie = getCookie("upm_aff");
-    if (referralCookie) data.referral_cookie = referralCookie;
+  // add referral cookie if available
+  const referralCookie = getCookie("upm_aff");
+  if (referralCookie) data.referral_cookie = referralCookie;
 
-    // add tracking if available
-    data.tracking = await getTracking().catch(() => undefined);
-  } catch (error) {
-    // TEMPORARY: we need to log this error, as it may be useful for debugging in sentry
-    // console.error(" Error converting basket", error);
-  }
+  // add tracking if available
+  data.tracking = await getTracking().catch(() => undefined);
 
   // ---
   // this will return an array of the users baskets, ordered by most recent

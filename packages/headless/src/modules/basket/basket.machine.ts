@@ -343,8 +343,13 @@ export default createMachine(
             }
           ],
           onError: {
-            target: "#shopping",
-            actions: ["setError", "refreshActors"]
+            target: "#refreshing.processing", // ideally we dont need to refresh cause the response has the updated basket WITH relations
+            actions: [
+              "setError",
+              "updateBasket",
+              "refreshActors",
+              "setWarningNotes"
+            ]
           }
         }
       },

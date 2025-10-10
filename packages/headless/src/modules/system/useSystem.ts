@@ -109,9 +109,7 @@ export const useSystem = () => {
 
   // --- readiness check
   async function isReady(): Promise<boolean> {
-    try {
-      await brandIsReady();
-
+    return brandIsReady().then(() => {
       return new Promise(resolve => {
         const interval = setInterval(() => {
           if (meta.value.isComplete) {
@@ -120,9 +118,7 @@ export const useSystem = () => {
           }
         }, 100);
       });
-    } catch {
-      return false;
-    }
+    });
   }
 
   // --- computed

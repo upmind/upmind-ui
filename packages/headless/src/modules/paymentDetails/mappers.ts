@@ -178,6 +178,7 @@ export function mapPaymentData({
     switch (brandGateway?.gateway?.gateway_provider?.code) {
       // SIMPLE SDK OR REDIRECT GATEWAYS
       case GatewayProviderCodes.BRAINTREE:
+      case GatewayProviderCodes.FLUTTERWAVE:
       case GatewayProviderCodes.MICROPAYMENT:
       case GatewayProviderCodes.OPENPAY:
       case GatewayProviderCodes.PAYPAL_BILLING_AGREEMENT:
@@ -186,6 +187,7 @@ export function mapPaymentData({
       case GatewayProviderCodes.PAYPAL_PRO:
       case GatewayProviderCodes.PAYPAL_REST:
       case GatewayProviderCodes.PAYPAL_SUBSCRIPTION_AGREEMENT:
+      case GatewayProviderCodes.PAYSTACK:
       case GatewayProviderCodes.STRIPE:
         return defaults(mapGatewayData(data), paymentDetail);
 
@@ -205,7 +207,6 @@ export function mapPaymentData({
       case GatewayProviderCodes.BLOCKONOMICS:
       case GatewayProviderCodes.COIN_GATE:
       case GatewayProviderCodes.D_LOCAL:
-      case GatewayProviderCodes.FLUTTERWAVE:
       case GatewayProviderCodes.FLUTTERWAVE_CARD:
       case GatewayProviderCodes.GO_CARDLESS:
       case GatewayProviderCodes.MERCADO_PAGO:
@@ -214,7 +215,6 @@ export function mapPaymentData({
       case GatewayProviderCodes.OFFLINE:
       case GatewayProviderCodes.OPENPAY_NON_CARD:
       case GatewayProviderCodes.PAYSAFECARD:
-      case GatewayProviderCodes.PAYSTACK:
       case GatewayProviderCodes.PAYTM:
       case GatewayProviderCodes.PAY_FAST:
       case GatewayProviderCodes.PAY_U:
