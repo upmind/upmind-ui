@@ -73,7 +73,7 @@ import DisplayPrice from "../terms/DisplayPrice.vue";
 import ProductDescription from "./ProductDescription.vue";
 
 // --- config
-import config from "./card";
+import config from "./card.config";
 
 // --- types
 import type { ComputedRef } from "vue";
