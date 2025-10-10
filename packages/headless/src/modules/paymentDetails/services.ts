@@ -3,7 +3,7 @@ import { unref } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import { useBrand, useI18n, useQuery, useSession } from "..";
+import { useBasket, useBrand, useI18n, useQuery, useSession } from "..";
 
 // --- utils
 import {
@@ -33,7 +33,11 @@ import {
 import { GatewayTypes } from "./gateways/types";
 import type { AnyEventObject } from "xstate";
 import type { PaymentDetailsContext } from "./types";
-import { BrandConfigKeys, PaymentType } from "@upmind-automation/types";
+import {
+  BrandConfigKeys,
+  IBrandGateway,
+  PaymentType
+} from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -46,6 +50,7 @@ async function load(
   _event: AnyEventObject
 ) {
   const { meta, user } = useSession();
+  const { basket } = useBasket();
 
   if (!meta.value.isAuthenticated || !user.value?.id) {
     return Promise.reject(new NotAuthenticatedError());
@@ -94,10 +99,11 @@ async function load(
   });
 
   // ---
-  const gateways = getRequest<any>({
+  const gateways: any = getRequest<IBrandGateway[]>({
     url: useUrl(`brands/${unref(brandId)}/gateways`, {
       limit: 0,
       client_id: clientId,
+      invoice_id: unref(basket)?.id,
       order: "order",
       "filter[gateway.currencies.id]": currencyId,
       "filter[active]": 1,
@@ -106,7 +112,12 @@ async function load(
     queryKey: [
       "payment-details",
       "gateways",
-      { brandId: unref(brandId), clientId, currencyId }
+      {
+        brandId: unref(brandId),
+        invoice_id: unref(basket)?.address_id,
+        clientId,
+        currencyId
+      }
     ],
     withAccessToken: true
   }).then(data => {
@@ -119,7 +130,7 @@ async function load(
         );
       });
     }
-    return sortBy(data, ["order"]);
+    return sortBy(data, ["order"]) as IBrandGateway[];
   });
   // ----
 
