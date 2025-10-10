@@ -143,6 +143,13 @@
     var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
 }
 
+@utility shadow-tab-b-control-selected {
+  --tw-shadow: inset 0 -2px 0 0 var(--text-control-selected);
+  box-shadow:
+    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
+    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
 @utility shadow-badge-border-surface {
   --tw-shadow: inset 0 0 0 var(--stroke-badge) var(--border-surface);
   box-shadow:
@@ -153,11 +160,7 @@
 @utility shadow-primary-gradient {
   border: var(--stroke-badge) solid transparent;
   background:
-    linear-gradient(
-        var(--bg-surface),
-        var(--bg-surface)
-      )
-      padding-box,
+    linear-gradient(var(--bg-surface), var(--bg-surface)) padding-box,
     linear-gradient(
         to right,
         var(--color-primary-default),

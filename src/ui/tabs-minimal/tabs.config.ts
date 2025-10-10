@@ -16,7 +16,7 @@ export const variants = {
 };
 
 export const tabsListVariants = cva(
-  "text-muted-foreground inline-flex items-center p-0 text-base border-b border-border",
+  "inline-flex items-center gap-6 p-0 text-base",
   {
     variants,
     defaultVariants: {
@@ -27,7 +27,7 @@ export const tabsListVariants = cva(
 );
 
 export const tabsTriggerVariants = cva(
-  "text-md relative inline-flex cursor-pointer items-center justify-center px-4 py-3 font-medium whitespace-nowrap transition-colors border-b-2 border-transparent hover:text-foreground data-[state=active]:text-primary data-[state=active]:border-primary"
+  "text-md/tight text-muted data-[state=active]:shadow-tab-b-control-selected relative inline-flex cursor-pointer items-center justify-center rounded-none px-0 pt-0 pb-4 font-medium whitespace-nowrap transition-all duration-200 hover:text-base data-[state=active]:text-base"
 );
 
 export default {
