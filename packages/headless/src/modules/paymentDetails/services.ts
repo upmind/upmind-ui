@@ -103,6 +103,18 @@ export function loadList() {
 
 // -----------------------------------------------------------------------------
 
+const supportedGateways = [
+  "Offline",
+  "BankTransfer",
+  "Stripe_PaymentIntents",
+  "PayPal_Express",
+  "PayPal_Pro",
+  "PayPal_BillingAgreement",
+  "Micropayment",
+  "Flutterwave",
+  "Paystack"
+];
+
 async function loadLookups(
   { currency, address, orderId }: PaymentDetailsContext,
   _event: AnyEventObject
@@ -178,6 +190,13 @@ async function loadLookups(
       }
     ],
     withAccessToken: true
+  }).then(data => {
+    if (supportedGateways.length)
+      return filter(data, ({ gateway }) =>
+        includes(supportedGateways, gateway.gateway_provider.code)
+      );
+
+    return data;
   });
 
   // ----
@@ -192,7 +211,7 @@ async function loadLookups(
         unset(paymentTypes, PaymentType.PARTIAL_PAYMENT);
 
       if (!get(config, BrandConfigKeys.PAY_LATER_ENABLED))
-        unset(paymentTypes, PaymentType.PAY_LATER);
+        unset(paymentTypes, PaymentType.PAY_LATER); // Allowlist payment gateways if provided
 
       return {
         storedPaymentMethods: filter(storedPaymentMethods, "meta.isActive"), // ensure we only show active stored payment methods
