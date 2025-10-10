@@ -9,7 +9,7 @@ import type {
   TermDetails
 } from "@upmind-automation/headless";
 import type { VariantProps } from "class-variance-authority";
-import { rootVariant } from "./card";
+import { rootVariant } from "./card.config";
 import type { ButtonProps, ImageProps } from "@upmind-automation/upmind-ui";
 
 export type RootVariants = VariantProps<typeof rootVariant>;

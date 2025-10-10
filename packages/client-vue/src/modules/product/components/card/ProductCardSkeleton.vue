@@ -60,7 +60,7 @@ import { Skeleton, Image, useStyles } from "@upmind-automation/upmind-ui";
 import { useBrand } from "@upmind-automation/headless";
 
 // --- internal
-import config from "./card";
+import config from "./card.config";
 
 // --- types
 import type { ImageProps } from "@upmind-automation/upmind-ui";
