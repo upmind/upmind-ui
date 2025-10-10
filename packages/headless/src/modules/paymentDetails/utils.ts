@@ -97,15 +97,17 @@ export function spawnGateway({
       );
 
     // GERERIC RENDERLESS / REDIRECT / OFFSITE GATEWAYS
+    case GatewayProviderCodes.BANK_TRANSFER:
     case GatewayProviderCodes.BLOCKONOMICS:
+    case GatewayProviderCodes.FLUTTERWAVE:
     case GatewayProviderCodes.MICROPAYMENT:
     case GatewayProviderCodes.OFFLINE:
-    case GatewayProviderCodes.BANK_TRANSFER:
     case GatewayProviderCodes.PAYPAL_BILLING_AGREEMENT:
     case GatewayProviderCodes.PAYPAL_EXPRESS:
     case GatewayProviderCodes.PAYPAL_LEGACY_SUBSCRIPTION:
     case GatewayProviderCodes.PAYPAL_PRO:
     case GatewayProviderCodes.PAYPAL_SUBSCRIPTION_AGREEMENT:
+    case GatewayProviderCodes.PAYSTACK:
       return spawn(
         gatewayMachine(gateway.gateway_provider.code).withContext({
           address,
@@ -134,7 +136,6 @@ export function spawnGateway({
     case GatewayProviderCodes.BIT_PAY:
     case GatewayProviderCodes.COIN_GATE:
     case GatewayProviderCodes.D_LOCAL:
-    case GatewayProviderCodes.FLUTTERWAVE:
     case GatewayProviderCodes.FLUTTERWAVE_CARD:
     case GatewayProviderCodes.GO_CARDLESS:
     case GatewayProviderCodes.MERCADO_PAGO:
@@ -142,7 +143,6 @@ export function spawnGateway({
     case GatewayProviderCodes.MOMO_MTN_COLLECTIONS:
     case GatewayProviderCodes.OPENPAY_NON_CARD:
     case GatewayProviderCodes.PAYSAFECARD:
-    case GatewayProviderCodes.PAYSTACK:
     case GatewayProviderCodes.PAYTM:
     case GatewayProviderCodes.PAY_FAST:
     case GatewayProviderCodes.PAY_U:
