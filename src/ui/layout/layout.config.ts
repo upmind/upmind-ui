@@ -62,6 +62,47 @@ export default {
       container: cva("max-w-app mx-auto")
     },
     content: {
+      root: cva("h-full px-6 md:px-2.5", {
+        variants: {
+          isMinimal: {
+            true: "py-18",
+            false: "py-24"
+          },
+          hasHeader: {
+            true: "bg-surface",
+            false: "bg-canvas"
+          }
+        }
+      }),
+      container: cva(
+        "max-w-app mx-auto flex w-full flex-col gap-6 md:flex-row md:gap-18"
+      )
+    },
+    aside: cva("flex w-full max-w-md flex-col gap-12", {
+      variants: {
+        isSticky: {
+          true: "sticky top-6 self-start",
+          false: ""
+        }
+      }
+    }),
+    main: cva("flex w-full flex-col gap-12")
+  },
+
+  split: {
+    root: cva("mx-auto w-full flex-wrap items-start justify-start", {
+      variants: {
+        overflow: {
+          hidden: "overflow-hidden",
+          visible: "overflow-visible"
+        }
+      }
+    }),
+    header: {
+      root: cva("bg-canvas px-6 pt-18 md:px-2.5"),
+      container: cva("max-w-app mx-auto")
+    },
+    content: {
       root: cva("px-6 md:px-2.5", {
         variants: {
           isMinimal: {

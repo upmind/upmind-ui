@@ -42,6 +42,7 @@ import { computed } from "vue";
 import DefaultLayout from "./DefaultLayout.vue";
 import EnclosedLayout from "./EnclosedLayout.vue";
 import FullLayout from "./FullLayout.vue";
+import SplitLayout from "./SplitLayout.vue";
 
 // --- types
 import type { LayoutProps } from "./types";
@@ -58,6 +59,9 @@ const layoutComponent = computed(() => {
 
     case "enclosed":
       return EnclosedLayout;
+
+    case "split":
+      return SplitLayout;
 
     case "full":
     default:
