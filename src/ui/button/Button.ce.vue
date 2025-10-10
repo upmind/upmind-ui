@@ -1,9 +1,7 @@
 <template>
   <component
     :is="component"
-    :to="to"
-    :href="href"
-    :type="type"
+    v-bind="componentProps"
     :disabled="meta.isDisabled || meta.isLoading"
     :tabindex="meta.isFocusable ? '0' : '-1'"
     :class="cn(styles.button.root, props.class)"
@@ -89,6 +87,12 @@ const component = computed(() => {
   if (props.to) return RouterLink;
   if (props.href) return "a";
   return Button;
+});
+
+const componentProps = computed(() => {
+  if (props.to) return { to: props.to };
+  if (props.href) return { href: props.href };
+  return { type: props.type };
 });
 
 const meta = computed(() => ({
