@@ -15,13 +15,13 @@
         <AccordionItem
           value="stored"
           :class="styles.checkout.accordion.item"
-          :open="!model?.gateway_id || true"
+          :open="!model?.gateway_id"
           :disabled="!model?.gateway_id"
           asChild
         >
           <AccordionTrigger
             :class="styles.checkout.accordion.trigger.root"
-            :open="!model?.gateway_id || true"
+            :open="!model?.gateway_id"
             @click.stop="clearGateway()"
           >
             <header :class="styles.checkout.accordion.trigger.header">
