@@ -30,7 +30,7 @@ export function generateResponseUrls(
   const failUrl = url;
   failUrl.searchParams.append(QUERY_PARAMS.PAYMENT_SUCCESS, "false");
 
-  const cancelUrl = new URL(window.location.href); // always go back to where we were
+  const cancelUrl = url;
   cancelUrl.searchParams.append(
     QUERY_PARAMS.AUTO_PAY,
     encodeURIComponent(btoa(JSON.stringify(autoPay)))
