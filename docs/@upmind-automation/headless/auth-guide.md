@@ -1,6 +1,6 @@
 # Auth
 
-The `useSession` composable provides an easy-to-use interface for managing session-related actions such as authentication, registration, and more using Vue. It simplifies the integration of session-based logic into your Vue application with reactive helpers and state management.
+The [`useSession`](./functions/useSession.md) composable provides an easy-to-use interface for managing session-related actions such as authentication, registration, and more using Vue. It simplifies the integration of session-based logic into your Vue application with reactive helpers and state management.
 
 ## API Reference
 
