@@ -55,7 +55,15 @@ export function useCookies() {
     get: (
       key: string,
       encoder: Encoder<any> = defaultDecoder
-    ): string | Record<string, any> | null => getCookie(key, encoder),
+    ): string | Record<string, any> | null => {
+      try {
+        return getCookie(key, encoder);
+      } catch (e) {
+        // TEMPORARY: we need to log this error, as it may be useful for debugging in sentry
+        // console.error(" Error converting basket", error);
+        return null;
+      }
+    },
     set: (
       key: string,
       value: any,
