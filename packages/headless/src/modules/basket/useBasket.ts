@@ -148,8 +148,8 @@ export const useBasket = () => {
 
       // this state means we have a claimed basket and billing details set can pass payment details
       isReadyForPaymentDetails:
-        !!actors?.paymentDetails.value &&
-        !machineMatches(actors.paymentDetails, ["subscribing"]),
+        !!actors?.paymentDetail.value &&
+        !machineMatches(actors.paymentDetail, ["subscribing"]),
 
       // this state means ALL the data is ready for checkout for each parallel machine
       isReadyForCheckout: stateMatches(
