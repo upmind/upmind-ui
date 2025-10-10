@@ -53,7 +53,7 @@ test.describe("Verify checkout billing detail requirements", () => {
       requirePhoneForOrders: false
     });
     await page.goto(URLs.checkout);
-    await expect(page.getByTestId("button-place-order-and-pay")).toBeDisabled();
+    await expect(checkout.placeOrderButton).toBeDisabled();
   });
   test("Company required at checkout", async ({ page }) => {
     await interceptConfigValues(page, token, {
@@ -65,7 +65,7 @@ test.describe("Verify checkout billing detail requirements", () => {
     await page.goto(URLs.checkout);
     await expect(page.getByTestId("billing")).toContainText("Company Name");
     await expect(page.getByTestId("tablist")).toHaveCount(0);
-    await expect(page.getByTestId("button-place-order-and-pay")).toBeDisabled();
+    await expect(checkout.placeOrderButton).toBeDisabled();
   });
   test("Region required on address", async ({ page, context }) => {
     await interceptConfigValues(page, token, {

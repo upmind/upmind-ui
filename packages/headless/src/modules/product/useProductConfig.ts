@@ -128,7 +128,6 @@ export const useProductConfig = (service: ActorRef<any>) => {
     hasAttributes: !isEmpty(state.value.context?.lookups?.attributes),
     hasOptions: !isEmpty(state.value.context?.lookups?.options),
     hasTerms: !isEmpty(state.value.context?.lookups?.terms),
-    hasMonthlyTerms: some(state.value.context?.lookups?.terms, ["cycle", 1]),
     hasTaxIncluded: includesTax.value
   }));
 
@@ -389,6 +388,5 @@ export type UseProductConfigMeta = {
   hasAttributes: boolean;
   hasOptions: boolean;
   hasTerms: boolean;
-  hasMonthlyTerms: boolean;
   hasTaxIncluded: boolean;
 };

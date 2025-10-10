@@ -30,7 +30,7 @@ import { Icon } from "@upmind-automation/upmind-ui";
 import { isEmpty } from "lodash-es";
 
 // --- config
-import config from "./product.config";
+import config from "./card";
 
 // --- types
 import type { ComputedRef } from "vue";

@@ -76,7 +76,7 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import { parseBillingCycle } from "@upmind-automation/headless";
-import config from "./product.config";
+import config from "./card";
 
 // --- utils
 import { has } from "lodash-es";
