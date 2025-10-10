@@ -104,9 +104,7 @@ export function spawnGateway({
     case GatewayProviderCodes.OFFLINE:
     case GatewayProviderCodes.PAYPAL_BILLING_AGREEMENT:
     case GatewayProviderCodes.PAYPAL_EXPRESS:
-    case GatewayProviderCodes.PAYPAL_LEGACY_SUBSCRIPTION:
     case GatewayProviderCodes.PAYPAL_PRO:
-    case GatewayProviderCodes.PAYPAL_SUBSCRIPTION_AGREEMENT:
     case GatewayProviderCodes.PAYSTACK:
       return spawn(
         gatewayMachine(gateway.gateway_provider.code).withContext({
@@ -142,6 +140,8 @@ export function spawnGateway({
     case GatewayProviderCodes.MERCADO_PAGO_OTHER_PAYMENTS:
     case GatewayProviderCodes.MOMO_MTN_COLLECTIONS:
     case GatewayProviderCodes.OPENPAY_NON_CARD:
+    case GatewayProviderCodes.PAYPAL_LEGACY_SUBSCRIPTION:
+    case GatewayProviderCodes.PAYPAL_SUBSCRIPTION_AGREEMENT:
     case GatewayProviderCodes.PAYSAFECARD:
     case GatewayProviderCodes.PAYTM:
     case GatewayProviderCodes.PAY_FAST:
