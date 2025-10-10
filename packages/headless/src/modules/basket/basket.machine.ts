@@ -529,7 +529,6 @@ export default createMachine(
 
       restartActors: assign({
         actors: ({ actors, basket }: BasketContext) => {
-          debugger;
           // safety check - if we have no actors, then spawn them all
           const activeActors: BasketContext["actors"] = {
             currency:
@@ -554,29 +553,27 @@ export default createMachine(
                 : actors.billing
           };
 
-          debugger;
           return activeActors;
         }
       }),
 
-      refreshActors: ({ basket, actors }: BasketContext) => {
-        //Refresh any existing actors with the new basket data
-        forEach(actors, actor => {
-          if (actor?.send) actor.send({ type: "REFRESH", data: basket });
-        });
+      refreshActors: assign({
+        actors: ({ actors, basket }: BasketContext) => {
+          //Refresh any existing actors with the new basket data
+          forEach(actors, actor => {
+            if (actor?.send) actor.send({ type: "REFRESH", data: basket });
+          });
 
-        // And then check/ensure we have spawned any missing actors
-        // NB : We need to check/ensure  we only spawn if we have a 'claimed' basket, ie a client_id
-        if (basket?.client_id) {
-          actors!.billing ??= spawnBilling(basket);
-        }
+          // And then check/ensure we have spawned any missing actors
+          // NB : We need to check/ensure  we only spawn if we have a 'claimed' basket, ie a client_id
+          if (basket?.client_id) {
+            actors!.billing ??= spawnBilling(basket);
+            actors!.paymentDetail ??= spawnPaymentDetail(basket);
+          }
 
-        // NB : We need to check/ensure  we only spawn if we have a 'claimed' basket
-        //      AND the billing actor is complete : this prevents unnecessary requests
-        if (basket?.client_id && stateMatches(actors?.billing, ["complete"])) {
-          actors!.paymentDetail ??= spawnPaymentDetail(basket);
+          return actors;
         }
-      },
+      }),
 
       clearActors: assign({
         actors: ({ actors }: BasketContext) => {

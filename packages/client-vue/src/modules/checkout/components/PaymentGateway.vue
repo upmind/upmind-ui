@@ -80,13 +80,7 @@
 
 <script lang="ts" setup>
 // --- external
-import {
-  onMounted,
-  useTemplateRef,
-  type ComputedRef,
-  computed,
-  watch
-} from "vue";
+import { onMounted, useTemplateRef, type ComputedRef, computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -103,14 +97,12 @@ import Form from "../../../components/form/Form.vue";
 
 // --- types
 import type { PaymentGatewayProps } from "../types";
-import { isEqual } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<PaymentGatewayProps>();
 const emit = defineEmits(["checkout"]);
 
 const {
-  state,
   meta,
   errors,
   validationErrors,
@@ -168,12 +160,4 @@ const handleCheckout = () => {
 onMounted(() => {
   render(container.value);
 });
-
-watch(
-  () => state.value,
-  (state, oldstate) => {
-    if (isEqual(state, oldstate)) return;
-    console.log("PaymentGateway state", state);
-  }
-);
 </script>
