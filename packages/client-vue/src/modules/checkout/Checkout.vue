@@ -21,14 +21,11 @@
     </template>
 
     <template #default>
-      <Section :title="t('text.billing_details')" v-if="meta.isReadyForBilling">
+      <Section :title="t('text.billing_details')">
         <Billing />
       </Section>
 
-      <Section
-        :title="t('text.payment_details')"
-        v-if="meta.isReadyForPaymentDetails"
-      >
+      <Section :title="t('text.payment_details')">
         <PaymentDetails
           :class="styles.checkout.paymentDetails"
           :color="color"

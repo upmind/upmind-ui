@@ -1,7 +1,7 @@
 <template>
   <Loading :active="!meta.isAvailable">
     <Accordion
-      v-show="!meta.isFree && meta.hasGateways"
+      v-show="meta.isAvailable && !meta.isFree && meta.hasGateways"
       type="multiple"
       :class="styles.checkout.accordion.root"
       collapsible
@@ -126,7 +126,7 @@
     </Accordion>
 
     <component
-      v-if="meta.isFree"
+      v-if="meta.isAvailable && meta.isFree"
       :is="props.as"
       :class="[!props.as && styles.checkout.isFree, props.class]"
     >
@@ -134,7 +134,7 @@
     </component>
 
     <component
-      v-else-if="!meta.hasGateways"
+      v-else-if="meta.isAvailable && !meta.hasGateways"
       :is="props.as"
       :class="[!props.as && styles.checkout.isFree, props.class]"
     >
