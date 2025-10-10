@@ -36,13 +36,14 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed } from "vue";
+import { computed, onMounted, onUnmounted } from "vue";
 
 // --- internal
 import DefaultLayout from "./DefaultLayout.vue";
 import EnclosedLayout from "./EnclosedLayout.vue";
 import FullLayout from "./FullLayout.vue";
 import SplitLayout from "./SplitLayout.vue";
+import { setLayoutVariant } from "./use-layout";
 
 // --- types
 import type { LayoutProps } from "./types";
@@ -50,6 +51,10 @@ import type { LayoutProps } from "./types";
 const props = withDefaults(defineProps<LayoutProps>(), {
   overflow: "visible",
   sticky: true
+});
+
+onMounted(() => {
+  setLayoutVariant(props.variant);
 });
 
 const layoutComponent = computed(() => {
