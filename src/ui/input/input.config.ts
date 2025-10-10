@@ -14,6 +14,10 @@ export const containerVariants = cva(
       hasRing: {
         true: `${ringClasses} ${invalidRingClasses}`,
         false: ""
+      },
+      hasValue: {
+        true: "text-base placeholder:text-base",
+        false: "text-faint placeholder:text-faint"
       }
     },
     defaultVariants: {
@@ -23,7 +27,7 @@ export const containerVariants = cva(
 );
 
 export const inputFieldVariants = cva(
-  "placeholder:text-faint w-full bg-transparent text-base focus:ring-0 focus:outline-none"
+  "w-full bg-transparent text-base focus:ring-0 focus:outline-none"
 );
 
 // -----------------------------------------------------------------------------
@@ -31,6 +35,8 @@ export default {
   input: {
     container: containerVariants,
     field: inputFieldVariants,
-    items: cva("flex h-lh items-center justify-center")
+    items: cva(
+      "flex h-lh items-center justify-center transition-colors duration-200"
+    )
   }
 };

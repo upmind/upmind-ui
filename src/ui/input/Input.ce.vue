@@ -85,7 +85,8 @@ const modelValue = useVModel(props, "modelValue", emits, {
 
 const meta = computed(() => ({
   width: props.width,
-  hasRing: props.ring
+  hasRing: props.ring,
+  hasValue: !!modelValue.value
 }));
 
 const styles = useStyles(

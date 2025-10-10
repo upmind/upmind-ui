@@ -46,4 +46,5 @@ export interface InputProps {
 export interface InputItemsProps {
   icon?: InputProps["icon"];
   avatar?: InputProps["avatar"];
+  hasValue?: boolean;
 }
