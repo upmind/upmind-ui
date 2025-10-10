@@ -24,11 +24,12 @@ export interface BasketContext {
   };
   // --- SPAWNED ACTORS/MACHINES
   actors?: {
-    billing: ActorRef<any>;
     currency: ActorRef<any>;
     customFields: ActorRef<any>;
-    paymentDetail: ActorRef<any>;
     promotions: ActorRef<any>;
+    // --- only when a basket is claimed
+    paymentDetail?: ActorRef<any>;
+    billing?: ActorRef<any>;
   };
   authHelper?: ActorRef<any>;
   payment?: ActorRef<any>;
