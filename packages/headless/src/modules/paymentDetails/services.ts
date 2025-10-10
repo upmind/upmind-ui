@@ -3,7 +3,7 @@ import { unref } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import { useBasket, useBrand, useI18n, useQuery, useSession } from "..";
+import { useBrand, useI18n, useQuery, useSession } from "..";
 
 // --- utils
 import {
@@ -14,7 +14,8 @@ import {
   unset,
   filter,
   sortBy,
-  isEmpty
+  isEmpty,
+  includes
 } from "lodash-es";
 import {
   ErrorOrigin,
@@ -37,6 +38,7 @@ import type {
 import {
   BrandConfigKeys,
   IAddress,
+  IBrandGateway,
   IGateway,
   IPaymentDetail,
   PaymentType
@@ -102,7 +104,7 @@ export function loadList() {
 // -----------------------------------------------------------------------------
 
 async function loadLookups(
-  { currency, address }: PaymentDetailsContext,
+  { currency, address, orderId }: PaymentDetailsContext,
   _event: AnyEventObject
 ) {
   const { meta, user } = useSession();
@@ -111,7 +113,6 @@ async function loadLookups(
   if (!meta.value.isAuthenticated || !user.value?.id)
     throw new NotAuthenticatedError();
 
-  const { basketId } = useBasket();
   const { brandId, currencyId: defaultCurrencyId, ensureConfig } = useBrand();
   const { get: getRequest, useUrl } = useQuery();
 
@@ -137,8 +138,7 @@ async function loadLookups(
       active: true,
       "filter[gateway.currencies.id]": currencyId,
       order: ["-default", "id"].join(),
-      with: ["gateway", "client"].join(),
-      invoice_id: unref(basketId)
+      with: ["gateway", "client"].join()
       // "filter[active]": 1,
     }),
     queryKey: [
@@ -147,35 +147,34 @@ async function loadLookups(
         brandId: unref(brandId),
         clientId,
         currencyId,
-        invoiceId: unref(basketId),
-        addressId: address?.id
+        addressId: address?.country_id
       }
     ],
     withAccessToken: true,
     select: mapPaymentDetailDetails
   });
 
-  const urlParams = {
-    limit: 0,
-    client_id: clientId,
-    invoice_id: unref(basketId),
-    order: "order",
-    "filter[gateway.currencies.id]": currencyId,
-    "filter[active]": 1,
-    with: ["gateway.gateway_provider", "gateway.card_types"].join()
-  };
-
-  const gateways: Promise<IGateway[]> = getRequest<IGateway[]>({
-    url: useUrl(`brands/${unref(brandId)}/gateways`, urlParams),
+  // ---
+  const gateways: any = getRequest<IBrandGateway[]>({
+    url: useUrl(`brands/${unref(brandId)}/gateways`, {
+      limit: 0,
+      client_id: clientId,
+      invoice_id: orderId,
+      order: "order",
+      "filter[gateway.currencies.id]": currencyId,
+      "filter[active]": 1,
+      with: ["gateway.gateway_provider", "gateway.card_types"].join()
+    }),
     queryKey: [
       "payment-details",
       "gateways",
       {
         brandId: unref(brandId),
+        invoice_id: orderId,
         clientId,
         currencyId,
-        invoiceId: unref(basketId),
-        addressId: address?.id
+        invoiceId: orderId,
+        addressId: address?.country_id
       }
     ],
     withAccessToken: true

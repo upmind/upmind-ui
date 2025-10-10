@@ -141,6 +141,16 @@ export const useBasket = () => {
       hasTaxIncluded: includesTax.value,
 
       // ---
+      // this state means we have a claimed basket and can pass billing details
+      isReadyForBilling:
+        !!actors?.billing.value &&
+        !machineMatches(actors.billing, ["subscribing"]),
+
+      // this state means we have a claimed basket and billing details set can pass payment details
+      isReadyForPaymentDetails:
+        !!actors?.paymentDetails.value &&
+        !machineMatches(actors.paymentDetails, ["subscribing"]),
+
       // this state means ALL the data is ready for checkout for each parallel machine
       isReadyForCheckout: stateMatches(
         state,
@@ -474,6 +484,8 @@ export const useBasket = () => {
      * @property {boolean} hasFields - Indicates if the basket has custom fields.
      * @property {boolean} hasAccount - Indicates if the basket has an account associated.
      * @property {boolean} hasTaxIncluded - Indicates if tax is included in the basket.
+     * @property {boolean} isReadyForBilling - Indicates if the billing submodule is ready for passing billing information.
+     * @property {boolean} isReadyForPaymentDetails - Indicates if the payment details submodule is ready for passing payment information.
      * @property {boolean} isReadyForCheckout - Indicates if the basket is ready for checkout.
      * @property {boolean} isCheckout - Indicates if the basket is in the checkout process.
      * @property {boolean} isProcessingDetails - Indicates if payment details are processing.

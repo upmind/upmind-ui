@@ -21,8 +21,7 @@ import {
   forEach,
   isArray,
   isEmpty,
-  isEqual,
-  includes
+  isEqual
 } from "lodash-es";
 import {
   parseBasket,
@@ -38,7 +37,8 @@ import {
   responseCodes,
   mapToHeadlessError,
   stopService,
-  stateMatches
+  stateMatches,
+  machineMatches
 } from "../../utils";
 import { parseBasketProduct } from "../basketProduct/utils";
 
@@ -128,6 +128,7 @@ export default createMachine(
                     actions: [
                       "setError",
                       "updateBasket",
+
                       "refreshActors",
                       "setWarningNotes"
                     ]
@@ -473,12 +474,16 @@ export default createMachine(
         actors: ({ actors, basket }: BasketContext) => {
           // only spawn if we have not already spawned
           actors ??= {
-            billing: spawnBilling(basket),
-            paymentDetail: spawnPaymentDetail(basket),
             currency: spawnCurrency(basket),
             customFields: spawnCustomFields(basket),
             promotions: spawnPromotions(basket)
           };
+
+          // NB : We need to check/ensure  we only spawn if we have a 'claimed' basket, ie a client_id
+          if (basket?.client_id) {
+            actors!.billing ??= spawnBilling(basket);
+            actors!.paymentDetail ??= spawnPaymentDetail(basket);
+          }
 
           return actors;
         }
@@ -522,21 +527,37 @@ export default createMachine(
       },
 
       refreshActors: ({ basket, actors }: BasketContext) => {
+        //Refresh any existing actors with the new basket data
         forEach(actors, actor => {
           if (actor?.send) actor.send({ type: "REFRESH", data: basket });
         });
+
+        // And then check/ensure we have spawned any missing actors
+        // NB : We need to check/ensure  we only spawn if we have a 'claimed' basket, ie a client_id
+        if (basket?.client_id) {
+          actors!.billing ??= spawnBilling(basket);
+        }
+
+        // NB : We need to check/ensure  we only spawn if we have a 'claimed' basket
+        //      AND the billing actor is complete : this prevents unnecessary requests
+        if (
+          basket?.client_id &&
+          machineMatches(actors?.billing, ["complete"])
+        ) {
+          actors!.paymentDetail ??= spawnPaymentDetail(basket);
+        }
       },
 
       clearActors: assign({
         actors: ({ actors }: BasketContext) => {
-          forEach(actors, actor => stopService(actor));
+          forEach(actors, actor => (actor ? stopService(actor) : null));
           return undefined;
         }
       }),
 
       forwardCheckout: ({ actors }: BasketContext) => {
         // for Now  only the payment details is affected by checkout
-        actors?.paymentDetail.send({ type: "CHECKOUT" });
+        actors?.paymentDetail?.send({ type: "CHECKOUT" });
       },
 
       // ---
