@@ -27,7 +27,7 @@ export const tabsListVariants = cva(
 );
 
 export const tabsTriggerVariants = cva(
-  "text-md/tight text-muted data-[state=active]:shadow-tab-b-control-selected relative inline-flex cursor-pointer items-center justify-center rounded-none px-0 pt-0 pb-4 font-medium whitespace-nowrap transition-all duration-200 hover:text-base data-[state=active]:text-base"
+  "text-md/tight text-muted data-[state=active]:shadow-tab-b-control-selected relative flex cursor-pointer items-center justify-center gap-2 truncate rounded-none px-0 pt-0 pb-4 font-medium whitespace-nowrap transition-all duration-200 hover:text-base data-[state=active]:text-base"
 );
 
 export default {

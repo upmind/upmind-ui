@@ -5,7 +5,9 @@
     <TabsList :class="styles.tabs.list" v-if="tabs.length > 1">
       <template v-for="item in tabs" :key="item.value">
         <TabsTrigger :value="item.value" :class="styles.tabs.trigger">
+          <Icon v-if="item.icon" :icon="item.icon" size="2xs" />
           <slot :name="`trigger.${item.value}`">{{ item.label }}</slot>
+          <Badge v-if="item.badge" v-bind="item.badge" size="sm" />
         </TabsTrigger>
       </template>
     </TabsList>
@@ -40,10 +42,13 @@ import Tabs from "./Tabs.vue";
 import TabsContent from "./TabsContent.vue";
 import TabsList from "./TabsList.vue";
 import TabsTrigger from "./TabsTrigger.vue";
+import Icon from "../icon/Icon.ce.vue";
+import Badge from "../badge/Badge.ce.vue";
 
 // --- types
 import type { ComputedRef } from "vue";
-import type { TabsProps, TabItem } from "./types";
+import type { TabsProps } from "./types";
+import type { TabItem } from "../tabs/types";
 import type { TabsRootEmits } from "radix-vue";
 
 // -----------------------------------------------------------------------------

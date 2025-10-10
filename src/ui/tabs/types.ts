@@ -7,6 +7,8 @@ import type {
   TabsTriggerProps,
   TabsContentProps
 } from "radix-vue";
+import type { BadgeProps } from "../badge/types";
+import type { IconProps } from "../icon/types";
 
 // --- internal
 import type { tabsListVariants, tabsTriggerVariants } from "./tabs.config";
@@ -17,6 +19,8 @@ export interface TabItem {
   label: string;
   value: string;
   eager?: boolean;
+  icon?: IconProps["icon"];
+  badge?: BadgeProps;
 }
 
 export interface TabsProps extends TabsRootProps, TabsListProps {

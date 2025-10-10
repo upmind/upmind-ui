@@ -7,17 +7,12 @@ import type {
   TabsTriggerProps,
   TabsContentProps
 } from "radix-vue";
+import type { TabItem } from "../tabs/types";
 
 // --- internal
 import type { tabsListVariants, tabsTriggerVariants } from "./tabs.config";
 type TabsTriggerVariantProps = VariantProps<typeof tabsTriggerVariants>;
 type TabsListVariantProps = VariantProps<typeof tabsListVariants>;
-
-export interface TabItem {
-  label: string;
-  value: string;
-  eager?: boolean;
-}
 
 export interface TabsProps extends TabsRootProps, TabsListProps {
   tabs: TabItem[];
