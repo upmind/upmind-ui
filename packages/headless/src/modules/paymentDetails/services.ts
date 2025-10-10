@@ -190,14 +190,16 @@ async function loadLookups(
       }
     ],
     withAccessToken: true
-  }).then(data => {
-    if (supportedGateways.length)
-      return filter(data, ({ gateway }) =>
-        includes(supportedGateways, gateway.gateway_provider.code)
-      );
+  })
+    // Whitelist certain payment gateways until we have full support for all
+    .then(data => {
+      if (supportedGateways.length)
+        return filter(data, ({ gateway }) =>
+          includes(supportedGateways, gateway.gateway_provider.code)
+        );
 
-    return data;
-  });
+      return data;
+    });
 
   // ----
 
