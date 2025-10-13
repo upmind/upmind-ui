@@ -37,7 +37,7 @@ import type {
 } from "./types";
 import {
   BrandConfigKeys,
-  IAddress,
+  GatewayProviderCodes,
   IBrandGateway,
   IGateway,
   IPaymentDetail,
@@ -104,15 +104,17 @@ export function loadList() {
 // -----------------------------------------------------------------------------
 
 const supportedGateways = [
-  "Offline",
-  "BankTransfer",
-  "Stripe_PaymentIntents",
-  "PayPal_Express",
-  "PayPal_Pro",
-  "PayPal_BillingAgreement",
-  "Micropayment",
-  "Flutterwave",
-  "Paystack"
+  GatewayProviderCodes.BANK_TRANSFER,
+  GatewayProviderCodes.BRAINTREE,
+  GatewayProviderCodes.FLUTTERWAVE,
+  GatewayProviderCodes.MICROPAYMENT,
+  GatewayProviderCodes.OFFLINE,
+  GatewayProviderCodes.OPENPAY,
+  GatewayProviderCodes.PAYPAL_BILLING_AGREEMENT,
+  GatewayProviderCodes.PAYPAL_EXPRESS,
+  GatewayProviderCodes.PAYPAL_PRO,
+  GatewayProviderCodes.PAYSTACK,
+  GatewayProviderCodes.STRIPE
 ];
 
 async function loadLookups(
