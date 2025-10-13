@@ -1,3 +1,13 @@
+/*
+ * This file creates typography utilities using @layer utilities.
+ *
+ * - @layer utilities .font-display → Creates .font-display class, no Tailwind variants
+ * - @utility font-display → Creates .font-display with Tailwind variants (hover:, etc.)
+ * - @theme font-display → Creates .bg-font-display, .text-font-display, etc. (inappropriate)
+ *
+ * We use @layer utilities for typography values that have semantic meaning and
+ * don't typically need hover/focus variants.
+ */
 @layer utilities {
   .font-display {
     font-family: var(--font-display);

@@ -1,3 +1,13 @@
+/*
+ * This file creates generic color utilities across all Tailwind variants.
+ * The @theme directive exposes design tokens as standard Tailwind utilities
+ * (bg-*, text-*, border-*) with maximum flexibility.
+ *
+ * - @theme core-canvas → Creates .bg-core-canvas, .text-core-canvas, .border-core-canvas, etc.
+ * - @utility bg-core-canvas → Creates only the specific utility with Tailwind variants
+ * - .bg-core-canvas → Creates .bg-core-canvas class, no Tailwind variants
+ */
+
 @theme {
   /* Core Colors */
   --color-core-canvas: var(--color-core-canvas);

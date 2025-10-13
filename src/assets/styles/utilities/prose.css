@@ -1,3 +1,9 @@
+/*
+ * Prose Theme Override
+ *
+ * This file overrides the default Tailwind Typography prose values with our design system variables.
+ */
+
 .prose {
   --tw-prose-headings: var(--color-core-base);
   --tw-prose-bold: var(--color-core-base);

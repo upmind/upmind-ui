@@ -1,3 +1,15 @@
+/*
+ * This file creates background utilities for button gradients and other background tokens.
+ * The @theme directive exposes these as standard Tailwind utilities (bg-*) with full
+ * variant support for complex background values like gradients.
+ *
+ * - @theme bg-button-primary-0 → Creates .bg-bg-button-primary-0, .text-bg-button-primary-0, etc.
+ * - @utility bg-button-primary-0 → Creates only .bg-button-primary-0 with Tailwind variants
+ * - .bg-button-primary-0 → Creates .bg-button-primary-0 class, no Tailwind variants
+ *
+ * We use @theme for background colors that should be available as standard utilities
+ * across all property types.
+ */
 @theme {
   /* Button Gradient Colors */
   --color-bg-button-primary-0: var(--bg-button-primary-0);

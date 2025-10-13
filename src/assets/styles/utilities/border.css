@@ -1,3 +1,16 @@
+/*
+ * This file creates context-specific border utilities with semantic names.
+ * The @utility directive creates precise border utilities with Tailwind ecosystem
+ * integration while preventing unwanted utility generation.
+ *
+ * - @utility border-accent-danger → Creates only .border-accent-danger, supports Tailwind variants
+ * - @theme --accent-danger → Creates .bg-accent-danger, .text-accent-danger, .border-accent-danger, etc. (avoid, causes conflicts and design inconsistencies)
+ * - .border-accent-danger → Creates .border-accent-danger class, no Tailwind variants
+ *
+ * We use @utility for semantic border colors to prevent unwanted utilities like bg-accent-danger
+ * when we only want the border color variant.
+ */
+
 @utility border-surface {
   border-color: var(--border-surface);
 }
