@@ -183,7 +183,6 @@ const props = withDefaults(defineProps<ComboboxProps>(), {
   side: "bottom",
   // ---
   icon: "",
-  iconSize: "xs",
 
   // --- styles
   uiConfig: () => ({ combobox: [] }),
