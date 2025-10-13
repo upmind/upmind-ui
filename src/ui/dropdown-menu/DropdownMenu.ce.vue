@@ -88,7 +88,8 @@ const props = withDefaults(defineProps<DropdownMenuProps>(), {
   // -- styles
   size: "md",
   width: "auto",
-  variant: "primary",
+  variant: "solid",
+  color: "primary",
   align: "end",
   ring: true,
   // --- styles

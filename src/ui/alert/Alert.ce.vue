@@ -72,6 +72,7 @@ const props = withDefaults(defineProps<AlertProps>(), {
   // --- styles
   variant: "muted",
   color: "neutral",
+  size: "md",
   // --- styles
   uiConfig: () => ({ alert: [] }),
   class: ""

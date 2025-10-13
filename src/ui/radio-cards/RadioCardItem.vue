@@ -64,8 +64,8 @@
           </p>
         </span>
         <span v-if="props.action" class="leading-none">
-          <Button
-            variant="muted-link"
+          <Link
+            color="muted"
             :label="props.action"
             size="sm"
             @click="onAction"
@@ -87,7 +87,7 @@ import config from "./radioCards.config";
 
 // --- components
 import Label from "../label/Label.ce.vue";
-import { Button } from "../button";
+import { Link } from "../link";
 import { Badge } from "../badge";
 import { RadioGroupItem } from "../radio-group";
 
