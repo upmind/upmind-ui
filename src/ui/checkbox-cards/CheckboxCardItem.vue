@@ -24,8 +24,8 @@
           )
         "
         :data-state="props.checked ? 'checked' : 'unchecked'"
-        :data-hover="$attrs['data-hover']"
-        :data-focus="$attrs['data-focus']"
+        :data-hover="props.dataHover"
+        :data-focus="props.dataFocus"
       >
         <Check class="text-control-checked-contrast h-3 w-3" />
       </span>
@@ -52,6 +52,8 @@ const props = defineProps<
     itemClass?: HTMLAttributes["class"];
     noInput?: boolean;
     checked?: boolean;
+    dataHover: boolean;
+    dataFocus: boolean;
   }
 >();
 

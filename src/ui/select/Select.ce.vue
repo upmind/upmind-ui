@@ -7,14 +7,14 @@
   >
     <SelectTrigger
       :class="cn(styles.select.root, props.class)"
-      :data-hover="$attrs['data-hover']"
-      :data-focus="$attrs['data-focus']"
+      :data-hover="props.dataHover"
+      :data-focus="props.dataFocus"
     >
       <SelectValue
         :placeholder="placeholder"
         :class="styles.select.value"
-        :data-hover="$attrs['data-hover']"
-        :data-focus="$attrs['data-focus']"
+        :data-hover="props.dataHover"
+        :data-focus="props.dataFocus"
       />
       <span
         v-if="isEmpty(placeholder) && isEmpty(modelValue)"

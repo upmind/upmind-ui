@@ -51,4 +51,6 @@ export interface CheckboxCardsProps extends ToggleGroupRootProps {
   class?: HTMLClassAttributes;
   /** Apply additional classes to the items */
   itemClass?: HTMLClassAttributes;
+  dataHover?: boolean;
+  dataFocus?: boolean;
 }

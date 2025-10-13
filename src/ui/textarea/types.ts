@@ -28,4 +28,6 @@ export interface TextareaProps {
   // ---
   uiConfig?: { textarea: CxOptions };
   class?: HTMLAttributes["class"];
+  dataHover?: boolean;
+  dataFocus?: boolean;
 }

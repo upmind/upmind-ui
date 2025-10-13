@@ -13,8 +13,8 @@
         variant="control"
         icon-append="arrow-down"
         :checked="open"
-        :data-hover="$attrs['data-hover']"
-        :data-focus="$attrs['data-focus']"
+        :data-hover="dataHover"
+        :data-focus="dataFocus"
         ring
       >
         <template #prepend v-if="!isEmpty(modelValue) || searchValue">

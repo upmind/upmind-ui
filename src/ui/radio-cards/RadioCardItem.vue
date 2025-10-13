@@ -3,8 +3,8 @@
     :for="`${props.name}-${index}`"
     :class="cn(styles.radioCards.item)"
     :data-state="isSelected ? 'checked' : ''"
-    :data-hover="$attrs['data-hover']"
-    :data-focus="$attrs['data-focus']"
+    :data-hover="props.dataHover"
+    :data-focus="props.dataFocus"
   >
     <span :class="styles.radioCards.radio">
       <RadioGroupItem
@@ -17,8 +17,8 @@
         :data-state="isSelected ? 'checked' : 'unchecked'"
         :uiConfig="uiConfig"
         @blur="onBlur"
-        :data-focus="$attrs['data-focus']"
-        :data-hover="$attrs['data-hover']"
+        :data-focus="props.dataFocus"
+        :data-hover="props.dataHover"
       />
     </span>
     <slot

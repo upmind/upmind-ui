@@ -11,8 +11,8 @@
         props.noInput ? 'sr-only' : ''
       )
     "
-    :data-focus="$attrs['data-focus']"
-    :data-hover="$attrs['data-hover']"
+    :data-focus="props.dataFocus"
+    :data-hover="props.dataHover"
   >
     <RadioGroupIndicator class="flex items-center justify-center">
       <Circle class="text-control-checked-contrast h-2 w-2 fill-current" />
@@ -34,7 +34,12 @@ import { ringClasses } from "../../assets/styles";
 import { computed, type HTMLAttributes } from "vue";
 
 const props = defineProps<
-  RadioGroupItemProps & { class?: HTMLAttributes["class"]; noInput?: boolean }
+  RadioGroupItemProps & {
+    class?: HTMLAttributes["class"];
+    noInput?: boolean;
+    dataHover?: boolean;
+    dataFocus?: boolean;
+  }
 >();
 
 const delegatedProps = computed(() => {

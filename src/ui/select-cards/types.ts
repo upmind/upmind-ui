@@ -47,6 +47,8 @@ export interface SelectCardsProps extends RadioGroupRootProps {
   uiConfig?: { select: CxOptions };
   class?: HTMLAttributes["class"];
   contentClass?: HTMLAttributes["class"];
+  dataHover?: boolean;
+  dataFocus?: boolean;
 }
 export interface SelectCardsTriggerProps
   extends Omit<ButtonProps, "variant" | "uiConfig"> {
@@ -59,4 +61,6 @@ export interface SelectCardsTriggerProps
   class?: string;
   focusable?: boolean;
   chevron?: boolean;
+  dataHover?: boolean;
+  dataFocus?: boolean;
 }

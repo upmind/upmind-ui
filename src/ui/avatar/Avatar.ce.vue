@@ -23,12 +23,12 @@
         class="relative z-10 object-cover"
       />
       <!-- forced caption for caption shinethrough -->
-      <div
+      <span
         v-if="meta.hasCaption"
         class="absolute top-0 right-0 bottom-0 left-0 z-0 inline-flex items-center justify-center text-center"
       >
         <span>{{ caption }}</span>
-      </div>
+      </span>
     </slot>
   </AvatarRoot>
 </template>

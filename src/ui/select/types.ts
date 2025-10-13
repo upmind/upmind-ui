@@ -42,6 +42,8 @@ export interface SelectProps
     };
   };
   class?: HTMLAttributes["class"];
+  dataHover?: boolean;
+  dataFocus?: boolean;
 }
 
 export interface SelectItemAdditional {

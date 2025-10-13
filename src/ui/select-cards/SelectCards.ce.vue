@@ -12,8 +12,8 @@
         :label="props.label"
         :loading="props.loading"
         :placeholder="props.placeholder"
-        :data-hover="$attrs['data-hover']"
-        :data-focus="$attrs['data-focus']"
+        :data-hover="props.dataHover"
+        :data-focus="props.dataFocus"
         focusable
       >
         <template #item="{ item }">
