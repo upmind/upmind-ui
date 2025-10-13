@@ -16,7 +16,7 @@ import {
   mapToHeadlessError,
   responseCodes
 } from "../../../utils";
-import { isArray, isEmpty, isNil, set } from "lodash-es";
+import { isArray, isNil } from "lodash-es";
 
 // --- types
 import type { AnyEventObject } from "xstate";
@@ -25,7 +25,6 @@ import {
   GatewayData,
   GatewayContext as GatewayCtx
 } from "@upmind-automation/types";
-import { validate } from "uuid";
 
 // -----------------------------------------------------------------------------
 // override the macine actions to generate the schema, uischema and model
