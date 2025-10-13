@@ -1,5 +1,14 @@
 <template>
-  <Loading :active="!meta.isAvailable || meta.isLoading">
+  <Alert
+    v-if="meta.isUnavailable"
+    color="error"
+    icon="alert-triangle"
+    :title="t('error.payment_gateway_not_available')"
+    class="text-error!"
+    :description="errors"
+  />
+
+  <Loading v-else :active="!meta.isAvailable || meta.isLoading">
     <div ref="form" :class="styles.checkout.gateway">
       <!-- Instructions -->
       <Markdown
@@ -33,11 +42,11 @@
         icon="alert-triangle"
         :title="t('text.payment_failed')"
       >
-        <div class="mt-2 text-sm">
+        <ol class="mt-2 list-none text-left text-sm">
           <li class="my-0 py-0">
             {{ errors }}
           </li>
-        </div>
+        </ol>
       </Alert>
 
       <!-- Actions and Terms -->
