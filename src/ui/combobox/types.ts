@@ -63,6 +63,7 @@ export interface ComboboxProps
   // --- variants
   size?: TriggerVariantProps["size"];
   width?: ContentVariantsProps["width"];
+  dropdownWidth?: TriggerVariantProps["dropdownWidth"];
   ring?: boolean;
   // --- styles
   uiConfig?: { combobox: CxOptions };

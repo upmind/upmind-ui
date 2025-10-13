@@ -195,6 +195,7 @@ const emits = defineEmits(["update:modelValue"]);
 const meta = computed(() => ({
   size: props.size,
   width: props.width,
+  dropdownWidth: props.dropdownWidth || props.width,
   hasRing: props.ring,
   truncate: props.truncate,
   hasAvatar: props.avatar || has(modelValue.value, "avatar"),
