@@ -2,11 +2,11 @@
   <li
     class="text-md flex w-full list-none items-center justify-between font-medium"
   >
-    <span class="flex items-center gap-2">
-      <p>{{ label }}</p>
+    <div class="flex items-center gap-2">
+      {{ label }}
       <Badge v-if="badge" v-bind="badgeProps" size="sm" />
-    </span>
-    <p>{{ appendLabel }}</p>
+    </div>
+    <span>{{ appendLabel }}</span>
   </li>
 </template>
 
