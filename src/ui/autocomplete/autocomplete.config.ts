@@ -18,7 +18,7 @@ export const rootVariants = cva("control-radius relative", {
 });
 
 export const anchorVariants = cva(
-  `${ringClasses} ${invalidRingClasses} w-dropdown-2xs shadow-control-default contorl-radius flex items-center justify-between pr-3 leading-none transition-all duration-200 outline-none`,
+  `${ringClasses} ${invalidRingClasses} w-dropdown-2xs shadow-control-default control-radius flex items-center justify-between pr-3 leading-none transition-all duration-200 outline-none`,
   {
     variants: {
       size: {
