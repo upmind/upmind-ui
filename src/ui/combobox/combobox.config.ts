@@ -24,13 +24,7 @@ export const variants = {
 export const triggerVariants = cva(
   "text-md bg-control-surface [&:hover,&[data-hover=true]]:shadow-control-hover control-radius shadow-control-default h-auto justify-between gap-2 text-base transition-all duration-200",
   {
-    variants: {
-      size: variants.size,
-      dropdownWidth: variants.width
-    },
-    defaultVariants: {
-      dropdownWidth: "auto"
-    }
+    variants
   }
 );
 
@@ -53,19 +47,7 @@ export const contentVariants = cva(
   `control-radius shadow-control-default bg-control-surface ring-primitive-control-default! my-2 border-none ${ringClasses} ${invalidRingClasses} p-0`,
   {
     variants: {
-      width: {
-        "2xs": "w-dropdown-2xs",
-        xs: "w-dropdown-xs",
-        sm: "w-dropdown-sm",
-        md: "w-dropdown-md",
-        lg: "w-dropdown-lg",
-        xl: "w-dropdown-xl",
-        "2xl": "w-dropdown-2xl",
-        full: "w-full",
-        auto: "w-(--radix-popover-trigger-width)",
-        fit: "w-fit",
-        app: "w-app"
-      }
+      dropdownWidth: variants.width
     }
   }
 );
