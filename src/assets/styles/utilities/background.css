@@ -10,7 +10,7 @@
  * We use @theme for background colors that should be available as standard utilities
  * across all property types.
  */
-@theme {
+@theme inline {
   /* Button Gradient Colors */
   --color-bg-button-primary-0: var(--bg-button-primary-0);
   --color-bg-button-primary-1: var(--bg-button-primary-1);

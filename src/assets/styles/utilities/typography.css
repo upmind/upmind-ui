@@ -100,7 +100,7 @@
   }
 }
 
-@theme {
+@theme inline {
   /* Letter Spacing */
   --tracking-tight: -0.05em;
   --tracking-normal: 0;

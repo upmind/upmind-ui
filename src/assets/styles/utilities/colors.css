@@ -8,7 +8,7 @@
  * - .bg-core-canvas → Creates .bg-core-canvas class, no Tailwind variants
  */
 
-@theme {
+@theme inline {
   /* Core Colors */
   --color-core-canvas: var(--color-core-canvas);
   --color-core-surface: var(--color-core-surface);

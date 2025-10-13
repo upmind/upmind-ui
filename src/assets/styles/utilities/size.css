@@ -3,7 +3,7 @@
  * to create consistent spacing and sizing across components.
  */
 
-@theme {
+@theme inline {
   /* Sizing */
   --size-lh: 1lh;
 
