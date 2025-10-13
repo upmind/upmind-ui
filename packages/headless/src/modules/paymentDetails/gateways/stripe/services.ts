@@ -2,7 +2,6 @@
 import {
   DefaultValuesOption,
   loadStripe,
-  Stripe,
   StripeElementLocale,
   StripeElements
 } from "@stripe/stripe-js";
@@ -111,8 +110,6 @@ async function render({ sdk }: StripeContext, { data }: AnyEventObject) {
   }
   const container = data.container as HTMLElement;
 
-  sdk.element!.mount(container);
-
   const validationHelper = (callback: any, _onReceiveEvent: AnyEventObject) => {
     (sdk.element as any)!.on("change", (event: any) => {
       callback({ type: "VALIDATE", data: event });
@@ -121,7 +118,22 @@ async function render({ sdk }: StripeContext, { data }: AnyEventObject) {
     return () => {};
   };
 
-  return { sdk, container, validationHelper };
+  return new Promise((resolve, reject) => {
+    sdk.element!.mount(container);
+    sdk.element.once("ready", () => {
+      resolve({ sdk, container, validationHelper });
+    });
+    sdk.element.once("loaderror", ({ error }) => {
+      reject(
+        new DetailedError(
+          error?.message ?? t("error.payment_gateway_not_available"),
+          responseCodes.Bad_Request,
+          ErrorOrigin.External,
+          error
+        )
+      );
+    });
+  });
 }
 
 async function validate(
@@ -195,7 +207,7 @@ async function pay({ sdk, model }: StripeContext) {
       // Check for any errors when submitting the element
       .then(({ error }) => {
         if (error)
-          return new DetailedError(
+          throw new DetailedError(
             error.message ?? t("error.payment_gateway_submission_failed"),
             responseCodes.Unprocessable_Entity,
             ErrorOrigin.External,
@@ -210,25 +222,12 @@ async function pay({ sdk, model }: StripeContext) {
           })
           .then(({ error, paymentMethod }) => {
             if (error)
-              return new DetailedError(
+              throw new DetailedError(
                 error.message ?? t("error.payment_gateway_submission_failed"),
                 responseCodes.Unprocessable_Entity,
                 ErrorOrigin.External,
                 error
               );
-
-            // add the payment details to the model
-
-            // NB pass the model amount back as we have to handle non-minor unit conversion here
-            // (e.g. UGX)
-            // ↳ Stripe requires minor unit for the amount when creating the element,
-            //   but we need to pass the standard unit amount to the BE when creating
-            //   the payment intent (as BE handles conversion to minor unit)
-            // set(
-            //   model,
-            //   "amount",
-            //   parseMinorUnitAmount(model.amount || 0, model.currency.code)
-            // );
 
             set(
               model!,

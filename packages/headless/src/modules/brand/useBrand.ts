@@ -21,7 +21,8 @@ import {
   forEach,
   includes,
   keys,
-  omitBy
+  omitBy,
+  sortBy
 } from "lodash-es";
 
 // --- types
@@ -113,7 +114,9 @@ export const useBrand = () => {
 
   const currencyId = computed(() => brandSettings.value?.currency_id);
 
-  const currencies = computed(() => brandSettings.value?.currencies || []);
+  const currencies = computed(() =>
+    sortBy(brandSettings.value?.currencies || [], ["code"])
+  );
 
   const image = computed(() => brandSettings.value?.image);
 
