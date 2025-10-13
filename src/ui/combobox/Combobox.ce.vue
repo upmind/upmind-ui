@@ -74,7 +74,11 @@
           <CommandInput
             :placeholder="searchPlaceholder"
             :class="styles.combobox.input"
-          />
+          >
+            <template #prepend>
+              <Icon icon="search" size="nano" class="text-muted mr-2" />
+            </template>
+          </CommandInput>
         </template>
         <CommandList
           class="border-control-default w-full max-w-full border-t p-2"
