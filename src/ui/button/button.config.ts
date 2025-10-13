@@ -11,22 +11,17 @@ export const variants = {
     icon: ""
   },
   variant: {
-    primary:
-      "button-radius from-bg-button-primary-0 to-bg-button-primary-1 text-button-primary [&:hover:not(:disabled),&[data-hover=true]:not([data-disabled=true])]:from-bg-button-primary-hover-0 [&:hover:not(:disabled),&[data-hover=true]:not([data-disabled=true])]:to-bg-button-primary-hover-1 ring-primary-ring! bg-gradient-to-br",
-    secondary:
-      "button-radius from-bg-button-secondary-0 to-bg-button-secondary-1 text-button-secondary [&:hover:not(:disabled),&[data-hover=true]:not([data-disabled=true])]:from-bg-button-secondary-hover-0 [&:hover:not(:disabled),&[data-hover=true]:not([data-disabled=true])]:to-bg-button-secondary-hover-1 ring-secondary-ring! bg-gradient-to-br",
-    neutral:
-      "button-radius from-bg-button-neutral-0 to-bg-button-neutral-1 text-button-neutral [&:hover:not(:disabled),&[data-hover=true]:not([data-disabled=true])]:from-bg-button-neutral-hover-0 [&:hover:not(:disabled),&[data-hover=true]:not([data-disabled=true])]:to-bg-button-neutral-hover-1 ring-neutral-ring! bg-gradient-to-br",
-    subtle:
-      "button-radius from-bg-button-subtle-0 to-bg-button-subtle-1 text-button-subtle [&:hover:not(:disabled),&[data-hover=true]:not([data-disabled=true])]:from-bg-button-subtle-hover-0 [&:hover:not(:disabled),&[data-hover=true]:not([data-disabled=true])]:to-bg-button-subtle-hover-1 ring-subtle-ring! bg-gradient-to-br",
-    danger:
-      "button-radius from-bg-button-danger-0 to-bg-button-danger-1 text-button-danger [&:hover:not(:disabled),&[data-hover=true]:not([data-disabled=true])]:from-bg-button-danger-hover-0 [&:hover:not(:disabled),&[data-hover=true]:not([data-disabled=true])]:to-bg-button-danger-hover-1 ring-danger-ring! bg-gradient-to-br",
-    outline:
-      "button-radius bg-button-outline text-button-outline [&:hover:not(:disabled),&[data-hover=true]:not([data-disabled=true])]:bg-button-outline-hover ring-outline-ring! shadow-button-outline",
-    ghost:
-      "button-radius bg-button-ghost text-button-ghost [&:hover:not(:disabled),&:focus-within:not(:disabled),&[data-hover=true]:not([data-disabled=true]),&[data-focus=true]:not([data-disabled=true])]:bg-button-ghost-hover ring-ghost-ring!",
-    control:
-      "control-radius shadow-control-default hover:not(:disabled):border-control-hover ring-control-ring!"
+    solid: "",
+    subtle: "",
+    outline: "",
+    ghost: "",
+    control: ""
+  },
+  color: {
+    primary: "",
+    secondary: "",
+    neutral: "",
+    danger: ""
   },
   align: {
     left: "justify-start",
@@ -54,11 +49,62 @@ export const rootVariants = cva(
   {
     variants,
     defaultVariants: {
-      variant: "primary",
+      variant: "solid",
+      color: "primary",
       size: "md",
       isBlock: false,
       isLoading: false
-    }
+    },
+    compoundVariants: [
+      {
+        variant: "subtle",
+        color: ["primary", "secondary", "neutral", "danger"],
+        class:
+          "button-radius from-bg-button-subtle-0 to-bg-button-subtle-1 text-button-subtle [&:hover:not(:disabled),&[data-hover=true]:not([data-disabled=true])]:from-bg-button-subtle-hover-0 [&:hover:not(:disabled),&[data-hover=true]:not([data-disabled=true])]:to-bg-button-subtle-hover-1 ring-subtle-ring! bg-gradient-to-br"
+      },
+      {
+        variant: "outline",
+        color: ["primary", "secondary", "neutral", "danger"],
+        class:
+          "button-radius bg-button-outline text-button-outline [&:hover:not(:disabled),&[data-hover=true]:not([data-disabled=true])]:bg-button-outline-hover ring-outline-ring! shadow-button-outline"
+      },
+      {
+        variant: "ghost",
+        color: ["primary", "secondary", "neutral", "danger"],
+        class:
+          "button-radius bg-button-ghost text-button-ghost [&:hover:not(:disabled),&:focus-within:not(:disabled),&[data-hover=true]:not([data-disabled=true]),&[data-focus=true]:not([data-disabled=true])]:bg-button-ghost-hover ring-ghost-ring!"
+      },
+      {
+        variant: "control",
+        color: ["primary", "secondary", "neutral", "danger"],
+        class:
+          "control-radius shadow-control-default hover:not(:disabled):border-control-hover ring-control-ring!"
+      },
+      {
+        variant: "solid",
+        color: "primary",
+        class:
+          "button-radius from-bg-button-primary-0 to-bg-button-primary-1 text-button-primary [&:hover:not(:disabled),&[data-hover=true]:not([data-disabled=true])]:from-bg-button-primary-hover-0 [&:hover:not(:disabled),&[data-hover=true]:not([data-disabled=true])]:to-bg-button-primary-hover-1 ring-primary-ring! bg-gradient-to-br"
+      },
+      {
+        variant: "solid",
+        color: "secondary",
+        class:
+          "button-radius from-bg-button-secondary-0 to-bg-button-secondary-1 text-button-secondary [&:hover:not(:disabled),&[data-hover=true]:not([data-disabled=true])]:from-bg-button-secondary-hover-0 [&:hover:not(:disabled),&[data-hover=true]:not([data-disabled=true])]:to-bg-button-secondary-hover-1 ring-secondary-ring! bg-gradient-to-br"
+      },
+      {
+        variant: "solid",
+        color: "neutral",
+        class:
+          "button-radius from-bg-button-neutral-0 to-bg-button-neutral-1 text-button-neutral [&:hover:not(:disabled),&[data-hover=true]:not([data-disabled=true])]:from-bg-button-neutral-hover-0 [&:hover:not(:disabled),&[data-hover=true]:not([data-disabled=true])]:to-bg-button-neutral-hover-1 ring-neutral-ring! bg-gradient-to-br"
+      },
+      {
+        variant: "solid",
+        color: "danger",
+        class:
+          "button-radius from-bg-button-danger-0 to-bg-button-danger-1 text-button-danger [&:hover:not(:disabled),&[data-hover=true]:not([data-disabled=true])]:from-bg-button-danger-hover-0 [&:hover:not(:disabled),&[data-hover=true]:not([data-disabled=true])]:to-bg-button-danger-hover-1 ring-danger-ring! bg-gradient-to-br"
+      }
+    ]
   }
 );
 
