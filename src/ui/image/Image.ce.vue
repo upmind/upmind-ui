@@ -47,7 +47,7 @@
     </picture>
     <!-- Fallback icon -->
     <div v-if="meta.isEmpty" :class="cn(styles.image.root)">
-      <Icon icon="camera-off" size="lg" :class="styles.image.icon" />
+      <Icon :icon="props.icon" size="lg" :class="styles.image.icon" />
     </div>
   </figure>
 </template>
@@ -76,7 +76,8 @@ import type { CarouselApi } from "../carousel";
 const props = withDefaults(defineProps<ImageProps>(), {
   ratio: "1:1",
   fit: "cover",
-  carousel: true
+  carousel: true,
+  icon: "camera-off"
 });
 
 const meta = computed(() => ({
