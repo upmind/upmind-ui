@@ -18,36 +18,12 @@ const variants = {
 export default {
   loading: {
     root: cva("", {
-      variants,
-      compoundVariants: [
-        {
-          isActive: true,
-          isTransparent: true,
-          class: "bg-core-surface/60"
-        },
-        {
-          isActive: true,
-          isTransparent: false,
-          class: "bg-core-surface"
-        }
-      ]
+      variants
     }),
     spinner: cva(
-      "text-control-default z-50 flex w-full items-center justify-center",
+      "text-control-default bg-core-surface/60 z-50 flex w-full items-center justify-center",
       {
-        variants,
-        compoundVariants: [
-          {
-            isActive: true,
-            isTransparent: true,
-            class: "bg-core-surface/60"
-          },
-          {
-            isActive: true,
-            isTransparent: false,
-            class: "bg-core-surface"
-          }
-        ]
+        variants
       }
     )
   }
