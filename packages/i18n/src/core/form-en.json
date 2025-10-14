@@ -151,17 +151,27 @@
     "placeholder": "Enter cardholder name"
   },
   "card_num": {
-    "description": "The 16 digit number on the front of your card.",
+    "description": null,
     "label": "Card number",
     "placeholder": "1234 1234 1234 1234"
   },
   "card_expiry": {
-    "description": "Expiry Date of the card. Date Format: MM/YY",
+    "description": null,
     "label": "Expiry date",
     "placeholder": "MM/YY"
   },
+  "card_expiry_month": {
+    "description": null,
+    "label": "Expiry month",
+    "placeholder": "MM"
+  },
+  "card_expiry_year": {
+    "description": null,
+    "label": "Expiry Year",
+    "placeholder": "YY"
+  },
   "card_cvv": {
-    "description": "card security code found on the back of your card that provides an additional measure of credit card security.",
+    "description": null,
     "label": "CVV",
     "placeholder": "CVC"
   },

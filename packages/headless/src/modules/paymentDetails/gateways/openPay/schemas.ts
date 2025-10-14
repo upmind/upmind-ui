@@ -7,7 +7,7 @@ import {
   useSchema as useDefaultSchema,
   useUischema as useDefaultUischema
 } from "../schemas";
-import { get } from "lodash-es";
+import { get, toNumber } from "lodash-es";
 
 // --- types
 import type { IGatewayProvider } from "@upmind-automation/types";
@@ -53,25 +53,32 @@ export const useSchema = (context: GatewayContext) => {
             type: "string",
             title: "Cardholder Name"
           },
-          expiration_year: {
-            type: "string",
-            minLength: 2,
-            maxLength: 2,
-            // Pattern matches two digits, as extracted from MM/YYYY or MM/YY formats
-            pattern: "^\\d{2}$",
-            title: "Expiration Year"
-            // description:
-            //   "Last two digits of the year, extracted from MM/YYYY or MM/YY"
-          },
           expiration_month: {
             type: "string",
             minLength: 2,
             maxLength: 2,
             // Pattern matches two digits for month (01-12)
             pattern: "^(0[1-9]|1[0-2])$",
-            title: "Expiration Month"
+            title: "Expiration Month",
+            enum: Array.from({ length: 12 }, (_, i) =>
+              (1 + i).toString().padStart(2, "0")
+            )
             // description: "Two digit month, extracted from MM/YYYY or MM/YY"
           },
+          expiration_year: {
+            type: "string",
+            minLength: 2,
+            maxLength: 2,
+            // Pattern matches two digits, as extracted from MM/YYYY or MM/YY formats
+            pattern: "^\\d{2}$",
+            enum: Array.from({ length: 8 }, (_, i) =>
+              (new Date().getFullYear() + i).toString().slice(-2)
+            ),
+            title: "Expiration Year"
+            // description:
+            //   "Last two digits of the year, extracted from MM/YYYY or MM/YY"
+          },
+
           cvv2: {
             type: "string",
             minLength: 3,
@@ -101,7 +108,7 @@ export const useUischema = (context: GatewayContext) => {
       {
         type: "Control",
         scope: "#/properties/openpay/properties/holder_name",
-        i18n: "form.card_holder_name",
+        i18n: "form.cardholder_name",
         options: {
           autocomplete: "cc-name"
         }

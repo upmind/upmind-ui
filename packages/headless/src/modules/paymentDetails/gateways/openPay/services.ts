@@ -1,6 +1,7 @@
 // --- external
 
 // --- internal
+import { useI18n } from "../../..";
 import sharedServices from "../services";
 
 // --- utils
@@ -16,17 +17,18 @@ import { OPENPAY_FIELDS, OpenPayContext } from "./types";
 import type { AnyEventObject } from "xstate";
 
 // --- utils
+import { omit } from "lodash-es";
 
 // --- types
 import type { GatewayContext } from "../types";
 import { parseSettings } from "../utils";
-import { omit } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
 async function load(context: OpenPayContext, _event: AnyEventObject) {
   //  first get our default load config
-  const { gateway } = context;
+  const { gateway, currency } = context;
+  const { t } = useI18n();
 
   if (!gateway)
     return Promise.reject(
@@ -72,20 +74,33 @@ async function load(context: OpenPayContext, _event: AnyEventObject) {
     const openPay = window["OpenPay"];
 
     if (!openPay)
-      return Promise.reject(
-        new DetailedError(
-          "OpenPay not found.",
-          responseCodes.Not_Found,
-          ErrorOrigin.Headless
-        )
+      throw new DetailedError(
+        t("error.payment_gateway_not_available"),
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
       );
 
     openPay.setId(settings[OPENPAY_FIELDS.MERCHANT_ID]);
     openPay.setApiKey(settings[OPENPAY_FIELDS.PUBLIC_KEY]);
     openPay.setSandboxMode(settings[OPENPAY_FIELDS.TEST_MODE] == 1);
-
-    return { openPay, ...config };
+    return { sdk: { openPay }, ...config };
   });
+}
+
+async function render({ sdk }: OpenPayContext, { data }: AnyEventObject) {
+  const { t } = useI18n();
+
+  if (!sdk?.openPay) {
+    throw new DetailedError(
+      t("error.payment_gateway_not_available"),
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless,
+      { sdk, container: data?.container }
+    );
+  }
+
+  // we dont have an render functions for OpenPay Card so just return the necessary data
+  return { sdk, container: null, validationHelper: null };
 }
 
 /**
@@ -95,18 +110,20 @@ async function load(context: OpenPayContext, _event: AnyEventObject) {
  * payment). We do not need to pass a client secret for flow, as the
  * payment detail is attached to a customer and confirmed server-side.
  */
-async function pay({ gateway, openPay, model }: OpenPayContext) {
-  if (!openPay)
+async function pay({ gateway, sdk, model }: OpenPayContext) {
+  const { t } = useI18n();
+
+  if (!sdk?.openPay)
     return Promise.reject(
       new DetailedError(
-        "OpenPay instance not found.",
+        t("error.payment_gateway_not_available"),
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )
     );
 
   return new Promise((resolve, reject) => {
-    openPay.token.create(
+    sdk.openPay!.token.create(
       model?.openpay as Record<string, any>,
       response =>
         resolve({
@@ -136,5 +153,6 @@ export default {
   ...sharedServices,
   // ---
   load,
+  render,
   pay
 };
