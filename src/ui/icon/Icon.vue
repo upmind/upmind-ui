@@ -86,10 +86,10 @@ watchEffect(async () => {
     find(icons, (fn, iconPath) => endsWith(iconPath, `${safePath}${filename}`));
 
   if (!asyncImport) {
-    console.warn("icon", "import not found", {
-      icon: props.icon,
-      icons
-    });
+    // console.warn("icon", "import not found", {
+    //   icon: props.icon,
+    //   icons
+    // });
     emit("error", new Error(`Icon not found: ${filename}`));
     svg.value = null;
     return;
