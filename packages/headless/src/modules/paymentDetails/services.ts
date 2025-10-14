@@ -209,7 +209,6 @@ async function loadLookups(
       if (!get(config, BrandConfigKeys.PAY_LATER_ENABLED))
         unset(paymentTypes, PaymentType.PAY_LATER); // Allowlist payment gateways if provided
 
-      debugger;
       return {
         // NB: ensure we only show active stored payment methods and only for gateways that are available.
         //     The BE does not filter out Stored payment methods for gateways not available for a given country or currency

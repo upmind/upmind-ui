@@ -172,7 +172,7 @@ async function validate(
   const errors = validate(schema, model) || [];
 
   // NB: we are invalid if the braintree element status is NOT complete!
-  if (!data?.complete) {
+  if (!sdk.braintree.isPaymentMethodRequestable()) {
     errors.push({
       instancePath: "/payment_method_addition",
       schemaPath: "#/properties/payment_method_addition",
