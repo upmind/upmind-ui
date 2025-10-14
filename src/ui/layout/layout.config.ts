@@ -99,7 +99,7 @@ export default {
       }
     }),
     header: {
-      root: cva("bg-canvas px-6 pt-18 md:px-2.5"),
+      root: cva("bg-canvas shadow-b-border-surface px-6 pt-18 md:px-2.5"),
       container: cva("max-w-app mx-auto")
     },
     content: {
