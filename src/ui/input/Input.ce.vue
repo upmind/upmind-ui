@@ -20,9 +20,9 @@
 
 <script lang="ts" setup>
 // --- external
-import { ref, useTemplateRef, computed, onMounted, watch } from "vue";
+import { useTemplateRef, computed, onMounted } from "vue";
 
-import IMask, { type InputElement, type FactoryConstructorOpts } from "imask";
+import IMask, { type InputElement } from "imask";
 
 // --- internal
 import config from "./input.config";
@@ -98,9 +98,6 @@ const styles = useStyles(
   input: { container: string; field: string };
 }>;
 
-// Optional mask
-
-// Use the useIMask composable
 onMounted(() => {
   applyMask();
 });
@@ -118,7 +115,6 @@ function applyMask() {
     masked.on("accept", () => {
       modelValue.value = masked.value;
     });
-  } else {
   }
 }
 </script>
