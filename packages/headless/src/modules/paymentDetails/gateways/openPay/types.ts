@@ -51,6 +51,8 @@ export type OpenPayModel = GatewayData & {
 };
 
 export type OpenPayContext = GatewayContext<{
-  openPay?: OpenPay;
+  sdk?: {
+    openPay?: OpenPay;
+  };
   model?: OpenPayModel;
 }>;

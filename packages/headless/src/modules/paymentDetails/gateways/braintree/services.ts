@@ -29,7 +29,6 @@ import type {
   PaymentMethodRequestablePayload
 } from "braintree-web-drop-in";
 import { parseSettings } from "../utils";
-import { locale } from "dayjs";
 // -----------------------------------------------------------------------------
 
 async function load(context: BraintreeContext, _event: AnyEventObject) {
