@@ -6,18 +6,18 @@
     :delay="delay"
     :sequence="sequence"
     :class="cn(styles.iconAnimated, props.class)"
-    :colors="`primary:${primaryHex},secondary:${secondaryHex}`"
+    :colors="`primary:${neutralHex},secondary:${primaryHex}`"
   />
 </template>
 
-<span class="text-icon-primary text-icon-secondary hidden" />
+<span class="text-icon-primary text-icon-neutral hidden" />
 <script lang="ts" setup>
 // --- external
 import { onMounted, computed, ref, watch } from "vue";
 import { find } from "lodash-es";
 
 // --- internal
-import { useStyles, cn } from "../../utils";
+import { useStyles, cn, getComputedColor } from "../../utils";
 import config from "./iconAnimated.config";
 
 // --- types
@@ -81,35 +81,8 @@ const primaryHex = computed(() => {
   return getComputedColor("icon-primary");
 });
 
-const secondaryHex = computed(() => {
+const neutralHex = computed(() => {
   const _ = styles.value;
-  return getComputedColor("icon-secondary");
+  return getComputedColor("icon-neutral");
 });
-
-function getComputedColor(className: string): string {
-  const app = document.getElementById("vue-app");
-  const cssVar = getComputedStyle(app || document.documentElement)
-    .getPropertyValue(`--${className}`)
-    .trim();
-
-  if (cssVar) {
-    return cssVar;
-  }
-
-  const tempElement = document.createElement("div");
-  tempElement.className = "text-" + className;
-  (app || document.body).appendChild(tempElement);
-
-  const computedStyle = window.getComputedStyle(tempElement);
-  const color = computedStyle.color;
-
-  (app || document.body).removeChild(tempElement);
-
-  const rgb = color.match(/\d+/g);
-  if (rgb) {
-    return `#${parseInt(rgb[0]).toString(16).padStart(2, "0")}${parseInt(rgb[1]).toString(16).padStart(2, "0")}${parseInt(rgb[2]).toString(16).padStart(2, "0")}`;
-  }
-
-  return "#121217";
-}
 </script>

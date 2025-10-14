@@ -1,15 +1,10 @@
 // ---  external
 import { cva } from "class-variance-authority";
+import { ringClasses, invalidRingClasses } from "../../assets/styles";
 // -----------------------------------------------------------------------------
 
-export const ringClasses =
-  "ring-offset-background focus-within:outline-none focus-within:ring-2 focus-within:ring-ring rounded focus-within:ring-offset-2 group-focus-within:ring-0 group-focus-within:ring-offset-0";
-
-export const invalidRingClasses =
-  "aria-invalid:ring-invalid! aria-invalid:ring-2! aria-invalid:ring-offset-2!";
-
 export const containerVariants = cva(
-  `bg-control-background shadow-border-control text-md autofill flex items-center gap-3 rounded px-4 py-2 transition-[border-color,opacity,box-shadow] duration-200`,
+  `bg-control-surface shadow-control-default hover:shadow-control-hover text-md autofill control-radius flex items-center gap-3 px-4 py-2 transition-[border-color,opacity,box-shadow] duration-200`,
   {
     variants: {
       width: {
@@ -28,7 +23,7 @@ export const containerVariants = cva(
 );
 
 export const inputFieldVariants = cva(
-  "text-control-foreground w-full bg-transparent focus:ring-0 focus:outline-none"
+  "placeholder:text-faint w-full bg-transparent text-base focus:ring-0 focus:outline-none"
 );
 
 // -----------------------------------------------------------------------------

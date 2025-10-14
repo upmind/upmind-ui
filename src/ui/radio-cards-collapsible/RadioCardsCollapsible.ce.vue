@@ -84,7 +84,7 @@
         <Button
           :label="label"
           size="sm"
-          variant="link"
+          variant="solid"
           :disabled="props.disabled"
           @click="toggleExpanded"
         />

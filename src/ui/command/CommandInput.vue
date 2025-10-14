@@ -29,14 +29,17 @@ const forwardedProps = useForwardProps(delegatedProps);
 
 <template>
   <div class="flex max-w-32 items-center px-3" cmdk-input-wrapper>
-    <Search class="mr-2 h-4 w-4 shrink-0 opacity-50" />
+    <slot name="prepend">
+      <Search class="text-muted mr-2 h-4 w-4 shrink-0 opacity-50" />
+    </slot>
     <ComboboxInput
       v-bind="{ ...forwardedProps, ...$attrs }"
       auto-focus
       :class="
         cn(
           'placeholder:text-muted-foreground flex h-11 w-full rounded bg-transparent py-3 text-sm outline-none disabled:cursor-not-allowed disabled:opacity-50',
-          props.class
+          props.class,
+          'text-base'
         )
       "
     />

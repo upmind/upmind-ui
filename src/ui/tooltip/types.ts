@@ -20,7 +20,7 @@ export interface TooltipProps
   label?: string;
   to?: string;
   // ---
-  color?: TooltipVariantProps["color"] | string;
+  color?: TooltipVariantProps["color"];
   // ---
   uiConfig?: {
     content?: CxOptions;

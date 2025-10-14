@@ -1,6 +1,6 @@
 <template>
   <span
-    :class="cn('text-emphasis-medium font-normal', props.class)"
+    :class="cn('text-muted font-normal', props.class)"
     :for="props.formItemId"
     :invalid="false"
   >

@@ -4,6 +4,8 @@
     :class="cn(variants.select.trigger, props.class)"
     :size="size"
     :aria-expanded="open"
+    :data-hover="props.dataHover"
+    :data-focus="props.dataFocus"
     variant="control"
     block
     :focusable="focusable"
@@ -15,14 +17,16 @@
     </slot>
 
     <slot v-if="!selected" name="placeholder" v-bind="{ item: selected }">
-      <span class="opacity-50">
+      <span
+        class="text-faint transition-colors duration-200 [.group:focus-within_&,.group[data-focus=true]_&]:text-base [.group:hover_&,.group[data-hover=true]_&]:text-base"
+      >
         <slot name="placeholder">{{ placeholder }}</slot>
       </span>
     </slot>
 
     <template #append>
       <Icon
-        class="text-emphasis-medium group-hover:text-emphasis-none ml-auto pl-4 transition-all duration-200 [&>svg]:size-3 [&>svg]:transition-all [&>svg]:duration-300"
+        class="text-muted ml-auto pl-4 transition-all duration-200 group-hover:text-base [&>svg]:size-3 [&>svg]:transition-all [&>svg]:duration-200"
         :class="open ? '[&>svg]:rotate-180' : ''"
         icon="arrow-down"
         size="xs"

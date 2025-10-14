@@ -4,7 +4,6 @@
       <slot name="trigger">
         <Button
           :variant="props.variant"
-          :color="props.color"
           :loading="props.loading"
           :class="cn(styles.dropdownMenu.trigger, props.class)"
           :label="props.label"
@@ -41,6 +40,7 @@
         >
           <Button
             v-if="!item.hidden"
+            :class="styles.dropdownMenu.item"
             variant="ghost"
             align="left"
             block
@@ -86,10 +86,10 @@ const props = withDefaults(defineProps<DropdownMenuProps>(), {
   items: () => [],
   loading: false,
   // -- styles
-  color: "base",
   size: "md",
   width: "auto",
-  variant: "ghost",
+  variant: "solid",
+  color: "primary",
   align: "end",
   ring: true,
   // --- styles
@@ -109,7 +109,6 @@ const props = withDefaults(defineProps<DropdownMenuProps>(), {
 });
 
 const meta = computed(() => ({
-  color: props.color,
   width: props.width,
   size: props.size
 }));

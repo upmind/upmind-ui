@@ -5,15 +5,26 @@ import { cva } from "class-variance-authority";
 export const loadingVariants = cva();
 
 // -----------------------------------------------------------------------------
+const variants = {
+  isActive: {
+    true: "",
+    false: ""
+  },
+  isTransparent: {
+    true: "",
+    false: ""
+  }
+};
 export default {
   loading: {
-    root: cva("text-secondary z-50 flex w-full items-center justify-center", {
-      variants: {
-        skrim: {
-          light: "bg-white/75",
-          full: "bg-white"
-        }
+    root: cva("", {
+      variants
+    }),
+    spinner: cva(
+      "text-control-default bg-core-surface/60 z-50 flex w-full items-center justify-center",
+      {
+        variants
       }
-    })
+    )
   }
 };

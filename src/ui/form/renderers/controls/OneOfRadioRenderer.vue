@@ -48,7 +48,7 @@ const items = computed(() => {
         item: option,
         value: option.value,
         label: option.label,
-        sublabel: option?.text,
+        secondaryLabel: option?.text,
         index,
         modelValue: data
       };

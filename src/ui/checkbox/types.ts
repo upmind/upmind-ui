@@ -12,8 +12,7 @@ export interface CheckboxProps extends CheckboxRootProps {
   autoFocus?: boolean;
   readonly?: boolean;
   // --- variants
-  size?: CheckboxVariantProps["size"] | string;
-  width?: CheckboxVariantProps["width"] | string;
+  size?: CheckboxVariantProps["size"];
   // ---
   uiConfig?: { checkbox: CxOptions };
   class?: HTMLAttributes["class"];

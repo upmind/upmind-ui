@@ -1,0 +1,120 @@
+/*
+ * This file creates background utilities for button gradients and other background tokens.
+ * The @theme directive exposes these as standard Tailwind utilities (bg-*) with full
+ * variant support for complex background values like gradients.
+ *
+ * - @theme bg-button-primary-0 → Creates .bg-bg-button-primary-0, .text-bg-button-primary-0, etc.
+ * - @utility bg-button-primary-0 → Creates only .bg-button-primary-0 with Tailwind variants
+ * - .bg-button-primary-0 → Creates .bg-button-primary-0 class, no Tailwind variants
+ *
+ * We use @theme for background colors that should be available as standard utilities
+ * across all property types.
+ */
+@theme inline {
+  /* Button Gradient Colors */
+  --color-bg-button-primary-0: var(--bg-button-primary-0);
+  --color-bg-button-primary-1: var(--bg-button-primary-1);
+  --color-bg-button-primary-hover-0: var(--bg-button-primary-hover-0);
+  --color-bg-button-primary-hover-1: var(--bg-button-primary-hover-1);
+  --color-bg-button-secondary-0: var(--bg-button-secondary-0);
+  --color-bg-button-secondary-1: var(--bg-button-secondary-1);
+  --color-bg-button-secondary-hover-0: var(--bg-button-secondary-hover-0);
+  --color-bg-button-secondary-hover-1: var(--bg-button-secondary-hover-1);
+  --color-bg-button-neutral-0: var(--bg-button-neutral-0);
+  --color-bg-button-neutral-1: var(--bg-button-neutral-1);
+  --color-bg-button-neutral-hover-0: var(--bg-button-neutral-hover-0);
+  --color-bg-button-neutral-hover-1: var(--bg-button-neutral-hover-1);
+  --color-bg-button-subtle-0: var(--bg-button-subtle-0);
+  --color-bg-button-subtle-1: var(--bg-button-subtle-1);
+  --color-bg-button-subtle-hover-0: var(--bg-button-subtle-hover-0);
+  --color-bg-button-subtle-hover-1: var(--bg-button-subtle-hover-1);
+  --color-bg-button-danger-0: var(--bg-button-danger-0);
+  --color-bg-button-danger-1: var(--bg-button-danger-1);
+  --color-bg-button-danger-hover-0: var(--bg-button-danger-hover-0);
+  --color-bg-button-danger-hover-1: var(--bg-button-danger-hover-1);
+
+  --color-control-surface: var(--bg-control-surface);
+
+  --color-accent-primary-muted: var(--bg-accent-primary-muted);
+  --color-accent-warning-muted: var(--bg-accent-warning-muted);
+  --color-accent-neutral-muted: var(--bg-accent-neutral-muted);
+  --color-accent-success-muted: var(--bg-accent-success-muted);
+  --color-accent-info-muted: var(--bg-accent-info-muted);
+  --color-accent-promo-muted: var(--bg-accent-promo-muted);
+  --color-accent-danger-muted: var(--bg-accent-danger-muted);
+}
+
+/* Background Color Utilities */
+@utility bg-canvas {
+  background-color: var(--color-core-canvas);
+}
+@utility bg-surface {
+  background-color: var(--color-core-surface);
+}
+@utility bg-skeleton {
+  background-color: var(--color-core-skeleton);
+}
+@utility bg-overlay {
+  background-color: var(--color-core-overlay);
+}
+
+/* Background - Control */
+@utility bg-control-checked-contrast {
+  background-color: var(--bg-control-checked-contrast);
+}
+@utility bg-control-checked {
+  background-color: var(--bg-control-checked);
+}
+@utility bg-control-checked-hover {
+  background-color: var(--bg-control-checked-hover);
+}
+@utility bg-control-unchecked {
+  background-color: var(--bg-control-unchecked);
+}
+@utility bg-control-unchecked-hover {
+  background-color: var(--bg-control-unchecked-hover);
+}
+@utility bg-control-selected {
+  background-color: var(--bg-control-selected);
+}
+
+/* Background - Button Non-Gradient */
+@utility bg-button-outline {
+  background-color: var(--bg-button-outline);
+}
+@utility bg-button-outline-hover {
+  background-color: var(--bg-button-outline-hover);
+}
+@utility bg-button-ghost {
+  background-color: var(--bg-button-ghost);
+}
+@utility bg-button-ghost-hover {
+  background-color: var(--bg-button-ghost-hover);
+}
+
+/* Background - Accent */
+@utility bg-accent-primary {
+  background-color: var(--bg-accent-primary);
+}
+@utility bg-accent-neutral {
+  background-color: var(--bg-accent-neutral);
+}
+@utility bg-accent-promo {
+  background-color: var(--bg-accent-promo);
+}
+@utility bg-accent-danger {
+  background-color: var(--bg-accent-danger);
+}
+@utility bg-accent-warning {
+  background-color: var(--bg-accent-warning);
+}
+
+@utility bg-accent-success {
+  background-color: var(--bg-accent-success);
+}
+@utility bg-accent-info {
+  background-color: var(--bg-accent-info);
+}
+@utility bg-accent-info-muted {
+  background-color: var(--bg-accent-info-muted);
+}

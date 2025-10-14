@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export const iconVariants = cva(
-  "inline-block transition-transform duration-300 aria-checked:rotate-180",
+  "inline-block transition-transform duration-200 aria-checked:rotate-180",
   {
     variants: {
       size: {

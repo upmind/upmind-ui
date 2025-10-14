@@ -12,6 +12,6 @@
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: var(--border-color-default, currentcolor);
+    border-color: var(--border-control-default, currentcolor);
   }
 }

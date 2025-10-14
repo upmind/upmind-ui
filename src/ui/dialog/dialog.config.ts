@@ -1,33 +1,35 @@
 import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
+export const variants = {
+  size: {
+    xs: "max-w-xs",
+    sm: "max-w-sm",
+    md: "max-w-md",
+    lg: "max-w-lg",
+    xl: "max-w-xl",
+    "2xl": "max-w-2xl",
+    "3xl": "max-w-3xl",
+    "4xl": "max-w-4xl",
+    app: "max-w-app",
+    full: "max-w-none"
+  },
+  overflow: {
+    auto: "overflow-auto",
+    hidden: "overflow-hidden",
+    visible: "overflow-visible",
+    scroll: "overflow-scroll"
+  },
+  fit: {
+    cover: "border-none p-0",
+    contain: "p-6 md:p-10"
+  }
+};
+
 export const contentVariant = cva(
-  "bg-base-background mx-auto grid max-h-[90dvh] w-full p-0 focus:outline-hidden",
+  "bg-surface border-surface mx-auto grid max-h-[90dvh] w-full border p-0 text-base shadow-none focus:outline-hidden",
   {
-    variants: {
-      size: {
-        xs: "max-w-xs",
-        sm: "max-w-sm",
-        md: "max-w-md",
-        lg: "max-w-lg",
-        xl: "max-w-xl",
-        "2xl": "max-w-2xl",
-        "3xl": "max-w-3xl",
-        "4xl": "max-w-4xl",
-        app: "max-w-app",
-        full: "max-w-none"
-      },
-      overflow: {
-        auto: "overflow-auto",
-        hidden: "overflow-hidden",
-        visible: "overflow-visible",
-        scroll: "overflow-scroll"
-      },
-      fit: {
-        cover: "border-none p-0",
-        contain: "p-6 md:p-10"
-      }
-    },
+    variants,
     defaultVariants: {
       size: "app",
       overflow: "auto",
@@ -48,20 +50,7 @@ export const containerVariant = cva("", {
   }
 });
 
-export const overlayVariant = cva("", {
-  variants: {
-    skrim: {
-      dark: "bg-base-foreground opacity-75",
-      light: "bg-base-foreground opacity-25",
-      primary: "bg-primary-950 opacity-90",
-      secondary: "bg-secondary-950 opacity-90",
-      accent: "bg-accent-950 opacity-90"
-    },
-    defaultVariants: {
-      skrim: "dark"
-    }
-  }
-});
+export const overlayVariant = cva("bg-overlay");
 
 export default {
   dialog: {

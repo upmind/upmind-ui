@@ -1,0 +1,239 @@
+/*
+ * The :root approach enables controlled generation of Tailwind utilities through specialized utility files
+ * like utilities/colors.css, utilities/border.css, and utilities/text.css. Each utility file uses the
+ * @theme or @utility directives to create specific use-case utilities that reference these foundational
+ * variables.
+
+ * Colors can be exposed as generic utilities (bg-*, text-*, border-*) through utilities/colors.css
+ * using the @theme directive, or restricted to specific contexts through dedicated files like utilities/border.css
+ * and utilities/text.css using @utility directives. This prevents Tailwind from automatically generating
+ * classes for colors we don't want while ensuring only approved design tokens become available as utility
+ * classes. This architectural pattern helps avoid design inconsistencies.
+
+ * The primitive color values at the top of this file provide the foundation for building complete themes -
+ * overriding these core tokens will cascade through the UI components. When more granular control is needed,
+ * individual semantic variables (like --bg-button-primary or --text-accent-danger) can be overridden
+ * independently without affecting the broader theme system.
+ */
+:root {
+  /* Primitive Colors - Core */
+  --color-core-canvas: #f9f9fc;
+  --color-core-surface: #ffffff;
+  --color-core-base: #3d3d3d;
+  --color-core-display: #262626;
+  --color-core-faint: #9d9da9;
+  --color-core-muted: #89898a;
+  --color-core-skeleton: #2626260c;
+  --color-core-overlay: #3d3d3dcc;
+
+  /* Primitive Colors - Control */
+  --color-control-default: #262626;
+  --color-control-default-delta: #1a1a1a;
+  --color-control-default-contrast: #fefefe;
+  --color-control-muted: #f8f8fb;
+  --color-control-muted-contrast: #262626;
+  --color-control-stroke: #e3e3eb;
+  --color-control-stroke-delta: #d5d5de;
+
+  /* Primitive Colors - Primary */
+  --color-primary-default: #262626;
+  --color-primary-default-stop: #262626;
+  --color-primary-default-delta: #1a1a1a;
+  --color-primary-default-contrast: #ffffff;
+  --color-primary-muted: #f8f8fb;
+  --color-primary-muted-contrast: #262626;
+
+  /* Primitive Colors - Secondary */
+  --color-secondary-default: #eaeaf1;
+  --color-secondary-default-stop: #eaeaf1;
+  --color-secondary-default-delta: #cdcddb;
+  --color-secondary-default-contrast: #262626;
+
+  /* Primitive Colors - Neutral */
+  --color-neutral-default: #707070;
+  --color-neutral-default-delta: #575757;
+  --color-neutral-default-contrast: #ffffff;
+  --color-neutral-muted: #f8f8fb;
+  --color-neutral-muted-delta: #f2f2f9;
+  --color-neutral-muted-contrast: #575757;
+  --color-neutral-stroke: #eaeaf1;
+  --color-neutral-stroke-delta: #cdcddb;
+
+  /* Primitive Colors - Promo */
+  --color-promo-default: #794dff;
+  --color-promo-default-contrast: #ffffff;
+  --color-promo-muted: #f7f5ff;
+  --color-promo-muted-contrast: #794dff;
+
+  /* Primitive Colors - Danger */
+  --color-danger-default: #fa2f62;
+  --color-danger-default-delta: #ef0640;
+  --color-danger-default-contrast: #fff5f7;
+  --color-danger-muted: #fff5f7;
+  --color-danger-muted-contrast: #fa2f62;
+
+  /* Primitive Colors - Warning */
+  --color-warning-default: #ffc233;
+  --color-warning-default-contrast: #523900;
+  --color-warning-muted: #fff9eb;
+  --color-warning-muted-contrast: #c28800;
+
+  /* Primitive Colors - Success */
+  --color-success-default: #00d88c;
+  --color-success-default-contrast: #002c19;
+  --color-success-muted: #e7fff1;
+  --color-success-muted-contrast: #007d4f;
+
+  /* Primitive Colors - Info */
+  --color-info-default: #00acff;
+  --color-info-default-contrast: #ffffff;
+  --color-info-muted: #f0faff;
+  --color-info-muted-contrast: #00acff;
+
+  /* Background Colors */
+  --bg-canvas: var(--color-core-canvas);
+  --bg-surface: var(--color-core-surface);
+  --bg-skeleton: var(--color-core-skeleton);
+  --bg-overlay: var(--color-core-overlay);
+
+  /* Background - Control */
+  --bg-control-checked-contrast: var(--color-control-default-contrast);
+  --bg-control-checked: var(--color-control-default);
+  --bg-control-checked-hover: var(--color-control-default-delta);
+  --bg-control-unchecked: var(--color-control-stroke);
+  --bg-control-unchecked-hover: var(--color-control-stroke-delta);
+  --bg-control-selected: var(--color-control-muted);
+  --bg-control-surface: var(--color-control-default-contrast);
+  --bg-control-ring: var(--color-control-default);
+
+  /* Background - Button */
+  --bg-button-primary-ring: var(--color-primary-default-delta);
+  --bg-button-primary-0: var(--color-primary-default);
+  --bg-button-primary-1: var(--color-primary-default-stop);
+  --bg-button-primary-hover-0: var(--color-primary-default-delta);
+  --bg-button-primary-hover-1: var(--color-primary-default-delta);
+  --bg-button-secondary-ring: var(--color-secondary-default-delta);
+  --bg-button-secondary-0: var(--color-secondary-default);
+  --bg-button-secondary-1: var(--color-secondary-default-stop);
+  --bg-button-secondary-hover-0: var(--color-secondary-default-delta);
+  --bg-button-secondary-hover-1: var(--color-secondary-default-delta);
+  --bg-button-neutral-ring: var(--color-neutral-default-delta);
+  --bg-button-neutral-0: var(--color-neutral-default);
+  --bg-button-neutral-1: var(--color-neutral-default);
+  --bg-button-neutral-hover-0: var(--color-neutral-default-delta);
+  --bg-button-neutral-hover-1: var(--color-neutral-default-delta);
+  --bg-button-subtle-ring: var(--color-neutral-default-delta);
+  --bg-button-subtle-0: var(--color-neutral-muted);
+  --bg-button-subtle-1: var(--color-neutral-muted);
+  --bg-button-subtle-hover-0: var(--color-neutral-muted-delta);
+  --bg-button-subtle-hover-1: var(--color-neutral-muted-delta);
+  --bg-button-danger-ring: var(--color-danger-default-delta);
+  --bg-button-danger-0: var(--color-danger-default);
+  --bg-button-danger-1: var(--color-danger-default);
+  --bg-button-danger-hover-0: var(--color-danger-default-delta);
+  --bg-button-danger-hover-1: var(--color-danger-default-delta);
+  --bg-button-outline: transparent;
+  --bg-button-outline-hover: var(--color-neutral-muted-delta);
+  --bg-button-outline-ring: var(--color-neutral-default-delta);
+  --bg-button-ghost: transparent;
+  --bg-button-ghost-hover: var(--color-neutral-muted-delta);
+  --bg-button-ghost-ring: var(--color-neutral-default-delta);
+
+  /* Background - Accent */
+  --bg-accent-primary: var(--color-primary-default);
+  --bg-accent-primary-muted: var(--color-primary-muted);
+  --bg-accent-neutral: var(--color-neutral-default);
+  --bg-accent-neutral-muted: var(--color-neutral-muted);
+  --bg-accent-promo: var(--color-promo-default);
+  --bg-accent-promo-muted: var(--color-promo-muted);
+  --bg-accent-danger: var(--color-danger-default);
+  --bg-accent-danger-muted: var(--color-danger-muted);
+  --bg-accent-warning: var(--color-warning-default);
+  --bg-accent-warning-muted: var(--color-warning-muted);
+  --bg-accent-success: var(--color-success-default);
+  --bg-accent-success-muted: var(--color-success-muted);
+  --bg-accent-info: var(--color-info-default);
+  --bg-accent-info-muted: var(--color-info-muted);
+
+  /* Border Colors */
+  --border-surface: var(--color-neutral-stroke);
+
+  /* Border - Button */
+  --border-button-outline: var(--color-neutral-stroke);
+  --border-button-outline-hover: var(--color-neutral-stroke-delta);
+
+  /* Border - Control */
+  --border-control-default: var(--color-control-stroke);
+  --border-control-hover: var(--color-control-stroke-delta);
+  --border-control-selected: var(--color-control-default);
+
+  /* Border - Accent */
+  --border-accent-primary: var(--color-primary-default);
+  --border-accent-secondary: var(--color-secondary-default);
+  --border-accent-neutral: var(--color-neutral-default);
+  --border-accent-promo: var(--color-promo-default);
+  --border-accent-danger: var(--color-danger-default);
+  --border-accent-warning: var(--color-warning-default);
+  --border-accent-success: var(--color-success-default);
+  --border-accent-info: var(--color-info-default);
+
+  /* Icon Colors */
+  --text-icon-primary: var(--color-primary-default);
+  --text-icon-neutral: var(--color-core-base);
+
+  /* Text Colors */
+  --text-primary: #ffffff;
+  --text-base: var(--color-core-base);
+  --text-display: var(--color-core-display);
+  --text-muted: var(--color-core-muted);
+  --text-faint: var(--color-core-faint);
+
+  /* Text - Control */
+  --text-control-selected: var(--color-control-muted-contrast);
+  --text-button-primary: var(--color-primary-default-contrast);
+  --text-button-secondary: var(--color-secondary-default-contrast);
+  --text-button-neutral: var(--color-neutral-default-contrast);
+  --text-button-subtle: var(--color-neutral-muted-contrast);
+  --text-button-danger: var(--color-danger-default-contrast);
+  --text-button-danger-link: var(--color-danger-default);
+  --text-button-danger-link-hover: var(--color-danger-default-delta);
+  --text-button-outline: var(--color-core-display);
+  --text-button-ghost: var(--color-core-display);
+  --text-button-link: var(--color-core-display);
+  --text-button-link-hover: var(--color-control-default);
+  --text-button-muted-link: var(--color-core-muted);
+  --text-button-muted-link-hover: var(--color-control-default);
+
+  /* Text - Accent */
+  --text-accent-primary: var(--color-primary-default);
+  --text-accent-primary-muted-contrast: var(--color-primary-muted-contrast);
+  --text-accent-primary-contrast: var(--color-primary-default-contrast);
+  --text-accent-neutral: var(--color-neutral-default);
+  --text-accent-neutral-muted-contrast: var(--color-neutral-muted-contrast);
+  --text-accent-neutral-contrast: var(--color-neutral-default-contrast);
+  --text-accent-promo: var(--color-promo-default);
+  --text-accent-promo-muted-contrast: var(--color-promo-muted-contrast);
+  --text-accent-promo-contrast: var(--color-promo-default-contrast);
+  --text-accent-danger: var(--color-danger-default);
+  --text-accent-danger-muted-contrast: var(--color-danger-muted-contrast);
+  --text-accent-danger-contrast: var(--color-danger-default-contrast);
+  --text-accent-warning: var(--color-warning-default);
+  --text-accent-warning-muted-contrast: var(--color-warning-muted-contrast);
+  --text-accent-warning-contrast: var(--color-warning-default-contrast);
+  --text-accent-success: var(--color-success-default);
+  --text-accent-success-muted-contrast: var(--color-success-muted-contrast);
+  --text-accent-success-contrast: var(--color-success-default-contrast);
+  --text-accent-info: var(--color-info-default);
+  --text-accent-info-muted-contrast: var(--color-info-muted-contrast);
+  --text-accent-info-contrast: var(--color-info-default-contrast);
+
+  /* Radius Variables */
+  --button-radius: 8px;
+  --control-radius: 8px;
+  --badge-radius: 16px;
+  --image-radius: 16px;
+  --card-radius: 16px;
+  --message-radius: 16px;
+
+  --stroke-badge: 1.5px;
+}

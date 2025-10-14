@@ -1,27 +1,17 @@
 // --- external
 import { cva, cx } from "class-variance-authority";
-import { rootVariants } from "../button/button.config";
+import { focusWithinRing } from "../../assets/styles";
 
-export const buttonGroupVariants = cva("gap-0 overflow-hidden p-0", {
-  variants: {
-    variant: {
-      outline: "divide-border divide-x"
-    }
-  }
-});
+export const rootVariants = cva(
+  `control-radius divide-border-control-default shadow-control-default bg-control-surface [&:hover,&:focus-within]:shadow-control-hover flex divide-x overflow-hidden ${focusWithinRing}`
+);
 
-export const buttonVariants = cva("px-3 py-1 ring-0", {
-  variants: {
-    variant: {
-      outline: "focus:bg-control-active-hover"
-    }
-  }
-});
+export const buttonVariants = cva("px-3 py-1");
 
 export default {
   buttonGroup: {
-    root: (meta: any) => cx(rootVariants(meta), buttonGroupVariants(meta)),
-    item: cva("flex items-center justify-center px-1 py-1"),
+    root: rootVariants,
+    item: cva("px-1 py-1 leading-none"),
     button: buttonVariants
   }
 };

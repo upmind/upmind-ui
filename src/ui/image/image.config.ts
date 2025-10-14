@@ -1,4 +1,5 @@
 import { cva } from "class-variance-authority";
+import { ringClasses } from "../../assets/styles";
 // -----------------------------------------------------------------------------
 export const rootVariant = cva("h-full w-full", {
   variants: {
@@ -8,7 +9,7 @@ export const rootVariant = cva("h-full w-full", {
       last: "rounded-r-lg"
     },
     isEmpty: {
-      true: "bg-secondary text-secondary-foreground flex items-center justify-center"
+      true: "text-accent-neutral flex items-center justify-center"
     },
     fit: {
       cover: "object-cover object-center",
@@ -25,7 +26,7 @@ export const rootVariant = cva("h-full w-full", {
   }
 });
 
-export const containerVariant = cva("h-full overflow-hidden rounded-lg", {
+export const containerVariant = cva(`h-full overflow-hidden rounded-lg`, {
   variants: {
     ratio: {
       default: "",
@@ -34,6 +35,13 @@ export const containerVariant = cva("h-full overflow-hidden rounded-lg", {
       "3:2": "aspect-3/2",
       "16:9": "aspect-video",
       "18:6": "aspect-18/6"
+    },
+    isEmpty: {
+      true: "opacity-20"
+    },
+    isCarousel: {
+      true: `${ringClasses} transition-all duration-200`,
+      false: ""
     }
   },
   defaultVariants: {
@@ -45,7 +53,7 @@ export default {
   image: {
     container: containerVariant,
     root: rootVariant,
-    icon: cva("opacity-25"),
+    icon: cva("bg-surface p-2"),
     carousel: {
       content: cva(""),
       list: cva("m-0 flex p-0"),

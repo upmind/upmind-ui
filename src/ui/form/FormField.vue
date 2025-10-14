@@ -26,13 +26,13 @@
                 v-if="tooltip"
                 :label="tooltip"
                 side="right"
-                color="primary"
+                color="info"
                 class="max-w-72 text-center text-xs"
               >
                 <Icon
                   icon="information-circle"
                   size="nano"
-                  class="opacity-50 transition-all duration-300 hover:opacity-100"
+                  class="opacity-50 transition-all duration-200 hover:opacity-100"
                 />
               </Tooltip>
 

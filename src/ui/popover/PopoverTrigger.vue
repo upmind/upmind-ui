@@ -2,7 +2,7 @@
 import { PopoverTrigger, type PopoverTriggerProps } from "radix-vue";
 
 // TODO: Refactor into CE and CVA
-import { ringClasses } from "../../assets/ring.styles";
+import { ringClasses } from "../../assets/styles";
 const props = withDefaults(
   defineProps<PopoverTriggerProps & { ring?: boolean }>(),
   {

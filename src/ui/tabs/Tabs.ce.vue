@@ -2,19 +2,9 @@
   <!--<link rel="stylesheet" :href="stylesheet" />-->
 
   <Tabs v-bind="forwarded">
-    <TabsList
-      :class="styles.tabs.list"
-      :color="color"
-      :variant="variant"
-      v-if="tabs.length > 1"
-    >
+    <TabsList :class="styles.tabs.list" v-if="tabs.length > 1">
       <template v-for="item in tabs" :key="item.value">
-        <TabsTrigger
-          :value="item.value"
-          :class="styles.tabs.trigger"
-          :color="props.color"
-          :variant="props.variant"
-        >
+        <TabsTrigger :value="item.value" :class="styles.tabs.trigger">
           <slot :name="`trigger.${item.value}`">{{ item.label }}</slot>
         </TabsTrigger>
       </template>
@@ -63,8 +53,7 @@ const props = withDefaults(defineProps<TabsProps>(), {
   tabs: (): TabItem[] => [],
   defaultValue: "",
   // -- styles
-  color: "base",
-  variant: "outline",
+  color: "default",
   // --- styles
   uiConfig: () => ({
     tabs: {
@@ -78,13 +67,7 @@ const props = withDefaults(defineProps<TabsProps>(), {
 const emits = defineEmits<TabsRootEmits>();
 const forwarded = useForwardPropsEmits(props, emits);
 
-const onTabClick = (value: string) => {
-  emits("update:modelValue", value);
-};
-
 const meta = computed(() => ({
-  color: props.color,
-  variant: props.variant,
   alignment: props.alignment,
   width: props.width
 }));

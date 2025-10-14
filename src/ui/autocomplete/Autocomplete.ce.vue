@@ -156,7 +156,7 @@ const props = withDefaults(defineProps<AutocompleteProps>(), {
   align: "end",
   side: "bottom",
   // --- styles
-  iconSize: "2xs",
+  iconSize: "xs",
   uiConfig: () => ({ autocomplete: [] })
 });
 

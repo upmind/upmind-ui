@@ -42,7 +42,7 @@
           <FormDescription
             v-if="control?.description"
             :formDescriptionId="`form-item-description-${control.id}`"
-            class="text-emphasis-medium mt-1 mb-0 leading-tight"
+            class="text-muted mt-1 mb-0 leading-tight"
           >
             {{ control.description }}
           </FormDescription>

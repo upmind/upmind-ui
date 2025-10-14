@@ -35,7 +35,6 @@ export interface InterstitialProps {
   actions?: InterstitialActionProps[];
   // ---
   size?: DialogProps["size"];
-  skrim?: DialogProps["skrim"];
   fit?: DialogProps["fit"];
   // ---
   uiConfig?: { interstitial: CxOptions };

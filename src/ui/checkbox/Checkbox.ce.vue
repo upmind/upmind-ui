@@ -5,6 +5,7 @@
       v-bind="delegatedProps"
       :class="cn(styles.checkbox, props.class)"
       @keydown.enter="handleEnter"
+      :data-state="checked ? 'checked' : 'unchecked'"
     />
   </span>
 </template>

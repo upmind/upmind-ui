@@ -5,19 +5,12 @@ import { cva } from "class-variance-authority";
 export default {
   list: {
     root: cva("text-sm/loose"),
-    term: cva("text-left", {
-      variants: {
-        hasEmphasis: {
-          true: "text-emphasis-medium",
-          false: "text-emphasis-medium"
-        }
-      }
-    }),
+    term: cva("text-muted text-left"),
     description: cva("text-right", {
       variants: {
         hasEmphasis: {
           true: "",
-          false: "text-emphasis-medium"
+          false: "text-muted"
         }
       }
     }),

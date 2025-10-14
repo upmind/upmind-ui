@@ -13,10 +13,10 @@ export const indicatorVariants = cva(
         secondary: "bg-secondary text-secondary-foreground",
         accent: "bg-accent text-accent-foreground",
         promotion: "bg-promotion text-promotion-foreground",
-        destructive: "bg-error text-error-foreground",
+        destructive: "bg-danger text-danger-foreground",
         success: "bg-success text-success-foreground",
         info: "bg-info text-info-foreground",
-        error: "bg-error text-error-foreground",
+        error: "bg-danger-default text-danger-default",
         warning: "bg-warning text-warning-foreground"
       },
       size: {

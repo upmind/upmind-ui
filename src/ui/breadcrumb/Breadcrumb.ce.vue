@@ -12,17 +12,13 @@
               item.current ||
               index === props.items.length - 1
             "
-            is="span"
-            class="cursor-default no-underline hover:opacity-100!"
-            :class="{ 'text-emphasis-high': index === props.items.length - 1 }"
+            class="hover:text-muted! cursor-default no-underline hover:opacity-100!"
             :size="props.size"
             :focusable="false"
-          >
-            {{ item.label }}
-          </Link>
-          <Link v-else :to="item.to" :href="item.href" :size="props.size">
-            {{ item.label }}
-          </Link>
+            :label="item.label"
+            :color="index === props.items.length - 1 ? 'muted' : 'default'"
+          />
+          <Link v-else :to="item.to" :size="props.size" :label="item.label" />
         </BreadcrumbItem>
 
         <BreadcrumbSeparator v-if="index < props.items.length - 1">{{
@@ -46,11 +42,10 @@ import Breadcrumb from "./Breadcrumb.vue";
 import BreadcrumbList from "./BreadcrumbList.vue";
 import BreadcrumbItem from "./BreadcrumbItem.vue";
 import BreadcrumbSeparator from "./BreadcrumbSeparator.vue";
-import Link from "../button/Link.ce.vue";
+import Link from "../link/Link.ce.vue";
 
 // --- types
 import type { BreadcrumbConsolidateProps } from "./types";
-import { RouterLink } from "vue-router";
 
 const props = withDefaults(defineProps<BreadcrumbConsolidateProps>(), {
   items: () => [],

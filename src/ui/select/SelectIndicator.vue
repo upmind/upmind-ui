@@ -3,16 +3,16 @@
     v-bind="forwardedProps"
     :class="
       cn(
-        'focus-visible:ring-ring shadow-border-control text-primary ring-offset-background flex aspect-square h-4.5 w-4.5 items-center justify-center rounded-full border-none focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+        'focus-visible:ring-ring shadow-control-default text-primary ring-offset-core-canvas flex aspect-square h-4.5 w-4.5 items-center justify-center rounded-full border-none focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
 
-        'data-[state=checked]:text-control-active-foreground bg-base-background text-control-foreground data-[state=checked]:bg-control-active data-[state=checked]:shadow-border-none shrink-0',
+        'bg-base-background text-control-foreground data-[state=checked]:bg-control-checked shrink-0 data-[state=checked]:shadow-none',
         props.class,
         props.noInput ? 'sr-only' : ''
       )
     "
   >
     <SelectItemIndicator class="">
-      <Circle class="h-2 w-2 fill-current text-current text-white" />
+      <Circle class="text-control-checked-contrast h-2 w-2 fill-current" />
     </SelectItemIndicator>
   </span>
 </template>

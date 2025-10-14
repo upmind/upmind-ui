@@ -1,13 +1,13 @@
 <template>
   <FormField v-bind="formFieldProps" no-errors>
-    <InputGroup class="flex">
+    <InputGroup class="group flex" :ring="false">
       <Combobox
         :model-value="
           phone?.country || control.data?.country || defaultCountryCode
         "
         :items="countryItems"
         @update:modelValue="onCountyInput"
-        class="shadow-border-r-none rounded-r-none"
+        class="shadow-control-r-none hover:shadow-control-hover-r-none group-hover:shadow-control-hover group-hover:shadow-control-hover-r-none rounded-r-none! focus-within:z-20 focus:z-20"
         popover-class="!w-dropdown-xl"
         align="start"
         width="fit"
@@ -17,6 +17,7 @@
         tabindex="-1"
       />
       <Input
+        class="group-hover:shadow-control-hover z-10 rounded-l-none!"
         :disabled="!control.enabled"
         :default-value="
           phone?.nationalNumber ||
@@ -26,8 +27,6 @@
         :placeholder="exampleNumber || ''"
         @update:modelValue="onPhoneInput"
         type="tel"
-        class="rounded-l-none"
-        :ring="false"
       />
     </InputGroup>
 

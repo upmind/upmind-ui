@@ -1,9 +1,7 @@
 <template>
   <component
     :is="component"
-    :to="to"
-    :href="href"
-    :type="type"
+    v-bind="componentProps"
     :disabled="meta.isDisabled || meta.isLoading"
     :tabindex="meta.isFocusable ? '0' : '-1'"
     :class="cn(styles.button.root, props.class)"
@@ -38,7 +36,11 @@
       />
     </slot>
 
-    <Spinner v-if="loading" size="sm" class="absolute" />
+    <Spinner
+      v-if="loading"
+      size="sm"
+      class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+    />
   </component>
 </template>
 
@@ -64,8 +66,8 @@ import type { ButtonProps } from "./types";
 const props = withDefaults(defineProps<ButtonProps>(), {
   type: "button",
   size: "md",
-  color: "base",
-  variant: "flat",
+  variant: "solid",
+  color: "primary",
   align: "center",
   focusable: true,
   truncate: true,
@@ -88,10 +90,15 @@ const component = computed(() => {
   return Button;
 });
 
+const componentProps = computed(() => {
+  if (props.to) return { to: props.to };
+  if (props.href) return { href: props.href };
+  return { type: props.type };
+});
+
 const meta = computed(() => ({
   size: props.size,
   variant: props.variant,
-  color: props.color,
   align: props.align,
   isIconOnly: props.iconOnly,
   isPill: props.pill,

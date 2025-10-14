@@ -4,7 +4,7 @@ import type { CxOptions, VariantProps } from "class-variance-authority";
 
 // --- internal
 import type { Icon } from "../icon/types";
-import type { alertVariants } from "./alert.config";
+import { rootVariants as alertVariants } from "./alert.config";
 type AlertVariantProps = VariantProps<typeof alertVariants>;
 
 export interface AlertProps {
@@ -14,9 +14,12 @@ export interface AlertProps {
   description?: string;
   /** An optional icon for the alert */
   icon?: string | Icon;
+  /** An optional action for the alert */
+  action?: string;
   // ---
-  variant?: AlertVariantProps["variant"] | string;
-  color?: AlertVariantProps["color"] | string;
+  variant?: AlertVariantProps["variant"];
+  color?: AlertVariantProps["color"];
+  size?: AlertVariantProps["size"];
   // ---
   uiConfig?: { alert: CxOptions };
   class?: HTMLAttributes["class"];

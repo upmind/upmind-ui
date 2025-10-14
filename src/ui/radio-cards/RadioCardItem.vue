@@ -3,8 +3,10 @@
     :for="`${props.name}-${index}`"
     :class="cn(styles.radioCards.item)"
     :data-state="isSelected ? 'checked' : ''"
+    :data-hover="props.dataHover"
+    :data-focus="props.dataFocus"
   >
-    <div :class="styles.radioCards.radio">
+    <span :class="styles.radioCards.radio">
       <RadioGroupItem
         :id="`${props.name}-${index}`"
         :value="value"
@@ -15,19 +17,60 @@
         :data-state="isSelected ? 'checked' : 'unchecked'"
         :uiConfig="uiConfig"
         @blur="onBlur"
+        :data-focus="props.dataFocus"
+        :data-hover="props.dataHover"
       />
-    </div>
+    </span>
     <slot
       name="item"
       v-bind="{
         item: { ...props.item, value }
       }"
     >
-      <div :class="styles.radioCards.content">
-        <p v-if="props.label" class="font-medium">{{ props.label }}</p>
-        <small v-if="props.sublabel" :class="styles.radioCards.sublabel">{{
-          props.sublabel
-        }}</small>
+      <div class="flex w-full items-start gap-4">
+        <span class="flex flex-1 flex-col">
+          <header
+            v-if="props.label || props.secondaryLabel"
+            class="flex justify-between"
+          >
+            <span class="flex gap-2">
+              <h5 :class="styles.radioCards.content.label">
+                {{ props.label }}
+              </h5>
+              <Badge v-if="props.badge" v-bind="props.badge" size="sm" />
+            </span>
+            <span class="flex gap-2">
+              <Badge
+                v-if="props.secondaryBadge"
+                v-bind="props.secondaryBadge"
+                size="sm"
+              />
+              <h5 :class="styles.radioCards.content.secondaryLabel">
+                {{ props.secondaryLabel }}
+              </h5>
+            </span>
+          </header>
+          <p
+            v-if="props.description"
+            :class="styles.radioCards.content.description"
+          >
+            {{ props.description }}
+          </p>
+          <p
+            v-if="props.secondaryDescription"
+            :class="styles.radioCards.content.secondaryDescription"
+          >
+            {{ props.secondaryDescription }}
+          </p>
+        </span>
+        <span v-if="props.action" class="leading-none">
+          <Link
+            color="muted"
+            :label="props.action"
+            size="sm"
+            @click="onAction"
+          />
+        </span>
       </div>
     </slot>
   </Label>
@@ -44,6 +87,8 @@ import config from "./radioCards.config";
 
 // --- components
 import Label from "../label/Label.ce.vue";
+import { Link } from "../link";
+import { Badge } from "../badge";
 import { RadioGroupItem } from "../radio-group";
 
 // --- types
@@ -58,7 +103,7 @@ const props = withDefaults(defineProps<RadioCardsItemProps>(), {
   isList: false
 });
 
-const emits = defineEmits(["focus"]);
+const emits = defineEmits(["focus", "action"]);
 
 const isSelected = computed(() => {
   return props.modelValue === props.value;
@@ -70,7 +115,7 @@ const meta = computed(() => ({
 }));
 
 const styles = useStyles(
-  ["radioCards"],
+  ["radioCards", "radioCards.content"],
   meta,
   config,
   props.uiConfig ?? {}
@@ -81,11 +126,18 @@ const styles = useStyles(
     item: string;
     radio: string;
     input: string;
-    content: string;
-    label: string;
-    sublabel: string;
+    content: {
+      label: string;
+      secondaryLabel: string;
+      description: string;
+      secondaryDescription: string;
+    };
   };
 }>;
+
+const onAction = () => {
+  emits("action", props.value);
+};
 
 const onBlur = (e: FocusEvent) => {
   if (props.disabled) {

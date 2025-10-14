@@ -52,14 +52,19 @@
       </div>
 
       <DialogFooter
-        v-if="$slots.footer || ($slots.close && dismissable) || $slots.actions"
+        v-if="$slots.footer || dismissable || $slots.actions"
         :class="props.classFooter"
       >
-        <slot name="footer" />
-
-        <DialogClose @click="forceClose" v-if="$slots.close && dismissable">
-          <slot name="close" />
-        </DialogClose>
+        <slot name="footer">
+          <slot name="close">
+            <Link
+              @click="forceClose"
+              v-if="!noFooter"
+              color="muted"
+              label="Close"
+            />
+          </slot>
+        </slot>
 
         <slot name="actions" />
       </DialogFooter>
@@ -86,6 +91,7 @@ import DialogTitle from "./DialogTitle.vue";
 import DialogDescription from "./DialogDescription.vue";
 import DialogTrigger from "./DialogTrigger.vue";
 import DialogClose from "./DialogClose.vue";
+import { Link } from "../link";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -102,13 +108,13 @@ const props = withDefaults(defineProps<DialogProps>(), {
   // --- props
   open: false,
   dismissable: true,
+  noFooter: false,
   title: "",
   description: "",
   // --- styles
   size: "app",
   overflow: "auto",
   fit: "contain",
-  skrim: "dark",
   to: "body",
   // --- styles
   uiConfig: () => ({
@@ -149,8 +155,7 @@ const forwardedContent = useForwardPropsEmits(
 const meta = computed(() => ({
   size: props.size,
   overflow: props.overflow,
-  fit: props.fit,
-  skrim: props.skrim
+  fit: props.fit
 }));
 
 const styles = useStyles(
