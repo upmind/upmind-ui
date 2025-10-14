@@ -19,18 +19,18 @@ const meta: Meta<typeof Form> = {
         "additionalErrors",
         // "schema",
         // "uischema",
-        "modelValue",
-      ],
+        "modelValue"
+      ]
     },
     docs: {
       story: {
-        iframeHeight: 510,
+        iframeHeight: 510
       },
       description: {
         component:
-          "A form renderer specialized for numerical input with validation.",
-      },
-    },
+          "A form renderer specialized for numerical input with validation."
+      }
+    }
   },
   component: Form,
   render: args => ({
@@ -49,7 +49,7 @@ const meta: Meta<typeof Form> = {
         args,
         model,
         doReject,
-        doResolve,
+        doResolve
       };
     },
     template: `
@@ -61,8 +61,8 @@ const meta: Meta<typeof Form> = {
       />
 
       <h4>Model</h4>
-      <pre class="sticky top-0 rounded-lg bg-background-100 p-4">{{ model }}</pre>
-    `,
+      <pre class="sticky top-0 rounded-lg bg-100 p-4">{{ model }}</pre>
+    `
   }),
   argTypes: {},
   args: {
@@ -75,17 +75,17 @@ const meta: Meta<typeof Form> = {
           type: "integer",
           minLength: 3,
           title: "What is your name?",
-          description: "Please enter your full name",
+          description: "Please enter your full name"
         },
         dob: {
           type: "integer",
           format: "date",
-          title: "What is your date of birth?",
+          title: "What is your date of birth?"
         },
         postalCode: {
           type: "integer",
           maxLength: 5,
-          title: "What is your postal/zip code?",
+          title: "What is your postal/zip code?"
         },
 
         personalData: {
@@ -95,13 +95,13 @@ const meta: Meta<typeof Form> = {
               type: "number",
               minimum: 0,
               maximum: 250,
-              title: "How much do you weigh?",
+              title: "How much do you weigh?"
             },
             height: {
               type: "integer",
               minimum: 120,
               maximum: 220,
-              title: "How tall are you?",
+              title: "How tall are you?"
             },
             drivingSkill: {
               type: "number",
@@ -109,38 +109,38 @@ const meta: Meta<typeof Form> = {
               oneOf: [
                 {
                   title: "I'm a pro",
-                  const: 3,
+                  const: 3
                 },
                 {
                   title: "I'm okay",
-                  const: 2,
+                  const: 2
                 },
                 {
                   title: "I'm a beginner",
-                  const: 1,
-                },
-              ],
+                  const: 1
+                }
+              ]
             },
             vegetarian: {
               type: "boolean",
-              title: "Are you a vegetarian?",
+              title: "Are you a vegetarian?"
             },
             nationality: {
               type: "integer",
               enum: ["DE", "IT", "JP", "US", "RU", "Other"],
-              title: "What is your nationality?",
+              title: "What is your nationality?"
             },
             occupation: {
               type: "integer",
-              title: "What is your occupation?",
-            },
+              title: "What is your occupation?"
+            }
           },
-          required: ["weight", "height"],
-        },
+          required: ["weight", "height"]
+        }
       },
-      required: ["name", "dob", "postalCode", "nationality"],
-    },
-  },
+      required: ["name", "dob", "postalCode", "nationality"]
+    }
+  }
 };
 
 export default meta;
@@ -153,25 +153,25 @@ export const Base: Story = {
       properties: {
         integer: {
           type: "integer",
-          title: "Integer Input",
+          title: "Integer Input"
         },
         number: {
           type: "number",
-          title: "Float Number Input",
-        },
-      },
+          title: "Float Number Input"
+        }
+      }
     },
     uischema: {
       type: "VerticalLayout",
       elements: [
         {
           type: "Control",
-          scope: "#/properties/integer",
+          scope: "#/properties/integer"
         },
 
         {
           type: "Control",
-          scope: "#/properties/number",
+          scope: "#/properties/number"
         },
         {
           type: "Control",
@@ -179,12 +179,12 @@ export const Base: Story = {
           options: {
             prependText: "$",
             apendText: ".00",
-            label: "Simple currency input",
-          },
-        },
-      ],
-    },
-  },
+            label: "Simple currency input"
+          }
+        }
+      ]
+    }
+  }
 };
 
 export const Restricted: Story = {
@@ -196,7 +196,7 @@ export const Restricted: Story = {
         single: {
           type: "number",
           title: "Required Number",
-          description: "With a hint to give context",
+          description: "With a hint to give context"
         },
 
         singleWithRange: {
@@ -204,7 +204,7 @@ export const Restricted: Story = {
           title: "Restricted Number with Inclusive Range",
           description: "With range between 0 and 10 (inclusive)",
           minimum: 0,
-          maximum: 10,
+          maximum: 10
         },
 
         singleWithRangeExclusive: {
@@ -212,9 +212,9 @@ export const Restricted: Story = {
           title: "Restricted Number with Exclusive Range",
           description: "With range between 0 and 10 (exclusive)",
           exclusiveMinimum: 0,
-          exclusiveMaximum: 10,
-        },
-      },
-    },
-  },
+          exclusiveMaximum: 10
+        }
+      }
+    }
+  }
 };

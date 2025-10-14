@@ -19,14 +19,14 @@ const meta: Meta<typeof Form> = {
         "additionalErrors",
         // "schema",
         // "uischema",
-        "modelValue",
-      ],
+        "modelValue"
+      ]
     },
     docs: {
       story: {
-        iframeHeight: 300,
-      },
-    },
+        iframeHeight: 300
+      }
+    }
   },
   component: Form,
   render: args => ({
@@ -45,7 +45,7 @@ const meta: Meta<typeof Form> = {
         args,
         model,
         doReject,
-        doResolve,
+        doResolve
       };
     },
     template: `
@@ -56,9 +56,9 @@ const meta: Meta<typeof Form> = {
         @resolve="doResolve"
       />
 
-      <h4>Model</h4>
-      <pre class="sticky top-0 rounded-lg bg-background-100 p-4">{{ model }}</pre>
-    `,
+      <h4 class="mt-6 text-sm/loose text-muted">Model</h4>
+      <pre class="sticky top-0 control-radius bg-100 p-4 border-control-default border max-w-2xl">{{ model }}</pre>
+    `
   }),
   argTypes: {},
   args: {
@@ -71,17 +71,17 @@ const meta: Meta<typeof Form> = {
           type: "string",
           minLength: 3,
           title: "What is your name?",
-          description: "Please enter your full name",
+          description: "Please enter your full name"
         },
         dob: {
           type: "string",
           format: "date",
-          title: "What is your date of birth?",
+          title: "What is your date of birth?"
         },
         postalCode: {
           type: "string",
           maxLength: 5,
-          title: "What is your postal/zip code?",
+          title: "What is your postal/zip code?"
         },
 
         personalData: {
@@ -91,13 +91,13 @@ const meta: Meta<typeof Form> = {
               type: "number",
               minimum: 0,
               maximum: 250,
-              title: "How much do you weigh?",
+              title: "How much do you weigh?"
             },
             height: {
               type: "integer",
               minimum: 120,
               maximum: 220,
-              title: "How tall are you?",
+              title: "How tall are you?"
             },
             drivingSkill: {
               type: "number",
@@ -105,38 +105,38 @@ const meta: Meta<typeof Form> = {
               oneOf: [
                 {
                   title: "I'm a pro",
-                  const: 3,
+                  const: 3
                 },
                 {
                   title: "I'm okay",
-                  const: 2,
+                  const: 2
                 },
                 {
                   title: "I'm a beginner",
-                  const: 1,
-                },
-              ],
+                  const: 1
+                }
+              ]
             },
             vegetarian: {
               type: "boolean",
-              title: "Are you a vegetarian?",
+              title: "Are you a vegetarian?"
             },
             nationality: {
               type: "string",
               enum: ["DE", "IT", "JP", "US", "RU", "Other"],
-              title: "What is your nationality?",
+              title: "What is your nationality?"
             },
             occupation: {
               type: "string",
-              title: "What is your occupation?",
-            },
+              title: "What is your occupation?"
+            }
           },
-          required: ["weight", "height"],
-        },
+          required: ["weight", "height"]
+        }
       },
-      required: ["name", "dob", "postalCode", "nationality"],
-    },
-  },
+      required: ["name", "dob", "postalCode", "nationality"]
+    }
+  }
 };
 
 export default meta;
@@ -149,32 +149,9 @@ export const Base: Story = {
       properties: {
         single: {
           type: "boolean",
-          title: "Simple True/False",
-        },
-      },
-    },
-  },
-};
-
-export const Restricted: Story = {
-  args: {
-    schema: {
-      type: "object",
-      required: ["accept"],
-      properties: {
-        accept: {
-          type: "boolean",
-          title: "Accept our Terms and Conditions",
-          description: "We need your agreement to align with regulations",
-          default: null,
-          enum: [null, true],
-        },
-      },
-      errorMessage: {
-        properties: {
-          accept: "We require you accept our Terms and Conditions",
-        },
-      },
-    },
-  },
+          title: "Simple True/False"
+        }
+      }
+    }
+  }
 };

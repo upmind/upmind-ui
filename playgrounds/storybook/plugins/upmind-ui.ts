@@ -1,7 +1,7 @@
 // --- externals
 
 // --- internal
-import ThemeProvider from "../.storybook/Provider.vue";
+import { plugins as uiPlugins } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { App, Plugin } from "vue";
@@ -10,8 +10,8 @@ import type { App, Plugin } from "vue";
 
 const upmindUI: Plugin = {
   install: (app: App): void => {
-    app.component("UpwProvider", ThemeProvider);
-  },
+    app.use(uiPlugins.lottie.plugin);
+  }
 };
 
 export default upmindUI;

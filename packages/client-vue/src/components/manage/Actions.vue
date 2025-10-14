@@ -12,7 +12,6 @@
     <Button
       v-if="!props.noCancel"
       :label="t('action.cancel')"
-      color="base"
       variant="ghost"
       size="lg"
       :disabled="props.loading || props.processing"

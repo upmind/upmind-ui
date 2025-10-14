@@ -12,7 +12,7 @@ function getAbsolutePath(value: string): any {
 const config: StorybookConfig = {
   stories: [
     "../stories/**/*.mdx",
-    "../stories/**/*.stories.@(js|jsx|mjs|ts|tsx)",
+    "../stories/**/*.stories.@(js|jsx|mjs|ts|tsx)"
   ],
 
   staticDirs: ["../public"],
@@ -24,8 +24,8 @@ const config: StorybookConfig = {
       options: {
         backgrounds: false,
         measure: false,
-        outline: false,
-      },
+        outline: false
+      }
     },
     "@chromatic-com/storybook",
     "@storybook/addon-interactions",
@@ -37,21 +37,30 @@ const config: StorybookConfig = {
       options: {
         mdxPluginOptions: {
           mdxCompileOptions: {
-            remarkPlugins: [remarkGfm],
-          },
-        },
-      },
-    },
+            remarkPlugins: [remarkGfm]
+          }
+        }
+      }
+    }
   ],
 
   framework: {
     name: getAbsolutePath("@storybook/vue3-vite"),
-    options: {},
+    options: {}
+  },
+
+  viteFinal: async config => {
+    const { mergeConfig } = await import("vite");
+    const tailwindcss = await import("@tailwindcss/vite");
+
+    return mergeConfig(config, {
+      plugins: [tailwindcss.default()]
+    });
   },
 
   docs: {
     autodocs: true,
-    defaultName: "Overview",
-  },
+    defaultName: "Overview"
+  }
 };
 export default config;

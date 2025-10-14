@@ -1,6 +1,6 @@
 <template>
   <footer
-    class="bg-base-background text-base-foreground w-full border-t p-6"
+    class="bg-surface shadow-t-border-surface w-full p-6 text-base"
     data-testid="footer"
   >
     <div

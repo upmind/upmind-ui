@@ -9,7 +9,7 @@ export default {
 
     card: {
       root: cva(
-        "bg-base text-base-foreground relative flex w-full flex-wrap items-stretch gap-6 rounded-lg border p-6",
+        "bg-base relative flex w-full flex-wrap items-stretch gap-6 rounded-lg border p-6 text-base",
         {
           variants: {
             isProcessing: {
@@ -58,7 +58,7 @@ export default {
         "m-0 inline-flex w-full items-center gap-2 text-2xl leading-none font-normal tracking-wide"
       ),
       meta: cva(
-        "text-emphasis-medium m-0 flex w-full items-center gap-4 text-left text-sm leading-snug lowercase"
+        "text-muted m-0 flex w-full items-center gap-4 text-left text-sm leading-snug lowercase"
       ),
 
       text: cva("m-0 w-full text-left text-sm leading-normal"),
@@ -71,7 +71,7 @@ export default {
       }),
       total: cva("text-2xl leading-snug font-medium tracking-wide"),
       discount: cva(
-        "text-md text-emphasis-medium leading-snug font-normal tracking-wide line-through"
+        "text-md text-muted leading-snug font-normal tracking-wide line-through"
       ),
       // ---
       toggle: cva("size-3 transition-all aria-checked:rotate-180"),
@@ -93,15 +93,15 @@ export default {
         root: cva("m-0 grid w-full list-none grid-cols-4 gap-6 px-0 py-4"),
         item: cva("m-0 flex flex-wrap gap-0 p-0"),
         title: cva(
-          "text-emphasis-medium m-0 w-full p-0 text-sm font-normal tracking-wide"
+          "text-muted m-0 w-full p-0 text-sm font-normal tracking-wide"
         ),
         text: cva("m-0 p-0 text-sm tracking-wide"),
-        invalid: cva("text-error")
+        invalid: cva("text-danger-default")
       }
     },
 
     config: {
-      root: cva("text-foreground w-full", {
+      root: cva("w-full text-base", {
         variants: {
           isDisabled: {
             true: "pointer-events-none"
@@ -166,9 +166,9 @@ export default {
       loading: cva("size-7"),
       title: cva("m-0 text-2xl leading-none tracking-wide"),
       meta: cva(
-        "text-emphasis-medium m-0 flex w-full items-center gap-4 text-left text-sm leading-snug lowercase"
+        "text-muted m-0 flex w-full items-center gap-4 text-left text-sm leading-snug lowercase"
       ),
-      text: cva("text-emphasis-medium m-0 w-full text-left leading-normal"),
+      text: cva("text-muted m-0 w-full text-left leading-normal"),
       bold: cva("font-medium", {
         variants: {
           isCalculating: {
@@ -188,7 +188,7 @@ export default {
         }
       ),
       itemtotal: cva(
-        "text-emphasis-medium m-0 flex w-full items-end justify-end gap-2 leading-normal",
+        "text-muted m-0 flex w-full items-end justify-end gap-2 leading-normal",
         {
           variants: {
             isCalculating: {
@@ -198,7 +198,7 @@ export default {
         }
       ),
       discount: cva(
-        "text-md text-emphasis-medium block w-full text-right leading-snug font-normal tracking-wide line-through",
+        "text-md text-muted block w-full text-right leading-snug font-normal tracking-wide line-through",
         {
           variants: {
             isCalculating: {
@@ -226,7 +226,7 @@ export default {
         ),
         item: {
           root: cva(
-            "text-foreground text-md m-0 flex h-full w-full cursor-pointer flex-col flex-wrap items-start gap-4 rounded-lg sm:flex-row",
+            "text-md m-0 flex h-full w-full cursor-pointer flex-col flex-wrap items-start gap-4 rounded-lg text-base sm:flex-row",
             {
               variants: {
                 layout: {
@@ -264,8 +264,8 @@ export default {
             }
           }),
           // ---
-          title: cva("text-md/tight m-0 font-medium text-nowrap text-inherit"),
-          text: cva("text-emphasis-medium w-full text-sm font-normal"),
+          title: cva("text-md m-0 font-medium text-nowrap text-inherit"),
+          text: cva("text-muted w-full text-sm font-normal"),
           total: cva("", {
             variants: {
               layout: {
@@ -277,9 +277,7 @@ export default {
               layout: "stacked"
             }
           }),
-          discount: cva(
-            "text-2xs text-emphasis-medium! leading-none text-inherit"
-          )
+          discount: cva("text-2xs text-muted leading-none")
         }
       },
       // ---
@@ -297,7 +295,7 @@ export default {
             "text-md block text-right leading-snug font-medium tracking-wide"
           ),
           discount: cva(
-            "text-emphasis-medium block text-right text-sm leading-snug font-normal tracking-wide line-through"
+            "text-muted block text-right text-sm leading-snug font-normal tracking-wide line-through"
           )
         }
       },
@@ -322,12 +320,12 @@ export default {
       text: cva(
         "m-0 mb-8 max-w-md text-center text-lg leading-normal opacity-50"
       ),
-      avatar: cva("bg-primary text-base-foreground size-20 p-2"),
+      avatar: cva("bg-primary size-20 p-2 text-base"),
       actions: cva("flex w-full justify-center")
     },
 
     pricing: {
-      exPrice: cva("text-emphasis-medium text-xs leading-none"),
+      exPrice: cva("text-muted text-xs leading-none"),
       currentPrice: cva("leading-none")
     },
 

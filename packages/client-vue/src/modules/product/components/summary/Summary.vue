@@ -46,7 +46,7 @@
     :title="t('error.product_not_valid')"
     :description="t('text.check_required_fields_desc')"
     icon="alert"
-    color="error"
+    color="danger"
   />
 </template>
 

@@ -70,14 +70,15 @@ export const useTheme = (initial?: string) => {
 
     theme.value = find(themes.value, ["id", value]) as Theme | undefined;
 
-    if (!theme.value) return;
+    if (!theme.value) {
+      theme.value = find(themes.value, ["id"]) as Theme | undefined;
+    }
 
     // Apply the theme to the document and UI lib
     setFontFamily({
-      ...(theme.value?.tokens?.fonts ?? {}),
       display: styles.value?.brand_font?.family
     });
-    setUiTheme(theme.value.id);
+    setUiTheme(theme.value?.id ?? "upmind");
     setDocumentTitle(name.value);
     setDocumentFavicon(favicon.value ?? undefined);
   };

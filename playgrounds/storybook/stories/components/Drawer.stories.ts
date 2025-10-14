@@ -10,19 +10,19 @@ import { Drawer, Button } from "@upmind-automation/upmind-ui";
 const meta: Meta<typeof Drawer> = {
   args: {
     title: "Are you absolutely sure?",
-    description: "This action cannot be undone.",
+    description: "This action cannot be undone."
   },
   parameters: {
     docs: {
       story: {
-        iframeHeight: 400,
+        iframeHeight: 400
       },
       description: {
         component:
-          "A panel that slides in from the edge of the screen, typically used for supplementary content.",
-      },
-    },
-  },
+          "A panel that slides in from the edge of the screen, typically used for supplementary content."
+      }
+    }
+  }
 };
 
 export default meta;
@@ -35,7 +35,7 @@ export const Base: Story = {
       const open = ref(false);
       return {
         open,
-        args,
+        args
       };
     },
     template: `
@@ -53,8 +53,43 @@ export const Base: Story = {
           <Button size="md" variant="ghost">Cancel</Button>
         </template>
       </Drawer>
-    `,
-  }),
+    `
+  })
+};
+
+export const Slot: Story = {
+  render: args => ({
+    components: { Drawer, Button },
+    setup() {
+      const open = ref(false);
+      return {
+        open,
+        args
+      };
+    },
+    template: `
+         <Drawer
+        v-bind="args"
+        v-model:open="open"
+        width="xl"
+      >
+        <template v-slot:trigger>
+          <Button size="md" label="Open Dialog" />
+        </template>
+
+        <template v-slot>
+          <div class="py-8 w-full rounded-lg bg-canvas text-center text-sm font-medium">
+            Place your content here
+          </div>
+        </template>
+
+        <template v-slot:footer>
+          <Button size="md" label="Confirm" />
+          <Button size="md" variant="ghost" label="Cancel" />
+        </template>
+      </Drawer>
+    `
+  })
 };
 
 export const MockedAsyncAction: Story = {
@@ -84,7 +119,7 @@ export const MockedAsyncAction: Story = {
         loading,
         open,
         args,
-        start,
+        start
       };
     },
     template: `
@@ -97,8 +132,8 @@ export const MockedAsyncAction: Story = {
         :showClose="false"
         width="xl"
       >
-        <Button @click="start" :loading="loading" block>Begin</Button>
+        <Button @click="start" :loading="loading" block label="Begin" />
       </Drawer>
-    `,
-  }),
+    `
+  })
 };

@@ -3,13 +3,13 @@
     <ContentSection v-auto-animate class="flex grow items-center">
       <Interstitial
         v-bind="props"
-        to="#vue-app"
         :modal="meta.useModal"
         :title="t('cart.empty_md')"
         :text="t('cart.empty_msg')"
         :actions="[
           {
             ...storefrontRoute,
+            variant: 'solid',
             color: 'primary',
             iconAppend: 'arrow-right',
             label: t('action.continue_shopping'),
@@ -41,8 +41,6 @@ import { ROUTE, useBrand, useFeedback } from "@upmind-automation/headless";
 const props = withDefaults(defineProps<InterstitialProps>(), {
   open: true,
   modal: true,
-  skrim: "light",
-
   animatedIcon: () => ({
     icon: "basket-empty",
     trigger: "loop",

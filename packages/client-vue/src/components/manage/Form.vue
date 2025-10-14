@@ -1,10 +1,10 @@
 <template>
   <component
     v-if="modal || (!modal && open)"
-    to="#vue-app"
     :is="modal ? Dialog : 'section'"
     v-model:open="open"
     size="3xl"
+    no-footer
     :title="t('action.add_new_or_update', !props.modelValue ? 0 : 1)"
   >
     <Skeleton v-if="meta.isLoading" :modal="modal" />
@@ -15,7 +15,7 @@
         :description="errors"
         :message="errors"
         :title="t('error.adding_or_updating', !props.modelValue ? 0 : 1)"
-        color="error"
+        color="danger"
         icon="alert-triangle"
         class="mb-4"
       />

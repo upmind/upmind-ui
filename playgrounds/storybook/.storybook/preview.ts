@@ -44,7 +44,7 @@ setup(app => {
     missingWarn: false,
     fallbackWarn: false,
     silentTranslationWarn: true,
-    silentFallbackWarn: true,
+    silentFallbackWarn: true
   });
   app.use(i18n);
 
@@ -57,15 +57,15 @@ const preview: Preview = {
     toolbar: {
       zoom: { hidden: true },
       // eject: { hidden: true },
-      copy: { hidden: true },
+      copy: { hidden: true }
       // fullscreen: { hidden: true },
     },
     controls: { exclude: ["uiConfig"] },
     docs: {
       page: OverviewTemplate,
       story: {
-        inline: false,
-      },
+        inline: false
+      }
     },
     options: {
       storySort: {
@@ -73,11 +73,11 @@ const preview: Preview = {
           "Introduction",
           "Components",
           ["Overview", "Variations", "Accessibility", "Base"],
-          ["Accordion", ["Overview", "Variations", "Accessibility", "Base"]],
-        ],
-      },
+          ["Accordion", ["Overview", "Variations", "Accessibility", "Base"]]
+        ]
+      }
     },
-    defaultPath: "/docs/introduction--page",
+    defaultPath: "/docs/introduction--page"
   },
 
   globalTypes: {
@@ -95,10 +95,10 @@ const preview: Preview = {
           { value: "de", right: "🇩🇪", title: "German" },
           { value: "it", right: "🇮🇹", title: "Italian" },
           { value: "pt", right: "🇵🇹", title: "Portuguese" },
-          { value: "ru", right: "🇷🇺", title: "Russian" },
-        ],
-      },
-    },
+          { value: "ru", right: "🇷🇺", title: "Russian" }
+        ]
+      }
+    }
   },
 
   decorators: [
@@ -106,14 +106,14 @@ const preview: Preview = {
       themes,
       defaultTheme: "light",
       locales: [],
-      defaultLocale: "en",
+      defaultLocale: "en"
     }),
     (story, context) => {
       // This make sit possible to updateArgs within stories
       const [_, updateArgs] = useArgs();
       return story({ ...context, updateArgs });
-    },
-  ],
+    }
+  ]
 
   // tags: ["autodocs"],
 };

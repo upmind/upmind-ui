@@ -1,6 +1,6 @@
 <template>
   <header class="flex flex-col gap-3">
-    <Badge v-if="badge" v-bind="badge" variant="outline" color="secondary" />
+    <Badge v-if="badge" v-bind="badge" variant="minimal" color="neutral" />
 
     <section :class="styles.header.root">
       <h1 :class="styles.header.title">

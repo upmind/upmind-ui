@@ -1,10 +1,9 @@
 <template>
   <section class="flex w-full flex-col gap-3 text-left" v-auto-animate>
     <header>
-      <Button
+      <Link
         :label="t('action.add_promotion')"
         size="sm"
-        variant="link"
         color="muted"
         :disabled="meta.isProcessing"
         @click="toggle = !toggle"
@@ -40,16 +39,15 @@
 
       <Tooltip
         v-for="promotion in promotions"
-        to="#vue-app"
         :key="promotion.promotion.code"
         :label="tooltipLabel(promotion)"
         :open="!!open[promotion.id]"
         :ui-config="{ trigger: ['rounded-pill'] }"
-        color="secondary"
+        color="promo"
       >
         <Badge
-          color="promotion"
-          variant="tonal"
+          variant="solid"
+          color="promo"
           size="md"
           :label="promotion.promotion.code"
           @click="toggleTooltip(promotion.id)"
@@ -61,8 +59,7 @@
               :disabled="meta.isProcessing"
               :loading="!!processing[promotion.id]"
               @click.prevent="doRemove(promotion.id)"
-              variant="tonal"
-              color="promotion"
+              variant="ghost"
               size="icon"
               iconAppend="close"
             />
@@ -84,7 +81,7 @@ import { set } from "lodash-es";
 import Form from "../../../components/form/Form.vue";
 
 // --- custom elements
-import { Button, Badge, Tooltip } from "@upmind-automation/upmind-ui";
+import { Button, Badge, Tooltip, Link } from "@upmind-automation/upmind-ui";
 
 // --- internal
 import { useBasketPromotions } from "@upmind-automation/headless";

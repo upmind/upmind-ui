@@ -93,9 +93,7 @@ const emit = defineEmits<{
   (e: "remove", domain: string): void;
 }>();
 
-const props = withDefaults(defineProps<DomainCardProps>(), {
-  color: "base"
-});
+const props = defineProps<DomainCardProps>();
 
 // ---
 

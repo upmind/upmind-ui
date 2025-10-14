@@ -1,7 +1,7 @@
 <template>
   <div :class="styles.checkout.gateway">
     <Alert
-      color="error"
+      color="warning"
       icon="alert-triangle"
       :title="
         t('error.payment_gateways_not_available_title', {

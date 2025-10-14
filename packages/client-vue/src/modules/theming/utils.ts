@@ -10,20 +10,7 @@ import {
 
 // --- utils
 const { useImageUrl } = utils;
-import {
-  kebabCase,
-  forEach,
-  isString,
-  set,
-  last,
-  dropRight,
-  join,
-  has,
-  startCase,
-  isEmpty,
-  uniq,
-  compact
-} from "lodash-es";
+import { forEach, has, isEmpty, uniq, compact } from "lodash-es";
 import type { IImage } from "../../../../types/src";
 
 // import { IBrandMetaToken } from "@upmind-automation/headless";
@@ -64,36 +51,29 @@ function setCssRules(
   el.textContent += cssRule;
 }
 
-function mapTokens(
-  obj: any,
-  path: string[] = [],
-  result: Record<string, string> = {}
-) {
-  forEach(obj, (value, key) => {
-    const newPath = [...path, kebabCase(key)];
-
-    if (isString(value)) {
-      const cssKey = join(
-        last(newPath) === "default" ? dropRight(newPath) : newPath,
-        "-"
-      );
-      result[`--${cssKey}`] = value;
-    } else {
-      mapTokens(value, newPath, result);
-    }
-  });
-
-  return result;
-}
-
 // ---
 
 export function setTokens(theme: Theme) {
-  if (!theme) return;
+  if (!theme?.tokens) return;
+
+  let themeCSS = theme.tokens;
+
+  // Transform theme-scoped selectors to work with root theme variables
+  // Without this transformation, we can't use root theme vars in combination with our base theme
+  // Converts [data-theme="dark"] { --color: #000 } to :root:has([data-theme="dark"]) { --color: #000 }
+  // - :root targets the document root where global CSS variables live
+  // - :has([data-theme="dark"]) only applies when the DOM contains data-theme="dark"
+  // - This creates a CSS cascade where dark theme variables override base theme
+  // - Without this, theme variables would be scoped only to the themed element
+  if (themeCSS.includes("[data-theme=")) {
+    themeCSS = themeCSS.replace(
+      /\[data-theme="([^"]+)"\]\s*{/g,
+      ':root:has([data-theme="$1"]) {'
+    );
+  }
 
   const stylesheet = ensureStylesheet("upmind-design-tokens");
-  const cssVars = mapTokens(theme.tokens);
-  setCssRules(stylesheet, `[data-theme='${theme.id}']`, cssVars);
+  stylesheet.textContent += "\n" + themeCSS;
 }
 
 export function setDocumentTitle(brandName?: string) {

@@ -1,5 +1,6 @@
 import uiConfig from "./ui.config";
-import tokens from "./tokens";
+import tokens from "./tokens.css?raw";
+import theme from "./_theme.css?raw";
 // import WebFontLoader from "webfontloader";
 // import { compact, isEmpty, uniq } from "lodash-es";
 
@@ -7,7 +8,8 @@ const defaultTheme = {
   name: "Upmind",
   id: "upmind",
   uiConfig,
-  tokens
+  tokens,
+  theme
 };
 
 export default defaultTheme;

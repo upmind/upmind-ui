@@ -29,12 +29,12 @@ import { some, find, get } from "lodash-es";
 const props = defineProps({
   theme: {
     type: String,
-    required: true,
+    required: true
   },
   locale: {
     type: String,
-    required: true,
-  },
+    required: true
+  }
 });
 
 const { locale } = useI18n();
@@ -65,7 +65,7 @@ useMutationObserver(
     }
   },
   {
-    attributes: true,
+    attributes: true
   }
 );
 

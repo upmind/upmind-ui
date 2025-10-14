@@ -1,12 +1,9 @@
 <template>
-  <Button
+  <Link
     v-if="isSupported"
     @click="handleShare"
     :icon="copied ? 'check' : 'share'"
-    size="lg"
-    variant="link"
     :label="copied ? t('confirm.copied') : t('action.share')"
-    class="font-medium"
   />
 </template>
 
@@ -15,7 +12,7 @@
 import { useClipboard } from "@vueuse/core";
 
 // --- components
-import { Button } from "@upmind-automation/upmind-ui";
+import { Link } from "@upmind-automation/upmind-ui";
 
 // --- internal
 import { useI18n } from "vue-i18n";

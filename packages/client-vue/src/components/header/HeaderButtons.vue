@@ -4,7 +4,7 @@
 
     <Button
       :class="styles.header.avatar.basket"
-      variant="ghost"
+      variant="subtle"
       size="lg"
       @click="navigate(ROUTE.BASKET)"
       icon="cart"
@@ -15,7 +15,6 @@
       <Button
         size="lg"
         variant="outline"
-        color="base"
         :label="t('action.login')"
         icon="account"
         pill

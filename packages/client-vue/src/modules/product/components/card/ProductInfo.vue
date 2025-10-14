@@ -5,7 +5,8 @@
         v-if="productDetails?.badge"
         v-bind="productDetails?.badge"
         size="sm"
-        color="promotion"
+        variant="muted"
+        color="promo"
       />
 
       <Badge
@@ -13,12 +14,13 @@
         :label="t('text.on_sale')"
         icon="tag"
         size="sm"
-        color="promotion"
+        variant="muted"
+        color="promo"
         :class="styles.product.header.info.promotion"
       />
 
       <div>
-        <router-link
+        <Link
           v-if="navigate"
           :to="{
             name: ROUTE.PRODUCT_ADD,
@@ -32,12 +34,11 @@
             }
           }"
           tabindex="-1"
-          class="inline-block underline underline-offset-4"
         >
           <h3 :class="styles.product.header.info.title">
             {{ productDetails?.title }}
           </h3>
-        </router-link>
+        </Link>
 
         <h3 v-else :class="styles.product.header.info.title">
           {{ productDetails?.title }}
@@ -68,7 +69,7 @@ import { useI18n } from "vue-i18n";
 import { ROUTE } from "@upmind-automation/headless";
 
 // --- components
-import { useStyles, Badge, Button } from "@upmind-automation/upmind-ui";
+import { useStyles, Badge, Link } from "@upmind-automation/upmind-ui";
 import DisplayPrice from "../terms/DisplayPrice.vue";
 import ProductDescription from "./ProductDescription.vue";
 

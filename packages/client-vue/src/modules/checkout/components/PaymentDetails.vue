@@ -52,7 +52,6 @@
             <StoredPayments
               v-if="!model?.gateway_id && currency?.code"
               :key="currency.code"
-              :color="color"
               @checkout="handleCheckout"
               :class="styles.checkout.accordion.loading"
             />
@@ -115,7 +114,6 @@
               <PaymentGateway
                 v-if="item.gateway_id === model?.gateway_id && currency?.code"
                 :key="currency.code"
-                :color="color"
                 @checkout="handleCheckout"
                 :class="styles.checkout.accordion.loading"
               />
@@ -174,11 +172,8 @@ import GatewaysUnavailable from "./PaymentGatewaysUnavailable.vue";
 import type { PaymentDetailsProps } from "../types";
 import type { ComputedRef } from "vue";
 
-// --- utils
-
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<PaymentDetailsProps>(), {
-  color: "secondary",
   as: "div",
   class: "bg-base "
 });

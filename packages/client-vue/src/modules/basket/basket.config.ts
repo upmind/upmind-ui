@@ -19,7 +19,7 @@ export default {
       header: cva("w-full"),
       title: cva("m-0 text-xl font-normal"),
       content: cva(
-        "bg-base text-base-foreground grid w-full space-y-4 rounded-lg border p-6"
+        "bg-base grid w-full space-y-4 rounded-lg border p-6 text-base"
       ),
       form: cva("m-0 border-t pt-4 text-sm first:border-t-0 first:pt-0"),
       list: cva(
@@ -29,9 +29,9 @@ export default {
       text: cva(
         "text-base-700 m-0 inline-flex items-end gap-2 text-left text-sm leading-normal font-normal"
       ),
-      bold: cva("text-foreground font-medium"),
+      bold: cva("text-base font-medium"),
       discount: cva("text-base-500 block text-xs font-light line-through"),
-      value: cva("text-foreground m-0 block flex-0 text-right font-medium"),
+      value: cva("m-0 block flex-0 text-right text-base font-medium"),
       total: cva("font-medium"),
       icon: cva("size-5 flex-0 leading-normal"),
       tooltipIcon: cva("size-4 flex-0 leading-6"),
@@ -162,7 +162,7 @@ export default {
       instructions: cva("m-0 w-full p-0"),
       transition: {
         enter: {
-          active: cva("m-0 transition duration-300 ease-out"),
+          active: cva("m-0 transition duration-200 ease-out"),
           from: cva("-translate-y-10 transform opacity-0"),
           to: cva("translate-y-0 transform opacity-100")
         },
@@ -181,7 +181,7 @@ export default {
       ),
       title: cva("m-0 mt-3 text-center text-3xl text-inherit md:text-4xl"),
       text: cva(
-        "text-emphasis-medium m-0 mb-8 max-w-md text-center text-lg leading-normal"
+        "text-muted m-0 mb-8 max-w-md text-center text-lg leading-normal"
       )
     },
 
@@ -191,7 +191,7 @@ export default {
       ),
       title: cva("m-0 mt-3 text-center text-3xl text-inherit md:text-4xl"),
       text: cva(
-        "text-emphasis-medium m-0 mb-8 max-w-md text-center text-lg leading-normal"
+        "text-muted m-0 mb-8 max-w-md text-center text-lg leading-normal"
       ),
       avatar: cva("bg-primary text-primary-foreground size-20 p-2"),
       actions: cva("flex w-full justify-center")
@@ -203,7 +203,7 @@ export default {
       ),
       title: cva("m-0 mt-3 text-center text-3xl text-inherit md:text-4xl"),
       text: cva(
-        "text-emphasis-medium m-0 mb-8 max-w-md text-center text-lg leading-normal"
+        "text-muted m-0 mb-8 max-w-md text-center text-lg leading-normal"
       )
     }
   }

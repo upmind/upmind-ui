@@ -7,11 +7,10 @@
         :accepted-file-types="fileTypes"
         :max-files="1"
         :label-idle="labelText"
-        :class="styles.form.file"
+        :class="styles.form.image"
         max-file-size="5MB"
         stylePanelAspectRatio="0.2"
         stylePanelLayout="integrated"
-        class="bg-control-background text-emphasis-medium mb-4 rounded"
         @addfile="onAddFile"
         @removefile="onRemoveFile"
       />
@@ -56,9 +55,9 @@ const { control, formFieldProps, appliedOptions, onInput } =
 
 const { add, remove, stop, meta } = useUpload(appliedOptions.value.field);
 
-const styles = useStyles(["form.file"], {}, config) as ComputedRef<{
+const styles = useStyles(["form.image"], {}, config) as ComputedRef<{
   form: {
-    file: string;
+    image: string;
   };
 }>;
 
@@ -93,8 +92,13 @@ export const tester = {
 
 <style>
 .filepond--image-preview-wrapper {
-  border-radius: var(--rounded) !important;
+  border-radius: var(--control-radius) !important;
   border: 0;
+}
+
+.filepond--root {
+  background-color: var(--color-control-surface) !important;
+  border-radius: var(--control-radius) !important;
 }
 
 .filepond--image-preview {
@@ -103,5 +107,13 @@ export const tester = {
 
 .filepond--panel-root {
   background-color: transparent;
+}
+
+.filepond--drop-label {
+  color: var(--color-text-muted);
+}
+
+.filepond--label-action {
+  color: var(--color-text-button-link);
 }
 </style>

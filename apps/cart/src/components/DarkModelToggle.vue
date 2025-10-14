@@ -4,7 +4,7 @@
       v-if="available.length > 1"
       :model-value="selected"
       class="w-28"
-      size="sm"
+      size="md"
       :items="available.map(variant => ({ label: variant, value: variant }))"
       @update:model-value="setTheme"
     />

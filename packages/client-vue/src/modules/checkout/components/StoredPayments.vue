@@ -16,7 +16,7 @@
       <!-- Errors and Feedback -->
       <Alert
         v-if="meta.hasErrors"
-        color="error"
+        color="warning"
         icon="alert-triangle"
         :title="t('text.payment_failed')"
       >

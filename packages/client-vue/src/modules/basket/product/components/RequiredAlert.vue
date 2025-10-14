@@ -1,5 +1,5 @@
 <template>
-  <Alert color="error" icon="alert">
+  <Alert color="danger" icon="alert">
     <template #title>
       <h5 class="m-0 hidden font-normal md:inline">
         {{ t("cart.basket_product_missing_data_help") }}
@@ -9,19 +9,18 @@
       </h5>
     </template>
     <template #action>
-      <Button
+      <Link
         :as="RouterLink"
         :to="editLink"
-        variant="link"
         size="sm"
-        color="error"
+        color="danger"
         icon-append="arrow-right"
       >
         <p class="m-0 hidden md:inline">
           {{ t("action.add_missing_data") }}
         </p>
         <p class="m-0 md:hidden">{{ t("action.fix") }}</p>
-      </Button>
+      </Link>
     </template>
   </Alert>
 </template>
@@ -33,7 +32,7 @@ import { computed } from "vue";
 import { RouterLink } from "vue-router";
 
 // --- components
-import { Alert, Button, Icon } from "@upmind-automation/upmind-ui";
+import { Alert, Button, Icon, Link } from "@upmind-automation/upmind-ui";
 
 const { t } = useI18n();
 
