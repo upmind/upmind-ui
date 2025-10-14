@@ -123,8 +123,21 @@ async function pay({ gateway, sdk, model }: OpenPayContext) {
     );
 
   return new Promise((resolve, reject) => {
+    const data = {
+      card_number: model?.openpay.card_number,
+      holder_name: model?.openpay.holder_name,
+      // OpenPay requires the year to be in 2 digit format which we parse from the MM/YY format
+      expiration_year:
+        model?.openpay.expiration_date.match(/^\d{2}\/\d{2}(\d{2})$/)?.[1] ||
+        "",
+      // OpenPay requires the month to be in 2 digit format, which we parse from the MM/YY format
+      expiration_month:
+        model?.openpay.expiration_date.match(/^(\d{2})\/\d{4}$/)?.[1] || "",
+      cvv2: model?.openpay.cvv2
+    };
+
     sdk.openPay!.token.create(
-      model?.openpay as Record<string, any>,
+      data as Record<string, any>,
       response =>
         resolve({
           ...omit(model, [
