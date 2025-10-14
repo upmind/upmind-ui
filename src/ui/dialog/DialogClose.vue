@@ -11,7 +11,7 @@ const props = defineProps<DialogCloseProps>();
     :as="Button"
     size="icon"
     variant="link"
-    icon="close"
+    icon="x-close"
   >
     <slot>
       <span class="sr-only">Close</span>

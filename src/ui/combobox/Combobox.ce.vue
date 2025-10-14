@@ -11,7 +11,7 @@
         :size="props.size"
         :aria-expanded="open"
         variant="control"
-        icon-append="arrow-down"
+        icon-append="chevron-down"
         :checked="open"
         :data-hover="dataHover"
         :data-focus="dataFocus"
@@ -51,7 +51,7 @@
         <template #append>
           <Icon
             class="opacity-75 transition-all duration-200 [&>svg]:p-0.5"
-            icon="arrow-down"
+            icon="chevron-down"
             :class="cn(open ? 'rotate-180' : '')"
             size="nano"
           />
@@ -76,7 +76,7 @@
             :class="styles.combobox.input"
           >
             <template #prepend>
-              <Icon icon="search" size="nano" class="text-muted mr-2" />
+              <Icon icon="search-md" size="nano" class="text-muted mr-2" />
             </template>
           </CommandInput>
         </template>

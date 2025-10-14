@@ -147,3 +147,8 @@
 @utility text-icon-neutral {
   color: var(--text-icon-neutral);
 }
+
+.icon svg path {
+  vector-effect: non-scaling-stroke;
+  stroke-width: var(--stroke-icon, 2px);
+}
