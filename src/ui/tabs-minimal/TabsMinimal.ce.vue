@@ -2,7 +2,7 @@
   <!--<link rel="stylesheet" :href="stylesheet" />-->
 
   <Tabs v-bind="forwarded">
-    <TabsList :class="styles.tabs.list" v-if="tabs.length > 1">
+    <TabsList :class="styles.tabs.list">
       <template v-for="item in tabs" :key="item.value">
         <TabsTrigger :value="item.value" :class="styles.tabs.trigger">
           <Icon v-if="item.icon" :icon="item.icon" size="2xs" />
