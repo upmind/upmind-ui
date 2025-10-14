@@ -15,7 +15,8 @@ import {
   filter,
   sortBy,
   isEmpty,
-  includes
+  includes,
+  some
 } from "lodash-es";
 import {
   ErrorOrigin,
@@ -192,16 +193,7 @@ async function loadLookups(
       }
     ],
     withAccessToken: true
-  })
-    // Whitelist certain payment gateways until we have full support for all
-    .then(data => {
-      if (supportedGateways.length)
-        return filter(data, ({ gateway }) =>
-          includes(supportedGateways, gateway.gateway_provider.code)
-        );
-
-      return data;
-    });
+  });
 
   // ----
 
@@ -217,9 +209,23 @@ async function loadLookups(
       if (!get(config, BrandConfigKeys.PAY_LATER_ENABLED))
         unset(paymentTypes, PaymentType.PAY_LATER); // Allowlist payment gateways if provided
 
+      debugger;
       return {
-        storedPaymentMethods: filter(storedPaymentMethods, "meta.isActive"), // ensure we only show active stored payment methods
+        // NB: ensure we only show active stored payment methods and only for gateways that are available.
+        //     The BE does not filter out Stored payment methods for gateways not available for a given country or currency
+        storedPaymentMethods: filter(
+          storedPaymentMethods,
+          method =>
+            method.meta.isActive &&
+            some(gateways, ["gateway_id", method.gatewayID])
+        ),
         gateways: sortBy(gateways, ["order"]),
+        //     // Whitelist certain payment gateways until we have full support for all
+        //  if (supportedGateways.length)
+        //    return filter(data, ({ gateway }) =>
+        //      includes(supportedGateways, gateway.gateway_provider.code)
+        //    );
+
         paymentTypes
       } as unknown as Partial<PaymentDetailsContext>;
     }
