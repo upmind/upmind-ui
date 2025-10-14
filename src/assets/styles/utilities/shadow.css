@@ -165,11 +165,7 @@
 @utility shadow-primary-gradient {
   border: var(--stroke-badge) solid transparent;
   background:
-    linear-gradient(
-        var(--bg-surface),
-        var(--bg-surface)
-      )
-      padding-box,
+    linear-gradient(var(--bg-surface), var(--bg-surface)) padding-box,
     linear-gradient(
         to right,
         var(--color-primary-default),
