@@ -32,21 +32,18 @@ const buttonVariants = cva("w-full flex-1", {
   }
 });
 
-const infoVariants = cva(
-  "text-emphasis-medium hidden text-sm md:inline-block",
-  {
-    variants: {
-      size: {
-        sm: "text-xs",
-        md: "text-sm",
-        lg: "text-base"
-      }
-    },
-    defaultVariants: {
-      size: "md"
+const infoVariants = cva("text-muted hidden text-sm md:inline-block", {
+  variants: {
+    size: {
+      sm: "text-xs",
+      md: "text-sm",
+      lg: "text-base"
     }
+  },
+  defaultVariants: {
+    size: "md"
   }
-);
+});
 
 export default {
   pagination: {

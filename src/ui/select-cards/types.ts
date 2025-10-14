@@ -20,6 +20,8 @@ type TriggerVariantProps = VariantProps<typeof triggerVariants>;
 import type { AvatarProps } from "../avatar";
 
 export interface SelectCardsItemProps extends RadioGroupItemProps {
+  item?: any;
+  index?: number;
   label: string;
   icon?: Icon | string;
   avatar?: Partial<AvatarProps>;
@@ -36,14 +38,17 @@ export interface SelectCardsProps extends RadioGroupRootProps {
   loading?: boolean;
   disabled?: boolean;
   // ---
-  color?: ButtonProps["color"];
   side?: PopoverContentProps["side"];
+  align?: "start" | "center" | "end";
   width?: TriggerVariantProps["width"];
   focusable?: boolean;
+  to?: string;
 
   uiConfig?: { select: CxOptions };
   class?: HTMLAttributes["class"];
   contentClass?: HTMLAttributes["class"];
+  dataHover?: boolean;
+  dataFocus?: boolean;
 }
 export interface SelectCardsTriggerProps
   extends Omit<ButtonProps, "variant" | "uiConfig"> {
@@ -56,4 +61,6 @@ export interface SelectCardsTriggerProps
   class?: string;
   focusable?: boolean;
   chevron?: boolean;
+  dataHover?: boolean;
+  dataFocus?: boolean;
 }

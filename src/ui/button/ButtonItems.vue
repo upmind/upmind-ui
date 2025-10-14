@@ -7,7 +7,7 @@
       :aria-checked="checked"
       aria-hidden="true"
     />
-    <Avatar v-if="avatar" :avatar="avatar" size="2xs" />
+    <Avatar v-if="avatar" :avatar="avatar" size="xs" />
   </span>
 </template>
 
@@ -31,6 +31,7 @@ const props = defineProps<ButtonItemsProps>();
 
 const meta = computed(() => {
   return {
+    isLoading: props.loading,
     size: props.size,
     variant: props.variant
   };

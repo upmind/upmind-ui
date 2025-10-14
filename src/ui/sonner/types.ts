@@ -3,8 +3,11 @@ import type { CxOptions } from "class-variance-authority";
 import { type HTMLAttributes } from "vue";
 import { type ToasterProps } from "vue-sonner";
 
-// --- internal
+// --- types
+import { SONNER_VARIANTS } from ".";
+
 export interface SonnerProps extends ToasterProps {
+  variant?: typeof SONNER_VARIANTS;
   // ---
   uiConfig?: { sonner: CxOptions };
   class?: HTMLAttributes["class"];

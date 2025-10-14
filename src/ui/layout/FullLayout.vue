@@ -7,7 +7,7 @@
     </div>
   </nav>
 
-  <article :class="styles.full.root">
+  <article :class="cn(styles.full.root, props.class)">
     <header :class="styles.full.header.root" v-if="meta.hasHeader">
       <div :class="styles.full.header.container">
         <slot name="header" />
@@ -19,7 +19,7 @@
         <div :class="styles.full.main">
           <slot name="default" />
 
-          <footer>
+          <footer v-if="meta.hasFooter">
             <slot name="footer" />
           </footer>
         </div>
@@ -40,6 +40,7 @@ import config from "./layout.config";
 
 // --- utils
 import { isEmptySlot } from "./utils";
+import { cn } from "../../utils";
 
 // --- types
 import { type ComputedRef, computed, useSlots } from "vue";
@@ -59,6 +60,7 @@ const meta = computed(() => {
     isSticky: props.sticky,
     hasHeader: !isEmptySlot("header", slots),
     hasContent: !isEmptySlot("default", slots),
+    hasFooter: !isEmptySlot("footer", slots),
     isMinimal: props.minimal,
     hasControls:
       !isEmptySlot("controls", slots) ||

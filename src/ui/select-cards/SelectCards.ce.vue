@@ -12,10 +12,12 @@
         :label="props.label"
         :loading="props.loading"
         :placeholder="props.placeholder"
+        :data-hover="props.dataHover"
+        :data-focus="props.dataFocus"
         focusable
       >
-        <template #item="{ item }: { item: SelectCardsItemProps }">
-          <slot name="item" :item="item">
+        <template #item="{ item }">
+          <slot name="item" v-bind="item as SelectCardsItemProps">
             <Item v-bind="item" />
           </slot>
         </template>
@@ -25,9 +27,10 @@
       </TriggerButton>
     </DropdownMenuTrigger>
 
-    <DropdownMenuPortal>
+    <DropdownMenuPortal :to="props.to">
       <DropdownMenuContent
         :class="cn(styles.select.content, props.contentClass)"
+        :align="props.align"
       >
         <DropdownMenuItem
           v-for="(item, index) in items"
@@ -37,7 +40,10 @@
           v-intersection-observer="[maybeFocus, { threshold: 0.25 }]"
           :data-state="item.value === modelValue ? 'checked' : null"
         >
-          <slot name="dropdown-item" v-bind="{ item, index }">
+          <slot
+            name="dropdown-item"
+            v-bind="{ ...item, index } as SelectCardsItemProps"
+          >
             <Item v-bind="item" />
           </slot>
         </DropdownMenuItem>
@@ -57,7 +63,7 @@
 // --- external
 import { first, find } from "lodash-es";
 import { useVModel } from "@vueuse/core";
-import { ref, computed, useSlots } from "vue";
+import { ref, computed } from "vue";
 import { vIntersectionObserver } from "@vueuse/components";
 
 // --- internal
@@ -78,9 +84,12 @@ import {
 // --- types
 import type { SelectCardsProps, SelectCardsItemProps } from "./types";
 import type { ComputedRef } from "vue";
+import Select from "../select/Select.vue";
 
 const props = withDefaults(defineProps<SelectCardsProps>(), {
-  required: true
+  required: true,
+  placeholder: "Select an option",
+  align: "start"
 });
 
 const emits = defineEmits(["update:modelValue"]);

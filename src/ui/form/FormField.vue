@@ -4,7 +4,7 @@
     v-if="meta.isVisible"
     :class="cn('flex flex-wrap', props.class)"
     :data-visible="meta.isVisible"
-    :data-testid="`form-item-${kebabCase(name)}`"
+    :data-testid="`form-item-${kebabCase(props.name || props.label)}`"
   >
     <slot name="field">
       <!-- label -->
@@ -16,20 +16,23 @@
 
               <span
                 >{{ label }}
-                <FormRequiredIndicator v-if="meta.isRequired" :formItemId="id"
+                <FormRequiredIndicator
+                  v-if="meta.isRequired"
+                  :formItemId="id"
+                  :text="props.requiredText"
               /></span>
 
               <Tooltip
                 v-if="tooltip"
                 :label="tooltip"
                 side="right"
-                color="primary"
+                color="info"
                 class="max-w-72 text-center text-xs"
               >
                 <Icon
                   icon="information-circle"
                   size="nano"
-                  class="opacity-50 transition-all duration-300 hover:opacity-100"
+                  class="opacity-50 transition-all duration-200 hover:opacity-100"
                 />
               </Tooltip>
 
@@ -37,6 +40,7 @@
                 v-if="!meta.isRequired"
                 :formItemId="id"
                 class="ml-auto"
+                :text="props.optionalText"
               />
             </span>
           </slot>

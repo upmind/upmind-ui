@@ -5,7 +5,7 @@ import { ComboboxItem, useForwardPropsEmits } from "radix-vue";
 import { cn } from "../../utils";
 
 const props = defineProps<
-  ComboboxItemProps & { class?: HTMLAttributes["class"] }
+  ComboboxItemProps & { class?: HTMLAttributes["class"]; dataSelected?: string }
 >();
 const emits = defineEmits<ComboboxItemEmits>();
 
@@ -27,6 +27,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
         props.class
       )
     "
+    :data-selected="props.dataSelected"
   >
     <slot />
   </ComboboxItem>

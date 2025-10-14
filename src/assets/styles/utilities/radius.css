@@ -1,0 +1,33 @@
+/*
+ * This file creates semantic radius utilities using @layer utilities.
+ *
+ * - @layer utilities .badge-radius → Creates .badge-radius class, no Tailwind variants
+ * - @utility badge-radius → Creates .badge-radius with Tailwind variants (hover:, etc.)
+ * - @theme badge-radius → Creates .bg-badge-radius, .text-badge-radius, etc. (inappropriate)
+ */
+
+@layer utilities {
+  .badge-radius {
+    border-radius: var(--badge-radius);
+  }
+
+  .control-radius {
+    border-radius: var(--control-radius);
+  }
+
+  .button-radius {
+    border-radius: var(--button-radius);
+  }
+
+  .image-radius {
+    border-radius: var(--image-radius);
+  }
+
+  .card-radius {
+    border-radius: var(--card-radius);
+  }
+
+  .message-radius {
+    border-radius: var(--message-radius);
+  }
+}

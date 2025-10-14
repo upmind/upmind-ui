@@ -2,6 +2,7 @@
 import { NumberFieldInput } from "radix-vue";
 import type { HTMLAttributes } from "vue";
 import { cn } from "../../utils";
+import { ringClasses } from "../../assets/styles";
 
 const props = defineProps<{
   class?: HTMLAttributes["class"];
@@ -13,7 +14,7 @@ const props = defineProps<{
     data-slot="input"
     :class="
       cn(
-        'focus-visible:ring-ring border-input bg-background ring-offset-background placeholder:text-muted-foreground flex h-10 w-full rounded-lg border py-2 text-center text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
+        'border-input bg-background placeholder:text-muted-foreground flex h-10 w-full rounded-lg border py-2 text-center text-sm',
         props.class
       )
     "

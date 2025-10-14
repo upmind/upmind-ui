@@ -33,7 +33,7 @@
         <Button
           v-for="(action, key) in actions"
           :key="key"
-          :color="color"
+          :variant="action.variant"
           v-bind="action"
           @click="doAction(action, $event)"
           pill
@@ -49,7 +49,7 @@ import { ref, watch, computed, onMounted, useTemplateRef } from "vue";
 import { useVModel } from "@vueuse/core";
 
 // --- components
-import { iterateSchema } from "@jsonforms/core";
+import { iterateSchema } from "./renderers/utils";
 import { JsonForms } from "@jsonforms/vue";
 
 // --- custom elements
@@ -207,9 +207,7 @@ const actions = computed<Record<string, FormActionProps>>(() => {
 
 const mode = computed<ValidationMode>(() => {
   // only show errors if we have interacted with the form
-  return meta.value.isTouched && !isEmpty(props.additionalErrors)
-    ? "ValidateAndShow"
-    : "ValidateAndHide";
+  return meta.value.isTouched ? "ValidateAndShow" : "ValidateAndHide";
 });
 
 // --- methods
@@ -300,21 +298,25 @@ function updateUischema(uischema: FormProps["uischema"]) {
 
     // map additional i18n, json forms just does title & description
     if (child?.i18n && isFunction(props?.i18n?.translate)) {
-      const value = props?.i18n?.translate(
+      const value = props.i18n.translate(
         child.i18n,
         child?.options?.title,
         model.value
       );
       merge(child.options, value);
+      if (props.optionalText) child.options.optionalText ??= props.optionalText;
+      if (props.requiredText) child.options.requiredText ??= props.requiredText;
     }
 
     // TODO: map additional form props that need to be inherited by all children
-    // eg: form size, show.hide required or optional indicicators, etc
+    // eg: form size, show.hide required or optional indicators, etc
+    if (props.optionalText) child.options.optionalText ??= props.optionalText;
+    if (props.requiredText) child.options.requiredText ??= props.requiredText;
   });
 }
 
 function syncUischema() {
-  // sync the uischema to the forms current uschema so that we ALWAYS have a uischema,
+  // sync the uischema to the forms current uischema so that we ALWAYS have a uischema,
   // this is important for us to be able to manipulate the form
   const currentUischema: UISchemaElement = get(
     jsonform.value,
@@ -328,6 +330,7 @@ function syncUischema() {
 
 onMounted(() => {
   syncUischema();
+  updateUischema(uischema.value);
 });
 // --- effects
 watch(

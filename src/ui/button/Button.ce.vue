@@ -1,9 +1,7 @@
 <template>
   <component
     :is="component"
-    :to="to"
-    :href="href"
-    :type="type"
+    v-bind="componentProps"
     :disabled="meta.isDisabled || meta.isLoading"
     :tabindex="meta.isFocusable ? '0' : '-1'"
     :class="cn(styles.button.root, props.class)"
@@ -17,12 +15,13 @@
         :checked="checked"
         :size="size"
         :variant="variant"
+        :loading="loading"
       />
     </slot>
 
     <slot>
-      <span v-if="label" :class="styles.button.label">
-        {{ label }}
+      <span v-if="label || slots.label" :class="styles.button.label">
+        <slot name="label">{{ label }}</slot>
       </span>
     </slot>
 
@@ -33,16 +32,21 @@
         :checked="checked"
         :size="size"
         :variant="variant"
+        :loading="loading"
       />
     </slot>
 
-    <Spinner v-if="loading" size="sm" class="absolute" />
+    <Spinner
+      v-if="loading"
+      size="sm"
+      class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+    />
   </component>
 </template>
 
 <script lang="ts" setup>
 // --- external
-import { computed } from "vue";
+import { computed, useSlots } from "vue";
 import { kebabCase } from "lodash-es";
 
 // --- internal
@@ -62,8 +66,8 @@ import type { ButtonProps } from "./types";
 const props = withDefaults(defineProps<ButtonProps>(), {
   type: "button",
   size: "md",
-  color: "base",
-  variant: "flat",
+  variant: "solid",
+  color: "primary",
   align: "center",
   focusable: true,
   truncate: true,
@@ -72,6 +76,8 @@ const props = withDefaults(defineProps<ButtonProps>(), {
   class: "",
   contentClass: ""
 });
+
+const slots = useSlots();
 
 defineEmits<{
   click: [event: Event];
@@ -84,10 +90,15 @@ const component = computed(() => {
   return Button;
 });
 
+const componentProps = computed(() => {
+  if (props.to) return { to: props.to };
+  if (props.href) return { href: props.href };
+  return { type: props.type };
+});
+
 const meta = computed(() => ({
   size: props.size,
   variant: props.variant,
-  color: props.color,
   align: props.align,
   isIconOnly: props.iconOnly,
   isPill: props.pill,

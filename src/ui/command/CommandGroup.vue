@@ -23,7 +23,7 @@ const delegatedProps = computed(() => {
     v-bind="delegatedProps"
     :class="
       cn(
-        'text-foreground [&_[cmdk-group-heading]]:text-muted-foreground overflow-hidden p-2',
+        '[&_[cmdk-group-heading]]:text-muted-foreground overflow-hidden p-2 text-base',
         props.class
       )
     "

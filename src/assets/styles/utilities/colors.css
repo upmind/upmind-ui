@@ -1,0 +1,102 @@
+/*
+ * This file creates generic color utilities across all Tailwind variants.
+ * The @theme directive exposes design tokens as standard Tailwind utilities
+ * (bg-*, text-*, border-*) with maximum flexibility.
+ *
+ * - @theme core-canvas → Creates .bg-core-canvas, .text-core-canvas, .border-core-canvas, etc.
+ * - @utility bg-core-canvas → Creates only the specific utility with Tailwind variants
+ * - .bg-core-canvas → Creates .bg-core-canvas class, no Tailwind variants
+ */
+
+@theme inline {
+  /* Core Colors */
+  --color-core-canvas: var(--color-core-canvas);
+  --color-core-surface: var(--color-core-surface);
+  --color-core-base: var(--color-core-base);
+  --color-core-display: var(--color-core-display);
+  --color-core-faint: var(--color-core-faint);
+  --color-core-muted: var(--color-core-muted);
+  --color-core-skeleton: var(--color-core-skeleton);
+  --color-core-overlay: var(--color-core-overlay);
+
+  /* Primary Colors */
+  --color-primary-default: var(--color-primary-default);
+  --color-primary-default-stop: var(--color-primary-default-stop);
+  --color-primary-default-delta: var(--color-primary-default-delta);
+  --color-primary-default-contrast: var(--color-primary-default-contrast);
+  --color-primary-muted: var(--color-primary-muted);
+  --color-primary-muted-contrast: var(--color-primary-muted-contrast);
+
+  --color-control-default-delta: var(--color-control-default-delta);
+  --color-control-default-contrast: var(--color-control-default-contrast);
+  --color-control-muted: var(--color-control-muted);
+  --color-control-muted-contrast: var(--color-control-muted-contrast);
+  --color-control-stroke: var(--color-control-stroke);
+  --color-control-stroke-delta: var(--color-control-stroke-delta);
+
+  /* Secondary Colors */
+  --color-secondary-default: var(--color-secondary-default);
+  --color-secondary-default-stop: var(--color-secondary-default-stop);
+  --color-secondary-default-delta: var(--color-secondary-default-delta);
+  --color-secondary-default-contrast: var(--color-secondary-default-contrast);
+
+  /* Neutral Colors */
+  --color-neutral-default: var(--color-neutral-default);
+  --color-neutral-default-delta: var(--color-neutral-default-delta);
+  --color-neutral-default-contrast: var(--color-neutral-default-contrast);
+  --color-neutral-muted: var(--color-neutral-muted);
+  --color-neutral-muted-delta: var(--color-neutral-muted-delta);
+  --color-neutral-muted-contrast: var(--color-neutral-muted-contrast);
+  --color-neutral-stroke: var(--color-neutral-stroke);
+  --color-neutral-stroke-delta: var(--color-neutral-stroke-delta);
+
+  /* Promo Colors */
+  --color-promo-default: var(--color-promo-default);
+  --color-promo-default-contrast: var(--color-promo-default-contrast);
+  --color-promo-muted: var(--color-promo-muted);
+  --color-promo-muted-contrast: var(--color-promo-muted-contrast);
+
+  /* Danger Colors */
+  --color-danger-default: var(--color-danger-default);
+  --color-danger-default-delta: var(--color-danger-default-delta);
+  --color-danger-default-contrast: var(--color-danger-default-contrast);
+  --color-danger-muted: var(--color-danger-muted);
+  --color-danger-muted-contrast: var(--color-danger-muted-contrast);
+
+  /* Warning Colors */
+  --color-warning-default: var(--color-warning-default);
+  --color-warning-default-contrast: var(--color-warning-default-contrast);
+  --color-warning-muted: var(--color-warning-muted);
+  --color-warning-muted-contrast: var(--color-warning-muted-contrast);
+
+  /* Success Colors */
+  --color-success-default: var(--color-success-default);
+  --color-success-default-contrast: var(--color-success-default-contrast);
+  --color-success-muted: var(--color-success-muted);
+  --color-success-muted-contrast: var(--color-success-muted-contrast);
+
+  /* Info Colors */
+  --color-info-default: var(--color-info-default);
+  --color-info-default-contrast: var(--color-info-default-contrast);
+  --color-info-muted: var(--color-info-muted);
+  --color-info-muted-contrast: var(--color-info-muted-contrast);
+
+  /* Ring Colors */
+  --color-control-ring: var(--bg-control-ring);
+  --color-primary-ring: var(--bg-button-primary-ring);
+  --color-secondary-ring: var(--bg-button-secondary-ring);
+  --color-neutral-ring: var(--bg-button-neutral-ring);
+  --color-subtle-ring: var(--bg-button-subtle-ring);
+  --color-outline-ring: var(--bg-button-outline-ring);
+  --color-danger-ring: var(--bg-button-danger-ring);
+  --color-warning-ring: var(--bg-button-warning-ring);
+  --color-success-ring: var(--bg-button-success-ring);
+
+  /* Accent Colors */
+  --color-accent-neutral: var(--bg-accent-neutral);
+  --color-accent-promo: var(--bg-accent-promo);
+  --color-accent-danger: var(--bg-accent-danger);
+  --color-accent-warning: var(--bg-accent-warning);
+  --color-accent-success: var(--bg-accent-success);
+  --color-accent-info: var(--bg-accent-info);
+}

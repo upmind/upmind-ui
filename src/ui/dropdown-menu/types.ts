@@ -36,11 +36,11 @@ export interface DropdownMenuProps
   tag?: string;
   avatar?: Partial<AvatarProps>;
   icon?: IconProps["icon"];
+  to?: string;
   // --- state
   items: DropdownMenuItemProps[];
   loading?: boolean;
   // --- variants
-  color?: ButtonProps["color"];
   variant?: ButtonProps["variant"];
   size?: ButtonProps["size"];
   width?: ContentVariantProps["width"];

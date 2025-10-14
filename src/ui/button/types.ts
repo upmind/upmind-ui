@@ -36,12 +36,12 @@ export interface ButtonProps {
   // ---
   focusable?: boolean;
   block?: boolean;
-  align?: ButtonVariantProps["align"] | string;
+  align?: ButtonVariantProps["align"];
   truncate?: boolean;
   checked?: boolean;
-  variant?: ButtonVariantProps["variant"] | string;
-  color?: ButtonVariantProps["color"] | string;
-  size?: ButtonVariantProps["size"] | string;
+  variant?: ButtonVariantProps["variant"];
+  color?: ButtonVariantProps["color"];
+  size?: ButtonVariantProps["size"];
   // ---
   uiConfig?: {
     button: { root: CxOptions; label: CxOptions; items: CxOptions };
@@ -56,4 +56,5 @@ export interface ButtonItemsProps {
   avatar?: ButtonProps["avatar"];
   size?: ButtonProps["size"];
   checked?: boolean;
+  loading?: boolean;
 }

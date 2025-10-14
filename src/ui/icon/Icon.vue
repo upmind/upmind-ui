@@ -25,7 +25,7 @@ import {
 import config from "./icon.config";
 
 // --- utils
-import { find, isObject, endsWith, isEmpty } from "lodash-es";
+import { find, isObject, endsWith, isEmpty, trimEnd } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -92,10 +92,10 @@ watchEffect(async () => {
   const asyncImport = variantMatch || directMatch;
 
   if (!asyncImport) {
-    console.warn("icon", "import not found", {
-      icon: props.icon,
-      icons
-    });
+    // console.warn("icon", "import not found", {
+    //   icon: props.icon,
+    //   icons
+    // });
     emit("error", new Error(`Icon not found: ${safeName}`));
     svg.value = null;
     return;

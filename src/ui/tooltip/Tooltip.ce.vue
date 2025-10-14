@@ -51,7 +51,7 @@ import type { TooltipContentEmits, TooltipRootEmits } from "radix-vue";
 const props = withDefaults(defineProps<TooltipProps>(), {
   delayDuration: 150,
   // --- styles
-  color: "base",
+  color: "neutral",
   // --- styles
   class: "",
   to: "body"

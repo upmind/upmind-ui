@@ -6,44 +6,45 @@
   >
     <PopoverTrigger as-child :ring="false">
       <Button
-        v-bind="$attrs"
         :loading="props.loading"
         :class="cn('group', styles.combobox.trigger, props.class)"
-        size="lg"
+        :size="props.size"
         :aria-expanded="open"
-        variant="ghost"
-        :ring="false"
+        variant="control"
         icon-append="chevron-down"
         :checked="open"
+        :data-hover="dataHover"
+        :data-focus="dataFocus"
+        ring
       >
-        <template #prepend v-if="!isEmpty(modelValue) || searchTerm">
+        <template #prepend v-if="!isEmpty(modelValue) || searchValue">
           <slot name="selected" v-bind="{ item: modelValue }">
             <Avatar
-              v-if="meta.hasAvatar"
+              v-if="meta.hasAvatar && !props.icon"
               v-bind="avatar"
-              size="3xs"
+              size="xs"
               shape="circle"
               fit="cover"
               aria-hidden="true"
             />
             <Icon
-              v-if="meta.hasIcon"
+              v-if="meta.hasIcon && !props.avatar"
               :icon="icon"
               shape="circle"
-              size="3xs"
+              size="2xs"
               fit="cover"
               aria-hidden="true"
             />
           </slot>
         </template>
 
-        <template #default v-if="!isEmpty(modelValue) || searchTerm">
+        <template #default v-if="!isEmpty(modelValue)">
           <span :class="styles.combobox.label">{{ label }}</span>
         </template>
 
-        <template #default v-else-if="search">
+        <template #default>
           <span class="opacity-50">
-            <slot name="placeholder">{{ props.placeholder }}</slot>
+            <slot name="placeholder">{{ props.placeholder || "&nbsp;" }}</slot>
           </span>
         </template>
 
@@ -64,45 +65,39 @@
       avoidCollisions
       :class="cn(styles.combobox.content, props.popoverClass)"
     >
-      <Command>
+      <Command
+        :modelValue="modelValue"
+        :filterFunction="items => items"
+        v-model:searchTerm="searchValue"
+      >
         <template v-if="props.search">
-          <Input
-            v-if="isFunction(props.search)"
-            v-model="searchTerm"
-            @update:modelValue="onSearch"
-            :placeholder="placeholder"
-            input-size="sm"
+          <CommandInput
+            :placeholder="searchPlaceholder"
             :class="styles.combobox.input"
-            :ring="false"
           >
             <template #prepend>
-              <Icon icon="search-md" size="2xs" class="mr-1 opacity-50" />
+              <Icon icon="search-md" size="nano" class="text-muted mr-2" />
             </template>
-          </Input>
-          <CommandInput
-            v-else
-            v-model="searchTerm"
-            :placeholder="placeholder"
-          />
-          <CommandEmpty>{{ emptyMessage }}</CommandEmpty>
+          </CommandInput>
         </template>
-        <CommandList class="w-full max-w-full border-t" loop>
+        <CommandList
+          class="border-control-default w-full max-w-full border-t p-2"
+          loop
+        >
+          <CommandEmpty class="text-muted">{{ emptyMessage }}</CommandEmpty>
           <CommandGroup>
             <CommandItem
-              v-for="item in results"
+              v-for="item in filteredItems"
               :key="(item as Record<string, any>)[itemValue]"
               :value="(item as Record<string, any>)[itemValue]"
               @select="doSelect(get(item, itemValue))"
               class="group flex cursor-pointer items-center justify-start gap-4"
               :class="styles.combobox.item"
+              :data-selected="isSelected(item) ? 'true' : 'false'"
             >
-              <Avatar
-                v-if="item.avatar"
-                v-bind="item.avatar"
-                :size="props.iconSize"
-              />
+              <Avatar v-if="item.avatar" v-bind="item.avatar" size="xs" />
 
-              <Icon v-if="item.icon" :icon="item.icon" :size="props.iconSize" />
+              <Icon v-if="item.icon" :icon="item.icon" size="xs" />
 
               <span
                 class="flex w-full items-center justify-between"
@@ -125,7 +120,7 @@
               <Icon
                 v-if="props.checkedIcon"
                 icon="check"
-                :size="props.iconSize"
+                size="2xs"
                 :class="
                   cn('ml-auto', isSelected(item) ? 'opacity-100' : 'opacity-0')
                 "
@@ -150,7 +145,6 @@ import config from "./combobox.config";
 import Icon from "../icon/Icon.ce.vue";
 import Button from "../button/Button.ce.vue";
 import Avatar from "../avatar/Avatar.ce.vue";
-import Input from "../input/Input.ce.vue";
 import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 import {
   Command,
@@ -162,24 +156,11 @@ import {
 } from "../command";
 
 // --- utils
-import {
-  debounce,
-  filter,
-  find,
-  get,
-  includes,
-  isObject,
-  isEmpty,
-  isEqual,
-  isFunction,
-  isString,
-  reject,
-  has
-} from "lodash-es";
+import { find, get, isEmpty, isEqual, isFunction, has } from "lodash-es";
 
 // --- types
 import type { ComboboxProps, ComboboxItemProps } from "./types";
-import type { ComputedRef, Ref } from "vue";
+import type { ComputedRef } from "vue";
 
 const props = withDefaults(defineProps<ComboboxProps>(), {
   // --- props
@@ -189,20 +170,19 @@ const props = withDefaults(defineProps<ComboboxProps>(), {
   loading: false,
   search: false,
   emptyMessage: "No Results",
-  placeholder: "Search...",
+  placeholder: "",
   itemLabel: "label",
   itemValue: "value",
   checkedIcon: true,
   // -- styles
   color: "base",
-  size: "md",
+  size: "lg",
   width: "auto",
   variant: "control",
   align: "end",
   side: "bottom",
   // ---
   icon: "",
-  iconSize: "2xs",
 
   // --- styles
   uiConfig: () => ({ combobox: [] }),
@@ -213,9 +193,9 @@ const props = withDefaults(defineProps<ComboboxProps>(), {
 const emits = defineEmits(["update:modelValue"]);
 
 const meta = computed(() => ({
-  color: props.color,
   size: props.size,
   width: props.width,
+  dropdownWidth: props.dropdownWidth || props.width,
   hasRing: props.ring,
   truncate: props.truncate,
   hasAvatar: props.avatar || has(modelValue.value, "avatar"),
@@ -223,7 +203,6 @@ const meta = computed(() => ({
 }));
 
 const open = ref(false);
-const processing = ref(false);
 
 const itemValue = computed((): string => props.itemValue || "value");
 const itemLabel = computed((): string => props.itemLabel || "label");
@@ -232,14 +211,11 @@ const modelValue = computed(() =>
   find(props.items, [itemValue.value, props.modelValue])
 );
 
-const searchTerm = ref();
 const avatar = computed(() => modelValue.value?.avatar || props.avatar);
-const icon = computed(() => () => modelValue.value?.icon || props.icon);
+const icon = computed(() => modelValue.value?.icon || props.icon);
 const label = computed(() => {
   const selectedLabel = get(modelValue.value, "selectedLabel");
-  return (
-    selectedLabel || get(modelValue.value, itemLabel.value) || searchTerm.value
-  );
+  return selectedLabel || get(modelValue.value, itemLabel.value);
 });
 // ---
 
@@ -259,39 +235,28 @@ const styles = useStyles(
   };
 }>;
 
-async function safeSearch(value: string | number) {
-  processing.value = !!value;
+const searchValue = ref("");
 
-  if (!value) {
-    results.value = reject(props.items, "persist");
-  } else if (isFunction(props.search)) {
-    results.value = await props.search(value.toString());
-  } else {
-    // --- if no search function is provided, just filter the items
-    results.value = filter(props.items ?? [], (item: ComboboxItemProps) => {
-      const v = get(item, itemValue.value)?.toString().toLowerCase();
-      const l = get(item, itemLabel.value)?.toString().toLowerCase();
-      return (
-        item.persist ||
-        includes(v, value.toString().toLowerCase()) ||
-        includes(l, value.toString().toLowerCase())
-      );
-    });
+const filteredItems = computed(() => {
+  if (!props.search || !searchValue.value) {
+    return props.items ?? [];
   }
 
-  const presistedItems = filter(props.items, "persist");
-
-  if (presistedItems.length > 0) {
-    // if (results.value.length) results.value.push({ as: "separator" });
-    results.value.push(...presistedItems);
+  if (isFunction(props.search)) {
+    return props.search(searchValue.value, props.items);
   }
 
-  processing.value = false;
-}
-
-const onSearch = debounce(safeSearch, 350);
-
-const results = ref(props.items ?? []) as Ref<ComboboxItemProps[]>;
+  return (props.items ?? []).filter((item: ComboboxItemProps) => {
+    const value = get(item, itemValue.value)?.toString().toLowerCase();
+    const label = get(item, itemLabel.value)?.toString().toLowerCase();
+    const search = searchValue.value.toLowerCase();
+    return (
+      item.persist ||
+      (value && value.includes(search)) ||
+      (label && label.includes(search))
+    );
+  });
+});
 
 // --- methods
 function doSelect(item: string) {
@@ -300,19 +265,14 @@ function doSelect(item: string) {
     item
   ]) as ComboboxItemProps;
 
-  const value = get(selected, itemValue.value);
+  const newValue = get(selected, itemValue.value);
   const oldValue = get(modelValue.value, itemValue.value);
-  const hasChanged = !isEqual(value, oldValue);
+  const hasChanged = !isEqual(newValue, oldValue);
   if (hasChanged) {
-    emits("update:modelValue", value); // NB emit only the value
+    emits("update:modelValue", newValue); // NB emit only the value
   }
 
-  // if we have a search value,  set it to the selected value = seamless ui
-  if (searchTerm.value) {
-    searchTerm.value = get(selected, itemLabel.value, searchTerm.value);
-  }
-
-  // finnaly close the popover
+  // finally close the popover
   open.value = false;
 }
 
@@ -324,11 +284,9 @@ function isSelected(item: ComboboxItemProps) {
 // --- side effect
 
 watch(
-  () => props,
-  newProps => {
-    results.value = newProps.items;
-    doSelect(newProps.modelValue);
-  },
-  { deep: true }
+  () => props.modelValue,
+  newValue => {
+    if (newValue) doSelect(newValue);
+  }
 );
 </script>

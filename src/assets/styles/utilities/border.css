@@ -1,0 +1,77 @@
+/*
+ * This file creates context-specific border utilities with semantic names.
+ * The @utility directive creates precise border utilities with Tailwind ecosystem
+ * integration while preventing unwanted utility generation.
+ *
+ * - @utility border-accent-danger → Creates only .border-accent-danger, supports Tailwind variants
+ * - @theme --accent-danger → Creates .bg-accent-danger, .text-accent-danger, .border-accent-danger, etc. (avoid, causes conflicts and design inconsistencies)
+ * - .border-accent-danger → Creates .border-accent-danger class, no Tailwind variants
+ *
+ * We use @utility for semantic border colors to prevent unwanted utilities like bg-accent-danger
+ * when we only want the border color variant.
+ */
+
+@utility border-surface {
+  border-color: var(--border-surface);
+}
+
+.primary-stroke {
+  border: var(--stroke-badge) solid transparent;
+  background:
+    linear-gradient(var(--bg-surface), var(--bg-surface)) padding-box,
+    linear-gradient(
+        to right,
+        var(--color-primary-default),
+        var(--color-primary-default-stop)
+      )
+      border-box;
+}
+
+.shadow-border-primary-gradient {
+  position: relative;
+}
+
+/* Border - Button */
+@utility border-button-outline {
+  border-color: var(--border-button-outline);
+}
+@utility border-button-outline-hover {
+  border-color: var(--border-button-outline-hover);
+}
+
+/* Border - Control */
+@utility border-control-default {
+  border-color: var(--border-control-default);
+}
+@utility border-control-hover {
+  border-color: var(--border-control-hover);
+}
+@utility border-control-selected {
+  border-color: var(--border-control-selected);
+}
+
+/* Border - Accent */
+@utility border-accent-primary {
+  border-color: var(--border-accent-primary);
+}
+@utility border-accent-secondary {
+  border-color: var(--border-accent-secondary);
+}
+@utility border-accent-neutral {
+  border-color: var(--border-accent-neutral);
+}
+@utility border-accent-promo {
+  border-color: var(--border-accent-promo);
+}
+@utility border-accent-danger {
+  border-color: var(--border-accent-danger);
+}
+@utility border-accent-warning {
+  border-color: var(--border-accent-warning);
+}
+@utility border-accent-success {
+  border-color: var(--border-accent-success);
+}
+@utility border-accent-info {
+  border-color: var(--border-accent-info);
+}

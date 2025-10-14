@@ -7,7 +7,7 @@
     </div>
   </nav>
 
-  <article :class="styles.enclosed.root">
+  <article :class="cn(styles.enclosed.root, props.class)">
     <div :class="styles.enclosed.container">
       <Card v-if="meta.hasHeader" as="header">
         <slot name="header" />
@@ -17,7 +17,7 @@
         <div :class="styles.enclosed.main">
           <slot name="default" />
 
-          <footer>
+          <footer v-if="meta.hasFooter">
             <slot name="footer" />
           </footer>
         </div>
@@ -64,6 +64,7 @@ const meta = computed(() => {
       !isEmptySlot("actions", slots),
     hasHeader: !isEmptySlot("header", slots),
     hasContent: !isEmptySlot("default", slots),
+    hasFooter: !isEmptySlot("footer", slots),
     hasAside:
       !isEmptySlot("aside", slots) || !isEmptySlot("aside-footer", slots),
     isMinimal: props.minimal

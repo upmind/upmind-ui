@@ -1,10 +1,10 @@
 import { cva } from "class-variance-authority";
 
-import { ringClasses, invalidRingClasses } from "../input/input.config";
+import { ringClasses, invalidRingClasses } from "../../assets/styles";
 
 // ---
 
-export const rootVariants = cva("relative rounded", {
+export const rootVariants = cva("control-radius relative", {
   variants: {
     width: {
       full: "w-full",
@@ -18,7 +18,7 @@ export const rootVariants = cva("relative rounded", {
 });
 
 export const anchorVariants = cva(
-  `${ringClasses} ${invalidRingClasses} w-dropdown-2xs shadow-border-control flex items-center justify-between rounded pr-3 leading-none transition-all duration-200 outline-none`,
+  `${ringClasses} ${invalidRingClasses} w-dropdown-2xs shadow-control-default control-radius flex items-center justify-between pr-3 leading-none transition-all duration-200 outline-none`,
   {
     variants: {
       size: {
@@ -47,7 +47,7 @@ export const anchorVariants = cva(
 );
 
 export const contentVariants = cva(
-  "data-[side=top]:animate-slideDownAndFade data-[side=right]:animate-slideLeftAndFade data-[side=bottom]:animate-slideUpAndFade data-[side=left]:animate-slideRightAndFade border-control bg-base absolute z-10 mt-2 max-h-96 min-w-full overflow-hidden rounded border p-1 will-change-[opacity,transform] empty:hidden",
+  "data-[side=top]:animate-slideDownAndFade data-[side=right]:animate-slideLeftAndFade data-[side=bottom]:animate-slideUpAndFade data-[side=left]:animate-slideRightAndFade border-control-default bg-control-surface control-radius absolute z-10 mt-2 max-h-96 min-w-full overflow-hidden border p-1 will-change-[opacity,transform] empty:hidden",
   {
     variants: {
       popoverWidth: {
@@ -82,7 +82,7 @@ export default {
     empty: cva("py-2 text-center text-xs font-medium"),
     content: contentVariants,
     item: cva(
-      "data-[disabled]:text-control-disabled data-highlighted:bg-control-active-hover text-control-foreground data-highlighted:text-control-active relative flex cursor-pointer! items-center justify-between rounded px-3 py-2 text-sm select-none data-disabled:pointer-events-none data-highlighted:outline-none"
+      "data-[disabled]:text-control-disabled data-highlighted:bg-control-active-hover text-control-foreground data-highlighted:text-control-active control-radius relative flex cursor-pointer! items-center justify-between px-3 py-2 text-sm select-none data-disabled:pointer-events-none data-highlighted:outline-none"
     ),
     indicator: cva("pr-2")
   }

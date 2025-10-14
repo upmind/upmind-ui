@@ -2,25 +2,23 @@
 import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
+export const variants = {
+  color: {
+    neutral: "bg-accent-neutral text-accent-neutral-contrast",
+    promo: "bg-accent-promo text-accent-promo-contrast",
+    danger: "bg-accent-danger text-accent-danger-contrast",
+    warning: "bg-accent-warning text-accent-warning-contrast",
+    success: "bg-accent-success text-accent-success-contrast",
+    info: "bg-accent-info text-accent-info-contrast"
+  }
+};
+
 export const contentVariants = cva(
-  "animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 overflow-hidden rounded-xs border-transparent px-3 py-1.5 text-sm",
+  "animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 overflow-hidden rounded-xs border-transparent px-3 py-1.5 text-sm ring-0 ring-transparent outline-none focus-within:ring-0 focus:ring-0 focus-visible:ring-0",
   {
-    variants: {
-      color: {
-        base: "text-base-muted bg-base-foreground",
-        primary: "bg-primary text-primary-foreground",
-        secondary: "bg-secondary text-secondary-foreground",
-        accent: "bg-accent text-accent-foreground",
-        promotion: "bg-promotion text-promotion-foreground",
-        destructive: "bg-destructive text-destructive-foreground",
-        success: "bg-success text-success-foreground",
-        info: "bg-info text-info-foreground",
-        error: "bg-error text-error-foreground",
-        warning: "bg-warning text-warning-foreground"
-      }
-    },
+    variants,
     defaultVariants: {
-      color: "base"
+      color: "neutral"
     }
   }
 );
@@ -28,20 +26,17 @@ export const contentVariants = cva(
 export const arrowVariants = cva("", {
   variants: {
     color: {
-      base: "text-base-foreground",
-      primary: "text-primary",
-      secondary: "text-secondary",
-      accent: "text-accent",
-      promotion: "text-promotion",
-      destructive: "text-destructive",
-      success: "text-success",
-      info: "text-info",
-      error: "text-error",
-      warning: "text-warning"
+      neutral: "text-accent-neutral",
+      promo: "text-accent-promo",
+      danger: "text-accent-danger",
+      warning: "text-accent-warning",
+      success: "text-accent-success",
+      info: "text-accent-info",
+      error: "text-accent-error"
     }
   },
   defaultVariants: {
-    color: "base"
+    color: "neutral"
   }
 });
 
@@ -51,6 +46,8 @@ export default {
   tooltip: {
     content: contentVariants,
     arrow: arrowVariants,
-    trigger: cva("text-inherit no-underline")
+    trigger: cva(
+      "text-inherit no-underline ring-0 ring-transparent outline-none focus-within:ring-0 focus:ring-0 focus-visible:ring-0"
+    )
   }
 };

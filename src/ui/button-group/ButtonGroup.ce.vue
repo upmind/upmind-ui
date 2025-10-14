@@ -12,32 +12,22 @@
         <Button
           v-if="item.type === ButtonGroup.Button"
           v-bind="item.props"
+          :class="styles.buttonGroup.button"
           size="lg"
           :disabled="disabled || item.props.disabled"
           variant="ghost"
           :ring="false"
           @click="item.handler?.($event)"
-          :ui-config="{
-            button: {
-              root: [styles.buttonGroup.button],
-              label: [],
-              items: []
-            }
-          }"
         />
 
         <Select
           v-else-if="item.type === ButtonGroup.Select"
           v-bind="item.props"
+          :class="styles.buttonGroup.button"
           :ring="false"
+          size="lg"
           variant="ghost"
-          :ui-config="{
-            select: {
-              root: [styles.buttonGroup.button],
-              value: [],
-              item: []
-            }
-          }"
+          :to="to"
           @update:modelValue="item.handler?.($event)"
         />
       </span>
@@ -63,16 +53,17 @@ import type { ButtonGroupProps } from "./types";
 import { ButtonGroup } from "./types";
 
 const props = withDefaults(defineProps<ButtonGroupProps>(), {
-  variant: "outline",
+  variant: "control",
   // ---
   items: () => [],
+  size: "md",
   // ---
   uiConfig: () => ({ buttonGroup: [] }),
   class: ""
 });
 
 const meta = computed(() => ({
-  variant: props.variant,
+  variant: "control",
   isDisabled: props.disabled,
   hasRing: true
 }));

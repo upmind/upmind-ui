@@ -30,7 +30,7 @@
         </div>
       </DrawerHeader>
 
-      <div :class="cn(styles.drawer.inner)">
+      <div v-if="$slots['default']" :class="cn(styles.drawer.inner)">
         <div :class="cn('py-1', styles.drawer.container, props.classContent)">
           <slot></slot>
         </div>
@@ -89,7 +89,6 @@ const props = withDefaults(defineProps<DrawerProps>(), {
   width: "app",
   overflow: "auto",
   fit: "contain",
-  skrim: "dark",
   to: "body",
   // --- state
   dismissible: true,
@@ -142,8 +141,7 @@ const value = useVModel(props, "open", emits);
 const meta = computed(() => ({
   width: props.width,
   overflow: props.overflow,
-  fit: props.fit,
-  skrim: props.skrim
+  fit: props.fit
 }));
 
 const styles = useStyles(

@@ -34,7 +34,7 @@ export interface Theme {
   id: string;
   icon?: string;
   uiConfig?: UIConfig;
-  tokens?: Record<string, any>;
+  tokens?: string;
 }
 
 export interface ITheme {
@@ -86,6 +86,10 @@ export const useThemes = (value?: Theme | Theme[], defaultTheme?: string) => {
       const themeConfig =
         find(themes.value, ["id", activeTheme.value]) || first(themes.value);
       if (themeConfig) config.value = themeConfig.uiConfig || {};
+    }
+
+    if (document && document.body) {
+      document.body.dataset.theme = activeTheme.value;
     }
   }
 

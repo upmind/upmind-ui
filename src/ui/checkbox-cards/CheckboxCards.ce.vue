@@ -18,7 +18,10 @@
         :no-input="props.noInput"
         :class="cn(styles.checkboxCards.input, props.itemClass)"
         :itemClass="styles.checkboxCards.item"
+        :checked="includes(modelValue, item.value)"
         data-testid="checkbox-item"
+        :data-hover="props.dataHover"
+        :data-focus="props.dataFocus"
       >
         <Label
           :for="`${item.id}-${index}`"
@@ -26,7 +29,51 @@
           data-testid="checkbox-label"
         >
           <slot name="item" v-bind="{ item, index }">
-            {{ item.label }}
+            <div class="flex w-full items-start gap-4">
+              <span class="flex flex-1 flex-col">
+                <header
+                  v-if="item.label || item.secondaryLabel"
+                  class="flex items-center justify-between"
+                >
+                  <span class="flex gap-2">
+                    <h5 :class="styles.checkboxCards.content.label">
+                      {{ item.label || item.name }}
+                    </h5>
+                    <Badge v-if="item.badge" v-bind="item.badge" size="sm" />
+                  </span>
+                  <span class="flex gap-2">
+                    <Badge
+                      v-if="item.secondaryBadge"
+                      v-bind="item.secondaryBadge"
+                      size="sm"
+                    />
+                    <h5 :class="styles.checkboxCards.content.secondaryLabel">
+                      {{ item.secondaryLabel }}
+                    </h5>
+                  </span>
+                </header>
+                <p
+                  v-if="item.description"
+                  :class="styles.checkboxCards.content.description"
+                >
+                  {{ item.description }}
+                </p>
+                <p
+                  v-if="item.secondaryDescription"
+                  :class="styles.checkboxCards.content.secondaryDescription"
+                >
+                  {{ item.secondaryDescription }}
+                </p>
+              </span>
+              <span v-if="item.action" class="leading-none">
+                <Link
+                  color="muted"
+                  :label="item.action"
+                  size="sm"
+                  @click="onAction"
+                />
+              </span>
+            </div>
           </slot>
         </Label>
       </CheckboxCardItem>
@@ -39,6 +86,7 @@
 import { computed } from "vue";
 import { useVModel } from "@vueuse/core";
 import { ToggleGroupRoot } from "radix-vue";
+import { includes } from "lodash-es";
 
 // --- internal
 import { cn, useStyles } from "../../utils";
@@ -47,6 +95,8 @@ import config from "./checkboxCards.config";
 // --- components
 import CheckboxCardItem from "./CheckboxCardItem.vue";
 import { Label } from "../label";
+import { Link } from "../link";
+import { Badge } from "../badge";
 
 // --- types
 import type { CheckboxCardsProps } from "./types";
@@ -61,6 +111,7 @@ const props = withDefaults(defineProps<CheckboxCardsProps>(), {
 const emits = defineEmits<{
   /** Update the model value */
   (e: "update:modelValue", payload: string[]): void;
+  (e: "action", payload: any): void;
 }>();
 
 defineSlots<{
@@ -81,7 +132,7 @@ const meta = computed(() => ({
 }));
 
 const styles = useStyles(
-  ["checkboxCards"],
+  ["checkboxCards", "checkboxCards.content"],
   meta,
   config,
   props.uiConfig ?? {}
@@ -92,6 +143,16 @@ const styles = useStyles(
     item: string;
     input: string;
     label: string;
+    content: {
+      label: string;
+      secondaryLabel: string;
+      description: string;
+      secondaryDescription: string;
+    };
   };
 }>;
+
+const onAction = (value: any) => {
+  emits("action", value);
+};
 </script>

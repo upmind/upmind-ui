@@ -1,21 +1,9 @@
 // ---  external
 import { cva } from "class-variance-authority";
-// -----------------------------------------------------------------------------
+import { ringClasses, invalidRingClasses } from "../../assets/styles";
 
 export const textareaVariants = cva(
-  "bg-control-background hover:border-control-strong aria-invalid:ring-invalid! focus-visible:ring-ring border-control text-control-foreground ring-offset-background placeholder:text-muted-foreground flex w-full rounded border transition-all duration-200 file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:ring-2! aria-invalid:ring-offset-2!",
-  {
-    variants: {
-      size: {
-        sm: "min-h-16 px-3 py-2 text-sm",
-        md: "text-md min-h-20 px-3 py-2",
-        lg: "min-h-24 px-3 py-2 text-lg"
-      }
-    },
-    defaultVariants: {
-      size: "md"
-    }
-  }
+  `bg-control-surface text-md [&:hover,&[data-hover=true]]:shadow-control-hover shadow-control-default text-control-foreground placeholder:text-muted-foreground control-radius flex min-h-20 w-full border-0 px-4 py-2 transition-all duration-200 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:cursor-not-allowed disabled:opacity-50 ${ringClasses} ${invalidRingClasses}`
 );
 
 // -----------------------------------------------------------------------------

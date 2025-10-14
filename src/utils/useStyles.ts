@@ -132,3 +132,30 @@ export const stylesheet = computed((): string => {
 export function useStyleSheet(url: string) {
   customStyleSheet = url;
 }
+
+export function getComputedColor(className: string): string {
+  const app = document.getElementById("vue-app");
+  const cssVar = getComputedStyle(app || document.documentElement)
+    .getPropertyValue(`--${className}`)
+    .trim();
+
+  if (cssVar) {
+    return cssVar;
+  }
+
+  const tempElement = document.createElement("div");
+  tempElement.className = "text-" + className;
+  (app || document.body).appendChild(tempElement);
+
+  const computedStyle = window.getComputedStyle(tempElement);
+  const color = computedStyle.color;
+
+  (app || document.body).removeChild(tempElement);
+
+  const rgb = color.match(/\d+/g);
+  if (rgb) {
+    return `#${parseInt(rgb[0]).toString(16).padStart(2, "0")}${parseInt(rgb[1]).toString(16).padStart(2, "0")}${parseInt(rgb[2]).toString(16).padStart(2, "0")}`;
+  }
+
+  return "#121217";
+}

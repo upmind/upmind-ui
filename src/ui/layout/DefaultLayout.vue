@@ -7,7 +7,7 @@
     </div>
   </div>
 
-  <article :class="styles.default.root">
+  <article :class="cn(styles.default.root, props.class)">
     <section :class="styles.default.header" v-if="meta.hasHeader">
       <slot name="header" />
     </section>

@@ -5,11 +5,27 @@
     :key="uid"
     :model-value="modelValue"
   >
-    <SelectTrigger :class="cn(styles.select.root, props.class)">
-      <SelectValue :placeholder="placeholder" :class="styles.select.value" />
+    <SelectTrigger
+      :class="cn(styles.select.root, props.class)"
+      :data-hover="props.dataHover"
+      :data-focus="props.dataFocus"
+    >
+      <SelectValue
+        :placeholder="placeholder"
+        :class="styles.select.value"
+        :data-hover="props.dataHover"
+        :data-focus="props.dataFocus"
+      />
+      <span
+        v-if="isEmpty(placeholder) && isEmpty(modelValue)"
+        :class="styles.select.value"
+        class="pointer-events-none invisible select-none"
+      >
+        &nbsp;
+      </span>
       <template #icon>
         <Icon
-          class="text-emphasis-medium group-hover:text-emphasis-none ml-auto pl-4 transition-all duration-200 [&>svg]:size-3 [&>svg]:transition-all [&>svg]:duration-300"
+          class="text-muted ml-auto pl-4 transition-all duration-200 group-hover:text-base [&>svg]:size-3 [&>svg]:transition-all [&>svg]:duration-200"
           :class="open ? '[&>svg]:rotate-180' : ''"
           icon="chevron-down"
           size="xs"
@@ -17,8 +33,8 @@
       </template>
     </SelectTrigger>
 
-    <SelectContent :class="styles.select.content" :align="align">
-      <SelectGroup>
+    <SelectContent :class="styles.select.content" :align="align" :to="to">
+      <SelectGroup class="p-2">
         <SelectItem
           v-for="item in items"
           :key="item.value"
@@ -37,6 +53,18 @@
             }}</span>
             <span v-if="item?.label">{{ item?.label }}</span>
           </span>
+        </SelectItem>
+
+        <SelectItem
+          v-for="item in props.additionalItems"
+          :class="styles.select.item"
+          :key="'additional-' + item.value"
+          :value="item.value"
+        >
+          <template #indicator>
+            <Icon :icon="item.icon" size="2xs" />
+          </template>
+          <span>{{ item.textValue }}</span>
         </SelectItem>
       </SelectGroup>
     </SelectContent>
@@ -63,20 +91,23 @@ import SelectValue from "./SelectValue.vue";
 import SelectIndicator from "./SelectIndicator.vue";
 import Icon from "../icon/Icon.vue";
 
+// --- utils
+import { isEmpty, isEqual } from "lodash-es";
+
 // --- types
 import type { SelectRootEmits, SelectContentEmits } from "radix-vue";
 import type { SelectProps } from "./types";
 import type { ComputedRef } from "vue";
 import { timestamp } from "@vueuse/shared";
-import { isEqual } from "lodash-es";
 
 const props = withDefaults(defineProps<SelectProps>(), {
   // --- props
   items: () => [],
-  placeholder: "Select an option",
+  additionalItems: () => [],
+  placeholder: "",
   // -- styles
   variant: "outline",
-  size: "md",
+  size: "lg",
   width: "full",
   ring: true,
   // --- styles
@@ -105,8 +136,9 @@ const open = ref(false);
 const uid = ref(timestamp());
 
 const meta = computed(() => ({
-  width: props.width,
   variant: props.variant,
+  width: props.width,
+  size: props.size,
   hasValue: !!props.modelValue,
   hasRing: props.ring
 }));
