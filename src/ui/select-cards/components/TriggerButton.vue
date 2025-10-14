@@ -4,8 +4,8 @@
     :class="cn(variants.select.trigger, props.class)"
     :size="size"
     :aria-expanded="open"
-    :data-hover="$attrs['data-hover']"
-    :data-focus="$attrs['data-focus']"
+    :data-hover="props.dataHover"
+    :data-focus="props.dataFocus"
     variant="control"
     block
     :focusable="focusable"

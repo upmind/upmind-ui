@@ -1,5 +1,14 @@
-/* Main Variants */
+/*
+ * This file creates purpose-driven text color utilities. The @utility directive creates CSS
+ * classes while providing Tailwind ecosystem variants (e,g. hover:text-base).
+ *
+ * - @utility text-base → Creates only .text-base class, supports Tailwind variants
+ * - @theme text-base → Creates .text-base, .bg-text-base, .border-text-base, etc. (avoid, causes conflicts and design inconsistencies)
+ * - .text-base → Creates .text-base class, no Tailwind variants
+ * - --text-base (within @theme) → Creates many classes, such as bg-text-base (avoid, causes conflicts and design inconsistencies)
+ */
 
+/* Main Variants */
 @utility text-base {
   color: var(--text-base);
 }

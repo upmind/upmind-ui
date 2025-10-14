@@ -13,8 +13,8 @@
         variant="control"
         icon-append="arrow-down"
         :checked="open"
-        :data-hover="$attrs['data-hover']"
-        :data-focus="$attrs['data-focus']"
+        :data-hover="dataHover"
+        :data-focus="dataFocus"
         ring
       >
         <template #prepend v-if="!isEmpty(modelValue) || searchValue">
@@ -74,7 +74,11 @@
           <CommandInput
             :placeholder="searchPlaceholder"
             :class="styles.combobox.input"
-          />
+          >
+            <template #prepend>
+              <Icon icon="search" size="nano" class="text-muted mr-2" />
+            </template>
+          </CommandInput>
         </template>
         <CommandList
           class="border-control-default w-full max-w-full border-t p-2"
@@ -179,7 +183,6 @@ const props = withDefaults(defineProps<ComboboxProps>(), {
   side: "bottom",
   // ---
   icon: "",
-  iconSize: "xs",
 
   // --- styles
   uiConfig: () => ({ combobox: [] }),
@@ -192,6 +195,7 @@ const emits = defineEmits(["update:modelValue"]);
 const meta = computed(() => ({
   size: props.size,
   width: props.width,
+  dropdownWidth: props.dropdownWidth || props.width,
   hasRing: props.ring,
   truncate: props.truncate,
   hasAvatar: props.avatar || has(modelValue.value, "avatar"),

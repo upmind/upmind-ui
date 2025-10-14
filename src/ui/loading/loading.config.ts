@@ -5,25 +5,25 @@ import { cva } from "class-variance-authority";
 export const loadingVariants = cva();
 
 // -----------------------------------------------------------------------------
+const variants = {
+  isActive: {
+    true: "",
+    false: ""
+  },
+  isTransparent: {
+    true: "",
+    false: ""
+  }
+};
 export default {
   loading: {
     root: cva("", {
-      variants: {
-        isTransparent: {
-          true: "bg-core-surface/60",
-          false: "bg-core-surface"
-        }
-      }
+      variants
     }),
     spinner: cva(
-      "text-control-default z-50 flex w-full items-center justify-center",
+      "text-control-default bg-core-surface/60 z-50 flex w-full items-center justify-center",
       {
-        variants: {
-          isTransparent: {
-            true: "bg-core-surface/60",
-            false: "bg-core-surface"
-          }
-        }
+        variants
       }
     )
   }

@@ -3,8 +3,8 @@
     :for="`${props.name}-${index}`"
     :class="cn(styles.radioCards.item)"
     :data-state="isSelected ? 'checked' : ''"
-    :data-hover="$attrs['data-hover']"
-    :data-focus="$attrs['data-focus']"
+    :data-hover="props.dataHover"
+    :data-focus="props.dataFocus"
   >
     <span :class="styles.radioCards.radio">
       <RadioGroupItem
@@ -17,8 +17,8 @@
         :data-state="isSelected ? 'checked' : 'unchecked'"
         :uiConfig="uiConfig"
         @blur="onBlur"
-        :data-focus="$attrs['data-focus']"
-        :data-hover="$attrs['data-hover']"
+        :data-focus="props.dataFocus"
+        :data-hover="props.dataHover"
       />
     </span>
     <slot
@@ -64,8 +64,8 @@
           </p>
         </span>
         <span v-if="props.action" class="leading-none">
-          <Button
-            variant="muted-link"
+          <Link
+            color="muted"
             :label="props.action"
             size="sm"
             @click="onAction"
@@ -87,7 +87,7 @@ import config from "./radioCards.config";
 
 // --- components
 import Label from "../label/Label.ce.vue";
-import { Button } from "../button";
+import { Link } from "../link";
 import { Badge } from "../badge";
 import { RadioGroupItem } from "../radio-group";
 

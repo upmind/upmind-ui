@@ -53,7 +53,6 @@ const props = withDefaults(defineProps<LoadingProps>(), {
 });
 
 const meta = computed(() => ({
-  isTransparent: props.transparent,
   isActive: props.active
 }));
 

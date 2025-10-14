@@ -1,3 +1,20 @@
+/*
+ * The :root approach enables controlled generation of Tailwind utilities through specialized utility files
+ * like utilities/colors.css, utilities/border.css, and utilities/text.css. Each utility file uses the
+ * @theme or @utility directives to create specific use-case utilities that reference these foundational
+ * variables.
+
+ * Colors can be exposed as generic utilities (bg-*, text-*, border-*) through utilities/colors.css
+ * using the @theme directive, or restricted to specific contexts through dedicated files like utilities/border.css
+ * and utilities/text.css using @utility directives. This prevents Tailwind from automatically generating
+ * classes for colors we don't want while ensuring only approved design tokens become available as utility
+ * classes. This architectural pattern helps avoid design inconsistencies.
+
+ * The primitive color values at the top of this file provide the foundation for building complete themes -
+ * overriding these core tokens will cascade through the UI components. When more granular control is needed,
+ * individual semantic variables (like --bg-button-primary or --text-accent-danger) can be overridden
+ * independently without affecting the broader theme system.
+ */
 :root {
   /* Primitive Colors - Core */
   --color-core-canvas: #f9f9fc;

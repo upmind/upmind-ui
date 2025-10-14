@@ -18,16 +18,15 @@
         @update:modelValue="onInput"
       >
         <template #append>
-          <Button
+          <Link
             :class="unmask ? 'opacity-100' : 'opacity-50 hover:opacity-100'"
-            variant="link"
             size="icon"
             @click.prevent="unmask = !unmask"
             :focusable="false"
           >
             <Icon v-if="unmask" icon="view" size="2xs" />
             <Icon v-else icon="view-off" size="2xs" />
-          </Button>
+          </Link>
         </template>
       </Input>
     </InputGroup>

@@ -29,8 +29,8 @@
         :list="props.list"
         data-testid="radio-card-item"
         :uiConfig="props.uiConfig"
-        :data-hover="$attrs['data-hover']"
-        :data-focus="$attrs['data-focus']"
+        :data-hover="props.dataHover"
+        :data-focus="props.dataFocus"
         @keydown.enter="onChange(option.value)"
         @action="onAction"
       >

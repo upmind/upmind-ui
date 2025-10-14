@@ -63,9 +63,12 @@ export interface ComboboxProps
   // --- variants
   size?: TriggerVariantProps["size"];
   width?: ContentVariantsProps["width"];
+  dropdownWidth?: TriggerVariantProps["dropdownWidth"];
   ring?: boolean;
   // --- styles
   uiConfig?: { combobox: CxOptions };
   class?: HTMLAttributes["class"];
   popoverClass?: HTMLAttributes["class"];
+  dataHover?: boolean;
+  dataFocus?: boolean;
 }

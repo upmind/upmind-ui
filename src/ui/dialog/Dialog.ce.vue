@@ -57,10 +57,10 @@
       >
         <slot name="footer">
           <slot name="close">
-            <Button
+            <Link
               @click="forceClose"
               v-if="!noFooter"
-              variant="muted-link"
+              color="muted"
               label="Close"
             />
           </slot>
@@ -91,7 +91,7 @@ import DialogTitle from "./DialogTitle.vue";
 import DialogDescription from "./DialogDescription.vue";
 import DialogTrigger from "./DialogTrigger.vue";
 import DialogClose from "./DialogClose.vue";
-import { Button } from "../button";
+import { Link } from "../link";
 
 // --- types
 import type { ComputedRef } from "vue";

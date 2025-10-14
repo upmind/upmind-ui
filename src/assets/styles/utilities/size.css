@@ -1,4 +1,9 @@
-@theme {
+/*
+ * This file provides size and dimension values that integrate with typography.css
+ * to create consistent spacing and sizing across components.
+ */
+
+@theme inline {
   /* Sizing */
   --size-lh: 1lh;
 
