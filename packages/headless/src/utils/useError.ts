@@ -86,6 +86,12 @@ export class NotAuthenticatedError extends Error {
     super(t("auth.login_to_continue"));
     this.code = responseCodes.Unauthorized;
     this.origin = ErrorOrigin.Upmind;
+
+    Sentry.logger.error(t("auth.login_to_continue"), {
+      code: this.code,
+      data: null,
+      origin: this.origin
+    });
   }
 }
 // -----------------------------------------------------------------------------
