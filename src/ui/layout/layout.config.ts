@@ -103,12 +103,8 @@ export default {
       container: cva("max-w-app mx-auto")
     },
     content: {
-      root: cva("px-6 md:px-2.5", {
+      root: cva("px-6 py-18 md:px-2.5", {
         variants: {
-          isMinimal: {
-            true: "py-18",
-            false: "py-24"
-          },
           hasHeader: {
             true: "bg-surface",
             false: "bg-canvas"
