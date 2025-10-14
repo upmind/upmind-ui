@@ -4,3 +4,7 @@
     font-family: var(--font-body, var(--font-sans));
   }
 }
+
+@theme {
+  --color-base: var(--color-core-base);
+}

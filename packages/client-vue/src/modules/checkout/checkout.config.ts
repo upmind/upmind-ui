@@ -23,10 +23,10 @@ export default {
       root: cva("flex flex-col gap-3"),
       trigger: {
         root: cva(
-          "text-emphasis-high hover:text-foreground bg-control-background shadow-border-control data-[state=open]:bg-background data-[state=open]:text-foreground data-[state=open]:shadow-border-foreground flex cursor-pointer items-center justify-between space-x-2 rounded px-5 py-3 font-normal transition-all duration-300 hover:no-underline data-[state=open]:font-medium"
+          "text-muted bg-control-surface shadow-control-default hover:shadow-control-hover data-[state=open]:bg-background data-[state=open]:shadow-foreground flex cursor-pointer items-center justify-between space-x-2 rounded px-5 py-3 font-normal transition-all duration-200 hover:text-base hover:no-underline data-[state=open]:text-base data-[state=open]:font-medium"
         ),
         icon: cva(
-          "text-emphasis-high group-hover:text-emphasis-none ml-auto transition-all duration-200 [&>svg]:size-3 [&>svg]:transition-all [&>svg]:duration-300"
+          "text-muted ml-auto transition-all duration-200 group-hover:text-base [&>svg]:size-3 [&>svg]:transition-all [&>svg]:duration-200"
         ),
         header: cva("flex w-full items-center justify-between space-x-2")
       },
@@ -34,7 +34,7 @@ export default {
       card: cva("bg-base"),
       loading: cva("text-secondary"),
       content: cva(
-        "flex flex-col gap-6 transition-all duration-300 empty:p-0",
+        "flex flex-col gap-6 transition-all duration-200 empty:p-0",
         {
           variants: {
             layout: {
@@ -65,14 +65,14 @@ export default {
       actions: cva(
         "flex flex-col items-stretch justify-start space-y-2 space-x-0 md:flex-row md:space-y-0 md:space-x-4"
       ),
-      terms: cva("text-emphasis-medium text-sm")
+      terms: cva("text-muted text-sm")
     },
     action: cva("flex w-full self-center md:inline-flex md:w-auto"),
     additional: cva(
-      "bg-base-background text-base-foreground flex items-center justify-center gap-2 space-x-2 self-stretch px-4 py-2 md:py-0"
+      "bg-base-background flex items-center justify-center gap-2 space-x-2 self-stretch px-4 py-2 text-base md:py-0"
     ),
     clickwrap: cva(
-      "text-emphasis-medium prose prose-a:font-normal prose-a:text-inherit text-left text-sm leading-snug"
+      "text-muted prose prose-a:font-normal prose-a:text-inherit text-left text-sm leading-snug"
     ),
 
     isFree: cva("bg-base")

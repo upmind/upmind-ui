@@ -7,7 +7,7 @@
             <img
               v-if="logo"
               :src="logo"
-              class="h-9 w-auto max-w-3xs"
+              class="h-9 w-auto max-w-64"
               alt="logo"
             />
           </slot>

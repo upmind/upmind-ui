@@ -24,7 +24,7 @@
       />
 
       <Card
-        class="md:bg-base md: mt-8 flex flex-col items-center justify-between bg-transparent p-0! shadow-none md:mt-8 md:flex-row md:px-8! md:py-6!"
+        class="md:bg-control-surface md: border-control-default mt-8 flex flex-col items-center justify-between bg-transparent p-0! shadow-none md:mt-8 md:flex-row md:px-8! md:py-6!"
       >
         <div
           class="text-md order-last mt-4 text-center font-medium md:order-first md:mt-0 md:text-left"

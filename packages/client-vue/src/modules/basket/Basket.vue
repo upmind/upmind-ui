@@ -29,8 +29,7 @@
         <ProductCards :open="open" @update:open="open = $event" />
 
         <template #action>
-          <Button
-            variant="link"
+          <Link
             color="muted"
             :label="t('action.details_toggle', open ? 0 : 1)"
             icon="sort-lines"
@@ -81,7 +80,6 @@
             "
             block
             size="lg"
-            color="primary"
             :loading="meta.isProcessing || meta.isLoading"
             :label="t('action.proceed_to_checkout')"
             icon="cart"
@@ -94,7 +92,7 @@
     <template #aside-footer>
       <Alert
         v-if="meta.hasInvalidProducts"
-        color="error"
+        color="danger"
         icon="alert"
         :description="t('cart.basket_products_review_msg')"
       >
@@ -145,7 +143,7 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./basket.config";
 
 // --- components
-import { Layout, Button, Alert } from "@upmind-automation/upmind-ui";
+import { Layout, Button, Alert, Link } from "@upmind-automation/upmind-ui";
 import Header from "../../components/content/Header.vue";
 import Summary from "./components/Summary.vue";
 import ProductCards from "./product/BasketProductCards.vue";

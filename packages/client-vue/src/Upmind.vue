@@ -1,9 +1,8 @@
 <template>
   <Loading
     :active="!appMeta.isAvailable || !themeMeta.hasSettings"
-    class-active="h-full min-h-screen w-full text-gray-400!"
+    class-active="h-full min-h-screen w-full text-base bg-core-surface"
     id="vue-app"
-    :data-theme="theme?.id"
   >
     <Suspense
       @pending="setLoading(true)"
@@ -11,7 +10,7 @@
       @fallback="setLoading(true)"
     >
       <div
-        class="bg-background text-foreground relative flex min-h-screen flex-col items-start antialiased"
+        class="bg-canvas relative flex min-h-screen flex-col items-start text-base antialiased"
       >
         <slot name="header" v-if="appMeta.isAvailable && themeMeta.hasSettings">
           <Header :logo="logo">

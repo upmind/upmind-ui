@@ -1,6 +1,6 @@
 <template>
   <li
-    class="border-primary from-primary to-primary flex items-end rounded-none border-b bg-linear-to-r bg-size-[0%_4px] bg-bottom-left bg-no-repeat py-5 text-xl transition-all duration-300 ease-in-out"
+    class="border-primary from-primary to-primary flex items-end rounded-none border-b bg-linear-to-r bg-bottom-left bg-no-repeat py-5 text-xl transition-all duration-200 ease-in-out"
     :class="{
       'text-auto hover:text-dm/25 dark:hover:text-dm-contrast/50':
         modelValue !== category.id,

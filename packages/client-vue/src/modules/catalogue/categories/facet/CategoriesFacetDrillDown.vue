@@ -25,7 +25,6 @@
     :as="RouterLink"
     v-bind="parentCategory"
     variant="outline"
-    color="base"
     size="lg"
     pill
     :class="styles.products.facet.drillDown.back"

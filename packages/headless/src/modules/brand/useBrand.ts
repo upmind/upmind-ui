@@ -31,7 +31,9 @@ import {
   type ICurrency,
   BrandTaxTypes,
   BrandConfigKeys,
-  DefaultPaymentPeriod
+  DefaultPaymentPeriod,
+  IBrandSettings,
+  IBrand
 } from "@upmind-automation/types";
 import type { IBrandMeta } from "./types";
 import type { CurrencyModel } from "../basket/currency/types";
@@ -126,15 +128,16 @@ export const useBrand = () => {
 
   const uiTheme = computed(
     (): {
-      variants: IBrandMeta["variants"];
+      tokens: string;
       variant: IBrandMeta["variant"];
     } => {
-      const variants = get(brandSettings.value, "meta.variants", {});
+      const tokens = get(brandSettings.value, "style.tokens") as string;
       const variant = get(brandSettings.value, "meta.variant");
+      const theme = get(brandSettings.value, "meta.theme");
 
       return {
-        variant,
-        variants
+        tokens,
+        variant: variant ?? theme
       };
     }
   );

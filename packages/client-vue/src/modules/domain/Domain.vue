@@ -62,7 +62,6 @@
                 @reject="reset"
                 @reset="reset"
                 :query="meta.showSelected ? selected : query"
-                :color="color"
                 :type="type"
               />
 

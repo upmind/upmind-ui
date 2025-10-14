@@ -6,47 +6,56 @@ import type { Meta, StoryObj } from "@storybook/vue3";
 import { Tooltip, Button } from "@upmind-automation/upmind-ui";
 
 // --- utils
-import { useSystemArgTypes } from "../../utils";
+import { first } from "lodash-es";
+
+// --- types
+import { TOOLTIP_COLORS } from "@upmind-automation/upmind-ui";
 
 const meta: Meta<typeof Tooltip> = {
   argTypes: {
     label: {
       control: "text",
-      description: "The text to display in the tooltip",
+      description: "The text to display in the tooltip"
     },
     side: {
       control: "select",
       options: ["top", "right", "bottom", "left"],
-      description: "The direction in which the tooltip should appear",
+      description: "The direction in which the tooltip should appear"
     },
-    color: useSystemArgTypes.color,
+    color: {
+      options: TOOLTIP_COLORS,
+      control: {
+        type: "select",
+        labels: TOOLTIP_COLORS
+      }
+    },
     delayDuration: {
       control: "number",
-      description: "The delay in ms for the tooltip to open",
+      description: "The delay in ms for the tooltip to open"
     },
     sideOffset: {
       control: "number",
-      description: "The distance of the tooltip in px from the element",
-    },
+      description: "The distance of the tooltip in px from the element"
+    }
   },
   args: {
     label: "This is a tooltip",
     side: "right",
-    color: "base",
+    color: first(TOOLTIP_COLORS),
     delayDuration: 300,
-    sideOffset: 7,
+    sideOffset: 7
   },
   parameters: {
     docs: {
       story: {
-        iframeHeight: 175,
+        iframeHeight: 175
       },
       description: {
         component:
-          "A small pop-up box that displays information when hovering over an element.",
-      },
-    },
-  },
+          "A small pop-up box that displays information when hovering over an element."
+      }
+    }
+  }
 };
 
 export default meta;
@@ -64,8 +73,8 @@ export const Base: Story = {
           <Button label="Hover" />
         </Tooltip>
       </div>
-    `,
-  }),
+    `
+  })
 };
 
 export const OpenClose: Story = {
@@ -81,13 +90,13 @@ export const OpenClose: Story = {
           <Button :label="open ? 'Close' : 'Open'" @click="open = !open" :color="args.color" />
         </Tooltip>
       </div>
-    `,
-  }),
+    `
+  })
 };
 
 export const AllDirections: Story = {
   parameters: {
-    controls: { exclude: ["side"] },
+    controls: { exclude: ["side"] }
   },
   render: args => ({
     components: { Tooltip },
@@ -95,7 +104,7 @@ export const AllDirections: Story = {
       const sides = ["Top", "Right", "Bottom", "Left"];
       return {
         sides,
-        args,
+        args
       };
     },
     template: `
@@ -112,19 +121,19 @@ export const AllDirections: Story = {
           </Tooltip>
         </div>
       </div>
-    `,
-  }),
+    `
+  })
 };
 
 export const SlotContent: Story = {
   parameters: {
-    controls: { exclude: ["label"] },
+    controls: { exclude: ["label"] }
   },
   render: args => ({
     components: { Tooltip, Button },
     setup() {
       return {
-        args,
+        args
       };
     },
     template: `
@@ -141,27 +150,27 @@ export const SlotContent: Story = {
           </template>
         </Tooltip>
       </div>
-    `,
-  }),
+    `
+  })
 };
 
 export const Colors: Story = {
   parameters: {
-    controls: { exclude: ["color", "side", "delayDuration"] },
+    controls: { exclude: ["color", "side", "delayDuration"] }
   },
   render: args => ({
     components: { Tooltip },
     setup() {
-      const colors = useSystemArgTypes.color;
+      const colors = TOOLTIP_COLORS;
       return {
         args,
-        colors,
+        colors
       };
     },
     template: `
       <div class="flex flex-wrap mx-16">
         <div
-          v-for="color in colors.options"
+          v-for="color in colors"
           :key="color.value"
           class="w-1/3 my-20 flex justify-center"
         >
@@ -177,6 +186,6 @@ export const Colors: Story = {
           </Tooltip>
         </div>
       </div>
-    `,
-  }),
+    `
+  })
 };

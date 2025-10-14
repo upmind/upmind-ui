@@ -8,9 +8,8 @@
 
     <Tooltip
       v-if="props.meta?.overrides && props.price"
-      to="#vue-app"
       :label="t('text.overrides_price')"
-      color="primary"
+      color="neutral"
     >
       <span class="flex items-center justify-center hover:cursor-help">
         <Icon icon="transfer" size="nano" class="text-inherit" />
@@ -20,16 +19,14 @@
             props.price?.monthlyFromCurrentPrice ?? ''
           "
           :free="props.meta.free ?? false"
+          :ui-config="{
+            pricing: { current: ['text-md/tight'] }
+          }"
         />
       </span>
     </Tooltip>
 
-    <Tooltip
-      v-else
-      to="#vue-app"
-      :label="t('text.adds_to_price')"
-      color="primary"
-    >
+    <Tooltip v-else :label="t('text.adds_to_price')" color="neutral">
       <span class="hover:cursor-help">
         <span>+</span
         ><CurrentPrice
@@ -38,6 +35,9 @@
             props.price?.monthlyFromCurrentPrice ?? ''
           "
           :free="props.meta.free ?? false"
+          :ui-config="{
+            pricing: { current: ['text-md/tight'] }
+          }"
         />
       </span>
     </Tooltip>

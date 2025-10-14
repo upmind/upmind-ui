@@ -1,7 +1,7 @@
 <template>
   <li :class="styles.product.root">
     <div :class="styles.product.content">
-      <Button
+      <Link
         v-if="!configMeta.hideImage && navigate"
         :to="{
           name: ROUTE.PRODUCT_ADD,
@@ -16,9 +16,8 @@
         }"
         :handler="handleResolve"
         :disabled="processing"
-        tabindex="-1"
-        class="w-full rounded-lg"
-        variant="link"
+        :tabindex="images.length === 1 ? '0' : '-1'"
+        :ring="images.length === 1 ? 'focus' : 'focus-visible'"
       >
         <Image
           :carousel="!configMeta.hideCarousel"
@@ -26,7 +25,7 @@
           :ratio="ratio || configMeta.imageRatio"
           :class="styles.product.image"
         />
-      </Button>
+      </Link>
 
       <Image
         v-else-if="!configMeta.hideImage"
@@ -80,8 +79,8 @@
                 : undefined
             "
             icon="basket-add"
-            :color="color"
             :loading="processing"
+            :variant="buttonVariant"
             size="lg"
             block
             pill
@@ -103,7 +102,7 @@ import { useI18n } from "vue-i18n";
 import { ROUTE } from "@upmind-automation/headless";
 
 // --- components
-import { Button, Image, useStyles } from "@upmind-automation/upmind-ui";
+import { Button, Image, Link, useStyles } from "@upmind-automation/upmind-ui";
 import config from "./card.config";
 import ProductInfo from "./ProductInfo.vue";
 import ProductBenefits from "./ProductBenefits.vue";
@@ -128,8 +127,9 @@ const { t } = useI18n();
 
 const props = withDefaults(defineProps<ProductCardProps>(), {
   variant: "default",
-  navigate: true,
-  color: "primary"
+  buttonColor: "primary",
+  buttonVariant: "solid",
+  navigate: true
 });
 
 const productMeta = computed(() => props.productDetails.uiMeta?.product);

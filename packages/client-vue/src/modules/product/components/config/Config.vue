@@ -78,12 +78,11 @@
       v-if="!meta.isLoading && !props.noFooter"
     >
       <slot name="footer">
-        <Button
+        <Link
           type="reset"
           tabindex="1"
           :label="t('action.cancel')"
           :disabled="meta.isProcessing || required"
-          variant="link"
           size="lg"
           color="muted"
           @click="doReject"
@@ -131,7 +130,7 @@ import SubproductCards from "../subproduct/SubproductCards.vue";
 import ConfigForm from "./ConfigForm.vue";
 
 // --- custom elements
-import { Button } from "@upmind-automation/upmind-ui";
+import { Button, Link } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { reduce, get, set, keys } from "lodash-es";

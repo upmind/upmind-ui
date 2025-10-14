@@ -19,7 +19,7 @@ export default {
   },
   interstitial: {
     title: cva(
-      "text-foreground mb-2 text-center text-3xl font-normal tracking-normal text-balance md:text-4xl"
+      "mb-2 text-center text-3xl text-base font-normal tracking-normal text-balance md:text-4xl"
     )
   }
 };

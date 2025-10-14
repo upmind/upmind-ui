@@ -6,17 +6,19 @@ import { Sonner, toast, Button } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { useSystemArgTypes } from "../../utils";
-import { keys } from "lodash-es";
+
+// --- types
+import { SONNER_VARIANTS } from "@upmind-automation/upmind-ui";
 
 const meta: Meta<typeof Sonner> = {
   argTypes: {
     title: {
       control: "text",
-      description: "The title to display in the toast",
+      description: "The title to display in the toast"
     },
     description: {
       control: "text",
-      description: "The description to display in the toast",
+      description: "The description to display in the toast"
     },
     position: {
       control: "select",
@@ -26,50 +28,45 @@ const meta: Meta<typeof Sonner> = {
         "bottom-left",
         "bottom-right",
         "top-center",
-        "bottom-center",
+        "bottom-center"
       ],
-      description: "The direction in which the toast should appear",
+      description: "The direction in which the toast should appear"
     },
     closeButton: {
       control: "boolean",
-      description: "Display the close button in the toast",
+      description: "Display the close button in the toast"
     },
     visibleToasts: {
       control: "number",
-      description: "The number of visible toasts",
+      description: "The number of visible toasts"
     },
     expand: {
       control: "boolean",
-      description: "Expand toasts to be fully visible",
+      description: "Expand toasts to be fully visible"
     },
-    richColors: {
-      control: "boolean",
-      description: "Enable rich colors for toast types",
-    },
-    color: useSystemArgTypes.color,
+    color: useSystemArgTypes.color
   },
   args: {
     title: "Toast!",
     description: "Change the properties in the controls",
-    color: "base",
+    color: "neutral",
     position: "bottom-right",
     closeButton: false,
     visibleToasts: 3,
     expand: false,
-    duration: 999999,
-    richColors: true,
+    duration: 999999
   },
   parameters: {
     docs: {
       story: {
-        iframeHeight: 350,
+        iframeHeight: 350
       },
       description: {
         component:
-          "A component for displaying non-intrusive notifications or toasts.",
-      },
-    },
-  },
+          "A component for displaying non-intrusive notifications or toasts."
+      }
+    }
+  }
 };
 
 export default meta;
@@ -84,9 +81,9 @@ export const Base: Story = {
           description: args.description,
           action: {
             label: "Undo",
-            onClick: () => console.log("Undo"),
+            onClick: () => console.log("Undo")
           },
-          type: args.color, // Changed from 'color' to 'args.color'
+          type: args.color // Changed from 'color' to 'args.color'
         });
       };
 
@@ -101,18 +98,18 @@ export const Base: Story = {
           @click="showToast"
         />
       </div>
-    `,
-  }),
+    `
+  })
 };
 
 export const Colors: Story = {
   parameters: {
-    controls: { exclude: ["color"] },
+    controls: { exclude: ["color"] }
   },
   render: args => ({
     components: { Sonner, Button },
     setup() {
-      const colors = useSystemArgTypes.color;
+      const colors = SONNER_VARIANTS;
 
       const showToast = (color: string) => {
         const capitalisedColorTitle =
@@ -121,23 +118,23 @@ export const Colors: Story = {
           description: "Change the properties in the controls",
           action: {
             label: "Undo",
-            onClick: () => console.log("Undo"),
+            onClick: () => console.log("Undo")
           },
-          type: color,
+          type: color
         });
       };
 
       return {
         args,
         colors,
-        showToast,
+        showToast
       };
     },
     template: `
       <div>
         <div class="flex flex-wrap mx-16">
           <div
-            v-for="color in colors.options"
+            v-for="color in colors"
             :key="'toast' + color"
             class="w-1/3 my-20 flex justify-center"
           >
@@ -148,6 +145,6 @@ export const Colors: Story = {
         </div>
         <Sonner v-bind="args" />
       </div>
-    `,
-  }),
+    `
+  })
 };

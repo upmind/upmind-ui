@@ -1,16 +1,15 @@
 <template>
   <component
     v-if="(modal && isOpen) || !modal"
-    to="#vue-app"
     :is="modal ? Dialog : 'div'"
     :description="text"
     :open="isOpen"
     :size="size"
-    :skrim="skrim"
     :title="title"
     fit="cover"
     no-close
     no-header
+    no-footer
     :dismissable="false"
   >
     <template #header>
@@ -60,7 +59,6 @@ import type { SessionExpiredProps } from "./types";
 
 const props = withDefaults(defineProps<SessionExpiredProps>(), {
   modal: true,
-  skrim: "primary",
   size: "2xl",
   avatar: () => ({
     size: "lg",

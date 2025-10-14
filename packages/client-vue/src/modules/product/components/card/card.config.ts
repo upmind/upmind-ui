@@ -1,7 +1,7 @@
 import { cva } from "class-variance-authority";
 
 export const rootVariant = cva(
-  "text-foreground group relative flex h-full min-h-80 flex-col",
+  "relative flex h-full min-h-80 flex-col text-base",
   {
     variants: {
       variant: {
@@ -66,29 +66,27 @@ export default {
       info: {
         root: cva("flex flex-col gap-3"),
         container: cva("flex flex-col gap-2"),
-        title: cva("m-0 text-2xl font-medium"),
+        title: cva("m-0 inline-block text-2xl font-medium"),
         terms: cva("text-md m-0"),
-        description: cva("text-emphasis-medium m-0 line-clamp-3 text-sm"),
+        description: cva("text-muted m-0 line-clamp-3 text-sm"),
         promotion: promotionVariant
       },
       benefits: {
-        root: cva("m-0 flex flex-col border-y py-3"),
+        root: cva("border-control-default m-0 flex flex-col border-y py-3"),
         item: cva(
-          "text-base-foreground m-0 flex items-start justify-start gap-2 text-sm/loose font-medium"
+          "m-0 flex items-start justify-start gap-2 text-base text-sm/loose font-medium"
         ),
         icon: cva("flex h-lh items-center justify-center")
       },
       price: {
         root: cva("flex flex-1 flex-col justify-end gap-0.5"),
-        regularPrice: cva(
-          "text-emphasis-medium flex items-center gap-2 text-sm"
-        ),
+        regularPrice: cva("text-muted flex items-center gap-2 text-sm"),
         currentPrice: {
           root: cva("flex items-end gap-1"),
           amount: cva("text-3xl font-medium"),
           term: cva("text-sm/loose")
         },
-        total: cva("text-emphasis-medium text-sm")
+        total: cva("text-muted text-sm")
       }
     },
     footer: cva("flex flex-col gap-3")

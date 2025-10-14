@@ -22,7 +22,7 @@
       <div
         v-for="slot in filteredSlots"
         :key="slot.id"
-        class="rounded-sm bg-white p-4"
+        class="rounded-sm p-4"
         @click="redirectToTemplatePage(slot.code)"
       >
         <h2 class="text-xl font-semibold">{{ slot.name }}</h2>

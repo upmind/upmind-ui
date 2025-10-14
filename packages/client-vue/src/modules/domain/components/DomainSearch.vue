@@ -12,8 +12,7 @@
           { 'opacity-0 select-none': type === 'existing' }
         ]"
       >
-        <Button
-          variant="link"
+        <Link
           size="lg"
           @click="inputValue = ''"
           :class="{ hidden: isEmpty(inputValue) }"
@@ -48,7 +47,7 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../domain.config";
 
 // --- components
-import { Input, Icon, Button } from "@upmind-automation/upmind-ui";
+import { Input, Icon, Button, Link } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { ComputedRef } from "vue";

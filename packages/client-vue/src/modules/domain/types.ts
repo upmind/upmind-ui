@@ -5,7 +5,6 @@ export interface DomainProps {
   type?: DomainTypes;
   modelValue?: string;
   multiple?: boolean;
-  color?: ButtonProps["color"];
   touched?: boolean;
 }
 
@@ -15,7 +14,6 @@ export interface DacProps {
   selected?: string[]; // these ar the selected domains
   items?: DomainProduct[]; // this is the list of domains that can be selected
   query?: string;
-  color?: ButtonProps["color"];
   offset?: number;
   dialog?: boolean;
   loading?: boolean;
@@ -32,7 +30,6 @@ export interface DomainCardsProps {
   items: DomainProduct[];
   offset?: number;
   // ---
-  color?: ButtonProps["color"];
   // ---
   loading?: boolean;
   processing?: boolean;
@@ -42,7 +39,6 @@ export interface DomainCardsProps {
 export type DomainCardProps = DomainProduct & {
   selected?: boolean;
   processing?: boolean;
-  color?: ButtonProps["color"];
 };
 
 export interface DomainSummaryProps {

@@ -9,17 +9,11 @@ import { Dialog, Button, Form } from "@upmind-automation/upmind-ui";
 import { keys, first } from "lodash-es";
 
 // --- types
-// useArgTypes doesn't go above 2xl
-enum sizes {
-  "auto" = "auto",
-  "sm" = "sm",
-  "md" = "md",
-  "lg" = "lg",
-  "xl" = "xl",
-  "2xl" = "2xl",
-  "3xl" = "3xl",
-  "4xl" = "4xl",
-}
+import {
+  DIALOG_SIZES,
+  DIALOG_OVERFLOWS,
+  DIALOG_FITS
+} from "@upmind-automation/upmind-ui";
 
 const schema = {
   type: "object",
@@ -29,22 +23,22 @@ const schema = {
       minLength: 3,
       title: "What is your name?",
       description: "Please enter your full name",
-      i18n: "form.name",
+      i18n: "form.name"
     },
     dob: {
       type: "string",
       format: "date",
       title: "What is your date of birth?",
-      i18n: "form.dob",
+      i18n: "form.dob"
     },
     postalCode: {
       type: "string",
       maxLength: 5,
       title: "What is your postal/zip code?",
-      i18n: "form.postalCode",
-    },
+      i18n: "form.postalCode"
+    }
   },
-  required: ["name", "dob", "postalCode"],
+  required: ["name", "dob", "postalCode"]
 };
 
 const extendedSchema = {
@@ -55,14 +49,14 @@ const extendedSchema = {
       minLength: 3,
       title: "What is your nationality?",
       description: "Please enter your nationality",
-      i18n: "form.nationality",
+      i18n: "form.nationality"
     },
     occupation: {
       type: "string",
       minLength: 3,
       title: "What is your occupation?",
       description: "Please enter your occupation",
-      i18n: "form.occupation",
+      i18n: "form.occupation"
     },
     drivingSkill: {
       type: "number",
@@ -71,35 +65,35 @@ const extendedSchema = {
       oneOf: [
         {
           title: "I'm a pro",
-          const: "3",
+          const: "3"
         },
         {
           title: "I'm okay",
-          const: "2",
+          const: "2"
         },
         {
           title: "I'm a beginner",
-          const: "1",
+          const: "1"
         },
         {
           title: "I don't drive",
-          const: "0",
-        },
-      ],
-    },
+          const: "0"
+        }
+      ]
+    }
   },
-  required: ["name", "dob", "postalCode"],
+  required: ["name", "dob", "postalCode"]
 };
 
 const combinedSchema = {
   type: "object",
   properties: {
     ...schema.properties,
-    ...extendedSchema.properties,
+    ...extendedSchema.properties
   },
   required: Array.from(
     new Set([...schema.required, ...extendedSchema.required])
-  ),
+  )
 };
 // -----------------------------------------------------------------------------
 
@@ -107,12 +101,26 @@ const meta: Meta<typeof Dialog> = {
   component: Dialog,
   argTypes: {
     size: {
-      options: keys(sizes),
+      options: DIALOG_SIZES,
       control: {
-        type: "radio",
-        labels: sizes,
-      },
+        type: "select",
+        labels: DIALOG_SIZES
+      }
     },
+    overflow: {
+      options: DIALOG_OVERFLOWS,
+      control: {
+        type: "select",
+        labels: DIALOG_OVERFLOWS
+      }
+    },
+    fit: {
+      options: DIALOG_FITS,
+      control: {
+        type: "select",
+        labels: DIALOG_FITS
+      }
+    }
   },
   args: {
     open: false,
@@ -120,16 +128,16 @@ const meta: Meta<typeof Dialog> = {
     title: "Proident id magna in velit",
     description:
       "Proident id proident ullamco veniam. Dolor duis anim sunt cillum exercitation occaecat aliqua consectetur proident incididunt amet. Laboris velit nostrud irure pariatur Lorem ad tempor aute laboris cillum ad sint.",
-    size: "sm",
+    size: "lg"
   },
   parameters: {
     docs: {
       description: {
         component:
-          "A modal window that appears in front of the main content to provide information or request user input.",
-      },
-    },
-  },
+          "A modal window that appears in front of the main content to provide information or request user input."
+      }
+    }
+  }
 };
 
 export default meta;
@@ -143,7 +151,7 @@ export const Base: Story = {
         toggleOpen: () => {
           updateArgs({ open: !args.open });
         },
-        args,
+        args
       };
     },
     template: `
@@ -151,12 +159,9 @@ export const Base: Story = {
         <template v-slot:trigger>
           <Button @click="toggleOpen">Open Dialog</Button>
         </template>
-        <template v-slot:close>
-          Close
-        </template>
       </Dialog>
-    `,
-  }),
+    `
+  })
 };
 
 export const Hero: Story = {
@@ -172,7 +177,7 @@ export const Hero: Story = {
           const { isOpen = false } = first(detail);
           updateArgs({ open: isOpen });
         },
-        args,
+        args
       };
     },
 
@@ -182,6 +187,7 @@ export const Hero: Story = {
         :open="args.open"
         overflow="hidden"
         fit="cover"
+        no-footer
       >
         <template #trigger>
           <Button @click="toggleOpen">Open Dialog</Button>
@@ -198,14 +204,14 @@ export const Hero: Story = {
             <Button @click="toggleOpen">Close Dialog</Button>
         </section>
       </Dialog>
-    `,
+    `
   }),
   args: {
     open: true,
     title: "",
     description: "",
-    size: "4xl",
-  },
+    size: "4xl"
+  }
 };
 
 export const DialogForm: Story = {
@@ -218,12 +224,12 @@ export const DialogForm: Story = {
         args,
         model,
         schema,
-        open,
+        open
       };
     },
     methods: {},
     template: `
-      <Dialog v-bind="args" v-model:open="open">
+      <Dialog v-bind="args" v-model:open="open" no-footer>
         <template v-slot:trigger>
           <Button size="md">Open Dialog</Button>
         </template>
@@ -235,12 +241,12 @@ export const DialogForm: Story = {
           @reject="open = false"
         />
       </Dialog>
-    `,
+    `
   }),
   args: {
     title: "Nearly there",
-    description: "We just need some details",
-  },
+    description: "We just need some details"
+  }
 };
 
 export const ScrollableDialog: Story = {
@@ -257,7 +263,7 @@ export const ScrollableDialog: Story = {
         open,
         toggleOpen: () => {
           open.value = !open.value;
-        },
+        }
       };
     },
     template: `
@@ -286,13 +292,13 @@ export const ScrollableDialog: Story = {
           <Button class="mt-2" variant="ghost" block>Close</Button>
         </template>
       </Dialog>
-    `,
+    `
   }),
   args: {
     title: "Nearly there",
     description: "We just need some details",
-    size: "xl",
-  },
+    size: "xl"
+  }
 };
 
 export const MockedAsyncAction: Story = {
@@ -322,7 +328,7 @@ export const MockedAsyncAction: Story = {
         loading,
         args,
         start,
-        open,
+        open
       };
     },
     template: `
@@ -333,10 +339,12 @@ export const MockedAsyncAction: Story = {
         :description="seconds + ' seconds remaining'"
       >
         <template v-slot:trigger>
-          <Button @click="toggleOpen" size="md">Open Dialog</Button>
+          <Button @click="toggleOpen" size="md" label="Open Dialog" />
         </template>
-        <Button slot="footer" size="sm" @click="start" :loading="loading">Begin</Button>
+        <template v-slot:footer>
+          <Button size="sm" @click="start" :loading="loading" block label="Begin" />
+        </template>
       </Dialog>
-    `,
-  }),
+    `
+  })
 };

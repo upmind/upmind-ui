@@ -2,15 +2,15 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // --- components
-import {
-  Button,
-  Combobox,
-  type ComboboxItemProps,
-} from "@upmind-automation/upmind-ui";
+import { Combobox } from "@upmind-automation/upmind-ui";
+
 // --- utils
 import { useSystemArgTypes } from "../../../utils";
 import countries from "../../../utils/countries.json";
 import { ref } from "vue";
+
+// --- types
+import { COMBOBOX_WIDTHS, COMBOBOX_SIZES } from "@upmind-automation/upmind-ui";
 
 const meta: Meta<typeof Combobox> = {
   render: args => ({
@@ -19,30 +19,37 @@ const meta: Meta<typeof Combobox> = {
       const modelValue = ref(args.modelValue);
       return {
         args,
-        modelValue,
+        modelValue
       };
     },
     template: `
       <Combobox v-bind="args" v-model="modelValue" />
-    `,
+    `
   }),
   argTypes: {
-    color: useSystemArgTypes.color,
-    width: useSystemArgTypes.allSizes,
+    width: {
+      control: "select",
+      options: COMBOBOX_WIDTHS
+    },
+    size: {
+      control: "select",
+      options: COMBOBOX_SIZES
+    }
   },
   args: {
     label: "Select a framework",
-    color: "base",
     width: "md",
+    placeholder: "Select an option",
+    searchPlaceholder: "Search...",
     search: true,
     items: [
       { value: "next.js", label: "Next.js", selectedLabel: "Next.js" },
       { value: "sveltekit", label: "SvelteKit", selectedLabel: "SvelteKit" },
       { value: "nuxt", label: "Nuxt", selectedLabel: "Nuxt" },
       { value: "remix", label: "Remix", selectedLabel: "Remix" },
-      { value: "astro", label: "Astro", selectedLabel: "Astro" },
-    ],
-  },
+      { value: "astro", label: "Astro", selectedLabel: "Astro" }
+    ]
+  }
 };
 
 export default meta;
@@ -50,21 +57,55 @@ type Story = StoryObj<typeof Combobox>;
 
 // -----------------------------------------------------------------------------
 
-export const Base: Story = {
-  args: {
-    modelValue: "nuxt",
-  },
-};
+export const Base: Story = {};
 
 export const Countries: Story = {
   args: {
     label: "Select a country",
+    placeholder: "Select a country",
+    searchPlaceholder: "Search...",
     items: Object.values(countries).map((c: any) => ({
       value: c.label,
       label: c.label,
       icon: c.prependAvatar?.name,
-      selectedLabel: c.label,
+      selectedLabel: c.label
     })),
-    width: "xl",
-  },
+    width: "xl"
+  }
+};
+
+export const States: Story = {
+  render: args => ({
+    components: { Combobox },
+    setup() {
+      const modelValue = ref(args.modelValue);
+      return {
+        args,
+        modelValue
+      };
+    },
+    template: `
+      <section class="flex flex-col gap-4 max-w-sm">
+        <div>
+          <h3 class="text-sm/loose text-muted">Default</h3>
+          <Combobox v-bind="args" v-model="modelValue" />
+        </div>
+
+        <div>
+          <h3 class="text-sm/loose text-muted">Hover</h3>
+          <Combobox v-bind="args" v-model="modelValue" data-hover="true" />
+        </div>
+
+        <div>
+          <h3 class="text-sm/loose text-muted">Focused</h3>
+          <Combobox v-bind="args" v-model="modelValue" data-focus="true" />
+        </div>
+
+        <div>
+          <h3 class="text-sm/loose text-muted">Selected</h3>
+          <Combobox v-bind="args" model-value="nuxt" />
+        </div>
+      </section>
+    `
+  })
 };

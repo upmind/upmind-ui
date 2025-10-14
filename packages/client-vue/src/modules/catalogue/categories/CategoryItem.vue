@@ -1,8 +1,7 @@
 <template>
   <Button
     :as="RouterLink"
-    variant="outline"
-    color="base"
+    variant="control"
     :class="styles.categories.item.root"
     :aria-label="t('action.category_select', { name })"
     :to="{
@@ -25,11 +24,11 @@
 
     <section :class="styles.categories.item.action">
       <header :class="styles.categories.item.titleContainer">
-        <Button
+        <Link
           :as="RouterLink"
           size="lg"
-          variant="link"
-          class="font-medium"
+          :class="styles.categories.item.link"
+          :label="name"
           :to="{
             name: ROUTE.CATALOGUE,
             query: {
@@ -38,8 +37,7 @@
               direction: props.direction
             }
           }"
-          >{{ name }}</Button
-        >
+        />
         <Icon
           icon="arrow-right"
           size="2xs"
@@ -64,7 +62,7 @@ import { RouterLink } from "vue-router";
 import config from "../catalogue.config";
 
 // --- components
-import { Icon, Button, useStyles } from "@upmind-automation/upmind-ui";
+import { Icon, Button, useStyles, Link } from "@upmind-automation/upmind-ui";
 
 // --- types
 import { ROUTE, type ProductCategory } from "@upmind-automation/headless";
@@ -101,6 +99,7 @@ const styles = useStyles(
     item: {
       root: string;
       icon: string;
+      link: string;
       action: string;
       titleContainer: string;
       title: string;

@@ -17,7 +17,6 @@
       :loading="meta.isLoading"
       :processing="meta.isProcessing"
       @update:selected="onToggleSelected"
-      :color="color"
       :value="props.modelValue ?? ''"
       @remove="onRemove"
     />
@@ -29,7 +28,7 @@
       @click="() => onSearchOffset(offset)"
       block
       variant="ghost"
-      color="base"
+      color="primary"
       size="lg"
     />
   </div>
@@ -41,7 +40,6 @@
       @click="onResolve"
       :label="t('action.add_domain_to_basket', selected?.length ?? 0)"
       prependIcon="plus"
-      :color="color"
       size="lg"
     />
     <!-- </div> -->
@@ -58,12 +56,7 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../domain.config";
 
 // --- components
-import {
-  Button,
-  Drawer,
-  FormControl,
-  Input
-} from "@upmind-automation/upmind-ui";
+import { Button, FormControl } from "@upmind-automation/upmind-ui";
 import DomainCards from "./DomainCards.vue";
 import DomainSearch from "./DomainSearch.vue";
 import type { DacProps } from "../types";

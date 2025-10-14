@@ -4,7 +4,7 @@
     :class="styles.domain.card.footer.action"
     :disabled="meta.disabled"
     :loading="processing && selected"
-    :variant="selected || meta.added ? 'flat' : 'outline'"
+    :variant="selected || meta.added ? 'subtle' : 'outline'"
     :truncate="false"
     color="secondary"
     @click="selected ? onRemove(props.domain) : onUpdate(props.domain)"
@@ -17,11 +17,10 @@
     <Description class="not-italic md:max-w-76">
       {{ t("domain.own_domain_qn") }}
       {{ t("domain.transfer_domain_by_msg") }}
-      <Button
-        variant="link"
-        class="text-emphasis-medium font-medium text-inherit underline underline-offset-1!"
+      <Link
+        class="text-muted font-medium text-inherit underline underline-offset-1!"
         @click="onUpdate(props.domain)"
-        >{{ t("action.clicking_here") }}</Button
+        >{{ t("action.clicking_here") }}</Link
       >.
       <template v-if="meta.discounted">
         {{
@@ -54,7 +53,7 @@ import { useI18n } from "vue-i18n";
 import config from "../domain.config";
 
 // components
-import { Button, Icon } from "@upmind-automation/upmind-ui";
+import { Button, Icon, Link } from "@upmind-automation/upmind-ui";
 import Description from "../../../components/content/Description.vue";
 
 // --- types

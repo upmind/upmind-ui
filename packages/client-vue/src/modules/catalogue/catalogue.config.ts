@@ -14,7 +14,7 @@ export default {
       },
       list: {
         root: cva("flex flex-col space-y-4"),
-        icon: cva("text-foreground h-5 w-5 transition-opacity duration-300")
+        icon: cva("h-5 w-5 text-base transition-opacity duration-200")
       },
       drillDown: {
         items: cva("flex flex-col space-y-2"),
@@ -26,7 +26,7 @@ export default {
       }
     },
     skeleton: {
-      root: cva("text-foreground group relative flex min-h-80 flex-col"),
+      root: cva("group relative flex min-h-80 flex-col text-base"),
       content: cva("flex h-full flex-col"),
       image: cva("h-64 w-full rounded"),
       details: cva("mt-4 flex flex-1 flex-col"),
@@ -58,16 +58,16 @@ export default {
         root: cva(
           "flex w-full flex-col items-center justify-center space-y-4 p-4 py-10 text-center"
         ),
-        icon: cva("text-emphasis-disabled"),
+        icon: cva("text-muted"),
         title: cva("font-medium"),
-        description: cva("text-emphasis-medium")
+        description: cva("text-muted")
       }
     }
   },
   categories: {
     root: cva("flex flex-col gap-y-9"),
     grid: cva(
-      "bg-base-background text-emphasis-medium grid w-full grid-cols-1 gap-px overflow-hidden rounded-lg border md:grid-cols-3"
+      "bg-surface text-muted border-surface control-radius grid w-full grid-cols-1 gap-px overflow-hidden border md:grid-cols-3"
     ),
     controls: {
       root: cva(
@@ -77,14 +77,14 @@ export default {
     header: {
       root: cva("flex max-w-2xl flex-col gap-y-3 empty:hidden"),
       title: cva("font-display m-0 text-5xl font-normal text-balance"),
-      description: cva("text-md text-emphasis-medium m-0")
+      description: cva("text-md text-muted m-0")
     },
     item: {
       root: cva(
-        "text-foreground bg-card hover:bg-card/80 shadow-border-none group relative z-10 m-0 flex h-full w-full flex-col items-start justify-start gap-4 rounded-none border-none p-8 text-left before:absolute before:-inset-px before:-z-10 before:border before:border-solid before:border-gray-100 before:content-['']"
+        "group before:border-surface relative z-10 m-0 flex h-full w-full flex-col items-start justify-start gap-4 rounded-none border-none p-8 text-left text-base shadow-none before:absolute before:-inset-px before:-z-10 before:border before:border-solid before:content-['']"
       ),
       icon: cva(
-        "text-emphasis-medium text-icon-secondary transition-all duration-300 [&>svg]:p-px"
+        "text-muted text-icon-primary transition-all duration-200 [&>svg]:p-px"
       ),
       action: cva(
         "flex h-auto w-full flex-col gap-1 border-none px-0 py-0 text-left"
@@ -93,11 +93,12 @@ export default {
         "m-0 flex w-full items-center justify-between text-lg font-normal"
       ),
       title: cva(""),
+      link: cva("font-medium"),
       arrowIcon: cva(
-        "text-emphasis-medium group-hover:text-emphasis-none transition-all duration-300"
+        "text-muted transition-all duration-200 group-hover:text-base"
       ),
       description: cva(
-        "text-emphasis-medium group-hover:text-emphasis-none m-0 line-clamp-3 text-sm font-normal whitespace-normal transition-all duration-300"
+        "text-muted m-0 line-clamp-3 text-sm font-normal whitespace-normal transition-all duration-200"
       )
     }
   }

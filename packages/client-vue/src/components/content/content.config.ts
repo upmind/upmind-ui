@@ -27,21 +27,21 @@ export const titleVariants = cva("font-display m-0 [&_strong]:font-medium", {
 
 export default {
   page: cva(
-    "bg-background text-foreground flex w-full max-w-none grow flex-wrap transition-colors"
+    "bg-background flex w-full max-w-none grow flex-wrap text-base transition-colors"
   ),
   title: titleVariants,
-  description: cva("text-emphasis-medium my-0 text-sm"),
+  description: cva("text-muted my-0 text-sm"),
   header: {
     root: cva("flex flex-col gap-1"),
     title: cva("font-display text-4xl text-balance md:text-5xl"),
-    description: cva("text-emphasis-medium text-lg")
+    description: cva("text-muted text-lg")
   },
   section: {
     header: cva("flex justify-between", {
       variants: {
         variant: {
-          full: "border-b pb-3",
-          default: "border-b pb-3",
+          full: "border-surface border-b pb-3",
+          default: "border-surface border-b pb-3",
           enclosed: ""
         }
       }
@@ -56,6 +56,6 @@ export default {
       }
     }),
     content: cva("flex w-full flex-col gap-8"),
-    title: cva("text-emphasis-medium w-full text-xl")
+    title: cva("text-muted w-full text-xl")
   }
 };

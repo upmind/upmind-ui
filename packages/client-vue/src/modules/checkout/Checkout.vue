@@ -26,10 +26,7 @@
       </Section>
 
       <Section :title="t('text.payment_details')">
-        <PaymentDetails
-          :class="styles.checkout.paymentDetails"
-          :color="color"
-        />
+        <PaymentDetails :class="styles.checkout.paymentDetails" />
       </Section>
     </template>
 
@@ -42,7 +39,7 @@
     <template #aside-footer>
       <Alert
         v-if="meta.hasError"
-        color="error"
+        color="danger"
         icon="alert-triangle"
         :title="t('error.checkout')"
         :description="errors?.message"
@@ -55,7 +52,6 @@
   <slot name="processing" v-if="meta.isCheckout">
     <Interstitial
       open
-      to="#vue-app"
       modal
       size="2xl"
       :animatedIcon="{
@@ -119,8 +115,7 @@ const { uiCart } = useBrand();
 
 withDefaults(defineProps<CheckoutProps>(), {
   as: Card,
-  contentSectionComponent: ContentSection,
-  color: "primary"
+  contentSectionComponent: ContentSection
 });
 
 const styles = useStyles(["checkout"], meta, config) as ComputedRef<{
