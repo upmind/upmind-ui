@@ -5,8 +5,9 @@
     </slot>
 
     <input
+      ref="input"
       v-bind="delegatedProps"
-      v-model="modelValue"
+      v-model="maskedValue"
       :class="styles.input.field"
       :data-testid="`input-${props.autocomplete || props.id}`"
     />
@@ -19,8 +20,9 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed } from "vue";
-import { useVModel } from "@vueuse/core";
+import { ref, useTemplateRef, computed, onMounted, watch } from "vue";
+
+import IMask, { type InputElement, type FactoryConstructorOpts } from "imask";
 
 // --- internal
 import config from "./input.config";
@@ -50,6 +52,10 @@ const emits = defineEmits<{
   (e: "update:modelValue", payload: string | number): void;
 }>();
 
+const input = useTemplateRef<InputElement>("input");
+const modelValue = defineModel<InputProps["modelValue"]>("modelValue", {});
+const maskedValue = ref<InputProps["modelValue"]>(modelValue.value); // Reactive state for the masked input value
+
 const delegatedProps = computed(
   (): Omit<
     InputProps,
@@ -78,11 +84,6 @@ const delegatedProps = computed(
     ])
 );
 
-const modelValue = useVModel(props, "modelValue", emits, {
-  passive: true,
-  defaultValue: props.defaultValue
-});
-
 const meta = computed(() => ({
   width: props.width,
   hasRing: props.ring
@@ -97,4 +98,33 @@ const styles = useStyles(
   container: string;
   input: { container: string; field: string };
 }>;
+
+// Optional mask
+
+// Use the useIMask composable
+onMounted(() => {
+  applyMask();
+});
+
+function applyMask() {
+  if (props.mask && input.value) {
+    // if we have a mask then we use the IMask library to apply it and then keep our model and maskedValue in sync
+    const maskOptions = {
+      mask: props.mask as any // Cast to 'any' to accommodate both string and RegExp types
+      // lazy: false // Don't hide the mask when empty
+    };
+
+    const masked = IMask(input.value, maskOptions);
+
+    masked.on("accept", () => {
+      maskedValue.value = masked.value;
+      modelValue.value = masked.unmaskedValue;
+    });
+  } else {
+    // ensure we keep the modelValue in sync when no mask is applied
+    watch(maskedValue, newValue => {
+      modelValue.value = newValue;
+    });
+  }
+}
 </script>

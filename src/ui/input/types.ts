@@ -9,6 +9,7 @@ export type ContainerVariantProps = VariantProps<typeof containerVariants>;
 
 // --- types
 import type { AvatarProps } from "../avatar";
+import type { FactoryConstructorOpts } from "imask";
 
 export interface InputProps {
   modelValue?: string | number;
@@ -29,6 +30,7 @@ export interface InputProps {
   disabled?: boolean;
   readonly?: boolean;
   required?: boolean;
+  mask?: string | RegExp;
   // ---
   maxlength?: number;
   minlength?: number;
