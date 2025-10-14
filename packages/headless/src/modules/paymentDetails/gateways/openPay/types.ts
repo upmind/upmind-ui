@@ -44,8 +44,9 @@ export type OpenPayModel = GatewayData & {
   openpay: {
     card_number: string; // eg. '5105105105105100'
     holder_name: string;
-    expiration_year: string; // eg. '24'
-    expiration_month: string; // eg. '12'
+    expiration_date: string; // eg. '12/24'
+    // expiration_year: string; // eg. '24'
+    // expiration_month: string; // eg. '12'
     cvv2: string; // eg. '123'
   };
 };

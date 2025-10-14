@@ -34,13 +34,7 @@ export const useSchema = (context: GatewayContext) => {
       openpay: {
         type: "object",
         title: "OpenPay Payment Details",
-        required: [
-          "card_number",
-          "holder_name",
-          "expiration_year",
-          "expiration_month",
-          "cvv2"
-        ],
+        required: ["card_number", "holder_name", "expiration_date", "cvv2"],
         properties: {
           card_number: {
             type: "string",
@@ -56,10 +50,10 @@ export const useSchema = (context: GatewayContext) => {
 
           expiration_date: {
             type: "string",
-            minLength: 5,
-            maxLength: 5,
-            // Pattern matches two digits, as extracted from MM/YY or MM/YY formats
-            pattern: "^(0[1-9]|1[0-2])/[0-9]{2}$"
+            minLength: 7,
+            maxLength: 7,
+            // Pattern matches two digits, as extracted from MM/YYYY or MM/YY formats
+            pattern: "^(0[1-9]|1[0-2])/[0-9]{4}$"
           },
 
           cvv2: {
@@ -115,8 +109,8 @@ export const useUischema = (context: GatewayContext) => {
             options: {
               autocomplete: "cc-exp-month",
               trim: true,
-              placeholder: "MM/YY",
-              mask: "00/00"
+              placeholder: "MM/YYYY",
+              mask: "00/0000"
             }
           },
 
