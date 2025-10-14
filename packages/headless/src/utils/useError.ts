@@ -1,3 +1,6 @@
+// --- external
+import * as Sentry from "@sentry/vue";
+
 // --- internal
 import { useI18n } from "../modules";
 
@@ -69,6 +72,8 @@ export class DetailedError extends Error {
     this.code = code;
     this.data = data;
     this.origin = origin;
+
+    Sentry.logger.error(message, { code, data, origin });
   }
 }
 
