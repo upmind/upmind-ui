@@ -7,7 +7,7 @@
     <input
       ref="input"
       v-bind="delegatedProps"
-      v-model="maskedValue"
+      v-model="modelValue"
       :class="styles.input.field"
       :data-testid="`input-${props.autocomplete || props.id}`"
     />
@@ -54,7 +54,6 @@ const emits = defineEmits<{
 
 const input = useTemplateRef<InputElement>("input");
 const modelValue = defineModel<InputProps["modelValue"]>("modelValue", {});
-const maskedValue = ref<InputProps["modelValue"]>(modelValue.value); // Reactive state for the masked input value
 
 const delegatedProps = computed(
   (): Omit<
@@ -117,14 +116,9 @@ function applyMask() {
     const masked = IMask(input.value, maskOptions);
 
     masked.on("accept", () => {
-      maskedValue.value = masked.value;
-      modelValue.value = masked.unmaskedValue;
+      modelValue.value = masked.value;
     });
   } else {
-    // ensure we keep the modelValue in sync when no mask is applied
-    watch(maskedValue, newValue => {
-      modelValue.value = newValue;
-    });
   }
 }
 </script>
