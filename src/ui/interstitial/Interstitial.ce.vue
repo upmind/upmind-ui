@@ -5,29 +5,30 @@
     :description="text"
     :open="meta.isOpen"
     :size="size"
-    :skrim="skrim"
     :title="title"
     :fit="fit"
     :to="to"
     no-header
     :dismissable="false"
   >
-    <section :class="cn(styles.interstitial.root, props.class)">
+    <div :class="cn(styles.interstitial.root, props.class)">
       <slot name="avatar">
-        <Avatar :animated-icon="animatedIcon" color="transparent" size="6xl" />
+        <Avatar :animated-icon="animatedIcon" class="size-36 bg-transparent" />
       </slot>
 
-      <h3 :class="styles.interstitial.title">
-        <slot name="title"><Sanitized v-if="title" :modelValue="title" /></slot>
-      </h3>
+      <section :class="styles.interstitial.section">
+        <h3 :class="styles.interstitial.title">
+          <slot name="title"
+            ><Sanitized v-if="title" :modelValue="title"
+          /></slot>
+        </h3>
 
-      <p :class="styles.interstitial.text">
-        <slot name="text"><Sanitized v-if="text" :modelValue="text" /></slot>
-      </p>
+        <p :class="styles.interstitial.text">
+          <slot name="text"><Sanitized v-if="text" :modelValue="text" /></slot>
+        </p>
 
-      <div v-if="!!$slots.default" :class="styles.interstitial.content">
         <slot></slot>
-      </div>
+      </section>
 
       <footer :class="styles.interstitial.actions">
         <slot name="actions">
@@ -37,13 +38,14 @@
             size="lg"
             v-bind="action"
             :loading="meta.isProcessing"
+            :variant="action?.variant || 'solid'"
             :color="action?.color || 'primary'"
             @click.stop="doAction(action?.handler)"
             pill
           />
         </slot>
       </footer>
-    </section>
+    </div>
   </component>
 </template>
 
@@ -74,7 +76,6 @@ import type { InterstitialActionProps, InterstitialProps } from "./types";
 const props = withDefaults(defineProps<InterstitialProps>(), {
   open: true,
   modal: false,
-  skrim: "light",
   size: "2xl",
   fit: "contain",
   animatedIcon: () => ({
@@ -103,8 +104,8 @@ const styles = useStyles(
     root: string;
     title: string;
     text: string;
-    content: string;
     actions: string;
+    section: string;
   };
 }>;
 

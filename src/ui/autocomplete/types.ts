@@ -54,7 +54,7 @@ export interface AutocompleteProps
   // variant?: ButtonProps["variant"];
   width?: AnchorVariantProps["width"] | string;
   popoverWidth?: ContentVariantProps["popoverWidth"] | string;
-  iconSize?: IconProps["size"] | string;
+  iconSize?: AvatarProps["size"];
   // --- styles
   uiConfig?: { autocomplete: CxOptions };
   class?: HTMLAttributes["class"];

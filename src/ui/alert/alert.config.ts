@@ -1,140 +1,290 @@
 import { cva } from "class-variance-authority";
 
-export const alertVariants = cva(
-  "group relative flex w-full flex-col gap-1 rounded p-4 px-6 [&>i]:absolute [&>i]:top-4 [&>i]:left-4 [&>i+div]:translate-y-[-3px] [&>i~*]:pl-7",
+export const variants = {
+  variant: {
+    muted: "",
+    minimal: ""
+  },
+  size: {
+    sm: "",
+    md: ""
+  },
+  color: {
+    neutral: "",
+    promo: "",
+    danger: "",
+    warning: "",
+    success: "",
+    info: ""
+  }
+};
+
+export const rootVariants = cva(
+  "message-radius flex items-end justify-between",
   {
-    // Alert props doesn't see that the variants exist without these
     variants: {
       variant: {
-        outline: "border",
-        solid: ""
+        muted: "", // Contextual background and no border
+        minimal: "bg-surface border-[1.5px]" // Border and surface background
       },
-      color: {
-        base: "",
-        primary: "",
-        secondary: "",
-        accent: "",
-        promotion: "",
-        destructive: "",
-        success: "",
-        info: "",
-        error: "",
-        warning: ""
-      }
+      size: {
+        sm: "p-4",
+        md: "px-4 py-5"
+      },
+      color: variants.color
+    },
+    defaultVariants: {
+      variant: "minimal",
+      color: "neutral",
+      size: "md"
     },
     compoundVariants: [
+      // Minimal
       {
-        variant: "solid",
-        color: "base",
-        class: "bg-base-muted text-base-muted-foreground"
+        variant: "minimal",
+        color: "neutral",
+        class: "border-accent-neutral"
       },
       {
-        variant: "solid",
-        color: "primary",
-        class: "bg-primary-muted text-primary-muted-foreground"
+        variant: "minimal",
+        color: "promo",
+        class: "border-accent-promo"
       },
       {
-        variant: "solid",
-        color: "secondary",
-        class: "bg-secondary-muted text-secondary-muted-foreground"
+        variant: "minimal",
+        color: "danger",
+        class: "border-accent-danger"
       },
       {
-        variant: "solid",
-        color: "accent",
-        class: "bg-accent-muted text-accent-muted-foreground"
-      },
-      {
-        variant: "solid",
-        color: "promotion",
-        class: "bg-promotion-muted text-promotion-muted-foreground"
-      },
-      {
-        variant: "solid",
-        color: "destructive",
-        class: "bg-destructive-muted text-destructive-muted-foreground"
-      },
-      {
-        variant: "solid",
-        color: "success",
-        class: "bg-success-muted text-success-muted-foreground"
-      },
-      {
-        variant: "solid",
+        variant: "minimal",
         color: "warning",
-        class: "bg-warning-muted text-warning-muted-foreground"
+        class: "border-accent-warning"
       },
       {
-        variant: "solid",
-        color: "info",
-        class: "bg-info-muted text-info-muted-foreground"
-      },
-      {
-        variant: "solid",
-        color: "error",
-        class: "bg-error-muted text-error-muted-foreground"
-      },
-      {
-        variant: "outline",
-        color: "base",
-        class: "bg-base-background text-base-foreground border"
-      },
-      {
-        variant: "outline",
-        color: "primary",
-        class: "bg-primary-muted text-primary-muted-foreground border-primary"
-      },
-      {
-        variant: "outline",
-        color: "secondary",
-        class:
-          "bg-secondary-muted text-secondary-muted-foreground border-secondary"
-      },
-      {
-        variant: "outline",
-        color: "accent",
-        class: "test bg-accent-muted text-accent-muted-foreground border-accent"
-      },
-      {
-        variant: "outline",
-        color: "promotion",
-        class:
-          "bg-promotion-muted text-promotion-muted-foreground border-promotion"
-      },
-      {
-        variant: "outline",
-        color: "destructive",
-        class:
-          "bg-destructive-muted text-destructive-muted-foreground border-destructive"
-      },
-      {
-        variant: "outline",
+        variant: "minimal",
         color: "success",
-        class: "bg-success-muted text-success-muted-foreground border-success"
+        class: "border-accent-success"
       },
       {
-        variant: "outline",
+        variant: "minimal",
         color: "info",
-        class: "bg-info-muted text-info-muted-foreground border-info"
+        class: "border-accent-info"
+      },
+      // Muted
+      {
+        variant: "muted",
+        color: "neutral",
+        class: "bg-accent-neutral-muted text-accent-neutral-muted-contrast"
       },
       {
-        variant: "outline",
-        color: "error",
-        class: "bg-error-muted border-error text-error"
+        variant: "muted",
+        color: "promo",
+        class: "bg-accent-promo-muted text-accent-promo-muted-contrast"
       },
       {
-        variant: "outline",
+        variant: "muted",
+        color: "danger",
+        class: "bg-accent-danger-muted text-accent-danger-muted-contrast"
+      },
+      {
+        variant: "muted",
         color: "warning",
-        class: "bg-warning-muted text-warning-muted-foreground border-warning"
+        class: "bg-accent-warning-muted text-accent-warning-muted-contrast"
+      },
+      {
+        variant: "muted",
+        color: "success",
+        class: "bg-accent-success-muted text-accent-success-muted-contrast"
+      },
+      {
+        variant: "muted",
+        color: "info",
+        class: "bg-accent-info-muted text-accent-info-muted-contrast"
       }
-    ],
-    defaultVariants: {
-      variant: "outline",
-      color: "base"
-    }
+    ]
   }
 );
 
+const titleVariants = cva("text-md/tight font-medium", {
+  variants: {
+    variant: {
+      muted: "",
+      minimal: "text-base"
+    },
+    size: variants.size,
+    color: variants.color
+  },
+  defaultVariants: {
+    variant: "minimal",
+    color: "neutral",
+    size: "md"
+  },
+  compoundVariants: [
+    {
+      variant: "muted",
+      color: "neutral",
+      class: "text-accent-neutral-muted-contrast"
+    },
+    {
+      variant: "muted",
+      color: "promo",
+      class: "text-accent-promo-muted-contrast"
+    },
+    {
+      variant: "muted",
+      color: "danger",
+      class: "text-accent-danger-muted-contrast"
+    },
+    {
+      variant: "muted",
+      color: "warning",
+      class: "text-accent-warning-muted-contrast"
+    },
+    {
+      variant: "muted",
+      color: "success",
+      class: "text-accent-success-muted-contrast"
+    },
+    {
+      variant: "muted",
+      color: "info",
+      class: "text-accent-info-muted-contrast"
+    }
+  ]
+});
+
+const descriptionVariants = cva("text-sm/tight font-normal", {
+  variants: {
+    variant: {
+      muted: "",
+      minimal: "text-muted"
+    },
+    size: variants.size,
+    color: variants.color
+  },
+  defaultVariants: {
+    variant: "minimal",
+    color: "neutral",
+    size: "md"
+  },
+  compoundVariants: [
+    {
+      variant: "muted",
+      color: "neutral",
+      class: "text-accent-neutral-muted-contrast"
+    },
+    {
+      variant: "muted",
+      color: "promo",
+      class: "text-accent-promo-muted-contrast"
+    },
+    {
+      variant: "muted",
+      color: "danger",
+      class: "text-accent-danger-muted-contrast"
+    },
+    {
+      variant: "muted",
+      color: "warning",
+      class: "text-accent-warning-muted-contrast"
+    },
+    {
+      variant: "muted",
+      color: "success",
+      class: "text-accent-success-muted-contrast"
+    },
+    {
+      variant: "muted",
+      color: "info",
+      class: "text-accent-info-muted-contrast"
+    }
+  ]
+});
+
+const iconVariants = cva("", {
+  variants: {
+    variant: {
+      muted: "",
+      minimal: ""
+    },
+    size: variants.size,
+    color: variants.color
+  },
+  defaultVariants: {
+    variant: "minimal",
+    color: "neutral",
+    size: "md"
+  },
+  compoundVariants: [
+    {
+      variant: "muted",
+      color: "neutral",
+      class: "text-accent-neutral-muted-contrast"
+    },
+    {
+      variant: "muted",
+      color: "promo",
+      class: "text-accent-promo-muted-contrast"
+    },
+    {
+      variant: "muted",
+      color: "danger",
+      class: "text-accent-danger-muted-contrast"
+    },
+    {
+      variant: "muted",
+      color: "warning",
+      class: "text-accent-warning-muted-contrast"
+    },
+    {
+      variant: "muted",
+      color: "success",
+      class: "text-accent-success-muted-contrast"
+    },
+    {
+      variant: "muted",
+      color: "info",
+      class: "text-accent-info-muted-contrast"
+    },
+    {
+      variant: "minimal",
+      color: "neutral",
+      class: "text-accent-neutral"
+    },
+    {
+      variant: "minimal",
+      color: "promo",
+      class: "text-accent-promo"
+    },
+    {
+      variant: "minimal",
+      color: "danger",
+      class: "text-accent-danger"
+    },
+    {
+      variant: "minimal",
+      color: "warning",
+      class: "text-accent-warning"
+    },
+    {
+      variant: "minimal",
+      color: "success",
+      class: "text-accent-success"
+    },
+    {
+      variant: "minimal",
+      color: "info",
+      class: "text-accent-info"
+    }
+  ]
+});
+
 // -----------------------------------------------------------------------------
 export default {
-  alert: alertVariants
+  alert: {
+    root: rootVariants,
+    title: titleVariants,
+    description: descriptionVariants,
+    icon: iconVariants
+  }
 };

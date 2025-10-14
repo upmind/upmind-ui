@@ -12,6 +12,8 @@
         :label="props.label"
         :loading="props.loading"
         :placeholder="props.placeholder"
+        :data-hover="props.dataHover"
+        :data-focus="props.dataFocus"
         focusable
       >
         <template #item="{ item }">
@@ -28,6 +30,7 @@
     <DropdownMenuPortal :to="props.to">
       <DropdownMenuContent
         :class="cn(styles.select.content, props.contentClass)"
+        :align="props.align"
       >
         <DropdownMenuItem
           v-for="(item, index) in items"
@@ -60,7 +63,7 @@
 // --- external
 import { first, find } from "lodash-es";
 import { useVModel } from "@vueuse/core";
-import { ref, computed, useSlots } from "vue";
+import { ref, computed } from "vue";
 import { vIntersectionObserver } from "@vueuse/components";
 
 // --- internal
@@ -84,7 +87,9 @@ import type { ComputedRef } from "vue";
 import Select from "../select/Select.vue";
 
 const props = withDefaults(defineProps<SelectCardsProps>(), {
-  required: true
+  required: true,
+  placeholder: "Select an option",
+  align: "start"
 });
 
 const emits = defineEmits(["update:modelValue"]);

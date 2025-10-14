@@ -56,7 +56,6 @@ export default {
         }
       ]
     }),
-    actions: cva("m-0"),
-    action: cva("!font-inherit py-0 text-[length:inherit]! text-inherit!")
+    actions: cva("m-0")
   }
 };

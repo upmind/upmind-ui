@@ -1,14 +1,25 @@
 <template>
   <!--<link rel="stylesheet" :href="stylesheet" />-->
-  <Badge :class="cn(styles.badge, props.class)">
+  <Badge :class="cn(styles.badge.root, props.class)">
     <slot name="prepend">
-      <Icon v-if="icon" :icon="icon" class="[&>svg]:size-3.5" />
+      <Icon v-if="icon" :icon="icon" size="nano" :class="styles.badge.icon" />
     </slot>
-    <span class="px-1">
+    <span :class="styles.badge.label">
       <slot>{{ label }}</slot>
     </span>
     <slot name="append">
-      <Icon v-if="appendIcon" :icon="appendIcon" size="2xs" />
+      <Icon
+        v-if="appendIcon"
+        :icon="appendIcon"
+        size="nano"
+        :class="styles.badge.icon"
+      />
+      <Icon
+        v-else-if="props.close"
+        icon="x"
+        :class="styles.badge.close"
+        @click="handleClose"
+      />
     </slot>
   </Badge>
 </template>
@@ -20,11 +31,7 @@ import { computed } from "vue";
 // --- internal
 import config from "./badge.config";
 
-import {
-  useStyles,
-  cn
-  //stylesheet
-} from "../../utils";
+import { useStyles, cn } from "../../utils";
 
 // --- components
 import Badge from "./Badge.vue";
@@ -39,8 +46,8 @@ const props = withDefaults(defineProps<BadgeProps>(), {
   // --- props
   label: "",
   // --- styles
-  variant: "flat",
-  color: "base",
+  variant: "solid",
+  color: "primary",
   size: "md",
   // --- styles
   uiConfig: () => ({ badge: [] }),
@@ -58,5 +65,20 @@ const styles = useStyles(
   meta,
   config,
   props.uiConfig ?? {}
-) as ComputedRef<{ badge: string }>;
+) as ComputedRef<{
+  badge: {
+    root: string;
+    icon: string;
+    label: string;
+    close: string;
+  };
+}>;
+
+const emit = defineEmits<{
+  close: [];
+}>();
+
+function handleClose() {
+  emit("close");
+}
 </script>

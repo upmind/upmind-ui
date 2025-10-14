@@ -30,6 +30,7 @@ export * from "./ui/label";
 export * from "./ui/layout";
 export * from "./ui/lineclamp";
 export * from "./ui/list";
+export * from "./ui/link";
 export * from "./ui/loading";
 export * from "./ui/markdown";
 export * from "./ui/number-field";

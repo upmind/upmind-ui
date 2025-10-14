@@ -1,13 +1,14 @@
 import { cva } from "class-variance-authority";
-import { ringClasses } from "../../assets/ring.styles";
+import { ringClasses } from "../../assets/styles";
 
 export const itemVariants = cva(
-  `bg-control-background text-control-foreground group rounded transition-all duration-200 ${ringClasses} flex cursor-pointer list-none gap-2 p-3 pr-4`,
+  `bg-control-surface text-control-foreground group control-radius flex cursor-pointer list-none gap-2 py-3 pr-4 pl-3 font-normal transition-all duration-200 ${ringClasses}`,
   {
     variants: {
       isList: {
-        true: "hover:bg-control-active-focus data-[state=checked]:ring-control-active my-0.5 border-0 shadow-none data-[state=checked]:ring-2",
-        false: "shadow-border-control rounded"
+        true: "my-0.5 border-0",
+        false:
+          "shadow-control-default [&:hover,&[data-hover=true]]:shadow-control-hover [&:focus-within,&[data-focus=true]]:ring-ring rounded [&:focus-within,&[data-focus=true]]:ring-2 [&:focus-within,&[data-focus=true]]:ring-offset-2"
       },
       width: {
         0: "",
@@ -47,11 +48,12 @@ export default {
   radioCards: {
     root: rootVariants,
     item: itemVariants,
-    radio: cva("size-lh flex items-center justify-center"),
-    input: cva(
-      `shadow-border-control leading-normal ring-offset-2 [transition:border-color_200ms_ease-in-out] ${ringClasses}`
-    ),
-    sublabel: cva("text-emphasis-disabled text-sm"),
-    content: cva("flex flex-wrap items-baseline gap-x-2")
+    radio: cva("size-lh text-md/tight flex items-center justify-center"),
+    content: {
+      label: cva("text-md/tight text-display font-medium"),
+      secondaryLabel: cva("text-md/tight text-display font-medium"),
+      description: cva("text-base text-sm/tight font-normal"),
+      secondaryDescription: cva("text-muted text-sm/tight font-normal")
+    }
   }
 };

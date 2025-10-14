@@ -14,7 +14,12 @@
         :index="option.index || overrideIndex || index"
         :name="props.name"
         :label="option?.label"
-        :sublabel="option?.sublabel"
+        :secondaryLabel="option?.secondaryLabel"
+        :description="option?.description"
+        :secondaryDescription="option?.secondaryDescription"
+        :badge="option?.badge"
+        :secondaryBadge="option?.secondaryBadge"
+        :action="option?.action"
         :required="props.required"
         :disabled="props.disabled"
         :model-value="modelValue"
@@ -24,7 +29,10 @@
         :list="props.list"
         data-testid="radio-card-item"
         :uiConfig="props.uiConfig"
+        :data-hover="props.dataHover"
+        :data-focus="props.dataFocus"
         @keydown.enter="onChange(option.value)"
+        @action="onAction"
       >
         <template #item="slotProps">
           <slot name="item" v-bind="slotProps" />
@@ -64,7 +72,7 @@ const props = withDefaults(defineProps<RadioCardsProps>(), {
   radioClass: ""
 });
 
-const emits = defineEmits(["update:modelValue"]);
+const emits = defineEmits(["update:modelValue", "action"]);
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
   defaultValue: props.defaultValue
@@ -97,5 +105,9 @@ const onChange = (value: any) => {
   } else {
     modelValue.value = value;
   }
+};
+
+const onAction = (value: any) => {
+  emits("action", value);
 };
 </script>

@@ -1,0 +1,179 @@
+/*
+ * This file creates dynamic shadow utilities using @utility with wildcards.
+ * The @utility directive with wildcards creates utilities that accept any color
+ * from the design system as parameters.
+ *
+ * - @utility shadow-* → Creates .shadow-primary, .shadow-danger, etc. with Tailwind variants
+ * - @theme shadow-primary → Would create .bg-shadow-primary, etc. (inappropriate)
+ * - @layer utilities .shadow-primary → Creates static class, no dynamic color support
+ *
+ * We use @utility with wildcards for dynamic utilities that need to work with
+ * any design system color while maintaining Tailwind integration.
+ */
+@utility shadow-* {
+  --tw-shadow: inset 0 0 0 1px --value(--color-*);
+  box-shadow:
+    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
+    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+@utility shadow-b-* {
+  --tw-shadow: inset 0 -1px 0 0 --value(--color-*);
+  box-shadow:
+    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
+    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+@utility shadow-t-* {
+  --tw-shadow: inset 0 1px 0 0 --value(--color-*);
+  box-shadow:
+    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
+    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+@utility shadow-l-* {
+  --tw-shadow: inset 1px 0 0 0 --value(--color-*);
+  box-shadow:
+    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
+    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+@utility shadow-r-* {
+  --tw-shadow: inset -1px 0 0 0 --value(--color-*);
+  box-shadow:
+    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
+    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+@utility shadow-l-none-* {
+  --tw-shadow:
+    inset 0 1px 0 0 --value(--color-*), inset -1px 0 0 0 --value(--color-*),
+    inset 0 -1px 0 0 --value(--color-*);
+  box-shadow:
+    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
+    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+@utility shadow-r-none-* {
+  --tw-shadow:
+    inset 0 1px 0 0 --value(--color-*), inset 1px 0 0 0 --value(--color-*),
+    inset 0 -1px 0 0 --value(--color-*);
+  box-shadow:
+    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
+    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+@utility shadow-control-r-none {
+  --tw-shadow:
+    inset 0 1px 0 0 var(--border-control-default),
+    inset 1px 0 0 0 var(--border-control-default),
+    inset 0 -1px 0 0 var(--border-control-default);
+  box-shadow:
+    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
+    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+@utility shadow-control-hover-r-none {
+  --tw-shadow:
+    inset 0 1px 0 0 var(--border-control-hover),
+    inset 1px 0 0 0 var(--border-control-hover),
+    inset 0 -1px 0 0 var(--border-control-hover);
+  box-shadow:
+    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
+    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+/* Semantic shadow border utilities - override generic patterns */
+@utility shadow-control-default {
+  --tw-shadow: inset 0 0 0 1px var(--border-control-default);
+  box-shadow:
+    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
+    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+@utility shadow-control-checked {
+  --tw-shadow: inset 0 0 0 1px var(--border-control-selected);
+  box-shadow:
+    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
+    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+@utility shadow-control-hover {
+  --tw-shadow: inset 0 0 0 1px var(--border-control-hover);
+  box-shadow:
+    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
+    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+@utility shadow-control-selected {
+  --tw-shadow: inset 0 0 0 1px var(--border-control-selected);
+  box-shadow:
+    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
+    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+@utility shadow-button-outline {
+  --tw-shadow: inset 0 0 0 1px var(--border-button-outline);
+  box-shadow:
+    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
+    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+@utility shadow-button-outline-hover {
+  --tw-shadow: inset 0 0 0 1px var(--border-button-outline-hover);
+  box-shadow:
+    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
+    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+@utility shadow-border-surface {
+  --tw-shadow: inset 0 0 0 1px var(--border-surface);
+  box-shadow:
+    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
+    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+@utility shadow-b-border-surface {
+  --tw-shadow: inset 0 -1px 0 0 var(--border-surface);
+  box-shadow:
+    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
+    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+@utility shadow-t-border-surface {
+  --tw-shadow: inset 0 1px 0 0 var(--border-surface);
+  box-shadow:
+    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
+    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+/* Badge */
+@utility shadow-badge-* {
+  --tw-shadow: inset 0 0 0 var(--stroke-badge) --value(--color-*);
+  box-shadow:
+    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
+    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+@utility shadow-badge-border-surface {
+  --tw-shadow: inset 0 0 0 var(--stroke-badge) var(--border-surface);
+  box-shadow:
+    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
+    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+@utility shadow-primary-gradient {
+  border: var(--stroke-badge) solid transparent;
+  background:
+    linear-gradient(
+        var(--bg-surface),
+        var(--bg-surface)
+      )
+      padding-box,
+    linear-gradient(
+        to right,
+        var(--color-primary-default),
+        var(--color-primary-default-stop)
+      )
+      border-box;
+}

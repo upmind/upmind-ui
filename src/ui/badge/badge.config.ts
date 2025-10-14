@@ -1,143 +1,176 @@
 import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
+export const variants = {
+  variant: {
+    solid: "",
+    minimal: "",
+    muted: ""
+  },
+  color: {
+    primary: "",
+    neutral: "",
+    promo: "",
+    danger: "",
+    warning: "",
+    success: "",
+    info: ""
+  },
+  size: {
+    sm: "px-2 py-1 text-xs/tight font-semibold",
+    md: "px-3 py-1 text-sm/tight font-medium"
+  }
+};
+
 export const badgeVariants = cva(
-  "focus:ring-ring inline-flex w-fit items-center rounded-lg whitespace-nowrap transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none",
+  "badge-radius inline-flex w-fit items-center leading-normal whitespace-nowrap",
   {
-    variants: {
-      variant: {
-        flat: "",
-        outline: "!bg-base-background border",
-        tonal: ""
-      },
-      size: {
-        sm: "px-2 py-1 text-xs/tight font-semibold",
-        md: "px-3 py-1 text-sm/tight font-medium",
-        lg: "px-3 py-1 text-sm/tight font-medium"
-      },
-      color: {
-        base: "bg-base-foreground text-base-background",
-        primary: "bg-primary text-primary-foreground",
-        secondary: "bg-secondary text-secondary-foreground",
-        accent: "bg-accent text-accent-foreground",
-        promotion: "bg-promotion text-promotion-foreground",
-        destructive: "bg-destructive text-destructive-foreground",
-        success: "bg-success text-success-foreground",
-        info: "bg-info text-info-foreground",
-        error: "bg-error text-error-foreground",
-        warning: "bg-warning text-warning-foreground",
-        disabled: "bg-base-muted text-base-muted-foreground text-emphasis-high"
-      }
+    variants,
+    defaultVariants: {
+      color: "primary",
+      variant: "solid",
+      size: "md"
     },
     compoundVariants: [
+      // Solid
       {
-        color: "base",
-        variant: "outline",
-        class: "border-base-foreground text-base-foreground"
-      },
-      {
+        variant: "solid",
         color: "primary",
-        variant: "outline",
-        class: "border-primary text-primary"
+        class:
+          "from-primary-default to-primary-default-stop text-accent-primary-contrast bg-gradient-to-r"
       },
       {
-        color: "secondary",
-        variant: "outline",
-        class: "border-secondary text-secondary"
+        variant: "solid",
+        color: "neutral",
+        class: "bg-accent-neutral text-accent-neutral-contrast"
       },
       {
-        color: "accent",
-        variant: "outline",
-        class: "border-accent text-accent"
+        variant: "solid",
+        color: "promo",
+        class: "bg-accent-promo text-accent-promo-contrast"
       },
       {
-        color: "promotion",
-        variant: "outline",
-        class: "border-promotion text-promotion"
+        variant: "solid",
+        color: "danger",
+        class: "bg-accent-danger text-accent-danger-contrast"
       },
       {
-        color: "destructive",
-        variant: "outline",
-        class: "border-destructive text-destructive"
-      },
-      {
-        color: "success",
-        variant: "outline",
-        class: "border-success text-success"
-      },
-      {
-        color: "info",
-        variant: "outline",
-        class: "border-info text-info"
-      },
-      {
-        color: "error",
-        variant: "outline",
-        class: "border-error text-error"
-      },
-      {
+        variant: "solid",
         color: "warning",
-        variant: "outline",
-        class: "border-warning text-warning"
+        class: "bg-accent-warning text-accent-warning-contrast"
       },
-      // ---
-
       {
-        color: "base",
-        variant: "tonal",
-        class: "bg-base-muted text-base-muted-foreground"
+        variant: "solid",
+        color: "success",
+        class: "bg-accent-success text-accent-success-contrast"
       },
-
       {
+        variant: "solid",
+        color: "info",
+        class: "bg-accent-info text-accent-info-contrast"
+      },
+      // Minimal
+      {
+        variant: "minimal",
         color: "primary",
-        variant: "tonal",
-        class: "bg-primary-muted text-primary-muted-foreground"
+        class:
+          "bg-surface shadow-badge-border-surface text-primitive-primary-muted-contrast"
       },
       {
-        color: "secondary",
-        variant: "tonal",
-        class: "bg-secondary-muted text-secondary-muted-foreground"
+        variant: "minimal",
+        color: "neutral",
+        class:
+          "bg-surface shadow-badge-border-surface text-accent-neutral-muted-contrast"
       },
       {
-        color: "accent",
-        variant: "tonal",
-        class: "bg-accent-muted text-accent-muted-foreground"
+        variant: "minimal",
+        color: "promo",
+        class:
+          "bg-surface shadow-badge-border-surface text-accent-promo-muted-contrast"
       },
       {
-        color: "promotion",
-        variant: "tonal",
-        class: "bg-promotion-muted text-promotion-muted-foreground"
+        variant: "minimal",
+        color: "danger",
+        class:
+          "bg-surface shadow-badge-border-surface text-accent-danger-muted-contrast"
       },
       {
-        color: "destructive",
-        variant: "tonal",
-        class: "bg-destructive-muted text-destructive-muted-foreground"
-      },
-      {
-        color: "success",
-        variant: "tonal",
-        class: "bg-success-muted text-success-muted-foreground"
-      },
-      {
-        color: "info",
-        variant: "tonal",
-        class: "bg-info-muted text-info-muted-foreground"
-      },
-      { color: "error", variant: "tonal", class: "bg-error-muted text-error" },
-      {
+        variant: "minimal",
         color: "warning",
-        variant: "tonal",
-        class: "bg-warning-muted text-warning-muted-foreground"
+        class:
+          "bg-surface shadow-badge-border-surface text-accent-warning-muted-contrast"
+      },
+      {
+        variant: "minimal",
+        color: "success",
+        class:
+          "bg-surface shadow-badge-border-surface text-accent-success-muted-contrast"
+      },
+      {
+        variant: "minimal",
+        color: "info",
+        class:
+          "bg-surface shadow-badge-border-surface text-accent-info-muted-contrast"
+      },
+      // Muted
+      {
+        variant: "muted",
+        color: "primary",
+        class:
+          "bg-primitive-primary-muted shadow-primary-gradient text-primitive-primary-muted-contrast"
+      },
+      {
+        variant: "muted",
+        color: "neutral",
+        class:
+          "bg-accent-neutral-muted shadow-badge-accent-neutral text-accent-neutral-muted-contrast"
+      },
+      {
+        variant: "muted",
+        color: "promo",
+        class:
+          "bg-accent-promo-muted shadow-badge-accent-promo text-accent-promo-muted-contrast"
+      },
+      {
+        variant: "muted",
+        color: "danger",
+        class:
+          "bg-accent-danger-muted shadow-badge-accent-danger text-accent-danger-muted-contrast"
+      },
+      {
+        variant: "muted",
+        color: "warning",
+        class:
+          "bg-accent-warning-muted shadow-badge-accent-warning text-accent-warning-muted-contrast"
+      },
+      {
+        variant: "muted",
+        color: "success",
+        class:
+          "bg-accent-success-muted shadow-badge-accent-success text-accent-success-muted-contrast"
+      },
+      {
+        variant: "muted",
+        color: "info",
+        class:
+          "bg-accent-info-muted shadow-badge-accent-info text-accent-info-muted-contrast"
       }
-    ],
-    defaultVariants: {
-      variant: "flat",
-      color: "base"
-    }
+    ]
   }
 );
 
+const labelVariants = cva("px-1");
+
+const iconVariants = cva("[&>svg]:p-px");
+
+const closeVariants = cva("size-3 cursor-pointer");
+
 // -----------------------------------------------------------------------------
 export default {
-  badge: badgeVariants
+  badge: {
+    root: badgeVariants,
+    label: labelVariants,
+    icon: iconVariants,
+    close: closeVariants
+  }
 };

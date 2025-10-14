@@ -12,9 +12,13 @@ import type { IconProps } from "../icon";
 import type { AvatarProps } from "../avatar";
 import type { ButtonProps } from "../button";
 
-import type { itemVariants, contentVariants } from "./combobox.config";
+import type {
+  itemVariants,
+  contentVariants,
+  triggerVariants
+} from "./combobox.config";
 type ContentVariantsProps = VariantProps<typeof contentVariants>;
-type ItemVariantProps = VariantProps<typeof itemVariants>;
+type TriggerVariantProps = VariantProps<typeof triggerVariants>;
 
 export interface ComboboxItemProps {
   label: string;
@@ -53,17 +57,18 @@ export interface ComboboxProps
   // --- Search
   search?: boolean | ComboboxSearchFunction;
   placeholder?: string;
+  searchPlaceholder?: string;
   emptyMessage?: string;
   checkedIcon?: boolean;
   // --- variants
-  size?: ButtonProps["size"];
-  color?: ItemVariantProps["color"] | string;
-  variant?: ButtonProps["variant"];
-  width?: ContentVariantsProps["width"] | string;
-  iconSize?: IconProps["size"];
-  // --- styles
+  size?: TriggerVariantProps["size"];
+  width?: ContentVariantsProps["width"];
+  dropdownWidth?: TriggerVariantProps["dropdownWidth"];
   ring?: boolean;
+  // --- styles
   uiConfig?: { combobox: CxOptions };
   class?: HTMLAttributes["class"];
   popoverClass?: HTMLAttributes["class"];
+  dataHover?: boolean;
+  dataFocus?: boolean;
 }

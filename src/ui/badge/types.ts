@@ -13,10 +13,11 @@ export interface BadgeProps {
   label?: string;
   icon?: string | Icon;
   appendIcon?: string | Icon;
+  close?: boolean;
   // --- variants
-  color?: BadgeVariantProps["color"] | string;
-  variant?: BadgeVariantProps["variant"] | string;
-  size?: BadgeVariantProps["size"] | string;
+  color?: BadgeVariantProps["color"];
+  variant?: BadgeVariantProps["variant"];
+  size?: BadgeVariantProps["size"];
   // --- styles
   uiConfig?: { badge: CxOptions };
   class?: HTMLAttributes["class"];

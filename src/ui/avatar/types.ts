@@ -12,15 +12,14 @@ export interface AvatarProps {
   src?: string;
   caption?: string;
   icon?: IconProps["icon"];
-  animatedIcon?: AnimatedIconProps | string;
+  animatedIcon?: AnimatedIconProps;
   // ---
   focusable?: boolean;
   // ---
-  color?: AvatarVariantProps["color"] | string;
-  fit?: AvatarVariantProps["fit"] | string;
-  size?: AvatarVariantProps["size"] | string;
-  shape?: AvatarVariantProps["shape"] | string;
-  variant?: AvatarVariantProps["variant"] | string;
+  color?: AvatarVariantProps["color"];
+  fit?: AvatarVariantProps["fit"];
+  shape?: AvatarVariantProps["shape"];
+  size?: AvatarVariantProps["size"];
   // ---
   uiConfig?: { avatar: CxOptions };
   class?: HTMLAttributes["class"];

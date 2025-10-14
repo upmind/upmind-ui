@@ -3,6 +3,8 @@
     v-model="modelValue"
     v-bind="delegatedProps"
     :class="cn(styles.textarea, props.class)"
+    :data-hover="props.dataHover"
+    :data-focus="props.dataFocus"
   />
 </template>
 
@@ -46,7 +48,7 @@ const modelValue = useVModel(props, "modelValue", emits, {
 });
 
 const meta = computed(() => ({
-  size: props.size
+  //
 }));
 
 const styles = useStyles(

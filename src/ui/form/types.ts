@@ -43,7 +43,7 @@ export interface FormProps<T = Record<string, any>> {
   readonly?: boolean;
   // ---
   size?: FormVariantProps["size"] | string;
-  color?: ButtonProps["color"];
+  variant?: ButtonProps["variant"];
   requiredText?: string;
   optionalText?: string;
   // ---

@@ -1,3 +1,4 @@
+a
 <template>
   <PaginationRoot
     v-slot="{ page, pageCount }"
@@ -7,7 +8,7 @@
     <PaginationList :class="cn(styles.pagination.root, props.class)">
       <PaginationPrev as-child>
         <Button
-          variant="control"
+          variant="subtle"
           size="lg"
           :class="styles.pagination.button"
           :disabled="page <= 1"
@@ -25,7 +26,7 @@
 
       <PaginationNext as-child>
         <Button
-          variant="control"
+          variant="subtle"
           size="lg"
           :class="styles.pagination.button"
           :disabled="page >= pageCount"

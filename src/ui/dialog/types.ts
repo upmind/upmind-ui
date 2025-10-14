@@ -27,6 +27,7 @@ export interface DialogProps
   description?: string;
   // ---
   noHeader?: boolean;
+  noFooter?: boolean;
   // ---
   open?: boolean;
   dismissable?: boolean;
@@ -34,7 +35,6 @@ export interface DialogProps
   size?: DialogContentVariantProps["size"] | string;
   overflow?: DialogContentVariantProps["overflow"] | string;
   fit?: DialogContentVariantProps["fit"] | string;
-  skrim?: DialogOverlayVariantProps["skrim"] | string;
 
   // ---
   uiConfig?: {

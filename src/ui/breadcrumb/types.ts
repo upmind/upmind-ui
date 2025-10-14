@@ -3,7 +3,7 @@ import { type HTMLAttributes } from "vue";
 import type { CxOptions } from "class-variance-authority";
 
 // --- internal
-import type { ButtonProps } from "../button/types";
+import type { LinkProps } from "../link/types";
 import type { RouterLinkProps } from "vue-router";
 
 export interface BreadcrumbItem extends RouterLinkProps {
@@ -17,7 +17,7 @@ export interface BreadcrumbItem extends RouterLinkProps {
 export interface BreadcrumbConsolidateProps {
   items: BreadcrumbItem[];
   // --- variants
-  size?: ButtonProps["size"] | string;
+  size?: LinkProps["size"];
   separator?: string;
   // --- styles
   uiConfig?: { breadcrumbConsolidate?: CxOptions };

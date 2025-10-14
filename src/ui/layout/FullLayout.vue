@@ -19,7 +19,7 @@
         <div :class="styles.full.main">
           <slot name="default" />
 
-          <footer>
+          <footer v-if="meta.hasFooter">
             <slot name="footer" />
           </footer>
         </div>
@@ -60,6 +60,7 @@ const meta = computed(() => {
     isSticky: props.sticky,
     hasHeader: !isEmptySlot("header", slots),
     hasContent: !isEmptySlot("default", slots),
+    hasFooter: !isEmptySlot("footer", slots),
     isMinimal: props.minimal,
     hasControls:
       !isEmptySlot("controls", slots) ||

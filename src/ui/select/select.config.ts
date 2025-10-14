@@ -1,30 +1,35 @@
 import { cva } from "class-variance-authority";
-import { ringClasses, invalidRingClasses } from "../../assets/ring.styles";
+import { ringClasses, invalidRingClasses } from "../../assets/styles";
 // -----------------------------------------------------------------------------
 
+export const variants = {
+  variant: {
+    outline:
+      "bg-control-surface [&:hover,&:focus-within,&[data-hover=true],&[data-focus=true]]:shadow-control-hover shadow-control-default",
+    ghost:
+      "[&:hover,&:focus-within,&[data-hover=true],&[data-focus=true]]:bg-button-ghost-hover"
+  },
+  width: {
+    auto: "w-auto min-w-40",
+    full: "w-full"
+  },
+  size: {
+    md: "text-sm",
+    lg: "text-md"
+  },
+  hasRing: {
+    true: `${ringClasses} ${invalidRingClasses}`,
+    false:
+      "ring-0 ring-transparent outline-none focus:ring-0 focus:ring-transparent focus:outline-none"
+  }
+};
+
 export const rootVariants = cva(
-  "bg-control-background text-md text-control-foreground placeholder:text-muted-foreground flex cursor-pointer rounded px-4 py-2 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50",
+  `control-radius group flex cursor-pointer border-none px-4 py-2 transition-all duration-200`,
   {
-    variants: {
-      variant: {
-        outline: "shadow-border-control border-none",
-        ghost: "border-none"
-      },
-      width: {
-        auto: "w-auto min-w-15",
-        full: "w-full"
-      },
-      size: {
-        sm: "text-sm",
-        md: "text-md"
-      },
-      hasRing: {
-        true: `ring-offset-background ${ringClasses} ${invalidRingClasses}`,
-        false:
-          "ring-0 ring-transparent outline-none focus:ring-0 focus:ring-transparent focus:outline-none"
-      }
-    },
+    variants,
     defaultVariants: {
+      variant: "outline",
       width: "full"
     }
   }
@@ -38,13 +43,22 @@ export default {
       variants: {
         hasValue: {
           true: "",
-          false: "text-emphasis-disabled"
-        }
+          false:
+            "text-faint transition-colors duration-200 [.group:focus-within_&,.group[data-focus=true]_&]:text-base [.group:hover_&,.group[data-hover=true]_&]:text-base"
+        },
+        size: variants.size
       }
     }),
     item: cva(
-      "focus:bg-control-active-hover focus:text-control-foreground data-[state=unchecked]:text-emphasis-medium hover:!text-emphasis-none focus:!text-emphasis-none text-md cursor-pointer gap-3 rounded px-4 py-2 font-medium transition-all duration-300"
+      "data-[state=unchecked]:text-muted data-[state=unchecked]:hover:text-control-selected data-[highlighted]:!text-control-selected data-[state=checked]:bg-control-selected data-[state=checked]:text-control-selected cursor-pointer gap-3 rounded px-4 py-2 font-normal transition-all duration-200",
+      {
+        variants: {
+          size: variants.size
+        }
+      }
     ),
-    content: cva("mt-2 p-2")
+    content: cva(
+      `control-radius shadow-control-default bg-control-surface ring-primitive-control-default! my-2 border-none ${ringClasses} ${invalidRingClasses} p-0`
+    )
   }
 };

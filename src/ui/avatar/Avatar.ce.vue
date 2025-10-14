@@ -27,7 +27,7 @@
         v-if="meta.hasCaption"
         class="absolute top-0 right-0 bottom-0 left-0 z-0 inline-flex items-center justify-center text-center"
       >
-        {{ caption }}
+        <span>{{ caption }}</span>
       </span>
     </slot>
   </AvatarRoot>
@@ -65,11 +65,10 @@ const props = withDefaults(defineProps<AvatarProps>(), {
   src: "",
   caption: "",
   //  --- styles
-  color: "base",
+  color: "primary",
   fit: "cover",
   shape: "circle",
-  size: "auto",
-  variant: "flat",
+  size: "xs",
 
   // --- styles
   uiConfig: () => ({ avatar: [] }),
@@ -81,7 +80,6 @@ const meta = computed(() => ({
   fit: props.fit,
   shape: props.shape,
   size: props.size,
-  variant: props.variant,
   focusable: props.focusable,
   // ---
   hasIcon: !isEmpty(props.icon),

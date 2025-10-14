@@ -1,30 +1,46 @@
 <template>
   <!--<link rel="stylesheet" :href="stylesheet" />-->
 
-  <Alert :class="cn(styles.alert, props.class)">
-    <div class="flex items-center justify-start gap-2">
-      <Icon v-if="icon" :icon="icon" size="2xs" />
-      <div class="text-md/tight flex w-full items-center justify-between gap-2">
-        <AlertTitle class="font-medium">
+  <Alert :class="cn(styles.alert.root, props.class)">
+    <header class="flex items-start justify-start gap-3">
+      <Icon
+        v-if="icon"
+        :icon="icon"
+        size="2xs"
+        :class="styles.alert.icon"
+        class="p-0.5"
+      />
+      <div class="text-md/tight w-full gap-2">
+        <AlertTitle :class="styles.alert.title">
           <slot name="title">
             <span>{{ title }}</span>
           </slot>
         </AlertTitle>
 
-        <slot name="action" />
+        <AlertDescription
+          v-if="description || $slots['description']"
+          :class="styles.alert.description"
+        >
+          <slot name="description">
+            {{ description }}
+          </slot>
+        </AlertDescription>
+
+        <slot></slot>
       </div>
-    </div>
+    </header>
 
-    <AlertDescription
-      v-if="description || $slots['description']"
-      class="text-md/tight"
-    >
-      <slot name="description">
-        {{ description }}
+    <footer v-if="action || $slots['action']">
+      <slot name="action">
+        <div class="flex items-center gap-0.5">
+          <Link size="sm" color="inherit" :label="action">
+            <template #append>
+              <Icon icon="arrow-right" class="p-1.5 [&>svg]:size-3" />
+            </template>
+          </Link>
+        </div>
       </slot>
-    </AlertDescription>
-
-    <slot></slot>
+    </footer>
   </Alert>
 </template>
 
@@ -44,6 +60,7 @@ import {
 import Alert from "./Alert.vue";
 import AlertTitle from "./AlertTitle.vue";
 import AlertDescription from "./AlertDescription.vue";
+import { Link } from "../link";
 import { Icon } from "../icon";
 
 // --- types
@@ -53,8 +70,9 @@ import type { AlertProps } from "./types";
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<AlertProps>(), {
   // --- styles
-  variant: "solid",
-  color: "base",
+  variant: "muted",
+  color: "neutral",
+  size: "md",
   // --- styles
   uiConfig: () => ({ alert: [] }),
   class: ""
@@ -73,7 +91,8 @@ defineSlots<{
 
 const meta = computed(() => ({
   variant: props.variant,
-  color: props.color
+  color: props.color,
+  size: props.size
 }));
 
 const styles = useStyles(
@@ -81,5 +100,13 @@ const styles = useStyles(
   meta,
   config,
   props.uiConfig ?? {}
-) as ComputedRef<{ alert: string }>;
+) as ComputedRef<{
+  alert: {
+    root: string;
+    title: string;
+    description: string;
+    icon: string;
+    action: string;
+  };
+}>;
 </script>

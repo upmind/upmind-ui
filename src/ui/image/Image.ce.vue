@@ -33,6 +33,7 @@
   <figure
     v-if="!meta.isCarousel"
     :class="cn(styles.image.container, props.class)"
+    :style="meta.isEmpty ? fallbackStyle : ''"
   >
     <!-- Single image with fallback -->
     <picture v-if="!meta.isEmpty">
@@ -44,10 +45,9 @@
         @error="error = true"
       />
     </picture>
-
     <!-- Fallback icon -->
     <div v-if="meta.isEmpty" :class="cn(styles.image.root)">
-      <Icon icon="camera" size="xl" :class="styles.image.icon" />
+      <Icon :icon="props.icon" size="lg" :class="styles.image.icon" />
     </div>
   </figure>
 </template>
@@ -66,7 +66,7 @@ import config from "./image.config";
 
 // --- utils
 import { isEmpty, isArray, isString } from "lodash-es";
-import { useStyles, cn } from "../../utils";
+import { useStyles, cn, getComputedColor } from "../../utils";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -76,7 +76,8 @@ import type { CarouselApi } from "../carousel";
 const props = withDefaults(defineProps<ImageProps>(), {
   ratio: "1:1",
   fit: "cover",
-  carousel: true
+  carousel: true,
+  icon: "camera-off"
 });
 
 const meta = computed(() => ({
@@ -137,4 +138,9 @@ function selectImage(index: number) {
 function isSelected(index: number) {
   return imageIndex.value === index;
 }
+
+const fallbackStyle = computed(() => {
+  const color = getComputedColor("accent-neutral");
+  return `background: radial-gradient(${color} 2px, transparent 2px) 50% 50% / 20px 20px repeat;`;
+});
 </script>
