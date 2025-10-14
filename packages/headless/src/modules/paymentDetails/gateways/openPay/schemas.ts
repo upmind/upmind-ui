@@ -53,30 +53,13 @@ export const useSchema = (context: GatewayContext) => {
             type: "string",
             title: "Cardholder Name"
           },
-          expiration_month: {
+
+          expiration_date: {
             type: "string",
-            minLength: 2,
-            maxLength: 2,
-            // Pattern matches two digits for month (01-12)
-            pattern: "^(0[1-9]|1[0-2])$",
-            title: "Expiration Month",
-            enum: Array.from({ length: 12 }, (_, i) =>
-              (1 + i).toString().padStart(2, "0")
-            )
-            // description: "Two digit month, extracted from MM/YYYY or MM/YY"
-          },
-          expiration_year: {
-            type: "string",
-            minLength: 2,
-            maxLength: 2,
-            // Pattern matches two digits, as extracted from MM/YYYY or MM/YY formats
-            pattern: "^\\d{2}$",
-            enum: Array.from({ length: 8 }, (_, i) =>
-              (new Date().getFullYear() + i).toString().slice(-2)
-            ),
-            title: "Expiration Year"
-            // description:
-            //   "Last two digits of the year, extracted from MM/YYYY or MM/YY"
+            minLength: 5,
+            maxLength: 5,
+            // Pattern matches two digits, as extracted from MM/YY or MM/YY formats
+            pattern: "^(0[1-9]|1[0-2])/[0-9]{2}$"
           },
 
           cvv2: {
@@ -118,7 +101,8 @@ export const useUischema = (context: GatewayContext) => {
         scope: "#/properties/openpay/properties/card_number",
         i18n: "form.card_num",
         options: {
-          autocomplete: "cc-number"
+          autocomplete: "cc-number",
+          mask: /^[0-9]*$/
         }
       },
       {
@@ -126,31 +110,24 @@ export const useUischema = (context: GatewayContext) => {
         elements: [
           {
             type: "Control",
-            scope: "#/properties/openpay/properties/expiration_month",
-            i18n: "form.card_expiry_month",
+            scope: "#/properties/openpay/properties/expiration_date",
+            i18n: "form.card_expiry",
             options: {
               autocomplete: "cc-exp-month",
               trim: true,
-              placeholder: "MM"
+              placeholder: "MM/YY",
+              mask: "00/00"
             }
           },
-          {
-            type: "Control",
-            scope: "#/properties/openpay/properties/expiration_year",
-            i18n: "form.card_expiry_year",
-            options: {
-              autocomplete: "cc-exp-year",
-              trim: true,
-              placeholder: "YY"
-            }
-          },
+
           {
             type: "Control",
             scope: "#/properties/openpay/properties/cvv2",
             i18n: "form.card_cvv",
             options: {
               autocomplete: "cc-csc",
-              trim: true
+              trim: true,
+              mask: /^[0-9]*$/
             }
           }
         ]
