@@ -46,12 +46,8 @@ export default {
   tooltip: {
     content: contentVariants,
     arrow: arrowVariants,
-<<<<<<< HEAD
-    trigger: cva("text-inherit no-underline ring-0 ring-transparent focus:ring-0 focus-visible:ring-0 focus-within:ring-0 outline-none")
-=======
     trigger: cva(
       "text-inherit no-underline ring-0 ring-transparent outline-none focus-within:ring-0 focus:ring-0 focus-visible:ring-0"
     )
->>>>>>> main
   }
 };
