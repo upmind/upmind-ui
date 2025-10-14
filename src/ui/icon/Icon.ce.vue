@@ -22,10 +22,3 @@ const meta = computed(() => ({
   hasIconError: props.fallback && iconError.value
 }));
 </script>
-
-<style scoped>
-svg path {
-  vector-effect: non-scaling-stroke;
-  stroke-width: var(--stroke-icon, 2px);
-}
-</style>

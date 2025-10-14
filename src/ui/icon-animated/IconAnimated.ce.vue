@@ -24,7 +24,6 @@ import config from "./iconAnimated.config";
 // --- types
 import type { ComputedRef } from "vue";
 import type { AnimatedIconProps } from "./types";
-import { ICON_STROKE_KEY } from "../../utils/injectionKeys";
 
 const props = withDefaults(defineProps<AnimatedIconProps>(), {
   trigger: "loop",
@@ -41,10 +40,15 @@ const meta = computed(() => ({
 }));
 
 const iconData = ref("");
-const strokeData = inject(ICON_STROKE_KEY);
 
 const stroke = computed(() => {
-  return strokeData?.value || "regular";
+  const cssValue = getComputedStyle(document.documentElement)
+    .getPropertyValue("--stroke-icon")
+    .trim();
+
+  const pxValue = parseFloat(cssValue) || 2;
+
+  return Math.min(Math.max(Math.ceil(pxValue), 1), 3);
 });
 
 const icons = import.meta.glob("@animations/**/*.json", {

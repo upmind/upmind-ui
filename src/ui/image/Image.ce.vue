@@ -60,6 +60,7 @@ import { ref, computed } from "vue";
 // --- components
 import { Carousel, CarouselContent } from "../carousel";
 import CarouselImage from "./CarouselImage.vue";
+import { Icon } from "../icon";
 
 // --- internal
 import config from "./image.config";
