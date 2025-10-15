@@ -15,7 +15,7 @@
         <Header
           :badge="{
             label: t('text.fully_encrypted_title'),
-            icon: 'lock'
+            icon: 'lock-04'
           }"
           :title="t('action.log_in_to_your_account')"
         >

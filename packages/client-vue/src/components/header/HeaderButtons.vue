@@ -7,7 +7,7 @@
       variant="subtle"
       size="lg"
       @click="navigate(ROUTE.BASKET)"
-      icon="cart"
+      icon="shopping-bag-02"
       pill
     />
 
@@ -16,7 +16,7 @@
         size="lg"
         variant="outline"
         :label="t('action.login')"
-        icon="account"
+        icon="user-circle"
         pill
         data-testid="login-popover-trigger"
       />
