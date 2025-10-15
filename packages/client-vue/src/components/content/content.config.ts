@@ -27,7 +27,7 @@ export const titleVariants = cva("font-display m-0 [&_strong]:font-medium", {
 
 export default {
   page: cva(
-    "bg-background flex w-full max-w-none grow flex-wrap text-base transition-colors"
+    "flex w-full max-w-none grow flex-wrap text-base transition-colors"
   ),
   title: titleVariants,
   description: cva("text-muted my-0 text-sm"),
