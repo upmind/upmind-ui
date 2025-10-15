@@ -121,11 +121,12 @@ async function validate(context: OpenPayContext, _event: AnyEventObject) {
       debugger;
       const now = new Date();
 
-      // Stripe-like logic: convert 2-digit year to 4-digit year in current century, unless >20 years in the past, then add 100 years
+      // Only apply the 'add 100 years' logic if we're in the last decade of the century
       const currentFullYear = now.getFullYear();
       const currentCentury = currentFullYear - (currentFullYear % 100);
+      const currentYearInCentury = currentFullYear % 100;
       let fullYear = currentCentury + parseInt(year, 10);
-      if (fullYear < currentFullYear - 20) {
+      if (currentYearInCentury >= 90 && fullYear < currentFullYear - 20) {
         fullYear += 100;
       }
       year = fullYear.toString();
