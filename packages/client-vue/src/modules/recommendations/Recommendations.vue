@@ -48,6 +48,7 @@
 
 <script lang="ts" setup>
 // --- external
+import { watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -63,7 +64,6 @@ import { Card, Button, Layout } from "@upmind-automation/upmind-ui";
 import Configure from "./components/Configure.vue";
 import CardsCarousel from "./components/CardsCarousel.vue";
 import Header from "../../components/content/Header.vue";
-import { watch } from "vue";
 
 // -----------------------------------------------------------------------------
 
