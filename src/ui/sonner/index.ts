@@ -9,3 +9,6 @@ export { type SonnerProps } from "./types";
 // --- custom elements
 import Sonner from "./Sonner.ce.vue";
 export const UpmSonner = defineCustomElement(Sonner);
+
+// --- types
+export * from "./types";
