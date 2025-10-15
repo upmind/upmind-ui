@@ -134,7 +134,7 @@ async function validate(context: OpenPayContext, _event: AnyEventObject) {
 
       // set the date to the first of the month
       // this means that if a card expires in the current month, it is still valid until the end of the month
-      const expiry = new Date(Date.parse(`01/${month}/${year}`));
+      const expiry = new Date(year, month, 1);
 
       if (expiry <= now) {
         throw new DetailedError(
