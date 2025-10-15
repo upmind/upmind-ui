@@ -10,7 +10,7 @@ import {
 
 // --- utils
 const { useImageUrl } = utils;
-import { forEach, has, isEmpty, uniq, compact } from "lodash-es";
+import { forEach, has, isEmpty, uniq, compact, isString } from "lodash-es";
 import type { IImage } from "../../../../types/src";
 
 // import { IBrandMetaToken } from "@upmind-automation/headless";
@@ -65,7 +65,7 @@ export function setTokens(theme: Theme) {
   // - :has([data-theme="dark"]) only applies when the DOM contains data-theme="dark"
   // - This creates a CSS cascade where dark theme variables override base theme
   // - Without this, theme variables would be scoped only to the themed element
-  if (themeCSS.includes("[data-theme=")) {
+  if (isString(themeCSS) && themeCSS.includes("[data-theme=")) {
     themeCSS = themeCSS.replace(
       /\[data-theme="([^"]+)"\]\s*{/g,
       ':root:has([data-theme="$1"]) {'
