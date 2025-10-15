@@ -1,5 +1,4 @@
 {
-  "basket_count": "kosong|{count} barang|{count} barang-barang",
   "basket_items": "tidak ada item di keranjang | {count} barang dalam keranjang | {count} barang dalam keranjang",
   "basket_product_missing_data": "Item kehilangan data",
   "basket_product_missing_data_help": "Item ini kehilangan data dan memerlukan perhatian",
@@ -24,6 +23,7 @@
   "order_processing_msg": "Kami sedang memproses pesanan Anda. Proses ini hanya membutuhkan waktu beberapa saat.",
   "order_unsuccessful": "**Tidak dapat** menyelesaikan pesanan Anda",
   "order_unsuccessful_md": "@.markdown:{'cart.order_unsuccessful'}",
+  "pay_with_stored": "Bayar dengan metode yang sudah ada",
   "payment_awaiting_approval": "**Menunggu** persetujuan",
   "payment_awaiting_approval_md": "@.markdown:{'text.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "Kami sedang menunggu persetujuan. Proses ini hanya akan memakan waktu beberapa saat.",

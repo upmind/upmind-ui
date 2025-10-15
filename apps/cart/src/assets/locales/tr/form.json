@@ -127,6 +127,9 @@
   "store_on_payment": {
     "label": "Ödeme ayrıntılarını kaydet"
   },
+  "stored_payment_method": {
+    "label": "Kayıtlı ödeme yöntemlerinizden birini seçin"
+  },
   "taxNumber": {
     "label": "Vergi Numarası",
     "placeholder": "Vergi Kimlik No"

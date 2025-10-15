@@ -1,5 +1,4 @@
 {
-  "basket_count": "prázdny |{count} položka|{count} položky",
   "basket_items": "žiadne položky v košíku | {count} položka v košíku | {count} položky v košíku",
   "basket_product_missing_data": "Chýbajúce údaje v položke",
   "basket_product_missing_data_help": "Tejto položke chýbajú údaje a vyžaduje si pozornosť.",
@@ -24,6 +23,7 @@
   "order_processing_msg": "Spracovávame vašu objednávku. Malo by to trvať len chvíľu.",
   "order_unsuccessful": "**Nepodarilo sa** dokončiť vašu objednávku",
   "order_unsuccessful_md": "@.markdown:{'cart.order_unsuccessful'}",
+  "pay_with_stored": "Zaplaťte existujúcou metódou",
   "payment_awaiting_approval": "**Čakám** na schválenie",
   "payment_awaiting_approval_md": "@.markdown:{'text.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "Čakáme na schválenie. Malo by to trvať len chvíľu.",

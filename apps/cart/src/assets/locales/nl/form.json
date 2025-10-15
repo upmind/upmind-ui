@@ -127,6 +127,9 @@
   "store_on_payment": {
     "label": "Bewaar betalingsgegevens"
   },
+  "stored_payment_method": {
+    "label": "Selecteer een van uw opgeslagen betaalmethoden"
+  },
   "taxNumber": {
     "label": "Belastingnummer",
     "placeholder": "Belastingnummer"

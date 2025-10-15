@@ -1,5 +1,4 @@
 {
-  "basket_count": "空|{count}項目|{count}專案",
   "basket_items": "購物籃中沒有商品 | {count} 購物籃中的商品 | {count} 籃子中的物品",
   "basket_product_missing_data": "項目缺失資料",
   "basket_product_missing_data_help": "此項缺少數據，需要注意",
@@ -24,6 +23,7 @@
   "order_processing_msg": "我們正在處理您的訂單。這只需要一點時間。",
   "order_unsuccessful": "**無法**完成您的訂單",
   "order_unsuccessful_md": "@.markdown：{'cart.order_unsuccessful'}",
+  "pay_with_stored": "使用現有的付款方式",
   "payment_awaiting_approval": "**等待**批准",
   "payment_awaiting_approval_md": "@.markdown：{'text.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "我們正在等待批准。這應該只需要一點時間。",

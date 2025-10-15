@@ -127,6 +127,9 @@
   "store_on_payment": {
     "label": "Simpan detail pembayaran"
   },
+  "stored_payment_method": {
+    "label": "Pilih salah satu metode pembayaran yang tersimpan"
+  },
   "taxNumber": {
     "label": "Nomor Pajak",
     "placeholder": "Nomor Pajak"

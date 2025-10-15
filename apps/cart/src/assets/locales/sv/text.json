@@ -19,6 +19,7 @@
   "copyright": "© {year} {name}. All rights reserved.",
   "default_label": "Standard",
   "discount": "Rabatt",
+  "expires_abbr": "Exp.",
   "forgot_your_password_qn": "Glömt ditt lösenord?",
   "free": "GRATIS",
   "free_trial": "Gratis provperiod",
