@@ -118,7 +118,6 @@ async function validate(context: OpenPayContext, _event: AnyEventObject) {
       const month =
         model?.openpay.expiration_date.match(/^(\d{2})\/\d{2}$/)?.[1] || "";
 
-      debugger;
       const now = new Date();
 
       // If the current year is in the last decade of the century (e.g., 1990-1999),
