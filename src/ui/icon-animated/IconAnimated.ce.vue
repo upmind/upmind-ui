@@ -55,6 +55,7 @@ const stroke = computed(() => {
   // Math.max() - Ensure minimum value of 1 = light stroke weight
   // Math.min() - Ensure maximum value of 3 = bold stroke weight
   // Final result: 1 = light, 2 = regular, 3 = bold
+  // Examples: 1px → 1 (light), 1.5px → 2 (regular), 2px → 2 (regular)
   return Math.min(Math.max(Math.ceil(pxValue), 1), 3);
 });
 
