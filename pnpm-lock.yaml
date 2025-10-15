@@ -778,9 +778,6 @@ importers:
       vue-i18n:
         specifier: ^11.1.1
         version: 11.1.11(vue@3.5.18(typescript@5.9.2))
-      vue-imask:
-        specifier: ^7.6.1
-        version: 7.6.1(vue@3.5.18(typescript@5.9.2))
       vue-router:
         specifier: ^4.5.0
         version: 4.5.1(vue@3.5.18(typescript@5.9.2))
@@ -9359,11 +9356,6 @@ packages:
     engines: {node: '>= 16'}
     peerDependencies:
       vue: ^3.0.0
-
-  vue-imask@7.6.1:
-    resolution: {integrity: sha512-/5ZVNerI9Dn6gZ/cSCYGiZK4JHdwsEBgHBTRpVwS2U0URxK/Jt5FlQuoL1DhbxC6t4ElcVMWYOvkE2hR8hdt1w==}
-    peerDependencies:
-      vue: '>=2.7'
 
   vue-inbrowser-compiler-independent-utils@4.71.1:
     resolution: {integrity: sha512-K3wt3iVmNGaFEOUR4JIThQRWfqokxLfnPslD41FDZB2ajXp789+wCqJyGYlIFsvEQ2P61PInw6/ph5iiqg51gg==}
@@ -18195,14 +18187,6 @@ snapshots:
       '@intlify/shared': 11.1.11
       '@vue/devtools-api': 6.6.4
       vue: 3.5.18(typescript@5.9.2)
-
-  vue-imask@7.6.1(vue@3.5.18(typescript@5.9.2)):
-    dependencies:
-      imask: 7.6.1
-      vue: 3.5.18(typescript@5.9.2)
-      vue-demi: 0.14.10(vue@3.5.18(typescript@5.9.2))
-    transitivePeerDependencies:
-      - '@vue/composition-api'
 
   vue-inbrowser-compiler-independent-utils@4.71.1(vue@3.5.18(typescript@5.9.2)):
     dependencies:
