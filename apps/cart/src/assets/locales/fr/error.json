@@ -80,7 +80,7 @@
   "payment_gateway_update_failed": "Nous avons rencontré une erreur lors de la mise à jour de la passerelle de paiement",
   "payment_gateway_validation_failed": "La validation de la passerelle de paiement a échoué",
   "payment_gateways_not_available_msg": "Vous pouvez toujours passer commande maintenant et finaliser le paiement ultérieurement. Notre équipe d&#39;assistance sera là pour vous aider.",
-  "payment_gateways_not_available_title": "Il n'existe aucune option de paiement pour la devise que vous avez sélectionnée ({currency}) ou votre pays ({country}).",
+  "payment_gateways_not_available_title": "Il n'y a pas d'options de paiement pour la devise ou le pays de facturation que vous avez sélectionnés.",
   "payment_process_failed": "Nous avons rencontré une erreur lors du traitement de votre paiement",
   "product_not_available": "Produit non disponible",
   "product_not_found": "Désolé, le produit que vous recherchez n'existe pas.",

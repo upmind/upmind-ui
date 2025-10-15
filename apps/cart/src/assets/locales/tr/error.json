@@ -80,7 +80,7 @@
   "payment_gateway_update_failed": "Ödeme ağ geçidini güncellerken bir hatayla karşılaştık",
   "payment_gateway_validation_failed": "Ödeme ağ geçidi doğrulaması başarısız oldu",
   "payment_gateways_not_available_msg": "Siparişinizi şimdi verebilir ve ödemenizi daha sonra tamamlayabilirsiniz. Destek ekibimiz size yardımcı olacaktır.",
-  "payment_gateways_not_available_title": "Seçtiğiniz para birimi için ödeme seçeneği bulunmamaktadır ({currency} ) veya ülke ({country} )",
+  "payment_gateways_not_available_title": "Seçtiğiniz para birimi veya fatura ülkeniz için ödeme seçeneği bulunmamaktadır",
   "payment_process_failed": "Ödemenizi işlerken bir hatayla karşılaştık",
   "product_not_available": "Ürün mevcut değil",
   "product_not_found": "Üzgünüz, aradığınız ürün bulunamadı.",

@@ -80,7 +80,7 @@
   "payment_gateway_update_failed": "Er is een fout opgetreden bij het bijwerken van de betalingsgateway",
   "payment_gateway_validation_failed": "Validatie van betalingsgateway mislukt",
   "payment_gateways_not_available_msg": "U kunt uw bestelling nu plaatsen en later betalen. Ons supportteam helpt u graag verder.",
-  "payment_gateways_not_available_title": "Er zijn geen betalingsopties voor uw geselecteerde valuta ({currency} ) of land ({country} )",
+  "payment_gateways_not_available_title": "Er zijn geen betalingsopties voor uw geselecteerde valuta of factureringsland",
   "payment_process_failed": "Er is een fout opgetreden bij het verwerken van uw betaling",
   "product_not_available": "Product niet beschikbaar",
   "product_not_found": "Helaas, het product dat u zoekt bestaat niet.",

@@ -1,6 +1,7 @@
 <template>
   <div :class="styles.checkout.gateway">
     <Alert
+      variant="minimal"
       color="warning"
       icon="alert-triangle"
       :title="

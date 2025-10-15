@@ -80,7 +80,7 @@
   "payment_gateway_update_failed": "Si è verificato un errore durante l'aggiornamento del gateway di pagamento",
   "payment_gateway_validation_failed": "Convalida del gateway di pagamento non riuscita",
   "payment_gateways_not_available_msg": "Puoi comunque inviare il tuo ordine adesso e completare il pagamento in un secondo momento. Il nostro team di assistenza sarà lieto di aiutarti.",
-  "payment_gateways_not_available_title": "Non ci sono opzioni di pagamento per la valuta selezionata ({currency} ) o paese ({country} )",
+  "payment_gateways_not_available_title": "Non ci sono opzioni di pagamento per la valuta o il paese di fatturazione selezionati",
   "payment_process_failed": "Si è verificato un errore durante l'elaborazione del pagamento",
   "product_not_available": "Prodotto non disponibile",
   "product_not_found": "Spiacenti, il prodotto che stai cercando non esiste.",
