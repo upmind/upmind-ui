@@ -19,6 +19,7 @@
   "copyright": "© {year} {name}. All rights reserved.",
   "default_label": "Default",
   "discount": "Discount",
+  "expires_abbr": "Exp.",
   "forgot_your_password_qn": "Forgot your password?",
   "free": "FREE",
   "free_trial": "Free Trial",

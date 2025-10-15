@@ -19,6 +19,7 @@
   "copyright": "© {year} {name}. All rights reserved.",
   "default_label": "預設",
   "discount": "折扣",
+  "expires_abbr": "過期日",
   "forgot_your_password_qn": "忘記密碼了嗎？",
   "free": "自由的",
   "free_trial": "免費試用",

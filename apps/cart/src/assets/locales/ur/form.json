@@ -127,6 +127,9 @@
   "store_on_payment": {
     "label": "ادائیگی کی تفصیلات محفوظ کریں۔"
   },
+  "stored_payment_method": {
+    "label": "اپنے محفوظ کردہ ادائیگی کے طریقوں میں سے ایک منتخب کریں"
+  },
   "taxNumber": {
     "label": "ٹیکس نمبر",
     "placeholder": "ٹیکس کی شناخت"

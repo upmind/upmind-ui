@@ -1,5 +1,4 @@
 {
-  "basket_count": "vazio|{count} item|{count} Unid",
   "basket_items": "nenhum item no carrinho | {count} item na cesta | {count} itens na cesta",
   "basket_product_missing_data": "Dados faltantes do item",
   "basket_product_missing_data_help": "Este item não possui dados e requer atenção",
@@ -24,6 +23,7 @@
   "order_processing_msg": "Estamos processando seu pedido. Isso levará apenas alguns instantes.",
   "order_unsuccessful": "**Não foi possível** concluir seu pedido",
   "order_unsuccessful_md": "@.markdown:{'cart.order_unsuccessful'}",
+  "pay_with_stored": "Pague com um método existente",
   "payment_awaiting_approval": "**Aguardando** aprovação",
   "payment_awaiting_approval_md": "@.markdown:{'text.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "Estamos aguardando a aprovação. Isso deve levar apenas alguns instantes.",

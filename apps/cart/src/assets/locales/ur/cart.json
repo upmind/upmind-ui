@@ -1,5 +1,4 @@
 {
-  "basket_count": "خالی |{count} آئٹم |{count} اشیاء",
   "basket_items": "ٹوکری میں کوئی اشیاء نہیں | {count} ٹوکری میں شے | {count} ٹوکری میں اشیاء",
   "basket_product_missing_data": "آئٹم کا ڈیٹا غائب ہے۔",
   "basket_product_missing_data_help": "اس آئٹم میں ڈیٹا غائب ہے اور توجہ کی ضرورت ہے۔",
@@ -24,6 +23,7 @@
   "order_processing_msg": "ہم آپ کے آرڈر پر کارروائی کر رہے ہیں۔ اس میں صرف ایک لمحہ لگنا چاہئے۔",
   "order_unsuccessful": "آپ کا آرڈر مکمل کرنے میں **قابل**",
   "order_unsuccessful_md": "@.markdown:{'cart.order_unsuccessful'}",
+  "pay_with_stored": "موجودہ طریقہ سے ادائیگی کریں",
   "payment_awaiting_approval": "**منظوری کا انتظار**",
   "payment_awaiting_approval_md": "@.markdown:{'text.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "ہم منظوری کا انتظار کر رہے ہیں۔ اس میں صرف ایک لمحہ لگنا چاہئے۔",

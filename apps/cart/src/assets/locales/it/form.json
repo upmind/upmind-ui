@@ -127,6 +127,9 @@
   "store_on_payment": {
     "label": "Salva i dettagli del pagamento"
   },
+  "stored_payment_method": {
+    "label": "Seleziona uno dei tuoi metodi di pagamento memorizzati"
+  },
   "taxNumber": {
     "label": "Codice fiscale",
     "placeholder": "Codice fiscale"
