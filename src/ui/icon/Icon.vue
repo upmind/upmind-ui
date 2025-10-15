@@ -13,7 +13,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, ref, watchEffect } from "vue";
+import { computed, ref, watchEffect, inject } from "vue";
 
 // --- internal
 
@@ -30,6 +30,7 @@ import { find, isObject, endsWith, isEmpty, trimEnd } from "lodash-es";
 // --- types
 import type { ComputedRef } from "vue";
 import type { IconProps } from ".";
+import { ICON_VARIANT_KEY } from "../../utils/injectionKeys";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<IconProps>(), {
@@ -66,37 +67,42 @@ const icons = import.meta.glob("@icons/**/*.svg", {
 
 const svg = ref();
 
+const variant = inject(ICON_VARIANT_KEY);
+
 watchEffect(async () => {
-  const safePath = isObject(props.icon)
-    ? `${trimEnd(props.icon?.path, "/")}/`
-    : "";
+  const safeVariant = props.variant || variant?.value;
+  const safePath = isObject(props.icon) ? `${props.icon?.path}/` : "";
+  const safeName = isObject(props.icon) ? props.icon?.name : props.icon;
 
-  let filename = isObject(props.icon) ? props.icon?.name : props.icon;
+  // Try to find exact variant match first
+  const variantMatch = safeVariant
+    ? find(icons, (_, iconPath) =>
+        iconPath.endsWith(`/${safeVariant}/${safeName}.svg`)
+      )
+    : null;
 
-  // ensure we add the svg extension if provided
-  if (!endsWith(filename, ".svg")) filename += ".svg";
+  // Fallback to direct path match
+  const directMatch = find(
+    icons,
+    (_, iconPath) =>
+      iconPath.endsWith(`${safePath}${safeName}.svg`) &&
+      iconPath.endsWith(`/${safeName}.svg`)
+  );
 
-  const exactMatch = find(icons, (fn, iconPath) => {
-    const pathParts = iconPath.split("/");
-    return pathParts[pathParts.length - 1] === filename;
-  });
-
-  const asyncImport =
-    exactMatch ||
-    find(icons, (fn, iconPath) => endsWith(iconPath, `${safePath}${filename}`));
+  const asyncImport = variantMatch || directMatch;
 
   if (!asyncImport) {
     // console.warn("icon", "import not found", {
     //   icon: props.icon,
     //   icons
     // });
-    emit("error", new Error(`Icon not found: ${filename}`));
+    emit("error", new Error(`Icon not found: ${safeName}`));
     svg.value = null;
     return;
   }
 
   svg.value = await asyncImport().catch(() => {
-    emit("error", new Error(`Failed to process content: ${filename}`));
+    emit("error", new Error(`Failed to process content: ${safeName}`));
     return null;
   });
 });

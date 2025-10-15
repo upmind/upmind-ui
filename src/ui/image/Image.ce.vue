@@ -20,10 +20,11 @@
         :key="index"
         :class="styles.image.nav.item"
       >
-        <Icon
-          icon="ellipse"
-          size="3xs"
-          :class="[isSelected(index) ? '' : 'opacity-50']"
+        <div
+          :class="[
+            'h-2 w-2 cursor-pointer rounded-full bg-current',
+            isSelected(index) ? '' : 'opacity-50'
+          ]"
           @click="selectImage(index)"
         />
       </span>
@@ -57,9 +58,9 @@
 import { ref, computed } from "vue";
 
 // --- components
-import { Icon } from "../icon";
 import { Carousel, CarouselContent } from "../carousel";
 import CarouselImage from "./CarouselImage.vue";
+import { Icon } from "../icon";
 
 // --- internal
 import config from "./image.config";
@@ -77,7 +78,7 @@ const props = withDefaults(defineProps<ImageProps>(), {
   ratio: "1:1",
   fit: "cover",
   carousel: true,
-  icon: "camera-off"
+  icon: "camera-01"
 });
 
 const meta = computed(() => ({

@@ -54,8 +54,8 @@ const props = withDefaults(
   {
     labelMore: "Show more",
     labelLess: "Show less",
-    iconMore: "arrow-down",
-    iconLess: "arrow-up",
+    iconMore: "chevron-down",
+    iconLess: "chevron-up",
     lines: 3,
     forceOpen: false
   }
