@@ -3,6 +3,7 @@
     v-if="meta.isUnavailable"
     color="warning"
     icon="alert-triangle"
+    variant="minimal"
     :title="t('error.payment_gateway_not_available')"
     class="text-error!"
     :description="errors"
