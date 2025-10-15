@@ -17,7 +17,7 @@ export enum messageDisplays {
 
 export enum messageTypes {
   // DEBUG = "debug",
-  ERROR = "error",
+  DANGER = "danger",
   INFO = "info",
   SUCCESS = "success",
   WARNING = "warning"

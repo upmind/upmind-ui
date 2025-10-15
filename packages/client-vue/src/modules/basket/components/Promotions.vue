@@ -43,7 +43,6 @@
         :label="tooltipLabel(promotion)"
         :open="!!open[promotion.id]"
         :ui-config="{ trigger: ['rounded-pill'] }"
-        color="promo"
       >
         <Badge
           variant="solid"
@@ -55,14 +54,14 @@
           @mouseleave="toggleTooltip(promotion.id, false)"
         >
           <template #prepend>
-            <Button
+            <Link
               :disabled="meta.isProcessing"
               :loading="!!processing[promotion.id]"
               @click.prevent="doRemove(promotion.id)"
-              variant="ghost"
-              size="icon"
-              iconAppend="x-close"
-            />
+              color="inherit"
+            >
+              <Icon icon="x-close" size="nano" />
+            </Link>
           </template>
         </Badge>
       </Tooltip>
@@ -81,7 +80,7 @@ import { set } from "lodash-es";
 import Form from "../../../components/form/Form.vue";
 
 // --- custom elements
-import { Button, Badge, Tooltip, Link } from "@upmind-automation/upmind-ui";
+import { Icon, Badge, Tooltip, Link } from "@upmind-automation/upmind-ui";
 
 // --- internal
 import { useBasketPromotions } from "@upmind-automation/headless";

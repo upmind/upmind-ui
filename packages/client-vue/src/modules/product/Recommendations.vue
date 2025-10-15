@@ -23,7 +23,7 @@
         @resolve="doClose"
       />
 
-      <div
+      <section
         class="md:bg-control-surface md:border-surface control-radius mt-8 flex flex-col items-center justify-between bg-transparent p-0 md:mt-8 md:flex-row md:border md:px-8 md:py-6"
       >
         <div
@@ -41,7 +41,7 @@
           iconAppend="arrow-right"
           pill
         />
-      </div>
+      </section>
     </template>
   </Layout>
 </template>
