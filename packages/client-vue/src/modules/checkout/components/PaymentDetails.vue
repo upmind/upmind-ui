@@ -94,7 +94,7 @@
 
               <template #icon>
                 <Icon
-                  icon="arrow-down"
+                  icon="chevron-down"
                   size="xs"
                   :class="[
                     styles.checkout.accordion.trigger.icon,
