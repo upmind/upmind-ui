@@ -121,23 +121,23 @@ async function validate(context: OpenPayContext, _event: AnyEventObject) {
       debugger;
       const now = new Date();
 
-      // Stripe-like logic: convert 2-digit year to 4-digit year in current century, unless >20 years in the past, then add 100 years
+      // If the current year is in the last decade of the century (e.g., 1990-1999),
+      // and the provided 2-digit year is less than (current year - 20), we assume the card expiry is in the next century.
+      // This handles the common case where cards have a 2-digit expiry year and ensures that cards expiring
       const currentFullYear = now.getFullYear();
       const currentCentury = currentFullYear - (currentFullYear % 100);
+      const currentYearInCentury = currentFullYear % 100;
       let fullYear = currentCentury + parseInt(year, 10);
-      if (fullYear < currentFullYear - 20) {
+      if (currentYearInCentury >= 90 && fullYear < currentFullYear - 20) {
         fullYear += 100;
       }
       year = fullYear.toString();
 
-      // set the date to the first of the month at midnight
+      // set the date to the first of the month
       // this means that if a card expires in the current month, it is still valid until the end of the month
-      // e.g. if today is 15/06/2023, a card expiring 06/23 is valid until 30/06/2023 23:59
-      const expiry = new Date(Date.parse(`01/${month}/${year}`)); // parse to first of month at midnight
+      const expiry = new Date(Date.parse(`01/${month}/${year}`));
 
-      debugger;
       if (expiry <= now) {
-        debugger;
         throw new DetailedError(
           t("error.payment_gateway_validation_failed"),
           responseCodes.Unprocessable_Entity,

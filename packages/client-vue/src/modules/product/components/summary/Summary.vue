@@ -35,8 +35,7 @@
       :label="t('action.add_to_basket')"
       size="lg"
       @click="doResolve"
-      :icon-append="edit ? 'arrow-right' : ''"
-      :icon="edit ? '' : 'cart'"
+      icon="shopping-bag-02"
       pill
     />
   </footer>
@@ -45,7 +44,7 @@
     v-if="meta.showErrors"
     :title="t('error.product_not_valid')"
     :description="t('text.check_required_fields_desc')"
-    icon="alert"
+    icon="alert-triangle"
     color="danger"
   />
 </template>

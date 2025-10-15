@@ -137,12 +137,12 @@ const styles = useStyles(
 const getContent = computed(() => {
   if (props.meta.owned) {
     return {
-      icon: "lock",
+      icon: "lock-04",
       label: t("confirm.in_use")
     };
   } else if (props.meta.added) {
     return {
-      icon: "check-circle-solid",
+      icon: "check-circle",
       label: t("confirm.in_basket")
     };
   } else if (props.meta.available) {
@@ -152,7 +152,7 @@ const getContent = computed(() => {
     };
   } else {
     return {
-      icon: "transfer",
+      icon: "lock-04",
       label: t("text.taken")
     };
   }

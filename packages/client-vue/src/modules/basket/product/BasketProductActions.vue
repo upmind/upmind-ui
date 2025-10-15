@@ -52,12 +52,12 @@ const emits = defineEmits(["remove", "update:open"]);
 
 const actions = computed(() => [
   {
-    icon: "pencil",
+    icon: "edit-02",
     tooltip: t("action.edit"),
     onClick: () => router.push(props.editLink)
   },
   {
-    icon: "bin",
+    icon: "trash-01",
     tooltip: t("action.remove"),
     onClick: () => emits("remove")
   }

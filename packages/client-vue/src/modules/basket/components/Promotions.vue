@@ -61,7 +61,7 @@
               @click.prevent="doRemove(promotion.id)"
               variant="ghost"
               size="icon"
-              iconAppend="close"
+              iconAppend="x-close"
             />
           </template>
         </Badge>

@@ -28,17 +28,17 @@
     "placeholder": "Парола или парола"
   },
   "card_cvv": {
-    "description": "код за сигурност на картата, който се намира на гърба на картата ви и осигурява допълнителна мярка за сигурност на кредитната карта.",
+    "error": "A valid CVV is required",
     "label": "CVV",
     "placeholder": "CVC код"
   },
   "card_expiry": {
-    "description": "Дата на изтичане на картата. Формат на датата: ММ/ГГ",
+    "error": "A valid expiry date is required",
     "label": "Дата на изтичане",
     "placeholder": "ММ/ГГ"
   },
   "card_num": {
-    "description": "16-цифреният номер на лицевата страна на вашата карта.",
+    "error": "A valid card number is required",
     "label": "Номер на карта",
     "placeholder": "1234 1234 1234 1234"
   },
