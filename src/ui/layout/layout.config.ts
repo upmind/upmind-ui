@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 export default {
   control: {
     root: cva(
-      "shadow-b-border-surface bg-surface flex w-full shrink-0 items-center justify-center self-start px-6 py-4 md:px-2.5"
+      "shadow-b-border-surface bg-surface flex w-full shrink-0 items-center justify-center self-start px-6 py-4"
     ),
     container: cva("flex w-full items-center justify-between", {
       variants: {
@@ -58,11 +58,11 @@ export default {
       }
     }),
     header: {
-      root: cva("bg-canvas px-6 py-18 md:px-2.5"),
+      root: cva("bg-canvas px-6 py-18"),
       container: cva("max-w-app mx-auto")
     },
     content: {
-      root: cva("shadow-t-border-surface px-6 md:px-2.5", {
+      root: cva("shadow-t-border-surface px-6", {
         variants: {
           isMinimal: {
             true: "py-18",
