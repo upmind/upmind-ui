@@ -75,7 +75,7 @@ export default {
         }
       }),
       container: cva(
-        "max-w-app mx-auto flex w-full flex-col gap-6 md:flex-row md:gap-18"
+        "max-w-app mx-auto flex w-full flex-col gap-12 md:flex-row md:gap-18"
       )
     },
     aside: cva("flex w-full max-w-md flex-col gap-12", {
