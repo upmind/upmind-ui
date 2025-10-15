@@ -53,6 +53,7 @@
     "embla-carousel": "^8.6.0",
     "embla-carousel-vue": "^8.6.0",
     "flag-icons": "^7.5.0",
+    "imask": "^7.6.1",
     "libphonenumber-js": "^1.12.10",
     "lodash-es": "^4.17.21",
     "lottie-web": "^5.13.0",

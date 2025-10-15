@@ -5,6 +5,7 @@
     </slot>
 
     <input
+      ref="input"
       v-bind="delegatedProps"
       v-model="modelValue"
       :class="styles.input.field"
@@ -19,8 +20,9 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed } from "vue";
-import { useVModel } from "@vueuse/core";
+import { useTemplateRef, computed, onMounted } from "vue";
+
+import IMask, { type InputElement } from "imask";
 
 // --- internal
 import config from "./input.config";
@@ -50,6 +52,9 @@ const emits = defineEmits<{
   (e: "update:modelValue", payload: string | number): void;
 }>();
 
+const input = useTemplateRef<InputElement>("input");
+const modelValue = defineModel<InputProps["modelValue"]>("modelValue", {});
+
 const delegatedProps = computed(
   (): Omit<
     InputProps,
@@ -78,11 +83,6 @@ const delegatedProps = computed(
     ])
 );
 
-const modelValue = useVModel(props, "modelValue", emits, {
-  passive: true,
-  defaultValue: props.defaultValue
-});
-
 const meta = computed(() => ({
   width: props.width,
   hasRing: props.ring
@@ -97,4 +97,24 @@ const styles = useStyles(
   container: string;
   input: { container: string; field: string };
 }>;
+
+onMounted(() => {
+  applyMask();
+});
+
+function applyMask() {
+  if (props.mask && input.value) {
+    // if we have a mask then we use the IMask library to apply it and then keep our model and maskedValue in sync
+    const maskOptions = {
+      mask: props.mask as any // Cast to 'any' to accommodate both string and RegExp types
+      // lazy: false // Don't hide the mask when empty
+    };
+
+    const masked = IMask(input.value, maskOptions);
+
+    masked.on("accept", () => {
+      modelValue.value = masked.value;
+    });
+  }
+}
 </script>
