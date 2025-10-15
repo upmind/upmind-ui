@@ -1,17 +1,16 @@
 // --- external
 import type { InputTypeHTMLAttribute, HTMLAttributes } from "vue";
 import type { CxOptions, VariantProps } from "class-variance-authority";
-import type { Icon } from "../icon/types";
 
 // --- internal
 import type { containerVariants } from "./input.config";
 export type ContainerVariantProps = VariantProps<typeof containerVariants>;
 
 // --- types
+import type { Icon } from "../icon/types";
 import type { AvatarProps } from "../avatar";
-import type { FactoryConstructorOpts } from "imask";
 
-export interface InputProps {
+export type InputProps = {
   modelValue?: string | number;
   defaultValue?: string | number;
   // ---
@@ -19,6 +18,7 @@ export interface InputProps {
   name?: string;
   type?: InputTypeHTMLAttribute;
   placeholder?: string;
+  // ---
   icon?: string | Icon;
   avatar?: Partial<AvatarProps>;
   iconAppend?: string | Icon;
@@ -43,7 +43,7 @@ export interface InputProps {
   // ---
   uiConfig?: { input?: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};
 
 export interface InputItemsProps {
   icon?: InputProps["icon"];
