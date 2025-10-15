@@ -12,7 +12,7 @@ import {
   responseCodes,
   useValidation
 } from "../../../../utils";
-import { defaultsDeep, pick, set } from "lodash-es";
+import { defaultsDeep, isNil, pick, set } from "lodash-es";
 
 // --- types
 import {
@@ -114,7 +114,7 @@ async function render(
     // set up our callback helper to watch for validation
     const validationHelper = (callback: any, onReceiveEvent: any) => {
       const cb = (event?: PaymentMethodRequestablePayload) => {
-        callback({ type: "VALIDATE", data: { complete: !!event } });
+        callback({ type: "VALIDATE", data: { valid: !!event } });
       };
 
       instance.on("paymentMethodRequestable", cb);
@@ -171,7 +171,10 @@ async function validate(
   const errors = validate(schema, model) || [];
 
   // NB: we are invalid if the braintree element status is NOT complete!
-  if (!sdk.braintree.isPaymentMethodRequestable()) {
+  if (
+    (!isNil(data.valid) && !data.valid) ||
+    !sdk.braintree.isPaymentMethodRequestable()
+  ) {
     errors.push({
       instancePath: "/payment_method_addition",
       schemaPath: "#/properties/payment_method_addition",
