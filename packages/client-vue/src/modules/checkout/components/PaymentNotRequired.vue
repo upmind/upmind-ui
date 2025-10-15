@@ -2,6 +2,7 @@
   <div :class="styles.checkout.gateway">
     <Alert
       icon="check-circle"
+      variant="minimal"
       :title="t('cart.nothing_to_pay_msg')"
       :description="t('cart.place_order_desc')"
     />
