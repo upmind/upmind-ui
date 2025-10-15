@@ -28,17 +28,17 @@
     "placeholder": "Jelszó vagy jelszó"
   },
   "card_cvv": {
-    "description": "A kártya hátoldalán található biztonsági kód további kártyabiztonságot nyújt.",
+    "error": "A valid CVV is required",
     "label": "CVV",
     "placeholder": "CVC"
   },
   "card_expiry": {
-    "description": "A kártya lejárati dátuma. Dátumformátum: HH/ÉÉ",
+    "error": "A valid expiry date is required",
     "label": "Lejárati dátum",
     "placeholder": "HH/ÉÉ"
   },
   "card_num": {
-    "description": "A kártya elején található 16 jegyű szám.",
+    "error": "A valid card number is required",
     "label": "Kártyaszám",
     "placeholder": "1234 1234 1234 1234 1234"
   },
