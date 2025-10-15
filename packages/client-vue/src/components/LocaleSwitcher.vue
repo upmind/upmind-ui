@@ -9,7 +9,7 @@
     width="auto"
     dropdown-width="md"
     icon="translate-01"
-    size="lg"
+    size="md"
   />
 </template>
 
