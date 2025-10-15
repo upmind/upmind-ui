@@ -16,6 +16,7 @@ import {
   first,
   every,
   reduce,
+  capitalize,
   isArray,
   isEmpty,
   forEach,
@@ -145,6 +146,14 @@ export const useBrand = () => {
   const uiCart = computed<IBrandMeta["cart"]>(
     () => get(brandSettings.value, "meta.cart") as any
   );
+
+  const iconStyles = computed<{
+    variant: IBrandMeta["icon_variant"];
+  }>(() => {
+    return {
+      variant: capitalize(get(brandSettings.value, "meta.icon_variant"))
+    };
+  });
 
   const currency = computed<ICurrency | undefined>(
     () =>
@@ -437,6 +446,11 @@ export const useBrand = () => {
      * The current theming object for the brand.
      */
     uiTheme,
+
+    /**
+     * The current icons styles for the brand.
+     */
+    iconStyles,
 
     /**
      * The current cart metaobject for the brand.

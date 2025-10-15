@@ -12,7 +12,7 @@
       color="neutral"
     >
       <span class="flex items-center justify-center hover:cursor-help">
-        <Icon icon="transfer" size="nano" class="text-inherit" />
+        <Icon icon="switch-horizontal-01" size="nano" class="text-inherit" />
         <CurrentPrice
           :current-price="props.price?.currentPrice ?? ''"
           :monthly-from-current-price="

@@ -39,6 +39,7 @@ variables:
     - (docs) build
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
+      allow_failure: true
   environment:
     name: docs/preview/${CI_COMMIT_REF_SLUG}
     action: start
@@ -67,6 +68,7 @@ variables:
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
       when: manual
+      allow_failure: true
   script:
     - apk add jq
     - echo "${DOCS_GCP_SERVICE_ACCOUNT_JSON}" > ${GOOGLE_APPLICATION_CREDENTIALS}
