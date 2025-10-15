@@ -47,6 +47,8 @@ import Error from "../system/Error.vue";
 
 // --- utils
 import { get, some, forEach } from "lodash-es";
+import { messageTypes } from "@upmind-automation/headless";
+import { TOAST_VARIANTS } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<{
@@ -78,7 +80,7 @@ watch(toasts, toasts => {
         onDismiss: t => dismissToast(t.id.toString()),
         onAutoClose: t => dismissToast(t.id.toString()),
         // @ts-ignore -- we can actually pass this to the toast component
-        type: message.value.type,
+        type: getToastType(message.value.type),
         position: "top-right"
       });
       activeToasts.value.push(id);
@@ -89,4 +91,19 @@ watch(toasts, toasts => {
     if (!some(toasts, ["id", id])) dismissToast(id.toString());
   });
 });
+
+function getToastType(type: messageTypes) {
+  switch (type) {
+    case messageTypes.DANGER:
+      return TOAST_VARIANTS.DANGER;
+    case messageTypes.INFO:
+      return TOAST_VARIANTS.INFO;
+    case messageTypes.SUCCESS:
+      return TOAST_VARIANTS.SUCCESS;
+    case messageTypes.WARNING:
+      return TOAST_VARIANTS.WARNING;
+    default:
+      return TOAST_VARIANTS.NEUTRAL;
+  }
+}
 </script>
