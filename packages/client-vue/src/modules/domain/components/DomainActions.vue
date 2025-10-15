@@ -9,7 +9,7 @@
     color="secondary"
     @click="selected ? onRemove(props.domain) : onUpdate(props.domain)"
     size="lg"
-    :icon="selected || meta.added ? 'basket-check' : 'basket-add'"
+    icon="shopping-bag-02"
     :label="t('action.register_or_added', selected ? 0 : 1)"
   />
 

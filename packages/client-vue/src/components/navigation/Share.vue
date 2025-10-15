@@ -2,7 +2,7 @@
   <Link
     v-if="isSupported"
     @click="handleShare"
-    :icon="copied ? 'check' : 'share'"
+    :icon="copied ? 'check' : 'share-07'"
     :label="copied ? t('confirm.copied') : t('action.share')"
   />
 </template>

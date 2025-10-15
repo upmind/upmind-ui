@@ -32,7 +32,6 @@
           <Link
             color="muted"
             :label="t('action.details_toggle', open ? 0 : 1)"
-            icon="sort-lines"
             @click="open = !open"
           />
         </template>
@@ -93,7 +92,7 @@
       <Alert
         v-if="meta.hasInvalidProducts"
         color="danger"
-        icon="alert"
+        icon="alert-triangle"
         :description="t('cart.basket_products_review_msg')"
       >
         <template #title>

@@ -46,3 +46,4 @@ variables:
   rules:
     - if: $CI_MERGE_REQUEST_ID
       when: manual
+      allow_failure: true

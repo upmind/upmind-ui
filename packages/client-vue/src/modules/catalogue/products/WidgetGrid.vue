@@ -15,7 +15,7 @@
         aria-label="Search products"
         data-testid="product-search"
         @update:model-value="doQuery"
-        icon="search"
+        icon="search-md"
         size="lg"
       />
 
@@ -70,7 +70,7 @@
       aria-live="polite"
     >
       <Icon
-        icon="search"
+        icon="search-md"
         size="md"
         :class="styles.products.main.emptyState.icon"
       />

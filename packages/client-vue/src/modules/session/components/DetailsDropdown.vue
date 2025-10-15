@@ -48,7 +48,7 @@ const { user, logout, meta } = useSession();
 const items = computed<DropdownMenuItemProps[]>(() => [
   {
     label: t("action.logout"),
-    icon: "logout",
+    icon: "log-out-01",
     value: "logout",
     handler: logout
   }
