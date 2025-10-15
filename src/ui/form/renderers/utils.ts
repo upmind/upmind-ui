@@ -100,7 +100,8 @@ export const useUpmindUIRenderer = <
                 ...input.control.value.schema,
                 path: input.control.value.path,
                 title:
-                  input.control.value.label ?? input.control.value.schema.title
+                  input.control.value.label ?? input.control.value.schema.title,
+                i18n: input.control.value.uischema?.i18n || undefined // NB pass any i18n key in case we need to use the specific key for error messages
               }
             )
           : undefined;
