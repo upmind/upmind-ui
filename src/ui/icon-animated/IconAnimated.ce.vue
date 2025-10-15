@@ -59,21 +59,23 @@ const stroke = computed(() => {
   return Math.min(Math.max(Math.ceil(pxValue), 1), 3);
 });
 
-const icons = import.meta.glob("@animations/**/*.json", {
-  query: "?url",
-  eager: false,
-  import: "default"
-});
-
 const loadIcon = async () => {
-  const path = find(Object.keys(icons), path =>
-    path.includes(`/${props.icon}.json`)
-  );
+  try {
+    const icons = import.meta.glob("@animations/**/*.json", {
+      query: "?url",
+      eager: false,
+      import: "default"
+    });
 
-  if (path) {
-    iconData.value = (await icons[path]()) as string;
-  } else {
-    // console.error(`Animated icon not found: ${props.icon}`);
+    const path = find(Object.keys(icons), path =>
+      path.includes(`/${props.icon}.json`)
+    );
+
+    if (path) {
+      iconData.value = (await icons[path]()) as string;
+    }
+  } catch {
+    // Animations not available
   }
 };
 

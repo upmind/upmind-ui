@@ -9,7 +9,7 @@ import type {
 } from "radix-vue";
 
 // --- components
-import type { IconProps } from "../icon";
+import type { IconProps } from "../icon/types";
 
 // --- types
 import type { rootVariants } from "./select.config";

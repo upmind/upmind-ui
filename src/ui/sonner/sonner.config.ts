@@ -19,7 +19,7 @@ export default {
         "group group-[.toaster]:data-[type=success]:text-accent-success-muted-contrast! group-[.toaster]:data-[type=success]:bg-accent-success-muted! group-[.toaster]:data-[type=success]:border-accent-success-muted!"
       ),
       actionButton: cva(
-        "group-data-[type=success]:bg-accent-success-contrast! group-data-[type=success]:text-accent-success! transition-all! duration-200! group-data-[type=success]:hover:opacity-90!"
+        "group-data-[type=success]:bg-accent-success! group-data-[type=success]:text-accent-success-contrast! transition-all! duration-200! group-data-[type=success]:hover:opacity-90!"
       ),
       closeButton: cva(
         "bg-surface! border-control-surface! group-data-[type=success]:text-accent-success! transition-all! duration-200!"

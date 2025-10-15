@@ -2,7 +2,7 @@
 import { type HTMLAttributes } from "vue";
 
 // --- types
-import type { ButtonProps } from "../button";
+import type { ButtonProps } from "../button/types";
 import type {
   RadioGroupRootProps,
   RadioGroupItemProps,
@@ -17,7 +17,7 @@ import type { triggerVariants } from "./selectCards.config";
 type TriggerVariantProps = VariantProps<typeof triggerVariants>;
 
 // --- types
-import type { AvatarProps } from "../avatar";
+import type { AvatarProps } from "../avatar/types";
 
 export interface SelectCardsItemProps extends RadioGroupItemProps {
   item?: any;

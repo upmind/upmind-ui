@@ -12,7 +12,7 @@ import type {
 import type { rootVariants } from "./link.config";
 
 // --- types
-import type { AvatarProps } from "../avatar";
+import type { AvatarProps } from "../avatar/types";
 
 type LinkVariantProps = VariantProps<typeof rootVariants>;
 

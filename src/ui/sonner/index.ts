@@ -1,5 +1,4 @@
 // --- external
-import { keys } from "lodash-es";
 import { defineCustomElement } from "vue";
 export { toast } from "vue-sonner";
 
@@ -12,5 +11,4 @@ import Sonner from "./Sonner.ce.vue";
 export const UpmSonner = defineCustomElement(Sonner);
 
 // --- types
-import config from "./sonner.config";
-export const SONNER_VARIANTS = keys(config.sonner);
+export { MESSAGE_VARIANTS } from "./types";

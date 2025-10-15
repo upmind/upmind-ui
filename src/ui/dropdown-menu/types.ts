@@ -8,9 +8,9 @@ import type {
 } from "radix-vue";
 
 // --- internal
-import type { IconProps } from "../icon";
-import type { AvatarProps } from "../avatar";
-import type { ButtonProps } from "../button";
+import type { IconProps } from "../icon/types";
+import type { AvatarProps } from "../avatar/types";
+import type { ButtonProps } from "../button/types";
 
 import type { contentVariants } from "./dropdown-menu.config";
 type ContentVariantProps = VariantProps<typeof contentVariants>;

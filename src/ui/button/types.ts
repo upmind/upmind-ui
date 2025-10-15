@@ -12,7 +12,7 @@ import type {
 import type { rootVariants } from "./button.config";
 
 // --- types
-import type { AvatarProps } from "../avatar";
+import type { AvatarProps } from "../avatar/types";
 
 type ButtonVariantProps = VariantProps<typeof rootVariants>;
 

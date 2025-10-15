@@ -7,7 +7,7 @@ import type { AvatarProps } from "../avatar/types";
 import type { DialogProps } from "../dialog/types";
 import type { ButtonProps } from "../button/types";
 import type { IconProps } from "../icon/types";
-import type { AnimatedIconProps } from "../icon-animated";
+import type { AnimatedIconProps } from "../icon-animated/types";
 
 import type { interstitialVariants } from "./interstitial.config";
 

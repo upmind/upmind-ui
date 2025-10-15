@@ -2,7 +2,7 @@
 import { type HTMLAttributes } from "vue";
 
 // --- types
-import type { BadgeProps } from "../badge";
+import type { BadgeProps } from "../badge/types";
 import type { ToggleGroupRootProps, ToggleGroupItemProps } from "radix-vue";
 import type { CxOptions, VariantProps } from "class-variance-authority";
 

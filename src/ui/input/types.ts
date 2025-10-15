@@ -8,7 +8,7 @@ export type ContainerVariantProps = VariantProps<typeof containerVariants>;
 
 // --- types
 import type { Icon } from "../icon/types";
-import type { AvatarProps } from "../avatar";
+import type { AvatarProps } from "../avatar/types";
 
 export type InputProps = {
   modelValue?: string | number;

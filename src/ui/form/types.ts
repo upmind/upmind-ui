@@ -17,11 +17,11 @@ import type Ajv from "ajv";
 
 // --- internal
 import type { formVariants } from "./form.config";
-import type { ButtonProps } from "../button";
+import type { ButtonProps } from "../button/types";
 type FormVariantProps = VariantProps<typeof formVariants>;
 
 // --- types
-import type { InputProps } from "../input";
+import type { InputProps } from "../input/types";
 
 export interface FormProps<T = Record<string, any>> {
   as?: string;

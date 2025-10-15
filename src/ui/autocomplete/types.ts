@@ -8,8 +8,8 @@ import type {
 } from "radix-vue";
 
 // --- internal
-import type { IconProps } from "../icon";
-import type { AvatarProps } from "../avatar";
+import type { IconProps } from "../icon/types";
+import type { AvatarProps } from "../avatar/types";
 
 import type { anchorVariants, contentVariants } from "./autocomplete.config";
 type AnchorVariantProps = VariantProps<typeof anchorVariants>;

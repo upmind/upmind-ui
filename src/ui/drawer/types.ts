@@ -9,7 +9,7 @@ import type {
   containerVariant,
   innerVariant
 } from "./drawer.config";
-import type { ButtonProps } from "../..";
+import type { ButtonProps } from "../button/types";
 type DrawerOverlayVariantProps = VariantProps<typeof overlayVariant>;
 type DrawerContainerVariantProps = VariantProps<typeof containerVariant>;
 type DrawerInnerVariantProps = VariantProps<typeof innerVariant>;
