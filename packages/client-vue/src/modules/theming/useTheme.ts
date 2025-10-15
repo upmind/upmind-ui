@@ -83,7 +83,7 @@ export const useTheme = (initial?: string) => {
     setFontFamily({
       display: styles.value?.brand_font?.family
     });
-    setIconVariant(iconStyles.value?.variant);
+    setIconVariant(iconStyles.value?.variant || "Line");
     setUiTheme(theme.value?.id ?? "upmind");
     setDocumentTitle(name.value);
     setDocumentFavicon(favicon.value ?? undefined);
