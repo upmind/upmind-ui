@@ -31,6 +31,14 @@
       </div>
     </div>
   </article>
+
+  <Teleport to="body">
+    <div :class="styles.split.sticky.root">
+      <div :class="styles.split.sticky.container">
+        <slot name="sticky" />
+      </div>
+    </div>
+  </Teleport>
 </template>
 
 <script lang="ts" setup>
@@ -43,7 +51,7 @@ import { isEmptySlot } from "./utils";
 import { cn } from "../../utils";
 
 // --- types
-import { type ComputedRef, computed, useSlots } from "vue";
+import { type ComputedRef, computed, useSlots, Teleport } from "vue";
 import { type VariantProps } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -71,7 +79,7 @@ const meta = computed(() => {
   };
 });
 const styles = useStyles(
-  ["split", "control", "split.header", "split.content"],
+  ["split", "control", "split.header", "split.content", "split.sticky"],
   meta,
   config,
   props.uiConfig ?? {}
@@ -95,6 +103,10 @@ const styles = useStyles(
     aside: string;
     container: string;
     main: string;
+    sticky: {
+      root: string;
+      container: string;
+    };
   };
 }>;
 </script>

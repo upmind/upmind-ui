@@ -31,6 +31,10 @@
     <template #footer>
       <slot name="footer" />
     </template>
+
+    <template #sticky>
+      <slot name="sticky" />
+    </template>
   </component>
 </template>
 

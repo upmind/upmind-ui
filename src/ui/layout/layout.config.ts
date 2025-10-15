@@ -123,6 +123,12 @@ export default {
         }
       }
     }),
-    main: cva("flex w-full flex-col gap-12")
+    main: cva("flex w-full flex-col gap-12"),
+    sticky: {
+      root: cva(
+        "shadow-t-border-surface bg-surface sticky bottom-0 left-0 z-50 mx-auto w-full py-6"
+      ),
+      container: cva("max-w-app mx-auto")
+    }
   }
 };
