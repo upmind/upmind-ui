@@ -1,12 +1,10 @@
 {
+  "go_to_invoice_retry_payment_desc": "Нажмите ниже, чтобы перейти к счету и повторить попытку оплаты.",
   "order_complete": "Заказ **выполнен**!",
+  "order_complete_confirmation_msg": "Спасибо за ваш заказ, покупка завершена. Вскоре вы получите подтверждение по электронной почте.",
   "order_complete_md": "@.markdown:{'invoice.order_complete'}",
-  "order_complete_msg": "Спасибо за ваш заказ, покупка завершена. Вскоре вы получите подтверждение по электронной почте.",
-  "order_not_found": "Заказ **не найден**!",
-  "order_not_found_md": "@.markdown:{'invoice.order_not_found'}",
   "order_not_found_msg": "К сожалению, нам не удалось найти ваш заказ. Нажмите кнопку ниже, чтобы вернуться в свою учётную запись.",
-  "order_payment_failed": "Невозможно **обработать** платеж",
-  "order_payment_failed_md": "@.markdown:{'invoice.order_payment_failed'}",
-  "order_payment_failed_msg": "Нам не удалось обработать ваш платеж по этому заказу. Это могло произойти по ряду причин.",
-  "order_payment_retry_msg": "Нажмите ниже, чтобы перейти к счету и повторить попытку оплаты."
+  "payment_unable_process_desc": "Нам не удалось обработать ваш платеж по этому заказу. Это могло произойти по ряду причин.",
+  "payment_unable_to_process": "Невозможно **обработать** платеж",
+  "payment_unable_to_process_md": "@.markdown:{'invoice.payment_unable_to_process'}"
 }

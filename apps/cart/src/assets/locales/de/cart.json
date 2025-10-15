@@ -1,4 +1,5 @@
 {
+  "basket_count": "leer|{count} Artikel|{count} Artikel",
   "basket_items": "keine Artikel im Warenkorb | {count} Artikel im Warenkorb | {count} Artikel im Warenkorb",
   "basket_product_missing_data": "Fehlende Daten zum Artikel",
   "basket_product_missing_data_help": "Für diesen Artikel fehlen Daten und er erfordert Aufmerksamkeit",
@@ -23,7 +24,6 @@
   "order_processing_msg": "Wir bearbeiten Ihre Bestellung. Dies sollte nur einen Moment dauern.",
   "order_unsuccessful": "**Kann** Ihre Bestellung nicht abschließen",
   "order_unsuccessful_md": "@.markdown:{'cart.order_unsuccessful'}",
-  "pay_with_stored": "Mit einer bestehenden Methode bezahlen",
   "payment_awaiting_approval": "**Warten** auf Genehmigung",
   "payment_awaiting_approval_md": "@.markdown:{'text.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "Wir warten auf die Genehmigung. Dies sollte nur einen Moment dauern.",

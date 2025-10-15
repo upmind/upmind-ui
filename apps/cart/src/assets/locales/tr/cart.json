@@ -1,4 +1,5 @@
 {
+  "basket_count": "boş |{count} öğe|{count} öğeler",
   "basket_items": "sepette ürün yok | {count} sepetteki ürün | {count} sepetteki ürünler",
   "basket_product_missing_data": "Öğede veri eksik",
   "basket_product_missing_data_help": "Bu öğede veri eksik ve dikkat gerektiriyor",
@@ -23,7 +24,6 @@
   "order_processing_msg": "Siparişiniz işleniyor. Bu işlem yalnızca bir dakika sürecektir.",
   "order_unsuccessful": "Siparişiniz tamamlanamadı",
   "order_unsuccessful_md": "@.markdown:{'cart.order_unsuccessful'}",
-  "pay_with_stored": "Mevcut bir yöntemle ödeyin",
   "payment_awaiting_approval": "Onay **bekleniyor**",
   "payment_awaiting_approval_md": "@.markdown:{'text.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "Onay bekliyoruz. Bu sadece bir dakika sürecektir.",
