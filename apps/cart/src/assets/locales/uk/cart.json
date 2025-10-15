@@ -1,4 +1,5 @@
 {
+  "basket_count": "порожній{count} пункт|{count} предмети",
   "basket_items": "немає товарів у кошику | {count} товар у кошику | {count} товари в кошику",
   "basket_product_missing_data": "Відсутні дані для елемента",
   "basket_product_missing_data_help": "У цьому елементі відсутні дані, і він потребує уваги",
@@ -23,7 +24,6 @@
   "order_processing_msg": "Ми обробляємо ваше замовлення. Це займе лише хвилинку.",
   "order_unsuccessful": "**Не вдалося** виконати ваше замовлення",
   "order_unsuccessful_md": "@.markdown:{'cart.order_unsuccessful'}",
-  "pay_with_stored": "Сплатити існуючим методом",
   "payment_awaiting_approval": "**Очікування** на схвалення",
   "payment_awaiting_approval_md": "@.markdown:{'text.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "Ми чекаємо на схвалення. Це займе лише хвилинку.",

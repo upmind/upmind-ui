@@ -1,4 +1,5 @@
 {
+  "basket_count": "gol{count} articol|{count} articole",
   "basket_items": "niciun articol în coș | {count} articol în coș | {count} articole în coș",
   "basket_product_missing_data": "Element lipsește date",
   "basket_product_missing_data_help": "Acest element are date lipsă și necesită atenție.",
@@ -23,7 +24,6 @@
   "order_processing_msg": "Procesăm comanda dumneavoastră. Ar trebui să dureze doar un moment.",
   "order_unsuccessful": "**Nu se poate** finaliza comanda",
   "order_unsuccessful_md": "@.markdown:{'cart.order_unsuccessful'}",
-  "pay_with_stored": "Plătiți cu o metodă existentă",
   "payment_awaiting_approval": "**În așteptare** pentru aprobare",
   "payment_awaiting_approval_md": "@.markdown:{'text.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "Așteptăm aprobarea. Ar trebui să dureze doar un moment.",

@@ -1,4 +1,5 @@
 {
+  "basket_count": "leeg|{count} artikel|{count} artikelen",
   "basket_items": "geen artikelen in winkelwagen | {count} artikel in winkelwagen | {count} artikelen in winkelwagen",
   "basket_product_missing_data": "Ontbrekende gegevens van item",
   "basket_product_missing_data_help": "Er ontbreken gegevens voor dit item en er is aandacht nodig",
@@ -23,7 +24,6 @@
   "order_processing_msg": "We verwerken uw bestelling. Dit duurt slechts enkele ogenblikken.",
   "order_unsuccessful": "**Kan** uw bestelling niet voltooien",
   "order_unsuccessful_md": "@.markdown:{'cart.order_unsuccessful'}",
-  "pay_with_stored": "Betaal met een bestaande methode",
   "payment_awaiting_approval": "**Wachten** op goedkeuring",
   "payment_awaiting_approval_md": "@.markdown:{'text.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "We wachten op goedkeuring. Dit duurt slechts enkele ogenblikken.",

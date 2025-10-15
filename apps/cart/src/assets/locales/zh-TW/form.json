@@ -127,9 +127,6 @@
   "store_on_payment": {
     "label": "儲存付款詳情"
   },
-  "stored_payment_method": {
-    "label": "選擇一個您儲存的付款方式"
-  },
   "taxNumber": {
     "label": "稅號",
     "placeholder": "稅號"
