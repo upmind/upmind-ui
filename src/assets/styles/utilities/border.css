@@ -15,6 +15,12 @@
   border-color: var(--border-surface);
 }
 
+@utility divide-border-surface {
+  :where(& > :not(:last-child)) {
+    border-color: var(--border-surface);
+  }
+}
+
 .primary-stroke {
   border: var(--stroke-badge) solid transparent;
   background:
