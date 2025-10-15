@@ -28,17 +28,17 @@
     "placeholder": "密碼或口令"
   },
   "card_cvv": {
-    "description": "卡片背面的卡片安全碼可提供額外的信用卡安全措施。",
+    "error": "A valid CVV is required",
     "label": "CVV",
     "placeholder": "中央靜脈血栓"
   },
   "card_expiry": {
-    "description": "卡片到期日。日期格式：MM/YY",
+    "error": "A valid expiry date is required",
     "label": "到期日",
     "placeholder": "月/年"
   },
   "card_num": {
-    "description": "您的卡片正面的 16 位數字。",
+    "error": "A valid card number is required",
     "label": "卡號",
     "placeholder": "1234 1234 1234 1234"
   },

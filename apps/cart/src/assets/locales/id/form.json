@@ -28,17 +28,17 @@
     "placeholder": "Kata sandi atau frasa sandi"
   },
   "card_cvv": {
-    "description": "Kode keamanan kartu yang terdapat di bagian belakang kartu Anda yang memberikan ukuran keamanan tambahan pada kartu kredit.",
+    "error": "A valid CVV is required",
     "label": "CVV",
     "placeholder": "CVC"
   },
   "card_expiry": {
-    "description": "Tanggal Kedaluwarsa kartu. Format Tanggal: BB/TT",
+    "error": "A valid expiry date is required",
     "label": "Tanggal kedaluwarsa",
     "placeholder": "BB/TT"
   },
   "card_num": {
-    "description": "Angka 16 digit di bagian depan kartu Anda.",
+    "error": "A valid card number is required",
     "label": "Nomor kartu",
     "placeholder": "1234 1234 1234 1234"
   },

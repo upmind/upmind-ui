@@ -28,17 +28,17 @@
     "placeholder": "Lösenord eller lösenfras"
   },
   "card_cvv": {
-    "description": "kortsäkerhetskoden som finns på baksidan av ditt kort och som ger ytterligare säkerhet för kreditkortet.",
+    "error": "A valid CVV is required",
     "label": "CVV",
     "placeholder": "CVC-kod"
   },
   "card_expiry": {
-    "description": "Kortets utgångsdatum. Datumformat: MM/ÅÅ",
+    "error": "A valid expiry date is required",
     "label": "Utgångsdatum",
     "placeholder": "MM/ÅÅ"
   },
   "card_num": {
-    "description": "Det 16-siffriga numret på framsidan av ditt kort.",
+    "error": "A valid card number is required",
     "label": "Kortnummer",
     "placeholder": "1234 1234 1234 1234"
   },

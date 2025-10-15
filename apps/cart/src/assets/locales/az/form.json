@@ -28,17 +28,17 @@
     "placeholder": "Parol və ya parol"
   },
   "card_cvv": {
-    "description": "kredit kartı təhlükəsizliyinin əlavə tədbirini təmin edən kartınızın arxa hissəsində tapılan kart təhlükəsizlik kodu.",
+    "error": "A valid CVV is required",
     "label": "CVV",
     "placeholder": "CVC"
   },
   "card_expiry": {
-    "description": "Kartın istifadə müddəti. Tarix Format: MM/YY",
+    "error": "A valid expiry date is required",
     "label": "İstifadə müddəti",
     "placeholder": "MM/YY"
   },
   "card_num": {
-    "description": "Kartınızın ön hissəsindəki 16 rəqəmli nömrə.",
+    "error": "A valid card number is required",
     "label": "Kart nömrəsi",
     "placeholder": "1234 1234 1234 1234"
   },
