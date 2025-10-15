@@ -42,12 +42,19 @@ const meta = computed(() => ({
 const iconData = ref("");
 
 const stroke = computed(() => {
+  // Get the stroke variable value for icons
   const cssValue = getComputedStyle(document.documentElement)
     .getPropertyValue("--stroke-icon")
     .trim();
 
+  // Parse the value, defaulting to 2 if invalid or missing
   const pxValue = parseFloat(cssValue) || 2;
 
+  // Apply bounds checking with Math functions to map to stroke weights:
+  // Math.ceil() - Round up to nearest integer (ensures whole pixel values)
+  // Math.max() - Ensure minimum value of 1 = light stroke weight
+  // Math.min() - Ensure maximum value of 3 = bold stroke weight
+  // Final result: 1 = light, 2 = regular, 3 = bold
   return Math.min(Math.max(Math.ceil(pxValue), 1), 3);
 });
 
