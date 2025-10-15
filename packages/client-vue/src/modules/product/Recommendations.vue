@@ -48,6 +48,7 @@
 
 <script lang="ts" setup>
 // --- external
+import { watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -97,4 +98,12 @@ function doClose() {
   seen();
   navigateNext();
 }
+
+// --- side effects
+
+watch(meta, ({ hasRecommendations }) => {
+  if (!hasRecommendations) {
+    navigateNext();
+  }
+});
 </script>

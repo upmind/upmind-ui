@@ -63,6 +63,7 @@ import { Card, Button, Layout } from "@upmind-automation/upmind-ui";
 import Configure from "./components/Configure.vue";
 import CardsCarousel from "./components/CardsCarousel.vue";
 import Header from "../../components/content/Header.vue";
+import { watch } from "vue";
 
 // -----------------------------------------------------------------------------
 
@@ -95,4 +96,12 @@ function doClose() {
   seen();
   navigateNext();
 }
+
+// --- side effects
+
+watch(meta, ({ hasRecommendations }) => {
+  if (!hasRecommendations) {
+    navigateNext();
+  }
+});
 </script>
