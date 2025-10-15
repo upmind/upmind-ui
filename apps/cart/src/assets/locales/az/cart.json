@@ -1,4 +1,5 @@
 {
+  "basket_count": "boş | {count} maddə | {count} maddələr",
   "basket_items": "səbətdə əşyalar yoxdur | {count} səbətdəki əşya | {count} səbətdəki əşyalar",
   "basket_product_missing_data": "Element məlumat çatışmır",
   "basket_product_missing_data_help": "Bu elementdə məlumat yoxdur və diqqət tələb olunur",
@@ -38,5 +39,8 @@
   "product_not_found": "**Məhsul** tapılmadı",
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
   "promotion_help": "{code} təmin edir {amount} endirim {description}",
-  "promotions_active": "Aktiv endirimlər"
+  "promotions_active": "Aktiv endirimlər",
+  "recommendations_unavailable_text": "We couldn't find any recommendations for you at this time. Please click below to continue.",
+  "recommendations_unavailable_title": "We're sorry about that...",
+  "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}"
 }

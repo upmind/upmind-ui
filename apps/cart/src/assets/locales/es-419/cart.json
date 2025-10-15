@@ -1,4 +1,5 @@
 {
+  "basket_count": "vacío | {count} artículo | {count} elementos",
   "basket_items": "No hay artículos en la cesta | {count} artículo en la cesta | {count} artículos en la cesta",
   "basket_product_missing_data": "Datos faltantes del artículo",
   "basket_product_missing_data_help": "A este elemento le faltan datos y requiere atención.",
@@ -38,5 +39,8 @@
   "product_not_found": "**Producto** no encontrado",
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
   "promotion_help": "{code} proporciona {amount} descuento {description}",
-  "promotions_active": "Descuentos activos"
+  "promotions_active": "Descuentos activos",
+  "recommendations_unavailable_text": "We couldn't find any recommendations for you at this time. Please click below to continue.",
+  "recommendations_unavailable_title": "We're sorry about that...",
+  "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}"
 }
