@@ -35,7 +35,8 @@ import {
   filter,
   isEmpty,
   isEqual,
-  findLast
+  findLast,
+  sumBy
 } from "lodash-es";
 
 // --- types
@@ -213,6 +214,9 @@ export const useBasket = () => {
   const products = useContext<BasketProduct[]>(state, "products", []);
   const productsInvalid = computed(() =>
     filter(products.value, product => !isEmpty(product?.errors))
+  );
+  const count = computed(() =>
+    sumBy<BasketProduct>(products.value, "configuration.quantity")
   );
   const summary = useContext<BasketContext["summary"]>(state, "summary");
   const promotions = useContext<IBasketPromotion[]>(
@@ -540,6 +544,11 @@ export const useBasket = () => {
      * The list of invalid products in the basket (with errors).
      */
     productsInvalid,
+
+    /**
+     * The total number of items in the basket (sum of all product quantities).
+     */
+    count,
 
     /**
      * The list of promotions applied to the basket.

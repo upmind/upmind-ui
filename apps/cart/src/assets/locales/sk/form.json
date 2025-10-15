@@ -127,9 +127,6 @@
   "store_on_payment": {
     "label": "Uložiť platobné údaje"
   },
-  "stored_payment_method": {
-    "label": "Vyberte jednu z vašich uložených platobných metód"
-  },
   "taxNumber": {
     "label": "Daňové číslo",
     "placeholder": "DIČ"

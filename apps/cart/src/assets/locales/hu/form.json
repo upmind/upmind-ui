@@ -127,9 +127,6 @@
   "store_on_payment": {
     "label": "Fizetési adatok mentése"
   },
-  "stored_payment_method": {
-    "label": "Válasszon egyet a tárolt fizetési módjai közül"
-  },
   "taxNumber": {
     "label": "Adószám",
     "placeholder": "Adóazonosító"

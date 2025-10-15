@@ -1,4 +1,5 @@
 {
+  "basket_count": "tom |{count} föremål|{count} föremål",
   "basket_items": "inga varor i varukorgen | {count} vara i varukorgen | {count} varor i varukorgen",
   "basket_product_missing_data": "Saknade data för objektet",
   "basket_product_missing_data_help": "Det här objektet saknar data och kräver åtgärd",
@@ -23,7 +24,6 @@
   "order_processing_msg": "Vi behandlar din beställning. Detta bör bara ta en stund.",
   "order_unsuccessful": "**Kunde inte** slutföra din beställning",
   "order_unsuccessful_md": "@.markdown:{'cart.order_unsuccessful'}",
-  "pay_with_stored": "Betala med en befintlig metod",
   "payment_awaiting_approval": "**Väntar** på godkännande",
   "payment_awaiting_approval_md": "@.markdown:{'text.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "Vi väntar på godkännande. Det här borde bara ta en stund.",
