@@ -1,6 +1,9 @@
 // --- external
 import { ref, provide, computed, readonly } from "vue";
 
+// --- injection keys
+import { ICON_VARIANT_KEY } from "./injectionKeys";
+
 // --- utils
 import {
   compact,
@@ -45,6 +48,7 @@ export interface ITheme {
 const activeTheme = ref(<string>"");
 const config = ref({});
 const themes = ref<Theme[]>([]);
+const iconVariant = ref<string>("");
 
 export const useThemes = (value?: Theme | Theme[], defaultTheme?: string) => {
   // safety checks
@@ -88,18 +92,31 @@ export const useThemes = (value?: Theme | Theme[], defaultTheme?: string) => {
     }
   }
 
+  function setIconVariant(variant?: string) {
+    if (variant) {
+      iconVariant.value = variant;
+    }
+  }
+
   function add(theme: Theme, setActive = true) {
     if (!theme || !theme.id || find(themes.value, ["id", theme.id])) return;
     themes.value.push(theme);
     if (setActive) setTheme(theme.id);
   }
 
+  // TODO: FE-1579 Implement a singleton and structured approach to provide/inject namespacing
+  provide(
+    ICON_VARIANT_KEY,
+    computed(() => iconVariant.value)
+  );
+
   // make our theme available to the app
   provide("uiConfig", {
     activeTheme,
     config,
     themes: providedThemes,
-    setTheme
+    setTheme,
+    setIconVariant
   });
   // ---
 
@@ -108,7 +125,8 @@ export const useThemes = (value?: Theme | Theme[], defaultTheme?: string) => {
     themes: providedThemes,
     config: readonly(config),
     set: setTheme,
-    add
+    add,
+    setIconVariant
   };
 };
 
