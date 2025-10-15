@@ -1,4 +1,5 @@
 {
+  "basket_count": "άδειο|{count} στοιχείο|{count} αντικείμενα",
   "basket_items": "δεν υπάρχουν είδη στο καλάθι | {count} είδος στο καλάθι | {count} είδη στο καλάθι",
   "basket_product_missing_data": "Λείπουν δεδομένα από το στοιχείο",
   "basket_product_missing_data_help": "Αυτό το στοιχείο δεν έχει δεδομένα και απαιτεί προσοχή",
@@ -23,7 +24,6 @@
   "order_processing_msg": "Επεξεργαζόμαστε την παραγγελία σας. Αυτό θα διαρκέσει μόνο λίγο.",
   "order_unsuccessful": "**Δεν είναι δυνατή** η ολοκλήρωση της παραγγελίας σας",
   "order_unsuccessful_md": "@.markdown:{'cart.order_unsuccessful'}",
-  "pay_with_stored": "Πληρώστε με μια υπάρχουσα μέθοδο",
   "payment_awaiting_approval": "**Αναμονή** για έγκριση",
   "payment_awaiting_approval_md": "@.markdown:{'text.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "Περιμένουμε έγκριση. Αυτό θα διαρκέσει μόνο λίγο.",

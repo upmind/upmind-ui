@@ -127,9 +127,6 @@
   "store_on_payment": {
     "label": "Ödəniş təfərrüatlarını yadda saxlayın"
   },
-  "stored_payment_method": {
-    "label": "Saxlanmış ödəniş üsullarınızdan birini seçin"
-  },
   "taxNumber": {
     "label": "Vergi nömrəsi",
     "placeholder": "Vergi İD"

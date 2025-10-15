@@ -1,4 +1,5 @@
 {
+  "basket_count": "tom|{count} vare|{count} varer",
   "basket_items": "ingen varer i handlekurven | {count} vare i handlekurven | {count} varer i handlekurven",
   "basket_product_missing_data": "Manglende data for elementet",
   "basket_product_missing_data_help": "Denne varen mangler data og krever oppmerksomhet",
@@ -23,7 +24,6 @@
   "order_processing_msg": "Vi behandler bestillingen din. Dette bør bare ta et øyeblikk.",
   "order_unsuccessful": "**Kan ikke fullføre** bestillingen din",
   "order_unsuccessful_md": "@.markdown:{'cart.order_unsuccessful'}",
-  "pay_with_stored": "Betal med en eksisterende metode",
   "payment_awaiting_approval": "**Venter** på godkjenning",
   "payment_awaiting_approval_md": "@.markdown:{'text.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "Vi venter på godkjenning. Dette burde bare ta et øyeblikk.",

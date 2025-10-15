@@ -127,9 +127,6 @@
   "store_on_payment": {
     "label": "Zahlungsdetails speichern"
   },
-  "stored_payment_method": {
-    "label": "Wählen Sie eine Ihrer gespeicherten Zahlungsmethoden aus"
-  },
   "taxNumber": {
     "label": "Steuernummer",
     "placeholder": "Steuernummer"

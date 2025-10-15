@@ -127,9 +127,6 @@
   "store_on_payment": {
     "label": "Guardar detalles de pago"
   },
-  "stored_payment_method": {
-    "label": "Selecciona uno de tus métodos de pago almacenados"
-  },
   "taxNumber": {
     "label": "Número de identificación fiscal",
     "placeholder": "Identificación fiscal"

@@ -2,7 +2,6 @@
   <Alert
     v-if="meta.isUnavailable"
     color="warning"
-    variant="minimal"
     icon="alert-triangle"
     :title="t('error.payment_gateway_not_available')"
     class="text-error!"

@@ -1,12 +1,10 @@
 {
+  "go_to_invoice_retry_payment_desc": "Klikněte prosím níže pro přechod na vaši fakturu, kde můžete zkusit platbu provést znovu.",
   "order_complete": "Objednávka **dokončena**!",
+  "order_complete_confirmation_msg": "Děkujeme za vaši objednávku, váš nákup je nyní dokončen. Brzy obdržíte potvrzovací e-mail.",
   "order_complete_md": "@.markdown:{'invoice.order_complete'}",
-  "order_complete_msg": "Děkujeme za vaši objednávku, váš nákup je nyní dokončen. Brzy obdržíte potvrzovací e-mail.",
-  "order_not_found": "Objednávka **nenalezena**!",
-  "order_not_found_md": "@.markdown:{'invoice.order_not_found'}",
   "order_not_found_msg": "Vaši objednávku se nám bohužel nepodařilo najít. Klikněte prosím na tlačítko níže pro návrat do svého účtu.",
-  "order_payment_failed": "Nelze zpracovat platbu",
-  "order_payment_failed_md": "@.markdown:{'invoice.order_payment_failed'}",
-  "order_payment_failed_msg": "Nepodařilo se nám zpracovat vaši platbu za tuto objednávku, mohlo to být z několika důvodů.",
-  "order_payment_retry_msg": "Klikněte prosím níže pro zobrazení faktury, kde můžete zkusit platbu provést znovu."
+  "payment_unable_process_desc": "Nepodařilo se nám zpracovat vaši platbu za tuto objednávku, mohlo to být z několika důvodů.",
+  "payment_unable_to_process": "Nelze zpracovat platbu",
+  "payment_unable_to_process_md": "@.markdown:{'invoice.payment_unable_to_process'}"
 }
