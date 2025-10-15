@@ -133,9 +133,9 @@ export const States: Story = {
         <Input
           :label="args.label"
           model-value=""
-          mask="00/0000"
+         :mask="/^\d+$/"
           placeholder="MM/YYYY"
-          class="w-24"
+          class="w-26"
         />
       </div>
     </section>
