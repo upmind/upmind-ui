@@ -76,7 +76,7 @@
         :disabled="meta.isEmpty || meta.isDisabled || meta.isProcessing"
         @click="onResolve"
         :label="t('action.add_domain_to_basket', selected?.length ?? 0)"
-        prependIcon="plus"
+        icon-append="arrow-right"
         size="lg"
       />
       <!-- </div> -->

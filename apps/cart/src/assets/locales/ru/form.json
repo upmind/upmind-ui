@@ -28,17 +28,17 @@
     "placeholder": "Пароль или парольная фраза"
   },
   "card_cvv": {
-    "description": "Код безопасности карты, расположенный на обратной стороне вашей карты, обеспечивает дополнительную меру безопасности кредитной карты.",
+    "error": "A valid CVV is required",
     "label": "CVV",
     "placeholder": "CVC"
   },
   "card_expiry": {
-    "description": "Дата истечения срока действия карты. Формат даты: ММ/ГГ.",
+    "error": "A valid expiry date is required",
     "label": "Дата истечения срока действия",
     "placeholder": "ММ/ГГ"
   },
   "card_num": {
-    "description": "16-значный номер на лицевой стороне вашей карты.",
+    "error": "A valid card number is required",
     "label": "Номер карты",
     "placeholder": "1234 1234 1234 1234"
   },

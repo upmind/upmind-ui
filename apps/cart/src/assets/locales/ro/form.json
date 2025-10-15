@@ -28,17 +28,17 @@
     "placeholder": "Parolă sau frază de acces"
   },
   "card_cvv": {
-    "description": "codul de securitate al cardului care se află pe spatele cardului, și care oferă o măsură suplimentară de securitate a cardului de credit.",
+    "error": "A valid CVV is required",
     "label": "CVV",
     "placeholder": "CVC"
   },
   "card_expiry": {
-    "description": "Data expirării cardului. Format dată: LL/AA",
+    "error": "A valid expiry date is required",
     "label": "Data de expirare",
     "placeholder": "LL/AA"
   },
   "card_num": {
-    "description": "Numărul de 16 cifre de pe fața cardului dumneavoastră.",
+    "error": "A valid card number is required",
     "label": "Numărul de card",
     "placeholder": "1234 1234 1234 1234"
   },

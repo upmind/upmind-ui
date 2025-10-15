@@ -27,7 +27,7 @@
         >
           <template #label>
             <span class="hidden md:block">{{ t("action.search") }}</span>
-            <Icon icon="search" size="xs" class="md:hidden" />
+            <Icon icon="search-refraction" size="xs" class="md:hidden" />
           </template>
         </Button>
       </span>

@@ -16,6 +16,7 @@
   "complete_online_toolkit_md": "@.markdown:{'text.complete_online_toolkit'}",
   "configuration": "Configuração",
   "continue_shopping_desc": "Pode continuar a fazer compras sem ter de fazer login.",
+  "copyright": "© {year} {name}. All rights reserved.",
   "default_label": "Predefinido",
   "discount": "Desconto",
   "expires_abbr": "Exp.",

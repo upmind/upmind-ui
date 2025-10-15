@@ -15,7 +15,7 @@
         "
         :badge="{
           label: t('text.fully_encrypted_title'),
-          icon: 'lock'
+          icon: 'lock-04'
         }"
       />
     </template>

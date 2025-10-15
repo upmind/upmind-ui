@@ -1,5 +1,5 @@
 // --- external
-import { ref, computed } from "vue";
+import { ref, computed, provide } from "vue";
 
 // --- internal
 import { useBrand, useTheming } from "@upmind-automation/headless";
@@ -31,11 +31,16 @@ export const useTheme = (initial?: string) => {
     favicon,
     name,
     styles,
+    iconStyles,
     isReady: isBrandReady
   } = useBrand();
 
   const { themes, meta: themingMeta } = useTheming();
-  const { set: setUiTheme, add: addUiTheme } = useThemes(themes.value, initial);
+  const {
+    set: setUiTheme,
+    add: addUiTheme,
+    setIconVariant
+  } = useThemes(themes.value, initial);
 
   // --- state
 
@@ -78,13 +83,13 @@ export const useTheme = (initial?: string) => {
     setFontFamily({
       display: styles.value?.brand_font?.family
     });
+    setIconVariant(iconStyles.value?.variant);
     setUiTheme(theme.value?.id ?? "upmind");
     setDocumentTitle(name.value);
     setDocumentFavicon(favicon.value ?? undefined);
   };
 
   // --- Side Effects
-
   isBrandReady().then(() => {
     // honour the initial theme
     // if no initial theme provided, honour the preferred variant from the UI meta

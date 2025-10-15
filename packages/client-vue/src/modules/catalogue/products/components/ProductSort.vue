@@ -61,7 +61,7 @@ const groupItems = computed((): ButtonGroupItem[] => [
     type: ButtonGroupTypes.Button,
     props: {
       icon:
-        direction.value == RequestSortDirection.ASC ? "sort-asc" : "sort-desc",
+        direction.value == RequestSortDirection.ASC ? "arrow-down" : "arrow-up",
       disabled: isEmpty(property.value)
     } satisfies ButtonProps,
     handler: toggleDirection
