@@ -1,4 +1,5 @@
 {
+  "basket_count": "prázdny | {count} položka | {count} položky",
   "basket_items": "žiadne položky v košíku | {count} položka v košíku | {count} položky v košíku",
   "basket_product_missing_data": "Chýbajúce údaje v položke",
   "basket_product_missing_data_help": "Tejto položke chýbajú údaje a vyžaduje si pozornosť.",
@@ -38,5 +39,8 @@
   "product_not_found": "**Produkt** sa nenašiel",
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
   "promotion_help": "{code} poskytuje {amount} zľava {description}",
-  "promotions_active": "Aktívne zľavy"
+  "promotions_active": "Aktívne zľavy",
+  "recommendations_unavailable_text": "We couldn't find any recommendations for you at this time. Please click below to continue.",
+  "recommendations_unavailable_title": "We're sorry about that...",
+  "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}"
 }
