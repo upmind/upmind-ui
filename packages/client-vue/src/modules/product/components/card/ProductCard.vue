@@ -80,10 +80,10 @@
             "
             icon="shopping-bag-02"
             :loading="processing"
-            :variant="buttonVariant"
+            variant="solid"
+            :color="color"
             size="lg"
             block
-            pill
             :label="t('action.add_to_basket')"
             @click="handleResolve"
           />

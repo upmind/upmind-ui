@@ -26,8 +26,7 @@ export interface ProductCardProps
   hideTermSummary?: boolean;
   preservePromotion?: boolean;
   navigate?: boolean;
-  buttonVariant?: ButtonProps["variant"];
-  buttonColor?: ButtonProps["color"];
+  color?: ButtonProps["color"];
   ratio?: ImageProps["ratio"];
 }
 
