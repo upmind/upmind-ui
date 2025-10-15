@@ -1,5 +1,5 @@
 <template>
-  <Alert color="danger" icon="alert">
+  <Alert color="danger" icon="alert-triangle">
     <template #title>
       <h5 class="m-0 hidden font-normal md:inline">
         {{ t("cart.basket_product_missing_data_help") }}

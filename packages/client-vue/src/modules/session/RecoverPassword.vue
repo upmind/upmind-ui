@@ -15,7 +15,7 @@
         <Header
           :badge="{
             label: t('text.fully_encrypted_title'),
-            icon: 'lock'
+            icon: 'lock-04'
           }"
           :title="t('text.forgot_your_password_qn')"
           :description="t('auth.forgot_password_help')"

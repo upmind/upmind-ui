@@ -78,7 +78,7 @@
                   }
                 : undefined
             "
-            icon="basket-add"
+            icon="shopping-bag-02"
             :loading="processing"
             :variant="buttonVariant"
             size="lg"

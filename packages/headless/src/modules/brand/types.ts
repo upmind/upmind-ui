@@ -18,6 +18,7 @@ export interface IBrandMeta {
     };
     ui: UIMeta;
   };
+  icon_variant?: string; // the preferred icon variant to be used
   variant?: string; // the preferred variant/token id to be used
   theme?: string; // the preferred data-theme id to be used
 }
