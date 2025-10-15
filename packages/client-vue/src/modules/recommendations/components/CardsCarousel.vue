@@ -31,8 +31,7 @@
           v-bind="recommendation"
           :preserve-promotion="preservePromotions"
           :navigate="false"
-          button-variant="solid"
-          button-color="secondary"
+          color="secondary"
           ratio="3:2"
           hide-terms
           @resolve="doResolve"
