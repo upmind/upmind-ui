@@ -45,7 +45,7 @@ export interface CheckboxCardsProps extends ToggleGroupRootProps {
   /** Display the checkbox cards as a list */
   list?: boolean;
   // ---
-  uiConfig?: { tooltip: CxOptions };
+  uiConfig?: { checkboxCards: { item: CxOptions } };
   /** Apply additional classes to the container */
   /** @type {import('vue').HTMLAttributes['class']} */
   class?: HTMLClassAttributes;
