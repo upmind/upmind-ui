@@ -62,7 +62,7 @@ export default {
       container: cva("max-w-app mx-auto")
     },
     content: {
-      root: cva("px-6 md:px-2.5", {
+      root: cva("shadow-t-border-surface px-6 md:px-2.5", {
         variants: {
           isMinimal: {
             true: "py-18",
