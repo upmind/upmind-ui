@@ -75,7 +75,7 @@ export default {
       "text-muted prose prose-a:font-normal prose-a:text-inherit text-left text-sm leading-snug"
     ),
 
-    isFree: cva("bg-base")
+    isFree: cva("w-full")
   },
 
   client: {

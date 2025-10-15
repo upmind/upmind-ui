@@ -1,8 +1,8 @@
 <template>
   <div :class="styles.checkout.gateway">
     <Alert
-      icon="check-circle"
       variant="minimal"
+      icon="check-circle"
       :title="t('cart.nothing_to_pay_msg')"
       :description="t('cart.place_order_desc')"
     />
