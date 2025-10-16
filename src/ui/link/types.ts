@@ -18,7 +18,6 @@ type LinkVariantProps = VariantProps<typeof rootVariants>;
 
 export interface LinkProps {
   label?: string;
-  is?: "router-link" | "a";
   icon?: string | Icon;
   avatar?: Partial<AvatarProps>;
   iconAppend?: string | Icon;

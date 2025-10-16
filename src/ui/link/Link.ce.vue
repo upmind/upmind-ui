@@ -68,10 +68,9 @@ defineEmits<{
 }>();
 
 const component = computed(() => {
-  if (props.is) return props.is;
-  if (props.to) return RouterLink;
-  if (props.href) return "a";
-  return "a";
+  if (props.to && !props.disabled) return RouterLink;
+  if (props.href && !props.disabled) return "a";
+  return "span";
 });
 
 const isRouterLink = computed(() => component.value === RouterLink);
