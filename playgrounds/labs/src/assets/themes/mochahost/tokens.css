@@ -1,26 +1,26 @@
 [data-theme="mochahost"] {
   /* Core colors */
-  --color-core-canvas: #f7f7f7;
+  --color-core-canvas: #f3f6ff;
   --color-core-surface: #ffffff;
-  --color-core-base: #232532;
-  --color-core-display: #232532;
+  --color-core-base: #545964;
+  --color-core-display: #1b076e;
   --color-core-faint: #9d9da9;
   --color-core-muted: #89898a;
   --color-core-skeleton: #2626260c;
   --color-core-overlay: #3d3d3dcc;
 
   /* Primary colors */
-  --color-primary-default: #ffd900;
-  --color-primary-default-stop: #ffd900;
-  --color-primary-default-delta: #e6c300;
-  --color-primary-default-contrast: #333333;
+  --color-primary-default: #5e31ff;
+  --color-primary-default-stop: #5e31ff;
+  --color-primary-default-delta: #4f27e6;
+  --color-primary-default-contrast: #ffffff;
   --color-primary-muted: #f8f8fb;
-  --color-primary-muted-contrast: #333333;
+  --color-primary-muted-contrast: #5e31ff;
 
   /* Secondary colors */
-  --color-secondary-default: #40a1e8;
-  --color-secondary-default-stop: #40a1e8;
-  --color-secondary-default-delta: #3691d4;
+  --color-secondary-default: #21d2dc;
+  --color-secondary-default-stop: #21d2dc;
+  --color-secondary-default-delta: #46e0e9;
   --color-secondary-default-contrast: #ffffff;
 
   /* Neutral colors */
@@ -34,28 +34,30 @@
   --color-neutral-stroke-delta: #cdcddb;
 
   /* Control colors */
-  --color-control-default: #40a1e8;
-  --color-control-default-delta: #3691d4;
+  --color-control-default: #21d2dc;
+  --color-control-default-delta: #1cbcc6;
   --color-control-default-contrast: #ffffff;
   --color-control-muted: #f8f8fb;
-  --color-control-muted-contrast: #232532;
+  --color-control-muted-contrast: #1b076e;
   --color-control-stroke: #eaeaf1;
   --color-control-stroke-delta: #d5d5de;
 
   /* Promo colors */
-  --color-promo-default: #40a1e8;
+  --color-promo-default: #5e36e8;
   --color-promo-default-contrast: #ffffff;
   --color-promo-muted: #f7f5ff;
-  --color-promo-muted-contrast: #40a1e8;
+  --color-promo-muted-contrast: #5e36e8;
 
   /* Icons colors */
-  --icon-primary: #40a1e8;
-  --icon-neutral: #333333;
+  --icon-primary: #21d2dc;
+  --icon-neutral: #1a076f;
 
   /* Strokes */
   --stroke-icon: 2px;
 
   /* Radius */
-  --button-radius: 4px;
-  --control-radius: 4px;
+  --button-radius: 100px;
+
+  /* Text */
+  --text-button-link-hover: #583dc1;
 }
