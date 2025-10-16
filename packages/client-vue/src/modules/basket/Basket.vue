@@ -81,8 +81,7 @@
             size="lg"
             :loading="meta.isProcessing || meta.isLoading"
             :label="t('action.proceed_to_checkout')"
-            icon="cart"
-            pill
+            icon-append="arrow-right"
           />
         </footer>
       </Section>
