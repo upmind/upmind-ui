@@ -3,7 +3,7 @@ import { ref, computed, provide } from "vue";
 
 // --- internal
 import { useBrand, useTheming } from "@upmind-automation/headless";
-import { useThemes } from "@upmind-automation/upmind-ui";
+import { useThemes, useThemeIcons } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import {
@@ -42,11 +42,9 @@ export const useTheme = (initial?: string) => {
   } = useBrand();
 
   const { themes, meta: themingMeta } = useTheming();
-  const {
-    set: setUiTheme,
-    add: addUiTheme,
-    setIconVariant
-  } = useThemes(themes.value, initial);
+  const { set: setUiTheme, add: addUiTheme } = useThemes(themes.value, initial);
+
+  const { setIconTheme } = useThemeIcons();
 
   // --- state
 
@@ -83,7 +81,7 @@ export const useTheme = (initial?: string) => {
     setFontFamily({
       display: styles.value?.brand_font?.family
     });
-    setIconVariant(iconStyles.value?.variant || "Line");
+    setIconTheme(iconStyles.value?.variant || "Line");
     setUiTheme(theme.value?.id ?? "upmind");
     setDocumentTitle(name.value);
     setDocumentFavicon(favicon.value ?? undefined);
