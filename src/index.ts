@@ -59,6 +59,7 @@ export {
   useStyles,
   cn,
   useThemes,
+  useThemeIcons,
   useStyleSheet,
   usePointerEvents,
   useForwardPropsEmits,
