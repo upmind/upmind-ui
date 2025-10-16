@@ -28,7 +28,7 @@ export const useFormI18n = () => {
           // NB: Override the error if we have a specific i18n error message defined in the data object
           // If the data object contains an "i18n" property, attempt to retrieve a localized error message.
           // This property may be a string (overriding the default error message) or an object with specific messages keyed by validation error type.
-          if (has(data, "i18n") && isFunction(t)) {
+          if (!isEmpty(data?.i18n) && isFunction(t)) {
             const errorOverride = tm(data.i18n)?.error;
             if (errorOverride) {
               error = isString(errorOverride)
