@@ -43,10 +43,10 @@
   --color-control-stroke-delta: #d5d5de;
 
   /* Promo colors */
-  --color-promo-default: #eb6261;
+  --color-promo-default: #3691d4;
   --color-promo-default-contrast: #ffffff;
   --color-promo-muted: #f7f5ff;
-  --color-promo-muted-contrast: #eb6261;
+  --color-promo-muted-contrast: #3691d4;
 
   /* Icons colors */
   --icon-primary: #333333;
@@ -57,4 +57,5 @@
 
   /* Radius */
   --button-radius: 4px;
+  --control-radius: 4px;
 }
