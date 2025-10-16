@@ -21,7 +21,7 @@ import {
 import type { Theme } from "./types";
 
 // -----------------------------------------------------------------------------
-// --- context
+// --- global context
 
 const themes = ref<Theme[] | undefined>(undefined);
 // -----------------------------------------------------------------------------

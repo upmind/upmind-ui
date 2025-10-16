@@ -8,6 +8,7 @@ import {
   type GlobbedFiles,
   useBrand,
   useDataLayer,
+  useLocale,
   useLocalisation,
   useRecaptcha,
   useSession,
@@ -128,7 +129,7 @@ export class Upmind {
         if (this.mode == "express") return;
 
         // NB: set up our locale, but dont wait for our i18n packages to load
-        this.initLocalisation();
+        useLocale().setDefaultLocale();
 
         // then initialise our core modules and wait for them to be ready
         return (
@@ -253,10 +254,10 @@ export class Upmind {
   }
   // ---------------------------------------------------------------------------
 
-  isReady(): Promise<void> {
+  async isReady(): Promise<void> {
     return new Promise(resolve => {
       const interval = setInterval(() => {
-        if (this.status.value !== UpmindStatus.notInitialised) {
+        if (this.status.value == UpmindStatus.initialised) {
           clearInterval(interval);
           resolve();
         }

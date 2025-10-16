@@ -211,7 +211,7 @@ export const useLocale = () => {
      * Sets the default locale based on all fallback logic.
      * @return {Promise<string>} Resolves with the default locale.
      */
-    setDefaultLocale: async (value: string) => {
+    setDefaultLocale: async (value?: string) => {
       defaultLocale.value = value || defaultLocale.value;
       locale.value = getLocale();
     },
