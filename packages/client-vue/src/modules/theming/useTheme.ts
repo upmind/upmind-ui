@@ -18,6 +18,12 @@ import { isEmpty, keys, isEqual, first, find, forEach } from "lodash-es";
 import type { Theme } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
+// --- global context
+
+const theme = ref<Theme | undefined>(undefined);
+
+// -----------------------------------------------------------------------------
+
 /**
  * Composable for managing and applying the current brand theme.
  * Provides theme theme, available variants, and a method to apply the theme to the document.
@@ -56,9 +62,6 @@ export const useTheme = (initial?: string) => {
   }
 
   // --- context
-
-  // the theme definition
-  const theme = ref<Theme | undefined>(undefined);
 
   const meta = computed(() => ({
     isAvailable: brandMeta.value.isAvailable,

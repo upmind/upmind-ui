@@ -1,6 +1,6 @@
 <template>
   <Loading
-    :active="!appMeta.isAvailable || !themeMeta.hasSettings"
+    :active="!meta.isAvailable || !meta.hasSettings"
     class-active="h-full min-h-screen w-full text-base bg-core-surface"
     id="vue-app"
   >
@@ -12,7 +12,7 @@
       <div
         class="bg-canvas relative flex min-h-screen flex-col items-start text-base antialiased"
       >
-        <slot name="header" v-if="appMeta.isAvailable && themeMeta.hasSettings">
+        <slot name="header" v-if="meta.isAvailable && meta.hasSettings">
           <Header :logo="logo">
             <template #actions>
               <slot name="actions" />
@@ -23,7 +23,7 @@
 
         <div
           class="flex w-full flex-1 flex-col"
-          v-if="appMeta.isAvailable && themeMeta.hasSettings"
+          v-if="meta.isAvailable && meta.hasSettings"
         >
           <RouterView v-slot="routerViewProps" :key="$route.fullPath">
             <slot v-bind="routerViewProps">
@@ -42,7 +42,7 @@
                       <template #fallback>
                         <AsyncLoading
                           v-bind="loadingProps"
-                          v-if="appMeta.isAvailable && themeMeta.hasSettings"
+                          v-if="meta.isAvailable && meta.hasSettings"
                         />
                       </template>
                     </Suspense>
@@ -53,7 +53,7 @@
           </RouterView>
         </div>
 
-        <slot name="footer" v-if="appMeta.isAvailable && themeMeta.hasSettings">
+        <slot name="footer" v-if="meta.isAvailable && meta.hasSettings">
           <Footer />
         </slot>
       </div>
@@ -104,10 +104,12 @@ const props = defineProps<{
 const loading = ref(true);
 
 // -----------------------------------------------------------------------------
-const { meta: themeMeta } = useTheme(props.theme);
 
-const appMeta = computed(() => ({
-  isAvailable: useUpmind.status.value == UpmindStatus.initialised
+const themeReady = ref(false);
+
+const meta = computed(() => ({
+  isAvailable: useUpmind.status.value == UpmindStatus.initialised,
+  hasSettings: themeReady.value
 }));
 
 const currentRoute = useRoute();
@@ -116,19 +118,30 @@ const route = computed(() =>
   get(currentRoute, "name", get(currentRoute, "path", ""))
 );
 
-const meta = computed(() => {
-  return {
-    route: route.value,
-    loading: loading.value,
-    available: themeMeta.value.hasTheme
-  };
-});
-
-const styles = useStyles(["page"], meta) as ComputedRef<{
+// add any page specific styles here based on route or other state
+const styles = useStyles(
+  ["page"],
+  computed(() => {
+    return {
+      route: route.value,
+      loading: loading.value,
+      available: meta.value.isAvailable
+    };
+  })
+) as ComputedRef<{
   page: string;
 }>;
 
 function setLoading(value: boolean) {
   loading.value = value;
 }
+
+// --side effects
+
+// wait for upmind and theme to be ready before allowing the app to render and disable loading state
+useUpmind.isReady().then(() =>
+  useTheme(props.theme)
+    .isReady()
+    .then(() => (themeReady.value = true))
+);
 </script>
