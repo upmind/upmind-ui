@@ -175,7 +175,7 @@ import type { ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<PaymentDetailsProps>(), {
   as: "div",
-  class: "bg-base "
+  class: "bg-surface"
 });
 
 const { t } = useI18n();
