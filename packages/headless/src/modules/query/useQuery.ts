@@ -329,7 +329,6 @@ export const useQuery = () => {
     ...options
   }: QueryParams<TQueryFnData, TData>) {
     // ensure we have a scope, in case we call this outside of a setup function
-    const { t } = useI18n();
     const scope = getCurrentScope() ?? effectScope();
 
     const { currencyCode } = useBasketCurrency();
@@ -450,6 +449,8 @@ export const useQuery = () => {
        * @throws {Error} Throws an error if there is no previous page.
        */
       fetchPreviousPage: (): void => {
+        const { t } = useI18n();
+
         const total = response?.data?.value?.total ?? 0;
         const pageTotal = !limit ? 1 : Math.max(Math.ceil(total / limit), 1);
 
@@ -479,6 +480,8 @@ export const useQuery = () => {
        *
        */
       fetchNextPage: (): void => {
+        const { t } = useI18n();
+
         const total = response?.data?.value?.total ?? 0;
         const pageTotal = !limit ? 1 : Math.max(Math.ceil(total / limit), 1);
 
