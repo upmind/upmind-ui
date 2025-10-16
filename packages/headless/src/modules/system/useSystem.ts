@@ -50,11 +50,9 @@ let needsRefresh = some(keys(localStorage), key => includes(key, `"system"`));
 // --- singleton queries to prevent multiple fetches
 
 let countriesQuery: ReturnType<typeof services.fetchCountries>;
-let currenciesQuery: ReturnType<typeof services.fetchCurrencies>;
 let billingCyclesQuery: ReturnType<typeof services.fetchBillingCycles>;
-let statusesQuery: ReturnType<typeof services.fetchStatuses>;
-let languagesQuery: ReturnType<typeof services.fetchLanguages>;
-let departmentsQuery: ReturnType<typeof services.fetchDepartments>;
+// let statusesQuery: ReturnType<typeof services.fetchStatuses>;
+// let departmentsQuery: ReturnType<typeof services.fetchDepartments>;
 // -----------------------------------------------------------------------------
 
 /**
@@ -66,39 +64,30 @@ export const useSystem = () => {
 
   // --- queries (auto-loading essential data)
   countriesQuery ??= services.fetchCountries();
-  currenciesQuery ??= services.fetchCurrencies();
   billingCyclesQuery ??= services.fetchBillingCycles();
 
   // --- state
 
   const queries = [
     billingCyclesQuery,
-    countriesQuery,
-    currenciesQuery,
-    departmentsQuery,
-    languagesQuery,
-    statusesQuery
+    countriesQuery
+    // departmentsQuery,
+    // statusesQuery
   ];
 
   // --- meta information
   const meta = computed(() => {
     const essentialQueries = reject(
-      [countriesQuery, currenciesQuery, billingCyclesQuery],
-      isEmpty
-    );
-    const optionalQueries = reject(
-      [statusesQuery, languagesQuery, departmentsQuery],
+      [countriesQuery, billingCyclesQuery],
       isEmpty
     );
 
-    const allQueries = [...essentialQueries, ...optionalQueries];
-
-    const hasError = computed(() => some(allQueries, "isError"));
-    const isLoading = computed(() => some(allQueries, "isLoading"));
-    const isComplete = computed(() => every(allQueries, "isComplete"));
+    const hasError = computed(() => some(queries, "isError"));
+    const isLoading = computed(() => some(queries, "isLoading"));
+    const isComplete = computed(() => every(queries, "isComplete"));
 
     return {
-      isEmpty: allQueries.some(q => isEmpty(q?.data?.value)),
+      isEmpty: queries.some(q => isEmpty(q?.data?.value)),
       hasError,
       isLoading,
       isComplete,
@@ -122,26 +111,15 @@ export const useSystem = () => {
   }
 
   // --- computed
-  const statuses = computed(() => statusesQuery?.data.value || []);
   const countries = computed(() => countriesQuery?.data.value || []);
-  const languages = computed(() => languagesQuery?.data.value || []);
-  const currencies = computed(() => currenciesQuery?.data.value || []);
-  const departments = computed(() => departmentsQuery?.data.value || []);
   const billingCycles = computed(() => billingCyclesQuery?.data.value || []);
 
   const errors = computed(() => ({
     countries: countriesQuery?.error.value,
-    currencies: currenciesQuery?.error.value,
-    billingCycles: billingCyclesQuery?.error.value,
-    statuses: statusesQuery?.error.value,
-    languages: languagesQuery?.error.value,
-    departments: departmentsQuery?.error.value
+    billingCycles: billingCyclesQuery?.error.value
   }));
 
   // --- helper methods
-  function getStatus(value: string): IStatus | undefined {
-    return find(statuses.value, ["code", value]);
-  }
 
   function getRegion(
     values: string | string[],
@@ -180,30 +158,6 @@ export const useSystem = () => {
       find(countries.value, ["id", countryId.value])) as ICountry;
   }
 
-  function getCurrency(value?: string): ICurrency | undefined {
-    value ??= currencyId.value;
-
-    if (value?.length === 3) {
-      return (
-        find(currencies.value, ["code", value]) ??
-        find(currencies.value, ["id", currencyId.value])
-      );
-    }
-
-    return (
-      find(currencies.value, ["id", value]) ??
-      find(currencies.value, ["id", currencyId.value])
-    );
-  }
-
-  function getLanguage(value: string): ILanguage | undefined {
-    return find(languages.value, ["code", value]);
-  }
-
-  function getDepartment(value: string): ITicketDepartment | undefined {
-    return find(departments.value, ["code", value]);
-  }
-
   function getBillingCycle(value: number): IBillingCycle | undefined {
     return find(billingCycles.value, ["months", value]);
   }
@@ -233,34 +187,9 @@ export const useSystem = () => {
     return regions;
   }
 
-  async function fetchStatuses(): Promise<IStatus[]> {
-    statusesQuery ??= services.fetchStatuses();
-
-    if (!statusesQuery?.isFetched) {
-      await statusesQuery?.refetch();
-    }
-
-    return statuses.value;
-  }
-
   async function fetchCountries(): Promise<ICountry[]> {
     if (!countriesQuery?.isFetched) await countriesQuery?.refetch();
     return countries.value;
-  }
-
-  async function fetchLanguages(): Promise<ILanguage[]> {
-    languagesQuery ??= services.fetchLanguages();
-
-    if (!languagesQuery?.isFetched) await languagesQuery?.refetch();
-    return languages.value as ILanguage[];
-  }
-
-  async function fetchDepartments(): Promise<ITicketDepartment[]> {
-    departmentsQuery ??= services.fetchDepartments();
-
-    if (!departmentsQuery?.isFetched) await departmentsQuery?.refetch();
-
-    return departments.value as ITicketDepartment[];
   }
 
   // --- Utility methods for cache management and re-fetching
@@ -311,26 +240,12 @@ export const useSystem = () => {
     errors,
 
     // --- context
-    /**
-     * Computed property to the system's statuses.
-     */
-    statuses,
-    /**
-     * Computed property to the system's languages.
-     */
-    languages,
+
     /**
      * Computed property to the system's countries.
      */
     countries,
-    /**
-     * Computed property to the system's currencies.
-     */
-    currencies,
-    /**
-     * Computed property to the system's departments.
-     */
-    departments,
+
     /**
      * Computed property to the system's billing cycles.
      */
@@ -344,12 +259,7 @@ export const useSystem = () => {
      * @returns The matching region object, or undefined if not found.
      */
     getRegion,
-    /**
-     * Returns the status object for a given status code.
-     * @param value - The status code.
-     * @returns The matching status object, or undefined if not found.
-     */
-    getStatus,
+
     /**
      * Returns the country object for a given country code or id.
      * @param value - The country code (2-letter) or id.
@@ -362,24 +272,7 @@ export const useSystem = () => {
      * @returns The regions array for the country, or undefined if not found.
      */
     getRegions,
-    /**
-     * Returns the currency object for a given currency code or id.
-     * @param value - The currency code (3-letter) or id.
-     * @returns The matching currency object, or undefined if not found.
-     */
-    getCurrency,
-    /**
-     * Returns the language object for a given language code.
-     * @param value - The language code.
-     * @returns The matching language object, or undefined if not found.
-     */
-    getLanguage,
-    /**
-     * Returns the department object for a given department code.
-     * @param value - The department code.
-     * @returns The matching department object, or undefined if not found.
-     */
-    getDepartment,
+
     /**
      * Returns the billing cycle object for a given number of months.
      * @param value - The number of months for the billing cycle.
@@ -393,26 +286,12 @@ export const useSystem = () => {
      * @returns A promise resolving to the list of regions for the country.
      */
     fetchRegions,
-    /**
-     * Fetches the list of statuses from the API or returns cached statuses if available.
-     * @returns A promise resolving to the list of statuses.
-     */
-    fetchStatuses,
+
     /**
      * Fetches the list of countries from the API or returns cached countries if available.
      * @returns A promise resolving to the list of countries.
      */
     fetchCountries,
-    /**
-     * Fetches the list of languages from the API or returns cached languages if available.
-     * @returns A promise resolving to the list of languages.
-     */
-    fetchLanguages,
-    /**
-     * Fetches the list of departments from the API or returns cached departments if available.
-     * @returns A promise resolving to the list of departments.
-     */
-    fetchDepartments,
 
     // --- utility methods
     refresh,
