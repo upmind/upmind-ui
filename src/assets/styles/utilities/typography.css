@@ -11,6 +11,7 @@
 @layer utilities {
   .font-display {
     font-family: var(--font-display);
+    color: var(--text-display);
   }
   .font-body {
     font-family: var(--font-body);
