@@ -15,7 +15,7 @@ import {
   useValidationParser
 } from "../../../utils";
 import { useSchema, useUischema } from "./utils";
-import { get, isEqual } from "lodash-es";
+import { cloneDeep, get, isEqual } from "lodash-es";
 
 // --- types
 import type { AnyEventObject } from "xstate";
@@ -110,7 +110,7 @@ export default createMachine(
           src: "update",
           onDone: {
             target: "processed",
-            actions: ["clearAutoUpdate"]
+            actions: ["clearAutoUpdate", "persistModel"]
           },
           onError: {
             target: "#error",
@@ -204,6 +204,10 @@ export default createMachine(
 
       clearModel: assign({
         model: undefined
+      }),
+
+      persistModel: assign({
+        baseModel: ({ model }: CurrencyContext) => cloneDeep(model) // we use spread to ensure its a new array
       }),
 
       setAutoUpdate: assign({
