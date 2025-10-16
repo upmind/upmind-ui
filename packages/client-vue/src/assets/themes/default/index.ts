@@ -5,8 +5,8 @@ import theme from "./_theme.css?raw";
 // import { compact, isEmpty, uniq } from "lodash-es";
 
 const defaultTheme = {
-  name: "Upmind",
-  id: "upmind",
+  name: "default",
+  id: "default",
   uiConfig,
   tokens,
   theme
