@@ -1,20 +1,12 @@
 // --- external
 
 // --- internal
-import { useI18n, useLocale } from "../system";
+import { useI18n } from "../system";
 import { useSession } from "../session";
 import { handleError, useQuery } from ".";
 
 // --- utils
-import {
-  get,
-  map,
-  set,
-  isEmpty,
-  includes,
-  upperCase,
-  startsWith
-} from "lodash-es";
+import { get, map, set, includes, upperCase } from "lodash-es";
 import {
   getTokenFromStorage,
   dumpTokenFromStorage,
@@ -59,12 +51,6 @@ async function doFetch<T extends any = any>({
         ErrorOrigin.Headless
       )
     );
-
-  if (!url.searchParams.has("lang")) {
-    const { locale } = useLocale();
-    if (!isEmpty(locale.value))
-      url.searchParams.set("lang", locale.value as string);
-  }
 
   // do the fetch
   return fetch(url.toString(), init)
