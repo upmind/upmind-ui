@@ -6,7 +6,7 @@
       as="router-link"
       variant="ghost"
       size="lg"
-      :to="ROUTE.BASKET"
+      :to="{ name: ROUTE.BASKET }"
       icon="shopping-bag-02"
     >
       <Transition name="label-slide">
