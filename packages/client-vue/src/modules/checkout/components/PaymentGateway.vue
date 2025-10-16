@@ -62,7 +62,6 @@
             @click.prevent="handleCheckout"
             :label="action"
             :class="styles.checkout.action"
-            pill
           />
 
           <p v-if="meta.needsPayment" :class="styles.checkout.additional">

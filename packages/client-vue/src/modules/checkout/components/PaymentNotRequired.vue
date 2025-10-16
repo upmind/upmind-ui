@@ -18,7 +18,6 @@
           @click.prevent="handleCheckout"
           :label="t('action.place_order')"
           :class="styles.checkout.action"
-          pill
         />
       </div>
 

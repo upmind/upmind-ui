@@ -58,7 +58,6 @@
             size="lg"
             class="w-full md:w-auto"
             iconAppend="arrow-right"
-            pill
           />
         </section>
       </template>

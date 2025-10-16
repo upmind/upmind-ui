@@ -39,7 +39,6 @@
         variant="outline"
         :label="t('action.login')"
         icon="user-circle"
-        pill
         data-testid="login-popover-trigger"
       />
     </SessionLoginPopover>

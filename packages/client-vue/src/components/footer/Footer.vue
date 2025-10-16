@@ -30,6 +30,7 @@
           <p>
             {{ t("text.powered_by") }}
             <Link
+              size="inherit"
               color="inherit"
               href="https://upmind.com"
               target="_blank"

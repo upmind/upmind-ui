@@ -270,21 +270,21 @@ const mapFeedback = (
     [responseCodes.Gateway_Timeout]: undefined,
     // ---
     [responseCodes.Too_Many_Requests]: {
-      type: messageTypes.DANGER,
+      type: messageTypes.ERROR,
       title: t("error.429_title_md"),
       copy: t("error.429_text"),
       data: error,
       display: messageDisplays.MODAL
     },
     [responseCodes.Internal_Server_Error]: {
-      type: messageTypes.DANGER,
+      type: messageTypes.ERROR,
       title: t("error.500_title_md"),
       copy: t("error.500_text"),
       data: error,
       display: messageDisplays.TOAST
     },
     [responseCodes.Service_Unavailable]: {
-      type: messageTypes.DANGER,
+      type: messageTypes.ERROR,
       title: t("error.503_title_md"),
       copy: t("error.503_text"),
       data: error,
