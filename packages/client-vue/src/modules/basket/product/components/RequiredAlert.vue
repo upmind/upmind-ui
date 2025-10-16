@@ -9,13 +9,7 @@
       </h5>
     </template>
     <template #action>
-      <Link
-        :as="RouterLink"
-        :to="editLink"
-        size="sm"
-        color="danger"
-        icon-append="arrow-right"
-      >
+      <Link :to="editLink" size="sm" color="danger" icon-append="arrow-right">
         <p class="m-0 hidden md:inline">
           {{ t("action.add_missing_data") }}
         </p>
