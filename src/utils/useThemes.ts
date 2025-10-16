@@ -1,8 +1,5 @@
 // --- external
-import { ref, provide, computed, readonly } from "vue";
-
-// --- injection keys
-import { ICON_VARIANT_KEY } from "./injectionKeys";
+import { ref, computed, readonly } from "vue";
 
 // --- utils
 import {
@@ -45,10 +42,14 @@ export interface ITheme {
 }
 
 // -----------------------------------------------------------------------------
+// --- global context
+
 const activeTheme = ref(<string>"");
+const activeIconTheme = ref<string>("");
 const config = ref({});
 const themes = ref<Theme[]>([]);
-const iconVariant = ref<string>("");
+
+// -----------------------------------------------------------------------------
 
 export const useThemes = (value?: Theme | Theme[], defaultTheme?: string) => {
   // safety checks
@@ -92,32 +93,12 @@ export const useThemes = (value?: Theme | Theme[], defaultTheme?: string) => {
     }
   }
 
-  function setIconVariant(variant?: string) {
-    if (variant) {
-      iconVariant.value = variant;
-    }
-  }
-
   function add(theme: Theme, setActive = true) {
     if (!theme || !theme.id || find(themes.value, ["id", theme.id])) return;
     themes.value.push(theme);
     if (setActive) setTheme(theme.id);
   }
 
-  // TODO: FE-1579 Implement a singleton and structured approach to provide/inject namespacing
-  provide(
-    ICON_VARIANT_KEY,
-    computed(() => iconVariant.value)
-  );
-
-  // make our theme available to the app
-  provide("uiConfig", {
-    activeTheme,
-    config,
-    themes: providedThemes,
-    setTheme,
-    setIconVariant
-  });
   // ---
 
   return {
@@ -125,13 +106,26 @@ export const useThemes = (value?: Theme | Theme[], defaultTheme?: string) => {
     themes: providedThemes,
     config: readonly(config),
     set: setTheme,
-    add,
-    setIconVariant
+    add
+  };
+};
+
+export const useThemeIcons = () => {
+  function setIconTheme(variant?: string) {
+    if (variant) {
+      activeIconTheme.value = variant;
+    }
+  }
+
+  return {
+    setIconTheme,
+    activeIconTheme: readonly(activeIconTheme)
   };
 };
 
 export default {
   activeTheme,
+  activeIconTheme,
   config,
   themes
 };
