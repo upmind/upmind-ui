@@ -138,7 +138,13 @@ export class Upmind {
             useSession().isReady()
           ])
             // start with our render blocking initialisations
-            .then(() => Promise.all([this.initTheming(), this.initRouter()]))
+            .then(() =>
+              Promise.all([
+                this.initLocalisation(),
+                this.initTheming(),
+                this.initRouter()
+              ])
+            )
             .then(() => {
               // then do our non render blocking initialisations
               this.initRecaptcha();

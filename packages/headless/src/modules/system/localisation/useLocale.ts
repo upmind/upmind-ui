@@ -98,10 +98,7 @@ export const useLocale = () => {
 
     //  Ensure supported languages for the brand AND Upmind,
     //  there are some brand languages that are not supported by Upmind
-    const supportedLanguages = filter(
-      UpmindSupportedLocales,
-      isSupportedLanguage
-    );
+    const langs = filter(UpmindSupportedLocales, isSupportedLanguage);
 
     /**
      * @desc Here we create an intersection to work out which of the preferred
@@ -109,14 +106,14 @@ export const useLocale = () => {
      * when comparing the designator part (ISO 639-1) of the locale code (eg.
      * 'es' from 'es-MX') */
 
-    if (isEmpty(supportedLanguages)) {
+    if (isEmpty(langs)) {
       value = first(preferredLocales);
     } else {
       const localeIntersection = reduce(
         preferredLocales,
         (result: string[], code: UpmindSupportedLocales) => {
           const exactMatch = some(
-            supportedLanguages,
+            langs,
             supportedLocale =>
               supportedLocale.toLocaleLowerCase() == code.toLocaleLowerCase()
           );
@@ -126,7 +123,7 @@ export const useLocale = () => {
           } else {
             const designator = first(code.split("-"));
             const designatorMatch = some(
-              supportedLanguages,
+              langs,
               supportedLocale =>
                 first(supportedLocale.split("-")) === designator
             );

@@ -91,6 +91,7 @@ function fetchBrandConfig(keys: BrandConfigKeys[] = defaultBrandConfigKeys) {
     queryKey: ["brand", "config", { keys: brandConfigKeysStore.state }],
     select: data => mapBrandConfig(data, brandConfigKeysStore.state),
     staleTime: "static",
+    withoutLocale: true,
     persister: localStoragePersister.persisterFn
   });
 }
@@ -103,6 +104,7 @@ function fetchModules() {
     queryKey: ["brand", "modules"],
     // --- options
     staleTime: "static",
+    withoutLocale: true,
     persister: localStoragePersister.persisterFn
   });
 }
@@ -122,6 +124,7 @@ function fetchOrganisationConfig() {
     ],
     // --- options
     staleTime: "static",
+    withoutLocale: true,
     persister: localStoragePersister.persisterFn
   });
 }
