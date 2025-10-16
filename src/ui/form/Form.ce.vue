@@ -36,7 +36,6 @@
           :variant="action.variant"
           v-bind="action"
           @click="doAction(action, $event)"
-          pill
         />
       </slot>
     </div>

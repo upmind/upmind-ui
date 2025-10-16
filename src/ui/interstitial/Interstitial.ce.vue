@@ -41,7 +41,6 @@
             :variant="action?.variant || 'solid'"
             :color="action?.color || 'primary'"
             @click.stop="doAction(action?.handler)"
-            pill
           />
         </slot>
       </footer>
