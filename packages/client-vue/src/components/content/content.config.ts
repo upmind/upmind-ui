@@ -56,6 +56,6 @@ export default {
       }
     }),
     content: cva("flex w-full flex-col gap-8"),
-    title: cva("text-muted w-full text-xl")
+    title: cva("text-muted text-xl")
   }
 };
