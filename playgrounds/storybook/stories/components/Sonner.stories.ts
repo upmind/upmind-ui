@@ -8,7 +8,7 @@ import { Sonner, toast, Button } from "@upmind-automation/upmind-ui";
 import { useSystemArgTypes } from "../../utils";
 
 // --- types
-import { SONNER_VARIANTS } from "@upmind-automation/upmind-ui";
+import { TOAST_VARIANTS } from "@upmind-automation/upmind-ui";
 
 const meta: Meta<typeof Sonner> = {
   argTypes: {
@@ -109,7 +109,7 @@ export const Colors: Story = {
   render: args => ({
     components: { Sonner, Button },
     setup() {
-      const colors = SONNER_VARIANTS;
+      const colors = TOAST_VARIANTS;
 
       const showToast = (color: string) => {
         const capitalisedColorTitle =
