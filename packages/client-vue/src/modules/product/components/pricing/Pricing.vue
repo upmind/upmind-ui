@@ -4,12 +4,14 @@
     :monthly-from-regular-price="props.monthlyFromRegularPrice"
     :discounted="props.discounted"
     :use-monthly-from-price="props.useMonthlyFromPrice"
+    :ui-config="props.uiConfig"
   />
   <CurrentPrice
     :current-price="props.currentPrice"
     :monthly-from-current-price="props.monthlyFromCurrentPrice"
     :free="props.free"
     :use-monthly-from-price="props.useMonthlyFromPrice"
+    :ui-config="props.uiConfig"
   />
 </template>
 
