@@ -23,7 +23,7 @@ export default {
       root: cva("flex flex-col gap-3"),
       trigger: {
         root: cva(
-          "text-muted bg-control-surface shadow-control-default hover:shadow-control-hover data-[state=open]:bg-background data-[state=open]:shadow-foreground flex cursor-pointer items-center justify-between space-x-2 rounded px-5 py-3 font-normal transition-all duration-200 hover:text-base hover:no-underline data-[state=open]:text-base data-[state=open]:font-medium"
+          "bg-control-surface shadow-control-default hover:shadow-control-hover data-[state=open]:bg-background data-[state=open]:shadow-foreground flex cursor-pointer items-center justify-between space-x-2 rounded px-5 py-3 text-base font-medium transition-all duration-200 hover:text-base hover:no-underline"
         ),
         icon: cva(
           "text-muted ml-auto transition-all duration-200 group-hover:text-base [&>svg]:size-3 [&>svg]:transition-all [&>svg]:duration-200"
