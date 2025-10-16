@@ -82,7 +82,7 @@ export const useTheme = (initial?: string) => {
       display: styles.value?.brand_font?.family
     });
     setIconTheme(iconStyles.value?.variant || "Line");
-    setUiTheme(theme.value?.id ?? "upmind");
+    setUiTheme(theme.value?.id ?? "default");
     setDocumentTitle(name.value);
     setDocumentFavicon(favicon.value ?? undefined);
   };
@@ -93,7 +93,7 @@ export const useTheme = (initial?: string) => {
     // if no initial theme provided, honour the preferred variant from the UI meta
     // if no variants are available, we honour the browser mode and use the default `upmind` variant
 
-    const defaultTheme = "upmind";
+    const defaultTheme = "default";
     // TODO: once we have configured the DARK thee correctly
     //  window.matchMedia("(prefers-color-scheme: dark)")
     //   .matches
