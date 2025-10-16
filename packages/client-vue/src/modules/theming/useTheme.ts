@@ -62,10 +62,7 @@ export const useTheme = (initial?: string) => {
 
   const meta = computed(() => ({
     isAvailable: brandMeta.value.isAvailable,
-    hasSettings:
-      brandMeta.value.isAvailable &&
-      themingMeta.value.hasThemes &&
-      !isEmpty(theme.value),
+    hasSettings: brandMeta.value.isAvailable && themingMeta.value.hasThemes,
     hasTheme: !isEmpty(theme.value)
   }));
 
