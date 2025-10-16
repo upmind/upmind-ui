@@ -94,7 +94,7 @@ watch(toasts, toasts => {
 
 function getToastType(type: messageTypes) {
   switch (type) {
-    case messageTypes.DANGER:
+    case messageTypes.ERROR:
       return TOAST_VARIANTS.DANGER;
     case messageTypes.INFO:
       return TOAST_VARIANTS.INFO;
