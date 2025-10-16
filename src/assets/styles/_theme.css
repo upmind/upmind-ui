@@ -178,8 +178,8 @@
   --border-accent-info: var(--color-info-default);
 
   /* Icon Colors */
-  --text-icon-primary: var(--color-primary-default);
-  --text-icon-neutral: var(--color-core-base);
+  --icon-primary: var(--color-primary-default);
+  --icon-neutral: var(--color-core-base);
 
   /* Text Colors */
   --text-primary: #ffffff;
