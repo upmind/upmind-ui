@@ -15,7 +15,6 @@
 
     <template v-else>
       <Link
-        :as="RouterLink"
         :to="editLink"
         size="sm"
         :label="t('action.configure_now')"
