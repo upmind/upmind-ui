@@ -13,7 +13,6 @@ a
           :class="styles.pagination.button"
           :disabled="page <= 1"
           @click="emit('prev')"
-          pill
         >
           <Icon icon="arrow-left" size="2xs" />
         </Button>
@@ -31,7 +30,6 @@ a
           :class="styles.pagination.button"
           :disabled="page >= pageCount"
           @click="emit('next')"
-          pill
         >
           <Icon icon="arrow-right" size="2xs" />
         </Button>
