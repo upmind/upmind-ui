@@ -101,6 +101,7 @@ export const useQuery = () => {
     filters,
     pagination,
     withCurrency,
+    withoutLocale,
     // ---
     init,
     withAccessToken
@@ -151,7 +152,7 @@ export const useQuery = () => {
       }
 
       // set "lang" parameter
-      if (!isEmpty(locale.value)) {
+      if (!withoutLocale && !isEmpty(locale.value)) {
         url.searchParams.set("lang", locale.value as string);
       }
 
@@ -226,7 +227,8 @@ export const useQuery = () => {
     guard,
     select,
     queryKey,
-    withCurrency = false,
+    withCurrency,
+    withoutLocale,
     withAccessToken,
     ...options
   }: Omit<QueryParams<TQueryFnData, TData>, "pagination">) {
@@ -243,7 +245,8 @@ export const useQuery = () => {
 
     // --- query
     const reactiveKeys: ReactiveQueryKeys = { sort, filters };
-    if (locale.value) reactiveKeys.locale = locale;
+
+    if (!withoutLocale && locale.value) reactiveKeys.locale = locale;
 
     if (withCurrency) {
       const { currencyCode } = useBasketCurrency();
@@ -259,12 +262,14 @@ export const useQuery = () => {
             const safeguard: Promise<void | boolean> = hasGuard
               ? guard()
               : Promise.resolve();
-            return safeguard.then(() =>
-              request<TQueryFnData>({
+
+            return safeguard.then(() => {
+              return request<TQueryFnData>({
                 url,
                 sort: sort.value,
                 filters: filters.value,
                 withCurrency,
+                withoutLocale,
                 init: {
                   ...init,
                   signal // Pass the new signal to the request to allow cancellation
@@ -273,8 +278,8 @@ export const useQuery = () => {
               }).then(response => {
                 if (isFunction(select)) return select(response.data!) as TData;
                 return response.data as TQueryFnData;
-              })
-            );
+              });
+            });
           },
           ...(options as any)
         },
@@ -324,7 +329,8 @@ export const useQuery = () => {
     guard,
     select,
     queryKey,
-    withCurrency = false,
+    withCurrency,
+    withoutLocale,
     withAccessToken,
     ...options
   }: QueryParams<TQueryFnData, TData>) {
@@ -344,7 +350,7 @@ export const useQuery = () => {
 
     // --- query
     const reactiveKeys: ReactiveQueryKeys = { sort, filters };
-    if (locale.value) reactiveKeys.locale = locale;
+    if (!withoutLocale && locale.value) reactiveKeys.locale = locale;
     if (limit) reactiveKeys.limit = limit;
     if (limit) reactiveKeys.pageIndex = pageIndex;
     if (withCurrency) reactiveKeys.currencyCode = currencyCode;
@@ -365,6 +371,7 @@ export const useQuery = () => {
                 filters: filters.value,
                 pagination: { limit, offset: (pageIndex.value - 1) * limit },
                 withCurrency,
+                withoutLocale,
                 init: {
                   ...init,
                   signal // Pass the new signal to the request to allow cancellation
@@ -560,7 +567,8 @@ export const useQuery = () => {
     guard,
     select,
     queryKey,
-    withCurrency = false,
+    withCurrency,
+    withoutLocale,
     withAccessToken,
     ...options
   }: QueryParams<TQueryFnData, TData>) {
@@ -583,7 +591,7 @@ export const useQuery = () => {
 
     // --- query
     const reactiveKeys: ReactiveQueryKeys = { sort, filters };
-    if (locale.value) reactiveKeys.locale = locale;
+    if (!withoutLocale && locale.value) reactiveKeys.locale = locale;
     if (limit) reactiveKeys.limit = limit;
     if (withCurrency) reactiveKeys.currencyCode = currencyCode;
 
@@ -604,6 +612,7 @@ export const useQuery = () => {
                 filters: filters.value,
                 pagination: { limit, offset },
                 withCurrency,
+                withoutLocale,
                 init: {
                   ...init,
                   signal // Pass the new signal to the request to allow cancellation
@@ -769,6 +778,7 @@ export const useQuery = () => {
     select,
     queryKey,
     withCurrency,
+    withoutLocale,
     withAccessToken,
     ...options
   }: Omit<QueryParams<TQueryFnData, TData>, "pagination">): Promise<TData> {
@@ -778,7 +788,7 @@ export const useQuery = () => {
     const sort = options?.sort;
     const filters = options?.filters;
     const reactiveKeys: ReactiveQueryKeys = { sort, filters };
-    if (locale.value) reactiveKeys.locale = locale.value;
+    if (!withoutLocale && locale.value) reactiveKeys.locale = locale.value;
 
     // --- query
     return queryClient.fetchQuery<TQueryFnData, DefaultError, TData>({
@@ -788,6 +798,8 @@ export const useQuery = () => {
           url,
           sort,
           filters,
+          withoutLocale,
+          withCurrency,
           init: {
             ...init,
             signal // Pass the new signal to the request to allow cancellation
@@ -820,6 +832,7 @@ export const useQuery = () => {
     select,
     queryKey,
     withAccessToken,
+    withoutLocale,
     ...options
   }: QueryParams<TQueryFnData, TData>): Promise<QueryResponse<TData>> {
     // --- state
@@ -830,7 +843,7 @@ export const useQuery = () => {
     const pageIndex = Math.ceil(offset / limit) + 1;
 
     const reactiveKeys: ReactiveQueryKeys = { sort, filters, limit, pageIndex };
-    if (locale.value) reactiveKeys.locale = locale.value;
+    if (!withoutLocale && locale.value) reactiveKeys.locale = locale.value;
 
     return queryClient.fetchQuery<
       TQueryFnData,
@@ -844,6 +857,8 @@ export const useQuery = () => {
           sort,
           filters,
           pagination: { limit, offset },
+          withoutLocale,
+          withCurrency: options.withCurrency,
           init: {
             ...init,
             signal // Pass the new signal to the request to allow cancellation
