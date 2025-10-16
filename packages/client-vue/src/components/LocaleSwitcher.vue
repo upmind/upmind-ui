@@ -1,9 +1,8 @@
 <template>
   <Combobox
-    v-if="meta.isAvailable || meta.isLoading"
+    v-if="meta.isAvailable"
     :modelValue="locale"
     :items="items"
-    :loading="meta.isLoading"
     @update:modelValue="updateLocale"
     :search="search"
     width="auto"

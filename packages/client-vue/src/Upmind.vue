@@ -77,7 +77,7 @@ import { useRoute } from "vue-router";
 
 // --- internal
 import useUpmind, { UpmindStatus } from "@upmind-automation/headless";
-import { useThemes, useStyles } from "@upmind-automation/upmind-ui";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import { useTheme } from "./modules/theming";
 
 // --- components
@@ -89,7 +89,7 @@ import AsyncLoading from "./modules/system/Loading.vue";
 import { Loading } from "@upmind-automation/upmind-ui";
 
 // --- utils
-import { find, get } from "lodash-es";
+import { get } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -104,7 +104,7 @@ const props = defineProps<{
 const loading = ref(true);
 
 // -----------------------------------------------------------------------------
-const { theme, meta: themeMeta } = useTheme(props.theme);
+const { meta: themeMeta } = useTheme(props.theme);
 
 const appMeta = computed(() => ({
   isAvailable: useUpmind.status.value == UpmindStatus.initialised
