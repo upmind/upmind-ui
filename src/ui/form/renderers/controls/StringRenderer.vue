@@ -9,6 +9,7 @@
       :maxlength="appliedOptions?.maxLength"
       :minlength="appliedOptions?.minLength"
       :disabled="appliedOptions?.disabled"
+      :mask="appliedOptions?.mask"
       :model-value="control.data"
       @update:modelValue="onInput"
     />

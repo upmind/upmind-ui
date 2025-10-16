@@ -7,7 +7,7 @@ export const variants = {
   size: {
     inherit: "",
     sm: "text-sm",
-    md: "text-sm",
+    md: "text-md",
     lg: "text-md"
   },
   hasIcon: {
@@ -50,7 +50,7 @@ const itemsVariants = cva("size-lh flex items-center justify-center", {
     size: {
       icon: "",
       sm: "[&>i]:p-[3px]",
-      md: "[&>i]:p-[3px]",
+      md: "[&>i]:p-[4px]",
       lg: "[&>i]:p-[4px]"
     },
     color: {
@@ -88,12 +88,12 @@ export const rootVariants = cva(
       {
         hasIcon: true,
         size: "md",
-        class: "gap-0.5"
+        class: "gap-1"
       },
       {
         hasIcon: true,
         size: "lg",
-        class: "gap-0.5"
+        class: "gap-1"
       }
     ]
   }

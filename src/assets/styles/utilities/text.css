@@ -142,10 +142,15 @@
 
 /* Icons */
 @utility text-icon-primary {
-  color: var(--text-icon-primary);
+  color: var(--icon-primary);
 }
 @utility text-icon-neutral {
-  color: var(--text-icon-neutral);
+  color: var(--icon-neutral);
+}
+
+.icon svg path {
+  vector-effect: non-scaling-stroke;
+  stroke-width: var(--stroke-icon, 2px);
 }
 
 .icon svg path {

@@ -99,9 +99,9 @@ const componentProps = computed(() => {
 const meta = computed(() => ({
   size: props.size,
   variant: props.variant,
+  color: props.color,
   align: props.align,
   isIconOnly: props.iconOnly,
-  isPill: props.pill,
   isBlock: props.block,
   isDisabled: props.disabled,
   isLoading: props.loading,

@@ -20,7 +20,6 @@
         <template #append>
           <Link
             :class="unmask ? 'opacity-100' : 'opacity-50 hover:opacity-100'"
-            size="icon"
             @click.prevent="unmask = !unmask"
             :focusable="false"
           >
@@ -42,7 +41,7 @@ import { useJsonFormsControl } from "@jsonforms/vue";
 import FormField from "../../FormField.vue";
 import InputGroup from "../../../groups/InputGroup.vue";
 import { Input } from "../../../input";
-import { Button } from "../../../button";
+import { Link } from "../../../link";
 import { Icon } from "../../../icon";
 
 // --- utils
