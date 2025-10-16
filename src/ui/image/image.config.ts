@@ -26,7 +26,7 @@ export const rootVariant = cva("h-full w-full", {
   }
 });
 
-export const containerVariant = cva(`h-full overflow-hidden rounded-lg`, {
+export const containerVariant = cva(`image-radius h-full overflow-hidden`, {
   variants: {
     ratio: {
       default: "",
