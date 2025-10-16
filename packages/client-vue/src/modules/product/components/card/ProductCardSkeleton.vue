@@ -44,7 +44,7 @@
         </header>
 
         <footer :class="styles.product.footer">
-          <Skeleton class="rounded-pill h-11 w-full" />
+          <Skeleton class="radius-button h-11 w-full" />
         </footer>
       </section>
     </div>

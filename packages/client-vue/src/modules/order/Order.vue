@@ -30,7 +30,6 @@
             @click.stop="doAction"
             :icon="!meta.isAuthenticated ? 'arrow-left' : ''"
             :icon-append="meta.isAuthenticated ? 'arrow-right' : ''"
-            pill
           />
         </template>
       </Interstitial>

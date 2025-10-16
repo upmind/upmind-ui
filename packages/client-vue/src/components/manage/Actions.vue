@@ -7,7 +7,6 @@
       :disabled="props.disabled || props.loading"
       :loading="props.processing"
       @click="emits('save')"
-      :pill="!props.modal"
     />
     <Button
       v-if="!props.noCancel"
@@ -16,7 +15,6 @@
       size="lg"
       :disabled="props.loading || props.processing"
       @click="emits('cancel')"
-      :pill="!props.modal"
     />
   </footer>
 </template>

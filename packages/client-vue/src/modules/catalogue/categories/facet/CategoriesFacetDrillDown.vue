@@ -7,7 +7,6 @@
       v-bind="category"
       variant="ghost"
       size="lg"
-      pill
       :class="
         cn([
           styles.products.facet.drillDown.action,
@@ -26,7 +25,6 @@
     v-bind="parentCategory"
     variant="outline"
     size="lg"
-    pill
     :class="styles.products.facet.drillDown.back"
     icon="arrow-left"
   >
