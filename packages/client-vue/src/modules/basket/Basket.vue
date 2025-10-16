@@ -33,6 +33,7 @@
             color="muted"
             :label="t('action.details_toggle', open ? 0 : 1)"
             @click="open = !open"
+            size="sm"
           />
         </template>
       </Section>
