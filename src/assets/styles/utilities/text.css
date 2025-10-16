@@ -142,10 +142,10 @@
 
 /* Icons */
 @utility text-icon-primary {
-  color: var(--text-icon-primary);
+  color: var(--icon-primary);
 }
 @utility text-icon-neutral {
-  color: var(--text-icon-neutral);
+  color: var(--icon-neutral);
 }
 
 .icon svg path {
