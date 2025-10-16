@@ -36,7 +36,6 @@
       size="lg"
       @click="doResolve"
       icon="shopping-bag-02"
-      pill
     />
   </footer>
 

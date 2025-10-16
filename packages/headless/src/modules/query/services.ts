@@ -108,7 +108,7 @@ async function refreshToken() {
 
   if (!token || !refresh_token) {
     useFeedback().add({
-      type: messageTypes.DANGER,
+      type: messageTypes.ERROR,
       title: t("error.401_title_md"),
       copy: t("error.401_text"),
       data: { status: responseCodes.Unauthorized },

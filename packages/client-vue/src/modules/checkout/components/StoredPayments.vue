@@ -38,7 +38,6 @@
             @click.prevent="handleCheckout"
             :label="action"
             :class="styles.checkout.action"
-            pill
           />
 
           <p v-if="!meta.isFree" :class="styles.checkout.additional">
