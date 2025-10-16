@@ -16,6 +16,7 @@
 import { computed, ref, watchEffect, inject } from "vue";
 
 // --- internal
+import theme from "../../utils/useThemes";
 
 import {
   useStyles,
@@ -25,12 +26,11 @@ import {
 import config from "./icon.config";
 
 // --- utils
-import { find, isObject, endsWith, isEmpty, trimEnd } from "lodash-es";
+import { find, isObject, isEmpty } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
 import type { IconProps } from ".";
-import { ICON_VARIANT_KEY } from "../../utils/injectionKeys";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<IconProps>(), {
@@ -67,10 +67,8 @@ const icons = import.meta.glob("@icons/**/*.svg", {
 
 const svg = ref();
 
-const variant = inject(ICON_VARIANT_KEY);
-
 watchEffect(async () => {
-  const safeVariant = props.variant || variant?.value;
+  const safeVariant = props.variant || theme.activeIconTheme?.value;
   const safePath = isObject(props.icon) ? `${props.icon?.path}/` : "";
   const safeName = isObject(props.icon) ? props.icon?.name : props.icon;
 
