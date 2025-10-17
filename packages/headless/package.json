@@ -20,7 +20,7 @@
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
     "preview": "vite preview",
-    "test": "vitest",
+    "test:unit": "vitest",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint . --fix",
     "format": "prettier --write src/"
