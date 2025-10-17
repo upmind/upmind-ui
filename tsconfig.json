@@ -25,5 +25,5 @@
     "types": ["jsdom", "vite/client"]
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.spec.*", "src/**/*.test.ts"]
+  "exclude": ["node_modules", "dist", "**/*.spec.*", "src/**/*.*test.ts"]
 }
