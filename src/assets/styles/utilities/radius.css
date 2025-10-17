@@ -7,16 +7,15 @@
  */
 
 @layer utilities {
-  .badge-radius {
-    border-radius: var(--badge-radius);
+  .button-radius {
+    border-radius: var(--button-radius);
   }
-
   .control-radius {
     border-radius: var(--control-radius);
   }
 
-  .button-radius {
-    border-radius: var(--button-radius);
+  .badge-radius {
+    border-radius: var(--badge-radius);
   }
 
   .image-radius {
