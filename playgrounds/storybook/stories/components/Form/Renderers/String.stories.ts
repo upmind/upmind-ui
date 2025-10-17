@@ -19,18 +19,18 @@ const meta: Meta<typeof Form> = {
         "additionalErrors",
         // "schema",
         // "uischema",
-        "modelValue",
-      ],
+        "modelValue"
+      ]
     },
     docs: {
       story: {
-        iframeHeight: 475,
+        iframeHeight: 475
       },
       description: {
         component:
-          "A form renderer for text input with various format options and validation.",
-      },
-    },
+          "A form renderer for text input with various format options and validation."
+      }
+    }
   },
   component: Form,
   render: args => ({
@@ -49,7 +49,7 @@ const meta: Meta<typeof Form> = {
         args,
         model,
         doReject,
-        doResolve,
+        doResolve
       };
     },
     template: `
@@ -61,8 +61,8 @@ const meta: Meta<typeof Form> = {
       />
 
       <h4>Model</h4>
-      <pre class="sticky top-0 rounded-lg bg-background-100 p-4">{{ model }}</pre>
-    `,
+      <pre class="sticky top-0 rounded-lg bg-100 p-4">{{ model }}</pre>
+    `
   }),
   argTypes: {},
   args: {
@@ -75,17 +75,17 @@ const meta: Meta<typeof Form> = {
           type: "string",
           minLength: 3,
           title: "What is your name?",
-          description: "Please enter your full name",
+          description: "Please enter your full name"
         },
         dob: {
           type: "string",
           format: "date",
-          title: "What is your date of birth?",
+          title: "What is your date of birth?"
         },
         postalCode: {
           type: "string",
           maxLength: 5,
-          title: "What is your postal/zip code?",
+          title: "What is your postal/zip code?"
         },
 
         personalData: {
@@ -95,13 +95,13 @@ const meta: Meta<typeof Form> = {
               type: "number",
               minimum: 0,
               maximum: 250,
-              title: "How much do you weigh?",
+              title: "How much do you weigh?"
             },
             height: {
               type: "integer",
               minimum: 120,
               maximum: 220,
-              title: "How tall are you?",
+              title: "How tall are you?"
             },
             drivingSkill: {
               type: "number",
@@ -109,38 +109,38 @@ const meta: Meta<typeof Form> = {
               oneOf: [
                 {
                   title: "I'm a pro",
-                  const: 3,
+                  const: 3
                 },
                 {
                   title: "I'm okay",
-                  const: 2,
+                  const: 2
                 },
                 {
                   title: "I'm a beginner",
-                  const: 1,
-                },
-              ],
+                  const: 1
+                }
+              ]
             },
             vegetarian: {
               type: "boolean",
-              title: "Are you a vegetarian?",
+              title: "Are you a vegetarian?"
             },
             nationality: {
               type: "string",
               enum: ["DE", "IT", "JP", "US", "RU", "Other"],
-              title: "What is your nationality?",
+              title: "What is your nationality?"
             },
             occupation: {
               type: "string",
-              title: "What is your occupation?",
-            },
+              title: "What is your occupation?"
+            }
           },
-          required: ["weight", "height"],
-        },
+          required: ["weight", "height"]
+        }
       },
-      required: ["name", "dob", "postalCode", "nationality"],
-    },
-  },
+      required: ["name", "dob", "postalCode", "nationality"]
+    }
+  }
 };
 
 export default meta;
@@ -153,31 +153,31 @@ export const Base: Story = {
       properties: {
         single: {
           type: "string",
-          title: "Simple Text Input",
+          title: "Simple Text Input"
         },
         multi: {
           type: "string",
-          title: "Multiline Text Input",
-        },
-      },
+          title: "Multiline Text Input"
+        }
+      }
     },
     uischema: {
       type: "VerticalLayout",
       elements: [
         {
           type: "Control",
-          scope: "#/properties/single",
+          scope: "#/properties/single"
         },
         {
           type: "Control",
           scope: "#/properties/multi",
           options: {
-            multi: true,
-          },
-        },
-      ],
-    },
-  },
+            multi: true
+          }
+        }
+      ]
+    }
+  }
 };
 
 export const Restricted: Story = {
@@ -189,7 +189,7 @@ export const Restricted: Story = {
         single: {
           type: "string",
           title: "Required Input",
-          description: "With a hint to give context",
+          description: "With a hint to give context"
         },
 
         singleWithLength: {
@@ -197,7 +197,7 @@ export const Restricted: Story = {
           title: "Restricted Length Input",
           description: "With length restrictions (Min: 5, Max: 10)",
           minLength: 5,
-          maxLength: 10,
+          maxLength: 10
         },
 
         singleWithPattern: {
@@ -205,17 +205,17 @@ export const Restricted: Story = {
           title: "Restricted Pattern Input",
           description:
             "With a pattern restriction, placeholder and custom error message",
-          pattern: "^([A-Z]){3}-\\d{2}-(.){4}$",
-        },
+          pattern: "^([A-Z]){3}-\\d{2}-(.){4}$"
+        }
       },
       errorMessage: {
         properties: {
           singleWithPattern:
-            "Needs to match:  3 uppercase letters - 2 digits - any 4 characters",
-        },
-      },
-    },
-  },
+            "Needs to match:  3 uppercase letters - 2 digits - any 4 characters"
+        }
+      }
+    }
+  }
 };
 
 export const Formatted: Story = {
@@ -225,38 +225,38 @@ export const Formatted: Story = {
       properties: {
         single: {
           type: "string",
-          title: "Simple Text Input",
+          title: "Simple Text Input"
         },
         multi: {
           type: "string",
-          title: "Multiline Text Input",
+          title: "Multiline Text Input"
         },
         formatEmail: {
           type: "string",
           title: "Email Input",
-          format: "email",
+          format: "email"
         },
         formatPassword: {
           type: "string",
           title: "Password",
-          format: "password",
+          format: "password"
         },
         formatUrl: {
           type: "string",
           title: "URL Input",
-          format: "uri",
+          format: "uri"
         },
         formatDate: {
           type: "string",
           title: "Date Input",
-          format: "date",
+          format: "date"
         },
         formatDateTime: {
           type: "string",
           title: "Date & Time Input",
-          format: "date-time",
-        },
-      },
+          format: "date-time"
+        }
+      }
     },
     uischema: {
       type: "VerticalLayout",
@@ -272,8 +272,8 @@ export const Formatted: Story = {
             appendIcon: "devices",
             appendText: "XYZ",
             label: "Simple Text Input with Kitchen Sink",
-            placeholder: "Custom Placeholder",
-          },
+            placeholder: "Custom Placeholder"
+          }
         },
         {
           type: "Control",
@@ -289,39 +289,39 @@ export const Formatted: Story = {
             appendAvatar: { name: "gb", path: "flags" },
             label: "Multiline Text Autosize Input with Kitchen Sink",
             placeholder: "Custom Placeholder",
-            autosize: true,
-          },
+            autosize: true
+          }
         },
         {
           type: "Control",
           scope: "#/properties/formatEmail",
           options: {
-            prependIcon: "email",
-          },
+            prependIcon: "email"
+          }
         },
         {
           type: "Control",
           scope: "#/properties/formatPassword",
           options: {
-            prependIcon: "password",
-          },
+            prependIcon: "password"
+          }
         },
         {
           type: "Control",
           scope: "#/properties/formatUrl",
           options: {
-            prependIcon: "url",
-          },
+            prependIcon: "url"
+          }
         },
         {
           type: "Control",
-          scope: "#/properties/formatDate",
+          scope: "#/properties/formatDate"
         },
         {
           type: "Control",
-          scope: "#/properties/formatDateTime",
-        },
-      ],
-    },
-  },
+          scope: "#/properties/formatDateTime"
+        }
+      ]
+    }
+  }
 };

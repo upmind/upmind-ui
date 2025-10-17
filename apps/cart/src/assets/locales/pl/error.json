@@ -80,7 +80,7 @@
   "payment_gateway_update_failed": "Wystąpił błąd podczas aktualizacji bramki płatniczej",
   "payment_gateway_validation_failed": "Nieudana walidacja bramki płatniczej",
   "payment_gateways_not_available_msg": "Nadal możesz złożyć zamówienie i dokończyć płatność później. Nasz zespół wsparcia chętnie Ci pomoże.",
-  "payment_gateways_not_available_title": "Brak opcji płatności dla wybranej waluty ({currency} ) lub kraj ({country} )",
+  "payment_gateways_not_available_title": "Brak opcji płatności dla wybranej waluty lub kraju rozliczenia",
   "payment_process_failed": "Wystąpił błąd podczas przetwarzania płatności",
   "product_not_available": "Produkt niedostępny",
   "product_not_found": "Niestety, poszukiwany przez Ciebie produkt nie istnieje.",

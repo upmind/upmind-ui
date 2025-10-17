@@ -64,6 +64,7 @@ export type RequestParams = QueryProps & {
   init?: RequestInit;
   withCurrency?: boolean;
   withAccessToken?: boolean | string | null;
+  withoutLocale?: boolean;
 };
 
 export type QueryParams<

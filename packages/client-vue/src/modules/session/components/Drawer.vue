@@ -1,5 +1,5 @@
 <template>
-  <Drawer size="xl" to="#vue-app">
+  <Drawer size="lg">
     <template name="trigger"><slot></slot></template>
     <Auth no-header block-tabs stretch-tabs model-value="login" />
   </Drawer>

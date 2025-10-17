@@ -1,4 +1,5 @@
 {
+  "basket_count": "空 | {count}項目 | {count}專案",
   "basket_items": "購物籃中沒有商品 | {count} 購物籃中的商品 | {count} 籃子中的物品",
   "basket_product_missing_data": "項目缺失資料",
   "basket_product_missing_data_help": "此項缺少數據，需要注意",
@@ -38,5 +39,8 @@
   "product_not_found": "未找到**產品**",
   "product_not_found_md": "@.markdown：{'cart.product_not_found'}",
   "promotion_help": "{code} 提供 {amount} 折扣 {description}",
-  "promotions_active": "有效折扣"
+  "promotions_active": "有效折扣",
+  "recommendations_unavailable_text": "We couldn't find any recommendations for you at this time. Please click below to continue.",
+  "recommendations_unavailable_title": "We're sorry about that...",
+  "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}"
 }

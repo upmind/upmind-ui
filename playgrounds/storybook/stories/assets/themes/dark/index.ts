@@ -1,11 +1,12 @@
-import theme from "./tailwind.config";
-import uiConfig from "./ui.config";
+import tokens from "./tokens.css?raw";
+// import WebFontLoader from "webfontloader";
+// import { compact, isEmpty, uniq } from "lodash-es";
 
-export default {
-  id: "dark",
+const darkTheme = {
   name: "Dark",
-  selectors: [".dark-mode", '[data-theme="dark"]'],
-  mediaQuery: "@media (prefers-color-scheme: dark)",
-  extend: theme,
-  uiConfig,
+  id: "dark",
+  uiConfig: {},
+  tokens
 };
+
+export default darkTheme;

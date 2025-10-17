@@ -17,9 +17,9 @@ const meta: Meta<typeof Textarea> = {
     docs: {
       description: {
         component:
-          "A multi-line text input field for collecting longer user input.",
-      },
-    },
+          "A multi-line text input field for collecting longer user input."
+      }
+    }
   },
   component: Textarea,
   subcomponents: { Input },
@@ -32,7 +32,7 @@ const meta: Meta<typeof Textarea> = {
     appendAvatar: useSystemArgTypes.flag,
     appendIcon: useSystemArgTypes.icon,
     // ---
-    feedbackIcon: useSystemArgTypes.icon,
+    feedbackIcon: useSystemArgTypes.icon
   },
   args: {
     label: "What is your name?",
@@ -53,8 +53,8 @@ const meta: Meta<typeof Textarea> = {
     // ---
     required: false,
     disabled: false,
-    visible: true,
-  },
+    visible: true
+  }
 };
 
 export default meta;
@@ -65,16 +65,70 @@ export const Base: Story = {
     components: { Textarea },
     setup() {
       return {
-        args,
+        args
       };
     },
     methods: {
       doUpdate(value: boolean) {
         updateArgs({ modelValue: value });
-      },
+      }
     },
     template: `
         <Textarea v-bind="args" @update:modelValue="doUpdate" />
-    `,
-  }),
+    `
+  })
+};
+
+export const States: Story = {
+  parameters: {
+    controls: { exclude: ["modelValue"] }
+  },
+  argTypes: {
+    label: { control: "text" }
+  },
+  args: {
+    label: "Text Area Label"
+  },
+  render: (args: any) => ({
+    components: { Textarea },
+    setup() {
+      return {
+        args
+      };
+    },
+    template: `
+    <section class="flex flex-col gap-4 max-w-xl">
+      <div>
+        <h3 class="text-sm/loose text-muted">Default</h3>
+        <Textarea
+          :label="args.label"
+        />
+      </div>
+
+      <div>
+        <h3 class="text-sm/loose text-muted">Hover</h3>
+        <Textarea
+          :label="args.label"
+          data-hover="true"
+        />
+      </div>
+
+      <div>
+        <h3 class="text-sm/loose text-muted">Focused</h3>
+        <Textarea
+        :label="args.label"
+        data-focus="true"
+      />
+      </div>
+
+      <div>
+        <h3 class="text-sm/loose text-muted">Text value</h3>
+        <Textarea
+          :label="args.label"
+          :model-value="'Sample textarea content'"
+        />
+      </div>
+    </section>
+    `
+  })
 };

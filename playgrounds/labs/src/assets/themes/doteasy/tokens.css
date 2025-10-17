@@ -1,0 +1,60 @@
+[data-theme="doteasy"] {
+  /* Core colors */
+  --color-core-canvas: #f3f6ff;
+  --color-core-surface: #ffffff;
+  --color-core-base: #021831;
+  --color-core-display: #021831;
+  --color-core-faint: #9d9da9;
+  --color-core-muted: #89898a;
+  --color-core-skeleton: #2626260c;
+  --color-core-overlay: #3d3d3dcc;
+
+  /* Primary colors */
+  --color-primary-default: #303035;
+  --color-primary-default-stop: #303035;
+  --color-primary-default-delta: #505056;
+  --color-primary-default-contrast: #ffffff;
+  --color-primary-muted: #f8f8fb;
+  --color-primary-muted-contrast: #262626;
+
+  /* Secondary colors */
+  --color-secondary-default: #21cb66;
+  --color-secondary-default-stop: #21cb66;
+  --color-secondary-default-delta: #42d37d;
+  --color-secondary-default-contrast: #ffffff;
+
+  /* Neutral colors */
+  --color-neutral-default: #707070;
+  --color-neutral-default-delta: #575757;
+  --color-neutral-default-contrast: #ffffff;
+  --color-neutral-muted: #f8f8fb;
+  --color-neutral-muted-delta: #f2f2f9;
+  --color-neutral-muted-contrast: #575757;
+  --color-neutral-stroke: #eaeaf1;
+  --color-neutral-stroke-delta: #cdcddb;
+
+  /* Control colors */
+  --color-control-default: #21cb66;
+  --color-control-default-delta: #303035;
+  --color-control-default-contrast: #ffffff;
+  --color-control-muted: #f8f8fb;
+  --color-control-muted-contrast: #303035;
+  --color-control-stroke: #e3e3eb;
+  --color-control-stroke-delta: #d5d5de;
+
+  /* Promo colors */
+  --color-promo-default: #5e36e8;
+  --color-promo-default-contrast: #ffffff;
+  --color-promo-muted: #f7f5ff;
+  --color-promo-muted-contrast: #5e36e8;
+
+  /* Icons colors */
+  --icon-primary: #21cb66;
+  --icon-neutral: #021831;
+
+  /* Strokes */
+  --stroke-icon: 1px;
+
+  /* Radius */
+  --radius-button: 100px;
+}

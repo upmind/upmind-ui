@@ -23,8 +23,6 @@ async function load(
   { schema, model }: CurrencyContext,
   _event: AnyEventObject
 ) {
-  // TODO: use the logic from setInitialCurrencyCode in cart 1
-
   const { t } = useI18n();
   const { currencies, currency, isReady } = useBrand();
 

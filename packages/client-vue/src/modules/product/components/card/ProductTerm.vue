@@ -1,6 +1,6 @@
 <template>
   <fieldset v-if="items.length > 1">
-    <SelectCards to="#vue-app" v-model="modelValue" :items="items" />
+    <SelectCards v-model="modelValue" :items="items" />
   </fieldset>
 </template>
 
@@ -45,8 +45,8 @@ const items = computed(() => {
         label: t("text.amount_save", {
           amount: price.price.savingPercent
         }),
-        color: "promotion",
-        variant: "outline"
+        color: "promo",
+        variant: "minimal"
       } as BadgeProps;
     }
 

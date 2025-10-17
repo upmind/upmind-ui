@@ -32,7 +32,7 @@
 
             <template #icon>
               <Icon
-                icon="arrow-down"
+                icon="chevron-down"
                 size="xs"
                 :class="[
                   styles.checkout.accordion.trigger.icon,
@@ -52,7 +52,6 @@
             <StoredPayments
               v-if="!model?.gateway_id && currency?.code"
               :key="currency.code"
-              :color="color"
               @checkout="handleCheckout"
               :class="styles.checkout.accordion.loading"
             />
@@ -95,7 +94,7 @@
 
               <template #icon>
                 <Icon
-                  icon="arrow-down"
+                  icon="chevron-down"
                   size="xs"
                   :class="[
                     styles.checkout.accordion.trigger.icon,
@@ -115,7 +114,6 @@
               <PaymentGateway
                 v-if="item.gateway_id === model?.gateway_id && currency?.code"
                 :key="currency.code"
-                :color="color"
                 @checkout="handleCheckout"
                 :class="styles.checkout.accordion.loading"
               />
@@ -174,13 +172,10 @@ import GatewaysUnavailable from "./PaymentGatewaysUnavailable.vue";
 import type { PaymentDetailsProps } from "../types";
 import type { ComputedRef } from "vue";
 
-// --- utils
-
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<PaymentDetailsProps>(), {
-  color: "secondary",
   as: "div",
-  class: "bg-base "
+  class: "bg-surface"
 });
 
 const { t } = useI18n();

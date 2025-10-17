@@ -61,7 +61,7 @@ export const useBasketCurrency = () => {
     isValid: stateMatches(actor, ["valid"]),
     isDirty: !isEqual(
       contextValue<CurrencyContext["model"]>(actor, "model"),
-      contextValue<CurrencyContext["baseModel"]>(actor, "model")
+      contextValue<CurrencyContext["baseModel"]>(actor, "baseModel")
     ),
     isComplete:
       stateValue(actor, "done", false) ||

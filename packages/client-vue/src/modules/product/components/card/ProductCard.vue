@@ -1,7 +1,7 @@
 <template>
   <li :class="styles.product.root">
     <div :class="styles.product.content">
-      <Button
+      <Link
         v-if="!configMeta.hideImage && navigate"
         :to="{
           name: ROUTE.PRODUCT_ADD,
@@ -16,24 +16,24 @@
         }"
         :handler="handleResolve"
         :disabled="processing"
-        tabindex="-1"
-        class="w-full rounded-lg"
-        variant="link"
+        :tabindex="images.length === 1 ? '0' : '-1'"
+        :ring="images.length === 1 ? 'focus' : 'focus-visible'"
+        :class="styles.product.image.container"
       >
         <Image
           :carousel="!configMeta.hideCarousel"
           :image="isEmpty(images) ? props.productDetails.imgUrl : images"
           :ratio="ratio || configMeta.imageRatio"
-          :class="styles.product.image"
+          :class="styles.product.image.root"
         />
-      </Button>
+      </Link>
 
       <Image
         v-else-if="!configMeta.hideImage"
         :carousel="!configMeta.hideCarousel"
         :image="isEmpty(images) ? props.productDetails.imgUrl : images"
         :ratio="ratio || configMeta.imageRatio"
-        :class="styles.product.image"
+        :class="styles.product.image.root"
       />
 
       <section :class="styles.product.details">
@@ -79,12 +79,12 @@
                   }
                 : undefined
             "
-            icon="basket-add"
-            :color="color"
+            icon="shopping-bag-02"
             :loading="processing"
+            variant="solid"
+            :color="color"
             size="lg"
             block
-            pill
             :label="t('action.add_to_basket')"
             @click="handleResolve"
           />
@@ -103,7 +103,7 @@ import { useI18n } from "vue-i18n";
 import { ROUTE } from "@upmind-automation/headless";
 
 // --- components
-import { Button, Image, useStyles } from "@upmind-automation/upmind-ui";
+import { Button, Image, Link, useStyles } from "@upmind-automation/upmind-ui";
 import config from "./card.config";
 import ProductInfo from "./ProductInfo.vue";
 import ProductBenefits from "./ProductBenefits.vue";
@@ -128,8 +128,9 @@ const { t } = useI18n();
 
 const props = withDefaults(defineProps<ProductCardProps>(), {
   variant: "default",
-  navigate: true,
-  color: "primary"
+  buttonColor: "primary",
+  buttonVariant: "solid",
+  navigate: true
 });
 
 const productMeta = computed(() => props.productDetails.uiMeta?.product);
@@ -150,13 +151,22 @@ const configMeta = computed(() => ({
 }));
 
 const styles = useStyles(
-  ["product", "product.header", "product.header.info", "product.header.price"],
+  [
+    "product",
+    "product.image",
+    "product.header",
+    "product.header.info",
+    "product.header.price"
+  ],
   configMeta,
   config
 ) as ComputedRef<{
   product: {
     root: string;
-    image: string;
+    image: {
+      container: string;
+      root: string;
+    };
     content: string;
     details: string;
     header: {

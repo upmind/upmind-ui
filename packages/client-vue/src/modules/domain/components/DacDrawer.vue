@@ -13,9 +13,7 @@
 
   <Drawer
     v-model:open="open"
-    to="#vue-app"
     dismissible
-    class="bg-white"
     fit="cover"
     :class="styles.domain.drawer.root"
     :class-header="styles.domain.drawer.header"
@@ -46,7 +44,6 @@
         :loading="meta.isLoading"
         :processing="meta.isProcessing"
         @update:selected="onToggleSelected"
-        :color="color"
         :value="props.modelValue ?? ''"
         @remove="onRemove"
       />
@@ -58,18 +55,16 @@
         @click="() => onSearchOffset(offset)"
         block
         variant="ghost"
-        color="base"
         size="lg"
       />
     </div>
 
     <template #close>
-      <Button
+      <Link
         @click="onReject"
         :label="t('action.cancel')"
-        variant="link"
-        color="base"
         size="lg"
+        color="muted"
       />
     </template>
 
@@ -81,8 +76,7 @@
         :disabled="meta.isEmpty || meta.isDisabled || meta.isProcessing"
         @click="onResolve"
         :label="t('action.add_domain_to_basket', selected?.length ?? 0)"
-        prependIcon="plus"
-        :color="color"
+        icon-append="arrow-right"
         size="lg"
       />
       <!-- </div> -->
@@ -104,7 +98,8 @@ import {
   Button,
   Drawer,
   FormControl,
-  Input
+  Input,
+  Link
 } from "@upmind-automation/upmind-ui";
 import DomainCards from "./DomainCards.vue";
 import DomainSearch from "./DomainSearch.vue";

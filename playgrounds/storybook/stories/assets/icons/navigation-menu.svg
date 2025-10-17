@@ -1,7 +1,6 @@
-<svg viewBox="0 0 24 24"
-  xmlns="http://www.w3.org/2000/svg" id="Navigation-Menu--Streamline-Ultimate.svg">
-  <desc>Navigation Menu Streamline Icon: https://streamlinehq.com</desc>
-  <path d="M23.1411 5.8105H0.8589" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
-  <path d="M23.1411 12H0.8589" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
-  <path d="M23.1411 18.1895H0.8589" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+<svg viewBox="0 0 24 24" fill="none"
+  xmlns="http://www.w3.org/2000/svg">
+  <path d="M2.99622 5.99752H21.0037" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M17.002 12H2.99622" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M2.99622 18.0024H13.0004" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

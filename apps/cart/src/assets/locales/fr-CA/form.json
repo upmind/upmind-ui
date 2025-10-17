@@ -28,17 +28,17 @@
     "placeholder": "Mot de passe ou phrase secrète"
   },
   "card_cvv": {
-    "description": "code de sécurité de la carte situé au dos de votre carte qui fournit une mesure de sécurité supplémentaire de la carte de crédit.",
+    "error": "A valid CVV is required",
     "label": "CVV",
     "placeholder": "CVC"
   },
   "card_expiry": {
-    "description": "Date d'expiration de la carte. Format de date : MM/AA",
+    "error": "A valid expiry date is required",
     "label": "Date d'expiration",
     "placeholder": "MM/AA"
   },
   "card_num": {
-    "description": "Le numéro à 16 chiffres situé au recto de votre carte.",
+    "error": "A valid card number is required",
     "label": "Numéro de carte",
     "placeholder": "1234 1234 1234 1234"
   },

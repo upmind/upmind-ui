@@ -16,7 +16,7 @@
       <!-- Errors and Feedback -->
       <Alert
         v-if="meta.hasErrors"
-        color="error"
+        color="warning"
         icon="alert-triangle"
         :title="t('text.payment_failed')"
       >
@@ -38,7 +38,6 @@
             @click.prevent="handleCheckout"
             :label="action"
             :class="styles.checkout.action"
-            pill
           />
 
           <p v-if="!meta.isFree" :class="styles.checkout.additional">

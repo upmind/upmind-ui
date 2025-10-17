@@ -18,9 +18,9 @@ export interface AuthProps {
   noFooter?: boolean;
   noTabs?: boolean;
   // --- variants
-  color?: ButtonProps["color"];
   blockTabs?: boolean;
   stretchTabs?: boolean;
+  variant?: ButtonProps["variant"];
   // ---
   uiConfig?: { alert: CxOptions };
   class?: HTMLAttributes["class"];
@@ -37,5 +37,4 @@ export interface SessionExpiredProps {
   action?: ActionProps;
   // ---
   size?: DialogProps["size"];
-  skrim?: DialogProps["skrim"];
 }

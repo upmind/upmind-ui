@@ -3,14 +3,13 @@
     <ContentSection v-auto-animate class="flex grow items-center">
       <Interstitial
         open
-        to="#vue-app"
         modal
-        skrim="light"
         :title="t('cart.product_not_found_md')"
         :text="t('error.product_not_found')"
         :actions="[
           {
             ...storefrontRoute,
+            variant: 'solid',
             color: 'primary',
             icon: 'arrow-left',
             label: t('action.continue_shopping')

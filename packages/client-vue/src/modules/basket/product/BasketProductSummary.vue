@@ -12,21 +12,20 @@
       />
       <div class="flex items-center justify-between">
         <div class="flex w-full items-center gap-x-3">
-          <Button
+          <Link
             v-if="primary && productDetails.imgUrl"
             :to="editLink"
-            variant="link"
             :class="styles.product.summary.imageRoute"
           >
             <img
               :src="productDetails.imgUrl"
               :class="styles.product.summary.image"
             />
-          </Button>
+          </Link>
 
           <div class="flex w-full flex-col">
             <div class="flex items-end justify-between">
-              <div class="text-emphasis-medium text-sm font-normal">
+              <div class="text-muted text-sm font-normal">
                 {{ summary.category }}
               </div>
               <Promotion
@@ -40,11 +39,11 @@
               />
             </div>
             <div class="flex items-end justify-between">
-              <Button :to="editLink" offset="2" variant="link">
+              <Link :to="editLink" offset="2">
                 <strong class="text-xl leading-7 font-medium underline">
                   {{ summary.title }}
                 </strong>
-              </Button>
+              </Link>
 
               <div class="hidden items-center gap-x-6 md:flex">
                 <QuantityField
@@ -125,7 +124,7 @@
 
 <script lang="ts" setup>
 // --- components
-import { Button } from "@upmind-automation/upmind-ui";
+import { Link } from "@upmind-automation/upmind-ui";
 import RequiredAlert from "./components/RequiredAlert.vue";
 import CurrentPrice from "../../product/components/pricing/CurrentPrice.vue";
 import ExPrice from "../../product/components/pricing/ExPrice.vue";

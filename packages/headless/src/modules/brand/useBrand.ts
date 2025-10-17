@@ -16,12 +16,14 @@ import {
   first,
   every,
   reduce,
+  capitalize,
   isArray,
   isEmpty,
   forEach,
   includes,
   keys,
-  omitBy
+  omitBy,
+  sortBy
 } from "lodash-es";
 
 // --- types
@@ -30,7 +32,9 @@ import {
   type ICurrency,
   BrandTaxTypes,
   BrandConfigKeys,
-  DefaultPaymentPeriod
+  DefaultPaymentPeriod,
+  IBrandSettings,
+  IBrand
 } from "@upmind-automation/types";
 import type { IBrandMeta } from "./types";
 import type { CurrencyModel } from "../basket/currency/types";
@@ -113,7 +117,9 @@ export const useBrand = () => {
 
   const currencyId = computed(() => brandSettings.value?.currency_id);
 
-  const currencies = computed(() => brandSettings.value?.currencies || []);
+  const currencies = computed(() =>
+    sortBy(brandSettings.value?.currencies || [], ["code"])
+  );
 
   const image = computed(() => brandSettings.value?.image);
 
@@ -123,15 +129,16 @@ export const useBrand = () => {
 
   const uiTheme = computed(
     (): {
-      variants: IBrandMeta["variants"];
+      tokens: string;
       variant: IBrandMeta["variant"];
     } => {
-      const variants = get(brandSettings.value, "meta.variants", {});
+      const tokens = get(brandSettings.value, "style.tokens") as string;
       const variant = get(brandSettings.value, "meta.variant");
+      const theme = get(brandSettings.value, "meta.theme");
 
       return {
-        variant,
-        variants
+        tokens,
+        variant: variant ?? theme
       };
     }
   );
@@ -139,6 +146,14 @@ export const useBrand = () => {
   const uiCart = computed<IBrandMeta["cart"]>(
     () => get(brandSettings.value, "meta.cart") as any
   );
+
+  const iconStyles = computed<{
+    variant: IBrandMeta["icon_variant"];
+  }>(() => {
+    return {
+      variant: capitalize(get(brandSettings.value, "meta.icon_variant"))
+    };
+  });
 
   const currency = computed<ICurrency | undefined>(
     () =>
@@ -431,6 +446,11 @@ export const useBrand = () => {
      * The current theming object for the brand.
      */
     uiTheme,
+
+    /**
+     * The current icons styles for the brand.
+     */
+    iconStyles,
 
     /**
      * The current cart metaobject for the brand.

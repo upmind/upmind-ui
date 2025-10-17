@@ -1,6 +1,7 @@
 <template>
   <div :class="styles.checkout.gateway">
     <Alert
+      variant="minimal"
       icon="check-circle"
       :title="t('cart.nothing_to_pay_msg')"
       :description="t('cart.place_order_desc')"
@@ -17,7 +18,6 @@
           @click.prevent="handleCheckout"
           :label="t('action.place_order')"
           :class="styles.checkout.action"
-          pill
         />
       </div>
 

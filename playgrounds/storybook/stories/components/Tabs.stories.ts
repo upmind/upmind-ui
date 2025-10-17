@@ -7,77 +7,48 @@ import { Tabs } from "@upmind-automation/upmind-ui";
 // --- utils
 import { useSystemArgTypes } from "../../utils";
 import { keys } from "lodash-es";
-// -----------------------------------------------------------------------------
 
-// --- types
-enum variants {
-  flat = "Flat",
-  outline = "Outlined",
-  tonal = "Tonal",
-}
-
-enum alignments {
-  start = "start",
-  center = "center",
-  end = "end",
-  between = "between",
-  around = "around",
-  evenly = "evenly",
-}
-
-enum widths {
-  full = "full",
-  auto = "auto",
-}
+import {
+  VARIANTS_ALIGNMENT,
+  VARIANTS_WIDTH
+} from "@upmind-automation/upmind-ui";
 
 const meta: Meta<typeof Tabs> = {
   argTypes: {
-    variant: {
-      options: keys(variants),
-      control: {
-        type: "radio",
-        labels: variants,
-      },
-    },
     alignment: {
-      options: keys(alignments),
+      options: VARIANTS_ALIGNMENT,
       control: {
         type: "radio",
-        labels: alignments,
-      },
+        labels: VARIANTS_ALIGNMENT
+      }
     },
     width: {
-      options: keys(widths),
+      options: VARIANTS_WIDTH,
       control: {
         type: "radio",
-        labels: widths,
-      },
-    },
-    color: useSystemArgTypes.color,
+        labels: VARIANTS_WIDTH
+      }
+    }
   },
   args: {
-    variant: "flat",
-    color: "base",
     alignment: "evenly",
-    width: "auto",
+    width: "auto"
   },
   parameters: {
     docs: {
       story: {
-        iframeHeight: 300,
+        iframeHeight: 300
       },
       description: {
         component:
-          "A component for organizing content into different sections accessible via tabs.",
-      },
-    },
-  },
+          "A component for organizing content into different sections accessible via tabs."
+      }
+    }
+  }
 };
 
 export default meta;
 type Story = StoryObj<typeof Tabs>;
-
-// -----------------------------------------------------------------------------
 
 export const Base: Story = {
   render: args => ({
@@ -86,13 +57,13 @@ export const Base: Story = {
       const tabs = [
         { label: "Tab 1", value: "tab1" },
         { label: "Tab 2", value: "tab2" },
-        { label: "Tab 3", value: "tab3" },
+        { label: "Tab 3", value: "tab3" }
       ];
       const colors = useSystemArgTypes.color;
       return {
         colors,
         tabs,
-        args,
+        args
       };
     },
     template: `
@@ -115,47 +86,6 @@ export const Base: Story = {
           </div>
         </template>
       </Tabs>
-    `,
-  }),
+    `
+  })
 };
-
-export const Colors: Story = {
-  parameters: {
-    controls: { exclude: ["color"] },
-  },
-  render: args => ({
-    components: { Tabs },
-    setup() {
-      const tabs = [
-        { label: "Tab 1", value: "tab1" },
-        { label: "Tab 2", value: "tab2" },
-        { label: "Tab 3", value: "tab3" },
-        { label: "Tab 4", value: "tab4" },
-        { label: "Tab 5", value: "tab5" },
-      ];
-      const colors = useSystemArgTypes.color;
-      return {
-        colors,
-        tabs,
-        args,
-      };
-    },
-    template: `
-      <div
-        v-for="color in colors.options"
-        :key="color"
-        class="my-12"
-      >
-        <Tabs default-value="tab1" :tabs="tabs" :color="color" :variant="args.variant" :width="args.width" :alignment="args.alignment" />
-      </div>
-    `,
-  }),
-};
-
-// <Tabs :default-value="color + '2'">
-// <Tabs-list v-bind="args" :color="color">
-//   <Tabs-trigger v-bind="args" :color="color" v-for="(tab, index) in 5" :key="color + index" :value="color + index" class="capitalize">
-//     {{ color }} {{ index + 1 }}
-//   </Tabs-trigger>
-// </Tabs-list>
-// </Tabs>

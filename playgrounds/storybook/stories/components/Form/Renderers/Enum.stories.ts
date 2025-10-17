@@ -19,18 +19,18 @@ const meta: Meta<typeof Form> = {
         "additionalErrors",
         // "schema",
         // "uischema",
-        "modelValue",
-      ],
+        "modelValue"
+      ]
     },
     docs: {
       story: {
-        iframeHeight: 375,
+        iframeHeight: 375
       },
       description: {
         component:
-          "A form renderer for enumerated values that presents options in a selectable format.",
-      },
-    },
+          "A form renderer for enumerated values that presents options in a selectable format."
+      }
+    }
   },
   component: Form,
   render: args => ({
@@ -49,7 +49,7 @@ const meta: Meta<typeof Form> = {
         args,
         model,
         doReject,
-        doResolve,
+        doResolve
       };
     },
     template: `
@@ -61,8 +61,8 @@ const meta: Meta<typeof Form> = {
       />
 
       <h4>Model</h4>
-      <pre class="sticky top-0 rounded-lg bg-background-100 p-4">{{ model }}</pre>
-    `,
+      <pre class="sticky top-0 rounded-lg bg-100 p-4">{{ model }}</pre>
+    `
   }),
   argTypes: {},
   args: {
@@ -75,17 +75,17 @@ const meta: Meta<typeof Form> = {
           type: "string",
           minLength: 3,
           title: "What is your name?",
-          description: "Please enter your full name",
+          description: "Please enter your full name"
         },
         dob: {
           type: "string",
           format: "date",
-          title: "What is your date of birth?",
+          title: "What is your date of birth?"
         },
         postalCode: {
           type: "string",
           maxLength: 5,
-          title: "What is your postal/zip code?",
+          title: "What is your postal/zip code?"
         },
 
         personalData: {
@@ -95,13 +95,13 @@ const meta: Meta<typeof Form> = {
               type: "number",
               minimum: 0,
               maximum: 250,
-              title: "How much do you weigh?",
+              title: "How much do you weigh?"
             },
             height: {
               type: "integer",
               minimum: 120,
               maximum: 220,
-              title: "How tall are you?",
+              title: "How tall are you?"
             },
             drivingSkill: {
               type: "number",
@@ -109,38 +109,38 @@ const meta: Meta<typeof Form> = {
               oneOf: [
                 {
                   title: "I'm a pro",
-                  const: 3,
+                  const: 3
                 },
                 {
                   title: "I'm okay",
-                  const: 2,
+                  const: 2
                 },
                 {
                   title: "I'm a beginner",
-                  const: 1,
-                },
-              ],
+                  const: 1
+                }
+              ]
             },
             vegetarian: {
               type: "boolean",
-              title: "Are you a vegetarian?",
+              title: "Are you a vegetarian?"
             },
             nationality: {
               type: "string",
               enum: ["DE", "IT", "JP", "US", "RU", "Other"],
-              title: "What is your nationality?",
+              title: "What is your nationality?"
             },
             occupation: {
               type: "string",
-              title: "What is your occupation?",
-            },
+              title: "What is your occupation?"
+            }
           },
-          required: ["weight", "height"],
-        },
+          required: ["weight", "height"]
+        }
       },
-      required: ["name", "dob", "postalCode", "nationality"],
-    },
-  },
+      required: ["name", "dob", "postalCode", "nationality"]
+    }
+  }
 } satisfies Meta<typeof Form>;
 
 export default meta;
@@ -155,9 +155,9 @@ export const Base: Story = {
           title: "Simple Enum dropdown",
           description: "NB: there is no difference between value and label",
           type: ["string", "null"],
-          enum: ["daily", "weekly", "monthly"],
-        },
-      },
-    },
-  },
+          enum: ["daily", "weekly", "monthly"]
+        }
+      }
+    }
+  }
 };

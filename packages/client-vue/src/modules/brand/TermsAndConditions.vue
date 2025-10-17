@@ -18,21 +18,17 @@
         {{ t(action) }}
       </span>
 
-      <Button
+      <Link
         v-else-if="meta.isUrl"
         :href="data!.url"
         target="_blank"
-        class="font-normal text-inherit"
-        variant="link"
         :label="t(action)"
       />
 
-      <Button
+      <Link
         v-else
         @click="toggleOpen"
-        class="font-normal text-inherit"
         data-testid="terms-link"
-        variant="link"
         :label="t(action)"
       />
     </template>
@@ -41,22 +37,18 @@
   <Drawer
     v-model:open="open"
     dismissible
-    to="#vue-app"
-    size="3xl"
+    size="lg"
     fit="cover"
-    class="bg-white"
     class-footer="flex-row items-center justify-between gap-x-4"
     :title="t(action)"
   >
-    <Markdown :model-value="data?.content" class="prose w-full text-left" />
+    <Markdown
+      :model-value="data?.content"
+      class="prose w-full text-left text-base"
+    />
 
     <template #close>
-      <Button
-        @click="toggleOpen"
-        :label="t(close)"
-        variant="link"
-        color="base"
-      />
+      <Link @click="toggleOpen" :label="t(close)" />
     </template>
   </Drawer>
 </template>
@@ -69,7 +61,7 @@ import { useI18n } from "vue-i18n";
 import { useTermsAndConditions, useBrand } from "@upmind-automation/headless";
 
 // --- components
-import { Drawer, Markdown, Button } from "@upmind-automation/upmind-ui";
+import { Drawer, Markdown, Button, Link } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { TermsAndConditionsProps } from "./types";

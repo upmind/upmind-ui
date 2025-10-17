@@ -3,7 +3,7 @@
     v-if="!hasProvisioning"
     class="flex flex-col gap-y-2 py-3 first:pt-0 last:pb-0"
   >
-    <h5 class="text-emphasis-medium m-0 truncate">{{ category }}</h5>
+    <h5 class="text-muted m-0 truncate">{{ category }}</h5>
 
     <template v-if="!invalid">
       <DetailsItem
@@ -14,13 +14,11 @@
     </template>
 
     <template v-else>
-      <Button
-        :as="RouterLink"
+      <Link
         :to="editLink"
-        variant="link"
         size="sm"
         :label="t('action.configure_now')"
-        color="error"
+        color="warning"
       />
     </template>
   </div>
@@ -31,7 +29,7 @@
 import { computed } from "vue";
 import { RouterLink } from "vue-router";
 import { useI18n } from "vue-i18n";
-import { Button } from "@upmind-automation/upmind-ui";
+import { Button, Link } from "@upmind-automation/upmind-ui";
 import { some } from "lodash-es";
 
 // --- components

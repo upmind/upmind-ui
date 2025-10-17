@@ -36,7 +36,6 @@
       :id="props.id"
       :details="details"
       :disabled="meta.isProcessing || meta.isLoading"
-      :color="color"
       :edit-link="editLink"
       @remove="doRemove"
     />

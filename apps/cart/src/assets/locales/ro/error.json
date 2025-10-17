@@ -80,7 +80,7 @@
   "payment_gateway_update_failed": "Am întâmpinat o eroare la actualizarea gateway-ului de plată",
   "payment_gateway_validation_failed": "Validarea gateway-ului de plată a eșuat",
   "payment_gateways_not_available_msg": "Puteți trimite comanda acum și finaliza plata mai târziu. Echipa noastră de asistență vă va putea ajuta.",
-  "payment_gateways_not_available_title": "Nu există opțiuni de plată pentru moneda selectată ({currency} ) sau țară ({country} )",
+  "payment_gateways_not_available_title": "Nu există opțiuni de plată pentru moneda sau țara de facturare selectată.",
   "payment_process_failed": "Am întâmpinat o eroare la procesarea plății dvs.",
   "product_not_available": "Produs indisponibil",
   "product_not_found": "Ne pare rău, produsul pe care îl căutați nu există.",

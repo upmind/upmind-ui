@@ -17,8 +17,7 @@
         :minQueryLength="1"
       />
       <footer>
-        <Button
-          variant="link"
+        <Link
           class="mt-2"
           :label="t('action.enter_address_manually')"
           size="sm"
@@ -55,7 +54,7 @@ import {
 import { usePlaces } from "@upmind-automation/headless";
 
 // --- components
-import { FormField, Search, Button } from "@upmind-automation/upmind-ui";
+import { FormField, Search, Link } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";

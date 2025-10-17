@@ -7,7 +7,7 @@ import {
   useSchema as useDefaultSchema,
   useUischema as useDefaultUischema
 } from "../schemas";
-import { get } from "lodash-es";
+import { get, toNumber } from "lodash-es";
 
 // --- types
 import type { IGatewayProvider } from "@upmind-automation/types";
@@ -34,13 +34,7 @@ export const useSchema = (context: GatewayContext) => {
       openpay: {
         type: "object",
         title: "OpenPay Payment Details",
-        required: [
-          "card_number",
-          "holder_name",
-          "expiration_year",
-          "expiration_month",
-          "cvv2"
-        ],
+        required: ["card_number", "holder_name", "expiration_date", "cvv2"],
         properties: {
           card_number: {
             type: "string",
@@ -53,25 +47,15 @@ export const useSchema = (context: GatewayContext) => {
             type: "string",
             title: "Cardholder Name"
           },
-          expiration_year: {
+
+          expiration_date: {
             type: "string",
-            minLength: 2,
-            maxLength: 2,
+            minLength: 5,
+            maxLength: 5,
             // Pattern matches two digits, as extracted from MM/YYYY or MM/YY formats
-            pattern: "^\\d{2}$",
-            title: "Expiration Year"
-            // description:
-            //   "Last two digits of the year, extracted from MM/YYYY or MM/YY"
+            pattern: "^(0[1-9]|1[0-2])/[0-9]{2}$"
           },
-          expiration_month: {
-            type: "string",
-            minLength: 2,
-            maxLength: 2,
-            // Pattern matches two digits for month (01-12)
-            pattern: "^(0[1-9]|1[0-2])$",
-            title: "Expiration Month"
-            // description: "Two digit month, extracted from MM/YYYY or MM/YY"
-          },
+
           cvv2: {
             type: "string",
             minLength: 3,
@@ -101,7 +85,7 @@ export const useUischema = (context: GatewayContext) => {
       {
         type: "Control",
         scope: "#/properties/openpay/properties/holder_name",
-        i18n: "form.card_holder_name",
+        i18n: "form.cardholder_name",
         options: {
           autocomplete: "cc-name"
         }
@@ -111,7 +95,8 @@ export const useUischema = (context: GatewayContext) => {
         scope: "#/properties/openpay/properties/card_number",
         i18n: "form.card_num",
         options: {
-          autocomplete: "cc-number"
+          autocomplete: "cc-number",
+          mask: /^[0-9]*$/
         }
       },
       {
@@ -119,31 +104,24 @@ export const useUischema = (context: GatewayContext) => {
         elements: [
           {
             type: "Control",
-            scope: "#/properties/openpay/properties/expiration_month",
-            i18n: "form.card_expiry_month",
+            scope: "#/properties/openpay/properties/expiration_date",
+            i18n: "form.card_expiry",
             options: {
               autocomplete: "cc-exp-month",
               trim: true,
-              placeholder: "MM"
+              placeholder: "MM/YY",
+              mask: "00/00"
             }
           },
-          {
-            type: "Control",
-            scope: "#/properties/openpay/properties/expiration_year",
-            i18n: "form.card_expiry_year",
-            options: {
-              autocomplete: "cc-exp-year",
-              trim: true,
-              placeholder: "YY"
-            }
-          },
+
           {
             type: "Control",
             scope: "#/properties/openpay/properties/cvv2",
             i18n: "form.card_cvv",
             options: {
               autocomplete: "cc-csc",
-              trim: true
+              trim: true,
+              mask: /^[0-9]*$/
             }
           }
         ]

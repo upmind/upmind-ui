@@ -1,5 +1,5 @@
 <template>
-  <section class="text-foreground m-0 flex w-full flex-col gap-1">
+  <section class="m-0 flex w-full flex-col gap-1 text-base">
     <header class="flex flex-1 items-start gap-2">
       <div class="flex grow flex-col gap-0.5 md:flex-row md:gap-x-2">
         <div class="flex flex-wrap items-center gap-2">
@@ -56,10 +56,7 @@
       </div>
     </header>
 
-    <p
-      class="text-emphasis-medium text-sm/tight whitespace-normal"
-      v-if="props.excerpt"
-    >
+    <p class="text-muted text-sm/tight whitespace-normal" v-if="props.excerpt">
       {{ props.excerpt }}
     </p>
   </section>

@@ -1,10 +1,5 @@
 <template>
-  <ButtonGroup
-    to="#vue-app"
-    :items="groupItems"
-    variant="outline"
-    class="w-full"
-  />
+  <ButtonGroup :items="groupItems" variant="outline" class="w-full" />
 </template>
 
 <script setup lang="ts">
@@ -64,21 +59,21 @@ const items = computed(() => [
 const groupItems = computed((): ButtonGroupItem[] => [
   {
     type: ButtonGroupTypes.Button,
-    class: "px-6 md:px-1",
     props: {
       icon:
-        direction.value == RequestSortDirection.ASC ? "sort-asc" : "sort-desc",
+        direction.value == RequestSortDirection.ASC ? "arrow-down" : "arrow-up",
       disabled: isEmpty(property.value)
     } satisfies ButtonProps,
     handler: toggleDirection
   },
   {
     type: ButtonGroupTypes.Select,
-    class: "mx-auto md:mx-0",
+    class: "w-full",
     props: {
       modelValue: property.value,
       items: items.value,
-      placeholder: currentSort.value?.label
+      placeholder: currentSort.value?.label,
+      width: "full"
     } satisfies SelectProps,
     handler: (value: string) => {
       property.value = value as ProductSortableProperties;

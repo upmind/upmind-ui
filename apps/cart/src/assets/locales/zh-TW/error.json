@@ -80,7 +80,7 @@
   "payment_gateway_update_failed": "我們在更新支付網關時遇到錯誤",
   "payment_gateway_validation_failed": "支付網關驗證失敗",
   "payment_gateways_not_available_msg": "您仍然可以立即提交訂單，稍後再完成付款。我們的客服團隊將竭誠為您提供協助。",
-  "payment_gateways_not_available_title": "您選擇的貨幣沒有付款選項（{currency} ) 或國家 ({country} ）",
+  "payment_gateways_not_available_title": "您選擇的貨幣或帳單國家/地區沒有付款選項",
   "payment_process_failed": "我們在處理您的付款時遇到錯誤",
   "product_not_available": "產品不可用",
   "product_not_found": "抱歉，您要找的產品不存在。",

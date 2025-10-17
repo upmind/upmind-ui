@@ -34,11 +34,7 @@
             scope="global"
           >
             <template #[`action`]>
-              <Button
-                variant="link"
-                @click.prevent="logout"
-                :label="t('action.here')"
-              />
+              <Link @click.prevent="logout" :label="t('action.here')" />
             </template>
           </i18n-t>
 
@@ -64,7 +60,7 @@
       :block-tabs="blockTabs"
       :stretch-tabs="stretchTabs"
       :no-tabs="noTabs"
-      :color="color"
+      :variant="variant"
       :model-value="modelValue"
     >
     </Auth>
@@ -88,7 +84,7 @@ import config from "./components/session.config";
 import Auth from "./components/Auth.vue";
 
 // --- custom elements
-import { Button } from "@upmind-automation/upmind-ui";
+import { Button, Link } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { ComputedRef } from "vue";

@@ -1,4 +1,5 @@
 {
+  "basket_count": "kosong | {count} barang | {count} barang-barang",
   "basket_items": "tidak ada item di keranjang | {count} barang dalam keranjang | {count} barang dalam keranjang",
   "basket_product_missing_data": "Item kehilangan data",
   "basket_product_missing_data_help": "Item ini kehilangan data dan memerlukan perhatian",
@@ -38,5 +39,8 @@
   "product_not_found": "**Produk** tidak ditemukan",
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
   "promotion_help": "{code} menyediakan {amount} diskon {description}",
-  "promotions_active": "Diskon aktif"
+  "promotions_active": "Diskon aktif",
+  "recommendations_unavailable_text": "We couldn't find any recommendations for you at this time. Please click below to continue.",
+  "recommendations_unavailable_title": "We're sorry about that...",
+  "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}"
 }

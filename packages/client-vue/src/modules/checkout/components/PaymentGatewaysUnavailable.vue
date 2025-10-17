@@ -1,7 +1,8 @@
 <template>
   <div :class="styles.checkout.gateway">
     <Alert
-      color="error"
+      variant="minimal"
+      color="warning"
       icon="alert-triangle"
       :title="
         t('error.payment_gateways_not_available_title', {
@@ -23,7 +24,6 @@
           @click.prevent="handleCheckout"
           :label="t('action.place_order')"
           :class="styles.checkout.action"
-          pill
         />
       </div>
 

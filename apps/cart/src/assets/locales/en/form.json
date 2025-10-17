@@ -28,17 +28,17 @@
     "placeholder": "Password or passphrase"
   },
   "card_cvv": {
-    "description": "card security code found on the back of your card that provides an additional measure of credit card security.",
+    "error": "A valid CVV is required",
     "label": "CVV",
     "placeholder": "CVC"
   },
   "card_expiry": {
-    "description": "Expiry Date of the card. Date Format: MM/YY",
+    "error": "A valid expiry date is required",
     "label": "Expiry date",
     "placeholder": "MM/YY"
   },
   "card_num": {
-    "description": "The 16 digit number on the front of your card.",
+    "error": "A valid card number is required",
     "label": "Card number",
     "placeholder": "1234 1234 1234 1234"
   },
@@ -108,7 +108,7 @@
     "placeholder": "Search by product name..."
   },
   "promocode": {
-    "error": "Invalid promo code",
+    "error": "A valid promo code is required",
     "placeholder": "Enter voucher code here"
   },
   "recover": {

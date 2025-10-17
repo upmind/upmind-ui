@@ -1,7 +1,6 @@
 // --- internal
 
 import type { UIMeta } from "../product/types";
-import { ThemeTokens } from "../theming";
 
 // -----------------------------------------------------------------------------
 
@@ -19,6 +18,7 @@ export interface IBrandMeta {
     };
     ui: UIMeta;
   };
+  icon_variant?: string; // the preferred icon variant to be used
   variant?: string; // the preferred variant/token id to be used
-  variants?: Record<string, ThemeTokens>;
+  theme?: string; // the preferred data-theme id to be used
 }

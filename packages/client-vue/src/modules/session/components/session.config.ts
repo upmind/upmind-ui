@@ -17,7 +17,7 @@ export default {
 
     transition: {
       enter: {
-        active: cva("m-0 transition duration-300 ease-out"),
+        active: cva("m-0 transition duration-200 ease-out"),
         from: cva("-translate-y-10 transform opacity-0"),
         to: cva("translate-y-0 transform opacity-100")
       },
