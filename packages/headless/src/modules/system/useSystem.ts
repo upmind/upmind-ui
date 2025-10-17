@@ -8,39 +8,35 @@ import { invalidateQueryByKey } from "../query";
 
 // --- utils
 import {
+  every,
+  find,
+  forEach,
   get,
   has,
-  find,
-  some,
-  every,
-  reject,
-  isEmpty,
+  includes,
   isArray,
+  isEmpty,
   isString,
   keys,
-  includes,
-  forEach
+  reject,
+  some
 } from "lodash-es";
 
 // --- types
 import type {
-  IStatus,
-  IRegion,
-  ICountry,
-  ILanguage,
-  ICurrency,
   IBillingCycle,
+  ICountry,
+  ICurrency,
+  ILanguage,
+  IRegion,
+  IStatus,
   ITicketDepartment
 } from "@upmind-automation/types";
-import { useFeedback } from "../feedback";
-import { mapToHeadlessError } from "../../utils";
-
-const { addError } = useFeedback();
 
 // -----------------------------------------------------------------------------
 /**
- * Context to let us understand if we need to refetch on the inital use of Brand settings
- * We do this because settings are persisted for fast load times but we still need
+ * Context to let us understand if we need to refetch on the initial use of Brand settings
+ * We do this because settings are persisted for fast load times, but we still need
  * to ensure that we get the latest settings in the background
  * NB:check if we actually have any persisted settings first
  *
@@ -77,11 +73,6 @@ export const useSystem = () => {
 
   // --- meta information
   const meta = computed(() => {
-    const essentialQueries = reject(
-      [countriesQuery, billingCyclesQuery],
-      isEmpty
-    );
-
     const hasError = computed(() => some(queries, "isError"));
     const isLoading = computed(() => some(queries, "isLoading"));
     const isComplete = computed(() => every(queries, "isComplete"));
@@ -101,9 +92,9 @@ export const useSystem = () => {
     return brandIsReady().then(() => {
       return new Promise(resolve => {
         const interval = setInterval(() => {
-          if (meta.value.isComplete) {
+          if (meta.value.isComplete.value) {
             clearInterval(interval);
-            resolve(!meta.value.hasError);
+            resolve(!meta.value.hasError.value);
           }
         }, 100);
       });
@@ -175,20 +166,18 @@ export const useSystem = () => {
     const countryCode = country.code;
     // Check if we already have a query for this country
     if (has(stores.regions.state, countryCode)) {
-      const regions = stores.regions.state[countryCode];
-      return regions;
+      return stores.regions.state[countryCode];
     }
 
     const query = services.fetchRegions({
       data: { id: country.id, code: country.code }
     });
 
-    const regions = await query!.promise.value;
-    return regions;
+    return await query!.promise.value;
   }
 
   async function fetchCountries(): Promise<ICountry[]> {
-    if (!countriesQuery?.isFetched) await countriesQuery?.refetch();
+    if (!countriesQuery?.isFetched?.value) await countriesQuery?.refetch();
     return countries.value;
   }
 
@@ -205,7 +194,7 @@ export const useSystem = () => {
 
   // --- side effects
 
-  // after first load, ensure we refetch our data in the background if we have previously fetched/persisted
+  // after the first load, ensure we refetch our data in the background if we have previously fetched/persisted
   isReady().then(() => {
     if (needsRefresh) {
       refresh();

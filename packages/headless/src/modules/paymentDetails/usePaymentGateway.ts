@@ -76,6 +76,7 @@ export const usePaymentGateway = (actor: ComputedRef<Actor | undefined>) => {
     isUnavailable: !!actor.value && stateMatches(actor, ["unavailable"]),
     isRendering: !actor.value || stateMatches(actor.value, ["rendering"]),
     isAvailable: !!actor.value && stateMatches(actor, ["available"]),
+    isUnavailable: !!actor.value && stateMatches(actor, ["unavailable"]),
     hasErrors: stateMatches(actor, ["available.error"]),
     isProcessing: stateMatches(actor, ["available.processing"]),
     isValid: stateMatches(actor, ["available.valid"]),
