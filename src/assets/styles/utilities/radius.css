@@ -11,14 +11,6 @@
     border-radius: var(--badge-radius);
   }
 
-  .control-radius {
-    border-radius: var(--control-radius);
-  }
-
-  .button-radius {
-    border-radius: var(--button-radius);
-  }
-
   .image-radius {
     border-radius: var(--image-radius);
   }
@@ -30,4 +22,12 @@
   .message-radius {
     border-radius: var(--message-radius);
   }
+}
+
+@utility control-radius {
+  border-radius: var(--control-radius);
+}
+
+@utility button-radius {
+  border-radius: var(--button-radius);
 }
