@@ -10,6 +10,7 @@ import { useI18n } from "vue-i18n";
 // --- internal
 import {
   ROUTE,
+  useBrand,
   useProductCategories,
   type ProductCategory,
   BreadcrumbVariant
@@ -22,7 +23,7 @@ import { Breadcrumb, useStyles } from "@upmind-automation/upmind-ui";
 // --- types
 import type { CategoriesProps } from "./types";
 import type { ComputedRef } from "vue";
-import { map, compact, last, isEmpty } from "lodash-es";
+import { map, compact, last } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<Omit<CategoriesProps, "modelValue">>();
@@ -33,6 +34,7 @@ const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
 const { t } = useI18n();
 
 const { getPath, getOne } = useProductCategories();
+const { uiCart } = useBrand();
 
 const items = computed(() => {
   const items: any[] = [];
@@ -40,6 +42,7 @@ const items = computed(() => {
   const currentCategory = getOne(modelValue.value ?? "");
   const variant =
     currentCategory?.uiMeta?.uischema?.config?.breadcrumbs ||
+    uiCart.value?.ui?.uischema?.config?.breadcrumbs ||
     BreadcrumbVariant.VISIBLE;
 
   if (variant === BreadcrumbVariant.HIDDEN) {
