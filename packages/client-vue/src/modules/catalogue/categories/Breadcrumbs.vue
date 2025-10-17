@@ -49,20 +49,23 @@ const items = computed(() => {
     return items;
   }
 
-  // Storefront (for visible and condensed)
-  if (variant !== BreadcrumbVariant.CATEGORY) {
-    items.push({
-      label: t("text.shop"),
-      current: !modelValue.value,
-      to: {
-        name: ROUTE.CATALOGUE,
-        query: {
-          sort: props.sort,
-          direction: props.direction,
-          catid: undefined
-        }
+  // Storefront (for visible and condensed, or category)
+  items.push({
+    label: t("text.shop"),
+    current: !modelValue.value,
+    to: {
+      name: ROUTE.CATALOGUE,
+      query: {
+        sort: props.sort,
+        direction: props.direction,
+        catid: undefined
       }
-    });
+    }
+  });
+
+  // For CATEGORY variant, only show shop
+  if (variant === BreadcrumbVariant.CATEGORY) {
+    return items;
   }
 
   // For condensed, show ellipsis before the last category if there are multiple
