@@ -14,7 +14,7 @@ test.describe("Display Price Types", () => {
         displayPriceType: "min"
       });
       await page.reload();
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("load");
       await expect(page.getByTestId("widget-grid")).toHaveScreenshot(
         "catalogue-lowest-billing-cycle"
       );
@@ -30,7 +30,7 @@ test.describe("Display Price Types", () => {
         displayPriceType: "abs_min"
       });
       await page.reload();
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("load");
       await expect(page.getByTestId("widget-grid")).toHaveScreenshot(
         "catalogue-highest-billing-cycle-divided-by-months"
       );
@@ -43,7 +43,7 @@ test.describe("Display Price Types", () => {
         displayPriceType: "lowest_monthly_price"
       });
       await page.reload();
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("load");
       await expect(page.getByTestId("widget-grid")).toHaveScreenshot(
         "catalogue-lowest-monthly-price"
       );
