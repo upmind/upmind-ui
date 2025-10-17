@@ -80,7 +80,7 @@
   "payment_gateway_update_failed": "Experimentamos un error al actualizar la pasarela de pago",
   "payment_gateway_validation_failed": "Error en la validación de la pasarela de pago",
   "payment_gateways_not_available_msg": "Aún puede realizar su pedido ahora y completar el pago más tarde. Nuestro equipo de soporte podrá ayudarle.",
-  "payment_gateways_not_available_title": "No hay opciones de pago para la moneda seleccionada ({currency} ) o país ({country} )",
+  "payment_gateways_not_available_title": "No hay opciones de pago para la moneda o el país de facturación seleccionados",
   "payment_process_failed": "Experimentamos un error al procesar su pago.",
   "product_not_available": "Producto no disponible",
   "product_not_found": "Lo sentimos, el producto que estás buscando no existe.",

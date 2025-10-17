@@ -1,8 +1,10 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-/* Upmind Only */
+@import "@upmind-automation/upmind-ui/styles";
+
+@source './.storybook/**/*.{js,jsx,ts,tsx}';
+@source './stories/**/*.{js,jsx,ts,tsx}';
+@source '../../../../packages/ui/src/**/*.{html,vue,js,tsx,ts}';
 
 html,
 body,

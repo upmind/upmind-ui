@@ -6,57 +6,69 @@ import { Avatar } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { useSystemArgTypes } from "../../utils";
-import { keys, isFunction, find, findIndex } from "lodash-es";
+import { keys } from "lodash-es";
 
-// -----------------------------------------------------------------------------
-enum shapes {
-  circle = "Circle",
-  square = "Square",
-}
-enum fits {
-  cover = "Cover",
-  contain = "Contain",
-}
+// --- types
+import {
+  AVATAR_COLORS,
+  AVATAR_SIZES,
+  AVATAR_SHAPES,
+  AVATAR_FIT
+} from "@upmind-automation/upmind-ui";
 
 const meta: Meta<typeof Avatar> = {
   component: Avatar,
   argTypes: {
     icon: useSystemArgTypes.icon,
-    size: useSystemArgTypes.allSizes,
-    shape: {
-      options: keys(shapes),
+    color: {
+      options: AVATAR_COLORS,
       control: {
-        type: "radio",
-        labels: shapes,
-      },
+        type: "select",
+        labels: AVATAR_COLORS
+      }
+    },
+    size: {
+      options: AVATAR_SIZES,
+      control: {
+        type: "select",
+        labels: AVATAR_SIZES
+      }
+    },
+    shape: {
+      options: AVATAR_SHAPES,
+      control: {
+        type: "select",
+        labels: AVATAR_SHAPES
+      }
     },
     fit: {
-      options: keys(fits),
+      options: AVATAR_FIT,
       control: {
         type: "radio",
-        labels: fits,
-      },
-    },
+        labels: AVATAR_FIT
+      }
+    }
   },
   args: {
     src: "",
-    caption: "DC",
+    caption: "P",
+    color: "primary",
     size: "md",
     shape: "circle",
     icon: "",
-    fit: "cover",
+    fit: "cover"
   },
   parameters: {
     docs: {
       story: {
-        iframeHeight: 130,
+        iframeHeight: 130
       },
       description: {
         component:
-          "A component to display user profile pictures, icons or initials.",
-      },
-    },
-  },
+          "A component to display user profile pictures, icons or initials."
+      }
+    }
+  }
 };
 
 export default meta;
@@ -64,40 +76,111 @@ type Story = StoryObj<typeof Avatar>;
 
 export const Base: Story = {};
 
+export const Variants: Story = {
+  parameters: {
+    controls: { exclude: ["src", "icon", "avatar", "caption", "color", "size"] }
+  },
+  render: args => ({
+    components: { Avatar },
+    setup() {
+      const colors = AVATAR_COLORS;
+      const sizes = AVATAR_SIZES;
+      const caption = "AV";
+
+      const translateSize = (size: string) => {
+        switch (size) {
+          case "xs":
+            return "Extra Small";
+          case "sm":
+            return "Small";
+          case "md":
+            return "Medium";
+          case "lg":
+            return "Large";
+          case "xl":
+            return "Extra Large";
+          default:
+            return size;
+        }
+      };
+
+      return {
+        args,
+        colors,
+        sizes,
+        translateSize,
+        caption
+      };
+    },
+    template: `
+        <div class="flex flex-col">
+          <!-- Size labels at the top -->
+          <div class="flex items-center mb-4">
+            <div class="w-24"></div>
+            <div
+              v-for="size in sizes"
+              :key="'label-' + size"
+              class="text-center text-xs text-muted w-16 ml-4 first:ml-0"
+            >
+              {{ size }}
+            </div>
+          </div>
+
+          <!-- Avatar rows by color -->
+          <div v-for="color in colors" :key="color" class="flex items-center mb-4">
+            <div class="capitalize font-semibold text-lg text-right w-24">{{ color }}</div>
+            <div
+              v-for="size in sizes"
+              :key="color + size"
+              class="flex items-center justify-center w-16 ml-4 first:ml-0"
+            >
+              <Avatar
+                v-bind="args"
+                :color="color"
+                :size="size"
+                :caption="caption"
+              />
+            </div>
+          </div>
+        </div>
+    `
+  })
+};
+
 export const Flag: Story = {
   parameters: {
-    controls: { exclude: ["src", "icon", "avatar", "caption"] },
+    controls: { exclude: ["src", "icon", "avatar", "caption"] }
   },
   args: {
     icon: "gb",
     caption: "GB",
-    size: "md",
-  },
+    size: "md"
+  }
 };
 
 export const Gravatar: Story = {
   parameters: {
-    controls: { exclude: ["src", "icon", "avatar", "caption"] },
+    controls: { exclude: ["src", "icon", "avatar", "caption"] }
   },
   args: {
     src: "https://www.gravatar.com/avatar/4289a4e6163b9adc987168444774435b?d=404&s=200",
-    size: "md",
-  },
+    size: "md"
+  }
 };
 
 export const SlotContent: Story = {
   parameters: {
-    controls: { exclude: ["src", "icon", "avatar", "caption"] },
+    controls: { exclude: ["src", "icon", "avatar", "caption"] }
   },
   args: {
     size: "md",
-    fit: "contain",
+    fit: "contain"
   },
   render: args => ({
     components: { Avatar },
     setup() {
       return {
-        args,
+        args
       };
     },
     template: `
@@ -110,14 +193,14 @@ export const SlotContent: Story = {
           <path d="M1.5 1.5h21s1 0 1 1v15s0 1 -1 1h-21s-1 0 -1 -1v-15s0 -1 1 -1" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
         </svg>
         </Avatar>
-    `,
-  }),
+    `
+  })
 };
 
 export const GravatarWithText: Story = {
   args: {
     caption: "DC",
     src: "https://www.gravatar.com/avatar/98302662b1abcc4cfe17b1205cb53255?d=blank&s=200",
-    size: "md",
-  },
+    size: "md"
+  }
 };

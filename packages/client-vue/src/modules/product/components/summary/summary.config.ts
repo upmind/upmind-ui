@@ -8,7 +8,7 @@ export default {
     pricing: {
       total: cva("text-left text-xl/loose"),
       price: cva("mt-4 flex items-center justify-between font-medium"),
-      regularPrice: cva("text-emphasis-medium text-right text-xs line-through"),
+      regularPrice: cva("text-muted text-right text-xs line-through"),
       currentPrice: cva("flex items-center gap-2 text-right text-3xl")
     },
 
@@ -17,7 +17,7 @@ export default {
 
       item: {
         root: cva("flex list-none justify-between text-sm"),
-        category: cva("text-emphasis-medium font-normal"),
+        category: cva("text-muted font-normal"),
         title: cva("font-normal")
       }
     },

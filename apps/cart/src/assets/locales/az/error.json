@@ -80,7 +80,7 @@
   "payment_gateway_update_failed": "Ödəniş şlüzünü yeniləyərkən xəta ilə üzləşdik",
   "payment_gateway_validation_failed": "Ödəniş şlüzünün doğrulanması uğursuz oldu",
   "payment_gateways_not_available_msg": "Siz hələ də sifarişinizi indi təqdim edə və ödənişi daha sonra tamamlaya bilərsiniz. Dəstək komandamız sizə kömək edə biləcək.",
-  "payment_gateways_not_available_title": "Seçdiyiniz valyuta üçün ödəniş variantları yoxdur ({currency} ) və ya ölkə ({country} )",
+  "payment_gateways_not_available_title": "Seçdiyiniz valyuta və ya faktura ölkəsi üçün ödəniş variantları yoxdur",
   "payment_process_failed": "Ödənişinizi emal edərkən xəta ilə üzləşdik",
   "product_not_available": "Məhsul mövcud deyil",
   "product_not_found": "Üzr istəyirik, axtardığınız məhsul yoxdur.",

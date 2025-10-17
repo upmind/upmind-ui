@@ -1,4 +1,5 @@
 {
+  "basket_count": "празен | {count} артикул | {count} артикули",
   "basket_items": "няма артикули в кошницата | {count} артикул в кошницата | {count} артикули в кошницата",
   "basket_product_missing_data": "Липсващи данни за елемента",
   "basket_product_missing_data_help": "Този елемент е лишен от данни и изисква внимание",
@@ -38,5 +39,8 @@
   "product_not_found": "**Продукт** не е намерен",
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
   "promotion_help": "{code} осигурява {amount} отстъпка {description}",
-  "promotions_active": "Активни отстъпки"
+  "promotions_active": "Активни отстъпки",
+  "recommendations_unavailable_text": "We couldn't find any recommendations for you at this time. Please click below to continue.",
+  "recommendations_unavailable_title": "We're sorry about that...",
+  "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}"
 }

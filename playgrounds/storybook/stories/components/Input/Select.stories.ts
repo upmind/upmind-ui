@@ -2,72 +2,61 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
-import { Select, Input } from "@upmind-automation/upmind-ui";
-
-// --- utils
-import { useSystemArgTypes } from "../../../utils";
+import { Select } from "@upmind-automation/upmind-ui";
 
 // --- types
-
-// -----------------------------------------------------------------------------
+import {
+  SELECT_WIDTHS,
+  SELECT_SIZES,
+  type SelectItemProps,
+  type SelectItemAdditional
+} from "@upmind-automation/upmind-ui";
 
 const meta: Meta<typeof Select> = {
   parameters: {
-    controls: { exclude: ["layout", "variant"] },
+    controls: { exclude: ["items"] }
   },
   component: Select,
-  subcomponents: { Input },
   argTypes: {
-    size: useSystemArgTypes.size,
-    // ---
-    prependAvatar: useSystemArgTypes.flag,
-    prependIcon: useSystemArgTypes.icon,
-    appendAvatar: useSystemArgTypes.flag,
-    appendIcon: useSystemArgTypes.icon,
-    feedbackIcon: useSystemArgTypes.icon,
+    width: {
+      control: "select",
+      options: SELECT_WIDTHS
+    },
+    size: {
+      control: "select",
+      options: SELECT_SIZES
+    }
   },
   args: {
+    width: "auto",
+    size: "md",
     items: [
       {
         value: "1",
-        label: "Item 1",
+        textValue: "Option 1"
       },
       {
         value: "2",
-        label: "Item 2",
+        textValue: "Option 2"
       },
       {
         value: "3",
-        label: "Item 3",
+        textValue: "Option 3"
       },
       {
         value: "4",
-        label: "Nisi dolore consectetur.",
-      },
+        textValue: "Option 4"
+      }
+    ] as SelectItemProps[],
+    additionalItems: [
       {
-        value: "5",
-        label: "Incididunt ullamco et elit exercitation ipsum.",
-      },
-    ],
-    label: "What is your name?",
-    description: "Please enter your full name",
-    errors: undefined,
-    // ---
-    modelValue: undefined,
-    // ---
-    size: "md",
-    // ---
-    prependAvatar: undefined,
-    prependIcon: undefined,
-    prependText: undefined,
-    appendIcon: undefined,
-    appendAvatar: undefined,
-    appendText: undefined,
-    // ---
-    required: false,
-    disabled: false,
-    visible: true,
-  },
+        value: "new",
+        textValue: "Add new",
+        icon: "plus-circle",
+        emitOnly: true
+      }
+    ] as SelectItemAdditional[]
+  }
 };
 
 export default meta;
@@ -78,16 +67,73 @@ export const Base: Story = {
     components: { Select },
     setup() {
       return {
-        args,
+        args
       };
     },
     methods: {
-      doUpdate(value: boolean) {
-        updateArgs({ modelValue: value });
-      },
+      doUpdate(value: string) {
+        if (value === "new") {
+          alert(`Adding new...`);
+          updateArgs({ modelValue: null });
+        } else {
+          updateArgs({ modelValue: value });
+        }
+      }
     },
     template: `
-        <Select v-bind="args" @update:modelValue="doUpdate" />
-    `,
-  }),
+    <div class="max-w-sm">
+      <Select v-bind="args" @update:modelValue="doUpdate" />
+    </div>
+    `
+  })
+};
+
+export const States: Story = {
+  render: (args, { updateArgs }) => ({
+    components: { Select },
+    setup() {
+      const width = "full";
+      return {
+        args,
+        width
+      };
+    },
+    methods: {
+      doUpdate(value: string) {
+        if (value === "new") {
+          alert(`Adding new...`);
+          updateArgs({ modelValue: null });
+        } else {
+          updateArgs({ modelValue: value });
+        }
+      }
+    },
+    template: `
+        <section class="flex flex-col gap-4 max-w-sm">
+      <div>
+        <h3 class="text-sm/loose text-muted">Default</h3>
+
+        <Select v-bind="args" @update:modelValue="doUpdate" :width="width" />
+      </div>
+
+      <div>
+        <h3 class="text-sm/loose text-muted">Hover</h3>
+
+        <Select v-bind="args" @update:modelValue="doUpdate" data-hover="true" :width="width" />
+      </div>
+
+      <div>
+        <h3 class="text-sm/loose text-muted">Focused</h3>
+
+        <Select v-bind="args" @update:modelValue="doUpdate" data-focus="true" :width="width" />
+      </div>
+
+      <div>
+        <h3 class="text-sm/loose text-muted">Selected</h3>
+
+        <Select v-bind="args" @update:modelValue="doUpdate" model-value="1" :width="width" />
+      </div>
+    </section>
+    `
+  })
 };

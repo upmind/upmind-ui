@@ -1,4 +1,5 @@
 {
+  "basket_count": "üres | {count} tétel | {count} tételek",
   "basket_items": "nincsenek tételek a kosárban | {count} tétel a kosárban | {count} kosárban lévő tételek",
   "basket_product_missing_data": "Hiányzó adatok a tételből",
   "basket_product_missing_data_help": "Ez az elem adathiányos, és figyelmet igényel.",
@@ -38,5 +39,8 @@
   "product_not_found": "**Termék** nem található",
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
   "promotion_help": "{code} biztosít {amount} kedvezmény {description}",
-  "promotions_active": "Aktív kedvezmények"
+  "promotions_active": "Aktív kedvezmények",
+  "recommendations_unavailable_text": "We couldn't find any recommendations for you at this time. Please click below to continue.",
+  "recommendations_unavailable_title": "We're sorry about that...",
+  "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}"
 }

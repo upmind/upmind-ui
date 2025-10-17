@@ -5,7 +5,7 @@ export default {
   product: {
     root: {
       card: cva(
-        "text-foreground relative flex list-none flex-col gap-y-3 pb-6 last:pb-0",
+        "relative flex list-none flex-col gap-y-3 pb-6 text-base last:pb-0",
         {
           variants: {
             isDisabled: {
@@ -24,7 +24,7 @@ export default {
           ]
         }
       ),
-      container: cva("divide-y divide-dashed")
+      container: cva("divide-border-control-default divide-y divide-dashed")
     },
     summary: {
       container: cva("flex flex-col gap-y-4 py-4 first:pt-0 last:pb-0"),
@@ -35,7 +35,7 @@ export default {
     },
     configDetails: {
       container: cva(
-        "flex flex-col divide-y divide-solid rounded-lg border p-4 px-5 text-sm leading-3 font-medium"
+        "border-control-default divide-border-control-default flex flex-col divide-y divide-solid rounded-lg border p-4 px-5 text-sm leading-3 font-medium"
       )
     },
 

@@ -61,7 +61,7 @@ class UpmindClient {
   storefrontUrl?: string;
   themes?: UpmindProps["themes"];
 
-  isReady(): Promise<void> {
+  async isReady(): Promise<void> {
     return useUpmind.isReady();
   }
 }

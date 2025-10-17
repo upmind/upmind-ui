@@ -5,15 +5,23 @@ import { computed, provide, ref } from "vue";
 import { useBrand } from "../brand";
 
 // --- utils
-import { isEmpty, startCase, reduce, keyBy, merge, values } from "lodash-es";
+import {
+  isEmpty,
+  startCase,
+  keyBy,
+  merge,
+  values,
+  isString,
+  isArray,
+  trim,
+  forEach
+} from "lodash-es";
 
 // --- types
 import type { Theme } from "./types";
-import { isArray } from "xstate/lib/utils";
 
 // -----------------------------------------------------------------------------
-
-// --- context
+// --- global context
 
 const themes = ref<Theme[] | undefined>(undefined);
 // -----------------------------------------------------------------------------
@@ -52,25 +60,46 @@ export const useTheming = (provided?: Theme | Theme[]) => {
     themes.value = values(merged);
   }
 
+  function extractId(cssString: string): string {
+    const lines = cssString.split("\n");
+    const selectorLine = lines.find(line => line.includes("[data-theme="));
+
+    if (selectorLine) {
+      const quotedValue =
+        selectorLine.split("'")[1] || selectorLine.split('"')[1];
+      if (quotedValue) return quotedValue;
+    }
+
+    return "brand";
+  }
+
+  function splitThemes(token: string): Theme[] {
+    const themes: Theme[] = [];
+    const parts = token.split("[data-theme=").filter(part => part.trim());
+
+    forEach(parts, part => {
+      const themeBlock = `[data-theme=${part}`;
+      const themeId = extractId(themeBlock);
+
+      themes.push({
+        id: themeId,
+        name: startCase(themeId),
+        uiConfig: {},
+        tokens: themeBlock
+      });
+    });
+
+    return themes;
+  }
+
   // --- side Effects
 
   isReady().then(() => {
-    // convert the brand variants into fully fledged themes
-    const brandThemes = reduce(
-      uiTheme.value?.variants,
-      (acc: Theme[], tokens, variant) => {
-        acc.push({
-          id: variant,
-          name: startCase(variant),
-          uiConfig: {},
-          tokens
-        });
-        return acc;
-      },
-      []
-    );
+    // variants already contains complete CSS with data-theme selectors
+    const variantsString = uiTheme.value?.tokens;
+    if (!variantsString || !isString(variantsString)) return;
 
-    addTheme(brandThemes);
+    addTheme(splitThemes(variantsString));
   });
 
   // ---------------------------------------------------------------------------

@@ -8,6 +8,7 @@
         :actions="[
           {
             ...storefrontRoute,
+            variant: 'solid',
             color: 'primary',
             iconAppend: 'arrow-right',
             label: t('action.continue_shopping')
@@ -53,9 +54,7 @@ await isResolved(ROUTE.SESSION_END).catch(() => {
 
 const props = withDefaults(defineProps<InterstitialProps>(), {
   modal: true,
-  skrim: "light",
   open: true,
-  to: "#vue-app",
 
   animatedIcon: () => ({
     icon: "keys",

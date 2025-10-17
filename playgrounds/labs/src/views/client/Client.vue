@@ -35,7 +35,7 @@
 
         <Alert
           v-if="!meta.isAuthenticated && !meta.isLoading"
-          color="error"
+          color="danger"
           title="Please log in to use client companies"
         />
       </div>

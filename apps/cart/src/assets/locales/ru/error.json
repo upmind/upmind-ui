@@ -80,7 +80,7 @@
   "payment_gateway_update_failed": "Произошла ошибка при обновлении платежного шлюза.",
   "payment_gateway_validation_failed": "Проверка платежного шлюза не пройдена",
   "payment_gateways_not_available_msg": "Вы всё ещё можете оформить заказ сейчас и оплатить его позже. Наша служба поддержки поможет вам.",
-  "payment_gateways_not_available_title": "Для выбранной вами валюты нет вариантов оплаты ({currency} ) или страна ({country} )",
+  "payment_gateways_not_available_title": "Для выбранной вами валюты или страны выставления счета нет вариантов оплаты.",
   "payment_process_failed": "При обработке вашего платежа произошла ошибка.",
   "product_not_available": "Товар недоступен",
   "product_not_found": "Извините, товар, который вы ищете, не существует.",

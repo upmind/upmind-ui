@@ -2,48 +2,64 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
-import { Badge } from "@upmind-automation/upmind-ui";
+import {
+  Badge,
+  BadgeProps,
+  BADGE_COLORS,
+  BADGE_VARIANTS,
+  BADGE_SIZES
+} from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { useSystemArgTypes } from "../../utils";
-import { keys } from "lodash-es";
+import { first, keys } from "lodash-es";
 
-// --- types
-enum variants {
-  flat = "Flat",
-  outline = "Outlined",
-  tonal = "Tonal",
-}
 // -----------------------------------------------------------------------------
 
 const meta: Meta<typeof Badge> = {
   component: Badge,
   argTypes: {
     variant: {
-      options: keys(variants),
+      options: BADGE_VARIANTS,
       control: {
-        type: "radio",
-        labels: variants,
-      },
+        type: "select",
+        labels: BADGE_VARIANTS
+      }
     },
-
-    color: useSystemArgTypes.color,
+    color: {
+      options: BADGE_COLORS,
+      control: {
+        type: "select",
+        labels: BADGE_COLORS
+      }
+    },
+    size: {
+      options: BADGE_SIZES,
+      control: {
+        type: "select",
+        labels: BADGE_SIZES
+      }
+    },
+    close: {
+      control: {
+        type: "boolean"
+      }
+    }
   },
   args: {
     label: "Badge",
-    // icon: undefined,
-    // ---
-    variant: "flat",
-    color: "primary",
+    variant: first(BADGE_VARIANTS) as BadgeProps["variant"],
+    color: first(BADGE_COLORS) as BadgeProps["color"],
+    close: true
   },
   parameters: {
     docs: {
       description: {
         component:
-          "A small visual indicator typically used for notifications, counts, or status.",
-      },
-    },
-  },
+          "A small visual indicator typically used for notifications, counts, or status."
+      }
+    }
+  }
 };
 
 export default meta;
@@ -52,110 +68,70 @@ type Story = StoryObj<typeof Badge>;
 export const Base: Story = {};
 
 export const Variants: Story = {
-  parameters: {
-    controls: { exclude: ["label", "variant"] },
+  args: {
+    close: false
   },
-  render: args => ({
-    components: { Badge },
-    setup() {
-      return {
-        args,
-      };
-    },
-    template: `
-      <section class="flex w-full flex-wrap items-center gap-2">
-        <h1 class="w-full mt-0">Types/Variants</h1>
-        <Badge v-bind="args" variant="flat" label="Flat" />
-        <Badge v-bind="args" variant="outline" label="Outlined" />
-        <Badge v-bind="args" variant="tonal" label="Tonal" />
-      </section>
-    `,
-  }),
-};
 
-export const SolidColorVariants: Story = {
   parameters: {
-    controls: { exclude: ["label", "variant", "color"] },
+    controls: { exclude: ["label", "variant"] }
   },
-  render: args => ({
-    components: { Badge },
-    setup() {
-      return {
-        args,
-      };
-    },
-    template: `
-      <section class="flex w-full flex-wrap items-center gap-2">
-        <h1 class="w-full mt-0">Solid Color Variants</h1>
-        <Badge v-bind="args" variant="flat" color="primary" label="Primary" />
-        <Badge v-bind="args" variant="flat" color="secondary" label="Secondary" />
-        <Badge v-bind="args" variant="flat" color="accent" label="Accent" />
-        <Badge v-bind="args" variant="flat" color="promotion" label="Promotion" />
-        <Badge v-bind="args" variant="flat" color="destructive" label="Destructive" />
-        <Badge v-bind="args" variant="flat" color="base" label="Base" />
-        <Badge v-bind="args" variant="flat" color="info" label="Info" />
-        <Badge v-bind="args" variant="flat" color="success" label="Success" />
-        <Badge v-bind="args" variant="flat" color="error" label="Error" />
-        <Badge v-bind="args" variant="flat" color="warning" label="Warning" />
-      </section>
-    `,
-  }),
-};
 
-export const OutlineColorVariants: Story = {
-  parameters: {
-    controls: { exclude: ["label", "variant", "color"] },
-  },
   render: args => ({
     components: { Badge },
     setup() {
-      return {
-        args,
-      };
-    },
-    template: `
-      <section class="flex w-full flex-wrap items-center gap-2">
-        <h1 class="w-full mt-0">Outline Color Variants</h1>
-        <Badge v-bind="args" variant="outline" color="base" label="Base" />
-        <Badge v-bind="args" variant="outline" color="primary" label="Primary" />
-        <Badge v-bind="args" variant="outline" color="secondary" label="Secondary" />
-        <Badge v-bind="args" variant="outline" color="accent" label="Accent" />
-        <Badge v-bind="args" variant="outline" color="promotion" label="Promotion" />
-        <Badge v-bind="args" variant="outline" color="destructive" label="Destructive" />
-        <Badge v-bind="args" variant="outline" color="success" label="Success" />
-        <Badge v-bind="args" variant="outline" color="info" label="Info" />
-        <Badge v-bind="args" variant="outline" color="error" label="Error" />
-        <Badge v-bind="args" variant="outline" color="warning" label="Warning" />
-      </section>
-    `,
-  }),
-};
+      const variants = BADGE_VARIANTS;
+      const colors = BADGE_COLORS;
+      const sizes = BADGE_SIZES;
+      const label = "Badge";
+      const icon = "plus-circle";
 
-export const TonalColorVariants: Story = {
-  parameters: {
-    controls: { exclude: ["label", "variant", "color"] },
-  },
-  render: args => ({
-    components: { Badge },
-    setup() {
+      const translateSize = (size: string) => {
+        switch (size) {
+          case "sm":
+            return "Small";
+          case "md":
+            return "Medium";
+        }
+      };
+
       return {
         args,
+        variants,
+        colors,
+        sizes,
+        translateSize,
+        label,
+        icon
       };
     },
     template: `
-      <section class="flex w-full flex-wrap items-center gap-2">
-        <h1 class="w-full mt-0">Tonal Color Variants</h1>
-        <Badge v-bind="args" variant="tonal" color="base" label="Base" />
-        <Badge v-bind="args" variant="tonal" color="primary" label="Primary" />
-        <Badge v-bind="args" variant="tonal" color="secondary" label="Secondary" />
-        <Badge v-bind="args" variant="tonal" color="accent" label="Accent" />
-        <Badge v-bind="args" variant="tonal" color="promotion" label="Promotion" />
-        <Badge v-bind="args" variant="tonal" color="destructive" label="Destructive" />
-        <Badge v-bind="args" variant="tonal" color="success" label="Success" />
-        <Badge v-bind="args" variant="tonal" color="info" label="Info" />
-        <Badge v-bind="args" variant="tonal" color="error" label="Error" />
-        <Badge v-bind="args" variant="tonal" color="warning" label="Warning" />
-      </section>
-    `,
-  }),
+        <div v-for="size in sizes" :key="size" class="flex flex-col gap-4 mb-12">
+
+          <div class="grid gap-4 w-fit" :style="{ gridTemplateColumns: 'auto repeat(' + colors.length + ', auto)' }">
+            <div class="capitalize font-semibold text-lg text-right pr-2 w-20">{{ translateSize(size) }}</div>
+            <div
+              v-for="color in colors"
+              :key="'color-' + color"
+              class="capitalize text-center text-sm flex items-end justify-center text-muted"
+            >
+              {{ color }}
+            </div>
+
+            <template v-for="variant in variants" :key="variant">
+              <div class="capitalize text-right pr-2 text-sm flex items-center justify-end text-muted">{{ variant }}</div>
+              <Badge
+                v-for="color in colors"
+                :key="variant + color"
+                v-bind="args"
+                :variant="variant"
+                :color="color"
+                :size="size"
+                icon="sale-02"
+                close
+              />
+            </template>
+          </div>
+        </div>
+    `
+  })
 };

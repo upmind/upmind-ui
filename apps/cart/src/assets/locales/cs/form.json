@@ -28,17 +28,17 @@
     "placeholder": "Heslo nebo přístupová fráze"
   },
   "card_cvv": {
-    "description": "bezpečnostní kód karty, který se nachází na zadní straně karty a poskytuje dodatečné zabezpečení kreditní karty.",
+    "error": "A valid CVV is required",
     "label": "CVV",
     "placeholder": "CVC"
   },
   "card_expiry": {
-    "description": "Datum platnosti karty. Formát data: MM/RR",
+    "error": "A valid expiry date is required",
     "label": "Datum expirace",
     "placeholder": "MM/RR"
   },
   "card_num": {
-    "description": "Šestnáctimístné číslo na přední straně vaší karty.",
+    "error": "A valid card number is required",
     "label": "Číslo karty",
     "placeholder": "1234 1234 1234 1234"
   },

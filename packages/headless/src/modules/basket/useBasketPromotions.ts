@@ -9,7 +9,6 @@ import { useBasket } from "./";
 // --- utils
 import {
   contextValue,
-  DEBOUNCE_DELAY,
   DetailedError,
   ErrorObject,
   ErrorOrigin,
@@ -220,7 +219,7 @@ export const useBasketPromotions = () => {
      * @param {PromotionModel} value The new promotion model to set.
      * @returns {void} Does not return anything.
      */
-    input: debounce(input, DEBOUNCE_DELAY),
+    input,
 
     /**
      * Adds the promotion to the basket.

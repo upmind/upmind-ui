@@ -1,7 +1,6 @@
 <template>
   <Drawer
     v-if="pendingProduct"
-    to="#vue-app"
     fit="cover"
     open
     :title="t('action.configure_your_product')"
@@ -20,12 +19,7 @@
     />
 
     <template #close>
-      <Button
-        @click="doReject"
-        :label="t('action.cancel')"
-        variant="link"
-        size="lg"
-      />
+      <Link @click="doReject" :label="t('action.cancel')" size="lg" />
     </template>
 
     <template #actions>
@@ -52,7 +46,7 @@ import {
   useRecommendations,
   useBasketProductsPending
 } from "@upmind-automation/headless";
-import { useStyles } from "@upmind-automation/upmind-ui";
+import { useStyles, Link } from "@upmind-automation/upmind-ui";
 import config from "../recommendations.config";
 
 // --- components

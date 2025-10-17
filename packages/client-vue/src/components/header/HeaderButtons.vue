@@ -1,24 +1,44 @@
 <template>
-  <nav v-if="meta.isAvailable" class="inline-flex items-center space-x-2">
+  <nav v-if="meta.isAvailable" class="inline-flex items-center gap-3">
     <slot name="actions" />
 
     <Button
-      :class="styles.header.avatar.basket"
+      as="router-link"
       variant="ghost"
       size="lg"
-      @click="navigate(ROUTE.BASKET)"
-      icon="cart"
-      pill
-    />
+      :to="{ name: ROUTE.BASKET }"
+      icon="shopping-bag-02"
+    >
+      <Transition name="label-slide">
+        <i18n-t
+          v-if="count > 0"
+          keypath="cart.basket_count"
+          scope="global"
+          :plural="count"
+          tag="span"
+          class="px-1"
+        >
+          <template #[`count`]>
+            <Transition name="count-slide" mode="out-in">
+              <span
+                :key="count"
+                class="inline-block"
+                :class="count < 10 ? 'min-w-2.5' : 'min-w-5'"
+              >
+                {{ count }}
+              </span>
+            </Transition>
+          </template>
+        </i18n-t>
+      </Transition>
+    </Button>
 
     <SessionLoginPopover v-if="!meta.isAuthenticated">
       <Button
         size="lg"
         variant="outline"
-        color="base"
         :label="t('action.login')"
-        icon="account"
-        pill
+        icon="user-circle"
         data-testid="login-popover-trigger"
       />
     </SessionLoginPopover>
@@ -37,6 +57,7 @@
 
 <script lang="ts" setup>
 // --- external
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -61,8 +82,7 @@ import type { ComputedRef } from "vue";
 
 const { t } = useI18n();
 const { meta, user } = useSession();
-const { meta: basketMeta } = useBasket();
-const { navigate, currentRoute } = useRoutingEngine();
+const { count } = useBasket();
 
 const styles = useStyles(["header.avatar"], {}, config) as ComputedRef<{
   header: {
@@ -74,3 +94,41 @@ const styles = useStyles(["header.avatar"], {}, config) as ComputedRef<{
   };
 }>;
 </script>
+
+<style scoped>
+.count-slide-enter-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.count-slide-leave-active {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.count-slide-enter-from {
+  transform: translateY(20px);
+  opacity: 0;
+}
+
+.count-slide-leave-to {
+  transform: translateY(-20px);
+  opacity: 0;
+}
+
+.label-slide-enter-active {
+  transition: all 0.3s ease;
+}
+
+.label-slide-leave-active {
+  transition: all 0.3s ease;
+  overflow: hidden;
+  width: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.label-slide-enter-from,
+.label-slide-leave-to {
+  transform: translateX(20px);
+  opacity: 0;
+}
+</style>

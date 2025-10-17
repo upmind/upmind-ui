@@ -8,22 +8,18 @@ export enum colors {
   success = "success",
   info = "info",
   error = "error",
-  warning = "warning",
+  warning = "warning"
 }
 
 export enum variants {
-  ghost = "ghost",
-  flat = "flat",
-  outline = "outline",
-  tonal = "tonal",
+  primary = "primary"
 }
 
 export enum sizes {
   xs = "xs",
   sm = "sm",
   md = "md",
-  lg = "lg",
-  icon = "icon",
+  lg = "lg"
 }
 export enum allSizes {
   auto = "auto",
@@ -35,13 +31,13 @@ export enum allSizes {
   lg = "lg",
   xl = "xl",
   "2xl" = "2xl",
-  "3xl" = "3xl",
+  "3xl" = "3xl"
 }
 
 export enum align {
   start = "start",
   center = "center",
-  end = "end",
+  end = "end"
 }
 
 export enum placements {
@@ -56,7 +52,7 @@ export enum placements {
   "left-start" = "left-start",
   "left-end" = "left-end",
   "right-start" = "right-start",
-  "right-end" = "right-end",
+  "right-end" = "right-end"
 }
 
 export type ControlType =

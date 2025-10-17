@@ -8,40 +8,59 @@
     </template>
 
     <template #default>
-      <CardsCarousel
-        :loading="meta?.isLoading"
-        :processing="meta?.isProcessing"
-        :refreshing="meta?.isRefreshing"
-        :items="recommendations"
-        @resolve="doAdd"
-        @fetch="fetchRecommendation"
-      />
-
-      <Configure
-        v-if="basketItem?.id"
-        :modelValue="basketItem"
-        @resolve="doClose"
-      />
-
-      <Card
-        class="md:bg-base md: mt-8 flex flex-col items-center justify-between bg-transparent p-0! shadow-none md:mt-8 md:flex-row md:px-8! md:py-6!"
+      <Interstitial
+        v-if="!meta.hasRecommendations"
+        open
+        modal
+        :title="t('cart.recommendations_unavailable_title_md')"
+        :text="t('cart.recommendations_unavailable_text')"
+        :actions="[
+          {
+            handler: navigateNext,
+            variant: 'solid',
+            color: 'primary',
+            iconAppend: 'arrow-right',
+            label: t('action.continue_label')
+          }
+        ]"
       >
-        <div
-          class="text-md order-last mt-4 text-center font-medium md:order-first md:mt-0 md:text-left"
-        >
-          {{ t("cart.basket_items", { count: products?.length }) }}
-        </div>
+      </Interstitial>
 
-        <Button
-          @click="doClose"
-          :label="t('action.continue_label')"
-          color="primary"
-          size="lg"
-          class="w-full md:w-auto"
-          iconAppend="arrow-right"
-          pill
+      <template v-else>
+        <CardsCarousel
+          :loading="meta?.isLoading"
+          :processing="meta?.isProcessing"
+          :refreshing="meta?.isRefreshing"
+          :items="recommendations"
+          @resolve="doAdd"
+          @fetch="fetchRecommendation"
         />
-      </Card>
+
+        <Configure
+          v-if="basketItem?.id"
+          :modelValue="basketItem"
+          @resolve="doClose"
+        />
+
+        <section
+          class="md:bg-control-surface md:border-surface control-radius mt-8 flex flex-col items-center justify-between bg-transparent p-0 md:mt-8 md:flex-row md:border md:px-8 md:py-6"
+        >
+          <div
+            class="text-md order-last mt-4 text-center font-medium md:order-first md:mt-0 md:text-left"
+          >
+            {{ t("cart.basket_items", { count: count ?? 0 }) }}
+          </div>
+
+          <Button
+            @click="doClose"
+            :label="t('action.continue_label')"
+            color="primary"
+            size="lg"
+            class="w-full md:w-auto"
+            iconAppend="arrow-right"
+          />
+        </section>
+      </template>
     </template>
   </Layout>
 </template>
@@ -60,7 +79,7 @@ import {
 } from "@upmind-automation/headless";
 
 // --- components
-import { Button, Card, Layout } from "@upmind-automation/upmind-ui";
+import { Button, Layout, Interstitial } from "@upmind-automation/upmind-ui";
 import Configure from "../recommendations/components/Configure.vue";
 import CardsCarousel from "../recommendations/components/CardsCarousel.vue";
 import Header from "../../components/content/Header.vue";
@@ -75,7 +94,7 @@ const { productId } = useQueryParams();
 
 await isResolved(ROUTE.PRODUCT_RECOMMENDATIONS);
 
-const { products } = useBasket();
+const { count } = useBasket();
 const {
   seen,
   isReady,

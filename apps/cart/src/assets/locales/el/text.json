@@ -16,6 +16,7 @@
   "complete_online_toolkit_md": "@.markdown:{'text.complete_online_toolkit'}",
   "configuration": "Διαμόρφωση",
   "continue_shopping_desc": "Μπορείτε να συνεχίσετε τις αγορές σας χωρίς να είστε συνδεδεμένοι.",
+  "copyright": "© {year} {name}. All rights reserved.",
   "default_label": "Αθέτηση",
   "discount": "Εκπτωση",
   "expires_abbr": "Λήξη",

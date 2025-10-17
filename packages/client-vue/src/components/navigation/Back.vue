@@ -1,7 +1,6 @@
 <template>
-  <Button
+  <Link
     :to="to"
-    variant="link"
     icon="arrow-left"
     :label="safeLabel"
     size="lg"
@@ -10,7 +9,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Button } from "@upmind-automation/upmind-ui";
+import { Link } from "@upmind-automation/upmind-ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import type {

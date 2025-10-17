@@ -12,7 +12,7 @@
       })
     }}
 
-    <del v-if="meta?.discounted" class="text-emphasis-medium">
+    <del v-if="meta?.discounted" class="text-muted">
       {{
         t("text.price_was", {
           price:

@@ -80,7 +80,7 @@
   "payment_gateway_update_failed": "Vi oplevede en fejl under opdatering af betalingsgatewayen",
   "payment_gateway_validation_failed": "Validering af betalingsgateway mislykkedes",
   "payment_gateways_not_available_msg": "Du kan stadig afsende din ordre nu og gennemføre betalingen senere. Vores supportteam vil være i stand til at hjælpe dig.",
-  "payment_gateways_not_available_title": "Der er ingen betalingsmuligheder for din valgte valuta ({currency} ) eller land ({country} )",
+  "payment_gateways_not_available_title": "Der er ingen betalingsmuligheder for din valgte valuta eller dit valgte faktureringsland",
   "payment_process_failed": "Vi oplevede en fejl under behandlingen af ​​din betaling",
   "product_not_available": "Produktet er ikke tilgængeligt",
   "product_not_found": "Beklager, det produkt du leder efter findes ikke.",

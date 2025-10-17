@@ -17,131 +17,271 @@ export interface ThemeTokens {
     body?: string;
     display?: string;
   };
-  maxWidth?: {
-    app?: {
-      default?: string;
-      lg?: string;
-    };
+  button?: {
+    radius: string;
   };
-  radius?: {
-    none?: string;
-    sm?: string;
-    default?: string;
-    lg?: string;
-    xl?: string;
-    "2xl"?: string;
-    "3xl"?: string;
-    full?: string;
-    pill?: string;
-    button?: string;
-    box?: string;
+  control?: {
+    radius: string;
   };
-  border?: {
-    colorDefault?: string;
-    colorInput?: string;
-    colorControlDefault?: string;
-    colorControlStrong?: string;
+  badge?: {
+    radius: string;
   };
-  ring?: {
-    colorDefault?: string;
-    colorRing?: string;
-    colorInvalid?: string;
+  image?: {
+    radius: string;
+  };
+  card?: {
+    radius: string;
+  };
+  message?: {
+    radius: string;
+  };
+  stroke?: {
+    icon: string;
+    badge: string;
   };
   color?: {
-    transparent?: string;
-    black?: string;
-    white?: string;
+    primary: string;
+    secondary: string;
 
-    background?: string;
-    foreground?: string;
-    surface?: string;
-    canvas?: string;
+    primitive: {
+      core: {
+        canvas: string;
+        surface: string;
+        base: string;
+        display: string;
+        faint: string;
+        muted: string;
+        skeleton: string;
+        overlay: string;
+      };
 
-    base?: string;
-    baseBackground?: string;
-    baseForeground?: string;
-    baseMuted?: string;
-    baseMutedForeground?: string;
-    baseMutedActive?: string;
+      control: {
+        default: string;
+        defaultDelta: string;
+        defaultContrast: string;
+        muted: string;
+        mutedContrast: string;
+        stroke: string;
+        strokeDelta: string;
+      };
 
-    primary?: string;
-    primaryForeground?: string;
-    primaryBackground?: string;
-    primaryGradientStart?: string;
-    primaryGradientEnd?: string;
-    primaryMuted?: string;
-    primaryMutedForeground?: string;
-    primaryMutedActive?: string;
+      primary: {
+        default: string;
+        defaultStop: string;
+        defaultDelta: string;
+        defaultContrast: string;
+        muted: string;
+        mutedContrast: string;
+      };
 
-    secondary?: string;
-    secondaryForeground?: string;
-    secondaryBackground?: string;
-    secondaryGradientStart?: string;
-    secondaryGradientEnd?: string;
-    secondaryMuted?: string;
-    secondaryMutedForeground?: string;
-    secondaryMutedActive?: string;
+      secondary: {
+        default: string;
+        defaultStop: string;
+        defaultDelta: string;
+        defaultContrast: string;
+      };
 
-    promotion?: string;
-    promotionForeground?: string;
-    promotionBackground?: string;
-    promotionMuted?: string;
-    promotionMutedForeground?: string;
-    promotionMutedActive?: string;
+      neutral: {
+        default: string;
+        defaultDelta: string;
+        defaultContrast: string;
+        muted: string;
+        mutedDelta: string;
+        mutedContrast: string;
+        stroke: string;
+        strokeDelta: string;
+      };
 
-    destructive?: string;
-    destructiveForeground?: string;
-    destructiveBackground?: string;
-    destructiveMuted?: string;
-    destructiveMutedForeground?: string;
-    destructiveMutedActive?: string;
+      promo: {
+        default: string;
+        defaultContrast: string;
+        muted: string;
+        mutedContrast: string;
+      };
 
-    info?: string;
-    infoForeground?: string;
-    infoBackground?: string;
-    infoMuted?: string;
-    infoMutedForeground?: string;
-    infoMutedActive?: string;
+      danger: {
+        default: string;
+        defaultDelta: string;
+        defaultContrast: string;
+        muted: string;
+        mutedContrast: string;
+      };
 
-    success?: string;
-    successForeground?: string;
-    successBackground?: string;
-    successMuted?: string;
-    successMutedForeground?: string;
-    successMutedActive?: string;
+      warning: {
+        default: string;
+        defaultContrast: string;
+        muted: string;
+        mutedContrast: string;
+      };
 
-    warning?: string;
-    warningForeground?: string;
-    warningBackground?: string;
-    warningMuted?: string;
-    warningMutedForeground?: string;
-    warningMutedActive?: string;
+      success: {
+        default: string;
+        defaultContrast: string;
+        muted: string;
+        mutedContrast: string;
+      };
 
-    error?: string;
-    errorForeground?: string;
-    errorBackground?: string;
-    errorMuted?: string;
-    errorMutedForeground?: string;
-    errorMutedActive?: string;
+      info: {
+        default: string;
+        defaultContrast: string;
+        muted: string;
+        mutedContrast: string;
+      };
+    };
 
-    /* Control Colors */
-    control?: string;
-    controlBackground?: string;
-    controlForeground?: string;
-    controlActive?: string;
-    controlActiveMuted?: string;
-    controlActiveForeground?: string;
-    controlActiveBackground?: string;
-    controlActiveHover?: string;
-    controlActiveFocus?: string;
-    controlError?: string;
-    controlErrorMuted?: string;
-    controlErrorForeground?: string;
-    controlErrorBackground?: string;
+    background: {
+      canvas: string;
+      surface: string;
+      surfaceGlass: string;
+      skeleton: string;
+      overlay: string;
 
-    /* Icon Colors */
-    iconPrimary?: string;
-    iconSecondary?: string;
+      accent: {
+        primary: string;
+        primaryMuted: string;
+        neutral: string;
+        neutralMuted: string;
+        promo: string;
+        promoMuted: string;
+        danger: string;
+        dangerMuted: string;
+        warning: string;
+        warningMuted: string;
+        success: string;
+        successMuted: string;
+        info: string;
+        infoMuted: string;
+      };
+
+      button: {
+        primaryRing: string;
+        primary0: string;
+        primary1: string;
+        primaryHover0: string;
+        primaryHover1: string;
+        secondaryRing: string;
+        secondary0: string;
+        secondary1: string;
+        secondaryHover0: string;
+        secondaryHover1: string;
+        neutralRing: string;
+        neutral0: string;
+        neutral1: string;
+        neutralHover0: string;
+        neutralHover1: string;
+        subtleRing: string;
+        subtle0: string;
+        subtle1: string;
+        subtleHover0: string;
+        subtleHover1: string;
+        dangerRing: string;
+        danger0: string;
+        danger1: string;
+        dangerHover0: string;
+        dangerHover1: string;
+        outline: string;
+        outlineHover: string;
+        outlineRing: string;
+        ghost: string;
+        ghostHover: string;
+        ghostRing: string;
+      };
+
+      control: {
+        checked: string;
+        checkedHover: string;
+        checkedContrast: string;
+        unchecked: string;
+        uncheckedHover: string;
+        selected: string;
+        surface: string;
+        ring: string;
+      };
+    };
+
+    border: {
+      surface: string;
+
+      accent: {
+        primary: string;
+        secondary: string;
+        neutral: string;
+        promo: string;
+        danger: string;
+        warning: string;
+        success: string;
+        info: string;
+      };
+
+      button: {
+        outline: string;
+        outlineHover: string;
+      };
+
+      control: {
+        default: string;
+        hover: string;
+        selected: string;
+      };
+    };
+
+    icon: {
+      primary: string;
+      neutral: string;
+      subtle: string;
+    };
+
+    text: {
+      primary: string;
+      base: string;
+      display: string;
+      faint: string;
+      muted: string;
+
+      accent: {
+        primary: string;
+        primaryMutedContrast: string;
+        primaryContrast: string;
+        neutral: string;
+        neutralMutedContrast: string;
+        neutralContrast: string;
+        promo: string;
+        promoMutedContrast: string;
+        promoContrast: string;
+        danger: string;
+        dangerMutedContrast: string;
+        dangerContrast: string;
+        warning: string;
+        warningMutedContrast: string;
+        warningContrast: string;
+        success: string;
+        successMutedContrast: string;
+        successContrast: string;
+        info: string;
+        infoMutedContrast: string;
+        infoContrast: string;
+      };
+
+      control: {
+        selected: string;
+      };
+
+      button: {
+        primary: string;
+        secondary: string;
+        neutral: string;
+        subtle: string;
+        danger: string;
+        outline: string;
+        ghost: string;
+        link: string;
+        linkHover: string;
+        dangerLink: string;
+        dangerLinkHover: string;
+        mutedLink: string;
+        mutedLinkHover: string;
+      };
+    };
   };
 }
 
@@ -150,5 +290,5 @@ export interface Theme {
   id: string;
   icon?: string;
   uiConfig?: ThemeConfig;
-  tokens?: ThemeTokens;
+  tokens?: string;
 }
