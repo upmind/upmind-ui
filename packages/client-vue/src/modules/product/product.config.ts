@@ -9,7 +9,7 @@ export default {
 
     card: {
       root: cva(
-        "bg-base relative flex w-full flex-wrap items-stretch gap-6 rounded-lg border p-6 text-base",
+        "bg-surface relative flex w-full flex-wrap items-stretch gap-6 rounded-lg border p-6 text-base",
         {
           variants: {
             isProcessing: {
