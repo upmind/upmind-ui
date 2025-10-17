@@ -18,12 +18,13 @@
         :disabled="processing"
         :tabindex="images.length === 1 ? '0' : '-1'"
         :ring="images.length === 1 ? 'focus' : 'focus-visible'"
+        :class="styles.product.image.container"
       >
         <Image
           :carousel="!configMeta.hideCarousel"
           :image="isEmpty(images) ? props.productDetails.imgUrl : images"
           :ratio="ratio || configMeta.imageRatio"
-          :class="styles.product.image"
+          :class="styles.product.image.root"
         />
       </Link>
 
@@ -32,7 +33,7 @@
         :carousel="!configMeta.hideCarousel"
         :image="isEmpty(images) ? props.productDetails.imgUrl : images"
         :ratio="ratio || configMeta.imageRatio"
-        :class="styles.product.image"
+        :class="styles.product.image.root"
       />
 
       <section :class="styles.product.details">
@@ -150,13 +151,22 @@ const configMeta = computed(() => ({
 }));
 
 const styles = useStyles(
-  ["product", "product.header", "product.header.info", "product.header.price"],
+  [
+    "product",
+    "product.image",
+    "product.header",
+    "product.header.info",
+    "product.header.price"
+  ],
   configMeta,
   config
 ) as ComputedRef<{
   product: {
     root: string;
-    image: string;
+    image: {
+      container: string;
+      root: string;
+    };
     content: string;
     details: string;
     header: {

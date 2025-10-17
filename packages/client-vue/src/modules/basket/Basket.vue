@@ -9,7 +9,7 @@
         :title="t('cart.basket_title')"
         :description="
           t('cart.basket_summary_desc', {
-            count: products?.length ?? 0,
+            count: count ?? 0,
             total: summary?.total ?? 0
           })
         "
@@ -33,6 +33,7 @@
             color="muted"
             :label="t('action.details_toggle', open ? 0 : 1)"
             @click="open = !open"
+            size="sm"
           />
         </template>
       </Section>
@@ -157,7 +158,8 @@ import { type ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { meta, productsInvalid, isReady, products, summary } = useBasket();
+const { meta, productsInvalid, isReady, products, count, summary } =
+  useBasket();
 const { uiCart, storefrontRoute } = useBrand();
 
 const {
