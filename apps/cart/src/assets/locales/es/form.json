@@ -28,17 +28,17 @@
     "placeholder": "Contraseña o frase de contraseña"
   },
   "card_cvv": {
-    "description": "Código de seguridad de la tarjeta que se encuentra en el reverso de su tarjeta y que proporciona una medida adicional de seguridad de la tarjeta de crédito.",
+    "error": "A valid CVV is required",
     "label": "CVV",
     "placeholder": "CVC"
   },
   "card_expiry": {
-    "description": "Fecha de caducidad de la tarjeta. Formato de fecha: MM/AA",
+    "error": "A valid expiry date is required",
     "label": "Fecha de caducidad",
     "placeholder": "MM/AA"
   },
   "card_num": {
-    "description": "El número de 16 dígitos en el frente de su tarjeta.",
+    "error": "A valid card number is required",
     "label": "Número de tarjeta",
     "placeholder": "1234 1234 1234 1234"
   },

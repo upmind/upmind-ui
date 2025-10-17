@@ -4,55 +4,54 @@ import type { Meta, StoryObj } from "@storybook/vue3";
 // --- components
 import {
   DropdownMenu,
-  type DropdownMenuItemProps,
+  type DropdownMenuItemProps
 } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { useSystemArgTypes } from "../../utils";
-import { keys } from "lodash-es";
+
+// --- types
+import { BUTTON_VARIANTS, DROPDOWN_WIDTHS } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 
-const width = {
-  xs: "Extra Small",
-  sm: "Small",
-  md: "Medium",
-  lg: "Large",
-  xl: "Extra Large",
-  "2xl": "Extra Extra Large",
-  auto: "Auto",
-};
 const meta: Meta<typeof DropdownMenu> = {
   parameters: {
     controls: {
-      exclude: [],
+      exclude: []
     },
     docs: {
       story: {
-        iframeHeight: 300,
+        iframeHeight: 300
       },
       description: {
-        component: "A component that reveals a list of options when clicked.",
-      },
-    },
+        component: "A component that reveals a list of options when clicked."
+      }
+    }
   },
   component: DropdownMenu,
   argTypes: {
-    variant: useSystemArgTypes.variant,
-    width: {
-      options: keys(width),
+    variant: {
+      options: BUTTON_VARIANTS,
       control: {
-        type: "radio",
-        labels: width,
-      },
+        type: "select",
+        labels: BUTTON_VARIANTS
+      }
     },
-    align: useSystemArgTypes.align,
+    width: {
+      options: DROPDOWN_WIDTHS,
+      control: {
+        type: "select",
+        labels: DROPDOWN_WIDTHS
+      }
+    },
+    align: useSystemArgTypes.align
   },
   args: {
     label: "Open",
     width: "xs",
     title: "My account",
-    variant: "ghost",
+    variant: "primary",
     align: "start",
     // ---
     items: [
@@ -60,22 +59,22 @@ const meta: Meta<typeof DropdownMenu> = {
         icon: "email",
         label: "Profile",
         value: "account",
-        handler: () => alert("Profile clicked!"),
+        handler: () => alert("Profile clicked!")
       },
       {
         icon: "information-circle",
         label: "Support",
         value: "support",
-        handler: () => alert("Support clicked!"),
+        handler: () => alert("Support clicked!")
       },
       {
         icon: "logout",
         label: "Log out",
         value: "logout",
-        handler: () => alert("Logged out!"),
-      },
-    ] as DropdownMenuItemProps[],
-  },
+        handler: () => alert("Logged out!")
+      }
+    ] as DropdownMenuItemProps[]
+  }
 };
 
 export default meta;

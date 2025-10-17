@@ -3,13 +3,13 @@
   <DropdownMenu
     v-if="meta.isAuthenticated"
     :items="items"
-    width="sm"
+    width="md"
+    size="lg"
     :ui-config="{
       dropdownMenu: {
         content: ['mt-4']
       }
     }"
-    to="#vue-app"
   >
     <template #trigger>
       <slot />
@@ -17,11 +17,11 @@
 
     <template #label>
       <label
-        class="flex flex-col items-start text-sm/tight break-all not-italic"
+        class="text-md/tight flex flex-col items-start break-all not-italic"
         v-if="user"
       >
         <strong class="font-medium">{{ user.fullname }}</strong>
-        <span class="text-sm/tight font-normal opacity-60">
+        <span class="text-md/tight font-normal opacity-60">
           {{ user.username }}
         </span>
       </label>
@@ -48,7 +48,7 @@ const { user, logout, meta } = useSession();
 const items = computed<DropdownMenuItemProps[]>(() => [
   {
     label: t("action.logout"),
-    icon: "logout",
+    icon: "log-out-01",
     value: "logout",
     handler: logout
   }

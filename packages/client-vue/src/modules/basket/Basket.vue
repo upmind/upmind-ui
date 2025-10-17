@@ -9,7 +9,7 @@
         :title="t('cart.basket_title')"
         :description="
           t('cart.basket_summary_desc', {
-            count: products?.length ?? 0,
+            count: count ?? 0,
             total: summary?.total ?? 0
           })
         "
@@ -29,12 +29,11 @@
         <ProductCards :open="open" @update:open="open = $event" />
 
         <template #action>
-          <Button
-            variant="link"
+          <Link
             color="muted"
             :label="t('action.details_toggle', open ? 0 : 1)"
-            icon="sort-lines"
             @click="open = !open"
+            size="sm"
           />
         </template>
       </Section>
@@ -81,11 +80,9 @@
             "
             block
             size="lg"
-            color="primary"
             :loading="meta.isProcessing || meta.isLoading"
             :label="t('action.proceed_to_checkout')"
-            icon="cart"
-            pill
+            icon-append="arrow-right"
           />
         </footer>
       </Section>
@@ -94,8 +91,8 @@
     <template #aside-footer>
       <Alert
         v-if="meta.hasInvalidProducts"
-        color="error"
-        icon="alert"
+        color="danger"
+        icon="alert-triangle"
         :description="t('cart.basket_products_review_msg')"
       >
         <template #title>
@@ -145,7 +142,7 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./basket.config";
 
 // --- components
-import { Layout, Button, Alert } from "@upmind-automation/upmind-ui";
+import { Layout, Button, Alert, Link } from "@upmind-automation/upmind-ui";
 import Header from "../../components/content/Header.vue";
 import Summary from "./components/Summary.vue";
 import ProductCards from "./product/BasketProductCards.vue";
@@ -161,7 +158,8 @@ import { type ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { meta, productsInvalid, isReady, products, summary } = useBasket();
+const { meta, productsInvalid, isReady, products, count, summary } =
+  useBasket();
 const { uiCart, storefrontRoute } = useBrand();
 
 const {

@@ -1,10 +1,9 @@
 <template>
   <Layout :variant="uiCart?.layout">
     <template #navigation>
-      <Button
+      <Link
         class="flex items-center gap-x-2"
         @click.prevent="doReject"
-        variant="link"
         icon="arrow-left"
         :label="t('action.back_to_login')"
         size="lg"
@@ -16,7 +15,7 @@
         <Header
           :badge="{
             label: t('text.fully_encrypted_title'),
-            icon: 'lock'
+            icon: 'lock-04'
           }"
           :title="t('text.forgot_your_password_qn')"
           :description="t('auth.forgot_password_help')"
@@ -45,7 +44,7 @@ import { useI18n } from "vue-i18n";
 import { ROUTE, useRoutingEngine, useBrand } from "@upmind-automation/headless";
 
 // --- components
-import { Button, Layout } from "@upmind-automation/upmind-ui";
+import { Button, Layout, Link } from "@upmind-automation/upmind-ui";
 import Auth from "./components/Auth.vue";
 import Header from "../../components/content/Header.vue";
 import Section from "../../components/content/LayoutSection.vue";

@@ -19,7 +19,7 @@ import { useSchema, useUischema } from "./utils";
 import { parseBasketFieldsModel } from "../utils";
 
 // --- utils
-import { isEqual } from "lodash-es";
+import { cloneDeep, isEqual } from "lodash-es";
 
 // --- types
 import type { AnyEventObject } from "xstate";
@@ -106,7 +106,7 @@ export default createMachine(
           src: "update",
           onDone: {
             target: "processed",
-            actions: ["resetBaseModel", "clearAutoUpdate"]
+            actions: ["persistModel", "clearAutoUpdate"]
           },
           onError: {
             target: "error",
@@ -186,19 +186,12 @@ export default createMachine(
         }
       }),
 
-      resetBaseModel: assign({
-        baseModel: (
-          { schema, model, baseModel }: FieldsContext,
-          _event: AnyEventObject
-        ) => {
-          return useModelParser<FieldsModel>(schema, model, baseModel, {
-            allowExtraProps: false
-          });
-        }
-      }),
-
       clearModel: assign({
         model: undefined
+      }),
+
+      persistModel: assign({
+        baseModel: ({ model }: FieldsContext) => cloneDeep(model) // we use spread to ensure its a new array
       }),
 
       setAutoUpdate: assign({

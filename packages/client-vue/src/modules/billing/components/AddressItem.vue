@@ -8,17 +8,17 @@
         {{ title }}
         <Badge
           v-if="meta?.isDefault"
-          variant="flat"
+          variant="solid"
+          color="neutral"
           size="sm"
           :label="t('text.default_label')"
         />
       </h3>
 
-      <Button
+      <Link
         v-if="!props.readonly"
         :label="t('action.edit')"
         size="sm"
-        variant="link"
         color="muted"
         tabindex="-1"
         @mousedown.stop.prevent
@@ -26,7 +26,7 @@
       />
     </header>
 
-    <p class="text-emphasis-high m-0 text-sm">
+    <p class="text-muted m-0 text-sm">
       {{ description }}
     </p>
   </div>
@@ -37,7 +37,7 @@
 import { useI18n } from "vue-i18n";
 
 // --- components
-import { Button, Badge } from "@upmind-automation/upmind-ui";
+import { Button, Badge, Link } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { Address } from "@upmind-automation/headless";

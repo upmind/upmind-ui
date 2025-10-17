@@ -1,33 +1,29 @@
 <template>
   <div class="flex items-baseline justify-between">
-    <Button
+    <Link
       :label="open ? t('action.hide_details') : t('action.show_details')"
       size="sm"
-      variant="link"
       color="muted"
       @click="$emit('update:open', !open)"
       :disabled="isEmpty(details)"
       :checked="open"
     />
 
-    <div class="text-foreground flex items-end space-x-2">
+    <div class="flex items-end space-x-2 text-base">
       <Tooltip
         v-for="action in actions"
-        to="#vue-app"
         :key="action.icon"
         :label="action.tooltip"
-        color="primary"
+        color="neutral"
       >
-        <Button
-          :color="action.color"
-          variant="link"
-          size="lg"
-          class="text-emphasis-medium hover:text-emphasis-none h-auto p-0! leading-none"
+        <Link
+          size="sm"
+          color="muted"
           @click="action.onClick"
           :disabled="disabled"
         >
-          <Icon :icon="action.icon" :color="action.color" class="h-5 w-5" />
-        </Button>
+          <Icon :icon="action.icon" class="h-5 w-5" />
+        </Link>
       </Tooltip>
     </div>
   </div>
@@ -41,7 +37,7 @@ import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 
 // --- components
-import { Icon, Button, Tooltip } from "@upmind-automation/upmind-ui";
+import { Icon, Button, Tooltip, Link } from "@upmind-automation/upmind-ui";
 
 // --- types
 import { type BasketProductActionsProps } from "./types";
@@ -56,14 +52,12 @@ const emits = defineEmits(["remove", "update:open"]);
 
 const actions = computed(() => [
   {
-    icon: "pencil",
-    color: props.color,
+    icon: "edit-02",
     tooltip: t("action.edit"),
     onClick: () => router.push(props.editLink)
   },
   {
-    icon: "bin",
-    color: props.color,
+    icon: "trash-01",
     tooltip: t("action.remove"),
     onClick: () => emits("remove")
   }

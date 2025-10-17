@@ -1,10 +1,12 @@
 <template>
-  <div v-if="!meta.isLoading" class="flex flex-col gap-6 divide-y">
+  <div
+    v-if="!meta.isLoading"
+    class="divide-border-control-default flex flex-col gap-6 divide-y"
+  >
     <template v-for="product in products" :key="product.id">
       <BasketProduct
         v-bind="product"
         :open="!!open[product.id]"
-        :color="color"
         :disabled="meta.isProcessing()"
         :processing="meta.isProcessing(product.id)"
         :loading="meta.isLoading"
@@ -48,9 +50,7 @@ import BasketProductSkeleton from "./BasketProductSkeleton.vue";
 // --- types
 import { type BasketProductCardsProps } from "./types";
 
-const props = withDefaults(defineProps<BasketProductCardsProps>(), {
-  color: "base"
-});
+const props = defineProps<BasketProductCardsProps>();
 
 const emits = defineEmits(["update:open"]);
 

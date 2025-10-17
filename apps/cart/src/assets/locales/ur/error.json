@@ -80,7 +80,7 @@
   "payment_gateway_update_failed": "ہمیں ادائیگی کے گیٹ وے کو اپ ڈیٹ کرنے میں ایک خرابی کا سامنا کرنا پڑا",
   "payment_gateway_validation_failed": "ادائیگی کے گیٹ وے کی توثیق ناکام ہو گئی۔",
   "payment_gateways_not_available_msg": "آپ اب بھی اپنا آرڈر ابھی جمع کر سکتے ہیں اور بعد میں ادائیگی مکمل کر سکتے ہیں۔ ہماری سپورٹ ٹیم آپ کی مدد کر سکے گی۔",
-  "payment_gateways_not_available_title": "آپ کی منتخب کرنسی کے لیے ادائیگی کے کوئی اختیارات نہیں ہیں ({currency} ) یا ملک ({country} )",
+  "payment_gateways_not_available_title": "آپ کی منتخب کردہ کرنسی یا بلنگ ملک کے لیے ادائیگی کے کوئی اختیارات نہیں ہیں۔",
   "payment_process_failed": "ہمیں آپ کی ادائیگی پر کارروائی کرنے میں ایک خرابی کا سامنا کرنا پڑا",
   "product_not_available": "پروڈکٹ دستیاب نہیں ہے۔",
   "product_not_found": "معذرت، آپ جس پروڈکٹ کی تلاش کر رہے ہیں وہ موجود نہیں ہے۔",

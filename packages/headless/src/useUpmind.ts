@@ -8,6 +8,7 @@ import {
   type GlobbedFiles,
   useBrand,
   useDataLayer,
+  useLocale,
   useLocalisation,
   useRecaptcha,
   useSession,
@@ -124,24 +125,35 @@ export class Upmind {
     return usePOP(this.pop)
       .isReady()
       .then(async () => {
-        if (this.mode != "express") {
-          await this.initHeadless()
-            .then(async () => {
-              // start with our render blocking initialisations
-              return Promise.all([
-                this.initTheming(),
+        // Bail out if we are in express mode
+        if (this.mode == "express") return;
+
+        // NB: set up our locale, but dont wait for our i18n packages to load
+        useLocale().setDefaultLocale();
+
+        // then initialise our core modules and wait for them to be ready
+        return (
+          Promise.all([
+            useBrand().isReady(),
+            useSystem().isReady(),
+            useSession().isReady()
+          ])
+            // start with our render blocking initialisations
+            .then(() =>
+              Promise.all([
                 this.initLocalisation(),
+                this.initTheming(),
                 this.initRouter()
-              ]);
-            })
+              ])
+            )
             .then(() => {
               // then do our non render blocking initialisations
               this.initRecaptcha();
               this.initAnalytics();
-            });
-        }
-
-        // Finally set our status to initialised
+            })
+        );
+      })
+      .finally(() => {
         this.status.value = UpmindStatus.initialised;
       });
   }
@@ -180,11 +192,6 @@ export class Upmind {
         // url: "https://stately.ai/viz?inspect", // (default)
         iframe: false
       });
-  }
-
-  private async initHeadless() {
-    if (!this.pop) return;
-    return Promise.all([useSystem(), useBrand(), useSession()]);
   }
 
   private async initRecaptcha() {
@@ -242,16 +249,15 @@ export class Upmind {
   }
 
   private async initLocalisation() {
-    if (!this.i18n?.instance) return;
-    const { isReady } = useLocalisation(this.i18n.instance, this.i18n.files);
-    await isReady();
+    const { isReady } = useLocalisation(this.i18n?.instance, this.i18n?.files);
+    return isReady();
   }
   // ---------------------------------------------------------------------------
 
-  isReady(): Promise<void> {
+  async isReady(): Promise<void> {
     return new Promise(resolve => {
       const interval = setInterval(() => {
-        if (this.status.value !== UpmindStatus.notInitialised) {
+        if (this.status.value == UpmindStatus.initialised) {
           clearInterval(interval);
           resolve();
         }

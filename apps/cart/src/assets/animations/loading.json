@@ -69,9 +69,9 @@
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 20,
+                    "k": 10,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-1359-online-shopping').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-1359-online-shopping').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -268,9 +268,9 @@
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 12,
+                    "k": 6,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-1359-online-shopping').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-1359-online-shopping').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -563,9 +563,9 @@
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 12,
+                    "k": 6,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-1359-online-shopping').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-1359-online-shopping').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -842,9 +842,9 @@
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 12,
+                    "k": 6,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-1359-online-shopping').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-1359-online-shopping').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -1121,9 +1121,9 @@
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 12,
+                    "k": 6,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-1359-online-shopping').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-1359-online-shopping').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -1263,9 +1263,9 @@
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 12,
+                    "k": 6,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-1359-online-shopping').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-1359-online-shopping').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -1345,7 +1345,7 @@
               "nm": "Menu",
               "mn": "Pseudo/@@w21A/RvXTZ+V0usEO9wfPA-0001",
               "ix": 1,
-              "v": { "a": 0, "k": 2, "ix": 1 }
+              "v": { "a": 0, "k": 1, "ix": 1 }
             }
           ]
         },

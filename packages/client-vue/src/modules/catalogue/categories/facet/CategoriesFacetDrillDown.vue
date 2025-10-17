@@ -7,7 +7,6 @@
       v-bind="category"
       variant="ghost"
       size="lg"
-      pill
       :class="
         cn([
           styles.products.facet.drillDown.action,
@@ -25,9 +24,7 @@
     :as="RouterLink"
     v-bind="parentCategory"
     variant="outline"
-    color="base"
     size="lg"
-    pill
     :class="styles.products.facet.drillDown.back"
     icon="arrow-left"
   >

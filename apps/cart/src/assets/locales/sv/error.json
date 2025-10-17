@@ -80,7 +80,7 @@
   "payment_gateway_update_failed": "Vi upplevde ett fel vid uppdatering av betalningsgatewayen",
   "payment_gateway_validation_failed": "Validering av betalningsgateway misslyckades",
   "payment_gateways_not_available_msg": "Du kan fortfarande skicka din beställning nu och slutföra betalningen senare. Vårt supportteam kan hjälpa dig.",
-  "payment_gateways_not_available_title": "Det finns inga betalningsalternativ för din valda valuta ({currency} ) eller land ({country} )",
+  "payment_gateways_not_available_title": "Det finns inga betalningsalternativ för din valda valuta eller ditt faktureringsland",
   "payment_process_failed": "Vi upplevde ett fel vid behandling av din betalning.",
   "product_not_available": "Produkten är inte tillgänglig",
   "product_not_found": "Tyvärr, produkten du söker finns inte.",

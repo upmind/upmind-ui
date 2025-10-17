@@ -7,6 +7,7 @@
     @update:modelValue="updateCurrency"
     search
     width="fit"
+    size="md"
   />
 </template>
 

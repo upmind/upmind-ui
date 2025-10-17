@@ -80,7 +80,7 @@
   "payment_gateway_update_failed": "Възникна грешка при актуализиране на платежния шлюз",
   "payment_gateway_validation_failed": "Валидирането на платежния шлюз не беше успешно",
   "payment_gateways_not_available_msg": "Все още можете да подадете поръчката си сега и да завършите плащането по-късно. Нашият екип за поддръжка ще може да ви помогне.",
-  "payment_gateways_not_available_title": "Няма опции за плащане за избраната от вас валута ({currency} ) или държава ({country} )",
+  "payment_gateways_not_available_title": "Няма опции за плащане за избраната от вас валута или държава за фактуриране",
   "payment_process_failed": "Възникна грешка при обработката на плащането ви",
   "product_not_available": "Продуктът не е наличен",
   "product_not_found": "За съжаление, продуктът, който търсите, не съществува.",

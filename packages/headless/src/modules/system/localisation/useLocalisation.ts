@@ -12,7 +12,7 @@ import { GlobbedFiles } from "./types";
 
 // -----------------------------------------------------------------------------
 
-export const useLocalisation = (instance: I18n, glob?: GlobbedFiles) => {
+export const useLocalisation = (instance?: I18n, glob?: GlobbedFiles) => {
   const { locale, setDefaultLocale, setLocale } = useLocale();
   const { loadLocaleMessages, init } = useI18n();
 
@@ -36,10 +36,10 @@ export const useLocalisation = (instance: I18n, glob?: GlobbedFiles) => {
   // --- side effects
 
   // Start by initialising our i18n instance with the provided instance/globbed files
-  init(instance, glob);
+  if (instance) init(instance, glob);
 
   // Then set our default locale from the i18n instance
-  const defaultLocale = unref(instance?.global?.locale);
+  const defaultLocale = unref(instance?.global?.locale ?? locale.value);
 
   // Then load the message pack(s) for the default locale and the current locale
   // NB ALWAYS load the default locale, so we can use it as a fallback
@@ -47,12 +47,13 @@ export const useLocalisation = (instance: I18n, glob?: GlobbedFiles) => {
   // finally set the locale we want to use ( knowing the messages are loaded )
 
   setDefaultLocale(defaultLocale)
-    .then(() =>
+    .then(() => {
+      if (!instance) return;
       Promise.all([
         loadLocaleMessages(defaultLocale),
         loadLocaleMessages(locale.value)
-      ])
-    )
+      ]);
+    })
     .then(() => setLocale(locale.value))
     .finally(() => {
       loading.value = false;

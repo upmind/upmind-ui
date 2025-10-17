@@ -20,7 +20,6 @@
         <DomainCard
           v-bind="getDomain(value.toString())"
           :selected="isSelected(value.toString())"
-          :color="props.color"
           @update:selected="onToggleSelected"
           @remove="onRemove"
           data-testid="dac-card"
@@ -31,7 +30,6 @@
     <template v-if="meta.isLoading">
       <Interstitial
         v-bind="props"
-        to="#vue-app"
         :text="t('text.moment_short_desc')"
         :modal="false"
         open
@@ -51,7 +49,6 @@
 
     <Interstitial
       v-bind="props"
-      to="#vue-app"
       :text="t('domain.begin_search_above_desc')"
       :modal="false"
       open

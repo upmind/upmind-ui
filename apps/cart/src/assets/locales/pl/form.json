@@ -28,17 +28,17 @@
     "placeholder": "Hasło lub fraza tajna"
   },
   "card_cvv": {
-    "description": "kod bezpieczeństwa karty znajdujący się na odwrocie karty, który stanowi dodatkową formę zabezpieczenia karty kredytowej.",
+    "error": "A valid CVV is required",
     "label": "CVV",
     "placeholder": "CVC"
   },
   "card_expiry": {
-    "description": "Data ważności karty. Format daty: MM/RR",
+    "error": "A valid expiry date is required",
     "label": "Data ważności",
     "placeholder": "MM/RR"
   },
   "card_num": {
-    "description": "16-cyfrowy numer znajdujący się z przodu Twojej karty.",
+    "error": "A valid card number is required",
     "label": "Numer karty",
     "placeholder": "1234 1234 1234 1234"
   },

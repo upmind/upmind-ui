@@ -3,9 +3,7 @@
     <ContentSection v-auto-animate class="flex grow items-center">
       <Interstitial
         open
-        to="#vue-app"
         modal
-        skrim="light"
         :order-id="orderId"
         :success="success"
         :title="title"
@@ -32,7 +30,6 @@
             @click.stop="doAction"
             :icon="!meta.isAuthenticated ? 'arrow-left' : ''"
             :icon-append="meta.isAuthenticated ? 'arrow-right' : ''"
-            pill
           />
         </template>
       </Interstitial>

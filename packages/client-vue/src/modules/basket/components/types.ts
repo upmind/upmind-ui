@@ -30,7 +30,6 @@ export interface BasketModalProps {
   to?: string;
   // ---
   size?: DialogProps["size"];
-  skrim?: DialogProps["skrim"];
 }
 
 import type { BadgeProps } from "@upmind-automation/upmind-ui";

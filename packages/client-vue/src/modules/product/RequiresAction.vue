@@ -2,7 +2,6 @@
   <Layout>
     <ContentSection>
       <Interstitial
-        to="#vue-app"
         :title="t('cart.basket_products_require_attention_md', products.length)"
         :text="t('cart.basket_products_review_desc')"
         :animatedIcon="{
@@ -14,13 +13,13 @@
         }"
         :actions="[
           {
-            color: 'base',
             variant: 'ghost',
             handler: navigateBack,
             icon: 'arrow-left',
             label: t('action.back_to_basket')
           },
           {
+            variant: 'solid',
             color: 'primary',
             handler: navigateNext,
             iconAppend: 'arrow-right',

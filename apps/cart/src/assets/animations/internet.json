@@ -153,16 +153,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.071, 0.075, 0.192, 1],
+                    "k": [0.075, 0.212, 0.353, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-959-internet').layer('control').effect('primary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 3.5,
+                    "k": 1.75,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -490,16 +490,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.443, 0.4, 0.933, 1],
+                    "k": [0.153, 0.682, 0.894, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-959-internet').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 3.5,
+                    "k": 1.75,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -589,16 +589,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.443, 0.4, 0.933, 1],
+                    "k": [0.153, 0.682, 0.894, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-959-internet').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 3.5,
+                    "k": 1.75,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -685,16 +685,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.443, 0.4, 0.933, 1],
+                    "k": [0.153, 0.682, 0.894, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-959-internet').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 3.5,
+                    "k": 1.75,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -816,16 +816,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.443, 0.4, 0.933, 1],
+                    "k": [0.153, 0.682, 0.894, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-959-internet').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 3.5,
+                    "k": 1.75,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -972,16 +972,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.443, 0.4, 0.933, 1],
+                    "k": [0.153, 0.682, 0.894, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-959-internet').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 3.5,
+                    "k": 1.75,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -1153,16 +1153,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.443, 0.4, 0.933, 1],
+                    "k": [0.153, 0.682, 0.894, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-959-internet').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 3.5,
+                    "k": 1.75,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -1359,16 +1359,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.443, 0.4, 0.933, 1],
+                    "k": [0.153, 0.682, 0.894, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-959-internet').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 3.5,
+                    "k": 1.75,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -1565,16 +1565,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.443, 0.4, 0.933, 1],
+                    "k": [0.153, 0.682, 0.894, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-959-internet').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 3.5,
+                    "k": 1.75,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -1771,16 +1771,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.443, 0.4, 0.933, 1],
+                    "k": [0.153, 0.682, 0.894, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-959-internet').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 3.5,
+                    "k": 1.75,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -1977,16 +1977,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.443, 0.4, 0.933, 1],
+                    "k": [0.153, 0.682, 0.894, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-959-internet').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 3.5,
+                    "k": 1.75,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -2158,16 +2158,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.443, 0.4, 0.933, 1],
+                    "k": [0.153, 0.682, 0.894, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-959-internet').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 3.5,
+                    "k": 1.75,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -2314,16 +2314,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.443, 0.4, 0.933, 1],
+                    "k": [0.153, 0.682, 0.894, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-959-internet').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 3.5,
+                    "k": 1.75,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -2445,16 +2445,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.443, 0.4, 0.933, 1],
+                    "k": [0.153, 0.682, 0.894, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-959-internet').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 3.5,
+                    "k": 1.75,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -2697,16 +2697,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.071, 0.075, 0.192, 1],
+                    "k": [0.075, 0.212, 0.353, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-959-internet').layer('control').effect('primary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 15.05,
+                    "k": 7.525,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -2895,16 +2895,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.071, 0.075, 0.192, 1],
+                    "k": [0.075, 0.212, 0.353, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-959-internet').layer('control').effect('primary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 12.04,
+                    "k": 6.02,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -2971,7 +2971,7 @@
                       {
                         "i": { "x": 0.667, "y": 1 },
                         "o": { "x": 0.333, "y": 0 },
-                        "t": 0,
+                        "t": 25,
                         "s": [
                           {
                             "i": [
@@ -2993,7 +2993,7 @@
                       {
                         "i": { "x": 0.667, "y": 1 },
                         "o": { "x": 0.333, "y": 0 },
-                        "t": 5,
+                        "t": 30,
                         "s": [
                           {
                             "i": [
@@ -3005,15 +3005,59 @@
                               [0, 0]
                             ],
                             "v": [
-                              [-41.664, -53.996],
-                              [-24.536, -31.698]
+                              [-31.641, -41.038],
+                              [-10.166, -13.08]
                             ],
                             "c": false
                           }
                         ]
                       },
                       {
-                        "t": 15,
+                        "i": { "x": 0.667, "y": 1 },
+                        "o": { "x": 0.333, "y": 0 },
+                        "t": 33,
+                        "s": [
+                          {
+                            "i": [
+                              [0, 0],
+                              [0, 0]
+                            ],
+                            "o": [
+                              [0, 0],
+                              [0, 0]
+                            ],
+                            "v": [
+                              [-31.641, -41.038],
+                              [-10.166, -13.08]
+                            ],
+                            "c": false
+                          }
+                        ]
+                      },
+                      {
+                        "i": { "x": 0.667, "y": 1 },
+                        "o": { "x": 0.167, "y": 0 },
+                        "t": 48,
+                        "s": [
+                          {
+                            "i": [
+                              [0, 0],
+                              [0, 0]
+                            ],
+                            "o": [
+                              [0, 0],
+                              [0, 0]
+                            ],
+                            "v": [
+                              [-13.757, -17.917],
+                              [15.475, 20.14]
+                            ],
+                            "c": false
+                          }
+                        ]
+                      },
+                      {
+                        "t": 55,
                         "s": [
                           {
                             "i": [
@@ -3033,8 +3077,7 @@
                         ]
                       }
                     ],
-                    "ix": 2,
-                    "x": "var $bm_rt;\n$bm_rt = thisComp.layer('outline 3').content('Group 1').content('Path 1').path;"
+                    "ix": 2
                   },
                   "nm": "Path 1",
                   "mn": "ADBE Vector Shape - Group",
@@ -3073,7 +3116,7 @@
                       {
                         "i": { "x": 0.667, "y": 1 },
                         "o": { "x": 0.333, "y": 0 },
-                        "t": 0,
+                        "t": 25,
                         "s": [
                           {
                             "i": [
@@ -3101,7 +3144,7 @@
                       {
                         "i": { "x": 0.667, "y": 1 },
                         "o": { "x": 0.333, "y": 0 },
-                        "t": 5,
+                        "t": 30,
                         "s": [
                           {
                             "i": [
@@ -3118,16 +3161,72 @@
                             ],
                             "v": [
                               [-54.104, -61.241],
-                              [-30.076, 11.284],
-                              [-16.982, -13.147],
-                              [9.969, -19.624]
+                              [-23.977, 29.693],
+                              [-7.56, -0.941],
+                              [26.232, -9.061]
                             ],
                             "c": true
                           }
                         ]
                       },
                       {
-                        "t": 15,
+                        "i": { "x": 0.667, "y": 1 },
+                        "o": { "x": 0.333, "y": 0 },
+                        "t": 33,
+                        "s": [
+                          {
+                            "i": [
+                              [0, 0],
+                              [0, 0],
+                              [0, 0],
+                              [0, 0]
+                            ],
+                            "o": [
+                              [0, 0],
+                              [0, 0],
+                              [0, 0],
+                              [0, 0]
+                            ],
+                            "v": [
+                              [-54.104, -61.241],
+                              [-23.977, 29.693],
+                              [-7.56, -0.941],
+                              [26.232, -9.061]
+                            ],
+                            "c": true
+                          }
+                        ]
+                      },
+                      {
+                        "i": { "x": 0.667, "y": 1 },
+                        "o": { "x": 0.167, "y": 0 },
+                        "t": 48,
+                        "s": [
+                          {
+                            "i": [
+                              [0, 0],
+                              [0, 0],
+                              [0, 0],
+                              [0, 0]
+                            ],
+                            "o": [
+                              [0, 0],
+                              [0, 0],
+                              [0, 0],
+                              [0, 0]
+                            ],
+                            "v": [
+                              [-54.104, -61.241],
+                              [-13.095, 62.538],
+                              [9.251, 20.84],
+                              [55.249, 9.786]
+                            ],
+                            "c": true
+                          }
+                        ]
+                      },
+                      {
+                        "t": 55,
                         "s": [
                           {
                             "i": [
@@ -3153,8 +3252,7 @@
                         ]
                       }
                     ],
-                    "ix": 2,
-                    "x": "var $bm_rt;\n$bm_rt = thisComp.layer('outline 3').content('Group 2').content('Path 1').path;"
+                    "ix": 2
                   },
                   "nm": "Path 1",
                   "mn": "ADBE Vector Shape - Group",
@@ -3254,16 +3352,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.071, 0.075, 0.192, 1],
+                    "k": [0.075, 0.212, 0.353, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-959-internet').layer('control').effect('primary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 3.5,
+                    "k": 1.75,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -3330,7 +3428,7 @@
                       {
                         "i": { "x": 0.667, "y": 1 },
                         "o": { "x": 0.333, "y": 0 },
-                        "t": 0,
+                        "t": 25,
                         "s": [
                           {
                             "i": [
@@ -3352,7 +3450,7 @@
                       {
                         "i": { "x": 0.667, "y": 1 },
                         "o": { "x": 0.333, "y": 0 },
-                        "t": 5,
+                        "t": 30,
                         "s": [
                           {
                             "i": [
@@ -3364,15 +3462,59 @@
                               [0, 0]
                             ],
                             "v": [
-                              [-41.664, -53.996],
-                              [-24.536, -31.698]
+                              [-31.641, -41.038],
+                              [-10.166, -13.08]
                             ],
                             "c": false
                           }
                         ]
                       },
                       {
-                        "t": 15,
+                        "i": { "x": 0.667, "y": 1 },
+                        "o": { "x": 0.333, "y": 0 },
+                        "t": 33,
+                        "s": [
+                          {
+                            "i": [
+                              [0, 0],
+                              [0, 0]
+                            ],
+                            "o": [
+                              [0, 0],
+                              [0, 0]
+                            ],
+                            "v": [
+                              [-31.641, -41.038],
+                              [-10.166, -13.08]
+                            ],
+                            "c": false
+                          }
+                        ]
+                      },
+                      {
+                        "i": { "x": 0.667, "y": 1 },
+                        "o": { "x": 0.167, "y": 0 },
+                        "t": 48,
+                        "s": [
+                          {
+                            "i": [
+                              [0, 0],
+                              [0, 0]
+                            ],
+                            "o": [
+                              [0, 0],
+                              [0, 0]
+                            ],
+                            "v": [
+                              [-13.757, -17.917],
+                              [15.475, 20.14]
+                            ],
+                            "c": false
+                          }
+                        ]
+                      },
+                      {
+                        "t": 55,
                         "s": [
                           {
                             "i": [
@@ -3392,8 +3534,7 @@
                         ]
                       }
                     ],
-                    "ix": 2,
-                    "x": "var $bm_rt;\n$bm_rt = thisComp.layer('outline 3').content('Group 1').content('Path 1').path;"
+                    "ix": 2
                   },
                   "nm": "Path 1",
                   "mn": "ADBE Vector Shape - Group",
@@ -3432,7 +3573,7 @@
                       {
                         "i": { "x": 0.667, "y": 1 },
                         "o": { "x": 0.333, "y": 0 },
-                        "t": 0,
+                        "t": 25,
                         "s": [
                           {
                             "i": [
@@ -3460,7 +3601,7 @@
                       {
                         "i": { "x": 0.667, "y": 1 },
                         "o": { "x": 0.333, "y": 0 },
-                        "t": 5,
+                        "t": 30,
                         "s": [
                           {
                             "i": [
@@ -3477,16 +3618,72 @@
                             ],
                             "v": [
                               [-54.104, -61.241],
-                              [-30.076, 11.284],
-                              [-16.982, -13.147],
-                              [9.969, -19.624]
+                              [-23.977, 29.693],
+                              [-7.56, -0.941],
+                              [26.232, -9.061]
                             ],
                             "c": true
                           }
                         ]
                       },
                       {
-                        "t": 15,
+                        "i": { "x": 0.667, "y": 1 },
+                        "o": { "x": 0.333, "y": 0 },
+                        "t": 33,
+                        "s": [
+                          {
+                            "i": [
+                              [0, 0],
+                              [0, 0],
+                              [0, 0],
+                              [0, 0]
+                            ],
+                            "o": [
+                              [0, 0],
+                              [0, 0],
+                              [0, 0],
+                              [0, 0]
+                            ],
+                            "v": [
+                              [-54.104, -61.241],
+                              [-23.977, 29.693],
+                              [-7.56, -0.941],
+                              [26.232, -9.061]
+                            ],
+                            "c": true
+                          }
+                        ]
+                      },
+                      {
+                        "i": { "x": 0.667, "y": 1 },
+                        "o": { "x": 0.167, "y": 0 },
+                        "t": 48,
+                        "s": [
+                          {
+                            "i": [
+                              [0, 0],
+                              [0, 0],
+                              [0, 0],
+                              [0, 0]
+                            ],
+                            "o": [
+                              [0, 0],
+                              [0, 0],
+                              [0, 0],
+                              [0, 0]
+                            ],
+                            "v": [
+                              [-54.104, -61.241],
+                              [-13.095, 62.538],
+                              [9.251, 20.84],
+                              [55.249, 9.786]
+                            ],
+                            "c": true
+                          }
+                        ]
+                      },
+                      {
+                        "t": 55,
                         "s": [
                           {
                             "i": [
@@ -3512,8 +3709,7 @@
                         ]
                       }
                     ],
-                    "ix": 2,
-                    "x": "var $bm_rt;\n$bm_rt = thisComp.layer('outline 3').content('Group 2').content('Path 1').path;"
+                    "ix": 2
                   },
                   "nm": "Path 1",
                   "mn": "ADBE Vector Shape - Group",
@@ -3652,16 +3848,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.443, 0.4, 0.933, 1],
+                    "k": [0.153, 0.682, 0.894, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-959-internet').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 3.5,
+                    "k": 1.75,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -3750,16 +3946,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.443, 0.4, 0.933, 1],
+                    "k": [0.153, 0.682, 0.894, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-959-internet').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 3.5,
+                    "k": 1.75,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -3845,16 +4041,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.443, 0.4, 0.933, 1],
+                    "k": [0.153, 0.682, 0.894, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-959-internet').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 3.5,
+                    "k": 1.75,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -3975,16 +4171,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.443, 0.4, 0.933, 1],
+                    "k": [0.153, 0.682, 0.894, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-959-internet').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 3.5,
+                    "k": 1.75,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -4130,16 +4326,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.443, 0.4, 0.933, 1],
+                    "k": [0.153, 0.682, 0.894, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-959-internet').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 3.5,
+                    "k": 1.75,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -4310,16 +4506,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.443, 0.4, 0.933, 1],
+                    "k": [0.153, 0.682, 0.894, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-959-internet').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 3.5,
+                    "k": 1.75,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -4515,16 +4711,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.443, 0.4, 0.933, 1],
+                    "k": [0.153, 0.682, 0.894, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-959-internet').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 3.5,
+                    "k": 1.75,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -4720,16 +4916,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.443, 0.4, 0.933, 1],
+                    "k": [0.153, 0.682, 0.894, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-959-internet').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 3.5,
+                    "k": 1.75,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -4925,16 +5121,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.443, 0.4, 0.933, 1],
+                    "k": [0.153, 0.682, 0.894, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-959-internet').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 3.5,
+                    "k": 1.75,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -5130,16 +5326,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.443, 0.4, 0.933, 1],
+                    "k": [0.153, 0.682, 0.894, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-959-internet').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 3.5,
+                    "k": 1.75,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -5310,16 +5506,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.443, 0.4, 0.933, 1],
+                    "k": [0.153, 0.682, 0.894, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-959-internet').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 3.5,
+                    "k": 1.75,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -5465,16 +5661,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.443, 0.4, 0.933, 1],
+                    "k": [0.153, 0.682, 0.894, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-959-internet').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 3.5,
+                    "k": 1.75,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -5595,16 +5791,16 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.443, 0.4, 0.933, 1],
+                    "k": [0.153, 0.682, 0.894, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-959-internet').layer('control').effect('secondary')('Color');"
                   },
                   "o": { "a": 0, "k": 100, "ix": 4 },
                   "w": {
                     "a": 0,
-                    "k": 3.5,
+                    "k": 1.75,
                     "ix": 5,
-                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 2), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
+                    "x": "var $bm_rt;\n$bm_rt = $bm_mul($bm_div(value, 1), comp('wired-outline-959-internet').layer('control').effect('stroke')('Menu'));"
                   },
                   "lc": 2,
                   "lj": 2,
@@ -5664,16 +5860,16 @@
           "ty": 5,
           "nm": "stroke",
           "np": 3,
-          "mn": "Pseudo/@@qBxKB179SFKKtB+LND/IDw",
+          "mn": "Pseudo/@@xobaU0+mTj28AUI+lC2+YQ",
           "ix": 1,
           "en": 1,
           "ef": [
             {
               "ty": 7,
               "nm": "Menu",
-              "mn": "Pseudo/@@qBxKB179SFKKtB+LND/IDw-0001",
+              "mn": "Pseudo/@@xobaU0+mTj28AUI+lC2+YQ-0001",
               "ix": 1,
-              "v": { "a": 0, "k": 2, "ix": 1 }
+              "v": { "a": 0, "k": 1, "ix": 1 }
             }
           ]
         },
@@ -5690,7 +5886,7 @@
               "nm": "Color",
               "mn": "ADBE Color Control-0001",
               "ix": 1,
-              "v": { "a": 0, "k": [0.071, 0.075, 0.192], "ix": 1 }
+              "v": { "a": 0, "k": [0.075, 0.212, 0.353], "ix": 1 }
             }
           ]
         },
@@ -5707,7 +5903,7 @@
               "nm": "Color",
               "mn": "ADBE Color Control-0001",
               "ix": 1,
-              "v": { "a": 0, "k": [0.443, 0.4, 0.933], "ix": 1 }
+              "v": { "a": 0, "k": [0.153, 0.682, 0.894], "ix": 1 }
             }
           ]
         }

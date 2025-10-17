@@ -1,9 +1,9 @@
 // --- external
-import { ref, computed } from "vue";
+import { ref, computed, provide } from "vue";
 
 // --- internal
 import { useBrand, useTheming } from "@upmind-automation/headless";
-import { useThemes } from "@upmind-automation/upmind-ui";
+import { useThemes, useThemeIcons } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import {
@@ -18,6 +18,12 @@ import { isEmpty, keys, isEqual, first, find, forEach } from "lodash-es";
 import type { Theme } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
+// --- global context
+
+const theme = ref<Theme | undefined>(undefined);
+
+// -----------------------------------------------------------------------------
+
 /**
  * Composable for managing and applying the current brand theme.
  * Provides theme theme, available variants, and a method to apply the theme to the document.
@@ -31,11 +37,14 @@ export const useTheme = (initial?: string) => {
     favicon,
     name,
     styles,
+    iconStyles,
     isReady: isBrandReady
   } = useBrand();
 
   const { themes, meta: themingMeta } = useTheming();
   const { set: setUiTheme, add: addUiTheme } = useThemes(themes.value, initial);
+
+  const { setIconTheme } = useThemeIcons();
 
   // --- state
 
@@ -52,15 +61,9 @@ export const useTheme = (initial?: string) => {
 
   // --- context
 
-  // the theme definition
-  const theme = ref<Theme | undefined>(undefined);
-
   const meta = computed(() => ({
     isAvailable: brandMeta.value.isAvailable,
-    hasSettings:
-      brandMeta.value.isAvailable &&
-      themingMeta.value.hasThemes &&
-      !isEmpty(theme.value),
+    hasSettings: brandMeta.value.isAvailable && themingMeta.value.hasThemes,
     hasTheme: !isEmpty(theme.value)
   }));
 
@@ -70,26 +73,27 @@ export const useTheme = (initial?: string) => {
 
     theme.value = find(themes.value, ["id", value]) as Theme | undefined;
 
-    if (!theme.value) return;
+    if (!theme.value) {
+      theme.value = find(themes.value, ["id"]) as Theme | undefined;
+    }
 
     // Apply the theme to the document and UI lib
     setFontFamily({
-      ...(theme.value?.tokens?.fonts ?? {}),
       display: styles.value?.brand_font?.family
     });
-    setUiTheme(theme.value.id);
+    setIconTheme(iconStyles.value?.variant || "Line");
+    setUiTheme(theme.value?.id ?? "default");
     setDocumentTitle(name.value);
     setDocumentFavicon(favicon.value ?? undefined);
   };
 
   // --- Side Effects
-
   isBrandReady().then(() => {
     // honour the initial theme
     // if no initial theme provided, honour the preferred variant from the UI meta
     // if no variants are available, we honour the browser mode and use the default `upmind` variant
 
-    const defaultTheme = "upmind";
+    const defaultTheme = "default";
     // TODO: once we have configured the DARK thee correctly
     //  window.matchMedia("(prefers-color-scheme: dark)")
     //   .matches

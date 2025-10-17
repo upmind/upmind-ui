@@ -13,26 +13,26 @@ import { useSystemArgTypes } from "../../utils";
 const meta: Meta<typeof Icon> = {
   argTypes: {
     icon: useSystemArgTypes.icon,
-    size: useSystemArgTypes.size,
+    size: useSystemArgTypes.size
   },
   args: {
-    icon: "devices",
-    size: "md",
+    icon: "user",
+    size: "md"
   },
   render: args => ({
     components: { Icon },
     setup() {
       return { args };
     },
-    template: `<icon v-bind="args"/>`,
+    template: `<icon v-bind="args"/>`
   }),
   parameters: {
     docs: {
       description: {
-        component: "A component for displaying icons with consistent styling.",
-      },
-    },
-  },
+        component: "A component for displaying icons with consistent styling."
+      }
+    }
+  }
 };
 
 export default meta;

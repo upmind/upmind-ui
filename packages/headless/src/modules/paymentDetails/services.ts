@@ -15,7 +15,8 @@ import {
   filter,
   sortBy,
   isEmpty,
-  includes
+  includes,
+  some
 } from "lodash-es";
 import {
   ErrorOrigin,
@@ -37,7 +38,7 @@ import type {
 } from "./types";
 import {
   BrandConfigKeys,
-  IAddress,
+  GatewayProviderCodes,
   IBrandGateway,
   IGateway,
   IPaymentDetail,
@@ -104,15 +105,17 @@ export function loadList() {
 // -----------------------------------------------------------------------------
 
 const supportedGateways = [
-  "Offline",
-  "BankTransfer",
-  "Stripe_PaymentIntents",
-  "PayPal_Express",
-  "PayPal_Pro",
-  "PayPal_BillingAgreement",
-  "Micropayment",
-  "Flutterwave",
-  "Paystack"
+  GatewayProviderCodes.BANK_TRANSFER,
+  GatewayProviderCodes.BRAINTREE,
+  GatewayProviderCodes.FLUTTERWAVE,
+  GatewayProviderCodes.MICROPAYMENT,
+  GatewayProviderCodes.OFFLINE,
+  GatewayProviderCodes.OPENPAY,
+  GatewayProviderCodes.PAYPAL_BILLING_AGREEMENT,
+  GatewayProviderCodes.PAYPAL_EXPRESS,
+  GatewayProviderCodes.PAYPAL_PRO,
+  GatewayProviderCodes.PAYSTACK,
+  GatewayProviderCodes.STRIPE
 ];
 
 async function loadLookups(
@@ -190,16 +193,7 @@ async function loadLookups(
       }
     ],
     withAccessToken: true
-  })
-    // Whitelist certain payment gateways until we have full support for all
-    .then(data => {
-      if (supportedGateways.length)
-        return filter(data, ({ gateway }) =>
-          includes(supportedGateways, gateway.gateway_provider.code)
-        );
-
-      return data;
-    });
+  });
 
   // ----
 
@@ -216,8 +210,21 @@ async function loadLookups(
         unset(paymentTypes, PaymentType.PAY_LATER); // Allowlist payment gateways if provided
 
       return {
-        storedPaymentMethods: filter(storedPaymentMethods, "meta.isActive"), // ensure we only show active stored payment methods
+        // NB: ensure we only show active stored payment methods and only for gateways that are available.
+        //     The BE does not filter out Stored payment methods for gateways not available for a given country or currency
+        storedPaymentMethods: filter(
+          storedPaymentMethods,
+          method =>
+            method.meta.isActive &&
+            some(gateways, ["gateway_id", method.gatewayID])
+        ),
         gateways: sortBy(gateways, ["order"]),
+        //     // Whitelist certain payment gateways until we have full support for all
+        //  if (supportedGateways.length)
+        //    return filter(data, ({ gateway }) =>
+        //      includes(supportedGateways, gateway.gateway_provider.code)
+        //    );
+
         paymentTypes
       } as unknown as Partial<PaymentDetailsContext>;
     }
