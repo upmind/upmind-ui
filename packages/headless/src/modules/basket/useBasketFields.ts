@@ -65,7 +65,7 @@ export const useBasketFields = () => {
     isValid: stateMatches(actor, ["valid"]),
     isDirty: !isEqual(
       contextValue<FieldsContext["model"]>(actor, "model"),
-      contextValue<FieldsContext["baseModel"]>(actor, "model")
+      contextValue<FieldsContext["baseModel"]>(actor, "baseModel")
     ),
     isComplete:
       stateValue(actor, "done", false) ||

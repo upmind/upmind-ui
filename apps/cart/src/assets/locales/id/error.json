@@ -80,7 +80,7 @@
   "payment_gateway_update_failed": "Kami mengalami kesalahan saat memperbarui gateway pembayaran",
   "payment_gateway_validation_failed": "Validasi gateway pembayaran gagal",
   "payment_gateways_not_available_msg": "Anda masih dapat mengirimkan pesanan Anda sekarang dan menyelesaikan pembayaran nanti. Tim dukungan kami akan membantu Anda.",
-  "payment_gateways_not_available_title": "Tidak ada opsi pembayaran untuk mata uang yang Anda pilih ({currency} ) atau negara ({country} )",
+  "payment_gateways_not_available_title": "Tidak ada opsi pembayaran untuk mata uang atau negara penagihan yang Anda pilih",
   "payment_process_failed": "Kami mengalami kesalahan saat memproses pembayaran Anda",
   "product_not_available": "Produk tidak tersedia",
   "product_not_found": "Maaf, produk yang Anda cari tidak ada.",

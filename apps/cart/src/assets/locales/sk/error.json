@@ -80,7 +80,7 @@
   "payment_gateway_update_failed": "Pri aktualizácii platobnej brány sa vyskytla chyba",
   "payment_gateway_validation_failed": "Overenie platobnej brány zlyhalo",
   "payment_gateways_not_available_msg": "Objednávku môžete odoslať aj teraz a platbu dokončiť neskôr. Náš tím podpory vám s tým rád pomôže.",
-  "payment_gateways_not_available_title": "Pre vami zvolenú menu nie sú k dispozícii žiadne možnosti platby ({currency} ) alebo krajina ({country} )",
+  "payment_gateways_not_available_title": "Pre vami vybranú menu alebo krajinu fakturácie nie sú k dispozícii žiadne možnosti platby",
   "payment_process_failed": "Pri spracovaní vašej platby sa vyskytla chyba",
   "product_not_available": "Produkt nie je k dispozícii",
   "product_not_found": "Prepáčte, produkt, ktorý hľadáte, neexistuje.",

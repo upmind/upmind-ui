@@ -28,17 +28,17 @@
     "placeholder": "Пароль або парольна фраза"
   },
   "card_cvv": {
-    "description": "код безпеки картки, розташований на звороті вашої картки, який забезпечує додатковий рівень безпеки кредитної картки.",
+    "error": "A valid CVV is required",
     "label": "CVV",
     "placeholder": "CVC-код"
   },
   "card_expiry": {
-    "description": "Термін дії картки. Формат дати: ММ/РР",
+    "error": "A valid expiry date is required",
     "label": "Термін дії",
     "placeholder": "ММ/РР"
   },
   "card_num": {
-    "description": "16-значний номер на лицьовій стороні вашої картки.",
+    "error": "A valid card number is required",
     "label": "Номер картки",
     "placeholder": "1234 1234 1234 1234"
   },

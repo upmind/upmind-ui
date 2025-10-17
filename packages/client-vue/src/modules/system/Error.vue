@@ -46,8 +46,6 @@ const props = withDefaults(
   {
     open: true,
     modal: true,
-    skrim: "light",
-    to: "#vue-app",
     animatedIcon: () => ({
       icon: "error",
       trigger: "loop",
@@ -163,7 +161,8 @@ const actions = computed((): InterstitialActionProps[] => {
 
   const defaultAction: InterstitialActionProps = {
     ...route,
-    color: "secondary",
+    variant: "solid",
+    color: "primary",
     icon: icon.value,
     label: action.value
   };

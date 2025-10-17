@@ -29,21 +29,21 @@ export default {
       details: {
         root: cva("flex flex-col gap-y-2"),
         title: cva("m-0 text-2xl font-medium"),
-        description: cva("text-emphasis-medium m-0 min-h-12 text-sm leading-6")
+        description: cva("text-muted m-0 min-h-12 text-sm leading-6")
       },
 
       price: {
         root: cva("not-prose mt-auto flex flex-col gap-y-2"),
         intro: {
           root: cva("flex items-center space-x-2"),
-          text: cva("text-emphasis-medium text-sm")
+          text: cva("text-muted text-sm")
         },
         current: {
           root: cva("flex items-baseline"),
           text: cva("text-3xl font-bold")
         },
-        term: cva("text-emphasis-medium ml-1 text-sm leading-none"),
-        summary: cva("text-emphasis-medium text-sm")
+        term: cva("text-muted ml-1 text-sm leading-none"),
+        summary: cva("text-muted text-sm")
       },
 
       list: cva("m-0 mt-6 flex flex-col gap-2 p-0")
@@ -52,7 +52,7 @@ export default {
     badge: cva("absolute left-4 -translate-y-1/2 text-sm! ring-1 ring-white"),
 
     benefit: {
-      root: cva("text-foreground flex items-start gap-2 leading-tight"),
+      root: cva("flex items-start gap-2 text-base leading-tight"),
       icon: cva("text-secondary size-5 shrink-0"),
       label: cva("m-0")
     },
@@ -72,7 +72,7 @@ export default {
       image: {
         root: cva("aspect-video shrink-0 overflow-hidden"),
         skeleton: cva(
-          "text-foreground h-full w-full rounded-t-lg rounded-b-none! pt-2 text-lg font-medium"
+          "h-full w-full rounded-t-lg rounded-b-none! pt-2 text-base text-lg font-medium"
         )
       },
       content: {
@@ -84,22 +84,20 @@ export default {
           root: cva("flex flex-col gap-x-2"),
           container: cva("flex flex-col gap-2"),
           skeleton: cva("m-0 text-2xl font-medium"),
-          description: cva(
-            "text-emphasis-disabled m-0 min-h-12 text-sm leading-6"
-          )
+          description: cva("text-muted m-0 min-h-12 text-sm leading-6")
         },
         price: {
           root: cva("not-prose flex flex-col gap-y-2"),
           intro: {
             root: cva("flex items-center space-x-2"),
-            skeleton: cva("text-emphasis-disabled text-sm")
+            skeleton: cva("text-muted text-sm")
           },
           current: {
             root: cva("flex items-baseline"),
             skeleton: cva("text-3xl font-bold"),
-            term: cva("text-emphasis-medium ml-1 text-sm leading-none")
+            term: cva("text-muted ml-1 text-sm leading-none")
           },
-          summary: cva("text-emphasis-disabled mt-1 text-sm")
+          summary: cva("text-muted mt-1 text-sm")
         },
         button: {
           skeleton: cva("rounded-pill h-12 w-full")

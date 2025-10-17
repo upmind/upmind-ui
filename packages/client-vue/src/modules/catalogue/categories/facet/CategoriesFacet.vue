@@ -5,7 +5,7 @@
       :class="styles.products.facet.search.input"
       :placeholder="t('form.category_search.placeholder')"
       :auto-focus="false"
-      icon="search"
+      icon="search-md"
       size="lg"
     />
 

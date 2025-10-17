@@ -18,11 +18,11 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./stories", import.meta.url)),
-      "@animations": fileURLToPath(
-        new URL("./stories/assets/animations", import.meta.url)
-      ),
       "@icons": fileURLToPath(
         new URL("./stories/assets/icons", import.meta.url)
+      ),
+      "@animations": fileURLToPath(
+        new URL("./stories/assets/animations", import.meta.url)
       ),
       "@themes": fileURLToPath(
         new URL("./stories/assets/themes", import.meta.url)
@@ -30,7 +30,14 @@ export default defineConfig({
       "@locales": fileURLToPath(
         new URL("./stories/assets/locales", import.meta.url)
       ),
-      // Map local package imports to their source folders.
+      "@upmind-automation/upmind-ui/styles": resolve(
+        __dirname,
+        "../../packages/ui/src/assets/styles/index.css"
+      ),
+      "@upmind-automation/upmind-ui/vars": resolve(
+        __dirname,
+        "../../packages/ui/src/assets/styles/vars.css"
+      ),
       "@upmind-automation/upmind-ui": resolve(
         __dirname,
         "../../packages/ui/src/index.ts"

@@ -28,17 +28,17 @@
     "placeholder": "Κωδικός πρόσβασης ή φράση πρόσβασης"
   },
   "card_cvv": {
-    "description": "κωδικό ασφαλείας κάρτας που βρίσκεται στο πίσω μέρος της κάρτας σας και παρέχει ένα πρόσθετο μέτρο ασφάλειας της πιστωτικής σας κάρτας.",
+    "error": "A valid CVV is required",
     "label": "CVV",
     "placeholder": "Κωδικός Κωδικού"
   },
   "card_expiry": {
-    "description": "Ημερομηνία λήξης της κάρτας. Μορφή ημερομηνίας: ΜΜ/ΕΕ",
+    "error": "A valid expiry date is required",
     "label": "Ημερομηνία λήξης",
     "placeholder": "ΜΜ/ΕΕ"
   },
   "card_num": {
-    "description": "Ο 16ψήφιος αριθμός στο μπροστινό μέρος της κάρτας σας.",
+    "error": "A valid card number is required",
     "label": "Αριθμός κάρτας",
     "placeholder": "1234 1234 1234 1234"
   },

@@ -251,7 +251,12 @@ export default createMachine(
             actions: ["resetModel", "resetLookups", "clearSearch"]
           },
 
-          ERROR: { actions: ["setError"] }
+          ERROR: { actions: ["setError"] },
+
+          REFRESH: {
+            target: ".loading",
+            actions: ["setBasketProducts", "refreshContext"]
+          }
         }
         // exit: ["clearModel"],
       },

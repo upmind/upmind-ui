@@ -80,7 +80,7 @@
   "payment_gateway_update_failed": "Hiba történt a fizetési átjáró frissítésekor",
   "payment_gateway_validation_failed": "Fizetési átjáró érvényesítése sikertelen",
   "payment_gateways_not_available_msg": "Még mindig leadhatja rendelését most, és később is fizethet. Ügyfélszolgálatunk készséggel áll rendelkezésére.",
-  "payment_gateways_not_available_title": "Nincsenek fizetési lehetőségek a kiválasztott pénznemhez ({currency} ) vagy ország ({country} )",
+  "payment_gateways_not_available_title": "Nincsenek fizetési lehetőségek a kiválasztott pénznemhez vagy számlázási országhoz",
   "payment_process_failed": "Hiba történt a fizetés feldolgozása során",
   "product_not_available": "A termék nem elérhető",
   "product_not_found": "Sajnáljuk, a keresett termék nem létezik.",

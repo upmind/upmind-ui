@@ -28,17 +28,17 @@
     "placeholder": "پاس ورڈ یا پاس ورڈ"
   },
   "card_cvv": {
-    "description": "کارڈ سیکیورٹی کوڈ آپ کے کارڈ کے پچھلے حصے میں ملتا ہے جو کریڈٹ کارڈ کی حفاظت کا ایک اضافی پیمانہ فراہم کرتا ہے۔",
+    "error": "A valid CVV is required",
     "label": "سی وی وی",
     "placeholder": "سی وی سی"
   },
   "card_expiry": {
-    "description": "کارڈ کی میعاد ختم ہونے کی تاریخ۔ تاریخ کی شکل: MM/YY",
+    "error": "A valid expiry date is required",
     "label": "میعاد ختم ہونے کی تاریخ",
     "placeholder": "MM/YY"
   },
   "card_num": {
-    "description": "آپ کے کارڈ کے سامنے والا 16 ہندسوں کا نمبر۔",
+    "error": "A valid card number is required",
     "label": "کارڈ نمبر",
     "placeholder": "1234 1234 1234 1234"
   },

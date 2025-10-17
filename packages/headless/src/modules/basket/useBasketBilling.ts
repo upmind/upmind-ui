@@ -68,7 +68,7 @@ export const useBasketBilling = () => {
       stateMatches(actor, ["available.processed", "complete"]),
     isDirty: !isEqual(
       contextValue<BillingContext["model"]>(actor, "model"),
-      contextValue<BillingContext["baseModel"]>(actor, "model")
+      contextValue<BillingContext["baseModel"]>(actor, "baseModel")
     ),
     needsAddress: config.value?.requiresAddress ?? false,
     needsCompany: config.value?.requiresCompany ?? false,

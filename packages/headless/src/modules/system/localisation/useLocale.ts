@@ -17,7 +17,6 @@ import {
   first,
   reduce,
   some,
-  isNil,
   filter,
   includes
 } from "lodash-es";
@@ -38,21 +37,11 @@ export const useLocale = () => {
   const { meta: sessionMeta } = useSession();
 
   // --- state
-  const loading = ref<boolean>(true);
-
-  async function isReady(): Promise<boolean> {
-    const { isReady: brandIsReady } = useBrand();
-    return brandIsReady().then(() => {
-      loading.value = false;
-      return !isNil(locale.value);
-    });
-  }
 
   // NB: you can only change locales when not authenticated!
   //     this is because the locale is tied to the account's preferred language
   //     and changing it while authenticated could lead to unwanted side effects
   const meta = computed(() => ({
-    isLoading: loading.value,
     isAvailable:
       !isEmpty(UpmindSupportedLocales) &&
       !sessionMeta.value.isAuthenticated &&
@@ -109,10 +98,7 @@ export const useLocale = () => {
 
     //  Ensure supported languages for the brand AND Upmind,
     //  there are some brand languages that are not supported by Upmind
-    const supportedLanguages = filter(
-      UpmindSupportedLocales,
-      isSupportedLanguage
-    );
+    const langs = filter(UpmindSupportedLocales, isSupportedLanguage);
 
     /**
      * @desc Here we create an intersection to work out which of the preferred
@@ -120,14 +106,14 @@ export const useLocale = () => {
      * when comparing the designator part (ISO 639-1) of the locale code (eg.
      * 'es' from 'es-MX') */
 
-    if (isEmpty(supportedLanguages)) {
+    if (isEmpty(langs)) {
       value = first(preferredLocales);
     } else {
       const localeIntersection = reduce(
         preferredLocales,
         (result: string[], code: UpmindSupportedLocales) => {
           const exactMatch = some(
-            supportedLanguages,
+            langs,
             supportedLocale =>
               supportedLocale.toLocaleLowerCase() == code.toLocaleLowerCase()
           );
@@ -137,7 +123,7 @@ export const useLocale = () => {
           } else {
             const designator = first(code.split("-"));
             const designatorMatch = some(
-              supportedLanguages,
+              langs,
               supportedLocale =>
                 first(supportedLocale.split("-")) === designator
             );
@@ -189,12 +175,7 @@ export const useLocale = () => {
 
   return {
     // --- state
-
-    /**
-     * Checks if the i18n system is ready.
-     * @returns {Promise<boolean>} Resolves true if ready.
-     */
-    isReady,
+    isReady: () => useBrand().isReady(),
 
     /**
      * Meta-information about the i18n state.
@@ -230,8 +211,7 @@ export const useLocale = () => {
      * Sets the default locale based on all fallback logic.
      * @return {Promise<string>} Resolves with the default locale.
      */
-    setDefaultLocale: async (value: string) => {
-      await isReady();
+    setDefaultLocale: async (value?: string) => {
       defaultLocale.value = value || defaultLocale.value;
       locale.value = getLocale();
     },

@@ -7,7 +7,7 @@
   >
     <Alert
       v-if="meta.hasErrors"
-      color="error"
+      color="danger"
       icon="alert-triangle"
       :title="alertTitle"
       :description="errors"
@@ -21,7 +21,7 @@
       :schema="schema"
       :uischema="uischema"
       :additional-errors="validationErrors"
-      :color="color"
+      :variant="variant"
       @reject="doReject"
       @resolve="doResolve"
       @update:model-value="setModel"
@@ -30,7 +30,7 @@
     >
       <template v-if="currentForm === 'register'" #footer>
         <TermsAndConditions
-          class="text-emphasis-medium text-sm"
+          class="text-muted text-sm"
           :label="t('action.continue_label')"
         />
       </template>
@@ -39,10 +39,9 @@
 
   <div v-if="!meta.isLoading" :class="styles.session.auth.actions">
     <slot name="toggle">
-      <Button
+      <Link
         v-if="!meta.isAuthenticated && meta.showLoginForm"
         @click="toggleForm('recover')"
-        variant="link"
         color="muted"
         :label="buttons.recover.label"
         size="lg"
@@ -74,7 +73,7 @@ import { useSession, useBrand } from "@upmind-automation/headless";
 import { useStyles, cn } from "@upmind-automation/upmind-ui";
 
 // --- custom elements
-import { Alert, Button } from "@upmind-automation/upmind-ui";
+import { Alert, Button, Link } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -83,7 +82,7 @@ import type { AuthProps } from "./types";
 
 const emit = defineEmits(["resolve", "reject"]);
 const props = withDefaults(defineProps<Omit<AuthProps, "modelValue">>(), {
-  color: "primary"
+  variant: "solid"
 });
 
 const modelValue = defineModel<AuthProps["modelValue"]>("modelValue", {
@@ -169,7 +168,7 @@ const buttons = computed(() => {
 const authActions = computed(() => {
   return {
     submit: {
-      type: "submit" as "submit",
+      type: "submit" as const,
       label: meta.value.showLoginForm
         ? t("action.log_in_to_your_account")
         : meta.value.showRegisterForm
@@ -179,7 +178,7 @@ const authActions = computed(() => {
             : t("action.continue_label"),
       block: true,
       needsValid: true,
-      size: "lg"
+      size: "lg" as const
     }
   };
 });

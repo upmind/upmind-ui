@@ -18,7 +18,7 @@ export default {
     search: {
       root: cva("px-3 py-2"),
       icon: cva(
-        "text-emphasis-disabled hidden items-center justify-center pr-4 pl-1 md:flex"
+        "text-muted hidden items-center justify-center pr-4 pl-1 md:flex"
       ),
       actions: cva("flex items-center justify-center space-x-4")
     },
@@ -39,8 +39,8 @@ export default {
       icon: cva("mb-1 hidden md:block", {
         variants: {
           isAvailable: {
-            true: "text-primary",
-            false: "text-emphasis-disabled"
+            true: "text-muted",
+            false: "text-muted"
           }
         }
       }),
@@ -50,39 +50,39 @@ export default {
       label: cva("m-0 text-sm/tight uppercase", {
         variants: {
           isAvailable: {
-            true: "text-primary",
-            false: "text-emphasis-disabled"
+            true: "text-muted",
+            false: "text-muted"
           }
         }
       }),
       title: cva("text-2xl", {
         variants: {
           isAvailable: {
-            false: "text-emphasis-medium"
+            false: "text-muted"
           }
         }
       }),
       sld: cva(
         "overflow-wrap-anywhere m-0 max-w-full text-2xl/tight font-normal break-all"
       ),
-      tld: cva("text-emphasis-none mr-2 text-2xl font-medium"),
+      tld: cva("mr-2 text-2xl text-base font-medium"),
       promotion: cva(""),
 
       prices: {
         root: cva("flex shrink-0 flex-col space-y-1 pr-6 md:space-y-0"),
-        regular: cva("text-emphasis-disabled mr-2 text-xs/tight"),
+        regular: cva("text-muted mr-2 text-xs/tight"),
         current: cva("text-2xl/tight font-medium"),
-        cycle: cva("text-emphasis-disabled text-xs font-normal")
+        cycle: cva("text-muted text-xs font-normal")
       }
     },
 
     empty: {
       root: cva(
-        "bg-base-muted flex flex-col items-center justify-center gap-4 rounded-lg p-4"
+        "flex flex-col items-center justify-center gap-4 rounded-lg p-4"
       ),
       title: cva("m-0 text-inherit"),
-      text: cva("text-emphasis-medium m-0 text-center"),
-      icon: cva("text-emphasis-medium size-8")
+      text: cva("text-muted m-0 text-center"),
+      icon: cva("text-muted size-8")
     },
 
     drawer: {
@@ -102,7 +102,7 @@ export default {
         radio: cva("relative flex w-11 justify-center pl-1.5")
       },
       item: cva(
-        "bg-control-background rounded border transition-all duration-200"
+        "bg-control-surface shadow-control-default hover:shadow-control-hover control-radius border-none transition-all duration-200"
       ),
       card: cva("bg-base"),
       loading: cva("text-secondary"),
@@ -113,14 +113,14 @@ export default {
         )
       },
       basket: {
-        item: cva("text-base-foreground")
+        item: cva("text-base")
       }
     },
 
     transitions: {
       fade: {
         enter: {
-          active: cva("duration-300 ease-out"),
+          active: cva("duration-200 ease-out"),
           from: cva("transform opacity-0"),
           to: cva("opacity-100")
         },

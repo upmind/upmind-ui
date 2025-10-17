@@ -28,17 +28,17 @@
     "placeholder": "Wachtwoord of wachtwoordzin"
   },
   "card_cvv": {
-    "description": "Kaartbeveiligingscode die op de achterkant van uw kaart staat en die zorgt voor extra beveiliging van uw creditcard.",
+    "error": "A valid CVV is required",
     "label": "CVV",
     "placeholder": "CVC"
   },
   "card_expiry": {
-    "description": "Vervaldatum van de kaart. Datumnotatie: MM/JJ",
+    "error": "A valid expiry date is required",
     "label": "Vervaldatum",
     "placeholder": "MM/JJ"
   },
   "card_num": {
-    "description": "Het 16-cijferige nummer op de voorkant van uw kaart.",
+    "error": "A valid card number is required",
     "label": "Kaartnummer",
     "placeholder": "1234 1234 1234 1234"
   },

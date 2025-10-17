@@ -80,7 +80,7 @@
   "payment_gateway_update_failed": "Ocorreu um erro ao atualizar o gateway de pagamento",
   "payment_gateway_validation_failed": "Falha na validação do gateway de pagamento",
   "payment_gateways_not_available_msg": "Você ainda pode enviar seu pedido agora e concluir o pagamento mais tarde. Nossa equipe de suporte poderá ajudar você.",
-  "payment_gateways_not_available_title": "Não há opções de pagamento para a moeda selecionada ({currency} ) ou país ({country} )",
+  "payment_gateways_not_available_title": "Não há opções de pagamento para a moeda selecionada ou país de cobrança",
   "payment_process_failed": "Ocorreu um erro ao processar seu pagamento",
   "product_not_available": "Produto indisponível",
   "product_not_found": "O produto que está à procura não existe.",

@@ -16,6 +16,7 @@
   "complete_online_toolkit_md": "@.markdown：{'text.complete_online_toolkit'}",
   "configuration": "配置",
   "continue_shopping_desc": "您無需登入即可繼續購物。",
+  "copyright": "© {year} {name}. All rights reserved.",
   "default_label": "預設",
   "discount": "折扣",
   "expires_abbr": "過期日",

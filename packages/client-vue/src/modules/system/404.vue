@@ -8,6 +8,7 @@
         :actions="[
           {
             ...storefrontRoute,
+            variant: 'solid',
             color: 'primary',
             icon: 'arrow-left',
             label: t('action.back_to_shop')
@@ -59,9 +60,7 @@ const { storefrontRoute } = useBrand();
 
 const props = withDefaults(defineProps<InterstitialProps>(), {
   open: true,
-  modal: true,
-  to: "#vue-app",
-  skrim: "light"
+  modal: true
 });
 
 const createRepeatSequence = (

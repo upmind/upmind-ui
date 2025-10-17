@@ -71,6 +71,7 @@ export const usePaymentGateway = (actor: ComputedRef<Actor | undefined>) => {
     isLoading: !actor.value || stateMatches(actor.value, ["loading"]),
     isRendering: !actor.value || stateMatches(actor.value, ["rendering"]),
     isAvailable: !!actor.value && stateMatches(actor, ["available"]),
+    isUnavailable: !!actor.value && stateMatches(actor, ["unavailable"]),
     hasErrors: stateMatches(actor, ["available.error"]),
     isProcessing: stateMatches(actor, ["available.processing"]),
     isValid: stateMatches(actor, ["available.valid"]),
@@ -213,6 +214,7 @@ export const usePaymentGateway = (actor: ComputedRef<Actor | undefined>) => {
      * Meta information about the payment gateway state.
      * @typedef {Object} PaymentGatewayMeta
      * @property {boolean} isAvailable - Indicates if the payment gateway actor is available.
+     * @property {boolean} isUnavailable - Indicates if the payment gateway is not available or errored during load
      * @property {boolean} isLoading - Indicates if the payment gateway actor is loading.
      * @property {boolean} hasErrors - Indicates if there are errors.
      * @property {boolean} isProcessing - Indicates if the payment gateway is processing.

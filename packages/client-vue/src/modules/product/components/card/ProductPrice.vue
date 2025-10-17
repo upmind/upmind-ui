@@ -15,7 +15,7 @@
         }}
       </del>
 
-      <Badge variant="outline" color="promotion" size="sm">
+      <Badge variant="minimal" color="promo" size="sm">
         {{
           t("action.save_value", {
             value: price?.savingPercent

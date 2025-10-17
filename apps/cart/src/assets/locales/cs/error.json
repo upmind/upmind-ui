@@ -80,7 +80,7 @@
   "payment_gateway_update_failed": "Při aktualizaci platební brány došlo k chybě.",
   "payment_gateway_validation_failed": "Ověření platební brány selhalo",
   "payment_gateways_not_available_msg": "Objednávku můžete odeslat i nyní a platbu dokončit později. Náš tým podpory vám s tím rád pomůže.",
-  "payment_gateways_not_available_title": "Pro vámi vybranou měnu nejsou k dispozici žádné možnosti platby ({currency} ) nebo země ({country} )",
+  "payment_gateways_not_available_title": "Pro vámi vybranou měnu nebo fakturační zemi nejsou k dispozici žádné možnosti platby.",
   "payment_process_failed": "Při zpracování vaší platby došlo k chybě.",
   "product_not_available": "Produkt není k dispozici",
   "product_not_found": "Omlouváme se, produkt, který hledáte, neexistuje.",

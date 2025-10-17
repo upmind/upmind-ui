@@ -14,6 +14,7 @@
   "company_number": "Company #: {regNumber}",
   "complete_online_toolkit": "Complete your online **toolkit**",
   "complete_online_toolkit_md": "@.markdown:{'text.complete_online_toolkit'}",
+  "copyright": "© {year} {name}. All rights reserved.",
   "configuration": "Configuration",
   "continue_shopping_desc": "You can continue shopping without being logged in.",
   "default_label": "Default",

@@ -3,7 +3,6 @@
     <ContentSection v-auto-animate class="flex grow items-center">
       <Interstitial
         v-bind="props"
-        to="#vue-app"
         :title="t('text.loading_title_md')"
         :text="t('text.almost_there_msg')"
       >
@@ -32,7 +31,6 @@ const { t } = useI18n();
 const props = withDefaults(defineProps<InterstitialProps>(), {
   open: true,
   modal: false,
-  skrim: "light",
   animatedIcon: () => ({
     icon: "loading",
     delay: 250,

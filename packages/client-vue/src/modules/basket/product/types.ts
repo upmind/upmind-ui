@@ -8,7 +8,6 @@ import type { RouteLocationRaw } from "vue-router";
 
 export interface BasketProductProps extends BasketProduct {
   open?: boolean;
-  color?: ButtonProps["color"];
 }
 
 export interface BasketProductActionsProps {
@@ -18,7 +17,6 @@ export interface BasketProductActionsProps {
   open: boolean;
   disabled: boolean;
   editLink: RouteLocationRaw;
-  color?: ButtonProps["color"];
 }
 
 export interface BasketProductSummaryProps {
@@ -41,5 +39,4 @@ export interface BasketProductConfigDetailsProps {
 
 export interface BasketProductCardsProps {
   open: boolean;
-  color?: ButtonProps["color"];
 }

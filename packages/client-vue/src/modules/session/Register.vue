@@ -1,10 +1,9 @@
 <template>
   <Layout :variant="uiCart?.layout">
     <template #navigation>
-      <Button
+      <Link
         class="flex items-center gap-x-2"
         @click.prevent="doReject"
-        variant="link"
         icon="arrow-left"
         :label="t('action.back_to_basket')"
         size="lg"
@@ -16,7 +15,7 @@
         <Header
           :badge="{
             label: t('text.fully_encrypted_title'),
-            icon: 'lock'
+            icon: 'lock-04'
           }"
           :title="t('action.create_an_account')"
         >
@@ -25,10 +24,9 @@
               >{{ t("auth.already_have_account_qn") }}&nbsp;</span
             >
 
-            <Button
+            <Link
               :to="{ name: ROUTE.SESSION_LOGIN }"
-              variant="link"
-              size="xl"
+              size="inherit"
               :label="t('action.log_in_here')"
             />
           </template>
@@ -44,27 +42,25 @@
           />
 
           <i18n-t
-            class="text-emphasis-medium text-sm"
+            class="text-muted text-sm"
             keypath="auth.recaptcha_terms_desc"
             tag="p"
             scope="global"
           >
             <template #[`privacyPolicy`]>
-              <Button
+              <Link
                 class="has-text-grey-light"
                 href="https://policies.google.com/privacy"
                 target="_blank"
-                variant="link"
-                >{{ $t("text.privacy_policy") }}</Button
+                >{{ $t("text.privacy_policy") }}</Link
               >
             </template>
             <template #[`termsOfService`]>
-              <Button
+              <Link
                 class="has-text-grey-light"
                 href="https://policies.google.com/terms"
                 target="_blank"
-                variant="link"
-                >{{ $t("text.terms_of_service") }}</Button
+                >{{ $t("text.terms_of_service") }}</Link
               >
             </template>
           </i18n-t>
@@ -88,7 +84,7 @@ import {
 } from "@upmind-automation/headless";
 
 // --- components
-import { Button, Layout } from "@upmind-automation/upmind-ui";
+import { Button, Layout, Link } from "@upmind-automation/upmind-ui";
 import Auth from "./components/Auth.vue";
 import Header from "../../components/content/Header.vue";
 import Section from "../../components/content/LayoutSection.vue";

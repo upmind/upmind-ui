@@ -1,10 +1,9 @@
 <template>
   <Layout :variant="uiCart?.layout">
     <template #navigation>
-      <Button
+      <Link
         class="flex items-center gap-x-2"
         @click.prevent="doReject"
-        variant="link"
         icon="arrow-left"
         :label="t('action.back_to_basket')"
         size="lg"
@@ -16,17 +15,16 @@
         <Header
           :badge="{
             label: t('text.fully_encrypted_title'),
-            icon: 'lock'
+            icon: 'lock-04'
           }"
           :title="t('action.log_in_to_your_account')"
         >
           <template #description>
             <span class="font-normal">{{ t("auth.no_account_qn") }}&nbsp;</span>
 
-            <Button
+            <Link
               :to="{ name: ROUTE.SESSION_REGISTER }"
-              variant="link"
-              size="xl"
+              size="inherit"
               :label="t('action.create_one_here')"
             />
           </template>
@@ -55,7 +53,7 @@ import { useI18n } from "vue-i18n";
 import { useRoutingEngine, useBrand, ROUTE } from "@upmind-automation/headless";
 
 // --- components
-import { Button, Layout } from "@upmind-automation/upmind-ui";
+import { Button, Layout, Link } from "@upmind-automation/upmind-ui";
 import Auth from "./components/Auth.vue";
 import Header from "../../components/content/Header.vue";
 import Section from "../../components/content/LayoutSection.vue";
