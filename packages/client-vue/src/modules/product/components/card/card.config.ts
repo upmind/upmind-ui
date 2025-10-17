@@ -33,7 +33,7 @@ export const detailsVariant = cva("flex flex-1 flex-col gap-8", {
   }
 });
 
-export const imageVariant = cva("h-auto w-full", {
+export const imageRootVariant = cva("h-auto w-full", {
   variants: {
     variant: {
       default: "",
@@ -58,7 +58,10 @@ export const promotionVariant = cva("", {
 export default {
   product: {
     root: rootVariant,
-    image: imageVariant,
+    image: {
+      container: cva("image-radius"),
+      root: imageRootVariant
+    },
     content: contentVariant,
     details: detailsVariant,
     header: {
