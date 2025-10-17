@@ -301,10 +301,15 @@ export default createMachine(
               "gateway_id",
               model?.gateway_id
             ]);
-            if (!brandGateway?.gateway) return undefined;
+
+            debugger;
+            if (!brandGateway?.gateway) {
+              debugger;
+              return undefined;
+            }
 
             // and spawn it if it exists
-            return spawnGateway({
+            gatewayHelper = spawnGateway({
               orderId,
               gateway: brandGateway.gateway,
               amount,

@@ -18,6 +18,7 @@ import { GatewayProviderCodes } from "@upmind-automation/types";
 import { StripeContext } from "./gateways/stripe/types";
 import { BraintreeContext } from "./gateways/braintree/types";
 import { OpenPayContext } from "./gateways/openPay/types";
+import { includes } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -48,7 +49,8 @@ export function spawnGateway({
             ctx: GatewayCtx.PAY,
             currency,
             gateway,
-            orderId
+            orderId,
+            supported: true
           })
           .withConfig(braintreeConfig),
         {
@@ -67,7 +69,8 @@ export function spawnGateway({
             ctx: GatewayCtx.PAY,
             currency,
             gateway,
-            orderId
+            orderId,
+            supported: true
           })
           .withConfig(openPayConfig),
         { name: gateway.id, sync: true }
@@ -78,7 +81,6 @@ export function spawnGateway({
         console.warn(
           `DEPRECATION: ${gateway.name} is no longer supported via Headless`
         );
-        return;
       }
 
       return spawn(
@@ -90,7 +92,8 @@ export function spawnGateway({
             ctx: GatewayCtx.PAY,
             currency,
             gateway,
-            orderId
+            orderId,
+            supported: !!gateway?.use_frontend_implementation
           })
           .withConfig(stripeConfig),
         { name: gateway.id, sync: true }
@@ -98,8 +101,7 @@ export function spawnGateway({
 
     // GERERIC RENDERLESS / REDIRECT / OFFSITE GATEWAYS
     case GatewayProviderCodes.BANK_TRANSFER:
-    case GatewayProviderCodes.BLOCKONOMICS:
-    case GatewayProviderCodes.FLUTTERWAVE:
+    // case GatewayProviderCodes.FLUTTERWAVE:
     case GatewayProviderCodes.MICROPAYMENT:
     case GatewayProviderCodes.OFFLINE:
     case GatewayProviderCodes.PAYPAL_BILLING_AGREEMENT:
@@ -116,22 +118,19 @@ export function spawnGateway({
           gateway,
           orderId,
           renderless: true,
-          sdk: false
+          sdk: false,
+          supported: true
         }),
         { name: gateway.id, sync: true }
       );
 
-    // DEPRECATED GATEWAYS
-    case GatewayProviderCodes.PAYPAL_REST:
-      console.warn(
-        `DEPRECATION: ${gateway.name} is no longer supported via Headless`
-      );
-      return;
-
-    // UNSUPPORTED OR UNKNOWN GATEWAYS
+    // DEPRECATED/UNSUPPORTED OR UNKNOWN GATEWAYS
     default:
+    case GatewayProviderCodes.FLUTTERWAVE:
+    // --
     case GatewayProviderCodes.ADYEN:
     case GatewayProviderCodes.BIT_PAY:
+    case GatewayProviderCodes.BLOCKONOMICS:
     case GatewayProviderCodes.COIN_GATE:
     case GatewayProviderCodes.D_LOCAL:
     case GatewayProviderCodes.FLUTTERWAVE_CARD:
@@ -151,6 +150,33 @@ export function spawnGateway({
     case GatewayProviderCodes.RAZOR_PAY_CHECKOUT:
     case GatewayProviderCodes.SAGE_PAY_DIRECT:
     case GatewayProviderCodes.WORLD_PAY_JSON:
-      return;
+      // --- Deprecation warnings
+      if (
+        includes(
+          [GatewayProviderCodes.PAYPAL_REST],
+          gateway.gateway_provider?.code
+        )
+      ) {
+        console.warn(
+          `DEPRECATION: ${gateway.name} is no longer supported via Headless`
+        );
+      }
+
+      // spawn a renderless unsupported gateway machine to allow orders to be placed without payment
+      return spawn(
+        gatewayMachine(gateway.gateway_provider.code).withContext({
+          address,
+          amount,
+          clientId,
+          ctx: GatewayCtx.PAY,
+          currency,
+          gateway,
+          orderId,
+          renderless: true,
+          sdk: false,
+          supported: false
+        }),
+        { name: gateway.id, sync: true }
+      );
   }
 }

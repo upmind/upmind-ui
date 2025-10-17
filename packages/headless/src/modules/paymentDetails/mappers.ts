@@ -178,7 +178,7 @@ export function mapPaymentData({
     switch (brandGateway?.gateway?.gateway_provider?.code) {
       // SIMPLE SDK OR REDIRECT GATEWAYS
       case GatewayProviderCodes.BRAINTREE:
-      case GatewayProviderCodes.FLUTTERWAVE:
+      // case GatewayProviderCodes.FLUTTERWAVE:
       case GatewayProviderCodes.MICROPAYMENT:
       case GatewayProviderCodes.OPENPAY:
       case GatewayProviderCodes.PAYPAL_BILLING_AGREEMENT:
@@ -207,6 +207,7 @@ export function mapPaymentData({
       case GatewayProviderCodes.BLOCKONOMICS:
       case GatewayProviderCodes.COIN_GATE:
       case GatewayProviderCodes.D_LOCAL:
+      case GatewayProviderCodes.FLUTTERWAVE:
       case GatewayProviderCodes.FLUTTERWAVE_CARD:
       case GatewayProviderCodes.GO_CARDLESS:
       case GatewayProviderCodes.MERCADO_PAGO:
