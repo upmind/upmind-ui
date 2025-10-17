@@ -137,7 +137,8 @@ const { meta, product, productImage, updateQuantity } =
 
 const configMeta = computed(() => {
   const breadcrumbs =
-    product.value?.productDetails?.uiMeta?.uischema?.config?.breadcrumbs;
+    product.value?.productDetails?.uiMeta?.uischema?.config?.breadcrumbs ||
+    BreadcrumbVariant.VISIBLE;
   return {
     layout: uiCart.value?.layout,
     breadcrumbs,
