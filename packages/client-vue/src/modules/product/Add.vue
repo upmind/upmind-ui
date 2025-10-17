@@ -1,11 +1,14 @@
 <template>
   <Layout :variant="configMeta.layout" minimal>
-    <template #navigation>
-      <Breadcrumb v-if="meta?.isAvailable" :items="items" size="lg" />
+    <template
+      v-if="configMeta.headerBreadcrumbs && meta?.isAvailable"
+      #navigation
+    >
+      <Breadcrumb :items="items" size="lg" />
     </template>
 
-    <template #actions>
-      <Share class="hidden md:flex" v-if="meta?.isAvailable" />
+    <template v-if="configMeta.headerBreadcrumbs && meta?.isAvailable" #actions>
+      <Share class="hidden md:flex" />
     </template>
 
     <template #header>
@@ -36,6 +39,10 @@
 
           <ConfigSkeleton v-else />
         </form>
+
+        <template v-if="!configMeta.headerBreadcrumbs" #action>
+          <Share class="hidden md:flex" />
+        </template>
       </Section>
     </template>
 
@@ -129,10 +136,12 @@ const { meta, product, productImage, updateQuantity } =
   useProductConfig(pendingProduct);
 
 const configMeta = computed(() => {
+  const breadcrumbs =
+    product.value?.productDetails?.uiMeta?.uischema?.config?.breadcrumbs;
   return {
     layout: uiCart.value?.layout,
-    breadcrumbs:
-      product.value?.productDetails?.uiMeta?.uischema?.config?.breadcrumbs
+    breadcrumbs,
+    headerBreadcrumbs: breadcrumbs !== BreadcrumbVariant.HIDDEN && breadcrumbs
   };
 });
 
