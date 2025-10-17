@@ -11,7 +11,8 @@ import { useI18n } from "vue-i18n";
 import {
   ROUTE,
   useProductCategories,
-  type ProductCategory
+  type ProductCategory,
+  BreadcrumbVariant
 } from "@upmind-automation/headless";
 import config from "../catalogue.config";
 
@@ -21,7 +22,7 @@ import { Breadcrumb, useStyles } from "@upmind-automation/upmind-ui";
 // --- types
 import type { CategoriesProps } from "./types";
 import type { ComputedRef } from "vue";
-import { map } from "lodash-es";
+import { map, compact, last, isEmpty } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<Omit<CategoriesProps, "modelValue">>();
@@ -31,14 +32,23 @@ const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
 
 const { t } = useI18n();
 
-const { getPath } = useProductCategories();
+const { getPath, getOne } = useProductCategories();
 
 const items = computed(() => {
+  const items: any[] = [];
   const paths = getPath(modelValue.value);
+  const currentCategory = getOne(modelValue.value ?? "");
+  const variant =
+    currentCategory?.uiMeta?.uischema?.config?.breadcrumbs ||
+    BreadcrumbVariant.VISIBLE;
 
-  const items = [
-    // include "root" option
-    {
+  if (variant === BreadcrumbVariant.HIDDEN) {
+    return items;
+  }
+
+  // Storefront (for visible and condensed)
+  if (variant !== BreadcrumbVariant.CATEGORY) {
+    items.push({
       label: t("text.shop"),
       current: !modelValue.value,
       to: {
@@ -49,8 +59,25 @@ const items = computed(() => {
           catid: undefined
         }
       }
-    },
-    ...map(paths, (category: ProductCategory) => ({
+    });
+  }
+
+  // For condensed, show ellipsis before the last category if there are multiple
+  if (variant === BreadcrumbVariant.CONDENSED && paths.length > 1) {
+    items.push({
+      label: "..."
+    });
+  }
+
+  // Categories
+  const onlyLastCategory =
+    variant === BreadcrumbVariant.CONDENSED ||
+    variant === BreadcrumbVariant.CATEGORY;
+  const categories = compact(onlyLastCategory ? [last(paths)] : paths);
+
+  // Add category items
+  items.push(
+    ...map(categories, (category: ProductCategory) => ({
       label: category.title,
       current: category.id === modelValue.value,
       to: {
@@ -65,7 +92,7 @@ const items = computed(() => {
         modelValue.value = category.id;
       }
     }))
-  ];
+  );
 
   return items;
 });
