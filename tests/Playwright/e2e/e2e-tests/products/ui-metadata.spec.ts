@@ -18,7 +18,7 @@ test.describe("Product UI Metadata Tests", () => {
       }
     });
     await page.goto(URLs.uiTestProduct);
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
     await expect(productConfig.billingTerms).toBeVisible();
     await expect(page).toHaveScreenshot(
       "uimetadata-billing-term-dropdown-closed"
