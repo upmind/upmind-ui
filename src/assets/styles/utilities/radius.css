@@ -7,6 +7,13 @@
  */
 
 @layer utilities {
+  .button-radius {
+    border-radius: var(--button-radius);
+  }
+  .control-radius {
+    border-radius: var(--control-radius);
+  }
+
   .badge-radius {
     border-radius: var(--badge-radius);
   }
@@ -22,12 +29,4 @@
   .message-radius {
     border-radius: var(--message-radius);
   }
-}
-
-@utility control-radius {
-  border-radius: var(--control-radius);
-}
-
-@utility button-radius {
-  border-radius: var(--button-radius);
 }
