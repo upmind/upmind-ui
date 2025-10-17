@@ -111,7 +111,7 @@ import SummarySkeleton from "./components/summary/SummarySkeleton.vue";
 import ProductNotFound from "./NotFound.vue";
 
 // --- utils
-import { forEach, isEmpty, last, compact } from "lodash-es";
+import { forEach, isEmpty, last, compact, first } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -197,12 +197,22 @@ const items = computed(() => {
     });
   }
 
-  // Current product (for visible and condensed)
-  if (variant !== BreadcrumbVariant.CATEGORY) {
+  // Last item: current product (visible) or last category (condensed)
+  if (variant === BreadcrumbVariant.VISIBLE) {
     items.push({
       label: product.value.productDetails.title,
       current: true
     });
+  } else if (variant === BreadcrumbVariant.CONDENSED) {
+    const category = first(product.value.productDetails.breadcrumb);
+    if (category) {
+      items.push({
+        label: category.label,
+        to: !hasStorefront.value
+          ? { name: ROUTE.CATALOGUE, query: { catid: category.id } }
+          : undefined
+      });
+    }
   }
 
   return items;
