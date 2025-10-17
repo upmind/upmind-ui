@@ -10,6 +10,6 @@
     "types": ["jsdom", "vite/client", "@types/google.maps"]
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.spec.*", "src/**/*.test.ts"],
+  "exclude": ["node_modules", "dist", "**/*.spec.*", "src/**/*.*test.ts"],
   "references": [{ "path": "../types" }, { "path": "../i18n" }]
 }

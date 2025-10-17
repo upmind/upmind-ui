@@ -22,7 +22,6 @@
     "dev": "vite",
     "type-check": "vue-tsc -p tsconfig.build.json  --noEmit",
     "preview": "vite preview",
-    "test": "vitest",
     "lint": "eslint . --fix",
     "format": "prettier --write src/"
   },
