@@ -77,11 +77,10 @@ export function spawnGateway({
       );
 
     case GatewayProviderCodes.STRIPE:
-      if (!gateway?.use_frontend_implementation) {
+      if (!gateway?.use_frontend_implementation)
         console.warn(
           `DEPRECATION: ${gateway.name} is no longer supported via Headless`
         );
-      }
 
       return spawn(
         gatewayMachine<StripeContext>(gateway.gateway_provider.code)
@@ -95,13 +94,15 @@ export function spawnGateway({
             orderId,
             supported: !!gateway?.use_frontend_implementation
           })
-          .withConfig(stripeConfig),
+          .withConfig(
+            !!gateway?.use_frontend_implementation ? stripeConfig : {}
+          ),
         { name: gateway.id, sync: true }
       );
 
-    // GERERIC RENDERLESS / REDIRECT / OFFSITE GATEWAYS
+    // SUPPORTED GENERIC OFFSITE GATEWAYS
     case GatewayProviderCodes.BANK_TRANSFER:
-    // case GatewayProviderCodes.FLUTTERWAVE:
+    case GatewayProviderCodes.FLUTTERWAVE:
     case GatewayProviderCodes.MICROPAYMENT:
     case GatewayProviderCodes.OFFLINE:
     case GatewayProviderCodes.PAYPAL_BILLING_AGREEMENT:
@@ -126,8 +127,6 @@ export function spawnGateway({
 
     // DEPRECATED/UNSUPPORTED OR UNKNOWN GATEWAYS
     default:
-    case GatewayProviderCodes.FLUTTERWAVE:
-    // --
     case GatewayProviderCodes.ADYEN:
     case GatewayProviderCodes.BIT_PAY:
     case GatewayProviderCodes.BLOCKONOMICS:
