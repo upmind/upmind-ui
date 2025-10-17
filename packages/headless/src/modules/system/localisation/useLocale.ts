@@ -224,4 +224,4 @@ export const useLocale = () => {
 /**
  * The return type of useSystem composable.
  */
-export type useLocale = ReturnType<typeof useLocale>;
+export type UseLocale = ReturnType<typeof useLocale>;
