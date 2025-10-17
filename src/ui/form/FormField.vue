@@ -30,7 +30,7 @@
                 class="max-w-72 text-center text-xs"
               >
                 <Icon
-                  icon="information-circle"
+                  icon="info-circle"
                   size="nano"
                   class="opacity-50 transition-all duration-200 hover:opacity-100"
                 />
@@ -45,6 +45,15 @@
             </span>
           </slot>
         </FormLabel>
+
+        <!-- description -->
+        <FormDescription
+          v-if="meta.hasDescription"
+          :formDescriptionId="`form-item-description-${props.id}`"
+          :class="styles.input.description"
+        >
+          {{ description }}
+        </FormDescription>
 
         <!-- input -->
         <FormControl
@@ -71,14 +80,6 @@
           :data-testid="`form-item-message-${props.name.replaceAll('.', '-')}`"
         />
       </slot>
-
-      <!-- description -->
-      <FormDescription
-        v-if="meta.hasDescription"
-        :formDescriptionId="`form-item-description-${props.id}`"
-      >
-        {{ description }}
-      </FormDescription>
     </slot>
   </FormItem>
 </template>
@@ -110,6 +111,7 @@ import { isEmpty, isNil, some, kebabCase } from "lodash-es";
 
 // --- types
 import type { FormControlProps } from "./types";
+import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 
@@ -182,12 +184,17 @@ const meta = computed(
 );
 
 const styles = useStyles(
-  ["input", "input.feedback"],
+  ["input", "input.feedback", "input.description"],
   meta,
   config,
   target,
   props.uiConfig ?? {}
-);
+) as ComputedRef<{
+  input: {
+    feedback: string;
+    description: string;
+  };
+}>;
 
 // --- methods
 
