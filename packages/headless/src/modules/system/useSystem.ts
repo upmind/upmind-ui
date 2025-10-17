@@ -73,11 +73,6 @@ export const useSystem = () => {
 
   // --- meta information
   const meta = computed(() => {
-    const essentialQueries = reject(
-      [countriesQuery, billingCyclesQuery],
-      isEmpty
-    );
-
     const hasError = computed(() => some(queries, "isError"));
     const isLoading = computed(() => some(queries, "isLoading"));
     const isComplete = computed(() => every(queries, "isComplete"));
