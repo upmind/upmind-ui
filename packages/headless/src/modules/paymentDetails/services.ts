@@ -104,20 +104,6 @@ export function loadList() {
 
 // -----------------------------------------------------------------------------
 
-// const supportedGateways = [
-//   GatewayProviderCodes.BANK_TRANSFER,
-//   GatewayProviderCodes.BRAINTREE,
-//   GatewayProviderCodes.FLUTTERWAVE,
-//   GatewayProviderCodes.MICROPAYMENT,
-//   GatewayProviderCodes.OFFLINE,
-//   GatewayProviderCodes.OPENPAY,
-//   GatewayProviderCodes.PAYPAL_BILLING_AGREEMENT,
-//   GatewayProviderCodes.PAYPAL_EXPRESS,
-//   GatewayProviderCodes.PAYPAL_PRO,
-//   GatewayProviderCodes.PAYSTACK,
-//   GatewayProviderCodes.STRIPE
-// ];
-
 async function loadLookups(
   { currency, address, orderId }: PaymentDetailsContext,
   _event: AnyEventObject
@@ -219,21 +205,6 @@ async function loadLookups(
             some(gateways, ["gateway_id", method.gatewayID])
         ),
         gateways: sortBy(gateways, ["order"]),
-
-        // NB: Ensure we Whitelist payment gateways until we have full support for all
-        // gateways: supportedGateways.length
-        //   ? sortBy(
-        //       filter(gateways, ({ gateway }) => {
-        //         debugger;
-        //         return includes(
-        //           supportedGateways,
-        //           gateway.gateway_provider.code
-        //         );
-        //       }),
-        //       ["order"]
-        //     )
-        //   : sortBy(gateways, ["order"]),
-
         paymentTypes
       } as unknown as Partial<PaymentDetailsContext>;
     }

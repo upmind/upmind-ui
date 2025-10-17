@@ -57,11 +57,11 @@
       <!-- Unsupported Message -->
       <Alert
         v-if="meta.isNotSupported"
-        icon="alert-triangle"
+        icon="info-circle"
         variant="minimal"
-        title="Not Supported"
+        title="This gateway is not currently able to take payment."
+        description="You can still place your order and pay later."
         class="text-error!"
-        :description="errors"
       />
 
       <!-- Actions and Terms -->
