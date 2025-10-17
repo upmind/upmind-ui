@@ -12,11 +12,11 @@
               item.current ||
               index === props.items.length - 1
             "
+            color="muted"
             class="hover:text-muted! cursor-default no-underline hover:opacity-100!"
             :size="props.size"
             :focusable="false"
             :label="item.label"
-            :color="index === props.items.length - 1 ? 'muted' : 'default'"
           />
           <Link
             v-else
