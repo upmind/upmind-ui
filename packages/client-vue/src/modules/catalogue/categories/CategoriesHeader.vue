@@ -1,7 +1,13 @@
 <template>
   <div :class="styles.categories.header.root" v-auto-animate>
     <template v-if="!meta.isLoading">
-      <h1 v-if="title" :class="styles.categories.header.title">{{ title }}</h1>
+      <h1
+        v-if="title"
+        :class="styles.categories.header.title"
+        data-testid="title"
+      >
+        {{ title }}
+      </h1>
       <p v-if="description" :class="styles.categories.header.description">
         {{ description }}
       </p>
