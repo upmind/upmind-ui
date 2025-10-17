@@ -1,5 +1,5 @@
 <template>
-  <nav v-if="meta.isAvailable" class="inline-flex items-center gap-3">
+  <nav v-if="meta.isAvailable" class="inline-flex items-center gap-2">
     <slot name="actions" />
 
     <Button
@@ -40,6 +40,11 @@
         :label="t('action.login')"
         icon="user-circle"
         data-testid="login-popover-trigger"
+        :ui-config="{
+          button: {
+            label: ['hidden md:inline']
+          } as any
+        }"
       />
     </SessionLoginPopover>
 
