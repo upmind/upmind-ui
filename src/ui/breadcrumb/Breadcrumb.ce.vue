@@ -10,7 +10,7 @@
             v-if="
               (!item.to && !item.href) ||
               item.current ||
-              index === props.items.length - 1
+              (index === props.items.length - 1 && !item.to && !item.href)
             "
             color="muted"
             class="hover:text-muted! cursor-default no-underline hover:opacity-100!"
