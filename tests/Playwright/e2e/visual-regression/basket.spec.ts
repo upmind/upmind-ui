@@ -9,26 +9,30 @@ import {
 import { setLocale } from "../support/utils/functions/locale-helper";
 import { Languages as languages } from "../support/constants/languages";
 
+let token: string;
+let orderId: string | null;
+test.beforeEach(async ({ page }) => {
+  // Disable all CSS animations and transitions
+  await page.goto(URLs.emptyBasket);
+  await page.waitForLoadState("load");
+  await page.addStyleTag({
+    content: `
+          *,
+          *::before,
+          *::after {
+              transition: none !important;
+              animation: none !important;
+              caret-color: transparent !important;
+          }
+          `
+  });
+});
+test.describe("Themes: Mono @themes @mono", () => {});
+test.describe("Themes: Dark Mode @themes @dark-mode", () => {});
+test.describe("Themes: Hosting.com @themes @hosting", () => {});
+
 for (const { language, locale } of languages) {
-  test.describe(`Basket Visual Regression Tests - ${language}`, () => {
-    let token: string;
-    let orderId: string | null;
-    test.beforeEach(async ({ page }) => {
-      // Disable all CSS animations and transitions
-      await page.goto(URLs.emptyBasket);
-      await page.waitForLoadState("load");
-      await page.addStyleTag({
-        content: `
-              *,
-              *::before,
-              *::after {
-                  transition: none !important;
-                  animation: none !important;
-                  caret-color: transparent !important;
-              }
-              `
-      });
-    });
+  test.describe(`Translations: ${language} @i18n`, () => {
     test("Empty Basket", async ({ page }) => {
       await page.goto(URLs.emptyBasket);
       await setLocale(page, locale);
