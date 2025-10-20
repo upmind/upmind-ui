@@ -1,7 +1,7 @@
 import type { CxOptions } from "class-variance-authority";
 
 export interface LayoutProps {
-  variant?: "default" | "enclosed" | "full";
+  variant?: "default" | "enclosed" | "full" | "twoColumnLTR" | "twoColumnRTL";
   minimal?: boolean;
   overflow?: "hidden" | "visible";
   sticky?: boolean;

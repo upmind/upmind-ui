@@ -87,5 +87,46 @@ export default {
       }
     }),
     main: cva("flex w-full flex-col gap-12")
+  },
+
+  twoColumnLTR: {
+    root: cva("mx-auto w-full flex-wrap items-start justify-start", {
+      variants: {
+        overflow: {
+          hidden: "overflow-hidden",
+          visible: "overflow-visible"
+        }
+      }
+    }),
+    header: {
+      root: cva("bg-canvas px-6 py-18"),
+      container: cva("max-w-app mx-auto")
+    },
+    content: {
+      root: cva("shadow-t-border-surface px-6", {
+        variants: {
+          isMinimal: {
+            true: "py-18",
+            false: "py-24"
+          },
+          hasHeader: {
+            true: "bg-surface",
+            false: "bg-canvas"
+          }
+        }
+      }),
+      container: cva(
+        "max-w-app mx-auto flex w-full flex-col gap-12 md:flex-row md:gap-18"
+      )
+    },
+    aside: cva("flex w-full max-w-md flex-col gap-12", {
+      variants: {
+        isSticky: {
+          true: "sticky top-6 self-start",
+          false: ""
+        }
+      }
+    }),
+    main: cva("flex w-full flex-col gap-12")
   }
 };
