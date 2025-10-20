@@ -98,7 +98,9 @@ export const useCatalogueFlows = () => {
     {
       name: ROUTE.RECOMMENDATIONS,
       guard: async (_route: Route) =>
-        isRecommndationsReady().then(() => meta.value.hasRecommendations),
+        isRecommndationsReady().then(
+          () => basketMeta.value.hasProducts && meta.value.hasRecommendations
+        ),
       targets: {
         next: [ROUTE.CHECKOUT, ROUTE.SESSION_REGISTER, ROUTE.BASKET],
         back: [ROUTE.BASKET, ROUTE.EMPTY],
