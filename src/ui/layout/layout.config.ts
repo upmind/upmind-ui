@@ -98,43 +98,61 @@ export default {
   },
 
   twoColumnLTR: {
-    root: cva("mx-auto w-full flex-wrap items-start justify-start", {
-      variants: {
-        overflow: {
-          hidden: "overflow-hidden",
-          visible: "overflow-visible"
-        }
-      }
-    }),
+    root: cva("bg-surface lg:canvas-gradient w-full"),
     header: {
-      root: cva("bg-canvas px-6 py-18"),
-      container: cva("max-w-app mx-auto")
+      row: cva("flex w-full justify-center"),
+      contentWrapper: cva(
+        "basis-app-content bg-surface box-content min-w-0 px-8 pb-1 lg:px-18"
+      ),
+      contentInner: cva("lg:w-app-content flex h-[100px] items-end"),
+      asideWrapper: cva(
+        "basis-app-aside bg-surface box-content min-w-0 px-8 pb-1 lg:bg-transparent lg:px-18"
+      ),
+      asideInner: cva("lg:w-app-aside flex h-[100px] items-end justify-end")
+    },
+    contentHeader: {
+      row: cva("flex w-full justify-center"),
+      contentWrapper: cva(
+        "basis-app-content bg-surface box-content min-w-0 px-8 pt-18 lg:px-18"
+      ),
+      contentInner: cva("w-app-content"),
+      asideWrapper: cva(
+        "basis-app-aside box-content hidden min-w-0 px-18 pt-18 lg:block"
+      ),
+      asideInner: cva("w-app-aside")
     },
     content: {
-      root: cva("shadow-t-border-surface px-6", {
-        variants: {
-          isMinimal: {
-            true: "py-18",
-            false: "py-24"
-          },
-          hasHeader: {
-            true: "bg-surface",
-            false: "bg-canvas"
-          }
-        }
-      }),
-      container: cva(
-        "max-w-app mx-auto flex w-full flex-col gap-12 md:flex-row md:gap-18"
-      )
+      row: cva("flex w-full justify-center"),
+      contentWrapper: cva(
+        "basis-app-content bg-surface box-content min-w-0 px-8 pt-18 lg:px-18"
+      ),
+      contentInner: cva("w-app-content flex flex-col gap-12"),
+      asideWrapper: cva(
+        "basis-app-aside box-content hidden min-w-0 px-18 pt-9 lg:block"
+      ),
+      asideInner: cva("w-app-aside sticky top-0 pt-9")
     },
-    aside: cva("flex w-full max-w-md flex-col gap-12", {
-      variants: {
-        isSticky: {
-          true: "sticky top-6 self-start",
-          false: ""
-        }
-      }
-    }),
-    main: cva("flex w-full flex-col gap-12")
+    spacer: {
+      row: cva("flex w-full justify-center"),
+      contentWrapper: cva(
+        "basis-app-content bg-surface box-content min-w-0 px-8 lg:px-18"
+      ),
+      contentInner: cva("w-app-content h-11"),
+      asideWrapper: cva(
+        "basis-app-aside box-content hidden min-w-0 px-18 lg:block"
+      ),
+      asideInner: cva("w-app-aside h-11")
+    },
+    footer: {
+      row: cva("flex w-full items-end justify-center"),
+      contentWrapper: cva(
+        "basis-app-content bg-surface box-content min-w-0 px-8 pb-9 lg:px-18 lg:pt-18"
+      ),
+      contentInner: cva("w-app-content"),
+      asideWrapper: cva(
+        "basis-app-aside box-content min-w-0 px-18 pb-9 lg:pt-18"
+      ),
+      asideInner: cva("w-app-aside hidden lg:block")
+    }
   }
 };
