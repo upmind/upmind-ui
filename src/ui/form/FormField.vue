@@ -110,6 +110,7 @@ import { isEmpty, isNil, some, kebabCase } from "lodash-es";
 
 // --- types
 import type { FormControlProps } from "./types";
+import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 
@@ -182,12 +183,17 @@ const meta = computed(
 );
 
 const styles = useStyles(
-  ["input", "input.feedback"],
+  ["input", "input.feedback", "input.description"],
   meta,
   config,
   target,
   props.uiConfig ?? {}
-);
+) as ComputedRef<{
+  input: {
+    feedback: string;
+    description: string;
+  };
+}>;
 
 // --- methods
 
