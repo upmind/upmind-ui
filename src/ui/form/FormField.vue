@@ -9,11 +9,7 @@
     <slot name="field">
       <!-- label -->
       <div class="flex w-full flex-col gap-1">
-        <FormLabel
-          v-if="meta.hasLabel"
-          :formItemId="id"
-          :class="meta.hasDescription ? 'text-sm/tight' : 'text-sm'"
-        >
+        <FormLabel v-if="meta.hasLabel" :formItemId="id">
           <slot name="label" :label="label">
             <span class="inline-flex w-full items-center gap-x-2">
               <slot name="icon" />
@@ -48,14 +44,6 @@
               />
             </span>
           </slot>
-
-          <!-- description -->
-          <FormDescription
-            v-if="meta.hasDescription"
-            :formDescriptionId="`form-item-description-${props.id}`"
-          >
-            {{ description }}
-          </FormDescription>
         </FormLabel>
 
         <!-- input -->
@@ -71,18 +59,26 @@
         >
           <slot></slot>
         </FormControl>
-      </div>
 
-      <!-- validation messages -->
-      <slot name="messages">
-        <FormMessage
-          v-if="meta.isInvalid && !props.noErrors"
-          :formMessageId="`form-item-message-${props.id}`"
-          :name="name"
-          :errors="errors"
-          :data-testid="`form-item-message-${props.name.replaceAll('.', '-')}`"
-        />
-      </slot>
+        <!-- validation messages -->
+        <slot name="messages">
+          <FormMessage
+            v-if="meta.isInvalid && !props.noErrors"
+            :formMessageId="`form-item-message-${props.id}`"
+            :name="name"
+            :errors="errors"
+            :data-testid="`form-item-message-${props.name.replaceAll('.', '-')}`"
+          />
+        </slot>
+
+        <!-- description -->
+        <FormDescription
+          v-if="meta.hasDescription"
+          :formDescriptionId="`form-item-description-${props.id}`"
+        >
+          {{ description }}
+        </FormDescription>
+      </div>
     </slot>
   </FormItem>
 </template>
