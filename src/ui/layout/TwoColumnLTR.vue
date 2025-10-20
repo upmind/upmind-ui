@@ -52,19 +52,37 @@
       </div>
     </section>
 
-    <footer class="flex w-full justify-center">
+    <div class="flex w-full justify-center">
       <div
         class="basis-app-content bg-surface box-content min-w-0 shrink px-8 lg:px-18"
       >
-        <div class="w-app-content h-32" />
+        <div class="w-app-content h-11" />
       </div>
 
       <div
         class="basis-app-aside box-content hidden min-w-0 shrink px-18 lg:block"
       >
-        <div class="w-app-aside h-32" />
+        <div class="w-app-aside h-11" />
       </div>
-    </footer>
+    </div>
+
+    <div class="flex w-full items-end justify-center">
+      <div
+        class="basis-app-content bg-surface box-content min-w-0 shrink px-8 pb-9 lg:px-18 lg:pt-18"
+      >
+        <div class="w-app-content">
+          <slot name="footer" />
+        </div>
+      </div>
+
+      <div
+        class="basis-app-aside box-content min-w-0 shrink px-18 pb-9 lg:pt-18"
+      >
+        <div class="w-app-aside">
+          <slot name="footer-aside" />
+        </div>
+      </div>
+    </div>
   </article>
 </template>
 
