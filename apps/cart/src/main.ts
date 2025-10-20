@@ -33,8 +33,7 @@ UpmindClient.init({
     )
   },
   router: {
-    instance: router,
-    flows: useCustomFlows
+    instance: router
   },
   recaptcha: {
     siteKey: import.meta.env.VITE_APP_GOOGLE_RECAPTCHA_V3_SITE_KEY,

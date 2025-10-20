@@ -13,6 +13,7 @@ import { uniqBy } from "lodash-es";
 // --- types
 import type { Flow, Route } from "../types";
 import { ROUTE } from "../types";
+import { getCheckoutFlowTargets } from "./checkout";
 
 // -----------------------------------------------------------------------------
 
@@ -38,12 +39,10 @@ export const useCatalogueFlows = () => {
         next: [
           ROUTE.PRODUCT_REQUIRES_ACTION,
           ROUTE.RECOMMENDATIONS,
-          ROUTE.CHECKOUT,
-          ROUTE.SESSION_REGISTER,
-          ROUTE.BASKET
+          ...getCheckoutFlowTargets()
         ],
         back: [],
-        fallback: [ROUTE.BASKET, ROUTE.EMPTY]
+        fallback: getCheckoutFlowTargets()
       }
     },
     {
@@ -91,8 +90,8 @@ export const useCatalogueFlows = () => {
             }
           }
         ],
-        back: [ROUTE.BASKET],
-        fallback: [ROUTE.BASKET, ROUTE.EMPTY]
+        back: getCheckoutFlowTargets(),
+        fallback: getCheckoutFlowTargets()
       }
     },
     {
@@ -102,9 +101,9 @@ export const useCatalogueFlows = () => {
           () => basketMeta.value.hasProducts && meta.value.hasRecommendations
         ),
       targets: {
-        next: [ROUTE.CHECKOUT, ROUTE.SESSION_REGISTER, ROUTE.BASKET],
-        back: [ROUTE.BASKET, ROUTE.EMPTY],
-        fallback: [ROUTE.BASKET, ROUTE.EMPTY]
+        next: getCheckoutFlowTargets(),
+        back: getCheckoutFlowTargets(),
+        fallback: getCheckoutFlowTargets()
       }
     }
   ];
