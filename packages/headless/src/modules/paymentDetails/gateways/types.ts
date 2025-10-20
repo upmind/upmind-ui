@@ -28,13 +28,14 @@ export type GatewayParams = {
   orderId: IOrder["id"];
   renderless?: boolean;
 };
-export type GeneticGatewayContext = {
+export type GenericGatewayContext = {
   // --- state
   sdk?: unknown;
   container?: HTMLElement;
   validationObserver?: ActorRef<any>;
   validationHelper?: (callback: any) => void;
   // --- Settings
+  supported: boolean;
   canStore?: boolean;
   mustStore?: boolean;
   mustAutoPay?: boolean;
@@ -48,4 +49,4 @@ export type GeneticGatewayContext = {
   error?: ResponseError;
 };
 
-export type GatewayContext<T = {}> = GatewayParams & GeneticGatewayContext & T;
+export type GatewayContext<T = {}> = GatewayParams & GenericGatewayContext & T;
