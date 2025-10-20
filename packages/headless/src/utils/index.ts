@@ -14,6 +14,7 @@ export * from "./useImageUrl";
 export * from "./useValidation";
 export * from "./useState";
 export * from "./useScripts";
+export * from "./useObject";
 
 export const DEBOUNCE_DELAY = 350;
 

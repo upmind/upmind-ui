@@ -5,6 +5,7 @@ import { toRaw, computed } from "vue";
 import services from "./services";
 import { useRoutingEngine } from "../routing";
 import useUpmind, { ROUTE, invalidateQueryByKey } from "../../";
+import { parseFlattened } from "../../utils";
 
 // --- utils
 import {
@@ -144,7 +145,10 @@ export const useBrand = () => {
   );
 
   const uiCart = computed<IBrandMeta["cart"]>(
-    () => get(brandSettings.value, "meta.cart") as any
+    () =>
+      parseFlattened(
+        get(brandSettings.value, "meta.cart")
+      ) as IBrandMeta["cart"]
   );
 
   const iconStyles = computed<{
