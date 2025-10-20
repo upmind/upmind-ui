@@ -36,3 +36,13 @@
   --max-width-app: 1280px;
   --max-width-app-lg: 1400px;
 }
+
+@layer utilities {
+  .max-w-col-left {
+    max-width: calc(var(--max-width-app) * 5 / 12);
+  }
+
+  .max-w-col-right {
+    max-width: calc(var(--max-width-app) * 7 / 12);
+  }
+}

@@ -1,92 +1,42 @@
 <template>
-  <article :class="cn(styles.full.root, props.class)">
-    <header :class="styles.full.header.root" v-if="meta.hasHeader">
-      <div :class="styles.full.header.container">
-        <slot name="header" />
+  <article class="w-full">
+    <header class="flex">
+      <div class="bg-canvas w-5/12">
+        <div class="max-w-col-left ml-auto flex h-[100px] items-end">
+          <slot name="header-left" />
+        </div>
+      </div>
+
+      <div class="bg-surface w-7/12">
+        <div class="max-w-col-right flex h-[100px] items-end justify-end">
+          <slot name="header-right" />
+        </div>
       </div>
     </header>
 
-    <div :class="styles.full.content.root">
-      <div :class="styles.full.content.container">
-        <div :class="styles.full.main">
-          <slot name="default" />
-
-          <footer v-if="meta.hasFooter">
-            <slot name="footer" />
-          </footer>
+    <div class="flex min-h-screen">
+      <aside class="bg-canvas w-5/12">
+        <div
+          class="max-w-col-left sticky top-0 ml-auto flex h-screen flex-col p-18 pl-0"
+        >
+          <slot name="content-header" />
+          <div class="mt-auto pb-18">
+            <slot name="aside" />
+          </div>
         </div>
+      </aside>
 
-        <aside :class="styles.full.aside" v-if="meta.hasAside">
-          <slot name="aside" />
-          <slot name="aside-footer" />
-        </aside>
-      </div>
+      <section class="bg-surface w-7/12 p-18 pr-0">
+        <div class="max-w-col-right flex flex-col gap-12">
+          <slot name="content" />
+        </div>
+      </section>
     </div>
   </article>
 </template>
 
 <script lang="ts" setup>
-// --- internal
-import { useStyles } from "../../utils";
-import config from "./layout.config";
+import type { VariantProps } from "./types";
 
-// --- utils
-import { isEmptySlot } from "./utils";
-import { cn } from "../../utils";
-
-// --- types
-import { type ComputedRef, computed, useSlots } from "vue";
-import { type VariantProps } from "./types";
-
-// -----------------------------------------------------------------------------
-const props = defineProps<VariantProps>();
-
-// -----------------------------------------------------------------------------
-
-const slots = useSlots();
-
-const meta = computed(() => {
-  return {
-    variant: "full",
-    overflow: props.overflow,
-    isSticky: props.sticky,
-    hasHeader: !isEmptySlot("content-header", slots),
-    hasContent: !isEmptySlot("default", slots),
-    hasFooter: !isEmptySlot("footer", slots),
-    isMinimal: props.minimal,
-    hasControls:
-      !isEmptySlot("controls", slots) ||
-      !isEmptySlot("navigation", slots) ||
-      !isEmptySlot("actions", slots),
-    hasAside:
-      !isEmptySlot("aside", slots) || !isEmptySlot("aside-footer", slots)
-  };
-});
-const styles = useStyles(
-  ["full", "control", "full.header", "full.content"],
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  control: {
-    root: string;
-    container: string;
-  };
-  full: {
-    root: string;
-    controlsRoot: string;
-    controls: string;
-    header: {
-      root: string;
-      container: string;
-    };
-    content: {
-      root: string;
-      container: string;
-    };
-    aside: string;
-    container: string;
-    main: string;
-  };
-}>;
+defineProps<VariantProps>();
 </script>
