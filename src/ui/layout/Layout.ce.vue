@@ -40,6 +40,10 @@
     <template #footer>
       <slot name="footer" />
     </template>
+
+    <template #footer-aside>
+      <slot name="footer-aside" />
+    </template>
   </component>
 </template>
 
