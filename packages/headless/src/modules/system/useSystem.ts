@@ -51,26 +51,19 @@ let billingCyclesQuery: ReturnType<typeof services.fetchBillingCycles>;
  * and includes utility methods for fetching data.
  */
 export const useSystem = () => {
-  const { isReady: brandIsReady, countryId, currencyId } = useBrand();
-
   // --- queries (auto-loading essential data)
   countriesQuery ??= services.fetchCountries();
   billingCyclesQuery ??= services.fetchBillingCycles();
 
   // --- state
 
-  const queries = [
-    billingCyclesQuery,
-    countriesQuery
-    // departmentsQuery,
-    // statusesQuery
-  ];
+  const queries = [billingCyclesQuery, countriesQuery];
 
   // --- meta information
   const meta = computed(() => {
     const hasError = computed(() => some(queries, "isError.value"));
     const isLoading = computed(() => some(queries, "isLoading.value"));
-    const isComplete = computed(() => every(queries, "isComplete.value"));
+    const isComplete = computed(() => every(queries, "isFetched.value"));
 
     return {
       isEmpty: queries.some(q => isEmpty(q?.data?.value)),
@@ -84,15 +77,13 @@ export const useSystem = () => {
 
   // --- readiness check
   async function isReady(): Promise<boolean> {
-    return brandIsReady().then(() => {
-      return new Promise(resolve => {
-        const interval = setInterval(() => {
-          if (meta.value.isComplete.value) {
-            clearInterval(interval);
-            resolve(!meta.value.hasError.value);
-          }
-        }, 100);
-      });
+    return new Promise(resolve => {
+      const interval = setInterval(() => {
+        if (meta.value.isComplete.value) {
+          clearInterval(interval);
+          resolve(!meta.value.hasError.value);
+        }
+      }, 100);
     });
   }
 
@@ -133,6 +124,8 @@ export const useSystem = () => {
   }
 
   function getCountry(value?: string | null): ICountry {
+    const { countryId } = useBrand();
+
     // if we are not passed a country, then we need to get the default country
     value ??= countryId.value;
 
@@ -150,6 +143,8 @@ export const useSystem = () => {
 
   // --- fetch methods
   async function fetchRegions(country?: ICountry | string): Promise<IRegion[]> {
+    const { countryId } = useBrand();
+
     // if we are not passed a country, then we need to get the default country
     country ??= countryId.value;
 

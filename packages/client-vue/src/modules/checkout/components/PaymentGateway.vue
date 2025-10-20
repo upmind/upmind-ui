@@ -9,7 +9,10 @@
     :description="errors"
   />
 
-  <Loading v-else :active="!meta.isAvailable || meta.isLoading">
+  <Loading
+    v-else
+    :active="!meta.isNotSupported && (!meta.isAvailable || meta.isLoading)"
+  >
     <div ref="form" :class="styles.checkout.gateway">
       <!-- Instructions -->
       <Markdown
@@ -51,11 +54,21 @@
         </ol>
       </Alert>
 
+      <!-- Unsupported Message -->
+      <Alert
+        v-if="meta.isNotSupported"
+        icon="info-circle"
+        variant="minimal"
+        title="This gateway is not currently able to take payment."
+        description="You can still place your order and pay later."
+        class="text-error!"
+      />
+
       <!-- Actions and Terms -->
       <footer key="actions" :class="styles.checkout.footer.root">
         <div :class="styles.checkout.footer.actions">
           <Button
-            :disabled="!meta.isValid"
+            :disabled="!meta.isValid && !meta.isNotSupported"
             :loading="meta.isProcessing"
             :color="props.color"
             size="lg"
@@ -152,10 +165,8 @@ const styles = useStyles(
 }>;
 
 const action = computed(() => {
-  if (!meta.value.needsPayment) return t("action.place_order");
-
   // if (meta.value.payLater) return t("action.place_order_pay_later");
-
+  if (!meta.value.needsPayment) return t("action.place_order");
   return t("action.place_order_and_pay");
 });
 

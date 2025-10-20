@@ -1,7 +1,7 @@
 <template>
   <Layout :variant="configMeta.layout" minimal>
     <template #navigation>
-      <Breadcrumb :items="items" size="lg" v-if="meta?.isAvailable" />
+      <Breadcrumb v-if="meta?.isAvailable" :items="items" size="lg" />
     </template>
 
     <template #actions>
@@ -104,10 +104,11 @@ import SummarySkeleton from "./components/summary/SummarySkeleton.vue";
 import ProductNotFound from "./NotFound.vue";
 
 // --- utils
-import { forEach, isEmpty } from "lodash-es";
+import { forEach, isEmpty, last, compact } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
+import { BreadcrumbVariant } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 const { t, tm } = useI18n();
@@ -129,7 +130,9 @@ const { meta, product, productImage, updateQuantity } =
 
 const configMeta = computed(() => {
   return {
-    layout: uiCart.value?.layout
+    layout: uiCart.value?.layout,
+    breadcrumbs:
+      product.value?.productDetails?.uiMeta?.uischema?.config?.breadcrumbs
   };
 });
 
@@ -140,36 +143,58 @@ const styles = useStyles("product", configMeta, config) as ComputedRef<{
 }>;
 
 const items = computed(() => {
-  // Storefront
-  const items: any[] = [
-    {
+  const variant = configMeta.value?.breadcrumbs;
+  const items: any[] = [];
+
+  if (!product.value?.productDetails || variant === BreadcrumbVariant.HIDDEN) {
+    return items;
+  }
+
+  // Storefront (for visible and condensed)
+  if (variant !== BreadcrumbVariant.CATEGORY) {
+    items.push({
       label: t("text.shop"),
       ...storefrontRoute?.value,
       current: false
-    }
-  ];
-
-  // Categories
-  if (!isEmpty(product?.value?.productDetails?.breadcrumb)) {
-    forEach(
-      product.value.productDetails.breadcrumb,
-      (category: ProductBreadcrumb) => {
-        items.push({
-          label: category.label,
-          to: !hasStorefront.value
-            ? { name: ROUTE.CATALOGUE, query: { catid: category.id } }
-            : undefined,
-          current: uiCart.value?.catalogue?.disabled || hasStorefront.value
-        });
-      }
-    );
+    });
   }
 
-  // Current product
-  items.push({
-    label: product.value?.productDetails?.title,
-    current: true
-  });
+  // For condensed, show ellipsis for middle items
+  if (
+    variant === BreadcrumbVariant.CONDENSED &&
+    !isEmpty(product.value.productDetails.breadcrumb)
+  ) {
+    items.push({
+      label: "..."
+    });
+  }
+
+  // Categories
+  if (variant !== BreadcrumbVariant.CONDENSED) {
+    const categories = compact(
+      variant === BreadcrumbVariant.CATEGORY
+        ? [last(product.value.productDetails.breadcrumb)]
+        : product.value.productDetails.breadcrumb
+    );
+
+    forEach(categories, (category: ProductBreadcrumb) => {
+      items.push({
+        label: category.label,
+        to: !hasStorefront.value
+          ? { name: ROUTE.CATALOGUE, query: { catid: category.id } }
+          : undefined,
+        current: uiCart.value?.catalogue?.disabled || hasStorefront.value
+      });
+    });
+  }
+
+  // Current product (for visible and condensed)
+  if (variant !== BreadcrumbVariant.CATEGORY) {
+    items.push({
+      label: product.value.productDetails.title,
+      current: true
+    });
+  }
 
   return items;
 });
