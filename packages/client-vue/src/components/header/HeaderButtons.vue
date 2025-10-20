@@ -16,7 +16,7 @@
           scope="global"
           :plural="count"
           tag="span"
-          class="px-1"
+          class="hidden px-1 md:inline"
         >
           <template #[`count`]>
             <Transition name="count-slide" mode="out-in">

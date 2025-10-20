@@ -1,5 +1,6 @@
 // --- internal
 import { type QueryParams, useQuery } from "../..";
+import { useBrand } from "../brand";
 
 // --- utils
 import { map } from "lodash-es";
@@ -10,6 +11,7 @@ import { parseProductCategory } from "./mappers";
 import { ProductCategory } from "./types";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { IProductCategory } from "@upmind-automation/types";
+import type { IBrandMeta } from "../brand/types";
 
 // -----------------------------------------------------------------------------
 // QUERIES
@@ -18,6 +20,7 @@ const queryKey: QueryKey = ["product", "categories"];
 
 function loadList(params?: Partial<QueryParams>) {
   const { list, useUrl } = useQuery();
+  const { uiCart } = useBrand();
 
   return list<IProductCategory[], ProductCategory[]>({
     ...(params as any),
@@ -40,7 +43,10 @@ function loadList(params?: Partial<QueryParams>) {
     limit: 0,
     withAccessToken: true,
     // --- options
-    select: data => map(data ?? [], parseProductCategory),
+    select: data =>
+      map(data ?? [], category =>
+        parseProductCategory(category, uiCart.value?.ui)
+      ),
     staleTime: useTime().HOUR
   });
 }
