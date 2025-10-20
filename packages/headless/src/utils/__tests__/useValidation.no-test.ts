@@ -1,12 +1,15 @@
-/*
-import { describe, it, expect, beforeEach, vi } from "vitest";
-import {
-  useValidation,
-  useValidationParser,
-  useModelParser
-} from "../../utils/useValidation";
-import { createAjv } from "@jsonforms/core";
+// --- external
 import ajvErrors from "ajv-errors";
+import { createAjv } from "@jsonforms/core";
+import { describe, it, expect, beforeEach, vi } from "vitest";
+
+// --- internal
+import {
+  useModelParser,
+  useValidation,
+  useValidationParser
+} from "../useValidation";
+import { ResponseError } from "../useError";
 
 vi.mock("@jsonforms/core", () => ({
   createAjv: vi.fn().mockReturnValue({
@@ -18,6 +21,27 @@ vi.mock("@jsonforms/core", () => ({
 
 vi.mock("ajv-errors", () => ({
   default: vi.fn()
+}));
+
+vi.mock("../../system", () => ({
+  useDataLayer: vi.fn(() => ({})),
+  useFeedback: vi.fn(() => ({
+    addError: vi.fn()
+  }))
+}));
+
+// NB: Some modules import from "../../modules/system" instead of "../../system";
+// provide a compatible mock that exposes useDataLayer as a function.
+vi.mock("../../modules/system", () => ({
+  useDataLayer: vi.fn(() => ({ dataLayer: vi.fn(() => ({})) })),
+  useFeedback: vi.fn(() => ({ addError: vi.fn() }))
+}));
+
+// Mock the query module that useUpmind depends on
+vi.mock("../../modules/query", () => ({
+  useQuery: vi.fn(() => ({
+    queryClient: vi.fn()
+  }))
 }));
 
 // vi.mock('libphonenumber-js', () => ({
@@ -47,20 +71,34 @@ describe("useValidation.ts", () => {
       const { ajv: ajvMockInstance, validate } = useValidation();
 
       expect(ajvMockInstance).toBe(ajv);
-      expect(ajvErrors).toHaveBeenCalledWith(ajv, { singleError: true });
+      expect(ajvErrors).toHaveBeenCalledWith(ajv, {
+        singleError: true,
+        keepErrors: false
+      });
       expect(ajv.addFormat).toHaveBeenCalledWith(
         "domain_name",
-        /^(?!-)[A-Za-z0-9-]+([-.]{1}[a-z0-9]+)*\.[A-Za-z]{2,6}$/
+        expect.any(Function)
       );
-      expect(ajv.addKeyword).toHaveBeenCalledWith({
-        keyword: "isPhoneNumber",
-        type: ["string", "object"],
-        schemaType: "string",
-        validate: expect.any(Function),
-        error: {
-          message: expect.any(Function)
-        }
-      });
+      expect(ajv.addFormat).toHaveBeenCalledWith("alpha", expect.any(Function));
+      expect(ajv.addFormat).toHaveBeenCalledWith(
+        "alpha-dash",
+        expect.any(Function)
+      );
+      expect(ajv.addFormat).toHaveBeenCalledWith(
+        "alpha_num",
+        expect.any(Function)
+      );
+      expect(ajv.addKeyword).toHaveBeenCalledTimes(9);
+      expect(ajv.addKeyword).toHaveBeenCalledWith(
+        expect.objectContaining({
+          keyword: "manage"
+        })
+      );
+      expect(ajv.addKeyword).toHaveBeenCalledWith(
+        expect.objectContaining({
+          keyword: "semantic_type"
+        })
+      );
       expect(typeof validate).toBe("function");
     });
 
@@ -93,9 +131,9 @@ describe("useValidation.ts", () => {
   });
 
   describe("useValidationParser", () => {
-    it("should handle no data correclty", () => {
-      const parsedError = useValidationParser(mockErrors[0]);
-      expect(parsedError).toBe(mockErrors[0]);
+    it("should handle no data correctly", () => {
+      const parsedError = useValidationParser(mockErrors[0] as ResponseError);
+      expect(parsedError).toEqual([]);
     });
 
     it("should parse error correctly", () => {
@@ -106,25 +144,16 @@ describe("useValidation.ts", () => {
         }
       };
 
-      const parsedError = useValidationParser(mockErrorWithData);
+      const parsedError = useValidationParser(
+        mockErrorWithData as ResponseError
+      );
 
-      expect(parsedError.message).toBe("Validation error");
-      expect(parsedError.data).toEqual([
-        {
-          instancePath: "/field1",
-          message: "Field 1 Error",
-          schemaPath: "field1",
-          keyword: "",
-          params: {}
-        },
-        {
-          instancePath: "/field2",
-          message: "Field 2 Error",
-          schemaPath: "field2",
-          keyword: "",
-          params: {}
-        }
-      ]);
+      expect(parsedError[0].message).toBe("Field 1 Error");
+      expect(parsedError[0].instancePath).toBe("/field1");
+      expect(parsedError[0].schemaPath).toBe("#/properties/field1");
+      expect(parsedError[1].message).toBe("Field 2 Error");
+      expect(parsedError[1].instancePath).toBe("/field2");
+      expect(parsedError[1].schemaPath).toBe("#/properties/field2");
     });
   });
 
@@ -153,12 +182,11 @@ describe("useValidation.ts", () => {
       const mockValues = { field1: "Field 1 Override" };
 
       let model = useModelParser(mockSchema, mockValues);
-      expect(model).toEqual({ field1: "Field 1 Override" });
+      expect(model).toEqual({ field1: "Field 1 Override", field2: null });
 
       // @ts-ignore
       model = useModelParser(mockSchema);
-      expect(model).toEqual({ field1: "Field 1" });
+      expect(model).toEqual({ field1: "Field 1", field2: null });
     });
   });
 });
-*/

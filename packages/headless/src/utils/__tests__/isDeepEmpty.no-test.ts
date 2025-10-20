@@ -1,6 +1,8 @@
-/*
+// --- external
 import { describe, it, expect } from "vitest";
-import { isDeepEmpty } from "../../utils/isDeepEmpty";
+
+// --- internal
+import { isDeepEmpty } from "../isDeepEmpty";
 
 describe("isDeepEmpty.ts", () => {
   it("should return true for an empty object", () => {
@@ -75,4 +77,3 @@ describe("isDeepEmpty.ts", () => {
     expect(isDeepEmpty({ a: [], b: { c: [[1]], d: {} } })).toBe(false);
   });
 });
-*/
