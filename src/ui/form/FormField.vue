@@ -30,9 +30,9 @@
                 class="max-w-72 text-center text-xs"
               >
                 <Icon
-                  icon="information-circle"
+                  icon="info-circle"
                   size="nano"
-                  class="opacity-50 transition-all duration-200 hover:opacity-100"
+                  class="text-muted hover:text-control-selected transition-all duration-200"
                 />
               </Tooltip>
 
