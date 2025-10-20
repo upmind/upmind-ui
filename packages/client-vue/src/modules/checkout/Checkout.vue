@@ -21,6 +21,31 @@
     </template>
 
     <template #default>
+      <Section
+        :title="t('cart.basket_products')"
+        v-if="!meta.hideProductsOnCheckout"
+      >
+        <ProductCards />
+      </Section>
+
+      <Section
+        :title="t('text.additional_details')"
+        v-if="!meta.hideFieldsOnCheckout"
+      >
+        <Form
+          v-if="!fieldsMeta.isLoading"
+          :additional-errors="fieldsErrors?.data"
+          :model-value="fieldsModel"
+          :schema="fieldsSchema"
+          :uischema="fieldsUischema"
+          @reject="fieldsClear"
+          @resolve="fieldsUpdate"
+          @update:modelValue="fieldsUpdate"
+          no-actions
+          autosave
+        />
+      </Section>
+
       <Section :title="t('text.billing_details')">
         <Billing />
       </Section>
@@ -32,7 +57,7 @@
 
     <template #aside>
       <Section :title="t('text.summary')" aside>
-        <Summary no-actions />
+        <Summary no-actions :show-promotions="!meta.hidePromotionsOnCheckout" />
       </Section>
     </template>
 
@@ -80,7 +105,8 @@ import {
   useRoutingEngine,
   ROUTE,
   useDataLayer,
-  useBrand
+  useBrand,
+  useBasketFields
 } from "@upmind-automation/headless";
 
 import config from "./checkout.config";
@@ -100,6 +126,8 @@ import Header from "../../components/content/Header.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
 import Back from "../../components/navigation/Back.vue";
 import Section from "../../components/content/LayoutSection.vue";
+import ProductCards from "../basket/product/BasketProductCards.vue";
+import Form from "../../components/form/Form.vue";
 
 // --- types
 import type { CheckoutProps } from "./types";
@@ -107,10 +135,20 @@ import type { CheckoutProps } from "./types";
 const { t } = useI18n();
 // ---
 
+const { navigateNext, navigateBack, isResolved } = useRoutingEngine();
 const { meta: account, isAuthenticated } = useSession();
 const { state, meta, errors, isReady, summary, products } = useBasket();
-const { navigateNext, navigateBack, isResolved } = useRoutingEngine();
 const { meta: paymentDetailsMeta } = useBasketPaymentDetails();
+const {
+  errors: fieldsErrors,
+  meta: fieldsMeta,
+  model: fieldsModel,
+  schema: fieldsSchema,
+  uischema: fieldsUischema,
+  clear: fieldsClear,
+  update: fieldsUpdate
+} = useBasketFields();
+
 const { uiCart } = useBrand();
 
 withDefaults(defineProps<CheckoutProps>(), {

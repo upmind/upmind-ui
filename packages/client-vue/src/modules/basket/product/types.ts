@@ -38,5 +38,5 @@ export interface BasketProductConfigDetailsProps {
 }
 
 export interface BasketProductCardsProps {
-  open: boolean;
+  open?: boolean;
 }

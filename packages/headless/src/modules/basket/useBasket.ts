@@ -1,5 +1,5 @@
 // --- external
-import { computed, ComputedRef } from "vue";
+import { computed, ComputedRef, h } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
 import { interpret, InterpreterStatus } from "xstate";
 import { useActor } from "@xstate/vue";
@@ -40,12 +40,14 @@ import {
 } from "lodash-es";
 
 // --- types
-import type {
-  IBasket,
-  IInvoice,
-  ICurrency,
-  IPromotion,
-  IBasketPromotion
+import {
+  type IBasket,
+  type IInvoice,
+  type ICurrency,
+  type IPromotion,
+  type IBasketPromotion,
+  BrandConfigKeys,
+  CheckoutFlows
 } from "@upmind-automation/types";
 export * from "./billing";
 export * from "./types";
@@ -66,7 +68,7 @@ const service = interpret(basketMachine, { devTools: true });
 
 export const useBasket = () => {
   const { t } = useI18n();
-  const { includesTax } = useBrand();
+  const { includesTax, getConfigValue } = useBrand();
   const { meta: sessionMeta } = useSession();
   if (service.status == InterpreterStatus.NotStarted) service.start();
   const { state, send } = useActor(service);
@@ -170,6 +172,16 @@ export const useBasket = () => {
       isCheckout:
         machineMatches(payment, ["approving"]) ||
         stateMatches(state, ["checkout", "converting", "paying"]),
+
+      hidePromotionsOnCheckout: !!getConfigValue(
+        BrandConfigKeys.CHECKOUT_HIDE_DISCOUNT_CODE_FIELD
+      ),
+
+      hideProductsOnCheckout:
+        getConfigValue(BrandConfigKeys.CHECKOUT_FLOW) === CheckoutFlows.STEPPED,
+
+      hideFieldsOnCheckout:
+        getConfigValue(BrandConfigKeys.CHECKOUT_FLOW) === CheckoutFlows.STEPPED,
 
       isProcessingDetails:
         machineMatches(payment, ["approving"]) ||
