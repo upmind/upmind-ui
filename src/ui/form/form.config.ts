@@ -35,6 +35,7 @@ export default {
         loading: false
       }
     }),
+    description: cva("text-muted w-full text-sm font-normal"),
     actions: cva("flex w-full flex-wrap gap-2 transition-all duration-200", {
       variants: {
         disabled: {
