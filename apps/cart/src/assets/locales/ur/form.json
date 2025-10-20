@@ -28,17 +28,17 @@
     "placeholder": "پاس ورڈ یا پاس ورڈ"
   },
   "card_cvv": {
-    "error": "A valid CVV is required",
+    "error": "ایک درست CVV درکار ہے",
     "label": "سی وی وی",
     "placeholder": "سی وی سی"
   },
   "card_expiry": {
-    "error": "A valid expiry date is required",
+    "error": "ایک درست میعاد ختم ہونے کی تاریخ درکار ہے",
     "label": "میعاد ختم ہونے کی تاریخ",
     "placeholder": "MM/YY"
   },
   "card_num": {
-    "error": "A valid card number is required",
+    "error": "ایک درست کارڈ نمبر درکار ہے",
     "label": "کارڈ نمبر",
     "placeholder": "1234 1234 1234 1234"
   },

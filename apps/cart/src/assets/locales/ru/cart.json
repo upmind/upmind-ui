@@ -40,7 +40,7 @@
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
   "promotion_help": "{code} обеспечивает {amount} скидка {description}",
   "promotions_active": "Активные скидки",
-  "recommendations_unavailable_text": "We couldn't find any recommendations for you at this time. Please click below to continue.",
-  "recommendations_unavailable_title": "We're sorry about that...",
+  "recommendations_unavailable_text": "Мы не смогли найти для вас рекомендации в данный момент. Пожалуйста, нажмите ниже, чтобы продолжить.",
+  "recommendations_unavailable_title": "Нам жаль...",
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}"
 }

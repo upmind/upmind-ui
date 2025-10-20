@@ -28,17 +28,17 @@
     "placeholder": "Heslo alebo prístupová fráza"
   },
   "card_cvv": {
-    "error": "A valid CVV is required",
+    "error": "Je potrebné platné CVV",
     "label": "CVV",
     "placeholder": "CVC kód"
   },
   "card_expiry": {
-    "error": "A valid expiry date is required",
+    "error": "Je potrebný platný dátum vypršania platnosti",
     "label": "Dátum expirácie",
     "placeholder": "MM/RR"
   },
   "card_num": {
-    "error": "A valid card number is required",
+    "error": "Je potrebné platné číslo karty",
     "label": "Číslo karty",
     "placeholder": "1234 1234 1234 1234"
   },
