@@ -37,7 +37,7 @@ export const useCatalogueFlows = () => {
       targets: {
         next: [
           ROUTE.PRODUCT_REQUIRES_ACTION,
-          ROUTE.PRODUCT_RECOMMENDATIONS,
+          ROUTE.RECOMMENDATIONS,
           ROUTE.CHECKOUT,
           ROUTE.SESSION_REGISTER,
           ROUTE.BASKET
