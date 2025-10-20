@@ -77,6 +77,8 @@
   "payment_details_update_failed": "我們在更新付款詳情時遇到錯誤",
   "payment_details_validation_failed": "付款詳情驗證失敗",
   "payment_gateway_not_available": "支付網關不可用",
+  "payment_gateway_not_supported_msg": "您仍然可以下訂單並稍後付款。",
+  "payment_gateway_not_supported_title": "此支付網關目前無法處理付款。",
   "payment_gateway_update_failed": "我們在更新支付網關時遇到錯誤",
   "payment_gateway_validation_failed": "支付網關驗證失敗",
   "payment_gateways_not_available_msg": "您仍然可以立即提交訂單，稍後再完成付款。我們的客服團隊將竭誠為您提供協助。",

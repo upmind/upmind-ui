@@ -28,12 +28,12 @@
     "placeholder": "Jelszó vagy jelszó"
   },
   "card_cvv": {
-    "error": "A valid CVV is required",
+    "error": "Érvényes CVV szükséges",
     "label": "CVV",
     "placeholder": "CVC"
   },
   "card_expiry": {
-    "error": "A valid expiry date is required",
+    "error": "Érvényes lejárati dátum szükséges",
     "label": "Lejárati dátum",
     "placeholder": "HH/ÉÉ"
   },

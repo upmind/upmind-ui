@@ -77,6 +77,8 @@
   "payment_details_update_failed": "Er is een fout opgetreden bij het bijwerken van de betalingsgegevens",
   "payment_details_validation_failed": "Validatie van betalingsgegevens mislukt",
   "payment_gateway_not_available": "Betalingsgateway niet beschikbaar",
+  "payment_gateway_not_supported_msg": "U kunt uw bestelling nog steeds plaatsen en later betalen.",
+  "payment_gateway_not_supported_title": "Deze gateway kan momenteel geen betalingen verwerken.",
   "payment_gateway_update_failed": "Er is een fout opgetreden bij het bijwerken van de betalingsgateway",
   "payment_gateway_validation_failed": "Validatie van betalingsgateway mislukt",
   "payment_gateways_not_available_msg": "U kunt uw bestelling nu plaatsen en later betalen. Ons supportteam helpt u graag verder.",

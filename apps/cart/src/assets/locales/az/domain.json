@@ -7,7 +7,7 @@
     },
     "existing": {
       "label": "Mövcud domendən istifadə edin",
-      "tooltip": "Mövcud domeni ad serverlərini yeniləməklə istifadə edə bilərsiniz"
+      "tooltip": "Ad serverləri yeniləməklə mövcud domeni istifadə edə bilərsiniz"
     },
     "register": {
       "label": "Yeni domeni qeydiyyatdan keçirin",

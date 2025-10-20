@@ -108,7 +108,7 @@
     "placeholder": "Hledat podle názvu produktu..."
   },
   "promocode": {
-    "error": "Neplatný promo kód",
+    "error": "Je vyžadován platný promo kód",
     "placeholder": "Zde zadejte kód slevového kupónu"
   },
   "recover": {

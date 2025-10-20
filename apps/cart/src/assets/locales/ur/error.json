@@ -77,6 +77,8 @@
   "payment_details_update_failed": "ہمیں ادائیگی کی تفصیلات کو اپ ڈیٹ کرنے میں ایک خرابی کا سامنا کرنا پڑا",
   "payment_details_validation_failed": "ادائیگی کی تفصیلات کی توثیق ناکام ہو گئی۔",
   "payment_gateway_not_available": "ادائیگی کا گیٹ وے دستیاب نہیں ہے۔",
+  "payment_gateway_not_supported_msg": "آپ ابھی بھی اپنا آرڈر دے سکتے ہیں اور بعد میں ادائیگی کر سکتے ہیں۔",
+  "payment_gateway_not_supported_title": "یہ گیٹ وے فی الحال ادائیگی قبول کرنے کے قابل نہیں ہے۔",
   "payment_gateway_update_failed": "ہمیں ادائیگی کے گیٹ وے کو اپ ڈیٹ کرنے میں ایک خرابی کا سامنا کرنا پڑا",
   "payment_gateway_validation_failed": "ادائیگی کے گیٹ وے کی توثیق ناکام ہو گئی۔",
   "payment_gateways_not_available_msg": "آپ اب بھی اپنا آرڈر ابھی جمع کر سکتے ہیں اور بعد میں ادائیگی مکمل کر سکتے ہیں۔ ہماری سپورٹ ٹیم آپ کی مدد کر سکے گی۔",

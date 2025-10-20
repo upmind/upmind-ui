@@ -38,7 +38,7 @@
     "placeholder": "MM/JJ"
   },
   "card_num": {
-    "error": "A valid card number is required",
+    "error": "Een geldig kaartnummer is vereist",
     "label": "Kaartnummer",
     "placeholder": "1234 1234 1234 1234"
   },
