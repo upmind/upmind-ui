@@ -25,14 +25,18 @@
               <Tooltip
                 v-if="tooltip"
                 :label="tooltip"
+                :open="tooltipOpen"
                 side="right"
                 color="info"
                 class="control-radius max-w-72 text-center text-xs"
               >
                 <Icon
+                  @click="toggleTooltip()"
+                  @mouseenter="toggleTooltip(true)"
+                  @mouseleave="toggleTooltip(false)"
                   icon="info-circle"
                   size="nano"
-                  class="text-muted hover:text-control-selected transition-all duration-200"
+                  class="text-muted hover:text-control-selected cursor-help transition-all duration-200"
                 />
               </Tooltip>
 
@@ -143,6 +147,7 @@ const slots = useSlots();
 
 // --- state
 const target = ref();
+const tooltipOpen = ref(false);
 
 // --- computed
 const meta = computed(
@@ -196,6 +201,9 @@ const styles = useStyles(
 }>;
 
 // --- methods
+function toggleTooltip(force?: boolean) {
+  tooltipOpen.value = force ?? !tooltipOpen.value;
+}
 
 // --- side effects
 
