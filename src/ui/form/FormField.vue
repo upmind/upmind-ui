@@ -27,7 +27,7 @@
                 :label="tooltip"
                 side="right"
                 color="info"
-                class="max-w-72 text-center text-xs"
+                class="control-radius max-w-72 text-center text-xs"
               >
                 <Icon
                   icon="info-circle"
