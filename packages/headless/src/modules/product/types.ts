@@ -401,12 +401,20 @@ export interface UISchema {
     summary?: {
       append?: string;
     };
+    breadcrumbs?: BreadcrumbVariant;
   };
   productConfig?: {
     summary?: {
       append?: string;
     };
   };
+}
+
+export enum BreadcrumbVariant {
+  HIDDEN = "hidden",
+  CONDENSED = "condensed",
+  CATEGORY = "category",
+  VISIBLE = "visible"
 }
 
 export interface Benefit {
