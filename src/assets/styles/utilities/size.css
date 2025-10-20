@@ -34,15 +34,18 @@
 
   /* Max Widths */
   --max-width-app: 1280px;
+  --max-width-app-content: 776px;
+  --max-width-app-aside: 360px;
+
   --max-width-app-lg: 1400px;
 }
 
-@layer utilities {
-  .max-w-col-left {
-    max-width: calc(var(--max-width-app) * 5 / 12);
-  }
+@utility w-app-content {
+  width: var(--max-width-app-content);
+  max-width: var(--max-width-app-content);
+}
 
-  .max-w-col-right {
-    max-width: calc(var(--max-width-app) * 7 / 12);
-  }
+@utility w-app-aside {
+  width: var(--max-width-app-aside);
+  max-width: var(--max-width-app-aside);
 }
