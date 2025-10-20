@@ -12,7 +12,7 @@
       <Share class="hidden md:flex" />
     </template>
 
-    <template #header>
+    <template #content-header>
       <Categories
         v-model="categoryId"
         :sort="params.sort"

@@ -1,10 +1,18 @@
 <template>
-  <Layout :variant="uiCart?.layout" minimal v-if="!meta.isCheckout">
+  <Layout variant="full" minimal v-if="!meta.isCheckout">
+    <template #header-left>
+      <HeaderLeft />
+    </template>
+
+    <template #header-right>
+      <HeaderRight />
+    </template>
+
     <template #navigation>
       <Back @click.prevent="doReject" />
     </template>
 
-    <template #header>
+    <template #content-header>
       <Header
         :title="t('text.secure_checkout')"
         :description="
@@ -100,6 +108,8 @@ import Header from "../../components/content/Header.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
 import Back from "../../components/navigation/Back.vue";
 import Section from "../../components/content/LayoutSection.vue";
+import HeaderLeft from "../../components/header/HeaderLeft.vue";
+import HeaderRight from "../../components/header/HeaderRight.vue";
 
 // --- types
 import type { CheckoutProps } from "./types";

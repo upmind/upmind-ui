@@ -1,5 +1,13 @@
 <template>
   <Layout :variant="configMeta.layout" minimal>
+    <template #header-left>
+      <HeaderLeft />
+    </template>
+
+    <template #header-right>
+      <HeaderRight />
+    </template>
+
     <template #navigation>
       <Breadcrumb v-if="meta?.isAvailable" :items="items" size="lg" />
     </template>
@@ -8,7 +16,7 @@
       <Share class="hidden md:flex" v-if="meta?.isAvailable" />
     </template>
 
-    <template #header>
+    <template #content-header>
       <Header
         v-if="meta?.isAvailable && product?.productDetails"
         :product-details="product.productDetails"
@@ -17,7 +25,7 @@
       <HeaderSkeleton v-else />
     </template>
 
-    <template #default>
+    <template #content>
       <Section
         :title="meta?.isAvailable ? t('text.product_configuration') : ''"
       >
@@ -102,6 +110,8 @@ import Summary from "./components/summary/Summary.vue";
 import SummaryFooter from "./components/summary/SummaryFooter.vue";
 import SummarySkeleton from "./components/summary/SummarySkeleton.vue";
 import ProductNotFound from "./NotFound.vue";
+import HeaderLeft from "../../components/header/HeaderLeft.vue";
+import HeaderRight from "../../components/header/HeaderRight.vue";
 
 // --- utils
 import { forEach, isEmpty, last, compact } from "lodash-es";
