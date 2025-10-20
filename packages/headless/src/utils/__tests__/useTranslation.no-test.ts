@@ -1,6 +1,8 @@
-/*
+// --- external
 import { describe, it, expect } from "vitest";
-import { useTranslateField } from "../../utils/useTranslation";
+
+// --- internal
+import { useTranslateField } from "../useTranslation";
 
 describe("useTranslation.ts", () => {
   describe("useTranslateField", () => {
@@ -37,4 +39,3 @@ describe("useTranslation.ts", () => {
     });
   });
 });
-*/

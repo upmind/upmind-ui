@@ -1,6 +1,8 @@
-/*
+// --- external
 import { describe, it, expect } from "vitest";
-import { useMoney } from "../../utils/useMoney";
+
+// --- internal
+import { useMoney } from "../useMoney";
 
 describe("useMoney.ts", () => {
   describe("removeTrailingZeroes", () => {
@@ -36,4 +38,3 @@ describe("useMoney.ts", () => {
     });
   });
 });
-*/

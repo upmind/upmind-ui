@@ -1,13 +1,15 @@
-/*
+// --- external
 import { describe, it, expect } from "vitest";
-import { useTime, useRelativeTime } from "../../utils/useTime";
+
+// --- internal
+import { useTime, useRelativeTime } from "../useTime";
 
 describe("useTime.ts", () => {
   // These tests aren't very useful.. maybe this shouldn't be a function ?
   describe("useTime", () => {
     const time = useTime();
 
-    it("should have correct IMMIDIATE value", () => {
+    it("should have correct IMMEDIATE value", () => {
       expect(time.IMMEDIATE).toBe(0);
     });
     it("should have correct WAIT value", () => {
@@ -50,18 +52,17 @@ describe("useTime.ts", () => {
     const now = Date.now();
     const time = useTime();
 
-    it("should return null if timestamp argument is null", () => {
-      // @ts-ignore
-      expect(useRelativeTime(null, now)).toBeNull();
+    it("should return empty string if timestamp argument is null", () => {
+      expect(useRelativeTime(null as any, now)).toBe("");
     });
 
-    it("should return null if currentTime argument is null", () => {
+    it("should return empty string if currentTime argument is null", () => {
       // @ts-ignore
-      expect(useRelativeTime(now, null)).toBeNull();
+      expect(useRelativeTime(now, null)).toBe("");
     });
-    it("should return null if currentTime argument is undefined", () => {
+    it("should return empty string if currentTime argument is undefined", () => {
       // @ts-ignore
-      expect(useRelativeTime(now, undefined)).toBeNull();
+      expect(useRelativeTime(now, undefined)).toBe("");
     });
 
     it('should return "now" if both arguments have the same time', () => {
@@ -111,4 +112,3 @@ describe("useTime.ts", () => {
     });
   });
 });
-*/
