@@ -1,6 +1,14 @@
 <template>
   <Layout overflow="hidden">
-    <template #header>
+    <template #header-left>
+      <HeaderLeft />
+    </template>
+
+    <template #header-right>
+      <HeaderRight />
+    </template>
+
+    <template #content-header>
       <Header
         :title="t('text.complete_online_toolkit_md')"
         :description="t('text.popular_offers')"
@@ -83,6 +91,8 @@ import { Button, Layout, Interstitial } from "@upmind-automation/upmind-ui";
 import Configure from "../recommendations/components/Configure.vue";
 import CardsCarousel from "../recommendations/components/CardsCarousel.vue";
 import Header from "../../components/content/Header.vue";
+import HeaderLeft from "../../components/header/HeaderLeft.vue";
+import HeaderRight from "../../components/header/HeaderRight.vue";
 
 // -----------------------------------------------------------------------------
 

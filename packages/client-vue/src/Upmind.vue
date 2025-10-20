@@ -12,15 +12,6 @@
       <div
         class="bg-canvas relative flex min-h-screen flex-col items-start text-base antialiased"
       >
-        <slot name="header" v-if="meta.isAvailable && meta.hasSettings">
-          <Header :logo="logo">
-            <template #actions>
-              <slot name="actions" />
-            </template>
-            <template #logo><slot name="logo" :logo="logo"></slot></template>
-          </Header>
-        </slot>
-
         <div
           class="flex w-full flex-1 flex-col"
           v-if="meta.isAvailable && meta.hasSettings"
@@ -82,7 +73,6 @@ import { useTheme } from "./modules/theming";
 
 // --- components
 import Footer from "./components/footer/Footer.vue";
-import Header from "./components/header/Header.vue";
 import Feedback from "./modules/feedback/Feedback.vue";
 import Page from "./components/content/Page.vue";
 import AsyncLoading from "./modules/system/Loading.vue";

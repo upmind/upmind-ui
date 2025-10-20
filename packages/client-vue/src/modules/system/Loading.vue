@@ -1,5 +1,13 @@
 <template>
-  <Layout>
+  <Layout variant="full">
+    <template #header-left>
+      <HeaderLeft />
+    </template>
+
+    <template #header-right>
+      <HeaderRight />
+    </template>
+
     <ContentSection v-auto-animate class="flex grow items-center">
       <Interstitial
         v-bind="props"
@@ -22,6 +30,8 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 // -- components
 import { Interstitial, Layout } from "@upmind-automation/upmind-ui";
 import ContentSection from "../../components/content/ContentSection.vue";
+import HeaderLeft from "../../components/header/HeaderLeft.vue";
+import HeaderRight from "../../components/header/HeaderRight.vue";
 
 // -- types
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";

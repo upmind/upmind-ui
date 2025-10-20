@@ -1,10 +1,18 @@
 <template>
   <Layout :variant="configMeta.layout" minimal>
+    <template #header-left>
+      <HeaderLeft />
+    </template>
+
+    <template #header-right>
+      <HeaderRight />
+    </template>
+
     <template #navigation>
       <Back @click.prevent="doReject" />
     </template>
 
-    <template #header>
+    <template #content-header>
       <Header
         v-if="meta?.isAvailable && product?.productDetails"
         :product-details="product.productDetails"
@@ -97,6 +105,8 @@ import Summary from "./components/summary/Summary.vue";
 import SummaryFooter from "./components/summary/SummaryFooter.vue";
 import SummarySkeleton from "./components/summary/SummarySkeleton.vue";
 import ProductNotFound from "./NotFound.vue";
+import HeaderLeft from "../../components/header/HeaderLeft.vue";
+import HeaderRight from "../../components/header/HeaderRight.vue";
 
 // --- types
 import type { ComputedRef } from "vue";

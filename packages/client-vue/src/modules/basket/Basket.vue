@@ -1,10 +1,18 @@
 <template>
   <Layout :variant="uiCart?.layout" minimal>
+    <template #header-left>
+      <HeaderLeft />
+    </template>
+
+    <template #header-right>
+      <HeaderRight />
+    </template>
+
     <template #navigation>
       <Back v-bind="storefrontRoute" :label="t('action.continue_shopping')" />
     </template>
 
-    <template #header>
+    <template #content-header>
       <Header
         :title="t('cart.basket_title')"
         :description="
@@ -151,6 +159,8 @@ import Back from "../../components/navigation/Back.vue";
 import Section from "../../components/content/LayoutSection.vue";
 import { isEmpty, omitBy } from "lodash-es";
 import { RouterLink } from "vue-router";
+import HeaderLeft from "../../components/header/HeaderLeft.vue";
+import HeaderRight from "../../components/header/HeaderRight.vue";
 
 // --- types
 import { type ComputedRef } from "vue";
