@@ -1,16 +1,12 @@
-/*
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import {
-  useFieldsSchemaParser,
-  useFieldsUischemaParser,
-  useFieldsModelParser
-} from "../../utils/useFields";
-// import { useTranslateField } from '@/utils/useTranslation';
-// import { forEach, get, set } from 'lodash-es';
+// --- external
+import { describe, it, expect, beforeEach } from "vitest";
 
-// vi.mock('@/utils/useTranslation', () => ({
-//   useTranslateField: vi.fn(),
-// }));
+// --- internal
+import {
+  useFieldsModelParser,
+  useFieldsSchemaParser,
+  useFieldsUischemaParser
+} from "../useFields";
 
 const mockFields = [
   {
@@ -200,4 +196,3 @@ describe("useFields.ts", () => {
     });
   });
 });
-*/

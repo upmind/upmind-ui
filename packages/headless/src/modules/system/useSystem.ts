@@ -18,7 +18,6 @@ import {
   isEmpty,
   isString,
   keys,
-  reject,
   some
 } from "lodash-es";
 
@@ -26,11 +25,7 @@ import {
 import type {
   IBillingCycle,
   ICountry,
-  ICurrency,
-  ILanguage,
-  IRegion,
-  IStatus,
-  ITicketDepartment
+  IRegion
 } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -73,9 +68,9 @@ export const useSystem = () => {
 
   // --- meta information
   const meta = computed(() => {
-    const hasError = computed(() => some(queries, "isError"));
-    const isLoading = computed(() => some(queries, "isLoading"));
-    const isComplete = computed(() => every(queries, "isComplete"));
+    const hasError = computed(() => some(queries, "isError.value"));
+    const isLoading = computed(() => some(queries, "isLoading.value"));
+    const isComplete = computed(() => every(queries, "isComplete.value"));
 
     return {
       isEmpty: queries.some(q => isEmpty(q?.data?.value)),
