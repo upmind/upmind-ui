@@ -77,6 +77,8 @@
   "payment_details_update_failed": "Ödəniş detallarını yeniləyərkən xəta baş verdi",
   "payment_details_validation_failed": "Ödəniş detallarının doğrulanması uğursuz oldu",
   "payment_gateway_not_available": "Ödəniş qapısı mövcud deyil",
+  "payment_gateway_not_supported_msg": "Sifarişinizi hələ də yerləşdirə və sonra ödəyə bilərsiniz.",
+  "payment_gateway_not_supported_title": "Bu keçid hazırda ödəniş qəbul edə bilmir.",
   "payment_gateway_update_failed": "Ödəniş şlüzünü yeniləyərkən xəta ilə üzləşdik",
   "payment_gateway_validation_failed": "Ödəniş şlüzünün doğrulanması uğursuz oldu",
   "payment_gateways_not_available_msg": "Siz hələ də sifarişinizi indi təqdim edə və ödənişi daha sonra tamamlaya bilərsiniz. Dəstək komandamız sizə kömək edə biləcək.",

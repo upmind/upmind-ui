@@ -59,8 +59,8 @@
         v-if="meta.isNotSupported"
         icon="info-circle"
         variant="minimal"
-        title="This gateway is not currently able to take payment."
-        description="You can still place your order and pay later."
+        :title="t('error.payment_gateway_not_supported_title')"
+        :description="t('error.payment_gateway_not_supported_msg')"
         class="text-error!"
       />
 

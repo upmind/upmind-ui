@@ -40,7 +40,7 @@
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
   "promotion_help": "{code} poskytuje {amount} sleva {description}",
   "promotions_active": "Aktivní slevy",
-  "recommendations_unavailable_text": "We couldn't find any recommendations for you at this time. Please click below to continue.",
-  "recommendations_unavailable_title": "We're sorry about that...",
+  "recommendations_unavailable_text": "Momentálně jsme pro vás nenašli žádná doporučení. Klikněte níže pro pokračování.",
+  "recommendations_unavailable_title": "Omlouváme se za to...",
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}"
 }

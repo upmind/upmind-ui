@@ -77,6 +77,8 @@
   "payment_details_update_failed": "Wystąpił błąd podczas aktualizacji danych płatności",
   "payment_details_validation_failed": "Weryfikacja danych płatności nie powiodła się",
   "payment_gateway_not_available": "Bramka płatności niedostępna",
+  "payment_gateway_not_supported_msg": "Możesz nadal złożyć zamówienie i zapłacić później.",
+  "payment_gateway_not_supported_title": "Ta bramka nie jest obecnie w stanie przyjąć płatności.",
   "payment_gateway_update_failed": "Wystąpił błąd podczas aktualizacji bramki płatniczej",
   "payment_gateway_validation_failed": "Nieudana walidacja bramki płatniczej",
   "payment_gateways_not_available_msg": "Nadal możesz złożyć zamówienie i dokończyć płatność później. Nasz zespół wsparcia chętnie Ci pomoże.",
