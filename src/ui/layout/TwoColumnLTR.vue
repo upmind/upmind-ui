@@ -50,7 +50,7 @@ const meta = computed(() => {
     variant: "full",
     overflow: props.overflow,
     isSticky: props.sticky,
-    hasHeader: !isEmptySlot("header", slots),
+    hasHeader: !isEmptySlot("content-header", slots),
     hasContent: !isEmptySlot("default", slots),
     hasFooter: !isEmptySlot("footer", slots),
     isMinimal: props.minimal,

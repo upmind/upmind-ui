@@ -58,17 +58,25 @@ export default {
       }
     }),
     header: {
-      root: cva("bg-canvas px-6 py-18"),
-      container: cva("max-w-app mx-auto")
+      root: cva(
+        "bg-surface shadow-b-border-surface top-0 z-20 flex w-full flex-col items-center px-6 py-7 transition-all duration-500 md:px-2.5"
+      ),
+      container: cva(
+        "max-w-app mx-auto flex w-full items-center justify-between"
+      )
     },
     content: {
-      root: cva("shadow-t-border-surface px-6", {
+      header: {
+        root: cva("bg-canvas shadow-b-border-surface px-6 py-18"),
+        container: cva("max-w-app mx-auto")
+      },
+      root: cva("px-6", {
         variants: {
           isMinimal: {
             true: "py-18",
             false: "py-24"
           },
-          hasHeader: {
+          hasContentHeader: {
             true: "bg-surface",
             false: "bg-canvas"
           }

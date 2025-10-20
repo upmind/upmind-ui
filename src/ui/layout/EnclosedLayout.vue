@@ -10,7 +10,7 @@
   <article :class="cn(styles.enclosed.root, props.class)">
     <div :class="styles.enclosed.container">
       <Card v-if="meta.hasHeader" as="header">
-        <slot name="header" />
+        <slot name="content-header" />
       </Card>
 
       <div :class="styles.enclosed.content">
@@ -62,7 +62,7 @@ const meta = computed(() => {
       !isEmptySlot("controls", slots) ||
       !isEmptySlot("navigation", slots) ||
       !isEmptySlot("actions", slots),
-    hasHeader: !isEmptySlot("header", slots),
+    hasHeader: !isEmptySlot("content-header", slots),
     hasContent: !isEmptySlot("default", slots),
     hasFooter: !isEmptySlot("footer", slots),
     hasAside:

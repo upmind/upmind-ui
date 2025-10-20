@@ -1,5 +1,13 @@
 <template>
   <component :is="layoutComponent" v-bind="props">
+    <template #header-left>
+      <slot name="header-left" />
+    </template>
+
+    <template #header-right>
+      <slot name="header-right" />
+    </template>
+
     <template #controls>
       <slot name="controls" />
     </template>
@@ -12,11 +20,12 @@
       <slot name="actions" />
     </template>
 
-    <template #header>
-      <slot name="header" />
+    <template #content-header>
+      <slot name="content-header" />
     </template>
 
-    <template #default>
+    <template #content>
+      <slot name="content" />
       <slot name="default" />
     </template>
 
@@ -42,6 +51,7 @@ import { computed } from "vue";
 import DefaultLayout from "./DefaultLayout.vue";
 import EnclosedLayout from "./EnclosedLayout.vue";
 import FullLayout from "./FullLayout.vue";
+import TwoColumnLTR from "./TwoColumnLTR.vue";
 
 // --- types
 import type { LayoutProps } from "./types";

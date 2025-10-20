@@ -1,4 +1,11 @@
 <template>
+  <header :class="styles.full.header.root">
+    <div :class="styles.full.header.container">
+      <slot name="header-left" />
+      <slot name="header-right" />
+    </div>
+  </header>
+
   <nav v-if="meta.hasControls" :class="styles.control.root">
     <div :class="styles.control.container">
       <slot name="controls" />
@@ -8,16 +15,20 @@
   </nav>
 
   <article :class="cn(styles.full.root, props.class)">
-    <header :class="styles.full.header.root" v-if="meta.hasHeader">
-      <div :class="styles.full.header.container">
-        <slot name="header" />
+    <section
+      :class="styles.full.content.header.root"
+      v-if="meta.hasContentHeader"
+    >
+      <div :class="styles.full.content.header.container">
+        <slot name="content-header" />
       </div>
-    </header>
+    </section>
 
-    <div :class="styles.full.content.root">
+    <section :class="styles.full.content.root">
       <div :class="styles.full.content.container">
         <div :class="styles.full.main">
           <slot name="default" />
+          <slot name="content" />
 
           <footer v-if="meta.hasFooter">
             <slot name="footer" />
@@ -29,7 +40,7 @@
           <slot name="aside-footer" />
         </aside>
       </div>
-    </div>
+    </section>
   </article>
 </template>
 
@@ -58,7 +69,7 @@ const meta = computed(() => {
     variant: "full",
     overflow: props.overflow,
     isSticky: props.sticky,
-    hasHeader: !isEmptySlot("header", slots),
+    hasContentHeader: !isEmptySlot("content-header", slots),
     hasContent: !isEmptySlot("default", slots),
     hasFooter: !isEmptySlot("footer", slots),
     isMinimal: props.minimal,
@@ -71,7 +82,7 @@ const meta = computed(() => {
   };
 });
 const styles = useStyles(
-  ["full", "control", "full.header", "full.content"],
+  ["full", "control", "full.header", "full.content", "full.content.header"],
   meta,
   config,
   props.uiConfig ?? {}
@@ -89,6 +100,10 @@ const styles = useStyles(
       container: string;
     };
     content: {
+      header: {
+        root: string;
+        container: string;
+      };
       root: string;
       container: string;
     };

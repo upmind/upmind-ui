@@ -9,7 +9,7 @@
 
   <article :class="cn(styles.default.root, props.class)">
     <section :class="styles.default.header" v-if="meta.hasHeader">
-      <slot name="header" />
+      <slot name="content-header" />
     </section>
 
     <section :class="styles.default.contentRoot">
@@ -41,7 +41,7 @@ const slots = useSlots();
 const meta = computed(() => {
   return {
     hasControls: !isEmptySlot("controls", slots),
-    hasHeader: !isEmptySlot("header", slots),
+    hasHeader: !isEmptySlot("content-header", slots),
     hasContent: !isEmptySlot("default", slots),
     isMinimal: props.minimal
   };
