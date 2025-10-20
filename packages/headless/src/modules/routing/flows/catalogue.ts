@@ -41,67 +41,6 @@ export const useCatalogueFlows = () => {
           ROUTE.RECOMMENDATIONS,
           ...getCheckoutFlowTargets()
         ],
-        back: [],
-        fallback: getCheckoutFlowTargets()
-      }
-    },
-    {
-      name: ROUTE.PRODUCT_REQUIRES_ACTION,
-      guard: async (_route: Route) =>
-        isBasketReady().then(() => {
-          const { hasProducts } = useRouteRequiresAction();
-          const valid = hasProducts();
-          return valid;
-        }),
-
-      resolve: async (_route: Route, context?: any) => {
-        const { getNextRelated } = useRouteRequiresAction();
-        const basketProduct = getNextRelated(context);
-        if (basketProduct) {
-          return {
-            name: ROUTE.PRODUCT_EDIT,
-            params: { bpid: basketProduct?.id }
-          };
-        }
-
-        return {
-          name: ROUTE.PRODUCT_REQUIRES_ACTION
-        };
-      },
-      targets: {
-        next: [
-          {
-            name: ROUTE.PRODUCT_EDIT,
-            guard: async (_route: Route, context: any) =>
-              isBasketReady().then(() => {
-                const { getNextInvalid } = useRouteRequiresAction();
-                const valid = !!getNextInvalid(context);
-                return valid;
-              }),
-            resolve: async (route: Route, context: any) => {
-              const { getNextInvalid } = useRouteRequiresAction();
-              const basketProduct = getNextInvalid(context);
-
-              if (!basketProduct) return route;
-              return {
-                name: ROUTE.PRODUCT_EDIT,
-                params: { bpid: basketProduct?.id }
-              };
-            }
-          }
-        ],
-        back: getCheckoutFlowTargets(),
-        fallback: getCheckoutFlowTargets()
-      }
-    },
-    {
-      name: ROUTE.RECOMMENDATIONS,
-      guard: async (_route: Route) =>
-        isRecommndationsReady().then(
-          () => basketMeta.value.hasProducts && meta.value.hasRecommendations
-        ),
-      targets: {
-        next: getCheckoutFlowTargets(),
         back: getCheckoutFlowTargets(),
         fallback: getCheckoutFlowTargets()
       }
