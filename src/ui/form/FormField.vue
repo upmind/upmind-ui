@@ -9,7 +9,11 @@
     <slot name="field">
       <!-- label -->
       <div class="flex w-full flex-col gap-1">
-        <FormLabel v-if="meta.hasLabel" :formItemId="id">
+        <FormLabel
+          v-if="meta.hasLabel"
+          :formItemId="id"
+          :class="meta.hasDescription ? 'text-sm/tight' : 'text-sm'"
+        >
           <slot name="label" :label="label">
             <span class="inline-flex w-full items-center gap-x-2">
               <slot name="icon" />
@@ -44,6 +48,14 @@
               />
             </span>
           </slot>
+
+          <!-- description -->
+          <FormDescription
+            v-if="meta.hasDescription"
+            :formDescriptionId="`form-item-description-${props.id}`"
+          >
+            {{ description }}
+          </FormDescription>
         </FormLabel>
 
         <!-- input -->
@@ -71,14 +83,6 @@
           :data-testid="`form-item-message-${props.name.replaceAll('.', '-')}`"
         />
       </slot>
-
-      <!-- description -->
-      <FormDescription
-        v-if="meta.hasDescription"
-        :formDescriptionId="`form-item-description-${props.id}`"
-      >
-        {{ description }}
-      </FormDescription>
     </slot>
   </FormItem>
 </template>
