@@ -302,11 +302,7 @@ export default createMachine(
               model?.gateway_id
             ]);
 
-            debugger;
-            if (!brandGateway?.gateway) {
-              debugger;
-              return undefined;
-            }
+            if (!brandGateway?.gateway) return undefined;
 
             // and spawn it if it exists
             gatewayHelper = spawnGateway({
