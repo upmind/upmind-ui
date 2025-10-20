@@ -59,6 +59,9 @@ const layoutComponent = computed(() => {
     case "enclosed":
       return EnclosedLayout;
 
+    case "twoColumnLTR":
+      return TwoColumnLTR;
+
     case "full":
     default:
       return FullLayout;
