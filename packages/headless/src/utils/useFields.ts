@@ -1,4 +1,5 @@
 //--- utils
+import { isArray } from "xstate/lib/utils";
 import { useTranslateField } from "./useTranslation";
 import {
   forEach,
@@ -30,7 +31,7 @@ export const useFieldsSchemaParser = (data: any, i18nPrefix?: string) => {
     const properties = {};
 
     forEach(data, field => {
-      let type = ["string"];
+      let type: string | string[] = "string";
       let format = null;
       const contentMediaType = null;
       const contentEncoding = null;
@@ -38,67 +39,67 @@ export const useFieldsSchemaParser = (data: any, i18nPrefix?: string) => {
       switch (field.type_code) {
         case "input_number":
         case "number":
-          type = ["number"];
+          type = "number";
           break;
 
         case "input-checkbox":
         case "tick_box":
-          type = ["boolean"];
+          type = "boolean";
           break;
 
         case "input_date":
         case "input_datetime":
         case "date":
-          type = ["string"];
+          type = "string";
           format = "date-time";
           break;
 
         case "input_email":
         case "email":
-          type = ["string"];
+          type = "string";
           format = "email";
           break;
 
         case "username":
-          type = ["string"];
+          type = "string";
           format = "email";
           break;
 
         case "input_url":
-          type = ["string"];
+          type = "string";
           format = "uri";
           break;
 
         case "input_phone":
-          type = ["string"];
+          type = "string";
           format = "phone";
           break;
 
         case "input_ip":
-          type = ["string"];
+          type = "string";
           format = "ipv4";
           break;
 
         case "input_ipv6":
-          type = ["string"];
+          type = "string";
           format = "ipv6";
           break;
 
         case "input_password":
         case "password":
-          type = ["string"];
+          type = "string";
           format = "password";
           break;
 
           // case "input_file":
           // case "image":
-          //   type = ["string"];
+          //   type = "string";
           //   contentMediaType = "image";
           //   contentEncoding = "base64";
           break;
 
         default:
-          type = ["string"];
+          type = "string";
           break;
       }
 
@@ -106,7 +107,17 @@ export const useFieldsSchemaParser = (data: any, i18nPrefix?: string) => {
       if (field.required && !field.hidden && field.show_on_order_form) {
         required.push(field.code);
       } else {
+        type = (!isArray(type) ? [type] : type) as string[];
         type.push("null");
+      }
+
+      // Now set any enum values that will restrict the field input
+      const enumValues = map(field?.values, item =>
+        isString(item) ? item : item?.value
+      );
+      // MB add null option for non required fields
+      if (!field.required && enumValues?.length) {
+        enumValues.unshift(null);
       }
 
       // then we set our property based on the field code
@@ -125,21 +136,10 @@ export const useFieldsSchemaParser = (data: any, i18nPrefix?: string) => {
               i18n: `${i18nPrefix}.${field.code}`,
               default: field.default,
               const: field.const,
-              enum: !some(field.options, isString) ? undefined : field.options, //   ? undefined
-              //   : map(field.options, item => {
-              //       return {
-              //         const: item.value,
-              //         title: item.label,
-              //       };
-              //     }),
-              oneOf: !field.values?.length
+              enum: !enumValues?.length ? undefined : enumValues,
+              options: !field.values?.length
                 ? undefined
-                : map(useTranslateField(field, "values"), item => {
-                    return {
-                      const: item.value,
-                      title: item.label
-                    };
-                  })
+                : useTranslateField(field, "values")
             },
             isNil
           )

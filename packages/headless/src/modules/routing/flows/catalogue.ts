@@ -7,7 +7,7 @@ import { useRecommendations } from "../../recommendations";
 import { useRoutingEngine } from "..";
 
 // --- utils
-import { useRouteQueryParams, useRouteRequiresAction } from "../utils";
+import { useRouteQueryParams } from "../utils";
 import { uniqBy } from "lodash-es";
 
 // --- types
@@ -21,8 +21,6 @@ export const useCatalogueFlows = () => {
   const routing = useRoutingEngine();
   const { isReady: isReady, uiCart } = useBrand();
   const { setCurrency } = useBasket();
-  const { isReady: isBasketReady, meta: basketMeta } = useBasket();
-  const { isReady: isRecommndationsReady, meta } = useRecommendations();
 
   let flows: Flow[] = [
     {
