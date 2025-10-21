@@ -1,13 +1,5 @@
 <template>
   <Layout :variant="configMeta.layout" minimal>
-    <template #header-left>
-      <HeaderLeft />
-    </template>
-
-    <template #header-right>
-      <HeaderRight />
-    </template>
-
     <template #navigation>
       <Back @click.prevent="doReject" />
     </template>
@@ -94,7 +86,7 @@ import {
 import config from "./product.config";
 
 // --- components
-import { Layout, useStyles } from "@upmind-automation/upmind-ui";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import Back from "../../components/navigation/Back.vue";
 import ConfigSkeleton from "./components/ConfigSkeleton.vue";
 import Header from "./components/header/Header.vue";
@@ -105,8 +97,7 @@ import Summary from "./components/summary/Summary.vue";
 import SummaryFooter from "./components/summary/SummaryFooter.vue";
 import SummarySkeleton from "./components/summary/SummarySkeleton.vue";
 import ProductNotFound from "./NotFound.vue";
-import HeaderLeft from "../../components/header/HeaderLeft.vue";
-import HeaderRight from "../../components/header/HeaderRight.vue";
+import Layout from "../../components/layout/Layout.vue";
 
 // --- types
 import type { ComputedRef } from "vue";

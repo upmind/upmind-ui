@@ -1,13 +1,5 @@
 <template>
   <Layout :variant="uiCart?.layout" minimal>
-    <template #header-left>
-      <HeaderLeft />
-    </template>
-
-    <template #header-right>
-      <HeaderRight />
-    </template>
-
     <template #navigation>
       <Back v-bind="storefrontRoute" :label="t('action.continue_shopping')" />
     </template>
@@ -150,17 +142,15 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./basket.config";
 
 // --- components
-import { Layout, Button, Alert, Link } from "@upmind-automation/upmind-ui";
+import { Button, Alert, Link } from "@upmind-automation/upmind-ui";
+import Layout from "../../components/layout/Layout.vue";
 import Header from "../../components/content/Header.vue";
 import Summary from "./components/Summary.vue";
 import ProductCards from "./product/BasketProductCards.vue";
 import Form from "../../components/form/Form.vue";
 import Back from "../../components/navigation/Back.vue";
 import Section from "../../components/content/LayoutSection.vue";
-import { isEmpty, omitBy } from "lodash-es";
 import { RouterLink } from "vue-router";
-import HeaderLeft from "../../components/header/HeaderLeft.vue";
-import HeaderRight from "../../components/header/HeaderRight.vue";
 
 // --- types
 import { type ComputedRef } from "vue";

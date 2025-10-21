@@ -1,13 +1,5 @@
 <template>
   <Layout :variant="configMeta.layout" minimal>
-    <template #header-left>
-      <HeaderLeft />
-    </template>
-
-    <template #header-right>
-      <HeaderRight />
-    </template>
-
     <template #navigation>
       <Breadcrumb v-if="meta?.isAvailable" :items="items" size="lg" />
     </template>
@@ -17,7 +9,7 @@
     </template>
 
     <template #content-header>
-      <Header
+      <ContentHeader
         v-if="meta?.isAvailable && product?.productDetails"
         :product-details="product.productDetails"
         :product-image="productImage()"
@@ -45,6 +37,14 @@
           <ConfigSkeleton v-else />
         </form>
       </Section>
+
+      <p
+        v-for="(term, index) in tm('text.product_smallprint')"
+        :key="index"
+        class="leading-snug"
+      >
+        {{ term }}
+      </p>
     </template>
 
     <template #aside>
@@ -68,15 +68,6 @@
         @resolve="doResolve"
       />
     </template>
-    <template #footer>
-      <p
-        v-for="(term, index) in tm('text.product_smallprint')"
-        :key="index"
-        class="leading-snug"
-      >
-        {{ term }}
-      </p>
-    </template>
   </Layout>
 </template>
 
@@ -99,10 +90,11 @@ import {
 import config from "./product.config";
 
 // --- components
-import { Layout, Breadcrumb, useStyles } from "@upmind-automation/upmind-ui";
+import { Breadcrumb, useStyles } from "@upmind-automation/upmind-ui";
+import Layout from "../../components/layout/Layout.vue";
 import Share from "../../components/navigation/Share.vue";
 import ConfigSkeleton from "./components/ConfigSkeleton.vue";
-import Header from "./components/header/Header.vue";
+import ContentHeader from "./components/header/Header.vue";
 import HeaderSkeleton from "./components/header/HeaderSkeleton.vue";
 import ProductConfig from "./components/config/Config.vue";
 import Section from "../../components/content/LayoutSection.vue";
@@ -110,8 +102,6 @@ import Summary from "./components/summary/Summary.vue";
 import SummaryFooter from "./components/summary/SummaryFooter.vue";
 import SummarySkeleton from "./components/summary/SummarySkeleton.vue";
 import ProductNotFound from "./NotFound.vue";
-import HeaderLeft from "../../components/header/HeaderLeft.vue";
-import HeaderRight from "../../components/header/HeaderRight.vue";
 
 // --- utils
 import { forEach, isEmpty, last, compact } from "lodash-es";
