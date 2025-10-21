@@ -1,80 +1,95 @@
 <template>
-  <article class="bg-surface lg:canvas-gradient-rtl w-full">
-    <header class="flex w-full justify-center">
-      <div
-        class="basis-app-aside bg-surface box-content min-w-0 px-8 pb-1 lg:bg-transparent lg:px-18"
-      >
-        <div class="lg:w-app-aside flex h-[100px] items-end">
-          <slot name="header-left" />
-        </div>
+  <article :class="styles.twoColumnRTL.root">
+    <!-- Header -->
+    <header :class="styles.twoColumnRTL.row">
+      <div :class="styles.twoColumnRTL.header.aside">
+        <slot name="header-left" />
       </div>
 
-      <div
-        class="basis-app-content bg-surface box-content min-w-0 px-8 pb-1 lg:px-18"
-      >
-        <div class="lg:w-app-content flex h-[100px] items-end justify-end">
-          <slot name="header-right" />
-        </div>
+      <div :class="styles.twoColumnRTL.header.content">
+        <slot name="header-right" />
       </div>
     </header>
 
-    <section class="flex w-full justify-center">
-      <div
-        class="basis-app-aside box-content hidden min-w-0 px-18 pt-18 lg:block"
-      >
-        <div class="w-app-aside flex h-full min-h-screen flex-col">
-          <div>
-            <slot name="content-header" />
-          </div>
-
-          <aside class="sticky bottom-18 mt-auto">
-            <slot name="aside" />
-          </aside>
+    <!-- Content / Aside -->
+    <section :class="styles.twoColumnRTL.row">
+      <div :class="styles.twoColumnRTL.content.aside">
+        <div>
+          <slot name="content-header" />
         </div>
+
+        <aside class="sticky bottom-18 mt-auto">
+          <slot name="aside" />
+        </aside>
       </div>
 
-      <div
-        class="basis-app-content bg-surface box-content min-w-0 px-8 pt-18 lg:px-18"
-      >
-        <div class="w-app-content flex flex-col gap-12">
-          <slot name="content" />
-        </div>
+      <div :class="styles.twoColumnRTL.content.content">
+        <slot name="content" />
       </div>
     </section>
 
-    <div class="flex w-full justify-center">
-      <div class="basis-app-aside box-content hidden min-w-0 px-18 lg:block">
-        <div class="w-app-aside h-11" />
-      </div>
+    <!-- Spacer -->
+    <div :class="styles.twoColumnRTL.row">
+      <div :class="styles.twoColumnRTL.spacer.aside" />
 
-      <div
-        class="basis-app-content bg-surface box-content min-w-0 px-8 lg:px-18"
-      >
-        <div class="w-app-content h-11" />
-      </div>
+      <div :class="styles.twoColumnRTL.spacer.content" />
     </div>
 
-    <footer class="flex w-full items-end justify-center">
-      <div class="basis-app-aside box-content min-w-0 px-18 pb-9 lg:pt-18">
-        <div class="w-app-aside">
-          <slot name="footer-content" />
-        </div>
+    <!-- Footer -->
+    <footer :class="styles.twoColumnRTL.footer.row">
+      <div :class="styles.twoColumnRTL.footer.aside">
+        <slot name="footer-content" />
       </div>
 
-      <div
-        class="basis-app-content bg-surface box-content min-w-0 px-8 pb-9 lg:px-18 lg:pt-18"
-      >
-        <div class="w-app-content flex items-end justify-between">
-          <slot name="footer-copyright" />
-          <slot name="footer-actions" />
-        </div>
+      <div :class="styles.twoColumnRTL.footer.content">
+        <slot name="footer-copyright" />
+        <slot name="footer-actions" />
       </div>
     </footer>
   </article>
 </template>
 
 <script lang="ts" setup>
+import { computed, type ComputedRef } from "vue";
+import { useStyles } from "../../utils";
+import config from "./layout.config";
 import type { VariantProps } from "./types";
 
 defineProps<VariantProps>();
+
+const meta = computed(() => ({}));
+
+const styles = useStyles(
+  [
+    "twoColumnRTL",
+    "twoColumnRTL.header",
+    "twoColumnRTL.content",
+    "twoColumnRTL.spacer",
+    "twoColumnRTL.footer"
+  ],
+  meta,
+  config
+) as ComputedRef<{
+  twoColumnRTL: {
+    root: string;
+    row: string;
+    header: {
+      aside: string;
+      content: string;
+    };
+    content: {
+      aside: string;
+      content: string;
+    };
+    spacer: {
+      aside: string;
+      content: string;
+    };
+    footer: {
+      row: string;
+      aside: string;
+      content: string;
+    };
+  };
+}>;
 </script>

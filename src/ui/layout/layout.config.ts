@@ -99,60 +99,85 @@ export default {
 
   twoColumnLTR: {
     root: cva("bg-surface lg:canvas-gradient w-full"),
+    row: cva("flex w-full justify-center"),
     header: {
-      row: cva("flex w-full justify-center"),
-      contentWrapper: cva(
-        "basis-app-content bg-surface box-content min-w-0 px-8 pb-1 lg:px-18"
+      content: cva(
+        "basis-app-content bg-surface lg:w-app-content box-content flex h-[100px] w-full min-w-0 items-end px-8 pb-1 lg:px-18"
       ),
-      contentInner: cva("lg:w-app-content flex h-[100px] items-end"),
-      asideWrapper: cva(
-        "basis-app-aside bg-surface box-content min-w-0 px-8 pb-1 lg:bg-transparent lg:px-18"
-      ),
-      asideInner: cva("lg:w-app-aside flex h-[100px] items-end justify-end")
+      aside: cva(
+        "basis-app-aside bg-surface lg:w-app-aside box-content flex h-[100px] w-full min-w-0 items-end justify-end px-8 pb-1 lg:bg-transparent lg:px-18"
+      )
     },
     contentHeader: {
-      row: cva("flex w-full justify-center"),
-      contentWrapper: cva(
-        "lg:basis-app-content bg-surface box-content w-full min-w-0 px-8 pt-18 lg:px-18"
+      content: cva(
+        "lg:basis-app-content bg-surface lg:w-app-content box-content w-full min-w-0 px-8 pt-18 lg:px-18"
       ),
-      contentInner: cva("lg:w-app-content"),
-      asideWrapper: cva(
-        "basis-app-aside box-content hidden min-w-0 px-18 pt-18 lg:block"
-      ),
-      asideInner: cva("w-app-aside")
+      aside: cva(
+        "basis-app-aside w-app-aside box-content hidden min-w-0 px-18 pt-18 lg:block"
+      )
     },
     content: {
-      row: cva("flex w-full justify-center"),
-      contentWrapper: cva(
-        "lg:basis-app-content bg-surface box-content w-full min-w-0 px-8 pt-18 lg:px-18"
+      content: cva(
+        "lg:basis-app-content bg-surface lg:w-app-content box-content flex w-full min-w-0 flex-col gap-12 px-8 pt-18 lg:px-18"
       ),
-      contentInner: cva("lg:w-app-content flex flex-col gap-12"),
-      asideWrapper: cva(
-        "basis-app-aside box-content hidden min-w-0 px-18 pt-9 lg:block"
-      ),
-      asideInner: cva("w-app-aside sticky top-0 pt-9")
+      aside: cva(
+        "basis-app-aside w-app-aside sticky top-0 box-content hidden min-w-0 px-18 pt-9 lg:block"
+      )
     },
     spacer: {
-      row: cva("flex w-full justify-center"),
-      contentWrapper: cva(
-        "basis-app-content bg-surface box-content min-w-0 px-8 lg:px-18"
+      content: cva(
+        "basis-app-content bg-surface w-app-content box-content h-11 min-w-0 px-8 lg:px-18"
       ),
-      contentInner: cva("w-app-content h-11"),
-      asideWrapper: cva(
-        "basis-app-aside box-content hidden min-w-0 px-18 lg:block"
-      ),
-      asideInner: cva("w-app-aside h-11")
+      aside: cva(
+        "basis-app-aside w-app-aside box-content hidden h-11 min-w-0 px-18 lg:block"
+      )
     },
     footer: {
       row: cva("flex w-full justify-center lg:items-end"),
-      contentWrapper: cva(
-        "lg:basis-app-content bg-surface box-content w-full min-w-0 px-8 pb-9 lg:px-18 lg:pt-18"
+      content: cva(
+        "lg:basis-app-content bg-surface lg:w-app-content box-content w-full min-w-0 px-8 pb-9 lg:px-18 lg:pt-18"
       ),
-      contentInner: cva("lg:w-app-content"),
-      asideWrapper: cva(
-        "basis-app-aside box-content min-w-0 px-18 pb-9 lg:pt-18"
+      aside: cva(
+        "basis-app-aside w-app-aside box-content hidden min-w-0 px-18 pb-9 lg:block lg:pt-18"
+      )
+    }
+  },
+
+  twoColumnRTL: {
+    root: cva("bg-surface lg:canvas-gradient-rtl w-full"),
+    row: cva("flex w-full justify-center"),
+    header: {
+      aside: cva(
+        "basis-app-aside bg-surface lg:w-app-aside box-content flex h-[100px] w-full min-w-0 items-end px-8 pb-1 lg:bg-transparent lg:px-18"
       ),
-      asideInner: cva("w-app-aside hidden lg:block")
+      content: cva(
+        "basis-app-content bg-surface lg:w-app-content box-content flex h-[100px] w-full min-w-0 items-end justify-end px-8 pb-1 lg:px-18"
+      )
+    },
+    content: {
+      aside: cva(
+        "basis-app-aside w-app-aside box-content hidden h-full min-h-screen min-w-0 flex-col px-18 pt-18 lg:flex"
+      ),
+      content: cva(
+        "basis-app-content bg-surface w-app-content box-content flex min-w-0 flex-col gap-12 px-8 pt-18 lg:px-18"
+      )
+    },
+    spacer: {
+      aside: cva(
+        "basis-app-aside w-app-aside box-content hidden h-11 min-w-0 px-18 lg:block"
+      ),
+      content: cva(
+        "basis-app-content bg-surface w-app-content box-content h-11 min-w-0 px-8 lg:px-18"
+      )
+    },
+    footer: {
+      row: cva("flex w-full items-end justify-center"),
+      aside: cva(
+        "basis-app-aside w-app-aside box-content min-w-0 px-18 pb-9 lg:pt-18"
+      ),
+      content: cva(
+        "basis-app-content bg-surface w-app-content box-content flex min-w-0 items-end justify-between px-8 pb-9 lg:px-18 lg:pt-18"
+      )
     }
   },
 
