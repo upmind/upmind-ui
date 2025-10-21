@@ -1,67 +1,52 @@
 <template>
   <article :class="styles.twoColumnLTR.root">
-    <header :class="styles.twoColumnLTR.header.row">
-      <div :class="styles.twoColumnLTR.header.contentWrapper">
-        <div :class="styles.twoColumnLTR.header.contentInner">
-          <slot name="header-left" />
-        </div>
+    <!-- Header -->
+    <header :class="styles.twoColumnLTR.row">
+      <div :class="styles.twoColumnLTR.header.content">
+        <slot name="header-left" />
       </div>
 
-      <div :class="styles.twoColumnLTR.header.asideWrapper">
-        <div :class="styles.twoColumnLTR.header.asideInner">
-          <slot name="header-right" />
-        </div>
+      <div :class="styles.twoColumnLTR.header.aside">
+        <slot name="header-right" />
       </div>
     </header>
 
-    <section :class="styles.twoColumnLTR.contentHeader.row">
-      <div :class="styles.twoColumnLTR.contentHeader.contentWrapper">
-        <div :class="styles.twoColumnLTR.contentHeader.contentInner">
-          <slot name="content-header" />
-        </div>
+    <!-- Content Header -->
+    <section :class="styles.twoColumnLTR.row">
+      <div :class="styles.twoColumnLTR.contentHeader.content">
+        <slot name="content-header" />
       </div>
 
-      <div :class="styles.twoColumnLTR.contentHeader.asideWrapper">
-        <div :class="styles.twoColumnLTR.contentHeader.asideInner" />
-      </div>
+      <div :class="styles.twoColumnLTR.contentHeader.aside" />
     </section>
 
-    <section :class="styles.twoColumnLTR.content.row">
-      <div :class="styles.twoColumnLTR.content.contentWrapper">
-        <div :class="styles.twoColumnLTR.content.contentInner">
-          <slot name="content" />
-        </div>
+    <!-- Content / Aside -->
+    <section :class="styles.twoColumnLTR.row">
+      <div :class="styles.twoColumnLTR.content.content">
+        <slot name="content" />
       </div>
 
-      <div :class="styles.twoColumnLTR.content.asideWrapper">
-        <aside :class="styles.twoColumnLTR.content.asideInner">
-          <slot name="aside" />
-        </aside>
-      </div>
+      <aside :class="styles.twoColumnLTR.content.aside">
+        <slot name="aside" />
+      </aside>
     </section>
 
-    <div :class="styles.twoColumnLTR.spacer.row">
-      <div :class="styles.twoColumnLTR.spacer.contentWrapper">
-        <div :class="styles.twoColumnLTR.spacer.contentInner" />
-      </div>
+    <!-- Spacer -->
+    <div :class="styles.twoColumnLTR.row">
+      <div :class="styles.twoColumnLTR.spacer.content" />
 
-      <div :class="styles.twoColumnLTR.spacer.asideWrapper">
-        <div :class="styles.twoColumnLTR.spacer.asideInner" />
-      </div>
+      <div :class="styles.twoColumnLTR.spacer.aside" />
     </div>
 
+    <!-- Footer -->
     <footer :class="styles.twoColumnLTR.footer.row">
-      <div :class="styles.twoColumnLTR.footer.contentWrapper">
-        <div :class="styles.twoColumnLTR.footer.contentInner">
-          <slot name="footer-copyright" />
-          <slot name="footer-actions" />
-        </div>
+      <div :class="styles.twoColumnLTR.footer.content">
+        <slot name="footer-copyright" />
+        <slot name="footer-actions" />
       </div>
 
-      <div :class="styles.twoColumnLTR.footer.asideWrapper">
-        <div :class="styles.twoColumnLTR.footer.asideInner">
-          <slot name="footer-content" />
-        </div>
+      <div :class="styles.twoColumnLTR.footer.aside">
+        <slot name="footer-content" />
       </div>
     </footer>
   </article>
@@ -91,40 +76,27 @@ const styles = useStyles(
 ) as ComputedRef<{
   twoColumnLTR: {
     root: string;
+    row: string;
     header: {
-      row: string;
-      contentWrapper: string;
-      contentInner: string;
-      asideWrapper: string;
-      asideInner: string;
+      content: string;
+      aside: string;
     };
     contentHeader: {
-      row: string;
-      contentWrapper: string;
-      contentInner: string;
-      asideWrapper: string;
-      asideInner: string;
+      content: string;
+      aside: string;
     };
     content: {
-      row: string;
-      contentWrapper: string;
-      contentInner: string;
-      asideWrapper: string;
-      asideInner: string;
+      content: string;
+      aside: string;
     };
     spacer: {
-      row: string;
-      contentWrapper: string;
-      contentInner: string;
-      asideWrapper: string;
-      asideInner: string;
+      content: string;
+      aside: string;
     };
     footer: {
       row: string;
-      contentWrapper: string;
-      contentInner: string;
-      asideWrapper: string;
-      asideInner: string;
+      content: string;
+      aside: string;
     };
   };
 }>;
