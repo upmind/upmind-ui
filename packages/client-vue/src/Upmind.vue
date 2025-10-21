@@ -43,6 +43,8 @@
             </slot>
           </RouterView>
         </div>
+
+        <slot name="footer" v-if="meta.isAvailable && meta.hasSettings" />
       </div>
     </Suspense>
   </Loading>
