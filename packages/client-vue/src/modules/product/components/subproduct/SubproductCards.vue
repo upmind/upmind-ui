@@ -24,7 +24,7 @@
       :disabled="props.disabled"
       :errors="errors"
       :none-text="t('text.none')"
-      :placeholder="t('action.select_an_option')"
+      :placeholder="t('form.select_option.placeholder')"
       :multiple="subproduct.meta.multiple"
       :size="subproduct.uiMeta?.uischema?.options?.size"
     >
