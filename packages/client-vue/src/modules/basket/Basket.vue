@@ -99,7 +99,8 @@
     <template #aside-footer>
       <Alert
         v-if="meta.hasInvalidProducts"
-        color="danger"
+        color="warning"
+        variant="minimal"
         icon="alert-triangle"
         :description="t('cart.basket_products_review_msg')"
       >
@@ -131,8 +132,9 @@
       </Alert>
 
       <Alert
-        v-if="!meta.hasFields"
-        color="danger"
+        v-if="!meta.hasFields && fieldsErrors?.data?.length"
+        color="warning"
+        variant="minimal"
         icon="alert-triangle"
         :title="
           t('cart.basket_fields_require_attention_msg', {
