@@ -159,11 +159,12 @@ export default {
     },
     content: {
       aside: cva(
-        "basis-app-aside w-app-aside box-content hidden min-w-0 px-18 pt-18 lg:block"
+        "basis-app-aside lg:w-app-aside box-content hidden min-w-0 px-18 pt-18 lg:block"
       ),
       asideInner: cva("flex h-full min-h-screen flex-col"),
+      asideSticky: cva("sticky bottom-18 mt-auto"),
       content: cva(
-        "basis-app-content bg-surface w-app-content box-content flex min-w-0 flex-col gap-12 px-8 pt-18 lg:px-18"
+        "lg:basis-app-content bg-surface lg:w-app-content box-content flex w-full min-w-0 flex-col gap-12 px-8 pt-18 lg:px-18"
       )
     },
     spacer: {
@@ -176,7 +177,7 @@ export default {
     },
     footer: {
       row: cva(
-        "flex flex-col-reverse items-center justify-center lg:w-full lg:flex-row lg:items-end"
+        "flex w-full flex-col-reverse items-center justify-center lg:flex-row lg:items-end"
       ),
       aside: cva(
         "lg:basis-app-aside lg:w-app-aside box-content min-w-0 pb-9 lg:px-18 lg:pt-18"
