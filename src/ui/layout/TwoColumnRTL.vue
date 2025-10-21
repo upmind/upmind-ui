@@ -19,7 +19,7 @@
             <slot name="content-header" />
           </div>
 
-          <aside class="sticky bottom-18 mt-auto">
+          <aside :class="styles.twoColumnRTL.content.asideSticky">
             <slot name="aside" />
           </aside>
         </div>
@@ -82,6 +82,7 @@ const styles = useStyles(
     content: {
       aside: string;
       asideInner: string;
+      asideSticky: string;
       content: string;
     };
     spacer: {
