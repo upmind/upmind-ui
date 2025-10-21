@@ -28,10 +28,10 @@
       :multiple="subproduct.meta.multiple"
       :size="subproduct.uiMeta?.uischema?.options?.size"
     >
-      <template #item="{ item: { value } }">
+      <template #item="{ item: { id } }">
         <CardSubproduct
-          v-bind="getSubproductValue(value)"
-          @update:quantity="doUpdateQuantity(value, $event)"
+          v-bind="getSubproductValue(id)"
+          @update:quantity="doUpdateQuantity(id, $event)"
         />
       </template>
     </component>
