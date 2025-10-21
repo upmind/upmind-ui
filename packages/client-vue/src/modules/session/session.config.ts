@@ -32,7 +32,7 @@ export default {
     auth: {
       root: cva("flex flex-col gap-8"),
       form: cva("place-items-start"),
-      actions: cva("mt-4 flex items-center justify-center space-x-2")
+      actions: cva("mt-3 flex items-center justify-start space-x-2")
     },
 
     profile: {

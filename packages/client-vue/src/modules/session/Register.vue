@@ -84,7 +84,7 @@ import {
 } from "@upmind-automation/headless";
 
 // --- components
-import { Button, Layout, Link } from "@upmind-automation/upmind-ui";
+import { Layout, Link } from "@upmind-automation/upmind-ui";
 import Auth from "./components/Auth.vue";
 import Header from "../../components/content/Header.vue";
 import Section from "../../components/content/LayoutSection.vue";
