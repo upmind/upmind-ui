@@ -128,3 +128,13 @@
       var(--color-core-canvas) 100%
     );
 }
+
+@utility canvas-gradient-rtl {
+  background:
+    linear-gradient(to left, var(--color-core-surface) 50%, transparent 50%),
+    linear-gradient(
+      to bottom left,
+      var(--color-core-canvas) 0%,
+      var(--color-core-canvas) 100%
+    );
+}

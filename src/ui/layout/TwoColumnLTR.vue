@@ -68,9 +68,9 @@
 
 <script lang="ts" setup>
 import { computed, type ComputedRef } from "vue";
-import { useStyles } from "../../../utils";
-import config from "../layout.config";
-import type { VariantProps } from "../types";
+import { useStyles } from "../../utils";
+import config from "./layout.config";
+import type { VariantProps } from "./types";
 
 defineProps<VariantProps>();
 
