@@ -31,7 +31,7 @@ import { includes } from "lodash-es";
 import { useSession } from "@upmind-automation/headless";
 
 // --- components
-import Session from "../Session.vue";
+import Session from "../components/Session.vue";
 
 import {
   Popover,
