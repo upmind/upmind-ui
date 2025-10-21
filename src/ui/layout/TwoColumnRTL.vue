@@ -57,15 +57,16 @@
     <footer class="flex w-full items-end justify-center">
       <div class="basis-app-aside box-content min-w-0 px-18 pb-9 lg:pt-18">
         <div class="w-app-aside">
-          <slot name="footer-aside" />
+          <slot name="footer-content" />
         </div>
       </div>
 
       <div
         class="basis-app-content bg-surface box-content min-w-0 px-8 pb-9 lg:px-18 lg:pt-18"
       >
-        <div class="w-app-content">
-          <slot name="footer" />
+        <div class="w-app-content flex items-end justify-between">
+          <slot name="footer-copyright" />
+          <slot name="footer-actions" />
         </div>
       </div>
     </footer>

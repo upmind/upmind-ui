@@ -53,13 +53,14 @@
     <footer :class="styles.twoColumnLTR.footer.row">
       <div :class="styles.twoColumnLTR.footer.contentWrapper">
         <div :class="styles.twoColumnLTR.footer.contentInner">
-          <slot name="footer" />
+          <slot name="footer-copyright" />
+          <slot name="footer-actions" />
         </div>
       </div>
 
       <div :class="styles.twoColumnLTR.footer.asideWrapper">
         <div :class="styles.twoColumnLTR.footer.asideInner">
-          <slot name="footer-aside" />
+          <slot name="footer-content" />
         </div>
       </div>
     </footer>
