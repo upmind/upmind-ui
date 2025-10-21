@@ -1,5 +1,5 @@
 <template>
-  <Layout variant="full" minimal v-if="!meta.isCheckout">
+  <Layout variant="two-column-RTL" minimal v-if="!meta.isCheckout">
     <template #header-left>
       <HeaderLeft />
     </template>
@@ -28,7 +28,7 @@
       />
     </template>
 
-    <template #default>
+    <template #content>
       <Section :title="t('text.billing_details')">
         <Billing />
       </Section>
@@ -36,6 +36,14 @@
       <Section :title="t('text.payment_details')">
         <PaymentDetails :class="styles.checkout.paymentDetails" />
       </Section>
+
+      <Alert
+        v-if="meta.hasError"
+        color="danger"
+        icon="alert-triangle"
+        :title="t('error.checkout')"
+        :description="errors?.message"
+      />
     </template>
 
     <template #aside>
@@ -44,15 +52,12 @@
       </Section>
     </template>
 
-    <template #aside-footer>
-      <Alert
-        v-if="meta.hasError"
-        color="danger"
-        icon="alert-triangle"
-        :title="t('error.checkout')"
-        :description="errors?.message"
-      >
-      </Alert>
+    <template #footer>
+      <FooterContent />
+    </template>
+
+    <template #footer-aside>
+      <Copyright />
     </template>
   </Layout>
 
@@ -110,6 +115,8 @@ import Back from "../../components/navigation/Back.vue";
 import Section from "../../components/content/LayoutSection.vue";
 import HeaderLeft from "../../components/header/HeaderLeft.vue";
 import HeaderRight from "../../components/header/HeaderRight.vue";
+import FooterContent from "../../components/footer/FooterContent.vue";
+import Copyright from "../../components/footer/Copyright.vue";
 
 // --- types
 import type { CheckoutProps } from "./types";

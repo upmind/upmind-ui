@@ -43,10 +43,6 @@
             </slot>
           </RouterView>
         </div>
-
-        <slot name="footer" v-if="meta.isAvailable && meta.hasSettings">
-          <Footer />
-        </slot>
       </div>
     </Suspense>
   </Loading>
@@ -72,7 +68,6 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import { useTheme } from "./modules/theming";
 
 // --- components
-import Footer from "./components/footer/Footer.vue";
 import Feedback from "./modules/feedback/Feedback.vue";
 import Page from "./components/content/Page.vue";
 import AsyncLoading from "./modules/system/Loading.vue";
