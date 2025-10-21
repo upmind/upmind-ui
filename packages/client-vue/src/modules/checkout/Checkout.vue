@@ -60,7 +60,11 @@
 
       <!-- Additional Options -->
       <Alert
-        v-if="!meta.hasFields && meta.hideProductsOnCheckout"
+        v-if="
+          !meta.hasFields &&
+          fieldsErrors?.data?.length &&
+          meta.hideProductsOnCheckout
+        "
         color="danger"
         icon="alert-triangle"
         :title="
