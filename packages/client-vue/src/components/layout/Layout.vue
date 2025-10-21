@@ -20,14 +20,20 @@
       </slot>
     </template>
 
-    <template #footer>
-      <slot name="footer">
+    <template #footer-content>
+      <slot name="footer-content">
         <FooterContent />
       </slot>
     </template>
 
-    <template #footer-aside>
-      <slot name="footer-aside">
+    <template #footer-actions>
+      <slot name="footer-actions">
+        <FooterActions />
+      </slot>
+    </template>
+
+    <template #footer-copyright>
+      <slot name="footer-copyright">
         <FooterCopyright />
       </slot>
     </template>
@@ -39,5 +45,6 @@ import { Layout } from "@upmind-automation/upmind-ui";
 import HeaderBrand from "../header/HeaderBrand.vue";
 import HeaderActions from "../header/HeaderActions.vue";
 import FooterContent from "../footer/Content.vue";
+import FooterActions from "../footer/Actions.vue";
 import FooterCopyright from "../footer/Copyright.vue";
 </script>
