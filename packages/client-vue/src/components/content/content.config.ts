@@ -40,8 +40,10 @@ export default {
     header: cva("flex justify-between", {
       variants: {
         variant: {
-          full: "border-surface border-b pb-3",
-          default: "border-surface border-b pb-3",
+          full: "border-surface border-b pb-4",
+          default: "border-surface border-b pb-4",
+          twoColumnLTR: "border-surface border-b pb-4",
+          twoColumnRTL: "border-surface border-b pb-4",
           enclosed: ""
         }
       }
@@ -56,6 +58,9 @@ export default {
       }
     }),
     content: cva("flex w-full flex-col gap-8"),
-    title: cva("text-muted text-xl")
+    title: {
+      root: cva("flex items-center gap-2"),
+      heading: cva("text-md/tight text-base font-medium")
+    }
   }
 };
