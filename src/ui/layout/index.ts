@@ -5,3 +5,4 @@ export { default as EnclosedLayout } from "./EnclosedLayout.vue";
 export { default as FullLayout } from "./FullLayout.vue";
 
 export type { LayoutProps } from "./types";
+export { LAYOUT_VARIANTS } from "./types";
