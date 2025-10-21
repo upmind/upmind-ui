@@ -33,16 +33,16 @@
       <slot name="aside" />
     </template>
 
-    <template #aside-footer>
-      <slot name="aside-footer" />
+    <template #footer-content>
+      <slot name="footer-content" />
     </template>
 
-    <template #footer>
-      <slot name="footer" />
+    <template #footer-actions>
+      <slot name="footer-actions" />
     </template>
 
-    <template #footer-aside>
-      <slot name="footer-aside" />
+    <template #footer-copyright>
+      <slot name="footer-copyright" />
     </template>
   </component>
 </template>

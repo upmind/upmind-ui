@@ -29,10 +29,6 @@
         <div :class="styles.full.main">
           <slot name="default" />
           <slot name="content" />
-
-          <footer v-if="meta.hasFooter">
-            <slot name="footer" />
-          </footer>
         </div>
 
         <aside :class="styles.full.aside" v-if="meta.hasAside">
@@ -42,12 +38,27 @@
       </div>
     </section>
   </article>
+
+  <Footer>
+    <template #footer-content>
+      <slot name="footer-content" />
+    </template>
+    <template #footer-actions>
+      <slot name="footer-actions" />
+    </template>
+    <template #footer-copyright>
+      <slot name="footer-copyright" />
+    </template>
+  </Footer>
 </template>
 
 <script lang="ts" setup>
 // --- internal
 import { useStyles } from "../../utils";
 import config from "./layout.config";
+
+// --- components
+import Footer from "./Footer.vue";
 
 // --- utils
 import { isEmptySlot } from "./utils";
