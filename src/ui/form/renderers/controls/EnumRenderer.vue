@@ -1,9 +1,9 @@
 <template>
   <FormField v-bind="formFieldProps">
     <Select
-      :placeholder="appliedOptions?.placeholder"
       :model-value="control.data?.toString()"
-      v-bind="{ items }"
+      :items="items"
+      :placeholder="appliedOptions?.placeholder"
       @update:modelValue="onInput"
     />
   </FormField>
@@ -11,6 +11,7 @@
 
 <script lang="ts" setup>
 // --- external
+import { computed } from "vue";
 import { useJsonFormsEnumControl } from "@jsonforms/vue";
 // --- components
 import FormField from "../../FormField.vue";
@@ -52,6 +53,5 @@ const items = computed(() => {
 
 <script lang="ts">
 import { isEnumControl } from "@jsonforms/core";
-import { computed } from "vue";
 export const tester = { rank: 2, controlType: isEnumControl };
 </script>
