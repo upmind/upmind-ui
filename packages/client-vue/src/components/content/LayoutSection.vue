@@ -4,9 +4,12 @@
       v-if="title || slots.title || slots.action"
       :class="styles.section.header"
     >
-      <slot name="title">
-        <h4 :class="styles.section.title">{{ title }}</h4>
-      </slot>
+      <div :class="styles.section.title.root">
+        <slot name="title">
+          <Icon v-if="icon" :icon="icon" size="2xs" />
+          <h4 :class="styles.section.title.heading">{{ title }}</h4>
+        </slot>
+      </div>
 
       <slot name="action" />
     </header>
@@ -26,7 +29,7 @@
 import { computed, useSlots } from "vue";
 
 // --- components
-import { Card } from "@upmind-automation/upmind-ui";
+import { Card, Icon } from "@upmind-automation/upmind-ui";
 
 // --- internal
 import { cn, useStyles } from "@upmind-automation/upmind-ui";
@@ -60,7 +63,7 @@ const component = computed(() => {
 });
 
 const styles = useStyles(
-  "section",
+  ["section", "section.title"],
   meta,
   config,
   props.uiConfig ?? {}
@@ -68,7 +71,10 @@ const styles = useStyles(
   section: {
     root: string;
     header: string;
-    title: string;
+    title: {
+      root: string;
+      heading: string;
+    };
     content: string;
   };
 }>;

@@ -31,14 +31,16 @@
     </template>
 
     <template #content>
-      <Auth
-        class="rounded-box w-full max-w-5xl items-start"
-        no-tabs
-        no-header
-        model-value="login"
-        @update:model-value="doUpdate"
-        @resolve="doResolve"
-      />
+      <Section title="Login" icon="user-03">
+        <Auth
+          class="rounded-box w-full max-w-5xl items-start"
+          no-tabs
+          no-header
+          model-value="login"
+          @update:model-value="doUpdate"
+          @resolve="doResolve"
+        />
+      </Section>
     </template>
 
     <template #aside>

@@ -3,7 +3,8 @@ import type { CxOptions, VariantProps } from "class-variance-authority";
 import type { HTMLAttributes } from "vue";
 import type {
   InterstitialProps,
-  LayoutProps
+  LayoutProps,
+  IconProps
 } from "@upmind-automation/upmind-ui";
 
 // --- internal
@@ -35,6 +36,7 @@ export interface InterstitialExtendedProps extends InterstitialProps {
 export interface SectionProps {
   variant?: LayoutProps["variant"];
   title?: string;
+  icon?: IconProps["icon"];
   as?: string;
   class?: HTMLAttributes["class"];
   aside?: boolean;
