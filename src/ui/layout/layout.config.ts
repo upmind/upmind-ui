@@ -134,12 +134,14 @@ export default {
       )
     },
     footer: {
-      row: cva("flex w-full justify-center lg:items-end"),
-      content: cva(
-        "lg:basis-app-content bg-surface lg:w-app-content box-content w-full min-w-0 px-8 pb-9 lg:px-18 lg:pt-18"
+      row: cva(
+        "flex flex-col items-center justify-center lg:w-full lg:flex-row lg:items-end"
       ),
       aside: cva(
-        "basis-app-aside w-app-aside box-content hidden min-w-0 px-18 pb-9 lg:block lg:pt-18"
+        "lg:basis-app-aside lg:w-app-aside box-content min-w-0 pb-9 lg:px-18 lg:pt-18"
+      ),
+      content: cva(
+        "lg:basis-app-content bg-surface w-app-content box-content flex min-w-0 flex-col-reverse items-center justify-between gap-4 pb-2 lg:flex-row lg:items-end lg:gap-0 lg:px-18 lg:pt-18 lg:pb-9"
       )
     }
   },
@@ -173,12 +175,14 @@ export default {
       )
     },
     footer: {
-      row: cva("flex w-full items-end justify-center"),
+      row: cva(
+        "flex flex-col-reverse items-center justify-center lg:w-full lg:flex-row lg:items-end"
+      ),
       aside: cva(
-        "basis-app-aside w-app-aside box-content min-w-0 px-18 pb-9 lg:pt-18"
+        "lg:basis-app-aside lg:w-app-aside box-content min-w-0 pb-9 lg:px-18 lg:pt-18"
       ),
       content: cva(
-        "basis-app-content bg-surface w-app-content box-content flex min-w-0 items-end justify-between px-8 pb-9 lg:px-18 lg:pt-18"
+        "lg:basis-app-content bg-surface w-app-content box-content flex min-w-0 flex-col-reverse items-center justify-between gap-4 pb-2 lg:flex-row lg:items-end lg:gap-0 lg:px-18 lg:pt-18 lg:pb-9"
       )
     }
   },
