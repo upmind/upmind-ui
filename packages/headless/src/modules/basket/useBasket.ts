@@ -178,9 +178,11 @@ export const useBasket = () => {
       ),
 
       hideProductsOnCheckout:
+        true ||
         getConfigValue(BrandConfigKeys.CHECKOUT_FLOW) === CheckoutFlows.STEPPED,
 
       hideFieldsOnCheckout:
+        true ||
         getConfigValue(BrandConfigKeys.CHECKOUT_FLOW) === CheckoutFlows.STEPPED,
 
       isProcessingDetails:
@@ -192,7 +194,7 @@ export const useBasket = () => {
       isComplete: stateMatches(state, ["complete", "failed"]),
       hasPaid: stateMatches(state, ["complete"]),
       hasFailed: stateMatches(state, ["failed"]),
-      hasError: contextMatches(state, ["error"])
+      hasError: contextMatches(state, ["error.code"]) //NB only show if we have single errors, not parsed BE errors
     };
   });
 

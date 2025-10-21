@@ -16,10 +16,10 @@ const meta: Meta<typeof SelectCards> = {
   argTypes: {},
   args: {
     items: [
-      { id: "1", value: "1" },
-      { id: "2", value: "2" },
-      { id: "3", value: "3" },
-      { id: "4", value: "4" }
+      { label: "item #1", value: "1", item: { id: "1" } },
+      { label: "item #2", value: "2", item: { id: "2" } },
+      { label: "item #3", value: "3", item: { id: "3" } },
+      { label: "item #4", value: "4", item: { id: "4" } }
     ] as SelectCardsItemProps[],
     width: "auto"
   },

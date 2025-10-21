@@ -28,6 +28,8 @@ const meta: Meta<typeof Select> = {
     }
   },
   args: {
+    modelValue: undefined,
+
     width: "auto",
     size: "md",
     items: [

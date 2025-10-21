@@ -45,6 +45,7 @@ export const getCheckoutFlowTargets = () => {
 
 export const useCheckoutFlows = () => {
   const routing = useRoutingEngine();
+  const { getConfigValue } = useBrand();
   const { meta: basketMeta, invoice, isReady } = useBasket();
   const { meta: sessionMeta } = useSession();
 
@@ -57,6 +58,13 @@ export const useCheckoutFlows = () => {
           basketMeta.value.hasProducts && !basketMeta.value.hasInvalidProducts;
         const validFields = basketMeta.value.hasFields;
         const validAuth = sessionMeta.value.isAuthenticated;
+
+        // NB if we are in a One-Page flow, we skip the products and fields validation here
+        if (
+          getConfigValue(BrandConfigKeys.CHECKOUT_FLOW) ===
+          CheckoutFlows.ONE_PAGE
+        )
+          return validAuth;
 
         return validProducts && validFields && validAuth;
       },

@@ -21,6 +21,36 @@
     </template>
 
     <template #default>
+      <!-- Basket Products -->
+      <Alert
+        v-if="meta.hasInvalidProducts && meta.hideProductsOnCheckout"
+        color="danger"
+        icon="alert-triangle"
+        :description="t('cart.basket_products_review_msg')"
+        :title="
+          t('cart.basket_products_require_attention_msg', {
+            count: productsInvalid.length
+          })
+        "
+      >
+        <ol class="list-disc p-6 py-2 text-left">
+          <li
+            v-for="basketItem in productsInvalid"
+            :key="basketItem.id"
+            class="marker:text-inherit"
+          >
+            <router-link
+              class="text-md/tight text-inherit underline"
+              :to="{
+                name: 'product.edit',
+                params: { bpid: basketItem.id }
+              }"
+            >
+              <span>{{ basketItem?.productDetails?.title }}</span>
+            </router-link>
+          </li>
+        </ol>
+      </Alert>
       <Section
         :title="t('cart.basket_products')"
         v-if="!meta.hideProductsOnCheckout"
@@ -28,6 +58,25 @@
         <ProductCards />
       </Section>
 
+      <!-- Additional Options -->
+      <Alert
+        v-if="!meta.hasFields && meta.hideProductsOnCheckout"
+        color="danger"
+        icon="alert-triangle"
+        :title="
+          t('cart.basket_fields_require_attention_msg', {
+            count: fieldsErrors?.data?.length ?? 0
+          })
+        "
+        :description="t('cart.basket_fields_review_msg')"
+      >
+        <router-link
+          class="text-md/tight text-inherit underline"
+          :to="{ name: ROUTE.BASKET, hash: '#additional-details' }"
+        >
+          <span>{{ t("action.go_to_basket_fields") }}</span>
+        </router-link>
+      </Alert>
       <Section
         :title="t('text.additional_details')"
         v-if="!meta.hideFieldsOnCheckout"
@@ -43,6 +92,7 @@
           @update:modelValue="fieldsUpdate"
           no-actions
           autosave
+          touched
         />
       </Section>
 
@@ -68,8 +118,7 @@
         icon="alert-triangle"
         :title="t('error.checkout')"
         :description="errors?.message"
-      >
-      </Alert>
+      />
     </template>
   </Layout>
 
@@ -117,8 +166,11 @@ import {
   Interstitial,
   Alert,
   Card,
-  Layout
+  Layout,
+  Select,
+  FormField
 } from "@upmind-automation/upmind-ui";
+
 import Billing from "../billing/Billing.vue";
 import PaymentDetails from "./components/PaymentDetails.vue";
 import Summary from "../basket/components/Summary.vue";
@@ -131,13 +183,15 @@ import Form from "../../components/form/Form.vue";
 
 // --- types
 import type { CheckoutProps } from "./types";
+import type { has } from "lodash-es";
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
 // ---
 
 const { navigateNext, navigateBack, isResolved } = useRoutingEngine();
 const { meta: account, isAuthenticated } = useSession();
-const { state, meta, errors, isReady, summary, products } = useBasket();
+const { state, meta, errors, isReady, summary, products, productsInvalid } =
+  useBasket();
 const { meta: paymentDetailsMeta } = useBasketPaymentDetails();
 const {
   errors: fieldsErrors,

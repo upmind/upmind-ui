@@ -18,6 +18,7 @@
 
     <template #default>
       <Section
+        id="basket-products"
         :title="t('cart.basket_products')"
         :ui-config="{
           section: {
@@ -39,6 +40,7 @@
       </Section>
 
       <Section
+        id="additional-details"
         :title="t('text.additional_details')"
         :class="styles.basket.customFields.root"
         :ui-config="{
@@ -52,6 +54,7 @@
           v-if="!fieldsMeta.isLoading"
           :additional-errors="fieldsErrors?.data"
           :model-value="fieldsModel"
+          :touched="route.hash === '#additional-details'"
           :schema="fieldsSchema"
           :uischema="fieldsUischema"
           @reject="fieldsClear"
@@ -64,7 +67,12 @@
     </template>
 
     <template #aside>
-      <Section :title="t('text.summary')" :class="styles.basket.aside" aside>
+      <Section
+        id="basket-summary"
+        :title="t('text.summary')"
+        :class="styles.basket.aside"
+        aside
+      >
         <Summary />
 
         <footer class="w-full">
@@ -121,6 +129,25 @@
           </li>
         </ol>
       </Alert>
+
+      <Alert
+        v-if="!meta.hasFields"
+        color="danger"
+        icon="alert-triangle"
+        :title="
+          t('cart.basket_fields_require_attention_msg', {
+            count: fieldsErrors?.data?.length ?? 0
+          })
+        "
+        :description="t('cart.basket_fields_review_msg')"
+      >
+        <router-link
+          class="text-md/tight text-inherit underline"
+          :to="{ hash: '#additional-details' }"
+        >
+          <span>{{ t("action.go_to_basket_fields") }}</span>
+        </router-link>
+      </Alert>
     </template>
   </Layout>
 </template>
@@ -129,6 +156,7 @@
 // --- external
 import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { useRoute } from "vue-router";
 
 // --- internal
 import {
@@ -142,6 +170,7 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./basket.config";
 
 // --- components
+import { RouterLink } from "vue-router";
 import { Layout, Button, Alert, Link } from "@upmind-automation/upmind-ui";
 import Header from "../../components/content/Header.vue";
 import Summary from "./components/Summary.vue";
@@ -149,14 +178,16 @@ import ProductCards from "./product/BasketProductCards.vue";
 import Form from "../../components/form/Form.vue";
 import Back from "../../components/navigation/Back.vue";
 import Section from "../../components/content/LayoutSection.vue";
+
+// ---utils
 import { isEmpty, omitBy } from "lodash-es";
-import { RouterLink } from "vue-router";
 
 // --- types
 import { type ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 
+const route = useRoute();
 const { t } = useI18n();
 const { meta, productsInvalid, isReady, products, count, summary } =
   useBasket();

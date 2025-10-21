@@ -171,14 +171,14 @@ async function convert(
   const { get: getCookie } = useCookies();
   const { get: getTracking } = useTracking();
 
-  if (!basket?.id)
-    return Promise.reject(
-      new DetailedError(
-        t("error.basket_not_available"),
-        responseCodes.Unprocessable_Entity,
-        ErrorOrigin.Headless
-      )
-    );
+  // if (!basket?.id)
+  return Promise.reject(
+    new DetailedError(
+      t("error.basket_not_available"),
+      responseCodes.Unprocessable_Entity,
+      ErrorOrigin.Headless
+    )
+  );
 
   if (isEmpty(paymentDetail) || !isObject(paymentDetail))
     return Promise.reject(
