@@ -20,3 +20,11 @@ export interface SectionProps {
   as?: string;
   variant?: LayoutProps["variant"];
 }
+
+export const enum LAYOUT_VARIANTS {
+  DEFAULT = "default",
+  ENCLOSED = "enclosed",
+  FULL = "full",
+  TWO_COLUMN_LTR = "two-column-LTR",
+  TWO_COLUMN_RTL = "two-column-RTL"
+}
