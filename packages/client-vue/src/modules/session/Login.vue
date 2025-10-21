@@ -11,40 +11,44 @@
     </template>
 
     <template #content-header>
-      <Header
-        :badge="{
-          label: t('text.fully_encrypted_title'),
-          icon: 'lock-04'
-        }"
-        :title="t('action.log_in_to_your_account')"
-      >
+      <Header :title="t('auth.welcome_back')">
         <template #description>
-          <span class="font-normal">{{ t("auth.no_account_qn") }}&nbsp;</span>
-
-          <Link
-            :to="{ name: ROUTE.SESSION_REGISTER }"
-            size="inherit"
-            :label="t('action.create_one_here')"
-          />
+          <i18n-t
+            keypath="auth.please_login_to_continue"
+            scope="global"
+            tag="span"
+          >
+            <template #[`create_one_here`]>
+              <Link
+                :to="{ name: ROUTE.SESSION_REGISTER }"
+                size="inherit"
+                color="inherit"
+                :label="t('auth.create_one_here')"
+                class="font-normal"
+              />
+            </template>
+          </i18n-t>
         </template>
       </Header>
     </template>
 
     <template #content>
       <Section title="Login" icon="user-03">
-        <Auth
-          class="rounded-box w-full max-w-5xl items-start"
-          no-tabs
-          no-header
-          model-value="login"
-          @update:model-value="doUpdate"
-          @resolve="doResolve"
-        />
+        <div>
+          <Auth
+            class="rounded-box w-full max-w-5xl items-start"
+            no-tabs
+            no-header
+            model-value="login"
+            @update:model-value="doUpdate"
+            @resolve="doResolve"
+          />
+        </div>
       </Section>
     </template>
 
     <template #aside>
-      <Section :title="t('text.summary')" aside>
+      <Section :title="t('text.summary')" aside icon="shopping-bag-02">
         <Summary :actions="false" />
       </Section>
     </template>
@@ -59,7 +63,7 @@ import { useI18n } from "vue-i18n";
 import { useRoutingEngine, useBrand, ROUTE } from "@upmind-automation/headless";
 
 // --- components
-import { Button, Link } from "@upmind-automation/upmind-ui";
+import { Link } from "@upmind-automation/upmind-ui";
 import Layout from "../../components/layout/Layout.vue";
 import Auth from "./components/Auth.vue";
 import Header from "../../components/content/Header.vue";

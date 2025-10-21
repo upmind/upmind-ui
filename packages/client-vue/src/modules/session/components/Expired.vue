@@ -44,7 +44,7 @@ import { ref, computed, watch } from "vue";
 // --- internal
 import { useSession } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "../sesssion.config";
+import config from "../session.config";
 
 // --- components
 import { Avatar, Dialog, Button } from "@upmind-automation/upmind-ui";
