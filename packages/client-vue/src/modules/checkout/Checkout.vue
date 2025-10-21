@@ -1,13 +1,5 @@
 <template>
   <Layout variant="two-column-RTL" minimal v-if="!meta.isCheckout">
-    <template #header-left>
-      <HeaderLeft />
-    </template>
-
-    <template #header-right>
-      <HeaderRight />
-    </template>
-
     <template #navigation>
       <Back @click.prevent="doReject" />
     </template>
@@ -50,14 +42,6 @@
       <Section :title="t('text.summary')" aside>
         <Summary no-actions />
       </Section>
-    </template>
-
-    <template #footer>
-      <FooterContent />
-    </template>
-
-    <template #footer-aside>
-      <Copyright />
     </template>
   </Layout>
 
@@ -103,8 +87,7 @@ import {
   useStyles,
   Interstitial,
   Alert,
-  Card,
-  Layout
+  Card
 } from "@upmind-automation/upmind-ui";
 import Billing from "../billing/Billing.vue";
 import PaymentDetails from "./components/PaymentDetails.vue";
@@ -113,10 +96,7 @@ import Header from "../../components/content/Header.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
 import Back from "../../components/navigation/Back.vue";
 import Section from "../../components/content/LayoutSection.vue";
-import HeaderLeft from "../../components/header/HeaderLeft.vue";
-import HeaderRight from "../../components/header/HeaderRight.vue";
-import FooterContent from "../../components/footer/FooterContent.vue";
-import Copyright from "../../components/footer/Copyright.vue";
+import Layout from "../../components/layout/Layout.vue";
 
 // --- types
 import type { CheckoutProps } from "./types";

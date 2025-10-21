@@ -1,13 +1,5 @@
 <template>
   <Layout overflow="hidden">
-    <template #header-left>
-      <HeaderLeft />
-    </template>
-
-    <template #header-right>
-      <HeaderRight />
-    </template>
-
     <template #content-header>
       <Header
         :title="t('text.complete_online_toolkit_md')"
@@ -86,12 +78,11 @@ import {
 } from "@upmind-automation/headless";
 
 // --- components
-import { Button, Layout, Interstitial } from "@upmind-automation/upmind-ui";
+import { Button, Interstitial } from "@upmind-automation/upmind-ui";
 import Configure from "./components/Configure.vue";
 import CardsCarousel from "./components/CardsCarousel.vue";
 import Header from "../../components/content/Header.vue";
-import HeaderLeft from "../../components/header/HeaderLeft.vue";
-import HeaderRight from "../../components/header/HeaderRight.vue";
+import Layout from "../../components/layout/Layout.vue";
 
 // -----------------------------------------------------------------------------
 
