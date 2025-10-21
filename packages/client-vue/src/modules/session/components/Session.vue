@@ -78,17 +78,17 @@ import { useI18n } from "vue-i18n";
 // --- internal
 import { useSession } from "@upmind-automation/headless";
 import { useStyles, Sanitized } from "@upmind-automation/upmind-ui";
-import config from "./components/session.config";
+import config from "./session.config";
 
 // --- components
-import Auth from "./components/Auth.vue";
+import Auth from "./Auth.vue";
 
 // --- custom elements
-import { Button, Link } from "@upmind-automation/upmind-ui";
+import { Link } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { ComputedRef } from "vue";
-import type { AuthProps } from "./components/types";
+import type { AuthProps } from "./types";
 
 // -----------------------------------------------------------------------------
 
