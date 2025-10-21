@@ -102,10 +102,10 @@ export default {
     row: cva("flex w-full justify-center"),
     header: {
       content: cva(
-        "basis-app-content bg-surface lg:w-app-content box-content flex h-[100px] w-full min-w-0 items-end px-8 pb-1 lg:px-18"
+        "basis-app-content bg-surface lg:w-app-content box-content flex h-24 w-full min-w-0 items-end px-8 pb-1 lg:px-18"
       ),
       aside: cva(
-        "basis-app-aside bg-surface lg:w-app-aside box-content flex h-[100px] w-full min-w-0 items-end justify-end px-8 pb-1 lg:bg-transparent lg:px-18"
+        "basis-app-aside bg-surface lg:w-app-aside box-content flex h-24 w-full min-w-0 items-end justify-end px-8 pb-1 lg:bg-transparent lg:px-18"
       )
     },
     contentHeader: {
@@ -121,8 +121,9 @@ export default {
         "lg:basis-app-content bg-surface lg:w-app-content box-content flex w-full min-w-0 flex-col gap-12 px-8 pt-18 lg:px-18"
       ),
       aside: cva(
-        "basis-app-aside w-app-aside sticky top-0 box-content hidden min-w-0 px-18 pt-9 lg:block"
-      )
+        "basis-app-aside box-content hidden min-w-0 px-18 pt-9 lg:block"
+      ),
+      asideInner: cva("w-app-aside sticky top-0 pt-9")
     },
     spacer: {
       content: cva(
@@ -148,16 +149,17 @@ export default {
     row: cva("flex w-full justify-center"),
     header: {
       aside: cva(
-        "basis-app-aside bg-surface lg:w-app-aside box-content flex h-[100px] w-full min-w-0 items-end px-8 pb-1 lg:bg-transparent lg:px-18"
+        "basis-app-aside bg-surface lg:w-app-aside box-content flex h-24 w-full min-w-0 items-end px-8 pb-1 lg:bg-transparent lg:px-18"
       ),
       content: cva(
-        "basis-app-content bg-surface lg:w-app-content box-content flex h-[100px] w-full min-w-0 items-end justify-end px-8 pb-1 lg:px-18"
+        "basis-app-content bg-surface lg:w-app-content box-content flex h-24 w-full min-w-0 items-end justify-end px-8 pb-1 lg:px-18"
       )
     },
     content: {
       aside: cva(
-        "basis-app-aside w-app-aside box-content hidden h-full min-h-screen min-w-0 flex-col px-18 pt-18 lg:flex"
+        "basis-app-aside w-app-aside box-content hidden min-w-0 px-18 pt-18 lg:block"
       ),
+      asideInner: cva("flex h-full min-h-screen flex-col"),
       content: cva(
         "basis-app-content bg-surface w-app-content box-content flex min-w-0 flex-col gap-12 px-8 pt-18 lg:px-18"
       )
