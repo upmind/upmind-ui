@@ -1,5 +1,5 @@
 <template>
-  <Layout>
+  <Layout v-bind="props">
     <template
       v-for="(slotContent, slotName) in $slots"
       #[slotName]="slotProps"
@@ -28,7 +28,7 @@
 
     <template #footer-actions>
       <slot name="footer-actions">
-        <FooterActions />
+        <FooterActions :locale="locale" :currency="currency" />
       </slot>
     </template>
 
@@ -41,10 +41,30 @@
 </template>
 
 <script setup lang="ts">
+// --- external
+import { defineProps } from "vue";
+
+// --- components
 import { Layout } from "@upmind-automation/upmind-ui";
 import HeaderBrand from "../header/HeaderBrand.vue";
 import HeaderActions from "../header/HeaderActions.vue";
 import FooterContent from "../footer/Content.vue";
 import FooterActions from "../footer/Actions.vue";
 import FooterCopyright from "../footer/Copyright.vue";
+
+// --- types
+import type { LayoutProps } from "@upmind-automation/upmind-ui";
+
+const props = withDefaults(
+  defineProps<
+    LayoutProps & {
+      currency?: boolean;
+      locale?: boolean;
+    }
+  >(),
+  {
+    currency: true,
+    locale: true
+  }
+);
 </script>

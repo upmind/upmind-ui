@@ -1,5 +1,5 @@
 <template>
-  <Layout :variant="LAYOUT_VARIANTS.TWO_COLUMN_LTR" :currency="false">
+  <Layout :variant="uiCart?.layout">
     <template #navigation>
       <Link
         class="flex items-center gap-x-2"
@@ -10,40 +10,36 @@
       />
     </template>
 
-    <template #content-header>
-      <Header
-        :badge="{
-          label: t('text.fully_encrypted_title'),
-          icon: 'lock-04'
-        }"
-        :title="t('action.log_in_to_your_account')"
-      >
-        <template #description>
-          <span class="font-normal">{{ t("auth.no_account_qn") }}&nbsp;</span>
+    <template #default>
+      <Section class="mx-auto max-w-2xl gap-9">
+        <Header
+          :badge="{
+            label: t('text.fully_encrypted_title'),
+            icon: 'lock-04'
+          }"
+          :title="t('action.log_in_to_your_account')"
+        >
+          <template #description>
+            <span class="font-normal">{{ t("auth.no_account_qn") }}&nbsp;</span>
 
-          <Link
-            :to="{ name: ROUTE.SESSION_REGISTER }"
-            size="inherit"
-            :label="t('action.create_one_here')"
+            <Link
+              :to="{ name: ROUTE.SESSION_REGISTER }"
+              size="inherit"
+              :label="t('action.create_one_here')"
+            />
+          </template>
+        </Header>
+
+        <section>
+          <Auth
+            class="rounded-box w-full max-w-5xl items-start"
+            no-tabs
+            no-header
+            model-value="login"
+            @update:model-value="doUpdate"
+            @resolve="doResolve"
           />
-        </template>
-      </Header>
-    </template>
-
-    <template #content>
-      <Auth
-        class="rounded-box w-full max-w-5xl items-start"
-        no-tabs
-        no-header
-        model-value="login"
-        @update:model-value="doUpdate"
-        @resolve="doResolve"
-      />
-    </template>
-
-    <template #aside>
-      <Section :title="t('text.summary')" aside>
-        <Summary :actions="false" />
+        </section>
       </Section>
     </template>
   </Layout>
@@ -57,16 +53,13 @@ import { useI18n } from "vue-i18n";
 import { useRoutingEngine, useBrand, ROUTE } from "@upmind-automation/headless";
 
 // --- components
-import { Button, Link } from "@upmind-automation/upmind-ui";
-import Layout from "../../components/layout/Layout.vue";
+import { Button, Layout, Link } from "@upmind-automation/upmind-ui";
 import Auth from "./components/Auth.vue";
 import Header from "../../components/content/Header.vue";
 import Section from "../../components/content/LayoutSection.vue";
-import Summary from "../basket/components/Summary.vue";
 
 // --- types
 import type { AuthProps } from "./components/types";
-import { LAYOUT_VARIANTS } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 
