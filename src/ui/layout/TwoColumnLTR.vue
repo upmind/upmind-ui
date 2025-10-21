@@ -26,9 +26,11 @@
         <slot name="content" />
       </div>
 
-      <aside :class="styles.twoColumnLTR.content.aside">
-        <slot name="aside" />
-      </aside>
+      <div :class="styles.twoColumnLTR.content.aside">
+        <aside :class="styles.twoColumnLTR.content.asideInner">
+          <slot name="aside" />
+        </aside>
+      </div>
     </section>
 
     <!-- Spacer -->
@@ -88,6 +90,7 @@ const styles = useStyles(
     content: {
       content: string;
       aside: string;
+      asideInner: string;
     };
     spacer: {
       content: string;

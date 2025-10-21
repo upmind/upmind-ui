@@ -14,13 +14,15 @@
     <!-- Content / Aside -->
     <section :class="styles.twoColumnRTL.row">
       <div :class="styles.twoColumnRTL.content.aside">
-        <div>
-          <slot name="content-header" />
-        </div>
+        <div :class="styles.twoColumnRTL.content.asideInner">
+          <div>
+            <slot name="content-header" />
+          </div>
 
-        <aside class="sticky bottom-18 mt-auto">
-          <slot name="aside" />
-        </aside>
+          <aside class="sticky bottom-18 mt-auto">
+            <slot name="aside" />
+          </aside>
+        </div>
       </div>
 
       <div :class="styles.twoColumnRTL.content.content">
@@ -79,6 +81,7 @@ const styles = useStyles(
     };
     content: {
       aside: string;
+      asideInner: string;
       content: string;
     };
     spacer: {
