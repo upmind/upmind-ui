@@ -47,7 +47,7 @@
       </Section>
     </template>
 
-    <template #aside>
+    <template v-if="!meta.isLoading && meta.hasProducts" #aside>
       <Section :title="t('text.summary')" aside icon="shopping-bag-02">
         <Summary :actions="false" />
       </Section>
@@ -61,6 +61,7 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useRoutingEngine, useBrand, ROUTE } from "@upmind-automation/headless";
+import { useBasket } from "@upmind-automation/headless";
 
 // --- components
 import { Link } from "@upmind-automation/upmind-ui";
@@ -78,6 +79,7 @@ import { LAYOUT_VARIANTS } from "@upmind-automation/upmind-ui";
 
 const { t } = useI18n();
 const { navigateNext, navigateBack, navigate, isResolved } = useRoutingEngine();
+const { meta } = useBasket();
 const { uiCart } = useBrand();
 
 await isResolved(ROUTE.SESSION_LOGIN);
