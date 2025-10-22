@@ -1,39 +1,47 @@
 <template>
-  <div class="flex w-full min-h-screen">
-    <article
-      class="bg-surface flex min-h-screen w-1/2 flex-col justify-between px-32 pt-24 pb-9"
-    >
-      <header class="pb-24">
+  <div :class="styles.split.root">
+    <article :class="styles.split.article">
+      <!-- Header -->
+      <header :class="styles.split.header">
         <slot name="header-left" />
       </header>
 
-      <div class="flex flex-col gap-24">
-        <div class="flex flex-col gap-12">
-          <section class="max-w-app-aside">
+      <!-- Content -->
+      <div :class="styles.split.contentWrapper">
+        <div :class="styles.split.contentInner">
+          <section :class="styles.split.contentHeader">
             <slot name="content-header" />
           </section>
 
-          <section>
+          <section :class="styles.split.content">
             <slot name="content" />
             <slot name="default" />
           </section>
         </div>
 
-        <footer class="flex items-end justify-between">
+        <!-- Footer -->
+        <footer :class="styles.split.footer">
           <slot name="footer-content" />
           <slot name="footer-copyright" />
         </footer>
       </div>
     </article>
 
-    <div class="bg-canvas min-h-screen w-1/2" />
+    <!-- Filler aside -->
+    <div :class="styles.split.aside" />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, type ComputedRef } from "vue";
+// --- external
+import { computed } from "vue";
+
+// --- internal
 import { useStyles } from "../../utils";
 import config from "./layout.config";
+
+// --- types
+import type { ComputedRef } from "vue";
 import type { VariantProps } from "./types";
 
 defineProps<VariantProps>();
@@ -43,6 +51,14 @@ const meta = computed(() => ({}));
 const styles = useStyles(["split"], meta, config) as ComputedRef<{
   split: {
     root: string;
+    article: string;
+    header: string;
+    contentWrapper: string;
+    contentInner: string;
+    contentHeader: string;
+    content: string;
+    footer: string;
+    aside: string;
   };
 }>;
 </script>

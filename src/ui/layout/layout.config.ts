@@ -197,5 +197,19 @@ export default {
     content: cva(
       "flex flex-col justify-between gap-2 text-center md:flex-row md:gap-0 md:text-left"
     )
+  },
+
+  split: {
+    root: cva("flex min-h-screen w-full"),
+    article: cva(
+      "bg-surface flex min-h-screen w-1/2 flex-col justify-between px-32 pt-24 pb-9"
+    ),
+    header: cva("pb-24"),
+    contentWrapper: cva("flex flex-col gap-24"),
+    contentInner: cva("flex flex-col gap-12"),
+    contentHeader: cva("max-w-app-aside"),
+    content: cva(""),
+    footer: cva("flex items-end justify-between"),
+    aside: cva("bg-canvas min-h-screen w-1/2")
   }
 };
