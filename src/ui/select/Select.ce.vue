@@ -6,6 +6,7 @@
     :model-value="modelValue"
   >
     <SelectTrigger
+      v-bind="$attrs"
       :class="cn(styles.select.root, props.class)"
       :data-hover="props.dataHover"
       :data-focus="props.dataFocus"
@@ -17,7 +18,11 @@
         :data-focus="props.dataFocus"
       />
       <span
-        v-if="isEmpty(placeholder) && isEmpty(modelValue)"
+        v-if="
+          (isEmpty(placeholder) &&
+            (isEmpty(modelValue) || isNull(modelValue))) ||
+          !hasSelectedItem
+        "
         :class="styles.select.value"
         class="pointer-events-none invisible select-none"
       >
@@ -92,7 +97,7 @@ import SelectIndicator from "./SelectIndicator.vue";
 import Icon from "../icon/Icon.vue";
 
 // --- utils
-import { isEmpty, isEqual } from "lodash-es";
+import { isEmpty, isEqual, isNull, find } from "lodash-es";
 
 // --- types
 import type { SelectRootEmits, SelectContentEmits } from "radix-vue";
@@ -134,6 +139,10 @@ const open = ref(false);
 // --- This is needed as if we have changed items AFTER model is set then ...
 //     the component does not re-render with the correct selected value
 const uid = ref(timestamp());
+
+const hasSelectedItem = computed(
+  () => !!find(props.items, { value: modelValue.value })
+);
 
 const meta = computed(() => ({
   variant: props.variant,
