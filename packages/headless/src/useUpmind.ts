@@ -133,7 +133,7 @@ export class Upmind {
 
         // then initialise our core modules and wait for them to be ready
         return (
-          Promise.all([
+          Promise.allSettled([
             useBrand().isReady(),
             useSystem().isReady(),
             useSession().isReady()

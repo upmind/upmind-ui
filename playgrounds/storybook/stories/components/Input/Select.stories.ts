@@ -135,6 +135,12 @@ export const States: Story = {
 
         <Select v-bind="args" @update:modelValue="doUpdate" model-value="1" :width="width" />
       </div>
+
+      <div>
+        <h3 class="text-sm/loose text-muted">Error / Invalid</h3>
+
+        <Select v-bind="args" @update:modelValue="doUpdate" aria-invalid="true" :width="width" />
+      </div>
     </section>
     `
   })
