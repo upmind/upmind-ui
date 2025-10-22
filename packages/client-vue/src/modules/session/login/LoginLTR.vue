@@ -5,19 +5,27 @@
     </template>
 
     <template #content>
-      <LoginForm />
+      <Section title="Login" icon="user-03">
+        <LoginForm />
+      </Section>
     </template>
 
     <template #aside>
-      <LoginAside />
+      <Section :title="t('text.summary')" aside icon="shopping-bag-02">
+        <LoginAside />
+      </Section>
     </template>
   </Layout>
 </template>
 
 <script lang="ts" setup>
+import { useI18n } from "vue-i18n";
 import { LAYOUT_VARIANTS } from "@upmind-automation/upmind-ui";
 import Layout from "../../../components/layout/Layout.vue";
+import Section from "../../../components/content/LayoutSection.vue";
 import LoginHeader from "./components/LoginHeader.vue";
 import LoginForm from "./components/LoginForm.vue";
 import LoginAside from "./components/LoginAside.vue";
+
+const { t } = useI18n();
 </script>

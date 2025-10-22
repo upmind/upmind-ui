@@ -1,23 +1,20 @@
 <template>
-  <Section title="Login" icon="user-03">
-    <div>
-      <Auth
-        class="rounded-box w-full max-w-5xl items-start"
-        no-tabs
-        no-header
-        model-value="login"
-        @update:model-value="doUpdate"
-        @resolve="doResolve"
-      />
-    </div>
-  </Section>
+  <div>
+    <Auth
+      class="rounded-box w-full max-w-5xl items-start"
+      no-tabs
+      no-header
+      model-value="login"
+      @update:model-value="doUpdate"
+      @resolve="doResolve"
+    />
+  </div>
 </template>
 
 <script lang="ts" setup>
 import { useRoutingEngine, ROUTE } from "@upmind-automation/headless";
-import Auth from "../../shared/Auth.vue";
-import Section from "../../../../components/content/LayoutSection.vue";
-import type { AuthProps } from "../../shared/types";
+import Auth from "../../components/Auth.vue";
+import type { AuthProps } from "../../types";
 
 const { navigateNext, navigateBack, navigate, isResolved } = useRoutingEngine();
 
