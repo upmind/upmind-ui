@@ -55,8 +55,9 @@ import { computed } from "vue";
 import DefaultLayout from "./DefaultLayout.vue";
 import EnclosedLayout from "./EnclosedLayout.vue";
 import FullLayout from "./FullLayout.vue";
-import TwoColumnLTR from "./TwoColumnLTR.vue";
-import TwoColumnRTL from "./TwoColumnRTL.vue";
+import TwoColumnLTRLayout from "./TwoColumnLTRLayout.vue";
+import TwoColumnRTLLayout from "./TwoColumnRTLLayout.vue";
+import SplitLayout from "./SplitLayout.vue";
 
 // --- types
 import type { LayoutProps } from "./types";
@@ -75,10 +76,13 @@ const layoutComponent = computed(() => {
       return EnclosedLayout;
 
     case "two-column-LTR":
-      return TwoColumnLTR;
+      return TwoColumnLTRLayout;
 
     case "two-column-RTL":
-      return TwoColumnRTL;
+      return TwoColumnRTLLayout;
+
+    case "split":
+      return SplitLayout;
 
     case "full":
     default:

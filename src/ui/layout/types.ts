@@ -6,7 +6,8 @@ export interface LayoutProps {
     | "enclosed"
     | "full"
     | "two-column-LTR"
-    | "two-column-RTL";
+    | "two-column-RTL"
+    | "split";
   minimal?: boolean;
   overflow?: "hidden" | "visible";
   sticky?: boolean;
@@ -26,5 +27,6 @@ export const enum LAYOUT_VARIANTS {
   ENCLOSED = "enclosed",
   FULL = "full",
   TWO_COLUMN_LTR = "two-column-LTR",
-  TWO_COLUMN_RTL = "two-column-RTL"
+  TWO_COLUMN_RTL = "two-column-RTL",
+  SPLIT = "split"
 }
