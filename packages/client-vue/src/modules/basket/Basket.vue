@@ -133,7 +133,7 @@ import ProductCards from "./product/BasketProductCards.vue";
 import Form from "../../components/form/Form.vue";
 import Back from "../../components/navigation/Back.vue";
 import Section from "../../components/content/LayoutSection.vue";
-import BasketErrors from "./components/Errors.vue";
+import BasketErrors from "./components/BasketErrors.vue";
 
 // ---utils
 

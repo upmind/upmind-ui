@@ -164,33 +164,19 @@ const router = createRouter({
       }
     }
   ],
-  scrollBehavior(to, from, savedPosition) {
-    if (savedPosition) {
-      return savedPosition; // Restore scroll position on back/forward
-    } else if (to.hash) {
+  scrollBehavior(to, _from, _savedPosition) {
+    // handle scroll to anchor on same page
+    if (to.hash) {
       return {
-        el: to.hash, // Scroll to the element with the ID matching the hash
-        behavior: "smooth" // Optional: smooth scrolling
-        // top: 108 // set an offset for fixed headers
+        el: to.hash,
+        behavior: "smooth",
+        top: 108
       };
     } else {
       // always scroll to top
-      return { behavior: "smooth", left: 0, top: 0 }; // Scroll to top for other navigations
+      return { behavior: "smooth", top: 0 };
     }
   }
-  // scrollBehavior(to, _from, _savedPosition) {
-  //   // handle scroll to anchor on same page
-  //   if (to.hash) {
-  //     return {
-  //       el: to.hash,
-  //       behavior: "smooth",
-  //       top: 108
-  //     };
-  //   } else {
-  //     // always scroll to top
-  //     return { behavior: "smooth", top: 0 };
-  //   }
-  // }
 });
 
 // -----------------------------------------------------
