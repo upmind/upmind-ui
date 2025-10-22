@@ -8,11 +8,11 @@
       data-testid="billing"
     >
       <template v-slot:[`content.personal`]>
-        <TabPersonal v-model="modelValue" />
+        <TabPersonal v-model="modelValue" v-model:touched="touched" />
       </template>
 
       <template v-slot:[`content.business`]>
-        <TabBusiness v-model="modelValue" />
+        <TabBusiness v-model="modelValue" v-model:touched="touched" />
       </template>
     </Tabs>
   </Loading>
@@ -51,6 +51,7 @@ const props = withDefaults(defineProps<Omit<BillingProps, "modelValue">>(), {
 });
 
 const modelValue = defineModel<BillingProps["modelValue"]>("modelValue");
+const touched = defineModel<BillingProps["touched"]>("touched");
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();

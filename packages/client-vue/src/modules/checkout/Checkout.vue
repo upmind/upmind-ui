@@ -23,6 +23,7 @@
     <template #default>
       <!-- Basket Errors -->
       <BasketErrors
+        id="basket-errors"
         :basket-billing="!uischema.showBillingOnCheckout"
         :basket-fields="!uischema.showFieldsOnCheckout"
         :basket-products="!uischema.showProductsOnCheckout"
@@ -39,7 +40,7 @@
 
       <!-- Additional Options -->
       <Section
-        id="additional-details"
+        id="basket-fields"
         :title="t('text.additional_details')"
         v-show="uischema.showFieldsOnCheckout"
       >
@@ -60,11 +61,11 @@
 
       <!-- Billing Details -->
       <Section
-        v-show="uischema.showBillingOnCheckout"
-        id="billing-details"
+        id="basket-billing"
         :title="t('text.billing_details')"
+        v-show="uischema.showBillingOnCheckout"
       >
-        <BillingDetails />
+        <BillingDetails :touched="meta.showErrors" />
       </Section>
 
       <!-- Payment Details -->
@@ -84,7 +85,7 @@
 
     <template #aside-footer>
       <Alert
-        v-if="meta.hasError"
+        v-if="meta.hasErrors"
         color="danger"
         icon="alert-triangle"
         :title="t('error.checkout')"

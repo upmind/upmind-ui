@@ -68,7 +68,7 @@ const service = interpret(basketMachine, { devTools: true });
 
 export const useBasket = () => {
   const { t } = useI18n();
-  const { includesTax, getConfigValue } = useBrand();
+  const { includesTax, getConfigValue, uischema_Display } = useBrand();
   const { meta: sessionMeta } = useSession();
   if (service.status == InterpreterStatus.NotStarted) service.start();
   const { state, send } = useActor(service);
@@ -182,7 +182,8 @@ export const useBasket = () => {
       isComplete: stateMatches(state, ["complete", "failed"]),
       hasPaid: stateMatches(state, ["complete"]),
       hasFailed: stateMatches(state, ["failed"]),
-      hasError: contextMatches(state, ["error.code"]) //NB only show if we have single errors, not parsed BE errors
+      hasErrors: contextMatches(state, ["error.code"]), //NB only show if we have single errors, not parsed BE errors
+      showErrors: contextMatches(state, ["attempts"])
     };
   });
 
@@ -232,19 +233,26 @@ export const useBasket = () => {
   const taxes = useContext<IBasket["taxes"]>(state, "basket.taxes", []);
 
   const uischema = computed(() => {
-    // Checkout
     return {
       showPromotionsOnCheckout: !getConfigValue(
         BrandConfigKeys.CHECKOUT_HIDE_DISCOUNT_CODE_FIELD
       ),
 
       showProductsOnCheckout:
-        getConfigValue(BrandConfigKeys.CHECKOUT_FLOW) != CheckoutFlows.STEPPED,
+        uischema_Display.value?.checkout?.basketProducts === "visible" ||
+        (uischema_Display.value?.checkout?.basketProducts === "on_error" &&
+          !!productsInvalid.value.length),
 
       showFieldsOnCheckout:
-        getConfigValue(BrandConfigKeys.CHECKOUT_FLOW) !== CheckoutFlows.STEPPED,
+        uischema_Display.value?.checkout?.basketFields === "visible" ||
+        (uischema_Display.value?.checkout?.basketFields === "on_error" &&
+          machineMatches(actors.customFields, ["error", "invalid"])),
 
-      showBillingOnCheckout: true // always show until we add the Billing Details Route
+      showBillingOnCheckout:
+        true /* always show until we add the Billing Details Route*/ ||
+        uischema_Display.value?.checkout?.basketBilling === "visible" ||
+        (uischema_Display.value?.checkout?.basketBilling === "on_error" &&
+          machineMatches(actors.billing, ["error", "invalid"]))
     };
   });
   // --- methods
@@ -517,7 +525,7 @@ export const useBasket = () => {
      * @property {boolean} isComplete - Indicates if the basket is complete.
      * @property {boolean} hasPaid - Indicates if the basket has been paid.
      * @property {boolean} hasFailed - Indicates if the basket has failed.
-     * @property {boolean} hasError - Indicates if the basket has an error.
+     * @property {boolean} hasErrors - Indicates if the basket has an error.
      */
     meta,
 

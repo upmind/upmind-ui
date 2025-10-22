@@ -18,11 +18,7 @@
 
     <template #default>
       <!-- Basket Errors -->
-      <BasketErrors
-        basket-billing="BASKET"
-        basket-fields="CHECKOUT"
-        basket-products="CHECKOUT"
-      />
+      <BasketErrors />
 
       <!-- Basket Products -->
       <Section
@@ -47,9 +43,9 @@
         </template>
       </Section>
 
-      <!-- Additional Details -->
+      <!-- Basket Fields -->
       <Section
-        id="additional-details"
+        id="basket-fields"
         :title="t('text.additional_details')"
         :class="styles.basket.customFields.root"
         :ui-config="{
@@ -63,7 +59,7 @@
           v-if="!fieldsMeta.isLoading"
           :additional-errors="fieldsErrors?.data"
           :model-value="fieldsModel"
-          :touched="route.hash === '#additional-details'"
+          :touched="route.hash === '#basket-fields'"
           :schema="fieldsSchema"
           :uischema="fieldsUischema"
           @reject="fieldsClear"

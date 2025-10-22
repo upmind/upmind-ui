@@ -33,6 +33,7 @@ export interface BasketContext {
   };
   authHelper?: ActorRef<any>;
   payment?: ActorRef<any>;
+  attempts?: number;
   // --- Payment
   paymentDetail?: PaymentDetailData;
 }

@@ -41,7 +41,7 @@
                 :label="t('action.review')"
                 :to="{
                   name: safeBasketFieldsRoute,
-                  hash: '#additional-details'
+                  hash: '#basket-fields'
                 }"
               />
             </template>
@@ -56,7 +56,7 @@
                 :label="t('action.review')"
                 :to="{
                   name: safeBasketBillingRoute,
-                  hash: '#billing-details'
+                  hash: '#basket-billing'
                 }"
               />
             </template>
