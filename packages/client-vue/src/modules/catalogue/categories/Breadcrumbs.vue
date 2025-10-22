@@ -42,8 +42,7 @@ const items = computed(() => {
   const currentCategory = getOne(modelValue.value ?? "");
   const variant =
     currentCategory?.uiMeta?.uischema?.config?.breadcrumbs ||
-    uiCart.value?.ui?.uischema?.config?.breadcrumbs ||
-    BreadcrumbVariant.VISIBLE;
+    uiCart.value?.ui?.uischema?.config?.breadcrumbs;
 
   if (variant === BreadcrumbVariant.HIDDEN) {
     return items;
@@ -63,11 +62,6 @@ const items = computed(() => {
     }
   });
 
-  // For CATEGORY variant, only show shop
-  if (variant === BreadcrumbVariant.CATEGORY) {
-    return items;
-  }
-
   // For condensed, show ellipsis before the last category if there are multiple
   if (variant === BreadcrumbVariant.CONDENSED && paths.length > 1) {
     items.push({
@@ -75,30 +69,50 @@ const items = computed(() => {
     });
   }
 
-  // Categories
-  const onlyLastCategory =
-    variant === BreadcrumbVariant.CONDENSED ||
-    variant === BreadcrumbVariant.CATEGORY;
-  const categories = compact(onlyLastCategory ? [last(paths)] : paths);
-
-  // Add category items
-  items.push(
-    ...map(categories, (category: ProductCategory) => ({
-      label: category.title,
-      current: category.id === modelValue.value,
-      to: {
-        name: ROUTE.CATALOGUE,
-        query: {
-          sort: props.sort,
-          direction: props.direction,
-          catid: category.id
+  // Categories: show all for VISIBLE, parent for CONDENSED, last for CATEGORY
+  if (variant === BreadcrumbVariant.VISIBLE) {
+    items.push(
+      ...map(paths, (category: ProductCategory) => ({
+        label: category.title,
+        current: category.id === modelValue.value,
+        to: {
+          name: ROUTE.CATALOGUE,
+          query: {
+            sort: props.sort,
+            direction: props.direction,
+            catid: category.id
+          }
+        },
+        handler: () => {
+          modelValue.value = category.id;
         }
-      },
-      handler: () => {
-        modelValue.value = category.id;
-      }
-    }))
-  );
+      }))
+    );
+  } else if (variant === BreadcrumbVariant.CONDENSED && paths.length > 1) {
+    // CONDENSED shows parent (or last if no parent), CATEGORY shows last
+    const category =
+      variant === BreadcrumbVariant.CONDENSED && paths.length > 1
+        ? paths[paths.length - 2]
+        : last(paths);
+
+    if (category) {
+      items.push({
+        label: category.title,
+        current: category.id === modelValue.value,
+        to: {
+          name: ROUTE.CATALOGUE,
+          query: {
+            sort: props.sort,
+            direction: props.direction,
+            catid: category.id
+          }
+        },
+        handler: () => {
+          modelValue.value = category.id;
+        }
+      });
+    }
+  }
 
   return items;
 });
