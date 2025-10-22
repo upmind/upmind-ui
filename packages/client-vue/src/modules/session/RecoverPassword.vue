@@ -50,7 +50,7 @@ import Header from "../../components/content/Header.vue";
 import Section from "../../components/content/LayoutSection.vue";
 
 // --- types
-import type { AuthProps } from "../types";
+import type { AuthProps } from "./types";
 
 // -----------------------------------------------------------------------------
 

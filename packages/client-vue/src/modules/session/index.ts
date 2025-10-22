@@ -10,7 +10,7 @@ export const UpmSessionLogoutView = import("./Logout.vue");
 export const UpmSessionRecoverPasswordView = import("./RecoverPassword.vue");
 
 // --- Export Components
-export { default as UpmAuth } from "./shared/Auth.vue";
+export { default as UpmAuth } from "./components/Auth.vue";
 
 // --- Export Types
-export * from "./shared/types";
+export * from "./types";
