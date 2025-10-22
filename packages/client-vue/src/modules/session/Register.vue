@@ -52,6 +52,8 @@
                 class="has-text-grey-light"
                 href="https://policies.google.com/privacy"
                 target="_blank"
+                size="inherit"
+                color="inherit"
                 >{{ $t("text.privacy_policy") }}</Link
               >
             </template>
@@ -60,6 +62,8 @@
                 class="has-text-grey-light"
                 href="https://policies.google.com/terms"
                 target="_blank"
+                size="inherit"
+                color="inherit"
                 >{{ $t("text.terms_of_service") }}</Link
               >
             </template>
