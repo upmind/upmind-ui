@@ -8,7 +8,9 @@
       <Link
         :to="{ name: ROUTE.SESSION_LOGIN }"
         size="inherit"
+        color="inherit"
         :label="t('action.log_in_here')"
+        class="font-normal"
       />
     </template>
   </Header>
