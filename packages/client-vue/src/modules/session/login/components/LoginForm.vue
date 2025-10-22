@@ -15,9 +15,9 @@
 
 <script lang="ts" setup>
 import { useRoutingEngine, ROUTE } from "@upmind-automation/headless";
-import Auth from "../Auth.vue";
+import Auth from "../../shared/Auth.vue";
 import Section from "../../../../components/content/LayoutSection.vue";
-import type { AuthProps } from "../types";
+import type { AuthProps } from "../../shared/types";
 
 const { navigateNext, navigateBack, navigate, isResolved } = useRoutingEngine();
 

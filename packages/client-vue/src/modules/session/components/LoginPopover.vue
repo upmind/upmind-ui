@@ -31,7 +31,7 @@ import { includes } from "lodash-es";
 import { useSession } from "@upmind-automation/headless";
 
 // --- components
-import Session from "../components/Session.vue";
+import Session from "./Session.vue";
 
 import {
   Popover,
@@ -39,7 +39,7 @@ import {
   PopoverTrigger
 } from "@upmind-automation/upmind-ui";
 import { ROUTE } from "@upmind-automation/headless";
-import type { AuthProps } from "./types";
+import type { AuthProps } from "../types";
 
 // -----------------------------------------------------------------------------
 

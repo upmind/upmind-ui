@@ -49,7 +49,7 @@ import {
   ROUTE
 } from "@upmind-automation/headless";
 import { Link } from "@upmind-automation/upmind-ui";
-import Auth from "../Auth.vue";
+import Auth from "../../shared/Auth.vue";
 import Section from "../../../../components/content/LayoutSection.vue";
 
 const { t } = useI18n();

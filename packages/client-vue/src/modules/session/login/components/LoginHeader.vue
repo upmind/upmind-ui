@@ -1,11 +1,7 @@
 <template>
   <Header :title="t('auth.welcome_back')">
     <template #description>
-      <i18n-t
-        keypath="auth.please_login_to_continue"
-        scope="global"
-        tag="span"
-      >
+      <i18n-t keypath="auth.please_login_to_continue" scope="global" tag="span">
         <template #[`create_one_here`]>
           <Link
             :to="{ name: ROUTE.SESSION_REGISTER }"
