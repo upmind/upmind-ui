@@ -242,7 +242,9 @@ export const useBasket = () => {
         getConfigValue(BrandConfigKeys.CHECKOUT_FLOW) != CheckoutFlows.STEPPED,
 
       showFieldsOnCheckout:
-        getConfigValue(BrandConfigKeys.CHECKOUT_FLOW) !== CheckoutFlows.STEPPED
+        getConfigValue(BrandConfigKeys.CHECKOUT_FLOW) !== CheckoutFlows.STEPPED,
+
+      showBillingOnCheckout: true // always show until we add the Billing Details Route
     };
   });
   // --- methods

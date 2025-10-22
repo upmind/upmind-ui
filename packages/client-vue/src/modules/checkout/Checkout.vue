@@ -22,13 +22,17 @@
 
     <template #default>
       <!-- Basket Errors -->
-      <BasketErrors />
+      <BasketErrors
+        :basket-billing="!uischema.showBillingOnCheckout"
+        :basket-fields="!uischema.showFieldsOnCheckout"
+        :basket-products="!uischema.showProductsOnCheckout"
+      />
 
       <!-- Basket Products -->
       <Section
         id="basket-products"
         :title="t('cart.basket_products')"
-        v-if="uischema.showProductsOnCheckout"
+        v-show="uischema.showProductsOnCheckout"
       >
         <ProductCards />
       </Section>
@@ -37,7 +41,7 @@
       <Section
         id="additional-details"
         :title="t('text.additional_details')"
-        v-if="uischema.showFieldsOnCheckout"
+        v-show="uischema.showFieldsOnCheckout"
       >
         <Form
           v-if="!fieldsMeta.isLoading"
@@ -55,7 +59,11 @@
       </Section>
 
       <!-- Billing Details -->
-      <Section id="billing-details" :title="t('text.billing_details')">
+      <Section
+        v-show="uischema.showBillingOnCheckout"
+        id="billing-details"
+        :title="t('text.billing_details')"
+      >
         <BillingDetails />
       </Section>
 
@@ -142,7 +150,7 @@ import Back from "../../components/navigation/Back.vue";
 import Section from "../../components/content/LayoutSection.vue";
 import ProductCards from "../basket/product/BasketProductCards.vue";
 import Form from "../../components/form/Form.vue";
-import BasketErrors from "../basket/components/Errors.vue";
+import BasketErrors from "../basket/components/BasketErrors.vue";
 
 // --- types
 import type { CheckoutProps } from "./types";
