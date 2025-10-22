@@ -58,6 +58,7 @@ import FullLayout from "./FullLayout.vue";
 import TwoColumnLTRLayout from "./TwoColumnLTRLayout.vue";
 import TwoColumnRTLLayout from "./TwoColumnRTLLayout.vue";
 import SplitLayout from "./SplitLayout.vue";
+import CanvasCardLayout from "./CanvasCardLayout.vue";
 
 // --- types
 import type { LayoutProps } from "./types";
@@ -83,6 +84,9 @@ const layoutComponent = computed(() => {
 
     case "split":
       return SplitLayout;
+
+    case "canvas-card":
+      return CanvasCardLayout;
 
     case "full":
     default:

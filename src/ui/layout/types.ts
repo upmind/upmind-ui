@@ -7,7 +7,8 @@ export interface LayoutProps {
     | "full"
     | "two-column-LTR"
     | "two-column-RTL"
-    | "split";
+    | "split"
+    | "canvas-card";
   minimal?: boolean;
   overflow?: "hidden" | "visible";
   sticky?: boolean;
@@ -22,11 +23,12 @@ export interface SectionProps {
   variant?: LayoutProps["variant"];
 }
 
-export const enum LAYOUT_VARIANTS {
+export enum LAYOUT_VARIANTS {
   DEFAULT = "default",
   ENCLOSED = "enclosed",
   FULL = "full",
   TWO_COLUMN_LTR = "two-column-LTR",
   TWO_COLUMN_RTL = "two-column-RTL",
-  SPLIT = "split"
+  SPLIT = "split",
+  CANVAS_CARD = "canvas-card"
 }
