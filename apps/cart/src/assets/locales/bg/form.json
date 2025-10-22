@@ -28,17 +28,17 @@
     "placeholder": "Парола или парола"
   },
   "card_cvv": {
-    "error": "A valid CVV is required",
+    "error": "Изисква се валиден CVV",
     "label": "CVV",
     "placeholder": "CVC код"
   },
   "card_expiry": {
-    "error": "A valid expiry date is required",
+    "error": "Изисква се валидна дата на изтичане",
     "label": "Дата на изтичане",
     "placeholder": "ММ/ГГ"
   },
   "card_num": {
-    "error": "A valid card number is required",
+    "error": "Необходим е валиден номер на карта",
     "label": "Номер на карта",
     "placeholder": "1234 1234 1234 1234"
   },
@@ -108,7 +108,7 @@
     "placeholder": "Търсене по име на продукт..."
   },
   "promocode": {
-    "error": "Невалиден промоционален код",
+    "error": "Необходим е валиден промо код",
     "placeholder": "Въведете кода на ваучера тук"
   },
   "recover": {

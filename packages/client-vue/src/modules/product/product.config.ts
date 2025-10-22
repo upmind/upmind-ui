@@ -9,7 +9,7 @@ export default {
 
     card: {
       root: cva(
-        "bg-base relative flex w-full flex-wrap items-stretch gap-6 rounded-lg border p-6 text-base",
+        "bg-surface relative flex w-full flex-wrap items-stretch gap-6 rounded-lg border p-6 text-base",
         {
           variants: {
             isProcessing: {
@@ -264,7 +264,7 @@ export default {
             }
           }),
           // ---
-          title: cva("text-md m-0 font-medium text-nowrap text-inherit"),
+          title: cva("text-md/tight m-0 font-medium text-nowrap text-inherit"),
           text: cva("text-muted w-full text-sm font-normal"),
           total: cva("", {
             variants: {

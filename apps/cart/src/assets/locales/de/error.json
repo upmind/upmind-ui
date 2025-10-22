@@ -77,6 +77,8 @@
   "payment_details_update_failed": "Beim Aktualisieren der Zahlungsdetails ist ein Fehler aufgetreten",
   "payment_details_validation_failed": "Validierung der Zahlungsdetails fehlgeschlagen",
   "payment_gateway_not_available": "Zahlungsgateway nicht verfügbar",
+  "payment_gateway_not_supported_msg": "Sie können Ihre Bestellung weiterhin aufgeben und später bezahlen.",
+  "payment_gateway_not_supported_title": "Dieses Gateway kann derzeit keine Zahlungen entgegennehmen.",
   "payment_gateway_update_failed": "Beim Aktualisieren des Zahlungsgateways ist ein Fehler aufgetreten",
   "payment_gateway_validation_failed": "Validierung des Zahlungsgateways fehlgeschlagen",
   "payment_gateways_not_available_msg": "Sie können Ihre Bestellung jetzt abschicken und die Zahlung später abschließen. Unser Support-Team hilft Ihnen gerne weiter.",

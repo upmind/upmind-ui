@@ -7,7 +7,7 @@
     },
     "existing": {
       "label": "Vorhandene Domäne verwenden",
-      "tooltip": "Sie können eine vorhandene Domain verwenden, indem Sie die Nameserver aktualisieren."
+      "tooltip": "Sie können eine bestehende Domain verwenden, indem Sie die Nameserver aktualisieren."
     },
     "register": {
       "label": "Neue Domain registrieren",

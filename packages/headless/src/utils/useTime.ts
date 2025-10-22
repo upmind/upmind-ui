@@ -1,7 +1,10 @@
-import dayjs from "dayjs";
+// --- external
 import utc from "dayjs/plugin/utc";
+import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { isEmpty } from "lodash-es";
+
+// --- utils
+import { isNil } from "lodash-es";
 
 dayjs.extend(utc);
 dayjs.extend(relativeTime);
@@ -44,11 +47,18 @@ export function useRelativeTime(
   timestamp: EpochTimeStamp | string,
   currentTime?: EpochTimeStamp
 ): string {
-  if (isEmpty(timestamp)) return "";
+  // Guard against null/undefined inputs using lodash
+  if (isNil(timestamp)) return "";
+  if (isNil(currentTime)) return "";
 
   const now = dayjs(currentTime);
-  const target = dayjs.utc(timestamp).local();
-  const relativeTime = target.from(now);
+  const target =
+    typeof timestamp === "string"
+      ? dayjs.utc(timestamp).local()
+      : dayjs(timestamp);
 
-  return relativeTime;
+  // If both times are the same, normalise to "now"
+  if (target.valueOf() === now.valueOf()) return "now";
+
+  return target.from(now);
 }

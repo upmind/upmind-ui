@@ -8,39 +8,30 @@ import { invalidateQueryByKey } from "../query";
 
 // --- utils
 import {
+  every,
+  find,
+  forEach,
   get,
   has,
-  find,
-  some,
-  every,
-  reject,
-  isEmpty,
+  includes,
   isArray,
+  isEmpty,
   isString,
   keys,
-  includes,
-  forEach
+  some
 } from "lodash-es";
 
 // --- types
 import type {
-  IStatus,
-  IRegion,
-  ICountry,
-  ILanguage,
-  ICurrency,
   IBillingCycle,
-  ITicketDepartment
+  ICountry,
+  IRegion
 } from "@upmind-automation/types";
-import { useFeedback } from "../feedback";
-import { mapToHeadlessError } from "../../utils";
-
-const { addError } = useFeedback();
 
 // -----------------------------------------------------------------------------
 /**
- * Context to let us understand if we need to refetch on the inital use of Brand settings
- * We do this because settings are persisted for fast load times but we still need
+ * Context to let us understand if we need to refetch on the initial use of Brand settings
+ * We do this because settings are persisted for fast load times, but we still need
  * to ensure that we get the latest settings in the background
  * NB:check if we actually have any persisted settings first
  *
@@ -60,31 +51,19 @@ let billingCyclesQuery: ReturnType<typeof services.fetchBillingCycles>;
  * and includes utility methods for fetching data.
  */
 export const useSystem = () => {
-  const { isReady: brandIsReady, countryId, currencyId } = useBrand();
-
   // --- queries (auto-loading essential data)
   countriesQuery ??= services.fetchCountries();
   billingCyclesQuery ??= services.fetchBillingCycles();
 
   // --- state
 
-  const queries = [
-    billingCyclesQuery,
-    countriesQuery
-    // departmentsQuery,
-    // statusesQuery
-  ];
+  const queries = [billingCyclesQuery, countriesQuery];
 
   // --- meta information
   const meta = computed(() => {
-    const essentialQueries = reject(
-      [countriesQuery, billingCyclesQuery],
-      isEmpty
-    );
-
-    const hasError = computed(() => some(queries, "isError"));
-    const isLoading = computed(() => some(queries, "isLoading"));
-    const isComplete = computed(() => every(queries, "isComplete"));
+    const hasError = computed(() => some(queries, "isError.value"));
+    const isLoading = computed(() => some(queries, "isLoading.value"));
+    const isComplete = computed(() => every(queries, "isFetched.value"));
 
     return {
       isEmpty: queries.some(q => isEmpty(q?.data?.value)),
@@ -98,15 +77,13 @@ export const useSystem = () => {
 
   // --- readiness check
   async function isReady(): Promise<boolean> {
-    return brandIsReady().then(() => {
-      return new Promise(resolve => {
-        const interval = setInterval(() => {
-          if (meta.value.isComplete) {
-            clearInterval(interval);
-            resolve(!meta.value.hasError);
-          }
-        }, 100);
-      });
+    return new Promise(resolve => {
+      const interval = setInterval(() => {
+        if (meta.value.isComplete.value) {
+          clearInterval(interval);
+          resolve(!meta.value.hasError.value);
+        }
+      }, 100);
     });
   }
 
@@ -147,6 +124,8 @@ export const useSystem = () => {
   }
 
   function getCountry(value?: string | null): ICountry {
+    const { countryId } = useBrand();
+
     // if we are not passed a country, then we need to get the default country
     value ??= countryId.value;
 
@@ -164,6 +143,8 @@ export const useSystem = () => {
 
   // --- fetch methods
   async function fetchRegions(country?: ICountry | string): Promise<IRegion[]> {
+    const { countryId } = useBrand();
+
     // if we are not passed a country, then we need to get the default country
     country ??= countryId.value;
 
@@ -175,20 +156,18 @@ export const useSystem = () => {
     const countryCode = country.code;
     // Check if we already have a query for this country
     if (has(stores.regions.state, countryCode)) {
-      const regions = stores.regions.state[countryCode];
-      return regions;
+      return stores.regions.state[countryCode];
     }
 
     const query = services.fetchRegions({
       data: { id: country.id, code: country.code }
     });
 
-    const regions = await query!.promise.value;
-    return regions;
+    return await query!.promise.value;
   }
 
   async function fetchCountries(): Promise<ICountry[]> {
-    if (!countriesQuery?.isFetched) await countriesQuery?.refetch();
+    if (!countriesQuery?.isFetched?.value) await countriesQuery?.refetch();
     return countries.value;
   }
 
@@ -205,7 +184,7 @@ export const useSystem = () => {
 
   // --- side effects
 
-  // after first load, ensure we refetch our data in the background if we have previously fetched/persisted
+  // after the first load, ensure we refetch our data in the background if we have previously fetched/persisted
   isReady().then(() => {
     if (needsRefresh) {
       refresh();

@@ -62,13 +62,17 @@ export const usePaymentGateway = (actor: ComputedRef<Actor | undefined>) => {
 
   const meta = computed(() => ({
     needsPayment:
-      contextValue<number>(actor, "amount", 0)! >= 0 &&
-      !contextMatches(actor, "gateway.type", GatewayTypes.OFFLINE),
+      !!actor.value &&
+      contextValue<number>(actor.value, "amount", 0)! >= 0 &&
+      !contextMatches(actor.value, "gateway.type", GatewayTypes.OFFLINE) &&
+      contextValue<boolean>(actor.value, "supported") === true,
     // contextMatches(actor, "gateway.payment_types", [
     //   PaymentType.PARTIAL_PAYMENT,
     //   PaymentType.PAY_IN_FULL
     // ]),
-    isLoading: !actor.value || stateMatches(actor.value, ["loading"]),
+    isNotSupported:
+      !actor.value || contextValue<boolean>(actor.value, "supported") !== true,
+    isLoading: !!actor.value && stateMatches(actor.value, ["loading"]),
     isRendering: !actor.value || stateMatches(actor.value, ["rendering"]),
     isAvailable: !!actor.value && stateMatches(actor, ["available"]),
     isUnavailable: !!actor.value && stateMatches(actor, ["unavailable"]),

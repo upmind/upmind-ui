@@ -84,7 +84,7 @@ test.describe("Verify checkout billing detail requirements", () => {
     );
     await expect(
       page.getByTestId("form-item-message-address-regionId")
-    ).toContainText("must have required property 'regionId'");
+    ).toContainText("Region must have required property");
   });
   test("Phone required at checkout", async ({ page, context }) => {
     await interceptConfigValues(page, token, {

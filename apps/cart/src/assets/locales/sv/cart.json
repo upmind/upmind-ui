@@ -40,7 +40,7 @@
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
   "promotion_help": "{code} ger {amount} rabatt {description}",
   "promotions_active": "Aktiva rabatter",
-  "recommendations_unavailable_text": "We couldn't find any recommendations for you at this time. Please click below to continue.",
-  "recommendations_unavailable_title": "We're sorry about that...",
+  "recommendations_unavailable_text": "Vi kunde inte hitta några rekommendationer för dig just nu. Vänligen klicka nedan för att fortsätta.",
+  "recommendations_unavailable_title": "Vi beklagar det...",
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}"
 }

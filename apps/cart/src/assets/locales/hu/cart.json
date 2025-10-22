@@ -40,7 +40,7 @@
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
   "promotion_help": "{code} biztosít {amount} kedvezmény {description}",
   "promotions_active": "Aktív kedvezmények",
-  "recommendations_unavailable_text": "We couldn't find any recommendations for you at this time. Please click below to continue.",
-  "recommendations_unavailable_title": "We're sorry about that...",
+  "recommendations_unavailable_text": "Jelenleg nem találtunk Önnek ajánlásokat. Kérjük, kattintson az alábbiakra a folytatáshoz.",
+  "recommendations_unavailable_title": "Elnézést kérünk ezért...",
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}"
 }

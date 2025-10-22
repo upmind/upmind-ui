@@ -1,5 +1,5 @@
 <template>
-  <nav v-if="meta.isAvailable" class="inline-flex items-center gap-2">
+  <nav v-if="meta.isAvailable" class="inline-flex items-center gap-3">
     <slot name="actions" />
 
     <Button

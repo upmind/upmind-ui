@@ -28,17 +28,17 @@
     "placeholder": "Κωδικός πρόσβασης ή φράση πρόσβασης"
   },
   "card_cvv": {
-    "error": "A valid CVV is required",
+    "error": "Απαιτείται έγκυρος κωδικός CVV",
     "label": "CVV",
     "placeholder": "Κωδικός Κωδικού"
   },
   "card_expiry": {
-    "error": "A valid expiry date is required",
+    "error": "Απαιτείται έγκυρη ημερομηνία λήξης",
     "label": "Ημερομηνία λήξης",
     "placeholder": "ΜΜ/ΕΕ"
   },
   "card_num": {
-    "error": "A valid card number is required",
+    "error": "Απαιτείται έγκυρος αριθμός κάρτας",
     "label": "Αριθμός κάρτας",
     "placeholder": "1234 1234 1234 1234"
   },

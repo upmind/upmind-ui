@@ -21,7 +21,10 @@ import type { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------
 
-async function load({ gateway }: GatewayContext, _event: AnyEventObject) {
+async function load(
+  { gateway, supported }: GatewayContext,
+  _event: AnyEventObject
+) {
   const { isAuthenticated } = useSession();
 
   await isAuthenticated().catch(error => Promise.reject(error));
@@ -38,24 +41,31 @@ async function load({ gateway }: GatewayContext, _event: AnyEventObject) {
     BrandConfigKeys.BILLING_GATEWAY_FORCE_AUTO_PAYMENT
   ]).then(data => {
     const config = {
-      canStore: canBeStored(gateway),
-      mustStore: get(
-        data,
-        BrandConfigKeys.BILLING_GATEWAY_FORCE_CARD_STORAGE,
-        gateway?.store_on_payment_force || false
-      ),
-      mustAutoPay: get(
-        data,
-        BrandConfigKeys.BILLING_GATEWAY_FORCE_AUTO_PAYMENT,
-        false
-      )
+      canStore: supported ? canBeStored(gateway) : false,
+      mustStore: supported
+        ? get(
+            data,
+            BrandConfigKeys.BILLING_GATEWAY_FORCE_CARD_STORAGE,
+            gateway?.store_on_payment_force || false
+          )
+        : false,
+      mustAutoPay: supported
+        ? get(data, BrandConfigKeys.BILLING_GATEWAY_FORCE_AUTO_PAYMENT, false)
+        : false
     };
     return config;
   });
 }
 
 async function parse(
-  { schema, model, canStore, mustStore, mustAutoPay }: GatewayContext,
+  {
+    schema,
+    model,
+    canStore,
+    mustStore,
+    mustAutoPay,
+    supported
+  }: GatewayContext,
   _event: AnyEventObject
 ) {
   model = useModelParser(schema, model);
@@ -69,7 +79,10 @@ async function parse(
   }
 
   // If we are not storing, we should not allow auto payment
-  if (!isNil(model.store_on_payment) && !model.store_on_payment) {
+  if (
+    !supported ||
+    (!isNil(model.store_on_payment) && !model.store_on_payment)
+  ) {
     model.store_on_payment_auto_payment = false;
   }
 
