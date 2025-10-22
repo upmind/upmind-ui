@@ -1,5 +1,5 @@
 <template>
-  <Layout :variant="LAYOUT_VARIANTS.TWO_COLUMN_RTL" :currency="false">
+  <Layout :variant="LAYOUT_VARIANTS.TWO_COLUMN_LTR" :currency="false">
     <template #content-header>
       <LoginHeader />
     </template>
@@ -16,8 +16,8 @@
 
 <script lang="ts" setup>
 import { LAYOUT_VARIANTS } from "@upmind-automation/upmind-ui";
-import Layout from "../../components/layout/Layout.vue";
-import LoginHeader from "./components/login/LoginHeader.vue";
-import LoginForm from "./components/login/LoginForm.vue";
-import LoginAside from "./components/login/LoginAside.vue";
+import Layout from "../../../components/layout/Layout.vue";
+import LoginHeader from "./components/LoginHeader.vue";
+import LoginForm from "./components/LoginForm.vue";
+import LoginAside from "./components/LoginAside.vue";
 </script>

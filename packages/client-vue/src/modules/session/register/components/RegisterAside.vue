@@ -1,5 +1,10 @@
 <template>
-  <Section v-if="meta.hasProducts" :title="t('text.summary')" aside icon="shopping-bag-02">
+  <Section
+    v-if="meta.hasProducts"
+    :title="t('text.summary')"
+    aside
+    icon="shopping-bag-02"
+  >
     <Summary :actions="false" />
   </Section>
 </template>

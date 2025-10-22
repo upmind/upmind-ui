@@ -54,7 +54,7 @@ import { isEmpty, isFunction } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
-import type { SessionExpiredProps } from "./types";
+import type { SessionExpiredProps } from "../types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<SessionExpiredProps>(), {

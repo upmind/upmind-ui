@@ -88,7 +88,7 @@ import { Link } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { ComputedRef } from "vue";
-import type { AuthProps } from "./types";
+import type { AuthProps } from "../types";
 
 // -----------------------------------------------------------------------------
 

@@ -3,6 +3,5 @@
 </template>
 
 <script lang="ts" setup>
-import RegisterLTR from "./RegisterLTR.vue";
-import RegisterRLT from "./RegisterRLT.vue";
+import RegisterLTR from "./register/RegisterLTR.vue";
 </script>

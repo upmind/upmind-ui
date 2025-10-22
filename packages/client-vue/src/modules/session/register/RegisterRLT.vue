@@ -16,8 +16,8 @@
 
 <script lang="ts" setup>
 import { LAYOUT_VARIANTS } from "@upmind-automation/upmind-ui";
-import Layout from "../../components/layout/Layout.vue";
-import RegisterHeader from "./components/register/RegisterHeader.vue";
-import RegisterForm from "./components/register/RegisterForm.vue";
-import RegisterAside from "./components/register/RegisterAside.vue";
+import Layout from "../../../components/layout/Layout.vue";
+import RegisterHeader from "./components/RegisterHeader.vue";
+import RegisterForm from "./components/RegisterForm.vue";
+import RegisterAside from "./components/RegisterAside.vue";
 </script>
