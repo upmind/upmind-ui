@@ -39,13 +39,18 @@
 </template>
 
 <script lang="ts" setup>
+// --- external
 import { watch } from "vue";
 import { useI18n } from "vue-i18n";
+
+// --- internal
 import {
   useRoutingEngine,
   useSession,
   ROUTE
 } from "@upmind-automation/headless";
+
+// --- components
 import { Link } from "@upmind-automation/upmind-ui";
 import Auth from "../../components/Auth.vue";
 

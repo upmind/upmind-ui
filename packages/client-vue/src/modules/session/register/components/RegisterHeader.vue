@@ -17,8 +17,13 @@
 </template>
 
 <script lang="ts" setup>
+// --- external
 import { useI18n } from "vue-i18n";
+
+// --- internal
 import { ROUTE } from "@upmind-automation/headless";
+
+// --- components
 import { Link } from "@upmind-automation/upmind-ui";
 import Header from "../../../../components/content/Header.vue";
 
