@@ -1,7 +1,7 @@
 import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
-export const currentVariants = cva("text-md", {
+export const currentVariants = cva("text-md/tight", {
   variants: {
     useMonthlyFromPrice: {
       true: "flex items-baseline gap-1",

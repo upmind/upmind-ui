@@ -14,7 +14,7 @@
   "price_by_n_years": "{price}/tahun | {price} /{n} tahun",
   "price_msg": "Pembayaran satu kali {price} | Dari {price} sebulan | Dari {price} setiap {period}",
   "quarterly": "Triwulanan",
-  "renews_msg": "Pembayaran satu kali | Diperbarui setiap {cycle}",
+  "renews_msg": "Pembayaran satu kali | Diperbarui setiap {cycle} | Diperbarui setiap {cycle}",
   "renews_usually_msg": "Biasanya {price}",
   "semiannually": "Dua kali setahun",
   "showing_items_summary": "Menampilkan {range} dari {total} barang-barang",

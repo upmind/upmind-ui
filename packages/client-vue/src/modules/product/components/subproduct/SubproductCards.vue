@@ -24,14 +24,14 @@
       :disabled="props.disabled"
       :errors="errors"
       :none-text="t('text.none')"
-      :placeholder="t('action.select_an_option')"
+      :placeholder="t('form.select_option.placeholder')"
       :multiple="subproduct.meta.multiple"
       :size="subproduct.uiMeta?.uischema?.options?.size"
     >
-      <template #item="{ item: { value } }">
+      <template #item="{ item: { id } }">
         <CardSubproduct
-          v-bind="getSubproductValue(value)"
-          @update:quantity="doUpdateQuantity(value, $event)"
+          v-bind="getSubproductValue(id)"
+          @update:quantity="doUpdateQuantity(id, $event)"
         />
       </template>
     </component>
