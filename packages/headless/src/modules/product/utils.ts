@@ -93,6 +93,7 @@ import type {
   UIMeta,
   ProductBreadcrumb
 } from "./types";
+import { UI_SCHEMA_DEFAULTS } from "./types";
 import { ErrorObject } from "ajv";
 import { IBrandMeta } from "../brand/types";
 
@@ -684,7 +685,14 @@ export const parseMeta = (
   );
 
   // Product meta has highest priority, so merge it last
-  return merge({}, result, productMeta);
+  result = merge({}, result, productMeta);
+
+  // Apply defaults if no value is provided
+  if (result.uischema) {
+    result.uischema = merge({}, UI_SCHEMA_DEFAULTS, result.uischema);
+  }
+
+  return result;
 };
 
 export const parseTermDetails = (raw: IProduct): TermDetails[] => {
