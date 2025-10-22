@@ -1,6 +1,6 @@
 <template>
   <div :class="styles.split.root">
-    <article :class="styles.split.article">
+    <article :class="styles.split.container">
       <!-- Header -->
       <header :class="styles.split.header">
         <slot name="header-left" />
@@ -51,7 +51,7 @@ const meta = computed(() => ({}));
 const styles = useStyles(["split"], meta, config) as ComputedRef<{
   split: {
     root: string;
-    article: string;
+    container: string;
     header: string;
     contentWrapper: string;
     contentInner: string;

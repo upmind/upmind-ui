@@ -1,34 +1,26 @@
 <template>
-  <div
-    class="flex min-h-screen w-full flex-col items-center justify-center p-5 lg:py-24"
-  >
-    <div class="max-w-app w-full">
+  <div :class="styles.canvasCard.root">
+    <div :class="styles.canvasCard.container">
       <!-- Header -->
-      <header class="w-full">
+      <header :class="styles.canvasCard.header">
         <slot name="header-left" />
       </header>
 
-      <Card
-        as="article"
-        class="bg-surface card-radius my-9 flex w-full flex-col justify-between gap-12 lg:flex-row lg:gap-32"
-        spacious
-      >
+      <Card as="article" :class="styles.canvasCard.card" spacious>
         <!-- Content Header -->
-        <section class="w-app-aside w-full">
+        <section :class="styles.canvasCard.contentHeader">
           <slot name="content-header" />
         </section>
 
         <!-- Content -->
-        <section class="w-full">
+        <section :class="styles.canvasCard.content">
           <slot name="content" />
           <slot name="default" />
         </section>
       </Card>
 
       <!-- Footer -->
-      <footer
-        class="flex w-full flex-col items-center gap-2 lg:flex-row lg:items-start lg:justify-between lg:gap-0"
-      >
+      <footer :class="styles.canvasCard.footer">
         <slot name="footer-content" />
         <slot name="footer-copyright" />
       </footer>
@@ -37,6 +29,26 @@
 </template>
 
 <script lang="ts" setup>
+import { computed, type ComputedRef } from "vue";
+import { useStyles } from "../../utils";
+import config from "./layout.config";
+import type { VariantProps } from "./types";
 // --- components
 import Card from "../card/Card.ce.vue";
+
+defineProps<VariantProps>();
+
+const meta = computed(() => ({}));
+
+const styles = useStyles(["canvasCard"], meta, config) as ComputedRef<{
+  canvasCard: {
+    root: string;
+    container: string;
+    header: string;
+    card: string;
+    contentHeader: string;
+    content: string;
+    footer: string;
+  };
+}>;
 </script>
