@@ -14,7 +14,7 @@
   "price_by_n_years": "{price}/år | {price} /{n} år",
   "price_msg": "Engangsbetaling af {price} | Fra {price} en måned | Fra {price} hver {period}",
   "quarterly": "Kvartalsvis",
-  "renews_msg": "Engangsbetaling | Fornyes hver {cycle}",
+  "renews_msg": "Engangsbetaling | Fornyes hver {cycle} | Fornyes hver {cycle}",
   "renews_usually_msg": "Som regel {price}",
   "semiannually": "Halvårligt",
   "showing_items_summary": "Viser {range} af {total} varer",

@@ -14,7 +14,7 @@
   "price_by_n_years": "{price}/anno | {price} /{n} anni",
   "price_msg": "Pagamento una tantum di {price} | Da {price} un mese | Da {price} ogni {period}",
   "quarterly": "Trimestrale",
-  "renews_msg": "Pagamento una tantum | Si rinnova ogni {cycle}",
+  "renews_msg": "Pagamento una tantum | Si rinnova ogni {cycle} | Si rinnova ogni {cycle}",
   "renews_usually_msg": "Generalmente {price}",
   "semiannually": "Semestralmente",
   "showing_items_summary": "Mostrando {range} Di {total} elementi",
