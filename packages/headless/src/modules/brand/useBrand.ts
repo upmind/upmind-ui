@@ -1,11 +1,11 @@
 // --- external
-import { toRaw, computed } from "vue";
+import { toRaw, computed, ref } from "vue";
 
 // --- internal
 import services from "./services";
 import { useRoutingEngine } from "../routing";
 import useUpmind, { ROUTE, invalidateQueryByKey } from "../../";
-import { parseFlattened } from "../../utils";
+// import { parseFlattened } from "../../utils";
 
 // --- utils
 import {
@@ -35,7 +35,7 @@ import {
   BrandConfigKeys,
   DefaultPaymentPeriod
 } from "@upmind-automation/types";
-import type { IBrandMeta } from "./types";
+import type { BrandMeta } from "./types";
 import type { CurrencyModel } from "../basket/currency/types";
 import { RouteLocationRaw } from "vue-router";
 
@@ -129,7 +129,7 @@ export const useBrand = () => {
   const uiTheme = computed(
     (): {
       tokens: string;
-      variant: IBrandMeta["variant"];
+      variant: BrandMeta["variant"];
     } => {
       const tokens = get(brandSettings.value, "style.tokens") as string;
       const variant = get(brandSettings.value, "meta.variant");
@@ -142,15 +142,16 @@ export const useBrand = () => {
     }
   );
 
-  const uiCart = computed<IBrandMeta["cart"]>(
-    () =>
-      parseFlattened(
-        get(brandSettings.value, "meta.cart")
-      ) as IBrandMeta["cart"]
+  const uiCart = computed<BrandMeta["cart"]>(
+    () => get(brandSettings.value, "meta.cart") as BrandMeta["cart"]
+  );
+
+  const uischema = computed<BrandMeta["uischema"]>(
+    () => get(brandSettings.value, "meta.uischema") as BrandMeta["uischema"]
   );
 
   const iconStyles = computed<{
-    variant: IBrandMeta["icon_variant"];
+    variant: BrandMeta["icon_variant"];
   }>(() => {
     return {
       variant: capitalize(get(brandSettings.value, "meta.icon_variant"))
@@ -458,6 +459,14 @@ export const useBrand = () => {
      * The current cart metaobject for the brand.
      */
     uiCart,
+
+    /**
+     * The  uischema for the brand cart base don brand meta data
+     *  with syntactic sugar for easier access contexts.
+     */
+    uischema,
+    uischema_Display: computed(() => uischema.value?.["@display"]),
+    uischema_Route: computed(() => uischema.value?.["@route"]),
 
     /**
      * The URL of the storefront for the brand.
