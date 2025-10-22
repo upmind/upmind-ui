@@ -4,14 +4,12 @@ import { useTranslateField } from "./useTranslation";
 import {
   forEach,
   get,
-  isNil,
-  map,
+  isEmpty,
   omitBy,
   set,
-  some,
   isString,
-  isEmpty,
-  reduce
+  reduce,
+  includes
 } from "lodash-es";
 
 // -----------------------------------------------------------------------------
@@ -108,12 +106,19 @@ export const useFieldsSchemaParser = (data: any, i18nPrefix?: string) => {
         required.push(field.code);
       } else {
         type = (!isArray(type) ? [type] : type) as string[];
-        type.push("null");
+        if (!includes(type, "null")) type.push("null");
       }
 
-      // Now set any enum values that will restrict the field input
-      const enumValues = map(field?.values, item =>
-        isString(item) ? item : item?.value
+      // Now set/clean any enum values that will restrict the field input
+      const enumValues = reduce(
+        field?.values,
+        (acc: (string | null)[] | (number | null)[], item) => {
+          const value = isString(item) ? item : item?.value;
+          // NB only add unique values that are not nullish
+          if (!isEmpty(value) && !includes(acc, value)) acc.push(value);
+          return acc;
+        },
+        []
       );
       // MB add null option for non required fields
       if (!field.required && enumValues?.length) {
@@ -141,7 +146,7 @@ export const useFieldsSchemaParser = (data: any, i18nPrefix?: string) => {
                 ? undefined
                 : useTranslateField(field, "values")
             },
-            isNil
+            isEmpty
           )
         );
       }

@@ -17,6 +17,14 @@
     </template>
 
     <template #default>
+      <!-- Basket Errors -->
+      <BasketErrors
+        basket-billing="BASKET"
+        basket-fields="CHECKOUT"
+        basket-products="CHECKOUT"
+      />
+
+      <!-- Basket Products -->
       <Section
         id="basket-products"
         :title="t('cart.basket_products')"
@@ -39,6 +47,7 @@
         </template>
       </Section>
 
+      <!-- Additional Details -->
       <Section
         id="additional-details"
         :title="t('text.additional_details')"
@@ -95,62 +104,6 @@
         </footer>
       </Section>
     </template>
-
-    <template #aside-footer>
-      <Alert
-        v-if="meta.hasInvalidProducts"
-        color="warning"
-        variant="minimal"
-        icon="alert-triangle"
-        :description="t('cart.basket_products_review_msg')"
-      >
-        <template #title>
-          <i18n-t
-            keypath="cart.basket_products_require_attention_msg"
-            tag="span"
-            :plural="productsInvalid.length"
-            scope="global"
-          />
-        </template>
-        <ol class="list-disc p-6 py-2 text-left">
-          <li
-            v-for="basketItem in productsInvalid"
-            :key="basketItem.id"
-            class="marker:text-inherit"
-          >
-            <router-link
-              class="text-md/tight text-inherit underline"
-              :to="{
-                name: 'product.edit',
-                params: { bpid: basketItem.id }
-              }"
-            >
-              <span>{{ basketItem?.productDetails?.title }}</span>
-            </router-link>
-          </li>
-        </ol>
-      </Alert>
-
-      <Alert
-        v-if="!meta.hasFields && fieldsErrors?.data?.length"
-        color="warning"
-        variant="minimal"
-        icon="alert-triangle"
-        :title="
-          t('cart.basket_fields_require_attention_msg', {
-            count: fieldsErrors?.data?.length ?? 0
-          })
-        "
-        :description="t('cart.basket_fields_review_msg')"
-      >
-        <router-link
-          class="text-md/tight text-inherit underline"
-          :to="{ hash: '#additional-details' }"
-        >
-          <span>{{ t("action.go_to_basket_fields") }}</span>
-        </router-link>
-      </Alert>
-    </template>
   </Layout>
 </template>
 
@@ -173,16 +126,16 @@ import config from "./basket.config";
 
 // --- components
 import { RouterLink } from "vue-router";
-import { Layout, Button, Alert, Link } from "@upmind-automation/upmind-ui";
+import { Layout, Button, Link } from "@upmind-automation/upmind-ui";
 import Header from "../../components/content/Header.vue";
 import Summary from "./components/Summary.vue";
 import ProductCards from "./product/BasketProductCards.vue";
 import Form from "../../components/form/Form.vue";
 import Back from "../../components/navigation/Back.vue";
 import Section from "../../components/content/LayoutSection.vue";
+import BasketErrors from "./components/Errors.vue";
 
 // ---utils
-import { isEmpty, omitBy } from "lodash-es";
 
 // --- types
 import { type ComputedRef } from "vue";

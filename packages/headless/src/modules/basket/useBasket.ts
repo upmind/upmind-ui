@@ -173,18 +173,6 @@ export const useBasket = () => {
         machineMatches(payment, ["approving"]) ||
         stateMatches(state, ["checkout", "converting", "paying"]),
 
-      hidePromotionsOnCheckout: !!getConfigValue(
-        BrandConfigKeys.CHECKOUT_HIDE_DISCOUNT_CODE_FIELD
-      ),
-
-      hideProductsOnCheckout:
-        true ||
-        getConfigValue(BrandConfigKeys.CHECKOUT_FLOW) === CheckoutFlows.STEPPED,
-
-      hideFieldsOnCheckout:
-        true ||
-        getConfigValue(BrandConfigKeys.CHECKOUT_FLOW) === CheckoutFlows.STEPPED,
-
       isProcessingDetails:
         machineMatches(payment, ["approving"]) ||
         stateMatches(state, ["shopping.paymentDetail.processing"]),
@@ -243,6 +231,20 @@ export const useBasket = () => {
   );
   const taxes = useContext<IBasket["taxes"]>(state, "basket.taxes", []);
 
+  const uischema = computed(() => {
+    // Checkout
+    return {
+      showPromotionsOnCheckout: !getConfigValue(
+        BrandConfigKeys.CHECKOUT_HIDE_DISCOUNT_CODE_FIELD
+      ),
+
+      showProductsOnCheckout:
+        getConfigValue(BrandConfigKeys.CHECKOUT_FLOW) != CheckoutFlows.STEPPED,
+
+      showFieldsOnCheckout:
+        getConfigValue(BrandConfigKeys.CHECKOUT_FLOW) !== CheckoutFlows.STEPPED
+    };
+  });
   // --- methods
 
   function clear() {
@@ -518,6 +520,11 @@ export const useBasket = () => {
     meta,
 
     // --- context
+
+    /**
+     * UI schema configuration for the basket and checkout process.
+     */
+    uischema,
 
     /**
      * Child machine actors for basket submodules (customFields, paymentDetail, etc).
