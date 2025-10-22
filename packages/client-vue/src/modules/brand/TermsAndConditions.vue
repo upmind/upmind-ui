@@ -23,6 +23,8 @@
         :href="data!.url"
         target="_blank"
         :label="t(action)"
+        color="inherit"
+        size="inherit"
       />
 
       <Link
@@ -30,6 +32,8 @@
         @click="toggleOpen"
         data-testid="terms-link"
         :label="t(action)"
+        color="inherit"
+        size="inherit"
       />
     </template>
   </i18n-t>

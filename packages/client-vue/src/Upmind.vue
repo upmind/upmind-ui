@@ -59,7 +59,7 @@
       </div>
     </Suspense>
   </Loading>
-  <Feedback />
+  <Feedback v-if="meta.isAvailable" />
 </template>
 
 <script lang="ts">
