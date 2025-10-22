@@ -40,7 +40,7 @@
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
   "promotion_help": "{code} menyediakan {amount} diskon {description}",
   "promotions_active": "Diskon aktif",
-  "recommendations_unavailable_text": "We couldn't find any recommendations for you at this time. Please click below to continue.",
-  "recommendations_unavailable_title": "We're sorry about that...",
+  "recommendations_unavailable_text": "Kami tidak dapat menemukan rekomendasi untuk Anda saat ini. Silakan klik di bawah untuk melanjutkan.",
+  "recommendations_unavailable_title": "Kami mohon maaf atas hal itu...",
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}"
 }

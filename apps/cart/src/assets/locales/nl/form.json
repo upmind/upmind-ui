@@ -28,17 +28,17 @@
     "placeholder": "Wachtwoord of wachtwoordzin"
   },
   "card_cvv": {
-    "error": "A valid CVV is required",
+    "error": "Een geldige CVV is vereist",
     "label": "CVV",
     "placeholder": "CVC"
   },
   "card_expiry": {
-    "error": "A valid expiry date is required",
+    "error": "Een geldige vervaldatum is vereist",
     "label": "Vervaldatum",
     "placeholder": "MM/JJ"
   },
   "card_num": {
-    "error": "A valid card number is required",
+    "error": "Een geldig kaartnummer is vereist",
     "label": "Kaartnummer",
     "placeholder": "1234 1234 1234 1234"
   },

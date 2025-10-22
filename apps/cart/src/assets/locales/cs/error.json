@@ -77,6 +77,8 @@
   "payment_details_update_failed": "Při aktualizaci platebních údajů došlo k chybě.",
   "payment_details_validation_failed": "Ověření platebních údajů se nezdařilo",
   "payment_gateway_not_available": "Platební brána není k dispozici",
+  "payment_gateway_not_supported_msg": "Stále můžete zadat objednávku a zaplatit později.",
+  "payment_gateway_not_supported_title": "Tato brána momentálně nemůže přijímat platby.",
   "payment_gateway_update_failed": "Při aktualizaci platební brány došlo k chybě.",
   "payment_gateway_validation_failed": "Ověření platební brány selhalo",
   "payment_gateways_not_available_msg": "Objednávku můžete odeslat i nyní a platbu dokončit později. Náš tým podpory vám s tím rád pomůže.",

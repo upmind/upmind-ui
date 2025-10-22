@@ -42,8 +42,7 @@ const items = computed(() => {
   const currentCategory = getOne(modelValue.value ?? "");
   const variant =
     currentCategory?.uiMeta?.uischema?.config?.breadcrumbs ||
-    uiCart.value?.ui?.uischema?.config?.breadcrumbs ||
-    BreadcrumbVariant.VISIBLE;
+    uiCart.value?.ui?.uischema?.config?.breadcrumbs;
 
   if (variant === BreadcrumbVariant.HIDDEN) {
     return items;

@@ -54,7 +54,7 @@ import { isEmpty } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
-const { navigate } = useRoutingEngine();
+const { navigateBack, navigateNext, isResolved } = useRoutingEngine();
 
 const {
   type,
@@ -115,12 +115,14 @@ const styles = useStyles(
 
 //  --- side effects
 
+await isResolved(ROUTE.CATALOGUE);
+
 // watch our props and update filters accordingly
 
 function doResolve() {
   if (!isEmpty(selected.value)) {
     addToBasket().then(() => {
-      navigate(ROUTE.BASKET);
+      navigateNext();
     });
   }
 }

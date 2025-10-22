@@ -37,7 +37,9 @@ async function getTrackingCookie(
 
 async function getTrackingData(page: Page, requestUrl: string) {
   const reqPromise = page.waitForRequest(
-    request => request.url().includes(requestUrl) && request.method() === "POST"
+    request =>
+      request.url().includes(requestUrl) &&
+      ["POST", "PATCH"].includes(request.method())
   );
   const request = await reqPromise;
   let body: any;
@@ -47,6 +49,7 @@ async function getTrackingData(page: Page, requestUrl: string) {
     throw new Error("Failed to parse request body as JSON: " + String(e));
   }
   const tracking = body.tracking;
+  console.log("Tracking data:", tracking);
   return tracking;
 }
 

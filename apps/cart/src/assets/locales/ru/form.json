@@ -28,17 +28,17 @@
     "placeholder": "Пароль или парольная фраза"
   },
   "card_cvv": {
-    "error": "A valid CVV is required",
+    "error": "Требуется действительный CVV",
     "label": "CVV",
     "placeholder": "CVC"
   },
   "card_expiry": {
-    "error": "A valid expiry date is required",
+    "error": "Требуется действительная дата истечения срока",
     "label": "Дата истечения срока действия",
     "placeholder": "ММ/ГГ"
   },
   "card_num": {
-    "error": "A valid card number is required",
+    "error": "Требуется действительный номер карты",
     "label": "Номер карты",
     "placeholder": "1234 1234 1234 1234"
   },

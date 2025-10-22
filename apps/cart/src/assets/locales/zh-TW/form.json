@@ -28,17 +28,17 @@
     "placeholder": "密碼或口令"
   },
   "card_cvv": {
-    "error": "A valid CVV is required",
+    "error": "需要有效的CVV",
     "label": "CVV",
     "placeholder": "中央靜脈血栓"
   },
   "card_expiry": {
-    "error": "A valid expiry date is required",
+    "error": "需要有效的到期日",
     "label": "到期日",
     "placeholder": "月/年"
   },
   "card_num": {
-    "error": "A valid card number is required",
+    "error": "需要有效的卡號",
     "label": "卡號",
     "placeholder": "1234 1234 1234 1234"
   },
@@ -108,7 +108,7 @@
     "placeholder": "按產品名稱搜尋..."
   },
   "promocode": {
-    "error": "促銷代碼無效",
+    "error": "需要有效的促銷代碼",
     "placeholder": "在此輸入優惠券代碼"
   },
   "recover": {

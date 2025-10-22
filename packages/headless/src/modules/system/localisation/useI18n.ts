@@ -208,7 +208,7 @@ export const useI18n = () => {
       } as Composer))
   } as Composer & {
     init: (instance: I18n, glob?: GlobbedFiles) => void;
-    setLocale: (locale: string) => void;
+    setLocale: (locale: string) => Promise<void>;
     loadLocaleMessages: (locale: string) => Promise<void>;
   };
 };

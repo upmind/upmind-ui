@@ -28,17 +28,17 @@
     "placeholder": "Senha ou frase-senha"
   },
   "card_cvv": {
-    "error": "A valid CVV is required",
+    "error": "É necessário um CVV válido",
     "label": "CVV",
     "placeholder": "CVC"
   },
   "card_expiry": {
-    "error": "A valid expiry date is required",
+    "error": "É necessária uma data de validade válida",
     "label": "Data de validade",
     "placeholder": "MM/AA"
   },
   "card_num": {
-    "error": "A valid card number is required",
+    "error": "É necessário um número de cartão válido",
     "label": "Número do cartão",
     "placeholder": "1234 1234 1234 1234"
   },
@@ -108,7 +108,7 @@
     "placeholder": "Pesquisar por nome do produto..."
   },
   "promocode": {
-    "error": "Código promocional inválido",
+    "error": "É necessário um código promocional válido",
     "placeholder": "Insira o código do voucher aqui"
   },
   "recover": {

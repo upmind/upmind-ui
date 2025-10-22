@@ -149,24 +149,20 @@ export const useLocale = () => {
   async function setLocale(code: string): Promise<string> {
     const validatedLocale = ensureLocale([code as UpmindSupportedLocales]);
 
-    return new Promise((resolve, reject) => {
-      if (validatedLocale) {
-        setStorage("i18n/locale", validatedLocale);
-        useI18n().setLocale(validatedLocale);
-        document.querySelector("html")?.setAttribute("lang", validatedLocale);
-        locale.value = validatedLocale;
-
-        return resolve(validatedLocale);
-      }
-      return reject(
-        new DetailedError(
-          t("error.locale_not_available"),
-          responseCodes.Not_Found,
-          ErrorOrigin.Headless,
-          { code }
-        )
+    if (!validatedLocale)
+      throw new DetailedError(
+        t("error.locale_not_available"),
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless,
+        { code }
       );
-    });
+
+    setStorage("i18n/locale", validatedLocale);
+    document.querySelector("html")?.setAttribute("lang", validatedLocale);
+    locale.value = validatedLocale;
+    return useI18n()
+      .setLocale(validatedLocale)
+      .then(() => validatedLocale);
   }
 
   // --- side effects
@@ -224,4 +220,4 @@ export const useLocale = () => {
 /**
  * The return type of useSystem composable.
  */
-export type useLocale = ReturnType<typeof useLocale>;
+export type UseLocale = ReturnType<typeof useLocale>;

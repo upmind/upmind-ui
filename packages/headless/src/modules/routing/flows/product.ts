@@ -265,7 +265,9 @@ export const useProductFlows = () => {
         const { productId: pid } = useRouteQueryParams(route);
         if (!pid) return false;
         const { meta, isReady } = useProductRecommendations(pid);
-        return isReady().then(() => meta.value.hasRecommendations);
+        return isReady().then(() => {
+          return meta.value.hasRecommendations;
+        });
       },
       resolve: async (route: Route) => {
         const { productId: pid } = useRouteQueryParams(route);

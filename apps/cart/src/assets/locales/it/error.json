@@ -77,6 +77,8 @@
   "payment_details_update_failed": "Si è verificato un errore durante l'aggiornamento dei dettagli di pagamento",
   "payment_details_validation_failed": "Convalida dei dettagli di pagamento non riuscita",
   "payment_gateway_not_available": "Gateway di pagamento non disponibile",
+  "payment_gateway_not_supported_msg": "Puoi ancora effettuare il tuo ordine e pagare in seguito.",
+  "payment_gateway_not_supported_title": "Questo gateway attualmente non è in grado di accettare pagamenti.",
   "payment_gateway_update_failed": "Si è verificato un errore durante l'aggiornamento del gateway di pagamento",
   "payment_gateway_validation_failed": "Convalida del gateway di pagamento non riuscita",
   "payment_gateways_not_available_msg": "Puoi comunque inviare il tuo ordine adesso e completare il pagamento in un secondo momento. Il nostro team di assistenza sarà lieto di aiutarti.",

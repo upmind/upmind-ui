@@ -104,20 +104,6 @@ export function loadList() {
 
 // -----------------------------------------------------------------------------
 
-const supportedGateways = [
-  GatewayProviderCodes.BANK_TRANSFER,
-  GatewayProviderCodes.BRAINTREE,
-  GatewayProviderCodes.FLUTTERWAVE,
-  GatewayProviderCodes.MICROPAYMENT,
-  GatewayProviderCodes.OFFLINE,
-  GatewayProviderCodes.OPENPAY,
-  GatewayProviderCodes.PAYPAL_BILLING_AGREEMENT,
-  GatewayProviderCodes.PAYPAL_EXPRESS,
-  GatewayProviderCodes.PAYPAL_PRO,
-  GatewayProviderCodes.PAYSTACK,
-  GatewayProviderCodes.STRIPE
-];
-
 async function loadLookups(
   { currency, address, orderId }: PaymentDetailsContext,
   _event: AnyEventObject
@@ -201,7 +187,7 @@ async function loadLookups(
     ([config, storedPaymentMethods, gateways]: [
       Record<string, any>,
       PaymentDetail[],
-      IGateway[]
+      IBrandGateway[]
     ]) => {
       if (!get(config, BrandConfigKeys.PARTIAL_PAYMENTS_ENABLED))
         unset(paymentTypes, PaymentType.PARTIAL_PAYMENT);
@@ -219,12 +205,6 @@ async function loadLookups(
             some(gateways, ["gateway_id", method.gatewayID])
         ),
         gateways: sortBy(gateways, ["order"]),
-        //     // Whitelist certain payment gateways until we have full support for all
-        //  if (supportedGateways.length)
-        //    return filter(data, ({ gateway }) =>
-        //      includes(supportedGateways, gateway.gateway_provider.code)
-        //    );
-
         paymentTypes
       } as unknown as Partial<PaymentDetailsContext>;
     }
