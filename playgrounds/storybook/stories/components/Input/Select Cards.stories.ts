@@ -16,10 +16,26 @@ const meta: Meta<typeof SelectCards> = {
   argTypes: {},
   args: {
     items: [
-      { label: "item #1", value: "1", item: { id: "1" } },
-      { label: "item #2", value: "2", item: { id: "2" } },
-      { label: "item #3", value: "3", item: { id: "3" } },
-      { label: "item #4", value: "4", item: { id: "4" } }
+      {
+        id: "1",
+        label: "1 Month",
+        appendLabel: "$20.99/mo"
+      },
+      {
+        id: "2",
+        label: "6 Months",
+        appendLabel: "$19.99/mo"
+      },
+      {
+        id: "3",
+        label: "1 Year",
+        appendLabel: "$14.99/mo"
+      },
+      {
+        id: "4",
+        label: "2 Years",
+        appendLabel: "$9.99/mo"
+      }
     ] as SelectCardsItemProps[],
     width: "auto"
   },
@@ -39,76 +55,7 @@ type Story = StoryObj<typeof SelectCards>;
 export const Base: Story = {
   parameters: {
     controls: { exclude: ["modelValue"] }
-  },
-  render: (args: any) => ({
-    components: { SelectCards },
-    setup() {
-      const modelValue = null;
-      const products = [
-        {
-          id: "1",
-          name: "1 Month",
-          price: "$20.99/mo"
-        },
-        {
-          id: "2",
-          name: "6 Months",
-          price: "$19.99/mo"
-        },
-        {
-          id: "3",
-          name: "1 Year",
-          price: "$14.99/mo"
-        },
-        {
-          id: "4",
-          name: "2 Years",
-          price: "$9.99/mo"
-        }
-      ] as { id: string; name: string; description: string; price: string }[];
-
-      const getProduct = (id: string) => {
-        return find(products, { id });
-      };
-
-      return {
-        args,
-        modelValue,
-        products,
-        getProduct
-      };
-    },
-    template: `
-      <SelectCards
-        v-model="modelValue"
-        :items="args.items"
-        :width="args.width"
-      >
-        <template #item="{ item, index }">
-          <div class="flex items-center gap-4 whitespace-nowrap">
-            <h3 class="m-0 font-medium text-sm">
-              {{ getProduct(item.id)?.name }}
-            </h3>
-
-          <i class="opacity-50 text-sm">
-            {{ getProduct(item.id)?.price }}
-          </i>
-          </div>
-        </template>
-        <template #dropdown-item="{ item, index }">
-          <div class="flex items-center gap-4 whitespace-nowrap">
-            <h3 class="m-0 font-medium text-sm">
-              {{ getProduct(item.id)?.name }}
-            </h3>
-
-          <i class="opacity-50 text-sm">
-            {{ getProduct(item.id)?.price }}
-          </i>
-          </div>
-        </template>
-      </SelectCards>
-    `
-  })
+  }
 };
 
 export const States: Story = {
@@ -120,38 +67,16 @@ export const States: Story = {
     setup() {
       const modelValue = ref(args.modelValue);
       const width = "full";
-      const products = [
-        {
-          id: "1",
-          name: "1 Month",
-          price: "$20.99/mo"
-        },
-        {
-          id: "2",
-          name: "6 Months",
-          price: "$19.99/mo"
-        },
-        {
-          id: "3",
-          name: "1 Year",
-          price: "$14.99/mo"
-        },
-        {
-          id: "4",
-          name: "2 Years",
-          price: "$9.99/mo"
-        }
-      ] as { id: string; name: string; description: string; price: string }[];
-
-      const getProduct = (id: string) => {
-        return find(products, { id });
-      };
+      const products = [] as {
+        id: string;
+        label: string;
+        appendLabel: string;
+      }[];
 
       return {
         args,
         modelValue,
         products,
-        getProduct,
         width
       };
     },
@@ -162,28 +87,7 @@ export const States: Story = {
           <SelectCards
             :items="args.items"
             :width="width"
-          >
-            <template #item="{ item, index }">
-              <div class="flex items-center justify-between w-full">
-                <h3 class="m-0 font-medium text-sm">
-                  {{ getProduct(item.id)?.name }}
-                </h3>
-                <i class="opacity-50 text-sm">
-                  {{ getProduct(item.id)?.price }}
-                </i>
-              </div>
-            </template>
-            <template #dropdown-item="{ item, index }">
-              <div class="flex items-center justify-between w-full">
-                <h3 class="m-0 font-medium text-sm">
-                  {{ getProduct(item.id)?.name }}
-                </h3>
-                <i class="opacity-50 text-sm">
-                  {{ getProduct(item.id)?.price }}
-                </i>
-              </div>
-            </template>
-          </SelectCards>
+          />
         </div>
 
         <div>
@@ -192,28 +96,7 @@ export const States: Story = {
             :items="args.items"
             :width="width"
             data-hover="true"
-          >
-            <template #item="{ item, index }">
-              <div class="flex items-center justify-between w-full">
-                <h3 class="m-0 font-medium text-sm">
-                  {{ getProduct(item.id)?.name }}
-                </h3>
-                <i class="opacity-50 text-sm">
-                  {{ getProduct(item.id)?.price }}
-                </i>
-              </div>
-            </template>
-            <template #dropdown-item="{ item, index }">
-              <div class="flex items-center justify-between w-full">
-                <h3 class="m-0 font-medium text-sm">
-                  {{ getProduct(item.id)?.name }}
-                </h3>
-                <i class="opacity-50 text-sm">
-                  {{ getProduct(item.id)?.price }}
-                </i>
-              </div>
-            </template>
-          </SelectCards>
+          />
         </div>
 
         <div>
@@ -222,28 +105,7 @@ export const States: Story = {
             :items="args.items"
             :width="width"
             data-focus="true"
-          >
-            <template #item="{ item, index }">
-              <div class="flex items-center justify-between w-full">
-                <h3 class="m-0 font-medium text-sm">
-                  {{ getProduct(item.id)?.name }}
-                </h3>
-                <i class="opacity-50 text-sm">
-                  {{ getProduct(item.id)?.price }}
-                </i>
-              </div>
-            </template>
-            <template #dropdown-item="{ item, index }">
-              <div class="flex items-center justify-between w-full">
-                <h3 class="m-0 font-medium text-sm">
-                  {{ getProduct(item.id)?.name }}
-                </h3>
-                <i class="opacity-50 text-sm">
-                  {{ getProduct(item.id)?.price }}
-                </i>
-              </div>
-            </template>
-          </SelectCards>
+          />
         </div>
 
         <div>
@@ -252,28 +114,7 @@ export const States: Story = {
             :model-value="'1'"
             :items="args.items"
             :width="width"
-          >
-            <template #item="{ item, index }">
-              <div class="flex items-center justify-between w-full">
-                <h3 class="m-0 font-medium text-sm">
-                  {{ getProduct(item.id)?.name }}
-                </h3>
-                <i class="opacity-50 text-sm">
-                  {{ getProduct(item.id)?.price }}
-                </i>
-              </div>
-            </template>
-            <template #dropdown-item="{ item, index }">
-              <div class="flex items-center justify-between w-full">
-                <h3 class="m-0 font-medium text-sm">
-                  {{ getProduct(item.id)?.name }}
-                </h3>
-                <i class="opacity-50 text-sm">
-                  {{ getProduct(item.id)?.price }}
-                </i>
-              </div>
-            </template>
-          </SelectCards>
+          />
         </div>
       </section>
     `

@@ -40,6 +40,11 @@
         :label="t('action.login')"
         icon="user-circle"
         data-testid="login-popover-trigger"
+        :ui-config="{
+          button: {
+            label: ['hidden md:inline']
+          } as any
+        }"
       />
     </SessionLoginPopover>
 

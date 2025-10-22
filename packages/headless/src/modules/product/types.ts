@@ -340,6 +340,13 @@ export type PromotionDetails = {
   };
 };
 
+export enum BreadcrumbVariant {
+  HIDDEN = "hidden",
+  CONDENSED = "condensed",
+  CATEGORY = "category",
+  VISIBLE = "visible"
+}
+
 export type ProductImage = {
   url: string;
   default: boolean;
@@ -410,12 +417,11 @@ export interface UISchema {
   };
 }
 
-export enum BreadcrumbVariant {
-  HIDDEN = "hidden",
-  CONDENSED = "condensed",
-  CATEGORY = "category",
-  VISIBLE = "visible"
-}
+export const UI_SCHEMA_DEFAULTS: UISchema = {
+  config: {
+    breadcrumbs: BreadcrumbVariant.VISIBLE
+  }
+} as const;
 
 export interface Benefit {
   label: string;

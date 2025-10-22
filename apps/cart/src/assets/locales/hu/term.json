@@ -14,7 +14,7 @@
   "price_by_n_years": "{price}/év | {price} /{n} év",
   "price_msg": "Egyszeri fizetés {price} | Feladó {price} egy hónap | -tól/-től {price} minden {period}",
   "quarterly": "Negyedévenként",
-  "renews_msg": "Egyszeri fizetés | Megújul minden {cycle}",
+  "renews_msg": "Egyszeri fizetés | Megújul minden {cycle} | Megújul minden {cycle}",
   "renews_usually_msg": "Általában {price}",
   "semiannually": "Félévente",
   "showing_items_summary": "Megjelenítés {range} a {total} tételek",
