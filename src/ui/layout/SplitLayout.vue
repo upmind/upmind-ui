@@ -1,9 +1,9 @@
 <template>
-  <div class="flex w-full">
+  <div class="flex w-full min-h-screen">
     <article
-      class="bg-surface flex h-screen w-1/2 flex-col justify-between px-32 pt-24 pb-9"
+      class="bg-surface flex min-h-screen w-1/2 flex-col justify-between px-32 pt-24 pb-9"
     >
-      <header>
+      <header class="pb-24">
         <slot name="header-left" />
       </header>
 
@@ -26,7 +26,7 @@
       </div>
     </article>
 
-    <div class="bg-canvas h-screen w-1/2" />
+    <div class="bg-canvas min-h-screen w-1/2" />
   </div>
 </template>
 
