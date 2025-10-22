@@ -1,6 +1,7 @@
 // --- internal
 
 import type { UIMeta } from "../product/types";
+import type { BreadcrumbVariant } from "../product/types";
 
 // -----------------------------------------------------------------------------
 

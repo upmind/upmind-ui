@@ -12,7 +12,8 @@ import {
   useTranslateField,
   useTranslateName,
   useValidation,
-  useImageUrl
+  useImageUrl,
+  parseFlattened
 } from "../../utils";
 
 import {
@@ -195,7 +196,7 @@ function getPriceDisplayType(raw: IProduct): PriceDisplayTypes | undefined {
     BrandConfigKeys.PRICE_DISPLAY_TYPE
   );
 
-  const meta = parseMeta(raw?.meta ?? {}, raw.category);
+  const meta = parseFlattened(parseMeta(raw?.meta ?? {}, raw.category));
   const configDisplayType = get(meta, "uischema.price_display_type");
   // ----
 
@@ -649,9 +650,9 @@ export const parseProductDetails = (
         : Infinity,
     // ---
     uiMeta: parseMeta(
-      rawProduct?.meta ?? {},
-      rawProduct?.category ?? {},
-      (rawProduct?.brand?.meta as IBrandMeta)?.cart?.ui ?? {}
+      parseFlattened(rawProduct?.meta ?? {}),
+      parseFlattened(rawProduct?.category ?? {}) as IProductCategory,
+      parseFlattened(rawProduct?.brand?.meta as IBrandMeta)?.cart?.ui ?? {}
     ),
     uiCategoryMeta: rawProduct?.category?.meta || undefined
   };
@@ -744,9 +745,9 @@ export const parseSubproductDetails = (
         excerpt: useTranslateField(rawSubproduct.category, "short_description"),
         uiCategorymeta: rawSubproduct?.category.meta,
         uiMeta: parseMeta(
-          rawSubproduct?.meta ?? {},
-          rawSubproduct?.category,
-          (rawSubproduct?.brand?.meta as IBrandMeta)?.cart?.ui || {}
+          parseFlattened(rawSubproduct?.meta ?? {}),
+          parseFlattened(rawSubproduct?.category) as IProductCategory,
+          parseFlattened(rawSubproduct?.brand?.meta as IBrandMeta)?.cart?.ui
         ),
         uiCategoryMeta: rawSubproduct?.category?.meta || undefined,
         meta: {

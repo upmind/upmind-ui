@@ -19,7 +19,7 @@ export default {
       header: cva("w-full"),
       title: cva("m-0 text-xl font-normal"),
       content: cva(
-        "bg-surface grid w-full space-y-4 rounded-lg border p-6 text-base"
+        "bg-base grid w-full space-y-4 rounded-lg border p-6 text-base"
       ),
       form: cva("m-0 border-t pt-4 text-sm first:border-t-0 first:pt-0"),
       list: cva(

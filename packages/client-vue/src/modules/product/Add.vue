@@ -1,11 +1,14 @@
 <template>
   <Layout :variant="configMeta.layout" minimal>
-    <template #navigation>
-      <Breadcrumb :items="items" size="lg" v-if="meta?.isAvailable" />
+    <template
+      v-if="configMeta.headerBreadcrumbs && meta?.isAvailable"
+      #navigation
+    >
+      <Breadcrumb :items="items" size="lg" />
     </template>
 
-    <template #actions>
-      <Share class="hidden md:flex" v-if="meta?.isAvailable" />
+    <template v-if="configMeta.headerBreadcrumbs && meta?.isAvailable" #actions>
+      <Share class="hidden md:flex" />
     </template>
 
     <template #header>
@@ -36,6 +39,10 @@
 
           <ConfigSkeleton v-else />
         </form>
+
+        <template v-if="!configMeta.headerBreadcrumbs" #action>
+          <Share class="hidden md:flex" />
+        </template>
       </Section>
     </template>
 
@@ -104,10 +111,11 @@ import SummarySkeleton from "./components/summary/SummarySkeleton.vue";
 import ProductNotFound from "./NotFound.vue";
 
 // --- utils
-import { forEach, isEmpty } from "lodash-es";
+import { forEach, isEmpty, last, compact, first } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
+import { BreadcrumbVariant } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 const { t, tm } = useI18n();
@@ -128,8 +136,12 @@ const { meta, product, productImage, updateQuantity } =
   useProductConfig(pendingProduct);
 
 const configMeta = computed(() => {
+  const breadcrumbs =
+    product.value?.productDetails?.uiMeta?.uischema?.config?.breadcrumbs;
   return {
-    layout: uiCart.value?.layout
+    layout: uiCart.value?.layout,
+    breadcrumbs,
+    headerBreadcrumbs: breadcrumbs !== BreadcrumbVariant.HIDDEN && breadcrumbs
   };
 });
 
@@ -140,36 +152,68 @@ const styles = useStyles("product", configMeta, config) as ComputedRef<{
 }>;
 
 const items = computed(() => {
-  // Storefront
-  const items: any[] = [
-    {
+  const variant = configMeta.value?.breadcrumbs;
+  const items: any[] = [];
+
+  if (!product.value?.productDetails || variant === BreadcrumbVariant.HIDDEN) {
+    return items;
+  }
+
+  // Storefront (for visible and condensed)
+  if (variant !== BreadcrumbVariant.CATEGORY) {
+    items.push({
       label: t("text.shop"),
       ...storefrontRoute?.value,
       current: false
-    }
-  ];
-
-  // Categories
-  if (!isEmpty(product?.value?.productDetails?.breadcrumb)) {
-    forEach(
-      product.value.productDetails.breadcrumb,
-      (category: ProductBreadcrumb) => {
-        items.push({
-          label: category.label,
-          to: !hasStorefront.value
-            ? { name: ROUTE.CATALOGUE, query: { catid: category.id } }
-            : undefined,
-          current: uiCart.value?.catalogue?.disabled || hasStorefront.value
-        });
-      }
-    );
+    });
   }
 
-  // Current product
-  items.push({
-    label: product.value?.productDetails?.title,
-    current: true
-  });
+  // For condensed, show ellipsis for middle items
+  if (
+    variant === BreadcrumbVariant.CONDENSED &&
+    !isEmpty(product.value.productDetails.breadcrumb)
+  ) {
+    items.push({
+      label: "..."
+    });
+  }
+
+  // Categories
+  if (variant !== BreadcrumbVariant.CONDENSED) {
+    const categories = compact(
+      variant === BreadcrumbVariant.CATEGORY
+        ? [last(product.value.productDetails.breadcrumb)]
+        : product.value.productDetails.breadcrumb
+    );
+
+    forEach(categories, (category: ProductBreadcrumb) => {
+      items.push({
+        label: category.label,
+        to: !hasStorefront.value
+          ? { name: ROUTE.CATALOGUE, query: { catid: category.id } }
+          : undefined,
+        current: uiCart.value?.catalogue?.disabled || hasStorefront.value
+      });
+    });
+  }
+
+  // Last item: current product (visible) or last category (condensed)
+  if (variant === BreadcrumbVariant.VISIBLE) {
+    items.push({
+      label: product.value.productDetails.title,
+      current: true
+    });
+  } else if (variant === BreadcrumbVariant.CONDENSED) {
+    const category = first(product.value.productDetails.breadcrumb);
+    if (category) {
+      items.push({
+        label: category.label,
+        to: !hasStorefront.value
+          ? { name: ROUTE.CATALOGUE, query: { catid: category.id } }
+          : undefined
+      });
+    }
+  }
 
   return items;
 });
