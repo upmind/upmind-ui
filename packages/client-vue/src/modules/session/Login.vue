@@ -1,15 +1,5 @@
 <template>
   <Layout :variant="LAYOUT_VARIANTS.TWO_COLUMN_LTR" :currency="false">
-    <template #navigation>
-      <Link
-        class="flex items-center gap-x-2"
-        @click.prevent="doReject"
-        icon="arrow-left"
-        :label="t('action.back_to_basket')"
-        size="lg"
-      />
-    </template>
-
     <template #content-header>
       <Header :title="t('auth.welcome_back')">
         <template #description>
@@ -80,7 +70,6 @@ import { LAYOUT_VARIANTS } from "@upmind-automation/upmind-ui";
 const { t } = useI18n();
 const { navigateNext, navigateBack, navigate, isResolved } = useRoutingEngine();
 const { meta } = useBasket();
-const { uiCart } = useBrand();
 
 await isResolved(ROUTE.SESSION_LOGIN);
 
