@@ -9,7 +9,7 @@ import {
 // --- types
 import type { IProductCategory } from "@upmind-automation/types";
 import type { ProductCategory } from "./types";
-import { UIMeta } from "../product/types";
+import { UIMeta, UI_SCHEMA_DEFAULTS } from "../product/types";
 
 // -----------------------------------------------------------------------------
 
@@ -66,11 +66,18 @@ export const parseMeta = (
   // Start with brand meta, then merge each parent/current category meta
   let result = merge({}, uiMeta);
 
-  return reduce(
+  result = reduce(
     categoryMeta,
     (result, categoryMetaItem) => {
       return merge({}, result, categoryMetaItem);
     },
     result
   );
+
+  // Apply defaults if no value is provided
+  if (result.uischema) {
+    result.uischema = merge({}, UI_SCHEMA_DEFAULTS, result.uischema);
+  }
+
+  return result;
 };
