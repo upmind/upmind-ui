@@ -1,11 +1,15 @@
 // --- utils
-import { map, sum } from "lodash-es";
-import { iterateParents, parseMeta } from "../product/utils";
-import { useTranslateField, useTranslateName } from "../../utils";
-
+import { map, reduce, merge, sum } from "lodash-es";
+import { iterateParents } from "../product/utils";
+import {
+  useTranslateField,
+  useTranslateName,
+  parseFlattened
+} from "../../utils";
 // --- types
 import type { IProductCategory } from "@upmind-automation/types";
 import type { ProductCategory } from "./types";
+import { UIMeta } from "../product/types";
 
 // -----------------------------------------------------------------------------
 
@@ -13,18 +17,22 @@ import type { ProductCategory } from "./types";
  * Parses the raw category data and transforms it into a structured `ProductCategory` object.
  *
  * @param {IProductCategory} raw - The raw product category data to be parsed.
+ * @param {UIMeta} uiMeta - Optional brand UI meta to merge with category meta.
  *
  * @return {ProductCategory} The transformed and structured `ProductCategory` object containing
  * id, meta, name, excerpt, description, and products_count.
  */
-export function parseProductCategory(raw: IProductCategory): ProductCategory {
+export function parseProductCategory(
+  raw: IProductCategory,
+  uiMeta?: UIMeta
+): ProductCategory {
   return {
     id: raw.id,
     name: raw.name, // untranslated name for reporting purposes
     title: useTranslateName(raw),
     description: useTranslateField(raw, "description"),
     excerpt: useTranslateField(raw, "short_description"),
-    uiMeta: parseMeta(raw?.meta ?? {}, raw),
+    uiMeta: parseFlattened(parseMeta(raw, uiMeta)),
     count: raw.products_count ?? 0,
 
     countDeep: sum(
@@ -37,6 +45,32 @@ export function parseProductCategory(raw: IProductCategory): ProductCategory {
 
     imageUrl: raw.image?.image_url,
     parent: raw.parent_id ?? undefined,
-    children: map(raw.subcategories, parseProductCategory)
+    children: map(raw.subcategories, child =>
+      parseProductCategory(child, uiMeta)
+    )
   } as ProductCategory;
 }
+
+export const parseMeta = (
+  category?: IProductCategory,
+  uiMeta?: UIMeta
+): Record<string, any> => {
+  uiMeta ??= {};
+
+  const categoryMeta = iterateParents(category, [], {
+    valueKey: "meta",
+    parentKey: "top_category"
+  });
+
+  // Priority order: brand (lowest) → parent categories → current category (highest)
+  // Start with brand meta, then merge each parent/current category meta
+  let result = merge({}, uiMeta);
+
+  return reduce(
+    categoryMeta,
+    (result, categoryMetaItem) => {
+      return merge({}, result, categoryMetaItem);
+    },
+    result
+  );
+};
