@@ -201,7 +201,7 @@ export default {
 
   split: {
     root: cva("flex min-h-screen w-full"),
-    article: cva(
+    container: cva(
       "bg-surface flex min-h-screen w-1/2 flex-col justify-between px-32 pt-24 pb-9"
     ),
     header: cva("pb-24"),
@@ -211,5 +211,21 @@ export default {
     content: cva(""),
     footer: cva("flex items-end justify-between"),
     aside: cva("bg-canvas min-h-screen w-1/2")
+  },
+
+  canvasCard: {
+    root: cva(
+      "flex min-h-screen w-full flex-col items-center justify-center p-5 lg:py-24"
+    ),
+    container: cva("max-w-app w-full"),
+    header: cva("w-full"),
+    card: cva(
+      "bg-surface card-radius my-9 flex w-full flex-col justify-between gap-12 lg:flex-row lg:gap-32"
+    ),
+    contentHeader: cva("w-app-aside w-full"),
+    content: cva("w-full"),
+    footer: cva(
+      "flex w-full flex-col items-center gap-2 lg:flex-row lg:items-start lg:justify-between lg:gap-0"
+    )
   }
 };
