@@ -20,3 +20,9 @@ export interface PaymentGatewayProps {
   variant?: ButtonProps["variant"];
   color?: ButtonProps["color"];
 }
+
+export enum CHECKOUT_TEMPLATE {
+  FULL = "full",
+  TWO_COLUMN_LTR = "two-column-LTR",
+  TWO_COLUMN_RTL = "two-column-RTL"
+}

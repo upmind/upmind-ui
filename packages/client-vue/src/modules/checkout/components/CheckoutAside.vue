@@ -3,7 +3,6 @@
     id="basket-summary"
     :show="section"
     :title="t('text.summary')"
-    aside
     icon="shopping-bag-02"
   >
     <Summary no-actions :show-promotions="uischema.showPromotionsOnCheckout" />

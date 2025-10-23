@@ -1,5 +1,5 @@
 <template>
-  <slot name="processing" v-if="meta.isCheckout">
+  <slot name="processing">
     <Interstitial
       open
       modal
