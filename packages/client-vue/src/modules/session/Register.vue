@@ -11,20 +11,22 @@ import RegisterLTR from "./register/RegisterLTR.vue";
 import RegisterRTL from "./register/RegisterRTL.vue";
 import RegisterSplit from "./register/RegisterSplit.vue";
 import RegisterCanvasCard from "./register/RegisterCanvasCard.vue";
+import RegisterSurfaceBox from "./register/RegisterSurfaceBox.vue";
 
 // --- types
-import { LAYOUT_VARIANTS } from "@upmind-automation/upmind-ui";
+import { REGISTER_TEMPLATE } from "./types";
 
-const variant = LAYOUT_VARIANTS.CANVAS_CARD;
+const variant = REGISTER_TEMPLATE.TWO_COLUMN_LTR;
 
 const supportedTemplates = {
-  [LAYOUT_VARIANTS.SPLIT]: RegisterSplit,
-  [LAYOUT_VARIANTS.CANVAS_CARD]: RegisterCanvasCard,
-  [LAYOUT_VARIANTS.TWO_COLUMN_LTR]: RegisterLTR,
-  [LAYOUT_VARIANTS.TWO_COLUMN_RTL]: RegisterRTL
+  [REGISTER_TEMPLATE.SPLIT]: RegisterSplit,
+  [REGISTER_TEMPLATE.CANVAS_CARD]: RegisterCanvasCard,
+  [REGISTER_TEMPLATE.SURFACE_BOX]: RegisterSurfaceBox,
+  [REGISTER_TEMPLATE.TWO_COLUMN_LTR]: RegisterLTR,
+  [REGISTER_TEMPLATE.TWO_COLUMN_RTL]: RegisterRTL
 };
 
 const templateVariant = computed(
-  () => supportedTemplates[variant] ?? RegisterSplit
+  () => supportedTemplates[variant] ?? RegisterLTR
 );
 </script>
