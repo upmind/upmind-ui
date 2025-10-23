@@ -30,7 +30,7 @@
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
-import { useBrand } from "@upmind-automation/headless";
+import { useBrand, useRoutingEngine } from "@upmind-automation/headless";
 import { useStyles, Link } from "@upmind-automation/upmind-ui";
 
 // --- internal
@@ -43,21 +43,20 @@ import { computed } from "vue";
 // --- types
 import type { ComputedRef } from "vue";
 
-const { name, image, storefrontRoute, uiCart } = useBrand();
+const { currentRoute } = useRoutingEngine();
+const { name, image, storefrontRoute } = useBrand();
 
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
 const props = defineProps<{ logo?: string }>();
 
-const meta = computed(() => {
-  return {
-    layout: uiCart.value?.layout
-  };
+const layout = computed(() => {
+  return currentRoute.value?.meta?.template;
 });
 
 const logo = computed(() => props.logo ?? image.value?.full_url);
 
-const styles = useStyles(["header"], meta, config) as ComputedRef<{
+const styles = useStyles(["header"], { layout }, config) as ComputedRef<{
   header: {
     name: string;
     root: string;

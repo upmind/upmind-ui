@@ -1,5 +1,5 @@
 <template>
-  <Layout :variant="uiCart?.layout" minimal v-if="!meta.isCheckout">
+  <Layout :variant="layout" minimal v-if="!meta.isCheckout">
     <template #navigation>
       <Back @click.prevent="doReject" />
     </template>
@@ -162,7 +162,8 @@ const route = useRoute();
 const { t } = useI18n();
 // ---
 
-const { navigateNext, navigateBack, isResolved } = useRoutingEngine();
+const { navigateNext, navigateBack, isResolved, currentRoute } =
+  useRoutingEngine();
 const { isAuthenticated } = useSession();
 const { attempts, meta, errors, isReady, summary, products, uischema } =
   useBasket();
@@ -176,8 +177,6 @@ const {
   clear: fieldsClear,
   update: fieldsUpdate
 } = useBasketFields();
-
-const { uiCart } = useBrand();
 
 withDefaults(defineProps<CheckoutProps>(), {
   as: Card,
@@ -282,6 +281,9 @@ const processingIcon = computed(() => {
   return "basket";
 });
 
+const layout = computed(() => {
+  return currentRoute.value?.meta?.template;
+});
 // --- side effects
 
 watch(attempts, (value, oldValue) => {

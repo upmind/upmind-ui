@@ -13,13 +13,16 @@ import {
   isFunction,
   isObject,
   map,
-  merge
+  merge,
+  set
 } from "lodash-es";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 
 // --- types
 import type { AnyEventObject } from "xstate";
 import type { Flow, Route, ROUTE, RoutingEngineContext, Target } from "./types";
+import { useBrand } from "../brand";
+import { UI, UIRouteOptions } from "../brand/types";
 
 // -----------------------------------------------------------------------------
 
@@ -186,14 +189,31 @@ async function resolveRoute(
   route: Route,
   event?: any
 ): Promise<Route> {
+  const { uischema_Route, uiCart, isReady } = useBrand();
+  await isReady();
+
+  const fallbackTemplate = get(uiCart.value, "layout");
+  const uischema = get(uischema_Route?.value, flow.name, {}) as UIRouteOptions;
+
   return isFunction(flow?.resolve)
     ? flow.resolve(route, event).then(resolved => {
         return {
           ...resolved,
-          meta: merge({}, flow?.meta, resolved?.meta)
+          meta: merge(
+            {},
+            flow?.meta,
+            uischema,
+            { template: uischema?.template || fallbackTemplate },
+            resolved?.meta
+          )
         };
       })
-    : Promise.resolve({ name: flow.name, meta: flow?.meta ?? {} });
+    : Promise.resolve({
+        name: flow.name,
+        meta: merge({}, flow?.meta, uischema, {
+          template: uischema?.template || fallbackTemplate
+        })
+      });
 }
 
 // -----------------------------------------------------------------------------

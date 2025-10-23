@@ -63,8 +63,8 @@ enum UI_ENTITY {
  * @type {object}
  * @property {("default" | "enclosed" | "full")} [layout] - The layout type for the route.
  */
-type UIRouteOptions = {
-  layout?: "default" | "enclosed" | "full";
+export type UIRouteOptions = {
+  template?: "default" | "enclosed" | "full";
 };
 
 /**
@@ -100,7 +100,9 @@ export type UI = {
   // NB: Only Brand Meta UI has route context as its global
   //     We will enable routes with layout overrides as they become supported in the app
   [UI_CONTEXT.ROUTE]: {
-    [ROUTE.SESSION]?: UIRouteOptions;
+    // [ROUTE.SESSION]?: UIRouteOptions;
+    [ROUTE.SESSION_LOGIN]?: UIRouteOptions;
+    [ROUTE.SESSION_REGISTER]?: UIRouteOptions;
 
     // NOT SUPPORTED YET:
     // [ROUTE.LOADING]?: UIRouteOptions;
@@ -120,8 +122,7 @@ export type UI = {
     // [ROUTE.CHECKOUT]?: UIRouteOptions;
     // [ROUTE.ORDER]?: UIRouteOptions;
     // ---
-    // [ROUTE.SESSION_LOGIN]?: UIRouteOptions;
-    // [ROUTE.SESSION_REGISTER]?: UIRouteOptions;
+
     // [ROUTE.SESSION_RECOVER_PASSWORD]?: UIRouteOptions;
   };
 };

@@ -1,5 +1,5 @@
 <template>
-  <Layout :variant="configMeta.layout" minimal>
+  <Layout :variant="layout" minimal>
     <template
       v-if="configMeta.headerBreadcrumbs && meta?.isAvailable"
       #navigation
@@ -120,7 +120,8 @@ import { BreadcrumbVariant } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 const { t, tm } = useI18n();
 
-const { navigateBack, navigateNext, isResolved } = useRoutingEngine();
+const { navigateBack, navigateNext, isResolved, currentRoute } =
+  useRoutingEngine();
 const { isReady } = useBasket();
 const { productId } = useQueryParams();
 
@@ -135,11 +136,15 @@ const { update, service: pendingProduct, onDone } = await configure(productId);
 const { meta, product, productImage, updateQuantity } =
   useProductConfig(pendingProduct);
 
+const layout = computed(() => {
+  return currentRoute.value?.meta?.template;
+});
+
 const configMeta = computed(() => {
   const breadcrumbs =
     product.value?.productDetails?.uiMeta?.uischema?.config?.breadcrumbs;
   return {
-    layout: uiCart.value?.layout,
+    layout: layout.value,
     breadcrumbs,
     headerBreadcrumbs: breadcrumbs !== BreadcrumbVariant.HIDDEN && breadcrumbs
   };
