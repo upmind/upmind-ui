@@ -4,6 +4,8 @@
       <!-- Header -->
       <header :class="styles.surfaceBox.header">
         <slot name="header-left" />
+
+        <slot name="header-right" />
       </header>
 
       <Card as="article" :class="styles.surfaceBox.card" spacious>
@@ -33,6 +35,7 @@ import { computed, type ComputedRef } from "vue";
 import { useStyles } from "../../utils";
 import config from "./layout.config";
 import type { VariantProps } from "./types";
+
 // --- components
 import Card from "../card/Card.ce.vue";
 

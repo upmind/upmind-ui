@@ -59,6 +59,7 @@ import TwoColumnLTRLayout from "./TwoColumnLTRLayout.vue";
 import TwoColumnRTLLayout from "./TwoColumnRTLLayout.vue";
 import SplitLayout from "./SplitLayout.vue";
 import CanvasCardLayout from "./CanvasCardLayout.vue";
+import SurfaceBoxLayout from "./SurfaceBoxLayout.vue";
 
 // --- types
 import type { LayoutProps } from "./types";
@@ -87,6 +88,9 @@ const layoutComponent = computed(() => {
 
     case "canvas-card":
       return CanvasCardLayout;
+
+    case "surface-box":
+      return SurfaceBoxLayout;
 
     case "full":
     default:
