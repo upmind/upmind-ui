@@ -6,6 +6,9 @@
 // --- external
 import { computed } from "vue";
 
+// --- internal
+import { useRoutingEngine } from "@upmind-automation/headless";
+
 // --- components
 import LoginLTR from "./templates/LoginLTR.template.vue";
 import LoginRTL from "./templates/LoginRTL.template.vue";
@@ -16,7 +19,7 @@ import LoginSurfaceBox from "./templates/LoginSurfaceBox.template.vue";
 // --- types
 import { LOGIN_TEMPLATE } from "./types";
 
-const variant = LOGIN_TEMPLATE.TWO_COLUMN_LTR;
+const { currentRoute } = useRoutingEngine();
 
 const supportedTemplates = {
   [LOGIN_TEMPLATE.SPLIT]: LoginSplit,
@@ -26,5 +29,11 @@ const supportedTemplates = {
   [LOGIN_TEMPLATE.TWO_COLUMN_RTL]: LoginRTL
 };
 
-const templateVariant = computed(() => supportedTemplates[variant] ?? LoginLTR);
+const layout = computed(() => {
+  return currentRoute.value?.meta?.template as LOGIN_TEMPLATE;
+});
+
+const templateVariant = computed(
+  () => supportedTemplates[layout.value] ?? LoginLTR.template
+);
 </script>

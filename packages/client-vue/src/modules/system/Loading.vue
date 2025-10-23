@@ -1,5 +1,5 @@
 <template>
-  <Layout variant="full">
+  <Layout :variant="LAYOUT_VARIANTS.FULL">
     <ContentSection v-auto-animate class="flex grow items-center">
       <Interstitial
         v-bind="props"
@@ -20,7 +20,7 @@ import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // -- components
-import { Interstitial } from "@upmind-automation/upmind-ui";
+import { Interstitial, LAYOUT_VARIANTS } from "@upmind-automation/upmind-ui";
 import ContentSection from "../../components/content/ContentSection.vue";
 import Layout from "../../components/layout/Layout.vue";
 

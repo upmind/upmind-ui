@@ -1,7 +1,7 @@
 <template>
   <div
     class="auth"
-    :class="cn(styles.session.auth.root, $props.class)"
+    :class="cn(styles.session.auth.root, props.class)"
     v-if="!meta.isAuthenticated && !meta.isLoading"
     v-auto-animate
   >
@@ -68,7 +68,7 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 // --- internal
 import TermsAndConditions from "../../brand/TermsAndConditions.vue";
 import Form from "../../../components/form/Form.vue";
-import config from "../sesssion.config";
+import config from "../session.config";
 import { useSession } from "@upmind-automation/headless";
 import { useStyles, cn } from "@upmind-automation/upmind-ui";
 
@@ -77,7 +77,7 @@ import { Alert, Button, Link } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { ComputedRef } from "vue";
-import type { AuthProps } from "./types";
+import type { AuthProps } from "../types";
 // -----------------------------------------------------------------------------
 
 const emit = defineEmits(["resolve", "reject"]);
