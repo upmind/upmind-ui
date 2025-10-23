@@ -10,7 +10,7 @@
   <!-- Basket Products -->
   <Section
     id="basket-products"
-    :show="section"
+    :section="section"
     :title="t('cart.basket_products')"
     v-show="uischema.showProductsOnCheckout"
     icon="list"
@@ -21,10 +21,10 @@
   <!-- Additional Options -->
   <Section
     id="basket-fields"
-    :show="section"
     :title="t('text.additional_details')"
     v-show="uischema.showFieldsOnCheckout"
     icon="file-attachment-01"
+    :section="section"
   >
     <Form
       v-if="!fieldsMeta.isLoading"
@@ -44,7 +44,7 @@
   <!-- Billing Details -->
   <Section
     id="basket-billing"
-    :show="section"
+    :section="section"
     :title="t('text.billing_details')"
     v-show="uischema.showBillingOnCheckout"
     icon="building-07"
@@ -55,7 +55,7 @@
   <!-- Payment Details -->
   <Section
     id="payment-details"
-    :show="section"
+    :section="section"
     :title="t('text.payment_details')"
     icon="wallet-02"
   >
