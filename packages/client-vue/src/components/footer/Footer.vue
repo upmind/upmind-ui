@@ -1,53 +1,52 @@
 <template>
-  <footer
-    v-if="meta.hasFooter"
-    :class="styles.footer.root"
-    data-testid="footer"
-  >
-    <div :class="styles.footer.container">
-      <section
-        :class="styles.footer.actions"
-        aria-label="Language and currency preferences"
-      >
-        <slot name="footer-actions" />
-      </section>
-
-      <section :class="styles.footer.content">
-        <slot name="footer-content" />
-        <slot name="footer-copyright" />
-      </section>
-    </div>
-  </footer>
+  <component :is="templateVariant">
+    <template #footer-actions>
+      <Actions locale currency />
+    </template>
+    <template #footer-content>
+      <Content />
+    </template>
+    <template #footer-copyright>
+      <Copyright />
+    </template>
+  </component>
 </template>
 
 <script lang="ts" setup>
 // --- external
-import { computed, useSlots } from "vue";
+import { computed } from "vue";
+
+// --- templates
+import FooterFlat from "./templates/FooterFlat.template.vue";
+import FooterStacked from "./templates/FooterStacked.template.vue";
+
+// --- components
+import Actions from "./components/Actions.vue";
+import Content from "./components/Content.vue";
+import Copyright from "./components/Copyright.vue";
 
 // --- internal
-import config from "./layout.config";
+import { useRoutingEngine } from "@upmind-automation/headless";
+import { FOOTER_TEMPLATE } from "./types";
 
-// --- utils
-import { isEmptySlot } from "./utils";
-import { useStyles } from "../../utils";
+const { currentRoute } = useRoutingEngine();
 
-// --- types
-import type { ComputedRef } from "vue";
-
-const slots = useSlots();
 const meta = computed(() => ({
-  hasFooter:
-    !isEmptySlot("footer-content", slots) ||
-    !isEmptySlot("footer-actions", slots) ||
-    !isEmptySlot("footer-copyright", slots)
+  variant: currentRoute.value?.meta?.template as FOOTER_TEMPLATE
 }));
 
-const styles = useStyles(["footer"], meta, config, {}) as ComputedRef<{
-  footer: {
-    root: string;
-    container: string;
-    actions: string;
-    content: string;
-  };
-}>;
+const supportedTemplates = {
+  [FOOTER_TEMPLATE.DEFAULT]: FooterStacked,
+  [FOOTER_TEMPLATE.ENCLOSED]: FooterStacked,
+  [FOOTER_TEMPLATE.FULL]: FooterStacked,
+  [FOOTER_TEMPLATE.TWO_COLUMN_LTR]: FooterFlat,
+  [FOOTER_TEMPLATE.TWO_COLUMN_RTL]: FooterFlat,
+  [FOOTER_TEMPLATE.SPLIT]: FooterFlat,
+  [FOOTER_TEMPLATE.CANVAS_CARD]: FooterFlat,
+  [FOOTER_TEMPLATE.SURFACE_BOX]: FooterFlat
+};
+
+const templateVariant = computed(
+  () => supportedTemplates[meta.value.variant] ?? FooterStacked
+);
 </script>

@@ -32,7 +32,7 @@ import { LAYOUT_VARIANTS } from "../layout";
 const { currentRoute } = useRoutingEngine();
 
 const meta = computed(() => ({
-  variant: LAYOUT_VARIANTS.TWO_COLUMN_LTR
+  variant: currentRoute.value?.meta?.template || LAYOUT_VARIANTS.DEFAULT
 }));
 
 const styles = useStyles(["header"], meta, config) as ComputedRef<{
