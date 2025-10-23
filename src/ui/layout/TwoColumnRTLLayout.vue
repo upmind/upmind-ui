@@ -21,6 +21,7 @@
 
           <aside :class="styles.twoColumnRTL.content.asideSticky">
             <slot name="aside" />
+            <slot name="aside-footer" />
           </aside>
         </div>
       </div>
