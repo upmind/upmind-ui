@@ -9,11 +9,11 @@ const rootVariants = cva("w-full", {
       enclosed:
         "bg-surface shadow-b-border-surface top-0 z-20 flex w-full flex-col items-center px-6 py-7 transition-all duration-500 md:px-2.5",
       full: "bg-surface shadow-b-border-surface top-0 z-20 flex w-full flex-col items-center px-6 py-7 transition-all duration-500 md:px-2.5",
-      twoColumnLTR: "absolute top-0",
-      twoColumnRTL: "absolute top-0",
+      twoColumnLTR: "absolute top-0 px-6 md:px-8",
+      twoColumnRTL: "absolute top-0 px-6 md:px-8",
       split: "hidden",
-      canvasCard: "",
-      surfaceBox: ""
+      canvasCard: "hidden",
+      surfaceBox: "absolute top-0 px-6 md:px-8"
     }
   }
 });
@@ -28,7 +28,8 @@ const containerVariants = cva("flex w-full", {
       twoColumnRTL: "justify-center",
       split: "justify-center",
       canvasCard: "",
-      surfaceBox: ""
+      surfaceBox:
+        "max-w-app mx-auto flex h-24 w-full items-center justify-between lg:items-end"
     }
   }
 });

@@ -13,12 +13,6 @@
           <slot name="default" />
         </section>
       </Card>
-
-      <!-- Footer -->
-      <footer :class="styles.surfaceBox.footer">
-        <slot name="footer-content" />
-        <slot name="footer-copyright" />
-      </footer>
     </div>
   </div>
 </template>

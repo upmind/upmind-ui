@@ -43,8 +43,8 @@ const supportedTemplates = {
   [FOOTER_TEMPLATE.TWO_COLUMN_LTR]: FooterFlat,
   [FOOTER_TEMPLATE.TWO_COLUMN_RTL]: FooterFlat,
   [FOOTER_TEMPLATE.SPLIT]: FooterNoOptions,
-  [FOOTER_TEMPLATE.CANVAS_CARD]: FooterFlat,
-  [FOOTER_TEMPLATE.SURFACE_BOX]: FooterFlat
+  [FOOTER_TEMPLATE.CANVAS_CARD]: FooterNoOptions,
+  [FOOTER_TEMPLATE.SURFACE_BOX]: FooterNoOptions
 };
 
 const templateVariant = computed(
