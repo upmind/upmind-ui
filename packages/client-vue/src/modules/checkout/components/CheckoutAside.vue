@@ -1,0 +1,29 @@
+<template>
+  <Section
+    id="basket-summary"
+    :show="section"
+    :title="t('text.summary')"
+    aside
+    icon="shopping-bag-02"
+  >
+    <Summary no-actions :show-promotions="uischema.showPromotionsOnCheckout" />
+  </Section>
+</template>
+
+<script lang="ts" setup>
+import { useI18n } from "vue-i18n";
+import { useBasket } from "@upmind-automation/headless";
+import Section from "../../../components/content/LayoutSection.vue";
+import Summary from "../../basket/components/Summary.vue";
+
+interface Props {
+  section?: boolean;
+}
+
+withDefaults(defineProps<Props>(), {
+  section: false
+});
+
+const { t } = useI18n();
+const { uischema } = useBasket();
+</script>
