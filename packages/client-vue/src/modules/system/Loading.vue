@@ -20,9 +20,12 @@ import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // -- components
-import { Interstitial, LAYOUT_VARIANTS } from "@upmind-automation/upmind-ui";
+import {
+  Interstitial,
+  LAYOUT_VARIANTS,
+  Layout
+} from "@upmind-automation/upmind-ui";
 import ContentSection from "../../components/content/ContentSection.vue";
-import Layout from "../../components/layout/Layout.vue";
 
 // -- types
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";

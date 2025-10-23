@@ -1,5 +1,5 @@
 <template>
-  <Layout :variant="layout" :minimal="isMinimal">
+  <Layout :variant="layout">
     <template #controls>
       <Breadcrumbs
         v-model="categoryId"
@@ -62,8 +62,7 @@ import {
 import config from "./catalogue.config";
 
 // --- components
-import { useStyles } from "@upmind-automation/upmind-ui";
-import Layout from "../../components/layout/Layout.vue";
+import { Layout, useStyles } from "@upmind-automation/upmind-ui";
 import Breadcrumbs from "./categories/Breadcrumbs.vue";
 import Share from "../../components/navigation/Share.vue";
 import CategoriesFacet from "./categories/facet/CategoriesFacet.vue";

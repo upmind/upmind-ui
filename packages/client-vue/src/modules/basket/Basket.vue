@@ -124,7 +124,7 @@ import config from "./basket.config";
 
 // --- components
 import { RouterLink } from "vue-router";
-import { Button, Link } from "@upmind-automation/upmind-ui";
+import { Button, Link, Layout } from "@upmind-automation/upmind-ui";
 import Header from "../../components/content/Header.vue";
 import Summary from "./components/Summary.vue";
 import ProductCards from "./product/BasketProductCards.vue";
@@ -132,7 +132,6 @@ import Form from "../../components/form/Form.vue";
 import Back from "../../components/navigation/Back.vue";
 import Section from "../../components/content/LayoutSection.vue";
 import BasketErrors from "./components/BasketErrors.vue";
-import Layout from "../../components/layout/Layout.vue";
 
 // --- types
 import { type ComputedRef } from "vue";

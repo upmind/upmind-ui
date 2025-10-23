@@ -98,7 +98,7 @@ import {
 import config from "./product.config";
 
 // --- components
-import { Breadcrumb, useStyles } from "@upmind-automation/upmind-ui";
+import { Breadcrumb, useStyles, Layout } from "@upmind-automation/upmind-ui";
 import Share from "../../components/navigation/Share.vue";
 import ConfigSkeleton from "./components/ConfigSkeleton.vue";
 import Header from "./components/header/Header.vue";
@@ -109,7 +109,6 @@ import Summary from "./components/summary/Summary.vue";
 import SummaryFooter from "./components/summary/SummaryFooter.vue";
 import SummarySkeleton from "./components/summary/SummarySkeleton.vue";
 import ProductNotFound from "./NotFound.vue";
-import Layout from "../../components/layout/Layout.vue";
 
 // --- utils
 import { forEach, isEmpty, last, compact, first } from "lodash-es";
