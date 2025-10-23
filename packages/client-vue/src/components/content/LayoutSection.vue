@@ -1,5 +1,7 @@
 <template>
-  <div :class="styles.section.root">
+  <slot v-if="!show" name="default" />
+
+  <div v-else :class="styles.section.root">
     <header
       v-if="title || slots.title || slots.action"
       :class="styles.section.header"
@@ -41,7 +43,8 @@ import { type SectionProps } from "./types";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<SectionProps>(), {
-  as: "section"
+  as: "section",
+  show: true
 });
 
 const slots = useSlots();
