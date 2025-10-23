@@ -109,15 +109,15 @@ export default {
       )
     },
     contentHeader: {
-      content: cva(
-        "lg:basis-app-content bg-surface lg:w-app-content box-content w-full min-w-0 px-8 pt-18 lg:px-18"
+      root: cva(
+        "lg:basis-app-content bg-surface lg:w-app-content box-content flex w-full min-w-0 flex-col gap-6 px-8 pt-18 lg:px-18"
       ),
       aside: cva(
         "basis-app-aside w-app-aside box-content hidden min-w-0 px-18 pt-18 lg:block"
       )
     },
     content: {
-      content: cva(
+      root: cva(
         "lg:basis-app-content bg-surface lg:w-app-content box-content flex w-full min-w-0 flex-col gap-12 px-8 pt-18 lg:px-18"
       ),
       aside: cva(
@@ -126,7 +126,7 @@ export default {
       asideInner: cva("w-app-aside sticky top-0 flex flex-col gap-6 pt-9")
     },
     spacer: {
-      content: cva(
+      root: cva(
         "basis-app-content bg-surface w-app-content box-content h-11 min-w-0 px-8 lg:px-18"
       ),
       aside: cva(

@@ -13,8 +13,11 @@
 
     <!-- Content Header -->
     <section :class="styles.twoColumnLTR.row">
-      <div :class="styles.twoColumnLTR.contentHeader.content">
-        <slot name="content-header" />
+      <div :class="styles.twoColumnLTR.contentHeader.root">
+        <slot name="navigation" />
+        <div>
+          <slot name="content-header" />
+        </div>
       </div>
 
       <div :class="styles.twoColumnLTR.contentHeader.aside" />
@@ -22,7 +25,7 @@
 
     <!-- Content / Aside -->
     <section :class="styles.twoColumnLTR.row">
-      <div :class="styles.twoColumnLTR.content.content">
+      <div :class="styles.twoColumnLTR.content.root">
         <slot name="content" />
       </div>
 
@@ -85,16 +88,16 @@ const styles = useStyles(
       aside: string;
     };
     contentHeader: {
-      content: string;
+      root: string;
       aside: string;
     };
     content: {
-      content: string;
+      root: string;
       aside: string;
       asideInner: string;
     };
     spacer: {
-      content: string;
+      root: string;
       aside: string;
     };
     footer: {
