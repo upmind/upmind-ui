@@ -598,7 +598,7 @@ export default createMachine(
 
       incrementAttempts: assign({
         attempts: ({ attempts }: ProductConfigContext) => {
-          attempts = attempts || 0;
+          attempts = attempts ?? 0;
           attempts++;
           return attempts;
         }

@@ -68,8 +68,8 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 // --- internal
 import TermsAndConditions from "../../brand/TermsAndConditions.vue";
 import Form from "../../../components/form/Form.vue";
-import config from "../session.config";
-import { useSession, useBrand } from "@upmind-automation/headless";
+import config from "../sesssion.config";
+import { useSession } from "@upmind-automation/headless";
 import { useStyles, cn } from "@upmind-automation/upmind-ui";
 
 // --- custom elements
@@ -77,7 +77,7 @@ import { Alert, Button, Link } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { ComputedRef } from "vue";
-import type { AuthProps } from "../types";
+import type { AuthProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const emit = defineEmits(["resolve", "reject"]);
@@ -107,8 +107,6 @@ const {
   logout,
   setModel
 } = useSession();
-
-const { uiCart } = useBrand();
 
 await isReady();
 
@@ -170,7 +168,7 @@ const authActions = computed(() => {
     submit: {
       type: "submit" as const,
       label: meta.value.showLoginForm
-        ? t("action.login")
+        ? t("action.log_in_to_your_account")
         : meta.value.showRegisterForm
           ? t("action.continue_label")
           : meta.value.showRecoverPasswordForm

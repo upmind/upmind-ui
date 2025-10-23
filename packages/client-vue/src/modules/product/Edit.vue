@@ -1,5 +1,5 @@
 <template>
-  <Layout :variant="configMeta.layout" minimal>
+  <Layout :variant="layout" minimal>
     <template #navigation>
       <Back @click.prevent="doReject" />
     </template>
@@ -79,7 +79,6 @@ import {
   useRoutingEngine,
   useBasketProducts,
   useQueryParams,
-  useBrand,
   useProductConfig,
   ROUTE
 } from "@upmind-automation/headless";
@@ -105,11 +104,11 @@ import type { ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 const { t, tm } = useI18n();
 
-const { navigateBack, navigateNext, isResolved } = useRoutingEngine();
+const { navigateBack, navigateNext, isResolved, currentRoute } =
+  useRoutingEngine();
 const { isReady } = useBasket();
 const { basketProductId } = useQueryParams();
 const { configure } = useBasketProducts();
-const { uiCart } = useBrand();
 
 await isReady();
 await isResolved(ROUTE.PRODUCT_EDIT);
@@ -124,13 +123,11 @@ const {
 const { meta, product, updateQuantity, productImage } =
   useProductConfig(basketProduct);
 
-const configMeta = computed(() => {
-  return {
-    layout: uiCart.value?.layout
-  };
+const layout = computed(() => {
+  return currentRoute.value?.meta?.template;
 });
 
-const styles = useStyles("product", configMeta, config) as ComputedRef<{
+const styles = useStyles("product", { layout }, config) as ComputedRef<{
   product: {
     summary: string;
   };

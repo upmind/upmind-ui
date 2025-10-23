@@ -34,7 +34,7 @@ const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
 const { t } = useI18n();
 
 const { getPath, getOne } = useProductCategories();
-const { uiCart } = useBrand();
+const { uischema } = useBrand();
 
 const items = computed(() => {
   const items: any[] = [];
@@ -42,7 +42,7 @@ const items = computed(() => {
   const currentCategory = getOne(modelValue.value ?? "");
   const variant =
     currentCategory?.uiMeta?.uischema?.config?.breadcrumbs ||
-    uiCart.value?.ui?.uischema?.config?.breadcrumbs;
+    uischema.value?.config?.breadcrumbs;
 
   if (variant === BreadcrumbVariant.HIDDEN) {
     return items;

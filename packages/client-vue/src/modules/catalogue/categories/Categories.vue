@@ -30,7 +30,6 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
 import {
-  useBrand,
   useProductCategories,
   type ProductCategory
 } from "@upmind-automation/headless";
@@ -55,7 +54,6 @@ const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
 
 // -----------------------------------------------------------------------------
 
-const { uiCart } = useBrand();
 const { getChildren, meta } = useProductCategories();
 
 const displayCategories = computed(() => {

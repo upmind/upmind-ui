@@ -150,7 +150,8 @@ import { useI18n } from "vue-i18n";
 import {
   useBasketPaymentDetails,
   useBasket,
-  useBrand
+  useBrand,
+  useRoutingEngine
 } from "@upmind-automation/headless";
 import config from "../checkout.config";
 import { useStyles, Loading } from "@upmind-automation/upmind-ui";
@@ -180,19 +181,20 @@ const props = withDefaults(defineProps<PaymentDetailsProps>(), {
 
 const { t } = useI18n();
 
+const { currentRoute } = useRoutingEngine();
+
 const { meta, model, input, clear, gateways, currency } =
   useBasketPaymentDetails();
 
 const { checkout } = useBasket();
-const { uiCart } = useBrand();
 
-const configMeta = computed(() => ({
-  layout: uiCart.value?.layout || "default"
-}));
+const layout = computed(() => {
+  return currentRoute.value?.meta?.template;
+});
 
 const styles = useStyles(
   ["checkout", "checkout.accordion", "checkout.accordion.trigger"],
-  configMeta,
+  { variant: layout.value },
   config
 ) as ComputedRef<{
   checkout: {
