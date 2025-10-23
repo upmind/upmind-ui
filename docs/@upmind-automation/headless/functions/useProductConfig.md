@@ -6,27 +6,35 @@
 function useProductConfig(service): object;
 ```
 
+A composable function that provides functionality and state management for product configuration.
+It integrates various aspects of product customisation, such as quantity, terms, attributes, and options,
+while managing the underlying state using an actor-based state management system.
+
 ## Parameters
 
 ### service
 
 `ActorRef`\<`any`\>
 
+The actor reference representing the product configuration state machine.
+
 ## Returns
 
 `object`
+
+The [UseProductConfig](../type-aliases/UseProductConfig.md) composable methods and state for product configuration.
 
 ### additionalErrors
 
 ```ts
 additionalErrors: ComputedRef<
-  | undefined
   | {
   attributes?: any;
   options?: any;
   provisionFields?: any;
   term?: any;
-}>;
+}
+| undefined>;
 ```
 
 ### attributes
@@ -65,13 +73,13 @@ decrementQuantity: DebouncedFunc<(value?) => Promise<void>>;
 
 ```ts
 errors: ComputedRef<
-  | undefined
   | {
   attributes?: any;
   options?: any;
   provisionFields?: any;
   term?: any;
-}>;
+}
+| undefined>;
 ```
 
 ### fields
@@ -227,7 +235,7 @@ product: ComputedRef<Product>;
 ### productImage()
 
 ```ts
-productImage: (size) => undefined | string;
+productImage: (size) => string | undefined;
 ```
 
 #### Parameters
@@ -238,7 +246,7 @@ productImage: (size) => undefined | string;
 
 #### Returns
 
-`undefined` \| `string`
+`string` \| `undefined`
 
 ### reset()
 
@@ -380,11 +388,11 @@ updateTerm: (value) => Promise<void>;
 
 ```ts
 validationErrors: ComputedRef<
-  | undefined
   | {
   attributes?: any;
   options?: any;
   provisionFields?: any;
   term?: any;
-}>;
+}
+| undefined>;
 ```

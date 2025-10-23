@@ -6,4 +6,4 @@
 type UsePayment = ReturnType<typeof usePayment>;
 ```
 
-The return type of usePayment composable.
+The return type of [usePayment](../functions/usePayment.md) composable.

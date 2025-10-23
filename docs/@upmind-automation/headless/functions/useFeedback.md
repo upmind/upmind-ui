@@ -6,9 +6,17 @@
 function useFeedback(): object;
 ```
 
+Composable function to manage feedback messages using an XState state machine.
+Provides methods for adding, dismissing, and displaying different types of messages
+such as errors, successes, warnings, and system notifications.
+This uses a global instance of the feedback machine.
+
 ## Returns
 
 `object`
+
+An object containing state, computed properties, and methods
+ for interacting with the feedback system.
 
 ### add()
 

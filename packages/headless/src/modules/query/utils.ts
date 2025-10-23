@@ -37,8 +37,20 @@ import {
 import { useI18n } from "../system";
 
 // --- constants
+
+/**
+ * Default pagination values for API requests.
+ * These values can be used to standardise pagination across different requests.
+ */
 export const PAGINATION = {
+  /**
+   * The default offset for paginated requests, indicating the starting point for fetching data.
+   * A value of 0 means fetching starts from the first item.
+   */
   offset: 0,
+  /**
+   * The default limit for paginated requests, specifying the maximum number of items to return per page.
+   */
   limit: 10
 };
 
@@ -79,14 +91,17 @@ export const invalidateQueryByKey =
       .then(() => data);
   };
 
-export const resetQueryByKey =
-  (queryKey: QueryKey) =>
-  async <T>(data: T) => {
-    const { queryClient } = useQuery();
-    queryClient.removeQueries({ queryKey, exact: false });
-    return data;
-  };
-
+/**
+ * Determines if an authorisation retry is permissible based on the URL, error details, and attempt count.
+ * This function is primarily used for handling authentication-related errors, such as expired tokens or unauthorised access.
+ *
+ * @param url - The URL of the request that resulted in an error.
+ * @param error - The {@link DetailedError} object containing details about the error.
+ * @param options - An object containing the current attempt count and the maximum allowed attempts.
+ * @param options.attempts - The number of attempts already made for this request.
+ * @param options.max - The maximum number of retries allowed.
+ * @returns `true` if an authorisation retry is allowed, `false` otherwise.
+ */
 export function canRetryAuthorization(
   url: URL,
   error: DetailedError,
@@ -117,11 +132,12 @@ export function canRetryAuthorization(
 }
 
 /**
+ * Cleans a query key by removing empty values, objects, and arrays.
+ * This is useful for preventing unnecessary data from being included in query keys,
+ * which can help in cache management and improve the accuracy of query matching.
  *
- * @param queryKey The query key to clean
- * @description Cleans the query key by removing empty values, objects, and arrays.
- * This is useful to avoid sending unnecessary data in the query key.
- * @returns The cleaned query key
+ * @param queryKey - The query key array to clean.
+ * @returns The cleaned query key array with empty values removed.
  */
 export function cleanQueryKey(queryKey: any[]): any[] {
   return values(compactDeep(queryKey));
@@ -147,15 +163,17 @@ export const localStoragePersister: ReturnType<
 });
 
 /**
+ * Creates a persister for the given store that synchronises its state with localStorage
+ * This persister will handle the serialisation and deserialization of the store state
+ * and will also update the store state with the data from localStorage when it is retrieved.
+ * This is useful for persisting the store state across browser sessions.
  *
+ * @template TState - The type of the store's state.
+ * @template TUpdater - The type of the store's updater function.
  * @param store The store to persist the data to
  * @param options  Optional options to configure the persister
  * @param options.append If true, the data will be appended to the store state instead of replacing it
  *                       If a string is provided, the data will be appended to the store state under that key
- * @description Creates a persister for the given store that synchronizes its state with localStorage
- * This persister will handle the serialization and deserialization of the store state
- * and will also update the store state with the data from localStorage when it is retrieved.
- * This is useful for persisting the store state across browser sessions.
  * @returns A persister function that can be used with the query client
  */
 export const storePersister = <TState, TUpdater extends AnyUpdater>(
@@ -196,7 +214,7 @@ export const storePersister = <TState, TUpdater extends AnyUpdater>(
   }
 
   const storage = {
-    // NB always returns a stringified value as it wil lbe deserialized by the query client
+    // NB always returns a stringified value as it will be deserialized by the query client
     // Also we ALWAYS use local storage as the source of truth
     // We also set the store state with data in local storage
     getItem: (key: string): string => {
@@ -208,7 +226,7 @@ export const storePersister = <TState, TUpdater extends AnyUpdater>(
       return query ?? "";
     },
 
-    // NB: will always come as a strigified JSON of the entire QueryObject
+    // NB: will always come as a stringified JSON of the entire QueryObject
     // we persist the entire query to local storage
     // and ALSO set the store state with the query data
     setItem: (key: string, query: string): void => {
@@ -241,18 +259,13 @@ export const storePersister = <TState, TUpdater extends AnyUpdater>(
 };
 
 /**
- * Generates a mapping of HTTP response codes to user-facing error messages.
+ * Generates a mapping of HTTP response codes to user-facing feedback messages.
+ * This function determines the appropriate message display type and content based on the status code.
  *
- * This utility function returns an object where each key is a response code,
- * and the value is either a `Message` object describing the error or `undefined`
- * if no specific message is provided for that code.
+ * It returns an object where keys are response codes (e.g., {@link responseCodes.Too_Many_Requests})
+ * and values are {@link Message} objects or `undefined` if no specific feedback is configured for that code.
  *
- * Some response codes (e.g., 429, 500, 503) have detailed messages including
- * type, title, copy, error data, i18n key, display type, and optional delay/maxAge.
- * Other codes return `undefined` to indicate no custom message.
- *
- * @param error - Optional error details from the query response.
- * @param status - Optional HTTP status code from the query response.
+ * @param error - Optional {@link QueryResponseError} object from the API response.
  * @returns A record mapping response codes to their corresponding error messages or `undefined`.
  */
 const mapFeedback = (
@@ -296,13 +309,14 @@ const mapFeedback = (
 };
 
 /**
- * Handles errors from a query response by displaying a feedback message and throwing a detailed error.
+ * Handles errors from a query response by displaying a user-friendly feedback message
+ * and then throwing a `DetailedError` for programmatic handling.
  *
- * @param status - The status code from the query response.
- * @param error - The error object from the query response.
- * @returns A promise that never resolves, as it always throws an error.
+ * @param status - The HTTP status code from the query response.
+ * @param error - The {@link QueryResponseError} object from the query response.
+ * @returns A promise that always rejects with a {@link DetailedError}, containing the mapped message and originating details.
  *
- * @throws {DetailedError} Throws a detailed error containing the error message, status, origin, and additional data.
+ * @throws {DetailedError} Throws a detailed error instance based on the provided status and error object.
  */
 export function handleError(
   status: QueryResponse["status"],
@@ -322,5 +336,3 @@ export function handleError(
     error?.data
   );
 }
-
-//TODO a machinePersister that will persist the query data in a machine context and send a REFRESH event to the machine when the data is updated

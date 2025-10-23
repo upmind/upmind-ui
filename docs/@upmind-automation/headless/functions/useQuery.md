@@ -6,12 +6,17 @@
 function useQuery(): object;
 ```
 
+A composable function that provides utilities for making HTTP requests
+with advanced functionalities like pagination, sorting, filtering, currency handling,
+and caching using TanStack Query. It provides methods for sending requests and handling
+responses in a reactive way.
+
 ## Returns
 
 ### del()
 
 ```ts
-del: <T>(__namedParameters) => Promise<T> = deleteRequest;
+del: <T>(url) => Promise<T> = deleteRequest;
 ```
 
 **`Function`**
@@ -26,9 +31,11 @@ Syntax sugar for sending a DELETE request to the server with the given URL and o
 
 #### Parameters
 
-##### \_\_namedParameters
+##### url
 
 [`RequestParams`](../type-aliases/RequestParams.md)
+
+The URL to send the request to.
 
 #### Returns
 
@@ -59,7 +66,7 @@ Might throw an error if the request fails.
 ### get()
 
 ```ts
-get: <TQueryFnData, TData>(__namedParameters) => Promise<TData> = getRequest;
+get: <TQueryFnData, TData>(url) => Promise<TData> = getRequest;
 ```
 
 Syntax sugar for sending a GET request to the server with the given URL and options.
@@ -77,9 +84,11 @@ NOTE: this does not deal with pagination, it is a simple GET request.
 
 #### Parameters
 
-##### \_\_namedParameters
+##### url
 
 `Omit`\<[`QueryParams`](../type-aliases/QueryParams.md)\<`TQueryFnData`, `TData`\>, `"pagination"`\>
+
+The URL to send the request to.
 
 #### Returns
 
@@ -92,7 +101,7 @@ NOTE: this does not deal with pagination, it is a simple GET request.
 ### getList()
 
 ```ts
-getList: <TQueryFnData, TData>(__namedParameters) => Promise<QueryResponse<TData>> = listRequest;
+getList: <TQueryFnData, TData>(url) => Promise<QueryResponse<TData>> = listRequest;
 ```
 
 Syntax sugar for sending a GET request with pagination, filters, and sorting to the server with the given URL and options.
@@ -109,9 +118,11 @@ Syntax sugar for sending a GET request with pagination, filters, and sorting to 
 
 #### Parameters
 
-##### \_\_namedParameters
+##### url
 
 [`QueryParams`](../type-aliases/QueryParams.md)\<`TQueryFnData`, `TData`\>
+
+The URL to send the request to.
 
 #### Returns
 
@@ -124,7 +135,7 @@ Syntax sugar for sending a GET request with pagination, filters, and sorting to 
 ### head()
 
 ```ts
-head: <T>(__namedParameters) => Promise<QueryResponse<T>> = headRequest;
+head: <T>(url) => Promise<QueryResponse<T>> = headRequest;
 ```
 
 **`Function`**
@@ -139,9 +150,11 @@ Syntax sugar for sending a GET request to the server with the given URL and opti
 
 #### Parameters
 
-##### \_\_namedParameters
+##### url
 
 [`RequestParams`](../type-aliases/RequestParams.md)
+
+The URL to send the request to.
 
 #### Returns
 
@@ -172,7 +185,7 @@ Might throw an error if the request fails.
 ### list()
 
 ```ts
-list: <TQueryFnData, TData>(__namedParameters) => UseQueryReturnType<QueryResponse<TData>, Error> & object;
+list: <TQueryFnData, TData>(url) => UseQueryReturnType<QueryResponse<TData>, Error> & object;
 ```
 
 Syntax sugar for sending a GET request to the server with the given URL and options.
@@ -190,9 +203,11 @@ This method is specifically designed for listing resources with pagination, sort
 
 #### Parameters
 
-##### \_\_namedParameters
+##### url
 
 [`QueryParams`](../type-aliases/QueryParams.md)\<`TQueryFnData`, `TData`\>
+
+The URL to send the request to.
 
 #### Returns
 
@@ -205,7 +220,7 @@ This method is specifically designed for listing resources with pagination, sort
 ### listInfinite()
 
 ```ts
-listInfinite: <TQueryFnData, TData>(__namedParameters) => UseInfiniteQueryReturnType<TData, Error> & object;
+listInfinite: <TQueryFnData, TData>(url) => UseInfiniteQueryReturnType<TData, Error> & object;
 ```
 
 Syntax sugar for sending a GET request to the server with the given URL and options.
@@ -223,9 +238,11 @@ This method is specifically designed for listing resources with infinite scrolli
 
 #### Parameters
 
-##### \_\_namedParameters
+##### url
 
 [`QueryParams`](../type-aliases/QueryParams.md)\<`TQueryFnData`, `TData`\>
+
+The URL to send the request to.
 
 #### Returns
 
@@ -238,7 +255,7 @@ This method is specifically designed for listing resources with infinite scrolli
 ### mutate()
 
 ```ts
-mutate: <TData, TError, TVariables, TContext>(method, __namedParameters) => UseMutationReturnType<QueryResponse<TData>, TError, TVariables, TContext, MutationResult<QueryResponse<TData>, TError, TVariables, TContext>>;
+mutate: <TData, TError, TVariables, TContext>(method, url) => UseMutationReturnType<QueryResponse<TData>, TError, TVariables, TContext, MutationResult<QueryResponse<TData>, TError, TVariables, TContext>>;
 ```
 
 Syntax sugar for sending a POST request to the server with the given URL and options.
@@ -269,9 +286,11 @@ Syntax sugar for sending a POST request to the server with the given URL and opt
 
 The HTTP method to use for the request (e.g., POST, PUT, PATCH, DELETE).
 
-##### \_\_namedParameters
+##### url
 
 [`MutationParams`](../type-aliases/MutationParams.md)\<[`QueryResponse`](../interfaces/QueryResponse.md)\<`TData`\>, `TError`, `TVariables`, `TContext`\>
+
+The URL to send the request to.
 
 #### Returns
 
@@ -284,7 +303,7 @@ The HTTP method to use for the request (e.g., POST, PUT, PATCH, DELETE).
 ### patch()
 
 ```ts
-patch: <T>(__namedParameters) => Promise<T> = patchRequest;
+patch: <T>(url) => Promise<T> = patchRequest;
 ```
 
 **`Function`**
@@ -299,9 +318,11 @@ Syntax sugar for sending a PATCH request to the server with the given URL and op
 
 #### Parameters
 
-##### \_\_namedParameters
+##### url
 
 [`RequestParams`](../type-aliases/RequestParams.md)
+
+The URL to send the request to.
 
 #### Returns
 
@@ -332,7 +353,7 @@ Might throw an error if the request fails.
 ### post()
 
 ```ts
-post: <T>(__namedParameters) => Promise<T> = postRequest;
+post: <T>(url) => Promise<T> = postRequest;
 ```
 
 **`Function`**
@@ -347,9 +368,11 @@ Syntax sugar for sending a POST request to the server with the given URL and opt
 
 #### Parameters
 
-##### \_\_namedParameters
+##### url
 
 [`RequestParams`](../type-aliases/RequestParams.md)
+
+The URL to send the request to.
 
 #### Returns
 
@@ -380,7 +403,7 @@ Might throw an error if the request fails.
 ### put()
 
 ```ts
-put: <T>(__namedParameters) => Promise<T> = putRequest;
+put: <T>(url) => Promise<T> = putRequest;
 ```
 
 **`Function`**
@@ -395,9 +418,11 @@ Syntax sugar for sending a PUT request to the server with the given URL and opti
 
 #### Parameters
 
-##### \_\_namedParameters
+##### url
 
 [`RequestParams`](../type-aliases/RequestParams.md)
+
+The URL to send the request to.
 
 #### Returns
 
@@ -428,7 +453,7 @@ Might throw an error if the request fails.
 ### query()
 
 ```ts
-query: <TQueryFnData, TData>(__namedParameters) => undefined | UseQueryDefinedReturnType<TData, Error>;
+query: <TQueryFnData, TData>(url) => UseQueryReturnType<TData, Error> & object;
 ```
 
 Syntax sugar for sending a GET request to the server with the given URL and options.
@@ -446,13 +471,15 @@ NOTE: this does not deal with pagination, it is a simple GET request.
 
 #### Parameters
 
-##### \_\_namedParameters
+##### url
 
 `Omit`\<[`QueryParams`](../type-aliases/QueryParams.md)\<`TQueryFnData`, `TData`\>, `"pagination"`\>
 
+The URL to send the request to.
+
 #### Returns
 
-`undefined` \| `UseQueryDefinedReturnType`\<`TData`, `Error`\>
+`UseQueryReturnType`\<`TData`, `Error`\> & `object`
 
 #### See
 

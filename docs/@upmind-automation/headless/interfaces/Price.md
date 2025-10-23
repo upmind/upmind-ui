@@ -2,8 +2,7 @@
 
 # Price
 
-The price details for any price , allowing for gross/net and discount breakdowns
- Price
+The price details for any price, allowing for gross/net and discount breakdowns.
 
 ## Properties
 
@@ -13,7 +12,7 @@ The price details for any price , allowing for gross/net and discount breakdowns
 discount: number;
 ```
 
-The discount price of the product
+The discount amount applied to the product.
 
 ***
 
@@ -23,7 +22,7 @@ The discount price of the product
 discountFormatted: string;
 ```
 
-The formatted discount price of the product
+The formatted discount price of the product (e.g. "£20.00").
 
 ***
 
@@ -33,7 +32,7 @@ The formatted discount price of the product
 subtotal: number;
 ```
 
-The subtotal price of the product
+The subtotal price of the product (before discounts or taxes, depending on context).
 
 ***
 
@@ -43,7 +42,7 @@ The subtotal price of the product
 subtotalFormatted: string;
 ```
 
-The formatted subtotal price of the product
+The formatted subtotal price of the product (e.g. "£100.00").
 
 ***
 
@@ -53,7 +52,7 @@ The formatted subtotal price of the product
 total: number;
 ```
 
-The total price of the product
+The total price of the product or item.
 
 ***
 
@@ -63,4 +62,4 @@ The total price of the product
 totalFormatted: string;
 ```
 
-The formatted total price of the product
+The formatted total price of the product (e.g. "£120.00").

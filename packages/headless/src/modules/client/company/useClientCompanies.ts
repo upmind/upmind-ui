@@ -1,5 +1,5 @@
 // --- external
-import { computed, ComputedRef, ref } from "vue";
+import { computed, ref } from "vue";
 
 // --- internal
 import service from "./services";
@@ -14,6 +14,14 @@ import { set, isEmpty, isArray } from "lodash-es";
 import type { Company } from "./types";
 import type { QueryProps, RequestFilters } from "../../query";
 
+/**
+ * Composable function to manage client companies.  Provides methods for fetching, filtering,
+ * updating, and interacting with a list of client companies. Uses the `service` to interact with
+ * backend data and integrates with the application's session and query management.
+ *
+ * @param initial - Optional initial query parameters for loading the company list. Defaults to pagination limit of 0.
+ * @returns The {@link UseClientCompanies} API for interacting with client companies.
+ */
 export const useClientCompanies = (
   initial: QueryProps = {
     pagination: {
@@ -204,4 +212,7 @@ export const useClientCompanies = (
   };
 };
 
+/**
+ * The return type of the {@link useClientCompanies} composable function.
+ */
 export type UseClientCompanies = ReturnType<typeof useClientCompanies>;

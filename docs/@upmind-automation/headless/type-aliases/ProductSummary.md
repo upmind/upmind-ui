@@ -6,6 +6,8 @@
 type ProductSummary = object;
 ```
 
+Type alias for a product summary, aggregating key pricing and detail information.
+
 ## Properties
 
 ### details
@@ -13,6 +15,8 @@ type ProductSummary = object;
 ```ts
 details: Product["details"];
 ```
+
+A summary of the product configuration details.
 
 ***
 
@@ -22,6 +26,8 @@ details: Product["details"];
 price: Product["price"];
 ```
 
+The display price details for the product.
+
 ***
 
 ### pricing
@@ -29,3 +35,5 @@ price: Product["price"];
 ```ts
 pricing: Product["pricing"];
 ```
+
+A breakdown of the product's pricing details.

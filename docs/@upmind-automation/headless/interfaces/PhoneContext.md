@@ -2,6 +2,14 @@
 
 # PhoneContext
 
+Interface representing the context for phone number management within a client item context.
+It extends `ClientItemContext` with specific data relevant to phone operations,
+such as geographical country context for phone number formatting and validation.
+
+## Template
+
+The type of the phone model, typically [PhoneModel](PhoneModel.md).
+
 ## Extends
 
 - `ClientItemContext`\<[`PhoneModel`](PhoneModel.md)\>
@@ -83,6 +91,9 @@ ClientItemContext.config
 ```ts
 optional country: ICountry;
 ```
+
+The currently selected ICountry object in the context, used for
+phone number formatting and validation rules.
 
 ***
 

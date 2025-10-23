@@ -6,4 +6,4 @@
 type UseTransfer = ReturnType<typeof useTransfer>;
 ```
 
-The return type of useTransfer composable.
+The return type of [useTransfer](../functions/useTransfer.md) composable.

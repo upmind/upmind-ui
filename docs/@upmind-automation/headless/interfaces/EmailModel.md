@@ -2,6 +2,9 @@
 
 # EmailModel
 
+Interface representing the data model for an email address, suitable for forms
+or API payloads.
+
 ## Extended by
 
 - [`Email`](Email.md)
@@ -11,8 +14,10 @@
 ### email
 
 ```ts
-email: null | string;
+email: string | null;
 ```
+
+The email address string, or `null` if not set.
 
 ***
 
@@ -21,3 +26,5 @@ email: null | string;
 ```ts
 optional id: string;
 ```
+
+Optional unique identifier for the email address. Present if editing an existing email.

@@ -3,8 +3,12 @@
 # useClientEmail()
 
 ```ts
-function useClientEmail(id?, __namedParameters?): object;
+function useClientEmail(id?, options?): object;
 ```
+
+Provides functionalities to manage a client's email, leveraging an XState machine.
+This composable handles email data, validation, saving, and interaction states.
+It's designed for use in contexts like client profile management or checkout email selection.
 
 ## Parameters
 
@@ -12,17 +16,27 @@ function useClientEmail(id?, __namedParameters?): object;
 
 `string`
 
-### \_\_namedParameters?
+The unique identifier of the email to manage. If omitted, it may imply a new email.
+
+### options?
+
+Optional configuration for the email management.
 
 #### allowMultipleEdits?
 
 `boolean`
 
+If `true`, allows multiple instances of this composable to manage different emails concurrently.
+
 #### clientId?
 
 `string`
 
+The unique identifier of the client to whom this email belongs.
+
 ## Returns
+
+The API for managing the client email.
 
 ### clear()
 
@@ -39,7 +53,7 @@ Clears the context.
 ### context
 
 ```ts
-context: ComputedRef<undefined | ClientItemContext<any, any>>;
+context: ComputedRef<ClientItemContext<any, any> | undefined>;
 ```
 
 The full context object.
@@ -47,15 +61,15 @@ The full context object.
 ### description
 
 ```ts
-description: ComputedRef<undefined | string>;
+description: ComputedRef<string | undefined>;
 ```
 
-Description of the.email
+Description of the email
 
 ### errors
 
 ```ts
-errors: ComputedRef<undefined | string>;
+errors: ComputedRef<string | undefined>;
 ```
 
 Any error object from the context.
@@ -63,7 +77,7 @@ Any error object from the context.
 ### id
 
 ```ts
-id: ComputedRef<undefined | string>;
+id: ComputedRef<string | undefined>;
 ```
 
 The ID of the email
@@ -126,7 +140,7 @@ The current model.
 ### schema
 
 ```ts
-schema: ComputedRef<undefined | JsonSchema>;
+schema: ComputedRef<JsonSchema | undefined>;
 ```
 
 The JSON schema for the form
@@ -146,7 +160,7 @@ Stops the service.
 ### title
 
 ```ts
-title: ComputedRef<undefined | string>;
+title: ComputedRef<string | undefined>;
 ```
 
 Title of the email
@@ -154,7 +168,7 @@ Title of the email
 ### uischema
 
 ```ts
-uischema: ComputedRef<undefined | UISchemaElement>;
+uischema: ComputedRef<UISchemaElement | undefined>;
 ```
 
 The UI schema for the form
@@ -185,8 +199,8 @@ Resolves when updated model from the service, rejects on error.
 
 ```ts
 validationErrors: ComputedRef<
-  | undefined
-| ValidationErrorObject<string, Record<string, any>, unknown>[]>;
+  | ValidationErrorObject<string, Record<string, any>, unknown>[]
+| undefined>;
 ```
 
 Any validation errors from the context.

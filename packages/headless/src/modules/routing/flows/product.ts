@@ -1,5 +1,3 @@
-// --- external
-
 // --- internal
 import {
   useRoutingEngine,
@@ -17,11 +15,20 @@ import { uniqBy, set, isEmpty } from "lodash-es";
 // --- types
 import { ROUTE } from "../types";
 import type { Flow, Route } from "../types";
+import type { ProductProps } from "src/modules/product";
 import { contextValue, stateMatches } from "../../../utils";
-import { ProductProps } from "src/modules/product";
 
 // -----------------------------------------------------------------------------
 
+/**
+ * Composable function to provide functionality to manage and execute product flows used in e-commerce applications.
+ *
+ * This function defines and manages a set of flows related to product-related operations
+ * such as adding, editing, and resolving products in the shopping basket. It includes guard
+ * conditions and resolution logic for determining the next actions, along with navigation
+ * targets for each flow. The hooks leveraged within the flows enable interaction with the
+ * routing engine, basket system, and other modules for product and recommendation handling.
+ */
 export const useProductFlows = () => {
   const routing = useRoutingEngine();
   const {

@@ -9,23 +9,31 @@ import { useUnified } from "./billing/unified/useUnified";
 
 // --- utils
 import {
+  contextValue,
   DetailedError,
+  ErrorOrigin,
   responseCodes,
-  useContext,
   stateMatches,
   stateValue,
-  contextValue,
-  ErrorOrigin,
-  contextMatches
+  useContext
 } from "../../utils";
 import { isEmpty, isEqual, isNil, omitBy } from "lodash-es";
 
 // --- types
 import type { ActorRef } from "xstate";
-import { BillingContext, BillingModel } from "./billing/types";
+import type { BillingContext, BillingModel } from "./billing";
 
 // -----------------------------------------------------------------------------
 
+/**
+ * Manages the basket billing process, actor,
+ * and associated state, meta information, context, and other interactions
+ * related to billing in the application's basket system.
+ *
+ * This function provides utilities for managing the billing context,
+ * validating, updating, and clearing billing details, as well as
+ * observing state transitions and meta-information about the billing lifecycle.
+ */
 export const useBasketBilling = () => {
   const { t } = useI18n();
   const { actors } = useBasket();

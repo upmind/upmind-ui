@@ -2,6 +2,14 @@
 
 # AddressContext
 
+Interface representing the context for address management within a client item context.
+It extends `ClientItemContext` with specific data relevant to address operations,
+such as geographical lookups.
+
+## Template
+
+The type of the address model, typically [AddressModel](AddressModel.md).
+
 ## Extends
 
 - `ClientItemContext`\<[`AddressModel`](AddressModel.md)\>
@@ -84,6 +92,8 @@ ClientItemContext.config
 countries: ICountry[];
 ```
 
+An array of all available countries in the system for selection in address forms.
+
 ***
 
 ### country?
@@ -91,6 +101,8 @@ countries: ICountry[];
 ```ts
 optional country: ICountry;
 ```
+
+The currently selected country object in the context.
 
 ***
 
@@ -155,6 +167,9 @@ ClientItemContext.model
 ```ts
 optional regions: IRegion[];
 ```
+
+An array of regions available for the selected country.
+Used for address form fields.
 
 ***
 

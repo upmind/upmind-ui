@@ -67,7 +67,7 @@ Add all selected domains to the basket.
 ### available
 
 ```ts
-available: ComputedRef<undefined | DomainProduct[]>;
+available: ComputedRef<DomainProduct[] | undefined>;
 ```
 
 List of available domains.
@@ -75,7 +75,7 @@ List of available domains.
 ### basket
 
 ```ts
-basket: ComputedRef<undefined | DomainProduct[]>;
+basket: ComputedRef<DomainProduct[] | undefined>;
 ```
 
 List of domains in the basket.
@@ -111,13 +111,13 @@ The domain value to choose.
 ### context
 
 ```ts
-context: ComputedRef<undefined | DomainContext>;
+context: ComputedRef<DomainContext | undefined>;
 ```
 
 ### errors
 
 ```ts
-errors: ComputedRef<undefined | ResponseError>;
+errors: ComputedRef<ResponseError | undefined>;
 ```
 
 Any errors encountered.
@@ -191,7 +191,7 @@ The current model (selected domains).
 ### owned
 
 ```ts
-owned: ComputedRef<undefined | DomainProduct[]>;
+owned: ComputedRef<DomainProduct[] | undefined>;
 ```
 
 List of owned domains.
@@ -215,7 +215,7 @@ The current pagination state.
 ### query
 
 ```ts
-query: ComputedRef<undefined | string>;
+query: ComputedRef<string | undefined>;
 ```
 
 The current search query.
@@ -301,7 +301,7 @@ The domain value to select.
 ### selected
 
 ```ts
-selected: ComputedRef<undefined | string>;
+selected: ComputedRef<string | undefined>;
 ```
 
 The currently selected domain.
@@ -341,7 +341,7 @@ The domain value to toggle.
 ### type
 
 ```ts
-type: ComputedRef<undefined | DomainTypes>;
+type: ComputedRef<DomainTypes | undefined>;
 ```
 
 The current domain type.

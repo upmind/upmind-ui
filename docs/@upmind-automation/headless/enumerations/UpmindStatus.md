@@ -2,6 +2,8 @@
 
 # UpmindStatus
 
+Enumeration representing the initialisation status of the Upmind instance.
+
 ## Enumeration Members
 
 ### initialised
@@ -9,6 +11,8 @@
 ```ts
 initialised: "initialised";
 ```
+
+The Upmind instance has completed its initialisation process and is ready for use.
 
 ***
 
@@ -18,6 +22,8 @@ initialised: "initialised";
 initialising: "initialising";
 ```
 
+The Upmind instance is currently in the process of initialising.
+
 ***
 
 ### notInitialised
@@ -25,3 +31,5 @@ initialising: "initialising";
 ```ts
 notInitialised: "";
 ```
+
+The Upmind instance has not yet been initialised.

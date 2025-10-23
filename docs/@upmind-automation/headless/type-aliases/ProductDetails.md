@@ -6,7 +6,8 @@
 type ProductDetails = object;
 ```
 
-Represents the actual store product being configured.
+Represents the actual store product details, typically retrieved from the API.
+This contains all the displayable and configurable information for a product.
 
 ## Properties
 
@@ -16,6 +17,8 @@ Represents the actual store product being configured.
 optional badge: Badge;
 ```
 
+An optional [Badge](../interfaces/Badge.md) to display with the product.
+
 ***
 
 ### benefits?
@@ -23,6 +26,8 @@ optional badge: Badge;
 ```ts
 optional benefits: Benefit[];
 ```
+
+An array of [Benefit](../interfaces/Benefit.md) objects associated with the product.
 
 ***
 
@@ -32,6 +37,8 @@ optional benefits: Benefit[];
 brand: string;
 ```
 
+The brand associated with the product.
+
 ***
 
 ### breadcrumb?
@@ -39,6 +46,8 @@ brand: string;
 ```ts
 optional breadcrumb: ProductBreadcrumb[];
 ```
+
+An array of [ProductBreadcrumb](ProductBreadcrumb.md) items, defining the navigational path to the product.
 
 ***
 
@@ -48,6 +57,8 @@ optional breadcrumb: ProductBreadcrumb[];
 optional categories: string[];
 ```
 
+An array of parent category names for the product, if applicable.
+
 ***
 
 ### category
@@ -55,6 +66,8 @@ optional categories: string[];
 ```ts
 category: string;
 ```
+
+The name of the primary category the product belongs to.
 
 ***
 
@@ -64,6 +77,8 @@ category: string;
 categoryId: string;
 ```
 
+The ID of the primary category the product belongs to.
+
 ***
 
 ### cycle
@@ -71,6 +86,8 @@ categoryId: string;
 ```ts
 cycle: number;
 ```
+
+The default billing cycle in months for the product.
 
 ***
 
@@ -80,6 +97,8 @@ cycle: number;
 optional defaultPaymentPeriod: number;
 ```
 
+The default payment period in days, if different from the billing cycle.
+
 ***
 
 ### description?
@@ -87,6 +106,8 @@ optional defaultPaymentPeriod: number;
 ```ts
 optional description: string;
 ```
+
+A detailed description of the product.
 
 ***
 
@@ -96,6 +117,8 @@ optional description: string;
 optional displayPrice: TermDetails;
 ```
 
+Optional [TermDetails](TermDetails.md) for how the price is displayed for this term.
+
 ***
 
 ### excerpt?
@@ -103,6 +126,8 @@ optional displayPrice: TermDetails;
 ```ts
 optional excerpt: string;
 ```
+
+A short excerpt or summary of the product description.
 
 ***
 
@@ -112,6 +137,8 @@ optional excerpt: string;
 id: string;
 ```
 
+The unique identifier of the product.
+
 ***
 
 ### images?
@@ -119,6 +146,8 @@ id: string;
 ```ts
 optional images: ProductImage[];
 ```
+
+An array of [ProductImage](ProductImage.md) objects for the product.
 
 ***
 
@@ -128,6 +157,8 @@ optional images: ProductImage[];
 optional imgUrl: string;
 ```
 
+The URL of the main image for the product.
+
 ***
 
 ### max
@@ -135,6 +166,8 @@ optional imgUrl: string;
 ```ts
 max: number;
 ```
+
+The maximum allowed quantity for the product, or `Infinity`.
 
 ***
 
@@ -144,6 +177,8 @@ max: number;
 min: number;
 ```
 
+The minimum allowed quantity for the product.
+
 ***
 
 ### name
@@ -151,6 +186,8 @@ min: number;
 ```ts
 name: string;
 ```
+
+The untranslated name of the product, often used for reporting purposes.
 
 ***
 
@@ -160,6 +197,8 @@ name: string;
 quantifiable: boolean;
 ```
 
+`true` if the product allows quantity selection, `false` otherwise.
+
 ***
 
 ### quantity
@@ -167,6 +206,8 @@ quantifiable: boolean;
 ```ts
 quantity: number;
 ```
+
+The default or current quantity of the product.
 
 ***
 
@@ -176,6 +217,8 @@ quantity: number;
 step: number;
 ```
 
+The step increment for quantity selection.
+
 ***
 
 ### title
@@ -183,6 +226,8 @@ step: number;
 ```ts
 title: string;
 ```
+
+The display title of the product, typically translated.
 
 ***
 
@@ -192,6 +237,8 @@ title: string;
 optional uiCategoryMeta: Record<string, any>;
 ```
 
+Optional UI meta-data specific to the product's category.
+
 ***
 
 ### uiMeta?
@@ -199,3 +246,5 @@ optional uiCategoryMeta: Record<string, any>;
 ```ts
 optional uiMeta: UIMeta;
 ```
+
+Optional [UIMeta](../interfaces/UIMeta.md) for UI-specific product configuration.

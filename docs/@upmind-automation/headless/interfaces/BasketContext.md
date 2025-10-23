@@ -2,6 +2,10 @@
 
 # BasketContext
 
+Interface representing the context for the main shopping basket, typically managed by an XState machine.
+It holds the entire state of the basket, including its products, summary, errors, and references
+to spawned child actors for managing related concerns like billing, currency, and promotions.
+
 ## Properties
 
 ### actors?
@@ -10,11 +14,16 @@
 optional actors: object;
 ```
 
-#### billing
+A record of `ActorRef`s to various child actors (XState machines) spawned by the basket.
+These actors manage specific aspects of the basket's functionality.
+
+#### billing?
 
 ```ts
-billing: ActorRef<any>;
+optional billing: ActorRef<any, any>;
 ```
+
+`ActorRef` for the billing-related state machine.
 
 #### currency
 
@@ -22,16 +31,20 @@ billing: ActorRef<any>;
 currency: ActorRef<any>;
 ```
 
+`ActorRef` for the currency management state machine.
+
 #### customFields
 
 ```ts
 customFields: ActorRef<any>;
 ```
 
-#### paymentDetails
+`ActorRef` for the custom fields state machine.
+
+#### paymentDetail?
 
 ```ts
-paymentDetails: ActorRef<any>;
+optional paymentDetail: ActorRef<any, any>;
 ```
 
 #### promotions
@@ -39,6 +52,8 @@ paymentDetails: ActorRef<any>;
 ```ts
 promotions: ActorRef<any>;
 ```
+
+`ActorRef` for the promotions state machine.
 
 ***
 
@@ -48,6 +63,8 @@ promotions: ActorRef<any>;
 optional authHelper: ActorRef<any, any>;
 ```
 
+An `ActorRef` to an authentication helper service for managing session-related concerns.
+
 ***
 
 ### basket?
@@ -55,6 +72,8 @@ optional authHelper: ActorRef<any, any>;
 ```ts
 optional basket: IBasket;
 ```
+
+The raw `IBasket` object representing the current state of the shopping basket.
 
 ***
 
@@ -64,6 +83,8 @@ optional basket: IBasket;
 optional controller: AbortController;
 ```
 
+An `AbortController` instance, used to cancel ongoing fetch requests related to the basket.
+
 ***
 
 ### error?
@@ -71,6 +92,8 @@ optional controller: AbortController;
 ```ts
 optional error: ResponseError;
 ```
+
+An error object if any issue occurred during basket operations.
 
 ***
 
@@ -80,6 +103,8 @@ optional error: ResponseError;
 optional invoice: IInvoice;
 ```
 
+The `IInvoice` object associated with the basket, if the basket has progressed to an invoice stage.
+
 ***
 
 ### payment?
@@ -88,12 +113,14 @@ optional invoice: IInvoice;
 optional payment: ActorRef<any, any>;
 ```
 
+An `ActorRef` to the payment state machine, managing the overall payment process.
+
 ***
 
-### paymentDetails?
+### paymentDetail?
 
 ```ts
-optional paymentDetails: any;
+optional paymentDetail: PaymentDetailData;
 ```
 
 ***
@@ -104,6 +131,8 @@ optional paymentDetails: any;
 products: BasketProduct[];
 ```
 
+An array of [BasketProduct](BasketProduct.md) objects, representing all products currently in the basket.
+
 ***
 
 ### summary?
@@ -112,11 +141,15 @@ products: BasketProduct[];
 optional summary: object;
 ```
 
+A summary object providing formatted details of the basket's financial breakdown.
+
 #### discount
 
 ```ts
-discount: null | string;
+discount: string | null;
 ```
+
+The total discount amount applied to the basket, formatted as a string (e.g. "£10.00").
 
 #### products
 
@@ -124,11 +157,16 @@ discount: null | string;
 products: BasketProduct[];
 ```
 
+The array of [BasketProduct](BasketProduct.md) objects, usually a filtered or augmented version
+of the main `products` array for summary display.
+
 #### subtotal
 
 ```ts
 subtotal: string;
 ```
+
+The subtotal amount of the basket (before taxes and after discounts), formatted as a string.
 
 #### taxes
 
@@ -136,8 +174,12 @@ subtotal: string;
 taxes: object[];
 ```
 
+An array of tax details, each with a title (e.g. "VAT") and an amount, formatted as a string.
+
 #### total
 
 ```ts
 total: string;
 ```
+
+The total amount due for the basket, formatted as a string.

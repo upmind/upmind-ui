@@ -6,6 +6,8 @@
 type ExternalError = object;
 ```
 
+Type alias for external error structures, typically from validation or API responses.
+
 ## Properties
 
 ### attributes?
@@ -13,6 +15,8 @@ type ExternalError = object;
 ```ts
 optional attributes: ValidationErrorObject[];
 ```
+
+Array of Ajv [ErrorObject](../interfaces/ValidationErrorObject.md) for attribute-related errors.
 
 ***
 
@@ -22,6 +26,8 @@ optional attributes: ValidationErrorObject[];
 optional options: ValidationErrorObject[];
 ```
 
+Array of Ajv [ErrorObject](../interfaces/ValidationErrorObject.md) for option-related errors.
+
 ***
 
 ### provisionFields?
@@ -30,6 +36,8 @@ optional options: ValidationErrorObject[];
 optional provisionFields: ValidationErrorObject[];
 ```
 
+Array of Ajv [ErrorObject](../interfaces/ValidationErrorObject.md) for provision field errors.
+
 ***
 
 ### term?
@@ -37,3 +45,5 @@ optional provisionFields: ValidationErrorObject[];
 ```ts
 optional term: ValidationErrorObject[];
 ```
+
+Array of Ajv [ErrorObject](../interfaces/ValidationErrorObject.md) for term-related errors.

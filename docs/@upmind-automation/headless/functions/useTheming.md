@@ -42,7 +42,7 @@ Meta information about the brand theme state.
 ### themes
 
 ```ts
-themes: Ref<undefined | object[], undefined | Theme[] | object[]>;
+themes: Ref<object[] | undefined, Theme[] | object[] | undefined>;
 ```
 
 The available themes, this will be an array of theme objects.

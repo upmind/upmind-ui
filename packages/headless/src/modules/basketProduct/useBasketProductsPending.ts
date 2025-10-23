@@ -55,6 +55,13 @@ let subscriptions: Record<ProductProps["productId"], Subscription> = {}; // stor
 
 // -----------------------------------------------------------------------------
 
+/**
+ * Provides functionalities to manage products that are being configured and are pending addition to the basket.
+ * This composable handles the lifecycle of pending products, including their addition, resolution,
+ * and integration with the main basket state.
+ *
+ * @returns The API for managing pending basket products.
+ */
 export const useBasketProductsPending = () => {
   const { t } = useI18n();
   const { isReady, productExists, products } = useBasket();
@@ -64,6 +71,15 @@ export const useBasketProductsPending = () => {
 
   // ---
 
+  /**
+   * Adds a product configuration to the pending state.
+   * If the exact configuration already exists, it returns the existing instance.
+   * Otherwise, it creates a new instance using `useBasketProductPending`.
+   *
+   * @param model - The {@link ProductProps} defining the product and its configuration.
+   * @returns A promise resolving to the {@link UseBasketProductPending} instance for the product.
+   * @throws {DetailedError} If the provided model is empty or the product is unavailable.
+   */
   async function add(model: ProductProps): Promise<UseBasketProductPending> {
     if (isEmpty(model))
       return Promise.reject(
@@ -88,6 +104,16 @@ export const useBasketProductsPending = () => {
     });
   }
 
+  /**
+   * Ensures a product configuration exists and is ready. If it doesn't exist or `force` is true,
+   * it adds the product. It then waits for the product's service to become available or error.
+   *
+   * @param pid - The product ID for which to ensure the configuration.
+   * @param model - The {@link ProductProps} defining the product and its configuration.
+   * @param force - If `true`, re-adds the product even if it already exists.
+   * @returns A promise resolving to the {@link UseBasketProductPending} instance.
+   * @throws {DetailedError} If the product cannot be added, validated, or found.
+   */
   async function ensure(
     pid: ProductProps["productId"],
     model: ProductProps,
@@ -152,6 +178,14 @@ export const useBasketProductsPending = () => {
     }
   }
 
+  /**
+   * Subscribes to the state changes of a product's XState service.
+   * This allows for side effects based on the product's lifecycle, e.g.,
+   * resetting state on error or resolving on completion.
+   *
+   * @param pid - The product ID to subscribe to.
+   * @param actor - The `ActorRef` of the product's XState service.
+   */
   function subscribe(pid: ProductProps["productId"], actor: ActorRef<any>) {
     const subscription = actor.subscribe((state: State<any>) => {
       if (state.matches("error")) {
@@ -167,11 +201,28 @@ export const useBasketProductsPending = () => {
 
   // ---
 
+  /**
+   * Checks if a product with the given ID and model configuration exists in the pending products.
+   *
+   * @param pid - The product ID to check for.
+   * @returns `true` if the product exists in pending configurations, `false` otherwise.
+   */
   function exists(pid: ProductProps["productId"]): boolean {
     const model = get(productConfigs, pid);
     return isEmpty(model);
   }
 
+  /**
+   * Retrieves a pending product instance by its product ID.
+   * It first checks for existing pending products, otherwise it attempts to ensure
+   * the product by adding it if necessary. Optionally synchronises the subscription.
+   *
+   * @param pid - The product ID to retrieve. If omitted, defaults to the last key in `productConfigs`.
+   * @param sync - If `true`, subscribes to the product's state changes.
+   * @param force - If `true`, forces a re-addition of the product even if it exists.
+   * @returns A promise resolving to the {@link UseBasketProductPending} instance.
+   * @throws {DetailedError} If the product ID is not found or if ensuring the product fails.
+   */
   async function getProduct(
     pid?: ProductProps["productId"],
     sync?: boolean,
@@ -209,6 +260,12 @@ export const useBasketProductsPending = () => {
       });
   }
 
+  /**
+   * Sets or updates the product configuration in the pending products cache and session storage.
+   *
+   * @param pid - The product ID to set the configuration for.
+   * @param value - The {@link ProductModel} or {@link State} object containing the new configuration.
+   */
   function setProduct(
     pid: ProductProps["productId"],
     value?: ProductModel | State<any>
@@ -221,6 +278,12 @@ export const useBasketProductsPending = () => {
     storage.set("pendingProducts", productConfigs);
   }
 
+  /**
+   * Removes a pending product configuration from the cache, storage, and any active subscriptions.
+   * Also stops the product's XState service if it's running.
+   *
+   * @param pid - The product ID to unset.
+   */
   function unsetProduct(pid: ProductProps["productId"]) {
     const product = find(
       productsPending,
@@ -240,7 +303,13 @@ export const useBasketProductsPending = () => {
     }
   }
 
-  // resolve is called after successfully adding a product to the basket
+  /**
+   * Resolves a pending product, typically after it has been successfully added to the basket.
+   * This removes the product from pending configurations, storage, and unsubscribes from its service.
+   * It also cleans up any completed products from the pending list.
+   *
+   * @param target - The product ID or `ActorRef` to resolve. If `null` or `undefined`, it resolves all completed products.
+   */
   function resolve(target?: ProductProps["productId"] | ActorRef<any>) {
     const pid = isString(target)
       ? target
@@ -260,11 +329,21 @@ export const useBasketProductsPending = () => {
     );
   }
 
+  /**
+   * Adds multiple product configurations to the pending list.
+   * It iterates through the provided configurations and calls `setProduct` for each.
+   *
+   * @param configs - An optional array of {@link ProductModel} configurations to add.
+   */
   function addMany(configs?: ProductModel[]): void {
     // ensure we add all our configs to the productConfigs
     forEach(configs, config => setProduct(config.productId, config));
   }
 
+  /**
+   * Clears all pending product configurations from the cache, storage, and stops their services.
+   * This effectively resets the pending products state.
+   */
   function clear() {
     forEach(productConfigs, (_model, pid) => unsetProduct(pid));
     productConfigs = {};
@@ -275,12 +354,30 @@ export const useBasketProductsPending = () => {
 
   return {
     // --- state
+
+    /**
+     * Checks if the basket service is ready.
+     * @returns A promise resolving to `true` if pending products have been loaded from storage.
+     */
     isReady: () => new Promise(resolve => resolve(!isNil(productConfigs))),
 
+    /**
+     * Meta-information about the pending products state.
+     * @property {boolean} hasProducts - `true` if there are any pending products.
+     */
     meta: computed(() => ({
       hasProducts: !isEmpty(products.value)
     })),
 
+    /**
+     * Configures and returns a composable for a specific pending product, identified by its ID or configuration.
+     * It either retrieves an existing pending product instance or creates a new one.
+     *
+     * @param pid - The product ID or an ActorRef to an existing product machine. If omitted, it defaults to the last product pending.
+     * @param sync - If `true`, subscribes to the product's state changes.
+     * @returns A promise resolving to the {@link UseBasketProductPending} instance for the product.
+     * @throws {DetailedError} If the product is not available or cannot be configured.
+     */
     configure: async (
       pid?: ProductProps["productId"] | ActorRef<any>,
       sync?: boolean
@@ -302,6 +399,13 @@ export const useBasketProductsPending = () => {
       return Promise.resolve(instance);
     },
 
+    /**
+     * Checks if a product with the given configuration already exists in the pending products list or the main basket.
+     * This prevents duplicate pending entries and redundant operations.
+     *
+     * @param config - Partial {@link ProductProps} to check for existence.
+     * @returns A promise resolving to `true` if the product exists in pending or basket, `false` otherwise.
+     */
     isInBasket: async (config: Partial<ProductProps>) => {
       const cleanConfig = compactDeep(config);
       const keysModel = keys(cleanConfig);
@@ -313,16 +417,61 @@ export const useBasketProductsPending = () => {
     },
     //  --- context
 
+    /**
+     * The reactive list of all products currently in the shopping basket.
+     */
     products,
+
+    /**
+     * The reactive record of all pending product configurations, keyed by product ID.
+     */
     productsPending,
 
+    /**
+     * Resolves a pending product, removing it from pending state and storage after it's processed or added to the basket.
+     */
     resolve,
+
+    /**
+     * Adds multiple product configurations to the pending list, persisting them.
+     * @param configs - An optional array of {@link ProductModel} configurations to add.
+     */
     addMany,
+
+    /**
+     * Clears all pending product configurations from cache, storage, and stops their services.
+     */
     clear,
 
+    /**
+     * Checks if a product configuration exists in the pending list.
+     * @param pid - The product ID to check.
+     * @returns `true` if the product configuration exists, `false` otherwise.
+     */
     exists,
+
+    /**
+     * Adds a product configuration to the pending state or ensures it exists.
+     * This is a debounced version of the `ensure` function.
+     * @param model - The {@link ProductProps} defining the product and its configuration.
+     * @returns A promise resolving to the {@link UseBasketProductPending} instance.
+     */
     add: ensure,
+
+    /**
+     * Retrieves a pending product instance by its product ID.
+     * Optionally synchronises with its state changes.
+     * @param pid - The product ID. If omitted, defaults to the last product pending.
+     * @param sync - If `true`, subscribes to the product's state changes.
+     * @returns A promise resolving to the {@link UseBasketProductPending} instance.
+     */
     get: getProduct,
+
+    /**
+     * Removes a pending product configuration. This operation is debounced.
+     * @param pid - The product ID to remove.
+     * @returns A promise resolving to the updated {@link IBasket} or `undefined`.
+     */
     remove: unsetProduct
   };
 };

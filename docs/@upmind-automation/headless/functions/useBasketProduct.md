@@ -6,6 +6,12 @@
 function useBasketProduct(bpid): object;
 ```
 
+Provides utility functions and state management for interacting with a specific product in the shopping basket.
+
+This function leverages several internal hooks and services to facilitate product-related operations
+such as quantity management, readiness checks, and error handling. It initialises and returns methods
+that allow interaction with the basket product through a state machine.
+
 ## Parameters
 
 ### bpid
@@ -20,13 +26,13 @@ function useBasketProduct(bpid): object;
 
 ```ts
 additionalErrors: ComputedRef<
-  | undefined
   | {
   attributes?: any;
   options?: any;
   provisionFields?: any;
   term?: any;
-}>;
+}
+| undefined>;
 ```
 
 ### attributes
@@ -69,13 +75,13 @@ decrementQuantity: () => Promise<void>;
 
 ```ts
 errors: ComputedRef<
-  | undefined
   | {
   attributes?: any;
   options?: any;
   provisionFields?: any;
   term?: any;
-}>;
+}
+| undefined>;
 ```
 
 ### fields
@@ -245,7 +251,7 @@ product: ComputedRef<Product>;
 ### productImage()
 
 ```ts
-productImage: (size) => undefined | string;
+productImage: (size) => string | undefined;
 ```
 
 #### Parameters
@@ -256,7 +262,7 @@ productImage: (size) => undefined | string;
 
 #### Returns
 
-`undefined` \| `string`
+`string` \| `undefined`
 
 ### reset()
 
@@ -428,11 +434,11 @@ updateTerm: (value) => Promise<void>;
 
 ```ts
 validationErrors: ComputedRef<
-  | undefined
   | {
   attributes?: any;
   options?: any;
   provisionFields?: any;
   term?: any;
-}>;
+}
+| undefined>;
 ```
