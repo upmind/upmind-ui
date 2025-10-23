@@ -1,7 +1,7 @@
 <template>
   <Layout :variant="LAYOUT_VARIANTS.TWO_COLUMN_RTL" minimal>
     <template #navigation>
-      <Back @click.prevent="doReject" />
+      <Back @click.prevent="doReject" button />
     </template>
 
     <template #content-header>
