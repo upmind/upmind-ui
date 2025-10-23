@@ -23,7 +23,7 @@
       @update:modelValue="updateQuantity"
       :disabled="meta.isLoading || meta.isProcessing"
       size="lg"
-      :width="configMeta.layout === 'enclosed' ? 'lg' : 'sm'"
+      :width="layout === 'enclosed' ? 'lg' : 'sm'"
     />
 
     <Button
@@ -52,7 +52,7 @@
 // --- external
 import { computed } from "vue";
 import {
-  useBrand,
+  useRoutingEngine,
   type Product,
   type UseProductConfigMeta
 } from "@upmind-automation/headless";
@@ -82,13 +82,13 @@ const emits = defineEmits(["resolve", "update:quantity"]);
 
 const { t } = useI18n();
 
-const { uiCart } = useBrand();
+const { currentRoute } = useRoutingEngine();
 
-const configMeta = computed(() => ({
-  layout: uiCart.value?.layout
-}));
+const layout = computed(() => {
+  return currentRoute.value?.meta?.template;
+});
 
-const styles = useStyles(["summary"], configMeta, config) as ComputedRef<{
+const styles = useStyles(["summary"], { layout }, config) as ComputedRef<{
   summary: {
     footer: string;
     header?: string;

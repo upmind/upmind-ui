@@ -1,5 +1,5 @@
 <template>
-  <Layout :variant="uiCart?.layout" minimal>
+  <Layout :variant="layout" minimal>
     <template #navigation>
       <Back v-bind="storefrontRoute" :label="t('action.continue_shopping')" />
     </template>
@@ -142,7 +142,7 @@ const route = useRoute();
 const { t } = useI18n();
 const { meta, productsInvalid, isReady, products, count, summary } =
   useBasket();
-const { uiCart, storefrontRoute } = useBrand();
+const { storefrontRoute } = useBrand();
 
 const {
   errors: fieldsErrors,
@@ -158,15 +158,13 @@ const open = ref(false);
 
 await isReady();
 
-const basketMeta = computed(() => {
-  return {
-    variant: uiCart.value?.layout
-  };
+const layout = computed(() => {
+  return route?.meta?.template || "default";
 });
 
 const styles = useStyles(
   ["basket.expand", "basket.items", "basket.customFields", "basket.aside"],
-  basketMeta,
+  { variant: layout.value },
   config
 ) as ComputedRef<{
   basket: {
