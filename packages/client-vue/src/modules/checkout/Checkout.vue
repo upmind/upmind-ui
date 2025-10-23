@@ -138,8 +138,7 @@ import {
   useStyles,
   Interstitial,
   Alert,
-  Card,
-  Layout
+  Card
 } from "@upmind-automation/upmind-ui";
 
 import BillingDetails from "../billing/Billing.vue";
@@ -152,6 +151,7 @@ import Section from "../../components/content/LayoutSection.vue";
 import ProductCards from "../basket/product/BasketProductCards.vue";
 import Form from "../../components/form/Form.vue";
 import BasketErrors from "../basket/components/BasketErrors.vue";
+import Layout from "../../components/layout/Layout.vue";
 
 // --- types
 import type { CheckoutProps } from "./types";
