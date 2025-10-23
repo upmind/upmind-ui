@@ -85,7 +85,8 @@ import {
 import config from "./product.config";
 
 // --- components
-import { useStyles, Layout } from "@upmind-automation/upmind-ui";
+import { useStyles } from "@upmind-automation/upmind-ui";
+import Layout from "../../components/layout/Layout.vue";
 import Back from "../../components/navigation/Back.vue";
 import ConfigSkeleton from "./components/ConfigSkeleton.vue";
 import Header from "./components/header/Header.vue";

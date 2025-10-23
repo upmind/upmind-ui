@@ -79,7 +79,8 @@ import {
 } from "@upmind-automation/headless";
 
 // --- components
-import { Button, Interstitial, Layout } from "@upmind-automation/upmind-ui";
+import { Button, Interstitial } from "@upmind-automation/upmind-ui";
+import Layout from "../../components/layout/Layout.vue";
 import Configure from "../recommendations/components/Configure.vue";
 import CardsCarousel from "../recommendations/components/CardsCarousel.vue";
 import Header from "../../components/content/Header.vue";

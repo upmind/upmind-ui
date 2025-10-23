@@ -34,7 +34,8 @@ import {
 } from "@upmind-automation/headless";
 
 // -- components
-import { Interstitial, Layout } from "@upmind-automation/upmind-ui";
+import { Interstitial } from "@upmind-automation/upmind-ui";
+import Layout from "../../components/layout/Layout.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
 
 // -- types

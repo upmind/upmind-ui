@@ -76,7 +76,7 @@ import AsyncLoading from "./modules/system/Loading.vue";
 import { Loading } from "@upmind-automation/upmind-ui";
 
 // --- utils
-import { get, set } from "lodash-es";
+import { get } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";

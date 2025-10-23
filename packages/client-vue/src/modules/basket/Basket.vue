@@ -124,7 +124,8 @@ import config from "./basket.config";
 
 // --- components
 import { RouterLink } from "vue-router";
-import { Button, Link, Layout } from "@upmind-automation/upmind-ui";
+import { Button, Link } from "@upmind-automation/upmind-ui";
+import Layout from "../../components/layout/Layout.vue";
 import Header from "../../components/content/Header.vue";
 import Summary from "./components/Summary.vue";
 import ProductCards from "./product/BasketProductCards.vue";

@@ -25,7 +25,8 @@
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
 import { useBasket, useRoutingEngine } from "@upmind-automation/headless";
-import { LAYOUT_VARIANTS, Layout } from "@upmind-automation/upmind-ui";
+import { LAYOUT_VARIANTS } from "@upmind-automation/upmind-ui";
+import Layout from "../../../components/layout/Layout.vue";
 import Back from "../../../components/navigation/Back.vue";
 import CheckoutHeader from "../components/CheckoutHeader.vue";
 import CheckoutContent from "../components/CheckoutContent.vue";
