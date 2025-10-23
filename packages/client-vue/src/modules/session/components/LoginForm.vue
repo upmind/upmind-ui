@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <Section :show="section" title="Login" icon="user-03">
     <Auth
       class="rounded-box w-full max-w-5xl items-start"
       no-tabs
@@ -8,13 +8,22 @@
       @update:model-value="doUpdate"
       @resolve="doResolve"
     />
-  </div>
+  </Section>
 </template>
 
 <script lang="ts" setup>
 import { useRoutingEngine, ROUTE } from "@upmind-automation/headless";
 import Auth from "../components/Auth.vue";
+import Section from "../../../components/content/LayoutSection.vue";
 import type { AuthProps } from "../types";
+
+interface Props {
+  section?: boolean;
+}
+
+withDefaults(defineProps<Props>(), {
+  section: false
+});
 
 const { navigateNext, navigateBack, navigate, isResolved } = useRoutingEngine();
 

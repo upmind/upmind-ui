@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <Section :show="section" title="Register" icon="user-03">
     <Auth
       class="rounded-box w-full max-w-5xl items-start"
       no-tabs
@@ -35,7 +35,7 @@
         >
       </template>
     </i18n-t>
-  </div>
+  </Section>
 </template>
 
 <script lang="ts" setup>
@@ -53,6 +53,15 @@ import {
 // --- components
 import { Link } from "@upmind-automation/upmind-ui";
 import Auth from "../components/Auth.vue";
+import Section from "../../../components/content/LayoutSection.vue";
+
+interface Props {
+  section?: boolean;
+}
+
+withDefaults(defineProps<Props>(), {
+  section: false
+});
 
 const { t } = useI18n();
 const { navigateNext, navigate, isResolved } = useRoutingEngine();
