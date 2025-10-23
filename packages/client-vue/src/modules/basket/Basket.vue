@@ -131,10 +131,9 @@ import Back from "../../components/navigation/Back.vue";
 import Section from "../../components/content/LayoutSection.vue";
 import BasketErrors from "./components/BasketErrors.vue";
 
-// ---utils
-
 // --- types
 import { type ComputedRef } from "vue";
+import { LAYOUT_VARIANTS } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 
@@ -159,7 +158,7 @@ const open = ref(false);
 await isReady();
 
 const layout = computed(() => {
-  return route?.meta?.template || "default";
+  return route?.meta?.template as LAYOUT_VARIANTS;
 });
 
 const styles = useStyles(

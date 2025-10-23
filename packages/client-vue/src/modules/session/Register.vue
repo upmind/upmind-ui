@@ -6,6 +6,9 @@
 // --- external
 import { computed } from "vue";
 
+// --- internal
+import { useRoutingEngine } from "@upmind-automation/headless";
+
 // --- components
 import RegisterLTR from "./templates/RegisterLTR.template.vue";
 import RegisterRTL from "./templates/RegisterRTL.template.vue";
@@ -16,7 +19,7 @@ import RegisterSurfaceBox from "./templates/RegisterSurfaceBox.template.vue";
 // --- types
 import { REGISTER_TEMPLATE } from "./types";
 
-const variant = REGISTER_TEMPLATE.TWO_COLUMN_LTR;
+const { currentRoute } = useRoutingEngine();
 
 const supportedTemplates = {
   [REGISTER_TEMPLATE.SPLIT]: RegisterSplit,
@@ -26,7 +29,11 @@ const supportedTemplates = {
   [REGISTER_TEMPLATE.TWO_COLUMN_RTL]: RegisterRTL
 };
 
+const layout = computed(() => {
+  return currentRoute.value?.meta?.template as REGISTER_TEMPLATE;
+});
+
 const templateVariant = computed(
-  () => supportedTemplates[variant] ?? RegisterLTR.template
+  () => supportedTemplates[layout.value] ?? RegisterLTR.template
 );
 </script>
