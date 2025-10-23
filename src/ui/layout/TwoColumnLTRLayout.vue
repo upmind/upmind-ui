@@ -29,6 +29,7 @@
       <div :class="styles.twoColumnLTR.content.aside">
         <aside :class="styles.twoColumnLTR.content.asideInner">
           <slot name="aside" />
+          <slot name="aside-footer" />
         </aside>
       </div>
     </section>

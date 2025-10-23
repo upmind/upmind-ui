@@ -33,6 +33,10 @@
       <slot name="aside" />
     </template>
 
+    <template #aside-footer>
+      <slot name="aside-footer" />
+    </template>
+
     <template #footer-content>
       <slot name="footer-content" />
     </template>
