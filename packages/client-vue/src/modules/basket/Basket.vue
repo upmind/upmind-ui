@@ -1,4 +1,5 @@
 <template>
+  <pre>{{ { currentRoute, route } }}</pre>
   <Layout :variant="layout" minimal>
     <template #navigation>
       <Back v-bind="storefrontRoute" :label="t('action.continue_shopping')" />
@@ -59,7 +60,7 @@
           v-if="!fieldsMeta.isLoading"
           :additional-errors="fieldsErrors?.data"
           :model-value="fieldsModel"
-          :touched="currentRoute?.hash === '#basket-fields'"
+          :touched="route?.hash === '#basket-fields'"
           :schema="fieldsSchema"
           :uischema="fieldsUischema"
           @reject="fieldsClear"
@@ -107,7 +108,7 @@
 // --- external
 import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
-
+import { useRoute } from "vue-router";
 // --- internal
 import {
   useBasket,
@@ -135,7 +136,6 @@ import BasketErrors from "./components/BasketErrors.vue";
 
 // --- types
 import { type ComputedRef } from "vue";
-import { useRouting } from "../routing";
 
 // -----------------------------------------------------------------------------
 
@@ -143,6 +143,7 @@ const { t } = useI18n();
 const { meta, isReady, count, summary } = useBasket();
 const { storefrontRoute } = useBrand();
 const { currentRoute } = useRoutingEngine();
+const route = useRoute();
 
 const {
   errors: fieldsErrors,
