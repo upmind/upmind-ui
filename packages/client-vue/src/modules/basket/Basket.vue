@@ -30,6 +30,7 @@
             content: styles.basket.items.content
           } as any
         }"
+        icon="list"
       >
         <ProductCards :open="open" @update:open="open = $event" />
 
@@ -54,6 +55,7 @@
             content: styles.basket.items.content
           } as any
         }"
+        icon="file-attachment-01"
       >
         <Form
           v-if="!fieldsMeta.isLoading"
@@ -76,7 +78,7 @@
         id="basket-summary"
         :title="t('text.summary')"
         :class="styles.basket.aside"
-        aside
+        icon="shopping-bag-02"
       >
         <Summary />
 
