@@ -24,6 +24,7 @@
     :show="section"
     :title="t('text.additional_details')"
     v-show="uischema.showFieldsOnCheckout"
+    icon="file-attachment-01"
   >
     <Form
       v-if="!fieldsMeta.isLoading"
