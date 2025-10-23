@@ -7,7 +7,7 @@
 import { useBasket } from "@upmind-automation/headless";
 
 // --- components
-import Summary from "../../../basket/components/Summary.vue";
+import Summary from "../../basket/components/Summary.vue";
 
 const { meta } = useBasket();
 </script>

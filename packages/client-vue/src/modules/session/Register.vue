@@ -7,11 +7,11 @@
 import { computed } from "vue";
 
 // --- components
-import RegisterLTR from "./register/RegisterLTR.vue";
-import RegisterRTL from "./register/RegisterRTL.vue";
-import RegisterSplit from "./register/RegisterSplit.vue";
-import RegisterCanvasCard from "./register/RegisterCanvasCard.vue";
-import RegisterSurfaceBox from "./register/RegisterSurfaceBox.vue";
+import RegisterLTR from "./templates/RegisterLTR.template.vue";
+import RegisterRTL from "./templates/RegisterRTL.template.vue";
+import RegisterSplit from "./templates/RegisterSplit.template.vue";
+import RegisterCanvasCard from "./templates/RegisterCanvasCard.template.vue";
+import RegisterSurfaceBox from "./templates/RegisterSurfaceBox.template.vue";
 
 // --- types
 import { REGISTER_TEMPLATE } from "./types";
@@ -27,6 +27,6 @@ const supportedTemplates = {
 };
 
 const templateVariant = computed(
-  () => supportedTemplates[variant] ?? RegisterLTR
+  () => supportedTemplates[variant] ?? RegisterLTR.template
 );
 </script>
