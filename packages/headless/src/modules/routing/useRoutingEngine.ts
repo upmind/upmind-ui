@@ -82,7 +82,8 @@ export const useRoutingEngine = () => {
       return resolve(route, {
         name: currentRoute?.name?.toString(),
         params: currentRoute.params,
-        query: currentRoute.query
+        query: currentRoute.query,
+        hash: currentRoute.hash
       })
         .then(() => true)
         .catch(() => false);
@@ -132,7 +133,8 @@ export const useRoutingEngine = () => {
       const target = await resolve(routeName, {
         path: route.path,
         params: route.params,
-        query: route.query
+        query: route.query,
+        hash: route.hash
       }).catch(() => {
         return route;
       });
@@ -177,7 +179,8 @@ export const useRoutingEngine = () => {
       {
         name: route.name?.toString(),
         params: route.params,
-        query: route.query
+        query: route.query,
+        hash: route.hash
       },
       data
     )
@@ -205,7 +208,8 @@ export const useRoutingEngine = () => {
       {
         name: route?.name?.toString(),
         params: route.params,
-        query: route.query
+        query: route.query,
+        hash: route.hash
       },
       event
     )
@@ -233,7 +237,8 @@ export const useRoutingEngine = () => {
       {
         name: route?.name?.toString(),
         params: route.params,
-        query: route.query
+        query: route.query,
+        hash: route.hash
       },
       event
     )

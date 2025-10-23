@@ -62,6 +62,7 @@ export type Route = {
   name?: string;
   params?: Record<string, string | string[]>;
   query?: Record<string, any>;
+  hash?: string;
   meta?: Record<string, any>;
 };
 
