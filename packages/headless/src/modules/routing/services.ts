@@ -209,6 +209,7 @@ async function resolveRoute(
         };
       })
     : Promise.resolve({
+        ...route,
         name: flow.name,
         meta: merge({}, flow?.meta, uischema, {
           template: uischema?.template || fallbackTemplate

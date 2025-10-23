@@ -39,50 +39,50 @@ const { t } = useI18n();
 
 const processingTitle = computed(() => {
   if (meta.value.needsApproval) {
-    return t("checkout.processing.approval.title");
+    return t("cart.payment_awaiting_approval_md");
   }
 
   if (meta.value.isConverting) {
-    return t("checkout.processing.converting.title");
+    return t("cart.order_converting_md");
   }
 
   if (meta.value.isPaying) {
-    return t("checkout.processing.paying.title");
+    return t("cart.payment_processing_md");
   }
 
   if (meta.value.isCheckout) {
-    return t("checkout.processing.default.title");
+    return t("cart.payment_checking_details_md");
   }
 
   if (paymentDetailsMeta.value.isFree) {
-    return t("checkout.processing.noCharge.title");
+    return t("cart.order_processing_md");
   }
 
-  return t("checkout.processing.invalid.title");
+  return t("cart.order_unsuccessful_md");
 });
 
 const processingText = computed(() => {
   if (meta.value.needsApproval) {
-    return t("checkout.processing.approval.text");
+    return t("cart.payment_awaiting_approval_msg");
   }
 
   if (meta.value.isConverting) {
-    return t("checkout.processing.converting.text");
+    return t("cart.order_converting_msg");
   }
 
   if (meta.value.isPaying) {
-    return t("checkout.processing.paying.text");
+    return t("cart.payment_processing_msg");
   }
 
   if (meta.value.isCheckout) {
-    return t("checkout.processing.default.text");
+    return t("cart.payment_verifying_msg");
   }
 
   if (paymentDetailsMeta.value.isFree) {
-    return t("checkout.processing.noCharge.text");
+    return t("cart.order_processing_msg");
   }
 
-  return t("checkout.processing.invalid.text");
+  return t("cart.payment_check_details_msg");
 });
 
 const processingIcon = computed(() => {

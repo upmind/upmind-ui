@@ -59,7 +59,7 @@
           v-if="!fieldsMeta.isLoading"
           :additional-errors="fieldsErrors?.data"
           :model-value="fieldsModel"
-          :touched="route.hash === '#basket-fields'"
+          :touched="currentRoute?.hash === '#basket-fields'"
           :schema="fieldsSchema"
           :uischema="fieldsUischema"
           @reject="fieldsClear"
@@ -107,7 +107,6 @@
 // --- external
 import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { useRoute } from "vue-router";
 
 // --- internal
 import {
@@ -115,7 +114,8 @@ import {
   useBasketFields,
   useDataLayer,
   useBrand,
-  ROUTE
+  ROUTE,
+  useRoutingEngine
 } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./basket.config";
@@ -134,15 +134,13 @@ import Layout from "../../components/layout/Layout.vue";
 
 // --- types
 import { type ComputedRef } from "vue";
-import { LAYOUT_VARIANTS } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 
-const route = useRoute();
 const { t } = useI18n();
-const { meta, productsInvalid, isReady, products, count, summary } =
-  useBasket();
+const { meta, isReady, count, summary } = useBasket();
 const { storefrontRoute } = useBrand();
+const { currentRoute } = useRoutingEngine();
 
 const {
   errors: fieldsErrors,
@@ -159,7 +157,7 @@ const open = ref(false);
 await isReady();
 
 const layout = computed(() => {
-  return route?.meta?.template as LAYOUT_VARIANTS;
+  return currentRoute.value?.meta?.template || "full";
 });
 
 const styles = useStyles(

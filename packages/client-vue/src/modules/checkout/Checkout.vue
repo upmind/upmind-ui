@@ -10,6 +10,7 @@
 <script lang="ts" setup>
 // --- external
 import { watch, computed } from "vue";
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import {
@@ -33,6 +34,9 @@ import { CHECKOUT_TEMPLATE } from "./types";
 import { isEqual } from "lodash-es";
 // -----------------------------------------------------------------------------
 
+const { t } = useI18n();
+// ---
+
 const { navigateNext, navigateBack, isResolved, currentRoute } =
   useRoutingEngine();
 const { isAuthenticated } = useSession();
@@ -53,11 +57,14 @@ const templateVariant = computed(
 );
 
 // -----------------------------------------------------------------------------
+
 await isResolved(ROUTE.CHECKOUT);
 await isReady().then(() => isAuthenticated().catch(navigateBack));
 
 const { dataLayer } = useDataLayer();
 dataLayer({ event: "begin_checkout" }).withEcommerce().push();
+
+// -----------------------------------------------------------------------------
 
 // --- side effects
 
