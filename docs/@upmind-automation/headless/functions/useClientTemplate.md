@@ -6,6 +6,9 @@
 function useClientTemplate(params): object;
 ```
 
+Composable function to manage the query, the state, and the context for client area templates.
+Allows fetching, monitoring, and refreshing the data for client area templates.
+
 ## Parameters
 
 ### params
@@ -23,16 +26,48 @@ function useClientTemplate(params): object;
 ### data
 
 ```ts
-data: undefined | Ref<ClientAreaTemplate, ClientAreaTemplate> = query.data;
+data: object = query.data;
 ```
 
 The reactive data property containing the list of client area templates.
 This is populated by the query and can be used in templates.
 
+#### data.\[ComputedRefSymbol\]
+
+```ts
+[ComputedRefSymbol]: true;
+```
+
+#### data.\[RefSymbol\]
+
+```ts
+[RefSymbol]: true;
+```
+
+Type differentiator only.
+We need this to be in public d.ts but don't want it to show up in IDE
+autocomplete, so we use a private Symbol instead.
+
+#### data.effect
+
+```ts
+effect: ComputedRefImpl;
+```
+
+##### Deprecated
+
+computed no longer uses effect
+
+#### data.value
+
+```ts
+value: ClientAreaTemplate;
+```
+
 ### error
 
 ```ts
-error: undefined | Ref<null, null> | Ref<Error, Error> = query.error;
+error: Ref<Error, Error> | Ref<null, null> = query.error;
 ```
 
 The current error state of the query.
@@ -41,7 +76,7 @@ This will be populated if the query fails to fetch data.
 ### invalidate()
 
 ```ts
-invalidate: <T>(data?) => Promise<undefined | T>;
+invalidate: <T>(data?) => Promise<T | undefined>;
 ```
 
 Invalidate the query cache for the client area templates.
@@ -61,7 +96,7 @@ This will trigger a refetch of the items when the next query is made.
 
 #### Returns
 
-`Promise`\<`undefined` \| `T`\>
+`Promise`\<`T` \| `undefined`\>
 
 ### isReady()
 
@@ -95,15 +130,18 @@ Meta-information about the client area templates query.
 ### refresh()
 
 ```ts
-refresh: () => 
-  | undefined
-| Promise<QueryObserverResult<ClientAreaTemplate, Error>>;
+refresh: (options?) => Promise<QueryObserverResult<ClientAreaTemplate, Error>> = query.refetch;
 ```
 
 Refresh the query to get the latest data.
 This will refetch the data from the server and update the query state.
 
+#### Parameters
+
+##### options?
+
+`RefetchOptions`
+
 #### Returns
 
-  \| `undefined`
-  \| `Promise`\<`QueryObserverResult`\<`ClientAreaTemplate`, `Error`\>\>
+`Promise`\<`QueryObserverResult`\<`ClientAreaTemplate`, `Error`\>\>

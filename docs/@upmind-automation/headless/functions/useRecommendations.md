@@ -6,7 +6,14 @@
 function useRecommendations(): object;
 ```
 
+A composable function that manages recommendations engine functionalities.
+
+This hook initialises and interacts with the recommendation engine service
+and provides access to its state, context, and operations.
+
 ## Returns
+
+An object containing state, context, errors, recommendations, and methods to manage recommendations.
 
 ### add()
 
@@ -31,7 +38,7 @@ The id of the product to add.
 ### basketItem
 
 ```ts
-basketItem: ComputedRef<undefined | ActorRef<any, any>>;
+basketItem: ComputedRef<ActorRef<any, any> | undefined>;
 ```
 
 The current basket item context.
@@ -52,8 +59,8 @@ Cancels the current recommendations process.
 
 ```ts
 context: ComputedRef<
-  | undefined
-| RecommendationsEngineContext>;
+  | RecommendationsEngineContext
+| undefined>;
 ```
 
 The current context
@@ -61,7 +68,7 @@ The current context
 ### errors
 
 ```ts
-errors: ComputedRef<undefined | ResponseError>;
+errors: ComputedRef<ResponseError | undefined>;
 ```
 
 Any error returned by the engine.
@@ -117,7 +124,7 @@ Meta information about the recommendations engine state.
 ### recommendations
 
 ```ts
-recommendations: ComputedRef<undefined | Recommendation[]>;
+recommendations: ComputedRef<Recommendation[] | undefined>;
 ```
 
 The recommendations list.

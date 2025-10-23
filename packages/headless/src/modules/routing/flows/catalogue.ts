@@ -1,5 +1,3 @@
-// --- external
-
 // --- internal
 import { useBasket } from "../../basket";
 import { useBrand } from "../../brand";
@@ -7,15 +5,20 @@ import { useRecommendations } from "../../recommendations";
 import { useRoutingEngine } from "..";
 
 // --- utils
-import { useRouteQueryParams, useRouteRequiresAction } from "../utils";
 import { uniqBy } from "lodash-es";
+import { useRouteQueryParams, useRouteRequiresAction } from "../utils";
 
 // --- types
-import type { Flow, Route } from "../types";
 import { ROUTE } from "../types";
+import type { Flow, Route } from "../types";
 
 // -----------------------------------------------------------------------------
 
+/**
+ * Composable function to manage the catalogue-related flows.
+ * It provides mechanisms to define navigation rules, manage their states, and register them with the routing system.
+ * Each flow specifies its name, guard logic for conditional transitions, and target routes for navigation.
+ */
 export const useCatalogueFlows = () => {
   const routing = useRoutingEngine();
   const { isReady: isReady, uiCart } = useBrand();

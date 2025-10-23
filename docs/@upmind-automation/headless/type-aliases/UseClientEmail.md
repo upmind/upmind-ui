@@ -6,4 +6,4 @@
 type UseClientEmail = ReturnType<typeof useClientEmail>;
 ```
 
-The return type of the composable.
+The return type of the [useClientEmail](../functions/useClientEmail.md) composable function.

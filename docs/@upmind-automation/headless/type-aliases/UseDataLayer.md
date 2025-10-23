@@ -6,4 +6,4 @@
 type UseDataLayer = ReturnType<typeof useDataLayer>;
 ```
 
-The return type of useBrand composable.
+The return type of [useDataLayer](../functions/useDataLayer.md) composable.

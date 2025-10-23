@@ -11,7 +11,7 @@ It provides state, context and helpers for session, login and registration proce
 
 ## Returns
 
-Session management API (see below for details)
+The [UseTransfer](../type-aliases/UseTransfer.md) session management API (see below for details)
 
 ### transferFrom()
 

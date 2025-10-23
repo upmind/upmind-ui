@@ -28,7 +28,6 @@ import {
 } from "../../utils";
 import {
   get,
-  map,
   find,
   some,
   every,
@@ -64,6 +63,12 @@ const service = interpret(basketMachine, { devTools: true });
 
 // -----------------------------------------------------------------------------
 
+/**
+ * Provides a comprehensive interface for managing the shopping basket state using XState.
+ * It offers reactive access to basket data, meta-information about its status,
+ * and methods for manipulating the basket (e.g. adding/removing items, applying promotions,
+ * refreshing, and proceeding to checkout).
+ */
 export const useBasket = () => {
   const { t } = useI18n();
   const { includesTax } = useBrand();
@@ -644,4 +649,13 @@ export const useBasket = () => {
   };
 };
 
+/**
+ * Represents the type definition for the `useBasket` hook.
+ *
+ * This type is derived from the return type of the `useBasket` function.
+ * It describes the shape and structure of the value returned by the `useBasket` hook.
+ *
+ * The `UseBasket` type is commonly used to provide type safety and
+ * ensure accurate typings when working with the `useBasket` hook in a TypeScript codebase.
+ */
 export type UseBasket = ReturnType<typeof useBasket>;

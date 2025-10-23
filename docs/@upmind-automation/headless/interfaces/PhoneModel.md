@@ -2,6 +2,9 @@
 
 # PhoneModel
 
+Interface representing the data model for a phone number, suitable for forms
+or API payloads.
+
 ## Properties
 
 ### id?
@@ -9,6 +12,8 @@
 ```ts
 optional id: string;
 ```
+
+Optional unique identifier for the phone number. Present if editing an existing phone number.
 
 ***
 
@@ -18,26 +23,36 @@ optional id: string;
 phone: object;
 ```
 
+An object containing the various components of the phone number.
+
 #### country
 
 ```ts
-country: null | string;
+country: string | null;
 ```
+
+The two-letter ISO country code, or `null`.
 
 #### countryCallingCode
 
 ```ts
-countryCallingCode: null | string;
+countryCallingCode: string | null;
 ```
+
+The country calling code, or `null`.
 
 #### nationalNumber
 
 ```ts
-nationalNumber: null | string;
+nationalNumber: string | null;
 ```
+
+The national number part of the phone number, or `null`.
 
 #### number
 
 ```ts
-number: null | string;
+number: string | null;
 ```
+
+The full international phone number string, or `null`.

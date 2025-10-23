@@ -541,7 +541,7 @@ QueryClient$1.getMutationDefaults
 ### getQueriesData()
 
 ```ts
-getQueriesData<TData>(filters): [readonly unknown[], undefined | TData][];
+getQueriesData<TData>(filters): [readonly unknown[], TData | undefined][];
 ```
 
 #### Type Parameters
@@ -558,7 +558,7 @@ getQueriesData<TData>(filters): [readonly unknown[], undefined | TData][];
 
 #### Returns
 
-\[readonly `unknown`[], `undefined` \| `TData`\][]
+\[readonly `unknown`[], `TData` \| `undefined`\][]
 
 #### Overrides
 
@@ -591,7 +591,7 @@ QueryClient$1.getQueryCache
 #### Call Signature
 
 ```ts
-getQueryData<TData, TTaggedQueryKey>(queryKey): undefined | InferDataFromTag<TData, TTaggedQueryKey>;
+getQueryData<TData, TTaggedQueryKey>(queryKey): InferDataFromTag<TData, TTaggedQueryKey> | undefined;
 ```
 
 Imperative (non-reactive) way to retrieve data for a QueryKey.
@@ -618,7 +618,7 @@ Use `useQuery` to create a `QueryObserver` that subscribes to changes.
 
 ##### Returns
 
-`undefined` \| `InferDataFromTag`\<`TData`, `TTaggedQueryKey`\>
+`InferDataFromTag`\<`TData`, `TTaggedQueryKey`\> \| `undefined`
 
 ##### Overrides
 
@@ -629,7 +629,7 @@ QueryClient$1.getQueryData
 #### Call Signature
 
 ```ts
-getQueryData<TData>(queryKey): undefined | TData;
+getQueryData<TData>(queryKey): TData | undefined;
 ```
 
 ##### Type Parameters
@@ -646,7 +646,7 @@ getQueryData<TData>(queryKey): undefined | TData;
 
 ##### Returns
 
-`undefined` \| `TData`
+`TData` \| `undefined`
 
 ##### Overrides
 
@@ -683,7 +683,7 @@ QueryClient$1.getQueryDefaults
 ### getQueryState()
 
 ```ts
-getQueryState<TData, TError>(queryKey): undefined | QueryState<TData, TError>;
+getQueryState<TData, TError>(queryKey): QueryState<TData, TError> | undefined;
 ```
 
 #### Type Parameters
@@ -704,7 +704,7 @@ getQueryState<TData, TError>(queryKey): undefined | QueryState<TData, TError>;
 
 #### Returns
 
-`undefined` \| `QueryState`\<`TData`, `TError`\>
+`QueryState`\<`TData`, `TError`\> \| `undefined`
 
 #### Overrides
 
@@ -1246,7 +1246,7 @@ QueryClient$1.setMutationDefaults
 setQueriesData<TData>(
    filters, 
    updater, 
-   options?): [readonly unknown[], undefined | TData][];
+   options?): [readonly unknown[], TData | undefined][];
 ```
 
 #### Type Parameters
@@ -1263,7 +1263,7 @@ setQueriesData<TData>(
 
 ##### updater
 
-`Updater`\<`undefined` \| `TData`, `undefined` \| `TData`\>
+`Updater`\<`TData` \| `undefined`, `TData` \| `undefined`\>
 
 ##### options?
 
@@ -1271,7 +1271,7 @@ setQueriesData<TData>(
 
 #### Returns
 
-\[readonly `unknown`[], `undefined` \| `TData`\][]
+\[readonly `unknown`[], `TData` \| `undefined`\][]
 
 #### Overrides
 
@@ -1289,7 +1289,7 @@ QueryClient$1.setQueriesData
 setQueryData<TQueryFnData, TTaggedQueryKey, TInferredQueryFnData>(
    queryKey, 
    updater, 
-options?): undefined | NoInfer<TInferredQueryFnData>;
+   options?): NoInfer<TInferredQueryFnData> | undefined;
 ```
 
 ##### Type Parameters
@@ -1314,7 +1314,7 @@ options?): undefined | NoInfer<TInferredQueryFnData>;
 
 ###### updater
 
-`Updater`\<`undefined` \| `NoInfer`\<`TInferredQueryFnData`\>, `undefined` \| `NoInfer`\<`TInferredQueryFnData`\>\>
+`Updater`\<`NoInfer`\<`TInferredQueryFnData`\> \| `undefined`, `NoInfer`\<`TInferredQueryFnData`\> \| `undefined`\>
 
 ###### options?
 
@@ -1322,7 +1322,7 @@ options?): undefined | NoInfer<TInferredQueryFnData>;
 
 ##### Returns
 
-`undefined` \| `NoInfer`\<`TInferredQueryFnData`\>
+`NoInfer`\<`TInferredQueryFnData`\> \| `undefined`
 
 ##### Overrides
 
@@ -1336,7 +1336,7 @@ QueryClient$1.setQueryData
 setQueryData<TQueryFnData, TData>(
    queryKey, 
    updater, 
-options?): undefined | NoInfer<TData>;
+   options?): NoInfer<TData> | undefined;
 ```
 
 ##### Type Parameters
@@ -1357,7 +1357,7 @@ options?): undefined | NoInfer<TData>;
 
 ###### updater
 
-`Updater`\<`undefined` \| `NoInfer`\<`TData`\>, `undefined` \| `NoInfer`\<`TData`\>\>
+`Updater`\<`NoInfer`\<`TData`\> \| `undefined`, `NoInfer`\<`TData`\> \| `undefined`\>
 
 ###### options?
 
@@ -1365,7 +1365,7 @@ options?): undefined | NoInfer<TData>;
 
 ##### Returns
 
-`undefined` \| `NoInfer`\<`TData`\>
+`NoInfer`\<`TData`\> \| `undefined`
 
 ##### Overrides
 

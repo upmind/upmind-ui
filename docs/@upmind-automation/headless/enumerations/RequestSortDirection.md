@@ -2,6 +2,8 @@
 
 # RequestSortDirection
 
+Enumeration defining the direction for sorting query results.
+
 ## Enumeration Members
 
 ### ASC
@@ -10,6 +12,8 @@
 ASC: "";
 ```
 
+Ascending order.
+
 ***
 
 ### DESC
@@ -17,3 +21,5 @@ ASC: "";
 ```ts
 DESC: "-";
 ```
+
+Descending order.

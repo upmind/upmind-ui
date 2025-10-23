@@ -12,7 +12,7 @@ A composable function that provides access to the payment gateway actor.
 
 ### actor
 
-`ComputedRef`\<`undefined` \| `Actor`\>
+`ComputedRef`\<`Actor` \| `undefined`\>
 
 A computed ref to the payment gateway actor.
 
@@ -35,23 +35,15 @@ Clears the payment gateway state.
 ### clickwrap
 
 ```ts
-clickwrap: ComputedRef<undefined | string>;
+clickwrap: ComputedRef<string | undefined>;
 ```
 
 The payment gateway clickwrap disclaimer.
 
-### code
-
-```ts
-code: ComputedRef<undefined | string>;
-```
-
-The payment gateway code.
-
 ### context
 
 ```ts
-context: ComputedRef<undefined | GatewayContext>;
+context: ComputedRef<GatewayContext | undefined>;
 ```
 
 The full payment gateway context object.
@@ -59,7 +51,7 @@ The full payment gateway context object.
 ### errors
 
 ```ts
-errors: ComputedRef<undefined | string>;
+errors: ComputedRef<string | undefined>;
 ```
 
 Any errors message(s) encountered during payment gateway operations.
@@ -125,8 +117,11 @@ meta: ComputedRef<{
   isComplete: boolean;
   isDirty: boolean;
   isLoading: boolean;
+  isNotSupported: boolean;
   isProcessing: boolean;
+  isRendering: boolean;
   isRenderless: boolean;
+  isUnavailable: boolean;
   isValid: boolean;
   needsPayment: boolean;
 }>;
@@ -137,7 +132,7 @@ Meta information about the payment gateway state.
 ### model
 
 ```ts
-model: ComputedRef<any>;
+model: ComputedRef<GatewayData | undefined>;
 ```
 
 The current payment gateway model.
@@ -145,53 +140,43 @@ The current payment gateway model.
 ### render()
 
 ```ts
-render: (container?) => Promise<boolean>;
+render: (container) => Promise<void>;
 ```
 
 Renders the payment gateway using the renderer function.
 
 #### Parameters
 
-##### container?
-
-`HTMLElement`
+##### container
 
 The container element to render into.
 
+`HTMLElement` | `null`
+
 #### Returns
 
-`Promise`\<`boolean`\>
+`Promise`\<`void`\>
 
 Resolves true if rendered, rejects on error.
-
-### renderer
-
-```ts
-renderer: ComputedRef<undefined | Function>;
-```
-
-The payment gateway renderer.
 
 ### schema
 
 ```ts
-schema: ComputedRef<undefined | JsonSchema>;
+schema: ComputedRef<JsonSchema | undefined>;
 ```
 
 The payment gateway schema.
 
-### type
+### state
 
 ```ts
-type: ComputedRef<undefined | GatewayTypes>;
+state: ComputedRef<string[] | undefined>;
 ```
-
-The payment gateway type.
 
 ### uischema
 
 ```ts
-uischema: ComputedRef<undefined | UISchemaElement>;
+uischema: ComputedRef<UISchemaElement | undefined>;
 ```
 
 The payment gateway UI schema.
@@ -222,8 +207,8 @@ Resolves when updated, rejects on error.
 
 ```ts
 validationErrors: ComputedRef<
-  | undefined
-| ValidationErrorObject<string, Record<string, any>, unknown>[]>;
+  | ValidationErrorObject<string, Record<string, any>, unknown>[]
+| undefined>;
 ```
 
 Validation errors encountered during payment gateway operations.

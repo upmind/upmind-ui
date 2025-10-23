@@ -2,6 +2,9 @@
 
 # PaymentDetailModel
 
+Interface representing the data model for selecting a payment detail.
+This model captures the chosen payment type and gateway.
+
 ## Properties
 
 ### gateway\_id?
@@ -10,6 +13,8 @@
 optional gateway_id: string;
 ```
 
+The unique identifier of the selected payment gateway.
+
 ***
 
 ### type?
@@ -17,3 +22,5 @@ optional gateway_id: string;
 ```ts
 optional type: PaymentType;
 ```
+
+The type of payment selected (e.g. `PaymentType.CARD`, `PaymentType.PAY_LATER`).

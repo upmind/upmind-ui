@@ -2,6 +2,9 @@
 
 # ProductConfigContext
 
+Interface representing the context for product configuration, typically managed by an XState machine.
+It holds the state for configuring a single product, including its model, lookups, pricing, and associated errors.
+
 ## Properties
 
 ### attempts?
@@ -9,6 +12,8 @@
 ```ts
 optional attempts: number;
 ```
+
+Number of attempts made for an operation.
 
 ***
 
@@ -18,6 +23,8 @@ optional attempts: number;
 optional baseModel: ProductModel;
 ```
 
+The base [ProductModel](../type-aliases/ProductModel.md) before modifications.
+
 ***
 
 ### basketHelper?
@@ -25,6 +32,8 @@ optional baseModel: ProductModel;
 ```ts
 optional basketHelper: ActorRef<any, any>;
 ```
+
+An `ActorRef` to the basket helper service.
 
 ***
 
@@ -34,6 +43,8 @@ optional basketHelper: ActorRef<any, any>;
 optional basketId: string;
 ```
 
+The ID of the current shopping basket.
+
 ***
 
 ### bundle?
@@ -41,6 +52,8 @@ optional basketId: string;
 ```ts
 optional bundle: string;
 ```
+
+Optional bundle ID.
 
 ***
 
@@ -50,6 +63,8 @@ optional bundle: string;
 optional calculateCallback: ActorRef<any, any>;
 ```
 
+An `ActorRef` for a price calculation callback.
+
 ***
 
 ### clientId?
@@ -57,6 +72,8 @@ optional calculateCallback: ActorRef<any, any>;
 ```ts
 optional clientId: string;
 ```
+
+Optional client ID for context.
 
 ***
 
@@ -66,6 +83,8 @@ optional clientId: string;
 optional coupons: string[];
 ```
 
+Optional array of coupon codes.
+
 ***
 
 ### currencyCode?
@@ -73,6 +92,8 @@ optional coupons: string[];
 ```ts
 optional currencyCode: ISO_4217_CURRENCY_CODE;
 ```
+
+Optional currency code for pricing.
 
 ***
 
@@ -82,6 +103,8 @@ optional currencyCode: ISO_4217_CURRENCY_CODE;
 optional currencyId: string;
 ```
 
+Optional currency ID for pricing.
+
 ***
 
 ### error?
@@ -89,6 +112,12 @@ optional currencyId: string;
 ```ts
 optional error: ResponseError | ExternalError;
 ```
+
+An ResponseError or [ExternalError](../type-aliases/ExternalError.md) object if an error occurred during configuration.
+
+#### Todo
+
+Implement the new response errors types from the API.
 
 ***
 
@@ -98,6 +127,8 @@ optional error: ResponseError | ExternalError;
 optional errorExternal: ExternalError;
 ```
 
+External errors object.
+
 ***
 
 ### id
@@ -105,6 +136,8 @@ optional errorExternal: ExternalError;
 ```ts
 id: string;
 ```
+
+The unique identifier for the product configuration instance.
 
 ***
 
@@ -114,11 +147,15 @@ id: string;
 optional lookups: object;
 ```
 
+Lookups for various product-related data.
+
 #### attributes?
 
 ```ts
 optional attributes: SubproductDetails[];
 ```
+
+An array of [SubproductDetails](../type-aliases/SubproductDetails.md) for available attributes.
 
 #### bundled?
 
@@ -126,11 +163,15 @@ optional attributes: SubproductDetails[];
 optional bundled: ProductModel[];
 ```
 
+An array of [ProductModel](../type-aliases/ProductModel.md) for bundled products.
+
 #### options?
 
 ```ts
 optional options: SubproductDetails[];
 ```
+
+An array of [SubproductDetails](../type-aliases/SubproductDetails.md) for available options.
 
 #### prices?
 
@@ -138,11 +179,15 @@ optional options: SubproductDetails[];
 optional prices: PriceCalculations;
 ```
 
+[PriceCalculations](../type-aliases/PriceCalculations.md) for current pricing state.
+
 #### product?
 
 ```ts
 optional product: ProductDetails;
 ```
+
+The [ProductDetails](../type-aliases/ProductDetails.md) of the base product.
 
 #### provisionFields?
 
@@ -150,11 +195,15 @@ optional product: ProductDetails;
 optional provisionFields: Record<string, any>;
 ```
 
+A record of provision field definitions.
+
 #### terms?
 
 ```ts
 optional terms: TermDetails[];
 ```
+
+An array of [TermDetails](../type-aliases/TermDetails.md) for available billing terms.
 
 ***
 
@@ -164,6 +213,8 @@ optional terms: TermDetails[];
 optional meta: UIMeta;
 ```
 
+Optional [UIMeta](UIMeta.md) for UI-specific configuration.
+
 ***
 
 ### model?
@@ -172,6 +223,8 @@ optional meta: UIMeta;
 optional model: ProductModel;
 ```
 
+The current [ProductModel](../type-aliases/ProductModel.md) being configured.
+
 ***
 
 ### parseBasketProduct()?
@@ -179,6 +232,8 @@ optional model: ProductModel;
 ```ts
 optional parseBasketProduct: (item) => ProductModel;
 ```
+
+A function to parse a [ProductModel](../type-aliases/ProductModel.md) for the basket.
 
 #### Parameters
 
@@ -198,6 +253,8 @@ optional parseBasketProduct: (item) => ProductModel;
 optional parseBasketProductComparison: (item) => Partial<ProductModel>;
 ```
 
+A function to parse a [BasketProduct](BasketProduct.md) for comparison with a partial [ProductModel](../type-aliases/ProductModel.md).
+
 #### Parameters
 
 ##### item
@@ -216,6 +273,8 @@ optional parseBasketProductComparison: (item) => Partial<ProductModel>;
 optional product: Product;
 ```
 
+The fully configured [Product](../type-aliases/Product.md) object.
+
 ***
 
 ### promotions?
@@ -223,6 +282,8 @@ optional product: Product;
 ```ts
 optional promotions: IBasketPromotion[];
 ```
+
+Optional array of IBasketPromotion for promotions.
 
 ***
 
@@ -232,6 +293,8 @@ optional promotions: IBasketPromotion[];
 optional rawBasketProduct: IBasketProduct;
 ```
 
+The raw `IBasketProduct` object if the product is already in the basket.
+
 ***
 
 ### rawProduct?
@@ -239,6 +302,8 @@ optional rawBasketProduct: IBasketProduct;
 ```ts
 optional rawProduct: IProduct;
 ```
+
+The raw `IProduct` object from the API.
 
 ***
 
@@ -248,6 +313,8 @@ optional rawProduct: IProduct;
 optional silent: boolean;
 ```
 
+`true` if operating in silent mode (no provision field validation).
+
 ***
 
 ### subproducts?
@@ -255,3 +322,5 @@ optional silent: boolean;
 ```ts
 optional subproducts: string[];
 ```
+
+Optional array of subproduct IDs.

@@ -6,6 +6,9 @@
 function useRecaptcha(): object;
 ```
 
+Composable function to provide functionality for managing reCAPTCHA services.
+It includes methods for initialising, generating tokens, checking readiness, and handling reCAPTCHA state.
+
 ## Returns
 
 ### clear()
@@ -23,7 +26,7 @@ Clears the recaptcha state.
 ### context
 
 ```ts
-context: ComputedRef<undefined | RecaptchaContext>;
+context: ComputedRef<RecaptchaContext | undefined>;
 ```
 
 Computed property to the recaptcha's state machine context, containing fetched data.
@@ -31,7 +34,7 @@ Computed property to the recaptcha's state machine context, containing fetched d
 ### created
 
 ```ts
-created: ComputedRef<undefined | string>;
+created: ComputedRef<string | undefined>;
 ```
 
 The creation date of the current recaptcha token.
@@ -39,7 +42,7 @@ The creation date of the current recaptcha token.
 ### errors
 
 ```ts
-errors: ComputedRef<undefined | ResponseError>;
+errors: ComputedRef<ResponseError | undefined>;
 ```
 
 Any errors from the recaptcha state machine.
@@ -47,7 +50,7 @@ Any errors from the recaptcha state machine.
 ### generate()
 
 ```ts
-generate: (action?) => Promise<undefined | string>;
+generate: (action?) => Promise<string | undefined>;
 ```
 
 Generates a recaptcha token for the given action.
@@ -62,7 +65,7 @@ Optional action for recaptcha.
 
 #### Returns
 
-`Promise`\<`undefined` \| `string`\>
+`Promise`\<`string` \| `undefined`\>
 
 Resolves with the recaptcha token.
 
@@ -132,7 +135,7 @@ Stops the recaptcha service.
 ### token
 
 ```ts
-token: ComputedRef<undefined | string>;
+token: ComputedRef<string | undefined>;
 ```
 
 The current recaptcha token.

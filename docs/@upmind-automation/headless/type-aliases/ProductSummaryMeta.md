@@ -6,6 +6,8 @@
 type ProductSummaryMeta = object;
 ```
 
+Type alias for meta-information about a product summary.
+
 ## Properties
 
 ### available?
@@ -13,6 +15,8 @@ type ProductSummaryMeta = object;
 ```ts
 optional available: boolean;
 ```
+
+`true` if the product is available.
 
 ***
 
@@ -22,6 +26,8 @@ optional available: boolean;
 optional default: boolean;
 ```
 
+`true` if the product is the default selection.
+
 ***
 
 ### discounted?
@@ -29,6 +35,8 @@ optional default: boolean;
 ```ts
 optional discounted: boolean;
 ```
+
+`true` if the product has a discount applied.
 
 ***
 
@@ -38,6 +46,8 @@ optional discounted: boolean;
 optional free: boolean;
 ```
 
+`true` if the product is free.
+
 ***
 
 ### freeTrail?
@@ -45,6 +55,8 @@ optional free: boolean;
 ```ts
 optional freeTrail: boolean;
 ```
+
+`true` if the product offers a free trial.
 
 ***
 
@@ -54,6 +66,8 @@ optional freeTrail: boolean;
 optional includes: boolean;
 ```
 
+`true` if the product includes other items.
+
 ***
 
 ### includesTax?
@@ -61,6 +75,8 @@ optional includes: boolean;
 ```ts
 optional includesTax: boolean;
 ```
+
+`true` if the price includes tax.
 
 ***
 
@@ -70,6 +86,8 @@ optional includesTax: boolean;
 optional invalid: boolean;
 ```
 
+`true` if the product's configuration is invalid.
+
 ***
 
 ### mixed?
@@ -77,6 +95,8 @@ optional invalid: boolean;
 ```ts
 optional mixed: boolean;
 ```
+
+`true` if the product has mixed configuration options.
 
 ***
 
@@ -86,6 +106,8 @@ optional mixed: boolean;
 optional oneoff: boolean;
 ```
 
+`true` if the product is a one-off purchase.
+
 ***
 
 ### overrides?
@@ -93,6 +115,8 @@ optional oneoff: boolean;
 ```ts
 optional overrides: boolean;
 ```
+
+`true` if the product's configuration overrides a default.
 
 ***
 
@@ -102,6 +126,8 @@ optional overrides: boolean;
 optional quantifiable: boolean;
 ```
 
+`true` if the product allows quantity selection.
+
 ***
 
 ### useMonthlyFromPrice?
@@ -109,3 +135,5 @@ optional quantifiable: boolean;
 ```ts
 optional useMonthlyFromPrice: boolean;
 ```
+
+`true` if monthly pricing should be derived from the product's price.

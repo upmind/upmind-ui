@@ -5,3 +5,5 @@
 ```ts
 type UseInvoice = ReturnType<typeof useInvoice>;
 ```
+
+The return type of the [useInvoice](../functions/useInvoice.md) composable.

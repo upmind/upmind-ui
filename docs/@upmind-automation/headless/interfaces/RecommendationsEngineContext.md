@@ -2,6 +2,10 @@
 
 # RecommendationsEngineContext
 
+Interface representing the context for the recommendation engine, typically managed by an XState machine.
+It holds the list of recommendations, raw product data, relationships, and various helper functions
+and references for basket integration.
+
 ## Properties
 
 ### basketHelper?
@@ -9,6 +13,8 @@
 ```ts
 optional basketHelper: ActorRef<any, any>;
 ```
+
+An `ActorRef` to the basket helper service, facilitating integration with the main basket.
 
 ***
 
@@ -18,6 +24,8 @@ optional basketHelper: ActorRef<any, any>;
 optional basketId: string;
 ```
 
+The unique identifier of the current shopping basket.
+
 ***
 
 ### basketItem?
@@ -25,6 +33,8 @@ optional basketId: string;
 ```ts
 optional basketItem: ActorRef<any, any>;
 ```
+
+An `ActorRef` to the basket item service, used for inter-service communication related to basket products.
 
 ***
 
@@ -34,6 +44,8 @@ optional basketItem: ActorRef<any, any>;
 optional currency: ICurrency;
 ```
 
+The current currency in which recommendations' prices are displayed.
+
 ***
 
 ### error?
@@ -42,6 +54,8 @@ optional currency: ICurrency;
 optional error: ResponseError;
 ```
 
+An error object if any issue occurred during recommendation processing.
+
 ***
 
 ### parseBasketProduct()?
@@ -49,6 +63,8 @@ optional error: ResponseError;
 ```ts
 optional parseBasketProduct: (item) => ProductModel;
 ```
+
+A function to parse a [ProductModel](../type-aliases/ProductModel.md) into a [ProductModel](../type-aliases/ProductModel.md) suitable for the basket.
 
 #### Parameters
 
@@ -68,6 +84,8 @@ optional parseBasketProduct: (item) => ProductModel;
 optional parseBasketProductComparison: (item) => Partial<ProductModel>;
 ```
 
+A function to parse a [BasketProduct](BasketProduct.md) into a partial [ProductModel](../type-aliases/ProductModel.md) for comparison purposes.
+
 #### Parameters
 
 ##### item
@@ -85,6 +103,9 @@ optional parseBasketProductComparison: (item) => Partial<ProductModel>;
 ```ts
 optional parseProductModel: (recommendation, products) => ProductProps;
 ```
+
+A function to parse a [Recommendation](Recommendation.md) and an array of `IBasketProduct`s into [ProductProps](ProductProps.md)
+suitable for product configuration.
 
 #### Parameters
 
@@ -108,6 +129,8 @@ optional parseProductModel: (recommendation, products) => ProductProps;
 optional promotions: IPromotion[];
 ```
 
+An array of `IPromotion` objects that might apply to recommendations.
+
 ***
 
 ### raw
@@ -116,11 +139,16 @@ optional promotions: IPromotion[];
 raw: object;
 ```
 
+Raw data used internally by the engine, including original products, related product mappings,
+seen recommendations, and items added to the basket.
+
 #### added
 
 ```ts
 added: IBasketProduct[];
 ```
+
+An array of `IBasketProduct` objects that have been added to the basket from recommendations.
 
 #### products
 
@@ -128,11 +156,15 @@ added: IBasketProduct[];
 products: IProduct[];
 ```
 
+An array of raw `IProduct` objects fetched from the API.
+
 #### related
 
 ```ts
 related: RelatedProduct[];
 ```
+
+An array of [RelatedProduct](RelatedProduct.md) objects, detailing relationships between products.
 
 #### relationships
 
@@ -140,11 +172,15 @@ related: RelatedProduct[];
 relationships: Record<string, string[]>;
 ```
 
+A record mapping product IDs to arrays of related product IDs, defining relationships.
+
 #### seen
 
 ```ts
 seen: string[];
 ```
+
+An array of recommendation IDs that have been marked as 'seen' by the user.
 
 ***
 
@@ -153,3 +189,5 @@ seen: string[];
 ```ts
 recommendations: Recommendation[];
 ```
+
+An array of active [Recommendation](Recommendation.md) objects displayed by the engine.

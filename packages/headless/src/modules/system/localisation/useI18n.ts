@@ -25,7 +25,7 @@ import type { I18n, LocaleMessages, Composer } from "vue-i18n";
 // -----------------------------------------------------------------------------
 
 /**
- * A composable to handle internationalization (i18n) messages.
+ * Composable function to handle internationalisation (i18n) messages.
  *
  * @param files - An array of file paths to be imported, usually using `import.meta.glob` with eager set to true.
  * @param debug - A boolean indicating if the environment is in development mode. Defaults to `import.meta.env.DEV`.
@@ -51,9 +51,13 @@ let i18n: Composer | null = null;
 let files: GlobbedFiles = {};
 let sourceFiles: GlobbedFiles = {};
 
+/**
+ * Composable function to provide functionality for initialising and managing internationalisation (i18n) in an application.
+ * The `useI18n` variable offers methods to configure the i18n instance, load locale messages, and set the active locale.
+ */
 export const useI18n = () => {
   /**
-   * Initializes the i18n instance and loads the specified globbed files.
+   * Initialises the i18n instance and loads the specified globbed files.
    *
    * @param instance - The i18n instance to initialize.
    * @param glob - An optional globbed files object.
