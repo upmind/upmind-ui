@@ -231,17 +231,19 @@ export default {
 
   surfaceBox: {
     root: cva(
-      "bg-surface flex min-h-screen w-full flex-col items-center justify-center p-5 lg:py-24"
+      "bg-surface flex min-h-screen w-full flex-col items-center justify-center"
     ),
-    container: cva("max-w-app w-full"),
-    header: cva("w-full"),
+    container: cva(
+      "max-w-app flex h-full w-full flex-col justify-between px-6 lg:px-8"
+    ),
+    header: cva("flex h-24 w-full items-end justify-between"),
     card: cva(
-      "bg-surface card-radius my-9 flex w-full flex-col justify-between gap-12 border lg:flex-row lg:gap-32"
+      "bg-surface card-radius w-app-content mx-auto my-12 flex w-full flex-col justify-between gap-9 border"
     ),
     contentHeader: cva("w-app-aside w-full"),
     content: cva("w-full"),
     footer: cva(
-      "flex w-full flex-col items-center gap-2 lg:flex-row lg:items-start lg:justify-between lg:gap-0"
+      "flex h-24 w-full flex-col items-center gap-2 lg:flex-row lg:justify-between lg:gap-0"
     )
   }
 };

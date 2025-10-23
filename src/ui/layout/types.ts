@@ -1,14 +1,7 @@
 import type { CxOptions } from "class-variance-authority";
 
 export interface LayoutProps {
-  variant?:
-    | "default"
-    | "enclosed"
-    | "full"
-    | "two-column-LTR"
-    | "two-column-RTL"
-    | "split"
-    | "canvas-card";
+  variant?: LAYOUT_VARIANTS;
   minimal?: boolean;
   overflow?: "hidden" | "visible";
   sticky?: boolean;
