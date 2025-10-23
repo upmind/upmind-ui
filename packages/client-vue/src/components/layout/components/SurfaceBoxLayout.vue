@@ -1,13 +1,6 @@
 <template>
   <div :class="styles.surfaceBox.root">
     <div :class="styles.surfaceBox.container">
-      <!-- Header -->
-      <header :class="styles.surfaceBox.header">
-        <slot name="header-left" />
-
-        <slot name="header-right" />
-      </header>
-
       <Card as="article" :class="styles.surfaceBox.card" spacious>
         <!-- Content Header -->
         <section :class="styles.surfaceBox.contentHeader">

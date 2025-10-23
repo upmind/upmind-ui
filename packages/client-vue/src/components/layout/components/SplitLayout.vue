@@ -1,11 +1,6 @@
 <template>
   <div :class="styles.split.root">
     <article :class="styles.split.container">
-      <!-- Header -->
-      <header :class="styles.split.header">
-        <slot name="header-left" />
-      </header>
-
       <!-- Content -->
       <div :class="styles.split.contentWrapper">
         <div :class="styles.split.contentInner">
