@@ -1,20 +1,12 @@
 <template>
-  <div>
-    <Link
-      v-if="!button"
-      icon="flip-backward"
-      :label="safeLabel"
-      size="lg"
-      class="font-medium"
-    />
-    <Button
-      v-if="button"
-      icon="flip-backward"
-      :label="safeLabel"
-      variant="subtle"
-      size="lg"
-    />
-  </div>
+  <component
+    :is="button ? Button : Link"
+    icon="flip-backward"
+    :label="safeLabel"
+    size="lg"
+    :variant="button ? 'subtle' : undefined"
+    :class="{ 'font-medium': !button }"
+  />
 </template>
 
 <script lang="ts" setup>
