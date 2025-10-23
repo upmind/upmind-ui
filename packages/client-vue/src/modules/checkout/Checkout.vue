@@ -53,7 +53,7 @@ const layout = computed(() => {
 });
 
 const templateVariant = computed(
-  () => supportedTemplates[layout.value] ?? CheckoutRTL
+  () => supportedTemplates[layout.value] ?? CheckoutLTR
 );
 
 // -----------------------------------------------------------------------------

@@ -12,6 +12,10 @@
       <div
         class="bg-canvas relative flex min-h-screen flex-col items-start text-base antialiased"
       >
+        <slot name="header" v-if="meta.isAvailable && meta.hasSettings">
+          <Header />
+        </slot>
+
         <div
           class="flex w-full flex-1 flex-col"
           v-if="meta.isAvailable && meta.hasSettings"
@@ -70,6 +74,7 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import { useTheme } from "./modules/theming";
 
 // --- components
+import Header from "./components/header/Header.vue";
 import Feedback from "./modules/feedback/Feedback.vue";
 import Page from "./components/page/Page.vue";
 import AsyncLoading from "./modules/system/Loading.vue";
