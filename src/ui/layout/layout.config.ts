@@ -86,19 +86,19 @@ export default {
         "max-w-app mx-auto flex w-full flex-col gap-12 md:flex-row md:gap-18"
       )
     },
-    aside: cva("flex w-full max-w-md flex-col gap-12", {
-      variants: {
-        isSticky: {
-          true: "sticky top-6 self-start",
-          false: ""
-        }
-      }
-    }),
+    aside: cva("sticky top-6 flex w-full max-w-md flex-col gap-12 self-start"),
     main: cva("flex w-full flex-col gap-12")
   },
 
   twoColumnLTR: {
-    root: cva("bg-surface lg:canvas-gradient w-full"),
+    root: cva("bg-surface lg:canvas-gradient w-full", {
+      variants: {
+        overflow: {
+          hidden: "overflow-hidden",
+          visible: "overflow-visible"
+        }
+      }
+    }),
     row: cva("flex w-full justify-center"),
     header: {
       content: cva(
@@ -147,7 +147,14 @@ export default {
   },
 
   twoColumnRTL: {
-    root: cva("bg-surface lg:canvas-gradient-rtl w-full"),
+    root: cva("bg-surface lg:canvas-gradient-rtl w-full", {
+      variants: {
+        overflow: {
+          hidden: "overflow-hidden",
+          visible: "overflow-visible"
+        }
+      }
+    }),
     row: cva("flex w-full justify-center"),
     header: {
       aside: cva(
@@ -188,19 +195,15 @@ export default {
     }
   },
 
-  footer: {
-    root: cva("bg-surface shadow-t-border-surface w-full px-6 py-6 text-base"),
-    container: cva(
-      "max-w-app divide-border-surface mx-auto flex w-full flex-col divide-y [&>*]:py-6"
-    ),
-    actions: cva("flex justify-center gap-2 md:justify-end"),
-    content: cva(
-      "flex flex-col justify-between gap-2 text-center md:flex-row md:gap-0 md:text-left"
-    )
-  },
-
   split: {
-    root: cva("flex min-h-screen w-full"),
+    root: cva("flex min-h-screen w-full", {
+      variants: {
+        overflow: {
+          hidden: "overflow-hidden",
+          visible: "overflow-visible"
+        }
+      }
+    }),
     container: cva(
       "bg-surface flex min-h-screen w-1/2 flex-col justify-between px-32 pt-24 pb-9"
     ),
@@ -215,7 +218,15 @@ export default {
 
   canvasCard: {
     root: cva(
-      "flex min-h-screen w-full flex-col items-center justify-center p-5 lg:py-24"
+      "flex min-h-screen w-full flex-col items-center justify-center p-5 lg:py-24",
+      {
+        variants: {
+          overflow: {
+            hidden: "overflow-hidden",
+            visible: "overflow-visible"
+          }
+        }
+      }
     ),
     container: cva("max-w-app w-full"),
     header: cva("w-full"),
@@ -231,7 +242,15 @@ export default {
 
   surfaceBox: {
     root: cva(
-      "bg-surface flex min-h-screen w-full flex-col items-center justify-center"
+      "bg-surface flex min-h-screen w-full flex-col items-center justify-center",
+      {
+        variants: {
+          overflow: {
+            hidden: "overflow-hidden",
+            visible: "overflow-visible"
+          }
+        }
+      }
     ),
     container: cva(
       "max-w-app flex h-full w-full flex-col justify-between px-6 lg:px-8"
@@ -244,6 +263,17 @@ export default {
     content: cva("w-full"),
     footer: cva(
       "flex h-24 w-full flex-col items-center gap-2 lg:flex-row lg:justify-between lg:gap-0"
+    )
+  },
+
+  footer: {
+    root: cva("bg-surface shadow-t-border-surface w-full px-6 py-6 text-base"),
+    container: cva(
+      "max-w-app divide-border-surface mx-auto flex w-full flex-col divide-y [&>*]:py-6"
+    ),
+    actions: cva("flex justify-center gap-2 md:justify-end"),
+    content: cva(
+      "flex flex-col justify-between gap-2 text-center md:flex-row md:gap-0 md:text-left"
     )
   }
 };

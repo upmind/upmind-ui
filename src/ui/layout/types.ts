@@ -4,7 +4,6 @@ export interface LayoutProps {
   variant?: LAYOUT_VARIANTS;
   minimal?: boolean;
   overflow?: "hidden" | "visible";
-  sticky?: boolean;
   class?: string;
 }
 export interface VariantProps extends LayoutProps {
