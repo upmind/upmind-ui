@@ -116,7 +116,6 @@
 <script lang="ts" setup>
 // --- external
 import { watch, computed, type ComputedRef } from "vue";
-import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -158,7 +157,6 @@ import type { CheckoutProps } from "./types";
 import { isEqual } from "lodash-es";
 // -----------------------------------------------------------------------------
 
-const route = useRoute();
 const { t } = useI18n();
 // ---
 
