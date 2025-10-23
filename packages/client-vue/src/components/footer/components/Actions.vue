@@ -8,11 +8,11 @@
 import { defineProps } from "vue";
 
 // --- components
-import UpmCurrency from "../../modules/basket/components/CurrencySwitcher.vue";
-import UpmLocale from "../../components/LocaleSwitcher.vue";
+import UpmCurrency from "../../../modules/basket/components/CurrencySwitcher.vue";
+import UpmLocale from "../../../components/LocaleSwitcher.vue";
 
 // --- types
-import type { FooterActionsProps } from "./types";
+import type { FooterActionsProps } from "../types";
 
 withDefaults(defineProps<FooterActionsProps>(), {
   locale: true,

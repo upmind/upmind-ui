@@ -31,7 +31,7 @@ import { useBrand } from "@upmind-automation/headless";
 import { Link } from "@upmind-automation/upmind-ui";
 
 // --- assets
-import upmindLogo from "../../assets/mark.svg";
+import upmindLogo from "../../../assets/mark.svg";
 
 const { t } = useI18n();
 const { name } = useBrand();

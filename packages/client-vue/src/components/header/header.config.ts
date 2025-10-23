@@ -4,10 +4,11 @@ import { cva } from "class-variance-authority";
 const rootVariants = cva("w-full", {
   variants: {
     variant: {
-      default: "",
+      default:
+        "bg-surface shadow-b-border-surface top-0 z-20 flex w-full flex-col items-center px-6 py-7 transition-all duration-500 md:px-2.5",
       enclosed:
         "bg-surface shadow-b-border-surface top-0 z-20 flex w-full flex-col items-center px-6 py-7 transition-all duration-500 md:px-2.5",
-      full: "",
+      full: "bg-surface shadow-b-border-surface top-0 z-20 flex w-full flex-col items-center px-6 py-7 transition-all duration-500 md:px-2.5",
       twoColumnLTR: "absolute",
       twoColumnRTL: "absolute",
       split: "",
@@ -20,9 +21,9 @@ const rootVariants = cva("w-full", {
 const containerVariants = cva("flex w-full", {
   variants: {
     variant: {
-      default: "pt-10 pb-10 md:pt-14 md:pb-20",
-      enclosed: "items-center justify-between",
-      full: "",
+      default: "max-w-app mx-auto flex w-full items-center justify-between",
+      enclosed: "max-w-app mx-auto flex w-full items-center justify-between",
+      full: "max-w-app mx-auto flex w-full items-center justify-between",
       twoColumnLTR: "justify-center",
       twoColumnRTL: "justify-center",
       split: "",
