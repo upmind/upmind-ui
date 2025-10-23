@@ -1,5 +1,4 @@
 <template>
-  <pre>{{ { currentRoute, route } }}</pre>
   <Layout :variant="layout" minimal>
     <template #navigation>
       <Back v-bind="storefrontRoute" :label="t('action.continue_shopping')" />
