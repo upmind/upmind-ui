@@ -9,9 +9,9 @@ const rootVariants = cva("w-full", {
       enclosed:
         "bg-surface shadow-b-border-surface top-0 z-20 flex w-full flex-col items-center px-6 py-7 transition-all duration-500 md:px-2.5",
       full: "bg-surface shadow-b-border-surface top-0 z-20 flex w-full flex-col items-center px-6 py-7 transition-all duration-500 md:px-2.5",
-      twoColumnLTR: "absolute",
-      twoColumnRTL: "absolute",
-      split: "",
+      twoColumnLTR: "absolute top-0",
+      twoColumnRTL: "absolute top-0",
+      split: "hidden",
       canvasCard: "",
       surfaceBox: ""
     }
@@ -26,7 +26,7 @@ const containerVariants = cva("flex w-full", {
       full: "max-w-app mx-auto flex w-full items-center justify-between",
       twoColumnLTR: "justify-center",
       twoColumnRTL: "justify-center",
-      split: "",
+      split: "justify-center",
       canvasCard: "",
       surfaceBox: ""
     }

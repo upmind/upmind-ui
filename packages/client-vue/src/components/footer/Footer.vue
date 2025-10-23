@@ -19,6 +19,7 @@ import { computed } from "vue";
 // --- templates
 import FooterFlat from "./templates/FooterFlat.template.vue";
 import FooterStacked from "./templates/FooterStacked.template.vue";
+import FooterNoOptions from "./templates/FooterNoOptions.template.vue";
 
 // --- components
 import Actions from "./components/Actions.vue";
@@ -41,7 +42,7 @@ const supportedTemplates = {
   [FOOTER_TEMPLATE.FULL]: FooterStacked,
   [FOOTER_TEMPLATE.TWO_COLUMN_LTR]: FooterFlat,
   [FOOTER_TEMPLATE.TWO_COLUMN_RTL]: FooterFlat,
-  [FOOTER_TEMPLATE.SPLIT]: FooterFlat,
+  [FOOTER_TEMPLATE.SPLIT]: FooterNoOptions,
   [FOOTER_TEMPLATE.CANVAS_CARD]: FooterFlat,
   [FOOTER_TEMPLATE.SURFACE_BOX]: FooterFlat
 };

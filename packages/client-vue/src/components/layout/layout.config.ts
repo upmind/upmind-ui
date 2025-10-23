@@ -188,12 +188,12 @@ export default {
     container: cva(
       "bg-surface flex min-h-screen w-1/2 flex-col justify-between px-32 pt-24 pb-9"
     ),
-    header: cva("pb-24"),
-    contentWrapper: cva("flex flex-col gap-24"),
-    contentInner: cva("flex flex-col gap-12"),
-    contentHeader: cva("max-w-app-aside"),
-    content: cva(""),
-    footer: cva("flex items-end justify-between"),
+    content: {
+      root: cva("flex grow flex-col gap-4"),
+      container: cva("flex grow flex-col gap-12"),
+      header: cva("max-w-app-aside grow")
+    },
+    footer: cva("h-16"),
     aside: cva("bg-canvas min-h-screen w-1/2")
   },
 

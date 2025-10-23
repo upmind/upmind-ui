@@ -1,7 +1,10 @@
 <template>
-  <Layout :variant="LAYOUT_VARIANTS.SPLIT" :currency="false" :locale="false">
+  <Layout :variant="LAYOUT_VARIANTS.SPLIT">
     <template #content-header>
-      <RegisterHeader />
+      <div class="flex h-full flex-col justify-between">
+        <HeaderBrand class="pb-12" />
+        <RegisterHeader />
+      </div>
     </template>
 
     <template #content>
@@ -15,4 +18,5 @@ import { LAYOUT_VARIANTS } from "../../../components/layout/types";
 import Layout from "../../../components/layout/Layout.vue";
 import RegisterHeader from "../components/RegisterHeader.vue";
 import RegisterForm from "../components/RegisterForm.vue";
+import HeaderBrand from "../../../components/header/HeaderBrand.vue";
 </script>
