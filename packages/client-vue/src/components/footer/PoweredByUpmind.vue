@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="text-muted flex w-full items-center justify-center gap-2 text-sm md:justify-start"
-  >
+  <div class="text-muted inline-flex items-center gap-2 text-sm">
     <img
       v-if="upmindLogo"
       :src="upmindLogo"
