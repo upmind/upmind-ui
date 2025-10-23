@@ -165,14 +165,17 @@ export default {
       )
     },
     content: {
-      aside: cva(
-        "basis-app-aside lg:w-app-aside box-content hidden min-w-0 px-18 pt-18 lg:block"
-      ),
-      asideInner: cva("flex h-full min-h-screen flex-col gap-6"),
-      asideSticky: cva("sticky bottom-18 mt-auto flex flex-col gap-6"),
-      content: cva(
+      root: cva(
         "lg:basis-app-content bg-surface lg:w-app-content box-content flex w-full min-w-0 flex-col gap-12 px-8 pt-18 lg:px-18"
-      )
+      ),
+      aside: {
+        root: cva(
+          "basis-app-aside lg:w-app-aside box-content hidden min-w-0 px-18 pt-18 lg:block"
+        ),
+        container: cva("flex h-full min-h-screen flex-col gap-6"),
+        header: cva("flex flex-col gap-9"),
+        footer: cva("sticky bottom-18 mt-auto flex flex-col gap-6")
+      }
     },
     spacer: {
       aside: cva(

@@ -13,20 +13,21 @@
 
     <!-- Content / Aside -->
     <section :class="styles.twoColumnRTL.row">
-      <div :class="styles.twoColumnRTL.content.aside">
-        <div :class="styles.twoColumnRTL.content.asideInner">
-          <div>
+      <div :class="styles.twoColumnRTL.content.aside.root">
+        <div :class="styles.twoColumnRTL.content.aside.container">
+          <div :class="styles.twoColumnRTL.content.aside.header">
             <slot name="content-header" />
+            <slot name="navigation" />
           </div>
 
-          <aside :class="styles.twoColumnRTL.content.asideSticky">
+          <aside :class="styles.twoColumnRTL.content.aside.footer">
             <slot name="aside" />
             <slot name="aside-footer" />
           </aside>
         </div>
       </div>
 
-      <div :class="styles.twoColumnRTL.content.content">
+      <div :class="styles.twoColumnRTL.content.root">
         <slot name="content" />
       </div>
     </section>
@@ -67,6 +68,7 @@ const styles = useStyles(
     "twoColumnRTL",
     "twoColumnRTL.header",
     "twoColumnRTL.content",
+    "twoColumnRTL.content.aside",
     "twoColumnRTL.spacer",
     "twoColumnRTL.footer"
   ],
@@ -81,10 +83,13 @@ const styles = useStyles(
       content: string;
     };
     content: {
-      aside: string;
-      asideInner: string;
-      asideSticky: string;
-      content: string;
+      root: string;
+      aside: {
+        root: string;
+        container: string;
+        header: string;
+        footer: string;
+      };
     };
     spacer: {
       aside: string;
