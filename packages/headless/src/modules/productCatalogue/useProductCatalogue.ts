@@ -25,6 +25,9 @@ import type { ICurrency } from "@upmind-automation/types";
 import type { QueryProps, RequestFilters } from "../query";
 import { useBasket } from "../basket";
 
+/**
+ * Properties by which products can be sorted.
+ */
 export enum ProductSortableProperties {
   DEFAULT = "order",
   NAME = "name",
@@ -32,11 +35,12 @@ export enum ProductSortableProperties {
 }
 
 // -----------------------------------------------------------------------------
+
 /**
- * Composable to manage the product catalogue.
+ * A composable function that manages the product catalogue.
  * It provides methods to filter, sort, and retrieve products from the catalogue.
  * @param {QueryProps} initial - Initial query parameters for the product catalogue.
- * @returns {UseProductCatalogue} The composable methods and state for the product catalogue.
+ * @returns The {@link UseProductCatalogue} composable methods and state for the product catalogue.
  */
 export const useProductCatalogue = (
   initial?: QueryProps & {
@@ -279,4 +283,7 @@ export const useProductCatalogue = (
   };
 };
 
+/**
+ * The return type of the {@link useProductCatalogue} composable function.
+ */
 export type UseProductCatalogue = ReturnType<typeof useProductCatalogue>;

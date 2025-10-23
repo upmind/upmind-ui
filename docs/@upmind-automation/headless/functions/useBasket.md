@@ -6,6 +6,11 @@
 function useBasket(): object;
 ```
 
+Provides a comprehensive interface for managing the shopping basket state using XState.
+It offers reactive access to basket data, meta-information about its status,
+and methods for manipulating the basket (e.g. adding/removing items, applying promotions,
+refreshing, and proceeding to checkout).
+
 ## Returns
 
 ### actors
@@ -14,36 +19,36 @@ function useBasket(): object;
 actors: object;
 ```
 
-Child machine actors for basket submodules (customFields, paymentDetails, etc).
+Child machine actors for basket submodules (customFields, paymentDetail, etc).
 
 #### actors.billing
 
 ```ts
-billing: ComputedRef<undefined | Actor>;
+billing: ComputedRef<Actor | undefined>;
 ```
 
 #### actors.currency
 
 ```ts
-currency: ComputedRef<undefined | Actor>;
+currency: ComputedRef<Actor | undefined>;
 ```
 
 #### actors.customFields
 
 ```ts
-customFields: ComputedRef<undefined | Actor>;
+customFields: ComputedRef<Actor | undefined>;
 ```
 
-#### actors.paymentDetails
+#### actors.paymentDetail
 
 ```ts
-paymentDetails: ComputedRef<undefined | Actor>;
+paymentDetail: ComputedRef<Actor | undefined>;
 ```
 
 #### actors.promotions
 
 ```ts
-promotions: ComputedRef<undefined | Actor>;
+promotions: ComputedRef<Actor | undefined>;
 ```
 
 ### addPromotion()
@@ -71,7 +76,7 @@ Resolves when added, rejects on error.
 ### basket
 
 ```ts
-basket: ComputedRef<undefined | IBasket>;
+basket: ComputedRef<IBasket | undefined>;
 ```
 
 The current basket object.
@@ -79,7 +84,7 @@ The current basket object.
 ### basketId
 
 ```ts
-basketId: ComputedRef<undefined | string>;
+basketId: ComputedRef<string | undefined>;
 ```
 
 The current basket ID.
@@ -123,15 +128,23 @@ Clears the basket.
 ### context
 
 ```ts
-context: ComputedRef<undefined | BasketContext>;
+context: ComputedRef<BasketContext | undefined>;
 ```
 
 The full basket context object.
 
+### count
+
+```ts
+count: ComputedRef<number>;
+```
+
+The total number of items in the basket (sum of all product quantities).
+
 ### currency
 
 ```ts
-currency: ComputedRef<undefined | ICurrency>;
+currency: ComputedRef<ICurrency | undefined>;
 ```
 
 The current basket currency.
@@ -139,7 +152,7 @@ The current basket currency.
 ### errors
 
 ```ts
-errors: ComputedRef<undefined | ResponseError>;
+errors: ComputedRef<ResponseError | undefined>;
 ```
 
 Any error returned by the basket state machine.
@@ -147,7 +160,7 @@ Any error returned by the basket state machine.
 ### findProduct()
 
 ```ts
-findProduct: (mapping) => undefined | BasketProduct;
+findProduct: (mapping) => BasketProduct | undefined;
 ```
 
 Finds a product in the basket matching the given mapping.
@@ -162,7 +175,7 @@ The mapping to match.
 
 #### Returns
 
-`undefined` \| [`BasketProduct`](../interfaces/BasketProduct.md)
+[`BasketProduct`](../interfaces/BasketProduct.md) \| `undefined`
 
 The found product, or undefined.
 
@@ -219,7 +232,7 @@ The basket products.
 ### invoice
 
 ```ts
-invoice: ComputedRef<undefined | IInvoice>;
+invoice: ComputedRef<IInvoice | undefined>;
 ```
 
 The invoice associated with the basket, if any.
@@ -264,7 +277,9 @@ meta: ComputedRef<{
   isPaying: boolean;
   isProcessing: boolean;
   isProcessingDetails: boolean;
+  isReadyForBilling: boolean;
   isReadyForCheckout: boolean;
+  isReadyForPaymentDetails: boolean;
   needsApproval: boolean;
   needsAuth: boolean;
 }>;
@@ -297,7 +312,7 @@ True if the product exists, false otherwise.
 ### products
 
 ```ts
-products: ComputedRef<undefined | BasketProduct[]>;
+products: ComputedRef<BasketProduct[] | undefined>;
 ```
 
 The list of products in the basket.
@@ -321,7 +336,7 @@ The list of promotion codes applied to the basket.
 ### promotions
 
 ```ts
-promotions: ComputedRef<undefined | IBasketPromotion[]>;
+promotions: ComputedRef<IBasketPromotion[] | undefined>;
 ```
 
 The list of promotions applied to the basket.
@@ -329,7 +344,7 @@ The list of promotions applied to the basket.
 ### refresh()
 
 ```ts
-refresh: (data?) => Promise<undefined | IBasket>;
+refresh: (data?) => Promise<IBasket | undefined>;
 ```
 
 Refreshes the basket state from the server.
@@ -344,7 +359,7 @@ Optional basket data to refresh with.
 
 #### Returns
 
-`Promise`\<`undefined` \| `IBasket`\>
+`Promise`\<`IBasket` \| `undefined`\>
 
 The refreshed basket.
 
@@ -444,14 +459,14 @@ https://xstate.js.org/docs/guides/communication.html#service-subscribe
 
 ```ts
 summary: ComputedRef<
-  | undefined
   | {
-  discount: null | string;
+  discount: string | null;
   products: BasketProduct[];
   subtotal: string;
   taxes: object[];
   total: string;
-}>;
+}
+| undefined>;
 ```
 
 The basket summary (totals, etc).
@@ -459,7 +474,7 @@ The basket summary (totals, etc).
 ### taxes
 
 ```ts
-taxes: ComputedRef<undefined | IAppliedTax[]>;
+taxes: ComputedRef<IAppliedTax[] | undefined>;
 ```
 
 The taxes applied to the basket.

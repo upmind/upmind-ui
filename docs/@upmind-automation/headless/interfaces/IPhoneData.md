@@ -2,6 +2,8 @@
 
 # IPhoneData
 
+Interface representing parsed phone number data, typically from a phone number parsing utility.
+
 ## Properties
 
 ### country
@@ -9,6 +11,8 @@
 ```ts
 country: string;
 ```
+
+The two-letter ISO country code.
 
 ***
 
@@ -18,6 +22,8 @@ country: string;
 countryCallingCode: string;
 ```
 
+The country calling code.
+
 ***
 
 ### nationalNumber
@@ -25,3 +31,5 @@ countryCallingCode: string;
 ```ts
 nationalNumber: string;
 ```
+
+The national format of the phone number.

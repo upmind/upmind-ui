@@ -6,6 +6,8 @@
 type ProductBreadcrumb = object;
 ```
 
+Type alias for a product breadcrumb item, used for navigational paths.
+
 ## Properties
 
 ### id
@@ -14,6 +16,8 @@ type ProductBreadcrumb = object;
 id: string;
 ```
 
+The unique identifier of the breadcrumb item (e.g. category ID).
+
 ***
 
 ### label
@@ -21,3 +25,5 @@ id: string;
 ```ts
 label: string;
 ```
+
+The display label for the breadcrumb item.

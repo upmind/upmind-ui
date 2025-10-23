@@ -6,6 +6,13 @@
 function useUpload(field?): object;
 ```
 
+Composable function to manage file uploads, providing state, context, and methods
+for handling the upload process.
+
+NB: System uploads are NOT a global instance and are always instantiated as a new machine
+this is because we need to be able to have multiple uploads happening at once,
+and we need to be able to start and stop them individually
+
 ## Parameters
 
 ### field?

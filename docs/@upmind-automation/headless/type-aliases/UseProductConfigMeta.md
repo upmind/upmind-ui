@@ -6,6 +6,12 @@
 type UseProductConfigMeta = object;
 ```
 
+Represents the metadata related to a product configuration process.
+
+This type provides a set of boolean flags that indicate various states and conditions
+during the product configuration lifecycle. It encapsulates important information such
+as loading states, validation status, availability, completion, and additional feature-related flags.
+
 ## Properties
 
 ### hasAttributes
@@ -20,14 +26,6 @@ hasAttributes: boolean;
 
 ```ts
 hasErrors: boolean;
-```
-
-***
-
-### hasMonthlyTerms
-
-```ts
-hasMonthlyTerms: boolean;
 ```
 
 ***

@@ -6,6 +6,9 @@
 const AddressTypes: object[];
 ```
 
+An array of predefined address types, used for categorising different kinds of addresses.
+Each object contains a numeric `key` and a human-readable `value`.
+
 ## Type Declaration
 
 ### key

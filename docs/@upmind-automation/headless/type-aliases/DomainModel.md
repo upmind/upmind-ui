@@ -6,6 +6,9 @@
 type DomainModel = object;
 ```
 
+Represents the core data model for a domain name, including its parts and type.
+This is used internally to manage the state of domains being processed.
+
 ## Properties
 
 ### domain
@@ -13,6 +16,8 @@ type DomainModel = object;
 ```ts
 domain: string;
 ```
+
+The full domain name (e.g. "example.com").
 
 ***
 
@@ -22,6 +27,8 @@ domain: string;
 optional selected: boolean;
 ```
 
+`true` if the user currently selects this domain.
+
 ***
 
 ### sld
@@ -29,6 +36,8 @@ optional selected: boolean;
 ```ts
 sld: string;
 ```
+
+The Second-Level Domain (SLD) part of the domain (e.g. "example").
 
 ***
 
@@ -38,6 +47,8 @@ sld: string;
 tld: string;
 ```
 
+The Top-Level Domain (TLD) part of the domain (e.g. ".com").
+
 ***
 
 ### type?
@@ -45,3 +56,5 @@ tld: string;
 ```ts
 optional type: DomainTypes;
 ```
+
+The [DomainTypes](../enumerations/DomainTypes.md) defining the current management flow for this domain.

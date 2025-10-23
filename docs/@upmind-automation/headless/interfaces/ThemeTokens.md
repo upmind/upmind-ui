@@ -2,36 +2,50 @@
 
 # ThemeTokens
 
+Interface representing theme tokens, which are the fundamental design system values
+like colours, typography, spacing, and border radii. These are typically inferred
+from a `tokens.json` file or a design system definition.
+
 ## Properties
 
-### border?
+### badge?
 
 ```ts
-optional border: object;
+optional badge: object;
 ```
 
-#### colorControlDefault?
+#### radius
 
 ```ts
-optional colorControlDefault: string;
+radius: string;
 ```
 
-#### colorControlStrong?
+***
+
+### button?
 
 ```ts
-optional colorControlStrong: string;
+optional button: object;
 ```
 
-#### colorDefault?
+#### radius
 
 ```ts
-optional colorDefault: string;
+radius: string;
 ```
 
-#### colorInput?
+***
+
+### card?
 
 ```ts
-optional colorInput: string;
+optional card: object;
+```
+
+#### radius
+
+```ts
+radius: string;
 ```
 
 ***
@@ -42,484 +56,1188 @@ optional colorInput: string;
 optional color: object;
 ```
 
-#### background?
+#### background
 
 ```ts
-optional background: string;
+background: object;
 ```
 
-#### base?
+##### background.accent
 
 ```ts
-optional base: string;
+accent: object;
 ```
 
-#### baseBackground?
+##### background.accent.danger
 
 ```ts
-optional baseBackground: string;
+danger: string;
 ```
 
-#### baseForeground?
+##### background.accent.dangerMuted
 
 ```ts
-optional baseForeground: string;
+dangerMuted: string;
 ```
 
-#### baseMuted?
+##### background.accent.info
 
 ```ts
-optional baseMuted: string;
+info: string;
 ```
 
-#### baseMutedActive?
+##### background.accent.infoMuted
 
 ```ts
-optional baseMutedActive: string;
+infoMuted: string;
 ```
 
-#### baseMutedForeground?
+##### background.accent.neutral
 
 ```ts
-optional baseMutedForeground: string;
+neutral: string;
 ```
 
-#### black?
+##### background.accent.neutralMuted
 
 ```ts
-optional black: string;
+neutralMuted: string;
 ```
 
-#### canvas?
+##### background.accent.primary
 
 ```ts
-optional canvas: string;
+primary: string;
 ```
 
-#### control?
+##### background.accent.primaryMuted
 
 ```ts
-optional control: string;
+primaryMuted: string;
 ```
 
-#### controlActive?
+##### background.accent.promo
 
 ```ts
-optional controlActive: string;
+promo: string;
 ```
 
-#### controlActiveBackground?
+##### background.accent.promoMuted
 
 ```ts
-optional controlActiveBackground: string;
+promoMuted: string;
 ```
 
-#### controlActiveFocus?
+##### background.accent.success
 
 ```ts
-optional controlActiveFocus: string;
+success: string;
 ```
 
-#### controlActiveForeground?
+##### background.accent.successMuted
 
 ```ts
-optional controlActiveForeground: string;
+successMuted: string;
 ```
 
-#### controlActiveHover?
+##### background.accent.warning
 
 ```ts
-optional controlActiveHover: string;
+warning: string;
 ```
 
-#### controlActiveMuted?
+##### background.accent.warningMuted
 
 ```ts
-optional controlActiveMuted: string;
+warningMuted: string;
 ```
 
-#### controlBackground?
+##### background.button
 
 ```ts
-optional controlBackground: string;
+button: object;
 ```
 
-#### controlError?
+##### background.button.danger0
 
 ```ts
-optional controlError: string;
+danger0: string;
 ```
 
-#### controlErrorBackground?
+##### background.button.danger1
 
 ```ts
-optional controlErrorBackground: string;
+danger1: string;
 ```
 
-#### controlErrorForeground?
+##### background.button.dangerHover0
 
 ```ts
-optional controlErrorForeground: string;
+dangerHover0: string;
 ```
 
-#### controlErrorMuted?
+##### background.button.dangerHover1
 
 ```ts
-optional controlErrorMuted: string;
+dangerHover1: string;
 ```
 
-#### controlForeground?
+##### background.button.dangerRing
 
 ```ts
-optional controlForeground: string;
+dangerRing: string;
 ```
 
-#### destructive?
+##### background.button.ghost
 
 ```ts
-optional destructive: string;
+ghost: string;
 ```
 
-#### destructiveBackground?
+##### background.button.ghostHover
 
 ```ts
-optional destructiveBackground: string;
+ghostHover: string;
 ```
 
-#### destructiveForeground?
+##### background.button.ghostRing
 
 ```ts
-optional destructiveForeground: string;
+ghostRing: string;
 ```
 
-#### destructiveMuted?
+##### background.button.neutral0
 
 ```ts
-optional destructiveMuted: string;
+neutral0: string;
 ```
 
-#### destructiveMutedActive?
+##### background.button.neutral1
 
 ```ts
-optional destructiveMutedActive: string;
+neutral1: string;
 ```
 
-#### destructiveMutedForeground?
+##### background.button.neutralHover0
 
 ```ts
-optional destructiveMutedForeground: string;
+neutralHover0: string;
 ```
 
-#### error?
+##### background.button.neutralHover1
 
 ```ts
-optional error: string;
+neutralHover1: string;
 ```
 
-#### errorBackground?
+##### background.button.neutralRing
 
 ```ts
-optional errorBackground: string;
+neutralRing: string;
 ```
 
-#### errorForeground?
+##### background.button.outline
 
 ```ts
-optional errorForeground: string;
+outline: string;
 ```
 
-#### errorMuted?
+##### background.button.outlineHover
 
 ```ts
-optional errorMuted: string;
+outlineHover: string;
 ```
 
-#### errorMutedActive?
+##### background.button.outlineRing
 
 ```ts
-optional errorMutedActive: string;
+outlineRing: string;
 ```
 
-#### errorMutedForeground?
+##### background.button.primary0
 
 ```ts
-optional errorMutedForeground: string;
+primary0: string;
 ```
 
-#### foreground?
+##### background.button.primary1
 
 ```ts
-optional foreground: string;
+primary1: string;
 ```
 
-#### iconPrimary?
+##### background.button.primaryHover0
 
 ```ts
-optional iconPrimary: string;
+primaryHover0: string;
 ```
 
-#### iconSecondary?
+##### background.button.primaryHover1
 
 ```ts
-optional iconSecondary: string;
+primaryHover1: string;
 ```
 
-#### info?
+##### background.button.primaryRing
 
 ```ts
-optional info: string;
+primaryRing: string;
 ```
 
-#### infoBackground?
+##### background.button.secondary0
 
 ```ts
-optional infoBackground: string;
+secondary0: string;
 ```
 
-#### infoForeground?
+##### background.button.secondary1
 
 ```ts
-optional infoForeground: string;
+secondary1: string;
 ```
 
-#### infoMuted?
+##### background.button.secondaryHover0
 
 ```ts
-optional infoMuted: string;
+secondaryHover0: string;
 ```
 
-#### infoMutedActive?
+##### background.button.secondaryHover1
 
 ```ts
-optional infoMutedActive: string;
+secondaryHover1: string;
 ```
 
-#### infoMutedForeground?
+##### background.button.secondaryRing
 
 ```ts
-optional infoMutedForeground: string;
+secondaryRing: string;
 ```
 
-#### primary?
+##### background.button.subtle0
 
 ```ts
-optional primary: string;
+subtle0: string;
 ```
 
-#### primaryBackground?
+##### background.button.subtle1
 
 ```ts
-optional primaryBackground: string;
+subtle1: string;
 ```
 
-#### primaryForeground?
+##### background.button.subtleHover0
 
 ```ts
-optional primaryForeground: string;
+subtleHover0: string;
 ```
 
-#### primaryGradientEnd?
+##### background.button.subtleHover1
 
 ```ts
-optional primaryGradientEnd: string;
+subtleHover1: string;
 ```
 
-#### primaryGradientStart?
+##### background.button.subtleRing
 
 ```ts
-optional primaryGradientStart: string;
+subtleRing: string;
 ```
 
-#### primaryMuted?
+##### background.canvas
 
 ```ts
-optional primaryMuted: string;
+canvas: string;
 ```
 
-#### primaryMutedActive?
+##### background.control
 
 ```ts
-optional primaryMutedActive: string;
+control: object;
 ```
 
-#### primaryMutedForeground?
+##### background.control.checked
 
 ```ts
-optional primaryMutedForeground: string;
+checked: string;
 ```
 
-#### promotion?
+##### background.control.checkedContrast
 
 ```ts
-optional promotion: string;
+checkedContrast: string;
 ```
 
-#### promotionBackground?
+##### background.control.checkedHover
 
 ```ts
-optional promotionBackground: string;
+checkedHover: string;
 ```
 
-#### promotionForeground?
+##### background.control.ring
 
 ```ts
-optional promotionForeground: string;
+ring: string;
 ```
 
-#### promotionMuted?
+##### background.control.selected
 
 ```ts
-optional promotionMuted: string;
+selected: string;
 ```
 
-#### promotionMutedActive?
+##### background.control.surface
 
 ```ts
-optional promotionMutedActive: string;
+surface: string;
 ```
 
-#### promotionMutedForeground?
+##### background.control.unchecked
 
 ```ts
-optional promotionMutedForeground: string;
+unchecked: string;
 ```
 
-#### secondary?
+##### background.control.uncheckedHover
 
 ```ts
-optional secondary: string;
+uncheckedHover: string;
 ```
 
-#### secondaryBackground?
+##### background.overlay
 
 ```ts
-optional secondaryBackground: string;
+overlay: string;
 ```
 
-#### secondaryForeground?
+##### background.skeleton
 
 ```ts
-optional secondaryForeground: string;
+skeleton: string;
 ```
 
-#### secondaryGradientEnd?
+##### background.surface
 
 ```ts
-optional secondaryGradientEnd: string;
+surface: string;
 ```
 
-#### secondaryGradientStart?
+##### background.surfaceGlass
 
 ```ts
-optional secondaryGradientStart: string;
+surfaceGlass: string;
 ```
 
-#### secondaryMuted?
+#### border
 
 ```ts
-optional secondaryMuted: string;
+border: object;
 ```
 
-#### secondaryMutedActive?
+##### border.accent
 
 ```ts
-optional secondaryMutedActive: string;
+accent: object;
 ```
 
-#### secondaryMutedForeground?
+##### border.accent.danger
 
 ```ts
-optional secondaryMutedForeground: string;
+danger: string;
 ```
 
-#### success?
+##### border.accent.info
 
 ```ts
-optional success: string;
+info: string;
 ```
 
-#### successBackground?
+##### border.accent.neutral
 
 ```ts
-optional successBackground: string;
+neutral: string;
 ```
 
-#### successForeground?
+##### border.accent.primary
 
 ```ts
-optional successForeground: string;
+primary: string;
 ```
 
-#### successMuted?
+##### border.accent.promo
 
 ```ts
-optional successMuted: string;
+promo: string;
 ```
 
-#### successMutedActive?
+##### border.accent.secondary
 
 ```ts
-optional successMutedActive: string;
+secondary: string;
 ```
 
-#### successMutedForeground?
+##### border.accent.success
 
 ```ts
-optional successMutedForeground: string;
+success: string;
 ```
 
-#### surface?
+##### border.accent.warning
 
 ```ts
-optional surface: string;
+warning: string;
 ```
 
-#### transparent?
+##### border.button
 
 ```ts
-optional transparent: string;
+button: object;
 ```
 
-#### warning?
+##### border.button.outline
 
 ```ts
-optional warning: string;
+outline: string;
 ```
 
-#### warningBackground?
+##### border.button.outlineHover
 
 ```ts
-optional warningBackground: string;
+outlineHover: string;
 ```
 
-#### warningForeground?
+##### border.control
 
 ```ts
-optional warningForeground: string;
+control: object;
 ```
 
-#### warningMuted?
+##### border.control.default
 
 ```ts
-optional warningMuted: string;
+default: string;
 ```
 
-#### warningMutedActive?
+##### border.control.hover
 
 ```ts
-optional warningMutedActive: string;
+hover: string;
 ```
 
-#### warningMutedForeground?
+##### border.control.selected
 
 ```ts
-optional warningMutedForeground: string;
+selected: string;
 ```
 
-#### white?
+##### border.surface
 
 ```ts
-optional white: string;
+surface: string;
+```
+
+#### icon
+
+```ts
+icon: object;
+```
+
+##### icon.neutral
+
+```ts
+neutral: string;
+```
+
+##### icon.primary
+
+```ts
+primary: string;
+```
+
+##### icon.subtle
+
+```ts
+subtle: string;
+```
+
+#### primary
+
+```ts
+primary: string;
+```
+
+#### primitive
+
+```ts
+primitive: object;
+```
+
+##### primitive.control
+
+```ts
+control: object;
+```
+
+##### primitive.control.default
+
+```ts
+default: string;
+```
+
+##### primitive.control.defaultContrast
+
+```ts
+defaultContrast: string;
+```
+
+##### primitive.control.defaultDelta
+
+```ts
+defaultDelta: string;
+```
+
+##### primitive.control.muted
+
+```ts
+muted: string;
+```
+
+##### primitive.control.mutedContrast
+
+```ts
+mutedContrast: string;
+```
+
+##### primitive.control.stroke
+
+```ts
+stroke: string;
+```
+
+##### primitive.control.strokeDelta
+
+```ts
+strokeDelta: string;
+```
+
+##### primitive.core
+
+```ts
+core: object;
+```
+
+##### primitive.core.base
+
+```ts
+base: string;
+```
+
+##### primitive.core.canvas
+
+```ts
+canvas: string;
+```
+
+##### primitive.core.display
+
+```ts
+display: string;
+```
+
+##### primitive.core.faint
+
+```ts
+faint: string;
+```
+
+##### primitive.core.muted
+
+```ts
+muted: string;
+```
+
+##### primitive.core.overlay
+
+```ts
+overlay: string;
+```
+
+##### primitive.core.skeleton
+
+```ts
+skeleton: string;
+```
+
+##### primitive.core.surface
+
+```ts
+surface: string;
+```
+
+##### primitive.danger
+
+```ts
+danger: object;
+```
+
+##### primitive.danger.default
+
+```ts
+default: string;
+```
+
+##### primitive.danger.defaultContrast
+
+```ts
+defaultContrast: string;
+```
+
+##### primitive.danger.defaultDelta
+
+```ts
+defaultDelta: string;
+```
+
+##### primitive.danger.muted
+
+```ts
+muted: string;
+```
+
+##### primitive.danger.mutedContrast
+
+```ts
+mutedContrast: string;
+```
+
+##### primitive.info
+
+```ts
+info: object;
+```
+
+##### primitive.info.default
+
+```ts
+default: string;
+```
+
+##### primitive.info.defaultContrast
+
+```ts
+defaultContrast: string;
+```
+
+##### primitive.info.muted
+
+```ts
+muted: string;
+```
+
+##### primitive.info.mutedContrast
+
+```ts
+mutedContrast: string;
+```
+
+##### primitive.neutral
+
+```ts
+neutral: object;
+```
+
+##### primitive.neutral.default
+
+```ts
+default: string;
+```
+
+##### primitive.neutral.defaultContrast
+
+```ts
+defaultContrast: string;
+```
+
+##### primitive.neutral.defaultDelta
+
+```ts
+defaultDelta: string;
+```
+
+##### primitive.neutral.muted
+
+```ts
+muted: string;
+```
+
+##### primitive.neutral.mutedContrast
+
+```ts
+mutedContrast: string;
+```
+
+##### primitive.neutral.mutedDelta
+
+```ts
+mutedDelta: string;
+```
+
+##### primitive.neutral.stroke
+
+```ts
+stroke: string;
+```
+
+##### primitive.neutral.strokeDelta
+
+```ts
+strokeDelta: string;
+```
+
+##### primitive.primary
+
+```ts
+primary: object;
+```
+
+##### primitive.primary.default
+
+```ts
+default: string;
+```
+
+##### primitive.primary.defaultContrast
+
+```ts
+defaultContrast: string;
+```
+
+##### primitive.primary.defaultDelta
+
+```ts
+defaultDelta: string;
+```
+
+##### primitive.primary.defaultStop
+
+```ts
+defaultStop: string;
+```
+
+##### primitive.primary.muted
+
+```ts
+muted: string;
+```
+
+##### primitive.primary.mutedContrast
+
+```ts
+mutedContrast: string;
+```
+
+##### primitive.promo
+
+```ts
+promo: object;
+```
+
+##### primitive.promo.default
+
+```ts
+default: string;
+```
+
+##### primitive.promo.defaultContrast
+
+```ts
+defaultContrast: string;
+```
+
+##### primitive.promo.muted
+
+```ts
+muted: string;
+```
+
+##### primitive.promo.mutedContrast
+
+```ts
+mutedContrast: string;
+```
+
+##### primitive.secondary
+
+```ts
+secondary: object;
+```
+
+##### primitive.secondary.default
+
+```ts
+default: string;
+```
+
+##### primitive.secondary.defaultContrast
+
+```ts
+defaultContrast: string;
+```
+
+##### primitive.secondary.defaultDelta
+
+```ts
+defaultDelta: string;
+```
+
+##### primitive.secondary.defaultStop
+
+```ts
+defaultStop: string;
+```
+
+##### primitive.success
+
+```ts
+success: object;
+```
+
+##### primitive.success.default
+
+```ts
+default: string;
+```
+
+##### primitive.success.defaultContrast
+
+```ts
+defaultContrast: string;
+```
+
+##### primitive.success.muted
+
+```ts
+muted: string;
+```
+
+##### primitive.success.mutedContrast
+
+```ts
+mutedContrast: string;
+```
+
+##### primitive.warning
+
+```ts
+warning: object;
+```
+
+##### primitive.warning.default
+
+```ts
+default: string;
+```
+
+##### primitive.warning.defaultContrast
+
+```ts
+defaultContrast: string;
+```
+
+##### primitive.warning.muted
+
+```ts
+muted: string;
+```
+
+##### primitive.warning.mutedContrast
+
+```ts
+mutedContrast: string;
+```
+
+#### secondary
+
+```ts
+secondary: string;
+```
+
+#### text
+
+```ts
+text: object;
+```
+
+##### text.accent
+
+```ts
+accent: object;
+```
+
+##### text.accent.danger
+
+```ts
+danger: string;
+```
+
+##### text.accent.dangerContrast
+
+```ts
+dangerContrast: string;
+```
+
+##### text.accent.dangerMutedContrast
+
+```ts
+dangerMutedContrast: string;
+```
+
+##### text.accent.info
+
+```ts
+info: string;
+```
+
+##### text.accent.infoContrast
+
+```ts
+infoContrast: string;
+```
+
+##### text.accent.infoMutedContrast
+
+```ts
+infoMutedContrast: string;
+```
+
+##### text.accent.neutral
+
+```ts
+neutral: string;
+```
+
+##### text.accent.neutralContrast
+
+```ts
+neutralContrast: string;
+```
+
+##### text.accent.neutralMutedContrast
+
+```ts
+neutralMutedContrast: string;
+```
+
+##### text.accent.primary
+
+```ts
+primary: string;
+```
+
+##### text.accent.primaryContrast
+
+```ts
+primaryContrast: string;
+```
+
+##### text.accent.primaryMutedContrast
+
+```ts
+primaryMutedContrast: string;
+```
+
+##### text.accent.promo
+
+```ts
+promo: string;
+```
+
+##### text.accent.promoContrast
+
+```ts
+promoContrast: string;
+```
+
+##### text.accent.promoMutedContrast
+
+```ts
+promoMutedContrast: string;
+```
+
+##### text.accent.success
+
+```ts
+success: string;
+```
+
+##### text.accent.successContrast
+
+```ts
+successContrast: string;
+```
+
+##### text.accent.successMutedContrast
+
+```ts
+successMutedContrast: string;
+```
+
+##### text.accent.warning
+
+```ts
+warning: string;
+```
+
+##### text.accent.warningContrast
+
+```ts
+warningContrast: string;
+```
+
+##### text.accent.warningMutedContrast
+
+```ts
+warningMutedContrast: string;
+```
+
+##### text.base
+
+```ts
+base: string;
+```
+
+##### text.button
+
+```ts
+button: object;
+```
+
+##### text.button.danger
+
+```ts
+danger: string;
+```
+
+##### text.button.dangerLink
+
+```ts
+dangerLink: string;
+```
+
+##### text.button.dangerLinkHover
+
+```ts
+dangerLinkHover: string;
+```
+
+##### text.button.ghost
+
+```ts
+ghost: string;
+```
+
+##### text.button.link
+
+```ts
+link: string;
+```
+
+##### text.button.linkHover
+
+```ts
+linkHover: string;
+```
+
+##### text.button.mutedLink
+
+```ts
+mutedLink: string;
+```
+
+##### text.button.mutedLinkHover
+
+```ts
+mutedLinkHover: string;
+```
+
+##### text.button.neutral
+
+```ts
+neutral: string;
+```
+
+##### text.button.outline
+
+```ts
+outline: string;
+```
+
+##### text.button.primary
+
+```ts
+primary: string;
+```
+
+##### text.button.secondary
+
+```ts
+secondary: string;
+```
+
+##### text.button.subtle
+
+```ts
+subtle: string;
+```
+
+##### text.control
+
+```ts
+control: object;
+```
+
+##### text.control.selected
+
+```ts
+selected: string;
+```
+
+##### text.display
+
+```ts
+display: string;
+```
+
+##### text.faint
+
+```ts
+faint: string;
+```
+
+##### text.muted
+
+```ts
+muted: string;
+```
+
+##### text.primary
+
+```ts
+primary: string;
+```
+
+***
+
+### control?
+
+```ts
+optional control: object;
+```
+
+#### radius
+
+```ts
+radius: string;
 ```
 
 ***
@@ -530,11 +1248,15 @@ optional white: string;
 optional fonts: object;
 ```
 
+Typography settings for different text styles.
+
 #### body?
 
 ```ts
 optional body: string;
 ```
+
+Primary font for body text.
 
 #### display?
 
@@ -542,134 +1264,60 @@ optional body: string;
 optional display: string;
 ```
 
+Primary font for headings and display text.
+
 #### sans?
 
 ```ts
 optional sans: string;
 ```
 
+Default sans-serif font.
+
 ***
 
-### maxWidth?
+### image?
 
 ```ts
-optional maxWidth: object;
+optional image: object;
 ```
 
-#### app?
+#### radius
 
 ```ts
-optional app: object;
-```
-
-##### app.default?
-
-```ts
-optional default: string;
-```
-
-##### app.lg?
-
-```ts
-optional lg: string;
+radius: string;
 ```
 
 ***
 
-### radius?
+### message?
 
 ```ts
-optional radius: object;
+optional message: object;
 ```
 
-#### 2xl?
+#### radius
 
 ```ts
-optional 2xl: string;
-```
-
-#### 3xl?
-
-```ts
-optional 3xl: string;
-```
-
-#### box?
-
-```ts
-optional box: string;
-```
-
-#### button?
-
-```ts
-optional button: string;
-```
-
-#### default?
-
-```ts
-optional default: string;
-```
-
-#### full?
-
-```ts
-optional full: string;
-```
-
-#### lg?
-
-```ts
-optional lg: string;
-```
-
-#### none?
-
-```ts
-optional none: string;
-```
-
-#### pill?
-
-```ts
-optional pill: string;
-```
-
-#### sm?
-
-```ts
-optional sm: string;
-```
-
-#### xl?
-
-```ts
-optional xl: string;
+radius: string;
 ```
 
 ***
 
-### ring?
+### stroke?
 
 ```ts
-optional ring: object;
+optional stroke: object;
 ```
 
-#### colorDefault?
+#### badge
 
 ```ts
-optional colorDefault: string;
+badge: string;
 ```
 
-#### colorInvalid?
+#### icon
 
 ```ts
-optional colorInvalid: string;
-```
-
-#### colorRing?
-
-```ts
-optional colorRing: string;
+icon: string;
 ```

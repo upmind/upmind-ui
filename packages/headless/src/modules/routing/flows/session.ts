@@ -9,9 +9,9 @@ import { useBasketProductsPending } from "../../basketProduct";
 import { uniqBy, isEmpty } from "lodash-es";
 
 // --- types
-import type { Flow, Route } from "../types";
 import { ROUTE } from "../types";
-import { SessionContext } from "../../session/types";
+import type { Flow, Route } from "../types";
+import type { SessionContext } from "../../session/types";
 
 // -----------------------------------------------------------------------------
 
@@ -32,6 +32,14 @@ function parseInternalUrl(path: string): string {
   }
 }
 
+/**
+ * Composable function to manage session-related flow configurations and provides methods for interaction with the routing engine.
+ *
+ * This function initialises a set of predefined flows for handling session management within an application.
+ * The flows include guards and targets for common session-related tasks like authentication, login, registration,
+ * session end, session transfer, password recovery, and more. It also provides methods to retrieve and register
+ * these flows with the routing engine.
+ */
 export const useSessionFlows = () => {
   const routing = useRoutingEngine();
   const {

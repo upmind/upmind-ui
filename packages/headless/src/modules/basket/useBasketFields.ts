@@ -29,6 +29,11 @@ import { FieldsContext, FieldsModel } from "./fields/types";
 // -----------------------------------------------------------------------------
 // We allow an actor to be passed in, but if not, we will use the basket actorRef and wait for the 'actor'' machine to be ready
 
+/**
+ * Manages the basket fields, state, and interactions.
+ * Provides reactive state, context, and methods to manage basket fields.
+ * Uses internal actors to manage complex state interactions, including field validation and updates.
+ */
 export const useBasketFields = () => {
   const { t } = useI18n();
   const { actors } = useBasket();
@@ -90,7 +95,7 @@ export const useBasketFields = () => {
   async function update(
     value: FieldsModel | Record<string, any>
   ): Promise<void> {
-    // first check if our fields have change, ie: model.code has changed
+    // first check if our fields have changed, i.e.: model.code has changed
     value = toRaw(unref(value));
     const model = contextValue<FieldsModel>(actor, "model");
 
@@ -139,8 +144,7 @@ export const useBasketFields = () => {
     isReady,
 
     /**
-     * Meta information about the basket fields state.
-     * @typedef {Object} BasketFieldsMeta
+     * Meta-information about the basket fields state.
      * @property {boolean} isAvailable - Indicates if the fields actor is available.
      * @property {boolean} isLoading - Indicates if the fields actor is loading.
      * @property {boolean} hasFields - Indicates if a fields is set.
