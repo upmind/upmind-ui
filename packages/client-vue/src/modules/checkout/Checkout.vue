@@ -282,7 +282,7 @@ const processingIcon = computed(() => {
 });
 
 const layout = computed(() => {
-  return currentRoute.value?.meta?.template;
+  return currentRoute.value?.meta?.template || "full";
 });
 // --- side effects
 

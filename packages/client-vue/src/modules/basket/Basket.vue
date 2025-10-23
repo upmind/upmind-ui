@@ -115,7 +115,8 @@ import {
   useBasketFields,
   useDataLayer,
   useBrand,
-  ROUTE
+  ROUTE,
+  useRoutingEngine
 } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./basket.config";
@@ -135,14 +136,15 @@ import BasketErrors from "./components/BasketErrors.vue";
 
 // --- types
 import { type ComputedRef } from "vue";
+import { useRouting } from "../routing";
 
 // -----------------------------------------------------------------------------
 
-const route = useRoute();
 const { t } = useI18n();
-const { meta, productsInvalid, isReady, products, count, summary } =
-  useBasket();
+const { meta, isReady, count, summary } = useBasket();
 const { storefrontRoute } = useBrand();
+const { currentRoute } = useRoutingEngine();
+const route = useRoute();
 
 const {
   errors: fieldsErrors,
@@ -159,7 +161,7 @@ const open = ref(false);
 await isReady();
 
 const layout = computed(() => {
-  return route?.meta?.template || "default";
+  return currentRoute.value?.meta?.template || "full";
 });
 
 const styles = useStyles(
