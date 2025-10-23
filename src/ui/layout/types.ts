@@ -30,5 +30,6 @@ export enum LAYOUT_VARIANTS {
   TWO_COLUMN_LTR = "two-column-LTR",
   TWO_COLUMN_RTL = "two-column-RTL",
   SPLIT = "split",
-  CANVAS_CARD = "canvas-card"
+  CANVAS_CARD = "canvas-card",
+  SURFACE_BOX = "surface-box"
 }

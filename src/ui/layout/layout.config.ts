@@ -227,5 +227,21 @@ export default {
     footer: cva(
       "flex w-full flex-col items-center gap-2 lg:flex-row lg:items-start lg:justify-between lg:gap-0"
     )
+  },
+
+  surfaceBox: {
+    root: cva(
+      "bg-surface flex min-h-screen w-full flex-col items-center justify-center p-5 lg:py-24"
+    ),
+    container: cva("max-w-app w-full"),
+    header: cva("w-full"),
+    card: cva(
+      "bg-surface card-radius my-9 flex w-full flex-col justify-between gap-12 border lg:flex-row lg:gap-32"
+    ),
+    contentHeader: cva("w-app-aside w-full"),
+    content: cva("w-full"),
+    footer: cva(
+      "flex w-full flex-col items-center gap-2 lg:flex-row lg:items-start lg:justify-between lg:gap-0"
+    )
   }
 };
