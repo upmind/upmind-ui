@@ -45,11 +45,10 @@ import { computed } from "vue";
 import { ROUTE, useRoutingEngine } from "@upmind-automation/headless";
 
 // --- components
-import { Link } from "@upmind-automation/upmind-ui";
+import { Link, Layout } from "@upmind-automation/upmind-ui";
 import Auth from "./components/Auth.vue";
 import Header from "../../components/content/Header.vue";
 import Section from "../../components/content/LayoutSection.vue";
-import Layout from "../../components/layout/Layout.vue";
 
 // --- types
 import type { AuthProps } from "./types";

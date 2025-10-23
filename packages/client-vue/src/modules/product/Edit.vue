@@ -85,7 +85,7 @@ import {
 import config from "./product.config";
 
 // --- components
-import { useStyles } from "@upmind-automation/upmind-ui";
+import { useStyles, Layout } from "@upmind-automation/upmind-ui";
 import Back from "../../components/navigation/Back.vue";
 import ConfigSkeleton from "./components/ConfigSkeleton.vue";
 import Header from "./components/header/Header.vue";
@@ -96,7 +96,6 @@ import Summary from "./components/summary/Summary.vue";
 import SummaryFooter from "./components/summary/SummaryFooter.vue";
 import SummarySkeleton from "./components/summary/SummarySkeleton.vue";
 import ProductNotFound from "./NotFound.vue";
-import Layout from "../../components/layout/Layout.vue";
 
 // --- types
 import type { ComputedRef } from "vue";

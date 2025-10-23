@@ -16,11 +16,8 @@
 
 <script lang="ts" setup>
 // --- components
-import Layout from "../../../components/layout/Layout.vue";
+import { LAYOUT_VARIANTS, Layout } from "@upmind-automation/upmind-ui";
 import LoginHeader from "../components/LoginHeader.vue";
 import LoginForm from "../components/LoginForm.vue";
 import LoginAside from "../components/LoginAside.vue";
-
-// --- types
-import { LAYOUT_VARIANTS } from "@upmind-automation/upmind-ui";
 </script>
