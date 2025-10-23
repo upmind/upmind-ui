@@ -98,7 +98,8 @@ import {
 import config from "./product.config";
 
 // --- components
-import { Breadcrumb, useStyles, Layout } from "@upmind-automation/upmind-ui";
+import { Breadcrumb, useStyles } from "@upmind-automation/upmind-ui";
+import Layout from "../../components/layout/Layout.vue";
 import Share from "../../components/navigation/Share.vue";
 import ConfigSkeleton from "./components/ConfigSkeleton.vue";
 import Header from "./components/header/Header.vue";
