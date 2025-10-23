@@ -67,6 +67,7 @@ import SurfaceBoxLayout from "./components/SurfaceBoxLayout.vue";
 
 // --- types
 import type { LayoutProps } from "./types";
+import { LAYOUT_VARIANTS } from "./types";
 
 const props = withDefaults(defineProps<LayoutProps>(), {
   overflow: "visible",
@@ -75,28 +76,28 @@ const props = withDefaults(defineProps<LayoutProps>(), {
 
 const layoutComponent = computed(() => {
   switch (props.variant) {
-    case "default":
+    case LAYOUT_VARIANTS.DEFAULT:
       return DefaultLayout;
 
-    case "enclosed":
+    case LAYOUT_VARIANTS.ENCLOSED:
       return EnclosedLayout;
 
-    case "two-column-LTR":
+    case LAYOUT_VARIANTS.TWO_COLUMN_LTR:
       return TwoColumnLTRLayout;
 
-    case "two-column-RTL":
+    case LAYOUT_VARIANTS.TWO_COLUMN_RTL:
       return TwoColumnRTLLayout;
 
-    case "split":
+    case LAYOUT_VARIANTS.SPLIT:
       return SplitLayout;
 
-    case "canvas-card":
+    case LAYOUT_VARIANTS.CANVAS_CARD:
       return CanvasCardLayout;
 
-    case "surface-box":
+    case LAYOUT_VARIANTS.SURFACE_BOX:
       return SurfaceBoxLayout;
 
-    case "full":
+    case LAYOUT_VARIANTS.FULL:
     default:
       return FullLayout;
   }

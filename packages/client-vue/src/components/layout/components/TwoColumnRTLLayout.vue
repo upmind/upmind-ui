@@ -1,15 +1,11 @@
 <template>
   <article :class="styles.twoColumnRTL.root">
-    <!-- Header -->
-    <header :class="styles.twoColumnRTL.row">
-      <div :class="styles.twoColumnRTL.header.aside">
-        <slot name="header-left" />
-      </div>
+    <!-- Header Spacer -->
+    <div :class="styles.twoColumnRTL.row">
+      <div :class="styles.twoColumnRTL.header.aside" />
 
-      <div :class="styles.twoColumnRTL.header.content">
-        <slot name="header-right" />
-      </div>
-    </header>
+      <div :class="styles.twoColumnRTL.header.root" />
+    </div>
 
     <!-- Content / Aside -->
     <section :class="styles.twoColumnRTL.row">
@@ -36,20 +32,8 @@
     <div :class="styles.twoColumnRTL.row">
       <div :class="styles.twoColumnRTL.spacer.aside" />
 
-      <div :class="styles.twoColumnRTL.spacer.content" />
+      <div :class="styles.twoColumnRTL.spacer.root" />
     </div>
-
-    <!-- Footer -->
-    <footer :class="styles.twoColumnRTL.footer.row">
-      <div :class="styles.twoColumnRTL.footer.aside">
-        <slot name="footer-content" />
-      </div>
-
-      <div :class="styles.twoColumnRTL.footer.content">
-        <slot name="footer-copyright" />
-        <slot name="footer-actions" />
-      </div>
-    </footer>
   </article>
 </template>
 
@@ -83,7 +67,7 @@ const styles = useStyles(
     row: string;
     header: {
       aside: string;
-      content: string;
+      root: string;
     };
     content: {
       root: string;
@@ -96,7 +80,7 @@ const styles = useStyles(
     };
     spacer: {
       aside: string;
-      content: string;
+      root: string;
     };
     footer: {
       row: string;

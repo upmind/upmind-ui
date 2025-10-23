@@ -1,8 +1,3 @@
-export interface FooterActionsProps {
-  locale: boolean;
-  currency: boolean;
-}
-
 export enum FOOTER_TEMPLATE {
   DEFAULT = "default",
   ENCLOSED = "enclosed",
