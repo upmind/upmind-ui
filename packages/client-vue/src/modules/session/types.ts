@@ -38,3 +38,19 @@ export interface SessionExpiredProps {
   // ---
   size?: DialogProps["size"];
 }
+
+export enum REGISTER_TEMPLATE {
+  SPLIT = "split",
+  CANVAS_CARD = "canvas-card",
+  SURFACE_BOX = "surface-box",
+  TWO_COLUMN_LTR = "two-column-LTR",
+  TWO_COLUMN_RTL = "two-column-RTL"
+}
+
+export enum LOGIN_TEMPLATE {
+  SPLIT = "split",
+  CANVAS_CARD = "canvas-card",
+  SURFACE_BOX = "surface-box",
+  TWO_COLUMN_LTR = "two-column-LTR",
+  TWO_COLUMN_RTL = "two-column-RTL"
+}

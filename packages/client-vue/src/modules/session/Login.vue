@@ -11,20 +11,20 @@ import LoginLTR from "./login/LoginLTR.vue";
 import LoginRTL from "./login/LoginRTL.vue";
 import LoginSplit from "./login/LoginSplit.vue";
 import LoginCanvasCard from "./login/LoginCanvasCard.vue";
+import LoginSurfaceBox from "./login/LoginSurfaceBox.vue";
 
 // --- types
-import { LAYOUT_VARIANTS } from "@upmind-automation/upmind-ui";
+import { LOGIN_TEMPLATE } from "./types";
 
-const variant = LAYOUT_VARIANTS.CANVAS_CARD;
+const variant = LOGIN_TEMPLATE.TWO_COLUMN_LTR;
 
 const supportedTemplates = {
-  [LAYOUT_VARIANTS.SPLIT]: LoginSplit,
-  [LAYOUT_VARIANTS.CANVAS_CARD]: LoginCanvasCard,
-  [LAYOUT_VARIANTS.TWO_COLUMN_LTR]: LoginLTR,
-  [LAYOUT_VARIANTS.TWO_COLUMN_RTL]: LoginRTL
+  [LOGIN_TEMPLATE.SPLIT]: LoginSplit,
+  [LOGIN_TEMPLATE.CANVAS_CARD]: LoginCanvasCard,
+  [LOGIN_TEMPLATE.SURFACE_BOX]: LoginSurfaceBox,
+  [LOGIN_TEMPLATE.TWO_COLUMN_LTR]: LoginLTR,
+  [LOGIN_TEMPLATE.TWO_COLUMN_RTL]: LoginRTL
 };
 
-const templateVariant = computed(
-  () => supportedTemplates[variant] ?? LoginSplit
-);
+const templateVariant = computed(() => supportedTemplates[variant] ?? LoginLTR);
 </script>
