@@ -2,14 +2,14 @@
   <div>
     <Link
       v-if="!button"
-      icon="arrow-left"
+      icon="flip-backward"
       :label="safeLabel"
       size="lg"
       class="font-medium"
     />
     <Button
       v-if="button"
-      icon="arrow-left"
+      icon="flip-backward"
       :label="safeLabel"
       variant="subtle"
       size="lg"
