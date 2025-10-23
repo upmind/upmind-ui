@@ -221,7 +221,8 @@ export const useBasket = () => {
   const count = computed(() =>
     sumBy<BasketProduct>(products.value, "configuration.quantity")
   );
-  const summary = useContext<BasketContext["summary"]>(state, "summary");
+  const attempts = useContext<BasketContext["attempts"]>(state, "attempts");
+  const summary = useContext<BasketContext["summary"]>(state, "summary", 0);
   const promotions = useContext<IBasketPromotion[]>(
     state,
     "basket.promotions",
@@ -580,6 +581,11 @@ export const useBasket = () => {
      * The total number of items in the basket (sum of all product quantities).
      */
     count,
+
+    /**
+     * The number of attempts tried (for checkout, etc).
+     */
+    attempts,
 
     /**
      * The list of promotions applied to the basket.
