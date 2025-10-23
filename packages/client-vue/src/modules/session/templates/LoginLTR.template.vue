@@ -25,9 +25,9 @@ import { useI18n } from "vue-i18n";
 // --- components
 import Layout from "../../../components/layout/Layout.vue";
 import Section from "../../../components/content/LayoutSection.vue";
-import LoginHeader from "./components/LoginHeader.vue";
-import LoginForm from "./components/LoginForm.vue";
-import LoginAside from "./components/LoginAside.vue";
+import LoginHeader from "../components/LoginHeader.vue";
+import LoginForm from "../components/LoginForm.vue";
+import LoginAside from "../components/LoginAside.vue";
 
 // --- types
 import { LAYOUT_VARIANTS } from "@upmind-automation/upmind-ui";

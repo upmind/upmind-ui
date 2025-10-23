@@ -7,11 +7,11 @@
 import { computed } from "vue";
 
 // --- components
-import LoginLTR from "./login/LoginLTR.vue";
-import LoginRTL from "./login/LoginRTL.vue";
-import LoginSplit from "./login/LoginSplit.vue";
-import LoginCanvasCard from "./login/LoginCanvasCard.vue";
-import LoginSurfaceBox from "./login/LoginSurfaceBox.vue";
+import LoginLTR from "./templates/LoginLTR.template.vue";
+import LoginRTL from "./templates/LoginRTL.template.vue";
+import LoginSplit from "./templates/LoginSplit.template.vue";
+import LoginCanvasCard from "./templates/LoginCanvasCard.template.vue";
+import LoginSurfaceBox from "./templates/LoginSurfaceBox.template.vue";
 
 // --- types
 import { LOGIN_TEMPLATE } from "./types";

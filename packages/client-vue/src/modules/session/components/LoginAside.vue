@@ -4,7 +4,7 @@
 
 <script lang="ts" setup>
 import { useBasket } from "@upmind-automation/headless";
-import Summary from "../../../basket/components/Summary.vue";
+import Summary from "../../basket/components/Summary.vue";
 
 const { meta } = useBasket();
 </script>

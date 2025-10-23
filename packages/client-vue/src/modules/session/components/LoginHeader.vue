@@ -20,7 +20,7 @@
 import { useI18n } from "vue-i18n";
 import { ROUTE } from "@upmind-automation/headless";
 import { Link } from "@upmind-automation/upmind-ui";
-import Header from "../../../../components/content/Header.vue";
+import Header from "../../../components/content/Header.vue";
 
 const { t } = useI18n();
 </script>

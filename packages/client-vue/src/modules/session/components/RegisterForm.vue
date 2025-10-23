@@ -52,7 +52,7 @@ import {
 
 // --- components
 import { Link } from "@upmind-automation/upmind-ui";
-import Auth from "../../components/Auth.vue";
+import Auth from "../components/Auth.vue";
 
 const { t } = useI18n();
 const { navigateNext, navigate, isResolved } = useRoutingEngine();

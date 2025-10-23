@@ -23,9 +23,9 @@ import { useI18n } from "vue-i18n";
 import { LAYOUT_VARIANTS } from "@upmind-automation/upmind-ui";
 import Layout from "../../../components/layout/Layout.vue";
 import Section from "../../../components/content/LayoutSection.vue";
-import RegisterHeader from "./components/RegisterHeader.vue";
-import RegisterForm from "./components/RegisterForm.vue";
-import RegisterAside from "./components/RegisterAside.vue";
+import RegisterHeader from "../components/RegisterHeader.vue";
+import RegisterForm from "../components/RegisterForm.vue";
+import RegisterAside from "../components/RegisterAside.vue";
 
 const { t } = useI18n();
 </script>

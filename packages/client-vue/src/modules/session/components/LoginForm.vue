@@ -13,8 +13,8 @@
 
 <script lang="ts" setup>
 import { useRoutingEngine, ROUTE } from "@upmind-automation/headless";
-import Auth from "../../components/Auth.vue";
-import type { AuthProps } from "../../types";
+import Auth from "../components/Auth.vue";
+import type { AuthProps } from "../types";
 
 const { navigateNext, navigateBack, navigate, isResolved } = useRoutingEngine();
 
