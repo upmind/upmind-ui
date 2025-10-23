@@ -55,7 +55,7 @@
           @update:modelValue="fieldsUpdate"
           no-actions
           autosave
-          :touched="route.hash === '#additional-details'"
+          :touched="meta.showErrors"
         />
       </Section>
 
@@ -163,7 +163,8 @@ const { t } = useI18n();
 
 const { navigateNext, navigateBack, isResolved } = useRoutingEngine();
 const { isAuthenticated } = useSession();
-const { meta, errors, isReady, summary, products, uischema } = useBasket();
+const { attempts, meta, errors, isReady, summary, products, uischema } =
+  useBasket();
 const { meta: paymentDetailsMeta } = useBasketPaymentDetails();
 const {
   errors: fieldsErrors,
@@ -281,7 +282,39 @@ const processingIcon = computed(() => {
 });
 
 // --- side effects
-const stop = watch(meta, value => {
+
+// scroll to our errors when we have a new failed attempt
+watch(attempts, (value, oldValue) => {
+  if ((value ?? 0) > (oldValue ?? 0)) {
+    // scroll to relevant section IF we have errors there AND that section is enabled
+
+    if (uischema.value.showProductsOnCheckout && !meta.value.hasProducts) {
+      document
+        .getElementById("basket-products")
+        ?.scrollIntoView({ behavior: "smooth" });
+      return;
+    }
+
+    if (uischema.value.showFieldsOnCheckout && !meta.value.hasFields) {
+      document
+        .getElementById("basket-fields")
+        ?.scrollIntoView({ behavior: "smooth" });
+      return;
+    }
+
+    if (uischema.value.showBillingOnCheckout && !meta.value.hasBilling) {
+      document
+        .getElementById("basket-billing")
+        ?.scrollIntoView({ behavior: "smooth" });
+      return;
+    }
+
+    // otherwise scroll to top where our general errors are
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+});
+
+const stop = watch(meta, (value, oldValue) => {
   if (value.isComplete) {
     navigateNext();
     stop();
