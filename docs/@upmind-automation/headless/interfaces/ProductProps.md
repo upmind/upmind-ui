@@ -2,8 +2,8 @@
 
 # ProductProps
 
-Represents the product model used for configuration.
-This is the model that is built and verified by the schema
+Interface defining the properties required to create or configure a product.
+It extends [ProductModel](../type-aliases/ProductModel.md) with additional client, currency, and promotion details.
 
 ## Extends
 
@@ -16,6 +16,8 @@ This is the model that is built and verified by the schema
 ```ts
 optional attributes: SubproductModel;
 ```
+
+Optional subproduct model for attributes.
 
 #### Inherited from
 
@@ -31,6 +33,9 @@ ProductModel.attributes
 optional bundle: string;
 ```
 
+An optional bundle ID. If provided, indicates that this product should apply
+a specific bundle configuration. If set to `false`, forces no bundles to be applied.
+
 ***
 
 ### clientId?
@@ -38,6 +43,8 @@ optional bundle: string;
 ```ts
 optional clientId: string;
 ```
+
+The ID of the client for whom the product is being configured.
 
 ***
 
@@ -47,6 +54,8 @@ optional clientId: string;
 optional coupons: string[];
 ```
 
+An array of coupon codes passed via URL or configuration that are not yet in the basket.
+
 ***
 
 ### currencyCode?
@@ -54,6 +63,8 @@ optional coupons: string[];
 ```ts
 optional currencyCode: ISO_4217_CURRENCY_CODE;
 ```
+
+The ISO code of the currency to use for pricing.
 
 ***
 
@@ -63,6 +74,8 @@ optional currencyCode: ISO_4217_CURRENCY_CODE;
 optional currencyId: string;
 ```
 
+The ID of the currency to use for pricing.
+
 ***
 
 ### id?
@@ -70,6 +83,8 @@ optional currencyId: string;
 ```ts
 optional id: string;
 ```
+
+The unique identifier of the product instance (if existing).
 
 #### Inherited from
 
@@ -85,6 +100,8 @@ ProductModel.id
 optional options: SubproductModel;
 ```
 
+Optional subproduct model for options.
+
 #### Inherited from
 
 ```ts
@@ -98,6 +115,8 @@ ProductModel.options
 ```ts
 productId: string;
 ```
+
+The unique identifier of the base product.
 
 #### Inherited from
 
@@ -113,6 +132,8 @@ ProductModel.productId
 optional promotions: IBasketPromotion[];
 ```
 
+An array of IBasketPromotion objects. These are needed to determine if the price needs recalculation.
+
 ***
 
 ### provisionFields?
@@ -120,6 +141,8 @@ optional promotions: IBasketPromotion[];
 ```ts
 optional provisionFields: Record<string, any>;
 ```
+
+Key-value pairs for provision field values.
 
 #### Inherited from
 
@@ -135,6 +158,8 @@ ProductModel.provisionFields
 quantity: number;
 ```
 
+The quantity of the product.
+
 #### Inherited from
 
 ```ts
@@ -149,6 +174,9 @@ ProductModel.quantity
 optional silent: boolean;
 ```
 
+If `true`, indicates that provision fields should not be validated, treating this
+as a bulk or background operation.
+
 ***
 
 ### subproducts?
@@ -157,6 +185,8 @@ optional silent: boolean;
 optional subproducts: string[];
 ```
 
+An array of IDs of subproducts passed via URL or configuration that are not yet in the model/config.
+
 ***
 
 ### term?
@@ -164,6 +194,8 @@ optional subproducts: string[];
 ```ts
 optional term: number;
 ```
+
+The selected billing term in months.
 
 #### Inherited from
 

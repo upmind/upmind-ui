@@ -6,13 +6,21 @@
 function useClientPhones(initial): object;
 ```
 
+Composable function for managing client phones.
+It handles fetching, displaying, filtering, and performing actions on client phones,
+leveraging an underlying service and TanStack Query for data management.
+
 ## Parameters
 
 ### initial
 
 [`QueryProps`](../type-aliases/QueryProps.md) = `...`
 
+Optional initial query parameters for loading the phone list. Defaults to pagination limit of 0.
+
 ## Returns
+
+The [UseClientPhones](../type-aliases/UseClientPhones.md) API for interacting with client phones.
 
 ### data
 
@@ -28,7 +36,7 @@ This is populated by the query and updates automatically when the query state ch
 ### default()
 
 ```ts
-default: (data) => undefined | Phone = getDefault;
+default: (data) => Phone | undefined = getDefault;
 ```
 
 The default item for the current client.
@@ -38,18 +46,18 @@ This is the phone that is set as default for the current client.
 
 ##### data
 
-`MaybeRef`\<`undefined` \| `null` \| [`Phone`](../interfaces/Phone.md)[]\> = `...`
+`MaybeRef`\<[`Phone`](../interfaces/Phone.md)[] \| `null` \| `undefined`\> = `...`
 
 #### Returns
 
-`undefined` \| [`Phone`](../interfaces/Phone.md)
+[`Phone`](../interfaces/Phone.md) \| `undefined`
 
 The default phone if found, is otherwise undefined.
 
 ### error
 
 ```ts
-error: Ref<null, null> | Ref<Error, Error> = query.error;
+error: Ref<Error, Error> | Ref<null, null> = query.error;
 ```
 
 The current error state of the query.
@@ -83,7 +91,7 @@ query: (value?) => void = filterQuery;
 ### findOne()
 
 ```ts
-findOne: (mapping, data, searchableProps) => undefined | Phone;
+findOne: (mapping, data, searchableProps) => Phone | undefined;
 ```
 
 Find a single phone based on the given param. The param is matched against the title and description.
@@ -98,7 +106,7 @@ The filter to match against the phone title and description.
 
 ##### data
 
-`MaybeRef`\<`undefined` \| `null` \| [`Phone`](../interfaces/Phone.md)[]\> = `...`
+`MaybeRef`\<[`Phone`](../interfaces/Phone.md)[] \| `null` \| `undefined`\> = `...`
 
 ##### searchableProps
 
@@ -106,14 +114,14 @@ The filter to match against the phone title and description.
 
 #### Returns
 
-`undefined` \| [`Phone`](../interfaces/Phone.md)
+[`Phone`](../interfaces/Phone.md) \| `undefined`
 
 The phone object if found, is otherwise undefined.
 
 ### getOne()
 
 ```ts
-getOne: (id?, data) => undefined | Phone;
+getOne: (id?, data) => Phone | undefined;
 ```
 
 Get a single phone by id.
@@ -128,18 +136,18 @@ The id of the phone to get.
 
 ##### data?
 
-`MaybeRef`\<`undefined` \| `null` \| [`Phone`](../interfaces/Phone.md)[]\> = `...`
+`MaybeRef`\<[`Phone`](../interfaces/Phone.md)[] \| `null` \| `undefined`\> = `...`
 
 #### Returns
 
-`undefined` \| [`Phone`](../interfaces/Phone.md)
+[`Phone`](../interfaces/Phone.md) \| `undefined`
 
 The phone object if found, is otherwise undefined.
 
 ### invalidate()
 
 ```ts
-invalidate: <T>(data?) => Promise<undefined | T>;
+invalidate: <T>(data?) => Promise<T | undefined>;
 ```
 
 Invalidate the query cache for client items.
@@ -159,7 +167,7 @@ This will trigger a refetch of the items when the next query is made.
 
 #### Returns
 
-`Promise`\<`undefined` \| `T`\>
+`Promise`\<`T` \| `undefined`\>
 
 ### isReady()
 

@@ -6,6 +6,8 @@
 type ProductSummaryDetail = object;
 ```
 
+Type alias for a product summary detail, providing name, title, cycle, and meta-information.
+
 ## Properties
 
 ### category?
@@ -13,6 +15,8 @@ type ProductSummaryDetail = object;
 ```ts
 optional category: string;
 ```
+
+The category name of the item.
 
 ***
 
@@ -22,6 +26,8 @@ optional category: string;
 optional cycle: number;
 ```
 
+The billing cycle duration in months for the item.
+
 ***
 
 ### error?
@@ -29,6 +35,8 @@ optional cycle: number;
 ```ts
 optional error: ValidationErrorObject[];
 ```
+
+Optional array of Ajv [ErrorObject](../interfaces/ValidationErrorObject.md) if there are validation errors.
 
 ***
 
@@ -38,6 +46,8 @@ optional error: ValidationErrorObject[];
 meta: ProductSummaryMeta;
 ```
 
+Meta-information about this summary detail.
+
 ***
 
 ### name
@@ -45,6 +55,8 @@ meta: ProductSummaryMeta;
 ```ts
 name: string;
 ```
+
+The untranslated name of the item, often used for reporting purposes.
 
 ***
 
@@ -54,6 +66,8 @@ name: string;
 optional promotions: PromotionDetails[];
 ```
 
+An array of [PromotionDetails](PromotionDetails.md) applied to this item.
+
 ***
 
 ### quantity?
@@ -62,6 +76,8 @@ optional promotions: PromotionDetails[];
 optional quantity: number;
 ```
 
+The quantity of the item.
+
 ***
 
 ### title?
@@ -69,3 +85,5 @@ optional quantity: number;
 ```ts
 optional title: string;
 ```
+
+The display title of the item, typically translated.

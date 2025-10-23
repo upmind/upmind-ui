@@ -2,6 +2,9 @@
 
 # PaginationInfo
 
+Interface representing comprehensive pagination information, typically returned
+by an API to describe the current state of paginated results.
+
 ## Properties
 
 ### from
@@ -9,6 +12,8 @@
 ```ts
 from: number;
 ```
+
+The index of the first item on the current page (1-indexed).
 
 ***
 
@@ -18,6 +23,8 @@ from: number;
 limit: number;
 ```
 
+The maximum number of items per page.
+
 ***
 
 ### page
@@ -25,6 +32,8 @@ limit: number;
 ```ts
 page: number;
 ```
+
+The current page number (1-indexed).
 
 ***
 
@@ -34,6 +43,8 @@ page: number;
 pages: number;
 ```
 
+The total number of available pages.
+
 ***
 
 ### to
@@ -42,6 +53,8 @@ pages: number;
 to: number;
 ```
 
+The index of the last item on the current page (1-indexed).
+
 ***
 
 ### total
@@ -49,3 +62,5 @@ to: number;
 ```ts
 total: number;
 ```
+
+The total number of items available across all pages.

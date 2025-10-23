@@ -6,21 +6,57 @@
 function useClientSlots(): object;
 ```
 
+Composable function to provide reactive state and methods to manage and interact with client area templates (slots).
+This includes state management for query meta-information, error handling, data retrieval,
+and operational methods such as fetching and invalidating data.
+
 ## Returns
 
 ### data
 
 ```ts
-data: undefined | Ref<ClientTemplateSlot[], ClientTemplateSlot[]> = query.data;
+data: object = query.data;
 ```
 
 The reactive data property containing the list of client area templates.
 This is populated by the query and can be used in templates.
 
+#### data.\[ComputedRefSymbol\]
+
+```ts
+[ComputedRefSymbol]: true;
+```
+
+#### data.\[RefSymbol\]
+
+```ts
+[RefSymbol]: true;
+```
+
+Type differentiator only.
+We need this to be in public d.ts but don't want it to show up in IDE
+autocomplete, so we use a private Symbol instead.
+
+#### data.effect
+
+```ts
+effect: ComputedRefImpl;
+```
+
+##### Deprecated
+
+computed no longer uses effect
+
+#### data.value
+
+```ts
+value: ClientTemplateSlot[];
+```
+
 ### error
 
 ```ts
-error: undefined | Ref<null, null> | Ref<Error, Error> = query.error;
+error: Ref<Error, Error> | Ref<null, null> = query.error;
 ```
 
 The current error state of the query.
@@ -29,7 +65,7 @@ This will be populated if the query fails to fetch data.
 ### findOne()
 
 ```ts
-findOne: (mapping, data, searchableProps) => undefined | ClientTemplateSlot;
+findOne: (mapping, data, searchableProps) => ClientTemplateSlot | undefined;
 ```
 
 Find a single client area template based on the given param. The param is matched against the title, code and description.
@@ -44,7 +80,7 @@ The filter to match against the client area template title, code and description
 
 ##### data
 
-`MaybeRef`\<`undefined` \| `null` \| `ClientTemplateSlot`[]\> = `...`
+`MaybeRef`\<`ClientTemplateSlot`[] \| `null` \| `undefined`\> = `...`
 
 ##### searchableProps
 
@@ -52,14 +88,14 @@ The filter to match against the client area template title, code and description
 
 #### Returns
 
-`undefined` \| `ClientTemplateSlot`
+`ClientTemplateSlot` \| `undefined`
 
 The client area template if found, otherwise undefined.
 
 ### getOne()
 
 ```ts
-getOne: (id?, data) => undefined | ClientTemplateSlot;
+getOne: (id?, data) => ClientTemplateSlot | undefined;
 ```
 
 Get a single client area template by id.
@@ -74,18 +110,18 @@ The id of the client area template to get.
 
 ##### data?
 
-`MaybeRef`\<`undefined` \| `null` \| `ClientTemplateSlot`[]\> = `...`
+`MaybeRef`\<`ClientTemplateSlot`[] \| `null` \| `undefined`\> = `...`
 
 #### Returns
 
-`undefined` \| `ClientTemplateSlot`
+`ClientTemplateSlot` \| `undefined`
 
 The client area template if found, otherwise undefined.
 
 ### invalidate()
 
 ```ts
-invalidate: <T>(data?) => Promise<undefined | T>;
+invalidate: <T>(data?) => Promise<T | undefined>;
 ```
 
 Invalidate the query cache for the client area templates.
@@ -105,7 +141,7 @@ This will trigger a refetch of the items when the next query is made.
 
 #### Returns
 
-`Promise`\<`undefined` \| `T`\>
+`Promise`\<`T` \| `undefined`\>
 
 ### isReady()
 
@@ -138,9 +174,7 @@ Meta-information about the client area templates query.
 ### refresh()
 
 ```ts
-refresh: () => 
-  | undefined
-| Promise<QueryObserverResult<ClientTemplateSlot[], Error>>;
+refresh: () => Promise<QueryObserverResult<ClientTemplateSlot[], Error>>;
 ```
 
 Refresh the query to get the latest data.
@@ -148,5 +182,4 @@ This will refetch the data from the server and update the query state.
 
 #### Returns
 
-  \| `undefined`
-  \| `Promise`\<`QueryObserverResult`\<`ClientTemplateSlot`[], `Error`\>\>
+`Promise`\<`QueryObserverResult`\<`ClientTemplateSlot`[], `Error`\>\>

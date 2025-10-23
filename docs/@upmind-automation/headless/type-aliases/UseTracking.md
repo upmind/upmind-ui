@@ -6,4 +6,4 @@
 type UseTracking = ReturnType<typeof useTracking>;
 ```
 
-The return type of useTracking composable.
+The return type of [useTracking](../functions/useTracking.md) composable.

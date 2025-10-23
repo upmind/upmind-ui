@@ -2,6 +2,10 @@
 
 # GatewayContext
 
+Interface representing the context for a payment gateway, typically managed by an XState machine.
+It holds the state for payment forms, gateway integration elements, order details,
+and configuration specific to the payment flow.
+
 ## Properties
 
 ### amount?
@@ -9,6 +13,8 @@
 ```ts
 optional amount: number;
 ```
+
+The numerical amount of the payment.
 
 ***
 
@@ -18,6 +24,8 @@ optional amount: number;
 optional can_store: boolean;
 ```
 
+`true` if the selected payment method can be stored for future use.
+
 ***
 
 ### card?
@@ -25,6 +33,8 @@ optional can_store: boolean;
 ```ts
 optional card: any;
 ```
+
+Card-specific gateway object or instance.
 
 ***
 
@@ -34,6 +44,8 @@ optional card: any;
 optional code: string;
 ```
 
+A code associated with the payment operation (e.g. a transfer code).
+
 ***
 
 ### ctx?
@@ -41,6 +53,8 @@ optional code: string;
 ```ts
 optional ctx: GatewayCtx;
 ```
+
+The [GatewayCtx](../enumerations/GatewayCtx.md) defining whether the gateway is used for paying or adding a detail.
 
 ***
 
@@ -50,6 +64,8 @@ optional ctx: GatewayCtx;
 optional currency: ICurrency;
 ```
 
+The ICurrency object relevant to the payment amount.
+
 ***
 
 ### element?
@@ -57,6 +73,8 @@ optional currency: ICurrency;
 ```ts
 optional element: any;
 ```
+
+A specific payment UI element (e.g. a card input field).
 
 ***
 
@@ -66,6 +84,8 @@ optional element: any;
 optional elements: any;
 ```
 
+Gateway-specific UI elements manager (e.g. Stripe Elements).
+
 ***
 
 ### error?
@@ -73,6 +93,8 @@ optional elements: any;
 ```ts
 optional error: ResponseError;
 ```
+
+An error object if any issue occurred during payment gateway operations.
 
 ***
 
@@ -82,6 +104,8 @@ optional error: ResponseError;
 optional gateway: IGateway;
 ```
 
+The IGateway object representing the selected payment gateway.
+
 ***
 
 ### model?
@@ -89,6 +113,8 @@ optional gateway: IGateway;
 ```ts
 optional model: any;
 ```
+
+The data model of the payment form, holding user input.
 
 ***
 
@@ -98,6 +124,8 @@ optional model: any;
 optional must_auto_pay: boolean;
 ```
 
+`true` if auto-payment should be enabled for stored payment details.
+
 ***
 
 ### must\_store?
@@ -105,6 +133,8 @@ optional must_auto_pay: boolean;
 ```ts
 optional must_store: boolean;
 ```
+
+`true` if the selected payment method *must* be stored for future use (e.g. for Direct Debit mandates).
 
 ***
 
@@ -114,6 +144,8 @@ optional must_store: boolean;
 optional operation_id: string;
 ```
 
+A unique identifier for the payment operation.
+
 ***
 
 ### orderId?
@@ -121,6 +153,8 @@ optional operation_id: string;
 ```ts
 optional orderId: string;
 ```
+
+The unique identifier of the order associated with this payment.
 
 ***
 
@@ -130,6 +164,9 @@ optional orderId: string;
 optional paymentDetails: any;
 ```
 
+The payment details the object, which will contain the response from the payment gateway
+(e.g. Stripe) as well as any model data.
+
 ***
 
 ### renderer?
@@ -137,6 +174,8 @@ optional paymentDetails: any;
 ```ts
 optional renderer: Function;
 ```
+
+An optional function to render gateway-specific UI components based on status.
 
 ***
 
@@ -146,6 +185,8 @@ optional renderer: Function;
 optional renderless: boolean;
 ```
 
+`true` if the gateway integration should operate in a renderless mode (no UI from gateway itself).
+
 ***
 
 ### schema?
@@ -153,6 +194,8 @@ optional renderless: boolean;
 ```ts
 optional schema: JsonSchema;
 ```
+
+The JSON Schema (`JsonSchema`) defining the structure and validation rules for the payment form.
 
 ***
 
@@ -162,6 +205,8 @@ optional schema: JsonSchema;
 optional stored_payment_methods: any[];
 ```
 
+An array of stored payment methods available to the user.
+
 ***
 
 ### type?
@@ -170,6 +215,8 @@ optional stored_payment_methods: any[];
 optional type: GatewayTypes;
 ```
 
+The specific [GatewayTypes](../enumerations/GatewayTypes.md) of the payment method being used.
+
 ***
 
 ### uischema?
@@ -177,3 +224,5 @@ optional type: GatewayTypes;
 ```ts
 optional uischema: UISchemaElement;
 ```
+
+The UI Schema (`UISchemaElement`) used to configure the presentation and layout of the payment form.

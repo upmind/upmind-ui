@@ -33,6 +33,10 @@ let service = interpret(recaptchaMachine, { devTools: true });
 
 // -----------------------------------------------------------------------------
 
+/**
+ * Composable function to provide functionality for managing reCAPTCHA services.
+ * It includes methods for initialising, generating tokens, checking readiness, and handling reCAPTCHA state.
+ */
 export const useRecaptcha = () => {
   // --- state
   const { t } = useI18n();
@@ -184,7 +188,5 @@ export const useRecaptcha = () => {
   };
 };
 
-/**
- * The return type of useSystem composable.
- */
+/** The return type of {@link useRecaptcha} composable. */
 export type useRecaptcha = ReturnType<typeof useRecaptcha>;

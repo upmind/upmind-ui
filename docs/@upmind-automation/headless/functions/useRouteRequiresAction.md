@@ -6,6 +6,9 @@
 function useRouteRequiresAction(): object;
 ```
 
+Provides utilities to determine if any basket products require user action,
+such as completing pending actions, fixing invalid products, or addressing related items.
+
 ## Returns
 
 `object`
@@ -14,32 +17,31 @@ function useRouteRequiresAction(): object;
 
 ```ts
 getNext: (currentBasketItem?, types) => 
-  | null
   | string
   | BasketProduct
   | <TResult1, TResult2>(onfulfilled?, onrejected?) => Promise<TResult1 | TResult2>
   | <TResult>(onrejected?) => Promise<
   | {
   additionalErrors: ComputedRef<
-     | undefined
      | {
      attributes?: any;
      options?: any;
      provisionFields?: any;
      term?: any;
-  }>;
+   }
+    | undefined>;
   attributes: ComputedRef<SubproductDetails[]>;
   coupons: string[];
   decrementOption: (option, valueId) => Promise<void>;
   decrementQuantity: () => Promise<void>;
   errors: ComputedRef<
-     | undefined
      | {
      attributes?: any;
      options?: any;
      provisionFields?: any;
      term?: any;
-  }>;
+   }
+    | undefined>;
   fields: ComputedRef<Record<string, any>>;
   getProvisioningField: (field) => any;
   id: string;
@@ -51,11 +53,11 @@ getNext: (currentBasketItem?, types) =>
   isSelectedTerm: (value) => boolean;
   lookups: ComputedRef<any>;
   meta: ComputedRef<UseProductConfigMeta>;
-  model: ComputedRef<undefined | ProductModel>;
+  model: ComputedRef<ProductModel | undefined>;
   onDone: () => Promise<unknown>;
   options: ComputedRef<SubproductDetails[]>;
-  product: ComputedRef<undefined | Product>;
-  productImage: (size) => undefined | string;
+  product: ComputedRef<Product | undefined>;
+  productImage: (size) => string | undefined;
   reset: () => void;
   service: ActorRef<any, any>;
   setAttributes: (attribute, values) => Promise<void>;
@@ -70,36 +72,36 @@ getNext: (currentBasketItem?, types) =>
   updateQuantity: (value) => Promise<void>;
   updateTerm: (value) => Promise<void>;
   validationErrors: ComputedRef<
-     | undefined
      | {
      attributes?: any;
      options?: any;
      provisionFields?: any;
      term?: any;
-  }>;
+   }
+    | undefined>;
 }
   | TResult>
   | (onfinally?) => Promise<{
   additionalErrors: ComputedRef<
-     | undefined
      | {
      attributes?: any;
      options?: any;
      provisionFields?: any;
      term?: any;
-  }>;
+   }
+    | undefined>;
   attributes: ComputedRef<SubproductDetails[]>;
   coupons: string[];
   decrementOption: (option, valueId) => Promise<void>;
   decrementQuantity: () => Promise<void>;
   errors: ComputedRef<
-     | undefined
      | {
      attributes?: any;
      options?: any;
      provisionFields?: any;
      term?: any;
-  }>;
+   }
+    | undefined>;
   fields: ComputedRef<Record<string, any>>;
   getProvisioningField: (field) => any;
   id: string;
@@ -111,11 +113,11 @@ getNext: (currentBasketItem?, types) =>
   isSelectedTerm: (value) => boolean;
   lookups: ComputedRef<any>;
   meta: ComputedRef<UseProductConfigMeta>;
-  model: ComputedRef<undefined | ProductModel>;
+  model: ComputedRef<ProductModel | undefined>;
   onDone: () => Promise<unknown>;
   options: ComputedRef<SubproductDetails[]>;
-  product: ComputedRef<undefined | Product>;
-  productImage: (size) => undefined | string;
+  product: ComputedRef<Product | undefined>;
+  productImage: (size) => string | undefined;
   reset: () => void;
   service: ActorRef<any, any>;
   setAttributes: (attribute, values) => Promise<void>;
@@ -130,14 +132,15 @@ getNext: (currentBasketItem?, types) =>
   updateQuantity: (value) => Promise<void>;
   updateTerm: (value) => Promise<void>;
   validationErrors: ComputedRef<
-     | undefined
      | {
      attributes?: any;
      options?: any;
      provisionFields?: any;
      term?: any;
-  }>;
-}>;
+   }
+    | undefined>;
+}>
+  | null;
 ```
 
 #### Parameters
@@ -151,8 +154,6 @@ getNext: (currentBasketItem?, types) =>
 [`REQUIRES_ACTION`](../enumerations/REQUIRES_ACTION.md)[] = `...`
 
 #### Returns
-
-`null`
 
 `string`
 
@@ -170,25 +171,25 @@ Attaches callbacks for the resolution and/or rejection of the Promise.
 
 `TResult1` = \{
   `additionalErrors`: `ComputedRef`\<
-     \| `undefined`
      \| \{
      `attributes?`: `any`;
      `options?`: `any`;
      `provisionFields?`: `any`;
      `term?`: `any`;
-  \}\>;
+   \}
+    \| `undefined`\>;
   `attributes`: `ComputedRef`\<[`SubproductDetails`](../type-aliases/SubproductDetails.md)[]\>;
   `coupons`: `string`[];
   `decrementOption`: (`option`, `valueId`) => `Promise`\<`void`\>;
   `decrementQuantity`: () => `Promise`\<`void`\>;
   `errors`: `ComputedRef`\<
-     \| `undefined`
      \| \{
      `attributes?`: `any`;
      `options?`: `any`;
      `provisionFields?`: `any`;
      `term?`: `any`;
-  \}\>;
+   \}
+    \| `undefined`\>;
   `fields`: `ComputedRef`\<`Record`\<`string`, `any`\>\>;
   `getProvisioningField`: (`field`) => `any`;
   `id`: `string`;
@@ -200,11 +201,11 @@ Attaches callbacks for the resolution and/or rejection of the Promise.
   `isSelectedTerm`: (`value`) => `boolean`;
   `lookups`: `ComputedRef`\<`any`\>;
   `meta`: `ComputedRef`\<[`UseProductConfigMeta`](../type-aliases/UseProductConfigMeta.md)\>;
-  `model`: `ComputedRef`\<`undefined` \| [`ProductModel`](../type-aliases/ProductModel.md)\>;
+  `model`: `ComputedRef`\<[`ProductModel`](../type-aliases/ProductModel.md) \| `undefined`\>;
   `onDone`: () => `Promise`\<`unknown`\>;
   `options`: `ComputedRef`\<[`SubproductDetails`](../type-aliases/SubproductDetails.md)[]\>;
-  `product`: `ComputedRef`\<`undefined` \| [`Product`](../type-aliases/Product.md)\>;
-  `productImage`: (`size`) => `undefined` \| `string`;
+  `product`: `ComputedRef`\<[`Product`](../type-aliases/Product.md) \| `undefined`\>;
+  `productImage`: (`size`) => `string` \| `undefined`;
   `reset`: () => `void`;
   `service`: `ActorRef`\<`any`, `any`\>;
   `setAttributes`: (`attribute`, `values`) => `Promise`\<`void`\>;
@@ -219,13 +220,13 @@ Attaches callbacks for the resolution and/or rejection of the Promise.
   `updateQuantity`: (`value`) => `Promise`\<`void`\>;
   `updateTerm`: (`value`) => `Promise`\<`void`\>;
   `validationErrors`: `ComputedRef`\<
-     \| `undefined`
      \| \{
      `attributes?`: `any`;
      `options?`: `any`;
      `provisionFields?`: `any`;
      `term?`: `any`;
-  \}\>;
+   \}
+    \| `undefined`\>;
 \}
 
 ##### TResult2
@@ -238,13 +239,13 @@ Attaches callbacks for the resolution and/or rejection of the Promise.
 
 The callback to execute when the Promise is resolved.
 
-`null` | (`value`) => `TResult1` \| `PromiseLike`\<`TResult1`\>
+(`value`) => `TResult1` \| `PromiseLike`\<`TResult1`\> | `null`
 
 ##### onrejected?
 
 The callback to execute when the Promise is rejected.
 
-`null` | (`reason`) => `TResult2` \| `PromiseLike`\<`TResult2`\>
+(`reason`) => `TResult2` \| `PromiseLike`\<`TResult2`\> | `null`
 
 #### Returns
 
@@ -256,25 +257,25 @@ A Promise for the completion of which ever callback is executed.
 <TResult>(onrejected?) => Promise<
   | {
   additionalErrors: ComputedRef<
-     | undefined
      | {
      attributes?: any;
      options?: any;
      provisionFields?: any;
      term?: any;
-  }>;
+   }
+    | undefined>;
   attributes: ComputedRef<SubproductDetails[]>;
   coupons: string[];
   decrementOption: (option, valueId) => Promise<void>;
   decrementQuantity: () => Promise<void>;
   errors: ComputedRef<
-     | undefined
      | {
      attributes?: any;
      options?: any;
      provisionFields?: any;
      term?: any;
-  }>;
+   }
+    | undefined>;
   fields: ComputedRef<Record<string, any>>;
   getProvisioningField: (field) => any;
   id: string;
@@ -286,11 +287,11 @@ A Promise for the completion of which ever callback is executed.
   isSelectedTerm: (value) => boolean;
   lookups: ComputedRef<any>;
   meta: ComputedRef<UseProductConfigMeta>;
-  model: ComputedRef<undefined | ProductModel>;
+  model: ComputedRef<ProductModel | undefined>;
   onDone: () => Promise<unknown>;
   options: ComputedRef<SubproductDetails[]>;
-  product: ComputedRef<undefined | Product>;
-  productImage: (size) => undefined | string;
+  product: ComputedRef<Product | undefined>;
+  productImage: (size) => string | undefined;
   reset: () => void;
   service: ActorRef<any, any>;
   setAttributes: (attribute, values) => Promise<void>;
@@ -305,13 +306,13 @@ A Promise for the completion of which ever callback is executed.
   updateQuantity: (value) => Promise<void>;
   updateTerm: (value) => Promise<void>;
   validationErrors: ComputedRef<
-     | undefined
      | {
      attributes?: any;
      options?: any;
      provisionFields?: any;
      term?: any;
-  }>;
+   }
+    | undefined>;
 }
 | TResult>
 ```
@@ -330,32 +331,32 @@ Attaches a callback for only the rejection of the Promise.
 
 The callback to execute when the Promise is rejected.
 
-`null` | (`reason`) => `TResult` \| `PromiseLike`\<`TResult`\>
+(`reason`) => `TResult` \| `PromiseLike`\<`TResult`\> | `null`
 
 #### Returns
 
 `Promise`\<
   \| \{
   `additionalErrors`: `ComputedRef`\<
-     \| `undefined`
      \| \{
      `attributes?`: `any`;
      `options?`: `any`;
      `provisionFields?`: `any`;
      `term?`: `any`;
-  \}\>;
+   \}
+    \| `undefined`\>;
   `attributes`: `ComputedRef`\<[`SubproductDetails`](../type-aliases/SubproductDetails.md)[]\>;
   `coupons`: `string`[];
   `decrementOption`: (`option`, `valueId`) => `Promise`\<`void`\>;
   `decrementQuantity`: () => `Promise`\<`void`\>;
   `errors`: `ComputedRef`\<
-     \| `undefined`
      \| \{
      `attributes?`: `any`;
      `options?`: `any`;
      `provisionFields?`: `any`;
      `term?`: `any`;
-  \}\>;
+   \}
+    \| `undefined`\>;
   `fields`: `ComputedRef`\<`Record`\<`string`, `any`\>\>;
   `getProvisioningField`: (`field`) => `any`;
   `id`: `string`;
@@ -367,11 +368,11 @@ The callback to execute when the Promise is rejected.
   `isSelectedTerm`: (`value`) => `boolean`;
   `lookups`: `ComputedRef`\<`any`\>;
   `meta`: `ComputedRef`\<[`UseProductConfigMeta`](../type-aliases/UseProductConfigMeta.md)\>;
-  `model`: `ComputedRef`\<`undefined` \| [`ProductModel`](../type-aliases/ProductModel.md)\>;
+  `model`: `ComputedRef`\<[`ProductModel`](../type-aliases/ProductModel.md) \| `undefined`\>;
   `onDone`: () => `Promise`\<`unknown`\>;
   `options`: `ComputedRef`\<[`SubproductDetails`](../type-aliases/SubproductDetails.md)[]\>;
-  `product`: `ComputedRef`\<`undefined` \| [`Product`](../type-aliases/Product.md)\>;
-  `productImage`: (`size`) => `undefined` \| `string`;
+  `product`: `ComputedRef`\<[`Product`](../type-aliases/Product.md) \| `undefined`\>;
+  `productImage`: (`size`) => `string` \| `undefined`;
   `reset`: () => `void`;
   `service`: `ActorRef`\<`any`, `any`\>;
   `setAttributes`: (`attribute`, `values`) => `Promise`\<`void`\>;
@@ -386,13 +387,13 @@ The callback to execute when the Promise is rejected.
   `updateQuantity`: (`value`) => `Promise`\<`void`\>;
   `updateTerm`: (`value`) => `Promise`\<`void`\>;
   `validationErrors`: `ComputedRef`\<
-     \| `undefined`
      \| \{
      `attributes?`: `any`;
      `options?`: `any`;
      `provisionFields?`: `any`;
      `term?`: `any`;
-  \}\>;
+   \}
+    \| `undefined`\>;
 \}
   \| `TResult`\>
 
@@ -401,25 +402,25 @@ A Promise for the completion of the callback.
 ```ts
 (onfinally?) => Promise<{
   additionalErrors: ComputedRef<
-     | undefined
      | {
      attributes?: any;
      options?: any;
      provisionFields?: any;
      term?: any;
-  }>;
+   }
+    | undefined>;
   attributes: ComputedRef<SubproductDetails[]>;
   coupons: string[];
   decrementOption: (option, valueId) => Promise<void>;
   decrementQuantity: () => Promise<void>;
   errors: ComputedRef<
-     | undefined
      | {
      attributes?: any;
      options?: any;
      provisionFields?: any;
      term?: any;
-  }>;
+   }
+    | undefined>;
   fields: ComputedRef<Record<string, any>>;
   getProvisioningField: (field) => any;
   id: string;
@@ -431,11 +432,11 @@ A Promise for the completion of the callback.
   isSelectedTerm: (value) => boolean;
   lookups: ComputedRef<any>;
   meta: ComputedRef<UseProductConfigMeta>;
-  model: ComputedRef<undefined | ProductModel>;
+  model: ComputedRef<ProductModel | undefined>;
   onDone: () => Promise<unknown>;
   options: ComputedRef<SubproductDetails[]>;
-  product: ComputedRef<undefined | Product>;
-  productImage: (size) => undefined | string;
+  product: ComputedRef<Product | undefined>;
+  productImage: (size) => string | undefined;
   reset: () => void;
   service: ActorRef<any, any>;
   setAttributes: (attribute, values) => Promise<void>;
@@ -450,13 +451,13 @@ A Promise for the completion of the callback.
   updateQuantity: (value) => Promise<void>;
   updateTerm: (value) => Promise<void>;
   validationErrors: ComputedRef<
-     | undefined
      | {
      attributes?: any;
      options?: any;
      provisionFields?: any;
      term?: any;
-  }>;
+   }
+    | undefined>;
 }>
 ```
 
@@ -469,31 +470,31 @@ resolved value cannot be modified from the callback.
 
 The callback to execute when the Promise is settled (fulfilled or rejected).
 
-`null` | () => `void`
+() => `void` | `null`
 
 #### Returns
 
 `Promise`\<\{
   `additionalErrors`: `ComputedRef`\<
-     \| `undefined`
      \| \{
      `attributes?`: `any`;
      `options?`: `any`;
      `provisionFields?`: `any`;
      `term?`: `any`;
-  \}\>;
+   \}
+    \| `undefined`\>;
   `attributes`: `ComputedRef`\<[`SubproductDetails`](../type-aliases/SubproductDetails.md)[]\>;
   `coupons`: `string`[];
   `decrementOption`: (`option`, `valueId`) => `Promise`\<`void`\>;
   `decrementQuantity`: () => `Promise`\<`void`\>;
   `errors`: `ComputedRef`\<
-     \| `undefined`
      \| \{
      `attributes?`: `any`;
      `options?`: `any`;
      `provisionFields?`: `any`;
      `term?`: `any`;
-  \}\>;
+   \}
+    \| `undefined`\>;
   `fields`: `ComputedRef`\<`Record`\<`string`, `any`\>\>;
   `getProvisioningField`: (`field`) => `any`;
   `id`: `string`;
@@ -505,11 +506,11 @@ The callback to execute when the Promise is settled (fulfilled or rejected).
   `isSelectedTerm`: (`value`) => `boolean`;
   `lookups`: `ComputedRef`\<`any`\>;
   `meta`: `ComputedRef`\<[`UseProductConfigMeta`](../type-aliases/UseProductConfigMeta.md)\>;
-  `model`: `ComputedRef`\<`undefined` \| [`ProductModel`](../type-aliases/ProductModel.md)\>;
+  `model`: `ComputedRef`\<[`ProductModel`](../type-aliases/ProductModel.md) \| `undefined`\>;
   `onDone`: () => `Promise`\<`unknown`\>;
   `options`: `ComputedRef`\<[`SubproductDetails`](../type-aliases/SubproductDetails.md)[]\>;
-  `product`: `ComputedRef`\<`undefined` \| [`Product`](../type-aliases/Product.md)\>;
-  `productImage`: (`size`) => `undefined` \| `string`;
+  `product`: `ComputedRef`\<[`Product`](../type-aliases/Product.md) \| `undefined`\>;
+  `productImage`: (`size`) => `string` \| `undefined`;
   `reset`: () => `void`;
   `service`: `ActorRef`\<`any`, `any`\>;
   `setAttributes`: (`attribute`, `values`) => `Promise`\<`void`\>;
@@ -524,21 +525,23 @@ The callback to execute when the Promise is settled (fulfilled or rejected).
   `updateQuantity`: (`value`) => `Promise`\<`void`\>;
   `updateTerm`: (`value`) => `Promise`\<`void`\>;
   `validationErrors`: `ComputedRef`\<
-     \| `undefined`
      \| \{
      `attributes?`: `any`;
      `options?`: `any`;
      `provisionFields?`: `any`;
      `term?`: `any`;
-  \}\>;
+   \}
+    \| `undefined`\>;
 \}\>
 
 A Promise for the completion of the callback.
 
+`null`
+
 ### getNextInvalid()
 
 ```ts
-getNextInvalid: (current?) => undefined | BasketProduct;
+getNextInvalid: (current?) => BasketProduct | undefined;
 ```
 
 #### Parameters
@@ -549,37 +552,36 @@ getNextInvalid: (current?) => undefined | BasketProduct;
 
 #### Returns
 
-`undefined` \| [`BasketProduct`](../interfaces/BasketProduct.md)
+[`BasketProduct`](../interfaces/BasketProduct.md) \| `undefined`
 
 ### getNextPending()
 
 ```ts
 getNextPending: (current?) => 
-  | undefined
   | string
   | <TResult1, TResult2>(onfulfilled?, onrejected?) => Promise<TResult1 | TResult2>
   | <TResult>(onrejected?) => Promise<
   | {
   additionalErrors: ComputedRef<
-     | undefined
      | {
      attributes?: any;
      options?: any;
      provisionFields?: any;
      term?: any;
-  }>;
+   }
+    | undefined>;
   attributes: ComputedRef<SubproductDetails[]>;
   coupons: string[];
   decrementOption: (option, valueId) => Promise<void>;
   decrementQuantity: () => Promise<void>;
   errors: ComputedRef<
-     | undefined
      | {
      attributes?: any;
      options?: any;
      provisionFields?: any;
      term?: any;
-  }>;
+   }
+    | undefined>;
   fields: ComputedRef<Record<string, any>>;
   getProvisioningField: (field) => any;
   id: string;
@@ -591,11 +593,11 @@ getNextPending: (current?) =>
   isSelectedTerm: (value) => boolean;
   lookups: ComputedRef<any>;
   meta: ComputedRef<UseProductConfigMeta>;
-  model: ComputedRef<undefined | ProductModel>;
+  model: ComputedRef<ProductModel | undefined>;
   onDone: () => Promise<unknown>;
   options: ComputedRef<SubproductDetails[]>;
-  product: ComputedRef<undefined | Product>;
-  productImage: (size) => undefined | string;
+  product: ComputedRef<Product | undefined>;
+  productImage: (size) => string | undefined;
   reset: () => void;
   service: ActorRef<any, any>;
   setAttributes: (attribute, values) => Promise<void>;
@@ -610,36 +612,36 @@ getNextPending: (current?) =>
   updateQuantity: (value) => Promise<void>;
   updateTerm: (value) => Promise<void>;
   validationErrors: ComputedRef<
-     | undefined
      | {
      attributes?: any;
      options?: any;
      provisionFields?: any;
      term?: any;
-  }>;
+   }
+    | undefined>;
 }
   | TResult>
   | (onfinally?) => Promise<{
   additionalErrors: ComputedRef<
-     | undefined
      | {
      attributes?: any;
      options?: any;
      provisionFields?: any;
      term?: any;
-  }>;
+   }
+    | undefined>;
   attributes: ComputedRef<SubproductDetails[]>;
   coupons: string[];
   decrementOption: (option, valueId) => Promise<void>;
   decrementQuantity: () => Promise<void>;
   errors: ComputedRef<
-     | undefined
      | {
      attributes?: any;
      options?: any;
      provisionFields?: any;
      term?: any;
-  }>;
+   }
+    | undefined>;
   fields: ComputedRef<Record<string, any>>;
   getProvisioningField: (field) => any;
   id: string;
@@ -651,11 +653,11 @@ getNextPending: (current?) =>
   isSelectedTerm: (value) => boolean;
   lookups: ComputedRef<any>;
   meta: ComputedRef<UseProductConfigMeta>;
-  model: ComputedRef<undefined | ProductModel>;
+  model: ComputedRef<ProductModel | undefined>;
   onDone: () => Promise<unknown>;
   options: ComputedRef<SubproductDetails[]>;
-  product: ComputedRef<undefined | Product>;
-  productImage: (size) => undefined | string;
+  product: ComputedRef<Product | undefined>;
+  productImage: (size) => string | undefined;
   reset: () => void;
   service: ActorRef<any, any>;
   setAttributes: (attribute, values) => Promise<void>;
@@ -670,14 +672,15 @@ getNextPending: (current?) =>
   updateQuantity: (value) => Promise<void>;
   updateTerm: (value) => Promise<void>;
   validationErrors: ComputedRef<
-     | undefined
      | {
      attributes?: any;
      options?: any;
      provisionFields?: any;
      term?: any;
-  }>;
-}>;
+   }
+    | undefined>;
+}>
+  | undefined;
 ```
 
 #### Parameters
@@ -687,8 +690,6 @@ getNextPending: (current?) =>
 `ActorRef`\<`any`, `any`\>
 
 #### Returns
-
-`undefined`
 
 `string`
 
@@ -704,25 +705,25 @@ Attaches callbacks for the resolution and/or rejection of the Promise.
 
 `TResult1` = \{
   `additionalErrors`: `ComputedRef`\<
-     \| `undefined`
      \| \{
      `attributes?`: `any`;
      `options?`: `any`;
      `provisionFields?`: `any`;
      `term?`: `any`;
-  \}\>;
+   \}
+    \| `undefined`\>;
   `attributes`: `ComputedRef`\<[`SubproductDetails`](../type-aliases/SubproductDetails.md)[]\>;
   `coupons`: `string`[];
   `decrementOption`: (`option`, `valueId`) => `Promise`\<`void`\>;
   `decrementQuantity`: () => `Promise`\<`void`\>;
   `errors`: `ComputedRef`\<
-     \| `undefined`
      \| \{
      `attributes?`: `any`;
      `options?`: `any`;
      `provisionFields?`: `any`;
      `term?`: `any`;
-  \}\>;
+   \}
+    \| `undefined`\>;
   `fields`: `ComputedRef`\<`Record`\<`string`, `any`\>\>;
   `getProvisioningField`: (`field`) => `any`;
   `id`: `string`;
@@ -734,11 +735,11 @@ Attaches callbacks for the resolution and/or rejection of the Promise.
   `isSelectedTerm`: (`value`) => `boolean`;
   `lookups`: `ComputedRef`\<`any`\>;
   `meta`: `ComputedRef`\<[`UseProductConfigMeta`](../type-aliases/UseProductConfigMeta.md)\>;
-  `model`: `ComputedRef`\<`undefined` \| [`ProductModel`](../type-aliases/ProductModel.md)\>;
+  `model`: `ComputedRef`\<[`ProductModel`](../type-aliases/ProductModel.md) \| `undefined`\>;
   `onDone`: () => `Promise`\<`unknown`\>;
   `options`: `ComputedRef`\<[`SubproductDetails`](../type-aliases/SubproductDetails.md)[]\>;
-  `product`: `ComputedRef`\<`undefined` \| [`Product`](../type-aliases/Product.md)\>;
-  `productImage`: (`size`) => `undefined` \| `string`;
+  `product`: `ComputedRef`\<[`Product`](../type-aliases/Product.md) \| `undefined`\>;
+  `productImage`: (`size`) => `string` \| `undefined`;
   `reset`: () => `void`;
   `service`: `ActorRef`\<`any`, `any`\>;
   `setAttributes`: (`attribute`, `values`) => `Promise`\<`void`\>;
@@ -753,13 +754,13 @@ Attaches callbacks for the resolution and/or rejection of the Promise.
   `updateQuantity`: (`value`) => `Promise`\<`void`\>;
   `updateTerm`: (`value`) => `Promise`\<`void`\>;
   `validationErrors`: `ComputedRef`\<
-     \| `undefined`
      \| \{
      `attributes?`: `any`;
      `options?`: `any`;
      `provisionFields?`: `any`;
      `term?`: `any`;
-  \}\>;
+   \}
+    \| `undefined`\>;
 \}
 
 ##### TResult2
@@ -772,13 +773,13 @@ Attaches callbacks for the resolution and/or rejection of the Promise.
 
 The callback to execute when the Promise is resolved.
 
-`null` | (`value`) => `TResult1` \| `PromiseLike`\<`TResult1`\>
+(`value`) => `TResult1` \| `PromiseLike`\<`TResult1`\> | `null`
 
 ##### onrejected?
 
 The callback to execute when the Promise is rejected.
 
-`null` | (`reason`) => `TResult2` \| `PromiseLike`\<`TResult2`\>
+(`reason`) => `TResult2` \| `PromiseLike`\<`TResult2`\> | `null`
 
 #### Returns
 
@@ -790,25 +791,25 @@ A Promise for the completion of which ever callback is executed.
 <TResult>(onrejected?) => Promise<
   | {
   additionalErrors: ComputedRef<
-     | undefined
      | {
      attributes?: any;
      options?: any;
      provisionFields?: any;
      term?: any;
-  }>;
+   }
+    | undefined>;
   attributes: ComputedRef<SubproductDetails[]>;
   coupons: string[];
   decrementOption: (option, valueId) => Promise<void>;
   decrementQuantity: () => Promise<void>;
   errors: ComputedRef<
-     | undefined
      | {
      attributes?: any;
      options?: any;
      provisionFields?: any;
      term?: any;
-  }>;
+   }
+    | undefined>;
   fields: ComputedRef<Record<string, any>>;
   getProvisioningField: (field) => any;
   id: string;
@@ -820,11 +821,11 @@ A Promise for the completion of which ever callback is executed.
   isSelectedTerm: (value) => boolean;
   lookups: ComputedRef<any>;
   meta: ComputedRef<UseProductConfigMeta>;
-  model: ComputedRef<undefined | ProductModel>;
+  model: ComputedRef<ProductModel | undefined>;
   onDone: () => Promise<unknown>;
   options: ComputedRef<SubproductDetails[]>;
-  product: ComputedRef<undefined | Product>;
-  productImage: (size) => undefined | string;
+  product: ComputedRef<Product | undefined>;
+  productImage: (size) => string | undefined;
   reset: () => void;
   service: ActorRef<any, any>;
   setAttributes: (attribute, values) => Promise<void>;
@@ -839,13 +840,13 @@ A Promise for the completion of which ever callback is executed.
   updateQuantity: (value) => Promise<void>;
   updateTerm: (value) => Promise<void>;
   validationErrors: ComputedRef<
-     | undefined
      | {
      attributes?: any;
      options?: any;
      provisionFields?: any;
      term?: any;
-  }>;
+   }
+    | undefined>;
 }
 | TResult>
 ```
@@ -864,32 +865,32 @@ Attaches a callback for only the rejection of the Promise.
 
 The callback to execute when the Promise is rejected.
 
-`null` | (`reason`) => `TResult` \| `PromiseLike`\<`TResult`\>
+(`reason`) => `TResult` \| `PromiseLike`\<`TResult`\> | `null`
 
 #### Returns
 
 `Promise`\<
   \| \{
   `additionalErrors`: `ComputedRef`\<
-     \| `undefined`
      \| \{
      `attributes?`: `any`;
      `options?`: `any`;
      `provisionFields?`: `any`;
      `term?`: `any`;
-  \}\>;
+   \}
+    \| `undefined`\>;
   `attributes`: `ComputedRef`\<[`SubproductDetails`](../type-aliases/SubproductDetails.md)[]\>;
   `coupons`: `string`[];
   `decrementOption`: (`option`, `valueId`) => `Promise`\<`void`\>;
   `decrementQuantity`: () => `Promise`\<`void`\>;
   `errors`: `ComputedRef`\<
-     \| `undefined`
      \| \{
      `attributes?`: `any`;
      `options?`: `any`;
      `provisionFields?`: `any`;
      `term?`: `any`;
-  \}\>;
+   \}
+    \| `undefined`\>;
   `fields`: `ComputedRef`\<`Record`\<`string`, `any`\>\>;
   `getProvisioningField`: (`field`) => `any`;
   `id`: `string`;
@@ -901,11 +902,11 @@ The callback to execute when the Promise is rejected.
   `isSelectedTerm`: (`value`) => `boolean`;
   `lookups`: `ComputedRef`\<`any`\>;
   `meta`: `ComputedRef`\<[`UseProductConfigMeta`](../type-aliases/UseProductConfigMeta.md)\>;
-  `model`: `ComputedRef`\<`undefined` \| [`ProductModel`](../type-aliases/ProductModel.md)\>;
+  `model`: `ComputedRef`\<[`ProductModel`](../type-aliases/ProductModel.md) \| `undefined`\>;
   `onDone`: () => `Promise`\<`unknown`\>;
   `options`: `ComputedRef`\<[`SubproductDetails`](../type-aliases/SubproductDetails.md)[]\>;
-  `product`: `ComputedRef`\<`undefined` \| [`Product`](../type-aliases/Product.md)\>;
-  `productImage`: (`size`) => `undefined` \| `string`;
+  `product`: `ComputedRef`\<[`Product`](../type-aliases/Product.md) \| `undefined`\>;
+  `productImage`: (`size`) => `string` \| `undefined`;
   `reset`: () => `void`;
   `service`: `ActorRef`\<`any`, `any`\>;
   `setAttributes`: (`attribute`, `values`) => `Promise`\<`void`\>;
@@ -920,13 +921,13 @@ The callback to execute when the Promise is rejected.
   `updateQuantity`: (`value`) => `Promise`\<`void`\>;
   `updateTerm`: (`value`) => `Promise`\<`void`\>;
   `validationErrors`: `ComputedRef`\<
-     \| `undefined`
      \| \{
      `attributes?`: `any`;
      `options?`: `any`;
      `provisionFields?`: `any`;
      `term?`: `any`;
-  \}\>;
+   \}
+    \| `undefined`\>;
 \}
   \| `TResult`\>
 
@@ -935,25 +936,25 @@ A Promise for the completion of the callback.
 ```ts
 (onfinally?) => Promise<{
   additionalErrors: ComputedRef<
-     | undefined
      | {
      attributes?: any;
      options?: any;
      provisionFields?: any;
      term?: any;
-  }>;
+   }
+    | undefined>;
   attributes: ComputedRef<SubproductDetails[]>;
   coupons: string[];
   decrementOption: (option, valueId) => Promise<void>;
   decrementQuantity: () => Promise<void>;
   errors: ComputedRef<
-     | undefined
      | {
      attributes?: any;
      options?: any;
      provisionFields?: any;
      term?: any;
-  }>;
+   }
+    | undefined>;
   fields: ComputedRef<Record<string, any>>;
   getProvisioningField: (field) => any;
   id: string;
@@ -965,11 +966,11 @@ A Promise for the completion of the callback.
   isSelectedTerm: (value) => boolean;
   lookups: ComputedRef<any>;
   meta: ComputedRef<UseProductConfigMeta>;
-  model: ComputedRef<undefined | ProductModel>;
+  model: ComputedRef<ProductModel | undefined>;
   onDone: () => Promise<unknown>;
   options: ComputedRef<SubproductDetails[]>;
-  product: ComputedRef<undefined | Product>;
-  productImage: (size) => undefined | string;
+  product: ComputedRef<Product | undefined>;
+  productImage: (size) => string | undefined;
   reset: () => void;
   service: ActorRef<any, any>;
   setAttributes: (attribute, values) => Promise<void>;
@@ -984,13 +985,13 @@ A Promise for the completion of the callback.
   updateQuantity: (value) => Promise<void>;
   updateTerm: (value) => Promise<void>;
   validationErrors: ComputedRef<
-     | undefined
      | {
      attributes?: any;
      options?: any;
      provisionFields?: any;
      term?: any;
-  }>;
+   }
+    | undefined>;
 }>
 ```
 
@@ -1003,31 +1004,31 @@ resolved value cannot be modified from the callback.
 
 The callback to execute when the Promise is settled (fulfilled or rejected).
 
-`null` | () => `void`
+() => `void` | `null`
 
 #### Returns
 
 `Promise`\<\{
   `additionalErrors`: `ComputedRef`\<
-     \| `undefined`
      \| \{
      `attributes?`: `any`;
      `options?`: `any`;
      `provisionFields?`: `any`;
      `term?`: `any`;
-  \}\>;
+   \}
+    \| `undefined`\>;
   `attributes`: `ComputedRef`\<[`SubproductDetails`](../type-aliases/SubproductDetails.md)[]\>;
   `coupons`: `string`[];
   `decrementOption`: (`option`, `valueId`) => `Promise`\<`void`\>;
   `decrementQuantity`: () => `Promise`\<`void`\>;
   `errors`: `ComputedRef`\<
-     \| `undefined`
      \| \{
      `attributes?`: `any`;
      `options?`: `any`;
      `provisionFields?`: `any`;
      `term?`: `any`;
-  \}\>;
+   \}
+    \| `undefined`\>;
   `fields`: `ComputedRef`\<`Record`\<`string`, `any`\>\>;
   `getProvisioningField`: (`field`) => `any`;
   `id`: `string`;
@@ -1039,11 +1040,11 @@ The callback to execute when the Promise is settled (fulfilled or rejected).
   `isSelectedTerm`: (`value`) => `boolean`;
   `lookups`: `ComputedRef`\<`any`\>;
   `meta`: `ComputedRef`\<[`UseProductConfigMeta`](../type-aliases/UseProductConfigMeta.md)\>;
-  `model`: `ComputedRef`\<`undefined` \| [`ProductModel`](../type-aliases/ProductModel.md)\>;
+  `model`: `ComputedRef`\<[`ProductModel`](../type-aliases/ProductModel.md) \| `undefined`\>;
   `onDone`: () => `Promise`\<`unknown`\>;
   `options`: `ComputedRef`\<[`SubproductDetails`](../type-aliases/SubproductDetails.md)[]\>;
-  `product`: `ComputedRef`\<`undefined` \| [`Product`](../type-aliases/Product.md)\>;
-  `productImage`: (`size`) => `undefined` \| `string`;
+  `product`: `ComputedRef`\<[`Product`](../type-aliases/Product.md) \| `undefined`\>;
+  `productImage`: (`size`) => `string` \| `undefined`;
   `reset`: () => `void`;
   `service`: `ActorRef`\<`any`, `any`\>;
   `setAttributes`: (`attribute`, `values`) => `Promise`\<`void`\>;
@@ -1058,21 +1059,23 @@ The callback to execute when the Promise is settled (fulfilled or rejected).
   `updateQuantity`: (`value`) => `Promise`\<`void`\>;
   `updateTerm`: (`value`) => `Promise`\<`void`\>;
   `validationErrors`: `ComputedRef`\<
-     \| `undefined`
      \| \{
      `attributes?`: `any`;
      `options?`: `any`;
      `provisionFields?`: `any`;
      `term?`: `any`;
-  \}\>;
+   \}
+    \| `undefined`\>;
 \}\>
 
 A Promise for the completion of the callback.
 
+`undefined`
+
 ### getNextRelated()
 
 ```ts
-getNextRelated: (current) => undefined | BasketProduct;
+getNextRelated: (current) => BasketProduct | undefined;
 ```
 
 #### Parameters
@@ -1083,7 +1086,7 @@ getNextRelated: (current) => undefined | BasketProduct;
 
 #### Returns
 
-`undefined` \| [`BasketProduct`](../interfaces/BasketProduct.md)
+[`BasketProduct`](../interfaces/BasketProduct.md) \| `undefined`
 
 ### getProducts()
 

@@ -23,6 +23,15 @@ import {
 import type { QueryProps } from "../query";
 import type { ProductCategory } from "./types";
 
+// -----------------------------------------------------------------------------
+
+/**
+ * A composable function that manages and interacts with product categories.
+ * Provides reactive state and utilities for handling hierarchical category structures.
+ * The primary use case is to interact with category data via query operations.
+ * @param {QueryProps} initial - Initial query parameters for loading product categories.
+ * @returns The {@link UseProductCategories} composable methods and state for product categories.
+ */
 export const useProductCategories = (initial?: QueryProps) => {
   // --- state
 
@@ -238,4 +247,7 @@ export const useProductCategories = (initial?: QueryProps) => {
   };
 };
 
+/**
+ * The return type of the {@link useProductCategories} composable function.
+ */
 export type UseProductCategories = ReturnType<typeof useProductCategories>;

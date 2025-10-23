@@ -16,7 +16,7 @@ Session management API (see below for details)
 ### client
 
 ```ts
-client: ComputedRef<undefined | Actor>;
+client: ComputedRef<Actor | undefined>;
 ```
 
 Information about the authenticated client, if available. Represents the logged-in user.
@@ -24,7 +24,7 @@ Information about the authenticated client, if available. Represents the logged-
 ### context
 
 ```ts
-context: ComputedRef<undefined | SessionContext>;
+context: ComputedRef<SessionContext | undefined>;
 ```
 
 Context object containing session-specific information such as current user,
@@ -33,7 +33,7 @@ authentication status, and other dynamic data.
 ### errors
 
 ```ts
-errors: ComputedRef<undefined | string>;
+errors: ComputedRef<string | undefined>;
 ```
 
 Any errors message(s) encountered during session management operations, such as login or registration failures.
@@ -41,41 +41,41 @@ Any errors message(s) encountered during session management operations, such as 
 ### getHistory()
 
 ```ts
-getHistory: () => undefined | string[];
+getHistory: () => string[] | undefined;
 ```
 
 #### Returns
 
-`undefined` \| `string`[]
+`string`[] \| `undefined`
 
 ### getToken()
 
 ```ts
-getToken: () => null | string;
+getToken: () => string | null;
 ```
 
 #### Returns
 
-`null` \| `string`
+`string` \| `null`
 
 ### getTransferDetails()
 
 ```ts
-getTransferDetails: () => undefined | SessionTransfer;
+getTransferDetails: () => SessionTransfer | undefined;
 ```
 
 Retrieves the transfer details, such as the transfer code and redirect URL.
 
 #### Returns
 
-`undefined` \| [`SessionTransfer`](../interfaces/SessionTransfer.md)
+[`SessionTransfer`](../interfaces/SessionTransfer.md) \| `undefined`
 
 A promise that resolves with the transfer details.
 
 ### guest
 
 ```ts
-guest: ComputedRef<undefined | Actor>;
+guest: ComputedRef<Actor | undefined>;
 ```
 
 Information about the guest user, if available. Used to handle non-authenticated user interactions.
@@ -265,7 +265,7 @@ Function to resolve an ongoing authentication or registration request.
 ### schema
 
 ```ts
-schema: ComputedRef<undefined | JsonSchema>;
+schema: ComputedRef<JsonSchema | undefined>;
 ```
 
 JSON Schema used to define the structure of session-related forms, like login and registration.
@@ -443,7 +443,7 @@ Transfer session data between different parts of the application, such as from g
 ### uischema
 
 ```ts
-uischema: ComputedRef<undefined | UISchemaElement>;
+uischema: ComputedRef<UISchemaElement | undefined>;
 ```
 
 UI Schema used to configure the presentation and layout of session-related forms.
@@ -451,7 +451,7 @@ UI Schema used to configure the presentation and layout of session-related forms
 ### user
 
 ```ts
-user: ComputedRef<undefined | User>;
+user: ComputedRef<User | undefined>;
 ```
 
 User-specific information for the currently authenticated user, including profile and account data.
@@ -459,15 +459,15 @@ User-specific information for the currently authenticated user, including profil
 ### userId
 
 ```ts
-userId: ComputedRef<undefined | string>;
+userId: ComputedRef<string | undefined>;
 ```
 
 ### validationErrors
 
 ```ts
 validationErrors: ComputedRef<
-  | undefined
-| ValidationErrorObject<string, Record<string, any>, unknown>[]>;
+  | ValidationErrorObject<string, Record<string, any>, unknown>[]
+| undefined>;
 ```
 
 Validation errors encountered during session management operations, such as login or registration failures.

@@ -2,31 +2,23 @@
 
 # PaymentDetailsContext
 
+Interface representing the context for payment details management, typically managed by an XState machine.
+It extends [PaymentDetailsArgs](PaymentDetailsArgs.md) with a comprehensive set of properties for handling
+available gateways, payment types, stored methods, wallet balance, form schemas, and error states.
+
 ## Extends
 
 - [`PaymentDetailsArgs`](PaymentDetailsArgs.md)
 
 ## Properties
 
-### actors
-
-```ts
-actors: object;
-```
-
-#### gateway?
-
-```ts
-optional gateway: ActorRef<any, any>;
-```
-
-***
-
 ### address
 
 ```ts
 address: IAddress;
 ```
+
+The IAddress object representing the billing address associated with the payment.
 
 #### Inherited from
 
@@ -39,6 +31,8 @@ address: IAddress;
 ```ts
 amount: number;
 ```
+
+The total amount of the payment.
 
 #### Inherited from
 
@@ -68,6 +62,16 @@ optional autoupdate: boolean;
 optional balance: IWalletBalance;
 ```
 
+The client's wallet balance details.
+
+***
+
+### baseModel?
+
+```ts
+optional baseModel: PaymentDetailModel;
+```
+
 ***
 
 ### clientId
@@ -75,6 +79,8 @@ optional balance: IWalletBalance;
 ```ts
 clientId: string;
 ```
+
+The unique identifier of the client managing their payment details.
 
 #### Inherited from
 
@@ -88,17 +94,11 @@ clientId: string;
 currency: ICurrency;
 ```
 
+The ICurrency object representing the currency of the payment.
+
 #### Inherited from
 
 [`PaymentDetailsArgs`](PaymentDetailsArgs.md).[`currency`](PaymentDetailsArgs.md#currency)
-
-***
-
-### dirty?
-
-```ts
-optional dirty: boolean;
-```
 
 ***
 
@@ -108,6 +108,8 @@ optional dirty: boolean;
 optional error: ResponseError;
 ```
 
+An error object if any issue occurred during payment details operations.
+
 ***
 
 ### fields?
@@ -115,6 +117,8 @@ optional error: ResponseError;
 ```ts
 optional fields: any;
 ```
+
+Optional additional fields relevant to payment processing.
 
 ***
 
@@ -124,13 +128,25 @@ optional fields: any;
 optional gateway: IGateway;
 ```
 
+The currently selected IGateway object.
+
+***
+
+### gatewayHelper?
+
+```ts
+optional gatewayHelper: ActorRef<any, any>;
+```
+
 ***
 
 ### gateways?
 
 ```ts
-optional gateways: Gateway[];
+optional gateways: IBrandGateway[];
 ```
+
+An array of IBrandGateway objects available for the current brand and client.
 
 ***
 
@@ -140,13 +156,7 @@ optional gateways: Gateway[];
 optional model: PaymentDetailModel;
 ```
 
-***
-
-### mount?
-
-```ts
-optional mount: HTMLElement;
-```
+The current [PaymentDetailModel](../type-aliases/PaymentDetailModel.md) representing the user's selection in the payment details form.
 
 ***
 
@@ -156,25 +166,31 @@ optional mount: HTMLElement;
 orderId: string;
 ```
 
+The unique identifier of the order for which payment details are being managed.
+
 #### Inherited from
 
 [`PaymentDetailsArgs`](PaymentDetailsArgs.md).[`orderId`](PaymentDetailsArgs.md#orderid)
 
 ***
 
-### payment\_types?
+### paymentDetail?
 
 ```ts
-optional payment_types: PaymentType;
+optional paymentDetail: PaymentDetailData;
 ```
+
+The raw response data from the actual payment gateway after a transaction attempt.
 
 ***
 
-### paymentDetails?
+### paymentTypes?
 
 ```ts
-optional paymentDetails: any;
+optional paymentTypes: PaymentType;
 ```
+
+The allowed PaymentType for the current context.
 
 ***
 
@@ -184,13 +200,17 @@ optional paymentDetails: any;
 optional schema: JsonSchema;
 ```
 
+The JSON Schema (`JsonSchema`) defining the structure and validation rules for the payment details form.
+
 ***
 
-### stored\_payment\_methods?
+### storedPaymentMethods?
 
 ```ts
-optional stored_payment_methods: PaymentDetailModel[];
+optional storedPaymentMethods: PaymentDetail[];
 ```
+
+An array of stored payment method models available to the client.
 
 ***
 
@@ -199,3 +219,5 @@ optional stored_payment_methods: PaymentDetailModel[];
 ```ts
 optional uischema: UISchemaElement;
 ```
+
+The UI Schema (`UISchemaElement`) used to configure the presentation and layout of the payment details form.

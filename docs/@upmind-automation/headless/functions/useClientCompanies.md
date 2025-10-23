@@ -6,13 +6,21 @@
 function useClientCompanies(initial): object;
 ```
 
+Composable function to manage client companies.  Provides methods for fetching, filtering,
+updating, and interacting with a list of client companies. Uses the `service` to interact with
+backend data and integrates with the application's session and query management.
+
 ## Parameters
 
 ### initial
 
 [`QueryProps`](../type-aliases/QueryProps.md) = `...`
 
+Optional initial query parameters for loading the company list. Defaults to pagination limit of 0.
+
 ## Returns
+
+The [UseClientCompanies](../type-aliases/UseClientCompanies.md) API for interacting with client companies.
 
 ### data
 
@@ -28,7 +36,7 @@ This is populated by the query and updates automatically when the query state ch
 ### default()
 
 ```ts
-default: (data) => undefined | Company = getDefault;
+default: (data) => Company | undefined = getDefault;
 ```
 
 The default item for the current client.
@@ -38,18 +46,18 @@ This is the company that is set as default for the current client.
 
 ##### data
 
-`MaybeRef`\<`undefined` \| `null` \| [`Company`](../interfaces/Company.md)[]\> = `...`
+`MaybeRef`\<[`Company`](../interfaces/Company.md)[] \| `null` \| `undefined`\> = `...`
 
 #### Returns
 
-`undefined` \| [`Company`](../interfaces/Company.md)
+[`Company`](../interfaces/Company.md) \| `undefined`
 
 The default company if found, is otherwise undefined.
 
 ### error
 
 ```ts
-error: Ref<null, null> | Ref<Error, Error> = query.error;
+error: Ref<Error, Error> | Ref<null, null> = query.error;
 ```
 
 The current error state of the query.
@@ -83,7 +91,7 @@ query: (value?) => void = filterQuery;
 ### findOne()
 
 ```ts
-findOne: (mapping, data, searchableProps) => undefined | Company;
+findOne: (mapping, data, searchableProps) => Company | undefined;
 ```
 
 Find a single company based on the given param. The param is matched against the title and description.
@@ -98,7 +106,7 @@ The filter to match against the company title and description.
 
 ##### data
 
-`MaybeRef`\<`undefined` \| `null` \| [`Company`](../interfaces/Company.md)[]\> = `...`
+`MaybeRef`\<[`Company`](../interfaces/Company.md)[] \| `null` \| `undefined`\> = `...`
 
 ##### searchableProps
 
@@ -106,14 +114,14 @@ The filter to match against the company title and description.
 
 #### Returns
 
-`undefined` \| [`Company`](../interfaces/Company.md)
+[`Company`](../interfaces/Company.md) \| `undefined`
 
 The company object if found, is otherwise undefined.
 
 ### getOne()
 
 ```ts
-getOne: (id?, data) => undefined | Company;
+getOne: (id?, data) => Company | undefined;
 ```
 
 Get a single company by id.
@@ -128,18 +136,18 @@ The id of the company to get.
 
 ##### data?
 
-`MaybeRef`\<`undefined` \| `null` \| [`Company`](../interfaces/Company.md)[]\> = `...`
+`MaybeRef`\<[`Company`](../interfaces/Company.md)[] \| `null` \| `undefined`\> = `...`
 
 #### Returns
 
-`undefined` \| [`Company`](../interfaces/Company.md)
+[`Company`](../interfaces/Company.md) \| `undefined`
 
 The company object if found, is otherwise undefined.
 
 ### invalidate()
 
 ```ts
-invalidate: <T>(data?) => Promise<undefined | T>;
+invalidate: <T>(data?) => Promise<T | undefined>;
 ```
 
 Invalidate the query cache for client items.
@@ -159,7 +167,7 @@ This will trigger a refetch of the items when the next query is made.
 
 #### Returns
 
-`Promise`\<`undefined` \| `T`\>
+`Promise`\<`T` \| `undefined`\>
 
 ### isReady()
 

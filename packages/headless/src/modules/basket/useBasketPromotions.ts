@@ -27,6 +27,9 @@ import { QueryResponseError } from "../query";
 // -----------------------------------------------------------------------------
 // We allow an actor to be passed in, but if not, we will use the basket actorRef and wait for the 'actor'' machine to be ready
 
+/**
+ * Manages basket promotions, providing state, context, and methods to manipulate promotions within a shopping basket.
+ */
 export const useBasketPromotions = () => {
   const { t } = useI18n();
   const { actors } = useBasket();

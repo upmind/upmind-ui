@@ -3,24 +3,26 @@
 // --- internal
 import { useBasket } from "../../basket";
 import { useRoutingEngine } from "..";
-import { useDataLayer } from "../../system";
 
 // --- utils
+import { uniqBy } from "lodash-es";
 import { useRouteQueryParams } from "../utils";
 import { useBasketProductsPending } from "../../basketProduct";
-import { uniqBy, first, keys, isEqual } from "lodash-es";
 
 // --- types
-import type { Flow, Route } from "../types";
 import { ROUTE } from "../types";
-import { ProductModel } from "../../product";
-import { compactDeep } from "../../../utils";
+import type { Flow, Route } from "../types";
 
 // -----------------------------------------------------------------------------
 
+/**
+ * Composable function to manage the basket-related flows.
+ * It provides mechanisms to define navigation rules (aka flows), manage their states, and register them with the routing system.
+ * Each flow specifies its name, guard logic for conditional transitions, and target routes for navigation.
+ */
 export const useBasketFlows = () => {
   const routing = useRoutingEngine();
-  const { meta, setCurrency, addPromotion, isReady } = useBasket();
+  const { meta, setCurrency, isReady } = useBasket();
   const { addMany, isInBasket } = useBasketProductsPending();
 
   let flows: Flow[] = [
@@ -76,8 +78,8 @@ export const useBasketFlows = () => {
         return { name: ROUTE.BASKET };
       },
       //  uncomment if we want to FORCE a redirect to a specific path for the basket/flow.
-      // eg: ** OPTIONALLY ** if we have an alias for basket that is cart, then the router would force the redirec tto basket
-      // othgerwise `/cart` would stil lresolve to the basket flow but not have `/basket` in the url
+      // e.g.: ** OPTIONALLY ** if we have an alias for the basket that is cart, then the router would force the redirect to the basket
+      // otherwise `/cart` would still resolve to the basket flow but not have `/basket` in the url
       // resolve: async (_route: Route) => {
       //   return {
       //     name: ROUTE.BASKET,
