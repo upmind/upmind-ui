@@ -155,6 +155,7 @@ import BasketErrors from "../basket/components/BasketErrors.vue";
 
 // --- types
 import type { CheckoutProps } from "./types";
+import { isEqual } from "lodash-es";
 // -----------------------------------------------------------------------------
 
 const route = useRoute();
@@ -283,9 +284,9 @@ const processingIcon = computed(() => {
 
 // --- side effects
 
-// scroll to our errors when we have a new failed attempt
 watch(attempts, (value, oldValue) => {
-  if ((value ?? 0) > (oldValue ?? 0)) {
+  // scroll to our errors when we have a new failed attempt
+  if (value && !isEqual(value, oldValue)) {
     // scroll to relevant section IF we have errors there AND that section is enabled
 
     if (uischema.value.showProductsOnCheckout && !meta.value.hasProducts) {
@@ -314,10 +315,7 @@ watch(attempts, (value, oldValue) => {
   }
 });
 
-const stop = watch(meta, (value, oldValue) => {
-  if (value.isComplete) {
-    navigateNext();
-    stop();
-  }
+watch(meta, (value, oldValue) => {
+  if (value.isComplete) navigateNext();
 });
 </script>
