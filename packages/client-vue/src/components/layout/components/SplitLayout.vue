@@ -2,9 +2,9 @@
   <div :class="styles.split.root">
     <article :class="styles.split.container">
       <!-- Content -->
-      <div :class="styles.split.contentWrapper">
-        <div :class="styles.split.contentInner">
-          <section :class="styles.split.contentHeader">
+      <div :class="styles.split.content.root">
+        <div :class="styles.split.content.container">
+          <section :class="styles.split.content.header">
             <slot name="content-header" />
           </section>
 
@@ -43,15 +43,20 @@ defineProps<VariantProps>();
 
 const meta = computed(() => ({}));
 
-const styles = useStyles(["split"], meta, config) as ComputedRef<{
+const styles = useStyles(
+  ["split", "split.content"],
+  meta,
+  config
+) as ComputedRef<{
   split: {
     root: string;
     container: string;
     header: string;
-    contentWrapper: string;
-    contentInner: string;
-    contentHeader: string;
-    content: string;
+    content: {
+      root: string;
+      container: string;
+      header: string;
+    };
     footer: string;
     aside: string;
   };

@@ -1,40 +1,32 @@
 <template>
-  <footer :class="styles.footer.root" data-testid="footer">
+  <footer :class="styles.footer.root">
     <div :class="styles.footer.container">
-      <section
-        :class="styles.footer.actions"
-        aria-label="Language and currency preferences"
-      >
-        <slot name="footer-actions" />
-      </section>
-
-      <section :class="styles.footer.content">
-        <slot name="footer-content" />
+      <div :class="styles.footer.actions">
         <slot name="footer-copyright" />
-      </section>
+      </div>
+
+      <div :class="styles.footer.content">
+        <slot name="footer-content" />
+      </div>
     </div>
   </footer>
 </template>
 
 <script lang="ts" setup>
-// --- external
-import { computed } from "vue";
-
 // --- internal
 import config from "../footer.config";
 import { useRoutingEngine } from "@upmind-automation/headless";
-
-// --- utils
 import { useStyles } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { ComputedRef } from "vue";
+import { computed } from "vue";
 import { FOOTER_TEMPLATE } from "../types";
 
 const { currentRoute } = useRoutingEngine();
 
 const meta = computed(() => ({
-  variant: currentRoute.value?.meta?.template || FOOTER_TEMPLATE.DEFAULT
+  variant: currentRoute.value?.meta?.template || FOOTER_TEMPLATE.SPLIT
 }));
 
 const styles = useStyles(["footer"], meta, config, {}) as ComputedRef<{
