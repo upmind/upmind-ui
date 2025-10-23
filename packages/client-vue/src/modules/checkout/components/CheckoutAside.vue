@@ -1,7 +1,7 @@
 <template>
   <Section
     id="basket-summary"
-    :show="section"
+    :section="section"
     :title="t('text.summary')"
     icon="shopping-bag-02"
   >
