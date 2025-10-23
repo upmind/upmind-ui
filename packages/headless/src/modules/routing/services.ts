@@ -216,9 +216,7 @@ async function resolveRoute(
       )
     }));
 
-  // if we dont have a resolve function then we are on the same route, just merge in any meta changes
-  // nb DONT pass any params or query changes, as that would be unexpected behaviour
-
+  // if we dont have a resolve function then, just merge in any meta changes
   return {
     name: flow.name,
     meta: merge({}, flow?.meta, uischema, {
