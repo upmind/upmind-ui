@@ -7,11 +7,11 @@ const rootVariants = cva("", {
       default: "bg-surface shadow-t-border-surface w-full px-6 py-6 text-base",
       enclosed: "bg-surface shadow-t-border-surface w-full px-6 py-6 text-base",
       full: "bg-surface shadow-t-border-surface w-full px-6 py-6 text-base",
-      twoColumnLTR: "absolute bottom-0 w-full",
-      twoColumnRTL: "absolute bottom-0 w-full",
-      split: "absolute bottom-0 w-full lg:mr-auto lg:w-1/2",
+      twoColumnLTR: "absolute bottom-0 w-full px-6 md:px-8",
+      twoColumnRTL: "absolute bottom-0 w-full px-6 md:px-8",
+      split: "absolute bottom-0 w-full px-6 md:px-8 lg:mr-auto lg:w-1/2",
       canvasCard: "",
-      surfaceBox: ""
+      surfaceBox: "absolute bottom-0 w-full px-6 md:px-8"
     }
   },
   defaultVariants: {
@@ -33,7 +33,8 @@ const containerVariants = cva("", {
         "flex flex-col items-center justify-center lg:w-full lg:flex-row-reverse lg:items-end",
       split: "flex justify-between px-32 pb-9",
       canvasCard: "",
-      surfaceBox: ""
+      surfaceBox:
+        "max-w-app mx-auto flex flex-col items-center justify-center pb-9 lg:flex-row lg:justify-between"
     }
   }
 });
