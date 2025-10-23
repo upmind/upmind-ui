@@ -15,7 +15,7 @@
     </DescriptionList>
 
     <!-- promotions -->
-    <BasketPromotions v-if="actions" />
+    <BasketPromotions v-if="props.showPromotions" />
   </div>
 
   <template v-else>
@@ -50,11 +50,11 @@ import type { ComputedRef } from "vue";
 const props = withDefaults(
   defineProps<{
     showProducts?: boolean;
-    actions?: boolean;
+    showPromotions?: boolean;
   }>(),
   {
     showProducts: false,
-    actions: true
+    showPromotions: true
   }
 );
 

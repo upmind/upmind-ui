@@ -61,7 +61,7 @@ export default {
 
 <script setup lang="ts">
 // --- external
-import { computed, ref } from "vue";
+import { computed, nextTick, ref } from "vue";
 import { useRoute } from "vue-router";
 
 // --- internal
@@ -76,7 +76,7 @@ import AsyncLoading from "./modules/system/Loading.vue";
 import { Loading } from "@upmind-automation/upmind-ui";
 
 // --- utils
-import { get } from "lodash-es";
+import { get, set } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -119,8 +119,30 @@ const styles = useStyles(
   page: string;
 }>;
 
+/**
+ * Set loading state for the app and once loading is complete scroll to any anchor in the URL
+ * @param value
+ */
 function setLoading(value: boolean) {
   loading.value = value;
+  if (!value) scrollToAnchor();
+}
+
+/**
+ * Scroll to any anchor in the URL once the App is loaded and all awaits are complete
+ */
+function scrollToAnchor() {
+  const { hash } = location;
+  if (!hash) return;
+
+  const decoded = decodeURIComponent(hash);
+  nextTick(() => {
+    document.querySelector(decoded)?.scrollIntoView({
+      block: "start",
+      inline: "nearest",
+      behavior: "smooth"
+    });
+  });
 }
 
 // --side effects

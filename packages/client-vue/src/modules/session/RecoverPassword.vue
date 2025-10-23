@@ -1,5 +1,5 @@
 <template>
-  <Layout :variant="uiCart?.layout">
+  <Layout :variant="layout">
     <template #navigation>
       <Link
         class="flex items-center gap-x-2"
@@ -39,12 +39,13 @@
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
+import { computed } from "vue";
 
 // --- internal
-import { ROUTE, useRoutingEngine, useBrand } from "@upmind-automation/headless";
+import { ROUTE, useRoutingEngine } from "@upmind-automation/headless";
 
 // --- components
-import { Button, Layout, Link } from "@upmind-automation/upmind-ui";
+import { Layout, Link } from "@upmind-automation/upmind-ui";
 import Auth from "./components/Auth.vue";
 import Header from "../../components/content/Header.vue";
 import Section from "../../components/content/LayoutSection.vue";
@@ -55,9 +56,12 @@ import type { AuthProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { navigateNext, navigateBack, navigate, isResolved } = useRoutingEngine();
-const { uiCart } = useBrand();
+const { navigateNext, navigateBack, navigate, isResolved, currentRoute } =
+  useRoutingEngine();
 
+const layout = computed(() => {
+  return currentRoute.value?.meta?.template;
+});
 await isResolved(ROUTE.SESSION_RECOVER_PASSWORD);
 
 function doUpdate(value: AuthProps["modelValue"]) {
