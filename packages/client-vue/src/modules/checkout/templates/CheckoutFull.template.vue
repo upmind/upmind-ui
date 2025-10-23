@@ -9,17 +9,15 @@
     </template>
 
     <template #content>
-      <CheckoutContent />
+      <CheckoutContent section />
+    </template>
 
-      <CheckoutAside />
+    <template #aside>
+      <CheckoutAside section />
+    </template>
 
-      <Alert
-        v-if="meta.hasErrors"
-        color="danger"
-        icon="alert-triangle"
-        :title="t('error.checkout')"
-        :description="errors?.message"
-      />
+    <template #aside-footer>
+      <CheckoutAsideFooter />
     </template>
   </Layout>
 </template>
@@ -27,7 +25,7 @@
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
 import { useBasket, useRoutingEngine } from "@upmind-automation/headless";
-import { LAYOUT_VARIANTS, Alert } from "@upmind-automation/upmind-ui";
+import { LAYOUT_VARIANTS } from "@upmind-automation/upmind-ui";
 import Layout from "../../../components/layout/Layout.vue";
 import Back from "../../../components/navigation/Back.vue";
 import CheckoutHeader from "../components/CheckoutHeader.vue";
