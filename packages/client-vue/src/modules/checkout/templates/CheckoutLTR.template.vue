@@ -1,9 +1,5 @@
 <template>
   <Layout :variant="LAYOUT_VARIANTS.TWO_COLUMN_LTR" minimal>
-    <template #navigation>
-      <Back @click.prevent="doReject" />
-    </template>
-
     <template #content-header>
       <CheckoutHeader :badge="false" />
     </template>
