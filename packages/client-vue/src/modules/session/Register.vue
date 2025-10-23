@@ -34,6 +34,6 @@ const layout = computed(() => {
 });
 
 const templateVariant = computed(
-  () => supportedTemplates[layout.value] ?? RegisterLTR.template
+  () => supportedTemplates[layout.value] ?? RegisterLTR
 );
 </script>

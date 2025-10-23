@@ -34,6 +34,6 @@ const layout = computed(() => {
 });
 
 const templateVariant = computed(
-  () => supportedTemplates[layout.value] ?? LoginLTR.template
+  () => supportedTemplates[layout.value] ?? LoginLTR
 );
 </script>
