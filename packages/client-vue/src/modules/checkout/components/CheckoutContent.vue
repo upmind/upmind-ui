@@ -13,6 +13,7 @@
     :show="section"
     :title="t('cart.basket_products')"
     v-show="uischema.showProductsOnCheckout"
+    icon="list"
   >
     <ProductCards />
   </Section>
@@ -45,6 +46,7 @@
     :show="section"
     :title="t('text.billing_details')"
     v-show="uischema.showBillingOnCheckout"
+    icon="building-07"
   >
     <BillingDetails :touched="meta.showErrors" />
   </Section>
@@ -54,6 +56,7 @@
     id="payment-details"
     :show="section"
     :title="t('text.payment_details')"
+    icon="wallet-02"
   >
     <PaymentDetails />
   </Section>
