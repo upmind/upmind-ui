@@ -71,7 +71,7 @@ import { useTheme } from "./modules/theming";
 
 // --- components
 import Feedback from "./modules/feedback/Feedback.vue";
-import Page from "./components/content/Page.vue";
+import Page from "./components/page/Page.vue";
 import AsyncLoading from "./modules/system/Loading.vue";
 import { Loading } from "@upmind-automation/upmind-ui";
 
