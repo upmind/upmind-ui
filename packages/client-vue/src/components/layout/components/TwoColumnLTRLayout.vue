@@ -2,7 +2,7 @@
   <article :class="styles.twoColumnLTR.root">
     <!-- Header -->
     <header :class="styles.twoColumnLTR.row">
-      <div :class="styles.twoColumnLTR.header.content">
+      <div :class="styles.twoColumnLTR.header.root">
         <slot name="header-left" />
       </div>
 
@@ -39,7 +39,7 @@
 
     <!-- Spacer -->
     <div :class="styles.twoColumnLTR.row">
-      <div :class="styles.twoColumnLTR.spacer.content" />
+      <div :class="styles.twoColumnLTR.spacer.root" />
 
       <div :class="styles.twoColumnLTR.spacer.aside" />
     </div>
@@ -89,7 +89,7 @@ const styles = useStyles(
     root: string;
     row: string;
     header: {
-      content: string;
+      root: string;
       aside: string;
     };
     contentHeader: {

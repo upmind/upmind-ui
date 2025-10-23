@@ -1,11 +1,6 @@
 <template>
   <div :class="styles.canvasCard.root">
     <div :class="styles.canvasCard.container">
-      <!-- Header -->
-      <header :class="styles.canvasCard.header">
-        <slot name="header-left" />
-      </header>
-
       <Card as="article" :class="styles.canvasCard.card" spacious>
         <!-- Content Header -->
         <section :class="styles.canvasCard.contentHeader">

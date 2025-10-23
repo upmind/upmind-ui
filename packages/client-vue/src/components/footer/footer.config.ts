@@ -8,7 +8,7 @@ const rootVariants = cva("", {
       enclosed: "bg-surface shadow-t-border-surface w-full px-6 py-6 text-base",
       full: "bg-surface shadow-t-border-surface w-full px-6 py-6 text-base",
       twoColumnLTR: "absolute bottom-0 w-full",
-      twoColumnRTL: "",
+      twoColumnRTL: "absolute bottom-0 w-full",
       split: "",
       canvasCard: "",
       surfaceBox: ""
@@ -29,7 +29,8 @@ const containerVariants = cva("", {
       full: "max-w-app divide-border-surface mx-auto flex w-full flex-col divide-y [&>*]:py-6",
       twoColumnLTR:
         "flex flex-col items-center justify-center lg:w-full lg:flex-row lg:items-end",
-      twoColumnRTL: "",
+      twoColumnRTL:
+        "flex flex-col items-center justify-center lg:w-full lg:flex-row-reverse lg:items-end",
       split: "",
       canvasCard: "",
       surfaceBox: ""
@@ -45,7 +46,8 @@ const actionsVariants = cva("", {
       full: "flex justify-center gap-2 md:justify-end",
       twoColumnLTR:
         "lg:basis-app-content bg-surface w-app-content box-content flex min-w-0 flex-col-reverse items-center justify-between gap-4 pb-2 lg:flex-row lg:items-end lg:gap-0 lg:px-18 lg:pt-18 lg:pb-9",
-      twoColumnRTL: "",
+      twoColumnRTL:
+        "lg:basis-app-content bg-surface w-app-content box-content flex min-w-0 flex-col-reverse items-center justify-between gap-4 pb-2 lg:flex-row lg:items-end lg:gap-0 lg:px-18 lg:pt-18 lg:pb-9",
       split: "",
       canvasCard: "",
       surfaceBox: ""
@@ -63,7 +65,8 @@ const contentVariants = cva("", {
       full: "flex flex-col justify-between gap-2 text-center md:flex-row md:gap-0 md:text-left",
       twoColumnLTR:
         "lg:basis-app-aside lg:w-app-aside box-content min-w-0 pb-9 lg:px-18 lg:pt-18",
-      twoColumnRTL: "",
+      twoColumnRTL:
+        "lg:basis-app-aside lg:w-app-aside box-content min-w-0 pb-9 lg:px-18 lg:pt-18",
       split: "",
       canvasCard: "",
       surfaceBox: ""

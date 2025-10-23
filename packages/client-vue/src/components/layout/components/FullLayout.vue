@@ -1,11 +1,4 @@
 <template>
-  <header :class="styles.full.header.root">
-    <div :class="styles.full.header.container">
-      <slot name="header-left" />
-      <slot name="header-right" />
-    </div>
-  </header>
-
   <nav v-if="meta.hasControls" :class="styles.control.root">
     <div :class="styles.control.container">
       <slot name="controls" />

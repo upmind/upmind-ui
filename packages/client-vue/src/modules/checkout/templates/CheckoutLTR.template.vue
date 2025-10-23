@@ -25,10 +25,4 @@ import Layout from "../../../components/layout/Layout.vue";
 import CheckoutHeader from "../components/CheckoutHeader.vue";
 import CheckoutContent from "../components/CheckoutContent.vue";
 import CheckoutAside from "../components/CheckoutAside.vue";
-
-const { navigateBack } = useRoutingEngine();
-
-function doReject() {
-  navigateBack();
-}
 </script>
