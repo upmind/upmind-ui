@@ -5,7 +5,7 @@
     </template>
 
     <template #content-header>
-      <CheckoutHeader />
+      <CheckoutHeader :badge="false" />
     </template>
 
     <template #content>
