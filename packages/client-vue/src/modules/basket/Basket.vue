@@ -61,7 +61,7 @@
           v-if="!fieldsMeta.isLoading"
           :additional-errors="fieldsErrors?.data"
           :model-value="fieldsModel"
-          :touched="currentRoute?.hash === '#basket-fields'"
+          :touched="route?.hash === '#basket-fields'"
           :schema="fieldsSchema"
           :uischema="fieldsUischema"
           @reject="fieldsClear"
@@ -109,7 +109,7 @@
 // --- external
 import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
-
+import { useRoute } from "vue-router";
 // --- internal
 import {
   useBasket,
@@ -143,6 +143,7 @@ const { t } = useI18n();
 const { meta, isReady, count, summary } = useBasket();
 const { storefrontRoute } = useBrand();
 const { currentRoute } = useRoutingEngine();
+const route = useRoute();
 
 const {
   errors: fieldsErrors,

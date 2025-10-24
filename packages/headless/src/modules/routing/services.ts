@@ -184,6 +184,15 @@ async function resolve(
   });
 }
 
+/**
+ * Resolves the route for a given flow.
+ * The route param is the ORIGINATING route used to determine the flow,
+ * NOT the destination route.
+ * @param flow
+ * @param route
+ * @param event
+ * @returns
+ */
 async function resolveRoute(
   flow: Flow,
   route: Route,
@@ -195,26 +204,25 @@ async function resolveRoute(
   const fallbackTemplate = get(uiCart.value, "layout");
   const uischema = get(uischema_Route?.value, flow.name, {}) as UIRouteOptions;
 
-  return isFunction(flow?.resolve)
-    ? flow.resolve(route, event).then(resolved => {
-        return {
-          ...resolved,
-          meta: merge(
-            {},
-            flow?.meta,
-            uischema,
-            { template: uischema?.template || fallbackTemplate },
-            resolved?.meta
-          )
-        };
-      })
-    : Promise.resolve({
-        ...route,
-        name: flow.name,
-        meta: merge({}, flow?.meta, uischema, {
-          template: uischema?.template || fallbackTemplate
-        })
-      });
+  if (isFunction(flow?.resolve))
+    return flow.resolve(route, event).then(resolved => ({
+      ...resolved,
+      meta: merge(
+        {},
+        flow?.meta,
+        uischema,
+        { template: uischema?.template || fallbackTemplate },
+        resolved?.meta
+      )
+    }));
+
+  // if we dont have a resolve function then, just merge in any meta changes
+  return {
+    name: flow.name,
+    meta: merge({}, flow?.meta, uischema, {
+      template: uischema?.template || fallbackTemplate
+    })
+  };
 }
 
 // -----------------------------------------------------------------------------
