@@ -29,6 +29,7 @@ import { HEADER_TEMPLATE } from "../../../components/header/types";
 const { setTemplate } = useFooter();
 setTemplate(FOOTER_TEMPLATE.CANVAS_CARD);
 
-const { setTemplate: setHeaderTemplate } = useHeader();
+const { setTemplate: setHeaderTemplate, hideActions } = useHeader();
 setHeaderTemplate(HEADER_TEMPLATE.CANVAS_CARD);
+hideActions();
 </script>

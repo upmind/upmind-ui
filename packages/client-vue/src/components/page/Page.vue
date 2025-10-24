@@ -1,7 +1,7 @@
 <template>
-  <main :class="cn(styles.page, props.class)">
+  <div :class="cn(styles.page, props.class)">
     <slot />
-  </main>
+  </div>
 </template>
 
 <script lang="ts" setup>

@@ -12,7 +12,7 @@ const rootVariants = cva("w-full", {
       twoColumnLTR: "absolute top-0 px-6 md:px-8",
       twoColumnRTL: "absolute top-0 px-6 md:px-8",
       split: "hidden",
-      canvasCard: "hidden",
+      canvasCard: "w-full px-6 pt-7",
       surfaceBox: "absolute top-0 px-6 md:px-8"
     }
   },
@@ -30,7 +30,7 @@ const containerVariants = cva("flex w-full", {
       twoColumnLTR: "justify-center",
       twoColumnRTL: "justify-center",
       split: "justify-center",
-      canvasCard: "",
+      canvasCard: "max-w-app mx-auto flex items-start justify-between",
       surfaceBox:
         "max-w-app mx-auto flex h-24 w-full items-center justify-between lg:items-end"
     }

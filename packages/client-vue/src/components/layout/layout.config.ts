@@ -198,21 +198,18 @@ export default {
   },
 
   canvasCard: {
-    root: cva(
-      "flex min-h-screen w-full flex-col items-center justify-center p-5 py-12 lg:py-24",
-      {
-        variants: {
-          overflow: {
-            hidden: "overflow-hidden",
-            visible: "overflow-visible"
-          }
+    root: cva("w-full px-6", {
+      variants: {
+        overflow: {
+          hidden: "overflow-hidden",
+          visible: "overflow-visible"
         }
       }
-    ),
-    container: cva("max-w-app w-full"),
+    }),
+    container: cva("max-w-app mx-auto pt-9 pb-6"),
     header: cva("w-full"),
     card: cva(
-      "bg-surface card-radius my-9 flex w-full flex-col justify-between gap-12 lg:flex-row lg:gap-32"
+      "bg-surface card-radius flex w-full flex-col justify-between gap-12 lg:flex-row lg:gap-32"
     ),
     contentHeader: cva("w-app-aside w-full"),
     content: cva("w-full")
