@@ -1,9 +1,5 @@
 <template>
-  <Layout
-    :variant="LAYOUT_VARIANTS.CANVAS_CARD"
-    :locale="false"
-    :currency="false"
-  >
+  <Layout :variant="LAYOUT_VARIANTS.CANVAS_CARD">
     <template #content-header>
       <RegisterHeader />
     </template>
@@ -30,7 +26,8 @@ import { LAYOUT_VARIANTS } from "../../../components/layout/types";
 import { HEADER_TEMPLATE } from "../../../components/header/types";
 
 // --- methods
-const { setTemplate } = useFooter();
+const { setTemplate, hideLocale } = useFooter();
+hideLocale();
 setTemplate(FOOTER_TEMPLATE.CANVAS_CARD);
 
 const { setTemplate: setHeaderTemplate } = useHeader();

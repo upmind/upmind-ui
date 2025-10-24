@@ -8,6 +8,7 @@ import { computed } from "vue";
 
 // --- internal
 import { useRoutingEngine } from "@upmind-automation/headless";
+import { useFooter } from "../../components/footer/useFooter";
 
 // --- components
 import LoginLTR from "./templates/LoginLTR.template.vue";
@@ -20,6 +21,9 @@ import LoginSurfaceBox from "./templates/LoginSurfaceBox.template.vue";
 import { LOGIN_TEMPLATE } from "./types";
 
 const { currentRoute } = useRoutingEngine();
+
+const { hideCurrency } = useFooter();
+hideCurrency();
 
 const supportedTemplates = {
   [LOGIN_TEMPLATE.SPLIT]: LoginSplit,

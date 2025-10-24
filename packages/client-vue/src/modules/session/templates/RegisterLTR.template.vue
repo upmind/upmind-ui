@@ -1,5 +1,5 @@
 <template>
-  <Layout :variant="LAYOUT_VARIANTS.TWO_COLUMN_LTR" :currency="false">
+  <Layout :variant="LAYOUT_VARIANTS.TWO_COLUMN_LTR">
     <template #content-header>
       <RegisterHeader />
     </template>

@@ -1,5 +1,5 @@
 <template>
-  <Layout :variant="LAYOUT_VARIANTS.TWO_COLUMN_RTL" :currency="false">
+  <Layout :variant="LAYOUT_VARIANTS.TWO_COLUMN_RTL">
     <template #content-header>
       <LoginHeader />
     </template>
