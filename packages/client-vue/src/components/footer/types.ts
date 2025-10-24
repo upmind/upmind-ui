@@ -8,3 +8,13 @@ export enum FOOTER_TEMPLATE {
   CANVAS_CARD = "canvasCard",
   SURFACE_BOX = "surfaceBox"
 }
+
+export type FooterProps = {
+  visible?: boolean;
+  template?: FOOTER_TEMPLATE;
+  noLocale?: boolean;
+  noCurrency?: boolean;
+  noPoweredBy?: boolean;
+  noLogo?: boolean;
+  noCopyright?: boolean;
+};
