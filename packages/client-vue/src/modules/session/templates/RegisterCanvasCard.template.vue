@@ -30,6 +30,7 @@ const { setTemplate, hideLocale } = useFooter();
 hideLocale();
 setTemplate(FOOTER_TEMPLATE.CANVAS_CARD);
 
-const { setTemplate: setHeaderTemplate } = useHeader();
+const { setTemplate: setHeaderTemplate, hideActions } = useHeader();
+hideActions();
 setHeaderTemplate(HEADER_TEMPLATE.CANVAS_CARD);
 </script>

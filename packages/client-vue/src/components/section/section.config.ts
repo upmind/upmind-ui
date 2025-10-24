@@ -3,13 +3,16 @@ import { cva } from "class-variance-authority";
 
 export default {
   section: {
-    header: cva("border-surface border-b pb-4", {
-      variants: {
-        variant: {
-          enclosed: "border-b-0"
+    header: cva(
+      "border-surface flex items-center justify-between border-b pb-4",
+      {
+        variants: {
+          variant: {
+            enclosed: "border-b-0"
+          }
         }
       }
-    }),
+    ),
     root: cva("flex w-full flex-col gap-9", {
       variants: {
         variant: {
