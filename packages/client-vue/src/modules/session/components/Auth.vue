@@ -3,7 +3,6 @@
     class="auth"
     :class="cn(styles.session.auth.root, props.class)"
     v-if="!meta.isAuthenticated && !meta.isLoading"
-    v-auto-animate
   >
     <Alert
       v-if="meta.hasErrors"
@@ -63,7 +62,6 @@
 // --- external
 import { computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
 import TermsAndConditions from "../../brand/TermsAndConditions.vue";

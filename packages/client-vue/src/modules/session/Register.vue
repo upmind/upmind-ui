@@ -1,9 +1,5 @@
 <template>
-  <component
-    v-if="currentRoute"
-    :is="templateVariant"
-    :key="currentRoute.fullPath"
-  />
+  <component :is="templateVariant" />
 </template>
 
 <script lang="ts" setup>
@@ -23,11 +19,15 @@ import RegisterSurfaceBox from "./templates/RegisterSurfaceBox.template.vue";
 
 // --- types
 import { REGISTER_TEMPLATE } from "./types";
+import { ROUTE } from "@upmind-automation/headless";
 
-const { currentRoute } = useRoutingEngine();
+const { currentRoute, isResolved, isReady } = useRoutingEngine();
 
 const { hideCurrency } = useFooter();
 hideCurrency();
+
+await isReady();
+await isResolved(ROUTE.SESSION_REGISTER);
 
 const supportedTemplates = {
   [REGISTER_TEMPLATE.SPLIT]: RegisterSplit,
