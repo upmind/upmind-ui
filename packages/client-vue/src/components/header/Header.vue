@@ -1,11 +1,11 @@
 <template>
-  <header :class="styles.header.root">
+  <header :class="styles.header.root" v-show="meta.isVisible">
     <div :class="styles.header.container">
-      <div :class="styles.header.left">
-        <HeaderBrand />
+      <div :class="styles.header.left" v-if="meta.hasContent">
+        <HeaderBrand v-if="meta.showLogo" />
       </div>
 
-      <div :class="styles.header.right">
+      <div :class="styles.header.right" v-if="meta.hasActions">
         <HeaderActions />
       </div>
     </div>
@@ -14,12 +14,11 @@
 
 <script setup lang="ts">
 // --- external
-import { computed } from "vue";
 
 // --- internal
+import { useHeader } from "./useHeader";
 import config from "./header.config";
 import { useStyles } from "@upmind-automation/upmind-ui";
-import { useRoutingEngine } from "@upmind-automation/headless";
 
 // --- components
 import HeaderBrand from "./HeaderBrand.vue";
@@ -27,15 +26,25 @@ import HeaderActions from "./HeaderActions.vue";
 
 // --- types
 import type { ComputedRef } from "vue";
-import { LAYOUT_VARIANTS } from "../layout";
+import type { HeaderProps } from "./types";
+// -----------------------------------------------------------------------------
+const props = withDefaults(defineProps<HeaderProps>(), {
+  visible: undefined,
+  template: undefined,
+  noSession: undefined,
+  noBasket: undefined,
+  noLogo: undefined
+});
 
-const { currentRoute } = useRoutingEngine();
+const { meta, template, templateName } = useHeader(props);
 
-const meta = computed(() => ({
-  variant: currentRoute.value?.meta?.template || LAYOUT_VARIANTS.DEFAULT
-}));
-
-const styles = useStyles(["header"], meta, config) as ComputedRef<{
+const styles = useStyles(
+  ["header"],
+  {
+    variant: template
+  },
+  config
+) as ComputedRef<{
   header: {
     root: string;
     container: string;
