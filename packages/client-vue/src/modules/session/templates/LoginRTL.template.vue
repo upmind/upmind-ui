@@ -23,12 +23,17 @@ import LoginAside from "../components/LoginAside.vue";
 
 // --- internal
 import { useFooter } from "../../../components/footer/useFooter";
+import { useHeader } from "../../../components/header/useHeader";
 
 // --- types
+import { HEADER_TEMPLATE } from "../../../components/header/types";
 import { FOOTER_TEMPLATE } from "../../../components/footer/types";
 import { LAYOUT_VARIANTS } from "../../../components/layout/types";
 
 // --- methods
 const { setTemplate } = useFooter();
 setTemplate(FOOTER_TEMPLATE.TWO_COLUMN_RTL);
+
+const { setTemplate: setHeaderTemplate } = useHeader();
+setHeaderTemplate(HEADER_TEMPLATE.TWO_COLUMN_RTL);
 </script>
