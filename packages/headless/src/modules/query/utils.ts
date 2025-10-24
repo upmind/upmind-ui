@@ -287,7 +287,7 @@ const mapFeedback = (
       title: t("error.429_title_md"),
       copy: t("error.429_text"),
       data: error,
-      display: messageDisplays.MODAL
+      display: messageDisplays.INTERSTITIAL
     },
     [responseCodes.Internal_Server_Error]: {
       type: messageTypes.ERROR,
@@ -301,7 +301,7 @@ const mapFeedback = (
       title: t("error.503_title_md"),
       copy: t("error.503_text"),
       data: error,
-      display: messageDisplays.SYSTEM,
+      display: messageDisplays.INTERSTITIAL,
       delay: 0,
       maxAge: 0
     }
