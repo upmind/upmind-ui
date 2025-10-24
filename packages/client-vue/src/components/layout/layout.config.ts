@@ -163,7 +163,7 @@ export default {
         ),
         container: cva("flex h-full min-h-screen flex-col gap-6"),
         header: cva("flex flex-col gap-9"),
-        footer: cva("sticky bottom-18 mt-auto flex flex-col gap-6")
+        footer: cva("sticky top-0 flex flex-col gap-6 pt-9")
       }
     },
     spacer: {
