@@ -1,8 +1,8 @@
 // --- external
-import { computed, defineAsyncComponent } from "vue";
+import { computed, defineAsyncComponent, ref } from "vue";
 
 // --- internal
-import { Store, useRoutingEngine } from "@upmind-automation/headless";
+import { Store } from "@upmind-automation/headless";
 
 // --- async components
 
@@ -19,7 +19,7 @@ const FooterNoOptions = defineAsyncComponent(
 );
 
 // --- utils
-import { isEmpty, isObject, merge } from "lodash-es";
+import { get, isEmpty, isObject, merge } from "lodash-es";
 
 // --- types
 import { FOOTER_TEMPLATE, type FooterProps } from "./types";
@@ -37,6 +37,10 @@ const footerConfig = new Store<FooterProps>({
   noPoweredBy: false
 });
 
+// NB: Create a reactive ref initialized with the store's current state.
+const config = ref<FooterProps>(footerConfig.state); // 👈 Use getState() if available, otherwise access the internal state.
+footerConfig.subscribe(state => (config.value = state.currentVal));
+
 // -----------------------------------------------------------------------------
 /**
  * Composable to manage footer layout and behavior.
@@ -45,33 +49,12 @@ const footerConfig = new Store<FooterProps>({
  */
 export const useFooter = (initial?: Partial<FooterProps>) => {
   // Initialize state with initial values
-  updateConfig(initial || {});
+  update(initial || {});
 
-  const { currentRoute } = useRoutingEngine();
-
-  const supportedTemplates = {
-    [FOOTER_TEMPLATE.DEFAULT]: FooterStacked,
-    [FOOTER_TEMPLATE.ENCLOSED]: FooterStacked,
-    [FOOTER_TEMPLATE.FULL]: FooterStacked,
-    [FOOTER_TEMPLATE.TWO_COLUMN_LTR]: FooterFlat,
-    [FOOTER_TEMPLATE.TWO_COLUMN_RTL]: FooterFlat,
-    [FOOTER_TEMPLATE.SPLIT]: FooterNoOptions,
-    [FOOTER_TEMPLATE.CANVAS_CARD]: FooterNoOptions,
-    [FOOTER_TEMPLATE.SURFACE_BOX]: FooterNoOptions
-  };
-
-  const defaultTemplate = supportedTemplates[FOOTER_TEMPLATE.DEFAULT];
-
-  const template = computed(() => {
-    const template = currentRoute.value?.meta?.template as FOOTER_TEMPLATE;
-    return supportedTemplates[template] ?? defaultTemplate;
-  });
-
-  // --- context
-
+  // --- state
   const meta = computed(() => {
     const { visible, noCopyright, noCurrency, noLocale, noLogo, noPoweredBy } =
-      footerConfig.state;
+      config.value;
 
     return {
       isVisible: !!visible,
@@ -85,83 +68,109 @@ export const useFooter = (initial?: Partial<FooterProps>) => {
     };
   });
 
+  // --- context
+  const supportedTemplates = {
+    [FOOTER_TEMPLATE.DEFAULT]: FooterStacked,
+    [FOOTER_TEMPLATE.ENCLOSED]: FooterStacked,
+    [FOOTER_TEMPLATE.FULL]: FooterStacked,
+    [FOOTER_TEMPLATE.TWO_COLUMN_LTR]: FooterFlat,
+    [FOOTER_TEMPLATE.TWO_COLUMN_RTL]: FooterFlat,
+    [FOOTER_TEMPLATE.SPLIT]: FooterNoOptions,
+    [FOOTER_TEMPLATE.CANVAS_CARD]: FooterNoOptions,
+    [FOOTER_TEMPLATE.SURFACE_BOX]: FooterNoOptions
+  };
+
+  const defaultTemplate = FOOTER_TEMPLATE.DEFAULT;
+
+  const template = computed(() => {
+    const template = config.value.template ?? defaultTemplate;
+    // const template = currentRoute.value?.meta?.template as FOOTER_TEMPLATE;
+    return get(
+      supportedTemplates,
+      template,
+      get(supportedTemplates, defaultTemplate)
+    );
+  });
+
   // --- methods
-  function updateConfig(values: Partial<FooterProps>) {
-    console.log(values);
+  function update(values: Partial<FooterProps>) {
+    console.log("Footer", "update", values);
     if (!isObject(values) || isEmpty(values)) return;
     footerConfig.setState((prev: FooterProps) => {
       const value = merge({}, prev, values) as FooterProps;
+      console.log("Footer", "updatedConfig", value);
+
       return value;
     });
   }
 
   // --- sytactic sugar
   function hide() {
-    updateConfig({ visible: false });
+    update({ visible: false });
   }
 
   function show() {
-    updateConfig({ visible: true });
+    update({ visible: true });
   }
 
   function hideCopyright() {
-    updateConfig({ noCopyright: true });
+    update({ noCopyright: true });
   }
 
   function showCopyright() {
-    updateConfig({ noCopyright: false });
+    update({ noCopyright: false });
   }
 
   function hideCurrency() {
-    updateConfig({ noCurrency: true });
+    update({ noCurrency: true });
   }
 
   function showCurrency() {
-    updateConfig({ noCurrency: false });
+    update({ noCurrency: false });
   }
 
   function hideLocale() {
-    updateConfig({ noLocale: true });
+    update({ noLocale: true });
   }
 
   function showLocale() {
-    updateConfig({ noLocale: false });
+    update({ noLocale: false });
   }
 
   function hideLogo() {
-    updateConfig({ noLogo: true });
+    update({ noLogo: true });
   }
 
   function showLogo() {
-    updateConfig({ noLogo: false });
+    update({ noLogo: false });
   }
 
   function hidePoweredBy() {
-    updateConfig({ noPoweredBy: true });
+    update({ noPoweredBy: true });
   }
 
   function showPoweredBy() {
-    updateConfig({ noPoweredBy: false });
+    update({ noPoweredBy: false });
   }
 
   function hideActions() {
-    updateConfig({ noLocale: true, noCurrency: true });
+    update({ noLocale: true, noCurrency: true });
   }
 
   function showActions() {
-    updateConfig({ noLocale: false, noCurrency: false });
+    update({ noLocale: false, noCurrency: false });
   }
 
   function hideContent() {
-    updateConfig({ noLogo: true, noPoweredBy: true, noCopyright: true });
+    update({ noLogo: true, noPoweredBy: true, noCopyright: true });
   }
 
   function showContent() {
-    updateConfig({ noLogo: false, noPoweredBy: false, noCopyright: false });
+    update({ noLogo: false, noPoweredBy: false, noCopyright: false });
   }
 
   function setTemplate(template: FooterProps["template"]) {
-    updateConfig({ template });
+    update({ template });
   }
 
   // ---------------------------------------------------------------------------
@@ -189,6 +198,7 @@ export const useFooter = (initial?: Partial<FooterProps>) => {
      * The current footer template component.
      */
     template,
+    templateName: computed(() => config.value.template),
 
     // --- methods
     /**
@@ -196,7 +206,7 @@ export const useFooter = (initial?: Partial<FooterProps>) => {
      * @param {Partial<FooterProps>} config - Partial configuration to update the footer state.
      * @returns {void}
      */
-    updateConfig,
+    update,
 
     /**
      * Hides the footer.
