@@ -3,22 +3,16 @@ import { cva } from "class-variance-authority";
 
 export default {
   section: {
-    header: cva("flex justify-between", {
+    header: cva("border-surface border-b pb-4", {
       variants: {
         variant: {
-          full: "border-surface border-b pb-4",
-          default: "border-surface border-b pb-4",
-          twoColumnLTR: "border-surface border-b pb-4",
-          twoColumnRTL: "border-surface border-b pb-4",
-          enclosed: ""
+          enclosed: "border-b-0"
         }
       }
     }),
-    root: cva("flex w-full flex-col", {
+    root: cva("flex w-full flex-col gap-9", {
       variants: {
         variant: {
-          default: "gap-9",
-          full: "gap-9",
           enclosed: "gap-3"
         }
       }
