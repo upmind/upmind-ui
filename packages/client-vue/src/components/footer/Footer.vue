@@ -1,5 +1,4 @@
 <template>
-  <pre>{{ templateName }}</pre>
   <component :is="template" v-show="meta.isVisible">
     <template #footer-actions v-if="meta.hasActions">
       <UpmLocale data-testid="locale-selector" v-show="meta.showLocale" />
