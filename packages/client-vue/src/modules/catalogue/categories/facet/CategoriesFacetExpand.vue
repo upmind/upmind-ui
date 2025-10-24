@@ -1,6 +1,5 @@
 <template>
   <Button
-    :as="RouterLink"
     v-for="(category, index) in items"
     :key="`category-${index}`"
     :to="category.to"
