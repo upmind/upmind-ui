@@ -30,7 +30,8 @@ import { FOOTER_TEMPLATE } from "../../../components/footer/types";
 import { LAYOUT_VARIANTS } from "../../../components/layout/types";
 
 // --- methods
-const { setTemplate } = useFooter();
+const { setTemplate, hideCurrency } = useFooter();
+hideCurrency();
 setTemplate(FOOTER_TEMPLATE.SPLIT);
 
 const { setTemplate: setHeaderTemplate } = useHeader();

@@ -30,7 +30,8 @@ import { LAYOUT_VARIANTS } from "../../../components/layout/types";
 import { HEADER_TEMPLATE } from "../../../components/header/types";
 
 // --- methods
-const { setTemplate } = useFooter();
+const { setTemplate, hideCurrency } = useFooter();
+hideCurrency();
 setTemplate(FOOTER_TEMPLATE.TWO_COLUMN_LTR);
 
 const { setTemplate: setHeaderTemplate } = useHeader();
