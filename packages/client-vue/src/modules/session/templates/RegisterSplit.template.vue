@@ -29,8 +29,7 @@ import { LAYOUT_VARIANTS } from "../../../components/layout/types";
 import { HEADER_TEMPLATE } from "../../../components/header/types";
 
 // --- methods
-const { setTemplate, hideCurrency } = useFooter();
-hideCurrency();
+const { setTemplate } = useFooter();
 setTemplate(FOOTER_TEMPLATE.SPLIT);
 
 const { setTemplate: setHeaderTemplate } = useHeader();
