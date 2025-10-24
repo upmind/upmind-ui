@@ -41,5 +41,5 @@ const props = withDefaults(defineProps<FooterProps>(), {
   noPoweredBy: undefined
 });
 
-const { meta, template, templateName } = useFooter(props);
+const { meta, template } = useFooter(props);
 </script>

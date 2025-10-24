@@ -26,6 +26,7 @@
 // --- internal
 import { useRoutingEngine } from "@upmind-automation/headless";
 import { useFooter } from "../../../components/footer/useFooter";
+import { useHeader } from "../../../components/header/useHeader";
 
 // --- components
 import Layout from "../../../components/layout/Layout.vue";
@@ -36,12 +37,16 @@ import CheckoutAside from "../components/CheckoutAside.vue";
 import CheckoutAsideFooter from "../components/CheckoutAsideFooter.vue";
 
 // --- types
+import { HEADER_TEMPLATE } from "../../../components/header/types";
 import { FOOTER_TEMPLATE } from "../../../components/footer/types";
 import { LAYOUT_VARIANTS } from "../../../components/layout/types";
 
 // --- methods
 const { setTemplate } = useFooter();
 setTemplate(FOOTER_TEMPLATE.FULL);
+
+const { setTemplate: setHeaderTemplate } = useHeader();
+setHeaderTemplate(HEADER_TEMPLATE.FULL);
 
 const { navigateBack } = useRoutingEngine();
 
