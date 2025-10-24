@@ -38,7 +38,7 @@ const footerConfig = new Store<FooterProps>({
 });
 
 // NB: Create a reactive ref initialized with the store's current state.
-const config = ref<FooterProps>(footerConfig.state); // 👈 Use getState() if available, otherwise access the internal state.
+const config = ref<FooterProps>(footerConfig.state);
 footerConfig.subscribe(state => (config.value = state.currentVal));
 
 // -----------------------------------------------------------------------------
@@ -84,7 +84,6 @@ export const useFooter = (initial?: Partial<FooterProps>) => {
 
   const template = computed(() => {
     const template = config.value.template ?? defaultTemplate;
-    // const template = currentRoute.value?.meta?.template as FOOTER_TEMPLATE;
     return get(
       supportedTemplates,
       template,
@@ -94,14 +93,10 @@ export const useFooter = (initial?: Partial<FooterProps>) => {
 
   // --- methods
   function update(values: Partial<FooterProps>) {
-    console.log("Footer", "update", values);
     if (!isObject(values) || isEmpty(values)) return;
-    footerConfig.setState((prev: FooterProps) => {
-      const value = merge({}, prev, values) as FooterProps;
-      console.log("Footer", "updatedConfig", value);
-
-      return value;
-    });
+    footerConfig.setState(
+      (prev: FooterProps) => merge({}, prev, values) as FooterProps
+    );
   }
 
   // --- sytactic sugar
