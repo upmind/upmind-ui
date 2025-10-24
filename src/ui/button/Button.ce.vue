@@ -86,8 +86,8 @@ defineEmits<{
 const component = computed(() => {
   if (props.is) return props.is;
   // NB  if we are disabled and we are a link, we render a button to prevent navigation
-  if (!props.disabled && props.to) return RouterLink;
-  if (!props.disabled && props.href) return "a";
+  if (props.to && !props.disabled) return RouterLink;
+  if (props.href && !props.disabled) return "a";
   // default
   return Button;
 });
