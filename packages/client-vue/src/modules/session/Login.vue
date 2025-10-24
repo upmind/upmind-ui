@@ -8,7 +8,6 @@ import { computed } from "vue";
 
 // --- internal
 import { useRoutingEngine } from "@upmind-automation/headless";
-import { useFooter } from "../../components/footer/useFooter";
 
 // --- components
 import LoginLTR from "./templates/LoginLTR.template.vue";
@@ -22,9 +21,6 @@ import { LOGIN_TEMPLATE } from "./types";
 import { ROUTE } from "@upmind-automation/headless";
 
 const { currentRoute, isResolved, isReady } = useRoutingEngine();
-
-const { hideCurrency } = useFooter();
-hideCurrency();
 
 await isReady();
 await isResolved(ROUTE.SESSION_REGISTER);

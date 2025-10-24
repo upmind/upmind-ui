@@ -26,11 +26,15 @@ import { LAYOUT_VARIANTS } from "../../../components/layout/types";
 import { HEADER_TEMPLATE } from "../../../components/header/types";
 
 // --- methods
-const { setTemplate, hideLocale } = useFooter();
-hideLocale();
-setTemplate(FOOTER_TEMPLATE.CANVAS_CARD);
+useFooter({
+  template: FOOTER_TEMPLATE.CANVAS_CARD,
+  noCurrency: true,
+  noLocale: true
+});
 
-const { setTemplate: setHeaderTemplate, hideActions } = useHeader();
-hideActions();
-setHeaderTemplate(HEADER_TEMPLATE.CANVAS_CARD);
+useHeader({
+  template: HEADER_TEMPLATE.CANVAS_CARD,
+  noBasket: true,
+  noSession: true
+});
 </script>

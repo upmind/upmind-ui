@@ -15,13 +15,15 @@ import { HEADER_TEMPLATE, type HeaderProps } from "./types";
 // -----------------------------------------------------------------------------
 // --- global context
 
-const headerConfig = new Store<HeaderProps>({
+const defaultHeaderProps: HeaderProps = {
   visible: true,
   template: HEADER_TEMPLATE.DEFAULT,
   noSession: false,
   noBasket: false,
   noLogo: false
-});
+};
+
+const headerConfig = new Store<HeaderProps>(defaultHeaderProps);
 
 // NB: Create a reactive ref initialized with the store's current state.
 const config = ref<HeaderProps>(headerConfig.state);
@@ -34,8 +36,12 @@ headerConfig.subscribe(state => (config.value = state.currentVal));
  *
  */
 export const useHeader = (initial?: Partial<HeaderProps>) => {
-  // Initialize state with initial values
-  update(initial || {});
+  // Reset to defaults and apply initial overrides if provided
+  if (initial) {
+    headerConfig.setState(
+      merge({}, defaultHeaderProps, initial) as HeaderProps
+    );
+  }
 
   // --- state
   const meta = computed(() => {

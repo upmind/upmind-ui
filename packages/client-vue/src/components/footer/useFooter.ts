@@ -27,7 +27,7 @@ import { FOOTER_TEMPLATE, type FooterProps } from "./types";
 // -----------------------------------------------------------------------------
 // --- global context
 
-const footerConfig = new Store<FooterProps>({
+const defaultFooterProps: FooterProps = {
   visible: true,
   template: FOOTER_TEMPLATE.DEFAULT,
   noLocale: false,
@@ -35,7 +35,9 @@ const footerConfig = new Store<FooterProps>({
   noCopyright: false,
   noLogo: false,
   noPoweredBy: false
-});
+};
+
+const footerConfig = new Store<FooterProps>(defaultFooterProps);
 
 // NB: Create a reactive ref initialized with the store's current state.
 const config = ref<FooterProps>(footerConfig.state);
@@ -48,8 +50,12 @@ footerConfig.subscribe(state => (config.value = state.currentVal));
  *
  */
 export const useFooter = (initial?: Partial<FooterProps>) => {
-  // Initialize state with initial values
-  update(initial || {});
+  // Reset to defaults and apply initial overrides if provided
+  if (initial) {
+    footerConfig.setState(
+      merge({}, defaultFooterProps, initial) as FooterProps
+    );
+  }
 
   // --- state
   const meta = computed(() => {

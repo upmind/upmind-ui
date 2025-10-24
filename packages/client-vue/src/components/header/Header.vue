@@ -1,12 +1,14 @@
 <template>
   <header :class="styles.header.root" v-show="meta.isVisible">
     <div :class="styles.header.container">
-      <div :class="styles.header.left" v-if="meta.hasContent">
-        <HeaderBrand v-if="meta.showLogo" />
+      <div :class="styles.header.left">
+        <template v-if="meta.hasContent">
+          <HeaderBrand v-if="meta.showLogo" />
+        </template>
       </div>
 
-      <div :class="styles.header.right" v-if="meta.hasActions">
-        <HeaderActions />
+      <div :class="styles.header.right">
+        <HeaderActions v-if="meta.hasActions" />
       </div>
     </div>
   </header>
@@ -27,17 +29,8 @@ import HeaderActions from "./HeaderActions.vue";
 
 // --- types
 import type { ComputedRef } from "vue";
-import type { HeaderProps } from "./types";
 // -----------------------------------------------------------------------------
-const props = withDefaults(defineProps<HeaderProps>(), {
-  visible: undefined,
-  template: undefined,
-  noSession: undefined,
-  noBasket: undefined,
-  noLogo: undefined
-});
-
-const { meta, templateName } = useHeader(props);
+const { meta, templateName } = useHeader();
 
 const styles = useStyles(
   ["header"],
