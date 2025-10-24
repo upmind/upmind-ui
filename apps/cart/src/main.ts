@@ -8,7 +8,6 @@ import router from "./router";
 import i18n from "./i18n";
 
 import UpmindClient from "@upmind-automation/client-vue";
-import { useCustomFlows } from "./router/useCustomFlows";
 import { plugins as uiPlugins } from "@upmind-automation/upmind-ui";
 
 // --- utils
