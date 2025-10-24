@@ -64,14 +64,24 @@
 </template>
 
 <script lang="ts" setup>
+// --- external
 import { useI18n } from "vue-i18n";
 import { useBasket, useBasketFields } from "@upmind-automation/headless";
+
+// --- internal
+import { useStyles } from "@upmind-automation/upmind-ui";
+import config from "../checkout.config";
+
+// --- components
 import Section from "../../../components/section/Section.vue";
 import BillingDetails from "../../billing/Billing.vue";
 import PaymentDetails from "./PaymentDetails.vue";
 import ProductCards from "../../basket/product/BasketProductCards.vue";
 import Form from "../../../components/form/Form.vue";
 import BasketErrors from "../../basket/components/BasketErrors.vue";
+
+// --- types
+import type { ComputedRef } from "vue";
 
 interface Props {
   section?: boolean;
@@ -92,4 +102,10 @@ const {
   clear: fieldsClear,
   update: fieldsUpdate
 } = useBasketFields();
+
+const styles = useStyles(["checkout"], meta, config) as ComputedRef<{
+  checkout: {
+    paymentDetails?: string;
+  };
+}>;
 </script>
