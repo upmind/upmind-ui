@@ -1,5 +1,9 @@
 <template>
-  <component v-if="currentRoute" :is="templateVariant" />
+  <component
+    v-if="currentRoute"
+    :is="templateVariant"
+    :key="currentRoute.fullPath"
+  />
 </template>
 
 <script lang="ts" setup>
@@ -8,6 +12,7 @@ import { computed } from "vue";
 
 // --- internal
 import { useRoutingEngine } from "@upmind-automation/headless";
+import { useFooter } from "../../components/footer/useFooter";
 
 // --- components
 import RegisterLTR from "./templates/RegisterLTR.template.vue";
@@ -20,6 +25,9 @@ import RegisterSurfaceBox from "./templates/RegisterSurfaceBox.template.vue";
 import { REGISTER_TEMPLATE } from "./types";
 
 const { currentRoute } = useRoutingEngine();
+
+const { hideCurrency } = useFooter();
+hideCurrency();
 
 const supportedTemplates = {
   [REGISTER_TEMPLATE.SPLIT]: RegisterSplit,

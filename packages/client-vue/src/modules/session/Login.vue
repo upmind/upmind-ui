@@ -1,5 +1,9 @@
 <template>
-  <component v-if="currentRoute" :is="templateVariant" />
+  <component
+    v-if="currentRoute"
+    :is="templateVariant"
+    :key="currentRoute.fullPath"
+  />
 </template>
 
 <script lang="ts" setup>

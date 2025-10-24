@@ -26,8 +26,7 @@ import { LAYOUT_VARIANTS } from "../../../components/layout/types";
 import { HEADER_TEMPLATE } from "../../../components/header/types";
 
 // --- methods
-const { setTemplate, hideLocale } = useFooter();
-hideLocale();
+const { setTemplate } = useFooter();
 setTemplate(FOOTER_TEMPLATE.CANVAS_CARD);
 
 const { setTemplate: setHeaderTemplate, hideActions } = useHeader();
