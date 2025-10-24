@@ -1,5 +1,5 @@
 <template>
-  <Layout :variant="LAYOUT_VARIANTS.TWO_COLUMN_RTL" minimal>
+  <Layout :variant="LAYOUT_VARIANTS.TWO_COLUMN_RTL">
     <template #navigation>
       <div>
         <Back @click.prevent="doReject" button />
