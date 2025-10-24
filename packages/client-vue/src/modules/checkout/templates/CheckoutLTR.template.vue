@@ -1,5 +1,5 @@
 <template>
-  <Layout :variant="LAYOUT_VARIANTS.TWO_COLUMN_LTR" minimal>
+  <Layout :variant="LAYOUT_VARIANTS.TWO_COLUMN_LTR">
     <template #content-header>
       <CheckoutHeader :badge="false" />
     </template>
