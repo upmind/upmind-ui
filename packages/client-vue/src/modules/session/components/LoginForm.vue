@@ -14,7 +14,7 @@
 <script lang="ts" setup>
 import { useRoutingEngine, ROUTE } from "@upmind-automation/headless";
 import Auth from "../components/Auth.vue";
-import Section from "../../../components/content/LayoutSection.vue";
+import Section from "../../../components/section/Section.vue";
 import type { AuthProps } from "../types";
 
 interface Props {

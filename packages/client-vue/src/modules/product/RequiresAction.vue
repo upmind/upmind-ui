@@ -1,45 +1,40 @@
 <template>
-  <Layout>
-    <ContentSection>
-      <Interstitial
-        :title="t('cart.basket_products_require_attention_md', products.length)"
-        :text="t('cart.basket_products_review_desc')"
-        :animatedIcon="{
-          icon: 'basket',
-          delay: 5000,
-          primaryColor: 'primary',
-          secondaryColor: 'promotion',
-          size: '4xl'
-        }"
-        modal
-      >
-        <template #default>
-          <ol class="mt-4 list-disc text-left font-medium">
-            <li v-for="basketItem in products" :key="basketItem.id">
-              <span>{{ basketItem?.productDetails?.title }}</span>
-            </li>
-          </ol>
-        </template>
+  <div class="flex grow items-center justify-center">
+    <Interstitial
+      :title="t('cart.basket_products_require_attention_md', products.length)"
+      :text="t('cart.basket_products_review_desc')"
+      :animatedIcon="{
+        icon: 'basket',
+        delay: 5000,
+        primaryColor: 'primary',
+        secondaryColor: 'promotion',
+        size: '4xl'
+      }"
+      modal
+    >
+      <template #default>
+        <ol class="mt-4 list-disc text-left font-medium">
+          <li v-for="basketItem in products" :key="basketItem.id">
+            <span>{{ basketItem?.productDetails?.title }}</span>
+          </li>
+        </ol>
+      </template>
 
-        <template #actions>
-          <span class="flex flex-col items-center gap-2">
-            <Button
-              size="lg"
-              variant="solid"
-              color="primary"
-              iconAppend="arrow-right"
-              :label="t('action.review_next_product')"
-              @click.stop="navigateNext"
-            />
-            <Link
-              :label="t('action.do_this_later')"
-              @click.stop="navigateBack"
-            />
-          </span>
-        </template>
-      </Interstitial>
-    </ContentSection>
-  </Layout>
+      <template #actions>
+        <span class="flex flex-col items-center gap-2">
+          <Button
+            size="lg"
+            variant="solid"
+            color="primary"
+            iconAppend="arrow-right"
+            :label="t('action.review_next_product')"
+            @click.stop="navigateNext"
+          />
+          <Link :label="t('action.do_this_later')" @click.stop="navigateBack" />
+        </span>
+      </template>
+    </Interstitial>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -55,8 +50,6 @@ import {
 
 // --- components
 import { Interstitial, Button, Link } from "@upmind-automation/upmind-ui";
-import Layout from "../../components/layout/Layout.vue";
-import ContentSection from "../../components/content/ContentSection.vue";
 
 // --- utils
 
