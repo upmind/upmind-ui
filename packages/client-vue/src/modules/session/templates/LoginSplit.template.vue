@@ -21,13 +21,18 @@ import LoginForm from "../components/LoginForm.vue";
 import HeaderBrand from "../../../components/header/HeaderBrand.vue";
 
 // --- internal
+import { useHeader } from "../../../components/header/useHeader";
 import { useFooter } from "../../../components/footer/useFooter";
 
 // --- types
+import { HEADER_TEMPLATE } from "../../../components/header/types";
 import { FOOTER_TEMPLATE } from "../../../components/footer/types";
 import { LAYOUT_VARIANTS } from "../../../components/layout/types";
 
 // --- methods
 const { setTemplate } = useFooter();
 setTemplate(FOOTER_TEMPLATE.SPLIT);
+
+const { setTemplate: setHeaderTemplate } = useHeader();
+setHeaderTemplate(HEADER_TEMPLATE.SPLIT);
 </script>

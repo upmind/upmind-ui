@@ -36,12 +36,12 @@ const props = withDefaults(defineProps<HeaderProps>(), {
   noLogo: undefined
 });
 
-const { meta, template, templateName } = useHeader(props);
+const { meta, templateName } = useHeader(props);
 
 const styles = useStyles(
   ["header"],
   {
-    variant: template
+    variant: templateName.value
   },
   config
 ) as ComputedRef<{
