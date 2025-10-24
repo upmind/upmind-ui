@@ -1,5 +1,5 @@
 <template>
-  <component :is="templateVariant" />
+  <component v-if="currentRoute" :is="templateVariant" />
 </template>
 
 <script lang="ts" setup>

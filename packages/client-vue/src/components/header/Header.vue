@@ -14,6 +14,7 @@
 
 <script setup lang="ts">
 // --- external
+import { computed } from "vue";
 
 // --- internal
 import { useHeader } from "./useHeader";
@@ -41,7 +42,7 @@ const { meta, templateName } = useHeader(props);
 const styles = useStyles(
   ["header"],
   {
-    variant: templateName.value
+    variant: templateName
   },
   config
 ) as ComputedRef<{

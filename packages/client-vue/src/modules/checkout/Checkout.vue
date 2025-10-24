@@ -1,5 +1,9 @@
 <template>
-  <component :is="templateVariant" v-show="!meta.isCheckout" />
+  <component
+    v-if="currentRoute"
+    :is="templateVariant"
+    v-show="!meta.isCheckout"
+  />
 
   <!-- Basket processing -->
   <slot name="processing" v-if="meta.isCheckout">
