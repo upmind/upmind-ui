@@ -23,20 +23,20 @@
 </template>
 
 <script lang="ts" setup>
-import { useI18n } from "vue-i18n";
-import { useBasket, useRoutingEngine } from "@upmind-automation/headless";
-import { LAYOUT_VARIANTS } from "../../../components/layout/types";
+// --- internal
+import { useFooter } from "../../../components/footer/useFooter";
+
+// --- components
 import Layout from "../../../components/layout/Layout.vue";
-import Back from "../../../components/navigation/Back.vue";
 import CheckoutHeader from "../components/CheckoutHeader.vue";
 import CheckoutContent from "../components/CheckoutContent.vue";
 import CheckoutAside from "../components/CheckoutAside.vue";
 
-const { t } = useI18n();
-const { navigateBack } = useRoutingEngine();
-const { meta, errors } = useBasket();
+// --- types
+import { FOOTER_TEMPLATE } from "../../../components/footer/types";
+import { LAYOUT_VARIANTS } from "../../../components/layout/types";
 
-function doReject() {
-  navigateBack();
-}
+// --- methods
+const { setTemplate } = useFooter();
+setTemplate(FOOTER_TEMPLATE.FULL);
 </script>

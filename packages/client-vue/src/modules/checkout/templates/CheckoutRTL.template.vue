@@ -25,14 +25,23 @@
 </template>
 
 <script lang="ts" setup>
+// --- internal
 import { useRoutingEngine } from "@upmind-automation/headless";
-import { LAYOUT_VARIANTS } from "../../../components/layout/types";
+import { useFooter } from "../../../components/footer/useFooter";
+
+// --- components
 import Layout from "../../../components/layout/Layout.vue";
-import Back from "../../../components/navigation/Back.vue";
 import CheckoutHeader from "../components/CheckoutHeader.vue";
 import CheckoutContent from "../components/CheckoutContent.vue";
 import CheckoutAside from "../components/CheckoutAside.vue";
-import CheckoutAsideFooter from "../components/CheckoutAsideFooter.vue";
+
+// --- types
+import { FOOTER_TEMPLATE } from "../../../components/footer/types";
+import { LAYOUT_VARIANTS } from "../../../components/layout/types";
+
+// --- methods
+const { setTemplate } = useFooter();
+setTemplate(FOOTER_TEMPLATE.TWO_COLUMN_RTL);
 
 const { navigateBack } = useRoutingEngine();
 
