@@ -105,9 +105,9 @@ const icon = computed(() => {
     case responseCodes.Too_Many_Requests:
       return "arrow-left";
     case responseCodes.Internal_Server_Error:
-      return "network-refresh";
+      return "refresh-cw-01";
     case responseCodes.Service_Unavailable:
-      return "network-refresh";
+      return "refresh-cw-01";
     default:
       return "arrow-left";
   }
