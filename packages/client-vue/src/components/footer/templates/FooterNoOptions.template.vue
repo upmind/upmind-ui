@@ -21,12 +21,12 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 // --- types
 import type { ComputedRef } from "vue";
 import { computed } from "vue";
-import { FOOTER_TEMPLATE } from "../types";
+import { useFooter } from "../useFooter";
 
-const { currentRoute } = useRoutingEngine();
+const { templateName } = useFooter();
 
 const meta = computed(() => ({
-  variant: currentRoute.value?.meta?.template || FOOTER_TEMPLATE.SPLIT
+  variant: templateName.value
 }));
 
 const styles = useStyles(["footer"], meta, config, {}) as ComputedRef<{

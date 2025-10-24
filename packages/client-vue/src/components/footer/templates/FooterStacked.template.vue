@@ -22,19 +22,18 @@ import { computed } from "vue";
 
 // --- internal
 import config from "../footer.config";
-import { useRoutingEngine } from "@upmind-automation/headless";
+import { useFooter } from "../useFooter";
 
 // --- utils
 import { useStyles } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { ComputedRef } from "vue";
-import { FOOTER_TEMPLATE } from "../types";
 
-const { currentRoute } = useRoutingEngine();
+const { templateName } = useFooter();
 
 const meta = computed(() => ({
-  variant: currentRoute.value?.meta?.template || FOOTER_TEMPLATE.DEFAULT
+  variant: templateName.value
 }));
 
 const styles = useStyles(["footer"], meta, config, {}) as ComputedRef<{

@@ -20,6 +20,7 @@
 
 <script lang="ts" setup>
 // --- internal
+import { useHeader } from "../../../components/header/useHeader";
 import { useFooter } from "../../../components/footer/useFooter";
 
 // --- components
@@ -29,10 +30,14 @@ import CheckoutContent from "../components/CheckoutContent.vue";
 import CheckoutAside from "../components/CheckoutAside.vue";
 
 // --- types
+import { HEADER_TEMPLATE } from "../../../components/header/types";
 import { FOOTER_TEMPLATE } from "../../../components/footer/types";
 import { LAYOUT_VARIANTS } from "../../../components/layout/types";
 
 // --- methods
 const { setTemplate } = useFooter();
 setTemplate(FOOTER_TEMPLATE.TWO_COLUMN_LTR);
+
+const { setTemplate: setHeaderTemplate } = useHeader();
+setHeaderTemplate(HEADER_TEMPLATE.TWO_COLUMN_LTR);
 </script>
