@@ -16,13 +16,15 @@
       <slot name="action" />
     </header>
 
-    <component
-      :is="component"
-      :class="cn(styles.section.content, props.class)"
-      :aside="aside"
-    >
-      <slot name="default" />
-    </component>
+    <div>
+      <component
+        :is="component"
+        :class="cn(styles.section.content, props.class)"
+        :aside="aside"
+      >
+        <slot name="default" />
+      </component>
+    </div>
   </div>
 </template>
 
