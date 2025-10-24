@@ -15,10 +15,8 @@
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
-import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
-import { LAYOUT_VARIANTS } from "../../components/layout";
 
 // -- components
 import { Interstitial } from "@upmind-automation/upmind-ui";
@@ -26,7 +24,6 @@ import Layout from "../../components/layout/Layout.vue";
 
 // -- types
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
-import { LAYOUT_VARIANTS } from "../../components/layout";
 
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
