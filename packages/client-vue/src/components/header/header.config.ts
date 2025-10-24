@@ -15,6 +15,9 @@ const rootVariants = cva("w-full", {
       canvasCard: "hidden",
       surfaceBox: "absolute top-0 px-6 md:px-8"
     }
+  },
+  defaultVariants: {
+    variant: "default"
   }
 });
 
@@ -31,6 +34,9 @@ const containerVariants = cva("flex w-full", {
       surfaceBox:
         "max-w-app mx-auto flex h-24 w-full items-center justify-between lg:items-end"
     }
+  },
+  defaultVariants: {
+    variant: "default"
   }
 });
 
@@ -48,6 +54,9 @@ const leftVariants = cva("", {
       canvasCard: "",
       surfaceBox: ""
     }
+  },
+  defaultVariants: {
+    variant: "default"
   }
 });
 
@@ -65,6 +74,9 @@ const rightVariants = cva("", {
       canvasCard: "",
       surfaceBox: ""
     }
+  },
+  defaultVariants: {
+    variant: "default"
   }
 });
 
