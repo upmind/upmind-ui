@@ -1,7 +1,7 @@
 <template>
   <Loading
     :active="!meta.isAvailable || !meta.hasSettings"
-    class-active="h-full min-h-screen w-full text-base bg-core-surface"
+    class-active="h-full min-h-screen w-full text-base bg-canvas"
     id="vue-app"
   >
     <Suspense
@@ -9,49 +9,42 @@
       @resolve="setLoading(false)"
       @fallback="setLoading(true)"
     >
-      <div
-        class="bg-canvas relative flex min-h-screen flex-col items-start text-base antialiased"
-      >
+      <Page :class="styles.page" :key="$route.fullPath">
         <slot name="header" v-if="meta.isAvailable && meta.hasSettings">
           <Header />
         </slot>
 
-        <div
-          class="flex w-full flex-1 flex-col"
-          v-if="meta.isAvailable && meta.hasSettings"
-        >
+        <main class="w-full" v-if="meta.isAvailable && meta.hasSettings">
           <RouterView v-slot="routerViewProps" :key="$route.fullPath">
             <slot v-bind="routerViewProps">
               <template v-if="routerViewProps.Component">
-                <Page :class="styles.page" :key="$route.fullPath">
-                  <KeepAlive>
-                    <Suspense
-                      @pending="setLoading(true)"
-                      @resolve="setLoading(false)"
-                      @fallback="setLoading(true)"
-                    >
-                      <!-- page content -->
-                      <component :is="routerViewProps.Component" />
+                <KeepAlive>
+                  <Suspense
+                    @pending="setLoading(true)"
+                    @resolve="setLoading(false)"
+                    @fallback="setLoading(true)"
+                  >
+                    <!-- page content -->
+                    <component :is="routerViewProps.Component" />
 
-                      <!-- fallback / loading state -->
-                      <template #fallback>
-                        <AsyncLoading
-                          v-bind="loadingProps"
-                          v-if="meta.isAvailable && meta.hasSettings"
-                        />
-                      </template>
-                    </Suspense>
-                  </KeepAlive>
-                </Page>
+                    <!-- fallback / loading state -->
+                    <template #fallback>
+                      <AsyncLoading
+                        v-bind="loadingProps"
+                        v-if="meta.isAvailable && meta.hasSettings"
+                      />
+                    </template>
+                  </Suspense>
+                </KeepAlive>
               </template>
             </slot>
           </RouterView>
-        </div>
+        </main>
 
         <slot name="footer" v-if="meta.isAvailable && meta.hasSettings">
           <Footer />
         </slot>
-      </div>
+      </Page>
     </Suspense>
   </Loading>
   <Feedback v-if="meta.isAvailable" />

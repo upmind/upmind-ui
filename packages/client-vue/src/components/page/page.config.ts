@@ -1,5 +1,7 @@
 import { cva } from "class-variance-authority";
 
 export default {
-  page: cva("flex w-full max-w-none grow flex-wrap text-base transition-colors")
+  page: cva(
+    "relative flex min-h-screen w-full flex-col items-center justify-center gap-0 text-base antialiased"
+  )
 };

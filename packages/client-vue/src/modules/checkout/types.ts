@@ -23,6 +23,6 @@ export interface PaymentGatewayProps {
 
 export enum CHECKOUT_TEMPLATE {
   FULL = "full",
-  TWO_COLUMN_LTR = "two-column-LTR",
-  TWO_COLUMN_RTL = "two-column-RTL"
+  TWO_COLUMN_LTR = "twoColumnLTR",
+  TWO_COLUMN_RTL = "twoColumnRTL"
 }

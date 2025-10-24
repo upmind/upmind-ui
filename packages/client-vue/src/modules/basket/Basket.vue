@@ -1,5 +1,5 @@
 <template>
-  <Layout :variant="layout" minimal>
+  <Layout :variant="layout">
     <template #navigation>
       <Back v-bind="storefrontRoute" :label="t('action.continue_shopping')" />
     </template>
@@ -160,7 +160,7 @@ const open = ref(false);
 await isReady();
 
 const layout = computed(() => {
-  return currentRoute.value?.meta?.template || "full";
+  return currentRoute.value?.meta?.template;
 });
 
 const styles = useStyles(
