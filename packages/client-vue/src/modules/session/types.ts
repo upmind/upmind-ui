@@ -41,16 +41,16 @@ export interface SessionExpiredProps {
 
 export enum REGISTER_TEMPLATE {
   SPLIT = "split",
-  CANVAS_CARD = "canvas-card",
-  SURFACE_BOX = "surface-box",
-  TWO_COLUMN_LTR = "two-column-LTR",
-  TWO_COLUMN_RTL = "two-column-RTL"
+  CANVAS_CARD = "canvasCard",
+  SURFACE_BOX = "surfaceBox",
+  TWO_COLUMN_LTR = "twoColumnLTR",
+  TWO_COLUMN_RTL = "twoColumnRTL"
 }
 
 export enum LOGIN_TEMPLATE {
   SPLIT = "split",
-  CANVAS_CARD = "canvas-card",
-  SURFACE_BOX = "surface-box",
-  TWO_COLUMN_LTR = "two-column-LTR",
-  TWO_COLUMN_RTL = "two-column-RTL"
+  CANVAS_CARD = "canvasCard",
+  SURFACE_BOX = "surfaceBox",
+  TWO_COLUMN_LTR = "twoColumnLTR",
+  TWO_COLUMN_RTL = "twoColumnRTL"
 }
