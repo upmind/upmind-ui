@@ -163,8 +163,16 @@ const { t } = useI18n();
 const { navigateNext, navigateBack, isResolved, currentRoute } =
   useRoutingEngine();
 const { isAuthenticated } = useSession();
-const { attempts, meta, errors, isReady, summary, products, uischema } =
-  useBasket();
+const {
+  attempts,
+  meta,
+  errors,
+  isReady,
+  summary,
+  products,
+  uischema,
+  invoice
+} = useBasket();
 const { meta: paymentDetailsMeta } = useBasketPaymentDetails();
 const {
   errors: fieldsErrors,
@@ -316,6 +324,8 @@ watch(attempts, (value, oldValue) => {
 });
 
 watch(meta, (value, oldValue) => {
-  if (value.isComplete) navigateNext();
+  if (value.isComplete) {
+    navigateNext(invoice.value);
+  }
 });
 </script>
