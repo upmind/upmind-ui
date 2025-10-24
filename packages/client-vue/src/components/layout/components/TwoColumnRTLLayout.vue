@@ -24,6 +24,10 @@
       </div>
 
       <div :class="styles.twoColumnRTL.content.root">
+        <div class="lg:hidden">
+          <slot name="aside" />
+          <slot name="aside-footer" />
+        </div>
         <slot name="content" />
       </div>
     </section>
