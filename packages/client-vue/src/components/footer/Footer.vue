@@ -1,12 +1,25 @@
 <template>
   <component :is="templateVariant">
-    <template #footer-actions>
-      <Actions locale currency />
+    <template
+      #footer-actions
+      v-if="!config.state.noLocale || !config.state.noCurrency"
+    >
+      <UpmLocale data-testid="locale-selector" v-if="!config.state.noLocale" />
+
+      <UpmCurrency
+        data-testid="currency-selector"
+        v-if="!config.state.noCurrency"
+      />
     </template>
-    <template #footer-content>
+
+    <template
+      #footer-content
+      v-if="!config.state.noLogo || !config.state.noPoweredBy"
+    >
       <Content />
     </template>
-    <template #footer-copyright>
+
+    <template #footer-copyright v-if="!config.state.noCopyright">
       <Copyright />
     </template>
   </component>
@@ -16,15 +29,19 @@
 // --- external
 import { computed } from "vue";
 
+// --- internal
+import { useFooter } from "./useFooter";
+
 // --- templates
 import FooterFlat from "./templates/FooterFlat.template.vue";
 import FooterStacked from "./templates/FooterStacked.template.vue";
 import FooterNoOptions from "./templates/FooterNoOptions.template.vue";
 
 // --- components
-import Actions from "./components/Actions.vue";
 import Content from "./components/Content.vue";
 import Copyright from "./components/Copyright.vue";
+import UpmCurrency from "../../modules/basket/components/CurrencySwitcher.vue";
+import UpmLocale from "../../components/LocaleSwitcher.vue";
 
 // --- internal
 import { useRoutingEngine } from "@upmind-automation/headless";
@@ -50,4 +67,15 @@ const supportedTemplates = {
 const templateVariant = computed(
   () => supportedTemplates[meta.value.variant] ?? FooterStacked
 );
+
+// -----------------------------------------------------------------------------
+const props = defineProps<{
+  visible?: boolean;
+  template?: FOOTER_TEMPLATE;
+  noLocale?: boolean;
+  noCurrency?: boolean;
+  noAttribution?: boolean;
+}>();
+
+const { config } = useFooter(props);
 </script>
