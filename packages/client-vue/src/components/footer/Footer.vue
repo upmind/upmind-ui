@@ -1,4 +1,5 @@
 <template>
+  <pre>{{ templateName }}</pre>
   <component :is="template" v-show="meta.isVisible">
     <template #footer-actions v-if="meta.hasActions">
       <UpmLocale data-testid="locale-selector" v-show="meta.showLocale" />
@@ -41,5 +42,5 @@ const props = withDefaults(defineProps<FooterProps>(), {
   noPoweredBy: undefined
 });
 
-const { meta, template } = useFooter(props);
+const { meta, template, templateName } = useFooter(props);
 </script>
