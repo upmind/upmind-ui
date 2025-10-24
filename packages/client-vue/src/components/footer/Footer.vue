@@ -27,19 +27,6 @@ import Copyright from "./components/Copyright.vue";
 import UpmCurrency from "../../modules/basket/components/CurrencySwitcher.vue";
 import UpmLocale from "../../components/LocaleSwitcher.vue";
 
-// --- internal
-import { FOOTER_TEMPLATE, type FooterProps } from "./types";
-
 // -----------------------------------------------------------------------------
-const props = withDefaults(defineProps<FooterProps>(), {
-  visible: undefined,
-  template: undefined,
-  noLocale: undefined,
-  noCurrency: undefined,
-  noCopyright: undefined,
-  noLogo: undefined,
-  noPoweredBy: undefined
-});
-
-const { meta, template } = useFooter(props);
+const { meta, template } = useFooter();
 </script>

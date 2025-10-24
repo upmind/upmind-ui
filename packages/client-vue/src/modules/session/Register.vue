@@ -23,9 +23,6 @@ import { ROUTE } from "@upmind-automation/headless";
 
 const { currentRoute, isResolved, isReady } = useRoutingEngine();
 
-const { hideCurrency } = useFooter();
-hideCurrency();
-
 await isReady();
 await isResolved(ROUTE.SESSION_REGISTER);
 

@@ -26,10 +26,14 @@ import { LAYOUT_VARIANTS } from "../../../components/layout/types";
 import { HEADER_TEMPLATE } from "../../../components/header/types";
 
 // --- methods
-const { setTemplate } = useFooter();
-setTemplate(FOOTER_TEMPLATE.CANVAS_CARD);
+useFooter({
+  template: FOOTER_TEMPLATE.CANVAS_CARD,
+  noCurrency: true
+});
 
-const { setTemplate: setHeaderTemplate, hideActions } = useHeader();
-setHeaderTemplate(HEADER_TEMPLATE.CANVAS_CARD);
-hideActions();
+useHeader({
+  template: HEADER_TEMPLATE.CANVAS_CARD,
+  noBasket: true,
+  noSession: true
+});
 </script>

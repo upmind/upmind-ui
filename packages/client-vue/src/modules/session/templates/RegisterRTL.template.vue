@@ -30,9 +30,12 @@ import { LAYOUT_VARIANTS } from "../../../components/layout/types";
 import { HEADER_TEMPLATE } from "../../../components/header/types";
 
 // --- methods
-const { setTemplate } = useFooter();
-setTemplate(FOOTER_TEMPLATE.TWO_COLUMN_RTL);
+useFooter({
+  template: FOOTER_TEMPLATE.TWO_COLUMN_RTL,
+  noCurrency: true
+});
 
-const { setTemplate: setHeaderTemplate } = useHeader();
-setHeaderTemplate(HEADER_TEMPLATE.TWO_COLUMN_RTL);
+useHeader({
+  template: HEADER_TEMPLATE.TWO_COLUMN_RTL
+});
 </script>

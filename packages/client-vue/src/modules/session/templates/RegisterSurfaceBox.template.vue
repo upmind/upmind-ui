@@ -26,10 +26,13 @@ import { LAYOUT_VARIANTS } from "../../../components/layout/types";
 import { HEADER_TEMPLATE } from "../../../components/header/types";
 
 // --- methods
-const { setTemplate, hideLocale } = useFooter();
-hideLocale();
-setTemplate(FOOTER_TEMPLATE.SURFACE_BOX);
+useFooter({
+  template: FOOTER_TEMPLATE.SURFACE_BOX,
+  noCurrency: true,
+  noLocale: true
+});
 
-const { setTemplate: setHeaderTemplate } = useHeader();
-setHeaderTemplate(HEADER_TEMPLATE.SURFACE_BOX);
+useHeader({
+  template: HEADER_TEMPLATE.SURFACE_BOX
+});
 </script>
