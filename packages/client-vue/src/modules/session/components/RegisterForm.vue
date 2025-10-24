@@ -53,7 +53,7 @@ import {
 // --- components
 import { Link } from "@upmind-automation/upmind-ui";
 import Auth from "../components/Auth.vue";
-import Section from "../../../components/content/LayoutSection.vue";
+import Section from "../../../components/section/Section.vue";
 
 interface Props {
   section?: boolean;

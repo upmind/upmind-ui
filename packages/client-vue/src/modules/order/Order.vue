@@ -1,40 +1,38 @@
 <template>
-  <Layout>
-    <ContentSection v-auto-animate class="flex grow items-center">
-      <Interstitial
-        open
-        modal
-        :order-id="orderId"
-        :success="success"
-        :title="title"
-        :text="text"
-        size="2xl"
-        shape="circle"
-        color="primary"
-        icon="paying"
-        fit="contain"
-        :animated-icon="{
-          icon: icon,
-          trigger: 'loop',
-          primaryColor: 'base-foreground',
-          secondaryColor: 'tertiary',
-          size: '4xl'
-        }"
-      >
-        <template #actions>
-          <Button
-            color="primary"
-            size="lg"
-            :label="t(action)"
-            :loading="processing"
-            @click.stop="doAction"
-            :icon="!meta.isAuthenticated ? 'arrow-left' : ''"
-            :icon-append="meta.isAuthenticated ? 'arrow-right' : ''"
-          />
-        </template>
-      </Interstitial>
-    </ContentSection>
-  </Layout>
+  <div class="flex grow items-center justify-center">
+    <Interstitial
+      open
+      modal
+      :order-id="orderId"
+      :success="success"
+      :title="title"
+      :text="text"
+      size="2xl"
+      shape="circle"
+      color="primary"
+      icon="paying"
+      fit="contain"
+      :animated-icon="{
+        icon: icon,
+        trigger: 'loop',
+        primaryColor: 'base-foreground',
+        secondaryColor: 'tertiary',
+        size: '4xl'
+      }"
+    >
+      <template #actions>
+        <Button
+          color="primary"
+          size="lg"
+          :label="t(action)"
+          :loading="processing"
+          @click.stop="doAction"
+          :icon="!meta.isAuthenticated ? 'arrow-left' : ''"
+          :icon-append="meta.isAuthenticated ? 'arrow-right' : ''"
+        />
+      </template>
+    </Interstitial>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -42,7 +40,6 @@
 import { computed, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
-import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
 import {
@@ -56,13 +53,7 @@ import {
 } from "@upmind-automation/headless";
 
 // -- components
-import {
-  Interstitial,
-  Button,
-  Icon,
-  Layout
-} from "@upmind-automation/upmind-ui";
-import ContentSection from "../../components/content/ContentSection.vue";
+import { Interstitial, Button, Icon } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 

@@ -35,11 +35,13 @@ import { Card, Icon } from "@upmind-automation/upmind-ui";
 
 // --- internal
 import { cn, useStyles } from "@upmind-automation/upmind-ui";
-import config from "./content.config";
+import config from "./section.config";
+import { useRoutingEngine } from "@upmind-automation/headless";
 
 // --- types
 import { type ComputedRef } from "vue";
 import { type SectionProps } from "./types";
+import { LAYOUT_VARIANTS } from "../layout";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<SectionProps>(), {
@@ -47,11 +49,13 @@ const props = withDefaults(defineProps<SectionProps>(), {
   section: true
 });
 
+const { currentRoute } = useRoutingEngine();
+
 const slots = useSlots();
 
 const meta = computed(() => {
   return {
-    variant: props.variant || "default"
+    variant: currentRoute.value?.meta?.template || LAYOUT_VARIANTS.DEFAULT
   };
 });
 

@@ -2,14 +2,14 @@
   <header class="flex flex-col gap-3">
     <Badge v-if="badge" v-bind="badge" variant="minimal" color="neutral" />
 
-    <section :class="styles.header.root">
-      <h1 :class="styles.header.title">
+    <section :class="styles.hero.root">
+      <h1 :class="styles.hero.title">
         <slot>
           <Sanitized v-if="props.title" :modelValue="props.title" />
         </slot>
       </h1>
 
-      <p :class="styles.header.description">
+      <p :class="styles.hero.description">
         <slot name="description">
           {{ props.description }}
         </slot>
@@ -25,7 +25,7 @@
 import { Badge } from "@upmind-automation/upmind-ui";
 
 // --- internal
-import config from "./content.config";
+import config from "./hero.config";
 import { useStyles, Sanitized } from "@upmind-automation/upmind-ui";
 
 // --- types
@@ -38,8 +38,8 @@ const props = defineProps<{
   description?: string;
 }>();
 
-const styles = useStyles(["header"], {}, config) as ComputedRef<{
-  header: {
+const styles = useStyles(["hero"], {}, config) as ComputedRef<{
+  hero: {
     root: string;
     title: string;
     description: string;

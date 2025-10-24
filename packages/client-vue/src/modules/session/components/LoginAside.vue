@@ -14,7 +14,7 @@
 import { useI18n } from "vue-i18n";
 import { useBasket } from "@upmind-automation/headless";
 import Summary from "../../basket/components/Summary.vue";
-import Section from "../../../components/content/LayoutSection.vue";
+import Section from "../../../components/section/Section.vue";
 
 interface Props {
   section?: boolean;

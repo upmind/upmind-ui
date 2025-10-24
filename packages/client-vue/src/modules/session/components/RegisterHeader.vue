@@ -1,5 +1,5 @@
 <template>
-  <Header :title="t('action.create_account')">
+  <Hero :title="t('action.create_account')">
     <template #description>
       <span class="font-normal"
         >{{ t("auth.already_have_account_qn") }}&nbsp;</span
@@ -13,7 +13,7 @@
         class="font-normal"
       />
     </template>
-  </Header>
+  </Hero>
 </template>
 
 <script lang="ts" setup>
@@ -25,7 +25,7 @@ import { ROUTE } from "@upmind-automation/headless";
 
 // --- components
 import { Link } from "@upmind-automation/upmind-ui";
-import Header from "../../../components/content/Header.vue";
+import Hero from "../../../components/hero/Hero.vue";
 
 const { t } = useI18n();
 </script>
