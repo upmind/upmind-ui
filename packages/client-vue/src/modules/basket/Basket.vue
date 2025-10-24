@@ -84,7 +84,6 @@
 
         <footer class="w-full">
           <Button
-            :as="RouterLink"
             :to="{ name: ROUTE.CHECKOUT }"
             :disabled="
               !fieldsMeta.isComplete ||

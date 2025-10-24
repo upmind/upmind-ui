@@ -136,7 +136,7 @@ export const useProductFlows = () => {
           ROUTE.PRODUCT_RECOMMENDATIONS,
           ...getCheckoutFlowTargets()
         ],
-        back: [ROUTE.CATALOGUE, ...getCheckoutFlowTargets()],
+        back: [ROUTE.CATALOGUE, ROUTE.BASKET, ROUTE.EMPTY],
         fallback: [
           {
             name: ROUTE.PRODUCT_EDIT,
@@ -177,7 +177,7 @@ export const useProductFlows = () => {
       },
       targets: {
         next: [ROUTE.PRODUCT_REQUIRES_ACTION, ...getCheckoutFlowTargets()],
-        back: getCheckoutFlowTargets(),
+        back: [ROUTE.BASKET, ROUTE.EMPTY],
         fallback: [ROUTE.PRODUCT_NOT_FOUND]
       }
     },
@@ -249,7 +249,7 @@ export const useProductFlows = () => {
       },
       targets: {
         next: [],
-        back: getCheckoutFlowTargets(),
+        back: [ROUTE.BASKET, ROUTE.EMPTY],
         fallback: getCheckoutFlowTargets()
       }
     },
@@ -272,7 +272,7 @@ export const useProductFlows = () => {
       },
       targets: {
         next: getCheckoutFlowTargets(),
-        back: getCheckoutFlowTargets(),
+        back: [ROUTE.BASKET, ROUTE.EMPTY],
         fallback: getCheckoutFlowTargets()
       }
     }

@@ -59,7 +59,7 @@
     :title="t('text.payment_details')"
     icon="wallet-02"
   >
-    <PaymentDetails />
+    <PaymentDetails :class="styles.checkout.paymentDetails" />
   </Section>
 </template>
 

@@ -1,6 +1,5 @@
 <template>
   <Button
-    :as="RouterLink"
     variant="control"
     :class="styles.categories.item.root"
     :aria-label="t('action.category_select', { name })"
@@ -25,7 +24,6 @@
     <section :class="styles.categories.item.action">
       <header :class="styles.categories.item.titleContainer">
         <Link
-          :as="RouterLink"
           size="lg"
           :class="styles.categories.item.link"
           :label="name"

@@ -12,7 +12,11 @@ import { uniqBy } from "lodash-es";
 import type { Flow, Route } from "../types";
 import { ROUTE } from "../types";
 import { useSession } from "../../session";
-import { BrandConfigKeys, CheckoutFlows } from "@upmind-automation/types";
+import {
+  BrandConfigKeys,
+  CheckoutFlows,
+  IInvoice
+} from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -46,7 +50,7 @@ export const getCheckoutFlowTargets = () => {
 export const useCheckoutFlows = () => {
   const routing = useRoutingEngine();
   const { getConfigValue } = useBrand();
-  const { meta: basketMeta, invoice, isReady } = useBasket();
+  const { meta: basketMeta, isReady } = useBasket();
   const { meta: sessionMeta } = useSession();
 
   let flows: Flow[] = [
@@ -59,12 +63,12 @@ export const useCheckoutFlows = () => {
         const validFields = basketMeta.value.hasFields;
         const validAuth = sessionMeta.value.isAuthenticated;
 
-        // NB if we are in a One-Page flow, we skip the products and fields validation here
+        // NB if we are in a One-Page flow, we skip the products and fields validation here as long as we have products in the basket
         if (
           getConfigValue(BrandConfigKeys.CHECKOUT_FLOW) ===
           CheckoutFlows.ONE_PAGE
         )
-          return validAuth;
+          return validAuth && basketMeta.value.hasProducts;
 
         return validProducts && validFields && validAuth;
       },
@@ -75,11 +79,11 @@ export const useCheckoutFlows = () => {
         next: [
           {
             name: ROUTE.ORDER,
-            guard: async (_route: Route) => basketMeta.value.isComplete,
-            resolve: async (_route: Route) => {
+            guard: async (_route: Route, data: IInvoice) => !!data?.id,
+            resolve: async (_route: Route, data: IInvoice) => {
               return {
                 name: ROUTE.ORDER,
-                params: { orderId: invoice.value?.id },
+                params: { orderId: data?.id },
                 query: {
                   payment_success: basketMeta.value.hasPaid.toString()
                 }
@@ -91,11 +95,11 @@ export const useCheckoutFlows = () => {
         fallback: [
           {
             name: ROUTE.ORDER,
-            guard: async (_route: Route) => basketMeta.value.isComplete,
-            resolve: async (_route: Route) => {
+            guard: async (_route: Route, data: IInvoice) => !!data?.id,
+            resolve: async (_route: Route, data: IInvoice) => {
               return {
                 name: ROUTE.ORDER,
-                params: { orderId: invoice.value?.id },
+                params: { orderId: data?.id },
                 query: { payment_success: basketMeta.value.hasPaid.toString() }
               } as Route;
             }
