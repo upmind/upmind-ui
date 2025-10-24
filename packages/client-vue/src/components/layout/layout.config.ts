@@ -127,10 +127,10 @@ export default {
     },
     spacer: {
       root: cva(
-        "basis-app-content bg-surface w-app-content box-content h-44 min-w-0 px-8 lg:px-18"
+        "basis-app-content bg-surface w-app-content box-content h-48 min-w-0 px-8 lg:px-18"
       ),
       aside: cva(
-        "basis-app-aside w-app-aside box-content hidden h-44 min-w-0 px-18 lg:block"
+        "basis-app-aside w-app-aside box-content hidden h-48 min-w-0 px-18 lg:block"
       )
     }
   },
@@ -168,10 +168,10 @@ export default {
     },
     spacer: {
       aside: cva(
-        "basis-app-aside w-app-aside box-content hidden h-44 min-w-0 px-18 lg:block"
+        "basis-app-aside w-app-aside box-content hidden h-48 min-w-0 px-18 lg:block"
       ),
       root: cva(
-        "basis-app-content bg-surface w-app-content box-content h-44 min-w-0 px-8 lg:px-18"
+        "basis-app-content bg-surface w-app-content box-content h-48 min-w-0 px-8 lg:px-18"
       )
     }
   },
