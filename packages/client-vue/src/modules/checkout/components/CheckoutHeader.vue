@@ -1,5 +1,5 @@
 <template>
-  <Header
+  <Hero
     :title="t('text.secure_checkout')"
     :description="
       t('cart.basket_summary_desc', {
@@ -24,7 +24,7 @@ import { useI18n } from "vue-i18n";
 import { useBasket } from "@upmind-automation/headless";
 
 // --- components
-import Header from "../../../components/content/Header.vue";
+import Hero from "../../../components/hero/Hero.vue";
 
 // --- types
 import type { CheckoutHeaderProps } from "./types";

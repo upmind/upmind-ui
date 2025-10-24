@@ -66,7 +66,7 @@
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
 import { useBasket, useBasketFields } from "@upmind-automation/headless";
-import Section from "../../../components/content/LayoutSection.vue";
+import Section from "../../../components/section/Section.vue";
 import BillingDetails from "../../billing/Billing.vue";
 import PaymentDetails from "./PaymentDetails.vue";
 import ProductCards from "../../basket/product/BasketProductCards.vue";

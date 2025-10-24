@@ -19,7 +19,7 @@ import { useBasket } from "@upmind-automation/headless";
 
 // --- components
 import Summary from "../../basket/components/Summary.vue";
-import Section from "../../../components/content/LayoutSection.vue";
+import Section from "../../../components/section/Section.vue";
 
 interface Props {
   section?: boolean;

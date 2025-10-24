@@ -1,4 +1,4 @@
-export * from "./content";
+export * from "./section";
 export * from "./form";
 export * from "./navigation";
 export * from "./manage";

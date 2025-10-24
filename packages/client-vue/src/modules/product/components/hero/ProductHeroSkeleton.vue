@@ -20,7 +20,7 @@
 import { Skeleton, useStyles } from "@upmind-automation/upmind-ui";
 
 // --- internal
-import config from "./header.config";
+import config from "./product-hero.config";
 
 // --- types
 import type { ProductHeaderProps } from "../types";
