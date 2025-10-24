@@ -1,9 +1,5 @@
 <template>
-  <Layout
-    :variant="LAYOUT_VARIANTS.SURFACE_BOX"
-    :locale="false"
-    :currency="false"
-  >
+  <Layout :variant="LAYOUT_VARIANTS.SURFACE_BOX">
     <template #content-header>
       <LoginHeader />
     </template>
@@ -30,7 +26,9 @@ import { LAYOUT_VARIANTS } from "../../../components/layout/types";
 import { HEADER_TEMPLATE } from "../../../components/header/types";
 
 // --- methods
-const { setTemplate } = useFooter();
+const { setTemplate, hideLocale } = useFooter();
+hideLocale();
+
 setTemplate(FOOTER_TEMPLATE.SURFACE_BOX);
 
 const { setTemplate: setHeaderTemplate } = useHeader();
