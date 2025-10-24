@@ -44,7 +44,7 @@ const { t } = useI18n();
 const { navigateNext, navigateBack, isResolved, currentRoute } =
   useRoutingEngine();
 const { isAuthenticated } = useSession();
-const { attempts, meta, isReady, uischema } = useBasket();
+const { attempts, meta, isReady, uischema, invoice } = useBasket();
 
 const supportedTemplates = {
   [CHECKOUT_TEMPLATE.FULL]: CheckoutFull,
@@ -103,7 +103,9 @@ watch(attempts, (value, oldValue) => {
   }
 });
 
-watch(meta, value => {
-  if (value.isComplete) navigateNext();
+watch(meta, (value, oldValue) => {
+  if (value.isComplete) {
+    navigateNext(invoice.value);
+  }
 });
 </script>
