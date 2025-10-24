@@ -12,12 +12,12 @@
     </template>
 
     <template #content-header>
-      <Header
+      <ProductHero
         v-if="meta?.isAvailable && product?.productDetails"
         :product-details="product.productDetails"
         :product-image="productImage()"
       />
-      <HeaderSkeleton v-else />
+      <ProductHeroSkeleton v-else />
     </template>
 
     <template #content>
@@ -102,13 +102,13 @@ import { Breadcrumb, useStyles } from "@upmind-automation/upmind-ui";
 import Layout from "../../components/layout/Layout.vue";
 import Share from "../../components/navigation/Share.vue";
 import ConfigSkeleton from "./components/ConfigSkeleton.vue";
-import Header from "./components/header/Header.vue";
-import HeaderSkeleton from "./components/header/HeaderSkeleton.vue";
+import ProductHero from "./components/hero/ProductHero.vue";
 import ProductConfig from "./components/config/Config.vue";
-import Section from "../../components/content/LayoutSection.vue";
+import Section from "../../components/section/Section.vue";
 import Summary from "./components/summary/Summary.vue";
 import SummaryFooter from "./components/summary/SummaryFooter.vue";
 import SummarySkeleton from "./components/summary/SummarySkeleton.vue";
+import ProductHeroSkeleton from "./components/hero/ProductHeroSkeleton.vue";
 import ProductNotFound from "./NotFound.vue";
 
 // --- utils

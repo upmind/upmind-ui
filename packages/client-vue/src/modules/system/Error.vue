@@ -1,31 +1,25 @@
 <template>
-  <Layout>
-    <ContentSection v-auto-animate class="flex grow items-center">
-      <Interstitial
-        v-bind="props"
-        :animatedIcon="animatedIcon"
-        :actions="actions"
-        :title="title"
-        :text="text"
-        data-testid="error"
-      >
-      </Interstitial>
-    </ContentSection>
-  </Layout>
+  <div class="flex grow items-center justify-center">
+    <Interstitial
+      v-bind="props"
+      :animatedIcon="animatedIcon"
+      :actions="actions"
+      :title="title"
+      :text="text"
+      data-testid="error"
+    />
+  </div>
 </template>
 
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
-import { vAutoAnimate } from "@formkit/auto-animate";
 
 // -- components
 import {
   Interstitial,
-  type InterstitialActionProps,
-  Layout
+  type InterstitialActionProps
 } from "@upmind-automation/upmind-ui";
-import ContentSection from "../../components/content/ContentSection.vue";
 
 // -- types
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";

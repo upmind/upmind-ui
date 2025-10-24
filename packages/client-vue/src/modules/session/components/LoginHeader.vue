@@ -1,5 +1,5 @@
 <template>
-  <Header :title="t('auth.welcome_back')">
+  <Hero :title="t('auth.welcome_back')">
     <template #description>
       <i18n-t keypath="auth.please_login_to_continue" scope="global" tag="span">
         <template #[`create_one_here`]>
@@ -13,14 +13,14 @@
         </template>
       </i18n-t>
     </template>
-  </Header>
+  </Hero>
 </template>
 
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
 import { ROUTE } from "@upmind-automation/headless";
 import { Link } from "@upmind-automation/upmind-ui";
-import Header from "../../../components/content/Header.vue";
+import Hero from "../../../components/hero/Hero.vue";
 
 const { t } = useI18n();
 </script>

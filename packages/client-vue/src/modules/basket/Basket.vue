@@ -5,7 +5,7 @@
     </template>
 
     <template #content-header>
-      <Header
+      <Hero
         :title="t('cart.basket_title')"
         :description="
           t('cart.basket_summary_desc', {
@@ -126,12 +126,12 @@ import config from "./basket.config";
 import { RouterLink } from "vue-router";
 import { Button, Link } from "@upmind-automation/upmind-ui";
 import Layout from "../../components/layout/Layout.vue";
-import Header from "../../components/content/Header.vue";
+import Hero from "../../components/hero/Hero.vue";
 import Summary from "./components/Summary.vue";
 import ProductCards from "./product/BasketProductCards.vue";
 import Form from "../../components/form/Form.vue";
 import Back from "../../components/navigation/Back.vue";
-import Section from "../../components/content/LayoutSection.vue";
+import Section from "../../components/section/Section.vue";
 import BasketErrors from "./components/BasketErrors.vue";
 
 // --- types

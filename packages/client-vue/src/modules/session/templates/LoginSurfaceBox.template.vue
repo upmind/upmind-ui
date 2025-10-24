@@ -16,8 +16,18 @@
 
 <script lang="ts" setup>
 // --- components
-import { LAYOUT_VARIANTS } from "../../../components/layout/types";
 import Layout from "../../../components/layout/Layout.vue";
 import LoginHeader from "../components/LoginHeader.vue";
 import LoginForm from "../components/LoginForm.vue";
+
+// --- internal
+import { useFooter } from "../../../components/footer/useFooter";
+
+// --- types
+import { FOOTER_TEMPLATE } from "../../../components/footer/types";
+import { LAYOUT_VARIANTS } from "../../../components/layout/types";
+
+// --- methods
+const { setTemplate } = useFooter();
+setTemplate(FOOTER_TEMPLATE.SURFACE_BOX);
 </script>

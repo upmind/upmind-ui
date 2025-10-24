@@ -19,10 +19,20 @@
 </template>
 
 <script lang="ts" setup>
-import { useRoutingEngine } from "@upmind-automation/headless";
-import { LAYOUT_VARIANTS } from "../../../components/layout/types";
+// --- internal
+import { useFooter } from "../../../components/footer/useFooter";
+
+// --- components
 import Layout from "../../../components/layout/Layout.vue";
 import CheckoutHeader from "../components/CheckoutHeader.vue";
 import CheckoutContent from "../components/CheckoutContent.vue";
 import CheckoutAside from "../components/CheckoutAside.vue";
+
+// --- types
+import { FOOTER_TEMPLATE } from "../../../components/footer/types";
+import { LAYOUT_VARIANTS } from "../../../components/layout/types";
+
+// --- methods
+const { setTemplate } = useFooter();
+setTemplate(FOOTER_TEMPLATE.TWO_COLUMN_LTR);
 </script>
