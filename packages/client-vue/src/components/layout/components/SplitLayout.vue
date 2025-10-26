@@ -15,10 +15,7 @@
         </div>
 
         <!-- Footer -->
-        <footer :class="styles.split.footer">
-          <slot name="footer-content" />
-          <slot name="footer-copyright" />
-        </footer>
+        <footer :class="styles.split.footer" />
       </div>
     </article>
 
