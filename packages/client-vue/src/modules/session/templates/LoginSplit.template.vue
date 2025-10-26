@@ -32,7 +32,8 @@ import { LAYOUT_VARIANTS } from "../../../components/layout/types";
 // --- methods
 useFooter({
   template: FOOTER_TEMPLATE.SPLIT,
-  noCurrency: true
+  noCurrency: true,
+  noLocale: true
 });
 
 useHeader({

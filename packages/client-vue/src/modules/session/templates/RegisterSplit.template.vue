@@ -31,7 +31,8 @@ import { HEADER_TEMPLATE } from "../../../components/header/types";
 // --- methods
 useFooter({
   template: FOOTER_TEMPLATE.SPLIT,
-  noCurrency: true
+  noCurrency: true,
+  noLocale: true
 });
 
 useHeader({

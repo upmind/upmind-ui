@@ -28,7 +28,8 @@ import { HEADER_TEMPLATE } from "../../../components/header/types";
 // --- methods
 useFooter({
   template: FOOTER_TEMPLATE.CANVAS_CARD,
-  noCurrency: true
+  noCurrency: true,
+  noLocale: true
 });
 
 useHeader({

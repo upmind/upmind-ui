@@ -13,11 +13,6 @@ const FooterFlat = defineAsyncComponent(
 const FooterStacked = defineAsyncComponent(
   () => import("./templates/FooterStacked.template.vue")
 );
-
-const FooterNoOptions = defineAsyncComponent(
-  () => import("./templates/FooterNoOptions.template.vue")
-);
-
 // --- utils
 import { get, isEmpty, isObject, merge } from "lodash-es";
 
@@ -81,9 +76,9 @@ export const useFooter = (initial?: Partial<FooterProps>) => {
     [FOOTER_TEMPLATE.FULL]: FooterStacked,
     [FOOTER_TEMPLATE.TWO_COLUMN_LTR]: FooterFlat,
     [FOOTER_TEMPLATE.TWO_COLUMN_RTL]: FooterFlat,
-    [FOOTER_TEMPLATE.SPLIT]: FooterNoOptions,
-    [FOOTER_TEMPLATE.CANVAS_CARD]: FooterNoOptions,
-    [FOOTER_TEMPLATE.SURFACE_BOX]: FooterNoOptions
+    [FOOTER_TEMPLATE.SPLIT]: FooterFlat,
+    [FOOTER_TEMPLATE.CANVAS_CARD]: FooterFlat,
+    [FOOTER_TEMPLATE.SURFACE_BOX]: FooterFlat
   };
 
   const defaultTemplate = FOOTER_TEMPLATE.DEFAULT;
