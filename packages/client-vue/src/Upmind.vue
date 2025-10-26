@@ -9,7 +9,7 @@
         <Header />
       </slot>
 
-      <main class="w-full">
+      <main class="w-full" :class="{ 'flex grow': meta.isLoading }">
         <Suspense
           @pending="setLoading(true)"
           @resolve="setLoading(false)"
@@ -68,6 +68,7 @@ import { get } from "lodash-es";
 // --- types
 import type { ComputedRef } from "vue";
 import type { InterstitialProps } from "@upmind-automation/upmind-ui";
+import { ROUTE } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
@@ -83,6 +84,7 @@ const themeReady = ref(false);
 
 const meta = computed(() => ({
   isAvailable: useUpmind.status.value == UpmindStatus.initialised,
+  isLoading: loading.value || currentRoute.name === ROUTE.LOADING,
   hasSettings: themeReady.value
 }));
 
