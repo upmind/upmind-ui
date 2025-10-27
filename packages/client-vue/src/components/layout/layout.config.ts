@@ -18,10 +18,52 @@ export default {
   },
 
   default: {
-    root: cva("mx-auto w-full flex-wrap items-start justify-start"),
-    header: cva("max-w-app mx-auto pt-10 pb-10 lg:pt-14 lg:pb-20"),
-    contentRoot: cva("pt-10 pb-10 lg:pt-20 lg:pb-16"),
-    content: cva("max-w-app mx-auto")
+    root: cva("mx-auto w-full flex-wrap items-start justify-start", {
+      variants: {
+        overflow: {
+          hidden: "overflow-hidden",
+          visible: "overflow-visible"
+        }
+      }
+    }),
+    header: {
+      root: cva(
+        "bg-surface shadow-b-border-surface top-0 z-20 flex w-full flex-col items-center px-6 py-7 transition-all duration-500 lg:px-2.5"
+      ),
+      container: cva(
+        "max-w-app mx-auto flex w-full items-center justify-between"
+      )
+    },
+    content: {
+      header: {
+        root: cva("bg-canvas px-6", {
+          variants: {
+            hasContent: {
+              true: "shadow-b-border-surface py-18",
+              false: "py-12 lg:py-32"
+            }
+          }
+        }),
+        container: cva("max-w-app mx-auto")
+      },
+      root: cva("px-6", {
+        variants: {
+          isMinimal: {
+            true: "py-18",
+            false: "py-24"
+          },
+          hasContentHeader: {
+            true: "bg-surface",
+            false: "bg-canvas"
+          }
+        }
+      }),
+      container: cva(
+        "max-w-app mx-auto flex w-full flex-col gap-12 lg:flex-row lg:gap-18"
+      )
+    },
+    aside: cva("sticky top-6 flex w-full max-w-md flex-col gap-12 self-start"),
+    main: cva("flex w-full flex-col gap-12")
   },
 
   enclosed: {

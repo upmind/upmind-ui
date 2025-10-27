@@ -16,6 +16,7 @@
       <div :class="styles.enclosed.content">
         <div :class="styles.enclosed.main">
           <slot name="default" />
+          <slot name="content" />
 
           <footer v-if="meta.hasFooter">
             <slot name="footer" />

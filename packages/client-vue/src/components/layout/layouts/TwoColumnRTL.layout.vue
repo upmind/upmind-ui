@@ -3,7 +3,6 @@
     <!-- Header Spacer -->
     <div :class="styles.twoColumnRTL.row">
       <div :class="styles.twoColumnRTL.header.aside" />
-
       <div :class="styles.twoColumnRTL.header.root" />
     </div>
 
@@ -14,6 +13,8 @@
           <div :class="styles.twoColumnRTL.content.aside.header">
             <slot name="content-header" />
             <slot name="navigation" />
+            <slot name="controls" />
+            <slot name="actions" />
           </div>
 
           <aside :class="styles.twoColumnRTL.content.aside.footer">
@@ -33,6 +34,7 @@
         <div class="empty:hidden has-[:where(.hidden)]:hidden lg:hidden">
           <slot name="aside-footer" />
         </div>
+        <slot name="default" />
         <slot name="content" />
       </div>
     </section>
@@ -40,7 +42,6 @@
     <!-- Spacer -->
     <div :class="styles.twoColumnRTL.spacer.row">
       <div :class="styles.twoColumnRTL.spacer.aside" />
-
       <div :class="styles.twoColumnRTL.spacer.root" />
     </div>
   </article>
