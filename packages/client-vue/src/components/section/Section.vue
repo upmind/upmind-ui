@@ -1,5 +1,7 @@
 <template>
-  <slot v-if="!section" name="default" />
+  <div v-if="!section">
+    <slot name="default" />
+  </div>
 
   <div v-else :class="styles.section.root">
     <header
