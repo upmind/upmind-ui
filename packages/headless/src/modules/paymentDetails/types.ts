@@ -40,6 +40,7 @@ export type PaymentDetail = {
   meta: {
     isAutoPayment: IPaymentDetail["auto_payment"];
     isActive: boolean;
+    isSupported: boolean;
     canDelete: boolean;
     isDefault: boolean;
   };
