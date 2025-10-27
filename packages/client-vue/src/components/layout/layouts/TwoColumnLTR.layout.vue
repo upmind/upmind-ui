@@ -55,14 +55,8 @@
 
     <!-- Footer -->
     <footer :class="styles.twoColumnLTR.footer.row">
-      <div :class="styles.twoColumnLTR.footer.content">
-        <slot name="footer-copyright" />
-        <slot name="footer-actions" />
-      </div>
-
-      <div :class="styles.twoColumnLTR.footer.aside">
-        <slot name="footer-content" />
-      </div>
+      <div :class="styles.twoColumnLTR.footer.content" />
+      <div :class="styles.twoColumnLTR.footer.aside" />
     </footer>
   </article>
 </template>
