@@ -2,6 +2,8 @@
 
 # Benefit
 
+Interface representing a benefit associated with a product.
+
 ## Properties
 
 ### icon?
@@ -10,6 +12,8 @@
 optional icon: any;
 ```
 
+An optional icon string or component to display with the benefit.
+
 ***
 
 ### label
@@ -17,3 +21,5 @@ optional icon: any;
 ```ts
 label: string;
 ```
+
+The display label for the benefit.

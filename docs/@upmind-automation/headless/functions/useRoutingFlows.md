@@ -6,6 +6,19 @@
 function useRoutingFlows(): object;
 ```
 
+Composable function to provide a centralised setup and registration mechanism for routing flows within the application.
+
+The `useRoutingFlows` function gathers and manages multiple domain-specific flows, including:
+- Catalogue flows
+- Basket flows
+- Product flows
+- Recommendations flows
+- Session flows
+- Checkout flows
+- Order flows
+
+Additionally, it offers functionality to register custom routing flows or merge them with existing default flows.
+
 ## Returns
 
 `object`

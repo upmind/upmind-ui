@@ -29,9 +29,25 @@ import type { Product, ProductModel, ProductProps } from "../product";
 
 // -----------------------------------------------------------------------------
 
+/**
+ * Composable for managing the state of a product that is pending addition to the basket.
+ * This composable is designed to handle the configuration, validation, and eventual addition
+ * of a product to the shopping basket.
+ * It leverages an internal XState machine to manage the product's lifecycle.
+ *
+ * @param data - Either a {@link ProductProps} object directly containing product configuration,
+ *               or an {@link ActorRef} to an existing XState machine instance for the product.
+ * @returns The {@link UsePendingProduct} API for managing the product's state.
+ * @throws {DetailedError} If the basket is not available, or if the provided product data is invalid or missing.
+ */
 export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
   const { t } = useI18n();
 
+  /**
+   * Type guard to check if the input `value` is a {@link ProductProps} object.
+   * @param value - The value to check.
+   * @returns `true` if the value is a `ProductProps` object, `false` otherwise.
+   */
   function isProductProps(
     value: ProductProps | ActorRef<any>
   ): value is ProductProps {
@@ -103,30 +119,38 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
       }
     ).start();
 
-  const { state, send } = useActor(service);
+  const { state } = useActor(service);
 
   // now that we have a product configuration, we can push it to the datalayer
   pushSelectItem();
 
   // ---------------------------------------------------------------------------
 
+  /**
+   * Waits for the product service to reach an 'available' state, indicating it's ready for interaction.
+   * This is typically used to ensure the product's configuration and initial data have loaded.
+   *
+   * @returns A promise that resolves when the product service is ready.
+   */
   async function isReady(): Promise<void> {
     return waitFor(service, state => state.matches("available"), {
       timeout: Infinity
     });
   }
 
-  // refresh: async (newBasket: IBasket) => {
-  //   service.send({ type: "REFRESH", rawBasket });
-  //   return waitFor(service, state => state.matches("available"));
-  // },
-
   // --- context
 
   const model = useContext<ProductModel>(state, "model", {});
   const product = useContext<Product>(state, "product", {});
+
   // --- methods
 
+  /**
+   * Retrieves the detailed product information after ensuring the product service is ready.
+   *
+   * @returns A promise that resolves with the {@link Product} details.
+   * @throws {DetailedError} If the product details cannot be retrieved or are unavailable.
+   */
   async function getProduct(): Promise<Product> {
     return new Promise<Product>((resolve, reject) => {
       const product = get(service.getSnapshot(), "context.product") as Product;
@@ -142,6 +166,12 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
     });
   }
 
+  /**
+   * Updates the product's configuration based on current selections or changes.
+   * It sends an 'UPDATE' event to the service and waits for the operation to complete or error.
+   *
+   * @returns A promise that resolves upon successful update, or rejects if the update fails or times out.
+   */
   async function update(): Promise<void> {
     service.send({ type: "UPDATE" });
     return waitFor(
@@ -170,10 +200,15 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
       });
   }
 
-  // Add our Pending Product being configured to the datalayer
+  /**
+   * Pushes the `select_item` event to the `dataLayer` with the current product's information.
+   * This is called automatically after the product service is ready to track product selections for analytics.
+   *
+   * @returns A promise that resolves when the product details are fetched and pushed, or rejects silently if fetching fails.
+   */
   async function pushSelectItem() {
     await isReady(); // NB wait for everything to finish loading
-    const product = getProduct()
+    getProduct()
       .then(product => {
         dataLayer({ event: "select_item" }).withItems(product).push();
       })
@@ -193,6 +228,15 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
     // ---
     isReady,
     // ---
+
+    /**
+     * Updates the quantity of the product.
+     * Ensures the product is quantifiable before attempting to update.
+     *
+     * @param value - The new quantity value.
+     * @returns A promise that resolves when the quantity is updated.
+     * @throws {DetailedError} If the product is not quantifiable or the update fails.
+     */
     updateQuantity: async (value: number): Promise<void> =>
       getProduct().then(product => {
         if (!product?.productDetails.quantifiable)
@@ -213,6 +257,13 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
         return update();
       }),
 
+    /**
+     * Increments the product quantity by its defined step.
+     * Ensures the product is quantifiable before incrementing.
+     *
+     * @returns A promise that resolves when the quantity is incremented.
+     * @throws {DetailedError} If the product is not quantifiable or the update fails.
+     */
     incrementQuantity: async (): Promise<void> =>
       getProduct().then(product => {
         if (!product?.productDetails.quantifiable)
@@ -237,6 +288,13 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
         return update();
       }),
 
+    /**
+     * Decrements the product quantity by its defined step.
+     * Ensures the product is quantifiable before decrementing.
+     *
+     * @returns A promise that resolves when the quantity is decremented.
+     * @throws {DetailedError} If the product is not quantifiable or the update fails.
+     */
     decrementQuantity: async (): Promise<void> =>
       getProduct().then(product => {
         if (!product?.productDetails.quantifiable)
@@ -261,8 +319,18 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
         return update();
       }),
 
+    /**
+     * Manually triggers an update to the product's configuration in the basket.
+     * This is often called after quantity changes or other modifications.
+     *
+     * @returns A promise that resolves upon successful update, or rejects on error.
+     */
     update
   };
 };
 
+/**
+ * Type definition for the return value of the `useBasketProductPending` composable,
+ * ensuring type safety for consumers.
+ */
 type UsePendingProduct = ReturnType<typeof useBasketProductPending>;

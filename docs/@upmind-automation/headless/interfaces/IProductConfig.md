@@ -2,6 +2,9 @@
 
 # IProductConfig
 
+Interface representing raw product configuration properties, typically passed
+from a backend API or extracted from URL parameters.
+
 ## Properties
 
 ### bcm?
@@ -9,6 +12,8 @@
 ```ts
 optional bcm: number;
 ```
+
+Billing cycle in months.
 
 ***
 
@@ -18,6 +23,8 @@ optional bcm: number;
 optional coupons: string[];
 ```
 
+Coupon codes.
+
 ***
 
 ### pfields?
@@ -25,6 +32,8 @@ optional coupons: string[];
 ```ts
 optional pfields: Record<string, any>;
 ```
+
+Provision field key-value pairs.
 
 ***
 
@@ -34,6 +43,8 @@ optional pfields: Record<string, any>;
 optional pid: string;
 ```
 
+Product ID.
+
 ***
 
 ### qty?
@@ -42,6 +53,8 @@ optional pid: string;
 optional qty: number;
 ```
 
+Quantity.
+
 ***
 
 ### sub\_pids?
@@ -49,3 +62,5 @@ optional qty: number;
 ```ts
 optional sub_pids: string[];
 ```
+
+Sub-product IDs.

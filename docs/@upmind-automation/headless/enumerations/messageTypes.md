@@ -2,6 +2,9 @@
 
 # messageTypes
 
+Enumeration defining the different types of messages based on their severity or purpose.
+This is used for styling and categorisation of alerts.
+
 ## Enumeration Members
 
 ### ERROR
@@ -9,6 +12,8 @@
 ```ts
 ERROR: "error";
 ```
+
+An error message, indicating a critical issue or failure.
 
 ***
 
@@ -18,6 +23,8 @@ ERROR: "error";
 INFO: "info";
 ```
 
+An informational message, providing general updates or context.
+
 ***
 
 ### SUCCESS
@@ -26,6 +33,8 @@ INFO: "info";
 SUCCESS: "success";
 ```
 
+A success message, confirming that an operation completed successfully.
+
 ***
 
 ### WARNING
@@ -33,3 +42,5 @@ SUCCESS: "success";
 ```ts
 WARNING: "warning";
 ```
+
+A warning message, indicating a potential issue that may require attention but is not critical.

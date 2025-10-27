@@ -2,6 +2,13 @@
 
 # EmailContext
 
+Interface representing the context for email management within a client item context.
+It extends `ClientItemContext` with specific data relevant to email operations.
+
+## Template
+
+The type of the email model, typically [EmailModel](EmailModel.md).
+
 ## Extends
 
 - `ClientItemContext`\<[`EmailModel`](EmailModel.md)\>

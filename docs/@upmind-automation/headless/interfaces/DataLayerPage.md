@@ -2,6 +2,9 @@
 
 # DataLayerPage
 
+Interface representing page-specific data to be pushed to the data layer.
+This helps track navigation, page views, and contextual information about the current page.
+
 ## Properties
 
 ### current\_url?
@@ -9,6 +12,8 @@
 ```ts
 optional current_url: string;
 ```
+
+The full URL of the current page.
 
 ***
 
@@ -18,6 +23,8 @@ optional current_url: string;
 optional environment: string;
 ```
 
+The environment in which the page is loaded (e.g. "production", "development", "staging").
+
 ***
 
 ### language?
@@ -25,6 +32,8 @@ optional environment: string;
 ```ts
 optional language: string;
 ```
+
+The language of the page content (e.g. "en-GB", "es").
 
 ***
 
@@ -34,6 +43,8 @@ optional language: string;
 optional page_type: string;
 ```
 
+The type of the current page (e.g. "product_detail", "category", "checkout").
+
 ***
 
 ### previous\_url?
@@ -42,6 +53,8 @@ optional page_type: string;
 optional previous_url: string;
 ```
 
+The full URL of the previous page, if known.
+
 ***
 
 ### version?
@@ -49,3 +62,5 @@ optional previous_url: string;
 ```ts
 optional version: string;
 ```
+
+The version of the application or page template.

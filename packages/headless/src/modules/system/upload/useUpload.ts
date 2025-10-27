@@ -2,7 +2,7 @@
 import { computed } from "vue";
 import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
-import { interpret, InterpreterStatus } from "xstate";
+import { interpret } from "xstate";
 
 // --- internal
 import { useI18n } from "../localisation";
@@ -11,7 +11,6 @@ import uploadMachine from "./upload.machine";
 // --- utils
 import {
   stopService,
-  useState,
   useContext,
   stateMatches,
   contextMatches,
@@ -23,10 +22,14 @@ import {
 
 // -----------------------------------------------------------------------------
 
-// system uploads is NOT a global insance, and is always instantiated as a new machine
-// this is because we need to be able to have multiple uploads happening at once
-// and we need to be able to start and stop them individually
-
+/**
+ * Composable function to manage file uploads, providing state, context, and methods
+ * for handling the upload process.
+ *
+ * NB: System uploads are NOT a global instance and are always instantiated as a new machine
+ * this is because we need to be able to have multiple uploads happening at once,
+ * and we need to be able to start and stop them individually
+ */
 export const useUpload = (field?: object) => {
   const { t } = useI18n();
   const context = {
@@ -192,7 +195,5 @@ export const useUpload = (field?: object) => {
   };
 };
 
-/**
- * Return type for useUpload composable.
- */
+/** The return type of {@link useUpload} composable. */
 export type useUpload = ReturnType<typeof useUpload>;

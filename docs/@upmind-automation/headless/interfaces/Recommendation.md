@@ -2,7 +2,9 @@
 
 # Recommendation
 
-Represents a "configured" product with its configuration, pricing, and associated details.
+Interface representing a single product recommendation, extending a base `Product`
+with additional details specific to recommendations, such as pricing, configuration,
+and meta-information for tracking.
 
 ## Extends
 
@@ -16,8 +18,9 @@ Represents a "configured" product with its configuration, pricing, and associate
 configuration: ProductProps;
 ```
 
-The product configuration matches the way we can interperet a product config machine: ie ProductProps
-This has additional fields to allow setting sub_pids, coupons,currency, etc...
+The product configuration matching the structure expected by a product configuration machine ([ProductProps](ProductProps.md)).
+This includes additional fields for setting subproducts (`sub_pids`), coupons, currency, etc.,
+allowing the recommendation to be easily added to a basket with specific options.
 
 #### Overrides
 
@@ -35,12 +38,10 @@ details: (
   | ProductSummaryDetailWithPrice)[];
 ```
 
-A summary of the product configuration.
-This can include details with or without pricing information, depending on the context.
-eg:
- terms will have pricing information
- a subproduct may have pricing information depending if its an option or attribute
- provision fields will not have pricing information
+A summary of the product configuration, providing details that may or may not
+include pricing information, depending on the context.
+e.g. terms will have pricing information, a subproduct may have pricing information
+depending on if it is an option or attribute, provision fields will not have pricing information.
 
 #### Inherited from
 
@@ -56,8 +57,7 @@ Product.details
 optional errors: object;
 ```
 
-An optional object containing errors related to the product.
-This can include errors for terms, attributes, options, or provision fields.
+An optional object containing errors related to various aspects of the product's configuration.
 
 #### attributes?
 
@@ -89,7 +89,7 @@ Errors related to the product's provision fields.
 optional term: any;
 ```
 
-Errors related to the product's term.
+Errors related to the product's billing term.
 
 #### Inherited from
 
@@ -105,7 +105,7 @@ Product.errors
 id: string;
 ```
 
-The unique identifier of the product. Optional as pending products will not have an ID.
+The unique identifier of the recommendation. This typically corresponds to a product ID.
 
 #### Overrides
 
@@ -121,6 +121,8 @@ Product.id
 meta: ProductSummaryMeta & object;
 ```
 
+Meta-information about the recommendation's state within the engine.
+
 #### Type Declaration
 
 ##### added?
@@ -129,11 +131,15 @@ meta: ProductSummaryMeta & object;
 optional added: boolean;
 ```
 
+`true` if this recommendation has been added to the basket.
+
 ##### loading?
 
 ```ts
 optional loading: boolean;
 ```
+
+`true` if the recommendation data is currently being loaded.
 
 ##### processing?
 
@@ -141,11 +147,15 @@ optional loading: boolean;
 optional processing: boolean;
 ```
 
+`true` if the recommendation is currently being processed (e.g. being added to the basket).
+
 ##### seen?
 
 ```ts
 optional seen: boolean;
 ```
+
+`true` if the user has seen this recommendation.
 
 #### Overrides
 
@@ -161,9 +171,8 @@ Product.meta
 price: PriceDisplay & object & object;
 ```
 
-The display price details for the product. This is the total configured pricing including any discounts or adjustments.
-It will always be the price that is shown to the customer, and it may or may not include tax, depending on the brand's settings.
-The display price includes the current amount, regular amount, and any savings.
+Pricing details for the recommendation, augmented with monthly pricing calculations
+based on current and regular amounts.
 
 #### Type Declaration
 
@@ -173,11 +182,17 @@ The display price includes the current amount, regular amount, and any savings.
 optional configuration: Price;
 ```
 
+The configuration price, representing the total price of the product,
+including any adjustments or quantity modifiers.
+
 ##### unit?
 
 ```ts
 optional unit: Price;
 ```
+
+The individual unit price, representing the base price of the product before
+any adjustments or quantity modifiers.
 
 #### Type Declaration
 
@@ -187,11 +202,15 @@ optional unit: Price;
 optional monthlyFromCurrentAmount: number;
 ```
 
+The calculated monthly amount from the current price.
+
 ##### monthlyFromCurrentPrice?
 
 ```ts
 optional monthlyFromCurrentPrice: string;
 ```
+
+The calculated monthly price from the current price, formatted as a string.
 
 ##### monthlyFromRegularAmount?
 
@@ -199,11 +218,15 @@ optional monthlyFromCurrentPrice: string;
 optional monthlyFromRegularAmount: number;
 ```
 
+The calculated monthly amount from the regular price.
+
 ##### monthlyFromRegularPrice?
 
 ```ts
 optional monthlyFromRegularPrice: string;
 ```
+
+The calculated monthly price from the regular price, formatted as a string.
 
 #### Overrides
 
@@ -220,7 +243,7 @@ pricing: ProductSummaryDetailWithPrice[];
 ```
 
 A breakdown of the product's pricing details.
-This may have multiple entries depending on if some configuration options are not quantifiable
+This may contain multiple entries, e.g. for different configuration options.
 
 #### Inherited from
 
@@ -236,7 +259,8 @@ Product.pricing
 productDetails: ProductDetails & object;
 ```
 
-The detailed information about the actial product. This will contain all the product details such as title, description etc
+Detailed product information for the recommendation, including a display label,
+an optional badge, and associated benefits.
 
 #### Type Declaration
 
@@ -246,17 +270,23 @@ The detailed information about the actial product. This will contain all the pro
 optional badge: Badge;
 ```
 
+An optional badge to display alongside the recommendation.
+
 ##### benefits?
 
 ```ts
 optional benefits: Benefit[];
 ```
 
+An array of benefits associated with the recommended product.
+
 ##### label
 
 ```ts
 label: string;
 ```
+
+The primary display label for the recommended product.
 
 #### Overrides
 
@@ -272,7 +302,7 @@ Product.productDetails
 optional promotions: PromotionDetails[];
 ```
 
-The promotions that are currently applied to the product.
+An array of [PromotionDetails](../type-aliases/PromotionDetails.md) that are currently applied to the product.
 
 #### Inherited from
 
@@ -287,3 +317,5 @@ Product.promotions
 ```ts
 optional serviceIdentifier: string;
 ```
+
+An optional identifier for the service associated with the recommendation.

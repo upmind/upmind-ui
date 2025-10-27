@@ -6,6 +6,10 @@
 function useRouteQueryParams(route): object;
 ```
 
+Parses and retrieves query parameters and route parameters from a given route object.
+This utility allows for flexible handling of parameters, offering functionality
+to consume, retrieve, and parse structured data from query and route parameters.
+
 ## Parameters
 
 ### route
@@ -131,7 +135,7 @@ parse: (value) => any = useSafeParse;
 ### productConfig
 
 ```ts
-productConfig: undefined | ProductProps;
+productConfig: ProductProps | undefined;
 ```
 
 ### productConfigs

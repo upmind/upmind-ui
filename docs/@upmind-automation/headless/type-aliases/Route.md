@@ -6,6 +6,8 @@
 type Route = object;
 ```
 
+Type alias for a generic route object, providing common properties found in router configurations.
+
 ## Properties
 
 ### meta?
@@ -13,6 +15,8 @@ type Route = object;
 ```ts
 optional meta: Record<string, any>;
 ```
+
+Meta fields associated with the route, for custom data.
 
 ***
 
@@ -22,6 +26,8 @@ optional meta: Record<string, any>;
 optional name: string;
 ```
 
+The name of the route.
+
 ***
 
 ### params?
@@ -29,6 +35,8 @@ optional name: string;
 ```ts
 optional params: Record<string, string | string[]>;
 ```
+
+Route parameters, e.g., `/users/:id` would have `{ id: 'some-id' }`.
 
 ***
 
@@ -38,6 +46,8 @@ optional params: Record<string, string | string[]>;
 optional path: string;
 ```
 
+The path segment of the route.
+
 ***
 
 ### query?
@@ -45,3 +55,5 @@ optional path: string;
 ```ts
 optional query: Record<string, any>;
 ```
+
+Query parameters, e.g., `/search?q=query` would have `{ q: 'query' }`.

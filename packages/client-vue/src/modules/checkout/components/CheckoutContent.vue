@@ -9,10 +9,9 @@
 
   <!-- Basket Products -->
   <Section
-    id="basket-products"
-    :section="section"
-    :title="t('cart.basket_products')"
     v-show="uischema.showProductsOnCheckout"
+    id="basket-products"
+    :title="t('cart.basket_products')"
     icon="list"
   >
     <ProductCards />
@@ -24,7 +23,6 @@
     :title="t('text.additional_details')"
     v-show="uischema.showFieldsOnCheckout"
     icon="file-attachment-01"
-    :section="section"
   >
     <Form
       v-if="!fieldsMeta.isLoading"
@@ -44,7 +42,6 @@
   <!-- Billing Details -->
   <Section
     id="basket-billing"
-    :section="section"
     :title="t('text.billing_details')"
     v-show="uischema.showBillingOnCheckout"
     icon="building-07"
@@ -55,7 +52,6 @@
   <!-- Payment Details -->
   <Section
     id="payment-details"
-    :section="section"
     :title="t('text.payment_details')"
     icon="wallet-02"
   >
@@ -82,14 +78,6 @@ import BasketErrors from "../../basket/components/BasketErrors.vue";
 
 // --- types
 import type { ComputedRef } from "vue";
-
-interface Props {
-  section?: boolean;
-}
-
-withDefaults(defineProps<Props>(), {
-  section: false
-});
 
 const { t } = useI18n();
 const { meta, uischema } = useBasket();

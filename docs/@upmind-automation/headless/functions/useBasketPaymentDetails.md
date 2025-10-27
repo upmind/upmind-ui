@@ -6,12 +6,26 @@
 function useBasketPaymentDetails(): object;
 ```
 
+Retrieves the payment details related to the basket by using the actor model.
+
+This function leverages the basket's paymentDetails actor to collect
+and manage payment-related data. It combines the context of the basket
+with the payment details actor to simplify access to payment details.
+
 ## Returns
+
+### address
+
+```ts
+address: ComputedRef<IAddress | undefined>;
+```
+
+The full address to be used for the order
 
 ### amount
 
 ```ts
-amount: ComputedRef<undefined | number>;
+amount: ComputedRef<number | undefined>;
 ```
 
 The payment amount, if applicable.
@@ -28,20 +42,36 @@ Clears the payment details state.
 
 `void`
 
+### clickwrap
+
+```ts
+clickwrap: ComputedRef<string | undefined>;
+```
+
+The payment details clickwrap disclaimer.
+
 ### context
 
 ```ts
 context: ComputedRef<
-  | undefined
-| PaymentDetailsContext>;
+  | PaymentDetailsContext
+| undefined>;
 ```
 
 The full payment details context object.
 
+### currency
+
+```ts
+currency: ComputedRef<ICurrency | undefined>;
+```
+
+The payment currency
+
 ### errors
 
 ```ts
-errors: ComputedRef<undefined | ResponseError>;
+errors: ComputedRef<ResponseError | undefined>;
 ```
 
 Any error returned by the payment details actor.
@@ -49,7 +79,7 @@ Any error returned by the payment details actor.
 ### gateway
 
 ```ts
-gateway: ComputedRef<undefined | Actor>;
+gateway: ComputedRef<Actor | undefined>;
 ```
 
 The payment gateway actor.
@@ -57,7 +87,7 @@ The payment gateway actor.
 ### gateways
 
 ```ts
-gateways: ComputedRef<undefined | Gateway[]>;
+gateways: ComputedRef<IBrandGateway[] | undefined>;
 ```
 
 The available gateways.
@@ -65,7 +95,7 @@ The available gateways.
 ### input()
 
 ```ts
-input: (value) => void;
+input: (value) => Promise<void>;
 ```
 
 Sends a SET event to update the payment details model.
@@ -74,13 +104,13 @@ Sends a SET event to update the payment details model.
 
 ##### value
 
-[`PaymentDetailModel`](../interfaces/PaymentDetailModel.md)
+[`PaymentDetailModel`](../type-aliases/PaymentDetailModel.md)
 
 The payment details model to set.
 
 #### Returns
 
-`void`
+`Promise`\<`void`\>
 
 Does not return anything.
 
@@ -104,6 +134,8 @@ Resolves true if ready, false if error.
 meta: ComputedRef<{
   hasErrors: boolean;
   hasGateway: boolean;
+  hasGateways: boolean;
+  hasStoredPaymentMethods: boolean;
   isAvailable: boolean;
   isComplete: boolean;
   isDirty: boolean;
@@ -119,7 +151,9 @@ Meta information about the basket payment details state.
 ### model
 
 ```ts
-model: ComputedRef<undefined | PaymentDetailModel>;
+model: ComputedRef<
+  | PaymentDetailModel
+| undefined>;
 ```
 
 The current payment details model.
@@ -127,15 +161,29 @@ The current payment details model.
 ### schema
 
 ```ts
-schema: ComputedRef<undefined | JsonSchema>;
+schema: ComputedRef<JsonSchema | undefined>;
 ```
 
 The payment details schema.
 
+### state
+
+```ts
+state: ComputedRef<string[] | undefined>;
+```
+
+### storedPaymentMethods
+
+```ts
+storedPaymentMethods: ComputedRef<PaymentDetail[] | undefined>;
+```
+
+The stored payment methods available.
+
 ### uischema
 
 ```ts
-uischema: ComputedRef<undefined | UISchemaElement>;
+uischema: ComputedRef<UISchemaElement | undefined>;
 ```
 
 The payment details UI schema.
@@ -152,7 +200,7 @@ Updates the payment details if the model has changed.
 
 ##### value?
 
-[`PaymentDetailModel`](../interfaces/PaymentDetailModel.md)
+[`PaymentDetailModel`](../type-aliases/PaymentDetailModel.md)
 
 The new payment details model to set.
 
@@ -161,3 +209,40 @@ The new payment details model to set.
 `Promise`\<`void`\>
 
 Resolves when updated, rejects on error.
+
+### useStoredPayment()
+
+```ts
+useStoredPayment: (model) => void;
+```
+
+Updates the payment details with the stored Payment method ID.
+
+#### Parameters
+
+##### model
+
+[`PaymentDetailModel`](../type-aliases/PaymentDetailModel.md)
+
+The payment details model to use for checkout.
+
+#### Returns
+
+`void`
+
+Does not return anything.
+
+### validationErrors
+
+```ts
+validationErrors: ComputedRef<
+  | ValidationErrorObject<string, Record<string, any>, unknown>[]
+| undefined>;
+```
+
+Validation errors encountered during payment gateway operations.
+Typically contains an array of error objects with details about the validation issues.
+
+#### See
+
+https://ajv.js.org/guide/validation-errors.html#validation-error-object

@@ -1,6 +1,6 @@
 // --- external
 import { computed } from "vue";
-import { interpret, InterpreterFrom } from "xstate";
+import { interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 import { useActor } from "@xstate/vue";
 
@@ -36,6 +36,17 @@ import type { Email, EmailModel } from "./types";
 
 // -----------------------------------------------------------------------------
 
+/**
+ * Provides functionalities to manage a client's email, leveraging an XState machine.
+ * This composable handles email data, validation, saving, and interaction states.
+ * It's designed for use in contexts like client profile management or checkout email selection.
+ *
+ * @param id - The unique identifier of the email to manage. If omitted, it may imply a new email.
+ * @param options - Optional configuration for the email management.
+ * @param options.allowMultipleEdits - If `true`, allows multiple instances of this composable to manage different emails concurrently.
+ * @param options.clientId - The unique identifier of the client to whom this email belongs.
+ * @returns The API for managing the client email.
+ */
 export const useClientEmail = (
   id?: Email["id"],
   {
@@ -139,7 +150,7 @@ export const useClientEmail = (
   async function update(
     value?: EmailModel | Record<string, any>
   ): Promise<EmailModel> {
-    // first check if our model has changed, if it has we need to send it
+    // first check if our model has changed, if it has, we need to send it
 
     const model = contextValue<EmailModel>(state, "model");
 
@@ -213,10 +224,10 @@ export const useClientEmail = (
     /** The full context object. */
     context,
 
-    /** Title of the email*/
+    /** Title of the email */
     title,
 
-    /** Description of the.email*/
+    /** Description of the email */
     description,
 
     /** The ID of the email */
@@ -228,10 +239,10 @@ export const useClientEmail = (
     /** Any validation errors from the context. */
     validationErrors,
 
-    /** The current model.*/
+    /** The current model. */
     model,
 
-    /** The JSON schema for the form*/
+    /** The JSON schema for the form */
     schema,
 
     /** The UI schema for the form */
@@ -239,12 +250,10 @@ export const useClientEmail = (
 
     // --- methods
 
-    /**
-     * Stops the service.
-     */
+    /** Stops the service. */
     stop,
 
-    /** Clears the context.*/
+    /** Clears the context. */
     clear,
 
     /**
@@ -263,5 +272,7 @@ export const useClientEmail = (
   };
 };
 
-/** The return type of the composable.*/
+/**
+ * The return type of the {@link useClientEmail} composable function.
+ */
 export type UseClientEmail = ReturnType<typeof useClientEmail>;
