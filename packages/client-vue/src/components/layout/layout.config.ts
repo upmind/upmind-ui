@@ -243,15 +243,15 @@ export default {
       }
     }),
     container: cva(
-      "bg-surface flex min-h-screen w-1/2 flex-col justify-between px-32 pt-24 pb-9"
+      "bg-surface flex min-h-screen w-full flex-col justify-between px-6 py-7 md:w-1/2 lg:px-16 lg:pt-24 lg:pb-9 2xl:px-32"
     ),
     content: {
       root: cva("flex grow flex-col gap-4"),
       container: cva("flex grow flex-col gap-12"),
-      header: cva("max-w-app-aside grow")
+      header: cva("lg:max-w-app-aside grow")
     },
-    footer: cva("h-16"),
-    aside: cva("bg-canvas min-h-screen w-1/2")
+    footer: cva("h-24 lg:h-16"),
+    aside: cva("bg-canvas hidden min-h-screen md:block md:w-1/2")
   },
 
   canvasCard: {
