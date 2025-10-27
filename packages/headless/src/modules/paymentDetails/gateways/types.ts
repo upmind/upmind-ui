@@ -46,11 +46,36 @@ export type GatewayParams = {
 
 export type GenericGatewayContext = {
   // --- state
+
+  /**
+   * The SDK instance provided by the payment gateway for handling payment operations.
+   * This allows for direct interaction with the gateway's SDK within the application.
+   * NB: Each SDK will have its own type and interface, but will always be added here.
+   */
   sdk?: unknown;
+
+  /**
+   * The HTML container element where the payment gateway SDK UI should be injected into and rendered.
+   */
   container?: HTMLElement;
+
+  /**
+   * A function invoked by the gateway machine to observe validation events from SDK specific implementations.
+   */
   validationObserver?: ActorRef<any>;
+
+  /**
+   * A callback function provided to assist with validation logic.
+   * @param callback A function to call with validation results.
+   * @returns void
+   */
   validationHelper?: (callback: any) => void;
+
   // --- Settings
+  /**
+   * `true` if the selected payment method is supported by the Upmind Headless.
+   * This allows new/upcoming payment methods to be represented even if not yet supported.
+   */
   supported: boolean;
   /**
    * `true` if the selected payment method can be stored for future use.
