@@ -42,16 +42,16 @@ const containerVariants = cva("", {
   }
 });
 
-const actionsVariants = cva("", {
+const leftVariants = cva("", {
   variants: {
     variant: {
       default: "flex justify-center gap-2 md:justify-end",
       enclosed: "flex justify-center gap-2 md:justify-end",
       full: "flex justify-center gap-2 md:justify-end",
       twoColumnLTR:
-        "lg:basis-app-content bg-surface w-app-content box-content flex min-w-0 flex-col-reverse items-center justify-between gap-4 pb-2 lg:flex-row lg:items-end lg:gap-0 lg:px-18 lg:pt-18 lg:pb-9",
+        "lg:basis-app-content bg-surface w-app-content box-content flex min-w-0 flex-row-reverse items-center justify-between gap-4 pb-2 lg:flex-row lg:items-end lg:gap-0 lg:px-18 lg:pt-18 lg:pb-9",
       twoColumnRTL:
-        "lg:basis-app-content bg-surface w-app-content box-content flex min-w-0 flex-col-reverse items-center justify-between gap-4 pb-2 lg:flex-row lg:items-end lg:gap-0 lg:px-18 lg:pt-18 lg:pb-9",
+        "lg:basis-app-content bg-surface w-app-content box-content flex min-w-0 flex-row-reverse items-center justify-between gap-4 pb-2 lg:flex-row lg:items-end lg:gap-0 lg:px-18 lg:pt-18 lg:pb-9",
       split: "",
       canvasCard: "",
       surfaceBox: ""
@@ -59,21 +59,21 @@ const actionsVariants = cva("", {
   }
 });
 
-const contentVariants = cva("", {
+const rightVariants = cva("", {
   variants: {
     variant: {
       default:
-        "flex flex-col justify-between gap-2 text-center md:flex-row md:gap-0 md:text-left",
+        "flex flex-col items-center justify-between gap-2 text-center md:flex-row md:gap-0 md:text-left",
       enclosed:
-        "flex flex-col justify-between gap-2 text-center md:flex-row md:gap-0 md:text-left",
-      full: "flex flex-col justify-between gap-2 text-center md:flex-row md:gap-0 md:text-left",
+        "flex flex-col items-center justify-between gap-2 text-center md:flex-row md:gap-0 md:text-left",
+      full: "flex flex-col items-center justify-between gap-2 text-center md:flex-row md:gap-0 md:text-left",
       twoColumnLTR:
-        "lg:basis-app-aside lg:w-app-aside box-content min-w-0 pb-9 lg:px-18 lg:pt-18",
+        "lg:basis-app-aside lg:w-app-aside box-content flex min-w-0 flex-col items-center pb-9 lg:items-start lg:px-18 lg:pt-18",
       twoColumnRTL:
-        "lg:basis-app-aside lg:w-app-aside box-content min-w-0 pb-9 lg:px-18 lg:pt-18",
+        "lg:basis-app-aside lg:w-app-aside box-content flex min-w-0 flex-col items-center pb-9 lg:items-start lg:px-18 lg:pt-18",
       split: "",
-      canvasCard: "",
-      surfaceBox: ""
+      canvasCard: "text-center",
+      surfaceBox: "text-center"
     }
   }
 });
@@ -82,7 +82,8 @@ export default {
   footer: {
     root: rootVariants,
     container: containerVariants,
-    actions: actionsVariants,
-    content: contentVariants
+    left: leftVariants,
+    right: rightVariants,
+    actions: cva("flex gap-2")
   }
 };
