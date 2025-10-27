@@ -41,7 +41,7 @@
         </form>
 
         <template v-if="!configMeta.headerBreadcrumbs" #action>
-          <Share class="hidden md:flex" />
+          <Share class="hidden md:flex" size="inherit" />
         </template>
       </Section>
     </template>
