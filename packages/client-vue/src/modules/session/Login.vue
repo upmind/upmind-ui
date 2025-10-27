@@ -10,6 +10,7 @@ import { computed, onUnmounted } from "vue";
 import { useRoutingEngine } from "@upmind-automation/headless";
 import { useHeader } from "../../components/header/useHeader";
 import { useFooter } from "../../components/footer/useFooter";
+import { useLayout } from "../../components/layout/useLayout";
 
 // --- components
 import LoginLTR from "./templates/LoginLTR.template.vue";
@@ -44,6 +45,7 @@ const templateVariant = computed(
 );
 
 onUnmounted(() => {
+  useLayout({});
   useFooter({});
   useHeader({});
 });

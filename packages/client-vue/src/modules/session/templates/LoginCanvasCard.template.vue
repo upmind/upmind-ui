@@ -19,6 +19,7 @@ import LoginForm from "../components/LoginForm.vue";
 // --- internal
 import { useFooter } from "../../../components/footer/useFooter";
 import { useHeader } from "../../../components/header/useHeader";
+import { useLayout } from "../../../components/layout/useLayout";
 
 // --- types
 import { FOOTER_TEMPLATE } from "../../../components/footer/types";
@@ -36,5 +37,9 @@ useHeader({
   template: HEADER_TEMPLATE.CANVAS_CARD,
   noBasket: true,
   noSession: true
+});
+
+useLayout({
+  grow: false
 });
 </script>
