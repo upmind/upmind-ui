@@ -9,7 +9,7 @@
     </template>
 
     <template #aside>
-      <LoginAside section />
+      <LoginAside class="hidden lg:flex" section />
     </template>
   </Layout>
 </template>

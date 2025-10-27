@@ -9,8 +9,8 @@ const rootVariants = cva("w-full", {
       enclosed:
         "bg-surface shadow-b-border-surface z-20 flex w-full flex-col items-center px-6 py-7 lg:px-2.5",
       full: "bg-surface shadow-b-border-surface z-20 flex w-full flex-col items-center px-6 py-7 lg:px-2.5",
-      twoColumnLTR: "absolute top-0 px-8",
-      twoColumnRTL: "absolute top-0 px-8",
+      twoColumnLTR: "absolute top-0",
+      twoColumnRTL: "absolute top-0",
       split: "hidden",
       canvasCard: "w-full px-6 pt-7",
       surfaceBox: "absolute top-0 px-6 lg:px-8"
@@ -47,9 +47,9 @@ const leftVariants = cva("", {
       enclosed: "",
       full: "",
       twoColumnLTR:
-        "basis-app-content bg-surface lg:w-app-content box-content flex h-16 w-full min-w-0 items-end lg:h-24 lg:px-18",
+        "basis-app-content bg-surface lg:w-app-content box-content flex h-16 w-full min-w-0 items-end px-8 lg:h-24 lg:px-18",
       twoColumnRTL:
-        "basis-app-aside lg:w-app-aside box-content flex h-16 w-full min-w-0 items-end lg:h-24 lg:bg-transparent lg:px-18",
+        "basis-app-aside lg:w-app-aside box-content flex h-16 w-full min-w-0 items-end px-8 lg:h-24 lg:bg-transparent lg:px-18",
       split: "",
       canvasCard: "",
       surfaceBox: ""
@@ -67,9 +67,9 @@ const rightVariants = cva("", {
       enclosed: "",
       full: "",
       twoColumnLTR:
-        "basis-app-aside bg-surface lg:w-app-aside box-content flex h-16 w-full min-w-0 items-end justify-end lg:h-24 lg:bg-transparent lg:px-18",
+        "basis-app-aside bg-surface lg:w-app-aside box-content flex h-16 w-full min-w-0 items-end justify-end px-8 lg:h-24 lg:bg-transparent lg:px-18",
       twoColumnRTL:
-        "basis-app-content lg:w-app-content box-content flex h-16 w-full min-w-0 items-end justify-end lg:h-24 lg:px-18",
+        "basis-app-content lg:w-app-content box-content flex h-16 w-full min-w-0 items-end justify-end px-8 lg:h-24 lg:px-18",
       split: "",
       canvasCard: "",
       surfaceBox: ""
