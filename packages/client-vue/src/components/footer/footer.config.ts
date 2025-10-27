@@ -9,7 +9,7 @@ const rootVariants = cva("", {
       full: "bg-surface shadow-t-border-surface w-full px-6 py-6 text-base",
       twoColumnLTR: "absolute bottom-0 w-full px-6 md:px-8",
       twoColumnRTL: "absolute bottom-0 w-full px-6 md:px-8",
-      split: "absolute bottom-0 w-full px-6 md:px-8 lg:mr-auto lg:w-1/2",
+      split: "absolute bottom-0 left-0 w-full px-6 pb-9 md:px-32 lg:w-1/2",
       canvasCard: "w-full px-6 pb-7",
       surfaceBox: "absolute bottom-0 w-full px-6 md:px-8"
     }
@@ -31,7 +31,7 @@ const containerVariants = cva("", {
         "flex flex-col items-center justify-center lg:w-full lg:flex-row lg:items-end",
       twoColumnRTL:
         "flex flex-col items-center justify-center lg:w-full lg:flex-row-reverse lg:items-end",
-      split: "flex justify-between px-32 pb-9",
+      split: "flex justify-between",
       canvasCard:
         "max-w-app mx-auto flex flex-col items-center justify-center gap-2 lg:flex-row lg:items-start lg:justify-between lg:gap-0",
       surfaceBox:
