@@ -5,10 +5,10 @@ const rootVariants = cva("w-full", {
   variants: {
     variant: {
       default:
-        "bg-surface shadow-b-border-surface top-0 z-20 flex w-full flex-col items-center px-6 py-7 transition-all duration-500 md:px-2.5",
+        "bg-surface shadow-b-border-surface top-0 z-20 flex w-full flex-col items-center px-6 py-7 md:px-2.5",
       enclosed:
-        "bg-surface shadow-b-border-surface top-0 z-20 flex w-full flex-col items-center px-6 py-7 transition-all duration-500 md:px-2.5",
-      full: "bg-surface shadow-b-border-surface top-0 z-20 flex w-full flex-col items-center px-6 py-7 transition-all duration-500 md:px-2.5",
+        "bg-surface shadow-b-border-surface top-0 z-20 flex w-full flex-col items-center px-6 py-7 md:px-2.5",
+      full: "bg-surface shadow-b-border-surface top-0 z-20 flex w-full flex-col items-center px-6 py-7 md:px-2.5",
       twoColumnLTR: "absolute top-0 px-8",
       twoColumnRTL: "absolute top-0 px-8",
       split: "hidden",
@@ -45,7 +45,7 @@ const leftVariants = cva("", {
     variant: {
       default: "",
       enclosed: "",
-      full: "bg-surface shadow-b-border-surface top-0 z-20 flex w-full flex-col items-center px-6 py-7 transition-all duration-500 md:px-2.5",
+      full: "bg-surface shadow-b-border-surface top-0 z-20 flex w-full flex-col items-center px-6 py-7 md:px-2.5",
       twoColumnLTR:
         "basis-app-content bg-surface lg:w-app-content box-content flex h-24 w-full min-w-0 items-end lg:px-18",
       twoColumnRTL:
