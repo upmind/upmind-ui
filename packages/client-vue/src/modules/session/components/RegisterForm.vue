@@ -1,40 +1,42 @@
 <template>
   <Section :section="section" title="Register" icon="user-03">
-    <Auth
-      class="rounded-box w-full max-w-5xl items-start"
-      no-tabs
-      no-header
-      model-value="register"
-      @resolve="handleResolve"
-    />
+    <div>
+      <Auth
+        class="rounded-box w-full max-w-5xl items-start"
+        no-tabs
+        no-header
+        model-value="register"
+        @resolve="handleResolve"
+      />
 
-    <i18n-t
-      class="text-muted text-sm"
-      keypath="auth.recaptcha_terms_desc"
-      tag="p"
-      scope="global"
-    >
-      <template #[`privacyPolicy`]>
-        <Link
-          class="has-text-grey-light"
-          href="https://policies.google.com/privacy"
-          target="_blank"
-          size="inherit"
-          color="inherit"
-          >{{ $t("text.privacy_policy") }}</Link
-        >
-      </template>
-      <template #[`termsOfService`]>
-        <Link
-          class="has-text-grey-light"
-          href="https://policies.google.com/terms"
-          target="_blank"
-          size="inherit"
-          color="inherit"
-          >{{ $t("text.terms_of_service") }}</Link
-        >
-      </template>
-    </i18n-t>
+      <i18n-t
+        class="text-muted text-sm"
+        keypath="auth.recaptcha_terms_desc"
+        tag="p"
+        scope="global"
+      >
+        <template #[`privacyPolicy`]>
+          <Link
+            class="has-text-grey-light"
+            href="https://policies.google.com/privacy"
+            target="_blank"
+            size="inherit"
+            color="inherit"
+            >{{ $t("text.privacy_policy") }}</Link
+          >
+        </template>
+        <template #[`termsOfService`]>
+          <Link
+            class="has-text-grey-light"
+            href="https://policies.google.com/terms"
+            target="_blank"
+            size="inherit"
+            color="inherit"
+            >{{ $t("text.terms_of_service") }}</Link
+          >
+        </template>
+      </i18n-t>
+    </div>
   </Section>
 </template>
 
