@@ -2,6 +2,7 @@
 
 // --- internal
 import { useBasket } from "../../basket";
+import { useBrand } from "../../brand";
 import { useRoutingEngine } from "..";
 
 // --- utils
@@ -12,6 +13,8 @@ import { useBasketProductsPending } from "../../basketProduct";
 // --- types
 import { ROUTE } from "../types";
 import type { Flow, Route } from "../types";
+import { BrandConfigKeys, CheckoutFlows } from "@upmind-automation/types";
+import { getCheckoutFlowTargets } from "./checkout";
 
 // -----------------------------------------------------------------------------
 
@@ -55,8 +58,7 @@ export const useBasketFlows = () => {
             }
           },
           ROUTE.PRODUCT_NOT_FOUND,
-          ROUTE.BASKET,
-          ROUTE.EMPTY
+          ...getCheckoutFlowTargets()
         ]
       }
     },
@@ -67,7 +69,7 @@ export const useBasketFlows = () => {
       targets: {
         next: [],
         back: [],
-        fallback: [ROUTE.BASKET]
+        fallback: getCheckoutFlowTargets()
       }
     },
     {
@@ -77,18 +79,9 @@ export const useBasketFlows = () => {
       resolve: async (_route: Route) => {
         return { name: ROUTE.BASKET };
       },
-      //  uncomment if we want to FORCE a redirect to a specific path for the basket/flow.
-      // e.g.: ** OPTIONALLY ** if we have an alias for the basket that is cart, then the router would force the redirect to the basket
-      // otherwise `/cart` would still resolve to the basket flow but not have `/basket` in the url
-      // resolve: async (_route: Route) => {
-      //   return {
-      //     name: ROUTE.BASKET,
-      //     path: "/basket",
-      //   };
-      // },
       targets: {
-        next: [ROUTE.CHECKOUT],
-        back: [],
+        next: [ROUTE.CHECKOUT, ROUTE.SESSION_REGISTER],
+        back: [ROUTE.CATALOGUE],
         fallback: [ROUTE.EMPTY]
       }
     }

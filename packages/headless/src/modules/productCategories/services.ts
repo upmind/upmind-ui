@@ -11,7 +11,7 @@ import { parseProductCategory } from "./mappers";
 import { ProductCategory } from "./types";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { IProductCategory } from "@upmind-automation/types";
-import type { IBrandMeta } from "../brand/types";
+import type { BrandMeta } from "../brand/types";
 
 // -----------------------------------------------------------------------------
 // QUERIES

@@ -11,6 +11,7 @@ import { uniqBy } from "lodash-es";
 // --- types
 import type { Flow, Route } from "../types";
 import { ROUTE } from "../types";
+import { getCheckoutFlowTargets } from "./checkout";
 
 // -----------------------------------------------------------------------------
 
@@ -34,9 +35,9 @@ export const useRecommendationsFlows = () => {
           () => basketMeta.value.hasProducts && meta.value.hasRecommendations
         ),
       targets: {
-        next: [ROUTE.CHECKOUT, ROUTE.SESSION_REGISTER, ROUTE.BASKET],
-        back: [ROUTE.BASKET, ROUTE.EMPTY],
-        fallback: [ROUTE.BASKET, ROUTE.EMPTY]
+        next: getCheckoutFlowTargets(),
+        back: getCheckoutFlowTargets(),
+        fallback: getCheckoutFlowTargets()
       }
     }
   ];

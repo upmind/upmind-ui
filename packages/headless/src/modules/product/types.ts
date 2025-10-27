@@ -551,6 +551,76 @@ export enum BreadcrumbVariant {
   VISIBLE = "visible"
 }
 
+export interface UIMeta {
+  ui?: UIConfig;
+  uischema?: UISchema;
+  related?: Recommendation[];
+  product?: UIProductMeta;
+}
+
+export interface UIProductMeta {
+  variant?: string;
+  image: {
+    hide?: boolean;
+    carousel?: boolean;
+    ratio?: string;
+  };
+  display_price?: {
+    trim_trailing_zeroes?: boolean;
+  };
+  card: {
+    benefits: {
+      hide?: boolean;
+      data?: Benefit[];
+    };
+    description: {
+      hide?: boolean;
+    };
+    breakdown: {
+      hide?: boolean;
+    };
+    price: {
+      hide?: boolean;
+    };
+    terms: {
+      hide?: boolean;
+    };
+  };
+}
+
+export interface UIConfig {
+  summary?: {
+    append?: string;
+  };
+}
+
+export interface UISchema {
+  billing?: {
+    control?: string;
+  };
+  primary?: boolean;
+  group?: string;
+  group_name?: string;
+  icon?: string;
+  config?: {
+    summary?: {
+      append?: string;
+    };
+    breadcrumbs?: BreadcrumbVariant;
+  };
+  productConfig?: {
+    summary?: {
+      append?: string;
+    };
+  };
+}
+
+export const UI_SCHEMA_DEFAULTS: UISchema = {
+  config: {
+    breadcrumbs: BreadcrumbVariant.VISIBLE
+  }
+} as const;
+
 /**
  * Type alias for a product image.
  */
@@ -678,12 +748,6 @@ export interface UISchema {
     };
   };
 }
-
-export const UI_SCHEMA_DEFAULTS: UISchema = {
-  config: {
-    breadcrumbs: BreadcrumbVariant.VISIBLE
-  }
-} as const;
 
 /**
  * Interface representing a benefit associated with a product.

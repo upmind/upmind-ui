@@ -31,6 +31,7 @@
         :additional-errors="validationErrors"
         :processing="meta.isProcessing"
         :no-actions="noActions"
+        v-model:touched="touched"
       >
         <template #actions="{ doReject, doResolve, meta: formMeta }">
           <Actions
@@ -52,7 +53,6 @@
 <script setup lang="ts">
 // --- external
 import { useI18n } from "vue-i18n";
-import { useVModel } from "@vueuse/core";
 
 // --- internal
 
@@ -75,6 +75,7 @@ const props = defineProps<{
   readonly?: boolean;
   open?: boolean;
   modal?: boolean;
+  touched?: boolean;
   options?: Record<string, any>; // additional options for the mutation composable
   noActions?: boolean;
 }>();
@@ -91,7 +92,8 @@ const emits = defineEmits<{
 const { t } = useI18n();
 
 // --- state
-const open = useVModel(props, "open", emits);
+const open = defineModel<boolean>("open");
+const touched = defineModel<boolean>("touched");
 
 const {
   meta,

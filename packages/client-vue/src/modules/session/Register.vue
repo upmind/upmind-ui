@@ -1,5 +1,5 @@
 <template>
-  <Layout :variant="uiCart?.layout">
+  <Layout :variant="layout">
     <template #navigation>
       <Link
         class="flex items-center gap-x-2"
@@ -77,7 +77,7 @@
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
-import { watch } from "vue";
+import { computed, watch } from "vue";
 
 // --- internal
 import {
@@ -96,9 +96,9 @@ import Section from "../../components/content/LayoutSection.vue";
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { navigateNext, navigateBack, navigate, isResolved } = useRoutingEngine();
+const { navigateNext, navigateBack, navigate, isResolved, currentRoute } =
+  useRoutingEngine();
 const { meta } = useSession();
-const { uiCart } = useBrand();
 
 await isResolved(ROUTE.SESSION_REGISTER);
 
@@ -111,6 +111,10 @@ function doResolve() {
   // router.push(redirectPath);
   navigateNext();
 }
+
+const layout = computed(() => {
+  return currentRoute.value?.meta?.template;
+});
 
 watch(meta, (newVal, oldVal) => {
   if (oldVal.showRegisterForm && newVal.showLoginForm) {

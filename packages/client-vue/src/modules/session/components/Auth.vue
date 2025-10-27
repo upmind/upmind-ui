@@ -69,7 +69,7 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 import TermsAndConditions from "../../brand/TermsAndConditions.vue";
 import Form from "../../../components/form/Form.vue";
 import config from "../sesssion.config";
-import { useSession, useBrand } from "@upmind-automation/headless";
+import { useSession } from "@upmind-automation/headless";
 import { useStyles, cn } from "@upmind-automation/upmind-ui";
 
 // --- custom elements
@@ -107,8 +107,6 @@ const {
   logout,
   setModel
 } = useSession();
-
-const { uiCart } = useBrand();
 
 await isReady();
 

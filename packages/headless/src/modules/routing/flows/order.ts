@@ -1,5 +1,6 @@
 // --- internal
 import { useRoutingEngine } from "..";
+import { getCheckoutFlowTargets } from "./checkout";
 
 // --- utils
 import { uniqBy, isEmpty } from "lodash-es";
@@ -43,8 +44,8 @@ export const useOrderFlows = () => {
       },
       targets: {
         next: [],
-        back: [ROUTE.BASKET, ROUTE.EMPTY],
-        fallback: [ROUTE.BASKET, ROUTE.EMPTY]
+        back: getCheckoutFlowTargets(),
+        fallback: getCheckoutFlowTargets()
       }
     }
   ];

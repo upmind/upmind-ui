@@ -1,5 +1,4 @@
 <template>
-  <!-- <pre>{{ props }}</pre> -->
   <p v-if="has(props, 'cycle')">
     {{
       t("term.price_msg", {
