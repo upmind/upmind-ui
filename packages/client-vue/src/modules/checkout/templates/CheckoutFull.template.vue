@@ -23,6 +23,9 @@
 </template>
 
 <script lang="ts" setup>
+// --- external
+import { onMounted, onUnmounted } from "vue";
+
 // --- internal
 import { useRoutingEngine } from "@upmind-automation/headless";
 import { useFooter } from "../../../components/footer/useFooter";
@@ -42,15 +45,20 @@ import { FOOTER_TEMPLATE } from "../../../components/footer/types";
 import { LAYOUT_VARIANTS } from "../../../components/layout/types";
 
 // --- methods
-const { setTemplate } = useFooter();
-setTemplate(FOOTER_TEMPLATE.FULL);
-
-const { setTemplate: setHeaderTemplate } = useHeader();
-setHeaderTemplate(HEADER_TEMPLATE.FULL);
 
 const { navigateBack } = useRoutingEngine();
 
 function doReject() {
   navigateBack();
 }
+
+onMounted(() => {
+  useFooter({
+    template: FOOTER_TEMPLATE.FULL
+  });
+
+  useHeader({
+    template: HEADER_TEMPLATE.FULL
+  });
+});
 </script>

@@ -19,6 +19,9 @@
 </template>
 
 <script lang="ts" setup>
+// --- external
+import { onMounted, onUnmounted } from "vue";
+
 // --- internal
 import { useHeader } from "../../../components/header/useHeader";
 import { useFooter } from "../../../components/footer/useFooter";
@@ -34,10 +37,13 @@ import { HEADER_TEMPLATE } from "../../../components/header/types";
 import { FOOTER_TEMPLATE } from "../../../components/footer/types";
 import { LAYOUT_VARIANTS } from "../../../components/layout/types";
 
-// --- methods
-const { setTemplate } = useFooter();
-setTemplate(FOOTER_TEMPLATE.TWO_COLUMN_LTR);
+onMounted(() => {
+  useFooter({
+    template: FOOTER_TEMPLATE.TWO_COLUMN_LTR
+  });
 
-const { setTemplate: setHeaderTemplate } = useHeader();
-setHeaderTemplate(HEADER_TEMPLATE.TWO_COLUMN_LTR);
+  useHeader({
+    template: HEADER_TEMPLATE.TWO_COLUMN_LTR
+  });
+});
 </script>
