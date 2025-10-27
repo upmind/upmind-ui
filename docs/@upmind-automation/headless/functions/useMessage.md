@@ -6,7 +6,7 @@
 function useMessage(item): object;
 ```
 
-This is a helper function to extract the message from an actor item.
+Extracts the message from an actor item.
 It is used to simplify the extraction of message properties from the feedback machine.
 
 ## Parameters

@@ -8,7 +8,6 @@ import router from "./router";
 import i18n from "./i18n";
 
 import UpmindClient from "@upmind-automation/client-vue";
-import { useCustomFlows } from "./router/useCustomFlows";
 import { plugins as uiPlugins } from "@upmind-automation/upmind-ui";
 
 // --- utils
@@ -33,8 +32,7 @@ UpmindClient.init({
     )
   },
   router: {
-    instance: router,
-    flows: useCustomFlows
+    instance: router
   },
   recaptcha: {
     siteKey: import.meta.env.VITE_APP_GOOGLE_RECAPTCHA_V3_SITE_KEY,

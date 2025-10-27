@@ -28,17 +28,17 @@
     "placeholder": "Şifre veya parola ifadesi"
   },
   "card_cvv": {
-    "error": "A valid CVV is required",
+    "error": "Geçerli bir CVV gereklidir",
     "label": "CVV",
     "placeholder": "CVC"
   },
   "card_expiry": {
-    "error": "A valid expiry date is required",
+    "error": "Geçerli bir son kullanma tarihi gereklidir",
     "label": "Son kullanma tarihi",
     "placeholder": "AA/YY"
   },
   "card_num": {
-    "error": "A valid card number is required",
+    "error": "Geçerli bir kart numarası gereklidir",
     "label": "Kart numarası",
     "placeholder": "1234 1234 1234 1234"
   },

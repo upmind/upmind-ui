@@ -29,10 +29,14 @@ import type { RecaptchaContext } from "./types";
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-let service = interpret(recaptchaMachine, { devTools: true });
+let service = interpret(recaptchaMachine, { devTools: false });
 
 // -----------------------------------------------------------------------------
 
+/**
+ * Composable function to provide functionality for managing reCAPTCHA services.
+ * It includes methods for initialising, generating tokens, checking readiness, and handling reCAPTCHA state.
+ */
 export const useRecaptcha = () => {
   // --- state
   const { t } = useI18n();
@@ -184,7 +188,5 @@ export const useRecaptcha = () => {
   };
 };
 
-/**
- * The return type of useSystem composable.
- */
+/** The return type of {@link useRecaptcha} composable. */
 export type useRecaptcha = ReturnType<typeof useRecaptcha>;

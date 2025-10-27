@@ -6,15 +6,17 @@
 function usePlaces(): object;
 ```
 
-Hook to access Google Places API placess
-This provides access to address searching and parsing functions.
+Composable function to provide utility methods and state for integrating with
+the Google Places API. It initialises the Places API, manages its readiness state,
+and offers features for searching address predictions, retrieving place details,
+and accessing prediction results.
 
 ## Returns
 
 ### getPlaceDetails()
 
 ```ts
-getPlaceDetails: (id) => Promise<undefined | Place>;
+getPlaceDetails: (id) => Promise<Place | undefined>;
 ```
 
 Get details for a specific place from the placePredictions
@@ -28,7 +30,7 @@ This will return a parsed Place object with formatted address and coordinates
 
 #### Returns
 
-`Promise`\<`undefined` \| [`Place`](../type-aliases/Place.md)\>
+`Promise`\<[`Place`](../type-aliases/Place.md) \| `undefined`\>
 
 ### isReady()
 
@@ -36,13 +38,13 @@ This will return a parsed Place object with formatted address and coordinates
 isReady: () => Promise<boolean>;
 ```
 
-Parse a place object into a more usable format
+Check if the places service is ready
 
 #### Returns
 
 `Promise`\<`boolean`\>
 
-Parsed place object with formatted address and coordinates
+Promise that resolves to true if ready
 
 ### predictions
 

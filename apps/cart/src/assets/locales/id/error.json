@@ -77,6 +77,8 @@
   "payment_details_update_failed": "Kami mengalami kesalahan saat memperbarui detail pembayaran",
   "payment_details_validation_failed": "Validasi detail pembayaran gagal",
   "payment_gateway_not_available": "Gerbang pembayaran tidak tersedia",
+  "payment_gateway_not_supported_msg": "Anda masih dapat melakukan pemesanan dan membayar nanti.",
+  "payment_gateway_not_supported_title": "Gerbang ini saat ini tidak dapat menerima pembayaran.",
   "payment_gateway_update_failed": "Kami mengalami kesalahan saat memperbarui gateway pembayaran",
   "payment_gateway_validation_failed": "Validasi gateway pembayaran gagal",
   "payment_gateways_not_available_msg": "Anda masih dapat mengirimkan pesanan Anda sekarang dan menyelesaikan pembayaran nanti. Tim dukungan kami akan membantu Anda.",

@@ -12,13 +12,17 @@
 
           <CurrentPrice
             is="dd"
-            :class="styles.summary.pricing.currentPrice"
             :current-price="item.price.currentPrice"
             :monthly-from-current-price="
               item.price.monthlyFromCurrentPrice ?? ''
             "
             :free="item.meta.free ?? false"
             data-testid="total-price"
+            :ui-config="{
+              pricing: {
+                current: [styles.summary.pricing.currentPrice]
+              }
+            }"
           />
         </div>
       </template>

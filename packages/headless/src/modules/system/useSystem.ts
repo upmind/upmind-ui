@@ -273,13 +273,17 @@ export const useSystem = () => {
     fetchCountries,
 
     // --- utility methods
+    /**
+     * Refreshes all system-related queries to fetch the latest data from the API.
+     */
     refresh,
 
+    /**
+     * Invalidates all system-related queries in the cache, forcing them to refetch on next access.
+     */
     invalidate
   };
 };
 
-/**
- * The return type of useSystem composable.
- */
+/** The return type of {@link useSystem} composable. */
 export type UseSystem = ReturnType<typeof useSystem>;

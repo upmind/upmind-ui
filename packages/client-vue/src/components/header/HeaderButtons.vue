@@ -40,6 +40,11 @@
         :label="t('action.login')"
         icon="user-circle"
         data-testid="login-popover-trigger"
+        :ui-config="{
+          button: {
+            label: ['hidden md:inline']
+          } as any
+        }"
       />
     </SessionLoginPopover>
 
@@ -61,12 +66,7 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import {
-  useSession,
-  useBasket,
-  ROUTE,
-  useRoutingEngine
-} from "@upmind-automation/headless";
+import { useSession, useBasket, ROUTE } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./header.config";
 

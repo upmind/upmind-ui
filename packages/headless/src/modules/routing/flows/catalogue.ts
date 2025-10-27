@@ -1,27 +1,28 @@
-// --- external
-
 // --- internal
 import { useBasket } from "../../basket";
 import { useBrand } from "../../brand";
-import { useRecommendations } from "../../recommendations";
 import { useRoutingEngine } from "..";
+import { getCheckoutFlowTargets } from "./checkout";
 
 // --- utils
-import { useRouteQueryParams, useRouteRequiresAction } from "../utils";
 import { uniqBy } from "lodash-es";
+import { useRouteQueryParams } from "../utils";
 
 // --- types
-import type { Flow, Route } from "../types";
 import { ROUTE } from "../types";
+import type { Flow, Route } from "../types";
 
 // -----------------------------------------------------------------------------
 
+/**
+ * Composable function to manage the catalogue-related flows.
+ * It provides mechanisms to define navigation rules, manage their states, and register them with the routing system.
+ * Each flow specifies its name, guard logic for conditional transitions, and target routes for navigation.
+ */
 export const useCatalogueFlows = () => {
   const routing = useRoutingEngine();
   const { isReady: isReady, uiCart } = useBrand();
   const { setCurrency } = useBasket();
-  const { isReady: isBasketReady, meta: basketMeta } = useBasket();
-  const { isReady: isRecommndationsReady, meta } = useRecommendations();
 
   let flows: Flow[] = [
     {
@@ -38,73 +39,10 @@ export const useCatalogueFlows = () => {
         next: [
           ROUTE.PRODUCT_REQUIRES_ACTION,
           ROUTE.RECOMMENDATIONS,
-          ROUTE.CHECKOUT,
-          ROUTE.SESSION_REGISTER,
-          ROUTE.BASKET
+          ...getCheckoutFlowTargets()
         ],
-        back: [],
-        fallback: [ROUTE.BASKET, ROUTE.EMPTY]
-      }
-    },
-    {
-      name: ROUTE.PRODUCT_REQUIRES_ACTION,
-      guard: async (_route: Route) =>
-        isBasketReady().then(() => {
-          const { hasProducts } = useRouteRequiresAction();
-          const valid = hasProducts();
-          return valid;
-        }),
-
-      resolve: async (_route: Route, context?: any) => {
-        const { getNextRelated } = useRouteRequiresAction();
-        const basketProduct = getNextRelated(context);
-        if (basketProduct) {
-          return {
-            name: ROUTE.PRODUCT_EDIT,
-            params: { bpid: basketProduct?.id }
-          };
-        }
-
-        return {
-          name: ROUTE.PRODUCT_REQUIRES_ACTION
-        };
-      },
-      targets: {
-        next: [
-          {
-            name: ROUTE.PRODUCT_EDIT,
-            guard: async (_route: Route, context: any) =>
-              isBasketReady().then(() => {
-                const { getNextInvalid } = useRouteRequiresAction();
-                const valid = !!getNextInvalid(context);
-                return valid;
-              }),
-            resolve: async (route: Route, context: any) => {
-              const { getNextInvalid } = useRouteRequiresAction();
-              const basketProduct = getNextInvalid(context);
-
-              if (!basketProduct) return route;
-              return {
-                name: ROUTE.PRODUCT_EDIT,
-                params: { bpid: basketProduct?.id }
-              };
-            }
-          }
-        ],
-        back: [ROUTE.BASKET],
-        fallback: [ROUTE.BASKET, ROUTE.EMPTY]
-      }
-    },
-    {
-      name: ROUTE.RECOMMENDATIONS,
-      guard: async (_route: Route) =>
-        isRecommndationsReady().then(
-          () => basketMeta.value.hasProducts && meta.value.hasRecommendations
-        ),
-      targets: {
-        next: [ROUTE.CHECKOUT, ROUTE.SESSION_REGISTER, ROUTE.BASKET],
-        back: [ROUTE.BASKET, ROUTE.EMPTY],
-        fallback: [ROUTE.BASKET, ROUTE.EMPTY]
+        back: getCheckoutFlowTargets(),
+        fallback: getCheckoutFlowTargets()
       }
     }
   ];

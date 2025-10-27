@@ -77,6 +77,8 @@
   "payment_details_update_failed": "Nous avons rencontré une erreur lors de la mise à jour des informations de paiement",
   "payment_details_validation_failed": "La validation des détails de paiement a échoué",
   "payment_gateway_not_available": "Passerelle de paiement non disponible",
+  "payment_gateway_not_supported_msg": "Vous pouvez toujours passer votre commande et payer plus tard.",
+  "payment_gateway_not_supported_title": "Ce portail n'est actuellement pas en mesure de prendre le paiement.",
   "payment_gateway_update_failed": "Nous avons rencontré une erreur lors de la mise à jour de la passerelle de paiement",
   "payment_gateway_validation_failed": "La validation de la passerelle de paiement a échoué",
   "payment_gateways_not_available_msg": "Vous pouvez toujours passer commande maintenant et finaliser le paiement ultérieurement. Notre équipe d&#39;assistance sera là pour vous aider.",

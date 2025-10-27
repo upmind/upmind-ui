@@ -6,6 +6,14 @@
 function useBasketBilling(): object;
 ```
 
+Manages the basket billing process, actor,
+and associated state, meta information, context, and other interactions
+related to billing in the application's basket system.
+
+This function provides utilities for managing the billing context,
+validating, updating, and clearing billing details, as well as
+observing state transitions and meta-information about the billing lifecycle.
+
 ## Returns
 
 ### clear()
@@ -24,12 +32,12 @@ Clears the billing state.
 
 ```ts
 config: ComputedRef<
-  | undefined
   | {
   requiresAddress: REQUIRE_ADDRESS_FOR_ORDERS;
   requiresCompany: REQUIRE_COMPANY_FOR_ORDERS;
   requiresPhone: CHECKOUT_REQUIRE_PHONE;
-}>;
+}
+| undefined>;
 ```
 
 The configuration requirements for billing .. ie doe we require a company, phone, etc.
@@ -37,7 +45,7 @@ The configuration requirements for billing .. ie doe we require a company, phone
 ### context
 
 ```ts
-context: ComputedRef<undefined | BillingContext>;
+context: ComputedRef<BillingContext | undefined>;
 ```
 
 The full billing context object.
@@ -45,7 +53,7 @@ The full billing context object.
 ### errors
 
 ```ts
-errors: ComputedRef<undefined | ResponseError>;
+errors: ComputedRef<ResponseError | undefined>;
 ```
 
 Any error returned by the billing actor.
@@ -86,7 +94,7 @@ Meta information about the basket billing state.
 ### model
 
 ```ts
-model: ComputedRef<undefined | BillingModel>;
+model: ComputedRef<BillingModel | undefined>;
 ```
 
 The current billing model.
@@ -94,7 +102,7 @@ The current billing model.
 ### schema
 
 ```ts
-schema: ComputedRef<undefined | JsonSchema>;
+schema: ComputedRef<JsonSchema | undefined>;
 ```
 
 The billing schema.
@@ -102,13 +110,13 @@ The billing schema.
 ### state
 
 ```ts
-state: ComputedRef<undefined | string[]>;
+state: ComputedRef<string[] | undefined>;
 ```
 
 ### uischema
 
 ```ts
-uischema: ComputedRef<undefined | UISchemaElement>;
+uischema: ComputedRef<UISchemaElement | undefined>;
 ```
 
 The billing UI schema.
@@ -172,7 +180,7 @@ An object containing methods
 ##### addresses
 
 ```ts
-addresses: ComputedRef<undefined | Address[]>;
+addresses: ComputedRef<Address[] | undefined>;
 ```
 
 The list of available addresses.
@@ -192,7 +200,7 @@ Clears the context.
 ##### companies
 
 ```ts
-companies: ComputedRef<undefined | Company[]>;
+companies: ComputedRef<Company[] | undefined>;
 ```
 
 The list of available companies.
@@ -200,7 +208,7 @@ The list of available companies.
 ##### context
 
 ```ts
-context: ComputedRef<undefined | UnifiedContext>;
+context: ComputedRef<UnifiedContext | undefined>;
 ```
 
 The full context object.
@@ -208,7 +216,7 @@ The full context object.
 ##### description
 
 ```ts
-description: ComputedRef<undefined | string>;
+description: ComputedRef<string | undefined>;
 ```
 
 Description of the address
@@ -216,7 +224,7 @@ Description of the address
 ##### errors
 
 ```ts
-errors: ComputedRef<undefined | string>;
+errors: ComputedRef<string | undefined>;
 ```
 
 Any error object from the context.
@@ -224,7 +232,7 @@ Any error object from the context.
 ##### id
 
 ```ts
-id: ComputedRef<undefined | string>;
+id: ComputedRef<string | undefined>;
 ```
 
 The ID of the address
@@ -279,7 +287,7 @@ Meta-information about the state.
 ##### model
 
 ```ts
-model: ComputedRef<undefined | UnifiedModel>;
+model: ComputedRef<UnifiedModel | undefined>;
 ```
 
 The current model.
@@ -287,7 +295,7 @@ The current model.
 ##### phones
 
 ```ts
-phones: ComputedRef<undefined | Phone[]>;
+phones: ComputedRef<Phone[] | undefined>;
 ```
 
 The list of available phones.
@@ -295,7 +303,7 @@ The list of available phones.
 ##### schema
 
 ```ts
-schema: ComputedRef<undefined | JsonSchema>;
+schema: ComputedRef<JsonSchema | undefined>;
 ```
 
 The JSON schema for the form
@@ -315,7 +323,7 @@ Stops the service.
 ##### title
 
 ```ts
-title: ComputedRef<undefined | string>;
+title: ComputedRef<string | undefined>;
 ```
 
 Title of the address
@@ -323,7 +331,7 @@ Title of the address
 ##### uischema
 
 ```ts
-uischema: ComputedRef<undefined | UISchemaElement>;
+uischema: ComputedRef<UISchemaElement | undefined>;
 ```
 
 The UI schema for the form
@@ -354,8 +362,8 @@ Resolves when updated model from the service, rejects on error.
 
 ```ts
 validationErrors: ComputedRef<
-  | undefined
-| ValidationErrorObject<string, Record<string, any>, unknown>[]>;
+  | ValidationErrorObject<string, Record<string, any>, unknown>[]
+| undefined>;
 ```
 
 Any validation errors from the context.

@@ -6,6 +6,9 @@
 type ReactiveQueryKeys = object;
 ```
 
+Type alias for reactive query keys used to create dynamic query keys for TanStack Query.
+This allows query keys to automatically update based on reactive sources.
+
 ## Properties
 
 ### currencyCode?
@@ -13,6 +16,8 @@ type ReactiveQueryKeys = object;
 ```ts
 optional currencyCode: MaybeRef<undefined | string>;
 ```
+
+A reactive reference to the currency code.
 
 ***
 
@@ -22,6 +27,8 @@ optional currencyCode: MaybeRef<undefined | string>;
 optional filters: MaybeRef<undefined | RequestFilters>;
 ```
 
+A reactive reference to filter parameters.
+
 ***
 
 ### limit?
@@ -29,6 +36,8 @@ optional filters: MaybeRef<undefined | RequestFilters>;
 ```ts
 optional limit: MaybeRef<undefined | number>;
 ```
+
+A reactive reference to the pagination limit.
 
 ***
 
@@ -38,6 +47,8 @@ optional limit: MaybeRef<undefined | number>;
 optional locale: MaybeRef<string>;
 ```
 
+A reactive reference to the locale string.
+
 ***
 
 ### offset?
@@ -46,6 +57,8 @@ optional locale: MaybeRef<string>;
 optional offset: MaybeRef<undefined | number>;
 ```
 
+A reactive reference to the pagination offset.
+
 ***
 
 ### pageIndex?
@@ -53,6 +66,8 @@ optional offset: MaybeRef<undefined | number>;
 ```ts
 optional pageIndex: MaybeRef<undefined | number>;
 ```
+
+A reactive reference to the page index for pagination.
 
 ***
 
@@ -64,3 +79,5 @@ optional sort: MaybeRef<
   | string[]
 | [RequestSortDirection, string]>;
 ```
+
+A reactive reference to sorting parameters.

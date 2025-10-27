@@ -35,6 +35,7 @@
       @reject="doReject"
       @processing="emits('processing', $event)"
       :no-actions="!openForm"
+      v-model:touched="touched"
     />
   </div>
 </template>
@@ -68,6 +69,7 @@ const props = withDefaults(
     minimal?: boolean; // if true, the list will be rendered as a minimal list
     label?: string; // optional label to show above the component, defaults to the i18n key
     showLabel?: boolean;
+    touched?: boolean;
   }>(),
   {
     modelValue: "",
@@ -75,7 +77,8 @@ const props = withDefaults(
     as: "list",
     identifier: "id",
     label: "",
-    showLabel: false
+    showLabel: false,
+    touched: false
   }
 );
 
@@ -84,6 +87,7 @@ const emits = defineEmits<{
   (e: "processing", value: boolean): void;
 }>();
 
+const touched = defineModel<boolean>("touched");
 // -----------------------------------------------------------------------------
 const { meta, isReady } = props.manage.useList();
 

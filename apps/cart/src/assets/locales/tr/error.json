@@ -77,6 +77,8 @@
   "payment_details_update_failed": "Ödeme ayrıntılarını güncellerken bir hatayla karşılaştık",
   "payment_details_validation_failed": "Ödeme ayrıntılarının doğrulanması başarısız oldu",
   "payment_gateway_not_available": "Ödeme ağ geçidi kullanılamıyor",
+  "payment_gateway_not_supported_msg": "Siparişinizi hala verebilir ve daha sonra ödeyebilirsiniz.",
+  "payment_gateway_not_supported_title": "Bu ağ geçidi şu anda ödeme alamıyor.",
   "payment_gateway_update_failed": "Ödeme ağ geçidini güncellerken bir hatayla karşılaştık",
   "payment_gateway_validation_failed": "Ödeme ağ geçidi doğrulaması başarısız oldu",
   "payment_gateways_not_available_msg": "Siparişinizi şimdi verebilir ve ödemenizi daha sonra tamamlayabilirsiniz. Destek ekibimiz size yardımcı olacaktır.",

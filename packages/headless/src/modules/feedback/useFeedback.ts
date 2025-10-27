@@ -25,6 +25,15 @@ const service = interpret(feedbackMachine, { devTools: false });
 
 // -----------------------------------------------------------------------------
 
+/**
+ * Composable function to manage feedback messages using an XState state machine.
+ * Provides methods for adding, dismissing, and displaying different types of messages
+ * such as errors, successes, warnings, and system notifications.
+ * This uses a global instance of the feedback machine.
+ *
+ * @returns An object containing state, computed properties, and methods
+ *  for interacting with the feedback system.
+ */
 export const useFeedback = () => {
   if (service.status == InterpreterStatus.NotStarted) service.start();
   const { state } = useActor(service);
@@ -231,7 +240,7 @@ export const useFeedback = () => {
 };
 
 /**
- * This is a helper function to extract the message from an actor item.
+ * Extracts the message from an actor item.
  * It is used to simplify the extraction of message properties from the feedback machine.
  * @param item This is an actor item from the feedback machine.
  */

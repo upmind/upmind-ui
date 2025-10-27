@@ -7,6 +7,8 @@ type Product = object;
 ```
 
 Represents a "configured" product with its configuration, pricing, and associated details.
+This type aggregates all information necessary for displaying and managing a product
+in various contexts, such as a product page or shopping basket.
 
 ## Extended by
 
@@ -21,7 +23,8 @@ Represents a "configured" product with its configuration, pricing, and associate
 configuration: ProductProps;
 ```
 
-The model of the product, this contains the configuration settings/values to be used for editing purposes
+The configuration model of the product. This contains the settings and values
+used for editing or defining the product, built and verified against a schema.
 
 ***
 
@@ -33,12 +36,10 @@ details: (
   | ProductSummaryDetailWithPrice)[];
 ```
 
-A summary of the product configuration.
-This can include details with or without pricing information, depending on the context.
-eg:
- terms will have pricing information
- a subproduct may have pricing information depending if its an option or attribute
- provision fields will not have pricing information
+A summary of the product configuration, providing details that may or may not
+include pricing information, depending on the context.
+e.g. terms will have pricing information, a subproduct may have pricing information
+depending on if it is an option or attribute, provision fields will not have pricing information.
 
 ***
 
@@ -48,8 +49,7 @@ eg:
 optional errors: object;
 ```
 
-An optional object containing errors related to the product.
-This can include errors for terms, attributes, options, or provision fields.
+An optional object containing errors related to various aspects of the product's configuration.
 
 #### attributes?
 
@@ -81,7 +81,7 @@ Errors related to the product's provision fields.
 optional term: any;
 ```
 
-Errors related to the product's term.
+Errors related to the product's billing term.
 
 ***
 
@@ -91,7 +91,7 @@ Errors related to the product's term.
 optional id: string;
 ```
 
-The unique identifier of the product. Optional as pending products will not have an ID.
+The unique identifier of the product. Optional, as pending products may not have an ID yet.
 
 ***
 
@@ -101,6 +101,8 @@ The unique identifier of the product. Optional as pending products will not have
 meta: ProductSummaryMeta;
 ```
 
+Meta-information about the product's summary state.
+
 ***
 
 ### price
@@ -109,9 +111,9 @@ meta: ProductSummaryMeta;
 price: PriceDetail;
 ```
 
-The display price details for the product. This is the total configured pricing including any discounts or adjustments.
-It will always be the price that is shown to the customer, and it may or may not include tax, depending on the brand's settings.
-The display price includes the current amount, regular amount, and any savings.
+The display price details for the product. This represents the total configured pricing,
+including any discounts or adjustments. It is always the price shown to the customer,
+and its tax inclusion depends on the brand's settings.
 
 ***
 
@@ -122,7 +124,7 @@ pricing: ProductSummaryDetailWithPrice[];
 ```
 
 A breakdown of the product's pricing details.
-This may have multiple entries depending on if some configuration options are not quantifiable
+This may contain multiple entries, e.g. for different configuration options.
 
 ***
 
@@ -132,7 +134,7 @@ This may have multiple entries depending on if some configuration options are no
 productDetails: ProductDetails;
 ```
 
-The detailed information about the actial product. This will contain all the product details such as title, description etc
+Detailed information about the actual product, including its title, description, etc.
 
 ***
 
@@ -142,4 +144,4 @@ The detailed information about the actial product. This will contain all the pro
 optional promotions: PromotionDetails[];
 ```
 
-The promotions that are currently applied to the product.
+An array of [PromotionDetails](PromotionDetails.md) that are currently applied to the product.

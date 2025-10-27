@@ -27,32 +27,12 @@ countries: ComputedRef<ICountry[]>;
 
 Computed property to the system's countries.
 
-### currencies
-
-```ts
-currencies: ComputedRef<ICurrency[]>;
-```
-
-Computed property to the system's currencies.
-
-### departments
-
-```ts
-departments: ComputedRef<ITicketDepartment[]>;
-```
-
-Computed property to the system's departments.
-
 ### errors
 
 ```ts
 errors: ComputedRef<{
-  billingCycles: undefined | null | Error;
-  countries: undefined | null | Error;
-  currencies: undefined | null | Error;
-  departments: undefined | null | Error;
-  languages: undefined | null | Error;
-  statuses: undefined | null | Error;
+  billingCycles: Error | null;
+  countries: Error | null;
 }>;
 ```
 
@@ -71,34 +51,6 @@ Fetches the list of countries from the API or returns cached countries if availa
 `Promise`\<`ICountry`[]\>
 
 A promise resolving to the list of countries.
-
-### fetchDepartments()
-
-```ts
-fetchDepartments: () => Promise<ITicketDepartment[]>;
-```
-
-Fetches the list of departments from the API or returns cached departments if available.
-
-#### Returns
-
-`Promise`\<`ITicketDepartment`[]\>
-
-A promise resolving to the list of departments.
-
-### fetchLanguages()
-
-```ts
-fetchLanguages: () => Promise<ILanguage[]>;
-```
-
-Fetches the list of languages from the API or returns cached languages if available.
-
-#### Returns
-
-`Promise`\<`ILanguage`[]\>
-
-A promise resolving to the list of languages.
 
 ### fetchRegions()
 
@@ -122,24 +74,10 @@ The country object or code to fetch regions for.
 
 A promise resolving to the list of regions for the country.
 
-### fetchStatuses()
-
-```ts
-fetchStatuses: () => Promise<IStatus[]>;
-```
-
-Fetches the list of statuses from the API or returns cached statuses if available.
-
-#### Returns
-
-`Promise`\<`IStatus`[]\>
-
-A promise resolving to the list of statuses.
-
 ### getBillingCycle()
 
 ```ts
-getBillingCycle: (value) => undefined | IBillingCycle;
+getBillingCycle: (value) => IBillingCycle | undefined;
 ```
 
 Returns the billing cycle object for a given number of months.
@@ -154,7 +92,7 @@ The number of months for the billing cycle.
 
 #### Returns
 
-`undefined` \| `IBillingCycle`
+`IBillingCycle` \| `undefined`
 
 The matching billing cycle object, or undefined if not found.
 
@@ -172,7 +110,7 @@ Returns the country object for a given country code or id.
 
 The country code (2-letter) or id.
 
-`null` | `string`
+`string` | `null`
 
 #### Returns
 
@@ -180,76 +118,10 @@ The country code (2-letter) or id.
 
 The matching country object, or the default country if not found.
 
-### getCurrency()
-
-```ts
-getCurrency: (value?) => undefined | ICurrency;
-```
-
-Returns the currency object for a given currency code or id.
-
-#### Parameters
-
-##### value?
-
-`string`
-
-The currency code (3-letter) or id.
-
-#### Returns
-
-`undefined` \| `ICurrency`
-
-The matching currency object, or undefined if not found.
-
-### getDepartment()
-
-```ts
-getDepartment: (value) => undefined | ITicketDepartment;
-```
-
-Returns the department object for a given department code.
-
-#### Parameters
-
-##### value
-
-`string`
-
-The department code.
-
-#### Returns
-
-`undefined` \| `ITicketDepartment`
-
-The matching department object, or undefined if not found.
-
-### getLanguage()
-
-```ts
-getLanguage: (value) => undefined | ILanguage;
-```
-
-Returns the language object for a given language code.
-
-#### Parameters
-
-##### value
-
-`string`
-
-The language code.
-
-#### Returns
-
-`undefined` \| `ILanguage`
-
-The matching language object, or undefined if not found.
-
 ### getRegion()
 
 ```ts
-getRegion: (values, country) => undefined | IRegion;
+getRegion: (values, country) => IRegion | undefined;
 ```
 
 Returns a specific region object by name or array of names for a given country.
@@ -270,14 +142,14 @@ The country object or code.
 
 #### Returns
 
-`undefined` \| `IRegion`
+`IRegion` \| `undefined`
 
 The matching region object, or undefined if not found.
 
 ### getRegions()
 
 ```ts
-getRegions: (country) => undefined | IRegion[];
+getRegions: (country) => IRegion[] | undefined;
 ```
 
 Returns the regions for a given country from the context.
@@ -290,37 +162,17 @@ Returns the regions for a given country from the context.
 
 #### Returns
 
-`undefined` \| `IRegion`[]
+`IRegion`[] \| `undefined`
 
 The regions array for the country, or undefined if not found.
-
-### getStatus()
-
-```ts
-getStatus: (value) => undefined | IStatus;
-```
-
-Returns the status object for a given status code.
-
-#### Parameters
-
-##### value
-
-`string`
-
-The status code.
-
-#### Returns
-
-`undefined` \| `IStatus`
-
-The matching status object, or undefined if not found.
 
 ### invalidate()
 
 ```ts
 invalidate: () => void;
 ```
+
+Invalidates all system-related queries in the cache, forcing them to refetch on next access.
 
 #### Returns
 
@@ -337,14 +189,6 @@ Resolves when the brand service is ready or errors.
 #### Returns
 
 `Promise`\<`boolean`\>
-
-### languages
-
-```ts
-languages: ComputedRef<ILanguage[]>;
-```
-
-Computed property to the system's languages.
 
 ### meta
 
@@ -367,14 +211,8 @@ Meta-information about the system state.
 refresh: () => Promise<void>;
 ```
 
+Refreshes all system-related queries to fetch the latest data from the API.
+
 #### Returns
 
 `Promise`\<`void`\>
-
-### statuses
-
-```ts
-statuses: ComputedRef<never[] | IStatus>;
-```
-
-Computed property to the system's statuses.

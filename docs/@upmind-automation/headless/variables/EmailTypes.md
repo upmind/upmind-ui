@@ -6,6 +6,8 @@
 const EmailTypes: object[];
 ```
 
+An array of predefined email types, used for categorising different kinds of email addresses.
+
 ## Type Declaration
 
 ### key

@@ -31,7 +31,7 @@ import {
 import { PageRoute } from "../../routing";
 
 // -----------------------------------------------------------------------------
-// ---  Globals/Singeltons
+// ---  Globals/Singletons
 let UETQ: Window["uetq"]; // Microsoft Consent
 let DATA_LAYER = window.dataLayer || [];
 
@@ -157,7 +157,7 @@ class TrackingEvent {
   /**
    * This is usually used when adding/updating/removing item(s) to/from the basket
    * Can be for a single item or multiple in the case of bulk add/remove
-   * @param items : Can be either a Product(s) or a BasketProduct(s) and represent the item(s) being added/updated/removed
+   * @param items Can be either a Product(s) or a BasketProduct(s) and represent the item(s) being added/updated/removed
    */
   withItems(
     items: (Product | Product[]) | (BasketProduct | BasketProduct[])
@@ -308,7 +308,5 @@ export const useDataLayer = (dataLayer: string = "dataLayer") => {
   };
 };
 
-/**
- * The return type of useBrand composable.
- */
+/** The return type of {@link useDataLayer} composable. */
 export type UseDataLayer = ReturnType<typeof useDataLayer>;

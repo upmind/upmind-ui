@@ -6,20 +6,28 @@
 function useProductCategories(initial?): object;
 ```
 
+A composable function that manages and interacts with product categories.
+Provides reactive state and utilities for handling hierarchical category structures.
+The primary use case is to interact with category data via query operations.
+
 ## Parameters
 
 ### initial?
 
 [`QueryProps`](../type-aliases/QueryProps.md)
 
+Initial query parameters for loading product categories.
+
 ## Returns
+
+The [UseProductCategories](../type-aliases/UseProductCategories.md) composable methods and state for product categories.
 
 ### data
 
 ```ts
 data: ComputedRef<
-  | null
-| QueryResponse<ProductCategory[]> & ProductCategory[]>;
+  | QueryResponse<ProductCategory[]> & ProductCategory[]
+| null>;
 ```
 
 The reactive data property containing the list of client items.
@@ -34,7 +42,7 @@ dataFlattened: ComputedRef<ProductCategory[]>;
 ### error
 
 ```ts
-error: Ref<null, null> | Ref<Error, Error> = query.error;
+error: Ref<Error, Error> | Ref<null, null> = query.error;
 ```
 
 The current error state of the query.
@@ -69,7 +77,7 @@ An array of items that match the filter.
 ### findOne()
 
 ```ts
-findOne: (mapping) => undefined | ProductCategory;
+findOne: (mapping) => ProductCategory | undefined;
 ```
 
 Find a single address based on the given param. The param is matched against the title and description.
@@ -84,7 +92,7 @@ The filter to match against the address title and description.
 
 #### Returns
 
-`undefined` \| [`ProductCategory`](../type-aliases/ProductCategory.md)
+[`ProductCategory`](../type-aliases/ProductCategory.md) \| `undefined`
 
 The address object if found, is otherwise undefined.
 
@@ -102,7 +110,7 @@ Get the children of a parent category.
 
 The parent category id to get the children for.
 
-`undefined` | `string`
+`string` | `undefined`
 
 ##### flattened?
 
@@ -117,7 +125,7 @@ An array of child categories.
 ### getOne()
 
 ```ts
-getOne: (id) => undefined | ProductCategory;
+getOne: (id) => ProductCategory | undefined;
 ```
 
 Get a single address by id.
@@ -132,14 +140,14 @@ The id of the address to get.
 
 #### Returns
 
-`undefined` \| [`ProductCategory`](../type-aliases/ProductCategory.md)
+[`ProductCategory`](../type-aliases/ProductCategory.md) \| `undefined`
 
 The address object if found, is otherwise undefined.
 
 ### getParent()
 
 ```ts
-getParent: (id) => undefined | string;
+getParent: (id) => string | undefined;
 ```
 
 Get the parent of a category.
@@ -154,7 +162,7 @@ The id of the category to get the parent for.
 
 #### Returns
 
-`undefined` \| `string`
+`string` \| `undefined`
 
 The parent category if found, is otherwise undefined.
 
@@ -177,7 +185,7 @@ getPath: (categoryId?) => ProductCategory[];
 ### invalidate()
 
 ```ts
-invalidate: <T>(data?) => Promise<undefined | T>;
+invalidate: <T>(data?) => Promise<T | undefined>;
 ```
 
 Invalidate the query cache for client items.
@@ -197,7 +205,7 @@ This will trigger a refetch of the items when the next query is made.
 
 #### Returns
 
-`Promise`\<`undefined` \| `T`\>
+`Promise`\<`T` \| `undefined`\>
 
 ### isReady()
 

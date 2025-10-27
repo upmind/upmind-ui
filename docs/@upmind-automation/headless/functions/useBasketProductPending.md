@@ -6,27 +6,35 @@
 function useBasketProductPending(data): object;
 ```
 
+Composable for managing the state of a product that is pending addition to the basket.
+This composable is designed to handle the configuration, validation, and eventual addition
+of a product to the shopping basket.
+It leverages an internal XState machine to manage the product's lifecycle.
+
 ## Parameters
 
 ### data
+
+Either a [ProductProps](../interfaces/ProductProps.md) object directly containing product configuration,
+              or an ActorRef to an existing XState machine instance for the product.
 
 `ActorRef`\<`any`, `any`\> | [`ProductProps`](../interfaces/ProductProps.md)
 
 ## Returns
 
-`object`
+The UsePendingProduct API for managing the product's state.
 
 ### additionalErrors
 
 ```ts
 additionalErrors: ComputedRef<
-  | undefined
   | {
   attributes?: any;
   options?: any;
   provisionFields?: any;
   term?: any;
-}>;
+}
+| undefined>;
 ```
 
 ### attributes
@@ -67,21 +75,30 @@ decrementOption: (option, valueId) => Promise<void>;
 decrementQuantity: () => Promise<void>;
 ```
 
+Decrements the product quantity by its defined step.
+Ensures the product is quantifiable before decrementing.
+
 #### Returns
 
 `Promise`\<`void`\>
+
+A promise that resolves when the quantity is decremented.
+
+#### Throws
+
+If the product is not quantifiable or the update fails.
 
 ### errors
 
 ```ts
 errors: ComputedRef<
-  | undefined
   | {
   attributes?: any;
   options?: any;
   provisionFields?: any;
   term?: any;
-}>;
+}
+| undefined>;
 ```
 
 ### fields
@@ -138,9 +155,18 @@ incrementOption: (option, valueId) => Promise<void>;
 incrementQuantity: () => Promise<void>;
 ```
 
+Increments the product quantity by its defined step.
+Ensures the product is quantifiable before incrementing.
+
 #### Returns
 
 `Promise`\<`void`\>
+
+A promise that resolves when the quantity is incremented.
+
+#### Throws
+
+If the product is not quantifiable or the update fails.
 
 ### isReady()
 
@@ -148,9 +174,14 @@ incrementQuantity: () => Promise<void>;
 isReady: () => Promise<void>;
 ```
 
+Waits for the product service to reach an 'available' state, indicating it's ready for interaction.
+This is typically used to ensure the product's configuration and initial data have loaded.
+
 #### Returns
 
 `Promise`\<`void`\>
+
+A promise that resolves when the product service is ready.
 
 ### isSelectedAttribute()
 
@@ -223,7 +254,7 @@ meta: ComputedRef<UseProductConfigMeta>;
 ### model
 
 ```ts
-model: ComputedRef<undefined | ProductModel>;
+model: ComputedRef<ProductModel | undefined>;
 ```
 
 ### onDone()
@@ -245,13 +276,13 @@ options: ComputedRef<SubproductDetails[]>;
 ### product
 
 ```ts
-product: ComputedRef<undefined | Product>;
+product: ComputedRef<Product | undefined>;
 ```
 
 ### productImage()
 
 ```ts
-productImage: (size) => undefined | string;
+productImage: (size) => string | undefined;
 ```
 
 #### Parameters
@@ -262,7 +293,7 @@ productImage: (size) => undefined | string;
 
 #### Returns
 
-`undefined` \| `string`
+`string` \| `undefined`
 
 ### reset()
 
@@ -370,9 +401,21 @@ title: ComputedRef<string>;
 update: () => Promise<void>;
 ```
 
+Manually triggers an update to the product's configuration in the basket.
+This is often called after quantity changes or other modifications.
+
+Updates the product's configuration based on current selections or changes.
+It sends an 'UPDATE' event to the service and waits for the operation to complete or error.
+
 #### Returns
 
 `Promise`\<`void`\>
+
+A promise that resolves upon successful update, or rejects if the update fails or times out.
+
+#### Returns
+
+A promise that resolves upon successful update, or rejects on error.
 
 ### updateOptionQuantity()
 
@@ -404,15 +447,26 @@ updateOptionQuantity: (option, valueId, qty) => Promise<void>;
 updateQuantity: (value) => Promise<void>;
 ```
 
+Updates the quantity of the product.
+Ensures the product is quantifiable before attempting to update.
+
 #### Parameters
 
 ##### value
 
 `number`
 
+The new quantity value.
+
 #### Returns
 
 `Promise`\<`void`\>
+
+A promise that resolves when the quantity is updated.
+
+#### Throws
+
+If the product is not quantifiable or the update fails.
 
 ### updateTerm()
 
@@ -434,11 +488,15 @@ updateTerm: (value) => Promise<void>;
 
 ```ts
 validationErrors: ComputedRef<
-  | undefined
   | {
   attributes?: any;
   options?: any;
   provisionFields?: any;
   term?: any;
-}>;
+}
+| undefined>;
 ```
+
+## Throws
+
+If the basket is not available, or if the provided product data is invalid or missing.

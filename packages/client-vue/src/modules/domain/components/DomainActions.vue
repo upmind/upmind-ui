@@ -10,9 +10,8 @@
     @click="selected ? onRemove(props.domain) : onUpdate(props.domain)"
     size="lg"
     icon="shopping-bag-02"
-    :label="t('action.register_or_added', selected ? 0 : 1)"
+    :label="t('action.register_or_added', selected || meta.added ? 0 : 1)"
   />
-
   <template v-if="!meta?.available && !selected && !meta.added" as="span">
     <Description class="not-italic md:max-w-76">
       {{ t("domain.own_domain_qn") }}
@@ -59,7 +58,6 @@ import Description from "../../../components/content/Description.vue";
 // --- types
 import type { DomainActionProps } from "../types";
 import type { ComputedRef } from "vue";
-import type CurrentPrice from "@/modules/product/components/pricing/CurrentPrice.vue";
 
 // -----------------------------------------------------------------------------
 

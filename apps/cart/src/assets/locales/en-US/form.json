@@ -33,7 +33,7 @@
     "placeholder": "CVC"
   },
   "card_expiry": {
-    "error": "A valid expiry date is required",
+    "error": "A valid expiration date is required",
     "label": "Expiry date",
     "placeholder": "MM/YY"
   },

@@ -2,6 +2,10 @@
 
 # BillingContext
 
+Interface representing the context for billing management, typically managed by an XState machine.
+It holds the state for billing forms, including the data model, schema definitions,
+and configuration settings derived from brand keys.
+
 ## Properties
 
 ### autoupdate?
@@ -9,6 +13,8 @@
 ```ts
 optional autoupdate: boolean;
 ```
+
+`true` if the billing context should automatically update based on changes.
 
 ***
 
@@ -18,6 +24,8 @@ optional autoupdate: boolean;
 optional baseModel: BillingModel;
 ```
 
+The base [BillingModel](BillingModel.md) representing the initial or last saved state of the billing information.
+
 ***
 
 ### basketId?
@@ -25,6 +33,8 @@ optional baseModel: BillingModel;
 ```ts
 optional basketId: string;
 ```
+
+The unique identifier of the current shopping basket.
 
 ***
 
@@ -34,6 +44,8 @@ optional basketId: string;
 optional clientId: string;
 ```
 
+The unique identifier of the client for whom billing information is being managed.
+
 ***
 
 ### config?
@@ -42,11 +54,16 @@ optional clientId: string;
 optional config: object;
 ```
 
+Configuration settings for billing, derived from BrandConfigKeys, indicating
+which fields are required.
+
 #### requiresAddress
 
 ```ts
 requiresAddress: REQUIRE_ADDRESS_FOR_ORDERS;
 ```
+
+The brand configuration key indicating whether an address is required for orders.
 
 #### requiresCompany
 
@@ -54,19 +71,15 @@ requiresAddress: REQUIRE_ADDRESS_FOR_ORDERS;
 requiresCompany: REQUIRE_COMPANY_FOR_ORDERS;
 ```
 
+The brand configuration key indicating whether company information is required for orders.
+
 #### requiresPhone
 
 ```ts
 requiresPhone: CHECKOUT_REQUIRE_PHONE;
 ```
 
-***
-
-### dirty?
-
-```ts
-optional dirty: boolean;
-```
+The brand configuration key indicating whether a phone number is required during checkout.
 
 ***
 
@@ -76,6 +89,8 @@ optional dirty: boolean;
 optional error: ResponseError;
 ```
 
+An error object if any issue occurred during billing operations.
+
 ***
 
 ### model?
@@ -83,6 +98,8 @@ optional error: ResponseError;
 ```ts
 optional model: BillingModel;
 ```
+
+The current [BillingModel](BillingModel.md) being managed or displayed in the billing form.
 
 ***
 
@@ -92,6 +109,8 @@ optional model: BillingModel;
 optional schema: JsonSchema;
 ```
 
+The JSON Schema (`JsonSchema`) used to define the structure and validation rules for the billing form.
+
 ***
 
 ### uischema?
@@ -99,3 +118,5 @@ optional schema: JsonSchema;
 ```ts
 optional uischema: UISchemaElement;
 ```
+
+The UI Schema (`UISchemaElement`) used to configure the presentation and layout of the billing form.

@@ -77,6 +77,8 @@
   "payment_details_update_failed": "Pri aktualizácii platobných údajov sa vyskytla chyba",
   "payment_details_validation_failed": "Overenie platobných údajov zlyhalo",
   "payment_gateway_not_available": "Platobná brána nie je k dispozícii",
+  "payment_gateway_not_supported_msg": "Stále môžete zadať svoju objednávku a zaplatiť neskôr.",
+  "payment_gateway_not_supported_title": "Tento platobný systém momentálne nemôže prijímať platby.",
   "payment_gateway_update_failed": "Pri aktualizácii platobnej brány sa vyskytla chyba",
   "payment_gateway_validation_failed": "Overenie platobnej brány zlyhalo",
   "payment_gateways_not_available_msg": "Objednávku môžete odoslať aj teraz a platbu dokončiť neskôr. Náš tím podpory vám s tým rád pomôže.",

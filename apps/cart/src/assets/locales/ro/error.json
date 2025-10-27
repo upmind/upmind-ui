@@ -77,6 +77,8 @@
   "payment_details_update_failed": "Am întâmpinat o eroare la actualizarea detaliilor de plată",
   "payment_details_validation_failed": "Validarea detaliilor de plată a eșuat",
   "payment_gateway_not_available": "Gateway-ul de plată nu este disponibil",
+  "payment_gateway_not_supported_msg": "Încă poți plasa comanda și plăti mai târziu.",
+  "payment_gateway_not_supported_title": "Acest gateway nu poate procesa momentan plăți.",
   "payment_gateway_update_failed": "Am întâmpinat o eroare la actualizarea gateway-ului de plată",
   "payment_gateway_validation_failed": "Validarea gateway-ului de plată a eșuat",
   "payment_gateways_not_available_msg": "Puteți trimite comanda acum și finaliza plata mai târziu. Echipa noastră de asistență vă va putea ajuta.",

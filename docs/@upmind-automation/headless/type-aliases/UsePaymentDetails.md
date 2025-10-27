@@ -3,7 +3,7 @@
 # UsePaymentDetails
 
 ```ts
-type UsePaymentDetails = ReturnType<typeof usePaymentDetails>;
+type UsePaymentDetails = ReturnType<typeof usePaymentDetail>;
 ```
 
-The return type of usePaymentDetails composable.
+The return type of usePaymentDetail composable.

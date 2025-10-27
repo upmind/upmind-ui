@@ -264,7 +264,7 @@ export default {
             }
           }),
           // ---
-          title: cva("text-md m-0 font-medium text-nowrap text-inherit"),
+          title: cva("text-md/tight m-0 font-medium text-nowrap text-inherit"),
           text: cva("text-muted w-full text-sm font-normal"),
           total: cva("", {
             variants: {

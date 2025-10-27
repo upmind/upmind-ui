@@ -28,17 +28,17 @@
     "placeholder": "Password o frase segreta"
   },
   "card_cvv": {
-    "error": "A valid CVV is required",
+    "error": "È richiesto un CVV valido",
     "label": "Codice CVV",
     "placeholder": "CVC"
   },
   "card_expiry": {
-    "error": "A valid expiry date is required",
+    "error": "È richiesta una data di scadenza valida",
     "label": "Data di scadenza",
     "placeholder": "MM/AA"
   },
   "card_num": {
-    "error": "A valid card number is required",
+    "error": "È richiesto un numero di carta valido",
     "label": "Numero della carta",
     "placeholder": "1234 1234 1234 1234"
   },

@@ -2,6 +2,8 @@
 
 # User
 
+Interface representing the profile and authentication details of an authenticated user.
+
 ## Properties
 
 ### avatar
@@ -10,11 +12,15 @@
 avatar: object;
 ```
 
+Avatar configuration for the user.
+
 #### caption
 
 ```ts
 caption: string;
 ```
+
+The caption or initials displayed on the avatar.
 
 #### forceCaption
 
@@ -22,11 +28,15 @@ caption: string;
 forceCaption: boolean;
 ```
 
+`true` to force the display of the caption even if an image URL is present.
+
 #### src
 
 ```ts
-src: undefined | string;
+src: string | undefined;
 ```
+
+The URL of the user's avatar image.
 
 ***
 
@@ -36,6 +46,8 @@ src: undefined | string;
 display: string;
 ```
 
+A computed string for displaying the user's name (e.g. "John Doe").
+
 ***
 
 ### email
@@ -43,6 +55,8 @@ display: string;
 ```ts
 email: string;
 ```
+
+The primary email address of the user.
 
 ***
 
@@ -52,6 +66,8 @@ email: string;
 firstname: string;
 ```
 
+The user's first name.
+
 ***
 
 ### fullname
@@ -59,6 +75,8 @@ firstname: string;
 ```ts
 fullname: string;
 ```
+
+The user's full name.
 
 ***
 
@@ -68,6 +86,8 @@ fullname: string;
 id: string;
 ```
 
+The unique identifier of the user.
+
 ***
 
 ### lastname
@@ -75,6 +95,8 @@ id: string;
 ```ts
 lastname: string;
 ```
+
+The user's last name.
 
 ***
 
@@ -84,6 +106,8 @@ lastname: string;
 locale: string;
 ```
 
+The user's preferred interface language code (e.g. "en-GB").
+
 ***
 
 ### name
@@ -92,6 +116,8 @@ locale: string;
 name: string;
 ```
 
+The user's name (full name or preferred display name).
+
 ***
 
 ### username
@@ -99,3 +125,5 @@ name: string;
 ```ts
 username: string;
 ```
+
+The user's username for login.

@@ -1,6 +1,6 @@
 // --- external
 import { computed } from "vue";
-import { interpret, InterpreterFrom } from "xstate";
+import { interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 import { useActor } from "@xstate/vue";
 
@@ -36,6 +36,17 @@ import type { Phone, PhoneModel } from "./types";
 
 // -----------------------------------------------------------------------------
 
+/**
+ * Provides functionalities to manage a client's phone, leveraging an XState machine.
+ * This composable handles phone data, validation, saving, and interaction states.
+ * It's designed for use in contexts like client profile management or checkout phone selection.
+ *
+ * @param id - The unique identifier of the phone to manage. If omitted, it may imply a new phone.
+ * @param options - Optional configuration for the address management.
+ * @param options.allowMultipleEdits - If `true`, allows multiple instances of this composable to manage different phones concurrently.
+ * @param options.clientId - The unique identifier of the client to whom this phone belongs.
+ * @returns The API for managing the client phone.
+ */
 export const useClientPhone = (
   id?: Phone["id"],
   {
@@ -140,7 +151,7 @@ export const useClientPhone = (
   async function update(
     value?: PhoneModel | Record<string, any>
   ): Promise<PhoneModel> {
-    // first check if our model has changed, if it has we need to send it
+    // first check if our model has changed, if it has, we need to send it
 
     const model = contextValue<PhoneModel>(state, "model");
 
@@ -213,10 +224,10 @@ export const useClientPhone = (
     /** The full context object. */
     context,
 
-    /** Title of the phone*/
+    /** Title of the phone */
     title,
 
-    /** Description of the.phone*/
+    /** Description of the phone */
     description,
 
     /** The ID of the phone */
@@ -228,10 +239,10 @@ export const useClientPhone = (
     /** Any validation errors from the context. */
     validationErrors,
 
-    /** The current model.*/
+    /** The current model. */
     model,
 
-    /** The JSON schema for the form*/
+    /** The JSON schema for the form */
     schema,
 
     /** The UI schema for the form */
@@ -239,9 +250,7 @@ export const useClientPhone = (
 
     // --- methods
 
-    /**
-     * Stops the service.
-     */
+    /** Stops the service. */
     stop,
 
     /** Clears the context.*/
@@ -263,5 +272,7 @@ export const useClientPhone = (
   };
 };
 
-/** The return type of the composable.*/
+/**
+ * The return type of the {@link useClientPhone} composable function.
+ */
 export type UseClientPhone = ReturnType<typeof useClientPhone>;

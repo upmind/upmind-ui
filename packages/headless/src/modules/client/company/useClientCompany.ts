@@ -36,6 +36,17 @@ import type { Company, CompanyModel } from "./types";
 
 // -----------------------------------------------------------------------------
 
+/**
+ * Provides functionalities to manage a client's company, leveraging an XState machine.
+ * This composable handles company data, validation, saving, and interaction states.
+ * It's designed for use in contexts like client profile management or checkout company selection.
+ *
+ * @param id - The unique identifier of the company to manage. If omitted, it may imply a new company.
+ * @param options - Optional configuration for the company management.
+ * @param options.allowMultipleEdits - If `true`, allows multiple instances of this composable to manage different companies concurrently.
+ * @param options.clientId - The unique identifier of the client to whom this company belongs.
+ * @returns The API for managing the client company.
+ */
 export const useClientCompany = (
   id?: Company["id"],
   {
@@ -214,10 +225,10 @@ export const useClientCompany = (
     /** The full context object. */
     context,
 
-    /** Title of the company*/
+    /** Title of the company */
     title,
 
-    /** Description of the.company*/
+    /** Description of the company */
     description,
 
     /** The ID of the company */
@@ -232,7 +243,7 @@ export const useClientCompany = (
     /** The current model.*/
     model,
 
-    /** The JSON schema for the form*/
+    /** The JSON schema for the form */
     schema,
 
     /** The UI schema for the form */
@@ -240,12 +251,10 @@ export const useClientCompany = (
 
     // --- methods
 
-    /**
-     * Stops the service.
-     */
+    /** Stops the service. */
     stop,
 
-    /** Clears the context.*/
+    /** Clears the context. */
     clear,
 
     /**
@@ -264,5 +273,7 @@ export const useClientCompany = (
   };
 };
 
-/** The return type of the composable.*/
+/**
+ * The return type of the {@link useClientCompany} composable function.
+ */
 export type UseClientCompany = ReturnType<typeof useClientCompany>;

@@ -28,17 +28,17 @@
     "placeholder": "Passord eller passordfrase"
   },
   "card_cvv": {
-    "error": "A valid CVV is required",
+    "error": "En gyldig CVV er nødvendig",
     "label": "CVV",
     "placeholder": "CVC-kode"
   },
   "card_expiry": {
-    "error": "A valid expiry date is required",
+    "error": "En gyldig utløpsdato er nødvendig",
     "label": "Utløpsdato",
     "placeholder": "MM/ÅÅ"
   },
   "card_num": {
-    "error": "A valid card number is required",
+    "error": "Et gyldig kortnummer er nødvendig",
     "label": "Kortnummer",
     "placeholder": "1234 1234 1234 1234"
   },

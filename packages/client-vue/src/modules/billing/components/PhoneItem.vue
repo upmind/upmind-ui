@@ -1,13 +1,13 @@
 <template>
-  <div class="flex items-center space-x-2 py-0.5">
+  <div class="flex items-center space-x-2">
     <span
-      class="border-control-default text-md flex items-center justify-center space-x-2"
+      class="border-control-default text-md/tight flex items-center justify-center space-x-2"
     >
       <Avatar :icon="lowerCase(props.phone?.country ?? '')" size="xs" />
 
       <span class="text-muted">+{{ props.phone?.countryCallingCode }}</span>
     </span>
-    <p class="text-md">{{ props.phone?.nationalNumber }}</p>
+    <p class="text-md/tight">{{ props.phone?.nationalNumber }}</p>
   </div>
 </template>
 

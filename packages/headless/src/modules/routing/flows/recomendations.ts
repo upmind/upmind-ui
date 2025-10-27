@@ -4,15 +4,24 @@
 import { useBasket } from "../../basket";
 import { useRecommendations } from "../../recommendations";
 import { useRoutingEngine } from "..";
+
 // --- utils
 import { uniqBy } from "lodash-es";
 
 // --- types
 import type { Flow, Route } from "../types";
 import { ROUTE } from "../types";
+import { getCheckoutFlowTargets } from "./checkout";
 
 // -----------------------------------------------------------------------------
 
+/**
+ * Composable function to provide functionality to manage and register recommendation flows for a routing engine.
+ *
+ * The `useRecommendationsFlows` function creates a configuration for recommendation-based routing flows
+ * that includes route guards to validate conditions and defines possible navigation targets.
+ * It also allows for the retrieval and dynamic registration of additional flows.
+ */
 export const useRecommendationsFlows = () => {
   const routing = useRoutingEngine();
   const { meta: basketMeta } = useBasket();
@@ -26,9 +35,9 @@ export const useRecommendationsFlows = () => {
           () => basketMeta.value.hasProducts && meta.value.hasRecommendations
         ),
       targets: {
-        next: [ROUTE.CHECKOUT, ROUTE.SESSION_REGISTER, ROUTE.BASKET],
-        back: [ROUTE.BASKET, ROUTE.EMPTY],
-        fallback: [ROUTE.BASKET, ROUTE.EMPTY]
+        next: getCheckoutFlowTargets(),
+        back: getCheckoutFlowTargets(),
+        fallback: getCheckoutFlowTargets()
       }
     }
   ];

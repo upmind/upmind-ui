@@ -8,7 +8,6 @@ import { waitFor } from "xstate/lib/waitFor";
 import recommendationsEngine from "./recommendationsEngine.machine";
 
 // --- utils
-import { isEmpty, some, filter } from "lodash-es";
 import {
   useContext,
   stopService,
@@ -16,11 +15,10 @@ import {
   stateMatches,
   contextMatches
 } from "../../utils";
+import { some } from "lodash-es";
 
 // --- types
-import type { InterpreterFrom } from "xstate";
-import { ProductModel } from "../product";
-import { Recommendation, RecommendationsEngineContext } from "./types";
+import type { RecommendationsEngineContext } from "./types";
 
 // -----------------------------------------------------------------------------
 
@@ -33,6 +31,13 @@ const service = interpret(recommendationsEngine, { devTools: true });
 
 // -----------------------------------------------------------------------------
 
+/**
+ * A composable function that manages recommendations engine functionalities.
+ *
+ * This hook initialises and interacts with the recommendation engine service
+ * and provides access to its state, context, and operations.
+ * @returns An object containing state, context, errors, recommendations, and methods to manage recommendations.
+ */
 export const useRecommendations = () => {
   if (service.status === InterpreterStatus.NotStarted) service.start();
 
@@ -191,6 +196,6 @@ export const useRecommendations = () => {
 };
 
 /**
- * The return type of the `useRecommendations` composable, ensuring type safety for consumers.
+ * The return type of the {@link useRecommendations} composable.
  */
 export type UseRecommendations = ReturnType<typeof useRecommendations>;

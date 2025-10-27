@@ -77,6 +77,8 @@
   "payment_details_update_failed": "Під час оновлення платіжних даних сталася помилка",
   "payment_details_validation_failed": "Не вдалося перевірити платіжні реквізити",
   "payment_gateway_not_available": "Платіжний шлюз недоступний",
+  "payment_gateway_not_supported_msg": "Ви все ще можете зробити замовлення і оплатити пізніше.",
+  "payment_gateway_not_supported_title": "Цей шлюз наразі не може приймати платежі.",
   "payment_gateway_update_failed": "Виникла помилка під час оновлення платіжного шлюзу",
   "payment_gateway_validation_failed": "Не вдалося перевірити платіжний шлюз",
   "payment_gateways_not_available_msg": "Ви все ще можете надіслати замовлення зараз і здійснити оплату пізніше. Наша служба підтримки зможе вам допомогти.",

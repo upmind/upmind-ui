@@ -129,7 +129,6 @@ export default createMachine(
                     actions: [
                       "setError",
                       "updateBasket",
-
                       "refreshActors",
                       "setWarningNotes"
                     ]
@@ -276,10 +275,16 @@ export default createMachine(
                 // NB: Checkout is a chained sequence of events, that can only start once ALL the shopping details are complete
                 // We must wait for the event to be triggered before we can proceed, othwerwise we may trigger checkout prematurely
                 on: {
-                  CHECKOUT: {
-                    target: "processing",
-                    actions: "forwardCheckout"
-                  }
+                  CHECKOUT: [
+                    {
+                      target: "processing",
+                      actions: "forwardCheckout",
+                      cond: "canCheckout"
+                    },
+                    {
+                      actions: "incrementAttempts"
+                    }
+                  ]
                 }
               },
 
@@ -307,6 +312,13 @@ export default createMachine(
           }
 
           // ---
+        },
+        on: {
+          // By definition we cannot checkout until payment details are available AND all shopping details are complete
+          // so we will just count the attempts here so we understand that user tried to checkout but was not ready
+          CHECKOUT: {
+            actions: ["incrementAttempts"]
+          }
         },
         onDone: "checkout"
       },
@@ -345,7 +357,12 @@ export default createMachine(
           ],
           onError: {
             target: "#shopping",
-            actions: ["setError", "restartActors", "setWarningNotes"]
+            actions: [
+              "setError",
+              "incrementAttempts",
+              "restartActors",
+              "setWarningNotes"
+            ]
           }
         }
       },
@@ -623,28 +640,19 @@ export default createMachine(
 
       // ---
 
-      setFeedbackError: ({ error }: BasketContext, _event: AnyEventObject) => {
-        const { t } = useI18n();
-        if (
-          !error ||
-          isArray(error) || // we know this is going to be a validation error
-          error?.status == responseCodes.Unprocessable_Entity ||
-          error?.status == responseCodes.Unauthorized
-        ) {
-          return;
+      incrementAttempts: assign({
+        attempts: ({ attempts }: BasketContext) => {
+          attempts = attempts ?? 0;
+          attempts++;
+          return attempts;
         }
-
-        addError({
-          title: t("error.basket_update_failed"),
-          copy: error?.message ?? undefined,
-          data: error
-        });
-      },
+      }),
 
       setError: assign({
         error: (_context: BasketContext, { data }: AnyEventObject) =>
           mapToHeadlessError(data)
       }),
+
       clearError: assign({ error: undefined })
     },
 
@@ -700,6 +708,21 @@ export default createMachine(
           "available.checking",
           "available.loading"
         ]),
+
+      canCheckout: ({ actors, products }: BasketContext) => {
+        const hasBilling =
+          !!actors?.billing &&
+          stateMatches(actors.billing, ["complete", "done"]);
+
+        const hasFields = stateMatches(actors?.customFields, [
+          "complete",
+          "done"
+        ]);
+
+        const hasProducts = !isEmpty(products);
+
+        return hasBilling && hasFields && hasProducts;
+      },
 
       hasPaymentDetail: ({ paymentDetail }: BasketContext) =>
         !isNil(paymentDetail) && !isEmpty(paymentDetail),

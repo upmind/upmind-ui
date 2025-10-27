@@ -7,7 +7,6 @@
 // --- types
 import type { IGateway, PaymentMethodType } from "@upmind-automation/types";
 import { GatewayStoreType, QUERY_PARAMS } from "@upmind-automation/types";
-import type { GatewayContext } from "./types";
 import { filter, keyBy, mapValues } from "lodash-es";
 
 // -----------------------------------------------------------------------------
@@ -23,11 +22,10 @@ export function generateResponseUrls(
   }
 ) {
   const { orderId, autoPay, externalPayment, type } = options || {};
-  const successUrl = url;
-
+  const successUrl = new URL(url);
   successUrl.searchParams.append(QUERY_PARAMS.PAYMENT_SUCCESS, "true");
 
-  const failUrl = url;
+  const failUrl = new URL(url);
   failUrl.searchParams.append(QUERY_PARAMS.PAYMENT_SUCCESS, "false");
 
   const cancelUrl = url;

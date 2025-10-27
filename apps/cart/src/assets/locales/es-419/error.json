@@ -77,6 +77,8 @@
   "payment_details_update_failed": "Experimentamos un error al actualizar los detalles de pago",
   "payment_details_validation_failed": "Error en la validación de los detalles del pago",
   "payment_gateway_not_available": "Pasarela de pago no disponible",
+  "payment_gateway_not_supported_msg": "Todavía puedes hacer tu pedido y pagar más tarde.",
+  "payment_gateway_not_supported_title": "Este portal no puede procesar pagos en este momento.",
   "payment_gateway_update_failed": "Experimentamos un error al actualizar la pasarela de pago",
   "payment_gateway_validation_failed": "Error en la validación de la pasarela de pago",
   "payment_gateways_not_available_msg": "Aún puede realizar su pedido ahora y completar el pago más tarde. Nuestro equipo de soporte podrá ayudarle.",
