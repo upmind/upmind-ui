@@ -58,13 +58,13 @@ export const useRecommendations = () => {
 
   const meta = computed(() => ({
     hasErrors: stateMatches(state, ["error"]),
-    hasRecommendations:
-      contextMatches(state, "recommendations") &&
-      some(recommendations.value, ({ meta }) => !meta?.added && !meta?.seen),
+    hasRecommendations: contextMatches(state, "recommendations"),
     hasUnseenRecommendations: some(
       recommendations.value,
-      ({ meta }) => !meta?.seen
+      ({ meta }) => !meta?.seen && !meta?.added
     ),
+    hasSeenRecommendations: some(recommendations.value, "meta.seen"),
+    hasAddedRecommendations: some(recommendations.value, "meta.added"),
     isConfiguring: stateMatches(state, ["configuring"]),
     isLoading: stateMatches(state, ["subscribing"]),
     isProcessing: stateMatches(state, ["processing"]),

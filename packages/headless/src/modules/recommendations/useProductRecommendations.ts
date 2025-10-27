@@ -61,16 +61,13 @@ export const useProductRecommendations = (pid: ProductModel["productId"]) => {
 
   const meta = computed(() => ({
     hasErrors: stateMatches(state, ["error"]),
-    hasRecommendations:
-      contextMatches(state, "recommendations") &&
-      some(
-        productRecommendations.value,
-        ({ meta }) => !meta?.added && !meta?.seen
-      ),
+    hasRecommendations: contextMatches(state, "recommendations"),
     hasUnseenRecommendations: some(
-      productRecommendations.value,
-      ({ meta }) => !meta?.seen
+      recommendations.value,
+      ({ meta }) => !meta?.seen && !meta?.added
     ),
+    hasSeenRecommendations: some(recommendations.value, "meta.seen"),
+    hasAddedRecommendations: some(recommendations.value, "meta.added"),
     isConfiguring: stateMatches(state, ["configuring"]),
     isLoading: stateMatches(state, ["subscribing"]),
     isProcessing: stateMatches(state, ["processing"]),
