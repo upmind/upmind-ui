@@ -32,7 +32,8 @@ export const useRecommendationsFlows = () => {
       name: ROUTE.RECOMMENDATIONS,
       guard: async (_route: Route) =>
         isReady().then(
-          () => basketMeta.value.hasProducts && meta.value.hasRecommendations
+          () =>
+            basketMeta.value.hasProducts && meta.value.hasUnseenRecommendations
         ),
       targets: {
         next: getCheckoutFlowTargets(),

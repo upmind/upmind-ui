@@ -266,7 +266,7 @@ export const useProductFlows = () => {
         if (!pid) return false;
         const { meta, isReady } = useProductRecommendations(pid);
         return isReady().then(() => {
-          return meta.value.hasRecommendations;
+          return meta.value.hasUnseenRecommendations;
         });
       },
       resolve: async (route: Route) => {
