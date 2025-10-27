@@ -1,7 +1,6 @@
 <template>
   <section :class="styles.products.facet.drillDown.items">
     <Button
-      :as="RouterLink"
       v-for="(category, index) in items"
       :key="`category-${index}`"
       v-bind="category"
@@ -21,7 +20,6 @@
 
   <Button
     v-if="parentCategory"
-    :as="RouterLink"
     v-bind="parentCategory"
     variant="outline"
     size="lg"

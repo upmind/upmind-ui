@@ -1,5 +1,5 @@
 <template>
-  <Layout :variant="uiCart?.layout">
+  <Layout :variant="layout">
     <template #navigation>
       <Link
         class="flex items-center gap-x-2"
@@ -47,6 +47,7 @@
 
 <script lang="ts" setup>
 // --- external
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -64,8 +65,12 @@ import type { AuthProps } from "./components/types";
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { navigateNext, navigateBack, navigate, isResolved } = useRoutingEngine();
-const { uiCart } = useBrand();
+const { navigateNext, navigateBack, navigate, isResolved, currentRoute } =
+  useRoutingEngine();
+
+const layout = computed(() => {
+  return currentRoute.value?.meta?.template;
+});
 
 await isResolved(ROUTE.SESSION_LOGIN);
 

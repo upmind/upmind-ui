@@ -95,7 +95,7 @@ import type {
 } from "./types";
 import { UI_SCHEMA_DEFAULTS } from "./types";
 import { ErrorObject } from "ajv";
-import { IBrandMeta } from "../brand/types";
+import { BrandMeta } from "../brand/types";
 
 // -----------------------------------------------------------------------------
 
@@ -653,7 +653,7 @@ export const parseProductDetails = (
     uiMeta: parseMeta(
       parseFlattened(rawProduct?.meta ?? {}),
       parseFlattened(rawProduct?.category ?? {}) as IProductCategory,
-      parseFlattened(rawProduct?.brand?.meta as IBrandMeta)?.cart?.ui ?? {}
+      parseFlattened(rawProduct?.brand?.meta as BrandMeta)?.cart?.ui ?? {}
     ),
     uiCategoryMeta: rawProduct?.category?.meta || undefined
   };
@@ -755,7 +755,7 @@ export const parseSubproductDetails = (
         uiMeta: parseMeta(
           parseFlattened(rawSubproduct?.meta ?? {}),
           parseFlattened(rawSubproduct?.category) as IProductCategory,
-          parseFlattened(rawSubproduct?.brand?.meta as IBrandMeta)?.cart?.ui
+          parseFlattened(rawSubproduct?.brand?.meta as BrandMeta)?.cart?.ui
         ),
         uiCategoryMeta: rawSubproduct?.category?.meta || undefined,
         meta: {

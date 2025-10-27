@@ -16,6 +16,7 @@ import { uniqBy, set, isEmpty } from "lodash-es";
 import { ROUTE } from "../types";
 import type { Flow, Route } from "../types";
 import { stateMatches } from "../../../utils";
+import { getCheckoutFlowTargets } from "./checkout";
 
 // -----------------------------------------------------------------------------
 
@@ -68,11 +69,9 @@ export const useProductFlows = () => {
         next: [
           ROUTE.PRODUCT_REQUIRES_ACTION,
           ROUTE.PRODUCT_RECOMMENDATIONS,
-          ROUTE.CHECKOUT,
-          ROUTE.SESSION_REGISTER,
-          ROUTE.BASKET
+          ...getCheckoutFlowTargets()
         ],
-        back: [ROUTE.BASKET, ROUTE.EMPTY],
+        back: getCheckoutFlowTargets(),
         fallback: [ROUTE.PRODUCT_NOT_FOUND]
       }
     }

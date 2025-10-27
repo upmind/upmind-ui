@@ -34,7 +34,7 @@ export default {
       card: cva("bg-base"),
       loading: cva("text-secondary"),
       content: cva(
-        "flex flex-col gap-6 transition-all duration-200 empty:p-0",
+        "flex flex-col gap-6 px-1 py-4 transition-all duration-200 empty:p-0",
         {
           variants: {
             layout: {

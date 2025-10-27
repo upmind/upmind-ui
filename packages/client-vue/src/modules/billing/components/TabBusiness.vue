@@ -8,12 +8,13 @@
       open
       :modal="false"
       @resolve="doResolve"
+      v-model:touched="touched"
     />
 
     <template v-else>
       <Manage
         v-if="billingMeta.needsPhone"
-        i18n-key="client.phone"
+        :label="t('text.phone')"
         v-model="selectedPhone"
         as="select"
         :manage="{
@@ -22,11 +23,11 @@
         }"
         :show-label="!!selectedPhone"
         @processing="wait"
+        v-model:touched="touched"
       >
         <template #item="{ item, readonly, doEdit, doRemove }">
           <PhoneItem
             v-bind="item"
-            i18nKey="client.phone"
             :readonly="readonly"
             @edit="doEdit"
             @remove="doRemove"
@@ -35,7 +36,7 @@
       </Manage>
 
       <Manage
-        i18n-key="form.company"
+        :label="t('text.company')"
         v-model="selectedCompany"
         :manage="{
           useList: useClientCompanies,
@@ -43,11 +44,11 @@
         }"
         :show-label="!!selectedCompany"
         @processing="wait"
+        v-model:touched="touched"
       >
         <template #item="{ item, readonly, doEdit, doRemove }">
           <CompanyItem
             v-bind="item"
-            i18nKey="form.company"
             :readonly="readonly"
             @edit="doEdit"
             @remove="doRemove"
@@ -60,6 +61,7 @@
 
 <script setup lang="ts">
 // --- external
+import { useI18n } from "vue-i18n";
 import { computed, ref } from "vue";
 import { useVModel } from "@vueuse/core";
 import { vAutoAnimate } from "@formkit/auto-animate";
@@ -91,13 +93,18 @@ import PhoneItem from "./PhoneItem.vue";
 const props = defineProps<{
   modelValue?: BillingModel;
   readonly?: boolean;
+  touched?: boolean;
 }>();
+
+const { t } = useI18n();
 
 const emits = defineEmits<{
   (e: "update:modelValue", value: BillingModel): void;
 }>();
 
 const showForm = ref(false);
+const touched = defineModel<boolean>("touched");
+
 // -----------------------------------------------------------------------------
 
 const { useUnifiedBillingDetail, meta: billingMeta, wait } = useBasketBilling();
@@ -147,7 +154,7 @@ const selectedCompany = computed({
   }
 });
 
-const selectedPhone = computed({
+const selectedPhone = computed<string | undefined>({
   get() {
     return modelValue.value?.phoneId ?? undefined;
   },
@@ -181,7 +188,6 @@ await Promise.all([isCompaniesReady(), isPhonesReady()]).then(() => {
       ? (modelValue.value?.phoneId ?? defaultPhone()?.id)
       : undefined
   };
-
   showForm.value = companyMeta.value.isEmpty && phoneMeta.value.isEmpty;
 });
 </script>

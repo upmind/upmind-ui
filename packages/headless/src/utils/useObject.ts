@@ -34,8 +34,10 @@ import { set, isPlainObject, forEach } from "lodash-es";
  * //   }
  * // }
  */
-export function parseFlattened(obj?: Record<string, any>): Record<string, any> {
-  const result: Record<string, any> = {};
+export function parseFlattened<T = Record<string, any>>(
+  obj?: Record<string, any>
+): T {
+  const result = {};
 
   // Iterate through each key in the object
   forEach(obj, (value, key) => {
@@ -47,5 +49,5 @@ export function parseFlattened(obj?: Record<string, any>): Record<string, any> {
     set(result, key, expandedValue);
   });
 
-  return result;
+  return result as T;
 }
