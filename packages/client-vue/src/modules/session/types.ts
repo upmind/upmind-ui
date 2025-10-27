@@ -40,6 +40,7 @@ export interface SessionExpiredProps {
 }
 
 export enum REGISTER_TEMPLATE {
+  FULL = "full",
   SPLIT = "split",
   CANVAS_CARD = "canvasCard",
   SURFACE_BOX = "surfaceBox",
@@ -48,6 +49,7 @@ export enum REGISTER_TEMPLATE {
 }
 
 export enum LOGIN_TEMPLATE {
+  FULL = "full",
   SPLIT = "split",
   CANVAS_CARD = "canvasCard",
   SURFACE_BOX = "surfaceBox",

@@ -17,7 +17,7 @@
       </div>
     </section>
 
-    <section :class="styles.full.content.root">
+    <section v-if="meta.hasContent" :class="styles.full.content.root">
       <div :class="styles.full.content.container">
         <div :class="styles.full.main">
           <slot name="default" />
@@ -58,7 +58,8 @@ const meta = computed(() => {
     variant: "full",
     overflow: props.overflow,
     hasContentHeader: !isEmptySlot("content-header", slots),
-    hasContent: !isEmptySlot("default", slots),
+    hasContent:
+      !isEmptySlot("default", slots) || !isEmptySlot("content", slots),
     hasFooter: !isEmptySlot("footer", slots),
     isMinimal: props.minimal,
     hasControls:

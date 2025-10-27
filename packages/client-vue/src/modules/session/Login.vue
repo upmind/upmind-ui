@@ -18,6 +18,7 @@ import LoginRTL from "./templates/LoginRTL.template.vue";
 import LoginSplit from "./templates/LoginSplit.template.vue";
 import LoginCanvasCard from "./templates/LoginCanvasCard.template.vue";
 import LoginSurfaceBox from "./templates/LoginSurfaceBox.template.vue";
+import LoginFull from "./templates/LoginFull.template.vue";
 
 // --- types
 import { LOGIN_TEMPLATE } from "./types";
@@ -29,6 +30,7 @@ await isReady();
 await isResolved(ROUTE.SESSION_REGISTER);
 
 const supportedTemplates = {
+  [LOGIN_TEMPLATE.FULL]: LoginFull,
   [LOGIN_TEMPLATE.SPLIT]: LoginSplit,
   [LOGIN_TEMPLATE.CANVAS_CARD]: LoginCanvasCard,
   [LOGIN_TEMPLATE.SURFACE_BOX]: LoginSurfaceBox,
@@ -41,7 +43,7 @@ const layout = computed(() => {
 });
 
 const templateVariant = computed(
-  () => supportedTemplates[layout.value] ?? LoginLTR
+  () => supportedTemplates[layout.value] ?? LoginFull
 );
 
 onUnmounted(() => {
