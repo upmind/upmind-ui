@@ -56,14 +56,14 @@
 import { computed } from "vue";
 
 // --- internal
-import DefaultLayout from "./components/DefaultLayout.vue";
-import EnclosedLayout from "./components/EnclosedLayout.vue";
-import FullLayout from "./components/FullLayout.vue";
-import TwoColumnLTRLayout from "./components/TwoColumnLTRLayout.vue";
-import TwoColumnRTLLayout from "./components/TwoColumnRTLLayout.vue";
-import SplitLayout from "./components/SplitLayout.vue";
-import CanvasCardLayout from "./components/CanvasCardLayout.vue";
-import SurfaceBoxLayout from "./components/SurfaceBoxLayout.vue";
+import DefaultLayout from "./layouts/DefaultLayout.layout.vue";
+import EnclosedLayout from "./layouts/EnclosedLayout.layout.vue";
+import FullLayout from "./layouts/FullLayout.layout.vue";
+import TwoColumnLTRLayout from "./layouts/TwoColumnLTRLayout.layout.vue";
+import TwoColumnRTLLayout from "./layouts/TwoColumnRTLLayout.layout.vue";
+import SplitLayout from "./layouts/SplitLayout.layout.vue";
+import CanvasCardLayout from "./layouts/CanvasCardLayout.layout.vue";
+import SurfaceBoxLayout from "./layouts/SurfaceBoxLayout.layout.vue";
 
 // --- types
 import type { LayoutProps } from "./types";

@@ -7,11 +7,11 @@ import { Store } from "@upmind-automation/headless";
 // --- async components
 
 const FooterFlat = defineAsyncComponent(
-  () => import("./templates/FooterFlat.template.vue")
+  () => import("./layouts/FooterFlat.layout.vue")
 );
 
 const FooterStacked = defineAsyncComponent(
-  () => import("./templates/FooterStacked.template.vue")
+  () => import("./layouts/FooterStacked.layout.vue")
 );
 // --- utils
 import { get, isEmpty, isObject, merge } from "lodash-es";
