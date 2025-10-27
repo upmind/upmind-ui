@@ -18,6 +18,7 @@ import RegisterRTL from "./templates/RegisterRTL.template.vue";
 import RegisterSplit from "./templates/RegisterSplit.template.vue";
 import RegisterCanvasCard from "./templates/RegisterCanvasCard.template.vue";
 import RegisterSurfaceBox from "./templates/RegisterSurfaceBox.template.vue";
+import RegisterFull from "./templates/RegisterFull.template.vue";
 
 // --- types
 import { REGISTER_TEMPLATE } from "./types";
@@ -29,6 +30,7 @@ await isReady();
 await isResolved(ROUTE.SESSION_REGISTER);
 
 const supportedTemplates = {
+  [REGISTER_TEMPLATE.FULL]: RegisterFull,
   [REGISTER_TEMPLATE.SPLIT]: RegisterSplit,
   [REGISTER_TEMPLATE.CANVAS_CARD]: RegisterCanvasCard,
   [REGISTER_TEMPLATE.SURFACE_BOX]: RegisterSurfaceBox,
@@ -41,7 +43,7 @@ const layout = computed(() => {
 });
 
 const templateVariant = computed(
-  () => supportedTemplates[layout.value] ?? RegisterLTR
+  () => supportedTemplates[layout.value] ?? RegisterFull
 );
 
 onUnmounted(() => {

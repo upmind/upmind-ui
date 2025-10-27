@@ -67,7 +67,14 @@ export default {
     },
     content: {
       header: {
-        root: cva("bg-canvas shadow-b-border-surface px-6 py-18"),
+        root: cva("bg-canvas px-6", {
+          variants: {
+            hasContent: {
+              true: "shadow-b-border-surface py-18",
+              false: "py-12 md:py-32"
+            }
+          }
+        }),
         container: cva("max-w-app mx-auto")
       },
       root: cva("px-6", {
