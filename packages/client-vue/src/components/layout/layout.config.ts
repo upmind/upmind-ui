@@ -273,7 +273,7 @@ export default {
   },
 
   surfaceBox: {
-    root: cva("bg-surface flex min-h-screen w-full py-32", {
+    root: cva("bg-surface flex w-full grow items-center justify-center", {
       variants: {
         overflow: {
           hidden: "overflow-hidden",
@@ -281,12 +281,10 @@ export default {
         }
       }
     }),
-    container: cva(
-      "flex h-full w-full flex-col items-center justify-center px-6 lg:px-8"
-    ),
+    container: cva("flex w-full flex-col px-6 py-8 lg:px-8 lg:py-12"),
     header: cva("flex h-24 w-full items-end justify-between"),
     card: cva(
-      "bg-surface card-radius w-app-content max-w-app mx-auto flex w-full flex-col justify-between gap-9 border"
+      "bg-surface card-radius w-app-content max-w-app shadow-border-surface mx-auto flex w-full flex-col justify-between gap-9"
     ),
     contentHeader: cva("w-app-aside w-full"),
     content: cva("w-full")
