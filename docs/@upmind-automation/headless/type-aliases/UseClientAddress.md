@@ -6,4 +6,4 @@
 type UseClientAddress = ReturnType<typeof useClientAddress>;
 ```
 
-The return type of the composable.
+The return type of the [useClientAddress](../functions/useClientAddress.md) composable function.

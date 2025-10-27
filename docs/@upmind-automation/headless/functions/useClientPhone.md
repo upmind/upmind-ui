@@ -3,8 +3,12 @@
 # useClientPhone()
 
 ```ts
-function useClientPhone(id?, __namedParameters?): object;
+function useClientPhone(id?, options?): object;
 ```
+
+Provides functionalities to manage a client's phone, leveraging an XState machine.
+This composable handles phone data, validation, saving, and interaction states.
+It's designed for use in contexts like client profile management or checkout phone selection.
 
 ## Parameters
 
@@ -12,17 +16,27 @@ function useClientPhone(id?, __namedParameters?): object;
 
 `string`
 
-### \_\_namedParameters?
+The unique identifier of the phone to manage. If omitted, it may imply a new phone.
+
+### options?
+
+Optional configuration for the address management.
 
 #### allowMultipleEdits?
 
 `boolean`
 
+If `true`, allows multiple instances of this composable to manage different phones concurrently.
+
 #### clientId?
 
 `string`
 
+The unique identifier of the client to whom this phone belongs.
+
 ## Returns
+
+The API for managing the client phone.
 
 ### clear()
 
@@ -39,7 +53,7 @@ Clears the context.
 ### context
 
 ```ts
-context: ComputedRef<undefined | ClientItemContext<any, any>>;
+context: ComputedRef<ClientItemContext<any, any> | undefined>;
 ```
 
 The full context object.
@@ -47,15 +61,15 @@ The full context object.
 ### description
 
 ```ts
-description: ComputedRef<undefined | string>;
+description: ComputedRef<string | undefined>;
 ```
 
-Description of the.phone
+Description of the phone
 
 ### errors
 
 ```ts
-errors: ComputedRef<undefined | string>;
+errors: ComputedRef<string | undefined>;
 ```
 
 Any error object from the context.
@@ -63,7 +77,7 @@ Any error object from the context.
 ### id
 
 ```ts
-id: ComputedRef<undefined | string>;
+id: ComputedRef<string | undefined>;
 ```
 
 The ID of the phone
@@ -126,7 +140,7 @@ The current model.
 ### schema
 
 ```ts
-schema: ComputedRef<undefined | JsonSchema>;
+schema: ComputedRef<JsonSchema | undefined>;
 ```
 
 The JSON schema for the form
@@ -146,7 +160,7 @@ Stops the service.
 ### title
 
 ```ts
-title: ComputedRef<undefined | string>;
+title: ComputedRef<string | undefined>;
 ```
 
 Title of the phone
@@ -154,7 +168,7 @@ Title of the phone
 ### uischema
 
 ```ts
-uischema: ComputedRef<undefined | UISchemaElement>;
+uischema: ComputedRef<UISchemaElement | undefined>;
 ```
 
 The UI schema for the form
@@ -185,8 +199,8 @@ Resolves when updated model from the service, rejects on error.
 
 ```ts
 validationErrors: ComputedRef<
-  | undefined
-| ValidationErrorObject<string, Record<string, any>, unknown>[]>;
+  | ValidationErrorObject<string, Record<string, any>, unknown>[]
+| undefined>;
 ```
 
 Any validation errors from the context.

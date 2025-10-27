@@ -6,6 +6,11 @@
 function useBasketCurrency(): object;
 ```
 
+Interacts with the basket currency context and actor.
+Provides state, context, and methods for managing basket currency data.
+The functionality includes checking readiness, fetching meta-information,
+accessing context and models, and performing actions like updating or clearing currency data.
+
 ## Returns
 
 ### clear()
@@ -23,7 +28,7 @@ Clears the currency state.
 ### context
 
 ```ts
-context: ComputedRef<undefined | CurrencyContext>;
+context: ComputedRef<CurrencyContext | undefined>;
 ```
 
 The full currency context object.
@@ -31,7 +36,7 @@ The full currency context object.
 ### currencies
 
 ```ts
-currencies: ComputedRef<undefined | ICurrency[]>;
+currencies: ComputedRef<ICurrency[] | undefined>;
 ```
 
 The list of available currencies.
@@ -39,7 +44,7 @@ The list of available currencies.
 ### currencyCode
 
 ```ts
-currencyCode: ComputedRef<undefined | ISO_4217_CURRENCY_CODE>;
+currencyCode: ComputedRef<ISO_4217_CURRENCY_CODE | undefined>;
 ```
 
 The current currency code.
@@ -47,13 +52,13 @@ The current currency code.
 ### currencyId
 
 ```ts
-currencyId: ComputedRef<undefined | string>;
+currencyId: ComputedRef<string | undefined>;
 ```
 
 ### errors
 
 ```ts
-errors: ComputedRef<undefined | ResponseError>;
+errors: ComputedRef<ResponseError | undefined>;
 ```
 
 Any error returned by the currency actor.
@@ -114,7 +119,7 @@ Meta-information about the basket currency state.
 ### model
 
 ```ts
-model: ComputedRef<undefined | CurrencyModel>;
+model: ComputedRef<CurrencyModel | undefined>;
 ```
 
 The current currency model.
@@ -122,7 +127,7 @@ The current currency model.
 ### schema
 
 ```ts
-schema: ComputedRef<undefined | JsonSchema>;
+schema: ComputedRef<JsonSchema | undefined>;
 ```
 
 The currency schema.
@@ -130,7 +135,7 @@ The currency schema.
 ### uischema
 
 ```ts
-uischema: ComputedRef<undefined | UISchemaElement>;
+uischema: ComputedRef<UISchemaElement | undefined>;
 ```
 
 The currency UI schema.

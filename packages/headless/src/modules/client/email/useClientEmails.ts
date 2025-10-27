@@ -1,5 +1,5 @@
 // --- external
-import { computed, ComputedRef, ref } from "vue";
+import { computed, ref } from "vue";
 
 // --- internal
 import service from "./services";
@@ -14,6 +14,14 @@ import { set, isEmpty, isArray } from "lodash-es";
 import type { Email } from "./types";
 import type { QueryProps, RequestFilters } from "../../query";
 
+/**
+ * Composable function for managing client emails.
+ * It handles fetching, displaying, filtering, and performing actions on client emails,
+ * leveraging an underlying service and TanStack Query for data management.
+ *
+ * @param initial - Optional initial query parameters for loading the email list (e.g. pagination settings). Defaults to pagination limit of 0.
+ * @returns The {@link UseClientEmails} API for interacting with client emails.
+ */
 export const useClientEmails = (
   initial: QueryProps = {
     pagination: {
@@ -203,4 +211,7 @@ export const useClientEmails = (
   };
 };
 
+/**
+ * The return type of the {@link useClientEmails} composable function.
+ */
 export type UseClientEmails = ReturnType<typeof useClientEmails>;

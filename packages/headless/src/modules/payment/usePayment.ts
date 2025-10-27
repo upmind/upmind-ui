@@ -16,6 +16,11 @@ import { PaymentArgs, PaymentContext } from "./types";
 
 // -----------------------------------------------------------------------------
 
+/**
+ * A composable function that manages payment state, context, and actions using a state machine
+ * implementation. Provides tools for orchestrating payment flow, including
+ * meta-information, error handling, and event triggers like pay and refresh.
+ */
 export const usePayment = (initial: PaymentArgs) => {
   const service = interpret(paymentMachine.withContext(initial), {
     devTools: false
@@ -123,6 +128,6 @@ export const usePayment = (initial: PaymentArgs) => {
 };
 
 /**
- * The return type of usePayment composable.
+ * The return type of {@link usePayment} composable.
  */
 export type UsePayment = ReturnType<typeof usePayment>;

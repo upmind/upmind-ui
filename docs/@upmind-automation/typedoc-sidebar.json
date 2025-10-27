@@ -9,16 +9,12 @@
         "collapsed": true,
         "items": [
           {
+            "text": "BreadcrumbVariant",
+            "link": "/@upmind-automation/headless/enumerations/BreadcrumbVariant.md"
+          },
+          {
             "text": "DomainTypes",
             "link": "/@upmind-automation/headless/enumerations/DomainTypes.md"
-          },
-          {
-            "text": "GatewayCtx",
-            "link": "/@upmind-automation/headless/enumerations/GatewayCtx.md"
-          },
-          {
-            "text": "GatewayTypes",
-            "link": "/@upmind-automation/headless/enumerations/GatewayTypes.md"
           },
           {
             "text": "messageDisplays",
@@ -145,6 +141,10 @@
             "link": "/@upmind-automation/headless/interfaces/DataLayerUser.md"
           },
           {
+            "text": "DomainContext",
+            "link": "/@upmind-automation/headless/interfaces/DomainContext.md"
+          },
+          {
             "text": "Email",
             "link": "/@upmind-automation/headless/interfaces/Email.md"
           },
@@ -163,14 +163,6 @@
           {
             "text": "FormComposable",
             "link": "/@upmind-automation/headless/interfaces/FormComposable.md"
-          },
-          {
-            "text": "Gateway",
-            "link": "/@upmind-automation/headless/interfaces/Gateway.md"
-          },
-          {
-            "text": "GatewayContext",
-            "link": "/@upmind-automation/headless/interfaces/GatewayContext.md"
           },
           {
             "text": "IAuthTransfer",
@@ -233,8 +225,8 @@
             "link": "/@upmind-automation/headless/interfaces/PaymentContext.md"
           },
           {
-            "text": "PaymentDetailModel",
-            "link": "/@upmind-automation/headless/interfaces/PaymentDetailModel.md"
+            "text": "PaymentDetailsAddArgs",
+            "link": "/@upmind-automation/headless/interfaces/PaymentDetailsAddArgs.md"
           },
           {
             "text": "PaymentDetailsArgs",
@@ -375,10 +367,6 @@
             "link": "/@upmind-automation/headless/type-aliases/BillingCycleFormats.md"
           },
           {
-            "text": "DomainContext",
-            "link": "/@upmind-automation/headless/type-aliases/DomainContext.md"
-          },
-          {
             "text": "DomainModel",
             "link": "/@upmind-automation/headless/type-aliases/DomainModel.md"
           },
@@ -391,12 +379,24 @@
             "link": "/@upmind-automation/headless/type-aliases/DomainProps.md"
           },
           {
-            "text": "DomainSearch",
-            "link": "/@upmind-automation/headless/type-aliases/DomainSearch.md"
-          },
-          {
             "text": "ExternalError",
             "link": "/@upmind-automation/headless/type-aliases/ExternalError.md"
+          },
+          {
+            "text": "Gateway",
+            "link": "/@upmind-automation/headless/type-aliases/Gateway.md"
+          },
+          {
+            "text": "GatewayContext",
+            "link": "/@upmind-automation/headless/type-aliases/GatewayContext.md"
+          },
+          {
+            "text": "GatewayParams",
+            "link": "/@upmind-automation/headless/type-aliases/GatewayParams.md"
+          },
+          {
+            "text": "GenericGatewayContext",
+            "link": "/@upmind-automation/headless/type-aliases/GenericGatewayContext.md"
           },
           {
             "text": "GlobbedFiles",
@@ -409,6 +409,18 @@
           {
             "text": "MutationParams",
             "link": "/@upmind-automation/headless/type-aliases/MutationParams.md"
+          },
+          {
+            "text": "PaymentDetail",
+            "link": "/@upmind-automation/headless/type-aliases/PaymentDetail.md"
+          },
+          {
+            "text": "PaymentDetailData",
+            "link": "/@upmind-automation/headless/type-aliases/PaymentDetailData.md"
+          },
+          {
+            "text": "PaymentDetailModel",
+            "link": "/@upmind-automation/headless/type-aliases/PaymentDetailModel.md"
           },
           {
             "text": "Place",
@@ -497,10 +509,6 @@
           {
             "text": "QueryProps",
             "link": "/@upmind-automation/headless/type-aliases/QueryProps.md"
-          },
-          {
-            "text": "RawInfiniteQueryData",
-            "link": "/@upmind-automation/headless/type-aliases/RawInfiniteQueryData.md"
           },
           {
             "text": "ReactiveQueryKeys",
@@ -623,8 +631,8 @@
             "link": "/@upmind-automation/headless/type-aliases/UseInvoice.md"
           },
           {
-            "text": "useLocale",
-            "link": "/@upmind-automation/headless/type-aliases/useLocale.md"
+            "text": "UseLocale",
+            "link": "/@upmind-automation/headless/type-aliases/UseLocale.md"
           },
           {
             "text": "UsePayment",
@@ -745,10 +753,6 @@
           {
             "text": "parseData",
             "link": "/@upmind-automation/headless/functions/parseData.md"
-          },
-          {
-            "text": "resetQueryByKey",
-            "link": "/@upmind-automation/headless/functions/resetQueryByKey.md"
           },
           {
             "text": "storePersister",
@@ -895,8 +899,8 @@
             "link": "/@upmind-automation/headless/functions/usePayment.md"
           },
           {
-            "text": "usePaymentDetails",
-            "link": "/@upmind-automation/headless/functions/usePaymentDetails.md"
+            "text": "usePaymentDetail",
+            "link": "/@upmind-automation/headless/functions/usePaymentDetail.md"
           },
           {
             "text": "usePaymentGateway",

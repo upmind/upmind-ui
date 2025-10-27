@@ -6,6 +6,8 @@
 type SubproductDetails = object;
 ```
 
+Type alias for detailed information about a subproduct.
+
 ## Properties
 
 ### description?
@@ -13,6 +15,8 @@ type SubproductDetails = object;
 ```ts
 optional description: string;
 ```
+
+A detailed description of the subproduct.
 
 ***
 
@@ -22,6 +26,8 @@ optional description: string;
 optional excerpt: string;
 ```
 
+A short excerpt or summary of the subproduct description.
+
 ***
 
 ### id
@@ -29,6 +35,8 @@ optional excerpt: string;
 ```ts
 id: string;
 ```
+
+The unique identifier of the subproduct.
 
 ***
 
@@ -38,11 +46,15 @@ id: string;
 meta: object;
 ```
 
+Meta-information about the subproduct's behaviour.
+
 #### multiple
 
 ```ts
 multiple: boolean;
 ```
+
+`true` if multiple instances of this subproduct can be selected.
 
 #### overrides
 
@@ -50,11 +62,15 @@ multiple: boolean;
 overrides: boolean;
 ```
 
+`true` if this subproduct selection overrides a default.
+
 #### required
 
 ```ts
 required: boolean;
 ```
+
+`true` if selection of this subproduct is required.
 
 ***
 
@@ -64,6 +80,8 @@ required: boolean;
 name: string;
 ```
 
+The untranslated name of the subproduct, often used for reporting purposes.
+
 ***
 
 ### title
@@ -71,6 +89,8 @@ name: string;
 ```ts
 title: string;
 ```
+
+The display title of the subproduct, typically translated.
 
 ***
 
@@ -80,6 +100,8 @@ title: string;
 optional uiCategoryMeta: Record<string, any>;
 ```
 
+Optional UI meta-data specific to the subproduct's category.
+
 ***
 
 ### uiMeta?
@@ -88,6 +110,8 @@ optional uiCategoryMeta: Record<string, any>;
 optional uiMeta: Record<string, any>;
 ```
 
+Optional UI meta-data specific to the subproduct.
+
 ***
 
 ### values?
@@ -95,3 +119,5 @@ optional uiMeta: Record<string, any>;
 ```ts
 optional values: SubproductValue[];
 ```
+
+An array of [SubproductValue](SubproductValue.md) objects representing the available choices for this subproduct.

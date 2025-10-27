@@ -6,6 +6,13 @@
 function useQueryParams(route?): object;
 ```
 
+Composable function to manage query parameters from a specified or current route.
+
+The `useQueryParams` function retrieves the query parameters for a given route.
+If no route is provided, the function will default to using the current route.
+It ensures that the route object has safe defaults for its properties
+including `name`, `path`, `query`, and `params`.
+
 ## Parameters
 
 ### route?
@@ -131,7 +138,7 @@ parse: (value) => any = useSafeParse;
 ### productConfig
 
 ```ts
-productConfig: undefined | ProductProps;
+productConfig: ProductProps | undefined;
 ```
 
 ### productConfigs

@@ -2,6 +2,10 @@
 
 # RelatedProduct
 
+Interface representing a product that is related to another product, extending
+`IRelatedObject` with additional display fields and augmented product data.
+This is used to define and enrich connections between products for recommendations.
+
 ## Extends
 
 - `IRelatedObject`
@@ -28,6 +32,8 @@ IRelatedObject.active
 optional badge: Badge;
 ```
 
+An optional badge to display with the related product.
+
 ***
 
 ### benefits?
@@ -36,6 +42,8 @@ optional badge: Badge;
 optional benefits: Benefit[];
 ```
 
+An array of benefits associated with the related product.
+
 ***
 
 ### config?
@@ -43,6 +51,9 @@ optional benefits: Benefit[];
 ```ts
 optional config: IProductConfig;
 ```
+
+Optional product configuration (`IProductConfig`) that can be applied
+when adding this related product as a recommendation.
 
 ***
 
@@ -63,7 +74,7 @@ IRelatedObject.created_at
 ### deleted\_at
 
 ```ts
-deleted_at: null | string;
+deleted_at: string | null;
 ```
 
 #### Inherited from
@@ -77,7 +88,7 @@ IRelatedObject.deleted_at
 ### description
 
 ```ts
-description: null | string;
+description: string | null;
 ```
 
 #### Inherited from
@@ -91,7 +102,7 @@ IRelatedObject.description
 ### description\_translated
 
 ```ts
-description_translated: null | string;
+description_translated: string | null;
 ```
 
 #### Inherited from
@@ -136,12 +147,14 @@ IRelatedObject.image
 optional image_url: string;
 ```
 
+The URL for an image associated with the related product.
+
 ***
 
 ### label
 
 ```ts
-label: null | string;
+label: string | null;
 ```
 
 #### Inherited from
@@ -155,7 +168,7 @@ IRelatedObject.label
 ### label\_translated
 
 ```ts
-label_translated: null | string;
+label_translated: string | null;
 ```
 
 #### Inherited from
@@ -169,7 +182,7 @@ IRelatedObject.label_translated
 ### name
 
 ```ts
-name: null | string;
+name: string | null;
 ```
 
 #### Inherited from
@@ -242,6 +255,8 @@ IRelatedObject.order
 product: IProduct;
 ```
 
+The full `IProduct` object for the related product.
+
 ***
 
 ### product\_id
@@ -277,6 +292,8 @@ IRelatedObject.related_object
 ```ts
 optional short_description: string;
 ```
+
+A short description of the related product.
 
 ***
 

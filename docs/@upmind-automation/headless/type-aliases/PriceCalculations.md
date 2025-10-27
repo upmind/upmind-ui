@@ -6,6 +6,8 @@
 type PriceCalculations = object;
 ```
 
+Type alias for displaying price calculation states.
+
 ## Properties
 
 ### attributes?
@@ -13,6 +15,8 @@ type PriceCalculations = object;
 ```ts
 optional attributes: number[];
 ```
+
+An array of attribute IDs for which prices are calculated.
 
 ***
 
@@ -22,6 +26,8 @@ optional attributes: number[];
 optional calculating: boolean;
 ```
 
+`true` if prices are currently being calculated.
+
 ***
 
 ### options?
@@ -30,6 +36,8 @@ optional calculating: boolean;
 optional options: number[];
 ```
 
+An array of option IDs for which prices are calculated.
+
 ***
 
 ### term?
@@ -37,3 +45,5 @@ optional options: number[];
 ```ts
 optional term: number[];
 ```
+
+An array of billing terms that prices are calculated for.

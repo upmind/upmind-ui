@@ -6,6 +6,11 @@
 function useRoutingEngine(): object;
 ```
 
+Composable function to provide a routing engine to handle route management, navigation, and state control within the application.
+
+This composable enables integration with internationalisation, session, and basket states, and allows for advanced
+route resolution and flow management.
+
 ## Returns
 
 `object`
@@ -33,19 +38,19 @@ back: (route, event?) => Promise<any>;
 ### currentFlow
 
 ```ts
-currentFlow: ComputedRef<undefined | Flow>;
+currentFlow: ComputedRef<Flow | undefined>;
 ```
 
 ### currentRoute
 
 ```ts
-currentRoute: ComputedRef<undefined | Route>;
+currentRoute: ComputedRef<Route | undefined>;
 ```
 
 ### errors
 
 ```ts
-errors: ComputedRef<undefined | ResponseError>;
+errors: ComputedRef<ResponseError | undefined>;
 ```
 
 ### exists()
@@ -67,7 +72,7 @@ exists: (name) => boolean;
 ### flows
 
 ```ts
-flows: ComputedRef<undefined | Flow[]>;
+flows: ComputedRef<Flow[] | undefined>;
 ```
 
 ### guard()

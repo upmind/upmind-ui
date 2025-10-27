@@ -1,9 +1,9 @@
-[Upmind](../../packages.md) / [@upmind-automation/headless](../index.md) / useLocale
+[Upmind](../../packages.md) / [@upmind-automation/headless](../index.md) / UseLocale
 
-# useLocale
+# UseLocale
 
 ```ts
-type useLocale = ReturnType<typeof useLocale>;
+type UseLocale = ReturnType<typeof useLocale>;
 ```
 
-The return type of useSystem composable.
+The return type of [useLocale](../functions/useLocale.md) composable.

@@ -31,6 +31,15 @@ import { QUERY_PARAMS } from "@upmind-automation/types";
 const defaultLocale = ref<string>("en");
 const locale = ref<string>("en");
 
+/**
+ * Composable function to provide locale-related utilities and state management for internationalisation (i18n).
+ *
+ * This module is responsible for controlling and updating the current locale, determining supported languages,
+ * and applying fallback logic for selecting appropriate locales based on user or system preferences.
+ *
+ * Note: Changing the locale is restricted while the user is authenticated to prevent inconsistencies, as
+ * the locale is tied to the account's preferred language.
+ */
 export const useLocale = () => {
   const { t } = useI18n();
   const { get: getFromStorage, set: setStorage } = useLocalStorage();
@@ -219,7 +228,5 @@ export const useLocale = () => {
   };
 };
 
-/**
- * The return type of useSystem composable.
- */
+/** The return type of {@link useLocale} composable. */
 export type UseLocale = ReturnType<typeof useLocale>;

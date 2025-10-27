@@ -5,10 +5,11 @@ import { useInvoice } from "../invoices";
 import type { UseInvoice } from "../invoices";
 
 /**
- * Composable to manage a single order.
- * It provides methods to load and manage the state of an order.
- * This is an alias for useInvoice, as orders are a type of invoice.
+ * Composable function to manage a single order.
+ * This is an alias for useInvoice, as orders are considered a type of invoice in this context.
+ * Provides access to the same data and methods as `useInvoice`.
+ *
  * @param {string} id - The ID of the order to load.
- * @return {UseInvoice} The order object with its state and methods.
+ * @returns {@link UseInvoice} The order object, with its state and methods managed by `useInvoice`.
  */
 export const useOrder = (id: string): UseInvoice => useInvoice(id);

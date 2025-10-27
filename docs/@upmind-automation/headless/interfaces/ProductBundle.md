@@ -2,6 +2,8 @@
 
 # ProductBundle
 
+Interface representing a product bundle, extending IRelatedObject.
+
 ## Extends
 
 - `IRelatedObject`
@@ -28,6 +30,8 @@ IRelatedObject.active
 config: IProductConfig;
 ```
 
+The [IProductConfig](IProductConfig.md) to be used when adding this bundle to the basket.
+
 ***
 
 ### created\_at
@@ -47,7 +51,7 @@ IRelatedObject.created_at
 ### deleted\_at
 
 ```ts
-deleted_at: null | string;
+deleted_at: string | null;
 ```
 
 #### Inherited from
@@ -61,7 +65,7 @@ IRelatedObject.deleted_at
 ### description
 
 ```ts
-description: null | string;
+description: string | null;
 ```
 
 #### Inherited from
@@ -75,7 +79,7 @@ IRelatedObject.description
 ### description\_translated
 
 ```ts
-description_translated: null | string;
+description_translated: string | null;
 ```
 
 #### Inherited from
@@ -117,7 +121,7 @@ IRelatedObject.image
 ### label
 
 ```ts
-label: null | string;
+label: string | null;
 ```
 
 #### Inherited from
@@ -131,7 +135,7 @@ IRelatedObject.label
 ### label\_translated
 
 ```ts
-label_translated: null | string;
+label_translated: string | null;
 ```
 
 #### Inherited from
@@ -145,7 +149,7 @@ IRelatedObject.label_translated
 ### name
 
 ```ts
-name: null | string;
+name: string | null;
 ```
 
 #### Inherited from

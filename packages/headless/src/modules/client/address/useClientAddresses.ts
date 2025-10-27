@@ -1,5 +1,5 @@
 // --- external
-import { ref, computed, ComputedRef } from "vue";
+import { ref, computed } from "vue";
 
 // --- internal
 import service from "./services";
@@ -14,6 +14,14 @@ import { set, isEmpty, isArray } from "lodash-es";
 import type { Address } from "./types";
 import type { QueryProps, RequestFilters } from "../../query";
 
+/**
+ * Composable function for managing client addresses.
+ * It handles fetching, displaying, filtering, and performing actions on client addresses,
+ * leveraging an underlying service and TanStack Query for data management.
+ *
+ * @param initial - Optional initial query parameters for loading the address list. Defaults to pagination limit of 0.
+ * @returns The {@link UseClientAddresses} API for interacting with client addresses.
+ */
 export const useClientAddresses = (
   initial: QueryProps = {
     pagination: {
@@ -202,4 +210,7 @@ export const useClientAddresses = (
   };
 };
 
+/**
+ * The return type of the {@link useClientAddresses} composable function.
+ */
 export type UseClientAddresses = ReturnType<typeof useClientAddresses>;

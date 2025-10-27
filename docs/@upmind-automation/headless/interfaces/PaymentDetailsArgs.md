@@ -2,6 +2,9 @@
 
 # PaymentDetailsArgs
 
+Interface representing the arguments required to initialise payment details context.
+These details provide the necessary context for payment forms and gateway interactions.
+
 ## Extended by
 
 - [`PaymentDetailsContext`](PaymentDetailsContext.md)
@@ -14,6 +17,8 @@
 address: IAddress;
 ```
 
+The IAddress object representing the billing address associated with the payment.
+
 ***
 
 ### amount
@@ -21,6 +26,8 @@ address: IAddress;
 ```ts
 amount: number;
 ```
+
+The total amount of the payment.
 
 ***
 
@@ -30,6 +37,8 @@ amount: number;
 clientId: string;
 ```
 
+The unique identifier of the client managing their payment details.
+
 ***
 
 ### currency
@@ -38,6 +47,8 @@ clientId: string;
 currency: ICurrency;
 ```
 
+The ICurrency object representing the currency of the payment.
+
 ***
 
 ### orderId
@@ -45,3 +56,5 @@ currency: ICurrency;
 ```ts
 orderId: string;
 ```
+
+The unique identifier of the order for which payment details are being managed.

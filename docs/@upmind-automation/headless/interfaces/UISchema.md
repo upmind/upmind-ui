@@ -2,6 +2,9 @@
 
 # UISchema
 
+Interface representing a UI Schema for form rendering.
+It provides configurations for billing, grouping, and other form-specific UI aspects.
+
 ## Properties
 
 ### billing?
@@ -10,11 +13,15 @@
 optional billing: object;
 ```
 
+Billing-specific control configuration.
+
 #### control?
 
 ```ts
 optional control: string;
 ```
+
+The control type for billing.
 
 ***
 
@@ -24,17 +31,29 @@ optional control: string;
 optional config: object;
 ```
 
+Configuration specific to the UI.
+
+#### breadcrumbs?
+
+```ts
+optional breadcrumbs: BreadcrumbVariant;
+```
+
 #### summary?
 
 ```ts
 optional summary: object;
 ```
 
+Summary configuration.
+
 ##### summary.append?
 
 ```ts
 optional append: string;
 ```
+
+Optional string to append to the summary.
 
 ***
 
@@ -44,6 +63,8 @@ optional append: string;
 optional group: string;
 ```
 
+The grouping identifier for form fields.
+
 ***
 
 ### group\_name?
@@ -51,6 +72,8 @@ optional group: string;
 ```ts
 optional group_name: string;
 ```
+
+The display name of the group.
 
 ***
 
@@ -60,6 +83,8 @@ optional group_name: string;
 optional icon: string;
 ```
 
+The icon to display for the group.
+
 ***
 
 ### primary?
@@ -67,6 +92,8 @@ optional icon: string;
 ```ts
 optional primary: boolean;
 ```
+
+`true` if this schema is for a primary form.
 
 ***
 
@@ -76,14 +103,20 @@ optional primary: boolean;
 optional productConfig: object;
 ```
 
+Product configuration summary settings.
+
 #### summary?
 
 ```ts
 optional summary: object;
 ```
 
+Summary configuration.
+
 ##### summary.append?
 
 ```ts
 optional append: string;
 ```
+
+Optional string to append to the summary.

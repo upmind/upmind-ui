@@ -63,7 +63,7 @@ import Page from "./components/page/Page.vue";
 import AsyncLoading from "./modules/system/Loading.vue";
 import { Loading } from "@upmind-automation/upmind-ui";
 // --- utils
-import { get } from "lodash-es";
+import { get, set } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";

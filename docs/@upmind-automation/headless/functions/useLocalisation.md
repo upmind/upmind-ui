@@ -3,14 +3,20 @@
 # useLocalisation()
 
 ```ts
-function useLocalisation(instance, glob?): object;
+function useLocalisation(instance?, glob?): object;
 ```
+
+Composable function to manage and initialise localisation settings in headless with an associated i18n instance and optionally globbed messages.
+Provides utilities to configure, load locale messages, and manage the application's locale state.
 
 ## Parameters
 
-### instance
+### instance?
 
-`I18n`
+`I18n`\<\{
+\}, \{
+\}, \{
+\}, `string`, `boolean`\>
 
 ### glob?
 
