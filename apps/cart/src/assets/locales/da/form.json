@@ -1,6 +1,6 @@
 {
   "address": {
-    "error": "Der opstod en fejl under tilføjelse af adressen | der opstod en fejl under opdatering af adressen",
+    "error": "Din adresse er påkrævet",
     "label": "Adresse",
     "placeholder": "Begynd at skrive din adresse",
     "title": "Tilføj ny adresse | Opdater adresse"
@@ -54,7 +54,7 @@
     "placeholder": "By, landsby osv."
   },
   "company": {
-    "error": "Der opstod en fejl under tilføjelse af virksomhedsoplysninger | der opstod en fejl under opdatering af virksomhedsoplysninger",
+    "error": "Dit firmanavn er påkrævet",
     "label": "Selskab",
     "title": "Tilføj virksomhedsoplysninger | Opdater virksomhedsoplysninger"
   },
@@ -77,7 +77,7 @@
     "placeholder": "Søg efter et domæne..."
   },
   "email": {
-    "error": "Der opstod en fejl under tilføjelse af e-mail | der opstod en fejl under opdatering af e-mail",
+    "error": "En gyldig e-mailadresse er påkrævet",
     "label": "E-mail",
     "title": "Tilføj ny e-mail | Opdater e-mail"
   },
@@ -96,7 +96,7 @@
     "error": "Vi oplevede en fejl under forsøget på at logge dig ind."
   },
   "phone": {
-    "error": "Der opstod en fejl under tilføjelse af telefonnummer | der opstod en fejl under opdatering af telefonnummer",
+    "error": "Et gyldigt telefonnummer er påkrævet",
     "label": "Telefon",
     "title": "Tilføj nyt telefonnummer | Opdater telefonnummer"
   },

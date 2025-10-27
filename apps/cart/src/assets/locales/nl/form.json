@@ -1,6 +1,6 @@
 {
   "address": {
-    "error": "Er is een fout opgetreden bij het toevoegen van het adres | er is een fout opgetreden bij het bijwerken van het adres",
+    "error": "Uw adres is vereist",
     "label": "Adres",
     "placeholder": "Begin met het typen van uw adres",
     "title": "Nieuw adres toevoegen | Adres bijwerken"
@@ -54,7 +54,7 @@
     "placeholder": "Stad, dorp etc."
   },
   "company": {
-    "error": "Er is een fout opgetreden bij het toevoegen van de bedrijfsgegevens | er is een fout opgetreden bij het bijwerken van de bedrijfsgegevens",
+    "error": "Uw bedrijfsnaam is vereist",
     "label": "Bedrijf",
     "title": "Bedrijfsgegevens toevoegen | Bedrijfsgegevens bijwerken"
   },
@@ -77,7 +77,7 @@
     "placeholder": "Zoek naar een domein..."
   },
   "email": {
-    "error": "Er is een fout opgetreden bij het toevoegen van het e-mailadres | Er is een fout opgetreden bij het bijwerken van het e-mailadres",
+    "error": "Een geldig e-mailadres is vereist",
     "label": "E-mail",
     "title": "Nieuw e-mailadres toevoegen | E-mailadres bijwerken"
   },
@@ -96,7 +96,7 @@
     "error": "Er is een fout opgetreden bij het inloggen."
   },
   "phone": {
-    "error": "Er is een fout opgetreden bij het toevoegen van het telefoonnummer | er is een fout opgetreden bij het bijwerken van het telefoonnummer",
+    "error": "Een geldig telefoonnummer is vereist",
     "label": "Telefoon",
     "title": "Nieuw telefoonnummer toevoegen | Telefoonnummer bijwerken"
   },

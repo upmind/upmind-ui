@@ -1,6 +1,6 @@
 {
   "address": {
-    "error": "An error occurred Adding the Address | an error occurred Updating the Address",
+    "error": "Your address is required",
     "label": "Address",
     "placeholder": "Start typing your address",
     "title": "Add New Address | Update Address"
@@ -54,7 +54,7 @@
     "placeholder": "City, town etc."
   },
   "company": {
-    "error": "An error occurred Adding the Company Details | an error occurred Updating the Company Details",
+    "error": "Your company name is required",
     "label": "Company",
     "title": "Add Company Details | Update Company Details"
   },
@@ -77,7 +77,7 @@
     "placeholder": "Search for a domain..."
   },
   "email": {
-    "error": "An error occurred Adding the Email | an error occurred Updating the Email",
+    "error": "A valid Email Address is required",
     "label": "Email",
     "title": "Add New Email | Update Email"
   },
@@ -96,7 +96,7 @@
     "error": "We experienced an error while trying to log you in."
   },
   "phone": {
-    "error": "An error occurred Adding the Phone Number | an error occurred Updating the Phone Number",
+    "error": "A valid Phone Number is required",
     "label": "Phone",
     "title": "Add New Phone Number | Update Phone Number"
   },
