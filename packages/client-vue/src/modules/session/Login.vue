@@ -4,10 +4,12 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed } from "vue";
+import { computed, onUnmounted } from "vue";
 
 // --- internal
 import { useRoutingEngine } from "@upmind-automation/headless";
+import { useHeader } from "../../components/header/useHeader";
+import { useFooter } from "../../components/footer/useFooter";
 
 // --- components
 import LoginLTR from "./templates/LoginLTR.template.vue";
@@ -40,4 +42,9 @@ const layout = computed(() => {
 const templateVariant = computed(
   () => supportedTemplates[layout.value] ?? LoginLTR
 );
+
+onUnmounted(() => {
+  useFooter({});
+  useHeader({});
+});
 </script>

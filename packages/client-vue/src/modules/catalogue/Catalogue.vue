@@ -90,10 +90,6 @@ const { t } = useI18n();
 
 // --- state
 
-const isMinimal = computed(() => {
-  return !description.value;
-});
-
 const categoryId = useRouteQuery<string | undefined>("catid", undefined, {
   mode: "push"
 });

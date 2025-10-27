@@ -13,7 +13,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { watch, computed } from "vue";
+import { watch, computed, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -24,6 +24,8 @@ import {
   ROUTE,
   useDataLayer
 } from "@upmind-automation/headless";
+import { useHeader } from "../../components/header/useHeader";
+import { useFooter } from "../../components/footer/useFooter";
 
 // --- components
 import CheckoutProcessing from "./components/CheckoutProcessing.vue";
@@ -107,5 +109,10 @@ watch(meta, (value, oldValue) => {
   if (value.isComplete) {
     navigateNext(invoice.value);
   }
+});
+
+onUnmounted(() => {
+  useFooter({});
+  useHeader({});
 });
 </script>
