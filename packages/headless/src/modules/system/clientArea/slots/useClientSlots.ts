@@ -5,13 +5,18 @@ import { computed } from "vue";
 import service from "./services";
 
 // --- utils
-import { filter, isEmpty, includes, isArray } from "lodash-es";
+import { useCollection } from "../../../../utils";
+import { isEmpty, isArray } from "lodash-es";
+import { invalidateQueryByKey } from "../../../query";
 
 // --- types
-import { useCollection } from "../../../../utils";
 import type { ClientTemplateSlot } from "./types";
-import { type QueryProps, invalidateQueryByKey } from "../../../query";
 
+/**
+ * Composable function to provide reactive state and methods to manage and interact with client area templates (slots).
+ * This includes state management for query meta-information, error handling, data retrieval,
+ * and operational methods such as fetching and invalidating data.
+ */
 export const useClientSlots = () => {
   // --- state
   const query = service.load();

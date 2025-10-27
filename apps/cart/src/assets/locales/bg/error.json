@@ -77,6 +77,8 @@
   "payment_details_update_failed": "Възникна грешка при актуализирането на данните за плащане",
   "payment_details_validation_failed": "Валидирането на данните за плащане не беше успешно",
   "payment_gateway_not_available": "Платежният шлюз не е наличен",
+  "payment_gateway_not_supported_msg": "Все още можете да направите поръчката си и да платите по-късно.",
+  "payment_gateway_not_supported_title": "Този портал в момента не може да приема плащания.",
   "payment_gateway_update_failed": "Възникна грешка при актуализиране на платежния шлюз",
   "payment_gateway_validation_failed": "Валидирането на платежния шлюз не беше успешно",
   "payment_gateways_not_available_msg": "Все още можете да подадете поръчката си сега и да завършите плащането по-късно. Нашият екип за поддръжка ще може да ви помогне.",

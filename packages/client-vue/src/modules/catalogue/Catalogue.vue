@@ -1,5 +1,5 @@
 <template>
-  <Layout :variant="uiCart?.layout" :minimal="isMinimal">
+  <Layout :variant="layout" :minimal="isMinimal">
     <template #controls>
       <Breadcrumbs
         v-model="categoryId"
@@ -78,7 +78,7 @@ import type { ComputedRef } from "vue";
 import type { ProductCategory } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
-const { isReady, isResolved } = useRoutingEngine();
+const { isReady, isResolved, currentRoute } = useRoutingEngine();
 const { uiCart } = useBrand();
 const { findOne, getOne } = useProductCategories();
 
@@ -88,9 +88,6 @@ await isResolved(ROUTE.PRODUCT_ADD);
 const { t } = useI18n();
 
 // --- state
-const isFaceted = computed(() => {
-  return !!uiCart.value?.catalogue?.facet;
-});
 
 const isMinimal = computed(() => {
   return !description.value;
@@ -148,4 +145,12 @@ const styles = useStyles(
     };
   };
 }>;
+
+const layout = computed(() => {
+  return currentRoute.value?.meta?.template;
+});
+
+const isFaceted = computed(() => {
+  return !!uiCart.value?.catalogue?.facet;
+});
 </script>

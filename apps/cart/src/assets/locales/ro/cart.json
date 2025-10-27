@@ -40,7 +40,7 @@
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
   "promotion_help": "{code} oferă {amount} reducere {description}",
   "promotions_active": "Reduceri active",
-  "recommendations_unavailable_text": "We couldn't find any recommendations for you at this time. Please click below to continue.",
-  "recommendations_unavailable_title": "We're sorry about that...",
+  "recommendations_unavailable_text": "Nu am putut găsi nicio recomandare pentru tine în acest moment. Te rugăm să faci clic mai jos pentru a continua.",
+  "recommendations_unavailable_title": "Ne pare rău pentru asta...",
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}"
 }

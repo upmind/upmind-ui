@@ -1,5 +1,3 @@
-// --- external
-
 // --- internal
 import {
   useRoutingEngine,
@@ -7,7 +5,7 @@ import {
   useRouteRequiresAction
 } from "..";
 import { useBasketProductsPending } from "../../basketProduct";
-
+import { getCheckoutFlowTargets } from "./checkout";
 import { useBasket } from "../../basket";
 import { useProductRecommendations } from "../../recommendations";
 
@@ -17,11 +15,20 @@ import { uniqBy, set, isEmpty } from "lodash-es";
 // --- types
 import { ROUTE } from "../types";
 import type { Flow, Route } from "../types";
+import type { ProductProps } from "../../product";
 import { contextValue, stateMatches } from "../../../utils";
-import { ProductProps } from "src/modules/product";
 
 // -----------------------------------------------------------------------------
 
+/**
+ * Composable function to provide functionality to manage and execute product flows used in e-commerce applications.
+ *
+ * This function defines and manages a set of flows related to product-related operations
+ * such as adding, editing, and resolving products in the shopping basket. It includes guard
+ * conditions and resolution logic for determining the next actions, along with navigation
+ * targets for each flow. The hooks leveraged within the flows enable interaction with the
+ * routing engine, basket system, and other modules for product and recommendation handling.
+ */
 export const useProductFlows = () => {
   const routing = useRoutingEngine();
   const {
@@ -133,9 +140,7 @@ export const useProductFlows = () => {
         next: [
           ROUTE.PRODUCT_REQUIRES_ACTION,
           ROUTE.PRODUCT_RECOMMENDATIONS,
-          ROUTE.CHECKOUT,
-          ROUTE.SESSION_REGISTER,
-          ROUTE.BASKET
+          ...getCheckoutFlowTargets()
         ],
         back: [ROUTE.CATALOGUE, ROUTE.BASKET, ROUTE.EMPTY],
         fallback: [
@@ -177,12 +182,7 @@ export const useProductFlows = () => {
           .catch(() => false);
       },
       targets: {
-        next: [
-          ROUTE.PRODUCT_REQUIRES_ACTION,
-          ROUTE.CHECKOUT,
-          ROUTE.SESSION_REGISTER,
-          ROUTE.BASKET
-        ],
+        next: [ROUTE.PRODUCT_REQUIRES_ACTION, ...getCheckoutFlowTargets()],
         back: [ROUTE.BASKET, ROUTE.EMPTY],
         fallback: [ROUTE.PRODUCT_NOT_FOUND]
       }
@@ -232,8 +232,8 @@ export const useProductFlows = () => {
             }
           }
         ],
-        back: [ROUTE.BASKET],
-        fallback: [ROUTE.BASKET, ROUTE.EMPTY]
+        back: getCheckoutFlowTargets(),
+        fallback: getCheckoutFlowTargets()
       }
     },
     {
@@ -256,7 +256,7 @@ export const useProductFlows = () => {
       targets: {
         next: [],
         back: [ROUTE.BASKET, ROUTE.EMPTY],
-        fallback: [ROUTE.BASKET, ROUTE.EMPTY]
+        fallback: getCheckoutFlowTargets()
       }
     },
     {
@@ -277,9 +277,9 @@ export const useProductFlows = () => {
         };
       },
       targets: {
-        next: [ROUTE.CHECKOUT, ROUTE.SESSION_REGISTER, ROUTE.BASKET],
+        next: getCheckoutFlowTargets(),
         back: [ROUTE.BASKET, ROUTE.EMPTY],
-        fallback: [ROUTE.BASKET, ROUTE.EMPTY]
+        fallback: getCheckoutFlowTargets()
       }
     }
   ];

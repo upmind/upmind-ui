@@ -6,14 +6,18 @@ import service from "./services";
 
 // --- utils
 import { isEmpty } from "lodash-es";
+import { invalidateQueryByKey } from "../../../query";
 
 // --- types
 import {
   ClientAreaTemplateTypes,
   ClientTemplateSlotCodes
 } from "@upmind-automation/types";
-import { invalidateQueryByKey } from "../../../query";
 
+/**
+ * Composable function to manage the query, the state, and the context for client area templates.
+ * Allows fetching, monitoring, and refreshing the data for client area templates.
+ */
 export const useClientTemplate = (params: {
   code?: ClientTemplateSlotCodes;
   objectId?: string;
@@ -80,7 +84,7 @@ export const useClientTemplate = (params: {
      * This will refetch the data from the server and update the query state.
      * @returns {void}
      */
-    refresh: () => query?.refetch(),
+    refresh: query?.refetch,
 
     /**
      * Invalidate the query cache for the client area templates.

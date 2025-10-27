@@ -2,6 +2,14 @@
 
 # CompanyContext
 
+Interface representing the context for company management within a client item context.
+It extends `ClientItemContext` with specific data relevant to company operations,
+such as associated addresses, emails, phones, and geographical lookups.
+
+## Template
+
+The type of the company model, typically [CompanyModel](CompanyModel.md).
+
 ## Extends
 
 - `ClientItemContext`\<[`CompanyModel`](CompanyModel.md)\>
@@ -13,6 +21,8 @@
 ```ts
 addresses: Address[];
 ```
+
+An array of all [Address](Address.md) records associated with the client.
 
 ***
 
@@ -92,6 +102,8 @@ ClientItemContext.config
 countries: ICountry[];
 ```
 
+An array of all available ICountry objects in the system.
+
 ***
 
 ### country?
@@ -99,6 +111,8 @@ countries: ICountry[];
 ```ts
 optional country: ICountry;
 ```
+
+The currently selected ICountry object in the context.
 
 ***
 
@@ -121,6 +135,8 @@ ClientItemContext.description
 ```ts
 emails: Email[];
 ```
+
+An array of all [Email](Email.md) records associated with the client.
 
 ***
 
@@ -158,6 +174,8 @@ ClientItemContext.id
 optional minimal: boolean;
 ```
 
+`true` if the context is in a minimal mode, potentially showing fewer fields or details.
+
 ***
 
 ### model?
@@ -180,6 +198,8 @@ ClientItemContext.model
 phones: Phone[];
 ```
 
+An array of all [Phone](Phone.md) records associated with the client.
+
 ***
 
 ### regions?
@@ -187,6 +207,8 @@ phones: Phone[];
 ```ts
 optional regions: IRegion[];
 ```
+
+An array of IRegion objects available for the selected country.
 
 ***
 

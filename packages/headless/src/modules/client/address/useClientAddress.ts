@@ -1,6 +1,6 @@
 // --- external
 import { computed } from "vue";
-import { interpret, InterpreterFrom } from "xstate";
+import { interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 import { useActor } from "@xstate/vue";
 
@@ -36,6 +36,17 @@ import type { Address, AddressModel } from "./types";
 
 // -----------------------------------------------------------------------------
 
+/**
+ * Provides functionalities to manage a client's address, leveraging an XState machine.
+ * This composable handles address data, validation, saving, and interaction states.
+ * It's designed for use in contexts like client profile management or checkout address selection.
+ *
+ * @param id - The unique identifier of the address to manage. If omitted, it may imply a new address.
+ * @param options - Optional configuration for the address management.
+ * @param options.allowMultipleEdits - If `true`, allows multiple instances of this composable to manage different addresses concurrently.
+ * @param options.clientId - The unique identifier of the client to whom this address belongs.
+ * @returns The API for managing the client address.
+ */
 export const useClientAddress = (
   id?: Address["id"],
   {
@@ -140,7 +151,7 @@ export const useClientAddress = (
   async function update(
     value?: AddressModel | Record<string, any>
   ): Promise<AddressModel> {
-    // first check if our model has changed, if it has we need to send it
+    // first check if our model has changed, if it has, we need to send it
 
     const model = contextValue<AddressModel>(state, "model");
 
@@ -219,7 +230,7 @@ export const useClientAddress = (
     /** Title of the address */
     title,
 
-    /** Description of the.address */
+    /** Description of the address */
     description,
 
     /** The ID of the address */
@@ -266,5 +277,7 @@ export const useClientAddress = (
   };
 };
 
-/** The return type of the composable.*/
+/**
+ * The return type of the {@link useClientAddress} composable function.
+ */
 export type UseClientAddress = ReturnType<typeof useClientAddress>;

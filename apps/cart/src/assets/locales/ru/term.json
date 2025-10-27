@@ -14,7 +14,7 @@
   "price_by_n_years": "{price}/год | {price} /{n} лет",
   "price_msg": "Единовременная выплата {price} | От {price} в месяц | От {price} каждый {period}",
   "quarterly": "Ежеквартальный",
-  "renews_msg": "Единовременный платеж | Возобновляется каждые {cycle}",
+  "renews_msg": "Единовременный платеж | Возобновляется каждые {cycle} | Возобновляется каждые {cycle}",
   "renews_usually_msg": "Обычно {price}",
   "semiannually": "Раз в полгода",
   "showing_items_summary": "Показ {range} из {total} предметы",

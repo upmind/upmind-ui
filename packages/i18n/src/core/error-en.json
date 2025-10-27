@@ -76,6 +76,8 @@
   "payment_detail_not_available": "Payment detail not available",
   "payment_details_update_failed": "We experienced an error updating payment details",
   "payment_details_validation_failed": "Payment details validation failed",
+  "payment_gateway_not_supported_title": "This gateway is not currently able to take payment.",
+  "payment_gateway_not_supported_msg": "You can still place your order and pay later.",
   "payment_gateway_not_available": "Payment gateway not available",
   "payment_gateway_update_failed": "We experienced an error updating payment gateway",
   "payment_gateway_validation_failed": "Payment gateway validation failed",

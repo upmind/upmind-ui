@@ -40,7 +40,7 @@
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
   "promotion_help": "{code} proporciona {amount} descuento {description}",
   "promotions_active": "Descuentos activos",
-  "recommendations_unavailable_text": "We couldn't find any recommendations for you at this time. Please click below to continue.",
-  "recommendations_unavailable_title": "We're sorry about that...",
+  "recommendations_unavailable_text": "No pudimos encontrar recomendaciones para ti en este momento. Por favor, haz clic abajo para continuar.",
+  "recommendations_unavailable_title": "Lamentamos eso...",
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}"
 }

@@ -93,8 +93,9 @@ import type {
   UIMeta,
   ProductBreadcrumb
 } from "./types";
+import { UI_SCHEMA_DEFAULTS } from "./types";
 import { ErrorObject } from "ajv";
-import { IBrandMeta } from "../brand/types";
+import { BrandMeta } from "../brand/types";
 
 // -----------------------------------------------------------------------------
 
@@ -652,7 +653,7 @@ export const parseProductDetails = (
     uiMeta: parseMeta(
       parseFlattened(rawProduct?.meta ?? {}),
       parseFlattened(rawProduct?.category ?? {}) as IProductCategory,
-      parseFlattened(rawProduct?.brand?.meta as IBrandMeta)?.cart?.ui ?? {}
+      parseFlattened(rawProduct?.brand?.meta as BrandMeta)?.cart?.ui ?? {}
     ),
     uiCategoryMeta: rawProduct?.category?.meta || undefined
   };
@@ -684,7 +685,14 @@ export const parseMeta = (
   );
 
   // Product meta has highest priority, so merge it last
-  return merge({}, result, productMeta);
+  result = merge({}, result, productMeta);
+
+  // Apply defaults if no value is provided
+  if (result.uischema) {
+    result.uischema = merge({}, UI_SCHEMA_DEFAULTS, result.uischema);
+  }
+
+  return result;
 };
 
 export const parseTermDetails = (raw: IProduct): TermDetails[] => {
@@ -747,7 +755,7 @@ export const parseSubproductDetails = (
         uiMeta: parseMeta(
           parseFlattened(rawSubproduct?.meta ?? {}),
           parseFlattened(rawSubproduct?.category) as IProductCategory,
-          parseFlattened(rawSubproduct?.brand?.meta as IBrandMeta)?.cart?.ui
+          parseFlattened(rawSubproduct?.brand?.meta as BrandMeta)?.cart?.ui
         ),
         uiCategoryMeta: rawSubproduct?.category?.meta || undefined,
         meta: {

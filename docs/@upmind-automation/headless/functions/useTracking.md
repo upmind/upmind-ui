@@ -6,6 +6,12 @@
 function useTracking(): object;
 ```
 
+Composable function to handle user tracking data. The `useTracking` hook provides mechanisms for initialising,
+retrieving, and managing tracking data from cookies. This may include generating and storing
+tracking data based on query parameters and providing methods to retrieve or clear this data.
+
+Note that the composable relies on external libraries and configurations such as cookies and URL handling.
+
 ## Returns
 
 ### get()

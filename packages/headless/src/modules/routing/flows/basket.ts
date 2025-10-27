@@ -2,25 +2,30 @@
 
 // --- internal
 import { useBasket } from "../../basket";
+import { useBrand } from "../../brand";
 import { useRoutingEngine } from "..";
-import { useDataLayer } from "../../system";
 
 // --- utils
+import { uniqBy } from "lodash-es";
 import { useRouteQueryParams } from "../utils";
 import { useBasketProductsPending } from "../../basketProduct";
-import { uniqBy, first, keys, isEqual } from "lodash-es";
 
 // --- types
-import type { Flow, Route } from "../types";
 import { ROUTE } from "../types";
-import { ProductModel } from "../../product";
-import { compactDeep } from "../../../utils";
+import type { Flow, Route } from "../types";
+import { BrandConfigKeys, CheckoutFlows } from "@upmind-automation/types";
+import { getCheckoutFlowTargets } from "./checkout";
 
 // -----------------------------------------------------------------------------
 
+/**
+ * Composable function to manage the basket-related flows.
+ * It provides mechanisms to define navigation rules (aka flows), manage their states, and register them with the routing system.
+ * Each flow specifies its name, guard logic for conditional transitions, and target routes for navigation.
+ */
 export const useBasketFlows = () => {
   const routing = useRoutingEngine();
-  const { meta, setCurrency, addPromotion, isReady } = useBasket();
+  const { meta, setCurrency, isReady } = useBasket();
   const { addMany, isInBasket } = useBasketProductsPending();
 
   let flows: Flow[] = [
@@ -53,8 +58,7 @@ export const useBasketFlows = () => {
             }
           },
           ROUTE.PRODUCT_NOT_FOUND,
-          ROUTE.BASKET,
-          ROUTE.EMPTY
+          ...getCheckoutFlowTargets()
         ]
       }
     },
@@ -65,7 +69,7 @@ export const useBasketFlows = () => {
       targets: {
         next: [],
         back: [],
-        fallback: [ROUTE.BASKET]
+        fallback: getCheckoutFlowTargets()
       }
     },
     {
@@ -75,18 +79,9 @@ export const useBasketFlows = () => {
       resolve: async (_route: Route) => {
         return { name: ROUTE.BASKET };
       },
-      //  uncomment if we want to FORCE a redirect to a specific path for the basket/flow.
-      // eg: ** OPTIONALLY ** if we have an alias for basket that is cart, then the router would force the redirec tto basket
-      // othgerwise `/cart` would stil lresolve to the basket flow but not have `/basket` in the url
-      // resolve: async (_route: Route) => {
-      //   return {
-      //     name: ROUTE.BASKET,
-      //     path: "/basket",
-      //   };
-      // },
       targets: {
-        next: [ROUTE.CHECKOUT],
-        back: [],
+        next: [ROUTE.CHECKOUT, ROUTE.SESSION_REGISTER],
+        back: [ROUTE.CATALOGUE],
         fallback: [ROUTE.EMPTY]
       }
     }

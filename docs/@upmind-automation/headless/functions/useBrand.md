@@ -6,23 +6,29 @@
 function useBrand(): object;
 ```
 
+Composable function to access and manage brand-related data and configurations.
+It fetches modules, brand configurations, brand settings, and organisation configurations
+to provide a unified interface for brand-related information.
+
 ## Returns
+
+An object containing brand data, meta-information, and utility methods.
 
 ### brandId
 
 ```ts
-brandId: ComputedRef<undefined | string>;
+brandId: ComputedRef<string>;
 ```
 
-The current brand ID.
+The unique identifier of the current brand.
 
 ### countryId
 
 ```ts
-countryId: ComputedRef<undefined | string>;
+countryId: ComputedRef<string>;
 ```
 
-The country ID for the brand.
+The country identifier associated with the brand.
 
 ### currencies
 
@@ -30,23 +36,23 @@ The country ID for the brand.
 currencies: ComputedRef<ICurrency[]>;
 ```
 
-The list of all supported currencies for the brand.
+An array of all supported currencies for the brand.
 
 ### currency
 
 ```ts
-currency: ComputedRef<undefined | ICurrency>;
+currency: ComputedRef<ICurrency | undefined>;
 ```
 
-The current currency object for the brand.
+The current currency object representing the brand's default or selected currency.
 
 ### currencyId
 
 ```ts
-currencyId: ComputedRef<undefined | string>;
+currencyId: ComputedRef<string>;
 ```
 
-The currency ID for the brand.
+The identifier of the brand's default currency.
 
 ### defaultPaymentPeriod
 
@@ -54,7 +60,7 @@ The currency ID for the brand.
 defaultPaymentPeriod: ComputedRef<DefaultPaymentPeriod>;
 ```
 
-The default payment period for the brand.
+The default payment period configured for the brand.
 
 ### ensureConfig()
 
@@ -62,7 +68,7 @@ The default payment period for the brand.
 ensureConfig: (keys) => Promise<Record<string, any>>;
 ```
 
-Ensures the given config keys are loaded and returns their values.
+Ensures that the specified brand configuration keys are fetched and available in the context.
 
 #### Parameters
 
@@ -76,7 +82,7 @@ One or more BrandConfigKeys to ensure are loaded.
 
 `Promise`\<`Record`\<`string`, `any`\>\>
 
-A promise resolving to a record of config key-value pairs.
+A promise resolving to a record of the requested configuration key-value pairs.
 
 #### Throws
 
@@ -85,18 +91,18 @@ If the config keys are not available in the context or if the request times out.
 ### errors
 
 ```ts
-errors: ComputedRef<(null | Error)[]>;
+errors: ComputedRef<(Error | null)[]>;
 ```
 
-Any error object from the brand state.
+An array of errors encountered during brand data fetching.
 
 ### favicon
 
 ```ts
-favicon: ComputedRef<undefined | null | IImage>;
+favicon: ComputedRef<IImage | null | undefined>;
 ```
 
-The current favicon object for the brand.
+The favicon URL for the brand.
 
 ### getAnalytics()
 
@@ -104,13 +110,13 @@ The current favicon object for the brand.
 getAnalytics: () => Promise<Record<string, any>>;
 ```
 
-Loads analytics config for the brand (GA/GTM IDs).
+Fetches analytics configuration related to Google Analytics (GA) and Google Tag Manager (GTM) IDs.
 
 #### Returns
 
 `Promise`\<`Record`\<`string`, `any`\>\>
 
-A promise resolving to the analytics config object or undefined.
+A promise resolving to an object containing analytics configuration.
 
 ### getConfig()
 
@@ -118,17 +124,14 @@ A promise resolving to the analytics config object or undefined.
 getConfig: (keys) => Record<string, any>;
 ```
 
-This method will return the requested keys from the config.
-It assumes that the keys are already in context in the state machine.
-It will not request the keys from the API if they are not already in context.
-It will also not wait for the state of the request to be processed/cached
-before returning the requested keys.
+Retrieves specific brand configuration keys from the context.
+Assumes the keys are already loaded and available. Does not initiate a fetch if data is missing.
 
 #### Parameters
 
 ##### keys
 
-The keys to request from the config
+One or more BrandConfigKeys to retrieve.
 
 `BrandConfigKeys` | `BrandConfigKeys`[]
 
@@ -136,23 +139,16 @@ The keys to request from the config
 
 `Record`\<`string`, `any`\>
 
-An object containing the requested keys and their values.
-
-#### Throws
-
-If the keys are not available in the context.
+An object containing the requested keys and their corresponding values. Returns an empty object if keys are not found.
 
 ### getConfigValue()
 
 ```ts
-getConfigValue: <T>(key) => undefined | T;
+getConfigValue: <T>(key) => T | undefined;
 ```
 
-This method will return the requested key VALUE from the config.
-It assumes that the key is already in context in the state machine.
-It will not request the key from the API if it is not already in context.
-It will also not wait for the state of the request to be processed/cached
-before returning the requested key.
+Retrieves a specific brand configuration value by its key.
+Assumes the key is already loaded and available in the context. Does not initiate a fetch if the key is missing.
 
 #### Type Parameters
 
@@ -160,23 +156,21 @@ before returning the requested key.
 
 `T` = `unknown`
 
+The expected type of the configuration value.
+
 #### Parameters
 
 ##### key
 
 `BrandConfigKeys`
 
-The key to request from the config
+The BrandConfigKeys to retrieve the value for.
 
 #### Returns
 
-`undefined` \| `T`
+`T` \| `undefined`
 
-The value of the requested key.
-
-#### Throws
-
-If the key is not available in the context.
+The value of the requested key, or `undefined` if not found.
 
 ### hasModuleEnabled()
 
@@ -184,7 +178,7 @@ If the key is not available in the context.
 hasModuleEnabled: (code) => boolean;
 ```
 
-Checks if a module is enabled for the current brand.
+Checks if a specific module is enabled for the current brand.
 
 #### Parameters
 
@@ -198,7 +192,7 @@ The module code to check.
 
 `boolean`
 
-True if the module is enabled, false otherwise.
+`true` if the module is enabled, `false` otherwise.
 
 ### hasStorefront
 
@@ -206,16 +200,25 @@ True if the module is enabled, false otherwise.
 hasStorefront: ComputedRef<boolean>;
 ```
 
-Returns boolean indicating if the brand has a storefront URL.
-This is derived from the meta, environment and router configuration.
+A boolean indicating whether the brand has a configured storefront.
+
+### iconStyles
+
+```ts
+iconStyles: ComputedRef<{
+  variant: string | undefined;
+}>;
+```
+
+The current icons styles for the brand.
 
 ### image
 
 ```ts
-image: ComputedRef<undefined | null | IImage>;
+image: ComputedRef<IImage | null>;
 ```
 
-The current image object for the brand.
+The primary image or logo URL for the brand.
 
 ### includesTax
 
@@ -223,7 +226,7 @@ The current image object for the brand.
 includesTax: ComputedRef<boolean>;
 ```
 
-Whether the brand includes tax by default.
+`true` if tax is included by default in prices, `false` otherwise.
 
 ### invalidate()
 
@@ -232,17 +235,18 @@ invalidate: () => void;
 ```
 
 Invalidates the brand state and all related queries.
-This will clear the current brand state and re-fetch it from the API.
-It is useful for clearing the brand state and forcing a re-fetch of all brand data
-without resetting the initialized flag.
+This clears the current brand state and forces a re-fetch of all brand data,
+useful for synchronising state without necessarily re-initialising everything.
 
 #### Returns
 
 `void`
 
+`void`
+
 #### Throws
 
-If the invalidating fails.
+If the invalidation process fails.
 
 ### isReady()
 
@@ -250,14 +254,13 @@ If the invalidating fails.
 isReady: () => Promise<boolean>;
 ```
 
-Resolves when the brand service is ready or errors.
-Returns true if ready, false if an error occurred.
+Resolves when the brand service is ready or encounters an error.
 
 #### Returns
 
 `Promise`\<`boolean`\>
 
-A promise resolving to true if ready, false if error.
+A promise is resolving to `true` if ready, `false` if an error occurred.
 
 ### isSupportedLanguage()
 
@@ -265,7 +268,7 @@ A promise resolving to true if ready, false if error.
 isSupportedLanguage: (locale) => boolean;
 ```
 
-Checks if the given language model is supported by the brand.
+Checks if the brand supports a given language locale.
 
 #### Parameters
 
@@ -273,23 +276,25 @@ Checks if the given language model is supported by the brand.
 
 `string`
 
+The language locale string to check (e.g. "en").
+
 #### Returns
 
 `boolean`
 
-True if the language is supported, false otherwise.
+`true` if the locale is supported, `false` otherwise.
 
 #### Throws
 
-If the languages are not available in the context.
+If the language data is not available in the context.
 
 ### language
 
 ```ts
-language: ComputedRef<undefined | ILanguage>;
+language: ComputedRef<ILanguage | undefined>;
 ```
 
-The current language object for the brand.
+The current language object for the brand, determined by settings or defaults.
 
 ### languages
 
@@ -297,7 +302,7 @@ The current language object for the brand.
 languages: ComputedRef<ILanguage[]>;
 ```
 
-The list of all supported languages for the brand.
+An array of all supported languages for the brand.
 
 ### meta
 
@@ -311,15 +316,15 @@ meta: ComputedRef<{
 }>;
 ```
 
-Meta-information about the brand state.
+Meta-information about the current brand state.
 
 ### name
 
 ```ts
-name: ComputedRef<undefined | string>;
+name: ComputedRef<string>;
 ```
 
-The current brand name.
+The name of the current brand.
 
 ### refresh()
 
@@ -328,34 +333,32 @@ refresh: () => Promise<void>;
 ```
 
 Refreshes the brand state by re-fetching all related queries.
-This will invalidate the current brand state and re-fetch it from the API.
-It will also reset the initialized flag to force a re-run of the initial load
-logic, ensuring all brand data is up to date.
+This invalidates the current brand state and fetches it again from the API,
+ensuring all brand data is up to date.
 
 #### Returns
 
 `Promise`\<`void`\>
 
-A promise that resolves when the brand state is refreshed.
+A promise that resolves when the brand state has been refreshed.
 
 #### Throws
 
-If the refresh fails.
+If the refresh operation fails.
 
 ### storefrontRoute
 
 ```ts
 storefrontRoute: ComputedRef<
-  | undefined
   | {
   href?: string;
   to?: string | RouteLocationAsRelativeGeneric | RouteLocationAsPathGeneric;
-}>;
+}
+| undefined>;
 ```
 
-The resolved storefront route within the application.
-This is derived from the meta, environment and router configuration.
-provided for convenience as a vue router friendly route object.
+The resolved Vue Router route object for navigating to the storefront.
+Provides either a `to` object for internal navigation or `href` for external links.
 
 ### storefrontUrl
 
@@ -363,33 +366,32 @@ provided for convenience as a vue router friendly route object.
 storefrontUrl: ComputedRef<string>;
 ```
 
-The URL of the storefront for the brand.
-This is derived from the cart meta or environment variable.
+The URL of the brand's storefront. Derived from instance config, cart meta, or defaults.
 
 ### styles
 
 ```ts
 styles: ComputedRef<
-  | undefined
-  | null
   | {
   brand_color: string;
   brand_font?: {
      family: string;
      version: string;
   };
-}>;
+  tokens?: string;
+}
+| null>;
 ```
 
-The current styles object for the brand.
+The style configuration object for the brand's UI.
 
 ### taxType
 
 ```ts
-taxType: ComputedRef<undefined | BrandTaxTypes>;
+taxType: ComputedRef<BrandTaxTypes>;
 ```
 
-The tax type for the brand.
+The tax type configured for the brand
 
 ### uiCart
 
@@ -409,27 +411,27 @@ uiCart: ComputedRef<{
 }>;
 ```
 
-The current cart metaobject for the brand.
+Cart-specific meta-information from the brand settings.
 
 ### uiTheme
 
 ```ts
 uiTheme: ComputedRef<{
-  variant: undefined | string;
-  variants:   | undefined
-     | Record<string, ThemeTokens>;
+  tokens: string;
+  variant: string | undefined;
 }>;
 ```
 
-The current theming object for the brand.
+The UI theme configuration for the brand, including theme variants and the currently selected variant.
 
 ### validateCurrency()
 
 ```ts
-validateCurrency: (model) => Promise<undefined | ICurrency | Partial<ICurrency>>;
+validateCurrency: (model) => Promise<ICurrency | Partial<ICurrency> | undefined>;
 ```
 
-Validates and returns a supported currency object or the default.
+Validates a given currency model against the brand's supported currencies.
+Returns the matching currency or the brand's default currency if the provided model is invalid or not found.
 
 #### Parameters
 
@@ -437,31 +439,32 @@ Validates and returns a supported currency object or the default.
 
 `CurrencyModel`
 
-The currency model to validate ({ id?: string, code?: string }).
+The currency model to validate (containing `id` or `code`).
 
 #### Returns
 
-`Promise`\<`undefined` \| `ICurrency` \| `Partial`\<`ICurrency`\>\>
+`Promise`\<`ICurrency` \| `Partial`\<`ICurrency`\> \| `undefined`\>
 
-A promise resolving to a valid currency object or undefined.
+A promise resolving to a valid ICurrency object, a partial ICurrency, or `undefined`.
 
 #### Throws
 
-If the currencies are not available in the context.
+If the currency data is not available in the context.
 
 ### validateLanguage()
 
 ```ts
-validateLanguage: (model) => undefined | ILanguage;
+validateLanguage: (model) => ILanguage | undefined;
 ```
 
-Validates and returns a supported language object or the default.
+Validates a given language model against the brand's supported languages.
+Returns the matching language or the brand's default language if the provided model is invalid or not found.
 
 #### Parameters
 
 ##### model
 
-The language model to validate ({ id?: string, code?: string }).
+The language model to validate (containing `id` or `code`).
 
 ###### code?
 
@@ -473,10 +476,10 @@ The language model to validate ({ id?: string, code?: string }).
 
 #### Returns
 
-`undefined` \| `ILanguage`
+`ILanguage` \| `undefined`
 
-A promise resolving to a valid language object or undefined.
+A promise resolving to a valid ILanguage object or `undefined`.
 
 #### Throws
 
-If the languages are not available in the context.
+If the language data is not available in the context.

@@ -2,6 +2,8 @@
 
 # RequestPagination
 
+Interface representing pagination parameters for a request.
+
 ## Properties
 
 ### limit?
@@ -10,6 +12,8 @@
 optional limit: number;
 ```
 
+The maximum number of items to return in a single page.
+
 ***
 
 ### offset?
@@ -17,3 +21,5 @@ optional limit: number;
 ```ts
 optional offset: number;
 ```
+
+The number of items to skip from the beginning of the result set.

@@ -1,11 +1,14 @@
 <template>
-  <Layout :variant="configMeta.layout" minimal>
-    <template #navigation>
-      <Breadcrumb v-if="meta?.isAvailable" :items="items" size="lg" />
+  <Layout :variant="layout" minimal>
+    <template
+      v-if="configMeta.headerBreadcrumbs && meta?.isAvailable"
+      #navigation
+    >
+      <Breadcrumb :items="items" size="lg" />
     </template>
 
-    <template #actions>
-      <Share class="hidden md:flex" v-if="meta?.isAvailable" />
+    <template v-if="configMeta.headerBreadcrumbs && meta?.isAvailable" #actions>
+      <Share class="hidden md:flex" />
     </template>
 
     <template #header>
@@ -36,6 +39,10 @@
 
           <ConfigSkeleton v-else />
         </form>
+
+        <template v-if="!configMeta.headerBreadcrumbs" #action>
+          <Share class="hidden md:flex" />
+        </template>
       </Section>
     </template>
 
@@ -104,7 +111,7 @@ import SummarySkeleton from "./components/summary/SummarySkeleton.vue";
 import ProductNotFound from "./NotFound.vue";
 
 // --- utils
-import { forEach, isEmpty, last, compact } from "lodash-es";
+import { forEach, isEmpty, last, compact, first } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -113,7 +120,8 @@ import { BreadcrumbVariant } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 const { t, tm } = useI18n();
 
-const { navigateBack, navigateNext, isResolved } = useRoutingEngine();
+const { navigateBack, navigateNext, isResolved, currentRoute } =
+  useRoutingEngine();
 const { isReady } = useBasket();
 const { productId } = useQueryParams();
 
@@ -128,11 +136,17 @@ const { update, service: pendingProduct, onDone } = await configure(productId);
 const { meta, product, productImage, updateQuantity } =
   useProductConfig(pendingProduct);
 
+const layout = computed(() => {
+  return currentRoute.value?.meta?.template;
+});
+
 const configMeta = computed(() => {
+  const breadcrumbs =
+    product.value?.productDetails?.uiMeta?.uischema?.config?.breadcrumbs;
   return {
-    layout: uiCart.value?.layout,
-    breadcrumbs:
-      product.value?.productDetails?.uiMeta?.uischema?.config?.breadcrumbs
+    layout: layout.value,
+    breadcrumbs,
+    headerBreadcrumbs: breadcrumbs !== BreadcrumbVariant.HIDDEN && breadcrumbs
   };
 });
 
@@ -188,12 +202,22 @@ const items = computed(() => {
     });
   }
 
-  // Current product (for visible and condensed)
-  if (variant !== BreadcrumbVariant.CATEGORY) {
+  // Last item: current product (visible) or last category (condensed)
+  if (variant === BreadcrumbVariant.VISIBLE) {
     items.push({
       label: product.value.productDetails.title,
       current: true
     });
+  } else if (variant === BreadcrumbVariant.CONDENSED) {
+    const category = first(product.value.productDetails.breadcrumb);
+    if (category) {
+      items.push({
+        label: category.label,
+        to: !hasStorefront.value
+          ? { name: ROUTE.CATALOGUE, query: { catid: category.id } }
+          : undefined
+      });
+    }
   }
 
   return items;

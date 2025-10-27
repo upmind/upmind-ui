@@ -14,7 +14,7 @@
   "price_by_n_years": "{price}/Jahr | {price} /{n} Jahre",
   "price_msg": "Einmalzahlung von {price} | Von {price} einem Monat | Ab {price} jeder {period}",
   "quarterly": "Vierteljährlich",
-  "renews_msg": "Einmalige Zahlung | Erneuert sich alle {cycle}",
+  "renews_msg": "Einmalige Zahlung | Erneuert sich alle {cycle} | Erneuert sich alle {cycle}",
   "renews_usually_msg": "Normalerweise {price}",
   "semiannually": "Halbjährlich",
   "showing_items_summary": "Anzeigen {range} von {total} Artikel",

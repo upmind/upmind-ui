@@ -1,5 +1,5 @@
 // --- external
-import { nextTick, Ref, ref, unref } from "vue";
+import { Ref, ref } from "vue";
 import { inspect } from "@xstate/inspect";
 import { type QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
 
@@ -38,59 +38,190 @@ import type { I18n, Composer } from "vue-i18n";
 import { BrandConfigKeys } from "@upmind-automation/types";
 
 // ---
+/**
+ * Enumeration representing the initialisation status of the Upmind instance.
+ *
+ * @enum {string}
+ */
 export enum UpmindStatus {
+  /**
+   * The Upmind instance has not yet been initialised.
+   */
   notInitialised = "",
+  /**
+   * The Upmind instance has completed its initialisation process and is ready for use.
+   */
   initialised = "initialised",
+  /**
+   * The Upmind instance is currently in the process of initialising.
+   */
   initialising = "initialising"
 }
 
+/**
+ * Interface defining the properties required to initialise the Upmind instance.
+ * These properties configure various aspects of the headless library, including
+ * mode, debugging, analytics, routing, internationalisation, and theming.
+ */
 export interface UpmindProps {
+  /**
+   * The operating mode of the Upmind instance.
+   * - `default`: Standard operation with full headless module initialisation.
+   * - `express`: A lighter mode, potentially skipping some render-blocking initialisations.
+   * @default "default"
+   */
   mode?: "default" | "express";
+  /**
+   * Configuration for the POP (Provider Of Providers) API.
+   */
   pop?: IApiPop;
+  /**
+   * Enables debug mode for various components, including XState inspection.
+   * @default false (derived from session storage or default)
+   */
   debug?: boolean;
-  storefrontUrl?: string; // URL of the storefront, used in the app
-  // plugins are registered by the Upmind instance, so we can use them in the app
+  /**
+   * The base URL of the storefront application. Used for generating absolute URLs
+   * and linking purposes within the headless library.
+   */
+  storefrontUrl?: string;
+  /**
+   * A record of plugins to be registered with the Upmind instance.
+   * Each entry specifies the plugin constructor and optional configuration.
+   *
+   * @example
+   * ```ts
+   * plugins: {
+   *   myPlugin: { plugin: MyCustomPlugin, options: { foo: 'bar' } }
+   * }
+   * ```
+   */
   plugins?: Record<string, { plugin: any; options?: any }>;
-  recaptcha?: { siteKey?: string; enabled?: boolean };
-  analytics?: {
-    gtm?: { containerId?: string; dataLayer?: string };
+  /**
+   * Configuration for Google reCAPTCHA integration.
+   */
+  recaptcha?: {
+    /** The reCAPTCHA site key. */
+    siteKey?: string;
+    /** Enables or disables reCAPTCHA. */
     enabled?: boolean;
+  };
+  /**
+   * Configuration for analytics and tracking, primarily Google Tag Manager (GTM).
+   */
+  analytics?: {
+    /** GTM-specific configuration. */
+    gtm?: {
+      /** The GTM container ID (e.g., 'GTM-XXXXXXX'). */
+      containerId?: string;
+      /** The name of the dataLayer array, if different from 'dataLayer'. */
+      dataLayer?: string;
+    };
+    /** Enables or disables analytics tracking. */
+    enabled?: boolean;
+    /** Enables debug mode for analytics. */
     debug?: boolean;
   };
+  /**
+   * Configuration for Vue Router integration.
+   */
   router?: {
+    /** The Vue Router instance. */
     instance: Router;
+    /** An array of predefined routing flows or a function that returns them. */
     flows?: Flow[] | (() => Flow[]);
   };
+  /**
+   * Configuration for Vue I18n internationalization.
+   */
   i18n?: {
+    /** The Vue I18n instance. */
     instance: I18n;
+    /** Globbed files containing translation messages. */
     files: GlobbedFiles;
+    /** Enables debug mode for i18n. */
     debug?: boolean;
   };
-
+  /**
+   * An array of theme configurations to be loaded and managed by the theming module.
+   */
   themes?: Theme[];
 }
 
 // -----------------------------------------------------------------------------
 
+/**
+ * The core Upmind class, responsible for initialising and orchestrating all
+ * headless modules and plugins. It acts as a singleton entry point for
+ * configuring the Upmind headless library within a Vue application.
+ */
 export class Upmind {
+  /**
+   * Reactive reference to the current initialisation status of the Upmind instance.
+   */
   status: Ref<UpmindStatus> = ref(UpmindStatus.notInitialised);
+  /**
+   * Analytics configuration, typically for Google Tag Manager.
+   */
   analytics: UpmindProps["analytics"];
+  /**
+   * Debugging flag for enabling various debug features.
+   */
   debug: UpmindProps["debug"];
+  /**
+   * Internationalization configuration for Vue I18n.
+   */
   i18n: UpmindProps["i18n"];
+  /**
+   * The operating mode of the Upmind instance ("default" or "express").
+   */
   mode: UpmindProps["mode"] = "default";
+  /**
+   * A record of registered plugins.
+   */
   plugins: UpmindProps["plugins"] = {};
+  /**
+   * Provider Of Providers (POP) API configuration.
+   */
   pop: UpmindProps["pop"];
+  /**
+   * The Vue Query client instance used for data fetching and caching.
+   */
   queryClient: QueryClient;
+  /**
+   * Google reCAPTCHA configuration.
+   */
   recaptcha: UpmindProps["recaptcha"];
+  /**
+   * Vue Router configuration.
+   */
   router: UpmindProps["router"];
+  /**
+   * The base URL of the storefront application.
+   */
   storefrontUrl?: string;
+  /**
+   * Theme configurations.
+   */
   themes?: UpmindProps["themes"];
 
+  /**
+   * Constructs a new Upmind instance.
+   * Initialises the Vue Query client.
+   */
   constructor() {
     const { queryClient } = useQuery();
     this.queryClient = queryClient;
   }
 
+  /**
+   * Initialises the Upmind headless library with the provided configuration.
+   * This method orchestrates the initialisation of all internal modules and plugins.
+   *
+   * @param props - An object containing initialisation properties.
+   * @returns A promise that resolves when the Upmind instance is fully initialised.
+   * @throws {DetailedError} If Upmind has already been initialised.
+   */
   init({
     analytics,
     debug,
@@ -133,7 +264,7 @@ export class Upmind {
 
         // then initialise our core modules and wait for them to be ready
         return (
-          Promise.all([
+          Promise.allSettled([
             useBrand().isReady(),
             useSystem().isReady(),
             useSession().isReady()
@@ -147,7 +278,7 @@ export class Upmind {
               ])
             )
             .then(() => {
-              // then do our non render blocking initialisations
+              // then do our non-render blocking initialisations
               this.initRecaptcha();
               this.initAnalytics();
             })
@@ -158,6 +289,11 @@ export class Upmind {
       });
   }
 
+  /**
+   * Initialises internal plugins, currently including `VueQueryPlugin`.
+   * This method sets up the `plugins` property based on internal defaults and provides options.
+   * @private
+   */
   private initPlugins() {
     this.plugins ??= {};
     this.plugins.vueQuery = {
@@ -169,6 +305,11 @@ export class Upmind {
     };
   }
 
+  /**
+   * Initialises debugging features, including XState inspector, based on
+   * `debug` prop and session storage.
+   * @private
+   */
   private async initDebugging() {
     const { get, set } = useSessionStorage();
 
@@ -177,14 +318,14 @@ export class Upmind {
 
     const queryParams = new URLSearchParams(window?.location?.search);
 
-    // always honor the debug flag in the URL
+    // always honour the debug flag in the URL
     if (queryParams.has("debug")) set("debug", true);
 
-    // otherwise read our debugging flag from session storage or fallback to the default ( true if DEV )
+    // otherwise read our debugging flag from session storage or fallback to the default (true if DEV)
     const debugging = get("debug") ?? this.debug;
     this.debug = debugging;
 
-    // finally start the inspector if debugging is enabled
+    // finally, start the inspector if debugging is enabled
     if (debugging)
       inspect({
         // url: "https://stately.ai/registry/editor/inspect",
@@ -207,6 +348,11 @@ export class Upmind {
     init(this.recaptcha.siteKey);
   }
 
+  /**
+   * Initialises analytics tracking, primarily Google Tag Manager (GTM).
+   * It dynamically injects the GTM script and initialises the data layer.
+   * @private
+   */
   private async initAnalytics() {
     if (!this.analytics?.enabled) return;
     const { init: initTracking } = useTracking();
@@ -238,22 +384,43 @@ export class Upmind {
     dataLayer().withPage().withUser().push(false);
   }
 
+  /**
+   * Initialises Vue Router integration with defined flows.
+   * @private
+   */
   private async initRouter() {
     if (!this.router?.instance) return;
     useRouting(this.router.instance, this.router.flows);
   }
 
+  /**
+   * Initialises the theming module with provided theme configurations.
+   * @private
+   * @returns A promise that resolves when theming is ready.
+   */
   private async initTheming() {
     const { isReady } = useTheming(this.themes);
     await isReady();
   }
 
+  /**
+   * Initialises the internationalisation (i18n) module with the Vue I18n instance and translation files.
+   * @private
+   * @returns A promise that resolves when localisation is ready.
+   */
   private async initLocalisation() {
     const { isReady } = useLocalisation(this.i18n?.instance, this.i18n?.files);
     return isReady();
   }
   // ---------------------------------------------------------------------------
 
+  /**
+   * Returns a promise that resolves when the Upmind instance has completed its
+   * initialisation (status is `initialised` or `initialising`).
+   * This method can be used to await the full readiness of the Upmind headless library.
+   *
+   * @returns A promise that resolves when Upmind is initialised.
+   */
   async isReady(): Promise<void> {
     return new Promise(resolve => {
       const interval = setInterval(() => {

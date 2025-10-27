@@ -30,7 +30,6 @@ import { Card } from "@upmind-automation/upmind-ui";
 
 // --- internal
 import { cn, useStyles } from "@upmind-automation/upmind-ui";
-import { useBrand } from "@upmind-automation/headless";
 import config from "./content.config";
 
 // --- types
@@ -42,12 +41,11 @@ const props = withDefaults(defineProps<SectionProps>(), {
   as: "section"
 });
 
-const { uiCart } = useBrand();
 const slots = useSlots();
 
 const meta = computed(() => {
   return {
-    variant: props.variant || uiCart.value?.layout || "default"
+    variant: props.variant || "default"
   };
 });
 

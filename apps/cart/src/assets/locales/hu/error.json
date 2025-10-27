@@ -77,6 +77,8 @@
   "payment_details_update_failed": "Hiba történt a fizetési adatok frissítésekor",
   "payment_details_validation_failed": "Fizetési adatok ellenőrzése sikertelen",
   "payment_gateway_not_available": "Fizetési átjáró nem érhető el",
+  "payment_gateway_not_supported_msg": "Még mindig leadhatja rendelését, és később fizethet.",
+  "payment_gateway_not_supported_title": "Ez a fizetési kapu jelenleg nem képes fizetést fogadni.",
   "payment_gateway_update_failed": "Hiba történt a fizetési átjáró frissítésekor",
   "payment_gateway_validation_failed": "Fizetési átjáró érvényesítése sikertelen",
   "payment_gateways_not_available_msg": "Még mindig leadhatja rendelését most, és később is fizethet. Ügyfélszolgálatunk készséggel áll rendelkezésére.",

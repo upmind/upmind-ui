@@ -77,6 +77,8 @@
   "payment_details_update_failed": "Vi oppsto en feil under oppdatering av betalingsopplysningene",
   "payment_details_validation_failed": "Validering av betalingsdetaljer mislyktes",
   "payment_gateway_not_available": "Betalingsgateway ikke tilgjengelig",
+  "payment_gateway_not_supported_msg": "Du kan fortsatt legge inn bestillingen din og betale senere.",
+  "payment_gateway_not_supported_title": "Denne betalingsportalen kan for øyeblikket ikke ta imot betaling.",
   "payment_gateway_update_failed": "Vi oppsto en feil under oppdatering av betalingsgatewayen",
   "payment_gateway_validation_failed": "Validering av betalingsgateway mislyktes",
   "payment_gateways_not_available_msg": "Du kan fortsatt sende inn bestillingen din nå og fullføre betalingen senere. Vårt supportteam vil kunne hjelpe deg.",

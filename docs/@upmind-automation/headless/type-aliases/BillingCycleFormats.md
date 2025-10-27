@@ -6,6 +6,8 @@
 type BillingCycleFormats = object;
 ```
 
+Type alias for various formats of billing cycle descriptions.
+
 ## Properties
 
 ### adverbial
@@ -14,7 +16,7 @@ type BillingCycleFormats = object;
 adverbial: string;
 ```
 
-Adverbial variant e.g. `Monthly`, `Annually`, `One time`.
+Adverbial variant, e.g. `Monthly`, `Annually`, `One time`.
 
 ***
 
@@ -24,7 +26,7 @@ Adverbial variant e.g. `Monthly`, `Annually`, `One time`.
 descriptive: string;
 ```
 
-Descriptive variant e.g. `month`, `3 years`.
+Descriptive variant, e.g. `month`, `3 years`.
 
 ***
 
@@ -34,7 +36,7 @@ Descriptive variant e.g. `month`, `3 years`.
 monthly: string;
 ```
 
-Monthly variant e.g., `month`, `6 months`.
+Monthly variant, e.g. `month`, `6 months`.
 
 ***
 
@@ -44,7 +46,7 @@ Monthly variant e.g., `month`, `6 months`.
 numeric: string;
 ```
 
-Numeric variant e.g. `1-month` or `2-year`.
+Numeric variant, e.g. `1-month` or `2-year`.
 
 ***
 
@@ -54,4 +56,4 @@ Numeric variant e.g. `1-month` or `2-year`.
 suffix: string;
 ```
 
-Abbreviated suffix variant e.g. `mo` for 1 month, `2yr` for 2 years.
+Abbreviated suffix variant, e.g. `mo` for 1 month, `2-yr` for 2 years.

@@ -1,5 +1,5 @@
 // --- external
-import { computed, ComputedRef, ref } from "vue";
+import { computed, ref } from "vue";
 
 // --- internal
 import service from "./services";
@@ -14,6 +14,14 @@ import { set, isEmpty, isArray } from "lodash-es";
 import type { Phone } from "./types";
 import type { QueryProps, RequestFilters } from "../../query";
 
+/**
+ * Composable function for managing client phones.
+ * It handles fetching, displaying, filtering, and performing actions on client phones,
+ * leveraging an underlying service and TanStack Query for data management.
+ *
+ * @param initial - Optional initial query parameters for loading the phone list. Defaults to pagination limit of 0.
+ * @returns The {@link UseClientPhones} API for interacting with client phones.
+ */
 export const useClientPhones = (
   initial: QueryProps = {
     pagination: {
@@ -205,4 +213,7 @@ export const useClientPhones = (
   };
 };
 
+/**
+ * The return type of the {@link useClientPhones} composable function.
+ */
 export type UseClientPhones = ReturnType<typeof useClientPhones>;

@@ -707,14 +707,14 @@ importers:
   docs:
     devDependencies:
       typedoc:
-        specifier: ^0.28.13
-        version: 0.28.13(typescript@5.9.2)
+        specifier: ^0.28.14
+        version: 0.28.14(typescript@5.9.2)
       typedoc-plugin-markdown:
         specifier: ^4.9.0
-        version: 4.9.0(typedoc@0.28.13(typescript@5.9.2))
+        version: 4.9.0(typedoc@0.28.14(typescript@5.9.2))
       typedoc-vitepress-theme:
         specifier: ^1.1.2
-        version: 1.1.2(typedoc-plugin-markdown@4.9.0(typedoc@0.28.13(typescript@5.9.2)))
+        version: 1.1.2(typedoc-plugin-markdown@4.9.0(typedoc@0.28.14(typescript@5.9.2)))
       vitepress:
         specifier: ^1.6.4
         version: 1.6.4(@algolia/client-search@5.35.0)(@types/node@22.17.1)(axios@1.11.0)(lightningcss@1.30.1)(postcss@8.5.6)(sass@1.90.0)(search-insights@2.17.3)(terser@5.39.2)(typescript@5.9.2)
@@ -919,7 +919,7 @@ importers:
         version: 3.0.1(ajv@8.17.1)
       braintree-web-drop-in:
         specifier: ^1.45.1
-        version: 1.45.1
+        version: 1.45.2
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -4906,8 +4906,8 @@ packages:
     resolution: {integrity: sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA==}
     engines: {node: '>=8'}
 
-  braintree-web-drop-in@1.45.1:
-    resolution: {integrity: sha512-Kmb6RWk9VcZfCUzQI6L9MD1jaAGbrMplMOe2xLJq/MQQFQGzaIOnLo5RAKdIuR0RMzykgak45RP4WXvHxNItgA==}
+  braintree-web-drop-in@1.45.2:
+    resolution: {integrity: sha512-c+fd1o5rloP6VbNjPGfsBFeJsIOizAxr+jonAwRuh1e4/npZuZjaJHD283m1Ad1Gedr18eFEx6qUVzEMYArwEw==}
 
   braintree-web@3.123.2:
     resolution: {integrity: sha512-N4IH75vKY67eONc0Ao4e7F+XagFW+3ok+Nfs/eOjw5D/TUt03diMAQ8woOwJghi2ql6/yjqNzZi2zE/sTWXmJg==}
@@ -8943,8 +8943,8 @@ packages:
     peerDependencies:
       typedoc-plugin-markdown: '>=4.4.0'
 
-  typedoc@0.28.13:
-    resolution: {integrity: sha512-dNWY8msnYB2a+7Audha+aTF1Pu3euiE7ySp53w8kEsXoYw7dMouV5A1UsTUY345aB152RHnmRMDiovuBi7BD+w==}
+  typedoc@0.28.14:
+    resolution: {integrity: sha512-ftJYPvpVfQvFzpkoSfHLkJybdA/geDJ8BGQt/ZnkkhnBYoYW6lBgPQXu6vqLxO4X75dA55hX8Af847H5KXlEFA==}
     engines: {node: '>= 18', pnpm: '>= 10'}
     hasBin: true
     peerDependencies:
@@ -9342,8 +9342,8 @@ packages:
   vue-component-type-helpers@2.2.12:
     resolution: {integrity: sha512-YbGqHZ5/eW4SnkPNR44mKVc6ZKQoRs/Rux1sxC6rdwXb4qpbOSYfDr9DsTHolOTGmIKgM9j141mZbBeg05R1pw==}
 
-  vue-component-type-helpers@3.1.1:
-    resolution: {integrity: sha512-B0kHv7qX6E7+kdc5nsaqjdGZ1KwNKSUQDWGy7XkTYT7wFsOpkEyaJ1Vq79TjwrrtuLRgizrTV7PPuC4rRQo+vw==}
+  vue-component-type-helpers@3.1.2:
+    resolution: {integrity: sha512-ch3/SKBtxdZq18vsEntiGCdSszCRNfhX5QaTxjSacCAXLlNQRXfXo+ANjoQEYJMsJOJy1/vHF6Tkc4s85MS+zw==}
 
   vue-demi@0.14.10:
     resolution: {integrity: sha512-nMZBOwuzabUO0nLgIcc6rycZEebF6eeUfaiQx9+WSk8e29IbLvPU9feI6tqW4kTo3hvoYAJkMh8n8D0fuISphg==}
@@ -11756,7 +11756,7 @@ snapshots:
       ts-dedent: 2.2.0
       type-fest: 2.19.0
       vue: 3.5.18(typescript@5.9.2)
-      vue-component-type-helpers: 3.1.1
+      vue-component-type-helpers: 3.1.2
 
   '@stripe/stripe-js@7.9.0': {}
 
@@ -12947,7 +12947,7 @@ snapshots:
     dependencies:
       fill-range: 7.1.1
 
-  braintree-web-drop-in@1.45.1:
+  braintree-web-drop-in@1.45.2:
     dependencies:
       '@braintree/asset-loader': 2.0.3
       '@braintree/browser-detection': 2.0.2
@@ -17705,15 +17705,15 @@ snapshots:
     dependencies:
       is-typedarray: 1.0.0
 
-  typedoc-plugin-markdown@4.9.0(typedoc@0.28.13(typescript@5.9.2)):
+  typedoc-plugin-markdown@4.9.0(typedoc@0.28.14(typescript@5.9.2)):
     dependencies:
-      typedoc: 0.28.13(typescript@5.9.2)
+      typedoc: 0.28.14(typescript@5.9.2)
 
-  typedoc-vitepress-theme@1.1.2(typedoc-plugin-markdown@4.9.0(typedoc@0.28.13(typescript@5.9.2))):
+  typedoc-vitepress-theme@1.1.2(typedoc-plugin-markdown@4.9.0(typedoc@0.28.14(typescript@5.9.2))):
     dependencies:
-      typedoc-plugin-markdown: 4.9.0(typedoc@0.28.13(typescript@5.9.2))
+      typedoc-plugin-markdown: 4.9.0(typedoc@0.28.14(typescript@5.9.2))
 
-  typedoc@0.28.13(typescript@5.9.2):
+  typedoc@0.28.14(typescript@5.9.2):
     dependencies:
       '@gerrit0/mini-shiki': 3.13.0
       lunr: 2.3.9
@@ -18196,7 +18196,7 @@ snapshots:
 
   vue-component-type-helpers@2.2.12: {}
 
-  vue-component-type-helpers@3.1.1: {}
+  vue-component-type-helpers@3.1.2: {}
 
   vue-demi@0.14.10(vue@3.5.18(typescript@5.9.2)):
     dependencies:

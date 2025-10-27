@@ -1,23 +1,24 @@
-// --- external
-
 // --- internal
-// import { useBasket } from "../../basket";
-// import { useSession } from "../../session";
 import { useRoutingEngine } from "..";
+import { getCheckoutFlowTargets } from "./checkout";
 
 // --- utils
-import { useRouteQueryParams } from "../utils";
 import { uniqBy, isEmpty } from "lodash-es";
+import { useRouteQueryParams } from "../utils";
 
 // --- types
-import type { Flow, Route } from "../types";
 import { ROUTE } from "../types";
+import type { Flow, Route } from "../types";
 
 // -----------------------------------------------------------------------------
 
+/**
+ * Composable function to provide a mechanism to manage and retrieve order-related navigation flows
+ * used within the routing engine of an application. It defines and organises flow rules that enforce
+ * navigation guards and targets based on specific conditions, such as order validation and query parameters.
+ */
 export const useOrderFlows = () => {
   const routing = useRoutingEngine();
-  // const { isReady, meta } = useBasket();
 
   let flows: Flow[] = [
     {
@@ -43,8 +44,8 @@ export const useOrderFlows = () => {
       },
       targets: {
         next: [],
-        back: [ROUTE.BASKET, ROUTE.EMPTY],
-        fallback: [ROUTE.BASKET, ROUTE.EMPTY]
+        back: getCheckoutFlowTargets(),
+        fallback: getCheckoutFlowTargets()
       }
     }
   ];

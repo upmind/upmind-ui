@@ -13,9 +13,12 @@ import { isEmpty } from "lodash-es";
 import type { Invoice } from "./types";
 
 /**
- * Composable to manage a single invoice.
- * It provides methods to load and manage the state of an invoice.
- * @param {Invoice["id"]} invoiceId - The ID of the invoice to load.
+ * Composable function to manage the state and data for a single invoice.
+ * Provides methods to load, access, and invalidate invoice data.
+ *
+ * @param {Invoice["id"]} invoiceId - The ID of the invoice to manage.
+ * @returns The {@link UseInvoice} object containing reactive state, computed properties, and methods
+ *  for interacting with the invoice data.
  */
 export const useInvoice = (invoiceId: Invoice["id"]) => {
   // --- state
@@ -98,4 +101,7 @@ export const useInvoice = (invoiceId: Invoice["id"]) => {
   };
 };
 
+/**
+ * The return type of the {@link useInvoice} composable.
+ */
 export type UseInvoice = ReturnType<typeof useInvoice>;

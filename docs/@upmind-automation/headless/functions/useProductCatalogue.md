@@ -6,7 +6,7 @@
 function useProductCatalogue(initial?): object;
 ```
 
-Composable to manage the product catalogue.
+A composable function that manages the product catalogue.
 It provides methods to filter, sort, and retrieve products from the catalogue.
 
 ## Parameters
@@ -19,14 +19,14 @@ Initial query parameters for the product catalogue.
 
 ## Returns
 
-The composable methods and state for the product catalogue.
+The [UseProductCatalogue](../type-aliases/UseProductCatalogue.md) composable methods and state for the product catalogue.
 
 ### data
 
 ```ts
 data: ComputedRef<
-  | null
-| QueryResponse<Product[]> & Product[]>;
+  | QueryResponse<Product[]> & Product[]
+| null>;
 ```
 
 The reactive data property containing the list of client items.
@@ -35,7 +35,7 @@ This is populated by the query and updates automatically when the query state ch
 ### error
 
 ```ts
-error: Ref<null, null> | Ref<Error, Error> = query.error;
+error: Ref<Error, Error> | Ref<null, null> = query.error;
 ```
 
 The current error state of the query.
@@ -156,7 +156,7 @@ Get a single address by id.
 
 The id of the address to get.
 
-`undefined` | `string`
+`string` | `undefined`
 
 #### Returns
 
@@ -167,7 +167,7 @@ The address object if found, is otherwise undefined.
 ### invalidate()
 
 ```ts
-invalidate: <T>(data?) => Promise<undefined | T>;
+invalidate: <T>(data?) => Promise<T | undefined>;
 ```
 
 Invalidate the query cache for client items.
@@ -187,7 +187,7 @@ This will trigger a refetch of the items when the next query is made.
 
 #### Returns
 
-`Promise`\<`undefined` \| `T`\>
+`Promise`\<`T` \| `undefined`\>
 
 ### isReady()
 

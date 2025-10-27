@@ -28,17 +28,17 @@
     "placeholder": "Passwort oder Passphrase"
   },
   "card_cvv": {
-    "error": "A valid CVV is required",
+    "error": "Ein gültiger CVV ist erforderlich",
     "label": "CVV",
     "placeholder": "CVC"
   },
   "card_expiry": {
-    "error": "A valid expiry date is required",
+    "error": "Ein gültiges Ablaufdatum ist erforderlich",
     "label": "Verfallsdatum",
     "placeholder": "MM/JJ"
   },
   "card_num": {
-    "error": "A valid card number is required",
+    "error": "Eine gültige Kartennummer ist erforderlich",
     "label": "Kartennummer",
     "placeholder": "1234 1234 1234 1234"
   },
@@ -108,7 +108,7 @@
     "placeholder": "Suche nach Produktnamen..."
   },
   "promocode": {
-    "error": "Ungültiger Aktionscode",
+    "error": "Ein gültiger Promo-Code ist erforderlich",
     "placeholder": "Gutscheincode hier eingeben"
   },
   "recover": {

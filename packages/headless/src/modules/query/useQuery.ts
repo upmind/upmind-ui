@@ -56,7 +56,6 @@ import type {
 import { Methods } from "@upmind-automation/types";
 import type { DefaultError } from "@tanstack/vue-query";
 import { useSession } from "../session";
-import { off } from "process";
 
 // -----------------------------------------------------------------------------
 
@@ -77,6 +76,12 @@ const queryClient = new QueryClient({
   }
 });
 
+/**
+ * A composable function that provides utilities for making HTTP requests
+ * with advanced functionalities like pagination, sorting, filtering, currency handling,
+ * and caching using TanStack Query. It provides methods for sending requests and handling
+ * responses in a reactive way.
+ */
 export const useQuery = () => {
   const { locale } = useLocale();
 
@@ -89,7 +94,7 @@ export const useQuery = () => {
    *
    * @example
    *  request({ url: "/orders", withAccessToken: true }); // will use the access token from the session
-   *  request({ url: "/orders", withAccessToken: "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9..." });
+   *  request({ url: "/orders", withAccessToken: "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9..." }); // will use the provided access token
    *
    * @param {RequestParams} params - The request parameters.
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
@@ -898,10 +903,18 @@ export const useQuery = () => {
     url,
     init,
     data,
-    withAccessToken
+    withAccessToken,
+    withoutLocale
   }: RequestParams): Promise<T> {
     // safeguard
     init ??= {};
+
+    // set "lang" parameter
+    if (!withoutLocale && locale.value) {
+      if (!url.searchParams.has("lang")) {
+        url.searchParams.set("lang", locale.value as string);
+      }
+    }
 
     // Enforce method, header, parse body
     set(init, "method", Methods.POST.toUpperCase());
@@ -932,11 +945,18 @@ export const useQuery = () => {
     url,
     init,
     data,
-    withAccessToken
+    withAccessToken,
+    withoutLocale
   }: RequestParams): Promise<T> {
     // safeguard
     init ??= {};
 
+    // set "lang" parameter
+    if (!withoutLocale && locale.value) {
+      if (!url.searchParams.has("lang")) {
+        url.searchParams.set("lang", locale.value as string);
+      }
+    }
     // Enforce method, header, parse body
     set(init, "method", Methods.PUT.toUpperCase());
     set(init, "body", JSON.stringify(data));
@@ -966,10 +986,18 @@ export const useQuery = () => {
     url,
     init,
     data,
-    withAccessToken
+    withAccessToken,
+    withoutLocale
   }: RequestParams): Promise<T> {
     // safeguard
     init ??= {};
+
+    // set "lang" parameter
+    if (!withoutLocale && locale.value) {
+      if (!url.searchParams.has("lang")) {
+        url.searchParams.set("lang", locale.value as string);
+      }
+    }
 
     // Enforce method, header, parse body
     set(init, "method", Methods.PATCH.toUpperCase());
@@ -1000,10 +1028,18 @@ export const useQuery = () => {
     url,
     init,
     data,
-    withAccessToken
+    withAccessToken,
+    withoutLocale
   }: RequestParams): Promise<T> {
     // safeguard
     init ??= {};
+
+    // set "lang" parameter
+    if (!withoutLocale && locale.value) {
+      if (!url.searchParams.has("lang")) {
+        url.searchParams.set("lang", locale.value as string);
+      }
+    }
 
     // Enforce method, header, parse body
     set(init, "method", Methods.DELETE.toUpperCase());

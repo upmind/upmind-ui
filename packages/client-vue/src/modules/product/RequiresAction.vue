@@ -11,21 +11,6 @@
           secondaryColor: 'promotion',
           size: '4xl'
         }"
-        :actions="[
-          {
-            variant: 'ghost',
-            handler: navigateBack,
-            icon: 'arrow-left',
-            label: t('action.back_to_basket')
-          },
-          {
-            variant: 'solid',
-            color: 'primary',
-            handler: navigateNext,
-            iconAppend: 'arrow-right',
-            label: t('action.review_next_product')
-          }
-        ]"
         modal
       >
         <template #default>
@@ -34,6 +19,23 @@
               <span>{{ basketItem?.productDetails?.title }}</span>
             </li>
           </ol>
+        </template>
+
+        <template #actions>
+          <span class="flex flex-col items-center gap-2">
+            <Button
+              size="lg"
+              variant="solid"
+              color="primary"
+              iconAppend="arrow-right"
+              :label="t('action.review_next_product')"
+              @click.stop="navigateNext"
+            />
+            <Link
+              :label="t('action.do_this_later')"
+              @click.stop="navigateBack"
+            />
+          </span>
         </template>
       </Interstitial>
     </ContentSection>
@@ -52,7 +54,12 @@ import {
 } from "@upmind-automation/headless";
 
 // --- components
-import { Interstitial, Layout } from "@upmind-automation/upmind-ui";
+import {
+  Interstitial,
+  Layout,
+  Button,
+  Link
+} from "@upmind-automation/upmind-ui";
 import ContentSection from "../../components/content/ContentSection.vue";
 
 // --- utils

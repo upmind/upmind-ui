@@ -6,4 +6,4 @@
 type UsePaymentGateway = ReturnType<typeof usePaymentGateway>;
 ```
 
-The return type of usePaymentGateway composable.
+The return type of [usePaymentGateway](../functions/usePaymentGateway.md) composable.

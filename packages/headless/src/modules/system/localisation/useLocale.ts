@@ -31,6 +31,15 @@ import { QUERY_PARAMS } from "@upmind-automation/types";
 const defaultLocale = ref<string>("en");
 const locale = ref<string>("en");
 
+/**
+ * Composable function to provide locale-related utilities and state management for internationalisation (i18n).
+ *
+ * This module is responsible for controlling and updating the current locale, determining supported languages,
+ * and applying fallback logic for selecting appropriate locales based on user or system preferences.
+ *
+ * Note: Changing the locale is restricted while the user is authenticated to prevent inconsistencies, as
+ * the locale is tied to the account's preferred language.
+ */
 export const useLocale = () => {
   const { t } = useI18n();
   const { get: getFromStorage, set: setStorage } = useLocalStorage();
@@ -108,6 +117,7 @@ export const useLocale = () => {
 
     if (isEmpty(langs)) {
       value = first(preferredLocales);
+      return value ?? defaultLocale.value;
     } else {
       const localeIntersection = reduce(
         preferredLocales,
@@ -149,24 +159,20 @@ export const useLocale = () => {
   async function setLocale(code: string): Promise<string> {
     const validatedLocale = ensureLocale([code as UpmindSupportedLocales]);
 
-    return new Promise((resolve, reject) => {
-      if (validatedLocale) {
-        setStorage("i18n/locale", validatedLocale);
-        useI18n().setLocale(validatedLocale);
-        document.querySelector("html")?.setAttribute("lang", validatedLocale);
-        locale.value = validatedLocale;
-
-        return resolve(validatedLocale);
-      }
-      return reject(
-        new DetailedError(
-          t("error.locale_not_available"),
-          responseCodes.Not_Found,
-          ErrorOrigin.Headless,
-          { code }
-        )
+    if (!validatedLocale)
+      throw new DetailedError(
+        t("error.locale_not_available"),
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless,
+        { code }
       );
-    });
+
+    setStorage("i18n/locale", validatedLocale);
+    document.querySelector("html")?.setAttribute("lang", validatedLocale);
+    locale.value = validatedLocale;
+    return useI18n()
+      .setLocale(validatedLocale)
+      .then(() => validatedLocale);
   }
 
   // --- side effects
@@ -214,6 +220,7 @@ export const useLocale = () => {
     setDefaultLocale: async (value?: string) => {
       defaultLocale.value = value || defaultLocale.value;
       locale.value = getLocale();
+      setStorage("i18n/locale", locale.value);
     },
 
     /** The list of supported languages, filtered by the brand's supported languages. */
@@ -221,7 +228,5 @@ export const useLocale = () => {
   };
 };
 
-/**
- * The return type of useSystem composable.
- */
+/** The return type of {@link useLocale} composable. */
 export type UseLocale = ReturnType<typeof useLocale>;
