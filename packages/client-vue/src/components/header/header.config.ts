@@ -13,7 +13,7 @@ const rootVariants = cva("w-full", {
       twoColumnRTL: "absolute top-0",
       split: "hidden",
       canvasCard: "w-full px-6 pt-7",
-      surfaceBox: "absolute top-0 px-6 lg:px-8"
+      surfaceBox: "bg-surface px-6 lg:px-8"
     }
   },
   defaultVariants: {

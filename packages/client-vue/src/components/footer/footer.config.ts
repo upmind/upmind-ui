@@ -12,7 +12,7 @@ const rootVariants = cva("", {
       split:
         "absolute bottom-0 left-0 w-full px-6 pb-9 md:w-1/2 lg:px-16 2xl:px-32",
       canvasCard: "w-full px-6 pb-7",
-      surfaceBox: "absolute bottom-0 w-full px-6 md:px-8"
+      surfaceBox: "bg-surface w-full px-6 md:px-8"
     }
   },
   defaultVariants: {
@@ -37,7 +37,7 @@ const containerVariants = cva("", {
       canvasCard:
         "max-w-app mx-auto flex flex-col items-center justify-center gap-2 lg:flex-row lg:items-start lg:justify-between lg:gap-0",
       surfaceBox:
-        "max-w-app mx-auto flex flex-col items-center justify-center pb-9 lg:flex-row lg:justify-between"
+        "max-w-app mx-auto flex h-24 flex-col items-center justify-center lg:flex-row lg:justify-between"
     }
   }
 });
