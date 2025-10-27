@@ -232,11 +232,11 @@ export default {
       }
     }),
     container: cva(
-      "max-w-app flex h-full w-full flex-col items-center justify-center px-6 lg:px-8"
+      "flex h-full w-full flex-col items-center justify-center px-6 lg:px-8"
     ),
     header: cva("flex h-24 w-full items-end justify-between"),
     card: cva(
-      "bg-surface card-radius w-app-content mx-auto flex w-full flex-col justify-between gap-9 border"
+      "bg-surface card-radius w-app-content max-w-app mx-auto flex w-full flex-col justify-between gap-9 border"
     ),
     contentHeader: cva("w-app-aside w-full"),
     content: cva("w-full")
