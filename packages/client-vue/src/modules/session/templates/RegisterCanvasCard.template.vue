@@ -19,13 +19,17 @@ import RegisterForm from "../components/RegisterForm.vue";
 // --- internal
 import { useFooter } from "../../../components/footer/useFooter";
 import { useHeader } from "../../../components/header/useHeader";
+import { useLayout } from "../../../components/layout/useLayout";
 
 // --- types
 import { FOOTER_TEMPLATE } from "../../../components/footer/types";
 import { LAYOUT_VARIANTS } from "../../../components/layout/types";
 import { HEADER_TEMPLATE } from "../../../components/header/types";
 
-// --- methods
+useLayout({
+  grow: false
+});
+
 useFooter({
   template: FOOTER_TEMPLATE.CANVAS_CARD,
   noCurrency: true,

@@ -9,7 +9,7 @@
         <Header />
       </slot>
 
-      <main class="w-full" :class="{ 'flex grow': meta.isLoading }">
+      <main class="flex w-full flex-col" :class="{ grow: grow }">
         <Suspense
           @pending="setLoading(true)"
           @resolve="setLoading(false)"
@@ -54,6 +54,7 @@ import { useRoute } from "vue-router";
 import useUpmind, { UpmindStatus } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import { useTheme } from "./modules/theming";
+import { useLayout } from "./components/layout/useLayout";
 
 // --- components
 import Header from "./components/header/Header.vue";
@@ -62,13 +63,13 @@ import Feedback from "./modules/feedback/Feedback.vue";
 import Page from "./components/page/Page.vue";
 import AsyncLoading from "./modules/system/Loading.vue";
 import { Loading } from "@upmind-automation/upmind-ui";
+
 // --- utils
-import { get, set } from "lodash-es";
+import { get } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
 import type { InterstitialProps } from "@upmind-automation/upmind-ui";
-import { ROUTE } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
@@ -82,13 +83,14 @@ const loading = ref(true);
 
 const themeReady = ref(false);
 
+const currentRoute = useRoute();
+const { grow } = useLayout();
+
 const meta = computed(() => ({
   isAvailable: useUpmind.status.value == UpmindStatus.initialised,
-  isLoading: loading.value || currentRoute.name === ROUTE.LOADING,
+  isLoading: loading.value,
   hasSettings: themeReady.value
 }));
-
-const currentRoute = useRoute();
 
 const route = computed(() =>
   get(currentRoute, "name", get(currentRoute, "path", ""))
