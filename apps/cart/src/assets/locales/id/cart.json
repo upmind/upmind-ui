@@ -1,14 +1,18 @@
 {
+  "basket_billing_review_msg": "Beberapa detail penagihan hilang atau salah – {review}.",
   "basket_count": "kosong | {count} barang | {count} barang-barang",
+  "basket_fields_review_msg": "Beberapa bidang keranjang hilang atau salah – {review}.",
   "basket_items": "tidak ada item di keranjang | {count} barang dalam keranjang | {count} barang dalam keranjang",
   "basket_product_missing_data": "Item kehilangan data",
   "basket_product_missing_data_help": "Item ini kehilangan data dan memerlukan perhatian",
+  "basket_product_review_msg": "{productName} tidak memiliki informasi yang diperlukan – {review}.",
   "basket_products": "Item keranjang",
   "basket_products_require_attention": "**{count}** produk memerlukan **perhatian** | **{count}** produk memerlukan **perhatian** | **{count}** produk memerlukan **perhatian**",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
   "basket_products_require_attention_msg": "{count} produk memerlukan perhatian | {count} produk memerlukan perhatian | {count} produk membutuhkan perhatian",
   "basket_products_review_desc": "Harap tinjau item berikut sebelum melanjutkan, atau kembalikan ke keranjang.",
-  "basket_products_review_msg": "Harap tinjau item berikut sebelum melanjutkan",
+  "basket_requires_attention_msg": "{count} item memerlukan perhatian Anda | {count} item memerlukan perhatian Anda",
+  "basket_review_msg": "Silakan tinjau item berikut sebelum melanjutkan",
   "basket_summary_desc": "Kamu sudah punya {count} item di keranjang Anda, totalnya {total}. | Kamu punya {count} item di keranjang Anda, totalnya {total}.",
   "basket_title": "Keranjang Anda",
   "empty": "**Keranjang** Anda kosong",
@@ -42,5 +46,7 @@
   "promotions_active": "Diskon aktif",
   "recommendations_unavailable_text": "Kami tidak dapat menemukan rekomendasi untuk Anda saat ini. Silakan klik di bawah untuk melanjutkan.",
   "recommendations_unavailable_title": "Kami mohon maaf atas hal itu...",
-  "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}"
+  "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
+  "stored_payment_methods_limited_desc": "Tidak semua metode pembayaran terlihat karena tidak tersedia untuk negara atau mata uang Anda.",
+  "stored_payment_methods_limited_title": "Metode Pembayaran Terbatas"
 }

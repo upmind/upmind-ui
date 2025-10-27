@@ -1,14 +1,18 @@
 {
+  "basket_billing_review_msg": "Unele detalii de facturare lipsesc sau sunt incorecte – {review}.",
   "basket_count": "gol | {count} articol | {count} articole",
+  "basket_fields_review_msg": "Unele câmpuri ale coșului lipsesc sau sunt incorecte – {review}.",
   "basket_items": "niciun articol în coș | {count} articol în coș | {count} articole în coș",
   "basket_product_missing_data": "Element lipsește date",
   "basket_product_missing_data_help": "Acest element are date lipsă și necesită atenție.",
+  "basket_product_review_msg": "{productName} lipsește informațiile necesare – {review}.",
   "basket_products": "Articole în coș",
   "basket_products_require_attention": "**{count}** produsele necesită **atenție** | **{count}** produsul necesită **atenție** | **{count}** produsele necesită **atenție**",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
   "basket_products_require_attention_msg": "{count} produsele necesită atenție {count} produsul necesită atenție {count} produsele necesită atenție",
   "basket_products_review_desc": "Vă rugăm să verificați următoarele elemente înainte de a continua, alternativ reveniți la coș.",
-  "basket_products_review_msg": "Vă rugăm să verificați următoarele elemente înainte de a continua",
+  "basket_requires_attention_msg": "{count} element necesită atenția dumneavoastră | {count} elemente necesită atenția dumneavoastră",
+  "basket_review_msg": "Vă rugăm să verificați următoarele elemente înainte de a continua",
   "basket_summary_desc": "Aveți {count} articol din coș, în valoare totală {total} | Ai {count} articole din coșul dvs., în valoare totală {total}.",
   "basket_title": "Coșul dumneavoastră",
   "empty": "Coșul tău este gol",
@@ -42,5 +46,7 @@
   "promotions_active": "Reduceri active",
   "recommendations_unavailable_text": "Nu am putut găsi nicio recomandare pentru tine în acest moment. Te rugăm să faci clic mai jos pentru a continua.",
   "recommendations_unavailable_title": "Ne pare rău pentru asta...",
-  "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}"
+  "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
+  "stored_payment_methods_limited_desc": "Nu toate metodele de plată sunt vizibile deoarece nu sunt disponibile pentru țara sau moneda dumneavoastră.",
+  "stored_payment_methods_limited_title": "Metode de plată limitate"
 }

@@ -1,14 +1,18 @@
 {
+  "basket_billing_review_msg": "Nogle faktureringsoplysninger mangler eller er forkerte – {review}.",
   "basket_count": "tom | {count} vare | {count} varer",
+  "basket_fields_review_msg": "Nogle kurvfelter mangler eller er forkerte – {review}.",
   "basket_items": "ingen varer i kurven | {count} vare i kurv | {count} varer i kurven",
   "basket_product_missing_data": "Manglende data på varen",
   "basket_product_missing_data_help": "Denne vare mangler data og kræver opmærksomhed",
+  "basket_product_review_msg": "{productName} mangler påkrævet information – {review}.",
   "basket_products": "Kurvvarer",
   "basket_products_require_attention": "**{count}**produkter kræver **opmærksomhed** | **{count}** Produktet kræver **opmærksomhed** | **{count}**produkter kræver **opmærksomhed**",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
   "basket_products_require_attention_msg": "{count} produkter kræver opmærksomhed | {count} produkt kræver opmærksomhed | {count} produkter kræver opmærksomhed",
   "basket_products_review_desc": "Gennemgå venligst følgende punkter, før du fortsætter, eller returner dem til kurven.",
-  "basket_products_review_msg": "Gennemgå venligst følgende punkter, før du fortsætter",
+  "basket_requires_attention_msg": "{count} punkt kræver din opmærksomhed | {count} punkter kræver din opmærksomhed",
+  "basket_review_msg": "Gennemgå venligst følgende punkter, før du fortsætter",
   "basket_summary_desc": "Du har {count} vare i din kurv, i alt {total} | Du har {count} varer i din kurv, i alt {total}.",
   "basket_title": "Din kurv",
   "empty": "Din **kurv** er tom",
@@ -42,5 +46,7 @@
   "promotions_active": "Aktive rabatter",
   "recommendations_unavailable_text": "Vi kunne ikke finde nogen anbefalinger til dig på nuværende tidspunkt. Klik venligst nedenfor for at fortsætte.",
   "recommendations_unavailable_title": "Vi beklager det...",
-  "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}"
+  "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
+  "stored_payment_methods_limited_desc": "Ikke alle betalingsmetoder er synlige, fordi de ikke er tilgængelige for dit land eller din valuta.",
+  "stored_payment_methods_limited_title": "Begrænsede betalingsmetoder"
 }

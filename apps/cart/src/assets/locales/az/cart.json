@@ -1,14 +1,18 @@
 {
+  "basket_billing_review_msg": "Bəzi hesab məlumatları çatışmır və ya yanlışdır – {review}.",
   "basket_count": "boş | {count} maddə | {count} maddələr",
+  "basket_fields_review_msg": "Bəzi səbət sahələri yoxdur və ya səhvdir – {review}.",
   "basket_items": "səbətdə əşyalar yoxdur | {count} səbətdəki əşya | {count} səbətdəki əşyalar",
   "basket_product_missing_data": "Element məlumat çatışmır",
   "basket_product_missing_data_help": "Bu elementdə məlumat yoxdur və diqqət tələb olunur",
+  "basket_product_review_msg": "{productName} tələb olunan məlumat çatışmır – {review}.",
   "basket_products": "Səbət əşyaları",
   "basket_products_require_attention": "**{count}** məhsullar **diqqət** tələb edir | **{count}** məhsul **diqqət** tələb edir | **{count}** məhsullar **diqqət** tələb edir",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
   "basket_products_require_attention_msg": "{count} məhsullar diqqət tələb edir | {count} məhsul diqqət tələb edir | {count} məhsulları diqqət tələb edir",
   "basket_products_review_desc": "Davam etməzdən əvvəl aşağıdakı elementləri nəzərdən keçirin, alternativ olaraq səbətə qayıdın.",
-  "basket_products_review_msg": "Davam etməzdən əvvəl aşağıdakı maddələri nəzərdən keçirin",
+  "basket_requires_attention_msg": "{count} maddə diqqətinizi tələb edir | {count} maddələr diqqətinizi tələb edir",
+  "basket_review_msg": "Davam etməzdən əvvəl aşağıdakı maddələri nəzərdən keçirin",
   "basket_summary_desc": "Sizdə var {count} səbətinizdəki əşya, cəmi {total}. | Sizdə var {count} səbətinizdəki əşyalar, cəmi {total}.",
   "basket_title": "Səbətiniz",
   "empty": "Sizin **səbətiniz** boşdur",
@@ -42,5 +46,7 @@
   "promotions_active": "Aktiv endirimlər",
   "recommendations_unavailable_text": "Bu vaxt sizin üçün heç bir tövsiyə tapa bilmədik. Davam etmək üçün aşağıya klikləyin.",
   "recommendations_unavailable_title": "Buna görə üzr istəyirik...",
-  "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}"
+  "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
+  "stored_payment_methods_limited_desc": "Bütün ödəniş üsulları görünmür, çünki onlar sizin ölkəniz və ya valyutanız üçün mövcud deyil.",
+  "stored_payment_methods_limited_title": "Məhdud Ödəniş Metodları"
 }

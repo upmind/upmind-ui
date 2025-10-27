@@ -1,6 +1,6 @@
 {
   "address": {
-    "error": "Det oppsto en feil ved tillegging av adressen | Det oppsto en feil ved oppdatering av adressen",
+    "error": "Din adresse er nødvendig",
     "label": "Adresse",
     "placeholder": "Begynn å skrive adressen din",
     "title": "Legg til ny adresse | Oppdater adresse"
@@ -54,7 +54,7 @@
     "placeholder": "By, tettsted osv."
   },
   "company": {
-    "error": "Det oppsto en feil ved tillegging av firmaopplysninger | Det oppsto en feil ved oppdatering av firmaopplysninger",
+    "error": "Firmanavnet ditt er påkrevd",
     "label": "Bedrift",
     "title": "Legg til firmadetaljer | Oppdater firmadetaljer"
   },
@@ -77,7 +77,7 @@
     "placeholder": "Søk etter et domene..."
   },
   "email": {
-    "error": "Det oppsto en feil under tillegging av e-postadressen | Det oppsto en feil under oppdatering av e-postadressen",
+    "error": "En gyldig e-postadresse er nødvendig",
     "label": "E-post",
     "title": "Legg til ny e-post | Oppdater e-post"
   },
@@ -96,7 +96,7 @@
     "error": "Vi opplevde en feil under forsøket på å logge deg inn."
   },
   "phone": {
-    "error": "Det oppsto en feil under tilføying av telefonnummeret | Det oppsto en feil under oppdatering av telefonnummeret",
+    "error": "Et gyldig telefonnummer er påkrevd",
     "label": "Telefon",
     "title": "Legg til nytt telefonnummer | Oppdater telefonnummer"
   },
