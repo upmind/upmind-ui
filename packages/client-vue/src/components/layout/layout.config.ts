@@ -112,10 +112,10 @@ export default {
     row: cva("flex w-full justify-center"),
     header: {
       root: cva(
-        "basis-app-content bg-surface w-app-content box-content h-16 min-w-0 px-8 lg:h-24 lg:px-18"
+        "basis-app-content bg-surface w-app-content box-content h-24 min-w-0 px-8 lg:px-18"
       ),
       aside: cva(
-        "basis-app-aside w-app-aside box-content hidden h-16 min-w-0 px-18 lg:block lg:h-24"
+        "basis-app-aside w-app-aside box-content hidden h-24 min-w-0 px-18 lg:block"
       )
     },
     contentHeader: {
@@ -138,10 +138,10 @@ export default {
     spacer: {
       row: cva("flex w-full grow justify-center"),
       root: cva(
-        "basis-app-content bg-surface w-app-content box-content min-h-44 min-w-0 px-8 lg:px-18"
+        "basis-app-content bg-surface w-app-content box-content min-h-56 min-w-0 px-8 lg:min-h-44 lg:px-18"
       ),
       aside: cva(
-        "basis-app-aside w-app-aside box-content hidden min-h-44 min-w-0 px-18 lg:block"
+        "basis-app-aside w-app-aside box-content hidden min-h-56 min-w-0 px-18 lg:block lg:min-h-44"
       )
     }
   },
@@ -161,10 +161,10 @@ export default {
     row: cva("flex w-full justify-center"),
     header: {
       aside: cva(
-        "basis-app-aside w-app-aside box-content hidden h-16 min-w-0 px-18 lg:block lg:h-24"
+        "basis-app-aside w-app-aside box-content hidden h-24 min-w-0 px-18 lg:block"
       ),
       root: cva(
-        "basis-app-content bg-surface w-app-content box-content h-16 min-w-0 px-8 lg:h-24 lg:px-18"
+        "basis-app-content bg-surface w-app-content box-content h-24 min-w-0 px-8 lg:px-18"
       )
     },
     content: {
