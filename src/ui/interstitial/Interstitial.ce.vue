@@ -13,7 +13,10 @@
   >
     <div :class="cn(styles.interstitial.root, props.class)">
       <slot name="avatar">
-        <Avatar :animated-icon="animatedIcon" class="size-36 bg-transparent" />
+        <Avatar
+          :animated-icon="animatedIcon"
+          class="size-36 overflow-visible bg-transparent"
+        />
       </slot>
 
       <section :class="styles.interstitial.section">
