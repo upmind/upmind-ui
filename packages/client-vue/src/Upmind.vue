@@ -4,35 +4,48 @@
     class-active="h-full min-h-screen w-full text-base bg-canvas"
     id="vue-app"
   >
-    <Page :class="styles.page" v-if="meta.isAvailable && meta.hasSettings">
-      <slot name="header">
-        <Header />
-      </slot>
+    <Suspense
+      @pending="setLoading(true)"
+      @resolve="setLoading(false)"
+      @fallback="setLoading(true)"
+    >
+      <Page :class="styles.page" v-if="meta.isAvailable && meta.hasSettings">
+        <slot name="header">
+          <Header />
+        </slot>
 
-      <main class="flex w-full flex-col" :class="{ grow: grow }">
-        <Suspense
-          @pending="setLoading(true)"
-          @resolve="setLoading(false)"
-          @fallback="setLoading(true)"
-        >
-          <template #default>
-            <KeepAlive :max="10">
-              <RouterView />
-            </KeepAlive>
-          </template>
-          <template #fallback>
-            <AsyncLoading
-              v-bind="loadingProps"
-              v-if="meta.isAvailable && meta.hasSettings"
-            />
-          </template>
-        </Suspense>
-      </main>
+        <main class="flex w-full flex-col" :class="{ grow: grow }">
+          <RouterView v-slot="routerViewProps" :key="$route.fullPath">
+            <slot v-bind="routerViewProps">
+              <template v-if="routerViewProps.Component">
+                <KeepAlive>
+                  <Suspense
+                    @pending="setLoading(true)"
+                    @resolve="setLoading(false)"
+                    @fallback="setLoading(true)"
+                  >
+                    <!-- page content -->
+                    <component :is="routerViewProps.Component" />
 
-      <slot name="footer">
-        <Footer />
-      </slot>
-    </Page>
+                    <!-- fallback / loading state -->
+                    <template #fallback>
+                      <AsyncLoading
+                        v-bind="loadingProps"
+                        v-if="meta.isAvailable && meta.hasSettings"
+                      />
+                    </template>
+                  </Suspense>
+                </KeepAlive>
+              </template>
+            </slot>
+          </RouterView>
+        </main>
+
+        <slot name="footer">
+          <Footer />
+        </slot>
+      </Page>
+    </Suspense>
   </Loading>
   <Feedback v-if="meta.isAvailable" />
 </template>
