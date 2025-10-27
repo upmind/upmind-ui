@@ -1,5 +1,5 @@
 <template>
-  <Layout :variant="uiCart?.layout" minimal>
+  <Layout :variant="layout" minimal>
     <template #navigation>
       <Back v-bind="storefrontRoute" :label="t('action.continue_shopping')" />
     </template>
@@ -17,7 +17,12 @@
     </template>
 
     <template #default>
+      <!-- Basket Errors -->
+      <BasketErrors />
+
+      <!-- Basket Products -->
       <Section
+        id="basket-products"
         :title="t('cart.basket_products')"
         :ui-config="{
           section: {
@@ -38,7 +43,9 @@
         </template>
       </Section>
 
+      <!-- Basket Fields -->
       <Section
+        id="basket-fields"
         :title="t('text.additional_details')"
         :class="styles.basket.customFields.root"
         :ui-config="{
@@ -52,6 +59,7 @@
           v-if="!fieldsMeta.isLoading"
           :additional-errors="fieldsErrors?.data"
           :model-value="fieldsModel"
+          :touched="route?.hash === '#basket-fields'"
           :schema="fieldsSchema"
           :uischema="fieldsUischema"
           @reject="fieldsClear"
@@ -64,12 +72,16 @@
     </template>
 
     <template #aside>
-      <Section :title="t('text.summary')" :class="styles.basket.aside" aside>
+      <Section
+        id="basket-summary"
+        :title="t('text.summary')"
+        :class="styles.basket.aside"
+        aside
+      >
         <Summary />
 
         <footer class="w-full">
           <Button
-            :as="RouterLink"
             :to="{ name: ROUTE.CHECKOUT }"
             :disabled="
               !fieldsMeta.isComplete ||
@@ -87,41 +99,6 @@
         </footer>
       </Section>
     </template>
-
-    <template #aside-footer>
-      <Alert
-        v-if="meta.hasInvalidProducts"
-        color="danger"
-        icon="alert-triangle"
-        :description="t('cart.basket_products_review_msg')"
-      >
-        <template #title>
-          <i18n-t
-            keypath="cart.basket_products_require_attention_msg"
-            tag="span"
-            :plural="productsInvalid.length"
-            scope="global"
-          />
-        </template>
-        <ol class="list-disc p-6 py-2 text-left">
-          <li
-            v-for="basketItem in productsInvalid"
-            :key="basketItem.id"
-            class="marker:text-inherit"
-          >
-            <router-link
-              class="text-md/tight text-inherit underline"
-              :to="{
-                name: 'product.edit',
-                params: { bpid: basketItem.id }
-              }"
-            >
-              <span>{{ basketItem?.productDetails?.title }}</span>
-            </router-link>
-          </li>
-        </ol>
-      </Alert>
-    </template>
   </Layout>
 </template>
 
@@ -129,28 +106,31 @@
 // --- external
 import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
-
+import { useRoute } from "vue-router";
 // --- internal
 import {
   useBasket,
   useBasketFields,
   useDataLayer,
   useBrand,
-  ROUTE
+  ROUTE,
+  useRoutingEngine
 } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./basket.config";
 
 // --- components
-import { Layout, Button, Alert, Link } from "@upmind-automation/upmind-ui";
+import { RouterLink } from "vue-router";
+import { Layout, Button, Link } from "@upmind-automation/upmind-ui";
 import Header from "../../components/content/Header.vue";
 import Summary from "./components/Summary.vue";
 import ProductCards from "./product/BasketProductCards.vue";
 import Form from "../../components/form/Form.vue";
 import Back from "../../components/navigation/Back.vue";
 import Section from "../../components/content/LayoutSection.vue";
-import { isEmpty, omitBy } from "lodash-es";
-import { RouterLink } from "vue-router";
+import BasketErrors from "./components/BasketErrors.vue";
+
+// ---utils
 
 // --- types
 import { type ComputedRef } from "vue";
@@ -158,9 +138,10 @@ import { type ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { meta, productsInvalid, isReady, products, count, summary } =
-  useBasket();
-const { uiCart, storefrontRoute } = useBrand();
+const { meta, isReady, count, summary } = useBasket();
+const { storefrontRoute } = useBrand();
+const { currentRoute } = useRoutingEngine();
+const route = useRoute();
 
 const {
   errors: fieldsErrors,
@@ -176,15 +157,13 @@ const open = ref(false);
 
 await isReady();
 
-const basketMeta = computed(() => {
-  return {
-    variant: uiCart.value?.layout
-  };
+const layout = computed(() => {
+  return currentRoute.value?.meta?.template || "full";
 });
 
 const styles = useStyles(
   ["basket.expand", "basket.items", "basket.customFields", "basket.aside"],
-  basketMeta,
+  { variant: layout.value },
   config
 ) as ComputedRef<{
   basket: {
