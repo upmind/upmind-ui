@@ -4,7 +4,12 @@
       <Card as="article" :class="styles.surfaceBox.card" spacious>
         <!-- Content Header -->
         <section :class="styles.surfaceBox.contentHeader">
+          <slot name="controls" />
+          <slot name="navigation" />
+          <slot name="actions" />
           <slot name="content-header" />
+          <slot name="aside" />
+          <slot name="aside-footer" />
         </section>
 
         <!-- Content -->

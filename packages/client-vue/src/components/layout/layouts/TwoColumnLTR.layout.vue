@@ -2,19 +2,16 @@
   <article :class="styles.twoColumnLTR.root">
     <!-- Header -->
     <header :class="styles.twoColumnLTR.row">
-      <div :class="styles.twoColumnLTR.header.root">
-        <slot name="header-left" />
-      </div>
-
-      <div :class="styles.twoColumnLTR.header.aside">
-        <slot name="header-right" />
-      </div>
+      <div :class="styles.twoColumnLTR.header.root" />
+      <div :class="styles.twoColumnLTR.header.aside" />
     </header>
 
     <!-- Content Header -->
     <section :class="styles.twoColumnLTR.row" class="hidden lg:flex">
       <div :class="styles.twoColumnLTR.contentHeader.root">
         <slot name="navigation" />
+        <slot name="controls" />
+        <slot name="actions" />
         <div>
           <slot name="content-header" />
         </div>
@@ -35,6 +32,7 @@
         <div class="empty:hidden has-[:where(.hidden)]:hidden lg:hidden">
           <slot name="aside-footer" />
         </div>
+        <slot name="default" />
         <slot name="content" />
       </div>
 
@@ -49,15 +47,8 @@
     <!-- Spacer -->
     <div :class="styles.twoColumnLTR.spacer.row">
       <div :class="styles.twoColumnLTR.spacer.root" />
-
       <div :class="styles.twoColumnLTR.spacer.aside" />
     </div>
-
-    <!-- Footer -->
-    <footer :class="styles.twoColumnLTR.footer.row">
-      <div :class="styles.twoColumnLTR.footer.content" />
-      <div :class="styles.twoColumnLTR.footer.aside" />
-    </footer>
   </article>
 </template>
 

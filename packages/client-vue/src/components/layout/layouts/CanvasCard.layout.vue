@@ -4,7 +4,12 @@
       <Card as="article" :class="styles.canvasCard.card" spacious>
         <!-- Content Header -->
         <section :class="styles.canvasCard.contentHeader">
+          <slot name="controls" />
+          <slot name="navigation" />
+          <slot name="actions" />
           <slot name="content-header" />
+          <slot name="aside" />
+          <slot name="aside-footer" />
         </section>
 
         <!-- Content -->
