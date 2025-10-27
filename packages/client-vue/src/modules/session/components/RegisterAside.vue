@@ -6,7 +6,7 @@
     aside
     icon="shopping-bag-02"
   >
-    <Summary :actions="false" />
+    <Summary :showPromotions="false" />
   </Section>
 </template>
 
