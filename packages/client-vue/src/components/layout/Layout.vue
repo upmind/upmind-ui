@@ -1,13 +1,5 @@
 <template>
   <component :is="layoutComponent" v-bind="props">
-    <template #header-left>
-      <slot name="header-left" />
-    </template>
-
-    <template #header-right>
-      <slot name="header-right" />
-    </template>
-
     <template #controls>
       <slot name="controls" />
     </template>
@@ -36,18 +28,6 @@
     <template #aside-footer>
       <slot name="aside-footer" />
     </template>
-
-    <template #footer-content>
-      <slot name="footer-content" />
-    </template>
-
-    <template #footer-actions>
-      <slot name="footer-actions" />
-    </template>
-
-    <template #footer-copyright>
-      <slot name="footer-copyright" />
-    </template>
   </component>
 </template>
 
@@ -56,14 +36,14 @@
 import { computed } from "vue";
 
 // --- internal
-import DefaultLayout from "./layouts/DefaultLayout.layout.vue";
-import EnclosedLayout from "./layouts/EnclosedLayout.layout.vue";
-import FullLayout from "./layouts/FullLayout.layout.vue";
-import TwoColumnLTRLayout from "./layouts/TwoColumnLTRLayout.layout.vue";
-import TwoColumnRTLLayout from "./layouts/TwoColumnRTLLayout.layout.vue";
-import SplitLayout from "./layouts/SplitLayout.layout.vue";
-import CanvasCardLayout from "./layouts/CanvasCardLayout.layout.vue";
-import SurfaceBoxLayout from "./layouts/SurfaceBoxLayout.layout.vue";
+import DefaultLayout from "./layouts/Default.layout.vue";
+import EnclosedLayout from "./layouts/Enclosed.layout.vue";
+import FullLayout from "./layouts/Full.layout.vue";
+import TwoColumnLTRLayout from "./layouts/TwoColumnLTR.layout.vue";
+import TwoColumnRTLLayout from "./layouts/TwoColumnRTL.layout.vue";
+import SplitLayout from "./layouts/Split.layout.vue";
+import CanvasCardLayout from "./layouts/CanvasCard.layout.vue";
+import SurfaceBoxLayout from "./layouts/SurfaceBox.layout.vue";
 
 // --- types
 import type { LayoutProps } from "./types";
