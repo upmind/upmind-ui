@@ -133,18 +133,18 @@ class TrackingEvent {
     }
     // When a user submits their billing address
     const payload: DataLayerEcommerce = {
-      currency: safeBasket.currency.code,
-      value: safeBasket.net_amount, //TODO: check the correct value is used
-      gross_value: safeBasket.total_amount, //TODO: check the correct value is used
-      coupon: !isEmpty(safeBasket.promotions)
-        ? map(safeBasket.promotions, "promotion.code").join()
+      currency: safeBasket?.currency?.code,
+      value: safeBasket?.net_amount, //TODO: check the correct value is used
+      gross_value: safeBasket?.total_amount, //TODO: check the correct value is used
+      coupon: !isEmpty(safeBasket?.promotions)
+        ? map(safeBasket?.promotions, "promotion.code").join()
         : undefined,
       // --- invoice specific data
       transaction_id: safeBasket?.number,
-      tax: safeBasket.tax_amount,
+      tax: safeBasket?.tax_amount,
       purchase_type: invoice ? "new_purchase" : undefined,
       items: map(
-        safeBasket.products,
+        safeBasket?.products,
         mapIBasketProduct
       ) as DataLayerEcommerceItem[]
     };
