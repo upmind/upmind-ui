@@ -5,7 +5,7 @@ import {
   useRouteRequiresAction
 } from "..";
 import { useBasketProductsPending } from "../../basketProduct";
-
+import { getCheckoutFlowTargets } from "./checkout";
 import { useBasket } from "../../basket";
 import { useProductRecommendations } from "../../recommendations";
 
@@ -15,7 +15,7 @@ import { uniqBy, set, isEmpty } from "lodash-es";
 // --- types
 import { ROUTE } from "../types";
 import type { Flow, Route } from "../types";
-import type { ProductProps } from "src/modules/product";
+import type { ProductProps } from "../../product";
 import { contextValue, stateMatches } from "../../../utils";
 
 // -----------------------------------------------------------------------------
@@ -140,9 +140,7 @@ export const useProductFlows = () => {
         next: [
           ROUTE.PRODUCT_REQUIRES_ACTION,
           ROUTE.PRODUCT_RECOMMENDATIONS,
-          ROUTE.CHECKOUT,
-          ROUTE.SESSION_REGISTER,
-          ROUTE.BASKET
+          ...getCheckoutFlowTargets()
         ],
         back: [ROUTE.CATALOGUE, ROUTE.BASKET, ROUTE.EMPTY],
         fallback: [
@@ -184,12 +182,7 @@ export const useProductFlows = () => {
           .catch(() => false);
       },
       targets: {
-        next: [
-          ROUTE.PRODUCT_REQUIRES_ACTION,
-          ROUTE.CHECKOUT,
-          ROUTE.SESSION_REGISTER,
-          ROUTE.BASKET
-        ],
+        next: [ROUTE.PRODUCT_REQUIRES_ACTION, ...getCheckoutFlowTargets()],
         back: [ROUTE.BASKET, ROUTE.EMPTY],
         fallback: [ROUTE.PRODUCT_NOT_FOUND]
       }
@@ -239,8 +232,8 @@ export const useProductFlows = () => {
             }
           }
         ],
-        back: [ROUTE.BASKET],
-        fallback: [ROUTE.BASKET, ROUTE.EMPTY]
+        back: getCheckoutFlowTargets(),
+        fallback: getCheckoutFlowTargets()
       }
     },
     {
@@ -263,7 +256,7 @@ export const useProductFlows = () => {
       targets: {
         next: [],
         back: [ROUTE.BASKET, ROUTE.EMPTY],
-        fallback: [ROUTE.BASKET, ROUTE.EMPTY]
+        fallback: getCheckoutFlowTargets()
       }
     },
     {
@@ -284,9 +277,9 @@ export const useProductFlows = () => {
         };
       },
       targets: {
-        next: [ROUTE.CHECKOUT, ROUTE.SESSION_REGISTER, ROUTE.BASKET],
+        next: getCheckoutFlowTargets(),
         back: [ROUTE.BASKET, ROUTE.EMPTY],
-        fallback: [ROUTE.BASKET, ROUTE.EMPTY]
+        fallback: getCheckoutFlowTargets()
       }
     }
   ];

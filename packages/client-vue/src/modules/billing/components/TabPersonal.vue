@@ -8,6 +8,7 @@
       open
       :modal="false"
       @resolve="doResolve"
+      v-model:touched="touched"
     />
 
     <template v-else>
@@ -22,6 +23,7 @@
         }"
         :show-label="!!selectedPhone"
         @processing="wait"
+        v-model:touched="touched"
       >
         <template #item="{ item, readonly, doEdit, doRemove }">
           <PhoneItem
@@ -42,6 +44,7 @@
         }"
         :show-label="!!selectedAddress"
         @processing="wait"
+        v-model:touched="touched"
       >
         <template #item="{ item, readonly, doEdit, doRemove }">
           <AddressItem
@@ -90,6 +93,7 @@ import PhoneItem from "./PhoneItem.vue";
 const props = defineProps<{
   modelValue?: BillingModel;
   readonly?: boolean;
+  touched?: boolean;
 }>();
 
 const { t } = useI18n();
@@ -99,6 +103,8 @@ const emits = defineEmits<{
 }>();
 
 const showForm = ref(false);
+const touched = defineModel<boolean>("touched");
+
 // -----------------------------------------------------------------------------
 
 const { useUnifiedBillingDetail, meta: billingMeta, wait } = useBasketBilling();
@@ -140,14 +146,13 @@ const selectedAddress = computed({
   get() {
     return modelValue.value?.addressId ?? undefined;
   },
-  set(val: string | undefined) {
+  set(val?: string) {
     modelValue.value ??= {};
 
     // nb ensure we  clear out
     set(modelValue.value, "companyId", undefined);
 
     const found = find(addresses.value, { id: val });
-
     set(modelValue.value, "addressId", found?.id);
   }
 });
@@ -158,7 +163,7 @@ const selectedPhone = computed<string | undefined>({
   },
   set(val?: string) {
     modelValue.value ??= {};
-    const found = find(phones.value, { id: val }) as Phone | undefined;
+    const found = find(phones.value, ["id", val]) as Phone | undefined;
     set(modelValue.value, "phoneId", found?.id ?? undefined);
   }
 });

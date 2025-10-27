@@ -3,7 +3,7 @@ import { useRoute } from "vue-router";
 import { useRouteQueryParams as useUpmindRouteQueryParams } from "./";
 
 // --- utils
-import { defaultsDeep } from "lodash-es";
+import { defaultsDeep, has } from "lodash-es";
 
 // --- types
 import type { Route } from "./";
@@ -23,6 +23,7 @@ export const useQueryParams = (route?: Route) => {
     name: undefined,
     path: undefined,
     query: undefined,
+    hash: undefined,
     params: undefined
   });
 

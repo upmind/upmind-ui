@@ -182,6 +182,8 @@ export type Route = {
   params?: Record<string, string | string[]>;
   /** Query parameters, e.g., `/search?q=query` would have `{ q: 'query' }`. */
   query?: Record<string, any>;
+  /** The hash fragment of the route, e.g., `/page#section` would have `#section`.*/
+  hash?: string;
   /** Meta fields associated with the route, for custom data. */
   meta?: Record<string, any>;
 };

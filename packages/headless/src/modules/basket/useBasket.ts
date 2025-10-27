@@ -1,5 +1,5 @@
 // --- external
-import { computed, ComputedRef } from "vue";
+import { computed, ComputedRef, h } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
 import { interpret, InterpreterStatus } from "xstate";
 import { useActor } from "@xstate/vue";
@@ -39,12 +39,14 @@ import {
 } from "lodash-es";
 
 // --- types
-import type {
-  IBasket,
-  IInvoice,
-  ICurrency,
-  IPromotion,
-  IBasketPromotion
+import {
+  type IBasket,
+  type IInvoice,
+  type ICurrency,
+  type IPromotion,
+  type IBasketPromotion,
+  BrandConfigKeys,
+  CheckoutFlows
 } from "@upmind-automation/types";
 export * from "./billing";
 export * from "./types";
@@ -71,7 +73,7 @@ const service = interpret(basketMachine, { devTools: true });
  */
 export const useBasket = () => {
   const { t } = useI18n();
-  const { includesTax } = useBrand();
+  const { includesTax, getConfigValue, uischema_Display } = useBrand();
   const { meta: sessionMeta } = useSession();
   if (service.status == InterpreterStatus.NotStarted) service.start();
   const { state, send } = useActor(service);
@@ -185,7 +187,8 @@ export const useBasket = () => {
       isComplete: stateMatches(state, ["complete", "failed"]),
       hasPaid: stateMatches(state, ["complete"]),
       hasFailed: stateMatches(state, ["failed"]),
-      hasError: contextMatches(state, ["error"])
+      hasErrors: contextMatches(state, ["error.code"]), //NB only show if we have single errors, not parsed BE errors
+      showErrors: contextMatches(state, ["attempts"])
     };
   });
 
@@ -223,7 +226,8 @@ export const useBasket = () => {
   const count = computed(() =>
     sumBy<BasketProduct>(products.value, "configuration.quantity")
   );
-  const summary = useContext<BasketContext["summary"]>(state, "summary");
+  const attempts = useContext<BasketContext["attempts"]>(state, "attempts");
+  const summary = useContext<BasketContext["summary"]>(state, "summary", 0);
   const promotions = useContext<IBasketPromotion[]>(
     state,
     "basket.promotions",
@@ -234,6 +238,29 @@ export const useBasket = () => {
   );
   const taxes = useContext<IBasket["taxes"]>(state, "basket.taxes", []);
 
+  const uischema = computed(() => {
+    return {
+      showPromotionsOnCheckout: !getConfigValue(
+        BrandConfigKeys.CHECKOUT_HIDE_DISCOUNT_CODE_FIELD
+      ),
+
+      showProductsOnCheckout:
+        uischema_Display.value?.checkout?.basketProducts === "visible" ||
+        (uischema_Display.value?.checkout?.basketProducts === "on_error" &&
+          !!productsInvalid.value.length),
+
+      showFieldsOnCheckout:
+        uischema_Display.value?.checkout?.basketFields === "visible" ||
+        (uischema_Display.value?.checkout?.basketFields === "on_error" &&
+          machineMatches(actors.customFields, ["error", "invalid"])),
+
+      showBillingOnCheckout:
+        true /* always show until we add the Billing Details Route*/ ||
+        uischema_Display.value?.checkout?.basketBilling === "visible" ||
+        (uischema_Display.value?.checkout?.basketBilling === "on_error" &&
+          machineMatches(actors.billing, ["error", "invalid"]))
+    };
+  });
   // --- methods
 
   function clear() {
@@ -504,11 +531,16 @@ export const useBasket = () => {
      * @property {boolean} isComplete - Indicates if the basket is complete.
      * @property {boolean} hasPaid - Indicates if the basket has been paid.
      * @property {boolean} hasFailed - Indicates if the basket has failed.
-     * @property {boolean} hasError - Indicates if the basket has an error.
+     * @property {boolean} hasErrors - Indicates if the basket has an error.
      */
     meta,
 
     // --- context
+
+    /**
+     * UI schema configuration for the basket and checkout process.
+     */
+    uischema,
 
     /**
      * Child machine actors for basket submodules (customFields, paymentDetail, etc).
@@ -554,6 +586,11 @@ export const useBasket = () => {
      * The total number of items in the basket (sum of all product quantities).
      */
     count,
+
+    /**
+     * The number of attempts tried (for checkout, etc).
+     */
+    attempts,
 
     /**
      * The list of promotions applied to the basket.

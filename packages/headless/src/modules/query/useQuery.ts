@@ -903,10 +903,18 @@ export const useQuery = () => {
     url,
     init,
     data,
-    withAccessToken
+    withAccessToken,
+    withoutLocale
   }: RequestParams): Promise<T> {
     // safeguard
     init ??= {};
+
+    // set "lang" parameter
+    if (!withoutLocale && locale.value) {
+      if (!url.searchParams.has("lang")) {
+        url.searchParams.set("lang", locale.value as string);
+      }
+    }
 
     // Enforce method, header, parse body
     set(init, "method", Methods.POST.toUpperCase());
@@ -937,11 +945,18 @@ export const useQuery = () => {
     url,
     init,
     data,
-    withAccessToken
+    withAccessToken,
+    withoutLocale
   }: RequestParams): Promise<T> {
     // safeguard
     init ??= {};
 
+    // set "lang" parameter
+    if (!withoutLocale && locale.value) {
+      if (!url.searchParams.has("lang")) {
+        url.searchParams.set("lang", locale.value as string);
+      }
+    }
     // Enforce method, header, parse body
     set(init, "method", Methods.PUT.toUpperCase());
     set(init, "body", JSON.stringify(data));
@@ -971,10 +986,18 @@ export const useQuery = () => {
     url,
     init,
     data,
-    withAccessToken
+    withAccessToken,
+    withoutLocale
   }: RequestParams): Promise<T> {
     // safeguard
     init ??= {};
+
+    // set "lang" parameter
+    if (!withoutLocale && locale.value) {
+      if (!url.searchParams.has("lang")) {
+        url.searchParams.set("lang", locale.value as string);
+      }
+    }
 
     // Enforce method, header, parse body
     set(init, "method", Methods.PATCH.toUpperCase());
@@ -1005,10 +1028,18 @@ export const useQuery = () => {
     url,
     init,
     data,
-    withAccessToken
+    withAccessToken,
+    withoutLocale
   }: RequestParams): Promise<T> {
     // safeguard
     init ??= {};
+
+    // set "lang" parameter
+    if (!withoutLocale && locale.value) {
+      if (!url.searchParams.has("lang")) {
+        url.searchParams.set("lang", locale.value as string);
+      }
+    }
 
     // Enforce method, header, parse body
     set(init, "method", Methods.DELETE.toUpperCase());

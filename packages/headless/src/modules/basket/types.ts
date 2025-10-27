@@ -86,6 +86,7 @@ export interface BasketContext {
    * An `ActorRef` to the payment state machine, managing the overall payment process.
    */
   payment?: ActorRef<any>;
+  attempts?: number;
   // --- Payment
   paymentDetail?: PaymentDetailData;
 }

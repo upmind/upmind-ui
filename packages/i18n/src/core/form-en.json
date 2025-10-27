@@ -27,7 +27,7 @@
     "description": null,
     "label": "Address",
     "placeholder": "Start typing your address",
-    "error": "An error occurred Adding the Address | an error occurred Updating the Address",
+    "error": "Your address is required",
     "title": "Add New Address | Update Address"
   },
   "country": {
@@ -64,7 +64,7 @@
     "description": null,
     "label": "Company",
     "placeholder": null,
-    "error": "An error occurred Adding the Company Details | an error occurred Updating the Company Details",
+    "error": "Your company name is required",
     "title": "Add Company Details | Update Company Details"
   },
   "companyName": {
@@ -86,14 +86,14 @@
     "description": null,
     "label": "Email",
     "placeholder": null,
-    "error": "An error occurred Adding the Email | an error occurred Updating the Email",
+    "error": "A valid Email Address is required",
     "title": "Add New Email | Update Email"
   },
   "phone": {
     "description": null,
     "label": "Phone",
     "placeholder": null,
-    "error": "An error occurred Adding the Phone Number | an error occurred Updating the Phone Number",
+    "error": "A valid Phone Number is required",
     "title": "Add New Phone Number | Update Phone Number"
   },
   "login": {

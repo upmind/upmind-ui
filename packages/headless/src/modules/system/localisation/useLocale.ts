@@ -117,6 +117,7 @@ export const useLocale = () => {
 
     if (isEmpty(langs)) {
       value = first(preferredLocales);
+      return value ?? defaultLocale.value;
     } else {
       const localeIntersection = reduce(
         preferredLocales,
@@ -219,6 +220,7 @@ export const useLocale = () => {
     setDefaultLocale: async (value?: string) => {
       defaultLocale.value = value || defaultLocale.value;
       locale.value = getLocale();
+      setStorage("i18n/locale", locale.value);
     },
 
     /** The list of supported languages, filtered by the brand's supported languages. */
