@@ -43,6 +43,7 @@ export type GatewayParams = {
    */
   renderless?: boolean;
 };
+
 export type GenericGatewayContext = {
   // --- state
 
