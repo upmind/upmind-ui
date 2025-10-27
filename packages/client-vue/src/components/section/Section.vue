@@ -1,9 +1,9 @@
 <template>
-  <div v-if="!section">
+  <div v-if="!section" :class="props.class">
     <slot name="default" />
   </div>
 
-  <div v-else :class="styles.section.root">
+  <div v-else :class="cn(styles.section.root, props.class)">
     <header
       v-if="title || slots.title || slots.action"
       :class="styles.section.header"

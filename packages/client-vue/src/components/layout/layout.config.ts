@@ -19,8 +19,8 @@ export default {
 
   default: {
     root: cva("mx-auto w-full flex-wrap items-start justify-start"),
-    header: cva("max-w-app mx-auto pt-10 pb-10 md:pt-14 md:pb-20"),
-    contentRoot: cva("pt-10 pb-10 md:pt-20 md:pb-16"),
+    header: cva("max-w-app mx-auto pt-10 pb-10 lg:pt-14 lg:pb-20"),
+    contentRoot: cva("pt-10 pb-10 lg:pt-20 lg:pb-16"),
     content: cva("max-w-app mx-auto")
   },
 
@@ -34,7 +34,7 @@ export default {
       }
     }),
     container: cva("max-w-app-lg mx-auto flex w-full flex-col gap-6"),
-    content: cva("flex w-full flex-col gap-9 md:flex-row"),
+    content: cva("flex w-full flex-col gap-9 lg:flex-row"),
     main: cva("flex w-full flex-col gap-6"),
     controlsRoot: cva("bg-base-background w-full border-b py-4"),
     controls: cva("max-w-app mx-auto"),
@@ -59,7 +59,7 @@ export default {
     }),
     header: {
       root: cva(
-        "bg-surface shadow-b-border-surface top-0 z-20 flex w-full flex-col items-center px-6 py-7 transition-all duration-500 md:px-2.5"
+        "bg-surface shadow-b-border-surface top-0 z-20 flex w-full flex-col items-center px-6 py-7 transition-all duration-500 lg:px-2.5"
       ),
       container: cva(
         "max-w-app mx-auto flex w-full items-center justify-between"
@@ -71,7 +71,7 @@ export default {
           variants: {
             hasContent: {
               true: "shadow-b-border-surface py-18",
-              false: "py-12 md:py-32"
+              false: "py-12 lg:py-32"
             }
           }
         }),
@@ -90,7 +90,7 @@ export default {
         }
       }),
       container: cva(
-        "max-w-app mx-auto flex w-full flex-col gap-12 md:flex-row md:gap-18"
+        "max-w-app mx-auto flex w-full flex-col gap-12 lg:flex-row lg:gap-18"
       )
     },
     aside: cva("sticky top-6 flex w-full max-w-md flex-col gap-12 self-start"),
@@ -109,10 +109,10 @@ export default {
     row: cva("flex w-full justify-center"),
     header: {
       root: cva(
-        "basis-app-content bg-surface w-app-content box-content h-32 min-w-0 px-8 lg:px-18"
+        "basis-app-content bg-surface w-app-content box-content h-24 min-w-0 px-8 lg:px-18"
       ),
       aside: cva(
-        "basis-app-aside w-app-aside box-content hidden h-32 min-w-0 px-18 lg:block"
+        "basis-app-aside w-app-aside box-content hidden h-24 min-w-0 px-18 lg:block"
       )
     },
     contentHeader: {
@@ -143,7 +143,7 @@ export default {
   },
 
   twoColumnRTL: {
-    root: cva("bg-surface lg:canvas-gradient-rtl w-full", {
+    root: cva("bg-surface lg:canvas-gradient-rtl min-h-screen w-full", {
       variants: {
         overflow: {
           hidden: "overflow-hidden",
@@ -154,21 +154,21 @@ export default {
     row: cva("flex w-full justify-center"),
     header: {
       aside: cva(
-        "basis-app-aside w-app-aside box-content hidden h-32 min-w-0 px-18 lg:block"
+        "basis-app-aside w-app-aside box-content hidden h-16 min-w-0 px-18 lg:block lg:h-24"
       ),
       root: cva(
-        "basis-app-content bg-surface w-app-content box-content h-32 min-w-0 px-8 lg:px-18"
+        "basis-app-content bg-surface w-app-content box-content h-16 min-w-0 px-8 lg:h-24 lg:px-18"
       )
     },
     content: {
       root: cva(
-        "lg:basis-app-content bg-surface lg:w-app-content box-content flex w-full min-w-0 flex-col gap-12 px-8 pt-18 lg:px-18"
+        "lg:basis-app-content bg-surface lg:w-app-content box-content flex w-full min-w-0 flex-col gap-12 px-8 pt-8 lg:px-18 lg:pt-18"
       ),
       aside: {
         root: cva(
           "basis-app-aside lg:w-app-aside box-content hidden min-w-0 px-18 pt-18 lg:block"
         ),
-        container: cva("flex h-full min-h-screen flex-col gap-6"),
+        container: cva("flex h-full flex-col gap-6"),
         header: cva("flex flex-col gap-9"),
         footer: cva("sticky top-0 flex flex-col gap-6 pt-9")
       }
