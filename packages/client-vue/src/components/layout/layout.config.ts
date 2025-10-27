@@ -98,21 +98,24 @@ export default {
   },
 
   twoColumnLTR: {
-    root: cva("bg-surface lg:canvas-gradient w-full", {
-      variants: {
-        overflow: {
-          hidden: "overflow-hidden",
-          visible: "overflow-visible"
+    root: cva(
+      "bg-surface lg:canvas-gradient flex min-h-screen w-full flex-col",
+      {
+        variants: {
+          overflow: {
+            hidden: "overflow-hidden",
+            visible: "overflow-visible"
+          }
         }
       }
-    }),
+    ),
     row: cva("flex w-full justify-center"),
     header: {
       root: cva(
-        "basis-app-content bg-surface w-app-content box-content h-24 min-w-0 px-8 lg:px-18"
+        "basis-app-content bg-surface w-app-content box-content h-16 min-w-0 px-8 lg:h-24 lg:px-18"
       ),
       aside: cva(
-        "basis-app-aside w-app-aside box-content hidden h-24 min-w-0 px-18 lg:block"
+        "basis-app-aside w-app-aside box-content hidden h-16 min-w-0 px-18 lg:block lg:h-24"
       )
     },
     contentHeader: {
@@ -125,7 +128,7 @@ export default {
     },
     content: {
       root: cva(
-        "lg:basis-app-content bg-surface lg:w-app-content box-content flex w-full min-w-0 flex-col gap-12 px-8 pt-18 lg:px-18"
+        "lg:basis-app-content bg-surface lg:w-app-content box-content flex w-full min-w-0 flex-col gap-12 px-8 pt-9 lg:px-18 lg:pt-18"
       ),
       aside: cva(
         "basis-app-aside box-content hidden min-w-0 px-18 pt-9 lg:block"
@@ -133,24 +136,28 @@ export default {
       asideInner: cva("w-app-aside sticky top-0 flex flex-col gap-6 pt-9")
     },
     spacer: {
+      row: cva("flex w-full grow justify-center"),
       root: cva(
-        "basis-app-content bg-surface w-app-content box-content h-48 min-w-0 px-8 lg:px-18"
+        "basis-app-content bg-surface w-app-content box-content min-h-44 min-w-0 px-8 lg:px-18"
       ),
       aside: cva(
-        "basis-app-aside w-app-aside box-content hidden h-48 min-w-0 px-18 lg:block"
+        "basis-app-aside w-app-aside box-content hidden min-h-44 min-w-0 px-18 lg:block"
       )
     }
   },
 
   twoColumnRTL: {
-    root: cva("bg-surface lg:canvas-gradient-rtl min-h-screen w-full", {
-      variants: {
-        overflow: {
-          hidden: "overflow-hidden",
-          visible: "overflow-visible"
+    root: cva(
+      "bg-surface lg:canvas-gradient-rtl flex min-h-screen w-full flex-col",
+      {
+        variants: {
+          overflow: {
+            hidden: "overflow-hidden",
+            visible: "overflow-visible"
+          }
         }
       }
-    }),
+    ),
     row: cva("flex w-full justify-center"),
     header: {
       aside: cva(
@@ -174,11 +181,12 @@ export default {
       }
     },
     spacer: {
+      row: cva("flex w-full grow justify-center"),
       aside: cva(
-        "basis-app-aside w-app-aside box-content hidden h-48 min-w-0 px-18 lg:block"
+        "basis-app-aside w-app-aside box-content hidden min-h-52 min-w-0 px-18 lg:block lg:min-h-44"
       ),
       root: cva(
-        "basis-app-content bg-surface w-app-content box-content h-48 min-w-0 px-8 lg:px-18"
+        "basis-app-content bg-surface w-app-content box-content min-h-52 min-w-0 px-8 lg:min-h-44 lg:px-18"
       )
     }
   },

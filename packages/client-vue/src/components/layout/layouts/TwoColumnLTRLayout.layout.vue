@@ -12,7 +12,7 @@
     </header>
 
     <!-- Content Header -->
-    <section :class="styles.twoColumnLTR.row">
+    <section :class="styles.twoColumnLTR.row" class="hidden lg:flex">
       <div :class="styles.twoColumnLTR.contentHeader.root">
         <slot name="navigation" />
         <div>
@@ -26,8 +26,13 @@
     <!-- Content / Aside -->
     <section :class="styles.twoColumnLTR.row">
       <div :class="styles.twoColumnLTR.content.root">
-        <div class="lg:hidden">
+        <div class="empty:hidden has-[:where(.hidden)]:hidden lg:hidden">
+          <slot name="content-header" />
+        </div>
+        <div class="empty:hidden has-[:where(.hidden)]:hidden lg:hidden">
           <slot name="aside" />
+        </div>
+        <div class="empty:hidden has-[:where(.hidden)]:hidden lg:hidden">
           <slot name="aside-footer" />
         </div>
         <slot name="content" />
@@ -42,7 +47,7 @@
     </section>
 
     <!-- Spacer -->
-    <div :class="styles.twoColumnLTR.row">
+    <div :class="styles.twoColumnLTR.spacer.row">
       <div :class="styles.twoColumnLTR.spacer.root" />
 
       <div :class="styles.twoColumnLTR.spacer.aside" />
@@ -106,6 +111,7 @@ const styles = useStyles(
       asideInner: string;
     };
     spacer: {
+      row: string;
       root: string;
       aside: string;
     };
