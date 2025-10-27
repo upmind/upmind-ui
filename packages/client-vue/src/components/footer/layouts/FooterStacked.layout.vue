@@ -2,13 +2,13 @@
   <footer :class="styles.footer.root" data-testid="footer">
     <div :class="styles.footer.container">
       <section
-        :class="styles.footer.actions"
+        :class="styles.footer.left"
         aria-label="Language and currency preferences"
       >
         <slot name="footer-actions" />
       </section>
 
-      <section :class="styles.footer.content">
+      <section :class="styles.footer.right">
         <slot name="footer-content" />
         <slot name="footer-copyright" />
       </section>
@@ -42,6 +42,8 @@ const styles = useStyles(["footer"], meta, config, {}) as ComputedRef<{
     container: string;
     actions: string;
     content: string;
+    left: string;
+    right: string;
   };
 }>;
 </script>
