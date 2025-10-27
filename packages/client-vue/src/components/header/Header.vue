@@ -15,9 +15,6 @@
 </template>
 
 <script setup lang="ts">
-// --- external
-import { computed } from "vue";
-
 // --- internal
 import { useHeader } from "./useHeader";
 import config from "./header.config";
