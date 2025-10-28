@@ -273,7 +273,8 @@ async function parse(
   if (safeModel?.payment_details_id) {
     unset(safeModel, "gateway_id");
     paymentDetail = {
-      payment_details_id: safeModel.payment_details_id
+      payment_details_id: safeModel.payment_details_id,
+      amount
     };
   } else {
     paymentDetail = undefined;
@@ -294,6 +295,7 @@ async function parse(
 
     paymentDetail = {
       type: PaymentType.PAY_LATER,
+      amount,
       address_id: address?.id,
       client_id: clientId
     };
