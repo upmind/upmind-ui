@@ -4,7 +4,11 @@
     :title="t('text.summary')"
     icon="shopping-bag-02"
   >
-    <Summary no-actions :show-promotions="uischema.showPromotionsOnCheckout" />
+    <Summary
+      no-actions
+      :show-promotions="uischema.showPromotionsOnCheckout"
+      show-products
+    />
   </Section>
 </template>
 
