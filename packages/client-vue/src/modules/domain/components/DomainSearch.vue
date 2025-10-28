@@ -25,10 +25,8 @@
           color="secondary"
           @click="emit('search', inputValue)"
         >
-          <template #label>
-            <span class="hidden md:block">{{ t("action.search") }}</span>
-            <Icon icon="search-refraction" size="xs" class="md:hidden" />
-          </template>
+          <span class="hidden md:block">{{ t("action.search") }}</span>
+          <Icon icon="search-refraction" size="xs" class="md:hidden" />
         </Button>
       </span>
     </template>
