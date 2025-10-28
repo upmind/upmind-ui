@@ -27,7 +27,7 @@
           :ui-config="{
             button: {
               label: 'flex items-center justify-center'
-            }
+            } as any
           }"
         >
           <template #label>
