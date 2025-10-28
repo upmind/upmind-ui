@@ -62,7 +62,9 @@ export default {
         "max-w-app mx-auto flex w-full flex-col gap-12 lg:flex-row lg:gap-18"
       )
     },
-    aside: cva("sticky top-6 flex w-full max-w-md flex-col gap-12 self-start"),
+    aside: cva(
+      "sticky top-6 flex w-full flex-col gap-12 self-start lg:max-w-md"
+    ),
     main: cva("flex w-full flex-col gap-12")
   },
 
@@ -135,7 +137,9 @@ export default {
         "max-w-app mx-auto flex w-full flex-col gap-12 lg:flex-row lg:gap-18"
       )
     },
-    aside: cva("sticky top-6 flex w-full max-w-md flex-col gap-12 self-start"),
+    aside: cva(
+      "sticky top-6 flex w-full flex-col gap-12 self-start lg:max-w-md"
+    ),
     main: cva("flex w-full flex-col gap-12")
   },
 
