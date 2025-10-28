@@ -246,7 +246,7 @@ export default createMachine(
 
     guards: {
       isDirty: ({ model, baseModel }: CurrencyContext, _event) =>
-        !isEqual(model, baseModel),
+        !isEqual(model?.id, baseModel?.id),
       hasBasket: ({ basketId }: CurrencyContext, _event) => !!basketId,
       hasChanged: (
         { model, basketId }: CurrencyContext,
