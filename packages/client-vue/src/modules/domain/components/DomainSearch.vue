@@ -24,9 +24,16 @@
           size="lg"
           color="secondary"
           @click="emit('search', inputValue)"
+          :ui-config="{
+            button: {
+              label: 'flex items-center justify-center'
+            }
+          }"
         >
-          <span class="hidden md:block">{{ t("action.search") }}</span>
-          <Icon icon="search-refraction" size="xs" class="md:hidden" />
+          <template #label>
+            <span class="hidden md:block">{{ t("action.search") }}</span>
+            <Icon icon="search-refraction" size="xs" class="md:hidden" />
+          </template>
         </Button>
       </span>
     </template>
