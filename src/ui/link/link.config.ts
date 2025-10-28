@@ -51,7 +51,8 @@ const itemsVariants = cva("size-lh flex items-center justify-center", {
       icon: "",
       sm: "[&>i]:p-[3px]",
       md: "[&>i]:p-[4px]",
-      lg: "[&>i]:p-[4px]"
+      lg: "[&>i]:p-[4px]",
+      inherit: "[&>i]:p-[4px]"
     },
     color: {
       neutral: "text-button-link",
