@@ -37,7 +37,7 @@ export const rootVariants = cva(`w-full`, {
   variants: {
     isList: {
       true: "flex flex-col gap-1",
-      false: "grid grid-cols-12 gap-2 [&>*:only-child]:col-span-12"
+      false: "grid grid-cols-12 gap-2"
     }
   },
   defaultVariants: {
