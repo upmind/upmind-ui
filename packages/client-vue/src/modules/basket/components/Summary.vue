@@ -8,7 +8,7 @@
     <DescriptionList v-if="!isEmpty(subtotalItems)" :items="subtotalItems">
       <div :class="styles.summary.item.root">
         <dt :class="styles.summary.item.term">
-          {{ t("text.total") }}
+          {{ t("text.basket_total") }}
         </dt>
         <dd :class="styles.summary.item.description">
           {{ summary?.total }}
