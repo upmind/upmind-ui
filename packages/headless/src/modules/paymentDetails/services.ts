@@ -273,9 +273,7 @@ async function parse(
     unset(safeModel, "gateway_id");
     paymentDetail = {
       payment_details_id: safeModel.payment_details_id,
-      amount,
-      address_id: address?.id,
-      client_id: clientId
+      amount
     };
   } else {
     paymentDetail = undefined;
