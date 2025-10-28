@@ -18,24 +18,22 @@
           <RouterView v-slot="routerViewProps" :key="$route.fullPath">
             <slot v-bind="routerViewProps">
               <template v-if="routerViewProps.Component">
-                <KeepAlive>
-                  <Suspense
-                    @pending="setLoading(true)"
-                    @resolve="setLoading(false)"
-                    @fallback="setLoading(true)"
-                  >
-                    <!-- page content -->
+                <Suspense
+                  @pending="setLoading(true)"
+                  @resolve="setLoading(false)"
+                  @fallback="setLoading(true)"
+                >
+                  <KeepAlive>
                     <component :is="routerViewProps.Component" />
+                  </KeepAlive>
 
-                    <!-- fallback / loading state -->
-                    <template #fallback>
-                      <AsyncLoading
-                        v-bind="loadingProps"
-                        v-if="meta.isAvailable && meta.hasSettings"
-                      />
-                    </template>
-                  </Suspense>
-                </KeepAlive>
+                  <template #fallback>
+                    <AsyncLoading
+                      v-bind="loadingProps"
+                      v-if="meta.isAvailable && meta.hasSettings"
+                    />
+                  </template>
+                </Suspense>
               </template>
             </slot>
           </RouterView>
