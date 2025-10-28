@@ -19,6 +19,7 @@
       <Link
         class="text-muted font-medium text-inherit underline underline-offset-1!"
         @click="onUpdate(props.domain)"
+        size="inherit"
         >{{ t("action.clicking_here") }}</Link
       >.
       <template v-if="meta.discounted">
