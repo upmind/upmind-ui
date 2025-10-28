@@ -19,6 +19,9 @@
   .font-sans {
     font-family: var(--font-sans);
   }
+}
+
+@layer base {
   .text-xs\/tight {
     font-size: var(--text-xs);
     line-height: var(--text-xs--line-height-tight);

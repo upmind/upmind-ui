@@ -22,7 +22,7 @@ const props = withDefaults(
     class?: HTMLAttributes["class"];
     disabled?: boolean;
     width?: "app" | "full";
-    aside?: boolean;
+    spacious?: boolean;
   }>(),
   {
     as: "div",
@@ -33,7 +33,7 @@ const props = withDefaults(
 const meta = computed(() => ({
   isDisabled: props.disabled,
   width: props.width,
-  aside: props.aside
+  spacious: props.spacious
 }));
 
 const styles = useStyles(["card"], meta, config) as ComputedRef<{
