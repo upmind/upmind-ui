@@ -27,7 +27,7 @@
 // --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { toPairs, forEach, isEmpty, map } from "lodash-es";
+import { toPairs, forEach, isEmpty, map, concat } from "lodash-es";
 
 // --- components
 import {
@@ -79,19 +79,19 @@ const styles = useStyles(
 }>;
 
 const items = computed((): DescriptionItem[] => {
-  const items = subtotalItems.value;
+  let items = subtotalItems.value as DescriptionItem[];
 
   if (!isEmpty(summary.value?.products) && props.showProducts) {
     const productItems =
       map(summary.value!.products, (product: any) => ({
-        term: product.title,
-        description: product.summary.currentPrice ?? ""
+        term: product.productDetails?.name,
+        description: product.price.currentPrice ?? ""
       })) ?? [];
 
-    items.concat(productItems);
+    items = concat(productItems, items);
   }
 
-  return items as DescriptionItem[];
+  return items;
 });
 
 const subtotalItems = computed(() => {
