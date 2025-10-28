@@ -11,6 +11,7 @@
   "business": "Företag",
   "categories": "Alla kategorier",
   "check_required_fields_desc": "Vänligen markera och fyll i alla obligatoriska fält för att fortsätta.",
+  "company": "Företag",
   "company_number": "Företagsnummer:{regNumber}",
   "complete_online_toolkit": "Fyll i din online- **verktygslåda**",
   "complete_online_toolkit_md": "@.markdown:{'text.complete_online_toolkit'}",

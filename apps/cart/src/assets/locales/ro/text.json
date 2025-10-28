@@ -11,6 +11,7 @@
   "business": "Afaceri",
   "categories": "Toate categoriile",
   "check_required_fields_desc": "Vă rugăm să verificați și să completați toate câmpurile obligatorii pentru a continua.",
+  "company": "Companie",
   "company_number": "Numărul companiei:{regNumber}",
   "complete_online_toolkit": "Completează-ți **trusa de instrumente** online",
   "complete_online_toolkit_md": "@.markdown:{'text.complete_online_toolkit'}",

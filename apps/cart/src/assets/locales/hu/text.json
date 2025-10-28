@@ -11,6 +11,7 @@
   "business": "Üzleti",
   "categories": "Minden kategória",
   "check_required_fields_desc": "Kérjük, a folytatáshoz ellenőrizze és töltse ki az összes kötelező mezőt.",
+  "company": "Vállalat",
   "company_number": "Cégjegyzékszám:{regNumber}",
   "complete_online_toolkit": "Töltsd ki az online **eszköztáradat**",
   "complete_online_toolkit_md": "@.markdown:{'text.complete_online_toolkit'}",

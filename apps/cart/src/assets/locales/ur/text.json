@@ -11,6 +11,7 @@
   "business": "کاروبار",
   "categories": "تمام زمرے",
   "check_required_fields_desc": "براہ کرم آگے بڑھنے کے لیے تمام مطلوبہ فیلڈز کو چیک کریں اور مکمل کریں۔",
+  "company": "کمپنی",
   "company_number": "کمپنی #: {regNumber}",
   "complete_online_toolkit": "اپنی آن لائن **ٹول کٹ** مکمل کریں",
   "complete_online_toolkit_md": "@.markdown:{'text.complete_online_toolkit'}",

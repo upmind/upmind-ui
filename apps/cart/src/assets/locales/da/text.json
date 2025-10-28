@@ -11,6 +11,7 @@
   "business": "Forretning",
   "categories": "Alle kategorier",
   "check_required_fields_desc": "Markér og udfyld venligst alle obligatoriske felter for at fortsætte.",
+  "company": "Virksomhed",
   "company_number": "Firmanummer:{regNumber}",
   "complete_online_toolkit": "Færdiggør dit online **værktøjssæt**",
   "complete_online_toolkit_md": "@.markdown:{'text.complete_online_toolkit'}",

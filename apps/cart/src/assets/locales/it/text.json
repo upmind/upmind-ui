@@ -11,6 +11,7 @@
   "business": "Attività commerciale",
   "categories": "Tutte le categorie",
   "check_required_fields_desc": "Si prega di controllare e compilare tutti i campi obbligatori per procedere.",
+  "company": "Azienda",
   "company_number": "Azienda #: {regNumber}",
   "complete_online_toolkit": "Completa il tuo **toolkit** online",
   "complete_online_toolkit_md": "@.markdown:{'text.complete_online_toolkit'}",

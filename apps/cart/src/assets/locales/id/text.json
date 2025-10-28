@@ -11,6 +11,7 @@
   "business": "Bisnis",
   "categories": "Semua Kategori",
   "check_required_fields_desc": "Silakan periksa dan lengkapi semua kolom yang diperlukan untuk melanjutkan.",
+  "company": "Perusahaan",
   "company_number": "Perusahaan #: {regNumber}",
   "complete_online_toolkit": "Lengkapi **toolkit** online Anda",
   "complete_online_toolkit_md": "@.markdown:{'text.complete_online_toolkit'}",
