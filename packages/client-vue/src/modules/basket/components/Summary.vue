@@ -3,7 +3,9 @@
     v-if="(!meta.isLoading && meta.hasProducts) || meta.isCheckout"
     :class="styles.summary.root"
   >
-    <DescriptionList :items="items" class="font-normal">
+    <DescriptionList v-if="!isEmpty(productItems)" :items="productItems" />
+
+    <DescriptionList v-if="!isEmpty(subtotalItems)" :items="subtotalItems">
       <div :class="styles.summary.item.root">
         <dt :class="styles.summary.item.term">
           {{ t("text.total") }}
@@ -78,8 +80,8 @@ const styles = useStyles(
   };
 }>;
 
-const items = computed((): DescriptionItem[] => {
-  let items = subtotalItems.value as DescriptionItem[];
+const productItems = computed((): DescriptionItem[] => {
+  let items = [];
 
   if (!isEmpty(summary.value?.products) && props.showProducts) {
     const productItems =
