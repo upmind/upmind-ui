@@ -11,6 +11,7 @@
   "business": "İşletme",
   "categories": "Tüm Kategoriler",
   "check_required_fields_desc": "Devam etmek için lütfen tüm gerekli alanları kontrol edin ve doldurun.",
+  "company": "Şirket",
   "company_number": "Şirket #: {regNumber}",
   "complete_online_toolkit": "Çevrimiçi **araç setinizi** tamamlayın",
   "complete_online_toolkit_md": "@.markdown:{'text.complete_online_toolkit'}",

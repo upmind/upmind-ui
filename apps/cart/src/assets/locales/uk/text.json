@@ -11,6 +11,7 @@
   "business": "Бізнес",
   "categories": "Усі категорії",
   "check_required_fields_desc": "Будь ласка, перевірте та заповніть усі обов'язкові поля, щоб продовжити.",
+  "company": "Компанія",
   "company_number": "Номер компанії:{regNumber}",
   "complete_online_toolkit": "Заповніть свій онлайн-набір інструментів",
   "complete_online_toolkit_md": "@.markdown:{'text.complete_online_toolkit'}",

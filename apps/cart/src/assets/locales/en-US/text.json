@@ -11,6 +11,7 @@
   "business": "Business",
   "categories": "All Categories",
   "check_required_fields_desc": "Please check and complete all required fields to proceed.",
+  "company": "Company",
   "company_number": "Company #: {regNumber}",
   "complete_online_toolkit": "Complete your online **toolkit**",
   "complete_online_toolkit_md": "@.markdown:{'text.complete_online_toolkit'}",

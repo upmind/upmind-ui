@@ -12,6 +12,7 @@
   "categories": "All Categories",
   "check_required_fields_desc": "Please check and complete all required fields to proceed.",
   "company_number": "Company #: {regNumber}",
+  "company": "Company",
   "complete_online_toolkit": "Complete your online **toolkit**",
   "complete_online_toolkit_md": "@.markdown:{'text.complete_online_toolkit'}",
   "copyright": "© {year} {name}. All rights reserved.",

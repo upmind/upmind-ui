@@ -11,6 +11,7 @@
   "business": "Επιχείρηση",
   "categories": "Όλες οι κατηγορίες",
   "check_required_fields_desc": "Παρακαλούμε ελέγξτε και συμπληρώστε όλα τα υποχρεωτικά πεδία για να συνεχίσετε.",
+  "company": "Εταιρεία",
   "company_number": "Αριθμός εταιρείας:{regNumber}",
   "complete_online_toolkit": "Συμπληρώστε το ηλεκτρονικό σας **εργαλειοθήκη**",
   "complete_online_toolkit_md": "@.markdown:{'text.complete_online_toolkit'}",

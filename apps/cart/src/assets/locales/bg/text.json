@@ -11,6 +11,7 @@
   "business": "Бизнес",
   "categories": "Всички категории",
   "check_required_fields_desc": "Моля, проверете и попълнете всички задължителни полета, за да продължите.",
+  "company": "Компания",
   "company_number": "Номер на фирмата:{regNumber}",
   "complete_online_toolkit": "Попълнете своя онлайн **инструментариум**",
   "complete_online_toolkit_md": "@.markdown:{'text.complete_online_toolkit'}",

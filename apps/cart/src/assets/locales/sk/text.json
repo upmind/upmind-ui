@@ -11,6 +11,7 @@
   "business": "Obchod",
   "categories": "Všetky kategórie",
   "check_required_fields_desc": "Pre pokračovanie skontrolujte a vyplňte všetky požadované polia.",
+  "company": "Spoločnosť",
   "company_number": "Číslo spoločnosti:{regNumber}",
   "complete_online_toolkit": "Dokončite si svoju online **súpravu nástrojov**",
   "complete_online_toolkit_md": "@.markdown:{'text.complete_online_toolkit'}",
