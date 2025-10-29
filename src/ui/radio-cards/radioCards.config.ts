@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 import { ringClasses } from "../../assets/styles";
 
 export const itemVariants = cva(
-  `bg-control-surface text-control-foreground group control-radius flex cursor-pointer list-none gap-2 py-3 pr-4 pl-3 font-normal transition-all duration-200 ${ringClasses}`,
+  `bg-control-surface text-control-foreground group control-radius flex cursor-pointer list-none gap-2 py-4 pr-4 pl-3 font-normal transition-all duration-200 ${ringClasses}`,
   {
     variants: {
       isList: {
