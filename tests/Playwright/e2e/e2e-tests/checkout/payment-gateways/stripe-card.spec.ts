@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-//import { test } from "../../../support/fixtures/test";
+//import { test } from '../../../support/fixtures/test';
 import { fakerEN_GB } from "@faker-js/faker";
 import { URLs } from "../../../support/constants/urls";
 import {
@@ -50,7 +50,7 @@ test.describe("Checkout with Stripe", () => {
         await page.goto(URLs.checkout);
         await page.waitForLoadState("networkidle");
         await registration.inputRegistration();
-        await checkout.selectPaymentMethod("Stripe Payment");
+        await checkout.selectPaymentMethod("Stripe");
         await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
         await checkout.clickPlaceOrderButton();
         await checkout.dialogWindow.waitFor();
@@ -93,7 +93,7 @@ test.describe("Checkout with Stripe", () => {
         await page.goto(URLs.checkout);
         await page.waitForLoadState("networkidle");
         await registration.inputRegistration();
-        await checkout.selectPaymentMethod("Stripe Payment");
+        await checkout.selectPaymentMethod("Stripe");
         await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
         await checkout.clickPlaceOrderButton();
         await expect(checkout.dialogWindow).toBeVisible();
@@ -141,7 +141,7 @@ test.describe("Checkout with Stripe", () => {
         await page.goto(URLs.checkout);
         await page.waitForLoadState("networkidle");
         await registration.inputRegistration();
-        await checkout.selectPaymentMethod("Stripe Payment");
+        await checkout.selectPaymentMethod("Stripe");
         await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
         await checkout.clickPlaceOrderButton();
         await expect(
@@ -182,9 +182,11 @@ test.describe("Checkout with Stripe", () => {
         await page.goto(URLs.checkout);
         await page.waitForLoadState("networkidle");
         await registration.inputRegistration();
-        await checkout.selectPaymentMethod("Stripe Payment");
+        await checkout.selectPaymentMethod("Stripe");
         await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
-        const stripeFrame = await checkout.getStripeIframe();
+        const stripeFrame = page.frameLocator(
+          'iframe[title="Secure payment input frame"]'
+        );
         await expect(stripeFrame.getByRole("alert")).toContainText(
           `${dialogText}`
         );
