@@ -1,4 +1,3 @@
-a
 <template>
   <PaginationRoot
     v-slot="{ page, pageCount }"
@@ -11,7 +10,7 @@ a
           variant="subtle"
           size="lg"
           :class="styles.pagination.button"
-          :disabled="page <= 1"
+          :disabled="lte(props.page, 1)"
           @click="emit('prev')"
         >
           <Icon icon="arrow-left" size="2xs" />
@@ -28,7 +27,7 @@ a
           variant="subtle"
           size="lg"
           :class="styles.pagination.button"
-          :disabled="page >= pageCount"
+          :disabled="gte(page, props.pages)"
           @click="emit('next')"
         >
           <Icon icon="arrow-right" size="2xs" />
@@ -45,6 +44,9 @@ import { computed, type ComputedRef } from "vue";
 // --- internal
 import { cn, useStyles } from "../../utils";
 import config from "./pagination.config";
+
+// --- utils
+import { lte, gte } from "lodash-es";
 
 // --- components
 import { Icon } from "../icon";
