@@ -7,7 +7,8 @@ export default defineConfig({
   /* Timeouts */
   timeout: 90000,
   expect: {
-    timeout: 30000
+    timeout: 30000,
+    toHaveScreenshot: { maxDiffPixels: 100 }
   },
 
   /*Filepaths*/

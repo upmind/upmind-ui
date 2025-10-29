@@ -52,7 +52,7 @@ test.describe("Edit hosting product in basket", () => {
     ).toBeVisible();
     await page.getByTestId("button-add-to-basket").click();
     await page.waitForLoadState("load");
-    await page.getByTestId("button-show-details").click();
+    await basket.showDetails.click();
     await expect(page.getByTestId("basket-product")).toContainText("London");
   });
   test("Edit product attributes", async ({ page }) => {
@@ -65,7 +65,7 @@ test.describe("Edit hosting product in basket", () => {
     ).toBeVisible();
     await page.getByTestId("button-add-to-basket").click();
     await page.waitForLoadState("load");
-    await page.getByTestId("button-show-details").click();
+    await basket.showDetails.click();
     await expect(page.getByTestId("basket-product")).toContainText(
       "2 Balloons"
     );
@@ -83,7 +83,7 @@ test.describe("Edit hosting product in basket", () => {
     ).toContainText(newDomain);
     await page.getByTestId("button-add-to-basket").click();
     await page.waitForLoadState("load");
-    await page.getByTestId("button-show-details").click();
+    await basket.showDetails.click();
     await expect(page.getByTestId("basket-product")).toContainText(newDomain);
   });
 });
@@ -135,10 +135,10 @@ test.describe("Edit domain product in basket", () => {
     await expect(
       page
         .getByTestId("basket-product")
-        .getByTestId("button-default")
+        .getByTestId("link-default")
         .getByText(newDomain)
     ).toBeVisible();
-    await page.getByTestId("button-show-details").click();
+    await basket.showDetails.click();
     await expect(
       page.getByTestId("basket-product-details-domain-names")
     ).toContainText(newDomain);
@@ -159,64 +159,48 @@ test.describe("Edit domain product in basket", () => {
     productId = products[0].id;
     await page.goto(`order/product/edit/${productId}`);
     await page.waitForLoadState("networkidle");
-    let newAddress = `${fakerEN_GB.location.streetAddress()}`;
-    await page
-      .getByTestId("input-#/properties/update_registrant_name")
-      .fill(fieldUpdates.updatedName);
-    await page
-      .getByTestId("input-#/properties/update_registrant_organisation")
-      .fill(fieldUpdates.updatedCompany);
-    await page
-      .getByTestId("input-#/properties/update_registrant_email")
-      .fill(fieldUpdates.updatedEmail);
-    await page
-      .getByTestId("form-item-registrant-phone")
-      .locator("input")
-      .fill(fieldUpdates.updatedPhone);
-    await page
-      .getByTestId("input-#/properties/update_registrant_address_1")
-      .fill(fieldUpdates.updatedAddress);
-    await page
-      .getByTestId("input-#/properties/update_registrant_address_city")
-      .fill(fieldUpdates.updatedCity);
-    await page
-      .getByTestId("input-#/properties/update_registrant_address_state")
-      .fill(fieldUpdates.updatedState);
-    await page
-      .getByTestId("input-#/properties/update_registrant_address_postcode")
-      .fill(fieldUpdates.updatedPostcode);
-    await page.getByTestId("form-item-registrant-country").click();
+    await productConfig.registrantNameInput.fill(fieldUpdates.updatedName);
+    await productConfig.registrantOrgInput.fill(fieldUpdates.updatedCompany);
+    await productConfig.registrantEmailInput.fill(fieldUpdates.updatedEmail);
+    await productConfig.registrantPhoneInput.fill(fieldUpdates.updatedPhone);
+    await productConfig.registrantAddr1Input.fill(fieldUpdates.updatedAddress);
+    await productConfig.registrantCityInput.fill(fieldUpdates.updatedCity);
+    await productConfig.registrantStateInput.fill(fieldUpdates.updatedState);
+    await productConfig.registrantPostcodeInput.fill(
+      fieldUpdates.updatedPostcode
+    );
+    await productConfig.registrantCountryInput.click();
     await page
       .getByTestId(`select-item-${fieldUpdates.updatedCountryCode}`)
       .click();
-    await expect(
-      page.getByTestId("description-list-item-registrant-name")
-    ).toContainText(fieldUpdates.updatedName);
-    await expect(
-      page.getByTestId("description-list-item-registrant-organisation")
-    ).toContainText(fieldUpdates.updatedCompany);
-    await expect(
-      page.getByTestId("description-list-item-registrant-email")
-    ).toContainText(fieldUpdates.updatedEmail);
-    await expect(
-      page.getByTestId("description-list-item-registrant-phone")
-    ).toContainText(`+44${fieldUpdates.updatedPhone}`);
-    await expect(
-      page.getByTestId("description-list-item-registrant-address-1")
-    ).toContainText(fieldUpdates.updatedAddress);
-    await expect(
-      page.getByTestId("description-list-item-registrant-city")
-    ).toContainText(fieldUpdates.updatedCity);
-    await expect(
-      page.getByTestId("description-list-item-registrant-state")
-    ).toContainText(fieldUpdates.updatedState);
-    await expect(
-      page.getByTestId("description-list-item-registrant-postcode")
-    ).toContainText(fieldUpdates.updatedPostcode);
-    await expect(
-      page.getByTestId("description-list-item-registrant-country")
-    ).toContainText(fieldUpdates.updatedCountryCode);
-    await page.getByTestId("button-add-to-basket").click();
+    await expect(productConfig.registrantName).toContainText(
+      fieldUpdates.updatedName
+    );
+    await expect(productConfig.registrantOrg).toContainText(
+      fieldUpdates.updatedCompany
+    );
+    await expect(productConfig.registrantEmail).toContainText(
+      fieldUpdates.updatedEmail
+    );
+    await expect(productConfig.registrantPhone).toContainText(
+      `+44${fieldUpdates.updatedPhone}`
+    );
+    await expect(productConfig.registrantAddr1).toContainText(
+      fieldUpdates.updatedAddress
+    );
+    await expect(productConfig.registrantCity).toContainText(
+      fieldUpdates.updatedCity
+    );
+    await expect(productConfig.registrantState).toContainText(
+      fieldUpdates.updatedState
+    );
+    await expect(productConfig.registrantPostcode).toContainText(
+      fieldUpdates.updatedPostcode
+    );
+    await expect(productConfig.registrantCountry).toContainText(
+      fieldUpdates.updatedCountryCode
+    );
+    await productConfig.addToBasket.click();
     await page.waitForLoadState("load");
     await expect(page.getByTestId("basket-product-summary")).toBeVisible();
   });

@@ -71,7 +71,7 @@ export class ProductConfig {
   readonly registrantState: Locator;
   readonly registrantPostcode: Locator;
   readonly registrantCountry: Locator;
-  readonly confirmAndProceed: Locator;
+  readonly addToBasket: Locator;
   readonly engagementTypes: Locator;
   readonly outcomes: Locator;
 
@@ -126,7 +126,7 @@ export class ProductConfig {
     this.registrantPhoneCountrySelectInput =
       this.popover.popoverContent.locator("input");
     this.registrantPhoneCountrySelectItem =
-      this.popover.popoverContent.getByTestId("combobox-item");
+      this.popover.popoverContent.getByRole("option");
     this.registrantPhoneInput = this.registrantPhoneForm.locator("input");
     this.registrantAddr1Input = page
       .getByTestId("form-item-update-registrant-address-1")
@@ -212,7 +212,7 @@ export class ProductConfig {
       "description-list-item-engagement-types"
     );
     this.outcomes = page.getByTestId("description-list-item-outcomes");
-    this.confirmAndProceed = page.getByTestId("button-add-to-basket");
+    this.addToBasket = page.getByTestId("button-add-to-basket");
 
     /* Meta Slots */
     this.summaryMetaSlot = page.getByTestId("slots:summary-append");
@@ -221,7 +221,7 @@ export class ProductConfig {
   /* Product Functions */
   async addProductToBasket(productURL: string) {
     await this.page.goto(productURL);
-    await this.confirmAndProceed.click();
+    await this.addToBasket.click();
   }
 
   async clickLineclamp() {
@@ -290,7 +290,6 @@ export class ProductConfig {
     await this.registrantEmailInput.fill(registrantEmail);
     await this.registrantPhoneCountrySelectButton.click();
     await this.registrantPhoneCountrySelectInput.fill(registrantCountryCode);
-    await this.registrantPhoneCountrySelectInput.press("Enter");
     await this.registrantPhoneCountrySelectItem
       .getByText("United Kingdom")
       .click();

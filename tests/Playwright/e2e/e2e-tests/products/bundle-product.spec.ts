@@ -29,7 +29,7 @@ test.describe("Bundled Products", () => {
         "http://qa-automation.local:5173?pid=8d632507-9806-5d1e-de4a-8174e234e98d&bundle=coaching"
       );
       await page.waitForLoadState("networkidle");
-      await productConfig.confirmAndProceed.click();
+      await productConfig.addToBasket.click();
       await expect(basket.basketProductSummary.nth(0)).toContainText(
         "Startup Planning"
       );
@@ -42,7 +42,7 @@ test.describe("Bundled Products", () => {
         "http://qa-automation.local:5173?pid=8d632507-9806-5d1e-de4a-8174e234e98d&bundle=invalidstring"
       );
       await page.waitForLoadState("networkidle");
-      await productConfig.confirmAndProceed.click();
+      await productConfig.addToBasket.click();
       await expect(basket.basketProduct.nth(0)).toContainText(
         "Startup Planning"
       );

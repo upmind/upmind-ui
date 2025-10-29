@@ -12,6 +12,7 @@ export class Basket {
   readonly applyPromo: Locator;
   readonly promoMessage: Locator;
   readonly promoBadge: Locator;
+  readonly showDetails: Locator;
   readonly proceedToCheckout: Locator;
 
   constructor(page: Page) {
@@ -21,34 +22,26 @@ export class Basket {
     this.subtotalSummary = page.getByTestId("card-container-summary");
     this.summaryFooter = page.getByTestId("summary-footer");
     this.promotionForm = page.getByTestId("promotions-form");
-    this.addPromo = page.getByTestId("add-a-voucher-linklink");
-    this.promoInput = this.promotionForm.getByTestId("form-item-promocode");
+    this.addPromo = page.getByTestId("link-add-a-voucher-code");
+    this.promoInput = this.promotionForm
+      .getByTestId("form-item-promocode")
+      .locator("input");
     this.applyPromo = this.promotionForm.getByTestId("button-apply");
     this.promoMessage = this.promotionForm.getByTestId(
       "form-item-message-promocode"
     );
     this.promoBadge = this.summaryFooter.getByTestId("badge");
+    this.showDetails = page.getByTestId("link-show-details");
     this.proceedToCheckout = page.getByTestId("button-proceed-to-checkout");
   }
 
   async enterPromoCode(promoCode: string | null) {
-    const promotionForm = this.page.getByTestId("promotions-form");
-    await this.page.getByTestId("button-add-a-voucher-code").click();
-    let promoInput = promotionForm
-      .getByTestId("form-item-promo-code")
-      .locator("input");
-    if (!(await promoInput.count())) {
-      promoInput = promotionForm
-        .getByTestId("form-item-promocode")
-        .locator("input");
-    }
-    await promoInput.fill(`${promoCode}`);
-    await promotionForm.getByTestId("button-apply").click();
+    await this.addPromo.click();
+    await this.promoInput.fill(`${promoCode}`);
+    await this.promotionForm.getByTestId("button-apply").click();
   }
 
   expandConfigurations() {
     this.page.getByRole("link", { name: "Expand all configurations" });
   }
 }
-
-("form-item-promocode");
