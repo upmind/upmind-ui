@@ -166,7 +166,7 @@ async function validate(
       t("error.payment_gateway_validation_failed"),
       responseCodes.Unprocessable_Entity,
       ErrorOrigin.Headless,
-      { ...errors, ...error?.data }
+      [...errors, ...error?.data]
     );
   }
 

@@ -37,7 +37,7 @@ export default {
     }
   },
   setErrorSDK: assign({
-    error: ({ error }: BraintreeContext, { data }: AnyEventObject) => {
+    error: (_context: BraintreeContext, { data }: AnyEventObject) => {
       // NB: we are invalid if the stripe element status is NOT complete!
       if (!data?.valid) {
         return {
@@ -56,7 +56,7 @@ export default {
         } as ResponseError;
       }
 
-      return error;
+      return undefined;
     }
   })
 };
