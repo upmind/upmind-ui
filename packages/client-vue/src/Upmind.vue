@@ -1,13 +1,13 @@
 <template>
-  <Loading
-    :active="!meta.isAvailable || !meta.hasSettings"
-    class-active="h-full min-h-screen w-full text-base bg-canvas"
-    id="vue-app"
+  <Suspense
+    @pending="setLoading(true)"
+    @resolve="setLoading(false)"
+    @fallback="setLoading(true)"
   >
-    <Suspense
-      @pending="setLoading(true)"
-      @resolve="setLoading(false)"
-      @fallback="setLoading(true)"
+    <Loading
+      :active="!meta.isAvailable || !meta.hasSettings"
+      class-active="h-full min-h-screen w-full text-base bg-canvas"
+      id="vue-app"
     >
       <Page :class="styles.page" v-if="meta.isAvailable && meta.hasSettings">
         <slot name="header">
@@ -43,9 +43,10 @@
           <Footer />
         </slot>
       </Page>
-    </Suspense>
-  </Loading>
-  <Feedback v-if="meta.isAvailable" />
+
+      <Feedback v-if="meta.isAvailable" />
+    </Loading>
+  </Suspense>
 </template>
 
 <script lang="ts">
