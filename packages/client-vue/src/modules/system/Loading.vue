@@ -1,30 +1,30 @@
 <template>
-  <Layout>
-    <ContentSection v-auto-animate class="flex grow items-center">
-      <Interstitial
-        v-bind="props"
-        :title="t('text.loading_title_md')"
-        :text="t('text.almost_there_msg')"
-      >
-        <template #background>
-          <slot name="loading-background"></slot>
-        </template>
-      </Interstitial>
-    </ContentSection>
-  </Layout>
+  <div class="flex grow items-center justify-center">
+    <Interstitial
+      v-bind="props"
+      :title="t('text.loading_title_md')"
+      :text="t('text.almost_there_msg')"
+    >
+      <template #background>
+        <slot name="loading-background"></slot>
+      </template>
+    </Interstitial>
+  </div>
 </template>
 
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
-import { vAutoAnimate } from "@formkit/auto-animate";
+
+// --- internal
 
 // -- components
-import { Interstitial, Layout } from "@upmind-automation/upmind-ui";
-import ContentSection from "../../components/content/ContentSection.vue";
+import { Interstitial } from "@upmind-automation/upmind-ui";
+import Layout from "../../components/layout/Layout.vue";
 
 // -- types
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
+
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
 

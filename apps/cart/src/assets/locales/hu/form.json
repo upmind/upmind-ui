@@ -1,6 +1,6 @@
 {
   "address": {
-    "error": "Hiba történt a cím hozzáadásakor | hiba történt a cím frissítése során",
+    "error": "Az ön címe szükséges",
     "label": "Cím",
     "placeholder": "Kezdje el beírni a címét",
     "title": "Új cím hozzáadása | Cím frissítése"
@@ -54,7 +54,7 @@
     "placeholder": "Város, település stb."
   },
   "company": {
-    "error": "Hiba történt a cégadatok hozzáadásakor | hiba történt a cégadatok frissítése során",
+    "error": "A cég neve kötelező",
     "label": "Vállalat",
     "title": "Cégadatok hozzáadása | Cégadatok frissítése"
   },
@@ -77,7 +77,7 @@
     "placeholder": "Domain keresése..."
   },
   "email": {
-    "error": "Hiba történt az e-mail hozzáadásakor | hiba történt az e-mail frissítése során",
+    "error": "Érvényes e-mail cím szükséges",
     "label": "Email",
     "title": "Új e-mail hozzáadása | E-mail frissítése"
   },
@@ -96,7 +96,7 @@
     "error": "Hiba történt a bejelentkezés során."
   },
   "phone": {
-    "error": "Hiba történt a telefonszám hozzáadásakor | hiba történt a telefonszám frissítésekor",
+    "error": "Érvényes telefonszám szükséges",
     "label": "Telefon",
     "title": "Új telefonszám hozzáadása | Telefonszám frissítése"
   },

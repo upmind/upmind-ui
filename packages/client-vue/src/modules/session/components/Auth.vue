@@ -1,74 +1,74 @@
 <template>
-  <div
-    class="auth"
-    :class="cn(styles.session.auth.root, $props.class)"
-    v-if="!meta.isAuthenticated && !meta.isLoading"
-    v-auto-animate
-  >
-    <Alert
-      v-if="meta.hasErrors"
-      color="danger"
-      icon="alert-triangle"
-      :title="alertTitle"
-      :description="errors"
-    />
-
-    <Form
-      :key="currentForm"
-      :loading="meta.isLoading"
-      :processing="meta.isProcessing"
-      :model-value="model"
-      :schema="schema"
-      :uischema="uischema"
-      :additional-errors="validationErrors"
-      :variant="variant"
-      @reject="doReject"
-      @resolve="doResolve"
-      @update:model-value="setModel"
-      :class="styles.session.auth.form"
-      :actions="authActions"
+  <section>
+    <div
+      class="auth"
+      :class="cn(styles.session.auth.root, props.class)"
+      v-if="!meta.isAuthenticated && !meta.isLoading"
     >
-      <template v-if="currentForm === 'register'" #footer>
-        <TermsAndConditions
-          class="text-muted text-sm"
-          :label="t('action.continue_label')"
-        />
-      </template>
-    </Form>
-  </div>
-
-  <div v-if="!meta.isLoading" :class="styles.session.auth.actions">
-    <slot name="toggle">
-      <Link
-        v-if="!meta.isAuthenticated && meta.showLoginForm"
-        @click="toggleForm('recover')"
-        color="muted"
-        :label="buttons.recover.label"
-        size="lg"
+      <Alert
+        v-if="meta.hasErrors"
+        color="danger"
+        icon="alert-triangle"
+        :title="alertTitle"
+        :description="errors"
       />
-    </slot>
-    <Button
-      v-if="meta.isAuthenticated"
-      variant="ghost"
-      size="lg"
-      block
-      type="reset"
-      @click.prevent="logout"
-      :label="t('action.logout')"
-    />
-  </div>
+
+      <Form
+        :key="currentForm"
+        :loading="meta.isLoading"
+        :processing="meta.isProcessing"
+        :model-value="model"
+        :schema="schema"
+        :uischema="uischema"
+        :additional-errors="validationErrors"
+        :variant="variant"
+        @reject="doReject"
+        @resolve="doResolve"
+        @update:model-value="setModel"
+        :class="styles.session.auth.form"
+        :actions="authActions"
+      >
+        <template v-if="currentForm === 'register'" #footer>
+          <TermsAndConditions
+            class="text-muted text-sm"
+            :label="t('action.continue_label')"
+          />
+        </template>
+      </Form>
+    </div>
+
+    <div v-if="!meta.isLoading" :class="styles.session.auth.actions">
+      <slot name="toggle">
+        <Link
+          v-if="!meta.isAuthenticated && meta.showLoginForm"
+          @click="toggleForm('recover')"
+          color="muted"
+          :label="buttons.recover.label"
+          size="lg"
+        />
+      </slot>
+      <Button
+        v-if="meta.isAuthenticated"
+        variant="ghost"
+        size="lg"
+        block
+        type="reset"
+        @click.prevent="logout"
+        :label="t('action.logout')"
+      />
+    </div>
+  </section>
 </template>
 
 <script lang="ts" setup>
 // --- external
 import { computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
 import TermsAndConditions from "../../brand/TermsAndConditions.vue";
 import Form from "../../../components/form/Form.vue";
-import config from "../sesssion.config";
+import config from "../session.config";
 import { useSession } from "@upmind-automation/headless";
 import { useStyles, cn } from "@upmind-automation/upmind-ui";
 
@@ -77,7 +77,7 @@ import { Alert, Button, Link } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { ComputedRef } from "vue";
-import type { AuthProps } from "./types";
+import type { AuthProps } from "../types";
 // -----------------------------------------------------------------------------
 
 const emit = defineEmits(["resolve", "reject"]);

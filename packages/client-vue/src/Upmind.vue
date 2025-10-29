@@ -1,7 +1,7 @@
 <template>
   <Loading
     :active="!meta.isAvailable || !meta.hasSettings"
-    class-active="h-full min-h-screen w-full text-base bg-core-surface"
+    class-active="h-full min-h-screen w-full text-base bg-canvas"
     id="vue-app"
   >
     <Suspense
@@ -9,54 +9,40 @@
       @resolve="setLoading(false)"
       @fallback="setLoading(true)"
     >
-      <div
-        class="bg-canvas relative flex min-h-screen flex-col items-start text-base antialiased"
-      >
-        <slot name="header" v-if="meta.isAvailable && meta.hasSettings">
-          <Header :logo="logo">
-            <template #actions>
-              <slot name="actions" />
-            </template>
-            <template #logo><slot name="logo" :logo="logo"></slot></template>
-          </Header>
+      <Page :class="styles.page" v-if="meta.isAvailable && meta.hasSettings">
+        <slot name="header">
+          <Header />
         </slot>
 
-        <div
-          class="flex w-full flex-1 flex-col"
-          v-if="meta.isAvailable && meta.hasSettings"
-        >
+        <main class="flex w-full flex-col" :class="{ grow: grow }">
           <RouterView v-slot="routerViewProps" :key="$route.fullPath">
             <slot v-bind="routerViewProps">
               <template v-if="routerViewProps.Component">
-                <Page :class="styles.page" :key="$route.fullPath">
+                <Suspense
+                  @pending="setLoading(true)"
+                  @resolve="setLoading(false)"
+                  @fallback="setLoading(true)"
+                >
                   <KeepAlive>
-                    <Suspense
-                      @pending="setLoading(true)"
-                      @resolve="setLoading(false)"
-                      @fallback="setLoading(true)"
-                    >
-                      <!-- page content -->
-                      <component :is="routerViewProps.Component" />
-
-                      <!-- fallback / loading state -->
-                      <template #fallback>
-                        <AsyncLoading
-                          v-bind="loadingProps"
-                          v-if="meta.isAvailable && meta.hasSettings"
-                        />
-                      </template>
-                    </Suspense>
+                    <component :is="routerViewProps.Component" />
                   </KeepAlive>
-                </Page>
+
+                  <template #fallback>
+                    <AsyncLoading
+                      v-bind="loadingProps"
+                      v-if="meta.isAvailable && meta.hasSettings"
+                    />
+                  </template>
+                </Suspense>
               </template>
             </slot>
           </RouterView>
-        </div>
+        </main>
 
-        <slot name="footer" v-if="meta.isAvailable && meta.hasSettings">
+        <slot name="footer">
           <Footer />
         </slot>
-      </div>
+      </Page>
     </Suspense>
   </Loading>
   <Feedback v-if="meta.isAvailable" />
@@ -64,7 +50,7 @@
 
 <script lang="ts">
 export default {
-  name: "ind",
+  name: "Upmind",
   inheritAttrs: false,
   customOptions: {}
 };
@@ -79,17 +65,18 @@ import { useRoute } from "vue-router";
 import useUpmind, { UpmindStatus } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import { useTheme } from "./modules/theming";
+import { useLayout } from "./components/layout/useLayout";
 
 // --- components
-import Footer from "./components/footer/Footer.vue";
 import Header from "./components/header/Header.vue";
+import Footer from "./components/footer/Footer.vue";
 import Feedback from "./modules/feedback/Feedback.vue";
-import Page from "./components/content/Page.vue";
+import Page from "./components/page/Page.vue";
 import AsyncLoading from "./modules/system/Loading.vue";
 import { Loading } from "@upmind-automation/upmind-ui";
 
 // --- utils
-import { get, set } from "lodash-es";
+import { get } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -107,12 +94,14 @@ const loading = ref(true);
 
 const themeReady = ref(false);
 
+const currentRoute = useRoute();
+const { grow } = useLayout();
+
 const meta = computed(() => ({
   isAvailable: useUpmind.status.value == UpmindStatus.initialised,
+  isLoading: loading.value,
   hasSettings: themeReady.value
 }));
-
-const currentRoute = useRoute();
 
 const route = computed(() =>
   get(currentRoute, "name", get(currentRoute, "path", ""))

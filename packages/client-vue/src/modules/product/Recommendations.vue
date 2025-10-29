@@ -1,7 +1,7 @@
 <template>
   <Layout overflow="hidden">
-    <template #header>
-      <Header
+    <template #content-header>
+      <Hero
         :title="t('text.complete_online_toolkit_md')"
         :description="t('text.popular_offers')"
       />
@@ -79,10 +79,11 @@ import {
 } from "@upmind-automation/headless";
 
 // --- components
-import { Button, Layout, Interstitial } from "@upmind-automation/upmind-ui";
+import { Button, Interstitial } from "@upmind-automation/upmind-ui";
+import Layout from "../../components/layout/Layout.vue";
 import Configure from "../recommendations/components/Configure.vue";
 import CardsCarousel from "../recommendations/components/CardsCarousel.vue";
-import Header from "../../components/content/Header.vue";
+import Hero from "../../components/hero/Hero.vue";
 
 // -----------------------------------------------------------------------------
 

@@ -1,6 +1,6 @@
 {
   "address": {
-    "error": "Terjadi kesalahan saat Menambahkan Alamat | terjadi kesalahan saat Memperbarui Alamat",
+    "error": "Alamat Anda diperlukan",
     "label": "Alamat",
     "placeholder": "Mulai ketik alamat Anda",
     "title": "Tambahkan Alamat Baru | Perbarui Alamat"
@@ -54,7 +54,7 @@
     "placeholder": "Kota, kota kecil dll."
   },
   "company": {
-    "error": "Terjadi kesalahan saat Menambahkan Rincian Perusahaan | terjadi kesalahan saat Memperbarui Rincian Perusahaan",
+    "error": "Nama perusahaan Anda diperlukan",
     "label": "Perusahaan",
     "title": "Tambahkan Detail Perusahaan | Perbarui Detail Perusahaan"
   },
@@ -77,7 +77,7 @@
     "placeholder": "Cari domain..."
   },
   "email": {
-    "error": "Terjadi kesalahan saat Menambahkan Email | terjadi kesalahan saat Memperbarui Email",
+    "error": "Alamat Email yang valid diperlukan",
     "label": "E-mail",
     "title": "Tambahkan Email Baru | Perbarui Email"
   },
@@ -96,7 +96,7 @@
     "error": "Kami mengalami kesalahan saat mencoba memasukkan Anda."
   },
   "phone": {
-    "error": "Terjadi kesalahan saat Menambahkan Nomor Telepon | terjadi kesalahan saat Memperbarui Nomor Telepon",
+    "error": "Nomor Telepon yang valid diperlukan",
     "label": "Telepon",
     "title": "Tambahkan Nomor Telepon Baru | Perbarui Nomor Telepon"
   },

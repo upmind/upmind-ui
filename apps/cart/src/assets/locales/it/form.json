@@ -1,6 +1,6 @@
 {
   "address": {
-    "error": "Si è verificato un errore durante l'aggiunta dell'indirizzo | si è verificato un errore durante l'aggiornamento dell'indirizzo",
+    "error": "Il tuo indirizzo è richiesto",
     "label": "Indirizzo",
     "placeholder": "Inizia a digitare il tuo indirizzo",
     "title": "Aggiungi nuovo indirizzo | Aggiorna indirizzo"
@@ -54,7 +54,7 @@
     "placeholder": "Città, paese ecc."
   },
   "company": {
-    "error": "Si è verificato un errore durante l'aggiunta dei dettagli dell'azienda | Si è verificato un errore durante l'aggiornamento dei dettagli dell'azienda",
+    "error": "Il nome della tua azienda è richiesto",
     "label": "Azienda",
     "title": "Aggiungi dettagli azienda | Aggiorna dettagli azienda"
   },
@@ -77,7 +77,7 @@
     "placeholder": "Cerca un dominio..."
   },
   "email": {
-    "error": "Si è verificato un errore durante l'aggiunta dell'e-mail | si è verificato un errore durante l'aggiornamento dell'e-mail",
+    "error": "È necessario un indirizzo email valido",
     "label": "E-mail",
     "title": "Aggiungi nuova email | Aggiorna email"
   },
@@ -96,7 +96,7 @@
     "error": "Si è verificato un errore durante il tentativo di accesso."
   },
   "phone": {
-    "error": "Si è verificato un errore durante l'aggiunta del numero di telefono | si è verificato un errore durante l'aggiornamento del numero di telefono",
+    "error": "È richiesto un numero di telefono valido",
     "label": "Telefono",
     "title": "Aggiungi nuovo numero di telefono | Aggiorna numero di telefono"
   },
