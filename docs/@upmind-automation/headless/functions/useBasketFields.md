@@ -6,6 +6,10 @@
 function useBasketFields(): object;
 ```
 
+Manages the basket fields, state, and interactions.
+Provides reactive state, context, and methods to manage basket fields.
+Uses internal actors to manage complex state interactions, including field validation and updates.
+
 ## Returns
 
 ### clear()
@@ -23,7 +27,7 @@ Clears the fields state.
 ### context
 
 ```ts
-context: ComputedRef<undefined | FieldsContext>;
+context: ComputedRef<FieldsContext | undefined>;
 ```
 
 The full fields context object.
@@ -31,7 +35,7 @@ The full fields context object.
 ### errors
 
 ```ts
-errors: ComputedRef<undefined | ResponseError>;
+errors: ComputedRef<ResponseError | undefined>;
 ```
 
 Any error returned by the fields actor.
@@ -39,7 +43,7 @@ Any error returned by the fields actor.
 ### fields
 
 ```ts
-fields: ComputedRef<undefined | ICustomField[]>;
+fields: ComputedRef<ICustomField[] | undefined>;
 ```
 
 The list of available fields.
@@ -95,12 +99,12 @@ meta: ComputedRef<{
 }>;
 ```
 
-Meta information about the basket fields state.
+Meta-information about the basket fields state.
 
 ### model
 
 ```ts
-model: ComputedRef<undefined | FieldsModel>;
+model: ComputedRef<FieldsModel | undefined>;
 ```
 
 The current fields model.
@@ -108,7 +112,7 @@ The current fields model.
 ### schema
 
 ```ts
-schema: ComputedRef<undefined | JsonSchema>;
+schema: ComputedRef<JsonSchema | undefined>;
 ```
 
 The fields schema.
@@ -116,7 +120,7 @@ The fields schema.
 ### uischema
 
 ```ts
-uischema: ComputedRef<undefined | UISchemaElement>;
+uischema: ComputedRef<UISchemaElement | undefined>;
 ```
 
 The fields UI schema.

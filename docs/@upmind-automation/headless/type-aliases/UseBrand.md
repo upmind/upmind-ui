@@ -6,4 +6,5 @@
 type UseBrand = ReturnType<typeof useBrand>;
 ```
 
-The return type of useBrand composable.
+Type definition for the return value of the `useBrand` composable,
+ensuring type safety for consumers by providing an explicit signature.

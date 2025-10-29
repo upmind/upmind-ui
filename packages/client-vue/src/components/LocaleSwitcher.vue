@@ -1,15 +1,17 @@
 <template>
-  <Combobox
-    v-if="meta.isAvailable"
-    :modelValue="locale"
-    :items="items"
-    @update:modelValue="updateLocale"
-    :search="search"
-    width="auto"
-    dropdown-width="md"
-    icon="translate-01"
-    size="md"
-  />
+  <div>
+    <Combobox
+      v-if="meta.isAvailable"
+      :modelValue="locale"
+      :items="items"
+      @update:modelValue="updateLocale"
+      :search="search"
+      width="auto"
+      dropdown-width="md"
+      icon="translate-01"
+      size="md"
+    />
+  </div>
 </template>
 
 <script lang="ts" setup>

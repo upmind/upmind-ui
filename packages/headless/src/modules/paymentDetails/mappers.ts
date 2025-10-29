@@ -1,5 +1,5 @@
 // --- utils
-import { isArray, map, isNil, omitBy, pick, find, defaults } from "lodash-es";
+import { isArray, map, pick, find, defaults } from "lodash-es";
 
 // --- types
 import type {
@@ -54,6 +54,7 @@ export function mapPaymentDetail(raw: IPaymentDetail): PaymentDetail {
     meta: {
       isActive: !!raw.active,
       isDefault: !!raw.default,
+      isSupported: true,
       canDelete: !!raw.can_delete,
       isAutoPayment: !!raw.auto_payment
     }

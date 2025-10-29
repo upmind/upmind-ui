@@ -6,6 +6,8 @@
 function useBasketPromotions(): object;
 ```
 
+Manages basket promotions, providing state, context, and methods to manipulate promotions within a shopping basket.
+
 ## Returns
 
 ### add()
@@ -45,7 +47,7 @@ Clears the promotion state.
 ### context
 
 ```ts
-context: ComputedRef<undefined | PromotionsContext>;
+context: ComputedRef<PromotionsContext | undefined>;
 ```
 
 The full promotion context object.
@@ -53,7 +55,7 @@ The full promotion context object.
 ### errors
 
 ```ts
-errors: ComputedRef<undefined | string>;
+errors: ComputedRef<string | undefined>;
 ```
 
 Any error returned by the promotion actor.
@@ -114,7 +116,7 @@ Meta information about the basket promotion state.
 ### model
 
 ```ts
-model: ComputedRef<undefined | PromotionModel>;
+model: ComputedRef<PromotionModel | undefined>;
 ```
 
 The current promotion model.
@@ -122,7 +124,7 @@ The current promotion model.
 ### promotions
 
 ```ts
-promotions: ComputedRef<undefined | IBasketPromotion[]>;
+promotions: ComputedRef<IBasketPromotion[] | undefined>;
 ```
 
 The list of available promotions.
@@ -152,7 +154,7 @@ Resolves when removed, rejects on error.
 ### schema
 
 ```ts
-schema: ComputedRef<undefined | JsonSchema>;
+schema: ComputedRef<JsonSchema | undefined>;
 ```
 
 The promotion schema.
@@ -160,7 +162,7 @@ The promotion schema.
 ### uischema
 
 ```ts
-uischema: ComputedRef<undefined | UISchemaElement>;
+uischema: ComputedRef<UISchemaElement | undefined>;
 ```
 
 The promotion UI schema.
@@ -169,8 +171,8 @@ The promotion UI schema.
 
 ```ts
 validationErrors: ComputedRef<
-  | undefined
-| ValidationErrorObject<string, Record<string, any>, unknown>[]>;
+  | ValidationErrorObject<string, Record<string, any>, unknown>[]
+| undefined>;
 ```
 
 Any validation errors returned by the promotion actor.

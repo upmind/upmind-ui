@@ -33,13 +33,19 @@ export type RouteQueryParams = typeof useRouteQueryParams;
 // -----------------------------------------------------------------------------
 
 // create a global instance of the machine & router
-// NB dont automatically start the machine as in order for the inspector to work
-// it needs to be started after the inspect service is created, so we only start it when we need it
+// NB don't automatically start the machine as in order for the inspector to work,
+// it needs to be started after the inspected service is created, so we only start it when we need it
 
 const service = interpret(routingEngine, { devTools: false });
 let router: Router;
 // -----------------------------------------------------------------------------
 
+/**
+ * Composable function to provide a routing engine to handle route management, navigation, and state control within the application.
+ *
+ * This composable enables integration with internationalisation, session, and basket states, and allows for advanced
+ * route resolution and flow management.
+ */
 export const useRoutingEngine = () => {
   const { t } = useI18n();
   const { meta: basketMeta } = useBasket();
@@ -128,7 +134,7 @@ export const useRoutingEngine = () => {
     if (!available) return route;
 
     const routeName = route?.name as ROUTE;
-    // --- Only try resolve if the routeName exists in our routing engine
+    // --- Only try to resolve if the routeName exists in our routing engine
     if (exists(routeName)) {
       const target = await resolve(routeName, {
         path: route.path,
@@ -309,7 +315,7 @@ export const useRoutingEngine = () => {
     exists,
     next,
     back,
-    refresh: () => router.go(0), // = roload current route without cache
+    refresh: () => router.go(0), // = reload current route without cache
     resolve,
     stop,
     // --- navigation

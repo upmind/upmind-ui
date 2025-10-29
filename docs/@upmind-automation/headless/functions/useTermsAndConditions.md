@@ -15,16 +15,48 @@ The composable methods and state for the terms and conditions.
 ### data
 
 ```ts
-data: undefined | Ref<TermsAndConditions, TermsAndConditions> = query.data;
+data: object = query.data;
 ```
 
 The reactive data property containing the list of client items.
 This is populated by the query and updates automatically when the query state changes.
 
+#### data.\[ComputedRefSymbol\]
+
+```ts
+[ComputedRefSymbol]: true;
+```
+
+#### data.\[RefSymbol\]
+
+```ts
+[RefSymbol]: true;
+```
+
+Type differentiator only.
+We need this to be in public d.ts but don't want it to show up in IDE
+autocomplete, so we use a private Symbol instead.
+
+#### data.effect
+
+```ts
+effect: ComputedRefImpl;
+```
+
+##### Deprecated
+
+computed no longer uses effect
+
+#### data.value
+
+```ts
+value: TermsAndConditions;
+```
+
 ### error
 
 ```ts
-error: undefined | Ref<null, null> | Ref<Error, Error> = query.error;
+error: Ref<Error, Error> | Ref<null, null> = query.error;
 ```
 
 The current error state of the query.
@@ -51,24 +83,30 @@ A promise resolving to true if ready, false if error.
 meta: ComputedRef<{
   hasError: boolean;
   isAvailable: boolean;
-  isComplete: undefined | boolean;
+  isComplete: boolean;
   isEmpty: boolean;
   isLoading: boolean;
-  isUrl?: boolean;
+  isUrl: boolean;
 }>;
 ```
 
 Meta-information about the basket state.
 
-### refresh
+### refresh()
 
 ```ts
-refresh: 
-  | undefined
-  | (options?) => Promise<QueryObserverResult<TermsAndConditions, Error>> = query.refetch;
+refresh: (options?) => Promise<QueryObserverResult<TermsAndConditions, Error>> = query.refetch;
 ```
 
 Refresh the query to get the latest data.
 This will refetch the data from the server and update the query state.
 
+#### Parameters
+
+##### options?
+
+`RefetchOptions`
+
 #### Returns
+
+`Promise`\<`QueryObserverResult`\<`TermsAndConditions`, `Error`\>\>

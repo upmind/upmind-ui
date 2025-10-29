@@ -5,3 +5,5 @@
 ```ts
 type UseProductCategories = ReturnType<typeof useProductCategories>;
 ```
+
+The return type of the [useProductCategories](../functions/useProductCategories.md) composable function.

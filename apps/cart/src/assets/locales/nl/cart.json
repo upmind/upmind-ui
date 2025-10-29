@@ -1,14 +1,18 @@
 {
+  "basket_billing_review_msg": "Sommige factureringsgegevens ontbreken of zijn onjuist – {review}.",
   "basket_count": "leeg | {count} artikel | {count} artikelen",
+  "basket_fields_review_msg": "Sommige velden in de mand ontbreken of zijn onjuist – {review}.",
   "basket_items": "geen artikelen in winkelwagen | {count} artikel in winkelwagen | {count} artikelen in winkelwagen",
   "basket_product_missing_data": "Ontbrekende gegevens van item",
   "basket_product_missing_data_help": "Er ontbreken gegevens voor dit item en er is aandacht nodig",
+  "basket_product_review_msg": "{productName} mist verplichte informatie – {review}.",
   "basket_products": "Artikelen in het winkelmandje",
   "basket_products_require_attention": "**{count}** producten vereisen **aandacht** | **{count}** product vereist **aandacht** | **{count}** producten vereisen **aandacht**",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
   "basket_products_require_attention_msg": "{count} producten vereisen aandacht | {count} product vereist aandacht | {count} producten vereisen aandacht",
   "basket_products_review_desc": "Controleer de volgende items voordat u verdergaat. U kunt ze ook terugzetten in uw winkelmandje.",
-  "basket_products_review_msg": "Bekijk de volgende items voordat u verdergaat",
+  "basket_requires_attention_msg": "{count} item heeft uw aandacht nodig | {count} items hebben uw aandacht nodig",
+  "basket_review_msg": "Controleer de volgende items voordat u doorgaat",
   "basket_summary_desc": "Je hebt {count} artikel in uw winkelwagen, totaal {total}. | Je hebt {count} artikelen in uw winkelwagen, met een totaalbedrag {total}.",
   "basket_title": "Uw winkelmandje",
   "empty": "Je **winkelwagentje** is leeg",
@@ -42,5 +46,7 @@
   "promotions_active": "Actieve kortingen",
   "recommendations_unavailable_text": "We konden op dit moment geen aanbevelingen voor u vinden. Klik hieronder om verder te gaan.",
   "recommendations_unavailable_title": "Het spijt ons daarvoor...",
-  "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}"
+  "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
+  "stored_payment_methods_limited_desc": "Niet alle betaalmethoden zijn zichtbaar omdat ze niet beschikbaar zijn voor uw land of valuta.",
+  "stored_payment_methods_limited_title": "Beperkte Betaalmethoden"
 }

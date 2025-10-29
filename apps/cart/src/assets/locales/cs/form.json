@@ -1,6 +1,6 @@
 {
   "address": {
-    "error": "Došlo k chybě při přidávání adresy | došlo k chybě při aktualizaci adresy",
+    "error": "Vaše adresa je vyžadována",
     "label": "Adresa",
     "placeholder": "Začněte psát svou adresu",
     "title": "Přidat novou adresu | Aktualizovat adresu"
@@ -54,7 +54,7 @@
     "placeholder": "Město, obec atd."
   },
   "company": {
-    "error": "Došlo k chybě při přidávání údajů o společnosti | došlo k chybě při aktualizaci údajů o společnosti",
+    "error": "Je vyžadován název vaší společnosti",
     "label": "Společnost",
     "title": "Přidat podrobnosti o společnosti | Aktualizovat podrobnosti o společnosti"
   },
@@ -77,7 +77,7 @@
     "placeholder": "Hledat doménu..."
   },
   "email": {
-    "error": "Došlo k chybě při přidávání e-mailu | došlo k chybě při aktualizaci e-mailu",
+    "error": "Je vyžadována platná e-mailová adresa",
     "label": "E-mail",
     "title": "Přidat nový e-mail | Aktualizovat e-mail"
   },
@@ -96,7 +96,7 @@
     "error": "Při pokusu o vaše přihlášení došlo k chybě."
   },
   "phone": {
-    "error": "Došlo k chybě při přidávání telefonního čísla | došlo k chybě při aktualizaci telefonního čísla",
+    "error": "Je vyžadováno platné telefonní číslo",
     "label": "Telefon",
     "title": "Přidat nové telefonní číslo | Aktualizovat telefonní číslo"
   },

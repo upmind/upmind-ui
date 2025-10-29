@@ -1,14 +1,18 @@
 {
+  "basket_billing_review_msg": "Липсват или са неправилни някои данни за фактуриране – {review}.",
   "basket_count": "празен | {count} артикул | {count} артикули",
+  "basket_fields_review_msg": "Някои полета на кошницата липсват или са неправилни – {review}.",
   "basket_items": "няма артикули в кошницата | {count} артикул в кошницата | {count} артикули в кошницата",
   "basket_product_missing_data": "Липсващи данни за елемента",
   "basket_product_missing_data_help": "Този елемент е лишен от данни и изисква внимание",
+  "basket_product_review_msg": "{productName} липсва необходимата информация – {review}.",
   "basket_products": "Артикули от кошницата",
   "basket_products_require_attention": "**{count}** продуктите изискват **внимание** | **{count}** продуктът изисква **внимание** | **{count}**продуктите изискват **внимание**",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
   "basket_products_require_attention_msg": "{count} продуктите изискват внимание | {count} продуктът изисква внимание | {count} продуктите изискват внимание",
   "basket_products_review_desc": "Моля, прегледайте следните артикули, преди да продължите, или се върнете в кошницата.",
-  "basket_products_review_msg": "Моля, прегледайте следните елементи, преди да продължите",
+  "basket_requires_attention_msg": "{count} елемент изисква вашето внимание | {count} елементи изискват вашето внимание",
+  "basket_review_msg": "Моля, прегледайте следните елементи, преди да продължите",
   "basket_summary_desc": "Вие имате {count} артикул във вашата кошница, на обща стойност {total} | Вие имате {count} артикули във вашата кошница, общо {total}.",
   "basket_title": "Вашата кошница",
   "empty": "Вашата **кошница** е празна",
@@ -42,5 +46,7 @@
   "promotions_active": "Активни отстъпки",
   "recommendations_unavailable_text": "Не успяхме да намерим препоръки за вас в момента. Моля, кликнете по-долу, за да продължите.",
   "recommendations_unavailable_title": "Съжаляваме за това...",
-  "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}"
+  "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
+  "stored_payment_methods_limited_desc": "Не всички методи за плащане са видими, защото не са налични за вашата страна или валута.",
+  "stored_payment_methods_limited_title": "Ограничени методи на плащане"
 }

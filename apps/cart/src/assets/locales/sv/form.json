@@ -1,6 +1,6 @@
 {
   "address": {
-    "error": "Ett fel uppstod vid tillägg av adressen | ett fel uppstod vid uppdatering av adressen",
+    "error": "Din adress är obligatorisk",
     "label": "Adress",
     "placeholder": "Börja skriva din adress",
     "title": "Lägg till ny adress | Uppdatera adress"
@@ -54,7 +54,7 @@
     "placeholder": "Stad, ort etc."
   },
   "company": {
-    "error": "Ett fel uppstod vid tillägg av företagsuppgifter | ett fel uppstod vid uppdatering av företagsuppgifter",
+    "error": "Ditt företagsnamn krävs",
     "label": "Företag",
     "title": "Lägg till företagsuppgifter | Uppdatera företagsuppgifter"
   },
@@ -77,7 +77,7 @@
     "placeholder": "Sök efter en domän..."
   },
   "email": {
-    "error": "Ett fel uppstod vid tillägg av e-postadress | ett fel uppstod vid uppdatering av e-postadress",
+    "error": "En giltig e-postadress krävs",
     "label": "E-post",
     "title": "Lägg till ny e-postadress | Uppdatera e-postadress"
   },
@@ -96,7 +96,7 @@
     "error": "Vi upplevde ett fel när vi försökte logga in dig."
   },
   "phone": {
-    "error": "Ett fel uppstod vid tillägg av telefonnummer | ett fel uppstod vid uppdatering av telefonnummer",
+    "error": "Ett giltigt telefonnummer krävs",
     "label": "Telefon",
     "title": "Lägg till nytt telefonnummer | Uppdatera telefonnummer"
   },

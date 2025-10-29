@@ -10,17 +10,18 @@ import { contextMatches, contextValue, stateMatches } from "../../utils";
 
 // --- types
 import type { ProductModel } from "../product";
-import { RecommendationsEngineContext } from "./types";
+import type { RecommendationsEngineContext } from "./types";
+
 // -----------------------------------------------------------------------------
 
 /**
- * This composable is used to manage the product recommendations
- * for a specific product. It uses the recommendations engine
+ * A composable function that manages the product recommendations
+ * for a specific product. It uses the recommendation engine
  * to fetch and manage the recommendations.
  * NB: Only recommendations that originate from the specified product will be available.
  * This is useful for displaying recommendations on the product detail page, or after adding to the basket
  * @param pid - The product id to get recommendations for
- * @returns
+ * @returns An object containing state, context, errors, recommendations, and methods to manage recommendations.
  */
 export const useProductRecommendations = (pid: ProductModel["productId"]) => {
   const {
@@ -60,16 +61,13 @@ export const useProductRecommendations = (pid: ProductModel["productId"]) => {
 
   const meta = computed(() => ({
     hasErrors: stateMatches(state, ["error"]),
-    hasRecommendations:
-      contextMatches(state, "recommendations") &&
-      some(
-        productRecommendations.value,
-        ({ meta }) => !meta?.added && !meta?.seen
-      ),
+    hasRecommendations: contextMatches(state, "recommendations"),
     hasUnseenRecommendations: some(
-      productRecommendations.value,
-      ({ meta }) => !meta?.seen
+      recommendations.value,
+      ({ meta }) => !meta?.seen && !meta?.added
     ),
+    hasSeenRecommendations: some(recommendations.value, "meta.seen"),
+    hasAddedRecommendations: some(recommendations.value, "meta.added"),
     isConfiguring: stateMatches(state, ["configuring"]),
     isLoading: stateMatches(state, ["subscribing"]),
     isProcessing: stateMatches(state, ["processing"]),

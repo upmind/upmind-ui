@@ -1,30 +1,26 @@
 <template>
-  <Layout>
-    <ContentSection v-auto-animate class="flex grow items-center">
-      <Interstitial
-        v-bind="props"
-        :title="t('auth.logged_out_md')"
-        :text="t('text.continue_shopping_desc')"
-        :actions="[
-          {
-            ...storefrontRoute,
-            variant: 'solid',
-            color: 'primary',
-            iconAppend: 'arrow-right',
-            label: t('action.continue_shopping')
-          }
-        ]"
-      >
-      </Interstitial>
-    </ContentSection>
-  </Layout>
+  <div class="flex grow items-center justify-center">
+    <Interstitial
+      v-bind="props"
+      :title="t('auth.logged_out_md')"
+      :text="t('text.continue_shopping_desc')"
+      :actions="[
+        {
+          ...storefrontRoute,
+          variant: 'solid',
+          color: 'primary',
+          iconAppend: 'arrow-right',
+          label: t('action.continue_shopping')
+        }
+      ]"
+    />
+  </div>
 </template>
 
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
-import { useRouter } from "vue-router";
 
 // --- internal
 import {
@@ -35,8 +31,7 @@ import {
 } from "@upmind-automation/headless";
 
 // -- components
-import { Interstitial, Layout } from "@upmind-automation/upmind-ui";
-import ContentSection from "../../components/content/ContentSection.vue";
+import { Interstitial } from "@upmind-automation/upmind-ui";
 
 // -- types
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";

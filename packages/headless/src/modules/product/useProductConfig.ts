@@ -42,8 +42,15 @@ import type {
 
 // -----------------------------------------------------------------------------
 
+/**
+ * A composable function that provides functionality and state management for product configuration.
+ * It integrates various aspects of product customisation, such as quantity, terms, attributes, and options,
+ * while managing the underlying state using an actor-based state management system.
+ * @param {ActorRef<any>} service - The actor reference representing the product configuration state machine.
+ * @returns The {@link UseProductConfig} composable methods and state for product configuration.
+ */
 export const useProductConfig = (service: ActorRef<any>) => {
-  const { isReady, includesTax } = useBrand();
+  const { includesTax } = useBrand();
 
   const { state, send } = useActor(service);
   const model = computed(() => state.value.context.model); //toRef(state.value.context, "model");
@@ -226,7 +233,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
     values: string | string[]
   ): Promise<void> {
     const options = model.value.options;
-    const previousStates = get(options, option.id, {}); // keep previous state to restore quantity
+    const previousStates = get(options, option.id, {}); // keep the previous state to restore quantity
 
     set(options, option.id, {}); // reset all previous options
 
@@ -366,8 +373,18 @@ export const useProductConfig = (service: ActorRef<any>) => {
   };
 };
 
+/**
+ * The return type of the {@link useProductConfig} composable function.
+ */
 export type UseProductConfig = ReturnType<typeof useProductConfig>;
 
+/**
+ * Represents the metadata related to a product configuration process.
+ *
+ * This type provides a set of boolean flags that indicate various states and conditions
+ * during the product configuration lifecycle. It encapsulates important information such
+ * as loading states, validation status, availability, completion, and additional feature-related flags.
+ */
 export type UseProductConfigMeta = {
   isLoading: boolean;
   isNew: boolean;

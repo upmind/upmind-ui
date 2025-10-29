@@ -32,8 +32,10 @@ let places: PlaceService | undefined;
 // -----------------------------------------------------------------------------
 
 /**
- * Hook to access Google Places API placess
- * This provides access to address searching and parsing functions.
+ * Composable function to provide utility methods and state for integrating with
+ * the Google Places API. It initialises the Places API, manages its readiness state,
+ * and offers features for searching address predictions, retrieving place details,
+ * and accessing prediction results.
  */
 export const usePlaces = () => {
   const { locale } = useLocale();
@@ -167,10 +169,8 @@ export const usePlaces = () => {
     getPlaceDetails,
 
     /**
-     * Parse a place object into a more usable format
-     * @param place Place object to parse
-     * @returns Parsed place object with formatted address and coordinates
-     *
+     * Check if the places service is ready
+     * @returns Promise that resolves to true if ready
      */
     isReady,
 

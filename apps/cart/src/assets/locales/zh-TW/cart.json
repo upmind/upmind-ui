@@ -1,14 +1,18 @@
 {
+  "basket_billing_review_msg": "某些帳單詳細資訊遺失或不正確 – {review}.",
   "basket_count": "空 | {count}項目 | {count}專案",
+  "basket_fields_review_msg": "某些籃子欄位缺失或不正確 – {review}.",
   "basket_items": "購物籃中沒有商品 | {count} 購物籃中的商品 | {count} 籃子中的物品",
   "basket_product_missing_data": "項目缺失資料",
   "basket_product_missing_data_help": "此項缺少數據，需要注意",
+  "basket_product_review_msg": "{productName} 缺少必要的信息 – {review}.",
   "basket_products": "購物籃商品",
   "basket_products_require_attention": "**{count}** 產品需要**注意** | **{count}** 產品需要**注意** | **{count}**產品需要**注意**",
   "basket_products_require_attention_md": "@.markdown：{'cart.basket_products_require_attention'}",
   "basket_products_require_attention_msg": "{count} 產品需要注意 | {count} 產品需要注意 | {count} 產品需要關注",
   "basket_products_review_desc": "請在繼續之前檢查以下項目，或返回購物籃。",
-  "basket_products_review_msg": "繼續之前請檢查以下事項",
+  "basket_requires_attention_msg": "{count} 項目需要您的注意 | {count} 項目需要您的注意",
+  "basket_review_msg": "請在繼續之前檢查以下項目",
   "basket_summary_desc": "你有 {count} 您購物籃中的商品總計 {total} 。 | 你有 {count} 您購物籃中的商品總計 {total} 。",
   "basket_title": "您的購物籃",
   "empty": "您的**購物籃**是空的",
@@ -42,5 +46,7 @@
   "promotions_active": "有效折扣",
   "recommendations_unavailable_text": "目前我們無法為您提供任何推薦。請點擊下方繼續。",
   "recommendations_unavailable_title": "我們對此感到抱歉...",
-  "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}"
+  "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
+  "stored_payment_methods_limited_desc": "並非所有付款方式都可見，因為它們不適用於您的國家或貨幣。",
+  "stored_payment_methods_limited_title": "付款方式有限"
 }

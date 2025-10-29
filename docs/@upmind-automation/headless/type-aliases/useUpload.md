@@ -6,4 +6,4 @@
 type useUpload = ReturnType<typeof useUpload>;
 ```
 
-Return type for useUpload composable.
+The return type of [useUpload](../functions/useUpload.md) composable.

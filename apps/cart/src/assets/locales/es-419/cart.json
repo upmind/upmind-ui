@@ -1,14 +1,18 @@
 {
+  "basket_billing_review_msg": "Faltan algunos detalles de facturación o son incorrectos – {review}.",
   "basket_count": "vacío | {count} artículo | {count} elementos",
+  "basket_fields_review_msg": "Faltan algunos campos de la cesta o son incorrectos – {review}.",
   "basket_items": "No hay artículos en la cesta | {count} artículo en la cesta | {count} artículos en la cesta",
   "basket_product_missing_data": "Datos faltantes del artículo",
   "basket_product_missing_data_help": "A este elemento le faltan datos y requiere atención.",
+  "basket_product_review_msg": "{productName} falta información requerida – {review}.",
   "basket_products": "Artículos de la cesta",
   "basket_products_require_attention": "**{count}** los productos requieren **atención** | **{count}**El producto requiere **atención** | **{count}**Los productos requieren **atención**",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
   "basket_products_require_attention_msg": "{count} los productos requieren atención | {count} el producto requiere atención | {count} los productos requieren atención",
   "basket_products_review_desc": "Por favor revise los siguientes elementos antes de continuar, o bien regrese al carrito.",
-  "basket_products_review_msg": "Por favor revise los siguientes elementos antes de continuar",
+  "basket_requires_attention_msg": "{count} elemento necesita su atención | {count} elementos necesitan su atención",
+  "basket_review_msg": "Por favor, revise los siguientes elementos antes de continuar",
   "basket_summary_desc": "Tienes {count} artículo en su cesta, por un total de {total}. | Tienes {count} artículos en su cesta, por un total de {total}.",
   "basket_title": "Su cesta",
   "empty": "Tu **cesta** está vacía",
@@ -42,5 +46,7 @@
   "promotions_active": "Descuentos activos",
   "recommendations_unavailable_text": "No pudimos encontrar recomendaciones para ti en este momento. Por favor, haz clic abajo para continuar.",
   "recommendations_unavailable_title": "Lamentamos eso...",
-  "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}"
+  "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
+  "stored_payment_methods_limited_desc": "No todos los métodos de pago son visibles porque no están disponibles para tu país o moneda.",
+  "stored_payment_methods_limited_title": "Métodos de Pago Limitados"
 }

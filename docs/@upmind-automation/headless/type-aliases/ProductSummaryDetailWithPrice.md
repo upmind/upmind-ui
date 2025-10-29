@@ -6,6 +6,8 @@
 type ProductSummaryDetailWithPrice = ProductSummaryDetail & object;
 ```
 
+Type alias for a product summary detail that also includes pricing information.
+
 ## Type Declaration
 
 ### price
@@ -13,3 +15,5 @@ type ProductSummaryDetailWithPrice = ProductSummaryDetail & object;
 ```ts
 price: PriceDetail;
 ```
+
+The detailed price information for the item.

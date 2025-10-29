@@ -6,4 +6,4 @@
 type UseClientCompany = ReturnType<typeof useClientCompany>;
 ```
 
-The return type of the composable.
+The return type of the [useClientCompany](../functions/useClientCompany.md) composable function.

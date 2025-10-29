@@ -13,4 +13,4 @@ export const UpmSessionRecoverPasswordView = import("./RecoverPassword.vue");
 export { default as UpmAuth } from "./components/Auth.vue";
 
 // --- Export Types
-export * from "./components/types";
+export * from "./types";

@@ -15,8 +15,8 @@ import {
   filter,
   sortBy,
   isEmpty,
-  includes,
-  some
+  some,
+  map
 } from "lodash-es";
 import {
   ErrorOrigin,
@@ -28,6 +28,8 @@ import {
   stateMatches,
   useTime
 } from "../../utils";
+import { generateResponseUrls } from "./gateways/utils";
+import { mapPaymentDetailDetails } from "./mappers";
 
 // --- types
 import type { AnyEventObject } from "xstate";
@@ -37,16 +39,12 @@ import type {
   PaymentDetailsContext
 } from "./types";
 import {
+  PaymentType,
   BrandConfigKeys,
-  GatewayProviderCodes,
-  IBrandGateway,
-  IGateway,
-  IPaymentDetail,
-  PaymentType
+  type IBrandGateway,
+  type IPaymentDetail
 } from "@upmind-automation/types";
-import { QueryKey } from "@tanstack/vue-query";
-import { mapPaymentDetailDetails } from "./mappers";
-import { generateResponseUrls } from "./gateways/utils";
+import type { QueryKey } from "@tanstack/vue-query";
 
 // -----------------------------------------------------------------------------
 const queryKey: QueryKey = ["paymentDetail", "stored"];
@@ -198,12 +196,13 @@ async function loadLookups(
       return {
         // NB: ensure we only show active stored payment methods and only for gateways that are available.
         //     The BE does not filter out Stored payment methods for gateways not available for a given country or currency
-        storedPaymentMethods: filter(
-          storedPaymentMethods,
-          method =>
-            method.meta.isActive &&
-            some(gateways, ["gateway_id", method.gatewayID])
-        ),
+        storedPaymentMethods: map(storedPaymentMethods, method => ({
+          ...method,
+          meta: {
+            ...method.meta,
+            isSupported: some(gateways, ["gateway_id", method.gatewayID])
+          }
+        })),
         gateways: sortBy(gateways, ["order"]),
         paymentTypes
       } as unknown as Partial<PaymentDetailsContext>;
@@ -301,7 +300,7 @@ async function parse(
     };
   }
 
-  // genrate our return and cancel urls
+  // generate our return and cancel urls
   const { cancelUrl, returnUrl } = generateResponseUrls(
     new URL(`order/${orderId}`, window.location.origin),
     { orderId }

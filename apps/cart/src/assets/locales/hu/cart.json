@@ -1,14 +1,18 @@
 {
+  "basket_billing_review_msg": "Néhány számlázási adat hiányzik vagy helytelen – {review}.",
   "basket_count": "üres | {count} tétel | {count} tételek",
+  "basket_fields_review_msg": "Néhány kosármező hiányzik vagy helytelen – {review}.",
   "basket_items": "nincsenek tételek a kosárban | {count} tétel a kosárban | {count} kosárban lévő tételek",
   "basket_product_missing_data": "Hiányzó adatok a tételből",
   "basket_product_missing_data_help": "Ez az elem adathiányos, és figyelmet igényel.",
+  "basket_product_review_msg": "{productName} hiányzik a szükséges információ – {review}.",
   "basket_products": "Kosár tételei",
   "basket_products_require_attention": "**{count}** a termékek **figyelmet** igényelnek | **{count}** a termék **figyelmet** igényel | **{count}**A termékek **figyelmet** igényelnek",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
   "basket_products_require_attention_msg": "{count} termékek, amelyek figyelmet igényelnek | {count} a termék figyelmet igényel | {count} a termékek figyelmet igényelnek",
   "basket_products_review_desc": "Kérjük, a folytatás előtt tekintse át az alábbiakat, vagy tegye vissza a kosárba.",
-  "basket_products_review_msg": "Kérjük, a folytatás előtt tekintse át a következőket",
+  "basket_requires_attention_msg": "{count} elem igényli a figyelmét | {count} elemek igénylik a figyelmét",
+  "basket_review_msg": "Kérjük, tekintse át a következő elemeket, mielőtt folytatná",
   "basket_summary_desc": "Van {count} tétel a kosarában, összesen {total}. | Neked van {count} a kosárban lévő tételek, összesen {total}.",
   "basket_title": "A kosarad",
   "empty": "A **kosarad** üres",
@@ -42,5 +46,7 @@
   "promotions_active": "Aktív kedvezmények",
   "recommendations_unavailable_text": "Jelenleg nem találtunk Önnek ajánlásokat. Kérjük, kattintson az alábbiakra a folytatáshoz.",
   "recommendations_unavailable_title": "Elnézést kérünk ezért...",
-  "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}"
+  "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
+  "stored_payment_methods_limited_desc": "Nem minden fizetési mód látható, mert nem érhetők el az Ön országában vagy pénznemében.",
+  "stored_payment_methods_limited_title": "Korlátozott fizetési módok"
 }

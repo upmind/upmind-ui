@@ -1,6 +1,6 @@
 {
   "address": {
-    "error": "Adres Eklemede Bir Hata Oluştu | Adres Güncellemede Bir Hata Oluştu",
+    "error": "Adresiniz gereklidir",
     "label": "Adres",
     "placeholder": "Adresinizi yazmaya başlayın",
     "title": "Yeni Adres Ekle | Adresi Güncelle"
@@ -54,7 +54,7 @@
     "placeholder": "Şehir, kasaba vb."
   },
   "company": {
-    "error": "Şirket Ayrıntıları Eklenirken Bir Hata Oluştu | Şirket Ayrıntıları Güncellenirken Bir Hata Oluştu",
+    "error": "Şirket adınız gereklidir",
     "label": "Şirket",
     "title": "Şirket Detaylarını Ekle | Şirket Detaylarını Güncelle"
   },
@@ -77,7 +77,7 @@
     "placeholder": "Bir alan adı arayın..."
   },
   "email": {
-    "error": "E-postayı eklerken bir hata oluştu | E-postayı güncellerken bir hata oluştu",
+    "error": "Geçerli bir E-posta Adresi gereklidir",
     "label": "E-posta",
     "title": "Yeni E-posta Ekle | E-postayı Güncelle"
   },
@@ -96,7 +96,7 @@
     "error": "Girişinizi yapmaya çalışırken bir hatayla karşılaştık."
   },
   "phone": {
-    "error": "Telefon Numarası Eklenirken Bir Hata Oluştu | Telefon Numarası Güncellenirken Bir Hata Oluştu",
+    "error": "Geçerli bir Telefon Numarası gereklidir",
     "label": "Telefon",
     "title": "Yeni Telefon Numarası Ekle | Telefon Numarasını Güncelle"
   },

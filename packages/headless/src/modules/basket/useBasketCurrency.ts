@@ -28,6 +28,12 @@ import type { CurrencyContext, CurrencyModel } from "./currency/types";
 // -----------------------------------------------------------------------------
 // We allow an actor to be passed in, but if not, we will use the basket actorRef and wait for the 'actor'' machine to be ready
 
+/**
+ * Interacts with the basket currency context and actor.
+ * Provides state, context, and methods for managing basket currency data.
+ * The functionality includes checking readiness, fetching meta-information,
+ * accessing context and models, and performing actions like updating or clearing currency data.
+ */
 export const useBasketCurrency = () => {
   const { t } = useI18n();
   const { actors } = useBasket();
@@ -103,7 +109,7 @@ export const useBasketCurrency = () => {
   }
 
   async function update(value?: CurrencyModel): Promise<void> {
-    // first check if our currency has change, ie: model.code has changed
+    // first check if our currency has changed, i.e.: model.code has changed
 
     const code = toRaw(unref(value))?.code?.toUpperCase();
     const model = contextValue<CurrencyModel>(actor, "model");
@@ -227,6 +233,12 @@ export const useBasketCurrency = () => {
 };
 
 /**
- * The return type of useBasketCurrency composable.
+ * Represents the return type of the `useBasketCurrency` function.
+ *
+ * This type defines the structure and behaviour of the value returned by invoking `useBasketCurrency`,
+ * which is typically related to managing or providing information about currency in a basket or cart system.
+ *
+ * `useBasketCurrency` is expected to be a function that provides state management, calculations, or
+ * utility methods related to handling currencies associated with the shopping basket.
  */
 export type UseBasketCurrency = ReturnType<typeof useBasketCurrency>;

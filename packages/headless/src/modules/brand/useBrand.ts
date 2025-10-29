@@ -41,8 +41,8 @@ import { RouteLocationRaw } from "vue-router";
 
 // -----------------------------------------------------------------------------
 /**
- * Context to let us understand if we need to refetch on the inital use of Brand settings
- * We do this because settings are persisted for fast load times but we still need
+ * Context to let us understand if we need to refetch on the initial use of Brand settings
+ * We do this because settings are persisted for fast load times, but we still need
  * to ensure that we get the latest settings in the background
  * NB:check if we actually have any persisted settings first
  *
@@ -61,6 +61,13 @@ let organisationConfigQuery: ReturnType<
 
 // -----------------------------------------------------------------------------
 
+/**
+ * Composable function to access and manage brand-related data and configurations.
+ * It fetches modules, brand configurations, brand settings, and organisation configurations
+ * to provide a unified interface for brand-related information.
+ *
+ * @returns An object containing brand data, meta-information, and utility methods.
+ */
 export const useBrand = () => {
   modulesQuery ??= services.fetchModules();
   brandConfigQuery ??= services.fetchBrandConfig();
@@ -344,7 +351,8 @@ export const useBrand = () => {
 
   // --- side effects
 
-  // after first load, ensure we refetch our data in the background if we have previously fetched/persisted
+  // After the initial load, if `needsRefresh` is true (indicating previously fetched/persisted settings),
+  // trigger a background refresh to ensure data is up to date.
   isReady().then(() => {
     if (needsRefresh) {
       refresh();
@@ -356,97 +364,69 @@ export const useBrand = () => {
     // --- state
 
     /**
-     * Resolves when the brand service is ready or errors.
-     * Returns true if ready, false if an error occurred.
-     * @returns {Promise<boolean>} A promise resolving to true if ready, false if error.
+     * Resolves when the brand service is ready or encounters an error.
+     * @returns {Promise<boolean>} A promise is resolving to `true` if ready, `false` if an error occurred.
      */
     isReady,
 
     /**
-     * Checks if a module is enabled for the current brand.
+     * Checks if a specific module is enabled for the current brand.
      * @param {string} code - The module code to check.
-     * @returns {boolean} True if the module is enabled, false otherwise.
+     * @returns {boolean} `true` if the module is enabled, `false` otherwise.
      */
     hasModuleEnabled,
 
     /**
-     * Meta-information about the brand state.
-     * @type {Object} BrandMeta
-     * @property {boolean} hasErrors - Indicates if there are any errors in the brand process.
-     * @property {boolean} isComplete - Indicates if the brand process is complete.
-     * @property {boolean} isLoading - Indicates if the brand is currently loading.
-     * @property {boolean} isAvailable - Indicates if the brand is available for use.
+     * Meta-information about the current brand state.
+     * @property {boolean} hasErrors - Indicates if any errors occurred during brand data loading.
+     * @property {boolean} isComplete - Indicates if all brand data queries have finished.
+     * @property {boolean} isLoading - Indicates if brand data is currently being loaded.
+     * @property {boolean} isAvailable - Indicates if the brand is available for use (has a name).
      */
     meta,
 
     // --- context
-    /**
-     * The current brand ID.
-     */
+    /** The unique identifier of the current brand. */
     brandId,
 
-    /**
-     * The current brand name.
-     */
+    /** The name of the current brand. */
     name,
 
-    /**
-     * The default payment period for the brand.
-     */
+    /** The default payment period configured for the brand. */
     defaultPaymentPeriod,
 
-    /**
-     * Any error object from the brand state.
-     */
+    /** An array of errors encountered during brand data fetching. */
     errors,
 
-    /**
-     * Whether the brand includes tax by default.
-     */
+    /** `true` if tax is included by default in prices, `false` otherwise. */
     includesTax,
 
-    /**
-     * The tax type for the brand.
-     */
+    /** The tax type configured for the brand */
     taxType,
 
-    /**
-     * The country ID for the brand.
-     */
+    /** The country identifier associated with the brand. */
     countryId,
 
-    /**
-     * The current currency object for the brand.
-     */
+    /** The current currency object representing the brand's default or selected currency. */
     currency,
 
-    /**
-     * The currency ID for the brand.
-     */
+    /** The identifier of the brand's default currency. */
     currencyId,
 
-    /**
-     * The list of all supported currencies for the brand.
-     */
+    /** An array of all supported currencies for the brand. */
     currencies,
 
-    /**
-     * The current image object for the brand.
-     */
+    /** The primary image or logo URL for the brand. */
     image,
 
-    /**
-     * The current styles object for the brand.
-     */
+    /** The style configuration object for the brand's UI. */
     styles,
 
-    /**
-     * The current favicon object for the brand.
-     */
+    /** The favicon URL for the brand. */
     favicon,
 
     /**
-     * The current theming object for the brand.
+     * The UI theme configuration for the brand, including theme variants and the currently selected variant.
      */
     uiTheme,
 
@@ -456,7 +436,7 @@ export const useBrand = () => {
     iconStyles,
 
     /**
-     * The current cart metaobject for the brand.
+     * Cart-specific meta-information from the brand settings.
      */
     uiCart,
 
@@ -475,114 +455,116 @@ export const useBrand = () => {
     storefrontUrl,
 
     /**
-     * The resolved storefront route within the application.
-     * This is derived from the meta, environment and router configuration.
-     * provided for convenience as a vue router friendly route object.
+     * The resolved Vue Router route object for navigating to the storefront.
+     * Provides either a `to` object for internal navigation or `href` for external links.
      */
     storefrontRoute,
 
     /**
-     * Returns boolean indicating if the brand has a storefront URL.
-     * This is derived from the meta, environment and router configuration.
+     * A boolean indicating whether the brand has a configured storefront.
      */
     hasStorefront,
 
     /**
-     * The current language object for the brand.
+     * The current language object for the brand, determined by settings or defaults.
      */
     language,
 
     /**
-     * The list of all supported languages for the brand.
+     * An array of all supported languages for the brand.
      */
     languages,
 
     // --- methods
 
     /**
-     * Ensures the given config keys are loaded and returns their values.
-     * @param keys - One or more BrandConfigKeys to ensure are loaded.
-     * @returns { Promise<Record<string, any>> } A promise resolving to a record of config key-value pairs.
+     * Ensures that the specified brand configuration keys are fetched and available in the context.
+     *
+     * @param keys - One or more {@link BrandConfigKeys} to ensure are loaded.
+     * @returns A promise resolving to a record of the requested configuration key-value pairs.
      * @throws {DetailedError} If the config keys are not available in the context or if the request times out.
      */
     ensureConfig,
 
     /**
-     * Loads analytics config for the brand (GA/GTM IDs).
-     * @returns {Promise<Record<string, any>>} A promise resolving to the analytics config object or undefined.
+     * Fetches analytics configuration related to Google Analytics (GA) and Google Tag Manager (GTM) IDs.
+     *
+     * @returns A promise resolving to an object containing analytics configuration.
      */
     getAnalytics,
 
     /**
-     * This method will return the requested keys from the config.
-     * It assumes that the keys are already in context in the state machine.
-     * It will not request the keys from the API if they are not already in context.
-     * It will also not wait for the state of the request to be processed/cached
-     * before returning the requested keys.
-     * @param keys - The keys to request from the config
-     * @returns {Record<string, any>} An object containing the requested keys and their values.
-     * @throws {DetailedError} If the keys are not available in the context.
+     * Retrieves specific brand configuration keys from the context.
+     * Assumes the keys are already loaded and available. Does not initiate a fetch if data is missing.
+     *
+     * @param keys - One or more {@link BrandConfigKeys} to retrieve.
+     * @returns An object containing the requested keys and their corresponding values. Returns an empty object if keys are not found.
      */
     getConfig,
 
     /**
-     * This method will return the requested key VALUE from the config.
-     * It assumes that the key is already in context in the state machine.
-     * It will not request the key from the API if it is not already in context.
-     * It will also not wait for the state of the request to be processed/cached
-     * before returning the requested key.
-     * @param key - The key to request from the config
-     * @returns {any} The value of the requested key.
-     * @throws {DetailedError} If the key is not available in the context.
+     * Retrieves a specific brand configuration value by its key.
+     * Assumes the key is already loaded and available in the context. Does not initiate a fetch if the key is missing.
+     *
+     * @template T - The expected type of the configuration value.
+     * @param key - The {@link BrandConfigKeys} to retrieve the value for.
+     * @returns The value of the requested key, or `undefined` if not found.
      */
     getConfigValue,
 
     /**
-     * Validates and returns a supported currency object or the default.
-     * @param model  The currency model to validate ({ id?: string, code?: string }).
-     * @returns {Promise<Partial<ICurrency> | ICurrency | undefined>} A promise resolving to a valid currency object or undefined.
-     * @throws {DetailedError} If the currencies are not available in the context.
+     * Validates a given currency model against the brand's supported currencies.
+     * Returns the matching currency or the brand's default currency if the provided model is invalid or not found.
+     *
+     * @param model - The currency model to validate (containing `id` or `code`).
+     * @returns A promise resolving to a valid {@link ICurrency} object, a partial {@link ICurrency}, or `undefined`.
+     * @throws {DetailedError} If the currency data is not available in the context.
      */
     validateCurrency,
 
     /**
-     * Validates and returns a supported language object or the default.
-     * @param model - The language model to validate ({ id?: string, code?: string }).
-     * @returns {  Promise<ILanguage | undefined>} A promise resolving to a valid language object or undefined.
-     * @throws {DetailedError} If the languages are not available in the context.
+     * Validates a given language model against the brand's supported languages.
+     * Returns the matching language or the brand's default language if the provided model is invalid or not found.
+     *
+     * @param model - The language model to validate (containing `id` or `code`).
+     * @returns A promise resolving to a valid {@link ILanguage} object or `undefined`.
+     * @throws {DetailedError} If the language data is not available in the context.
      */
     validateLanguage,
 
-    /**     * Checks if the given language model is supported by the brand.
-     * @param model - The language model to check ({ id?: string, code?: string }).
-     * @returns {boolean} True if the language is supported, false otherwise.
-     * @throws {DetailedError} If the languages are not available in the context.
+    /**
+     * Checks if the brand supports a given language locale.
+     *
+     * @param locale - The language locale string to check (e.g. "en").
+     * @returns `true` if the locale is supported, `false` otherwise.
+     * @throws {DetailedError} If the language data is not available in the context.
      */
     isSupportedLanguage,
 
     /**
      * Refreshes the brand state by re-fetching all related queries.
-     * This will invalidate the current brand state and re-fetch it from the API.
-     * It will also reset the initialized flag to force a re-run of the initial load
-     * logic, ensuring all brand data is up to date.
-     * @returns {Promise<void>} A promise that resolves when the brand state is refreshed.
-     * @throws {DetailedError} If the refresh fails.
+     * This invalidates the current brand state and fetches it again from the API,
+     * ensuring all brand data is up to date.
+     *
+     * @returns A promise that resolves when the brand state has been refreshed.
+     * @throws {DetailedError} If the refresh operation fails.
      */
     refresh,
 
     /**
      * Invalidates the brand state and all related queries.
-     * This will clear the current brand state and re-fetch it from the API.
-     * It is useful for clearing the brand state and forcing a re-fetch of all brand data
-     * without resetting the initialized flag.
-     * @returns {void}
-     * @throws {DetailedError} If the invalidating fails.
+     * This clears the current brand state and forces a re-fetch of all brand data,
+     * useful for synchronising state without necessarily re-initialising everything.
+     *
+     * @returns `void`
+     * @throws {DetailedError} If the invalidation process fails.
      */
     invalidate
   };
 };
 
 /**
- * The return type of useBrand composable.
+ * Type definition for the return value of the `useBrand` composable,
+ * ensuring type safety for consumers by providing an explicit signature.
  */
 export type UseBrand = ReturnType<typeof useBrand>;

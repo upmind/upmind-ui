@@ -301,6 +301,6 @@ export const usePaymentGateway = (actor: ComputedRef<Actor | undefined>) => {
 };
 
 /**
- * The return type of usePaymentGateway composable.
+ * The return type of {@link usePaymentGateway} composable.
  */
 export type UsePaymentGateway = ReturnType<typeof usePaymentGateway>;

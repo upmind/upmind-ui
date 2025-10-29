@@ -3,7 +3,7 @@
 # invalidateQueryByKey()
 
 ```ts
-function invalidateQueryByKey(queryKey, filters?): <T>(data?) => Promise<undefined | T>;
+function invalidateQueryByKey(queryKey, filters?): <T>(data?) => Promise<T | undefined>;
 ```
 
 Invalidate a query by its key.
@@ -28,7 +28,7 @@ Optional filters to apply when invalidating the query
 A function that takes the data and returns it after invalidating the query
 
 ```ts
-<T>(data?): Promise<undefined | T>;
+<T>(data?): Promise<T | undefined>;
 ```
 
 ### Type Parameters
@@ -45,7 +45,7 @@ A function that takes the data and returns it after invalidating the query
 
 ### Returns
 
-`Promise`\<`undefined` \| `T`\>
+`Promise`\<`T` \| `undefined`\>
 
 ## Example
 

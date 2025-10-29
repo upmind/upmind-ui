@@ -36,6 +36,13 @@ interface IUpmState {
 }
 // -----------------------------------------------------------------------------
 
+/**
+ * Composable function to handle user tracking data. The `useTracking` hook provides mechanisms for initialising,
+ * retrieving, and managing tracking data from cookies. This may include generating and storing
+ * tracking data based on query parameters and providing methods to retrieve or clear this data.
+ *
+ * Note that the composable relies on external libraries and configurations such as cookies and URL handling.
+ */
 export const useTracking = () => {
   const { get: getCookie, set: setCookie, remove: removeCookie } = useCookies();
 
@@ -70,7 +77,7 @@ export const useTracking = () => {
         // Otherwise generate a new tracking cookie from the Current query
         .catch(
           () =>
-            new Promise((resolve, reject) => {
+            new Promise(resolve => {
               const query = new URL(window.location.toString()).searchParams;
 
               // Track object
@@ -182,7 +189,5 @@ export const useTracking = () => {
   };
 };
 
-/**
- * The return type of useTracking composable.
- */
+/** The return type of {@link useTracking} composable. */
 export type UseTracking = ReturnType<typeof useTracking>;

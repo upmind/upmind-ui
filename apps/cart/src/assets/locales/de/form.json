@@ -1,6 +1,6 @@
 {
   "address": {
-    "error": "Beim Hinzufügen der Adresse ist ein Fehler aufgetreten | Beim Aktualisieren der Adresse ist ein Fehler aufgetreten",
+    "error": "Ihre Adresse ist erforderlich",
     "label": "Adresse",
     "placeholder": "Beginnen Sie mit der Eingabe Ihrer Adresse",
     "title": "Neue Adresse hinzufügen | Adresse aktualisieren"
@@ -54,7 +54,7 @@
     "placeholder": "Stadt, Ort usw."
   },
   "company": {
-    "error": "Beim Hinzufügen der Firmendetails ist ein Fehler aufgetreten. | Beim Aktualisieren der Firmendetails ist ein Fehler aufgetreten.",
+    "error": "Ihr Firmenname ist erforderlich",
     "label": "Unternehmen",
     "title": "Firmendetails hinzufügen | Firmendetails aktualisieren"
   },
@@ -77,7 +77,7 @@
     "placeholder": "Suchen Sie nach einer Domäne..."
   },
   "email": {
-    "error": "Beim Hinzufügen der E-Mail ist ein Fehler aufgetreten | Beim Aktualisieren der E-Mail ist ein Fehler aufgetreten",
+    "error": "Eine gültige E-Mail-Adresse ist erforderlich",
     "label": "E-Mail",
     "title": "Neue E-Mail hinzufügen | E-Mail aktualisieren"
   },
@@ -96,7 +96,7 @@
     "error": "Beim Versuch, Sie anzumelden, ist ein Fehler aufgetreten."
   },
   "phone": {
-    "error": "Beim Hinzufügen der Telefonnummer ist ein Fehler aufgetreten. | Beim Aktualisieren der Telefonnummer ist ein Fehler aufgetreten.",
+    "error": "Eine gültige Telefonnummer ist erforderlich",
     "label": "Telefon",
     "title": "Neue Telefonnummer hinzufügen | Telefonnummer aktualisieren"
   },

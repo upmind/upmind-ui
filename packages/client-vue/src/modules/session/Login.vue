@@ -1,96 +1,54 @@
 <template>
-  <Layout :variant="layout">
-    <template #navigation>
-      <Link
-        class="flex items-center gap-x-2"
-        @click.prevent="doReject"
-        icon="arrow-left"
-        :label="t('action.back_to_basket')"
-        size="lg"
-      />
-    </template>
-
-    <template #default>
-      <Section class="mx-auto max-w-2xl gap-9">
-        <Header
-          :badge="{
-            label: t('text.fully_encrypted_title'),
-            icon: 'lock-04'
-          }"
-          :title="t('action.log_in_to_your_account')"
-        >
-          <template #description>
-            <span class="font-normal">{{ t("auth.no_account_qn") }}&nbsp;</span>
-
-            <Link
-              :to="{ name: ROUTE.SESSION_REGISTER }"
-              size="inherit"
-              :label="t('action.create_one_here')"
-            />
-          </template>
-        </Header>
-
-        <section>
-          <Auth
-            class="rounded-box w-full max-w-5xl items-start"
-            no-tabs
-            no-header
-            model-value="login"
-            @update:model-value="doUpdate"
-            @resolve="doResolve"
-          />
-        </section>
-      </Section>
-    </template>
-  </Layout>
+  <component :is="templateVariant" />
 </template>
 
 <script lang="ts" setup>
 // --- external
-import { computed } from "vue";
-import { useI18n } from "vue-i18n";
+import { computed, onUnmounted } from "vue";
 
 // --- internal
-import { useRoutingEngine, useBrand, ROUTE } from "@upmind-automation/headless";
+import { useRoutingEngine } from "@upmind-automation/headless";
+import { useHeader } from "../../components/header/useHeader";
+import { useFooter } from "../../components/footer/useFooter";
+import { useLayout } from "../../components/layout/useLayout";
 
 // --- components
-import { Button, Layout, Link } from "@upmind-automation/upmind-ui";
-import Auth from "./components/Auth.vue";
-import Header from "../../components/content/Header.vue";
-import Section from "../../components/content/LayoutSection.vue";
+import LoginLTR from "./templates/LoginLTR.template.vue";
+import LoginRTL from "./templates/LoginRTL.template.vue";
+import LoginSplit from "./templates/LoginSplit.template.vue";
+import LoginCanvasCard from "./templates/LoginCanvasCard.template.vue";
+import LoginSurfaceBox from "./templates/LoginSurfaceBox.template.vue";
+import LoginFull from "./templates/LoginFull.template.vue";
 
 // --- types
-import type { AuthProps } from "./components/types";
+import { LOGIN_TEMPLATE } from "./types";
+import { ROUTE } from "@upmind-automation/headless";
 
-// -----------------------------------------------------------------------------
+const { currentRoute, isResolved, isReady } = useRoutingEngine();
 
-const { t } = useI18n();
-const { navigateNext, navigateBack, navigate, isResolved, currentRoute } =
-  useRoutingEngine();
+await isReady();
+await isResolved(ROUTE.SESSION_REGISTER);
+
+const supportedTemplates = {
+  [LOGIN_TEMPLATE.FULL]: LoginFull,
+  [LOGIN_TEMPLATE.SPLIT]: LoginSplit,
+  [LOGIN_TEMPLATE.CANVAS_CARD]: LoginCanvasCard,
+  [LOGIN_TEMPLATE.SURFACE_BOX]: LoginSurfaceBox,
+  [LOGIN_TEMPLATE.TWO_COLUMN_LTR]: LoginLTR,
+  [LOGIN_TEMPLATE.TWO_COLUMN_RTL]: LoginRTL
+};
 
 const layout = computed(() => {
-  return currentRoute.value?.meta?.template;
+  return currentRoute.value?.meta?.template as LOGIN_TEMPLATE;
 });
 
-await isResolved(ROUTE.SESSION_LOGIN);
+const templateVariant = computed(
+  () => supportedTemplates[layout.value] ?? LoginFull
+);
 
-function doUpdate(value: AuthProps["modelValue"]) {
-  if (value === "login") {
-    navigate(ROUTE.SESSION_LOGIN);
-  } else if (value === "register") {
-    navigate(ROUTE.SESSION_REGISTER);
-  } else if (value === "recover") {
-    navigate(ROUTE.SESSION_RECOVER_PASSWORD);
-  }
-}
-
-function doReject() {
-  navigateBack();
-}
-
-function doResolve() {
-  // const redirectPath = route.query.redirect || "/";
-  // router.push(redirectPath);
-  navigateNext();
-}
+onUnmounted(() => {
+  useLayout({});
+  useFooter({});
+  useHeader({});
+});
 </script>

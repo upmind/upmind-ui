@@ -12,7 +12,7 @@
 
     <template #default>
       <Section class="mx-auto max-w-2xl gap-9">
-        <Header
+        <Hero
           :badge="{
             label: t('text.fully_encrypted_title'),
             icon: 'lock-04'
@@ -45,13 +45,14 @@ import { computed } from "vue";
 import { ROUTE, useRoutingEngine } from "@upmind-automation/headless";
 
 // --- components
-import { Layout, Link } from "@upmind-automation/upmind-ui";
+import { Link } from "@upmind-automation/upmind-ui";
+import Layout from "../../components/layout/Layout.vue";
 import Auth from "./components/Auth.vue";
-import Header from "../../components/content/Header.vue";
-import Section from "../../components/content/LayoutSection.vue";
+import Hero from "../../components/hero/Hero.vue";
+import Section from "../../components/section/Section.vue";
 
 // --- types
-import type { AuthProps } from "./components/types";
+import type { AuthProps } from "./types";
 
 // -----------------------------------------------------------------------------
 

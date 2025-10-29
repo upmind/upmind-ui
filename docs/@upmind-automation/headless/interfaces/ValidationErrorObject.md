@@ -2,6 +2,12 @@
 
 # ValidationErrorObject\<K, P, S\>
 
+Re-exports the `ErrorObject` type from `ajv` as `ValidationErrorObject` for clarity in form validation contexts.
+
+## See
+
+[Ajv Validation Error Object](https://ajv.js.org/api.html#validation-errors)
+
 ## Type Parameters
 
 ### K
