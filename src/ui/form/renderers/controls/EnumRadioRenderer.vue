@@ -1,7 +1,7 @@
 <template>
   <FormField v-bind="formFieldProps">
     <RadioCards
-      :model-value="control.data.toString()"
+      :model-value="control.data?.toString()"
       :items="items"
       :placeholder="appliedOptions?.placeholder"
       @update:modelValue="onInput"
