@@ -25,11 +25,11 @@
   font-size: var(--text-xs);
   line-height: var(--text-xs--line-height);
 }
-@utility text-xs-tight {
+@utility text-xs/tight {
   font-size: var(--text-xs);
   line-height: var(--text-xs--line-height-tight);
 }
-@utility text-xs-loose {
+@utility text-xs/loose {
   font-size: var(--text-xs);
   line-height: var(--text-xs--line-height-loose);
 }
@@ -38,11 +38,11 @@
   font-size: var(--text-sm);
   line-height: var(--text-sm--line-height);
 }
-@utility text-sm-tight {
+@utility text-sm/tight {
   font-size: var(--text-sm);
   line-height: var(--text-sm--line-height-tight);
 }
-@utility text-sm-loose {
+@utility text-sm/loose {
   font-size: var(--text-sm);
   line-height: var(--text-sm--line-height-loose);
 }
@@ -51,11 +51,11 @@
   font-size: var(--text-md);
   line-height: var(--text-md--line-height);
 }
-@utility text-md-tight {
+@utility text-md/tight {
   font-size: var(--text-md);
   line-height: var(--text-md--line-height-tight);
 }
-@utility text-md-loose {
+@utility text-md/loose {
   font-size: var(--text-md);
   line-height: var(--text-md--line-height-loose);
 }
@@ -64,11 +64,11 @@
   font-size: var(--text-lg);
   line-height: var(--text-lg--line-height);
 }
-@utility text-lg-loose {
+@utility text-lg/loose {
   font-size: var(--text-lg);
   line-height: var(--text-lg--line-height-tight);
 }
-@utility text-lg-tight {
+@utility text-lg/tight {
   font-size: var(--text-lg);
   line-height: var(--text-lg--line-height-tight);
 }
@@ -77,11 +77,11 @@
   font-size: var(--text-xl);
   line-height: var(--text-xl--line-height);
 }
-@utility text-xl-tight {
+@utility text-xl/tight {
   font-size: var(--text-xl);
   line-height: var(--text-xl--line-height-tight);
 }
-@utility text-xl-loose {
+@utility text-xl/loose {
   font-size: var(--text-xl);
   line-height: var(--text-xl--line-height-loose);
 }
@@ -90,11 +90,11 @@
   font-size: var(--text-2xl);
   line-height: var(--text-2xl--line-height);
 }
-@utility text-2xl-tight {
+@utility text-2xl/tight {
   font-size: var(--text-2xl);
   line-height: var(--text-2xl--line-height-tight);
 }
-@utility text-2xl-loose {
+@utility text-2xl/loose {
   font-size: var(--text-2xl);
   line-height: var(--text-2xl--line-height-loose);
 }
@@ -103,11 +103,11 @@
   font-size: var(--text-3xl);
   line-height: var(--text-3xl--line-height);
 }
-@utility text-3xl-tight {
+@utility text-3xl/tight {
   font-size: var(--text-3xl);
   line-height: var(--text-3xl--line-height-tight);
 }
-@utility text-3xl-loose {
+@utility text-3xl/loose {
   font-size: var(--text-3xl);
   line-height: var(--text-3xl--line-height-loose);
 }
@@ -116,11 +116,11 @@
   font-size: var(--text-4xl);
   line-height: var(--text-4xl--line-height);
 }
-@utility text-4xl-tight {
+@utility text-4xl/tight {
   font-size: var(--text-4xl);
   line-height: var(--text-4xl--line-height-tight);
 }
-@utility text-4xl-loose {
+@utility text-4xl/loose {
   font-size: var(--text-4xl);
   line-height: var(--text-4xl--line-height-loose);
 }
@@ -129,11 +129,11 @@
   font-size: var(--text-5xl);
   line-height: var(--text-5xl--line-height);
 }
-@utility text-5xl-tight {
+@utility text-5xl/tight {
   font-size: var(--text-5xl);
   line-height: var(--text-5xl--line-height-tight);
 }
-@utility text-5xl-loose {
+@utility text-5xl/loose {
   font-size: var(--text-5xl);
   line-height: var(--text-5xl--line-height-loose);
 }
@@ -142,11 +142,11 @@
   font-size: var(--text-6xl);
   line-height: var(--text-6xl--line-height);
 }
-@utility text-6xl-tight {
+@utility text-6xl/tight {
   font-size: var(--text-6xl);
   line-height: var(--text-6xl--line-height-tight);
 }
-@utility text-6xl-loose {
+@utility text-6xl/loose {
   font-size: var(--text-6xl);
   line-height: var(--text-6xl--line-height-loose);
 }
