@@ -1,6 +1,6 @@
 {
   "address": {
-    "error": "Une erreur s'est produite lors de l'ajout de l'adresse | une erreur s'est produite lors de la mise à jour de l'adresse",
+    "error": "Votre adresse est obligatoire",
     "label": "Discours",
     "placeholder": "Commencez à taper votre adresse",
     "title": "Ajouter une nouvelle adresse | Mettre à jour l'adresse"
@@ -54,7 +54,7 @@
     "placeholder": "Ville, village, etc."
   },
   "company": {
-    "error": "Une erreur s'est produite lors de l'ajout des détails de l'entreprise | une erreur s'est produite lors de la mise à jour des détails de l'entreprise",
+    "error": "Le nom de votre entreprise est requis",
     "label": "Entreprise",
     "title": "Ajouter les détails de l'entreprise | Mettre à jour les détails de l'entreprise"
   },
@@ -77,7 +77,7 @@
     "placeholder": "Rechercher un domaine..."
   },
   "email": {
-    "error": "Une erreur s'est produite lors de l'ajout de l'e-mail | une erreur s'est produite lors de la mise à jour de l'e-mail",
+    "error": "Une adresse courriel valide est requise",
     "label": "E-mail",
     "title": "Ajouter une nouvelle adresse e-mail | Mettre à jour l'adresse e-mail"
   },
@@ -96,7 +96,7 @@
     "error": "Nous avons rencontré une erreur lors de la tentative de connexion."
   },
   "phone": {
-    "error": "Une erreur s'est produite lors de l'ajout du numéro de téléphone | une erreur s'est produite lors de la mise à jour du numéro de téléphone",
+    "error": "Un numéro de téléphone valide est requis",
     "label": "Téléphone",
     "title": "Ajouter un nouveau numéro de téléphone | Mettre à jour le numéro de téléphone"
   },

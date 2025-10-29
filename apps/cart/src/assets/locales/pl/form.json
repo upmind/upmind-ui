@@ -1,6 +1,6 @@
 {
   "address": {
-    "error": "Wystąpił błąd podczas dodawania adresu | wystąpił błąd podczas aktualizacji adresu",
+    "error": "Twój adres jest wymagany",
     "label": "Adres",
     "placeholder": "Zacznij wpisywać swój adres",
     "title": "Dodaj nowy adres | Aktualizuj adres"
@@ -54,7 +54,7 @@
     "placeholder": "Miasto, miasteczko itp."
   },
   "company": {
-    "error": "Wystąpił błąd podczas dodawania danych firmy | wystąpił błąd podczas aktualizowania danych firmy",
+    "error": "Wymagana jest nazwa Twojej firmy",
     "label": "Firma",
     "title": "Dodaj dane firmy | Aktualizuj dane firmy"
   },
@@ -77,7 +77,7 @@
     "placeholder": "Wyszukaj domenę..."
   },
   "email": {
-    "error": "Wystąpił błąd podczas dodawania adresu e-mail | wystąpił błąd podczas aktualizowania adresu e-mail",
+    "error": "Wymagany jest prawidłowy adres e-mail",
     "label": "E-mail",
     "title": "Dodaj nowy adres e-mail | Zaktualizuj adres e-mail"
   },
@@ -96,7 +96,7 @@
     "error": "Wystąpił błąd podczas próby zalogowania."
   },
   "phone": {
-    "error": "Wystąpił błąd podczas dodawania numeru telefonu | wystąpił błąd podczas aktualizacji numeru telefonu",
+    "error": "Wymagany jest prawidłowy numer telefonu",
     "label": "Telefon",
     "title": "Dodaj nowy numer telefonu | Zaktualizuj numer telefonu"
   },

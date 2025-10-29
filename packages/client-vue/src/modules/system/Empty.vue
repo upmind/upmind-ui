@@ -1,25 +1,22 @@
 <template>
-  <Layout>
-    <ContentSection v-auto-animate class="flex grow items-center">
-      <Interstitial
-        v-bind="props"
-        :modal="meta.useModal"
-        :title="t('cart.empty_md')"
-        :text="t('cart.empty_msg')"
-        :actions="[
-          {
-            ...storefrontRoute,
-            variant: 'solid',
-            color: 'primary',
-            iconAppend: 'arrow-right',
-            label: t('action.continue_shopping'),
-            size: 'lg'
-          }
-        ]"
-      >
-      </Interstitial>
-    </ContentSection>
-  </Layout>
+  <div class="flex grow items-center justify-center">
+    <Interstitial
+      v-bind="props"
+      :modal="meta.useModal"
+      :title="t('cart.empty_md')"
+      :text="t('cart.empty_msg')"
+      :actions="[
+        {
+          ...storefrontRoute,
+          variant: 'solid',
+          color: 'primary',
+          iconAppend: 'arrow-right',
+          label: t('action.continue_shopping'),
+          size: 'lg'
+        }
+      ]"
+    />
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -30,8 +27,8 @@ import { useRoute, useRouter } from "vue-router";
 import { computed } from "vue";
 
 // -- components
-import { Interstitial, Layout } from "@upmind-automation/upmind-ui";
-import ContentSection from "../../components/content/ContentSection.vue";
+import { Interstitial } from "@upmind-automation/upmind-ui";
+import Layout from "../../components/layout/Layout.vue";
 
 // -- types
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";

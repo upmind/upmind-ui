@@ -46,5 +46,7 @@
   "product_not_found": "**Product** not found",
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
   "promotion_help": "{code} provides {amount} discount {description}",
-  "promotions_active": "Active discounts"
+  "promotions_active": "Active discounts",
+  "stored_payment_methods_limited_title": "Limited Payment Methods",
+  "stored_payment_methods_limited_desc": "Not all payment methods are visible because they are not available for your country or currency."
 }

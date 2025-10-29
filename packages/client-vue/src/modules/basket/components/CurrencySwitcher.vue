@@ -1,14 +1,16 @@
 <template>
-  <Combobox
-    v-if="meta.isAvailable && (items?.length > 1 || meta.isLoading)"
-    :modelValue="model?.code"
-    :items="items"
-    :loading="meta.isLoading"
-    @update:modelValue="updateCurrency"
-    search
-    width="fit"
-    size="md"
-  />
+  <div>
+    <Combobox
+      v-if="meta.isAvailable && (items?.length > 1 || meta.isLoading)"
+      :modelValue="model?.code"
+      :items="items"
+      :loading="meta.isLoading"
+      @update:modelValue="updateCurrency"
+      search
+      width="fit"
+      size="md"
+    />
+  </div>
 </template>
 
 <script lang="ts" setup>

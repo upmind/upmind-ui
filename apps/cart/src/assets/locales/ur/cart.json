@@ -1,14 +1,18 @@
 {
+  "basket_billing_review_msg": "کچھ بلنگ کی تفصیلات غائب یا غلط ہیں – {review}.",
   "basket_count": "خالی | {count} آئٹم | {count} اشیاء",
+  "basket_fields_review_msg": "کچھ ٹوکری کے فیلڈز غائب یا غلط ہیں – {review}.",
   "basket_items": "ٹوکری میں کوئی اشیاء نہیں | {count} ٹوکری میں شے | {count} ٹوکری میں اشیاء",
   "basket_product_missing_data": "آئٹم کا ڈیٹا غائب ہے۔",
   "basket_product_missing_data_help": "اس آئٹم میں ڈیٹا غائب ہے اور توجہ کی ضرورت ہے۔",
+  "basket_product_review_msg": "{productName} میں ضروری معلومات موجود نہیں ہیں – {review}۔",
   "basket_products": "ٹوکری اشیاء",
   "basket_products_require_attention": "**{count}** مصنوعات کو **توجہ** کی ضرورت ہے۔ **{count}** پروڈکٹ کو **توجہ** کی ضرورت ہے۔ **{count}** مصنوعات کو ** توجہ کی ضرورت ہے**",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
   "basket_products_require_attention_msg": "{count} مصنوعات توجہ کی ضرورت ہے | {count} مصنوعات کی توجہ کی ضرورت ہے | {count} مصنوعات توجہ کی ضرورت ہے",
   "basket_products_review_desc": "براہ کرم آگے بڑھنے سے پہلے درج ذیل آئٹمز کا جائزہ لیں، متبادل طور پر ٹوکری پر واپس جائیں۔",
-  "basket_products_review_msg": "جاری رکھنے سے پہلے براہ کرم درج ذیل آئٹمز کا جائزہ لیں۔",
+  "basket_requires_attention_msg": "{count} آئٹم آپ کی توجہ چاہتا ہے | {count} آئٹمز آپ کی توجہ چاہتے ہیں",
+  "basket_review_msg": "جاری رکھنے سے پہلے براہ کرم درج ذیل اشیاء کا جائزہ لیں",
   "basket_summary_desc": "آپ کے پاس ہے۔ {count} آپ کی ٹوکری میں شے، کل {total}. | آپ کے پاس ہے۔ {count} آپ کی ٹوکری میں اشیاء، کل {total}.",
   "basket_title": "آپ کی ٹوکری",
   "empty": "آپ کی **ٹوکری** خالی ہے۔",
@@ -42,5 +46,7 @@
   "promotions_active": "فعال چھوٹ",
   "recommendations_unavailable_text": "ہم اس وقت آپ کے لیے کوئی سفارشات نہیں ڈھونڈ سکے۔ براہ کرم جاری رکھنے کے لیے نیچے کلک کریں۔",
   "recommendations_unavailable_title": "ہمیں اس کے لیے افسوس ہے...",
-  "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}"
+  "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
+  "stored_payment_methods_limited_desc": "تمام ادائیگی کے طریقے نظر نہیں آ رہے کیونکہ وہ آپ کے ملک یا کرنسی کے لیے دستیاب نہیں ہیں۔",
+  "stored_payment_methods_limited_title": "محدود ادائیگی کے طریقے"
 }

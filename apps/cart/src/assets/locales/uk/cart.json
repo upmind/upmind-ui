@@ -1,14 +1,18 @@
 {
+  "basket_billing_review_msg": "Деякі дані для виставлення рахунку відсутні або неправильні – {review}.",
   "basket_count": "порожній |{count} пункт | {count} предмети",
+  "basket_fields_review_msg": "Деякі поля кошика відсутні або неправильні – {review}.",
   "basket_items": "немає товарів у кошику | {count} товар у кошику | {count} товари в кошику",
   "basket_product_missing_data": "Відсутні дані для елемента",
   "basket_product_missing_data_help": "У цьому елементі відсутні дані, і він потребує уваги",
+  "basket_product_review_msg": "{productName} відсутня необхідна інформація – {review}.",
   "basket_products": "Товари з кошика",
   "basket_products_require_attention": "**{count}**продукція потребує **уваги** | **{count}** продукт потребує **уваги** | **{count}**товари потребують **уваги**",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
   "basket_products_require_attention_msg": "{count} продукти потребують уваги {count} продукт потребує уваги {count} продукти потребують уваги",
   "basket_products_review_desc": "Будь ласка, перегляньте наступні товари, перш ніж продовжити, або поверніться до кошика.",
-  "basket_products_review_msg": "Будь ласка, перегляньте наступні пункти, перш ніж продовжити",
+  "basket_requires_attention_msg": "{count} пункт потребує вашої уваги | {count} пункти потребують вашої уваги",
+  "basket_review_msg": "Будь ласка, перегляньте наступні пункти перед продовженням",
   "basket_summary_desc": "У вас є {count} товар у вашому кошику, на загальну суму {total} | Ви маєте {count} товари у вашому кошику, на загальну суму {total}.",
   "basket_title": "Ваш кошик",
   "empty": "Ваш **кошик** порожній",
@@ -42,5 +46,7 @@
   "promotions_active": "Активні знижки",
   "recommendations_unavailable_text": "Ми не змогли знайти для вас жодних рекомендацій на цей час. Будь ласка, натисніть нижче, щоб продовжити.",
   "recommendations_unavailable_title": "Нам шкода за це...",
-  "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}"
+  "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
+  "stored_payment_methods_limited_desc": "Не всі способи оплати відображаються, оскільки вони недоступні для вашої країни або валюти.",
+  "stored_payment_methods_limited_title": "Обмежені способи оплати"
 }

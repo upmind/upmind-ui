@@ -1,6 +1,6 @@
 // --- external
-import { computed, ComputedRef, toRaw, unref } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
+import { computed, toRaw, unref } from "vue";
 
 // --- internal
 import { useI18n } from "../system";
@@ -9,26 +9,22 @@ import { useI18n } from "../system";
 import {
   contextMatches,
   contextValue,
+  DetailedError,
+  ErrorOrigin,
+  responseCodes,
   stateMatches,
   stateValue,
   useContext,
-  DetailedError,
-  responseCodes,
-  useContextActor,
-  Actor,
-  ErrorOrigin,
-  ErrorObject
+  useContextActor
 } from "../../utils";
-import { isEmpty, isEqual, isNil } from "lodash-es";
+import { useBrand } from "../brand";
+import { isEmpty, isEqual, isNil, filter, some } from "lodash-es";
 
 // --- types
-import { ActorRef } from "xstate";
-import {
-  PaymentDetailsContext,
-  PaymentDetailModel,
-  PaymentDetailsArgs
-} from "./types";
-import { useBrand } from "../brand";
+import type { ActorRef } from "xstate";
+import type { ComputedRef } from "vue";
+import type { Actor, ErrorObject } from "../../utils";
+import type { PaymentDetailModel, PaymentDetailsContext } from "./types";
 
 // -----------------------------------------------------------------------------
 
@@ -70,6 +66,10 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
     hasGateway: contextMatches(actor, ["gatewayHelper"]),
     hasGateways: contextMatches(actor, ["gateways"]),
     hasStoredPaymentMethods: contextMatches(actor, ["storedPaymentMethods"]),
+    hasUnsupportedPaymentMethods: some(
+      contextValue(actor, ["storedPaymentMethods"]),
+      ["meta.isSupported", false]
+    ),
     hasErrors: stateMatches(actor, ["error"]),
     isProcessing: stateMatches(actor, ["checking", "processing"]),
     isValid: stateMatches(actor, ["valid"]),
@@ -112,9 +112,13 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
     "uischema"
   );
 
-  const storedPaymentMethods = useContext<
-    PaymentDetailsContext["storedPaymentMethods"]
-  >(actor, "storedPaymentMethods");
+  const storedPaymentMethods = filter(
+    useContext<PaymentDetailsContext["storedPaymentMethods"]>(
+      actor,
+      "storedPaymentMethods"
+    ).value || [],
+    method => method?.meta.isSupported
+  );
 
   const { uiCart } = useBrand();
   const clickwrap = computed(() => uiCart.value?.clickwrap_disclaimer);
@@ -125,7 +129,7 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
     actor.value?.send({ type: "SET", data: toRaw(unref(value)) });
   }
 
-  function update(value?: PaymentDetailModel): Promise<void> {
+  async function update(value?: PaymentDetailModel): Promise<void> {
     value = toRaw(unref(value));
     const model = contextValue<PaymentDetailModel>(actor, "model");
 
@@ -193,6 +197,7 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
      * @property {boolean} isFree - Indicates if the payment is free (no amount).
      * @property {boolean} hasStoredPaymentMethods - Indicates if there are stored payment methods available.
      * @property {boolean} hasGateways - Indicates if there are multiple payment gateways available.
+     * @property {boolean} hasUnsupportedPaymentMethods - Indicates if some stored payment methods are being filtered out due to currency/country restrictions.
      * @property {boolean} isFree - Indicates if the payment amount is zero or not set.
      * @property {boolean} isComplete - Indicates if the payment details process is complete.
      * @type {PaymentDetailsMeta}
@@ -273,7 +278,5 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
   };
 };
 
-/**
- * The return type of usePaymentDetail composable.
- */
+/** The return type of {@link usePaymentDetail} composable. */
 export type UsePaymentDetails = ReturnType<typeof usePaymentDetail>;

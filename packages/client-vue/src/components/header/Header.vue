@@ -1,67 +1,46 @@
 <template>
-  <header :class="styles.header.root">
+  <header :class="styles.header.root" v-show="meta.isVisible">
     <div :class="styles.header.container">
-      <Link id="logo" :class="styles.header.anchor" v-bind="storefrontRoute">
-        <picture v-if="logo" class="h-full w-full">
-          <slot name="logo" :logo="logo">
-            <img
-              v-if="logo"
-              :src="logo"
-              class="h-9 w-auto max-w-32 md:max-w-64"
-              alt="logo"
-            />
-          </slot>
-          <span class="sr-only">
-            {{ t("header.title") }}
-          </span>
-        </picture>
-        <h3 v-else :class="styles.header.name">
-          {{ name }}
-        </h3>
-      </Link>
+      <div :class="styles.header.left">
+        <template v-if="meta.hasContent">
+          <HeaderBrand v-if="meta.showLogo" />
+        </template>
+      </div>
 
-      <VHeaderButtons>
-        <template #actions> <slot name="actions" /></template>
-      </VHeaderButtons>
+      <div :class="styles.header.right">
+        <HeaderActions v-if="meta.hasActions" />
+      </div>
     </div>
   </header>
 </template>
 
-<script lang="ts" setup>
-// --- external
-import { useI18n } from "vue-i18n";
-import { useBrand, useRoutingEngine } from "@upmind-automation/headless";
-import { useStyles, Link } from "@upmind-automation/upmind-ui";
-
+<script setup lang="ts">
 // --- internal
+import { useHeader } from "./useHeader";
 import config from "./header.config";
+import { useStyles } from "@upmind-automation/upmind-ui";
 
 // --- components
-import VHeaderButtons from "./HeaderButtons.vue";
-import { computed } from "vue";
+import HeaderBrand from "./HeaderBrand.vue";
+import HeaderActions from "./HeaderActions.vue";
 
 // --- types
 import type { ComputedRef } from "vue";
-
-const { currentRoute } = useRoutingEngine();
-const { name, image, storefrontRoute } = useBrand();
-
 // -----------------------------------------------------------------------------
-const { t } = useI18n();
-const props = defineProps<{ logo?: string }>();
+const { meta, templateName } = useHeader();
 
-const layout = computed(() => {
-  return currentRoute.value?.meta?.template;
-});
-
-const logo = computed(() => props.logo ?? image.value?.full_url);
-
-const styles = useStyles(["header"], { layout }, config) as ComputedRef<{
+const styles = useStyles(
+  ["header"],
+  {
+    variant: templateName
+  },
+  config
+) as ComputedRef<{
   header: {
-    name: string;
     root: string;
-    anchor: string;
     container: string;
+    left: string;
+    right: string;
   };
 }>;
 </script>
