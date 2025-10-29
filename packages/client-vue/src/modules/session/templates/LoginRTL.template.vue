@@ -1,0 +1,42 @@
+<template>
+  <Layout :variant="LAYOUT_VARIANTS.TWO_COLUMN_RTL">
+    <template #content-header>
+      <LoginHeader />
+    </template>
+
+    <template #content>
+      <LoginForm section />
+    </template>
+
+    <template #aside>
+      <LoginAside class="hidden lg:flex" section />
+    </template>
+  </Layout>
+</template>
+
+<script lang="ts" setup>
+// --- components
+import Layout from "../../../components/layout/Layout.vue";
+import LoginHeader from "../components/LoginHeader.vue";
+import LoginForm from "../components/LoginForm.vue";
+import LoginAside from "../components/LoginAside.vue";
+
+// --- internal
+import { useFooter } from "../../../components/footer/useFooter";
+import { useHeader } from "../../../components/header/useHeader";
+
+// --- types
+import { HEADER_TEMPLATE } from "../../../components/header/types";
+import { FOOTER_TEMPLATE } from "../../../components/footer/types";
+import { LAYOUT_VARIANTS } from "../../../components/layout/types";
+
+// --- methods
+useFooter({
+  template: FOOTER_TEMPLATE.TWO_COLUMN_RTL,
+  noCurrency: true
+});
+
+useHeader({
+  template: HEADER_TEMPLATE.TWO_COLUMN_RTL
+});
+</script>

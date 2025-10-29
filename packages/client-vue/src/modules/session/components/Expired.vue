@@ -44,7 +44,7 @@ import { ref, computed, watch } from "vue";
 // --- internal
 import { useSession } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "../sesssion.config";
+import config from "../session.config";
 
 // --- components
 import { Avatar, Dialog, Button } from "@upmind-automation/upmind-ui";
@@ -54,7 +54,7 @@ import { isEmpty, isFunction } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
-import type { SessionExpiredProps } from "./types";
+import type { SessionExpiredProps } from "../types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<SessionExpiredProps>(), {

@@ -1,14 +1,18 @@
 {
+  "basket_billing_review_msg": "Vissa faktureringsuppgifter saknas eller är felaktiga – {review}.",
   "basket_count": "tom | {count} föremål | {count} föremål",
+  "basket_fields_review_msg": "Vissa fält i korgen saknas eller är felaktiga – {review}.",
   "basket_items": "inga varor i varukorgen | {count} vara i varukorgen | {count} varor i varukorgen",
   "basket_product_missing_data": "Saknade data för objektet",
   "basket_product_missing_data_help": "Det här objektet saknar data och kräver åtgärd",
+  "basket_product_review_msg": "{productName} saknar nödvändig information – {review}.",
   "basket_products": "Varor i varukorgen",
   "basket_products_require_attention": "**{count}**produkter kräver **uppmärksamhet** | **{count}** produkten kräver **uppmärksamhet** | **{count}**produkter kräver **uppmärksamhet**",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
   "basket_products_require_attention_msg": "{count} produkter kräver uppmärksamhet | {count} produkten kräver uppmärksamhet | {count} produkter kräver uppmärksamhet",
   "basket_products_review_desc": "Vänligen granska följande artiklar innan du fortsätter, alternativt lägg dem tillbaka i varukorgen.",
-  "basket_products_review_msg": "Vänligen granska följande punkter innan du fortsätter",
+  "basket_requires_attention_msg": "{count} objekt behöver din uppmärksamhet | {count} objekt behöver din uppmärksamhet",
+  "basket_review_msg": "Vänligen granska följande punkter innan du fortsätter",
   "basket_summary_desc": "Du har {count} vara i din varukorg, totalt {total} | Du har {count} varor i din varukorg, totalt {total}.",
   "basket_title": "Din varukorg",
   "empty": "Din **korg** är tom",
@@ -42,5 +46,7 @@
   "promotions_active": "Aktiva rabatter",
   "recommendations_unavailable_text": "Vi kunde inte hitta några rekommendationer för dig just nu. Vänligen klicka nedan för att fortsätta.",
   "recommendations_unavailable_title": "Vi beklagar det...",
-  "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}"
+  "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
+  "stored_payment_methods_limited_desc": "Alla betalningsmetoder är inte synliga eftersom de inte är tillgängliga för ditt land eller din valuta.",
+  "stored_payment_methods_limited_title": "Begränsade betalningsmetoder"
 }

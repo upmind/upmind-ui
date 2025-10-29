@@ -1,6 +1,6 @@
 {
   "address": {
-    "error": "Pri pridávaní adresy sa vyskytla chyba | pri aktualizácii adresy sa vyskytla chyba",
+    "error": "Vaša adresa je povinná",
     "label": "Adresa",
     "placeholder": "Začnite písať svoju adresu",
     "title": "Pridať novú adresu | Aktualizovať adresu"
@@ -54,7 +54,7 @@
     "placeholder": "Mesto, mestečko atď."
   },
   "company": {
-    "error": "Pri pridávaní údajov o spoločnosti sa vyskytla chyba | pri aktualizácii údajov o spoločnosti sa vyskytla chyba",
+    "error": "Je potrebné uviesť názov vašej spoločnosti",
     "label": "Spoločnosť",
     "title": "Pridať podrobnosti o spoločnosti | Aktualizovať podrobnosti o spoločnosti"
   },
@@ -77,7 +77,7 @@
     "placeholder": "Hľadať doménu..."
   },
   "email": {
-    "error": "Pri pridávaní e-mailu sa vyskytla chyba | pri aktualizácii e-mailu sa vyskytla chyba",
+    "error": "Je potrebná platná e-mailová adresa",
     "label": "E-mail",
     "title": "Pridať nový e-mail | Aktualizovať e-mail"
   },
@@ -96,7 +96,7 @@
     "error": "Pri pokuse o vaše prihlásenie sa vyskytla chyba."
   },
   "phone": {
-    "error": "Pri pridávaní telefónneho čísla sa vyskytla chyba | pri aktualizácii telefónneho čísla sa vyskytla chyba",
+    "error": "Je potrebné platné telefónne číslo",
     "label": "Telefón",
     "title": "Pridať nové telefónne číslo | Aktualizovať telefónne číslo"
   },

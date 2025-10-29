@@ -1,14 +1,18 @@
 {
+  "basket_billing_review_msg": "Some billing details are missing or incorrect – {review}.",
   "basket_count": "empty | {count} item | {count} items",
+  "basket_fields_review_msg": "Some basket fields are missing or incorrect – {review}.",
   "basket_items": "no items in basket | {count} item in basket | {count} items in basket",
   "basket_product_missing_data": "Item missing data",
   "basket_product_missing_data_help": "This item is missing data and requires attention",
+  "basket_product_review_msg": "{productName} is missing required information – {review}.",
   "basket_products": "Basket items",
   "basket_products_require_attention": "**{count}** products require **attention** | **{count}** product requires **attention** | **{count}** products require **attention**",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
   "basket_products_require_attention_msg": "{count} products require attention | {count} product requires attention | {count} products require attention",
   "basket_products_review_desc": "Please review the following items before proceeding, alternatively return to the basket.",
-  "basket_products_review_msg": "Please review the following items before continuing",
+  "basket_requires_attention_msg": "{count} item needs your attention | {count} items need your attention",
+  "basket_review_msg": "Please review the following items before continuing",
   "basket_summary_desc": "You have {count} item in your basket, totalling {total}. | You have {count} items in your basket, totalling {total}.",
   "basket_title": "Your basket",
   "empty": "Your **basket** is empty",
@@ -42,5 +46,7 @@
   "promotions_active": "Active discounts",
   "recommendations_unavailable_text": "We couldn't find any recommendations for you at this time. Please click below to continue.",
   "recommendations_unavailable_title": "We're sorry about that...",
-  "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}"
+  "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
+  "stored_payment_methods_limited_desc": "Not all payment methods are visible because they are not available for your country or currency.",
+  "stored_payment_methods_limited_title": "Limited Payment Methods"
 }
