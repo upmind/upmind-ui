@@ -58,7 +58,8 @@ export const useBasketFlows = () => {
             }
           },
           ROUTE.PRODUCT_NOT_FOUND,
-          ...getCheckoutFlowTargets()
+          ROUTE.BASKET,
+          ROUTE.EMPTY
         ]
       }
     },
@@ -81,7 +82,7 @@ export const useBasketFlows = () => {
       },
       targets: {
         next: [ROUTE.CHECKOUT, ROUTE.SESSION_REGISTER],
-        back: [ROUTE.CATALOGUE],
+        back: [ROUTE.CATALOGUE, ROUTE.EMPTY],
         fallback: [ROUTE.EMPTY]
       }
     }
