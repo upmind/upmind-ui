@@ -82,8 +82,8 @@ test.describe("UPM Campaign Tracking", () => {
       `${URLs.register}?upm_campaign=playwright_test_campaign&upm_source=playwright&upm_medium=e2e_test&upm_content=content_example&upm_term=term_example`
     );
     await registration.inputRegistration();
+    const tracking = await getTrackingData(page, "/api/clients/register");
     await page.waitForLoadState("networkidle");
-    const tracking = await getTrackingData(page, "api/clients/register?");
     console.log(JSON.stringify(tracking));
     await expect(tracking).toBeDefined();
     await expect(tracking.campaign).toBeDefined();
@@ -96,7 +96,7 @@ test.describe("UPM Campaign Tracking", () => {
     await page.goto(
       "http://qa-automation.local:5173/order/product/add/3de78642-de53-9714-76df-21208469530d?upm_campaign=playwright_test_campaign&upm_source=playwright&upm_medium=e2e_test&upm_content=content_example&upm_term=term_example"
     );
-    const tracking = await getTrackingData(page, "/api/orders?");
+    const tracking = await getTrackingData(page, "/api/orders");
     console.log(JSON.stringify(tracking));
     await expect(tracking).toBeDefined();
     await expect(tracking.campaign).toBeDefined();
@@ -139,7 +139,7 @@ test.describe("UPM Campaign Tracking", () => {
     await checkout.clickPlaceOrderButton();
     const tracking = await getTrackingData(
       page,
-      `/api/orders/${orderId}/convert?`
+      `/api/orders/${orderId}/convert`
     );
     console.log(JSON.stringify(tracking));
     await expect(tracking).toBeDefined();

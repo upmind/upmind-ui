@@ -17,7 +17,7 @@ let registration: Registration;
 
 async function addProductToBasket() {
   await productConfig.page.goto(URLs.starterHosting);
-  await productConfig.confirmAndProceed.click();
+  await productConfig.addToBasket.click();
 }
 
 test.describe("Hosting customers", async () => {
