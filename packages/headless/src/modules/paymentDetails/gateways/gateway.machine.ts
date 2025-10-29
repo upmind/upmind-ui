@@ -100,7 +100,6 @@ export default <T = unknown>(name: string) =>
           states: {
             checking: {
               id: "checking",
-              entry: ["clearError"],
               initial: "parsing",
               states: {
                 parsing: {
@@ -119,7 +118,7 @@ export default <T = unknown>(name: string) =>
                 validating: {
                   invoke: {
                     src: "validate",
-                    onDone: { target: "#valid" },
+                    onDone: { target: "#valid", actions: ["clearError"] },
                     onError: {
                       target: "#invalid",
                       actions: ["setError"]
@@ -203,6 +202,7 @@ export default <T = unknown>(name: string) =>
               actions: ["setModel"]
             },
             VALIDATE: {
+              actions: ["setErrorSDK"],
               target: "available.checking.validating"
             }
           }
@@ -334,6 +334,11 @@ export default <T = unknown>(name: string) =>
             }
             return error;
           }
+        }),
+
+        setErrorSDK: assign({
+          error: ({ error }: GatewayContext<any>, { data }: AnyEventObject) =>
+            error // do nothing by default.... individual sdk gateways can override
         }),
 
         clearError: assign({

@@ -137,8 +137,8 @@ async function render({ sdk }: StripeContext, { data }: AnyEventObject) {
 }
 
 async function validate(
-  { schema, model, sdk }: StripeContext,
-  { data }: AnyEventObject
+  { schema, model, sdk, error }: StripeContext,
+  _event: AnyEventObject
 ) {
   const { t } = useI18n();
 
@@ -158,25 +158,15 @@ async function validate(
 
   const errors = validate(schema, model) || [];
 
-  // NB: we are invalid if the stripe element status is NOT complete!
-  if (!data?.complete) {
-    errors.push({
-      instancePath: "/payment_method_addition",
-      schemaPath: "#/properties/payment_method_addition",
-      keyword: "required",
-      params: {
-        missingProperty: "payment_method_addition"
-      },
-      message: "Stripe element is incomplete."
-    });
-  }
-
-  if (errors?.length) {
+  // NB: our SDK helper for stripe will generate their own errors and persist them to our error context
+  //     so we can check against that as well
+  if (errors?.length || error?.data?.length) {
+    debugger;
     throw new DetailedError(
       t("error.payment_gateway_validation_failed"),
       responseCodes.Unprocessable_Entity,
       ErrorOrigin.Headless,
-      errors
+      { ...errors, ...error?.data }
     );
   }
 

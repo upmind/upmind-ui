@@ -6,9 +6,14 @@
 import { isFunction } from "lodash-es";
 
 // --- types
-import type { AnyEventObject } from "xstate";
+import { assign, type AnyEventObject } from "xstate";
 import type { BraintreeContext } from "./types";
-
+import {
+  responseCodes,
+  ErrorObject,
+  ErrorOrigin,
+  ResponseError
+} from "../../../../utils";
 // -----------------------------------------------------------------------------
 // override the macine actions to generate the schema, uischema and model
 
@@ -30,5 +35,28 @@ export default {
         data?.currency?.code.toLowerCase() ?? currency?.code.toLowerCase()
       );
     }
-  }
+  },
+  setErrorSDK: assign({
+    error: ({ error }: BraintreeContext, { data }: AnyEventObject) => {
+      // NB: we are invalid if the stripe element status is NOT complete!
+      if (!data?.valid) {
+        return {
+          data: [
+            {
+              instancePath: "/payment_method_addition",
+              schemaPath: "#/properties/payment_method_addition",
+              keyword: "required",
+              params: {
+                missingProperty: "payment_method_addition"
+              }
+            }
+          ] as ErrorObject[],
+          origin: ErrorOrigin.External,
+          code: responseCodes.Unprocessable_Entity
+        } as ResponseError;
+      }
+
+      return error;
+    }
+  })
 };
