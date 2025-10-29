@@ -43,9 +43,9 @@
           <Footer />
         </slot>
       </Page>
-    </Loading>
 
-    <Feedback v-if="meta.isAvailable" />
+      <Feedback v-if="meta.isAvailable" />
+    </Loading>
   </Suspense>
 </template>
 
