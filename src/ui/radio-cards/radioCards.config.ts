@@ -48,12 +48,12 @@ export default {
   radioCards: {
     root: rootVariants,
     item: itemVariants,
-    radio: cva("size-lh text-md-tight flex items-center justify-center"),
+    radio: cva("size-lh text-md/tight flex items-center justify-center"),
     content: {
-      label: cva("text-md-tight text-display font-medium"),
-      secondaryLabel: cva("text-md-tight text-display font-medium"),
-      description: cva("text-sm-tight text-base font-normal"),
-      secondaryDescription: cva("text-muted text-sm-tight font-normal")
+      label: cva("text-md/tight text-display font-medium"),
+      secondaryLabel: cva("text-md/tight text-display font-medium"),
+      description: cva("text-base text-sm/tight font-normal"),
+      secondaryDescription: cva("text-muted text-sm/tight font-normal")
     }
   }
 };

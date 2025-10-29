@@ -17,8 +17,8 @@ export const variants = {
     info: ""
   },
   size: {
-    sm: "px-2 py-1 text-xs-tight font-semibold",
-    md: "px-3 py-1 text-sm-tight font-medium"
+    sm: "px-2 py-1 text-xs/tight font-semibold",
+    md: "px-3 py-1 text-sm/tight font-medium"
   }
 };
 

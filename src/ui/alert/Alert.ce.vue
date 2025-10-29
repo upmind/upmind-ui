@@ -10,7 +10,7 @@
         :class="styles.alert.icon"
         class="p-0.5"
       />
-      <div class="text-md-tight w-full gap-2">
+      <div class="text-md/tight w-full gap-2">
         <AlertTitle :class="styles.alert.title">
           <slot name="title">
             <span>{{ title }}</span>
