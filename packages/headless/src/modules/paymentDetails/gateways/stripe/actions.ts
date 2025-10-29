@@ -65,7 +65,7 @@ export default {
   }),
 
   setErrorSDK: assign({
-    error: ({ error }: StripeContext, { data }: AnyEventObject) => {
+    error: (_context: StripeContext, { data }: AnyEventObject) => {
       // NB: we are invalid if the stripe element status is NOT complete!
       if (!data?.complete) {
         return {
@@ -84,7 +84,7 @@ export default {
         } as ResponseError;
       }
 
-      return error;
+      return undefined;
     }
   })
 };
