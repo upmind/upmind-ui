@@ -2,7 +2,9 @@
   <PaginationRoot
     v-slot="{ page, pageCount }"
     :total="total"
+    :items-per-page="props.limit"
     :page="props.page"
+    v-if="!!total"
   >
     <PaginationList :class="cn(styles.pagination.root, props.class)">
       <PaginationPrev as-child>
@@ -10,7 +12,7 @@
           variant="subtle"
           size="lg"
           :class="styles.pagination.button"
-          :disabled="lte(props.page, 1)"
+          :disabled="lte(page, 1) || props.loading"
           @click="emit('prev')"
         >
           <Icon icon="arrow-left" size="2xs" />
@@ -18,8 +20,8 @@
       </PaginationPrev>
 
       <!-- TODO: Current pagination doesn't support direct page change so we should static text for now-->
-      <p :class="styles.pagination.info">
-        {{ displayedPaginationInfo(page, pages) }}
+      <p :class="styles.pagination.info" v-show="!props.loading">
+        {{ displayedPaginationInfo(page, pageCount) }}
       </p>
 
       <PaginationNext as-child>
@@ -27,7 +29,7 @@
           variant="subtle"
           size="lg"
           :class="styles.pagination.button"
-          :disabled="gte(page, props.pages)"
+          :disabled="gte(page, pageCount) || props.loading"
           @click="emit('next')"
         >
           <Icon icon="arrow-right" size="2xs" />
