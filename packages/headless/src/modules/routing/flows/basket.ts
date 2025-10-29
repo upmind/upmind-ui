@@ -6,18 +6,23 @@ import { useBrand } from "../../brand";
 import { useRoutingEngine } from "..";
 
 // --- utils
+import { uniqBy } from "lodash-es";
 import { useRouteQueryParams } from "../utils";
 import { useBasketProductsPending } from "../../basketProduct";
-import { uniqBy } from "lodash-es";
 
 // --- types
-import type { Flow, Route } from "../types";
 import { ROUTE } from "../types";
+import type { Flow, Route } from "../types";
 import { BrandConfigKeys, CheckoutFlows } from "@upmind-automation/types";
 import { getCheckoutFlowTargets } from "./checkout";
 
 // -----------------------------------------------------------------------------
 
+/**
+ * Composable function to manage the basket-related flows.
+ * It provides mechanisms to define navigation rules (aka flows), manage their states, and register them with the routing system.
+ * Each flow specifies its name, guard logic for conditional transitions, and target routes for navigation.
+ */
 export const useBasketFlows = () => {
   const routing = useRoutingEngine();
   const { meta, setCurrency, isReady } = useBasket();
@@ -71,7 +76,9 @@ export const useBasketFlows = () => {
       name: ROUTE.BASKET,
       guard: async (_route: Route) =>
         isReady().then(() => meta.value.hasProducts),
-
+      resolve: async (_route: Route) => {
+        return { name: ROUTE.BASKET };
+      },
       targets: {
         next: [ROUTE.CHECKOUT, ROUTE.SESSION_REGISTER],
         back: [ROUTE.CATALOGUE],

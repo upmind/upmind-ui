@@ -1,11 +1,11 @@
 <template>
-  <Layout :variant="layout" minimal>
+  <Layout :variant="layout">
     <template #navigation>
       <Back v-bind="storefrontRoute" :label="t('action.continue_shopping')" />
     </template>
 
-    <template #header>
-      <Header
+    <template #content-header>
+      <Hero
         :title="t('cart.basket_title')"
         :description="
           t('cart.basket_summary_desc', {
@@ -16,7 +16,7 @@
       />
     </template>
 
-    <template #default>
+    <template #content>
       <!-- Basket Errors -->
       <BasketErrors />
 
@@ -30,6 +30,7 @@
             content: styles.basket.items.content
           } as any
         }"
+        icon="list"
       >
         <ProductCards :open="open" @update:open="open = $event" />
 
@@ -54,6 +55,7 @@
             content: styles.basket.items.content
           } as any
         }"
+        icon="file-attachment-01"
       >
         <Form
           v-if="!fieldsMeta.isLoading"
@@ -76,7 +78,7 @@
         id="basket-summary"
         :title="t('text.summary')"
         :class="styles.basket.aside"
-        aside
+        icon="shopping-bag-02"
       >
         <Summary />
 
@@ -121,16 +123,15 @@ import config from "./basket.config";
 
 // --- components
 import { RouterLink } from "vue-router";
-import { Layout, Button, Link } from "@upmind-automation/upmind-ui";
-import Header from "../../components/content/Header.vue";
+import { Button, Link } from "@upmind-automation/upmind-ui";
+import Layout from "../../components/layout/Layout.vue";
+import Hero from "../../components/hero/Hero.vue";
 import Summary from "./components/Summary.vue";
 import ProductCards from "./product/BasketProductCards.vue";
 import Form from "../../components/form/Form.vue";
 import Back from "../../components/navigation/Back.vue";
-import Section from "../../components/content/LayoutSection.vue";
+import Section from "../../components/section/Section.vue";
 import BasketErrors from "./components/BasketErrors.vue";
-
-// ---utils
 
 // --- types
 import { type ComputedRef } from "vue";
@@ -158,7 +159,7 @@ const open = ref(false);
 await isReady();
 
 const layout = computed(() => {
-  return currentRoute.value?.meta?.template || "full";
+  return currentRoute.value?.meta?.template;
 });
 
 const styles = useStyles(

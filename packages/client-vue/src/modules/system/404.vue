@@ -1,37 +1,35 @@
 <template>
-  <Layout>
-    <ContentSection v-auto-animate class="flex grow items-center">
-      <Interstitial
-        v-bind="props"
-        :title="t('error.404_title_md')"
-        :text="t('error.404_text')"
-        :actions="[
-          {
-            ...storefrontRoute,
-            variant: 'solid',
-            color: 'primary',
-            icon: 'arrow-left',
-            label: t('action.back_to_shop')
-          }
-        ]"
-      >
-        <template #avatar>
-          <div>
-            <IconAnimated
-              v-for="(icon, index) in icons"
-              :key="index"
-              :ref="'icon' + index"
-              :icon="icon.icon"
-              size="3xl"
-              secondary-color="accent"
-              trigger="sequence"
-              :sequence="icon.sequence"
-            />
-          </div>
-        </template>
-      </Interstitial>
-    </ContentSection>
-  </Layout>
+  <div class="flex grow items-center justify-center">
+    <Interstitial
+      v-bind="props"
+      :title="t('error.404_title_md')"
+      :text="t('error.404_text')"
+      :actions="[
+        {
+          ...storefrontRoute,
+          variant: 'solid',
+          color: 'primary',
+          icon: 'arrow-left',
+          label: t('action.back_to_shop')
+        }
+      ]"
+    >
+      <template #avatar>
+        <div>
+          <IconAnimated
+            v-for="(icon, index) in icons"
+            :key="index"
+            :ref="'icon' + index"
+            :icon="icon.icon"
+            size="3xl"
+            secondary-color="accent"
+            trigger="sequence"
+            :sequence="icon.sequence"
+          />
+        </div>
+      </template>
+    </Interstitial>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -43,12 +41,8 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 import { useBrand } from "@upmind-automation/headless";
 
 // -- components
-import {
-  Interstitial,
-  IconAnimated,
-  Layout
-} from "@upmind-automation/upmind-ui";
-import ContentSection from "../../components/content/ContentSection.vue";
+import { Interstitial, IconAnimated } from "@upmind-automation/upmind-ui";
+import Layout from "../../components/layout/Layout.vue";
 
 // -- types
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";

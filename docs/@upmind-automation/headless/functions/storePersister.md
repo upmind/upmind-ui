@@ -6,15 +6,24 @@
 function storePersister<TState, TUpdater>(store, options?): object;
 ```
 
+Creates a persister for the given store that synchronises its state with localStorage
+This persister will handle the serialisation and deserialization of the store state
+and will also update the store state with the data from localStorage when it is retrieved.
+This is useful for persisting the store state across browser sessions.
+
 ## Type Parameters
 
 ### TState
 
 `TState`
 
+The type of the store's state.
+
 ### TUpdater
 
 `TUpdater` *extends* `AnyUpdater`
+
+The type of the store's updater function.
 
 ## Parameters
 
@@ -79,7 +88,7 @@ if you want access to the direction, you can add it to the pageParam
 
 ###### meta
 
-`undefined` \| `Record`\<`string`, `unknown`\>
+`Record`\<`string`, `unknown`\> \| `undefined`
 
 ###### pageParam?
 
@@ -170,7 +179,7 @@ restoreQueries: (queryClient, filters?) => Promise<void>;
 ### retrieveQuery()
 
 ```ts
-retrieveQuery: <T>(queryHash, afterRestoreMacroTask?) => Promise<undefined | T>;
+retrieveQuery: <T>(queryHash, afterRestoreMacroTask?) => Promise<T | undefined>;
 ```
 
 #### Type Parameters
@@ -191,11 +200,4 @@ retrieveQuery: <T>(queryHash, afterRestoreMacroTask?) => Promise<undefined | T>;
 
 #### Returns
 
-`Promise`\<`undefined` \| `T`\>
-
-## Description
-
-Creates a persister for the given store that synchronizes its state with localStorage
-This persister will handle the serialization and deserialization of the store state
-and will also update the store state with the data from localStorage when it is retrieved.
-This is useful for persisting the store state across browser sessions.
+`Promise`\<`T` \| `undefined`\>

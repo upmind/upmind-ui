@@ -6,6 +6,8 @@
 type PromotionModel = object;
 ```
 
+Type alias for a promotion model, containing the promotion code.
+
 ## Properties
 
 ### code
@@ -13,3 +15,5 @@ type PromotionModel = object;
 ```ts
 code: string;
 ```
+
+The promotional code.

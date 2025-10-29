@@ -6,6 +6,8 @@
 type SubproductModelValue = object;
 ```
 
+Type alias for a subproduct model value, defining the configuration for a single subproduct instance.
+
 ## Properties
 
 ### cycle
@@ -13,6 +15,8 @@ type SubproductModelValue = object;
 ```ts
 cycle: number;
 ```
+
+The billing cycle duration in months for the subproduct.
 
 ***
 
@@ -22,6 +26,8 @@ cycle: number;
 productId: string;
 ```
 
+The unique identifier of the subproduct.
+
 ***
 
 ### quantity
@@ -29,3 +35,5 @@ productId: string;
 ```ts
 quantity: number;
 ```
+
+The quantity of the subproduct.

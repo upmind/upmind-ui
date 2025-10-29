@@ -2,6 +2,9 @@
 
 # MessageError
 
+Interface representing a structured error object, typically used for displaying
+error messages from API responses or internal validation.
+
 ## Properties
 
 ### data?
@@ -9,6 +12,8 @@
 ```ts
 optional data: Record<string, any>;
 ```
+
+Optional additional data related to the error, e.g. validation specifics.
 
 ***
 
@@ -18,6 +23,8 @@ optional data: Record<string, any>;
 optional message: string;
 ```
 
+The error message string.
+
 ***
 
 ### type?
@@ -25,3 +32,5 @@ optional message: string;
 ```ts
 optional type: number;
 ```
+
+An optional numeric type code for the error.

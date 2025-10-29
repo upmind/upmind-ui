@@ -1,11 +1,5 @@
-// --- external
-import { isString } from "lodash-es";
-
 // --- internal
 import services from "./services";
-
-// --- utils
-import { isNil } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -13,7 +7,7 @@ import { isNil } from "lodash-es";
  * Composable function to manage session-related logic using Vue.
  * It provides state, context and helpers for session, login and registration processes.
  *
- * @returns {UseTransferReturn} Session management API (see below for details)
+ * @returns The {@link UseTransfer} session management API (see below for details)
  */
 export const useTransfer = () => {
   // --- utils
@@ -89,7 +83,5 @@ export const useTransfer = () => {
   };
 };
 
-/**
- * The return type of useTransfer composable.
- */
+/** The return type of {@link useTransfer} composable. */
 export type UseTransfer = ReturnType<typeof useTransfer>;

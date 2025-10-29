@@ -42,6 +42,9 @@ import { REQUIRES_ACTION, type Route } from "./types";
 
 // -----------------------------------------------------------------------------
 
+/**
+ * Awaits until the provided service reaches a specific state and resolves with the current route from the state context.
+ */
 export async function awaitResolved(service: ActorRef<any>) {
   const { t } = useI18n();
 
@@ -60,7 +63,11 @@ export async function awaitResolved(service: ActorRef<any>) {
     });
 }
 
-// vanilla js function to parse the current route, similar to vue-router
+/**
+ * Parses and retrieves query parameters and route parameters from a given route object.
+ * This utility allows for flexible handling of parameters, offering functionality
+ * to consume, retrieve, and parse structured data from query and route parameters.
+ */
 export const useRouteQueryParams = (route: Route) => {
   const { query, params } = route;
 
@@ -188,6 +195,10 @@ export const useRouteQueryParams = (route: Route) => {
   };
 };
 
+/**
+ * Provides utilities to determine if any basket products require user action,
+ * such as completing pending actions, fixing invalid products, or addressing related items.
+ */
 export const useRouteRequiresAction = () => {
   const { getProducts, getInvalidProducts, isReady } = useBasket();
   const { get: getPendingProducts } = useBasketProductsPending();

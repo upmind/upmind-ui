@@ -2,6 +2,10 @@
 
 # ROUTE
 
+Enumeration representing predefined application routes and navigational paths.
+These routes are used consistently throughout the Upmind frontend for navigation,
+deep linking, and managing application state transitions.
+
 ## Enumeration Members
 
 ### BASKET
@@ -9,6 +13,8 @@
 ```ts
 BASKET: "basket";
 ```
+
+The route for viewing the shopping basket contents.
 
 ***
 
@@ -18,6 +24,8 @@ BASKET: "basket";
 CATALOGUE: "catalogue";
 ```
 
+The route for the main product catalogue or shop page.
+
 ***
 
 ### CHECKOUT
@@ -25,6 +33,8 @@ CATALOGUE: "catalogue";
 ```ts
 CHECKOUT: "checkout";
 ```
+
+The route for the checkout process.
 
 ***
 
@@ -34,6 +44,8 @@ CHECKOUT: "checkout";
 EMPTY: "empty";
 ```
 
+The route for an empty shopping basket.
+
 ***
 
 ### ERROR
@@ -41,6 +53,8 @@ EMPTY: "empty";
 ```ts
 ERROR: "error";
 ```
+
+Represents an error state, displayed when an unrecoverable error occurs.
 
 ***
 
@@ -50,6 +64,8 @@ ERROR: "error";
 EXPRESS_CHECKOUT: "express.checkout";
 ```
 
+The route for an express checkout flow.
+
 ***
 
 ### EXPRESS\_PRODUCT\_ADD
@@ -57,6 +73,8 @@ EXPRESS_CHECKOUT: "express.checkout";
 ```ts
 EXPRESS_PRODUCT_ADD: "express.product.add";
 ```
+
+The route for quickly adding a product in an express flow.
 
 ***
 
@@ -66,6 +84,8 @@ EXPRESS_PRODUCT_ADD: "express.product.add";
 LOADING: "loading";
 ```
 
+Represents a loading state, typically displayed while data is being fetched or processed.
+
 ***
 
 ### ORDER
@@ -73,6 +93,8 @@ LOADING: "loading";
 ```ts
 ORDER: "order";
 ```
+
+The route for viewing a completed order.
 
 ***
 
@@ -82,6 +104,8 @@ ORDER: "order";
 PRODUCT_ADD: "product.add";
 ```
 
+The route for adding a new product.
+
 ***
 
 ### PRODUCT\_EDIT
@@ -89,6 +113,8 @@ PRODUCT_ADD: "product.add";
 ```ts
 PRODUCT_EDIT: "product.edit";
 ```
+
+The route for editing an existing product.
 
 ***
 
@@ -98,6 +124,8 @@ PRODUCT_EDIT: "product.edit";
 PRODUCT_NOT_FOUND: "product.notFound";
 ```
 
+The route displayed when a requested product cannot be found.
+
 ***
 
 ### PRODUCT\_RECOMMENDATIONS
@@ -105,6 +133,8 @@ PRODUCT_NOT_FOUND: "product.notFound";
 ```ts
 PRODUCT_RECOMMENDATIONS: "product.recommendations";
 ```
+
+The route for displaying product recommendations.
 
 ***
 
@@ -114,6 +144,8 @@ PRODUCT_RECOMMENDATIONS: "product.recommendations";
 PRODUCT_REQUIRES_ACTION: "product.requiresAction";
 ```
 
+The route to display products that require specific actions from the user.
+
 ***
 
 ### RECOMMENDATIONS
@@ -121,6 +153,8 @@ PRODUCT_REQUIRES_ACTION: "product.requiresAction";
 ```ts
 RECOMMENDATIONS: "recommendations";
 ```
+
+Generic route for product recommendation flows.
 
 ***
 
@@ -130,6 +164,8 @@ RECOMMENDATIONS: "recommendations";
 REDIRECT_EXTERNAL: "redirect.external";
 ```
 
+The route indicating a redirection to an external URL.
+
 ***
 
 ### REDIRECT\_INTERNAL
@@ -137,6 +173,8 @@ REDIRECT_EXTERNAL: "redirect.external";
 ```ts
 REDIRECT_INTERNAL: "redirect.internal";
 ```
+
+The route indicating a redirection to an internal application route.
 
 ***
 
@@ -146,6 +184,8 @@ REDIRECT_INTERNAL: "redirect.internal";
 SESSION: "session";
 ```
 
+The base route for session and authentication related pages.
+
 ***
 
 ### SESSION\_END
@@ -153,6 +193,8 @@ SESSION: "session";
 ```ts
 SESSION_END: "session.end";
 ```
+
+The route indicating the end of a session, typically after logout.
 
 ***
 
@@ -162,6 +204,8 @@ SESSION_END: "session.end";
 SESSION_LOGIN: "session.login";
 ```
 
+The route for the user login page.
+
 ***
 
 ### SESSION\_RECOVER\_PASSWORD
@@ -169,6 +213,8 @@ SESSION_LOGIN: "session.login";
 ```ts
 SESSION_RECOVER_PASSWORD: "session.recover";
 ```
+
+The route for the password recovery/reset page.
 
 ***
 
@@ -178,6 +224,8 @@ SESSION_RECOVER_PASSWORD: "session.recover";
 SESSION_REGISTER: "session.register";
 ```
 
+The route for the user registration page.
+
 ***
 
 ### SESSION\_TRANSFER
@@ -186,6 +234,8 @@ SESSION_REGISTER: "session.register";
 SESSION_TRANSFER: "session.transfer";
 ```
 
+The route for handling session transfer operations between contexts.
+
 ***
 
 ### UNAVAILABLE
@@ -193,3 +243,5 @@ SESSION_TRANSFER: "session.transfer";
 ```ts
 UNAVAILABLE: "unavailable";
 ```
+
+Represents an unavailable state, indicating a resource or feature is not currently accessible.

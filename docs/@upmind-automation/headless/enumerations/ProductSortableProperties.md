@@ -2,6 +2,8 @@
 
 # ProductSortableProperties
 
+Properties by which products can be sorted.
+
 ## Enumeration Members
 
 ### DEFAULT

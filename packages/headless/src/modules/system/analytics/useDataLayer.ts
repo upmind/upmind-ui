@@ -31,7 +31,7 @@ import {
 import { PageRoute } from "../../routing";
 
 // -----------------------------------------------------------------------------
-// ---  Globals/Singeltons
+// ---  Globals/Singletons
 let UETQ: Window["uetq"]; // Microsoft Consent
 let DATA_LAYER = window.dataLayer || [];
 
@@ -133,18 +133,18 @@ class TrackingEvent {
     }
     // When a user submits their billing address
     const payload: DataLayerEcommerce = {
-      currency: safeBasket.currency.code,
-      value: safeBasket.net_amount, //TODO: check the correct value is used
-      gross_value: safeBasket.total_amount, //TODO: check the correct value is used
-      coupon: !isEmpty(safeBasket.promotions)
-        ? map(safeBasket.promotions, "promotion.code").join()
+      currency: safeBasket?.currency?.code,
+      value: safeBasket?.net_amount, //TODO: check the correct value is used
+      gross_value: safeBasket?.total_amount, //TODO: check the correct value is used
+      coupon: !isEmpty(safeBasket?.promotions)
+        ? map(safeBasket?.promotions, "promotion.code").join()
         : undefined,
       // --- invoice specific data
       transaction_id: safeBasket?.number,
-      tax: safeBasket.tax_amount,
+      tax: safeBasket?.tax_amount,
       purchase_type: invoice ? "new_purchase" : undefined,
       items: map(
-        safeBasket.products,
+        safeBasket?.products,
         mapIBasketProduct
       ) as DataLayerEcommerceItem[]
     };
@@ -157,7 +157,7 @@ class TrackingEvent {
   /**
    * This is usually used when adding/updating/removing item(s) to/from the basket
    * Can be for a single item or multiple in the case of bulk add/remove
-   * @param items : Can be either a Product(s) or a BasketProduct(s) and represent the item(s) being added/updated/removed
+   * @param items Can be either a Product(s) or a BasketProduct(s) and represent the item(s) being added/updated/removed
    */
   withItems(
     items: (Product | Product[]) | (BasketProduct | BasketProduct[])
@@ -308,7 +308,5 @@ export const useDataLayer = (dataLayer: string = "dataLayer") => {
   };
 };
 
-/**
- * The return type of useBrand composable.
- */
+/** The return type of {@link useDataLayer} composable. */
 export type UseDataLayer = ReturnType<typeof useDataLayer>;

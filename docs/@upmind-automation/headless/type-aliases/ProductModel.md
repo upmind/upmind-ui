@@ -6,8 +6,8 @@
 type ProductModel = object;
 ```
 
-Represents the product model used for configuration.
-This is the model that is built and verified by the schema
+Represents the product model used for configuration, which is built and verified by a schema.
+This is the core data structure for configuring a product's attributes, options, and provision fields.
 
 ## Extended by
 
@@ -21,6 +21,8 @@ This is the model that is built and verified by the schema
 optional attributes: SubproductModel;
 ```
 
+Optional subproduct model for attributes.
+
 ***
 
 ### id?
@@ -28,6 +30,8 @@ optional attributes: SubproductModel;
 ```ts
 optional id: string;
 ```
+
+The unique identifier of the product instance (if existing).
 
 ***
 
@@ -37,6 +41,8 @@ optional id: string;
 optional options: SubproductModel;
 ```
 
+Optional subproduct model for options.
+
 ***
 
 ### productId
@@ -44,6 +50,8 @@ optional options: SubproductModel;
 ```ts
 productId: string;
 ```
+
+The unique identifier of the base product.
 
 ***
 
@@ -53,6 +61,8 @@ productId: string;
 optional provisionFields: Record<string, any>;
 ```
 
+Key-value pairs for provision field values.
+
 ***
 
 ### quantity
@@ -61,6 +71,8 @@ optional provisionFields: Record<string, any>;
 quantity: number;
 ```
 
+The quantity of the product.
+
 ***
 
 ### term?
@@ -68,3 +80,5 @@ quantity: number;
 ```ts
 optional term: number;
 ```
+
+The selected billing term in months.

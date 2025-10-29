@@ -6,6 +6,14 @@
 function useLocale(): object;
 ```
 
+Composable function to provide locale-related utilities and state management for internationalisation (i18n).
+
+This module is responsible for controlling and updating the current locale, determining supported languages,
+and applying fallback logic for selecting appropriate locales based on user or system preferences.
+
+Note: Changing the locale is restricted while the user is authenticated to prevent inconsistencies, as
+the locale is tied to the account's preferred language.
+
 ## Returns
 
 ### isReady()
@@ -14,13 +22,9 @@ function useLocale(): object;
 isReady: () => Promise<boolean>;
 ```
 
-Checks if the i18n system is ready.
-
 #### Returns
 
 `Promise`\<`boolean`\>
-
-Resolves true if ready.
 
 ### locale
 
@@ -36,7 +40,6 @@ The current locale (reactive).
 meta: ComputedRef<{
   hasLocale: boolean;
   isAvailable: boolean;
-  isLoading: boolean;
 }>;
 ```
 
@@ -45,14 +48,14 @@ Meta-information about the i18n state.
 ### setDefaultLocale()
 
 ```ts
-setDefaultLocale: (value) => Promise<void>;
+setDefaultLocale: (value?) => Promise<void>;
 ```
 
 Sets the default locale based on all fallback logic.
 
 #### Parameters
 
-##### value
+##### value?
 
 `string`
 

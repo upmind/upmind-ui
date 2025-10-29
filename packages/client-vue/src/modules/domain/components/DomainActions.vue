@@ -13,12 +13,13 @@
     :label="t('action.register_or_added', selected || meta.added ? 0 : 1)"
   />
   <template v-if="!meta?.available && !selected && !meta.added" as="span">
-    <Description class="not-italic md:max-w-76">
+    <p class="text-muted y-0 text-sm not-italic md:max-w-76">
       {{ t("domain.own_domain_qn") }}
       {{ t("domain.transfer_domain_by_msg") }}
       <Link
         class="text-muted font-medium text-inherit underline underline-offset-1!"
         @click="onUpdate(props.domain)"
+        size="inherit"
         >{{ t("action.clicking_here") }}</Link
       >.
       <template v-if="meta.discounted">
@@ -39,7 +40,7 @@
           })
         }}
       </template>
-    </Description>
+    </p>
   </template>
 </template>
 
@@ -52,8 +53,7 @@ import { useI18n } from "vue-i18n";
 import config from "../domain.config";
 
 // components
-import { Button, Icon, Link } from "@upmind-automation/upmind-ui";
-import Description from "../../../components/content/Description.vue";
+import { Button, Link } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { DomainActionProps } from "../types";

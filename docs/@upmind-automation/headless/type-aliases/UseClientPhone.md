@@ -6,4 +6,4 @@
 type UseClientPhone = ReturnType<typeof useClientPhone>;
 ```
 
-The return type of the composable.
+The return type of the [useClientPhone](../functions/useClientPhone.md) composable function.

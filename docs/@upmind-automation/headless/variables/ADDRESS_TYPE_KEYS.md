@@ -6,6 +6,10 @@
 const ADDRESS_TYPE_KEYS: object;
 ```
 
+A constant object mapping human-readable names to their corresponding numeric keys
+from the [AddressTypes](AddressTypes.md) array. This provides a type-safe way to reference
+address types in code.
+
 ## Type Declaration
 
 ### COMPANY

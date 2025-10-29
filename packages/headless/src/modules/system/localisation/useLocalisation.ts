@@ -12,6 +12,10 @@ import { GlobbedFiles } from "./types";
 
 // -----------------------------------------------------------------------------
 
+/**
+ * Composable function to manage and initialise localisation settings in headless with an associated i18n instance and optionally globbed messages.
+ * Provides utilities to configure, load locale messages, and manage the application's locale state.
+ */
 export const useLocalisation = (instance?: I18n, glob?: GlobbedFiles) => {
   const { locale, setDefaultLocale, setLocale } = useLocale();
   const { loadLocaleMessages, init } = useI18n();

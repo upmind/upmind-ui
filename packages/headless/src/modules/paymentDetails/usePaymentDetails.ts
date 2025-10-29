@@ -113,4 +113,7 @@ export const usePaymentDetails = () => {
   };
 };
 
+/**
+ * The return type of {@link usePaymentDetails} composable.
+ */
 export type UsePaymentDetails = ReturnType<typeof usePaymentDetails>;

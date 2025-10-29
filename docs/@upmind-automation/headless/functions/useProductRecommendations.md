@@ -6,8 +6,8 @@
 function useProductRecommendations(pid): object;
 ```
 
-This composable is used to manage the product recommendations
-for a specific product. It uses the recommendations engine
+A composable function that manages the product recommendations
+for a specific product. It uses the recommendation engine
 to fetch and manage the recommendations.
 NB: Only recommendations that originate from the specified product will be available.
 This is useful for displaying recommendations on the product detail page, or after adding to the basket
@@ -21,6 +21,8 @@ This is useful for displaying recommendations on the product detail page, or aft
 The product id to get recommendations for
 
 ## Returns
+
+An object containing state, context, errors, recommendations, and methods to manage recommendations.
 
 ### add()
 
@@ -45,7 +47,7 @@ The id of the product to add.
 ### basketItem
 
 ```ts
-basketItem: ComputedRef<undefined | ActorRef<any, any>>;
+basketItem: ComputedRef<ActorRef<any, any> | undefined>;
 ```
 
 The current basket item context.
@@ -66,8 +68,8 @@ Cancels the current recommendations process.
 
 ```ts
 context: ComputedRef<
-  | undefined
-| RecommendationsEngineContext>;
+  | RecommendationsEngineContext
+| undefined>;
 ```
 
 The current context
@@ -75,7 +77,7 @@ The current context
 ### errors
 
 ```ts
-errors: ComputedRef<undefined | ResponseError>;
+errors: ComputedRef<ResponseError | undefined>;
 ```
 
 Any error returned by the engine.

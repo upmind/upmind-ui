@@ -23,6 +23,13 @@ import { isEmpty, get, add, subtract } from "lodash-es";
 import type { Product } from "../product";
 // -----------------------------------------------------------------------------
 
+/**
+ * Provides utility functions and state management for interacting with a specific product in the shopping basket.
+ *
+ * This function leverages several internal hooks and services to facilitate product-related operations
+ * such as quantity management, readiness checks, and error handling. It initialises and returns methods
+ * that allow interaction with the basket product through a state machine.
+ */
 export const useBasketProduct = (bpid: string) => {
   const { t } = useI18n();
   const { basket: rawBasket, errors } = useBasket();
@@ -194,4 +201,11 @@ export const useBasketProduct = (bpid: string) => {
   };
 };
 
+/**
+ * Represents the type definition for the return value of the `useBasketProduct` function.
+ *
+ * This is a utility type that references the return type of the `useBasketProduct` function.
+ * It encapsulates the structure and expected properties returned by that function, ensuring
+ * type safety and consistency when using its output throughout the codebase.
+ */
 export type UseBasketProduct = ReturnType<typeof useBasketProduct>;

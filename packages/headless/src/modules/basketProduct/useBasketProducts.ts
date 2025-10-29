@@ -25,6 +25,14 @@ import { DEBOUNCE_DELAY } from "../../utils";
 // --- types
 // -----------------------------------------------------------------------------
 
+/**
+ * Provides a composable interface for managing products within the shopping basket.
+ * It leverages the {@link useBasket} composable for core basket state and actions,
+ * and exposes methods for interacting with individual basket products, such as
+ * retrieving, removing, updating quantity, and resolving product configurations.
+ *
+ * @returns The API for managing basket products.
+ */
 export const useBasketProducts = () => {
   const {
     findProduct,
@@ -40,12 +48,28 @@ export const useBasketProducts = () => {
   const processing = ref<string[]>([]);
 
   // --- methods
+
+  /**
+   * Retrieves a specific {@link BasketProduct} from the basket by its ID, after ensuring the basket is ready.
+   *
+   * @param id - The unique identifier of the basket product.
+   * @returns A promise resolving to the found {@link BasketProduct} or `undefined` if not found.
+   */
   async function getBasketProduct(
     id: string
   ): Promise<BasketProduct | undefined> {
     return isReady().then(() => findProduct({ id }));
   }
 
+  /**
+   * Removes a product from the basket by its ID.
+   * This operation is debounced to prevent rapid multiple calls.
+   * It also updates the dataLayer and refreshes the basket.
+   *
+   * @param id - The unique identifier of the basket product to remove.
+   * @returns A promise resolving to the updated {@link IBasket} or `undefined` if the basket is not available.
+   * @throws {DetailedError} If the basket is not available or the product is not found.
+   */
   async function remove(id: string): Promise<IBasket | undefined> {
     if (!basketId.value) {
       throw new DetailedError(
@@ -73,6 +97,16 @@ export const useBasketProducts = () => {
       .then(() => refresh());
   }
 
+  /**
+   * Resolves a product's configuration by updating it in the basket.
+   * This is used when a user finalizes configuration changes for a product.
+   * It handles data updates, basket refresh, and pushes 'add_to_cart' event to dataLayer.
+   *
+   * @param id - The unique identifier of the basket product.
+   * @param data - The {@link ProductModel} containing the updated configuration.
+   * @returns A promise resolving to the updated {@link IBasket} or `undefined` if the basket is not available.
+   * @throws {DetailedError} If the basket is not available, the product is not found, or an error occurs during update.
+   */
   async function resolve(
     id: string,
     data: ProductModel
@@ -106,6 +140,15 @@ export const useBasketProducts = () => {
       });
   }
   //  ---
+  /**
+   * Increments the quantity of a specific basket product by its defined step.
+   * Ensures the product is quantifiable before attempting the increment.
+   * This operation is debounced.
+   *
+   * @param id - The unique identifier of the basket product.
+   * @returns A promise resolving to the updated {@link IBasket} or `undefined`.
+   * @throws {DetailedError} If the basket or product is unavailable, or if the product is not quantifiable.
+   */
   async function incrementQuantity(id: string): Promise<IBasket | undefined> {
     return isReady().then(async () => {
       if (!basketId.value) {
@@ -149,6 +192,15 @@ export const useBasketProducts = () => {
     });
   }
 
+  /**
+   * Decrements the quantity of a specific basket product by its defined step.
+   * Ensures the product is quantifiable before attempting the decrement.
+   * This operation is debounced.
+   *
+   * @param id - The unique identifier of the basket product.
+   * @returns A promise resolving to the updated {@link IBasket} or `undefined`.
+   * @throws {DetailedError} If the basket or product is unavailable, or if the product is not quantifiable.
+   */
   async function decrementQuantity(id: string): Promise<IBasket | undefined> {
     return isReady().then(async () => {
       if (!basketId.value) {
@@ -196,6 +248,16 @@ export const useBasketProducts = () => {
     });
   }
 
+  /**
+   * Updates the quantity of a specific basket product to a specified value.
+   * Ensures the product is quantifiable before attempting the update.
+   * This operation is debounced.
+   *
+   * @param id - The unique identifier of the basket product.
+   * @param quantity - The new quantity to set for the product.
+   * @returns A promise resolving to the updated {@link IBasket} or `undefined`.
+   * @throws {DetailedError} If the basket or product is unavailable, not quantifiable, or if the update fails.
+   */
   async function updateQuantity(
     id: string,
     quantity: number
@@ -241,15 +303,16 @@ export const useBasketProducts = () => {
 
   // --- utils
   /**
-   * Debounce action to prevent multiple calls with a processing state
-   * @param action
-   * @param delay
-   * @returns
-   * @example
-   * const action = debounceAction(async (bpid: string) => {
-   *  await remove(bpid);
-   * });
-   *  action("123");
+   * Creates a debounced version of an asynchronous action function.
+   * This helps prevent rapid, concurrent execution of potentially heavy operations
+   * by delaying the execution until a specified time after the last call.
+   * It also manages a 'processing' state to indicate when an action is active.
+   *
+   * @template T - The type of the asynchronous function to debounce.
+   * @param action - The asynchronous function to debounce (e.g., `remove`, `updateQuantity`).
+   * @param delay - The debounce delay in milliseconds. Defaults to `DEBOUNCE_DELAY`.
+   * @returns A debounced function that returns a promise resolving to {@link IBasket | undefined}.
+   * @throws {DetailedError} If the action is called again while already processing.
    */
   function action<T extends (...args: any[]) => Promise<IBasket | undefined>>(
     action: T,
@@ -279,8 +342,19 @@ export const useBasketProducts = () => {
   return {
     // --- state
 
+    /**
+     * Waits for the basket service to be ready (available or error state).
+     * @returns {Promise<boolean>} Resolves `true` if ready, `false` if in an error state.
+     */
     isReady,
 
+    /**
+     * Meta-information computed from the basket's state.
+     *
+     * @property {boolean} hasProducts - `true` if the basket contains any products.
+     * @property {boolean} isLoading - `true` if the basket service is currently in a loading state.
+     * @property {function(bpid?: string): boolean} isProcessing - A function that returns `true` if the basket or a specific product (`bpid`) is processing, `false` otherwise.
+     */
     meta: computed(() => ({
       hasProducts: !isEmpty(products.value),
       isLoading: basketMeta.value.isLoading,
@@ -288,6 +362,14 @@ export const useBasketProducts = () => {
         bpid ? includes(processing.value, bpid) : !isEmpty(processing.value)
     })),
 
+    /**
+     * Configures and returns a composable for a specific basket product, identified by its ID.
+     * This allows for granular control over individual items within the basket.
+     *
+     * @param bpid - The basket product ID to configure.
+     * @returns A promise resolving to the {@link UseBasketProduct} composable for the specified product.
+     * @throws {DetailedError} If the basket product is not found.
+     */
     configure: async (bpid: string): Promise<UseBasketProduct> => {
       const basketProduct = await getBasketProduct(bpid);
       if (isEmpty(basketProduct))
@@ -302,21 +384,62 @@ export const useBasketProducts = () => {
     },
 
     // --- context
+
+    /**
+     * The reactive list of all {@link BasketProduct}s currently in the basket.
+     */
     products,
 
     // --- methods
+    /**
+     * Refreshes the entire basket state by fetching the latest data.
+     * @returns A promise resolving to the updated {@link IBasket} or `undefined`.
+     */
     refresh,
 
+    /**
+     * Resolves a product's configuration and updates it in the basket.
+     * @param id - The basket product ID.
+     * @param data - The updated {@link ProductModel} data.
+     * @returns A promise resolving to the updated {@link IBasket} or `undefined`.
+     */
     resolve,
 
+    /**
+     * Removes a product from the basket by its ID. This operation is debounced.
+     * @param id - The basket product ID to remove.
+     * @returns A promise resolving to the updated {@link IBasket} or `undefined`.
+     */
     remove: action((bpid: string) => remove(bpid)),
 
+    /**
+     * Updates the quantity of a product in the basket to a specific value. This operation is debounced.
+     * @param id - The basket product ID.
+     * @param value - The new quantity to set.
+     * @returns A promise resolving to the updated {@link IBasket} or `undefined`.
+     */
     updateQuantity: action((bpid: string, value: number) =>
       updateQuantity(bpid, value)
     ),
 
+    /**
+     * Increments the quantity of a product in the basket by its step. This operation is debounced.
+     * @param id - The basket product ID.
+     * @returns A promise resolving to the updated {@link IBasket} or `undefined`.
+     */
     incrementQuantity: action((bpid: string) => incrementQuantity(bpid)),
 
+    /**
+     * Decrements the quantity of a product in the basket by its step. This operation is debounced.
+     * @param id - The basket product ID.
+     * @returns A promise resolving to the updated {@link IBasket} or `undefined`.
+     */
     decrementQuantity: action((bpid: string) => decrementQuantity(bpid))
   };
 };
+
+/**
+ * Type definition for the return value of the `useBasketProducts` composable.
+ * This ensures type safety when accessing the composable's API.
+ */
+type UsePendingProduct = ReturnType<typeof useBasketProducts>;

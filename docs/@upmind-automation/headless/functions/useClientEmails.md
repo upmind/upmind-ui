@@ -6,13 +6,21 @@
 function useClientEmails(initial): object;
 ```
 
+Composable function for managing client emails.
+It handles fetching, displaying, filtering, and performing actions on client emails,
+leveraging an underlying service and TanStack Query for data management.
+
 ## Parameters
 
 ### initial
 
 [`QueryProps`](../type-aliases/QueryProps.md) = `...`
 
+Optional initial query parameters for loading the email list (e.g. pagination settings). Defaults to pagination limit of 0.
+
 ## Returns
+
+The [UseClientEmails](../type-aliases/UseClientEmails.md) API for interacting with client emails.
 
 ### data
 
@@ -28,7 +36,7 @@ This is populated by the query and updates automatically when the query state ch
 ### default()
 
 ```ts
-default: (data) => undefined | Email = getDefault;
+default: (data) => Email | undefined = getDefault;
 ```
 
 The default item for the current client.
@@ -38,18 +46,18 @@ This is the email that is set as default for the current client.
 
 ##### data
 
-`MaybeRef`\<`undefined` \| `null` \| [`Email`](../interfaces/Email.md)[]\> = `...`
+`MaybeRef`\<[`Email`](../interfaces/Email.md)[] \| `null` \| `undefined`\> = `...`
 
 #### Returns
 
-`undefined` \| [`Email`](../interfaces/Email.md)
+[`Email`](../interfaces/Email.md) \| `undefined`
 
 The default email if found, is otherwise undefined.
 
 ### error
 
 ```ts
-error: Ref<null, null> | Ref<Error, Error> = query.error;
+error: Ref<Error, Error> | Ref<null, null> = query.error;
 ```
 
 The current error state of the query.
@@ -83,7 +91,7 @@ query: (value?) => void = filterQuery;
 ### findOne()
 
 ```ts
-findOne: (mapping, data, searchableProps) => undefined | Email;
+findOne: (mapping, data, searchableProps) => Email | undefined;
 ```
 
 Find a single email based on the given param. The param is matched against the title and description.
@@ -98,7 +106,7 @@ The filter to match against the email title and description.
 
 ##### data
 
-`MaybeRef`\<`undefined` \| `null` \| [`Email`](../interfaces/Email.md)[]\> = `...`
+`MaybeRef`\<[`Email`](../interfaces/Email.md)[] \| `null` \| `undefined`\> = `...`
 
 ##### searchableProps
 
@@ -106,14 +114,14 @@ The filter to match against the email title and description.
 
 #### Returns
 
-`undefined` \| [`Email`](../interfaces/Email.md)
+[`Email`](../interfaces/Email.md) \| `undefined`
 
 The email object if found, is otherwise undefined.
 
 ### getOne()
 
 ```ts
-getOne: (id?, data) => undefined | Email;
+getOne: (id?, data) => Email | undefined;
 ```
 
 Get a single email by id.
@@ -128,18 +136,18 @@ The id of the email to get.
 
 ##### data?
 
-`MaybeRef`\<`undefined` \| `null` \| [`Email`](../interfaces/Email.md)[]\> = `...`
+`MaybeRef`\<[`Email`](../interfaces/Email.md)[] \| `null` \| `undefined`\> = `...`
 
 #### Returns
 
-`undefined` \| [`Email`](../interfaces/Email.md)
+[`Email`](../interfaces/Email.md) \| `undefined`
 
 The email object if found, is otherwise undefined.
 
 ### invalidate()
 
 ```ts
-invalidate: <T>(data?) => Promise<undefined | T>;
+invalidate: <T>(data?) => Promise<T | undefined>;
 ```
 
 Invalidate the query cache for client items.
@@ -159,7 +167,7 @@ This will trigger a refetch of the items when the next query is made.
 
 #### Returns
 
-`Promise`\<`undefined` \| `T`\>
+`Promise`\<`T` \| `undefined`\>
 
 ### isReady()
 

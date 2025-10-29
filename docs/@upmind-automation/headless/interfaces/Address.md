@@ -2,6 +2,10 @@
 
 # Address
 
+Interface representing a comprehensive address object, extending [AddressModel](AddressModel.md)
+with additional identifiers, contextual information, and meta-data about the address.
+This is typically used for addresses retrieved from the API or displayed in the UI.
+
 ## Extends
 
 - [`AddressModel`](AddressModel.md)
@@ -14,23 +18,31 @@
 address: object;
 ```
 
+An object containing the primary components of a physical address.
+
 #### address1
 
 ```ts
-address1: null | string;
+address1: string | null;
 ```
+
+The first line of the address (e.g. street name and number).
 
 #### address2?
 
 ```ts
-optional address2: null | string;
+optional address2: string | null;
 ```
+
+The second line of the address (e.g. flat, suite, or unit number). Optional.
 
 #### city
 
 ```ts
-city: null | string;
+city: string | null;
 ```
+
+The city of the address.
 
 #### countryId
 
@@ -38,23 +50,31 @@ city: null | string;
 countryId: string;
 ```
 
+The ID of the country for the address.
+
 #### postcode
 
 ```ts
-postcode: null | string;
+postcode: string | null;
 ```
+
+The postal code or Postcode of the address.
 
 #### regionId?
 
 ```ts
-optional regionId: null | string;
+optional regionId: string | null;
 ```
+
+The ID of the region for the address. Optional, depending on country.
 
 #### state?
 
 ```ts
-optional state: null | string;
+optional state: string | null;
 ```
+
+The state or province name for the address. Optional, depending on country.
 
 #### Inherited from
 
@@ -68,6 +88,8 @@ optional state: null | string;
 clientId: string;
 ```
 
+The unique identifier of the client to whom this address belongs.
+
 ***
 
 ### description
@@ -76,6 +98,8 @@ clientId: string;
 description: string;
 ```
 
+A detailed description of the address, potentially including full address lines.
+
 ***
 
 ### id
@@ -83,6 +107,8 @@ description: string;
 ```ts
 id: string;
 ```
+
+The unique identifier for the address.
 
 #### Overrides
 
@@ -96,11 +122,15 @@ id: string;
 meta: object;
 ```
 
+Meta-information about the address's status and capabilities.
+
 #### canDelete
 
 ```ts
 canDelete: boolean;
 ```
+
+Indicates whether the user can delete the address.
 
 #### isDefault
 
@@ -108,19 +138,25 @@ canDelete: boolean;
 isDefault: boolean;
 ```
 
+Indicates whether this is the client's default address.
+
 #### isVerified
 
 ```ts
 isVerified: boolean;
 ```
 
+Indicates whether the address has been verified.
+
 ***
 
 ### name?
 
 ```ts
-optional name: null | string;
+optional name: string | null;
 ```
+
+Optional name or label for the address (e.g. "My Home Address").
 
 #### Inherited from
 
@@ -134,10 +170,14 @@ optional name: null | string;
 title: string;
 ```
 
+A display title for the address (e.g. "Home Address").
+
 ***
 
 ### type
 
 ```ts
-type: null | number;
+type: number | null;
 ```
+
+The type of address, corresponding to keys in [AddressTypes](../variables/AddressTypes.md) (e.g., 1 for "Home").

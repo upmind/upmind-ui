@@ -6,4 +6,4 @@
 type useRecaptcha = ReturnType<typeof useRecaptcha>;
 ```
 
-The return type of useSystem composable.
+The return type of [useRecaptcha](../functions/useRecaptcha.md) composable.
