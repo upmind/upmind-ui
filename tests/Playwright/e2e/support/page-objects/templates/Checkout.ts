@@ -1,8 +1,10 @@
-import { Page, expect, Frame, Locator } from "@playwright/test";
+import { Page, expect, Locator } from "@playwright/test";
 export class Checkout {
   readonly page: Page;
   readonly addressSearch: Locator;
   readonly addressFormMessage: Locator;
+  readonly addressRegionMessage: Locator;
+  readonly companyFormMessage: Locator;
   readonly phone: Locator;
   readonly addressManualEntry: Locator;
   readonly billingDetails: Locator;
@@ -23,8 +25,14 @@ export class Checkout {
       "input-address-search-search"
     );
     this.addressFormMessage = page.getByTestId("form-item-message-address");
+    this.addressRegionMessage = page.getByTestId(
+      "form-item-message-address-regionId"
+    );
+    this.companyFormMessage = page.getByTestId(
+      "form-item-message-company-name"
+    );
     this.phone = this.billingDetails.getByTestId("form-item-phone-phone");
-    this.addressManualEntry = page.getByTestId("button-enter-address-manually");
+    this.addressManualEntry = page.getByTestId("link-enter-address-manually");
     this.addressLine1 = this.billingDetails.getByTestId("input-address-line1");
     this.addressLine2 = this.billingDetails.getByTestId("input-address-line2");
     this.city = this.billingDetails.getByTestId("input-address-level2");
@@ -56,9 +64,7 @@ export class Checkout {
   }
 
   async selectPaymentMethod(method: string) {
-    const button = this.page.locator("button", {
-      has: this.page.locator("h5", { hasText: method })
-    });
+    const button = this.page.getByTestId("accordion-trigger").getByText(method);
     await button.click();
   }
 
@@ -66,18 +72,9 @@ export class Checkout {
     const placeOrderButton = this.page.getByTestId(
       "button-place-order-and-pay"
     );
-    //await placeOrderButton.waitFor({ state: "attached" });
+    //await placeOrderButton.waitFor({ state: 'attached' });
     await expect(placeOrderButton).toBeEnabled();
     await placeOrderButton.click();
-  }
-
-  async getStripeIframe(): Promise<Frame> {
-    const iframeElement = await this.page.waitForSelector(
-      'iframe[title="Secure payment input frame"]'
-    );
-    const frame = await iframeElement.contentFrame();
-    if (!frame) throw new Error("Stripe iframe not found");
-    return frame;
   }
 
   async inputStripeDetails(
@@ -85,31 +82,12 @@ export class Checkout {
     expiryDate: string,
     cvcCode: string
   ) {
-    const stripeFrame = await this.getStripeIframe();
-    await stripeFrame.fill('input[name="number"]', `${cardNumber}`);
-    await stripeFrame.fill('input[name="expiry"]', `${expiryDate}`);
-    await stripeFrame.fill('input[name="cvc"]', `${cvcCode}`);
-    await stripeFrame.fill('input[name="postalCode"]', "SW1A 2AB");
+    const stripeFrame = this.page.frameLocator(
+      'iframe[title="Secure payment input frame"]'
+    );
+    await stripeFrame.locator('input[name="number"]').fill(`${cardNumber}`);
+    await stripeFrame.locator('input[name="expiry"]').fill(`${expiryDate}`);
+    await stripeFrame.locator('input[name="cvc"]').fill(`${cvcCode}`);
+    await stripeFrame.locator('input[name="postalCode"]').fill("SW1A 2AB");
   }
-
-  // async payWithStripeCard(
-  //   cardNumber: string,
-  //   expiryDate: string,
-  //   cvcCode: string
-  // ) {
-  //   await this.page.click('button:has-text("Stripe Payment")');
-  //   const stripeFrame = await this.getStripeIframe();
-  //   await stripeFrame.fill('input[name="number"]', `${cardNumber}`);
-  //   await stripeFrame.fill('input[name="expiry"]', `${expiryDate}`);
-  //   await stripeFrame.fill('input[name="cvc"]', `${cvcCode}`);
-  //   await stripeFrame.fill('input[name="postalCode"]', "SW1A 2AB");
-
-  //   const placeOrderButton = this.page.getByTestId(
-  //     "button-place-order-and-pay"
-  //   );
-  //   await placeOrderButton.waitFor({ state: "attached" });
-  //   await expect(placeOrderButton).toBeEnabled();
-
-  //   await placeOrderButton.click();
-  // }
 }

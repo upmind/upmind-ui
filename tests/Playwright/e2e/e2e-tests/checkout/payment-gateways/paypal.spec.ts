@@ -49,7 +49,7 @@ test.describe("Checkout with PayPal", () => {
       []
     );
     await page.goto(URLs.checkout);
-    // await page.waitForLoadState("networkidle");
+    // await page.waitForLoadState('networkidle');
     await checkout.selectPaymentMethod("PayPal Express");
     await checkout.clickPlaceOrderButton();
     await page.waitForURL(
@@ -62,7 +62,7 @@ test.describe("Checkout with PayPal", () => {
     await page.click("#btnLogin");
     await page.getByTestId("submit-button-initial").click();
     await page.waitForURL(
-      `http://qa-automation.local:5173/order/${orderId}?payment_success=true`
+      `http://qa-automation.local:5173/order/${orderId}?payment_success=true**`
     );
     await expect(page.getByRole("dialog")).toContainText("Order complete!");
   });

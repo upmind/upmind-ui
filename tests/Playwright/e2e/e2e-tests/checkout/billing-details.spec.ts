@@ -53,7 +53,10 @@ test.describe("Verify checkout billing detail requirements", () => {
       requirePhoneForOrders: false
     });
     await page.goto(URLs.checkout);
-    await expect(checkout.placeOrderButton).toBeDisabled();
+    await checkout.placeOrderButton.click();
+    await expect(checkout.addressFormMessage).toContainText(
+      "Your address is required"
+    );
   });
   test("Company required at checkout", async ({ page }) => {
     await interceptConfigValues(page, token, {
@@ -65,7 +68,10 @@ test.describe("Verify checkout billing detail requirements", () => {
     await page.goto(URLs.checkout);
     await expect(page.getByTestId("billing")).toContainText("Company Name");
     await expect(page.getByTestId("tablist")).toHaveCount(0);
-    await expect(checkout.placeOrderButton).toBeDisabled();
+    await checkout.placeOrderButton.click();
+    await expect(checkout.companyFormMessage).toContainText(
+      "Company Name must be string"
+    );
   });
   test("Region required on address", async ({ page, context }) => {
     await interceptConfigValues(page, token, {
@@ -82,11 +88,11 @@ test.describe("Verify checkout billing detail requirements", () => {
       "HU15 1EG",
       null
     );
-    await expect(
-      page.getByTestId("form-item-message-address-regionId")
-    ).toContainText("Region must have required property");
+    await expect(checkout.addressRegionMessage).toContainText(
+      "Region must have required property"
+    );
   });
-  test("Phone required at checkout", async ({ page, context }) => {
+  test("Phone required at checkout", async ({ page }) => {
     await interceptConfigValues(page, token, {
       requireAddressForOrders: false,
       requireCompanyForOrders: false,
