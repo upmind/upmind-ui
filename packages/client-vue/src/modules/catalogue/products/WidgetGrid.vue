@@ -16,7 +16,7 @@
         data-testid="product-search"
         @update:model-value="doQuery"
         icon="search-md"
-        size="lg"
+        class="max-w-full lg:max-w-xl"
       />
 
       <div class="w-full shrink-0 md:w-auto">

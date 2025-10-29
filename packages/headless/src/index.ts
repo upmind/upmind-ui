@@ -1,7 +1,11 @@
+// --- external libs exposed for consumers
+export { type QueryClient } from "@tanstack/vue-query";
+export { Store } from "@tanstack/vue-store";
+
+// --- internal
 export * from "./modules";
 export * as utils from "./utils";
 export * from "./useUpmind";
-export { type QueryClient } from "@tanstack/vue-query";
 
 // -----------------------------------------------------------------------------
 

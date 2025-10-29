@@ -1,5 +1,5 @@
 <template>
-  <Layout :variant="layout" :minimal="isMinimal">
+  <Layout :variant="layout">
     <template #controls>
       <Breadcrumbs
         v-model="categoryId"
@@ -12,7 +12,7 @@
       <Share class="hidden md:flex" />
     </template>
 
-    <template #header>
+    <template #content-header>
       <Categories
         v-model="categoryId"
         :sort="params.sort"
@@ -62,7 +62,8 @@ import {
 import config from "./catalogue.config";
 
 // --- components
-import { Layout, useStyles } from "@upmind-automation/upmind-ui";
+import { useStyles } from "@upmind-automation/upmind-ui";
+import Layout from "../../components/layout/Layout.vue";
 import Breadcrumbs from "./categories/Breadcrumbs.vue";
 import Share from "../../components/navigation/Share.vue";
 import CategoriesFacet from "./categories/facet/CategoriesFacet.vue";
@@ -88,10 +89,6 @@ await isResolved(ROUTE.PRODUCT_ADD);
 const { t } = useI18n();
 
 // --- state
-
-const isMinimal = computed(() => {
-  return !description.value;
-});
 
 const categoryId = useRouteQuery<string | undefined>("catid", undefined, {
   mode: "push"

@@ -4,20 +4,26 @@
     @click="handleShare"
     :icon="copied ? 'check' : 'share-07'"
     :label="copied ? t('confirm.copied') : t('action.share')"
+    :size="size"
   />
 </template>
 
 <script lang="ts" setup>
 // --- external
 import { useClipboard } from "@vueuse/core";
+import { useI18n } from "vue-i18n";
 
 // --- components
 import { Link } from "@upmind-automation/upmind-ui";
 
-// --- internal
-import { useI18n } from "vue-i18n";
+// types
+import type { ShareProps } from "./types";
 
 const { t } = useI18n();
+
+withDefaults(defineProps<ShareProps>(), {
+  size: "lg"
+});
 
 const { copy, copied, isSupported } = useClipboard({ legacy: true });
 

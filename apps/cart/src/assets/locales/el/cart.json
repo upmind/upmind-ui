@@ -1,14 +1,18 @@
 {
+  "basket_billing_review_msg": "Λείπουν ή είναι λανθασμένα ορισμένα στοιχεία χρέωσης – {review}.",
   "basket_count": "άδειο | {count} στοιχείο | {count} αντικείμενα",
+  "basket_fields_review_msg": "Ορισμένα πεδία του καλαθιού λείπουν ή είναι λανθασμένα – {review}.",
   "basket_items": "δεν υπάρχουν είδη στο καλάθι | {count} είδος στο καλάθι | {count} είδη στο καλάθι",
   "basket_product_missing_data": "Λείπουν δεδομένα από το στοιχείο",
   "basket_product_missing_data_help": "Αυτό το στοιχείο δεν έχει δεδομένα και απαιτεί προσοχή",
+  "basket_product_review_msg": "{productName} λείπει η απαιτούμενη πληροφορία – {review}.",
   "basket_products": "Είδη καλαθιού",
   "basket_products_require_attention": "**{count}**τα προϊόντα απαιτούν **προσοχή** | **{count}** το προϊόν απαιτεί **προσοχή** | **{count}**τα προϊόντα απαιτούν **προσοχή**",
   "basket_products_require_attention_md": "@.markdown:{'cart.basket_products_require_attention'}",
   "basket_products_require_attention_msg": "{count} τα προϊόντα απαιτούν προσοχή | {count} το προϊόν απαιτεί προσοχή | {count} προϊόντα που απαιτούν προσοχή",
   "basket_products_review_desc": "Παρακαλούμε ελέγξτε τα παρακάτω στοιχεία πριν προχωρήσετε, εναλλακτικά επιστρέψτε τα στο καλάθι.",
-  "basket_products_review_msg": "Παρακαλούμε ελέγξτε τα ακόλουθα στοιχεία πριν συνεχίσετε",
+  "basket_requires_attention_msg": "{count} στοιχείο χρειάζεται την προσοχή σας | {count} στοιχεία χρειάζονται την προσοχή σας",
+  "basket_review_msg": "Παρακαλώ ελέγξτε τα παρακάτω στοιχεία πριν συνεχίσετε",
   "basket_summary_desc": "Έχετε {count} είδος στο καλάθι σας, συνολικά {total}. | Έχετε {count} είδη στο καλάθι σας, συνολικά {total}.",
   "basket_title": "Το καλάθι σας",
   "empty": "Το **καλάθι** σας είναι άδειο",
@@ -42,5 +46,7 @@
   "promotions_active": "Ενεργές εκπτώσεις",
   "recommendations_unavailable_text": "Δεν μπορέσαμε να βρούμε προτάσεις για εσάς αυτή τη στιγμή. Παρακαλώ κάντε κλικ παρακάτω για να συνεχίσετε.",
   "recommendations_unavailable_title": "Λυπούμαστε γι' αυτό...",
-  "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}"
+  "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
+  "stored_payment_methods_limited_desc": "Δεν είναι ορατές όλες οι μέθοδοι πληρωμής επειδή δεν είναι διαθέσιμες για τη χώρα ή το νόμισμά σας.",
+  "stored_payment_methods_limited_title": "Περιορισμένες Μέθοδοι Πληρωμής"
 }

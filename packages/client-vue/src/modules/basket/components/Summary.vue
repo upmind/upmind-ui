@@ -3,10 +3,12 @@
     v-if="(!meta.isLoading && meta.hasProducts) || meta.isCheckout"
     :class="styles.summary.root"
   >
-    <DescriptionList :items="items" class="font-normal">
+    <DescriptionList v-if="!isEmpty(productItems)" :items="productItems" />
+
+    <DescriptionList v-if="!isEmpty(subtotalItems)" :items="subtotalItems">
       <div :class="styles.summary.item.root">
         <dt :class="styles.summary.item.term">
-          {{ t("text.total") }}
+          {{ t("text.basket_total") }}
         </dt>
         <dd :class="styles.summary.item.description">
           {{ summary?.total }}
@@ -27,7 +29,7 @@
 // --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { toPairs, forEach, isEmpty, map } from "lodash-es";
+import { toPairs, forEach, isEmpty, map, concat } from "lodash-es";
 
 // --- components
 import {
@@ -78,44 +80,44 @@ const styles = useStyles(
   };
 }>;
 
-const items = computed((): DescriptionItem[] => {
-  const items = subtotalItems.value;
+const productItems = computed((): DescriptionItem[] => {
+  let items = [] as DescriptionItem[];
 
   if (!isEmpty(summary.value?.products) && props.showProducts) {
     const productItems =
       map(summary.value!.products, (product: any) => ({
-        term: product.title,
-        description: product.summary.currentPrice ?? ""
+        term: product?.productDetails?.name ?? "",
+        description: product?.price?.currentPrice ?? ""
       })) ?? [];
 
-    items.concat(productItems);
+    items = concat(productItems, items);
   }
 
-  return items as DescriptionItem[];
+  return items;
 });
 
 const subtotalItems = computed(() => {
-  const items = [];
+  const items = [] as DescriptionItem[];
 
   if (!isEmpty(summary.value?.discount)) {
     items.push({
       term: t("text.discount", products?.value?.length ?? 0),
-      description: summary.value!.discount
+      description: summary?.value?.discount ?? ""
     });
   }
 
   if (!isEmpty(summary.value?.subtotal)) {
     items.push({
       term: t("text.subtotal", products?.value?.length ?? 0),
-      description: summary.value!.subtotal
+      description: summary?.value?.subtotal ?? ""
     });
   }
 
   if (!isEmpty(summary.value?.taxes)) {
     forEach(summary.value!.taxes, tax => {
       items.push({
-        term: tax.title,
-        description: tax.amount
+        term: tax?.title ?? "",
+        description: tax?.amount ?? ""
       });
     });
   }

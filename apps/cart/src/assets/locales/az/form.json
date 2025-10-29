@@ -1,6 +1,6 @@
 {
   "address": {
-    "error": "Ünvanı əlavə edərkən xəta baş verdi | Ünvan yenilənərkən xəta baş verdi",
+    "error": "Ünvanınız tələb olunur",
     "label": "Ünvan",
     "placeholder": "Ünvanınızı yazmağa başlayın",
     "title": "Yeni Ünvan Əlavə et | Ünvanı yeniləyin"
@@ -54,7 +54,7 @@
     "placeholder": "Şəhər, qəsəbə və s."
   },
   "company": {
-    "error": "Şirkət Təfərrüatları Əlavə edilərkən xəta baş verdi | Şirkət Təfərrüatları Yenilənərkən xəta baş verdi",
+    "error": "Şirkət adınız tələb olunur",
     "label": "Şirkət",
     "title": "Şirkət Təfərrüatlarını Əlavə et | Şirkət Təfərrüatlarını Yeniləyin"
   },
@@ -77,7 +77,7 @@
     "placeholder": "Domen axtarın..."
   },
   "email": {
-    "error": "E-poçtun əlavə edilməsi zamanı xəta baş verdi | E-poçtun yenilənməsi zamanı xəta baş verdi",
+    "error": "Etibarlı bir e-poçt ünvanı tələb olunur",
     "label": "E-poçt",
     "title": "Yeni E-poçt əlavə et | E-poçtu yeniləyin"
   },
@@ -96,7 +96,7 @@
     "error": "Sizi daxil etməyə çalışarkən xəta ilə üzləşdik."
   },
   "phone": {
-    "error": "Telefon nömrəsi əlavə edilərkən xəta baş verdi | Telefon nömrəsi yenilənərkən xəta baş verdi",
+    "error": "Etibarlı Telefon Nömrəsi tələb olunur",
     "label": "Telefon",
     "title": "Yeni Telefon Nömrəsi Əlavə et | Telefon nömrəsini yeniləyin"
   },

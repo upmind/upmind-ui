@@ -1,15 +1,17 @@
 <template>
-  <Link
-    :to="to"
-    icon="arrow-left"
+  <component
+    :is="button ? Button : Link"
+    icon="flip-backward"
     :label="safeLabel"
+    :to="to"
     size="lg"
-    class="font-medium"
+    :variant="button ? 'subtle' : undefined"
+    :class="{ 'font-medium': !button }"
   />
 </template>
 
 <script lang="ts" setup>
-import { Link } from "@upmind-automation/upmind-ui";
+import { Link, Button } from "@upmind-automation/upmind-ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import type {
@@ -23,6 +25,7 @@ const props = withDefaults(
   defineProps<{
     to?: string | RouteLocationAsRelativeGeneric | RouteLocationAsPathGeneric;
     label?: string;
+    button?: boolean;
   }>(),
   {}
 );

@@ -1,6 +1,6 @@
 {
   "address": {
-    "error": "Se produjo un error al agregar la dirección | Se produjo un error al actualizar la dirección",
+    "error": "Se requiere su dirección",
     "label": "DIRECCIÓN",
     "placeholder": "Empieza a escribir tu dirección",
     "title": "Agregar nueva dirección | Actualizar dirección"
@@ -54,7 +54,7 @@
     "placeholder": "Ciudad, pueblo, etc."
   },
   "company": {
-    "error": "Se produjo un error al agregar los detalles de la empresa | Se produjo un error al actualizar los detalles de la empresa",
+    "error": "Se requiere el nombre de su empresa",
     "label": "Compañía",
     "title": "Agregar detalles de la empresa | Actualizar detalles de la empresa"
   },
@@ -77,7 +77,7 @@
     "placeholder": "Buscar un dominio..."
   },
   "email": {
-    "error": "Se produjo un error al agregar el correo electrónico | Se produjo un error al actualizar el correo electrónico",
+    "error": "Se requiere una dirección de correo electrónico válida",
     "label": "Correo electrónico",
     "title": "Agregar nuevo correo electrónico | Actualizar correo electrónico"
   },
@@ -96,7 +96,7 @@
     "error": "Experimentamos un error al intentar iniciar sesión."
   },
   "phone": {
-    "error": "Se produjo un error al agregar el número de teléfono | Se produjo un error al actualizar el número de teléfono",
+    "error": "Se requiere un número de teléfono válido",
     "label": "Teléfono",
     "title": "Agregar nuevo número de teléfono | Actualizar número de teléfono"
   },
