@@ -4,6 +4,7 @@
     role="main"
     aria-label="Product listing"
     data-testid="widget-grid"
+    ref="container"
   >
     <!-- Search and controls -->
     <div :class="styles.products.main.controls">
@@ -51,8 +52,8 @@
       <Pagination
         v-bind="pagination"
         :meta="meta"
-        @next="nextPage"
-        @prev="prevPage"
+        @next="doNextPage"
+        @prev="doPrevPage"
         :pagination-info="
           t('text.pagination_info', {
             page: '{page}',
@@ -88,8 +89,9 @@
 
 <script setup lang="ts">
 // --- external
+import { watch, ref, computed, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
-import { watch, ref, computed } from "vue";
+import { useUrlSearchParams } from "@vueuse/core";
 
 // --- internal
 import {
@@ -127,6 +129,8 @@ const DEFAULT_SKELETON_COUNT = 9;
 const PRODUCTS_PER_PAGE = 9;
 // -----------------------------------------------------------------------------
 
+const container = useTemplateRef<HTMLDivElement>("container");
+
 const categoryId = defineModel<ProductsProps["categoryId"] | undefined>(
   "categoryId"
 );
@@ -145,11 +149,15 @@ const direction = defineModel<ProductSortProps["direction"]>("direction", {
 
 const { t } = useI18n();
 
+const urlParams = useUrlSearchParams("history");
+const urlPage = computed(() => Math.max(Number(urlParams.page), 1));
+
 const { data, meta, pagination, filters, sort, nextPage, prevPage } =
   useProductCatalogue({
     // infinite: !!uiCart.value?.catalogue?.infinite, // TODO
     pagination: {
-      limit: PRODUCTS_PER_PAGE
+      limit: PRODUCTS_PER_PAGE,
+      offset: (urlPage.value - 1) * PRODUCTS_PER_PAGE
     }
   });
 
@@ -194,6 +202,16 @@ const doQuery = debounce((value: string | number | undefined) => {
   query.value = value?.toString().trim() || undefined;
 }, DEBOUNCE_DELAY);
 
+function doNextPage() {
+  nextPage();
+  container.value?.scrollIntoView({ behavior: "smooth" });
+}
+
+function doPrevPage() {
+  prevPage();
+  container.value?.scrollIntoView({ behavior: "smooth" });
+}
+
 const preservePromotions = computed(() =>
   some(data.value, (p: Product) => p.meta?.discounted === true)
 );
@@ -217,4 +235,14 @@ watch(categoryId, filters.productCategory, { immediate: true });
 watch(query, filters.query, { immediate: true });
 watch(sortBy, value => sort(value, direction.value), { immediate: true });
 watch(direction, value => sort(sortBy.value, value), { immediate: true });
+
+// Sync Pagination -> URL (when a user clicks next/prev)
+watch(
+  () => pagination.value.page,
+  newPage => {
+    if (newPage !== urlPage.value) {
+      urlParams.page = String(newPage);
+    }
+  }
+);
 </script>
