@@ -1,9 +1,9 @@
 <template>
   <FormField v-bind="formFieldProps">
     <RadioCards
-      :name="control.path"
-      :model-value="control.data"
+      :model-value="control.data.toString()"
       :items="items"
+      :placeholder="appliedOptions?.placeholder"
       @update:modelValue="onInput"
     />
   </FormField>
@@ -12,7 +12,7 @@
 <script lang="ts" setup>
 // --- external
 import { computed } from "vue";
-import { useJsonFormsOneOfEnumControl } from "@jsonforms/vue";
+import { useJsonFormsEnumControl } from "@jsonforms/vue";
 
 // --- components
 import FormField from "../../FormField.vue";
@@ -30,9 +30,8 @@ import type { RadioCardsItemProps } from "../../../radio-cards";
 // -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, formFieldProps, onInput } = useUpmindUIRenderer(
-  useJsonFormsOneOfEnumControl(props)
-);
+const { control, formFieldProps, appliedOptions, onInput } =
+  useUpmindUIRenderer(useJsonFormsEnumControl(props));
 
 const items = computed(() => {
   const { options, schema, data } = control.value as {
