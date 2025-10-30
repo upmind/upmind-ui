@@ -273,7 +273,8 @@ async function parse(
   // if so, then we need to fetch the regions for the new country
   // AND update our 'default' country to match the country from the address
   // this will in turn update the phone schema to match the country
-  if (!some(regions, ["countryId", safeModel?.address?.countryId])) {
+  // TODO: Regions should be mapped to camelcase, e.g country_id => countryId
+  if (!some(regions, ["country_id", safeModel?.address?.countryId])) {
     regions = await fetchRegions(safeModel.address.countryId);
     country = getCountry(safeModel.address.countryId);
   }
