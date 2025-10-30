@@ -25,6 +25,7 @@ import { useLayout } from "../../../components/layout/useLayout";
 import { FOOTER_TEMPLATE } from "../../../components/footer/types";
 import { LAYOUT_VARIANTS } from "../../../components/layout/types";
 import { HEADER_TEMPLATE } from "../../../components/header/types";
+import { LAYOUT_MODE } from "../../../components/layout/useLayout.types";
 
 // --- methods
 useFooter({
@@ -40,6 +41,6 @@ useHeader({
 });
 
 useLayout({
-  grow: false
+  mode: LAYOUT_MODE.CENTERED
 });
 </script>
