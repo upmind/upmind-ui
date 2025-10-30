@@ -3,4 +3,4 @@
 
 @import "./assets/styles/index.css";
 
-@source './src/**/*.{html,vue,js,tsx,ts}';
+@source './**/*.{html,vue,js,tsx,ts}';
