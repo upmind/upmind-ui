@@ -1,5 +1,9 @@
 <template>
-  <Loading :active="meta.isProcessing" class-active="w-full rounded">
+  <Loading
+    :active="meta.isProcessing"
+    class-active="w-full rounded"
+    class="overflow-hidden"
+  >
     <Sections
       class="min-h-52"
       v-model="activeTab"
