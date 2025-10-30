@@ -9,12 +9,13 @@ import { isEmpty, isObject, merge } from "lodash-es";
 
 // --- types
 import type { LayoutProps } from "./useLayout.types";
+import { LAYOUT_MODE } from "./useLayout.types";
 
 // -----------------------------------------------------------------------------
 // --- global context
 
 const defaultLayoutProps: LayoutProps = {
-  grow: true
+  mode: LAYOUT_MODE.GROW
 };
 
 const layoutConfig = new Store<LayoutProps>(defaultLayoutProps);
@@ -37,7 +38,7 @@ export const useLayout = (initial?: Partial<LayoutProps>) => {
   }
 
   // --- state
-  const grow = computed(() => config.value.grow !== false);
+  const mode = computed(() => config.value.mode ?? LAYOUT_MODE.GROW);
 
   // --- methods
   function update(values: Partial<LayoutProps>) {
@@ -53,10 +54,10 @@ export const useLayout = (initial?: Partial<LayoutProps>) => {
     config: layoutConfig,
 
     /**
-     * Whether the main element should grow to fill available space.
-     * @type {ComputedRef<boolean>}
+     * The current layout mode.
+     * @type {ComputedRef<LayoutMode>}
      */
-    grow,
+    mode,
 
     // --- methods
     /**
