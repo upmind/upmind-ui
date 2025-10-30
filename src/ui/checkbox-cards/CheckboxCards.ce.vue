@@ -19,7 +19,7 @@
         :class="cn(styles.checkboxCards.input, props.itemClass)"
         :itemClass="styles.checkboxCards.item"
         :checked="includes(modelValue, item.value)"
-        data-testid="checkbox-item"
+        :data-testid="`checkbox-item-${kebabCase(item.label) || kebabCase(item.name) || index}`"
         :data-hover="props.dataHover"
         :data-focus="props.dataFocus"
       >
@@ -87,6 +87,7 @@ import { computed } from "vue";
 import { useVModel } from "@vueuse/core";
 import { ToggleGroupRoot } from "radix-vue";
 import { includes } from "lodash-es";
+import { kebabCase } from "lodash-es";
 
 // --- internal
 import { cn, useStyles } from "../../utils";
