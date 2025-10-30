@@ -48,8 +48,9 @@ const isInteger = computed(() => {
 
 const step: ComputedRef<number> = computed(() => {
   const defaultStep = 1;
-  const multipleOf = get(control, "schema.multipleOf", defaultStep);
-  return get(appliedOptions, "step", multipleOf);
+  const multipleOf = get(control.value, "schema.multipleOf", defaultStep);
+
+  return get(appliedOptions.value, "step", multipleOf);
 });
 
 const max: ComputedRef<number | undefined> = computed(() => {
