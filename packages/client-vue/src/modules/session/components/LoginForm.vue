@@ -1,5 +1,5 @@
 <template>
-  <Section :active="section" label="Login" icon="user-03">
+  <Section :active="section" :label="t('action.login')" icon="user-03">
     <Auth
       class="rounded-box w-full max-w-5xl items-start"
       no-tabs
@@ -12,6 +12,7 @@
 </template>
 
 <script lang="ts" setup>
+import { useI18n } from "vue-i18n";
 import { useRoutingEngine, ROUTE } from "@upmind-automation/headless";
 import Auth from "../components/Auth.vue";
 import Section from "../../../components/section/Section.vue";
@@ -26,6 +27,7 @@ withDefaults(defineProps<Props>(), {
 });
 
 const { navigateNext, navigateBack, navigate, isResolved } = useRoutingEngine();
+const { t } = useI18n();
 
 await isResolved(ROUTE.SESSION_LOGIN);
 
