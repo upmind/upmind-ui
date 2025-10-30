@@ -4,6 +4,7 @@
       :name="control.path"
       :model-value="control.data"
       :items="items"
+      :placeholder="appliedOptions?.placeholder"
       @update:modelValue="onInput"
     />
   </FormField>
@@ -30,9 +31,8 @@ import type { RadioCardsItemProps } from "../../../radio-cards";
 // -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, formFieldProps, onInput } = useUpmindUIRenderer(
-  useJsonFormsOneOfEnumControl(props)
-);
+const { control, formFieldProps, appliedOptions, onInput } =
+  useUpmindUIRenderer(useJsonFormsOneOfEnumControl(props));
 
 const items = computed(() => {
   const { options, schema, data } = control.value as {
