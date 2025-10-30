@@ -11,7 +11,8 @@
   <Section
     v-show="uischema.showProductsOnCheckout"
     id="basket-products"
-    :title="t('cart.basket_products')"
+    :label="t('cart.basket_products')"
+    value="products"
     icon="list"
   >
     <ProductCards />
@@ -20,8 +21,8 @@
   <!-- Additional Options -->
   <Section
     id="basket-fields"
-    :title="t('text.additional_details')"
     v-show="uischema.showFieldsOnCheckout"
+    :label="t('text.additional_details')"
     icon="file-attachment-01"
   >
     <Form
@@ -40,19 +41,17 @@
   </Section>
 
   <!-- Billing Details -->
-  <Section
+  <BillingDetails
     id="basket-billing"
-    :title="t('text.billing_details')"
     v-show="uischema.showBillingOnCheckout"
-    icon="building-07"
-  >
-    <BillingDetails :touched="meta.showErrors" />
-  </Section>
+    :touched="meta.showErrors"
+  />
 
   <!-- Payment Details -->
   <Section
     id="payment-details"
-    :title="t('text.payment_details')"
+    :label="t('text.payment_details')"
+    value="payment"
     icon="wallet-02"
   >
     <PaymentDetails :class="styles.checkout.paymentDetails" />

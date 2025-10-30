@@ -10,28 +10,24 @@
       />
     </template>
 
-    <template #default>
-      <Section class="mx-auto max-w-2xl gap-9">
-        <Hero
-          :badge="{
-            label: t('text.fully_encrypted_title'),
-            icon: 'lock-04'
-          }"
-          :title="t('text.forgot_your_password_qn')"
-          :description="t('auth.forgot_password_help')"
-        />
-
-        <section>
-          <Auth
-            class="rounded-box w-full max-w-5xl items-start"
-            no-tabs
-            no-header
-            model-value="recover"
-            @update:model-value="doUpdate"
-            @resolve="doResolve"
-          />
-        </section>
-      </Section>
+    <template #content>
+      <Hero
+        :badge="{
+          label: t('text.fully_encrypted_title'),
+          icon: 'lock-04'
+        }"
+        :title="t('text.forgot_your_password_qn')"
+        :description="t('auth.forgot_password_help')"
+        class="mx-auto w-full max-w-2xl"
+      />
+      <Auth
+        class="rounded-box mx-auto w-full max-w-2xl items-start"
+        no-tabs
+        no-header
+        model-value="recover"
+        @update:model-value="doUpdate"
+        @resolve="doResolve"
+      />
     </template>
   </Layout>
 </template>
@@ -49,7 +45,6 @@ import { Link } from "@upmind-automation/upmind-ui";
 import Layout from "../../components/layout/Layout.vue";
 import Auth from "./components/Auth.vue";
 import Hero from "../../components/hero/Hero.vue";
-import Section from "../../components/section/Section.vue";
 
 // --- types
 import type { AuthProps } from "./types";
