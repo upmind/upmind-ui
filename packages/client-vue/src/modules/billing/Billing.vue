@@ -2,7 +2,7 @@
   <Loading
     :active="meta.isProcessing"
     class-active="w-full rounded"
-    class="overflow-hidden"
+    :class="meta.isProcessing ? 'overflow-hidden' : ''"
   >
     <Sections
       class="min-h-52"
