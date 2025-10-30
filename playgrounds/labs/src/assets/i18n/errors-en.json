@@ -44,7 +44,7 @@
       },
       "text": "We are currently experiencing technical issues. Please try again later.",
       "action": "Reload page",
-      "icon": "network-refresh"
+      "icon": "refresh-cw-01"
     },
     "503": {
       "title": {
@@ -53,7 +53,7 @@
       },
       "text": "Sorry, but our service is temporarily unavailable whilst we carry out some scheduled maintenance. Please bear with us during this upgrade – things should be back to normal in no time! 👷",
       "action": "Reload page",
-      "icon": "network-refresh"
+      "icon": "refresh-cw-01"
     },
     "network": {
       "title": {
@@ -62,7 +62,7 @@
       },
       "text": "Please check your internet connection and try again.",
       "action": "Reload page",
-      "icon": "network-refresh"
+      "icon": "refresh-cw-01"
     }
   }
 }

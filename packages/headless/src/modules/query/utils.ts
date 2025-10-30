@@ -286,22 +286,31 @@ const mapFeedback = (
       type: messageTypes.ERROR,
       title: t("error.429_title_md"),
       copy: t("error.429_text"),
-      data: error,
-      display: messageDisplays.MODAL
+      data: {
+        ...error,
+        status: responseCodes.Too_Many_Requests
+      },
+      display: messageDisplays.INTERSTITIAL
     },
     [responseCodes.Internal_Server_Error]: {
       type: messageTypes.ERROR,
       title: t("error.500_title_md"),
       copy: t("error.500_text"),
-      data: error,
+      data: {
+        ...error,
+        status: responseCodes.Internal_Server_Error
+      },
       display: messageDisplays.TOAST
     },
     [responseCodes.Service_Unavailable]: {
       type: messageTypes.ERROR,
       title: t("error.503_title_md"),
       copy: t("error.503_text"),
-      data: error,
-      display: messageDisplays.SYSTEM,
+      data: {
+        ...error,
+        status: responseCodes.Service_Unavailable
+      },
+      display: messageDisplays.INTERSTITIAL,
       delay: 0,
       maxAge: 0
     }
