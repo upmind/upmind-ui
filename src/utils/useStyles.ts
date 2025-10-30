@@ -1,8 +1,8 @@
 // --- external
 import { unref, toRaw, computed } from "vue";
-import { twMerge } from "tailwind-merge";
 import { clsx } from "clsx";
 import theme from "./useThemes";
+import { twMerge } from "./twMerge";
 
 import defaultStylesheet from "../main.css?url";
 
