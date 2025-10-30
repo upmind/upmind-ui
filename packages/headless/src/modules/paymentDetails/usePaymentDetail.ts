@@ -67,8 +67,10 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
     hasGateways: contextMatches(actor, ["gateways"]),
     hasStoredPaymentMethods: contextMatches(actor, ["storedPaymentMethods"]),
     hasUnsupportedPaymentMethods: some(
-      contextValue(actor, ["storedPaymentMethods"]),
-      ["meta.isSupported", false]
+      contextValue<PaymentDetailsContext["storedPaymentMethods"]>(actor, [
+        "storedPaymentMethods"
+      ]),
+      method => !method?.meta?.isSupported
     ),
     hasErrors: stateMatches(actor, ["error"]),
     isProcessing: stateMatches(actor, ["checking", "processing"]),
