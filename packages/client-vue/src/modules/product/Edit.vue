@@ -14,7 +14,7 @@
     </template>
 
     <template #default>
-      <Section :title="t('text.product_configuration')">
+      <Section :label="t('text.product_configuration')" icon="settings-04">
         <form @submit.prevent @reset.prevent>
           <ProductConfig
             v-if="basketProduct && meta?.isAvailable"
@@ -34,7 +34,11 @@
     </template>
 
     <template #aside>
-      <Section :title="t('text.summary')" :class="styles.product.summary" aside>
+      <Section
+        :label="t('text.summary')"
+        icon="shopping-bag-02"
+        :class="styles.product.summary"
+      >
         <Summary
           v-if="product && meta?.isAvailable"
           :product="product"
@@ -43,7 +47,6 @@
           @resolve="doResolve"
           @update:quantity="updateQuantity"
         />
-
         <SummarySkeleton v-else />
       </Section>
     </template>
