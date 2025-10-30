@@ -171,6 +171,7 @@ const parsedValues = computed(() => {
       value: subproduct.id.toString(), // Ensure value is a string
       label: subproduct?.title ?? "", // Add the required label property
       sublabel: subproduct?.title ?? "",
+      appendLabel: subproduct?.price?.currentPrice,
       text: subproduct?.excerpt,
       group: subproduct?.uiMeta?.uischema?.group,
       item: subproduct,

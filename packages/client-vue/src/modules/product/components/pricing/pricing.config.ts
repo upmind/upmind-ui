@@ -9,7 +9,7 @@ export const currentVariants = cva("text-md-tight", {
     }
   }
 });
-export const exVariants = cva("text-muted text-sm font-normal");
+export const exVariants = cva("text-muted text-sm/loose font-normal");
 
 export default {
   pricing: {
