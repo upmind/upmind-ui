@@ -1,9 +1,8 @@
 <template>
   <Section
     v-if="meta.hasProducts"
-    :section="section"
-    :title="t('text.summary')"
-    aside
+    :active="section"
+    label="t('text.summary')"
     icon="shopping-bag-02"
   >
     <Summary :showPromotions="false" show-products />

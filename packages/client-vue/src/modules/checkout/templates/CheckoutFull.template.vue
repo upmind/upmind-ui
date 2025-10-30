@@ -9,11 +9,11 @@
     </template>
 
     <template #content>
-      <CheckoutContent section />
+      <CheckoutContent />
     </template>
 
     <template #aside>
-      <CheckoutAside section />
+      <CheckoutAside />
     </template>
 
     <template #aside-footer>
