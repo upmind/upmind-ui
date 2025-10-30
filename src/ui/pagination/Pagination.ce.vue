@@ -1,9 +1,10 @@
-a
 <template>
   <PaginationRoot
     v-slot="{ page, pageCount }"
     :total="total"
+    :items-per-page="props.limit"
     :page="props.page"
+    v-if="!!total"
   >
     <PaginationList :class="cn(styles.pagination.root, props.class)">
       <PaginationPrev as-child>
@@ -11,7 +12,7 @@ a
           variant="subtle"
           size="lg"
           :class="styles.pagination.button"
-          :disabled="page <= 1"
+          :disabled="lte(page, 1) || props.loading"
           @click="emit('prev')"
         >
           <Icon icon="arrow-left" size="2xs" />
@@ -19,8 +20,8 @@ a
       </PaginationPrev>
 
       <!-- TODO: Current pagination doesn't support direct page change so we should static text for now-->
-      <p :class="styles.pagination.info">
-        {{ displayedPaginationInfo(page, pages) }}
+      <p :class="styles.pagination.info" v-show="!props.loading">
+        {{ displayedPaginationInfo(page, pageCount) }}
       </p>
 
       <PaginationNext as-child>
@@ -28,7 +29,7 @@ a
           variant="subtle"
           size="lg"
           :class="styles.pagination.button"
-          :disabled="page >= pageCount"
+          :disabled="gte(page, pageCount) || props.loading"
           @click="emit('next')"
         >
           <Icon icon="arrow-right" size="2xs" />
@@ -45,6 +46,9 @@ import { computed, type ComputedRef } from "vue";
 // --- internal
 import { cn, useStyles } from "../../utils";
 import config from "./pagination.config";
+
+// --- utils
+import { lte, gte } from "lodash-es";
 
 // --- components
 import { Icon } from "../icon";

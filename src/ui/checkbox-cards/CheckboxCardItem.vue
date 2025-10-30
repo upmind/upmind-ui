@@ -11,7 +11,7 @@
     "
   >
     <span
-      class="size-lh text-md/tight flex items-center justify-center"
+      class="size-lh text-md-tight flex items-center justify-center"
       :class="props.noInput ? 'sr-only' : ''"
     >
       <span

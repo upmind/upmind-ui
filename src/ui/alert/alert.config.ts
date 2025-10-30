@@ -105,7 +105,7 @@ export const rootVariants = cva(
   }
 );
 
-const titleVariants = cva("text-md/tight font-medium", {
+const titleVariants = cva("text-md-tight font-medium", {
   variants: {
     variant: {
       muted: "",
@@ -153,7 +153,7 @@ const titleVariants = cva("text-md/tight font-medium", {
   ]
 });
 
-const descriptionVariants = cva("text-sm/tight font-normal", {
+const descriptionVariants = cva("text-sm-tight font-normal", {
   variants: {
     variant: {
       muted: "",
