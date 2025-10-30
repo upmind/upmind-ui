@@ -135,7 +135,7 @@ async function loadLookups(
       limit: 0,
       brand_id: unref(brandId),
       active: true,
-      "filter[gateway.currencies.id]": currencyId,
+      // "filter[gateway.currencies.id]": currencyId,
       order: ["-default", "id"].join(),
       with: ["gateway", "client"].join()
       // "filter[active]": 1,
@@ -196,13 +196,15 @@ async function loadLookups(
       return {
         // NB: ensure we only show active stored payment methods and only for gateways that are available.
         //     The BE does not filter out Stored payment methods for gateways not available for a given country or currency
-        storedPaymentMethods: map(storedPaymentMethods, method => ({
-          ...method,
-          meta: {
-            ...method.meta,
-            isSupported: some(gateways, ["gateway_id", method.gatewayID])
-          }
-        })),
+        storedPaymentMethods: map(storedPaymentMethods, method => {
+          // isSupported: some(gateways, ["gateway_id", method.gatewayId])
+          method.meta.isSupported = some(gateways, [
+            "gateway_id",
+            method.gatewayId
+          ]);
+
+          return method;
+        }),
         gateways: sortBy(gateways, ["order"]),
         paymentTypes
       } as unknown as Partial<PaymentDetailsContext>;
