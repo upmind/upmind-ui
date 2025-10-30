@@ -56,7 +56,7 @@ const meta: Meta<typeof Form> = {
         @resolve="doResolve"
       />
 
-      <h4 class="mt-6 text-sm/loose text-muted">Model</h4>
+      <h4 class="mt-6 text-sm-loose text-muted">Model</h4>
       <pre class="sticky top-0 control-radius bg-100 p-4 border-control-default border max-w-2xl">{{ model }}</pre>
     `
   }),

@@ -98,14 +98,14 @@ export const States: Story = {
     template: `
     <section class="flex flex-col gap-4 max-w-xl">
       <div>
-        <h3 class="text-sm/loose text-muted">Default</h3>
+        <h3 class="text-sm-loose text-muted">Default</h3>
         <Input
           :label="args.label"
         />
       </div>
 
       <div>
-        <h3 class="text-sm/loose text-muted">Hover</h3>
+        <h3 class="text-sm-loose text-muted">Hover</h3>
         <Input
           :label="args.label"
           data-hover="true"
@@ -113,7 +113,7 @@ export const States: Story = {
       </div>
 
       <div>
-        <h3 class="text-sm/loose text-muted">Focused</h3>
+        <h3 class="text-sm-loose text-muted">Focused</h3>
         <Input
         :label="args.label"
         data-focus="true"
@@ -121,7 +121,7 @@ export const States: Story = {
       </div>
 
       <div>
-        <h3 class="text-sm/loose text-muted">Text value</h3>
+        <h3 class="text-sm-loose text-muted">Text value</h3>
         <Input
           :label="args.label"
           :model-value="'Sample Text content'"
@@ -129,7 +129,7 @@ export const States: Story = {
       </div>
 
       <div>
-        <h3 class="text-sm/loose text-muted">Masked value</h3>
+        <h3 class="text-sm-loose text-muted">Masked value</h3>
         <Input
           :label="args.label"
           model-value=""

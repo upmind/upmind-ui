@@ -6,7 +6,7 @@ export default {
     header: cva("flex w-full flex-col space-y-6 font-medium"),
 
     pricing: {
-      total: cva("text-left text-xl/loose"),
+      total: cva("text-xl-loose text-left"),
       price: cva("mt-4 flex items-center justify-between font-medium"),
       regularPrice: cva("text-muted text-right text-xs line-through"),
       currentPrice: cva("flex items-center gap-2 text-right text-3xl")
