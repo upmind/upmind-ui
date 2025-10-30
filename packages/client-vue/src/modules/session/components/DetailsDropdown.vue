@@ -17,11 +17,11 @@
 
     <template #label>
       <label
-        class="text-md/tight flex flex-col items-start break-all not-italic"
+        class="text-md-tight flex flex-col items-start break-all not-italic"
         v-if="user"
       >
         <strong class="font-medium">{{ user.fullname }}</strong>
-        <span class="text-md/tight font-normal opacity-60">
+        <span class="text-md-tight font-normal opacity-60">
           {{ user.username }}
         </span>
       </label>

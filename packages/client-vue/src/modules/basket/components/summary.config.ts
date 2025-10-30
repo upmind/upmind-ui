@@ -6,7 +6,7 @@ export default {
     root: cva("flex flex-col gap-4 font-normal"),
     item: {
       root: cva("mt-4 flex items-center justify-between font-medium"),
-      term: cva("flex-shrink-0 text-left text-xl/loose"),
+      term: cva("text-xl-loose flex-shrink-0 text-left"),
       description: cva("flex items-center gap-2 text-right text-3xl")
     }
   }

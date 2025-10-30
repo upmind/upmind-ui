@@ -23,7 +23,7 @@ export default {
     content: cva("flex w-full flex-col gap-8"),
     title: {
       root: cva("flex items-center gap-2"),
-      heading: cva("text-md/tight text-base font-medium")
+      heading: cva("text-md-tight text-base font-medium")
     }
   }
 };

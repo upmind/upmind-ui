@@ -26,20 +26,20 @@
       />
     </header>
 
-    <p class="text-muted m-0 text-sm/tight">
+    <p class="text-muted text-sm-tight m-0">
       {{ description }}
     </p>
 
     <p
       v-if="regNumber"
-      class="text-muted m-0 inline-flex flex-wrap gap-x-1 text-sm/tight"
+      class="text-muted text-sm-tight m-0 inline-flex flex-wrap gap-x-1"
     >
       {{ t("text.company_number", { title, regNumber }) }}
     </p>
 
     <p
       v-if="tax?.number"
-      class="text-muted m-0 inline-flex flex-wrap gap-x-1 text-sm/tight"
+      class="text-muted text-sm-tight m-0 inline-flex flex-wrap gap-x-1"
     >
       {{ t("text.tax_number", { title, taxNumber: tax.number }) }}
 

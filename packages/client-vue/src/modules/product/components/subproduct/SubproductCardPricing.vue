@@ -20,7 +20,7 @@
           "
           :free="props.meta.free ?? false"
           :ui-config="{
-            pricing: { current: ['text-md/tight'] }
+            pricing: { current: ['text-md-tight'] }
           }"
         />
       </span>
@@ -36,7 +36,7 @@
           "
           :free="props.meta.free ?? false"
           :ui-config="{
-            pricing: { current: ['text-md/tight'] }
+            pricing: { current: ['text-md-tight'] }
           }"
         />
       </span>
