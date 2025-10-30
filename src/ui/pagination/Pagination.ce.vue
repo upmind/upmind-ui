@@ -6,7 +6,7 @@
     :page="props.page"
     v-if="!!total"
   >
-    <PaginationList :class="cn(styles.pagination.root, props.class)">
+    <PaginationList :class="cn(styles.pagination.root, props.class)" data-testid="pagination-bar">
       <PaginationPrev as-child>
         <Button
           variant="subtle"
@@ -14,6 +14,7 @@
           :class="styles.pagination.button"
           :disabled="lte(page, 1) || props.loading"
           @click="emit('prev')"
+          data-testid="previous"
         >
           <Icon icon="arrow-left" size="2xs" />
         </Button>
@@ -31,6 +32,7 @@
           :class="styles.pagination.button"
           :disabled="gte(page, pageCount) || props.loading"
           @click="emit('next')"
+          data-testid="next"
         >
           <Icon icon="arrow-right" size="2xs" />
         </Button>
