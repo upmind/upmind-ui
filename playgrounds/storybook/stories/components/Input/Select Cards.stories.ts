@@ -83,7 +83,7 @@ export const States: Story = {
     template: `
       <section class="flex flex-col gap-4 max-w-sm">
         <div>
-          <h3 class="text-sm/loose text-muted">Default</h3>
+          <h3 class="text-sm-loose text-muted">Default</h3>
           <SelectCards
             :items="args.items"
             :width="width"
@@ -91,7 +91,7 @@ export const States: Story = {
         </div>
 
         <div>
-          <h3 class="text-sm/loose text-muted">Hover</h3>
+          <h3 class="text-sm-loose text-muted">Hover</h3>
           <SelectCards
             :items="args.items"
             :width="width"
@@ -100,7 +100,7 @@ export const States: Story = {
         </div>
 
         <div>
-          <h3 class="text-sm/loose text-muted">Focused</h3>
+          <h3 class="text-sm-loose text-muted">Focused</h3>
           <SelectCards
             :items="args.items"
             :width="width"
@@ -109,7 +109,7 @@ export const States: Story = {
         </div>
 
         <div>
-          <h3 class="text-sm/loose text-muted">Selected</h3>
+          <h3 class="text-sm-loose text-muted">Selected</h3>
           <SelectCards
             :model-value="'1'"
             :items="args.items"

@@ -1,7 +1,7 @@
 <template>
   <Section
     id="basket-summary"
-    :title="t('text.summary')"
+    :label="t('text.summary')"
     icon="shopping-bag-02"
   >
     <Summary
@@ -13,10 +13,18 @@
 </template>
 
 <script lang="ts" setup>
+// --- external
 import { useI18n } from "vue-i18n";
+
+// --- internal
 import { useBasket } from "@upmind-automation/headless";
+
+// --- components
 import Section from "../../../components/section/Section.vue";
 import Summary from "../../basket/components/Summary.vue";
+
+// --- types
+import type { SectionItem } from "../../../components/section";
 
 const { t } = useI18n();
 const { uischema } = useBasket();

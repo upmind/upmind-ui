@@ -96,14 +96,14 @@ export const States: Story = {
     template: `
     <section class="flex flex-col gap-4 max-w-xl">
       <div>
-        <h3 class="text-sm/loose text-muted">Normal</h3>
+        <h3 class="text-sm-loose text-muted">Normal</h3>
         <CheckboxCards
           :items="items"
         />
       </div>
 
       <div>
-        <h3 class="text-sm/loose text-muted">Hover</h3>
+        <h3 class="text-sm-loose text-muted">Hover</h3>
         <CheckboxCards
           :items="items"
           data-hover="true"
@@ -111,7 +111,7 @@ export const States: Story = {
       </div>
 
       <div>
-        <h3 class="text-sm/loose text-muted">Focused</h3>
+        <h3 class="text-sm-loose text-muted">Focused</h3>
         <CheckboxCards
         :items="items"
         data-focus="true"
@@ -119,7 +119,7 @@ export const States: Story = {
       </div>
 
       <div>
-        <h3 class="text-sm/loose text-muted">Selected</h3>
+        <h3 class="text-sm-loose text-muted">Selected</h3>
         <CheckboxCards
           :model-value="['1']"
           :items="items"

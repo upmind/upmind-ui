@@ -77,7 +77,7 @@ export default {
       benefits: {
         root: cva("border-control-default m-0 flex flex-col border-y py-3"),
         item: cva(
-          "m-0 flex items-start justify-start gap-2 text-base text-sm/loose font-medium"
+          "text-sm-loose m-0 flex items-start justify-start gap-2 text-base font-medium"
         ),
         icon: cva("flex h-lh items-center justify-center")
       },
@@ -87,7 +87,7 @@ export default {
         currentPrice: {
           root: cva("flex items-end gap-1"),
           amount: cva("text-3xl font-medium"),
-          term: cva("text-sm/loose")
+          term: cva("text-sm-loose")
         },
         total: cva("text-muted text-sm")
       }

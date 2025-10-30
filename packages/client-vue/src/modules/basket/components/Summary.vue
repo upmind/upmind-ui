@@ -86,8 +86,8 @@ const productItems = computed((): DescriptionItem[] => {
   if (!isEmpty(summary.value?.products) && props.showProducts) {
     const productItems =
       map(summary.value!.products, (product: any) => ({
-        term: product?.productDetails?.name ?? "",
-        description: product?.price?.currentPrice ?? ""
+        term: product?.productDetails?.title || "",
+        description: product?.price?.currentPrice || ""
       })) ?? [];
 
     items = concat(productItems, items);
@@ -101,23 +101,23 @@ const subtotalItems = computed(() => {
 
   if (!isEmpty(summary.value?.discount)) {
     items.push({
-      term: t("text.discount", products?.value?.length ?? 0),
-      description: summary?.value?.discount ?? ""
+      term: t("text.discount", products?.value?.length || 0),
+      description: summary?.value?.discount || ""
     });
   }
 
   if (!isEmpty(summary.value?.subtotal)) {
     items.push({
-      term: t("text.subtotal", products?.value?.length ?? 0),
-      description: summary?.value?.subtotal ?? ""
+      term: t("text.subtotal", products?.value?.length || 0),
+      description: summary?.value?.subtotal || ""
     });
   }
 
   if (!isEmpty(summary.value?.taxes)) {
     forEach(summary.value!.taxes, tax => {
       items.push({
-        term: tax?.title ?? "",
-        description: tax?.amount ?? ""
+        term: tax?.title || "",
+        description: tax?.amount || ""
       });
     });
   }

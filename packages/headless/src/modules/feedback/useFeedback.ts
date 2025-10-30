@@ -103,7 +103,7 @@ export const useFeedback = () => {
         state.value.context.messages,
         (result: any[], item: ActorRef<any>) => {
           const state = item.getSnapshot();
-          if (state.context.display === messageDisplays.SYSTEM) {
+          if (state.context.display === messageDisplays.INTERSTITIAL) {
             result.push(
               useMessage({
                 id: item.id,

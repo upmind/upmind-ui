@@ -18,7 +18,7 @@ import {
   useContextActor
 } from "../../utils";
 import { useBrand } from "../brand";
-import { isEmpty, isEqual, isNil, filter, some } from "lodash-es";
+import { isEmpty, isEqual, isNil, filter, some, reject } from "lodash-es";
 
 // --- types
 import type { ActorRef } from "xstate";
@@ -65,11 +65,12 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
     isLoading: !actor.value || stateMatches(actor, ["loading"]),
     hasGateway: contextMatches(actor, ["gatewayHelper"]),
     hasGateways: contextMatches(actor, ["gateways"]),
-    hasStoredPaymentMethods: contextMatches(actor, ["storedPaymentMethods"]),
-    hasUnsupportedPaymentMethods: some(
-      contextValue(actor, ["storedPaymentMethods"]),
-      ["meta.isSupported", false]
-    ),
+    hasStoredPaymentMethods: !isEmpty(allStoredPaymentMethods.value),
+    hasUnsupportedPaymentMethods:
+      (storedPaymentMethods.value.length ?? 0) <
+      (allStoredPaymentMethods.value?.length ?? 0),
+    allStoredPaymentMethods: allStoredPaymentMethods.value?.length ?? 0,
+    supportedStoredPaymentMethods: storedPaymentMethods.value?.length ?? 0,
     hasErrors: stateMatches(actor, ["error"]),
     isProcessing: stateMatches(actor, ["checking", "processing"]),
     isValid: stateMatches(actor, ["valid"]),
@@ -112,12 +113,12 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
     "uischema"
   );
 
-  const storedPaymentMethods = filter(
-    useContext<PaymentDetailsContext["storedPaymentMethods"]>(
-      actor,
-      "storedPaymentMethods"
-    ).value || [],
-    method => method?.meta.isSupported
+  const allStoredPaymentMethods = useContext<
+    PaymentDetailsContext["storedPaymentMethods"]
+  >(actor, "storedPaymentMethods", []);
+
+  const storedPaymentMethods = computed(() =>
+    filter(allStoredPaymentMethods.value, method => method?.meta.isSupported)
   );
 
   const { uiCart } = useBrand();

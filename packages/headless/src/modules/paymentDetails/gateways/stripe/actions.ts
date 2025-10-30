@@ -8,7 +8,10 @@ import { parseMinorUnitAmount } from "./utils";
 import {
   useValidationParser,
   mapToHeadlessError,
-  responseCodes
+  responseCodes,
+  ErrorObject,
+  ErrorOrigin,
+  ResponseError
 } from "../../../../utils";
 import { isFunction, filter, isString, includes, lowerCase } from "lodash-es";
 
@@ -58,6 +61,30 @@ export default {
         );
       }
       return error;
+    }
+  }),
+
+  setErrorSDK: assign({
+    error: (_context: StripeContext, { data }: AnyEventObject) => {
+      // NB: we are invalid if the stripe element status is NOT complete!
+      if (!data?.complete) {
+        return {
+          data: [
+            {
+              instancePath: "/payment_method_addition",
+              schemaPath: "#/properties/payment_method_addition",
+              keyword: "required",
+              params: {
+                missingProperty: "payment_method_addition"
+              }
+            }
+          ] as ErrorObject[],
+          origin: ErrorOrigin.External,
+          code: responseCodes.Unprocessable_Entity
+        } as ResponseError;
+      }
+
+      return undefined;
     }
   })
 };

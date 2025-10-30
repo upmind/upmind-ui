@@ -58,7 +58,7 @@ for (const { language, locale } of languages) {
       await page.goto(URLs.recommendations1);
       await setLocale(page, locale);
       await page.waitForLoadState("networkidle");
-      await productConfig.confirmAndProceed.click();
+      await productConfig.addToBasket.click();
       await expect(page.url()).toContain("/recommendations/");
       await page.getByTestId("button-add-to-basket").click();
       await expect(page.getByRole("dialog")).toContainText(

@@ -1,20 +1,20 @@
 <template>
-  <Loading
-    :active="!meta.isAvailable || !meta.hasSettings"
-    class-active="h-full min-h-screen w-full text-base bg-canvas"
-    id="vue-app"
+  <Suspense
+    @pending="setLoading(true)"
+    @resolve="setLoading(false)"
+    @fallback="setLoading(true)"
   >
-    <Suspense
-      @pending="setLoading(true)"
-      @resolve="setLoading(false)"
-      @fallback="setLoading(true)"
+    <Loading
+      :active="!meta.isAvailable || !meta.hasSettings"
+      class-active="h-full min-h-screen w-full text-base bg-canvas"
+      id="vue-app"
     >
       <Page :class="styles.page" v-if="meta.isAvailable && meta.hasSettings">
         <slot name="header">
           <Header />
         </slot>
 
-        <main class="flex w-full flex-col" :class="{ grow: grow }">
+        <Main>
           <RouterView v-slot="routerViewProps" :key="$route.fullPath">
             <slot v-bind="routerViewProps">
               <template v-if="routerViewProps.Component">
@@ -37,15 +37,16 @@
               </template>
             </slot>
           </RouterView>
-        </main>
+        </Main>
 
         <slot name="footer">
           <Footer />
         </slot>
       </Page>
-    </Suspense>
-  </Loading>
-  <Feedback v-if="meta.isAvailable" />
+
+      <Feedback v-if="meta.isAvailable" />
+    </Loading>
+  </Suspense>
 </template>
 
 <script lang="ts">
@@ -72,6 +73,7 @@ import Header from "./components/header/Header.vue";
 import Footer from "./components/footer/Footer.vue";
 import Feedback from "./modules/feedback/Feedback.vue";
 import Page from "./components/page/Page.vue";
+import Main from "./components/main/Main.vue";
 import AsyncLoading from "./modules/system/Loading.vue";
 import { Loading } from "@upmind-automation/upmind-ui";
 
@@ -95,7 +97,6 @@ const loading = ref(true);
 const themeReady = ref(false);
 
 const currentRoute = useRoute();
-const { grow } = useLayout();
 
 const meta = computed(() => ({
   isAvailable: useUpmind.status.value == UpmindStatus.initialised,

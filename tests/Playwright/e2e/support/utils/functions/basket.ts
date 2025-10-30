@@ -30,7 +30,7 @@ export async function getCurrentOrderId(token: string): Promise<string | null> {
     baseURL: "https://api.staging.upmind.io",
     extraHTTPHeaders: {
       accept: "*/*",
-      "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
+      "accept-language": "en-GB;q=0.9,en;q=0.8",
       authorization: `Bearer ${token}`,
       "content-type": "application/json",
       origin: `${URLs.apiOrigin}`,
@@ -64,7 +64,7 @@ export async function addProductToOrder(
     baseURL: `${URLs.apiUrl}`,
     extraHTTPHeaders: {
       accept: "*/*",
-      "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
+      "accept-language": "en-GB;q=0.9,en;q=0.8",
       authorization: `Bearer ${token}`,
       "content-type": "application/json",
       origin: `${URLs.apiOrigin}`,
@@ -106,7 +106,7 @@ export async function addPromotionToOrder(
       headers: {
         accept: "*/*",
         "accept-language":
-          "en-GB,en;q=0.9,es;q=0.8,am;q=0.7,af;q=0.6,su;q=0.5,en-US;q=0.4,yi;q=0.3,zu;q=0.2",
+          "en-GB,en;q=0.9,es;q=0.8,am;q=0.7,af;q=0.6,su;q=0.5,yi;q=0.3,zu;q=0.2",
         authorization: `Bearer ${token}`,
         "content-type": "application/json",
         origin: `${URLs.apiOrigin}`,

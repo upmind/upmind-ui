@@ -1,5 +1,5 @@
 <template>
-  <Section :section="section" title="Register" icon="user-03">
+  <Section :active="section" :label="t('action.register')" icon="user-03">
     <div>
       <Auth
         class="rounded-box w-full max-w-5xl items-start"

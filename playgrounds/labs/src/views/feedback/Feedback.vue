@@ -322,7 +322,7 @@ function handleAddSuccess() {
 function handleAddError() {
   addError(
     { copy: "Something went wrong! Please try again later." },
-    messageDisplays.SYSTEM
+    messageDisplays.INTERSTITIAL
   );
 }
 
@@ -353,7 +353,7 @@ function getBadgeVariant(displayType: messageDisplays) {
       return "default";
     case messageDisplays.TOAST:
       return "secondary";
-    case messageDisplays.SYSTEM:
+    case messageDisplays.INTERSTITIAL:
       return "destructive";
     default:
       return "outline-solid";

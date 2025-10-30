@@ -113,31 +113,31 @@ export const States: Story = {
     template: `
         <section class="flex flex-col gap-4 max-w-sm">
       <div>
-        <h3 class="text-sm/loose text-muted">Default</h3>
+        <h3 class="text-sm-loose text-muted">Default</h3>
 
         <Select v-bind="args" @update:modelValue="doUpdate" :width="width" />
       </div>
 
       <div>
-        <h3 class="text-sm/loose text-muted">Hover</h3>
+        <h3 class="text-sm-loose text-muted">Hover</h3>
 
         <Select v-bind="args" @update:modelValue="doUpdate" data-hover="true" :width="width" />
       </div>
 
       <div>
-        <h3 class="text-sm/loose text-muted">Focused</h3>
+        <h3 class="text-sm-loose text-muted">Focused</h3>
 
         <Select v-bind="args" @update:modelValue="doUpdate" data-focus="true" :width="width" />
       </div>
 
       <div>
-        <h3 class="text-sm/loose text-muted">Selected</h3>
+        <h3 class="text-sm-loose text-muted">Selected</h3>
 
         <Select v-bind="args" @update:modelValue="doUpdate" model-value="1" :width="width" />
       </div>
 
       <div>
-        <h3 class="text-sm/loose text-muted">Error / Invalid</h3>
+        <h3 class="text-sm-loose text-muted">Error / Invalid</h3>
 
         <Select v-bind="args" @update:modelValue="doUpdate" aria-invalid="true" :width="width" />
       </div>

@@ -89,7 +89,9 @@ test.describe("Manipulating elements/behaviour with URL query strings @url-param
       await expect(page.url()).toBe(
         "http://qa-automation.local:5173/order/product/add/3de78642-de53-9714-76df-21208469530d"
       );
-      await expect(page.getByTestId("currency-selector")).toHaveText("USD");
+      await expect(
+        page.getByTestId("footer").getByTestId("button-default").nth(1)
+      ).toHaveText("USD");
     });
     test("Invalid currency value", async ({ page }) => {
       await page.goto(
@@ -99,7 +101,9 @@ test.describe("Manipulating elements/behaviour with URL query strings @url-param
       await expect(page.url()).toBe(
         "http://qa-automation.local:5173/order/product/add/3de78642-de53-9714-76df-21208469530d"
       );
-      await expect(page.getByTestId("currency-selector")).toHaveText("GBP");
+      await expect(
+        page.getByTestId("footer").getByTestId("button-default").nth(1)
+      ).toHaveText("GBP");
     });
   });
   test.describe('Setting currency via "curr"', async () => {
@@ -111,7 +115,9 @@ test.describe("Manipulating elements/behaviour with URL query strings @url-param
       await expect(page.url()).toBe(
         "http://qa-automation.local:5173/order/product/add/3de78642-de53-9714-76df-21208469530d"
       );
-      await expect(page.getByTestId("currency-selector")).toHaveText("USD");
+      await expect(
+        page.getByTestId("footer").getByTestId("button-default").nth(1)
+      ).toHaveText("USD");
     });
     test("Invalid currency value", async ({ page }) => {
       await page.goto(
@@ -121,7 +127,9 @@ test.describe("Manipulating elements/behaviour with URL query strings @url-param
       await expect(page.url()).toBe(
         "http://qa-automation.local:5173/order/product/add/3de78642-de53-9714-76df-21208469530d"
       );
-      await expect(page.getByTestId("currency-selector")).toHaveText("GBP");
+      await expect(
+        page.getByTestId("footer").getByTestId("button-default").nth(1)
+      ).toHaveText("GBP");
     });
   });
   test.describe("Selecting subproducts (options/attributes) via URL param", () => {
@@ -165,27 +173,35 @@ test.describe("Manipulating elements/behaviour with URL query strings @url-param
   test.describe("Set language via URL param", () => {
     test('Valid "language" param', async ({ page }) => {
       await page.goto("http://qa-automation.local:5173/order/shop?lang=fr");
-      await page.waitForLoadState("networkidle");
-      await expect(footer.languageSelector).toHaveText("French");
+      await page.waitForLoadState("load");
+      await expect(
+        page.getByTestId("footer").getByTestId("button-default").nth(0)
+      ).toHaveText("French");
     });
     test('Invalid "language" param', async ({ page }) => {
       await page.goto(
         "http://qa-automation.local:5173/order/shop?lang=zzzzzzz"
       );
-      await page.waitForLoadState("networkidle");
-      await expect(footer.languageSelector).toHaveText("English");
+      await page.waitForLoadState("load");
+      await expect(
+        footer.languageSelector.getByTestId("button-default")
+      ).toHaveText("English");
     });
     test('Valid "locale" param', async ({ page }) => {
       await page.goto("http://qa-automation.local:5173/order/shop?locale=de");
-      await page.waitForLoadState("networkidle");
-      await expect(footer.languageSelector).toHaveText("German");
+      await page.waitForLoadState("load");
+      await expect(
+        footer.languageSelector.getByTestId("button-default")
+      ).toHaveText("German");
     });
     test('Invalid "locale" param', async ({ page }) => {
       await page.goto(
         "http://qa-automation.local:5173/order/shop?locale=zzzzzzz"
       );
-      await page.waitForLoadState("networkidle");
-      await expect(footer.languageSelector).toHaveText("English");
+      await page.waitForLoadState("domcontentloaded");
+      await expect(
+        footer.languageSelector.getByTestId("button-default")
+      ).toHaveText("English");
     });
   });
   test.describe("Navigate to shop category via URL param", () => {

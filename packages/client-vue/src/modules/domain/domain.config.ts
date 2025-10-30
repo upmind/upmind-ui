@@ -46,8 +46,8 @@ export default {
       }),
       content: cva("flex w-full flex-col"),
       container: cva("m-0 flex w-full flex-wrap items-center gap-y-2"),
-      description: cva("text-sm/tight"),
-      label: cva("m-0 text-sm/tight uppercase", {
+      description: cva("text-sm-tight"),
+      label: cva("text-sm-tight m-0 uppercase", {
         variants: {
           isAvailable: {
             true: "text-muted",
@@ -63,15 +63,15 @@ export default {
         }
       }),
       sld: cva(
-        "overflow-wrap-anywhere m-0 max-w-full text-2xl/tight font-normal break-all"
+        "overflow-wrap-anywhere text-2xl-tight m-0 max-w-full font-normal break-all"
       ),
       tld: cva("mr-2 text-2xl text-base font-medium"),
       promotion: cva(""),
 
       prices: {
         root: cva("flex shrink-0 flex-col space-y-1 pr-6 md:space-y-0"),
-        regular: cva("text-muted mr-2 text-xs/tight"),
-        current: cva("text-2xl/tight font-medium"),
+        regular: cva("text-muted text-xs-tight mr-2"),
+        current: cva("text-2xl-tight font-medium"),
         cycle: cva("text-muted text-xs font-normal")
       }
     },

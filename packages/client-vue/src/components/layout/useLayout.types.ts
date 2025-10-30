@@ -1,8 +1,16 @@
+export const LAYOUT_MODE = {
+  GROW: "grow",
+  CENTERED: "centered"
+} as const;
+
+export type LayoutMode = (typeof LAYOUT_MODE)[keyof typeof LAYOUT_MODE];
+
 export type LayoutProps = {
   /**
-   * Whether the main element should grow to fill available space.
-   * When true, the main element will stretch to push header to top and footer to bottom.
-   * @default true
+   * Layout mode for the main element.
+   * - GROW: The main element stretches to fill available space, pushing header to top and footer to bottom.
+   * - CENTERED: The main element is centered vertically and horizontally.
+   * @default LAYOUT_MODE.GROW
    */
-  grow?: boolean;
+  mode?: LayoutMode;
 };
