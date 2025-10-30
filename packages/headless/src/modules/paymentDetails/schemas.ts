@@ -4,16 +4,13 @@
 
 // --- utils
 import { useTranslateName } from "../../utils";
-import { omit, map } from "lodash-es";
+import { map, filter } from "lodash-es";
 
 // --- types
 import { PaymentType, QUERY_PARAMS } from "@upmind-automation/types";
 import type { PaymentDetailsContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
-import { generateResponseUrls } from "./gateways/utils";
 import { useI18n } from "../system";
-import { read } from "fs";
-import { readonly } from "vue";
 
 // -----------------------------------------------------------------------------
 
@@ -24,6 +21,11 @@ export const useSchema = ({
   orderId
 }: PaymentDetailsContext): JsonSchema => {
   const { t } = useI18n();
+
+  const suppotedPaymentMethods = filter(
+    storedPaymentMethods,
+    method => method?.meta.isSupported
+  );
 
   const schema = {
     type: "object",
@@ -58,13 +60,13 @@ export const useSchema = ({
       payment_details_id: {
         type: ["string", "null"],
         title: "Select one of your stored payment methods",
-        enum: !storedPaymentMethods?.length
+        enum: !suppotedPaymentMethods?.length
           ? undefined
-          : [...map(storedPaymentMethods, "id"), null],
-        options: !storedPaymentMethods
+          : [...map(suppotedPaymentMethods, "id"), null],
+        options: !suppotedPaymentMethods
           ? undefined
           : map(
-              storedPaymentMethods,
+              suppotedPaymentMethods,
               ({ id, name, cardType, cardExpireDate }) => {
                 return {
                   value: id,

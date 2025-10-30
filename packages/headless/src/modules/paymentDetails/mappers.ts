@@ -47,7 +47,7 @@ export function mapPaymentDetail(raw: IPaymentDetail): PaymentDetail {
       id: raw.currency?.id,
       code: raw.currency?.code
     },
-    gatewayID: raw.gateway_id ?? undefined,
+    gatewayId: raw.gateway_id ?? undefined,
     id: raw.id,
     title: useTranslateName(raw),
     type: raw.type,
