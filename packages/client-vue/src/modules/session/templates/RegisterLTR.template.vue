@@ -9,7 +9,7 @@
     </template>
 
     <template #aside>
-      <RegisterAside class="hidden lg:flex" section />
+      <RegisterAside class="hidden lg:block" section />
     </template>
   </Layout>
 </template>
