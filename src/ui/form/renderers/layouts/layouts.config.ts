@@ -17,7 +17,7 @@ export default {
     root: cva("flex w-full", {
       variants: {
         isHorizontal: {
-          true: "flex-row flex-wrap space-x-4",
+          true: "flex-col space-y-4 md:flex-row md:flex-wrap md:space-y-0 md:space-x-4",
           false: "flex-col space-y-4"
         }
       }
@@ -25,7 +25,7 @@ export default {
     item: cva("w-full empty:hidden data-[visible='false']:hidden", {
       variants: {
         isHorizontal: {
-          true: "flex-1",
+          true: "md:flex-1",
           false: ""
         }
       }
