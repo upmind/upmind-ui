@@ -5,7 +5,7 @@
     v-model:open="open"
     size="3xl"
     no-footer
-    :title="t('action.add_new_or_update', !props.modelValue ? 0 : 1)"
+    :title="t('action.add_new_or_update', !props.modelValue ? 1 : 0)"
   >
     <Skeleton v-if="meta.isLoading" :modal="modal" />
 
@@ -14,7 +14,7 @@
         v-if="meta.hasErrors"
         :description="errors"
         :message="errors"
-        :title="t('error.adding_or_updating', !props.modelValue ? 0 : 1)"
+        :title="t('error.adding_or_updating', !props.modelValue ? 1 : 0)"
         color="danger"
         icon="alert-triangle"
         class="mb-4"

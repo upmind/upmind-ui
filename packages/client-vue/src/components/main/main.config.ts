@@ -1,0 +1,15 @@
+import { cva } from "class-variance-authority";
+
+export default {
+  main: cva("flex w-full flex-col", {
+    variants: {
+      mode: {
+        grow: "grow",
+        centered: "items-center justify-center"
+      }
+    },
+    defaultVariants: {
+      mode: "grow"
+    }
+  })
+};

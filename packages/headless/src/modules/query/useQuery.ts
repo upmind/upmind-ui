@@ -21,6 +21,7 @@ import {
   get,
   isEmpty,
   isInteger,
+  isNil,
   isObject,
   isString,
   set,
@@ -223,6 +224,7 @@ export const useQuery = () => {
    * @param select A function that is used to transform the response data before it is returned. This can be used to extract specific fields from the response or to transform the data into a different format.
    * @param queryKey The query key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
    * @param withCurrency Whether to automagically add the currency filter to the request based on the `useBasketCurrency` composable.
+   * @param withoutLocale Whether to exclude the locale from the request.
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
    * @param options Additional options to pass to TanStack query.
    */
@@ -347,8 +349,9 @@ export const useQuery = () => {
     // --- state
     const limit = options?.pagination?.limit ?? PAGINATION.limit;
     const offset = options?.pagination?.offset ?? PAGINATION.offset;
+    const total = ref(0);
     const sort = ref(options?.sort);
-    const pageIndex = ref(Math.ceil(offset / limit) + 1);
+    const pageIndex = ref(!offset ? 1 : Math.ceil(offset / limit) + 1);
     const filters = ref<QueryParams["filters"]>({
       ...(options?.filters ?? {})
     });
@@ -374,7 +377,10 @@ export const useQuery = () => {
                 url,
                 sort: sort.value,
                 filters: filters.value,
-                pagination: { limit, offset: (pageIndex.value - 1) * limit },
+                pagination: {
+                  limit,
+                  offset: (pageIndex.value - 1) * limit
+                },
                 withCurrency,
                 withoutLocale,
                 init: {
@@ -425,15 +431,19 @@ export const useQuery = () => {
        * @property {number} to - The ending item index for the current page.
        */
       pagination: computed((): PaginationInfo => {
-        const total = response?.data?.value?.total ?? 0;
-        const pageTotal = !limit ? 1 : Math.max(Math.ceil(total / limit), 1);
+        total.value = response?.data?.value?.total ?? total.value;
+        const pageTotal = !limit
+          ? 1
+          : Math.max(Math.ceil(total.value / limit), 1);
         return {
           limit,
-          total,
+          total: total.value,
           page: pageIndex.value,
           pages: pageTotal,
-          from: !total ? 0 : limit * (pageIndex.value - 1) + 1,
-          to: !limit ? total : Math.min(limit * pageIndex.value, total)
+          from: !total.value ? 0 : limit * (pageIndex.value - 1) + 1,
+          to: !limit
+            ? total.value
+            : Math.min(limit * pageIndex.value, total.value)
         } as PaginationInfo;
       }),
 
@@ -444,8 +454,10 @@ export const useQuery = () => {
        * @property {boolean} hasPrevPage - Whether there is a previous page.
        */
       meta: computed(() => {
-        const total = response?.data?.value?.total ?? 0;
-        const pageTotal = !limit ? 1 : Math.max(Math.ceil(total / limit), 1);
+        total.value = response?.data?.value?.total ?? total.value;
+        const pageTotal = !limit
+          ? 1
+          : Math.max(Math.ceil(total.value / limit), 1);
         return {
           hasNextPage: pageIndex.value < pageTotal,
           hasPrevPage: pageIndex.value > 1
@@ -463,8 +475,10 @@ export const useQuery = () => {
       fetchPreviousPage: (): void => {
         const { t } = useI18n();
 
-        const total = response?.data?.value?.total ?? 0;
-        const pageTotal = !limit ? 1 : Math.max(Math.ceil(total / limit), 1);
+        total.value = response?.data?.value?.total ?? total.value;
+        const pageTotal = !limit
+          ? 1
+          : Math.max(Math.ceil(total.value / limit), 1);
 
         if (!response?.isPlaceholderData.value && pageIndex.value <= 1) {
           throw new DetailedError(
@@ -474,10 +488,12 @@ export const useQuery = () => {
             {
               limit,
               page: pageIndex.value,
-              from: !total ? 0 : limit * (pageIndex.value - 1) + 1,
-              total: total,
+              from: !total.value ? 0 : limit * (pageIndex.value - 1) + 1,
+              total: total.value,
               pages: pageTotal,
-              to: !limit ? total : Math.min(limit * pageIndex.value, total)
+              to: !limit
+                ? total
+                : Math.min(limit * pageIndex.value, total.value)
             }
           );
         }
@@ -494,9 +510,10 @@ export const useQuery = () => {
       fetchNextPage: (): void => {
         const { t } = useI18n();
 
-        const total = response?.data?.value?.total ?? 0;
-        const pageTotal = !limit ? 1 : Math.max(Math.ceil(total / limit), 1);
-
+        total.value = response?.data?.value?.total ?? 0;
+        const pageTotal = !limit
+          ? 1
+          : Math.max(Math.ceil(total.value / limit), 1);
         if (
           !response?.isPlaceholderData.value &&
           pageIndex.value >= pageTotal
@@ -508,10 +525,12 @@ export const useQuery = () => {
             {
               limit,
               page: pageIndex.value,
-              from: !total ? 0 : limit * (pageIndex.value - 1) + 1,
-              total,
+              from: !total.value ? 0 : limit * (pageIndex.value - 1) + 1,
+              total: total.value,
               pages: pageTotal,
-              to: !limit ? total : Math.min(limit * pageIndex.value, total)
+              to: !limit
+                ? total.value
+                : Math.min(limit * pageIndex.value, total.value)
             }
           );
         }
@@ -526,7 +545,6 @@ export const useQuery = () => {
 
       filter: (values: QueryParams["filters"]) => {
         filters.value = unref(values);
-        pageIndex.value = 1;
       },
 
       resetQuery: () => {

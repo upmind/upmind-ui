@@ -3,7 +3,7 @@
     <header class="flex flex-1 items-start gap-2">
       <div class="flex grow flex-col gap-0.5 md:flex-row md:gap-x-2">
         <div class="flex flex-wrap items-center gap-2">
-          <h5 class="text-md/tight m-0 font-medium">{{ title }}</h5>
+          <h5 class="text-md-tight m-0 font-medium">{{ title }}</h5>
 
           <Promotion
             v-for="promotion in props.promotions"
@@ -15,7 +15,7 @@
 
         <div
           v-if="props.price && !props.meta?.free"
-          class="text-md/tight items-center gap-x-1 max-md:flex md:hidden"
+          class="text-md-tight items-center gap-x-1 max-md:flex md:hidden"
         >
           <SubproductCardPricing
             v-if="props.price"
@@ -44,7 +44,7 @@
         />
 
         <div
-          class="text-md/tight hidden flex-col gap-2 text-right md:flex md:flex-row"
+          class="text-md-tight hidden flex-col gap-2 text-right md:flex md:flex-row"
         >
           <SubproductCardPricing
             v-if="props.price"
@@ -56,7 +56,7 @@
       </div>
     </header>
 
-    <p class="text-muted text-sm/tight whitespace-normal" v-if="props.excerpt">
+    <p class="text-muted text-sm-tight whitespace-normal" v-if="props.excerpt">
       {{ props.excerpt }}
     </p>
   </section>

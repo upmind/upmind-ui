@@ -23,14 +23,14 @@
       <!-- Basket Products -->
       <Section
         id="basket-products"
-        :title="t('cart.basket_products')"
+        :label="t('cart.basket_products')"
+        icon="list"
         :ui-config="{
           section: {
             root: styles.basket.items.root,
             content: styles.basket.items.content
           } as any
         }"
-        icon="list"
       >
         <ProductCards :open="open" @update:open="open = $event" />
 
@@ -47,7 +47,8 @@
       <!-- Basket Fields -->
       <Section
         id="basket-fields"
-        :title="t('text.additional_details')"
+        :label="t('text.additional_details')"
+        icon="file-attachment-01"
         :class="styles.basket.customFields.root"
         :ui-config="{
           section: {
@@ -55,7 +56,6 @@
             content: styles.basket.items.content
           } as any
         }"
-        icon="file-attachment-01"
       >
         <Form
           v-if="!fieldsMeta.isLoading"
@@ -76,9 +76,9 @@
     <template #aside>
       <Section
         id="basket-summary"
-        :title="t('text.summary')"
-        :class="styles.basket.aside"
+        :label="t('text.summary')"
         icon="shopping-bag-02"
+        :class="styles.basket.aside"
       >
         <Summary />
 

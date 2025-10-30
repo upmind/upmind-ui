@@ -1,90 +1,30 @@
 <template>
-  <div v-if="!section" :class="props.class">
-    <slot name="default" />
-  </div>
-
-  <div v-else :class="cn(styles.section.root, props.class)">
-    <header
-      v-if="title || slots.title || slots.action"
-      :class="styles.section.header"
-    >
-      <div :class="styles.section.title.root">
-        <slot name="title">
-          <Icon v-if="icon" :icon="icon" size="2xs" />
-          <h4 :class="styles.section.title.heading">{{ title }}</h4>
-        </slot>
-      </div>
-
-      <slot name="action" />
-    </header>
-
-    <div>
-      <component
-        :is="component"
-        :class="cn(styles.section.content, props.class)"
-        :aside="aside"
-      >
-        <slot name="default" />
-      </component>
-    </div>
-  </div>
+  <Sections :active="active" :sections="sections">
+    <template #default>
+      <slot />
+    </template>
+  </Sections>
 </template>
 
 <script setup lang="ts">
 // --- external
-import { computed, useSlots } from "vue";
+import { computed } from "vue";
 
-// --- components
-import { Card, Icon } from "@upmind-automation/upmind-ui";
-
-// --- internal
-import { cn, useStyles } from "@upmind-automation/upmind-ui";
-import config from "./section.config";
-import { useRoutingEngine } from "@upmind-automation/headless";
+import Sections from "./Sections.vue";
 
 // --- types
-import { type ComputedRef } from "vue";
-import { type SectionProps } from "./types";
-import { LAYOUT_VARIANTS } from "../layout";
+import type { SectionProps, SectionItem } from "./types";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<SectionProps>(), {
-  as: "section",
-  section: true
+  active: true
 });
 
-const { currentRoute } = useRoutingEngine();
-
-const slots = useSlots();
-
-const meta = computed(() => {
-  return {
-    variant: currentRoute.value?.meta?.template || LAYOUT_VARIANTS.DEFAULT
-  };
-});
-
-const component = computed(() => {
-  if (meta.value.variant === "enclosed" && props.as === "section") {
-    return Card;
+const sections = computed<SectionItem[]>(() => [
+  {
+    label: props.label,
+    value: "section",
+    icon: props.icon
   }
-
-  return props.as;
-});
-
-const styles = useStyles(
-  ["section", "section.title"],
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  section: {
-    root: string;
-    header: string;
-    title: {
-      root: string;
-      heading: string;
-    };
-    content: string;
-  };
-}>;
+]);
 </script>

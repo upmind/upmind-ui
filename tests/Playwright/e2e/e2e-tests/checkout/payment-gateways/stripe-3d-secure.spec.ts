@@ -46,14 +46,7 @@ test.describe("3D Secure Authentication", async () => {
       await page.waitForLoadState("networkidle");
       await page.goto(URLs.checkout);
       await registration.inputRegistration();
-      await checkout.manuallyInputAddress(
-        `${fakerEN_GB.location.streetAddress()}`,
-        `${fakerEN_GB.location.streetAddress()}`,
-        `${fakerEN_GB.location.city()}`,
-        "HU15 1EG",
-        null
-      );
-      await checkout.selectPaymentMethod("Stripe Payment");
+      await checkout.selectPaymentMethod("Stripe");
       await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
       await checkout.clickPlaceOrderButton();
       page.on("framenavigated", async frame => {
