@@ -6,7 +6,10 @@
     :page="props.page"
     v-if="!!total"
   >
-    <PaginationList :class="cn(styles.pagination.root, props.class)" data-testid="pagination-bar">
+    <PaginationList
+      :class="cn(styles.pagination.root, props.class)"
+      data-testid="pagination-bar"
+    >
       <PaginationPrev as-child>
         <Button
           variant="subtle"
