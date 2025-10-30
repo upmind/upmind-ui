@@ -31,9 +31,9 @@ export enum messageDisplays {
    */
   MODAL = "modal",
   /**
-   * Message integrated directly into the "system" interface, e.g. embedded error messages in forms.
+   * Message displayed as a "interstitial" dialogue, requiring user interaction to dismiss.
    */
-  SYSTEM = "system",
+  INTERSTITIAL = "interstitial",
   /**
    * Message specifically related to authentication (e.g. login, registration) flows.
    */

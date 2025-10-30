@@ -98,7 +98,7 @@ async function refreshToken() {
       title: t("error.401_title_md"),
       copy: t("error.401_text"),
       data: { status: responseCodes.Unauthorized },
-      display: messageDisplays.SYSTEM,
+      display: messageDisplays.INTERSTITIAL,
       delay: 0,
       maxAge: 0
     });
