@@ -1,20 +1,19 @@
 <template>
   <Loading :active="meta.isProcessing" class-active="w-full rounded">
-    <Tabs
-      :as="props.as"
+    <Sections
       class="min-h-52"
       v-model="activeTab"
-      :tabs="tabs"
+      :sections="tabs"
       data-testid="billing"
     >
-      <template v-slot:[`content.personal`]>
+      <template v-slot:[`section-personal`]>
         <TabPersonal v-model="modelValue" v-model:touched="touched" />
       </template>
 
-      <template v-slot:[`content.business`]>
+      <template v-slot:[`section-business`]>
         <TabBusiness v-model="modelValue" v-model:touched="touched" />
       </template>
-    </Tabs>
+    </Sections>
   </Loading>
 </template>
 
@@ -33,7 +32,8 @@ import {
 } from "@upmind-automation/headless";
 
 // --- components
-import { Tabs, Loading } from "@upmind-automation/upmind-ui";
+import { Loading } from "@upmind-automation/upmind-ui";
+import Sections from "../../components/section/Sections.vue";
 import TabBusiness from "./components/TabBusiness.vue";
 import TabPersonal from "./components/TabPersonal.vue";
 
@@ -44,11 +44,6 @@ import type { TabItem } from "@upmind-automation/upmind-ui";
 import type { BillingProps } from "./types";
 
 // -----------------------------------------------------------------------------
-
-const props = withDefaults(defineProps<Omit<BillingProps, "modelValue">>(), {
-  as: "div",
-  forceMount: false
-});
 
 const modelValue = defineModel<BillingProps["modelValue"]>("modelValue");
 const touched = defineModel<BillingProps["touched"]>("touched");
@@ -84,13 +79,15 @@ const tabs = computed((): TabItem[] => {
 
   if (!config.value?.requiresCompany) {
     tabItems.push({
-      label: t("text.personal"),
+      icon: "user-01",
+      label: t("text.personal_details"),
       value: UnifiedType.PERSONAL,
       eager: false
     });
   }
   tabItems.push({
-    label: t("text.business"),
+    icon: "building-07",
+    label: t("text.business_details"),
     value: UnifiedType.BUSINESS,
     eager: !!config.value?.requiresCompany
   });

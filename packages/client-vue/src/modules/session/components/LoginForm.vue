@@ -1,5 +1,5 @@
 <template>
-  <Section :section="section" title="Login" icon="user-03">
+  <Section :active="section" label="Login" icon="user-03">
     <Auth
       class="rounded-box w-full max-w-5xl items-start"
       no-tabs
