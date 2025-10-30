@@ -1,20 +1,32 @@
 <template>
   <Tabs v-bind="forwarded">
     <TabsList ref="tabsListRef" :class="styles.tabs.list">
-      <TabsTrigger
-        v-for="(item, index) in tabs"
-        :key="item.value"
-        :ref="el => setTriggerRef(el, index)"
-        :value="item.value"
-        :class="[
-          styles.tabs.trigger,
-          tabs.length === 1 ? 'cursor-text' : 'cursor-pointer'
-        ]"
-        :focusable="tabs.length > 1"
-      >
-        <Icon v-if="item.icon" :icon="item.icon" size="2xs" />
-        <span>{{ item.label }}</span>
-      </TabsTrigger>
+      <template v-if="tabs.length > 1">
+        <TabsTrigger
+          v-for="(item, index) in tabs"
+          :key="item.value"
+          :ref="el => setTriggerRef(el, index)"
+          :value="item.value"
+          :class="[styles.tabs.trigger, 'cursor-pointer']"
+        >
+          <Icon v-if="item.icon" :icon="item.icon" size="2xs" />
+          <span>{{ item.label }}</span>
+        </TabsTrigger>
+      </template>
+      <template v-else>
+        <div
+          :key="first(tabs)?.value"
+          :class="[styles.tabs.trigger, 'cursor-text']"
+          data-state="active"
+        >
+          <Icon
+            v-if="first(tabs)?.icon"
+            :icon="first(tabs)?.icon ?? ''"
+            size="2xs"
+          />
+          <span>{{ first(tabs)?.label }}</span>
+        </div>
+      </template>
 
       <div
         v-if="tabs.length > 1 && indicatorStyle"
@@ -51,6 +63,9 @@ import TabsContent from "./TabsContent.vue";
 import TabsList from "./TabsList.vue";
 import TabsTrigger from "./TabsTrigger.vue";
 import { Icon } from "../icon";
+
+// --- utils
+import { first } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
