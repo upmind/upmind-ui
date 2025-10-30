@@ -23,7 +23,7 @@ const props = withDefaults(defineProps<SectionProps>(), {
 const sections = computed<SectionItem[]>(() => [
   {
     label: props.label,
-    value: props.label,
+    value: "section",
     icon: props.icon
   }
 ]);
