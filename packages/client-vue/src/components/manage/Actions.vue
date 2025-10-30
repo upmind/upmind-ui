@@ -1,5 +1,5 @@
 <template>
-  <footer class="flex flex-col gap-2 md:flex-row md:justify-start">
+  <footer class="flex w-full flex-col gap-2 md:flex-row md:justify-start">
     <Button
       :label="t('action.save_details')"
       color="primary"
@@ -7,6 +7,7 @@
       :disabled="props.disabled || props.loading"
       :loading="props.processing"
       @click="emits('save')"
+      class="block md:inline-block"
     />
     <Button
       v-if="!props.noCancel"
