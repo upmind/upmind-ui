@@ -2,7 +2,7 @@
   <Section
     v-if="meta.hasProducts"
     :active="section"
-    label="t('text.summary')"
+    :label="t('text.summary')"
     icon="shopping-bag-02"
   >
     <Summary :showPromotions="false" show-products />
