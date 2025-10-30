@@ -1,38 +1,60 @@
 <template>
-  <!--<link rel="stylesheet" :href="stylesheet" />-->
-
   <Tabs v-bind="forwarded">
-    <TabsList :class="styles.tabs.list" v-if="tabs.length > 1">
-      <template v-for="item in tabs" :key="item.value">
-        <TabsTrigger :value="item.value" :class="styles.tabs.trigger">
-          <slot :name="`trigger.${item.value}`">{{ item.label }}</slot>
+    <TabsList ref="tabsListRef" :class="styles.tabs.list">
+      <template v-if="tabs.length > 1">
+        <TabsTrigger
+          v-for="(item, index) in tabs"
+          :key="item.value"
+          :ref="el => setTriggerRef(el, index)"
+          :value="item.value"
+          :class="[styles.tabs.trigger, 'cursor-pointer']"
+        >
+          <Icon v-if="item.icon" :icon="item.icon" size="2xs" />
+          <span>{{ item.label }}</span>
         </TabsTrigger>
       </template>
+      <template v-else>
+        <div
+          :key="first(tabs)?.value"
+          :class="[styles.tabs.trigger, 'cursor-text']"
+          data-state="active"
+        >
+          <Icon
+            v-if="first(tabs)?.icon"
+            :icon="first(tabs)?.icon ?? ''"
+            size="2xs"
+          />
+          <span>{{ first(tabs)?.label }}</span>
+        </div>
+      </template>
+
+      <div
+        v-if="tabs.length > 1 && indicatorStyle"
+        :class="styles.tabs.indicator"
+        :style="indicatorStyle"
+      />
     </TabsList>
 
-    <template v-for="item in tabs" :key="item.value">
-      <TabsContent
-        :value="item.value"
-        :forceMount="item?.eager"
-        tabindex="-1"
-        class="mt-0"
-      >
-        <slot :name="`content.${item.value}`"></slot>
-      </TabsContent>
-    </template>
+    <TabsContent
+      v-for="item in tabs"
+      :key="item.value"
+      :value="item.value"
+      :forceMount="item?.eager"
+      tabindex="-1"
+    >
+      <slot :name="`content.${item.value}`"></slot>
+    </TabsContent>
   </Tabs>
 </template>
 
 <script lang="ts" setup>
-// ---external
-import { computed } from "vue";
+// --- external
+import { computed, ref } from "vue";
 import { useForwardPropsEmits } from "radix-vue";
+import { useElementBounding } from "@vueuse/core";
 
-// ---internal
-import {
-  useStyles
-  //stylesheet
-} from "../../utils";
+// --- internal
+import { useStyles } from "../../utils";
 import config from "./tabs.config";
 
 // --- components
@@ -40,6 +62,10 @@ import Tabs from "./Tabs.vue";
 import TabsContent from "./TabsContent.vue";
 import TabsList from "./TabsList.vue";
 import TabsTrigger from "./TabsTrigger.vue";
+import { Icon } from "../icon";
+
+// --- utils
+import { first } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -49,12 +75,8 @@ import type { TabsRootEmits } from "radix-vue";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<TabsProps>(), {
-  // --- props
   tabs: (): TabItem[] => [],
   defaultValue: "",
-  // -- styles
-  color: "default",
-  // --- styles
   uiConfig: () => ({
     tabs: {
       list: [],
@@ -67,20 +89,48 @@ const props = withDefaults(defineProps<TabsProps>(), {
 const emits = defineEmits<TabsRootEmits>();
 const forwarded = useForwardPropsEmits(props, emits);
 
-const meta = computed(() => ({
-  alignment: props.alignment,
-  width: props.width
-}));
+// Track tab list and trigger elements for indicator positioning
+const tabsListRef = ref<HTMLElement | null>(null);
+const triggerRefs = ref<(HTMLElement | null)[]>([]);
+
+// Store trigger refs from template
+const setTriggerRef = (el: any, index: number) => {
+  if (el) {
+    triggerRefs.value[index] = el.$el || el;
+  }
+};
+
+// Watch for layout changes to update indicator
+const { width: listWidth } = useElementBounding(tabsListRef);
 
 const styles = useStyles(
   "tabs",
-  meta,
+  {},
   config,
   props.uiConfig ?? {}
 ) as ComputedRef<{
   tabs: {
     list: string;
     trigger: string;
+    indicator: string;
   };
 }>;
+
+// Find active tab index
+const currentTab = computed(() =>
+  props.tabs.findIndex(tab => tab.value === forwarded.value.modelValue)
+);
+
+// Calculate indicator position and width to match active tab
+const indicatorStyle = computed(() => {
+  listWidth.value; // Trigger reactivity on layout changes
+
+  const activeTrigger = triggerRefs.value[currentTab.value];
+  if (!activeTrigger) return null;
+
+  return {
+    transform: `translateX(${activeTrigger.offsetLeft}px)`,
+    width: `${activeTrigger.offsetWidth}px`
+  };
+});
 </script>
