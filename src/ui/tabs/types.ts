@@ -1,10 +1,7 @@
 // --- external
 import { type HTMLAttributes } from "vue";
 import type { CxOptions } from "class-variance-authority";
-import type {
-  TabsRootProps,
-  TabsListProps
-} from "radix-vue";
+import type { TabsRootProps, TabsListProps } from "radix-vue";
 
 export interface TabItem {
   label: string;
