@@ -5,7 +5,7 @@ export const tabsListVariants = cva(
   {
     variants: {
       hasBorder: {
-        true: "mb-4 border-b",
+        true: "mb-6 border-b",
         false: ""
       }
     }

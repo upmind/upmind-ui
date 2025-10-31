@@ -1,7 +1,7 @@
 <template>
-  <Tabs v-bind="forwarded">
-    <TabsList ref="tabsListRef" :class="cn(styles.tabs.list, props.class)">
-      <template v-if="tabs.length > 1">
+  <Tabs v-bind="forwarded" v-model="modelValue" :class="class">
+    <TabsList ref="tabsListRef" :class="styles.tabs.list">
+      <template v-if="tabs.length > 1 || force">
         <TabsTrigger
           v-for="(item, index) in tabs"
           :key="item.value"
@@ -29,7 +29,7 @@
       </template>
 
       <div
-        v-if="tabs.length > 1 && indicatorStyle"
+        v-if="(tabs.length > 1 || force) && indicatorStyle"
         :class="styles.tabs.indicator"
         :style="indicatorStyle"
       />
@@ -54,8 +54,9 @@ import { useForwardPropsEmits } from "radix-vue";
 import { useElementBounding } from "@vueuse/core";
 
 // --- internal
-import { useStyles, cn } from "../../utils";
+import { useStyles } from "../../utils";
 import config from "./tabs.config";
+import { useVModel } from "@vueuse/core";
 
 // --- components
 import Tabs from "./Tabs.vue";
@@ -75,6 +76,7 @@ import type { TabsRootEmits } from "radix-vue";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<TabsProps>(), {
+  class: "",
   tabs: (): TabItem[] => [],
   defaultValue: "",
   border: true,
@@ -83,12 +85,16 @@ const props = withDefaults(defineProps<TabsProps>(), {
       list: [],
       trigger: []
     }
-  }),
-  class: ""
+  })
 });
 
 const emits = defineEmits<TabsRootEmits>();
 const forwarded = useForwardPropsEmits(props, emits);
+
+const modelValue = useVModel(props, "modelValue", emits, {
+  passive: true,
+  defaultValue: props.defaultValue || first(props.tabs)?.value
+});
 
 // Track tab list and trigger elements for indicator positioning
 const tabsListRef = ref<HTMLElement | null>(null);
@@ -122,7 +128,7 @@ const setTriggerRef = (el: any, index: number) => {
 const { width: listWidth } = useElementBounding(tabsListRef);
 
 const currentTab = computed(() =>
-  props.tabs.findIndex(tab => tab.value === forwarded.value.modelValue)
+  props.tabs.findIndex(tab => tab.value === modelValue.value)
 );
 
 // Calculate indicator position and width to match active tab
