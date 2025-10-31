@@ -1,7 +1,15 @@
 import { cva } from "class-variance-authority";
 
 export const tabsListVariants = cva(
-  "border-surface relative mb-4 inline-flex w-full items-center justify-start gap-6 overflow-x-auto overflow-y-hidden rounded-none border-b px-0 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+  "border-surface relative inline-flex w-full items-center justify-start gap-6 overflow-x-auto overflow-y-hidden rounded-none px-0 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+  {
+    variants: {
+      hasBorder: {
+        true: "mb-4 border-b",
+        false: ""
+      }
+    }
+  }
 );
 
 export const tabsTriggerVariants = cva(

@@ -13,6 +13,7 @@ export interface TabItem {
 export interface TabsProps extends TabsRootProps, TabsListProps {
   tabs: TabItem[];
   defaultValue?: string;
+  border?: boolean;
   // ---
   uiConfig?: {
     tabs: {

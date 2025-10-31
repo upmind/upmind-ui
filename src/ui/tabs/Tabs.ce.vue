@@ -1,6 +1,6 @@
 <template>
   <Tabs v-bind="forwarded">
-    <TabsList ref="tabsListRef" :class="styles.tabs.list">
+    <TabsList ref="tabsListRef" :class="cn(styles.tabs.list, props.class)">
       <template v-if="tabs.length > 1">
         <TabsTrigger
           v-for="(item, index) in tabs"
@@ -54,7 +54,7 @@ import { useForwardPropsEmits } from "radix-vue";
 import { useElementBounding } from "@vueuse/core";
 
 // --- internal
-import { useStyles } from "../../utils";
+import { useStyles, cn } from "../../utils";
 import config from "./tabs.config";
 
 // --- components
@@ -77,6 +77,7 @@ import type { TabsRootEmits } from "radix-vue";
 const props = withDefaults(defineProps<TabsProps>(), {
   tabs: (): TabItem[] => [],
   defaultValue: "",
+  border: true,
   uiConfig: () => ({
     tabs: {
       list: [],
@@ -93,19 +94,13 @@ const forwarded = useForwardPropsEmits(props, emits);
 const tabsListRef = ref<HTMLElement | null>(null);
 const triggerRefs = ref<(HTMLElement | null)[]>([]);
 
-// Store trigger refs from template
-const setTriggerRef = (el: any, index: number) => {
-  if (el) {
-    triggerRefs.value[index] = el.$el || el;
-  }
-};
-
-// Watch for layout changes to update indicator
-const { width: listWidth } = useElementBounding(tabsListRef);
+const meta = computed(() => ({
+  hasBorder: props.border
+}));
 
 const styles = useStyles(
   "tabs",
-  {},
+  meta,
   config,
   props.uiConfig ?? {}
 ) as ComputedRef<{
@@ -116,7 +111,16 @@ const styles = useStyles(
   };
 }>;
 
-// Find active tab index
+// Store trigger refs from template
+const setTriggerRef = (el: any, index: number) => {
+  if (el) {
+    triggerRefs.value[index] = el.$el || el;
+  }
+};
+
+// Watch for layout changes to update indicator
+const { width: listWidth } = useElementBounding(tabsListRef);
+
 const currentTab = computed(() =>
   props.tabs.findIndex(tab => tab.value === forwarded.value.modelValue)
 );
