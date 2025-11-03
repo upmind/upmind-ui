@@ -1,7 +1,7 @@
 <template>
   <UpmSection
     class="max-w-app mx-auto"
-    title="Address Search"
+    label="Address Search"
     subtitle="Search for addresses using the Places API"
   >
     <Card class="space-y-8">

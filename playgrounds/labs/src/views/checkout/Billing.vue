@@ -1,5 +1,5 @@
 <template>
-  <UpmSection class="max-w-app mx-auto" title="Addresses">
+  <UpmSection class="max-w-app mx-auto" label="Addresses">
     <template v-if="!meta.isAuthenticated && !meta.isLoading">
       <p class="mx-auto mt-4 w-full max-w-2xl pb-3 md:pb-3">
         <span class="font-normal">{{ getText(authMode) }}&nbsp;</span>
