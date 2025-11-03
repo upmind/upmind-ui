@@ -1,0 +1,23 @@
+{
+  "annually": "Hər il",
+  "biennially": "İki ildən bir",
+  "label": "Ödəniş müddəti",
+  "monthly": "Aylıq",
+  "n_mo": "mo | {n} ay",
+  "n_month": "{n}-ay",
+  "n_months": "ay | {n} ay",
+  "n_year": "{n}-il",
+  "n_years": "il | {count} illər",
+  "n_yr": "il | {n} il",
+  "once": "Bir dəfə",
+  "one_time": "Bir dəfə",
+  "price_by_n_years": "{price}/il | {price} /{n} il",
+  "price_msg": "Birdəfəlik ödəniş {price} | From {price} ay | From {price} hər {period}",
+  "quarterly": "Rüblük",
+  "renews_msg": "Bir dəfəlik ödəniş | Hər dəfə yenilənir {cycle} | Hər dəfə yenilənir {cycle}",
+  "renews_usually_msg": "Adətən {price}",
+  "semiannually": "Yarımillik",
+  "showing_items_summary": "Göstərilir {range} of {total} maddələr",
+  "summary_msg": "üçün a {term} müddət. Ödəmək {price} bu gün.",
+  "triennially": "Üçillik"
+}

@@ -1,0 +1,31 @@
+{
+  "begin_search_above_desc": "Börja din sökning med hjälp av rutan ovan.",
+  "choices": {
+    "basket": {
+      "label": "Använd domän i varukorgen",
+      "tooltip": "Dessa domäner finns redan i din varukorg"
+    },
+    "existing": {
+      "label": "Använd befintlig domän",
+      "tooltip": "Du kan använda en befintlig domän genom att uppdatera namnservrarna"
+    },
+    "register": {
+      "label": "Registrera ny domän",
+      "tooltip": "Har du inte redan en domän? Registrera en ny hos oss"
+    },
+    "transfer": {
+      "label": "Överför domän",
+      "tooltip": "Äger du redan en domän? Du kan överföra den till oss"
+    }
+  },
+  "finding_perfect_domain": "Att hitta din **perfekta** domän",
+  "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
+  "own_domain_qn": "Äger du den här domänen?",
+  "owned_domains_title": "Domäner som du för närvarande äger",
+  "price_renewal_desc": "Engångspris på {regularPrice}. | Förnyas varje år för {regularPrice}. | Förnyas var {count} år för {regularPrice}.",
+  "starts_with_domain": "Allt börjar med ett **domännamn**",
+  "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_price_desc": "Vår {tld} förnyelsepriserna börjar från endast {currentPrice} (var {regularPrice}).",
+  "tld_renewal_price_from_desc": "Vår {tld} förnyelsepriserna börjar från endast {regularPrice}.",
+  "transfer_domain_by_msg": "Överför det till oss via"
+}
