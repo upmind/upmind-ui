@@ -6,7 +6,7 @@
 
     <div v-else-if="error">
       <Alert
-        color="error"
+        color="danger"
         title="Error loading invoice"
         :message="error.message"
       />
@@ -19,7 +19,7 @@
     </div>
 
     <Button
-      variant="tonal"
+      variant="subtle"
       label="Back to Invoices"
       class="mt-4"
       @click.prevent="$router.push({ name: 'invoices' })"
@@ -31,7 +31,8 @@
 <script setup lang="ts">
 import { useRoute } from "vue-router";
 import { useOrder } from "@upmind-automation/headless";
-import { Layout, Button, Alert } from "@upmind-automation/upmind-ui";
+import { Layout } from "@upmind-automation/client-vue";
+import { Button, Alert } from "@upmind-automation/upmind-ui";
 
 const route = useRoute();
 const invoiceId = route.query.id as string;

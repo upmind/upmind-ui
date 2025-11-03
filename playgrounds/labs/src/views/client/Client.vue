@@ -1,32 +1,32 @@
 <template>
-  <Layout variant="enclosed">
+  <Layout :variant="LAYOUT_VARIANTS.ENCLOSED">
     <template #controls>
       <div class="flex w-full flex-col items-center justify-between gap-4">
         <div class="flex flex-col justify-center gap-2 md:flex-row">
           <Button
             size="sm"
-            variant="tonal"
+            variant="subtle"
             label="Addresses"
             @click.prevent="router.push({ name: 'client.addresses' })"
           >
           </Button>
           <Button
             size="sm"
-            variant="tonal"
+            variant="subtle"
             label="Emails"
             @click.prevent="router.push({ name: 'client.emails' })"
           >
           </Button>
           <Button
             size="sm"
-            variant="tonal"
+            variant="subtle"
             label="Phones"
             @click.prevent="router.push({ name: 'client.phones' })"
           >
           </Button>
           <Button
             size="sm"
-            variant="tonal"
+            variant="subtle"
             label="Companies"
             @click.prevent="router.push({ name: 'client.companies' })"
           >
@@ -75,9 +75,13 @@ import { useRouter } from "vue-router";
 import { useSession } from "@upmind-automation/headless";
 
 // --- components
-import { UpmLoading } from "@upmind-automation/client-vue";
+import {
+  Layout,
+  UpmLoading,
+  LAYOUT_VARIANTS
+} from "@upmind-automation/client-vue";
 
-import { Layout, Button, Alert } from "@upmind-automation/upmind-ui";
+import { Button, Alert } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 
