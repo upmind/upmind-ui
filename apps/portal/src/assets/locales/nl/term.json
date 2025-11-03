@@ -1,0 +1,23 @@
+{
+  "annually": "Jaarlijks",
+  "biennially": "Tweejaarlijks",
+  "label": "Factureringstermijn",
+  "monthly": "Maandelijks",
+  "n_mo": "ma | {n} meer",
+  "n_month": "{n}-maand",
+  "n_months": "maand | {n} maanden",
+  "n_year": "{n}-jaar",
+  "n_years": "jaar | {count} jaren",
+  "n_yr": "jaar | {n} jaar",
+  "once": "Eenmaal",
+  "one_time": "Eén keer",
+  "price_by_n_years": "{price}/jr | {price} /{n} jaren",
+  "price_msg": "Eenmalige betaling van {price} | Van {price} een maand | Vanaf {price} elk {period}",
+  "quarterly": "Kwartaal",
+  "renews_msg": "Eenmalige betaling | Wordt elke {cycle} verlengd | Wordt elke {cycle} verlengd",
+  "renews_usually_msg": "Gebruikelijk {price}",
+  "semiannually": "Halfjaarlijks",
+  "showing_items_summary": "Tonen {range} van {total} artikelen",
+  "summary_msg": "Voor een {term} termijn. Betalen {price} Vandaag.",
+  "triennially": "Driejaarlijks"
+}

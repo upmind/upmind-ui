@@ -1,0 +1,29 @@
+{
+  "calendar": {
+    "last_day": "[Yesterday]",
+    "last_week": "[Last] dddd",
+    "next_day": "[Tomorrow]",
+    "next_week": "dddd",
+    "same_day": "[Today]"
+  },
+  "date": {
+    "default": "MMM Do, YYYY",
+    "omit_ordinal": "MMM YYYY",
+    "omit_year": "MMM Do",
+    "only_day": "D",
+    "only_month": "MMM",
+    "only_ordinal": "Do",
+    "only_week": "MMM Do ([Wk] W)",
+    "only_year": "YYYY"
+  },
+  "datetime": {
+    "default": "MMM Do, YYYY HH:mm A",
+    "omit_meridiem": "MMM Do, YYYY HH:mm",
+    "with_seconds": "MMM Do, YYYY HH:mm:ss A"
+  },
+  "time": {
+    "default": "HH:mm",
+    "with_meridiem": "HH:mm A",
+    "with_seconds": "HH:mm:ss"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "calendar": {
+    "last_day": "[Gisteren]",
+    "last_week": "[Laatste] dddd",
+    "next_day": "[Morgen]",
+    "next_week": "dddd",
+    "same_day": "[Vandaag]"
+  },
+  "date": {
+    "default": "MMM Doe, JJJJ",
+    "omit_ordinal": "MMM JJJJ",
+    "omit_year": "MMM Do",
+    "only_day": "D",
+    "only_month": "MMM",
+    "only_ordinal": "Doen",
+    "only_week": "MMM Do ([Wk] W)",
+    "only_year": "JJJJ"
+  },
+  "datetime": {
+    "default": "MMM Do, JJJJ UU:mm A",
+    "omit_meridiem": "MMM Do, JJJJ UU:mm",
+    "with_seconds": "MMM Doe, JJJJ UU:mm:ss A"
+  },
+  "time": {
+    "default": "UU:mm",
+    "with_meridiem": "UU:mm A",
+    "with_seconds": "UU:mm:ss"
+  }
+}
