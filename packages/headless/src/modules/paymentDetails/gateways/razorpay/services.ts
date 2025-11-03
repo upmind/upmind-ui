@@ -144,6 +144,7 @@ async function pay({
 
   // 3. Open Razorpay modal and handle response
   return new Promise((resolve, reject) => {
+    let error: RazorpayErrorResponse["error"];
     if (!rzp) throw Error("Razorpay instance not defined.");
     // Set response handler
     rzp.set("handler", (response: RazorpayResponse) => {
@@ -165,9 +166,19 @@ async function pay({
       // We don't reject here as the Razorpay modal allows users to retry
       // payment and subsequent attempts may succeed.
       // this.$store.dispatch("api/handleError", response?.error?.description);
+      error = response.error;
     });
     // Set modal dismiss handler
-    rzp.set("modal.ondismiss", reject);
+    rzp.set("modal.ondismiss", () => {
+      reject(
+        new DetailedError(
+          error?.description ?? t("error.payment_process_failed"),
+          error?.code ?? responseCodes.Bad_Request,
+          ErrorOrigin.External,
+          error
+        )
+      );
+    });
     // Open Razorpay modal
     rzp.open();
   });
