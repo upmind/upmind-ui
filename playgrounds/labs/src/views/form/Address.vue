@@ -1,5 +1,5 @@
 <template>
-  <UpmContentSection
+  <UpmSection
     class="max-w-app mx-auto"
     title="Address Renderer"
     subtitle="Search for addresses using the Places API"
@@ -14,12 +14,12 @@
         as="fieldset"
       />
     </Card>
-  </UpmContentSection>
+  </UpmSection>
 </template>
 
 <script setup lang="ts">
 import {
-  UpmContentSection,
+  UpmSection,
   UpmForm,
   formRenderers
 } from "@upmind-automation/client-vue";

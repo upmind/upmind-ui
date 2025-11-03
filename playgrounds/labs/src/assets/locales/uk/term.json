@@ -1,0 +1,23 @@
+{
+  "annually": "Щорічно",
+  "biennially": "Дворічні",
+  "label": "Платіжний термін",
+  "monthly": "Щомісяця",
+  "n_mo": "мо | {n} мо",
+  "n_month": "{n}-місяць",
+  "n_months": "місяць | {n} місяці",
+  "n_year": "{n}-рік",
+  "n_years": "рік | {count} роки",
+  "n_yr": "рік | {n} рік",
+  "once": "Одного разу",
+  "one_time": "Один раз",
+  "price_by_n_years": "{price}/рік | {price} /{n} років",
+  "price_msg": "Одноразова виплата у розмірі {price} | Від {price} місяць | Від {price} кожен {period}",
+  "quarterly": "Щоквартально",
+  "renews_msg": "Одноразовий платіж | Оновлюється кожні {cycle} | Оновлюється кожні {cycle}",
+  "renews_usually_msg": "Зазвичай {price}",
+  "semiannually": "Раз на півроку",
+  "showing_items_summary": "Показ {range} з {total} предмети",
+  "summary_msg": "Для {term} термін. Оплата {price} сьогодні.",
+  "triennially": "Раз на три роки"
+}

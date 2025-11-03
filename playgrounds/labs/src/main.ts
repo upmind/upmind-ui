@@ -8,15 +8,16 @@ import i18n from "./i18n";
 
 import UpmindClient from "@upmind-automation/client-vue";
 import { plugins as uiPlugins } from "@upmind-automation/upmind-ui";
+
+// --- utils
 import { forEach } from "lodash-es";
 // -----------------------------------------------------------------------------
 
 const app = createApp(App);
 
 // ---
-
 UpmindClient.init({
-  debug: true,
+  debug: import.meta.env.DEV,
   pop: {
     name: import.meta.env.VITE_API_NAME,
     apiUrl: import.meta.env.VITE_API_URL,
@@ -30,8 +31,7 @@ UpmindClient.init({
     )
   },
   router: {
-    instance: router,
-    flows: []
+    instance: router
   },
   recaptcha: {
     siteKey: import.meta.env.VITE_APP_GOOGLE_RECAPTCHA_V3_SITE_KEY,

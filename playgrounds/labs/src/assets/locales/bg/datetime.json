@@ -1,0 +1,29 @@
+{
+  "calendar": {
+    "last_day": "[Вчера]",
+    "last_week": "[Последно] дддд",
+    "next_day": "[Утре]",
+    "next_week": "дддд",
+    "same_day": "[Днес]"
+  },
+  "date": {
+    "default": "МММ До, ГГГГ",
+    "omit_ordinal": "МММ ГГГГ",
+    "omit_year": "МММ правя",
+    "only_day": "Д",
+    "only_month": "МММ",
+    "only_ordinal": "Направи",
+    "only_week": "MMM Do ([Седмица] С)",
+    "only_year": "ГГГГ"
+  },
+  "datetime": {
+    "default": "МММ До, ГГГГ ЧЧ:мм A",
+    "omit_meridiem": "МММ До, ГГГГ ЧЧ:мм",
+    "with_seconds": "МММ Нали, ГГГГ ЧЧ:мм:сс A"
+  },
+  "time": {
+    "default": "ЧЧ:мм",
+    "with_meridiem": "ЧЧ:мм А",
+    "with_seconds": "ЧЧ:мм:сс"
+  }
+}

@@ -1,5 +1,5 @@
 <template>
-  <UpmContentSection
+  <UpmSection
     class="max-w-app mx-auto"
     title="Address Search"
     subtitle="Search for addresses using the Places API"
@@ -77,7 +77,7 @@
         No results found
       </div>
     </Card>
-  </UpmContentSection>
+  </UpmSection>
 
   <!-- JSON Data Dialog -->
   <Dialog :open="isDialogOpen" title="Raw Address Data">
@@ -98,7 +98,7 @@ import { debounce } from "lodash-es";
 import { usePlaces } from "@upmind-automation/headless";
 import { ref, onMounted, watch } from "vue";
 import { Input, Button, Dialog } from "@upmind-automation/upmind-ui";
-import { UpmContentSection } from "@upmind-automation/client-vue";
+import { UpmSection } from "@upmind-automation/client-vue";
 import { Card } from "@upmind-automation/upmind-ui";
 
 // State

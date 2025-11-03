@@ -8,10 +8,6 @@ Upmind is a monorepo that houses all the second-generation packages and UI compo
 
 ### Adding a new pkg
 
-```bash
-npm init -y --scope @upmind-automation -w packages/XXX
-```
-
 **Packages:**
 
 Upmind consists of several reusable packages located in the `packages` directory, all named using camelCase.
@@ -24,6 +20,15 @@ Upmind consists of several reusable packages located in the `packages` directory
 
 - **Widgets:** UI components wrapped as web components for integration into other platforms and websites.
 - **Nuxt:** A Nuxt.js wrapper of the UI components for seamless integration into Nuxt.js projects.
+
+**Apps:**
+The `apps` folder is reserved for future applications that will utilize the Upmind packages. Each app is a separate project that demonstrates the capabilities of the Upmind packages in real-world scenarios. This includes the Upmind applications like the Cart and Portal apps. We also have some client specific apps that have slight customizations.
+
+Cart App - The shopping cart application for Upmind, allowing users to browse products, add them to their cart, and proceed to checkout.
+
+Portal App - The customer portal application for Upmind, enabling users to manage their subscriptions, view invoices, and update their account information.
+
+Hosting/Webcentral/Velia - These are custom carts for specific clients that have slight customizations to the main cart app.
 
 **Playgrounds:**
 
