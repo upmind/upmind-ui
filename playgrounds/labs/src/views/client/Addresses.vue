@@ -1,5 +1,5 @@
 <template>
-  <UpmSection class="max-w-app mx-auto" title="Addresses">
+  <UpmSection class="max-w-app mx-auto" label="Addresses">
     <UpmManage
       v-if="meta.isAuthenticated"
       i18n-key="form.address"

@@ -1,5 +1,5 @@
 <template>
-  <UpmSection class="max-w-app mx-auto" title="Emails">
+  <UpmSection class="max-w-app mx-auto" label="Emails">
     <UpmManage
       v-if="meta.isAuthenticated"
       i18n-key="client.email"

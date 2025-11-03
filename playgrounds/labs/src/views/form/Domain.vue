@@ -1,7 +1,7 @@
 <template>
   <UpmSection
     class="max-w-app mx-auto"
-    title="Domain Renderer"
+    label="Domain Renderer"
     subtitle="Search and manage basket domains"
   >
     <Card class="py-32 text-center text-xl font-bold"> Work in progress </Card>

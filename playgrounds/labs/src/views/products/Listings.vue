@@ -1,7 +1,7 @@
 <template>
   <UpmSection
     class="max-w-app mx-auto"
-    title="Product Catalogue"
+    label="Product Catalogue"
     subtitle="Browse and search products"
   >
     <div class="flex flex-col">

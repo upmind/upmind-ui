@@ -1,5 +1,5 @@
 <template>
-  <UpmSection class="max-w-app mx-auto" title="Companies">
+  <UpmSection class="max-w-app mx-auto" label="Companies">
     <UpmManage
       v-if="meta.isAuthenticated"
       i18n-key="form.company"
