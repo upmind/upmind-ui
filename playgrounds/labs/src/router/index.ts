@@ -25,7 +25,8 @@ import {
   UpmProductNotFoundView,
   UpmProductRequiresActionView,
   UpmEmptyView,
-  ROUTE
+  ROUTE,
+  Upm
 } from "@upmind-automation/client-vue";
 import { get } from "lodash-es";
 

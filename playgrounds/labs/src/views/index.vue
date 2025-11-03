@@ -1,5 +1,5 @@
 <template>
-  <UpmContentSection class="mx-auto max-w-xl" title="Welcome to Upmind Labs">
+  <UpmSection class="mx-auto max-w-xl" label="Welcome to Upmind Labs">
     <h1 class="mt-0 text-red-500">
       This is a playground for Upmind components and utilities.
     </h1>
@@ -174,11 +174,11 @@
         </div>
       </div>
     </div>
-  </UpmContentSection>
+  </UpmSection>
 </template>
 
 <script lang="ts" setup>
 // --- components
 import { Button, Icon } from "@upmind-automation/upmind-ui";
-import { UpmContentSection } from "@upmind-automation/client-vue";
+import { UpmSection } from "@upmind-automation/client-vue";
 </script>

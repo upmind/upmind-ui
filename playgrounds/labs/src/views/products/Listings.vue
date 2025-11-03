@@ -1,5 +1,5 @@
 <template>
-  <UpmContentSection
+  <UpmSection
     class="max-w-app mx-auto"
     title="Product Catalogue"
     subtitle="Browse and search products"
@@ -47,7 +47,7 @@
         />
       </div>
     </div>
-  </UpmContentSection>
+  </UpmSection>
 </template>
 
 <script setup lang="ts">
@@ -57,7 +57,7 @@ import PaginatedProducts from "./Paginated.vue";
 import InfiniteProducts from "./Infinite.vue";
 import ProductCategories from "./Categories.vue";
 import { RequestSortDirection } from "@upmind-automation/headless";
-import { UpmContentSection } from "@upmind-automation/client-vue";
+import { UpmSection } from "@upmind-automation/client-vue";
 
 const mode = ref<"infinite" | "paginated">("paginated");
 const modelValue = ref("");

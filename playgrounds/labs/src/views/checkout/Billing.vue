@@ -1,5 +1,5 @@
 <template>
-  <UpmContentSection class="max-w-app mx-auto" title="Addresses">
+  <UpmSection class="max-w-app mx-auto" title="Addresses">
     <template v-if="!meta.isAuthenticated && !meta.isLoading">
       <p class="mx-auto mt-4 w-full max-w-2xl pb-3 md:pb-3">
         <span class="font-normal">{{ getText(authMode) }}&nbsp;</span>
@@ -15,7 +15,7 @@
     </template>
 
     <UpmBilling v-else :as="Card" />
-  </UpmContentSection>
+  </UpmSection>
 </template>
 
 <script lang="ts" setup>
@@ -26,11 +26,7 @@ import { ref } from "vue";
 import { useSession } from "@upmind-automation/headless";
 
 // --- components
-import {
-  UpmBilling,
-  UpmContentSection,
-  UpmAuth
-} from "@upmind-automation/client-vue";
+import { UpmBilling, UpmSection, UpmAuth } from "@upmind-automation/client-vue";
 import { Card, Button } from "@upmind-automation/upmind-ui";
 
 // --- types

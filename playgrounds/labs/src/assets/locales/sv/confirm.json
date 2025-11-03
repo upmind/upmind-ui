@@ -1,0 +1,16 @@
+{
+  "address_removed": "Adressen har tagits bort",
+  "address_set_default": "Adressen har ställts in som standard",
+  "company_removed": "Företaget har tagits bort",
+  "company_set_default": "Företaget har ställts in som standard",
+  "copied": "Kopierad",
+  "domain_in_basket_msg": "Den här domänen finns redan i din varukorg.",
+  "domain_owned_msg": "Du äger redan den här domänen.",
+  "email_removed": "E-postadressen har tagits bort",
+  "email_set_default": "E-postadressen har ställts in som standard",
+  "in_basket": "I korgen",
+  "in_use": "I bruk",
+  "phone_removed": "Telefonen har tagits bort",
+  "phone_set_default": "Telefonen har ställts in som standard",
+  "reset_instructions_sent_msg": "Tack – återställningsinstruktioner har skickats till din e-postadress"
+}

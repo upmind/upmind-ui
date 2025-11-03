@@ -1,5 +1,5 @@
 <template>
-  <UpmContentSection class="max-w-app mx-auto" title="Emails">
+  <UpmSection class="max-w-app mx-auto" title="Emails">
     <UpmManage
       v-if="meta.isAuthenticated"
       i18n-key="client.email"
@@ -8,7 +8,7 @@
         useMutate: useClientEmail
       }"
     />
-  </UpmContentSection>
+  </UpmSection>
 </template>
 
 <script lang="ts" setup>
@@ -22,7 +22,7 @@ import {
 } from "@upmind-automation/client-vue";
 
 // --- components
-import { UpmManage, UpmContentSection } from "@upmind-automation/client-vue";
+import { UpmManage, UpmSection } from "@upmind-automation/client-vue";
 
 // -----------------------------------------------------------------------------
 

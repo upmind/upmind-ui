@@ -1,8 +1,8 @@
 <template>
   <Layout>
-    <UpmContentSection class="max-w-app mx-auto" title="Terms and Conditions">
+    <UpmSection class="max-w-app mx-auto" label="Terms and Conditions">
       <UpmTermsAndConditions />
-    </UpmContentSection>
+    </UpmSection>
   </Layout>
 </template>
 
@@ -10,6 +10,6 @@
 import { Layout } from "@upmind-automation/upmind-ui";
 import {
   UpmTermsAndConditions,
-  UpmContentSection
+  UpmSection
 } from "@upmind-automation/client-vue";
 </script>

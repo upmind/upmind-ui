@@ -1,5 +1,5 @@
 <template>
-  <UpmContentSection class="max-w-app mx-auto" title="Phones">
+  <UpmSection class="max-w-app mx-auto" title="Phones">
     <UpmManage
       v-if="meta.isAuthenticated"
       i18n-key="client.phone"
@@ -8,7 +8,7 @@
         useMutate: useClientPhone
       }"
     />
-  </UpmContentSection>
+  </UpmSection>
 </template>
 
 <script lang="ts" setup>
@@ -22,7 +22,7 @@ import {
 } from "@upmind-automation/headless";
 
 // --- components
-import { UpmManage, UpmContentSection } from "@upmind-automation/client-vue";
+import { UpmManage, UpmSection } from "@upmind-automation/client-vue";
 
 // -----------------------------------------------------------------------------
 
