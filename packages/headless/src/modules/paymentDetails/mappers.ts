@@ -189,6 +189,7 @@ export function mapPaymentData({
       case GatewayProviderCodes.PAYPAL_REST:
       case GatewayProviderCodes.PAYPAL_SUBSCRIPTION_AGREEMENT:
       case GatewayProviderCodes.PAYSTACK:
+      case GatewayProviderCodes.RAZOR_PAY_CHECKOUT:
       case GatewayProviderCodes.STRIPE:
         return defaults(mapGatewayData(data), paymentDetail);
 
@@ -221,7 +222,6 @@ export function mapPaymentData({
       case GatewayProviderCodes.PAY_U:
       case GatewayProviderCodes.PESA_PAL:
       case GatewayProviderCodes.RAZOR_PAY:
-      case GatewayProviderCodes.RAZOR_PAY_CHECKOUT:
       case GatewayProviderCodes.SAGE_PAY_DIRECT:
       case GatewayProviderCodes.WORLD_PAY_JSON:
         //  DO NOTHING, UNSUPPORTED GATEWAYS
