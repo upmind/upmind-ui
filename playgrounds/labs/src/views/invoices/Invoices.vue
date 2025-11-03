@@ -1,9 +1,9 @@
 <template>
-  <Layout variant="enclosed">
+  <Layout :variant="LAYOUT_VARIANTS.ENCLOSED">
     <div v-for="invoice in invoices" :key="invoice.id">
       <Button
         size="sm"
-        variant="tonal"
+        variant="subtle"
         :label="invoice.id"
         @click.prevent="
           router.push({ name: 'invoice', query: { id: invoice.id } })
@@ -46,8 +46,12 @@ import { useRouter } from "vue-router";
 import { useSession } from "@upmind-automation/headless";
 
 // --- components
-import { UpmLoading } from "@upmind-automation/client-vue";
-import { Layout, Button } from "@upmind-automation/upmind-ui";
+import {
+  UpmLoading,
+  Layout,
+  LAYOUT_VARIANTS
+} from "@upmind-automation/client-vue";
+import { Button } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 
