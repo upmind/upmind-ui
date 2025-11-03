@@ -23,7 +23,7 @@ import {
 import type { AnyEventObject } from "xstate";
 
 // --- utils
-import { isNil, omit, set } from "lodash-es";
+import { isEmpty, isNil, omit, set } from "lodash-es";
 
 // --- types
 import type { GatewayContext } from "../types";
@@ -170,14 +170,19 @@ async function pay({
     });
     // Set modal dismiss handler
     rzp.set("modal.ondismiss", () => {
-      reject(
-        new DetailedError(
-          error?.description ?? t("error.payment_process_failed"),
-          error?.code ?? responseCodes.Bad_Request,
-          ErrorOrigin.External,
-          error
-        )
-      );
+      // dont throw an actual error, just reject to be able to restart the payment process
+      if (isEmpty(error)) {
+        reject();
+      } else {
+        reject(
+          new DetailedError(
+            error.description,
+            error.code,
+            ErrorOrigin.External,
+            error
+          )
+        );
+      }
     });
     // Open Razorpay modal
     rzp.open();
