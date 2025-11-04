@@ -16,7 +16,7 @@ import { defaultsDeep, isNil, pick, set } from "lodash-es";
 
 // --- types
 import {
-  BraintreeAuthResponse,
+  BraintreeResponse,
   BraintreeTypes,
   type BraintreeContext
 } from "./types";
@@ -39,7 +39,7 @@ async function load(context: BraintreeContext, _event: AnyEventObject) {
   return sharedServices.load(context, _event).then(async config => {
     const { get: getRequest, useUrl } = useQuery();
 
-    const authorization = await getRequest<BraintreeAuthResponse>({
+    const authorization = await getRequest<BraintreeResponse>({
       url: useUrl(`gateway/frontend/${gateway.id}`, {
         currency: currency.code
       }),
