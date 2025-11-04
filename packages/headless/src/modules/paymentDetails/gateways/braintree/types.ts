@@ -7,6 +7,20 @@ import type { GatewayContext } from "../types";
 
 // -----------------------------------------------------------------------------
 
+export enum BraintreeTypes {
+  CARD = "CreditCard",
+  PAYPAL = "PayPalAccount"
+}
+
+export type BraintreeResponse = {
+  cancel_url: string;
+  gateway_specific: {
+    clientToken: string;
+  };
+  notify_url: string;
+  return_url: string;
+};
+
 export type BraintreeContext = GatewayContext<{
   sdk?: {
     authorization: string;
@@ -16,17 +30,3 @@ export type BraintreeContext = GatewayContext<{
   paymentUses3DS?: boolean;
   paymentMethodPayPal?: boolean;
 }>;
-
-export enum BraintreeTypes {
-  CARD = "CreditCard",
-  PAYPAL = "PayPalAccount"
-}
-
-export type BraintreeAuthResponse = {
-  cancel_url: string;
-  gateway_specific: {
-    clientToken: string;
-  };
-  notify_url: string;
-  return_url: string;
-};
