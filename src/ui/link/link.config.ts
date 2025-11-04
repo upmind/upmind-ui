@@ -66,7 +66,7 @@ const itemsVariants = cva("size-lh flex items-center justify-center", {
 });
 
 export const rootVariants = cva(
-  `ring-offset-bg-canvas button-radius font-medium underline underline-offset-4 transition-all duration-200 focus-visible:ring-offset-4`,
+  `ring-offset-bg-canvas button-radius underline underline-offset-4 transition-all duration-200 focus-visible:ring-offset-4`,
   {
     variants: {
       size: variants.size,
