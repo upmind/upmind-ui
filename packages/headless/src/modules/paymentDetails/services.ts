@@ -227,6 +227,10 @@ async function parse(
 ) {
   // ---
   let paymentDetail = undefined;
+  const supportedStoredPaymentMethods = filter(
+    storedPaymentMethods,
+    method => method?.meta.isSupported
+  );
 
   // ---
   // Create a safe model to work with
@@ -262,11 +266,11 @@ async function parse(
 
   // 2) finally If we don't have any selected gateways, then we should use the first available
   if (!safeModel?.gateway_id) {
-    if (isEmpty(storedPaymentMethods)) {
+    if (isEmpty(supportedStoredPaymentMethods)) {
       safeModel.gateway_id = first(gateways)?.gateway_id;
       safeModel.payment_details_id = undefined; // we can't use a stored payment method if we're using a gateway
     } else {
-      safeModel.payment_details_id ??= first(storedPaymentMethods)?.id;
+      safeModel.payment_details_id ??= first(supportedStoredPaymentMethods)?.id;
     }
   }
 

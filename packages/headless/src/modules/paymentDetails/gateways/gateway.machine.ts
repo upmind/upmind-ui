@@ -16,7 +16,7 @@ import {
   mapToHeadlessError,
   responseCodes
 } from "../../../utils";
-import { isArray, isNil } from "lodash-es";
+import { isArray, isEmpty, isNil } from "lodash-es";
 
 // --- types
 import type { AnyEventObject } from "xstate";
@@ -149,14 +149,17 @@ export default <T = unknown>(name: string) =>
                       target: "#processed",
                       actions: ["setPaymentDetails", "providePaymentDetails"]
                     },
-                    onError: {
-                      target: "#error",
-                      actions: [
-                        "setError",
-                        "setFeedbackError",
-                        "cancelPaymentDetails"
-                      ]
-                    }
+                    onError: [
+                      {
+                        target: "#checking",
+                        actions: ["cancelPaymentDetails"],
+                        cond: "noErrorProvided"
+                      },
+                      {
+                        target: "#error",
+                        actions: ["setError", "cancelPaymentDetails"]
+                      }
+                    ]
                   }
                 },
                 adding: {
@@ -368,6 +371,10 @@ export default <T = unknown>(name: string) =>
         ) => {
           return renderless || !isNil(sdk);
         },
+
+        noErrorProvided: (_context: GatewayContext, { data }: AnyEventObject) =>
+          isEmpty(data),
+
         isAdding: ({ ctx }: GatewayContext, _event: AnyEventObject) => {
           return ctx !== undefined && ctx == GatewayCtx.ADD;
         },
