@@ -1,7 +1,7 @@
 import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
-export const containerVariant = cva("mx-auto w-full", {
+export const containerVariant = cva("mx-auto w-full pb-12", {
   variants: {
     width: {
       xs: "max-w-xs",
@@ -55,15 +55,39 @@ export const innerVariant = cva("mx-auto max-h-[75vh] w-full", {
 
 export const overlayVariant = cva("bg-overlay");
 
+export const footerContainerVariant = cva(
+  "mx-auto flex w-full items-center justify-between py-6",
+  {
+    variants: {
+      width: {
+        xs: "max-w-xs",
+        sm: "max-w-sm",
+        md: "max-w-md",
+        lg: "max-w-lg",
+        xl: "max-w-xl",
+        "2xl": "max-w-2xl",
+        "3xl": "max-w-3xl",
+        "4xl": "max-w-4xl",
+        app: "max-w-app",
+        full: "max-w-none"
+      }
+    },
+    defaultVariants: {
+      width: "xs"
+    }
+  }
+);
+
 export default {
   drawer: {
     overlay: overlayVariant,
     container: containerVariant,
-    content: cva(
-      "bg-surface w-full rounded-t-lg border-none px-6 py-12 text-base"
-    ),
+    content: cva("bg-surface w-full rounded-t-lg border-none pt-24 text-base"),
     inner: innerVariant,
     header: "",
-    footer: ""
+    footer: {
+      root: cva("border-surface border-t pt-0"),
+      container: footerContainerVariant
+    }
   }
 };
