@@ -65,6 +65,11 @@ export const Logins = {
     username: "nathan.robinson+hostingcustomer2@upmind.com",
     password: "HostingCustomer2"
   },
+  UiTesting: {
+    grant_type: "password",
+    username: "nathan.robinson+uitemplates@upmind.com",
+    password: "UiPassword1"
+  },
 
   /* Locale Testing */
 
