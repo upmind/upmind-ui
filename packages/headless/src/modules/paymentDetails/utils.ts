@@ -8,6 +8,7 @@ import gatewayMachine from "./gateways/gateway.machine";
 import braintreeConfig from "./gateways/braintree";
 import openPayConfig from "./gateways/openPay";
 import stripeConfig from "./gateways/stripe";
+import razorpayConfig from "./gateways/razorpay";
 
 // --- utils
 
@@ -19,6 +20,7 @@ import { StripeContext } from "./gateways/stripe/types";
 import { BraintreeContext } from "./gateways/braintree/types";
 import { OpenPayContext } from "./gateways/openPay/types";
 import { includes } from "lodash-es";
+import { RazorpayContext } from "./gateways/razorpay/types";
 
 // -----------------------------------------------------------------------------
 
@@ -100,6 +102,24 @@ export function spawnGateway({
         { name: gateway.id, sync: true }
       );
 
+    case GatewayProviderCodes.RAZOR_PAY_CHECKOUT:
+      return spawn(
+        gatewayMachine<RazorpayContext>(gateway.gateway_provider.code)
+          .withContext({
+            address,
+            amount,
+            clientId,
+            ctx: GatewayCtx.PAY,
+            currency,
+            gateway,
+            orderId,
+            supported: true,
+            renderless: true
+          })
+          .withConfig(razorpayConfig),
+        { name: gateway.id, sync: true }
+      );
+
     // SUPPORTED GENERIC OFFSITE GATEWAYS
     case GatewayProviderCodes.BANK_TRANSFER:
     case GatewayProviderCodes.FLUTTERWAVE:
@@ -146,7 +166,6 @@ export function spawnGateway({
     case GatewayProviderCodes.PAY_U:
     case GatewayProviderCodes.PESA_PAL:
     case GatewayProviderCodes.RAZOR_PAY:
-    case GatewayProviderCodes.RAZOR_PAY_CHECKOUT:
     case GatewayProviderCodes.SAGE_PAY_DIRECT:
     case GatewayProviderCodes.WORLD_PAY_JSON:
       // --- Deprecation warnings

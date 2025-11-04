@@ -1,6 +1,14 @@
 <template>
   <Loading :active="!meta.isAvailable">
     <div ref="form" :class="styles.checkout.gateway">
+      <Alert
+        v-if="meta.hasUnsupportedPaymentMethods"
+        icon="info-circle"
+        variant="minimal"
+        :title="t('cart.stored_payment_methods_limited_title')"
+        :description="t('cart.stored_payment_methods_limited_desc')"
+      />
+
       <Form
         key="form"
         :additional-errors="validationErrors"
@@ -14,6 +22,7 @@
       />
 
       <!-- Errors and Feedback -->
+
       <Alert
         v-if="meta.hasErrors"
         color="warning"
