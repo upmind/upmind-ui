@@ -1,15 +1,28 @@
 import { cva } from "class-variance-authority";
 
-export const tabsListVariants = cva(
-  "border-surface relative inline-flex w-full items-center justify-start gap-6 overflow-x-auto overflow-y-hidden rounded-none px-0 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+export const tabsRootVariants = cva(
+  "relative flex overflow-x-auto overflow-y-hidden pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
   {
     variants: {
       hasBorder: {
-        true: "mb-6 border-b",
+        true: "border-surface mb-6 border-b",
         false: ""
+      },
+      align: {
+        left: "justify-start",
+        center: "justify-center",
+        between: "justify-between",
+        right: "justify-end"
       }
+    },
+    defaultVariants: {
+      align: "left"
     }
   }
+);
+
+export const tabsListVariants = cva(
+  "inline-flex items-center justify-start gap-6 rounded-none p-0"
 );
 
 export const tabsTriggerVariants = cva(
@@ -22,6 +35,7 @@ export const tabsIndicatorVariants = cva(
 
 export default {
   tabs: {
+    root: tabsRootVariants,
     list: tabsListVariants,
     trigger: tabsTriggerVariants,
     indicator: tabsIndicatorVariants
