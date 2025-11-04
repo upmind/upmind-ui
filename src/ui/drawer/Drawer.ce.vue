@@ -17,7 +17,6 @@
           description ||
           $slots.description
         "
-        :class="props.classHeader"
       >
         <div :class="cn(styles.drawer.container, props.classHeader)">
           <slot name="header">
