@@ -65,12 +65,15 @@
                   {{ item.secondaryDescription }}
                 </p>
               </span>
-              <span v-if="item.action" class="leading-none">
+              <span
+                v-if="item.action"
+                :class="styles.checkboxCards.content.action"
+              >
                 <Link
                   color="muted"
                   :label="item.action"
                   size="sm"
-                  @click="onAction"
+                  @click.stop="onAction"
                 />
               </span>
             </div>
@@ -149,6 +152,7 @@ const styles = useStyles(
       secondaryLabel: string;
       description: string;
       secondaryDescription: string;
+      action: string;
     };
   };
 }>;
