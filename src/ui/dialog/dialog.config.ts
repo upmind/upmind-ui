@@ -27,7 +27,7 @@ export const variants = {
 };
 
 export const contentVariant = cva(
-  "bg-surface border-surface mx-auto grid max-h-[90dvh] w-full border p-0 text-base shadow-none focus:outline-hidden",
+  "bg-surface border-surface card-radius mx-auto grid max-h-[90dvh] w-full border p-0 text-base shadow-none focus:outline-hidden",
   {
     variants,
     defaultVariants: {
@@ -38,23 +38,14 @@ export const contentVariant = cva(
   }
 );
 
-export const containerVariant = cva("", {
-  variants: {
-    fit: {
-      cover: "",
-      contain: "grid gap-4 overflow-y-auto px-1 py-4"
-    }
-  },
-  defaultVariants: {
-    fit: "contain"
-  }
-});
-
 export const overlayVariant = cva("bg-overlay");
 
 export default {
   dialog: {
     content: contentVariant,
-    overlay: overlayVariant
+    container: cva("flex flex-col justify-start"),
+    overlay: overlayVariant,
+    header: cva(""),
+    footer: cva("")
   }
 };
