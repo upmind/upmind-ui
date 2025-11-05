@@ -5,6 +5,7 @@
       :model-value="control.data"
       :items="items"
       :placeholder="appliedOptions?.placeholder"
+      :width="appliedOptions?.width"
       @update:modelValue="onInput"
     />
   </FormField>
