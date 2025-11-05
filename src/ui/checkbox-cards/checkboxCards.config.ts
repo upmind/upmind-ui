@@ -51,7 +51,8 @@ export default {
       label: cva("text-md-tight text-display font-medium"),
       secondaryLabel: cva("text-md-tight text-display font-medium"),
       description: cva("text-sm-tight text-base font-normal"),
-      secondaryDescription: cva("text-muted text-sm-tight font-normal")
+      secondaryDescription: cva("text-muted text-sm-tight font-normal"),
+      action: cva("leading-none font-normal")
     }
   }
 };
