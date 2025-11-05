@@ -1,12 +1,15 @@
 <template>
   <FormField v-bind="formFieldProps">
     <Input
-      type="text"
+      type="number"
       inputmode="decimal"
       :placeholder="appliedOptions?.placeholder"
       :autocomplete="appliedOptions?.autocomplete"
       :disabled="appliedOptions?.disabled"
-      :model-value="displayValue"
+      :min="minimum"
+      :max="maximum"
+      :step="step"
+      :model-value="control.data"
       @update:modelValue="onInput"
     />
   </FormField>
@@ -23,6 +26,7 @@ import { Input } from "../../../input";
 
 // --- utils
 import { useUpmindUIRenderer } from "../utils";
+import { isNumber, get } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -39,37 +43,46 @@ const {
   onInput: baseOnInput
 } = useUpmindUIRenderer(useJsonFormsControl(props));
 
-const displayValue: ComputedRef<string> = computed(() => {
-  const value = control.value.data;
-  if (value === null || value === undefined || value === "") return "";
-  return String(value);
+const step: ComputedRef<number> = computed(() => {
+  const defaultStep = 1;
+  return get(appliedOptions.value, "step", defaultStep);
+});
+
+const minimum: ComputedRef<number | undefined> = computed(() => {
+  const applied = appliedOptions.value?.min;
+  if (isNumber(applied)) return applied;
+
+  const minimum = control.value?.schema?.minimum;
+  if (isNumber(minimum)) return minimum;
+
+  const exclusiveMinimum = control.value?.schema?.exclusiveMinimum;
+  if (isNumber(exclusiveMinimum)) return exclusiveMinimum + step.value;
+
+  return undefined;
+});
+
+const maximum: ComputedRef<number | undefined> = computed(() => {
+  const applied = appliedOptions.value?.max;
+  if (isNumber(applied)) return applied;
+
+  const maximum = control.value?.schema?.maximum;
+  if (isNumber(maximum)) return maximum;
+
+  const exclusiveMaximum = control.value?.schema?.exclusiveMaximum;
+  if (isNumber(exclusiveMaximum)) return exclusiveMaximum - step.value;
+
+  return undefined;
 });
 
 const onInput = (value: string | number) => {
-  // Convert to string for processing
-  const strValue = String(value);
+  const numValue = typeof value === "string" ? parseFloat(value) : value;
 
-  // Allow empty string
-  if (strValue === "") {
+  if (isNaN(numValue)) {
     baseOnInput("");
     return;
   }
 
-  // Remove any non-numeric characters except decimal point and minus sign
-  const cleaned = strValue.replace(/[^\d.-]/g, "");
-
-  // Validate numeric format
-  // Allow formats like: 123, 123.45, .45, -123, -123.45, -.45
-  if (cleaned === "" || cleaned === "-" || cleaned === ".") {
-    // Partial input - allow it but don't commit
-    return;
-  }
-
-  // Check if it's a valid number
-  const numValue = parseFloat(cleaned);
-  if (!isNaN(numValue)) {
-    baseOnInput(numValue);
-  }
+  baseOnInput(numValue);
 };
 </script>
 
