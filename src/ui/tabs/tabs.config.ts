@@ -5,7 +5,7 @@ export const tabsRootVariants = cva(
   {
     variants: {
       hasBorder: {
-        true: "border-surface mb-6 border-b",
+        true: "border-surface mb-9 border-b",
         false: ""
       },
       align: {
