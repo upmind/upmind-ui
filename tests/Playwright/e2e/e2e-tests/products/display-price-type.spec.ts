@@ -15,6 +15,9 @@ test.describe("Display Price Types", () => {
       });
       await page.reload();
       await page.waitForLoadState("load");
+      await expect(
+        page.getByTestId("product-card-price-display").first()
+      ).toBeVisible();
       await expect(page.getByTestId("widget-grid")).toHaveScreenshot(
         "catalogue-lowest-billing-cycle"
       );
@@ -31,6 +34,9 @@ test.describe("Display Price Types", () => {
       });
       await page.reload();
       await page.waitForLoadState("load");
+      await expect(
+        page.getByTestId("product-card-price-display").first()
+      ).toBeVisible();
       await expect(page.getByTestId("widget-grid")).toHaveScreenshot(
         "catalogue-highest-billing-cycle-divided-by-months"
       );
@@ -44,6 +50,9 @@ test.describe("Display Price Types", () => {
       });
       await page.reload();
       await page.waitForLoadState("load");
+      await expect(
+        page.getByTestId("product-card-price-display").first()
+      ).toBeVisible();
       await expect(page.getByTestId("widget-grid")).toHaveScreenshot(
         "catalogue-lowest-monthly-price"
       );
@@ -58,7 +67,8 @@ test.describe("Display Price Types", () => {
         displayPriceType: "min"
       });
       await page.reload();
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("load");
+      await expect(page.getByTestId("radio-card-item").first()).toBeVisible();
       await expect(page).toHaveScreenshot("prodconfig-lowest-billing-cycle");
     });
     test("Price Type = Highest Billing Cycle divided by Months", async ({
@@ -72,7 +82,8 @@ test.describe("Display Price Types", () => {
         displayPriceType: "abs_min"
       });
       await page.reload();
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("load");
+      await expect(page.getByTestId("radio-card-item").first()).toBeVisible();
       await expect(page).toHaveScreenshot(
         "prodconfig-highest-billing-cycle-divided-by-months"
       );
@@ -85,7 +96,8 @@ test.describe("Display Price Types", () => {
         displayPriceType: "lowest_monthly_price"
       });
       await page.reload();
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("load");
+      await expect(page.getByTestId("radio-card-item").first()).toBeVisible();
       await expect(page).toHaveScreenshot("prodconfig-lowest-monthly-price");
     });
   });
