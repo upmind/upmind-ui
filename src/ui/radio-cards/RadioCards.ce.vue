@@ -39,6 +39,7 @@
         </template>
       </RadioCardItem>
     </template>
+    <slot name="additional-item" :size="styles.radioCards.item.size" />
   </component>
 </template>
 
@@ -84,7 +85,7 @@ const meta = computed(() => ({
 }));
 
 const styles = useStyles(
-  "radioCards",
+  ["radioCards", "radioCards.item"],
   meta,
   config,
   props.uiConfig ?? {}
@@ -92,7 +93,10 @@ const styles = useStyles(
   radioCards: {
     trigger: string;
     root: string;
-    item: string;
+    item: {
+      root: string;
+      size: string;
+    };
     radio: string;
     input: string;
     label: string;

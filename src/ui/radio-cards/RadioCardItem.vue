@@ -1,7 +1,7 @@
 <template>
   <Label
     :for="`${props.name}-${index}`"
-    :class="cn(styles.radioCards.item)"
+    :class="cn(styles.radioCards.item.root, styles.radioCards.item.size)"
     :data-state="isSelected ? 'checked' : ''"
     :data-hover="props.dataHover"
     :data-focus="props.dataFocus"
@@ -115,7 +115,7 @@ const meta = computed(() => ({
 }));
 
 const styles = useStyles(
-  ["radioCards", "radioCards.content"],
+  ["radioCards", "radioCards.item", "radioCards.content"],
   meta,
   config,
   props.uiConfig ?? {}
@@ -123,7 +123,10 @@ const styles = useStyles(
   radioCards: {
     trigger: string;
     root: string;
-    item: string;
+    item: {
+      root: string;
+      size: string;
+    };
     radio: string;
     input: string;
     content: {
