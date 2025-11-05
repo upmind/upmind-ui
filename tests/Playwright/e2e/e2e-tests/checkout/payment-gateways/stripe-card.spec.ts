@@ -193,4 +193,38 @@ test.describe("Checkout with Stripe", () => {
       });
     }
   });
+  test.describe("Stripe Errors", async () => {
+    test("Mock Stripe Card Decline", async ({ page, context }) => {
+      await page.goto(URLs.basket);
+      await page.waitForLoadState("networkidle");
+      token = await getSessionToken(context, "guest");
+      orderId = await getCurrentOrderId(token);
+      await addProductToOrder(
+        `${token}`,
+        `${orderId}`,
+        "3de78642-de53-9714-76df-21208469530d",
+        1,
+        24,
+        [],
+        [],
+        {
+          domain: `${fakerEN_GB.string.alphanumeric({
+            length: { min: 3, max: 15 }
+          })}.com`
+        },
+        []
+      );
+      await page.goto(URLs.checkout);
+      await page.waitForLoadState("networkidle");
+      await registration.inputRegistration();
+      await checkout.selectPaymentMethod("Stripe");
+      await checkout.mockStripeCardDecline();
+      await checkout.inputStripeDetails("4242424242424242", "12/34", "123");
+      await checkout.clickPlaceOrderButton();
+      await page.waitForLoadState("load");
+      await expect(page.getByRole("alert")).toContainText(
+        "Your card was declined. Your request was in live mode, but used a known test card."
+      );
+    });
+  });
 });
