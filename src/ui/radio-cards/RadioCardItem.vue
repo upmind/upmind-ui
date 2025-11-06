@@ -65,10 +65,10 @@
         </span>
         <span v-if="props.action" class="leading-none">
           <Link
+            v-bind="item.action"
             color="muted"
-            :label="props.action"
             size="sm"
-            @click="onAction"
+            @click.stop="doAction(item.action, $event)"
           />
         </span>
       </div>
@@ -93,7 +93,8 @@ import { RadioGroupItem } from "../radio-group";
 
 // --- types
 import type { ComputedRef } from "vue";
-import type { RadioCardsItemProps } from "./types";
+import type { RadioCardsItemActionProps, RadioCardsItemProps } from "./types";
+import { isFunction, isString } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -103,7 +104,14 @@ const props = withDefaults(defineProps<RadioCardsItemProps>(), {
   isList: false
 });
 
-const emits = defineEmits(["focus", "action"]);
+const emits = defineEmits<{
+  "update:modelValue": [string[]];
+  focus: [FocusEvent];
+  reject: [Event];
+  resolve: [Event];
+  click: [Event];
+  action: [{ name: string; event: Event }];
+}>();
 
 const isSelected = computed(() => {
   return props.modelValue === props.value;
@@ -138,10 +146,6 @@ const styles = useStyles(
   };
 }>;
 
-const onAction = () => {
-  emits("action", props.value);
-};
-
 const onBlur = (e: FocusEvent) => {
   if (props.disabled) {
     watchOnce(
@@ -155,4 +159,31 @@ const onBlur = (e: FocusEvent) => {
     );
   }
 };
+function doAction(item: RadioCardsItemActionProps, $event: Event) {
+  $event.preventDefault(); // prevent default form actions as we are handling it ourselves
+
+  if (isFunction(item.handler)) {
+    item.handler($event);
+    return;
+  }
+
+  if (isString(item.handler)) {
+    emits("action", {
+      name: item.handler,
+      event: $event
+    });
+    return;
+  }
+
+  // fallback for submit/reset
+  if (item.type === "submit") {
+    emits("resolve", $event);
+    return;
+  } else if (item.type === "reset") {
+    emits("reject", $event);
+    return;
+  }
+
+  emits("click", $event);
+}
 </script>

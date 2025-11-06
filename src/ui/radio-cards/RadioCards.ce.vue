@@ -10,6 +10,7 @@
   >
     <template v-for="(option, index) in items" :key="option.id || index">
       <RadioCardItem
+        v-bind="forwarded"
         :item="option.item"
         :index="option.index || overrideIndex || index"
         :name="props.name"
@@ -27,12 +28,11 @@
         :value="option.value"
         :class="props.radioClass"
         :list="props.list"
-        data-testid="radio-card-item"
         :uiConfig="props.uiConfig"
         :data-hover="props.dataHover"
         :data-focus="props.dataFocus"
+        data-testid="radio-card-item"
         @keydown.enter="onChange(option.value)"
-        @action="onAction"
       >
         <template #item="slotProps">
           <slot name="item" v-bind="slotProps" />
@@ -47,6 +47,7 @@
 // ---external
 import { computed } from "vue";
 import { useVModel } from "@vueuse/core";
+import { useForwardPropsEmits } from "../../utils";
 
 // --- internal
 import { cn, useStyles } from "../../utils";
@@ -73,7 +74,17 @@ const props = withDefaults(defineProps<RadioCardsProps>(), {
   radioClass: ""
 });
 
-const emits = defineEmits(["update:modelValue", "action"]);
+const emits = defineEmits<{
+  "update:modelValue": [string[]];
+  focus: [FocusEvent];
+  reject: [Event];
+  resolve: [Event];
+  click: [Event];
+  action: [{ name: string; event: Event }];
+}>();
+
+const forwarded = useForwardPropsEmits({}, emits);
+
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
   defaultValue: props.defaultValue

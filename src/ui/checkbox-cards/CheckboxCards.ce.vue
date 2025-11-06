@@ -70,10 +70,10 @@
                 :class="styles.checkboxCards.content.action"
               >
                 <Link
+                  v-bind="item.action"
                   color="muted"
-                  :label="item.action"
                   size="sm"
-                  @click.stop="onAction"
+                  @click.stop="doAction(item.action, $event)"
                 />
               </span>
             </div>
@@ -89,7 +89,7 @@
 import { computed } from "vue";
 import { useVModel } from "@vueuse/core";
 import { ToggleGroupRoot } from "radix-vue";
-import { includes } from "lodash-es";
+import { includes, isFunction, isString } from "lodash-es";
 import { kebabCase } from "lodash-es";
 
 // --- internal
@@ -103,7 +103,7 @@ import { Link } from "../link";
 import { Badge } from "../badge";
 
 // --- types
-import type { CheckboxCardsProps } from "./types";
+import type { CheckboxCardsItemActionProps, CheckboxCardsProps } from "./types";
 import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
@@ -113,9 +113,11 @@ const props = withDefaults(defineProps<CheckboxCardsProps>(), {
 });
 
 const emits = defineEmits<{
-  /** Update the model value */
-  (e: "update:modelValue", payload: string[]): void;
-  (e: "action", payload: any): void;
+  "update:modelValue": [string[]];
+  reject: [Event];
+  resolve: [Event];
+  click: [Event];
+  action: [{ name: string; event: Event }];
 }>();
 
 defineSlots<{
@@ -157,7 +159,31 @@ const styles = useStyles(
   };
 }>;
 
-const onAction = (value: any) => {
-  emits("action", value);
-};
+function doAction(item: CheckboxCardsItemActionProps, $event: Event) {
+  $event.preventDefault(); // prevent default form actions as we are handling it ourselves
+
+  if (isFunction(item.handler)) {
+    item.handler($event);
+    return;
+  }
+
+  if (isString(item.handler)) {
+    emits("action", {
+      name: item.handler,
+      event: $event
+    });
+    return;
+  }
+
+  // fallback for submit/reset
+  if (item.type === "submit") {
+    emits("resolve", $event);
+    return;
+  } else if (item.type === "reset") {
+    emits("reject", $event);
+    return;
+  }
+
+  emits("click", $event);
+}
 </script>

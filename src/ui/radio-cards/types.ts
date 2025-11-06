@@ -2,12 +2,18 @@
 import { type HTMLAttributes } from "vue";
 
 // --- types
-import type { ButtonProps } from "../button";
 import type { RadioGroupRootProps, RadioGroupItemProps } from "radix-vue";
 import type { CxOptions, VariantProps } from "class-variance-authority";
-import type { itemVariants } from "./radioCards.config";
+import type { itemSizeVariants } from "./radioCards.config";
 import type { BadgeProps } from "../badge";
-type RadioCardsItemVariantProps = VariantProps<typeof itemVariants>;
+import type { LinkProps } from "../link";
+
+type RadioCardsItemSizeVariants = VariantProps<typeof itemSizeVariants>;
+
+export type RadioCardsItemActionProps = LinkProps & {
+  handler?: Function | string;
+  type?: HTMLButtonElement["type"];
+};
 
 export interface RadioCardsItemProps extends RadioGroupItemProps {
   item: any;
@@ -20,7 +26,8 @@ export interface RadioCardsItemProps extends RadioGroupItemProps {
   secondaryDescription?: string;
   badge?: BadgeProps;
   secondaryBadge?: BadgeProps;
-  action?: string;
+  action?: RadioCardsItemActionProps;
+
   // ---
   required?: boolean;
   disabled?: boolean;
@@ -28,7 +35,7 @@ export interface RadioCardsItemProps extends RadioGroupItemProps {
   selected?: boolean;
   value: string;
   // ---
-  width?: RadioCardsItemVariantProps["width"] | string;
+  width?: RadioCardsItemSizeVariants["width"] | string;
   list?: boolean;
   uiConfig?: { radioCards: CxOptions };
   dataHover?: boolean;
@@ -46,7 +53,7 @@ export interface RadioCardsProps extends RadioGroupRootProps {
   items: RadioCardsItemProps[];
   loading?: boolean;
   // ---
-  width?: RadioCardsItemVariantProps["width"] | string;
+  width?: RadioCardsItemSizeVariants["width"] | string;
   list?: boolean;
   // ---
   uiConfig?: { radioCards: CxOptions };
