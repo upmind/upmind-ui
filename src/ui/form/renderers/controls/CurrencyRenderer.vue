@@ -11,7 +11,19 @@
       :step="step"
       :model-value="control.data"
       @update:modelValue="onInput"
-    />
+      :uiConfig="
+        {
+          input: {
+            container: [styles.form.input.container],
+            field: [styles.form.input.field]
+          }
+        } as any
+      "
+    >
+      <template v-if="currency" #append>
+        <span :class="styles.form.input.currency">{{ currency }}</span>
+      </template>
+    </Input>
   </FormField>
 </template>
 
@@ -19,6 +31,10 @@
 // --- external
 import { computed } from "vue";
 import { useJsonFormsControl } from "@jsonforms/vue";
+
+// --- internal
+import config from "../../form.config";
+import { useStyles } from "../../../../utils";
 
 // --- components
 import FormField from "../../FormField.vue";
@@ -42,6 +58,16 @@ const {
   formFieldProps,
   onInput: baseOnInput
 } = useUpmindUIRenderer(useJsonFormsControl(props));
+
+const styles = useStyles(["form.input"], {}, config) as ComputedRef<{
+  form: {
+    input: { container: string; field: string; currency: string };
+  };
+}>;
+
+const currency: ComputedRef<string | undefined> = computed(() => {
+  return get(appliedOptions.value, "currency");
+});
 
 const step: ComputedRef<number> = computed(() => {
   const defaultStep = 1;
