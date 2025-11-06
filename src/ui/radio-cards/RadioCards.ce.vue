@@ -27,7 +27,7 @@
         :value="option.value"
         :class="props.radioClass"
         :list="props.list"
-        data-testid="radio-card-item"
+        :data-testid="`radio-card-${kebabCase(option.label) || index}`"
         :uiConfig="props.uiConfig"
         :data-hover="props.dataHover"
         :data-focus="props.dataFocus"
@@ -58,6 +58,7 @@ import RadioCardItem from "./RadioCardItem.vue";
 // --- types
 import type { RadioCardsProps } from "./types";
 import type { ComputedRef } from "vue";
+import { kebabCase } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<RadioCardsProps>(), {

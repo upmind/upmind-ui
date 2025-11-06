@@ -9,6 +9,7 @@ import {
 } from "radix-vue";
 import { Check } from "lucide-vue-next";
 import { cn } from "../../utils";
+import { kebabCase } from "lodash-es";
 
 const props = defineProps<
   SelectItemProps & { class?: HTMLAttributes["class"] }
@@ -32,7 +33,7 @@ const forwardedProps = useForwardProps(delegatedProps);
         props.class
       )
     "
-    :data-testid="`select-item-${props.value}`"
+    :data-testid="`select-item-${kebabCase(props.value)}`"
   >
     <slot name="indicator">
       <SelectItemIndicator>
