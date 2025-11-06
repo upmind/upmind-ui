@@ -14,6 +14,7 @@ type CheckboxLabelVariantProps = VariantProps<typeof checkboxLabelVariants>;
 export type CheckboxCardsItemActionProps = LinkProps & {
   handler?: Function | string;
   type?: HTMLButtonElement["type"];
+  visible?: boolean;
 };
 
 export interface CheckboxCardsItemProps extends ToggleGroupItemProps {

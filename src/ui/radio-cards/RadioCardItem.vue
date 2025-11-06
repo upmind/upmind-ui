@@ -65,6 +65,7 @@
         </span>
         <span v-if="props.action" class="leading-none">
           <Link
+            v-show="isNil(item.action.visible) || item.action.visible"
             v-bind="item.action"
             color="muted"
             size="sm"
@@ -94,7 +95,7 @@ import { RadioGroupItem } from "../radio-group";
 // --- types
 import type { ComputedRef } from "vue";
 import type { RadioCardsItemActionProps, RadioCardsItemProps } from "./types";
-import { isFunction, isString } from "lodash-es";
+import { isFunction, isString, isNil } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 

@@ -13,6 +13,7 @@ type RadioCardsItemSizeVariants = VariantProps<typeof itemSizeVariants>;
 export type RadioCardsItemActionProps = LinkProps & {
   handler?: Function | string;
   type?: HTMLButtonElement["type"];
+  visible?: boolean;
 };
 
 export interface RadioCardsItemProps extends RadioGroupItemProps {

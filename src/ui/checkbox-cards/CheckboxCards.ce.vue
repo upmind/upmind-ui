@@ -70,6 +70,7 @@
                 :class="styles.checkboxCards.content.action"
               >
                 <Link
+                  v-show="isNil(item.action.visible) || item.action.visible"
                   v-bind="item.action"
                   color="muted"
                   size="sm"
@@ -89,7 +90,7 @@
 import { computed } from "vue";
 import { useVModel } from "@vueuse/core";
 import { ToggleGroupRoot } from "radix-vue";
-import { includes, isFunction, isString } from "lodash-es";
+import { includes, isFunction, isString, isNil } from "lodash-es";
 import { kebabCase } from "lodash-es";
 
 // --- internal
