@@ -25,59 +25,61 @@
       >
         <Label
           :for="`${item.id}-${index}`"
-          :class="cn(styles.checkboxCards.label)"
+          :class="styles.checkboxCards.label"
           data-testid="checkbox-label"
         >
           <slot name="item" v-bind="{ item, index }">
-            <div class="flex w-full items-start gap-4">
-              <span class="flex flex-1 flex-col">
-                <header
-                  v-if="item.label || item.secondaryLabel"
-                  class="flex items-center justify-between"
+            <article :class="styles.checkboxCards.content.root">
+              <header class="flex w-full items-start justify-between gap-4">
+                <div class="flex flex-1 items-center gap-2">
+                  <p :class="styles.checkboxCards.content.label">
+                    {{ item.label || item.name }}
+                  </p>
+                  <Badge v-if="item.badge" v-bind="item.badge" size="sm" />
+                </div>
+
+                <div
+                  v-if="item.secondaryLabel || item.secondaryBadge"
+                  class="flex items-center gap-2"
                 >
-                  <span class="flex gap-2">
-                    <h5 :class="styles.checkboxCards.content.label">
-                      {{ item.label || item.name }}
-                    </h5>
-                    <Badge v-if="item.badge" v-bind="item.badge" size="sm" />
-                  </span>
-                  <span class="flex gap-2">
-                    <Badge
-                      v-if="item.secondaryBadge"
-                      v-bind="item.secondaryBadge"
-                      size="sm"
-                    />
-                    <h5 :class="styles.checkboxCards.content.secondaryLabel">
-                      {{ item.secondaryLabel }}
-                    </h5>
-                  </span>
-                </header>
-                <p
-                  v-if="item.description"
-                  :class="styles.checkboxCards.content.description"
-                >
-                  {{ item.description }}
-                </p>
-                <p
-                  v-if="item.secondaryDescription"
-                  :class="styles.checkboxCards.content.secondaryDescription"
-                >
-                  {{ item.secondaryDescription }}
-                </p>
-              </span>
-              <span
-                v-if="item.action"
-                :class="styles.checkboxCards.content.action"
+                  <Badge
+                    v-if="item.secondaryBadge"
+                    v-bind="item.secondaryBadge"
+                    size="sm"
+                  />
+                  <p
+                    v-if="item.secondaryLabel"
+                    :class="styles.checkboxCards.content.secondaryLabel"
+                  >
+                    {{ item.secondaryLabel }}
+                  </p>
+                </div>
+
+                <div v-if="item.action" :class="styles.checkboxCards.content.action">
+                  <Link
+                    v-show="isNil(item.action.visible) || item.action.visible"
+                    v-bind="item.action"
+                    color="muted"
+                    size="sm"
+                    @click.stop="doAction(item.action, $event)"
+                  />
+                </div>
+              </header>
+
+              <p
+                v-if="item.description"
+                :class="styles.checkboxCards.content.description"
               >
-                <Link
-                  v-show="isNil(item.action.visible) || item.action.visible"
-                  v-bind="item.action"
-                  color="muted"
-                  size="sm"
-                  @click.stop="doAction(item.action, $event)"
-                />
-              </span>
-            </div>
+                {{ item.description }}
+              </p>
+
+              <p
+                v-if="item.secondaryDescription"
+                :class="styles.checkboxCards.content.secondaryDescription"
+              >
+                {{ item.secondaryDescription }}
+              </p>
+            </article>
           </slot>
         </Label>
       </CheckboxCardItem>
@@ -151,6 +153,7 @@ const styles = useStyles(
     input: string;
     label: string;
     content: {
+      root: string;
       label: string;
       secondaryLabel: string;
       description: string;

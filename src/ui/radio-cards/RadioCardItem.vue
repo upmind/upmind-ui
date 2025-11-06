@@ -65,11 +65,11 @@
         </span>
         <span v-if="props.action" class="leading-none">
           <Link
-            v-show="isNil(item.action.visible) || item.action.visible"
-            v-bind="item.action"
+            v-show="isNil(props.action?.visible) || props.action?.visible"
+            v-bind="props.action"
             color="muted"
             size="sm"
-            @click.stop="doAction(item.action, $event)"
+            @click.stop="doAction(props.action, $event)"
           />
         </span>
       </div>

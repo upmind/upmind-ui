@@ -17,7 +17,7 @@ export type RadioCardsItemActionProps = LinkProps & {
 };
 
 export interface RadioCardsItemProps extends RadioGroupItemProps {
-  item: any;
+  item?: any;
   index: number;
   name?: string;
   // ---
