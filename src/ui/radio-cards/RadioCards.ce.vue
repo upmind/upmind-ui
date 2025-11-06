@@ -75,7 +75,7 @@ const props = withDefaults(defineProps<RadioCardsProps>(), {
 });
 
 const emits = defineEmits<{
-  "update:modelValue": [string[]];
+  "update:modelValue": [string | number];
   focus: [FocusEvent];
   reject: [Event];
   resolve: [Event];
