@@ -1,5 +1,6 @@
 <template>
-  <component :is="templateVariant" />
+  <!-- <component :is="templateVariant" /> -->
+  <RouterView />
 </template>
 
 <script lang="ts" setup>
@@ -45,6 +46,8 @@ const layout = computed(() => {
 const templateVariant = computed(
   () => supportedTemplates[layout.value] ?? LoginFull
 );
+
+console.log("Login layout template:", templateVariant);
 
 onUnmounted(() => {
   useLayout({});
