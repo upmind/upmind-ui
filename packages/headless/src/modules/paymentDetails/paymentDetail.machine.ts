@@ -57,7 +57,7 @@ export default createMachine(
           src: "loadLookups",
           onDone: {
             target: "available",
-            actions: ["setLookups", "setSchemas"]
+            actions: ["setRaw", "setLookups", "setSchemas"]
           },
           onError: {
             target: "error",
@@ -84,7 +84,12 @@ export default createMachine(
                   src: "parse",
                   onDone: {
                     target: "validating",
-                    actions: ["setParsed", "setGateway", "setSchemas"]
+                    actions: [
+                      "setParsed",
+                      "setLookups",
+                      "setGateway",
+                      "setSchemas"
+                    ]
                   }
                 }
               },
@@ -234,22 +239,30 @@ export default createMachine(
         ) => data.paymentDetail
       }),
 
+      setRaw: assign({
+        raw: (_context: PaymentDetailsContext, { data }: AnyEventObject) => ({
+          storedPaymentMethods: data?.storedPaymentMethods ?? [],
+          gateways: data?.gateways ?? [],
+          config: data.config ?? {}
+        })
+      }),
+
       setLookups: assign({
-        storedPaymentMethods: (
+        lookups: (
           _context: PaymentDetailsContext,
           { data }: AnyEventObject
-        ) => data.storedPaymentMethods,
-        gateways: (_context: PaymentDetailsContext, { data }: AnyEventObject) =>
-          data.gateways,
-        paymentTypes: (
-          _context: PaymentDetailsContext,
-          { data }: AnyEventObject
-        ) => data.paymentTypes
+        ) => ({
+          storedPaymentMethods: data?.storedPaymentMethods ?? [],
+          gateways: data?.gateways ?? [],
+          paymentTypes: data?.paymentTypes ?? [],
+          accountCredit: data?.accountCredit ?? [],
+          amountsFormatted: data?.amountsFormatted ?? { amount: "", wallet: "" }
+        })
       }),
 
       setSchemas: assign({
         schema: (context: PaymentDetailsContext) => useSchema(context),
-        uischema: (_context: PaymentDetailsContext) => useUischema(),
+        uischema: (context: PaymentDetailsContext) => useUischema(context),
         model: ({ schema, model }: PaymentDetailsContext) => {
           if (!schema) return model;
           return useModelParser(schema, model);
@@ -263,7 +276,6 @@ export default createMachine(
 
       clearModel: assign({
         model: undefined
-        // gateway: undefined
       }),
 
       setAutoUpdate: assign({
@@ -284,8 +296,7 @@ export default createMachine(
             address,
             orderId,
             currency,
-            amount,
-            gateways,
+            lookups,
             gatewayHelper,
             clientId,
             model
@@ -297,7 +308,7 @@ export default createMachine(
             if (gatewayHelper) stopService(gatewayHelper);
 
             // then find the gateway in the list
-            const brandGateway = find(gateways, [
+            const brandGateway = find(lookups.gateways, [
               "gateway_id",
               model?.gateway_id
             ]);
@@ -308,7 +319,7 @@ export default createMachine(
             gatewayHelper = spawnGateway({
               orderId,
               gateway: brandGateway.gateway,
-              amount,
+              amount: model?.amount ?? 0,
               currency,
               address,
               clientId,
@@ -340,8 +351,10 @@ export default createMachine(
           { address }: PaymentDetailsContext,
           { data }: AnyEventObject
         ) => data?.address ?? address,
-        model: (_context: PaymentDetailsContext, { data }: AnyEventObject) =>
-          undefined, // we clear the model so we force a reparse
+        model: (_context: PaymentDetailsContext, { data }: AnyEventObject) => ({
+          amount: data?.unpaid_amount_converted || 0.0,
+          type: PaymentType.PAY_IN_FULL
+        }), // we clear the model so we force a reparse
         paymentDetail: (
           _context: PaymentDetailsContext,
           { data }: AnyEventObject
@@ -356,7 +369,7 @@ export default createMachine(
             gatewayHelper,
             orderId,
             currency,
-            amount,
+            model,
             address,
             clientId
           }: PaymentDetailsContext,
@@ -368,7 +381,7 @@ export default createMachine(
               data: {
                 orderId,
                 currency,
-                amount,
+                amount: model?.amount ?? 0,
                 address,
                 clientId
               }
@@ -383,15 +396,14 @@ export default createMachine(
 
       setPaymentDetails: assign({
         paymentDetail: (
-          { amount, model, gateways, clientId }: PaymentDetailsContext,
+          { model, gateway, clientId }: PaymentDetailsContext,
           { data }: AnyEventObject
         ) =>
           mapPaymentData({
-            amount,
             clientId,
             data,
-            gateways,
-            model: model!
+            gateway,
+            model
           })
       }),
 
@@ -428,20 +440,13 @@ export default createMachine(
     },
 
     guards: {
-      isDirty: (
-        { model, baseModel }: PaymentDetailsContext,
-        _event: AnyEventObject
-      ) => !isEqual(model, baseModel),
       hasBasket: ({ orderId }: PaymentDetailsContext, _event: AnyEventObject) =>
         !!orderId,
-      hasLookups: (
-        { storedPaymentMethods, gateways, paymentTypes }: PaymentDetailsContext,
-        _event: AnyEventObject
-      ) => !!storedPaymentMethods && !!gateways && !!paymentTypes,
+
       needsNoPayment: (
-        { amount, model }: PaymentDetailsContext,
+        { model }: PaymentDetailsContext,
         _event: AnyEventObject
-      ) => !amount || model?.type == PaymentType.PAY_LATER,
+      ) => !model?.amount || model?.type == PaymentType.PAY_LATER,
       hasPaymentDetails: (
         { paymentDetail }: PaymentDetailsContext,
         _event: AnyEventObject
@@ -451,14 +456,14 @@ export default createMachine(
         { data }: AnyEventObject
       ) => !isEmpty(data?.payment_details_id),
       shouldUpdate: (
-        { autoupdate, orderId, amount }: PaymentDetailsContext,
+        { autoupdate, orderId, model }: PaymentDetailsContext,
         _event: AnyEventObject
-      ) => !!autoupdate && !!orderId && amount !== 0,
+      ) => !!autoupdate && !!orderId && model?.amount !== 0,
 
       hasAmountChanged: (
-        { amount }: PaymentDetailsContext,
+        { model }: PaymentDetailsContext,
         { data }: AnyEventObject
-      ) => amount != (data?.unpaid_amount_converted || 0.0),
+      ) => model?.amount != (data?.unpaid_amount_converted || 0.0),
 
       hasChanged: (
         { orderId, clientId, address, currency }: PaymentDetailsContext,

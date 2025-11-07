@@ -5,6 +5,7 @@
     :icon="copied ? 'check' : 'share-07'"
     :label="copied ? t('confirm.copied') : t('action.share')"
     :size="size"
+    class="font-medium"
   />
 </template>
 

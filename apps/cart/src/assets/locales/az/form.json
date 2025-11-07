@@ -95,6 +95,16 @@
   "login": {
     "error": "Sizi daxil etməyə çalışarkən xəta ilə üzləşdik."
   },
+  "payment_details_id": {
+    "label": ""
+  },
+  "payment_method_type": {
+    "error": "Etibarlı ödəniş növü tələb olunur",
+    "label": "Ödəniş növünü seçin",
+    "partial-payment": "Qismən ödəniş et",
+    "pay-later": "Sonra ödə",
+    "stored-card": "Tam məbləği ödə"
+  },
   "phone": {
     "error": "Etibarlı Telefon Nömrəsi tələb olunur",
     "label": "Telefon",
@@ -128,7 +138,7 @@
     "label": "Ödəniş təfərrüatlarını yadda saxlayın"
   },
   "stored_payment_method": {
-    "label": "Saxlanmış ödəniş üsullarınızdan birini seçin"
+    "label": ""
   },
   "taxNumber": {
     "label": "Vergi nömrəsi",

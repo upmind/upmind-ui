@@ -1,12 +1,24 @@
 // --- utils
-import { isArray, map, pick, find, defaults } from "lodash-es";
+import {
+  isArray,
+  map,
+  pick,
+  find,
+  defaults,
+  add,
+  isEmpty,
+  get,
+  omit
+} from "lodash-es";
 
 // --- types
 import type {
   PaymentDetail,
   Gateway,
   PaymentDetailsContext,
-  PaymentDetailModel
+  PaymentDetailModel,
+  AccountCredit,
+  PaymentDetailData
 } from "./types";
 import { GatewayProviderCodes, PaymentType } from "@upmind-automation/types";
 import type {
@@ -17,13 +29,42 @@ import type {
   GatewayCardData,
   GatewayData,
   GatewayExternalCardData,
-  GatewayMobileData
+  GatewayMobileData,
+  IWalletBalance,
+  ICurrency,
+  IWalletCurrencyBalance
 } from "@upmind-automation/types";
 
 import { canBeStored } from "./gateways/utils";
 import { useTranslateField, useTranslateName } from "../../utils";
 
 // -----------------------------------------------------------------------------
+
+export function mapAccountCredit(
+  raw: IWalletBalance,
+  currency: ICurrency["code"]
+): AccountCredit {
+  const balance = get(raw.total, currency) as IWalletCurrencyBalance;
+  const credit = get(
+    raw.negative_allowance,
+    currency
+  ) as IWalletCurrencyBalance;
+
+  return {
+    owned: {
+      value: balance?.amount_converted || 0,
+      amount: balance?.amount_converted_formatted || "0"
+    },
+    credit: {
+      value: credit?.amount_converted || 0,
+      amount: credit?.amount_converted_formatted || "0"
+    },
+    total: {
+      value: add(balance?.amount_converted, credit?.amount_converted),
+      amount: "" // we will set this later
+    }
+  };
+}
 
 export function mapPaymentDetailDetails(
   raw: IPaymentDetail | IPaymentDetail[]
@@ -54,7 +95,6 @@ export function mapPaymentDetail(raw: IPaymentDetail): PaymentDetail {
     meta: {
       isActive: !!raw.active,
       isDefault: !!raw.default,
-      isSupported: true,
       canDelete: !!raw.can_delete,
       isAutoPayment: !!raw.auto_payment
     }
@@ -137,23 +177,22 @@ function mapGatewayMobileData(data: GatewayMobileData) {
 }
 
 export function mapPaymentData({
-  amount,
   clientId,
   data,
-  gateways,
-  model
+  model,
+  gateway
 }: {
-  amount: PaymentDetailsContext["amount"];
   clientId: PaymentDetailsContext["clientId"];
-  data: SelectPaymentMethodData;
-  gateways: PaymentDetailsContext["gateways"];
+  data?: SelectPaymentMethodData;
+  gateway?: PaymentDetailsContext["gateway"];
   model: PaymentDetailModel;
-}) {
+}): PaymentDetailData {
   // Create the base payment detail object that ALL payment methods will use
   const paymentDetail = {
-    amount,
+    amount: model.amount,
+    wallet_amount: model.wallet_amount,
+    type: model.type,
     client_id: clientId,
-    // walletAmount: undefined,
     return_url: model?.return_url,
     cancel_url: model?.cancel_url
   };
@@ -162,7 +201,7 @@ export function mapPaymentData({
 
   // First check if we are deferring payment
   if (model.type === PaymentType.PAY_LATER) {
-    return defaults({ type: PaymentType.PAY_LATER }, paymentDetail);
+    return defaults({ type: PaymentType.PAY_LATER }, paymentDetail) as any;
     // do nothing, pay later does not need any additional data
   }
 
@@ -172,11 +211,9 @@ export function mapPaymentData({
   }
 
   // Then if are using a gateway, we need to map the data based on the gateway type
-  if (model.gateway_id) {
-    const brandGateway = find(gateways, ["gateway_id", model.gateway_id]);
-
+  if (model.gateway_id && !isEmpty(data)) {
     // map our specific gateway data
-    switch (brandGateway?.gateway?.gateway_provider?.code) {
+    switch (gateway?.gateway_provider?.code) {
       // SIMPLE SDK OR REDIRECT GATEWAYS
       case GatewayProviderCodes.BRAINTREE:
       case GatewayProviderCodes.FLUTTERWAVE:
@@ -201,10 +238,17 @@ export function mapPaymentData({
 
       // MOBILE GATEWAYS
 
+      // "MANUAL/OFFLINE" GATEWAYS THAT DONT REQUIRE A PAYMENT DETAIL
+      case GatewayProviderCodes.OFFLINE:
+      case GatewayProviderCodes.BANK_TRANSFER:
+        return omit(defaults(mapGatewayData(data), paymentDetail), [
+          "gateway_id",
+          "payment_details_id"
+        ]) as PaymentDetailData;
+
       // UNSUPPORTED OR UNKNOWN GATEWAYS
       default:
       case GatewayProviderCodes.ADYEN:
-      case GatewayProviderCodes.BANK_TRANSFER:
       case GatewayProviderCodes.BIT_PAY:
       case GatewayProviderCodes.BLOCKONOMICS:
       case GatewayProviderCodes.COIN_GATE:
@@ -214,7 +258,6 @@ export function mapPaymentData({
       case GatewayProviderCodes.MERCADO_PAGO:
       case GatewayProviderCodes.MERCADO_PAGO_OTHER_PAYMENTS:
       case GatewayProviderCodes.MOMO_MTN_COLLECTIONS:
-      case GatewayProviderCodes.OFFLINE:
       case GatewayProviderCodes.OPENPAY_NON_CARD:
       case GatewayProviderCodes.PAYSAFECARD:
       case GatewayProviderCodes.PAYTM:
@@ -224,11 +267,11 @@ export function mapPaymentData({
       case GatewayProviderCodes.RAZOR_PAY:
       case GatewayProviderCodes.SAGE_PAY_DIRECT:
       case GatewayProviderCodes.WORLD_PAY_JSON:
-        //  DO NOTHING, UNSUPPORTED GATEWAYS
-        return defaults({ type: PaymentType.PAY_LATER }, paymentDetail);
+        //  UNSUPPORTED GATEWAYS - DO NOTHING, FALLBACK TO PAY LATER
+        return defaults({ type: PaymentType.PAY_LATER }, paymentDetail) as any;
     }
   }
 
   // As a catch all we will force "manual payments" to allow the order to go through but not take payment
-  return defaults({ type: PaymentType.PAY_LATER }, paymentDetail);
+  return defaults({ type: PaymentType.PAY_LATER }, paymentDetail) as any;
 }

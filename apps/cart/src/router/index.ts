@@ -57,9 +57,9 @@ const router = createRouter({
     },
 
     {
-      path: "/order/:orderId",
+      path: "/order/:oid",
       name: ROUTE.ORDER,
-      alias: ["/orders/:orderId"],
+      alias: ["/orders/:oid"],
       component: () => UpmOrderView
     },
 
