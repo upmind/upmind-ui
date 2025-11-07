@@ -110,6 +110,7 @@ const triggerRefs = ref<(HTMLElement | null)[]>([]);
 
 const meta = computed(() => ({
   align: props.align,
+  overflow: props.overflow,
   hasBorder: props.border
 }));
 

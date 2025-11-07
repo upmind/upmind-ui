@@ -19,6 +19,7 @@ export interface TabsProps extends TabsRootProps, TabsListProps {
   // ---
   border?: boolean;
   align?: TabsRootVariantsProps["align"];
+  overflow?: TabsRootVariantsProps["overflow"];
   // ---
   uiConfig?: {
     tabs: {

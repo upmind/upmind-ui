@@ -1,9 +1,13 @@
 import { cva } from "class-variance-authority";
 
 export const tabsRootVariants = cva(
-  "relative flex overflow-x-auto overflow-y-hidden pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+  "relative flex pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
   {
     variants: {
+      overflow: {
+        hidden: "overflow-x-auto overflow-y-hidden",
+        visible: ""
+      },
       hasBorder: {
         true: "border-surface mb-9 border-b",
         false: ""
@@ -16,7 +20,9 @@ export const tabsRootVariants = cva(
       }
     },
     defaultVariants: {
-      align: "left"
+      align: "left",
+      hasBorder: true,
+      overflow: "hidden"
     }
   }
 );
