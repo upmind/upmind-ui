@@ -19,7 +19,7 @@ type ButtonVariantProps = VariantProps<typeof rootVariants>;
 export interface ButtonProps {
   label?: string;
   is?: "button" | "router-link" | "a" | string | Component;
-  type?: "button" | "submit" | "reset";
+  type?: HTMLButtonElement["type"];
   icon?: string | Icon;
   avatar?: Partial<AvatarProps>;
   iconAppend?: string | Icon;

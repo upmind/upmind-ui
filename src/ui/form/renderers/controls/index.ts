@@ -33,6 +33,9 @@ import OneOfSelectRenderer, {
   tester as OneOfSelectTest
 } from "./OneOfSelectRenderer.vue";
 import LookupRenderer, { tester as lookupTest } from "./LookupRenderer.vue";
+import CurrencyRenderer, {
+  tester as CurrencyTest
+} from "./CurrencyRenderer.vue";
 
 // -----------------------------------------------------------------------------
 
@@ -42,6 +45,7 @@ export const controlRenderers = [
   registerEntry(BooleanRenderer, BooleanTest),
   registerEntry(BooleanSwitchRenderer, BooleanSwitchTest),
   registerEntry(ButtonToggleRenderer, ButtonToggleTest),
+  registerEntry(CurrencyRenderer, CurrencyTest),
   registerEntry(NumberRenderer, NumberTest),
   registerEntry(EnumRenderer, EnumTest),
   registerEntry(EnumRadioRenderer, EnumRadioTest),

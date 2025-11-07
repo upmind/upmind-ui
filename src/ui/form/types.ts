@@ -79,7 +79,6 @@ export interface FormFooterProps {
 }
 
 export interface FormActionProps extends ButtonProps {
-  type?: HTMLButtonElement["type"];
   handler?: Function | string;
   needsValid?: boolean;
 }

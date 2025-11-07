@@ -94,7 +94,6 @@ const styles = useStyles(
   config,
   props.uiConfig ?? {}
 ) as ComputedRef<{
-  container: string;
   input: { container: string; field: string };
 }>;
 
