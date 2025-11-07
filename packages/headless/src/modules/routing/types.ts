@@ -1,7 +1,7 @@
 // --- types
 import type { ActorRef } from "xstate";
 import type { ResponseError } from "../../utils";
-
+export { QUERY_PARAMS } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 
 /**

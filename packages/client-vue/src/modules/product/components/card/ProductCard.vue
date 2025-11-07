@@ -9,7 +9,7 @@
             pid: props.id
           },
           query: {
-            bcm: selectedTerm,
+            [QUERY_PARAMS.BILLING_CYCLE_MONTHS]: selectedTerm,
             force: 'true', // ensure we always add the product, even if it exists in the basket
             navigateOnly: 'true' // this is used to prevent the product from being added to the basket when clicking on the image
           }
@@ -73,7 +73,7 @@
                       pid: props.id
                     },
                     query: {
-                      bcm: selectedTerm,
+                      [QUERY_PARAMS.BILLING_CYCLE_MONTHS]: selectedTerm,
                       force: 'true' // ensure we always add the product, even if it exists in the basket
                     }
                   }
@@ -100,7 +100,7 @@ import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { ROUTE } from "@upmind-automation/headless";
+import { ROUTE, QUERY_PARAMS } from "@upmind-automation/headless";
 
 // --- components
 import { Button, Image, Link, useStyles } from "@upmind-automation/upmind-ui";

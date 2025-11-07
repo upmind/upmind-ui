@@ -10,6 +10,7 @@ export interface ActionProps extends ButtonProps {
   type?: HTMLButtonElement["type"];
   handler?: Function | string;
   auto?: boolean;
+  visible?: boolean;
 }
 
 export interface AuthProps {
