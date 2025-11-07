@@ -55,7 +55,10 @@
                   </p>
                 </div>
 
-                <div v-if="item.action" :class="styles.checkboxCards.content.action">
+                <div
+                  v-if="item.action"
+                  :class="styles.checkboxCards.content.action"
+                >
                   <Link
                     v-show="isNil(item.action.visible) || item.action.visible"
                     v-bind="item.action"
