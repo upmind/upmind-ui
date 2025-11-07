@@ -8,7 +8,7 @@
         {{ title }}
         <Badge
           v-if="meta?.isDefault"
-          variant="solid"
+          variant="minimal"
           color="neutral"
           size="sm"
           :label="t('text.default_label')"

@@ -125,10 +125,14 @@ import type { ComputedRef } from "vue";
 
 const { DEBOUNCE_DELAY } = utils;
 
-const DEFAULT_SKELETON_COUNT = 9;
-const PRODUCTS_PER_PAGE = 9;
 // -----------------------------------------------------------------------------
 
+const props = withDefaults(
+  defineProps<{
+    limit?: number;
+  }>(),
+  { limit: 9 }
+);
 const container = useTemplateRef<HTMLDivElement>("container");
 
 const categoryId = defineModel<ProductsProps["categoryId"] | undefined>(
@@ -156,13 +160,13 @@ const { data, meta, pagination, filters, sort, nextPage, prevPage } =
   useProductCatalogue({
     // infinite: !!uiCart.value?.catalogue?.infinite, // TODO
     pagination: {
-      limit: PRODUCTS_PER_PAGE,
-      offset: (urlPage.value - 1) * PRODUCTS_PER_PAGE
+      limit: props.limit,
+      offset: (urlPage.value - 1) * props.limit
     }
   });
 
 // --- context
-const lastProductCount = ref(DEFAULT_SKELETON_COUNT);
+const lastProductCount = ref(props.limit);
 
 const styles = useStyles(
   [
@@ -224,7 +228,7 @@ watch(
     if (isArray(newData) && !isEmpty(newData)) {
       lastProductCount.value = newData.length;
     } else {
-      lastProductCount.value = DEFAULT_SKELETON_COUNT;
+      lastProductCount.value = props.limit;
     }
   },
   { immediate: true }

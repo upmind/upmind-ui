@@ -13,6 +13,7 @@ import type {
   IOrder,
   IPaymentDetail,
   IWalletBalance,
+  IWalletCurrencyBalance,
   PaymentType,
   SelectPaymentMethodData
 } from "@upmind-automation/types";
@@ -21,6 +22,21 @@ import type {
 import type { ResponseError } from "../../utils";
 
 // -----------------------------------------------------------------------------
+
+export type AccountCredit = {
+  owned: {
+    value: number;
+    amount: string;
+  };
+  credit: {
+    value: number;
+    amount: string;
+  };
+  total: {
+    value: number;
+    amount: string;
+  };
+};
 
 export type PaymentDetail = {
   name: IPaymentDetail["name"];
@@ -40,7 +56,6 @@ export type PaymentDetail = {
   meta: {
     isAutoPayment: IPaymentDetail["auto_payment"];
     isActive: boolean;
-    isSupported: boolean;
     canDelete: boolean;
     isDefault: boolean;
   };
@@ -65,14 +80,12 @@ export type Gateway = {
   };
 };
 
-export type PaymentDetailData = PaymentDetailModel & {
-  //   walletAmount?: number;
-  amount?: number;
-  data?: SelectPaymentMethodData;
-};
+export type PaymentDetailData = PaymentDetailModel & SelectPaymentMethodData;
 
 export type PaymentDetailModel = {
-  type?: Partial<PaymentType> | null;
+  amount: number;
+  type: Partial<PaymentType> | null;
+  wallet_amount?: number;
   gateway_id?: IGateway["id"];
   payment_details_id?: PaymentDetail["id"];
   return_url?: string;
@@ -119,32 +132,61 @@ export interface PaymentDetailsArgs {
  */
 export interface PaymentDetailsContext extends PaymentDetailsArgs {
   // ctx: GatewayCtx; // TODo when we have Add and pay contexts
-  // --- lookups
-  /**
-   * An array of {@link IBrandGateway} objects available for the current brand and client.
-   */
-  gateways?: IBrandGateway[];
-  /**
-   * The allowed {@link PaymentType} for the current context.
-   */
-  paymentTypes?: PaymentType;
   /**
    * An array of stored payment method models available to the client.
+   * This will return ALL the clients stored payment methods UNFILTERED
    */
-  storedPaymentMethods?: PaymentDetail[];
+  raw: {
+    storedPaymentMethods?: PaymentDetail[];
+    gateways?: IBrandGateway[];
+    config?: Record<string, any>;
+  };
   /**
-   * The client's wallet balance details.
+   * Lookups for various payment related data.
+   * Includes account credit, available gateways, payment types, and stored payment methods.
+   *
    */
-  balance?: IWalletBalance;
+  lookups: {
+    /**
+     * The client's wallet balance {@link AccountCredit} details.
+     */
+    accountCredit?: AccountCredit;
+
+    amountsFormatted: {
+      /**
+       * The total payment amount (model.amount) formatted as per locale and currency.
+       * This represents the full/partial payment amount that needs to be paid.
+       */
+      amount: string;
+
+      /**
+       * The account credit/wallet amount (model.wallet_amount) formatted as per locale and currency.
+       * This represents the amount being paid from the customer's credit balance.
+       */
+      wallet: string;
+    };
+
+    /**
+     * An array of {@link IBrandGateway} objects available for the current brand and client.
+     */
+    gateways?: IBrandGateway[];
+
+    /**
+     * The allowed {@link PaymentType} for the current context.
+     */
+    paymentTypes?: Record<string, PaymentType>;
+
+    /**
+     * An array of stored payment methods {@link PaymentDetail} available to the client, filtered for Currency and Gateway
+     */
+    storedPaymentMethods?: PaymentDetail[];
+  };
+
   /**
    * The currently selected {@link IGateway} object.
    */
   gateway?: IGateway;
-  // ---
-  /**
-   * Optional additional fields relevant to payment processing.
-   */
-  fields?: any;
+
   /**
    * The JSON Schema (`JsonSchema`) defining the structure and validation rules for the payment details form.
    */
@@ -156,9 +198,11 @@ export interface PaymentDetailsContext extends PaymentDetailsArgs {
   /**
    * The current {@link PaymentDetailModel} representing the user's selection in the payment details form.
    */
-  model?: PaymentDetailModel;
-  baseModel?: PaymentDetailModel;
+  model: PaymentDetailModel;
+
+  /**Flag to indicate if we should try automatially process our payment details subject to being valid */
   autoupdate?: boolean;
+
   // --- SPAWNED ACTORS/MACHINES
   gatewayHelper?: ActorRef<any>;
   authHelper?: ActorRef<any>;

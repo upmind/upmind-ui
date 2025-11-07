@@ -95,6 +95,16 @@
   "login": {
     "error": "Si è verificato un errore durante il tentativo di accesso."
   },
+  "payment_details_id": {
+    "label": ""
+  },
+  "payment_method_type": {
+    "error": "È richiesto un tipo di pagamento valido",
+    "label": "Seleziona il tipo di pagamento",
+    "partial-payment": "Effettua un pagamento parziale",
+    "pay-later": "Paga più tardi",
+    "stored-card": "Paga l'intero saldo"
+  },
   "phone": {
     "error": "È richiesto un numero di telefono valido",
     "label": "Telefono",
@@ -128,7 +138,7 @@
     "label": "Salva i dettagli del pagamento"
   },
   "stored_payment_method": {
-    "label": "Seleziona uno dei tuoi metodi di pagamento memorizzati"
+    "label": ""
   },
   "taxNumber": {
     "label": "Codice fiscale",

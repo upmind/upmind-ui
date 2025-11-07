@@ -8,8 +8,15 @@
     :tabs="sections"
     v-model="currentSection"
     :defaultValue="currentSection"
+    align="between"
+    overflow="visible"
     :class="props.class"
   >
+    <template #prepend>
+      <slot name="prepend" />
+    </template>
+
+    >
     <template
       v-for="section in sections"
       :key="section.value"
@@ -23,6 +30,20 @@
         <slot v-else name="default" />
       </div>
     </template>
+
+    <template #append>
+      <!-- actions -->
+      <slot name="actions">
+        <Link
+          v-for="(action, key) in currentSectionProps?.actions"
+          v-show="isNil(action.visible) || action.visible"
+          :key="key"
+          v-bind="action"
+          color="muted"
+          @click="doAction(action, $event)"
+        />
+      </slot>
+    </template>
   </Tabs>
 </template>
 
@@ -32,23 +53,30 @@ import { computed, useSlots } from "vue";
 import { useRoutingEngine } from "@upmind-automation/headless";
 
 // --- components
-import { Tabs, cn, useStyles } from "@upmind-automation/upmind-ui";
+import { Tabs, cn, useStyles, Link } from "@upmind-automation/upmind-ui";
 
 // --- internal
 import config from "./section.config";
 import { LAYOUT_VARIANTS } from "../layout";
 
 // --- utils
-import { first } from "lodash-es";
+import { find, first, isFunction, isString, isNil } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
-import type { SectionsProps } from "./types";
+import type { SectionActionProps, SectionsProps } from "./types";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<SectionsProps>(), {
   active: true
 });
+
+const emits = defineEmits<{
+  reject: [Event];
+  resolve: [Event];
+  click: [Event];
+  action: [{ name: string; event: Event }];
+}>();
 
 const currentSection = defineModel<string>();
 const { currentRoute } = useRoutingEngine();
@@ -59,6 +87,10 @@ if (props.defaultValue) {
 } else if (props.sections?.length) {
   currentSection.value = first(props.sections)?.value;
 }
+
+const currentSectionProps = computed(() =>
+  find(props.sections, { value: currentSection.value })
+);
 
 const meta = computed(() => ({
   variant: currentRoute.value?.meta?.template || LAYOUT_VARIANTS.DEFAULT
@@ -80,4 +112,32 @@ const styles = useStyles(
     content: string;
   };
 }>;
+
+function doAction(item: SectionActionProps, $event: Event) {
+  $event.preventDefault(); // prevent default form actions as we are handling it ourselves
+
+  if (isFunction(item.handler)) {
+    item.handler($event);
+    return;
+  }
+
+  if (isString(item.handler)) {
+    emits("action", {
+      name: item.handler,
+      event: $event
+    });
+    return;
+  }
+
+  // fallback for submit/reset
+  if (item.type === "submit") {
+    emits("resolve", $event);
+    return;
+  } else if (item.type === "reset") {
+    emits("reject", $event);
+    return;
+  }
+
+  emits("click", $event);
+}
 </script>

@@ -95,6 +95,16 @@
   "login": {
     "error": "Wystąpił błąd podczas próby zalogowania."
   },
+  "payment_details_id": {
+    "label": ""
+  },
+  "payment_method_type": {
+    "error": "Wymagany jest prawidłowy rodzaj płatności",
+    "label": "Wybierz rodzaj płatności",
+    "partial-payment": "Dokonaj częściowej płatności",
+    "pay-later": "Zapłać później",
+    "stored-card": "Zapłać pełną kwotę"
+  },
   "phone": {
     "error": "Wymagany jest prawidłowy numer telefonu",
     "label": "Telefon",
@@ -128,7 +138,7 @@
     "label": "Zapisz dane płatności"
   },
   "stored_payment_method": {
-    "label": "Wybierz jedną z zapisanych metod płatności"
+    "label": ""
   },
   "taxNumber": {
     "label": "Numer podatkowy",

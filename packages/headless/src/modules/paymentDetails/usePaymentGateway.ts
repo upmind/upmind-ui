@@ -63,17 +63,17 @@ export const usePaymentGateway = (actor: ComputedRef<Actor | undefined>) => {
   const meta = computed(() => ({
     needsPayment:
       !!actor.value &&
-      contextValue<number>(actor.value, "amount", 0)! >= 0 &&
-      !contextMatches(actor.value, "gateway.type", GatewayTypes.OFFLINE) &&
-      contextValue<boolean>(actor.value, "supported") === true,
+      contextValue<number>(actor, "amount", 0)! >= 0 &&
+      !contextMatches(actor, "gateway.type", GatewayTypes.OFFLINE) &&
+      contextValue<boolean>(actor, "supported") === true,
     // contextMatches(actor, "gateway.payment_types", [
     //   PaymentType.PARTIAL_PAYMENT,
     //   PaymentType.PAY_IN_FULL
     // ]),
     isNotSupported:
-      !actor.value || contextValue<boolean>(actor.value, "supported") !== true,
-    isLoading: !!actor.value && stateMatches(actor.value, ["loading"]),
-    isRendering: !actor.value || stateMatches(actor.value, ["rendering"]),
+      !actor.value || contextValue<boolean>(actor, "supported") !== true,
+    isLoading: !!actor.value && stateMatches(actor, ["loading"]),
+    isRendering: !actor.value || stateMatches(actor, ["rendering"]),
     isAvailable: !!actor.value && stateMatches(actor, ["available"]),
     isUnavailable: !!actor.value && stateMatches(actor, ["unavailable"]),
     hasErrors: stateMatches(actor, ["available.error"]),
@@ -106,6 +106,7 @@ export const usePaymentGateway = (actor: ComputedRef<Actor | undefined>) => {
   const model = useContext<GatewayContext["model"]>(actor, "model");
   const schema = useContext<GatewayContext["schema"]>(actor, "schema");
   const uischema = useContext<GatewayContext["uischema"]>(actor, "uischema");
+  const gateway = useContext<any>(actor, "gateway");
   // const renderer = useContext<GatewayContext["renderer"]>(actor, "renderer");
   const instructions = useContext<any>(actor, "gateway.payment_instructions");
   // const type = useContext<GatewayContext["type"]>(actor, "type");
@@ -257,6 +258,9 @@ export const usePaymentGateway = (actor: ComputedRef<Actor | undefined>) => {
 
     /** The current payment gateway model. */
     model,
+
+    /** The current payment gateway object. */
+    gateway,
 
     /** The payment gateway renderer. */
     // renderer,

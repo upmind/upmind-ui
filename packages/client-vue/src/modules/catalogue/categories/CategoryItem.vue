@@ -6,7 +6,7 @@
     :to="{
       name: ROUTE.CATALOGUE,
       query: {
-        catid: id,
+        [QUERY_PARAMS.CATEGORY_ID]: id,
         sort: props.sort,
         direction: props.direction
       }
@@ -30,7 +30,7 @@
           :to="{
             name: ROUTE.CATALOGUE,
             query: {
-              catid: id,
+              [QUERY_PARAMS.CATEGORY_ID]: id,
               sort: props.sort,
               direction: props.direction
             }
@@ -54,7 +54,6 @@
 // --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { RouterLink } from "vue-router";
 
 // --- internal
 import config from "../catalogue.config";
@@ -63,7 +62,11 @@ import config from "../catalogue.config";
 import { Icon, Button, useStyles, Link } from "@upmind-automation/upmind-ui";
 
 // --- types
-import { ROUTE, type ProductCategory } from "@upmind-automation/headless";
+import {
+  ROUTE,
+  type ProductCategory,
+  QUERY_PARAMS
+} from "@upmind-automation/headless";
 import type { ComputedRef } from "vue";
 import type { CategoriesProps } from "./types";
 
