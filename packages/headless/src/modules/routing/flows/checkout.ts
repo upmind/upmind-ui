@@ -6,7 +6,7 @@ import { useBrand } from "../../brand";
 import { useRoutingEngine } from "..";
 
 // --- utils
-import { uniqBy } from "lodash-es";
+import { isEmpty, uniqBy } from "lodash-es";
 
 // --- types
 import type { Flow, Route } from "../types";
@@ -15,7 +15,8 @@ import { useSession } from "../../session";
 import {
   BrandConfigKeys,
   CheckoutFlows,
-  IInvoice
+  IInvoice,
+  QUERY_PARAMS
 } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -55,7 +56,7 @@ export const getCheckoutFlowTargets = () => {
 export const useCheckoutFlows = () => {
   const routing = useRoutingEngine();
   const { getConfigValue } = useBrand();
-  const { meta: basketMeta, isReady } = useBasket();
+  const { meta: basketMeta, isReady, invoice } = useBasket();
   const { meta: sessionMeta } = useSession();
 
   let flows: Flow[] = [
@@ -72,8 +73,9 @@ export const useCheckoutFlows = () => {
         if (
           getConfigValue(BrandConfigKeys.CHECKOUT_FLOW) ===
           CheckoutFlows.ONE_PAGE
-        )
+        ) {
           return validAuth && basketMeta.value.hasProducts;
+        }
 
         return validProducts && validFields && validAuth;
       },
@@ -84,15 +86,19 @@ export const useCheckoutFlows = () => {
         next: [
           {
             name: ROUTE.ORDER,
-            guard: async (_route: Route, data: IInvoice) => !!data?.id,
-            resolve: async (_route: Route, data: IInvoice) => {
-              return {
+            guard: async (_route: Route) => !isEmpty(invoice.value?.id),
+            resolve: async (_route: Route) => {
+              const route = {
                 name: ROUTE.ORDER,
-                params: { orderId: data?.id },
+                params: {
+                  [QUERY_PARAMS.ORDER_ID]: invoice.value!.id
+                },
                 query: {
-                  payment_success: basketMeta.value.hasPaid.toString()
+                  [QUERY_PARAMS.PAYMENT_SUCCESS]:
+                    basketMeta.value.hasPaid.toString()
                 }
               } as Route;
+              return route;
             }
           }
         ],
@@ -100,13 +106,17 @@ export const useCheckoutFlows = () => {
         fallback: [
           {
             name: ROUTE.ORDER,
-            guard: async (_route: Route, data: IInvoice) => !!data?.id,
-            resolve: async (_route: Route, data: IInvoice) => {
-              return {
+            guard: async (_route: Route) => !isEmpty(invoice.value?.id),
+            resolve: async (_route: Route) => {
+              const route = {
                 name: ROUTE.ORDER,
-                params: { orderId: data?.id },
-                query: { payment_success: basketMeta.value.hasPaid.toString() }
+                params: {
+                  [QUERY_PARAMS.ORDER_ID]: invoice.value!.id
+                },
+                [QUERY_PARAMS.PAYMENT_SUCCESS]:
+                  basketMeta.value.hasPaid.toString()
               } as Route;
+              return route;
             }
           },
           {
@@ -128,13 +138,7 @@ export const useCheckoutFlows = () => {
               );
             }
           },
-          {
-            name: ROUTE.SESSION_REGISTER,
-            guard: async (_route: Route) => {
-              const validAuth = sessionMeta.value.isAuthenticated;
-              return !validAuth;
-            }
-          }
+          ROUTE.SESSION_REGISTER
         ]
       }
     }

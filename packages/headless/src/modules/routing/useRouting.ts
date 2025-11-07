@@ -52,7 +52,9 @@ export const useRouting = (
   async function guardRoute(route: RouteLocation) {
     const target = await guard(route);
     //  NB: only redirect if we have a target and it's not the same as the current routeName
-    if (shouldRedirect(target, route)) router.push(target);
+    if (shouldRedirect(target, route)) {
+      router.push(target);
+    }
   }
 
   // ---------------------------------------------------------------------------

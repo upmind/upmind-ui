@@ -95,6 +95,16 @@
   "login": {
     "error": "Beim Versuch, Sie anzumelden, ist ein Fehler aufgetreten."
   },
+  "payment_details_id": {
+    "label": ""
+  },
+  "payment_method_type": {
+    "error": "Eine gültige Zahlungsart ist erforderlich",
+    "label": "Zahlungsart auswählen",
+    "partial-payment": "Teilzahlung leisten",
+    "pay-later": "Später bezahlen",
+    "stored-card": "Gesamten Betrag bezahlen"
+  },
   "phone": {
     "error": "Eine gültige Telefonnummer ist erforderlich",
     "label": "Telefon",
@@ -128,7 +138,7 @@
     "label": "Zahlungsdetails speichern"
   },
   "stored_payment_method": {
-    "label": "Wählen Sie eine Ihrer gespeicherten Zahlungsmethoden aus"
+    "label": ""
   },
   "taxNumber": {
     "label": "Steuernummer",

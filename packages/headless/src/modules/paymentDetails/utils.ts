@@ -13,14 +13,21 @@ import razorpayConfig from "./gateways/razorpay";
 // --- utils
 
 // --- types
-import { GatewayContext as GatewayCtx } from "@upmind-automation/types";
+import {
+  BrandConfigKeys,
+  GatewayContext as GatewayCtx,
+  GatewayTypes,
+  IBrandGateway,
+  PaymentType
+} from "@upmind-automation/types";
 import { GatewayParams } from "./gateways/types";
 import { GatewayProviderCodes } from "@upmind-automation/types";
 import { StripeContext } from "./gateways/stripe/types";
 import { BraintreeContext } from "./gateways/braintree/types";
 import { OpenPayContext } from "./gateways/openPay/types";
-import { includes } from "lodash-es";
+import { filter, get, includes, some, sortBy, unset } from "lodash-es";
 import { RazorpayContext } from "./gateways/razorpay/types";
+import { PaymentDetail, PaymentDetailsContext } from "./types";
 
 // -----------------------------------------------------------------------------
 
@@ -79,10 +86,27 @@ export function spawnGateway({
       );
 
     case GatewayProviderCodes.STRIPE:
-      if (!gateway?.use_frontend_implementation)
+      if (!gateway?.use_frontend_implementation) {
         console.warn(
           `DEPRECATION: ${gateway.name} is no longer supported via Headless`
         );
+        // spawn a renderless unsupported gateway machine to allow orders to be placed without payment
+        return spawn(
+          gatewayMachine(gateway.gateway_provider.code).withContext({
+            address,
+            amount,
+            clientId,
+            ctx: GatewayCtx.PAY,
+            currency,
+            gateway,
+            orderId,
+            renderless: true,
+            sdk: false,
+            supported: false
+          }),
+          { name: gateway.id, sync: true }
+        );
+      }
 
       return spawn(
         gatewayMachine<StripeContext>(gateway.gateway_provider.code)
@@ -198,3 +222,73 @@ export function spawnGateway({
       );
   }
 }
+
+/**
+ *  Filters the stored payment methods to only include those that have a corresponding supported gateway.
+ * @param paymentDetails - The array of stored payment methods.
+ * @param gateways - The array of available gateways.
+ * @returns The filtered array of stored payment methods.
+ **/
+export function filterPaymentDetails(
+  paymentDetails: PaymentDetail[],
+  gateways: IBrandGateway[]
+): PaymentDetail[] {
+  return sortBy(
+    filter(paymentDetails, method =>
+      some(gateways, ["gateway_id", method.gatewayId])
+    ),
+    ["order"]
+  );
+}
+
+/**
+ * Filters gateways based on the payment type.
+ * If we have are paying with account credit then we CANNOT use offline or Bank Transfer gateways.
+ * as these gateways dont provide a payment method we can send to the backend.
+ * @param gateways
+ * @param paymentType
+ * @returns
+ */
+export function filterGateways(
+  brandGateways: IBrandGateway[],
+  model: PaymentDetailsContext["model"]
+): IBrandGateway[] {
+  const values = sortBy(
+    filter(brandGateways, ({ gateway }) => {
+      if (model?.wallet_amount) {
+        return !includes(
+          [GatewayTypes.OFFLINE, GatewayTypes.BANK_TRANSFER],
+          gateway?.gateway_provider?.type
+        );
+      }
+      return true;
+    }),
+    ["order"]
+  );
+
+  return values;
+}
+
+export function filterPaymentTypes(
+  config: PaymentDetailsContext["raw"]["config"],
+  model: PaymentDetailsContext["model"]
+): Record<string, PaymentType> {
+  const paymentTypes: Record<string, PaymentType> = {
+    FULL_PAYMENT: PaymentType.PAY_IN_FULL // ALWAYS AVAILABLE
+  };
+
+  if (get(config, BrandConfigKeys.PARTIAL_PAYMENTS_ENABLED))
+    paymentTypes["PARTIAL_PAYMENT"] = PaymentType.PARTIAL_PAYMENT;
+
+  if (get(config, BrandConfigKeys.PAY_LATER_ENABLED))
+    paymentTypes["PAY_LATER"] = PaymentType.PAY_LATER; // Allowlist payment gateways if provided
+
+  // If we are paying with account credit then we CANNOT use partial payments
+  if (model?.wallet_amount) {
+    unset(paymentTypes, "PAY_LATER");
+  }
+
+  return paymentTypes;
+}
+
+// -----------------------------------------------------------------------------
