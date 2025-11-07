@@ -8,7 +8,7 @@ import type { itemVariants } from "./radioCards.config";
 type RadioCardsItemVariantProps = VariantProps<typeof itemVariants>;
 
 export interface RadioCardsCollapsibleItemProps extends RadioGroupItemProps {
-  item: any;
+  item?: any;
   index: number;
   name?: string;
   label?: string;

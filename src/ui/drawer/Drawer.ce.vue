@@ -36,18 +36,16 @@
         </div>
       </div>
 
-      <DrawerFooter
-        :class="
-          cn('flex flex-col gap-2', styles.drawer.container, props.classFooter)
-        "
-      >
-        <slot name="footer" />
+      <DrawerFooter :class="cn(styles.drawer.footer.root)">
+        <div :class="styles.drawer.footer.container">
+          <slot name="footer">
+            <DrawerClose v-if="$slots.close">
+              <slot name="close" />
+            </DrawerClose>
 
-        <DrawerClose v-if="$slots.close">
-          <slot name="close" />
-        </DrawerClose>
-
-        <slot name="actions" />
+            <slot name="actions" />
+          </slot>
+        </div>
       </DrawerFooter>
     </DrawerContent>
   </Drawer>
@@ -145,7 +143,7 @@ const meta = computed(() => ({
 }));
 
 const styles = useStyles(
-  ["drawer"],
+  ["drawer", "drawer.footer"],
   meta,
   config,
   props.uiConfig ?? {}
@@ -156,7 +154,10 @@ const styles = useStyles(
     content: string;
     inner: string;
     header: string;
-    footer: string;
+    footer: {
+      root: string;
+      container: string;
+    };
   };
 }>;
 </script>

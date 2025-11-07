@@ -7,9 +7,11 @@
     :class="cn(styles.radioCards.root, props.class)"
     data-testid="radio-card-group"
     @update:model-value="onChange"
+    v-auto-animate
   >
     <template v-for="(option, index) in items" :key="option.id || index">
       <RadioCardItem
+        v-bind="forwarded"
         :item="option.item"
         :index="option.index || overrideIndex || index"
         :name="props.name"
@@ -27,18 +29,18 @@
         :value="option.value"
         :class="props.radioClass"
         :list="props.list"
-        data-testid="radio-card-item"
         :uiConfig="props.uiConfig"
         :data-hover="props.dataHover"
         :data-focus="props.dataFocus"
+        data-testid="radio-card-item"
         @keydown.enter="onChange(option.value)"
-        @action="onAction"
       >
         <template #item="slotProps">
           <slot name="item" v-bind="slotProps" />
         </template>
       </RadioCardItem>
     </template>
+    <slot name="additional-item" :size="styles.radioCards.item.size" />
   </component>
 </template>
 
@@ -46,6 +48,8 @@
 // ---external
 import { computed } from "vue";
 import { useVModel } from "@vueuse/core";
+import { useForwardPropsEmits } from "radix-vue";
+import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
 import { cn, useStyles } from "../../utils";
@@ -72,7 +76,17 @@ const props = withDefaults(defineProps<RadioCardsProps>(), {
   radioClass: ""
 });
 
-const emits = defineEmits(["update:modelValue", "action"]);
+const emits = defineEmits<{
+  "update:modelValue": [string | number];
+  focus: [FocusEvent];
+  reject: [Event];
+  resolve: [Event];
+  click: [Event];
+  action: [{ name: string; event: Event }];
+}>();
+
+const forwarded = useForwardPropsEmits({}, emits);
+
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
   defaultValue: props.defaultValue
@@ -84,7 +98,7 @@ const meta = computed(() => ({
 }));
 
 const styles = useStyles(
-  "radioCards",
+  ["radioCards", "radioCards.item"],
   meta,
   config,
   props.uiConfig ?? {}
@@ -92,7 +106,10 @@ const styles = useStyles(
   radioCards: {
     trigger: string;
     root: string;
-    item: string;
+    item: {
+      root: string;
+      size: string;
+    };
     radio: string;
     input: string;
     label: string;

@@ -6,7 +6,7 @@ import {
 } from "../../assets/styles";
 
 export const checkboxLabelVariants = cva(
-  "text-md m-0 h-full w-full rounded leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+  "text-md m-0 flex h-full w-full flex-col gap-1 rounded leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
   {
     variants: {
       isList: {
@@ -25,11 +25,11 @@ export default {
   checkboxCards: {
     root: cva(`grid w-full gap-2`),
     item: cva(
-      `text-control-foreground group group flex items-start gap-2 rounded-none py-3 pr-4 pl-3 font-normal transition-all duration-200`,
+      `text-control-foreground group group flex items-start gap-2 rounded-none py-4 pr-4 pl-3 font-normal transition-all duration-200`,
       {
         variants: {
           isList: {
-            true: "border-control-default border-b last:border-b-0",
+            true: "border-surface border-t",
             false: `shadow-control-default [&:hover,&[data-hover=true]]:shadow-control-hover bg-control-surface control-radius ${ringClasses} ${invalidRingClasses}`
           }
         }
@@ -48,10 +48,12 @@ export default {
       }
     ),
     content: {
-      label: cva("text-md-tight text-display font-medium"),
+      root: cva("flex flex-col gap-1"),
+      label: cva("text-md-tight text-display flex font-medium"),
       secondaryLabel: cva("text-md-tight text-display font-medium"),
       description: cva("text-sm-tight text-base font-normal"),
-      secondaryDescription: cva("text-muted text-sm-tight font-normal")
+      secondaryDescription: cva("text-muted text-sm-tight font-normal"),
+      action: cva("leading-none font-normal")
     }
   }
 };

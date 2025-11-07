@@ -8,7 +8,14 @@ import type { CxOptions, VariantProps } from "class-variance-authority";
 
 // --- internal
 import type { checkboxLabelVariants } from "./checkboxCards.config";
+import type { LinkProps } from "../link";
 type CheckboxLabelVariantProps = VariantProps<typeof checkboxLabelVariants>;
+
+export type CheckboxCardsItemActionProps = LinkProps & {
+  handler?: Function | string;
+  type?: HTMLButtonElement["type"];
+  visible?: boolean;
+};
 
 export interface CheckboxCardsItemProps extends ToggleGroupItemProps {
   label: string;
@@ -17,7 +24,7 @@ export interface CheckboxCardsItemProps extends ToggleGroupItemProps {
   secondaryDescription?: string;
   badge?: BadgeProps;
   secondaryBadge?: BadgeProps;
-  action?: string;
+  action?: CheckboxCardsItemActionProps;
   id?: string;
   /** When `true`, prevents the user from interacting with the radio item. */
   disabled?: boolean;

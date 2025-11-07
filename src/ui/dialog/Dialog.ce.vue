@@ -11,7 +11,7 @@
       @update:open="onOpen"
     >
       <DialogHeader
-        :class="props.classHeader"
+        :class="[styles.dialog.header, props.classHeader]"
         v-if="
           !props.noHeader &&
           ($slots.header ||
@@ -45,15 +45,13 @@
         </slot>
       </DialogHeader>
 
-      <div :class="cn(styles.dialog.container)">
-        <div class="flex flex-col justify-start">
-          <slot />
-        </div>
+      <div :class="styles.dialog.container">
+        <slot />
       </div>
 
       <DialogFooter
         v-if="$slots.footer || dismissable || $slots.actions"
-        :class="props.classFooter"
+        :class="[styles.dialog.footer, props.classFooter]"
       >
         <slot name="footer">
           <slot name="close">
