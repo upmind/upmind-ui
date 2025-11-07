@@ -1,7 +1,9 @@
 <template>
   <Tabs v-bind="forwarded" v-model="modelValue" :class="class">
     <div :class="styles.tabs.root">
-      <slot name="prepend" />
+      <div v-if="!isEmptySlot('prepend', slots)" :class="styles.tabs.prepend">
+        <slot name="prepend" />
+      </div>
 
       <TabsList ref="tabsListRef" :class="styles.tabs.list">
         <template v-if="tabs.length > 1 || force">
@@ -38,7 +40,9 @@
         />
       </TabsList>
 
-      <slot name="append" />
+      <div v-if="!isEmptySlot('append', slots)" :class="styles.tabs.append">
+        <slot name="append" />
+      </div>
     </div>
 
     <TabsContent
@@ -55,7 +59,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, ref } from "vue";
+import { computed, ref, useSlots } from "vue";
 import { useForwardPropsEmits } from "radix-vue";
 import { useElementBounding } from "@vueuse/core";
 
@@ -73,6 +77,7 @@ import { Icon } from "../icon";
 
 // --- utils
 import { first } from "lodash-es";
+import { isEmptySlot } from "../../utils";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -98,7 +103,7 @@ const props = withDefaults(defineProps<TabsProps>(), {
 
 const emits = defineEmits<TabsRootEmits>();
 const forwarded = useForwardPropsEmits(props, emits);
-
+const slots = useSlots();
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
   defaultValue: props.defaultValue || first(props.tabs)?.value
@@ -125,6 +130,8 @@ const styles = useStyles(
     list: string;
     trigger: string;
     indicator: string;
+    prepend: string;
+    append: string;
   };
 }>;
 
