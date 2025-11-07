@@ -8,7 +8,7 @@
         @click.prevent="onResolve"
         :label="action"
         :class="styles.checkout.action"
-        blockf
+        block
       />
     </div>
 
