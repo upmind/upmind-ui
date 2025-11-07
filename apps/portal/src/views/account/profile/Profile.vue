@@ -1,13 +1,30 @@
 <template>
   <Layout :variant="layout">
-    <template #navigation>ss</template>
+    <template #navigation> ss </template>
 
-    <template #default>
-      <pre>{{ currentRoute }}</pre>
-      <p>Profile</p>
+    <template #controls></template>
+
+    <template #actions></template>
+
+    <template #content-header>
+      <h1>Profile</h1>
     </template>
 
-    <template #aside>ss</template>
+    <template #default>
+      <p>
+        Ex irure pariatur tempor ullamco dolore consequat. Dolore nostrud dolor
+        mollit ea consequat in cupidatat nostrud amet amet reprehenderit
+        consectetur cupidatat nostrud. Aliqua non et cillum mollit voluptate.
+        Esse cupidatat exercitation consectetur fugiat exercitation consequat
+        commodo proident enim tempor. Occaecat exercitation aute sunt ad do duis
+        qui quis velit aute. Duis eiusmod proident aute non est. Officia
+        consequat sit laborum tempor.
+      </p>
+    </template>
+
+    <template #aside>
+      <pre>{{ { meta, currentRoute } }}</pre>
+    </template>
   </Layout>
 </template>
 <script lang="ts" setup>
@@ -20,13 +37,7 @@ import {
 // import { useRoute } from "vue-router";
 import { ROUTE } from "../../../router/types";
 // --- internal
-import {
-  // useBasket,
-  // useBasketFields,
-  // useDataLayer,
-  // useBrand,
-  useRoutingEngine
-} from "@upmind-automation/headless";
+import { useRoutingEngine } from "@upmind-automation/headless";
 // import { useStyles } from "@upmind-automation/upmind-ui";
 // import config from "./basket.config";
 
@@ -39,10 +50,7 @@ import { Layout } from "@upmind-automation/client-vue";
 // -----------------------------------------------------------------------------
 
 // const { t } = useI18n();
-// const { meta, isReady, count, summary } = useBasket();
-// const { storefrontRoute } = useBrand();
-const { currentRoute, isReady, isResolved } = useRoutingEngine();
-// const route = useRoute();
+const { currentRoute, isReady, isResolved, meta } = useRoutingEngine();
 
 // const {
 //   errors: fieldsErrors,

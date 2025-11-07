@@ -12,6 +12,7 @@ import { plugins as uiPlugins } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { forEach } from "lodash-es";
+import { useCustomFlows } from "./router/customFlows";
 // -----------------------------------------------------------------------------
 
 const app = createApp(App);
@@ -32,7 +33,8 @@ UpmindClient.init({
     )
   },
   router: {
-    instance: router
+    instance: router,
+    flows: useCustomFlows
   },
   recaptcha: {
     siteKey: import.meta.env.VITE_APP_GOOGLE_RECAPTCHA_V3_SITE_KEY,
