@@ -1,7 +1,7 @@
 import { cva } from "class-variance-authority";
 
 export const tabsRootVariants = cva(
-  "relative flex pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+  "relative flex [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
   {
     variants: {
       overflow: {
@@ -32,7 +32,7 @@ export const tabsListVariants = cva(
 );
 
 export const tabsTriggerVariants = cva(
-  "text-md/tight hover:text-display data-[state=active]:text-display text-muted focus-visible:ring-control-ring focus-visible:ring-offset-core-surface relative inline-flex items-center gap-2 p-0 text-base font-medium whitespace-nowrap transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50"
+  "text-md/tight hover:text-display data-[state=active]:text-display text-muted focus-visible:ring-control-ring focus-visible:ring-offset-core-surface relative inline-flex items-center gap-2 p-0 pb-4 text-base font-medium whitespace-nowrap transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50"
 );
 
 export const tabsIndicatorVariants = cva(
@@ -44,6 +44,8 @@ export default {
     root: tabsRootVariants,
     list: tabsListVariants,
     trigger: tabsTriggerVariants,
-    indicator: tabsIndicatorVariants
+    indicator: tabsIndicatorVariants,
+    prepend: cva("pb-4"),
+    append: cva("pb-4")
   }
 };
