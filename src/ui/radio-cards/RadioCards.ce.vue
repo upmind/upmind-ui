@@ -7,6 +7,7 @@
     :class="cn(styles.radioCards.root, props.class)"
     data-testid="radio-card-group"
     @update:model-value="onChange"
+    v-auto-animate
   >
     <template v-for="(option, index) in items" :key="option.id || index">
       <RadioCardItem
@@ -47,7 +48,8 @@
 // ---external
 import { computed } from "vue";
 import { useVModel } from "@vueuse/core";
-import { useForwardPropsEmits } from "../../utils";
+import { useForwardPropsEmits } from "radix-vue";
+import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
 import { cn, useStyles } from "../../utils";

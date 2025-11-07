@@ -6,6 +6,7 @@
     :class="cn(styles.checkboxCards.root, props.class)"
     type="multiple"
     data-testid="checkbox-group"
+    v-auto-animate
   >
     <template v-for="(item, index) in items" :key="item.id || index">
       <CheckboxCardItem
@@ -95,8 +96,7 @@
 import { computed } from "vue";
 import { useVModel } from "@vueuse/core";
 import { ToggleGroupRoot } from "radix-vue";
-import { includes, isFunction, isString, isNil } from "lodash-es";
-import { kebabCase } from "lodash-es";
+import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
 import { cn, useStyles } from "../../utils";
@@ -107,6 +107,9 @@ import CheckboxCardItem from "./CheckboxCardItem.vue";
 import { Label } from "../label";
 import { Link } from "../link";
 import { Badge } from "../badge";
+
+// --- utils
+import { includes, isFunction, isString, isNil, kebabCase } from "lodash-es";
 
 // --- types
 import type { CheckboxCardsItemActionProps, CheckboxCardsProps } from "./types";
