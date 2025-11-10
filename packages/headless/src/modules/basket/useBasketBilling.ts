@@ -52,7 +52,7 @@ export const useBasketBilling = () => {
     }).then(service =>
       waitFor(
         service as ActorRef<any>,
-        state => !stateMatches(state, ["loading", "subscribing"]),
+        state => !stateMatches(state, ["subscribing", "loading"]),
         { timeout: Infinity }
       ).then(state => {
         if (stateMatches(state, ["error"])) return false;
