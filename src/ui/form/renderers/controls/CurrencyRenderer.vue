@@ -9,7 +9,9 @@
       :format-options="{
         style: 'currency',
         currency: currency,
-        currencyDisplay: 'code'
+        currencyDisplay: 'code',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
       }"
       :class="styles.numberField.root"
     >
@@ -78,7 +80,7 @@ const currency: ComputedRef<string | undefined> = computed(() => {
 });
 
 const step: ComputedRef<number> = computed(() => {
-  const defaultStep = 1;
+  const defaultStep = 0.01;
   return get(appliedOptions.value, "step", defaultStep);
 });
 
