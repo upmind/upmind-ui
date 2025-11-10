@@ -85,11 +85,11 @@ export const numberFieldRootVariants = cva("group inline-block w-full", {
 });
 
 export const numberFieldVariants = cva(
-  `${ringClasses} text-control-foreground placeholder:text-muted-foreground ring-offset-control-surface inline-flex w-full rounded-lg border-none text-center font-medium text-inherit ring-offset-0 transition-all duration-200 file:border-0 file:bg-transparent file:text-sm file:font-medium focus:ring-offset-2`,
+  `${ringClasses} text-control-foreground placeholder:text-muted-foreground ring-offset-control-surface inline-flex w-full rounded-lg border-none text-center text-inherit ring-offset-0 transition-all duration-200 file:border-0 file:bg-transparent file:text-sm file:font-medium focus:ring-offset-2`,
   {
     variants: {
       variant: {
-        flat: `shadow-control-default bg-control-surface`,
+        flat: `shadow-control-default bg-control-surface hover:shadow-control-hover`,
         minimal: "shadow-none!"
       },
       size: {
@@ -126,7 +126,7 @@ export const numberFieldVariants = cva(
 );
 
 export const numberFieldInputVariants = cva(
-  "bg-control-surface shadow-control-default hover:shadow-control-hover",
+  "bg-control-surface shadow-control-default hover:shadow-control-hover font-normal",
   {
     variants: {
       variant: {
