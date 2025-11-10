@@ -61,12 +61,12 @@ export const numberFieldRootVariants = cva("group inline-block", {
     {
       variant: "minimal",
       count: "4",
-      class: "w-24"
+      class: "w-20"
     },
     {
       variant: "minimal",
       count: "5",
-      class: "w-28"
+      class: "w-24"
     },
     {
       variant: "minimal",
@@ -76,7 +76,7 @@ export const numberFieldRootVariants = cva("group inline-block", {
     {
       variant: "minimal",
       count: "7",
-      class: "w-32"
+      class: "w-28"
     },
     {
       variant: "minimal",
@@ -86,7 +86,7 @@ export const numberFieldRootVariants = cva("group inline-block", {
     {
       variant: "minimal",
       count: "9",
-      class: "w-36"
+      class: "w-32"
     },
     {
       variant: "minimal",

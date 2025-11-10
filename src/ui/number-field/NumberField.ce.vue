@@ -14,6 +14,7 @@
       </NumberFieldDecrement>
 
       <NumberFieldInput
+        @input="handleInputForWidth"
         :class="cn(styles.numberField.field, props.classField)"
         data-testid="quantity-input"
       />
@@ -30,7 +31,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useVModel } from "@vueuse/core";
 
 // --- internal
@@ -77,8 +78,15 @@ const modelValue = useVModel(props, "modelValue", emits, {
   defaultValue: props.modelValue
 });
 
+// Track value ONLY for instant width calculation - not used for modelValue updates
+const internalValue = ref(modelValue.value);
+
+const handleInputForWidth = (value: number) => {
+  internalValue.value = value;
+};
+
 const meta = computed(() => {
-  const digits = modelValue.value?.toString().length || 1;
+  const digits = internalValue.value?.toString().length || 1;
   const count = Math.min(digits, 10).toString();
 
   return {
