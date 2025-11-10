@@ -208,7 +208,6 @@ async function loadLookups(
       limit: 0,
       client_id: clientId,
       invoice_id: orderId,
-      country_id: address?.country_id,
       order: "order",
       "filter[gateway.currencies.id]": currencyId,
       "filter[active]": 1,
