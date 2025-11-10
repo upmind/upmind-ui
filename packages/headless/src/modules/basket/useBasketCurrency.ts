@@ -112,15 +112,7 @@ export const useBasketCurrency = () => {
     // first check if our currency has changed, i.e.: model.code has changed
 
     const code = toRaw(unref(value))?.code?.toUpperCase();
-    const model = contextValue<CurrencyModel>(actor, "model");
-
-    if (code == model?.code) return Promise.resolve();
-
-    if (!isEmpty(value) && !isEqual(value, model)) {
-      actor.value?.send({ type: "SET", data: { code }, update: true });
-    } else {
-      actor.value?.send({ type: "UPDATE" });
-    }
+    actor.value?.send({ type: "SET", data: { code }, update: true });
 
     // then wait for the paymentGateway actor to be updated
     return waitFor(

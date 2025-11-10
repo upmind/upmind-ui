@@ -6,8 +6,7 @@
   <Tabs
     v-else
     :tabs="sections"
-    v-model="currentSection"
-    :defaultValue="currentSection"
+    v-model="modelValue"
     align="between"
     :overflow="sections.length > 1 ? 'hidden' : 'visible'"
     :class="props.class"
@@ -77,18 +76,13 @@ const emits = defineEmits<{
   action: [{ name: string; event: Event }];
 }>();
 
-const currentSection = defineModel<string>();
+const modelValue = defineModel<SectionsProps["modelValue"]>("modelValue", {});
+
 const { currentRoute } = useRoutingEngine();
 const slots = useSlots();
 
-if (props.defaultValue) {
-  currentSection.value = props.defaultValue;
-} else if (props.sections?.length) {
-  currentSection.value = first(props.sections)?.value;
-}
-
 const currentSectionProps = computed(() =>
-  find(props.sections, { value: currentSection.value })
+  find(props.sections, { value: modelValue.value })
 );
 
 const meta = computed(() => ({
