@@ -5,7 +5,6 @@
     icon="wallet-02"
     :label="
       t('cart.payment_details', {
-        count: meta.canMakePartialPayment ? 1 : 0,
         amount: amountsFormatted?.amount
       })
     "

@@ -207,7 +207,7 @@ export default createMachine(
         id: "complete",
         type: "final",
         data: (
-          { paymentDetail }: PaymentDetailsContext,
+          { paymentDetail, model }: PaymentDetailsContext,
           _event: AnyEventObject
         ) => paymentDetail
       }
@@ -448,8 +448,9 @@ export default createMachine(
         !model?.amount ||
         isEqual(model.amount, model.wallet_amount) ||
         model?.type == PaymentType.PAY_LATER,
+
       hasPaymentDetails: (
-        { paymentDetail }: PaymentDetailsContext,
+        { paymentDetail, model }: PaymentDetailsContext,
         _event: AnyEventObject
       ) => !isNil(paymentDetail),
       isPaymentDetail: (

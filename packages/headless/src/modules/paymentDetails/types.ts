@@ -80,7 +80,8 @@ export type Gateway = {
   };
 };
 
-export type PaymentDetailData = PaymentDetailModel & SelectPaymentMethodData;
+export type PaymentDetailData = Omit<PaymentDetailModel, "type"> &
+  SelectPaymentMethodData;
 
 export type PaymentDetailModel = {
   amount: number;
