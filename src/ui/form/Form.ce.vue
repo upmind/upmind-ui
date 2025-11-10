@@ -22,10 +22,7 @@
       @change="onChange"
     />
 
-    <slot name="footer" v-bind="{ meta }">
-      <!-- debugging -->
-      <!-- <pre>{{ { model, meta, errors } }}</pre> -->
-    </slot>
+    <slot name="footer" v-bind="{ meta }"></slot>
 
     <!-- actions -->
     <div v-if="actions && !noActions" :class="styles.form.actions">
