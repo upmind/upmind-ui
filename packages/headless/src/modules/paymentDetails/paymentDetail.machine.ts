@@ -248,21 +248,21 @@ export default createMachine(
 
       setLookups: assign({
         lookups: (
-          { model }: PaymentDetailsContext,
+          { model, raw }: PaymentDetailsContext,
           { data }: AnyEventObject
         ) => {
           // NB: Filter out  gateways and payment details that are not valid base don our model
-          const safePaymentTypes = filterPaymentTypes(data.config, model);
-          const safeGateways = filterGateways(data.gateways, model);
+          const safePaymentTypes = filterPaymentTypes(raw.config, model);
+          const safeGateways = filterGateways(raw.gateways ?? [], model);
           const safePaymentDetails = filterPaymentDetails(
-            data.storedPaymentMethods,
+            raw.storedPaymentMethods ?? [],
             safeGateways
           );
           return {
             storedPaymentMethods: safePaymentDetails,
             gateways: safeGateways,
             paymentTypes: safePaymentTypes,
-            accountCredit: data?.accountCredit ?? [],
+            accountCredit: raw?.accountCredit,
             amountsFormatted: data?.amountsFormatted ?? {
               amount: "",
               wallet: ""

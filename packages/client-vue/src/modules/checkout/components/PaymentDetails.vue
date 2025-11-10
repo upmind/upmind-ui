@@ -11,7 +11,7 @@
   >
     <template #actions>
       <PaymentAmount
-        v-if="meta.isAvailable && !meta.isFree && meta.canMakePartialPayment"
+        v-if="!meta.isFree && meta.canMakePartialPayment"
         :processing="meta.isProcessing"
         :modelValue="model?.amount"
         :currency="currency"

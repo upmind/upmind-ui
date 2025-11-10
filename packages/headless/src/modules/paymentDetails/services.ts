@@ -112,7 +112,7 @@ export function loadList() {
 // -----------------------------------------------------------------------------
 
 async function loadLookups(
-  { currency, address, orderId, model }: PaymentDetailsContext,
+  { currency, address, orderId, lookups }: PaymentDetailsContext,
   _event: AnyEventObject
 ) {
   const { meta, user } = useSession();
@@ -248,8 +248,11 @@ async function loadLookups(
         accountCredit,
         storedPaymentMethods,
         gateways,
-        paymentTypes
-      } as unknown as Partial<PaymentDetailsContext>;
+        amountsFormatted: {
+          amount: lookups?.amountsFormatted?.amount || "",
+          wallet: lookups?.amountsFormatted?.wallet || ""
+        }
+      } as unknown as PaymentDetailsContext["lookups"];
     }
   );
 }
