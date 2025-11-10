@@ -77,12 +77,18 @@ const modelValue = useVModel(props, "modelValue", emits, {
   defaultValue: props.modelValue
 });
 
-const meta = computed(() => ({
-  size: props.size,
-  width: props.width,
-  variant: props.variant,
-  isDisabled: props.disabled
-}));
+const meta = computed(() => {
+  const digits = modelValue.value?.toString().length || 1;
+  const count = Math.min(digits, 10).toString();
+
+  return {
+    size: props.size,
+    width: props.width,
+    count: count,
+    variant: props.variant,
+    isDisabled: props.disabled
+  };
+});
 
 const styles = useStyles(
   ["numberField"],
