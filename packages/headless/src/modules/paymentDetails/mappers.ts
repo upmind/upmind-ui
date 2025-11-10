@@ -193,7 +193,7 @@ export function mapPaymentData({
   // Create the base payment detail object that ALL payment methods will use
   const paymentDetail: Partial<PaymentDetailData> = {
     amount: model.amount,
-    wallet_amount: model.wallet_amount || undefined,
+    wallet_amount: Math.max(0, model.wallet_amount ?? 0) || undefined,
     client_id: clientId,
     return_url: model?.return_url,
     cancel_url: model?.cancel_url

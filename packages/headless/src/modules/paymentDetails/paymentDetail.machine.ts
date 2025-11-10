@@ -6,7 +6,12 @@ import services from "./services";
 import { authSubscription } from "../session/helper";
 
 // --- utils
-import { spawnGateway } from "./utils";
+import {
+  filterGateways,
+  filterPaymentDetails,
+  filterPaymentTypes,
+  spawnGateway
+} from "./utils";
 import { mapToHeadlessError, stopService, useModelParser } from "../../utils";
 import { useTime, useValidationParser } from "../../utils";
 import { useSchema, useUischema } from "./schemas";
@@ -238,24 +243,32 @@ export default createMachine(
       }),
 
       setRaw: assign({
-        raw: (_context: PaymentDetailsContext, { data }: AnyEventObject) => ({
-          storedPaymentMethods: data?.storedPaymentMethods ?? [],
-          gateways: data?.gateways ?? [],
-          config: data.config ?? {}
-        })
+        raw: (_context: PaymentDetailsContext, { data }: AnyEventObject) => data
       }),
 
       setLookups: assign({
         lookups: (
-          _context: PaymentDetailsContext,
+          { model }: PaymentDetailsContext,
           { data }: AnyEventObject
-        ) => ({
-          storedPaymentMethods: data?.storedPaymentMethods ?? [],
-          gateways: data?.gateways ?? [],
-          paymentTypes: data?.paymentTypes ?? [],
-          accountCredit: data?.accountCredit ?? [],
-          amountsFormatted: data?.amountsFormatted ?? { amount: "", wallet: "" }
-        })
+        ) => {
+          // NB: Filter out  gateways and payment details that are not valid base don our model
+          const safePaymentTypes = filterPaymentTypes(data.config, model);
+          const safeGateways = filterGateways(data.gateways, model);
+          const safePaymentDetails = filterPaymentDetails(
+            data.storedPaymentMethods,
+            safeGateways
+          );
+          return {
+            storedPaymentMethods: safePaymentDetails,
+            gateways: safeGateways,
+            paymentTypes: safePaymentTypes,
+            accountCredit: data?.accountCredit ?? [],
+            amountsFormatted: data?.amountsFormatted ?? {
+              amount: "",
+              wallet: ""
+            }
+          };
+        }
       }),
 
       setSchemas: assign({

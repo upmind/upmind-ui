@@ -28,6 +28,11 @@ import {
   useTime
 } from "../../utils";
 import {
+  filterGateways,
+  filterPaymentDetails,
+  filterPaymentTypes
+} from "./utils";
+import {
   mapAccountCredit,
   mapPaymentData,
   mapPaymentDetailDetails
@@ -49,11 +54,6 @@ import {
   IWalletBalance
 } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/vue-query";
-import {
-  filterGateways,
-  filterPaymentDetails,
-  filterPaymentTypes
-} from "./utils";
 
 // -----------------------------------------------------------------------------
 const queryKey: QueryKey = ["paymentDetail", "stored"];
@@ -184,10 +184,10 @@ async function loadLookups(
       limit: 0,
       brand_id: unref(brandId),
       active: true,
-      // "filter[gateway.currencies.id]": currencyId,
+      "filter[gateway.currencies.id]": currencyId,
+      // "filter[gateway.active]": 1,
       order: ["-default", "id"].join(),
       with: ["gateway", "client"].join()
-      // "filter[active]": 1,
     }),
     queryKey: [
       "payment-details",
@@ -208,6 +208,7 @@ async function loadLookups(
       limit: 0,
       client_id: clientId,
       invoice_id: orderId,
+      country_id: address?.country_id,
       order: "order",
       "filter[gateway.currencies.id]": currencyId,
       "filter[active]": 1,
@@ -242,19 +243,12 @@ async function loadLookups(
       PaymentDetail[],
       IBrandGateway[]
     ]) => {
-      // NB: Filter out  gateways and payment details that are not valid base don our model
-      const safePaymentTypes = filterPaymentTypes(config, model);
-      const safeGateways = filterGateways(gateways, model);
-      const safePaymentDetails = filterPaymentDetails(
-        storedPaymentMethods,
-        safeGateways
-      );
       return {
         config,
         accountCredit,
-        storedPaymentMethods: safePaymentDetails,
-        gateways: safeGateways,
-        paymentTypes: safePaymentTypes
+        storedPaymentMethods,
+        gateways,
+        paymentTypes
       } as unknown as Partial<PaymentDetailsContext>;
     }
   );
@@ -336,11 +330,7 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
     // try preselec the firt payment detail if we have one
     // otherwise preselect the first available gateway
     if (!safeModel.gateway_id && !safeModel.payment_details_id) {
-      const defaultGateway = first(lookups.gateways)?.gateway_id;
-      const defaultPaymentMethod = first(lookups.storedPaymentMethods)?.id;
-      if (defaultPaymentMethod)
-        safeModel.payment_details_id = defaultPaymentMethod;
-      else safeModel.gateway_id = defaultGateway;
+      safeModel.payment_details_id = first(lookups.storedPaymentMethods)?.id;
     }
   } else {
     unset(safeModel, "gateway_id");
