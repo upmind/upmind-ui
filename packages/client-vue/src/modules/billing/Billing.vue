@@ -4,7 +4,6 @@
     class-active="w-full rounded"
     :class="meta.isProcessing ? 'overflow-hidden' : ''"
   >
-    <pre>{{ modelValue }}</pre>
     <Sections
       class="min-h-52"
       v-model="activeTab"
