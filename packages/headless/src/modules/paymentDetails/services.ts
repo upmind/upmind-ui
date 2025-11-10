@@ -14,7 +14,8 @@ import {
   isEmpty,
   includes,
   isEqual,
-  values
+  values,
+  first
 } from "lodash-es";
 import {
   ErrorOrigin,
@@ -330,7 +331,18 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
       safeModel?.type
     );
 
-  if (!needsPayment) {
+  if (needsPayment) {
+    // Ensure we have a payment method selected,
+    // try preselec the firt payment detail if we have one
+    // otherwise preselect the first available gateway
+    if (!safeModel.gateway_id && !safeModel.payment_details_id) {
+      const defaultGateway = first(lookups.gateways)?.gateway_id;
+      const defaultPaymentMethod = first(lookups.storedPaymentMethods)?.id;
+      if (defaultPaymentMethod)
+        safeModel.payment_details_id = defaultPaymentMethod;
+      else safeModel.gateway_id = defaultGateway;
+    }
+  } else {
     unset(safeModel, "gateway_id");
     unset(safeModel, "payment_details_id");
   }
@@ -391,15 +403,19 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
   }
 
   // Finally we calculate the formatted amount for the model amount
+  // NB: Only fire these if the amounts have changed
   lookups.amountsFormatted = await Promise.all([
     calculate(context, {
-      data: safeModel.amount ?? 0,
+      data: { value: safeModel.amount ?? 0, prev: model.amount ?? 0 },
       type: "calculate"
-    }),
+    }).catch(() => lookups.amountsFormatted?.amount || ""),
     calculate(context, {
-      data: safeModel.wallet_amount ?? 0,
+      data: {
+        value: safeModel.wallet_amount ?? 0,
+        prev: model.wallet_amount ?? 0
+      },
       type: "calculate"
-    })
+    }).catch(() => lookups.amountsFormatted?.wallet || "")
   ]).then(([amountFormatted, walletAmountFormatted]) => {
     return {
       amount: amountFormatted,
@@ -474,6 +490,8 @@ async function calculate(
 ) {
   const { post, useUrl } = useQuery();
 
+  if (isEqual(data.value, data.prev)) return Promise.reject();
+
   // we need to calculate the total account credit including negative allowance
   // and get a formatted version based on the currency
   return post({
@@ -481,16 +499,9 @@ async function calculate(
     withAccessToken: true,
     data: {
       currency_id: currency.id,
-      prices: [data]
+      prices: [data.value]
     }
-  })
-    .then(res => {
-      return get(res, "total_formatted", "");
-    })
-    .catch(() => {
-      // if we fail to get the formatted total, we just return an empty string
-      return "";
-    });
+  }).then(res => get(res, "total_formatted", ""));
 }
 // -----------------------------------------------------------------------------
 
