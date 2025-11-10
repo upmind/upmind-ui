@@ -395,11 +395,7 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
     unset(safeModel, "gateway_id");
     unset(safeModel, "payment_details_id");
     safeModel.type = PaymentType.PAY_LATER;
-    paymentDetail = mapPaymentData({
-      model: safeModel,
-      clientId,
-      lookups
-    });
+    paymentDetail = undefined;
   }
 
   // Finally we calculate the formatted amount for the model amount
