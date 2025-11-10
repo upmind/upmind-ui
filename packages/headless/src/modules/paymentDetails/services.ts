@@ -371,7 +371,8 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
       unset(safeModel, "gateway_id");
       paymentDetail = mapPaymentData({
         model: safeModel,
-        clientId
+        clientId,
+        lookups
       });
     }
   }
@@ -384,7 +385,8 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
     safeModel.type = PaymentType.PAY_LATER;
     paymentDetail = mapPaymentData({
       model: safeModel,
-      clientId
+      clientId,
+      lookups
     });
   }
 

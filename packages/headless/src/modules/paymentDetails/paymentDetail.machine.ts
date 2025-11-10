@@ -231,8 +231,6 @@ export default createMachine(
       setParsed: assign({
         model: (_context: PaymentDetailsContext, { data }: AnyEventObject) =>
           data.model,
-        // gateway: (_context: PaymentDetailsContext, { data }: AnyEventObject) =>
-        //   data.gateway,
         paymentDetail: (
           _context: PaymentDetailsContext,
           { data }: AnyEventObject
@@ -396,13 +394,13 @@ export default createMachine(
 
       setPaymentDetails: assign({
         paymentDetail: (
-          { model, gateway, clientId }: PaymentDetailsContext,
+          { model, lookups, clientId }: PaymentDetailsContext,
           { data }: AnyEventObject
         ) =>
           mapPaymentData({
             clientId,
             data,
-            gateway,
+            lookups,
             model
           })
       }),
@@ -446,7 +444,10 @@ export default createMachine(
       needsNoPayment: (
         { model }: PaymentDetailsContext,
         _event: AnyEventObject
-      ) => !model?.amount || model?.type == PaymentType.PAY_LATER,
+      ) =>
+        !model?.amount ||
+        isEqual(model.amount, model.wallet_amount) ||
+        model?.type == PaymentType.PAY_LATER,
       hasPaymentDetails: (
         { paymentDetail }: PaymentDetailsContext,
         _event: AnyEventObject
