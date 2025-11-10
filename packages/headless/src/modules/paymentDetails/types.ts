@@ -183,11 +183,6 @@ export interface PaymentDetailsContext extends PaymentDetailsArgs {
   };
 
   /**
-   * The currently selected {@link IGateway} object.
-   */
-  gateway?: IGateway;
-
-  /**
    * The JSON Schema (`JsonSchema`) defining the structure and validation rules for the payment details form.
    */
   schema?: JsonSchema;

@@ -180,17 +180,17 @@ export function mapPaymentData({
   clientId,
   data,
   model,
-  gateway
+  lookups
 }: {
   clientId: PaymentDetailsContext["clientId"];
   data?: SelectPaymentMethodData;
-  gateway?: PaymentDetailsContext["gateway"];
+  lookups: PaymentDetailsContext["lookups"];
   model: PaymentDetailModel;
 }): PaymentDetailData {
   // Create the base payment detail object that ALL payment methods will use
   const paymentDetail = {
     amount: model.amount,
-    wallet_amount: model.wallet_amount,
+    wallet_amount: model.wallet_amount || undefined,
     type: model.type,
     client_id: clientId,
     return_url: model?.return_url,
@@ -198,7 +198,6 @@ export function mapPaymentData({
   };
 
   // Then conditionally add the payment data based on the payment method type and gateway
-
   // First check if we are deferring payment
   if (model.type === PaymentType.PAY_LATER) {
     return defaults({ type: PaymentType.PAY_LATER }, paymentDetail) as any;
@@ -212,8 +211,13 @@ export function mapPaymentData({
 
   // Then if are using a gateway, we need to map the data based on the gateway type
   if (model.gateway_id && !isEmpty(data)) {
+    const brandGateway = find(lookups.gateways, [
+      "gateway_id",
+      model.gateway_id
+    ]);
+
     // map our specific gateway data
-    switch (gateway?.gateway_provider?.code) {
+    switch (brandGateway?.gateway?.gateway_provider?.code) {
       // SIMPLE SDK OR REDIRECT GATEWAYS
       case GatewayProviderCodes.BRAINTREE:
       case GatewayProviderCodes.FLUTTERWAVE:
