@@ -9,14 +9,13 @@
     v-model="currentSection"
     :defaultValue="currentSection"
     align="between"
-    overflow="visible"
+    :overflow="sections.length > 1 ? 'hidden' : 'visible'"
     :class="props.class"
   >
     <template #prepend>
       <slot name="prepend" />
     </template>
 
-    >
     <template
       v-for="section in sections"
       :key="section.value"
