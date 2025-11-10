@@ -32,7 +32,6 @@
 <script lang="ts" setup>
 // --- external
 import { computed, ref } from "vue";
-import { useVModel } from "@vueuse/core";
 
 // --- internal
 import { cn, useStyles } from "../../utils";
@@ -65,18 +64,11 @@ const props = withDefaults(defineProps<NumberFieldProps>(), {
   classField: ""
 });
 
-const emits = defineEmits<{
-  (e: "update:modelValue", payload: number): void;
-}>();
+const modelValue = defineModel<number>();
 
 const delegatedProps = computed(() =>
   omit(props, ["class", "uiConfig", "modelValue", "size", "width", "variant"])
 );
-
-const modelValue = useVModel(props, "modelValue", emits, {
-  passive: true,
-  defaultValue: props.modelValue
-});
 
 // Track value ONLY for instant width calculation - not used for modelValue updates
 const internalValue = ref(modelValue.value);
