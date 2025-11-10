@@ -138,6 +138,7 @@ export interface PaymentDetailsContext extends PaymentDetailsArgs {
    * This will return ALL the clients stored payment methods UNFILTERED
    */
   raw: {
+    accountCredit?: AccountCredit;
     storedPaymentMethods?: PaymentDetail[];
     gateways?: IBrandGateway[];
     config?: Record<string, any>;
