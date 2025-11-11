@@ -32,7 +32,7 @@
         :uiConfig="props.uiConfig"
         :data-hover="props.dataHover"
         :data-focus="props.dataFocus"
-        data-testid="radio-card-item"
+        :data-testid="`radio-card-${kebabCase(option.label) || index}`"
         @keydown.enter="onChange(option.value)"
       >
         <template #item="slotProps">
@@ -50,6 +50,7 @@ import { computed } from "vue";
 import { useVModel } from "@vueuse/core";
 import { useForwardPropsEmits } from "radix-vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
+import { kebabCase } from "lodash-es";
 
 // --- internal
 import { cn, useStyles } from "../../utils";
