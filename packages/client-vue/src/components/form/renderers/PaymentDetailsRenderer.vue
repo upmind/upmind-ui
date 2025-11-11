@@ -21,11 +21,17 @@
               size="sm"
             />
           </header>
-          <footer :class="styles.form.payment.footer.root">
-            <small :class="styles.form.payment.footer.label">{{
-              item?.text
-            }}</small>
+          <footer
+            v-if="item?.text || item?.appendIcon"
+            :class="styles.form.payment.footer.root"
+          >
+            <small
+              v-if="item?.text"
+              :class="styles.form.payment.footer.label"
+              >{{ item?.text }}</small
+            >
             <Icon
+              v-if="item?.appendIcon"
               :icon="item?.appendIcon?.name"
               :class="styles.form.payment.footer.icon"
             />

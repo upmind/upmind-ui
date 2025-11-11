@@ -271,7 +271,7 @@ export function filterGateways(
 
 export function filterPaymentTypes(
   config: PaymentDetailsContext["raw"]["config"],
-  model: PaymentDetailsContext["model"]
+  model?: PaymentDetailsContext["model"]
 ): Record<string, PaymentType> {
   const paymentTypes: Record<string, PaymentType> = {
     FULL_PAYMENT: PaymentType.PAY_IN_FULL // ALWAYS AVAILABLE

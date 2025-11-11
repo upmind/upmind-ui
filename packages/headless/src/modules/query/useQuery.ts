@@ -395,6 +395,7 @@ export const useQuery = () => {
                 request<TQueryFnData>(params)
                   // NB: we need to ensure that if we are given an offset that is greater than the total number of pages, we adjust it accordingly
                   .then(response => {
+                    const offset = (pageIndex.value - 1) * limit;
                     if (response.total && offset >= response.total) {
                       // modify the params and re-request with the new offset
                       // Calculate the correct offset for the last page so it doesn't exceed the total
@@ -911,6 +912,8 @@ export const useQuery = () => {
           request<TQueryFnData>(params)
             // NB: we need to ensure that if we are given an offset that is greater than the total number of pages, we adjust it accordingly
             .then(response => {
+              const offset = (pageIndex.value - 1) * limit;
+
               if (response.total && offset >= response.total) {
                 // modify the params and re-request with the new offset
                 // Calculate the correct offset for the last page so it doesn't exceed the total

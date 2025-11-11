@@ -1,7 +1,7 @@
 // --- external
 
 // --- internal
-import { useBasket } from "../../basket";
+import { useBasket, useBasketFields } from "../../basket";
 import { useBrand } from "../../brand";
 import { useRoutingEngine } from "..";
 
@@ -57,6 +57,7 @@ export const useCheckoutFlows = () => {
   const routing = useRoutingEngine();
   const { getConfigValue } = useBrand();
   const { meta: basketMeta, isReady, invoice } = useBasket();
+  const { isReady: isFieldsReady, meta: fieldsMeta } = useBasketFields();
   const { meta: sessionMeta } = useSession();
 
   let flows: Flow[] = [
@@ -64,12 +65,9 @@ export const useCheckoutFlows = () => {
       name: ROUTE.CHECKOUT,
       guard: async (_route: Route) => {
         await isReady();
-        const validProducts =
-          basketMeta.value.hasProducts && !basketMeta.value.hasInvalidProducts;
-        const validFields = basketMeta.value.hasFields;
         const validAuth = sessionMeta.value.isAuthenticated;
 
-        // NB if we are in a One-Page flow, we skip the products and fields validation here as long as we have products in the basket
+        // NB if we are in a One-Page flow,  as long as we have products in the basket and are authenticated, we can proceed to checkout
         if (
           getConfigValue(BrandConfigKeys.CHECKOUT_FLOW) ===
           CheckoutFlows.ONE_PAGE
@@ -77,6 +75,11 @@ export const useCheckoutFlows = () => {
           return validAuth && basketMeta.value.hasProducts;
         }
 
+        // NB: In Stepped flow, we need to ALSO validate products and fields, so we ensure everything is valid before proceeding to checkout
+        await isFieldsReady();
+        const validFields = fieldsMeta.value.isComplete;
+        const validProducts =
+          basketMeta.value.hasProducts && !basketMeta.value.hasInvalidProducts;
         return validProducts && validFields && validAuth;
       },
       resolve: async (_route: Route) => {

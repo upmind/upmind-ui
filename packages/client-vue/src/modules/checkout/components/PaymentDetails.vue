@@ -5,14 +5,13 @@
     icon="wallet-02"
     :label="
       t('cart.payment_details', {
-        count: meta.canMakePartialPayment ? 1 : 0,
         amount: amountsFormatted?.amount
       })
     "
   >
     <template #actions>
       <PaymentAmount
-        v-if="meta.isAvailable && !meta.isFree && meta.canMakePartialPayment"
+        v-if="!meta.isFree && meta.canMakePartialPayment"
         :processing="meta.isProcessing"
         :modelValue="model?.amount"
         :currency="currency"

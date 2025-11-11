@@ -80,7 +80,8 @@ export type Gateway = {
   };
 };
 
-export type PaymentDetailData = PaymentDetailModel & SelectPaymentMethodData;
+export type PaymentDetailData = Omit<PaymentDetailModel, "type"> &
+  SelectPaymentMethodData;
 
 export type PaymentDetailModel = {
   amount: number;
@@ -123,6 +124,17 @@ export interface PaymentDetailsArgs {
    * The total amount of the payment.
    */
   amount: number;
+
+  /**
+   * The partial amount set by the user to pay (if applicable).
+   * We need this to handle model amount logic when partial payments are allowed and if basket amounts change die to other factors (e.g., discounts, gift cards, etc.)
+   */
+  amountPartial?: number;
+
+  /**
+   * The Wallet amount set by the user to pay (if applicable). We only set this when the user explicitly chooses to use SOME wallet funds and not pay the full balance.
+   */
+  amountWallet?: number;
 }
 
 /**
@@ -137,6 +149,7 @@ export interface PaymentDetailsContext extends PaymentDetailsArgs {
    * This will return ALL the clients stored payment methods UNFILTERED
    */
   raw: {
+    accountCredit?: AccountCredit;
     storedPaymentMethods?: PaymentDetail[];
     gateways?: IBrandGateway[];
     config?: Record<string, any>;
@@ -181,11 +194,6 @@ export interface PaymentDetailsContext extends PaymentDetailsArgs {
      */
     storedPaymentMethods?: PaymentDetail[];
   };
-
-  /**
-   * The currently selected {@link IGateway} object.
-   */
-  gateway?: IGateway;
 
   /**
    * The JSON Schema (`JsonSchema`) defining the structure and validation rules for the payment details form.

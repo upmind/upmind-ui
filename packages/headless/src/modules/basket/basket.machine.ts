@@ -333,7 +333,7 @@ export default createMachine(
         id: "checkout",
         always: {
           target: "converting",
-          cond: "hasPaymentDetail"
+          cond: "paymentDetailComplete"
         }
       },
 
@@ -718,11 +718,8 @@ export default createMachine(
 
       paymentDetailComplete: (
         { actors }: BasketContext,
-        { data }: AnyEventObject
-      ) =>
-        stateMatches(actors?.paymentDetail, ["complete", "done"]) &&
-        !isNil(data) &&
-        !isEmpty(data),
+        _event: AnyEventObject
+      ) => stateMatches(actors?.paymentDetail, ["complete", "done"]),
 
       paymentDetailConfiguring: ({ actors, paymentDetail }: BasketContext) =>
         stateMatches(actors?.paymentDetail, [
@@ -746,23 +743,8 @@ export default createMachine(
         return hasBilling && hasFields && hasProducts;
       },
 
-      hasPaymentDetail: ({ paymentDetail }: BasketContext) =>
-        !isNil(paymentDetail) && !isEmpty(paymentDetail),
-
-      needsPayment: ({ paymentDetail }: BasketContext) => {
-        const isFree = (paymentDetail?.amount ?? 0) === 0;
-
-        const payLater = paymentDetail?.type === PaymentType.PAY_LATER;
-
-        // MANUAL/OFFLINE GATEWAYS THAT DONT HAVE A PAYMENT DETAIL or GATEWAY ID
-        const manualPayment =
-          !paymentDetail?.gateway_id && !paymentDetail?.payment_details_id;
-
-        const payingWithCredit = !!paymentDetail?.wallet_amount;
-
-        return (!isFree && !manualPayment && !payLater) || payingWithCredit;
-      },
-
+      needsPayment: ({ paymentDetail }: BasketContext) =>
+        !isEmpty(paymentDetail),
       // --- Item Guards
 
       hasNoProducts: ({ products }) => isEmpty(products),

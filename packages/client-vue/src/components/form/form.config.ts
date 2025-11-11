@@ -20,7 +20,7 @@ export default {
       ),
       header: {
         root: cva("flex items-center gap-2"),
-        label: cva("text-display text-md-tight font-medium")
+        label: cva("text-display text-md-tight font-medium break-all")
       },
       footer: {
         root: cva(
