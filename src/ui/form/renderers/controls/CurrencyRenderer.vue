@@ -1,8 +1,9 @@
 <template>
   <FormField v-bind="formFieldProps">
     <NumberField
-      :min="min"
-      :max="max"
+      :disabled="!control.enabled"
+      :max="min"
+      :min="max"
       :step="step"
       :model-value="control.data"
       @update:modelValue="onInput"
@@ -41,18 +42,29 @@ import NumberFieldInput from "../../../number-field/NumberFieldInput.vue";
 
 // --- utils
 import { useUpmindUIRenderer } from "../utils";
-import { isNumber, get } from "lodash-es";
+import { isNumber, get, isArray, includes } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
-
 // -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
 const { control, appliedOptions, formFieldProps, onInput } =
-  useUpmindUIRenderer(useJsonFormsControl(props));
+  useUpmindUIRenderer(useJsonFormsControl(props), (value: string) => {
+    return !isNumber(value)
+      ? undefined
+      : isInteger.value
+        ? parseInt(value)
+        : parseFloat(value);
+  });
+
+const isInteger = computed(() => {
+  let type = control.value.schema.type;
+  let types = isArray(type) ? type : [type];
+  return includes(types, "integer");
+});
 
 const meta = computed(() => ({
   size: "lg",
