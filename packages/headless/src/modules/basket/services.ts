@@ -180,16 +180,7 @@ async function convert(
       )
     );
 
-  if (isEmpty(paymentDetail) || !isObject(paymentDetail))
-    return Promise.reject(
-      new DetailedError(
-        t("error.payment_details_not_available"),
-        responseCodes.Unprocessable_Entity,
-        ErrorOrigin.Headless
-      )
-    );
-
-  const data: Record<string, any> = { ...paymentDetail };
+  const data: Record<string, any> = paymentDetail ?? {};
 
   // add referral cookie if available
   const referralCookie = getCookie("upm_aff");

@@ -144,6 +144,7 @@ async function resolve(
   { data }: AnyEventObject
 ) {
   // ---
+
   const route = data.route as Route;
 
   const name = data.name as ROUTE;
@@ -156,32 +157,32 @@ async function resolve(
 
   if (!target) return Promise.reject();
 
-  const resolvedFlow = await guardTarget(target, route, event).then(
-    async valid => {
+  const resolvedFlow: Flow | undefined = await guardTarget(target, route, event)
+    .then(async valid => {
       // if we have a valid target, then we can resolve the route,
       // otherwise we need to check if we have a fallback
       // if we dont have a fallback, then we need to check if we have any items in the basket, as it may be empty
-
       const targets = mapTargets(target?.targets?.fallback || [], flows);
       const flow: Flow | undefined = valid
         ? target
         : await matchTargets(targets, route, event).catch(() => undefined);
 
       return flow;
-    }
-  );
+    })
+    .catch(() => {
+      return undefined;
+    });
 
-  const resolvedRoute = resolvedFlow
-    ? await resolveRoute(resolvedFlow, route, event)
-    : undefined;
-
-  return new Promise((resolve, reject) => {
-    if (resolvedRoute) {
-      resolve({ flow: resolvedFlow, route: resolvedRoute });
-    } else {
-      reject({ name, target });
-    }
-  });
+  return resolveRoute(
+    resolvedFlow ?? {
+      name: target.name
+    },
+    route,
+    event
+  ).then(resolvedRoute => ({
+    flow: resolvedFlow,
+    route: resolvedRoute
+  }));
 }
 
 /**

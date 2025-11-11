@@ -180,40 +180,42 @@ export function mapPaymentData({
   clientId,
   data,
   model,
-  gateway
+  lookups
 }: {
   clientId: PaymentDetailsContext["clientId"];
   data?: SelectPaymentMethodData;
-  gateway?: PaymentDetailsContext["gateway"];
+  lookups: PaymentDetailsContext["lookups"];
   model: PaymentDetailModel;
-}): PaymentDetailData {
+}): PaymentDetailData | undefined {
+  // First check if we are deferring payment, in which case we return undefined
+  if (model.type === PaymentType.PAY_LATER) return undefined;
+
   // Create the base payment detail object that ALL payment methods will use
-  const paymentDetail = {
+  const paymentDetail: Partial<PaymentDetailData> = {
     amount: model.amount,
-    wallet_amount: model.wallet_amount,
-    type: model.type,
+    wallet_amount: Math.max(0, model.wallet_amount ?? 0) || undefined,
     client_id: clientId,
     return_url: model?.return_url,
     cancel_url: model?.cancel_url
   };
 
-  // Then conditionally add the payment data based on the payment method type and gateway
-
-  // First check if we are deferring payment
-  if (model.type === PaymentType.PAY_LATER) {
-    return defaults({ type: PaymentType.PAY_LATER }, paymentDetail) as any;
-    // do nothing, pay later does not need any additional data
-  }
-
-  //  check if we're using a stored payment method
+  //  Then check if we're using a stored payment method and return that data
   if (model.payment_details_id) {
-    return defaults(mapStoredPaymentDetailData(model), paymentDetail);
+    return defaults(
+      mapStoredPaymentDetailData(model),
+      paymentDetail
+    ) as PaymentDetailData;
   }
 
-  // Then if are using a gateway, we need to map the data based on the gateway type
+  // Otherwise, check if we are using a gateway, and  map the data based on the gateway type
   if (model.gateway_id && !isEmpty(data)) {
+    const brandGateway = find(lookups.gateways, [
+      "gateway_id",
+      model.gateway_id
+    ]);
+
     // map our specific gateway data
-    switch (gateway?.gateway_provider?.code) {
+    switch (brandGateway?.gateway?.gateway_provider?.code) {
       // SIMPLE SDK OR REDIRECT GATEWAYS
       case GatewayProviderCodes.BRAINTREE:
       case GatewayProviderCodes.FLUTTERWAVE:
@@ -228,7 +230,10 @@ export function mapPaymentData({
       case GatewayProviderCodes.PAYSTACK:
       case GatewayProviderCodes.RAZOR_PAY_CHECKOUT:
       case GatewayProviderCodes.STRIPE:
-        return defaults(mapGatewayData(data), paymentDetail);
+        return defaults(
+          mapGatewayData(data),
+          paymentDetail
+        ) as PaymentDetailData;
 
       // CARD GATEWAYS
 
@@ -268,10 +273,10 @@ export function mapPaymentData({
       case GatewayProviderCodes.SAGE_PAY_DIRECT:
       case GatewayProviderCodes.WORLD_PAY_JSON:
         //  UNSUPPORTED GATEWAYS - DO NOTHING, FALLBACK TO PAY LATER
-        return defaults({ type: PaymentType.PAY_LATER }, paymentDetail) as any;
+        return undefined;
     }
   }
 
-  // As a catch all we will force "manual payments" to allow the order to go through but not take payment
-  return defaults({ type: PaymentType.PAY_LATER }, paymentDetail) as any;
+  // Finally As a catch all we will force "manual payments" to allow the order to go through but not take payment
+  return paymentDetail as PaymentDetailData;
 }

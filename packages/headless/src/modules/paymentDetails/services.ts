@@ -14,7 +14,9 @@ import {
   isEmpty,
   includes,
   isEqual,
-  values
+  values,
+  first,
+  has
 } from "lodash-es";
 import {
   ErrorOrigin,
@@ -26,6 +28,11 @@ import {
   stateMatches,
   useTime
 } from "../../utils";
+import {
+  filterGateways,
+  filterPaymentDetails,
+  filterPaymentTypes
+} from "./utils";
 import {
   mapAccountCredit,
   mapPaymentData,
@@ -48,11 +55,6 @@ import {
   IWalletBalance
 } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/vue-query";
-import {
-  filterGateways,
-  filterPaymentDetails,
-  filterPaymentTypes
-} from "./utils";
 
 // -----------------------------------------------------------------------------
 const queryKey: QueryKey = ["paymentDetail", "stored"];
@@ -111,7 +113,7 @@ export function loadList() {
 // -----------------------------------------------------------------------------
 
 async function loadLookups(
-  { currency, address, orderId, model }: PaymentDetailsContext,
+  { currency, address, orderId, lookups }: PaymentDetailsContext,
   _event: AnyEventObject
 ) {
   const { meta, user } = useSession();
@@ -183,10 +185,10 @@ async function loadLookups(
       limit: 0,
       brand_id: unref(brandId),
       active: true,
-      // "filter[gateway.currencies.id]": currencyId,
+      "filter[gateway.currencies.id]": currencyId,
+      // "filter[gateway.active]": 1,
       order: ["-default", "id"].join(),
       with: ["gateway", "client"].join()
-      // "filter[active]": 1,
     }),
     queryKey: [
       "payment-details",
@@ -241,59 +243,75 @@ async function loadLookups(
       PaymentDetail[],
       IBrandGateway[]
     ]) => {
-      // NB: Filter out  gateways and payment details that are not valid base don our model
-      const safePaymentTypes = filterPaymentTypes(config, model);
-      const safeGateways = filterGateways(gateways, model);
-      const safePaymentDetails = filterPaymentDetails(
-        storedPaymentMethods,
-        safeGateways
-      );
       return {
         config,
         accountCredit,
-        storedPaymentMethods: safePaymentDetails,
-        gateways: safeGateways,
-        paymentTypes: safePaymentTypes
-      } as unknown as Partial<PaymentDetailsContext>;
+        storedPaymentMethods,
+        gateways,
+        amountsFormatted: {
+          amount: lookups?.amountsFormatted?.amount || "",
+          wallet: lookups?.amountsFormatted?.wallet || ""
+        }
+      } as unknown as PaymentDetailsContext["lookups"];
     }
   );
 }
 
 async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
-  const { amount, model, schema, lookups, clientId } = context;
+  const {
+    amount,
+    amountPartial,
+    amountWallet,
+    model,
+    schema,
+    lookups,
+    clientId
+  } = context;
   // ---
   let paymentDetail = undefined;
 
   // ---
+  // NB: This parse function can be reached after a refresh from the basket, so we can check for that
+  //     if It is a basket refresh, we do not want to parse any incoming data, as it will wipe out the user selection
+  const isBasketData = has(data, "unpaid_amount_converted");
+
+  // NB: We always want to ensure the model amount/wallet_amount is correct based on the latest basket data
+  //     IF a user has set a partial amount, we need to ensure we respect that up to the total amount due
+  const safeAmount = amountPartial ? Math.min(amountPartial, amount) : amount;
+
+  // NB: We also need to ensure the wallet amount is not greater than the safe amount or the available wallet balance
+  //  IF a user has set a wallet amount, we need to respect that up to the safe amount
+  const safeWalletAmount = amountWallet
+    ? Math.min(
+        safeAmount,
+        amountWallet,
+        lookups.accountCredit?.total.value ?? 0
+      )
+    : Math.min(safeAmount, lookups.accountCredit?.total.value || 0);
+
   const safeModel = useModelParser<PaymentDetailModel>(
     schema,
-    pick(data, [
-      "type",
-      "amount",
-      "wallet_amount",
-      "payment_details_id",
-      "gateway_id",
-      "return_url",
-      "cancel_url"
-    ]),
-    { ...model, amount: model?.amount || amount },
+    !isBasketData
+      ? pick(data, [
+          "type",
+          "amount",
+          "wallet_amount",
+          "payment_details_id",
+          "gateway_id",
+          "return_url",
+          "cancel_url"
+        ])
+      : {},
+    {
+      ...model,
+      amount: safeAmount,
+      wallet_amount: safeWalletAmount
+    },
     {
       allowExtraProps: false
     }
   );
-
   // ---
-  // FORCE amount to be full amount unless its a partial payment AND partial payments are allowed
-  safeModel.amount =
-    safeModel.type === PaymentType.PARTIAL_PAYMENT
-      ? safeModel?.amount || amount
-      : amount;
-
-  // NB account credit cannot exceed the amount due ( including a partial amount),  or the total available account credit
-  safeModel.wallet_amount = Math.min(
-    safeModel.amount,
-    safeModel.wallet_amount ?? lookups.accountCredit?.total.value ?? 0
-  );
 
   // FORCE payment type if we have the gateway wet to pay later (syntactic sugar)
   if (safeModel?.gateway_id == PaymentType.PAY_LATER) {
@@ -330,7 +348,14 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
       safeModel?.type
     );
 
-  if (!needsPayment) {
+  if (needsPayment) {
+    // Ensure we have a payment method selected,
+    // try preselec the firt payment detail if we have one
+    // otherwise preselect the first available gateway
+    if (!safeModel.gateway_id && !safeModel.payment_details_id) {
+      safeModel.payment_details_id = first(lookups.storedPaymentMethods)?.id;
+    }
+  } else {
     unset(safeModel, "gateway_id");
     unset(safeModel, "payment_details_id");
   }
@@ -371,7 +396,8 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
       unset(safeModel, "gateway_id");
       paymentDetail = mapPaymentData({
         model: safeModel,
-        clientId
+        clientId,
+        lookups
       });
     }
   }
@@ -382,22 +408,23 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
     unset(safeModel, "gateway_id");
     unset(safeModel, "payment_details_id");
     safeModel.type = PaymentType.PAY_LATER;
-    paymentDetail = mapPaymentData({
-      model: safeModel,
-      clientId
-    });
+    paymentDetail = undefined;
   }
 
   // Finally we calculate the formatted amount for the model amount
+  // NB: Only fire these if the amounts have changed
   lookups.amountsFormatted = await Promise.all([
     calculate(context, {
-      data: safeModel.amount ?? 0,
+      data: { value: safeModel.amount ?? 0, prev: model?.amount ?? 0 },
       type: "calculate"
-    }),
+    }).catch(() => lookups.amountsFormatted?.amount || ""),
     calculate(context, {
-      data: safeModel.wallet_amount ?? 0,
+      data: {
+        value: safeModel.wallet_amount ?? 0,
+        prev: model?.wallet_amount ?? 0
+      },
       type: "calculate"
-    })
+    }).catch(() => lookups.amountsFormatted?.wallet || "")
   ]).then(([amountFormatted, walletAmountFormatted]) => {
     return {
       amount: amountFormatted,
@@ -472,6 +499,8 @@ async function calculate(
 ) {
   const { post, useUrl } = useQuery();
 
+  if (isEqual(data.value, data.prev)) return Promise.reject();
+
   // we need to calculate the total account credit including negative allowance
   // and get a formatted version based on the currency
   return post({
@@ -479,16 +508,9 @@ async function calculate(
     withAccessToken: true,
     data: {
       currency_id: currency.id,
-      prices: [data]
+      prices: [data.value]
     }
-  })
-    .then(res => {
-      return get(res, "total_formatted", "");
-    })
-    .catch(() => {
-      // if we fail to get the formatted total, we just return an empty string
-      return "";
-    });
+  }).then(res => get(res, "total_formatted", ""));
 }
 // -----------------------------------------------------------------------------
 

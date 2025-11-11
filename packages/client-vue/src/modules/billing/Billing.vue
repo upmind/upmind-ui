@@ -64,12 +64,17 @@ const activeTab = ref<UnifiedType>();
 
 await Promise.allSettled([
   isReady(),
-  useClientAddresses(),
-  useClientCompanies()
+  useClientAddresses().isReady(),
+  useClientCompanies().isReady()
 ]).then(() => {
+  const { default: defaultCompany } = useClientCompanies();
   // set initial value from the basket billing model
   modelValue.value ??= model.value;
-  if (config.value?.requiresCompany || model.value?.companyId) {
+  if (
+    config.value?.requiresCompany ||
+    model.value?.companyId ||
+    (!model.value?.addressId && defaultCompany()?.id) // if we dont have an address but do have a default company, prefer business
+  ) {
     activeTab.value = UnifiedType.BUSINESS;
   } else {
     activeTab.value = UnifiedType.PERSONAL;

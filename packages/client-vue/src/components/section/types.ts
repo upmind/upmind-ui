@@ -33,7 +33,7 @@ export type SectionsProps = {
   active?: boolean;
   class?: HTMLAttributes["class"];
   sections: SectionItem[];
-  defaultValue?: string;
+  modelValue?: string;
   uiConfig?: {
     section: {
       root: CxOptions;

@@ -52,7 +52,7 @@ export const useBasketFields = () => {
     }).then(service =>
       waitFor(
         service as ActorRef<any>,
-        state => !stateMatches(state, "loading"),
+        state => !stateMatches(state, ["loading", "checking"]),
         { timeout: Infinity }
       ).then(state => {
         if (stateMatches(state, ["error"])) return false;
@@ -97,13 +97,8 @@ export const useBasketFields = () => {
   ): Promise<void> {
     // first check if our fields have changed, i.e.: model.code has changed
     value = toRaw(unref(value));
-    const model = contextValue<FieldsModel>(actor, "model");
+    actor.value?.send({ type: "SET", data: value, update: true });
 
-    if (!isEmpty(value) && !isEqual(model, value)) {
-      actor.value?.send({ type: "SET", data: value, update: true });
-    } else {
-      actor.value?.send({ type: "UPDATE" });
-    }
     // then wait for the paymentGateway actor to be updated
     return waitFor(
       actor.value!.service,
