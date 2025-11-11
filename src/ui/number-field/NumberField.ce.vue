@@ -14,7 +14,7 @@
       </NumberFieldDecrement>
 
       <NumberFieldInput
-        @input="handleInputForWidth"
+        @resize="handleResize"
         :class="cn(styles.numberField.field, props.classField)"
         data-testid="quantity-input"
       />
@@ -74,7 +74,7 @@ const delegatedProps = computed(() =>
 // Track value ONLY for instant width calculation - not used for modelValue updates
 const internalValue = ref(modelValue.value);
 
-const handleInputForWidth = (value: number) => {
+const handleResize = (value: number) => {
   internalValue.value = value;
 };
 
@@ -97,7 +97,7 @@ const getWidth = computed(() => {
 
   if (count <= 2) {
     return "xs";
-  } else if (count <= 4) {
+  } else if (count <= 3) {
     return "sm";
   } else if (count <= 5) {
     return "md";
