@@ -7,9 +7,12 @@ export const numberFieldRootVariants = cva("group inline-block", {
   variants: {
     width: {
       auto: "",
+      xs: "",
       sm: "",
       md: "",
       lg: "",
+      xl: "",
+      "2xl": "",
       full: "",
       app: ""
     },
@@ -17,18 +20,6 @@ export const numberFieldRootVariants = cva("group inline-block", {
       sm: "text-sm",
       md: "text-sm",
       lg: "text-md"
-    },
-    count: {
-      "1": "",
-      "2": "",
-      "3": "",
-      "4": "",
-      "5": "",
-      "6": "",
-      "7": "",
-      "8": "",
-      "9": "",
-      "10": ""
     },
     variant: {
       flat: "",
@@ -45,57 +36,32 @@ export const numberFieldRootVariants = cva("group inline-block", {
     },
     {
       variant: "minimal",
-      count: "1",
+      width: "xs",
       class: "w-16"
     },
     {
       variant: "minimal",
-      count: "2",
-      class: "w-16"
-    },
-    {
-      variant: "minimal",
-      count: "3",
+      width: "sm",
       class: "w-20"
     },
     {
       variant: "minimal",
-      count: "4",
-      class: "w-20"
-    },
-    {
-      variant: "minimal",
-      count: "5",
+      width: "md",
       class: "w-24"
     },
     {
       variant: "minimal",
-      count: "6",
+      width: "lg",
       class: "w-28"
     },
     {
       variant: "minimal",
-      count: "7",
-      class: "w-28"
-    },
-    {
-      variant: "minimal",
-      count: "8",
+      width: "xl",
       class: "w-32"
     },
     {
       variant: "minimal",
-      count: "9",
-      class: "w-32"
-    },
-    {
-      variant: "minimal",
-      count: "10",
-      class: "w-36"
-    },
-    {
-      variant: "minimal",
-      count: "10",
+      width: "2xl",
       class: "w-36"
     },
 
@@ -103,6 +69,11 @@ export const numberFieldRootVariants = cva("group inline-block", {
       variant: "flat",
       width: "auto",
       class: "w-auto min-w-24"
+    },
+    {
+      variant: "flat",
+      width: "xs",
+      class: "md:w-72"
     },
     {
       variant: "flat",
@@ -121,6 +92,16 @@ export const numberFieldRootVariants = cva("group inline-block", {
     },
     {
       variant: "flat",
+      width: "xl",
+      class: "md:w-96"
+    },
+    {
+      variant: "flat",
+      width: "2xl",
+      class: "md:w-96"
+    },
+    {
+      variant: "flat",
       width: "full",
       class: "w-full"
     },
@@ -131,9 +112,8 @@ export const numberFieldRootVariants = cva("group inline-block", {
     }
   ],
   defaultVariants: {
-    width: "full",
-    size: "md",
-    count: "1"
+    width: "md",
+    size: "md"
   }
 });
 

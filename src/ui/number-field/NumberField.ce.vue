@@ -51,13 +51,14 @@ import { omit } from "lodash-es";
 // --- types
 import type { ComputedRef } from "vue";
 import type { NumberFieldProps } from "./types";
+import { NUMBER_FIELD_VARIANTS } from "./types";
 
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<NumberFieldProps>(), {
   // -- styles
   width: "full",
-  variant: "flat",
+  variant: NUMBER_FIELD_VARIANTS.FLAT,
   // --- styles
   uiConfig: () => ({ numberField: [] }),
   class: "",
@@ -78,16 +79,35 @@ const handleInputForWidth = (value: number) => {
 };
 
 const meta = computed(() => {
-  const digits = internalValue.value?.toString().length || 1;
-  const count = Math.min(digits, 10).toString();
-
   return {
     size: props.size,
-    width: props.width,
-    count: count,
+    width: getWidth.value,
     variant: props.variant,
     isDisabled: props.disabled
   };
+});
+
+const getWidth = computed(() => {
+  const digits = internalValue.value?.toString().length || 1;
+  const count = Math.min(digits, 10);
+
+  if (props.variant === NUMBER_FIELD_VARIANTS.FLAT) {
+    return props.width;
+  }
+
+  if (count <= 2) {
+    return "xs";
+  } else if (count <= 4) {
+    return "sm";
+  } else if (count <= 5) {
+    return "md";
+  } else if (count <= 7) {
+    return "lg";
+  } else if (count <= 9) {
+    return "xl";
+  }
+
+  return "2xl";
 });
 
 const styles = useStyles(
