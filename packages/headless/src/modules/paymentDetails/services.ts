@@ -401,13 +401,13 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
   // NB: Only fire these if the amounts have changed
   lookups.amountsFormatted = await Promise.all([
     calculate(context, {
-      data: { value: safeModel.amount ?? 0, prev: model.amount ?? 0 },
+      data: { value: safeModel.amount ?? 0, prev: model?.amount ?? 0 },
       type: "calculate"
     }).catch(() => lookups.amountsFormatted?.amount || ""),
     calculate(context, {
       data: {
         value: safeModel.wallet_amount ?? 0,
-        prev: model.wallet_amount ?? 0
+        prev: model?.wallet_amount ?? 0
       },
       type: "calculate"
     }).catch(() => lookups.amountsFormatted?.wallet || "")
