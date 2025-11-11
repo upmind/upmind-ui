@@ -2,10 +2,8 @@
   <component
     v-if="modal || (!modal && meta.isOpen)"
     :is="modal ? Dialog : 'div'"
-    :description="text"
     :open="meta.isOpen"
     :size="size"
-    :title="title"
     :fit="fit"
     :to="to"
     no-header
