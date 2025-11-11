@@ -41,7 +41,7 @@ import NumberFieldInput from "../../../number-field/NumberFieldInput.vue";
 
 // --- utils
 import { useUpmindUIRenderer } from "../utils";
-import { isNumber, get, isString } from "lodash-es";
+import { isNumber, get } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
