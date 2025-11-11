@@ -28,3 +28,8 @@ export interface NumberFieldProps
   class?: HTMLAttributes["class"];
   classField?: HTMLAttributes["class"];
 }
+
+export enum NUMBER_FIELD_VARIANTS {
+  FLAT = "flat",
+  MINIMAL = "minimal"
+}

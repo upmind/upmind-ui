@@ -3,13 +3,16 @@ import { ringClasses, outlineReset } from "../../assets/styles";
 
 // -----------------------------------------------------------------------------
 
-export const numberFieldRootVariants = cva("group inline-block w-full", {
+export const numberFieldRootVariants = cva("group inline-block", {
   variants: {
     width: {
       auto: "",
+      xs: "",
       sm: "",
       md: "",
       lg: "",
+      xl: "",
+      "2xl": "",
       full: "",
       app: ""
     },
@@ -28,19 +31,23 @@ export const numberFieldRootVariants = cva("group inline-block w-full", {
   },
   compoundVariants: [
     {
-      variant: "minimal",
-      width: "auto",
-      class: "w-auto min-w-12"
+      variant: "flat",
+      class: "w-full"
     },
     {
       variant: "minimal",
-      width: "sm",
+      width: "xs",
       class: "w-16"
     },
     {
       variant: "minimal",
-      width: "md",
+      width: "sm",
       class: "w-20"
+    },
+    {
+      variant: "minimal",
+      width: "md",
+      class: "w-24"
     },
     {
       variant: "minimal",
@@ -48,9 +55,25 @@ export const numberFieldRootVariants = cva("group inline-block w-full", {
       class: "w-28"
     },
     {
+      variant: "minimal",
+      width: "xl",
+      class: "w-32"
+    },
+    {
+      variant: "minimal",
+      width: "2xl",
+      class: "w-36"
+    },
+
+    {
       variant: "flat",
       width: "auto",
       class: "w-auto min-w-24"
+    },
+    {
+      variant: "flat",
+      width: "xs",
+      class: "md:w-72"
     },
     {
       variant: "flat",
@@ -69,6 +92,16 @@ export const numberFieldRootVariants = cva("group inline-block w-full", {
     },
     {
       variant: "flat",
+      width: "xl",
+      class: "md:w-96"
+    },
+    {
+      variant: "flat",
+      width: "2xl",
+      class: "md:w-96"
+    },
+    {
+      variant: "flat",
       width: "full",
       class: "w-full"
     },
@@ -79,7 +112,7 @@ export const numberFieldRootVariants = cva("group inline-block w-full", {
     }
   ],
   defaultVariants: {
-    width: "full",
+    width: "md",
     size: "md"
   }
 });
@@ -101,7 +134,7 @@ export const numberFieldVariants = cva(
     compoundVariants: [
       {
         variant: "minimal",
-        class: "h-4" // Fixed height for minimal
+        class: "h-4"
       },
       {
         variant: "flat",
