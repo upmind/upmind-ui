@@ -15,7 +15,8 @@ import {
   includes,
   isEqual,
   values,
-  first
+  first,
+  has
 } from "lodash-es";
 import {
   ErrorOrigin,
@@ -257,34 +258,40 @@ async function loadLookups(
 }
 
 async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
-  const { amount, model, schema, lookups, clientId } = context;
+  const { amount, amountPartial, model, schema, lookups, clientId } = context;
   // ---
   let paymentDetail = undefined;
 
   // ---
+  // NB: This parse function can be reached after a refresh from the basket, so we can check for that
+  //     if It is a basket refresh, we do not want to parse any incoming data, as it will wipe out the user selection
+  const isBasketData = has(data, "unpaid_amount_converted");
+
+  // NB: We always want to ensure the model amount/wallet_amount is correct based on the latest basket data
+  //     IF a user has set a partial amount, we need to ensure we respect that up to the total amount due
+  const safeAmount = amountPartial ? Math.min(amountPartial, amount) : amount;
   const safeModel = useModelParser<PaymentDetailModel>(
     schema,
-    pick(data, [
-      "type",
-      "amount",
-      "wallet_amount",
-      "payment_details_id",
-      "gateway_id",
-      "return_url",
-      "cancel_url"
-    ]),
-    { ...model, amount: model?.amount || amount },
+    !isBasketData
+      ? pick(data, [
+          "type",
+          "amount",
+          "wallet_amount",
+          "payment_details_id",
+          "gateway_id",
+          "return_url",
+          "cancel_url"
+        ])
+      : {},
+    {
+      ...model,
+      amount: safeAmount
+    },
     {
       allowExtraProps: false
     }
   );
-
   // ---
-  // FORCE amount to be full amount unless its a partial payment AND partial payments are allowed
-  safeModel.amount =
-    safeModel.type === PaymentType.PARTIAL_PAYMENT
-      ? safeModel?.amount || amount
-      : amount;
 
   // NB account credit cannot exceed the amount due ( including a partial amount),  or the total available account credit
   safeModel.wallet_amount = Math.min(
