@@ -124,6 +124,12 @@ export interface PaymentDetailsArgs {
    * The total amount of the payment.
    */
   amount: number;
+
+  /**
+   * The partial amount set by the user to pay (if applicable).
+   * We need this to handle model amount logic when partial payments are allowed and if basket amounts change die to other factors (e.g., discounts, gift cards, etc.)
+   */
+  amountPartial: number;
 }
 
 /**

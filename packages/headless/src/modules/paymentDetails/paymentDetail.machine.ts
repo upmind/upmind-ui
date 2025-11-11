@@ -15,7 +15,7 @@ import {
 import { mapToHeadlessError, stopService, useModelParser } from "../../utils";
 import { useTime, useValidationParser } from "../../utils";
 import { useSchema, useUischema } from "./schemas";
-import { isEqual, isEmpty, find, map, isNil } from "lodash-es";
+import { isEqual, isEmpty, find, map, isNil, set } from "lodash-es";
 
 // --- types
 import type { AnyEventObject } from "xstate";
@@ -187,6 +187,10 @@ export default createMachine(
             target: "available.checking",
             actions: ["setAutoUpdate"]
           },
+          SET_PARTIAL_PAYMENT: {
+            target: "available.checking",
+            actions: ["setPartialPayment"]
+          },
           REFRESH: [
             // NB if we change core values, tear down the gateway and re create it
             {
@@ -280,6 +284,12 @@ export default createMachine(
         }
       }),
 
+      setPartialPayment: assign({
+        amountPartial: (
+          _context: PaymentDetailsContext,
+          { data }: AnyEventObject
+        ) => data.amount ?? 0
+      }),
       clearSchemas: assign({
         schema: undefined,
         uischema: undefined
@@ -362,10 +372,6 @@ export default createMachine(
           { address }: PaymentDetailsContext,
           { data }: AnyEventObject
         ) => data?.address ?? address,
-        model: (_context: PaymentDetailsContext, { data }: AnyEventObject) => ({
-          amount: data?.unpaid_amount_converted || 0.0,
-          type: PaymentType.PAY_IN_FULL
-        }), // we clear the model so we force a reparse
         paymentDetail: (
           _context: PaymentDetailsContext,
           { data }: AnyEventObject
@@ -478,7 +484,7 @@ export default createMachine(
       hasAmountChanged: (
         { model }: PaymentDetailsContext,
         { data }: AnyEventObject
-      ) => model?.amount != (data?.unpaid_amount_converted || 0.0),
+      ) => model?.amount != (data?.unpaid_amount_converted || 0),
 
       hasChanged: (
         { orderId, clientId, address, currency }: PaymentDetailsContext,
@@ -490,7 +496,6 @@ export default createMachine(
         // NB : We only need to worry if the address country changes  as that is all that affects payment methods
         const countryChanged =
           data?.address && address?.country_id != data?.address?.country_id;
-
         return (
           orderChanged || clientChanged || countryChanged || currencyChanged
         );
