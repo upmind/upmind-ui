@@ -51,8 +51,7 @@ export default {
     }),
     input: {
       container: cva("gap-0 p-0"),
-      field: cva("px-4 py-2"),
-      currency: cva("text-md border-control border-l px-4 py-2 text-base")
+      field: cva("px-4 py-2")
     }
   }
 };

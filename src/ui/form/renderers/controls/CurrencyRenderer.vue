@@ -1,29 +1,24 @@
 <template>
   <FormField v-bind="formFieldProps">
-    <Input
-      type="number"
-      inputmode="decimal"
-      :placeholder="appliedOptions?.placeholder"
-      :autocomplete="appliedOptions?.autocomplete"
-      :disabled="appliedOptions?.disabled"
-      :min="minimum"
-      :max="maximum"
+    <NumberField
+      :min="min"
+      :max="max"
       :step="step"
       :model-value="control.data"
       @update:modelValue="onInput"
-      :uiConfig="
-        {
-          input: {
-            container: [styles.form.input.container],
-            field: [styles.form.input.field]
-          }
-        } as any
-      "
+      :format-options="{
+        style: 'currency',
+        currency: appliedOptions?.currency,
+        currencyDisplay: 'code'
+      }"
+      :class="styles.numberField.root"
     >
-      <template v-if="currency" #append>
-        <span :class="styles.form.input.currency">{{ currency }}</span>
-      </template>
-    </Input>
+      <NumberFieldContent>
+        <NumberFieldDecrement />
+        <NumberFieldInput :class="styles.numberField.field" />
+        <NumberFieldIncrement />
+      </NumberFieldContent>
+    </NumberField>
   </FormField>
 </template>
 
@@ -33,12 +28,16 @@ import { computed } from "vue";
 import { useJsonFormsControl } from "@jsonforms/vue";
 
 // --- internal
-import config from "../../form.config";
+import config from "../../../number-field/numberField.config";
 import { useStyles } from "../../../../utils";
 
 // --- components
 import FormField from "../../FormField.vue";
-import { Input } from "../../../input";
+import NumberField from "../../../number-field/NumberField.vue";
+import NumberFieldContent from "../../../number-field/NumberFieldContent.vue";
+import NumberFieldDecrement from "../../../number-field/NumberFieldDecrement.vue";
+import NumberFieldIncrement from "../../../number-field/NumberFieldIncrement.vue";
+import NumberFieldInput from "../../../number-field/NumberFieldInput.vue";
 
 // --- utils
 import { useUpmindUIRenderer } from "../utils";
@@ -52,29 +51,32 @@ import type { RendererProps } from "@jsonforms/vue";
 // -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
-const {
-  control,
-  appliedOptions,
-  formFieldProps,
-  onInput: baseOnInput
-} = useUpmindUIRenderer(useJsonFormsControl(props));
+const { control, appliedOptions, formFieldProps, onInput } =
+  useUpmindUIRenderer(useJsonFormsControl(props));
 
-const styles = useStyles(["form.input"], {}, config) as ComputedRef<{
-  form: {
-    input: { container: string; field: string; currency: string };
+const meta = computed(() => ({
+  size: "lg",
+  width: "full",
+  variant: "flat",
+  isDisabled: !control.value.enabled
+}));
+
+const styles = useStyles(["numberField"], meta, config) as ComputedRef<{
+  numberField: {
+    root: string;
+    input: string;
+    field: string;
   };
 }>;
 
-const currency: ComputedRef<string | undefined> = computed(() => {
-  return get(appliedOptions.value, "currency");
-});
-
 const step: ComputedRef<number> = computed(() => {
-  const defaultStep = 1;
-  return get(appliedOptions.value, "step", defaultStep);
+  const defaultStep = 0.01;
+  const multipleOf = get(control.value, "schema.multipleOf", defaultStep);
+
+  return get(appliedOptions.value, "step", multipleOf);
 });
 
-const minimum: ComputedRef<number | undefined> = computed(() => {
+const max: ComputedRef<number | undefined> = computed(() => {
   const applied = appliedOptions.value?.min;
   if (isNumber(applied)) return applied;
 
@@ -87,7 +89,7 @@ const minimum: ComputedRef<number | undefined> = computed(() => {
   return undefined;
 });
 
-const maximum: ComputedRef<number | undefined> = computed(() => {
+const min: ComputedRef<number | undefined> = computed(() => {
   const applied = appliedOptions.value?.max;
   if (isNumber(applied)) return applied;
 
@@ -99,17 +101,6 @@ const maximum: ComputedRef<number | undefined> = computed(() => {
 
   return undefined;
 });
-
-const onInput = (value: string | number) => {
-  const numValue = typeof value === "string" ? parseFloat(value) : value;
-
-  if (isNaN(numValue)) {
-    baseOnInput("");
-    return;
-  }
-
-  baseOnInput(numValue);
-};
 </script>
 
 <script lang="ts">
