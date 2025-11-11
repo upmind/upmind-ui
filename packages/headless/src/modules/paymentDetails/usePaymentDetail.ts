@@ -258,7 +258,7 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
 
   async function setAmountCredit(value: PaymentDetailModel["wallet_amount"]) {
     actor.value?.send({
-      type: "SET",
+      type: "SET_WALLET_AMOUNT",
       data: { ...toRaw(unref(model)), wallet_amount: value }
     });
   }

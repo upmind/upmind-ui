@@ -129,7 +129,12 @@ export interface PaymentDetailsArgs {
    * The partial amount set by the user to pay (if applicable).
    * We need this to handle model amount logic when partial payments are allowed and if basket amounts change die to other factors (e.g., discounts, gift cards, etc.)
    */
-  amountPartial: number;
+  amountPartial?: number;
+
+  /**
+   * The Wallet amount set by the user to pay (if applicable). We only set this when the user explicitly chooses to use SOME wallet funds and not pay the full balance.
+   */
+  amountWallet?: number;
 }
 
 /**
