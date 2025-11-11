@@ -20,7 +20,9 @@ export default {
     ),
 
     title: cva("font-display m-0 text-center text-4xl"),
-    text: cva("m-0 max-w-md text-center text-lg leading-normal opacity-50"),
+    text: cva(
+      "text-muted m-0 max-w-md text-center text-lg leading-normal text-balance"
+    ),
     section: cva("flex flex-col items-center gap-3"),
     description: cva("max-w-md text-center text-lg leading-normal"),
     avatar: cva("bg-primary text-primary-foreground size-20 p-2"),
