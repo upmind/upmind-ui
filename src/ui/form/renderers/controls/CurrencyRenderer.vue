@@ -1,10 +1,9 @@
 <template>
   <FormField v-bind="formFieldProps">
     <NumberField
-      :class="styles.numberField.root"
-      :min="control.schema?.minimum"
-      :max="control.schema?.maximum"
-      :step="control.schema?.multipleOf ?? 0.01"
+      :min="min"
+      :max="max"
+      :step="step"
       :model-value="control.data"
       @update:modelValue="onInput"
       :format-options="{
@@ -12,6 +11,7 @@
         currency: appliedOptions?.currency,
         currencyDisplay: 'code'
       }"
+      :class="styles.numberField.root"
     >
       <NumberFieldContent>
         <NumberFieldDecrement />
@@ -41,6 +41,7 @@ import NumberFieldInput from "../../../number-field/NumberFieldInput.vue";
 
 // --- utils
 import { useUpmindUIRenderer } from "../utils";
+import { isNumber, get, isString } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -67,6 +68,39 @@ const styles = useStyles(["numberField"], meta, config) as ComputedRef<{
     field: string;
   };
 }>;
+
+const step: ComputedRef<number> = computed(() => {
+  const defaultStep = 0.01;
+  const multipleOf = get(control.value, "schema.multipleOf", defaultStep);
+
+  return get(appliedOptions.value, "step", multipleOf);
+});
+
+const max: ComputedRef<number | undefined> = computed(() => {
+  const applied = appliedOptions.value?.min;
+  if (isNumber(applied)) return applied;
+
+  const minimum = control.value?.schema?.minimum;
+  if (isNumber(minimum)) return minimum;
+
+  const exclusiveMinimum = control.value?.schema?.exclusiveMinimum;
+  if (isNumber(exclusiveMinimum)) return exclusiveMinimum + step.value;
+
+  return undefined;
+});
+
+const min: ComputedRef<number | undefined> = computed(() => {
+  const applied = appliedOptions.value?.max;
+  if (isNumber(applied)) return applied;
+
+  const maximum = control.value?.schema?.maximum;
+  if (isNumber(maximum)) return maximum;
+
+  const exclusiveMaximum = control.value?.schema?.exclusiveMaximum;
+  if (isNumber(exclusiveMaximum)) return exclusiveMaximum - step.value;
+
+  return undefined;
+});
 </script>
 
 <script lang="ts">
