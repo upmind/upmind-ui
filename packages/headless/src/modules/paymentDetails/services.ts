@@ -258,7 +258,15 @@ async function loadLookups(
 }
 
 async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
-  const { amount, amountPartial, model, schema, lookups, clientId } = context;
+  const {
+    amount,
+    amountPartial,
+    amountWallet,
+    model,
+    schema,
+    lookups,
+    clientId
+  } = context;
   // ---
   let paymentDetail = undefined;
 
@@ -270,6 +278,17 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
   // NB: We always want to ensure the model amount/wallet_amount is correct based on the latest basket data
   //     IF a user has set a partial amount, we need to ensure we respect that up to the total amount due
   const safeAmount = amountPartial ? Math.min(amountPartial, amount) : amount;
+
+  // NB: We also need to ensure the wallet amount is not greater than the safe amount or the available wallet balance
+  //  IF a user has set a wallet amount, we need to respect that up to the safe amount
+  const safeWalletAmount = amountWallet
+    ? Math.min(
+        safeAmount,
+        amountWallet,
+        lookups.accountCredit?.total.value ?? 0
+      )
+    : Math.min(safeAmount, lookups.accountCredit?.total.value || 0);
+
   const safeModel = useModelParser<PaymentDetailModel>(
     schema,
     !isBasketData
@@ -285,19 +304,14 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
       : {},
     {
       ...model,
-      amount: safeAmount
+      amount: safeAmount,
+      wallet_amount: safeWalletAmount
     },
     {
       allowExtraProps: false
     }
   );
   // ---
-
-  // NB account credit cannot exceed the amount due ( including a partial amount),  or the total available account credit
-  safeModel.wallet_amount = Math.min(
-    safeModel.amount,
-    safeModel.wallet_amount ?? lookups.accountCredit?.total.value ?? 0
-  );
 
   // FORCE payment type if we have the gateway wet to pay later (syntactic sugar)
   if (safeModel?.gateway_id == PaymentType.PAY_LATER) {

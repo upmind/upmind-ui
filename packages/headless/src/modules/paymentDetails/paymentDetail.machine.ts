@@ -191,6 +191,10 @@ export default createMachine(
             target: "available.checking",
             actions: ["setPartialPayment"]
           },
+          SET_WALLET_AMOUNT: {
+            target: "available.checking",
+            actions: ["setWalletAmount"]
+          },
           REFRESH: [
             // NB if we change core values, tear down the gateway and re create it
             {
@@ -290,6 +294,14 @@ export default createMachine(
           { data }: AnyEventObject
         ) => data.amount ?? 0
       }),
+
+      setWalletAmount: assign({
+        amountWallet: (
+          _context: PaymentDetailsContext,
+          { data }: AnyEventObject
+        ) => data.wallet_amount ?? 0
+      }),
+
       clearSchemas: assign({
         schema: undefined,
         uischema: undefined
