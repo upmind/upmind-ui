@@ -75,7 +75,6 @@ import CompanyItem from "./CompanyItem.vue";
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-// const { meta } = useSession();
 
 const {
   isReady: getAddresses,
@@ -93,8 +92,8 @@ const {
 
 await Promise.all([getAddresses(), getCompanies()]);
 
-const defaultAddressValue = defaultAddress()?.id;
-const defaultCompanyValue = defaultCompany()?.id;
+const defaultAddressValue = ref(defaultAddress()?.id);
+const defaultCompanyValue = ref(defaultCompany()?.id);
 
 const sections = computed<TabItem[]>(() => {
   const companiesTab = {
@@ -102,16 +101,20 @@ const sections = computed<TabItem[]>(() => {
     value: "business"
   };
 
-  return concat(
-    ...(companiesMeta.value.isEmpty ? [] : [companiesTab]),
-    [
-      {
-        label: t("text.personal"),
-        value: "address"
-      }
-    ],
-    ...(companiesMeta.value.isEmpty ? [companiesTab] : [])
-  );
+  const tabs = [
+    {
+      label: t("text.personal"),
+      value: "address"
+    }
+  ];
+
+  if (companiesMeta.value.isEmpty) {
+    tabs.push(companiesTab);
+  } else {
+    tabs.unshift(companiesTab);
+  }
+
+  return tabs;
 });
 
 const activeTab = ref(companiesMeta.value.isEmpty ? "address" : "business");

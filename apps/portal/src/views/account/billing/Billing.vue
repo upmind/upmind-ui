@@ -8,7 +8,7 @@
 
     <template #content-header>
       <h1>
-        <i18n-t keypath="text.billing" tag="span" scope="global" />
+        {{ t("text.billing") }}
       </h1>
     </template>
 
@@ -24,7 +24,7 @@
 <script lang="ts" setup>
 // --- external
 import { computed } from "vue";
-import { ROUTE } from "../../../router/types";
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useRoutingEngine } from "@upmind-automation/headless";
@@ -34,8 +34,10 @@ import { Layout } from "@upmind-automation/client-vue";
 import ClientBillingAddresses from "../../../components/account/ClientBillingAddresses.vue";
 
 // --- types
+import { ROUTE } from "../../../router/types";
 // -----------------------------------------------------------------------------
 const { currentRoute, isResolved, meta } = useRoutingEngine();
+const { t } = useI18n();
 
 await isResolved(ROUTE.ACCOUNT_BILLING);
 
