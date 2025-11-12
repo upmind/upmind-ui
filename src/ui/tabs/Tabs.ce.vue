@@ -14,7 +14,12 @@
             :value="item.value"
             :class="[styles.tabs.trigger, 'cursor-pointer']"
           >
-            <Icon v-if="item.icon" :icon="item.icon" size="2xs" />
+            <Icon
+              v-if="item.icon"
+              :icon="item.icon"
+              size="2xs"
+              :class="styles.tabs.icon"
+            />
             <span>{{ item.label }}</span>
           </TabsTrigger>
         </template>
@@ -27,6 +32,7 @@
             <Icon
               v-if="first(tabs)?.icon"
               :icon="first(tabs)?.icon ?? ''"
+              :class="styles.tabs.icon"
               size="2xs"
             />
             <span>{{ first(tabs)?.label }}</span>
@@ -96,7 +102,8 @@ const props = withDefaults(defineProps<TabsProps>(), {
       root: [],
       list: [],
       trigger: [],
-      indicator: []
+      indicator: [],
+      icon: []
     }
   })
 });
@@ -130,6 +137,7 @@ const styles = useStyles(
     list: string;
     trigger: string;
     indicator: string;
+    icon: string;
     prepend: string;
     append: string;
   };

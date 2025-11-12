@@ -26,6 +26,8 @@ export interface TabsProps extends TabsRootProps, TabsListProps {
       root: CxOptions;
       trigger: CxOptions;
       list: CxOptions;
+      indicator: CxOptions;
+      icon: CxOptions;
     };
   };
   class?: HTMLAttributes["class"];

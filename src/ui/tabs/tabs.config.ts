@@ -1,7 +1,7 @@
 import { cva } from "class-variance-authority";
 
 export const tabsRootVariants = cva(
-  "relative flex [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+  "relative flex items-end [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
   {
     variants: {
       overflow: {
@@ -45,6 +45,7 @@ export default {
     list: tabsListVariants,
     trigger: tabsTriggerVariants,
     indicator: tabsIndicatorVariants,
+    icon: cva(""),
     prepend: cva("pb-4"),
     append: cva("pb-4")
   }
