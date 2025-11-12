@@ -246,10 +246,7 @@ export function mapPaymentData({
       // "MANUAL/OFFLINE" GATEWAYS THAT DONT REQUIRE A PAYMENT DETAIL
       case GatewayProviderCodes.OFFLINE:
       case GatewayProviderCodes.BANK_TRANSFER:
-        return omit(defaults(mapGatewayData(data), paymentDetail), [
-          "gateway_id",
-          "payment_details_id"
-        ]) as PaymentDetailData;
+        return undefined;
 
       // UNSUPPORTED OR UNKNOWN GATEWAYS
       default:
