@@ -86,19 +86,16 @@ const defaultCompanyValue = ref(defaultCompany()?.id);
 const sections = computed<TabItem[]>(() => {
   const tabs = [
     {
+      label: t("text.companies"),
+      value: "business"
+    },
+    {
       label: t("text.personal"),
       value: "address"
     }
   ];
 
-  const companiesTab = {
-    label: t("text.companies"),
-    value: "business"
-  };
-
-  companiesMeta.value.isEmpty
-    ? tabs.push(companiesTab)
-    : tabs.unshift(companiesTab);
+  if (companiesMeta.value.isEmpty) tabs.splice(1, 0, tabs.splice(0, 1)[0]);
 
   return tabs;
 });

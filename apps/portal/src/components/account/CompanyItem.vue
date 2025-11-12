@@ -27,7 +27,7 @@
         />
 
         <Link
-          v-if="!props.readonly"
+          v-if="!props.readonly && !props.default"
           :label="t('action.remove')"
           size="sm"
           color="muted"

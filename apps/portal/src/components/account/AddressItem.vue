@@ -26,7 +26,7 @@
           @click.stop.prevent="doEdit"
         />
         <Link
-          v-if="!props.readonly"
+          v-if="!props.readonly && !meta?.isDefault"
           :label="t('action.remove')"
           size="sm"
           color="muted"
