@@ -1,5 +1,5 @@
 // --- internal
-import { Flow, Route } from "@upmind-automation/client-vue";
+import { Flow, Route, useSession } from "@upmind-automation/client-vue";
 
 // --- utils
 
@@ -13,7 +13,10 @@ export const useCustomFlows = () => {
     {
       name: ROUTE.ACCOUNT_PROFILE,
       guard: async (route: Route) => {
-        return true; // COULD add auth checks here
+        // const { isReady, meta } = useSession();
+        // await isReady();
+        // return meta.value.isAuthenticated;
+        return true;
       },
       targets: {
         next: [],
@@ -24,7 +27,10 @@ export const useCustomFlows = () => {
     {
       name: ROUTE.ACCOUNT_BILLING,
       guard: async (route: Route) => {
-        return true; // COULD add auth checks here
+        // const { isReady, meta } = useSession();
+        // await isReady();
+        // return meta.value.isAuthenticated;
+        return true;
       },
       targets: {
         next: [],
