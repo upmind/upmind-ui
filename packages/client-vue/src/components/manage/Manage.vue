@@ -132,8 +132,7 @@ function doEdit(id: string) {
 }
 
 function doRemove(id: string) {
-  console.log("doRemove", id);
-  // props.manage.useMutate().remove(id);
+  props.manage.useList().remove(id);
 }
 
 // --- side effects
