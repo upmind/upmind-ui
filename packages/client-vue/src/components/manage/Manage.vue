@@ -15,6 +15,7 @@
       :minimal="props.minimal"
       @add="doAdd"
       @edit="doEdit"
+      @remove="doRemove"
     >
       <template name="item" #item="{ item, readonly, doEdit, doRemove }">
         <slot name="item" v-bind="{ item, readonly, doEdit, doRemove }"></slot>
@@ -128,6 +129,10 @@ function doAdd() {
 function doEdit(id: string) {
   openForm.value = true;
   editId.value = id;
+}
+
+function doRemove(id: string) {
+  props.manage.useList().remove(id);
 }
 
 // --- side effects

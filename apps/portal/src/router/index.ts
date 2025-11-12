@@ -2,9 +2,11 @@
 import { createRouter, createWebHistory } from "vue-router";
 
 // --- internal
+// import {
+//   SkeletonWrapperView
+//  } from "../views/";
 
 import {
-  ROUTE,
   Upm404View,
   UpmBasketView,
   UpmCheckoutView,
@@ -23,7 +25,11 @@ import {
   UpmSessionRegisterView,
   UpmShopView
 } from "@upmind-automation/client-vue";
-import { trimStart } from "lodash-es";
+
+import { ROUTE } from "./types";
+import account from "./account";
+
+// import { trimStart } from "lodash-es";
 
 // -----------------------------------------------------
 
@@ -35,8 +41,14 @@ const router = createRouter({
       path: "/",
       // name: ROUTE.SESSION,
       // alias: ["/order", "/loading"],
+      // component: () => ({
+      //     name: "HostControl",
+      //     template: `<RouterView />`
+      //   }),
+      // component: () => SkeletonWrapperView,
       component: () => UpmSessionLoginView
     },
+    ...account,
 
     // All other routes are prefixed with /order
     {
@@ -62,7 +74,6 @@ const router = createRouter({
       alias: ["/orders/:orderId"],
       component: () => UpmOrderView
     },
-
     {
       path: "/order/shop",
       name: ROUTE.CATALOGUE,
@@ -147,23 +158,30 @@ const router = createRouter({
       meta: {
         title: "Page Not Found"
       }
+    },
+    {
+      path: "/:pathMatch(.*)*",
+      name: "not-found",
+      component: () => Upm404View,
+      meta: {
+        title: "Page Not Found"
+      }
     }
-
-    // Single catch-all redirect for any route not starting with /order
-    // {
-    //   path: "/:legacy(.*)",
-    //   redirect: to => {
-    //     if (to.path !== "/" && !to.path.startsWith("/order/")) {
-    //       return {
-    //         path: `/order/${trimStart(to.path, "/")}`,
-    //         query: to.query,
-    //         hash: to.hash
-    //       };
-    //     }
-    //     return to.fullPath;
-    //   }
-    // }
   ],
+  // Single catch-all redirect for any route not starting with /order
+  // {
+  //   path: "/:legacy(.*)",
+  //   redirect: to => {
+  //     if (to.path !== "/" && !to.path.startsWith("/order/")) {
+  //       return {
+  //         path: `/order/${trimStart(to.path, "/")}`,
+  //         query: to.query,
+  //         hash: to.hash
+  //       };
+  //     }
+  //     return to.fullPath;
+  //   }
+  // }
   scrollBehavior(to, _from, _savedPosition) {
     // handle scroll to anchor on same page
     if (to.hash) {
