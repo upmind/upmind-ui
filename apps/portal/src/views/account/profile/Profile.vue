@@ -19,71 +19,26 @@
 </template>
 <script lang="ts" setup>
 // --- external
-import {
-  // ref,
-  computed
-} from "vue";
-// import { useI18n } from "vue-i18n";
-// import { useRoute } from "vue-router";
+import { computed } from "vue";
 import { ROUTE } from "../../../router/types";
+
 // --- internal
 import { useRoutingEngine } from "@upmind-automation/headless";
-// import { useStyles } from "@upmind-automation/upmind-ui";
-// import config from "./basket.config";
 
 // --- components
 import { Layout } from "@upmind-automation/client-vue";
 import ClientProfile from "../../../components/account/ClientProfile.vue";
 
 // --- types
-// import { type ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 
-// const { t } = useI18n();
 const { currentRoute, isReady, isResolved, meta } = useRoutingEngine();
 
-// const {
-//   errors: fieldsErrors,
-//   meta: fieldsMeta,
-//   model: fieldsModel,
-//   schema: fieldsSchema,
-//   uischema: fieldsUischema,
-//   clear: fieldsClear,
-//   update: fieldsUpdate
-// } = useBasketFields();
-
-// const open = ref(false);
-
-// await isReady();
 await isReady();
 await isResolved(ROUTE.ACCOUNT_PROFILE);
 
 const layout = computed(() => {
   return currentRoute.value?.meta?.template;
 });
-
-// const variant = "enclosed";
-
-// const styles = useStyles(
-//   ["basket.expand", "basket.items", "basket.customFields", "basket.aside"],
-//   { variant: layout.value },
-//   config
-// ) as ComputedRef<{
-//   basket: {
-//     aside: string;
-//     expand: string;
-//     items: {
-//       root: string;
-//       content: string;
-//     };
-//     customFields: {
-//       root: string;
-//     };
-//   };
-// }>;
-
-// const { dataLayer } = useDataLayer();
-
-// dataLayer({ event: "view_cart" }).withEcommerce().push();
 </script>
