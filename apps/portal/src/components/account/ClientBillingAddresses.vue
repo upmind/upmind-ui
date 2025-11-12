@@ -51,11 +51,9 @@
 // --- external
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { concat } from "lodash-es";
 
 // --- internal
 import {
-  // useSession,
   useClientAddresses,
   useClientAddress,
   useClientCompanies,
@@ -64,11 +62,7 @@ import {
 import type { TabItem } from "@upmind-automation/upmind-ui";
 
 // --- components
-import {
-  UpmManage,
-  // UpmSection,
-  UpmSections
-} from "@upmind-automation/client-vue";
+import { UpmManage, UpmSections } from "@upmind-automation/client-vue";
 import AddressItem from "./AddressItem.vue";
 import CompanyItem from "./CompanyItem.vue";
 
@@ -76,18 +70,12 @@ import CompanyItem from "./CompanyItem.vue";
 
 const { t } = useI18n();
 
-const {
-  isReady: getAddresses,
-  default: defaultAddress,
-  meta: addressesMeta,
-  data: addresses
-} = useClientAddresses();
+const { isReady: getAddresses, default: defaultAddress } = useClientAddresses();
 
 const {
   isReady: getCompanies,
   default: defaultCompany,
-  meta: companiesMeta,
-  data: companies
+  meta: companiesMeta
 } = useClientCompanies();
 
 await Promise.all([getAddresses(), getCompanies()]);
@@ -96,11 +84,6 @@ const defaultAddressValue = ref(defaultAddress()?.id);
 const defaultCompanyValue = ref(defaultCompany()?.id);
 
 const sections = computed<TabItem[]>(() => {
-  const companiesTab = {
-    label: t("text.companies"),
-    value: "business"
-  };
-
   const tabs = [
     {
       label: t("text.personal"),
@@ -108,11 +91,14 @@ const sections = computed<TabItem[]>(() => {
     }
   ];
 
-  if (companiesMeta.value.isEmpty) {
-    tabs.push(companiesTab);
-  } else {
-    tabs.unshift(companiesTab);
-  }
+  const companiesTab = {
+    label: t("text.companies"),
+    value: "business"
+  };
+
+  companiesMeta.value.isEmpty
+    ? tabs.push(companiesTab)
+    : tabs.unshift(companiesTab);
 
   return tabs;
 });
