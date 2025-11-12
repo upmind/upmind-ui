@@ -20,6 +20,17 @@ export const useCustomFlows = () => {
         back: [],
         fallback: [ROUTE.SESSION_LOGIN]
       }
+    },
+    {
+      name: ROUTE.ACCOUNT_BILLING,
+      guard: async (route: Route) => {
+        return true; // COULD add auth checks here
+      },
+      targets: {
+        next: [],
+        back: [],
+        fallback: [ROUTE.SESSION_LOGIN]
+      }
     }
   ] as Flow[];
 };
