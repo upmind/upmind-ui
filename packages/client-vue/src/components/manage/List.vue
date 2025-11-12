@@ -101,6 +101,7 @@ const emits = defineEmits<{
   (e: "update:modelValue", value: string): void;
   (e: "add"): void;
   (e: "edit", id: string): void;
+  (e: "remove", id: string): void;
   (e: "update:open"): void;
 }>();
 
@@ -147,6 +148,6 @@ function doEdit(id: string) {
 }
 
 function doRemove(id: string) {
-  //  TODO
+  emits("remove", id);
 }
 </script>
