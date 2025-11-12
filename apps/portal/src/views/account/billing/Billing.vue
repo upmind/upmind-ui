@@ -1,15 +1,19 @@
 <template>
   <Layout :variant="layout">
-    <template #actions></template>
+    <!-- <template #navigation></template> -->
+
+    <!-- <template #controls></template> -->
+
+    <!-- <template #actions></template> -->
 
     <template #content-header>
       <h1>
-        <i18n-t keypath="text.profile" tag="span" scope="global" />
+        <i18n-t keypath="text.billing" tag="span" scope="global" />
       </h1>
     </template>
 
     <template #default>
-      <ClientProfile />
+      <ClientBillingAddresses />
     </template>
 
     <template #aside>
@@ -19,45 +23,21 @@
 </template>
 <script lang="ts" setup>
 // --- external
-import {
-  // ref,
-  computed
-} from "vue";
-// import { useI18n } from "vue-i18n";
-// import { useRoute } from "vue-router";
+import { computed } from "vue";
 import { ROUTE } from "../../../router/types";
+
 // --- internal
 import { useRoutingEngine } from "@upmind-automation/headless";
-// import { useStyles } from "@upmind-automation/upmind-ui";
-// import config from "./basket.config";
 
 // --- components
 import { Layout } from "@upmind-automation/client-vue";
-import ClientProfile from "../../../components/account/ClientProfile.vue";
+import ClientBillingAddresses from "../../../components/account/ClientBillingAddresses.vue";
 
 // --- types
-// import { type ComputedRef } from "vue";
-
 // -----------------------------------------------------------------------------
+const { currentRoute, isResolved, meta } = useRoutingEngine();
 
-// const { t } = useI18n();
-const { currentRoute, isReady, isResolved, meta } = useRoutingEngine();
-
-// const {
-//   errors: fieldsErrors,
-//   meta: fieldsMeta,
-//   model: fieldsModel,
-//   schema: fieldsSchema,
-//   uischema: fieldsUischema,
-//   clear: fieldsClear,
-//   update: fieldsUpdate
-// } = useBasketFields();
-
-// const open = ref(false);
-
-// await isReady();
-await isReady();
-await isResolved(ROUTE.ACCOUNT_PROFILE);
+await isResolved(ROUTE.ACCOUNT_BILLING);
 
 const layout = computed(() => {
   return currentRoute.value?.meta?.template;

@@ -53,5 +53,10 @@ export default [
     path: "/account/notes",
     name: ROUTE.ACCOUNT_NOTES,
     component: () => import("../../views/account/notes/Notes.vue")
+  },
+  {
+    path: "/account/billing",
+    name: ROUTE.ACCOUNT_BILLING,
+    component: () => import("../../views/account/billing/Billing.vue")
   }
 ];

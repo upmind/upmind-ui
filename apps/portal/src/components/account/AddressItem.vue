@@ -1,0 +1,87 @@
+<template>
+  <div
+    class="flex w-full flex-col gap-1"
+    :class="!props.readonly && 'cursor-pointer!'"
+  >
+    <header class="flex w-full items-start justify-between">
+      <h3 class="text-md m-0 flex items-center gap-x-2 font-medium">
+        {{ title }}
+        <Badge
+          v-if="meta?.isDefault"
+          variant="solid"
+          color="neutral"
+          size="sm"
+          :label="t('text.default_label')"
+        />
+      </h3>
+
+      <div>
+        <Link
+          v-if="!props.readonly"
+          :label="t('action.edit')"
+          size="sm"
+          color="muted"
+          tabindex="-1"
+          @mousedown.stop.prevent
+          @click.stop.prevent="doEdit"
+        />
+        <Link
+          v-if="!props.readonly"
+          :label="t('action.remove')"
+          size="sm"
+          color="muted"
+          tabindex="-1"
+          @mousedown.stop.prevent
+          class="pointer-events-auto ml-2 h-4"
+          @click.stop.prevent="doDelete"
+        />
+      </div>
+    </header>
+
+    <p class="text-muted m-0 text-sm">
+      {{ description }}
+    </p>
+  </div>
+</template>
+
+<script setup lang="ts">
+// --- external
+import { useI18n } from "vue-i18n";
+
+// --- components
+import {
+  // Button,
+  Badge,
+  Link
+} from "@upmind-automation/upmind-ui";
+
+// --- types
+import type { Address } from "@upmind-automation/headless";
+
+// -----------------------------------------------------------------------------
+
+const props = defineProps<
+  Address & {
+    readonly?: boolean;
+  }
+>();
+
+const emits = defineEmits<{
+  (e: "edit", id: string): void;
+  (e: "remove", id: string): void;
+}>();
+
+// -----------------------------------------------------------------------------
+
+const { t } = useI18n();
+
+const doEdit = () => {
+  if (!props?.id) return;
+  emits("edit", props.id);
+};
+
+const doDelete = () => {
+  if (!props?.id) return;
+  emits("remove", props.id);
+};
+</script>
