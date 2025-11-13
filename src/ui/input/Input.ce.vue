@@ -9,7 +9,7 @@
       v-bind="delegatedProps"
       v-model="modelValue"
       :class="styles.input.field"
-      :data-testid="`input-${props.autocomplete || props.id}`"
+      :data-testid="`input-${kebabCase(props.id || props.type)}`"
     />
 
     <slot name="append">
@@ -21,8 +21,8 @@
 <script lang="ts" setup>
 // --- external
 import { useTemplateRef, computed, onMounted } from "vue";
-
 import IMask, { type InputElement } from "imask";
+import { kebabCase } from "lodash-es";
 
 // --- internal
 import config from "./input.config";
