@@ -96,7 +96,8 @@ const props = withDefaults(defineProps<TabsProps>(), {
       root: [],
       list: [],
       trigger: [],
-      indicator: []
+      indicator: [],
+      icon: []
     }
   })
 });
