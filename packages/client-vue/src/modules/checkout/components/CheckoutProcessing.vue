@@ -77,7 +77,7 @@ const processingText = computed(() => {
 
 const processingIcon = computed(() => {
   if (meta.value.needsApproval) {
-    return "basket";
+    return "tapping-card";
   }
 
   if (meta.value.isConverting) {
