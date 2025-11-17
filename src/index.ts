@@ -62,6 +62,7 @@ export {
   useStyleSheet,
   usePointerEvents,
   useForwardPropsEmits,
+  isEmptySlot,
   type Theme,
   type ITheme
 } from "./utils";
