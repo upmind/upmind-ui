@@ -37,7 +37,7 @@
   "payment_amount": "ادائیگی کی رقم",
   "payment_amount_msg": "آپ کے آرڈر کی کل رقم {amount} ہے۔ وہ رقم درج کریں جو آپ ابھی ادا کرنا چاہتے ہیں۔ باقی رقم آپ کے آرڈر کے فعال ہونے سے پہلے ادا کرنی ہوگی۔",
   "payment_awaiting_approval": "**منظوری کا انتظار**",
-  "payment_awaiting_approval_md": "@.markdown:{'text.payment_awaiting_approval'}",
+  "payment_awaiting_approval_md": "@.markdown:{'cart.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "ہم منظوری کا انتظار کر رہے ہیں۔ اس میں صرف ایک لمحہ لگنا چاہئے۔",
   "payment_check_details_msg": "خریداری مکمل کرنے کے لیے براہ کرم اپنی ادائیگی کی تفصیلات چیک کریں۔",
   "payment_checking_details": "** آپ کی ادائیگی کی تفصیلات چیک کر رہا ہے...",
