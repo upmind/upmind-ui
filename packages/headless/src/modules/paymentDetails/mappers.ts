@@ -135,29 +135,6 @@ function mapStoredPaymentDetailData(model: PaymentDetailModel) {
   } as StoredCardData;
 }
 
-function mapExternalCardGatewayData(data: GatewayExternalCardData) {
-  return pick(data, [
-    "gateway_id",
-    "store_on_payment",
-    "store_on_payment_auto_payment"
-  ]);
-}
-
-function mapCardGatewayData(data: GatewayCardData) {
-  return pick(data, [
-    "card_type",
-    "card_num",
-    "card_expire_date",
-    "card_cvv",
-    "name",
-    "address_id",
-    "gateway_id",
-    "cardholder_name",
-    "store_on_payment",
-    "store_on_payment_auto_payment"
-  ]);
-}
-
 function mapGatewayData(data: GatewayData) {
   return pick(data, [
     "gateway_id",
@@ -216,7 +193,7 @@ export function mapPaymentData({
 
     // map our specific gateway data
     switch (brandGateway?.gateway?.gateway_provider?.code) {
-      // SIMPLE SDK OR REDIRECT GATEWAYS
+      // Type 1: CARD (SDK/REDIRECT) GATEWAYS
       case GatewayProviderCodes.BRAINTREE:
       case GatewayProviderCodes.FLUTTERWAVE:
       case GatewayProviderCodes.MICROPAYMENT:
@@ -235,15 +212,22 @@ export function mapPaymentData({
           paymentDetail
         ) as PaymentDetailData;
 
-      // CARD GATEWAYS
-
       // EXTERNAL STORE GATEWAYS
 
-      // AWAITING CLIENT GATEWAYS
+      // TYPE 10: AWAITING CLIENT GATEWAYS
+      case GatewayProviderCodes.PAYTM:
+        // case GatewayProviderCodes.BIT_PAY:
+        // case GatewayProviderCodes.BLOCKONOMICS:
+        // case GatewayProviderCodes.COIN_GATE:
+        // case GatewayProviderCodes.D_LOCAL:
+        return defaults(
+          mapGatewayData(data),
+          paymentDetail
+        ) as PaymentDetailData;
 
-      // MOBILE GATEWAYS
+      // TYPE 6 : MOBILE GATEWAYS
 
-      // "MANUAL/OFFLINE" GATEWAYS THAT DONT REQUIRE A PAYMENT DETAIL
+      // TYPE 2 + TYPE 5: "MANUAL/OFFLINE" GATEWAYS THAT DONT REQUIRE A PAYMENT DETAIL
       case GatewayProviderCodes.OFFLINE:
       case GatewayProviderCodes.BANK_TRANSFER:
         return undefined;
@@ -262,7 +246,6 @@ export function mapPaymentData({
       case GatewayProviderCodes.MOMO_MTN_COLLECTIONS:
       case GatewayProviderCodes.OPENPAY_NON_CARD:
       case GatewayProviderCodes.PAYSAFECARD:
-      case GatewayProviderCodes.PAYTM:
       case GatewayProviderCodes.PAY_FAST:
       case GatewayProviderCodes.PAY_U:
       case GatewayProviderCodes.PESA_PAL:

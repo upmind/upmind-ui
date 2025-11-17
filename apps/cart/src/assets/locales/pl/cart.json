@@ -42,7 +42,7 @@
   "payment_check_details_msg": "Sprawdź szczegóły płatności, aby dokończyć zakup.",
   "payment_checking_details": "**Sprawdzanie** szczegółów płatności...",
   "payment_checking_details_md": "@.markdown:{'text.payment_checking_details'}",
-  "payment_details": "Pay | Pay {amount} | Pay {amount}",
+  "payment_details": "Zapłać {amount}",
   "payment_processing": "**Przetwarzanie** Twojej płatności",
   "payment_processing_md": "@.markdown:{'cart.payment_processing'}",
   "payment_processing_msg": "Przetwarzamy Twoją płatność. To powinno zająć tylko chwilę.",
