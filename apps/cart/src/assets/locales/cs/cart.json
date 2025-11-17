@@ -37,7 +37,7 @@
   "payment_amount": "Částka platby",
   "payment_amount_msg": "Celková částka vaší objednávky je {amount}. Zadejte částku, kterou chcete nyní zaplatit. Zbývající zůstatek musí být uhrazen před aktivací vaší objednávky.",
   "payment_awaiting_approval": "**Čekání** na schválení",
-  "payment_awaiting_approval_md": "@.markdown:{'text.payment_awaiting_approval'}",
+  "payment_awaiting_approval_md": "@.markdown:{'cart.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "Čekáme na schválení. Mělo by to trvat jen chvilku.",
   "payment_check_details_msg": "Pro dokončení nákupu prosím zkontrolujte své platební údaje.",
   "payment_checking_details": "**Kontrola** vašich platebních údajů...",
