@@ -7,6 +7,8 @@ import { Popover } from "../components/Popover";
 import { Accordion } from "../components/Accordion";
 import { Select } from "../components/Select";
 import { Drawer } from "../components/Drawer";
+import { Form } from "../components/Form";
+import { kebabCase } from "../../utils/functions/helpers";
 
 export class ProductConfig {
   readonly page: Page;
@@ -18,6 +20,7 @@ export class ProductConfig {
   readonly accordion: Accordion;
   readonly select: Select;
   readonly drawer: Drawer;
+  readonly form: Form;
 
   /* Product Options */
   readonly optionsContainer: Locator;
@@ -94,6 +97,7 @@ export class ProductConfig {
     this.accordion = new Accordion(page);
     this.select = new Select(page);
     this.drawer = new Drawer(page);
+    this.form = new Form(page);
     this.optionsContainer = page.getByTestId("content-section").first();
     this.checkoutMarkdown = page.getByTestId("markdown"); //TODO: Find a way to move to shared component page object
     this.markdownLineclamp = page.getByTestId("lineclamp"); //TODO: as above
@@ -228,11 +232,10 @@ export class ProductConfig {
     await this.markdownLineclamp.click();
   }
 
-  async enterDomain(option: number, domainName: string) {
+  async enterDomain(option: string, domainName: string) {
     const radioOption = this.accordion.getAccordion(option);
-    await radioOption
-      .getByTestId('[data-testid="text-input"]')
-      .fill(domainName);
+    await radioOption.click();
+    await radioOption.getByTestId('[data-testid="input-url"]').fill(domainName);
   }
 
   async enterSld(sld: string) {
@@ -308,5 +311,30 @@ export class ProductConfig {
       this.radioButtons.radioOption.nth(option)
     );
     await term.click();
+  }
+
+  async selectRadioOption(option: string) {
+    return this.radioButtons.selectRadioOption(option);
+  }
+  async clickSelectOption(option: string) {
+    return this.select.clickSelectOption(option);
+  }
+
+  async fillFormInput(label: string, content: string) {
+    return this.form.fillFormInput(label, content);
+  }
+
+  async clearFormInput(label: string) {
+    return this.form.clearFormInput(label);
+  }
+
+  async getSummaryItem(itemLabel: string) {
+    return this.page.getByTestId(
+      `description-list-item-${kebabCase(itemLabel)}`
+    );
+  }
+
+  async clickAddToBasket() {
+    await this.addToBasket.click();
   }
 }

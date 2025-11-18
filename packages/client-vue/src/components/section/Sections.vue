@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!active" :class="props.class">
+  <div v-if="!active" :class="props.class" :data-testid="`section`">
     <slot name="default" />
   </div>
 
