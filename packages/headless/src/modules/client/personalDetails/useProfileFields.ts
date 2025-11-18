@@ -49,7 +49,7 @@ export const useProfileFields = (
   { allowMultipleEdits } = { allowMultipleEdits: true }
 ) => {
   const { t } = useI18n();
-  const { user: client } = useSession();
+  const { isAuthenticated } = useSession();
   // const { data: customFields } = useClientCustomFields();
 
   // await customFieldsReady();
@@ -69,18 +69,17 @@ export const useProfileFields = (
         allowMultipleEdits
       }),
     {
-      // id: client.id ?? "new-email",
-      devTools: false
+      id: "client-profile-fields",
+      devTools: true
     }
   );
 
   const { state, send } = useActor(service.start());
 
   // the clientId is required to bring the machine into the available state
-  const { isAuthenticated } = useSession();
-  isAuthenticated().then(user => {
-    if (user?.id && !contextMatches(state, "clientId")) {
-      send({ type: "REFRESH", data: { clientId: user.id } });
+  isAuthenticated().then(client => {
+    if (client?.id && !contextMatches(state, "clientId")) {
+      send({ type: "REFRESH", data: { clientId: client.id } });
     }
   });
 
@@ -132,12 +131,12 @@ export const useProfileFields = (
 
   // --- context
 
-  const context = useContext<FieldsContext>(client);
-  const fields = useContext<FieldsContext["fields"]>(client, "fields");
-  const errors = useContext<FieldsContext["error"]>(client, "error");
-  const model = useContext<FieldsContext["model"]>(client, "model");
-  const schema = useContext<FieldsContext["schema"]>(client, "schema");
-  const uischema = useContext<FieldsContext["uischema"]>(client, "uischema");
+  const context = useContext<FieldsContext>(service);
+  const fields = useContext<FieldsContext["fields"]>(service, "fields");
+  const errors = useContext<FieldsContext["error"]>(service, "error");
+  const model = useContext<FieldsContext["model"]>(service, "model");
+  const schema = useContext<FieldsContext["schema"]>(service, "schema");
+  const uischema = useContext<FieldsContext["uischema"]>(service, "uischema");
 
   // --- methods
 

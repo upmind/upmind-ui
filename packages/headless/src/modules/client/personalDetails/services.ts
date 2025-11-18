@@ -36,7 +36,8 @@ import {
   some,
   pick,
   isArray,
-  reduce
+  reduce,
+  set
 } from "lodash-es";
 
 // --- types
@@ -51,7 +52,7 @@ import type { QueryKey } from "@tanstack/vue-query";
 import type { AnyEventObject } from "xstate";
 import type {
   // Address,
-  // AddressModel,
+  // FieldsModel,
   FieldsContext,
   FieldsModel
 } from "./types";
@@ -60,31 +61,19 @@ import type {
 // QUERIES
 
 const queryKey: QueryKey = ["client", "customFields"];
-// const { addError, addSuccess } = useFeedback();
 
 function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
-  const { meta, user } = useSession();
+  const { meta, client } = useSession();
   const { list, useUrl } = useQuery();
 
   return list<ICustomField[]>({
     ...(params as any),
-    queryKey: [
-      ...queryKey
-      // { user: user.value?.id }
-    ],
+    queryKey,
     url: useUrl(`custom_fields`, {
       "filter[object_type]": CustomFieldsMajorTypes.CLIENT,
       order: "order"
     }),
     withAccessToken: true,
-    guard: async () =>
-      new Promise((resolve, reject) => {
-        if (meta.value.isAuthenticated && !!user.value?.id) {
-          resolve(true);
-        } else {
-          reject(new NotAuthenticatedError());
-        }
-      }),
     // --- options
     select: mapCustomField,
     staleTime: useTime().DAY
@@ -95,22 +84,15 @@ async function loadLookups({
   model,
   schema
 }: FieldsContext): Promise<Partial<FieldsContext>> {
-  const { user: client } = useSession();
-
-  // const { t } = useI18n();
+  const { client: client } = useSession();
 
   const { isReady, data } = useClientCustomFields();
 
   return isReady().then(() => {
-    const customFieldsValues = reduce(
-      data.value,
+    const customFieldsValues: Record<string, any> = reduce(
+      client.value?.customFields || [],
       (result, element) => {
-        result[element.code] = get(
-          find(client.value?.custom_fields || [], ["field_id", element.id]),
-          "value",
-          null
-        );
-
+        set(result, element.field!.code, element.value);
         return result;
       },
       {} as Record<string, any>
@@ -130,56 +112,41 @@ async function loadLookups({
       fields: data.value
     } as Partial<FieldsContext>;
   });
-
-  // const { ensureConfig } = useBrand();
-  // const config = await ensureConfig([
-  //   BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS
-  // ]);
-
-  // if (!countries || !regions) {
-  //   const message = !countries
-  //     ? t("error.countries_not_available")
-  //     : t("error.regions_not_available");
-
-  //   return Promise.reject(
-  //     new DetailedError(message, responseCodes.No_Content, ErrorOrigin.Headless)
-  //   );
-  // }
 }
 
 // -----------------------------------------------------------------------------
 // MUTATIONS
 
-// async function add(data: AddressModel) {
-//   const { meta, user } = useSession();
+// async function add(data: FieldsModel) {
+//   const { meta, client } = useSession();
 //   const { post, useUrl } = useQuery();
 
-//   if (!meta.value.isAuthenticated || !user.value?.id) {
+//   if (!meta.value.isAuthenticated || !client.value?.id) {
 //     return Promise.reject(new NotAuthenticatedError());
 //   }
 //   return post<IAddress>({
-//     url: useUrl(`clients/${user.value?.id}/addresses`),
+//     url: useUrl(`clients/${client.value?.id}/addresses`),
 //     data: mapIAddress(data),
 //     withAccessToken: true
 //   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 // }
 
-// async function update(id: Address["id"], data: AddressModel) {
-//   const { meta, user } = useSession();
+// async function update(id: Address["id"], data: FieldsModel) {
+//   const { meta, client } = useSession();
 //   const { put, useUrl } = useQuery();
 
-//   if (!meta.value.isAuthenticated || !user.value?.id) {
+//   if (!meta.value.isAuthenticated || !client.value?.id) {
 //     return Promise.reject(new NotAuthenticatedError());
 //   }
 
 //   return put<IAddress>({
-//     url: useUrl(`clients/${user.value?.id}/addresses/${id}`),
+//     url: useUrl(`clients/${client.value?.id}/addresses/${id}`),
 //     data: mapIAddress(data),
 //     withAccessToken: true
 //   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 // }
 
-// async function ensure(model: AddressModel): Promise<Address> {
+// async function ensure(model: FieldsModel): Promise<Address> {
 //   const { t } = useI18n();
 //   const { data, promise } = loadList();
 //   await promise.value.finally(); // wait for the query to resolve
@@ -208,14 +175,14 @@ async function loadLookups({
 
 // function remove(addressId: Address["id"]) {
 //   const { t } = useI18n();
-//   const { meta, user } = useSession();
+//   const { meta, client } = useSession();
 //   const { mutate, useUrl } = useQuery();
 
 //   return mutate<null>("DELETE", {
-//     url: useUrl(`clients/${user.value?.id}/addresses/${addressId}`),
+//     url: useUrl(`clients/${client.value?.id}/addresses/${addressId}`),
 //     guard: async () =>
 //       new Promise((resolve, reject) => {
-//         if (meta.value.isAuthenticated || !user.value?.id) {
+//         if (meta.value.isAuthenticated || !client.value?.id) {
 //           resolve(true);
 //         } else {
 //           reject(new NotAuthenticatedError());
@@ -240,14 +207,14 @@ async function loadLookups({
 
 // function setDefault(addressId: Address["id"]) {
 //   const { t } = useI18n();
-//   const { meta, user } = useSession();
+//   const { meta, client } = useSession();
 //   const { mutate, useUrl } = useQuery();
 
 //   return mutate<IAddress>("PUT", {
-//     url: useUrl(`clients/${user.value?.id}/addresses/${addressId}`),
+//     url: useUrl(`clients/${client.value?.id}/addresses/${addressId}`),
 //     guard: async () =>
 //       new Promise((resolve, reject) => {
-//         if (meta.value.isAuthenticated || !user.value?.id) {
+//         if (meta.value.isAuthenticated || !client.value?.id) {
 //           resolve(true);
 //         } else {
 //           reject(new NotAuthenticatedError());
@@ -280,7 +247,7 @@ async function parse({ schema }: FieldsContext, { data }: AnyEventObject) {
 
   // sometimes the machine can return the full context as data, so we check to see if we have a model
   // if not, then we assume the data is the model
-  const safeModel = useModelParser<AddressModel>(
+  const safeModel = useModelParser<FieldsModel>(
     schema,
     get(data, "model", data)
   );

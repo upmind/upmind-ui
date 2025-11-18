@@ -56,6 +56,7 @@ import { FormLabel } from "@upmind-automation/upmind-ui";
 // --- types
 import type { ManageRendererProps } from "./types";
 import { get } from "lodash-es";
+import { isFunction } from "xstate/lib/utils";
 
 // -----------------------------------------------------------------------------
 
@@ -132,7 +133,9 @@ function doEdit(id: string) {
 }
 
 function doRemove(id: string) {
-  props.manage.useList().remove(id);
+  const fn = props.manage.useList()?.remove;
+  if (!isFunction(fn)) return;
+  fn(id);
 }
 
 // --- side effects

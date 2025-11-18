@@ -5,7 +5,7 @@
     <!-- v-show="uischema.showFieldsOnCheckout" -->
     <!-- Additional Options -->
 
-    <!-- <Form
+    <Form
       v-if="!fieldsMeta.isLoading"
       :additional-errors="fieldsErrors?.data"
       :model-value="fieldsModel"
@@ -16,9 +16,8 @@
       @update:modelValue="fieldsUpdate"
       no-actions
       autosave
-    /> -->
+    />
     <!-- :touched="fieldsMeta.showErrors" -->
-    <pre>{{ fieldsMeta }}</pre>
   </UpmSection>
 </template>
 

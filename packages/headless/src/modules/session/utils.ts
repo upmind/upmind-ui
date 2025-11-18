@@ -21,8 +21,8 @@ import {
 } from "lodash-es";
 
 // --- types
-import type { Token, User } from "./types";
-import type { IUser } from "@upmind-automation/types";
+import type { Token, Client } from "./types";
+import type { IClient } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 function convertToCookie() {
@@ -142,27 +142,26 @@ export function useInitialsParser(user: any, chars: number = 1) {
     ?.join("");
 }
 
-export function useUserParser(data: IUser): User | undefined {
-  const user: any = pick(data, [
+export function useClientParser(raw: IClient): Client | undefined {
+  const client: any = pick(raw, [
     "id",
     "email",
-    "username",
+    "clientname",
     "fullname",
     "firstname",
     "lastname",
     "image_url"
   ]);
 
-  user.display = data?.firstname || data?.public_name || data?.email;
-  user.avatar = {
-    caption: useInitialsParser(user),
-    src: user.image_url,
-    forceCaption: includes(user?.image_url, "gravatar")
+  client.display = raw?.firstname || raw?.public_name || raw?.email;
+  client.avatar = {
+    caption: useInitialsParser(client),
+    src: client.image_url,
+    forceCaption: includes(client?.image_url, "gravatar")
   };
-  user.locale = data?.interface_language_code;
+  client.locale = raw?.interface_language_code;
 
-  console.log("custom fields data: ", data);
-  user.custom_fields = data?.custom_fields || [];
+  client.customFields = raw?.custom_fields || [];
 
-  return user;
+  return client;
 }
