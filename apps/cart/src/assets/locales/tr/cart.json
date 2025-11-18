@@ -37,7 +37,7 @@
   "payment_amount": "Ödeme tutarı",
   "payment_amount_msg": "Sipariş toplamınız {amount}. Şimdi ödemek istediğiniz tutarı girin. Kalan bakiye, siparişinizin etkinleştirilmesinden önce ödenmelidir.",
   "payment_awaiting_approval": "Onay **bekleniyor**",
-  "payment_awaiting_approval_md": "@.markdown:{'text.payment_awaiting_approval'}",
+  "payment_awaiting_approval_md": "@.markdown:{'cart.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "Onay bekliyoruz. Bu sadece bir dakika sürecektir.",
   "payment_check_details_msg": "Satın alma işlemini tamamlamak için lütfen ödeme bilgilerinizi kontrol edin.",
   "payment_checking_details": "Ödeme bilgileriniz **kontrol ediliyor**...",
