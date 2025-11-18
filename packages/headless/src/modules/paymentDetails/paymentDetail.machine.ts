@@ -181,7 +181,7 @@ export default createMachine(
         on: {
           CLEAR: {
             target: "available.checking",
-            actions: ["clearModel"]
+            actions: ["reset"]
           },
           SET: {
             target: "available.checking",
@@ -199,7 +199,7 @@ export default createMachine(
             // NB if we change core values, tear down the gateway and re create it
             {
               target: "#loading",
-              actions: ["clearGateway", "refresh", "refreshActors"],
+              actions: ["reset", "refresh", "refreshActors"],
               cond: "hasChanged"
             },
             // otherwise just update context and actors
@@ -228,7 +228,7 @@ export default createMachine(
     on: {
       UNAUTHENTICATED: {
         target: "subscribing",
-        actions: ["clearError", "clearModel", "clearSchemas"]
+        actions: ["clearError", "reset", "clearSchemas"]
       }
     }
   },
@@ -307,10 +307,6 @@ export default createMachine(
         uischema: undefined
       }),
 
-      clearModel: assign({
-        model: undefined
-      }),
-
       setAutoUpdate: assign({
         autoupdate: (
           _context: PaymentDetailsContext,
@@ -364,11 +360,15 @@ export default createMachine(
         }
       }),
 
-      clearGateway: assign({
+      reset: assign({
         gatewayHelper: ({ gatewayHelper }: PaymentDetailsContext) => {
           if (gatewayHelper) stopService(gatewayHelper);
           return undefined;
-        }
+        },
+        // NB reset the model AND amounts so we force a reparse and recalculation
+        model: undefined,
+        amountPartial: undefined,
+        amountWallet: undefined
       }),
 
       refresh: assign({

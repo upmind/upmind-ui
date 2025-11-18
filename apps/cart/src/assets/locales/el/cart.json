@@ -37,7 +37,7 @@
   "payment_amount": "Ποσό πληρωμής",
   "payment_amount_msg": "Το συνολικό ποσό της παραγγελίας σας είναι {amount}. Εισάγετε το ποσό που θέλετε να πληρώσετε τώρα. Το υπόλοιπο πρέπει να εξοφληθεί πριν ενεργοποιηθεί η παραγγελία σας.",
   "payment_awaiting_approval": "**Αναμονή** για έγκριση",
-  "payment_awaiting_approval_md": "@.markdown:{'text.payment_awaiting_approval'}",
+  "payment_awaiting_approval_md": "@.markdown:{'cart.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "Περιμένουμε έγκριση. Αυτό θα διαρκέσει μόνο λίγο.",
   "payment_check_details_msg": "Ελέγξτε τα στοιχεία πληρωμής σας για να ολοκληρώσετε την αγορά.",
   "payment_checking_details": "**Έλεγχος** των στοιχείων πληρωμής σας...",

@@ -38,14 +38,12 @@ export function useSchemaDefinitions({
     amount: {
       type: "number",
       default: amount || 0,
-      multipleOf: 0.01,
       minimum: 0,
       maximum: amount
     },
 
     wallet_amount: {
       type: "number",
-      multipleOf: 0.01,
       minimum: 0,
       default: Math.min(
         model?.amount ?? amount,
@@ -165,7 +163,11 @@ export const useUischemaDefinitions = ({
       type: "Control",
       scope: "#/properties/amount",
       i18n: "form.amount",
-      options: {},
+      options: {
+        type: "currency",
+        step: 0.01,
+        currency: currency?.code
+      },
       rule: {
         effect: RuleEffect.SHOW,
         condition: {
@@ -186,7 +188,8 @@ export const useUischemaDefinitions = ({
       options: {
         type: "currency",
         currency: currency?.code,
-        noLabel: true
+        noLabel: true,
+        step: 0.01
       }
     };
   }

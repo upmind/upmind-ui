@@ -115,7 +115,7 @@
         "title": "Welcome back, {name}"
       },
       "footer": {
-        "text": "Not you? Sign in with another account {action} .",
+        "text": "Not you? Sign in with another account {action}.",
         "action": "here"
       }
     },
