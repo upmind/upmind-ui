@@ -39,6 +39,7 @@ export interface SelectCardsProps extends RadioGroupRootProps {
   disabled?: boolean;
   // ---
   side?: PopoverContentProps["side"];
+  size?: TriggerVariantProps["size"];
   align?: "start" | "center" | "end";
   width?: TriggerVariantProps["width"];
   focusable?: boolean;
