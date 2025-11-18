@@ -37,7 +37,7 @@
   "payment_amount": "Monto del pago",
   "payment_amount_msg": "El total de su pedido es {amount}. Ingrese el monto que desea pagar ahora. El saldo restante debe pagarse antes de que su pedido sea activado.",
   "payment_awaiting_approval": "**Esperando** aprobación",
-  "payment_awaiting_approval_md": "@.markdown:{'text.payment_awaiting_approval'}",
+  "payment_awaiting_approval_md": "@.markdown:{'cart.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "Estamos esperando la aprobación. Esto solo tardará un momento.",
   "payment_check_details_msg": "Por favor revise sus detalles de pago para completar la compra.",
   "payment_checking_details": "**Comprobando** tus detalles de pago...",

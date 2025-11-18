@@ -47,7 +47,7 @@ export function spawnGateway({
   clientId
 }: GatewayParams) {
   switch (gateway.gateway_provider?.code) {
-    // SDK SPECIFIC gateways
+    // SUPPORTED SDK GATEWAYS
     case GatewayProviderCodes.BRAINTREE:
       return spawn(
         gatewayMachine<BraintreeContext>(gateway.gateway_provider.code)
@@ -67,7 +67,6 @@ export function spawnGateway({
           sync: true
         }
       );
-
     case GatewayProviderCodes.OPENPAY:
       return spawn(
         gatewayMachine<OpenPayContext>(gateway.gateway_provider.code)
@@ -84,7 +83,6 @@ export function spawnGateway({
           .withConfig(openPayConfig),
         { name: gateway.id, sync: true }
       );
-
     case GatewayProviderCodes.STRIPE:
       if (!gateway?.use_frontend_implementation) {
         console.warn(
@@ -125,7 +123,6 @@ export function spawnGateway({
           ),
         { name: gateway.id, sync: true }
       );
-
     case GatewayProviderCodes.RAZOR_PAY_CHECKOUT:
       return spawn(
         gatewayMachine<RazorpayContext>(gateway.gateway_provider.code)
@@ -144,7 +141,7 @@ export function spawnGateway({
         { name: gateway.id, sync: true }
       );
 
-    // SUPPORTED GENERIC OFFSITE GATEWAYS
+    // SUPPORTED NON SDK "SIMPLE" GATEWAYS
     case GatewayProviderCodes.BANK_TRANSFER:
     case GatewayProviderCodes.FLUTTERWAVE:
     case GatewayProviderCodes.MICROPAYMENT:
@@ -153,6 +150,7 @@ export function spawnGateway({
     case GatewayProviderCodes.PAYPAL_EXPRESS:
     case GatewayProviderCodes.PAYPAL_PRO:
     case GatewayProviderCodes.PAYSTACK:
+    case GatewayProviderCodes.PAYTM:
       return spawn(
         gatewayMachine(gateway.gateway_provider.code).withContext({
           address,
@@ -169,7 +167,7 @@ export function spawnGateway({
         { name: gateway.id, sync: true }
       );
 
-    // DEPRECATED/UNSUPPORTED OR UNKNOWN GATEWAYS
+    // DEPRECATED/UNSUPPORTED/UNKNOWN GATEWAYS
     default:
     case GatewayProviderCodes.ADYEN:
     case GatewayProviderCodes.BIT_PAY:
@@ -185,7 +183,6 @@ export function spawnGateway({
     case GatewayProviderCodes.PAYPAL_LEGACY_SUBSCRIPTION:
     case GatewayProviderCodes.PAYPAL_SUBSCRIPTION_AGREEMENT:
     case GatewayProviderCodes.PAYSAFECARD:
-    case GatewayProviderCodes.PAYTM:
     case GatewayProviderCodes.PAY_FAST:
     case GatewayProviderCodes.PAY_U:
     case GatewayProviderCodes.PESA_PAL:
