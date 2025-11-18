@@ -94,7 +94,7 @@ function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
 async function loadLookups({
   model,
   schema
-}: FieldsContext): Promise<FieldsContext> {
+}: FieldsContext): Promise<Partial<FieldsContext>> {
   const { user: client } = useSession();
 
   // const { t } = useI18n();
