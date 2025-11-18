@@ -3,13 +3,15 @@ import { fakerEN_GB } from "@faker-js/faker";
 import { URLs } from "../../support/constants/urls";
 import { interceptUISchema } from "../../support/utils/functions/brand";
 import { Logins } from "../../support/constants/logins";
+import { Checkout } from "../../support/page-objects/templates/Checkout";
 import { getClientToken } from "../../support/utils/functions/tokens";
 import { getSessionToken } from "../../support/utils/functions/tokens";
 import {
-  getCurrentOrderId,
+  createOrder,
   addProductToOrder
 } from "../../support/utils/functions/basket";
 
+let checkout: Checkout;
 let token: string | null;
 let orderId: string | null;
 
@@ -20,7 +22,7 @@ test.describe("Brand Settings - UI Templates", () => {
     });
     test("Fallback to default (Full)", async ({ page }) => {
       await page.goto(URLs.login);
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("load");
       await expect(page.locator("body")).toHaveScreenshot(
         "login-fallback-default.png"
       );
@@ -30,7 +32,7 @@ test.describe("Brand Settings - UI Templates", () => {
         loginTemplate: "full"
       });
       await page.goto(URLs.login);
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("load");
       await expect(page.locator("body")).toHaveScreenshot("login-full.png");
     });
     test("Split Login Template", async ({ page }) => {
@@ -38,7 +40,7 @@ test.describe("Brand Settings - UI Templates", () => {
         loginTemplate: "split"
       });
       await page.goto(URLs.login);
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("load");
       await expect(page.locator("body")).toHaveScreenshot("login-split.png");
     });
     test("Canvas Card Login Template", async ({ page }) => {
@@ -46,7 +48,7 @@ test.describe("Brand Settings - UI Templates", () => {
         loginTemplate: "canvas-card"
       });
       await page.goto(URLs.login);
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("load");
       await expect(page.locator("body")).toHaveScreenshot(
         "login-canvas-card.png"
       );
@@ -56,7 +58,7 @@ test.describe("Brand Settings - UI Templates", () => {
         loginTemplate: "surface-box"
       });
       await page.goto(URLs.login);
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("load");
       await expect(page.locator("body")).toHaveScreenshot(
         "login-surface-box.png"
       );
@@ -66,7 +68,7 @@ test.describe("Brand Settings - UI Templates", () => {
         loginTemplate: "two-column-rtl"
       });
       await page.goto(URLs.login);
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("load");
       await expect(page.locator("body")).toHaveScreenshot(
         "login-two-column-rtl.png"
       );
@@ -76,7 +78,7 @@ test.describe("Brand Settings - UI Templates", () => {
         loginTemplate: "two-column-ltr"
       });
       await page.goto(URLs.login);
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("load");
       await expect(page.locator("body")).toHaveScreenshot(
         "login-two-column-ltr.png"
       );
@@ -85,7 +87,7 @@ test.describe("Brand Settings - UI Templates", () => {
       await page.goto(URLs.login);
       await page.waitForLoadState("networkidle");
       token = await getSessionToken(page.context(), "guest");
-      orderId = await getCurrentOrderId(token);
+      orderId = await createOrder(token);
       await addProductToOrder(
         `${token}`,
         `${orderId}`,
@@ -96,7 +98,8 @@ test.describe("Brand Settings - UI Templates", () => {
         [],
         {
           domain: `${fakerEN_GB.string.alphanumeric({
-            length: { min: 3, max: 15 }
+            length: 5,
+            casing: "lower"
           })}.com`
         },
         []
@@ -105,9 +108,10 @@ test.describe("Brand Settings - UI Templates", () => {
         loginTemplate: "two-column-ltr"
       });
       await page.goto(URLs.login);
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("load");
       await expect(page.locator("body")).toHaveScreenshot(
-        "login-two-column-ltr-with-item.png"
+        "login-two-column-ltr-with-item.png",
+        { mask: [page.locator("dt")] }
       );
     });
   });
@@ -117,7 +121,7 @@ test.describe("Brand Settings - UI Templates", () => {
     });
     test("Fallback to default (Full)", async ({ page }) => {
       await page.goto(URLs.register);
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("load");
       await expect(page.locator("body")).toHaveScreenshot(
         "register-fallback-default.png"
       );
@@ -127,7 +131,7 @@ test.describe("Brand Settings - UI Templates", () => {
         registerTemplate: "full"
       });
       await page.goto(URLs.register);
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("load");
       await expect(page.locator("body")).toHaveScreenshot("register-full.png");
     });
     test("Split Register Template", async ({ page }) => {
@@ -135,7 +139,7 @@ test.describe("Brand Settings - UI Templates", () => {
         registerTemplate: "split"
       });
       await page.goto(URLs.register);
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("load");
       await expect(page.locator("body")).toHaveScreenshot("register-split.png");
     });
     test("Canvas Card Register Template", async ({ page }) => {
@@ -143,7 +147,7 @@ test.describe("Brand Settings - UI Templates", () => {
         registerTemplate: "canvas-card"
       });
       await page.goto(URLs.register);
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("load");
       await expect(page.locator("body")).toHaveScreenshot(
         "register-canvas-card.png"
       );
@@ -153,7 +157,7 @@ test.describe("Brand Settings - UI Templates", () => {
         registerTemplate: "surface-box"
       });
       await page.goto(URLs.register);
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("load");
       await expect(page.locator("body")).toHaveScreenshot(
         "register-surface-box.png"
       );
@@ -163,7 +167,7 @@ test.describe("Brand Settings - UI Templates", () => {
         registerTemplate: "two-column-rtl"
       });
       await page.goto(URLs.register);
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("load");
       await expect(page.locator("body")).toHaveScreenshot(
         "register-two-column-rtl.png"
       );
@@ -173,7 +177,7 @@ test.describe("Brand Settings - UI Templates", () => {
         registerTemplate: "two-column-ltr"
       });
       await page.goto(URLs.register);
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("load");
       await expect(page.locator("body")).toHaveScreenshot(
         "register-two-column-ltr.png"
       );
@@ -182,7 +186,7 @@ test.describe("Brand Settings - UI Templates", () => {
       await page.goto(URLs.login);
       await page.waitForLoadState("networkidle");
       token = await getSessionToken(page.context(), "guest");
-      orderId = await getCurrentOrderId(token);
+      orderId = await createOrder(token);
       await addProductToOrder(
         `${token}`,
         `${orderId}`,
@@ -193,7 +197,8 @@ test.describe("Brand Settings - UI Templates", () => {
         [],
         {
           domain: `${fakerEN_GB.string.alphanumeric({
-            length: { min: 3, max: 15 }
+            length: 5,
+            casing: "lower"
           })}.com`
         },
         []
@@ -202,14 +207,16 @@ test.describe("Brand Settings - UI Templates", () => {
         registerTemplate: "two-column-ltr"
       });
       await page.goto(URLs.register);
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("load");
       await expect(page.locator("body")).toHaveScreenshot(
-        "register-two-column-ltr-with-item.png"
+        "register-two-column-ltr-with-item.png",
+        { mask: [page.locator("dt")] }
       );
     });
   });
   test.describe("Checkout UI Templates", () => {
     test.beforeEach(async ({ page }) => {
+      checkout = new Checkout(page);
       await page.goto(URLs.login);
       await getClientToken(
         page,
@@ -218,7 +225,7 @@ test.describe("Brand Settings - UI Templates", () => {
       );
       await page.reload();
       token = await getSessionToken(page.context(), "client");
-      orderId = await getCurrentOrderId(token);
+      orderId = await createOrder(token);
       await addProductToOrder(
         `${token}`,
         `${orderId}`,
@@ -228,18 +235,18 @@ test.describe("Brand Settings - UI Templates", () => {
         [],
         [],
         {
-          domain: `${fakerEN_GB.string.alphanumeric({
-            length: { min: 3, max: 15 }
-          })}.com`
+          domain: `testingdomain.com`
         },
         []
       );
     });
     test("Fallback to Default (Full)", async ({ page }) => {
       await page.goto(URLs.checkout);
-      await page.waitForLoadState("networkidle");
+      await checkout.billingDetails.waitFor({ state: "visible" });
+      await page.waitForLoadState("load");
       await expect(page.locator("body")).toHaveScreenshot(
-        "checkout-fallback-default.png"
+        "checkout-fallback-default.png",
+        { mask: [page.locator("dt")] }
       );
     });
     test("Full Checkout Template", async ({ page }) => {
@@ -247,27 +254,33 @@ test.describe("Brand Settings - UI Templates", () => {
         checkoutTemplate: "full"
       });
       await page.goto(URLs.checkout);
-      await page.waitForLoadState("networkidle");
-      await expect(page.locator("body")).toHaveScreenshot("checkout-full.png");
+      await checkout.billingDetails.waitFor({ state: "visible" });
+      await page.waitForLoadState("load");
+      await expect(page.locator("body")).toHaveScreenshot("checkout-full.png", {
+        mask: [page.locator("dt")]
+      });
     });
     test("Two Column (LTR) Checkout Template", async ({ page }) => {
       await interceptUISchema(page, {
         checkoutTemplate: "two-column-ltr"
       });
       await page.goto(URLs.checkout);
-      await page.waitForLoadState("networkidle");
-      await expect(page.locator("body")).toHaveScreenshot(
+      await checkout.billingDetails.waitFor({ state: "visible" });
+      (await expect(page.locator("body")).toHaveScreenshot(
         "checkout-two-column-ltr.png"
-      );
+      ),
+        { mask: [page.locator("dt")] });
     });
     test("Two Column (RTL) Checkout Template", async ({ page }) => {
       await interceptUISchema(page, {
         checkoutTemplate: "two-column-rtl"
       });
       await page.goto(URLs.checkout);
-      await page.waitForLoadState("networkidle");
+      await checkout.billingDetails.waitFor({ state: "visible" });
+      await page.waitForLoadState("load");
       await expect(page.locator("body")).toHaveScreenshot(
-        "checkout-two-column-rtl.png"
+        "checkout-two-column-rtl.png",
+        { mask: [page.locator("dt")] }
       );
     });
   });

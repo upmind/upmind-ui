@@ -6,7 +6,7 @@ export const FraudCheckCards = [
     cvcCode: "123",
     dialogTitle: "Unable to process payment",
     dialogText:
-      "Your card was declined. Please click below to go to your invoice where you can retry your payment."
+      "We were unable to process your payment for this order, this could be for a number of reasons."
   },
   {
     name: "Highest Risk",
@@ -15,7 +15,7 @@ export const FraudCheckCards = [
     cvcCode: "123",
     dialogTitle: "Unable to process payment",
     dialogText:
-      "Your card was declined. Please click below to go to your invoice where you can retry your payment."
+      "We were unable to process your payment for this order, this could be for a number of reasons."
   },
   {
     name: "Elevated Risk",
