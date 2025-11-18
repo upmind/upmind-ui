@@ -1,5 +1,4 @@
 import { test, expect } from "@playwright/test";
-//import { test } from '../../../support/fixtures/test';
 import { fakerEN_GB } from "@faker-js/faker";
 import { URLs } from "../../../support/constants/urls";
 import {
@@ -224,6 +223,20 @@ test.describe("Checkout with Stripe", () => {
       await page.waitForLoadState("load");
       await expect(page.getByRole("alert")).toContainText(
         "Your card was declined. Your request was in live mode, but used a known test card."
+      );
+    });
+    test("Insufficient Payment Amount", async ({ page, context }) => {
+      await checkout.goToCheckout(null, null);
+      await page.waitForLoadState("networkidle");
+      await registration.inputRegistration();
+      await page.waitForLoadState("load");
+      await checkout.changeAmountButton.click();
+      await checkout.changeAmountInput.fill("0.20");
+      await checkout.confirmAmountButton.click();
+      await expect(checkout.payAmount).toHaveText("Pay £0.20");
+      await checkout.selectPaymentMethod("Stripe");
+      await expect(page.getByRole("alert")).toContainText(
+        "Amount must be at least £0.30 gbp"
       );
     });
   });
