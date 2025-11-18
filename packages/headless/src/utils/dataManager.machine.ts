@@ -20,7 +20,7 @@ import { ErrorObject } from "ajv";
 export default createMachine<ClientItemContext>(
   {
     //tsTypes: {} as import("./item.machine.typegen").Typegen0,
-    id: "clientManager",
+    id: "dataManager",
     predictableActionArguments: true,
     initial: "subscribing",
     context: {} as ClientItemContext,

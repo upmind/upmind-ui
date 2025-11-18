@@ -1,3 +1,3 @@
 export * from "./types";
-export * from "./useProfileFields";
-export * from "./useClientCustomFields";
+export * from "./useProfileFieldsManager";
+export * from "../customfields/useClientCustomFields";

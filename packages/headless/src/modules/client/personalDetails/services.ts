@@ -47,7 +47,7 @@ import {
   CustomFieldsMajorTypes,
   ICustomField
 } from "@upmind-automation/types";
-import { useClientCustomFields } from "./useClientCustomFields";
+import { useClientCustomFields } from "../customfields/useClientCustomFields";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { AnyEventObject } from "xstate";
 import type {
