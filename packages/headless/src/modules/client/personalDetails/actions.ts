@@ -8,32 +8,29 @@ import { useSchema, useUischema } from "./schemas";
 import { useModelParser } from "../../../utils";
 
 // --- types
-import { EmailModel, type EmailContext } from "./types";
+import { FieldsModel, type FieldsContext } from "./types";
 import type { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------
 
-export const useProfileDetailsActions = ({ fields }: { fields: any }) => {
-  console.log("useProfileDetailsActions: ", fields);
-
+export const useProfileDetailsActions = () => {
   return {
-    setMeta: assign({
-      title: ({ model }: EmailContext) => model?.email || "New Email",
-      description: ({ model }: EmailContext) => ""
-    }),
-
     setSchemas: assign({
-      schema: useSchema({ fields }),
-      uischema: useUischema({ fields })
+      schema: (context: FieldsContext) => {
+        return useSchema(context);
+      },
+      uischema: (context: FieldsContext) => {
+        return useUischema(context);
+      }
     }),
 
     setModel: assign({
-      model: ({ schema, baseModel }: EmailContext, { data }: AnyEventObject) =>
-        useModelParser<EmailModel>(schema, data, baseModel)
+      model: ({ schema, baseModel }: FieldsContext, { data }: AnyEventObject) =>
+        useModelParser<FieldsModel>(schema, data, baseModel)
     }),
 
     refreshContext: assign({
-      clientId: ({ clientId }: EmailContext, { data }: AnyEventObject) => {
+      clientId: ({ clientId }: FieldsContext, { data }: AnyEventObject) => {
         return clientId || data?.clientId;
       }
     })
@@ -42,7 +39,7 @@ export const useProfileDetailsActions = ({ fields }: { fields: any }) => {
 
 export const useProfileDetailsGuards = () => {
   return {
-    hasSubscription: ({ clientId }: EmailContext, _event: AnyEventObject) =>
+    hasSubscription: ({ clientId }: FieldsContext, _event: AnyEventObject) =>
       !!clientId
   };
 };

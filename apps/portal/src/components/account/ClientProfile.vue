@@ -18,7 +18,7 @@
       autosave
     /> -->
     <!-- :touched="fieldsMeta.showErrors" -->
-    <!-- <pre>{{ useProfileFields() }}</pre> -->
+    <pre>{{ fieldsMeta }}</pre>
   </UpmSection>
 </template>
 
