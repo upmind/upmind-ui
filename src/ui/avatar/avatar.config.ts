@@ -21,9 +21,8 @@ export const variants = {
     "2xl": "size-16 text-2xl leading-8"
   },
   shape: {
-    color: "base",
     circle: "rounded-full",
-    square: "rounded-md"
+    square: ""
   },
   focusable: {
     true: `${ringClasses}`
