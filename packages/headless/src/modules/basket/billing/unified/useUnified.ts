@@ -75,9 +75,9 @@ export const useUnified = (
 
   // the clientId is required to bring the machine into the available state
   const { isAuthenticated } = useSession();
-  isAuthenticated().then(user => {
-    if (user?.id && !contextMatches(state, "clientId")) {
-      send({ type: "REFRESH", data: { clientId: user.id } });
+  isAuthenticated().then(client => {
+    if (client?.id && !contextMatches(state, "clientId")) {
+      send({ type: "REFRESH", data: { clientId: client.id } });
     }
   });
 

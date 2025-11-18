@@ -38,17 +38,17 @@ const queryKey: QueryKey = ["client", "phones"];
 const { addError, addSuccess } = useFeedback();
 
 function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
-  const { meta, user } = useSession();
+  const { meta, client } = useSession();
   const { list, useUrl } = useQuery();
 
   return list<IPhone[], Phone[]>({
     ...(params as any),
-    queryKey: [...queryKey, { user: user.value?.id }],
-    url: useUrl(`clients/${user.value?.id}/phones`),
+    queryKey: [...queryKey, { client: client.value?.id }],
+    url: useUrl(`clients/${client.value?.id}/phones`),
     withAccessToken: true,
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (meta.value.isAuthenticated && !!user.value?.id) {
+        if (meta.value.isAuthenticated && !!client.value?.id) {
           resolve(true);
         } else {
           reject(new NotAuthenticatedError());
@@ -116,29 +116,29 @@ async function loadLookups({
 // MUTATIONS
 
 async function add(data: PhoneModel) {
-  const { meta, user } = useSession();
+  const { meta, client } = useSession();
   const { post, useUrl } = useQuery();
 
-  if (!meta.value.isAuthenticated || !user.value?.id) {
+  if (!meta.value.isAuthenticated || !client.value?.id) {
     return Promise.reject(new NotAuthenticatedError());
   }
   return post<IPhone>({
-    url: useUrl(`clients/${user.value?.id}/phones`),
+    url: useUrl(`clients/${client.value?.id}/phones`),
     data: mapIPhone(data),
     withAccessToken: true
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
 async function update(id: Phone["id"], data: PhoneModel) {
-  const { meta, user } = useSession();
+  const { meta, client } = useSession();
   const { put, useUrl } = useQuery();
 
-  if (!meta.value.isAuthenticated || !user.value?.id) {
+  if (!meta.value.isAuthenticated || !client.value?.id) {
     return Promise.reject(new NotAuthenticatedError());
   }
 
   return put<IPhone>({
-    url: useUrl(`clients/${user.value?.id}/phones/${id}`),
+    url: useUrl(`clients/${client.value?.id}/phones/${id}`),
     data: mapIPhone(data),
     withAccessToken: true
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
@@ -173,14 +173,14 @@ async function ensure(model: PhoneModel): Promise<Phone> {
 
 function remove(phoneId: Phone["id"]) {
   const { t } = useI18n();
-  const { meta, user } = useSession();
+  const { meta, client } = useSession();
   const { mutate, useUrl } = useQuery();
 
   return mutate<null>("DELETE", {
-    url: useUrl(`clients/${user.value?.id}/phones/${phoneId}`),
+    url: useUrl(`clients/${client.value?.id}/phones/${phoneId}`),
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (meta.value.isAuthenticated || !user.value?.id) {
+        if (meta.value.isAuthenticated || !client.value?.id) {
           resolve(true);
         } else {
           reject(new NotAuthenticatedError());
@@ -205,14 +205,14 @@ function remove(phoneId: Phone["id"]) {
 
 function setDefault(phoneId: Phone["id"]) {
   const { t } = useI18n();
-  const { meta, user } = useSession();
+  const { meta, client } = useSession();
   const { mutate, useUrl } = useQuery();
 
   return mutate<IPhone>("PUT", {
-    url: useUrl(`clients/${user.value?.id}/phones/${phoneId}`),
+    url: useUrl(`clients/${client.value?.id}/phones/${phoneId}`),
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (meta.value.isAuthenticated || !user.value?.id) {
+        if (meta.value.isAuthenticated || !client.value?.id) {
           resolve(true);
         } else {
           reject(new NotAuthenticatedError());

@@ -106,10 +106,10 @@ async function loadLookups(
   { currency, address, orderId }: PaymentDetailsContext,
   _event: AnyEventObject
 ) {
-  const { meta, user } = useSession();
+  const { meta, client } = useSession();
   const paymentTypes = { ...PaymentType };
 
-  if (!meta.value.isAuthenticated || !user.value?.id)
+  if (!meta.value.isAuthenticated || !client.value?.id)
     throw new NotAuthenticatedError();
 
   const { brandId, currencyId: defaultCurrencyId, ensureConfig } = useBrand();
@@ -117,7 +117,7 @@ async function loadLookups(
 
   // ---
 
-  const clientId = user.value!.id;
+  const clientId = client.value!.id;
   const currencyId = currency?.id || defaultCurrencyId.value; // fallback to default currency
 
   const config = ensureConfig([
