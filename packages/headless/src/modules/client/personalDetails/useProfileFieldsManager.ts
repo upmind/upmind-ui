@@ -26,10 +26,10 @@ import {
   DEBOUNCE_DELAY,
   stopService
 } from "../../../utils";
-import crudMachine from "../../../utils/crud.machine";
+import crudMachine from "../../../utils/dataManager.machine";
 import { useSession } from "../..";
 import { isNil, debounce, isEqual, isEmpty, get } from "lodash-es";
-import { useClientCustomFields } from "./useClientCustomFields";
+import { useClientCustomFields } from "../customfields/useClientCustomFields";
 
 // --- types
 // import type { ActorRef } from "xstate";
@@ -45,8 +45,15 @@ import type { ClientItemContext } from "../types";
 //  * Uses internal actors to manage complex state interactions, including field validation and updates.
 //  */
 
+useProfileFields(fields:['firstname'])
+
 export const useProfileFields = (
-  { allowMultipleEdits } = { allowMultipleEdits: true }
+  { allowMultipleEdits,
+    filter: {
+      model:
+      Field[]
+    }
+   } = { allowMultipleEdits: true }
 ) => {
   const { t } = useI18n();
   const { isAuthenticated } = useSession();
@@ -66,7 +73,8 @@ export const useProfileFields = (
         // clientId,
         // client: client.value,
         // model: getOne(id),
-        allowMultipleEdits
+        allowMultipleEdits,
+        filter: fields
       }),
     {
       id: "client-profile-fields",

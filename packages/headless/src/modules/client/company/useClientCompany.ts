@@ -6,7 +6,7 @@ import { useActor } from "@xstate/vue";
 
 // --- internal
 import { useI18n } from "../../system";
-import crudMachine from "../../../utils/crud.machine";
+import crudMachine from "../../../utils/dataManager.machine";
 import { useClientCompanyActions, useClientCompanyGuards } from "./actions";
 import { useClientCompanyServices } from "./services";
 import { useClientCompanies } from "./useClientCompanies";
