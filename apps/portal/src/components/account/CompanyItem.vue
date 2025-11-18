@@ -14,9 +14,8 @@
         />
       </h3>
 
-      <div>
+      <div v-if="!props.readonly">
         <Link
-          v-if="!props.readonly"
           :label="t('action.edit')"
           size="sm"
           color="muted"
@@ -27,7 +26,7 @@
         />
 
         <Link
-          v-if="!props.readonly && !props.default"
+          v-if="!props.default"
           :label="t('action.remove')"
           size="sm"
           color="muted"

@@ -161,5 +161,8 @@ export function useUserParser(data: IUser): User | undefined {
   };
   user.locale = data?.interface_language_code;
 
+  console.log("custom fields data: ", data);
+  user.custom_fields = data?.custom_fields || [];
+
   return user;
 }

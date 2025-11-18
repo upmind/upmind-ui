@@ -229,6 +229,8 @@ export const useSession = () => {
     )
       .then(state => {
         const user = get(state, "user");
+
+        console.log("then", user);
         if (!user)
           throw new DetailedError(
             t("error.user_not_available"),

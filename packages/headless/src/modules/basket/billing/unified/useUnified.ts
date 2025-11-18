@@ -6,7 +6,7 @@ import { useActor } from "@xstate/vue";
 
 // --- internal
 import { useI18n } from "../../../system";
-import itemMachine from "../../../client/item.machine";
+import crudMachine from "../../../../utils/crud.machine";
 import { useUnifiedActions, useUnifiedGuards } from "./actions";
 import { useUnifiedServices } from "./services";
 import { useSession } from "../../../session";
@@ -50,7 +50,7 @@ export const useUnified = (
 ) => {
   const { t } = useI18n();
   const service = interpret(
-    itemMachine
+    crudMachine
       .withConfig({
         actions: useUnifiedActions() as any,
         guards: useUnifiedGuards() as any,

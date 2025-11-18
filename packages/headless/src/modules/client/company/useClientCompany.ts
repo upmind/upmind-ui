@@ -6,7 +6,7 @@ import { useActor } from "@xstate/vue";
 
 // --- internal
 import { useI18n } from "../../system";
-import itemMachine from "../item.machine";
+import crudMachine from "../../../utils/crud.machine";
 import { useClientCompanyActions, useClientCompanyGuards } from "./actions";
 import { useClientCompanyServices } from "./services";
 import { useClientCompanies } from "./useClientCompanies";
@@ -58,7 +58,7 @@ export const useClientCompany = (
   const { getOne } = useClientCompanies();
 
   const service = interpret(
-    itemMachine
+    crudMachine
       .withConfig({
         actions: useClientCompanyActions() as any,
         guards: useClientCompanyGuards() as any,

@@ -6,7 +6,7 @@ import { useActor } from "@xstate/vue";
 
 // --- internal
 import { useI18n } from "../../system";
-import itemMachine from "../item.machine";
+import crudMachine from "../../../utils/crud.machine";
 import { useClientEmailActions, useClientEmailGuards } from "./actions";
 import { useClientEmailServices } from "./services";
 import { useClientEmails } from "./useClientEmails";
@@ -59,7 +59,7 @@ export const useClientEmail = (
 
   // --- state
   const service = interpret(
-    itemMachine
+    crudMachine
       .withConfig({
         actions: useClientEmailActions() as any,
         guards: useClientEmailGuards() as any,
