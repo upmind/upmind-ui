@@ -8,11 +8,11 @@ import {
   mapToHeadlessError,
   useValidationParser,
   ResponseError
-} from "../../utils";
+} from ".";
 
 // --- types
 import type { AnyEventObject } from "xstate";
-import type { ClientItemContext } from "./types";
+import type { ClientItemContext } from "../modules/client/types";
 import { ErrorObject } from "ajv";
 
 // -----------------------------------------------------------------------------
