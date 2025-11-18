@@ -1,6 +1,5 @@
 // --- external
 import { defineCustomElement } from "vue";
-import { keys } from "lodash-es";
 import { parseVariants, type VariantValues } from "../../utils";
 
 // --- vue elements

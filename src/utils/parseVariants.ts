@@ -14,13 +14,18 @@ import { keys, zipObject, upperCase } from "lodash-es";
  * NOTE: Loadash was causing issues with the types
  */
 
-type ParsedVariants<T> = { [K in keyof T as Uppercase<string & K>]: K & string };
+type ParsedVariants<T> = {
+  [K in keyof T as Uppercase<string & K>]: K & string;
+};
 
 export function parseVariants<T extends Record<string, any>>(
   config: T
 ): ParsedVariants<T> {
   const variantKeys = keys(config);
-  return zipObject(variantKeys.map(upperCase), variantKeys) as ParsedVariants<T>;
+  return zipObject(
+    variantKeys.map(upperCase),
+    variantKeys
+  ) as ParsedVariants<T>;
 }
 
 // Type helper to extract variant values
