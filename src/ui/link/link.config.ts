@@ -36,11 +36,11 @@ export const variants = {
     false: "cursor-pointer"
   },
   hasRing: {
-    true: `${outlineReset} focus-visible:ring-2 focus-visible:ring-control-ring focus-visible:ring-offset-2 focus-visible:ring-offset-surface`,
+    true: `${outlineReset} focus-visible:ring-2 focus-visible:ring-control-ring focus-visible:ring-offset-2 focus-visible:ring-offset-core-surface`,
     false: "outline-none focus:ring-0 focus:outline-none"
   },
   hasFocusRing: {
-    true: `${outlineReset} focus:ring-2 focus:ring-control-ring focus:ring-offset-2 focus:ring-offset-surface`,
+    true: `${outlineReset} focus:ring-2 focus:ring-control-ring focus:ring-offset-2 focus:ring-offset-core-surface`,
     false: ""
   }
 };

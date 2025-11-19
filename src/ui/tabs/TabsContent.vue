@@ -18,7 +18,7 @@ const delegatedProps = computed(() => {
   <TabsContent
     :class="
       cn(
-        'focus-visible:ring-ring ring-offset-canvas w-full focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden',
+        'focus-visible:ring-ring ring-offset-core-canvas w-full focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden',
         props.class
       )
     "
