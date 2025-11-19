@@ -40,11 +40,7 @@
         </template>
 
         <div
-          v-if="
-            (tabs.length > 1 || force) &&
-            indicatorStyle &&
-            props.variant === TABS_VARIANTS.MINIMAL
-          "
+          v-if="(tabs.length > 1 || force) && indicatorStyle"
           :class="styles.tabs.indicator"
           :style="indicatorStyle"
         />
@@ -93,7 +89,6 @@ import { isEmptySlot } from "../../utils";
 import type { ComputedRef } from "vue";
 import type { TabsProps, TabItem } from ".";
 import type { TabsRootEmits } from "radix-vue";
-import { TABS_VARIANTS } from ".";
 
 // -----------------------------------------------------------------------------
 
@@ -102,7 +97,6 @@ const props = withDefaults(defineProps<TabsProps>(), {
   tabs: (): TabItem[] => [],
   defaultValue: "",
   border: true,
-  variant: "minimal",
   uiConfig: () => ({
     tabs: {
       root: [],
@@ -127,7 +121,6 @@ const tabsListRef = ref<HTMLElement | null>(null);
 const triggerRefs = ref<(HTMLElement | null)[]>([]);
 
 const meta = computed(() => ({
-  variant: props.variant,
   align: props.align,
   overflow: props.overflow,
   hasBorder: props.border
