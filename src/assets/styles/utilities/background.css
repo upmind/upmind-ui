@@ -44,20 +44,6 @@
   --color-accent-danger-muted: var(--bg-accent-danger-muted);
 }
 
-/* Background Color Utilities */
-@utility bg-canvas {
-  background-color: var(--color-core-canvas);
-}
-@utility bg-surface {
-  background-color: var(--color-core-surface);
-}
-@utility bg-skeleton {
-  background-color: var(--color-core-skeleton);
-}
-@utility bg-overlay {
-  background-color: var(--color-core-overlay);
-}
-
 /* Background - Control */
 @utility bg-control-checked-contrast {
   background-color: var(--bg-control-checked-contrast);

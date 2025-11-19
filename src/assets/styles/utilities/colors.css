@@ -10,14 +10,14 @@
 
 @theme inline {
   /* Core Colors */
-  --color-core-canvas: var(--color-core-canvas);
-  --color-core-surface: var(--color-core-surface);
-  --color-core-base: var(--color-core-base);
-  --color-core-display: var(--color-core-display);
-  --color-core-faint: var(--color-core-faint);
-  --color-core-muted: var(--color-core-muted);
-  --color-core-skeleton: var(--color-core-skeleton);
-  --color-core-overlay: var(--color-core-overlay);
+  --color-canvas: var(--color-core-canvas);
+  --color-surface: var(--color-core-surface);
+  --color-base: var(--color-core-base);
+  --color-display: var(--color-core-display);
+  --color-faint: var(--color-core-faint);
+  --color-muted: var(--color-core-muted);
+  --color-skeleton: var(--color-core-skeleton);
+  --color-overlay: var(--color-core-overlay);
 
   /* Primary Colors */
   --color-primary-default: var(--color-primary-default);

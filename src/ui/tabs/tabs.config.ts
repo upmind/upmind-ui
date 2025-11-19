@@ -50,7 +50,7 @@ export const tabsListVariants = cva(
 );
 
 export const tabsTriggerVariants = cva(
-  "text-md-tight focus-visible:ring-control-ring focus-visible:ring-offset-core-surface relative inline-flex items-center gap-2 text-base font-medium whitespace-nowrap transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50",
+  "text-md-tight focus-visible:ring-control-ring focus-visible:ring-offset-surface relative inline-flex items-center gap-2 text-base font-medium whitespace-nowrap transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
