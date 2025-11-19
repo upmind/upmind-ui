@@ -14,8 +14,8 @@ export const variants = {
     app: "w-app"
   },
   size: {
-    md: "px-4 py-2",
-    lg: "p-4"
+    md: "px-4 py-2 text-md",
+    lg: "p-4 text-md-tight"
   }
 };
 
