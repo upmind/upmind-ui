@@ -159,7 +159,7 @@ export const numberFieldVariants = cva(
 );
 
 export const numberFieldInputVariants = cva(
-  "bg-control-surface shadow-control-default hover:shadow-control-hover control-radius font-normal",
+  "bg-control-surface shadow-control-default hover:shadow-control-hover font-normal",
   {
     variants: {
       variant: {
