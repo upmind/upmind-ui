@@ -7,7 +7,7 @@ export const variants = {
   },
   hasBorder: {
     true: "border-surface mb-9 border-b",
-    false: ""
+    false: "mb-0"
   },
   align: {
     left: "justify-start",
