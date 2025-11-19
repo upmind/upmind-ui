@@ -61,8 +61,10 @@ export {
   useThemeIcons,
   useStyleSheet,
   usePointerEvents,
+  parseVariants,
   useForwardPropsEmits,
   isEmptySlot,
+  type VariantValues,
   type Theme,
   type ITheme
 } from "./utils";
