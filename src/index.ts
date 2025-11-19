@@ -61,6 +61,7 @@ export {
   useThemeIcons,
   useStyleSheet,
   usePointerEvents,
+  isEmptySlot,
   useForwardPropsEmits,
   type Theme,
   type ITheme
