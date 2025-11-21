@@ -4,22 +4,27 @@
 
     <!-- v-show="uischema.showFieldsOnCheckout" -->
     <!-- Additional Options -->
+    <pre>{{ meta }}</pre>
+
+    <Alert v-if="!meta.isAvailable" type="error" class="mb-4">
+      <pre>{{ errors }}</pre>
+    </Alert>
 
     <Form
-      v-if="!profileDetailsMeta.isLoading"
-      :additional-errors="fieldsErrors?.data"
-      :model-value="fieldsModel"
-      :schema="fieldsSchema"
-      :uischema="fieldsUischema"
-      :touched="profileDetailsMeta.showErrors"
-      @reject="fieldsClear"
-      @resolve="fieldsUpdate"
-      @update:modelValue="fieldsUpdate"
+      v-if="!meta.isLoading"
+      :additional-errors="errors?.data"
+      :model-value="model"
+      :schema="schema"
+      :uischema="uischema"
+      :touched="meta.showErrors"
+      @reject="clear"
+      @resolve="update"
+      @update:modelValue="update"
       no-actions
       autosave
     />
     <!--  -->
-    <pre>{{ fieldsSchema }}</pre>
+    <pre>{{ schema }}</pre>
   </UpmSection>
 </template>
 
@@ -34,7 +39,7 @@ import { useProfileFieldsManager } from "@upmind-automation/headless";
 // --- components
 import { UpmSection } from "@upmind-automation/client-vue";
 // import { Link } from "@upmind-automation/upmind-ui";
-import { Form } from "@upmind-automation/upmind-ui";
+import { Form, Alert } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 
@@ -43,19 +48,18 @@ const props = defineProps<{ fields: string[] }>();
 const { t } = useI18n();
 
 const {
-  errors: fieldsErrors,
-  meta: profileDetailsMeta,
-  // data: profileDetailsData,
-  isReady,
-  model: fieldsModel,
-  schema: fieldsSchema,
-  uischema: fieldsUischema,
-  clear: fieldsClear,
-  update: fieldsUpdate
+  errors,
+  meta,
+  model,
+  schema,
+  uischema,
+  update,
+  clear,
+  isReady
   // edit: doEdit
 } = useProfileFieldsManager({
   filterFields: props.fields
 });
 
-// await isReady();
+await isReady();
 </script>

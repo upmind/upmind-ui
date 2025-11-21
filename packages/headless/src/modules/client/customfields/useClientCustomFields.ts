@@ -2,8 +2,7 @@
 import { computed, ref } from "vue";
 
 // --- internal
-import service from "../personalDetails/services";
-import { useSession } from "../../session";
+import service from "./services";
 
 // --- utils
 import { useCollection } from "../../../utils";
@@ -30,44 +29,29 @@ export const useClientCustomFields = (
 ) => {
   // --- state
 
-  const { isAuthenticated, meta: sessionMeta } = useSession();
-
   const query = service.loadList(initial);
 
   const meta = computed(() => ({
     isLoading: query?.isLoading.value || !query.isFetched.value,
     hasError: !isEmpty(query.error.value),
     isEmpty: isEmpty(query.data?.value) || query.pagination.value.total == 0,
-    isAvailable: sessionMeta.value.isAuthenticated,
-    ...query?.meta.value
+    isAvailable: query.isFetched.value
   }));
 
   const { findOne, getOne, getDefault } = useCollection<CustomField>(
     query.data
   );
 
+  // --- readiness check
   async function isReady(): Promise<boolean> {
-    console.log(sessionMeta.value.isAuthenticated);
-
-    if (sessionMeta.value.isAuthenticated)
-      return new Promise(resolve => {
-        const interval = setInterval(() => {
-          if (query.isFetched.value) {
-            clearInterval(interval);
-            resolve(true);
-          }
-        }, 100);
-      });
-
-    return isAuthenticated()
-      .then(() => {
-        debugger;
-        return query.refetch().then(() => true);
-      })
-      .catch(() => {
-        debugger;
-        return false;
-      });
+    return new Promise(resolve => {
+      const interval = setInterval(() => {
+        if (meta.value.isAvailable) {
+          clearInterval(interval);
+          resolve(!meta.value.hasError);
+        }
+      }, 100);
+    });
   }
 
   // --- filters

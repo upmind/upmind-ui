@@ -10,14 +10,14 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import type { ResponseError } from "../../../utils";
 
 import type { CustomField } from "../customFields/types";
-
+import { Client } from "../../session";
 // -----------------------------------------------------------------------------
 
 export interface FieldsModel {
   firstName?: string;
   lastName?: string;
   publicName?: string;
-  interfaceLanguageId?: string;
+  language?: string;
   // ---
   customFields?: Record<string, any>;
 }
@@ -36,6 +36,13 @@ export interface FieldsContext {
   error?: ResponseError;
   controller?: AbortController;
 }
+
+export type ProfileField = {
+  id: string;
+  code: string;
+  title: string;
+  value: any;
+};
 
 /**
  * Interface representing parsed phone number data, typically from a phone number parsing utility.
@@ -151,30 +158,3 @@ export interface FieldsContext {
 //    */
 //   country?: ICountry;
 // }
-
-/**
- * Enumeration defining the different types of domain management flows.
- * These types dictate the user interface, available actions, and underlying logic
- * for how a customer interacts with domain names, e.g. registering a new one,
- * transferring an existing one, or using one from their basket.
- *
- * @enum {string}
- */
-export const ProfileFields: CustomField[] = [
-  {
-    code: "firstname",
-    type: "string"
-  },
-  {
-    code: "lastname",
-    type: "string"
-  },
-  {
-    code: "public_name",
-    type: "string"
-  },
-  {
-    code: "interface_language_id",
-    type: "string"
-  }
-];

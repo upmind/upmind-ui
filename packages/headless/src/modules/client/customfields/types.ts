@@ -44,5 +44,7 @@ export interface CustomField {
   /**
    * A client readonly flag of the custom field.
    */
-  clientReadonly: ICustomField["client_readonly"];
+  meta: {
+    isReadOnly: ICustomField["client_readonly"];
+  };
 }

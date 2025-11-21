@@ -11,7 +11,7 @@ import { useActor } from "@xstate/vue";
 // --- internal
 // import { useBasket } from "./";
 import { useProfileDetailsActions, useProfileDetailsGuards } from "./actions";
-import { useProfileDetailsServices } from "./services";
+import services from "./services";
 
 // --- utils
 import {
@@ -28,8 +28,7 @@ import {
 } from "../../../utils";
 import dataManagerMachine from "../../../utils/dataManager.machine";
 import { useSession } from "../..";
-import { isNil, debounce, isEqual, isEmpty, get } from "lodash-es";
-import { useClientCustomFields } from "../customFields/useClientCustomFields";
+import { debounce, isEqual, isEmpty, get } from "lodash-es";
 
 // --- types
 // import type { ActorRef } from "xstate";
@@ -63,7 +62,7 @@ export const useProfileFieldsManager = (
       .withConfig({
         actions: useProfileDetailsActions() as any,
         guards: useProfileDetailsGuards() as any,
-        services: useProfileDetailsServices() as any
+        services: services() as any
       })
       .withContext({
         // clientId,
@@ -88,9 +87,15 @@ export const useProfileFieldsManager = (
   });
 
   async function isReady(): Promise<boolean> {
-    return waitFor(service, state => stateMatches(state, "available"), {
-      timeout: Infinity
-    }).then(state => !stateMatches(state, "error"));
+    return isAuthenticated().then(() =>
+      waitFor(
+        service,
+        state => stateMatches(state, ["available", "unavailable"]),
+        {
+          timeout: Infinity
+        }
+      ).then(state => !stateMatches(state, "error"))
+    );
   }
 
   const meta = computed(() => ({
@@ -188,10 +193,6 @@ export const useProfileFieldsManager = (
       .then(state => {
         if (stateMatches(state, "available.error")) throw state.context.error;
         return Promise.resolve(state.context.model);
-      })
-      .then(model => {
-        useProfileDetailsServices().refresh();
-        return model as FieldsModel;
       })
       .catch(error => {
         return Promise.reject(
