@@ -1,36 +1,18 @@
 // --- external
 import { computed, ref } from "vue";
-import { Router, useRoute, useRouter } from "vue-router";
-// import { interpret } from "xstate";
 
 // --- internal
 import { useSession } from "../../session";
-// import { useProfileDetailsActions, useProfileDetailsGuards } from "./actions";
-// import { useProfileDetailsServices } from "./services";
-import {
-  // useBasket,
-  useClientCustomFields,
-  // useDataLayer,
-  useBrand
-  // ROUTE,
-  // useRoutingEngine
-} from "@upmind-automation/headless";
+
+import { useClientCustomFields } from "../../";
 
 // --- utils
-// import { useCollection } from "../../../utils";
-import { map, find, concat, get } from "lodash-es";
+import { isEmpty } from "lodash-es";
 import { useI18n } from "vue-i18n";
 
 // --- types
-// import type {
-//   //  QueryProps,
-//   RequestFilters
-// } from "../../query";
-import { ICustomField } from "@upmind-automation/types";
-import { ProfileFields } from "./types";
-import { CustomField } from "../customFields";
 
-// import dataManagerMachine from "../../../utils/dataManager.machine";
+import { mapProfileFields } from "./mappers";
 
 /**
  * Composable function for managing client phones.
@@ -43,11 +25,12 @@ import { CustomField } from "../customFields";
 export const useProfileDetails = () => {
   const { t } = useI18n();
   const { isAuthenticated, meta: sessionMeta, client } = useSession();
-  const { languages } = useBrand();
-  let router: Router = useRouter();
 
-  const { isReady: customFieldsIsReady, data: customFields } =
-    useClientCustomFields();
+  const {
+    isReady: customFieldsIsReady,
+    data: customFields,
+    meta: customFieldsMeta
+  } = useClientCustomFields();
 
   async function isReady(): Promise<boolean> {
     if (sessionMeta.value.isAuthenticated)
@@ -61,36 +44,18 @@ export const useProfileDetails = () => {
   }
 
   const data = computed(() => {
-    return concat(
-      map(ProfileFields, (profileField: CustomField) => {
-        const fieldValue = get(client.value || {}, profileField.code, null);
-
-        return {
-          ...profileField,
-          name_translated: t(`text.${profileField.code}`),
-          value:
-            profileField.code !== "interface_language_id"
-              ? fieldValue
-              : get(find(languages.value, ["id", fieldValue]), "language", null)
-        };
-      }),
-      map(customFields.value, (customField: ICustomField) => {
-        return {
-          ...customField,
-          value:
-            find(client.value?.customFields || [], ["field_id", customField.id])
-              ?.value || null
-        };
-      })
-    );
+    if (!client.value) return [];
+    return mapProfileFields(client.value, customFields.value || []);
   });
 
-  // const meta = computed(() => ({
-  //   isLoading: query?.isLoading.value || !query.isFetched.value,
-  //   hasError: !isEmpty(query.error.value),
-  //   isEmpty: isEmpty(query.data?.value) || query.pagination.value.total == 0,
-  //   isAvailable: sessionMeta.value.isAuthenticated
-  // }));
+  const meta = computed(() => ({
+    isLoading:
+      customFieldsMeta.value.isLoading || !sessionMeta.value.isAuthenticated,
+    hasError: customFieldsMeta.value.hasError,
+    isEmpty: isEmpty(data.value),
+    isAvailable:
+      sessionMeta.value.isAuthenticated && customFieldsMeta.value.isAvailable
+  }));
 
   // --- context
 
@@ -114,7 +79,7 @@ export const useProfileDetails = () => {
      * @property {boolean} isLoading - Indicates if the query is currently loading.
      * @property {boolean} isAuthenticated - Indicates if the client is authenticated.
      */
-    // meta,
+    meta,
 
     // --- context
 
@@ -122,7 +87,9 @@ export const useProfileDetails = () => {
      * The reactive data property containing the list of client items.
      * This is populated by the query and updates automatically when the query state changes.
      */
-    data
+    data,
+
+    customFields
 
     // --- methods
   };

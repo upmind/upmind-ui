@@ -8,9 +8,10 @@ import { useTime } from "../../../utils";
 import { mapCustomField } from "./mappers";
 
 // --- types
-import { CustomFieldsMajorTypes } from "@upmind-automation/types";
+import { CustomFieldsMajorTypes, ICustomField } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { CustomField } from "./types";
+import { map } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 // QUERIES
@@ -20,7 +21,7 @@ const queryKey: QueryKey = ["client", "customFields"];
 function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
   const { list, useUrl } = useQuery();
 
-  return list<CustomField[]>({
+  return list<ICustomField[], CustomField[]>({
     ...(params as any),
     queryKey,
     url: useUrl(`custom_fields`, {
@@ -28,11 +29,11 @@ function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
       order: "order"
     }),
     withAccessToken: true,
-    select: mapCustomField,
+    // --- options
+    select: data => map(data ?? [], mapCustomField),
     staleTime: useTime().DAY
   });
 }
-
 // -----------------------------------------------------------------------------
 
 export default {

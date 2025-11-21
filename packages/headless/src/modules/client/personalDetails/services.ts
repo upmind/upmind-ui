@@ -8,77 +8,29 @@ import {
   useSession,
   // useFeedback,
   type QueryParams,
-  useI18n
+  useI18n,
+  CustomField
 } from "../..";
 
 // --- utils
 import {
-  useTime,
   ErrorOrigin,
   useValidation,
   DetailedError,
   responseCodes,
-  // useCollection,
-  useModelParser,
-  NotAuthenticatedError
+  useModelParser
 } from "../../../utils";
-// import { invalidateQueryByKey } from "../../query";
-import {
-  // mapAddress,
-  mapCustomField
-  // mapIAddress
-} from "./mappers";
-import {
-  get,
-  isString,
-  isEmpty,
-  find,
-  some,
-  pick,
-  isArray,
-  reduce,
-  set
-} from "lodash-es";
+
+import { get, pick, reduce, set } from "lodash-es";
 
 // --- types
-import {
-  // BrandConfigKeys,
-  // type IAddress,
-  CustomFieldsMajorTypes,
-  ICustomField
-} from "@upmind-automation/types";
+
 import { useClientCustomFields } from "../customFields/useClientCustomFields";
-import type { QueryKey } from "@tanstack/vue-query";
 import type { AnyEventObject } from "xstate";
-import type {
-  // Address,
-  // FieldsModel,
-  FieldsContext,
-  FieldsModel
-} from "./types";
+import type { FieldsContext, FieldsModel } from "./types";
 
 // -----------------------------------------------------------------------------
 // QUERIES
-
-const queryKey: QueryKey = ["client", "customFields"];
-
-function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
-  const { meta, client } = useSession();
-  const { list, useUrl } = useQuery();
-
-  return list<ICustomField[]>({
-    ...(params as any),
-    queryKey,
-    url: useUrl(`custom_fields`, {
-      "filter[object_type]": CustomFieldsMajorTypes.CLIENT,
-      order: "order"
-    }),
-    withAccessToken: true,
-    // --- options
-    select: mapCustomField,
-    staleTime: useTime().DAY
-  });
-}
 
 async function loadLookups({
   model,
@@ -92,7 +44,8 @@ async function loadLookups({
     const customFieldsValues: Record<string, any> = reduce(
       client.value?.customFields || [],
       (result, element) => {
-        set(result, element.field!.code, element.value);
+        if (!element?.field?.code) return result;
+        set(result, element.field.code, element.value);
         return result;
       },
       {} as Record<string, any>
@@ -101,8 +54,8 @@ async function loadLookups({
     let baseModel: FieldsModel = {
       firstName: client.value?.firstname,
       lastName: client.value?.lastname,
-      publicName: client.value?.public_name,
-      language: client.value?.interface_language_id,
+      publicName: client.value?.publicName,
+      language: client.value?.language,
       customFields: customFieldsValues
     };
 
@@ -124,20 +77,6 @@ async function loadLookups({
 // -----------------------------------------------------------------------------
 // MUTATIONS
 
-// async function add(data: FieldsModel) {
-//   const { meta, client } = useSession();
-//   const { post, useUrl } = useQuery();
-
-//   if (!meta.value.isAuthenticated || !client.value?.id) {
-//     return Promise.reject(new NotAuthenticatedError());
-//   }
-//   return post<IAddress>({
-//     url: useUrl(`clients/${client.value?.id}/addresses`),
-//     data: mapIAddress(data),
-//     withAccessToken: true
-//   }).then(invalidateQueryByKey(queryKey, { exact: false }));
-// }
-
 // async function update(id: Address["id"], data: FieldsModel) {
 //   const { meta, client } = useSession();
 //   const { put, useUrl } = useQuery();
@@ -151,98 +90,6 @@ async function loadLookups({
 //     data: mapIAddress(data),
 //     withAccessToken: true
 //   }).then(invalidateQueryByKey(queryKey, { exact: false }));
-// }
-
-// async function ensure(model: FieldsModel): Promise<Address> {
-//   const { t } = useI18n();
-//   const { data, promise } = loadList();
-//   await promise.value.finally(); // wait for the query to resolve
-//   const { findOne } = useCollection<Address>(
-//     isArray(data.value) ? data.value : []
-//   );
-
-//   // We only need to check if we have an address with the matching id
-//   const mapping = pick(model, "id");
-//   const found = isEmpty(mapping) ? undefined : findOne(mapping);
-//   if (found) return Promise.resolve(found);
-
-//   return add(model).then(raw => {
-//     if (isEmpty(raw))
-//       throw new DetailedError(
-//         t("error.client_address_not_available"),
-//         responseCodes.Unprocessable_Entity,
-//         ErrorOrigin.Headless,
-//         { model }
-//       );
-//     // NB: Remember to refresh our machines so we have the new data
-//     // refresh();
-//     return mapAddress(raw);
-//   });
-// }
-
-// function remove(addressId: Address["id"]) {
-//   const { t } = useI18n();
-//   const { meta, client } = useSession();
-//   const { mutate, useUrl } = useQuery();
-
-//   return mutate<null>("DELETE", {
-//     url: useUrl(`clients/${client.value?.id}/addresses/${addressId}`),
-//     guard: async () =>
-//       new Promise((resolve, reject) => {
-//         if (meta.value.isAuthenticated || !client.value?.id) {
-//           resolve(true);
-//         } else {
-//           reject(new NotAuthenticatedError());
-//         }
-//       }),
-//     onError(error: any) {
-//       addError({
-//         title: isString(error)
-//           ? error
-//           : error?.title || t("error.client_address_update_failed"),
-//         copy: error?.message,
-//         data: error?.data
-//       });
-//     },
-//     onSuccess(data) {
-//       invalidateQueryByKey(queryKey, { exact: false })(data);
-//       addSuccess(t("confirm.address_removed"));
-//     },
-//     withAccessToken: true
-//   });
-// }
-
-// function setDefault(addressId: Address["id"]) {
-//   const { t } = useI18n();
-//   const { meta, client } = useSession();
-//   const { mutate, useUrl } = useQuery();
-
-//   return mutate<IAddress>("PUT", {
-//     url: useUrl(`clients/${client.value?.id}/addresses/${addressId}`),
-//     guard: async () =>
-//       new Promise((resolve, reject) => {
-//         if (meta.value.isAuthenticated || !client.value?.id) {
-//           resolve(true);
-//         } else {
-//           reject(new NotAuthenticatedError());
-//         }
-//       }),
-//     data: { default: true },
-//     onError(error: any) {
-//       addError({
-//         title: isString(error)
-//           ? error
-//           : error?.title || t("error.client_address_set_default_failed"),
-//         copy: error?.message,
-//         data: error?.data
-//       });
-//     },
-//     onSuccess(data) {
-//       invalidateQueryByKey(queryKey, { exact: false })(data);
-//       addSuccess(t("confirm.address_set_default"));
-//     },
-//     withAccessToken: true
-//   });
 // }
 
 // -----------------------------------------------------------------------------
@@ -313,126 +160,50 @@ async function validate({ schema, model }: Partial<any>) {
 
 // -----------------------------------------------------------------------------
 
-export default {
-  /**
-   * The query key used for caching and identifying address-related queries.
-   * @type {QueryKey}
-   */
-  queryKey,
+export default () => {
+  const { t } = useI18n();
 
-  //--- queries
-  /**
-   * Loads the address list.
-   * @returns {Promise<Address[]>} A promise that resolves to the list of addresses
-   */
-  loadList
+  return {
+    // --- methods
 
-  //--- mutations
-  /**
-   * Removes a address by its ID.
-   * @param {Address["id"]} addressId - The ID of the address to remove.
-   * @returns {Promise<null>} A promise that resolves when the address is removed
-   */
-  // remove,
+    /**
+     * Loads lookups for the address form.
+     * @param {FieldsContext} context - The address context.
+     * @returns {Promise<FieldsContext>} The loaded lookups.
+     */
+    loadLookups,
 
-  /**
-   * Sets a address as the default address.
-   * @param {Address["id"]} addressId - The ID of the address to set as default.
-   * @returns {Promise<IAddress>} A promise that resolves to the updated address
-   */
-  // setDefault
-};
+    /**
+     * Parses a address context.
+     * @param {FieldsContext} context - The address context.
+     * @param {AnyEventObject} event - The event object.
+     * @returns {Promise<any>} The parsed address context.
+     */
+    parse,
 
-export const useProfileDetailsServices = () =>
-  // { filterFields } = { filterFields: [] }
-  {
-    const { t } = useI18n();
+    /**
+     * Updates a address.
+     * @param {Partial<FieldsContext>} param0 - The address context containing id and model.
+     * @returns {Promise<any>} The result of the update operation.
+     */
+    // update: async ({ id, model }: Partial<FieldsContext>): Promise<any> => {
+    //   if (!id || isEmpty(model))
+    //     return Promise.reject(
+    //       new DetailedError(
+    //         t("error.client_address_not_available"),
+    //         responseCodes.No_Content,
+    //         ErrorOrigin.Headless,
+    //         { id, model }
+    //       )
+    //     );
+    //   return update(id, model);
+    // },
 
-    return {
-      // --- methods
-
-      /**
-       * Adds a address.
-       * @param {Partial<FieldsContext>} param0 - The address context containing the model to add.
-       * @returns {Promise<any>} The result of the add operation.
-       */
-      // add: async ({ model }: Partial<FieldsContext>): Promise<any> => {
-      //   if (isEmpty(model))
-      //     return Promise.reject(
-      //       new DetailedError(
-      //         t("error.client_address_not_available"),
-      //         responseCodes.No_Content,
-      //         ErrorOrigin.Headless,
-      //         { model }
-      //       )
-      //     );
-      //   // return add(model);
-      //   return add(model);
-      // },
-
-      /**
-       * Ensures a address exists.
-       * @param {Partial<FieldsContext>} param0 - The address context containing the model to ensure.
-       * @returns {Promise<any>} The ensured address model, which will either be the existing address or a new one created.
-       */
-      // ensure: async ({ model }: Partial<FieldsContext>): Promise<any> => {
-      //   if (isEmpty(model))
-      //     return Promise.reject(
-      //       new DetailedError(
-      //         t("error.client_address_not_available"),
-      //         responseCodes.No_Content,
-      //         ErrorOrigin.Headless,
-      //         { model }
-      //       )
-      //     );
-      //   return ensure(model);
-      // },
-
-      /**
-       * Loads lookups for the address form.
-       * @param {FieldsContext} context - The address context.
-       * @returns {Promise<FieldsContext>} The loaded lookups.
-       */
-      loadLookups,
-
-      /**
-       * Parses a address context.
-       * @param {FieldsContext} context - The address context.
-       * @param {AnyEventObject} event - The event object.
-       * @returns {Promise<any>} The parsed address context.
-       */
-      parse,
-
-      /**
-       * Refreshes the address list.
-       * @param {Partial<QueryParams>} params - Optional query params.
-       * @returns {Promise<any>} The refreshed address list.
-       */
-      refresh: loadList,
-
-      /**
-       * Updates a address.
-       * @param {Partial<FieldsContext>} param0 - The address context containing id and model.
-       * @returns {Promise<any>} The result of the update operation.
-       */
-      // update: async ({ id, model }: Partial<FieldsContext>): Promise<any> => {
-      //   if (!id || isEmpty(model))
-      //     return Promise.reject(
-      //       new DetailedError(
-      //         t("error.client_address_not_available"),
-      //         responseCodes.No_Content,
-      //         ErrorOrigin.Headless,
-      //         { id, model }
-      //       )
-      //     );
-      //   return update(id, model);
-      // },
-
-      /**
-       * Validates a address model.
-       * @param {Partial<FieldsContext>} param0 - The address context containing schema and model.
-       * @returns {Promise<any>} The validated model.
-       */
-      validate
-    };
+    /**
+     * Validates a address model.
+     * @param {Partial<FieldsContext>} param0 - The address context containing schema and model.
+     * @returns {Promise<any>} The validated model.
+     */
+    validate
   };
+};

@@ -1,10 +1,10 @@
 <template>
   <UpmSection :label="t('text.personal_details')">
     <i18n-t keypath="text.personal_details_msg" tag="h1" />
-    <div v-for="profileField in profileDetailsData" :key="profileField.id">
+    <div v-for="profileField in data" :key="profileField.id">
       <div class="flex">
         <div class="grow">
-          <p>{{ profileField.name_translated }}</p>
+          <p>{{ profileField.title }}</p>
           <p>Value: {{ profileField.value }}</p>
         </div>
         <div>
@@ -45,7 +45,7 @@ import { Link } from "@upmind-automation/upmind-ui";
 const { t } = useI18n();
 const router = useRouter();
 
-const { data: profileDetailsData, isReady } = useProfileDetails();
+const { data, isReady, meta, customFields } = useProfileDetails();
 
 await isReady();
 </script>

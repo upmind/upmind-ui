@@ -5,6 +5,7 @@ import type { ICustomField } from "@upmind-automation/types";
 
 // --- types
 import type { CustomField } from "./types";
+import { useTranslateName } from "../../..//utils";
 
 // // ---
 // export function mapC(raw: IAddress | IAddress[]): Address[] {
@@ -19,9 +20,11 @@ export function mapCustomField(raw: ICustomField): CustomField {
   return {
     id: raw.id,
     code: raw.code,
-    name: raw.name,
+    name: useTranslateName(raw),
     objectType: raw.object_type,
     type: raw.type,
-    clientReadonly: raw.client_readonly
+    meta: {
+      isReadOnly: raw.client_readonly
+    }
   };
 }
