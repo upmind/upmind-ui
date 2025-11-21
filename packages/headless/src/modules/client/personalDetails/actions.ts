@@ -17,6 +17,7 @@ export const useProfileDetailsActions = () => {
   return {
     setSchemas: assign({
       schema: (context: FieldsContext) => {
+        console.log("setSchemas context:", context);
         return useSchema(context);
       },
       uischema: (context: FieldsContext) => {

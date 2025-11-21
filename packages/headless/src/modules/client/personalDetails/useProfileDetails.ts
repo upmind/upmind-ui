@@ -1,19 +1,36 @@
 // --- external
 import { computed, ref } from "vue";
+import { Router, useRoute, useRouter } from "vue-router";
+// import { interpret } from "xstate";
 
 // --- internal
-import service from "./services";
 import { useSession } from "../../session";
-// import { invalidateQueryByKey } from "../../query";
+// import { useProfileDetailsActions, useProfileDetailsGuards } from "./actions";
+// import { useProfileDetailsServices } from "./services";
+import {
+  // useBasket,
+  useClientCustomFields,
+  // useDataLayer,
+  useBrand
+  // ROUTE,
+  // useRoutingEngine
+} from "@upmind-automation/headless";
 
 // --- utils
 // import { useCollection } from "../../../utils";
-import { set, isEmpty, isArray } from "lodash-es";
+import { map, find, concat, get } from "lodash-es";
+import { useI18n } from "vue-i18n";
 
 // --- types
-// import type { Phone } from "./types";
-import type { QueryProps, RequestFilters } from "../../query";
+// import type {
+//   //  QueryProps,
+//   RequestFilters
+// } from "../../query";
 import { ICustomField } from "@upmind-automation/types";
+import { ProfileFields } from "./types";
+import { CustomField } from "../customFields";
+
+// import dataManagerMachine from "../../../utils/dataManager.machine";
 
 /**
  * Composable function for managing client phones.
@@ -21,65 +38,63 @@ import { ICustomField } from "@upmind-automation/types";
  * leveraging an underlying service and TanStack Query for data management.
  *
  * @param initial - Optional initial query parameters for loading the phone list. Defaults to pagination limit of 0.
- * @returns The {@link UseClientPhones} API for interacting with client phones.
+ * @returns The {@link UseProfileDetails} API for interacting with client phones.
  */
-export const useClientCustomFields = (
-  initial: QueryProps = {
-    pagination: {
-      limit: 0
-    }
-  }
-) => {
-  // --- state
+export const useProfileDetails = () => {
+  const { t } = useI18n();
+  const { isAuthenticated, meta: sessionMeta, client } = useSession();
+  const { languages } = useBrand();
+  let router: Router = useRouter();
 
-  const { isAuthenticated, meta: sessionMeta } = useSession();
-
-  const query = service.loadList(initial);
-
-  const meta = computed(() => ({
-    isLoading: query?.isLoading.value || !query.isFetched.value,
-    hasError: !isEmpty(query.error.value),
-    isEmpty: isEmpty(query.data?.value) || query.pagination.value.total == 0,
-    isAvailable: sessionMeta.value.isAuthenticated,
-    ...query?.meta.value
-  }));
+  const { isReady: customFieldsIsReady, data: customFields } =
+    useClientCustomFields();
 
   async function isReady(): Promise<boolean> {
     if (sessionMeta.value.isAuthenticated)
-      return new Promise(resolve => {
-        const interval = setInterval(() => {
-          if (query.isFetched.value) {
-            clearInterval(interval);
-            resolve(true);
-          }
-        }, 100);
+      return new Promise(async resolve => {
+        await customFieldsIsReady();
+        resolve(true);
       });
     return isAuthenticated()
-      .then(() => query.refetch().then(() => true))
+      .then(() => customFieldsIsReady().then(() => true))
       .catch(() => false);
   }
 
-  // --- filters
+  const data = computed(() => {
+    return concat(
+      map(ProfileFields, (profileField: CustomField) => {
+        const fieldValue = get(client.value || {}, profileField.code, null);
 
-  const filters = ref<
-    RequestFilters & {
-      query?: string;
-    }
-  >({
-    query: ""
+        return {
+          ...profileField,
+          name_translated: t(`text.${profileField.code}`),
+          value:
+            profileField.code !== "interface_language_id"
+              ? fieldValue
+              : get(find(languages.value, ["id", fieldValue]), "language", null)
+        };
+      }),
+      map(customFields.value, (customField: ICustomField) => {
+        return {
+          ...customField,
+          value:
+            find(client.value?.customFields || [], ["field_id", customField.id])
+              ?.value || null
+        };
+      })
+    );
   });
 
-  const filterQuery = (value?: string) => {
-    set(filters.value, "query", value ?? "");
-    query.filter(filters.value);
-  };
+  // const meta = computed(() => ({
+  //   isLoading: query?.isLoading.value || !query.isFetched.value,
+  //   hasError: !isEmpty(query.error.value),
+  //   isEmpty: isEmpty(query.data?.value) || query.pagination.value.total == 0,
+  //   isAvailable: sessionMeta.value.isAuthenticated
+  // }));
+
+  // --- context
 
   // ---------------------------------------------------------------------------
-
-  async function fetchCustomFields(): Promise<ICustomField[]> {
-    if (!query?.isFetched?.value) await query?.refetch();
-    return query.data.value;
-  }
 
   return {
     // --- state
@@ -99,115 +114,21 @@ export const useClientCustomFields = (
      * @property {boolean} isLoading - Indicates if the query is currently loading.
      * @property {boolean} isAuthenticated - Indicates if the client is authenticated.
      */
-    meta,
+    // meta,
 
     // --- context
-
-    fetchCustomFields,
 
     /**
      * The reactive data property containing the list of client items.
      * This is populated by the query and updates automatically when the query state changes.
      */
-    data: computed(() => (isArray(query.data.value) ? query.data.value : [])),
-
-    /**
-     * The current error state of the query.
-     * This will be populated if the query fails to fetch data.
-     */
-    error: query.error,
-
-    /**
-     * Indicates if pagination is available
-     * If pagination is not set, it defaults to false.
-     * Otherwise, it returns the pagination object from the query parameters.
-     * @return {boolean|RequestPagination} The pagination object if available, otherwise false.
-     */
-    pagination: query.pagination,
-
-    /**
-     * The default item for the current client.
-     * This is the phone that is set as default for the current client.
-     * @returns {Phone} The default phone if found, is otherwise undefined.
-     */
-    // default: getDefault,
+    data
 
     // --- methods
-
-    /**
-     * Get a single phone by id.
-     * @param id The id of the phone to get.
-     * @returns The phone object if found, is otherwise undefined.
-     */
-    // getOne,
-
-    /**
-     * Find a single phone based on the given param. The param is matched against the title and description.
-     * @param mapping The filter to match against the phone title and description.
-     * @returns The phone object if found, is otherwise undefined.
-     */
-    // findOne,
-
-    /**
-     * Remove a phone by id.
-     * @param id The id of the phone to remove.
-     * @returns A promise that resolves when the phone is removed.
-     */
-    // remove,
-
-    /**
-     * Set a phone as default.
-     * @param id The id of the phone to set as default.
-     * @returns A promise that resolves when the phone is set as default.
-     */
-    // setDefault,
-
-    /**
-     * Refresh the query to get the latest data.
-     * This will refetch the data from the server and update the query state.
-     * @returns {void}
-     */
-    refresh: query.refetch,
-
-    /**
-     * Go to the next page of items.
-     * Increments the page number by 1 if pagination is enabled and the current offset is less than the total number of items.
-     * This will only work if the current offset is less than the total number of items.
-     * @param value The new pagination parameters to set.
-     * @return {void}
-     */
-    nextPage: query.fetchNextPage,
-
-    /**
-     * Go to the previous page of items.
-     * Decrements the page number by 1 if pagination is enabled and the current offset is greater than or equal to the limit.
-     * This will only work if the current offset is greater than or equal to the limit.
-     * @param value The new pagination parameters to set.
-     * @return {void}
-     */
-    prevPage: query.fetchPreviousPage,
-
-    /**
-     * Invalidate the query cache for client items.
-     * This will trigger a refetch of the items when the next query is made.
-     * @param {boolean} [exact=false] If true, only the exact query key will be invalidated.
-     * @return {void}
-     */
-    // invalidate: invalidateQueryByKey(service.queryKey, { exact: false }),
-
-    /**
-     * Filters for the query.
-     * These filters can be used to modify the query parameters before fetching the data.
-     * @type {RequestFilters & { query?: string }}
-     * @property query - The search query to filter the client phones by title or description.
-     */
-    filters: {
-      query: filterQuery
-    }
   };
 };
 
 /**
- * The return type of the {@link UseClientCustomFields} composable function.
+ * The return type of the {@link UseProfileDetails} composable function.
  */
-export type UseClientCustomFields = ReturnType<typeof useClientCustomFields>;
+export type UseProfileDetails = ReturnType<typeof useProfileDetails>;

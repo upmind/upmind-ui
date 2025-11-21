@@ -47,7 +47,7 @@ import {
   CustomFieldsMajorTypes,
   ICustomField
 } from "@upmind-automation/types";
-import { useClientCustomFields } from "../customfields/useClientCustomFields";
+import { useClientCustomFields } from "../customFields/useClientCustomFields";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { AnyEventObject } from "xstate";
 import type {
@@ -82,10 +82,10 @@ function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
 
 async function loadLookups({
   model,
-  schema
+  schema,
+  filterFields = []
 }: FieldsContext): Promise<Partial<FieldsContext>> {
-  const { client: client } = useSession();
-
+  const { client } = useSession();
   const { isReady, data } = useClientCustomFields();
 
   return isReady().then(() => {
@@ -98,11 +98,18 @@ async function loadLookups({
       {} as Record<string, any>
     );
 
-    const baseModel: FieldsModel = {
+    let baseModel: FieldsModel = {
       firstName: client.value?.firstname,
       lastName: client.value?.lastname,
+      publicName: client.value?.public_name,
+      language: client.value?.interface_language_id,
       customFields: customFieldsValues
     };
+
+    if (filterFields.length > 0)
+      baseModel = pick(baseModel, filterFields) as FieldsModel;
+    // Filter the fields based on filterFields array
+    // data.value = data.value.filter(field => filterFields.includes(field.code));
 
     const safeModel = useModelParser<FieldsModel>(schema, model, baseModel);
 
@@ -336,94 +343,96 @@ export default {
   // setDefault
 };
 
-export const useProfileDetailsServices = () => {
-  const { t } = useI18n();
+export const useProfileDetailsServices = () =>
+  // { filterFields } = { filterFields: [] }
+  {
+    const { t } = useI18n();
 
-  return {
-    // --- methods
+    return {
+      // --- methods
 
-    /**
-     * Adds a address.
-     * @param {Partial<FieldsContext>} param0 - The address context containing the model to add.
-     * @returns {Promise<any>} The result of the add operation.
-     */
-    // add: async ({ model }: Partial<FieldsContext>): Promise<any> => {
-    //   if (isEmpty(model))
-    //     return Promise.reject(
-    //       new DetailedError(
-    //         t("error.client_address_not_available"),
-    //         responseCodes.No_Content,
-    //         ErrorOrigin.Headless,
-    //         { model }
-    //       )
-    //     );
-    //   // return add(model);
-    //   return add(model);
-    // },
+      /**
+       * Adds a address.
+       * @param {Partial<FieldsContext>} param0 - The address context containing the model to add.
+       * @returns {Promise<any>} The result of the add operation.
+       */
+      // add: async ({ model }: Partial<FieldsContext>): Promise<any> => {
+      //   if (isEmpty(model))
+      //     return Promise.reject(
+      //       new DetailedError(
+      //         t("error.client_address_not_available"),
+      //         responseCodes.No_Content,
+      //         ErrorOrigin.Headless,
+      //         { model }
+      //       )
+      //     );
+      //   // return add(model);
+      //   return add(model);
+      // },
 
-    /**
-     * Ensures a address exists.
-     * @param {Partial<FieldsContext>} param0 - The address context containing the model to ensure.
-     * @returns {Promise<any>} The ensured address model, which will either be the existing address or a new one created.
-     */
-    // ensure: async ({ model }: Partial<FieldsContext>): Promise<any> => {
-    //   if (isEmpty(model))
-    //     return Promise.reject(
-    //       new DetailedError(
-    //         t("error.client_address_not_available"),
-    //         responseCodes.No_Content,
-    //         ErrorOrigin.Headless,
-    //         { model }
-    //       )
-    //     );
-    //   return ensure(model);
-    // },
+      /**
+       * Ensures a address exists.
+       * @param {Partial<FieldsContext>} param0 - The address context containing the model to ensure.
+       * @returns {Promise<any>} The ensured address model, which will either be the existing address or a new one created.
+       */
+      // ensure: async ({ model }: Partial<FieldsContext>): Promise<any> => {
+      //   if (isEmpty(model))
+      //     return Promise.reject(
+      //       new DetailedError(
+      //         t("error.client_address_not_available"),
+      //         responseCodes.No_Content,
+      //         ErrorOrigin.Headless,
+      //         { model }
+      //       )
+      //     );
+      //   return ensure(model);
+      // },
 
-    /**
-     * Loads lookups for the address form.
-     * @param {FieldsContext} context - The address context.
-     * @returns {Promise<FieldsContext>} The loaded lookups.
-     */
-    loadLookups,
+      /**
+       * Loads lookups for the address form.
+       * @param {FieldsContext} context - The address context.
+       * @returns {Promise<FieldsContext>} The loaded lookups.
+       */
+      loadLookups,
 
-    /**
-     * Parses a address context.
-     * @param {FieldsContext} context - The address context.
-     * @param {AnyEventObject} event - The event object.
-     * @returns {Promise<any>} The parsed address context.
-     */
-    parse,
+      /**
+       * Parses a address context.
+       * @param {FieldsContext} context - The address context.
+       * @param {AnyEventObject} event - The event object.
+       * @returns {Promise<any>} The parsed address context.
+       */
+      parse,
 
-    /**
-     * Refreshes the address list.
-     * @param {Partial<QueryParams>} params - Optional query params.
-     * @returns {Promise<any>} The refreshed address list.
-     */
-    refresh: loadList,
+      /**
+       * Refreshes the address list.
+       * @param {Partial<QueryParams>} params - Optional query params.
+       * @returns {Promise<any>} The refreshed address list.
+       */
+      refresh: loadList,
 
-    /**
-     * Updates a address.
-     * @param {Partial<FieldsContext>} param0 - The address context containing id and model.
-     * @returns {Promise<any>} The result of the update operation.
-     */
-    // update: async ({ id, model }: Partial<FieldsContext>): Promise<any> => {
-    //   if (!id || isEmpty(model))
-    //     return Promise.reject(
-    //       new DetailedError(
-    //         t("error.client_address_not_available"),
-    //         responseCodes.No_Content,
-    //         ErrorOrigin.Headless,
-    //         { id, model }
-    //       )
-    //     );
-    //   return update(id, model);
-    // },
+      /**
+       * Updates a address.
+       * @param {Partial<FieldsContext>} param0 - The address context containing id and model.
+       * @returns {Promise<any>} The result of the update operation.
+       */
+      // update: async ({ id, model }: Partial<FieldsContext>): Promise<any> => {
+      //   if (!id || isEmpty(model))
+      //     return Promise.reject(
+      //       new DetailedError(
+      //         t("error.client_address_not_available"),
+      //         responseCodes.No_Content,
+      //         ErrorOrigin.Headless,
+      //         { id, model }
+      //       )
+      //     );
+      //   return update(id, model);
+      // },
 
-    /**
-     * Validates a address model.
-     * @param {Partial<FieldsContext>} param0 - The address context containing schema and model.
-     * @returns {Promise<any>} The validated model.
-     */
-    validate
+      /**
+       * Validates a address model.
+       * @param {Partial<FieldsContext>} param0 - The address context containing schema and model.
+       * @returns {Promise<any>} The validated model.
+       */
+      validate
+    };
   };
-};

@@ -14,7 +14,7 @@ import { get, map } from "lodash-es";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 
 export const useSchema = ({ fields }: FieldsContext): JsonSchema7 => {
-  console.log("fields in useSchema:", fields);
+  console.log("useSchema fields:", fields);
   const schema: JsonSchema7 = {
     type: "object",
     required: [],
@@ -56,7 +56,6 @@ export const useUischema = ({ fields }: FieldsContext) => {
       //     placeholder: "name@email.com"
       //   }
       // },
-
       ...useFieldsUischemaParser(fields)
     ]
   };

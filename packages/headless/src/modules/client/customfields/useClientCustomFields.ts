@@ -4,16 +4,14 @@ import { computed, ref } from "vue";
 // --- internal
 import service from "../personalDetails/services";
 import { useSession } from "../../session";
-// import { invalidateQueryByKey } from "../../query";
 
 // --- utils
-// import { useCollection } from "../../../utils";
+import { useCollection } from "../../../utils";
 import { set, isEmpty, isArray } from "lodash-es";
 
 // --- types
-// import type { Phone } from "./types";
 import type { QueryProps, RequestFilters } from "../../query";
-import { ICustomField } from "@upmind-automation/types";
+import type { CustomField } from "./types";
 
 /**
  * Composable function for managing client phones.
@@ -21,7 +19,7 @@ import { ICustomField } from "@upmind-automation/types";
  * leveraging an underlying service and TanStack Query for data management.
  *
  * @param initial - Optional initial query parameters for loading the phone list. Defaults to pagination limit of 0.
- * @returns The {@link UseClientPhones} API for interacting with client phones.
+ * @returns The {@link useClientCustomFields} API for interacting with client phones.
  */
 export const useClientCustomFields = (
   initial: QueryProps = {
@@ -44,7 +42,13 @@ export const useClientCustomFields = (
     ...query?.meta.value
   }));
 
+  const { findOne, getOne, getDefault } = useCollection<CustomField>(
+    query.data
+  );
+
   async function isReady(): Promise<boolean> {
+    console.log(sessionMeta.value.isAuthenticated);
+
     if (sessionMeta.value.isAuthenticated)
       return new Promise(resolve => {
         const interval = setInterval(() => {
@@ -54,9 +58,16 @@ export const useClientCustomFields = (
           }
         }, 100);
       });
+
     return isAuthenticated()
-      .then(() => query.refetch().then(() => true))
-      .catch(() => false);
+      .then(() => {
+        debugger;
+        return query.refetch().then(() => true);
+      })
+      .catch(() => {
+        debugger;
+        return false;
+      });
   }
 
   // --- filters
@@ -75,11 +86,6 @@ export const useClientCustomFields = (
   };
 
   // ---------------------------------------------------------------------------
-
-  async function fetchCustomFields(): Promise<ICustomField[]> {
-    if (!query?.isFetched?.value) await query?.refetch();
-    return query.data.value;
-  }
 
   return {
     // --- state
@@ -103,8 +109,6 @@ export const useClientCustomFields = (
 
     // --- context
 
-    fetchCustomFields,
-
     /**
      * The reactive data property containing the list of client items.
      * This is populated by the query and updates automatically when the query state changes.
@@ -127,40 +131,26 @@ export const useClientCustomFields = (
 
     /**
      * The default item for the current client.
-     * This is the phone that is set as default for the current client.
-     * @returns {Phone} The default phone if found, is otherwise undefined.
+     * This is the company that is set as default for the current client.
+     * @returns {CustomField} The default address if found, is otherwise undefined.
      */
-    // default: getDefault,
+    default: getDefault,
 
     // --- methods
 
     /**
-     * Get a single phone by id.
-     * @param id The id of the phone to get.
-     * @returns The phone object if found, is otherwise undefined.
+     * Get a single address by id.
+     * @param id The id of the address to get.
+     * @returns The address object if found, is otherwise undefined.
      */
-    // getOne,
+    getOne,
 
     /**
-     * Find a single phone based on the given param. The param is matched against the title and description.
-     * @param mapping The filter to match against the phone title and description.
-     * @returns The phone object if found, is otherwise undefined.
+     * Find a single address based on the given param. The param is matched against the title and description.
+     * @param mapping The filter to match against the address title and description.
+     * @returns The address object if found, is otherwise undefined.
      */
-    // findOne,
-
-    /**
-     * Remove a phone by id.
-     * @param id The id of the phone to remove.
-     * @returns A promise that resolves when the phone is removed.
-     */
-    // remove,
-
-    /**
-     * Set a phone as default.
-     * @param id The id of the phone to set as default.
-     * @returns A promise that resolves when the phone is set as default.
-     */
-    // setDefault,
+    findOne,
 
     /**
      * Refresh the query to get the latest data.

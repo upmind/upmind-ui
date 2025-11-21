@@ -9,13 +9,16 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 // --- internal
 import type { ResponseError } from "../../../utils";
 
-// import type { ClientItemContext } from "../types";
+import type { CustomField } from "../customFields/types";
 
 // -----------------------------------------------------------------------------
 
 export interface FieldsModel {
   firstName?: string;
   lastName?: string;
+  publicName?: string;
+  interfaceLanguageId?: string;
+  // ---
   customFields?: Record<string, any>;
 }
 
@@ -23,6 +26,7 @@ export interface FieldsContext {
   clientId: IClient["id"];
   // ---
   fields?: ICustomField[];
+  filterFields?: string[];
   schema?: JsonSchema;
   uischema?: UISchemaElement;
   model?: FieldsModel;
@@ -147,3 +151,30 @@ export interface FieldsContext {
 //    */
 //   country?: ICountry;
 // }
+
+/**
+ * Enumeration defining the different types of domain management flows.
+ * These types dictate the user interface, available actions, and underlying logic
+ * for how a customer interacts with domain names, e.g. registering a new one,
+ * transferring an existing one, or using one from their basket.
+ *
+ * @enum {string}
+ */
+export const ProfileFields: CustomField[] = [
+  {
+    code: "firstname",
+    type: "string"
+  },
+  {
+    code: "lastname",
+    type: "string"
+  },
+  {
+    code: "public_name",
+    type: "string"
+  },
+  {
+    code: "interface_language_id",
+    type: "string"
+  }
+];
