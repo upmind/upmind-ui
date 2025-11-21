@@ -1,16 +1,16 @@
 // --- external
 import { computed } from "vue";
-import { interpret, InterpreterFrom } from "xstate";
+import { interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 import { useActor } from "@xstate/vue";
 
 // --- internal
 import { useI18n } from "../../system";
 import dataManagerMachine from "../../../utils/dataManager.machine";
-import { useClientCompanyActions, useClientCompanyGuards } from "./actions";
-import { useClientCompanyServices } from "./services";
-import { useClientCompanies } from "./useClientCompanies";
 import { useSession } from "../../session";
+import { useClientAddresses } from "./useClientAddresses";
+import { useClientAddressServices } from "./services";
+import { useClientAddressActions, useClientAddressGuards } from "./actions";
 
 // --- utils
 import {
@@ -32,46 +32,46 @@ import { debounce, get, isEmpty, isEqual } from "lodash-es";
 import type { IClient } from "@upmind-automation/types";
 import type { ErrorObject } from "ajv";
 import type { ClientItemContext } from "../types";
-import type { Company, CompanyModel } from "./types";
+import type { Address, AddressModel } from "./types";
 
 // -----------------------------------------------------------------------------
 
 /**
- * Provides functionalities to manage a client's company, leveraging an XState machine.
- * This composable handles company data, validation, saving, and interaction states.
- * It's designed for use in contexts like client profile management or checkout company selection.
+ * Provides functionalities to manage a client's address, leveraging an XState machine.
+ * This composable handles address data, validation, saving, and interaction states.
+ * It's designed for use in contexts like client profile management or checkout address selection.
  *
- * @param id - The unique identifier of the company to manage. If omitted, it may imply a new company.
- * @param options - Optional configuration for the company management.
- * @param options.allowMultipleEdits - If `true`, allows multiple instances of this composable to manage different companies concurrently.
- * @param options.clientId - The unique identifier of the client to whom this company belongs.
- * @returns The API for managing the client company.
+ * @param id - The unique identifier of the address to manage. If omitted, it may imply a new address.
+ * @param options - Optional configuration for the address management.
+ * @param options.allowMultipleEdits - If `true`, allows multiple instances of this composable to manage different addresses concurrently.
+ * @param options.clientId - The unique identifier of the client to whom this address belongs.
+ * @returns The API for managing the client address.
  */
-export const useClientCompany = (
-  id?: Company["id"],
+export const useClientAddress = (
+  id?: Address["id"],
   {
     allowMultipleEdits,
     clientId
   }: { allowMultipleEdits?: boolean; clientId?: IClient["id"] } = {}
 ) => {
   const { t } = useI18n();
-  const { getOne } = useClientCompanies();
+  const { getOne } = useClientAddresses();
 
   const service = interpret(
     dataManagerMachine
       .withConfig({
-        actions: useClientCompanyActions() as any,
-        guards: useClientCompanyGuards() as any,
-        services: useClientCompanyServices() as any
+        actions: useClientAddressActions() as any,
+        guards: useClientAddressGuards() as any,
+        services: useClientAddressServices() as any
       })
       .withContext({
-        clientId: clientId,
+        clientId,
         id,
         model: getOne(id),
         allowMultipleEdits
       }),
     {
-      id: id ?? "new-company",
+      id: id ?? "new-address",
       devTools: false
     }
   );
@@ -82,9 +82,9 @@ export const useClientCompany = (
 
   // the clientId is required to bring the machine into the available state
   const { isAuthenticated } = useSession();
-  isAuthenticated().then(client => {
-    if (client?.id && !contextMatches(state, "clientId")) {
-      send({ type: "REFRESH", data: { clientId: client.id } });
+  isAuthenticated().then(user => {
+    if (user?.id && !contextMatches(state, "clientId")) {
+      send({ type: "REFRESH", data: { clientId: user.id } });
     }
   });
 
@@ -98,8 +98,8 @@ export const useClientCompany = (
     isAvailable: stateMatches(state, "available"),
     isLoading: stateMatches(state, ["subscribing", "loading"]),
     hasErrors: stateMatches(state, "available.error"),
-    isValid: stateMatches(state, "available.valid"),
     isNew: !stateMatches(state, "model.id"),
+    isValid: stateMatches(state, "available.valid"),
     isDirty: !isEqual(
       contextValue<ClientItemContext["model"]>(state, "model"),
       contextValue<ClientItemContext["baseModel"]>(state, "baseModel")
@@ -129,14 +129,14 @@ export const useClientCompany = (
   // --- methods
 
   async function input(
-    model: CompanyModel | Record<string, any>
-  ): Promise<CompanyModel> {
+    model: AddressModel | Record<string, any>
+  ): Promise<AddressModel> {
     send({ type: "SET", data: model });
     // then we wait until the module has been checked and is valid/invalid
     return waitFor(service, state =>
       stateMatches(state, ["available.valid", "available.invalid"])
     )
-      .then(state => get(state, "context.model") as CompanyModel)
+      .then(state => get(state, "context.model") as AddressModel)
       .catch(() => {
         return Promise.reject(
           new DetailedError(
@@ -149,11 +149,11 @@ export const useClientCompany = (
   }
 
   async function update(
-    value?: CompanyModel | Record<string, any>
-  ): Promise<CompanyModel> {
-    // first check if our model has changed, if it has we need to send it
+    value?: AddressModel | Record<string, any>
+  ): Promise<AddressModel> {
+    // first check if our model has changed, if it has, we need to send it
 
-    const model = contextValue<CompanyModel>(state, "model");
+    const model = contextValue<AddressModel>(state, "model");
 
     if (!isEmpty(value) && !isEqual(value, model)) {
       send({ type: "SET", data: value, update: true });
@@ -162,32 +162,34 @@ export const useClientCompany = (
     }
 
     // we have to ensure the update is processed and the state is either processed or available.error
-    return waitFor(
-      service,
-      state => stateMatches(state, ["processed", "available.error"]),
-      { timeout: 60_000 }
-    )
-      .then(state => {
-        if (stateMatches(state, "available.error")) throw state.context.error;
-        return Promise.resolve(state.context.model);
-      })
-      .then(model => {
-        useClientCompanyServices().refresh();
-        return model as CompanyModel;
-      })
-      .catch(error => {
-        return Promise.reject(
-          new DetailedError(
-            t("error.client_email_update_failed"),
-            error?.status ?? responseCodes.Timeout,
-            ErrorOrigin.Headless,
-            {
-              error,
-              state: state.value
-            }
-          )
-        );
-      });
+    return (
+      waitFor(
+        service,
+        state => stateMatches(state, ["processed", "available.error"]),
+        { timeout: 60_000 }
+      )
+        .then(state => {
+          if (stateMatches(state, "available.error")) throw state.context.error;
+          return Promise.resolve(state.context.model);
+        })
+        // .then(model => {
+        //   useClientAddressServices().refresh();
+        //   return model as AddressModel;
+        // })
+        .catch(error => {
+          return Promise.reject(
+            new DetailedError(
+              t("error.client_address_update_failed"),
+              error?.status ?? responseCodes.Timeout,
+              ErrorOrigin.Headless,
+              {
+                error,
+                state: state.value
+              }
+            )
+          );
+        })
+    );
   }
 
   function clear(): void {
@@ -209,7 +211,7 @@ export const useClientCompany = (
 
     /**
      * Meta-information about the state.
-     * @type {Object} UnifiedCompanyMeta
+     * @type {Object} UnifiedMeta
      * @property {boolean} isAvailable - Indicates if the actor is available.
      * @property {boolean} isLoading - Indicates if the actor is loading.
      * @property {boolean} hasErrors - Indicates if there are errors.
@@ -225,13 +227,13 @@ export const useClientCompany = (
     /** The full context object. */
     context,
 
-    /** Title of the company */
+    /** Title of the address */
     title,
 
-    /** Description of the company */
+    /** Description of the address */
     description,
 
-    /** The ID of the company */
+    /** The ID of the address */
     id: useContext<string | undefined>(state, "id"),
 
     /** Any error object from the context. */
@@ -243,7 +245,7 @@ export const useClientCompany = (
     /** The current model.*/
     model,
 
-    /** The JSON schema for the form */
+    /** The JSON schema for the form*/
     schema,
 
     /** The UI schema for the form */
@@ -251,29 +253,31 @@ export const useClientCompany = (
 
     // --- methods
 
-    /** Stops the service. */
+    /**
+     * Stops the service.
+     */
     stop,
 
-    /** Clears the context. */
+    /** Clears the context.*/
     clear,
 
     /**
      * Inputs a new model, resolving to the updated model. This is debounced to avoid excessive calls.
-     * @param {CompanyModel} model - The model to input.
-     * @returns {Promise<CompanyModel>} The updated model.
+     * @param {AddressModel} value - The model to input.
+     * @returns {Promise<AddressModel>} The updated model.
      */
     input: debounce(input, DEBOUNCE_DELAY),
 
     /**
      * Sends the current model to the service for processing.
-     * @param {CompanyModel} value The optional new model to set. uses the current model if not provided.
-     * @returns {Promise<CompanyModel>} Resolves when updated model from the service, rejects on error.
+     * @param {AddressModel} value The optional new model to set. uses the current model if not provided.
+     * @returns {Promise<AddressModel>} Resolves when updated model from the service, rejects on error.
      */
     update
   };
 };
 
 /**
- * The return type of the {@link useClientCompany} composable function.
+ * The return type of the {@link useClientAddress} composable function.
  */
-export type UseClientCompany = ReturnType<typeof useClientCompany>;
+export type UseClientAddress = ReturnType<typeof useClientAddress>;

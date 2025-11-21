@@ -26,10 +26,10 @@ import {
   DEBOUNCE_DELAY,
   stopService
 } from "../../../utils";
-import crudMachine from "../../../utils/dataManager.machine";
+import dataManagerMachine from "../../../utils/dataManager.machine";
 import { useSession } from "../..";
 import { isNil, debounce, isEqual, isEmpty, get } from "lodash-es";
-import { useClientCustomFields } from "../customfields/useClientCustomFields";
+import { useClientCustomFields } from "../customFields/useClientCustomFields";
 
 // --- types
 // import type { ActorRef } from "xstate";
@@ -45,25 +45,21 @@ import type { ClientItemContext } from "../types";
 //  * Uses internal actors to manage complex state interactions, including field validation and updates.
 //  */
 
-useProfileFields(fields:['firstname'])
-
-export const useProfileFields = (
-  { allowMultipleEdits,
-    filter: {
-      model:
-      Field[]
-    }
-   } = { allowMultipleEdits: true }
+export const useProfileFieldsManager = (
+  {
+    allowMultipleEdits,
+    filterFields
+  }: { allowMultipleEdits?: boolean; filterFields?: string[] } = {
+    allowMultipleEdits: true,
+    filterFields: []
+  }
 ) => {
   const { t } = useI18n();
   const { isAuthenticated } = useSession();
-  // const { data: customFields } = useClientCustomFields();
-
-  // await customFieldsReady();
 
   // --- state
   const service = interpret(
-    crudMachine
+    dataManagerMachine
       .withConfig({
         actions: useProfileDetailsActions() as any,
         guards: useProfileDetailsGuards() as any,
@@ -73,8 +69,8 @@ export const useProfileFields = (
         // clientId,
         // client: client.value,
         // model: getOne(id),
-        allowMultipleEdits,
-        filter: fields
+        allowMultipleEdits
+        // filter: fields
       }),
     {
       id: "client-profile-fields",
@@ -106,6 +102,8 @@ export const useProfileFields = (
       contextValue<ClientItemContext["model"]>(state, "model"),
       contextValue<ClientItemContext["baseModel"]>(state, "baseModel")
     ),
+    showErrors:
+      contextMatches(state, ["error"]) && contextMatches(state, ["attempts"]),
     isNew: !stateMatches(state, "model.id"),
     isProcessing: stateMatches(state, "processing"),
     isComplete:
@@ -280,6 +278,8 @@ export const useProfileFields = (
 };
 
 /**
- * The return type of useProfileFields composable.
+ * The return type of useProfileFieldsManager composable.
  */
-export type UseProfileFields = ReturnType<typeof useProfileFields>;
+export type useProfileFieldsManager = ReturnType<
+  typeof useProfileFieldsManager
+>;

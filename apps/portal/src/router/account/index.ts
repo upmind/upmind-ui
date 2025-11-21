@@ -1,4 +1,5 @@
 import { ROUTE } from "../types";
+import type { Route } from "vue-router";
 
 export default [
   {
@@ -10,6 +11,19 @@ export default [
     path: "/account/profile",
     name: ROUTE.ACCOUNT_PROFILE,
     component: () => import("../../views/account/profile/Profile.vue")
+  },
+  {
+    path: "/account/profile",
+    name: ROUTE.ACCOUNT_PROFILE,
+    component: () => import("../../views/account/profile/Profile.vue")
+  },
+  {
+    path: "/account/profile/edit",
+    name: ROUTE.ACCOUNT_PROFILE_EDIT,
+    component: () => import("../../views/account/profile/Edit.vue"),
+    props: ({ query }: Route) => {
+      return { fields: query.fields.split(",") };
+    }
   },
   {
     path: "/account/child-accounts",

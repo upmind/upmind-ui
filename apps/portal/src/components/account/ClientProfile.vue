@@ -1,63 +1,51 @@
 <template>
   <UpmSection :label="t('text.personal_details')">
     <i18n-t keypath="text.personal_details_msg" tag="h1" />
-
-    <!-- v-show="uischema.showFieldsOnCheckout" -->
-    <!-- Additional Options -->
-
-    <Form
-      v-if="!fieldsMeta.isLoading"
-      :additional-errors="fieldsErrors?.data"
-      :model-value="fieldsModel"
-      :schema="fieldsSchema"
-      :uischema="fieldsUischema"
-      @reject="fieldsClear"
-      @resolve="fieldsUpdate"
-      @update:modelValue="fieldsUpdate"
-      no-actions
-      autosave
-    />
-    <!-- :touched="fieldsMeta.showErrors" -->
+    <div v-for="profileField in profileDetailsData" :key="profileField.id">
+      <div class="flex">
+        <div class="grow">
+          <p>{{ profileField.name_translated }}</p>
+          <p>Value: {{ profileField.value }}</p>
+        </div>
+        <div>
+          <Link
+            :label="t('action.edit')"
+            size="sm"
+            color="muted"
+            tabindex="-1"
+            class="pointer-events-auto ml-2 h-4"
+            @click.stop.prevent="
+              router.push({
+                name: ROUTE.ACCOUNT_PROFILE_EDIT,
+                query: { fields: `${profileField.code}` }
+              })
+            "
+          />
+        </div>
+      </div>
+    </div>
   </UpmSection>
 </template>
 
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
 
 // --- internal
-import {
-  // useBasket,
-  useProfileFields
-  // useClientCustomFields
-  // useDataLayer,
-  // useBrand,
-  // ROUTE,
-  // useRoutingEngine
-} from "@upmind-automation/headless";
+import { useProfileDetails } from "@upmind-automation/headless";
+import { ROUTE } from "../../router/types";
 
 // --- components
 import { UpmSection } from "@upmind-automation/client-vue";
-// import Section from "@upmind-automation/client-vue/  components/section/Section.vue";
-
-import { Form } from "@upmind-automation/upmind-ui";
+import { Link } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
+const router = useRouter();
 
-const {
-  errors: fieldsErrors,
-  meta: fieldsMeta,
-  isReady,
-  model: fieldsModel,
-  schema: fieldsSchema,
-  uischema: fieldsUischema,
-  clear: fieldsClear,
-  update: fieldsUpdate
-} = useProfileFields();
+const { data: profileDetailsData, isReady } = useProfileDetails();
 
 await isReady();
-
-console.log("fieldsMeta", fieldsModel.value);
 </script>

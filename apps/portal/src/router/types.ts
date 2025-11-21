@@ -33,6 +33,11 @@ export enum ROUTE {
    * The route for client account.
    */
   ACCOUNT_PROFILE = "account.profile",
+  // --- account profile edit routes
+  /**
+   * The route for client account.
+   */
+  ACCOUNT_PROFILE_EDIT = "account.profile.edit",
   // --- account child accounts routes
   /**
    * The route for client account child accounts.

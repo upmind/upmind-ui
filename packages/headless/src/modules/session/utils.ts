@@ -150,7 +150,9 @@ export function useClientParser(raw: IClient): Client | undefined {
     "fullname",
     "firstname",
     "lastname",
-    "image_url"
+    "image_url",
+    "interface_language_id",
+    "public_name"
   ]);
 
   client.display = raw?.firstname || raw?.public_name || raw?.email;

@@ -6,7 +6,7 @@ import { useActor } from "@xstate/vue";
 
 // --- internal
 import { useI18n } from "../../system";
-import crudMachine from "../../../utils/dataManager.machine";
+import dataManagerMachine from "../../../utils/dataManager.machine";
 import { useSession } from "../../session";
 import { useClientAddresses } from "./useClientAddresses";
 import { useClientAddressServices } from "./services";
@@ -58,7 +58,7 @@ export const useClientAddress = (
   const { getOne } = useClientAddresses();
 
   const service = interpret(
-    crudMachine
+    dataManagerMachine
       .withConfig({
         actions: useClientAddressActions() as any,
         guards: useClientAddressGuards() as any,

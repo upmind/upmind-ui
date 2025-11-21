@@ -1,11 +1,10 @@
 // // --- utils
 // import { get, map, isArray, compact } from "lodash-es";
 
-import { ICustomField } from "@upmind-automation/types";
+import type { ICustomField } from "@upmind-automation/types";
 
-// // --- types
-// import type { IAddress } from "@upmind-automation/types";
-// import type { Address, AddressModel } from "./types";
+// --- types
+import type { CustomField } from "./types";
 
 // // ---
 // export function mapC(raw: IAddress | IAddress[]): Address[] {
@@ -16,52 +15,13 @@ import { ICustomField } from "@upmind-automation/types";
 //   return map(rawListings, mapAddress);
 // }
 
-export function mapCustomField(raw: ICustomField): ICustomField {
-  return raw;
-  // return {
-  //   id: raw.id,
-  //   clientId: raw.client_id,
-  //   // ---
-  //   title: raw.address_1 || "New Address",
-  //   description: compact([
-  //     get(raw, "address_2"),
-  //     get(raw, "street"),
-  //     get(raw, "city"),
-  //     get(raw, "postcode"),
-  //     get(raw, "region.name"),
-  //     get(raw, "country.name")
-  //   ]).join(", "),
-  //   // ---
-  //   name: raw.name,
-  //   address: {
-  //     address1: raw.address_1,
-  //     address2: raw.address_2,
-  //     city: raw.city,
-  //     state: raw.state,
-  //     postcode: raw.postcode,
-  //     regionId: raw.region_id,
-  //     countryId: raw.country_id
-  //   },
-  //   type: raw.type,
-  //   // ---
-  //   meta: {
-  //     isDefault: raw.default,
-  //     canDelete: raw.can_delete,
-  //     isVerified: !!raw.verified
-  //   }
-  // };
+export function mapCustomField(raw: ICustomField): CustomField {
+  return {
+    id: raw.id,
+    code: raw.code,
+    name: raw.name,
+    objectType: raw.object_type,
+    type: raw.type,
+    clientReadonly: raw.client_readonly
+  };
 }
-
-// export function mapIAddress(data: AddressModel): IAddress {
-//   return {
-//     name: data.name || data.address.address1 || "",
-//     address_1: data.address.address1 ?? "",
-//     address_2: data.address.address2 ?? "",
-//     city: data.address.city ?? "",
-//     state: data.address.state ?? "",
-//     postcode: data.address.postcode ?? "",
-//     region_id: data.address.regionId,
-//     country_id: data.address.countryId,
-//     type: 1 // We are forcing type to always be 1 for simplicity
-//   } as IAddress;
-// }

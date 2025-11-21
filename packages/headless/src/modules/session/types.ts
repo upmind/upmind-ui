@@ -146,6 +146,14 @@ export interface Client {
    */
   lastname: IClient["lastname"];
   /**
+   * The client's public name.
+   */
+  publicName: IClient["public_name"];
+  /**
+   * The client's preferred language.
+   */
+  language: IClient["interface_language_id"];
+  /**
    * A computed string for displaying the client's name (e.g. "John Doe").
    */
   display: string;
