@@ -8,10 +8,23 @@ import {
 import { FieldsContext, FieldsModel } from "./types";
 
 // --- utils
-import { get, map, pick, filter, forEach, isEmpty } from "lodash-es";
+import {
+  get,
+  map,
+  pick,
+  filter,
+  forEach,
+  isEmpty,
+  omitBy,
+  isNil
+} from "lodash-es";
 
 // --- types
-import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
+import type {
+  ControlElement,
+  JsonSchema7,
+  UISchemaElement
+} from "@jsonforms/core";
 
 export const useSchema = ({
   fields,
@@ -44,7 +57,10 @@ export const useSchema = ({
   } as Record<string, any>;
 
   if (!!filterFields.length) {
-    customFields["properties"] = pick(customFields["properties"], filterFields);
+    customFields.properties = pick(
+      customFields["properties"],
+      filterFields
+    ) as JsonSchema7["properties"];
     schemaProps = {
       ...pick(schemaProps, filterFields),
       ...(isEmpty(customFields["properties"]) ? {} : { customFields })
@@ -59,7 +75,7 @@ export const useSchema = ({
 };
 
 export const useUischema = ({ fields, filterFields = [] }: FieldsContext) => {
-  const schemaElements = [
+  const schemaElements: ControlElement[] = [
     {
       type: "Control",
       scope: "#/properties/firstName",
@@ -82,7 +98,6 @@ export const useUischema = ({ fields, filterFields = [] }: FieldsContext) => {
     },
     ...useFieldsUischemaParser(fields)
   ];
-  z;
 
   return {
     type: "VerticalLayout",
