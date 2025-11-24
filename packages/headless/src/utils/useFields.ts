@@ -118,12 +118,14 @@ export const useFieldsSchemaParser = (data: any, i18nPrefix?: string) => {
       }
 
       // required fields
-      if (field.required && !field.hidden && field.show_on_order_form) {
+      if (field.required && !field.hidden) {
         required.push(field.code);
       } else {
         type = (!isArray(type) ? [type] : type) as string[];
         if (!includes(type, "null")) type.push("null");
       }
+
+      debugger;
 
       // Now set/clean any enum values that will restrict the field input
       const enumValues = reduce(
@@ -142,7 +144,7 @@ export const useFieldsSchemaParser = (data: any, i18nPrefix?: string) => {
       }
 
       // then we set our property based on the field code
-      if (!field.hidden && field.show_on_order_form) {
+      if (!field.hidden) {
         set(
           properties,
           field.code,
@@ -181,7 +183,7 @@ export const useFieldsUischemaParser = (data: any, i18nKey = "fields") => {
   const schema = reduce(
     data,
     (result: any[], field) => {
-      if (!field.hidden && field.show_on_order_form) {
+      if (!field.hidden) {
         let type = null;
         let multi = false;
 

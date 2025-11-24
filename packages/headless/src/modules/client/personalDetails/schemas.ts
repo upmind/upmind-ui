@@ -80,10 +80,9 @@ export const useUischema = ({ fields, filterFields = [] }: FieldsContext) => {
       scope: "#/properties/language",
       i18n: "form.language"
     },
-    ...useFieldsUischemaParser(
-      map(fields, field => ({ ...field, type_code: "string" }))
-    )
+    ...useFieldsUischemaParser(fields)
   ];
+  z;
 
   return {
     type: "VerticalLayout",

@@ -47,6 +47,7 @@ export type ProfileField = {
   code: string;
   title: string;
   value: any;
+  meta: CustomField["meta"];
 };
 
 /**

@@ -46,13 +46,9 @@ export interface CustomField {
    */
   hidden: boolean;
   /**
-   * A flag indicating whether the custom field should be shown on the order form.
-   */
-  show_on_order_form: boolean;
-  /**
    * A client readonly flag of the custom field.
    */
   meta: {
-    isReadOnly: ICustomField["client_readonly"];
+    isDisabled: ICustomField["client_readonly"];
   };
 }

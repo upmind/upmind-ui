@@ -173,7 +173,6 @@ export const useProfileFieldsManager = ({
   async function update(
     value?: FieldsModel | Record<string, any>
   ): Promise<FieldsModel> {
-    debugger;
     // first check if our model has changed, if it has, we need to send it
 
     // const model = contextValue<FieldsModel>(state, "model");
@@ -186,7 +185,6 @@ export const useProfileFieldsManager = ({
     send({ type: "UPDATE" });
     // }
 
-    debugger;
     // we have to ensure the update is processed and the state is either processed or available.error
     return waitFor(
       service,
