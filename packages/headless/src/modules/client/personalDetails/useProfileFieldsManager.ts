@@ -1,6 +1,7 @@
 // --- external
 import { waitFor } from "xstate/lib/waitFor";
 import { interpret } from "xstate";
+import { useRouter } from "vue-router";
 import {
   computed
   //  toRaw, unref
@@ -27,7 +28,7 @@ import {
   stopService
 } from "../../../utils";
 import dataManagerMachine from "../../../utils/dataManager.machine";
-import { useSession } from "../..";
+import { ROUTE, useSession, useBrand } from "../..";
 import { debounce, isEqual, isEmpty, get } from "lodash-es";
 
 // --- types
@@ -44,17 +45,17 @@ import type { ClientItemContext } from "../types";
 //  * Uses internal actors to manage complex state interactions, including field validation and updates.
 //  */
 
-export const useProfileFieldsManager = (
-  {
-    allowMultipleEdits,
-    filterFields
-  }: { allowMultipleEdits?: boolean; filterFields?: string[] } = {
-    allowMultipleEdits: true,
-    filterFields: []
-  }
-) => {
+export const useProfileFieldsManager = ({
+  allowMultipleEdits = true,
+  filterFields = []
+}: {
+  allowMultipleEdits?: boolean;
+  filterFields?: string[];
+}) => {
   const { t } = useI18n();
   const { isAuthenticated } = useSession();
+  const { languages } = useBrand();
+  const router = useRouter();
 
   // --- state
   const service = interpret(
@@ -65,11 +66,9 @@ export const useProfileFieldsManager = (
         services: services() as any
       })
       .withContext({
-        // clientId,
-        // client: client.value,
-        // model: getOne(id),
-        allowMultipleEdits
-        // filter: fields
+        allowMultipleEdits,
+        filterFields,
+        languages: languages.value
       }),
     {
       id: "client-profile-fields",
@@ -176,13 +175,15 @@ export const useProfileFieldsManager = (
   ): Promise<FieldsModel> {
     // first check if our model has changed, if it has, we need to send it
 
-    const model = contextValue<FieldsModel>(state, "model");
+    // const model = contextValue<FieldsModel>(state, "model");
 
-    if (!isEmpty(value) && !isEqual(value, model)) {
-      send({ type: "SET", data: value, update: true });
-    } else {
-      send({ type: "UPDATE" });
-    }
+    // console.log(value, model);
+
+    // if (!isEmpty(value) && !isEqual(value, model)) {
+    // send({ type: "SET", data: value, update: true });
+    // } else {
+    send({ type: "UPDATE" });
+    // }
 
     // we have to ensure the update is processed and the state is either processed or available.error
     return waitFor(
@@ -192,12 +193,19 @@ export const useProfileFieldsManager = (
     )
       .then(state => {
         if (stateMatches(state, "available.error")) throw state.context.error;
+
+        console.log("update completed:", state.context.model);
+
+        // router.push({
+        //   name: ROUTE.
+        // });
+
         return Promise.resolve(state.context.model);
       })
       .catch(error => {
         return Promise.reject(
           new DetailedError(
-            t("error.client_email_update_failed"),
+            t("error.profile_details_update_failed"),
             error?.status ?? responseCodes.Timeout,
             ErrorOrigin.Headless,
             {

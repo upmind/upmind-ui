@@ -9,7 +9,8 @@ import {
   // useFeedback,
   type QueryParams,
   useI18n,
-  CustomField
+  CustomField,
+  invalidateQueryByKey
 } from "../..";
 
 // --- utils
@@ -21,16 +22,19 @@ import {
   useModelParser
 } from "../../../utils";
 
-import { get, pick, reduce, set } from "lodash-es";
+import { get, find, pick, reduce, set, isEmpty } from "lodash-es";
 
 // --- types
 
 import { useClientCustomFields } from "../customFields/useClientCustomFields";
 import type { AnyEventObject } from "xstate";
 import type { FieldsContext, FieldsModel } from "./types";
+import { ICustomField } from "@upmind-automation/types";
+import type { QueryKey } from "@tanstack/vue-query";
 
 // -----------------------------------------------------------------------------
 // QUERIES
+const queryKey: QueryKey = ["client"];
 
 async function loadLookups({
   model,
@@ -38,14 +42,19 @@ async function loadLookups({
   filterFields = []
 }: FieldsContext): Promise<Partial<FieldsContext>> {
   const { client } = useSession();
-  const { isReady, data } = useClientCustomFields();
+  const { isReady, data: customFields } = useClientCustomFields();
 
   return isReady().then(() => {
-    const customFieldsValues: Record<string, any> = reduce(
+    let customFieldsValues: Record<string, any> = reduce(
       client.value?.customFields || [],
       (result, element) => {
-        if (!element?.field?.code) return result;
-        set(result, element.field.code, element.value);
+        const fieldCode = get(
+          find(customFields.value, ["id", element.field_id]),
+          "code",
+          null
+        );
+        if (!fieldCode) return result;
+        set(result, fieldCode, element.value);
         return result;
       },
       {} as Record<string, any>
@@ -54,22 +63,27 @@ async function loadLookups({
     let baseModel: FieldsModel = {
       firstName: client.value?.firstname,
       lastName: client.value?.lastname,
-      publicName: client.value?.publicName,
-      language: client.value?.language,
+      publicName: client.value?.public_name, // change
+      language: client.value?.interface_language_id, // change
       customFields: customFieldsValues
     };
 
-    if (filterFields.length > 0)
-      baseModel = pick(baseModel, filterFields) as FieldsModel;
-    // Filter the fields based on filterFields array
-    // data.value = data.value.filter(field => filterFields.includes(field.code));
+    if (filterFields.length > 0) {
+      customFieldsValues = pick(customFieldsValues, filterFields);
+      baseModel = {
+        ...pick(baseModel, filterFields),
+        ...(isEmpty(customFieldsValues)
+          ? {}
+          : { customFields: customFieldsValues })
+      } as FieldsModel;
+    }
 
     const safeModel = useModelParser<FieldsModel>(schema, model, baseModel);
 
     return {
       model: safeModel,
       baseModel: safeModel,
-      fields: data.value
+      fields: customFields.value
     } as Partial<FieldsContext>;
   });
 }
@@ -77,20 +91,18 @@ async function loadLookups({
 // -----------------------------------------------------------------------------
 // MUTATIONS
 
-// async function update(id: Address["id"], data: FieldsModel) {
-//   const { meta, client } = useSession();
-//   const { put, useUrl } = useQuery();
+async function update(data: FieldsModel) {
+  const { meta, client } = useSession();
+  const { put, useUrl } = useQuery();
 
-//   if (!meta.value.isAuthenticated || !client.value?.id) {
-//     return Promise.reject(new NotAuthenticatedError());
-//   }
+  console.log("Services update data:", data);
 
-//   return put<IAddress>({
-//     url: useUrl(`clients/${client.value?.id}/addresses/${id}`),
-//     data: mapIAddress(data),
-//     withAccessToken: true
-//   }).then(invalidateQueryByKey(queryKey, { exact: false }));
-// }
+  return put<ICustomField>({
+    url: useUrl(`clients/${client.value?.id}`),
+    data,
+    withAccessToken: true
+  }).then(invalidateQueryByKey(queryKey, { exact: false }));
+}
 
 // -----------------------------------------------------------------------------
 //  SIDE EFFECTS
@@ -129,7 +141,6 @@ async function parse({ schema }: FieldsContext, { data }: AnyEventObject) {
 
   return Promise.resolve({
     model: safeModel
-    // , regions, country
   });
 }
 
@@ -186,18 +197,21 @@ export default () => {
      * @param {Partial<FieldsContext>} param0 - The address context containing id and model.
      * @returns {Promise<any>} The result of the update operation.
      */
-    // update: async ({ id, model }: Partial<FieldsContext>): Promise<any> => {
-    //   if (!id || isEmpty(model))
-    //     return Promise.reject(
-    //       new DetailedError(
-    //         t("error.client_address_not_available"),
-    //         responseCodes.No_Content,
-    //         ErrorOrigin.Headless,
-    //         { id, model }
-    //       )
-    //     );
-    //   return update(id, model);
-    // },
+    update: async ({ model }: Partial<FieldsContext>): Promise<any> => {
+      console.log("services update model: ", model);
+
+      // if (!id || isEmpty(model))
+      if (isEmpty(model))
+        return Promise.reject(
+          new DetailedError(
+            t("error.profile_details_not_available"),
+            responseCodes.No_Content,
+            ErrorOrigin.Headless,
+            { model }
+          )
+        );
+      return update(model);
+    },
 
     /**
      * Validates a address model.
