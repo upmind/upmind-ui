@@ -9,7 +9,7 @@ import {
 } from "@upmind-automation/types";
 
 // --- utils
-import { isEmpty } from "lodash-es";
+import { isEmpty, map } from "lodash-es";
 import {
   DetailedError,
   ErrorOrigin,
@@ -26,6 +26,7 @@ import type {
   RegisterModel
 } from "./types";
 import type { AnyEventObject } from "xstate";
+import { mapCustomField } from "../../client/customFields/mappers";
 
 // -----------------------------------------------------------------------------
 
@@ -137,8 +138,11 @@ async function getCustomFields(_context: GuestContext, _event: AnyEventObject) {
 
   return get({
     // url: useUrl("clients_fields", { brand_id: null }),
-    url: useUrl("clients_fields"),
-    queryKey: ["session", "guest", "custom-fields"]
+    url: useUrl("clients_fields", {
+      "filter[show_on_order_form]": true
+    }),
+    queryKey: ["session", "guest", "custom-fields"],
+    select: data => map(data ?? [], mapCustomField)
   });
 }
 

@@ -30,7 +30,7 @@ function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
     }),
     withAccessToken: true,
     // --- options
-    // select: data => map(data ?? [], mapCustomField),
+    select: data => map(data ?? [], mapCustomField),
     staleTime: useTime().DAY
   });
 }

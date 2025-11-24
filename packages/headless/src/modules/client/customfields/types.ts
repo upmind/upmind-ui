@@ -36,19 +36,25 @@ export interface CustomField {
   /**
    * A type of the custom field.
    */
-  type: ICustomField["type"];
+  type: ICustomField["type_code"];
+
   /**
-   * A object type of the custom field.
+   * The Lookup value/options for the custom field.
    */
-  objectType: ICustomField["object_type"];
+  options?: ICustomField["values"];
+
   /**
    * A flag indicating whether the custom field is hidden.
    */
-  hidden: boolean;
   /**
    * A client readonly flag of the custom field.
    */
   meta: {
+    // isHidden: ICustomField["hidden"];
+    isReadOnly: ICustomField["client_readonly"];
+    isRequired: ICustomField["required"];
     isDisabled: ICustomField["client_readonly"];
+    showOnOrderForm?: ICustomField["show_on_order_form"];
+    showOnInvoice?: ICustomField["show_on_invoice"];
   };
 }

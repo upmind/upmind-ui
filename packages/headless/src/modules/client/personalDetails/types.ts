@@ -29,7 +29,7 @@ export interface FieldsModel {
 export interface FieldsContext {
   id: IClient["id"];
   // ---
-  fields?: ICustomField[];
+  fields?: CustomField[];
   filterFields?: string[];
   languages?: ILanguage[];
   schema?: JsonSchema;
