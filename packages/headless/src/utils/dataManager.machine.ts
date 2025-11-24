@@ -208,7 +208,8 @@ export default createMachine<ClientItemContext>(
         actions: ["clearModel"]
       },
       REFRESH: {
-        target: "loading"
+        target: "loading",
+        actions: ["refreshContext"]
       }
     }
   },

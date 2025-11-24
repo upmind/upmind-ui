@@ -34,8 +34,8 @@ export const useProfileDetailsActions = () => {
     }),
 
     refreshContext: assign({
-      clientId: ({ clientId }: FieldsContext, { data }: AnyEventObject) => {
-        return clientId || data?.clientId;
+      id: ({ id }: FieldsContext, { data }: AnyEventObject) => {
+        return id || data?.id;
       }
     })
   };
@@ -43,7 +43,6 @@ export const useProfileDetailsActions = () => {
 
 export const useProfileDetailsGuards = () => {
   return {
-    hasSubscription: ({ clientId }: FieldsContext, _event: AnyEventObject) =>
-      !!clientId
+    hasSubscription: ({ id }: FieldsContext, _event: AnyEventObject) => !!id
   };
 };
