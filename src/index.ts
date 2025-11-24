@@ -63,8 +63,8 @@ export {
   usePointerEvents,
   parseVariants,
   useForwardPropsEmits,
-  isEmptySlot,
   type VariantValues,
+  isEmptySlot,
   type Theme,
   type ITheme
 } from "./utils";

@@ -23,7 +23,7 @@
           :value="selectedItem.value"
           :list="props.list"
           :minimal="props.minimal"
-          data-testid="radio-card-item"
+          :data-testid="`radio-card-${props.label}`"
           :uiConfig="selectedItemUiConfig"
         >
           <template #item="slotProps">
