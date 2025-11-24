@@ -42,6 +42,14 @@ export interface CustomField {
    */
   objectType: ICustomField["object_type"];
   /**
+   * A flag indicating whether the custom field is hidden.
+   */
+  hidden: boolean;
+  /**
+   * A flag indicating whether the custom field should be shown on the order form.
+   */
+  show_on_order_form: boolean;
+  /**
    * A client readonly flag of the custom field.
    */
   meta: {

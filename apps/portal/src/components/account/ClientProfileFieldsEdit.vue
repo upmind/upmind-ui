@@ -19,18 +19,19 @@
       :touched="meta.showErrors"
       @reject="clear"
       @resolve="update"
-      @update:modelValue="update"
-      no-actions
-      autosave
+      @update:modelValue="input"
     />
-    <!--  -->
+    <!--
     <pre>{{ schema }}</pre>
+    <pre>{{ uischema }}</pre> -->
+    <pre>{{ model }}</pre>
   </UpmSection>
 </template>
 
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
+import { computed } from "vue";
 // import { useRouter } from "vue-router";
 
 // --- internal
@@ -38,8 +39,10 @@ import { useProfileFieldsManager } from "@upmind-automation/headless";
 
 // --- components
 import { UpmSection } from "@upmind-automation/client-vue";
-// import { Link } from "@upmind-automation/upmind-ui";
 import { Form, Alert } from "@upmind-automation/upmind-ui";
+
+// --- types
+import type { FormActionProps } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 
@@ -54,11 +57,24 @@ const {
   schema,
   uischema,
   update,
+  input,
   clear,
   isReady
   // edit: doEdit
 } = useProfileFieldsManager({
   filterFields: props.fields
+});
+
+const actions = computed((): Record<string, FormActionProps> => {
+  return {
+    submit: {
+      type: "submit" as "submit",
+      label: t("action.apply"),
+      size: "lg",
+      variant: "subtle",
+      needsValid: true
+    }
+  };
 });
 
 await isReady();

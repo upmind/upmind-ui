@@ -24,7 +24,7 @@ export const useFieldsSchemaParser = (data: any, i18nPrefix?: string) => {
     properties: {}
   };
 
-  if (data?.length) {
+  if (!!data?.length) {
     const required: string[] = [];
     const properties = {};
 
@@ -33,7 +33,23 @@ export const useFieldsSchemaParser = (data: any, i18nPrefix?: string) => {
       let format = null;
       const contentMediaType = null;
       const contentEncoding = null;
+
+      // export enum BlueprintFieldsTypes {
+      //   INPUT_TEXT = "input_text",
+      //   INPUT_TEL = "input_tel",
+      //   INPUT_PASSWORD = "input_password",
+      //   INPUT_NUMBER = "input_number",
+      //   INPUT_RANGE = "input_range",
+      //   INPUT_DATE = "input_date",
+      //   INPUT_DATETIME = "input_datetime",
+      //   INPUT_RADIO = "input_radio",
+      //   CHECKBOX = "checkbox",
+      //   SELECT = "select",
+      //   TEXTAREA = "textarea"
+      // };
+
       // lets map our field types...
+
       switch (field.type_code) {
         case "input_number":
         case "number":
@@ -89,12 +105,12 @@ export const useFieldsSchemaParser = (data: any, i18nPrefix?: string) => {
           format = "password";
           break;
 
-          // case "input_file":
-          // case "image":
-          //   type = "string";
-          //   contentMediaType = "image";
-          //   contentEncoding = "base64";
-          break;
+        // case "input_file":
+        // case "image":
+        //   type = "string";
+        //   contentMediaType = "image";
+        //   contentEncoding = "base64";
+        // break;
 
         default:
           type = "string";
@@ -200,6 +216,10 @@ export const useFieldsUischemaParser = (data: any, i18nKey = "fields") => {
 
           case "username":
             type = "email";
+            break;
+
+          case "string":
+            type = "string";
             break;
 
           case "input_password":

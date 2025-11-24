@@ -1,7 +1,11 @@
 // --- internal
 
 // --- types
-import type { IClient, ICustomField } from "@upmind-automation/types";
+import type {
+  IClient,
+  ICustomField,
+  ILanguage
+} from "@upmind-automation/types";
 
 // --- external
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
@@ -27,6 +31,7 @@ export interface FieldsContext {
   // ---
   fields?: ICustomField[];
   filterFields?: string[];
+  languages?: ILanguage[];
   schema?: JsonSchema;
   uischema?: UISchemaElement;
   model?: FieldsModel;

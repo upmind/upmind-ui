@@ -17,7 +17,6 @@ export const useProfileDetailsActions = () => {
   return {
     setSchemas: assign({
       schema: (context: FieldsContext) => {
-        console.log("setSchemas context:", context);
         return useSchema(context);
       },
       uischema: (context: FieldsContext) => {
@@ -26,8 +25,12 @@ export const useProfileDetailsActions = () => {
     }),
 
     setModel: assign({
-      model: ({ schema, baseModel }: FieldsContext, { data }: AnyEventObject) =>
-        useModelParser<FieldsModel>(schema, data, baseModel)
+      model: (
+        { schema, baseModel }: FieldsContext,
+        { data }: AnyEventObject
+      ) => {
+        return useModelParser<FieldsModel>(schema, data, baseModel);
+      }
     }),
 
     refreshContext: assign({

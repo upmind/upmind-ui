@@ -30,13 +30,16 @@ export function mapProfileFields(
       id: "publicName",
       code: "publicName",
       title: t("form.publicName.label"),
-      value: client.publicName
+      value: client.public_name // change
     },
     {
       id: "language",
       code: "language",
       title: t("form.language.label"),
-      value: get(find(languages.value, ["id", client.language]), "language")
+      value: get(
+        find(languages.value, ["id", client.interface_language_id]),
+        "language"
+      ) // change
     },
 
     ...map(fields, (customField: CustomField) => {
