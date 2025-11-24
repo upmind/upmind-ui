@@ -27,7 +27,7 @@ export interface FieldsModel {
 }
 
 export interface FieldsContext {
-  clientId: IClient["id"];
+  id: IClient["id"];
   // ---
   fields?: ICustomField[];
   filterFields?: string[];

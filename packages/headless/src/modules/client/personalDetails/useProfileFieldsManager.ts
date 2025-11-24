@@ -80,8 +80,8 @@ export const useProfileFieldsManager = ({
 
   // the clientId is required to bring the machine into the available state
   isAuthenticated().then(client => {
-    if (client?.id && !contextMatches(state, "clientId")) {
-      send({ type: "REFRESH", data: { clientId: client.id } });
+    if (client?.id && !contextMatches(state, "id")) {
+      send({ type: "REFRESH", data: { id: client.id } });
     }
   });
 
@@ -173,6 +173,7 @@ export const useProfileFieldsManager = ({
   async function update(
     value?: FieldsModel | Record<string, any>
   ): Promise<FieldsModel> {
+    debugger;
     // first check if our model has changed, if it has, we need to send it
 
     // const model = contextValue<FieldsModel>(state, "model");
@@ -185,6 +186,7 @@ export const useProfileFieldsManager = ({
     send({ type: "UPDATE" });
     // }
 
+    debugger;
     // we have to ensure the update is processed and the state is either processed or available.error
     return waitFor(
       service,
