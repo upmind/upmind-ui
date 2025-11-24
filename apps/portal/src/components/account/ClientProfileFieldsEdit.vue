@@ -8,7 +8,7 @@
       <pre>{{ errors }}</pre>
     </Alert>
 
-    <Form
+    <UpmForm
       v-if="!meta.isLoading"
       :additional-errors="errors?.data"
       :model-value="model"
@@ -33,8 +33,8 @@ import { computed } from "vue";
 import { useProfileFieldsManager } from "@upmind-automation/headless";
 
 // --- components
-import { UpmSection } from "@upmind-automation/client-vue";
-import { Form, Alert } from "@upmind-automation/upmind-ui";
+import { UpmSection, UpmForm } from "@upmind-automation/client-vue";
+import { Alert } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { FormActionProps } from "@upmind-automation/upmind-ui";
