@@ -32,30 +32,43 @@
   --spacing-14-5: 60px;
   --spacing-18: 72px;
 
-  /* Max Widths */
-  --max-width-app: 1280px;
-  --max-width-app-content: 776px;
-  --max-width-app-aside: 400px;
+  --max-w-app: 1424px;
+  --max-w-app-content: 776px;
+  --max-w-app-aside: 448px;
+}
 
-  --max-width-app-lg: 1400px;
+@utility max-w-app {
+  max-width: var(--max-w-app);
+}
+
+@utility max-w-app-content {
+  max-width: var(--max-w-app-content);
+}
+
+@utility max-w-app-aside {
+  max-width: var(--max-w-app-aside);
+}
+
+@utility min-w-app-aside {
+  min-width: var(--max-w-app-aside);
 }
 
 /* Content width utility - fills parent width up to max-width-app-content (776px) */
 @utility w-app-content {
-  max-width: var(--max-width-app-content);
+  max-width: var(--max-w-app-content);
 }
 
 /* Aside width utility - fills parent width up to max-width-app-aside (360px) */
 @utility w-app-aside {
-  max-width: var(--max-width-app-aside);
+  max-width: var(--max-w-app-aside);
 }
 
 /* Flex basis for content column - sets preferred width without including padding (use with box-content) */
 @utility basis-app-content {
-  flex-basis: var(--max-width-app-content);
+  flex-basis: var(--max-w-app-content);
 }
 
 /* Flex basis for aside column - sets preferred width without including padding (use with box-content) */
 @utility basis-app-aside {
-  flex-basis: var(--max-width-app-aside);
+  flex-basis: var(--max-w-app-aside);
 }

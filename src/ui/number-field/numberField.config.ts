@@ -122,7 +122,7 @@ export const numberFieldVariants = cva(
   {
     variants: {
       variant: {
-        flat: `shadow-control-default bg-control-surface hover:shadow-control-hover`,
+        flat: `shadow-control-default bg-control-surface hover:shadow-control-hover control-radius`,
         minimal: "shadow-none!"
       },
       size: {
@@ -164,7 +164,7 @@ export const numberFieldInputVariants = cva(
     variants: {
       variant: {
         flat: "[&>i]:disabled:text-muted [&>i]:size-lh cursor-pointer transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-20 [&>i]:flex [&>i]:items-center [&>i]:justify-center",
-        minimal: "control-radius flex h-5 w-5 items-center justify-center p-0"
+        minimal: "flex h-5 w-5 items-center justify-center p-0"
       },
       size: {
         sm: "",

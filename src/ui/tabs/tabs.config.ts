@@ -1,24 +1,26 @@
 import { cva } from "class-variance-authority";
 
+export const variants = {
+  overflow: {
+    hidden: "overflow-x-auto overflow-y-hidden",
+    visible: ""
+  },
+  hasBorder: {
+    true: "border-surface mb-9 border-b",
+    false: "mb-0"
+  },
+  align: {
+    left: "justify-start",
+    center: "justify-center",
+    between: "justify-between",
+    right: "justify-end"
+  }
+};
+
 export const tabsRootVariants = cva(
-  "relative flex [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+  "relative flex items-end [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
   {
-    variants: {
-      overflow: {
-        hidden: "overflow-x-auto overflow-y-hidden",
-        visible: ""
-      },
-      hasBorder: {
-        true: "border-surface mb-9 border-b",
-        false: ""
-      },
-      align: {
-        left: "justify-start",
-        center: "justify-center",
-        between: "justify-between",
-        right: "justify-end"
-      }
-    },
+    variants,
     defaultVariants: {
       align: "left",
       hasBorder: true,
@@ -45,6 +47,7 @@ export default {
     list: tabsListVariants,
     trigger: tabsTriggerVariants,
     indicator: tabsIndicatorVariants,
+    icon: cva(""),
     prepend: cva("pb-4"),
     append: cva("pb-4")
   }

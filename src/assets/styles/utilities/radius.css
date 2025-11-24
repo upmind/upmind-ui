@@ -10,8 +10,17 @@
   .button-radius {
     border-radius: var(--button-radius);
   }
+
   .control-radius {
     border-radius: var(--control-radius);
+  }
+
+  .control-radius-l {
+    border-radius: var(--control-radius) 0 0 var(--control-radius);
+  }
+
+  .control-radius-r {
+    border-radius: 0 var(--control-radius) var(--control-radius) 0;
   }
 
   .badge-radius {

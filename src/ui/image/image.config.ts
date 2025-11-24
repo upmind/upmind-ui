@@ -4,9 +4,9 @@ import { ringClasses } from "../../assets/styles";
 export const rootVariant = cva("h-full w-full", {
   variants: {
     position: {
-      first: "rounded-l-lg",
+      first: "image-radius rounded-l-none",
       middle: "",
-      last: "rounded-r-lg"
+      last: "image-radius rounded-r-none"
     },
     isEmpty: {
       true: "text-accent-neutral flex items-center justify-center"

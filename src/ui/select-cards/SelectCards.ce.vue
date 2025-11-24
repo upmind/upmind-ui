@@ -89,7 +89,8 @@ import Select from "../select/Select.vue";
 const props = withDefaults(defineProps<SelectCardsProps>(), {
   required: true,
   placeholder: "Select an option",
-  align: "start"
+  align: "start",
+  size: "md"
 });
 
 const emits = defineEmits(["update:modelValue"]);
@@ -103,7 +104,8 @@ const modelValue = useVModel(props, "modelValue", emits, {
 const selected = computed(() => find(props.items, { value: modelValue.value }));
 
 const meta = computed(() => ({
-  width: props.width
+  width: props.width,
+  size: props.size
 }));
 
 const styles = useStyles(

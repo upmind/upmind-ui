@@ -6,7 +6,7 @@
   >
     <NumberFieldContent>
       <NumberFieldDecrement
-        class="rounded-l-lg"
+        class="control-radius-l"
         :size="props.size"
         :class="styles.numberField.input"
       >
@@ -19,7 +19,7 @@
         data-testid="quantity-input"
       />
       <NumberFieldIncrement
-        class="rounded-r-lg"
+        class="control-radius-r"
         :size="props.size"
         :class="styles.numberField.input"
       >
