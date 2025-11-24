@@ -7,7 +7,7 @@
           <p>{{ profileField.title }}</p>
           <p>Value: {{ profileField.value }}</p>
         </div>
-        <div>
+        <div v-if="!profileField.meta?.isDisabled">
           <Link
             :label="t('action.edit')"
             size="sm"

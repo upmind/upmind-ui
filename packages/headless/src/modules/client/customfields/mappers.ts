@@ -24,9 +24,8 @@ export function mapCustomField(raw: ICustomField): CustomField {
     objectType: raw.object_type,
     type: raw.type,
     hidden: false,
-    show_on_order_form: true,
     meta: {
-      isReadOnly: raw.client_readonly
+      isDisabled: raw.client_readonly
     }
   };
 }

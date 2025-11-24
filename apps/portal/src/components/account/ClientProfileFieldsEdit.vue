@@ -2,8 +2,6 @@
   <UpmSection :label="t('text.personal_details')">
     <i18n-t keypath="text.personal_details_msg" tag="h1" />
 
-    <!-- v-show="uischema.showFieldsOnCheckout" -->
-    <!-- Additional Options -->
     <pre>{{ meta }}</pre>
 
     <Alert v-if="!meta.isAvailable" type="error" class="mb-4">
@@ -21,9 +19,6 @@
       @resolve="update"
       @update:modelValue="input"
     />
-    <!--
-    <pre>{{ schema }}</pre>
-    <pre>{{ uischema }}</pre> -->
     <pre>{{ model }}</pre>
   </UpmSection>
 </template>

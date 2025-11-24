@@ -31,6 +31,7 @@ import type { AnyEventObject } from "xstate";
 import type { FieldsContext, FieldsModel } from "./types";
 import { ICustomField } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/vue-query";
+import { mapIProfileFields } from "./mappers";
 
 // -----------------------------------------------------------------------------
 // QUERIES
@@ -95,13 +96,14 @@ async function update(data: FieldsModel) {
   const { meta, client } = useSession();
   const { put, useUrl } = useQuery();
 
-  console.log("Services update data:", data);
-
   return put<ICustomField>({
     url: useUrl(`clients/${client.value?.id}`),
-    data,
+    data: mapIProfileFields(data),
     withAccessToken: true
-  }).then(invalidateQueryByKey(queryKey, { exact: false }));
+  }).then(() => {
+    // sessionChange
+    return invalidateQueryByKey(queryKey, { exact: false });
+  });
 }
 
 // -----------------------------------------------------------------------------
@@ -113,6 +115,7 @@ async function parse({ schema }: FieldsContext, { data }: AnyEventObject) {
 
   // sometimes the machine can return the full context as data, so we check to see if we have a model
   // if not, then we assume the data is the model
+
   const safeModel = useModelParser<FieldsModel>(
     schema,
     get(data, "model", data)
@@ -197,11 +200,8 @@ export default () => {
      * @param {Partial<FieldsContext>} param0 - The address context containing id and model.
      * @returns {Promise<any>} The result of the update operation.
      */
-    update: async ({ model }: Partial<FieldsContext>): Promise<any> => {
-      console.log("services update model: ", model);
-
-      // if (!id || isEmpty(model))
-      if (isEmpty(model))
+    update: async ({ id, model }: Partial<FieldsContext>): Promise<any> => {
+      if (!id || isEmpty(model))
         return Promise.reject(
           new DetailedError(
             t("error.profile_details_not_available"),

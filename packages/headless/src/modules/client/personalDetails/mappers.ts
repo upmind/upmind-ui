@@ -48,8 +48,25 @@ export function mapProfileFields(
         code: customField.code,
         title: customField.name,
         value: find(client.customFields || [], ["field_id", customField.id])
-          ?.value
+          ?.value,
+        meta: customField.meta
       };
     })
   ];
+}
+
+export function mapIProfileFields(data: any): any {
+  // change
+  return {
+    ...(!!data.firstName ? { firstname: data.firstName } : {}),
+    ...(!!data.lastName ? { lastname: data.lastName } : {}),
+    ...(!!data.publicName ? { public_name: data.publicName } : {}),
+    ...(!!data.language
+      ? {
+          interface_language_id: data.language,
+          document_language_id: data.language
+        }
+      : {}),
+    ...(!!data.customFields ? { custom_fields: data.customFields } : {})
+  } as any; // change
 }
