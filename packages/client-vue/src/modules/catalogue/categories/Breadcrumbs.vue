@@ -13,7 +13,8 @@ import {
   useBrand,
   useProductCategories,
   type ProductCategory,
-  BreadcrumbVariant
+  BreadcrumbVariant,
+  QUERY_PARAMS
 } from "@upmind-automation/headless";
 import config from "../catalogue.config";
 
@@ -23,7 +24,7 @@ import { Breadcrumb, useStyles } from "@upmind-automation/upmind-ui";
 // --- types
 import type { CategoriesProps } from "./types";
 import type { ComputedRef } from "vue";
-import { map, compact, last } from "lodash-es";
+import { map, last } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<Omit<CategoriesProps, "modelValue">>();
@@ -58,7 +59,7 @@ const items = computed(() => {
       query: {
         sort: props.sort,
         direction: props.direction,
-        catid: undefined
+        [QUERY_PARAMS.CATEGORY_ID]: undefined
       }
     }
   });
@@ -81,7 +82,7 @@ const items = computed(() => {
           query: {
             sort: props.sort,
             direction: props.direction,
-            catid: category.id
+            [QUERY_PARAMS.CATEGORY_ID]: category.id
           }
         },
         handler: () => {
@@ -105,7 +106,7 @@ const items = computed(() => {
           query: {
             sort: props.sort,
             direction: props.direction,
-            catid: category.id
+            [QUERY_PARAMS.CATEGORY_ID]: category.id
           }
         },
         handler: () => {

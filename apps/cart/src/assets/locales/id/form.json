@@ -95,6 +95,16 @@
   "login": {
     "error": "Kami mengalami kesalahan saat mencoba memasukkan Anda."
   },
+  "payment_details_id": {
+    "label": ""
+  },
+  "payment_method_type": {
+    "error": "Jenis pembayaran yang valid diperlukan",
+    "label": "Pilih jenis pembayaran",
+    "partial-payment": "Lakukan pembayaran sebagian",
+    "pay-later": "Bayar nanti",
+    "stored-card": "Bayar saldo penuh"
+  },
   "phone": {
     "error": "Nomor Telepon yang valid diperlukan",
     "label": "Telepon",
@@ -128,7 +138,7 @@
     "label": "Simpan detail pembayaran"
   },
   "stored_payment_method": {
-    "label": "Pilih salah satu metode pembayaran yang tersimpan"
+    "label": ""
   },
   "taxNumber": {
     "label": "Nomor Pajak",

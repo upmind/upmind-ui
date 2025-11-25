@@ -18,7 +18,7 @@ export const useSchema = (context: GatewayContext) => {
     properties: {
       gateway_id: {
         type: "string",
-        title: "Gateway ID",
+        title: "",
         const: context?.gateway?.id,
         readOnly: true
       },

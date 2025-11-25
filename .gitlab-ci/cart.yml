@@ -13,10 +13,6 @@ variables:
     - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+$/
     - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+-rc\d+$/
     - if: $CI_COMMIT_TAG =~ /^cart-staging-v\d+(\.\d+)+$/
-      variables:
-        VITE_API_NAME: staging
-        VITE_API_URL: api.staging.upmind.io
-        VITE_API_REGION: fra1
     - if: $CI_FORCE_CART == "true"
   cache:
     - key:
@@ -32,10 +28,12 @@ variables:
     paths:
       - apps/cart/dist
   script:
-    - apk add git
-    - git config --global --add safe.directory '*'
-    - pnpm install
-    - pnpm run build
+    - pnpm --dir apps/cart install
+    - pnpm --dir packages/types run build
+    - pnpm --dir packages/ui run build
+    - pnpm --dir packages/headless run build
+    - pnpm --dir packages/client-vue run build
+    - pnpm --dir apps/cart run build:staging
 
 (apps/cart) deploy staging:
   extends: .pnpm
@@ -87,8 +85,7 @@ variables:
 (apps/cart) stop production preview:
   extends: .pnpm
   stage: stop
-  needs:
-    - dependencies
+  needs: []
   environment:
     name: apps/cart/preview/${CI_COMMIT_REF_SLUG}
     action: stop

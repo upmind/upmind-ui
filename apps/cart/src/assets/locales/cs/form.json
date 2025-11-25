@@ -95,6 +95,16 @@
   "login": {
     "error": "Při pokusu o vaše přihlášení došlo k chybě."
   },
+  "payment_details_id": {
+    "label": ""
+  },
+  "payment_method_type": {
+    "error": "Je vyžadován platný typ platby",
+    "label": "Vyberte typ platby",
+    "partial-payment": "Provést částečnou platbu",
+    "pay-later": "Zaplatit později",
+    "stored-card": "Uhradit celý zůstatek"
+  },
   "phone": {
     "error": "Je vyžadováno platné telefonní číslo",
     "label": "Telefon",
@@ -128,7 +138,7 @@
     "label": "Uložit platební údaje"
   },
   "stored_payment_method": {
-    "label": "Vyberte jednu z vašich uložených platebních metod"
+    "label": ""
   },
   "taxNumber": {
     "label": "Daňové číslo",

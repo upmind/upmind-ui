@@ -15,6 +15,7 @@ export interface ActionProps extends ButtonProps {
   prependIcon?: IconProps["icon"];
   appendIcon?: IconProps["icon"];
   variant?: ButtonProps["variant"];
+  visible?: boolean;
 }
 
 export interface BasketModalProps {

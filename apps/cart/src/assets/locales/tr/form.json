@@ -95,6 +95,16 @@
   "login": {
     "error": "Girişinizi yapmaya çalışırken bir hatayla karşılaştık."
   },
+  "payment_details_id": {
+    "label": ""
+  },
+  "payment_method_type": {
+    "error": "Geçerli bir ödeme türü gereklidir",
+    "label": "Ödeme türünü seçin",
+    "partial-payment": "Kısmi ödeme yap",
+    "pay-later": "Sonra öde",
+    "stored-card": "Tam bakiyeyi öde"
+  },
   "phone": {
     "error": "Geçerli bir Telefon Numarası gereklidir",
     "label": "Telefon",
@@ -128,7 +138,7 @@
     "label": "Ödeme ayrıntılarını kaydet"
   },
   "stored_payment_method": {
-    "label": "Kayıtlı ödeme yöntemlerinizden birini seçin"
+    "label": ""
   },
   "taxNumber": {
     "label": "Vergi Numarası",

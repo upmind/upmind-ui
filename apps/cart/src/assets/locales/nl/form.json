@@ -95,6 +95,16 @@
   "login": {
     "error": "Er is een fout opgetreden bij het inloggen."
   },
+  "payment_details_id": {
+    "label": ""
+  },
+  "payment_method_type": {
+    "error": "Een geldige betaalmethode is vereist",
+    "label": "Selecteer betaalmethode",
+    "partial-payment": "Doe een gedeeltelijke betaling",
+    "pay-later": "Later betalen",
+    "stored-card": "Betaal het volledige saldo"
+  },
   "phone": {
     "error": "Een geldig telefoonnummer is vereist",
     "label": "Telefoon",
@@ -128,7 +138,7 @@
     "label": "Bewaar betalingsgegevens"
   },
   "stored_payment_method": {
-    "label": "Selecteer een van uw opgeslagen betaalmethoden"
+    "label": ""
   },
   "taxNumber": {
     "label": "Belastingnummer",

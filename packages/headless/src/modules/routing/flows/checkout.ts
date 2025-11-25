@@ -1,12 +1,12 @@
 // --- external
 
 // --- internal
-import { useBasket } from "../../basket";
+import { useBasket, useBasketFields } from "../../basket";
 import { useBrand } from "../../brand";
 import { useRoutingEngine } from "..";
 
 // --- utils
-import { uniqBy } from "lodash-es";
+import { isEmpty, uniqBy } from "lodash-es";
 
 // --- types
 import type { Flow, Route } from "../types";
@@ -15,7 +15,8 @@ import { useSession } from "../../session";
 import {
   BrandConfigKeys,
   CheckoutFlows,
-  IInvoice
+  IInvoice,
+  QUERY_PARAMS
 } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -55,7 +56,8 @@ export const getCheckoutFlowTargets = () => {
 export const useCheckoutFlows = () => {
   const routing = useRoutingEngine();
   const { getConfigValue } = useBrand();
-  const { meta: basketMeta, isReady } = useBasket();
+  const { meta: basketMeta, isReady, invoice } = useBasket();
+  const { isReady: isFieldsReady, meta: fieldsMeta } = useBasketFields();
   const { meta: sessionMeta } = useSession();
 
   let flows: Flow[] = [
@@ -63,18 +65,21 @@ export const useCheckoutFlows = () => {
       name: ROUTE.CHECKOUT,
       guard: async (_route: Route) => {
         await isReady();
-        const validProducts =
-          basketMeta.value.hasProducts && !basketMeta.value.hasInvalidProducts;
-        const validFields = basketMeta.value.hasFields;
         const validAuth = sessionMeta.value.isAuthenticated;
 
-        // NB if we are in a One-Page flow, we skip the products and fields validation here as long as we have products in the basket
+        // NB if we are in a One-Page flow,  as long as we have products in the basket and are authenticated, we can proceed to checkout
         if (
           getConfigValue(BrandConfigKeys.CHECKOUT_FLOW) ===
           CheckoutFlows.ONE_PAGE
-        )
+        ) {
           return validAuth && basketMeta.value.hasProducts;
+        }
 
+        // NB: In Stepped flow, we need to ALSO validate products and fields, so we ensure everything is valid before proceeding to checkout
+        await isFieldsReady();
+        const validFields = fieldsMeta.value.isComplete;
+        const validProducts =
+          basketMeta.value.hasProducts && !basketMeta.value.hasInvalidProducts;
         return validProducts && validFields && validAuth;
       },
       resolve: async (_route: Route) => {
@@ -84,15 +89,19 @@ export const useCheckoutFlows = () => {
         next: [
           {
             name: ROUTE.ORDER,
-            guard: async (_route: Route, data: IInvoice) => !!data?.id,
-            resolve: async (_route: Route, data: IInvoice) => {
-              return {
+            guard: async (_route: Route) => !isEmpty(invoice.value?.id),
+            resolve: async (_route: Route) => {
+              const route = {
                 name: ROUTE.ORDER,
-                params: { orderId: data?.id },
+                params: {
+                  [QUERY_PARAMS.ORDER_ID]: invoice.value!.id
+                },
                 query: {
-                  payment_success: basketMeta.value.hasPaid.toString()
+                  [QUERY_PARAMS.PAYMENT_SUCCESS]:
+                    basketMeta.value.hasPaid.toString()
                 }
               } as Route;
+              return route;
             }
           }
         ],
@@ -100,13 +109,17 @@ export const useCheckoutFlows = () => {
         fallback: [
           {
             name: ROUTE.ORDER,
-            guard: async (_route: Route, data: IInvoice) => !!data?.id,
-            resolve: async (_route: Route, data: IInvoice) => {
-              return {
+            guard: async (_route: Route) => !isEmpty(invoice.value?.id),
+            resolve: async (_route: Route) => {
+              const route = {
                 name: ROUTE.ORDER,
-                params: { orderId: data?.id },
-                query: { payment_success: basketMeta.value.hasPaid.toString() }
+                params: {
+                  [QUERY_PARAMS.ORDER_ID]: invoice.value!.id
+                },
+                [QUERY_PARAMS.PAYMENT_SUCCESS]:
+                  basketMeta.value.hasPaid.toString()
               } as Route;
+              return route;
             }
           },
           {
@@ -128,13 +141,7 @@ export const useCheckoutFlows = () => {
               );
             }
           },
-          {
-            name: ROUTE.SESSION_REGISTER,
-            guard: async (_route: Route) => {
-              const validAuth = sessionMeta.value.isAuthenticated;
-              return !validAuth;
-            }
-          }
+          ROUTE.SESSION_REGISTER
         ]
       }
     }
