@@ -60,6 +60,10 @@ export default createMachine(
       available: {
         id: "available",
         on: {
+          REFRESH: {
+            target: "loading",
+            actions: "clearError"
+          },
           LOGOUT: {
             target: "complete",
             actions: "clear"

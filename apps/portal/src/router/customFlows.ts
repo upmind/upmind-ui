@@ -25,7 +25,7 @@ export const useCustomFlows = () => {
       }
     },
     {
-      name: ROUTE.ACCOUNT_BILLING,
+      name: ROUTE.BILLING_DETAILS,
       guard: async (route: Route) => {
         // const { isReady, meta } = useSession();
         // await isReady();

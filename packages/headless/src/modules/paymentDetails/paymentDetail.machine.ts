@@ -6,11 +6,16 @@ import services from "./services";
 import { authSubscription } from "../session/helper";
 
 // --- utils
-import { spawnGateway } from "./utils";
+import {
+  filterGateways,
+  filterPaymentDetails,
+  filterPaymentTypes,
+  spawnGateway
+} from "./utils";
 import { mapToHeadlessError, stopService, useModelParser } from "../../utils";
 import { useTime, useValidationParser } from "../../utils";
 import { useSchema, useUischema } from "./schemas";
-import { isEqual, isEmpty, find, map, isNil } from "lodash-es";
+import { isEqual, isEmpty, find, map, isNil, set } from "lodash-es";
 
 // --- types
 import type { AnyEventObject } from "xstate";
@@ -57,7 +62,7 @@ export default createMachine(
           src: "loadLookups",
           onDone: {
             target: "available",
-            actions: ["setLookups", "setSchemas"]
+            actions: ["setRaw", "setLookups", "setSchemas"]
           },
           onError: {
             target: "error",
@@ -84,7 +89,12 @@ export default createMachine(
                   src: "parse",
                   onDone: {
                     target: "validating",
-                    actions: ["setParsed", "setGateway", "setSchemas"]
+                    actions: [
+                      "setParsed",
+                      "setLookups",
+                      "setGateway",
+                      "setSchemas"
+                    ]
                   }
                 }
               },
@@ -171,17 +181,25 @@ export default createMachine(
         on: {
           CLEAR: {
             target: "available.checking",
-            actions: ["clearModel"]
+            actions: ["reset"]
           },
           SET: {
             target: "available.checking",
             actions: ["setAutoUpdate"]
           },
+          SET_PARTIAL_PAYMENT: {
+            target: "available.checking",
+            actions: ["setPartialPayment"]
+          },
+          SET_WALLET_AMOUNT: {
+            target: "available.checking",
+            actions: ["setWalletAmount"]
+          },
           REFRESH: [
             // NB if we change core values, tear down the gateway and re create it
             {
               target: "#loading",
-              actions: ["clearGateway", "refresh", "refreshActors"],
+              actions: ["reset", "refresh", "refreshActors"],
               cond: "hasChanged"
             },
             // otherwise just update context and actors
@@ -202,7 +220,7 @@ export default createMachine(
         id: "complete",
         type: "final",
         data: (
-          { paymentDetail }: PaymentDetailsContext,
+          { paymentDetail, model }: PaymentDetailsContext,
           _event: AnyEventObject
         ) => paymentDetail
       }
@@ -210,7 +228,7 @@ export default createMachine(
     on: {
       UNAUTHENTICATED: {
         target: "subscribing",
-        actions: ["clearError", "clearModel", "clearSchemas"]
+        actions: ["clearError", "reset", "clearSchemas"]
       }
     }
   },
@@ -226,44 +244,67 @@ export default createMachine(
       setParsed: assign({
         model: (_context: PaymentDetailsContext, { data }: AnyEventObject) =>
           data.model,
-        // gateway: (_context: PaymentDetailsContext, { data }: AnyEventObject) =>
-        //   data.gateway,
         paymentDetail: (
           _context: PaymentDetailsContext,
           { data }: AnyEventObject
         ) => data.paymentDetail
       }),
 
+      setRaw: assign({
+        raw: (_context: PaymentDetailsContext, { data }: AnyEventObject) => data
+      }),
+
       setLookups: assign({
-        storedPaymentMethods: (
-          _context: PaymentDetailsContext,
+        lookups: (
+          { model, raw }: PaymentDetailsContext,
           { data }: AnyEventObject
-        ) => data.storedPaymentMethods,
-        gateways: (_context: PaymentDetailsContext, { data }: AnyEventObject) =>
-          data.gateways,
-        paymentTypes: (
-          _context: PaymentDetailsContext,
-          { data }: AnyEventObject
-        ) => data.paymentTypes
+        ) => {
+          // NB: Filter out  gateways and payment details that are not valid base don our model
+          const safePaymentTypes = filterPaymentTypes(raw.config, model);
+          const safeGateways = filterGateways(raw.gateways ?? [], model);
+          const safePaymentDetails = filterPaymentDetails(
+            raw.storedPaymentMethods ?? [],
+            safeGateways
+          );
+          return {
+            storedPaymentMethods: safePaymentDetails,
+            gateways: safeGateways,
+            paymentTypes: safePaymentTypes,
+            accountCredit: raw?.accountCredit,
+            amountsFormatted: data?.amountsFormatted ?? {
+              amount: "",
+              wallet: ""
+            }
+          };
+        }
       }),
 
       setSchemas: assign({
         schema: (context: PaymentDetailsContext) => useSchema(context),
-        uischema: (_context: PaymentDetailsContext) => useUischema(),
+        uischema: (context: PaymentDetailsContext) => useUischema(context),
         model: ({ schema, model }: PaymentDetailsContext) => {
           if (!schema) return model;
           return useModelParser(schema, model);
         }
       }),
 
+      setPartialPayment: assign({
+        amountPartial: (
+          _context: PaymentDetailsContext,
+          { data }: AnyEventObject
+        ) => data.amount ?? 0
+      }),
+
+      setWalletAmount: assign({
+        amountWallet: (
+          _context: PaymentDetailsContext,
+          { data }: AnyEventObject
+        ) => data.wallet_amount ?? 0
+      }),
+
       clearSchemas: assign({
         schema: undefined,
         uischema: undefined
-      }),
-
-      clearModel: assign({
-        model: undefined
-        // gateway: undefined
       }),
 
       setAutoUpdate: assign({
@@ -284,8 +325,7 @@ export default createMachine(
             address,
             orderId,
             currency,
-            amount,
-            gateways,
+            lookups,
             gatewayHelper,
             clientId,
             model
@@ -297,7 +337,7 @@ export default createMachine(
             if (gatewayHelper) stopService(gatewayHelper);
 
             // then find the gateway in the list
-            const brandGateway = find(gateways, [
+            const brandGateway = find(lookups.gateways, [
               "gateway_id",
               model?.gateway_id
             ]);
@@ -308,7 +348,7 @@ export default createMachine(
             gatewayHelper = spawnGateway({
               orderId,
               gateway: brandGateway.gateway,
-              amount,
+              amount: model?.amount ?? 0,
               currency,
               address,
               clientId,
@@ -320,11 +360,15 @@ export default createMachine(
         }
       }),
 
-      clearGateway: assign({
+      reset: assign({
         gatewayHelper: ({ gatewayHelper }: PaymentDetailsContext) => {
           if (gatewayHelper) stopService(gatewayHelper);
           return undefined;
-        }
+        },
+        // NB reset the model AND amounts so we force a reparse and recalculation
+        model: undefined,
+        amountPartial: undefined,
+        amountWallet: undefined
       }),
 
       refresh: assign({
@@ -340,8 +384,6 @@ export default createMachine(
           { address }: PaymentDetailsContext,
           { data }: AnyEventObject
         ) => data?.address ?? address,
-        model: (_context: PaymentDetailsContext, { data }: AnyEventObject) =>
-          undefined, // we clear the model so we force a reparse
         paymentDetail: (
           _context: PaymentDetailsContext,
           { data }: AnyEventObject
@@ -356,7 +398,7 @@ export default createMachine(
             gatewayHelper,
             orderId,
             currency,
-            amount,
+            model,
             address,
             clientId
           }: PaymentDetailsContext,
@@ -368,7 +410,7 @@ export default createMachine(
               data: {
                 orderId,
                 currency,
-                amount,
+                amount: model?.amount ?? 0,
                 address,
                 clientId
               }
@@ -383,15 +425,14 @@ export default createMachine(
 
       setPaymentDetails: assign({
         paymentDetail: (
-          { amount, model, gateways, clientId }: PaymentDetailsContext,
+          { model, lookups, clientId }: PaymentDetailsContext,
           { data }: AnyEventObject
         ) =>
           mapPaymentData({
-            amount,
             clientId,
             data,
-            gateways,
-            model: model!
+            lookups,
+            model
           })
       }),
 
@@ -428,22 +469,19 @@ export default createMachine(
     },
 
     guards: {
-      isDirty: (
-        { model, baseModel }: PaymentDetailsContext,
-        _event: AnyEventObject
-      ) => !isEqual(model, baseModel),
       hasBasket: ({ orderId }: PaymentDetailsContext, _event: AnyEventObject) =>
         !!orderId,
-      hasLookups: (
-        { storedPaymentMethods, gateways, paymentTypes }: PaymentDetailsContext,
-        _event: AnyEventObject
-      ) => !!storedPaymentMethods && !!gateways && !!paymentTypes,
+
       needsNoPayment: (
-        { amount, model }: PaymentDetailsContext,
+        { model }: PaymentDetailsContext,
         _event: AnyEventObject
-      ) => !amount || model?.type == PaymentType.PAY_LATER,
+      ) =>
+        !model?.amount ||
+        isEqual(model.amount, model.wallet_amount) ||
+        model?.type == PaymentType.PAY_LATER,
+
       hasPaymentDetails: (
-        { paymentDetail }: PaymentDetailsContext,
+        { paymentDetail, model }: PaymentDetailsContext,
         _event: AnyEventObject
       ) => !isNil(paymentDetail),
       isPaymentDetail: (
@@ -451,14 +489,14 @@ export default createMachine(
         { data }: AnyEventObject
       ) => !isEmpty(data?.payment_details_id),
       shouldUpdate: (
-        { autoupdate, orderId, amount }: PaymentDetailsContext,
+        { autoupdate, orderId, model }: PaymentDetailsContext,
         _event: AnyEventObject
-      ) => !!autoupdate && !!orderId && amount !== 0,
+      ) => !!autoupdate && !!orderId && model?.amount !== 0,
 
       hasAmountChanged: (
-        { amount }: PaymentDetailsContext,
+        { model }: PaymentDetailsContext,
         { data }: AnyEventObject
-      ) => amount != (data?.unpaid_amount_converted || 0.0),
+      ) => model?.amount != (data?.unpaid_amount_converted || 0),
 
       hasChanged: (
         { orderId, clientId, address, currency }: PaymentDetailsContext,
@@ -470,7 +508,6 @@ export default createMachine(
         // NB : We only need to worry if the address country changes  as that is all that affects payment methods
         const countryChanged =
           data?.address && address?.country_id != data?.address?.country_id;
-
         return (
           orderChanged || clientChanged || countryChanged || currencyChanged
         );

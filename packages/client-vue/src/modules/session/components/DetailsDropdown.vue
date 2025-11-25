@@ -20,7 +20,7 @@
         class="text-md-tight flex flex-col items-start break-all not-italic"
         v-if="client"
       >
-        <strong class="font-medium">{{ client.fullname }}</strong>
+        <strong class="font-medium">{{ client.fullName }}</strong>
         <span class="text-md-tight font-normal opacity-60">
           {{ client.username }}
         </span>

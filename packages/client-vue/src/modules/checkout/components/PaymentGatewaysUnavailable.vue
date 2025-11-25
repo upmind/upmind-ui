@@ -52,7 +52,7 @@ import { useI18n } from "vue-i18n";
 // --- internal
 import { useBasketPaymentDetails } from "@upmind-automation/headless";
 import config from "../checkout.config";
-import { useStyles, Loading } from "@upmind-automation/upmind-ui";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import TermsAndConditions from "../../brand/TermsAndConditions.vue";
 
 // --- components

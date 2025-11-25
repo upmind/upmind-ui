@@ -23,10 +23,10 @@ import { useRoutingEngine } from "@upmind-automation/headless";
 
 // --- components
 import { Layout } from "@upmind-automation/client-vue";
-import ClientBillingAddresses from "../../../components/account/ClientBillingAddresses.vue";
+import ClientBillingAddresses from "./ClientBillingAddresses.vue";
 
 // --- types
-import { ROUTE } from "../../../router/types";
+import { ROUTE } from "../../router/types";
 
 // -----------------------------------------------------------------------------
 const { currentRoute, isResolved, meta } = useRoutingEngine();

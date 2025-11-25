@@ -8,6 +8,15 @@ interface ConfigOverrides {
   displayPriceType?: string;
 }
 
+interface UIOverrides {
+  registerTemplate?: string;
+  loginTemplate?: string;
+  checkoutTemplate?: string;
+  basketProductsOnCheckout?: boolean;
+  basketFieldsOnCheckout?: boolean;
+  basketBillingOnCheckout?: boolean;
+}
+
 export async function interceptConfigValues(
   page: Page,
   bearerToken: string,
@@ -25,7 +34,6 @@ export async function interceptConfigValues(
         headers: modifiedHeaders
       });
       const json = await response.json();
-      console.log("Original Config:", JSON.stringify(json, null, 2));
       json.data["invoices.common.require_address_for_orders"] =
         overrides.requireAddressForOrders;
       json.data["invoices.common.require_company_for_orders"] =
@@ -39,10 +47,6 @@ export async function interceptConfigValues(
       const updatedResponseBody = {
         ...json
       };
-      console.log(
-        "Updated Config:",
-        JSON.stringify(updatedResponseBody, null, 2)
-      );
       route.fulfill({
         status: response.status(),
         contentType: "application/json",
@@ -73,7 +77,6 @@ export async function interceptTermsAndConditions(
         headers: modifiedHeaders
       });
       const json = await response.json();
-      console.log("Original Config:", JSON.stringify(json, null, 2));
       json.data.terms["id"] = id;
       json.data.terms["name"] = name;
       json.data.terms["url"] = url;
@@ -84,10 +87,37 @@ export async function interceptTermsAndConditions(
       const updatedResponseBody = {
         ...json
       };
-      console.log(
-        "Updated Terms:",
-        JSON.stringify(updatedResponseBody, null, 2)
-      );
+      route.fulfill({
+        status: response.status(),
+        contentType: "application/json",
+        headers: response.headers(),
+        body: JSON.stringify(updatedResponseBody)
+      });
+    }
+  );
+}
+
+export async function interceptUISchema(page: Page, overrides: UIOverrides) {
+  await page.route(
+    "**/api/brand/settings?**",
+    async (route: Route, request: Request) => {
+      const response = await page.request.fetch(request);
+      const json = await response.json();
+      json.data.meta.uischema["@display.checkout.basketFields"] =
+        overrides.basketBillingOnCheckout;
+      json.data.meta.uischema["@display.checkout.basketFields"] =
+        overrides.basketFieldsOnCheckout;
+      json.data.meta.uischema["@display.checkout.basketProducts"] =
+        overrides.basketProductsOnCheckout;
+      json.data.meta.uischema["@route.checkout.template"] =
+        overrides.checkoutTemplate;
+      json.data.meta.uischema["@route['session.register'].template"] =
+        overrides.registerTemplate;
+      json.data.meta.uischema["@route['session.login'].template"] =
+        overrides.loginTemplate;
+      const updatedResponseBody = {
+        ...json
+      };
       route.fulfill({
         status: response.status(),
         contentType: "application/json",

@@ -12,7 +12,8 @@ import {
   isEqual,
   isEmpty,
   startsWith,
-  isFunction
+  isFunction,
+  isNumber
 } from "lodash-es";
 
 // --- types

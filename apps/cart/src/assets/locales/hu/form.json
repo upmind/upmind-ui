@@ -95,6 +95,16 @@
   "login": {
     "error": "Hiba történt a bejelentkezés során."
   },
+  "payment_details_id": {
+    "label": ""
+  },
+  "payment_method_type": {
+    "error": "Érvényes fizetési típus szükséges",
+    "label": "Válassza ki a fizetési típust",
+    "partial-payment": "Teljesítsen részleges fizetést",
+    "pay-later": "Fizessen később",
+    "stored-card": "Fizesse ki a teljes összeget"
+  },
   "phone": {
     "error": "Érvényes telefonszám szükséges",
     "label": "Telefon",
@@ -128,7 +138,7 @@
     "label": "Fizetési adatok mentése"
   },
   "stored_payment_method": {
-    "label": "Válasszon egyet a tárolt fizetési módjai közül"
+    "label": ""
   },
   "taxNumber": {
     "label": "Adószám",

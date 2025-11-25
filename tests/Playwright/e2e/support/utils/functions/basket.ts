@@ -1,6 +1,29 @@
 import { request, APIRequestContext, Page } from "@playwright/test";
 import { URLs } from "../../constants/urls";
 
+export async function createOrder(token: string): Promise<string> {
+  const context: APIRequestContext = await request.newContext({
+    baseURL: `${URLs.apiUrl}`,
+    extraHTTPHeaders: {
+      accept: "*/*",
+      "accept-language": "en-GB;q=0.9,en;q=0.8",
+      authorization: `Bearer ${token}`,
+      "content-type": "application/json",
+      origin: `${URLs.apiOrigin}`,
+      referer: `${URLs.apiUrl}`,
+      "user-agent":
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
+    }
+  });
+
+  const response = await context.post(`/api/orders?lang=en`, {
+    data: { category_slug: "new_contract", currency_code: "GBP" }
+  });
+
+  const body = await response.json();
+  return body.data.id;
+}
+
 export async function getBasketProducts(token: string) {
   const response = await fetch(
     `${URLs.apiUrl}api/orders/current?with=address%2Caddress.country%2Ccurrency%2Ccustom_fields.field%2Cpromotions%2Ctaxes%2Ctaxes.tax_tag_data%2Cproducts.product.image%2Cproducts.product.images%2Cproducts.product.prices%2Cproducts.product.products_attributes%2Cproducts.product.products_attributes.category%2Cproducts.product.products_options%2Cproducts.product.products_options.category%2Cproducts.product.products_options.prices%2Cproducts.product.provision_blueprint%2Cproducts.product.provision_field_values%2Cproducts.tags%2Cproducts.product.related%2Cproducts.product.category%2Cproducts.product.category.top_category.top_category.top_category.top_category&lang=en`,
@@ -94,6 +117,33 @@ export async function addProductToOrder(
   return body;
 }
 
+export async function removeProductFromOrder(
+  token: string,
+  orderId: string | null,
+  productId: string
+): Promise<any> {
+  const context: APIRequestContext = await request.newContext({
+    baseURL: `${URLs.apiUrl}`,
+    extraHTTPHeaders: {
+      accept: "*/*",
+      "accept-language": "en-GB;q=0.9,en;q=0.8",
+      authorization: `Bearer ${token}`,
+      "content-type": "application/json",
+      origin: `${URLs.apiOrigin}`,
+      referer: `${URLs.apiUrl}`,
+      "user-agent":
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
+    }
+  });
+
+  const response = await context.delete(
+    `api/orders/${orderId}/products/${productId}?lang=en`
+  );
+  const body = await response.json();
+  console.log(`Product removal for ${orderId}: ${JSON.stringify(body)}`);
+  return body;
+}
+
 export async function addPromotionToOrder(
   orderId: string | null,
   promoCode: string,
@@ -124,7 +174,8 @@ export async function addPromotionToOrder(
       `Failed to apply promotion code: ${response.status()} ${response.statusText()}`
     );
   }
-  return await response.json();
+  console.log("Promotion added");
+  return response.json();
 }
 
 export async function setOrderCurrency(

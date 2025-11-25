@@ -143,27 +143,22 @@ export function useInitialsParser(user: any, chars: number = 1) {
 }
 
 export function useClientParser(raw: IClient): Client | undefined {
-  const client: any = pick(raw, [
-    "id",
-    "email",
-    "clientname",
-    "fullname",
-    "firstname",
-    "lastname",
-    "image_url",
-    "interface_language_id",
-    "public_name"
-  ]);
-
-  client.display = raw?.firstname || raw?.public_name || raw?.email;
-  client.avatar = {
-    caption: useInitialsParser(client),
-    src: client.image_url,
-    forceCaption: includes(client?.image_url, "gravatar")
-  };
-  client.locale = raw?.interface_language_code;
-
-  client.customFields = raw?.custom_fields || [];
-
-  return client;
+  return {
+    avatar: {
+      caption: useInitialsParser(raw),
+      src: raw.image_url,
+      forceCaption: includes(raw?.image_url, "gravatar")
+    },
+    customFields: raw?.custom_fields || [],
+    display: raw?.firstname || raw?.public_name || raw?.email,
+    email: raw.email,
+    firstName: raw.firstname,
+    fullName: raw.fullname,
+    id: raw.id,
+    language: raw.interface_language_id,
+    lastName: raw.lastname,
+    locale: raw.interface_language_code,
+    publicName: raw.public_name,
+    username: raw.username
+  } as Client;
 }

@@ -492,6 +492,24 @@ export const useSession = () => {
       });
   }
 
+  async function refresh(): Promise<boolean> {
+    service.send({
+      type: "REFRESH"
+    });
+
+    if (!clientActor.value?.service) return true; // were already logged out
+
+    return await waitFor(
+      clientActor.value.service,
+      state => stateMatches(state, "available"),
+      {
+        timeout: 60000
+      }
+    )
+      .then(() => true)
+      .catch(() => false);
+  }
+
   function transferred() {
     service.send({ type: "TRANSFERRED" });
   }
@@ -738,7 +756,9 @@ export const useSession = () => {
 
     // ---
 
-    reauth: () => service.send({ type: "EXPIRED" })
+    reauth: () => service.send({ type: "EXPIRED" }),
+
+    refresh
   };
 };
 

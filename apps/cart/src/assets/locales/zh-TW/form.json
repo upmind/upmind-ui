@@ -95,6 +95,16 @@
   "login": {
     "error": "我們在嘗試登入時遇到錯誤。"
   },
+  "payment_details_id": {
+    "label": ""
+  },
+  "payment_method_type": {
+    "error": "需要有效的付款類型",
+    "label": "選擇付款類型",
+    "partial-payment": "進行部分付款",
+    "pay-later": "稍後付款",
+    "stored-card": "支付全額餘額"
+  },
   "phone": {
     "error": "需要有效的電話號碼",
     "label": "電話",
@@ -128,7 +138,7 @@
     "label": "儲存付款詳情"
   },
   "stored_payment_method": {
-    "label": "選擇一個您儲存的付款方式"
+    "label": ""
   },
   "taxNumber": {
     "label": "稅號",
