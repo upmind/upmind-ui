@@ -18,28 +18,49 @@ export function mapProfileFields(
       id: "firstName",
       code: "firstName",
       title: t("form.firstname.label"),
-      value: client.firstname
+      value: client.firstname,
+      meta: {
+        isReadOnly: false,
+        isDisabled: false,
+        isCustomField: false,
+        isRequired: false
+      }
     },
     {
       id: "lastName",
       code: "lastName",
       title: t("form.lastname.label"),
-      value: client.lastname
+      value: client.lastname,
+      meta: {
+        isReadOnly: false,
+        isDisabled: false,
+        isCustomField: false,
+        isRequired: false
+      }
     },
     {
       id: "publicName",
       code: "publicName",
       title: t("form.publicName.label"),
-      value: client.public_name // change
+      value: client.publicName,
+      meta: {
+        isReadOnly: false,
+        isDisabled: false,
+        isCustomField: false,
+        isRequired: false
+      }
     },
     {
       id: "language",
       code: "language",
       title: t("form.language.label"),
-      value: get(
-        find(languages.value, ["id", client.interface_language_id]),
-        "language"
-      ) // change
+      value: get(find(languages.value, ["id", client.language]), "language"),
+      meta: {
+        isReadOnly: false,
+        isDisabled: false,
+        isCustomField: false,
+        isRequired: true
+      }
     },
 
     ...map(fields, (customField: CustomField) => {
@@ -49,7 +70,7 @@ export function mapProfileFields(
         title: customField.name,
         value: find(client.customFields || [], ["field_id", customField.id])
           ?.value,
-        meta: customField.meta
+        meta: { ...customField.meta, isCustomField: true }
       };
     })
   ];
