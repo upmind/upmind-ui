@@ -373,7 +373,8 @@ export const useQuery = () => {
               ? guard()
               : Promise.resolve();
             return safeguard.then(async () => {
-              return request<TQueryFnData>({
+              // define our request parameters for easy reuse
+              const params = {
                 url,
                 sort: sort.value,
                 filters: filters.value,
@@ -388,19 +389,38 @@ export const useQuery = () => {
                   signal // Pass the new signal to the request to allow cancellation
                 },
                 withAccessToken
-              }).then(response => {
-                // total.value = response.total || 0; // Set the total items count
-                // if (isFunction(select)) return select(response.data!) as TData;
-                // return response.data as TQueryFnData;
+              };
 
-                if (isFunction(select)) {
-                  return {
-                    ...response,
-                    data: select(response.data!)
-                  };
-                }
-                return response;
-              });
+              return (
+                request<TQueryFnData>(params)
+                  // NB: we need to ensure that if we are given an offset that is greater than the total number of pages, we adjust it accordingly
+                  .then(response => {
+                    const offset = (pageIndex.value - 1) * limit;
+                    if (response.total && offset >= response.total) {
+                      // modify the params and re-request with the new offset
+                      // Calculate the correct offset for the last page so it doesn't exceed the total
+                      let safeOffset = Math.max(
+                        0,
+                        response.total - (response.total % limit || limit)
+                      );
+                      params.pagination.offset = safeOffset;
+                      pageIndex.value = Math.ceil(safeOffset / limit) + 1;
+                      return request<TQueryFnData>(params);
+                    }
+                    return response;
+                  })
+                  // NB: we need to ensure that we parse the data correctly prior to applying the select function
+                  //     this ensures the cache stores the parsed data and not the raw data
+                  .then(response => {
+                    if (isFunction(select)) {
+                      return {
+                        ...response,
+                        data: select(response.data!)
+                      };
+                    }
+                    return response;
+                  })
+              );
             });
           },
           ...(options as any)
@@ -863,7 +883,7 @@ export const useQuery = () => {
     const offset = options?.pagination?.offset ?? PAGINATION.offset;
     const sort = options?.sort;
     const filters = options?.filters;
-    const pageIndex = Math.ceil(offset / limit) + 1;
+    const pageIndex = ref(Math.ceil(offset / limit) + 1);
 
     const reactiveKeys: ReactiveQueryKeys = { sort, filters, limit, pageIndex };
     if (!withoutLocale && locale.value) reactiveKeys.locale = locale.value;
@@ -875,7 +895,7 @@ export const useQuery = () => {
     >({
       queryKey: cleanQueryKey([...queryKey, reactiveKeys]),
       queryFn: async ({ signal }) => {
-        return request<TQueryFnData>({
+        const params = {
           url,
           sort,
           filters,
@@ -887,15 +907,38 @@ export const useQuery = () => {
             signal // Pass the new signal to the request to allow cancellation
           },
           withAccessToken
-        }).then(response => {
-          if (isFunction(select)) {
-            return {
-              ...response,
-              data: select(response.data!)
-            };
-          }
-          return response;
-        });
+        };
+        return (
+          request<TQueryFnData>(params)
+            // NB: we need to ensure that if we are given an offset that is greater than the total number of pages, we adjust it accordingly
+            .then(response => {
+              const offset = (pageIndex.value - 1) * limit;
+
+              if (response.total && offset >= response.total) {
+                // modify the params and re-request with the new offset
+                // Calculate the correct offset for the last page so it doesn't exceed the total
+                let safeOffset = Math.max(
+                  0,
+                  response.total - (response.total % limit || limit)
+                );
+                params.pagination.offset = safeOffset;
+                pageIndex.value = Math.ceil(safeOffset / limit) + 1;
+                return request<TQueryFnData>(params);
+              }
+              return response;
+            })
+            // NB: we need to ensure that we parse the data correctly prior to applying the select function
+            //     this ensures the cache stores the parsed data and not the raw data
+            .then(response => {
+              if (isFunction(select)) {
+                return {
+                  ...response,
+                  data: select(response.data!)
+                };
+              }
+              return response;
+            })
+        );
       },
       ...(options as any)
     });

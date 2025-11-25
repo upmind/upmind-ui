@@ -12,8 +12,27 @@
   <Loading
     v-else
     :active="!meta.isNotSupported && (!meta.isAvailable || meta.isLoading)"
+    :class="styles.checkout.gateway.root"
   >
-    <div ref="form" :class="styles.checkout.gateway">
+    <RadioCards
+      v-model="selectedPaymentMethod"
+      required
+      :items="[
+        {
+          id: 'selected-gateway',
+          value: 'selected-gateway',
+          index: 0,
+          modelValue: selectedPaymentMethod,
+          label: gateway?.name,
+          action: {
+            label: t('action.change'),
+            handler: clearGateway
+          }
+        }
+      ]"
+    />
+
+    <div ref="form" :class="styles.checkout.gateway.form">
       <!-- Instructions -->
       <Markdown
         v-if="instructions"
@@ -63,67 +82,41 @@
         :description="t('error.payment_gateway_not_supported_msg')"
         class="text-error!"
       />
-
-      <!-- Actions and Terms -->
-      <footer key="actions" :class="styles.checkout.footer.root">
-        <div :class="styles.checkout.footer.actions">
-          <Button
-            :disabled="!meta.isValid && !meta.isNotSupported"
-            :loading="meta.isProcessing"
-            :color="props.color"
-            size="lg"
-            @click.prevent="handleCheckout"
-            :label="action"
-            :class="styles.checkout.action"
-          />
-
-          <p v-if="meta.needsPayment" :class="styles.checkout.additional">
-            <Icon icon="lock" size="nano" />
-            {{ t("cart.encrypted_and_secure_payments") }}
-          </p>
-        </div>
-
-        <Markdown
-          v-if="clickwrap"
-          tag="p"
-          :class="styles.checkout.clickwrap"
-          :model-value="clickwrap"
-          :keys="{ action }"
-        />
-
-        <TermsAndConditions
-          v-else
-          :class="styles.checkout.footer.terms"
-          :label="action"
-        />
-      </footer>
     </div>
   </Loading>
 </template>
 
 <script lang="ts" setup>
 // --- external
-import { onMounted, useTemplateRef, type ComputedRef, computed } from "vue";
+import {
+  onMounted,
+  useTemplateRef,
+  type ComputedRef,
+  computed,
+  ref
+} from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useBasketPaymentGateway } from "@upmind-automation/headless";
 import config from "../checkout.config";
 import { useStyles, Loading } from "@upmind-automation/upmind-ui";
-import TermsAndConditions from "../../brand/TermsAndConditions.vue";
 
 // --- components
-import { Alert, Markdown, Button, Icon } from "@upmind-automation/upmind-ui";
+import {
+  Alert,
+  Markdown,
+  Button,
+  RadioCards
+} from "@upmind-automation/upmind-ui";
 import Form from "../../../components/form/Form.vue";
-
-// --- utils
 
 // --- types
 import type { PaymentGatewayProps } from "../types";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<PaymentGatewayProps>();
-const emit = defineEmits(["checkout"]);
+const emit = defineEmits(["resolve", "reject", "cancel"]);
 
 const {
   meta,
@@ -137,20 +130,26 @@ const {
   update,
   render,
   clickwrap,
-  instructions
+  instructions,
+  gateway
 } = useBasketPaymentGateway();
 
 const { t } = useI18n();
 
 const container = useTemplateRef("container");
 
+const selectedPaymentMethod = ref("selected-gateway");
+
 const styles = useStyles(
-  ["checkout", "checkout.footer"],
+  ["checkout", "checkout.footer", "checkout.gateway"],
   meta,
   config
 ) as ComputedRef<{
   checkout: {
-    gateway: string;
+    gateway: {
+      root: string;
+      form: string;
+    };
     content: string;
     footer: {
       root: string;
@@ -171,9 +170,12 @@ const action = computed(() => {
 });
 
 const handleCheckout = () => {
-  emit("checkout");
+  emit("resolve");
 };
 
+const clearGateway = () => {
+  emit("cancel");
+};
 // --- side effects
 
 // wait till we mount then try to render the gateway if it's provided

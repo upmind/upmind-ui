@@ -263,6 +263,10 @@ export const useBasket = () => {
   });
   // --- methods
 
+  function reset() {
+    return send({ type: "RESET" });
+  }
+
   function clear() {
     return send({ type: "CLEAR" });
   }
@@ -624,6 +628,11 @@ export const useBasket = () => {
      * Clears the basket.
      */
     clear,
+
+    /**
+     * Resets the basket to its initial state. Typically used after checkout or when starting a new session.
+     */
+    reset,
 
     /**
      * Initiates the checkout process.

@@ -95,6 +95,16 @@
   "login": {
     "error": "Vi opplevde en feil under forsøket på å logge deg inn."
   },
+  "payment_details_id": {
+    "label": ""
+  },
+  "payment_method_type": {
+    "error": "En gyldig betalingstype er nødvendig",
+    "label": "Velg betalingstype",
+    "partial-payment": "Foreta en delbetaling",
+    "pay-later": "Betal senere",
+    "stored-card": "Betal hele saldoen"
+  },
   "phone": {
     "error": "Et gyldig telefonnummer er påkrevd",
     "label": "Telefon",
@@ -128,7 +138,7 @@
     "label": "Lagre betalingsdetaljer"
   },
   "stored_payment_method": {
-    "label": "Velg en av dine lagrede betalingsmetoder"
+    "label": ""
   },
   "taxNumber": {
     "label": "Skattenummer",

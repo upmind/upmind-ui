@@ -1,26 +1,39 @@
 // --- external
 import type { CxOptions, VariantProps } from "class-variance-authority";
 import type { HTMLAttributes } from "vue";
-import type { InterstitialProps, TabItem } from "@upmind-automation/upmind-ui";
+import type {
+  InterstitialProps,
+  TabItem,
+  LinkProps
+} from "@upmind-automation/upmind-ui";
 
 // --- internal
 
-export interface I18nText {
+export type I18nText = {
   key: string;
   plural?: number;
-}
+};
 
-export interface InterstitialExtendedProps extends InterstitialProps {
+export type InterstitialExtendedProps = InterstitialProps & {
   i18nTitle?: I18nText;
-}
+};
 
-export interface SectionItem extends TabItem {}
+export type SectionActionProps = LinkProps & {
+  handler?: Function | string;
+  type?: HTMLButtonElement["type"];
+  visible?: boolean;
+};
 
-export interface SectionsProps {
+export type SectionItem = TabItem & {
+  actions?: Record<string, SectionActionProps>;
+  active?: boolean;
+};
+
+export type SectionsProps = {
   active?: boolean;
   class?: HTMLAttributes["class"];
   sections: SectionItem[];
-  defaultValue?: string;
+  modelValue?: string;
   uiConfig?: {
     section: {
       root: CxOptions;
@@ -29,10 +42,4 @@ export interface SectionsProps {
       content: CxOptions;
     };
   };
-}
-
-export interface SectionProps {
-  active?: boolean;
-  label: string;
-  icon?: string;
-}
+};

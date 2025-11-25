@@ -17,6 +17,7 @@ import { ROUTE } from "../types";
 import type { Flow, Route } from "../types";
 import type { ProductProps } from "../../product";
 import { contextValue, stateMatches } from "../../../utils";
+import { QUERY_PARAMS } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -104,7 +105,7 @@ export const useProductFlows = () => {
         if (isEmpty(product?.service))
           return {
             name: ROUTE.PRODUCT_NOT_FOUND,
-            query: { pid: productId }
+            query: { [QUERY_PARAMS.PRODUCT_ID]: productId }
           };
 
         // NB this allows us to navigate to a product page without a given productId
@@ -158,12 +159,12 @@ export const useProductFlows = () => {
               if (!basketItem?.id)
                 return {
                   name: ROUTE.PRODUCT_NOT_FOUND,
-                  query: { pid: productId }
+                  query: { [QUERY_PARAMS.PRODUCT_ID]: productId }
                 };
               else
                 return {
                   name: ROUTE.PRODUCT_EDIT,
-                  params: { bpid: basketItem?.id }
+                  params: { [QUERY_PARAMS.BASKET_PRODUCT_ID]: basketItem?.id }
                 };
             }
           },

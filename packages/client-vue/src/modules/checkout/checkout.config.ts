@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 
 export default {
   checkout: {
-    root: cva(""),
+    root: cva("flex min-h-24 flex-col gap-5"),
     backButton: cva("relative -top-4 mt-6 md:mt-0"),
     section: cva(
       "relative mx-auto flex w-full flex-wrap items-start justify-start gap-6"
@@ -17,10 +17,9 @@ export default {
     ),
     asideInner: cva("flex w-full flex-col gap-6 text-left"),
     session: cva("w-full min-w-full"),
-    paymentDetails: cva("p-0!"),
 
     accordion: {
-      root: cva("flex flex-col gap-3"),
+      root: cva("mt-6 flex flex-col gap-1"),
       trigger: {
         root: cva(
           "bg-control-surface shadow-control-default hover:shadow-control-hover data-[state=open]:bg-background data-[state=open]:shadow-foreground flex cursor-pointer items-center justify-between space-x-2 rounded px-5 py-3 text-base font-medium transition-all duration-200 hover:text-base hover:no-underline"
@@ -50,27 +49,31 @@ export default {
     title: cva("text-md text-left no-underline"),
     image: cva("m-0 h-6 md:h-7"),
 
-    gateway: cva("flex w-full flex-col items-center justify-center gap-6", {
-      variants: {
-        hasErrors: {
-          true: "border-control-error focus-within:ring-control-error focus-within:ring-opacity-20 focus-within:ring-4",
-          false: ""
-        }
-      },
-      defaultVariants: { hasErrors: false }
-    }),
+    gateway: {
+      root: cva("flex flex-col gap-5"),
+      form: cva("flex w-full flex-col items-center justify-center gap-6", {
+        variants: {
+          hasErrors: {
+            true: "border-control-error focus-within:ring-control-error focus-within:ring-opacity-20 focus-within:ring-4",
+            false: ""
+          }
+        },
+        defaultVariants: { hasErrors: false }
+      })
+    },
+
+    stored: {
+      root: cva("flex flex-col gap-6")
+    },
 
     footer: {
-      root: cva("flex w-full flex-col gap-4"),
+      root: cva("flex w-full flex-col gap-6"),
       actions: cva(
         "flex flex-col items-stretch justify-start space-y-2 space-x-0 md:flex-row md:space-y-0 md:space-x-4"
       ),
       terms: cva("text-muted text-sm")
     },
     action: cva("flex w-full self-center md:inline-flex md:w-auto"),
-    additional: cva(
-      "bg-base-background flex items-center justify-center gap-2 space-x-2 self-stretch px-4 py-2 text-base md:py-0"
-    ),
     clickwrap: cva(
       "text-muted prose prose-a:font-normal prose-a:text-inherit text-left text-sm leading-snug"
     ),

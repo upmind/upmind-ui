@@ -1,5 +1,8 @@
 <template>
-  <section :class="styles.product.header.price.root">
+  <section
+    :class="styles.product.header.price.root"
+    data-testid="product-card-price-display"
+  >
     <header
       v-if="meta?.discounted"
       :class="styles.product.header.price.regularPrice"
@@ -33,13 +36,16 @@
       </strong>
 
       <template v-else>
-        <strong :class="styles.product.header.price.currentPrice.amount">{{
-          currentPrice
-        }}</strong>
+        <strong
+          :class="styles.product.header.price.currentPrice.amount"
+          data-testid="product-card-price"
+          >{{ currentPrice }}</strong
+        >
 
         <small
           :class="styles.product.header.price.currentPrice.term"
           v-if="has(props, 'cycle')"
+          data-testid="product-card-price-cycle"
           >/
           {{
             meta.useMonthlyFromPrice
@@ -58,6 +64,7 @@
         has(props, 'cycle')
       "
       :class="styles.product.header.price.total"
+      data-testid="product-card-footer"
     >
       {{
         t("term.summary_msg", {

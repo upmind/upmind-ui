@@ -10,13 +10,13 @@ import {
   get,
   find,
   pick,
-  first,
   unset,
-  filter,
-  sortBy,
   isEmpty,
-  some,
-  map
+  includes,
+  isEqual,
+  values,
+  first,
+  has
 } from "lodash-es";
 import {
   ErrorOrigin,
@@ -28,12 +28,21 @@ import {
   stateMatches,
   useTime
 } from "../../utils";
-import { generateResponseUrls } from "./gateways/utils";
-import { mapPaymentDetailDetails } from "./mappers";
+import {
+  filterGateways,
+  filterPaymentDetails,
+  filterPaymentTypes
+} from "./utils";
+import {
+  mapAccountCredit,
+  mapPaymentData,
+  mapPaymentDetailDetails
+} from "./mappers";
 
 // --- types
 import type { AnyEventObject } from "xstate";
 import type {
+  AccountCredit,
   PaymentDetail,
   PaymentDetailModel,
   PaymentDetailsContext
@@ -42,7 +51,8 @@ import {
   PaymentType,
   BrandConfigKeys,
   type IBrandGateway,
-  type IPaymentDetail
+  type IPaymentDetail,
+  IWalletBalance
 } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/vue-query";
 
@@ -103,17 +113,19 @@ export function loadList() {
 // -----------------------------------------------------------------------------
 
 async function loadLookups(
-  { currency, address, orderId }: PaymentDetailsContext,
+  { currency, address, orderId, lookups }: PaymentDetailsContext,
   _event: AnyEventObject
 ) {
   const { meta, user } = useSession();
-  const paymentTypes = { ...PaymentType };
+  const paymentTypes: Record<string, PaymentType> = {
+    ["PAY_IN_FULL"]: PaymentType.PAY_IN_FULL
+  };
 
   if (!meta.value.isAuthenticated || !user.value?.id)
     throw new NotAuthenticatedError();
 
   const { brandId, currencyId: defaultCurrencyId, ensureConfig } = useBrand();
-  const { get: getRequest, useUrl } = useQuery();
+  const { get: getRequest, post, useUrl } = useQuery();
 
   // ---
 
@@ -127,6 +139,44 @@ async function loadLookups(
     BrandConfigKeys.BILLING_GATEWAY_FORCE_AUTO_PAYMENT
   ]);
 
+  const accountCredit: Promise<AccountCredit> = getRequest<
+    IWalletBalance,
+    AccountCredit
+  >({
+    url: useUrl(`wallet/balance`),
+    queryKey: [
+      "wallet-balance",
+      {
+        brandId: unref(brandId),
+        clientId,
+        currencyId
+      }
+    ],
+    select: data => mapAccountCredit(data, currency.code),
+    withAccessToken: true,
+    withCurrency: true
+  }).then(account => {
+    // we need to calculate the total account credit including negative allowance
+    // and get a formatted version based on the currency
+    return post({
+      url: useUrl("cart/calculate", {}),
+      withAccessToken: true,
+      data: {
+        currency_id: currencyId,
+        prices: [account.owned.value, account.credit.value]
+      }
+    })
+      .then(data => {
+        account.total.amount = get(data, "total_formatted", "");
+        account.total.value = get(data, "total", 0);
+        return account;
+      })
+      .catch(() => {
+        // if we fail to get the formatted total, we just return the account without it
+        return account;
+      });
+  });
+
   const storedPaymentMethods: Promise<PaymentDetail[]> = getRequest<
     IPaymentDetail[],
     PaymentDetail[]
@@ -135,10 +185,10 @@ async function loadLookups(
       limit: 0,
       brand_id: unref(brandId),
       active: true,
-      // "filter[gateway.currencies.id]": currencyId,
+      "filter[gateway.currencies.id]": currencyId,
+      // "filter[gateway.active]": 1,
       order: ["-default", "id"].join(),
       with: ["gateway", "client"].join()
-      // "filter[active]": 1,
     }),
     queryKey: [
       "payment-details",
@@ -181,82 +231,148 @@ async function loadLookups(
 
   // ----
 
-  return Promise.all([config, storedPaymentMethods, gateways]).then(
-    ([config, storedPaymentMethods, gateways]: [
+  return Promise.all([
+    config,
+    accountCredit,
+    storedPaymentMethods,
+    gateways
+  ]).then(
+    ([config, accountCredit, storedPaymentMethods, gateways]: [
       Record<string, any>,
+      AccountCredit,
       PaymentDetail[],
       IBrandGateway[]
     ]) => {
-      if (!get(config, BrandConfigKeys.PARTIAL_PAYMENTS_ENABLED))
-        unset(paymentTypes, PaymentType.PARTIAL_PAYMENT);
-
-      if (!get(config, BrandConfigKeys.PAY_LATER_ENABLED))
-        unset(paymentTypes, PaymentType.PAY_LATER); // Allowlist payment gateways if provided
-
       return {
-        // NB: ensure we only show active stored payment methods and only for gateways that are available.
-        //     The BE does not filter out Stored payment methods for gateways not available for a given country or currency
-        storedPaymentMethods: map(storedPaymentMethods, method => {
-          // isSupported: some(gateways, ["gateway_id", method.gatewayId])
-          method.meta.isSupported = some(gateways, [
-            "gateway_id",
-            method.gatewayId
-          ]);
-
-          return method;
-        }),
-        gateways: sortBy(gateways, ["order"]),
-        paymentTypes
-      } as unknown as Partial<PaymentDetailsContext>;
+        config,
+        accountCredit,
+        storedPaymentMethods,
+        gateways,
+        amountsFormatted: {
+          amount: lookups?.amountsFormatted?.amount || "",
+          wallet: lookups?.amountsFormatted?.wallet || ""
+        }
+      } as unknown as PaymentDetailsContext["lookups"];
     }
   );
 }
 
-async function parse(
-  {
-    orderId,
+async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
+  const {
     amount,
+    amountPartial,
+    amountWallet,
     model,
     schema,
-    gateways,
-    storedPaymentMethods,
-    address,
+    lookups,
     clientId
-  }: PaymentDetailsContext,
-  { data }: AnyEventObject
-) {
+  } = context;
   // ---
   let paymentDetail = undefined;
-  const supportedStoredPaymentMethods = filter(
-    storedPaymentMethods,
-    method => method?.meta.isSupported
-  );
 
   // ---
-  // Create a safe model to work with
+  // NB: This parse function can be reached after a refresh from the basket, so we can check for that
+  //     if It is a basket refresh, we do not want to parse any incoming data, as it will wipe out the user selection
+  const isBasketData = has(data, "unpaid_amount_converted");
+
+  // NB: We always want to ensure the model amount/wallet_amount is correct based on the latest basket data
+  //     IF a user has set a partial amount, we need to ensure we respect that up to the total amount due
+  const safeAmount = amountPartial ? Math.min(amountPartial, amount) : amount;
+
+  // NB: We also need to ensure the wallet amount is not greater than the safe amount or the available wallet balance
+  //  IF a user has set a wallet amount, we need to respect that up to the safe amount
+  const safeWalletAmount = amountWallet
+    ? Math.min(
+        safeAmount,
+        amountWallet,
+        lookups.accountCredit?.total.value ?? 0
+      )
+    : Math.min(safeAmount, lookups.accountCredit?.total.value || 0);
+
   const safeModel = useModelParser<PaymentDetailModel>(
     schema,
-    pick(data, [
-      "type",
-      "gateway_id",
-      "payment_details_id",
-      "return_url",
-      "cancel_url"
-    ]),
-    model,
+    !isBasketData
+      ? pick(data, [
+          "type",
+          "amount",
+          "wallet_amount",
+          "payment_details_id",
+          "gateway_id",
+          "return_url",
+          "cancel_url"
+        ])
+      : {},
+    {
+      ...model,
+      amount: safeAmount,
+      wallet_amount: safeWalletAmount
+    },
     {
       allowExtraProps: false
     }
   );
+  // ---
+
+  // FORCE payment type if we have the gateway wet to pay later (syntactic sugar)
+  if (safeModel?.gateway_id == PaymentType.PAY_LATER) {
+    safeModel.type = PaymentType.PAY_LATER;
+    safeModel.amount = amount;
+    unset(safeModel, "gateway_id");
+    unset(safeModel, "payment_details_id");
+    unset(safeModel, "wallet_amount");
+  }
+
+  // NB: Filter our lookups based on the safe model
+  lookups.gateways = filterGateways(context.raw.gateways ?? [], safeModel);
+  lookups.storedPaymentMethods = filterPaymentDetails(
+    context.raw.storedPaymentMethods ?? [],
+    lookups.gateways
+  );
+  lookups.paymentTypes = filterPaymentTypes(
+    context.raw.config ?? {},
+    safeModel
+  );
 
   // ---
-  // FORCE payment type to PAY_IN_FULL if its not set
-  safeModel.type ??= PaymentType.PAY_IN_FULL;
-  // ---
-  // 1) Make sure if a gateway is selected that we use that
+  // Ensure payment type is valid and allowed, default to PAY_IN_FULL if not
+  const allowedTypes = values(lookups.paymentTypes ?? {});
+  if (!includes(allowedTypes, safeModel.type))
+    safeModel.type = PaymentType.PAY_IN_FULL;
+
+  // FORCE payment methods to none if no payment is needed
+  const needsPayment =
+    !!safeModel!.amount &&
+    !isEqual(safeModel!.amount, safeModel!.wallet_amount) &&
+    includes(
+      [PaymentType.PARTIAL_PAYMENT, PaymentType.PAY_IN_FULL],
+      safeModel?.type
+    );
+
+  if (needsPayment) {
+    // Ensure we have a payment method selected,
+    // try preselec the firt payment detail if we have one
+    // otherwise preselect the first available gateway
+    if (!safeModel.gateway_id && !safeModel.payment_details_id) {
+      safeModel.payment_details_id = first(lookups.storedPaymentMethods)?.id;
+    }
+  } else {
+    unset(safeModel, "gateway_id");
+    unset(safeModel, "payment_details_id");
+  }
+
+  // --- Handle payment detail data mapping
+
+  // 1) Make sure if a gateway is selected that it is valid
+  //    and we set the corresponding gateway
+  //    and clear any stored payment method
+  //    ALSO check if our payment gateway has been set to Pay Later ( as some syntactic sugar )
   if (safeModel?.gateway_id) {
-    const brandGateway = find(gateways, ["gateway_id", safeModel.gateway_id]);
+    const brandGateway = find(lookups.gateways, [
+      "gateway_id",
+      safeModel.gateway_id
+    ]);
     // if we don't have a matching/valid gateway, then we should remove the gateway_id
+
     if (!brandGateway) {
       unset(safeModel, "gateway_id");
     } else {
@@ -264,58 +380,63 @@ async function parse(
     }
   }
 
-  // 2) finally If we don't have any selected gateways, then we should use the first available
-  if (!safeModel?.gateway_id) {
-    if (isEmpty(supportedStoredPaymentMethods)) {
-      safeModel.gateway_id = first(gateways)?.gateway_id;
-      safeModel.payment_details_id = undefined; // we can't use a stored payment method if we're using a gateway
-    } else {
-      safeModel.payment_details_id ??= first(supportedStoredPaymentMethods)?.id;
-    }
-  }
-
-  // 3) If we're using a stored payment method, then we should use that and clear the gateway_id
+  // 2) Make sure if a stored payment method is selected that it is valid
+  //    and we set the corresponding payment detail
+  //    and clear any gateway selection
   if (safeModel?.payment_details_id) {
     unset(safeModel, "gateway_id");
-    paymentDetail = {
-      payment_details_id: safeModel.payment_details_id,
-      amount
-    };
-  } else {
-    paymentDetail = undefined;
-  }
-
-  // 4) Safety Check...if the payment type is pay later or Free, clear the gateway_id
-  if (safeModel?.type == PaymentType.PAY_LATER || amount <= 0) {
-    unset(safeModel, "gateway_id");
-    unset(safeModel, "payment_details_id");
+    const storedPaymentMethod = find(lookups.storedPaymentMethods, [
+      "id",
+      safeModel.payment_details_id
+    ]);
+    // if we don't have a matching/valid stored payment method, then we should remove the payment_details_id
+    if (!storedPaymentMethod) {
+      unset(safeModel, "payment_details_id");
+    } else {
+      unset(safeModel, "gateway_id");
+      paymentDetail = mapPaymentData({
+        model: safeModel,
+        clientId,
+        lookups
+      });
+    }
   }
 
   // NB:as a final check... if we have no gateways or stored payment methods, then we should force the type to pay later
   // this will allow the order to be placed without any payment details
-  if (isEmpty(gateways)) {
+  if (isEmpty(lookups.gateways) && isEmpty(lookups.storedPaymentMethods)) {
     unset(safeModel, "gateway_id");
     unset(safeModel, "payment_details_id");
     safeModel.type = PaymentType.PAY_LATER;
-
-    paymentDetail = {
-      type: PaymentType.PAY_LATER,
-      amount,
-      address_id: address?.id,
-      client_id: clientId
-    };
+    paymentDetail = undefined;
   }
 
-  // generate our return and cancel urls
-  const { cancelUrl, returnUrl } = generateResponseUrls(
-    new URL(`order/${orderId}`, window.location.origin),
-    { orderId }
-  );
+  // Finally we calculate the formatted amount for the model amount
+  // NB: Only fire these if the amounts have changed
+  lookups.amountsFormatted = await Promise.all([
+    calculate(context, {
+      data: { value: safeModel.amount ?? 0, prev: model?.amount ?? 0 },
+      type: "calculate"
+    }).catch(() => lookups.amountsFormatted?.amount || ""),
+    calculate(context, {
+      data: {
+        value: safeModel.wallet_amount ?? 0,
+        prev: model?.wallet_amount ?? 0
+      },
+      type: "calculate"
+    }).catch(() => lookups.amountsFormatted?.wallet || "")
+  ]).then(([amountFormatted, walletAmountFormatted]) => {
+    return {
+      amount: amountFormatted,
+      wallet: walletAmountFormatted
+    };
+  });
 
-  safeModel.cancel_url = cancelUrl;
-  safeModel.return_url = returnUrl;
-
-  return { model: safeModel, paymentDetail };
+  return {
+    model: safeModel,
+    paymentDetail,
+    ...lookups
+  };
 }
 
 async function validate(
@@ -372,6 +493,25 @@ async function validate(
   // ---
 }
 
+async function calculate(
+  { currency }: PaymentDetailsContext,
+  { data }: AnyEventObject
+) {
+  const { post, useUrl } = useQuery();
+
+  if (isEqual(data.value, data.prev)) return Promise.reject();
+
+  // we need to calculate the total account credit including negative allowance
+  // and get a formatted version based on the currency
+  return post({
+    url: useUrl("cart/calculate", {}),
+    withAccessToken: true,
+    data: {
+      currency_id: currency.id,
+      prices: [data.value]
+    }
+  }).then(res => get(res, "total_formatted", ""));
+}
 // -----------------------------------------------------------------------------
 
 export default {

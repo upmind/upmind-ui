@@ -169,7 +169,7 @@
     "error": "A valid CVV is required"
   },
   "payment_details_id": {
-    "label": null,
+    "label": "",
     "description": null,
     "placeholder": null
   },
@@ -190,7 +190,16 @@
   },
   "stored_payment_method": {
     "description": null,
-    "label": "Select one of your stored payment methods",
+    "label": "",
     "placeholder": null
+  },
+  "payment_method_type": {
+    "description": null,
+    "label": "Select payment type",
+    "placeholder": null,
+    "error": "A valid payment type is required",
+    "stored-card": "Pay full balance",
+    "partial-payment": "Make a partial payment",
+    "pay-later": "Pay later"
   }
 }
