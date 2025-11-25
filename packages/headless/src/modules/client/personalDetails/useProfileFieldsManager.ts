@@ -181,15 +181,11 @@ export const useProfileFieldsManager = ({
       { timeout: 60_000 }
     )
       .then(state => {
-        debugger;
         if (stateMatches(state, "available.error")) throw state.context.error;
-        debugger;
         console.log("update completed:", state.context.model);
-        debugger;
         return state.context.model;
       })
       .catch(error => {
-        debugger;
         return Promise.reject(
           new DetailedError(
             t("error.profile_details_update_failed"),

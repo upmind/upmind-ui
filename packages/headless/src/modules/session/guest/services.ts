@@ -68,10 +68,8 @@ async function loadUser() {
         // "enabled_modules"
       ].join()
     }),
-    queryKey: ["session", "self"],
-    withAccessToken: true,
-    staleTime: 0,
-    gcTime: 0
+    queryKey: ["client"],
+    withAccessToken: true
   });
 }
 
