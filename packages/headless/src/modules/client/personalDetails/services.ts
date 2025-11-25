@@ -82,7 +82,7 @@ async function loadLookups({
 // MUTATIONS
 
 async function update(data: FieldsModel) {
-  const { client } = useSession();
+  const { client, refresh } = useSession();
   const { put, useUrl } = useQuery();
 
   return put<IClient>({
@@ -98,8 +98,9 @@ async function update(data: FieldsModel) {
     // ensure we honor the clients locale ( it may have changed )
     const locale = client.locale;
     useLocale().setLocale(locale);
-
-    return invalidateQueryByKey(queryKey, { exact: false });
+    invalidateQueryByKey(queryKey, { exact: false });
+    refresh();
+    return client;
   });
 }
 
