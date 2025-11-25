@@ -16,7 +16,8 @@ import {
   forEach,
   isEmpty,
   omitBy,
-  isNil
+  isNil,
+  pickBy
 } from "lodash-es";
 
 // --- types
@@ -56,11 +57,12 @@ export const useSchema = ({
     customFields
   } as Record<string, any>;
 
-  if (!!filterFields.length) {
-    customFields.properties = pick(
+  if (!isEmpty(filterFields)) {
+    customFields.properties = pickBy(
       customFields["properties"],
-      filterFields
+      (_value, key) => filterFields.includes(`customFields.${key}`)
     ) as JsonSchema7["properties"];
+
     schemaProps = {
       ...pick(schemaProps, filterFields),
       ...(isEmpty(customFields["properties"]) ? {} : { customFields })
@@ -102,9 +104,12 @@ export const useUischema = ({ fields, filterFields = [] }: FieldsContext) => {
   return {
     type: "VerticalLayout",
     elements: !!filterFields.length
-      ? filter(schemaElements, element =>
-          filterFields.includes(element.scope.split("/").pop() || "")
-        )
+      ? filter(schemaElements, element => {
+          const field = element.scope
+            .replace("#/properties/", "")
+            .replace("/properties/", ".");
+          return filterFields.includes(field);
+        })
       : schemaElements
   } as UISchemaElement;
 };

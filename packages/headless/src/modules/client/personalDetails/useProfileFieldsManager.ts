@@ -55,7 +55,6 @@ export const useProfileFieldsManager = ({
   const { t } = useI18n();
   const { isAuthenticated } = useSession();
   const { languages } = useBrand();
-  const router = useRouter();
 
   // --- state
   const service = interpret(
@@ -173,17 +172,7 @@ export const useProfileFieldsManager = ({
   async function update(
     value?: FieldsModel | Record<string, any>
   ): Promise<FieldsModel> {
-    // first check if our model has changed, if it has, we need to send it
-
-    // const model = contextValue<FieldsModel>(state, "model");
-
-    // console.log(value, model);
-
-    // if (!isEmpty(value) && !isEqual(value, model)) {
-    // send({ type: "SET", data: value, update: true });
-    // } else {
     send({ type: "UPDATE" });
-    // }
 
     // we have to ensure the update is processed and the state is either processed or available.error
     return waitFor(
@@ -192,17 +181,15 @@ export const useProfileFieldsManager = ({
       { timeout: 60_000 }
     )
       .then(state => {
+        debugger;
         if (stateMatches(state, "available.error")) throw state.context.error;
-
+        debugger;
         console.log("update completed:", state.context.model);
-
-        // router.push({
-        //   name: ROUTE.
-        // });
-
-        return Promise.resolve(state.context.model);
+        debugger;
+        return state.context.model;
       })
       .catch(error => {
+        debugger;
         return Promise.reject(
           new DetailedError(
             t("error.profile_details_update_failed"),
@@ -282,7 +269,11 @@ export const useProfileFieldsManager = ({
      * @param {FieldsModel} value The new fields model to set.
      * @returns {Promise<void>} Resolves when updated, rejects on error.
      */
-    update: debounce(update, DEBOUNCE_DELAY)
+    // update: debounce(update, DEBOUNCE_DELAY),
+    update,
+
+    /** Stops the fields service. */
+    stop
   };
 };
 
