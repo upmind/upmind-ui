@@ -1,10 +1,11 @@
 // ---internal
 import { Client } from "../../session";
 import { CustomField } from "../customFields";
-import { ProfileField, useBrand, useI18n } from "../../";
+import { FieldsModel, ProfileField, useBrand, useI18n } from "../../";
 
 // --- utils
-import { map, find, get } from "lodash-es";
+import { map, find, get, omitBy, isEmpty } from "lodash-es";
+import { IClient } from "@upmind-automation/types";
 
 export function mapProfileFields(
   client: Client,
@@ -12,13 +13,12 @@ export function mapProfileFields(
 ): ProfileField[] {
   const { t } = useI18n();
   const { languages } = useBrand();
-
   return [
     {
       id: "firstName",
       code: "firstName",
       title: t("form.firstname.label"),
-      value: client.firstname,
+      value: client.firstName,
       meta: {
         isReadOnly: false,
         isDisabled: false,
@@ -30,7 +30,7 @@ export function mapProfileFields(
       id: "lastName",
       code: "lastName",
       title: t("form.lastname.label"),
-      value: client.lastname,
+      value: client.lastName,
       meta: {
         isReadOnly: false,
         isDisabled: false,
@@ -76,18 +76,16 @@ export function mapProfileFields(
   ];
 }
 
-export function mapIProfileFields(data: any): any {
-  // change
-  return {
-    ...(!!data.firstName ? { firstname: data.firstName } : {}),
-    ...(!!data.lastName ? { lastname: data.lastName } : {}),
-    ...(!!data.publicName ? { public_name: data.publicName } : {}),
-    ...(!!data.language
-      ? {
-          interface_language_id: data.language,
-          document_language_id: data.language
-        }
-      : {}),
-    ...(!!data.customFields ? { custom_fields: data.customFields } : {})
-  } as any; // change
+export function mapIProfileFields(data: FieldsModel): Partial<IClient> {
+  return omitBy(
+    {
+      firstname: data.firstName,
+      lastname: data.lastName,
+      public_name: data.publicName,
+      interface_language_id: data.language,
+      document_language_id: data.language,
+      custom_fields: omitBy(data.customFields, isEmpty)
+    },
+    isEmpty
+  ) as Partial<IClient>;
 }

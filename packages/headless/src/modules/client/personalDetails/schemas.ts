@@ -1,23 +1,10 @@
 // --- internal
-import {
-  useFieldsSchemaParser,
-  useFieldsUischemaParser,
-  useFieldsModelParser
-} from "../../../utils";
+import { useFieldsSchemaParser, useFieldsUischemaParser } from "../../../utils";
 
-import { FieldsContext, FieldsModel } from "./types";
+import { FieldsContext } from "./types";
 
 // --- utils
-import {
-  get,
-  map,
-  pick,
-  filter,
-  forEach,
-  isEmpty,
-  omitBy,
-  isNil
-} from "lodash-es";
+import { get, map, pick, filter, isEmpty, pickBy } from "lodash-es";
 
 // --- types
 import type {
@@ -26,12 +13,8 @@ import type {
   UISchemaElement
 } from "@jsonforms/core";
 
-export const useSchema = ({
-  fields,
-  filterFields = [],
-  languages
-}: FieldsContext): JsonSchema7 => {
-  let customFields = useFieldsSchemaParser(fields);
+export const useSchema = ({ lookups }: FieldsContext): JsonSchema7 => {
+  let customFields = useFieldsSchemaParser(lookups?.fields);
   let schemaProps: JsonSchema7["properties"] = {
     firstName: {
       type: ["string", "null"]
@@ -44,25 +27,28 @@ export const useSchema = ({
     },
     language: {
       type: ["string", "null"],
-      ...(languages?.length &&
-        Array.isArray(languages) && {
-          enum: map(languages, "id"),
-          options: map(languages, ({ language, id }) => ({
+      enum: isEmpty(lookups?.languages)
+        ? undefined
+        : map(lookups?.languages, "id"),
+      options: isEmpty(lookups?.languages)
+        ? undefined
+        : map(lookups?.languages, ({ language, id }) => ({
             label: language,
             value: id
           }))
-        })
     },
     customFields
   } as Record<string, any>;
 
-  if (!!filterFields.length) {
-    customFields.properties = pick(
+  if (!isEmpty(lookups?.filterFields)) {
+    customFields.properties = pickBy(
       customFields["properties"],
-      filterFields
+      (_value, key) =>
+        (lookups?.filterFields ?? []).includes(`customFields.${key}`)
     ) as JsonSchema7["properties"];
+
     schemaProps = {
-      ...pick(schemaProps, filterFields),
+      ...pick(schemaProps, lookups?.filterFields ?? []),
       ...(isEmpty(customFields["properties"]) ? {} : { customFields })
     };
   }
@@ -74,7 +60,7 @@ export const useSchema = ({
   };
 };
 
-export const useUischema = ({ fields, filterFields = [] }: FieldsContext) => {
+export const useUischema = ({ lookups }: FieldsContext) => {
   const schemaElements: ControlElement[] = [
     {
       type: "Control",
@@ -96,31 +82,18 @@ export const useUischema = ({ fields, filterFields = [] }: FieldsContext) => {
       scope: "#/properties/language",
       i18n: "form.language"
     },
-    ...useFieldsUischemaParser(fields)
+    ...useFieldsUischemaParser(lookups?.fields)
   ];
 
   return {
     type: "VerticalLayout",
-    elements: !!filterFields.length
-      ? filter(schemaElements, element =>
-          filterFields.includes(element.scope.split("/").pop() || "")
-        )
+    elements: !isEmpty(lookups?.filterFields)
+      ? filter(schemaElements, element => {
+          const field = element.scope
+            .replace("#/properties/", "")
+            .replace("/properties/", ".");
+          return lookups?.filterFields?.includes(field);
+        })
       : schemaElements
   } as UISchemaElement;
-};
-
-export const useModelParser = (
-  fields: FieldsContext["fields"],
-  filterFields = [],
-  values: FieldsModel
-) => {
-  const model = {
-    firstName: values?.firstName,
-    lastName: values?.lastName,
-    publicName: values?.publicName,
-    language: values?.language,
-    customFields: useFieldsModelParser(fields, get(values, "customFields", {}))
-  };
-
-  return model as FieldsModel;
 };

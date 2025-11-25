@@ -136,15 +136,15 @@ export interface Client {
   /**
    * The client's full name.
    */
-  fullname: IClient["fullname"];
+  fullName: IClient["fullname"];
   /**
    * The client's first name.
    */
-  firstname: IClient["firstname"];
+  firstName: IClient["firstname"];
   /**
    * The client's last name.
    */
-  lastname: IClient["lastname"];
+  lastName: IClient["lastname"];
   /**
    * The client's public name.
    */

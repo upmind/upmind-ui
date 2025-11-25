@@ -26,7 +26,7 @@ export function mapCustomField(raw: ICustomField): CustomField {
     meta: {
       // isHidden: raw.hidden,
       showOnInvoice: raw.show_on_invoice,
-      showOnOrder: raw.show_on_order_form,
+      showOnOrderForm: raw.show_on_order_form,
       isReadOnly: raw.client_readonly,
       isRequired: raw.required,
       isDisabled: raw.client_readonly

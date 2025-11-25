@@ -33,14 +33,17 @@
 // --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { RouterLink } from "vue-router";
 
 // --- internal
-import { ROUTE, useProductCategories } from "@upmind-automation/headless";
+import {
+  ROUTE,
+  useProductCategories,
+  QUERY_PARAMS
+} from "@upmind-automation/headless";
 import config from "../../catalogue.config";
 
 // --- components
-import { Icon, Button, cn, useStyles } from "@upmind-automation/upmind-ui";
+import { Button, cn, useStyles } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { map } from "lodash-es";
@@ -101,7 +104,7 @@ const parentCategory = computed(() => {
       query: {
         sort: props.sort,
         direction: props.direction,
-        catid: parentId
+        [QUERY_PARAMS.CATEGORY_ID]: parentId
       }
     }
   };
@@ -118,7 +121,7 @@ const createCategoryItem = (category: ProductCategory) => ({
     query: {
       sort: props.sort,
       direction: props.direction,
-      catid: category.id
+      [QUERY_PARAMS.CATEGORY_ID]: category.id
     }
   },
   handler: () => {

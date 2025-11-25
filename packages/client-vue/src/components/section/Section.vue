@@ -1,7 +1,11 @@
 <template>
-  <Sections :active="active" :sections="sections">
+  <Sections v-bind="forwarded" :sections="sections">
     <template #default>
       <slot />
+    </template>
+
+    <template #actions>
+      <slot name="actions" />
     </template>
   </Sections>
 </template>
@@ -10,21 +14,31 @@
 // --- external
 import { computed } from "vue";
 
+// --- internal
+import { useForwardPropsEmits } from "@upmind-automation/upmind-ui";
 import Sections from "./Sections.vue";
 
 // --- types
-import type { SectionProps, SectionItem } from "./types";
+import type { SectionItem } from "./types";
 
 // -----------------------------------------------------------------------------
-const props = withDefaults(defineProps<SectionProps>(), {
-  active: true
-});
+const props = defineProps<Omit<SectionItem, "active" | "value">>();
+
+const emits = defineEmits<{
+  reject: [Event];
+  resolve: [Event];
+  click: [Event];
+  action: [{ name: string; event: Event }];
+}>();
 
 const sections = computed<SectionItem[]>(() => [
   {
     label: props.label,
     value: "section",
-    icon: props.icon
+    icon: props.icon,
+    actions: props?.actions
   }
 ]);
+
+const forwarded = useForwardPropsEmits({ active: true }, emits);
 </script>

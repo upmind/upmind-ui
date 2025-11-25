@@ -4,7 +4,7 @@
 
     <pre>{{ meta }}</pre>
 
-    <Alert v-if="!meta.isAvailable" type="error" class="mb-4">
+    <Alert v-if="meta.hasErrors" type="error" class="mb-4">
       <pre>{{ errors }}</pre>
     </Alert>
 
@@ -15,8 +15,11 @@
       :schema="schema"
       :uischema="uischema"
       :touched="meta.showErrors"
-      @reject="clear"
-      @resolve="update"
+      :processing="meta.isProcessing"
+      :loading="meta.isLoading"
+      :actions="actions"
+      @reject="reject"
+      @resolve="resolve"
       @update:modelValue="input"
     />
     <pre>{{ model }}</pre>
@@ -26,7 +29,7 @@
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
-import { computed } from "vue";
+import { computed, onBeforeUnmount } from "vue";
 // import { useRouter } from "vue-router";
 
 // --- internal
@@ -38,12 +41,17 @@ import { Alert } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { FormActionProps } from "@upmind-automation/upmind-ui";
+import { ROUTE } from "../../../router/types";
+import { useRouter } from "vue-router";
 
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{ fields: string[] }>();
 
+// -----------------------------------------------------------------------------
+
 const { t } = useI18n();
+const router = useRouter();
 
 const {
   errors,
@@ -54,7 +62,9 @@ const {
   update,
   input,
   clear,
-  isReady
+  isReady,
+  stop
+
   // edit: doEdit
 } = useProfileFieldsManager({
   filterFields: props.fields
@@ -63,14 +73,36 @@ const {
 const actions = computed((): Record<string, FormActionProps> => {
   return {
     submit: {
-      type: "submit" as "submit",
+      type: "submit",
       label: t("action.apply"),
       size: "lg",
-      variant: "subtle",
+      color: "primary",
       needsValid: true
+    },
+    cancel: {
+      type: "reset",
+      label: t("action.cancel"),
+      size: "lg",
+      variant: "subtle"
     }
   };
 });
 
 await isReady();
+
+function resolve() {
+  update()
+    .then(reject)
+    .catch(() => {
+      // show error?
+    });
+}
+
+function reject() {
+  router.push({ name: ROUTE.ACCOUNT_PROFILE });
+}
+
+onBeforeUnmount(() => {
+  stop();
+});
 </script>

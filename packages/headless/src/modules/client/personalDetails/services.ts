@@ -32,11 +32,10 @@ import type { QueryKey } from "@tanstack/vue-query";
 // -----------------------------------------------------------------------------
 // QUERIES
 const queryKey: QueryKey = ["client"];
-
 async function loadLookups({
   model,
   schema,
-  filterFields = []
+  lookups
 }: FieldsContext): Promise<Partial<FieldsContext>> {
   const { client } = useSession();
   const { isReady, data: customFields } = useClientCustomFields();
@@ -56,26 +55,29 @@ async function loadLookups({
       },
       {} as Record<string, any>
     );
-
     let baseModel: FieldsModel = {
-      firstName: client.value?.firstname,
-      lastName: client.value?.lastname,
+      firstName: client.value?.firstName,
+      lastName: client.value?.lastName,
       publicName: client.value?.publicName,
       language: client.value?.language,
       customFields: customFieldsValues
     };
-    debugger;
 
-    let filteredModel: Partial<FieldsModel> = isEmpty(filterFields)
+    let filteredModel: Partial<FieldsModel> = isEmpty(
+      lookups?.filterFields ?? []
+    )
       ? baseModel
-      : pick(baseModel, filterFields);
+      : pick(baseModel, lookups?.filterFields ?? []);
 
     const safeModel = useModelParser<FieldsModel>(schema, model, filteredModel);
 
     return {
       model: safeModel,
-      baseModel: safeModel,
-      fields: customFields.value
+      baseModel: useModelParser<FieldsModel>(schema, model, baseModel),
+      lookups: {
+        ...lookups,
+        fields: customFields.value
+      }
     } as Partial<FieldsContext>;
   });
 }
@@ -84,7 +86,7 @@ async function loadLookups({
 // MUTATIONS
 
 async function update(data: FieldsModel) {
-  const { meta, client } = useSession();
+  const { client, refresh } = useSession();
   const { put, useUrl } = useQuery();
 
   return put<IClient>({
@@ -96,12 +98,11 @@ async function update(data: FieldsModel) {
     // Parse the updated client
     const client = useClientParser(response);
     if (!client) return;
-
     // ensure we honor the clients locale ( it may have changed )
-    const locale = client.locale;
-    useLocale().setLocale(locale);
-
-    return invalidateQueryByKey(queryKey, { exact: false });
+    useLocale().setLocale(client.locale);
+    invalidateQueryByKey(queryKey, { exact: false });
+    refresh();
+    return client;
   });
 }
 

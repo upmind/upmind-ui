@@ -6,7 +6,7 @@ export const DeclinedCards = [
     cvcCode: "123",
     dialogTitle: "Unable to process payment",
     dialogText:
-      "Your card was declined. Please click below to go to your invoice where you can retry your payment."
+      "We were unable to process your payment for this order, this could be for a number of reasons."
   },
   {
     name: "Insufficient Funds",
@@ -15,7 +15,7 @@ export const DeclinedCards = [
     cvcCode: "123",
     dialogTitle: "Unable to process payment",
     dialogText:
-      "Your card has insufficient funds. Please click below to go to your invoice where you can retry your payment."
+      "We were unable to process your payment for this order, this could be for a number of reasons."
   },
   {
     name: "Lost Card",
@@ -24,7 +24,7 @@ export const DeclinedCards = [
     cvcCode: "123",
     dialogTitle: "Unable to process payment",
     dialogText:
-      "Your card was declined. Please click below to go to your invoice where you can retry your payment."
+      "We were unable to process your payment for this order, this could be for a number of reasons."
   },
   {
     name: "Stolen Card",
@@ -33,7 +33,7 @@ export const DeclinedCards = [
     cvcCode: "123",
     dialogTitle: "Unable to process payment",
     dialogText:
-      "Your card was declined. Please click below to go to your invoice where you can retry your payment."
+      "We were unable to process your payment for this order, this could be for a number of reasons."
   },
   {
     name: "Expired Card",
@@ -42,7 +42,7 @@ export const DeclinedCards = [
     cvcCode: "123",
     dialogTitle: "Unable to process payment",
     dialogText:
-      "Your card has expired. Please click below to go to your invoice where you can retry your payment."
+      "We were unable to process your payment for this order, this could be for a number of reasons."
   },
   {
     name: "Incorrect Cvc",
@@ -51,7 +51,7 @@ export const DeclinedCards = [
     cvcCode: "123",
     dialogTitle: "Unable to process payment",
     dialogText:
-      "Your card's security code is incorrect. Please click below to go to your invoice where you can retry your payment."
+      "We were unable to process your payment for this order, this could be for a number of reasons."
   },
   {
     name: "Processing Error",
@@ -60,7 +60,7 @@ export const DeclinedCards = [
     cvcCode: "123",
     dialogTitle: "Unable to process payment",
     dialogText:
-      "An error occurred while processing your card. Try again in a little bit. Please click below to go to your invoice where you can retry your payment."
+      "We were unable to process your payment for this order, this could be for a number of reasons."
   },
   {
     name: "Exceeded Velocity Error",
@@ -69,6 +69,6 @@ export const DeclinedCards = [
     cvcCode: "123",
     dialogTitle: "Unable to process payment",
     dialogText:
-      "Your card was declined for making repeated attempts too frequently or exceeding its amount limit. Please click below to go to your invoice where you can retry your payment."
+      "We were unable to process your payment for this order, this could be for a number of reasons."
   }
 ];

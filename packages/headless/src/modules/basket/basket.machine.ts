@@ -19,9 +19,9 @@ import {
   isNil,
   reduce,
   forEach,
-  isArray,
   isEmpty,
-  isEqual
+  isEqual,
+  defaultsDeep
 } from "lodash-es";
 import {
   parseBasket,
@@ -333,7 +333,7 @@ export default createMachine(
         id: "checkout",
         always: {
           target: "converting",
-          cond: "hasPaymentDetail"
+          cond: "paymentDetailComplete"
         }
       },
 
@@ -404,30 +404,37 @@ export default createMachine(
       failed: {
         id: "failed"
       },
-      // TODO: actual payment node.
 
       complete: {
-        id: "complete",
-        // restart the baslket process once the order is complete
-        after: {
-          wait: {
-            target: "loading",
-            actions: ["clearBasket", "clearActors"]
-          }
-        }
+        id: "complete"
       }
     },
     on: {
+      // restart the baslket process once the order is complete
+      RESET: {
+        target: "loading",
+        actions: ["clearBasket", "clearActors"]
+      },
+
       REFRESH: [
         {
           target: "#refreshing.processing", // ideally we dont need to refresh cause the response has the updated basket WITH relations
           actions: ["updateBasket", "refreshActors", "setWarningNotes"],
           cond: "hasNewBasket"
         },
+
         {
           target: "#refreshing.processing"
         }
       ],
+
+      /**
+       * PREFRESH is used when we want to update the basket with new data
+       * PRIOR to the main refresh occuring. This is a optimisation to ensure
+       * that any changes are applied immediately, and then the refresh can
+       * confirm/adjust as needed
+       */
+      PREFRESH: [{ actions: ["prefreshActors"] }],
 
       UNAUTHENTICATED: {
         target: "subscribing",
@@ -592,6 +599,21 @@ export default createMachine(
         }
       }),
 
+      prefreshActors: assign({
+        actors: (
+          { actors, basket }: BasketContext,
+          { data }: AnyEventObject
+        ) => {
+          //Refresh any existing actors with the new basket data
+          forEach(actors, actor => {
+            if (actor?.send)
+              actor.send({ type: "REFRESH", data: defaultsDeep(data, basket) });
+          });
+
+          return actors;
+        }
+      }),
+
       clearActors: assign({
         actors: ({ actors }: BasketContext) => {
           forEach(actors, actor => (actor ? stopService(actor) : null));
@@ -696,11 +718,8 @@ export default createMachine(
 
       paymentDetailComplete: (
         { actors }: BasketContext,
-        { data }: AnyEventObject
-      ) =>
-        stateMatches(actors?.paymentDetail, ["complete", "done"]) &&
-        !isNil(data) &&
-        !isEmpty(data),
+        _event: AnyEventObject
+      ) => stateMatches(actors?.paymentDetail, ["complete", "done"]),
 
       paymentDetailConfiguring: ({ actors, paymentDetail }: BasketContext) =>
         stateMatches(actors?.paymentDetail, [
@@ -724,18 +743,8 @@ export default createMachine(
         return hasBilling && hasFields && hasProducts;
       },
 
-      hasPaymentDetail: ({ paymentDetail }: BasketContext) =>
-        !isNil(paymentDetail) && !isEmpty(paymentDetail),
-
-      needsPayment: ({ paymentDetail }: BasketContext) => {
-        const isFree = (paymentDetail?.amount ?? 0) === 0;
-        const manualPayment =
-          paymentDetail?.type === PaymentType.MANUAL_PAYMENT;
-        const payLater = paymentDetail?.type === PaymentType.PAY_LATER;
-
-        return !isFree && !manualPayment && !payLater;
-      },
-
+      needsPayment: ({ paymentDetail }: BasketContext) =>
+        !isEmpty(paymentDetail),
       // --- Item Guards
 
       hasNoProducts: ({ products }) => isEmpty(products),
