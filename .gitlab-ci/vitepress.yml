@@ -60,8 +60,7 @@ variables:
 (docs) stop preview:
   extends: .pnpm
   stage: stop
-  needs:
-    - dependencies
+  needs: []
   environment:
     name: docs/preview/${CI_COMMIT_REF_SLUG}
     action: stop

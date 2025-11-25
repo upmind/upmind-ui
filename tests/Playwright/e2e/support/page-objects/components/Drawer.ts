@@ -1,5 +1,4 @@
 import { Page, Locator } from "@playwright/test";
-import { Checkboxes } from "./Checkboxes";
 
 export class Drawer {
   readonly drawerOverlay: Locator;

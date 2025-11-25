@@ -95,6 +95,16 @@
   "login": {
     "error": "Vi upplevde ett fel när vi försökte logga in dig."
   },
+  "payment_details_id": {
+    "label": ""
+  },
+  "payment_method_type": {
+    "error": "En giltig betalningstyp krävs",
+    "label": "Välj betalningstyp",
+    "partial-payment": "Gör en delbetalning",
+    "pay-later": "Betala senare",
+    "stored-card": "Betala hela beloppet"
+  },
   "phone": {
     "error": "Ett giltigt telefonnummer krävs",
     "label": "Telefon",
@@ -128,7 +138,7 @@
     "label": "Spara betalningsuppgifter"
   },
   "stored_payment_method": {
-    "label": "Välj en av dina sparade betalningsmetoder"
+    "label": ""
   },
   "taxNumber": {
     "label": "Skattenummer",

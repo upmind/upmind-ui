@@ -21,14 +21,17 @@
 <script setup lang="ts">
 // --- external
 import { computed } from "vue";
-import { RouterLink } from "vue-router";
 
 // --- internal
-import { ROUTE, useProductCategories } from "@upmind-automation/headless";
+import {
+  ROUTE,
+  useProductCategories,
+  QUERY_PARAMS
+} from "@upmind-automation/headless";
 import config from "../../catalogue.config";
 
 // --- components
-import { Icon, Button, cn, useStyles } from "@upmind-automation/upmind-ui";
+import { Button, cn, useStyles } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { map } from "lodash-es";
@@ -87,7 +90,7 @@ const items = computed(() => {
     //     query: {
     //       sort: props.sort,
     //       direction: props.direction,
-    //       catid: undefined
+    //       [QUERY_PARAMS.CATEGORY_ID]: undefined
     //     }
     //   }
     // },
@@ -102,7 +105,7 @@ const items = computed(() => {
         query: {
           sort: props.sort,
           direction: props.direction,
-          catid: parentCategory.id
+          [QUERY_PARAMS.CATEGORY_ID]: parentCategory.id
         }
       },
       handler: () => {
@@ -121,7 +124,7 @@ const items = computed(() => {
         query: {
           sort: props.sort,
           direction: props.direction,
-          catid: category.id
+          [QUERY_PARAMS.CATEGORY_ID]: category.id
         }
       },
       handler: () => {

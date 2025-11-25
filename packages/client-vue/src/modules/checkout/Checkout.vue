@@ -15,6 +15,7 @@
 // --- external
 import { watch, computed, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
 
 // --- internal
 import {
@@ -22,7 +23,8 @@ import {
   useBasket,
   useRoutingEngine,
   ROUTE,
-  useDataLayer
+  useDataLayer,
+  QUERY_PARAMS
 } from "@upmind-automation/headless";
 import { useHeader } from "../../components/header/useHeader";
 import { useFooter } from "../../components/footer/useFooter";
@@ -41,12 +43,13 @@ import { isEqual } from "lodash-es";
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
+const router = useRouter();
 // ---
 
 const { navigateNext, navigateBack, isResolved, currentRoute } =
   useRoutingEngine();
 const { isAuthenticated } = useSession();
-const { attempts, meta, isReady, uischema, invoice } = useBasket();
+const { attempts, meta, isReady, uischema, invoice, reset } = useBasket();
 
 const supportedTemplates = {
   [CHECKOUT_TEMPLATE.FULL]: CheckoutFull,
@@ -105,9 +108,11 @@ watch(attempts, (value, oldValue) => {
   }
 });
 
-watch(meta, (value, oldValue) => {
-  if (value.isComplete) {
-    navigateNext(invoice.value);
+watch(meta, ({ isComplete }, { isComplete: wasComplete }) => {
+  if (isComplete && !wasComplete) {
+    navigateNext().finally(() => {
+      reset();
+    });
   }
 });
 

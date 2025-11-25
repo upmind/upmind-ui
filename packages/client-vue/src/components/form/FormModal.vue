@@ -1,0 +1,140 @@
+<template>
+  <Dialog
+    :open="open"
+    :ui-config="{
+      dialog: {
+        content: [styles.modal.content],
+        container: [styles.modal.container],
+        header: [styles.modal.header],
+        footer: [styles.modal.footer]
+      } as any
+    }"
+  >
+    <header :class="styles.modal.header">
+      <h2 v-if="title" :class="styles.modal.title">{{ title }}</h2>
+      <p v-if="description" :class="styles.modal.description">
+        {{ description }}
+      </p>
+    </header>
+
+    <Form
+      :key="locale"
+      v-bind="forwarded"
+      v-model="modelValue"
+      @resolve="doResolve"
+      @reject="doReject"
+    >
+      <template #footer="{ meta }">
+        <slot name="footer" v-bind="{ meta }"></slot>
+      </template>
+      <template #actions="{ meta, doResolve, doReject }">
+        <slot name="actions" v-bind="{ meta, doResolve, doReject }"></slot>
+      </template>
+    </Form>
+
+    <template #footer>
+      <Button
+        :label="label || t('action.confirm')"
+        :disabled="!isValid"
+        size="lg"
+        block
+        @click="doResolve"
+      />
+      <Link
+        :label="t('action.cancel')"
+        :disabled="!isValid"
+        color="muted"
+        size="lg"
+        block
+        class="mx-auto"
+        @click="doReject"
+      />
+    </template>
+  </Dialog>
+</template>
+
+<script lang="ts" setup>
+// --- internal
+
+// --- components
+import {
+  useForwardPropsEmits,
+  Dialog,
+  Button,
+  Link
+} from "@upmind-automation/upmind-ui";
+
+// --- internal
+import Form from "./Form.vue";
+import config from "./form.config";
+
+// --- utils
+import { useStyles } from "@upmind-automation/upmind-ui";
+import { ref } from "vue";
+
+// --- types
+import type {
+  FormFooterProps,
+  FormActionsProps
+} from "@upmind-automation/upmind-ui";
+import { useI18n } from "vue-i18n";
+import type { ComputedRef } from "vue";
+import type { FormModalProps } from "./types";
+
+// -----------------------------------------------------------------------------
+const props = defineProps<FormModalProps>();
+
+const emits = defineEmits<{
+  reject: [];
+  resolve: [Record<string, any>];
+  "update:modelValue": [any];
+  "update:uischema": [any];
+  "update:open": [boolean];
+  valid: [boolean];
+  click: [{ model: Record<string, any>; meta: Record<string, any> }];
+  action: [
+    { name: string; model: Record<string, any>; meta: Record<string, any> }
+  ];
+}>();
+
+const forwarded = useForwardPropsEmits(props, emits);
+
+const open = defineModel<boolean>("open", {});
+
+const modelValue = defineModel<Record<string, any>>("modelValue", {});
+
+const isValid = ref(true);
+
+const { t, locale } = useI18n();
+
+const slots = defineSlots<{
+  footer: FormFooterProps;
+  actions: FormActionsProps;
+}>();
+
+const styles = useStyles(
+  "modal",
+  props,
+  config,
+  props.uiConfig ?? {}
+) as ComputedRef<{
+  modal: {
+    content: string;
+    container: string;
+    header: string;
+    title: string;
+    description: string;
+    footer: string;
+  };
+}>;
+
+function doResolve() {
+  emits("resolve", modelValue.value ?? {});
+  open.value = false;
+}
+
+function doReject() {
+  emits("reject");
+  open.value = false;
+}
+</script>
