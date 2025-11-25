@@ -32,7 +32,6 @@ import type { QueryKey } from "@tanstack/vue-query";
 // -----------------------------------------------------------------------------
 // QUERIES
 const queryKey: QueryKey = ["client"];
-
 async function loadLookups({
   model,
   schema,
@@ -75,7 +74,10 @@ async function loadLookups({
     return {
       model: safeModel,
       baseModel: useModelParser<FieldsModel>(schema, model, baseModel),
-      fields: customFields.value
+      lookups: {
+        ...lookups,
+        fields: customFields.value
+      }
     } as Partial<FieldsContext>;
   });
 }
@@ -96,10 +98,8 @@ async function update(data: FieldsModel) {
     // Parse the updated client
     const client = useClientParser(response);
     if (!client) return;
-
     // ensure we honor the clients locale ( it may have changed )
-    const locale = client.locale;
-    useLocale().setLocale(locale);
+    useLocale().setLocale(client.locale);
     invalidateQueryByKey(queryKey, { exact: false });
     refresh();
     return client;
