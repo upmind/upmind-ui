@@ -17,7 +17,9 @@
             @click.stop.prevent="
               router.push({
                 name: ROUTE.ACCOUNT_PROFILE_EDIT,
-                query: { fields: `${profileField.code}` }
+                query: {
+                  fields: `${profileField.meta.isCustomField ? 'customFields.' : ''}${profileField.code}`
+                }
               })
             "
           />

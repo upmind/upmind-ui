@@ -56,15 +56,13 @@ async function loadLookups({
       },
       {} as Record<string, any>
     );
-
     let baseModel: FieldsModel = {
-      firstName: client.value?.firstname,
-      lastName: client.value?.lastname,
+      firstName: client.value?.firstName,
+      lastName: client.value?.lastName,
       publicName: client.value?.publicName,
       language: client.value?.language,
       customFields: customFieldsValues
     };
-    debugger;
 
     let filteredModel: Partial<FieldsModel> = isEmpty(filterFields)
       ? baseModel
@@ -74,7 +72,7 @@ async function loadLookups({
 
     return {
       model: safeModel,
-      baseModel: safeModel,
+      baseModel: useModelParser<FieldsModel>(schema, model, baseModel),
       fields: customFields.value
     } as Partial<FieldsContext>;
   });
@@ -84,7 +82,7 @@ async function loadLookups({
 // MUTATIONS
 
 async function update(data: FieldsModel) {
-  const { meta, client } = useSession();
+  const { client } = useSession();
   const { put, useUrl } = useQuery();
 
   return put<IClient>({
