@@ -6,9 +6,8 @@
   >
     <NumberFieldContent>
       <NumberFieldDecrement
-        class="control-radius-l"
         :size="props.size"
-        :class="styles.numberField.input"
+        :class="styles.numberField.inputLeft"
       >
         <NumberFieldIcon icon="minus" :variant="props.variant" />
       </NumberFieldDecrement>
@@ -19,9 +18,8 @@
         data-testid="quantity-input"
       />
       <NumberFieldIncrement
-        class="control-radius-r"
         :size="props.size"
-        :class="styles.numberField.input"
+        :class="styles.numberField.inputRight"
       >
         <NumberFieldIcon icon="plus" :variant="props.variant" />
       </NumberFieldIncrement>
@@ -118,7 +116,8 @@ const styles = useStyles(
 ) as ComputedRef<{
   numberField: {
     root: string;
-    input: string;
+    inputLeft: string;
+    inputRight: string;
     field: string;
   };
 }>;

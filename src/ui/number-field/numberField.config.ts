@@ -158,49 +158,42 @@ export const numberFieldVariants = cva(
   }
 );
 
-export const numberFieldInputVariants = cva(
-  "bg-control-surface shadow-control-default hover:shadow-control-hover font-normal",
-  {
-    variants: {
-      variant: {
-        flat: "[&>i]:disabled:text-muted [&>i]:size-lh cursor-pointer transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-20 [&>i]:flex [&>i]:items-center [&>i]:justify-center",
-        minimal: "flex h-5 w-5 items-center justify-center p-0"
+const inputVariant = (radius: "control-radius-r" | "control-radius-l") =>
+  cva(
+    "bg-control-surface shadow-control-default hover:shadow-control-hover font-normal",
+    {
+      variants: {
+        variant: {
+          flat: `[&>i]:disabled:text-muted [&>i]:size-lh ${radius} cursor-pointer transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-20 [&>i]:flex [&>i]:items-center [&>i]:justify-center`,
+          minimal: "control-radius flex h-5 w-5 items-center justify-center p-0"
+        },
+        size: {
+          sm: "",
+          md: "",
+          lg: ""
+        }
       },
-      size: {
-        sm: "",
-        md: "",
-        lg: ""
+      compoundVariants: [
+        { variant: "flat", size: "sm", class: "w-1/3 py-2" },
+        { variant: "flat", size: "md", class: "w-1/3 py-2" },
+        { variant: "flat", size: "lg", class: "w-1/3 py-2" }
+      ],
+      defaultVariants: {
+        variant: "flat",
+        size: "md"
       }
-    },
-    compoundVariants: [
-      {
-        variant: "flat",
-        size: "sm",
-        class: "w-1/3 py-2"
-      },
-      {
-        variant: "flat",
-        size: "md",
-        class: "w-1/3 py-2"
-      },
-      {
-        variant: "flat",
-        size: "lg",
-        class: "w-1/3 py-2"
-      }
-    ],
-    defaultVariants: {
-      variant: "flat",
-      size: "md"
     }
-  }
-);
+  );
+
+export const numberFieldInputLeftVariants = inputVariant("control-radius-l");
+export const numberFieldInputRightVariants = inputVariant("control-radius-r");
 
 // -----------------------------------------------------------------------------
 export default {
   numberField: {
     field: numberFieldVariants,
     root: numberFieldRootVariants,
-    input: numberFieldInputVariants
+    inputLeft: numberFieldInputLeftVariants,
+    inputRight: numberFieldInputRightVariants
   }
 };
