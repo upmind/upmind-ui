@@ -26,7 +26,7 @@ import { useRoutingEngine } from "@upmind-automation/headless";
 
 // --- components
 import { Layout } from "@upmind-automation/client-vue";
-import ClientProfileFieldsEdit from "../../../components/account/ClientProfileFieldsEdit.vue";
+import ClientProfileFieldsEdit from "./ClientProfileFieldsEdit.vue";
 
 // --- types
 import { ROUTE } from "../../../router/types";

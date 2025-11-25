@@ -76,11 +76,15 @@ export enum ROUTE {
    * The route for the notes section of the client account.
    */
   ACCOUNT_NOTES = "account.notes",
-  // --- account billing routes
+  // --- billing routes
   /**
-   * The route for client account billing.
+   * The route for client billing.
    */
-  ACCOUNT_BILLING = "account.billing",
+  BILLING = "billing",
+  /**
+   * The route for client billing details.
+   */
+  BILLING_DETAILS = "billing.details",
   // --- shop routes
   /**
    * The route for the main product catalogue or shop page.
