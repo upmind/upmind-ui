@@ -1,4 +1,5 @@
 import { Locator, Page } from "@playwright/test";
+import { kebabCase } from "../../utils/functions/helpers";
 
 export class RadioButtons {
   readonly radioGroup: Locator;
@@ -13,5 +14,12 @@ export class RadioButtons {
     const getGroup = this.radioGroup.nth(group);
     const getButton = getGroup.locator(this.radioOption).nth(option);
     return getButton;
+  }
+
+  async selectRadioOption(option: string) {
+    const radioOption = this.radioGroup.getByTestId(
+      `radio-card-${kebabCase(option)}`
+    );
+    await radioOption.click();
   }
 }

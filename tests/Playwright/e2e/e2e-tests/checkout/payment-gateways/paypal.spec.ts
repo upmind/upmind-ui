@@ -50,7 +50,7 @@ test.describe("Checkout with PayPal", () => {
     );
     await page.goto(URLs.checkout);
     // await page.waitForLoadState('networkidle');
-    await checkout.selectPaymentMethod("PayPal Express");
+    await checkout.selectPaymentMethod("Pay-Pal Express");
     await checkout.clickPlaceOrderButton();
     await page.waitForURL(
       "https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&useraction=commit**"

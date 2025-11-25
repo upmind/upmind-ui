@@ -95,6 +95,16 @@
   "login": {
     "error": "Am întâmpinat o eroare la încercarea de a vă conecta."
   },
+  "payment_details_id": {
+    "label": ""
+  },
+  "payment_method_type": {
+    "error": "Este necesar un tip de plată valid",
+    "label": "Selectați tipul de plată",
+    "partial-payment": "Efectuează o plată parțială",
+    "pay-later": "Plătește mai târziu",
+    "stored-card": "Plătește soldul integral"
+  },
   "phone": {
     "error": "Este necesar un număr de telefon valid",
     "label": "Telefon",
@@ -128,7 +138,7 @@
     "label": "Salvați detaliile de plată"
   },
   "stored_payment_method": {
-    "label": "Selectați una dintre metodele de plată stocate"
+    "label": ""
   },
   "taxNumber": {
     "label": "Cod fiscal",

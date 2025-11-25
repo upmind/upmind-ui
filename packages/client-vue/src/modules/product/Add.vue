@@ -39,7 +39,7 @@
         </form>
 
         <template v-if="!configMeta.headerBreadcrumbs" #action>
-          <Share class="hidden md:flex" size="inherit" />
+          <Share class="hidden md:flex" size="sm" />
         </template>
       </Section>
     </template>
@@ -95,7 +95,8 @@ import {
   useBrand,
   useProductConfig,
   ROUTE,
-  type ProductBreadcrumb
+  type ProductBreadcrumb,
+  QUERY_PARAMS
 } from "@upmind-automation/headless";
 import config from "./product.config";
 
@@ -198,7 +199,10 @@ const items = computed(() => {
       items.push({
         label: category.label,
         to: !hasStorefront.value
-          ? { name: ROUTE.CATALOGUE, query: { catid: category.id } }
+          ? {
+              name: ROUTE.CATALOGUE,
+              query: { [QUERY_PARAMS.CATEGORY_ID]: category.id }
+            }
           : undefined,
         current: uiCart.value?.catalogue?.disabled || hasStorefront.value
       });
@@ -217,7 +221,10 @@ const items = computed(() => {
       items.push({
         label: category.label,
         to: !hasStorefront.value
-          ? { name: ROUTE.CATALOGUE, query: { catid: category.id } }
+          ? {
+              name: ROUTE.CATALOGUE,
+              query: { [QUERY_PARAMS.CATEGORY_ID]: category.id }
+            }
           : undefined
       });
     }
