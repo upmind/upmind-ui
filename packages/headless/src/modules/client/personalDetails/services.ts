@@ -36,7 +36,7 @@ const queryKey: QueryKey = ["client"];
 async function loadLookups({
   model,
   schema,
-  filterFields = []
+  lookups
 }: FieldsContext): Promise<Partial<FieldsContext>> {
   const { client } = useSession();
   const { isReady, data: customFields } = useClientCustomFields();
@@ -64,9 +64,11 @@ async function loadLookups({
       customFields: customFieldsValues
     };
 
-    let filteredModel: Partial<FieldsModel> = isEmpty(filterFields)
+    let filteredModel: Partial<FieldsModel> = isEmpty(
+      lookups?.filterFields ?? []
+    )
       ? baseModel
-      : pick(baseModel, filterFields);
+      : pick(baseModel, lookups?.filterFields ?? []);
 
     const safeModel = useModelParser<FieldsModel>(schema, model, filteredModel);
 

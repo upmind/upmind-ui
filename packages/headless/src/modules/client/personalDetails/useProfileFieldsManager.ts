@@ -1,11 +1,7 @@
 // --- external
+import { computed } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
 import { interpret } from "xstate";
-import { useRouter } from "vue-router";
-import {
-  computed
-  //  toRaw, unref
-} from "vue";
 import { useI18n } from "vue-i18n";
 import { useActor } from "@xstate/vue";
 
@@ -28,11 +24,10 @@ import {
   stopService
 } from "../../../utils";
 import dataManagerMachine from "../../../utils/dataManager.machine";
-import { ROUTE, useSession, useBrand } from "../..";
-import { debounce, isEqual, isEmpty, get } from "lodash-es";
+import { useSession, useBrand, CustomField } from "../..";
+import { debounce, isEqual, get } from "lodash-es";
 
 // --- types
-// import type { ActorRef } from "xstate";
 import { FieldsContext, FieldsModel } from "./types";
 import type { ClientItemContext } from "../types";
 
@@ -66,8 +61,10 @@ export const useProfileFieldsManager = ({
       })
       .withContext({
         allowMultipleEdits,
-        filterFields,
-        languages: languages.value
+        lookups: {
+          filterFields,
+          languages: languages.value
+        }
       }),
     {
       id: "client-profile-fields",
@@ -80,7 +77,7 @@ export const useProfileFieldsManager = ({
   // the clientId is required to bring the machine into the available state
   isAuthenticated().then(client => {
     if (client?.id && !contextMatches(state, "id")) {
-      send({ type: "REFRESH", data: { id: client.id } });
+      send({ type: "REFRESH", data: { id: client.id, clientId: client.id } });
     }
   });
 
@@ -141,7 +138,7 @@ export const useProfileFieldsManager = ({
   // --- context
 
   const context = useContext<FieldsContext>(service);
-  const fields = useContext<FieldsContext["fields"]>(service, "fields");
+  const fields = useContext<CustomField[]>(service, "lookups.fields");
   const errors = useContext<FieldsContext["error"]>(service, "error");
   const model = useContext<FieldsContext["model"]>(service, "model");
   const schema = useContext<FieldsContext["schema"]>(service, "schema");
@@ -169,9 +166,7 @@ export const useProfileFieldsManager = ({
       });
   }
 
-  async function update(
-    value?: FieldsModel | Record<string, any>
-  ): Promise<FieldsModel> {
+  async function update(): Promise<FieldsModel> {
     send({ type: "UPDATE" });
 
     // we have to ensure the update is processed and the state is either processed or available.error
