@@ -41,7 +41,7 @@ import { Alert } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { FormActionProps } from "@upmind-automation/upmind-ui";
-import { ROUTE } from "../../router/types";
+import { ROUTE } from "../../../router/types";
 import { useRouter } from "vue-router";
 
 // -----------------------------------------------------------------------------

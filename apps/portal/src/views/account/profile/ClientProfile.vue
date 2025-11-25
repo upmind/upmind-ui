@@ -36,7 +36,7 @@ import { useRouter } from "vue-router";
 
 // --- internal
 import { useProfileDetails } from "@upmind-automation/headless";
-import { ROUTE } from "../../router/types";
+import { ROUTE } from "../../../router/types";
 
 // --- components
 import { UpmSection } from "@upmind-automation/client-vue";

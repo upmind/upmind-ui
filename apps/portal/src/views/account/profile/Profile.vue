@@ -26,7 +26,7 @@ import { useRoutingEngine } from "@upmind-automation/headless";
 
 // --- components
 import { Layout } from "@upmind-automation/client-vue";
-import ClientProfile from "../../../components/account/ClientProfile.vue";
+import ClientProfile from "./ClientProfile.vue";
 
 // --- types
 import { ROUTE } from "../../../router/types";
