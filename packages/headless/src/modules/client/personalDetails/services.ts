@@ -2,15 +2,12 @@
 
 // --- internal
 import {
-  useQuery,
-  // useBrand,
-  useSystem,
-  useSession,
-  // useFeedback,
-  type QueryParams,
+  invalidateQueryByKey,
+  useClientCustomFields,
   useI18n,
-  CustomField,
-  invalidateQueryByKey
+  useLocale,
+  useQuery,
+  useSession
 } from "../..";
 
 // --- utils
@@ -21,17 +18,16 @@ import {
   responseCodes,
   useModelParser
 } from "../../../utils";
-
-import { get, find, pick, reduce, set, isEmpty } from "lodash-es";
+import { mapIProfileFields } from "./mappers";
+import { useClientParser } from "../../session/utils";
+import { get, find, pick, reduce, set, isEmpty, omit, omitBy } from "lodash-es";
 
 // --- types
 
-import { useClientCustomFields } from "../customFields/useClientCustomFields";
 import type { AnyEventObject } from "xstate";
 import type { FieldsContext, FieldsModel } from "./types";
-import { ICustomField } from "@upmind-automation/types";
+import { IClient } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/vue-query";
-import { mapIProfileFields } from "./mappers";
 
 // -----------------------------------------------------------------------------
 // QUERIES
@@ -64,22 +60,17 @@ async function loadLookups({
     let baseModel: FieldsModel = {
       firstName: client.value?.firstname,
       lastName: client.value?.lastname,
-      publicName: client.value?.public_name, // change
-      language: client.value?.interface_language_id, // change
+      publicName: client.value?.publicName,
+      language: client.value?.language,
       customFields: customFieldsValues
     };
+    debugger;
 
-    if (filterFields.length > 0) {
-      customFieldsValues = pick(customFieldsValues, filterFields);
-      baseModel = {
-        ...pick(baseModel, filterFields),
-        ...(isEmpty(customFieldsValues)
-          ? {}
-          : { customFields: customFieldsValues })
-      } as FieldsModel;
-    }
+    let filteredModel: Partial<FieldsModel> = isEmpty(filterFields)
+      ? baseModel
+      : pick(baseModel, filterFields);
 
-    const safeModel = useModelParser<FieldsModel>(schema, model, baseModel);
+    const safeModel = useModelParser<FieldsModel>(schema, model, filteredModel);
 
     return {
       model: safeModel,
@@ -96,12 +87,20 @@ async function update(data: FieldsModel) {
   const { meta, client } = useSession();
   const { put, useUrl } = useQuery();
 
-  return put<ICustomField>({
+  return put<IClient>({
     url: useUrl(`clients/${client.value?.id}`),
     data: mapIProfileFields(data),
-    withAccessToken: true
-  }).then(() => {
-    // sessionChange
+    withAccessToken: true,
+    withoutLocale: true
+  }).then(response => {
+    // Parse the updated client
+    const client = useClientParser(response);
+    if (!client) return;
+
+    // ensure we honor the clients locale ( it may have changed )
+    const locale = client.locale;
+    useLocale().setLocale(locale);
+
     return invalidateQueryByKey(queryKey, { exact: false });
   });
 }

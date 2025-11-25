@@ -42,7 +42,7 @@ async function load(_context: ClientContext, _event: any) {
         // "enabled_modules"
       ].join()
     }),
-    queryKey: ["session", "self"],
+    queryKey: ["client"],
     withAccessToken: true
   });
 }
