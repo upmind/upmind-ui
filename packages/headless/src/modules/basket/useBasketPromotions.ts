@@ -48,7 +48,7 @@ export const useBasketPromotions = () => {
     }).then(service =>
       waitFor(
         service as ActorRef<any>,
-        state => !stateMatches(state, "loading"),
+        state => !stateMatches(state, ["loading", "checking"]),
         { timeout: Infinity }
       ).then(state => {
         if (stateMatches(state, ["error"])) return false;

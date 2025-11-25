@@ -18,13 +18,19 @@ import {
   useContextActor
 } from "../../utils";
 import { useBrand } from "../brand";
-import { isEmpty, isEqual, isNil, filter, some, reject } from "lodash-es";
+import { isEmpty, isEqual, isNil, filter, includes, some, gt } from "lodash-es";
 
 // --- types
 import type { ActorRef } from "xstate";
 import type { ComputedRef } from "vue";
 import type { Actor, ErrorObject } from "../../utils";
-import type { PaymentDetailModel, PaymentDetailsContext } from "./types";
+import type {
+  PaymentDetail,
+  PaymentDetailModel,
+  PaymentDetailsContext
+} from "./types";
+import { GatewayTypes, PaymentType } from "@upmind-automation/types";
+import { useSchemaDefinitions, useUischemaDefinitions } from "./schemas";
 
 // -----------------------------------------------------------------------------
 
@@ -64,20 +70,53 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
       !!actor.value && stateMatches(actor, ["available", "complete"]),
     isLoading: !actor.value || stateMatches(actor, ["loading"]),
     hasGateway: contextMatches(actor, ["gatewayHelper"]),
-    hasGateways: contextMatches(actor, ["gateways"]),
+    hasGateways: !isEmpty(gateways.value),
     hasStoredPaymentMethods: !isEmpty(storedPaymentMethods.value),
+    hasSelectedPaymentMethod: !isEmpty(
+      contextValue<PaymentDetailModel>(actor, "model.payment_details_id")
+    ),
     hasUnsupportedPaymentMethods:
-      (storedPaymentMethods.value.length ?? 0) <
-      (allStoredPaymentMethods.value?.length ?? 0),
-
-    hasErrors: stateMatches(actor, ["error"]),
+      (contextValue<PaymentDetail[]>(actor, ["raw.storedPaymentMethods"])
+        ?.length ?? 0) < (storedPaymentMethods.value?.length ?? 0),
+    hasAccountCredit: gt(accountCredit.value?.total.value, 0),
+    hasErrors: !isEmpty(errors.value),
     isProcessing: stateMatches(actor, ["checking", "processing"]),
-    isValid: stateMatches(actor, ["valid"]),
+    isValid: gateway.value
+      ? stateMatches(gateway.value, ["available.valid"])
+      : stateMatches(actor, ["available.valid"]),
+
     isDirty: !isEmpty(
       contextValue<PaymentDetailsContext["model"]>(actor, "model")
     ),
 
     isFree: !contextValue(actor, "amount"),
+
+    isPayLater: contextMatches(actor, "model.type", PaymentType.PAY_LATER),
+
+    isPayOffline:
+      contextMatches(actor, "model.type", PaymentType.PAY_LATER) ||
+      contextMatches(gateway, "supported", false) ||
+      includes(
+        [GatewayTypes.OFFLINE, GatewayTypes.BANK_TRANSFER],
+        contextValue(gateway, "gateway.type")
+      ),
+
+    needsPayment:
+      !!contextValue(actor, "model.amount", 0)! &&
+      !isEqual(
+        contextValue(actor, "model.amount", 0)!,
+        contextValue(actor, "model.wallet_amount", 0)!
+      ) &&
+      includes(
+        [PaymentType.PARTIAL_PAYMENT, PaymentType.PAY_IN_FULL],
+        contextValue(actor, "model.type")
+      ),
+
+    canMakePartialPayment: some(
+      contextValue<PaymentType[]>(actor, "lookups.paymentTypes", []),
+      value => value === PaymentType.PARTIAL_PAYMENT
+    ),
+
     isComplete:
       !contextValue(actor, "amount") ||
       stateValue(actor, "done", false) ||
@@ -88,15 +127,19 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
 
   const context = useContext<PaymentDetailsContext>(actor);
   const gateway = useContextActor(actor, "gatewayHelper");
-  const gateways = useContext<PaymentDetailsContext["gateways"]>(
+  const gateways = useContext<PaymentDetailsContext["lookups"]["gateways"]>(
     actor,
-    "gateways"
+    "lookups.gateways"
   );
   const errors = useContext<PaymentDetailsContext["error"]>(actor, "error");
   const validationErrors = useContext<ErrorObject[]>(actor, "error.data");
 
   // ---
   const amount = useContext<PaymentDetailsContext["amount"]>(actor, "amount");
+  const amountsFormatted = useContext<
+    PaymentDetailsContext["lookups"]["amountsFormatted"]
+  >(actor, "lookups.amountsFormatted");
+
   const currency = useContext<PaymentDetailsContext["currency"]>(
     actor,
     "currency"
@@ -106,24 +149,145 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
     "address"
   );
   const model = useContext<PaymentDetailsContext["model"]>(actor, "model");
+
   const schema = useContext<PaymentDetailsContext["schema"]>(actor, "schema");
+
+  const schemaStoredPaymentMethods = computed(() => ({
+    type: "object",
+    definitions: useSchemaDefinitions(
+      contextValue<PaymentDetailsContext>(actor)!
+    ),
+    properties: {
+      // amount: { $ref: "#/definitions/amount" },
+      // wallet_amount: { $ref: "#/definitions/wallet_amount" },
+      // gateway_id: { $ref: "#/definitions/gateway_id" },
+      payment_details_id: { $ref: "#/definitions/payment_details_id" }
+    }
+  }));
+
+  const schemaGateways = computed(() => ({
+    type: "object",
+    definitions: useSchemaDefinitions(
+      contextValue<PaymentDetailsContext>(actor)!
+    ),
+    properties: {
+      gateway_id: { $ref: "#/definitions/gateway_id" }
+    }
+  }));
+
+  const schemaAmount = computed(() => ({
+    type: "object",
+    definitions: useSchemaDefinitions(
+      contextValue<PaymentDetailsContext>(actor)!
+    ),
+    properties: {
+      type: {
+        type: "string",
+        const: PaymentType.PARTIAL_PAYMENT
+      },
+      amount: { $ref: "#/definitions/amount" },
+      gateway_id: { $ref: "#/definitions/gateway_id" }
+    }
+  }));
+
+  const schemaAmountCredit = computed(() => ({
+    type: "object",
+    definitions: useSchemaDefinitions(
+      contextValue<PaymentDetailsContext>(actor)!
+    ),
+    properties: {
+      wallet_amount: { $ref: "#/definitions/wallet_amount" }
+    }
+  }));
+
   const uischema = useContext<PaymentDetailsContext["uischema"]>(
     actor,
     "uischema"
   );
 
-  const allStoredPaymentMethods = useContext<
-    PaymentDetailsContext["storedPaymentMethods"]
-  >(actor, "storedPaymentMethods", []);
+  const uischemaStoredPaymentMethods = computed(() => ({
+    type: "VerticalLayout",
+    elements: [
+      useUischemaDefinitions(contextValue<PaymentDetailsContext>(actor)!)
+        .payment_details_id
+    ]
+  }));
 
-  const storedPaymentMethods = computed(() =>
-    filter(allStoredPaymentMethods.value, method => method?.meta.isSupported)
-  );
+  const uischemaGateways = computed(() => ({
+    type: "VerticalLayout",
+    elements: [
+      useUischemaDefinitions(contextValue<PaymentDetailsContext>(actor)!)
+        .gateway_id
+    ]
+  }));
+
+  const uischemaAmount = computed(() => ({
+    type: "VerticalLayout",
+    elements: [
+      {
+        type: "Control",
+        scope: "#/properties/amount",
+        options: {
+          type: "currency",
+          currency: currency.value?.code,
+          noLabel: true
+        }
+      }
+    ]
+  }));
+
+  const uischemaAmountCredit = computed(() => ({
+    type: "VerticalLayout",
+    elements: [
+      useUischemaDefinitions(contextValue<PaymentDetailsContext>(actor)!)
+        .wallet_amount
+    ]
+  }));
+  const storedPaymentMethods = useContext<
+    PaymentDetailsContext["lookups"]["storedPaymentMethods"]
+  >(actor, "lookups.storedPaymentMethods", []);
+
+  const accountCredit = useContext<
+    PaymentDetailsContext["lookups"]["accountCredit"]
+  >(actor, "lookups.accountCredit");
 
   const { uiCart } = useBrand();
   const clickwrap = computed(() => uiCart.value?.clickwrap_disclaimer);
 
   // --- methods
+
+  async function setAmountCredit(value: PaymentDetailModel["wallet_amount"]) {
+    actor.value?.send({
+      type: "SET_WALLET_AMOUNT",
+      data: { ...toRaw(unref(model)), wallet_amount: value }
+    });
+  }
+
+  async function setAmount(value: PaymentDetailModel["wallet_amount"]) {
+    actor.value?.send({
+      type: "SET_PARTIAL_PAYMENT",
+      data: {
+        amount: value,
+        type: PaymentType.PARTIAL_PAYMENT
+      }
+    });
+  }
+
+  async function setGateway(value: PaymentDetailModel["gateway_id"] | null) {
+    actor.value?.send({
+      type: "SET",
+      data: { ...toRaw(unref(model)), gateway_id: value }
+    });
+  }
+
+  async function setStoredPaymentMethod(
+    value: PaymentDetailModel["payment_details_id"]
+  ) {
+    actor.value?.send({
+      type: "SET",
+      data: { ...toRaw(unref(model)), payment_details_id: value }
+    });
+  }
 
   async function input(value: PaymentDetailModel) {
     actor.value?.send({ type: "SET", data: toRaw(unref(value)) });
@@ -218,6 +382,9 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
     /** The stored payment methods available. */
     storedPaymentMethods,
 
+    /** The account credit details. */
+    accountCredit,
+
     /** Any error returned by the payment details actor. */
     errors,
 
@@ -232,6 +399,9 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
     /** The payment amount, if applicable. */
     amount,
 
+    /** The formatted payment and wallet amounts as per locale and currency. */
+    amountsFormatted,
+
     /** The payment currency */
     currency,
 
@@ -244,8 +414,20 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
     /** The payment details schema. */
     schema,
 
+    /** Syntactic Sugar for partial forms */
+    schemaStoredPaymentMethods,
+    schemaGateways,
+    schemaAmount,
+    schemaAmountCredit,
+
     /** The payment details UI schema. */
     uischema,
+
+    /** Syntactic Sugar for partial forms */
+    uischemaStoredPaymentMethods,
+    uischemaGateways,
+    uischemaAmount,
+    uischemaAmountCredit,
 
     /** The payment details clickwrap disclaimer. */
     clickwrap,
@@ -261,6 +443,36 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
      * @returns {void} Does not return anything.
      */
     input,
+
+    /**
+     * Updates the payment details with the specified amount.
+     * @param {number} value The amount to set for the payment details.
+     * @returns {void} Does not return anything.
+     *
+     */
+    setAmount,
+
+    /**
+     * Updates the payment details with the specified wallet amount ( ie. account credit ) to be used for this payment.
+     * @param {number} value The wallet amount to set for the payment details.
+     * @returns {void} Does not return anything.
+     *
+     */
+    setAmountCredit,
+
+    /**
+     * Updates the payment details with the specified gateway ID.
+     * @param {string | null} value The gateway ID to set for the payment details.
+     * @returns {void} Does not return anything.
+     */
+    setGateway,
+
+    /**
+     * Updates the payment details with the specified stored payment method ID.
+     * @param {string | null} value The stored payment method ID to set for the payment details.
+     * @returns {void} Does not return anything.
+     */
+    setStoredPaymentMethod,
 
     /**
      * Updates the payment details if the model has changed.

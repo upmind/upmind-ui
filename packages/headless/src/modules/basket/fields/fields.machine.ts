@@ -72,7 +72,8 @@ export default createMachine(
                   cond: "isDirty"
                 },
                 {
-                  target: "#complete"
+                  target: "#complete",
+                  actions: ["clearAutoUpdate"]
                 }
               ],
               onError: {

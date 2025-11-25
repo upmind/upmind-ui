@@ -17,6 +17,7 @@ import { ROUTE } from "../types";
 import type { Flow, Route } from "../types";
 import { stateMatches } from "../../../utils";
 import { getCheckoutFlowTargets } from "./checkout";
+import { QUERY_PARAMS } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -48,7 +49,7 @@ export const useProductFlows = () => {
         if (isEmpty(product?.service)) {
           return {
             name: ROUTE.PRODUCT_NOT_FOUND,
-            query: { pid }
+            query: { [QUERY_PARAMS.PRODUCT_ID]: pid }
           };
         }
         return product
@@ -61,7 +62,7 @@ export const useProductFlows = () => {
           .catch(() => {
             return {
               name: ROUTE.PRODUCT_ADD,
-              params: { pid }
+              params: { [QUERY_PARAMS.PRODUCT_ID]: pid }
             };
           });
       },

@@ -139,9 +139,9 @@ import { type ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { meta, isReady, count, summary } = useBasket();
+const { meta, count, summary } = useBasket();
 const { storefrontRoute } = useBrand();
-const { currentRoute } = useRoutingEngine();
+const { currentRoute, isResolved, isReady, navigateBack } = useRoutingEngine();
 const route = useRoute();
 
 const {
@@ -156,7 +156,10 @@ const {
 
 const open = ref(false);
 
-await isReady();
+await isResolved(ROUTE.BASKET);
+await isReady().then(() => {
+  if (!meta.value.hasProducts) navigateBack();
+});
 
 const layout = computed(() => {
   return currentRoute.value?.meta?.template;

@@ -1,177 +1,143 @@
 <template>
-  <Loading :active="!meta.isAvailable">
-    <Accordion
-      v-show="meta.isAvailable && !meta.isFree && meta.hasGateways"
-      type="multiple"
-      :class="styles.checkout.accordion.root"
-      collapsible
+  <Section
+    id="payment-details"
+    value="payment-details"
+    icon="wallet-02"
+    :label="
+      t('cart.payment_details', {
+        amount: amountsFormatted?.amount
+      })
+    "
+  >
+    <template #actions>
+      <PaymentAmount
+        v-if="!meta.isFree && meta.canMakePartialPayment"
+        :processing="meta.isProcessing"
+        :modelValue="model?.amount"
+        :currency="currency"
+        :schema="schemaAmount"
+        :uischema="uischemaAmount"
+        @update:modelValue="setAmount"
+      />
+    </template>
+
+    <Loading
+      :active="!meta.isAvailable"
+      :class="styles.checkout.root"
+      v-auto-animate
     >
-      <!-- Stored Payment Methods -->
-      <component
-        :is="props.as"
-        :class="[!props.as && styles.checkout.accordion.card, props.class]"
-        v-if="meta.hasStoredPaymentMethods"
-      >
-        <AccordionItem
-          value="stored"
-          :class="styles.checkout.accordion.item"
-          :open="!model?.gateway_id"
-          :disabled="!model?.gateway_id"
-          asChild
-        >
-          <AccordionTrigger
-            :class="styles.checkout.accordion.trigger.root"
-            :open="!model?.gateway_id"
-            @click.stop="clearGateway()"
-          >
-            <header :class="styles.checkout.accordion.trigger.header">
-              <h5 :class="styles.checkout.title">
-                {{ t("cart.pay_with_stored") }}
-              </h5>
-            </header>
+      <!-- Free -->
+      <PaymentNotRequired
+        v-if="meta.isAvailable && meta.isFree"
+        v-bind="props"
+        @resolve="checkout"
+      />
 
-            <template #icon>
-              <Icon
-                icon="chevron-down"
-                size="xs"
-                :class="[
-                  styles.checkout.accordion.trigger.icon,
-                  {
-                    'rotate-180': !model?.gateway_id
-                  }
-                ]"
-              />
-            </template>
-          </AccordionTrigger>
+      <!-- Needs Payment -->
+      <template v-if="meta.isAvailable && !meta.isFree">
+        <!-- Account Credit -->
+        <AccountCredit
+          v-if="meta.hasAccountCredit"
+          v-bind="props"
+          :processing="meta.isProcessing"
+          :modelValue="model?.wallet_amount ?? 0"
+          :amount="model?.amount ?? 0"
+          :amounts-formatted="amountsFormatted"
+          :accountCredit="accountCredit!"
+          :currency="currency"
+          :schema="schemaAmountCredit"
+          :uischema="uischemaAmountCredit"
+          @update:modelValue="setAmountCredit"
+        />
 
-          <AccordionContent
-            :class="styles.checkout.accordion.content"
-            :contentClass="styles.checkout.accordion.contentInner"
-            force-mount
-          >
-            <StoredPayments
-              v-if="!model?.gateway_id && currency?.code"
-              :key="currency.code"
-              @checkout="handleCheckout"
-              :class="styles.checkout.accordion.loading"
-            />
-          </AccordionContent>
-        </AccordionItem>
-      </component>
+        <!-- Stored Payments -->
+        <StoredPaymentMethods
+          v-if="
+            meta.needsPayment &&
+            meta.hasStoredPaymentMethods &&
+            !meta.hasGateway
+          "
+          v-bind="props"
+          :errors="errors"
+          :filtered="meta.hasUnsupportedPaymentMethods"
+          :processing="meta.isProcessing"
+          :schema="schemaStoredPaymentMethods"
+          :uischema="uischemaStoredPaymentMethods"
+          :modelValue="model?.payment_details_id"
+          @update:modelValue="setStoredPaymentMethod"
+        />
 
-      <!-- Gateways -->
-      <template v-for="item in gateways" :key="item.id">
-        <component
-          :is="props.as"
-          :class="[!props.as && styles.checkout.accordion.card, props.class]"
-        >
-          <AccordionItem
-            :value="item.gateway_id"
-            :class="styles.checkout.accordion.item"
-            :open="item.gateway_id === model?.gateway_id"
-            :disabled="item.gateway_id === model?.gateway_id"
-            asChild
-          >
-            <AccordionTrigger
-              :class="styles.checkout.accordion.trigger.root"
-              @click.stop="selectGateway(item.gateway_id)"
-              :open="item.gateway_id === model?.gateway_id"
-            >
-              <header :class="styles.checkout.accordion.trigger.header">
-                <h5 :class="styles.checkout.title">
-                  {{ item.gateway.name }}
-                </h5>
+        <!-- Selected Payment Gateway -->
+        <PaymentGateway
+          v-if="meta.hasGateway"
+          :key="model!.gateway_id"
+          @cancel="setGateway(null)"
+        />
 
-                <Icon
-                  v-if="item.gateway?.gateway_provider?.code"
-                  :class="styles.checkout.image"
-                  :icon="{
-                    path: `/gateways/`,
-                    name: item.gateway?.gateway_provider?.code
-                  }"
-                />
-              </header>
+        <PayLater v-else-if="meta.isPayLater" @cancel="clear" />
 
-              <template #icon>
-                <Icon
-                  icon="chevron-down"
-                  size="xs"
-                  :class="[
-                    styles.checkout.accordion.trigger.icon,
-                    {
-                      'rotate-180': item.gateway_id === model?.gateway_id
-                    }
-                  ]"
-                />
-              </template>
-            </AccordionTrigger>
+        <PaymentActions
+          v-if="
+            !meta.needsPayment ||
+            meta.hasGateway ||
+            meta.hasSelectedPaymentMethod
+          "
+          @resolve="checkout"
+          :disabled="!meta.isValid"
+          :offline="meta.isPayOffline"
+          :processing="meta.isProcessing"
+          :clickwrap="clickwrap"
+        />
 
-            <AccordionContent
-              :class="styles.checkout.accordion.content"
-              :contentClass="styles.checkout.accordion.contentInner"
-              force-mount
-            >
-              <PaymentGateway
-                v-if="item.gateway_id === model?.gateway_id && currency?.code"
-                :key="currency.code"
-                @checkout="handleCheckout"
-                :class="styles.checkout.accordion.loading"
-              />
-            </AccordionContent>
-          </AccordionItem>
-        </component>
+        <!-- Payment Gateways selection -->
+        <PaymentGateways
+          v-if="meta.needsPayment && !meta.hasGateway && meta.hasGateways"
+          v-bind="props"
+          :processing="meta.isProcessing"
+          :modelValue="model?.gateway_id"
+          :schema="schemaGateways"
+          :uischema="uischemaGateways"
+          @update:modelValue="setGateway"
+        />
+
+        <!-- No Gateways Available -->
+        <PaymentGatewaysUnavailable
+          v-if="meta.needsPayment && !meta.hasGateways"
+          @resolve="checkout"
+        />
       </template>
-    </Accordion>
-
-    <component
-      v-if="meta.isAvailable && meta.isFree"
-      :is="props.as"
-      :class="[!props.as && styles.checkout.isFree, props.class]"
-    >
-      <PaymentNotRequired @checkout="handleCheckout" />
-    </component>
-
-    <component
-      v-else-if="meta.isAvailable && !meta.hasGateways"
-      :is="props.as"
-      :class="[!props.as && styles.checkout.isFree, props.class]"
-    >
-      <GatewaysUnavailable @checkout="handleCheckout" />
-    </component>
-  </Loading>
+    </Loading>
+  </Section>
 </template>
 
 <script lang="ts" setup>
 // --- external
-import { computed } from "vue";
-import { useI18n } from "vue-i18n";
+import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
 import {
   useBasketPaymentDetails,
-  useBasket,
-  useBrand,
-  useRoutingEngine
+  useBasket
 } from "@upmind-automation/headless";
 import config from "../checkout.config";
-import { useStyles, Loading } from "@upmind-automation/upmind-ui";
 
 // --- components
-import {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-  Icon
-} from "@upmind-automation/upmind-ui";
-import PaymentGateway from "./PaymentGateway.vue";
-import StoredPayments from "./StoredPayments.vue";
+import { Loading, useStyles } from "@upmind-automation/upmind-ui";
+import Section from "../../../components/section/Section.vue";
+import AccountCredit from "./AccountCredit.vue";
 import PaymentNotRequired from "./PaymentNotRequired.vue";
-import GatewaysUnavailable from "./PaymentGatewaysUnavailable.vue";
+import PaymentAmount from "./PaymentAmount.vue";
+import PaymentGateways from "./PaymentGateways.vue";
+import PayLater from "./PayLater.vue";
+import PaymentGateway from "./PaymentGateway.vue";
+import PaymentGatewaysUnavailable from "./PaymentGatewaysUnavailable.vue";
+import StoredPaymentMethods from "./StoredPaymentMethods.vue";
+import PaymentActions from "./PaymentActions.vue";
 
 // --- types
 import type { PaymentDetailsProps } from "../types";
 import type { ComputedRef } from "vue";
+import { useI18n } from "vue-i18n";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<PaymentDetailsProps>(), {
@@ -181,55 +147,35 @@ const props = withDefaults(defineProps<PaymentDetailsProps>(), {
 
 const { t } = useI18n();
 
-const { currentRoute } = useRoutingEngine();
-
-const { meta, model, input, clear, gateways, currency } =
-  useBasketPaymentDetails();
-
-const { checkout } = useBasket();
-
-const layout = computed(() => {
-  return currentRoute.value?.meta?.template;
-});
-
-const styles = useStyles(
-  ["checkout", "checkout.accordion", "checkout.accordion.trigger"],
-  { variant: layout.value },
-  config
-) as ComputedRef<{
+const styles = useStyles(["checkout"], {}, config) as ComputedRef<{
   checkout: {
-    accordion: {
-      root: string;
-      trigger: {
-        root: string;
-        header: string;
-        icon: string;
-      };
-      item: string;
-      card: string;
-      loading: string;
-      content: string;
-      contentInner: string;
-    };
-    title: string;
-    image: string;
-    isFree: string;
+    root: string;
   };
 }>;
 
-const handleCheckout = () => {
-  checkout();
-};
+const {
+  accountCredit,
+  amountsFormatted,
+  clickwrap,
+  currency,
+  errors,
+  meta,
+  model,
+  schemaAmount,
+  schemaAmountCredit,
+  schemaGateways,
+  schemaStoredPaymentMethods,
+  uischemaAmount,
+  uischemaAmountCredit,
+  uischemaGateways,
+  uischemaStoredPaymentMethods,
+  // ---
+  clear,
+  setAmount,
+  setAmountCredit,
+  setGateway,
+  setStoredPaymentMethod
+} = useBasketPaymentDetails();
 
-const selectGateway = (id: string) => {
-  if (!model.value) return;
-  input({
-    ...model.value,
-    gateway_id: id
-  });
-};
-
-const clearGateway = () => {
-  clear();
-};
+const { checkout } = useBasket();
 </script>
