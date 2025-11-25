@@ -1,12 +1,24 @@
 // --- utils
-import { isArray, map, pick, find, defaults } from "lodash-es";
+import {
+  isArray,
+  map,
+  pick,
+  find,
+  defaults,
+  add,
+  isEmpty,
+  get,
+  omit
+} from "lodash-es";
 
 // --- types
 import type {
   PaymentDetail,
   Gateway,
   PaymentDetailsContext,
-  PaymentDetailModel
+  PaymentDetailModel,
+  AccountCredit,
+  PaymentDetailData
 } from "./types";
 import { GatewayProviderCodes, PaymentType } from "@upmind-automation/types";
 import type {
@@ -17,13 +29,42 @@ import type {
   GatewayCardData,
   GatewayData,
   GatewayExternalCardData,
-  GatewayMobileData
+  GatewayMobileData,
+  IWalletBalance,
+  ICurrency,
+  IWalletCurrencyBalance
 } from "@upmind-automation/types";
 
 import { canBeStored } from "./gateways/utils";
 import { useTranslateField, useTranslateName } from "../../utils";
 
 // -----------------------------------------------------------------------------
+
+export function mapAccountCredit(
+  raw: IWalletBalance,
+  currency: ICurrency["code"]
+): AccountCredit {
+  const balance = get(raw.total, currency) as IWalletCurrencyBalance;
+  const credit = get(
+    raw.negative_allowance,
+    currency
+  ) as IWalletCurrencyBalance;
+
+  return {
+    owned: {
+      value: balance?.amount_converted || 0,
+      amount: balance?.amount_converted_formatted || "0"
+    },
+    credit: {
+      value: credit?.amount_converted || 0,
+      amount: credit?.amount_converted_formatted || "0"
+    },
+    total: {
+      value: add(balance?.amount_converted, credit?.amount_converted),
+      amount: "" // we will set this later
+    }
+  };
+}
 
 export function mapPaymentDetailDetails(
   raw: IPaymentDetail | IPaymentDetail[]
@@ -54,7 +95,6 @@ export function mapPaymentDetail(raw: IPaymentDetail): PaymentDetail {
     meta: {
       isActive: !!raw.active,
       isDefault: !!raw.default,
-      isSupported: true,
       canDelete: !!raw.can_delete,
       isAutoPayment: !!raw.auto_payment
     }
@@ -95,29 +135,6 @@ function mapStoredPaymentDetailData(model: PaymentDetailModel) {
   } as StoredCardData;
 }
 
-function mapExternalCardGatewayData(data: GatewayExternalCardData) {
-  return pick(data, [
-    "gateway_id",
-    "store_on_payment",
-    "store_on_payment_auto_payment"
-  ]);
-}
-
-function mapCardGatewayData(data: GatewayCardData) {
-  return pick(data, [
-    "card_type",
-    "card_num",
-    "card_expire_date",
-    "card_cvv",
-    "name",
-    "address_id",
-    "gateway_id",
-    "cardholder_name",
-    "store_on_payment",
-    "store_on_payment_auto_payment"
-  ]);
-}
-
 function mapGatewayData(data: GatewayData) {
   return pick(data, [
     "gateway_id",
@@ -137,98 +154,113 @@ function mapGatewayMobileData(data: GatewayMobileData) {
 }
 
 export function mapPaymentData({
-  amount,
   clientId,
   data,
-  gateways,
-  model
+  model,
+  lookups
 }: {
-  amount: PaymentDetailsContext["amount"];
   clientId: PaymentDetailsContext["clientId"];
-  data: SelectPaymentMethodData;
-  gateways: PaymentDetailsContext["gateways"];
+  data?: SelectPaymentMethodData;
+  lookups: PaymentDetailsContext["lookups"];
   model: PaymentDetailModel;
-}) {
+}): PaymentDetailData | undefined {
+  // First check if we are deferring payment, in which case we return undefined
+  if (model.type === PaymentType.PAY_LATER) return undefined;
+
   // Create the base payment detail object that ALL payment methods will use
-  const paymentDetail = {
-    amount,
+  const paymentDetail: Partial<PaymentDetailData> = {
+    amount: model.amount,
+    wallet_amount: Math.max(0, model.wallet_amount ?? 0) || undefined,
     client_id: clientId,
-    // walletAmount: undefined,
     return_url: model?.return_url,
     cancel_url: model?.cancel_url
   };
 
-  // Then conditionally add the payment data based on the payment method type and gateway
-
-  // First check if we are deferring payment
-  if (model.type === PaymentType.PAY_LATER) {
-    return defaults({ type: PaymentType.PAY_LATER }, paymentDetail);
-    // do nothing, pay later does not need any additional data
-  }
-
-  //  check if we're using a stored payment method
+  //  Then check if we're using a stored payment method and return that data
   if (model.payment_details_id) {
-    return defaults(mapStoredPaymentDetailData(model), paymentDetail);
+    return defaults(
+      mapStoredPaymentDetailData(model),
+      paymentDetail
+    ) as PaymentDetailData;
   }
 
-  // Then if are using a gateway, we need to map the data based on the gateway type
-  if (model.gateway_id) {
-    const brandGateway = find(gateways, ["gateway_id", model.gateway_id]);
+  // Otherwise, check if we are using a gateway, and  map the data based on the gateway type
+  if (model.gateway_id && !isEmpty(data)) {
+    const brandGateway = find(lookups.gateways, [
+      "gateway_id",
+      model.gateway_id
+    ]);
 
     // map our specific gateway data
     switch (brandGateway?.gateway?.gateway_provider?.code) {
-      // SIMPLE SDK OR REDIRECT GATEWAYS
+      // Type 1: CARD (SDK/REDIRECT) GATEWAYS
       case GatewayProviderCodes.BRAINTREE:
       case GatewayProviderCodes.FLUTTERWAVE:
       case GatewayProviderCodes.MICROPAYMENT:
       case GatewayProviderCodes.OPENPAY:
       case GatewayProviderCodes.PAYPAL_BILLING_AGREEMENT:
       case GatewayProviderCodes.PAYPAL_EXPRESS:
-      case GatewayProviderCodes.PAYPAL_LEGACY_SUBSCRIPTION:
       case GatewayProviderCodes.PAYPAL_PRO:
-      case GatewayProviderCodes.PAYPAL_REST:
-      case GatewayProviderCodes.PAYPAL_SUBSCRIPTION_AGREEMENT:
       case GatewayProviderCodes.PAYSTACK:
       case GatewayProviderCodes.RAZOR_PAY_CHECKOUT:
       case GatewayProviderCodes.STRIPE:
-        return defaults(mapGatewayData(data), paymentDetail);
-
-      // CARD GATEWAYS
+        return defaults(
+          mapGatewayData(data),
+          paymentDetail
+        ) as PaymentDetailData;
 
       // EXTERNAL STORE GATEWAYS
 
-      // AWAITING CLIENT GATEWAYS
+      // TYPE 10: AWAITING CLIENT GATEWAYS
+      case GatewayProviderCodes.PAYTM:
+        // case GatewayProviderCodes.BIT_PAY:
+        // case GatewayProviderCodes.BLOCKONOMICS:
+        // case GatewayProviderCodes.COIN_GATE:
+        // case GatewayProviderCodes.D_LOCAL:
+        return defaults(
+          mapGatewayData(data),
+          paymentDetail
+        ) as PaymentDetailData;
 
-      // MOBILE GATEWAYS
+      // TYPE 6 : MOBILE GATEWAYS
+
+      // TYPE 2 + TYPE 5: "MANUAL/OFFLINE" GATEWAYS THAT DONT REQUIRE A PAYMENT DETAIL
+      case GatewayProviderCodes.OFFLINE:
+      case GatewayProviderCodes.BANK_TRANSFER:
+        return undefined;
 
       // UNSUPPORTED OR UNKNOWN GATEWAYS
       default:
-      case GatewayProviderCodes.ADYEN:
-      case GatewayProviderCodes.BANK_TRANSFER:
+      case GatewayProviderCodes.ADYEN: // SDK
       case GatewayProviderCodes.BIT_PAY:
       case GatewayProviderCodes.BLOCKONOMICS:
       case GatewayProviderCodes.COIN_GATE:
       case GatewayProviderCodes.D_LOCAL:
-      case GatewayProviderCodes.FLUTTERWAVE_CARD:
-      case GatewayProviderCodes.GO_CARDLESS:
-      case GatewayProviderCodes.MERCADO_PAGO:
+      case GatewayProviderCodes.GO_CARDLESS: // EXTERNAL STORE - REQUIRES CUSTOM IMPLEMENTATION LIKE SDK
+      case GatewayProviderCodes.MERCADO_PAGO: // SDK
       case GatewayProviderCodes.MERCADO_PAGO_OTHER_PAYMENTS:
-      case GatewayProviderCodes.MOMO_MTN_COLLECTIONS:
-      case GatewayProviderCodes.OFFLINE:
+      case GatewayProviderCodes.MOMO_MTN_COLLECTIONS: // MOBILE - REQUIRES CUSTOM IMPLEMENTATION
       case GatewayProviderCodes.OPENPAY_NON_CARD:
       case GatewayProviderCodes.PAYSAFECARD:
-      case GatewayProviderCodes.PAYTM:
       case GatewayProviderCodes.PAY_FAST:
       case GatewayProviderCodes.PAY_U:
       case GatewayProviderCodes.PESA_PAL:
-      case GatewayProviderCodes.RAZOR_PAY:
       case GatewayProviderCodes.SAGE_PAY_DIRECT:
       case GatewayProviderCodes.WORLD_PAY_JSON:
-        //  DO NOTHING, UNSUPPORTED GATEWAYS
-        return defaults({ type: PaymentType.PAY_LATER }, paymentDetail);
+        //  DO NOTHING, FALLBACK TO PAY LATER
+        return undefined;
+
+      // DEPRECATED GATEWAYS
+      case GatewayProviderCodes.FLUTTERWAVE_CARD:
+      case GatewayProviderCodes.PAYPAL_LEGACY_SUBSCRIPTION:
+      case GatewayProviderCodes.PAYPAL_REST:
+      case GatewayProviderCodes.PAYPAL_SUBSCRIPTION_AGREEMENT:
+      case GatewayProviderCodes.RAZOR_PAY:
+        //  DO NOTHING, FALLBACK TO PAY LATER
+        return undefined;
     }
   }
 
-  // As a catch all we will force "manual payments" to allow the order to go through but not take payment
-  return defaults({ type: PaymentType.PAY_LATER }, paymentDetail);
+  // Finally As a catch all we will force "manual payments" to allow the order to go through but not take payment
+  return paymentDetail as PaymentDetailData;
 }

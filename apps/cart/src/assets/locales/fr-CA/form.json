@@ -95,6 +95,16 @@
   "login": {
     "error": "Nous avons rencontré une erreur lors de la tentative de connexion."
   },
+  "payment_details_id": {
+    "label": ""
+  },
+  "payment_method_type": {
+    "error": "Un type de paiement valide est requis",
+    "label": "Sélectionnez le type de paiement",
+    "partial-payment": "Effectuer un paiement partiel",
+    "pay-later": "Payer plus tard",
+    "stored-card": "Payer le solde complet"
+  },
   "phone": {
     "error": "Un numéro de téléphone valide est requis",
     "label": "Téléphone",
@@ -128,7 +138,7 @@
     "label": "Enregistrer les détails du paiement"
   },
   "stored_payment_method": {
-    "label": "Sélectionnez l'une de vos méthodes de paiement enregistrées"
+    "label": ""
   },
   "taxNumber": {
     "label": "Numéro d'identification fiscale",

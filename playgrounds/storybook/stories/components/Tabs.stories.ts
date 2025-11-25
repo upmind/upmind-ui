@@ -6,33 +6,10 @@ import { Tabs } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { useSystemArgTypes } from "../../utils";
-import { keys } from "lodash-es";
-
-import {
-  VARIANTS_ALIGNMENT,
-  VARIANTS_WIDTH
-} from "@upmind-automation/upmind-ui";
 
 const meta: Meta<typeof Tabs> = {
-  argTypes: {
-    alignment: {
-      options: VARIANTS_ALIGNMENT,
-      control: {
-        type: "radio",
-        labels: VARIANTS_ALIGNMENT
-      }
-    },
-    width: {
-      options: VARIANTS_WIDTH,
-      control: {
-        type: "radio",
-        labels: VARIANTS_WIDTH
-      }
-    }
-  },
   args: {
-    alignment: "evenly",
-    width: "auto"
+    //
   },
   parameters: {
     docs: {

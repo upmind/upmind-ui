@@ -95,6 +95,16 @@
   "login": {
     "error": "We experienced an error while trying to log you in."
   },
+  "payment_details_id": {
+    "label": ""
+  },
+  "payment_method_type": {
+    "error": "A valid payment method is required",
+    "label": "Select payment method",
+    "partial-payment": "Make a partial payment",
+    "pay-later": "Pay later",
+    "stored-card": "Pay full balance"
+  },
   "phone": {
     "error": "A valid Phone Number is required",
     "label": "Phone",
@@ -128,7 +138,7 @@
     "label": "Save payment details"
   },
   "stored_payment_method": {
-    "label": "Select one of your stored payment methods"
+    "label": ""
   },
   "taxNumber": {
     "label": "Tax Number",

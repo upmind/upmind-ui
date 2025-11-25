@@ -49,14 +49,14 @@ import {
   utils,
   ROUTE,
   useBrand,
-  useOrder
+  useOrder,
+  QUERY_PARAMS
 } from "@upmind-automation/headless";
 
 // -- components
-import { Interstitial, Button, Icon } from "@upmind-automation/upmind-ui";
+import { Interstitial, Button } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
-
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
@@ -66,10 +66,9 @@ const { errors } = useBasket();
 const { isResolved } = useRoutingEngine();
 
 await isResolved(ROUTE.ORDER);
+const orderId = route.params?.[QUERY_PARAMS.ORDER_ID]?.toString();
 
 const { transferTo, meta } = useSession();
-const orderId = route.params?.orderId?.toString();
-
 const { meta: orderMeta, isReady: isOrderReady } = useOrder(orderId);
 await isOrderReady();
 

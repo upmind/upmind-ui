@@ -95,6 +95,16 @@
   "login": {
     "error": "Ocorreu um erro ao tentar efetuar o seu login."
   },
+  "payment_details_id": {
+    "label": ""
+  },
+  "payment_method_type": {
+    "error": "É necessário um tipo de pagamento válido",
+    "label": "Selecione o tipo de pagamento",
+    "partial-payment": "Fazer um pagamento parcial",
+    "pay-later": "Pagar depois",
+    "stored-card": "Pagar o saldo total"
+  },
   "phone": {
     "error": "É necessário um número de telefone válido",
     "label": "Telefone",
@@ -128,7 +138,7 @@
     "label": "Salvar detalhes de pagamento"
   },
   "stored_payment_method": {
-    "label": "Selecione um dos seus métodos de pagamento armazenados"
+    "label": ""
   },
   "taxNumber": {
     "label": "Número de identificação fiscal",

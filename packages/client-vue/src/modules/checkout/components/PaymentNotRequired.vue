@@ -6,36 +6,16 @@
       :title="t('cart.nothing_to_pay_msg')"
       :description="t('cart.place_order_desc')"
     />
-
-    <!-- Actions and Terms -->
-    <footer key="actions" :class="styles.checkout.footer.root">
-      <div :class="styles.checkout.footer.actions">
-        <Button
-          :disabled="meta.isProcessing"
-          :loading="meta.isProcessing"
-          :color="props.color"
-          size="lg"
-          @click.prevent="handleCheckout"
-          :label="t('action.place_order')"
-          :class="styles.checkout.action"
-        />
-      </div>
-
-      <Markdown
-        v-if="clickwrap"
-        tag="p"
-        :class="styles.checkout.clickwrap"
-        :model-value="clickwrap"
-        :keys="{ action: t('action.place_order') }"
-      />
-
-      <TermsAndConditions
-        v-else
-        :class="styles.checkout.footer.terms"
-        :label="t('action.place_order')"
-      />
-    </footer>
   </div>
+
+  <PaymentActions
+    :free="meta.isFree"
+    :processing="meta.isProcessing"
+    :disabled="meta.isProcessing"
+    :errors="meta.hasErrors"
+    :offline="meta.isPayOffline"
+    @resolve="handleCheckout"
+  />
 </template>
 
 <script lang="ts" setup>
@@ -46,11 +26,11 @@ import { useI18n } from "vue-i18n";
 // --- internal
 import { useBasketPaymentDetails } from "@upmind-automation/headless";
 import config from "../checkout.config";
-import { useStyles, Loading } from "@upmind-automation/upmind-ui";
-import TermsAndConditions from "../../brand/TermsAndConditions.vue";
+import { useStyles } from "@upmind-automation/upmind-ui";
+import PaymentActions from "./PaymentActions.vue";
 
 // --- components
-import { Alert, Markdown, Button } from "@upmind-automation/upmind-ui";
+import { Alert } from "@upmind-automation/upmind-ui";
 
 // --- utils
 
@@ -59,9 +39,11 @@ import type { PaymentGatewayProps } from "../types";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<PaymentGatewayProps>();
-const emit = defineEmits(["checkout"]);
+const emit = defineEmits<{
+  (e: "resolve"): void;
+}>();
 
-const { meta, clickwrap } = useBasketPaymentDetails();
+const { meta } = useBasketPaymentDetails();
 
 const { t } = useI18n();
 
@@ -86,7 +68,7 @@ const styles = useStyles(
 }>;
 
 const handleCheckout = () => {
-  emit("checkout");
+  emit("resolve");
 };
 
 // --- side effects

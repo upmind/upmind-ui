@@ -7,7 +7,7 @@ import { uniqBy, isEmpty } from "lodash-es";
 import { useRouteQueryParams } from "../utils";
 
 // --- types
-import { ROUTE } from "../types";
+import { QUERY_PARAMS, ROUTE } from "../types";
 import type { Flow, Route } from "../types";
 
 // -----------------------------------------------------------------------------
@@ -25,13 +25,11 @@ export const useOrderFlows = () => {
       name: ROUTE.ORDER,
       guard: async (route: Route) => {
         const { getParam, parse } = useRouteQueryParams(route);
-        const orderId = parse(getParam("orderId"));
+        const orderId = parse(getParam(QUERY_PARAMS.ORDER_ID));
         return !isEmpty(orderId);
-
         // TODO: succss/failed/expired sub routes
         // const success = parse(getParam("payment_success"));
         // const expired = parse(getParam("payment_success"));
-
         // TODO: fetch actual order status based on orderId
         // const validOrder = isOrderComplete();
         // const validAuth =
@@ -39,13 +37,12 @@ export const useOrderFlows = () => {
         //   !hasExpired()
         //     .then(() => true)
         //     .catch(() => false);
-
         // return validOrder && validAuth;
       },
       targets: {
         next: [],
-        back: getCheckoutFlowTargets(),
-        fallback: getCheckoutFlowTargets()
+        back: [ROUTE.BASKET, ROUTE.EMPTY],
+        fallback: [ROUTE.BASKET, ROUTE.EMPTY]
       }
     }
   ];

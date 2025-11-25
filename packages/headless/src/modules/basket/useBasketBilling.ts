@@ -52,7 +52,7 @@ export const useBasketBilling = () => {
     }).then(service =>
       waitFor(
         service as ActorRef<any>,
-        state => !stateMatches(state, ["loading", "subscribing"]),
+        state => !stateMatches(state, ["subscribing", "loading"]),
         { timeout: Infinity }
       ).then(state => {
         if (stateMatches(state, ["error"])) return false;
@@ -108,13 +108,8 @@ export const useBasketBilling = () => {
   async function update(value: BillingModel): Promise<void> {
     // first check if our fields have change, ie: model.code has changed
     value = omitBy(toRaw(unref(value)), isEmpty);
-    const model = omitBy(contextValue<BillingModel>(actor, "model"), isEmpty);
+    actor.value?.send({ type: "SET", data: value, update: true });
 
-    if (!isEmpty(value) && !isEqual(value, model)) {
-      actor.value?.send({ type: "SET", data: value, update: true });
-    } else if (!isEmpty(value)) {
-      actor.value?.send({ type: "UPDATE" });
-    }
     // then wait for the paymentGateway actor to be updated
     return waitFor(
       actor.value!.service,
@@ -129,20 +124,17 @@ export const useBasketBilling = () => {
     )
       .then(state => {
         if (stateMatches(state, "error")) throw state.context.error;
-
-        return Promise.resolve();
+        return;
       })
       .catch(error => {
-        return Promise.reject(
-          new DetailedError(
-            t("error.billing_details_update_failed"),
-            responseCodes.Timeout,
-            ErrorOrigin.Headless,
-            {
-              error,
-              state: actor.value?.state.value
-            }
-          )
+        throw new DetailedError(
+          t("error.billing_details_update_failed"),
+          responseCodes.Timeout,
+          ErrorOrigin.Headless,
+          {
+            error,
+            state: actor.value?.state.value
+          }
         );
       });
   }

@@ -1,4 +1,5 @@
 import { Locator, Page } from "@playwright/test";
+import { kebabCase } from "../../utils/functions/helpers";
 
 export class Checkboxes {
   readonly page: Page;
@@ -19,8 +20,7 @@ export class Checkboxes {
     return this.checkboxOption.nth(option);
   }
 
-  async clickCheckbox(option: number) {
-    const box = this.getCheckbox(option);
-    await box.click();
+  async clickCheckbox(checkbox: string) {
+    await this.page.getByTestId(`checkbox-${kebabCase(checkbox)}`).click();
   }
 }
