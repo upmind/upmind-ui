@@ -76,6 +76,7 @@ export default defineConfig(({ mode }) => {
       dedupe: ["vue-router"]
     },
     server: {
+      host: true,
       allowedHosts: true,
       fs: {
         strict: false

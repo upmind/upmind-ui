@@ -1,7 +1,7 @@
 <template>
   <section class="session" :class="styles.session.root">
     <header :class="styles.session.header" v-if="!noHeader || !!$slots.header">
-      <slot name="header" v-bind="{ meta, user }">
+      <slot name="header" v-bind="{ meta, client }">
         <template v-if="!meta.isAuthenticated && meta.showRegisterForm">
           <span :class="styles.session.text">
             {{ t("session.header.register.text") }}
@@ -46,7 +46,7 @@
           >
             <template #[`name`]>
               <strong :class="styles.session.name">
-                {{ user?.display }}
+                {{ client?.display }}
               </strong>
             </template>
           </i18n-t>
@@ -66,7 +66,7 @@
     </Auth>
 
     <footer :class="styles.session.footer" v-if="!noFooter || !!$slots.footer">
-      <slot name="footer" v-bind="{ meta, user }"> </slot>
+      <slot name="footer" v-bind="{ meta, client }"> </slot>
     </footer>
   </section>
 </template>
@@ -108,7 +108,7 @@ const styles = useStyles(["session"], props, config) as ComputedRef<{
     name: string;
   };
 }>;
-const { meta, user, logout } = useSession();
+const { meta, client, logout } = useSession();
 
 // ---
 </script>

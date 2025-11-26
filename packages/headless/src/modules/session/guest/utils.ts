@@ -79,7 +79,7 @@ export const useRegisterSchemaParser = (data: any) => {
           }
         }
       },
-      customFields: useFieldsSchemaParser(data, "auth")
+      customFields: useFieldsSchemaParser(data)
     }
   };
 

@@ -18,11 +18,11 @@
     <template #label>
       <label
         class="text-md-tight flex flex-col items-start break-all not-italic"
-        v-if="user"
+        v-if="client"
       >
-        <strong class="font-medium">{{ user.fullname }}</strong>
+        <strong class="font-medium">{{ client.fullName }}</strong>
         <span class="text-md-tight font-normal opacity-60">
-          {{ user.username }}
+          {{ client.username }}
         </span>
       </label>
     </template>
@@ -44,7 +44,7 @@ import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
 
-const { user, logout, meta } = useSession();
+const { client, logout, meta } = useSession();
 const items = computed<DropdownMenuItemProps[]>(() => [
   {
     label: t("action.logout"),

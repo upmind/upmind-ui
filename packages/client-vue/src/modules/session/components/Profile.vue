@@ -6,8 +6,8 @@
     :placement="props.placement"
     :disabled="meta.isProcessing"
     :loading="meta.isProcessing"
-    :prepend-avatar="user?.avatar"
-    :label="user?.display"
+    :prepend-avatar="client?.avatar"
+    :label="client?.display"
     :toggle="null"
   />
 </template>
@@ -36,7 +36,7 @@ const props = withDefaults(
 
 const { t } = useI18n();
 
-const { meta, user, logout } = useSession();
+const { meta, client, logout } = useSession();
 
 const items = computed((): DropdownMenuItemProps[] => {
   if (!meta.value.isAuthenticated) return [];

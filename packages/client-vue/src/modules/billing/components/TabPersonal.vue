@@ -19,7 +19,7 @@
         as="select"
         :manage="{
           useList: useClientPhones,
-          useMutate: useClientPhone
+          useMutate: useClientPhoneManager
         }"
         :show-label="!!selectedPhone"
         @processing="wait"
@@ -40,7 +40,7 @@
         v-model="selectedAddress"
         :manage="{
           useList: useClientAddresses,
-          useMutate: useClientAddress
+          useMutate: useClientAddressManager
         }"
         :show-label="!!selectedAddress"
         @processing="wait"
@@ -69,9 +69,9 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 // --- internal
 import {
   useClientAddresses,
-  useClientAddress,
+  useClientAddressManager,
   useClientPhones,
-  useClientPhone,
+  useClientPhoneManager,
   useBasketBilling
 } from "@upmind-automation/headless";
 
