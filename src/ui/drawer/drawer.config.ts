@@ -1,7 +1,7 @@
 import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
-export const containerVariant = cva("mx-auto w-full pb-12", {
+export const containerVariant = cva("mx-auto w-full px-6 pb-6", {
   variants: {
     width: {
       xs: "max-w-xs",
@@ -56,7 +56,7 @@ export const innerVariant = cva("mx-auto max-h-[75vh] w-full", {
 export const overlayVariant = cva("bg-overlay");
 
 export const footerContainerVariant = cva(
-  "mx-auto flex w-full items-center justify-between py-6",
+  "mx-auto flex w-full items-center justify-between gap-4 px-6 py-6",
   {
     variants: {
       width: {
@@ -82,7 +82,9 @@ export default {
   drawer: {
     overlay: overlayVariant,
     container: containerVariant,
-    content: cva("bg-surface w-full rounded-t-lg border-none pt-24 text-base"),
+    content: cva(
+      "bg-surface w-full rounded-t-lg border-none pt-12 text-base lg:pt-24"
+    ),
     inner: innerVariant,
     header: "",
     footer: {
