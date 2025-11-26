@@ -49,19 +49,19 @@ const queryKey: QueryKey = ["client", "companies"];
 const { addError, addSuccess } = useFeedback();
 
 function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
-  const { meta, user } = useSession();
+  const { meta, client } = useSession();
   const { list, useUrl } = useQuery();
 
   return list<ICompany[], Company[]>({
     ...(params as any),
-    queryKey: [...queryKey, { user: user.value?.id }],
-    url: useUrl(`clients/${user.value?.id}/companies`, {
+    queryKey: [...queryKey, { client: client.value?.id }],
+    url: useUrl(`clients/${client.value?.id}/companies`, {
       with: ["address", "address.country", "address.region"].join()
     }),
     withAccessToken: true,
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (meta.value.isAuthenticated && !!user.value?.id) {
+        if (meta.value.isAuthenticated && !!client.value?.id) {
           resolve(true);
         } else {
           reject(new NotAuthenticatedError());
@@ -153,15 +153,15 @@ async function loadLookups({
 // MUTATIONS
 
 async function add(data: CompanyModel) {
-  const { meta, user } = useSession();
+  const { meta, client } = useSession();
   const { post, useUrl } = useQuery();
 
-  if (!meta.value.isAuthenticated || !user.value?.id) {
+  if (!meta.value.isAuthenticated || !client.value?.id) {
     return Promise.reject(new NotAuthenticatedError());
   }
   return ensureDependencies(data).then(ensuredData => {
     return post<ICompany>({
-      url: useUrl(`clients/${user.value?.id}/companies`),
+      url: useUrl(`clients/${client.value?.id}/companies`),
       data: mapICompany(ensuredData),
       withAccessToken: true
     }).then(invalidateQueryByKey(queryKey, { exact: false }));
@@ -169,15 +169,15 @@ async function add(data: CompanyModel) {
 }
 
 async function update(id: Company["id"], data: CompanyModel) {
-  const { meta, user } = useSession();
+  const { meta, client } = useSession();
   const { put, useUrl } = useQuery();
 
-  if (!meta.value.isAuthenticated || !user.value?.id) {
+  if (!meta.value.isAuthenticated || !client.value?.id) {
     return Promise.reject(new NotAuthenticatedError());
   }
   return ensureDependencies(data).then(ensuredData => {
     return put<ICompany>({
-      url: useUrl(`clients/${user.value?.id}/companies/${id}`),
+      url: useUrl(`clients/${client.value?.id}/companies/${id}`),
       data: mapICompany(ensuredData),
       withAccessToken: true
     }).then(invalidateQueryByKey(queryKey, { exact: false }));
@@ -212,14 +212,14 @@ async function ensure(model: CompanyModel): Promise<Company> {
 }
 
 function remove(companyId: Company["id"]) {
-  const { meta, user } = useSession();
+  const { meta, client } = useSession();
   const { mutate, useUrl } = useQuery();
 
   return mutate<null>("DELETE", {
-    url: useUrl(`clients/${user.value?.id}/companies/${companyId}`),
+    url: useUrl(`clients/${client.value?.id}/companies/${companyId}`),
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (meta.value.isAuthenticated || !user.value?.id) {
+        if (meta.value.isAuthenticated || !client.value?.id) {
           resolve(true);
         } else {
           reject(new NotAuthenticatedError());
@@ -245,14 +245,14 @@ function remove(companyId: Company["id"]) {
 }
 
 function setDefault(companyId: Company["id"]) {
-  const { meta, user } = useSession();
+  const { meta, client } = useSession();
   const { mutate, useUrl } = useQuery();
 
   return mutate<ICompany>("PUT", {
-    url: useUrl(`clients/${user.value?.id}/companies/${companyId}`),
+    url: useUrl(`clients/${client.value?.id}/companies/${companyId}`),
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (meta.value.isAuthenticated || !user.value?.id) {
+        if (meta.value.isAuthenticated || !client.value?.id) {
           resolve(true);
         } else {
           reject(new NotAuthenticatedError());

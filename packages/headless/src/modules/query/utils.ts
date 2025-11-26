@@ -88,7 +88,15 @@ export const invalidateQueryByKey =
         queryKey,
         ...filters
       })
-      .then(() => data);
+      .then(() => {
+        // refetch the queries after invalidation but don't wait for them
+        queryClient.refetchQueries({
+          queryKey,
+          ...filters
+        });
+
+        return data;
+      });
   };
 
 /**

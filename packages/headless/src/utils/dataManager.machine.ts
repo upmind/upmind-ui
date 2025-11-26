@@ -8,11 +8,11 @@ import {
   mapToHeadlessError,
   useValidationParser,
   ResponseError
-} from "../../utils";
+} from ".";
 
 // --- types
 import type { AnyEventObject } from "xstate";
-import type { ClientItemContext } from "./types";
+import type { ClientItemContext } from "../modules/client/types";
 import { ErrorObject } from "ajv";
 
 // -----------------------------------------------------------------------------
@@ -20,7 +20,7 @@ import { ErrorObject } from "ajv";
 export default createMachine<ClientItemContext>(
   {
     //tsTypes: {} as import("./item.machine.typegen").Typegen0,
-    id: "clientManager",
+    id: "dataManager",
     predictableActionArguments: true,
     initial: "subscribing",
     context: {} as ClientItemContext,
@@ -198,8 +198,8 @@ export default createMachine<ClientItemContext>(
       },
 
       complete: {
-        id: "complete"
-        // type: "final"
+        id: "complete",
+        type: "final"
       }
     },
     on: {
@@ -208,7 +208,8 @@ export default createMachine<ClientItemContext>(
         actions: ["clearModel"]
       },
       REFRESH: {
-        target: "loading"
+        target: "loading",
+        actions: ["refreshContext"]
       }
     }
   },

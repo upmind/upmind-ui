@@ -59,7 +59,7 @@ export interface Email extends EmailModel {
      */
     isDefault: boolean;
     /**
-     * `true` if the user can delete the email address.
+     * `true` if the client can delete the email address.
      */
     canDelete: boolean;
     /**

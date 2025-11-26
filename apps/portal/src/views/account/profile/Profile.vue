@@ -20,23 +20,20 @@
 <script lang="ts" setup>
 // --- external
 import { computed } from "vue";
-import { ROUTE } from "../../../router/types";
 
 // --- internal
 import { useRoutingEngine } from "@upmind-automation/headless";
 
 // --- components
 import { Layout } from "@upmind-automation/client-vue";
-import ClientProfile from "../../../components/account/ClientProfile.vue";
+import ClientProfile from "./ClientProfile.vue";
 
 // --- types
+import { ROUTE } from "../../../router/types";
 
 // -----------------------------------------------------------------------------
 
-const { currentRoute, isReady, isResolved, meta } = useRoutingEngine();
-
-await isReady();
-await isResolved(ROUTE.ACCOUNT_PROFILE);
+const { currentRoute, meta } = useRoutingEngine();
 
 const layout = computed(() => {
   return currentRoute.value?.meta?.template;

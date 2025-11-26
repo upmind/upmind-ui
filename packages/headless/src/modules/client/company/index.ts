@@ -1,3 +1,3 @@
 export * from "./types";
-export * from "./useClientCompany";
+export * from "./useClientCompanyManager";
 export * from "./useClientCompanies";

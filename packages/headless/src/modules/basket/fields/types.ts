@@ -2,8 +2,8 @@
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --- internal
-import type { ICustomField } from "@upmind-automation/types";
 import type { ResponseError } from "../../../utils";
+import { CustomField } from "../../client";
 // -----------------------------------------------------------------------------
 
 export interface FieldsModel {
@@ -14,7 +14,7 @@ export interface FieldsModel {
 export interface FieldsContext {
   basketId?: string;
   // ---
-  fields?: ICustomField[];
+  fields?: CustomField[];
   schema?: JsonSchema;
   uischema?: UISchemaElement;
   model?: FieldsModel;

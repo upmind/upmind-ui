@@ -1,4 +1,5 @@
 import { ROUTE } from "../types";
+import type { Route } from "@upmind-automation/headless";
 
 export default [
   {
@@ -10,6 +11,19 @@ export default [
     path: "/account/profile",
     name: ROUTE.ACCOUNT_PROFILE,
     component: () => import("../../views/account/profile/Profile.vue")
+  },
+  {
+    path: "/account/profile",
+    name: ROUTE.ACCOUNT_PROFILE,
+    component: () => import("../../views/account/profile/Profile.vue")
+  },
+  {
+    path: "/account/profile/edit",
+    name: ROUTE.ACCOUNT_PROFILE_EDIT,
+    component: () => import("../../views/account/profile/Edit.vue"),
+    props: ({ query }: Route) => {
+      return { fields: query?.fields.split(",") || [] };
+    }
   },
   {
     path: "/account/child-accounts",
@@ -53,10 +67,5 @@ export default [
     path: "/account/notes",
     name: ROUTE.ACCOUNT_NOTES,
     component: () => import("../../views/account/notes/Notes.vue")
-  },
-  {
-    path: "/account/billing",
-    name: ROUTE.ACCOUNT_BILLING,
-    component: () => import("../../views/account/billing/Billing.vue")
   }
 ];
