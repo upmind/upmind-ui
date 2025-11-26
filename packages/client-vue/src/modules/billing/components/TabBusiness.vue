@@ -19,7 +19,7 @@
         as="select"
         :manage="{
           useList: useClientPhones,
-          useMutate: useClientPhone
+          useMutate: useClientPhoneManager
         }"
         :show-label="!!selectedPhone"
         @processing="wait"
@@ -40,7 +40,7 @@
         v-model="selectedCompany"
         :manage="{
           useList: useClientCompanies,
-          useMutate: useClientCompany
+          useMutate: useClientCompanyManager
         }"
         :show-label="!!selectedCompany"
         @processing="wait"
@@ -69,9 +69,9 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 // --- internal
 import {
   useClientCompanies,
-  useClientCompany,
+  useClientCompanyManager,
   useClientPhones,
-  useClientPhone,
+  useClientPhoneManager,
   useBasketBilling
 } from "@upmind-automation/headless";
 
