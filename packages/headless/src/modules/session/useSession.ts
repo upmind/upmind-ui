@@ -138,7 +138,7 @@ export const useSession = () => {
         "available.register.authenticating",
         "available.recover.recovering"
       ]) || stateMatches(clientActor, "processing"),
-    isAuthenticated: stateMatches(state, "clientActor"),
+    isAuthenticated: stateMatches(state, "client"),
     isTransferring: stateMatches(clientActor, "transferring"),
     hasExpired: stateMatches(state, "expired") || isEmpty(state.value.children),
     hasErrors:

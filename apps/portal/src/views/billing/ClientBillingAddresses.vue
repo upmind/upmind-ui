@@ -31,7 +31,7 @@
         v-model="defaultCompanyValue"
         :manage="{
           useList: useClientCompanies,
-          useMutate: useClientCompany
+          useMutate: useClientCompanyManager
         }"
       >
         <template #item="{ item, readonly, doEdit, doRemove }">
@@ -57,7 +57,8 @@ import {
   useClientAddresses,
   useClientAddress,
   useClientCompanies,
-  useClientCompany
+  useClientCompanyManager,
+  useSession
 } from "@upmind-automation/headless";
 import type { TabItem } from "@upmind-automation/upmind-ui";
 
@@ -65,20 +66,25 @@ import type { TabItem } from "@upmind-automation/upmind-ui";
 import { UpmManage, UpmSections } from "@upmind-automation/client-vue";
 import AddressItem from "./AddressItem.vue";
 import CompanyItem from "./CompanyItem.vue";
+import { sortBy } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
 
-const { isReady: getAddresses, default: defaultAddress } = useClientAddresses();
+const { isAuthenticated } = useSession();
+await isAuthenticated();
 
 const {
-  isReady: getCompanies,
+  isReady: isCompaniesReady,
   default: defaultCompany,
   meta: companiesMeta
 } = useClientCompanies();
 
-await Promise.all([getAddresses(), getCompanies()]);
+const { isReady: isAddressesReady, default: defaultAddress } =
+  useClientAddresses();
+
+await Promise.all([isAddressesReady(), isCompaniesReady()]);
 
 const defaultAddressValue = ref(defaultAddress()?.id);
 const defaultCompanyValue = ref(defaultCompany()?.id);
@@ -95,9 +101,13 @@ const sections = computed<TabItem[]>(() => {
     }
   ];
 
-  if (companiesMeta.value.isEmpty) tabs.splice(1, 0, tabs.splice(0, 1)[0]);
-
-  return tabs;
+  // Sort so that "company" comes first if we have companies
+  return sortBy(tabs, tab => {
+    if (companiesMeta.value.isEmpty) {
+      return tab.value === "address" ? 0 : 1;
+    }
+    return tab.label;
+  });
 });
 
 const activeTab = ref(companiesMeta.value.isEmpty ? "address" : "business");

@@ -1,3 +1,3 @@
 export * from "./types";
-export * from "./useClientPhone";
+export * from "./useClientPhoneManager";
 export * from "./useClientPhones";

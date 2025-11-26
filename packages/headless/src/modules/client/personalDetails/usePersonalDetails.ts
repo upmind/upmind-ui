@@ -4,7 +4,7 @@ import { computed, ref } from "vue";
 // --- internal
 import { useSession } from "../../session";
 
-import { useClientCustomFields } from "../../";
+import { useClientCustomFields } from "../..";
 
 // --- utils
 import { isEmpty } from "lodash-es";
@@ -22,7 +22,7 @@ import { mapProfileFields } from "./mappers";
  * @param initial - Optional initial query parameters for loading the phone list. Defaults to pagination limit of 0.
  * @returns The {@link UseProfileDetails} API for interacting with client phones.
  */
-export const useProfileDetails = () => {
+export const usePersonalDetails = () => {
   const { t } = useI18n();
   const { isAuthenticated, meta: sessionMeta, client } = useSession();
 
@@ -98,4 +98,4 @@ export const useProfileDetails = () => {
 /**
  * The return type of the {@link UseProfileDetails} composable function.
  */
-export type UseProfileDetails = ReturnType<typeof useProfileDetails>;
+export type UseProfileDetails = ReturnType<typeof usePersonalDetails>;

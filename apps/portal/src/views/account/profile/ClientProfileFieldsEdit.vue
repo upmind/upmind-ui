@@ -33,7 +33,7 @@ import { computed, onBeforeUnmount } from "vue";
 // import { useRouter } from "vue-router";
 
 // --- internal
-import { useProfileFieldsManager } from "@upmind-automation/headless";
+import { usePersonalDetailsManager } from "@upmind-automation/headless";
 
 // --- components
 import { UpmSection, UpmForm } from "@upmind-automation/client-vue";
@@ -66,7 +66,7 @@ const {
   stop
 
   // edit: doEdit
-} = useProfileFieldsManager({
+} = usePersonalDetailsManager({
   filterFields: props.fields
 });
 

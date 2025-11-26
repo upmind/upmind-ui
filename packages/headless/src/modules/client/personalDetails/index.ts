@@ -1,3 +1,3 @@
 export * from "./types";
-export * from "./useProfileDetails";
-export * from "./useProfileFieldsManager";
+export * from "./usePersonalDetails";
+export * from "./usePersonalDetailsManager";

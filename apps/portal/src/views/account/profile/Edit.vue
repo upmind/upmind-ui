@@ -35,9 +35,7 @@ import { ROUTE } from "../../../router/types";
 
 const props = defineProps<{ fields: string[] }>();
 
-const { currentRoute, isResolved, meta } = useRoutingEngine();
-
-await isResolved(ROUTE.ACCOUNT_PROFILE);
+const { currentRoute, meta } = useRoutingEngine();
 
 const layout = computed(() => {
   return currentRoute.value?.meta?.template;

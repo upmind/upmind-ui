@@ -7,13 +7,13 @@ import {
   useUischemaDefinitions as useAddressUischema
 } from "../address/schemas";
 
-import { useClientEmails, useClientEmail } from "../email";
+import { useClientEmails, useClientEmailManager } from "../email";
 import {
   useSchema as useEmailSchema,
   useUischema as useEmailUischema
 } from "../email/schemas";
 
-import { useClientPhones, useClientPhone } from "../phone";
+import { useClientPhones, useClientPhoneManager } from "../phone";
 import {
   useSchema as usePhoneSchema,
   useUischema as usePhoneUischema
@@ -185,7 +185,7 @@ export const useUischema = ({
     //       i18nKey: "client.phone",
     //       manage: {
     //         useList: useClientPhones,
-    //         useMutate: useClientPhone,
+    //         useMutate: useClientPhoneManager,
     //       },
     //     },
     //   } as any);
@@ -214,7 +214,7 @@ export const useUischema = ({
     //       i18nKey: "client.email",
     //       manage: {
     //         useList: useClientEmails,
-    //         useMutate: useClientEmail,
+    //         useMutate: useClientEmailManager,
     //       },
     //     },
     //   } as any);
