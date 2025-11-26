@@ -16,6 +16,7 @@ export type MinimalListComposable = (...args: any) => {
   meta: ComputedRef<Record<string, boolean>>;
   data: ComputedRef<any[]> | Ref<any[]>;
   default: () => any | undefined;
+  remove?: (id: string) => void;
 };
 
 export type MinimalMutateComposable = (

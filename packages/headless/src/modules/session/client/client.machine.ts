@@ -17,7 +17,7 @@ const { addError } = useFeedback();
 import { omit } from "lodash-es";
 import { useTime, useCookies, mapToHeadlessError } from "../../../utils";
 const { removeTopLevel: removeCookie, setTopLevel: setCookie } = useCookies();
-import { useUserParser } from "../utils";
+import { useClientParser } from "../utils";
 
 // --- types
 import { responseCodes } from "../../../utils";
@@ -31,7 +31,7 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "loading",
     context: {
-      user: undefined,
+      client: undefined,
       transfer: undefined,
       // ---
       error: undefined
@@ -44,7 +44,7 @@ export default createMachine(
           src: "load",
           onDone: {
             target: "available",
-            actions: ["setActor", "setUser", "setLocale"]
+            actions: ["setActor", "setClient", "setLocale"]
           },
           onError: { target: "complete", actions: ["setError"] }
         }
@@ -60,6 +60,10 @@ export default createMachine(
       available: {
         id: "available",
         on: {
+          REFRESH: {
+            target: "loading",
+            actions: "clearError"
+          },
           LOGOUT: {
             target: "complete",
             actions: "clear"
@@ -113,7 +117,7 @@ export default createMachine(
     actions: {
       clear: assign((_context, _event) => {
         // clear all session data, including cookies and local storage
-        //  also update the data layer to indicate the user has logged out
+        //  also update the data layer to indicate the client has logged out
         sessionStorage.clear();
         removeCookie("upm_client_session");
         removeCookie("upm_guest_session");
@@ -132,12 +136,13 @@ export default createMachine(
         );
       },
 
-      setUser: assign({
-        user: (_context, { data }: AnyEventObject) => useUserParser(data.actor)
+      setClient: assign({
+        client: (_context, { data }: AnyEventObject) =>
+          useClientParser(data.actor)
       }),
-      setLocale: ({ user }) => {
-        if (!user) return;
-        const locale = user.locale;
+      setLocale: ({ client }) => {
+        if (!client) return;
+        const locale = client.locale;
         useLocale().setLocale(locale);
       },
 

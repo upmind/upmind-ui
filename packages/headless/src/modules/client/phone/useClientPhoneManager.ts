@@ -6,25 +6,25 @@ import { useActor } from "@xstate/vue";
 
 // --- internal
 import { useI18n } from "../../system";
-import itemMachine from "../item.machine";
+import dataManagerMachine from "../../../utils/dataManager.machine";
+import { useClientPhoneActions, useClientPhoneGuards } from "./actions";
+import { useClientPhoneServices } from "./services";
+import { useClientPhones } from "./useClientPhones";
 import { useSession } from "../../session";
-import { useClientAddresses } from "./useClientAddresses";
-import { useClientAddressServices } from "./services";
-import { useClientAddressActions, useClientAddressGuards } from "./actions";
 
 // --- utils
 import {
   DEBOUNCE_DELAY,
+  DetailedError,
+  contextMatches,
+  contextValue,
+  responseCodes,
+  stateMatches,
   stateValue,
   useContext,
+  stopService,
   ErrorOrigin,
-  contextValue,
-  stateMatches,
-  DetailedError,
-  responseCodes,
-  contextMatches,
-  ResponseError,
-  stopService
+  ResponseError
 } from "../../../utils";
 import { debounce, get, isEmpty, isEqual } from "lodash-es";
 
@@ -32,37 +32,37 @@ import { debounce, get, isEmpty, isEqual } from "lodash-es";
 import type { IClient } from "@upmind-automation/types";
 import type { ErrorObject } from "ajv";
 import type { ClientItemContext } from "../types";
-import type { Address, AddressModel } from "./types";
+import type { Phone, PhoneModel } from "./types";
 
 // -----------------------------------------------------------------------------
 
 /**
- * Provides functionalities to manage a client's address, leveraging an XState machine.
- * This composable handles address data, validation, saving, and interaction states.
- * It's designed for use in contexts like client profile management or checkout address selection.
+ * Provides functionalities to manage a client's phone, leveraging an XState machine.
+ * This composable handles phone data, validation, saving, and interaction states.
+ * It's designed for use in contexts like client profile management or checkout phone selection.
  *
- * @param id - The unique identifier of the address to manage. If omitted, it may imply a new address.
+ * @param id - The unique identifier of the phone to manage. If omitted, it may imply a new phone.
  * @param options - Optional configuration for the address management.
- * @param options.allowMultipleEdits - If `true`, allows multiple instances of this composable to manage different addresses concurrently.
- * @param options.clientId - The unique identifier of the client to whom this address belongs.
- * @returns The API for managing the client address.
+ * @param options.allowMultipleEdits - If `true`, allows multiple instances of this composable to manage different phones concurrently.
+ * @param options.clientId - The unique identifier of the client to whom this phone belongs.
+ * @returns The API for managing the client phone.
  */
-export const useClientAddress = (
-  id?: Address["id"],
+export const useClientPhoneManager = (
+  id?: Phone["id"],
   {
     allowMultipleEdits,
     clientId
   }: { allowMultipleEdits?: boolean; clientId?: IClient["id"] } = {}
 ) => {
   const { t } = useI18n();
-  const { getOne } = useClientAddresses();
+  const { getOne } = useClientPhones();
 
   const service = interpret(
-    itemMachine
+    dataManagerMachine
       .withConfig({
-        actions: useClientAddressActions() as any,
-        guards: useClientAddressGuards() as any,
-        services: useClientAddressServices() as any
+        actions: useClientPhoneActions() as any,
+        guards: useClientPhoneGuards() as any,
+        services: useClientPhoneServices() as any
       })
       .withContext({
         clientId,
@@ -71,7 +71,7 @@ export const useClientAddress = (
         allowMultipleEdits
       }),
     {
-      id: id ?? "new-address",
+      id: id ?? "new-phone",
       devTools: false
     }
   );
@@ -82,9 +82,9 @@ export const useClientAddress = (
 
   // the clientId is required to bring the machine into the available state
   const { isAuthenticated } = useSession();
-  isAuthenticated().then(user => {
-    if (user?.id && !contextMatches(state, "clientId")) {
-      send({ type: "REFRESH", data: { clientId: user.id } });
+  isAuthenticated().then(client => {
+    if (client?.id && !contextMatches(state, "clientId")) {
+      send({ type: "REFRESH", data: { clientId: client.id } });
     }
   });
 
@@ -98,8 +98,8 @@ export const useClientAddress = (
     isAvailable: stateMatches(state, "available"),
     isLoading: stateMatches(state, ["subscribing", "loading"]),
     hasErrors: stateMatches(state, "available.error"),
-    isNew: !stateMatches(state, "model.id"),
     isValid: stateMatches(state, "available.valid"),
+    isNew: !stateMatches(state, "model.id"),
     isDirty: !isEqual(
       contextValue<ClientItemContext["model"]>(state, "model"),
       contextValue<ClientItemContext["baseModel"]>(state, "baseModel")
@@ -129,14 +129,14 @@ export const useClientAddress = (
   // --- methods
 
   async function input(
-    model: AddressModel | Record<string, any>
-  ): Promise<AddressModel> {
+    model: PhoneModel | Record<string, any>
+  ): Promise<PhoneModel> {
     send({ type: "SET", data: model });
     // then we wait until the module has been checked and is valid/invalid
     return waitFor(service, state =>
       stateMatches(state, ["available.valid", "available.invalid"])
     )
-      .then(state => get(state, "context.model") as AddressModel)
+      .then(state => get(state, "context.model") as PhoneModel)
       .catch(() => {
         return Promise.reject(
           new DetailedError(
@@ -149,11 +149,11 @@ export const useClientAddress = (
   }
 
   async function update(
-    value?: AddressModel | Record<string, any>
-  ): Promise<AddressModel> {
+    value?: PhoneModel | Record<string, any>
+  ): Promise<PhoneModel> {
     // first check if our model has changed, if it has, we need to send it
 
-    const model = contextValue<AddressModel>(state, "model");
+    const model = contextValue<PhoneModel>(state, "model");
 
     if (!isEmpty(value) && !isEqual(value, model)) {
       send({ type: "SET", data: value, update: true });
@@ -162,40 +162,37 @@ export const useClientAddress = (
     }
 
     // we have to ensure the update is processed and the state is either processed or available.error
-    return (
-      waitFor(
-        service,
-        state => stateMatches(state, ["processed", "available.error"]),
-        { timeout: 60_000 }
-      )
-        .then(state => {
-          if (stateMatches(state, "available.error")) throw state.context.error;
-          return Promise.resolve(state.context.model);
-        })
-        // .then(model => {
-        //   useClientAddressServices().refresh();
-        //   return model as AddressModel;
-        // })
-        .catch(error => {
-          return Promise.reject(
-            new DetailedError(
-              t("error.client_address_update_failed"),
-              error?.status ?? responseCodes.Timeout,
-              ErrorOrigin.Headless,
-              {
-                error,
-                state: state.value
-              }
-            )
-          );
-        })
-    );
+    return waitFor(
+      service,
+      state => stateMatches(state, ["processed", "available.error"]),
+      { timeout: 60_000 }
+    )
+      .then(state => {
+        if (stateMatches(state, "available.error")) throw state.context.error;
+        return Promise.resolve(state.context.model);
+      })
+      .then(model => {
+        useClientPhoneServices().refresh();
+        return model as PhoneModel;
+      })
+      .catch(error => {
+        return Promise.reject(
+          new DetailedError(
+            t("error.client_phone_update_failed"),
+            error?.status ?? responseCodes.Timeout,
+            ErrorOrigin.Headless,
+            {
+              error,
+              state: state.value
+            }
+          )
+        );
+      });
   }
 
   function clear(): void {
     service.send({ type: "CLEAR" });
   }
-
   function stop(): void {
     stopService(service);
   }
@@ -211,7 +208,7 @@ export const useClientAddress = (
 
     /**
      * Meta-information about the state.
-     * @type {Object} UnifiedMeta
+     * @type {Object} UnifiedPhoneMeta
      * @property {boolean} isAvailable - Indicates if the actor is available.
      * @property {boolean} isLoading - Indicates if the actor is loading.
      * @property {boolean} hasErrors - Indicates if there are errors.
@@ -227,13 +224,13 @@ export const useClientAddress = (
     /** The full context object. */
     context,
 
-    /** Title of the address */
+    /** Title of the phone */
     title,
 
-    /** Description of the address */
+    /** Description of the phone */
     description,
 
-    /** The ID of the address */
+    /** The ID of the phone */
     id: useContext<string | undefined>(state, "id"),
 
     /** Any error object from the context. */
@@ -242,10 +239,10 @@ export const useClientAddress = (
     /** Any validation errors from the context. */
     validationErrors,
 
-    /** The current model.*/
+    /** The current model. */
     model,
 
-    /** The JSON schema for the form*/
+    /** The JSON schema for the form */
     schema,
 
     /** The UI schema for the form */
@@ -253,9 +250,7 @@ export const useClientAddress = (
 
     // --- methods
 
-    /**
-     * Stops the service.
-     */
+    /** Stops the service. */
     stop,
 
     /** Clears the context.*/
@@ -263,21 +258,21 @@ export const useClientAddress = (
 
     /**
      * Inputs a new model, resolving to the updated model. This is debounced to avoid excessive calls.
-     * @param {AddressModel} value - The model to input.
-     * @returns {Promise<AddressModel>} The updated model.
+     * @param {PhoneModel} model - The model to input.
+     * @returns {Promise<PhoneModel>} The updated model.
      */
     input: debounce(input, DEBOUNCE_DELAY),
 
     /**
      * Sends the current model to the service for processing.
-     * @param {AddressModel} value The optional new model to set. uses the current model if not provided.
-     * @returns {Promise<AddressModel>} Resolves when updated model from the service, rejects on error.
+     * @param {PhoneModel} value The optional new model to set. uses the current model if not provided.
+     * @returns {Promise<PhoneModel>} Resolves when updated model from the service, rejects on error.
      */
     update
   };
 };
 
 /**
- * The return type of the {@link useClientAddress} composable function.
+ * The return type of the {@link useClientPhoneManager} composable function.
  */
-export type UseClientAddress = ReturnType<typeof useClientAddress>;
+export type UseClientPhone = ReturnType<typeof useClientPhoneManager>;

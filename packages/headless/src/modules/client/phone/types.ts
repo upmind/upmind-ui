@@ -92,7 +92,7 @@ export interface Phone {
    */
   meta: {
     /**
-     * `true` if the user can delete the phone number.
+     * `true` if the client can delete the phone number.
      */
     canDelete: boolean;
     /**

@@ -38,7 +38,7 @@
         size="lg"
         variant="outline"
         :label="t('action.login')"
-        icon="user-circle"
+        icon="client-circle"
         data-testid="login-popover-trigger"
         :ui-config="{
           button: {
@@ -48,9 +48,9 @@
       />
     </SessionLoginPopover>
 
-    <SessionDetailsDropdown v-if="meta.isAuthenticated && user">
+    <SessionDetailsDropdown v-if="meta.isAuthenticated && client">
       <Avatar
-        v-bind="user.avatar"
+        v-bind="client.avatar"
         size="md"
         class="cursor-pointer"
         focusable
@@ -81,7 +81,7 @@ import type { ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { meta, user } = useSession();
+const { meta, client } = useSession();
 const { count } = useBasket();
 
 const styles = useStyles(["header.avatar"], {}, config) as ComputedRef<{

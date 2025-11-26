@@ -21,8 +21,8 @@ import {
 } from "lodash-es";
 
 // --- types
-import type { Token, User } from "./types";
-import type { IUser } from "@upmind-automation/types";
+import type { Token, Client } from "./types";
+import type { IClient } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 function convertToCookie() {
@@ -134,32 +134,31 @@ export function useTokenParser(data: string | Token): Token | undefined {
   } as Token;
 }
 
-export function useInitialsParser(user: any, chars: number = 1) {
-  if (!user) return "";
+export function useInitialsParser(client: IClient, chars: number = 1) {
+  if (!client) return "";
 
-  return slice(user?.display?.split(" "), 0, chars)
+  return slice(client?.public_name?.split(" "), 0, chars)
     ?.map((word: any) => first(word))
     ?.join("");
 }
 
-export function useUserParser(data: IUser): User | undefined {
-  const user: any = pick(data, [
-    "id",
-    "email",
-    "username",
-    "fullname",
-    "firstname",
-    "lastname",
-    "image_url"
-  ]);
-
-  user.display = data?.firstname || data?.public_name || data?.email;
-  user.avatar = {
-    caption: useInitialsParser(user),
-    src: user.image_url,
-    forceCaption: includes(user?.image_url, "gravatar")
-  };
-  user.locale = data?.interface_language_code;
-
-  return user;
+export function useClientParser(raw: IClient): Client | undefined {
+  return {
+    avatar: {
+      caption: useInitialsParser(raw),
+      src: raw.image_url,
+      forceCaption: includes(raw?.image_url, "gravatar")
+    },
+    customFields: raw?.custom_fields || [],
+    display: raw?.firstname || raw?.public_name || raw?.email,
+    email: raw.email,
+    firstName: raw.firstname,
+    fullName: raw.fullname,
+    id: raw.id,
+    language: raw.interface_language_id,
+    lastName: raw.lastname,
+    locale: raw.interface_language_code,
+    publicName: raw.public_name,
+    username: raw.username
+  } as Client;
 }
