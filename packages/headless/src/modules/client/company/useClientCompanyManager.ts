@@ -1,30 +1,30 @@
 // --- external
 import { computed } from "vue";
-import { interpret } from "xstate";
+import { interpret, InterpreterFrom } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 import { useActor } from "@xstate/vue";
 
 // --- internal
 import { useI18n } from "../../system";
-import itemMachine from "../item.machine";
-import { useClientPhoneActions, useClientPhoneGuards } from "./actions";
-import { useClientPhoneServices } from "./services";
-import { useClientPhones } from "./useClientPhones";
+import dataManagerMachine from "../../../utils/dataManager.machine";
+import { useClientCompanyActions, useClientCompanyGuards } from "./actions";
+import { useClientCompanyServices } from "./services";
+import { useClientCompanies } from "./useClientCompanies";
 import { useSession } from "../../session";
 
 // --- utils
 import {
   DEBOUNCE_DELAY,
-  DetailedError,
-  contextMatches,
-  contextValue,
-  responseCodes,
-  stateMatches,
   stateValue,
   useContext,
-  stopService,
   ErrorOrigin,
-  ResponseError
+  contextValue,
+  stateMatches,
+  DetailedError,
+  responseCodes,
+  contextMatches,
+  ResponseError,
+  stopService
 } from "../../../utils";
 import { debounce, get, isEmpty, isEqual } from "lodash-es";
 
@@ -32,46 +32,46 @@ import { debounce, get, isEmpty, isEqual } from "lodash-es";
 import type { IClient } from "@upmind-automation/types";
 import type { ErrorObject } from "ajv";
 import type { ClientItemContext } from "../types";
-import type { Phone, PhoneModel } from "./types";
+import type { Company, CompanyModel } from "./types";
 
 // -----------------------------------------------------------------------------
 
 /**
- * Provides functionalities to manage a client's phone, leveraging an XState machine.
- * This composable handles phone data, validation, saving, and interaction states.
- * It's designed for use in contexts like client profile management or checkout phone selection.
+ * Provides functionalities to manage a client's company, leveraging an XState machine.
+ * This composable handles company data, validation, saving, and interaction states.
+ * It's designed for use in contexts like client profile management or checkout company selection.
  *
- * @param id - The unique identifier of the phone to manage. If omitted, it may imply a new phone.
- * @param options - Optional configuration for the address management.
- * @param options.allowMultipleEdits - If `true`, allows multiple instances of this composable to manage different phones concurrently.
- * @param options.clientId - The unique identifier of the client to whom this phone belongs.
- * @returns The API for managing the client phone.
+ * @param id - The unique identifier of the company to manage. If omitted, it may imply a new company.
+ * @param options - Optional configuration for the company management.
+ * @param options.allowMultipleEdits - If `true`, allows multiple instances of this composable to manage different companies concurrently.
+ * @param options.clientId - The unique identifier of the client to whom this company belongs.
+ * @returns The API for managing the client company.
  */
-export const useClientPhone = (
-  id?: Phone["id"],
+export const useClientCompanyManager = (
+  id?: Company["id"],
   {
     allowMultipleEdits,
     clientId
   }: { allowMultipleEdits?: boolean; clientId?: IClient["id"] } = {}
 ) => {
   const { t } = useI18n();
-  const { getOne } = useClientPhones();
+  const { getOne } = useClientCompanies();
 
   const service = interpret(
-    itemMachine
+    dataManagerMachine
       .withConfig({
-        actions: useClientPhoneActions() as any,
-        guards: useClientPhoneGuards() as any,
-        services: useClientPhoneServices() as any
+        actions: useClientCompanyActions() as any,
+        guards: useClientCompanyGuards() as any,
+        services: useClientCompanyServices() as any
       })
       .withContext({
-        clientId,
+        clientId: clientId,
         id,
         model: getOne(id),
         allowMultipleEdits
       }),
     {
-      id: id ?? "new-phone",
+      id: id ?? "new-company",
       devTools: false
     }
   );
@@ -82,9 +82,9 @@ export const useClientPhone = (
 
   // the clientId is required to bring the machine into the available state
   const { isAuthenticated } = useSession();
-  isAuthenticated().then(user => {
-    if (user?.id && !contextMatches(state, "clientId")) {
-      send({ type: "REFRESH", data: { clientId: user.id } });
+  isAuthenticated().then(client => {
+    if (client?.id && !contextMatches(state, "clientId")) {
+      send({ type: "REFRESH", data: { clientId: client.id } });
     }
   });
 
@@ -129,14 +129,14 @@ export const useClientPhone = (
   // --- methods
 
   async function input(
-    model: PhoneModel | Record<string, any>
-  ): Promise<PhoneModel> {
+    model: CompanyModel | Record<string, any>
+  ): Promise<CompanyModel> {
     send({ type: "SET", data: model });
     // then we wait until the module has been checked and is valid/invalid
     return waitFor(service, state =>
       stateMatches(state, ["available.valid", "available.invalid"])
     )
-      .then(state => get(state, "context.model") as PhoneModel)
+      .then(state => get(state, "context.model") as CompanyModel)
       .catch(() => {
         return Promise.reject(
           new DetailedError(
@@ -149,11 +149,11 @@ export const useClientPhone = (
   }
 
   async function update(
-    value?: PhoneModel | Record<string, any>
-  ): Promise<PhoneModel> {
-    // first check if our model has changed, if it has, we need to send it
+    value?: CompanyModel | Record<string, any>
+  ): Promise<CompanyModel> {
+    // first check if our model has changed, if it has we need to send it
 
-    const model = contextValue<PhoneModel>(state, "model");
+    const model = contextValue<CompanyModel>(state, "model");
 
     if (!isEmpty(value) && !isEqual(value, model)) {
       send({ type: "SET", data: value, update: true });
@@ -172,13 +172,13 @@ export const useClientPhone = (
         return Promise.resolve(state.context.model);
       })
       .then(model => {
-        useClientPhoneServices().refresh();
-        return model as PhoneModel;
+        useClientCompanyServices().refresh();
+        return model as CompanyModel;
       })
       .catch(error => {
         return Promise.reject(
           new DetailedError(
-            t("error.client_phone_update_failed"),
+            t("error.client_email_update_failed"),
             error?.status ?? responseCodes.Timeout,
             ErrorOrigin.Headless,
             {
@@ -193,6 +193,7 @@ export const useClientPhone = (
   function clear(): void {
     service.send({ type: "CLEAR" });
   }
+
   function stop(): void {
     stopService(service);
   }
@@ -208,7 +209,7 @@ export const useClientPhone = (
 
     /**
      * Meta-information about the state.
-     * @type {Object} UnifiedPhoneMeta
+     * @type {Object} UnifiedCompanyMeta
      * @property {boolean} isAvailable - Indicates if the actor is available.
      * @property {boolean} isLoading - Indicates if the actor is loading.
      * @property {boolean} hasErrors - Indicates if there are errors.
@@ -224,13 +225,13 @@ export const useClientPhone = (
     /** The full context object. */
     context,
 
-    /** Title of the phone */
+    /** Title of the company */
     title,
 
-    /** Description of the phone */
+    /** Description of the company */
     description,
 
-    /** The ID of the phone */
+    /** The ID of the company */
     id: useContext<string | undefined>(state, "id"),
 
     /** Any error object from the context. */
@@ -239,7 +240,7 @@ export const useClientPhone = (
     /** Any validation errors from the context. */
     validationErrors,
 
-    /** The current model. */
+    /** The current model.*/
     model,
 
     /** The JSON schema for the form */
@@ -253,26 +254,26 @@ export const useClientPhone = (
     /** Stops the service. */
     stop,
 
-    /** Clears the context.*/
+    /** Clears the context. */
     clear,
 
     /**
      * Inputs a new model, resolving to the updated model. This is debounced to avoid excessive calls.
-     * @param {PhoneModel} model - The model to input.
-     * @returns {Promise<PhoneModel>} The updated model.
+     * @param {CompanyModel} model - The model to input.
+     * @returns {Promise<CompanyModel>} The updated model.
      */
     input: debounce(input, DEBOUNCE_DELAY),
 
     /**
      * Sends the current model to the service for processing.
-     * @param {PhoneModel} value The optional new model to set. uses the current model if not provided.
-     * @returns {Promise<PhoneModel>} Resolves when updated model from the service, rejects on error.
+     * @param {CompanyModel} value The optional new model to set. uses the current model if not provided.
+     * @returns {Promise<CompanyModel>} Resolves when updated model from the service, rejects on error.
      */
     update
   };
 };
 
 /**
- * The return type of the {@link useClientPhone} composable function.
+ * The return type of the {@link useClientCompanyManager} composable function.
  */
-export type UseClientPhone = ReturnType<typeof useClientPhone>;
+export type UseClientCompany = ReturnType<typeof useClientCompanyManager>;

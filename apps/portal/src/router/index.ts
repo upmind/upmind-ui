@@ -28,6 +28,7 @@ import {
 
 import { ROUTE } from "./types";
 import account from "./account";
+import billing from "./billing";
 
 // import { trimStart } from "lodash-es";
 
@@ -49,6 +50,7 @@ const router = createRouter({
       component: () => UpmSessionLoginView
     },
     ...account,
+    ...billing,
 
     // All other routes are prefixed with /order
     {

@@ -1,12 +1,12 @@
 // --- internal
 
-import type { User, IAuthTransfer } from "../types";
+import type { Client, IAuthTransfer } from "../types";
 import type { ResponseError } from "../../../utils";
 
 // -----------------------------------------------------------------------------
 
 export interface ClientContext {
-  user?: User;
+  client?: Client;
   error?: ResponseError;
   transfer?: IAuthTransfer;
 }

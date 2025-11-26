@@ -152,9 +152,6 @@ export function mapToHeadlessError(
   error: unknown,
   fallbackCode: number | responseCodes = responseCodes.Unknown
 ): ResponseError | undefined {
-  // bail out early if the error is empty
-  if (isEmpty(error) || isNil(error)) return undefined;
-
   if (error instanceof DetailedError) {
     return {
       code: error.code,
@@ -170,6 +167,15 @@ export function mapToHeadlessError(
       message: error.message,
       origin: error.origin,
       status: error.code
+    };
+  } else if (error instanceof TypeError) {
+    // bail out early if the error is empty
+    return {
+      code: fallbackCode,
+      message: error.message,
+      status: fallbackCode,
+      data: error.cause ?? error.stack,
+      origin: ErrorOrigin.Headless
     };
   } else if (error instanceof Error) {
     return {

@@ -109,7 +109,7 @@ export interface Address extends AddressModel {
    */
   meta: {
     /**
-     * Indicates whether the user can delete the address.
+     * Indicates whether the client can delete the address.
      */
     canDelete: boolean;
     /**

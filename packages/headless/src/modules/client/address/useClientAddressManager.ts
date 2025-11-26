@@ -6,11 +6,11 @@ import { useActor } from "@xstate/vue";
 
 // --- internal
 import { useI18n } from "../../system";
-import itemMachine from "../item.machine";
-import { useClientEmailActions, useClientEmailGuards } from "./actions";
-import { useClientEmailServices } from "./services";
-import { useClientEmails } from "./useClientEmails";
+import dataManagerMachine from "../../../utils/dataManager.machine";
 import { useSession } from "../../session";
+import { useClientAddresses } from "./useClientAddresses";
+import { useClientAddressServices } from "./services";
+import { useClientAddressActions, useClientAddressGuards } from "./actions";
 
 // --- utils
 import {
@@ -32,38 +32,37 @@ import { debounce, get, isEmpty, isEqual } from "lodash-es";
 import type { IClient } from "@upmind-automation/types";
 import type { ErrorObject } from "ajv";
 import type { ClientItemContext } from "../types";
-import type { Email, EmailModel } from "./types";
+import type { Address, AddressModel } from "./types";
 
 // -----------------------------------------------------------------------------
 
 /**
- * Provides functionalities to manage a client's email, leveraging an XState machine.
- * This composable handles email data, validation, saving, and interaction states.
- * It's designed for use in contexts like client profile management or checkout email selection.
+ * Provides functionalities to manage a client's address, leveraging an XState machine.
+ * This composable handles address data, validation, saving, and interaction states.
+ * It's designed for use in contexts like client profile management or checkout address selection.
  *
- * @param id - The unique identifier of the email to manage. If omitted, it may imply a new email.
- * @param options - Optional configuration for the email management.
- * @param options.allowMultipleEdits - If `true`, allows multiple instances of this composable to manage different emails concurrently.
- * @param options.clientId - The unique identifier of the client to whom this email belongs.
- * @returns The API for managing the client email.
+ * @param id - The unique identifier of the address to manage. If omitted, it may imply a new address.
+ * @param options - Optional configuration for the address management.
+ * @param options.allowMultipleEdits - If `true`, allows multiple instances of this composable to manage different addresses concurrently.
+ * @param options.clientId - The unique identifier of the client to whom this address belongs.
+ * @returns The API for managing the client address.
  */
-export const useClientEmail = (
-  id?: Email["id"],
+export const useClientAddressManager = (
+  id?: Address["id"],
   {
     allowMultipleEdits,
     clientId
   }: { allowMultipleEdits?: boolean; clientId?: IClient["id"] } = {}
 ) => {
   const { t } = useI18n();
-  const { getOne } = useClientEmails();
+  const { getOne } = useClientAddresses();
 
-  // --- state
   const service = interpret(
-    itemMachine
+    dataManagerMachine
       .withConfig({
-        actions: useClientEmailActions() as any,
-        guards: useClientEmailGuards() as any,
-        services: useClientEmailServices() as any
+        actions: useClientAddressActions() as any,
+        guards: useClientAddressGuards() as any,
+        services: useClientAddressServices() as any
       })
       .withContext({
         clientId,
@@ -72,18 +71,20 @@ export const useClientEmail = (
         allowMultipleEdits
       }),
     {
-      id: id ?? "new-email",
+      id: id ?? "new-address",
       devTools: false
     }
   );
 
   const { state, send } = useActor(service.start());
 
+  // --- state
+
   // the clientId is required to bring the machine into the available state
   const { isAuthenticated } = useSession();
-  isAuthenticated().then(user => {
-    if (user?.id && !contextMatches(state, "clientId")) {
-      send({ type: "REFRESH", data: { clientId: user.id } });
+  isAuthenticated().then(client => {
+    if (client?.id && !contextMatches(state, "clientId")) {
+      send({ type: "REFRESH", data: { clientId: client.id } });
     }
   });
 
@@ -97,12 +98,12 @@ export const useClientEmail = (
     isAvailable: stateMatches(state, "available"),
     isLoading: stateMatches(state, ["subscribing", "loading"]),
     hasErrors: stateMatches(state, "available.error"),
+    isNew: !stateMatches(state, "model.id"),
     isValid: stateMatches(state, "available.valid"),
     isDirty: !isEqual(
       contextValue<ClientItemContext["model"]>(state, "model"),
       contextValue<ClientItemContext["baseModel"]>(state, "baseModel")
     ),
-    isNew: !stateMatches(state, "model.id"),
     isProcessing: stateMatches(state, "processing"),
     isComplete:
       stateValue(state, "done", false) ||
@@ -128,14 +129,14 @@ export const useClientEmail = (
   // --- methods
 
   async function input(
-    model: EmailModel | Record<string, any>
-  ): Promise<EmailModel> {
+    model: AddressModel | Record<string, any>
+  ): Promise<AddressModel> {
     send({ type: "SET", data: model });
     // then we wait until the module has been checked and is valid/invalid
     return waitFor(service, state =>
       stateMatches(state, ["available.valid", "available.invalid"])
     )
-      .then(state => get(state, "context.model") as EmailModel)
+      .then(state => get(state, "context.model") as AddressModel)
       .catch(() => {
         return Promise.reject(
           new DetailedError(
@@ -148,11 +149,11 @@ export const useClientEmail = (
   }
 
   async function update(
-    value?: EmailModel | Record<string, any>
-  ): Promise<EmailModel> {
+    value?: AddressModel | Record<string, any>
+  ): Promise<AddressModel> {
     // first check if our model has changed, if it has, we need to send it
 
-    const model = contextValue<EmailModel>(state, "model");
+    const model = contextValue<AddressModel>(state, "model");
 
     if (!isEmpty(value) && !isEqual(value, model)) {
       send({ type: "SET", data: value, update: true });
@@ -161,32 +162,34 @@ export const useClientEmail = (
     }
 
     // we have to ensure the update is processed and the state is either processed or available.error
-    return waitFor(
-      service,
-      state => stateMatches(state, ["processed", "available.error"]),
-      { timeout: 60_000 }
-    )
-      .then(state => {
-        if (stateMatches(state, "available.error")) throw state.context.error;
-        return Promise.resolve(state.context.model);
-      })
-      .then(model => {
-        useClientEmailServices().refresh();
-        return model as EmailModel;
-      })
-      .catch(error => {
-        return Promise.reject(
-          new DetailedError(
-            t("error.client_email_update_failed"),
-            error?.status ?? responseCodes.Timeout,
-            ErrorOrigin.Headless,
-            {
-              error,
-              state: state.value
-            }
-          )
-        );
-      });
+    return (
+      waitFor(
+        service,
+        state => stateMatches(state, ["processed", "available.error"]),
+        { timeout: 60_000 }
+      )
+        .then(state => {
+          if (stateMatches(state, "available.error")) throw state.context.error;
+          return Promise.resolve(state.context.model);
+        })
+        // .then(model => {
+        //   useClientAddressServices().refresh();
+        //   return model as AddressModel;
+        // })
+        .catch(error => {
+          return Promise.reject(
+            new DetailedError(
+              t("error.client_address_update_failed"),
+              error?.status ?? responseCodes.Timeout,
+              ErrorOrigin.Headless,
+              {
+                error,
+                state: state.value
+              }
+            )
+          );
+        })
+    );
   }
 
   function clear(): void {
@@ -208,7 +211,7 @@ export const useClientEmail = (
 
     /**
      * Meta-information about the state.
-     * @type {Object} UnifiedEmailMeta
+     * @type {Object} UnifiedMeta
      * @property {boolean} isAvailable - Indicates if the actor is available.
      * @property {boolean} isLoading - Indicates if the actor is loading.
      * @property {boolean} hasErrors - Indicates if there are errors.
@@ -224,13 +227,13 @@ export const useClientEmail = (
     /** The full context object. */
     context,
 
-    /** Title of the email */
+    /** Title of the address */
     title,
 
-    /** Description of the email */
+    /** Description of the address */
     description,
 
-    /** The ID of the email */
+    /** The ID of the address */
     id: useContext<string | undefined>(state, "id"),
 
     /** Any error object from the context. */
@@ -239,10 +242,10 @@ export const useClientEmail = (
     /** Any validation errors from the context. */
     validationErrors,
 
-    /** The current model. */
+    /** The current model.*/
     model,
 
-    /** The JSON schema for the form */
+    /** The JSON schema for the form*/
     schema,
 
     /** The UI schema for the form */
@@ -250,29 +253,31 @@ export const useClientEmail = (
 
     // --- methods
 
-    /** Stops the service. */
+    /**
+     * Stops the service.
+     */
     stop,
 
-    /** Clears the context. */
+    /** Clears the context.*/
     clear,
 
     /**
      * Inputs a new model, resolving to the updated model. This is debounced to avoid excessive calls.
-     * @param {EmailModel} model - The model to input.
-     * @returns {Promise<EmailModel>} The updated model.
+     * @param {AddressModel} value - The model to input.
+     * @returns {Promise<AddressModel>} The updated model.
      */
     input: debounce(input, DEBOUNCE_DELAY),
 
     /**
      * Sends the current model to the service for processing.
-     * @param {EmailModel} value The optional new model to set. uses the current model if not provided.
-     * @returns {Promise<EmailModel>} Resolves when updated model from the service, rejects on error.
+     * @param {AddressModel} value The optional new model to set. uses the current model if not provided.
+     * @returns {Promise<AddressModel>} Resolves when updated model from the service, rejects on error.
      */
     update
   };
 };
 
 /**
- * The return type of the {@link useClientEmail} composable function.
+ * The return type of the {@link useClientAddressManager} composable function.
  */
-export type UseClientEmail = ReturnType<typeof useClientEmail>;
+export type UseClientAddress = ReturnType<typeof useClientAddressManager>;

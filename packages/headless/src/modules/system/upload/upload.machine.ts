@@ -10,7 +10,8 @@ import {
   useTime,
   useValidationParser,
   responseCodes,
-  mapToHeadlessError
+  mapToHeadlessError,
+  useUrl
 } from "../../../utils";
 import { useFileParser, useFileSrcParser } from "./utils";
 
@@ -134,7 +135,7 @@ export default createMachine(
         name: ({ name }: UploadContext, { data }: AnyEventObject) =>
           data?.name || name,
         src: (_context: UploadContext, { data }: AnyEventObject) =>
-          `/api/images/${data.value}/download`
+          useUrl(`/images/${data.value}/download`).toString()
       }),
 
       setProgress: assign({
