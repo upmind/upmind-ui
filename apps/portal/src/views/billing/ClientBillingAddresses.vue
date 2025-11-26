@@ -11,7 +11,7 @@
         v-model="defaultAddressValue"
         :manage="{
           useList: useClientAddresses,
-          useMutate: useClientAddress
+          useMutate: useClientAddressManager
         }"
       >
         <template #item="{ item, readonly, doEdit, doRemove }">
@@ -55,7 +55,7 @@ import { useI18n } from "vue-i18n";
 // --- internal
 import {
   useClientAddresses,
-  useClientAddress,
+  useClientAddressManager,
   useClientCompanies,
   useClientCompanyManager,
   useSession
