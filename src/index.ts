@@ -65,6 +65,7 @@ export {
   useForwardPropsEmits,
   type VariantValues,
   isEmptySlot,
+  isMobile,
   type Theme,
   type ITheme
 } from "./utils";

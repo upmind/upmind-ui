@@ -6,4 +6,5 @@ export * from "./useValidation";
 export * from "./usePointerEvents";
 export * from "./parseVariants";
 export * from "./isEmptySlot";
+export * from "./isMobile";
 export { useForwardPropsEmits, useForwardProps } from "radix-vue";
