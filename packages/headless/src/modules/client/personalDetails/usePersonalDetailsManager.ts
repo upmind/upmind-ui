@@ -40,7 +40,7 @@ import type { ClientItemContext } from "../types";
 //  * Uses internal actors to manage complex state interactions, including field validation and updates.
 //  */
 
-export const useProfileFieldsManager = ({
+export const usePersonalDetailsManager = ({
   allowMultipleEdits = true,
   filterFields = []
 }: {
@@ -269,8 +269,8 @@ export const useProfileFieldsManager = ({
 };
 
 /**
- * The return type of useProfileFieldsManager composable.
+ * The return type of usePersonalDetailsManager composable.
  */
-export type useProfileFieldsManager = ReturnType<
-  typeof useProfileFieldsManager
+export type usePersonalDetailsManager = ReturnType<
+  typeof usePersonalDetailsManager
 >;

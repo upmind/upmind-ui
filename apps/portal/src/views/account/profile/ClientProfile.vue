@@ -35,7 +35,7 @@ import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 
 // --- internal
-import { useProfileDetails } from "@upmind-automation/headless";
+import { usePersonalDetails } from "@upmind-automation/headless";
 import { ROUTE } from "../../../router/types";
 
 // --- components
@@ -47,7 +47,7 @@ import { Link } from "@upmind-automation/upmind-ui";
 const { t } = useI18n();
 const router = useRouter();
 
-const { data, isReady, meta, customFields } = useProfileDetails();
+const { data, isReady, meta, customFields } = usePersonalDetails();
 
 await isReady();
 </script>

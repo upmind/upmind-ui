@@ -19,7 +19,7 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useRoutingEngine } from "@upmind-automation/headless";
+import { useRoutingEngine, useSession } from "@upmind-automation/headless";
 
 // --- components
 import { Layout } from "@upmind-automation/client-vue";
@@ -29,10 +29,9 @@ import ClientBillingAddresses from "./ClientBillingAddresses.vue";
 import { ROUTE } from "../../router/types";
 
 // -----------------------------------------------------------------------------
-const { currentRoute, isResolved, meta } = useRoutingEngine();
-const { t } = useI18n();
+const { currentRoute, meta } = useRoutingEngine();
 
-await isResolved(ROUTE.ACCOUNT_BILLING);
+const { t } = useI18n();
 
 const layout = computed(() => {
   return currentRoute.value?.meta?.template;
