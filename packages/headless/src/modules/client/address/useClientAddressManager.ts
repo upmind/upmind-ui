@@ -47,7 +47,7 @@ import type { Address, AddressModel } from "./types";
  * @param options.clientId - The unique identifier of the client to whom this address belongs.
  * @returns The API for managing the client address.
  */
-export const useClientAddress = (
+export const useClientAddressManager = (
   id?: Address["id"],
   {
     allowMultipleEdits,
@@ -278,6 +278,6 @@ export const useClientAddress = (
 };
 
 /**
- * The return type of the {@link useClientAddress} composable function.
+ * The return type of the {@link useClientAddressManager} composable function.
  */
-export type UseClientAddress = ReturnType<typeof useClientAddress>;
+export type UseClientAddress = ReturnType<typeof useClientAddressManager>;

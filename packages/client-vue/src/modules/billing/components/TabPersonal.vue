@@ -40,7 +40,7 @@
         v-model="selectedAddress"
         :manage="{
           useList: useClientAddresses,
-          useMutate: useClientAddress
+          useMutate: useClientAddressManager
         }"
         :show-label="!!selectedAddress"
         @processing="wait"
@@ -69,7 +69,7 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 // --- internal
 import {
   useClientAddresses,
-  useClientAddress,
+  useClientAddressManager,
   useClientPhones,
   useClientPhoneManager,
   useBasketBilling

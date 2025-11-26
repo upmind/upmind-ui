@@ -1,7 +1,7 @@
 // --- utils
 
 // --- internal
-import { useClientAddresses, useClientAddress } from "../address";
+import { useClientAddresses, useClientAddressManager } from "../address";
 import {
   useSchemaDefinitions as useAddressSchema,
   useUischemaDefinitions as useAddressUischema
@@ -153,7 +153,7 @@ export const useUischema = ({
       options: {
         manage: {
           useList: useClientAddresses,
-          useMutate: useClientAddress
+          useMutate: useClientAddressManager
         }
       }
     } as any);
