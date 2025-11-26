@@ -134,10 +134,10 @@ export function useTokenParser(data: string | Token): Token | undefined {
   } as Token;
 }
 
-export function useInitialsParser(user: any, chars: number = 1) {
-  if (!user) return "";
+export function useInitialsParser(client: IClient, chars: number = 1) {
+  if (!client) return "";
 
-  return slice(user?.display?.split(" "), 0, chars)
+  return slice(client?.public_name?.split(" "), 0, chars)
     ?.map((word: any) => first(word))
     ?.join("");
 }

@@ -62,12 +62,16 @@ const { isReady, meta, config, update, model } = useBasketBilling();
 
 const activeTab = ref<UnifiedType>();
 
+const { default: defaultCompany, isReady: isCompaniesReady } =
+  useClientCompanies();
+
+const { isReady: isAddressesReady } = useClientAddresses();
+
 await Promise.allSettled([
   isReady(),
-  useClientAddresses().isReady(),
-  useClientCompanies().isReady()
+  isCompaniesReady(),
+  isAddressesReady()
 ]).then(() => {
-  const { default: defaultCompany } = useClientCompanies();
   // set initial value from the basket billing model
   modelValue.value ??= model.value;
   if (

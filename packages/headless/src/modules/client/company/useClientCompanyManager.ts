@@ -1,15 +1,15 @@
 // --- external
 import { computed } from "vue";
-import { interpret } from "xstate";
+import { interpret, InterpreterFrom } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 import { useActor } from "@xstate/vue";
 
 // --- internal
 import { useI18n } from "../../system";
 import dataManagerMachine from "../../../utils/dataManager.machine";
-import { useClientEmailActions, useClientEmailGuards } from "./actions";
-import { useClientEmailServices } from "./services";
-import { useClientEmails } from "./useClientEmails";
+import { useClientCompanyActions, useClientCompanyGuards } from "./actions";
+import { useClientCompanyServices } from "./services";
+import { useClientCompanies } from "./useClientCompanies";
 import { useSession } from "../../session";
 
 // --- utils
@@ -32,52 +32,53 @@ import { debounce, get, isEmpty, isEqual } from "lodash-es";
 import type { IClient } from "@upmind-automation/types";
 import type { ErrorObject } from "ajv";
 import type { ClientItemContext } from "../types";
-import type { Email, EmailModel } from "./types";
+import type { Company, CompanyModel } from "./types";
 
 // -----------------------------------------------------------------------------
 
 /**
- * Provides functionalities to manage a client's email, leveraging an XState machine.
- * This composable handles email data, validation, saving, and interaction states.
- * It's designed for use in contexts like client profile management or checkout email selection.
+ * Provides functionalities to manage a client's company, leveraging an XState machine.
+ * This composable handles company data, validation, saving, and interaction states.
+ * It's designed for use in contexts like client profile management or checkout company selection.
  *
- * @param id - The unique identifier of the email to manage. If omitted, it may imply a new email.
- * @param options - Optional configuration for the email management.
- * @param options.allowMultipleEdits - If `true`, allows multiple instances of this composable to manage different emails concurrently.
- * @param options.clientId - The unique identifier of the client to whom this email belongs.
- * @returns The API for managing the client email.
+ * @param id - The unique identifier of the company to manage. If omitted, it may imply a new company.
+ * @param options - Optional configuration for the company management.
+ * @param options.allowMultipleEdits - If `true`, allows multiple instances of this composable to manage different companies concurrently.
+ * @param options.clientId - The unique identifier of the client to whom this company belongs.
+ * @returns The API for managing the client company.
  */
-export const useClientEmail = (
-  id?: Email["id"],
+export const useClientCompanyManager = (
+  id?: Company["id"],
   {
     allowMultipleEdits,
     clientId
   }: { allowMultipleEdits?: boolean; clientId?: IClient["id"] } = {}
 ) => {
   const { t } = useI18n();
-  const { getOne } = useClientEmails();
+  const { getOne } = useClientCompanies();
 
-  // --- state
   const service = interpret(
     dataManagerMachine
       .withConfig({
-        actions: useClientEmailActions() as any,
-        guards: useClientEmailGuards() as any,
-        services: useClientEmailServices() as any
+        actions: useClientCompanyActions() as any,
+        guards: useClientCompanyGuards() as any,
+        services: useClientCompanyServices() as any
       })
       .withContext({
-        clientId,
+        clientId: clientId,
         id,
         model: getOne(id),
         allowMultipleEdits
       }),
     {
-      id: id ?? "new-email",
+      id: id ?? "new-company",
       devTools: false
     }
   );
 
   const { state, send } = useActor(service.start());
+
+  // --- state
 
   // the clientId is required to bring the machine into the available state
   const { isAuthenticated } = useSession();
@@ -98,11 +99,11 @@ export const useClientEmail = (
     isLoading: stateMatches(state, ["subscribing", "loading"]),
     hasErrors: stateMatches(state, "available.error"),
     isValid: stateMatches(state, "available.valid"),
+    isNew: !stateMatches(state, "model.id"),
     isDirty: !isEqual(
       contextValue<ClientItemContext["model"]>(state, "model"),
       contextValue<ClientItemContext["baseModel"]>(state, "baseModel")
     ),
-    isNew: !stateMatches(state, "model.id"),
     isProcessing: stateMatches(state, "processing"),
     isComplete:
       stateValue(state, "done", false) ||
@@ -128,14 +129,14 @@ export const useClientEmail = (
   // --- methods
 
   async function input(
-    model: EmailModel | Record<string, any>
-  ): Promise<EmailModel> {
+    model: CompanyModel | Record<string, any>
+  ): Promise<CompanyModel> {
     send({ type: "SET", data: model });
     // then we wait until the module has been checked and is valid/invalid
     return waitFor(service, state =>
       stateMatches(state, ["available.valid", "available.invalid"])
     )
-      .then(state => get(state, "context.model") as EmailModel)
+      .then(state => get(state, "context.model") as CompanyModel)
       .catch(() => {
         return Promise.reject(
           new DetailedError(
@@ -148,11 +149,11 @@ export const useClientEmail = (
   }
 
   async function update(
-    value?: EmailModel | Record<string, any>
-  ): Promise<EmailModel> {
-    // first check if our model has changed, if it has, we need to send it
+    value?: CompanyModel | Record<string, any>
+  ): Promise<CompanyModel> {
+    // first check if our model has changed, if it has we need to send it
 
-    const model = contextValue<EmailModel>(state, "model");
+    const model = contextValue<CompanyModel>(state, "model");
 
     if (!isEmpty(value) && !isEqual(value, model)) {
       send({ type: "SET", data: value, update: true });
@@ -171,8 +172,8 @@ export const useClientEmail = (
         return Promise.resolve(state.context.model);
       })
       .then(model => {
-        useClientEmailServices().refresh();
-        return model as EmailModel;
+        useClientCompanyServices().refresh();
+        return model as CompanyModel;
       })
       .catch(error => {
         return Promise.reject(
@@ -208,7 +209,7 @@ export const useClientEmail = (
 
     /**
      * Meta-information about the state.
-     * @type {Object} UnifiedEmailMeta
+     * @type {Object} UnifiedCompanyMeta
      * @property {boolean} isAvailable - Indicates if the actor is available.
      * @property {boolean} isLoading - Indicates if the actor is loading.
      * @property {boolean} hasErrors - Indicates if there are errors.
@@ -224,13 +225,13 @@ export const useClientEmail = (
     /** The full context object. */
     context,
 
-    /** Title of the email */
+    /** Title of the company */
     title,
 
-    /** Description of the email */
+    /** Description of the company */
     description,
 
-    /** The ID of the email */
+    /** The ID of the company */
     id: useContext<string | undefined>(state, "id"),
 
     /** Any error object from the context. */
@@ -239,7 +240,7 @@ export const useClientEmail = (
     /** Any validation errors from the context. */
     validationErrors,
 
-    /** The current model. */
+    /** The current model.*/
     model,
 
     /** The JSON schema for the form */
@@ -258,21 +259,21 @@ export const useClientEmail = (
 
     /**
      * Inputs a new model, resolving to the updated model. This is debounced to avoid excessive calls.
-     * @param {EmailModel} model - The model to input.
-     * @returns {Promise<EmailModel>} The updated model.
+     * @param {CompanyModel} model - The model to input.
+     * @returns {Promise<CompanyModel>} The updated model.
      */
     input: debounce(input, DEBOUNCE_DELAY),
 
     /**
      * Sends the current model to the service for processing.
-     * @param {EmailModel} value The optional new model to set. uses the current model if not provided.
-     * @returns {Promise<EmailModel>} Resolves when updated model from the service, rejects on error.
+     * @param {CompanyModel} value The optional new model to set. uses the current model if not provided.
+     * @returns {Promise<CompanyModel>} Resolves when updated model from the service, rejects on error.
      */
     update
   };
 };
 
 /**
- * The return type of the {@link useClientEmail} composable function.
+ * The return type of the {@link useClientCompanyManager} composable function.
  */
-export type UseClientEmail = ReturnType<typeof useClientEmail>;
+export type UseClientCompany = ReturnType<typeof useClientCompanyManager>;

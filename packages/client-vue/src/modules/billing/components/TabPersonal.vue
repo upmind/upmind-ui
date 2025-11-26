@@ -19,7 +19,7 @@
         as="select"
         :manage="{
           useList: useClientPhones,
-          useMutate: useClientPhone
+          useMutate: useClientPhoneManager
         }"
         :show-label="!!selectedPhone"
         @processing="wait"
@@ -71,7 +71,7 @@ import {
   useClientAddresses,
   useClientAddress,
   useClientPhones,
-  useClientPhone,
+  useClientPhoneManager,
   useBasketBilling
 } from "@upmind-automation/headless";
 
