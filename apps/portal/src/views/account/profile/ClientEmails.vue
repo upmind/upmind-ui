@@ -1,0 +1,50 @@
+<template>
+  <UpmSection :label="t('text.emails')">
+    <i18n-t keypath="text.emails_msg" tag="h1" />
+    <UpmManage
+      i18n-key="form.email"
+      v-model="defaultEmailValue"
+      :always-open="true"
+      :manage="{
+        useList: useClientEmails,
+        useMutate: useClientEmailManager
+      }"
+    >
+      <template #item="{ item, readonly, doEdit, doRemove }">
+        <EmailItem
+          v-bind="item"
+          :readonly="readonly"
+          @edit="doEdit"
+          @remove="doRemove"
+          @verify="verify"
+        />
+      </template>
+    </UpmManage>
+  </UpmSection>
+</template>
+
+<script lang="ts" setup>
+// --- external
+import { useI18n } from "vue-i18n";
+import { ref } from "vue";
+
+// --- internal
+import {
+  useClientEmails,
+  useClientEmailManager
+} from "@upmind-automation/headless";
+
+// --- components
+import { UpmSection, UpmManage } from "@upmind-automation/client-vue";
+import EmailItem from "./EmailItem.vue";
+
+// -----------------------------------------------------------------------------
+
+const { t } = useI18n();
+
+const { isReady: getEmails, default: defaultEmail, verify } = useClientEmails();
+
+await getEmails();
+
+const defaultEmailValue = ref(defaultEmail()?.id);
+</script>

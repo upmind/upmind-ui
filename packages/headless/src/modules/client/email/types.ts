@@ -49,6 +49,10 @@ export interface Email extends EmailModel {
    * The type of email address, corresponding to keys in {@link EmailTypes} (e.g. 1 for "Account").
    */
   type: IEmail["type"];
+  /**
+   * A timestamp indicating when the email address last bounced.
+   */
+  bouncedAt?: string | null;
   // --- meta info
   /**
    * Meta-information about the email address's status and capabilities.
@@ -66,6 +70,10 @@ export interface Email extends EmailModel {
      * `true` if the email address has been verified.
      */
     isVerified: boolean;
+    /**
+     * `true` if the email address has been bounced.
+     */
+    isBounced: boolean;
   };
 }
 

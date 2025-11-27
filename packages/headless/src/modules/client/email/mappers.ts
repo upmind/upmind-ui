@@ -17,11 +17,13 @@ export const mapEmail = (raw: IEmail): Email => {
     email: raw.email,
     title: raw.email,
     description: "",
+    bouncedAt: raw.bounced_at,
     // ---
     meta: {
       isDefault: !!raw.default,
       isVerified: !!raw.verified,
-      canDelete: raw.can_delete
+      canDelete: raw.can_delete,
+      isBounced: !!raw.bounced
     }
   };
 };
