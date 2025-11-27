@@ -12,7 +12,7 @@ test.describe("Terms and Conditions on Registration", () => {
     registration = new Registration(page, context);
     await page.goto(URLs.basket);
     await page.waitForLoadState("networkidle");
-    token = await getSessionToken(context, "guest");
+    token = await getSessionToken(context);
   });
   test("No terms and conditions set", async ({ page }) => {
     await interceptTermsAndConditions(page, token, null, null, null, null);

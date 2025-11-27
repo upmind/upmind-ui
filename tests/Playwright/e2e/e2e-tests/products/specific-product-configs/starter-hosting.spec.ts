@@ -25,7 +25,7 @@ test.describe("Product Config - Happy Paths - Starter Hosting", async () => {
     test(name, async ({ page }) => {
       /* PRODUCT OPTIONS */
       /* Make product selections */
-      await productConfig.clickBillingTerm(billingTerm);
+      await productConfig.selectRadioOption(billingTerm);
       if (domainSelection.includes(0)) {
         await productConfig.domainRegister.click();
         await productConfig.domainRegister
