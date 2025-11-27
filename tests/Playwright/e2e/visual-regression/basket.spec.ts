@@ -46,7 +46,7 @@ for (const { language, locale } of languages) {
       await setLocale(page, locale);
       await page.waitForLoadState("load");
       await page.waitForLoadState("networkidle");
-      token = await getSessionToken(context, "guest");
+      token = await getSessionToken(context);
       orderId = await getCurrentOrderId(token);
       await addProductToOrder(
         token,
@@ -69,7 +69,7 @@ for (const { language, locale } of languages) {
       await setLocale(page, locale);
       await page.waitForLoadState("load");
       await page.waitForLoadState("networkidle");
-      token = await getSessionToken(context, "guest");
+      token = await getSessionToken(context);
       orderId = await getCurrentOrderId(token);
       await addProductToOrder(
         token,
@@ -102,7 +102,7 @@ for (const { language, locale } of languages) {
       await page.goto(URLs.basket);
       await setLocale(page, locale);
       await page.waitForLoadState("networkidle");
-      token = await getSessionToken(context, "guest");
+      token = await getSessionToken(context);
       orderId = await getCurrentOrderId(token);
       await addProductToOrder(
         token,

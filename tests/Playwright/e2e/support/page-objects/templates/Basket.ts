@@ -46,6 +46,6 @@ export class Basket {
   }
 
   async clickShowDetails() {
-    await this.showDetails.click();
+    await this.showDetails.first().click();
   }
 }

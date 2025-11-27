@@ -97,8 +97,8 @@ export async function interceptTermsAndConditions(
   );
 }
 
-export async function interceptUISchema(page: Page, overrides: UIOverrides) {
-  await page.route(
+export function interceptUISchema(page: Page, overrides: UIOverrides) {
+  page.route(
     "**/api/brand/settings?**",
     async (route: Route, request: Request) => {
       const response = await page.request.fetch(request);
@@ -111,9 +111,9 @@ export async function interceptUISchema(page: Page, overrides: UIOverrides) {
         overrides.basketProductsOnCheckout;
       json.data.meta.uischema["@route.checkout.template"] =
         overrides.checkoutTemplate;
-      json.data.meta.uischema["@route['session.register'].template"] =
+      json.data.meta.uischema['@route["session.register"].template'] =
         overrides.registerTemplate;
-      json.data.meta.uischema["@route['session.login'].template"] =
+      json.data.meta.uischema['@route["session.login"].template'] =
         overrides.loginTemplate;
       const updatedResponseBody = {
         ...json

@@ -53,7 +53,7 @@ test.describe("Domain customers", () => {
       await productConfig.addToBasket.click();
       await basket.proceedToCheckout.click();
       await checkout.selectPaymentMethod("Direct Bank Transfer");
-      await checkout.placeOrderButton.click();
+      await checkout.clickPlaceOrder();
       await expect(page.getByRole("dialog")).toContainText(
         "Converting your order"
       );
@@ -66,7 +66,7 @@ test.describe("Domain customers", () => {
       await page.getByText("Log in here").click();
       await login.inputLogin(Logins.domain2.username, Logins.domain2.password);
       await checkout.selectPaymentMethod("Direct Bank Transfer");
-      await checkout.placeOrderButton.click();
+      await checkout.clickPlaceOrder();
       await expect(page.getByRole("dialog")).toContainText(
         "Converting your order"
       );
@@ -87,7 +87,7 @@ test.describe("Domain customers", () => {
         null
       );
       await checkout.selectPaymentMethod("Direct Bank Transfer");
-      await checkout.placeOrderButton.click();
+      await checkout.clickPlaceOrder();
       await expect(page.getByRole("dialog")).toContainText(
         "Converting your order"
       );

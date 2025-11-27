@@ -23,13 +23,13 @@ test.describe("Checkout - Pay Amount", () => {
       await checkout.goToCheckout("genericpromo", null);
       await page.waitForLoadState("networkidle");
       await registration.inputRegistration();
-      await expect(checkout.payAmount).toHaveText("");
+      await expect(checkout.payAmount).toHaveText("Pay £57.60");
     });
     test("Value in alternate currency", async ({ page }) => {
-      await checkout.goToCheckout(null, null);
+      await checkout.goToCheckout(null, "INR");
       await page.waitForLoadState("networkidle");
       await registration.inputRegistration();
-      await expect(checkout.payAmount).toHaveText("");
+      await expect(checkout.payAmount).toHaveText("Pay ₹24,000.00");
     });
   });
   test.describe("Changing Pay Amount value", async () => {
@@ -55,8 +55,14 @@ test.describe("Checkout - Pay Amount", () => {
       await checkout.goToCheckout(null, null);
       await page.waitForLoadState("networkidle");
       await registration.inputRegistration();
-      await page.getByTestId("currency-selector");
-      await page.getByTestId("combobox-item").getByText("AUD");
+      await expect(checkout.billingDetails).toBeVisible();
+      await page
+        .getByTestId("currency-selector")
+        .getByTestId("button-default")
+        .click();
+      await page.getByRole("option").getByText("AUD").click();
+      await page.reload();
+      await page.waitForLoadState("networkidle");
       await expect(checkout.payAmount).toHaveText("Pay A$172.80");
     });
   });

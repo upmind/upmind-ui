@@ -1,11 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { fakerEN_GB } from "@faker-js/faker";
 import { URLs } from "../../../support/constants/urls";
-import {
-  getCurrentOrderId,
-  addProductToOrder
-} from "../../../support/utils/functions/basket";
-import { getSessionToken } from "../../../support/utils/functions/tokens";
 import { Checkout } from "../../../support/page-objects/templates/Checkout";
 import { Registration } from "../../../support/page-objects/templates/Registration";
 import { AcceptedCards } from "../../../support/constants/checkout/payment-cards/AcceptedCards";
@@ -17,8 +11,6 @@ let checkout: Checkout;
 let registration: Registration;
 
 test.describe("Checkout with Stripe", () => {
-  let token: string;
-  let orderId: string | null;
   test.beforeEach(async ({ page, context }) => {
     checkout = new Checkout(page);
     registration = new Registration(page, context);
@@ -27,31 +19,11 @@ test.describe("Checkout with Stripe", () => {
   test.describe("Valid Cards", async () => {
     for (const { name, cardNumber, expiryDate, cvcCode } of AcceptedCards) {
       test(`Accepted Stripe Cards - ${name}`, async ({ page, context }) => {
-        await page.goto(URLs.basket);
-        await page.waitForLoadState("networkidle");
-        token = await getSessionToken(context, "guest");
-        orderId = await getCurrentOrderId(token);
-        await addProductToOrder(
-          `${token}`,
-          `${orderId}`,
-          "3de78642-de53-9714-76df-21208469530d",
-          1,
-          24,
-          [],
-          [],
-          {
-            domain: `${fakerEN_GB.string.alphanumeric({
-              length: { min: 3, max: 15 }
-            })}.com`
-          },
-          []
-        );
-        await page.goto(URLs.checkout);
-        await page.waitForLoadState("networkidle");
+        await checkout.goToCheckout(null, null);
         await registration.inputRegistration();
         await checkout.selectPaymentMethod("Stripe");
         await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
-        await checkout.clickPlaceOrderButton();
+        await checkout.clickPlaceOrderAndPay();
         await checkout.dialogWindow.waitFor();
         await expect(checkout.dialogWindow).toContainText(
           "Converting your order"
@@ -70,31 +42,11 @@ test.describe("Checkout with Stripe", () => {
       dialogText
     } of DeclinedCards) {
       test(`Declined Stripe Cards - ${name}`, async ({ page, context }) => {
-        await page.goto(URLs.basket);
-        await page.waitForLoadState("networkidle");
-        token = await getSessionToken(context, "guest");
-        orderId = await getCurrentOrderId(token);
-        await addProductToOrder(
-          `${token}`,
-          `${orderId}`,
-          "3de78642-de53-9714-76df-21208469530d",
-          1,
-          24,
-          [],
-          [],
-          {
-            domain: `${fakerEN_GB.string.alphanumeric({
-              length: { min: 3, max: 15 }
-            })}.com`
-          },
-          []
-        );
-        await page.goto(URLs.checkout);
-        await page.waitForLoadState("networkidle");
+        await checkout.goToCheckout(null, null);
         await registration.inputRegistration();
         await checkout.selectPaymentMethod("Stripe");
         await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
-        await checkout.clickPlaceOrderButton();
+        await checkout.clickPlaceOrderAndPay();
         await expect(checkout.dialogWindow).toBeVisible();
         await expect(
           checkout.dialogWindow.locator(page.getByText(`${dialogTitle}`))
@@ -118,31 +70,11 @@ test.describe("Checkout with Stripe", () => {
         page,
         context
       }) => {
-        await page.goto(URLs.basket);
-        await page.waitForLoadState("networkidle");
-        token = await getSessionToken(context, "guest");
-        orderId = await getCurrentOrderId(token);
-        await addProductToOrder(
-          `${token}`,
-          `${orderId}`,
-          "3de78642-de53-9714-76df-21208469530d",
-          1,
-          24,
-          [],
-          [],
-          {
-            domain: `${fakerEN_GB.string.alphanumeric({
-              length: { min: 3, max: 15 }
-            })}.com`
-          },
-          []
-        );
-        await page.goto(URLs.checkout);
-        await page.waitForLoadState("networkidle");
+        await checkout.goToCheckout(null, null);
         await registration.inputRegistration();
         await checkout.selectPaymentMethod("Stripe");
         await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
-        await checkout.clickPlaceOrderButton();
+        await checkout.clickPlaceOrderAndPay();
         await expect(
           checkout.dialogWindow.locator(page.getByText(`${dialogTitle}`))
         ).toBeVisible();
@@ -159,27 +91,7 @@ test.describe("Checkout with Stripe", () => {
       dialogText
     } of ErrorCards) {
       test(`Stripe Cards - ${name}`, async ({ page, context }) => {
-        await page.goto(URLs.basket);
-        await page.waitForLoadState("networkidle");
-        token = await getSessionToken(context, "guest");
-        orderId = await getCurrentOrderId(token);
-        await addProductToOrder(
-          `${token}`,
-          `${orderId}`,
-          "3de78642-de53-9714-76df-21208469530d",
-          1,
-          24,
-          [],
-          [],
-          {
-            domain: `${fakerEN_GB.string.alphanumeric({
-              length: { min: 3, max: 15 }
-            })}.com`
-          },
-          []
-        );
-        await page.goto(URLs.checkout);
-        await page.waitForLoadState("networkidle");
+        await checkout.goToCheckout(null, null);
         await registration.inputRegistration();
         await checkout.selectPaymentMethod("Stripe");
         await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
@@ -194,32 +106,12 @@ test.describe("Checkout with Stripe", () => {
   });
   test.describe("Stripe Errors", async () => {
     test("Mock Stripe Card Decline", async ({ page, context }) => {
-      await page.goto(URLs.basket);
-      await page.waitForLoadState("networkidle");
-      token = await getSessionToken(context, "guest");
-      orderId = await getCurrentOrderId(token);
-      await addProductToOrder(
-        `${token}`,
-        `${orderId}`,
-        "3de78642-de53-9714-76df-21208469530d",
-        1,
-        24,
-        [],
-        [],
-        {
-          domain: `${fakerEN_GB.string.alphanumeric({
-            length: { min: 3, max: 15 }
-          })}.com`
-        },
-        []
-      );
-      await page.goto(URLs.checkout);
-      await page.waitForLoadState("networkidle");
+      await checkout.goToCheckout(null, null);
       await registration.inputRegistration();
       await checkout.selectPaymentMethod("Stripe");
       await checkout.mockStripeCardDecline();
       await checkout.inputStripeDetails("4242424242424242", "12/34", "123");
-      await checkout.clickPlaceOrderButton();
+      await checkout.clickPlaceOrderAndPay();
       await page.waitForLoadState("load");
       await expect(page.getByRole("alert")).toContainText(
         "Your card was declined. Your request was in live mode, but used a known test card."
@@ -227,7 +119,6 @@ test.describe("Checkout with Stripe", () => {
     });
     test("Insufficient Payment Amount", async ({ page, context }) => {
       await checkout.goToCheckout(null, null);
-      await page.waitForLoadState("networkidle");
       await registration.inputRegistration();
       await page.waitForLoadState("load");
       await checkout.changeAmountButton.click();

@@ -8,7 +8,7 @@ let testCases = DevBlocks;
 test.beforeEach(async ({ page }) => {
   productConfig = new ProductConfig(page);
   await page.goto(URLs.devBlocks);
-  await productConfig.optionsContainer.waitFor();
+  await page.waitForLoadState("networkidle");
 });
 
 test.describe("Product Config - Happy Paths - Dev Blocks", async () => {
@@ -24,7 +24,7 @@ test.describe("Product Config - Happy Paths - Dev Blocks", async () => {
     test(name, async ({ page }) => {
       /* PRODUCT OPTIONS */
       /* Make product selections */
-      await productConfig.clickBillingTerm(billingTerm);
+      await productConfig.selectRadioOption(billingTerm);
       await page
         .getByTestId("description-list-item-bundle")
         .getByText(bundle)

@@ -39,7 +39,7 @@ test.describe("Hosting customers", async () => {
       await addProductToBasket();
       await basket.proceedToCheckout.click();
       await checkout.selectPaymentMethod("Direct Bank Transfer");
-      await checkout.placeOrderButton.click();
+      await checkout.clickPlaceOrder();
       await expect(page.getByRole("dialog")).toContainText(
         "Converting your order"
       );
@@ -54,7 +54,7 @@ test.describe("Hosting customers", async () => {
         Logins.hosting2.password
       );
       await checkout.selectPaymentMethod("Direct Bank Transfer");
-      await checkout.placeOrderButton.click();
+      await checkout.clickPlaceOrder();
       await expect(page.getByRole("dialog")).toContainText("complete");
     });
   });
@@ -71,7 +71,7 @@ test.describe("Hosting customers", async () => {
         null
       );
       await checkout.selectPaymentMethod("Direct Bank Transfer");
-      await checkout.placeOrderButton.click();
+      await checkout.clickPlaceOrder();
       await expect(page.getByRole("dialog")).toContainText(
         "Converting your order"
       );
