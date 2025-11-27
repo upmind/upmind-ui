@@ -72,6 +72,7 @@ const props = withDefaults(
     label?: string; // optional label to show above the component, defaults to the i18n key
     showLabel?: boolean;
     touched?: boolean;
+    alwaysOpen?: boolean;
   }>(),
   {
     modelValue: "",
@@ -80,7 +81,8 @@ const props = withDefaults(
     identifier: "id",
     label: "",
     showLabel: false,
-    touched: false
+    touched: false,
+    alwaysOpen: false
   }
 );
 
@@ -100,7 +102,7 @@ const modelValue = useVModel(props, "modelValue", emits, {
 });
 
 // -----------------------------------------------------------------------------
-const open = ref(false);
+const open = ref(props.alwaysOpen);
 const openForm = ref(false);
 const editId = ref<string | undefined>();
 
@@ -118,7 +120,10 @@ function doReject() {
 function doResolve(value?: any) {
   modelValue.value = get(value, props.identifier, value);
   openForm.value = false;
-  open.value = false;
+  if (!props.alwaysOpen) {
+    open.value = props.alwaysOpen;
+  }
+
   editId.value = "";
 }
 
