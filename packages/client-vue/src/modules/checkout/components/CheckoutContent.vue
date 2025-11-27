@@ -48,7 +48,7 @@
   />
 
   <!-- Payment Details -->
-  <PaymentDetails />
+  <PaymentDetails data-testid="payment-details" />
 </template>
 
 <script lang="ts" setup>

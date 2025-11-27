@@ -1,5 +1,10 @@
 <template>
-  <Section :active="section" :label="t('action.login')" icon="user-03">
+  <Section
+    :active="section"
+    :label="t('action.login')"
+    icon="user-03"
+    data-testid="login-form"
+  >
     <Auth
       class="rounded-box w-full max-w-5xl items-start"
       no-tabs

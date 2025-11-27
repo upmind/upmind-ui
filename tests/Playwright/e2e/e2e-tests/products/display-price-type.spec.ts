@@ -9,7 +9,7 @@ test.describe("Display Price Types", () => {
     test("Price Type = Lowest Billing Cycle", async ({ page, context }) => {
       await page.goto(URLs.catalogueRoot1);
       await page.waitForLoadState("networkidle");
-      token = await getSessionToken(context, "guest");
+      token = await getSessionToken(context);
       await interceptConfigValues(page, token, {
         displayPriceType: "min"
       });
@@ -28,7 +28,7 @@ test.describe("Display Price Types", () => {
     }) => {
       await page.goto(URLs.catalogueRoot1);
       await page.waitForLoadState("networkidle");
-      token = await getSessionToken(context, "guest");
+      token = await getSessionToken(context);
       await interceptConfigValues(page, token, {
         displayPriceType: "abs_min"
       });
@@ -44,7 +44,7 @@ test.describe("Display Price Types", () => {
     test("Price Type = Lowest Monthly Price", async ({ page, context }) => {
       await page.goto(URLs.catalogueRoot1);
       await page.waitForLoadState("networkidle");
-      token = await getSessionToken(context, "guest");
+      token = await getSessionToken(context);
       await interceptConfigValues(page, token, {
         displayPriceType: "lowest_monthly_price"
       });
@@ -62,13 +62,13 @@ test.describe("Display Price Types", () => {
     test("Price Type = Lowest Billing Cycle", async ({ page, context }) => {
       await page.goto(URLs.starterHosting);
       await page.waitForLoadState("networkidle");
-      token = await getSessionToken(context, "guest");
+      token = await getSessionToken(context);
       await interceptConfigValues(page, token, {
         displayPriceType: "min"
       });
       await page.reload();
       await page.waitForLoadState("load");
-      await expect(page.getByTestId("radio-card-item").first()).toBeVisible();
+      await expect(page.getByTestId("form-item-terms").first()).toBeVisible();
       await expect(page).toHaveScreenshot("prodconfig-lowest-billing-cycle");
     });
     test("Price Type = Highest Billing Cycle divided by Months", async ({
@@ -77,13 +77,13 @@ test.describe("Display Price Types", () => {
     }) => {
       await page.goto(URLs.starterHosting);
       await page.waitForLoadState("networkidle");
-      token = await getSessionToken(context, "guest");
+      token = await getSessionToken(context);
       await interceptConfigValues(page, token, {
         displayPriceType: "abs_min"
       });
       await page.reload();
       await page.waitForLoadState("load");
-      await expect(page.getByTestId("radio-card-item").first()).toBeVisible();
+      await expect(page.getByTestId("form-item-terms").first()).toBeVisible();
       await expect(page).toHaveScreenshot(
         "prodconfig-highest-billing-cycle-divided-by-months"
       );
@@ -91,13 +91,13 @@ test.describe("Display Price Types", () => {
     test("Price Type = Lowest Monthly Price", async ({ page, context }) => {
       await page.goto(URLs.starterHosting);
       await page.waitForLoadState("networkidle");
-      token = await getSessionToken(context, "guest");
+      token = await getSessionToken(context);
       await interceptConfigValues(page, token, {
         displayPriceType: "lowest_monthly_price"
       });
       await page.reload();
       await page.waitForLoadState("load");
-      await expect(page.getByTestId("radio-card-item").first()).toBeVisible();
+      await expect(page.getByTestId("form-item-terms").first()).toBeVisible();
       await expect(page).toHaveScreenshot("prodconfig-lowest-monthly-price");
     });
   });
