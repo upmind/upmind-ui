@@ -1,6 +1,7 @@
 import { Page, Locator } from "@playwright/test";
 export class Login {
   readonly page: Page;
+  readonly loginForm: Locator;
   readonly usernameField: Locator;
   readonly passwordField: Locator;
   readonly loginButton: Locator;
@@ -11,6 +12,7 @@ export class Login {
 
   constructor(page: Page) {
     this.page = page;
+    this.loginForm = page.getByTestId("login-form");
     this.usernameField = page
       .getByTestId("form-item-username")
       .locator("input");

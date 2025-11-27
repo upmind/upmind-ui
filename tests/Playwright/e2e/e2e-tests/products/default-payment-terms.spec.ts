@@ -32,7 +32,7 @@ async function setBillingTerm(
 }
 
 test.describe("Assert correct billing term is selected based on default_payment_period value @default-terms", () => {
-  for (const { name, termSetting, radioGroup, radioOption, url } of terms) {
+  for (const { name, termSetting, radioOption, url } of terms) {
     test(name, async ({ page }) => {
       const productConfig = new ProductConfig(page);
       await setBillingTerm(
@@ -42,24 +42,16 @@ test.describe("Assert correct billing term is selected based on default_payment_
       );
       await page.goto(url);
       await page.waitForLoadState("networkidle");
-
-      const radioCardItem = productConfig.radioButtons.getRadioButton(
-        radioGroup,
-        radioOption
-      );
+      await expect(productConfig.radioButtons.radioGroup.first()).toBeVisible();
+      const radioCardItem =
+        productConfig.radioButtons.getRadioButton(radioOption);
       await expect(radioCardItem).toHaveAttribute("data-state", "checked");
     });
   }
 });
 
 test.describe("Assert that billing term functionality accounts for promotional discounts @default-terms @promotions", () => {
-  for (const {
-    name,
-    termSetting,
-    radioGroup,
-    radioOption,
-    url
-  } of termsWithPromo) {
+  for (const { name, termSetting, radioOption, url } of termsWithPromo) {
     test(name, async ({ page }) => {
       const productConfig = new ProductConfig(page);
 
@@ -70,11 +62,9 @@ test.describe("Assert that billing term functionality accounts for promotional d
       );
       await page.goto(url);
       await page.waitForLoadState("networkidle");
-
-      const radioCardItem = productConfig.radioButtons.getRadioButton(
-        radioGroup,
-        radioOption
-      );
+      await expect(productConfig.radioButtons.radioGroup.first()).toBeVisible();
+      const radioCardItem =
+        productConfig.radioButtons.getRadioButton(radioOption);
       await expect(radioCardItem).toHaveAttribute("data-state", "checked");
     });
   }

@@ -3,7 +3,7 @@ import { test } from "../../../support/fixtures/test";
 import { fakerEN_GB } from "@faker-js/faker";
 import { URLs } from "../../../support/constants/urls";
 import {
-  getCurrentOrderId,
+  createOrder,
   addProductToOrder
 } from "../../../support/utils/functions/basket";
 import {
@@ -28,30 +28,9 @@ test.describe("Checkout with Bank Transfer", () => {
       Logins.bankTransfer.username,
       Logins.bankTransfer.password
     );
-    await page.goto(URLs.basket);
-    await page.waitForLoadState("networkidle");
-    token = await getSessionToken(context, "client");
-    orderId = await getCurrentOrderId(token);
-    await addProductToOrder(
-      `${token}`,
-      `${orderId}`,
-      "3de78642-de53-9714-76df-21208469530d",
-      1,
-      24,
-      [],
-      [],
-      {
-        domain: `${fakerEN_GB.string.alphanumeric({
-          length: { min: 3, max: 15 }
-        })}.com`
-      },
-      []
-    );
-    await page.reload();
-    await page.goto(URLs.checkout);
-    await page.waitForLoadState("domcontentloaded");
+    await checkout.goToCheckout(null, null);
     await checkout.selectPaymentMethod("Direct Bank Transfer");
-    await checkout.placeOrderButton.click();
+    await checkout.clickPlaceOrder();
     await expect(page.getByRole("dialog")).toBeVisible();
     await expect(page.getByRole("dialog")).toContainText("Order complete!");
   });

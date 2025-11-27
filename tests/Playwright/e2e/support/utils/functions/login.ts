@@ -1,5 +1,6 @@
 import { Page } from "@playwright/test";
 import { URLs } from "../../constants/urls";
+import { Logins } from "../../constants/logins";
 import { faker } from "@faker-js/faker";
 
 /* Logs in as checkout test user */
@@ -9,10 +10,8 @@ export async function inputLogin(page: Page) {
   );
   const password = page.getByTestId("form-field-password");
 
-  await username
-    .getByTestId("text-input")
-    .fill("nathan.robinson+checkouttest@upmind.com");
-  await password.getByTestId("text-input").fill("bnd0ATW-udt3bxr0zmw");
+  await username.getByTestId("text-input").fill(Logins.checkoutUser.username);
+  await password.getByTestId("text-input").fill(Logins.checkoutUser.password);
   await page.getByTestId("button-log-into-my-account").click();
 }
 

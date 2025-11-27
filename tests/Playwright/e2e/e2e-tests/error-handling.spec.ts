@@ -15,7 +15,7 @@ test.describe("Error Code Handling", async () => {
   test.beforeEach(async ({ page, context }) => {
     await page.goto(URLs.basket);
     await page.waitForLoadState("networkidle");
-    token = await getSessionToken(context, "guest");
+    token = await getSessionToken(context);
     orderId = await getCurrentOrderId(token);
     setOrderCurrency(token, orderId, "USD");
   });

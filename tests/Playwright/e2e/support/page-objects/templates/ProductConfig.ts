@@ -235,7 +235,10 @@ export class ProductConfig {
   async enterDomain(option: string, domainName: string) {
     const radioOption = this.accordion.getAccordion(option);
     await radioOption.click();
-    await radioOption.getByTestId('[data-testid="input-url"]').fill(domainName);
+    await radioOption
+      .getByTestId("accordion-content")
+      .getByTestId(`input-dac-${kebabCase(option)}`)
+      .fill(domainName);
   }
 
   async enterSld(sld: string) {
@@ -247,8 +250,8 @@ export class ProductConfig {
 
   async addDomain() {
     const drawer = this.drawer.domainResults;
-    const card = drawer.getByTestId("dac-card").first();
-    const button = card.getByRole("button");
+    const card = drawer.getByTestId("dac-card").first().locator("footer");
+    const button = card.getByTestId("button-register");
     await button.click();
   }
 
@@ -263,17 +266,13 @@ export class ProductConfig {
     return badge;
   }
 
-  async promoBadgeDoesNotExist(option: number) {
-    const term = this.billingTerms.locator(
-      this.radioButtons.radioOption.nth(option)
-    );
+  async promoBadgeDoesNotExist(option: string) {
+    const term = this.radioButtons.getRadioButton(option);
     await expect(this.getPromoBadge(term)).toBeHidden();
   }
 
-  async promoBadgeExists(option: number) {
-    const term = this.billingTerms.locator(
-      this.radioButtons.radioOption.nth(option)
-    );
+  async promoBadgeExists(option: string) {
+    const term = this.radioButtons.getRadioButton(option);
     await expect(this.getPromoBadge(term)).toBeVisible();
   }
 
@@ -305,14 +304,6 @@ export class ProductConfig {
     await this.page.getByTestId(`select-item-${registrantCountryCode}`).click();
   }
 
-  async clickBillingTerm(option: number) {
-    await this.billingTerms.waitFor();
-    const term = this.billingTerms.locator(
-      this.radioButtons.radioOption.nth(option)
-    );
-    await term.click();
-  }
-
   async selectRadioOption(option: string) {
     return this.radioButtons.selectRadioOption(option);
   }
@@ -328,7 +319,7 @@ export class ProductConfig {
     return this.form.clearFormInput(label);
   }
 
-  async getSummaryItem(itemLabel: string) {
+  getSummaryItem(itemLabel: string) {
     return this.page.getByTestId(
       `description-list-item-${kebabCase(itemLabel)}`
     );

@@ -22,7 +22,7 @@ test.describe("Google Tag Manager", () => {
   testUrl.forEach(({ name, path }) => {
     test(`${name} - Check <head> for GTM script`, async ({ page }) => {
       const gtmScript = page.locator(
-        `head script[src*="https://www.googletagmanager.com/gtm.js?id=${gtmContainerId}"]`
+        `head script[src*='https://www.googletagmanager.com/gtm.js?id=${gtmContainerId}']`
       );
       await page.goto(path);
       await expect(gtmScript).toHaveCount(1);
