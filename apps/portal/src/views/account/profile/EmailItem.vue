@@ -20,9 +20,10 @@
           size="sm"
           :label="t('text.unverified_label')"
         />
+
         <Tooltip
           v-if="!meta?.isBounced"
-          :label="bouncedMsg"
+          :label="t('text.bounced_msg', { datetime: props.bouncedAt?.date })"
           side="right"
           color="warning"
           class="control-radius max-w-72 text-center text-xs"
@@ -118,12 +119,4 @@ const doVerify = () => {
   if (!props?.id) return;
   emits("verify", props.id);
 };
-
-// Needs to be fixed with Moment or different library
-const bouncedMsg = t("text.bounced_msg", {
-  // datetime: $moment
-  //   .utc(props.bouncedAt)
-  //   .format(t("datetime.datetime.with_seconds") as string)
-  datetime: "needs fixing"
-});
 </script>

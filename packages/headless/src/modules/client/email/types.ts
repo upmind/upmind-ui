@@ -31,11 +31,6 @@ export interface EmailModel {
  * This is typically used for email addresses retrieved from the API or displayed in the UI.
  */
 export interface Email extends EmailModel {
-  //--- identifier
-  /**
-   * The unique identifier for the email address.
-   */
-  id: IEmail["id"];
   //--- computed details
   /**
    * A display title for the email address (e.g. "Account Email").
@@ -52,7 +47,10 @@ export interface Email extends EmailModel {
   /**
    * A timestamp indicating when the email address last bounced.
    */
-  bouncedAt?: string | null;
+  bouncedAt?: {
+    date?: string | null;
+    relative?: string | null;
+  };
   // --- meta info
   /**
    * Meta-information about the email address's status and capabilities.
