@@ -2,12 +2,15 @@
 import utc from "dayjs/plugin/utc";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import advancedFormat from "dayjs/plugin/advancedFormat";
+import { useI18n } from "../modules/system";
 
 // --- utils
 import { isNil } from "lodash-es";
 
 dayjs.extend(utc);
 dayjs.extend(relativeTime);
+dayjs.extend(advancedFormat);
 
 // -----------------------------------------------------------------------------
 
@@ -49,9 +52,10 @@ export function useRelativeTime(
 ): string {
   // Guard against null/undefined inputs using lodash
   if (isNil(timestamp)) return "";
-  if (isNil(currentTime)) return "";
+  // if (isNil(currentTime)) return "";
 
-  const now = dayjs(currentTime);
+  const now = dayjs(currentTime || new Date());
+
   const target =
     typeof timestamp === "string"
       ? dayjs.utc(timestamp).local()
@@ -61,4 +65,27 @@ export function useRelativeTime(
   if (target.valueOf() === now.valueOf()) return "now";
 
   return target.from(now);
+}
+
+export function useDateMapper(
+  timestamp: EpochTimeStamp | string | null | undefined,
+  currentTime?: EpochTimeStamp,
+  format = useI18n().t("MMM Do, YYYY HH:mm:ss A")
+): { date?: string | null; relative?: string | null } {
+  const { t } = useI18n();
+  // Guard against null/undefined inputs using lodash
+  if (isNil(timestamp)) return {};
+
+  const now = dayjs(currentTime || new Date());
+
+  const target =
+    typeof timestamp === "string"
+      ? dayjs.utc(timestamp).local()
+      : dayjs(timestamp);
+
+  return {
+    date: timestamp ? target.format(format) : null,
+    relative:
+      target.valueOf() === now.valueOf() ? t("text.now") : target.from(now)
+  };
 }
