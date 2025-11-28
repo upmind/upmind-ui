@@ -22,7 +22,7 @@
         />
 
         <Tooltip
-          v-if="!meta?.isBounced"
+          v-if="meta?.isBounced"
           :label="t('text.bounced_msg', { datetime: props.bouncedAt?.date })"
           side="right"
           color="warning"
