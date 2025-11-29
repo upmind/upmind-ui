@@ -57,7 +57,16 @@
           class="pointer-events-auto ml-2 h-4"
           @click.stop.prevent="doDelete"
         />
-        <!--  -->
+        <Link
+          v-if="!props.readonly && !meta?.isDefault"
+          :label="t('action.set_as_default')"
+          size="sm"
+          color="muted"
+          tabindex="-1"
+          @mousedown.stop.prevent
+          class="pointer-events-auto ml-2 h-4"
+          @click.stop.prevent="setDefault"
+        />
         <Link
           v-if="!props.readonly && !meta?.isVerified"
           :label="t('action.verify')"
@@ -99,6 +108,7 @@ const emits = defineEmits<{
   (e: "edit", id: string): void;
   (e: "remove", id: string): void;
   (e: "verify", id: string): void;
+  (e: "setDefault", id: string): void;
 }>();
 
 // -----------------------------------------------------------------------------
@@ -118,5 +128,10 @@ const doDelete = () => {
 const doVerify = () => {
   if (!props?.id) return;
   emits("verify", props.id);
+};
+
+const setDefault = () => {
+  if (!props?.id) return;
+  emits("setDefault", props.id);
 };
 </script>

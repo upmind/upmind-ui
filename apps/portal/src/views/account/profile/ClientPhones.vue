@@ -4,18 +4,19 @@
     <UpmManage
       i18n-key="form.phone"
       v-model="defaultPhoneValue"
-      :always-open="true"
+      :force-open="true"
       :manage="{
         useList: useClientPhones,
         useMutate: useClientPhoneManager
       }"
     >
-      <template #item="{ item, readonly, doEdit, doRemove }">
+      <template #item="{ item, readonly, doEdit, doRemove, setDefault }">
         <PhoneItem
           v-bind="item"
           :readonly="readonly"
           @edit="doEdit"
           @remove="doRemove"
+          @setDefault="setDefault"
         />
       </template>
     </UpmManage>
