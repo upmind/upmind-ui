@@ -7,6 +7,7 @@
     :items="parsedValues"
     :class="props.class"
     :list="false"
+    :force-open="props.forceOpen"
     :minimal="props.minimal"
     required
   >
@@ -17,7 +18,8 @@
           item: getItem(item.id!),
           readonly: readonly || (!open && parsedValues.length > 1),
           doEdit,
-          doRemove
+          doRemove,
+          setDefault
         }"
       >
         <Item
@@ -25,6 +27,7 @@
           :readonly="props.readonly || (!open && parsedValues.length > 1)"
           @edit="doEdit"
           @remove="doRemove"
+          @setDefault="setDefault"
         />
       </slot>
     </template>
@@ -37,7 +40,7 @@
             :label="t('action.change')"
             size="sm"
             color="muted"
-            @click="open = true"
+            @click="props.forceOpen ? () => {} : (open = true)"
           />
 
           <Link
@@ -55,7 +58,7 @@
             :label="t('action.close')"
             size="sm"
             color="muted"
-            @click="open = false"
+            @click="props.forceOpen ? () => {} : () => (open = false)"
           />
         </footer>
       </slot>
@@ -95,6 +98,7 @@ const props = defineProps<{
   open?: boolean;
   minimal?: boolean; // if true, the component will not show the actions and will not be collapsible
   class?: HtmlHTMLAttributes["class"];
+  forceOpen?: boolean;
 }>();
 
 const emits = defineEmits<{
@@ -103,6 +107,7 @@ const emits = defineEmits<{
   (e: "edit", id: string): void;
   (e: "remove", id: string): void;
   (e: "update:open"): void;
+  (e: "setDefault", id: string): void;
 }>();
 
 const { t } = useI18n();
@@ -119,7 +124,7 @@ const modelValue = useVModel(props, "modelValue", emits, {
 // -----------------------------------------------------------------------------
 const open = useVModel(props, "open", emits, {
   passive: true,
-  defaultValue: false
+  defaultValue: props.forceOpen ? true : false
 });
 
 const parsedValues = computed(() => {
@@ -149,5 +154,9 @@ function doEdit(id: string) {
 
 function doRemove(id: string) {
   emits("remove", id);
+}
+
+function setDefault(id: string) {
+  emits("setDefault", id);
 }
 </script>

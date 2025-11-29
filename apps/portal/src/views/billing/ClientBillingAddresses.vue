@@ -9,17 +9,19 @@
       <UpmManage
         i18n-key="form.address"
         v-model="defaultAddressValue"
+        :force-open="true"
         :manage="{
           useList: useClientAddresses,
           useMutate: useClientAddressManager
         }"
       >
-        <template #item="{ item, readonly, doEdit, doRemove }">
+        <template #item="{ item, readonly, doEdit, doRemove, setDefault }">
           <AddressItem
             v-bind="item"
             :readonly="readonly"
             @edit="doEdit"
             @remove="doRemove"
+            @setDefault="setDefault"
           />
         </template>
       </UpmManage>
@@ -29,17 +31,19 @@
       <UpmManage
         i18n-key="form.company"
         v-model="defaultCompanyValue"
+        :force-open="true"
         :manage="{
           useList: useClientCompanies,
           useMutate: useClientCompanyManager
         }"
       >
-        <template #item="{ item, readonly, doEdit, doRemove }">
+        <template #item="{ item, readonly, doEdit, doRemove, setDefault }">
           <CompanyItem
             v-bind="item"
             :readonly="readonly"
             @edit="doEdit"
             @remove="doRemove"
+            @setDefault="setDefault"
           />
         </template>
       </UpmManage>

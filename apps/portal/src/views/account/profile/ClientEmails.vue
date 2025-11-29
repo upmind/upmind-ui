@@ -4,19 +4,20 @@
     <UpmManage
       i18n-key="form.email"
       v-model="defaultEmailValue"
-      :always-open="true"
+      :force-open="true"
       :manage="{
         useList: useClientEmails,
         useMutate: useClientEmailManager
       }"
     >
-      <template #item="{ item, readonly, doEdit, doRemove }">
+      <template #item="{ item, readonly, doEdit, doRemove, setDefault }">
         <EmailItem
           v-bind="item"
           :readonly="readonly"
           @edit="doEdit"
           @remove="doRemove"
           @verify="verify"
+          @setDefault="setDefault"
         />
       </template>
     </UpmManage>
