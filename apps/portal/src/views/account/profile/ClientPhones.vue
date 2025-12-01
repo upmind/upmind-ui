@@ -41,9 +41,8 @@ import PhoneItem from "./PhoneItem.vue";
 
 const { t } = useI18n();
 
-const { isReady: getPhones, default: defaultPhone } = useClientPhones();
+const { isReady, default: defaultPhone } = useClientPhones();
 
-await getPhones();
-
+await isReady();
 const defaultPhoneValue = ref(defaultPhone()?.id);
 </script>

@@ -43,9 +43,9 @@ import EmailItem from "./EmailItem.vue";
 
 const { t } = useI18n();
 
-const { isReady: getEmails, default: defaultEmail, verify } = useClientEmails();
+const { isReady, default: defaultEmail, verify } = useClientEmails();
 
-await getEmails();
+await isReady();
 
 const defaultEmailValue = ref(defaultEmail()?.id);
 </script>

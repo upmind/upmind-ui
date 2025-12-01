@@ -55,7 +55,6 @@ async function load(_context: GuestContext, _event: AnyEventObject) {
 
 async function loadUser() {
   const { get, useUrl } = useQuery();
-
   return get({
     url: useUrl("self", {
       with: [

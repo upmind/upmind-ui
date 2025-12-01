@@ -24,7 +24,7 @@
 import { computed } from "vue";
 
 // --- internal
-import { useRoutingEngine } from "@upmind-automation/headless";
+import { useRoutingEngine, useSession } from "@upmind-automation/headless";
 
 // --- components
 import { Layout } from "@upmind-automation/client-vue";
@@ -38,6 +38,9 @@ import { ROUTE } from "../../../router/types";
 // -----------------------------------------------------------------------------
 
 const { currentRoute, meta } = useRoutingEngine();
+
+const { isAuthenticated } = useSession();
+await isAuthenticated();
 
 const layout = computed(() => {
   return currentRoute.value?.meta?.template;
