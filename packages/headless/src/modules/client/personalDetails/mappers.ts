@@ -4,8 +4,9 @@ import { CustomField } from "../customFields";
 import { FieldsModel, ProfileField, useBrand, useI18n } from "../../";
 
 // --- utils
-import { map, find, get, omitBy, isEmpty } from "lodash-es";
+import { map, find, get, omitBy, isEmpty, isNil } from "lodash-es";
 import { IClient } from "@upmind-automation/types";
+import { isString } from "xstate/lib/utils";
 
 export function mapProfileFields(
   client: Client,
@@ -68,12 +69,36 @@ export function mapProfileFields(
         id: customField.id,
         code: customField.code,
         title: customField.name,
-        value: find(client.customFields || [], ["field_id", customField.id])
-          ?.value,
+        value: mapCustomFieldValue(
+          find(client.customFields || [], ["field_id", customField.id])?.value,
+          customField
+        ),
+
         meta: { ...customField.meta, isCustomField: true }
       };
     })
   ];
+}
+
+export function mapCustomFieldValue(value: any, field?: CustomField): any {
+  if (!field) return value;
+  switch (field.type) {
+    case "number":
+      return Number(value);
+
+    case "date":
+      return value; // TODO: date parsing
+
+    case "boolean":
+    case "tick_box":
+      return isString(value)
+        ? value === "true" || value === "1" || false
+        : Boolean(value);
+
+    case "string":
+    default:
+      return String(value);
+  }
 }
 
 export function mapIProfileFields(data: FieldsModel): Partial<IClient> {
@@ -84,7 +109,7 @@ export function mapIProfileFields(data: FieldsModel): Partial<IClient> {
       public_name: data.publicName,
       interface_language_id: data.language,
       document_language_id: data.language,
-      custom_fields: omitBy(data.customFields, isEmpty)
+      custom_fields: omitBy(data.customFields, isNil)
     },
     isEmpty
   ) as Partial<IClient>;

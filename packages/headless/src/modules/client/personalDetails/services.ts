@@ -18,7 +18,7 @@ import {
   responseCodes,
   useModelParser
 } from "../../../utils";
-import { mapIProfileFields } from "./mappers";
+import { mapCustomFieldValue, mapIProfileFields } from "./mappers";
 import { useClientParser } from "../../session/utils";
 import { get, find, pick, reduce, set, isEmpty, omit, omitBy } from "lodash-es";
 
@@ -51,11 +51,16 @@ async function loadLookups({
           null
         );
         if (!fieldCode) return result;
-        set(result, fieldCode, element.value);
+        const value = mapCustomFieldValue(
+          element.value,
+          find(customFields.value, ["id", element.field_id])
+        );
+        set(result, fieldCode, value);
         return result;
       },
       {} as Record<string, any>
     );
+
     let baseModel: FieldsModel = {
       firstName: client.value?.firstName,
       lastName: client.value?.lastName,
