@@ -47,6 +47,10 @@ export const useSchema = ({ lookups }: FieldsContext): JsonSchema7 => {
         (lookups?.filterFields ?? []).includes(`customFields.${key}`)
     ) as JsonSchema7["properties"];
 
+    customFields.required = filter(customFields.required, field =>
+      (lookups?.filterFields ?? []).includes(`customFields.${field}`)
+    );
+
     schemaProps = {
       ...pick(schemaProps, lookups?.filterFields ?? []),
       ...(isEmpty(customFields["properties"]) ? {} : { customFields })

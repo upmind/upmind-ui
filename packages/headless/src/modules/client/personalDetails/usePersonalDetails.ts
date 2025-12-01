@@ -23,7 +23,6 @@ import { mapProfileFields } from "./mappers";
  * @returns The {@link UseProfileDetails} API for interacting with client phones.
  */
 export const usePersonalDetails = () => {
-  const { t } = useI18n();
   const { isAuthenticated, meta: sessionMeta, client } = useSession();
 
   const {
