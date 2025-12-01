@@ -8,8 +8,7 @@ import { useActor } from "@xstate/vue";
 // --- internal
 // import { useBasket } from "./";
 import { useProfileDetailsActions, useProfileDetailsGuards } from "./actions";
-import services from "./services";
-
+import { useProfileDetailsServices } from "./services";
 // --- utils
 import {
   DetailedError,
@@ -57,7 +56,7 @@ export const usePersonalDetailsManager = ({
       .withConfig({
         actions: useProfileDetailsActions() as any,
         guards: useProfileDetailsGuards() as any,
-        services: services() as any
+        services: useProfileDetailsServices() as any
       })
       .withContext({
         allowMultipleEdits,
@@ -111,38 +110,14 @@ export const usePersonalDetailsManager = ({
       stateMatches(state, ["processed", "complete"])
   }));
 
-  // const meta = computed(() => ({
-  //   client: client.value,
-  //   isAvailable: !!client.value,
-  //   isLoading: !client.value,
-  //   hasFields: true,
-  //   hasErrors: false,
-  //   isProcessing: false,
-  //   isValid: true,
-  //   isDirty: false,
-  //   isComplete: false,
-  //   fields: customFields.value
-  //   // hasFields: contextMatches(actor, ["fields"]),
-  //   // hasErrors: stateMatches(actor, ["error"]),
-  //   // isProcessing: stateMatches(actor, ["processing"]),
-  //   // isValid: stateMatches(actor, ["valid"]),
-  //   // isDirty: !isEqual(
-  //   //   contextValue<FieldsContext["model"]>(actor, "model"),
-  //   //   contextValue<FieldsContext["baseModel"]>(actor, "baseModel")
-  //   // ),
-  //   // isComplete:
-  //   //   stateValue(actor, "done", false) ||
-  //   //   stateMatches(actor, ["processed", "complete"])
-  // }));
-
   // --- context
 
-  const context = useContext<FieldsContext>(service);
-  const fields = useContext<CustomField[]>(service, "lookups.fields");
-  const errors = useContext<FieldsContext["error"]>(service, "error");
-  const model = useContext<FieldsContext["model"]>(service, "model");
-  const schema = useContext<FieldsContext["schema"]>(service, "schema");
-  const uischema = useContext<FieldsContext["uischema"]>(service, "uischema");
+  const context = useContext<FieldsContext>(state);
+  const fields = useContext<CustomField[]>(state, "lookups.fields");
+  const errors = useContext<FieldsContext["error"]>(state, "error");
+  const model = useContext<FieldsContext["model"]>(state, "model");
+  const schema = useContext<FieldsContext["schema"]>(state, "schema");
+  const uischema = useContext<FieldsContext["uischema"]>(state, "uischema");
 
   // --- methods
 
@@ -204,7 +179,7 @@ export const usePersonalDetailsManager = ({
   }
   //   // ---------------------------------------------------------------------------
   return {
-    //     // --- state
+    // --- state
 
     /**
      * Waits for the fields actor to be ready (not loading or error state).

@@ -30,6 +30,8 @@ import { ROUTE } from "../../router/types";
 
 // -----------------------------------------------------------------------------
 const { currentRoute, meta } = useRoutingEngine();
+const { isAuthenticated } = useSession();
+await isAuthenticated();
 
 const { t } = useI18n();
 

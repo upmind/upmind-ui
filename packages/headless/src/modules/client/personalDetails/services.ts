@@ -32,6 +32,7 @@ import type { QueryKey } from "@tanstack/vue-query";
 // -----------------------------------------------------------------------------
 // QUERIES
 const queryKey: QueryKey = ["client"];
+
 async function loadLookups({
   model,
   schema,
@@ -94,16 +95,17 @@ async function update(data: FieldsModel) {
     data: mapIProfileFields(data),
     withAccessToken: true,
     withoutLocale: true
-  }).then(response => {
-    // Parse the updated client
-    const client = useClientParser(response);
-    if (!client) return;
-    // ensure we honor the clients locale ( it may have changed )
-    useLocale().setLocale(client.locale);
-    invalidateQueryByKey(queryKey, { exact: false });
-    refresh();
-    return client;
-  });
+  })
+    .then(invalidateQueryByKey(queryKey, { exact: false }))
+    .then(response => {
+      // Parse the updated client
+      const client = useClientParser(response as IClient);
+      if (!client) return;
+      // ensure we honor the clients locale ( it may have changed )
+      useLocale().setLocale(client.locale);
+      refresh();
+      return client;
+    });
 }
 
 // -----------------------------------------------------------------------------
@@ -174,7 +176,7 @@ async function validate({ schema, model }: Partial<any>) {
 
 // -----------------------------------------------------------------------------
 
-export default () => {
+export const useProfileDetailsServices = () => {
   const { t } = useI18n();
 
   return {
