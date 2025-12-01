@@ -31,7 +31,10 @@
         <slot></slot>
       </section>
 
-      <footer :class="styles.interstitial.actions">
+      <footer
+        v-if="!isEmptySlot('actions', slots) || !isEmpty(actions)"
+        :class="styles.interstitial.actions"
+      >
         <slot name="actions">
           <Button
             v-for="(action, index) in actions"
@@ -52,17 +55,17 @@
 <!-- eslint-disable vue/component-api-style -->
 <script lang="ts" setup>
 // --- external
-import { ref, computed } from "vue";
+import { ref, computed, useSlots } from "vue";
 
 // --- internal
-import { useStyles, cn } from "../../utils";
+import { useStyles, cn, isEmptySlot } from "../../utils";
 import config from "./interstitial.config";
+import { isEmpty } from "lodash-es";
 
 // --- components
 import { Dialog } from "../dialog";
 import { Button } from "../button";
 import { Avatar } from "../avatar";
-import { Icon } from "../icon";
 import Sanitized from "../sanitized/Sanitized.vue";
 
 // --- utils
@@ -93,6 +96,8 @@ const meta = computed(() => ({
   isOpen: props.open,
   isModal: props.modal
 }));
+
+const slots = useSlots();
 
 const styles = useStyles(
   "interstitial",
