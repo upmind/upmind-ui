@@ -50,7 +50,7 @@ export default {
       }
     }),
     item: cva(
-      "data-[state=unchecked]:text-muted data-[state=unchecked]:hover:text-control-selected data-[highlighted]:!text-control-selected data-[state=checked]:bg-control-selected data-[state=checked]:text-control-selected cursor-pointer gap-3 rounded px-4 py-3 font-normal transition-all duration-200",
+      "data-[state=unchecked]:text-muted control-radius data-[state=unchecked]:hover:text-control-selected data-[highlighted]:!text-control-selected data-[state=checked]:bg-control-selected data-[state=checked]:text-control-selected cursor-pointer gap-3 rounded px-4 py-2 font-normal transition-all duration-200",
       {
         variants: {
           size: variants.size
@@ -58,7 +58,7 @@ export default {
       }
     ),
     content: cva(
-      `control-radius shadow-control-default bg-control-surface ring-primitive-control-default! my-2 border-none ${ringClasses} ${invalidRingClasses} p-0`
+      `control-radius shadow-control-default bg-control-surface ring-primitive-control-default! my-1 border-none ${ringClasses} ${invalidRingClasses} p-0`
     )
   }
 };
