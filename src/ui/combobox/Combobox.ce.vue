@@ -81,7 +81,7 @@
           </CommandInput>
         </template>
         <CommandList
-          class="border-control-default w-full max-w-full border-t p-2"
+          class="border-control-default w-full max-w-full border-t"
           loop
         >
           <CommandEmpty class="text-muted">{{ emptyMessage }}</CommandEmpty>
