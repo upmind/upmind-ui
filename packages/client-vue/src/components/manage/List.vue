@@ -7,7 +7,6 @@
     :items="parsedValues"
     :class="props.class"
     :list="false"
-    :force-open="props.forceOpen"
     :minimal="props.minimal"
     required
   >
@@ -40,7 +39,7 @@
             :label="t('action.change')"
             size="sm"
             color="muted"
-            @click="props.forceOpen ? () => {} : (open = true)"
+            @click="open = true"
           />
 
           <Link
@@ -58,7 +57,7 @@
             :label="t('action.close')"
             size="sm"
             color="muted"
-            @click="props.forceOpen ? () => {} : () => (open = false)"
+            @click="open = false"
           />
         </footer>
       </slot>
@@ -98,7 +97,6 @@ const props = defineProps<{
   open?: boolean;
   minimal?: boolean; // if true, the component will not show the actions and will not be collapsible
   class?: HtmlHTMLAttributes["class"];
-  forceOpen?: boolean;
 }>();
 
 const emits = defineEmits<{
@@ -116,16 +114,10 @@ const { data, meta, default: defaultItem, isReady } = props.useList();
 
 await isReady();
 
-const modelValue = useVModel(props, "modelValue", emits, {
-  passive: true,
-  defaultValue: defaultItem()?.id
-});
+const modelValue = defineModel<string>("modelValue", {});
 
 // -----------------------------------------------------------------------------
-const open = useVModel(props, "open", emits, {
-  passive: true,
-  defaultValue: props.forceOpen ? true : false
-});
+const open = defineModel<boolean>("open", {});
 
 const parsedValues = computed(() => {
   return map(data?.value ?? [], (item: any, index: number) => {

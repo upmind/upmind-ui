@@ -7,12 +7,11 @@
     <component
       :is="component"
       :useList="manage.useList"
-      v-model:open="open"
+      v-model:open="safeOpen"
       v-model="modelValue"
       :readonly="props.readonly"
       :class="props.class"
       class="text-md"
-      :force-open="props.forceOpen"
       :minimal="props.minimal"
       @add="doAdd"
       @edit="doEdit"
@@ -111,9 +110,18 @@ const modelValue = useVModel(props, "modelValue", emits, {
 
 // -----------------------------------------------------------------------------
 const open = ref(props.forceOpen);
+const safeOpen = computed({
+  get() {
+    return props.forceOpen ? true : open.value;
+  },
+  set(value: boolean) {
+    debugger;
+
+    open.value = props.forceOpen ? true : value;
+  }
+});
 const openForm = ref(false);
 const editId = ref<string | undefined>();
-
 const component = computed(() => {
   return props.as === "list" ? List : Select;
 });
@@ -129,7 +137,7 @@ function doResolve(value?: any) {
   modelValue.value = get(value, props.identifier, value);
   openForm.value = false;
   if (!props.forceOpen) {
-    open.value = false;
+    safeOpen.value = false;
   }
 
   editId.value = "";
