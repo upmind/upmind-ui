@@ -34,11 +34,7 @@ const forwardedProps = useForwardProps(delegatedProps);
     "
     :data-testid="`select-item-${props.value}`"
   >
-    <slot name="indicator">
-      <SelectItemIndicator>
-        <Check class="h-4 w-4" />
-      </SelectItemIndicator>
-    </slot>
+    <slot name="indicator" />
 
     <SelectItemText>
       <slot />
