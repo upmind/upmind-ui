@@ -8,7 +8,7 @@
       <Button
         :loading="props.loading"
         :class="cn('group', styles.combobox.trigger, props.class)"
-        :size="props.size"
+        size="lg"
         :aria-expanded="open"
         variant="control"
         icon-append="chevron-down"
@@ -116,15 +116,6 @@
                   >{{ item.tag }}</span
                 >
               </span>
-
-              <Icon
-                v-if="props.checkedIcon"
-                icon="check"
-                size="2xs"
-                :class="
-                  cn('ml-auto', isSelected(item) ? 'opacity-100' : 'opacity-0')
-                "
-              />
             </CommandItem>
           </CommandGroup>
         </CommandList>
