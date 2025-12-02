@@ -19,7 +19,7 @@
       <Input
         class="group-hover:shadow-control-hover z-10 rounded-l-none!"
         :disabled="!control.enabled"
-        :default-value="
+        :model-value="
           phone?.nationalNumber ||
           control.data?.nationalNumber ||
           control.data?.number

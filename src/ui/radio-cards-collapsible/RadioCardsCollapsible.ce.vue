@@ -95,8 +95,7 @@
 
 <script setup lang="ts">
 // --- external
-import { computed, ref } from "vue";
-import { useVModel } from "@vueuse/core";
+import { computed } from "vue";
 
 // --- internal
 import { cn, useStyles } from "../../utils";
@@ -133,15 +132,8 @@ const emits = defineEmits<{
   (e: "update:open"): void;
 }>();
 
-const modelValue = useVModel(props, "modelValue", emits, {
-  passive: true,
-  defaultValue: props.defaultValue
-});
-
-const open = useVModel(props, "open", emits, {
-  passive: true,
-  defaultValue: props.open
-});
+const modelValue = defineModel<string>("modelValue");
+const open = defineModel<boolean>("open");
 
 const meta = computed(() => ({
   isList: props.list,
