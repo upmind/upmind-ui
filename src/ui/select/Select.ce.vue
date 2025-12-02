@@ -46,12 +46,7 @@
           :value="item.const || item.value"
           :class="styles.select.item"
         >
-          <template #indicator>
-            <SelectIndicator
-              :data-state="item.value === modelValue ? 'checked' : 'unchecked'"
-              :value="item.value"
-            />
-          </template>
+          <template #indicator />
           <span class="flex items-center space-x-1">
             <span v-if="item?.title || item?.textValue">{{
               item?.title || item?.textValue
@@ -67,7 +62,7 @@
           :value="item.value"
         >
           <template #indicator>
-            <Icon :icon="item.icon" size="2xs" />
+            <Icon v-if="item.icon" :icon="item.icon" size="2xs" />
           </template>
           <span>{{ item.textValue }}</span>
         </SelectItem>

@@ -8,7 +8,7 @@
       <Button
         :loading="props.loading"
         :class="cn('group', styles.combobox.trigger, props.class)"
-        :size="props.size"
+        size="lg"
         :aria-expanded="open"
         variant="control"
         icon-append="chevron-down"
@@ -81,7 +81,7 @@
           </CommandInput>
         </template>
         <CommandList
-          class="border-control-default w-full max-w-full border-t p-2"
+          class="border-control-default w-full max-w-full border-t"
           loop
         >
           <CommandEmpty class="text-muted">{{ emptyMessage }}</CommandEmpty>
@@ -116,15 +116,6 @@
                   >{{ item.tag }}</span
                 >
               </span>
-
-              <Icon
-                v-if="props.checkedIcon"
-                icon="check"
-                size="2xs"
-                :class="
-                  cn('ml-auto', isSelected(item) ? 'opacity-100' : 'opacity-0')
-                "
-              />
             </CommandItem>
           </CommandGroup>
         </CommandList>

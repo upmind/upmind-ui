@@ -10,6 +10,7 @@ import {
 } from "radix-vue";
 import SelectScrollDownButton from "./SelectScrollDownButton.vue";
 import SelectScrollUpButton from "./SelectScrollUpButton.vue";
+import { Icon } from "../icon";
 import { cn } from "../../utils";
 
 defineOptions({
@@ -48,7 +49,9 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
         )
       "
     >
-      <SelectScrollUpButton />
+      <SelectScrollUpButton>
+        <Icon icon="chevron-up" size="2xs" class="text-muted" />
+      </SelectScrollUpButton>
       <SelectViewport
         :class="
           cn(
@@ -59,7 +62,9 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
       >
         <slot />
       </SelectViewport>
-      <SelectScrollDownButton />
+      <SelectScrollDownButton>
+        <Icon icon="chevron-down" size="2xs" class="text-muted" />
+      </SelectScrollDownButton>
     </SelectContent>
   </SelectPortal>
 </template>

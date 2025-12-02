@@ -35,6 +35,7 @@
   --max-w-app: 1424px;
   --max-w-app-content: 776px;
   --max-w-app-aside: 448px;
+  --max-w-app-aside-lg: 512px;
 }
 
 @utility max-w-app {
@@ -51,6 +52,14 @@
 
 @utility min-w-app-aside {
   min-width: var(--max-w-app-aside);
+}
+
+@utility min-w-app-aside-lg {
+  min-width: var(--max-w-app-aside-lg);
+}
+
+@utility max-w-app-aside-lg {
+  max-width: var(--max-w-app-aside-lg);
 }
 
 /* Content width utility - fills parent width up to max-width-app-content (776px) */
