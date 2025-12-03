@@ -167,6 +167,38 @@ function remove(emailId: Email["id"]) {
   });
 }
 
+function verify(emailId: Email["id"]) {
+  const { t } = useI18n();
+  const { meta, client } = useSession();
+  const { mutate, useUrl } = useQuery();
+
+  return mutate<null>("PATCH", {
+    url: useUrl(`clients/${client.value?.id}/emails/${emailId}/send_verify`),
+    guard: async () =>
+      new Promise((resolve, reject) => {
+        if (meta.value.isAuthenticated || !client.value?.id) {
+          resolve(true);
+        } else {
+          reject(new NotAuthenticatedError());
+        }
+      }),
+    onError(error: any) {
+      addError({
+        title: isString(error)
+          ? error
+          : error?.title || t("error.client_email_verify_failed"),
+        copy: error?.message,
+        data: error?.data
+      });
+    },
+    onSuccess(data) {
+      invalidateQueryByKey(queryKey, { exact: false })(data);
+      addSuccess(t("confirm.email_verification_sent"));
+    },
+    withAccessToken: true
+  });
+}
+
 function setDefault(emailId: Email["id"]) {
   const { t } = useI18n();
   const { meta, client } = useSession();
@@ -261,6 +293,14 @@ export default {
    * @returns {Promise<null>} A promise that resolves when the email is removed
    */
   remove,
+
+  //--- mutations
+  /**
+   * Verify email by its ID.
+   * @param {Email["id"]} emailId - The ID of the email to verify.
+   * @returns {Promise<null>} A promise that resolves when the email verification is sent
+   */
+  verify,
 
   /**
    * Sets a email as the default email.
