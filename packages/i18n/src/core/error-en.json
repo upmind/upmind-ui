@@ -47,6 +47,7 @@
   "client_email_set_default_failed": "We experienced an error setting this email as default",
   "client_email_update_failed": "We experienced an error updating this email",
   "client_email_validation_failed": "Email validation failed",
+  "client_email_verify_failed": "We experienced an error verifying this email",
   "client_phone_delete_failed": "We experienced an error removing this phone",
   "client_phone_not_available": "Phone not available",
   "client_phone_set_default_failed": "We experienced an error setting this phone as default",

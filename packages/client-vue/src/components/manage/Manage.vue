@@ -7,7 +7,7 @@
     <component
       :is="component"
       :useList="manage.useList"
-      v-model:open="open"
+      v-model:open="safeOpen"
       v-model="modelValue"
       :readonly="props.readonly"
       :class="props.class"
@@ -16,13 +16,20 @@
       @add="doAdd"
       @edit="doEdit"
       @remove="doRemove"
+      @setDefault="setDefault"
     >
-      <template name="item" #item="{ item, readonly, doEdit, doRemove }">
-        <slot name="item" v-bind="{ item, readonly, doEdit, doRemove }"></slot>
+      <template
+        name="item"
+        #item="{ item, readonly, doEdit, doRemove, setDefault }"
+      >
+        <slot
+          name="item"
+          v-bind="{ item, readonly, doEdit, doRemove, setDefault }"
+        ></slot>
       </template>
 
-      <template #actions="{ open, meta, doAdd }">
-        <slot name="actions" v-bind="{ open, meta, doAdd }"></slot>
+      <template #actions="{ open, meta, doAdd, doEdit }">
+        <slot name="actions" v-bind="{ open, meta, doAdd, doEdit }"></slot>
       </template>
     </component>
 
@@ -72,6 +79,7 @@ const props = withDefaults(
     label?: string; // optional label to show above the component, defaults to the i18n key
     showLabel?: boolean;
     touched?: boolean;
+    forceOpen?: boolean;
   }>(),
   {
     modelValue: "",
@@ -80,7 +88,8 @@ const props = withDefaults(
     identifier: "id",
     label: "",
     showLabel: false,
-    touched: false
+    touched: false,
+    forceOpen: false
   }
 );
 
@@ -100,10 +109,19 @@ const modelValue = useVModel(props, "modelValue", emits, {
 });
 
 // -----------------------------------------------------------------------------
-const open = ref(false);
+const open = ref(props.forceOpen);
+const safeOpen = computed({
+  get() {
+    return props.forceOpen ? true : open.value;
+  },
+  set(value: boolean) {
+    debugger;
+
+    open.value = props.forceOpen ? true : value;
+  }
+});
 const openForm = ref(false);
 const editId = ref<string | undefined>();
-
 const component = computed(() => {
   return props.as === "list" ? List : Select;
 });
@@ -118,7 +136,10 @@ function doReject() {
 function doResolve(value?: any) {
   modelValue.value = get(value, props.identifier, value);
   openForm.value = false;
-  open.value = false;
+  if (!props.forceOpen) {
+    safeOpen.value = false;
+  }
+
   editId.value = "";
 }
 
@@ -134,6 +155,12 @@ function doEdit(id: string) {
 
 function doRemove(id: string) {
   const fn = props.manage.useList()?.remove;
+  if (!isFunction(fn)) return;
+  fn(id);
+}
+
+function setDefault(id: string) {
+  const fn = props.manage.useList()?.setDefault;
   if (!isFunction(fn)) return;
   fn(id);
 }

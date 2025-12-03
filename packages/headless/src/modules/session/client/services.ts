@@ -28,7 +28,6 @@ async function load(_context: ClientContext, _event: any) {
     );
 
   const { get, useUrl } = useQuery();
-
   return get({
     url: useUrl("self", {
       with: [

@@ -26,6 +26,17 @@
         />
 
         <Link
+          v-if="!props.readonly && !meta?.isDefault"
+          :label="t('action.set_as_default')"
+          size="sm"
+          color="muted"
+          tabindex="-1"
+          @mousedown.stop.prevent
+          class="pointer-events-auto ml-2 h-4"
+          @click.stop.prevent="setDefault"
+        />
+
+        <Link
           v-if="!props.default"
           :label="t('action.remove')"
           size="sm"
@@ -93,6 +104,7 @@ const props = defineProps<
 const emits = defineEmits<{
   (e: "edit", id: string): void;
   (e: "remove", id: string): void;
+  (e: "setDefault", id: string): void;
 }>();
 
 // -----------------------------------------------------------------------------
@@ -107,6 +119,11 @@ const doEdit = () => {
 const doDelete = () => {
   if (!props?.id) return;
   emits("remove", props.id);
+};
+
+const setDefault = () => {
+  if (!props?.id) return;
+  emits("setDefault", props.id);
 };
 
 const validationReason = computed(() => {

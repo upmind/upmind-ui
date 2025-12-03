@@ -17,6 +17,7 @@ export type MinimalListComposable = (...args: any) => {
   data: ComputedRef<any[]> | Ref<any[]>;
   default: () => any | undefined;
   remove?: (id: string) => void;
+  setDefault?: (id: string) => void;
 };
 
 export type MinimalMutateComposable = (

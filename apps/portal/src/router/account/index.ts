@@ -13,11 +13,6 @@ export default [
     component: () => import("../../views/account/profile/Profile.vue")
   },
   {
-    path: "/account/profile",
-    name: ROUTE.ACCOUNT_PROFILE,
-    component: () => import("../../views/account/profile/Profile.vue")
-  },
-  {
     path: "/account/profile/edit",
     name: ROUTE.ACCOUNT_PROFILE_EDIT,
     component: () => import("../../views/account/profile/Edit.vue"),

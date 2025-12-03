@@ -27,16 +27,6 @@
         />
         <Link
           v-if="!props.readonly && !meta?.isDefault"
-          :label="t('action.set_as_default')"
-          size="sm"
-          color="muted"
-          tabindex="-1"
-          @mousedown.stop.prevent
-          class="pointer-events-auto ml-2 h-4"
-          @click.stop.prevent="setDefault"
-        />
-        <Link
-          v-if="!props.readonly && !meta?.isDefault"
           :label="t('action.remove')"
           size="sm"
           color="muted"
@@ -44,6 +34,16 @@
           @mousedown.stop.prevent
           class="pointer-events-auto ml-2 h-4"
           @click.stop.prevent="doDelete"
+        />
+        <Link
+          v-if="!props.readonly && !meta?.isDefault"
+          :label="t('action.set_as_default')"
+          size="sm"
+          color="muted"
+          tabindex="-1"
+          @mousedown.stop.prevent
+          class="pointer-events-auto ml-2 h-4"
+          @click.stop.prevent="setDefault"
         />
       </div>
     </header>
@@ -59,19 +59,15 @@
 import { useI18n } from "vue-i18n";
 
 // --- components
-import {
-  // Button,
-  Badge,
-  Link
-} from "@upmind-automation/upmind-ui";
+import { Badge, Link } from "@upmind-automation/upmind-ui";
 
 // --- types
-import type { Address } from "@upmind-automation/headless";
+import type { Phone } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
 const props = defineProps<
-  Address & {
+  Phone & {
     readonly?: boolean;
   }
 >();
