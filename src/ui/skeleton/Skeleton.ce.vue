@@ -17,10 +17,12 @@ import { cn, useStyles } from "../../utils";
 // --- types
 import type { SkeletonProps } from "./types";
 import type { ComputedRef } from "vue";
-const props = defineProps<SkeletonProps>();
+const props = withDefaults(defineProps<SkeletonProps>(), {
+  active: true
+});
 
 const meta = computed(() => ({
-  // ---
+  isActive: props.active
 }));
 
 const styles = useStyles(
