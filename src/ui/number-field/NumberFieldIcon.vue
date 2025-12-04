@@ -1,8 +1,8 @@
 <template>
   <Icon
     :icon="icon"
-    size="2xs"
-    :class="variant === 'flat' ? '' : '[&>svg]:p-1'"
+    :size="variant === 'flat' ? '2xs' : 'xs'"
+    :class="variant === 'flat' ? '' : '[&>svg]:p-[1px]'"
   />
 </template>
 
