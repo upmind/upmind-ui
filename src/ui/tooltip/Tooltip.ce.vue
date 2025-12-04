@@ -1,6 +1,6 @@
 <template>
   <!--<link rel="stylesheet" :href="stylesheet" />-->
-  <TooltipProvider v-bind="forwarded">
+  <TooltipProvider v-if="active" v-bind="forwarded">
     <Tooltip v-bind="forwarded">
       <TooltipTrigger
         :color="color"
@@ -17,6 +17,10 @@
       </TooltipContent>
     </Tooltip>
   </TooltipProvider>
+
+  <template v-else>
+    <slot />
+  </template>
 </template>
 
 <script lang="ts" setup>
@@ -49,6 +53,7 @@ import type { TooltipContentEmits, TooltipRootEmits } from "radix-vue";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<TooltipProps>(), {
+  active: true,
   delayDuration: 150,
   // --- styles
   color: "neutral",
