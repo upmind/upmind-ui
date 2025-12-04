@@ -17,9 +17,9 @@ export const numberFieldRootVariants = cva("group inline-block", {
       app: ""
     },
     size: {
-      sm: "text-sm",
-      md: "text-sm",
-      lg: "text-md"
+      sm: "",
+      md: "",
+      lg: ""
     },
     variant: {
       flat: "",
@@ -118,12 +118,12 @@ export const numberFieldRootVariants = cva("group inline-block", {
 });
 
 export const numberFieldVariants = cva(
-  `${ringClasses} text-control-foreground placeholder:text-muted-foreground ring-offset-control-surface inline-flex w-full rounded-lg border-none text-center text-inherit ring-offset-0 transition-all duration-200 file:border-0 file:bg-transparent file:text-sm file:font-medium focus:ring-offset-2`,
+  `${ringClasses} text-control-foreground placeholder:text-muted-foreground ring-offset-control-surface inline-flex w-full rounded-lg border-none text-center text-inherit ring-offset-0 transition-all duration-200`,
   {
     variants: {
       variant: {
         flat: `shadow-control-default bg-control-surface hover:shadow-control-hover control-radius`,
-        minimal: "shadow-none!"
+        minimal: "rounded-full py-3 font-medium shadow-none!"
       },
       size: {
         sm: "",
@@ -134,7 +134,7 @@ export const numberFieldVariants = cva(
     compoundVariants: [
       {
         variant: "minimal",
-        class: "h-4"
+        class: "text-sm-loose h-4"
       },
       {
         variant: "flat",
@@ -159,31 +159,28 @@ export const numberFieldVariants = cva(
 );
 
 const inputVariant = (radius: "control-radius-r" | "control-radius-l") =>
-  cva(
-    "bg-control-surface shadow-control-default hover:shadow-control-hover font-normal",
-    {
-      variants: {
-        variant: {
-          flat: `[&>i]:disabled:text-muted [&>i]:size-lh ${radius} cursor-pointer transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-20 [&>i]:flex [&>i]:items-center [&>i]:justify-center`,
-          minimal: "control-radius flex h-5 w-5 items-center justify-center p-0"
-        },
-        size: {
-          sm: "",
-          md: "",
-          lg: ""
-        }
+  cva("", {
+    variants: {
+      variant: {
+        flat: `bg-control-surface shadow-control-default hover:shadow-control-hover [&>i]:disabled:text-muted [&>i]:size-lh font-normal ${radius} cursor-pointer transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-20 [&>i]:flex [&>i]:items-center [&>i]:justify-center`,
+        minimal: "flex h-5 w-5 items-center justify-center p-0"
       },
-      compoundVariants: [
-        { variant: "flat", size: "sm", class: "w-1/3 py-2" },
-        { variant: "flat", size: "md", class: "w-1/3 py-2" },
-        { variant: "flat", size: "lg", class: "w-1/3 py-2" }
-      ],
-      defaultVariants: {
-        variant: "flat",
-        size: "md"
+      size: {
+        sm: "",
+        md: "",
+        lg: ""
       }
+    },
+    compoundVariants: [
+      { variant: "flat", size: "sm", class: "w-1/3 py-2" },
+      { variant: "flat", size: "md", class: "w-1/3 py-2" },
+      { variant: "flat", size: "lg", class: "w-1/3 py-2" }
+    ],
+    defaultVariants: {
+      variant: "flat",
+      size: "md"
     }
-  );
+  });
 
 export const numberFieldInputLeftVariants = inputVariant("control-radius-l");
 export const numberFieldInputRightVariants = inputVariant("control-radius-r");

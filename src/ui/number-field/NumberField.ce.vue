@@ -9,7 +9,14 @@
         :size="props.size"
         :class="styles.numberField.inputLeft"
       >
-        <NumberFieldIcon icon="minus" :variant="props.variant" />
+        <NumberFieldIcon
+          :icon="
+            props.variant === NUMBER_FIELD_VARIANTS.FLAT
+              ? 'minus'
+              : 'minus-circle'
+          "
+          :variant="props.variant"
+        />
       </NumberFieldDecrement>
 
       <NumberFieldInput
@@ -21,7 +28,14 @@
         :size="props.size"
         :class="styles.numberField.inputRight"
       >
-        <NumberFieldIcon icon="plus" :variant="props.variant" />
+        <NumberFieldIcon
+          :icon="
+            props.variant === NUMBER_FIELD_VARIANTS.FLAT
+              ? 'plus'
+              : 'plus-circle'
+          "
+          :variant="props.variant"
+        />
       </NumberFieldIncrement>
     </NumberFieldContent>
   </NumberField>
