@@ -17,6 +17,7 @@ export interface TooltipProps
     TooltipContentProps,
     TooltipProviderProps,
     TooltipTriggerProps {
+  active: boolean;
   label?: string;
   to?: string;
   // ---
