@@ -172,9 +172,9 @@ const inputVariant = (radius: "control-radius-r" | "control-radius-l") =>
       }
     },
     compoundVariants: [
-      { variant: "flat", size: "sm", class: "w-1/3 py-2" },
-      { variant: "flat", size: "md", class: "w-1/3 py-2" },
-      { variant: "flat", size: "lg", class: "w-1/3 py-2" }
+      { variant: "flat", size: "sm", class: "w-1/3 py-2 text-sm" },
+      { variant: "flat", size: "md", class: "w-1/3 py-2 text-sm" },
+      { variant: "flat", size: "lg", class: "text-md w-1/3 py-2" }
     ],
     defaultVariants: {
       variant: "flat",
