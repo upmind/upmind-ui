@@ -4,6 +4,7 @@ import type { HTMLAttributes } from "vue";
 
 // --- types
 export interface SkeletonProps {
+  active?: boolean;
   // --- styles
   uiConfig?: { skeleton: CxOptions };
   class?: HTMLAttributes["class"];

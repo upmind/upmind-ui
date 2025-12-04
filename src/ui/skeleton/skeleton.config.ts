@@ -4,7 +4,14 @@ import { cva } from "class-variance-authority";
 
 export default {
   skeleton: {
-    root: cva("bg-core-skeleton muted w-auto animate-pulse rounded"),
+    root: cva("bg-core-skeleton muted w-auto rounded", {
+      variants: {
+        isActive: {
+          true: "animate-pulse",
+          false: "animate-none"
+        }
+      }
+    }),
     content: cva("w-auto opacity-0 select-none")
   },
   skeletonList: {
