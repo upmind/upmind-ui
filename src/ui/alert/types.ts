@@ -5,6 +5,7 @@ import type { CxOptions, VariantProps } from "class-variance-authority";
 // --- internal
 import type { Icon } from "../icon/types";
 import { rootVariants as alertVariants } from "./alert.config";
+import type { LinkProps } from "../link/types";
 type AlertVariantProps = VariantProps<typeof alertVariants>;
 
 export interface AlertProps {
@@ -15,7 +16,7 @@ export interface AlertProps {
   /** An optional icon for the alert */
   icon?: string | Icon;
   /** An optional action for the alert */
-  action?: string;
+  action?: LinkProps;
   // ---
   variant?: AlertVariantProps["variant"];
   color?: AlertVariantProps["color"];

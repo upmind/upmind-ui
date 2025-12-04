@@ -13,7 +13,7 @@
       <div class="text-md-tight w-full gap-2">
         <AlertTitle :class="styles.alert.title">
           <slot name="title">
-            <span>{{ title }}</span>
+            {{ title }}
           </slot>
         </AlertTitle>
 
@@ -33,7 +33,7 @@
     <footer v-if="action || $slots['action']">
       <slot name="action">
         <div class="flex items-center gap-0.5">
-          <Link size="sm" color="inherit" :label="action">
+          <Link size="sm" color="inherit" v-bind="action">
             <template #append>
               <Icon icon="arrow-right" class="p-1.5 [&>svg]:size-3" />
             </template>
