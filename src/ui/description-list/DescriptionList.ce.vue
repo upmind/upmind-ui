@@ -43,7 +43,7 @@ const props = withDefaults(defineProps<DescriptionListProps>(), {
 });
 
 const meta = computed(() => ({
-  hasEmphasis: props.emphasis
+  //
 }));
 
 const styles = useStyles(
