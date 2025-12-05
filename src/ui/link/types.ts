@@ -48,4 +48,5 @@ export interface LinkItemsProps {
   size?: LinkProps["size"];
   checked?: boolean;
   loading?: boolean;
+  uiConfig?: { link: { items: CxOptions } };
 }
