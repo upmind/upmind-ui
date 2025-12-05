@@ -15,6 +15,7 @@
         :checked="checked"
         :size="size"
         :color="color"
+        :uiConfig="uiConfig"
       />
     </slot>
 
@@ -29,6 +30,7 @@
         :checked="checked"
         :size="size"
         :color="color"
+        :uiConfig="uiConfig"
       />
     </slot>
   </component>

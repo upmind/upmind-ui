@@ -37,7 +37,12 @@ const meta = computed(() => {
   };
 });
 
-const styles = useStyles(["link"], meta, config, {}) as ComputedRef<{
+const styles = useStyles(
+  ["link"],
+  meta,
+  config,
+  props.uiConfig ?? {}
+) as ComputedRef<{
   link: {
     items: string;
   };
