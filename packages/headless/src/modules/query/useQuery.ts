@@ -19,11 +19,13 @@ import { doFetch, refreshToken } from "./services";
 import {
   forEach,
   get,
+  has,
   isEmpty,
   isInteger,
   isNil,
   isObject,
   isString,
+  omit,
   set,
   toNumber,
   unset
@@ -128,12 +130,17 @@ export const useQuery = () => {
       else url.searchParams.delete("order");
 
       // Set 'limit' parameter
-      if (!isEmpty(pagination) && isInteger(pagination?.limit))
-        url.searchParams.set("limit", `${pagination.limit}`);
+      if (has(pagination, "limit")) {
+        if (pagination.limit == "count") {
+          url.searchParams.set("limit", pagination.limit);
+        } else {
+          url.searchParams.set("limit", `${pagination.limit}`);
+        }
+      }
       // NB NEVER remove limits from the url as we may include limit=0
 
       // Set 'offset' parameter
-      if (!isEmpty(pagination) && isInteger(pagination?.offset))
+      if (has(pagination, "offset") && isInteger(pagination?.offset))
         url.searchParams.set("offset", `${pagination.offset}`);
       else url.searchParams.delete("offset");
 
@@ -374,6 +381,7 @@ export const useQuery = () => {
               : Promise.resolve();
             return safeguard.then(async () => {
               // define our request parameters for easy reuse
+              if (useSplitCountLogic) url.searchParams.set("skip_count", "1");
               const params = {
                 url,
                 sort: sort.value,
@@ -429,6 +437,24 @@ export const useQuery = () => {
       )
     );
 
+    const useSplitCountLogic = true;
+    // TODO add a useSplitCountLogic paramt to do this...
+    if (useSplitCountLogic)
+      countRequest({
+        queryKey,
+        url,
+        sort: sort.value,
+        filters: filters.value,
+        withCurrency,
+        withoutLocale,
+        init: {
+          ...init
+        },
+        withAccessToken
+      }).then(count => {
+        total.value = count as number;
+      });
+
     // -------------------------------------------------------------------------
 
     return {
@@ -436,7 +462,9 @@ export const useQuery = () => {
 
       data: computed((): TData => response?.data?.value?.data ?? ([] as TData)),
 
-      total: computed((): number => response?.data?.value?.total ?? 0),
+      total: computed(
+        (): number => total.value ?? response?.data?.value?.total ?? 0
+      ),
 
       // ---state
 
@@ -494,7 +522,6 @@ export const useQuery = () => {
        */
       fetchPreviousPage: (): void => {
         const { t } = useI18n();
-
         total.value = response?.data?.value?.total ?? total.value;
         const pageTotal = !limit
           ? 1
@@ -801,6 +828,65 @@ export const useQuery = () => {
   }
 
   // --- Async methods
+  /**
+   * Syntax sugar for sending a GET request to the server with the given URL and options.
+   * NOTE: this does not deal with pagination, it is a simple GET request.
+   * @see {@link QueryParams}
+   * @param url The URL to send the request to.
+   * @param init The request options.
+   * @param guard A function that returns a promise to be resolved before the request is sent. This can be used to ensure that certain conditions are met before the request is sent, such as checking if the user is authenticated.
+   * @param select A function to select a subset of the data returned by the request. This can be used to transform the data before it is returned.
+   * @param queryKey The query key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
+   * @param withCurrency Whether to automagically add the currency filter to the request based on the `useBasketCurrency` composable.
+   * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
+   * @param options Additional options to pass to TanStack query.
+   */
+  async function countRequest<TQueryFnData = unknown, TData = TQueryFnData>({
+    url,
+    init,
+    guard,
+    select,
+    queryKey,
+    withCurrency,
+    withoutLocale,
+    withAccessToken,
+    ...options
+  }: Omit<QueryParams<TQueryFnData, Number>, "pagination">): Promise<Number> {
+    // Remove initialData from options before spreading, as it's not part of FetchQueryOptions
+
+    // --- state
+    const sort = options?.sort;
+    const filters = options?.filters;
+    const reactiveKeys: ReactiveQueryKeys = { sort, filters };
+    if (!withoutLocale && locale.value) reactiveKeys.locale = locale.value;
+
+    // ensure we request the count
+    const safeUrl = new URL(url.toString());
+    safeUrl.searchParams.set("limit", "count");
+
+    // --- query
+    return queryClient.fetchQuery<TQueryFnData, DefaultError, Number>({
+      queryKey: cleanQueryKey([...queryKey, reactiveKeys, "count"]),
+      queryFn: async ({ signal }) => {
+        return request<TQueryFnData>({
+          url: safeUrl,
+          sort,
+          filters,
+          withoutLocale,
+          withCurrency,
+          init: {
+            ...init,
+            signal // Pass the new signal to the request to allow cancellation
+          },
+          withAccessToken
+        }).then(response => {
+          return response.total;
+        });
+      },
+      ...(options as any)
+    });
+  }
+
   /**
    * Syntax sugar for sending a GET request to the server with the given URL and options.
    * NOTE: this does not deal with pagination, it is a simple GET request.
