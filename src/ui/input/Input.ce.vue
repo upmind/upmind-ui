@@ -68,6 +68,7 @@ const delegatedProps = computed(
     | "avatar"
     | "iconAppend"
     | "avatarAppend"
+    | "autoFocus"
   > =>
     omit(props, [
       "class",
@@ -79,7 +80,8 @@ const delegatedProps = computed(
       "icon",
       "avatar",
       "iconAppend",
-      "avatarAppend"
+      "avatarAppend",
+      "autoFocus"
     ])
 );
 
