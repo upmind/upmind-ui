@@ -7,16 +7,20 @@ import type { LinkProps } from "../link/types";
 import type { RouterLinkProps } from "vue-router";
 
 export interface BreadcrumbItem extends RouterLinkProps {
-  label: string;
+  label?: string;
+  icon?: string;
   current?: boolean;
   value?: string | number;
   handler?: Function;
   href?: string;
 }
 
+export type BreadcrumbVariant = "visible" | "condensed" | "last" | "hidden";
+
 export interface BreadcrumbConsolidateProps {
   items: BreadcrumbItem[];
   // --- variants
+  variant?: BreadcrumbVariant;
   size?: LinkProps["size"];
   separator?: string;
   // --- styles
