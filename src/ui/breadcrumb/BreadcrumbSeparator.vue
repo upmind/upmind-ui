@@ -12,7 +12,7 @@ const props = defineProps<{
   <li
     role="presentation"
     aria-hidden="true"
-    :class="cn('[&>svg]:h-3.5 [&>svg]:w-3.5', props.class)"
+    :class="cn('text-muted [&>svg]:h-3.5 [&>svg]:w-3.5', props.class)"
   >
     <slot>
       <ChevronRight />
