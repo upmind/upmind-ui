@@ -64,6 +64,7 @@
       :side="side"
       avoidCollisions
       :class="cn(styles.combobox.content, props.popoverClass)"
+      @openAutoFocus="(e) => isMobile && e.preventDefault()"
     >
       <Command
         :modelValue="modelValue"
@@ -145,6 +146,7 @@ import {
   CommandList,
   CommandInput
 } from "../command";
+import { isMobile } from "../../utils/isMobile";
 
 // --- utils
 import { find, get, isEmpty, isEqual, isFunction, has } from "lodash-es";
