@@ -36,7 +36,10 @@
         </div>
       </div>
 
-      <DrawerFooter :class="cn(styles.drawer.footer.root)">
+      <DrawerFooter
+        v-if="$slots.footer || $slots.close || $slots.actions"
+        :class="cn(styles.drawer.footer.root)"
+      >
         <div :class="styles.drawer.footer.container">
           <slot name="footer">
             <DrawerClose v-if="$slots.close">
