@@ -63,6 +63,11 @@ export enum ROUTE {
    * The route for client account email history.
    */
   ACCOUNT_EMAIL_HISTORY = "account.emailHistory",
+  // --- account email history view route
+  /**
+   * The route for client account email history view.
+   */
+  ACCOUNT_EMAIL_HISTORY_VIEW = "account.emailHistory.view",
   // --- account security route
   /**
    * The route for the account security.

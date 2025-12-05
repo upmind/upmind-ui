@@ -18,7 +18,7 @@ export interface EmailModel {
   /**
    * Optional unique identifier for the email address. Present if editing an existing email.
    */
-  id?: IEmail["id"];
+  id: IEmail["id"];
   /**
    * The email address string, or `null` if not set.
    */

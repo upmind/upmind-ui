@@ -49,6 +49,16 @@ export default [
     component: () => import("../../views/account/emailHistory/EmailHistory.vue")
   },
   {
+    path: "/account/email-history/:emailId",
+    name: ROUTE.ACCOUNT_EMAIL_HISTORY_VIEW,
+    component: () => import("../../views/account/emailHistory/Email.vue"),
+    props: (to: Route) => {
+      return {
+        emailId: to.params?.emailId || ""
+      };
+    }
+  },
+  {
     path: "/account/security",
     name: ROUTE.ACCOUNT_SECURITY,
     component: () => import("../../views/account/security/Security.vue")

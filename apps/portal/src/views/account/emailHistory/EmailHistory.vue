@@ -1,84 +1,122 @@
 <template>
-  <p>Email history</p>
-</template>
+  <Layout :variant="layout">
+    <template #actions></template>
 
+    <template #content-header>
+      <h1>
+        <i18n-t keypath="text.email_history" tag="span" scope="global" />
+      </h1>
+    </template>
+
+    <template #default>
+      <UpmSection :label="t('text.email_history')">
+        <i18n-t keypath="text.email_history_msg" tag="h1" />
+        <UpmSections
+          v-model="active"
+          :sections="sections"
+          data-testid="emailHistory"
+        />
+        <EmailHistoryListing
+          :manual-filters="filters"
+          v-model:sort="params.sort"
+          v-model:direction="params.direction"
+          v-model:query="params.query"
+        />
+      </UpmSection>
+    </template>
+
+    <template #aside>
+      <pre>{{ { meta, currentRoute } }}</pre>
+    </template>
+  </Layout>
+</template>
 <script lang="ts" setup>
 // --- external
-// import { ref, computed } from "vue";
-// import { useI18n } from "vue-i18n";
-// import { useRoute } from "vue-router";
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
+import { useRouteQuery } from "@vueuse/router";
+import { useUrlSearchParams } from "@vueuse/core";
+
 // --- internal
-// import {
-// useBasket,
-// useBasketFields,
-// useDataLayer,
-// useBrand,
-// ROUTE,
-//   useRoutingEngine
-// } from "@upmind-automation/headless";
-// import { useStyles } from "@upmind-automation/upmind-ui";
-// import config from "./basket.config";
+import {
+  useRoutingEngine,
+  ReceivedEmailsSortableProperties,
+  RequestSortDirection
+} from "@upmind-automation/headless";
+import { ROUTE } from "../../../router/types";
 
 // --- components
-// import { RouterLink } from "vue-router";
-// import { Button, Link } from "@upmind-automation/upmind-ui";
-// import Layout from "@upmind-automation/client-vue";
-// import Hero from "../../components/hero/Hero.vue";
-// import Summary from "./components/Summary.vue";
-// import ProductCards from "./product/BasketProductCards.vue";
-// import Form from "../../components/form/Form.vue";
-// import Back from "../../components/navigation/Back.vue";
-// import Section from "../../components/section/Section.vue";
-// import BasketErrors from "./components/BasketErrors.vue";
+import { Layout, UpmSection, UpmSections } from "@upmind-automation/client-vue";
+import EmailHistoryListing from "./EmailHistoryListing.vue";
 
 // --- types
-// import { type ComputedRef } from "vue";
+import type { TabItem } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 
-// const { t } = useI18n();
-// const { meta, isReady, count, summary } = useBasket();
-// const { storefrontRoute } = useBrand();
-// const { currentRoute } = useRoutingEngine();
-// const route = useRoute();
+const { isReady, isResolved, currentRoute, meta } = useRoutingEngine();
+await isReady();
+await isResolved(ROUTE.ACCOUNT_EMAIL_HISTORY);
 
-// const {
-//   errors: fieldsErrors,
-//   meta: fieldsMeta,
-//   model: fieldsModel,
-//   schema: fieldsSchema,
-//   uischema: fieldsUischema,
-//   clear: fieldsClear,
-//   update: fieldsUpdate
-// } = useBasketFields();
+const { t } = useI18n();
 
-// const open = ref(false);
+const layout = computed(() => {
+  return currentRoute.value?.meta?.template;
+});
 
-// await isReady();
+const active = useRouteQuery<string | undefined>("active", undefined, {
+  mode: "push"
+});
 
-// const layout = computed(() => {
-//   return currentRoute.value?.meta?.template;
-// });
+const params = useUrlSearchParams<{
+  sort?: ReceivedEmailsSortableProperties;
+  direction?: RequestSortDirection;
+  query?: string;
+}>("history", {
+  removeNullishValues: true,
+  removeFalsyValues: true
+});
 
-// const styles = useStyles(
-//   ["basket.expand", "basket.items", "basket.customFields", "basket.aside"],
-//   { variant: layout.value },
-//   config
-// ) as ComputedRef<{
-//   basket: {
-//     aside: string;
-//     expand: string;
-//     items: {
-//       root: string;
-//       content: string;
-//     };
-//     customFields: {
-//       root: string;
-//     };
-//   };
-// }>;
+const filters = computed(() => {
+  switch (active.value) {
+    case "sent":
+      return {
+        "filter[sent]": "true",
+        "filter[bounced]": "false"
+      };
+    case "bounced":
+      return {
+        "filter[bounced]": "true"
+      };
+    case "failed":
+      return {
+        "filter[error_id|neq]": "null"
+      };
+    default:
+      return {};
+  }
+});
 
-// const { dataLayer } = useDataLayer();
+const sections = computed<TabItem[]>(() => {
+  const tabs = [
+    {
+      label: t("text.all"),
+      value: "all"
+    },
+    {
+      label: t("text.sent"),
+      value: "sent"
+    },
+    {
+      label: t("text.bounced"),
+      value: "bounced"
+    },
+    {
+      label: t("text.failed"),
+      value: "failed"
+    }
+  ];
 
-// dataLayer({ event: "view_cart" }).withEcommerce().push();
+  return tabs;
+});
 </script>
