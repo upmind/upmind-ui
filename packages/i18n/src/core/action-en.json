@@ -66,5 +66,8 @@
   "sort_by_default": "Sort by default",
   "sort_by_name": "Sort by name",
   "sort_by_price": "Sort by price",
-  "verify": "Verify"
+  "sort_by_subject": "Sort by subject",
+  "verify": "Verify",
+  "view": "View",
+  "view_email": "View Email"
 }
