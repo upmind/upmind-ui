@@ -21,8 +21,12 @@ export const containerVariant = cva("mx-auto w-full px-6 pb-6", {
   }
 });
 
-export const innerVariant = cva("mx-auto max-h-[75vh] w-full", {
+export const innerVariant = cva("mx-auto max-h-[60vh] w-full", {
   variants: {
+    height: {
+      auto: "",
+      fixed: "min-h-[60vh]"
+    },
     width: {
       xs: "",
       sm: "",
@@ -49,7 +53,8 @@ export const innerVariant = cva("mx-auto max-h-[75vh] w-full", {
   defaultVariants: {
     width: "app",
     overflow: "auto",
-    fit: "contain"
+    fit: "contain",
+    height: "auto"
   }
 });
 

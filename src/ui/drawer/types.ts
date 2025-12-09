@@ -13,6 +13,7 @@ import type { ButtonProps } from "../..";
 type DrawerOverlayVariantProps = VariantProps<typeof overlayVariant>;
 type DrawerContainerVariantProps = VariantProps<typeof containerVariant>;
 type DrawerInnerVariantProps = VariantProps<typeof innerVariant>;
+type DrawerHeightVariantProps = VariantProps<typeof innerVariant>["height"];
 
 export interface DrawerProps extends DrawerPortalProps {
   // --- root props
@@ -24,6 +25,7 @@ export interface DrawerProps extends DrawerPortalProps {
   dismissible?: boolean;
   modal?: boolean;
   open?: boolean;
+  height?: DrawerInnerVariantProps["height"];
   defaultOpen?: boolean;
   nested?: boolean;
   direction?: DrawerDirection;
