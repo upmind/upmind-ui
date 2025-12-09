@@ -57,6 +57,9 @@
 @utility bg-overlay {
   background-color: var(--color-core-overlay);
 }
+@utility bg-tooltip {
+  background-color: var(--bg-tooltip);
+}
 
 /* Background - Control */
 @utility bg-control-checked-contrast {

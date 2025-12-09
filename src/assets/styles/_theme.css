@@ -25,6 +25,7 @@
   --color-core-muted: #89898a;
   --color-core-skeleton: #2626260c;
   --color-core-overlay: #3d3d3dcc;
+  --color-core-overlay-contrast: #ffffff;
 
   /* Primitive Colors - Control */
   --color-control-default: #262626;
@@ -95,6 +96,7 @@
   --bg-surface: var(--color-core-surface);
   --bg-skeleton: var(--color-core-skeleton);
   --bg-overlay: var(--color-core-overlay);
+  --bg-tooltip: var(--color-core-overlay);
 
   /* Background - Control */
   --bg-control-checked-contrast: var(--color-control-default-contrast);
@@ -187,6 +189,7 @@
   --text-display: var(--color-core-display);
   --text-muted: var(--color-core-muted);
   --text-faint: var(--color-core-faint);
+  --text-tooltip: var(--color-core-overlay-contrast);
 
   /* Text - Control */
   --text-control-selected: var(--color-control-muted-contrast);

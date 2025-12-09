@@ -27,7 +27,6 @@
                 :label="tooltip"
                 :open="tooltipOpen"
                 side="right"
-                color="info"
                 class="control-radius max-w-72 text-center text-xs"
               >
                 <Icon

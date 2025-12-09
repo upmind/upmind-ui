@@ -9,9 +9,6 @@ import type {
 import { type TooltipRootProps } from "radix-vue";
 
 // --- internal
-import type { contentVariants } from "./tooltip.config";
-type TooltipVariantProps = VariantProps<typeof contentVariants>;
-
 export interface TooltipProps
   extends TooltipRootProps,
     TooltipContentProps,
@@ -20,8 +17,6 @@ export interface TooltipProps
   active?: boolean;
   label?: string;
   to?: string;
-  // ---
-  color?: TooltipVariantProps["color"];
   // ---
   uiConfig?: {
     content?: CxOptions;
