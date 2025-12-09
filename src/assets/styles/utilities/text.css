@@ -24,6 +24,9 @@
 @utility text-muted {
   color: var(--text-muted);
 }
+@utility text-tooltip {
+  color: var(--text-tooltip);
+}
 
 @utility text-control-default {
   --color-control-default: var(--color-control-default);

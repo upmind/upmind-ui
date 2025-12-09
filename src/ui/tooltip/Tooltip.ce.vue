@@ -2,10 +2,7 @@
   <!--<link rel="stylesheet" :href="stylesheet" />-->
   <TooltipProvider v-if="active" v-bind="forwarded">
     <Tooltip v-bind="forwarded">
-      <TooltipTrigger
-        :color="color"
-        tabindex="-1"
-        :class="styles.tooltip.trigger"
+      <TooltipTrigger tabindex="-1" :class="styles.tooltip.trigger"
         ><slot
       /></TooltipTrigger>
       <TooltipContent
@@ -66,8 +63,6 @@ const emits = defineEmits<TooltipContentEmits & TooltipRootEmits>();
 const forwarded = useForwardPropsEmits(props, emits);
 
 const meta = computed(() => ({
-  color: props.color,
-  // ---
   isOpen: !!props.open,
   hasLabel: !isEmpty(props.label)
 }));
