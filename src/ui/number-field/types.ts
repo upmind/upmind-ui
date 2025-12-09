@@ -23,6 +23,8 @@ export interface NumberFieldProps
   size?: NumberFieldRootVariants["size"];
   width?: NumberFieldRootVariants["width"];
   variant?: NumberFieldVariants["variant"];
+  // --- behavior
+  singleStep?: boolean;
   // --- styles
   uiConfig?: { numberField: CxOptions };
   class?: HTMLAttributes["class"];
