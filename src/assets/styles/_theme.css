@@ -278,11 +278,11 @@
   --text-2xl--line-height-loose: 40px;
 
   --text-3xl: 1.875rem; /* 30px */
-  --text-3xl--line-height: 36px;
-  --text-3xl--line-height-tight: 32px;
-  --text-3xl--line-height-loose: 40px;
+  --text-3xl--line-height: 44px;
+  --text-3xl--line-height-tight: 40px;
+  --text-3xl--line-height-loose: 48px;
 
-  --text-4xl: 2.25rem; /* 36px */
+  --text-4xl: 2.5rem; /* 40px */
   --text-4xl--line-height: 44px;
   --text-4xl--line-height-tight: 40px;
   --text-4xl--line-height-loose: 48px;
