@@ -82,9 +82,7 @@ export default {
   drawer: {
     overlay: overlayVariant,
     container: containerVariant,
-    content: cva(
-      "bg-surface w-full rounded-t-lg border-none pt-12 text-base lg:pt-24"
-    ),
+    content: cva("bg-surface w-full rounded-t-lg border-none text-base"),
     inner: innerVariant,
     header: "",
     footer: {
