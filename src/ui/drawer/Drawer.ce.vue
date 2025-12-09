@@ -94,6 +94,7 @@ const props = withDefaults(defineProps<DrawerProps>(), {
   size: "md",
   width: "app",
   overflow: "auto",
+  height: "auto",
   fit: "contain",
   to: "body",
   // --- state
@@ -147,7 +148,8 @@ const value = useVModel(props, "open", emits);
 const meta = computed(() => ({
   width: props.width,
   overflow: props.overflow,
-  fit: props.fit
+  fit: props.fit,
+  height: props.height
 }));
 
 const styles = useStyles(
