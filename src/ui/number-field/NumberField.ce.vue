@@ -1,7 +1,9 @@
 <template>
   <NumberField
     v-bind="delegatedProps"
-    v-model:modelValue="modelValue"
+    :model-value="pendingValue ?? modelValue"
+    @update:model-value="onUpdate"
+    @pointerup.capture="pressed = false"
     :class="cn(styles.numberField.root, props.class)"
   >
     <NumberFieldContent>
@@ -43,7 +45,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 
 // --- internal
 import { cn, useStyles } from "../../utils";
@@ -68,9 +70,9 @@ import { NUMBER_FIELD_VARIANTS } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<NumberFieldProps>(), {
-  // -- styles
   width: "full",
   variant: NUMBER_FIELD_VARIANTS.FLAT,
+  singleStep: true,
   // --- styles
   uiConfig: () => ({ numberField: [] }),
   class: "",
@@ -79,8 +81,29 @@ const props = withDefaults(defineProps<NumberFieldProps>(), {
 
 const modelValue = defineModel<number>();
 
+// When singleStep is true, we only allow one update per pointer press.
+// pendingValue displays the new value instantly while the parent's debounced update is pending.
+const pendingValue = ref<number>();
+let pressed = false;
+watch(modelValue, () => (pendingValue.value = undefined));
+
+function onUpdate(val: number) {
+  if (props.singleStep && pressed) return;
+  pressed = true;
+  pendingValue.value = val;
+  modelValue.value = val;
+}
+
 const delegatedProps = computed(() =>
-  omit(props, ["class", "uiConfig", "modelValue", "size", "width", "variant"])
+  omit(props, [
+    "class",
+    "uiConfig",
+    "modelValue",
+    "size",
+    "width",
+    "variant",
+    "singleStep"
+  ])
 );
 
 // Track value ONLY for instant width calculation - not used for modelValue updates

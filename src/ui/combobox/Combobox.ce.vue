@@ -64,7 +64,7 @@
       :side="side"
       avoidCollisions
       :class="cn(styles.combobox.content, props.popoverClass)"
-      @openAutoFocus="(e) => isMobile && e.preventDefault()"
+      @openAutoFocus="e => isMobile && e.preventDefault()"
     >
       <Command
         :modelValue="modelValue"
