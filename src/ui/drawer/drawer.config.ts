@@ -21,11 +21,26 @@ export const containerVariant = cva("mx-auto w-full px-6 pb-6", {
   }
 });
 
-export const innerVariant = cva("mx-auto max-h-[60vh] w-full", {
+export const contentVariant = cva(
+  "bg-surface w-full rounded-t-lg border-none text-base",
+  {
+    variants: {
+      height: {
+        auto: "",
+        fixed: "max-h-[85vh] min-h-[85vh]"
+      }
+    },
+    defaultVariants: {
+      height: "auto"
+    }
+  }
+);
+
+export const innerVariant = cva("mx-auto w-full", {
   variants: {
     height: {
-      auto: "",
-      fixed: "min-h-[60vh]"
+      auto: "max-h-[60vh]",
+      fixed: "min-h-0 flex-1"
     },
     width: {
       xs: "",
@@ -87,7 +102,7 @@ export default {
   drawer: {
     overlay: overlayVariant,
     container: containerVariant,
-    content: cva("bg-surface w-full rounded-t-lg border-none text-base"),
+    content: contentVariant,
     inner: innerVariant,
     header: "",
     footer: {
