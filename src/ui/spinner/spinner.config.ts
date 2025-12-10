@@ -12,7 +12,7 @@ export const spinnerVariants = cva(
         square: "size-4",
         icon: "size-10",
         badge: "size-3",
-        xs: "size-4",
+        xs: "size-5",
         sm: "size-6",
         md: "size-10",
         lg: "size-12 border-[0.2em]",
