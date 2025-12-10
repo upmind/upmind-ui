@@ -6,7 +6,7 @@
       </div>
 
       <TabsList ref="tabsListRef" :class="styles.tabs.list">
-        <template v-if="tabs.length > 1 || force">
+        <template v-if="useTabs">
           <TabsTrigger
             v-for="(item, index) in tabs"
             :key="item.value"
@@ -51,7 +51,8 @@
       </div>
     </div>
 
-    <TabsContent
+    <component
+      :is="useTabs ? TabsContent : 'div'"
       v-for="item in tabs"
       :key="item.value"
       :value="item.value"
@@ -59,7 +60,7 @@
       tabindex="-1"
     >
       <slot :name="`content.${item.value}`"></slot>
-    </TabsContent>
+    </component>
   </Tabs>
 </template>
 
@@ -142,6 +143,8 @@ const styles = useStyles(
     append: string;
   };
 }>;
+
+const useTabs = computed(() => props.tabs.length > 1 || props.force);
 
 // Store trigger refs from template
 const setTriggerRef = (el: any, index: number) => {
