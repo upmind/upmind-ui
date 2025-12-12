@@ -49,8 +49,8 @@ export default [
   {
     path: "/",
     name: ROUTE.LOADING,
-    alias: ["/order", "/loading"]
-    // component: () => import("../pages/Index.vue")
+    alias: ["/order", "/loading"],
+    component: () => import("../pages/Index.vue")
   },
 
   /**
@@ -247,8 +247,8 @@ export default [
   },
   {
     path: `/order/domains/:pid(${RegexMatch.UUID})/processing`,
-    name: ROUTE.DOMAINS_WITH_PRODUCT_PROCESSING
-    // component: () => import("../pages/Index.vue")
+    name: ROUTE.DOMAINS_WITH_PRODUCT_PROCESSING,
+    component: () => import("../pages/Index.vue")
   },
 
   /**
@@ -294,7 +294,7 @@ export default [
   {
     path: "/order/product",
     name: ROUTE.PRODUCT,
-    // component: () => import("../pages/product/Index.vue"),
+    component: () => import("../pages/product/Index.vue"),
     children: [
       {
         path: `:pid(${RegexMatch.UUID})`,
