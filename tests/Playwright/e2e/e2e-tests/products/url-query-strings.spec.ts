@@ -61,7 +61,7 @@ test.describe("Manipulating elements/behaviour with URL query strings @url-param
         "http://qa-automation.local:5173/order/product/add/3de78642-de53-9714-76df-21208469530d"
       );
       await expect(
-        productConfig.radioButtons.getRadioButton(0, 0)
+        productConfig.radioButtons.getRadioButton("Monthly")
       ).toHaveAttribute("data-state", "checked");
     });
     test("Invalid billing term", async ({ page }) => {
@@ -73,10 +73,10 @@ test.describe("Manipulating elements/behaviour with URL query strings @url-param
         "http://qa-automation.local:5173/order/product/add/3de78642-de53-9714-76df-21208469530d"
       );
       await expect(
-        productConfig.radioButtons.getRadioButton(0, 0)
+        productConfig.radioButtons.getRadioButton("Monthly")
       ).toHaveAttribute("data-state", "");
       await expect(
-        productConfig.radioButtons.getRadioButton(0, 2)
+        productConfig.radioButtons.getRadioButton("Biennially")
       ).toHaveAttribute("data-state", "checked");
     });
   });
@@ -90,7 +90,7 @@ test.describe("Manipulating elements/behaviour with URL query strings @url-param
         "http://qa-automation.local:5173/order/product/add/3de78642-de53-9714-76df-21208469530d"
       );
       await expect(
-        page.getByTestId("footer").getByTestId("button-default").nth(1)
+        footer.currencySelector.getByTestId("button-default")
       ).toHaveText("USD");
     });
     test("Invalid currency value", async ({ page }) => {
@@ -102,7 +102,7 @@ test.describe("Manipulating elements/behaviour with URL query strings @url-param
         "http://qa-automation.local:5173/order/product/add/3de78642-de53-9714-76df-21208469530d"
       );
       await expect(
-        page.getByTestId("footer").getByTestId("button-default").nth(1)
+        footer.currencySelector.getByTestId("button-default")
       ).toHaveText("GBP");
     });
   });
@@ -116,7 +116,7 @@ test.describe("Manipulating elements/behaviour with URL query strings @url-param
         "http://qa-automation.local:5173/order/product/add/3de78642-de53-9714-76df-21208469530d"
       );
       await expect(
-        page.getByTestId("footer").getByTestId("button-default").nth(1)
+        footer.currencySelector.getByTestId("button-default")
       ).toHaveText("USD");
     });
     test("Invalid currency value", async ({ page }) => {
@@ -128,7 +128,7 @@ test.describe("Manipulating elements/behaviour with URL query strings @url-param
         "http://qa-automation.local:5173/order/product/add/3de78642-de53-9714-76df-21208469530d"
       );
       await expect(
-        page.getByTestId("footer").getByTestId("button-default").nth(1)
+        footer.currencySelector.getByTestId("button-default")
       ).toHaveText("GBP");
     });
   });
@@ -142,13 +142,13 @@ test.describe("Manipulating elements/behaviour with URL query strings @url-param
         "http://qa-automation.local:5173/order/product/add/3de78642-de53-9714-76df-21208469530d"
       );
       await expect(
-        productConfig.radioButtons.getRadioButton(1, 0)
+        productConfig.radioButtons.getRadioButton("London")
       ).toHaveAttribute("data-state", "checked");
       await expect(
-        productConfig.radioButtons.getRadioButton(2, 0)
+        productConfig.radioButtons.getRadioButton("1 Mailbox")
       ).toHaveAttribute("data-state", "checked");
       await expect(
-        productConfig.radioButtons.getRadioButton(3, 1)
+        productConfig.radioButtons.getRadioButton("2 Balloons")
       ).toHaveAttribute("data-state", "checked");
     });
     test("Invalid option selections", async ({ page }) => {
@@ -160,13 +160,13 @@ test.describe("Manipulating elements/behaviour with URL query strings @url-param
         "http://qa-automation.local:5173/order/product/add/3de78642-de53-9714-76df-21208469530d"
       );
       await expect(
-        productConfig.radioButtons.getRadioButton(1, 0)
+        productConfig.radioButtons.getRadioButton("London")
       ).toHaveAttribute("data-state", "");
       await expect(
-        productConfig.radioButtons.getRadioButton(2, 0)
+        productConfig.radioButtons.getRadioButton("1 Mailbox")
       ).toHaveAttribute("data-state", "");
       await expect(
-        productConfig.radioButtons.getRadioButton(3, 1)
+        productConfig.radioButtons.getRadioButton("2 Balloons")
       ).toHaveAttribute("data-state", "");
     });
   });
@@ -175,7 +175,7 @@ test.describe("Manipulating elements/behaviour with URL query strings @url-param
       await page.goto("http://qa-automation.local:5173/order/shop?lang=fr");
       await page.waitForLoadState("load");
       await expect(
-        page.getByTestId("footer").getByTestId("button-default").nth(0)
+        footer.languageSelector.getByTestId("button-default")
       ).toHaveText("French");
     });
     test('Invalid "language" param', async ({ page }) => {

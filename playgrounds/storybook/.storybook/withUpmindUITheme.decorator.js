@@ -68,9 +68,6 @@ export const withUpmindUITheme = ({
     const locale = context.globals.locale || defaultLocale;
 
     useEffect(() => {
-      // TODO: deprecate this in favour of a more robust solution
-      // where the selected theme is applied to the template's theme provider
-      // see https://github.com/storybookjs/storybook/issues/12840
       const parentElement = document.querySelector("#provider");
       parentElement?.setAttribute("data-theme", selected);
       parentElement?.setAttribute("data-locale", locale);

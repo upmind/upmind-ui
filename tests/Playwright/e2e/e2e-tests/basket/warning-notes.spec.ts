@@ -3,7 +3,7 @@ import { Basket } from "../../support/page-objects/templates/Basket";
 import { URLs } from "../../support/constants/urls";
 import { getSessionToken } from "../../support/utils/functions/tokens";
 import {
-  getCurrentOrderId,
+  createOrder,
   addProductToOrder,
   overrideWarningNotes
 } from "../../support/utils/functions/basket";
@@ -14,8 +14,8 @@ test.describe("Basket - Displaying Warning Notes", () => {
     basket = new Basket(page);
     await page.goto(URLs.basket);
     await page.waitForLoadState("networkidle");
-    const token = await getSessionToken(context, "guest");
-    const orderId = await getCurrentOrderId(token);
+    const token = await getSessionToken(context);
+    const orderId = await createOrder(token);
     await addProductToOrder(
       `${token}`,
       `${orderId}`,

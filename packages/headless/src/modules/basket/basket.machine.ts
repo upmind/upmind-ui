@@ -49,6 +49,7 @@ import type { AnyEventObject } from "xstate";
 import type { PaymentArgs } from "../payment";
 import { PaymentType } from "@upmind-automation/types";
 import billingMachine from "./billing/billing.machine";
+import { useQuery } from "../query";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -79,7 +80,7 @@ export default createMachine(
         initial: "basket",
         states: {
           basket: {
-            entry: ["clearError", "abortController"],
+            entry: ["cancelExistingQuery"],
             invoke: {
               src: "load",
               onDone: {
@@ -121,7 +122,7 @@ export default createMachine(
             initial: "complete",
             states: {
               processing: {
-                entry: ["clearError", "abortController"],
+                entry: ["cancelExistingQuery"],
                 invoke: {
                   src: "refresh",
                   onDone: {
@@ -434,7 +435,7 @@ export default createMachine(
        * that any changes are applied immediately, and then the refresh can
        * confirm/adjust as needed
        */
-      PREFRESH: [{ actions: ["prefreshActors"] }],
+      PREFRESH: [{ actions: ["updateBasket", "prefreshActors"] }],
 
       UNAUTHENTICATED: {
         target: "subscribing",
@@ -627,15 +628,11 @@ export default createMachine(
       },
 
       // ---
-
-      abortController: assign({
-        controller: ({ controller }: BasketContext) => {
-          if (controller?.signal && !controller.signal?.aborted) {
-            controller?.abort();
-          }
-          return new AbortController();
-        }
-      }),
+      /** Cancel any existing query to prevent multiple queries */
+      cancelExistingQuery: (context: BasketContext, _event: AnyEventObject) => {
+        const { cancel } = useQuery();
+        cancel(["basket"]);
+      },
 
       // --- Datalayer
       // when a new product is added for configuration, but has not been saved/added to the basket

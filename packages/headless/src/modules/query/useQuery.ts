@@ -57,8 +57,14 @@ import type {
   PaginationInfo
 } from "./types";
 import { Methods } from "@upmind-automation/types";
-import type { DefaultError } from "@tanstack/vue-query";
+import type {
+  DefaultError,
+  MutationKey,
+  QueryKey,
+  QueryOptions
+} from "@tanstack/vue-query";
 import { useSession } from "../session";
+import { cancel } from "xstate";
 
 // -----------------------------------------------------------------------------
 
@@ -500,6 +506,7 @@ export const useQuery = () => {
        * @type {Object}
        * @property {boolean} hasNextPage - Whether there is a next page.
        * @property {boolean} hasPrevPage - Whether there is a previous page.
+       * @property {boolean} hasPages - Whether there is more than one page of results.
        */
       meta: computed(() => {
         total.value = response?.data?.value?.total ?? total.value;
@@ -508,7 +515,8 @@ export const useQuery = () => {
           : Math.max(Math.ceil(total.value / limit), 1);
         return {
           hasNextPage: pageIndex.value < pageTotal,
-          hasPrevPage: pageIndex.value > 1
+          hasPrevPage: pageIndex.value > 1,
+          hasPages: pageTotal > 1
         };
       }),
 
@@ -608,6 +616,7 @@ export const useQuery = () => {
       meta: ComputedRef<{
         hasNextPage: boolean;
         hasPrevPage: boolean;
+        hasPages: boolean;
       }>;
       total: ComputedRef<number>;
       fetchNextPage: () => void;
@@ -754,10 +763,12 @@ export const useQuery = () => {
        * @type {Object}
        * @property {boolean} hasNextPage - Whether there is a next page.
        * @property {boolean} hasPrevPage - Whether there is a previous page.
+       * @property {boolean} hasPages - Whether there is more than one page of results.
        */
       meta: computed(() => ({
         hasNextPage: response?.hasNextPage?.value,
-        hasPrevPage: response?.hasPreviousPage?.value
+        hasPrevPage: response?.hasPreviousPage?.value,
+        hasPages: pageTotal.value > 1
       })),
 
       sort: (values?: QueryParams["sort"]) => {
@@ -779,6 +790,7 @@ export const useQuery = () => {
       meta: ComputedRef<{
         hasNextPage: boolean;
         hasPrevPage: boolean;
+        hasPages: boolean;
       }>;
       sort: (values?: QueryParams["sort"]) => void;
       filter: (values: QueryParams["filters"]) => void;
@@ -804,15 +816,24 @@ export const useQuery = () => {
   >(
     method: Omit<Methods, "GET" | "HEAD">,
     {
+      mutationKey,
       url,
       init,
       data,
       withAccessToken,
+      withoutLocale,
       ...options
     }: MutationParams<QueryResponse<TData>, TError, TVariables, TContext>
   ) {
     // safeguard
     init ??= {};
+
+    // set "lang" parameter
+    if (!withoutLocale && locale.value) {
+      if (!url.searchParams.has("lang")) {
+        url.searchParams.set("lang", locale.value as string);
+      }
+    }
 
     // Enforce method, header, parse body
     set(init, "method", method.toUpperCase());
@@ -820,6 +841,7 @@ export const useQuery = () => {
 
     return useMutation(
       {
+        mutationKey,
         mutationFn: async () => request<TData>({ url, init, withAccessToken }),
         ...options
       },
@@ -1039,6 +1061,7 @@ export const useQuery = () => {
    *
    * @example postRequest({ url: "/orders", withAccessToken: true });
    *
+   * @param mutationKey The mutation key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
    * @param url The URL to send the request to.
    * @param init The request options.
    * @param data The data to send with the request.
@@ -1047,29 +1070,23 @@ export const useQuery = () => {
    * @throws {Error} Might throw an error if the request fails.
    */
   async function postRequest<T = object>({
+    mutationKey,
     url,
     init,
     data,
     withAccessToken,
     withoutLocale
-  }: RequestParams): Promise<T> {
-    // safeguard
-    init ??= {};
-
-    // set "lang" parameter
-    if (!withoutLocale && locale.value) {
-      if (!url.searchParams.has("lang")) {
-        url.searchParams.set("lang", locale.value as string);
-      }
-    }
-
-    // Enforce method, header, parse body
-    set(init, "method", Methods.POST.toUpperCase());
-    set(init, "body", parseData(data));
-
-    return request<T>({ url, init, withAccessToken }).then(
-      response => (response?.data || response) as T
-    );
+  }: RequestParams & { mutationKey: MutationKey }): Promise<T> {
+    return mutate<T>(Methods.POST, {
+      mutationKey,
+      url,
+      init,
+      data,
+      withAccessToken,
+      withoutLocale
+    })
+      .mutateAsync()
+      .then(response => (response?.data || response) as T);
   }
 
   /**
@@ -1081,6 +1098,7 @@ export const useQuery = () => {
    *
    * @example putRequest({ url: "/orders", withAccessToken: true });
    *
+   * @param mutationKey The mutation key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
    * @param url The URL to send the request to.
    * @param init The request options.
    * @param data The data to send with the request.
@@ -1089,28 +1107,23 @@ export const useQuery = () => {
    * @throws {Error} Might throw an error if the request fails.
    */
   async function putRequest<T = object>({
+    mutationKey,
     url,
     init,
     data,
     withAccessToken,
     withoutLocale
-  }: RequestParams): Promise<T> {
-    // safeguard
-    init ??= {};
-
-    // set "lang" parameter
-    if (!withoutLocale && locale.value) {
-      if (!url.searchParams.has("lang")) {
-        url.searchParams.set("lang", locale.value as string);
-      }
-    }
-    // Enforce method, header, parse body
-    set(init, "method", Methods.PUT.toUpperCase());
-    set(init, "body", JSON.stringify(data));
-
-    return request<T>({ url, init, withAccessToken }).then(
-      response => (response?.data || response) as T
-    );
+  }: RequestParams & { mutationKey: MutationKey }): Promise<T> {
+    return mutate<T>(Methods.PUT, {
+      mutationKey,
+      url,
+      init,
+      data,
+      withAccessToken,
+      withoutLocale
+    })
+      .mutateAsync()
+      .then(response => (response?.data || response) as T);
   }
 
   /**
@@ -1122,6 +1135,7 @@ export const useQuery = () => {
    *
    * @example patchRequest({ url: "/orders", withAccessToken: true });
    *
+   * @param mutationKey The mutation key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
    * @param url The URL to send the request to.
    * @param init The request options.
    * @param data The data to send with the request.
@@ -1130,29 +1144,23 @@ export const useQuery = () => {
    * @throws {Error} Might throw an error if the request fails.
    */
   async function patchRequest<T = object>({
+    mutationKey,
     url,
     init,
     data,
     withAccessToken,
     withoutLocale
-  }: RequestParams): Promise<T> {
-    // safeguard
-    init ??= {};
-
-    // set "lang" parameter
-    if (!withoutLocale && locale.value) {
-      if (!url.searchParams.has("lang")) {
-        url.searchParams.set("lang", locale.value as string);
-      }
-    }
-
-    // Enforce method, header, parse body
-    set(init, "method", Methods.PATCH.toUpperCase());
-    set(init, "body", JSON.stringify(data));
-
-    return request<T>({ url, init, withAccessToken }).then(
-      response => (response?.data || response) as T
-    );
+  }: RequestParams & { mutationKey: MutationKey }): Promise<T> {
+    return mutate<T>(Methods.PATCH, {
+      mutationKey,
+      url,
+      init,
+      data,
+      withAccessToken,
+      withoutLocale
+    })
+      .mutateAsync()
+      .then(response => (response?.data || response) as T);
   }
 
   /**
@@ -1164,6 +1172,7 @@ export const useQuery = () => {
    *
    * @example deleteRequest({ url: "/orders", withAccessToken: true });
    *
+   * @param mutationKey The mutation key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
    * @param url The URL to send the request to.
    * @param init The request options.
    * @param data The data to send with the request.
@@ -1172,29 +1181,23 @@ export const useQuery = () => {
    * @throws {Error} Might throw an error if the request fails.
    */
   async function deleteRequest<T = object>({
+    mutationKey,
     url,
     init,
     data,
     withAccessToken,
     withoutLocale
-  }: RequestParams): Promise<T> {
-    // safeguard
-    init ??= {};
-
-    // set "lang" parameter
-    if (!withoutLocale && locale.value) {
-      if (!url.searchParams.has("lang")) {
-        url.searchParams.set("lang", locale.value as string);
-      }
-    }
-
-    // Enforce method, header, parse body
-    set(init, "method", Methods.DELETE.toUpperCase());
-    set(init, "body", JSON.stringify(data));
-
-    return request<T>({ url, init, withAccessToken }).then(
-      response => (response?.data || response) as T
-    );
+  }: RequestParams & { mutationKey: MutationKey }): Promise<T> {
+    return mutate<T>(Methods.DELETE, {
+      mutationKey,
+      url,
+      init,
+      data,
+      withAccessToken,
+      withoutLocale
+    })
+      .mutateAsync()
+      .then(response => (response?.data || response) as T);
   }
 
   /**
@@ -1247,6 +1250,13 @@ export const useQuery = () => {
     put: putRequest,
     post: postRequest,
     head: headRequest,
-    patch: patchRequest
+    patch: patchRequest,
+    // --- cancel method
+    cancel: async (
+      queryKey: QueryKey,
+      options: { exact?: boolean } = { exact: false }
+    ) => {
+      return queryClient.cancelQueries({ queryKey, ...options });
+    }
   };
 };

@@ -1,17 +1,25 @@
 // --- external
-import { createMachine, assign, spawn, actions, sendTo, pure } from "xstate";
+import { createMachine, assign } from "xstate";
 
 // --- internal
 import services from "./services";
-import { basketSubscription } from "../basketProduct/helper";
+import { useI18n } from "../system";
 
 // --- utils
-import { mapToHeadlessError, useTime } from "../../utils";
-import { defaultsDeep, find, get, isEmpty, uniqBy } from "lodash-es";
+import {
+  DetailedError,
+  responseCodes,
+  useTime,
+  ErrorOrigin,
+  mapToHeadlessError
+} from "../../utils";
+import { first, has, isEmpty, isEqual, keys, reduce, some } from "lodash-es";
 
 // --- types
 import type { AnyEventObject } from "xstate";
-import type { RoutingEngineContext } from "./types";
+import type { FunnelProps, Funnels, RoutingEngineContext } from "./types";
+import { RouteLocation } from "vue-router";
+import { useQueryParams } from "./useQueryParams";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -22,126 +30,69 @@ export default createMachine(
     context: {} as RoutingEngineContext,
     states: {
       subscribing: {
-        entry: [
-          "setContext",
-          "setBasketHelper",
-          "loadBasket",
-          assign({ currentFlow: undefined, currentRoute: undefined })
-        ],
-        on: {
-          REGISTER: {
-            actions: ["setFlows"]
-          },
-          // when we get our basket, then we can start and determine the first route (if any)
-          // otherwise we are not available
-          REFRESH: [
-            {
-              target: "unavailable",
-              actions: ["setBasket"],
-              cond: "hasNoFlows"
-            },
-            { target: "available", actions: ["setBasket"] }
-          ],
-          ERROR: {
-            target: "unavailable",
-            actions: ["setError"]
-          }
+        // await registration of flows ( if not already in context )
+        // if we have no flows in context, we cannot do anything
+        // but we can still be given flows to process and restart
+        always: {
+          target: "available",
+          cond: "hasFunnels"
         }
       },
 
       available: {
-        entry: ["clearError"],
-        initial: "idle",
+        initial: "loading",
         states: {
-          idle: {
-            on: {
-              NEXT: {
-                target: "calculating.next"
-              },
-              BACK: {
-                target: "calculating.back"
-              },
-              RESOLVE: {
-                target: "resolving"
-              },
-              REGISTER: {
-                actions: ["setFlows"]
-              }
-            }
-          },
-          // This is where we calculate the next/back/fallback state and then RESOLVE to it
-          calculating: {
-            id: "calculating",
-            initial: "next",
-            states: {
-              next: {
-                invoke: {
-                  src: "calculateNextRoute",
-                  onDone: {
-                    target: "#resolved",
-                    actions: "setResolved"
-                  },
-                  onError: {
-                    target: "#resolved",
-                    actions: "setResolved"
-                  }
-                }
-              },
-              back: {
-                invoke: {
-                  src: "calculateBackRoute",
-                  onDone: {
-                    target: "#resolved",
-                    actions: "setResolved"
-                  },
-                  onError: {
-                    target: "#resolved",
-                    actions: "setResolved"
-                  }
-                }
-              }
-            }
-          },
-
-          resolving: {
-            id: "resolving",
+          loading: {
+            entry: "clearError",
             invoke: {
-              src: "resolve",
+              id: "prepareActiveMachine",
+              src: "prepare",
+
+              // The service successfully returns the executable machine instance
               onDone: {
-                target: "#resolved",
-                actions: "setResolved"
+                target: "guiding",
+                actions: "setFunnel"
               },
               onError: {
-                target: "#resolved",
-                actions: "setResolved"
-              }
-            },
-            on: {
-              NEXT: {
-                target: "calculating.next"
-              },
-              BACK: {
-                target: "calculating.back"
+                // If factory fails (e.g., config error), restart and try subscribing the default
+                target: "idle",
+                actions: ["clearFunnel", "setError"]
               }
             }
           },
-
-          resolved: {
-            id: "resolved",
-            after: {
-              wait: "idle"
+          /**
+           * State: Idle state when no funnel is active. Awaits further instructions to load a funnel.
+           */
+          idle: {},
+          /**
+           * State: Invokes the selected funnel machine and forwards all navigation events.
+           * This is the heart of the routing logic.
+           */
+          guiding: {
+            entry: "clearTargetRoute",
+            // Invokes the machine instance prepared in the previous state
+            invoke: {
+              id: "currentFunnel",
+              src: ({ funnel }: RoutingEngineContext) => {
+                const { t } = useI18n();
+                if (!funnel) {
+                  throw new DetailedError(
+                    t("error.funnels_not_available"),
+                    responseCodes.Service_Unavailable,
+                    ErrorOrigin.Headless
+                  );
+                  // Or return a fallback machine if you have one
+                }
+                return funnel;
+              },
+              autoForward: true,
+              // 🎯 Funnel Completion (Chaining/Fallback)
+              onDone: {
+                target: "loading", // Return to selection state to load the next funnel
+                actions: ["resetFunnel"]
+              },
+              onError: { target: "idle" }
             }
-          }
-        }
-      },
-
-      unavailable: {
-        // if we have no flows in context, we can not do anything
-        // but we can still be given flows to process and restart
-        on: {
-          REGISTER: {
-            target: "available",
-            actions: ["setFlows"]
           }
         }
       },
@@ -151,13 +102,17 @@ export default createMachine(
       }
     },
     on: {
-      REFRESH: [
-        {
-          actions: ["setBasket"],
-          cond: "hasBasketChanged"
-        },
-        { actions: ["setBasket"] }
-      ],
+      // Event: Manual override to switch to a different funnel (Pattern B)
+      SWITCH: {
+        target: "available",
+        actions: "switchFunnel",
+        cond: "hasValidFunnel"
+      },
+
+      REGISTER: {
+        target: "available",
+        actions: ["clearError", "setFunnels"]
+      },
       STOP: {
         target: "complete"
       }
@@ -165,80 +120,117 @@ export default createMachine(
   },
   {
     actions: {
-      setContext: assign((context, _event) =>
-        defaultsDeep(context, {
-          flows: [],
-          // ---
-          error: undefined,
-          // ---
-          basketId: undefined,
-          basketHelper: undefined
+      /**
+       * Action to process the initial REGISTER event, setting up the dynamic default ID
+       * and the master list of all funnels.
+       */
+      setFunnels: assign(
+        (
+          { funnels, defaultFunnel }: RoutingEngineContext,
+          { data }: AnyEventObject
+        ) => {
+          //  extract data
+          const newFunnelsArray = data?.funnels || [];
+          const newDefaultFunnel = data?.defaultFunnel;
+
+          // Convert newFunnelsArray to a dictionary, merging with existing if id matches
+          const funnelDictionary = reduce(
+            newFunnelsArray,
+            (acc: Funnels, config: FunnelProps) => {
+              if (acc[config.id]) {
+                // Merge existing funnel config with new one
+                acc[config.id] = { ...acc[config.id], ...config };
+              } else {
+                acc[config.id] = config;
+              }
+              return acc;
+            },
+            funnels || {}
+          );
+
+          // Fallback logic for the default ID
+          const newDefaultId =
+            newDefaultFunnel ||
+            defaultFunnel ||
+            first(keys(funnelDictionary)) ||
+            undefined;
+
+          return {
+            funnels: funnelDictionary,
+            defaultFunnel: newDefaultId,
+            currentFunnel: newDefaultId // Start with the default funnel active
+          };
+        }
+      ),
+
+      /**
+       * Action to switch to a different funnel based on route query parameters.
+       * This action shold be guarded to ensure the requested funnel exists and is valid.
+       */
+      switchFunnel: assign({
+        currentFunnel: (
+          { currentFunnel }: RoutingEngineContext,
+          { data }: AnyEventObject
+        ) => {
+          const currentRoute: RouteLocation = data?.route;
+          const funnel = currentRoute.query?.funnel as string;
+          return funnel || currentFunnel;
+        }
+      }),
+
+      setFunnel: assign(
+        (_context: RoutingEngineContext, { data }: AnyEventObject) => ({
+          currentFunnel: data.funnel,
+          funnel: data // This should be a StateMachine instance
         })
       ),
 
-      setBasket: assign({
-        basketId: (_context, { data }: AnyEventObject) => {
-          const basket = get(data, "basket", data);
-          return basket?.id;
+      /**
+       * Action to handle funnel completion (onDone). It checks for chaining logic.
+       * This is the core of Pattern C (Chaining) and Pattern D (Fallback).
+       */
+      resetFunnel: assign(
+        ({ defaultFunnel }: RoutingEngineContext, { data }: AnyEventObject) => {
+          // Data is returned from the child's final state: { targetRoute, funnel }
+          // Determine the next funnel: prioritize the child's request, otherwise use the configured default
+          return {
+            currentFunnel: undefined,
+            defaultFunnel: data?.funnel || defaultFunnel,
+            targetRoute: data?.targetRoute
+          };
         }
+      ),
+
+      clearFunnel: assign({
+        currentFunnel: undefined
       }),
 
-      setFlows: assign({
-        flows: ({ flows }, { data }: AnyEventObject) => {
-          return uniqBy([...(data ?? []), ...flows], "name");
-        }
-      }),
-
-      setResolved: assign({
-        currentFlow: ({ flows }, { data }: AnyEventObject) => {
-          const flow = get(data, "flow", data);
-          const registerdFlow = find(flows, ["name", flow?.name]);
-          // ensure we keep all the defaults from the registered flow, so we dont haveto repeat ourselves
-          const value = defaultsDeep(flow, registerdFlow);
-          return value;
-        },
-        currentRoute: (_context, { data }: AnyEventObject) => {
-          const route = get(data, "route", data);
-          return route;
-        }
-      }),
-
-      // ---
-      setBasketHelper: assign({
-        basketHelper: ({ basketHelper }) => {
-          return basketHelper ?? spawn(basketSubscription);
-        }
-      }),
-
-      loadBasket: pure(({ basketHelper }: RoutingEngineContext, _event) => {
-        if (!basketHelper) return;
-        return sendTo(basketHelper, {
-          type: "INIT"
-        });
-      }),
-
-      // ---
       setError: assign({
         error: (_context: RoutingEngineContext, { data }: AnyEventObject) =>
           mapToHeadlessError(data)
       }),
-      clearError: assign({
-        error: (_context, _event) => undefined
+
+      clearError: assign({ error: undefined }),
+
+      clearTargetRoute: assign({
+        targetRoute: (_context: RoutingEngineContext) => undefined
       })
     },
 
     guards: {
-      hasBasketChanged: (
-        { basketId }: RoutingEngineContext,
+      hasFunnels: ({ funnels }: RoutingEngineContext) => !isEmpty(funnels),
+      hasValidFunnel: (
+        { funnels, currentFunnel }: RoutingEngineContext,
         { data }: AnyEventObject
       ) => {
-        //  NB: data is raw basket data so use snake_case for comparison
-        const basketChanged = basketId !== data?.id;
-        const value = basketChanged;
-        return value;
-      },
-
-      hasNoFlows: context => isEmpty(context.flows)
+        //
+        const { getParam } = useQueryParams(data?.route);
+        // The data fro mthe event may contain a route OR a named funnel directly
+        const funnel = getParam("funnel", data?.funnel) as string;
+        const valid =
+          !!funnel && !isEqual(funnel, currentFunnel) && has(funnels, funnel);
+        return valid;
+      }
     },
 
     delays: {

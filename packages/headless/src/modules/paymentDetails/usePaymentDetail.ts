@@ -18,7 +18,7 @@ import {
   useContextActor
 } from "../../utils";
 import { useBrand } from "../brand";
-import { isEmpty, isEqual, isNil, filter, includes, some, gt } from "lodash-es";
+import { isEmpty, isEqual, isNil, includes, some, gt } from "lodash-es";
 
 // --- types
 import type { ActorRef } from "xstate";
@@ -31,6 +31,7 @@ import type {
 } from "./types";
 import { GatewayTypes, PaymentType } from "@upmind-automation/types";
 import { useSchemaDefinitions, useUischemaDefinitions } from "./schemas";
+import { zeroDecimalCurrencies } from "./gateways/utils";
 
 // -----------------------------------------------------------------------------
 
@@ -230,7 +231,8 @@ export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
         options: {
           type: "currency",
           currency: currency.value?.code,
-          noLabel: true
+          noLabel: true,
+          step: includes(zeroDecimalCurrencies, currency.value?.code) ? 1 : 0.01
         }
       }
     ]

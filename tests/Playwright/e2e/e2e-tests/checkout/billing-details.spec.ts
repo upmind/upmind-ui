@@ -25,7 +25,7 @@ test.describe("Verify checkout billing detail requirements", () => {
     );
     await page.goto(URLs.basket);
     await page.waitForLoadState("networkidle");
-    token = await getSessionToken(context, "client");
+    token = await getSessionToken(context);
     orderId = await getCurrentOrderId(token);
     await addProductToOrder(
       `${token}`,
@@ -53,7 +53,8 @@ test.describe("Verify checkout billing detail requirements", () => {
       requirePhoneForOrders: false
     });
     await page.goto(URLs.checkout);
-    await checkout.placeOrderButton.click();
+    await checkout.selectPaymentMethod("Offline Payment");
+    await checkout.clickPlaceOrder();
     await expect(checkout.addressFormMessage).toContainText(
       "Your address is required"
     );
@@ -68,7 +69,8 @@ test.describe("Verify checkout billing detail requirements", () => {
     await page.goto(URLs.checkout);
     await expect(page.getByTestId("billing")).toContainText("Company Name");
     await expect(page.getByTestId("tablist")).toHaveCount(0);
-    await checkout.placeOrderButton.click();
+    await checkout.selectPaymentMethod("Offline Payment");
+    await checkout.clickPlaceOrder();
     await expect(checkout.companyFormMessage).toContainText(
       "Company Name must be string"
     );

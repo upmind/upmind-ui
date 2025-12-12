@@ -5,6 +5,7 @@
     :basket-billing="!uischema.showBillingOnCheckout"
     :basket-fields="!uischema.showFieldsOnCheckout"
     :basket-products="!uischema.showProductsOnCheckout"
+    :basket-products-route="props.editRoute"
   />
 
   <!-- Basket Products -->
@@ -15,7 +16,7 @@
     value="products"
     icon="list"
   >
-    <ProductCards />
+    <ProductCards :edit-route="props.editRoute" />
   </Section>
 
   <!-- Additional Options -->
@@ -48,7 +49,7 @@
   />
 
   <!-- Payment Details -->
-  <PaymentDetails />
+  <PaymentDetails data-testid="payment-details" />
 </template>
 
 <script lang="ts" setup>
@@ -60,9 +61,17 @@ import { useBasket, useBasketFields } from "@upmind-automation/headless";
 import Section from "../../../components/section/Section.vue";
 import BillingDetails from "../../billing/Billing.vue";
 import PaymentDetails from "./PaymentDetails.vue";
-import ProductCards from "../../basket/product/BasketProductCards.vue";
+import ProductCards from "../../basket-product/components/card/BasketProductCards.vue";
 import Form from "../../../components/form/Form.vue";
 import BasketErrors from "../../basket/components/BasketErrors.vue";
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
+
+// -----------------------------------------------------------------------------
+
+const props = defineProps<{
+  editRoute: RouteLocationAsRelativeGeneric;
+}>();
+// -----------------------------------------------------------------------------
 
 const { t } = useI18n();
 const { meta, uischema } = useBasket();

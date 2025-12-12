@@ -15,6 +15,8 @@
         :query="query"
         :sort="props.sort"
         :direction="props.direction"
+        :category-route="props.categoryRoute"
+        :name="props.name"
       />
     </nav>
   </section>

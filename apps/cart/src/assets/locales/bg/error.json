@@ -59,6 +59,8 @@
   "currency_validation_failed": "Валидацията на валутата не бе успешна",
   "domain_add_failed": "Добавянето на домейна в кошницата не бе успешно",
   "feedback_action_not_available": "Действие със стойност '{data}' не е налично.",
+  "funnel_not_available": "Фунията не е налична",
+  "funnels_not_available": "Фуниите не са налични",
   "generic_error": "грешка",
   "generic_text": "Нека те върнем на правилния път",
   "generic_title": "За съжаление, възникна **грешка**",

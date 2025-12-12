@@ -134,6 +134,7 @@ async function add(data: AddressModel) {
     return Promise.reject(new NotAuthenticatedError());
   }
   return post<IAddress>({
+    mutationKey: ["client", "addresses", "add"],
     url: useUrl(`clients/${client.value?.id}/addresses`),
     data: mapIAddress(data),
     withAccessToken: true
@@ -149,6 +150,7 @@ async function update(id: Address["id"], data: AddressModel) {
   }
 
   return put<IAddress>({
+    mutationKey: ["client", "addresses", id],
     url: useUrl(`clients/${client.value?.id}/addresses/${id}`),
     data: mapIAddress(data),
     withAccessToken: true

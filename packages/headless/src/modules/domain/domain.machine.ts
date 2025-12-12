@@ -2,6 +2,8 @@
 import { createMachine, assign, spawn, sendTo, pure } from "xstate";
 
 // --- internal
+import DACmachine from "./dac.machine";
+
 import services from "./services";
 import { basketSubscription } from "../basketProduct/helper";
 import { authSubscription } from "../session/helper";
@@ -29,29 +31,26 @@ import {
   includes,
   isArray,
   isEmpty,
-  isFunction,
-  isNull,
   isString,
   map,
-  omit,
   reduce,
-  reject,
   remove,
   set,
   some,
-  uniq,
-  uniqBy,
   values
 } from "lodash-es";
 
 // --- types
 import type { AnyEventObject } from "xstate";
-import type { IBasket, IBasketProduct } from "@upmind-automation/types";
+import {
+  ProvisionCategoryCodes,
+  type IBasket,
+  type IBasketProduct
+} from "@upmind-automation/types";
 import { DomainTypes } from "./types";
 import type { DomainModel, DomainContext, DomainProduct } from "./types";
-import type { ProductModel, ProductProps } from "../product";
 import { parseBasketProduct } from "../basketProduct/utils";
-import { PAGINATION } from "../query";
+import { ProductProps } from "../product";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -139,126 +138,50 @@ export default createMachine(
       },
 
       dac: {
-        id: "dac",
-        initial: "loading",
-        entry: ["clearModel", "clearSearch"],
-        states: {
-          loading: {
-            entry: ["cancelController", "clearError"],
-            always: [
-              { target: "processing", cond: "hasSearchQuery" },
-              { target: "invalid" }
-            ]
-          },
-          // cancel any existing search via the controller then wait before starting a new search & controller
-          processing: {
-            id: "processing",
-            entry: ["clearError", "cancelController", "newController"],
-            invoke: {
-              src: "search",
-              onDone: {
-                target: "invalid",
-                actions: ["setSearchResults"]
-              },
-              onError: [
-                {
-                  target: "error",
-                  actions: ["setError"],
-                  cond: "isNotCancelled"
-                },
-                {
-                  actions: ["setError"]
-                }
-              ]
-            }
-          },
-          valid: {
-            type: "final",
-            always: [
-              {
-                target: "invalid",
-                cond: "isInvalid"
-              }
-            ],
-            on: {
-              ADD_UPDATE_MANY: {
-                target: "processingBasket",
-                actions: ["addToBasket"]
-              }
-            }
-          },
-          invalid: {
-            always: [{ target: "valid", cond: "isValid" }]
-          },
-          processingBasket: {
-            on: {
-              REFRESH: {
-                // Do nothing > wait for the updated event
-                actions: ["setBasketProducts", "refreshContext"]
-              },
-              UPDATED: {
-                target: "#basket",
-                actions: [
-                  "setBasketProducts",
-                  "setModelFromBasket",
-                  "ensureSelected",
-                  "checkChoices",
-                  "checkType",
-                  "persistModel"
-                ]
-              },
-
-              ERROR: { target: "error", actions: ["setError"] }
-            }
-          },
-          error: {},
-          complete: {}
+        invoke: {
+          id: "dac",
+          src: DACmachine,
+          data: ({
+            search,
+            currency,
+            basketId,
+            brandId,
+            coupons,
+            preferredCycle,
+            tlds
+          }: DomainContext) => ({
+            search,
+            currency,
+            basketId,
+            brandId,
+            coupons,
+            preferredCycle,
+            tlds
+          }),
+          autoForward: true
         },
         on: {
-          ADD: [
-            {
-              target: ".valid",
-              actions: ["add", "ensureSelected"],
-              cond: "isValidDomain"
-            }
-          ],
-          REMOVE: {
-            target: ".valid",
-            actions: ["remove", "ensureSelected"],
-            cond: "isValid"
-          },
-          UPDATE: {
-            target: ".valid",
-            actions: ["setModel", "ensureSelected"]
-          },
-          SEARCH: [
-            {
-              target: ".loading",
-              actions: ["setSearchQuery"],
-              cond: "validSearchQuery"
-            },
-            {
-              actions: ["setSearchQuery"]
-            }
-          ],
-          "SEARCH.OFFSET": {
-            target: ".loading",
-            actions: ["setSearchOffset"],
-            cond: "validSearchOffset"
-          },
-          RESET: {
-            target: ".invalid",
-            actions: ["resetModel", "resetLookups", "clearSearch"]
-          },
-
-          ERROR: { actions: ["setError"] },
-
-          REFRESH: {
-            target: ".loading",
-            actions: ["setBasketProducts", "refreshContext"]
+          COMPLETE: {
+            target: "#basket",
+            actions: [
+              "setType",
+              "setModelFromBasket",
+              "ensureSelected",
+              "checkChoices",
+              "persistModel"
+            ]
           }
+        },
+        onDone: {
+          target: "#basket",
+          actions: [
+            "setModelFromBasket",
+            "ensureSelected",
+            "checkChoices",
+            "checkType",
+            "persistModel"
+          ]
         }
-        // exit: ["clearModel"],
       },
 
       existing: {
@@ -380,52 +303,41 @@ export default createMachine(
   },
   {
     actions: {
-      setContext: assign((context: DomainContext, _event: AnyEventObject) =>
-        defaultsDeep(context, {
-          choices: values(DomainTypes),
-          type: undefined,
-          model: [],
-          lookups: {
-            searched: [],
-            history: [],
-            owned: [],
-            basket: []
-          },
-          // ---
-          currency: undefined,
-          basketId: undefined,
-          brandId: undefined,
-          promotions: [],
-          // ---
-          search: {
-            query: undefined,
-            limit: PAGINATION.limit,
-            offset: PAGINATION.offset,
-            total: 0
-          },
-
-          controller: undefined,
-          // ---
-          error: undefined,
-          // ---
-          authHelper: undefined,
-          basketHelper: undefined,
-          parseBasketProduct: undefined,
-          parseProductModel: undefined
-        })
+      setContext: assign(
+        (context: DomainContext, _event: AnyEventObject) =>
+          defaultsDeep(context, {
+            choices: values(DomainTypes),
+            type: undefined,
+            model: undefined,
+            lookups: {
+              owned: [],
+              basket: []
+            },
+            // ---
+            currency: undefined,
+            basketId: undefined,
+            brandId: undefined,
+            coupons: [],
+            // ---
+            error: undefined,
+            // ---
+            authHelper: undefined,
+            basketHelper: undefined,
+            parseBasketProduct: undefined,
+            parseProductModel: undefined
+          }) as DomainContext
       ),
 
       persistModel: assign({
-        baseModel: ({ model }: DomainContext) => compact(cloneDeep(model)) // we use spread to ensure its a new array
+        baseModel: ({ model }: DomainContext) => cloneDeep(model) // we use spread to ensure its a new array
       }),
 
       checkModel: assign({
         model: ({ model, lookups }: DomainContext) => {
-          const values = compact(
-            map(model, item => parseDomain(item))
-          ) as DomainModel[];
-          if (isEmpty(values) && !isEmpty(lookups.basket)) {
-            return map(lookups.basket, item => {
+          let value = parseDomain(model);
+
+          if (isEmpty(value) && !isEmpty(lookups.basket)) {
+            const parsed = map(lookups.basket, item => {
               return {
                 domain: item.domain,
                 tld: item.tld,
@@ -433,17 +345,22 @@ export default createMachine(
                 typee: DomainTypes.basket,
                 selected: item.meta.selected
               } as DomainModel;
-            }) as DomainModel[];
+            });
+
+            value = find(parsed, "selected") || first(parsed);
           }
-          return values;
+
+          // ensure the selected flag is set on the selected domain
+          if (value) set(value, "selected", true);
+
+          return value;
         }
       }),
 
       ensureSelected: assign({
         model: ({ model }: DomainContext) => {
-          if (!isEmpty(model) && !some(model, "selected")) {
-            const primaryDomain = first(model);
-            if (primaryDomain) set(primaryDomain, "selected", true);
+          if (!isEmpty(model) && !model.selected) {
+            set(model, "selected", true);
           }
           return model;
         }
@@ -466,10 +383,19 @@ export default createMachine(
       }),
 
       checkType: assign({
-        type: ({ type, choices, model, lookups }: DomainContext) => {
-          const selected = find(model, "selected") || first(model);
-          const domain = get(selected, "domain");
-          // NB only force the type if we have a domain AND we are not limiting the choices
+        type: ({ type, choices, model, lookups, search }: DomainContext) => {
+          // FORCE: if we dont have a type set but we have an initial search query
+          if (
+            !type &&
+            includes(choices, DomainTypes.register) &&
+            !isEmpty(search?.query)
+          ) {
+            return DomainTypes.register;
+          }
+
+          const domain = get(model, "domain");
+
+          // FORCE: if we have a domain AND we are not limiting the choices
           if (
             domain &&
             (includes(choices, DomainTypes.basket) ||
@@ -479,6 +405,11 @@ export default createMachine(
             if (added) return DomainTypes.basket;
             return DomainTypes.existing;
           }
+
+          if (!type && !isEmpty(choices)) {
+            return first(choices);
+          }
+
           return type;
         }
       }),
@@ -490,18 +421,12 @@ export default createMachine(
 
       refreshContext: assign(
         (_context: DomainContext, { data }: AnyEventObject) => {
-          const {
-            id: basketId,
-            brand_id: brandId,
-            currency,
-            promotions
-          } = data as IBasket;
+          const { id: basketId, brand_id: brandId, currency } = data as IBasket;
 
           const newContext = {
             basketId,
             brandId,
-            currency: currency.code,
-            promotions: promotions ?? []
+            currency: currency.code
           };
 
           return newContext;
@@ -559,11 +484,17 @@ export default createMachine(
           { lookups, parseBasketProduct, model }: DomainContext,
           { data }: AnyEventObject
         ) => {
-          const primary =
-            find(model, "selected") || first(model) || first(lookups.basket);
+          const primary = model || first(lookups.basket);
 
+          // 1st filter out only the domain products from the basket products
+          const domains = filter(data.products, [
+            "product.provision_blueprint.code",
+            ProvisionCategoryCodes.DOMAIN_NAMES
+          ]);
+
+          // then parse them into our DomainProduct type
           const available = reduce(
-            data.products,
+            domains,
             (result: DomainProduct[], raw: IBasketProduct) => {
               const parsed = parseBasketProduct(raw, primary?.domain);
               if (parsed) result.push(parsed);
@@ -576,66 +507,7 @@ export default createMachine(
         }
       }),
 
-      addToBasket: pure((context: DomainContext, _event) => {
-        if (!context.basketHelper) return;
-
-        const products = reduce(
-          context.model ?? [],
-          (result: ProductModel[], item: DomainModel) => {
-            const product = find(context.lookups.searched, [
-              "domain",
-              item.domain
-            ]);
-
-            if (product?.configuration?.productId) {
-              const model = isFunction(context?.parseProductModel)
-                ? context.parseProductModel(product)
-                : undefined;
-              if (model) {
-                model.silent = true; // NB: we dont want to be blocked by the machine but rather let he backend handle this
-                result.push(model);
-              }
-            }
-            return result;
-          },
-          []
-        );
-
-        return sendTo(context.basketHelper, {
-          type: "ADD_UPDATE_MANY",
-          target: products,
-          context
-        });
-      }),
-
       // ---
-
-      add: assign({
-        model: (
-          { model, lookups, type }: DomainContext,
-          { data }: AnyEventObject
-        ) => {
-          let available: DomainProduct[] = [];
-          switch (type) {
-            case DomainTypes.register:
-              available = lookups.searched || [];
-              break;
-            case DomainTypes.transfer:
-              available = lookups.searched || [];
-              break;
-            // case DomainTypes.existing:
-            //   available = lookups.owned;
-            //   break;
-            case DomainTypes.basket:
-              available = lookups.basket || [];
-              break;
-          }
-          const domain = parseValue(data, model, available);
-          model ??= [];
-          if (domain) model.push(domain);
-          return model;
-        }
-      }),
 
       setExisting: assign({
         model: (_context: DomainContext, { data }: AnyEventObject) => {
@@ -648,172 +520,36 @@ export default createMachine(
             sld: parsed?.sld ?? "",
             selected: true
           };
-          return [domain];
-        }
-      }),
-
-      remove: assign({
-        model: ({ model }: DomainContext, { data }: AnyEventObject) =>
-          reject(model, ["domain", data])
-      }),
-
-      setModel: assign({
-        model: (
-          { model, lookups, type }: DomainContext,
-          { data }: AnyEventObject
-        ) => {
-          return reduce(
-            data,
-            (result: DomainModel[], item) => {
-              let available: DomainProduct[] = [];
-              switch (type) {
-                case DomainTypes.register:
-                  available = lookups?.searched;
-                  break;
-                case DomainTypes.transfer:
-                  available = lookups?.searched;
-                  break;
-                case DomainTypes.existing:
-                  available = lookups?.owned;
-                  break;
-                case DomainTypes.basket:
-                  available = lookups?.basket;
-                  break;
-              }
-
-              const domain: DomainModel = parseValue(item, data, available);
-              if (domain) result.push(domain);
-
-              return result;
-            },
-            []
-          );
+          return domain;
         }
       }),
 
       setModelFromBasket: assign({
-        type: (_context, _event: AnyEventObject) => DomainTypes.basket,
-        model: ({ lookups }: DomainContext, _event: AnyEventObject) =>
-          map(lookups.basket, (item: DomainProduct) => {
+        model: ({ model, lookups }: DomainContext, _event: AnyEventObject) => {
+          const mapped = map(lookups.basket, (item: DomainProduct) => {
             return {
               domain: item.domain,
               tld: item.tld,
               sld: item.sld,
-              typee: DomainTypes.basket,
+              type: DomainTypes.basket,
               selected: item.meta.selected
-            } as DomainModel;
-          }) as DomainModel[]
+            };
+          });
+
+          return (
+            find(mapped, ["domain", model?.domain]) ||
+            find(mapped, "selected") ||
+            first(mapped)
+          );
+        }
       }),
 
       clearModel: assign({
-        model: () => []
+        model: () => undefined
       }),
 
       resetModel: assign({
-        model: ({ baseModel }, _event: AnyEventObject) =>
-          compact(cloneDeep(baseModel))
-      }),
-
-      cancelController: assign({
-        controller: ({ controller }: DomainContext) => {
-          if (controller?.signal && !controller.signal?.aborted) {
-            controller?.abort();
-          }
-          return undefined;
-        }
-      }),
-
-      newController: assign({
-        controller: () => {
-          return new AbortController();
-        }
-      }),
-
-      setSearchQuery: assign({
-        search: ({ search }: DomainContext, { data }: AnyEventObject) => {
-          return {
-            query: data ?? undefined,
-            offset: PAGINATION.offset,
-            limit: search?.limit ?? PAGINATION.limit,
-            total: 0
-          };
-        }
-      }),
-
-      setSearchOffset: assign({
-        search: ({ search }: DomainContext, _event: AnyEventObject) => {
-          search ??= {
-            offset: PAGINATION.offset,
-            limit: PAGINATION.limit,
-            total: 0
-          };
-          search.offset += search?.limit ?? PAGINATION.limit;
-          return search;
-        }
-      }),
-
-      clearSearch: assign({
-        search: ({ search }: DomainContext, _event: AnyEventObject) => ({
-          query: undefined,
-          offset: PAGINATION.offset,
-          limit: search?.limit ?? PAGINATION.limit,
-          total: 0
-        }),
-        lookups: ({ lookups }) => {
-          // lookups.history = [];
-          lookups.searched = [];
-          return lookups;
-        }
-      }),
-
-      setSearchResults: assign({
-        lookups: (
-          { lookups, model, search }: DomainContext,
-          { data: response }: AnyEventObject
-        ) => {
-          const previous = (search?.offset ?? 0 > 0) ? lookups.searched : [];
-
-          const available: DomainProduct[] = map(
-            response?.data,
-            (item: DomainProduct) => {
-              item.meta.owned = some(lookups.owned, ["domain", item.domain]);
-              item.meta.added = some(lookups.basket, ["domain", item.domain]);
-              item.meta.disabled = item.meta.owned || item.meta.added;
-              return item as DomainProduct;
-            }
-          );
-
-          const persisted = filter(lookups.history, ({ domain }) =>
-            some(model, ["domain", domain])
-          );
-
-          set(
-            lookups,
-            "searched",
-            uniqBy(compact(concat(persisted, previous, available)), "domain")
-          );
-
-          // store all previous searches
-          set(
-            lookups,
-            "history",
-            uniqBy(compact(concat(lookups.history, available)), "domain")
-          );
-
-          return lookups;
-        },
-        search: (
-          { search }: DomainContext,
-          { data: response }: AnyEventObject
-        ) => {
-          return {
-            query: search?.query ?? undefined,
-            offset: search?.offset ?? 0,
-            limit: search?.limit ?? PAGINATION.limit,
-            total: response?.total || 0
-          };
-        },
-        controller: undefined
+        model: ({ baseModel }, _event: AnyEventObject) => cloneDeep(baseModel)
       }),
 
       setOwned: assign({
@@ -840,8 +576,6 @@ export default createMachine(
       clearLookups: assign({
         lookups: (_context: DomainContext, _event: AnyEventObject) => {
           return {
-            searched: [],
-            history: [],
             owned: [],
             basket: []
           };
@@ -851,8 +585,6 @@ export default createMachine(
       resetLookups: assign({
         lookups: ({ lookups }: DomainContext, _event: AnyEventObject) => {
           return {
-            searched: [],
-            history: [],
             owned: lookups.owned,
             basket: lookups.basket
           };
@@ -863,16 +595,17 @@ export default createMachine(
         model: ({ lookups }: DomainContext, { data }: AnyEventObject) => {
           const selected =
             find(lookups.basket, ["domain", data]) || first(lookups.basket);
-          return map(lookups.basket, value => {
-            value.meta.selected = value === selected;
+
+          if (selected) {
             return {
-              domain: value.domain,
-              tld: value.tld,
-              sld: value.sld,
-              typee: DomainTypes.basket,
-              selected: value.domain === selected?.domain
+              domain: selected.domain,
+              tld: selected.tld,
+              sld: selected.sld,
+              type: DomainTypes.basket,
+              selected: true
             } as DomainModel;
-          });
+          }
+          return undefined;
         }
       }),
 
@@ -900,32 +633,14 @@ export default createMachine(
     guards: {
       // hasData: (_context, { data }:AnyEventObject) => isObject(data) && !isEmpty(data),
 
-      isInvalidType: ({ choices }: DomainContext, { data }: AnyEventObject) => {
-        return isEmpty(choices) || !has(DomainTypes, data);
-      },
-
-      isValidDomain: (_context, { data }: AnyEventObject) =>
-        !isEmpty(parseDomain(data)),
-
-      hasSearchQuery: ({ search }: DomainContext, _event: AnyEventObject) => {
-        const sld = parseSld(search?.query ?? "");
-        return sld?.length > 2;
-      },
-      validSearchQuery: (_context, { data }: AnyEventObject) => {
-        return !isEmpty(data);
-      },
-      validSearchOffset: (
-        { search }: DomainContext,
-        _event: AnyEventObject
+      isInvalidType: (
+        { choices, type }: DomainContext,
+        { data }: AnyEventObject
       ) => {
-        const offset = (search?.offset ?? 0) + (search?.limit ?? 0);
-        return offset < (search?.total || 0);
+        return isEmpty(choices) || !has(DomainTypes, data) || type == data;
       },
 
-      isValid: ({ model }: DomainContext) => {
-        const valid = !isEmpty(model) && every(model, parseDomain);
-        return valid;
-      },
+      isValid: ({ model }: DomainContext) => isEmpty(parseDomain(model)),
 
       isSelectable: (
         { model, lookups }: DomainContext,
@@ -935,11 +650,7 @@ export default createMachine(
         return valid;
       },
 
-      isInvalid: ({ model }: DomainContext) =>
-        isEmpty(model) || !every(model, parseDomain),
-
-      isNotCancelled: (_context, { data }: AnyEventObject) =>
-        data?.name !== "AbortError",
+      isInvalid: ({ model }: DomainContext) => isEmpty(parseDomain(model)),
 
       isDomainTransfer: (
         { choices }: DomainContext,
@@ -965,6 +676,6 @@ export default createMachine(
       wait: () => useTime().WAIT
     },
 
-    services
+    services: services as any
   }
 );

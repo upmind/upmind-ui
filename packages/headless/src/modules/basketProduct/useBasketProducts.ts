@@ -8,7 +8,7 @@ import { useDataLayer, useI18n } from "../system";
 const { dataLayer } = useDataLayer();
 
 // --- utils
-import { get, add, subtract } from "lodash-es";
+import { get, add, subtract, has, set, unset } from "lodash-es";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 
 // --- types
@@ -36,16 +36,19 @@ import { DEBOUNCE_DELAY } from "../../utils";
 export const useBasketProducts = () => {
   const {
     findProduct,
+    findProducts,
+    productExists,
     products,
     isReady,
     refresh,
+    prefresh,
     basketId,
     meta: basketMeta
   } = useBasket();
   const { t } = useI18n();
 
   // --- state
-  const processing = ref<string[]>([]);
+  const processing = ref<Record<string, boolean>>({});
 
   // --- methods
 
@@ -70,7 +73,7 @@ export const useBasketProducts = () => {
    * @returns A promise resolving to the updated {@link IBasket} or `undefined` if the basket is not available.
    * @throws {DetailedError} If the basket is not available or the product is not found.
    */
-  async function remove(id: string): Promise<IBasket | undefined> {
+  async function remove(id: string) {
     if (!basketId.value) {
       throw new DetailedError(
         t("error.basket_not_available"),
@@ -79,22 +82,17 @@ export const useBasketProducts = () => {
       );
     }
 
-    const basketProduct = findProduct({ id });
-    if (!basketProduct) {
-      throw new DetailedError(
-        t("error.basket_product_not_found"),
-        responseCodes.Not_Found,
-        ErrorOrigin.Headless
-      );
-    }
-    return services
-      .remove({ basketId: basketId.value, bpid: id })
-      .then((_rawBasket: IBasket | undefined) => {
+    return services.remove(basketId.value, id).then((rawBasket: IBasket) => {
+      const basketProduct = findProduct({ id });
+      if (basketProduct) {
         dataLayer({ event: "remove_from_cart" })
           .withItems(basketProduct)
           .push();
-      })
-      .then(() => refresh());
+      }
+
+      prefresh(rawBasket); // NB prefresh AFTER the finding the now deleted basket product
+      return rawBasket;
+    });
   }
 
   /**
@@ -120,22 +118,14 @@ export const useBasketProducts = () => {
     }
 
     return services
-      .update(
-        { basketId: basketId.value },
-        { data: { ...data, id } as ProductModel }
-      )
-      .then(() => refresh())
-      .then((rawBasket: IBasket | undefined) => {
-        const basketProduct = findProduct({ id });
-        if (!basketProduct) {
-          throw new DetailedError(
-            t("error.basket_product_not_found"),
-            responseCodes.Not_Found,
-            ErrorOrigin.Headless
-          );
-        }
-        dataLayer({ event: "add_to_cart" }).withItems(basketProduct).push();
+      .update(basketId.value, { ...data, id } as ProductModel)
+      .then(rawBasket => {
+        prefresh(rawBasket); // NB prefresh BEFORE finding the newly added basket product
 
+        const basketProduct = findProduct({ id });
+        if (basketProduct) {
+          dataLayer({ event: "add_to_cart" }).withItems(basketProduct).push();
+        }
         return rawBasket;
       });
   }
@@ -169,14 +159,12 @@ export const useBasketProducts = () => {
       const qty = get(basketProduct, "configuration.quantity", 1);
       return services
         .updateQuantity(
-          {
-            basketId: basketId.value,
-            basketProduct
-          },
-          { data: add(qty, basketProduct.productDetails.step || 1) }
+          basketId.value,
+          add(qty, basketProduct.productDetails.step || 1),
+          basketProduct
         )
-        .then(() => refresh())
-        .then((rawBasket: IBasket | undefined) => {
+        .then((rawBasket: IBasket) => {
+          prefresh(rawBasket);
           const basketProduct = findProduct({ id });
           if (!basketProduct) {
             throw new DetailedError(
@@ -223,14 +211,12 @@ export const useBasketProducts = () => {
       const qty = get(basketProduct, "quantity", 1);
       return services
         .updateQuantity(
-          {
-            basketId: basketId.value,
-            basketProduct
-          },
-          { data: subtract(qty, basketProduct.productDetails?.step || 1) }
+          basketId.value,
+          subtract(qty, basketProduct.productDetails?.step || 1),
+          basketProduct
         )
-        .then(() => refresh())
-        .then((rawBasket: IBasket | undefined) => {
+        .then((rawBasket: IBasket) => {
+          prefresh(rawBasket);
           const basketProduct = findProduct({ id });
           if (!basketProduct) {
             throw new DetailedError(
@@ -280,12 +266,9 @@ export const useBasketProducts = () => {
         );
       }
       return services
-        .updateQuantity(
-          { basketId: basketId.value, basketProduct },
-          { data: quantity }
-        )
-        .then(() => refresh())
-        .then((rawBasket: IBasket | undefined) => {
+        .updateQuantity(basketId.value, quantity, basketProduct)
+        .then((rawBasket: IBasket) => {
+          prefresh(rawBasket);
           const basketProduct = findProduct({ id });
           if (!basketProduct) {
             throw new DetailedError(
@@ -314,14 +297,16 @@ export const useBasketProducts = () => {
    * @returns A debounced function that returns a promise resolving to {@link IBasket | undefined}.
    * @throws {DetailedError} If the action is called again while already processing.
    */
-  function action<T extends (...args: any[]) => Promise<IBasket | undefined>>(
+  function action<
+    T extends (...args: any[]) => Promise<IBasket | undefined | void>
+  >(
     action: T,
     delay = DEBOUNCE_DELAY
   ): (...args: Parameters<T>) => Promise<IBasket> {
     return debounce(async (...args: Parameters<T>) => {
       // Assume the first argument is bpid
       const bpid = args[0];
-      if (processing.value.includes(bpid)) {
+      if (has(processing.value, bpid)) {
         return Promise.reject(
           new DetailedError(
             t("error.basket_product_already_processing"),
@@ -330,9 +315,14 @@ export const useBasketProducts = () => {
           )
         );
       }
-      processing.value.push(bpid);
+
+      set(processing.value, bpid, true);
+
       return action(...args).finally(() => {
-        processing.value = _remove(processing.value, bpid);
+        console.log("removing from processing", bpid, processing.value);
+        set(processing.value, bpid, false);
+        unset(processing.value, bpid);
+        console.log("still processing", processing.value);
       });
     }, delay) as (...args: Parameters<T>) => Promise<IBasket>;
   }
@@ -359,7 +349,7 @@ export const useBasketProducts = () => {
       hasProducts: !isEmpty(products.value),
       isLoading: basketMeta.value.isLoading,
       isProcessing: (bpid?: string) =>
-        bpid ? includes(processing.value, bpid) : !isEmpty(processing.value)
+        bpid ? get(processing.value, bpid, false) : !isEmpty(processing.value)
     })),
 
     /**
@@ -434,7 +424,30 @@ export const useBasketProducts = () => {
      * @param id - The basket product ID.
      * @returns A promise resolving to the updated {@link IBasket} or `undefined`.
      */
-    decrementQuantity: action((bpid: string) => decrementQuantity(bpid))
+    decrementQuantity: action((bpid: string) => decrementQuantity(bpid)),
+
+    /**
+     * Finds a product in the basket matching the given mapping.
+     * @param {Record<string, any>} mapping The mapping to match.
+     * @returns {BasketProduct | undefined} The found product, or undefined.
+     */
+    findProduct,
+
+    /**
+     * Finds ALL products in the basket matching the given mapping.
+     * @param {Record<string, any>} mapping The mapping to match.
+     * @param {"configuration" | "productDetails" | "meta"} type - The section of the basket product to look into (e.g., 'configuration', 'productDetails', 'meta').
+     * @returns {BasketProduct[]} The found products.
+     */
+    findProducts,
+
+    /**
+     * Checks if a product exists in the basket matching the given mapping.
+     * @param {Record<string, any>} mapping The mapping to match.
+     * @param {"configuration" | "productDetails" | "meta"} type - The section of the basket product to look into (e.g., 'configuration', 'productDetails', 'meta').
+     * @returns {boolean} True if the product exists, false otherwise.
+     */
+    productExists
   };
 };
 
@@ -442,4 +455,4 @@ export const useBasketProducts = () => {
  * Type definition for the return value of the `useBasketProducts` composable.
  * This ensures type safety when accessing the composable's API.
  */
-type UsePendingProduct = ReturnType<typeof useBasketProducts>;
+export type UseBasketProducts = ReturnType<typeof useBasketProducts>;

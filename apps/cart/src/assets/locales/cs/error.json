@@ -59,6 +59,8 @@
   "currency_validation_failed": "Ověření měny se nezdařilo",
   "domain_add_failed": "Nepodařilo se přidat doménu do košíku",
   "feedback_action_not_available": "Akce s hodnotou '{data}' není k dispozici.",
+  "funnel_not_available": "Trychtýř není k dispozici",
+  "funnels_not_available": "Trychtýře nejsou k dispozici",
   "generic_error": "chyba",
   "generic_text": "Pojďme tě dostat zpátky na správnou cestu",
   "generic_title": "Omlouváme se, došlo k **chybě**",

@@ -59,6 +59,8 @@
   "currency_validation_failed": "Para birimi doğrulaması başarısız oldu",
   "domain_add_failed": "Alan adı sepete eklenemedi",
   "feedback_action_not_available": "Değerli eylem '{data}' müsait değil.",
+  "funnel_not_available": "Huni mevcut değil",
+  "funnels_not_available": "Huni mevcut değil",
   "generic_error": "hata",
   "generic_text": "Hadi seni tekrar yola koyalım",
   "generic_title": "Üzgünüz, bir **hata** yaşadık",

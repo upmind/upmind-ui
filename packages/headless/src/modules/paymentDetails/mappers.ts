@@ -229,7 +229,7 @@ export function mapPaymentData({
       case GatewayProviderCodes.BANK_TRANSFER:
         return undefined;
 
-      // UNSUPPORTED OR UNKNOWN GATEWAYS
+      // DEPRECATED OR UNSUPPORTED OR UNKNOWN GATEWAYS
       default:
       case GatewayProviderCodes.ADYEN: // SDK
       case GatewayProviderCodes.BIT_PAY:

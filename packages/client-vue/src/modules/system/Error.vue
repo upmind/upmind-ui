@@ -24,17 +24,18 @@ import {
 // -- types
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 import { computed } from "vue";
-import { isNil } from "lodash-es";
-import { utils, useBrand } from "@upmind-automation/headless";
-// -----------------------------------------------------------------------------
+import { isNil, pick } from "lodash-es";
+import { utils } from "@upmind-automation/headless";
+import { useRoute, type RouteLocationAsRelativeGeneric } from "vue-router";
 const { t } = useI18n();
+const currentRoute = useRoute();
 const { responseCodes } = utils;
-const { storefrontRoute } = useBrand();
 
 const props = withDefaults(
   defineProps<
     {
       status?: number;
+      storefrontRoute?: RouteLocationAsRelativeGeneric;
     } & InterstitialProps
   >(),
   {
@@ -135,21 +136,23 @@ const animatedIcon = computed(() => ({
 }));
 
 const actions = computed((): InterstitialActionProps[] => {
-  let route = storefrontRoute.value;
+  let route = props.storefrontRoute;
 
   switch (props.status) {
     // for service errors, we want to reload the page as its likely a temporary issue
     case responseCodes.Unauthorized:
     case responseCodes.Service_Unavailable:
     case responseCodes.Internal_Server_Error:
-      route = {
-        href: window.location.href
-      };
-      break;
+      route = pick(currentRoute, [
+        "name",
+        "params",
+        "query",
+        "hash"
+      ]) as RouteLocationAsRelativeGeneric;
 
     // for all other errors, we want to redirect back to the storefront
     default:
-      route = storefrontRoute.value;
+      route = props.storefrontRoute;
       break;
   }
 

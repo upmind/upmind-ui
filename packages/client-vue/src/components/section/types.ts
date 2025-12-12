@@ -1,13 +1,11 @@
 // --- external
-import type { CxOptions, VariantProps } from "class-variance-authority";
+import type { CxOptions } from "class-variance-authority";
 import type { HTMLAttributes } from "vue";
 import type {
   InterstitialProps,
   TabItem,
   LinkProps
 } from "@upmind-automation/upmind-ui";
-
-// --- internal
 
 export type I18nText = {
   key: string;
@@ -30,6 +28,8 @@ export type SectionItem = TabItem & {
 };
 
 export type SectionsProps = {
+  card?: boolean;
+  border?: boolean;
   active?: boolean;
   class?: HTMLAttributes["class"];
   sections: SectionItem[];
@@ -42,4 +42,9 @@ export type SectionsProps = {
       content: CxOptions;
     };
   };
+};
+
+export type UseSectionProps = {
+  card?: boolean;
+  border?: boolean;
 };

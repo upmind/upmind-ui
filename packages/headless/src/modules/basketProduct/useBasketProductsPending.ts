@@ -2,15 +2,16 @@
 import { isActor } from "xstate/lib/Actor";
 import { waitFor } from "xstate/lib/waitFor";
 import { computed } from "vue";
-import { InterpreterStatus, t } from "xstate";
 
 // --- internal
+import basketProductServices from "../basketProduct/services";
 import { useBasket } from "../basket";
 import { useBasketProductPending } from "./useBasketProductPending";
 
 // --- utils
 import {
   defaults,
+  defaultsDeep,
   find,
   forEach,
   get,
@@ -28,6 +29,7 @@ import {
 import {
   DetailedError,
   ErrorOrigin,
+  stateMatches,
   stopService,
   useSessionStorage
 } from "../../utils";
@@ -37,6 +39,7 @@ import { responseCodes, compactDeep } from "../../utils";
 import type { ProductModel, ProductProps } from "../product";
 import type { ActorRef, State, Subscription } from "xstate";
 import { useI18n } from "../system";
+import { IBasket } from "@upmind-automation/types";
 
 type PendingProduct = ReturnType<typeof useBasketProductPending>;
 
@@ -64,7 +67,7 @@ let subscriptions: Record<ProductProps["productId"], Subscription> = {}; // stor
  */
 export const useBasketProductsPending = () => {
   const { t } = useI18n();
-  const { isReady, productExists, products } = useBasket();
+  const { isReady, productExists, basketId, products } = useBasket();
   const storage = useSessionStorage();
 
   productConfigs = storage.get("pendingProducts", {});
@@ -82,12 +85,10 @@ export const useBasketProductsPending = () => {
    */
   async function add(model: ProductProps): Promise<UseBasketProductPending> {
     if (isEmpty(model))
-      return Promise.reject(
-        new DetailedError(
-          t("error.product_not_available"),
-          responseCodes.Not_Found,
-          ErrorOrigin.Headless
-        )
+      throw new DetailedError(
+        t("error.product_not_available"),
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
       );
 
     const id = btoa(JSON.stringify(model)); // use the model as the basis for the id
@@ -102,6 +103,33 @@ export const useBasketProductsPending = () => {
       // then send the update event to the basket
       return useBasketProductPending(model);
     });
+  }
+
+  /**
+   * Automatically adds and attempts to update a product configuration to the basket.
+   * This does not spawn or validate a configuration  but rather tries to add the product directly and allow the BE to handle it.
+   * This is to be used only for background updates where the user is not directly interacting with the product configuration.
+   * eg: adding domains, autoadding products when loading the basket, etc.
+   * @param model
+   * @returns
+   */
+  async function addUpdate(pid: ProductProps["productId"]): Promise<IBasket> {
+    if (isEmpty(pid))
+      throw new DetailedError(
+        t("error.product_not_available"),
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      );
+
+    await isReady();
+
+    const model = defaultsDeep(get(productConfigs, pid, {}), {
+      productId: pid,
+      quantity: 1,
+      silent: true
+    }) as ProductProps;
+
+    return basketProductServices.update(basketId.value!, model);
   }
 
   /**
@@ -131,30 +159,27 @@ export const useBasketProductsPending = () => {
           return waitFor(
             instance.service,
             state =>
-              !["loading", "subscribing", "processing", "refreshing"].some(
-                state.matches
-              ),
+              stateMatches(state, ["available", "error", "complete", "done"]),
             { timeout: Infinity }
           ).then(state => {
-            if (state.matches("error"))
+            if (stateMatches(state, ["error", "complete", "done"])) {
               throw new DetailedError(
                 t("error.product_pending_add_failed"),
                 responseCodes.Unprocessable_Entity,
                 ErrorOrigin.Headless,
                 { state: state.value, errors: state.context.error }
               );
+            }
             return instance;
           });
         })
         .catch(error => {
           unsetProduct(pid);
-          return Promise.reject(
-            new DetailedError(
-              t("error.product_pending_validation_failed"),
-              responseCodes.Unprocessable_Entity,
-              ErrorOrigin.Headless,
-              error
-            )
+          throw new DetailedError(
+            t("error.product_pending_validation_failed"),
+            responseCodes.Unprocessable_Entity,
+            ErrorOrigin.Headless,
+            error
           );
         });
     } else {
@@ -186,17 +211,37 @@ export const useBasketProductsPending = () => {
    * @param pid - The product ID to subscribe to.
    * @param actor - The `ActorRef` of the product's XState service.
    */
-  function subscribe(pid: ProductProps["productId"], actor: ActorRef<any>) {
-    const subscription = actor.subscribe((state: State<any>) => {
-      if (state.matches("error")) {
-        unsetProduct(pid);
-      } else if (state.matches("available")) {
-        setProduct(pid, get(state, "context.model"));
-      } else if (state.done) {
-        resolve(pid);
-      }
-    });
-    set(subscriptions, pid, subscription);
+  async function subscribe(
+    pid: ProductProps["productId"],
+    actor: ActorRef<any>
+  ) {
+    if (get(subscriptions, pid)) return; // already subscribed
+
+    if (stateMatches(actor, ["done", "complete"])) return; // don't subscribe to stopped services
+
+    waitFor(
+      actor,
+      state => stateMatches(state, ["available", "error", "complete", "done"]),
+      { timeout: Infinity }
+    )
+      .then(state => {
+        // NB dont subscribeif we are already in a terminal state
+        if (stateMatches(state, ["error", "done", "complete"])) return;
+
+        const subscription = actor.subscribe((state: State<any>) => {
+          if (stateMatches(state, ["error"])) {
+            unsetProduct(pid);
+          } else if (stateMatches(state, "available")) {
+            setProduct(pid, get(state, "context.model"));
+          } else if (stateMatches(state, ["complete", "done"])) {
+            resolve(pid);
+          }
+        });
+        set(subscriptions, pid, subscription);
+      })
+      .catch(() => {
+        return;
+      });
   }
 
   // ---
@@ -209,7 +254,7 @@ export const useBasketProductsPending = () => {
    */
   function exists(pid: ProductProps["productId"]): boolean {
     const model = get(productConfigs, pid);
-    return isEmpty(model);
+    return !isEmpty(model);
   }
 
   /**
@@ -225,25 +270,36 @@ export const useBasketProductsPending = () => {
    */
   async function getProduct(
     pid?: ProductProps["productId"],
-    sync?: boolean,
-    force?: boolean
+    {
+      sync,
+      force,
+      silent
+    }: {
+      sync?: boolean;
+      force?: boolean;
+      silent?: boolean;
+    } = {}
   ): Promise<UseBasketProductPending> {
     const productId = pid || last(keys(productConfigs));
     if (!productId) {
-      return Promise.reject(
-        new DetailedError(
-          t("error.product_not_available"),
-          responseCodes.Not_Found,
-          ErrorOrigin.Headless,
-          {
-            message: t("error.product_not_available"),
-            code: responseCodes.Not_Found
-          }
-        )
+      throw new DetailedError(
+        t("error.product_not_available"),
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless,
+        {
+          message: t("error.product_not_available"),
+          code: responseCodes.Not_Found
+        }
       );
     }
 
-    const model = get(productConfigs, productId, { productId, quantity: 1 });
+    const model = get(productConfigs, productId, {
+      productId,
+      quantity: 1
+    }) as ProductProps;
+
+    // pass through silent option to the product model
+    model.silent = silent;
 
     return ensure(productId, model, force)
       .then(instance => {
@@ -295,7 +351,6 @@ export const useBasketProductsPending = () => {
       sub?.unsubscribe();
       unset(subscriptions, pid);
     }
-
     // stop the product if it exists and remove it from the pending products
     if (product?.service) {
       stopService(product.service);
@@ -384,15 +439,13 @@ export const useBasketProductsPending = () => {
     ): Promise<PendingProduct> => {
       const instance = isActor(pid)
         ? useBasketProductPending(pid as ActorRef<any>)
-        : await getProduct(pid as ProductProps["productId"], sync);
+        : await getProduct(pid as ProductProps["productId"], { sync });
 
       if (isEmpty(instance)) {
-        return Promise.reject(
-          new DetailedError(
-            t("error.product_not_available"),
-            responseCodes.Not_Found,
-            ErrorOrigin.Headless
-          )
+        throw new DetailedError(
+          t("error.product_not_available"),
+          responseCodes.Not_Found,
+          ErrorOrigin.Headless
         );
       }
 
@@ -457,6 +510,16 @@ export const useBasketProductsPending = () => {
      * @returns A promise resolving to the {@link UseBasketProductPending} instance.
      */
     add: ensure,
+
+    /**
+     * Automatically adds and attempts to update a product configuration to the basket.
+     * This does not spawn or validate a configuration  but rather tries to add the product directly and allow the BE to handle it.
+     * This is to be used only for background updates where the user is not directly interacting with the product configuration.
+     * eg: adding domains, autoadding products when loading the basket, etc.
+     * @param model - The {@link ProductProps} defining the product and its configuration.
+     * @returns A promise resolving to the {@link UseBasketProductPending} instance.
+     */
+    addUpdate,
 
     /**
      * Retrieves a pending product instance by its product ID.

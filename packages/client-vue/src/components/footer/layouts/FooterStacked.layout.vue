@@ -1,19 +1,23 @@
 <template>
-  <footer :class="styles.footer.root" data-testid="footer">
-    <div :class="styles.footer.container">
-      <section
-        :class="styles.footer.left"
-        aria-label="Language and currency preferences"
-      >
-        <slot name="footer-actions" />
-      </section>
+  <Ribbon as="footer" background="surface" border="top" data-testid="footer">
+    <Container :class="styles.footer.stacked.root">
+      <Column>
+        <Content gap="none" items="end" :class="styles.footer.stacked.content">
+          <section
+            :class="styles.footer.stacked.top"
+            aria-label="Language and currency preferences"
+          >
+            <slot name="footer-actions" />
+          </section>
 
-      <section :class="styles.footer.right">
-        <slot name="footer-content" />
-        <slot name="footer-copyright" />
-      </section>
-    </div>
-  </footer>
+          <section :class="styles.footer.stacked.bottom">
+            <slot name="footer-content" />
+            <slot name="footer-copyright" />
+          </section>
+        </Content>
+      </Column>
+    </Container>
+  </Ribbon>
 </template>
 
 <script lang="ts" setup>
@@ -24,26 +28,26 @@ import { computed } from "vue";
 import config from "../footer.config";
 import { useFooter } from "../useFooter";
 
+// --- components
+import Ribbon from "../../layout/components/ribbon/Ribbon.vue";
+import Container from "../../layout/components/container/Container.vue";
+import Content from "../../layout/components/content/Content.vue";
+import Column from "../../layout/components/column/Column.vue";
+
 // --- utils
 import { useStyles } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { ComputedRef } from "vue";
 
-const { templateName } = useFooter();
-
-const meta = computed(() => ({
-  variant: templateName.value
-}));
-
-const styles = useStyles(["footer"], meta, config, {}) as ComputedRef<{
+const styles = useStyles(["footer.stacked"], {}, config, {}) as ComputedRef<{
   footer: {
-    root: string;
-    container: string;
-    actions: string;
-    content: string;
-    left: string;
-    right: string;
+    stacked: {
+      root: string;
+      content: string;
+      top: string;
+      bottom: string;
+    };
   };
 }>;
 </script>

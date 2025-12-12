@@ -32,7 +32,7 @@ import { get } from "lodash-es";
 
 import Home from "../views/index.vue";
 
-// -----------------------------------------------------
+// -----------------------------------------------------------------------------
 // Dynamic Routes
 
 const importedRoutes = import.meta.glob<Object>("@/views/**/routes.ts", {
@@ -49,7 +49,7 @@ for (const modules in importedRoutes) {
   dynamicRoutes.push(...moduleRoutes);
 }
 
-// -----------------------------------------------------
+// -----------------------------------------------------------------------------
 
 const router: Router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -147,7 +147,7 @@ const router: Router = createRouter({
     },
     {
       path: "/product/requires-action/",
-      name: ROUTE.PRODUCT_REQUIRES_ACTION,
+      name: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION,
       component: () => UpmProductRequiresActionView
     },
 
@@ -179,6 +179,6 @@ const router: Router = createRouter({
   }
 });
 
-// -----------------------------------------------------
+// -----------------------------------------------------------------------------
 
 export default router;

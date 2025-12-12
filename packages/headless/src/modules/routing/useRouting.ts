@@ -1,72 +1,99 @@
 // --- internal
-import { useDataLayer, useRoutingEngine, useRoutingFlows } from "../";
+import { useBrand, useDataLayer, useRoutingEngine } from "../";
 
 // --- utils
-import { isEqual, isNil } from "lodash-es";
+import { get } from "lodash-es";
+
 // --- types
 import type { Router, RouteLocation } from "vue-router";
-import { type Route, type Flow } from "../";
+import { UIRouteOptions } from "../brand/types";
+import { hasRouteChanged } from "./utils";
 
 // -----------------------------------------------------------------------------
-/**
- *
- * @param router - The Vue Router instance.
- * @param routes - The routes to register. ( globbed eager loaded routes )
- * @returns {Object} An object containing the registerRoutes function.
- * @property {Function} registerRoutes - Method to register the routes and modules.
- * @method registerRoutes - Method to register the routes and modules.
- * @description
- * This function is used to dynamically register the routes based off a globbed import
- * and register the route with the RoutingEngine.
- * the register function is how we bind a router's route to a defined route in the RoutingEngine.
- * This also allows for registering custom guards and middleware for the routes.
- * The routing engine can then resolve the route and return the target route when navigating.
- */
 
-export const useRouting = (
-  router: Router,
-  flows?: Flow[] | (() => Flow[])
-): void => {
-  const { register } = useRoutingFlows();
-  const { init, guard } = useRoutingEngine();
+/**
+ * Initialises routing within the application by integrating the routing engine with the provided Vue Router instance.
+ * the function sets up route guarding and decoration to manage navigation flows and apply brand-specific UI schemas.
+ * @param router  - The Vue Router instance to integrate with the routing engine.
+ */
+export const useRouting = (router: Router): void => {
+  const { init, guard, switchFunnel } = useRoutingEngine();
   const { dataLayer } = useDataLayer();
 
-  // Initialise our engine and register Flows that add to or override the default flows
+  // Initialise our engine with the given router
   init(router);
-  register(flows);
 
-  // --- helpers
+  // --- methods
 
-  function shouldRedirect(
-    target: Route | RouteLocation | undefined,
-    route: RouteLocation
-  ) {
-    const value =
-      (!isNil(target?.name) && !isEqual(target.name, route?.name)) ||
-      (!isNil(target?.path) && !isEqual(target.path, route?.path)) ||
-      (!isNil(target?.query) && !isEqual(target.query, route?.query));
+  /**
+   * Guard the route, using the routing engine to determine if navigation should proceed
+   * @param route
+   */
+  async function guardRoute(route: RouteLocation) {
+    if (route?.query?.funnel) {
+      await switchFunnel(route.query.funnel.toString(), route);
+    }
 
-    return value;
+    const target = await guard(route);
+
+    // Only redirect if target exists and is meaningfully different from current route
+    if (target && hasRouteChanged(route, target)) return target;
+
+    // Otherwise, let the route proceed as normal
+    return;
   }
 
-  async function guardRoute(route: RouteLocation) {
-    const target = await guard(route);
-    //  NB: only redirect if we have a target and it's not the same as the current routeName
-    if (shouldRedirect(target, route)) {
+  /**
+   * Decorate the route with brand specific UIschema or layout information
+   * @param route
+   */
+  async function decorateRoute(route: RouteLocation) {
+    // console.debug("Decorating route:", route);
+    const { uischema_Route, uiCart, isReady } = useBrand();
+    await isReady();
+
+    const fallbackTemplate = get(uiCart.value, "layout");
+    const uischema = route?.name
+      ? (get(uischema_Route?.value, route.name, {}) as UIRouteOptions)
+      : {};
+
+    route.meta = {
+      ...uischema,
+      ...{ template: uischema?.template || fallbackTemplate }, //NB: for backwards compatibility
+      ...route?.meta
+    };
+  }
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Initial route decoration and guarding on app load
+   * NB: once the router is ready then need to force check the current route
+   *     This is because on load the vue router resolves the route before the engine is ready
+   */
+  router.isReady().then(async () => {
+    await decorateRoute(router.currentRoute.value);
+    const target = await guardRoute(router.currentRoute.value);
+    if (target) {
+      // NB redecorate the target route if different
+      if (target.name !== router.currentRoute.value?.name)
+        await decorateRoute(target);
       router.push(target);
     }
-  }
+  });
 
-  // ---------------------------------------------------------------------------
-  // --- Route guards
-
-  // NB: once the router is ready then need to force check the current route
-  // This is beacudse on load the vue router resolves the route before the engine is ready
-  router.isReady().then(async () => guardRoute(router.currentRoute.value));
-
+  /**
+   * Guard the route before each navigation with the routing engine
+   */
   router.beforeEach(async to => guardRoute(to));
 
-  // --- Route tracking
+  /**
+   * Decorate the route before it is resolved with brand specific UIschema or layout information
+   */
+  router.beforeResolve(async to => decorateRoute(to));
+
+  /**
+   * After each route navigation, push a page_view event to the data layer for analytics
+   */
   router.afterEach((to, from) => {
     dataLayer({ event: "page_view" })
       .withPage({

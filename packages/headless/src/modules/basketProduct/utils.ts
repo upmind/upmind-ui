@@ -65,7 +65,8 @@ import type {
   ProductSummaryDetailWithPrice,
   ProductSummaryDetail,
   PriceDetail,
-  ExternalError
+  ExternalError,
+  ProductProps
 } from "../product";
 
 // -----------------------------------------------------------------------------
@@ -149,6 +150,7 @@ export const parseBasketProduct = (
 
 export function parseSummary(subproduct: IBasketProduct): ProductSummaryDetail {
   return {
+    id: subproduct.product_id,
     name: subproduct.product.name,
     title: useUischemaTitle(subproduct.product, {
       basketProduct: subproduct,
@@ -214,6 +216,41 @@ export function parsPrice(raw: IBasketProduct): PriceDetail {
     ? `${Math.round((savingAmount / regularAmount) * 100)}%`
     : "";
 
+  const unit =
+    raw.quantity > 1
+      ? {
+          total: includesTax.value
+            ? raw.selling_price_converted
+            : raw.net_selling_price_discounted_converted,
+          totalFormatted: includesTax.value
+            ? raw.selling_price_formatted
+            : raw.net_selling_price_discounted_formatted,
+          subtotal: includesTax.value
+            ? raw.selling_price_converted
+            : raw.net_selling_price,
+          subtotalFormatted: includesTax.value
+            ? raw.selling_price_formatted
+            : raw.net_selling_price_formatted
+        }
+      : undefined;
+
+  const configuration = {
+    total: includesTax.value ? raw.total_amount : raw.net_amount,
+    totalFormatted: includesTax.value
+      ? raw.total_amount_formatted
+      : raw.net_amount_formatted,
+    subtotal: includesTax.value ? raw.total_amount : raw.net_selling_price,
+    subtotalFormatted: includesTax.value
+      ? raw.total_amount_formatted
+      : raw.net_selling_price_formatted,
+    discount: includesTax.value
+      ? raw.total_discount_amount
+      : raw.net_product_discount_amount,
+    discountFormatted: includesTax.value
+      ? raw.total_discount_amount_formatted
+      : raw.net_product_discount_amount_formatted
+  };
+
   return {
     regularAmount,
     regularPrice,
@@ -221,7 +258,9 @@ export function parsPrice(raw: IBasketProduct): PriceDetail {
     currentPrice,
     savingAmount,
     savingPrice,
-    savingPercent
+    savingPercent,
+    unit,
+    configuration
   } as PriceDetail;
 }
 
@@ -292,6 +331,7 @@ export function parseProvisionFieldSummary(
     }
   };
 }
+
 export function parsePromotionsOrCoupons(
   promotions?: IBasketPromotion[] | string[]
 ) {
@@ -305,8 +345,7 @@ export function parsePromotionsOrCoupons(
 }
 
 export function parseBasketProductData(
-  model: ProductModel,
-  promotions?: IBasketPromotion[] | string[]
+  model: ProductProps
 ): IBasketProductModel {
   return {
     product_id: model.productId,
@@ -317,14 +356,9 @@ export function parseBasketProductData(
     options: parseBasketSubproductConfig(model?.options),
     // ---
     provision_field_values: model.provisionFields || {},
+    provision_field_values_validate: !model.silent, // suppress prov field validation errors if silent is true
     // ---
-    promotions: map(promotions, basketPromotion => {
-      const promocode: string = has(basketPromotion, "promotion")
-        ? (basketPromotion as IBasketPromotion).promotion.code
-        : (basketPromotion as string);
-
-      return { promocode };
-    })
+    promotions: model.coupons
   } as IBasketProductModel;
 }
 
