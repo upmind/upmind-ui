@@ -64,7 +64,7 @@ export default {
     const { hasModuleEnabled } = useBrand();
     if (!hasModuleEnabled(UpmindModuleCodes.WEB_HOSTING))
       return Promise.reject();
-    debugger;
+
     return {
       target: targetRoute
     };
