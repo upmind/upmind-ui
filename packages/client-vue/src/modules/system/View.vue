@@ -12,7 +12,9 @@
               leave-to-class="opacity-0"
               appear
             >
-              <component :is="routerViewProps.Component" />
+              <div>
+                <component :is="routerViewProps.Component" />
+              </div>
             </Transition>
           </KeepAlive>
 
