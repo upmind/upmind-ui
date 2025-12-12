@@ -151,6 +151,7 @@ async function upload(
   const { post, useUrl } = useQuery();
   const path = fieldPath(field);
   return post({
+    mutationKey: ["images", "upload"],
     url: useUrl(path),
     data: request,
     withAccessToken: true

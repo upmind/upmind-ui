@@ -7,7 +7,7 @@
       :text="t('cart.empty_msg')"
       :actions="[
         {
-          ...storefrontRoute,
+          to: props.storefrontRoute,
           variant: 'solid',
           color: 'primary',
           iconAppend: 'arrow-right',
@@ -22,37 +22,41 @@
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
-import { vAutoAnimate } from "@formkit/auto-animate";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 import { computed } from "vue";
 
 // -- components
 import { Interstitial } from "@upmind-automation/upmind-ui";
-import Layout from "../../components/layout/Layout.vue";
 
 // -- types
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
-import { ROUTE, useBrand, useFeedback } from "@upmind-automation/headless";
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
 // -----------------------------------------------------------------------------
 
-const props = withDefaults(defineProps<InterstitialProps>(), {
-  open: true,
-  modal: true,
-  animatedIcon: () => ({
-    icon: "basket-empty",
-    trigger: "loop",
-    primaryColor: "base-foreground",
-    secondaryColor: "tertiary",
-    size: "4xl"
-  })
-});
+const props = withDefaults(
+  defineProps<
+    InterstitialProps & {
+      storefrontRoute: RouteLocationAsRelativeGeneric;
+    }
+  >(),
+  {
+    open: true,
+    modal: true,
+    animatedIcon: () => ({
+      icon: "basket-empty",
+      trigger: "loop",
+      primaryColor: "base-foreground",
+      secondaryColor: "tertiary",
+      size: "4xl"
+    })
+  }
+);
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
-const { storefrontRoute } = useBrand();
 const route = useRoute();
 const routeMeta = route.meta;
 
 const meta = computed(() => ({
-  useModal: routeMeta.modal !== false
+  useModal: props.modal || routeMeta.modal !== false
 }));
 </script>

@@ -115,3 +115,22 @@ export type GenericGatewayContext = {
 };
 
 export type GatewayContext<T = {}> = GatewayParams & GenericGatewayContext & T;
+
+export enum ZERO_DECIMAL_CURRENCIES {
+  BIF = "BIF", // Burundian Franc
+  CLP = "CLP", // Chilean Peso
+  DJF = "DJF", // Djiboutian Franc
+  GNF = "GNF", // Guinean Franc
+  JPY = "JPY", // Japanese Yen
+  KMF = "KMF", // Comorian Franc
+  KRW = "KRW", // South Korean Won
+  MGA = "MGA", // Malagasy Ariary
+  PYG = "PYG", // Paraguayan Guarani
+  RWF = "RWF", // Rwandan Franc
+  UGX = "UGX", // Ugandan Shilling
+  VND = "VND", // Vietnamese Dong
+  VUV = "VUV", // Vanuatu Vatu
+  XAF = "XAF", // Central African Franc
+  XOF = "XOF", // West African Franc
+  XPF = "XPF" // CFP Franc
+}

@@ -337,7 +337,6 @@ export function handleError(
   // get the mapped the error and status to a feedback message and display it if it exists
   const feedback = get(mapFeedback(error), status);
   if (!isNil(feedback)) add(feedback);
-
   throw new DetailedError(
     error?.message ?? t("error.503_title_md"),
     status || responseCodes.Service_Unavailable,

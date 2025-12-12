@@ -161,6 +161,7 @@ async function add(data: CompanyModel) {
   }
   return ensureDependencies(data).then(ensuredData => {
     return post<ICompany>({
+      mutationKey: ["client", "companies", "add"],
       url: useUrl(`clients/${user.value?.id}/companies`),
       data: mapICompany(ensuredData),
       withAccessToken: true
@@ -177,6 +178,7 @@ async function update(id: Company["id"], data: CompanyModel) {
   }
   return ensureDependencies(data).then(ensuredData => {
     return put<ICompany>({
+      mutationKey: ["client", "companies", id],
       url: useUrl(`clients/${user.value?.id}/companies/${id}`),
       data: mapICompany(ensuredData),
       withAccessToken: true

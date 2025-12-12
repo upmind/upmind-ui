@@ -59,6 +59,8 @@
   "currency_validation_failed": "Validarea monedei a eșuat",
   "domain_add_failed": "Nu s-a putut adăuga domeniul în coș",
   "feedback_action_not_available": "Acțiune cu valoare '{data}' nu este disponibil.",
+  "funnel_not_available": "Pâlnia nu este disponibilă",
+  "funnels_not_available": "Pâlnii nu sunt disponibile",
   "generic_error": "eroare",
   "generic_text": "Hai să te readucem pe drumul cel bun",
   "generic_title": "Ne pare rău, am întâmpinat o **eroare**",

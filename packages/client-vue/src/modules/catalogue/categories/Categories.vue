@@ -1,8 +1,16 @@
 <template>
   <div :class="styles.categories.root" v-auto-animate>
-    <CategoriesFacet v-if="isFaceted" v-model="modelValue" v-bind="props" />
-
-    <CategoriesHeader v-else v-model="modelValue" v-bind="props" />
+    <CategoriesHeader
+      v-model="modelValue"
+      v-bind="{ ...props, ...currentCategory }"
+    >
+      <template #prepend>
+        <slot name="prepend" />
+      </template>
+      <template #append>
+        <slot name="append" />
+      </template>
+    </CategoriesHeader>
 
     <nav
       v-if="!isFaceted && hasCategories"
@@ -14,10 +22,8 @@
       <CategoryItem
         v-for="category in displayCategories"
         :key="category.id"
-        v-bind="category"
+        v-bind="{ ...props, ...category }"
         v-model="modelValue"
-        :sort="props.sort"
-        :direction="props.direction"
       />
     </nav>
   </div>
@@ -25,13 +31,14 @@
 
 <script setup lang="ts">
 // --- external
-import { computed } from "vue";
+import { computed, inject, provide } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
 import {
   useProductCategories,
-  type ProductCategory
+  type ProductCategory,
+  type UseProductCategories
 } from "@upmind-automation/headless";
 import { isEmpty } from "lodash-es";
 import { useStyles } from "@upmind-automation/upmind-ui";
@@ -39,7 +46,6 @@ import config from "../catalogue.config";
 
 // --- components
 import CategoriesHeader from "./CategoriesHeader.vue";
-import CategoriesFacet from "./CategoriesFacet.vue";
 import CategoryItem from "./CategoryItem.vue";
 
 // --- types
@@ -53,8 +59,16 @@ const props = defineProps<
 const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
 
 // -----------------------------------------------------------------------------
+const instance =
+  inject<UseProductCategories>("useProductCategories") ??
+  useProductCategories(); // in case we dont have a provided instance, create one
 
-const { getChildren, meta } = useProductCategories();
+provide("useProductCategories", instance);
+const { getChildren, getOne, meta } = instance;
+
+const currentCategory = computed(() => {
+  return modelValue.value ? getOne(modelValue.value) : props;
+});
 
 const displayCategories = computed(() => {
   return getChildren(modelValue.value);

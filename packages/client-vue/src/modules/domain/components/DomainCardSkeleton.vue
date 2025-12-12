@@ -1,81 +1,127 @@
 <template>
   <article
-    :class="styles.domain.card.root"
-    class="w-full border-b py-4! pl-5 last:border-b-0"
+    :class="cn([styles.card.root, styles.card.skeleton.root])"
+    class="border-surface border-t"
   >
-    <header :class="styles.domain.card.header">
-      <Skeleton :class="styles.domain.card.icon" class="h-8 w-8 pr-2" />
+    <header :class="styles.card.header.root">
+      <div :class="styles.card.header.details.root" class="flex flex-col gap-2">
+        <Skeleton :active="meta.isActive" class="h-4 w-20" />
 
-      <div :class="styles.domain.card.content" class="gap-1">
-        <Skeleton :class="styles.domain.card.label" class="h-4 w-16">
-          Label
-        </Skeleton>
-
-        <section :class="styles.domain.card.container">
-          <Skeleton :class="[styles.domain.card.title]" class="h-7 w-auto">
-            <div class="h-6 min-w-44" :class="[`mx-${randomTitleMargin}`]" />
-          </Skeleton>
+        <section :class="styles.card.header.details.title.root">
+          <Skeleton
+            :active="meta.isActive"
+            :class="[styles.card.skeleton.title, `w-${randomTitleWidth}`]"
+          />
         </section>
 
-        <Skeleton class="h-5" :class="`w-${randomDescWidth}`" />
+        <Skeleton
+          :active="meta.isActive"
+          class="h-4"
+          :class="[`w-${randomDescWidth}`]"
+        />
       </div>
     </header>
 
-    <footer :class="styles.domain.card.footer.root">
-      <span class="pr-4">
-        <strong
-          :class="styles.domain.card.prices.current"
-          class="flex items-end gap-x-1"
-        >
-          <Skeleton class="inline-block h-8 w-16 px-2" />
-          <Skeleton class="inline-block h-5 w-6" />
-        </strong>
-      </span>
-      <Skeleton class="h-12 w-full rounded-full md:w-20" />
+    <footer
+      :class="styles.card.footer.root"
+      class="mt-4 flex-col lg:mt-0 lg:flex-row"
+    >
+      <section :class="styles.card.footer.price.root">
+        <Skeleton :active="meta.isActive" class="h-6 w-24" />
+      </section>
+
+      <Skeleton
+        :active="meta.isActive"
+        class="button-radius h-11"
+        :class="styles.card.skeleton.button"
+      />
     </footer>
   </article>
 </template>
 
 <script setup lang="ts">
-import { Skeleton, useStyles } from "@upmind-automation/upmind-ui";
-import config from "../domain.config";
-import type { ComputedRef } from "vue";
-import { ref } from "vue";
+// --- external
+import { computed, type ComputedRef } from "vue";
 
+// --- components
+import { Skeleton } from "@upmind-automation/upmind-ui";
+
+// --- internal
+import { cn } from "@upmind-automation/upmind-ui";
+import config from "../domain.config";
+
+// --- utils
+import { useStyles } from "@upmind-automation/upmind-ui";
+
+// --- types
+import type { DomainCardSkeletonProps } from "../types";
+const props = withDefaults(defineProps<DomainCardSkeletonProps>(), {
+  active: true,
+  exactMatch: false
+});
+
+const meta = computed(() => ({
+  isActive: props.active,
+  isExactMatch: props.exactMatch
+}));
+
+const styles = useStyles(
+  [
+    "card",
+    "card.header",
+    "card.footer",
+    "card.header.details",
+    "card.header.details.title",
+    "card.header.details.pricing",
+    "card.footer.price",
+    "card.footer.button",
+    "card.skeleton"
+  ],
+  meta,
+  config
+) as ComputedRef<{
+  card: {
+    root: string;
+    header: {
+      root: string;
+      details: {
+        root: string;
+        status: string;
+        title: {
+          root: string;
+          fld: string;
+          sld: string;
+          tld: string;
+        };
+        pricing: string;
+      };
+    };
+    footer: {
+      root: string;
+      price: {
+        root: string;
+        amount: string;
+        term: string;
+      };
+      button: {
+        root: string;
+        label: string;
+      };
+    };
+    skeleton: {
+      root: string;
+      title: string;
+      button: string;
+    };
+  };
+}>;
+
+// methods
 const descWidthOptions = [56, 64];
 const randomDescWidth =
   descWidthOptions[Math.floor(Math.random() * descWidthOptions.length)];
 
-const titleMarginOptions = [1, 2, 4];
-const randomTitleMargin =
-  titleMarginOptions[Math.floor(Math.random() * titleMarginOptions.length)];
-
-const styles = useStyles(
-  ["domain.card", "domain.card.prices", "domain.card.footer"],
-  {},
-  config
-) as ComputedRef<{
-  domain: {
-    card: {
-      root: string;
-      header: string;
-      icon: string;
-      content: string;
-      container: string;
-      label: string;
-      title: string;
-      sld: string;
-      tld: string;
-      promotion: string;
-      footer: {
-        root: string;
-      };
-      prices: {
-        root: string;
-        regular: string;
-        current: string;
-      };
-    };
-  };
-}>;
+const titleWidthOptions = [56, 64, 72];
+const randomTitleWidth =
+  titleWidthOptions[Math.floor(Math.random() * titleWidthOptions.length)];
 </script>

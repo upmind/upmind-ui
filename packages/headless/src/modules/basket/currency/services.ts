@@ -1,4 +1,5 @@
 // --- external
+import { asyncDebounce } from "@tanstack/pacer";
 
 // --- internal
 import type { AnyEventObject } from "xstate";
@@ -6,10 +7,12 @@ import { useQuery, useBrand, useI18n } from "../../..";
 
 // --- utils
 import {
+  DEBOUNCE_DELAY,
   DetailedError,
   ErrorOrigin,
   responseCodes,
   useModelParser,
+  useTime,
   useValidation
 } from "../../../utils";
 
@@ -62,6 +65,7 @@ async function update(
 
   // get returns a promise so we can pass it directly back to the machine
   return put<ICurrency>({
+    mutationKey: ["basket", "currency"],
     url: useUrl(`/orders/${basketId}/currency`),
     data: {
       currency_code: model?.code
@@ -121,5 +125,9 @@ export default {
   load,
   parse,
   validate,
-  update
+  update: asyncDebounce(
+    (context: CurrencyContext, _event: AnyEventObject) =>
+      update(context, _event),
+    { wait: useTime().SECOND, leading: true } // prevent rapid currency changes
+  )
 };

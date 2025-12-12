@@ -1,9 +1,37 @@
 <template>
-  <component
-    v-if="currentRoute"
-    :is="templateVariant"
-    v-show="!meta.isCheckout"
-  />
+  <div v-show="!meta.isCheckout">
+    <component :is="templateVariant">
+      <template #back>
+        <slot name="back">
+          <Back @click.prevent="navigateBack" />
+        </slot>
+      </template>
+
+      <template v-if="!isSlotHidden('summary')" #summary>
+        <slot name="summary">
+          <CheckoutSummary :template="props.template" />
+        </slot>
+      </template>
+
+      <template #content>
+        <slot name="content">
+          <CheckoutContent :edit-route="props.editRoute" />
+        </slot>
+      </template>
+
+      <template #pricing>
+        <slot name="pricing">
+          <CheckoutPricing />
+        </slot>
+      </template>
+
+      <template v-if="meta.hasErrors" #errors>
+        <slot name="errors">
+          <CheckoutErrors />
+        </slot>
+      </template>
+    </component>
+  </div>
 
   <!-- Basket processing -->
   <slot name="processing" v-if="meta.isCheckout">
@@ -13,62 +41,77 @@
 
 <script lang="ts" setup>
 // --- external
-import { watch, computed, onUnmounted } from "vue";
-import { useI18n } from "vue-i18n";
-import { useRouter } from "vue-router";
+import { watch, computed, onUnmounted, defineAsyncComponent } from "vue";
 
 // --- internal
 import {
-  useSession,
   useBasket,
   useRoutingEngine,
-  ROUTE,
-  useDataLayer,
-  QUERY_PARAMS
+  useDataLayer
 } from "@upmind-automation/headless";
 import { useHeader } from "../../components/header/useHeader";
 import { useFooter } from "../../components/footer/useFooter";
 
 // --- components
+import Back from "../../components/navigation/Back.vue";
 import CheckoutProcessing from "./components/CheckoutProcessing.vue";
+import CheckoutSummary from "./components/CheckoutSummary.vue";
+import CheckoutContent from "./components/CheckoutContent.vue";
+import CheckoutPricing from "./components/CheckoutPricing.vue";
+import CheckoutErrors from "./components/CheckoutErrors.vue";
 
 // --- templates
-import CheckoutLTR from "./templates/CheckoutLTR.template.vue";
-import CheckoutRTL from "./templates/CheckoutRTL.template.vue";
-import CheckoutFull from "./templates/CheckoutFull.template.vue";
+const supportedTemplates = {
+  [CHECKOUT_TEMPLATE.FULL]: defineAsyncComponent(
+    () => import("./templates/CheckoutFull.template.vue")
+  ),
+  [CHECKOUT_TEMPLATE.TWO_COLUMN_LTR]: defineAsyncComponent(
+    () => import("./templates/CheckoutLTR.template.vue")
+  ),
+  [CHECKOUT_TEMPLATE.TWO_COLUMN_RTL]: defineAsyncComponent(
+    () => import("./templates/CheckoutRTL.template.vue")
+  ),
+  [CHECKOUT_TEMPLATE.ENCLOSED]: defineAsyncComponent(
+    () => import("./templates/CheckoutEnclosed.template.vue")
+  )
+};
 
 // --- types
 import { CHECKOUT_TEMPLATE } from "./types";
-import { isEqual } from "lodash-es";
+import { get, isEqual, includes } from "lodash-es";
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
+
 // -----------------------------------------------------------------------------
 
-const { t } = useI18n();
-const router = useRouter();
-// ---
+const props = withDefaults(
+  defineProps<{
+    template?: CHECKOUT_TEMPLATE;
+    hideSlots?: string[];
+    editRoute: RouteLocationAsRelativeGeneric;
+    storefrontRoute?: RouteLocationAsRelativeGeneric;
+  }>(),
+  {
+    template: CHECKOUT_TEMPLATE.TWO_COLUMN_LTR,
+    hideSlots: () => []
+  }
+);
 
-const { navigateNext, navigateBack, isResolved, currentRoute } =
-  useRoutingEngine();
-const { isAuthenticated } = useSession();
+const { navigateNext, navigateBack } = useRoutingEngine();
 const { attempts, meta, isReady, uischema, invoice, reset } = useBasket();
 
-const supportedTemplates = {
-  [CHECKOUT_TEMPLATE.FULL]: CheckoutFull,
-  [CHECKOUT_TEMPLATE.TWO_COLUMN_LTR]: CheckoutLTR,
-  [CHECKOUT_TEMPLATE.TWO_COLUMN_RTL]: CheckoutRTL
-};
+const isSlotHidden = (name: string) => includes(props.hideSlots, name);
 
-const layout = computed(() => {
-  return currentRoute.value?.meta?.template as CHECKOUT_TEMPLATE;
-});
-
-const templateVariant = computed(
-  () => supportedTemplates[layout.value] ?? CheckoutFull
+const templateVariant = computed(() =>
+  get(
+    supportedTemplates,
+    props.template,
+    supportedTemplates[CHECKOUT_TEMPLATE.TWO_COLUMN_LTR]
+  )
 );
 
 // -----------------------------------------------------------------------------
 
-await isResolved(ROUTE.CHECKOUT);
-await isReady().then(() => isAuthenticated().catch(navigateBack));
+await isReady();
 
 const { dataLayer } = useDataLayer();
 dataLayer({ event: "begin_checkout" }).withEcommerce().push();
@@ -110,13 +153,12 @@ watch(attempts, (value, oldValue) => {
 
 watch(meta, ({ isComplete }, { isComplete: wasComplete }) => {
   if (isComplete && !wasComplete) {
-    navigateNext().finally(() => {
-      reset();
-    });
+    navigateNext(invoice.value);
   }
 });
 
 onUnmounted(() => {
+  if (meta.value.isComplete) reset();
   useFooter({});
   useHeader({});
 });

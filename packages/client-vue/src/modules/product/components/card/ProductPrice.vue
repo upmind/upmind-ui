@@ -44,7 +44,7 @@
 
         <small
           :class="styles.product.header.price.currentPrice.term"
-          v-if="has(props, 'cycle')"
+          v-if="has(props, 'cycle') && props.cycle! > 0"
           data-testid="product-card-price-cycle"
           >/
           {{

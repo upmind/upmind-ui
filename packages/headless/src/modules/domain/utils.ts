@@ -3,7 +3,7 @@ import { parse } from "psl";
 
 // --- internals
 import { useBrand } from "../brand";
-import { calculateBillingTerm } from "../product/utils";
+import { calculateBillingTerm, parseProductProps } from "../product/utils";
 
 // --- utils
 import { parseProductDetails, parseTermDetails } from "../product/utils";
@@ -93,13 +93,16 @@ export function parseAvailable(
 
     return {
       // ---
-      configuration: {
-        productId: raw.id, //raw.product_id,
-        quantity: raw.unit_quantity ?? 1,
-        term: termDetails.cycle,
-        subproducts: compact([raw.sub_product_id]),
-        provisionFields: { sld }
-      } as ProductProps,
+      configuration: parseProductProps(
+        {
+          productId: raw.id,
+          quantity: raw.unit_quantity,
+          subproducts: compact([raw.sub_product_id]),
+          provisionFields: { sld }
+        },
+        raw,
+        preferredCycle
+      ),
       // ---
       domain: parsedDomain?.domain ?? domain,
       sld: parsedDomain?.sld ?? sld,
@@ -126,18 +129,19 @@ export function parseAvailable(
 export function parseValue(
   raw: (DomainModel | DomainProduct) | string,
   values: (DomainModel | DomainProduct)[] = [],
-  available: any[] = []
+  available: DomainProduct[] = []
 ): DomainModel {
   // parse the domain name provided
   const value = (isObject(raw) ? get(raw, "domain") : raw)?.toLowerCase();
+
   // check if we already have the domain
-  let domain: DomainModel = find(values, ["domain", value]) as DomainModel;
+  let found = find(values, ["domain", value]);
 
-  // if we dont then add it to our list of values, if it exists in available
-  domain ??= find(available, ["domain", value]);
+  // if we dont then check if it exists in our available domains ( searched )
+  found ??= find(available, ["domain", value]);
 
-  // finally parse the domain name provided and check if its a valid domain
-  domain ??= parseDomain(value) as DomainModel;
-
-  return domain;
+  // return the parsed domain model
+  return found
+    ? (parseDomain(found.domain) as DomainModel)
+    : (parseDomain(value) as DomainModel);
 }

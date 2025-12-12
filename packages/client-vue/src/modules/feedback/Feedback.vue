@@ -26,6 +26,7 @@
       :open="error.meta.value.isActive"
       modal
       data-testid="error"
+      :storefront-route="props.storefrontRoute"
     />
   </div>
 </template>
@@ -49,10 +50,12 @@ import Error from "../system/Error.vue";
 import { get, some, forEach } from "lodash-es";
 import { messageTypes } from "@upmind-automation/headless";
 import { TOAST_VARIANTS } from "@upmind-automation/upmind-ui";
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<{
   scheduled?: boolean;
+  storefrontRoute?: RouteLocationAsRelativeGeneric;
 }>();
 const styles = useStyles(["feedback"], props, config) as ComputedRef<{
   feedback: {

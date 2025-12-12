@@ -1,4 +1,10 @@
-import { Page, Route, Request } from "@playwright/test";
+import {
+  Page,
+  BrowserContext,
+  APIRequestContext,
+  Route,
+  Request
+} from "@playwright/test";
 
 interface ConfigOverrides {
   requireAddressForOrders?: boolean;
@@ -12,6 +18,9 @@ interface UIOverrides {
   registerTemplate?: string;
   loginTemplate?: string;
   checkoutTemplate?: string;
+  basketTemplate?: string;
+  basketProductTemplate?: string;
+  productConfigTemplate?: string;
   basketProductsOnCheckout?: boolean;
   basketFieldsOnCheckout?: boolean;
   basketBillingOnCheckout?: boolean;
@@ -97,33 +106,99 @@ export async function interceptTermsAndConditions(
   );
 }
 
-export function interceptUISchema(page: Page, overrides: UIOverrides) {
-  page.route(
-    "**/api/brand/settings?**",
-    async (route: Route, request: Request) => {
-      const response = await page.request.fetch(request);
+// export function interceptUISchema(context: BrowserContext, overrides: UIOverrides) {
+//   context.route("**/api/brand/settings**", async (route: Route) => {
+//     const response = await route.fetch();
+//     const json = await response.json();
+
+//     json.data.meta.uischema["@display.checkout.basketBilling"] =
+//       overrides.basketBillingOnCheckout;
+//     json.data.meta.uischema["@display.checkout.basketFields"] =
+//       overrides.basketFieldsOnCheckout;
+//     json.data.meta.uischema["@display.checkout.basketProducts"] =
+//       overrides.basketProductsOnCheckout;
+//     json.data.meta.uischema["@route.checkout.template"] =
+//       overrides.checkoutTemplate;
+//     json.data.meta.uischema["@route.basket.template"] =
+//       overrides.basketTemplate;
+//     json.data.meta.uischema["@route['basket-product-edit'].template"] =
+//       overrides.basketProductTemplate;
+//     json.data.meta.uischema["@route['product-configure'].template"] =
+//       overrides.productConfigTemplate;
+//     json.data.meta.uischema["@route['session-register'].template"] =
+//       overrides.registerTemplate;
+//     json.data.meta.uischema["@route['session-login'].template"] =
+//       overrides.loginTemplate;
+
+//     console.log("Schema Intercepted", json.data.meta.uischema);
+
+//     await route.fulfill({
+//       status: response.status(),
+//       contentType: "application/json",
+//       headers: response.headers(),
+//       body: JSON.stringify(json),
+//     });
+//   });
+// }
+
+export async function interceptUISchema(
+  context: BrowserContext,
+  request: APIRequestContext,
+  overrides: UIOverrides
+) {
+  // 1. Intercept browser requests
+  context.route("**/api/brand/settings**", async (route: Route) => {
+    const response = await route.fetch();
+    const json = await response.json();
+
+    applyOverrides(json, overrides);
+
+    await route.fulfill({
+      status: response.status(),
+      contentType: "application/json",
+      headers: response.headers(),
+      body: JSON.stringify(json)
+    });
+  });
+
+  // 2. Intercept Playwright API requests
+  const originalFetch = request.fetch.bind(request);
+
+  request.fetch = async (url: any, options?: any) => {
+    if (url.toString().includes("/api/brand/settings")) {
+      const response = await originalFetch(url, options);
       const json = await response.json();
-      json.data.meta.uischema["@display.checkout.basketFields"] =
-        overrides.basketBillingOnCheckout;
-      json.data.meta.uischema["@display.checkout.basketFields"] =
-        overrides.basketFieldsOnCheckout;
-      json.data.meta.uischema["@display.checkout.basketProducts"] =
-        overrides.basketProductsOnCheckout;
-      json.data.meta.uischema["@route.checkout.template"] =
-        overrides.checkoutTemplate;
-      json.data.meta.uischema['@route["session.register"].template'] =
-        overrides.registerTemplate;
-      json.data.meta.uischema['@route["session.login"].template'] =
-        overrides.loginTemplate;
-      const updatedResponseBody = {
-        ...json
-      };
-      route.fulfill({
-        status: response.status(),
-        contentType: "application/json",
-        headers: response.headers(),
-        body: JSON.stringify(updatedResponseBody)
-      });
+
+      applyOverrides(json, overrides);
+
+      return {
+        ...response,
+        json: async () => json
+      } as any;
     }
-  );
+
+    return originalFetch(url, options);
+  };
+}
+
+function applyOverrides(json: any, overrides: UIOverrides) {
+  json.data.meta.uischema["@display.checkout.basketBilling"] =
+    overrides.basketBillingOnCheckout;
+  json.data.meta.uischema["@display.checkout.basketFields"] =
+    overrides.basketFieldsOnCheckout;
+  json.data.meta.uischema["@display.checkout.basketProducts"] =
+    overrides.basketProductsOnCheckout;
+  json.data.meta.uischema["@route.checkout.template"] =
+    overrides.checkoutTemplate;
+  json.data.meta.uischema["@route.basket.template"] = overrides.basketTemplate;
+  json.data.meta.uischema["@route['basket-product-edit'].template"] =
+    overrides.basketProductTemplate;
+  json.data.meta.uischema["@route['product-configure'].template"] =
+    overrides.productConfigTemplate;
+  json.data.meta.uischema["@route['session-register'].template"] =
+    overrides.registerTemplate;
+  json.data.meta.uischema["@route['session-login'].template"] =
+    overrides.loginTemplate;
+
+  console.log("Schema Intercepted (Unified)", json.data.meta.uischema);
 }

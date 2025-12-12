@@ -1,121 +1,18 @@
 // --- types
-import type { ActorRef } from "xstate";
+import type {
+  AnyEventObject,
+  MachineOptions,
+  StateMachine,
+  StateNodesConfig
+} from "xstate";
+import type {
+  RouteLocation,
+  RouteLocationNormalized,
+  RouteLocationNormalizedLoaded
+} from "vue-router";
 import type { ResponseError } from "../../utils";
 export { QUERY_PARAMS } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
-
-/**
- * Enumeration representing predefined application routes and navigational paths.
- * These routes are used consistently throughout the Upmind frontend for navigation,
- * deep linking, and managing application state transitions.
- *
- * @enum {string}
- */
-export enum ROUTE {
-  /**
-   * Represents a loading state, typically displayed while data is being fetched or processed.
-   */
-  LOADING = "loading",
-  /**
-   * Represents an error state, displayed when an unrecoverable error occurs.
-   */
-  ERROR = "error",
-  /**
-   * Represents an unavailable state, indicating a resource or feature is not currently accessible.
-   */
-  UNAVAILABLE = "unavailable",
-  // --- shop routes
-  /**
-   * The route for the main product catalogue or shop page.
-   */
-  CATALOGUE = "catalogue",
-  // --- product routes
-  /**
-   * The route for adding a new product.
-   */
-  PRODUCT_ADD = "product.add",
-  /**
-   * The route for editing an existing product.
-   */
-  PRODUCT_EDIT = "product.edit",
-  /**
-   * The route to display products that require specific actions from the user.
-   */
-  PRODUCT_REQUIRES_ACTION = "product.requiresAction",
-  /**
-   * The route displayed when a requested product cannot be found.
-   */
-  PRODUCT_NOT_FOUND = "product.notFound",
-  /**
-   * The route for displaying product recommendations.
-   */
-  PRODUCT_RECOMMENDATIONS = "product.recommendations",
-  // --- product flows
-  /**
-   * Generic route for product recommendation flows.
-   */
-  RECOMMENDATIONS = "recommendations",
-  // --- SESSION/AUTH routes
-  /**
-   * The base route for session and authentication related pages.
-   */
-  SESSION = "session",
-  /**
-   * The route for the user login page.
-   */
-  SESSION_LOGIN = "session.login",
-  /**
-   * The route for the user registration page.
-   */
-  SESSION_REGISTER = "session.register",
-  /**
-   * The route for the password recovery/reset page.
-   */
-  SESSION_RECOVER_PASSWORD = "session.recover",
-  /**
-   * The route indicating the end of a session, typically after logout.
-   */
-  SESSION_END = "session.end",
-  /**
-   * The route for handling session transfer operations between contexts.
-   */
-  SESSION_TRANSFER = "session.transfer",
-  // --- basket routes
-  /**
-   * The route for an empty shopping basket.
-   */
-  EMPTY = "empty",
-  /**
-   * The route for viewing the shopping basket contents.
-   */
-  BASKET = "basket",
-  /**
-   * The route for the checkout process.
-   */
-  CHECKOUT = "checkout",
-  /**
-   * The route for viewing a completed order.
-   */
-  ORDER = "order",
-  // --- express routes
-  /**
-   * The route for quickly adding a product in an express flow.
-   */
-  EXPRESS_PRODUCT_ADD = "express.product.add",
-  /**
-   * The route for an express checkout flow.
-   */
-  EXPRESS_CHECKOUT = "express.checkout",
-  // --- redirect routes
-  /**
-   * The route indicating a redirection to an external URL.
-   */
-  REDIRECT_EXTERNAL = "redirect.external",
-  /**
-   * The route indicating a redirection to an internal application route.
-   */
-  REDIRECT_INTERNAL = "redirect.internal"
-}
 
 /**
  * Enumeration representing various states or conditions that may require an action to be taken by the user or system.
@@ -145,153 +42,107 @@ export enum REQUIRES_ACTION {
  * Interface representing details about a page route, typically including both the target route
  * and the route from which the navigation originated.
  */
-export interface PageRoute {
+export type PageRoute = {
   /**
    * Details about the target route.
    */
-  to?: {
-    /** The full path of the target route. */
-    fullPath: string;
-    /** The name of the target route, if available. */
-    name?: string | symbol;
-    /** Parameters associated with the target route. */
-    params?: Record<string, string | string[]>;
-  };
+  to?: RouteLocationNormalized;
   /**
    * Details about the route from which navigation originated.
    */
-  from?: {
-    /** The full path of the originating route. */
-    fullPath: string;
-    /** The name of the originating route, if available. */
-    name?: string | symbol;
-    /** Parameters associated with the originating route. */
-    params?: Record<string, string | string[]>;
-  };
-}
-
-/**
- * Type alias for a generic route object, providing common properties found in router configurations.
- */
-export type Route = {
-  /** The path segment of the route. */
-  path?: string;
-  /** The name of the route. */
-  name?: string;
-  /** Route parameters, e.g., `/users/:id` would have `{ id: 'some-id' }`. */
-  params?: Record<string, string | string[]>;
-  /** Query parameters, e.g., `/search?q=query` would have `{ q: 'query' }`. */
-  query?: Record<string, any>;
-  /** The hash fragment of the route, e.g., `/page#section` would have `#section`.*/
-  hash?: string;
-  /** Meta fields associated with the route, for custom data. */
-  meta?: Record<string, any>;
+  from?: RouteLocationNormalizedLoaded;
 };
 
-/**
- * Type alias for a navigational target, which can be either a predefined `ROUTE` enum member
- * or a more complex object defining guard, resolve, and meta properties.
- */
-export type Target =
-  | ROUTE // A simple predefined route from the ROUTE enum
-  | {
-      /** The name of the target route. Can be a ROUTE enum member or a custom string. */
-      name: ROUTE | string;
-      /**
-       * An asynchronous guard function that determines if navigation to this target is allowed.
-       * @param route - The target route object.
-       * @param data - Optional additional data passed to the guard.
-       * @returns A promise resolving to `true` to allow navigation, `false` to prevent it.
-       */
-      guard?: (route: Route, data?: any) => Promise<boolean>;
-      /**
-       * An asynchronous resolve function that can modify the target route object before navigation.
-       * @param route - The target route object.
-       * @param data - Optional additional data passed to the resolver.
-       * @returns A promise resolving to the (potentially modified) target route object.
-       */
-      resolve?: (route: Route, data?: any) => Promise<Route>;
-      /**
-       * Meta fields associated with this target, providing custom data.
-       */
-      meta?: Record<string, any>;
-    };
+export type FunnelProps = {
+  id: string;
+  states: StateNodesConfig<
+    FunnelContext,
+    StateMachine<FunnelContext, any, AnyEventObject>["schema"],
+    any
+  >;
+  context?: FunnelContext;
+  guards?: MachineOptions<FunnelContext, AnyEventObject>["guards"];
+  services?: MachineOptions<FunnelContext, AnyEventObject>["services"];
+  actions?: MachineOptions<FunnelContext, AnyEventObject>["actions"];
+};
 
-/**
- * Interface representing a navigational flow within the application, defining a sequence
- * of routes, guards, and resolution logic for complex user journeys.
- */
-export interface Flow {
-  /**
-   * The name of the flow, which can be a predefined `ROUTE` enum member or a custom string.
-   */
-  name: ROUTE | string;
-  /**
-   * An asynchronous guard function that determines if the flow can be initiated or continued.
-   * @param route - The current route object.
-   * @param data - Optional additional data passed to the guard.
-   * @returns A promise resolving to `true` to allow the flow, `false` to prevent it.
-   */
-  guard?: (route: Route, data?: any) => Promise<boolean>;
-  /**
-   * An asynchronous resolve function that can modify the current route object within the flow.
-   * @param route - The current route object.
-   * @param data - Optional additional data passed to the resolver.
-   * @returns A promise resolving to the (potentially modified) route object.
-   */
-  resolve?: (route: Route, data?: any) => Promise<Route>;
-  /**
-   * Meta fields associated with the flow, including special flags like `replace`.
-   */
-  meta?: Record<string, any> & {
-    /**
-     * If `true`, indicates that the current route in the browser history should be replaced
-     * instead of pushing a new entry when navigating within this flow.
-     */
-    replace?: boolean;
-  };
-  /**
-   * Defines the potential next, back, and fallback targets within this flow.
-   */
-  targets?: {
-    /** An array of possible next targets the flow can transition to. */
-    next?: Target[];
-    /** An array of possible previous targets the flow can transition back to. */
-    back?: Target[];
-    /** An array of fallback targets to use if `next` or `back` transitions fail. */
-    fallback?: Target[];
-  };
-}
-
+export type Funnels = Record<string, FunnelProps>;
 /**
  * Interface representing the context for the routing engine, typically managed by an XState machine.
  * It holds the state of active flows, current route, and references to other services.
  */
-export interface RoutingEngineContext {
+export type RoutingEngineContext = {
   /**
-   * An array of active or defined navigational flows.
+   * A dictionary of all available funnels, keyed by their unique IDs.
+   * The values of the dictionary are the funnel configurations used in the Factory function used to create funnel machines.
    */
-  flows: Flow[];
+  funnels: Funnels;
+
   /**
-   * The currently active flow in the routing engine.
+   * The actual funnel machine instance currently in use.
+   * This is interpreted from the funnel configuration, based on the current funnel (ID).
    */
-  currentFlow?: Flow;
+  funnel?: StateMachine<FunnelContext, any, AnyEventObject, any>;
+
   /**
-   * The current route object being managed by the routing engine.
+   * The ID of the default funnel to fall back to when no specific funnel is active or provided.
    */
-  currentRoute?: Route;
+  defaultFunnel: string;
+
+  /**
+   * The target route that the routing engine is attempting to resolve or navigate to upon funnel invocation.
+   */
+  targetRoute?: FunnelTarget;
+
+  /**
+   * The ID of the currently active funnel being processed by the routing engine.
+   */
+  currentFunnel: string;
+
   // ---
   /**
    * An error object encountered by the routing engine.
    */
   error?: ResponseError;
   // ---
+};
+
+/**
+ * Interface representing the context for the funnel, typically managed by an XState machine.
+ * It holds the state of active flows, current route, and references to other services.
+ */
+export type FunnelContext = {
   /**
-   * The ID of the current shopping basket, if applicable.
+   * The current route object being managed by the funnel.
    */
-  basketId?: string;
+  currentRoute?: RouteLocation;
+
   /**
-   * An ActorRef to the basket helper service, for inter-service communication.
+   * The target route that the funnel is attempting to resolve or navigate to.
    */
-  basketHelper?: ActorRef<any>;
-}
+  targetRoute?: FunnelTarget;
+
+  /**
+   * A boolean indicating whether the funnel has completed its resolution process.
+   */
+  resolved?: boolean;
+
+  // ---
+  /**
+   * An error object encountered by the funnel.
+   */
+  error?: ResponseError;
+};
+
+export type FunnelTarget = {
+  name?: RouteLocationNormalized["name"];
+  params?: RouteLocationNormalized["params"];
+  query?: RouteLocationNormalized["query"];
+  hash?: RouteLocationNormalized["hash"];
+  meta?: RouteLocationNormalized["meta"];
+};
+
+export type FunnelResponse = {
+  type?: "NEXT" | "BACK";
+  target?: FunnelTarget;
+};

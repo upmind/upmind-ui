@@ -35,6 +35,7 @@
           ratio="3:2"
           hide-terms
           @resolve="doResolve"
+          :configure-route="props.configureRoute"
         />
       </CarouselItem>
     </CarouselContent>
