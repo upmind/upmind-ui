@@ -159,6 +159,7 @@ async function loadLookups(
     // we need to calculate the total account credit including negative allowance
     // and get a formatted version based on the currency
     return post({
+      mutationKey: ["wallet", "calculate"],
       url: useUrl("cart/calculate", {}),
       withAccessToken: true,
       data: {
@@ -504,6 +505,7 @@ async function calculate(
   // we need to calculate the total account credit including negative allowance
   // and get a formatted version based on the currency
   return post({
+    mutationKey: ["wallet", "calculate"],
     url: useUrl("cart/calculate", {}),
     withAccessToken: true,
     data: {

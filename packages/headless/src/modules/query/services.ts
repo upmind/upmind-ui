@@ -76,9 +76,8 @@ async function doFetch<T extends any = any>({
 
       // DC: change this as when we get service cors errors, we don't get a response object with status,
       // so we need to handle it differently, and that generally means the API is down
-
       return handleError(
-        response.status ?? responseCodes.Service_Unavailable,
+        response.status ?? responseCodes.Unknown,
         response?.error ?? response
       );
     });
@@ -114,6 +113,7 @@ async function refreshToken() {
   }
 
   return post<Token>({
+    mutationKey: ["session"],
     url: useUrl("access_token", {}, { context: "oauth" }),
     data: {
       grant_type: GrantTypes.REFRESH_TOKEN,

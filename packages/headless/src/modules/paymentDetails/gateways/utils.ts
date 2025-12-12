@@ -3,11 +3,12 @@
 // --- internal
 
 // --- utils
+import { filter, keyBy, mapValues, values } from "lodash-es";
 
 // --- types
 import type { IGateway, PaymentMethodType } from "@upmind-automation/types";
 import { GatewayStoreType, QUERY_PARAMS } from "@upmind-automation/types";
-import { filter, keyBy, mapValues } from "lodash-es";
+import { ZERO_DECIMAL_CURRENCIES } from "./types";
 
 // -----------------------------------------------------------------------------
 
@@ -75,3 +76,6 @@ export function parseSettings(gateway: IGateway) {
     }
   );
 }
+
+// syntactic sugar for easier imports
+export const zeroDecimalCurrencies = values<string>(ZERO_DECIMAL_CURRENCIES);

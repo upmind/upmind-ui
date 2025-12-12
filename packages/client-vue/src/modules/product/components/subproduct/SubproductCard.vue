@@ -1,9 +1,9 @@
 <template>
-  <section class="m-0 flex w-full flex-col gap-1 text-base">
-    <header class="flex flex-1 items-start gap-2">
-      <div class="flex grow flex-col gap-0.5 md:flex-row md:gap-x-2">
-        <div class="flex flex-wrap items-center gap-2">
-          <h5 class="text-md-tight m-0 font-medium">{{ title }}</h5>
+  <section :class="styles.card.root">
+    <header :class="styles.card.header.root">
+      <div :class="styles.card.header.content">
+        <div :class="styles.card.header.titleWrapper">
+          <h5 :class="styles.card.header.title">{{ title }}</h5>
 
           <Promotion
             v-for="promotion in props.promotions"
@@ -15,7 +15,7 @@
 
         <div
           v-if="props.price && !props.meta?.free"
-          class="text-md-tight items-center gap-x-1 max-md:flex md:hidden"
+          :class="styles.card.pricing.sm"
         >
           <SubproductCardPricing
             v-if="props.price"
@@ -26,7 +26,7 @@
         </div>
       </div>
 
-      <div class="flex items-center gap-2">
+      <div :class="styles.card.header.actions">
         <NumberField
           v-if="quantifiable && quantity"
           :disabled="processing"
@@ -35,7 +35,7 @@
           :step="step"
           :model-value="quantity"
           :default-value="quantity || step"
-          @update:modelValue="doUpdateQuantity"
+          @update:model-value="doUpdateQuantity"
           size="sm"
           width="sm"
           variant="minimal"
@@ -43,9 +43,7 @@
           @keydown.enter.prevent.stop
         />
 
-        <div
-          class="text-md-tight hidden flex-col gap-2 text-right md:flex md:flex-row"
-        >
+        <div :class="styles.card.pricing.lg">
           <SubproductCardPricing
             v-if="props.price"
             :price="props.price"
@@ -56,7 +54,7 @@
       </div>
     </header>
 
-    <p class="text-muted text-sm-tight whitespace-normal" v-if="props.excerpt">
+    <p :class="styles.card.excerpt" v-if="props.excerpt">
       {{ props.excerpt }}
     </p>
   </section>
@@ -64,30 +62,54 @@
 
 <script setup lang="ts">
 // --- external
-import { useI18n } from "vue-i18n";
+import { computed } from "vue";
 
 // --- internal
+import { useStyles } from "@upmind-automation/upmind-ui";
+import config from "./subproduct-card.config";
 
 // --- components
 import { NumberField } from "@upmind-automation/upmind-ui";
 import SubproductCardPricing from "./SubproductCardPricing.vue";
-import Promotion from "../../../basket/product/components/Promotion.vue";
+import Promotion from "../../../basket-product/components/card/components/Promotion.vue";
 
 // --- types
-import type { SubproductValue } from "@upmind-automation/headless";
+import type { ComputedRef } from "vue";
+import type { SubproductCardProps } from "./types";
+
 // -----------------------------------------------------------------------------
+
 const emit = defineEmits(["update:quantity"]);
-const props = defineProps<
-  SubproductValue & {
-    processing?: boolean;
-  }
->();
+const props = defineProps<SubproductCardProps>();
 
-// ---
+const meta = computed(() => ({
+  isMinimal: props.minimal
+}));
 
-const { t } = useI18n();
+const styles = useStyles(
+  ["card", "card.header", "card.pricing"],
+  meta,
+  config
+) as ComputedRef<{
+  card: {
+    root: string;
+    header: {
+      root: string;
+      content: string;
+      titleWrapper: string;
+      title: string;
+      actions: string;
+    };
+    pricing: {
+      sm: string;
+      lg: string;
+    };
+    excerpt: string;
+  };
+}>;
 
-function doUpdateQuantity(quantity: number) {
+function doUpdateQuantity(quantity: number | undefined) {
+  if (!quantity) return;
   emit("update:quantity", quantity);
 }
 </script>

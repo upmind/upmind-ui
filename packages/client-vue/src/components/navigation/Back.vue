@@ -1,12 +1,12 @@
 <template>
   <component
     :is="button ? Button : Link"
-    icon="flip-backward"
     :label="safeLabel"
     :to="to"
     size="lg"
     :variant="button ? 'subtle' : undefined"
-    :class="{ 'font-medium': !button }"
+    :color="!button ? 'muted' : undefined"
+    class="self-start"
   />
 </template>
 

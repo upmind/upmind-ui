@@ -59,6 +59,8 @@
   "currency_validation_failed": "La validation de la devise a échoué",
   "domain_add_failed": "Impossible d'ajouter le domaine au panier",
   "feedback_action_not_available": "L'action avec la valeur «  {data}  » n'est pas disponible.",
+  "funnel_not_available": "Entonnoir non disponible",
+  "funnels_not_available": "Entonnoirs non disponibles",
   "generic_error": "erreur",
   "generic_text": "Remettons-nous sur la bonne voie",
   "generic_title": "Désolé, on a rencontré une **erreur**",

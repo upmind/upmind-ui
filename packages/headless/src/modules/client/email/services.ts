@@ -87,6 +87,7 @@ async function add(data: EmailModel) {
     return Promise.reject(new NotAuthenticatedError());
   }
   return post<IEmail>({
+    mutationKey: ["client", "emails", "add"],
     url: useUrl(`clients/${user.value?.id}/emails`),
     data: mapIEmail(data),
     withAccessToken: true
@@ -102,6 +103,7 @@ async function update(id: Email["id"], data: EmailModel) {
   }
 
   return put<IEmail>({
+    mutationKey: ["client", "emails", id],
     url: useUrl(`clients/${user.value?.id}/emails/${id}`),
     data: mapIEmail(data),
     withAccessToken: true

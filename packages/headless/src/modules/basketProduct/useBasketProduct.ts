@@ -1,4 +1,5 @@
 // --- external
+import { computed } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
 import { interpret } from "xstate";
 
@@ -12,12 +13,14 @@ import { useProductConfig } from "../product";
 import { getBasketProduct } from "./utils";
 import { parseQuantity } from "../product/utils";
 import {
+  contextValue,
+  DEBOUNCE_DELAY,
   DetailedError,
   ErrorOrigin,
   responseCodes,
   stopService
 } from "../../utils";
-import { isEmpty, get, add, subtract } from "lodash-es";
+import { isEmpty, get, add, subtract, debounce } from "lodash-es";
 
 // --- types
 import type { Product } from "../product";
@@ -78,7 +81,7 @@ export const useBasketProduct = (bpid: string) => {
 
   async function getProduct(): Promise<Product> {
     return new Promise<Product>((resolve, reject) => {
-      const product = get(service.getSnapshot(), "context.product") as Product;
+      const product = contextValue<Product>(service, "product");
       if (!product)
         return reject(
           new DetailedError(
@@ -122,14 +125,10 @@ export const useBasketProduct = (bpid: string) => {
       });
   }
 
-  // ---------------------------------------------------------------------------
-  return {
-    ...useProductConfig(service),
-    id: bpid,
-    isReady,
-    stop: () => stopService(service),
-    // ---
-    updateQuantity: async (value: number): Promise<void> =>
+  // --- methods
+
+  const updateQuantity = debounce(
+    async (value: number): Promise<void> =>
       getProduct().then(product => {
         if (!product?.productDetails.quantifiable)
           return Promise.reject(
@@ -148,8 +147,11 @@ export const useBasketProduct = (bpid: string) => {
         });
         return update();
       }),
+    DEBOUNCE_DELAY
+  );
 
-    incrementQuantity: async (): Promise<void> =>
+  const incrementQuantity = debounce(
+    async (): Promise<void> =>
       getProduct().then(product => {
         if (!product?.productDetails.quantifiable)
           return Promise.reject(
@@ -172,8 +174,11 @@ export const useBasketProduct = (bpid: string) => {
         });
         return update();
       }),
+    DEBOUNCE_DELAY
+  );
 
-    decrementQuantity: async (): Promise<void> =>
+  const decrementQuantity = debounce(
+    async (): Promise<void> =>
       getProduct().then(product => {
         if (!product?.productDetails.quantifiable)
           return Promise.reject(
@@ -196,7 +201,19 @@ export const useBasketProduct = (bpid: string) => {
         });
         return update();
       }),
+    DEBOUNCE_DELAY
+  );
 
+  // ---------------------------------------------------------------------------
+  return {
+    ...useProductConfig(service),
+    id: computed(() => bpid),
+    isReady,
+    stop: () => stopService(service),
+    // ---
+    updateQuantity,
+    incrementQuantity,
+    decrementQuantity,
     update
   };
 };

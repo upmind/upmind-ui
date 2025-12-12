@@ -1,77 +1,79 @@
 <template>
-  <Input
-    v-model="inputValue"
-    :placeholder="t('form.domain_search.placeholder')"
-    autocomplete="url"
-    :icon="type === 'existing' ? 'network-settings' : 'search'"
-  >
-    <template #append>
-      <span
-        :class="[
-          styles.domain.search.actions,
-          { 'opacity-0 select-none': type === 'existing' }
-        ]"
-      >
-        <Link
-          size="lg"
-          @click="inputValue = ''"
-          :class="{ hidden: isEmpty(inputValue) }"
-          icon="clear"
-        />
-        <Button
-          :disabled="isEmpty(inputValue)"
-          :loading="isLoading"
-          size="lg"
-          color="secondary"
-          @click="emit('search', inputValue)"
-          :ui-config="{
-            button: {
-              label: 'flex items-center justify-center'
-            } as any
-          }"
-        >
-          <template #label>
-            <span class="hidden md:block">{{ t("action.search") }}</span>
-            <Icon icon="search-refraction" size="xs" class="md:hidden" />
-          </template>
-        </Button>
-      </span>
-    </template>
-  </Input>
+  <FormControl formItemId="domain-search" auto-focus>
+    <Input
+      v-model="inputValue"
+      :placeholder="
+        isMobile ? t('domain.search') : t('form.domain_search.placeholder')
+      "
+      autocomplete="url"
+      icon="search-refraction"
+      :disabled="processing"
+      :class="styles.domain.search.root"
+      :mask="/^.{0,63}$/"
+    >
+      <template #append>
+        <span :class="styles.domain.search.actions">
+          <Link
+            size="lg"
+            color="muted"
+            @click="emit('reset')"
+            :class="{ hidden: isEmpty(inputValue) }"
+            icon="delete"
+            :disabled="processing"
+            class="hidden md:block"
+          />
+          <Button
+            :disabled="isEmpty(inputValue) || processing"
+            :loading="meta.isSearching"
+            size="lg"
+            variant="subtle"
+            icon-append="arrow-right"
+            :label="isMobile ? '' : t('domain.search')"
+          />
+        </span>
+      </template>
+    </Input>
+  </FormControl>
 </template>
 
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
-import { useVModel } from "@vueuse/core";
-import { watch, computed } from "vue";
-import { isEmpty } from "lodash-es";
+import { computed } from "vue";
 
 // --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../domain.config";
 
 // --- components
-import { Input, Icon, Button, Link } from "@upmind-automation/upmind-ui";
+import { Input, Button, Link, FormControl } from "@upmind-automation/upmind-ui";
+
+// --- utils
+import { isMobile } from "@upmind-automation/upmind-ui";
+import { isEmpty } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
-import type { DomainSearchProps } from "../types";
+import type { DomainSlotProps } from "../types";
 
-const props = withDefaults(defineProps<DomainSearchProps>(), {
-  modelValue: "",
-  isLoading: false,
-  type: "register"
-});
+// ----------------------------------------------------------------------------
+
+const props = defineProps<DomainSlotProps>();
 
 const emit = defineEmits<{
-  (e: "update:modelValue", value: string): void;
   (e: "search", query: string): void;
+  (e: "reset"): void;
 }>();
+
+// ----------------------------------------------------------------------------
 
 const { t } = useI18n();
 
-const inputValue = useVModel(props, "modelValue", emit);
+const meta = computed(() => ({
+  isSearching: props.searching
+}));
+
+const inputValue = defineModel<string>("modelValue");
 
 const styles = useStyles(["domain.search"], {}, config) as ComputedRef<{
   domain: {
@@ -83,8 +85,4 @@ const styles = useStyles(["domain.search"], {}, config) as ComputedRef<{
     };
   };
 }>;
-
-watch(inputValue, value => {
-  emit("search", value?.toString() || "");
-});
 </script>

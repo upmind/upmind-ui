@@ -59,6 +59,8 @@
   "currency_validation_failed": "Valutavalidering mislykkedes",
   "domain_add_failed": "Domænet kunne ikke tilføjes til kurven",
   "feedback_action_not_available": "Handling med værdi '{data}' ikke tilgængelig.",
+  "funnel_not_available": "Tragt ikke tilgængelig",
+  "funnels_not_available": "Tragte er ikke tilgængelige",
   "generic_error": "fejl",
   "generic_text": "Lad os få dig tilbage på sporet",
   "generic_title": "Beklager, vi har oplevet en **fejl**",

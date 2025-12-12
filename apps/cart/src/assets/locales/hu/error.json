@@ -59,6 +59,8 @@
   "currency_validation_failed": "A pénznem érvényesítése sikertelen volt",
   "domain_add_failed": "Nem sikerült hozzáadni a domaint a kosárhoz",
   "feedback_action_not_available": "Értékkel bíró cselekvés '{data}' nem elérhető.",
+  "funnel_not_available": "A tölcsér nem érhető el",
+  "funnels_not_available": "Tölcsérek nem érhetők el",
   "generic_error": "hiba",
   "generic_text": "Visszatérítünk a helyes útra",
   "generic_title": "Sajnáljuk, **hibát** tapasztaltunk",

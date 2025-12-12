@@ -1,64 +1,94 @@
-import type { DomainProduct, DomainTypes } from "@upmind-automation/headless";
-import type { ButtonProps } from "@upmind-automation/upmind-ui";
+import type {
+  DomainModel,
+  DomainProduct,
+  DomainTypes,
+  UseDac,
+  UseDomain
+} from "@upmind-automation/headless";
 
+export enum DOMAIN_TEMPLATE {
+  FULL = "full",
+  DRAWER = "drawer",
+  WIDGET = "widget"
+}
 export interface DomainProps {
-  type?: DomainTypes;
+  template?: DOMAIN_TEMPLATE;
+  type?: string;
   modelValue?: string;
-  multiple?: boolean;
   touched?: boolean;
 }
 
 export interface DacProps {
-  id: string;
-  modelValue?: string; // this is the primary domain
-  selected?: string[]; // these ar the selected domains
-  items?: DomainProduct[]; // this is the list of domains that can be selected
-  query?: string;
-  offset?: number;
-  dialog?: boolean;
-  loading?: boolean;
-  processing?: boolean;
-  disabled?: boolean;
-  complete?: boolean;
-  more?: boolean;
+  template?: DOMAIN_TEMPLATE;
   type?: string;
+  touched?: boolean;
 }
 
 export interface DomainCardsProps {
-  i18n?: string;
-  modelValue?: string[];
-  items: DomainProduct[];
-  offset?: number;
-  // ---
-  // ---
+  template?: DOMAIN_TEMPLATE;
+  modelValue?: UseDac["model"]["value"];
+  items?: DomainProduct[];
+  query?: UseDac["query"]["value"];
+  offset?: UseDac["pagination"]["value"]["offset"];
+  resultCount?: number;
+  skeletonCount?: number;
   loading?: boolean;
   processing?: boolean;
+  searching?: boolean;
+  valid?: boolean;
   disabled?: boolean;
+  // ---
 }
 
-export type DomainCardProps = DomainProduct & {
-  selected?: boolean;
+export interface DomainSlotProps {
+  modelValue: string;
+  searching?: boolean;
   processing?: boolean;
+  type?: DomainTypes;
+}
+
+export interface DomainActionsProps {
+  cancel?: boolean;
+  // ---
+  empty?: boolean;
+  required?: boolean;
+  loading?: boolean;
+  processing?: boolean;
+  available?: boolean;
+}
+
+export type DomainCardProps = {
+  domain: DomainProduct["domain"];
+  sld: DomainModel["tld"];
+  tld: DomainModel["tld"];
+  price: DomainProduct["price"];
+  cycle: DomainProduct["configuration"]["term"];
+  disabled?: DomainProduct["meta"]["disabled"];
+  processing?: DomainProduct["meta"]["processing"];
+  available?: DomainProduct["meta"]["available"];
+  added?: DomainProduct["meta"]["added"];
+  owned?: DomainProduct["meta"]["owned"];
+  discounted?: DomainProduct["meta"]["discounted"];
+  exactMatch?: boolean;
 };
 
 export interface DomainSummaryProps {
   price: DomainProduct["price"];
-  meta: DomainProduct["meta"];
+  meta: DomainCardMeta;
   cycle: DomainProduct["configuration"]["term"];
 }
 
-export interface DomainActionProps extends DomainSummaryProps {
-  domain: DomainProduct["domain"];
-  tld: DomainProduct["tld"];
-  selected?: boolean;
-  processing?: boolean;
-  color?: string;
+export interface DomainCardMeta {
+  isDisabled: boolean;
+  isProcessing: boolean;
+  isAvailable: boolean;
+  isAdded: boolean;
+  isExactMatch: boolean;
+  isOwned: boolean;
+  isDiscounted: boolean;
 }
 
-export interface DomainSearchProps {
-  modelValue?: string;
-  searchClass?: string;
-  showComplete?: boolean;
-  isLoading?: boolean;
-  type?: string;
+export interface DomainCardSkeletonProps {
+  active?: boolean;
+  exactMatch?: boolean;
 }

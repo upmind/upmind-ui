@@ -1,10 +1,6 @@
 <template>
-  <section>
-    <div
-      class="auth"
-      :class="cn(styles.session.auth.root, props.class)"
-      v-if="!meta.isAuthenticated && !meta.isLoading"
-    >
+  <section v-if="!meta.isAuthenticated && !meta.isLoading">
+    <div class="auth" :class="cn(styles.session.auth.root, props.class)">
       <Alert
         v-if="meta.hasErrors"
         color="danger"
@@ -14,6 +10,7 @@
       />
 
       <Form
+        :disabled="meta.isAuthenticated"
         :key="currentForm"
         :loading="meta.isLoading"
         :processing="meta.isProcessing"
@@ -37,25 +34,15 @@
       </Form>
     </div>
 
-    <div v-if="!meta.isLoading" :class="styles.session.auth.actions">
+    <div v-if="meta.showLoginForm" :class="styles.session.auth.actions">
       <slot name="toggle">
         <Link
-          v-if="!meta.isAuthenticated && meta.showLoginForm"
           @click="toggleForm('recover')"
           color="muted"
-          :label="buttons.recover.label"
+          :label="t('auth.forgot_password_qn')"
           size="lg"
         />
       </slot>
-      <Button
-        v-if="meta.isAuthenticated"
-        variant="ghost"
-        size="lg"
-        block
-        type="reset"
-        @click.prevent="logout"
-        :label="t('action.logout')"
-      />
     </div>
   </section>
 </template>
@@ -77,15 +64,15 @@ import { Alert, Button, Link } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { ComputedRef } from "vue";
-import type { AuthProps } from "../types";
+import type { SessionProps } from "../types";
 // -----------------------------------------------------------------------------
 
 const emit = defineEmits(["resolve", "reject"]);
-const props = withDefaults(defineProps<Omit<AuthProps, "modelValue">>(), {
+const props = withDefaults(defineProps<Omit<SessionProps, "modelValue">>(), {
   variant: "solid"
 });
 
-const modelValue = defineModel<AuthProps["modelValue"]>("modelValue", {
+const modelValue = defineModel<SessionProps["modelValue"]>("modelValue", {
   default: "login"
 });
 
@@ -146,23 +133,6 @@ const alertTitle = computed(() => {
 
 // ---
 
-const buttons = computed(() => {
-  return {
-    register: {
-      label: t("auth.already_have_account_qn"),
-      action: t("action.log_in_here")
-    },
-    login: {
-      label: t("auth.no_account_qn"),
-      action: t("action.create_one_here")
-    },
-    recover: {
-      label: t("auth.forgot_password_qn"),
-      action: t("session.recover.actions.action")
-    }
-  };
-});
-
 const authActions = computed(() => {
   return {
     submit: {
@@ -181,7 +151,7 @@ const authActions = computed(() => {
   };
 });
 
-function toggleForm(type: AuthProps["modelValue"]) {
+function toggleForm(type: SessionProps["modelValue"]) {
   // if (meta.value.isAuthenticated) return;
 
   if (!meta.value.canShowForms) return;
@@ -207,7 +177,9 @@ function toggleForm(type: AuthProps["modelValue"]) {
 
 function doResolve(model: any) {
   resolve(model).then(success => {
-    if (success) emit("resolve", model);
+    if (success) {
+      emit("resolve", model);
+    }
   });
 }
 
@@ -219,12 +191,19 @@ onMounted(() => {
   toggleForm(modelValue.value);
 });
 
-watch(meta, ({ canShowForms, isAuthenticated }) => {
-  if (canShowForms) toggleForm(modelValue.value);
-  if (isAuthenticated) {
-    emit("resolve", model.value);
+watch(
+  meta,
+  (
+    { canShowForms, isAuthenticated },
+    { isAuthenticated: wasAuthenticated }
+  ) => {
+    if (canShowForms) toggleForm(modelValue.value);
+    // NB ensure we only emit resolve when the user has just logged in
+    if (isAuthenticated && !wasAuthenticated) {
+      emit("resolve", model.value);
+    }
   }
-});
+);
 
 watch(modelValue, newValue => {
   toggleForm(newValue);

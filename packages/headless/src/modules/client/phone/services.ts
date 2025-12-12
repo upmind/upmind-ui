@@ -123,6 +123,7 @@ async function add(data: PhoneModel) {
     return Promise.reject(new NotAuthenticatedError());
   }
   return post<IPhone>({
+    mutationKey: ["client", "phones", "add"],
     url: useUrl(`clients/${user.value?.id}/phones`),
     data: mapIPhone(data),
     withAccessToken: true
@@ -138,6 +139,7 @@ async function update(id: Phone["id"], data: PhoneModel) {
   }
 
   return put<IPhone>({
+    mutationKey: ["client", "phones", id],
     url: useUrl(`clients/${user.value?.id}/phones/${id}`),
     data: mapIPhone(data),
     withAccessToken: true

@@ -31,15 +31,12 @@
 
 <script setup lang="ts">
 // --- external
-import { computed } from "vue";
+import { computed, inject } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import {
-  ROUTE,
-  useProductCategories,
-  QUERY_PARAMS
-} from "@upmind-automation/headless";
+import { QUERY_PARAMS } from "@upmind-automation/headless";
+
 import config from "../../catalogue.config";
 
 // --- components
@@ -49,7 +46,10 @@ import { Button, cn, useStyles } from "@upmind-automation/upmind-ui";
 import { map } from "lodash-es";
 
 // --- types
-import type { ProductCategory } from "@upmind-automation/headless";
+import type {
+  ProductCategory,
+  UseProductCategories
+} from "@upmind-automation/headless";
 import type { CategoriesProps } from "../types";
 import type { ComputedRef } from "vue";
 import type { CategoriesFacetProps } from "../types";
@@ -59,7 +59,9 @@ import type { CategoriesFacetProps } from "../types";
 const props = defineProps<CategoriesFacetProps>();
 const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
 
-const { filter, getChildren, getOne, getParent } = useProductCategories();
+const useProductCategories = inject<UseProductCategories>(
+  "useProductCategories"
+);
 
 const { t } = useI18n();
 
@@ -82,25 +84,26 @@ const styles = useStyles(
 // -----------------------------------------------------------------------------
 
 const filteredCategories = computed((): ProductCategory[] => {
-  if (!props.query) return getChildren(modelValue.value);
+  if (!props.query)
+    return useProductCategories?.getChildren(modelValue.value) ?? [];
 
-  return filter(props.query);
+  return useProductCategories?.filter(props.query) ?? [];
 });
 
 const currentCategory = computed(() => {
-  return getOne(modelValue.value ?? "");
+  return useProductCategories?.getOne(modelValue.value ?? "");
 });
 
 const parentCategory = computed(() => {
   if (!modelValue.value) return;
 
-  const parentId = getParent(modelValue.value);
+  const parentId = useProductCategories?.getParent(modelValue.value);
 
   return {
     id: parentId,
     label: t("action.back"),
     to: {
-      name: ROUTE.CATALOGUE,
+      ...props.categoryRoute,
       query: {
         sort: props.sort,
         direction: props.direction,
@@ -117,7 +120,7 @@ const createCategoryItem = (category: ProductCategory) => ({
   open: false,
   count: category.countDeep,
   to: {
-    name: ROUTE.CATALOGUE,
+    ...props.categoryRoute,
     query: {
       sort: props.sort,
       direction: props.direction,

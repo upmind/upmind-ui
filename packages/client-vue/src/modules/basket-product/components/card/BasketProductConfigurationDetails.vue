@@ -1,0 +1,66 @@
+<template>
+  <div class="flex flex-col gap-2">
+    <dl class="flex flex-col gap-1 lg:gap-0">
+      <DetailsGroup
+        v-for="(group, index) in groupedDetails"
+        :key="'details-group-' + index"
+        :id="id"
+        :category="first(group)?.category"
+        :items="group"
+      />
+    </dl>
+
+    <Link
+      v-bind="props.editRoute"
+      size="sm"
+      color="muted"
+      :label="t('text.edit_configuration')"
+      class="self-start"
+    />
+  </div>
+</template>
+
+<script lang="ts" setup>
+// --- external
+import { groupBy, first } from "lodash-es";
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
+
+// --- components
+import DetailsGroup from "./components/DetailsGroup.vue";
+import { Link } from "@upmind-automation/upmind-ui";
+
+// --- internal
+import { useStyles } from "@upmind-automation/upmind-ui";
+import config from "./basketProduct.config";
+
+// --- types
+import type { BasketProductConfigDetailsProps } from "./types";
+import type { ComputedRef } from "vue";
+
+defineOptions({
+  inheritAttrs: false
+});
+
+const { t } = useI18n();
+
+const props = defineProps<BasketProductConfigDetailsProps>();
+
+const styles = useStyles(
+  ["product.configDetails"],
+  props,
+  config
+) as ComputedRef<{
+  product: {
+    configDetails: {
+      container: string;
+    };
+  };
+}>;
+
+const groupedDetails = computed(
+  (): Record<string, BasketProductConfigDetailsProps["details"]> => {
+    return groupBy(props.details, "category");
+  }
+);
+</script>

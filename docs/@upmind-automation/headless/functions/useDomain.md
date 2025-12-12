@@ -166,8 +166,8 @@ meta: ComputedRef<{
   hasErrors: boolean;
   hasMoreSearchResults: boolean;
   isLoading: boolean;
+  isLoadingMore: boolean;
   isSearching: boolean;
-  isSearchingMore: boolean;
   isSyncing: boolean;
   isValid: boolean;
   showBasket: boolean;

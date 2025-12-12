@@ -8,20 +8,23 @@ import { Store } from "@upmind-automation/headless";
 import { isEmpty, isObject, merge } from "lodash-es";
 
 // --- types
-import type { LayoutProps } from "./useLayout.types";
-import { LAYOUT_MODE } from "./useLayout.types";
+import type { UseLayoutProps } from "./types";
+import { LAYOUT_VARIANTS, LAYOUT_MODE, LAYOUT_OVERFLOW } from "./types";
 
 // -----------------------------------------------------------------------------
 // --- global context
 
-const defaultLayoutProps: LayoutProps = {
-  mode: LAYOUT_MODE.GROW
+const defaultLayoutProps: UseLayoutProps = {
+  variant: LAYOUT_VARIANTS.FULL,
+  mode: LAYOUT_MODE.GROW,
+  overflow: LAYOUT_OVERFLOW.VISIBLE,
+  footer: true
 };
 
-const layoutConfig = new Store<LayoutProps>(defaultLayoutProps);
+const layoutConfig = new Store<UseLayoutProps>(defaultLayoutProps);
 
 // NB: Create a reactive ref initialized with the store's current state.
-const config = ref<LayoutProps>(layoutConfig.state);
+const config = ref<UseLayoutProps>(layoutConfig.state);
 layoutConfig.subscribe(state => (config.value = state.currentVal));
 
 // -----------------------------------------------------------------------------
@@ -29,23 +32,36 @@ layoutConfig.subscribe(state => (config.value = state.currentVal));
  * Composable to manage main layout behavior.
  * @return An object containing layout management methods and properties.
  */
-export const useLayout = (initial?: Partial<LayoutProps>) => {
+export const useLayout = (initial?: Partial<UseLayoutProps>) => {
   // Reset to defaults and apply initial overrides if provided
   if (initial) {
     layoutConfig.setState(
-      merge({}, defaultLayoutProps, initial) as LayoutProps
+      merge({}, defaultLayoutProps, initial) as UseLayoutProps
     );
   }
 
   // --- state
+  const variant = computed(() => config.value.variant ?? LAYOUT_VARIANTS.FULL);
   const mode = computed(() => config.value.mode ?? LAYOUT_MODE.GROW);
+  const overflow = computed(
+    () => config.value.overflow ?? LAYOUT_OVERFLOW.VISIBLE
+  );
+  const footer = computed(() => config.value.footer ?? true);
 
   // --- methods
-  function update(values: Partial<LayoutProps>) {
+  function update(values: Partial<UseLayoutProps>) {
     if (!isObject(values) || isEmpty(values)) return;
     layoutConfig.setState(
-      (prev: LayoutProps) => merge({}, prev, values) as LayoutProps
+      (prev: UseLayoutProps) => merge({}, prev, values) as UseLayoutProps
     );
+  }
+
+  function hideFooter() {
+    update({ footer: false });
+  }
+
+  function showFooter() {
+    update({ footer: true });
   }
 
   // ---------------------------------------------------------------------------
@@ -54,10 +70,28 @@ export const useLayout = (initial?: Partial<LayoutProps>) => {
     config: layoutConfig,
 
     /**
+     * The current layout variant.
+     * @type {ComputedRef<LAYOUT_VARIANTS>}
+     */
+    variant,
+
+    /**
      * The current layout mode.
      * @type {ComputedRef<LayoutMode>}
      */
     mode,
+
+    /**
+     * The current layout overflow.
+     * @type {ComputedRef<LAYOUT_OVERFLOW>}
+     */
+    overflow,
+
+    /**
+     * The current display state of the content and aside footer.
+     * @type {ComputedRef<boolean>}
+     */
+    footer,
 
     // --- methods
     /**
@@ -65,6 +99,18 @@ export const useLayout = (initial?: Partial<LayoutProps>) => {
      * @param {Partial<LayoutProps>} config - Partial configuration to update the layout state.
      * @returns {void}
      */
-    update
+    update,
+
+    /**
+     * Hides the content and aside footer.
+     * @returns {void}
+     */
+    hideFooter,
+
+    /**
+     * Shows the content and aside footer.
+     * @returns {void}
+     */
+    showFooter
   };
 };

@@ -5,8 +5,7 @@ import { Store } from "@tanstack/vue-store";
 import { localStoragePersister, useQuery } from "../..";
 
 // --- utils
-import { parseFlattened } from "../../utils";
-import { mapBrandConfig } from "./mappers";
+import { mapBrandConfig, mapBrandSettings } from "./mappers";
 import { uniq } from "lodash-es";
 
 // --- types
@@ -77,7 +76,7 @@ function fetchBrandSettings() {
     // --- options
     staleTime: "static",
     persister: localStoragePersister.persisterFn,
-    select: data => parseFlattened<IBrandSettings>(data)
+    select: mapBrandSettings
   });
 }
 

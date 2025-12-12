@@ -93,6 +93,7 @@ async function update(
   const { post, useUrl } = useQuery();
 
   return post({
+    mutationKey: ["payments", orderId],
     url: useUrl(`/payments`),
     data: {
       invoice_id: orderId,

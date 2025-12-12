@@ -1,0 +1,57 @@
+import { cva } from "class-variance-authority";
+
+export const variants = {
+  sticky: {
+    none: "",
+    top: "sticky top-0",
+    bottom: "sticky bottom-0"
+  },
+  width: {
+    auto: "",
+    full: "w-full",
+    aside: "lg:min-w-app-aside lg:max-w-app-aside",
+    asidelg: "lg:min-w-app-aside-lg lg:max-w-app-aside-lg"
+  },
+  flow: {
+    none: "",
+    horizontal: "flex",
+    vertical: "flex flex-col"
+  },
+  justify: {
+    none: "",
+    between: "justify-between",
+    center: "justify-center",
+    end: "justify-end",
+    start: "justify-start"
+  },
+  items: {
+    none: "",
+    between: "items-between",
+    center: "items-center",
+    end: "items-end",
+    start: "items-start"
+  },
+  gap: {
+    none: "",
+    sm: "gap-6",
+    md: "gap-12",
+    lg: "gap-18"
+  },
+  padding: {
+    true: "lg:p-6",
+    false: "lg:px-6"
+  }
+};
+
+export default {
+  content: cva("w-full", {
+    variants,
+    defaultVariants: {
+      flow: "none",
+      justify: "none",
+      items: "none",
+      gap: "md",
+      width: "auto"
+    }
+  })
+};

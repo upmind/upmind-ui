@@ -22,5 +22,4 @@ export interface FieldsContext {
   autoupdate?: boolean;
   // ---
   error?: ResponseError;
-  controller?: AbortController;
 }

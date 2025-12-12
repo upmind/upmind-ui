@@ -406,7 +406,6 @@ uiCart: ComputedRef<{
   layout?: "default" | "full" | "enclosed";
   storefront_url?: string;
   tagline?: string;
-  terms_url?: string;
   ui: UIMeta;
 }>;
 ```
