@@ -57,6 +57,7 @@ export const useDomain = (
   options: {
     type?: DomainTypes;
     preferredCycle?: number;
+    coupons?: Array<string>;
   } = {
     type: undefined
   }
@@ -76,6 +77,7 @@ export const useDomain = (
       choices: safeType,
       model: safeModel,
       preferredCycle: options?.preferredCycle,
+      coupons: options?.coupons,
       search: {
         query: getParam("search", ""), // Get any initial search query from URL
         limit: PAGINATION.limit,

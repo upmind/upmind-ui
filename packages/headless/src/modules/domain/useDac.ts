@@ -37,6 +37,7 @@ import { PAGINATION } from "../query";
 export const useDac = (
   options: {
     preferredCycle?: number;
+    coupons?: Array<string>;
   } = {}
 ) => {
   const { t } = useI18n();
@@ -47,6 +48,7 @@ export const useDac = (
   const service = interpret(
     dacMachine.withContext({
       preferredCycle: options?.preferredCycle,
+      coupons: options?.coupons,
       search: {
         query: getParam("search", ""), // Get any initial search query from URL
         limit: PAGINATION.limit,
@@ -85,6 +87,7 @@ export const useDac = (
         pagination.value.total,
       hasErrors: stateMatches(state, ["error"]),
       isEmpty: isEmpty(model.value),
+      hasAdded: !isEmpty(added.value),
       hasAvailable: !isEmpty(available.value),
       hasTLD: !!query.value?.includes("."),
       showSearchResults: !isEmpty(available.value) && !!query.value,

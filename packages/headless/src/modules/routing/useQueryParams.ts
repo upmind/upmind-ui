@@ -78,17 +78,26 @@ export const useQueryParams = (route?: RouteLocation) => {
     return value;
   }
 
-  function setParam(type: string, value?: string | null) {
-    const updatedUrl = new URL(window.location.href);
+  function setParam(type: string, value?: string | null, replace = false) {
+    const updateRoute = replace ? router.replace : router.push;
 
     if (value) {
-      updatedUrl.searchParams.set(type, value);
+      updateRoute({
+        query: {
+          ...router.currentRoute.value.query,
+          [type]: value
+        }
+      });
+      return;
     } else {
-      updatedUrl.searchParams.delete(type);
+      updateRoute({
+        query: {
+          ...router.currentRoute.value.query,
+          [type]: undefined
+        }
+      });
+      return;
     }
-
-    // Update the browser URL without adding a new history entry
-    history.replaceState(history.state, "", updatedUrl);
   }
 
   function unsetParam(type: string) {
