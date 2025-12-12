@@ -30,7 +30,7 @@
           :tld="item.tld"
           :price="item.price"
           :cycle="item.configuration.term"
-          :disabled="item.meta.disabled"
+          :disabled="item.meta.disabled || props.disabled"
           :processing="item.meta.processing"
           :available="item.meta.available"
           :added="item.meta.added"
