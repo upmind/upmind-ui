@@ -101,24 +101,9 @@ export const useQueryParams = (route?: RouteLocation) => {
   }
 
   function unsetParam(type: string) {
-    if (router) {
-      router.replace({
-        query: {
-          ...router.currentRoute.value.query,
-          [type]: undefined
-        }
-      });
-      return;
-    }
-
-    // fallback for when router is not available
     const url = new URL(window.location.toString());
     const cleanedUrl = new URL(window.location?.href);
     cleanedUrl.searchParams.delete(type);
-    // console.debug("unsetParam", type, {
-    //   url: url.toString(),
-    //   cleanedUrl: cleanedUrl.toString()
-    // });
 
     if (!isEqual(cleanedUrl.searchParams, url.searchParams)) {
       history.replaceState(history.state, "", cleanedUrl);
