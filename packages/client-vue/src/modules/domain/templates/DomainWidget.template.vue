@@ -9,11 +9,11 @@
     </template>
   </DomainWidget>
 
-  <Teleport to="#domain-aside-footer">
+  <Teleport to="#domain-aside-footer" defer>
     <slot name="hint" />
   </Teleport>
 
-  <Teleport to="#domain-content-footer">
+  <Teleport to="#domain-content-footer" defer>
     <slot name="resolve" />
   </Teleport>
 </template>
