@@ -21,8 +21,7 @@
         secondaryColor: 'accent',
         size: '4xl'
       }"
-    >
-    </Interstitial>
+    />
   </div>
 </template>
 
