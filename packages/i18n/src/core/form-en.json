@@ -85,8 +85,104 @@
   },
   "country": {
     "description": null,
-    "label": "Country",
-    "placeholder": "Select a country"
+    "label": "Tax Number",
+    "placeholder": "Tax Id"
+  },
+  "email": {
+    "description": null,
+    "label": "Email",
+    "placeholder": null,
+    "error": "A valid Email Address is required",
+    "title": "Add New Email | Update Email"
+  },
+  "phone": {
+    "description": null,
+    "label": "Phone",
+    "placeholder": null,
+    "error": "A valid Phone Number is required",
+    "title": "Add New Phone Number | Update Phone Number"
+  },
+  "login": {
+    "description": null,
+    "label": null,
+    "placeholder": null,
+    "error": "We experienced an error while trying to log you in."
+  },
+  "register": {
+    "description": null,
+    "label": null,
+    "placeholder": null,
+    "error": "We experienced an error while trying to create your account."
+  },
+  "recover": {
+    "description": null,
+    "label": null,
+    "placeholder": null,
+    "error": "We experienced an error while trying to send you a password reset email."
+  },
+  "category_search": {
+    "description": null,
+    "label": null,
+    "placeholder": "Category search..."
+  },
+  "domain_search": {
+    "description": null,
+    "label": null,
+    "placeholder": "Search for a domain..."
+  },
+  "product_name_search": {
+    "description": null,
+    "label": null,
+    "placeholder": "Search by product name..."
+  },
+  "select_option": {
+    "description": null,
+    "label": null,
+    "placeholder": "Select an option"
+  },
+  "allow_auto_payment": {
+    "description": "Allow this payment method to be used for making automated offline payments – such as paying a renewal invoice.",
+    "label": "Allow auto payment",
+    "placeholder": null
+  },
+  "promocode": {
+    "description": null,
+    "label": null,
+    "placeholder": "Enter voucher code here",
+    "error": "A valid promo code is required"
+  },
+  "cardholder_name": {
+    "description": null,
+    "label": "Cardholder name",
+    "placeholder": "Enter cardholder name"
+  },
+  "card_num": {
+    "description": null,
+    "label": "Card number",
+    "placeholder": "1234 1234 1234 1234",
+    "error": "A valid card number is required"
+  },
+  "card_expiry": {
+    "description": null,
+    "label": "Expiry date",
+    "placeholder": "MM/YY",
+    "error": "A valid expiry date is required"
+  },
+  "card_cvv": {
+    "description": null,
+    "label": "CVV",
+    "placeholder": "CVC",
+    "error": "A valid CVV is required"
+  },
+  "payment_details_id": {
+    "label": "",
+    "description": null,
+    "placeholder": null
+  },
+  "store_on_payment": {
+    "description": null,
+    "label": "Save payment details",
+    "placeholder": null
   },
   "domain": {
     "description": null,
@@ -209,9 +305,13 @@
     "label": "",
     "placeholder": null
   },
-  "taxNumber": {
+  "payment_method_type": {
     "description": null,
-    "label": "Tax Number",
-    "placeholder": "Tax Id"
+    "label": "Select payment type",
+    "placeholder": null,
+    "error": "A valid payment type is required",
+    "stored-card": "Pay full balance",
+    "partial-payment": "Make a partial payment",
+    "pay-later": "Pay later"
   }
 }

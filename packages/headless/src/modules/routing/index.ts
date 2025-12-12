@@ -1,5 +1,4 @@
 export * from "./useRoutingEngine";
-export * from "./useRouteQueryParams";
+export * from "./useQueryParams";
 export * from "./useProductsRequiringAction";
-export * from "./useRoutingFlows";
 export * from "./types";

@@ -23,6 +23,7 @@ async function check(_context: SessionContext) {
   } else {
     // generate/persist the new guest token immediately
     return post<IToken>({
+      mutationKey: ["session"],
       url: useUrl("access_token", {}, { context: "oauth" }),
       data: { grant_type: GrantTypes.GUEST }
     }).then(data => persistTokenToStorage(data));
@@ -33,6 +34,7 @@ async function transferTo(_context: SessionContext) {
   const { post, useUrl } = useQuery();
 
   return post({
+    mutationKey: ["session", "transfer_to"],
     url: useUrl("auth_code"),
     withAccessToken: true
   });
@@ -53,6 +55,7 @@ async function transferFrom({ transfer }: SessionContext) {
     );
 
   return post<IToken>({
+    mutationKey: ["session", "transfer_from"],
     url: useUrl("access_token", {}, { context: "oauth" }),
     data: {
       grant_type: GrantTypes.AUTH_CODE,

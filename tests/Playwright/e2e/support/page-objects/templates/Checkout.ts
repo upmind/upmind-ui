@@ -1,11 +1,4 @@
-import {
-  Page,
-  expect,
-  Locator,
-  BrowserContext,
-  Route,
-  Request
-} from "@playwright/test";
+import { Page, expect, Locator, BrowserContext } from "@playwright/test";
 import { URLs } from "../../constants/urls";
 import {
   createOrder,
@@ -19,6 +12,7 @@ import { kebabCase } from "../../utils/functions/helpers";
 export class Checkout {
   readonly page: Page;
   readonly context: BrowserContext;
+  readonly checkoutContent: Locator;
   readonly addressSearch: Locator;
   readonly addressFormMessage: Locator;
   readonly addressRegionMessage: Locator;
@@ -32,13 +26,15 @@ export class Checkout {
   readonly postCode: Locator;
   readonly phoneInput: Locator;
   readonly phoneRegion: Locator;
+  readonly paymentDetails: Locator;
   readonly saveDetails: Locator;
+  readonly addVoucherForm: Locator;
   readonly addVoucherButton: Locator;
   readonly addVoucherInput: Locator;
   readonly applyVoucherButton: Locator;
   readonly dialogWindow: Locator;
-  readonly placeOrderButton: Locator;
-  readonly payLaterButton: Locator;
+  readonly placeOrderAndPay: Locator;
+  readonly placeOrder: Locator;
   readonly payAmount: Locator;
   readonly changeAmountButton: Locator;
   readonly changeAmountForm: Locator;
@@ -50,6 +46,7 @@ export class Checkout {
   constructor(page: Page) {
     this.page = page;
     this.context = page.context();
+    this.checkoutContent = page.getByTestId("checkout-content");
     this.billingDetails = page.getByTestId("billing");
     this.addressSearch = this.billingDetails.getByTestId(
       "input-address-search-search"
@@ -63,19 +60,27 @@ export class Checkout {
     );
     this.phone = this.billingDetails.getByTestId("form-item-phone-phone");
     this.addressManualEntry = page.getByTestId("link-enter-address-manually");
-    this.addressLine1 = this.billingDetails.getByTestId("input-address-line1");
-    this.addressLine2 = this.billingDetails.getByTestId("input-address-line2");
-    this.city = this.billingDetails.getByTestId("input-address-level2");
-    this.postCode = this.billingDetails.getByTestId("input-postal-code");
+    this.addressLine1 = this.billingDetails.getByTestId(
+      "input-properties-address-1"
+    );
+    this.addressLine2 = this.billingDetails.getByTestId(
+      "input-properties-address-2"
+    );
+    this.city = this.billingDetails.getByTestId("input-properties-city");
+    this.postCode = this.billingDetails.getByTestId(
+      "input-properties-region-id"
+    );
     this.phoneRegion = this.phone.getByTestId("popover-trigger");
     this.phoneInput = this.phone.getByTestId("text-input");
+    this.paymentDetails = page.getByTestId("payment-details");
     this.saveDetails = page.getByTestId("button-save-details");
+    this.addVoucherForm = page.getByTestId("form-item-promocode");
     this.addVoucherButton = page.getByTestId("link-add-a-voucher-code");
-    this.addVoucherInput = page.getByTestId("input-properties-promocode");
+    this.addVoucherInput = this.addVoucherForm.locator("input");
     this.applyVoucherButton = page.getByTestId("button-apply");
     this.dialogWindow = page.getByTestId("dialog-window");
-    this.placeOrderButton = page.getByTestId("button-place-order-and-pay");
-    this.payLaterButton = page.getByTestId("button-place-order");
+    this.placeOrderAndPay = page.getByTestId("button-place-order-and-pay");
+    this.placeOrder = page.getByTestId("button-place-order");
     this.payAmount = page.getByTestId("tabslist").getByText("Pay");
     this.changeAmountButton = page.getByTestId("change-amount");
     this.changeAmountForm = page.getByTestId("form-item-amount");
@@ -114,10 +119,15 @@ export class Checkout {
     await this.page.getByTestId(`radio-card-${kebabCase(gatewayName)}`).click();
   }
 
-  async clickPlaceOrderButton() {
-    const placeOrderButton = this.page.getByTestId(
-      "button-place-order-and-pay"
-    );
+  async clickPlaceOrderAndPay() {
+    const placeOrderButton = this.placeOrderAndPay;
+    //await placeOrderButton.waitFor({ state: 'attached' });
+    await expect(placeOrderButton).toBeEnabled();
+    await placeOrderButton.click();
+  }
+
+  async clickPlaceOrder() {
+    const placeOrderButton = this.placeOrder;
     //await placeOrderButton.waitFor({ state: 'attached' });
     await expect(placeOrderButton).toBeEnabled();
     await placeOrderButton.click();
@@ -167,7 +177,7 @@ export class Checkout {
   async goToCheckout(promotion: string | null, currency: string | null) {
     await this.page.goto(URLs.basket);
     await this.page.waitForLoadState("networkidle");
-    let token = await getSessionToken(this.context, "guest");
+    let token = await getSessionToken(this.context);
     let orderId = await createOrder(token);
     await addProductToOrder(
       `${token}`,

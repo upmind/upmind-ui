@@ -44,7 +44,7 @@
       {{ t("text.tax_number", { title, taxNumber: tax.number }) }}
 
       <template v-if="meta.hasTaxValidation && meta.hasTax">
-        <Tooltip :label="validationReason" color="neutral">
+        <Tooltip :label="validationReason">
           <Icon v-if="meta.hasValidTax" icon="check-circle" size="2xs" />
           <Icon v-else icon="alert-triangle" size="2xs" />
         </Tooltip>

@@ -1,6 +1,8 @@
 <template>
   <div :class="styles.categories.header.root" v-auto-animate>
     <template v-if="!meta.isLoading">
+      <slot name="prepend" />
+
       <h1
         v-if="title"
         :class="styles.categories.header.title"
@@ -11,6 +13,8 @@
       <p v-if="description" :class="styles.categories.header.description">
         {{ description }}
       </p>
+
+      <slot name="append" />
     </template>
     <template v-else>
       <div :class="styles.categories.header.title" />

@@ -1,0 +1,83 @@
+<template>
+  <Ribbon
+    v-if="
+      !isEmptySlot('content-footer', slots) ||
+      !isEmptySlot('aside-footer', slots)
+    "
+    :ref="(el: any) => (rootEl = el?.$el ?? null)"
+    :sticky="RIBBON_STICKY.BOTTOM"
+    :background="RIBBON_BACKGROUND.SURFACE"
+    :border="RIBBON_BORDER.TOP"
+    class="z-20"
+  >
+    <Container
+      :flow="CONTAINER_FLOW.HORIZONTAL"
+      :items="CONTAINER_ITEMS.CENTER"
+    >
+      <template v-if="!reverse">
+        <Column class="hidden py-7 lg:block lg:py-7" :width="COLUMN_WIDTH.FULL">
+          <Content class="w-full py-0 lg:py-0">
+            <slot name="content-footer" />
+          </Content>
+        </Column>
+        <Column class="py-7 lg:py-7">
+          <Content as="aside" class="py-0 lg:py-0" :width="CONTENT_WIDTH.ASIDE">
+            <slot name="aside-footer" />
+          </Content>
+        </Column>
+      </template>
+
+      <template v-else>
+        <Column class="hidden py-7 lg:block lg:py-7">
+          <Content as="aside" class="py-0 lg:py-0" :width="CONTENT_WIDTH.ASIDE">
+            <slot name="aside-footer" />
+          </Content>
+        </Column>
+        <Column class="py-7 lg:py-7" :width="COLUMN_WIDTH.FULL">
+          <Content class="w-full py-0 lg:py-0">
+            <slot name="content-footer" />
+          </Content>
+        </Column>
+      </template>
+    </Container>
+  </Ribbon>
+</template>
+
+<script lang="ts" setup>
+// --- external
+import { ref, useSlots } from "vue";
+
+// --- utils
+import { isEmptySlot } from "@upmind-automation/upmind-ui";
+
+// --- components
+import Ribbon from "../components/ribbon/Ribbon.vue";
+import Container from "../components/container/Container.vue";
+import Column from "../components/column/Column.vue";
+import Content from "../components/content/Content.vue";
+
+// --- types
+import {
+  RIBBON_BACKGROUND,
+  RIBBON_STICKY,
+  RIBBON_BORDER
+} from "../components/ribbon";
+import { CONTAINER_FLOW, CONTAINER_ITEMS } from "../components/container";
+import { COLUMN_WIDTH } from "../components/column";
+import { CONTENT_WIDTH } from "../components/content";
+
+defineProps<{
+  reverse?: boolean;
+}>();
+
+const slots = useSlots();
+
+const rootEl = ref<HTMLElement | null>(null);
+
+// Expose as a getter so parent can access the sticky ribbon reactively
+defineExpose({
+  get el() {
+    return rootEl.value;
+  }
+});
+</script>

@@ -22,11 +22,9 @@
               </template>
               <template #review>
                 <Link
+                  size="inherit"
+                  v-bind="getBasketProductsRoute(basketItem.id)"
                   :label="t('action.review')"
-                  :to="{
-                    name: safeProductsRoute,
-                    params: { bpid: basketItem.id }
-                  }"
                 />
               </template>
             </i18n-t>
@@ -38,11 +36,9 @@
           <i18n-t keypath="cart.basket_fields_review_msg" tag="span">
             <template #review>
               <Link
+                size="inherit"
+                v-bind="safeBasketFieldsRoute"
                 :label="t('action.review')"
-                :to="{
-                  name: safeBasketFieldsRoute,
-                  hash: '#basket-fields'
-                }"
               />
             </template>
           </i18n-t>
@@ -53,11 +49,9 @@
           <i18n-t keypath="cart.basket_billing_review_msg" tag="span">
             <template #review>
               <Link
+                size="inherit"
+                v-bind="safeBasketBillingRoute"
                 :label="t('action.review')"
-                :to="{
-                  name: safeBasketBillingRoute,
-                  hash: '#basket-billing'
-                }"
               />
             </template>
           </i18n-t>
@@ -82,21 +76,17 @@ import { Alert, Link } from "@upmind-automation/upmind-ui";
 import {
   useBasket,
   useBasketBilling,
-  useBasketFields,
-  ROUTE
+  useBasketFields
 } from "@upmind-automation/headless";
 
 // --- utils
-import { sum } from "lodash-es";
+import { has, sum } from "lodash-es";
+import { isString } from "xstate/lib/utils";
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 // --- types
 
 // -----------------------------------------------------------------------------
-enum visibilityType {
-  HIDDEN = 0,
-  CHECKOUT = "checkout",
-  BASKET = "basket"
-}
 
 const props = withDefaults(
   defineProps<{
@@ -104,9 +94,9 @@ const props = withDefaults(
     basketFields?: boolean;
     basketProducts?: boolean;
     // ---
-    basketBillingRoute?: ROUTE.CHECKOUT; // ROUTE.BASKET
-    basketFieldsRoute?: ROUTE.CHECKOUT | ROUTE.BASKET;
-    basketProductsRoute?: ROUTE.PRODUCT_EDIT;
+    basketBillingRoute?: RouteLocationAsRelativeGeneric;
+    basketFieldsRoute?: RouteLocationAsRelativeGeneric;
+    basketProductsRoute?: RouteLocationAsRelativeGeneric;
   }>(),
   {
     basketBilling: false,
@@ -142,7 +132,7 @@ const meta = computed(() => {
     isLoading:
       basketMeta.value.isLoading ||
       fieldsMeta.value.isLoading ||
-      billingMeta.value.isLoading,
+      (props.basketBilling && billingMeta.value.isLoading),
     hasBasketFields,
     hasBasketBilling,
     hasBasketProducts,
@@ -151,12 +141,64 @@ const meta = computed(() => {
 });
 
 const safeBasketBillingRoute = computed(() => {
-  return props.basketBillingRoute || ROUTE.CHECKOUT;
+  if (
+    has(props.basketBillingRoute, "href") &&
+    isString(props.basketBillingRoute.href)
+  )
+    return props.basketBillingRoute;
+
+  if (has(props.basketBillingRoute, "to"))
+    return {
+      to: {
+        ...props.basketBillingRoute,
+        hash: "#basket-billing"
+      }
+    };
+
+  return { href: "" };
 });
+
 const safeBasketFieldsRoute = computed(() => {
-  return props.basketFieldsRoute || ROUTE.BASKET;
+  if (
+    has(props.basketFieldsRoute, "href") &&
+    isString(props.basketFieldsRoute.href)
+  )
+    return props.basketFieldsRoute;
+
+  if (has(props.basketFieldsRoute, "to"))
+    return {
+      to: {
+        ...props.basketFieldsRoute,
+        hash: "#basket-fields"
+      }
+    };
+
+  return { href: "" };
 });
-const safeProductsRoute = computed(() => {
-  return props.basketProductsRoute || ROUTE.PRODUCT_EDIT;
-});
+
+function getBasketProductsRoute(bpid: string) {
+  if (
+    has(props.basketProductsRoute, "href") &&
+    isString(props.basketProductsRoute.href)
+  )
+    return props.basketProductsRoute;
+
+  if (has(props.basketProductsRoute, "to"))
+    return {
+      to: {
+        ...props.basketProductsRoute,
+        params: { bpid }
+      }
+    };
+
+  if (has(props.basketProductsRoute, "name"))
+    return {
+      to: {
+        ...props.basketProductsRoute,
+        params: { bpid }
+      }
+    };
+
+  return { href: "" };
+}
 </script>

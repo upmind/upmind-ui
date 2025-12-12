@@ -59,6 +59,8 @@
   "currency_validation_failed": "Проверка валюты не прошла",
   "domain_add_failed": "Не удалось добавить домен в корзину",
   "feedback_action_not_available": "Действие со значением '{data}' нет в наличии.",
+  "funnel_not_available": "Воронка недоступна",
+  "funnels_not_available": "Воронки недоступны",
   "generic_error": "ошибка",
   "generic_text": "Давайте вернем вас на правильный путь",
   "generic_title": "Извините, произошла **ошибка**",

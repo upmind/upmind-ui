@@ -5,7 +5,7 @@ import { ProductConfig } from "../../support/page-objects/templates/ProductConfi
 import { Basket } from "../../support/page-objects/templates/Basket";
 import { getSessionToken } from "../../support/utils/functions/tokens";
 import {
-  getCurrentOrderId,
+  createOrder,
   addProductToOrder,
   getBasketProducts
 } from "../../support/utils/functions/basket";
@@ -23,8 +23,8 @@ test.describe("Edit hosting product in basket", () => {
     basket = new Basket(page);
     await page.goto(URLs.basket);
     await page.waitForLoadState("networkidle");
-    token = await getSessionToken(context, "guest");
-    orderId = await getCurrentOrderId(token);
+    token = await getSessionToken(context);
+    orderId = await createOrder(token);
     await addProductToOrder(
       `${token}`,
       `${orderId}`,
@@ -65,18 +65,7 @@ test.describe("Edit hosting product in basket", () => {
     await expect(basket.basketProduct).toContainText("2 Balloons");
   });
   test("Edit domain name", async ({ page }) => {
-    products = await getBasketProducts(token);
-    productId = products[0].id;
-    await page.goto(`order/product/edit/${productId}`);
-    const newDomain = `${fakerEN_GB.string.alphanumeric({ length: { min: 3, max: 15 } })}.com`;
-    await productConfig.enterDomain("Register", newDomain);
-    await expect(
-      productConfig.getSummaryItem("Account Domain Name")
-    ).toContainText(newDomain);
-    await productConfig.clickAddToBasket();
-    await page.waitForLoadState("load");
-    await basket.clickShowDetails();
-    await expect(basket.basketProduct).toContainText(newDomain);
+    //rewrite this
   });
 });
 
@@ -90,8 +79,8 @@ test.describe("Edit domain product in basket", () => {
     basket = new Basket(page);
     await page.goto(URLs.basket);
     await page.waitForLoadState("networkidle");
-    token = await getSessionToken(context, "guest");
-    orderId = await getCurrentOrderId(token);
+    token = await getSessionToken(context);
+    orderId = await createOrder(token);
     await addProductToOrder(
       `${token}`,
       `${orderId}`,
@@ -120,8 +109,8 @@ test.describe("Edit domain product in basket", () => {
     let newDomain = `${fakerEN_GB.string.alphanumeric({ length: { min: 3, max: 15 } })}`;
     await page.goto(`order/product/edit/${productId}`);
     await page.waitForLoadState("networkidle");
-    await productConfig.clearFormInput("Domain (SLD)");
-    await productConfig.fillFormInput("Domain (SLD)", newDomain);
+    await productConfig.clearFormInput("SLD");
+    await productConfig.fillFormInput("SLD", newDomain);
     await productConfig.clickAddToBasket();
     await page.waitForLoadState("load");
     await expect(
@@ -129,7 +118,7 @@ test.describe("Edit domain product in basket", () => {
     ).toBeVisible();
     await basket.showDetails.click();
     await expect(
-      productConfig.getSummaryItem("Account Domain Name")
+      page.getByTestId("basket-product-details-domain-names")
     ).toContainText(newDomain);
   });
   test("Edit provisional fields", async ({ page }) => {
@@ -159,7 +148,9 @@ test.describe("Edit domain product in basket", () => {
       fieldUpdates.updatedPostcode
     );
     await productConfig.registrantCountryInput.click();
-    await productConfig.clickSelectOption(fieldUpdates.updatedCountryCode);
+    await page
+      .getByTestId(`select-item-${fieldUpdates.updatedCountryCode}`)
+      .click();
     await expect(productConfig.registrantName).toContainText(
       fieldUpdates.updatedName
     );

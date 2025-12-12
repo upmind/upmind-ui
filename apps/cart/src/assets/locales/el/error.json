@@ -59,6 +59,8 @@
   "currency_validation_failed": "Η επικύρωση νομίσματος απέτυχε.",
   "domain_add_failed": "Αποτυχία προσθήκης του τομέα στο καλάθι",
   "feedback_action_not_available": "Δράση με αξία '{data}' δεν είναι διαθέσιμο.",
+  "funnel_not_available": "Η διοχέτευση δεν είναι διαθέσιμη",
+  "funnels_not_available": "Οι διοχετεύσεις δεν είναι διαθέσιμες",
   "generic_error": "σφάλμα",
   "generic_text": "Ας σε επαναφέρουμε στο σωστό δρόμο",
   "generic_title": "Λυπούμαστε, παρουσιάστηκε **σφάλμα**",

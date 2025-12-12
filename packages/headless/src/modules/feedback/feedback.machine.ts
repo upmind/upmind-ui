@@ -5,7 +5,7 @@ import { createMachine, assign, spawn, InterpreterStatus } from "xstate";
 import messageMachine from "./message.machine";
 
 // --- utils
-import { stopService } from "../../utils";
+import { stateMatches, stopService } from "../../utils";
 import { generateHash, useMessageParser } from "./utils";
 import { find, isEmpty, remove, set, some } from "lodash-es";
 
@@ -112,7 +112,7 @@ export default createMachine(
 
           // if it exists, stop the referenced machine
           // and remove it from our list of messages
-          if (message?.send && !message?.getSnapshot()?.done) {
+          if (message?.send && !stateMatches(message, ["complete", "done"])) {
             message.send({ type: "ACTION", data: action });
           } else {
             remove(messages, ["id", id]);

@@ -20,10 +20,11 @@ const props = defineProps<{
   class?: HTMLAttributes["class"];
 }>();
 
-const { mode } = useLayout();
+const { mode, overflow } = useLayout();
 
 const meta = computed(() => ({
-  mode: mode.value
+  mode: mode.value,
+  overflow: overflow.value
 }));
 
 const styles = useStyles(["main"], meta, config) as ComputedRef<{

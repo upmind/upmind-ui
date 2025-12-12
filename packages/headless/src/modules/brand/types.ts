@@ -1,8 +1,6 @@
 // --- internal
 
 import type { UIMeta } from "../product/types";
-import type { BreadcrumbVariant } from "../product/types";
-import { ROUTE } from "../routing";
 
 // -----------------------------------------------------------------------------
 
@@ -99,32 +97,7 @@ export type UI = {
 
   // NB: Only Brand Meta UI has route context as its global
   //     We will enable routes with layout overrides as they become supported in the app
-  [UI_CONTEXT.ROUTE]: {
-    // [ROUTE.SESSION]?: UIRouteOptions;
-    [ROUTE.SESSION_LOGIN]?: UIRouteOptions;
-    [ROUTE.SESSION_REGISTER]?: UIRouteOptions;
-
-    // NOT SUPPORTED YET:
-    // [ROUTE.LOADING]?: UIRouteOptions;
-    // [ROUTE.ERROR]?: UIRouteOptions;
-    // [ROUTE.UNAVAILABLE]?: UIRouteOptions;
-    // ---
-    // [ROUTE.CATALOGUE]?: UIRouteOptions;
-    // [ROUTE.PRODUCT_ADD]?: UIRouteOptions;
-    // [ROUTE.PRODUCT_EDIT]?: UIRouteOptions;
-    // [ROUTE.PRODUCT_RECOMMENDATIONS]?: UIRouteOptions;
-    // [ROUTE.PRODUCT_REQUIRES_ACTION]?: UIRouteOptions;
-    // [ROUTE.PRODUCT_NOT_FOUND]?: UIRouteOptions;
-    // [ROUTE.RECOMMENDATIONS]?: UIRouteOptions;
-    // ---
-    // [ROUTE.EMPTY]?: UIRouteOptions;
-    // [ROUTE.BASKET]?: UIRouteOptions;
-    // [ROUTE.CHECKOUT]?: UIRouteOptions;
-    // [ROUTE.ORDER]?: UIRouteOptions;
-    // ---
-
-    // [ROUTE.SESSION_RECOVER_PASSWORD]?: UIRouteOptions;
-  };
+  [UI_CONTEXT.ROUTE]: Record<string, UIRouteOptions>;
 };
 
 /**
@@ -139,7 +112,6 @@ export type BrandMeta = {
   cart: {
     storefront_url?: string; // URL of the storefront
     layout?: "default" | "enclosed" | "full";
-    terms_url?: string;
     clickwrap_disclaimer?: string;
     tagline?: string;
     description?: string;
@@ -149,6 +121,26 @@ export type BrandMeta = {
     };
     ui: UIMeta;
   };
+
+  /**
+   * i18n message overrides for the brand
+   * This allows brand sto override sprcific keys for i18n at a brand level for some/all locales
+   * @type {Record<string, string | Record<string, string>>}
+   * eg:
+   * Where we have a key that has locale specific messages
+   * "i18n": {
+        "text.empty": {
+          "en": "Your **cart** is empty",
+          "fr": "Votre **panier** est vide"
+        },
+      }
+   * eg:
+   * Where we have a key that overrides ALL locales
+   * "i18n": {
+       "text.empty": "Your <mark>cart</mark> is empty",
+      }
+  */
+  i18n?: Record<string, string | Record<string, string>>;
   // ---
   uischema: UI;
   icon_variant?: string; // the preferred icon variant to be used

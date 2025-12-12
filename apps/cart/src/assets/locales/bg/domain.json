@@ -18,14 +18,23 @@
       "tooltip": "Вече притежавате домейн? Можете да го прехвърлите към нас"
     }
   },
+  "domain_description": "Защитете онлайн идентичността си още днес – отнема само минута.",
+  "domain_not_required_label": "Продължете без домейн",
+  "domain_title": "Грабнете си перфектното име на домейн.",
   "finding_perfect_domain": "Намиране на вашия **перфектен** домейн",
   "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
   "own_domain_qn": "Вие притежавате ли този домейн?",
   "owned_domains_title": "Домейни, които притежавате в момента",
   "price_renewal_desc": "Еднократна цена от {regularPrice}. | Подновява се всяка година за {regularPrice}. | Подновява се на всеки {count} години за {regularPrice}.",
+  "search": "Търсене на домейни",
   "starts_with_domain": "Всичко започва с **име на домейн**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
   "tld_renewal_price_desc": "Нашият {tld} цените за подновяване започват от само {currentPrice} (беше {regularPrice}).",
   "tld_renewal_price_from_desc": "Нашият {tld} цените за подновяване започват от само {regularPrice}.",
-  "transfer_domain_by_msg": "Прехвърлете ни го чрез"
+  "transfer": "Трансфер само за {currentPrice}.",
+  "transfer_domain": "Прехвърляне на домейн",
+  "transfer_extension_info": "Трансферите включват удължаване с една година.",
+  "transfer_owner_question": "Вие ли сте собственикът на този домейн?",
+  "transfer_price_info": "Можете да ни го прехвърлите само за {currentPrice}",
+  "transfer_promotion": "Трансфер само за {currentPrice}, обикновено {regularPrice}."
 }

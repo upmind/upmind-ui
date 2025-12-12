@@ -8,7 +8,7 @@ let testCases = ukDomain;
 test.beforeEach(async ({ page }) => {
   productConfig = new ProductConfig(page);
   await page.goto(URLs.ukDomain);
-  await productConfig.optionsContainer.waitFor();
+  await page.waitForLoadState("networkidle");
 });
 
 test.describe("Product Config - Domains (.uk)", async () => {
@@ -33,9 +33,9 @@ test.describe("Product Config - Domains (.uk)", async () => {
     test(name, async ({ page }) => {
       /* PRODUCT OPTIONS */
       /* Make product selections */
-      await productConfig.clickBillingTerm(billingTerm);
+      await productConfig.selectRadioOption(billingTerm);
       if (transfer === true) {
-        await productConfig.radioButtons.getRadioButton(1, 0).click();
+        await productConfig.radioButtons.getRadioButton("Transfer").click();
       }
       await productConfig.enterSld(sldValue);
       await productConfig.enterRegistrantDetails(

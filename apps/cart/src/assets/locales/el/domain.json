@@ -18,14 +18,23 @@
       "tooltip": "Έχετε ήδη ένα domain; Μπορείτε να το μεταφέρετε σε εμάς"
     }
   },
+  "domain_description": "Ασφαλίστε την ηλεκτρονική σας ταυτότητα σήμερα – χρειάζεται μόνο ένα λεπτό.",
+  "domain_not_required_label": "Συνέχεια χωρίς τομέα",
+  "domain_title": "Αποκτήστε το τέλειο όνομα τομέα για εσάς.",
   "finding_perfect_domain": "Εύρεση του **τέλειου** τομέα σας",
   "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
   "own_domain_qn": "Είστε κάτοχος αυτού του τομέα;",
   "owned_domains_title": "Domains που σας ανήκουν αυτήν τη στιγμή",
   "price_renewal_desc": "Εφάπαξ τιμή {regularPrice}. | Ανανεώνεται κάθε χρόνο για {regularPrice}. | Ανανεώνεται κάθε {count} χρόνια για {regularPrice}.",
+  "search": "Αναζήτηση τομέων",
   "starts_with_domain": "Όλα ξεκινούν με ένα **όνομα τομέα**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
   "tld_renewal_price_desc": "Μας {tld} οι τιμές ανανέωσης ξεκινούν από μόνο {currentPrice} (ήταν {regularPrice}).",
   "tld_renewal_price_from_desc": "Μας {tld} οι τιμές ανανέωσης ξεκινούν από μόνο {regularPrice}.",
-  "transfer_domain_by_msg": "Μεταφέρετέ το σε εμάς μέσω"
+  "transfer": "Μεταφορά μόνο για {currentPrice}.",
+  "transfer_domain": "Μεταφορά domain",
+  "transfer_extension_info": "Οι μεταγραφές περιλαμβάνουν παράταση ενός έτους.",
+  "transfer_owner_question": "Είστε ο ιδιοκτήτης αυτού του domain;",
+  "transfer_price_info": "Μπορείτε να το μεταφέρετε σε εμάς με μόνο {currentPrice}",
+  "transfer_promotion": "Μεταφορά μόνο για {currentPrice}, συνήθως {regularPrice}."
 }

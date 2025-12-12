@@ -19,6 +19,7 @@ import {
 import {
   compact,
   concat,
+  filter,
   find,
   first,
   flatMap,
@@ -609,6 +610,7 @@ export const parseProductDetails = (
       fallback: useProductName(rawProduct, rawBasketProduct)
     }),
     brand: useTranslateName(rawProduct?.brand),
+    blueprintCode: rawProduct?.provision_blueprint?.code,
     categoryId: rawProduct?.category_id,
     category: useTranslateName(rawProduct?.category),
     categories: reverse(
@@ -641,6 +643,12 @@ export const parseProductDetails = (
     imgUrl: useImageUrl(rawProduct?.image?.full_url, "400x400"),
     images: parseProductImages(rawProduct?.images),
     // ---
+    configurable:
+      rawProduct.prices?.length > 1 ||
+      !isEmpty(rawProduct.products_attributes) ||
+      !isEmpty(rawProduct.products_options) ||
+      !isEmpty(rawProduct.provision_fields),
+
     quantity: rawProduct?.min_order_quantity || rawProduct?.unit_quantity || 1,
     quantifiable: rawProduct?.order_type == 2,
     step: rawProduct?.unit_quantity || 1,
@@ -1238,6 +1246,8 @@ const parseSummaryProvisionFields = (
 };
 
 export const parseModel = (data: ProductModel): ProductModel => {
+  // if we have subproducts, we need to handle those first and assign them to options/attributes
+
   // handle  product model
   return {
     quantity: data?.quantity || 1,
@@ -1249,6 +1259,47 @@ export const parseModel = (data: ProductModel): ProductModel => {
   };
 };
 
+export const parseProductProps = (
+  data: ProductProps,
+  raw: IProduct,
+  preferredCycle?: number // If we have chosen a term then we need to try use that term
+): ProductModel => {
+  const { defaultPaymentPeriod } = useBrand();
+
+  const paymentPeriod = preferredCycle ?? defaultPaymentPeriod.value;
+
+  const productDetails = parseProductDetails(raw);
+  const terms = parseTermDetails(raw);
+  const termDetails = calculateBillingTerm(
+    paymentPeriod || raw.default_payment_period,
+    terms
+  );
+
+  // We need to find the  subbproducts id from the product option OR attributes, and then map it to that CategoryID
+  const matchedOptions = filter(raw.products_options ?? raw.options, option =>
+    data?.subproducts?.includes(option.id)
+  ) as IProductOption[];
+  const options: SubproductModel =
+    parseSubproductDetailsChoices(matchedOptions);
+
+  const matchedAttributes = filter(raw.products_attributes, attribute =>
+    data?.subproducts?.includes(attribute.id)
+  ) as IProductAttribute[];
+
+  const attributes: SubproductModel =
+    parseSubproductDetailsChoices(matchedAttributes);
+
+  return {
+    // id: raw.id,
+    quantity: parseQuantity(data.quantity, productDetails),
+    productId: data.productId,
+    term: termDetails.cycle,
+    options: merge({}, options, data?.options),
+    attributes: merge({}, attributes, data?.attributes),
+    provisionFields: data.provisionFields || {}
+  };
+};
+
 export const parseBasketProductModel = (raw: IBasketProduct): ProductModel => {
   // map basket product raw
   return {
@@ -1256,20 +1307,43 @@ export const parseBasketProductModel = (raw: IBasketProduct): ProductModel => {
     quantity: raw.quantity,
     productId: raw.product_id,
     term: raw.billing_cycle_months,
-    options: parseSubproductDetailsChoices(raw.options),
-    attributes: parseSubproductDetailsChoices(raw.attributes),
+    options: parseBasketSubproductDetailsChoices(raw.options),
+    attributes: parseBasketSubproductDetailsChoices(raw.attributes),
     provisionFields: raw.provision_fields
   };
 };
 
-const parseSubproductDetailsChoices = (values: IBasketProduct[]) => {
+const parseSubproductDetailsChoices = (
+  values: IProductAttribute[] | IProductOption[]
+): SubproductModel => {
+  return reduce(
+    values,
+    (result: SubproductModel, value) => {
+      // -- defensive
+      if (!value?.category_id || !value.id) {
+        return result;
+      }
+
+      set(result, [value.category_id, value.id], {
+        productId: value.id,
+        quantity: parseQuantity(
+          value.unit_quantity,
+          parseProductDetails(value)
+        ),
+        cycle: value.billing_cycle_months
+      });
+      return result;
+    },
+    {}
+  );
+};
+
+const parseBasketSubproductDetailsChoices = (values: IBasketProduct[]) => {
   return reduce(
     values,
     (result, value) => {
       // -- defensive
-      if (!value?.product?.category_id || !value.product_id) {
-        return result;
-      }
+      if (!value?.product?.category_id || !value.product_id) return result;
 
       set(result, [value.product.category_id, value.product_id], {
         productId: value.product_id,

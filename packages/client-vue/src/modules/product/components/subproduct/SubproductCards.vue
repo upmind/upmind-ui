@@ -32,6 +32,14 @@
         <CardSubproduct
           v-bind="getSubproductValue(id)"
           @update:quantity="doUpdateQuantity(id, $event)"
+          :minimal="mapComponentName !== 'SelectCards'"
+        />
+      </template>
+      <template #dropdown-item="{ item: { id } }">
+        <CardSubproduct
+          v-bind="getSubproductValue(id)"
+          @update:quantity="doUpdateQuantity(id, $event)"
+          :minimal="mapComponentName !== 'SelectCards'"
         />
       </template>
     </component>

@@ -1,5 +1,5 @@
 <template>
-  <component :is="template" v-show="meta.isVisible">
+  <component :is="layout" v-show="meta.isVisible">
     <template #footer-actions v-if="meta.hasActions">
       <UpmLocale
         data-testid="locale-selector"
@@ -19,8 +19,6 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
-
 // --- internal
 import { useFooter } from "./useFooter";
 import { useLocale } from "@upmind-automation/headless";
@@ -32,6 +30,6 @@ import UpmCurrency from "../../modules/basket/components/CurrencySwitcher.vue";
 import UpmLocale from "../../components/LocaleSwitcher.vue";
 
 // -----------------------------------------------------------------------------
-const { meta, template } = useFooter();
+const { meta, layout } = useFooter();
 const { meta: localeMeta } = useLocale();
 </script>

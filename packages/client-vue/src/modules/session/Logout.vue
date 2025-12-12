@@ -6,7 +6,7 @@
       :text="t('text.continue_shopping_desc')"
       :actions="[
         {
-          ...storefrontRoute,
+          to: props.storefrontRoute,
           variant: 'solid',
           color: 'primary',
           iconAppend: 'arrow-right',
@@ -20,43 +20,45 @@
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
-import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
-import {
-  useRoutingEngine,
-  useSession,
-  ROUTE,
-  useBrand
-} from "@upmind-automation/headless";
+import { useSession } from "@upmind-automation/headless";
 
 // -- components
 import { Interstitial } from "@upmind-automation/upmind-ui";
 
 // -- types
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
+import { onMounted } from "vue";
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
 // -----------------------------------------------------------------------------
 
+const props = withDefaults(
+  defineProps<
+    InterstitialProps & {
+      storefrontRoute: RouteLocationAsRelativeGeneric;
+    }
+  >(),
+  {
+    modal: true,
+    open: true,
+
+    animatedIcon: () => ({
+      icon: "keys",
+      trigger: "loop",
+      primaryColor: "base-foreground",
+      secondaryColor: "tertiary",
+      size: "4xl"
+    })
+  }
+);
+// -----------------------------------------------------------------------------
 const { t } = useI18n();
-const { isResolved } = useRoutingEngine();
-const { logout } = useSession();
-const { storefrontRoute } = useBrand();
+const { logout, meta } = useSession();
 
-// if we are not logged out, we should log out
-await isResolved(ROUTE.SESSION_END).catch(() => {
-  logout();
-});
-
-const props = withDefaults(defineProps<InterstitialProps>(), {
-  modal: true,
-  open: true,
-
-  animatedIcon: () => ({
-    icon: "keys",
-    trigger: "loop",
-    primaryColor: "base-foreground",
-    secondaryColor: "tertiary",
-    size: "4xl"
-  })
+// --- side effects
+onMounted(() => {
+  // FORCE: logout if still authenticated
+  if (meta.value.isAuthenticated) logout();
 });
 </script>

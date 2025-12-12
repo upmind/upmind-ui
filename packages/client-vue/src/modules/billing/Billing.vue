@@ -62,16 +62,12 @@ const { isReady, meta, config, update, model } = useBasketBilling();
 
 const activeTab = ref<UnifiedType>();
 
-const { default: defaultCompany, isReady: isCompaniesReady } =
-  useClientCompanies();
-
-const { isReady: isAddressesReady } = useClientAddresses();
-
 await Promise.allSettled([
   isReady(),
-  isCompaniesReady(),
-  isAddressesReady()
+  useClientAddresses().isReady(),
+  useClientCompanies().isReady()
 ]).then(() => {
+  const { default: defaultCompany } = useClientCompanies();
   // set initial value from the basket billing model
   modelValue.value ??= model.value;
   if (
@@ -92,7 +88,7 @@ const tabs = computed((): TabItem[] => {
 
   if (!config.value?.requiresCompany) {
     tabItems.push({
-      icon: "client-01",
+      icon: "user-01",
       label: t("text.personal_details"),
       value: UnifiedType.PERSONAL,
       eager: false

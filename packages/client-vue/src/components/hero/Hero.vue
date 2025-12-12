@@ -3,8 +3,10 @@
     <Badge v-if="badge" v-bind="badge" variant="minimal" color="neutral" />
 
     <section :class="styles.hero.root">
+      <slot name="prepend" />
+
       <h1 :class="styles.hero.title">
-        <slot>
+        <slot name="title">
           <Sanitized v-if="props.title" :modelValue="props.title" />
         </slot>
       </h1>
@@ -14,13 +16,15 @@
           {{ props.description }}
         </slot>
       </p>
+
+      <slot name="append" />
     </section>
+
+    <slot />
   </header>
 </template>
 
 <script setup lang="ts">
-// --- external
-
 // --- components
 import { Badge } from "@upmind-automation/upmind-ui";
 
@@ -30,13 +34,9 @@ import { useStyles, Sanitized } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { ComputedRef } from "vue";
-import type { BadgeProps } from "@upmind-automation/upmind-ui";
+import type { HeroProps } from "./types";
 
-const props = defineProps<{
-  badge?: BadgeProps;
-  title?: string;
-  description?: string;
-}>();
+const props = defineProps<HeroProps>();
 
 const styles = useStyles(["hero"], {}, config) as ComputedRef<{
   hero: {
