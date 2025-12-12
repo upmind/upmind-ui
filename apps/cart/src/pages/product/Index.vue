@@ -7,7 +7,7 @@
             <component :is="routerViewProps.Component" />
           </KeepAlive>
           <template #fallback>
-            <UpmLoading />
+            <UpmLoading v-if="!meta.isResolved" />
           </template>
         </Suspense>
       </template>
@@ -19,9 +19,11 @@
 // --- external
 
 // --- internal
-
+import { useRoutingEngine } from "@upmind-automation/client-vue";
 // --- components
 import { UpmLoading } from "@upmind-automation/client-vue";
 
 // -----------------------------------------------------------------------------
+
+const { meta } = useRoutingEngine();
 </script>
