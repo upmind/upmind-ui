@@ -169,12 +169,18 @@ const styles = useStyles(
 const open = useVModel(props, "open", emits);
 
 const filteredDetails = computed(() =>
-  props.details.filter(
-    d =>
+  props.details.filter((d, index) => {
+    // Show primary price unless it's a one-off with cycle 0
+    if ((!index && d.cycle) || props.details.length === 1) {
+      return !d.meta?.invalid && !d.name?.includes("provision_field");
+    }
+
+    return (
       !includes(props.pricing, d.id) &&
       !d.meta?.invalid &&
       !d.name?.includes("provision_field")
-  )
+    );
+  })
 );
 
 function doUpdateQuantity(value: number) {
