@@ -157,7 +157,7 @@ const actions = computed((): InterstitialActionProps[] => {
   }
 
   const defaultAction: InterstitialActionProps = {
-    ...route,
+    to: route,
     variant: "solid",
     color: "primary",
     icon: icon.value,
