@@ -34,6 +34,7 @@
           v-show="!meta.isAuthenticated"
         >
           <Auth
+            v-if="isFormReady"
             class="rounded-box w-full max-w-5xl items-start"
             no-tabs
             no-header
@@ -41,6 +42,26 @@
             @update:model-value="doUpdate"
             @resolve="doResolve"
           />
+
+          <div v-else class="flex w-full max-w-5xl flex-col gap-6">
+            <div>
+              <Skeleton class="h-5 w-24" />
+              <Skeleton class="mt-2 h-10 w-full" />
+            </div>
+            <div>
+              <Skeleton class="h-5 w-24" />
+              <Skeleton class="mt-2 h-10 w-full" />
+            </div>
+            <div>
+              <Skeleton class="h-5 w-32" />
+              <Skeleton class="mt-2 h-10 w-full" />
+            </div>
+            <div>
+              <Skeleton class="h-5 w-28" />
+              <Skeleton class="mt-2 h-10 w-full" />
+            </div>
+            <Skeleton class="h-12 w-full" />
+          </div>
 
           <i18n-t
             class="text-muted text-sm"
@@ -76,7 +97,7 @@
     <template #summary>
       <slot name="summary">
         <Section
-          v-if="basketMeta.hasProducts"
+          v-if="basketMeta.hasProducts || basketMeta.isLoading"
           :label="t('cart.basket_section')"
           icon="shopping-bag-02"
         >
@@ -98,7 +119,7 @@ import { useFooter } from "../../components/footer/useFooter";
 import { useLayout } from "../../components/layout/useLayout";
 
 // --- components
-import { Link } from "@upmind-automation/upmind-ui";
+import { Link, Skeleton } from "@upmind-automation/upmind-ui";
 import Auth from "./components/Auth.vue";
 import Hero from "../../components/hero/Hero.vue";
 import Back from "./components/Back.vue";
@@ -154,9 +175,14 @@ const props = withDefaults(
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { meta } = useSession();
+const { meta, schema, showRegister } = useSession();
 const { meta: basketMeta } = useBasket();
 const { navigateNext, navigateBack, navigate } = useRoutingEngine();
+
+const isFormReady = computed(() => !!schema.value);
+
+// Eagerly trigger schema loading so the form renders immediately
+showRegister();
 
 const templateVariant = computed(() =>
   get(
