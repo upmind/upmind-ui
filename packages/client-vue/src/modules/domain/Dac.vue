@@ -50,7 +50,7 @@
       />
     </template>
 
-    <template #hint v-if="!isMobile">
+    <template #hint v-if="!isMobile && showActions">
       <p class="text-md text-muted">
         <template v-if="!count">
           {{ t("text.cant_decide_right_qn") }}
