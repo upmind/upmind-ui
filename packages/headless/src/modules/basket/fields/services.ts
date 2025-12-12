@@ -1,4 +1,5 @@
 // --- external
+import { asyncDebounce } from "@tanstack/pacer";
 
 // --- internal
 import { useI18n, useQuery } from "../../..";
@@ -6,10 +7,12 @@ import { useI18n, useQuery } from "../../..";
 // --- utils
 import { get } from "lodash-es";
 import {
+  DEBOUNCE_DELAY,
   DetailedError,
   ErrorOrigin,
   responseCodes,
   useModelParser,
+  useTime,
   useValidation
 } from "../../../utils";
 
@@ -36,25 +39,6 @@ async function load(
     model: safeModel,
     baseModel: safeModel
   }));
-}
-
-async function update(
-  { basketId, model, controller }: FieldsContext,
-  _event: AnyEventObject
-) {
-  const { put, useUrl } = useQuery();
-  // rebuild the model with ALL custom fields present, including nullish values
-  const data = {
-    notes: model?.notes,
-    custom_fields: get(model, "customFields")
-  };
-  // get returns a promise so we can pass it directly back to the machine
-  return put<IBasket>({
-    url: useUrl(`/orders/${basketId}`),
-    init: { signal: controller?.signal },
-    data,
-    withAccessToken: true
-  });
 }
 
 async function parse({ model, schema }: FieldsContext, _event: AnyEventObject) {
@@ -92,11 +76,44 @@ async function validate(
   });
 }
 
+async function update(
+  { basketId, model }: FieldsContext,
+  _event: AnyEventObject
+) {
+  const { put, useUrl } = useQuery();
+
+  // rebuild the model with ALL custom fields present, including nullish values
+  const data = {
+    notes: model?.notes,
+    custom_fields: get(model, "customFields")
+  };
+
+  // get returns a promise so we can pass it directly back to the machine
+  return put<IBasket>({
+    mutationKey: ["basket", "fields"],
+    url: useUrl(`/orders/${basketId}`),
+    data,
+    withAccessToken: true
+  });
+}
+
 // -----------------------------------------------------------------------------
 
 export default {
   load,
   parse,
   validate,
-  update
+  update: asyncDebounce(
+    (context: FieldsContext, _event: AnyEventObject) => update(context, _event),
+    {
+      wait: useTime().SECOND,
+      leading: false
+      // onSuccess: result => {
+      //   return result;
+      // },
+      // onError: error => {
+      //   throw error;
+      // }
+    } // prevent rapid currency changes
+  )
 };

@@ -1,50 +1,191 @@
 <template>
-  <component :is="templateVariant" />
+  <component :is="templateVariant" v-bind="props">
+    <template #back>
+      <slot name="back">
+        <Back />
+      </slot>
+    </template>
+
+    <template #hero>
+      <slot name="hero">
+        <Hero :title="t('action.create_account')">
+          <template #description>
+            <span class="font-normal"
+              >{{ t("auth.already_have_account_qn") }}&nbsp;</span
+            >
+
+            <Link
+              :to="props.loginRoute"
+              size="inherit"
+              color="inherit"
+              :label="t('action.log_in_here')"
+              class="font-normal"
+            />
+          </template>
+        </Hero>
+      </slot>
+    </template>
+
+    <template #form>
+      <slot name="form">
+        <Section
+          :label="t('action.register')"
+          icon="user-03"
+          v-show="!meta.isAuthenticated"
+        >
+          <Auth
+            class="rounded-box w-full max-w-5xl items-start"
+            no-tabs
+            no-header
+            model-value="register"
+            @update:model-value="doUpdate"
+            @resolve="doResolve"
+          />
+
+          <i18n-t
+            class="text-muted text-sm"
+            keypath="auth.recaptcha_terms_desc"
+            tag="p"
+            scope="global"
+          >
+            <template #[`privacyPolicy`]>
+              <Link
+                class="has-text-grey-light"
+                href="https://policies.google.com/privacy"
+                target="_blank"
+                size="inherit"
+                color="inherit"
+                >{{ t("text.privacy_policy") }}</Link
+              >
+            </template>
+            <template #[`termsOfService`]>
+              <Link
+                class="has-text-grey-light"
+                href="https://policies.google.com/terms"
+                target="_blank"
+                size="inherit"
+                color="inherit"
+                >{{ t("text.terms_of_service") }}</Link
+              >
+            </template>
+          </i18n-t>
+        </Section>
+      </slot>
+    </template>
+
+    <template #summary>
+      <slot name="summary">
+        <Section
+          v-if="basketMeta.hasProducts"
+          :label="t('cart.basket_section')"
+          icon="shopping-bag-02"
+        >
+          <Summary :showPromotions="false" show-products />
+        </Section>
+      </slot>
+    </template>
+  </component>
 </template>
 
 <script lang="ts" setup>
 // --- external
-import { computed, onUnmounted } from "vue";
+import { computed, defineAsyncComponent, onUnmounted } from "vue";
+import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useRoutingEngine } from "@upmind-automation/headless";
 import { useHeader } from "../../components/header/useHeader";
 import { useFooter } from "../../components/footer/useFooter";
 import { useLayout } from "../../components/layout/useLayout";
 
 // --- components
-import RegisterLTR from "./templates/RegisterLTR.template.vue";
-import RegisterRTL from "./templates/RegisterRTL.template.vue";
-import RegisterSplit from "./templates/RegisterSplit.template.vue";
-import RegisterCanvasCard from "./templates/RegisterCanvasCard.template.vue";
-import RegisterSurfaceBox from "./templates/RegisterSurfaceBox.template.vue";
-import RegisterFull from "./templates/RegisterFull.template.vue";
+import { Link } from "@upmind-automation/upmind-ui";
+import Auth from "./components/Auth.vue";
+import Hero from "../../components/hero/Hero.vue";
+import Back from "./components/Back.vue";
+import Section from "../../components/section/Section.vue";
+import Summary from "../basket/components/Summary.vue";
 
-// --- types
-import { REGISTER_TEMPLATE } from "./types";
-import { ROUTE } from "@upmind-automation/headless";
-
-const { currentRoute, isResolved, isReady } = useRoutingEngine();
-
-await isReady();
-await isResolved(ROUTE.SESSION_REGISTER);
-
+// --- templates
 const supportedTemplates = {
-  [REGISTER_TEMPLATE.FULL]: RegisterFull,
-  [REGISTER_TEMPLATE.SPLIT]: RegisterSplit,
-  [REGISTER_TEMPLATE.CANVAS_CARD]: RegisterCanvasCard,
-  [REGISTER_TEMPLATE.SURFACE_BOX]: RegisterSurfaceBox,
-  [REGISTER_TEMPLATE.TWO_COLUMN_LTR]: RegisterLTR,
-  [REGISTER_TEMPLATE.TWO_COLUMN_RTL]: RegisterRTL
+  [SESSION_TEMPLATE.SPLIT]: defineAsyncComponent(
+    () => import("./templates/SessionSplit.template.vue")
+  ),
+  [SESSION_TEMPLATE.CANVAS_CARD]: defineAsyncComponent(
+    () => import("./templates/SessionCanvasCard.template.vue")
+  ),
+  [SESSION_TEMPLATE.SURFACE_BOX]: defineAsyncComponent(
+    () => import("./templates/SessionSurfaceBox.template.vue")
+  ),
+  [SESSION_TEMPLATE.TWO_COLUMN_LTR]: defineAsyncComponent(
+    () => import("./templates/SessionLTR.template.vue")
+  ),
+  [SESSION_TEMPLATE.TWO_COLUMN_RTL]: defineAsyncComponent(
+    () => import("./templates/SessionRTL.template.vue")
+  )
 };
 
-const layout = computed(() => {
-  return currentRoute.value?.meta?.template as REGISTER_TEMPLATE;
-});
+// --- utils
+import { get } from "lodash-es";
 
-const templateVariant = computed(
-  () => supportedTemplates[layout.value] ?? RegisterFull
+// --- types
+import {
+  type SessionProps,
+  type SessionRoutes,
+  SESSION_TEMPLATE
+} from "./types";
+import {
+  useBasket,
+  useRoutingEngine,
+  useSession
+} from "@upmind-automation/headless";
+
+// -----------------------------------------------------------------------------
+
+const props = withDefaults(
+  defineProps<
+    SessionRoutes & {
+      template?: SESSION_TEMPLATE;
+    }
+  >(),
+  {
+    template: SESSION_TEMPLATE.TWO_COLUMN_LTR
+  }
 );
+// -----------------------------------------------------------------------------
+
+const { t } = useI18n();
+const { meta } = useSession();
+const { meta: basketMeta } = useBasket();
+const { navigateNext, navigateBack, navigate } = useRoutingEngine();
+
+const templateVariant = computed(() =>
+  get(
+    supportedTemplates,
+    props.template,
+    supportedTemplates[SESSION_TEMPLATE.TWO_COLUMN_LTR]
+  )
+);
+
+function doUpdate(value: SessionProps["modelValue"]) {
+  if (value === "login") {
+    const target = props.loginRoute.name?.toString();
+    if (target) navigate(target);
+  } else if (value === "register") {
+    const target = props.registerRoute.name?.toString();
+    if (target) navigate(target);
+  } else if (value === "recover") {
+    const target = props.recoverRoute.name?.toString();
+    if (target) navigate(target);
+  }
+}
+
+function doReject() {
+  navigateBack();
+}
+
+function doResolve() {
+  navigateNext();
+}
 
 onUnmounted(() => {
   useLayout({});

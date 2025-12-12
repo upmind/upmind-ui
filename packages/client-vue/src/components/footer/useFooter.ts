@@ -1,5 +1,6 @@
 // --- external
 import { computed, defineAsyncComponent, ref } from "vue";
+import { useBreakpoints, breakpointsTailwind } from "@vueuse/core";
 
 // --- internal
 import { Store } from "@upmind-automation/headless";
@@ -17,14 +18,20 @@ const FooterStacked = defineAsyncComponent(
 import { get, isEmpty, isObject, merge } from "lodash-es";
 
 // --- types
-import { FOOTER_TEMPLATE, type FooterProps } from "./types";
+import { FOOTER_ITEMS, FOOTER_LAYOUT, type FooterProps } from "./types";
+import { FOOTER_BACKGROUND, FOOTER_POSITION } from "./types";
 
 // -----------------------------------------------------------------------------
 // --- global context
 
 const defaultFooterProps: FooterProps = {
   visible: true,
-  template: FOOTER_TEMPLATE.DEFAULT,
+  layout: FOOTER_LAYOUT.STACKED,
+  border: true,
+  reverse: false,
+  background: FOOTER_BACKGROUND.SURFACE,
+  position: FOOTER_POSITION.STATIC,
+  items: FOOTER_ITEMS.CENTER,
   noLocale: false,
   noCurrency: false,
   noCopyright: false,
@@ -54,11 +61,29 @@ export const useFooter = (initial?: Partial<FooterProps>) => {
 
   // --- state
   const meta = computed(() => {
-    const { visible, noCopyright, noCurrency, noLocale, noLogo, noPoweredBy } =
-      config.value;
+    const {
+      visible,
+      noCopyright,
+      noCurrency,
+      noLocale,
+      noLogo,
+      noPoweredBy,
+      position,
+      background,
+      reverse,
+      items,
+      justifyLeft,
+      justifyRight
+    } = config.value;
 
     return {
       isVisible: !!visible,
+      position: position,
+      background: background,
+      reverse: reverse,
+      items: items,
+      justifyLeft: justifyLeft,
+      justifyRight: justifyRight,
       showCopyright: !noCopyright,
       showCurrency: !noCurrency,
       showLocale: !noLocale,
@@ -70,25 +95,20 @@ export const useFooter = (initial?: Partial<FooterProps>) => {
   });
 
   // --- context
-  const supportedTemplates = {
-    [FOOTER_TEMPLATE.DEFAULT]: FooterStacked,
-    [FOOTER_TEMPLATE.ENCLOSED]: FooterStacked,
-    [FOOTER_TEMPLATE.FULL]: FooterStacked,
-    [FOOTER_TEMPLATE.TWO_COLUMN_LTR]: FooterFlat,
-    [FOOTER_TEMPLATE.TWO_COLUMN_RTL]: FooterFlat,
-    [FOOTER_TEMPLATE.SPLIT]: FooterFlat,
-    [FOOTER_TEMPLATE.CANVAS_CARD]: FooterFlat,
-    [FOOTER_TEMPLATE.SURFACE_BOX]: FooterFlat
+  const supportedLayouts = {
+    [FOOTER_LAYOUT.STACKED]: FooterStacked,
+    [FOOTER_LAYOUT.FLAT]: FooterFlat
   };
 
-  const defaultTemplate = FOOTER_TEMPLATE.DEFAULT;
+  const defaultLayout = FOOTER_LAYOUT.STACKED;
+  const forceStacked = useBreakpoints(breakpointsTailwind).smaller("lg");
 
-  const template = computed(() => {
-    const template = config.value.template ?? defaultTemplate;
+  const layout = computed(() => {
+    if (forceStacked.value) return FooterStacked;
     return get(
-      supportedTemplates,
-      template,
-      get(supportedTemplates, defaultTemplate)
+      supportedLayouts,
+      config.value.layout ?? defaultLayout,
+      FooterStacked
     );
   });
 
@@ -165,8 +185,8 @@ export const useFooter = (initial?: Partial<FooterProps>) => {
     update({ noLogo: false, noPoweredBy: false, noCopyright: false });
   }
 
-  function setTemplate(template: FooterProps["template"]) {
-    update({ template });
+  function setLayout(layout: FooterProps["layout"]) {
+    update({ layout });
   }
 
   // ---------------------------------------------------------------------------
@@ -193,8 +213,8 @@ export const useFooter = (initial?: Partial<FooterProps>) => {
     /**
      * The current footer template component.
      */
-    template,
-    templateName: computed(() => config.value.template),
+    layout,
+    layoutName: computed(() => config.value.layout),
 
     // --- methods
     /**
@@ -301,10 +321,10 @@ export const useFooter = (initial?: Partial<FooterProps>) => {
     showContent,
 
     /**
-     * Sets the footer template variant.
-     * @param {FOOTER_TEMPLATE} template - The template variant to set.
+     * Sets the footer layout variant.
+     * @param {FOOTER_LAYOUT} layout - The layout variant to set.
      * @returns {void}
      */
-    setTemplate
+    setLayout
   };
 };

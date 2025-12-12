@@ -2,7 +2,7 @@
   <section :class="styles.header.root">
     <div :class="styles.header.details" ref="detailsRef">
       <hgroup class="flex flex-col gap-6">
-        <Skeleton class="h-14 w-96" />
+        <Skeleton class="h-14 w-full lg:w-96" />
 
         <div class="gap- flex flex-col gap-1">
           <Skeleton :class="styles.header.price" class="mr-6 h-8 w-full" />
@@ -23,7 +23,6 @@ import { Skeleton, useStyles } from "@upmind-automation/upmind-ui";
 import config from "./product-hero.config";
 
 // --- types
-import type { ProductHeaderProps } from "../types";
 import type { ComputedRef } from "vue";
 
 const styles = useStyles(["header"], {}, config) as ComputedRef<{

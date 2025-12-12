@@ -31,10 +31,7 @@ export interface BasketContext {
    * An error object if any issue occurred during basket operations.
    */
   error?: ResponseError;
-  /**
-   * An `AbortController` instance, used to cancel ongoing fetch requests related to the basket.
-   */
-  controller?: AbortController;
+
   /**
    * A summary object providing formatted details of the basket's financial breakdown.
    */

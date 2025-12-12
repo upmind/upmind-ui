@@ -31,7 +31,8 @@
         :use-monthly-from-price="props.meta?.useMonthlyFromPrice"
         :ui-config="{
           pricing: {
-            current: [styles.product.config.grid.item.total]
+            current: [styles.product.config.grid.item.total],
+            ex: [styles.product.config.grid.item.ex]
           }
         }"
       />
@@ -59,7 +60,7 @@ import config from "../../product.config";
 // --- components
 import PayToday from "../pricing/PayToday.vue";
 import Pricing from "../pricing/Pricing.vue";
-import Promotion from "../../../basket/product/components/Promotion.vue";
+import Promotion from "../../../basket-product/components/card/components/Promotion.vue";
 
 // --- utils
 import { isEmpty, has } from "lodash-es";
@@ -107,6 +108,7 @@ const styles = useStyles(
           title: string;
           text: string;
           footer: string;
+          ex: string;
           total: string;
         };
       };

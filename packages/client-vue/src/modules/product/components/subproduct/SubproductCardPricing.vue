@@ -9,7 +9,6 @@
     <Tooltip
       v-if="props.meta?.overrides && props.price"
       :label="t('text.overrides_price')"
-      color="neutral"
     >
       <span class="flex items-center justify-center hover:cursor-help">
         <Icon icon="switch-horizontal-01" size="nano" class="text-inherit" />
@@ -26,7 +25,7 @@
       </span>
     </Tooltip>
 
-    <Tooltip v-else :label="t('text.adds_to_price')" color="neutral">
+    <Tooltip v-else :label="t('text.adds_to_price')">
       <span class="hover:cursor-help">
         <span>+</span
         ><CurrentPrice

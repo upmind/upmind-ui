@@ -5,8 +5,8 @@
     "declaration": true,
     "declarationDir": "dist",
     "outDir": "dist",
-    "rootDir": "src"
+    "rootDir": "../../" // Set to monorepo root
   },
-  "include": ["src/**/*", "../../packages/client-vue/src/assets/theme"],
+  "include": ["src/**/*", "../../packages/**/*"],
   "exclude": ["node_modules", "dist", "**/*.spec.*", "src/**/*.*test.ts"]
 }

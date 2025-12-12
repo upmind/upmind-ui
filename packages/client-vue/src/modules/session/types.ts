@@ -5,16 +5,19 @@ import type {
   AvatarProps
 } from "@upmind-automation/upmind-ui";
 import type { CxOptions } from "class-variance-authority";
+import { AVATAR_SHAPES } from "@upmind-automation/upmind-ui";
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
+
 // -----------------------------------------------------------------------------
-export interface ActionProps extends ButtonProps {
+export type ActionProps = ButtonProps & {
   type?: HTMLButtonElement["type"];
   handler?: Function | string;
   auto?: boolean;
   visible?: boolean;
-}
+};
 
-export interface AuthProps {
-  modelValue: "login" | "register" | "recover" | "reset" | "profile";
+export type SessionProps = {
+  modelValue?: "login" | "register" | "recover" | "reset" | "profile";
   noHeader?: boolean;
   noFooter?: boolean;
   noTabs?: boolean;
@@ -25,9 +28,9 @@ export interface AuthProps {
   // ---
   uiConfig?: { alert: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};
 
-export interface SessionExpiredProps {
+export type SessionExpiredProps = {
   // ---
   modal?: boolean;
   open?: DialogProps["open"];
@@ -38,18 +41,19 @@ export interface SessionExpiredProps {
   action?: ActionProps;
   // ---
   size?: DialogProps["size"];
-}
+};
 
-export enum REGISTER_TEMPLATE {
-  FULL = "full",
-  SPLIT = "split",
-  CANVAS_CARD = "canvas-card",
-  SURFACE_BOX = "surface-box",
-  TWO_COLUMN_LTR = "two-column-ltr",
-  TWO_COLUMN_RTL = "two-column-rtl"
-}
+export type SessionRoutes = {
+  loginRoute: RouteLocationAsRelativeGeneric;
+  registerRoute: RouteLocationAsRelativeGeneric;
+  recoverRoute: RouteLocationAsRelativeGeneric;
+};
 
-export enum LOGIN_TEMPLATE {
+export type AuthActionProps = SessionRoutes & {
+  shape?: AVATAR_SHAPES;
+};
+
+export enum SESSION_TEMPLATE {
   FULL = "full",
   SPLIT = "split",
   CANVAS_CARD = "canvas-card",

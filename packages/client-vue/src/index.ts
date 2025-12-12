@@ -1,6 +1,15 @@
+// --- external
+import { defineAsyncComponent } from "vue";
+
+// -----------------------------------------------------------------------------
+
 // --- expose our package exports
 export * from "@upmind-automation/headless";
-export { default as Upm } from "./Upmind.vue";
+
+// --- expose our Upmind component
+export const Upm = defineAsyncComponent(() => import("./Upmind.vue"));
+
+//  --- export modules and components
 export * from "./components";
 export * from "./modules";
 

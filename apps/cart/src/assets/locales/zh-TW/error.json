@@ -59,6 +59,8 @@
   "currency_validation_failed": "貨幣驗證失敗",
   "domain_add_failed": "無法將網域加入購物籃",
   "feedback_action_not_available": "有價值的行動'{data}' 無法使用。",
+  "funnel_not_available": "漏斗不可用",
+  "funnels_not_available": "漏斗不可用",
   "generic_error": "錯誤",
   "generic_text": "讓我們幫你回到正軌",
   "generic_title": "抱歉，我們遇到了**錯誤**",

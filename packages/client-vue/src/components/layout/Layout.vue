@@ -16,13 +16,25 @@
       <slot name="content-header" />
     </template>
 
+    <template #tabs>
+      <slot name="tabs" />
+    </template>
+
     <template #content>
       <slot name="content" />
       <slot name="default" />
     </template>
 
+    <template #aside-header>
+      <slot name="aside-header" />
+    </template>
+
     <template #aside>
       <slot name="aside" />
+    </template>
+
+    <template #content-footer>
+      <slot name="content-footer" />
     </template>
 
     <template #aside-footer>
@@ -36,12 +48,14 @@
 import { computed } from "vue";
 
 // --- internal
-import DefaultLayout from "./layouts/Default.layout.vue";
-import EnclosedLayout from "./layouts/Enclosed.layout.vue";
+import { useLayout } from "./useLayout";
+
+// --- components
 import FullLayout from "./layouts/Full.layout.vue";
 import TwoColumnLTRLayout from "./layouts/TwoColumnLTR.layout.vue";
 import TwoColumnRTLLayout from "./layouts/TwoColumnRTL.layout.vue";
-import SplitLayout from "./layouts/Split.layout.vue";
+import SplitVerticalLayout from "./layouts/SplitVertical.layout.vue";
+import SplitHorizontalLayout from "./layouts/SplitHorizontal.layout.vue";
 import CanvasCardLayout from "./layouts/CanvasCard.layout.vue";
 import SurfaceBoxLayout from "./layouts/SurfaceBox.layout.vue";
 
@@ -54,22 +68,23 @@ const props = withDefaults(defineProps<LayoutProps>(), {
   sticky: true
 });
 
+const { variant } = useLayout();
+
 const layoutComponent = computed(() => {
-  switch (props.variant) {
-    case LAYOUT_VARIANTS.DEFAULT:
-      return DefaultLayout;
+  const layout = props.variant ?? variant.value;
 
-    case LAYOUT_VARIANTS.ENCLOSED:
-      return EnclosedLayout;
-
+  switch (layout) {
     case LAYOUT_VARIANTS.TWO_COLUMN_LTR:
       return TwoColumnLTRLayout;
 
     case LAYOUT_VARIANTS.TWO_COLUMN_RTL:
       return TwoColumnRTLLayout;
 
-    case LAYOUT_VARIANTS.SPLIT:
-      return SplitLayout;
+    case LAYOUT_VARIANTS.SPLIT_VERTICAL:
+      return SplitVerticalLayout;
+
+    case LAYOUT_VARIANTS.SPLIT_HORIZONTAL:
+      return SplitHorizontalLayout;
 
     case LAYOUT_VARIANTS.CANVAS_CARD:
       return CanvasCardLayout;

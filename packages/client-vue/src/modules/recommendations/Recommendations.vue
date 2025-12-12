@@ -1,5 +1,5 @@
 <template>
-  <Layout overflow="hidden">
+  <Layout>
     <template #content-header>
       <Hero
         :title="t('text.complete_online_toolkit_md')"
@@ -34,6 +34,7 @@
           :items="recommendations"
           @resolve="doAdd"
           @fetch="fetchRecommendation"
+          :configure-route="props.configureRoute"
         />
 
         <Configure
@@ -73,9 +74,11 @@ import { useI18n } from "vue-i18n";
 import {
   useBasket,
   useRecommendations,
-  useRoutingEngine,
-  ROUTE
+  useRoutingEngine
 } from "@upmind-automation/headless";
+import { useLayout } from "../../components/layout/useLayout";
+import { useHeader } from "../../components/header/useHeader";
+import { useFooter } from "../../components/footer/useFooter";
 
 // --- components
 import { Button, Interstitial } from "@upmind-automation/upmind-ui";
@@ -83,15 +86,23 @@ import Layout from "../../components/layout/Layout.vue";
 import Configure from "./components/Configure.vue";
 import CardsCarousel from "./components/CardsCarousel.vue";
 import Hero from "../../components/hero/Hero.vue";
+import type { LAYOUT_VARIANTS } from "../../";
+import { LAYOUT_OVERFLOW } from "../../components/layout/types";
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
+
+// -----------------------------------------------------------------------------
+
+const props = defineProps<{
+  configureRoute: RouteLocationAsRelativeGeneric;
+  layout?: LAYOUT_VARIANTS;
+}>();
 
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
 
 // --- basket setup
-const { navigateNext, isResolved } = useRoutingEngine();
-
-await isResolved(ROUTE.RECOMMENDATIONS);
+const { navigateNext } = useRoutingEngine();
 
 const { count } = useBasket();
 const {
@@ -103,6 +114,12 @@ const {
   add,
   fetchRecommendation
 } = useRecommendations();
+
+useHeader({});
+useLayout({
+  overflow: LAYOUT_OVERFLOW.HIDDEN
+});
+useFooter({});
 
 await isReady();
 

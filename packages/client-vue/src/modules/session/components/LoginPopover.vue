@@ -1,6 +1,6 @@
 <template>
   <Popover
-    v-if="!isAuthRoute && meta.canShowForms"
+    v-if="meta.canShowForms"
     class="w-full md:w-auto"
     @update:open="doReset"
   >
@@ -14,7 +14,17 @@
     >
       <div class="flex h-full flex-col md:flex-row">
         <div class="w-screen p-8 md:w-104">
-          <Session no-header no-tabs v-model="tab" color="primary" />
+          <Auth
+            v-if="!meta.isAuthenticated"
+            :class="styles.session.content"
+            :block-tabs="blockTabs"
+            :stretch-tabs="stretchTabs"
+            :no-tabs="noTabs"
+            :variant="variant"
+            :model-value="modelValue"
+            @update:model-value="doUpdate"
+          >
+          </Auth>
         </div>
       </div>
     </PopoverContent>
@@ -23,61 +33,67 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed } from "vue";
-import { useRoute } from "vue-router";
-import { includes } from "lodash-es";
 
 // --- internal
-import { useSession } from "@upmind-automation/headless";
+import { useRoutingEngine, useSession } from "@upmind-automation/headless";
+import { useStyles } from "@upmind-automation/upmind-ui";
+import config from "../session.config";
 
 // --- components
-import Session from "./Session.vue";
+import Auth from "./Auth.vue";
 
 import {
   Popover,
   PopoverContent,
   PopoverTrigger
 } from "@upmind-automation/upmind-ui";
-import { ROUTE } from "@upmind-automation/headless";
-import type { AuthProps } from "../types";
 
+// --- types
+import type { SessionProps, SessionRoutes } from "../types";
+import type { ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 
-const route = useRoute();
-const { meta, showLogin } = useSession();
-
-const isAuthRoute = computed(() =>
-  includes(
-    [
-      ROUTE.SESSION,
-      ROUTE.SESSION_END,
-      ROUTE.SESSION_LOGIN,
-      ROUTE.SESSION_REGISTER,
-      ROUTE.SESSION_RECOVER_PASSWORD,
-      ROUTE.SESSION_TRANSFER
-    ],
-    route.name
-  )
-);
-
-// ensure we only show login related forms
-const tab = computed({
-  get: (): AuthProps["modelValue"] => {
-    if (meta.value.showRecoverPasswordForm) {
-      return "recover";
-    } else {
-      return "login";
-    }
-  },
-  set: value => {
-    route.query.tab = includes(["login", "2fa", "recover"], value)
-      ? value
-      : "login";
-  }
+const props = withDefaults(defineProps<SessionProps & SessionRoutes>(), {
+  modelValue: "login",
+  noHeader: true,
+  noFooter: false,
+  noTabs: true,
+  blockTabs: false,
+  stretchTabs: false,
+  color: "primary"
 });
+// -----------------------------------------------------------------------------
+
+const { meta, showLogin } = useSession();
+const { navigate } = useRoutingEngine();
+
+const styles = useStyles(["session"], props, config) as ComputedRef<{
+  session: {
+    root: string;
+    header: string;
+    content: string;
+    footer: string;
+    text: string;
+    title: string;
+    name: string;
+  };
+}>;
 
 // ensure we always open with the login form
 function doReset(value: boolean) {
   if (value) showLogin();
+}
+
+function doUpdate(value: SessionProps["modelValue"]) {
+  if (value === "login") {
+    const target = props.loginRoute.name?.toString();
+    if (target) navigate(target);
+  } else if (value === "register") {
+    const target = props.registerRoute.name?.toString();
+    if (target) navigate(target);
+  } else if (value === "recover") {
+    const target = props.recoverRoute.name?.toString();
+    if (target) navigate(target);
+  }
 }
 </script>
