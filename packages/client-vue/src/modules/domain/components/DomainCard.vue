@@ -75,6 +75,17 @@
           <small :class="styles.card.footer.price.term"
             >/ {{ parseBillingCycle(props.cycle!).suffix }}</small
           >
+
+          <div class="ml-auto" v-if="isMobile && props.price.savingPercent">
+            <Badge
+              variant="muted"
+              color="promo"
+              :size="meta.isExactMatch ? 'md' : 'sm'"
+              :label="
+                t('action.save_value', { value: props.price.savingPercent })
+              "
+            />
+          </div>
         </section>
       </template>
       <template v-else>
