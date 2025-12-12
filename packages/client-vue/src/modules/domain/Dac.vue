@@ -1,11 +1,15 @@
 <template>
-  <component :is="templateVariant" v-model:open="open">
+  <component
+    :is="templateVariant"
+    v-model:open="open"
+    :loading="meta.isLoading"
+  >
     <template #hero>
       <DomainHero
         v-model="queryValue"
         :searching="meta.isSearching"
         :type="DomainTypes.register"
-        :processing="meta.isProcessing"
+        :processing="meta.isProcessing || processingBasket"
         @search="search"
         @reset="doReset"
       />
@@ -15,7 +19,7 @@
       <DomainSearch
         v-model="queryValue"
         :searching="meta.isSearching"
-        :processing="meta.isProcessing"
+        :processing="meta.isProcessing || processingBasket"
         :type="DomainTypes.register"
         @search="search"
         @reset="doReset"
@@ -28,6 +32,7 @@
 
     <template #results>
       <DomainCards
+        :disabled="processingBasket"
         :model-value="model"
         :items="available || []"
         :offset="pagination.offset"
@@ -60,15 +65,16 @@
       <Button
         v-if="showActions"
         :label="
-          meta.isEmpty
+          meta.isEmpty && !meta.hasAdded
             ? t('domain.domain_not_required_label')
             : t('action.continue_label')
         "
+        :loading="processingBasket"
         variant="solid"
         color="primary"
         size="lg"
         icon-append="arrow-right"
-        :disabled="meta.isProcessing || meta.isLoading"
+        :disabled="meta.isProcessing || processingBasket"
         :block="isMobile || (isMobile && template === DOMAIN_TEMPLATE.WIDGET)"
         @click="doResolve"
       />
@@ -80,7 +86,6 @@
 // --- external
 import { computed, onUnmounted, ref, watch } from "vue";
 import { defineAsyncComponent } from "vue";
-import { debounce } from "lodash-es";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -100,7 +105,7 @@ import { Button } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { utils } from "@upmind-automation/headless";
-import { isEmpty } from "lodash-es";
+import { debounce } from "lodash-es";
 
 //  --- templates
 const supportedTemplates = {
@@ -147,7 +152,6 @@ const templateVariant = computed(() =>
 
 const {
   isReady,
-  lookups,
   available,
   model,
   added,
@@ -162,11 +166,13 @@ const {
   stop
 } = useDac();
 
-const { count, summary } = useBasket();
+const { count, summary, meta: basketMeta } = useBasket();
 
 // ---------------------------------------------------------------------------
 
 const open = ref(false);
+const processingBasket = ref(false);
+
 const resultCount = ref(0);
 const queryValue = ref(query.value || "");
 
@@ -186,12 +192,15 @@ watch(queryValue, value => {
 
 function doResolve() {
   open.value = false;
+  processingBasket.value = true;
+
   stop();
   emit("resolve", model.value);
 }
 
 function doReset() {
   open.value = false;
+  processingBasket.value = false;
   resultCount.value = 0;
   queryValue.value = "";
   debouncedSearch.cancel();
@@ -205,7 +214,9 @@ const hasActiveItems = computed(() =>
 );
 
 const showActions = computed(
-  () => props.template !== DOMAIN_TEMPLATE.WIDGET || hasActiveItems.value
+  () =>
+    !basketMeta.value.isLoading &&
+    (props.template !== DOMAIN_TEMPLATE.WIDGET || hasActiveItems.value)
 );
 
 // --- side effects

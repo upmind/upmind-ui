@@ -98,7 +98,7 @@
           size="lg"
           :variant="meta.isAdded ? 'solid' : 'outline'"
           :color="meta.isAdded ? 'secondary' : 'primary'"
-          :disabled="meta.isProcessing"
+          :disabled="meta.isProcessing || meta.isDisabled"
           @click="
             meta.isAdded ? onRemove(props.domain) : onUpdate(props.domain)
           "
