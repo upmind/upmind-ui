@@ -1,64 +1,69 @@
 <template>
-  <Ribbon v-if="meta.hasContentHeader" :background="RIBBON_BACKGROUND.SURFACE">
-    <Container>
-      <Column :class="meta.hasTabs ? 'pb-0 lg:pb-0' : ''">
-        <Content
-          :class="meta.hasTabs ? 'pb-0 lg:pb-0' : ''"
-          :gap="meta.hasTabs ? CONTENT_GAP.SM : CONTENT_GAP.MD"
-        >
-          <slot name="content-header" />
+  <Root>
+    <Ribbon
+      v-if="meta.hasContentHeader"
+      :background="RIBBON_BACKGROUND.SURFACE"
+    >
+      <Container>
+        <Column :class="meta.hasTabs ? 'pb-0 lg:pb-0' : ''">
+          <Content
+            :class="meta.hasTabs ? 'pb-0 lg:pb-0' : ''"
+            :gap="meta.hasTabs ? CONTENT_GAP.SM : CONTENT_GAP.MD"
+          >
+            <slot name="content-header" />
 
-          <slot name="tabs" />
-        </Content>
-      </Column>
-    </Container>
-  </Ribbon>
+            <slot name="tabs" />
+          </Content>
+        </Column>
+      </Container>
+    </Ribbon>
 
-  <Ribbon v-if="meta.hasControls" :background="RIBBON_BACKGROUND.SURFACE">
-    <Container>
-      <Column class="py-4 lg:py-4">
-        <Content
-          :flow="CONTENT_FLOW.HORIZONTAL"
-          :justify="CONTENT_JUSTIFY.BETWEEN"
-          :padding="false"
-        >
-          <slot name="controls" />
-          <slot name="navigation" />
-          <slot name="actions" />
-        </Content>
-      </Column>
-    </Container>
-  </Ribbon>
+    <Ribbon v-if="meta.hasControls" :background="RIBBON_BACKGROUND.SURFACE">
+      <Container>
+        <Column class="py-4 lg:py-4">
+          <Content
+            :flow="CONTENT_FLOW.HORIZONTAL"
+            :justify="CONTENT_JUSTIFY.BETWEEN"
+            :padding="false"
+          >
+            <slot name="controls" />
+            <slot name="navigation" />
+            <slot name="actions" />
+          </Content>
+        </Column>
+      </Container>
+    </Ribbon>
 
-  <Ribbon v-if="meta.hasContent" :background="RIBBON_BACKGROUND.CANVAS">
-    <Container>
-      <Column :flow="COLUMN_FLOW.HORIZONTAL">
-        <Content :width="CONTENT_WIDTH.FULL">
-          <slot name="default" />
-          <slot name="content" />
-        </Content>
+    <Ribbon v-if="meta.hasContent" :background="RIBBON_BACKGROUND.CANVAS">
+      <Container>
+        <Column :flow="COLUMN_FLOW.HORIZONTAL">
+          <Content :width="CONTENT_WIDTH.FULL">
+            <slot name="default" />
+            <slot name="content" />
+          </Content>
 
-        <Content
-          v-if="meta.hasAside"
-          as="aside"
-          :width="card ? CONTENT_WIDTH.ASIDELG : CONTENT_WIDTH.ASIDE"
-          :sticky="CONTENT_STICKY.TOP"
-          :gap="card ? CONTENT_GAP.SM : CONTENT_GAP.MD"
-        >
-          <slot name="aside" />
-        </Content>
-      </Column>
-    </Container>
-  </Ribbon>
+          <Content
+            v-if="meta.hasAside"
+            as="aside"
+            :width="card ? CONTENT_WIDTH.ASIDELG : CONTENT_WIDTH.ASIDE"
+            :sticky="CONTENT_STICKY.TOP"
+            :gap="card ? CONTENT_GAP.SM : CONTENT_GAP.MD"
+          >
+            <slot name="aside" />
+          </Content>
+        </Column>
+      </Container>
+    </Ribbon>
 
-  <SingleColumnSticky>
-    <template #content-footer>
-      <slot name="content-footer" />
-    </template>
-    <template #aside-footer>
-      <slot name="aside-footer" />
-    </template>
-  </SingleColumnSticky>
+    <SingleColumnSticky>
+      <template #content-footer>
+        <slot name="content-footer" />
+      </template>
+      <template #aside-footer>
+        <slot name="aside-footer" />
+      </template>
+    </SingleColumnSticky>
+  </Root>
 </template>
 
 <script lang="ts" setup>
@@ -66,6 +71,7 @@
 import { isEmptySlot } from "@upmind-automation/upmind-ui";
 
 // --- components
+import Root from "../components/root/Root.vue";
 import Ribbon from "../components/ribbon/Ribbon.vue";
 import Container from "../components/container/Container.vue";
 import Column from "../components/column/Column.vue";
