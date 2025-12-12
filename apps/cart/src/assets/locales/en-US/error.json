@@ -59,6 +59,8 @@
   "currency_validation_failed": "Currency validation failed",
   "domain_add_failed": "Failed to add the domain to the basket",
   "feedback_action_not_available": "Action with value '{data}' not available.",
+  "funnel_not_available": "Funnel not available",
+  "funnels_not_available": "Funnels not available",
   "generic_error": "error",
   "generic_text": "Let's get you back on track",
   "generic_title": "Sorry, we have experienced an **error**",

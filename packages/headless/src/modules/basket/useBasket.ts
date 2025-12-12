@@ -286,6 +286,10 @@ export const useBasket = () => {
       .catch(() => contextValue<IBasket>(state, "basket"));
   }
 
+  function prefresh(data: IBasket): void {
+    send({ type: "PREFRESH", data });
+  }
+
   async function setCurrency(currency: string) {
     return waitFor(service, state => stateMatches(state, ["shopping"]), {
       timeout: 60_000
@@ -440,7 +444,29 @@ export const useBasket = () => {
     );
   }
 
-  function productExists(mapping: Record<string, any>) {
+  function findProducts(
+    mapping: Record<string, any>,
+    type: "configuration" | "productDetails" | "meta" = "configuration"
+  ): BasketProduct[] {
+    const cleanedMapping = compactDeep(mapping);
+    const products = getProducts();
+    return filter(products, basketProduct =>
+      every(cleanedMapping, (value, key) => {
+        if (key == "id") {
+          return basketProduct.id == value;
+        } else {
+          const property = compactDeep(basketProduct[type]);
+          const propertyValue = get(property, key);
+          return isEqual(propertyValue, value);
+        }
+      })
+    );
+  }
+
+  function productExists(
+    mapping: Record<string, any>,
+    type: "configuration" | "productDetails" | "meta" = "configuration"
+  ) {
     const cleanedMapping = compactDeep(mapping);
     const products = getProducts();
 
@@ -449,7 +475,7 @@ export const useBasket = () => {
         if (key == "id") {
           return basketProduct.id == value;
         } else {
-          const cleanedConfig = compactDeep(basketProduct.configuration);
+          const cleanedConfig = compactDeep(basketProduct[type]);
           const modelValue = get(cleanedConfig, key);
           return isEqual(modelValue, value);
         }
@@ -647,6 +673,14 @@ export const useBasket = () => {
     refresh,
 
     /**
+     * Pre-refreshes the basket with given data without waiting for completion.
+     * This gives us a way to optimistically update the basket state before a full refresh.
+     * and give a perceived faster response to the user.
+     * @param {IBasket} data The basket data to pre-refresh with.
+     */
+    prefresh,
+
+    /**
      * Sets the basket currency.
      * @param {string} currency The currency code to set.
      * @returns {Promise<void>} Resolves when set, rejects on error.
@@ -680,8 +714,17 @@ export const useBasket = () => {
     findProduct,
 
     /**
+     * Finds ALL products in the basket matching the given mapping.
+     * @param {Record<string, any>} mapping The mapping to match.
+     * @param {"configuration" | "productDetails" | "meta"} type - The section of the basket product to look into (e.g., 'configuration', 'productDetails', 'meta').
+     * @returns {BasketProduct[]} The found products.
+     */
+    findProducts,
+
+    /**
      * Checks if a product exists in the basket matching the given mapping.
      * @param {Record<string, any>} mapping The mapping to match.
+     * @param {"configuration" | "productDetails" | "meta"} type - The section of the basket product to look into (e.g., 'configuration', 'productDetails', 'meta').
      * @returns {boolean} True if the product exists, false otherwise.
      */
     productExists,

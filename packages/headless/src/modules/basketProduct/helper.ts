@@ -1,5 +1,4 @@
 // --- external
-import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import { useBasket } from "../basket";
@@ -17,12 +16,11 @@ import {
   responseCodes,
   stateMatches
 } from "../../utils";
-import { defaults, get, isArray, isEmpty, map, pick, compact } from "lodash-es";
+import { defaults, differenceBy, isArray, isEmpty, pick } from "lodash-es";
 
 // --- types
 import type { IBasket } from "@upmind-automation/types";
 import type { BasketProduct } from "./types";
-import type { ActorRef } from "xstate";
 import { watch } from "vue";
 
 type BasketProductPending = ReturnType<typeof useBasketProductPending>;
@@ -112,6 +110,8 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
       return;
     }
 
+    const baseBasketProducts: BasketProduct[] = basket.products.value ?? [];
+
     switch (event.type) {
       case "FETCH":
         if (isEmpty(event.target)) return Promise.resolve([]);
@@ -183,266 +183,89 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
           );
         break;
 
-      case "ADD":
-        pendingProducts
-          .add(get(event.target, "productId"), event.target)
-          .then((instance: BasketProductPending) => {
-            callback({
-              type: "ADDED",
-              data: {
-                actor: instance.service,
-                basket: basket.basket.value,
-                context: event.context
-              }
-            });
-          })
-          .catch(error => {
-            // console.error("basketHelper", "ADD", error);
-            callback({ type: "ERROR", data: error });
-            callback({
-              type: "ADDED",
-              data: { basket: basket.basket.value, context: event.context }
-            });
-          });
-        break;
-
-      case "ADD_UPDATE":
-        pendingProducts
-          .add(get(event.target, "productId"), { ...event.target })
-          .then(async (instance: BasketProductPending) => {
-            return waitFor(
-              instance.service,
-              actorState => actorState.matches("available.valid"),
-              { timeout: 60_000 } // wait 1 min (max) for actor to be ready
-            )
-              .then(_state => {
-                return instance;
-              })
-              .catch(() => {
-                throw new DetailedError(
-                  t("error.basket_product_add_failed"),
-                  responseCodes.Timeout,
-                  ErrorOrigin.Headless,
-                  instance
-                );
-              });
-          })
-          .then((instance: BasketProductPending) => {
-            const model = instance.model;
-            const coupons = instance.coupons;
-            const actor = instance.service;
-            const product = instance.product;
-            if (!product)
-              throw new DetailedError(
-                t("error.product_not_available"),
-                responseCodes.Not_Found,
-                ErrorOrigin.Headless
-              );
-            // tell the subscriber we are processing as well as the actor we spawned
-            actor.send({ type: "PROCESSING" });
-            callback({ type: "PROCESSING" });
-            // try to update the actor we just added, using the parsed model
-            productServices
-              .update(
-                {
-                  basketId: rawBasket?.id,
-                  promotions: coupons,
-                  currencyId: rawBasket?.currency_id
-                },
-                { data: model.value! }
-              )
-              .then((rawBasket: IBasket) => {
-                dataLayer({ event: "add_to_cart" })
-                  .withItems(product.value!)
-                  .push();
-                return rawBasket;
-              })
-              .then((rawBasket: IBasket) => {
-                actor.send({ type: "UPDATED", data: rawBasket });
-                basket.refresh(rawBasket).then(() =>
-                  callback({
-                    type: "ADDED",
-                    data: { actor, basket: rawBasket, context: event.context }
-                  })
-                );
-              })
-              .catch((data: any) => {
-                actor.send({ type: "ERROR", data });
-
-                // get just the error message and add the related basketItem (actor) to it
-                const error = get(data, "error", {});
-
-                callback({
-                  type: "ERROR",
-                  data: { ...error, basketItem: actor }
-                });
-
-                return actor;
-              });
-          })
-          .catch((actor: any) => {
-            if (actor?.getSnapshot) {
-              callback({
-                type: "ERROR",
-                data: {
-                  // title:"",
-                  // message:"",
-                  basketItem: actor
-                }
-              });
-            }
-            callback({ type: "CANCEL" });
-
-            return actor;
-          });
-
-        break;
-
-      case "ADD_UPDATE_MANY":
-        const models = isArray(event.target) ? event.target : [event.target]; // safety check to ensure we have an array of models
-        // First ensure all our models are added to the basket...
-        // Then sync all our models with the basket
-        if (isEmpty(models)) callback({ type: "UPDATED", data: [] });
-
-        const promises = map(models, async model => {
-          return pendingProducts
-            .add(model.productId, model, true)
-            .then(async (instance: BasketProductPending) => {
-              const actor = instance.service;
-              return waitFor(
-                actor,
-                actorState => actorState.matches("available.valid"),
-                { timeout: 60_000 } // wait 1 min (max)
-              )
-                .then(() => actor)
-                .catch(error => {
-                  return undefined;
-                });
-            });
-        }) as Promise<ActorRef<any>>[];
-
-        // then update the basket
-        Promise.all(promises)
-          .then(async (instances: ActorRef<any>[]) => {
-            return productServices
-              .updateMany(
-                {
-                  basketId: rawBasket?.id,
-                  basketProducts: basket.products.value
-                },
-                { data: compact(instances) }
-              )
-              .then(() => instances);
-          })
-          .then((instances: ActorRef<any>[]) => {
-            // add the success event to the datalayer
-            dataLayer({ event: "add_to_cart" })
-              .withItems(
-                compact(
-                  map(instances, instance =>
-                    get(instance.getSnapshot(), "context.product")
-                  )
-                )
-              )
-              .push();
-
-            return instances;
-          })
-          .catch(error => {
-            callback({ type: "ERROR", data: error });
-          })
-
-          .finally(() => {
-            basket
-              .refresh()
-              .then((rawBasket?: IBasket) =>
-                callback({ type: "UPDATED", data: rawBasket })
-              );
-          });
-        break;
-
       case "UPDATE":
+      case "ADD_UPDATE":
         callback({ type: "PROCESSING" });
 
-        if (isEmpty(event.target)) {
-          callback({ type: "CANCEL" });
-        }
+        if (isEmpty(event.target))
+          callback({ type: "CANCEL", data: event.target });
 
-        // ---
-        // const bpid = get(basketItem, "state.context.basketProduct.id");
-        // ---
-        productServices
-          .update(
-            {
-              basketId: rawBasket?.id,
-              promotions: event.context?.coupons,
-              currencyId: rawBasket?.currency_id
-            },
-            { data: event.target }
-          )
+        return productServices
+          .update(rawBasket?.id, event.target)
           .then((rawBasket: IBasket) => {
-            // add the success event to the datalayer
-            // if (!event.target?.id) debugger;// TODo match agains tmodel if we dont have an id
-            const basketProduct = basket.findProduct({ id: event.target.id });
-            if (basketProduct) {
+            // add the success event to the datalayer for the newly added products only
+            basket.prefresh(rawBasket);
+            const newlyAddedProducts = differenceBy(
+              basket.products.value,
+              baseBasketProducts,
+              "id"
+            );
+
+            if (!isEmpty(newlyAddedProducts)) {
               dataLayer({ event: "add_to_cart" })
-                .withItems(basketProduct)
+                .withItems(newlyAddedProducts)
                 .push();
             }
-            return rawBasket;
-          })
-          .then(_rawBasket => {
-            return basket.refresh().then((rawBasket?: IBasket) => {
-              callback({ type: "UPDATED", data: rawBasket });
-              return rawBasket;
-            });
+
+            callback({ type: "UPDATED", data: rawBasket });
           })
           .catch(error => {
-            callback({ type: "ERROR", data: error });
-            callback({ type: "CANCEL" });
+            callback({ type: "ERROR", data: error, context: event.target });
+            callback({ type: "CANCEL", data: event.target });
           });
 
-        break;
-
-      case "REMOVE":
-        basketProduct = basket.findProduct({ id: event.target.id });
-
-        if (!basketProduct) {
-          callback({
-            type: "ERROR",
-            data: new DetailedError(
-              t("error.basket_product_not_found"),
-              responseCodes.Not_Found,
-              ErrorOrigin.Headless
-            )
-          });
-          break;
-        }
+      case "ADD_UPDATE_MANY":
+        let models = isArray(event.target) ? event.target : [event.target]; // safety check to ensure we have an array of models
 
         callback({ type: "PROCESSING" });
 
-        productServices
-          .remove({
-            basketId: rawBasket?.id,
-            bpid: event.target.id
+        if (isEmpty(event.target))
+          callback({ type: "CANCEL", data: event.target });
+
+        return productServices
+          .updateMany(rawBasket?.id, basket.products.value ?? [], models)
+          .then((rawBasket: IBasket) => {
+            // add the success event to the datalayer for the newly added products only
+            basket.prefresh(rawBasket);
+            const newlyAddedProducts = differenceBy(
+              basket.products.value,
+              baseBasketProducts,
+              "id"
+            );
+
+            if (!isEmpty(newlyAddedProducts)) {
+              dataLayer({ event: "add_to_cart" })
+                .withItems(newlyAddedProducts)
+                .push();
+            }
+
+            callback({ type: "UPDATED", data: rawBasket });
           })
-          .then((_rawBasket: IBasket) => {
+          .catch(error => {
+            callback({ type: "ERROR", data: error, context: event.target });
+            callback({ type: "CANCEL", data: event.target });
+          });
+
+      case "REMOVE":
+        callback({ type: "PROCESSING" });
+
+        productServices
+          .remove(rawBasket?.id, event.target.id)
+          .then((rawBasket: IBasket) => {
+            basketProduct = basket.findProduct({ id: event.target.id });
+
             if (basketProduct)
               dataLayer({ event: "remove_from_cart" })
                 .withItems([basketProduct])
                 .push();
-          })
-          .then(() => {
-            basket
-              .refresh()
-              .then((rawBasket?: IBasket) =>
-                callback({ type: "REMOVED", data: rawBasket })
-              );
+
+            basket.prefresh(rawBasket);
+            callback({ type: "UPDATED", data: rawBasket });
           })
           .catch(error => {
             // console.error("basketHelper", "REMOVE", error);
-            callback({ type: "ERROR", data: error });
-            callback({ type: "CANCEL" });
+            callback({ type: "ERROR", data: error, context: event.target });
+            callback({ type: "CANCEL", data: event.target });
           });
 
         break;

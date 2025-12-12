@@ -5,6 +5,7 @@
 // --- utils
 
 import { reduce, includes, find, values } from "lodash-es";
+import { zeroDecimalCurrencies } from "../utils";
 
 // --- types
 import {
@@ -15,8 +16,7 @@ import {
   IDEAL_PC,
   PAYPAL_PC,
   SEPA_PC,
-  STRIPE_PAYMENT_METHOD_TYPES,
-  ZERO_DECIMAL_CURRENCIES
+  STRIPE_PAYMENT_METHOD_TYPES
 } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -101,7 +101,6 @@ export function parseMinorUnitAmount(value: number, currency: string) {
   const currencyCode = currency?.toUpperCase() as any; // ensure it's uppercase
 
   const amount = value || 0;
-  const zeroDecimalCurrencies = values(ZERO_DECIMAL_CURRENCIES);
   // First, handle special case for UGX (Ugandan Shilling)
   // ↳ Round to nearest integer, then convert to minor unit (x100)
   if ([ISO_4217_CURRENCY_CODE.UGX].includes(currencyCode))

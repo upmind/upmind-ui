@@ -130,6 +130,7 @@ async function update(
 
   // get returns a promise so we can pass it directly back to the machine
   return put({
+    mutationKey: ["basket", "billing"],
     url: useUrl(`/orders/${basketId}`),
     data: {
       address_id: model?.addressId,

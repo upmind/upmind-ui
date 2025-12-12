@@ -1,9 +1,5 @@
 <template>
-  <Suspense
-    @pending="setLoading(true)"
-    @resolve="setLoading(false)"
-    @fallback="setLoading(true)"
-  >
+  <Suspense>
     <Loading
       :active="!meta.isAvailable || !meta.hasSettings"
       class-active="h-full min-h-screen w-full text-base bg-canvas"
@@ -11,26 +7,41 @@
     >
       <Page :class="styles.page" v-if="meta.isAvailable && meta.hasSettings">
         <slot name="header">
-          <Header />
+          <Header :logo="props.logo" :storefront-route="props.storefrontRoute">
+            <template #branding>
+              <slot name="header-branding" />
+            </template>
+            <template #actions>
+              <slot name="header-actions" />
+            </template>
+          </Header>
         </slot>
 
+        <AsyncLoading :open="!routeMeta.isResolved" v-bind="loadingProps" />
+
         <Main>
-          <RouterView v-slot="routerViewProps" :key="$route.fullPath">
+          <RouterView v-slot="routerViewProps" :key="$route.path">
             <slot v-bind="routerViewProps">
               <template v-if="routerViewProps.Component">
-                <Suspense
-                  @pending="setLoading(true)"
-                  @resolve="setLoading(false)"
-                  @fallback="setLoading(true)"
-                >
+                <Suspense>
                   <KeepAlive>
-                    <component :is="routerViewProps.Component" />
+                    <Transition
+                      mode="out-in"
+                      @after-enter="scrollToAnchor"
+                      enter-active-class="transition-opacity duration-500 ease-in-out"
+                      leave-active-class="transition-opacity duration-500 ease-in-out"
+                      enter-from-class="opacity-0"
+                      leave-to-class="opacity-0"
+                      appear
+                    >
+                      <component :is="routerViewProps.Component" />
+                    </Transition>
                   </KeepAlive>
 
                   <template #fallback>
                     <AsyncLoading
                       v-bind="loadingProps"
-                      v-if="meta.isAvailable && meta.hasSettings"
+                      v-if="routeMeta.isResolved"
                     />
                   </template>
                 </Suspense>
@@ -44,7 +55,7 @@
         </slot>
       </Page>
 
-      <Feedback v-if="meta.isAvailable" />
+      <Feedback v-if="meta.isAvailable" :storefront-route="storefrontRoute" />
     </Loading>
   </Suspense>
 </template>
@@ -60,13 +71,15 @@ export default {
 <script setup lang="ts">
 // --- external
 import { computed, nextTick, ref } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, type RouteLocationAsRelativeGeneric } from "vue-router";
 
 // --- internal
-import useUpmind, { UpmindStatus } from "@upmind-automation/headless";
+import useUpmind, {
+  UpmindStatus,
+  useRoutingEngine
+} from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import { useTheme } from "./modules/theming";
-import { useLayout } from "./components/layout/useLayout";
 
 // --- components
 import Header from "./components/header/Header.vue";
@@ -89,47 +102,36 @@ const props = defineProps<{
   theme?: string;
   logo?: string;
   loadingProps?: InterstitialProps;
+  storefrontRoute?: RouteLocationAsRelativeGeneric;
 }>();
-const loading = ref(true);
 
 // -----------------------------------------------------------------------------
 
+const { meta: routeMeta } = useRoutingEngine();
+
 const themeReady = ref(false);
 
-const currentRoute = useRoute();
+const route = useRoute();
 
 const meta = computed(() => ({
   isAvailable: useUpmind.status.value == UpmindStatus.initialised,
-  isLoading: loading.value,
+  isLoading: !routeMeta.value.isResolved,
   hasSettings: themeReady.value
 }));
-
-const route = computed(() =>
-  get(currentRoute, "name", get(currentRoute, "path", ""))
-);
 
 // add any page specific styles here based on route or other state
 const styles = useStyles(
   ["page"],
   computed(() => {
     return {
-      route: route.value,
-      loading: loading.value,
+      route: get(route, "name", get(route, "path", "")),
+      loading: !meta.value.isLoading,
       available: meta.value.isAvailable
     };
   })
 ) as ComputedRef<{
   page: string;
 }>;
-
-/**
- * Set loading state for the app and once loading is complete scroll to any anchor in the URL
- * @param value
- */
-function setLoading(value: boolean) {
-  loading.value = value;
-  if (!value) scrollToAnchor();
-}
 
 /**
  * Scroll to any anchor in the URL once the App is loaded and all awaits are complete

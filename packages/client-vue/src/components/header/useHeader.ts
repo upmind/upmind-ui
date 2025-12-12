@@ -7,26 +7,40 @@ import { Store } from "@upmind-automation/headless";
 // --- async components
 
 // --- utils
-import { get, isEmpty, isObject, merge, values } from "lodash-es";
+import { isEmpty, isObject, merge } from "lodash-es";
 
 // --- types
-import { HEADER_TEMPLATE, type HeaderProps } from "./types";
+import {
+  HEADER_POSITION,
+  HEADER_JUSTIFY,
+  HEADER_ITEMS,
+  HEADER_BACKGROUND,
+  type UseHeaderProps,
+  HEADER_PADDING,
+  HEADER_BORDER
+} from "./types";
 
 // -----------------------------------------------------------------------------
 // --- global context
 
-const defaultHeaderProps: HeaderProps = {
+const defaultHeaderProps: UseHeaderProps = {
   visible: true,
-  template: HEADER_TEMPLATE.DEFAULT,
   noSession: false,
   noBasket: false,
-  noLogo: false
+  noLogo: false,
+  border: HEADER_BORDER.NONE,
+  position: HEADER_POSITION.STATIC,
+  background: HEADER_BACKGROUND.CANVAS,
+  items: HEADER_ITEMS.END,
+  justifyLeft: HEADER_JUSTIFY.START,
+  justifyRight: HEADER_JUSTIFY.END,
+  padding: HEADER_PADDING.MD
 };
 
-const headerConfig = new Store<HeaderProps>(defaultHeaderProps);
+const headerConfig = new Store<UseHeaderProps>(defaultHeaderProps);
 
 // NB: Create a reactive ref initialized with the store's current state.
-const config = ref<HeaderProps>(headerConfig.state);
+const config = ref<UseHeaderProps>(headerConfig.state);
 headerConfig.subscribe(state => (config.value = state.currentVal));
 
 // -----------------------------------------------------------------------------
@@ -35,17 +49,29 @@ headerConfig.subscribe(state => (config.value = state.currentVal));
  * @return An object containing header management methods and properties.
  *
  */
-export const useHeader = (initial?: Partial<HeaderProps>) => {
+export const useHeader = (initial?: Partial<UseHeaderProps>) => {
   // Reset to defaults and apply initial overrides if provided
   if (initial) {
     headerConfig.setState(
-      merge({}, defaultHeaderProps, initial) as HeaderProps
+      merge({}, defaultHeaderProps, initial) as UseHeaderProps
     );
   }
 
   // --- state
   const meta = computed(() => {
-    const { visible, noSession, noBasket, noLogo } = config.value;
+    const {
+      visible,
+      noSession,
+      noBasket,
+      noLogo,
+      background,
+      position,
+      justifyLeft,
+      justifyRight,
+      items,
+      border,
+      padding
+    } = config.value;
 
     return {
       isVisible: !!visible,
@@ -53,30 +79,22 @@ export const useHeader = (initial?: Partial<HeaderProps>) => {
       showSession: !noSession,
       showBasket: !noBasket,
       hasActions: !(noBasket && noSession),
-      hasContent: !noLogo
+      hasContent: !noLogo,
+      background,
+      position,
+      justifyLeft,
+      justifyRight,
+      items,
+      border,
+      padding
     };
   });
 
-  // --- context
-
-  const supportedTemplates: HEADER_TEMPLATE[] = values(HEADER_TEMPLATE);
-
-  const defaultTemplate = HEADER_TEMPLATE.DEFAULT;
-
-  const template = computed(() => {
-    const template = config.value.template ?? defaultTemplate;
-    return get(
-      supportedTemplates,
-      template,
-      get(supportedTemplates, defaultTemplate)
-    );
-  });
-
   // --- methods
-  function update(values: Partial<HeaderProps>) {
+  function update(values: Partial<UseHeaderProps>) {
     if (!isObject(values) || isEmpty(values)) return;
     headerConfig.setState(
-      (prev: HeaderProps) => merge({}, prev, values) as HeaderProps
+      (prev: UseHeaderProps) => merge({}, prev, values) as UseHeaderProps
     );
   }
 
@@ -129,10 +147,6 @@ export const useHeader = (initial?: Partial<HeaderProps>) => {
     update({ noLogo: false });
   }
 
-  function setTemplate(template: HeaderProps["template"]) {
-    update({ template });
-  }
-
   // ---------------------------------------------------------------------------
   return {
     // --- state
@@ -149,14 +163,6 @@ export const useHeader = (initial?: Partial<HeaderProps>) => {
      * @property {boolean} hasContent - Indicates if there is any content to display.
      */
     meta,
-
-    // --- context
-
-    /**
-     * The current footer template component.
-     */
-    template,
-    templateName: computed(() => config.value.template),
 
     // --- methods
     /**
@@ -236,13 +242,6 @@ export const useHeader = (initial?: Partial<HeaderProps>) => {
      * Shows all content components (logo, powered by, and Basket).
      * @returns {void}
      */
-    showContent,
-
-    /**
-     * Sets the footer template variant.
-     * @param {HEADER_TEMPLATE} template - The template variant to set.
-     * @returns {void}
-     */
-    setTemplate
+    showContent
   };
 };

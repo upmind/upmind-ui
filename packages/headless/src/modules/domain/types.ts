@@ -2,7 +2,6 @@
 import type { ActorRef } from "xstate";
 
 // --- internal
-import type { IBasketPromotion } from "@upmind-automation/types";
 import type { Product, ProductSummaryDetail } from "../product";
 import type { BasketHelperContext } from "../basketProduct";
 import type { ResponseError } from "../../utils";
@@ -63,6 +62,10 @@ export type DomainProduct = Product &
       selected?: boolean;
       /** `true` if the domain has been persisted in some way (e.g. saved). */
       persisted?: boolean;
+      /** `true` if the domain exactly matches the search query. */
+      exactMatch?: boolean;
+      /** `true` if the domain is currently being processed (e.g. during 'add to basket'). */
+      processing?: boolean;
     };
   };
 
@@ -99,24 +102,12 @@ export type DomainProps = {
  * It holds the state for domain availability checks, existing domains, basket integration,
  * search queries, and related lookups.
  */
-export interface DomainContext extends BasketHelperContext<DomainProduct> {
-  /**
-   * An array of available {@link DomainTypes} to choose from.
-   */
-  choices: DomainTypes[];
-  /**
-   * The currently active {@link DomainTypes} being managed.
-   */
-  type?: DomainProps["type"];
-  // ---
+export interface DacContext extends BasketHelperContext<DomainProduct> {
   /**
    * The current {@link DomainModel} or array of models representing the selected domains.
    */
   model?: DomainModel[];
-  /**
-   * The base {@link DomainModel} or array of models, representing the initial state before user modifications.
-   */
-  baseModel?: DomainModel[];
+
   // ---
   /**
    * Lookups for domain data, including searched, history, owned, and basket domains.
@@ -131,10 +122,7 @@ export interface DomainContext extends BasketHelperContext<DomainProduct> {
     /** Domains currently in the client's basket. */
     basket: DomainProduct[];
   };
-  /**
-   * The total number of domain items available in the current context (e.g. search results).
-   */
-  total?: number;
+
   /**
    * The preferred billing cycle duration in months for domains.
    */
@@ -166,13 +154,81 @@ export interface DomainContext extends BasketHelperContext<DomainProduct> {
    */
   brandId?: string;
   /**
-   * An array of {@link IBasketPromotion} objects applicable to domains.
+   * An array of promotion codes applied to the domain operations.
    */
-  promotions?: IBasketPromotion[];
+  coupons?: string[];
+
   /**
-   * An `AbortController` instance to manage ongoing fetch requests.
+   * An array of available Top-Level Domains (TLDs).
    */
-  controller?: AbortController;
+  tlds?: string[];
+  // ---
+  /**
+   * An error object if any issue occurred during domain operations.
+   */
+  error?: ResponseError;
+  // ---
+  /**
+   * An `ActorRef` to an authentication helper service.
+   */
+  authHelper?: ActorRef<any>;
+  /**
+   * An `ActorRef` to a basket helper service.
+   */
+  basketHelper?: ActorRef<any>;
+}
+
+export interface DomainContext extends BasketHelperContext<DomainProduct> {
+  /**
+   * An array of available {@link DomainTypes} to choose from.
+   */
+  choices: DomainTypes[];
+  /**
+   * The currently active {@link DomainTypes} being managed.
+   */
+  type?: DomainProps["type"];
+  // ---
+  /**
+   * The current {@link DomainModel} representing the selected domain.
+   */
+  model?: DomainModel;
+  /**
+   * The base {@link DomainModel}, representing the initial state before user modifications.
+   */
+  baseModel?: DomainModel;
+  // ---
+  /**
+   * Lookups for domain data, including searched, history, owned, and basket domains.
+   */
+  lookups: {
+    /** Domains owned by the client. */
+    owned: DomainProduct[];
+    /** Domains currently in the client's basket. */
+    basket: DomainProduct[];
+  };
+
+  /**
+   * The preferred billing cycle duration in months for domains.
+   */
+  preferredCycle?: number;
+  // ---
+  /**
+   * The currency code (e.g. "GBP") to be used for domain pricing.
+   */
+  currency?: string;
+  /**
+   * The unique identifier of the shopping basket.
+   */
+  basketId?: string;
+  /**
+   * The unique identifier of the brand.
+   */
+  brandId?: string;
+  /**
+   * An array of promotion codes applied to the domain operations.
+   */
+  coupons?: string[];
+
   /**
    * An array of available Top-Level Domains (TLDs).
    */

@@ -1,16 +1,14 @@
 // -----------------------------------------------------------------------------
 
+import { defineAsyncComponent } from "vue";
+
 // --- Export Views
 // NB: for views that are used in routes, we need to use defineAsyncComponent
 // to avoid circular dependencies. and to be able to lazy load them.
 
-export const Upm404View = import("./404.vue");
-export const UpmEmptyView = import("./Empty.vue");
-export const UpmLoadingView = import("./Loading.vue");
-
-// --- Export Components
-export { default as UpmLoading } from "./Loading.vue";
-export { default as UpmError } from "./Error.vue";
-export { default as UpmEmpty } from "./Empty.vue";
+export const Upm404 = defineAsyncComponent(() => import("./404.vue"));
+export const UpmLoading = defineAsyncComponent(() => import("./Loading.vue"));
+export const UpmError = defineAsyncComponent(() => import("./Error.vue"));
+export const UpmEmpty = defineAsyncComponent(() => import("./Empty.vue"));
 
 // --- Export Types

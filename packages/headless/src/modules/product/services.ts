@@ -22,7 +22,8 @@ import {
   checkSubproducts,
   checkProvisioning,
   parseSubproductDetails,
-  parseProvisioningSchema
+  parseProvisioningSchema,
+  parseProductProps
 } from "./utils";
 
 import {
@@ -40,14 +41,19 @@ import {
 } from "lodash-es";
 
 // --- types
-import { BrandConfigKeys, IProduct } from "@upmind-automation/types";
+import {
+  BrandConfigKeys,
+  IBlueprintField,
+  IProduct
+} from "@upmind-automation/types";
 
 import type {
   Price,
   PriceCalculations,
   ProductModel,
   SubproductModel,
-  ProductConfigContext
+  ProductConfigContext,
+  ProductProps
 } from "./types";
 
 import { AnyEventObject } from "xstate";
@@ -58,6 +64,7 @@ import { parseBasketSubproductConfig } from "../basketProduct/utils";
 async function load(
   {
     model,
+    subproducts,
     currencyId,
     currencyCode,
     coupons,
@@ -96,7 +103,6 @@ async function load(
   const params = {
     currency_id: currency?.id,
     promotions,
-    with_staged_imports: true,
     with: [
       "image",
       "images",
@@ -137,10 +143,14 @@ async function load(
   );
 
   return Promise.all([productPromise, provisioningPromise]).then(
-    ([product, provisioning]) => {
+    ([product, rawProvisionFields]) => {
       return {
+        model: parseProductProps(
+          { ...model, subproducts } as ProductProps,
+          product
+        ),
         product,
-        provisioning: parseProvisioningSchema(provisioning, product),
+        rawProvisionFields,
         currency
       };
     }
@@ -169,11 +179,11 @@ async function loadProvisioningFields(
   const subProducts = compact(map(concat(options, attributes), "product_id"));
 
   // we don't cache provisioning fields, as they can change with different options/attributes being selected
-  return getRequest({
+  return getRequest<IBlueprintField[]>({
     url: useUrl(`basket/products/${productId}/provision_fields`, {
       sub_product_ids: subProducts
     }),
-    queryKey: ["product", productId, "provision-fields", { subProducts }],
+    queryKey: ["product", productId, { subProducts }, "provision-fields"],
     withAccessToken: true
   });
 }
@@ -260,15 +270,18 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
   values.attributes = attributes.subproducts;
 
   // update the provisioning fields : we need to do this when attributes/options change
-  lookups.provisionFields = await loadProvisioningFields(
+  const rawProvisionFields = await loadProvisioningFields(
     { model: values } as ProductConfigContext,
     {} as AnyEventObject
-  ).then(provisioning =>
-    parseProvisioningSchema(provisioning, context.rawProduct!)
+  );
+
+  lookups.provisionFields = parseProvisioningSchema(
+    rawProvisionFields,
+    context.rawProduct!
   );
 
   // ---
-  return Promise.resolve({ model: values, lookups });
+  return Promise.resolve({ model: values, lookups, rawProvisionFields });
 }
 
 async function validate(context: ProductConfigContext, _event: AnyEventObject) {
@@ -342,14 +355,13 @@ function calculate(prices: PriceCalculations, overrides: boolean): number[] {
 
 async function formatCalculation(
   currencyId: string,
-  values: number[],
-  controller: AbortController
+  values: number[]
 ): Promise<Price> {
   const { post, useUrl } = useQuery();
 
   return post({
+    mutationKey: ["cart", "calculate"],
     url: useUrl("cart/calculate", {}),
-    init: { signal: controller?.signal },
     withAccessToken: true,
     data: {
       currency_id: currencyId,
@@ -372,9 +384,9 @@ async function formatCalculation(
 
 export function calculateSubscription(callback: Function, onReceive: Function) {
   // firstly, send service's current state upon subscription
-  let controller: AbortController | null;
 
   let price: Price | undefined;
+  const { cancel } = useQuery();
 
   onReceive((event: any) => {
     if (event.type === "CALCULATE") {
@@ -404,15 +416,7 @@ export function calculateSubscription(callback: Function, onReceive: Function) {
 
       callback({ type: "CALCULATING" });
 
-      // if we do...we need to check if we have a controller already doing calculation requests.
-      // if we do, we need to abort the current request and start a new one.
-      if (controller?.signal && !controller.signal?.aborted) {
-        controller?.abort();
-      }
-
-      // create a new controller to allow us to abort the request if needed
-      controller = new AbortController();
-      formatCalculation(currencyId, values, controller)
+      formatCalculation(currencyId, values)
         .then((result: Price) => {
           // send the price back to the machine
           price = result;
@@ -426,11 +430,7 @@ export function calculateSubscription(callback: Function, onReceive: Function) {
     }
 
     if (event.type === "CANCEL") {
-      // Firstly, we need to check if we have a controller already doing calculation requests.
-      // If we do, we need to abort the current request and start a new one.
-      if (controller?.signal && !controller.signal?.aborted) {
-        controller?.abort("Request cancelled");
-      }
+      cancel(["cart", "calculate"]);
     }
   });
 
@@ -438,9 +438,7 @@ export function calculateSubscription(callback: Function, onReceive: Function) {
     // The subscriber has unsubscribed from this service
     // typically when the transitioning out of the state node
     //  so cancel any pending requests
-    if (controller?.signal && !controller.signal?.aborted) {
-      controller?.abort("Subscripton terminated");
-    }
+    cancel(["cart", "calculate"]);
   };
 }
 

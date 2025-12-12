@@ -60,6 +60,7 @@ async function storePaymentMethod({
 
   // TODO: correct Typing
   return post<IPaymentDetail>({
+    mutationKey: ["clients", clientId, "payment_details"],
     url: useUrl(`clients/${clientId}/payment_details`),
     data: {
       card_type: model.card_type,

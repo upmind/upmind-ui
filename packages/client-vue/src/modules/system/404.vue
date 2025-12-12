@@ -6,7 +6,7 @@
       :text="t('error.404_text')"
       :actions="[
         {
-          ...storefrontRoute,
+          to: props.storefrontRoute,
           variant: 'solid',
           color: 'primary',
           icon: 'arrow-left',
@@ -35,27 +35,33 @@
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
-import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
-import { useBrand } from "@upmind-automation/headless";
 
 // -- components
 import { Interstitial, IconAnimated } from "@upmind-automation/upmind-ui";
-import Layout from "../../components/layout/Layout.vue";
 
 // -- types
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
+
+// -----------------------------------------------------------------------------
+
+const props = withDefaults(
+  defineProps<
+    InterstitialProps & {
+      storefrontRoute: RouteLocationAsRelativeGeneric;
+    }
+  >(),
+  {
+    open: true,
+    modal: true
+  }
+);
 
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { storefrontRoute } = useBrand();
-
-const props = withDefaults(defineProps<InterstitialProps>(), {
-  open: true,
-  modal: true
-});
 
 const createRepeatSequence = (
   sequence: string,

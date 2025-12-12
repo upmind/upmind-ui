@@ -15,7 +15,7 @@
           :is="getTermsComponent"
           :errors="errors?.term"
           :touched="meta.showErrors"
-          :items="terms"
+          :items="terms ?? []"
           :label="t('term.label')"
           :model-value="model?.term"
           :processing="meta.isProcessing || meta.isLoading"
@@ -66,7 +66,7 @@
           :additional-errors="additionalErrors?.provisionFields"
           :touched="meta.showErrors"
           :fields="fields"
-          :model-value="model.provisionFields"
+          :model-value="model?.provisionFields"
           @update:modelValue="setProvisioningFields"
         />
       </div>
@@ -90,11 +90,11 @@
 
         <span
           :class="styles.product.config.itemtotal"
-          v-if="product.price.regularAmount"
+          v-if="product?.price?.regularAmount"
         >
           <span>{{ t("text.total") }}</span>
           <strong :class="styles.product.config.bold">
-            {{ product.price?.regularPrice }}
+            {{ product?.price?.regularPrice }}
           </strong>
         </span>
 
@@ -209,8 +209,8 @@ const styles = useStyles(["product.config"], meta, config) as ComputedRef<{
 const getTermsComponent = computed(() => {
   // TODO: Can we do this in a lookup?
   const control =
-    product.value.productDetails?.uiMeta?.uischema?.billing?.control ||
-    product.value.productDetails?.uiCategoryMeta?.uischema?.billing?.control;
+    product.value?.productDetails?.uiMeta?.uischema?.billing?.control ||
+    product.value?.productDetails?.uiCategoryMeta?.uischema?.billing?.control;
   return control?.toLowerCase() === "termsconfigselect"
     ? TermsConfigSelect
     : TermsConfigGrid;

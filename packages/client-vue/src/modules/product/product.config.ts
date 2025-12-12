@@ -264,13 +264,34 @@ export default {
             }
           }),
           // ---
-          title: cva("text-md-tight m-0 font-medium text-nowrap text-inherit"),
+          title: cva("m-0 font-medium text-nowrap text-inherit", {
+            variants: {
+              layout: {
+                stacked: "text-md-tight",
+                inline: "text-md"
+              }
+            },
+            defaultVariants: {
+              layout: "stacked"
+            }
+          }),
           text: cva("text-muted w-full text-sm font-normal"),
           total: cva("", {
             variants: {
               layout: {
                 stacked: "text-3xl font-medium",
                 inline: "font-normal"
+              }
+            },
+            defaultVariants: {
+              layout: "stacked"
+            }
+          }),
+          ex: cva("", {
+            variants: {
+              layout: {
+                stacked: "",
+                inline: "text-sm"
               }
             },
             defaultVariants: {
@@ -329,13 +350,8 @@ export default {
       currentPrice: cva("leading-none")
     },
 
-    summary: cva("", {
-      variants: {
-        layout: {
-          full: "gap-8",
-          enclosed: "gap-6"
-        }
-      }
-    })
+    summary: cva(""),
+
+    actions: cva("flex w-full flex-col gap-6 font-medium lg:flex-row")
   }
 };

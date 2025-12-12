@@ -33,6 +33,7 @@ import { useI18n } from "vue-i18n";
 import { useUpmindUIRenderer, Link } from "@upmind-automation/upmind-ui";
 import config from "../form.config";
 import { useStyles } from "@upmind-automation/upmind-ui";
+import { useBrand } from "@upmind-automation/headless";
 
 // --- components
 import { FormField, RadioCards } from "@upmind-automation/upmind-ui";
@@ -51,6 +52,8 @@ const props = defineProps<RendererProps<ControlElement>>();
 
 const { control, formFieldProps, appliedOptions, onInput } =
   useUpmindUIRenderer(useJsonFormsEnumControl(props));
+
+const { uiCart } = useBrand();
 
 const { t } = useI18n();
 
@@ -100,7 +103,11 @@ const styles = useStyles("form.radioCollapsible", {}, config) as ComputedRef<{
 }>;
 
 const collapseAt = computed(() => {
-  return appliedOptions.value?.collapse || 4;
+  return (
+    appliedOptions.value?.collapse ||
+    uiCart.value?.ui?.uischema?.payment?.gateways?.clamp ||
+    4
+  );
 });
 
 const allowShowMore = computed(() => {

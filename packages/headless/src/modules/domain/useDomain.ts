@@ -6,35 +6,38 @@ import { useActor } from "@xstate/vue";
 
 // --- internal
 import { useI18n } from "../system";
+import { useQueryParams } from "../routing";
 import domainMachine from "./domain.machine";
 
 // --- utils
 import {
   map,
-  find,
-  first,
-  debounce,
   has,
   isArray,
   some,
   get,
-  isEmpty
+  isEmpty,
+  debounce,
+  filter
 } from "lodash-es";
 import {
   stopService,
-  DEBOUNCE_DELAY,
   stateMatches,
   useContext,
   contextMatches,
   contextValue,
-  DetailedError,
-  responseCodes,
-  ErrorOrigin
+  DEBOUNCE_DELAY,
+  useChildActor
 } from "../../utils";
 import { parseDomain } from "./utils";
 
 // --- types
-import { DomainTypes, DomainContext, DomainProduct } from "./types";
+import {
+  DomainTypes,
+  DomainContext,
+  DomainProduct,
+  DomainModel
+} from "./types";
 import { PAGINATION } from "../query";
 
 // -----------------------------------------------------------------------------
@@ -44,18 +47,23 @@ import { PAGINATION } from "../query";
  * Provides state, context, and helpers for domain-related flows (DAC, existing, basket).
  *
  * @param value - Initial domain(s) to use as the model.
- * @param options - Optional configuration for the domain type.
+ * @param options - required configuration for the domain type.
  * @param options.type - The type of domain to manage (e.g., "dac", "existing", "basket").
  *                     If not provided, defaults to all available domain types.
  * @returns Domain management API (state, computed, and methods)
  */
 export const useDomain = (
   value: string | Array<string> = "",
-  options?: {
-    type: DomainTypes;
+  options: {
+    type?: DomainTypes;
+    preferredCycle?: number;
+  } = {
+    type: undefined
   }
 ) => {
   const { t } = useI18n();
+  const { getParam, setParam, unsetParam } = useQueryParams();
+
   // safety check to ensure forcedType is valid
   const safeType =
     options?.type && has(DomainTypes, options.type) ? options.type : undefined;
@@ -66,9 +74,15 @@ export const useDomain = (
     domainMachine.withContext({
       type: safeType,
       choices: safeType,
-      model: safeModel
+      model: safeModel,
+      preferredCycle: options?.preferredCycle,
+      search: {
+        query: getParam("search", ""), // Get any initial search query from URL
+        limit: PAGINATION.limit,
+        offset: PAGINATION.offset
+      }
     } as any),
-    { devTools: false }
+    { devTools: true }
   );
 
   const { state, send } = useActor(service.start());
@@ -88,38 +102,45 @@ export const useDomain = (
   const meta = computed(() => {
     return {
       isLoading: stateMatches(state, ["subscribing", "loading"]),
-      isSyncing: stateMatches(state, [
-        "dac.processingBasket",
-        "basket.processing"
-      ]),
-      isSearching: stateMatches(state, [
-        "dac.loading",
-        "dac.processing",
-        "existing.loading",
-        "existing.processing",
-        "basket.loading"
-      ]),
+
+      isProcessing:
+        stateMatches(state, ["dac"]) &&
+        some(available.value, "meta.processing"),
+
+      isSearching:
+        stateMatches(state, ["dac"]) &&
+        stateMatches(dac, "searching") &&
+        (query.value?.length ?? 0) > 2,
+
       isSearchingMore:
-        stateMatches(state, ["dac.loading", "dac.processing"]) &&
+        stateMatches(state, ["dac"]) &&
+        stateMatches(dac, "searching") &&
+        (query.value?.length ?? 0) > 2 &&
         pagination.value.offset > 0,
+
       hasMoreSearchResults:
         stateMatches(state, ["dac"]) &&
         pagination.value.offset + pagination.value.limit <
           pagination.value.total,
-      hasErrors: stateMatches(state, [
-        "error",
-        "dac.error",
-        "existing.error",
-        "basket.error"
-      ]),
-      showChoices: contextMatches(state, "choices"),
+
+      hasErrors:
+        stateMatches(state, ["error", "existing.error", "basket.error"]) ||
+        stateMatches(dac, ["error"]),
+
+      isEmpty: isEmpty(selected.value) && isEmpty(added.value),
+      hasAvailable: !isEmpty(available.value),
+      showChoices: contextValue(state, "choices", [])!.length > 1,
       showDac: stateMatches(state, ["dac"]),
+      showSearchResults:
+        stateMatches(state, "dac") &&
+        !isEmpty(available.value) &&
+        !!query.value,
       showExisting: stateMatches(state, ["existing"]),
       showBasket: stateMatches(state, ["basket"]),
       isValid:
-        stateMatches(state, ["dac.valid", "existing.valid", "basket.valid"]) &&
-        contextMatches(state, "model"),
-
+        (stateMatches(dac, ["valid"]) && contextMatches(dac, "model")) ||
+        (stateMatches(state, ["existing.valid", "basket.valid"]) &&
+          contextMatches(state, "model")),
       showSelected:
         stateMatches(state, [
           "dac.complete",
@@ -140,10 +161,9 @@ export const useDomain = (
     )
   );
 
-  const query = useContext<string>(state, "search.query");
-
-  // const model = useContext<DomainContext["model"]>(state, "model");
-  const model = computed(() => map(state.value.context.model, "domain"));
+  const model = computed(
+    () => contextValue<DomainContext["model"]>(state, "model")?.domain
+  );
 
   const type = useContext<DomainContext["type"]>(state, "type");
 
@@ -151,16 +171,21 @@ export const useDomain = (
 
   const basket = useContext<DomainProduct[]>(state, "lookups.basket", []);
 
-  const available = useContext<DomainProduct[]>(state, "lookups.searched", []);
-
   const errors = useContext<DomainContext["error"]>(state, "error");
 
-  const selected = computed(() => {
-    const selected =
-      find(state.value.context?.model, "selected") ||
-      first(state.value.context?.model);
-    return get(selected, "domain");
-  });
+  const selected = computed(() => get(contextValue(state, "model"), "domain"));
+
+  // --- dac context
+
+  const dac = useChildActor(state, "dac");
+
+  const query = useContext<string>(dac, "search.query");
+
+  const available = useContext<DomainProduct[]>(dac, "lookups.searched", []);
+
+  const added = computed(() =>
+    map(contextValue<DomainProduct[]>(dac, "model"), "domain")
+  );
 
   const search = useContext<DomainContext["search"]>(state, "search");
 
@@ -172,15 +197,19 @@ export const useDomain = (
 
   // --- methods
 
-  function choose(value: string): void {
+  function choose(value?: string | DomainTypes): void {
+    if (!value) return;
     send({
       type: "CHOOSE",
       data: value
     });
   }
 
-  function searchDomains(query: string): void {
+  function searchDomains(query?: string) {
+    if (!query) return;
     send({ type: "SEARCH", data: query });
+    // Update URL immediately when search is triggered
+    setParam("search", query);
   }
 
   function searchMore(): void {
@@ -189,7 +218,7 @@ export const useDomain = (
 
   function toggle(value: string): void {
     const type =
-      isArray(model.value) && some(model.value, { domain: value })
+      isArray(added.value) && some(added.value, { domain: value })
         ? "REMOVE"
         : "ADD";
     send({
@@ -198,17 +227,22 @@ export const useDomain = (
     });
   }
 
-  function update(model: string | Array<string>): void {
+  function update(value?: string | Array<string>): void {
+    if (!value) return;
     send({
       type: "UPDATE",
-      data: isArray(model) ? model : [model]
+      data: isArray(value) ? value : [value]
     });
+    // housekeeping: clear search param on update
+    unsetParam("search");
   }
 
   function reset(): void {
     send({
       type: "RESET"
     });
+    // housekeeping: clear search param on reset
+    unsetParam("search");
   }
 
   function add(value: string): void {
@@ -225,48 +259,20 @@ export const useDomain = (
     });
   }
 
-  function select(value: string): void {
+  function select(value?: string): void {
+    if (!value) return;
     send({
       type: "SELECT",
       data: value
     });
   }
 
-  async function addToBasket(): Promise<void> {
-    // first check if our fields have change, ie: model.code has changed
-
-    if (!isEmpty(selected.value)) {
-      send({
-        type: "ADD_UPDATE_MANY"
-      });
-    }
-    // then wait for the paymentGateway actor to be updated
-    return waitFor(
-      service,
-      state => stateMatches(state, ["basket", "dac.error"]),
-      { timeout: Infinity }
-    )
-      .then(state => {
-        if (stateMatches(state, "dac.error")) throw state.context.error;
-        return Promise.resolve();
-      })
-      .catch(error => {
-        return Promise.reject(
-          new DetailedError(
-            error?.message ?? t("error.domain_add_failed"),
-            error?.code ?? responseCodes.Timeout,
-            error?.origin ?? ErrorOrigin.Headless,
-            error?.data ?? {
-              error,
-              state: state.value
-            }
-          )
-        );
-      });
+  function isSelected(value: string): boolean {
+    return model.value == value;
   }
 
-  function isSelected(value: string): boolean {
-    return some(model.value, { domain: value });
+  function complete(): void {
+    send({ type: "COMPLETE", data: DomainTypes.basket });
   }
 
   // -----------------------------------------------------------------------------
@@ -283,17 +289,20 @@ export const useDomain = (
     /**
      * Meta information about the domain state.
      * @typedef {Object} DomainMeta
+     * @property {boolean} isEmpty - Indicates if no domains are selected.
      * @property {boolean} isLoading - Indicates if the domain state is loading.
-     * @property {boolean} isSyncing - Indicates if the domain state is syncing.
+     * @property {boolean} isLoadingMore - Indicates if more search results are being loaded.
+     * @property {boolean} isProcessing - Indicates if the domain state is syncing.
      * @property {boolean} isSearching - Indicates if a search is in progress.
-     * @property {boolean} isSearchingMore - Indicates if more search results are being loaded.
+     * @property {boolean} isValid - Indicates if the current model is valid.
      * @property {boolean} hasMoreSearchResults - Indicates if there are more search results.
+     * @property {boolean} hasAvailable - Indicates if there are available domains.
      * @property {boolean} hasErrors - Indicates if there are any errors.
      * @property {boolean} showChoices - Indicates if choices should be shown.
      * @property {boolean} showDac - Indicates if DAC view is active.
      * @property {boolean} showExisting - Indicates if existing view is active.
      * @property {boolean} showBasket - Indicates if basket view is active.
-     * @property {boolean} isValid - Indicates if the current model is valid.
+     * @property {boolean} showSelected - Indicates if a selection is shown.
      * @property {boolean} showSelected - Indicates if a selection is shown.
      */
     meta,
@@ -337,6 +346,9 @@ export const useDomain = (
      */
     available,
 
+    /** List of domains added via the DAC */
+    added,
+
     /**
      * Any errors encountered.
      */
@@ -370,7 +382,7 @@ export const useDomain = (
      * @param {string} query - The search query string.
      * @returns {void}
      */
-    search: debounce(searchDomains, DEBOUNCE_DELAY),
+    search: searchDomains,
 
     /**
      * Fetch more search results (pagination).
@@ -413,16 +425,17 @@ export const useDomain = (
      */
     select,
 
-    /** Add all selected domains to the basket.
-     * @returns {void}
-     */
-    addToBasket,
-
     /** Check if a domain value is selected in the model.
      * @param {string} value - The domain value to check.
      * @returns {boolean} True if the value is selected, false otherwise.
      */
     isSelected,
+
+    /** Complete the current domain workflow.
+     * When in DAC, this completes the DAC and transitions to basket.
+     * @returns {void}
+     */
+    complete,
 
     /** Stop the domain service.
      * @returns {void}
@@ -431,7 +444,5 @@ export const useDomain = (
   };
 };
 
-/**
- * The return type of useDomain composable.
- */
+/** The return type of {@link useDomain} composable. */
 export type UseDomain = ReturnType<typeof useDomain>;

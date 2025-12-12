@@ -59,6 +59,8 @@
   "currency_validation_failed": "Valutavalidatie mislukt",
   "domain_add_failed": "Het is niet gelukt om het domein aan het winkelmandje toe te voegen",
   "feedback_action_not_available": "Actie met waarde '{data}' niet beschikbaar.",
+  "funnel_not_available": "Trechter niet beschikbaar",
+  "funnels_not_available": "Trechters niet beschikbaar",
   "generic_error": "fout",
   "generic_text": "Laten we je weer op het goede spoor zetten",
   "generic_title": "Sorry, er is een **fout** opgetreden",

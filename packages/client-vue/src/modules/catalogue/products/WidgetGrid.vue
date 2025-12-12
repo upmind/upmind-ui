@@ -40,6 +40,7 @@
           :key="product.id"
           v-bind="product"
           :preserve-promotion="preservePromotions"
+          :configure-route="props.configureRoute"
         />
 
         <ProductCardSkeleton
@@ -50,6 +51,7 @@
       </div>
 
       <Pagination
+        v-if="meta.hasPages"
         v-bind="pagination"
         :meta="meta"
         @next="doNextPage"
@@ -122,6 +124,7 @@ import { debounce, isArray, isEmpty, some } from "lodash-es";
 import type { Product } from "@upmind-automation/headless";
 import type { ProductSortProps, ProductsProps } from "./types";
 import type { ComputedRef } from "vue";
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 const { DEBOUNCE_DELAY } = utils;
 
@@ -130,6 +133,7 @@ const { DEBOUNCE_DELAY } = utils;
 const props = withDefaults(
   defineProps<{
     limit?: number;
+    configureRoute: RouteLocationAsRelativeGeneric;
   }>(),
   { limit: 9 }
 );

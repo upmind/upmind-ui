@@ -1,2 +1,4 @@
+import { defineAsyncComponent } from "vue";
+
 // --- expose our modules & components
-export { default as UpmFeedback } from "./Feedback.vue";
+export const UpmFeedback = defineAsyncComponent(() => import("./Feedback.vue"));

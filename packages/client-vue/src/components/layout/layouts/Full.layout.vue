@@ -1,104 +1,118 @@
 <template>
-  <nav v-if="meta.hasControls" :class="styles.control.root">
-    <div :class="styles.control.container">
-      <slot name="controls" />
-      <slot name="navigation" />
-      <slot name="actions" />
-    </div>
-  </nav>
+  <Ribbon v-if="meta.hasContentHeader" as="header">
+    <Container>
+      <Column :class="meta.hasTabs ? 'pb-0 lg:pb-0' : ''">
+        <Content
+          :class="meta.hasTabs ? 'pb-0 lg:pb-0' : ''"
+          :gap="meta.hasTabs ? CONTENT_GAP.SM : CONTENT_GAP.MD"
+        >
+          <slot name="content-header" />
 
-  <article :class="cn(styles.full.root, props.class)">
-    <section
-      :class="styles.full.content.header.root"
-      v-if="meta.hasContentHeader"
-    >
-      <div :class="styles.full.content.header.container">
-        <slot name="content-header" />
-      </div>
-    </section>
+          <slot name="tabs" />
+        </Content>
+      </Column>
+    </Container>
+  </Ribbon>
 
-    <section v-if="meta.hasContent" :class="styles.full.content.root">
-      <div :class="styles.full.content.container">
-        <div :class="styles.full.main">
+  <Ribbon v-if="meta.hasControls" :background="RIBBON_BACKGROUND.SURFACE">
+    <Container>
+      <Column class="py-4 lg:py-4">
+        <Content
+          :flow="CONTENT_FLOW.HORIZONTAL"
+          :justify="CONTENT_JUSTIFY.BETWEEN"
+          :padding="false"
+        >
+          <slot name="controls" />
+          <slot name="navigation" />
+          <slot name="actions" />
+        </Content>
+      </Column>
+    </Container>
+  </Ribbon>
+
+  <Ribbon
+    v-if="meta.hasContent"
+    :background="RIBBON_BACKGROUND.SURFACE"
+    :border="RIBBON_BORDER.NONE"
+    :height="RIBBON_HEIGHT.GROW"
+  >
+    <Container>
+      <Column :flow="COLUMN_FLOW.HORIZONTAL">
+        <Content :width="CONTENT_WIDTH.FULL">
           <slot name="default" />
           <slot name="content" />
-        </div>
+        </Content>
 
-        <aside :class="styles.full.aside" v-if="meta.hasAside">
+        <Content
+          v-if="meta.hasAside"
+          as="aside"
+          :width="CONTENT_WIDTH.ASIDE"
+          :sticky="CONTENT_STICKY.TOP"
+        >
           <slot name="aside" />
-          <slot name="aside-footer" />
-        </aside>
-      </div>
-    </section>
-  </article>
+        </Content>
+      </Column>
+    </Container>
+  </Ribbon>
+
+  <SingleColumnSticky>
+    <template #content-footer>
+      <slot name="content-footer" />
+    </template>
+    <template #aside-footer>
+      <slot name="aside-footer" />
+    </template>
+  </SingleColumnSticky>
 </template>
 
 <script lang="ts" setup>
-// --- internal
-import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "../layout.config";
-
 // --- utils
-import { isEmptySlot } from "../utils.ts";
-import { cn } from "@upmind-automation/upmind-ui";
+import { isEmptySlot } from "@upmind-automation/upmind-ui";
+
+// --- components
+import Ribbon from "../components/ribbon/Ribbon.vue";
+import Container from "../components/container/Container.vue";
+import Column from "../components/column/Column.vue";
+import Content from "../components/content/Content.vue";
+import SingleColumnSticky from "../components/SingleColumnSticky.vue";
+
+// --- internal
+import { useLayout } from "../useLayout";
 
 // --- types
-import { type ComputedRef, computed, useSlots } from "vue";
+import { computed, useSlots } from "vue";
 import { type VariantProps } from "../types";
+import {
+  RIBBON_BACKGROUND,
+  RIBBON_BORDER,
+  RIBBON_HEIGHT
+} from "../components/ribbon";
+import { COLUMN_FLOW } from "../components/column";
+import {
+  CONTENT_WIDTH,
+  CONTENT_FLOW,
+  CONTENT_JUSTIFY,
+  CONTENT_STICKY,
+  CONTENT_GAP
+} from "../components/content";
 
-// -----------------------------------------------------------------------------
 const props = defineProps<VariantProps>();
 
-// -----------------------------------------------------------------------------
-
+const { footer } = useLayout();
 const slots = useSlots();
 
-const meta = computed(() => {
-  return {
-    variant: "full",
-    overflow: props.overflow,
-    hasContentHeader: !isEmptySlot("content-header", slots),
-    hasContent:
-      !isEmptySlot("default", slots) || !isEmptySlot("content", slots),
-    hasFooter: !isEmptySlot("footer", slots),
-    isMinimal: props.minimal,
-    hasControls:
-      !isEmptySlot("controls", slots) ||
-      !isEmptySlot("navigation", slots) ||
-      !isEmptySlot("actions", slots),
-    hasAside:
-      !isEmptySlot("aside", slots) || !isEmptySlot("aside-footer", slots)
-  };
-});
-const styles = useStyles(
-  ["full", "control", "full.header", "full.content", "full.content.header"],
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  control: {
-    root: string;
-    container: string;
-  };
-  full: {
-    root: string;
-    controlsRoot: string;
-    controls: string;
-    header: {
-      root: string;
-      container: string;
-    };
-    content: {
-      header: {
-        root: string;
-        container: string;
-      };
-      root: string;
-      container: string;
-    };
-    aside: string;
-    container: string;
-    main: string;
-  };
-}>;
+const meta = computed(() => ({
+  variant: "full",
+  overflow: props.overflow,
+  hasContentHeader: !isEmptySlot("content-header", slots),
+  hasContent: !isEmptySlot("default", slots) || !isEmptySlot("content", slots),
+  hasFooter: !isEmptySlot("footer", slots),
+  hasTabs: !isEmptySlot("tabs", slots),
+  isMinimal: props.minimal,
+  hasControls:
+    !isEmptySlot("controls", slots) ||
+    !isEmptySlot("navigation", slots) ||
+    !isEmptySlot("actions", slots),
+  hasAside: !isEmptySlot("aside", slots)
+}));
 </script>

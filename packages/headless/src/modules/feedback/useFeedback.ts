@@ -7,7 +7,7 @@ import { useActor } from "@xstate/vue";
 import feedbackMachine from "./feedback.machine";
 
 // --- utils
-import { useTime } from "../../utils";
+import { contextValue, useTime } from "../../utils";
 import { map, reduce, isEmpty, sortBy, isString, get } from "lodash-es";
 
 // --- types
@@ -63,7 +63,8 @@ export const useFeedback = () => {
         state.value.context.messages,
         (result: any[], item: ActorRef<any>) => {
           if (
-            item.getSnapshot().context.display === messageDisplays.NOTIFICATION
+            contextValue<messageDisplays>(item, "display") ===
+            messageDisplays.NOTIFICATION
           ) {
             result.push({
               id: item.id,
@@ -83,7 +84,10 @@ export const useFeedback = () => {
       reduce(
         state.value.context.messages,
         (result: any[], item: ActorRef<any>) => {
-          if (item.getSnapshot().context.display === messageDisplays.TOAST) {
+          if (
+            contextValue<messageDisplays>(item, "display") ===
+            messageDisplays.TOAST
+          ) {
             result.push({
               id: item.id,
               ...useActor(item)
@@ -102,8 +106,10 @@ export const useFeedback = () => {
       reduce(
         state.value.context.messages,
         (result: any[], item: ActorRef<any>) => {
-          const state = item.getSnapshot();
-          if (state.context.display === messageDisplays.INTERSTITIAL) {
+          if (
+            contextValue<messageDisplays>(item, "display") ===
+            messageDisplays.INTERSTITIAL
+          ) {
             result.push(
               useMessage({
                 id: item.id,

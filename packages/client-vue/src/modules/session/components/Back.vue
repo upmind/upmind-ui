@@ -1,8 +1,7 @@
 <template>
   <Link
-    class="flex items-center gap-x-2"
+    class="flex items-center gap-x-2 self-start"
     @click.prevent="doReject"
-    icon="arrow-left"
     :label="t('action.back_to_basket')"
     size="lg"
   />

@@ -1,11 +1,9 @@
 // --- external
-import { toRaw, computed, ref } from "vue";
+import { toRaw, computed } from "vue";
 
 // --- internal
 import services from "./services";
-import { useRoutingEngine } from "../routing";
-import useUpmind, { ROUTE, invalidateQueryByKey } from "../../";
-// import { parseFlattened } from "../../utils";
+import useUpmind, { invalidateQueryByKey } from "../../";
 
 // --- utils
 import {
@@ -23,7 +21,6 @@ import {
   forEach,
   includes,
   keys,
-  omitBy,
   sortBy
 } from "lodash-es";
 
@@ -33,11 +30,11 @@ import {
   type ICurrency,
   BrandTaxTypes,
   BrandConfigKeys,
-  DefaultPaymentPeriod
+  DefaultPaymentPeriod,
+  UpmindModuleCodes
 } from "@upmind-automation/types";
 import type { BrandMeta } from "./types";
 import type { CurrencyModel } from "../basket/currency/types";
-import { RouteLocationRaw } from "vue-router";
 
 // -----------------------------------------------------------------------------
 /**
@@ -109,7 +106,7 @@ export const useBrand = () => {
     () => organisationConfigQuery?.data.value
   );
 
-  function hasModuleEnabled(code: string): boolean {
+  function hasModuleEnabled(code: UpmindModuleCodes): boolean {
     return some(modules.value, ["code", code]);
   }
 
@@ -151,6 +148,10 @@ export const useBrand = () => {
 
   const uiCart = computed<BrandMeta["cart"]>(
     () => get(brandSettings.value, "meta.cart") as BrandMeta["cart"]
+  );
+
+  const i18nMessages = computed<BrandMeta["i18n"]>(() =>
+    get(brandSettings.value, "meta.i18n")
   );
 
   const uischema = computed<BrandMeta["uischema"]>(
@@ -208,49 +209,32 @@ export const useBrand = () => {
 
   const taxType = computed(() => brandSettings.value?.tax_type);
 
-  const storefrontUrl = computed((): string => {
-    const { router } = useRoutingEngine();
-
-    const url = useUpmind.storefrontUrl ?? uiCart.value?.storefront_url;
-    if (url) return url;
-
-    if (!uiCart.value?.catalogue?.disabled && router?.hasRoute(ROUTE.CATALOGUE))
-      return router.resolve({ name: ROUTE.CATALOGUE })?.fullPath;
-
-    return router?.hasRoute(ROUTE.BASKET)
-      ? router.resolve({ name: ROUTE.BASKET })?.fullPath
-      : "/";
+  const storefrontUrl = computed((): string | undefined => {
+    return useUpmind.storefrontUrl ?? uiCart.value?.storefront_url;
   });
 
   const hasStorefront = computed(() => {
-    const { router } = useRoutingEngine();
-
-    const externalUrl = !(
-      useUpmind.storefrontUrl ?? uiCart.value?.storefront_url
-    );
-
     const enabled = !uiCart.value?.catalogue?.disabled;
-    const hasRoute = router?.hasRoute(ROUTE.CATALOGUE);
 
-    return !(externalUrl && enabled && hasRoute);
+    return !!storefrontUrl.value || enabled;
   });
 
-  const storefrontRoute = computed(
-    ():
-      | {
-          to?: RouteLocationRaw;
-          href?: string;
-        }
-      | undefined => {
-      return omitBy(
-        {
-          to: !hasStorefront.value ? { name: ROUTE.CATALOGUE } : undefined,
-          href: hasStorefront.value ? storefrontUrl.value : undefined
-        },
-        isEmpty
-      );
+  const storefrontRoute = computed(() => {
+    if (!storefrontUrl.value) {
+      return null;
     }
-  );
+
+    try {
+      const parsed = new URL(storefrontUrl.value);
+      if (parsed.protocol && parsed.host) {
+        return { href: storefrontUrl.value };
+      }
+    } catch {
+      // Not a valid URL, treat as route name
+    }
+
+    return { name: storefrontUrl.value };
+  });
 
   // --- methods
 
@@ -440,6 +424,9 @@ export const useBrand = () => {
      */
     uiCart,
 
+    /** The internationalisation (i18n) messages overrides for the brand. */
+    i18nMessages,
+
     /**
      * The  uischema for the brand cart base don brand meta data
      *  with syntactic sugar for easier access contexts.
@@ -447,23 +434,6 @@ export const useBrand = () => {
     uischema,
     uischema_Display: computed(() => uischema.value?.["@display"]),
     uischema_Route: computed(() => uischema.value?.["@route"]),
-
-    /**
-     * The URL of the storefront for the brand.
-     * This is derived from the cart meta or environment variable.
-     */
-    storefrontUrl,
-
-    /**
-     * The resolved Vue Router route object for navigating to the storefront.
-     * Provides either a `to` object for internal navigation or `href` for external links.
-     */
-    storefrontRoute,
-
-    /**
-     * A boolean indicating whether the brand has a configured storefront.
-     */
-    hasStorefront,
 
     /**
      * The current language object for the brand, determined by settings or defaults.
@@ -475,6 +445,16 @@ export const useBrand = () => {
      */
     languages,
 
+    /**
+     * A flag indicating whether the brand has a storefront available.
+     */
+    hasStorefront,
+
+    /** The storefront URL for the brand, if configured. */
+    storefrontUrl,
+
+    /** The storefront route object for the brand, containing either 'to' for internal routes or 'href' for external URLs. */
+    storefrontRoute,
     // --- methods
 
     /**

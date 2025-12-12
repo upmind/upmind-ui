@@ -59,6 +59,8 @@
   "currency_validation_failed": "La validación de la moneda falló",
   "domain_add_failed": "No se pudo agregar el dominio a la cesta",
   "feedback_action_not_available": "Acción con valor '{data}' No disponible.",
+  "funnel_not_available": "Embudo no disponible",
+  "funnels_not_available": "Embudos no disponibles",
   "generic_error": "error",
   "generic_text": "Vamos a ponerte de nuevo en marcha",
   "generic_title": "Lo sentimos, hemos experimentado un **error**",
