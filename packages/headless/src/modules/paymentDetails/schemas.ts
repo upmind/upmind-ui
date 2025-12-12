@@ -12,19 +12,11 @@ import {
   JsonSchema7,
   RuleEffect,
   type JsonSchema,
-<<<<<<< HEAD
-  type Layout,
-=======
->>>>>>> develop
   type UISchemaElement
 } from "@jsonforms/core";
 import { useI18n } from "../system";
 import { PaymentType } from "@upmind-automation/types";
-<<<<<<< HEAD
-import { generateResponseUrls } from "./gateways/utils";
-=======
 import { generateResponseUrls, zeroDecimalCurrencies } from "./gateways/utils";
->>>>>>> develop
 
 // -----------------------------------------------------------------------------
 
@@ -196,11 +188,7 @@ export const useUischemaDefinitions = ({
         type: "currency",
         currency: currency?.code,
         noLabel: true,
-<<<<<<< HEAD
-        step: 0.01
-=======
         step: includes(zeroDecimalCurrencies, currency?.code) ? 1 : 0.01
->>>>>>> develop
       }
     };
   }
@@ -227,12 +215,7 @@ export const useUischemaDefinitions = ({
       scope: "#/properties/gateway_id",
       i18n: "form.gateway_id",
       options: {
-<<<<<<< HEAD
-        width: 6,
-        collapse: 4
-=======
         width: 6
->>>>>>> develop
       }
     };
   }
