@@ -25,7 +25,7 @@ export const useRouteTransition = () => {
 
         transitionTimer = setTimeout(() => {
           shouldTransition.value = true;
-        }, 1);
+        }, 300);
 
         showTimer = setTimeout(() => {
           shouldShow.value = true;
