@@ -1,65 +1,49 @@
 <template>
-  <Card class="relative flex flex-col gap-y-3 p-6 md:gap-y-4 md:p-8">
-    <!-- Main Product Summary Section -->
-    <div class="flex flex-col md:gap-y-1">
-      <!-- Product Header with Image and Main Info -->
-      <div class="flex items-center justify-between">
-        <div class="flex w-full items-center gap-x-3">
-          <!-- Product Image Placeholder -->
-          <Skeleton class="m-0 h-12 w-12" />
+  <Card
+    as="li"
+    class="shadow-control-default card-radius relative flex list-none flex-col gap-y-3 px-8 py-5 text-base"
+  >
+    <div class="flex flex-col divide-y divide-dashed [&>*]:py-4">
+      <article class="flex flex-col gap-2 lg:gap-4">
+        <!-- Header: Image, Category, Name -->
+        <header class="flex gap-3">
+          <!-- Product Image -->
+          <Skeleton class="m-0 h-12 max-w-12 min-w-12" />
 
-          <div class="flex w-full flex-col gap-y-1">
-            <!-- Category and Desktop Promotion Row -->
-            <div class="flex items-end justify-between">
-              <Skeleton class="h-5 w-32 text-sm" />
-              <!-- Category -->
-            </div>
-
-            <!-- Product Name and Price Row -->
-            <div class="flex items-end justify-between">
-              <Skeleton class="h-6 w-48 text-xl" />
-              <!-- Product Name -->
-              <div class="hidden items-center gap-x-6 md:flex">
-                <Skeleton class="h-6 w-32 text-lg" />
-                <!-- Price -->
+          <div class="w-full">
+            <!-- Category Row with Delete Action -->
+            <div class="flex justify-between">
+              <div class="flex items-center gap-2">
+                <Skeleton class="h-5 w-24" />
               </div>
+              <Skeleton class="h-6 w-6" />
+            </div>
+
+            <!-- Product Name Row -->
+            <div class="flex items-center gap-2">
+              <Skeleton class="h-7 w-48" />
             </div>
           </div>
-        </div>
-      </div>
+        </header>
 
-      <!-- Mobile-only Price and Quantity Section -->
-      <div class="mt-1 flex-col gap-y-1 max-md:flex md:hidden">
-        <Skeleton class="h-5 w-48 text-sm" />
-        <!-- Terms Description -->
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-x-2">
-            <Skeleton class="h-6 w-32 text-lg" />
-            <!-- Current Price -->
+        <!-- Footer: Terms, Quantity, Price -->
+        <footer class="flex flex-col justify-between gap-2 lg:flex-row">
+          <div class="flex flex-col gap-1">
+            <Skeleton class="h-5 w-40" />
+            <Skeleton class="h-5 w-32" />
           </div>
-        </div>
-      </div>
 
-      <!-- Desktop-only Terms and Regular Price -->
-      <div class="mt-1 hidden justify-between md:flex">
-        <Skeleton class="h-6 w-48 text-sm" />
-        <!-- Terms Description -->
-      </div>
-
-      <slot />
+          <div class="flex items-end justify-between gap-4 lg:justify-end">
+            <!-- Quantity -->
+            <Skeleton class="h-5 w-16" />
+            <!-- Price -->
+            <Skeleton class="h-7 w-24" />
+          </div>
+        </footer>
+      </article>
     </div>
 
-    <!-- Actions Section -->
-    <div class="flex items-baseline justify-between pt-0.5 md:mt-2.5 md:pt-0">
-      <Skeleton class="w-32" />
-      <!-- Show Details Button -->
-      <div class="flex items-end space-x-2">
-        <Skeleton class="h-7 w-7" />
-        <!-- Edit Button -->
-        <Skeleton class="h-7 w-7" />
-        <!-- Delete Button -->
-      </div>
-    </div>
+    <slot />
   </Card>
 </template>
 
