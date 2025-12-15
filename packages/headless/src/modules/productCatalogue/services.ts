@@ -1,9 +1,12 @@
+// --- external
+import { computed } from "vue";
+
 // --- internal
 import { useQuery } from "../..";
-import { useBasket, useBasketPromotions } from "../basket";
+import { useBasket, useBasketCurrency, useBasketPromotions } from "../basket";
 
 // --- utils
-import { map, set } from "lodash-es";
+import { isEmpty, map, set } from "lodash-es";
 import { parseProduct } from "./mappers";
 import { responseCodes, useTime } from "../../utils";
 
@@ -22,6 +25,7 @@ const queryKey: QueryKey = ["product", "catalogue"];
 function loadList(params?: Partial<QueryParams>) {
   const { list, useUrl } = useQuery();
   const { basketId } = useBasket();
+  const { meta: currencyMeta } = useBasketCurrency();
   const { promotions } = useBasketPromotions();
 
   const urlParams = {
@@ -48,7 +52,8 @@ function loadList(params?: Partial<QueryParams>) {
     withAccessToken: true,
     // --- options
     select: data => map(data ?? [], parseProduct),
-    staleTime: useTime().HOUR
+    staleTime: useTime().HOUR,
+    enabled: computed(() => !currencyMeta.value.isLoading)
   });
 
   return query;
@@ -56,6 +61,7 @@ function loadList(params?: Partial<QueryParams>) {
 
 function loadInfinite(params?: Partial<QueryParams>) {
   const { listInfinite, useUrl } = useQuery();
+  const { meta: currencyMeta } = useBasketCurrency();
   const { promotions } = useBasketPromotions();
 
   return listInfinite<IProduct[], InfiniteData<Product[]>>({
@@ -76,7 +82,8 @@ function loadInfinite(params?: Partial<QueryParams>) {
     withAccessToken: true,
     // --- options
     select: data => map(data ?? [], parseProduct),
-    staleTime: useTime().HOUR
+    staleTime: useTime().HOUR,
+    enabled: computed(() => !currencyMeta.value.isLoading)
   });
 }
 
