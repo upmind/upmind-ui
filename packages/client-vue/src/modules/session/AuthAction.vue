@@ -23,7 +23,7 @@
     <Avatar
       v-bind="user.avatar"
       :shape="shape"
-      size="md"
+      size="lg"
       class="cursor-pointer"
       focusable
     />
