@@ -12,11 +12,8 @@
               leave-to-class="opacity-0"
               appear
             >
-              <div>
-                <component
-                  v-show="meta.isResolved"
-                  :is="routerViewProps.Component"
-                />
+              <div v-show="meta.isResolved">
+                <component :is="routerViewProps.Component" />
               </div>
             </Transition>
           </KeepAlive>
