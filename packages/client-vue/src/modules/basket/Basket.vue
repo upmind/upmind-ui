@@ -1,80 +1,88 @@
 <template>
-  <component :is="templateVariant">
-    <template v-if="!isSlotHidden('summary')" #summary>
-      <slot name="summary">
-        <BasketSummary :count="count" :summary="summary">
-          <template #append>
-            <Back
-              v-if="props.storefrontRoute"
-              :to="props.storefrontRoute"
-              :label="t('action.continue_shopping')"
-              class="mt-4"
-            />
+  <Transitions>
+    <component :is="templateVariant" :key="props.template">
+      <template v-if="!isSlotHidden('summary')" #summary>
+        <slot name="summary">
+          <BasketSummary :count="count" :summary="summary">
+            <template #append>
+              <Back
+                v-if="props.storefrontRoute"
+                :to="props.storefrontRoute"
+                :label="t('action.continue_shopping')"
+                class="mt-4"
+              />
+            </template>
+          </BasketSummary>
+        </slot>
+      </template>
+
+      <template #products>
+        <BasketProducts v-model:open="open" :edit-route="props.editRoute">
+          <template #products="{ open }">
+            <slot name="products" :open="open" />
           </template>
-        </BasketSummary>
-      </slot>
-    </template>
+        </BasketProducts>
+      </template>
 
-    <template #products>
-      <BasketProducts v-model:open="open" :edit-route="props.editRoute">
-        <template #products="{ open }">
-          <slot name="products" :open="open" />
-        </template>
-      </BasketProducts>
-    </template>
+      <template #pricing>
+        <slot name="pricing">
+          <BasketPricing
+            @resolve="navigateNext"
+            :disabled="
+              meta.isProcessing ||
+              meta.isLoading ||
+              !meta.hasFields ||
+              !meta.hasProducts ||
+              meta.hasInvalidProducts
+            "
+            :loading="meta.isProcessing"
+            :show-checkout="
+              template !== BASKET_TEMPLATE.TWO_COLUMN_RTL &&
+              template !== BASKET_TEMPLATE.ENCLOSED
+            "
+            :show-total="variant !== LAYOUT_VARIANTS.TWO_COLUMN_RTL"
+          />
+        </slot>
+      </template>
 
-    <template #pricing>
-      <slot name="pricing">
-        <BasketPricing
-          @resolve="navigateNext"
-          :disabled="
-            meta.isProcessing ||
-            meta.isLoading ||
-            !meta.hasFields ||
-            !meta.hasProducts ||
-            meta.hasInvalidProducts
-          "
-          :loading="meta.isProcessing"
-          :show-checkout="
-            template !== BASKET_TEMPLATE.TWO_COLUMN_RTL &&
-            template !== BASKET_TEMPLATE.ENCLOSED
-          "
-          :show-total="variant !== LAYOUT_VARIANTS.TWO_COLUMN_RTL"
-        />
-      </slot>
-    </template>
+      <template #total>
+        <BasketTotal footer />
+      </template>
 
-    <template #total>
-      <BasketTotal footer />
-    </template>
+      <template #errors>
+        <slot name="errors">
+          <BasketErrors :basket-products-route="props.editRoute" />
+        </slot>
+      </template>
 
-    <template #errors>
-      <slot name="errors">
-        <BasketErrors :basket-products-route="props.editRoute" />
-      </slot>
-    </template>
-
-    <template #checkout>
-      <slot name="checkout">
-        <BasketCheckout
-          @resolve="navigateNext"
-          :disabled="
-            meta.isProcessing ||
-            meta.isLoading ||
-            !meta.hasFields ||
-            !meta.hasProducts ||
-            meta.hasInvalidProducts
-          "
-          :loading="meta.isProcessing"
-        />
-      </slot>
-    </template>
-  </component>
+      <template #checkout>
+        <slot name="checkout">
+          <BasketCheckout
+            @resolve="navigateNext"
+            :disabled="
+              meta.isProcessing ||
+              meta.isLoading ||
+              !meta.hasFields ||
+              !meta.hasProducts ||
+              meta.hasInvalidProducts
+            "
+            :loading="meta.isProcessing"
+          />
+        </slot>
+      </template>
+    </component>
+  </Transitions>
 </template>
 
 <script lang="ts" setup>
 // --- external
-import { ref, computed, defineAsyncComponent, onUnmounted } from "vue";
+import {
+  ref,
+  computed,
+  defineAsyncComponent,
+  onMounted,
+  onUnmounted
+} from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -95,6 +103,7 @@ import BasketPricing from "./components/BasketPricing.vue";
 import BasketErrors from "./components/BasketErrors.vue";
 import BasketCheckout from "./components/BasketCheckout.vue";
 import BasketTotal from "./components/BasketTotal.vue";
+import Transitions from "../../components/layout/components/transition/Transition.vue";
 
 // --- templates
 const supportedTemplates = {

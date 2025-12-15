@@ -50,7 +50,7 @@
 
 <script setup lang="ts">
 // --- external
-import { computed, watch, ref } from "vue";
+import { computed, ref } from "vue";
 
 // --- internal
 import { useHeader } from "./useHeader";
@@ -66,7 +66,6 @@ import Column from "../layout/components/column/Column.vue";
 import Content from "../layout/components/content/Content.vue";
 import { RIBBON_BACKGROUND } from "../layout/components/ribbon";
 import { COLUMN_BACKGROUND } from "../layout/components/column";
-import { useRoutingEngine } from "@upmind-automation/headless";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -107,16 +106,13 @@ const styles = useStyles(
 
 const shouldShow = ref(true);
 
-const { meta: routeMeta } = useRoutingEngine();
-const { shouldTransition } = useRouteTransition();
+const { onTransition } = useRouteTransition();
 
-watch(routeMeta, () => {
-  if (routeMeta.value.isResolved && shouldTransition.value) {
-    shouldShow.value = false;
-    setTimeout(() => {
-      shouldShow.value = true;
-    }, 1);
-  }
+onTransition(() => {
+  shouldShow.value = false;
+  setTimeout(() => {
+    shouldShow.value = true;
+  }, 1);
 });
 
 const getBackground = computed(() => {
