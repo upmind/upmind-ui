@@ -15,7 +15,7 @@ import {
   ResponseError,
   useTime
 } from "../../utils";
-import { parseDomain, parseValue, parseSld } from "./utils";
+import { parseDomain, parseValue, parseSld, isDomainProduct } from "./utils";
 import {
   compact,
   concat,
@@ -279,13 +279,14 @@ export default createMachine(
 
             const parsed = parseDomain(raw?.service_identifier);
 
-            const isDomainProduct =
-              raw?.product.provision_blueprint?.code ===
-                ProvisionCategoryCodes.DOMAIN_NAMES ||
-              has(raw, "provision_fields.sld") ||
-              !!parsed?.domain;
-
-            if (!isDomainProduct) return undefined;
+            if (
+              !isDomainProduct({
+                blueprintCode: raw?.product?.provision_blueprint?.code,
+                provisionFields: raw?.provision_fields,
+                serviceIdentifier: raw?.service_identifier ?? undefined
+              })
+            )
+              return undefined;
 
             const basketProduct = parseBasketProduct(raw) as DomainProduct;
             basketProduct.tld = parsed!.tld;
