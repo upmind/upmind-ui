@@ -334,7 +334,7 @@ export function parseProvisionFieldSummary(
 
 export function parsePromotionsOrCoupons(
   promotions?: IBasketPromotion[] | string[]
-) {
+): string[] {
   return map(promotions, basketPromotion => {
     const promocode: string = has(basketPromotion, "promotion")
       ? (basketPromotion as IBasketPromotion).promotion.code
@@ -358,7 +358,7 @@ export function parseBasketProductData(
     provision_field_values: model.provisionFields || {},
     provision_field_values_validate: !model.silent, // suppress prov field validation errors if silent is true
     // ---
-    promotions: model.coupons
+    promotions: map(model.coupons, coupon => ({ promocode: coupon }))
   } as IBasketProductModel;
 }
 

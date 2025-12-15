@@ -7,7 +7,7 @@ export const variants = {
   }
 };
 
-const rootVariants = cva("", {
+const rootVariants = cva("z-10", {
   variants: {
     position: variants.position
   },

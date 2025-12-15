@@ -116,12 +116,12 @@ async function loadLookups(
   { currency, address, orderId, lookups }: PaymentDetailsContext,
   _event: AnyEventObject
 ) {
-  const { meta, client } = useSession();
+  const { meta, user } = useSession();
   const paymentTypes: Record<string, PaymentType> = {
     ["PAY_IN_FULL"]: PaymentType.PAY_IN_FULL
   };
 
-  if (!meta.value.isAuthenticated || !client.value?.id)
+  if (!meta.value.isAuthenticated || !user.value?.id)
     throw new NotAuthenticatedError();
 
   const { brandId, currencyId: defaultCurrencyId, ensureConfig } = useBrand();
@@ -129,7 +129,7 @@ async function loadLookups(
 
   // ---
 
-  const clientId = client.value!.id;
+  const clientId = user.value!.id;
   const currencyId = currency?.id || defaultCurrencyId.value; // fallback to default currency
 
   const config = ensureConfig([

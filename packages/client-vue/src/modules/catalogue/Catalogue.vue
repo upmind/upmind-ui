@@ -46,8 +46,12 @@
       </div>
     </template>
 
+    <template v-if="widget === WidgetDAC" #aside-footer>
+      <div id="domain-aside-footer" class="w-full lg:w-auto" />
+    </template>
+
     <template v-if="widget === WidgetDAC" #content-footer>
-      <div id="catalogue-content-footer" class="w-full lg:w-auto" />
+      <div id="domain-content-footer" class="w-full lg:w-auto" />
     </template>
   </Layout>
 </template>

@@ -1,27 +1,11 @@
 <template>
-  <RouterView v-slot="routerViewProps" :key="$route.path">
-    <slot v-bind="routerViewProps">
-      <template v-if="routerViewProps.Component">
-        <Suspense>
-          <KeepAlive>
-            <component :is="routerViewProps.Component" />
-          </KeepAlive>
-          <template #fallback>
-            <UpmLoading />
-          </template>
-        </Suspense>
-      </template>
-    </slot>
-  </RouterView>
+  <UpmRouteView />
 </template>
 
 <script lang="ts" setup>
 // --- external
 
 // --- internal
-
 // --- components
-import { UpmLoading } from "@upmind-automation/client-vue";
-
-// -----------------------------------------------------------------------------
+import { UpmRouteView } from "@upmind-automation/client-vue";
 </script>
