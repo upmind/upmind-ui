@@ -34,7 +34,7 @@
           v-show="!meta.isAuthenticated"
         >
           <Auth
-            v-if="isFormReady"
+            v-if="!meta.isLoading"
             class="rounded-box w-full max-w-5xl items-start"
             no-tabs
             no-header
@@ -118,6 +118,9 @@ import { useHeader } from "../../components/header/useHeader";
 import { useFooter } from "../../components/footer/useFooter";
 import { useLayout } from "../../components/layout/useLayout";
 
+// --- utils
+import { isEmpty } from "lodash-es";
+
 // --- components
 import { Link, Skeleton } from "@upmind-automation/upmind-ui";
 import Auth from "./components/Auth.vue";
@@ -175,11 +178,14 @@ const props = withDefaults(
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { meta, schema, showRegister } = useSession();
+const { meta } = useSession();
 const { meta: basketMeta } = useBasket();
-const { navigateNext, navigateBack, navigate } = useRoutingEngine();
-
-const isFormReady = computed(() => !!schema.value);
+const {
+  navigateNext,
+  navigateBack,
+  navigate,
+  meta: routingMeta
+} = useRoutingEngine();
 
 const templateVariant = computed(() =>
   get(
