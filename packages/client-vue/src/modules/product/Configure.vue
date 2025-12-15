@@ -1,165 +1,167 @@
 <template>
-  <component :is="templateVariant">
-    <template v-if="!isSlotHidden('product-details')" #product-details>
-      <slot
-        name="product-details"
-        :meta="meta"
-        :product="product"
-        :product-image="productImage"
-      >
-        <ProductHero
-          v-if="meta?.isAvailable && product?.productDetails"
-          :product-details="product.productDetails"
-          :product-image="productImage()"
-          :direction="
-            template === PRODUCT_TEMPLATE.TWO_COLUMN_RTL
-              ? 'vertical'
-              : 'horizontal'
-          "
-          :image="template !== PRODUCT_TEMPLATE.TWO_COLUMN_LTR || isMobile"
+  <Transitions>
+    <component :is="templateVariant">
+      <template v-if="!isSlotHidden('product-details')" #product-details>
+        <slot
+          name="product-details"
+          :meta="meta"
+          :product="product"
+          :product-image="productImage"
         >
-          <template #prepend>
-            <Breadcrumb
-              v-if="meta?.isAvailable"
-              :items="breadcrumbItems"
-              :variant="breadcrumbVariant"
-              size="lg"
-            />
-          </template>
-        </ProductHero>
-        <ProductHeroSkeleton v-else />
-      </slot>
-    </template>
+          <ProductHero
+            v-if="meta?.isAvailable && product?.productDetails"
+            :product-details="product.productDetails"
+            :product-image="productImage()"
+            :direction="
+              template === PRODUCT_TEMPLATE.TWO_COLUMN_RTL
+                ? 'vertical'
+                : 'horizontal'
+            "
+            :image="template !== PRODUCT_TEMPLATE.TWO_COLUMN_LTR || isMobile"
+          >
+            <template #prepend>
+              <Breadcrumb
+                v-if="meta?.isAvailable"
+                :items="breadcrumbItems"
+                :variant="breadcrumbVariant"
+                size="lg"
+              />
+            </template>
+          </ProductHero>
+          <ProductHeroSkeleton v-else />
+        </slot>
+      </template>
 
-    <template #image>
-      <ProductImage
-        v-if="product?.productDetails"
-        :product-details="product.productDetails"
-        :images="product.productDetails?.images"
-      />
-    </template>
+      <template #image>
+        <ProductImage
+          v-if="product?.productDetails"
+          :product-details="product.productDetails"
+          :images="product.productDetails?.images"
+        />
+      </template>
 
-    <template #configuration>
-      <slot
-        name="configuration"
-        :product="product"
-        :pending-product="pendingProduct"
-        :meta="meta"
-        :config-meta="configMeta"
-        :do-resolve="doResolve"
-        :do-reject="doReject"
-      >
-        <Section :label="t('text.product_configuration')" icon="settings-04">
-          <form @submit.prevent @reset.prevent>
-            <ProductConfig
-              v-if="pendingProduct && meta?.isAvailable"
-              :item="pendingProduct"
-              :model-value="pendingProduct?.id"
-              :no-footer="true"
-              as="div"
-              @resolve="doResolve"
-              @reject="doReject"
-            />
+      <template #configuration>
+        <slot
+          name="configuration"
+          :product="product"
+          :pending-product="pendingProduct"
+          :meta="meta"
+          :config-meta="configMeta"
+          :do-resolve="doResolve"
+          :do-reject="doReject"
+        >
+          <Section :label="t('text.product_configuration')" icon="settings-04">
+            <form @submit.prevent @reset.prevent>
+              <ProductConfig
+                v-if="pendingProduct && meta?.isAvailable"
+                :item="pendingProduct"
+                :model-value="pendingProduct?.id"
+                :no-footer="true"
+                as="div"
+                @resolve="doResolve"
+                @reject="doReject"
+              />
 
-            <ProductNotFound
-              v-else-if="meta?.isUnavailable"
-              :storefront-route="props.storefrontRoute"
-            />
+              <ProductNotFound
+                v-else-if="meta?.isUnavailable"
+                :storefront-route="props.storefrontRoute"
+              />
 
-            <ConfigSkeleton v-else />
-          </form>
+              <ConfigSkeleton v-else />
+            </form>
 
-          <!-- <template #actions>
+            <!-- <template #actions>
             <Share size="sm" />
           </template> -->
-        </Section>
-      </slot>
-    </template>
+          </Section>
+        </slot>
+      </template>
 
-    <template #pricing>
-      <slot
-        name="pricing"
-        :product="product"
-        :model="model"
-        :terms="terms"
-        :meta="meta"
-        :do-resolve="doResolve"
-        :update-quantity="updateQuantity"
-        :update-term="updateTerm"
-      >
-        <Section
-          :label="t('text.configuration_summary')"
-          icon="shopping-bag-02"
-          :class="styles.product.summary"
+      <template #pricing>
+        <slot
+          name="pricing"
+          :product="product"
+          :model="model"
+          :terms="terms"
+          :meta="meta"
+          :do-resolve="doResolve"
+          :update-quantity="updateQuantity"
+          :update-term="updateTerm"
         >
-          <Pricing
+          <Section
+            :label="t('text.configuration_summary')"
+            icon="shopping-bag-02"
+            :class="styles.product.summary"
+          >
+            <Pricing
+              v-if="product && meta?.isAvailable"
+              :product="product"
+              :template="props.template"
+              :meta="meta"
+              :total="
+                (template === PRODUCT_TEMPLATE.TWO_COLUMN_RTL && isMobile) ||
+                template === PRODUCT_TEMPLATE.TWO_COLUMN_LTR ||
+                template === PRODUCT_TEMPLATE.FULL
+              "
+            />
+
+            <PricingSkeleton v-else />
+          </Section>
+        </slot>
+      </template>
+
+      <template #markdown>
+        <slot
+          name="markdown"
+          :product="product"
+          :meta="meta"
+          :do-resolve="doResolve"
+        >
+          <PricingMarkdown
             v-if="product && meta?.isAvailable"
             :product="product"
-            :template="props.template"
-            :meta="meta"
-            :total="
-              (template === PRODUCT_TEMPLATE.TWO_COLUMN_RTL && isMobile) ||
-              template === PRODUCT_TEMPLATE.TWO_COLUMN_LTR ||
-              template === PRODUCT_TEMPLATE.FULL
-            "
+            @resolve="doResolve"
           />
+        </slot>
+      </template>
 
-          <PricingSkeleton v-else />
-        </Section>
-      </slot>
-    </template>
+      <template #terms>
+        <slot name="terms" />
+      </template>
 
-    <template #markdown>
-      <slot
-        name="markdown"
-        :product="product"
-        :meta="meta"
-        :do-resolve="doResolve"
-      >
-        <PricingMarkdown
+      <template #errors>
+        <ConfigErrors v-if="meta?.isAvailable" :meta="meta" />
+      </template>
+
+      <template #total>
+        <PricingTotal
           v-if="product && meta?.isAvailable"
-          :product="product"
-          @resolve="doResolve"
+          :pricing="product.pricing"
+          footer
         />
-      </slot>
-    </template>
+      </template>
 
-    <template #terms>
-      <slot name="terms" />
-    </template>
-
-    <template #errors>
-      <ConfigErrors v-if="meta?.isAvailable" :meta="meta" />
-    </template>
-
-    <template #total>
-      <PricingTotal
-        v-if="product && meta?.isAvailable"
-        :pricing="product.pricing"
-        footer
-      />
-    </template>
-
-    <template #actions>
-      <slot
-        name="actions"
-        :product="product"
-        :meta="meta"
-        :template="props.template"
-        :do-resolve="doResolve"
-        :update-quantity="updateQuantity"
-      >
-        <ProductActions
-          v-if="product && meta?.isAvailable"
+      <template #actions>
+        <slot
+          name="actions"
           :product="product"
           :meta="meta"
           :template="props.template"
-          @resolve="doResolve"
-          @update:quantity="updateQuantity"
-        />
-      </slot>
-    </template>
-  </component>
+          :do-resolve="doResolve"
+          :update-quantity="updateQuantity"
+        >
+          <ProductActions
+            v-if="product && meta?.isAvailable"
+            :product="product"
+            :meta="meta"
+            :template="props.template"
+            @resolve="doResolve"
+            @update:quantity="updateQuantity"
+          />
+        </slot>
+      </template>
+    </component>
+  </Transitions>
 </template>
 
 <script lang="ts" setup>
@@ -205,6 +207,7 @@ import ConfigSkeleton from "./components/ConfigSkeleton.vue";
 import ProductConfig from "./components/config/Config.vue";
 import ProductNotFound from "./NotFound.vue";
 import PricingTotal from "./components/pricing-list/PricingTotal.vue";
+import Transitions from "../../components/layout/components/transition/Transition.vue";
 
 //  --- templates
 const supportedTemplates = {
