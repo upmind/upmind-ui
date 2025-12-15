@@ -34,7 +34,7 @@
           v-show="!meta.isAuthenticated"
         >
           <Auth
-            v-if="!meta.isLoading"
+            v-show="!meta.isLoading"
             class="rounded-box w-full max-w-5xl items-start"
             no-tabs
             no-header
@@ -43,7 +43,10 @@
             @resolve="doResolve"
           />
 
-          <div v-else class="flex w-full max-w-5xl flex-col gap-6">
+          <div
+            v-if="meta.isLoading"
+            class="flex w-full max-w-5xl flex-col gap-6"
+          >
             <div>
               <Skeleton class="h-5 w-24" />
               <Skeleton class="mt-2 h-10 w-full" />
