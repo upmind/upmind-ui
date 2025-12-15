@@ -15,9 +15,9 @@ export const variants = {
   size: {
     xs: "size-6 text-xs leading-6",
     sm: "size-8 text-sm leading-6",
-    md: "size-11 text-md leading-6",
-    lg: "size-12 text-lg leading-6",
-    xl: "size-14 text-xl leading-8",
+    md: "size-10 text-md leading-6",
+    lg: "size-11 text-md leading-6",
+    xl: "size-14 text-lg leading-8",
     "2xl": "size-16 text-2xl leading-8"
   },
   shape: {
