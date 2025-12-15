@@ -31,7 +31,7 @@
           </Content>
         </Column>
 
-        <Column :show="COLUMN_SHOW.LG">
+        <Column :show="COLUMN_SHOW.LG" :background="COLUMN_BACKGROUND.CANVAS">
           <Content :width="CONTENT_WIDTH.ASIDE">
             <slot name="aside-header" />
           </Content>
@@ -68,7 +68,10 @@
           </Content>
         </Column>
 
-        <Column v-if="meta.hasAside && !isMobile">
+        <Column
+          v-if="meta.hasAside && !isMobile"
+          :background="COLUMN_BACKGROUND.CANVAS"
+        >
           <Content
             as="aside"
             :width="CONTENT_WIDTH.ASIDE"
