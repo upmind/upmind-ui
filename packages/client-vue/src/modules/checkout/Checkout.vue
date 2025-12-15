@@ -1,37 +1,39 @@
 <template>
-  <div v-show="!meta.isCheckout">
-    <component :is="templateVariant">
-      <template #back>
-        <slot name="back">
-          <Back @click.prevent="navigateBack" />
-        </slot>
-      </template>
+  <Transitions>
+    <div v-show="!meta.isCheckout">
+      <component :is="templateVariant">
+        <template #back>
+          <slot name="back">
+            <Back @click.prevent="navigateBack" />
+          </slot>
+        </template>
 
-      <template v-if="!isSlotHidden('summary')" #summary>
-        <slot name="summary">
-          <CheckoutSummary :template="props.template" />
-        </slot>
-      </template>
+        <template v-if="!isSlotHidden('summary')" #summary>
+          <slot name="summary">
+            <CheckoutSummary :template="props.template" />
+          </slot>
+        </template>
 
-      <template #content>
-        <slot name="content">
-          <CheckoutContent :edit-route="props.editRoute" />
-        </slot>
-      </template>
+        <template #content>
+          <slot name="content">
+            <CheckoutContent :edit-route="props.editRoute" />
+          </slot>
+        </template>
 
-      <template #pricing>
-        <slot name="pricing">
-          <CheckoutPricing />
-        </slot>
-      </template>
+        <template #pricing>
+          <slot name="pricing">
+            <CheckoutPricing />
+          </slot>
+        </template>
 
-      <template v-if="meta.hasErrors" #errors>
-        <slot name="errors">
-          <CheckoutErrors />
-        </slot>
-      </template>
-    </component>
-  </div>
+        <template v-if="meta.hasErrors" #errors>
+          <slot name="errors">
+            <CheckoutErrors />
+          </slot>
+        </template>
+      </component>
+    </div>
+  </Transitions>
 
   <!-- Basket processing -->
   <slot name="processing" v-if="meta.isCheckout">
@@ -54,6 +56,7 @@ import { useFooter } from "../../components/footer/useFooter";
 
 // --- components
 import Back from "../../components/navigation/Back.vue";
+import Transitions from "../../components/layout/components/transition/Transition.vue";
 import CheckoutProcessing from "./components/CheckoutProcessing.vue";
 import CheckoutSummary from "./components/CheckoutSummary.vue";
 import CheckoutContent from "./components/CheckoutContent.vue";
@@ -96,7 +99,7 @@ const props = withDefaults(
   }
 );
 
-const { navigateNext, navigateBack } = useRoutingEngine();
+const { navigateNext, navigateBack, meta: routingMeta } = useRoutingEngine();
 const { attempts, meta, isReady, uischema, invoice, reset } = useBasket();
 
 const isSlotHidden = (name: string) => includes(props.hideSlots, name);

@@ -5,7 +5,7 @@
     :border="meta.border"
     :class="`${styles.header.root} ${shouldShow ? 'opacity-100' : 'opacity-0'}`"
     v-show="meta.isVisible"
-    :style="shouldShow ? 'transition: opacity 0.4s ease-in-out' : ''"
+    :style="shouldShow ? 'transition: opacity 0.3s ease-in-out' : ''"
   >
     <Container
       flow="horizontal"

@@ -247,7 +247,7 @@ const props = withDefaults(
 
 const { t } = useI18n();
 
-const { navigateBack, navigateNext } = useRoutingEngine();
+const { navigateBack, navigateNext, meta: routingMeta } = useRoutingEngine();
 
 const { configure, resolve, remove } = useBasketProductsPending();
 const { productId } = useQueryParams();
