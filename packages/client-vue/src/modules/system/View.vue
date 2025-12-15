@@ -31,12 +31,10 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
-import { watch, ref } from "vue";
-
 // --- internal
 import { useRoutingEngine } from "@upmind-automation/headless";
-import { useRoute } from "vue-router";
+import { useRouteTransition } from "./useRouteTransition";
+
 // --- components
 import Loading from "./Loading.vue";
 import type { InterstitialProps } from "@upmind-automation/upmind-ui";
@@ -48,25 +46,5 @@ const props = defineProps<{
 }>();
 
 const { meta } = useRoutingEngine();
-const route = useRoute();
-
-const shouldShow = ref(false);
-const shouldTransition = ref(false);
-
-watch(
-  route,
-  newVal => {
-    shouldShow.value = newVal.path !== route.path;
-    shouldTransition.value = false;
-
-    setTimeout(() => {
-      shouldTransition.value = true;
-    }, 200);
-
-    setTimeout(() => {
-      shouldShow.value = true;
-    }, 600);
-  },
-  { immediate: true }
-);
+const { shouldShow, shouldTransition } = useRouteTransition();
 </script>
