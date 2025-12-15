@@ -1,5 +1,5 @@
 <template>
-  <component :is="templateVariant" v-bind="props">
+  <component v-if="routingMeta.isResolved" :is="templateVariant" v-bind="props">
     <template #back>
       <slot name="back">
         <Back />
@@ -121,9 +121,6 @@ import { useHeader } from "../../components/header/useHeader";
 import { useFooter } from "../../components/footer/useFooter";
 import { useLayout } from "../../components/layout/useLayout";
 
-// --- utils
-import { isEmpty } from "lodash-es";
-
 // --- components
 import { Link, Skeleton } from "@upmind-automation/upmind-ui";
 import Auth from "./components/Auth.vue";
@@ -181,7 +178,7 @@ const props = withDefaults(
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { meta } = useSession();
+const { meta, isReady } = useSession();
 const { meta: basketMeta } = useBasket();
 const {
   navigateNext,
@@ -189,6 +186,8 @@ const {
   navigate,
   meta: routingMeta
 } = useRoutingEngine();
+
+await isReady();
 
 const templateVariant = computed(() =>
   get(
@@ -220,8 +219,8 @@ function doResolve() {
 }
 
 onUnmounted(() => {
+  useHeader({});
   useLayout({});
   useFooter({});
-  useHeader({});
 });
 </script>

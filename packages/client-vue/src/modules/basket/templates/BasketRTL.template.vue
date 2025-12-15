@@ -37,6 +37,7 @@ import { useHeader } from "../../../components/header/useHeader";
 import { useFooter } from "../../../components/footer/useFooter";
 import { useLayout } from "../../../components/layout/useLayout";
 import { isMobile } from "@upmind-automation/upmind-ui";
+import { useRoutingEngine } from "@upmind-automation/headless";
 
 // --- components
 import Layout from "../../../components/layout/Layout.vue";
@@ -49,7 +50,10 @@ defineOptions({
   inheritAttrs: false
 });
 
-onMounted(() => {
+const { isResolved } = useRoutingEngine();
+
+onMounted(async () => {
+  await isResolved();
   useHeader({
     background: HEADER_BACKGROUND.RTL,
     border: "none",

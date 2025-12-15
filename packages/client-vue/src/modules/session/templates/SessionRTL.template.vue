@@ -15,6 +15,9 @@
 </template>
 
 <script lang="ts" setup>
+// --- external
+import { onMounted, onUnmounted } from "vue";
+
 // --- components
 import Layout from "../../../components/layout/Layout.vue";
 
@@ -22,6 +25,7 @@ import Layout from "../../../components/layout/Layout.vue";
 import { useFooter } from "../../../components/footer/useFooter";
 import { useHeader } from "../../../components/header/useHeader";
 import { useLayout } from "../../../components/layout/useLayout";
+import { useRoutingEngine } from "@upmind-automation/headless";
 
 // --- types
 import { HEADER_BACKGROUND } from "../../../components/header/types";
@@ -42,24 +46,35 @@ defineOptions({
   inheritAttrs: false
 });
 
+const { isResolved } = useRoutingEngine();
+
 // --- methods
-useHeader({
-  background: HEADER_BACKGROUND.RTL,
-  border: "none",
-  items: "end"
+onMounted(async () => {
+  await isResolved();
+  useHeader({
+    background: HEADER_BACKGROUND.RTL,
+    border: "none",
+    items: "end"
+  });
+
+  useLayout({
+    variant: LAYOUT_VARIANTS.TWO_COLUMN_RTL
+  });
+
+  useFooter({
+    layout: FOOTER_LAYOUT.FLAT,
+    background: FOOTER_BACKGROUND.RTL,
+    items: "end",
+    justifyLeft: "start",
+    justifyRight: "between",
+    reverse: true,
+    noCurrency: true
+  });
 });
 
-useLayout({
-  variant: LAYOUT_VARIANTS.TWO_COLUMN_RTL
-});
-
-useFooter({
-  layout: FOOTER_LAYOUT.FLAT,
-  background: FOOTER_BACKGROUND.RTL,
-  items: "end",
-  justifyLeft: "start",
-  justifyRight: "between",
-  reverse: true,
-  noCurrency: true
+onUnmounted(() => {
+  useHeader({});
+  useLayout({});
+  useFooter({});
 });
 </script>

@@ -11,6 +11,9 @@
 </template>
 
 <script lang="ts" setup>
+// --- external
+import { onMounted } from "vue";
+
 // --- components
 import Layout from "../../../components/layout/Layout.vue";
 
@@ -18,7 +21,7 @@ import Layout from "../../../components/layout/Layout.vue";
 import { useFooter } from "../../../components/footer/useFooter";
 import { useHeader } from "../../../components/header/useHeader";
 import { useLayout } from "../../../components/layout/useLayout";
-
+import { useRoutingEngine } from "@upmind-automation/headless";
 // --- types
 import { FOOTER_LAYOUT } from "../../../components/footer/types";
 import { LAYOUT_VARIANTS } from "../../../components/layout/types";
@@ -35,15 +38,20 @@ defineOptions({
   inheritAttrs: false
 });
 
-useHeader({
-  visible: false
-});
+const { isResolved } = useRoutingEngine();
 
-useLayout({
-  variant: LAYOUT_VARIANTS.SURFACE_BOX
-});
+onMounted(async () => {
+  await isResolved();
+  useHeader({
+    visible: false
+  });
 
-useFooter({
-  visible: false
+  useLayout({
+    variant: LAYOUT_VARIANTS.SURFACE_BOX
+  });
+
+  useFooter({
+    visible: false
+  });
 });
 </script>
