@@ -17,7 +17,7 @@ export type RootVariants = VariantProps<typeof rootVariant>;
 export interface ProductCardProps
   extends Omit<Product, "price" | "pricing" | "meta"> {
   configureRoute: RouteLocationAsRelativeGeneric;
-
+  disabled?: boolean;
   variant?: RootVariants["variant"];
   price?: PriceDetail;
   pricing?: ProductSummaryDetailWithPrice[];

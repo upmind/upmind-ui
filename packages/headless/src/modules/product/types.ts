@@ -404,6 +404,8 @@ export type ProductSummaryMeta = {
   mixed?: boolean;
   /** `true` if the product includes other items. */
   includes?: boolean;
+  /** `true` if the product is already added to the basket. */
+  added?: boolean;
   /** `true` if the product is available. */
   available?: boolean;
   /** `true` if the price includes tax. */
