@@ -3,7 +3,7 @@
     <component :is="templateVariant" :key="props.template">
       <template v-if="!isSlotHidden('summary')" #summary>
         <slot name="summary">
-          <BasketSummary :count="count" :summary="summary">
+          <BasketSummary :loading="meta.isLoading">
             <template #append>
               <Back
                 v-if="props.storefrontRoute"
@@ -38,7 +38,8 @@
             :loading="meta.isProcessing"
             :show-checkout="
               template !== BASKET_TEMPLATE.TWO_COLUMN_RTL &&
-              template !== BASKET_TEMPLATE.ENCLOSED
+              template !== BASKET_TEMPLATE.ENCLOSED &&
+              !meta.isLoading
             "
             :show-total="variant !== LAYOUT_VARIANTS.TWO_COLUMN_RTL"
           />
@@ -55,7 +56,7 @@
         </slot>
       </template>
 
-      <template #checkout>
+      <template v-if="!meta.isLoading" #checkout>
         <slot name="checkout">
           <BasketCheckout
             @resolve="navigateNext"
@@ -154,8 +155,6 @@ const { variant } = useLayout();
 const open = ref(false);
 
 const isSlotHidden = (name: string) => includes(props.hideSlots, name);
-
-await isReady();
 
 const templateVariant = computed(() =>
   get(
