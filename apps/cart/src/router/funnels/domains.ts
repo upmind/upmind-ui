@@ -10,10 +10,13 @@ import {
   assign,
   useBasketProducts,
   useQueryParams,
-  type FunnelProps
+  type FunnelProps,
+  parseDomain
 } from "@upmind-automation/client-vue";
+
 import { ROUTE } from "../types";
 import { ProvisionCategoryCodes } from "@upmind-automation/types";
+import { some } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -87,12 +90,16 @@ export default <FunnelProps>{
     setCompleteRoute: assign({
       targetRoute: ({ currentRoute }) => {
         const { productId } = useQueryParams(currentRoute);
-        const { productExists } = useBasketProducts();
+        const { products } = useBasketProducts();
 
-        const hasDomains = productExists(
-          { blueprintCode: ProvisionCategoryCodes.DOMAIN_NAMES },
-          "productDetails"
-        );
+        const hasDomains = some(products.value, product => {
+          const parsed = parseDomain(product.serviceIdentifier || "");
+          const isDomainProduct =
+            product.productDetails.blueprintCode ===
+              ProvisionCategoryCodes.DOMAIN_NAMES || !!parsed?.domain;
+
+          return isDomainProduct;
+        });
 
         // if we already have domains in the basket then go to DOMAINS_WITH_PRODUCT_PROCESSING
         const route = hasDomains

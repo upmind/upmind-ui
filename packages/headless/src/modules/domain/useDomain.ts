@@ -238,9 +238,7 @@ export const useDomain = (
   }
 
   function reset(): void {
-    send({
-      type: "RESET"
-    });
+    send({ type: "RESET" });
     // housekeeping: clear search param on reset
     unsetParam("search");
   }
@@ -269,10 +267,6 @@ export const useDomain = (
 
   function isSelected(value: string): boolean {
     return model.value == value;
-  }
-
-  function complete(): void {
-    send({ type: "COMPLETE", data: DomainTypes.basket });
   }
 
   // -----------------------------------------------------------------------------
@@ -430,12 +424,6 @@ export const useDomain = (
      * @returns {boolean} True if the value is selected, false otherwise.
      */
     isSelected,
-
-    /** Complete the current domain workflow.
-     * When in DAC, this completes the DAC and transitions to basket.
-     * @returns {void}
-     */
-    complete,
 
     /** Stop the domain service.
      * @returns {void}

@@ -187,7 +187,6 @@ const {
   type,
   // ---
   choose,
-  complete,
   reset,
   select,
   stop,
@@ -225,8 +224,7 @@ watch(queryValue, value => {
 function doResolve() {
   open.value = false;
   processingBasket.value = true;
-
-  stop();
+  reset(); // force the reset after adding domain(s)
   emit("resolve", modelValue.value);
 }
 
