@@ -181,9 +181,6 @@ const { navigateNext, navigateBack, navigate } = useRoutingEngine();
 
 const isFormReady = computed(() => !!schema.value);
 
-// Eagerly trigger schema loading so the form renders immediately
-showRegister();
-
 const templateVariant = computed(() =>
   get(
     supportedTemplates,
