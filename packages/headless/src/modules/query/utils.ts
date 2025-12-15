@@ -81,7 +81,7 @@ export function parseData(data: any) {
  */
 export const invalidateQueryByKey =
   (queryKey: QueryKey, filters?: InvalidateQueryFilters) =>
-  <T = any>(data?: T) => {
+  <T = any>(data?: T): Promise<T | undefined> => {
     const { queryClient } = useQuery();
     return queryClient
       .invalidateQueries({
@@ -99,7 +99,9 @@ export const invalidateQueryByKey =
 
         return data;
       })
-      .catch(() => {});
+      .catch(() => {
+        return undefined;
+      });
   };
 
 /**

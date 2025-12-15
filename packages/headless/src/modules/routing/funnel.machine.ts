@@ -39,10 +39,11 @@ export const useFunnelMachine = ({
       id: `${id}Funnel`,
       predictableActionArguments: true,
       context,
-      initial: "loading",
+      initial: "calculating",
       states: {
-        // 1. Loading State to validate the funnel configuration to ensure we have states before proceeding
-        loading: {
+        // 1. calculating State to validate the funnel configuration to ensure we have states before proceeding
+        calculating: {
+          id: "calculating",
           invoke: {
             src: async (_context, _event) => {
               const { t } = useI18n();
@@ -147,6 +148,11 @@ export const useFunnelMachine = ({
                 (isString(data?.target)
                   ? { name: data.target }
                   : data?.target) ?? targetRoute;
+              console.debug(
+                `is${pascalCase(state)}`,
+                target,
+                target?.name == state
+              );
               return target?.name == state;
             };
             return acc;

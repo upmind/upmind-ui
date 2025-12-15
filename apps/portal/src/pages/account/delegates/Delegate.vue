@@ -1,6 +1,6 @@
 <template>
-  <p>Delegates</p>
-  <!-- <Layout :variant="variant">
+  <p>Delegate</p>
+  <!-- <UpmLayout :variant="variant">
     <template #navigation></template>
 
     <template #default>
@@ -8,7 +8,7 @@
     </template>
 
     <template #aside></template>
-  </Layout> -->
+  </UpmLayout> -->
 </template>
 <script lang="ts" setup>
 // --- external
@@ -28,7 +28,7 @@
 // import config from "./basket.config";
 
 // --- components
-import { Layout } from "@upmind-automation/upmind-ui";
+import { UpmLayout } from "@upmind-automation/client-vue";
 
 // import Hero from "../../components/hero/Hero.vue";
 // import Summary from "./components/Summary.vue";

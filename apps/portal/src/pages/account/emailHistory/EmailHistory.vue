@@ -1,5 +1,5 @@
 <template>
-  <Layout :variant="layout">
+  <UpmLayout :variant="layout">
     <template #actions></template>
 
     <template #content-header>
@@ -26,9 +26,9 @@
     </template>
 
     <template #aside>
-      <pre>{{ { meta, currentRoute } }}</pre>
+      <pre>{{ { route } }}</pre>
     </template>
-  </Layout>
+  </UpmLayout>
 </template>
 <script lang="ts" setup>
 // --- external
@@ -39,29 +39,35 @@ import { useUrlSearchParams } from "@vueuse/core";
 
 // --- internal
 import {
-  useRoutingEngine,
   ReceivedEmailsSortableProperties,
-  RequestSortDirection
+  RequestSortDirection,
+  useSession
 } from "@upmind-automation/headless";
-import { ROUTE } from "../../../router/types";
 
 // --- components
-import { Layout, UpmSection, UpmSections } from "@upmind-automation/client-vue";
+import {
+  UpmLayout,
+  LAYOUT_VARIANTS,
+  UpmSection,
+  UpmSections
+} from "@upmind-automation/client-vue";
 import EmailHistoryListing from "./EmailHistoryListing.vue";
 
 // --- types
 import type { TabItem } from "@upmind-automation/upmind-ui";
+import { useRoute } from "vue-router";
 
 // -----------------------------------------------------------------------------
 
-const { isReady, isResolved, currentRoute, meta } = useRoutingEngine();
-await isReady();
-await isResolved(ROUTE.ACCOUNT_EMAIL_HISTORY);
+// -----------------------------------------------------------------------------
 
 const { t } = useI18n();
+const route = useRoute();
+const { isAuthenticated } = useSession();
+await isAuthenticated();
 
-const layout = computed(() => {
-  return currentRoute.value?.meta?.template;
+const layout = computed((): LAYOUT_VARIANTS => {
+  return (route?.meta?.template as LAYOUT_VARIANTS) ?? LAYOUT_VARIANTS.FULL;
 });
 
 const active = useRouteQuery<string | undefined>("active", undefined, {
