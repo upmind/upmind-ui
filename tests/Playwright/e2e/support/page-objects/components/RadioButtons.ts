@@ -25,11 +25,4 @@ export class RadioButtons {
     );
     await radioOption.click();
   }
-
-  async selectRadioOption(option: string) {
-    const radioOption = this.radioGroup.getByTestId(
-      `radio-card-${kebabCase(option)}`
-    );
-    await radioOption.click();
-  }
 }

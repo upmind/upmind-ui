@@ -5,7 +5,7 @@
         v-model="queryValue"
         :searching="meta.isSearching"
         :type="type"
-        :processing="meta.isProcessing"
+        :processing="meta.isProcessing || processingBasket"
         @search="search"
         @reset="doReset"
       />
@@ -13,6 +13,7 @@
 
     <template #domain-type v-if="meta.showChoices">
       <DomainType
+        :disabled="meta.isProcessing || processingBasket"
         :model-value="modelValue"
         :choices="choices"
         :owned="owned"
@@ -36,7 +37,7 @@
       <DomainSearch
         v-model="queryValue"
         :searching="meta.isSearching"
-        :processing="meta.isProcessing"
+        :processing="meta.isProcessing || processingBasket"
         :type="type"
         @search="search"
         @reset="doReset"
@@ -49,6 +50,7 @@
 
     <template #results>
       <DomainCards
+        :disabled="processingBasket"
         :model-value="added"
         :items="available || []"
         :offset="pagination.offset"
@@ -83,7 +85,12 @@
         color="primary"
         size="lg"
         icon-append="arrow-right"
-        :disabled="meta.isProcessing || meta.isEmpty || meta.isLoading"
+        :disabled="
+          meta.isProcessing ||
+          meta.isEmpty ||
+          meta.isLoading ||
+          processingBasket
+        "
         :block="isMobile || (isMobile && template === DOMAIN_TEMPLATE.WIDGET)"
         @click="doResolve"
       />
@@ -196,6 +203,8 @@ await isReady().then(() => {
 // ---------------------------------------------------------------------------
 
 const open = ref(false);
+const processingBasket = ref(false);
+
 const resultCount = ref(0);
 const queryValue = ref(query.value || "");
 
@@ -215,28 +224,25 @@ watch(queryValue, value => {
 
 function doResolve() {
   open.value = false;
-  complete();
+  processingBasket.value = true;
+
+  stop();
   emit("resolve", modelValue.value);
 }
 
 function doReset() {
   open.value = false;
+  processingBasket.value = false;
   resultCount.value = 0;
   queryValue.value = "";
   debouncedSearch.cancel();
   reset();
 }
 
-onUnmounted(() => {
-  stop();
-  if (props.template === DOMAIN_TEMPLATE.FULL) {
-    useLayout({});
-    useFooter({});
-    useHeader({});
-  }
-});
-
 // --- side effects
+
+await isReady();
+
 watch(selected, value => (modelValue.value = value));
 
 watch(meta, ({ isSearching, showSearchResults, showDac }) => {
@@ -247,5 +253,14 @@ watch(meta, ({ isSearching, showSearchResults, showDac }) => {
 // Stores the previous result count for smooth skeleton loading
 watch(available, previous => {
   resultCount.value = previous?.length ?? 0;
+});
+
+onUnmounted(() => {
+  stop();
+  if (props.template === DOMAIN_TEMPLATE.FULL) {
+    useLayout({});
+    useFooter({});
+    useHeader({});
+  }
 });
 </script>

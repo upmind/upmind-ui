@@ -10,5 +10,6 @@ export const Upm404 = defineAsyncComponent(() => import("./404.vue"));
 export const UpmLoading = defineAsyncComponent(() => import("./Loading.vue"));
 export const UpmError = defineAsyncComponent(() => import("./Error.vue"));
 export const UpmEmpty = defineAsyncComponent(() => import("./Empty.vue"));
+export const UpmRouteView = defineAsyncComponent(() => import("./View.vue"));
 
 // --- Export Types

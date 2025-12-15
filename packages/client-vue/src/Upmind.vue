@@ -17,37 +17,13 @@
           </Header>
         </slot>
 
-        <AsyncLoading :open="!routeMeta.isResolved" v-bind="loadingProps" />
+        <AsyncLoading
+          :open="!routeMeta.isResolved"
+          v-bind="props.loadingProps"
+        />
 
         <Main>
-          <RouterView v-slot="routerViewProps" :key="$route.path">
-            <slot v-bind="routerViewProps">
-              <template v-if="routerViewProps.Component">
-                <Suspense>
-                  <KeepAlive>
-                    <Transition
-                      mode="out-in"
-                      @after-enter="scrollToAnchor"
-                      enter-active-class="transition-opacity duration-500 ease-in-out"
-                      leave-active-class="transition-opacity duration-500 ease-in-out"
-                      enter-from-class="opacity-0"
-                      leave-to-class="opacity-0"
-                      appear
-                    >
-                      <component :is="routerViewProps.Component" />
-                    </Transition>
-                  </KeepAlive>
-
-                  <template #fallback>
-                    <AsyncLoading
-                      v-bind="loadingProps"
-                      v-if="routeMeta.isResolved"
-                    />
-                  </template>
-                </Suspense>
-              </template>
-            </slot>
-          </RouterView>
+          <UpmRouteView :loading-props="props.loadingProps" />
         </Main>
 
         <slot name="footer">
@@ -82,6 +58,7 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import { useTheme } from "./modules/theming";
 
 // --- components
+import UpmRouteView from "./modules/system/View.vue";
 import Header from "./components/header/Header.vue";
 import Footer from "./components/footer/Footer.vue";
 import Feedback from "./modules/feedback/Feedback.vue";

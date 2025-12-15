@@ -6,7 +6,7 @@ import { useActor } from "@xstate/vue";
 
 // --- internal
 import { useI18n } from "../system";
-import { useQueryParams } from "../routing";
+import { QUERY_PARAMS, useQueryParams } from "../routing";
 import domainMachine from "./domain.machine";
 
 // --- utils
@@ -56,7 +56,6 @@ export const useDomain = (
   value: string | Array<string> = "",
   options: {
     type?: DomainTypes;
-    preferredCycle?: number;
   } = {
     type: undefined
   }
@@ -75,9 +74,10 @@ export const useDomain = (
       type: safeType,
       choices: safeType,
       model: safeModel,
-      preferredCycle: options?.preferredCycle,
+      preferredCycle: getParam(QUERY_PARAMS.BILLING_CYCLE_MONTHS),
+      coupons: getParam(QUERY_PARAMS.COUPONS),
       search: {
-        query: getParam("search", ""), // Get any initial search query from URL
+        query: getParam(QUERY_PARAMS.SEARCH, ""), // Get any initial search query from URL
         limit: PAGINATION.limit,
         offset: PAGINATION.offset
       }

@@ -19,9 +19,9 @@
     />
   </SessionLoginPopover>
 
-  <SessionDetailsDropdown v-else-if="client">
+  <SessionDetailsDropdown v-else-if="user">
     <Avatar
-      v-bind="client.avatar"
+      v-bind="user.avatar"
       :shape="shape"
       size="md"
       class="cursor-pointer"
@@ -49,5 +49,5 @@ import type { AuthActionProps } from "./types";
 const props = defineProps<AuthActionProps>();
 
 const { t } = useI18n();
-const { meta, client } = useSession();
+const { meta, user } = useSession();
 </script>
