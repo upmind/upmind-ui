@@ -9,9 +9,11 @@ import { calculateBillingTerm, parseProductProps } from "../product/utils";
 import { parseProductDetails, parseTermDetails } from "../product/utils";
 import {
   compact,
+  filter,
   find,
   first,
   get,
+  has,
   isEmpty,
   isObject,
   map,
@@ -19,7 +21,11 @@ import {
 } from "lodash-es";
 
 // --- types
-import { IProduct } from "@upmind-automation/types";
+import {
+  IBasketProduct,
+  IProduct,
+  ProvisionCategoryCodes
+} from "@upmind-automation/types";
 import type { BasketProduct } from "../basketProduct";
 import type { DomainProduct, DomainModel } from "./types";
 import { ProductProps } from "../product";
@@ -144,4 +150,52 @@ export function parseValue(
   return found
     ? (parseDomain(found.domain) as DomainModel)
     : (parseDomain(value) as DomainModel);
+}
+
+export function isDomainProduct({
+  blueprintCode,
+  serviceIdentifier,
+  provisionFields
+}: {
+  blueprintCode?: string;
+  serviceIdentifier?: string;
+  provisionFields?: Record<string, any>;
+}): boolean {
+  const parsed = parseDomain(serviceIdentifier || "");
+  const isDomainProduct =
+    blueprintCode === ProvisionCategoryCodes.DOMAIN_NAMES ||
+    has(provisionFields, "sld") ||
+    !!parsed?.domain;
+
+  return isDomainProduct;
+}
+
+export function getDomainBasketProducts(
+  products?: BasketProduct[]
+): BasketProduct[] {
+  if (isEmpty(products)) return [];
+
+  // check if we have the parsed basket product structure
+  return filter(products, raw => {
+    return isDomainProduct({
+      blueprintCode: raw?.productDetails.blueprintCode,
+      serviceIdentifier: raw?.serviceIdentifier,
+      provisionFields: raw?.configuration.provisionFields
+    });
+  });
+}
+
+export function getDomainRawBasketProducts(
+  products?: IBasketProduct[]
+): IBasketProduct[] {
+  if (isEmpty(products)) return [];
+
+  // check if we have the parsed basket product structure
+  return filter(products, raw => {
+    return isDomainProduct({
+      blueprintCode: raw?.product?.provision_blueprint?.code,
+      provisionFields: raw?.provision_fields,
+      serviceIdentifier: raw?.service_identifier ?? undefined
+    });
+  });
 }

@@ -16,7 +16,7 @@ import {
   ResponseError,
   useTime
 } from "../../utils";
-import { parseDomain } from "./utils";
+import { getDomainRawBasketProducts, parseDomain } from "./utils";
 import {
   cloneDeep,
   defaultsDeep,
@@ -48,7 +48,6 @@ import { DomainTypes } from "./types";
 import type { DomainModel, DomainContext, DomainProduct } from "./types";
 import { parseBasketProduct } from "../basketProduct/utils";
 import { ProductProps } from "../product";
-import { parse } from "path";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -69,6 +68,7 @@ export default createMachine(
       loading: {
         id: "loading",
         type: "parallel",
+        entry: [],
         states: {
           existing: {
             initial: "processing",
@@ -94,11 +94,7 @@ export default createMachine(
                 on: {
                   REFRESH: {
                     target: "complete",
-                    actions: [
-                      "setBasketProducts",
-                      "setModelFromBasket",
-                      "refreshContext"
-                    ]
+                    actions: ["refreshContext", "setBasketProducts"]
                   },
                   ERROR: {
                     target: "complete"
@@ -256,7 +252,6 @@ export default createMachine(
       REFRESH: {
         actions: [
           "setBasketProducts",
-          "setModelFromBasket",
           "refreshContext",
           "checkChoices",
           "checkType"
@@ -300,30 +295,29 @@ export default createMachine(
   },
   {
     actions: {
-      setContext: assign(
-        (context: DomainContext, _event: AnyEventObject) =>
-          defaultsDeep(context, {
-            choices: values(DomainTypes),
-            type: undefined,
-            model: undefined,
-            lookups: {
-              owned: [],
-              basket: []
-            },
-            // ---
-            currency: undefined,
-            basketId: undefined,
-            brandId: undefined,
-            coupons: [],
-            // ---
-            error: undefined,
-            // ---
-            authHelper: undefined,
-            basketHelper: undefined,
-            parseBasketProduct: undefined,
-            parseProductModel: undefined
-          }) as DomainContext
-      ),
+      setContext: assign((context: DomainContext, _event: AnyEventObject) => {
+        return defaultsDeep(context, {
+          choices: values(DomainTypes),
+          type: undefined,
+          model: undefined,
+          lookups: {
+            owned: [],
+            basket: []
+          },
+          // ---
+          currency: undefined,
+          basketId: undefined,
+          brandId: undefined,
+          coupons: [],
+          // ---
+          error: undefined,
+          // ---
+          authHelper: undefined,
+          basketHelper: undefined,
+          parseBasketProduct: undefined,
+          parseProductModel: undefined
+        }) as DomainContext;
+      }),
 
       persistModel: assign({
         baseModel: ({ model }: DomainContext) => cloneDeep(model) // we use spread to ensure its a new array
@@ -332,7 +326,6 @@ export default createMachine(
       checkModel: assign({
         model: ({ model, lookups }: DomainContext) => {
           let value = parseDomain(model);
-
           if (isEmpty(value) && !isEmpty(lookups.basket)) {
             const parsed = map(lookups.basket, item => {
               return {
@@ -485,15 +478,9 @@ export default createMachine(
         ) => {
           const primary = model || first(lookups.basket);
           // 1st filter out only the domain products from the basket products
-          const domains = filter(data.products, (product: IBasketProduct) => {
-            const parsed = parseDomain(product.service_identifier || "");
-            const isDomainProduct =
-              product.product?.provision_blueprint?.code ===
-                ProvisionCategoryCodes.DOMAIN_NAMES || !!parsed?.domain;
-
-            return isDomainProduct;
-          });
-
+          const domains = getDomainRawBasketProducts(
+            data.products as IBasketProduct[]
+          );
           // then parse them into our DomainProduct type
           const available = reduce(
             domains,
@@ -600,15 +587,6 @@ export default createMachine(
           return {
             owned: [],
             basket: []
-          };
-        }
-      }),
-
-      resetLookups: assign({
-        lookups: ({ lookups }: DomainContext, _event: AnyEventObject) => {
-          return {
-            owned: lookups.owned,
-            basket: lookups.basket
           };
         }
       }),
