@@ -1,5 +1,5 @@
 <template>
-  <component :is="templateVariant" v-bind="props">
+  <component v-if="routingMeta.isResolved" :is="templateVariant" v-bind="props">
     <template #back>
       <slot name="back">
         <Back />
@@ -130,9 +130,16 @@ const props = withDefaults(
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { meta } = useSession();
+const { meta, isReady } = useSession();
 const { meta: basketMeta } = useBasket();
-const { navigateNext, navigateBack, navigate } = useRoutingEngine();
+const {
+  navigateNext,
+  navigateBack,
+  navigate,
+  meta: routingMeta
+} = useRoutingEngine();
+
+await isReady();
 
 const templateVariant = computed(() =>
   get(
