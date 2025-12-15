@@ -7,33 +7,41 @@ import { useRoutingEngine } from "@upmind-automation/headless";
 const shouldShow = ref(false);
 const shouldTransition = ref(false);
 const transitionCallbacks = new Set<() => void>();
+
 let transitionTimer: ReturnType<typeof setTimeout> | null = null;
 let showTimer: ReturnType<typeof setTimeout> | null = null;
+let initialized = false;
+
+// -----------------------------------------------------------------------------
 
 export const useRouteTransition = () => {
   const { meta: routingMeta } = useRoutingEngine();
 
-  watch(
-    () => routingMeta.value.isResolved,
-    () => {
-      if (!routingMeta.value.isResolved) {
-        if (transitionTimer) clearTimeout(transitionTimer);
-        if (showTimer) clearTimeout(showTimer);
+  if (!initialized) {
+    initialized = true;
 
-        shouldShow.value = false;
-        shouldTransition.value = false;
+    watch(
+      () => routingMeta.value.isResolved,
+      (isResolved, wasResolved) => {
+        if (!isResolved && wasResolved !== false) {
+          if (transitionTimer) clearTimeout(transitionTimer);
+          if (showTimer) clearTimeout(showTimer);
 
-        transitionTimer = setTimeout(() => {
-          shouldTransition.value = true;
-        }, 300);
+          shouldShow.value = false;
+          shouldTransition.value = false;
 
-        showTimer = setTimeout(() => {
-          shouldShow.value = true;
-        }, 1000);
-      }
-    },
-    { immediate: true }
-  );
+          transitionTimer = setTimeout(() => {
+            shouldTransition.value = true;
+          }, 300);
+
+          showTimer = setTimeout(() => {
+            shouldShow.value = true;
+          }, 1000);
+        }
+      },
+      { immediate: true }
+    );
+  }
 
   function onTransition(callback: () => void) {
     transitionCallbacks.add(callback);
