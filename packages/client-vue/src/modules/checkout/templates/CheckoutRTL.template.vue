@@ -34,6 +34,7 @@ import Layout from "../../../components/layout/Layout.vue";
 
 // --- utils
 import { isMobile } from "@upmind-automation/upmind-ui";
+import { useRoutingEngine } from "@upmind-automation/headless";
 
 // --- types
 import { HEADER_BACKGROUND } from "../../../components/header/types";
@@ -47,7 +48,10 @@ defineOptions({
   inheritAttrs: false
 });
 
-onMounted(() => {
+const { isResolved } = useRoutingEngine();
+
+onMounted(async () => {
+  await isResolved();
   useHeader({
     background: HEADER_BACKGROUND.RTL,
     border: "none",
