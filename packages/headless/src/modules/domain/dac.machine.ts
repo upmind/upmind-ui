@@ -118,7 +118,27 @@ export default createMachine(
       error: {},
 
       complete: {
-        type: "final"
+        type: "final",
+        data: ({ model, lookups }: DacContext) => {
+          const domains = lookups.basket;
+          const primary = first(model);
+
+          return {
+            basket: lookups.basket,
+            domains: reduce(
+              model,
+              (result: DomainModel[], item) => {
+                // ensure we mark the primary domain
+                if (item.domain === primary?.domain) {
+                  item.selected = true;
+                }
+                result.push(item);
+                return result;
+              },
+              []
+            )
+          };
+        }
       }
     },
 
@@ -148,8 +168,8 @@ export default createMachine(
       },
 
       UPDATE: {
-        target: "valid",
-        actions: ["setModel"]
+        target: "valid"
+        // actions: ["setModel"]
       },
 
       SEARCH: [
@@ -169,20 +189,14 @@ export default createMachine(
 
       RESET: {
         target: "invalid",
-        actions: ["clearModel", "resetLookups", "clearSearch"]
+        actions: ["resetLookups", "clearSearch"]
       },
 
       REFRESH: {
         actions: ["setBasketProducts", "refreshContext"]
       },
 
-      STOP: {
-        target: "complete"
-      },
-
-      COMPLETE: {
-        target: "complete"
-      },
+      STOP: { target: "complete" },
 
       AUTHENTICATED: { target: "loading", actions: ["clearLookups"] },
       UNAUTHENTICATED: { target: "loading", actions: ["clearLookups"] }
