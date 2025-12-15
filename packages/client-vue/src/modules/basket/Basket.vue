@@ -164,6 +164,8 @@ const templateVariant = computed(() =>
   )
 );
 
+await isReady();
+
 onUnmounted(() => {
   useHeader({});
   useLayout({});
