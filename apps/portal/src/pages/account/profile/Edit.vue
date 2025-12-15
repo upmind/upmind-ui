@@ -1,5 +1,5 @@
 <template>
-  <Layout :variant="layout">
+  <UpmLayout :variant="layout">
     <template #actions></template>
 
     <template #content-header>
@@ -15,29 +15,33 @@
     <template #aside>
       <!-- <pre>{{ { meta, currentRoute } }}</pre> -->
     </template>
-  </Layout>
+  </UpmLayout>
 </template>
 <script lang="ts" setup>
 // --- external
 import { computed } from "vue";
 
 // --- internal
-import { useRoutingEngine } from "@upmind-automation/headless";
+import { useSession } from "@upmind-automation/headless";
 
 // --- components
-import { Layout } from "@upmind-automation/client-vue";
-import ClientProfileFieldsEdit from "./ClientProfileFieldsEdit.vue";
+import { UpmLayout, LAYOUT_VARIANTS } from "@upmind-automation/client-vue";
+import ClientProfileFieldsEdit from "./components/ClientProfileFieldsEdit.vue";
 
 // --- types
-import { ROUTE } from "../../../router/types";
+import { useRoute } from "vue-router";
 
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{ fields: string[] }>();
 
-const { currentRoute, meta } = useRoutingEngine();
+// -----------------------------------------------------------------------------
 
-const layout = computed(() => {
-  return currentRoute.value?.meta?.template;
+const route = useRoute();
+const { isAuthenticated } = useSession();
+await isAuthenticated();
+
+const layout = computed((): LAYOUT_VARIANTS => {
+  return (route?.meta?.template as LAYOUT_VARIANTS) ?? LAYOUT_VARIANTS.FULL;
 });
 </script>

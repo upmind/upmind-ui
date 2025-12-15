@@ -115,8 +115,6 @@ const safeOpen = computed({
     return props.forceOpen ? true : open.value;
   },
   set(value: boolean) {
-    debugger;
-
     open.value = props.forceOpen ? true : value;
   }
 });

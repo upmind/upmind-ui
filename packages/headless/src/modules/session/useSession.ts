@@ -638,7 +638,7 @@ export const useSession = () => {
      */
     client,
 
-    userId: computed((): Client["id"] | undefined => {
+    clientId: computed((): Client["id"] | undefined => {
       return client.value?.id;
     }),
 

@@ -1,5 +1,5 @@
 <template>
-  <p>Delegate</p>
+  <p>Delegates</p>
   <!-- <Layout :variant="variant">
     <template #navigation></template>
 
@@ -28,7 +28,7 @@
 // import config from "./basket.config";
 
 // --- components
-import { Layout } from "@upmind-automation/upmind-ui";
+import { UpmLayout } from "@upmind-automation/client-vue";
 
 // import Hero from "../../components/hero/Hero.vue";
 // import Summary from "./components/Summary.vue";

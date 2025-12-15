@@ -308,7 +308,7 @@ async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
       : ensureEmail({
           model: (data?.email
             ? { email: data.email }
-            : { id: data?.emailId }) as EmailModel
+            : { id: data?.emailId }) as unknown as EmailModel
         }),
 
     !data?.phone?.number && !data?.phoneId

@@ -32,6 +32,6 @@
 </template>
 
 <script setup lang="ts">
-import { Layout } from "@upmind-automation/upmind-ui";
+import { UpmLayout } from "@upmind-automation/client-vue";
 import { UpmLoading } from "@upmind-automation/client-vue";
 </script>

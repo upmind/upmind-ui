@@ -180,6 +180,7 @@ async function ensure(model: AddressModel): Promise<Address> {
       );
     // NB: Remember to refresh our machines so we have the new data
     // refresh();
+
     return mapAddress(raw);
   });
 }

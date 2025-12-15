@@ -92,11 +92,12 @@ async function loadLookups({
 // MUTATIONS
 
 async function update(data: FieldsModel) {
-  const { client, refresh } = useSession();
+  const { clientId, refresh } = useSession();
   const { put, useUrl } = useQuery();
 
   return put<IClient>({
-    url: useUrl(`clients/${client.value?.id}`),
+    mutationKey: ["client", clientId.value],
+    url: useUrl(`clients/${clientId.value}`),
     data: mapIProfileFields(data),
     withAccessToken: true,
     withoutLocale: true

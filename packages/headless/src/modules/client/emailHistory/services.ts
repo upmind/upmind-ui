@@ -17,7 +17,7 @@ import type { SentEmail } from "./types";
 
 const queryKey: QueryKey = ["client", "emailHistory"];
 
-function load({ emailId }: { emailId: SentEmail["id"] }) {
+function load({ emailId }: { emailId?: SentEmail["id"] }) {
   const { query, useUrl } = useQuery();
 
   // NB:We use the latest but in time we could get a specific version.

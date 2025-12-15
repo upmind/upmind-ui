@@ -14,14 +14,12 @@
             color="muted"
             tabindex="-1"
             class="pointer-events-auto ml-2 h-4"
-            @click.stop.prevent="
-              router.push({
-                name: ROUTE.ACCOUNT_PROFILE_EDIT,
-                query: {
-                  fields: `${profileField.meta.isCustomField ? 'customFields.' : ''}${profileField.code}`
-                }
-              })
-            "
+            :to="{
+              name: ROUTE.ACCOUNT_PROFILE_EDIT,
+              query: {
+                fields: `${profileField.meta.isCustomField ? 'customFields.' : ''}${profileField.code}`
+              }
+            }"
           />
         </div>
       </div>
@@ -32,11 +30,10 @@
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
-import { useRouter } from "vue-router";
 
 // --- internal
 import { usePersonalDetails } from "@upmind-automation/headless";
-import { ROUTE } from "../../../router/types";
+import { ROUTE } from "../../../../router/types";
 
 // --- components
 import { UpmSection } from "@upmind-automation/client-vue";
@@ -45,9 +42,8 @@ import { Link } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const router = useRouter();
 
-const { data, isReady, meta, customFields } = usePersonalDetails();
+const { data, isReady } = usePersonalDetails();
 
 await isReady();
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <Layout :variant="layout">
+  <UpmLayout :variant="layout">
     <template #content-header>
       <h1>{{ t("text.billing") }}</h1>
     </template>
@@ -9,9 +9,9 @@
     </template>
 
     <template #aside>
-      <pre>{{ { meta, currentRoute } }}</pre>
+      <pre>{{ { route } }}</pre>
     </template>
-  </Layout>
+  </UpmLayout>
 </template>
 <script lang="ts" setup>
 // --- external
@@ -19,23 +19,23 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useRoutingEngine, useSession } from "@upmind-automation/headless";
+import { useSession } from "@upmind-automation/headless";
 
 // --- components
-import { Layout } from "@upmind-automation/client-vue";
-import ClientBillingAddresses from "./ClientBillingAddresses.vue";
+import { UpmLayout, LAYOUT_VARIANTS } from "@upmind-automation/client-vue";
+import ClientBillingAddresses from "./components/ClientBillingAddresses.vue";
 
 // --- types
-import { ROUTE } from "../../router/types";
+import { useRoute } from "vue-router";
 
 // -----------------------------------------------------------------------------
-const { currentRoute, meta } = useRoutingEngine();
+const route = useRoute();
 const { isAuthenticated } = useSession();
 await isAuthenticated();
 
 const { t } = useI18n();
 
-const layout = computed(() => {
-  return currentRoute.value?.meta?.template;
+const layout = computed((): LAYOUT_VARIANTS => {
+  return (route?.meta?.template as LAYOUT_VARIANTS) ?? LAYOUT_VARIANTS.FULL;
 });
 </script>
