@@ -195,10 +195,6 @@ const {
   type: props.type as DomainTypes
 });
 
-await isReady().then(() => {
-  // NB ensure we sync initial value in case the composable modified it
-  modelValue.value = selected.value;
-});
 // ---------------------------------------------------------------------------
 
 const open = ref(false);
@@ -211,15 +207,6 @@ const debouncedSearch = debounce(
   (value: string) => search(value),
   DEBOUNCE_DELAY
 );
-
-watch(queryValue, value => {
-  if (!value) {
-    debouncedSearch.cancel();
-    reset();
-  } else {
-    debouncedSearch(value);
-  }
-});
 
 function doResolve() {
   open.value = false;
@@ -239,7 +226,19 @@ function doReset() {
 
 // --- side effects
 
-await isReady();
+await isReady().then(() => {
+  // NB ensure we sync initial value in case the composable modified it
+  modelValue.value = selected.value;
+});
+
+watch(queryValue, value => {
+  if (!value) {
+    debouncedSearch.cancel();
+    reset();
+  } else {
+    debouncedSearch(value);
+  }
+});
 
 watch(selected, value => (modelValue.value = value));
 
