@@ -1,6 +1,6 @@
 <template>
   <Transition
-    :enter-active-class="`transition-opacity ease-in-out ${shouldTransition ? 'duration-300' : 'duration-0'}`"
+    :enter-active-class="`transition-opacity ease-in-out ${shouldTransition ? 'duration-1000' : 'duration-0'}`"
     enter-from-class="opacity-0"
     appear
     @enter="onEnter"
