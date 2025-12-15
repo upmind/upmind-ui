@@ -10,16 +10,7 @@ import { QUERY_PARAMS, useQueryParams } from "../routing";
 import domainMachine from "./domain.machine";
 
 // --- utils
-import {
-  map,
-  has,
-  isArray,
-  some,
-  get,
-  isEmpty,
-  debounce,
-  filter
-} from "lodash-es";
+import { map, has, isArray, some, get, isEmpty, filter } from "lodash-es";
 import {
   stopService,
   stateMatches,
@@ -32,12 +23,7 @@ import {
 import { parseDomain } from "./utils";
 
 // --- types
-import {
-  DomainTypes,
-  DomainContext,
-  DomainProduct,
-  DomainModel
-} from "./types";
+import { DomainTypes, DomainContext, DomainProduct } from "./types";
 import { PAGINATION } from "../query";
 
 // -----------------------------------------------------------------------------
@@ -53,7 +39,7 @@ import { PAGINATION } from "../query";
  * @returns Domain management API (state, computed, and methods)
  */
 export const useDomain = (
-  value: string | Array<string> = "",
+  value: string,
   options: {
     type?: DomainTypes;
   } = {
@@ -67,13 +53,11 @@ export const useDomain = (
   const safeType =
     options?.type && has(DomainTypes, options.type) ? options.type : undefined;
 
-  const safeModel = map(isArray(value) ? value : [value], parseDomain);
-
   const service = interpret(
     domainMachine.withContext({
       type: safeType,
       choices: safeType,
-      model: safeModel,
+      model: parseDomain(value),
       preferredCycle: getParam(QUERY_PARAMS.BILLING_CYCLE_MONTHS),
       coupons: getParam(QUERY_PARAMS.COUPONS),
       search: {

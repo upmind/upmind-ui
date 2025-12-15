@@ -319,10 +319,8 @@ export const useBasketProducts = () => {
       set(processing.value, bpid, true);
 
       return action(...args).finally(() => {
-        console.log("removing from processing", bpid, processing.value);
         set(processing.value, bpid, false);
         unset(processing.value, bpid);
-        console.log("still processing", processing.value);
       });
     }, delay) as (...args: Parameters<T>) => Promise<IBasket>;
   }

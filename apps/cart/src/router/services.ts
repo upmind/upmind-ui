@@ -12,16 +12,16 @@ import {
   useBasketFields,
   type AnyEventObject,
   type FunnelResponse,
-  useBasketProducts
+  useBasketProducts,
+  isDomainProduct
 } from "@upmind-automation/client-vue";
 import {
   BrandConfigKeys,
   CheckoutFlows,
-  ProvisionCategoryCodes,
   SemanticTypes,
   UpmindModuleCodes
 } from "@upmind-automation/types";
-import { first, reduce } from "lodash-es";
+import { filter, first, reduce } from "lodash-es";
 import type { RouteLocationGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------
@@ -84,15 +84,20 @@ export default {
     { currentRoute, targetRoute }: FunnelContext,
     { data }: AnyEventObject
   ): Promise<FunnelResponse> => {
-    const { findProduct, configure, findProducts } = useBasketProducts();
+    const { findProduct, configure, products } = useBasketProducts();
 
     const route = targetRoute ?? currentRoute;
     const { productId } = useQueryParams(route as RouteLocationGeneric);
     const basketItem = findProduct({ productId }); // NB this will be the last one added!
-    const domains = findProducts(
-      { blueprintCode: ProvisionCategoryCodes.DOMAIN_NAMES },
-      "productDetails"
-    );
+
+    const domains = filter(products.value, product => {
+      return isDomainProduct({
+        blueprintCode: product.productDetails.blueprintCode,
+        serviceIdentifier: product.serviceIdentifier,
+        provisionFields: product.configuration.provisionFields
+      });
+    });
+
     const domain = data?.event?.domain ?? first(domains)?.serviceIdentifier;
 
     /** #1: We HAVE a BasketItem and HAVE been provided with a domain to assign */
