@@ -254,7 +254,12 @@ const { navigateBack, navigateNext, meta: routingMeta } = useRoutingEngine();
 
 const { configure, resolve, remove } = useBasketProductsPending();
 const { productId } = useQueryParams();
-const { update, service: pendingProduct, onDone } = await configure(productId);
+const {
+  update,
+  service: pendingProduct,
+  onDone,
+  isReady
+} = await configure(productId);
 
 const {
   meta,
@@ -265,6 +270,8 @@ const {
   updateTerm,
   terms
 } = useProductConfig(pendingProduct);
+
+await isReady();
 
 const isSlotHidden = (name: string) => includes(props.hideSlots, name);
 
