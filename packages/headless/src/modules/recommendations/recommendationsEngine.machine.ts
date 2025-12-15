@@ -107,7 +107,7 @@ export default createMachine(
             cond: "hasBasketProductsChanged"
           },
 
-          ADDED: {
+          UPDATED: {
             actions: ["setBasket", "setLookups", "setRecommendations"],
             target: "available"
           },

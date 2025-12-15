@@ -16,13 +16,10 @@ import {
   ResponseError,
   useTime
 } from "../../utils";
-import { parseDomain, parseValue, parseSld } from "./utils";
+import { parseDomain } from "./utils";
 import {
   cloneDeep,
-  compact,
-  concat,
   defaultsDeep,
-  every,
   filter,
   find,
   first,
@@ -51,11 +48,11 @@ import { DomainTypes } from "./types";
 import type { DomainModel, DomainContext, DomainProduct } from "./types";
 import { parseBasketProduct } from "../basketProduct/utils";
 import { ProductProps } from "../product";
+import { parse } from "path";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
   {
-    //tsTypes: {} as import("./domain.machine.typegen").Typegen0,
     id: "domainManager",
     predictableActionArguments: true,
     initial: "subscribing",
@@ -70,6 +67,7 @@ export default createMachine(
       },
 
       loading: {
+        id: "loading",
         type: "parallel",
         states: {
           existing: {
@@ -96,7 +94,11 @@ export default createMachine(
                 on: {
                   REFRESH: {
                     target: "complete",
-                    actions: ["setBasketProducts", "refreshContext"]
+                    actions: [
+                      "setBasketProducts",
+                      "setModelFromBasket",
+                      "refreshContext"
+                    ]
                   },
                   ERROR: {
                     target: "complete"
@@ -158,29 +160,23 @@ export default createMachine(
             preferredCycle,
             tlds
           }),
-          autoForward: true
-        },
-        on: {
-          COMPLETE: {
+          autoForward: true,
+          onError: {
+            target: "idle",
+            actions: ["setError"]
+          },
+          onDone: {
             target: "#basket",
             actions: [
-              "setType",
-              "setModelFromBasket",
+              "setModelFromDac",
               "ensureSelected",
-              "checkChoices",
-              "persistModel"
+              "persistModel",
+              "checkType"
             ]
           }
         },
-        onDone: {
-          target: "#basket",
-          actions: [
-            "setModelFromBasket",
-            "ensureSelected",
-            "checkChoices",
-            "checkType",
-            "persistModel"
-          ]
+        on: {
+          RESET: { actions: sendTo("dac", { type: "STOP" }) }
         }
       },
 
@@ -260,6 +256,7 @@ export default createMachine(
       REFRESH: {
         actions: [
           "setBasketProducts",
+          "setModelFromBasket",
           "refreshContext",
           "checkChoices",
           "checkType"
@@ -402,7 +399,9 @@ export default createMachine(
               includes(choices, DomainTypes.existing))
           ) {
             const added = some(lookups.basket, ["domain", domain]);
-            if (added) return DomainTypes.basket;
+            if (added) {
+              return DomainTypes.basket;
+            }
             return DomainTypes.existing;
           }
 
@@ -485,12 +484,15 @@ export default createMachine(
           { data }: AnyEventObject
         ) => {
           const primary = model || first(lookups.basket);
-
           // 1st filter out only the domain products from the basket products
-          const domains = filter(data.products, [
-            "product.provision_blueprint.code",
-            ProvisionCategoryCodes.DOMAIN_NAMES
-          ]);
+          const domains = filter(data.products, (product: IBasketProduct) => {
+            const parsed = parseDomain(product.service_identifier || "");
+            const isDomainProduct =
+              product.product?.provision_blueprint?.code ===
+                ProvisionCategoryCodes.DOMAIN_NAMES || !!parsed?.domain;
+
+            return isDomainProduct;
+          });
 
           // then parse them into our DomainProduct type
           const available = reduce(
@@ -502,6 +504,7 @@ export default createMachine(
             },
             []
           );
+
           set(lookups, "basket", available);
           return lookups;
         }
@@ -541,6 +544,25 @@ export default createMachine(
             find(mapped, "selected") ||
             first(mapped)
           );
+        }
+      }),
+
+      setModelFromDac: assign({
+        model: (
+          { model, lookups }: DomainContext,
+          { data }: AnyEventObject
+        ) => {
+          // if no data, return existing model
+          if (isEmpty(data?.domains)) return model;
+          const mapped = map(data.domains, (item: DomainProduct) =>
+            parseDomain(item.domain)
+          );
+          return find(mapped, "selected") || first(mapped);
+        },
+        lookups: ({ lookups }: DomainContext, { data }: AnyEventObject) => {
+          if (isEmpty(data?.basket)) return lookups;
+          lookups.basket = data.basket;
+          return lookups;
         }
       }),
 
