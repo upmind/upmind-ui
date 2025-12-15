@@ -40,6 +40,7 @@ import { useLayout } from "../../../components/layout/useLayout";
 
 // --- components
 import Layout from "../../../components/layout/Layout.vue";
+import { useRoutingEngine } from "@upmind-automation/headless";
 
 // --- types
 import { LAYOUT_VARIANTS } from "../../../components/layout/types";
@@ -49,7 +50,10 @@ defineOptions({
   inheritAttrs: false
 });
 
-onMounted(() => {
+const { isResolved } = useRoutingEngine();
+
+onMounted(async () => {
+  await isResolved();
   useHeader({});
 
   useLayout({

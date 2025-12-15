@@ -3,8 +3,9 @@
     as="header"
     :background="getBackground"
     :border="meta.border"
-    :class="styles.header.root"
+    :class="`${styles.header.root} ${shouldShow ? 'opacity-100' : 'opacity-0'}`"
     v-show="meta.isVisible"
+    :style="shouldShow ? 'transition: opacity 0.3s ease-in-out' : ''"
   >
     <Container
       flow="horizontal"
@@ -49,13 +50,13 @@
 
 <script setup lang="ts">
 // --- external
-import { computed } from "vue";
-import { breakpointsTailwind, useBreakpoints } from "@vueuse/core";
+import { computed, watch, ref } from "vue";
 
 // --- internal
 import { useHeader } from "./useHeader";
 import config from "./header.config";
 import { useStyles, isMobile } from "@upmind-automation/upmind-ui";
+import { useRouteTransition } from "../../modules/system/useRouteTransition";
 
 // --- components
 import HeaderBrand from "./HeaderBrand.vue";
@@ -65,6 +66,7 @@ import Column from "../layout/components/column/Column.vue";
 import Content from "../layout/components/content/Content.vue";
 import { RIBBON_BACKGROUND } from "../layout/components/ribbon";
 import { COLUMN_BACKGROUND } from "../layout/components/column";
+import { useRoutingEngine } from "@upmind-automation/headless";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -102,6 +104,20 @@ const styles = useStyles(
     };
   };
 }>;
+
+const shouldShow = ref(true);
+
+const { meta: routeMeta } = useRoutingEngine();
+const { shouldTransition } = useRouteTransition();
+
+watch(routeMeta, () => {
+  if (routeMeta.value.isResolved && shouldTransition.value) {
+    shouldShow.value = false;
+    setTimeout(() => {
+      shouldShow.value = true;
+    }, 1);
+  }
+});
 
 const getBackground = computed(() => {
   if (

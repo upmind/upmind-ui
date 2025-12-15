@@ -23,6 +23,7 @@ import { onMounted } from "vue";
 import { useLayout } from "../../../components/layout/useLayout";
 import { useFooter } from "../../../components/footer/useFooter";
 import { useHeader } from "../../../components/header/useHeader";
+import { useRoutingEngine } from "@upmind-automation/headless";
 
 // --- components
 import Layout from "../../../components/layout/Layout.vue";
@@ -35,7 +36,10 @@ defineOptions({
   inheritAttrs: false
 });
 
-onMounted(() => {
+const { isResolved } = useRoutingEngine();
+
+onMounted(async () => {
+  await isResolved();
   useHeader({});
 
   useLayout({
