@@ -12,7 +12,7 @@
             [QUERY_PARAMS.BILLING_CYCLE_MONTHS]: selectedTerm
           }
         }"
-        :disabled="processing"
+        :disabled="processing || disabled"
         @click="handleResolve"
         :tabindex="images.length === 1 ? '0' : '-1'"
         :ring="images.length === 1 ? 'focus' : 'focus-visible'"
@@ -79,13 +79,18 @@
                   }
                 : undefined
             "
-            icon="shopping-bag-02"
+            :disabled="processing || disabled"
+            :icon="meta?.added ? 'check-circle-broken' : 'shopping-bag-02'"
             :loading="processing"
             variant="solid"
             :color="color"
             size="lg"
             block
-            :label="t('action.add_to_basket')"
+            :label="
+              meta?.added
+                ? t('action.added_to_basket')
+                : t('action.add_to_basket')
+            "
             @click="handleResolve"
           />
         </footer>

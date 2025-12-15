@@ -1,5 +1,5 @@
 <template>
-  <Layout>
+  <Layout overflow="hidden">
     <template #content-header>
       <Hero
         :title="t('text.complete_online_toolkit_md')"
