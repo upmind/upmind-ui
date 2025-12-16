@@ -2,7 +2,7 @@
   <RouterView v-slot="routerViewProps" :key="$route.path">
     <slot v-bind="routerViewProps">
       <Suspense>
-        <Root v-show="isMounted">
+        <Root>
           <KeepAlive>
             <component
               :is="routerViewProps.Component"
@@ -12,10 +12,7 @@
         </Root>
 
         <template #fallback>
-          <Loading
-            v-if="meta.isResolved && shouldShow"
-            v-bind="props.loadingProps"
-          />
+          <Loading v-if="shouldShow" v-bind="props.loadingProps" />
         </template>
       </Suspense>
     </slot>
@@ -31,7 +28,6 @@ import { useRouteTransition } from "./useRouteTransition";
 import Root from "../../components/layout/components/root/Root.vue";
 import Loading from "./Loading.vue";
 import type { InterstitialProps } from "@upmind-automation/upmind-ui";
-import { ref, watch } from "vue";
 
 // -----------------------------------------------------------------------------
 
@@ -42,20 +38,11 @@ const emit = defineEmits<{
   (e: "resolve", el: Element): void;
 }>();
 
-const isMounted = ref(false);
 const { meta } = useRoutingEngine();
-const { shouldShow } = useRouteTransition();
-
-watch(
-  () => meta.value.isResolved,
-  value => {
-    if (!value) isMounted.value = false;
-  },
-  { immediate: true }
-);
+const { shouldShow, reset } = useRouteTransition();
 
 function doResolve(el: Element) {
-  isMounted.value = true;
   emit("resolve", el);
+  reset();
 }
 </script>

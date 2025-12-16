@@ -163,23 +163,18 @@ export default createMachine(
           },
           onDone: {
             target: "#basket",
-            actions: [
-              "setModelFromDac",
-              "ensureSelected",
-              "persistModel",
-              "checkType"
-            ]
+            actions: ["setModelFromDac", "ensureSelected", "checkType"]
           }
         },
         on: {
           STOP: { actions: sendTo("dac", { type: "STOP" }) }
-        }
+        },
+        exit: ["clearSearch"]
       },
 
       existing: {
         id: "existing",
         initial: "invalid",
-        entry: ["resetModel"],
         states: {
           valid: {},
           invalid: {},
@@ -198,7 +193,7 @@ export default createMachine(
             }
           ]
         },
-        exit: ["clearModel", "persistModel"]
+        exit: ["clearModel"]
       },
 
       basket: {
@@ -241,7 +236,7 @@ export default createMachine(
             }
           ]
         },
-        exit: ["clearModel", "persistModel"]
+        exit: ["clearModel"]
       },
 
       complete: {
@@ -514,26 +509,6 @@ export default createMachine(
         }
       }),
 
-      setModelFromBasket: assign({
-        model: ({ model, lookups }: DomainContext, _event: AnyEventObject) => {
-          const mapped = map(lookups.basket, (item: DomainProduct) => {
-            return {
-              domain: item.domain,
-              tld: item.tld,
-              sld: item.sld,
-              type: DomainTypes.basket,
-              selected: item.meta.selected
-            };
-          });
-
-          return (
-            find(mapped, ["domain", model?.domain]) ||
-            find(mapped, "selected") ||
-            first(mapped)
-          );
-        }
-      }),
-
       setModelFromDac: assign({
         model: (
           { model, lookups }: DomainContext,
@@ -605,6 +580,12 @@ export default createMachine(
               selected: true
             } as DomainModel;
           }
+          return undefined;
+        }
+      }),
+
+      clearSearch: assign({
+        search: () => {
           return undefined;
         }
       }),
