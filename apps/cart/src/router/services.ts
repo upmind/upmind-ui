@@ -169,11 +169,7 @@ export default {
     currentRoute,
     targetRoute
   }: FunnelContext): Promise<FunnelResponse> => {
-    const {
-      get: getPendingProduct,
-
-      resolve
-    } = useBasketProductsPending();
+    const { get: getPendingProduct, resolve } = useBasketProductsPending();
     const route = targetRoute ?? currentRoute;
     const { productId, consumeParam } = useQueryParams(
       route as RouteLocationGeneric
@@ -380,8 +376,6 @@ export default {
     }
 
     // if we are definitely going to checkout, ensure billing is ready!
-    console.log("Guard Checkout - ensuring billing is ready");
-
     await Promise.allSettled([
       isBillingReady(),
       useClientAddresses().isReady(),
