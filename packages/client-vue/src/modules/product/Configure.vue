@@ -193,7 +193,6 @@ import { isMobile } from "@upmind-automation/upmind-ui";
 
 // --- components
 import { Breadcrumb } from "@upmind-automation/upmind-ui";
-import Share from "../../components/navigation/Share.vue";
 import Section from "../../components/section/Section.vue";
 import Pricing from "./components/pricing-list/Pricing.vue";
 import PricingMarkdown from "./components/pricing-list/PricingMarkdown.vue";
