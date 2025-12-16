@@ -3,7 +3,7 @@
     <slot v-bind="routerViewProps">
       <Suspense>
         <KeepAlive>
-          <component :is="routerViewProps.Component" />
+          <component :is="routerViewProps.Component" @vue:mounted="doResolve" />
         </KeepAlive>
 
         <template #fallback>
@@ -31,7 +31,14 @@ import type { InterstitialProps } from "@upmind-automation/upmind-ui";
 const props = defineProps<{
   loadingProps?: InterstitialProps;
 }>();
+const emit = defineEmits<{
+  (e: "resolve", el: Element): void;
+}>();
 
 const { meta } = useRoutingEngine();
 const { shouldShow } = useRouteTransition();
+
+function doResolve(el: Element) {
+  if (meta.value.isResolved) emit("resolve", el);
+}
 </script>

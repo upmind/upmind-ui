@@ -17,6 +17,7 @@ export * from "./useScripts";
 export * from "./useObject";
 
 export const DEBOUNCE_DELAY = 350;
+export const ANIMATION_DELAY = 1000;
 
 export function isPromise(func: any): func is Promise<any> {
   return func && func.constructor && func.constructor.name === "AsyncFunction";

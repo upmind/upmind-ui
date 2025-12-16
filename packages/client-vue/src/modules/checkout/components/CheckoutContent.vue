@@ -6,6 +6,8 @@
     :basket-fields="!uischema.showFieldsOnCheckout"
     :basket-products="!uischema.showProductsOnCheckout"
     :basket-products-route="props.editRoute"
+    :basket-billing-route="props.billingRoute"
+    :basket-fields-route="props.fieldsRoute"
   />
 
   <!-- Basket Products -->
@@ -70,6 +72,8 @@ import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 const props = defineProps<{
   editRoute: RouteLocationAsRelativeGeneric;
+  billingRoute?: RouteLocationAsRelativeGeneric;
+  fieldsRoute?: RouteLocationAsRelativeGeneric;
 }>();
 // -----------------------------------------------------------------------------
 

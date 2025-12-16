@@ -141,64 +141,31 @@ const meta = computed(() => {
 });
 
 const safeBasketBillingRoute = computed(() => {
-  if (
-    has(props.basketBillingRoute, "href") &&
-    isString(props.basketBillingRoute.href)
-  )
-    return props.basketBillingRoute;
+  return {
+    to: {
+      ...(props.basketBillingRoute ?? {}),
+      hash: "#basket-billing"
+    }
+  };
 
-  if (has(props.basketBillingRoute, "to"))
-    return {
-      to: {
-        ...props.basketBillingRoute,
-        hash: "#basket-billing"
-      }
-    };
-
-  return { href: "" };
+  return { hash: "#basket-billing" };
 });
 
 const safeBasketFieldsRoute = computed(() => {
-  if (
-    has(props.basketFieldsRoute, "href") &&
-    isString(props.basketFieldsRoute.href)
-  )
-    return props.basketFieldsRoute;
-
-  if (has(props.basketFieldsRoute, "to"))
-    return {
-      to: {
-        ...props.basketFieldsRoute,
-        hash: "#basket-fields"
-      }
-    };
-
-  return { href: "" };
+  return {
+    to: {
+      ...(props.basketFieldsRoute ?? {}),
+      hash: "#basket-fields"
+    }
+  };
 });
 
 function getBasketProductsRoute(bpid: string) {
-  if (
-    has(props.basketProductsRoute, "href") &&
-    isString(props.basketProductsRoute.href)
-  )
-    return props.basketProductsRoute;
-
-  if (has(props.basketProductsRoute, "to"))
-    return {
-      to: {
-        ...props.basketProductsRoute,
-        params: { bpid }
-      }
-    };
-
-  if (has(props.basketProductsRoute, "name"))
-    return {
-      to: {
-        ...props.basketProductsRoute,
-        params: { bpid }
-      }
-    };
-
-  return { href: "" };
+  return {
+    to: {
+      ...(props.basketProductsRoute ?? {}),
+      params: { bpid }
+    }
+  };
 }
 </script>
