@@ -1,5 +1,5 @@
 <template>
-  <Root :class="styles.split.root">
+  <div :class="styles.split.root">
     <article :class="styles.split.container">
       <!-- Content -->
       <div :class="styles.split.content.root">
@@ -26,15 +26,12 @@
 
     <!-- Filler aside -->
     <div :class="styles.split.aside" />
-  </Root>
+  </div>
 </template>
 
 <script lang="ts" setup>
 // --- external
 import { computed } from "vue";
-
-// --- components
-import Root from "../components/root/Root.vue";
 
 // --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
