@@ -17,11 +17,6 @@
           </Header>
         </slot>
 
-        <AsyncLoading
-          :open="!routingMeta.isResolved && shouldShow"
-          v-bind="props.loadingProps"
-        />
-
         <Main>
           <UpmRouteView
             :loading-props="props.loadingProps"

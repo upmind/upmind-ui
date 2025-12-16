@@ -12,10 +12,7 @@
         </Root>
 
         <template #fallback>
-          <Loading
-            v-if="meta.isResolved && shouldShow"
-            v-bind="props.loadingProps"
-          />
+          <Loading v-if="shouldShow" v-bind="props.loadingProps" />
         </template>
       </Suspense>
     </slot>
@@ -42,9 +39,10 @@ const emit = defineEmits<{
 }>();
 
 const { meta } = useRoutingEngine();
-const { shouldShow } = useRouteTransition();
+const { shouldShow, reset } = useRouteTransition();
 
 function doResolve(el: Element) {
   emit("resolve", el);
+  reset();
 }
 </script>
