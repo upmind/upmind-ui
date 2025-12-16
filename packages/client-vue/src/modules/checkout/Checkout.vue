@@ -120,10 +120,10 @@ const templateVariant = computed(() =>
 
 // -----------------------------------------------------------------------------
 
-await isReady();
-
-const { dataLayer } = useDataLayer();
-dataLayer({ event: "begin_checkout" }).withEcommerce().push();
+await isReady().then(() => {
+  const { dataLayer } = useDataLayer();
+  dataLayer({ event: "begin_checkout" }).withEcommerce().push();
+});
 
 // -----------------------------------------------------------------------------
 

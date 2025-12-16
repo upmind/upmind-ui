@@ -17,7 +17,10 @@
           </Header>
         </slot>
 
-        <AsyncLoading :open="shouldShow" v-bind="props.loadingProps" />
+        <AsyncLoading
+          :open="!routingMeta.isResolved && shouldShow"
+          v-bind="props.loadingProps"
+        />
 
         <Main>
           <UpmRouteView
@@ -46,11 +49,14 @@ export default {
 
 <script setup lang="ts">
 // --- external
-import { computed, nextTick, ref } from "vue";
+import { computed, nextTick, ref, watch } from "vue";
 import { useRoute, type RouteLocationAsRelativeGeneric } from "vue-router";
 
 // --- internal
-import useUpmind, { UpmindStatus } from "@upmind-automation/headless";
+import useUpmind, {
+  UpmindStatus,
+  useRoutingEngine
+} from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import { useTheme } from "./modules/theming";
 import { useRouteTransition } from "./modules/system/useRouteTransition";
@@ -81,9 +87,8 @@ const props = defineProps<{
 }>();
 
 // -----------------------------------------------------------------------------
-
+const { meta: routingMeta } = useRoutingEngine();
 const { shouldShow } = useRouteTransition();
-
 const themeReady = ref(false);
 
 const route = useRoute();

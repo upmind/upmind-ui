@@ -36,10 +36,7 @@ defineOptions({
   inheritAttrs: false
 });
 
-const { isResolved } = useRoutingEngine();
-
 onMounted(async () => {
-  await isResolved();
   useHeader({});
 
   useLayout({

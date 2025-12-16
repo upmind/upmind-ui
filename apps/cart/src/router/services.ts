@@ -13,7 +13,10 @@ import {
   type AnyEventObject,
   type FunnelResponse,
   useBasketProducts,
-  isDomainProduct
+  isDomainProduct,
+  useClientAddresses,
+  useClientCompanies,
+  useBasketBilling
 } from "@upmind-automation/client-vue";
 import {
   BrandConfigKeys,
@@ -168,8 +171,7 @@ export default {
   }: FunnelContext): Promise<FunnelResponse> => {
     const {
       get: getPendingProduct,
-      addUpdate,
-      remove,
+
       resolve
     } = useBasketProductsPending();
     const route = targetRoute ?? currentRoute;
@@ -344,8 +346,12 @@ export default {
   }: FunnelContext): Promise<FunnelResponse> => {
     const { meta, isReady } = useBasket();
     const { isReady: isFieldsReady, meta: fieldsMeta } = useBasketFields();
+    const { isReady: isBillingReady } = useBasketBilling();
     const { getConfigValue } = useBrand();
+
+    // first wait for the basket to be ready
     await isReady();
+
     // We always need to be authenticated to proceed to checkout
     if (meta.value.needsAuth) {
       return Promise.reject({ target: { name: ROUTE.SESSION } });
@@ -373,6 +379,14 @@ export default {
       }
     }
 
+    // if we are definitely going to checkout, ensure billing is ready!
+    console.log("Guard Checkout - ensuring billing is ready");
+
+    await Promise.allSettled([
+      isBillingReady(),
+      useClientAddresses().isReady(),
+      useClientCompanies().isReady()
+    ]);
     return { target: targetRoute ?? { name: ROUTE.CHECKOUT } };
   }
 };
