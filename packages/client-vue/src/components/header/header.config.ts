@@ -9,10 +9,15 @@ export const variants = {
 
 const rootVariants = cva("z-10", {
   variants: {
-    position: variants.position
+    position: variants.position,
+    visible: {
+      true: "opacity-100 transition-opacity duration-300 ease-in-out",
+      false: "opacity-0"
+    }
   },
   defaultVariants: {
-    position: "static"
+    position: "static",
+    visible: true
   }
 });
 
