@@ -48,10 +48,7 @@ defineOptions({
   inheritAttrs: false
 });
 
-const { isResolved } = useRoutingEngine();
-
 onMounted(async () => {
-  await isResolved();
   useHeader({
     background: HEADER_BACKGROUND.RTL,
     border: "none",

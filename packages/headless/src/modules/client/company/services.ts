@@ -30,7 +30,8 @@ import {
   responseCodes,
   useCollection,
   useModelParser,
-  NotAuthenticatedError
+  NotAuthenticatedError,
+  DEBOUNCE_DELAY
 } from "../../../utils";
 import { invalidateQueryByKey } from "../../query";
 import { mapCompanies, mapCompany, mapICompany } from "./mappers";
@@ -49,19 +50,19 @@ const queryKey: QueryKey = ["client", "companies"];
 const { addError, addSuccess } = useFeedback();
 
 function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
-  const { meta, user } = useSession();
+  const { meta, userId } = useSession();
   const { list, useUrl } = useQuery();
 
   return list<ICompany[], Company[]>({
     ...(params as any),
-    queryKey: [...queryKey, { user: user.value?.id }],
-    url: useUrl(`clients/${user.value?.id}/companies`, {
+    queryKey: [...queryKey, { userId }],
+    url: useUrl(`clients/${userId.value}/companies`, {
       with: ["address", "address.country", "address.region"].join()
     }),
     withAccessToken: true,
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (meta.value.isAuthenticated && !!user.value?.id) {
+        if (meta.value.isAuthenticated && !!userId.value) {
           resolve(true);
         } else {
           reject(new NotAuthenticatedError());
@@ -70,7 +71,10 @@ function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
     // --- options
     select: mapCompanies,
     staleTime: useTime().DAY,
-    enabled: () => meta.value.isAuthenticated && !!user.value?.id
+    retryDelay: DEBOUNCE_DELAY,
+    enabled: () => {
+      return !!(meta.value.isAuthenticated && !!userId.value);
+    }
   });
 }
 

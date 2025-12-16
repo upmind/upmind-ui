@@ -30,16 +30,20 @@ export const useRouting = (router: Router): void => {
    * @param route
    */
   async function guardRoute(route: RouteLocation) {
+    // console.debug("Guarding route:", route);
     if (route?.query?.funnel) {
       await switchFunnel(route.query.funnel.toString(), route);
     }
-
     const target = await guard(route);
 
     // Only redirect if target exists and is meaningfully different from current route
-    if (target && hasRouteChanged(route, target)) return target;
+    if (target && hasRouteChanged(route, target)) {
+      // console.log("Routing Guard - redirecting to target route", { target });
+      return target;
+    }
 
     // Otherwise, let the route proceed as normal
+    // console.debug("Routing Guard - route allowed", { route });
     return;
   }
 
