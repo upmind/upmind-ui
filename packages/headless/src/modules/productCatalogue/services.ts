@@ -1,19 +1,18 @@
 // --- external
-import { computed } from "vue";
 
 // --- internal
 import { useQuery } from "../..";
 import { useBasket, useBasketCurrency, useBasketPromotions } from "../basket";
 
 // --- utils
-import { isEmpty, map, set } from "lodash-es";
+import { map, set } from "lodash-es";
 import { parseProduct } from "./mappers";
-import { responseCodes, useTime } from "../../utils";
+import { useTime } from "../../utils";
 
 // --- types
 import type { Product } from "../product";
 import type { IProduct } from "@upmind-automation/types";
-import type { QueryParams, QueryResponseError } from "../..";
+import type { QueryParams } from "../..";
 import type { InfiniteData, QueryKey } from "@tanstack/vue-query";
 import { parsePromotionsOrCoupons } from "../basketProduct/utils";
 
@@ -50,10 +49,11 @@ function loadList(params?: Partial<QueryParams>) {
       ...urlParams
     }),
     withAccessToken: true,
+    withCurrency: true,
     // --- options
     select: data => map(data ?? [], parseProduct),
     staleTime: useTime().HOUR,
-    enabled: computed(() => !currencyMeta.value.isLoading)
+    enabled: () => !currencyMeta.value.isLoading
   });
 
   return query;
@@ -80,10 +80,11 @@ function loadInfinite(params?: Partial<QueryParams>) {
     }),
     promotions: parsePromotionsOrCoupons(promotions.value).join(),
     withAccessToken: true,
+    withCurrency: true,
     // --- options
     select: data => map(data ?? [], parseProduct),
     staleTime: useTime().HOUR,
-    enabled: computed(() => !currencyMeta.value.isLoading)
+    enabled: () => !currencyMeta.value.isLoading
   });
 }
 

@@ -59,7 +59,8 @@ function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
       }),
     // --- options
     select: mapAddresses,
-    staleTime: useTime().DAY
+    staleTime: useTime().DAY,
+    enabled: () => meta.value.isAuthenticated && !!user.value?.id
   });
 }
 
