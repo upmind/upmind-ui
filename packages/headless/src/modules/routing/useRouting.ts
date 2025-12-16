@@ -87,8 +87,11 @@ export const useRouting = (router: Router): void => {
 
   /**
    * Guard the route before each navigation with the routing engine
+   * but only if the route name has changed
    */
-  router.beforeEach(async to => guardRoute(to));
+  router.beforeEach(async (to, from) =>
+    hasRouteChanged(from, to) ? guardRoute(to) : undefined
+  );
 
   /**
    * Decorate the route before it is resolved with brand specific UIschema or layout information
