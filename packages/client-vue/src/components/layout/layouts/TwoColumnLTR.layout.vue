@@ -1,24 +1,63 @@
 <template>
-  <Ribbon
-    :background="isMobile ? RIBBON_BACKGROUND.CANVAS : RIBBON_BACKGROUND.LTR"
-    :border="RIBBON_BORDER.NONE"
-    :height="RIBBON_HEIGHT.GROW"
-  >
-    <Container :flow="CONTAINER_FLOW.HORIZONTAL">
-      <Column
-        :background="
-          isMobile ? COLUMN_BACKGROUND.CANVAS : COLUMN_BACKGROUND.SURFACE
-        "
-        :width="COLUMN_WIDTH.FULL"
-      >
-        <Content
-          :gap="CONTENT_GAP.MD"
-          :flow="CONTENT_FLOW.VERTICAL"
-          :padding="false"
+  <Root>
+    <Ribbon
+      :background="isMobile ? RIBBON_BACKGROUND.CANVAS : RIBBON_BACKGROUND.LTR"
+      :border="RIBBON_BORDER.NONE"
+      :height="RIBBON_HEIGHT.GROW"
+    >
+      <Container :flow="CONTAINER_FLOW.HORIZONTAL">
+        <Column
+          :background="
+            isMobile ? COLUMN_BACKGROUND.CANVAS : COLUMN_BACKGROUND.SURFACE
+          "
+          :width="COLUMN_WIDTH.FULL"
         >
-          <slot name="content-header" />
+          <Content
+            :gap="CONTENT_GAP.MD"
+            :flow="CONTENT_FLOW.VERTICAL"
+            :padding="false"
+          >
+            <slot name="content-header" />
 
-          <template v-if="meta.hasAsideHeader">
+            <template v-if="meta.hasAsideHeader">
+              <slot name="default" />
+              <slot name="content" />
+
+              <slot name="navigation" />
+              <slot name="controls" />
+
+              <slot v-if="isMobile" name="aside" />
+            </template>
+          </Content>
+        </Column>
+
+        <Column :show="COLUMN_SHOW.LG" :background="COLUMN_BACKGROUND.CANVAS">
+          <Content :width="CONTENT_WIDTH.ASIDE">
+            <slot name="aside-header" />
+          </Content>
+          <Content
+            v-if="meta.hasAsideHeader && meta.hasAside"
+            as="aside"
+            :width="CONTENT_WIDTH.ASIDE"
+            :sticky="CONTENT_STICKY.TOP"
+          >
+            <slot name="aside" />
+          </Content>
+        </Column>
+      </Container>
+    </Ribbon>
+
+    <Ribbon
+      v-if="!meta.hasAsideHeader"
+      :background="RIBBON_BACKGROUND.LTR"
+      :height="RIBBON_HEIGHT.GROW"
+    >
+      <Container :flow="CONTAINER_FLOW.HORIZONTAL">
+        <Column
+          :background="COLUMN_BACKGROUND.SURFACE"
+          :width="COLUMN_WIDTH.FULL"
+        >
+          <Content :gap="CONTENT_GAP.MD" :flow="CONTENT_FLOW.VERTICAL">
             <slot name="default" />
             <slot name="content" />
 
@@ -26,70 +65,33 @@
             <slot name="controls" />
 
             <slot v-if="isMobile" name="aside" />
-          </template>
-        </Content>
-      </Column>
+          </Content>
+        </Column>
 
-      <Column :show="COLUMN_SHOW.LG" :background="COLUMN_BACKGROUND.CANVAS">
-        <Content :width="CONTENT_WIDTH.ASIDE">
-          <slot name="aside-header" />
-        </Content>
-        <Content
-          v-if="meta.hasAsideHeader && meta.hasAside"
-          as="aside"
-          :width="CONTENT_WIDTH.ASIDE"
-          :sticky="CONTENT_STICKY.TOP"
+        <Column
+          v-if="meta.hasAside && !isMobile"
+          :background="COLUMN_BACKGROUND.CANVAS"
         >
-          <slot name="aside" />
-        </Content>
-      </Column>
-    </Container>
-  </Ribbon>
+          <Content
+            as="aside"
+            :width="CONTENT_WIDTH.ASIDE"
+            :sticky="CONTENT_STICKY.TOP"
+          >
+            <slot name="aside" />
+          </Content>
+        </Column>
+      </Container>
+    </Ribbon>
 
-  <Ribbon
-    v-if="!meta.hasAsideHeader"
-    :background="RIBBON_BACKGROUND.LTR"
-    :height="RIBBON_HEIGHT.GROW"
-  >
-    <Container :flow="CONTAINER_FLOW.HORIZONTAL">
-      <Column
-        :background="COLUMN_BACKGROUND.SURFACE"
-        :width="COLUMN_WIDTH.FULL"
-      >
-        <Content :gap="CONTENT_GAP.MD" :flow="CONTENT_FLOW.VERTICAL">
-          <slot name="default" />
-          <slot name="content" />
-
-          <slot name="navigation" />
-          <slot name="controls" />
-
-          <slot v-if="isMobile" name="aside" />
-        </Content>
-      </Column>
-
-      <Column
-        v-if="meta.hasAside && !isMobile"
-        :background="COLUMN_BACKGROUND.CANVAS"
-      >
-        <Content
-          as="aside"
-          :width="CONTENT_WIDTH.ASIDE"
-          :sticky="CONTENT_STICKY.TOP"
-        >
-          <slot name="aside" />
-        </Content>
-      </Column>
-    </Container>
-  </Ribbon>
-
-  <TwoColumnSticky>
-    <template #content-footer>
-      <slot name="content-footer" />
-    </template>
-    <template #aside-footer>
-      <slot name="aside-footer" />
-    </template>
-  </TwoColumnSticky>
+    <TwoColumnSticky>
+      <template #content-footer>
+        <slot name="content-footer" />
+      </template>
+      <template #aside-footer>
+        <slot name="aside-footer" />
+      </template>
+    </TwoColumnSticky>
+  </Root>
 </template>
 
 <script lang="ts" setup>
@@ -97,6 +99,7 @@
 import { computed, useSlots } from "vue";
 
 // --- components
+import Root from "../components/root/Root.vue";
 import Ribbon from "../components/ribbon/Ribbon.vue";
 import Container from "../components/container/Container.vue";
 import Column from "../components/column/Column.vue";
