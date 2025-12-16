@@ -2,9 +2,14 @@
   <RouterView v-slot="routerViewProps" :key="$route.path">
     <slot v-bind="routerViewProps">
       <Suspense>
-        <KeepAlive>
-          <component :is="routerViewProps.Component" @vue:mounted="doResolve" />
-        </KeepAlive>
+        <Root>
+          <KeepAlive>
+            <component
+              :is="routerViewProps.Component"
+              @vue:mounted="doResolve"
+            />
+          </KeepAlive>
+        </Root>
 
         <template #fallback>
           <Loading
@@ -23,6 +28,7 @@ import { useRoutingEngine } from "@upmind-automation/headless";
 import { useRouteTransition } from "./useRouteTransition";
 
 // --- components
+import Root from "../../components/layout/components/root/Root.vue";
 import Loading from "./Loading.vue";
 import type { InterstitialProps } from "@upmind-automation/upmind-ui";
 
