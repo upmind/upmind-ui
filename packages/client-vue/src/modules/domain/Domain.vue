@@ -1,5 +1,5 @@
 <template>
-  <component :is="templateVariant" v-model:open="open">
+  <component :is="templateVariant" v-model:open="open" @reset="doReset">
     <template #hero>
       <DomainHero
         v-model="queryValue"
