@@ -17,13 +17,13 @@
           </Header>
         </slot>
 
-        <AsyncLoading
-          :open="!routeMeta.isResolved"
-          v-bind="props.loadingProps"
-        />
+        <AsyncLoading :open="shouldShow" v-bind="props.loadingProps" />
 
         <Main>
-          <UpmRouteView :loading-props="props.loadingProps" />
+          <UpmRouteView
+            :loading-props="props.loadingProps"
+            @resolve="scrollToAnchor"
+          />
         </Main>
 
         <slot name="footer">
@@ -50,12 +50,10 @@ import { computed, nextTick, ref } from "vue";
 import { useRoute, type RouteLocationAsRelativeGeneric } from "vue-router";
 
 // --- internal
-import useUpmind, {
-  UpmindStatus,
-  useRoutingEngine
-} from "@upmind-automation/headless";
+import useUpmind, { UpmindStatus } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import { useTheme } from "./modules/theming";
+import { useRouteTransition } from "./modules/system/useRouteTransition";
 
 // --- components
 import UpmRouteView from "./modules/system/View.vue";
@@ -84,7 +82,7 @@ const props = defineProps<{
 
 // -----------------------------------------------------------------------------
 
-const { meta: routeMeta } = useRoutingEngine();
+const { shouldShow } = useRouteTransition();
 
 const themeReady = ref(false);
 
@@ -92,7 +90,7 @@ const route = useRoute();
 
 const meta = computed(() => ({
   isAvailable: useUpmind.status.value == UpmindStatus.initialised,
-  isLoading: !routeMeta.value.isResolved,
+  isLoading: !shouldShow.value,
   hasSettings: themeReady.value
 }));
 

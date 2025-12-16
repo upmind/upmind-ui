@@ -3,9 +3,8 @@
     as="header"
     :background="getBackground"
     :border="meta.border"
-    :class="`${styles.header.root} ${shouldShow ? 'opacity-100' : 'opacity-0'}`"
+    :class="styles.header.root"
     v-show="meta.isVisible"
-    :style="shouldShow ? 'transition: opacity 300ms ease-in-out' : ''"
   >
     <Container
       flow="horizontal"
@@ -77,7 +76,8 @@ const { meta } = useHeader();
 
 const stylesMeta = computed(() => ({
   background: meta.value.background,
-  position: meta.value.position
+  position: meta.value.position,
+  visible: shouldShow.value
 }));
 
 const props = defineProps<{
@@ -108,7 +108,13 @@ const shouldShow = ref(true);
 
 const { onTransition } = useRouteTransition();
 
-onTransition(() => {
+/**
+ * Handle route transitions to avoid header flicker
+ * We FORCE the header to re-render on route change
+ * to sync with the page transition
+ * NB: nexttick did not work here
+ */
+onTransition(value => {
   shouldShow.value = false;
   setTimeout(() => {
     shouldShow.value = true;

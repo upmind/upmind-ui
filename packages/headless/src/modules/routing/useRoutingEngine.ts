@@ -94,7 +94,8 @@ export const useRoutingEngine = () => {
     isGuiding: stateMatches(state, "available.guiding"),
     hasErrors: stateMatches(state, ["error"]),
     hasFunnels: contextMatches(state, "funnels"),
-    isResolved: !!funnel.value?.state?.value?.context?.resolved
+    isResolved: !!funnel.value?.state?.value?.context?.resolved,
+    hasResolved: !!funnel.value?.state?.value?.context?.targetRoute
   }));
 
   // --- context
@@ -120,7 +121,9 @@ export const useRoutingEngine = () => {
       .catch(() => false);
 
     // Bail out if routing engine is not available or route has no name to resolve
-    if (!available || !route?.name) return route;
+    if (!available || !route?.name) {
+      return route;
+    }
 
     // Proceed to guard the route
     return resolve(
@@ -190,7 +193,7 @@ export const useRoutingEngine = () => {
     route: RouteLocation,
     event?: any
   ) {
-    if (meta.value.isResolved) {
+    if (!meta.value.hasResolved || meta.value.isResolved) {
       send({ type: "RESOLVE", data: { target, route, event } });
     }
 
