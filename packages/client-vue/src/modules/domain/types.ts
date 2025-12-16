@@ -16,6 +16,7 @@ export interface DomainProps {
   type?: string;
   modelValue?: string;
   touched?: boolean;
+  disabled?: boolean;
 }
 
 export interface DacProps {

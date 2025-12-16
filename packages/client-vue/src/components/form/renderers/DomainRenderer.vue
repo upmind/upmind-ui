@@ -1,10 +1,12 @@
 <template>
+  <pre>{{ formFieldProps }}</pre>
   <FormField v-bind="formFieldProps" :optional-text="t('text.optional')">
     <Domain
       :template="DOMAIN_TEMPLATE.DRAWER"
       :model-value="control.data"
       :touched="formFieldProps.touched"
       :required="formFieldProps.required"
+      :disabled="formFieldProps.disabled"
       @update:modelValue="onInput"
       @update:type="resetInput"
     />
