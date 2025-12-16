@@ -1,4 +1,5 @@
 <template>
+  <pre>{{ props }}</pre>
   <component :is="templateVariant" v-model:open="open">
     <template #hero>
       <DomainHero
@@ -172,6 +173,7 @@ const {
   // --- DAC
   available,
   added,
+  searchParams,
   search,
   searchMore,
   remove,
@@ -240,6 +242,16 @@ watch(queryValue, value => {
     debouncedSearch(value);
   }
 });
+
+watch(
+  searchParams,
+  search => {
+    if (!search?.query) {
+      queryValue.value = "";
+    }
+  },
+  { immediate: true, deep: true }
+);
 
 watch(selected, value => (modelValue.value = value));
 

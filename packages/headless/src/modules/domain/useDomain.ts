@@ -10,7 +10,16 @@ import { QUERY_PARAMS, useQueryParams } from "../routing";
 import domainMachine from "./domain.machine";
 
 // --- utils
-import { map, has, isArray, some, get, isEmpty, filter } from "lodash-es";
+import {
+  map,
+  has,
+  isArray,
+  some,
+  get,
+  isEmpty,
+  filter,
+  includes
+} from "lodash-es";
 import {
   stopService,
   stateMatches,
@@ -163,8 +172,6 @@ export const useDomain = (
 
   const dac = useChildActor(state, "dac");
 
-  const query = useContext<string>(dac, "search.query");
-
   const available = useContext<DomainProduct[]>(dac, "lookups.searched", []);
 
   const added = computed(() =>
@@ -172,6 +179,8 @@ export const useDomain = (
   );
 
   const search = useContext<DomainContext["search"]>(state, "search");
+
+  const query = useContext<string>(dac, "search.query");
 
   const pagination = computed(() => ({
     offset: search.value?.offset ?? PAGINATION.offset,
@@ -183,6 +192,7 @@ export const useDomain = (
 
   function choose(value?: string | DomainTypes): void {
     if (!value) return;
+
     send({
       type: "CHOOSE",
       data: value
@@ -192,8 +202,6 @@ export const useDomain = (
   function searchDomains(query?: string) {
     if (!query) return;
     send({ type: "SEARCH", data: query });
-    // Update URL immediately when search is triggered
-    setParam("search", query);
   }
 
   function searchMore(): void {
@@ -298,6 +306,8 @@ export const useDomain = (
      * The current search query.
      */
     query,
+
+    searchParams: search,
 
     /**
      * The current model (selected domains).

@@ -9,6 +9,7 @@
     name="product-config-form"
   >
     <Form
+      :disabled="disabled || true"
       :schema="fields"
       :model-value="modelValue"
       :additional-errors="additionalErrors"
