@@ -47,32 +47,26 @@ export const useRouteTransition = () => {
   watch(
     () => routingMeta.value.isResolved,
     (isResolved, wasResolved) => {
-      shouldShow.value = isResolved ? false : shouldShow.value;
       initialised = wasResolved ? true : initialised;
 
-      if (!isResolved) {
-        if (wasResolved) {
-          if (showTimer) clearTimeout(showTimer);
-
-          showTimer = setTimeout(() => {
-            shouldShow.value = true;
-          }, ANIMATION_DELAY);
-
-          // NB we DONt want to transition on the initial load
-          if (!initialised) return;
-
-          // ---
-          if (transitionTimer) clearTimeout(transitionTimer);
-          shouldTransition.value = false;
-          transitionTimer = setTimeout(() => {
-            shouldTransition.value = true;
-          }, DEBOUNCE_DELAY);
-        } else {
-          shouldShow.value = true;
-          shouldTransition.value = false;
-        }
-      } else {
+      if (!isResolved && initialised) {
         if (showTimer) clearTimeout(showTimer);
+
+        shouldShow.value = false;
+        // shouldShow.value = !initialised ? true : false;
+        showTimer = setTimeout(() => {
+          shouldShow.value = true;
+        }, ANIMATION_DELAY);
+
+        // ---
+        if (transitionTimer) clearTimeout(transitionTimer);
+        shouldTransition.value = false;
+        transitionTimer = setTimeout(() => {
+          shouldTransition.value = true;
+        }, DEBOUNCE_DELAY);
+      } else if (!initialised) {
+        shouldShow.value = true;
+        shouldTransition.value = false;
       }
     },
     { immediate: true }
