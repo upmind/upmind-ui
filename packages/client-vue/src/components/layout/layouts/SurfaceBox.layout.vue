@@ -1,5 +1,5 @@
 <template>
-  <div :class="styles.surfaceBox.root">
+  <Root :class="styles.surfaceBox.root">
     <div :class="styles.surfaceBox.container">
       <Card as="article" :class="styles.surfaceBox.card" spacious>
         <!-- Content Header -->
@@ -19,7 +19,7 @@
         </section>
       </Card>
     </div>
-  </div>
+  </Root>
 </template>
 
 <script lang="ts" setup>
@@ -30,6 +30,7 @@ import type { VariantProps } from "../types";
 
 // --- components
 import { Card } from "@upmind-automation/upmind-ui";
+import Root from "../components/root/Root.vue";
 
 defineProps<VariantProps>();
 

@@ -1,66 +1,68 @@
 <template>
-  <Ribbon
-    :background="isMobile ? RIBBON_BACKGROUND.CANVAS : RIBBON_BACKGROUND.RTL"
-    :height="RIBBON_HEIGHT.GROW"
-    :border="RIBBON_BORDER.NONE"
-    :style="{ minHeight: `calc(100vh - 6rem - ${bottomOffset})` }"
-  >
-    <Container :flow="CONTAINER_FLOW.HORIZONTAL">
-      <Column class="flex-1" :background="COLUMN_BACKGROUND.CANVAS">
-        <div class="flex min-h-0 flex-1 flex-col">
-          <Content :width="CONTENT_WIDTH.ASIDE" :gap="CONTENT_GAP.SM">
-            <slot name="content-header" />
-          </Content>
-          <Content
-            v-if="!isMobile && meta.hasNavigation && meta.hasControls"
-            :flow="CONTENT_FLOW.NONE"
-            class=""
-          >
-            <slot name="navigation" />
-            <slot name="controls" />
-          </Content>
-          <div
-            v-if="!isMobile && meta.hasAside"
-            class="flex min-h-0 flex-1 flex-col"
-          >
-            <Content
-              as="aside"
-              :width="CONTENT_WIDTH.ASIDE"
-              :style="{ bottom: bottomOffset }"
-              class="mt-auto lg:sticky"
-            >
-              <slot name="aside" />
+  <Root>
+    <Ribbon
+      :background="isMobile ? RIBBON_BACKGROUND.CANVAS : RIBBON_BACKGROUND.RTL"
+      :height="RIBBON_HEIGHT.GROW"
+      :border="RIBBON_BORDER.NONE"
+      :style="{ minHeight: `calc(100vh - 6rem - ${bottomOffset})` }"
+    >
+      <Container :flow="CONTAINER_FLOW.HORIZONTAL">
+        <Column class="flex-1" :background="COLUMN_BACKGROUND.CANVAS">
+          <div class="flex min-h-0 flex-1 flex-col">
+            <Content :width="CONTENT_WIDTH.ASIDE" :gap="CONTENT_GAP.SM">
+              <slot name="content-header" />
             </Content>
+            <Content
+              v-if="!isMobile && meta.hasNavigation && meta.hasControls"
+              :flow="CONTENT_FLOW.NONE"
+              class=""
+            >
+              <slot name="navigation" />
+              <slot name="controls" />
+            </Content>
+            <div
+              v-if="!isMobile && meta.hasAside"
+              class="flex min-h-0 flex-1 flex-col"
+            >
+              <Content
+                as="aside"
+                :width="CONTENT_WIDTH.ASIDE"
+                :style="{ bottom: bottomOffset }"
+                class="mt-auto lg:sticky"
+              >
+                <slot name="aside" />
+              </Content>
+            </div>
           </div>
-        </div>
-      </Column>
+        </Column>
 
-      <Column
-        :background="COLUMN_BACKGROUND.SURFACE"
-        :width="COLUMN_WIDTH.FULL"
-      >
-        <Content :gap="CONTENT_GAP.LG" :flow="CONTENT_FLOW.VERTICAL">
-          <slot name="default" />
-          <slot name="content" />
-        </Content>
+        <Column
+          :background="COLUMN_BACKGROUND.SURFACE"
+          :width="COLUMN_WIDTH.FULL"
+        >
+          <Content :gap="CONTENT_GAP.LG" :flow="CONTENT_FLOW.VERTICAL">
+            <slot name="default" />
+            <slot name="content" />
+          </Content>
 
-        <Content v-if="isMobile">
-          <slot name="aside-footer" />
-          <slot name="content-footer" />
-          <slot name="aside" />
-        </Content>
-      </Column>
-    </Container>
-  </Ribbon>
+          <Content v-if="isMobile">
+            <slot name="aside-footer" />
+            <slot name="content-footer" />
+            <slot name="aside" />
+          </Content>
+        </Column>
+      </Container>
+    </Ribbon>
 
-  <TwoColumnSticky v-if="!isMobile" ref="stickyFooterRef" reverse>
-    <template #content-footer>
-      <slot name="content-footer" />
-    </template>
-    <template #aside-footer>
-      <slot name="aside-footer" />
-    </template>
-  </TwoColumnSticky>
+    <TwoColumnSticky v-if="!isMobile" ref="stickyFooterRef" reverse>
+      <template #content-footer>
+        <slot name="content-footer" />
+      </template>
+      <template #aside-footer>
+        <slot name="aside-footer" />
+      </template>
+    </TwoColumnSticky>
+  </Root>
 </template>
 
 <script lang="ts" setup>
@@ -73,6 +75,7 @@ import { isMobile } from "@upmind-automation/upmind-ui";
 import { isEmptySlot } from "@upmind-automation/upmind-ui";
 
 // --- components
+import Root from "../components/root/Root.vue";
 import Ribbon from "../components/ribbon/Ribbon.vue";
 import Container from "../components/container/Container.vue";
 import Column from "../components/column/Column.vue";
