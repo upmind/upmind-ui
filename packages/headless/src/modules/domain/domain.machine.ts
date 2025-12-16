@@ -172,7 +172,7 @@ export default createMachine(
           }
         },
         on: {
-          RESET: { actions: sendTo("dac", { type: "STOP" }) }
+          STOP: { actions: sendTo("dac", { type: "STOP" }) }
         }
       },
 

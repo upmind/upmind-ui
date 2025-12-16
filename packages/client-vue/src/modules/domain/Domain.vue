@@ -190,6 +190,7 @@ const {
   reset,
   select,
   stop,
+  stopDac,
   update
 } = useDomain(props.modelValue, {
   type: props.type as DomainTypes
@@ -211,7 +212,7 @@ const debouncedSearch = debounce(
 function doResolve() {
   open.value = false;
   processingBasket.value = true;
-  reset(); // force the reset after adding domain(s)
+  stopDac(); // force the reset after adding domain(s)
   emit("resolve", modelValue.value);
 }
 
