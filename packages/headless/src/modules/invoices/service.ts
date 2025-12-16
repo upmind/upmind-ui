@@ -53,7 +53,8 @@ function loadInvoice({ invoiceId }: { invoiceId: Invoice["id"] }) {
     // --- options
     retry: 1,
     select: parseInvoice,
-    staleTime: useTime()?.DAY
+    staleTime: useTime()?.DAY,
+    enabled: () => meta.value.isAuthenticated && !!user.value?.id
   });
 }
 

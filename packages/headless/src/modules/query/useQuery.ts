@@ -798,6 +798,8 @@ export const useQuery = () => {
       ...options
     }: MutationParams<QueryResponse<TData>, TError, TVariables, TContext>
   ) {
+    const scope = getCurrentScope() ?? effectScope();
+
     // safeguard
     init ??= {};
 
@@ -812,14 +814,21 @@ export const useQuery = () => {
     set(init, "method", method.toUpperCase());
     set(init, "body", parseData(data));
 
-    return useMutation(
-      {
-        mutationKey,
-        mutationFn: async () => request<TData>({ url, init, withAccessToken }),
-        ...options
-      },
-      queryClient
+    const response = scope.run(() =>
+      useMutation(
+        {
+          mutationKey,
+          mutationFn: async () =>
+            request<TData>({ url, init, withAccessToken }),
+          ...options
+        },
+        queryClient
+      )
     );
+
+    return response as ReturnType<
+      typeof useMutation<QueryResponse<TData>, TError, TVariables, TContext>
+    >;
   }
 
   // --- Async methods

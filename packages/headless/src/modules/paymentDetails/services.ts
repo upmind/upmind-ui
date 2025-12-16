@@ -106,7 +106,12 @@ export function loadList() {
         }
       }),
     select: mapPaymentDetailDetails,
-    staleTime: useTime().HOUR
+    staleTime: useTime().HOUR,
+    enabled: () =>
+      meta.value.isAuthenticated &&
+      !!userId.value &&
+      !!currencyId.value &&
+      !!brandId.value
   });
 }
 
