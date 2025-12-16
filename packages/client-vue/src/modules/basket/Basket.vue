@@ -52,7 +52,12 @@
 
       <template #errors>
         <slot name="errors">
-          <BasketErrors :basket-products-route="props.editRoute" />
+          <BasketErrors
+            id="basket-errors"
+            basket-fields
+            basket-products
+            :basket-products-route="props.editRoute"
+          />
         </slot>
       </template>
 

@@ -16,7 +16,11 @@
 
         <template #content>
           <slot name="content">
-            <CheckoutContent :edit-route="props.editRoute" />
+            <CheckoutContent
+              :edit-route="props.editRoute"
+              :billing-route="props.billingRoute"
+              :fields-route="props.fieldsRoute"
+            />
           </slot>
         </template>
 
@@ -91,6 +95,8 @@ const props = withDefaults(
     template?: CHECKOUT_TEMPLATE;
     hideSlots?: string[];
     editRoute: RouteLocationAsRelativeGeneric;
+    billingRoute?: RouteLocationAsRelativeGeneric;
+    fieldsRoute?: RouteLocationAsRelativeGeneric;
     storefrontRoute?: RouteLocationAsRelativeGeneric;
   }>(),
   {
