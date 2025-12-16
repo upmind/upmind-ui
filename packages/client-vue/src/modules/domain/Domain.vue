@@ -1,5 +1,4 @@
 <template>
-  <pre>{{ props }}</pre>
   <component :is="templateVariant" v-model:open="open">
     <template #hero>
       <DomainHero
@@ -14,7 +13,7 @@
 
     <template #domain-type v-if="meta.showChoices">
       <DomainType
-        :disabled="meta.isProcessing || processingBasket"
+        :disabled="disabled"
         :model-value="modelValue"
         :choices="choices"
         :owned="owned"
