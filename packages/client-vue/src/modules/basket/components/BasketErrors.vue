@@ -8,7 +8,7 @@
       :title="t('cart.basket_requires_attention_msg', { count })"
       :description="t('cart.basket_review_msg')"
     >
-      <ol class="list-disc p-6 py-2 text-left" v-auto-animate>
+      <ol class="text-sm-tight list-disc p-6 py-2 text-left" v-auto-animate>
         <!-- Basket products -->
         <template v-if="meta.hasBasketProducts">
           <li
