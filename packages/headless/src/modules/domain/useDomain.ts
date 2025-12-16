@@ -412,7 +412,9 @@ export const useDomain = (
     /** Stop the domain service.
      * @returns {void}
      */
-    stop: () => stopService(service)
+    stop: () => stopService(service),
+
+    stopDac: () => dac.value?.send("STOP")
   };
 };
 
