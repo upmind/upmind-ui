@@ -14,7 +14,7 @@
           <li
             v-for="basketItem in productsInvalid"
             :key="basketItem.id"
-            class="marker:text-inherit"
+            class="text-sm marker:text-inherit"
           >
             <i18n-t keypath="cart.basket_product_review_msg" tag="span">
               <template #productName>

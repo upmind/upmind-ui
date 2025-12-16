@@ -72,7 +72,12 @@
       :edit-route="props.editRoute"
     />
 
-    <RequiredAlert v-if="error" :id="id" :edit-route="props.editRoute" />
+    <RequiredAlert
+      v-if="error"
+      :id="id"
+      size="sm"
+      :edit-route="props.editRoute"
+    />
 
     <footer class="flex flex-col justify-between gap-2 lg:flex-row">
       <TermsDescription v-bind="summary" :separate="!isMobile" />
