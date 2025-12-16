@@ -20,7 +20,7 @@ export const variants = {
 };
 
 export const rootVariants = cva(
-  "message-radius flex w-full items-end justify-between",
+  "message-radius flex w-full flex-wrap items-end justify-between gap-x-4 gap-y-2",
   {
     variants: {
       variant: {
