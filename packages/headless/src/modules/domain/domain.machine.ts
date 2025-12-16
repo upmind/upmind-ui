@@ -198,7 +198,7 @@ export default createMachine(
 
       basket: {
         id: "basket",
-        entry: ["resetModel"],
+        entry: ["resetModel", "checkModel", "ensureSelected"],
         initial: "loading",
         states: {
           loading: {
@@ -327,7 +327,7 @@ export default createMachine(
                 domain: item.domain,
                 tld: item.tld,
                 sld: item.sld,
-                typee: DomainTypes.basket,
+                type: DomainTypes.basket,
                 selected: item.meta.selected
               } as DomainModel;
             });
