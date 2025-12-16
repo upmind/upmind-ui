@@ -72,6 +72,13 @@ export const useRouteTransition = () => {
     { immediate: true }
   );
 
+  function reset() {
+    if (transitionTimer) clearTimeout(transitionTimer);
+    if (showTimer) clearTimeout(showTimer);
+    shouldShow.value = false;
+    shouldTransition.value = false;
+  }
+
   function onTransition(callback: (shouldTransition: boolean) => void) {
     transitionCallbacks.add(callback);
     return () => transitionCallbacks.delete(callback);
@@ -90,6 +97,7 @@ export const useRouteTransition = () => {
     shouldShow,
     shouldTransition,
     onTransition,
-    onEnter
+    onEnter,
+    reset
   };
 };
