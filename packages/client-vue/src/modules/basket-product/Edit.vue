@@ -19,7 +19,16 @@
           :image="
             template !== BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_LTR || isMobile
           "
-        />
+        >
+          <template #prepend>
+            <Breadcrumb
+              v-if="meta?.isAvailable"
+              :items="breadcrumbItems"
+              :variant="breadcrumbVariant"
+              size="lg"
+            />
+          </template>
+        </ProductHero>
         <ProductHeroSkeleton v-else />
       </slot>
     </template>
@@ -160,9 +169,11 @@ import {
 import { useHeader } from "../../components/header/useHeader";
 import { useFooter } from "../../components/footer/useFooter";
 import { useLayout } from "../../components/layout/useLayout";
+import { useBreadcrumbs } from "../../composables/useBreadcrumbs";
 
 // --- utils
 import { isMobile } from "@upmind-automation/upmind-ui";
+import { take } from "lodash-es";
 
 // --- components
 import { Breadcrumb } from "@upmind-automation/upmind-ui";
@@ -202,6 +213,7 @@ import { get, includes } from "lodash-es";
 // --- types
 import type { BasketProductEditProps } from "./types";
 import { BASKET_PRODUCT_TEMPLATE } from "./types";
+import { BreadcrumbVariant } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
@@ -245,6 +257,31 @@ const templateVariant = computed(() =>
     supportedTemplates[BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_RTL]
   )
 );
+
+const configMeta = computed(() => {
+  return {
+    breadcrumbs:
+      product.value?.productDetails?.uiMeta?.uischema?.config?.breadcrumbs ??
+      BreadcrumbVariant.CATEGORY
+  };
+});
+
+const { items: breadcrumbItems, variant: breadcrumbVariant } = useBreadcrumbs({
+  categories: () => {
+    const breadcrumb = product.value?.productDetails?.breadcrumb ?? [];
+    return configMeta.value?.breadcrumbs === BreadcrumbVariant.CATEGORY
+      ? take(breadcrumb, 1)
+      : breadcrumb;
+  },
+  route: () => props.catalogueRoute,
+  storefrontRoute: () => props.storefrontRoute,
+  variant: () => configMeta.value?.breadcrumbs,
+  currentItem: () =>
+    product.value?.productDetails &&
+    configMeta.value?.breadcrumbs !== BreadcrumbVariant.CATEGORY
+      ? { label: product.value.productDetails.title }
+      : undefined
+});
 
 async function doResolve() {
   update()

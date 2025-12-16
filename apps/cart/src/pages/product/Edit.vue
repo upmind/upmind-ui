@@ -2,6 +2,7 @@
   <UpmBasketProductEdit
     :template="template"
     :storefront-route="{ name: ROUTE.STOREFRONT }"
+    :catalogue-route="{ name: ROUTE.CATALOGUE }"
   />
 </template>
 <script lang="ts" setup>
