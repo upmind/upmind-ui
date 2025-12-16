@@ -1,5 +1,4 @@
 <template>
-  <pre>{{ formFieldProps }}</pre>
   <FormField v-bind="formFieldProps" :optional-text="t('text.optional')">
     <Domain
       :template="DOMAIN_TEMPLATE.DRAWER"

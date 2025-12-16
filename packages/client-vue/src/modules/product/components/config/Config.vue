@@ -63,6 +63,7 @@
         <ConfigForm
           v-if="meta.hasProvisioning"
           :processing="meta.isProcessing || meta.isLoading"
+          :disabled="meta.isProcessing"
           :additional-errors="additionalErrors?.provisionFields"
           :touched="meta.showErrors"
           :fields="fields"
