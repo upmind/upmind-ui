@@ -239,12 +239,12 @@ export default createMachine(
 
       refreshContext: assign(
         (_context: DacContext, { data }: AnyEventObject) => {
-          const { id: basketId, brand_id: brandId, currency } = data as IBasket;
+          const { id: basketId, brand_id: brandId, currency } = data ?? {};
 
           const newContext = {
             basketId,
             brandId,
-            currency: currency.code
+            currency: currency?.code
           };
 
           return newContext;
