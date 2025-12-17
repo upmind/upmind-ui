@@ -1,42 +1,44 @@
 <template>
   <Transitions>
-    <div v-show="!meta.isCheckout">
-      <component :is="templateVariant">
-        <template #back>
-          <slot name="back">
-            <Back @click.prevent="navigateBack" />
-          </slot>
-        </template>
+    <component :is="templateVariant">
+      <template #back>
+        <slot name="back">
+          <Back v-show="!meta.isCheckout" @click.prevent="navigateBack" />
+        </slot>
+      </template>
 
-        <template v-if="!isSlotHidden('summary')" #summary>
-          <slot name="summary">
-            <CheckoutSummary :template="props.template" />
-          </slot>
-        </template>
+      <template v-if="!isSlotHidden('summary')" #summary>
+        <slot name="summary">
+          <CheckoutSummary
+            v-show="!meta.isCheckout"
+            :template="props.template"
+          />
+        </slot>
+      </template>
 
-        <template #content>
-          <slot name="content">
-            <CheckoutContent
-              :edit-route="props.editRoute"
-              :billing-route="props.billingRoute"
-              :fields-route="props.fieldsRoute"
-            />
-          </slot>
-        </template>
+      <template #content>
+        <slot name="content">
+          <CheckoutContent
+            :is-checkout="meta.isCheckout"
+            :edit-route="props.editRoute"
+            :billing-route="props.billingRoute"
+            :fields-route="props.fieldsRoute"
+          />
+        </slot>
+      </template>
 
-        <template #pricing>
-          <slot name="pricing">
-            <CheckoutPricing />
-          </slot>
-        </template>
+      <template #pricing>
+        <slot name="pricing">
+          <CheckoutPricing v-show="!meta.isCheckout" />
+        </slot>
+      </template>
 
-        <template v-if="meta.hasErrors" #errors>
-          <slot name="errors">
-            <CheckoutErrors />
-          </slot>
-        </template>
-      </component>
-    </div>
+      <template v-if="meta.hasErrors" #errors>
+        <slot name="errors">
+          <CheckoutErrors v-show="!meta.isCheckout" />
+        </slot>
+      </template>
+    </component>
   </Transitions>
 
   <!-- Basket processing -->
@@ -171,14 +173,4 @@ onUnmounted(() => {
   useFooter({});
   useHeader({});
 });
-
-watch(
-  () => meta.value.isCheckout,
-  (value: boolean) => {
-    if (value) {
-      useFooter({});
-      useHeader({});
-    }
-  }
-);
 </script>
