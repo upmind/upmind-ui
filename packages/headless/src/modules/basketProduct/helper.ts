@@ -75,10 +75,9 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
           });
         })
         .catch(() => {
-          // console.error("basketHelper", "REFRESH", error);
           callback({
-            type: "ERROR",
-            data: basket.errors?.value
+            type: "REFRESH",
+            data: basket.basket.value
           });
         });
       return;

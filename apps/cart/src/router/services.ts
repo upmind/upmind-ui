@@ -376,11 +376,11 @@ export default {
     }
 
     // if we are definitely going to checkout, ensure billing is ready!
-    await Promise.allSettled([
-      isBillingReady(),
-      useClientAddresses().isReady(),
-      useClientCompanies().isReady()
-    ]);
+    // await Promise.allSettled([
+    //   isBillingReady(),
+    //   useClientAddresses().isReady(),
+    //   useClientCompanies().isReady()
+    // ]);
     return { target: targetRoute ?? { name: ROUTE.CHECKOUT } };
   }
 };
