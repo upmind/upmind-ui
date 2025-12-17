@@ -408,12 +408,12 @@ export default createMachine(
 
       refreshContext: assign(
         (_context: DomainContext, { data }: AnyEventObject) => {
-          const { id: basketId, brand_id: brandId, currency } = data as IBasket;
+          const { id: basketId, brand_id: brandId, currency } = data ?? {};
 
           const newContext = {
             basketId,
             brandId,
-            currency: currency.code
+            currency: currency?.code
           };
 
           return newContext;
@@ -474,7 +474,7 @@ export default createMachine(
           const primary = model || first(lookups.basket);
           // 1st filter out only the domain products from the basket products
           const domains = getDomainRawBasketProducts(
-            data.products as IBasketProduct[]
+            data?.products as IBasketProduct[]
           );
           // then parse them into our DomainProduct type
           const available = reduce(
