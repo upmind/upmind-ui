@@ -1,9 +1,8 @@
 import { FormatDefinition } from "ajv";
 import { isString, isNil } from "lodash-es";
 
-export interface NamedFormatDefinition<
-  T extends string | number = string
-> extends FormatDefinition<T> {
+export interface NamedFormatDefinition<T extends string | number = string>
+  extends FormatDefinition<T> {
   name: string;
 }
 

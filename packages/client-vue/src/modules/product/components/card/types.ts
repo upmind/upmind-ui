@@ -14,10 +14,8 @@ import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 export type RootVariants = VariantProps<typeof rootVariant>;
 
-export interface ProductCardProps extends Omit<
-  Product,
-  "price" | "pricing" | "meta"
-> {
+export interface ProductCardProps
+  extends Omit<Product, "price" | "pricing" | "meta"> {
   configureRoute: RouteLocationAsRelativeGeneric;
   disabled?: boolean;
   variant?: RootVariants["variant"];
