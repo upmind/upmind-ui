@@ -390,7 +390,7 @@ export default createMachine(
             currency_id,
             promotions,
             error: errorExternal
-          } = data;
+          } = data ?? {};
 
           lookups ??= {};
 

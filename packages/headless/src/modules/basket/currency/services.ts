@@ -3,7 +3,7 @@ import { asyncDebounce } from "@tanstack/pacer";
 
 // --- internal
 import type { AnyEventObject } from "xstate";
-import { useQuery, useBrand, useI18n } from "../../..";
+import { useQuery, useBrand, useI18n, invalidateQueryByKey } from "../../..";
 
 // --- utils
 import {
@@ -71,7 +71,7 @@ async function update(
       currency_code: model?.code
     },
     withAccessToken: true
-  });
+  }).then(invalidateQueryByKey(["basket"], { exact: false }));
 }
 
 async function parse(
