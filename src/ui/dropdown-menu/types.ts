@@ -27,7 +27,8 @@ export interface DropdownMenuItemProps {
 }
 
 export interface DropdownMenuProps
-  extends DropdownMenuRootProps,
+  extends
+    DropdownMenuRootProps,
     DropdownMenuContentProps,
     DropdownMenuTriggerProps {
   title?: string;

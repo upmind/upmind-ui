@@ -38,9 +38,7 @@ export interface ComboboxSearchFunction {
 }
 
 export interface ComboboxProps
-  extends PopoverRootProps,
-    PopoverContentProps,
-    PopoverTriggerProps {
+  extends PopoverRootProps, PopoverContentProps, PopoverTriggerProps {
   label?: string;
   sublabel?: string;
   tag?: string;

@@ -16,7 +16,8 @@ type NumberFieldRootVariants = VariantProps<typeof numberFieldRootVariants>;
 type NumberFieldVariants = VariantProps<typeof numberFieldVariants>;
 
 export interface NumberFieldProps
-  extends NumberFieldRootProps,
+  extends
+    NumberFieldRootProps,
     NumberFieldDecrementProps,
     NumberFieldIncrementProps {
   // --- variants
