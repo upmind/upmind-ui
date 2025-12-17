@@ -154,20 +154,16 @@ export function parseValue(
 
 export function isDomainProduct({
   blueprintCode,
-  serviceIdentifier,
   provisionFields
 }: {
   blueprintCode?: string;
   serviceIdentifier?: string;
   provisionFields?: Record<string, any>;
 }): boolean {
-  const parsed = parseDomain(serviceIdentifier || "");
-  const isDomainProduct =
+  return (
     blueprintCode === ProvisionCategoryCodes.DOMAIN_NAMES ||
-    has(provisionFields, "sld") ||
-    !!parsed?.domain;
-
-  return isDomainProduct;
+    has(provisionFields, "sld")
+  );
 }
 
 export function getDomainBasketProducts(
