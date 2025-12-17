@@ -8,7 +8,7 @@
     <slot>
       <Icon
         v-if="meta.hasIcon"
-        :icon="icon"
+        :icon="props.icon!"
         class="relative z-10 object-cover"
       />
       <IconAnimated
