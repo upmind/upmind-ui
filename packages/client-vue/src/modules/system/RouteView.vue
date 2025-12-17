@@ -12,7 +12,13 @@
         </Root>
 
         <template #fallback>
-          <Loading v-if="shouldShow" v-bind="props.loadingProps" />
+          <Loading
+            v-if="
+              (meta.isInitialRoute && meta.isResolved && shouldShow) ||
+              (!meta.isInitialRoute && shouldShow)
+            "
+            v-bind="props.loadingProps"
+          />
         </template>
       </Suspense>
     </slot>
