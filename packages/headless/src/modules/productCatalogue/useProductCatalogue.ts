@@ -21,7 +21,6 @@ import { DEBOUNCE_DELAY } from "../../utils";
 
 // --- types
 import type { Product } from "../product";
-import type { ICurrency } from "@upmind-automation/types";
 import type { QueryProps, RequestFilters } from "../query";
 import { useBasket } from "../basket";
 
@@ -121,14 +120,12 @@ export const useProductCatalogue = (
   const filters = ref<
     RequestFilters & {
       "filter[products_category_id]": string;
-      currency_code: string;
       id: string[];
       promotions: string[];
       query: string;
     }
   >({
     "filter[products_category_id]": "",
-    currency_code: "",
     id: [],
     promotions: [],
     query: ""
@@ -136,27 +133,22 @@ export const useProductCatalogue = (
 
   const filterQuery = debounce((value?: string) => {
     set(filters.value, "query", value || "");
-    query.filter(filters.value);
+    // query.filter(filters.value);
   }, DEBOUNCE_DELAY);
-
-  const filterCurrency = (value?: ICurrency["code"]) => {
-    set(filters.value, "currency_code", value || "");
-    query.filter(filters.value);
-  };
 
   const filterCategory = (value?: string) => {
     set(filters.value, "filter[products_category_id]", value ?? "");
-    query.filter(filters.value);
+    // query.filter(filters.value);
   };
 
   const filterIds = (value?: string[]) => {
     set(filters.value, "id", value || []);
-    query.filter(filters.value);
+    // query.filter(filters.value);
   };
 
   const filterCoupons = (value?: string[]) => {
     set(filters.value, "promotions", value || []);
-    query.filter(filters.value);
+    // query.filter(filters.value);
   };
 
   // ---------------------------------------------------------------------------
@@ -277,7 +269,6 @@ export const useProductCatalogue = (
       ids: filterIds,
       query: filterQuery,
       coupons: filterCoupons,
-      currency: filterCurrency,
       productCategory: filterCategory
     }
   };

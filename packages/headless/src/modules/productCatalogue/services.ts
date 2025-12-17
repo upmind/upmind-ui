@@ -23,27 +23,21 @@ const queryKey: QueryKey = ["product", "catalogue"];
 
 function loadList(params?: Partial<QueryParams>) {
   const { list, useUrl } = useQuery();
-  const { meta: currencyMeta } = useBasketCurrency();
-  const { promotions } = useBasketPromotions();
-
-  const urlParams = {
-    promotions: parsePromotionsOrCoupons(promotions.value).join(),
-    with: [
-      "image",
-      "images",
-      "prices",
-      "products_attributes",
-      "products_options",
-      "products_options.prices",
-      `category${".top_category".repeat(4)}`
-    ].join(",")
-  };
+  const { currencyCode } = useBasketCurrency();
 
   const query = list<IProduct[], Product[]>({
     ...(params as any),
     queryKey,
     url: useUrl(`basket/products`, {
-      ...urlParams
+      with: [
+        "image",
+        "images",
+        "prices",
+        "products_attributes",
+        "products_options",
+        "products_options.prices",
+        `category${".top_category".repeat(4)}`
+      ].join(",")
     }),
     withAccessToken: true,
     withCurrency: true,
@@ -51,7 +45,7 @@ function loadList(params?: Partial<QueryParams>) {
     // --- options
     select: data => map(data ?? [], parseProduct),
     staleTime: useTime().HOUR,
-    enabled: () => !currencyMeta.value.isLoading
+    enabled: () => !!currencyCode.value
   });
 
   return query;
