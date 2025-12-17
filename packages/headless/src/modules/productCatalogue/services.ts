@@ -19,7 +19,7 @@ import { parsePromotionsOrCoupons } from "../basketProduct/utils";
 // -----------------------------------------------------------------------------
 // QUERIES
 
-const queryKey: QueryKey = ["basket", "product", "catalogue"];
+const queryKey: QueryKey = ["product", "catalogue"];
 
 function loadList(params?: Partial<QueryParams>) {
   const { list, useUrl } = useQuery();
