@@ -32,6 +32,7 @@
           :errors="getErrors('options', option)"
           :touched="meta.showErrors"
           :quantities="getQuantities(option)"
+          :term="model?.term"
           @update:modelValue="setOptions(option, $event)"
           @update:quantity="
             (value: string, qty: number) =>
@@ -52,6 +53,7 @@
           :model-value="keys(model?.['attributes']?.[attribute.id])"
           :errors="getErrors('attributes', attribute)"
           :touched="meta.showErrors"
+          :term="model?.term"
           :required="attribute.meta.required"
           :visible="!!attribute.values?.length"
           :processing="meta.isProcessing || meta.isLoading"
