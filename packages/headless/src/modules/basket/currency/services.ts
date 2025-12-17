@@ -71,7 +71,7 @@ async function update(
       currency_code: model?.code
     },
     withAccessToken: true
-  }).then(invalidateQueryByKey(["basket"], { exact: false }));
+  });
 }
 
 async function parse(
