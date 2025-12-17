@@ -1,5 +1,5 @@
 // --- external
-import { computed, watch } from "vue";
+import { computed, ref } from "vue";
 import { interpret, InterpreterStatus } from "xstate";
 import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
@@ -11,7 +11,6 @@ import routingEngine from "./routingEngine.machine";
 // --- utils
 import {
   contextMatches,
-  contextValue,
   DetailedError,
   ErrorOrigin,
   responseCodes,
@@ -25,7 +24,7 @@ import { awaitResolved } from "./utils";
 export { useRouteRequiresAction } from "./utils";
 
 // --- types
-import type { RouteLocation, RouteLocationGeneric, Router } from "vue-router";
+import type { RouteLocation, Router } from "vue-router";
 import type { FunnelTarget, RoutingEngineContext } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -36,7 +35,9 @@ import type { FunnelTarget, RoutingEngineContext } from "./types";
 
 const service = interpret(routingEngine, { devTools: true });
 let router: Router;
+let initialRoute = ref(true);
 export { router };
+
 // -----------------------------------------------------------------------------
 
 /**
@@ -95,7 +96,8 @@ export const useRoutingEngine = () => {
     hasErrors: stateMatches(state, ["error"]),
     hasFunnels: contextMatches(state, "funnels"),
     isResolved: !!funnel.value?.state?.value?.context?.resolved,
-    hasResolved: !!funnel.value?.state?.value?.context?.targetRoute
+    isInitialRoute: initialRoute.value,
+    hasTarget: !!funnel.value?.state?.value?.context?.targetRoute
   }));
 
   // --- context
@@ -193,11 +195,15 @@ export const useRoutingEngine = () => {
     route: RouteLocation,
     event?: any
   ) {
-    if (!meta.value.hasResolved || meta.value.isResolved) {
+    if (!meta.value.hasTarget || meta.value.isResolved) {
       send({ type: "RESOLVE", data: { target, route, event } });
     }
 
-    return awaitResolved(funnel.value?.service);
+    return awaitResolved(funnel.value?.service).then(target => {
+      // once we have resolved at least once, we are no longer on the initial route
+      initialRoute.value = false;
+      return target;
+    });
   }
 
   async function switchFunnel(

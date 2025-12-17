@@ -17,6 +17,7 @@
           </Header>
         </slot>
 
+        <AsyncLoading :open="meta.isLoading" v-bind="props.loadingProps" />
         <Main>
           <UpmRouteView
             :loading-props="props.loadingProps"
@@ -44,7 +45,7 @@ export default {
 
 <script setup lang="ts">
 // --- external
-import { computed, nextTick, ref, watch } from "vue";
+import { computed, nextTick, ref } from "vue";
 import { useRoute, type RouteLocationAsRelativeGeneric } from "vue-router";
 
 // --- internal
@@ -57,7 +58,7 @@ import { useTheme } from "./modules/theming";
 import { useRouteTransition } from "./modules/system/useRouteTransition";
 
 // --- components
-import UpmRouteView from "./modules/system/View.vue";
+import UpmRouteView from "./modules/system/RouteView.vue";
 import Header from "./components/header/Header.vue";
 import Footer from "./components/footer/Footer.vue";
 import Feedback from "./modules/feedback/Feedback.vue";
@@ -83,14 +84,19 @@ const props = defineProps<{
 
 // -----------------------------------------------------------------------------
 const { meta: routingMeta } = useRoutingEngine();
-const { shouldShow } = useRouteTransition();
 const themeReady = ref(false);
 
 const route = useRoute();
 
+/**
+ * Meta information about the Upmind app state
+ * - isLoading: whether the  initial route is still being resolved
+ * - isAvailable: whether Upmind has initialised successfully
+ * - hasSettings: whether the theme settings have been loaded
+ */
 const meta = computed(() => ({
+  isLoading: !routingMeta.value.isResolved && routingMeta.value.isInitialRoute,
   isAvailable: useUpmind.status.value == UpmindStatus.initialised,
-  isLoading: !shouldShow.value,
   hasSettings: themeReady.value
 }));
 
