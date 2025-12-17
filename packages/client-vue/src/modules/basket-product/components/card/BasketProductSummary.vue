@@ -1,6 +1,6 @@
 <template>
-  <article class="flex flex-col gap-2 lg:gap-4" v-auto-animate>
-    <header class="flex gap-3">
+  <article :class="styles.product.summary.article" v-auto-animate>
+    <header :class="styles.product.summary.header.root">
       <Link
         v-if="productDetails.imgUrl"
         v-bind="props.editRoute"
@@ -13,10 +13,10 @@
         />
       </Link>
 
-      <div class="w-full">
-        <div class="flex justify-between">
-          <div class="flex items-center gap-2">
-            <h5 class="text-faint text-sm font-normal">
+      <div :class="styles.product.summary.header.content">
+        <div :class="styles.product.summary.header.top">
+          <div :class="styles.product.summary.category.root">
+            <h5 :class="styles.product.summary.category.text">
               {{ summary.category }}
             </h5>
 
@@ -26,20 +26,32 @@
               color="muted"
               aria-label="Product information"
             >
-              <Icon icon="info-circle" size="xs" class="[&>svg]:p-[2px]" />
+              <Icon
+                icon="info-circle"
+                size="xs"
+                :class="styles.product.summary.icon"
+              />
             </Link>
           </div>
 
           <Tooltip :label="t('action.remove')" color="neutral">
             <Link :aria-label="t('action.remove')" @click="doRemove">
-              <Icon icon="trash-01" size="xs" class="[&>svg]:p-[2px]" />
+              <Icon
+                icon="trash-01"
+                size="xs"
+                :class="styles.product.summary.icon"
+              />
             </Link>
           </Tooltip>
         </div>
 
-        <hgroup class="flex items-center gap-2">
-          <Link v-bind="props.editRoute" offset="2" class="no-underline">
-            <h3 class="text-xl-tight font-medium break-all">
+        <hgroup :class="styles.product.summary.title.root">
+          <Link
+            v-bind="props.editRoute"
+            offset="2"
+            :class="styles.product.summary.title.link"
+          >
+            <h3 :class="styles.product.summary.title.text">
               {{ summary.title }}
             </h3>
           </Link>
@@ -50,7 +62,11 @@
               :label="t('action.show_details')"
             >
               <Link @click="open = !open" aria-label="Product information">
-                <Icon icon="info-circle" size="xs" class="[&>svg]:p-[2px]" />
+                <Icon
+                  icon="info-circle"
+                  size="xs"
+                  :class="styles.product.summary.icon"
+                />
               </Link>
             </Tooltip>
 
@@ -79,10 +95,10 @@
       :edit-route="props.editRoute"
     />
 
-    <footer class="flex flex-col justify-between gap-2 lg:flex-row">
+    <footer :class="styles.product.summary.footer.root">
       <TermsDescription v-bind="summary" :separate="!isMobile" />
 
-      <div class="flex items-end justify-between gap-4 lg:justify-end">
+      <div :class="styles.product.summary.footer.price.root">
         <QuantityField
           v-bind="productDetails"
           :id="id"
@@ -90,9 +106,7 @@
           @update:quantity="doUpdateQuantity"
         />
 
-        <div
-          class="flex flex-row flex-wrap items-center gap-2 lg:flex-col lg:items-end lg:gap-0"
-        >
+        <div :class="styles.product.summary.footer.price.container">
           <ExPrice
             :regular-price="summary.price.regularPrice"
             :monthly-from-regular-price="
@@ -140,7 +154,7 @@ import config from "./basketProduct.config";
 
 // --- utils
 import { isMobile } from "@upmind-automation/upmind-ui";
-import { isEmpty, includes, some } from "lodash-es";
+import { isEmpty, includes } from "lodash-es";
 
 // --- types
 import { type BasketProductSummaryProps } from "./types";
@@ -154,15 +168,45 @@ const props = defineProps<BasketProductSummaryProps>();
 const emits = defineEmits(["update:quantity", "remove", "update:open"]);
 
 const styles = useStyles(
-  ["product.summary", "product.pricing"],
+  [
+    "product.summary",
+    "product.summary.header",
+    "product.summary.category",
+    "product.summary.title",
+    "product.summary.footer",
+    "product.summary.footer.price",
+    "product.pricing"
+  ],
   props,
   config
 ) as ComputedRef<{
   product: {
     summary: {
-      container: string;
+      article: string;
+      header: {
+        root: string;
+        content: string;
+        top: string;
+      };
+      category: {
+        root: string;
+        text: string;
+      };
+      title: {
+        root: string;
+        link: string;
+        text: string;
+      };
+      icon: string;
       image: string;
       imageRoute: string;
+      footer: {
+        root: string;
+        price: {
+          root: string;
+          container: string;
+        };
+      };
     };
     pricing: {
       current: string;
