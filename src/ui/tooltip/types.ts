@@ -10,7 +10,8 @@ import { type TooltipRootProps } from "radix-vue";
 
 // --- internal
 export interface TooltipProps
-  extends TooltipRootProps,
+  extends
+    TooltipRootProps,
     TooltipContentProps,
     TooltipProviderProps,
     TooltipTriggerProps {

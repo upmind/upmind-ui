@@ -51,8 +51,10 @@ export interface SelectCardsProps extends RadioGroupRootProps {
   dataHover?: boolean;
   dataFocus?: boolean;
 }
-export interface SelectCardsTriggerProps
-  extends Omit<ButtonProps, "variant" | "uiConfig"> {
+export interface SelectCardsTriggerProps extends Omit<
+  ButtonProps,
+  "variant" | "uiConfig"
+> {
   selected?: { label: string };
   loading?: boolean;
   placeholder?: string;

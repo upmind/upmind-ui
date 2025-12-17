@@ -17,7 +17,8 @@ import type {
 } from "radix-vue";
 
 export interface DialogProps
-  extends DialogRootProps,
+  extends
+    DialogRootProps,
     DialogContentProps,
     DialogDescriptionProps,
     DialogTitleProps,

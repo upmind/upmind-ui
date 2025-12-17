@@ -34,8 +34,7 @@ export interface AutocompleteSearchFunction {
 }
 
 export interface AutocompleteProps
-  extends ComboboxRootProps,
-    ComboboxInputProps {
+  extends ComboboxRootProps, ComboboxInputProps {
   // --- state
   itemLabel?: string;
   itemValue?: string;
