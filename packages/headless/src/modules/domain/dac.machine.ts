@@ -604,6 +604,8 @@ export default createMachine(
           (context as ProductProps)?.productId
         ]) as DomainProduct;
 
+        if (!data || !domainProduct) return;
+
         addError({
           title: t("error.domain_add_failed"),
           copy: domainProduct?.domain ?? ""
