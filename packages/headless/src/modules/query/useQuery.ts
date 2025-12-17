@@ -12,7 +12,7 @@ import { ref, unref, computed } from "vue";
 
 // --- internal
 import { useI18n, useLocale } from "../system";
-import { useBasketCurrency } from "../basket";
+import { useBasket, useBasketCurrency } from "../basket";
 import { doFetch, refreshToken } from "./services";
 
 // --- utils
@@ -59,7 +59,8 @@ import type {
   DefaultError,
   MutationKey,
   QueryKey,
-  QueryOptions
+  QueryOptions,
+  UseQueryReturnType
 } from "@tanstack/vue-query";
 import { useSession } from "../session";
 import { cancel } from "xstate";
@@ -113,6 +114,7 @@ export const useQuery = () => {
     filters,
     pagination,
     withCurrency,
+    withBasket,
     withoutLocale,
     // ---
     init,
@@ -174,6 +176,12 @@ export const useQuery = () => {
         if (!isEmpty(currencyCode?.value))
           url.searchParams.set("currency_code", currencyCode.value as string);
       }
+
+      if (withBasket) {
+        const { basketId } = useBasket();
+        if (!isEmpty(basketId?.value))
+          url.searchParams.set("basket_id", basketId.value as string);
+      }
     }
 
     // Enforce Content Type header
@@ -230,6 +238,7 @@ export const useQuery = () => {
    * @param select A function that is used to transform the response data before it is returned. This can be used to extract specific fields from the response or to transform the data into a different format.
    * @param queryKey The query key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
    * @param withCurrency Whether to automagically add the currency filter to the request based on the `useBasketCurrency` composable.
+   * @param withBasket Whether to automagically add the basket ID to the request based on the `useBasket` composable.
    * @param withoutLocale Whether to exclude the locale from the request.
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
    * @param options Additional options to pass to TanStack query.
@@ -241,6 +250,7 @@ export const useQuery = () => {
     select,
     queryKey,
     withCurrency,
+    withBasket,
     withoutLocale,
     withAccessToken,
     ...options
@@ -266,10 +276,17 @@ export const useQuery = () => {
       reactiveKeys.currencyCode = currencyCode;
     }
 
+    if (withBasket) {
+      const { basketId } = useBasket();
+      reactiveKeys.basketId = basketId;
+    }
+
+    (queryKey as any).push(reactiveKeys);
+
     const response = scope.run(() =>
       vueUseQuery<TQueryFnData, DefaultError, TData>(
         {
-          queryKey: [...queryKey, reactiveKeys],
+          queryKey,
           queryFn: async ({ signal }) => {
             const hasGuard = isPromise(guard);
             const safeguard: Promise<void | boolean> = hasGuard
@@ -282,6 +299,7 @@ export const useQuery = () => {
                 sort: sort.value,
                 filters: filters.value,
                 withCurrency,
+                withBasket,
                 withoutLocale,
                 init: {
                   ...init,
@@ -310,9 +328,7 @@ export const useQuery = () => {
         filters.value = unref(values);
       },
       resetQuery: () => {
-        return queryClient.resetQueries({
-          queryKey: [...queryKey, reactiveKeys]
-        });
+        return queryClient.resetQueries({ queryKey });
       }
     } as ReturnType<typeof vueUseQuery<TQueryFnData, DefaultError, TData>> & {
       data: ComputedRef<TData>;
@@ -333,6 +349,8 @@ export const useQuery = () => {
    * @param guard A function that returns a promise to be resolved before the request is sent. This can be used to ensure that certain conditions are met before the request is sent, such as checking if the user is authenticated.
    * @param queryKey The query key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
    * @param withCurrency Whether to automagically add the currency filter to the request based on the `useBasketCurrency` composable.
+   * @param withBasket Whether to automagically add the basket ID to the request based on the `useBasket` composable.
+   * @param withoutLocale Whether to exclude the locale from the request.
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
    * @param options Additional options to pass to TanStack query.
    */
@@ -343,6 +361,7 @@ export const useQuery = () => {
     select,
     queryKey,
     withCurrency,
+    withBasket,
     withoutLocale,
     withAccessToken,
     ...options
@@ -351,6 +370,7 @@ export const useQuery = () => {
     const scope = getCurrentScope() ?? effectScope();
 
     const { currencyCode } = useBasketCurrency();
+    const { basketId } = useBasket();
 
     // --- state
     const limit = options?.pagination?.limit ?? PAGINATION.limit;
@@ -368,11 +388,14 @@ export const useQuery = () => {
     if (limit) reactiveKeys.limit = limit;
     if (limit) reactiveKeys.pageIndex = pageIndex;
     if (withCurrency) reactiveKeys.currencyCode = currencyCode;
+    if (withBasket) reactiveKeys.basketId = basketId;
+
+    (queryKey as any).push(reactiveKeys);
 
     let response = scope.run(() =>
       vueUseQuery<TQueryFnData, DefaultError, QueryResponse<TData>>(
         {
-          queryKey: [...queryKey, reactiveKeys],
+          queryKey,
           queryFn: async ({ signal }) => {
             const hasGuard = isPromise(guard);
             const safeguard: Promise<void | boolean> = hasGuard
@@ -389,6 +412,7 @@ export const useQuery = () => {
                   offset: (pageIndex.value - 1) * limit
                 },
                 withCurrency,
+                withBasket,
                 withoutLocale,
                 init: {
                   ...init,
@@ -577,9 +601,7 @@ export const useQuery = () => {
 
       resetQuery: () => {
         pageIndex.value = 1;
-        return queryClient.resetQueries({
-          queryKey: [...queryKey, reactiveKeys]
-        });
+        return queryClient.resetQueries({ queryKey });
       }
     } as ReturnType<
       typeof vueUseQuery<TQueryFnData, DefaultError, QueryResponse<TData>>
@@ -620,6 +642,7 @@ export const useQuery = () => {
     select,
     queryKey,
     withCurrency,
+    withBasket,
     withoutLocale,
     withAccessToken,
     ...options
@@ -628,6 +651,7 @@ export const useQuery = () => {
     const scope = getCurrentScope() ?? effectScope();
 
     const { currencyCode } = useBasketCurrency();
+    const { basketId } = useBasket();
 
     // --- state
     const limit = options?.pagination?.limit ?? PAGINATION.limit;
@@ -646,11 +670,14 @@ export const useQuery = () => {
     if (!withoutLocale && locale.value) reactiveKeys.locale = locale;
     if (limit) reactiveKeys.limit = limit;
     if (withCurrency) reactiveKeys.currencyCode = currencyCode;
+    if (withBasket) reactiveKeys.basketId = basketId;
+
+    (queryKey as any).push(reactiveKeys);
 
     const response = scope.run(() =>
       vueUseInfiniteQuery<TQueryFnData, DefaultError, TData>(
         {
-          queryKey: [...queryKey, reactiveKeys],
+          queryKey,
           queryFn: async ({ pageParam = 0, signal }) => {
             const offset = toNumber(pageParam);
             const hasGuard = isPromise(guard);
@@ -664,6 +691,7 @@ export const useQuery = () => {
                 filters: filters.value,
                 pagination: { limit, offset },
                 withCurrency,
+                withBasket,
                 withoutLocale,
                 init: {
                   ...init,
@@ -752,10 +780,7 @@ export const useQuery = () => {
         filters.value = unref(values);
       },
 
-      resetQuery: () =>
-        queryClient.resetQueries({
-          queryKey: [...queryKey, reactiveKeys]
-        })
+      resetQuery: () => queryClient.resetQueries({ queryKey })
     } as ReturnType<
       typeof vueUseInfiniteQuery<TQueryFnData, DefaultError, TData>
     > & {
@@ -842,6 +867,8 @@ export const useQuery = () => {
    * @param select A function to select a subset of the data returned by the request. This can be used to transform the data before it is returned.
    * @param queryKey The query key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
    * @param withCurrency Whether to automagically add the currency filter to the request based on the `useBasketCurrency` composable.
+   * @param withBasket Whether to automagically add the basket ID to the request based on the `useBasket` composable.
+   * @param withoutLocale Whether to exclude the locale from the request.
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
    * @param options Additional options to pass to TanStack query.
    */
@@ -852,6 +879,7 @@ export const useQuery = () => {
     select,
     queryKey,
     withCurrency,
+    withBasket,
     withoutLocale,
     withAccessToken,
     ...options
@@ -874,6 +902,7 @@ export const useQuery = () => {
           filters,
           withoutLocale,
           withCurrency,
+          withBasket,
           init: {
             ...init,
             signal // Pass the new signal to the request to allow cancellation
@@ -933,6 +962,7 @@ export const useQuery = () => {
           pagination: { limit, offset },
           withoutLocale,
           withCurrency: options.withCurrency,
+          withBasket: options.withBasket,
           init: {
             ...init,
             signal // Pass the new signal to the request to allow cancellation
