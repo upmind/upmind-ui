@@ -12,7 +12,7 @@
   "once": "Bir kere",
   "one_time": "Bir kere",
   "price_by_n_years": "{price}/yıl | {price} /{n} yıllar",
-  "price_msg": "Sadece {price} | Kimden {price} bir ay | Kimden {price} Her {period}",
+  "price_msg": "Sadece{price} | Kimden{price} bir ay | Kimden{price} Her{period}",
   "quarterly": "Üç aylık",
   "renews_msg": "Tek seferlik ödeme | Her {cycle} yenilenir | Her {cycle} yenilenir",
   "renews_usually_msg": "Genellikle {price}",

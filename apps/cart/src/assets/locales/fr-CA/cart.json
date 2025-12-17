@@ -57,6 +57,6 @@
   "recommendations_unavailable_title": "Nous sommes désolés pour cela...",
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "Afficher plus d'options de paiement",
-  "stored_payment_methods_limited_desc": "Tous les modes de paiement ne sont pas visibles parce qu'ils ne sont pas disponibles pour votre pays ou votre devise.",
+  "stored_payment_methods_limited_desc": "Tous les modes de paiement ne sont pas visibles parce qu&#39;ils ne sont pas disponibles pour votre pays ou votre devise.",
   "stored_payment_methods_limited_title": "Méthodes de paiement limitées"
 }

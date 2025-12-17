@@ -12,7 +12,7 @@
   "once": "Raz",
   "one_time": "Pewnego razu",
   "price_by_n_years": "{price}/rok | {price} /{n} lat",
-  "price_msg": "Tylko {price} | Od {price} miesiąc | Od {price} każdy {period}",
+  "price_msg": "Tylko{price} | Od{price} miesiąc | Od{price} każdy{period}",
   "quarterly": "Kwartalny",
   "renews_msg": "Jednorazowa płatność | Odnawia się co {cycle} | Odnawia się co {cycle}",
   "renews_usually_msg": "Zazwyczaj {price}",

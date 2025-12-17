@@ -12,7 +12,7 @@
   "once": "Sekali",
   "one_time": "Suatu waktu",
   "price_by_n_years": "{price}/tahun | {price} /{n} tahun",
-  "price_msg": "Hanya {price} | Dari {price} sebulan | Dari {price} setiap {period}",
+  "price_msg": "Hanya{price} | Dari{price} sebulan | Dari{price} setiap{period}",
   "quarterly": "Triwulanan",
   "renews_msg": "Pembayaran satu kali | Diperbarui setiap {cycle} | Diperbarui setiap {cycle}",
   "renews_usually_msg": "Biasanya {price}",
