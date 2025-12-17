@@ -23,7 +23,12 @@
           }"
         />
         <span
-          v-if="props.meta.oneoff && props.term && props.term > 0"
+          v-if="
+            props.meta.oneoff &&
+            props.term &&
+            props.term > 0 &&
+            !props.meta.free
+          "
           class="ml-1"
           >{{ lowerCase(t("term.one_time")) }}</span
         >
@@ -44,7 +49,12 @@
           }"
         />
         <span
-          v-if="props.meta.oneoff && props.term && props.term > 0"
+          v-if="
+            props.meta.oneoff &&
+            props.term &&
+            props.term > 0 &&
+            !props.meta.free
+          "
           class="ml-1"
           >{{ lowerCase(t("term.one_time")) }}</span
         >
