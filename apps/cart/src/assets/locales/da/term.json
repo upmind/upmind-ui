@@ -12,7 +12,7 @@
   "once": "Engang",
   "one_time": "Én gang",
   "price_by_n_years": "{price}/år | {price} /{n} år",
-  "price_msg": "Kun {price} | Fra {price} en måned | Fra {price} hver {period}",
+  "price_msg": "Kun{price} | Fra{price} en måned | Fra{price} hver{period}",
   "quarterly": "Kvartalsvis",
   "renews_msg": "Engangsbetaling | Fornyes hver {cycle} | Fornyes hver {cycle}",
   "renews_usually_msg": "Som regel {price}",
