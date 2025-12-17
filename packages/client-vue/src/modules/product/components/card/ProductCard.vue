@@ -87,9 +87,7 @@
             size="lg"
             block
             :label="
-              meta?.added
-                ? t('action.added_to_basket')
-                : t('action.add_to_basket')
+              meta?.added ? t('confirm.in_basket') : t('action.add_to_basket')
             "
             @click="handleResolve"
           />
