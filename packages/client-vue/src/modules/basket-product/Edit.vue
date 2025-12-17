@@ -35,7 +35,11 @@
 
     <template #image>
       <ProductImage
-        v-if="product?.productDetails"
+        v-if="
+          product?.productDetails &&
+          (!isEmpty(product.productDetails?.images) ||
+            product.productDetails.imgUrl)
+        "
         :product-details="product.productDetails"
         :images="product.productDetails?.images"
       />

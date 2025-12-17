@@ -34,7 +34,11 @@
 
       <template #image>
         <ProductImage
-          v-if="product?.productDetails"
+          v-if="
+            product?.productDetails &&
+            (!isEmpty(product.productDetails?.images) ||
+              product.productDetails.imgUrl)
+          "
           :product-details="product.productDetails"
           :images="product.productDetails?.images"
         />
@@ -190,6 +194,7 @@ import { useBreadcrumbs } from "../../composables/useBreadcrumbs";
 
 // --- utils
 import { isMobile } from "@upmind-automation/upmind-ui";
+import { isEmpty } from "lodash-es";
 
 // --- components
 import { Breadcrumb } from "@upmind-automation/upmind-ui";
