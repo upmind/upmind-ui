@@ -254,7 +254,7 @@ export function parseRecommendation(
 
   // ---------------------------------------------------------------------------
   return {
-    id: raw.id, // this is the  internal id of the recommendation, with a fallback to a random uuid for the meta generated recommendations, they dont have an id
+    id: raw.id, // this is the  internal id of the recommendation
     productDetails: {
       ...productDetails,
       // --- forced overrides
