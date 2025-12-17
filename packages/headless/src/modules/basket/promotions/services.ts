@@ -81,7 +81,7 @@ async function remove(
     mutationKey: ["basket", "promotions"],
     url: useUrl(`/orders/${basketId}/promotions/${id}`),
     withAccessToken: true
-  }).then(invalidateQueryByKey(["basket"], { exact: false }));
+  });
 }
 
 async function parse(

@@ -526,14 +526,15 @@ async function update({
       )
     );
 
-  const product = parseBasketProductData(model);
+  const isNew = !model?.id;
+
+  const product = parseBasketProductData(model, isNew);
 
   // ---
 
   if (!basketId) return generateBasket([product]);
 
   // ---
-  const isNew = !model?.id;
 
   const action = isNew ? post : put;
   const suffix = isNew ? "" : `/${model.id}`;
