@@ -3,23 +3,20 @@
     <component :is="templateVariant">
       <template #back>
         <slot name="back">
-          <Back v-show="!meta.isCheckout" @click.prevent="navigateBack" />
+          <Back v-show="showCheckout" @click.prevent="navigateBack" />
         </slot>
       </template>
 
       <template v-if="!isSlotHidden('summary')" #summary>
         <slot name="summary">
-          <CheckoutSummary
-            v-show="!meta.isCheckout"
-            :template="props.template"
-          />
+          <CheckoutSummary v-show="showCheckout" :template="props.template" />
         </slot>
       </template>
 
       <template #content>
         <slot name="content">
           <CheckoutContent
-            :is-checkout="meta.isCheckout"
+            :show-checkout="showCheckout"
             :edit-route="props.editRoute"
             :billing-route="props.billingRoute"
             :fields-route="props.fieldsRoute"
@@ -29,13 +26,13 @@
 
       <template #pricing>
         <slot name="pricing">
-          <CheckoutPricing v-show="!meta.isCheckout" />
+          <CheckoutPricing v-show="showCheckout" />
         </slot>
       </template>
 
       <template v-if="meta.hasErrors" #errors>
         <slot name="errors">
-          <CheckoutErrors v-show="!meta.isCheckout" />
+          <CheckoutErrors v-show="showCheckout" />
         </slot>
       </template>
     </component>
@@ -111,6 +108,10 @@ const { navigateNext, navigateBack, meta: routingMeta } = useRoutingEngine();
 const { attempts, meta, isReady, uischema, invoice, reset } = useBasket();
 
 const isSlotHidden = (name: string) => includes(props.hideSlots, name);
+
+const showCheckout = computed(
+  () => !meta.value.isCheckout && !meta.value.isComplete
+);
 
 const templateVariant = computed(() =>
   get(
