@@ -139,7 +139,7 @@ export function canRetryAuthorization(
  * @param queryKey - The query key array to clean.
  * @returns The cleaned query key array with empty values removed.
  */
-export function cleanQueryKey(queryKey: any[]): any[] {
+export function cleanQueryKey(queryKey: any[] | unknown[]): any[] {
   return values(compactDeep(queryKey));
 }
 

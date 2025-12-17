@@ -3,7 +3,14 @@ import { AsyncQueuer } from "@tanstack/pacer";
 
 // --- internal
 import { useBrand } from "../brand";
-import { useBasket, useI18n, useQuery } from "../..";
+import {
+  invalidateQueryByKey,
+  useBasket,
+  useBasketCurrency,
+  useI18n,
+  useQuery,
+  useTracking
+} from "../..";
 
 // --- utils
 import { parseQuantity } from "../product/utils";
@@ -105,6 +112,7 @@ const queue = new AsyncQueuer<{
       if (isFunction(item?.resolve)) item.resolve(result);
 
       if (queuer.store.state.isEmpty) {
+        invalidateQueryByKey(["basket"], { exact: false });
         useBasket().refresh(result);
       }
     }
@@ -132,7 +140,7 @@ async function fetch(
     promotions
   }: {
     bpid?: string;
-    basketId: string;
+    basketId?: string;
     currencyId?: string;
     promotions?: string[];
   },
@@ -216,7 +224,7 @@ async function fetchSelected(
     currencyId,
     promotions
   }: {
-    basketId: string;
+    basketId?: string;
     currencyId?: string;
     promotions?: string[];
   },
@@ -296,7 +304,7 @@ async function fetchRelated(
     currencyId,
     promotions
   }: {
-    basketId: string;
+    basketId?: string;
     currencyId?: string;
     promotions?: string[];
   },
@@ -444,6 +452,50 @@ async function updateQuantity({
 }
 
 /**
+ *  Generates the data required to create a new basket.
+ */
+async function generateBasket(products: IBasketProductModel[] = []) {
+  // ---
+  const { t } = useI18n();
+  const { post, useUrl } = useQuery();
+  const { get: getTracking } = useTracking();
+  const { currencyCode } = useBasketCurrency();
+
+  const data: Record<string, any> = {
+    category_slug: "new_contract",
+    products
+  };
+  // ---
+  // Conditional data
+  // add currency if available
+  if (currencyCode.value) data.currency_code = currencyCode.value;
+
+  // add tracking if available
+  await getTracking()
+    .then(values => (data.tracking = values))
+    .catch(() => null);
+
+  // ---
+  return post<IBasket>({
+    mutationKey: ["basket", "products", "add"],
+    url: useUrl("orders"),
+    data,
+    withAccessToken: true
+  })
+    .then(data => {
+      if (isNil(data)) {
+        throw new DetailedError(
+          t("error.basket_not_available"),
+          responseCodes.Internal_Server_Error,
+          ErrorOrigin.Headless
+        );
+      }
+      return data;
+    })
+    .catch(parseApiErrors);
+}
+
+/**
  * Updates a product in the basket.
  *
  * @param context - The parameters for the update operation.
@@ -464,14 +516,7 @@ async function update({
 }): Promise<IBasket> {
   const { t } = useI18n();
   const { put, post, useUrl } = useQuery();
-  if (!basketId)
-    return Promise.reject(
-      new DetailedError(
-        t("error.basket_not_available"),
-        responseCodes.Not_Found,
-        ErrorOrigin.Headless
-      )
-    );
+
   if (isEmpty(model))
     return Promise.reject(
       new DetailedError(
@@ -482,12 +527,17 @@ async function update({
     );
 
   const product = parseBasketProductData(model);
+
+  // ---
+
+  if (!basketId) return generateBasket([product]);
+
   // ---
   const isNew = !model?.id;
 
   const action = isNew ? post : put;
   const suffix = isNew ? "" : `/${model.id}`;
-  // ---
+
   return action<IBasket>({
     mutationKey: ["basket", "products", isNew ? "add" : model.id],
     url: useUrl(`/orders/${basketId}/products${suffix}`),
@@ -547,7 +597,7 @@ async function updateMany({
   // otherwise the existing products will be removed from the basket
 
   // --- then build the basket config for the validItems products
-  const products = map(data, item => {
+  const newProducts = map(data, item => {
     const product = parseBasketProductData(item);
 
     // Add a flag to the product to indicate that the field values should NOT be validated.
@@ -578,12 +628,21 @@ async function updateMany({
     []
   );
 
+  const products = concat(
+    existingProducts,
+    newProducts
+  ) as IBasketProductModel[];
+
+  // ---
+
+  if (!basketId) return generateBasket(products);
+
   // ---
   const { put, useUrl } = useQuery();
   return put<IBasket>({
     mutationKey: ["basket", "products"],
     url: useUrl(`/orders/${basketId}`),
-    data: { products: concat(existingProducts, products) },
+    data: { products },
     withAccessToken: true
   }).catch(error => {
     return Promise.reject(
@@ -673,6 +732,34 @@ export default {
   fetch,
   fetchSelected,
   fetchRelated,
+  // ---
+  update: async (
+    basketId: IBasket["id"] | undefined | null,
+    model: ProductProps
+  ): Promise<IBasket> =>
+    new Promise((resolve, reject) =>
+      queue.addItem({
+        type: "UPDATE",
+        data: { basketId, model },
+        resolve: (rawBasket: IBasket) => resolve(rawBasket),
+        reject
+      })
+    ),
+
+  updateMany: async (
+    basketId: IBasket["id"] | undefined | null,
+    basketProducts: BasketProduct[],
+    models: ProductModel[]
+  ): Promise<IBasket> =>
+    new Promise((resolve, reject) =>
+      queue.addItem({
+        type: "UPDATE_MANY",
+        data: { basketId: basketId!, models, basketProducts },
+        resolve: (rawBasket: IBasket) => resolve(rawBasket),
+        reject
+      })
+    ),
+
   updateQuantity: async (
     basketId: IBasket["id"],
     quantity: number,
@@ -682,33 +769,6 @@ export default {
       queue.addItem({
         type: "UPDATE_QUANTITY",
         data: { basketId: basketId!, quantity, basketProduct },
-        resolve: (rawBasket: IBasket) => resolve(rawBasket),
-        reject
-      })
-    ),
-  // ---
-  update: async (
-    basketId: IBasket["id"],
-    model: ProductProps
-  ): Promise<IBasket> =>
-    new Promise((resolve, reject) =>
-      queue.addItem({
-        type: "UPDATE",
-        data: { basketId: basketId!, model },
-        resolve: (rawBasket: IBasket) => resolve(rawBasket),
-        reject
-      })
-    ),
-
-  updateMany: async (
-    basketId: IBasket["id"],
-    basketProducts: BasketProduct[],
-    models: ProductModel[]
-  ): Promise<IBasket> =>
-    new Promise((resolve, reject) =>
-      queue.addItem({
-        type: "UPDATE_MANY",
-        data: { basketId: basketId!, models, basketProducts },
         resolve: (rawBasket: IBasket) => resolve(rawBasket),
         reject
       })

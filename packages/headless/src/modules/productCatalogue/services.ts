@@ -5,7 +5,7 @@ import { useQuery } from "../..";
 import { useBasket, useBasketCurrency, useBasketPromotions } from "../basket";
 
 // --- utils
-import { map, set } from "lodash-es";
+import { map } from "lodash-es";
 import { parseProduct } from "./mappers";
 import { useTime } from "../../utils";
 
@@ -19,11 +19,10 @@ import { parsePromotionsOrCoupons } from "../basketProduct/utils";
 // -----------------------------------------------------------------------------
 // QUERIES
 
-const queryKey: QueryKey = ["product", "catalogue"];
+const queryKey: QueryKey = ["basket", "product", "catalogue"];
 
 function loadList(params?: Partial<QueryParams>) {
   const { list, useUrl } = useQuery();
-  const { basketId } = useBasket();
   const { meta: currencyMeta } = useBasketCurrency();
   const { promotions } = useBasketPromotions();
 
@@ -40,16 +39,15 @@ function loadList(params?: Partial<QueryParams>) {
     ].join(",")
   };
 
-  if (basketId.value) set(urlParams, "basket_id", basketId.value);
-
   const query = list<IProduct[], Product[]>({
     ...(params as any),
-    queryKey: [...queryKey, { basketId }],
+    queryKey,
     url: useUrl(`basket/products`, {
       ...urlParams
     }),
     withAccessToken: true,
     withCurrency: true,
+    withBasket: true,
     // --- options
     select: data => map(data ?? [], parseProduct),
     staleTime: useTime().HOUR,
