@@ -115,7 +115,7 @@ export function parseRelatedProducts(raw: IBasket): RelatedProduct[] {
  */
 export function parseRelationships(raw: IBasket): Record<string, string[]> {
   return reduce(
-    raw.products,
+    raw?.products,
     (relationships: Record<string, string[]>, product) => {
       // ---safe check : dont include recommendations for products that are not single products
       if (product.product.product_type !== ProductTypes.SINGLE_PRODUCT)
