@@ -2,6 +2,7 @@
   <!-- Basket Errors -->
   <BasketErrors
     id="basket-errors"
+    v-show="!props.isCheckout"
     :basket-billing="!uischema.showBillingOnCheckout"
     :basket-fields="!uischema.showFieldsOnCheckout"
     :basket-products="!uischema.showProductsOnCheckout"
@@ -12,7 +13,7 @@
 
   <!-- Basket Products -->
   <Section
-    v-show="uischema.showProductsOnCheckout"
+    v-show="!props.isCheckout && uischema.showProductsOnCheckout"
     id="basket-products"
     :label="t('cart.basket_products')"
     value="products"
@@ -24,7 +25,7 @@
   <!-- Additional Options -->
   <Section
     id="basket-fields"
-    v-show="uischema.showFieldsOnCheckout"
+    v-show="!props.isCheckout && uischema.showFieldsOnCheckout"
     :label="t('text.additional_details')"
     icon="file-attachment-01"
   >
@@ -46,12 +47,12 @@
   <!-- Billing Details -->
   <BillingDetails
     id="basket-billing"
-    v-show="uischema.showBillingOnCheckout"
+    v-show="!props.isCheckout && uischema.showBillingOnCheckout"
     :touched="meta.showErrors"
   />
 
   <!-- Payment Details -->
-  <PaymentDetails data-testid="payment-details" />
+  <PaymentDetails v-show="!props.isCheckout" data-testid="payment-details" />
 </template>
 
 <script lang="ts" setup>
@@ -71,6 +72,7 @@ import type { RouteLocationAsRelativeGeneric } from "vue-router";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
+  isCheckout: boolean;
   editRoute: RouteLocationAsRelativeGeneric;
   billingRoute?: RouteLocationAsRelativeGeneric;
   fieldsRoute?: RouteLocationAsRelativeGeneric;
