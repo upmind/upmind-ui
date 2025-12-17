@@ -171,4 +171,14 @@ onUnmounted(() => {
   useFooter({});
   useHeader({});
 });
+
+watch(
+  () => meta.value.isCheckout,
+  (value: boolean) => {
+    if (value) {
+      useFooter({});
+      useHeader({});
+    }
+  }
+);
 </script>
