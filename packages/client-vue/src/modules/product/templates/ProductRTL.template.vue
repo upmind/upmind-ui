@@ -1,5 +1,5 @@
 <template>
-  <Layout :variant="LAYOUT_VARIANTS.TWO_COLUMN_RTL">
+  <Layout>
     <template #content-header>
       <slot name="product-details" />
       <slot name="markdown" />
