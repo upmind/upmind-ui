@@ -24,10 +24,11 @@ const queryKey: QueryKey = ["product", "catalogue"];
 function loadList(params?: Partial<QueryParams>) {
   const { list, useUrl } = useQuery();
   const { currencyCode } = useBasketCurrency();
+  const { promocodes } = useBasketPromotions();
 
   const query = list<IProduct[], Product[]>({
     ...(params as any),
-    queryKey,
+    queryKey: [...queryKey, { promocodes }],
     url: useUrl(`basket/products`, {
       with: [
         "image",
