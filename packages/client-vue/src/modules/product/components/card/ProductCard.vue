@@ -13,7 +13,7 @@
           }
         }"
         :disabled="processing || disabled"
-        @click="handleResolve"
+        @click="doResolve"
         :tabindex="images.length === 1 ? '0' : '-1'"
         :ring="images.length === 1 ? 'focus' : 'focus-visible'"
         :class="styles.product.image.container"
@@ -39,7 +39,7 @@
           <ProductInfo
             v-bind="props"
             :selected-term="selectedTerm"
-            :handle-resolve="handleResolve"
+            @resolve="doResolve"
             :processing="processing"
             :navigate="navigate"
           />
@@ -89,7 +89,7 @@
             :label="
               meta?.added ? t('confirm.in_basket') : t('action.add_to_basket')
             "
-            @click="handleResolve"
+            @click="doResolve"
           />
         </footer>
       </section>
@@ -193,7 +193,7 @@ const images = computed(() => {
 
 const processing = ref(false);
 
-function handleResolve() {
+function doResolve() {
   if (!props.id) return;
   processing.value = true;
   emit("resolve", props.id);

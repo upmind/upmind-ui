@@ -45,7 +45,6 @@ export interface ProductInfo {
   navigate?: boolean;
   processing?: boolean;
   selectedTerm?: string;
-  handleResolve?: () => void;
 }
 
 export interface ProductBenefits {
