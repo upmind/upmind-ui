@@ -177,7 +177,7 @@ import { useBreadcrumbs } from "../../composables/useBreadcrumbs";
 
 // --- utils
 import { isMobile } from "@upmind-automation/upmind-ui";
-import { take } from "lodash-es";
+import { take, isEmpty } from "lodash-es";
 
 // --- components
 import { Breadcrumb } from "@upmind-automation/upmind-ui";
