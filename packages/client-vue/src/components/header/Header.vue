@@ -136,12 +136,12 @@ const getBackground = computed(() => {
 const leftBackground = computed(() => {
   return meta.value.background === HEADER_BACKGROUND.LTR
     ? COLUMN_BACKGROUND.SURFACE
-    : COLUMN_BACKGROUND.NONE;
+    : COLUMN_BACKGROUND.CANVAS;
 });
 
 const rightBackground = computed(() => {
   return meta.value.background === HEADER_BACKGROUND.RTL
     ? COLUMN_BACKGROUND.SURFACE
-    : COLUMN_BACKGROUND.NONE;
+    : COLUMN_BACKGROUND.CANVAS;
 });
 </script>
