@@ -133,22 +133,22 @@ export const useProductCatalogue = (
 
   const filterQuery = debounce((value?: string) => {
     set(filters.value, "query", value || "");
-    // query.filter(filters.value);
+    query.filter(filters.value);
   }, DEBOUNCE_DELAY);
 
   const filterCategory = (value?: string) => {
     set(filters.value, "filter[products_category_id]", value ?? "");
-    // query.filter(filters.value);
+    query.filter(filters.value);
   };
 
   const filterIds = (value?: string[]) => {
     set(filters.value, "id", value || []);
-    // query.filter(filters.value);
+    query.filter(filters.value);
   };
 
   const filterCoupons = (value?: string[]) => {
     set(filters.value, "promotions", value || []);
-    // query.filter(filters.value);
+    query.filter(filters.value);
   };
 
   // ---------------------------------------------------------------------------
