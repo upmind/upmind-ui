@@ -3,14 +3,17 @@
     <component :is="templateVariant">
       <template #back>
         <slot name="back">
-          <Back v-show="!meta.isCheckout" @click.prevent="navigateBack" />
+          <Back
+            v-show="!meta.isCheckout && !meta.isComplete"
+            @click.prevent="navigateBack"
+          />
         </slot>
       </template>
 
       <template v-if="!isSlotHidden('summary')" #summary>
         <slot name="summary">
           <CheckoutSummary
-            v-show="!meta.isCheckout"
+            v-show="!meta.isCheckout && !meta.isComplete"
             :template="props.template"
           />
         </slot>
@@ -19,7 +22,7 @@
       <template #content>
         <slot name="content">
           <CheckoutContent
-            :is-checkout="meta.isCheckout"
+            :is-checkout="meta.isCheckout && !meta.isComplete"
             :edit-route="props.editRoute"
             :billing-route="props.billingRoute"
             :fields-route="props.fieldsRoute"
@@ -29,13 +32,13 @@
 
       <template #pricing>
         <slot name="pricing">
-          <CheckoutPricing v-show="!meta.isCheckout" />
+          <CheckoutPricing v-show="!meta.isCheckout && !meta.isComplete" />
         </slot>
       </template>
 
       <template v-if="meta.hasErrors" #errors>
         <slot name="errors">
-          <CheckoutErrors v-show="!meta.isCheckout" />
+          <CheckoutErrors v-show="!meta.isCheckout && !meta.isComplete" />
         </slot>
       </template>
     </component>
