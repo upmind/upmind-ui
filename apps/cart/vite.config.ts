@@ -11,7 +11,9 @@ import { compact } from "lodash-es";
 export default defineConfig(({ mode, command }) => {
   const env = loadEnv(mode, process.cwd(), "");
   const enableDevTools = (env.VITE_ENABLE_DEVTOOLS ?? "true") !== "false";
-  const isProd = mode === "production";
+
+  console.log("*** BUILDING for mode:", mode, "command:", command, "***");
+
   const assetsDir =
     env.VITE_ASSETS_SUBPATH && `assets/${env.VITE_ASSETS_SUBPATH}`;
 
@@ -84,10 +86,9 @@ export default defineConfig(({ mode, command }) => {
       }
     },
     esbuild: {
-      drop: isProd ? ["console", "debugger"] : []
+      drop: command === "build" ? ["console", "debugger"] : []
     },
     build: {
-      minify: "esbuild",
       assetsDir,
       rollupOptions: {
         input: {
