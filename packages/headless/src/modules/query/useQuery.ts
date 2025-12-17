@@ -281,12 +281,10 @@ export const useQuery = () => {
       reactiveKeys.basketId = basketId;
     }
 
-    (queryKey as any).push(reactiveKeys);
-
     const response = scope.run(() =>
       vueUseQuery<TQueryFnData, DefaultError, TData>(
         {
-          queryKey,
+          queryKey: [...queryKey, reactiveKeys],
           queryFn: async ({ signal }) => {
             const hasGuard = isPromise(guard);
             const safeguard: Promise<void | boolean> = hasGuard
@@ -381,7 +379,6 @@ export const useQuery = () => {
     const filters = ref<QueryParams["filters"]>({
       ...(options?.filters ?? {})
     });
-
     // --- query
     const reactiveKeys: ReactiveQueryKeys = { sort, filters };
     if (!withoutLocale && locale.value) reactiveKeys.locale = locale;
@@ -390,12 +387,10 @@ export const useQuery = () => {
     if (withCurrency) reactiveKeys.currencyCode = currencyCode;
     if (withBasket) reactiveKeys.basketId = basketId;
 
-    (queryKey as any).push(reactiveKeys);
-
     let response = scope.run(() =>
       vueUseQuery<TQueryFnData, DefaultError, QueryResponse<TData>>(
         {
-          queryKey,
+          queryKey: [...queryKey, reactiveKeys],
           queryFn: async ({ signal }) => {
             const hasGuard = isPromise(guard);
             const safeguard: Promise<void | boolean> = hasGuard
@@ -672,12 +667,10 @@ export const useQuery = () => {
     if (withCurrency) reactiveKeys.currencyCode = currencyCode;
     if (withBasket) reactiveKeys.basketId = basketId;
 
-    (queryKey as any).push(reactiveKeys);
-
     const response = scope.run(() =>
       vueUseInfiniteQuery<TQueryFnData, DefaultError, TData>(
         {
-          queryKey,
+          queryKey: [...queryKey, reactiveKeys],
           queryFn: async ({ pageParam = 0, signal }) => {
             const offset = toNumber(pageParam);
             const hasGuard = isPromise(guard);
