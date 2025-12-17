@@ -24,7 +24,7 @@ const forwarded = useForwardProps(delegatedProps);
     v-bind="forwarded"
     :class="
       cn(
-        'absolute top-1/2 right-0 flex -translate-y-1/2 items-center justify-center p-3 disabled:cursor-not-allowed disabled:opacity-20',
+        'absolute top-1/2 right-0 flex -translate-y-1/2 cursor-pointer items-center justify-center p-3 disabled:cursor-not-allowed disabled:opacity-20',
         props.class
       )
     "
