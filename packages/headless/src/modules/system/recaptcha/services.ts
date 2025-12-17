@@ -45,16 +45,26 @@ async function load({ siteKey }: RecaptchaContext, _event: AnyEventObject) {
     return Promise.resolve(window["grecaptcha"]);
   }
 
-  return useScripts().load(
-    "recaptcha",
-    `https://www.google.com/recaptcha/api.js?render=${siteKey}`,
-    {
-      onSuccess: async () =>
-        new Promise(resolve => {
-          window.grecaptcha.ready(() => resolve(window["grecaptcha"]));
-        })
-    }
-  );
+  return useScripts()
+    .load(
+      "recaptcha",
+      `https://www.google.com/recaptcha/api.js?render=${siteKey}`
+      // {
+      //   onSuccess: () => {
+      //     return true;
+      //   },
+      //   onError: () => {
+      //     return false;
+      //   }
+      // }
+    )
+    .then(() => {
+      return new Promise(resolve => {
+        window.grecaptcha.ready(() => {
+          return resolve(window["grecaptcha"]);
+        });
+      });
+    });
 }
 
 async function generateToken(
