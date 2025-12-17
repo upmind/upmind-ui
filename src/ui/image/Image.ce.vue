@@ -16,7 +16,7 @@
 
     <nav :class="styles.image.nav.root" @click.prevent.stop>
       <span
-        v-for="(image, index) in image"
+        v-for="(img, index) in image"
         :key="index"
         :class="styles.image.nav.item"
       >

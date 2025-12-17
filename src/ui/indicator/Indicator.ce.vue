@@ -5,7 +5,7 @@
     <slot>
       <Icon
         v-if="meta.hasIcon"
-        :icon="icon"
+        :icon="props.icon!"
         class="h-full w-full object-cover p-[0.5em]"
       />
 
