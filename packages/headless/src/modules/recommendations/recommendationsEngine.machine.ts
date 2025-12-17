@@ -203,7 +203,7 @@ export default createMachine(
       setBasket: assign({
         basketId: (_context, { data }: AnyEventObject) => {
           const basket = get(data, "basket", data);
-          return basket.id;
+          return basket?.id;
         },
         currency: (_context, { data }: AnyEventObject) => {
           const basket = get(data, "basket", data);
