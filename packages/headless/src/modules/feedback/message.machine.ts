@@ -38,7 +38,8 @@ export default createMachine(
           }
         ],
         on: {
-          ACTION: { cond: "hasAction", target: "processing" }
+          ACTION: { cond: "hasAction", target: "processing" },
+          DISMISS: { target: "#complete" }
         }
       },
 
