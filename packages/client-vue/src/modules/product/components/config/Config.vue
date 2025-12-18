@@ -119,10 +119,10 @@
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
-import { computed, onMounted, onUpdated, watch } from "vue";
+import { computed, inject, onMounted, onUpdated } from "vue";
 
 // --- internal
-import { useProductConfig } from "@upmind-automation/headless";
+import { type UseProductConfig } from "@upmind-automation/headless";
 import { useStyles, cn } from "@upmind-automation/upmind-ui";
 import config from "../../product.config";
 
@@ -150,8 +150,6 @@ const emit = defineEmits(["reject", "resolve"]);
 const props = withDefaults(
   defineProps<{
     as?: string;
-    modelValue: string;
-    item: ActorRef<any>;
     disabled?: boolean;
     required?: boolean;
     noHeader?: boolean;
@@ -168,6 +166,9 @@ const props = withDefaults(
     noFooter: false
   }
 );
+
+const productConfig = inject<UseProductConfig>("useProductConfig");
+if (!productConfig) throw new Error("useProductConfig not provided");
 
 const {
   product,
@@ -186,7 +187,7 @@ const {
   updateOptionQuantity,
   setProvisioningFields,
   reset
-} = useProductConfig(props.item);
+} = productConfig;
 
 const styles = useStyles(["product.config"], meta, config) as ComputedRef<{
   product: {
@@ -245,11 +246,11 @@ function getErrors(type: "options" | "attributes", subproduct: any) {
 // ---
 function doReject() {
   reset();
-  emit("reject", props.modelValue);
+  emit("reject");
 }
 
 function doResolve() {
-  emit("resolve", props.modelValue);
+  emit("resolve");
 }
 
 onUpdated(() => {

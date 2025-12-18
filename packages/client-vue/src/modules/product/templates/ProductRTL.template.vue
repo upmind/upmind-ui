@@ -35,7 +35,6 @@ import { onMounted } from "vue";
 import { useHeader } from "../../../components/header/useHeader";
 import { useFooter } from "../../../components/footer/useFooter";
 import { useLayout } from "../../../components/layout/useLayout";
-import { useRoutingEngine } from "@upmind-automation/headless";
 
 // --- components
 import Layout from "../../../components/layout/Layout.vue";
@@ -47,18 +46,17 @@ defineOptions({
   inheritAttrs: false
 });
 
-const { isResolved } = useRoutingEngine();
+// NB set early to avoind double mounting issues
+useLayout({
+  variant: LAYOUT_VARIANTS.TWO_COLUMN_RTL
+});
 
-onMounted(async () => {
-  await isResolved();
+// NB set late to minimize fout
+onMounted(() => {
   useHeader({
     background: HEADER_BACKGROUND.RTL,
     border: "none",
     items: "end"
-  });
-
-  useLayout({
-    variant: LAYOUT_VARIANTS.TWO_COLUMN_RTL
   });
 
   useFooter({});

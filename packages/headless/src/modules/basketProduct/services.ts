@@ -38,7 +38,8 @@ import {
   reduce,
   isEmpty,
   isArray,
-  isFunction
+  isFunction,
+  forEach
 } from "lodash-es";
 
 // --- types
@@ -490,6 +491,14 @@ async function generateBasket(products: IBasketProductModel[] = []) {
           ErrorOrigin.Headless
         );
       }
+
+      // NB this is critical for any existing items in the queue to have the correct basket id
+      forEach(queue.store.state.items, item => {
+        if (item.data && !item.data.basketId) {
+          item.data.basketId = data.id;
+        }
+      });
+
       return data;
     })
     .catch(parseApiErrors);
