@@ -50,6 +50,10 @@ const props = withDefaults(
   }
 );
 
+const emit = defineEmits<{
+  dismiss: [];
+}>();
+
 const title = computed(() => {
   switch (props.status) {
     case responseCodes.Unauthorized:
@@ -154,6 +158,7 @@ const actions = computed((): InterstitialActionProps[] => {
     default:
       defaultAction = {
         to: props.storefrontRoute,
+        handler: () => emit("dismiss"),
         variant: "solid",
         color: "primary",
         icon: icon.value,
