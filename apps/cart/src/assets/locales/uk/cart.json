@@ -4,7 +4,7 @@
   "account_credit_use": "Використовуйте {amount} кредит на рахунку",
   "account_credit_use_msg": "У вас є {ownedAmount} кредит на рахунку, плюс ліміт кредиту {creditAmount}, який ви також можете використати. | У вас є {ownedAmount} кредит на рахунку.",
   "basket_billing_review_msg": "Деякі дані для виставлення рахунку відсутні або неправильні – {review}.",
-  "basket_count": "порожній |{count} пункт | {count} предмети",
+  "basket_count": "порожній | {count} пункт | {count} предмети",
   "basket_fields_review_msg": "Деякі поля кошика відсутні або неправильні – {review}.",
   "basket_items": "немає товарів у кошику | {count} товар у кошику | {count} товари в кошику",
   "basket_product_missing_data": "Відсутні дані для елемента",
