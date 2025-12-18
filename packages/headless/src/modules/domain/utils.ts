@@ -23,6 +23,7 @@ import {
 // --- types
 import {
   IBasketProduct,
+  IBlueprint,
   IProduct,
   ProvisionCategoryCodes
 } from "@upmind-automation/types";
@@ -152,14 +153,30 @@ export function parseValue(
     : (parseDomain(value) as DomainModel);
 }
 
+/**
+ * Determines if a product is a domain product based on provided indicators.
+ * We check against blueprint code and provision fields to make a determination.
+ * However, if no indicators are provided, we fall back to parsing the service identifier.
+ * @param params.blueprintCode - The blueprint code of the product.
+ * @param params.provisionFields - The provision fields of the product.
+ * @param params.serviceIdentifier - The fallback service identifier of the product.
+ * @returns True if the product is identified as a domain product, false otherwise.
+ */
 export function isDomainProduct({
   blueprintCode,
-  provisionFields
+  provisionFields,
+  serviceIdentifier
 }: {
-  blueprintCode?: string;
-  serviceIdentifier?: string;
+  blueprintCode?: IBlueprint["code"];
+  serviceIdentifier?: IBasketProduct["service_identifier"];
   provisionFields?: Record<string, any>;
 }): boolean {
+  const parsed = parseDomain(serviceIdentifier || "");
+
+  // If we dont have any indicators then we need to return based on parsed domain
+  if (!blueprintCode && !provisionFields) return !!parsed?.domain;
+
+  // but if we do have indicators then we can be more certain
   return (
     blueprintCode === ProvisionCategoryCodes.DOMAIN_NAMES ||
     has(provisionFields, "sld")

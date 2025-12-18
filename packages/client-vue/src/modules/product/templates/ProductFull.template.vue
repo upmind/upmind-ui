@@ -43,7 +43,6 @@ import Layout from "../../../components/layout/Layout.vue";
 
 // --- types
 import { LAYOUT_VARIANTS } from "../../../components/layout/types";
-import { useRoutingEngine } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
@@ -51,16 +50,12 @@ defineOptions({
   inheritAttrs: false
 });
 
-const { isResolved } = useRoutingEngine();
+useLayout({
+  variant: LAYOUT_VARIANTS.FULL
+});
 
 onMounted(async () => {
-  await isResolved();
   useHeader({});
-
-  useLayout({
-    variant: LAYOUT_VARIANTS.FULL
-  });
-
   useFooter({});
 });
 </script>
