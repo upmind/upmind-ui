@@ -30,7 +30,6 @@ import { useFooter } from "../../../components/footer/useFooter";
 import { useHeader } from "../../../components/header/useHeader";
 import { useLayout } from "../../../components/layout/useLayout";
 import { useSection } from "../../../components/section/useSection";
-import { useRoutingEngine } from "@upmind-automation/headless";
 
 // --- components
 import Layout from "../../../components/layout/Layout.vue";
@@ -44,18 +43,15 @@ defineOptions({
   inheritAttrs: false
 });
 
-const { isResolved } = useRoutingEngine();
+useLayout({
+  variant: LAYOUT_VARIANTS.SPLIT_VERTICAL
+});
 
-onMounted(async () => {
-  await isResolved();
+onMounted(() => {
   useHeader({
     background: HEADER_BACKGROUND.SURFACE,
     border: "none",
     items: "end"
-  });
-
-  useLayout({
-    variant: LAYOUT_VARIANTS.SPLIT_VERTICAL
   });
 
   useSection({
